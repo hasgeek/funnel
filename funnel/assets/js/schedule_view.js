@@ -307,7 +307,7 @@ const Schedule = {
     };
   },
   init(config) {
-    let self = this;
+    const self = this;
     this.config = config;
     this.config.rooms = {};
     if (!this.config.venues.length) {

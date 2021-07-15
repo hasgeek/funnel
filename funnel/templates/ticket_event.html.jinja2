@@ -101,7 +101,7 @@
       tableId: 'ticket-participants-table',
       inputId: 'search'
     };
-    Hasgeek.EventInit(ticketEventConfig);
+    Hasgeek.ticketEventInit(ticketEventConfig);
     //If there is no network, display a confirmation dialog when user closes/reloades the page
     window.onbeforeunload = function() {
       if (!navigator.onLine) {

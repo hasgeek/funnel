@@ -5,48 +5,9 @@ const ESLintPlugin = require('eslint-webpack-plugin');
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { InjectManifest } = require('workbox-webpack-plugin');
-const { writeFileSync } = require('fs');
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 
 const nodeEnv = process.env.NODE_ENV || 'production';
-
-class ManifestPlugin {
-  constructor(options) {
-    this.manifestPath = options.manifestPath
-      ? options.manifestPath
-      : 'build/manifest.json';
-  }
-
-  apply(compiler) {
-    compiler.plugin('done', (stats) => {
-      const statsJson = stats.toJson();
-      const parsedStats = {
-        assets: statsJson.assetsByChunkName,
-      };
-      if (stats && stats.hasErrors()) {
-        statsJson.errors.forEach((err) => {
-          // eslint-disable-next-line no-console
-          console.error(err);
-        });
-      }
-      Object.keys(parsedStats.assets).forEach((key) => {
-        if (typeof parsedStats.assets[key] === 'object') {
-          for (var index in parsedStats.assets[key]) {
-            if (
-              parsedStats.assets[key][index].indexOf('.js') !== -1 &&
-              parsedStats.assets[key][index].indexOf('.map') == -1
-            ) {
-              parsedStats.assets[key] = parsedStats.assets[key][index];
-            }
-          }
-        }
-      });
-      writeFileSync(
-        path.join(__dirname, this.manifestPath),
-        JSON.stringify(parsedStats)
-      );
-    });
-  }
-}
 
 module.exports = {
   resolve: {
@@ -83,7 +44,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, '../static/build'),
     publicPath: '/static/build/',
-    filename: 'js/[name].[hash].js',
+    filename: 'js/[name].[chunkhash].js',
   },
   module: {
     rules: [
@@ -108,7 +69,9 @@ module.exports = {
     new CleanWebpackPlugin({
       root: path.join(__dirname, '../static'),
     }),
-    new ManifestPlugin({ manifestPath: '../static/build/manifest.json' }),
+    new WebpackManifestPlugin({
+      fileName: path.join(__dirname, '../static/build/manifest.json'),
+    }),
     new InjectManifest({
       importWorkboxFrom: 'cdn',
       swSrc: path.resolve(__dirname, 'service-worker-template.js'),

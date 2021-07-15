@@ -285,7 +285,7 @@
         lastSeenUrl: {% if proposal.commentset.current_roles.document_subscriber %}{{ proposal.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
       };
       window.Hasgeek.Comments(commentsConfig);
-      window.Hasgeek.ProjectHeaderInit();
+      window.Hasgeek.projectHeaderInit();
       window.Hasgeek.ProposalInit();
     });
   </script>

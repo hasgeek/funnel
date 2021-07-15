@@ -1,8 +1,8 @@
 import { SaveProject } from './util';
 
 $(() => {
-  $('.js-save-form').each(function () {
-    let projectSaveConfig = {
+  $('.js-save-form').each(function saveProjectButton() {
+    const projectSaveConfig = {
       formId: $(this).attr('id'),
       postUrl: $(this).attr('action'),
     };

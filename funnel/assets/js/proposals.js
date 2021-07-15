@@ -18,20 +18,25 @@ $(() => {
     }
 
     if (sort.permission) {
-      let oldList, target, other, before, newList, newPosition;
+      let oldList;
+      let target;
+      let other;
+      let before;
+      let newList;
+      let newPosition;
       $('.proposal-list-table tbody').sortable({
         handle: '.drag-handle',
         placeholder: 'proposal-placeholder',
         forcePlaceholderSize: true,
         revert: true,
         scroll: true,
-        start: function (event, ui) {
+        start(event, ui) {
           $('.proposal-placeholder').height($(ui.item).height());
           oldList = $(this).sortable('toArray');
         },
-        update: function (event, ui) {
+        update(event, ui) {
           // True if moved up
-          before = ui.position.top - ui.originalPosition.top > 0 ? false : true;
+          before = !(ui.position.top - ui.originalPosition.top > 0);
           newList = $(this).sortable('toArray');
           target = $(ui.item).attr('id');
           newPosition = newList.indexOf(target);
@@ -41,12 +46,12 @@ $(() => {
             type: 'POST',
             data: {
               csrf_token: $('meta[name="csrf-token"]').attr('content'),
-              target: target,
-              other: other,
-              before: before,
+              target,
+              other,
+              before,
             },
             dataType: 'json',
-            error: function (errorResponse) {
+            error(errorResponse) {
               Utils.handleAjaxError(errorResponse);
               $('.proposal-list-table tbody').sortable('cancel');
             },

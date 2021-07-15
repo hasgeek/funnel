@@ -50,7 +50,7 @@
         isUserProfileAdmin: {%- if profile.current_roles.owner %} true {% else %} false {%- endif %},
       };
 
-      Hasgeek.Membership(membershipConfig);
+      Hasgeek.membershipInit(membershipConfig);
 
     });
   </script>

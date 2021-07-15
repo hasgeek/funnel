@@ -41,7 +41,7 @@
         memberTemplate: '#member-template',
         isUserProfileAdmin: {%- if project.profile.current_roles.admin %} true {% else %} false {%- endif %},
       };
-      Hasgeek.Membership(membershipConfig);
+      Hasgeek.membershipInit(membershipConfig);
     });
   </script>
 {% endblock %}

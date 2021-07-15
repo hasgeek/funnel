@@ -42,6 +42,7 @@
     "timeago.js": "^4.0.2",
     "vcards-js": "^2.10.0",
     "vue": "^2.6.14",
-    "vue-script2": "^2.1.0"
+    "vue-script2": "^2.1.0",
+    "webpack-manifest-plugin": "^3.1.1"
   }
 }

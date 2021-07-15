@@ -22,7 +22,7 @@ const Comments = {
     };
 
     Vue.mixin({
-      created: function () {
+      created() {
         this.COMMENTACTIONS = COMMENTACTIONS;
       },
     });
@@ -176,14 +176,14 @@ const Comments = {
         activateForm(action, textareaId, parentApp = app) {
           if (textareaId) {
             this.$nextTick(() => {
-              let editor = window.CodeMirror.fromTextArea(
+              const editor = window.CodeMirror.fromTextArea(
                 document.getElementById(textareaId),
                 window.Baseframe.Config.cm_markdown_config
               );
               let delay;
-              editor.on('change', function () {
+              editor.on('change', () => {
                 clearTimeout(delay);
-                delay = setTimeout(function () {
+                delay = setTimeout(() => {
                   editor.save();
                   if (action === parentApp.COMMENTACTIONS.REPLY) {
                     parentApp.reply = editor.getValue();
@@ -207,7 +207,7 @@ const Comments = {
           }
         },
         submitCommentForm(formId, postUrl, action, parentApp = app) {
-          let commentContent = $(`#${formId}`)
+          const commentContent = $(`#${formId}`)
             .find('textarea[name="message"]')
             .val();
           $.ajax({
@@ -294,7 +294,7 @@ const Comments = {
         const commentSection = document.querySelector(divElem);
         if (commentSection && lastSeenUrl) {
           const observer = new IntersectionObserver(
-            function (entries) {
+            (entries) => {
               entries.forEach((entry) => {
                 if (entry.isIntersecting) {
                   $.ajax({
@@ -338,7 +338,7 @@ const Comments = {
 };
 
 $(() => {
-  window.Hasgeek.Comments = function (config) {
+  window.Hasgeek.Comments = function initComments(config) {
     Comments.init(config);
   };
 });

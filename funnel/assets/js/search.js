@@ -1,9 +1,9 @@
 import { Utils } from './util';
-import { ractiveApp } from './ractive_util';
+import { RactiveApp } from './ractive_util';
 
 const Search = {
   init(config) {
-    const widget = new ractiveApp({
+    const widget = new RactiveApp({
       el: '#search-wrapper',
       template: '#search-template',
       data: {
@@ -165,7 +165,7 @@ const Search = {
         this.initTab();
         this.observe(
           'activeTab',
-          function () {
+          () => {
             Utils.showTimeOnCalendar();
           },
           { defer: true }

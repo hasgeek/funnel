@@ -1,9 +1,9 @@
 /* global gettext, vegaEmbed */
 
-import Gettext from './gettext';
 import * as timeago from 'timeago.js';
-/*eslint camelcase: ["error", {allow: ["hi_IN"]}]*/
+/* eslint camelcase: ["error", {allow: ["hi_IN"]}] */
 import hi_IN from 'timeago.js/lib/lang/hi_IN';
+import Gettext from './gettext';
 
 /* global ga */
 export const Utils = {
@@ -94,14 +94,14 @@ export const Utils = {
     });
   },
   headerMenuDropdown(menuBtnClass, menuWrapper, menu, url) {
-    let menuBtn = $(menuBtnClass);
-    let topMargin = 1;
-    let headerHeight = $('.header').height() + topMargin;
+    const menuBtn = $(menuBtnClass);
+    const topMargin = 1;
+    const headerHeight = $('.header').height() + topMargin;
     let page = 1;
     let lazyLoader;
     let observer;
 
-    let openMenu = function () {
+    const openMenu = function () {
       if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
         $(menuWrapper).find(menu).animate({ top: '0' });
       } else {
@@ -112,7 +112,7 @@ export const Utils = {
       $('body').addClass('body-scroll-lock');
     };
 
-    let closeMenu = function () {
+    const closeMenu = function () {
       if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
         $(menuWrapper).find(menu).animate({ top: '100vh' });
       } else {
@@ -125,16 +125,16 @@ export const Utils = {
       );
     };
 
-    let updatePageNumber = function () {
+    const updatePageNumber = function () {
       page += 1;
     };
 
-    let fetchMenu = function (pageNo = 1) {
+    const fetchMenu = function (pageNo = 1) {
       $.ajax({
         type: 'GET',
         url: `${url}?page=${pageNo}`,
         timeout: window.Hasgeek.config.ajaxTimeout,
-        success: function (responseData) {
+        success(responseData) {
           if (observer) {
             observer.unobserve(lazyLoader);
             $('.js-load-comments').remove();
@@ -144,7 +144,7 @@ export const Utils = {
           lazyLoader = document.querySelector('.js-load-comments');
           if (lazyLoader) {
             observer = new IntersectionObserver(
-              function (entries) {
+              (entries) => {
                 entries.forEach((entry) => {
                   if (entry.isIntersecting) {
                     fetchMenu(page);
@@ -162,7 +162,7 @@ export const Utils = {
       });
     };
 
-    //If user logged in, preload menu
+    // If user logged in, preload menu
     if ($(menuWrapper).length) {
       fetchMenu();
     }
@@ -176,10 +176,10 @@ export const Utils = {
       }
     });
 
-    $('body').on('click', function (event) {
-      let totalBtn = $(menuBtn).toArray();
+    $('body').on('click', (event) => {
+      const totalBtn = $(menuBtn).toArray();
       let isChildElem = false;
-      totalBtn.forEach(function (element) {
+      totalBtn.forEach((element) => {
         isChildElem = isChildElem || $.contains(element, event.target);
       });
       if (
@@ -203,19 +203,19 @@ export const Utils = {
     }
   },
   truncate() {
-    let readMoreTxt = `&hellip;<span class="js-read-more mui--text-hyperlink read-more">${gettext(
+    const readMoreTxt = `&hellip;<span class="js-read-more mui--text-hyperlink read-more">${gettext(
       'read more'
     )}</span>`;
 
     $('.js-truncate').each(function () {
-      let linesLimit = $(this).data('truncate-lines');
+      const linesLimit = $(this).data('truncate-lines');
       $(this).trunk8({
         lines: linesLimit,
       });
     });
 
     $('.js-truncate-readmore').each(function () {
-      let linesLimit = $(this).data('truncate-lines');
+      const linesLimit = $(this).data('truncate-lines');
       $(this).trunk8({
         lines: linesLimit,
         fill: readMoreTxt,
@@ -231,8 +231,9 @@ export const Utils = {
     const singleDay = 24 * 60 * 60 * 1000;
 
     $('body .card__calendar').each(function () {
-      let firstActiveWeek = $(this).find('.calendar__weekdays__dates--upcoming')
-        .length
+      const firstActiveWeek = $(this).find(
+        '.calendar__weekdays__dates--upcoming'
+      ).length
         ? $(this).find('.calendar__weekdays__dates--upcoming--first')
         : $(this).find('.calendar__weekdays__dates--latest');
 
@@ -253,7 +254,7 @@ export const Utils = {
 
       $(this)
         .find('.calendar__weekdays__dates__date--showtime')
-        .mouseleave(function () {
+        .mouseleave(() => {
           firstActiveWeek
             .find(
               '.calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--latest:first'
@@ -261,28 +262,30 @@ export const Utils = {
             .addClass('calendar__weekdays__dates__date--display');
         });
 
-      let todayDate = $(this).find('.calendar__month__counting').data('today');
-      let nextEventElem = $(this)
+      const todayDate = $(this)
+        .find('.calendar__month__counting')
+        .data('today');
+      const nextEventElem = $(this)
         .find('.calendar__weekdays__dates--upcoming--first')
         .first()
         .find(
           '.calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--latest'
         )
         .first();
-      let eventDate = nextEventElem.data('event-date');
-      let eventMonth = nextEventElem.data('event-month');
-      let monthElem = $(this)
+      const eventDate = nextEventElem.data('event-date');
+      const eventMonth = nextEventElem.data('event-month');
+      const monthElem = $(this)
         .find('.calendar__month')
-        .find("[data-month='" + eventMonth + "']");
+        .find(`[data-month='${eventMonth}']`);
 
       // Today's date in terms of number of milliseconds since January 1, 1970, 00:00:00 UTC
-      let today = Date.parse(todayDate);
+      const today = Date.parse(todayDate);
       // Event date in terms of number of milliseconds since January 1, 1970, 00:00:00 UTC
-      let eventDay = Date.parse(eventDate);
+      const eventDay = Date.parse(eventDate);
       // Find the difference between event and today's date in UTC
-      let counting = Math.round((eventDay - today) / singleDay);
+      const counting = Math.round((eventDay - today) / singleDay);
       // Defined these strings in project_countdown macro in calendar_snippet.js.jinja2
-      let dayText = [
+      const dayText = [
         gettext('Today'),
         gettext('Tomorrow'),
         gettext('Day after'),
@@ -323,7 +326,7 @@ export const Utils = {
   },
   handleAjaxError(errorResponse) {
     Utils.updateFormNonce(errorResponse.responseJSON);
-    let errorMsg = Utils.getResponseError(errorResponse);
+    const errorMsg = Utils.getResponseError(errorResponse);
     window.toastr.error(errorMsg);
     return errorMsg;
   },
@@ -341,7 +344,7 @@ export const Utils = {
     }
   },
   popupBackHandler() {
-    $('.js-popup-back').on('click', function (event) {
+    $('.js-popup-back').on('click', (event) => {
       if (document.referrer !== '') {
         event.preventDefault();
         window.history.back();
@@ -365,7 +368,7 @@ export const Utils = {
 
     window.addEventListener(
       'hashchange',
-      function () {
+      () => {
         if (window.location.hash === '') {
           $.modal.close();
         }
@@ -373,10 +376,10 @@ export const Utils = {
       false
     );
 
-    let hashId = window.location.hash.split('#')[1];
+    const hashId = window.location.hash.split('#')[1];
     if (hashId) {
-      if ($('a.js-modal-form[data-hash="' + hashId + '"]').length) {
-        $('a[data-hash="' + hashId + '"]').click();
+      if ($(`a.js-modal-form[data-hash="${hashId}"]`).length) {
+        $(`a[data-hash="${hashId}"]`).click();
       }
     }
   },
@@ -397,7 +400,7 @@ export const Utils = {
       url: window.Hasgeek.config.notificationCount,
       dataType: 'json',
       timeout: window.Hasgeek.config.ajaxTimeout,
-      success: function (responseData) {
+      success(responseData) {
         Utils.setNotifyIcon(responseData.unread);
       },
     });
@@ -450,8 +453,8 @@ export const Utils = {
   },
   getLocale() {
     // Instantiate i18n with browser context
-    let lang = document.documentElement.lang;
-    let langShortForm = lang.substring(0, 2);
+    const { lang } = document.documentElement;
+    const langShortForm = lang.substring(0, 2);
     window.Hasgeek.config.locale =
       window.Hasgeek.config.availableLanguages[langShortForm];
     return window.Hasgeek.config.locale;
@@ -472,10 +475,10 @@ export const Utils = {
   },
   activateToggleSwitch() {
     $('.js-toggle').on('change', function () {
-      let checkbox = $(this);
-      let currentState = this.checked;
-      let previousState = !currentState;
-      let formData = $(checkbox).parent('form').serializeArray();
+      const checkbox = $(this);
+      const currentState = this.checked;
+      const previousState = !currentState;
+      const formData = $(checkbox).parent('form').serializeArray();
       if (!currentState) {
         formData.push({ name: $(this).attr('name'), value: 'false' });
       }
@@ -485,33 +488,33 @@ export const Utils = {
         data: formData,
         dataType: 'json',
         timeout: window.Hasgeek.config.ajaxTimeout,
-        success: function (responseData) {
+        success(responseData) {
           if (responseData && responseData.message) {
             window.toastr.success(responseData.message);
           }
         },
-        error: function (response) {
+        error(response) {
           Utils.handleAjaxError(response);
           $(checkbox).prop('checked', previousState);
         },
       });
     });
 
-    $('.js-dropdown-toggle').on('click', function (event) {
+    $('.js-dropdown-toggle').on('click', (event) => {
       event.stopPropagation();
     });
   },
   addVegaSupport() {
     if ($('.language-vega-lite').length > 0) {
-      let vegaliteCDN = [
+      const vegaliteCDN = [
         'https://cdn.jsdelivr.net/npm/vega@5',
         'https://cdn.jsdelivr.net/npm/vega-lite@5',
         'https://cdn.jsdelivr.net/npm/vega-embed@6',
       ];
       let vegaliteUrl = 0;
-      let loadVegaScript = function () {
+      const loadVegaScript = function () {
         $.getScript({ url: vegaliteCDN[vegaliteUrl], cache: true }).success(
-          function () {
+          () => {
             if (vegaliteUrl < vegaliteCDN.length) {
               vegaliteUrl += 1;
               loadVegaScript();
@@ -684,12 +687,11 @@ export const Video = {
         type,
         videoId: regexMatch[6],
       };
-    } else {
-      return {
-        type,
-        videoId: url,
-      };
     }
+    return {
+      type,
+      videoId: url,
+    };
   },
   embedIframe(videoWrapper, videoUrl) {
     let videoEmbedUrl = '';

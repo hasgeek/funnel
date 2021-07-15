@@ -29,14 +29,13 @@ const Updates = {
         getInitials: window.Baseframe.Utils.getInitials,
         truncate(content, length) {
           if (!content) return '';
-          let value = content.toString();
+          const value = content.toString();
           if (value.length > length) {
             this.setReadMore = true;
-            let txt = `${value.substring(0, length)} ...`;
+            const txt = `${value.substring(0, length)} ...`;
             return txt;
-          } else {
-            return value;
           }
+          return value;
         },
         readMore(event, action) {
           event.preventDefault();
