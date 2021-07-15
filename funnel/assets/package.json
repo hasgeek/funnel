@@ -36,6 +36,7 @@
     "hammerjs": "^2.0.8",
     "jsqr": "^1.4.0",
     "leaflet": "^1.7.1",
+    "path-browserify": "^1.0.1",
     "po2json": "^1.0.0-beta-3",
     "ractive": "^1.3.14",
     "sprintf-js": "^1.1.2",

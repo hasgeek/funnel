@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import cast
+import json
 import logging
 import os.path
 
@@ -40,6 +42,11 @@ assets['spectrum.css'][version] = 'css/spectrum.css'
 assets['screens.css'][version] = 'css/screens.css'
 assets['schedules.js'][version] = 'js/schedules.js'
 assets['schedule-print.css'][version] = 'css/schedule-print.css'
+
+with open(
+    os.path.join(cast(str, app.static_folder), 'build/manifest.json')
+) as built_manifest:
+    built_assets = json.load(built_manifest)
 
 
 # --- Import rest of the app --------------------------------------------------
@@ -98,8 +105,6 @@ rq.init_app(app)
 app.config['EXECUTOR_PROPAGATE_EXCEPTIONS'] = True
 executor.init_app(app)
 
-app.config['ASSET_MANIFEST_PATH'] = 'static/build/manifest.json'
-app.config['ASSET_BASE_PATH'] = 'build'
 baseframe.init_app(
     app,
     requires=['funnel'],

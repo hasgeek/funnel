@@ -202,7 +202,7 @@
   {% assets "js_jquerytruncate" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
-  <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('app.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {

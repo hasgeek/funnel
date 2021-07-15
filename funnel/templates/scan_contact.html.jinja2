@@ -28,7 +28,7 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('scan_contact')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('scan_contact.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var scanConfig = {

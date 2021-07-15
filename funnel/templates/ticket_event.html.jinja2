@@ -75,7 +75,7 @@
 {% endblock %}
 
 {% block footerscripts %}
-<script src="{{ url_for('static', filename=asset_path('event')) }}" type="text/javascript"></script>
+<script src="{{ built_asset('event.js') }}" type="text/javascript"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     /* Check-in scenarios:

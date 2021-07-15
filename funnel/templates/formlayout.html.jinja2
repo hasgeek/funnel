@@ -34,7 +34,7 @@
     window.Hasgeek.config.accountSudo = {{ url_for('account_sudo')|tojson }};
     window.Hasgeek.config.accountMenu = {{ url_for('account_menu')|tojson }};
   </script>
-  <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('app.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var hash = window.location.hash;

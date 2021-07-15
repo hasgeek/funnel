@@ -13,6 +13,7 @@ module.exports = {
   resolve: {
     fallback: {
       fs: false,
+      path: require.resolve('path-browserify'),
     },
   },
   devtool: 'source-map',
@@ -73,7 +74,6 @@ module.exports = {
       fileName: path.join(__dirname, '../static/build/manifest.json'),
     }),
     new InjectManifest({
-      importWorkboxFrom: 'cdn',
       swSrc: path.resolve(__dirname, 'service-worker-template.js'),
       swDest: path.resolve(__dirname, '../static/service-worker.js'),
     }),
