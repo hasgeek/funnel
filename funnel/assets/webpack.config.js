@@ -75,7 +75,7 @@ module.exports = {
     }),
     new InjectManifest({
       swSrc: path.resolve(__dirname, 'service-worker-template.js'),
-      swDest: path.resolve(__dirname, '../static/service-worker.js'),
+      swDest: path.resolve(__dirname, '../static/build/js/service-worker.js'),
     }),
   ],
 };

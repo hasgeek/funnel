@@ -43,11 +43,14 @@ assets['screens.css'][version] = 'css/screens.css'
 assets['schedules.js'][version] = 'js/schedules.js'
 assets['schedule-print.css'][version] = 'css/schedule-print.css'
 
-with open(
-    os.path.join(cast(str, app.static_folder), 'build/manifest.json')
-) as built_manifest:
-    built_assets = json.load(built_manifest)
-
+try:
+    with open(
+        os.path.join(cast(str, app.static_folder), 'build/manifest.json')
+    ) as built_manifest:
+        built_assets = json.load(built_manifest)
+except OSError:
+    built_assets = {}
+    app.logger.error("static/build/manifest.json file missing; run `make`")
 
 # --- Import rest of the app --------------------------------------------------
 
