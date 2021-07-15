@@ -1,17 +1,15 @@
-describe('Checkin of attendees', function () {
-  const promoter = require('../fixtures/user.json').promoter;
-  const user = require('../fixtures/user.json').user;
-  const profile = require('../fixtures/profile.json');
+/* eslint-disable global-require */
+describe('Checkin of attendees', () => {
+  const { promoter } = require('../fixtures/user.json');
+  const { user } = require('../fixtures/user.json');
   const project = require('../fixtures/project.json');
   const ticketEvents = require('../fixtures/ticket_events.json');
   const ticketParticipants = require('../fixtures/ticket_participants.json');
 
-  it('Checkin of attendees', function () {
+  it('Checkin of attendees', () => {
     cy.login('/', promoter.username, promoter.password);
 
-    cy.get('[data-cy-title="' + project.title + '"]')
-      .first()
-      .click();
+    cy.get(`[data-cy-title="${project.title}"]`).first().click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy="project-menu"]:visible').click();
     cy.wait(1000);
@@ -21,7 +19,7 @@ describe('Checkin of attendees', function () {
     cy.location('pathname').should('contain', '/admin');
 
     cy.fixture('ticket_participants').then((ticketParticipants) => {
-      ticketParticipants.forEach(function (ticketParticipant) {
+      ticketParticipants.forEach((ticketParticipant) => {
         cy.get('a[data-cy="add-ticket-participant"]').click();
         cy.get('#fullname').type(ticketParticipant.fullname);
         cy.get('#email').type(ticketParticipant.email);
@@ -36,7 +34,7 @@ describe('Checkin of attendees', function () {
       });
     });
 
-    cy.get('a[data-cy="' + ticketEvents[0].title + '"]').click();
+    cy.get(`a[data-cy="${ticketEvents[0].title}"]`).click();
     cy.get('td[data-cy="ticket-participant"]').contains(
       ticketParticipants[0].fullname
     );
@@ -46,7 +44,7 @@ describe('Checkin of attendees', function () {
     cy.checkin(user.username);
     cy.get('a[data-cy="back-to-setup"]').click();
 
-    cy.get('a[data-cy="' + ticketEvents[1].title + '"]').click();
+    cy.get(`a[data-cy="${ticketEvents[1].title}"]`).click();
     // Test failing
     // cy.get('td[data-cy="ticket-participant"]')
     //   .contains(ticketParticipants[2].fullname)

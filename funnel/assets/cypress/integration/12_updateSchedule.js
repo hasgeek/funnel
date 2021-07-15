@@ -1,12 +1,12 @@
-describe('Add session to schedule and publish', function () {
-  const editor = require('../fixtures/user.json').editor;
+/* eslint-disable global-require */
+describe('Add session to schedule and publish', () => {
+  const { editor } = require('../fixtures/user.json');
   const siteEditor = require('../fixtures/user.json').owner;
   const session = require('../fixtures/session.json');
   const proposal = require('../fixtures/proposal.json');
-  const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
-  it('Update schedule', function () {
+  it('Update schedule', () => {
     cy.server();
     cy.route('**/sessions/new').as('new-session-form');
     cy.route('POST', '**/sessions/new').as('add-new-session');
@@ -15,7 +15,7 @@ describe('Add session to schedule and publish', function () {
 
     cy.login('/', editor.username, editor.password);
 
-    cy.get('a[data-cy-title="' + project.title + '"]').click();
+    cy.get(`a[data-cy-title="${project.title}"]`).click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy="project-menu"]:visible').click();
     cy.wait(1000);
@@ -23,7 +23,7 @@ describe('Add session to schedule and publish', function () {
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="edit-schedule"').click();
     cy.location('pathname').should('contain', 'schedule');
-    var tomorrow = Cypress.moment().add(1, 'days').format('YYYY-MM-DD');
+    const tomorrow = Cypress.moment().add(1, 'days').format('YYYY-MM-DD');
     cy.get('#select-date').type(tomorrow).click();
     cy.get('.js-unscheduled').click();
     cy.get('.fc-agenda-axis')

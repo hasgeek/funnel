@@ -1,12 +1,12 @@
-describe('Add a new submission', function () {
-  const user = require('../fixtures/user.json').user;
-  const editor = require('../fixtures/user.json').editor;
+/* eslint-disable global-require */
+describe('Add a new submission', () => {
+  const { user } = require('../fixtures/user.json');
+  const { editor } = require('../fixtures/user.json');
   const profile = require('../fixtures/profile.json');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
-  const labels = require('../fixtures/labels.json');
 
-  it('Add submission', function () {
+  it('Add submission', () => {
     cy.server();
     cy.route('GET', '**/admin').as('fetch-admin-panel');
     cy.route('GET', '**/updates?*').as('fetch-updates');
@@ -14,7 +14,7 @@ describe('Add a new submission', function () {
 
     cy.login('/', user.username, user.password);
 
-    cy.get('a[data-cy-title="' + project.title + '"]').click();
+    cy.get(`a[data-cy-title="${project.title}"]`).click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="submissions"]').click();
     cy.get('a[data-cy="propose-a-session"]:visible').click();
@@ -51,7 +51,7 @@ describe('Add a new submission', function () {
     cy.visit('/');
     cy.logout();
     cy.wait(1000);
-    cy.login('/' + profile.title, editor.username, editor.password);
+    cy.login(`/${profile.title}`, editor.username, editor.password);
     cy.visit('/updates');
     cy.wait('@fetch-updates');
     cy.get('[data-cy="notification-box"]').contains(proposal.title);

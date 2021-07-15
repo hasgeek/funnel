@@ -1,6 +1,6 @@
-const OFF = 0,
-  WARN = 1,
-  ERROR = 2;
+const OFF = 0;
+const WARN = 1;
+const ERROR = 2;
 module.exports = {
   parser: 'babel-eslint',
   env: {
@@ -8,7 +8,11 @@ module.exports = {
     es6: true,
     jquery: true,
   },
-  extends: ['airbnb-base', 'plugin:prettier/recommended'],
+  extends: [
+    'airbnb-base',
+    'plugin:prettier/recommended',
+    'plugin:cypress/recommended',
+  ],
   rules: {
     'no-console': WARN,
     'prefer-arrow-callback': [ERROR, { allowNamedFunctions: true }],

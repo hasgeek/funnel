@@ -1,10 +1,11 @@
-describe('Project', function () {
-  const admin = require('../fixtures/user.json').admin;
+/* eslint-disable global-require */
+describe('Project', () => {
+  const { admin } = require('../fixtures/user.json');
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
-  it('Create a new project', function () {
-    cy.login('/' + profile.title, admin.username, admin.password);
+  it('Create a new project', () => {
+    cy.login(`/${profile.title}`, admin.username, admin.password);
 
     cy.get('a[data-cy="new-project"]').click();
     cy.location('pathname').should('contain', '/new');

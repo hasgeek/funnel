@@ -1,7 +1,8 @@
-describe('Creating a new user account', function () {
-  const newuser = require('../fixtures/user.json').newuser;
+/* eslint-disable global-require */
+describe('Creating a new user account', () => {
+  const { newuser } = require('../fixtures/user.json');
 
-  it('Signup', function () {
+  it('Signup', () => {
     cy.visit('/', { failOnStatusCode: false })
       .get('#hgnav')
       .find('.header__button')

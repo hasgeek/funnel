@@ -16,7 +16,7 @@ Cypress.Commands.add('login', (route, username, password) => {
   cy.fill_login_details(username, password);
 });
 
-Cypress.Commands.add('logout', (route) => {
+Cypress.Commands.add('logout', () => {
   cy.get('#hgnav').find('a[data-cy="my-account"]').click();
   cy.wait(1000);
   cy.get('button[data-cy="Logout"]:visible').click();
@@ -57,7 +57,7 @@ Cypress.Commands.add(
     cy.wait('@add-member');
 
     if (!fail) {
-      var roleString = role[0].toUpperCase() + role.slice(1);
+      const roleString = role[0].toUpperCase() + role.slice(1);
       cy.get('[data-cy="member"]')
         .contains(username)
         .parents('.member')
@@ -91,7 +91,7 @@ Cypress.Commands.add('add_member', (username, role, fail = false) => {
   cy.wait('@add-member');
 
   if (!fail) {
-    var roleString = role[0].toUpperCase() + role.slice(1);
+    const roleString = role[0].toUpperCase() + role.slice(1);
     cy.get('[data-cy="member"]')
       .contains(username)
       .parents('.member')
@@ -103,13 +103,13 @@ Cypress.Commands.add('add_member', (username, role, fail = false) => {
   cy.wait(6000); // Wait for toastr notice to fade out
 });
 
-Cypress.Commands.add('checkin', (ticket_participant) => {
+Cypress.Commands.add('checkin', (ticketParticipant) => {
   cy.server();
   cy.route('POST', '**/ticket_participants/checkin').as('checkin');
   cy.route('**/ticket_participants/json').as('ticket-participant-list');
 
   cy.get('td[data-cy="ticket-participant"]')
-    .contains(ticket_participant)
+    .contains(ticketParticipant)
     .parent()
     .find('button[data-cy="checkin"]')
     .click();

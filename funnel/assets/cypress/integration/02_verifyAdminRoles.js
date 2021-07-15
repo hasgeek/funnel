@@ -1,13 +1,13 @@
-describe('Profile admin roles', function () {
-  const owner = require('../fixtures/user.json').owner;
-  const admin = require('../fixtures/user.json').admin;
+/* eslint-disable global-require */
+describe('Profile admin roles', () => {
+  const { owner, admin } = require('../fixtures/user.json');
   const profile = require('../fixtures/profile.json');
 
-  it('Check roles of profile admins', function () {
+  it('Check roles of profile admins', () => {
     cy.server();
     cy.route('GET', '**/updates?*').as('fetch-updates');
 
-    cy.login('/' + profile.title, admin.username, admin.password);
+    cy.login(`/${profile.title}`, admin.username, admin.password);
 
     cy.get('a[data-cy="admin-dropdown"]:visible').click();
     cy.wait(1000);

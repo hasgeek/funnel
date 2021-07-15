@@ -1,10 +1,11 @@
-describe('View schedule of p roject', function () {
+/* eslint-disable global-require */
+describe('View schedule of p roject', () => {
   const project = require('../fixtures/project.json');
   const session = require('../fixtures/session.json');
   const proposal = require('../fixtures/proposal.json');
-  const user = require('../fixtures/user.json').user;
+  const { user } = require('../fixtures/user.json');
 
-  it('View schedule', function () {
+  it('View schedule', () => {
     cy.server();
     cy.route('**/viewsession-popup').as('view-session');
 
@@ -20,10 +21,10 @@ describe('View schedule of p roject', function () {
     cy.get('[data-cy="schedule-subscribe"]').should('exist');
     cy.get('a[data-cy="close-modal"]').click();
 
-    var tomorrow = Cypress.moment().add(1, 'days').format('dddd, D MMMM YYYY');
+    let tomorrow = Cypress.moment().add(1, 'days').format('dddd, D MMMM YYYY');
     cy.get('.schedule__date').contains(tomorrow);
     cy.fixture('venues').then((venues) => {
-      venues.forEach(function (venue) {
+      venues.forEach((venue) => {
         cy.get('.schedule__row__column--header').contains(venue.room.title);
       });
     });

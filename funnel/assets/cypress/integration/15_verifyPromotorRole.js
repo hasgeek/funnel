@@ -1,13 +1,12 @@
-describe('Verify roles of promoter', function () {
-  const promoter = require('../fixtures/user.json').promoter;
+/* eslint-disable global-require */
+describe('Verify roles of promoter', () => {
+  const { promoter } = require('../fixtures/user.json');
   const project = require('../fixtures/project.json');
 
-  it('Access available for promoter in project settings', function () {
+  it('Access available for promoter in project settings', () => {
     cy.login('/', promoter.username, promoter.password);
 
-    cy.get('[data-cy-title="' + project.title + '"]')
-      .first()
-      .click();
+    cy.get(`[data-cy-title="${project.title}"]`).first().click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy="project-menu"]:visible').click();
     cy.wait(1000);

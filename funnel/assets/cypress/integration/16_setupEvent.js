@@ -1,15 +1,11 @@
-describe('Setup ticketed event for checkin', function () {
-  const promoter = require('../fixtures/user.json').promoter;
+describe('Setup ticketed event for checkin', () => {
+  const { promoter } = require('../fixtures/user.json');
   const project = require('../fixtures/project.json');
-  const ticketEvents = require('../fixtures/ticket_events.json');
-  const ticketParticipants = require('../fixtures/ticket_participants.json');
 
-  it('Setup ticketed event for checkin', function () {
+  it('Setup ticketed event for checkin', () => {
     cy.login('/', promoter.username, promoter.password);
 
-    cy.get('[data-cy-title="' + project.title + '"]')
-      .first()
-      .click();
+    cy.get(`[data-cy-title="${project.title}"]`).first().click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy="project-menu"]:visible').click();
     cy.wait(1000);
@@ -19,7 +15,7 @@ describe('Setup ticketed event for checkin', function () {
     cy.location('pathname').should('contain', '/admin');
 
     cy.fixture('ticket_events').then((ticketEvents) => {
-      ticketEvents.forEach(function (ticketEvent) {
+      ticketEvents.forEach((ticketEvent) => {
         cy.get('a[data-cy="new-ticket-event"]').click();
         cy.get('#title').type(ticketEvent.title);
         cy.get('#badge_template').type(ticketEvent.badge_template);
