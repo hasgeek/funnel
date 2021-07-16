@@ -4,6 +4,7 @@ describe('View schedule of p roject', () => {
   const session = require('../fixtures/session.json');
   const proposal = require('../fixtures/proposal.json');
   const { user } = require('../fixtures/user.json');
+  const dayjs = require('dayjs');
 
   it('View schedule', () => {
     cy.server();
@@ -21,7 +22,7 @@ describe('View schedule of p roject', () => {
     cy.get('[data-cy="schedule-subscribe"]').should('exist');
     cy.get('a[data-cy="close-modal"]').click();
 
-    let tomorrow = Cypress.moment().add(1, 'days').format('dddd, D MMMM YYYY');
+    let tomorrow = dayjs().add(1, 'days').format('dddd, D MMMM YYYY');
     cy.get('.schedule__date').contains(tomorrow);
     cy.fixture('venues').then((venues) => {
       venues.forEach((venue) => {
@@ -31,7 +32,7 @@ describe('View schedule of p roject', () => {
     cy.get('.schedule__row__column--talks').contains(session.time).click();
     cy.wait('@view-session');
     cy.get('#session-modal').should('be.visible');
-    tomorrow = Cypress.moment().add(1, 'days').format('MMM D, YYYY');
+    tomorrow = dayjs().add(1, 'days').format('MMM D, YYYY');
     cy.get('[data-cy-session="title"]').contains(session.title);
     cy.get('[data-cy-session="speaker"]').contains(session.speaker);
     cy.get('[data-cy-session="time"]').contains(session.time);

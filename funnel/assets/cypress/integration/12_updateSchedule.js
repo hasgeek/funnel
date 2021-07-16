@@ -5,6 +5,7 @@ describe('Add session to schedule and publish', () => {
   const session = require('../fixtures/session.json');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
+  const dayjs = require('dayjs');
 
   it('Update schedule', () => {
     cy.server();
@@ -23,7 +24,7 @@ describe('Add session to schedule and publish', () => {
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="edit-schedule"').click();
     cy.location('pathname').should('contain', 'schedule');
-    const tomorrow = Cypress.moment().add(1, 'days').format('YYYY-MM-DD');
+    const tomorrow = dayjs().add(1, 'days').format('YYYY-MM-DD');
     cy.get('#select-date').type(tomorrow).click();
     cy.get('.js-unscheduled').click();
     cy.get('.fc-agenda-axis')
