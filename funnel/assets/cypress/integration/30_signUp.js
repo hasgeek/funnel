@@ -14,7 +14,7 @@ describe('Creating a new user account', () => {
     cy.get('#password').type(newuser.password);
     cy.get('#confirm_password').type(newuser.password);
     cy.get('button[data-cy="form-submit-btn"]').click();
-    cy.get('.alert--success').should('visible');
+    cy.get('.alert--success').should('be.visible');
     cy.get('a[data-cy="my-account"]:visible').click();
     cy.wait(1000);
     cy.get('a[data-cy="account"]:visible').click();

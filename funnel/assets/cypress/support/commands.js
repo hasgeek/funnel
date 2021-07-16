@@ -49,9 +49,7 @@ Cypress.Commands.add(
       'be.visible'
     );
     cy.get('.select2-results__option').contains(username).click();
-    cy.get('.select2-results__options', { timeout: 10000 }).should(
-      'not.visible'
-    );
+    cy.get('.select2-results__options', { timeout: 10000 }).should('not.exist');
     cy.get(`#${field}`).click();
     cy.get('button').contains('Add member').click();
     cy.wait('@add-member');
@@ -64,7 +62,7 @@ Cypress.Commands.add(
         .find('[data-cy="role"]')
         .contains(roleString);
     } else {
-      cy.get('p.mui--text-danger').should('visible');
+      cy.get('p.mui--text-danger').should('be.visible');
     }
     cy.wait(6000); // Wait for toastr notice to fade out
   }
@@ -85,7 +83,7 @@ Cypress.Commands.add('add_member', (username, role, fail = false) => {
     'be.visible'
   );
   cy.get('.select2-results__option').contains(username).click();
-  cy.get('.select2-results__options', { timeout: 10000 }).should('not.visible');
+  cy.get('.select2-results__options', { timeout: 10000 }).should('not.exist');
   cy.get(`#is_${role}`).click();
   cy.get('button').contains('Add member').click();
   cy.wait('@add-member');
@@ -98,7 +96,7 @@ Cypress.Commands.add('add_member', (username, role, fail = false) => {
       .find('[data-cy="role"]')
       .contains(roleString);
   } else {
-    cy.get('p.mui--text-danger').should('visible');
+    cy.get('p.mui--text-danger').should('be.visible');
   }
   cy.wait(6000); // Wait for toastr notice to fade out
 });
