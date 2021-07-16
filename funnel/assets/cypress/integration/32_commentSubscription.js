@@ -34,26 +34,34 @@ describe('Confirm submission comment subscription', () => {
     cy.logout();
     cy.wait(1000);
 
-    cy.login('/', newuser.username, newuser.password);
+    cy.login('/', newuser.username, newuser.newpassword);
     cy.get('[data-cy="comment-sidebar"]').click();
     cy.get('.upcoming')
       .find('.card--upcoming')
       .contains(project.title)
       .click({ force: true });
     cy.get('a[data-cy-navbar="submissions"]').click();
-    cy.get('#search').type(proposal.title);
+    cy.get('#header-search').type(proposal.title);
     cy.get(`a[data-cy-proposal="${proposal.title}"]`).click();
     cy.get('a[data-cy="subscribe-proposal"]:visible').click();
+    cy.wait(1000);
+    cy.get('[data-cy="subscription"]:visible').click();
     cy.wait('@post-subscribe');
+    cy.get('a[data-cy="subscribe-proposal"]:visible').click();
+    cy.wait(1000);
     cy.get('[data-cy="cancel-subscription"]:visible').click();
     cy.wait('@post-subscribe');
     cy.get('a[data-cy="subscribe-proposal"]:visible').click();
+    cy.wait(1000);
+    cy.get('[data-cy="subscription"]:visible').click();
     cy.wait('@post-subscribe');
     cy.visit('/');
     cy.logout();
     cy.wait(1000);
 
     cy.login('/', member.username, member.password);
+    cy.get('a[data-cy="my-account"]:visible').click();
+    cy.wait(1000);
     cy.get('a[data-cy="profile"]').click();
     cy.get('a[data-cy="submissions"]').click();
     cy.get(`a[data-cy-proposal="${proposal.title}"]`).click();
@@ -68,7 +76,7 @@ describe('Confirm submission comment subscription', () => {
     cy.logout();
     cy.wait(1000);
 
-    cy.login('/', newuser.username, newuser.password);
+    cy.login('/', newuser.username, newuser.newpassword);
     cy.get('[data-cy="comment-sidebar"]').click();
     cy.wait(1000);
     cy.get('[data-cy="unread-comment"]')

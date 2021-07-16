@@ -55,9 +55,9 @@ describe('Test comments feature', () => {
     cy.wait('@reply-comment');
     cid = window.location.hash;
     cy.get(`${cid} .comment__body`).contains(project.reply_comment);
-    cy.wait(1000);
+    cy.wait(2000);
     cy.get('[data-cy="comment-sidebar"]').click();
-    cy.wait(1000);
+    cy.wait(2000);
     cy.get('[data-cy="unread-comment"]').should('exist');
 
     /*
@@ -93,7 +93,7 @@ describe('Test comments feature', () => {
     cy.wait('@fetch-updates');
     cy.get('[data-cy="notification-box"]').contains(project.title);
     cy.get('[data-cy="comment-sidebar"]').click();
-    cy.wait('@fetch-comment-sidebar');
+    cy.wait(2000);
     cy.get('[data-cy="unread-comment"]').should('exist');
   });
 });
