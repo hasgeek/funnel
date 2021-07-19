@@ -1,4 +1,4 @@
-.homepage.hg-app {
+.homepage {
   .logo-about {
     position: fixed !important;
     width: 100%;
@@ -29,7 +29,7 @@
 }
 
 @media (min-width: 768px) {
-  .homepage.hg-app {
+  .homepage {
     .logo-about {
       display: none;
     }
