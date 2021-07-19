@@ -2,24 +2,24 @@ import { Utils } from './util';
 
 export const Proposal = {
   init() {
-    $('.js-subscribe-btn').on('click', function (event) {
+    $('.js-subscribe-btn').on('click', function subscribeComments(event) {
       event.preventDefault();
-      let form = $(this).parents('form');
-      let formData = $(form).serializeArray();
+      const form = $(this).parents('form');
+      const formData = $(form).serializeArray();
       $.ajax({
         type: 'POST',
         url: $(form).attr('action'),
         data: formData,
         dataType: 'json',
         timeout: window.Hasgeek.config.ajaxTimeout,
-        success: function (responseData) {
+        success(responseData) {
           if (responseData && responseData.message) {
             window.toastr.success(responseData.message);
           }
           $('.js-subscribed, .js-unsubscribed').toggleClass('mui--hide');
           Utils.updateFormNonce(responseData);
         },
-        error: function (response) {
+        error(response) {
           Utils.handleAjaxError(response);
         },
       });
@@ -32,13 +32,13 @@ export const LabelsWidget = {
     const Widget = this;
 
     // On load, if the radio has been selected, then check mark the listwidget label
-    $('.listwidget input[type="radio"]').each(function () {
+    $('.listwidget input[type="radio"]').each(function loadCheckMarkToLabel() {
       if (this.checked) {
         $(this).parent().parent().prev('.mui-form__label').addClass('checked');
       }
     });
 
-    $('.listwidget .mui-form__label').click(function () {
+    $('.listwidget .mui-form__label').click(function uncheckLabel() {
       if ($(this).hasClass('checked')) {
         $(this).removeClass('checked');
         $(this).siblings().find('input[type="radio"]').prop('checked', false);
@@ -51,7 +51,7 @@ export const LabelsWidget = {
     });
 
     // Add check mark to listwidget label
-    $('.listwidget input[type="radio"]').change(function () {
+    $('.listwidget input[type="radio"]').change(function addCheckMarkToLabel() {
       const label = $(this).parent().parent().prev('.mui-form__label');
       label.addClass('checked');
       const labelTxt = `${Widget.getLabelTxt(
@@ -61,10 +61,12 @@ export const LabelsWidget = {
       Widget.updateLabels(labelTxt, attr, this.checked);
     });
 
-    $('.add-label-form input[type="checkbox"]').change(function () {
-      const labelTxt = Widget.getLabelTxt($(this).parent('label').text());
-      Widget.updateLabels(labelTxt, labelTxt, this.checked);
-    });
+    $('.add-label-form input[type="checkbox"]').change(
+      function clickLabelCheckbox() {
+        const labelTxt = Widget.getLabelTxt($(this).parent('label').text());
+        Widget.updateLabels(labelTxt, labelTxt, this.checked);
+      }
+    );
 
     // Open and close dropdown
     $('#label-select').on('click', () => {
@@ -96,7 +98,7 @@ export const LabelsWidget = {
       if (label !== attr) {
         $(`.label[data-labeltxt='${attr}']`).remove();
       }
-      let labelSpan = $(
+      const labelSpan = $(
         '<span class="label mui--text-caption mui--text-bold"></span>'
       )
         .attr('data-labeltxt', attr)

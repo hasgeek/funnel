@@ -82,5 +82,5 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('contact')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('contact.js') }}" type="text/javascript"></script>
 {% endblock %}

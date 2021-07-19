@@ -1,10 +1,9 @@
-describe('Test comments feature', function () {
-  const user = require('../fixtures/user.json').user;
-  const hguser = require('../fixtures/user.json').hguser;
-  const editor = require('../fixtures/user.json').editor;
+/* eslint-disable global-require */
+describe('Test comments feature', () => {
+  const { user, hguser, editor } = require('../fixtures/user.json');
   const project = require('../fixtures/project.json');
 
-  it('Post comment on project page', function () {
+  it('Post comment on project page', () => {
     cy.server();
     cy.route('GET', '**/new').as('get-form');
     cy.route('GET', '**/updates?*').as('fetch-updates');
@@ -31,7 +30,7 @@ describe('Test comments feature', function () {
     cy.wait(1000);
     cy.get('[data-cy="new-form"]').find('[data-cy="submit-comment"]').click();
     cy.wait('@post-comment');
-    var cid = window.location.hash;
+    let cid = window.location.hash;
     cy.get('.comment__body').contains(project.comment);
     cy.get('.comment__header').contains(user.username);
 
@@ -56,9 +55,9 @@ describe('Test comments feature', function () {
     cy.wait('@reply-comment');
     cid = window.location.hash;
     cy.get(`${cid} .comment__body`).contains(project.reply_comment);
-    cy.wait(1000);
+    cy.wait(2000);
     cy.get('[data-cy="comment-sidebar"]').click();
-    cy.wait(1000);
+    cy.wait(2000);
     cy.get('[data-cy="unread-comment"]').should('exist');
 
     /*
@@ -94,7 +93,7 @@ describe('Test comments feature', function () {
     cy.wait('@fetch-updates');
     cy.get('[data-cy="notification-box"]').contains(project.title);
     cy.get('[data-cy="comment-sidebar"]').click();
-    cy.wait('@fetch-comment-sidebar');
+    cy.wait(2000);
     cy.get('[data-cy="unread-comment"]').should('exist');
   });
 });

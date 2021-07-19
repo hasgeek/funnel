@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('search')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('search.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var searchConfig = {
@@ -24,7 +24,7 @@
         results: {{results|default("")|tojson}},
         defaultImage: "{{url_for('static', filename='img/default-banner.png')}}",
       };
-      Hasgeek.Search(searchConfig);
+      Hasgeek.searchInit(searchConfig);
     });
   </script>
 {% endblock %}

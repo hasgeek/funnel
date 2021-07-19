@@ -167,7 +167,7 @@
 
       {% block contentbox -%}
       <div class="content-wrapper">
-        <div class="main-content {% if self.sidedrawer() %} main-content--with-sidebar{% endif %}">
+        <div class="main-content">
           {% block contenthead %}
             {% block headline -%}
               <div class="content-head content-head--top-padding mui--bg-accent">
@@ -308,7 +308,7 @@
     {% assets "js_jquerytruncate" -%}
       <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {%- endassets -%}
-    <script src="{{ url_for('static', filename=asset_path('app')) }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename=built_asset('app')) }}" type="text/javascript"></script>
     <script type="text/javascript">
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {

@@ -63,13 +63,13 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('index')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('index.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var homeConfig = {
         past_projects_json_url: "{{ url_for('past_projects_json') }}"
       }
-      window.Hasgeek.HomeInit(homeConfig);
+      window.Hasgeek.homeInit(homeConfig);
     });
 
     if ('serviceWorker' in navigator) {

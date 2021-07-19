@@ -1,8 +1,9 @@
-describe('Responding yes to attend a project', function () {
-  const user = require('../fixtures/user.json').user;
+/* eslint-disable global-require */
+describe('Responding yes to attend a project', () => {
+  const { user } = require('../fixtures/user.json');
   const project = require('../fixtures/project.json');
 
-  it('Respond to attend a project', function () {
+  it('Respond to attend a project', () => {
     cy.server();
     cy.route('POST', '**/save').as('bookmark-project');
 

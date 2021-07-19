@@ -482,7 +482,7 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('project_header')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('project_header.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var tickets;
@@ -500,7 +500,7 @@
         formId: 'save-form',
       };
 
-      window.Hasgeek.ProjectHeaderInit(saveProjectConfig, tickets);
+      window.Hasgeek.projectHeaderInit(saveProjectConfig, tickets);
     });
   </script>
   {% block footerinnerscripts %}{% endblock %}

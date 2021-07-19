@@ -1,9 +1,9 @@
-describe('Profile', function () {
-  const owner = require('../fixtures/user.json').owner;
+/* eslint-disable global-require */
+describe('Profile', () => {
+  const { owner } = require('../fixtures/user.json');
   const profile = require('../fixtures/profile.json');
-  const hguser = require('../fixtures/user.json').hguser;
 
-  it('Create a new profile', function () {
+  it('Create a new profile', () => {
     cy.login('/', owner.username, owner.password);
 
     cy.visit('/new');

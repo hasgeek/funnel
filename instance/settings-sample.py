@@ -4,6 +4,8 @@ SITE_TITLE = 'Hasgeek Funnel'
 SITE_SUPPORT_EMAIL = 'test@example.com'
 #: Google Analytics code UA-XXXXXX-X
 GA_CODE = ''
+#: Server name (required to generate URLs)
+SERVER_NAME = 'funnel.test:3000'
 #: Database backend
 SQLALCHEMY_DATABASE_URI = 'postgresql://host/database'
 SQLALCHEMY_BINDS = {

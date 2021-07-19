@@ -1,12 +1,13 @@
-describe('Add labels to project', function () {
-  const editor = require('../fixtures/user.json').editor;
+/* eslint-disable global-require */
+describe('Add labels to project', () => {
+  const { editor } = require('../fixtures/user.json');
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
   const labels = require('../fixtures/labels.json');
 
-  it('Add labels', function () {
+  it('Add labels', () => {
     cy.login(
-      '/' + profile.title + '/' + project.url,
+      `/${profile.title}/${project.url}`,
       editor.username,
       editor.password
     );
@@ -18,8 +19,8 @@ describe('Add labels to project', function () {
     cy.get('a[data-cy="manage-labels"').click();
     cy.location('pathname').should('contain', '/labels');
 
-    cy.fixture('labels').then((labels) => {
-      labels.forEach(function (label) {
+    cy.fixture('labels').then((flabels) => {
+      flabels.forEach((label) => {
         cy.get('a[data-cy="add-labels"]').click();
         cy.location('pathname').should('contain', '/new');
 

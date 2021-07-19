@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('scan_badge')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('scan_badge.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var ticketEventConfig = {
@@ -25,7 +25,7 @@
         projectTitle:  {{ project.title|tojson }},
         ticketEventTitle: {{ ticket_event.title|tojson }},
       };
-      window.Hasgeek.BadgeScanInit(ticketEventConfig);
+      window.Hasgeek.badgeScanInit(ticketEventConfig);
 
     });
   </script>

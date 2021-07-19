@@ -1,13 +1,12 @@
-describe('Publish project', function () {
-  const editor = require('../fixtures/user.json').editor;
+/* eslint-disable global-require */
+describe('Publish project', () => {
+  const { editor } = require('../fixtures/user.json');
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
-  it('Publish project', function () {
-    cy.login('/' + profile.title, editor.username, editor.password);
-    cy.get('[data-cy-title="' + project.title + '"]')
-      .first()
-      .click();
+  it('Publish project', () => {
+    cy.login(`/${profile.title}`, editor.username, editor.password);
+    cy.get(`[data-cy-title="${project.title}"]`).first().click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy="project-menu"]:visible').click();
     cy.wait(1000);

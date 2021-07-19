@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import cast
+import json
 import logging
 import os.path
 
@@ -41,6 +43,14 @@ assets['screens.css'][version] = 'css/screens.css'
 assets['schedules.js'][version] = 'js/schedules.js'
 assets['schedule-print.css'][version] = 'css/schedule-print.css'
 
+try:
+    with open(
+        os.path.join(cast(str, app.static_folder), 'build/manifest.json')
+    ) as built_manifest:
+        built_assets = json.load(built_manifest)
+except OSError:
+    built_assets = {}
+    app.logger.error("static/build/manifest.json file missing; run `make`")
 
 # --- Import rest of the app --------------------------------------------------
 
@@ -88,6 +98,7 @@ mail.init_app(app)
 mail.init_app(shortlinkapp)  # Required for email error reports
 
 app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = ['markdown.extensions.nl2br']
+app.config['FLATPAGES_EXTENSION'] = '.md'
 pages.init_app(app)
 
 redis_store.init_app(app)

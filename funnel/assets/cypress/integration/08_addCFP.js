@@ -1,12 +1,14 @@
-describe('Add CFP to project', function () {
-  const editor = require('../fixtures/user.json').editor;
+/* eslint-disable global-require */
+describe('Add CFP to project', () => {
+  const { editor } = require('../fixtures/user.json');
   const cfp = require('../fixtures/cfp.json');
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
+  const dayjs = require('dayjs');
 
-  it('Add CFP', function () {
+  it('Add CFP', () => {
     cy.login(
-      '/' + profile.title + '/' + project.url,
+      `/${profile.title}/${project.url}`,
       editor.username,
       editor.password
     );
@@ -22,8 +24,7 @@ describe('Add CFP to project', function () {
       .find('.CodeMirror textarea')
       .type(cfp.instructions, { force: true });
     cy.get('button[name="open-now"]').click();
-    var today = Cypress.moment().format('YYYY-MM-DDTHH:mm');
-    var cfpEndDay = Cypress.moment().add(20, 'days').format('YYYY-MM-DDTHH:mm');
+    const cfpEndDay = dayjs().add(20, 'days').format('YYYY-MM-DDTHH:mm');
     cy.get('#cfp_end_at').type(cfpEndDay);
     cy.get('button[data-cy="add-cfp"]').click();
     cy.location('pathname').should('contain', project.url);

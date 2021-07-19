@@ -16,20 +16,17 @@ const EmbedMap = {
       scrollWheelZoom: false,
       dragging: false,
     };
-    let args;
-    let options;
-    let map;
     let marker;
     $container.empty();
-    args = $container.data();
+    const args = $container.data();
 
     if (args.markerlat && args.markerlng) {
-      args.marker = [args.markerlat, args.markerlng];
+      args.markerLatLng = [args.markerlat, args.markerlng];
     }
 
-    options = $.extend({}, defaults, args);
-    map = new L.Map($container[0], {
-      center: options.center || options.marker,
+    const options = $.extend({}, defaults, args);
+    const map = new L.Map($container[0], {
+      center: options.center || options.markerLatLng,
       zoom: options.zoom,
       scrollWheelZoom: options.scrollWheelZoom,
       dragging: options.dragging,
@@ -41,13 +38,13 @@ const EmbedMap = {
     }).addTo(map);
 
     if (!args.tilelayer) {
-      marker = new L.marker(options.marker).addTo(map);
+      marker = new L.Marker(options.markerLatLng).addTo(map);
       if (options.label) marker.bindPopup(options.label).openPopup();
     }
   },
 };
 $(() => {
-  window.Hasgeek.ProjectInit = function ({ venue = '' }) {
+  window.Hasgeek.projectInit = ({ venue = '' }) => {
     if (venue) {
       EmbedMap.init(venue);
     }
