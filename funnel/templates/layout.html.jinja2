@@ -130,7 +130,7 @@
                     </a>
                   </div>
                   <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
-                    <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates profile-avatar profile-avatar--bigger" aria-label="{% trans %}Updates{% endtrans %}" data-ga="Updates">{{ faicon(icon='bell', baseline=false) }}</a>
+                    <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates profile-avatar profile-avatar--bigger" aria-label="{% trans %}Updates{% endtrans %}" data-cy="my-updates" data-ga="Updates">{{ faicon(icon='bell', baseline=false) }}</a>
                     {%- if config['ENABLE_COMMENT_SIDEBAR'] %}
                       <a href="javascript:void(0)" class="header__nav-links header__nav-links--right profile-avatar profile-avatar--bigger js-comments-btn" aria-label="{% trans %}Comments{% endtrans %}" data-ga="Comments" data-cy="comment-sidebar" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='comment-alt', baseline=false) }}</a>
                     {% endif %}
@@ -308,7 +308,7 @@
     {% assets "js_jquerytruncate" -%}
       <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {%- endassets -%}
-    <script src="{{ url_for('static', filename=built_asset('app')) }}" type="text/javascript"></script>
+    <script src="{{ built_asset('app.js') }}" type="text/javascript"></script>
     <script type="text/javascript">
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {

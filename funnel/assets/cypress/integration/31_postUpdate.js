@@ -63,7 +63,7 @@ describe('Test updates feature', () => {
 
     cy.wait(2000);
     cy.login('/', user.username, user.password);
-    cy.visit('/updates');
+    cy.get('a[data-cy="my-updates"]:visible').click();
     cy.wait('@fetch-updates');
     cy.get('[data-cy="notification-box"]').contains(project.update_title);
   });
