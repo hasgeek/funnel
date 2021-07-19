@@ -56,88 +56,89 @@
 //   "msgstr[1]",  // in case of plural
 // ],
 
-var sprintf = require('sprintf-js').sprintf,
-  vsprintf = require('sprintf-js').vsprintf;
+import { sprintf, vsprintf } from 'sprintf-js';
 
-const Gettext = function (config) {
-  this.getTranslationFileUrl = function (langCode) {
-    return `/static/translations/${langCode}/messages.json`;
-  };
+class Gettext {
+  constructor(config) {
+    this.getTranslationFileUrl = function getTranslationFileUrl(langCode) {
+      return `/static/translations/${langCode}/messages.json`;
+    };
 
-  this.getBaseframeTranslationFileUrl = function (langCode) {
-    return `/static/translations/${langCode}/baseframe.json`;
-  };
+    this.getBaseframeTranslationFileUrl = (langCode) =>
+      `/static/translations/${langCode}/baseframe.json`;
 
-  if (config !== undefined && config.translatedLang !== undefined) {
-    var catalog = {};
-    var domain = 'messages';
+    if (config !== undefined && config.translatedLang !== undefined) {
+      let catalog = {};
+      let domain = 'messages';
 
-    $.ajax({
-      type: 'GET',
-      url: this.getTranslationFileUrl(config.translatedLang),
-      async: false,
-      timeout: window.Hasgeek.config.ajaxTimeout,
-      success: function (responseData) {
-        domain = responseData.domain;
-        catalog = responseData.locale_data.messages;
-      },
-    });
-    $.ajax({
-      type: 'GET',
-      url: this.getBaseframeTranslationFileUrl(config.translatedLang),
-      async: false,
-      timeout: window.Hasgeek.config.ajaxTimeout,
-      success: function (responseData) {
-        catalog = Object.assign(catalog, responseData.locale_data.messages);
-      },
-    });
+      $.ajax({
+        type: 'GET',
+        url: this.getTranslationFileUrl(config.translatedLang),
+        async: false,
+        timeout: window.Hasgeek.config.ajaxTimeout,
+        success(responseData) {
+          domain = responseData.domain;
+          catalog = responseData.locale_data.messages;
+        },
+      });
+      $.ajax({
+        type: 'GET',
+        url: this.getBaseframeTranslationFileUrl(config.translatedLang),
+        async: false,
+        timeout: window.Hasgeek.config.ajaxTimeout,
+        success(responseData) {
+          catalog = Object.assign(catalog, responseData.locale_data.messages);
+        },
+      });
 
-    this.domain = domain;
-    this.catalog = catalog;
+      this.domain = domain;
+      this.catalog = catalog;
+    }
+
+    this.gettext = function gettext(msgid, ...args) {
+      if (msgid in this.catalog) {
+        const msgidCatalog = this.catalog[msgid];
+
+        if (msgidCatalog.length < 2) {
+          // eslint-disable-next-line no-console
+          console.error(
+            'Invalid format for translated messages, at least 2 values expected'
+          );
+        }
+        // in case of gettext() first element is empty because it's the msgid_plural,
+        // and the second element is the translated msgstr
+        return vsprintf(msgidCatalog[1], args);
+      }
+      return vsprintf(msgid, args);
+    };
+
+    this.ngettext = function ngettext(msgid, msgidPlural, num, ...args) {
+      if (msgid in this.catalog) {
+        const msgidCatalog = this.catalog[msgid];
+
+        if (msgidCatalog.length < 3) {
+          // eslint-disable-next-line no-console
+          console.error(
+            'Invalid format for translated messages, at least 3 values expected for plural translations'
+          );
+        }
+
+        if (msgidPlural !== msgidCatalog[0]) {
+          // eslint-disable-next-line no-console
+          console.error("Plural forms don't match");
+        }
+
+        let msgstr = '';
+        if (num <= 1) {
+          msgstr = sprintf(msgidCatalog[1], { num });
+        } else {
+          msgstr = sprintf(msgidCatalog[2], { num });
+        }
+        return vsprintf(msgstr, args);
+      }
+      return vsprintf(msgid, args);
+    };
   }
+}
 
-  this.gettext = function (msgid, ...args) {
-    if (msgid in this.catalog) {
-      let msgidCatalog = this.catalog[msgid];
-
-      if (msgidCatalog.length < 2) {
-        console.error(
-          'Invalid format for translated messages, at least 2 values expected'
-        );
-      }
-      // in case of gettext() first element is empty because it's the msgid_plural,
-      // and the second element is the translated msgstr
-      return vsprintf(msgidCatalog[1], args);
-    } else {
-      return vsprintf(msgid, args);
-    }
-  };
-
-  this.ngettext = function (msgid, msgidPlural, num, ...args) {
-    if (msgid in this.catalog) {
-      let msgidCatalog = this.catalog[msgid];
-
-      if (msgidCatalog.length < 3) {
-        console.error(
-          'Invalid format for translated messages, at least 3 values expected for plural translations'
-        );
-      }
-
-      if (msgidPlural !== msgidCatalog[0]) {
-        console.error("Plural forms don't match");
-      }
-
-      let msgstr = '';
-      if (num <= 1) {
-        msgstr = sprintf(msgidCatalog[1], { num: num });
-      } else {
-        msgstr = sprintf(msgidCatalog[2], { num: num });
-      }
-      return vsprintf(msgstr, args);
-    } else {
-      return vsprintf(msgid, args);
-    }
-  };
-};
-
-module.exports = Gettext;
+export default Gettext;

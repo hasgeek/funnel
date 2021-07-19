@@ -1,13 +1,12 @@
-describe('Verify roles of editor', function () {
-  const editor = require('../fixtures/user.json').editor;
+/* eslint-disable global-require */
+describe('Verify roles of editor', () => {
+  const { editor } = require('../fixtures/user.json');
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
-  it('Access available for editor in project settings', function () {
-    cy.login('/' + profile.title, editor.username, editor.password);
-    cy.get('[data-cy-title="' + project.title + '"]')
-      .first()
-      .click();
+  it('Access available for editor in project settings', () => {
+    cy.login(`/${profile.title}`, editor.username, editor.password);
+    cy.get(`[data-cy-title="${project.title}"]`).first().click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy="project-menu"]:visible').click();
     cy.wait(1000);

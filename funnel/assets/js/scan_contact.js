@@ -1,10 +1,10 @@
 import jsQR from 'jsqr';
 import vCardsJS from 'vcards-js';
-import { ractiveApp } from './ractive_util';
+import { RactiveApp } from './ractive_util';
 
 const badgeScan = {
   init({ getContactApiUrl, wrapperId, templateId }) {
-    const badgeScanComponent = new ractiveApp({
+    const badgeScanComponent = new RactiveApp({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
       data: {
@@ -100,8 +100,9 @@ const badgeScan = {
       },
 
       startRenderFrameLoop() {
-        let timerId;
-        timerId = window.requestAnimationFrame(badgeScanComponent.renderFrame);
+        const timerId = window.requestAnimationFrame(
+          badgeScanComponent.renderFrame
+        );
         this.set('timerId', timerId);
       },
 
@@ -157,9 +158,9 @@ const badgeScan = {
         }
 
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          let video = document.getElementById('qrreader');
-          let canvasElement = document.createElement('canvas');
-          let canvas = canvasElement.getContext('2d');
+          const video = document.getElementById('qrreader');
+          const canvasElement = document.createElement('canvas');
+          const canvas = canvasElement.getContext('2d');
 
           navigator.mediaDevices
             .getUserMedia({ video: { facingMode: 'environment' } })
@@ -190,7 +191,7 @@ const badgeScan = {
   },
 };
 $(() => {
-  window.Hasgeek.BadgeScanInit = function (scanConfig) {
+  window.Hasgeek.badgeScanInit = function badgeScanInit(scanConfig) {
     badgeScan.init(scanConfig);
   };
 });

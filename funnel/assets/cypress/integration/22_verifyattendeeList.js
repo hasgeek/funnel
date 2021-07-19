@@ -1,14 +1,12 @@
-describe('Verify attendee list', function () {
-  const promoter = require('../fixtures/user.json').promoter;
-  const user = require('../fixtures/user.json').user;
+/* eslint-disable global-require */
+describe('Verify attendee list', () => {
+  const { user, promoter } = require('../fixtures/user.json');
   const project = require('../fixtures/project.json');
 
-  it('Verify list of attendees who have responded yes to attending a project', function () {
+  it('Verify list of attendees who have responded yes to attending a project', () => {
     cy.login('/testcypressproject', promoter.username, promoter.password);
 
-    cy.get('[data-cy-title="' + project.title + '"]')
-      .first()
-      .click();
+    cy.get(`[data-cy-title="${project.title}"]`).first().click();
     cy.location('pathname').should('contain', project.url);
     cy.get('button[data-cy="rsvp-menu"]:visible').click();
     cy.wait(1000);

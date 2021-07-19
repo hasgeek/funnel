@@ -1,5 +1,5 @@
 import jsQR from 'jsqr';
-import { ractiveApp } from './ractive_util';
+import { RactiveApp } from './ractive_util';
 
 const badgeScan = {
   init({
@@ -9,7 +9,7 @@ const badgeScan = {
     projectTitle,
     ticketEventTitle,
   }) {
-    const badgeScanComponent = new ractiveApp({
+    const badgeScanComponent = new RactiveApp({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
       data: {
@@ -76,8 +76,7 @@ const badgeScan = {
 
       startRenderFrameLoop(event) {
         if (event) event.original.preventDefault();
-        let timerId;
-        timerId = window.requestAnimationFrame(this.renderFrame);
+        const timerId = window.requestAnimationFrame(this.renderFrame);
         this.set('timerId', timerId);
       },
 
@@ -207,7 +206,7 @@ const badgeScan = {
   },
 };
 $(() => {
-  window.Hasgeek.BadgeScanInit = function (ticketEventConfig) {
+  window.Hasgeek.badgeScanInit = function badgeScanInit(ticketEventConfig) {
     badgeScan.init(ticketEventConfig);
   };
 });

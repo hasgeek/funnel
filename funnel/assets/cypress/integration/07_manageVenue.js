@@ -1,11 +1,12 @@
-describe('Manage project venue', function () {
-  const editor = require('../fixtures/user.json').editor;
+/* eslint-disable global-require */
+describe('Manage project venue', () => {
+  const { editor } = require('../fixtures/user.json');
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
-  it('Add venue', function () {
+  it('Add venue', () => {
     cy.login(
-      '/' + profile.title + '/' + project.url,
+      `/${profile.title}/${project.url}`,
       editor.username,
       editor.password
     );
@@ -18,7 +19,7 @@ describe('Manage project venue', function () {
     cy.location('pathname').should('contain', '/venues');
 
     cy.fixture('venues').then((venues) => {
-      venues.forEach(function (venue) {
+      venues.forEach((venue) => {
         cy.get('a[data-cy="new-venue"]').click();
         cy.location('pathname').should('contain', '/new');
         cy.get('#title').type(venue.venue_title);
@@ -33,18 +34,18 @@ describe('Manage project venue', function () {
         cy.get('button[data-cy="form-submit-btn"]').click();
         cy.location('pathname').should(
           'include',
-          '/testcypressproject/' + project.url + '/venues'
+          `/testcypressproject/${project.url}/venues`
         );
       });
 
-      cy.get('[data-cy="' + venues[1].venue_title + '"]').click();
+      cy.get(`[data-cy="${venues[1].venue_title}"]`).click();
       cy.get('[data-cy="set-primary-venue"]').click();
-      cy.get('[data-cy="' + venues[1].venue_title + '"]')
+      cy.get(`[data-cy="${venues[1].venue_title}"]`)
         .find('em')
         .contains('(primary)');
 
-      venues.forEach(function (venue) {
-        cy.get('.card[data-cy-venue="' + venue.venue_title + '"]')
+      venues.forEach((venue) => {
+        cy.get(`.card[data-cy-venue="${venue.venue_title}"]`)
           .find('a[data-cy="add-room"]')
           .click();
         cy.location('pathname').should('contain', '/new');
@@ -56,15 +57,15 @@ describe('Manage project venue', function () {
         cy.get('button[data-cy="form-submit-btn"]').click();
         cy.location('pathname').should(
           'include',
-          '/testcypressproject/' + project.url + '/venues'
+          `/testcypressproject/${project.url}/venues`
         );
-        cy.get('.card[data-cy-venue="' + venue.venue_title + '"]')
+        cy.get(`.card[data-cy-venue="${venue.venue_title}"]`)
           .find('li')
           .contains(venue.room.title);
       });
 
-      venues.forEach(function (venue) {
-        cy.get('[data-cy-room="' + venue.room.title + '"]').should('exist');
+      venues.forEach((venue) => {
+        cy.get(`[data-cy-room="${venue.room.title}"]`).should('exist');
       });
     });
   });

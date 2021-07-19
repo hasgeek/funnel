@@ -50,5 +50,5 @@
   {% assets "js_footable" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
-  <script src="{{ url_for('static', filename=asset_path('rsvp_list')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('rsvp_list.js') }}" type="text/javascript"></script>
 {% endblock %}

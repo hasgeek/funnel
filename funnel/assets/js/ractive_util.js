@@ -9,11 +9,9 @@ export const useravatar = Ractive.extend({
     size: 'medium',
     getInitials: window.Baseframe.Utils.getInitials,
     imgurl() {
-      return (
-        this.get('user')['avatar'] +
-        '?size=' +
+      return `${this.get('user').avatar}?size=${
         window.Hasgeek.config.userAvatarImgSize[this.get('size')]
-      );
+      }`;
     },
   },
 });
@@ -26,7 +24,7 @@ export const faicon = Ractive.extend({
   },
 });
 
-export const ractiveApp = Ractive.extend({
+export const RactiveApp = Ractive.extend({
   data: {
     gettext(msgid, ...args) {
       return window.gettext(msgid, ...args);

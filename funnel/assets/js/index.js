@@ -1,8 +1,8 @@
-import { SaveProject } from './util';
 import Vue from 'vue/dist/vue.min';
+import { SaveProject } from './util';
 
 $(() => {
-  window.Hasgeek.HomeInit = function (config) {
+  window.Hasgeek.homeInit = function homeInit(config) {
     // Expand CFP section
     $('.jquery-show-all').click(function showAll(event) {
       event.preventDefault();
@@ -11,8 +11,8 @@ $(() => {
       $(this).addClass('mui--hide');
     });
 
-    $('.js-save-form').each(function () {
-      let projectSaveConfig = {
+    $('.js-save-form').each(function saveProjectButton() {
+      const projectSaveConfig = {
         formId: $(this).attr('id'),
         postUrl: $(this).attr('action'),
       };

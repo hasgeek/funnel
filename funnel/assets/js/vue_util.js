@@ -23,7 +23,7 @@ export const userAvatarUI = Vue.component('useravatar', {
       return window.Hasgeek.config.userAvatarImgSize[this.size];
     },
     imgurl() {
-      return this.user.avatar + '?size=' + this.imgsize;
+      return `${this.user.avatar}?size=${this.imgsize}`;
     },
   },
 });
@@ -50,15 +50,16 @@ export const faSvg = Vue.component('faicon', {
   },
   computed: {
     iconname() {
-      return '#' + this.icon;
+      return `#${this.icon}`;
     },
     iconsizecss() {
-      return 'fa5-icon--' + this.icon_size;
+      return `fa5-icon--${this.icon_size}`;
     },
     baselineclass() {
       if (this.baseline) {
         return 'fa5--align-baseline';
-      } else return '';
+      }
+      return '';
     },
   },
 });

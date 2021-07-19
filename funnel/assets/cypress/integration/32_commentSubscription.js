@@ -1,12 +1,11 @@
-describe('Confirm submission comment subscription', function () {
-  const editor = require('../fixtures/user.json').editor;
+/* eslint-disable global-require */
+describe('Confirm submission comment subscription', () => {
+  const { editor, newuser } = require('../fixtures/user.json');
   const member = require('../fixtures/user.json').user;
-  const newuser = require('../fixtures/user.json').newuser;
-  const profile = require('../fixtures/profile.json');
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
 
-  it('Confirm proposal', function () {
+  it('Confirm proposal', () => {
     cy.server();
     cy.route('POST', '**/new').as('post-comment');
     cy.route('POST', '**/subscribe').as('post-subscribe');
@@ -16,7 +15,7 @@ describe('Confirm submission comment subscription', function () {
     cy.wait(1000);
     cy.get('a[data-cy="profile"]').click();
     cy.get('a[data-cy="submissions"]').click();
-    cy.get('a[data-cy-proposal="' + proposal.title + '"]').click();
+    cy.get(`a[data-cy-proposal="${proposal.title}"]`).click();
     cy.get('[data-cy="post-comment"]').click();
     cy.get('[data-cy="new-form"]')
       .find('.CodeMirror textarea')
@@ -35,29 +34,37 @@ describe('Confirm submission comment subscription', function () {
     cy.logout();
     cy.wait(1000);
 
-    cy.login('/', newuser.username, newuser.password);
+    cy.login('/', newuser.username, newuser.newpassword);
     cy.get('[data-cy="comment-sidebar"]').click();
     cy.get('.upcoming')
       .find('.card--upcoming')
       .contains(project.title)
       .click({ force: true });
     cy.get('a[data-cy-navbar="submissions"]').click();
-    cy.get('#search').type(proposal.title);
-    cy.get('a[data-cy-proposal="' + proposal.title + '"]').click();
+    cy.get('#header-search').type(proposal.title);
+    cy.get(`a[data-cy-proposal="${proposal.title}"]`).click();
     cy.get('a[data-cy="subscribe-proposal"]:visible').click();
+    cy.wait(1000);
+    cy.get('[data-cy="subscription"]:visible').click();
     cy.wait('@post-subscribe');
+    cy.get('a[data-cy="subscribe-proposal"]:visible').click();
+    cy.wait(1000);
     cy.get('[data-cy="cancel-subscription"]:visible').click();
     cy.wait('@post-subscribe');
     cy.get('a[data-cy="subscribe-proposal"]:visible').click();
+    cy.wait(1000);
+    cy.get('[data-cy="subscription"]:visible').click();
     cy.wait('@post-subscribe');
     cy.visit('/');
     cy.logout();
     cy.wait(1000);
 
     cy.login('/', member.username, member.password);
+    cy.get('a[data-cy="my-account"]:visible').click();
+    cy.wait(1000);
     cy.get('a[data-cy="profile"]').click();
     cy.get('a[data-cy="submissions"]').click();
-    cy.get('a[data-cy-proposal="' + proposal.title + '"]').click();
+    cy.get(`a[data-cy-proposal="${proposal.title}"]`).click();
     cy.get('[data-cy="post-comment"]').click();
     cy.get('[data-cy="new-form"]')
       .find('.CodeMirror textarea')
@@ -69,7 +76,7 @@ describe('Confirm submission comment subscription', function () {
     cy.logout();
     cy.wait(1000);
 
-    cy.login('/', newuser.username, newuser.password);
+    cy.login('/', newuser.username, newuser.newpassword);
     cy.get('[data-cy="comment-sidebar"]').click();
     cy.wait(1000);
     cy.get('[data-cy="unread-comment"]')

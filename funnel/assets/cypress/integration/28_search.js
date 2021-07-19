@@ -1,9 +1,9 @@
-describe('Test search feature', function () {
+/* eslint-disable global-require */
+describe('Test search feature', () => {
   const project = require('../fixtures/project.json');
   const proposal = require('../fixtures/proposal.json');
-  const session = require('../fixtures/session.json');
 
-  it('Search', function () {
+  it('Search', () => {
     cy.server();
     cy.route('/search?**').as('search');
 

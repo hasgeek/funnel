@@ -1,16 +1,14 @@
-describe('View participant badge', function () {
-  const usher = require('../fixtures/user.json').usher;
-  const profile = require('../fixtures/profile.json');
+/* eslint-disable global-require */
+describe('View participant badge', () => {
+  const { usher } = require('../fixtures/user.json');
   const project = require('../fixtures/project.json');
   const ticketEvents = require('../fixtures/ticket_events.json');
   const ticketParticipants = require('../fixtures/ticket_participants.json');
 
-  it('View participant badge', function () {
+  it('View participant badge', () => {
     cy.login('/', usher.username, usher.password);
 
-    cy.get('[data-cy-title="' + project.title + '"]')
-      .first()
-      .click();
+    cy.get(`[data-cy-title="${project.title}"]`).first().click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy="project-menu"]:visible').click();
     cy.wait(1000);
@@ -18,8 +16,8 @@ describe('View participant badge', function () {
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="setup-ticket-events"').click();
     cy.location('pathname').should('contain', '/admin');
-    cy.get('a[data-cy="' + ticketEvents[1].title + '"]').click();
-    var firstname = ticketParticipants[2].fullname.split(' ')[0];
+    cy.get(`a[data-cy="${ticketEvents[1].title}"]`).click();
+    const firstname = ticketParticipants[2].fullname.split(' ')[0];
     cy.get('td[data-cy="ticket-participant"]')
       .contains(ticketParticipants[2].fullname)
       .parent()

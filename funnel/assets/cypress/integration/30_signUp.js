@@ -1,7 +1,8 @@
-describe('Creating a new user account', function () {
-  const newuser = require('../fixtures/user.json').newuser;
+/* eslint-disable global-require */
+describe('Creating a new user account', () => {
+  const { newuser } = require('../fixtures/user.json');
 
-  it('Signup', function () {
+  it('Signup', () => {
     cy.visit('/', { failOnStatusCode: false })
       .get('#hgnav')
       .find('.header__button')
@@ -13,7 +14,7 @@ describe('Creating a new user account', function () {
     cy.get('#password').type(newuser.password);
     cy.get('#confirm_password').type(newuser.password);
     cy.get('button[data-cy="form-submit-btn"]').click();
-    cy.get('.alert--success').should('visible');
+    cy.get('.alert--success').should('be.visible');
     cy.get('a[data-cy="my-account"]:visible').click();
     cy.wait(1000);
     cy.get('a[data-cy="account"]:visible').click();

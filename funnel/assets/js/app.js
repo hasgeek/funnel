@@ -63,16 +63,17 @@ $(() => {
   }
   Utils.addVegaSupport();
 
-  const intersectionObserverComponents = function () {
-    if (document.querySelector('#page-navbar')) {
-      ScrollActiveMenu.init(
-        'page-navbar',
-        'sub-navbar__item',
-        'sub-navbar__item--active'
-      );
-    }
-    LazyloadImg.init('js-lazyload-img');
-  };
+  const intersectionObserverComponents =
+    function intersectionObserverComponents() {
+      if (document.querySelector('#page-navbar')) {
+        ScrollActiveMenu.init(
+          'page-navbar',
+          'sub-navbar__item',
+          'sub-navbar__item--active'
+        );
+      }
+      LazyloadImg.init('js-lazyload-img');
+    };
 
   if (
     document.querySelector('#page-navbar') ||
@@ -92,7 +93,7 @@ $(() => {
         'src',
         'https://cdn.polyfill.io/v2/polyfill.min.js?features=IntersectionObserver'
       );
-      polyfill.onload = function () {
+      polyfill.onload = function loadintersectionObserverComponents() {
         intersectionObserverComponents();
       };
       document.head.appendChild(polyfill);
@@ -137,7 +138,7 @@ if (
   )
 ) {
   $('.pace').addClass('pace-hide');
-  window.onbeforeunload = function () {
+  window.onbeforeunload = function stopPace() {
     Pace.stop();
   };
 }

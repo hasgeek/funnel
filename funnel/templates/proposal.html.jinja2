@@ -34,7 +34,7 @@
         <form action="{{ proposal.commentset.url_for('subscribe') }}" method="post" class="mui--d-inlineblock proposal-subscribe-form" id="subscribe-form">
           {{ proposal.commentset.forms.subscribe().hidden_tag() }}
           <li class="js-subscribed {% if not subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="false" class="mui--text-body2 mui--hide js-subscribe-btn" id="cancel-subscription"><label class="link" for="cancel-subscription" data-cy="cancel-subscription">{{ faicon(icon='bell-slash', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Stop notifications{% endtrans %}</label></li>
-          <li class="js-unsubscribed {% if subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="true" class="mui--text-body2 mui--hide js-subscribe-btn" id="confirm-subscription"><label class="link" for="confirm-subscription">{{ faicon(icon='bell', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Get notifications{% endtrans %}</label></li>
+          <li class="js-unsubscribed {% if subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="true" class="mui--text-body2 mui--hide js-subscribe-btn" id="confirm-subscription"><label class="link" for="confirm-subscription" data-cy="subscription">{{ faicon(icon='bell', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Get notifications{% endtrans %}</label></li>
         </form>
       </ul>
     </div>
@@ -270,8 +270,8 @@
 {% endblock %}
 
 {% block footerinnerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('proposal')) }}" type="text/javascript"></script>
-  <script src="{{ url_for('static', filename=asset_path('comments')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('proposal.js') }}" type="text/javascript"></script>
+  <script src="{{ built_asset('comments.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var commentsConfig = {
@@ -285,7 +285,7 @@
         lastSeenUrl: {% if proposal.commentset.current_roles.document_subscriber %}{{ proposal.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
       };
       window.Hasgeek.Comments(commentsConfig);
-      window.Hasgeek.ProjectHeaderInit();
+      window.Hasgeek.projectHeaderInit();
       window.Hasgeek.ProposalInit();
     });
   </script>

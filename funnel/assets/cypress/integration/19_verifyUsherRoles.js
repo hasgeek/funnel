@@ -1,13 +1,12 @@
-describe('Verify roles of usher', function () {
-  const usher = require('../fixtures/user.json').usher;
+/* eslint-disable global-require */
+describe('Verify roles of usher', () => {
+  const { usher } = require('../fixtures/user.json');
   const project = require('../fixtures/project.json');
 
-  it('Access available for usher in project settings', function () {
+  it('Access available for usher in project settings', () => {
     cy.login('/', usher.username, usher.password);
 
-    cy.get('[data-cy-title="' + project.title + '"]')
-      .first()
-      .click();
+    cy.get(`[data-cy-title="${project.title}"]`).first().click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy="project-menu"]:visible').click();
     cy.wait(1000);
