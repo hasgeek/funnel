@@ -1,0 +1,411 @@
+{%- from "macros.html.jinja2" import alertbox, faicon -%}
+
+{% macro rendererrors(field) -%}
+    {%- if field.errors -%}
+      {%- for error in field.errors %}
+        <div><p class="mui-form__error">{{ error }}</p></div>
+      {%- endfor %}
+    {%- endif %}
+{%- endmacro %}
+
+{% macro renderfield(field, css_class="", widget_css_class="", sidetext=none, tabindex=none, autofocus=false, nolabel=false, style='horiz', rows=none) -%}
+  {%- if field.widget.html_tag in ['ul', 'ol'] %}
+    {%- set listwidget = true %}
+  {%- elif field.widget.input_type == 'checkbox' %}
+    {%- set listwidget = false %}
+  {%- else %}
+    {%- set listwidget = false %}
+  {%- endif -%}
+  {%- if field.type == 'FormField' %}
+    <fieldset>
+      <legend>{{ field.label.text }}</legend>
+      {%- for subfield in field.form %}
+        {%- if not subfield.type in ['CSRFTokenField', 'HiddenField', 'NonceField'] -%}
+          {{ renderfield(field=subfield, css_class=css_class, widget_css_class=widget_css_class, sidetext=sidetext, tabindex=tabindex, autofocus=false, nolabel=nolabel, style=style, rows=rows) }}
+        {%- endif %}
+      {%- endfor %}
+    </fieldset>
+  {%- else %}
+    <div class="mui-form__fields {%- if field.errors %} error has-error {%- endif -%}
+        {%- if css_class %} {{ css_class }} {%- endif -%}
+        {%- if listwidget %} listwidget {%- if style == 'horizlist' %} horizlist {%- endif %}{%- endif -%}
+        " id="field-{{ field.id }}">
+      {%- if field.type == 'RadioMatrixField' %}
+        <div class="mui-form__controls">
+          {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class) }}
+          {%- if field.description %}
+             <p class="mui-form__helptext">{{ field.description }}</p>
+          {%- endif %}
+        </div>
+      {%- elif field.type == 'BooleanField' %}
+        <div class="mui-form__controls">
+          <div class="mui-checkbox">
+            <label>
+              {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, rows=rows) }} {{ field.label.text }}
+              {{ rendererrors(field) }}
+            </label>
+          </div>
+          {%- if field.description %}
+            <p class="mui-form__helptext">{{ field.description }}</p>
+          {%- endif %}
+        </div>
+      {%- else %}
+        <div class="mui-form__controls">
+          {%- if field.type in ['AnnotatedTextField', 'AnnotatedNullTextField'] %}
+            <div class="mui-textfield mui-textfield--addon">
+              {% if field.prefix %}<span class="mui-form__addon">{{ field.prefix }}</span>{% endif %}
+              {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, autofocus=autofocus, rows=rows)}}
+              {% if field.suffix %}<span class="mui-form__addon">{{ field.suffix }}</span>{% endif %}
+              {%- if not nolabel %}
+                <label for="{{ field.id }}">{{ field.label.text }}</label>
+              {%- endif %}
+            </div>
+          {%- elif field.type == 'CoordinatesField' %}
+            <div class="map">
+              <div class="mui-textfield no-jshidden">
+                <input type="text" class="map__search-field" id="{{ field.id }}_search" placeholder="Enter a location">
+                <a href="javascript:void(0)" id="{{ field.id }}_clear" class="map__clear" aria-label="clear location">{{ faicon(icon='times', icon_size='title') }}</a>
+                {%- if not nolabel %}
+                  <label for="{{ field.id }}">{{ field.label.text }}</label>
+                {%- endif %}
+              </div>
+              <div id="{{ field.id }}_map" class="no-jshidden map__marker"></div>
+              <div class="jshidden">{{ field(class="field-" + field.id + " form-control") }}</div>
+            </div>
+          {%- elif field.widget.input_type in ['text', 'email', 'search', 'url', 'number', 'tel'] and field.widget.html_tag not in ['ul', 'ol'] %}
+            <div class="mui-textfield mui-textfield--float-label">
+              {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, autofocus=autofocus, rows=rows)}}
+              {%- if not nolabel %}
+                <label for="{{ field.id }}">{{ field.label.text }}</label>
+              {%- endif %}
+            </div>
+          {%- elif field.type == 'ImgeeField' %}
+            <div class="imgee">
+              {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, autofocus=autofocus, rows=rows) }}
+            </div>
+          {%- elif field.widget.input_type == 'password' and field.widget.html_tag not in ['ul', 'ol'] %}
+            <div class="mui-textfield mui-textfield--password mui-textfield--float-label">
+              {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, autofocus=autofocus, rows=rows)}}
+              <a href="javascript:void(0)" class="js-show-password password-toggle" aria-label="show password"tabindex="-1">{{ faicon(icon='eye', icon_size='title', css_class='mui--text-light') }}</a>
+              <a href="javascript:void(0)" class="js-hide-password password-toggle mui--hide" aria-label="hide password" tabindex="-1">{{ faicon(icon='eye-slash', icon_size='title', css_class='mui--text-light') }}</a>
+              {%- if not nolabel %}
+                <label for="{{ field.id }}">{{ field.label.text }}</label>
+              {%- endif %}
+              <div class="password-strength">
+                <span class="password-strength-icon js-password-weak">{{ faicon(icon='times', icon_size='title', baseline=false, css_class='mui--text-danger') }}</span>
+                <span class="password-strength-icon js-password-good">{{ faicon(icon='check', icon_size='title', baseline=false, css_class='mui--text-success') }}</span>
+                <div class="progress">
+                  <div class="progress__bar">
+                    <span class="progress__txt mui--text-body2"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {%- elif field.widget.input_type in ['color', 'date', 'datetime', 'datetime-local', 'month', 'time', 'week'] and field.widget.html_tag not in ['ul', 'ol'] %}
+            <div class="mui-textfield">
+              {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, autofocus=autofocus, rows=rows)}}
+              {%- if not nolabel %}
+                <label for="{{ field.id }}">{{ field.label.text }}</label>
+              {%- endif %}
+            </div>
+          {%- elif field.type in ['SelectField', 'QuerySelectField', 'SelectMultipleField', 'QuerySelectMultipleField', 'UserSelectField', 'UserSelectMultiField', 'AutocompleteField', 'AutocompleteMultipleField', 'GeonameSelectField', 'GeonameSelectMultiField'] and field.widget.html_tag not in ['ul', 'ol'] %}
+            <div class="mui-select">
+              {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, autofocus=autofocus, rows=rows)}}
+              <label for="{{ field.id }}">{{ field.label.text }}</label>
+            </div>
+          {%- else %}
+            <div class="mui-textfield">
+              {%- if not nolabel %}<label for="{{ field.id }}" class="mui-form__label">{{ field.label.text }}</label>{%- endif %}
+              {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, autofocus=autofocus, rows=rows)}}
+            </div>
+          {%- endif %}
+          {%- if sidetext %}
+            <span class="mui-form__sidetext">{{sidetext}}</span>
+          {%- endif %}
+          {{ rendererrors(field) }}
+          {%- if field.description %}
+            <p class="mui-form__helptext">{{ field.description }}</p>
+          {%- endif %}
+        </div>
+      {%- endif %}
+    </div>
+  {%- endif %}
+{%- endmacro %}
+
+{% macro rendersubmit(buttons=[], css_class="", tabindex='', cancel_url='', style='horiz', csrf_error=false) -%}
+<div class="mui-form form-actions clearfix{% if css_class %} {{ css_class}}{% endif %}">
+  <div>
+    {% for name, value, widget_class in buttons -%}
+      <button type="submit"
+        {%- if name %} name="{{ name|e }}"{% else %} {% endif -%}
+        class="mui-btn mui-btn--raised {% if widget_class %}  {{ widget_class|e }}{% else %} mui-btn--primary{% endif -%}"
+        {%- if tabindex %} tabindex="{{ tabindex }}" {% endif -%}
+        data-cy="form-submit-btn"
+        >{{ value|e }}</button>
+    {% endfor %}
+    {% if cancel_url %}<a href="{{ cancel_url }}" class="mui-btn mui-btn--raised mui-btn" data-cy="form-cancel-btn">{% trans %}Cancel{% endtrans %}</a>{% endif %}
+    <span class="loading mui--hide">&nbsp;</span>
+    {% if csrf_error -%}
+      <div><p class="mui-form__error">{% trans -%}
+        This form has timed out. Please submit again to confirm
+      {%- endtrans %}</p></div>
+    {%- endif %}
+  </div>
+</div>
+{%- endmacro %}
+
+{% macro renderform_inner(form, formid, style='horiz', autosave=False, draft_revision=None) -%}
+  {%- if form.errors %}
+    {{ alertbox('error', 'Please review the indicated issues') }}
+  {%- endif %}
+  {% if message %}<p>{{ message }}</p>{% endif %}
+  <div style="display:none;"><input type="hidden" name="form.id" value="{{ formid }}" /></div>
+  {{ form.hidden_tag() }}
+  {%- if autosave %}
+    <input type="hidden" name="form.revision" value="{{ draft_revision if draft_revision is not none }}" />
+  {%- endif %}
+  {%- set autofocus = true %}
+  {% set autofocus = namespace(val=true) %}
+  {% for field in form -%}
+    {%- if field.type in ['CSRFTokenField', 'HiddenField', 'NonceField'] -%}
+      {# Don't show hidden #}
+    {%- else -%}
+      {{ renderfield(field, autofocus=autofocus.val, style=style) }}
+      {%- if autofocus.val %}{% set autofocus.val = false %}{% endif %}
+    {%- endif %}
+  {% endfor %}
+{%- endmacro %}
+
+{%- macro renderform(form, formid, submit, ref_id='form', message='', action=None, cancel_url='', multipart=false, style='', autosave=False, draft_revision=None) %}
+<form data-parsley-validate="true" id="{{ ref_id }}" method="POST" {%- if action %} action="{{ action }}" {%- endif %}{%- if multipart %} enctype="multipart/form-data" {%- endif %} accept-charset="UTF-8" class="mui-form mui-form--margins hg-form {%- if style == 'horiz' %} mui-form--inline{% endif %}">
+  {{ renderform_inner(form, formid or none, style=style, autosave=autosave, draft_revision=draft_revision) }}
+  {{ rendersubmit([(none, submit or _("Submit"), 'mui-btn--primary')], cancel_url=cancel_url, style=style, csrf_error=form.csrf_token.errors if form.csrf_token else "") }}
+</form>
+{% endmacro %}
+
+{%- macro ajaxform(ref_id, request, force=false) %}
+  {%- if force or request_is_xhr() %}
+    <script type="text/javascript">
+      $(function() {
+        $("#{{ ref_id }}").ajaxForm({
+          target: '#{{ ref_id }}',
+          replaceTarget: true,
+          beforeSubmit: function(formdata, form, options) {
+            form.find('input[type="submit"]').prop('disabled', true).addClass('submit-disabled');
+            form.find('button[type="submit"]').prop('disabled', true).addClass('submit-disabled');
+            form.find('.loading').removeClass('mui--hide');
+            return true;
+          },
+          error: function(context, xhr, status, errMsg) {
+            var form = $("#{{ ref_id }}");
+            form.find('input[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
+            form.find('button[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
+            form.find('.loading').addClass('mui--hide');
+            form.append({{ alertbox('error', 'An error occured when submitting the form') | tojson }});
+          } // No comma or semicolon here
+        });
+      });
+    </script>
+  {%- else %}
+    <script type="text/javascript">
+      $(function() {
+        // Disable submit button when clicked. Prevent double click.
+        $('#{{ ref_id }}').submit(function() {
+          if(!$(this).data('parsley-validate') ||  $(this).data('parsley-validate') && $(this).hasClass('parsley-valid')) {
+            $(this).find('button[type="submit"]').prop('disabled', true);
+            $(this).find('input[type="submit"]').prop('disabled', true);
+            $(this).find(".loading").removeClass('mui--hide');
+          }
+        });
+      });
+    </script>
+  {%- endif %}
+{%- endmacro %}
+
+{% macro tinymce3_editor(field, script=true) -%}
+  {%- if script %}
+  <script type="text/javascript">
+    $(function() {
+  {%- endif %}
+      if (typeof(tinyMCE) != 'undefined') {
+        tinymce.remove('textarea#{{ field.id }}');
+      }
+      $('textarea#{{ field.id }}').removeClass('richtext').tinymce({
+        // Location of TinyMCE script
+        script_url: {{ url_for("baseframe.static", filename="js/tinymce3/tiny_mce.js")|tojson }},
+
+        {%- for k, v in field.tinymce_options.items() %}
+        {{ k|tojson }}: {{ v|tojson }},
+        {%- endfor %}
+        // Content CSS
+        content_css: {{ (field.content_css or url_for('baseframe.editorcss'))|tojson }},
+        // Focus/blur indicators
+        setup: function(ed) {
+          ed.onInit.add(function(ed) {
+            var container = $('#'+ed.id+'_tbl');
+            tinymce.dom.Event.add(ed.getWin(), "blur", function() {
+              container.removeClass('focus');
+            });
+            tinymce.dom.Event.add(ed.getWin(), "focus", function() {
+              container.addClass('focus');
+            });
+          });
+          ed.on('change', function(e) {
+            ed.save();
+          });
+        } // No comma or semicolon here
+      });
+  {%- if script %}
+    });
+  </script>
+  {%- endif %}
+{% endmacro %}
+
+{% macro tinymce4_editor(field, script=true) -%}
+  {%- if script %}
+  <script type="text/javascript">
+    $(function() {
+  {%- endif %}
+      if (typeof(tinyMCE) != 'undefined') {
+        tinymce.remove('textarea#{{ field.id }}');
+      }
+      $('textarea#{{ field.id }}').removeClass('richtext').tinymce({
+        script_url: {{ url_for("baseframe.static", filename="js/tinymce4/tinymce.min.js")|tojson }},
+        {%- for k, v in field.tinymce_options.items() %}
+        {{ k|tojson }}: {{ v|tojson }},
+        {%- endfor %}
+        // Content CSS
+        content_css: {{ (field.content_css or url_for('baseframe.editorcss'))|tojson }},
+        // Focus/blur indicators
+        setup: function(ed) {
+          ed.on('focus', function(e) {
+            $(ed.editorContainer).addClass('active');
+          });
+          ed.on('blur', function(e) {
+            $(ed.editorContainer).removeClass('active');
+          });
+          ed.on('change', function(e) {
+            ed.save();
+          });
+        } // End of setup keyval
+      });
+  {%- if script %}
+    });
+  </script>
+  {%- endif %}
+{% endmacro %}
+
+{%- macro map_marker_script(field) %}
+  new window.Baseframe.MapMarker({
+    location_id: "{{ field.id}}_search",
+    map_id: "{{ field.id }}_map",
+    latitude_id: "{{ field.id }}_latitude",
+    longitude_id: "{{ field.id}}_longitude",
+    clear_id: "{{ field.id}}_clear"
+  });
+{% endmacro %}
+
+{% macro widget_ext_scripts(form) %}
+  {%- with scripts = {} %}
+    {%- for field in form %}
+      {%- if field.type == 'CoordinatesField' %}
+        {#- We're using setdefault instead of a simple = because the do extension doesn't support assignment #}
+        {%- do scripts.setdefault('gmap', ('https://maps.googleapis.com/maps/api/js?key=' + config['GOOGLE_MAPS_API_KEY'] + '&libraries=places')) %}
+        {%- do scripts.setdefault('locationpicker', 'jquery.locationpicker.js'|ext_asset_url) %}
+      {%- endif %}
+    {%- endfor %}
+    {%- for key in scripts %}
+      <script type="text/javascript" src="{{ scripts[key] }}"></script>
+    {%- endfor %}
+  {%- endwith %}
+{% endmacro %}
+
+{% macro widgetscripts(form, script=true, ref_id='') -%}
+  {%- if script %}
+  <script type="text/javascript">
+    $(function() {
+  {%- endif %}
+    $('body').on('click', '.js-show-password', function () {
+      $(this).parent().find('.password-toggle').toggleClass('mui--hide');
+      $(this).parent().find('input').attr('type', 'text');
+    });
+
+    $('body').on('click', '.js-hide-password', function () {
+      $(this).parent().find('.password-toggle').toggleClass('mui--hide');
+      $(this).parent().find('input').attr('type', 'password');
+    });
+  {%- for field in form -%}
+    {%- if field.type == 'FormField' %}
+      {{ widgetscripts(field.form, script=false) }}
+    {%- elif field.widget.input_type == 'tinymce3' -%}
+      {{ tinymce3_editor(field, script=false) }}
+    {%- elif field.widget.input_type == 'tinymce4' -%}
+      {{ tinymce4_editor(field, script=false) }}
+    {%- elif field.type in ['AutocompleteField', 'AutocompleteMultipleField'] %}
+      Baseframe.Forms.textAutocomplete({
+        id: {{ field.id|tojson }},
+        multiple: {{ field.multiple|tojson }},
+        separator: {{ field.separator|tojson }},
+        autocomplete_endpoint: {{ field.autocomplete_endpoint|tojson }},
+        key: {{ field.results_key|tojson }}
+      });
+    {%- elif field.type == 'RecaptchaField' and ref_id != '' %}
+      window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
+        document.getElementById("{{ ref_id }}").submit();
+      };
+      $('#{{ ref_id }}').submit(function (event) {
+        event.preventDefault();
+        if (typeof grecaptcha !== "undefiend" && grecaptcha.getResponse() === '') {
+          grecaptcha.execute();
+        } else {
+          document.getElementById("{{ ref_id }}").submit();
+        }
+      })
+    {%- elif field.type == 'ImgeeField' %}
+      window.addEventListener("message", function (event) {
+        if (event.origin === "{{ config['IMGEE_HOST'] }}") {
+          var message = JSON.parse(event.data);
+          if (message.context == 'imgee.upload') {
+            $('#imgee-loader-{{field.id}}').removeClass('mui--hide');
+            $('#img_{{ field.id }}').attr('src', message.embed_url);
+            $('#{{ field.id }}').val(message.embed_url);
+            {%- if field.widget_type != 'modal' %}
+              $.modal.close();
+            {%- endif %}
+          }
+        }
+      });
+      $('#img_{{ field.id }}').on('load', function() {
+        $('#imgee-loader-{{field.id}}').addClass('mui--hide');
+      });
+    {%- elif field.type in ['UserSelectField', 'UserSelectMultiField'] %}
+      {%- if config['LASTUSER_CLIENT_ID'] and current_auth.cookie and 'sessionid' in current_auth.cookie %}
+        Baseframe.Forms.lastuserAutocomplete({
+          id: {{ field.id|tojson }},
+          multiple: {{ field.multiple|tojson }},
+          separator: {{ field.separator|tojson }},
+          autocomplete_endpoint: {{ field.autocomplete_endpoint|tojson }},
+          getuser_endpoint: {{ field.getuser_endpoint|tojson }},
+          client_id: {{ config['LASTUSER_CLIENT_ID']|tojson }},
+          session_id: {{ current_auth.cookie['sessionid']|tojson }}
+        });
+      {%- else %}
+        Baseframe.Forms.lastuserAutocomplete({
+          id: {{ field.id|tojson }},
+          multiple: {{ field.multiple|tojson }},
+          separator: {{ field.separator|tojson }},
+          autocomplete_endpoint: {{ field.autocomplete_endpoint|tojson }},
+          getuser_endpoint: {{ field.getuser_endpoint|tojson }}
+        });
+      {%- endif %}
+    {%- elif field.type in ['GeonameSelectField', 'GeonameSelectMultiField'] %}
+      activate_geoname_autocomplete({{ ('#'+field.id)|tojson }}, {{ field.autocomplete_endpoint|tojson }}, {{ field.getname_endpoint|tojson }}, {{ field.separator|tojson }});
+    {%- elif field.type == 'CoordinatesField' -%}
+      {{ map_marker_script(field) }}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- if script %}
+    });
+  </script>
+  {%- endif -%}
+{% endmacro %}

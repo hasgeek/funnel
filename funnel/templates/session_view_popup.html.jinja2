@@ -1,5 +1,5 @@
-{% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import embed_video_player, video_action_bar %}
+{%- from "macros.html.jinja2" import faicon, embed_video_player, video_action_bar %}
+
 <div class="modal__header mui--bg-accent">
   <a class="modal__close mui--text-dark" data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
   <h3 class="js-modal-title mui--text-headline session-modal__title" data-cy-session="title">{{ session.title }}</h3>

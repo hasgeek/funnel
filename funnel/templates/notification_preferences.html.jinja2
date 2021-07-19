@@ -1,7 +1,6 @@
 {% extends "layout.html.jinja2" %}
-{% from "baseframe/mui/forms.html.jinja2" import rendersubmit, ajaxform %}
-{% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import account_tabs, csrf_tag, useravatar %}
+{% from "forms.html.jinja2" import rendersubmit, ajaxform %}
+{%- from "macros.html.jinja2" import faicon, account_tabs, csrf_tag, useravatar %}
 
 {% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 

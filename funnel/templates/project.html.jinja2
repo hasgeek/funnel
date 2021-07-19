@@ -1,8 +1,7 @@
 {% set current_page = 'project' %}
 {% extends "project_layout.html.jinja2" %}
 {% block titleblock %}{{ project.title }}{%- endblock %}
-{% from "baseframe/components.html.jinja2" import alertbox %}
-{%- from "macros.html.jinja2" import proposal_card, video_thumbnail %}
+{%- from "macros.html.jinja2" import alertbox, proposal_card, video_thumbnail %}
 
 {%- block pageheaders %}
   {% assets "css_leaflet" -%}

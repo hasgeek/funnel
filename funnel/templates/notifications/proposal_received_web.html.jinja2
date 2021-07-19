@@ -1,6 +1,5 @@
 {% extends "notifications/layout_web.html.jinja2" %}
-{%- from "macros.html.jinja2" import project_title %}
-{%- from "baseframe/components.html.jinja2" import faicon %}
+{%- from "macros.html.jinja2" import faicon, project_title %}
 
 {% block content %}
   {%- if view.is_rollup %}

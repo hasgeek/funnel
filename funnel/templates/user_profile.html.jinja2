@@ -1,7 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{{ profile.title }}{% endblock %}
-{% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import profile_header, video_thumbnail, projectcard, proposal_list %}
+{%- from "macros.html.jinja2" import faicon, profile_header, video_thumbnail, projectcard, proposal_list %}
 
 {%- block pageheaders %}
 <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />

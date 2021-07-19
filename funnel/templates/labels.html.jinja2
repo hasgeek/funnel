@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{% from "baseframe/forms.html.jinja2" import renderfield %}
-{% from "baseframe/components.html.jinja2" import faicon %}
+{% from "forms.html.jinja2" import renderfield %}
+{% from "macros.html.jinja2" import faicon %}
 {% block title %}{% trans %}Labels{% endtrans %}{% endblock %}
 {% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock %}
 

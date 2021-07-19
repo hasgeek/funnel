@@ -1,7 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {%- from "js/badge.js.jinja2" import scan_checkin_template %}
-{% from "baseframe/forms.html" import renderfield %}
 {% block title %}{{ ticket_event.title }}{% endblock %}
 {% block pageheaders %}
 {% endblock %}

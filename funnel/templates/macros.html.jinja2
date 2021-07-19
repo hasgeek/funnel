@@ -1,8 +1,75 @@
-{% from "baseframe/forms.html.jinja2" import renderform %}
-{% from "baseframe/components.html.jinja2" import faicon, alertbox %}
 {%- set banner_img = 1500 %}
 {%- set profile_logo = 240 %}
 {%- set profile_logo_small = 80 %}
+
+
+{%- macro faicon(icon, icon_size='body', baseline=true, css_class='') -%}
+  {% assets "fa5-sprite" %}<svg class="fa5-icon {%- if icon_size %} fa5-icon--{{icon_size}} {%- endif -%} {%- if baseline %} fa5--align-baseline {%- endif -%} {%- if css_class %} {{ css_class }} {%- endif -%}" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL|make_relative_url }}#{{icon}}"></use></svg>{% endassets %}
+{%- endmacro %}
+
+{%- macro alertbox(category, message="", dismissable=true, css_class='') %}
+  <div class="alert alert--{{category}} {% if dismissable %}alert--dismissable{%- endif -%} {%- if css_class %} {{ css_class }} {%- endif -%}">
+    {%- if dismissable %}
+      <a class="alert__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}">
+      {{ faicon(icon='times', icon_size='title', baseline=true) }}
+      </a>
+    {%- endif -%}
+    <p class="alert__text">{{ message }}</p>
+  </div>
+{%- endmacro %}
+
+{%- macro flash_messages() -%}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        {{ alertbox(category, message) }}
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+{%- endmacro %}
+
+
+{%- macro networkbar_login_beacon(url) %}
+  <iframe height="0" width="0" tabindex="-1" style="display: none; border: 0; height: 0; width: 0" aria-hidden="true" role="presentation" src="{{ url }}"></iframe>
+{% endmacro %}
+
+{%- macro hgtopnav(site_title="Hasgeek", side_menu_button=none, site_links=[], auth=true, network=true, loginbtntext="Login", user_links=[]) %}
+  <nav id="hgnav" class="header__nav" role="navigation">
+    <div class="header__site-title {% if current_auth.is_anonymous -%}header__site-title--smaller{% endif %}">
+      {% if side_menu_button %}
+        <a class="header__app-icon header__app-icon--menu" id="js-sidebar-menu-button" aria-label="{% trans %}Toggle menu{% endtrans %}" aria-expanded="false">{{ faicon(icon='bars', icon_size='title', baseline=true) }}</a>
+      {% endif %}
+      <div class="header__site-title__title">{{site_title}}</div>
+    </div>
+    <div class="header__right-nav {% if current_auth.is_anonymous -%}header__right-nav--larger{% endif %}">
+      <ul class="header__nav-list">
+        {%- for link in site_links %}
+          <li class="header__nav-list__item">
+            <a href="{{ link.url }}" {%- if link.rel %} rel="{{ link.rel }}"{% endif %} class="header__nav-links {% if link.class %}{{ link.class }}{% endif %} {% if  current_view.current_section == link.name %}header__nav-links-active{% endif %}" aria-label="{{ link.title }}">{% if link.icon %}{{ faicon(icon=link.icon, baseline=true, css_class=link.icon_class) }}{% endif %} <span class="header__nav-links__text">{{ link.title }}</span>
+            </a>
+          </li>
+        {%- endfor %}
+
+        {% if network %}
+        <li class="mui-dropdown header__nav-list__item">
+          {{ add_hasgeek_network() }}
+        </li>
+        {% endif %}
+
+        {% if auth %}
+        <li class="mui-dropdown header__nav-list__item">
+          {{ add_hasgeek_auth(user_links, loginbtntext) }}
+        </li>
+        {%- endif %}
+      </ul>
+    </div>
+  </nav>
+  {%- if current_auth.is_anonymous %}
+    {%- if current_auth.lastuser and not current_auth.lastuser.is_master_data_source %}
+      {{ networkbar_login_beacon(current_auth.lastuser.endpoint_url(current_auth.lastuser.login_beacon_iframe_endpoint) + '?client_id=' + config['LASTUSER_CLIENT_ID'] + '&login_url=' + url_for('login', _external=true)) }}
+    {%- endif %}
+  {%- endif %}
+{%- endmacro %}
 
 {%- macro csrf_tag() %}
 <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
