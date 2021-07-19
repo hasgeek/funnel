@@ -42,7 +42,7 @@ const Membership = {
           newMemberUrl,
           members: members.length > 0 ? members : '',
           isUserProfileAdmin,
-          roles: roles,
+          roles,
           memberForm: '',
           activeMember: '',
           errorMsg: '',
@@ -165,7 +165,7 @@ const Membership = {
 };
 
 $(() => {
-  window.Hasgeek.Membership = function (config) {
+  window.Hasgeek.membershipInit = (config) => {
     Membership.init(config);
   };
 });

@@ -7,9 +7,9 @@ assets:
 assetsonly:
 	npm run build
 
-source_dir = ../translations
-target_dir = ../static/translations
-baseframe_dir := $(shell cd ../../; flask baseframe_translations_path)
+babel: source_dir = ../translations
+babel: target_dir = ../static/translations
+babel: baseframe_dir = $(shell cd ../../; flask baseframe_translations_path)
 
 babel:
 	@mkdir -p $(target_dir)

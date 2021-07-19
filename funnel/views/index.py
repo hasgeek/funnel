@@ -181,7 +181,7 @@ def offline():
 
 @app.route('/service-worker.js')
 def sw():
-    return app.send_static_file('service-worker.js')
+    return app.send_static_file('build/js/service-worker.js')
 
 
 @app.route('/manifest.json')

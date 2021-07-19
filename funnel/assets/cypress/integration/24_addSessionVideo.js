@@ -1,9 +1,10 @@
-describe('Add video to session', function () {
-  const admin = require('../fixtures/user.json').admin;
+/* eslint-disable global-require */
+describe('Add video to session', () => {
+  const { admin } = require('../fixtures/user.json');
   const project = require('../fixtures/project.json');
   const proposal = require('../fixtures/proposal.json');
 
-  it('Add videos to session', function () {
+  it('Add videos to session', () => {
     cy.server();
     cy.route('GET', '**/admin').as('fetch-admin-panel');
     cy.route('**/viewsession-popup').as('view-session');

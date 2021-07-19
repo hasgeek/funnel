@@ -1,10 +1,9 @@
-describe('View crew', function () {
-  const admin = require('../fixtures/user.json').admin;
-  const promoter = require('../fixtures/user.json').promoter;
-  const usher = require('../fixtures/user.json').usher;
+/* eslint-disable global-require */
+describe('View crew', () => {
+  const { admin, promoter, usher } = require('../fixtures/user.json');
   const project = require('../fixtures/project.json');
 
-  it('View crew of the project', function () {
+  it('View crew of the project', () => {
     cy.visit('/');
     cy.get('.upcoming')
       .find('.card--upcoming')

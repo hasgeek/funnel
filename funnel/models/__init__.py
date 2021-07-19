@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 else:
     from sqlalchemy.ext.hybrid import hybrid_property
 
+# This must be set _before_ any of the models are imported
 TimestampMixin.__with_timezone__ = True
 
 # Some of these imports are order sensitive due to circular dependencies

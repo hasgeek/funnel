@@ -19,6 +19,7 @@ funnel/assets/cypress/videos
 funnel/static/build
 funnel/static/gen
 funnel/static/service-worker.js
+funnel/static/service-worker.js.map
 funnel/static/img/fa5-packed.svg
 node_modules
 *.packed.css

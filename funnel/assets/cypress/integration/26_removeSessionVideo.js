@@ -1,9 +1,10 @@
-describe('Remove video to session', function () {
-  const editor = require('../fixtures/user.json').editor;
+/* eslint-disable global-require */
+describe('Remove video to session', () => {
+  const { editor } = require('../fixtures/user.json');
   const project = require('../fixtures/project.json');
   const proposal = require('../fixtures/proposal.json');
 
-  it('Add videos to session', function () {
+  it('Add videos to session', () => {
     cy.server();
     cy.route('**/viewsession-popup').as('view-session');
 

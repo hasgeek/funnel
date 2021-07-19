@@ -1,14 +1,13 @@
-describe('Adding crew to profile', function () {
-  const owner = require('../fixtures/user.json').owner;
-  const admin = require('../fixtures/user.json').admin;
+/* eslint-disable global-require */
+describe('Adding crew to profile', () => {
+  const { owner, admin, hguser } = require('../fixtures/user.json');
   const profile = require('../fixtures/profile.json');
-  const hguser = require('../fixtures/user.json').hguser;
 
-  Cypress.on('uncaught:exception', (err, runnable) => {
+  Cypress.on('uncaught:exception', () => {
     return false;
   });
 
-  it('Add new member to profile and edit roles', function () {
+  it('Add new member to profile and edit roles', () => {
     cy.server();
     cy.route('**/edit').as('edit-form');
     cy.route('POST', '**/edit').as('edit-member');
@@ -17,7 +16,7 @@ describe('Adding crew to profile', function () {
     cy.route('**/new').as('member-form');
     cy.route('POST', '**/new').as('add-member');
 
-    cy.login('/' + profile.title, owner.username, owner.password);
+    cy.login(`/${profile.title}`, owner.username, owner.password);
     cy.get('a[data-cy="admin-dropdown"]:visible').click();
     cy.wait(1000);
     cy.get('a[data-cy-btn="profile-crew"]:visible').click();
@@ -45,6 +44,6 @@ describe('Adding crew to profile', function () {
       .find('[data-cy="role"]')
       .contains('Admin');
 
-    cy.add_member(hguser.username, 'owner', (fail = true));
+    cy.add_member(hguser.username, 'owner', true);
   });
 });

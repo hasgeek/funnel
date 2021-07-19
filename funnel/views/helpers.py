@@ -4,7 +4,7 @@ from base64 import urlsafe_b64encode
 from datetime import datetime
 from hashlib import blake2b
 from os import urandom
-from typing import Callable, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple
 from urllib.parse import unquote, urljoin, urlsplit
 import gzip
 import zlib
@@ -31,7 +31,7 @@ import brotli
 
 from baseframe import cache, statsd
 
-from .. import app, shortlinkapp
+from .. import app, built_assets, shortlinkapp
 from ..forms import supported_locales
 from ..models import Shortlink, User, db, profanity
 from ..signals import emailaddress_refcount_dropping
@@ -400,6 +400,16 @@ def shortlink(url, actor=None):
     sl = Shortlink.new(url, reuse=True, shorter=True, actor=actor)
     db.session.add(sl)
     return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
+
+
+def built_asset(assetname):
+    return built_assets[assetname]
+
+
+@app.context_processor
+def template_context() -> Dict[str, Any]:
+    """Add template context items."""
+    return {'built_asset': built_asset}
 
 
 # --- Request/response handlers --------------------------------------------------------

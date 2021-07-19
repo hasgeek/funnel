@@ -1,16 +1,16 @@
-describe('Sync tickets from Boxoffice', function () {
-  const promoter = require('../fixtures/user.json').promoter;
-  const user = require('../fixtures/user.json').user;
+/* eslint-disable global-require */
+describe('Sync tickets from Boxoffice', () => {
+  const { promoter } = require('../fixtures/user.json');
+  const { user } = require('../fixtures/user.json');
   const project = require('../fixtures/project.json');
   const ticketEvents = require('../fixtures/ticket_events.json');
+  // eslint-disable-next-line camelcase
   const { ticket_client } = require('../fixtures/boxoffice.js');
 
-  it('Sync tickets from Boxoffice', function () {
+  it('Sync tickets from Boxoffice', () => {
     cy.login('/', promoter.username, promoter.password);
 
-    cy.get('[data-cy-title="' + project.title + '"]')
-      .first()
-      .click();
+    cy.get(`[data-cy-title="${project.title}"]`).first().click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy="project-menu"]:visible').click();
     cy.wait(1000);
@@ -33,9 +33,9 @@ describe('Sync tickets from Boxoffice', function () {
     cy.wait(30000);
     cy.get('button[data-cy="sync-tickets"').click();
 
-    cy.fixture('ticket_events').then((ticketEvents) => {
-      ticketEvents.forEach(function (ticketEvent) {
-        cy.get('li[data-cy-ticket="' + ticketEvent.title + '"]')
+    cy.fixture('ticket_events').then((fticketEvents) => {
+      fticketEvents.forEach((ticketEvent) => {
+        cy.get(`li[data-cy-ticket="${ticketEvent.title}"]`)
           .find('a[data-cy="ticket-edit"]')
           .click();
         cy.get('label').contains(ticketEvent.title).click();
@@ -47,11 +47,11 @@ describe('Sync tickets from Boxoffice', function () {
     cy.wait(30000);
     cy.get('button[data-cy="sync-tickets"').click();
 
-    cy.get('a[data-cy="' + ticketEvents[0].title + '"]').click();
+    cy.get(`a[data-cy="${ticketEvents[0].title}"]`).click();
     cy.get('td[data-cy="ticket-participant"]').contains(user.username);
     cy.get('a[data-cy="back-to-setup"]').click();
 
-    cy.get('a[data-cy="' + ticketEvents[1].title + '"]').click();
+    cy.get(`a[data-cy="${ticketEvents[1].title}"]`).click();
     cy.get('td[data-cy="ticket-participant"]').contains(user.username);
     cy.get('a[data-cy="back-to-setup"]').click();
   });

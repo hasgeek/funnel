@@ -207,7 +207,7 @@
 {% endblock %}
 
 {% block footerinnerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('project')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('project.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var projectConfig = {};
@@ -220,7 +220,7 @@
         };
       {%- endif %}
 
-      window.Hasgeek.ProjectInit(projectConfig);
+      window.Hasgeek.projectInit(projectConfig);
     });
   </script>
 {% endblock %}

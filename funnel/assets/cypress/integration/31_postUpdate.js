@@ -1,10 +1,9 @@
-describe('Test updates feature', function () {
-  const editor = require('../fixtures/user.json').editor;
-  const user = require('../fixtures/user.json').user;
-  const newuser = require('../fixtures/user.json').newuser;
+/* eslint-disable global-require */
+describe('Test updates feature', () => {
+  const { user, editor, newuser } = require('../fixtures/user.json');
   const project = require('../fixtures/project.json');
 
-  it('Post update on project page', function () {
+  it('Post update on project page', () => {
     cy.server();
     cy.route('GET', '**/updates?*').as('fetch-updates');
 
