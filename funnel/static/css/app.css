@@ -1457,7 +1457,6 @@ a.loginbutton.hidden,
   overflow: auto;
   box-shadow: none;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
-  height: 150%;
   z-index: 999;
   display: block;
   padding: 0;
