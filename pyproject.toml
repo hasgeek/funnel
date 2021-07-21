@@ -72,7 +72,7 @@ use_parentheses = true
 from_first = true
 # add_imports = 'from __future__ import annotations'
 known_future_library = ['__future__', 'six']
-known_first_party = ['baseframe', 'coaster', 'flask_lastuser', 'funnel']
+known_first_party = ['baseframe', 'coaster', 'funnel']
 known_sqlalchemy = ['alembic', 'sqlalchemy', 'sqlalchemy_utils', 'flask_sqlalchemy', 'psycopg2']
 known_flask = [
   'flask',
