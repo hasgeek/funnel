@@ -3,25 +3,25 @@
 import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
 
 $(() => {
-  window.Hasgeek.config.availableLanguages = {
+  window.Hasgeek.Config.availableLanguages = {
     en: 'en_IN',
     hi: 'hi_IN',
   };
-  window.Hasgeek.config.mobileBreakpoint = 768; // this breakpoint switches to desktop UI
-  window.Hasgeek.config.ajaxTimeout = 30000;
-  window.Hasgeek.config.retryInterval = 10000;
-  window.Hasgeek.config.closeModalTimeout = 10000;
-  window.Hasgeek.config.refreshInterval = 60000;
-  window.Hasgeek.config.notificationRefreshInterval = 300000;
-  window.Hasgeek.config.readReceiptTimeout = 5000;
-  window.Hasgeek.config.saveEditorContentTimeout = 300;
-  window.Hasgeek.config.userAvatarImgSize = {
+  window.Hasgeek.Config.mobileBreakpoint = 768; // this breakpoint switches to desktop UI
+  window.Hasgeek.Config.ajaxTimeout = 30000;
+  window.Hasgeek.Config.retryInterval = 10000;
+  window.Hasgeek.Config.closeModalTimeout = 10000;
+  window.Hasgeek.Config.refreshInterval = 60000;
+  window.Hasgeek.Config.notificationRefreshInterval = 300000;
+  window.Hasgeek.Config.readReceiptTimeout = 5000;
+  window.Hasgeek.Config.saveEditorContentTimeout = 300;
+  window.Hasgeek.Config.userAvatarImgSize = {
     big: '160',
     medium: '80',
     small: '48',
   };
   Utils.loadLangTranslations();
-  window.Hasgeek.config.errorMsg = {
+  window.Hasgeek.Config.errorMsg = {
     serverError: window.gettext(
       'An internal server error occurred. Our support team has been notified and will investigate'
     ),
@@ -37,7 +37,7 @@ $(() => {
     '.js-menu-btn',
     '.js-account-menu-wrapper',
     '.js-account-menu',
-    window.Hasgeek.config.accountMenu
+    window.Hasgeek.Config.accountMenu
   );
   Utils.scrollTabs();
   Utils.truncate();
@@ -48,17 +48,17 @@ $(() => {
     Utils.updateNotificationStatus();
     window.setInterval(
       Utils.updateNotificationStatus,
-      window.Hasgeek.config.notificationRefreshInterval
+      window.Hasgeek.Config.notificationRefreshInterval
     );
   }
   Utils.addWebShare();
   Utils.activateToggleSwitch();
-  if (window.Hasgeek.config.commentSidebarElem) {
+  if (window.Hasgeek.Config.commentSidebarElem) {
     Utils.headerMenuDropdown(
       '.js-comments-btn',
       '.js-comments-wrapper',
       '.js-comment-sidebar',
-      window.Hasgeek.config.unreadCommentUrl
+      window.Hasgeek.Config.unreadCommentUrl
     );
   }
   Utils.addVegaSupport();

@@ -48,7 +48,7 @@ const badgeScan = {
           type: 'POST',
           url,
           data: formValues,
-          timeout: window.Hasgeek.config.ajaxTimeout,
+          timeout: window.Hasgeek.Config.ajaxTimeout,
           dataType: 'json',
 
           success(response) {
@@ -69,7 +69,7 @@ const badgeScan = {
           complete() {
             window.setTimeout(() => {
               badgeScanComponent.closeModal();
-            }, window.Hasgeek.config.closeModalTimeout);
+            }, window.Hasgeek.Config.closeModalTimeout);
           },
         });
       },

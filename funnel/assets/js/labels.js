@@ -41,12 +41,12 @@ $(() => {
             let errorMsg = '';
             if (response.readyState === 4) {
               if (response.status === 500) {
-                errorMsg = window.Hasgeek.config.errorMsg.serverError;
+                errorMsg = window.Hasgeek.Config.errorMsg.serverError;
               } else {
                 errorMsg = JSON.parse(response.responseText).error_description;
               }
             } else {
-              errorMsg = window.Hasgeek.config.errorMsg.networkError;
+              errorMsg = window.Hasgeek.Config.errorMsg.networkError;
             }
             window.toastr.error(errorMsg);
           },

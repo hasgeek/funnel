@@ -18,21 +18,6 @@
   </div>
 {%- endmacro %}
 
-{%- macro flash_messages() -%}
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for category, message in messages %}
-        {{ alertbox(category, message) }}
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
-{%- endmacro %}
-
-
-{%- macro networkbar_login_beacon(url) %}
-  <iframe height="0" width="0" tabindex="-1" style="display: none; border: 0; height: 0; width: 0" aria-hidden="true" role="presentation" src="{{ url }}"></iframe>
-{% endmacro %}
-
 {%- macro csrf_tag() %}
 <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
 {%- endmacro %}
@@ -523,14 +508,14 @@
 {% endmacro %}
 
 {% macro page_footer() %}
-  <div class="sub-navbar-container sub-navbar-container--footer mui--bg-accent">
+  <footer class="sub-navbar-container sub-navbar-container--footer mui--bg-accent">
     <nav class="sub-navbar mui-container" id="page-navbar">
       <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'index' %}sub-navbar__item--active{%- endif %}" href="/about">{% trans %}About Hasgeek{% endtrans %}</a>
       <a class="sub-navbar__item mui--text-subhead mui--text-dark" href="/hasgeek">{% trans %}Team &amp; careers{% endtrans %}</a>
       <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'contact' %}sub-navbar__item--active{%- endif %}" href="/about/contact">{% trans %}Contact{% endtrans %}</a>
       <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'policy' %}sub-navbar__item--active{%- endif %}" href="/about/policy">{% trans %}Site policies{% endtrans %}</a>
     </nav>
-  </div>
+  </footer>
 {% endmacro %}
 
 {% macro video_thumbnail(session) %}

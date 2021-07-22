@@ -102,7 +102,7 @@ export const Utils = {
     let observer;
 
     const openMenu = () => {
-      if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
+      if ($(window).width() < window.Hasgeek.Config.mobileBreakpoint) {
         $(menuWrapper).find(menu).animate({ top: '0' });
       } else {
         $(menuWrapper).find(menu).animate({ top: headerHeight });
@@ -113,7 +113,7 @@ export const Utils = {
     };
 
     const closeMenu = () => {
-      if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
+      if ($(window).width() < window.Hasgeek.Config.mobileBreakpoint) {
         $(menuWrapper).find(menu).animate({ top: '100vh' });
       } else {
         $(menuWrapper).find(menu).animate({ top: '-100vh' });
@@ -133,7 +133,7 @@ export const Utils = {
       $.ajax({
         type: 'GET',
         url: `${url}?page=${pageNo}`,
-        timeout: window.Hasgeek.config.ajaxTimeout,
+        timeout: window.Hasgeek.Config.ajaxTimeout,
         success(responseData) {
           if (observer) {
             observer.unobserve(lazyLoader);
@@ -308,19 +308,19 @@ export const Utils = {
     // Add server error strings for translations in server_error.js.jinja2
     if (response.readyState === 4) {
       if (response.status === 500) {
-        errorMsg = window.Hasgeek.config.errorMsg.serverError;
+        errorMsg = window.Hasgeek.Config.errorMsg.serverError;
       } else if (
         response.status === 422 &&
         response.responseJSON.error === 'requires_sudo'
       ) {
         window.location.href = `${
-          window.Hasgeek.config.accountSudo
+          window.Hasgeek.Config.accountSudo
         }?next=${encodeURIComponent(window.location.href)}`;
       } else {
         errorMsg = response.responseJSON.error_description;
       }
     } else {
-      errorMsg = window.Hasgeek.config.errorMsg.networkError;
+      errorMsg = window.Hasgeek.Config.errorMsg.networkError;
     }
     return errorMsg;
   },
@@ -397,9 +397,9 @@ export const Utils = {
   updateNotificationStatus() {
     $.ajax({
       type: 'GET',
-      url: window.Hasgeek.config.notificationCount,
+      url: window.Hasgeek.Config.notificationCount,
       dataType: 'json',
-      timeout: window.Hasgeek.config.ajaxTimeout,
+      timeout: window.Hasgeek.Config.ajaxTimeout,
       success(responseData) {
         Utils.setNotifyIcon(responseData.unread);
       },
@@ -444,7 +444,7 @@ export const Utils = {
   },
   getPageHeaderHeight() {
     let headerHeight;
-    if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
+    if ($(window).width() < window.Hasgeek.Config.mobileBreakpoint) {
       headerHeight = $('.mobile-nav').height();
     } else {
       headerHeight = $('header').height() + $('nav').height();
@@ -455,15 +455,15 @@ export const Utils = {
     // Instantiate i18n with browser context
     const { lang } = document.documentElement;
     const langShortForm = lang.substring(0, 2);
-    window.Hasgeek.config.locale =
-      window.Hasgeek.config.availableLanguages[langShortForm];
-    return window.Hasgeek.config.locale;
+    window.Hasgeek.Config.locale =
+      window.Hasgeek.Config.availableLanguages[langShortForm];
+    return window.Hasgeek.Config.locale;
   },
   loadLangTranslations() {
     Utils.getLocale();
 
     window.i18n = new Gettext({
-      translatedLang: window.Hasgeek.config.locale,
+      translatedLang: window.Hasgeek.Config.locale,
     });
     window.gettext = window.i18n.gettext.bind(window.i18n);
     window.ngettext = window.i18n.ngettext.bind(window.i18n);
@@ -487,7 +487,7 @@ export const Utils = {
         url: $(checkbox).parent('form').attr('action'),
         data: formData,
         dataType: 'json',
-        timeout: window.Hasgeek.config.ajaxTimeout,
+        timeout: window.Hasgeek.Config.ajaxTimeout,
         success(responseData) {
           if (responseData && responseData.message) {
             window.toastr.success(responseData.message);
@@ -650,7 +650,7 @@ export const SaveProject = ({
 
   const onError = (response) => Utils.handleAjaxError(response);
 
-  window.Baseframe.Forms.handleFormSubmit(
+  window.Hasgeek.Forms.handleFormSubmit(
     formId,
     postUrl,
     onSuccess,

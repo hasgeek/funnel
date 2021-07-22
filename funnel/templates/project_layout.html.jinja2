@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {% from "forms.html.jinja2" import ajaxform %}
-{%- from "macros.html.jinja2" import faicon, alertbox, csrf_tag, calendarwidget, saveprojectform, share_dropdown %}
+{%- from "macros.html.jinja2" import faicon, csrf_tag, calendarwidget, saveprojectform, share_dropdown %}
 {%- set banner_img = 1500 %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.tagline }}{% endblock %}

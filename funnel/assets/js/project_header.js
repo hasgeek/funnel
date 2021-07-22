@@ -27,9 +27,9 @@ const Ticketing = {
     $.get({
       url,
       crossDomain: true,
-      timeout: window.Hasgeek.config.ajaxTimeout,
+      timeout: window.Hasgeek.Config.ajaxTimeout,
       retries: 5,
-      retryInterval: window.Hasgeek.config.retryInterval,
+      retryInterval: window.Hasgeek.Config.retryInterval,
 
       success(data) {
         const boxofficeScript = document.createElement('script');

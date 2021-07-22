@@ -75,7 +75,7 @@ class Gettext {
         type: 'GET',
         url: this.getTranslationFileUrl(config.translatedLang),
         async: false,
-        timeout: window.Hasgeek.config.ajaxTimeout,
+        timeout: window.Hasgeek.Config.ajaxTimeout,
         success(responseData) {
           domain = responseData.domain;
           catalog = responseData.locale_data.messages;
@@ -85,7 +85,7 @@ class Gettext {
         type: 'GET',
         url: this.getBaseframeTranslationFileUrl(config.translatedLang),
         async: false,
-        timeout: window.Hasgeek.config.ajaxTimeout,
+        timeout: window.Hasgeek.Config.ajaxTimeout,
         success(responseData) {
           catalog = Object.assign(catalog, responseData.locale_data.messages);
         },

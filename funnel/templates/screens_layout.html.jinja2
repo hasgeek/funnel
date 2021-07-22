@@ -3,7 +3,7 @@
 
 {% block pageheaders %}
 	{% assets 'css_screens' -%}
-	   <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
 	{%- endassets %}
   {% block screens_pageheaders %}
   {% endblock %}
@@ -12,6 +12,4 @@
 {% block basecontent %}{% endblock %}
 
 {% block footer %}
-  {% block footer_logo %}
-  {% endblock %}
 {% endblock %}

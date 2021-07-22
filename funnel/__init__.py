@@ -42,6 +42,7 @@ assets['spectrum.css'][version] = 'css/spectrum.css'
 assets['screens.css'][version] = 'css/screens.css'
 assets['schedules.js'][version] = 'js/schedules.js'
 assets['schedule-print.css'][version] = 'css/schedule-print.css'
+assets['funnel-mui.js'][version] = 'js/libs/mui.js'
 
 try:
     with open(
@@ -114,10 +115,16 @@ baseframe.init_app(
     ext_requires=[
         'pygments',
         'toastr',
-        'baseframe-mui',
         'jquery.cookie',
         'timezone',
         'pace',
+        'jquery-modal',
+        'jquery.form',
+        'select2-material',
+        'getdevicepixelratio',
+        'jquery.tinymce.js>=4.0.0',
+        'jquery.truncate8.js',
+        'funnel-mui',
     ],
     theme='mui',
     asset_modules=('baseframe_private_assets',),
@@ -198,14 +205,6 @@ app.assets.register(
     'css_screens',
     Bundle(
         assets.require('screens.css'), output='css/screens.packed.css', filters='cssmin'
-    ),
-)
-app.assets.register(
-    'js_jquerytruncate',
-    Bundle(
-        assets.require('!jquery.js', 'jquery.truncate8.js'),
-        output='js/jquerytruncate.packed.js',
-        filters='uglipyjs',
     ),
 )
 app.assets.register(

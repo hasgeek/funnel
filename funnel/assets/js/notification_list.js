@@ -29,7 +29,7 @@ const Notification = {
               data: {
                 page,
               },
-              timeout: window.Hasgeek.config.ajaxTimeout,
+              timeout: window.Hasgeek.Config.ajaxTimeout,
               dataType: 'json',
               success(data) {
                 notificationApp.addNotifications(data.notifications, refresh);
@@ -97,7 +97,7 @@ const Notification = {
                 csrf_token: $('meta[name="csrf-token"]').attr('content'),
               },
               dataType: 'json',
-              timeout: window.Hasgeek.config.ajaxTimeout,
+              timeout: window.Hasgeek.Config.ajaxTimeout,
               success(responseData) {
                 notificationItem.notification.is_read = true;
                 notificationItem.observer.unobserve(notification);
@@ -113,7 +113,7 @@ const Notification = {
               $(entry.target).attr('data-visible-time', entry.time);
               window.setTimeout(() => {
                 app.updateReadStatus(entry.target);
-              }, window.Hasgeek.config.readReceiptTimeout);
+              }, window.Hasgeek.Config.readReceiptTimeout);
             } else {
               $(entry.target).attr('data-visible-time', '');
             }
@@ -125,7 +125,7 @@ const Notification = {
         this.lazyoad();
         window.setInterval(() => {
           this.fetchResult(1, true);
-        }, window.Hasgeek.config.refreshInterval);
+        }, window.Hasgeek.Config.refreshInterval);
       },
       updated() {
         const app = this;
