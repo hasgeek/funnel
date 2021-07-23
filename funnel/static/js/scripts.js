@@ -415,7 +415,7 @@ window.Hasgeek.MapMarker = function (field) {
 
 window.Hasgeek.MapMarker.prototype.activate = function () {
   var self = this;
-  Baseframe.Forms.preventSubmitOnEnter(this.field.location_id);
+  Hasgeek.Forms.preventSubmitOnEnter(this.field.location_id);
 
   // locationpicker.jquery.js
   $('#' + this.field.map_id).locationpicker({

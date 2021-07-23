@@ -76,7 +76,7 @@
 {% macro saveprojectform(project, iconsize='body', formid='save-form') %}
   <form id="{{ formid }}" class="js-save-form" action="{{ project.url_for('save') }}" method="POST">
     {{ current_view.SavedProjectForm().hidden_tag() }}
-    <div class="no-jshidden bookmark-wrapper">
+    <div class="bookmark-wrapper">
       {%- if current_auth.is_anonymous %}
         <a class="mui--text-light"  href="{{ url_for('login', next=request.path) }}" data-ga="Login to save project" aria-label="{% trans %}Login to save this project{% endtrans %}">{{ faicon(icon='bookmark', baseline=true, icon_size=iconsize, css_class='mui--text-light') }}</a>
       {%- else %}

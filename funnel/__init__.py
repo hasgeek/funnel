@@ -123,7 +123,7 @@ baseframe.init_app(
         'select2-material',
         'getdevicepixelratio',
         'jquery.tinymce.js>=4.0.0',
-        'jquery.truncate8.js',
+        'jquery.truncate8',
         'funnel-mui',
     ],
     theme='mui',

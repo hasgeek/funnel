@@ -1,7 +1,7 @@
 {%- from "macros.html.jinja2" import faicon, useravatar, csrf_tag, alertbox -%}
 
 <!DOCTYPE html>
-<html lang="{{ get_locale() }}" class="no-js {%- if not current_auth.is_anonymous %} userlogin {%- else %} no-userlogin {%- endif %}">
+<html lang="{{ get_locale() }}" class="{%- if not current_auth.is_anonymous %} userlogin {%- else %} no-userlogin {%- endif %}">
 
 <head>
   <meta charset="utf-8" />

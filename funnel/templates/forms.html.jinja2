@@ -296,7 +296,7 @@
 {% endmacro %}
 
 {%- macro map_marker_script(field) %}
-  new window.Baseframe.MapMarker({
+  new window.Hasgeek.MapMarker({
     location_id: "{{ field.id}}_search",
     map_id: "{{ field.id }}_map",
     latitude_id: "{{ field.id }}_latitude",
@@ -342,7 +342,7 @@
     {%- elif field.widget.input_type == 'tinymce4' -%}
       {{ tinymce4_editor(field, script=false) }}
     {%- elif field.type in ['AutocompleteField', 'AutocompleteMultipleField'] %}
-      Baseframe.Forms.textAutocomplete({
+      Hasgeek.Forms.textAutocomplete({
         id: {{ field.id|tojson }},
         multiple: {{ field.multiple|tojson }},
         separator: {{ field.separator|tojson }},
@@ -380,7 +380,7 @@
       });
     {%- elif field.type in ['UserSelectField', 'UserSelectMultiField'] %}
       {%- if config['LASTUSER_CLIENT_ID'] and current_auth.cookie and 'sessionid' in current_auth.cookie %}
-        Baseframe.Forms.lastuserAutocomplete({
+        Hasgeek.Forms.lastuserAutocomplete({
           id: {{ field.id|tojson }},
           multiple: {{ field.multiple|tojson }},
           separator: {{ field.separator|tojson }},
@@ -390,7 +390,7 @@
           session_id: {{ current_auth.cookie['sessionid']|tojson }}
         });
       {%- else %}
-        Baseframe.Forms.lastuserAutocomplete({
+        Hasgeek.Forms.lastuserAutocomplete({
           id: {{ field.id|tojson }},
           multiple: {{ field.multiple|tojson }},
           separator: {{ field.separator|tojson }},
