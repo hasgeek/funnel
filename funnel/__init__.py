@@ -16,6 +16,7 @@ from flask_rq2 import RQ
 import geoip2.database
 
 from baseframe import Bundle, Version, assets, baseframe
+from baseframe.blueprint import THEME_FILES
 import coaster.app
 
 from ._version import __version__
@@ -33,6 +34,14 @@ rq = RQ()
 executor = ExecutorWrapper()
 
 # --- Assets ------------------------------------------------------------------
+
+THEME_FILES['funnel'] = {
+    'ajaxform.html.jinja2': 'ajaxform.html.jinja2',
+    'autoform.html.jinja2': 'autoform.html.jinja2',
+    'delete.html.jinja2': 'delete.html.jinja2',
+    'message.html.jinja2': 'message.html.jinja2',
+    'redirect.html.jinja2': 'redirect.html.jinja2',
+}
 
 version = Version(__version__)
 assets['funnel.css'][version] = 'css/app.css'
@@ -126,7 +135,7 @@ baseframe.init_app(
         'jquery.truncate8',
         'funnel-mui',
     ],
-    theme='mui',
+    theme='funnel',
     asset_modules=('baseframe_private_assets',),
 )
 
