@@ -5,7 +5,7 @@ from coaster.utils import nullint
 import baseframe.forms as forms
 
 from ..models import SavedSession, Session
-from .helpers import image_url_validator
+from .helpers import image_url_validator, nullable_strip_filters
 
 __all__ = ['SavedSessionForm', 'SessionForm']
 
@@ -39,6 +39,7 @@ class SessionForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=nullable_strip_filters,
     )
     is_break = forms.BooleanField(__("This session is a break period"), default=False)
     featured = forms.BooleanField(__("This is a featured session"), default=False)
@@ -56,6 +57,7 @@ class SessionForm(forms.Form):
             forms.validators.ValidUrl(),
             forms.validators.Length(max=2000),
         ],
+        filters=nullable_strip_filters,
     )
 
 

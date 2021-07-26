@@ -4,7 +4,7 @@ from baseframe import _, __
 import baseframe.forms as forms
 
 from ..models import Profile
-from .helpers import image_url_validator
+from .helpers import image_url_validator, nullable_strip_filters
 from .organization import OrganizationForm
 
 __all__ = [
@@ -41,6 +41,7 @@ class ProfileForm(OrganizationForm):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=nullable_strip_filters,
     )
     website = forms.URLField(
         __("Website URL"),
@@ -50,7 +51,7 @@ class ProfileForm(OrganizationForm):
             forms.validators.URL(),
             forms.validators.ValidUrl(),
         ],
-        filters=[forms.filters.none_if_empty()],
+        filters=nullable_strip_filters,
     )
 
     def set_queries(self):
@@ -100,6 +101,7 @@ class ProfileLogoForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=nullable_strip_filters,
     )
 
     def set_queries(self):
@@ -124,6 +126,7 @@ class ProfileBannerForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=nullable_strip_filters,
     )
 
     def set_queries(self):
