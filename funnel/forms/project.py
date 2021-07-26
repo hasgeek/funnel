@@ -8,7 +8,7 @@ from coaster.utils import sorted_timezones
 import baseframe.forms as forms
 
 from ..models import Project, Rsvp, SavedProject
-from .helpers import image_url_validator
+from .helpers import image_url_validator, nullable_strip_filters
 
 __all__ = [
     'CfpForm',
@@ -97,6 +97,7 @@ class ProjectForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=nullable_strip_filters,
     )
     description = forms.MarkdownField(
         __("Project description"),
@@ -198,6 +199,7 @@ class ProjectBannerForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=nullable_strip_filters,
     )
 
     def set_queries(self):
