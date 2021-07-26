@@ -75,8 +75,7 @@ VIMEO_CLIENT_ID = environ.get('VIMEO_CLIENT_ID')
 VIMEO_CLIENT_SECRET = environ.get('VIMEO_CLIENT_SECRET')
 VIMEO_ACCESS_TOKEN = environ.get('VIMEO_ACCESS_TOKEN')
 
-
-# SES Notification Topic
+#: SES notification topics
 SES_NOTIFICATION_TOPICS = [  # nosec
     'arn:aws:sns:ap-south-1:817922165072:ses-events-for-hasgeek_dot_com'
 ]
@@ -90,4 +89,5 @@ IMAGE_URL_SCHEMES = ('https',)
 # RQ_CONNECTION_CLASS = 'fakeredis.FakeStrictRedis'
 # RQ_ASYNC = False
 
+RQ_REDIS_URL = 'redis://localhost:6379/9'
 ENABLE_COMMENT_SIDEBAR = True
