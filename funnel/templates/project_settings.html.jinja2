@@ -45,7 +45,7 @@
         <ul class="mui-list--unstyled">
         {% if project.view_for('edit').is_available() %}
           <li class="margin-bottom">
-            <a href="{{ project.url_for('edit') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="account"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='align-left', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Project details{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Title, tagline, location, timezone, image and description{% endtrans %}</span></span></a>
+            <a href="{{ project.url_for('edit') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="edit"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='align-left', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Project details{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Title, tagline, location, timezone, image and description{% endtrans %}</span></span></a>
           </li>
         {% endif %}
         {% if project.view_for('edit_slug').is_available() %}
@@ -55,7 +55,7 @@
         {% endif %}
         {% if project.view_for('edit_livestream').is_available() %}
           <li class="margin-bottom">
-            <a href="{{ project.url_for('edit_livestream') }}" class="nounderline flex-wrapper mui--text-dark"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='video', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Livestream URL{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Link to livestream (Youtube/Vimeo){% endtrans %}</span></span></a>
+            <a href="{{ project.url_for('edit_livestream') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="add-livestream"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='video', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Livestream URL{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Link to livestream (Youtube/Vimeo){% endtrans %}</span></span></a>
           </li>
         {% endif %}
         {% if project.view_for('venues').is_available() %}
@@ -63,7 +63,7 @@
             <a href="{{ project.url_for('venues') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="manage-venues"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='map-marker-alt', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Venues{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}{% endtrans %}</span></span></a>
           </li>
         {%- endif %}
-        {% if project.view_for('cfp').is_available() and project.cfp_state.NONE -%}
+        {% if project.view_for('cfp').is_available() -%}
           <li class="margin-bottom">
             <a href="{{  project.url_for('cfp') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="add-cfp"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='inbox-in', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Submission Guidelines{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Guidelines to adhere to when making a submission{% endtrans %}</span></span></a>
           </li>
