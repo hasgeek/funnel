@@ -13,6 +13,7 @@ from ..models import (
     AuthClientUserPermissions,
     valid_name,
 )
+from .helpers import strip_filters
 
 __all__ = [
     'AuthClientForm',
@@ -68,6 +69,7 @@ class AuthClientForm(forms.Form):
     website = forms.URLField(
         __("Application website"),
         validators=[forms.validators.DataRequired(), forms.validators.URL()],
+        filters=strip_filters,
         description=__("Website where users may access this application"),
     )
     redirect_uris = forms.TextListField(
@@ -76,7 +78,7 @@ class AuthClientForm(forms.Form):
             forms.validators.OptionalIf('confidential'),
             forms.ForEach([forms.URL()]),
         ],
-        filters=[forms.strip_each()],
+        filters=[forms.filters.strip_each()],
         description=__(
             "OAuth2 Redirect URL. If your app is available on multiple hostnames,"
             " list each redirect URL on a separate line"

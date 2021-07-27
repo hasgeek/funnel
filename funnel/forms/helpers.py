@@ -118,3 +118,7 @@ def tostr(value: object) -> str:
     if value:
         return str(value)
     return ''
+
+
+strip_filters = [tostr, forms.filters.strip()]
+nullable_strip_filters = [tostr, forms.filters.strip(), forms.filters.none_if_empty()]

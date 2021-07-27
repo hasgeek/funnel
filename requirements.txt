@@ -14,8 +14,7 @@ dataclasses-json==0.5.4
 Flask==2.0.1
 Flask-Assets==2.0
 Flask-Executor==0.9.4
-git+https://github.com/hasgeek/Flask-FlatPages.git#egg=Flask-FlatPages
-git+https://github.com/hasgeek/flask-lastuser.git#egg=Flask-Lastuser
+Flask-FlatPages==0.7.3
 flask-mailman==0.2.3
 Flask-Migrate==3.0.1
 Flask-Redis==0.4.0

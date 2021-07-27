@@ -19,7 +19,7 @@ from ..models import (
     check_password_strength,
     getuser,
 )
-from .helpers import EmailAddressAvailable, tostr
+from .helpers import EmailAddressAvailable, strip_filters
 
 __all__ = [
     'RegisterForm',
@@ -118,7 +118,7 @@ class RegisterForm(forms.RecaptchaForm):
             forms.validators.DataRequired(),
             EmailAddressAvailable(purpose='register'),
         ],
-        filters=[tostr, forms.filters.strip()],
+        filters=strip_filters,
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     password = forms.PasswordField(
@@ -319,7 +319,7 @@ class AccountForm(forms.Form):
             forms.validators.DataRequired(),
             EmailAddressAvailable(purpose='use'),
         ],
-        filters=[tostr, forms.filters.strip()],
+        filters=strip_filters,
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     username = forms.AnnotatedTextField(
@@ -396,7 +396,7 @@ class NewEmailAddressForm(forms.RecaptchaForm):
             validate_emailclaim,
             EmailAddressAvailable(purpose='claim'),
         ],
-        filters=[tostr, forms.filters.strip()],
+        filters=strip_filters,
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     type = forms.RadioField(  # noqa: A003
@@ -416,7 +416,7 @@ class EmailPrimaryForm(forms.Form):
     email = forms.EmailField(
         __("Email address"),
         validators=[forms.validators.DataRequired()],
-        filters=[tostr, forms.filters.strip()],
+        filters=strip_filters,
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
@@ -431,7 +431,7 @@ class NewPhoneForm(forms.RecaptchaForm):
     phone = forms.TelField(
         __("Phone number"),
         validators=[forms.validators.DataRequired()],
-        filters=[tostr, forms.filters.strip()],
+        filters=strip_filters,
         description=__("Mobile numbers only, in Indian or international format"),
     )
 
@@ -440,7 +440,7 @@ class NewPhoneForm(forms.RecaptchaForm):
 
     # type = forms.RadioField(__("Type"),
     #     validators=[forms.validators.Optional()],
-    #     filters=[forms.filters.strip()],
+    #     filters=strip_filters,
     #     choices=[
     #         (__("Mobile"), __("Mobile")),
     #         (__("Home"), __("Home")),
