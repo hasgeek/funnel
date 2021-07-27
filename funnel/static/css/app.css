@@ -5164,6 +5164,10 @@ blockquote {
   flex-wrap: wrap;
 }
 
+.flex-item-noshrink {
+  flex-shrink: 0;
+}
+
 .material-icons {
   display: none;
 }
@@ -5519,6 +5523,10 @@ html.touch .collapsible__body--disable {
 .profile-avatar--bigger {
   width: 40px;
   height: 40px;
+}
+
+.profile-avatar--rectangle {
+  border-radius: 4px;
 }
 
 .profile-avatar--new {
@@ -9318,6 +9326,41 @@ a.loginbutton.hidden,
   outline: none;
 }
 
+.setting {
+  display: flex;
+  flex-direction: column;
+}
+.setting .setting__name {
+  font-weight: 500;
+  margin-top: -4px;
+}
+.setting .setting__sub {
+  font-size: 12px;
+}
+
+@media (min-width: 1200px) {
+  .setting {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  .setting .setting__name {
+    flex-shrink: 0;
+    margin-top: 0;
+    border-right: 1px solid #4d5763;
+    padding-right: 8px;
+    margin-right: 8px;
+    line-height: 1;
+  }
+  .setting .setting__separator {
+    display: block;
+    margin: 0 8px;
+  }
+  .setting .setting__sub {
+    font-size: 16px;
+    line-height: 1;
+  }
+}
 .page-card .details {
   border-radius: 0;
   overflow: hidden;

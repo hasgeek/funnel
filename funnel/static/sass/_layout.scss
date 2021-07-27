@@ -83,6 +83,10 @@
   flex-wrap: wrap;
 }
 
+.flex-item-noshrink {
+  flex-shrink: 0;
+}
+
 .material-icons {
   display: none;
 }
@@ -468,6 +472,10 @@ html.touch .collapsible__body--disable {
 .profile-avatar--bigger {
   width: 40px;
   height: 40px;
+}
+
+.profile-avatar--rectangle {
+  border-radius: 4px;
 }
 
 .profile-avatar--new {
