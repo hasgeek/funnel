@@ -1,5 +1,5 @@
 /* eslint-disable global-require */
-describe('Add session to schedule and publish', () => {
+describe('Add schedule and livestream', () => {
   const { editor } = require('../fixtures/user.json');
   const siteEditor = require('../fixtures/user.json').owner;
   const session = require('../fixtures/session.json');
@@ -7,7 +7,7 @@ describe('Add session to schedule and publish', () => {
   const project = require('../fixtures/project.json');
   const dayjs = require('dayjs');
 
-  it('Update schedule', () => {
+  it('Add schedule and livestream', () => {
     cy.server();
     cy.route('**/sessions/new').as('new-session-form');
     cy.route('POST', '**/sessions/new').as('add-new-session');
@@ -56,6 +56,27 @@ describe('Add session to schedule and publish', () => {
     cy.get('[data-cy-collapsible="open"]').eq(0).click();
     cy.get('.sp-dd').eq(0).click();
     cy.get('.sp-palette-container').should('exist');
+
+    // Add livestream
+    cy.get('a[data-cy="project-page"]').click();
+    cy.get('a[data-cy="project-menu"]:visible').click();
+    cy.wait(1000);
+    cy.get('a[data-cy-navbar="settings"]:visible').click();
+    cy.location('pathname').should('contain', 'settings');
+    cy.get('a[data-cy="add-livestream"]').click();
+    cy.location('pathname').should('contain', '/edit');
+
+    cy.get('#field-livestream_urls')
+      .find('textarea')
+      .type(project.livestream_url, { force: true });
+    cy.get('button[data-cy="form-submit-btn"]').click();
+    cy.location('pathname').should('contain', project.url);
+
+    cy.get('#livestream').should('exist');
+    cy.get('#livestream')
+      .find('iframe')
+      .should('have.attr', 'src')
+      .should('include', project.youtube_video_id);
 
     cy.logout();
     cy.wait(1000);

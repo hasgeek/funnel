@@ -20,6 +20,7 @@ describe('Test comments feature', () => {
       .click({ force: true });
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="comments"]').click();
+    cy.wait(2000);
     cy.get('a[data-cy="login-btn"]').click();
     cy.fill_login_details(user.username, user.password);
 
@@ -85,14 +86,5 @@ describe('Test comments feature', () => {
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="comments"]').click();
     cy.get('[data-cy="post-comment"]').should('exist');
-
-    cy.logout();
-    cy.login('/', editor.username, editor.password);
-    cy.get('a[data-cy="my-updates"]:visible').click();
-    cy.wait('@fetch-updates');
-    cy.get('[data-cy="notification-box"]').contains(project.title);
-    cy.get('[data-cy="comment-sidebar"]').click();
-    cy.wait(2000);
-    cy.get('[data-cy="unread-comment"]').should('exist');
   });
 });
