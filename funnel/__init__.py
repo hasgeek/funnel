@@ -33,8 +33,10 @@ redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
 executor = ExecutorWrapper()
 
-# --- Assets ------------------------------------------------------------------
+# --- Assets ---------------------------------------------------------------------------
 
+#: Theme files, for transitioning away from Baseframe templates. These are used by
+#: Baseframe's render_form and other form helper functions.
 THEME_FILES['funnel'] = {
     'ajaxform.html.jinja2': 'ajaxform.html.jinja2',
     'autoform.html.jinja2': 'autoform.html.jinja2',
@@ -62,7 +64,7 @@ except OSError:
     built_assets = {}
     app.logger.error("static/build/manifest.json file missing; run `make`")
 
-# --- Import rest of the app --------------------------------------------------
+# --- Import rest of the app -----------------------------------------------------------
 
 from . import (  # isort:skip  # noqa: F401
     models,
@@ -75,7 +77,7 @@ from . import (  # isort:skip  # noqa: F401
 )
 from .models import db  # isort:skip
 
-# --- Configuration------------------------------------------------------------
+# --- Configuration---------------------------------------------------------------------
 coaster.app.init_app(app)
 coaster.app.init_app(shortlinkapp, init_logging=False)
 
