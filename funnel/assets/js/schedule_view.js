@@ -29,12 +29,12 @@ const Schedule = {
             description: schedule.config.pageDescription,
           },
           view: 'agenda',
-          svgIconUrl: window.Hasgeek.config.svgIconUrl,
+          svgIconUrl: window.Hasgeek.Config.svgIconUrl,
         };
       },
       methods: {
         toggleTab(room) {
-          if (this.width < window.Hasgeek.config.mobileBreakpoint) {
+          if (this.width < window.Hasgeek.Config.mobileBreakpoint) {
             this.activeTab = room;
           }
         },
@@ -56,7 +56,7 @@ const Schedule = {
         getColumnWidth(columnType) {
           if (
             columnType === 'header' ||
-            this.width >= window.Hasgeek.config.mobileBreakpoint
+            this.width >= window.Hasgeek.Config.mobileBreakpoint
           ) {
             if (this.view === 'calendar') {
               return this.timeSlotWidth / this.rowWidth;
@@ -159,7 +159,7 @@ const Schedule = {
             this.width = $(window).width();
             this.height = $(window).height();
 
-            if (this.width < window.Hasgeek.config.mobileBreakpoint) {
+            if (this.width < window.Hasgeek.Config.mobileBreakpoint) {
               this.view = 'agenda';
             }
             this.getHeight();

@@ -1,0 +1,31 @@
+{% extends "formlayout.html.jinja2" %}
+{% from "forms.html.jinja2" import renderform, ajaxform, widget_ext_scripts, widgetscripts %}
+
+{% block content %}
+  {%- if message %}
+    <p class="form-message">{{ message }}</p>
+  {%- endif %}
+  {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action, cancel_url=cancel_url, multipart=multipart, autosave=autosave, draft_revision=draft_revision) }}
+{% endblock %}
+
+{% block footerscripts %}
+  {{ widget_ext_scripts(form) }}
+  <script type="text/javascript">
+    $(function() {
+      {{ widgetscripts(form, script=false, ref_id=ref_id) }}
+    });
+  </script>
+  <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    // In a separate script block in case the autosize plugin isn't present
+    $(function() {
+      $('#{{ ref_id }}').parsley().subscribe('parsley:field:validated', function(){
+        if ($('#{{ ref_id }}').parsley().isValid())
+          $('#{{ ref_id }}').addClass('parsley-valid').removeClass('parsley-invalid');
+        else
+          $('#{{ ref_id }}').addClass('parsley-invalid').removeClass('parsley-valid');
+      });
+    })
+  </script>
+  {{ ajaxform(ref_id=ref_id, request=request, force=ajax) }}
+{% endblock %}

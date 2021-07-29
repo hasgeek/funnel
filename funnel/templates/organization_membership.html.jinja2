@@ -1,10 +1,9 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{{ profile.title }}{% endblock %}
-{% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import profile_header %}
+{%- from "macros.html.jinja2" import faicon, profile_header %}
 {%- from "js/membership.js.jinja2" import membership_template, profile_member_template %}
 
-{% block bodyattrs %}class="mui--bg-primary hg-app no-sticky-header mobile-header"{% endblock %}
+{% block bodyattrs %}class="mui--bg-primary no-sticky-header mobile-header"{% endblock %}
 
 {% block contenthead %}{% endblock %}
 

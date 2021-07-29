@@ -1,11 +1,10 @@
 {% extends "layout.html.jinja2" -%}
 {% block title %}{{ title }}{% endblock %}
 
-{%- block layoutheaders %}
+{%- block pageheaders %}
   {% assets "css_codemirrormarkdown" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
-  {% block pageheaders %}{% endblock %}
 {% endblock %}
 
 {% block contentwrapper %}
@@ -25,16 +24,10 @@
   {%- endassets -%}
 {% endblock %}
 
-{% block layoutscripts %}
-  <script type="text/javascript">
-    window.Hasgeek = {};
-    window.Hasgeek.config = {};
-    window.Hasgeek.config.svgIconUrl = {% assets "fa5-sprite" %}"{{ ASSET_URL|make_relative_url }}"{% endassets %};
-    window.Hasgeek.config.notificationCount = {{ url_for('notifications_count')|tojson }};
-    window.Hasgeek.config.accountSudo = {{ url_for('account_sudo')|tojson }};
-    window.Hasgeek.config.accountMenu = {{ url_for('account_menu')|tojson }};
-  </script>
-  <script src="{{ built_asset('app.js') }}" type="text/javascript"></script>
+{% block serviceworker %}
+{% endblock %}
+
+{% block footerscripts %}
   <script type="text/javascript">
     $(function() {
       var hash = window.location.hash;
@@ -126,6 +119,5 @@
         }
       });
     </script>
-   {%- endif %}
-  {% block footerscripts %}{% endblock %}
+  {%- endif %}
 {% endblock %}

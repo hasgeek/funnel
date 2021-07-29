@@ -16,11 +16,11 @@ export const userAvatarUI = Vue.component('useravatar', {
     },
   },
   methods: {
-    getInitials: window.Baseframe.Utils.getInitials,
+    getInitials: window.Hasgeek.Utils.getInitials,
   },
   computed: {
     imgsize() {
-      return window.Hasgeek.config.userAvatarImgSize[this.size];
+      return window.Hasgeek.Config.userAvatarImgSize[this.size];
     },
     imgurl() {
       return `${this.user.avatar}?size=${this.imgsize}`;
@@ -45,7 +45,7 @@ export const faSvg = Vue.component('faicon', {
   },
   data() {
     return {
-      svgIconUrl: window.Hasgeek.config.svgIconUrl,
+      svgIconUrl: window.Hasgeek.Config.svgIconUrl,
     };
   },
   computed: {

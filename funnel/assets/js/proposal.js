@@ -11,7 +11,7 @@ export const Proposal = {
         url: $(form).attr('action'),
         data: formData,
         dataType: 'json',
-        timeout: window.Hasgeek.config.ajaxTimeout,
+        timeout: window.Hasgeek.Config.ajaxTimeout,
         success(responseData) {
           if (responseData && responseData.message) {
             window.toastr.success(responseData.message);

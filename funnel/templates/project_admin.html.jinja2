@@ -1,8 +1,7 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{% from "baseframe/forms.html.jinja2" import renderfield %}
-{% from "baseframe/components.html.jinja2" import faicon %}
-{% from "macros.html.jinja2" import csrf_tag %}
+{% from "forms.html.jinja2" import renderfield %}
+{% from "macros.html.jinja2" import faicon, csrf_tag %}
 {% block title %}{% trans %}Setup events for check-in{% endtrans %}{% endblock %}
 
 {% block top_title %}

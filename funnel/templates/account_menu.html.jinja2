@@ -1,5 +1,4 @@
-{%- from "macros.html.jinja2" import useravatar, csrf_tag %}
-{% from "baseframe/components.html.jinja2" import faicon %}
+{%- from "macros.html.jinja2" import faicon, useravatar, csrf_tag %}
 
 {%- if current_auth -%}
   {% if current_auth.user.profile %}

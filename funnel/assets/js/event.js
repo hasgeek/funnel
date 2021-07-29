@@ -164,7 +164,7 @@ const ParticipantTable = {
         $.ajax({
           type: 'GET',
           url: participantlistUrl,
-          timeout: window.Hasgeek.config.ajaxTimeout,
+          timeout: window.Hasgeek.Config.ajaxTimeout,
           dataType: 'json',
           success(data) {
             count.set({
@@ -230,7 +230,7 @@ const ParticipantTable = {
       type: 'POST',
       url: list.get('checkinUrl'),
       data: formValues,
-      timeout: window.Hasgeek.config.ajaxTimeout,
+      timeout: window.Hasgeek.Config.ajaxTimeout,
       dataType: 'json',
       success(data) {
         if (data.checked_in) {

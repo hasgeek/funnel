@@ -1,11 +1,9 @@
 {% extends "layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import calendarwidget %}
-{% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import account_tabs, projectcard %}
+{%- from "macros.html.jinja2" import faicon, account_tabs, projectcard, calendarwidget %}
 
 {% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 
-{% block bodyattrs %}class="mui--bg-primary hg-app tabs-navbar"{% endblock %}
+{% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock %}
 
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
