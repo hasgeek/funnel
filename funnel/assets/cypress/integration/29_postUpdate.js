@@ -45,6 +45,9 @@ describe('Test updates feature', () => {
       .contains(project.update_title);
     cy.get('a[data-cy-navbar="updates"]').click();
     cy.get('.update').contains(project.restricted_update_title);
+    cy.get('a[data-cy="my-updates"]:visible').click();
+    cy.wait('@fetch-updates');
+    cy.get('[data-cy="notification-box"]').contains(project.update_title);
     cy.logout();
 
     cy.login('/', newuser.username, newuser.newpassword);
@@ -60,11 +63,5 @@ describe('Test updates feature', () => {
       .contains(project.restricted_update_body)
       .should('not.exist');
     cy.logout();
-
-    cy.wait(2000);
-    cy.login('/', user.username, user.password);
-    cy.get('a[data-cy="my-updates"]:visible').click();
-    cy.wait('@fetch-updates');
-    cy.get('[data-cy="notification-box"]').contains(project.update_title);
   });
 });
