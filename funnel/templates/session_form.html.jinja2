@@ -1,4 +1,4 @@
-{% from "baseframe/forms.html.jinja2" import renderform_inner, rendersubmit, ajaxform %}
+{% from "forms.html.jinja2" import renderform_inner, rendersubmit, ajaxform %}
 
 {%- if not request_is_xhr() %}
   {% extends "formlayout.html.jinja2" %}

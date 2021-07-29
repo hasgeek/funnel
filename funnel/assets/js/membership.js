@@ -25,7 +25,7 @@ const Membership = {
           if (member.is_usher) count += 1;
           return count - 1;
         },
-        getInitials: window.Baseframe.Utils.getInitials,
+        getInitials: window.Hasgeek.Utils.getInitials,
       },
     });
 
@@ -49,7 +49,7 @@ const Membership = {
           view: 'name',
           search: '',
           showInfo: false,
-          svgIconUrl: window.Hasgeek.config.svgIconUrl,
+          svgIconUrl: window.Hasgeek.Config.svgIconUrl,
           isMobile: false,
           ready: false,
         };
@@ -63,7 +63,7 @@ const Membership = {
             $.ajax({
               type: 'GET',
               url,
-              timeout: window.Hasgeek.config.ajaxTimeout,
+              timeout: window.Hasgeek.Config.ajaxTimeout,
               dataType: 'json',
               success(data) {
                 const vueFormHtml = data.form;
@@ -90,7 +90,7 @@ const Membership = {
           const onError = (response) => {
             this.errorMsg = Utils.formErrorHandler(formId, response);
           };
-          window.Baseframe.Forms.handleFormSubmit(
+          window.Hasgeek.Forms.handleFormSubmit(
             formId,
             url,
             onSuccess,
@@ -131,7 +131,7 @@ const Membership = {
         },
         onWindowResize() {
           this.isMobile =
-            $(window).width() < window.Hasgeek.config.mobileBreakpoint;
+            $(window).width() < window.Hasgeek.Config.mobileBreakpoint;
         },
       },
       computed: {

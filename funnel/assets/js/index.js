@@ -40,7 +40,7 @@ $(() => {
               data: {
                 page: pastProjectsApp.next_page,
               },
-              timeout: window.Hasgeek.config.ajaxTimeout,
+              timeout: window.Hasgeek.Config.ajaxTimeout,
               dataType: 'json',
               success(data) {
                 pastProjectsApp.title = data.title;

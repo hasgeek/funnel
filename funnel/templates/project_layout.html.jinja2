@@ -1,8 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{% from "baseframe/forms.html.jinja2" import ajaxform %}
-{% from "baseframe/components.html.jinja2" import faicon, alertbox %}
-{%- from "macros.html.jinja2" import csrf_tag, calendarwidget, saveprojectform, share_dropdown %}
+{%- from "macros.html.jinja2" import faicon, csrf_tag, calendarwidget, saveprojectform, share_dropdown %}
 {%- set banner_img = 1500 %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.tagline }}{% endblock %}
@@ -11,7 +9,7 @@
 {%- block pageheaders %}
 {% endblock %}
 
-{% block bodyattrs %}class="mui--bg-accent hg-app no-sticky-header mobile-header project-page"{% endblock %}
+{% block bodyattrs %}class="mui--bg-accent no-sticky-header mobile-header project-page"{% endblock %}
 
 {% block contenthead %}
 {% endblock %}
@@ -370,7 +368,7 @@
           <div class="mui--text-body2 mui--text-light margin-bottom">{{ sponsor.profile.description.html|preview(min=200, max=300) }} <a href="{{ sponsor.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</a></div>
         {% endif %}
         {% if sponsor.is_promoted %}
-          <div class="margin-bottom"><p class="mui--text-body2 mui--text-bold mui--text-light zero-bottom-margin">{{ faicon(icon='bullseye-pointer', baseline=false, css_class='mui--text-light fa-icon--right-margin mui--align-middle') }}{% trans %}Promoted{% endtrans %}</p></div>
+          <div class="margin-bottom"><p class="mui--text-body2 mui--text-bold mui--text-light zero-bottom-margin">{{ faicon(icon='angle-double-up', baseline=false, css_class='mui--text-light fa-icon--right-margin mui--align-middle') }}{% trans %}Promoted{% endtrans %}</p></div>
         {% endif %}
       </div>
     </div>

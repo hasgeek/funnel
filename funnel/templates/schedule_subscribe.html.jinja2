@@ -1,4 +1,4 @@
-{% from "baseframe/components.html.jinja2" import faicon %}
+{% from "macros.html.jinja2" import faicon %}
 
 <div class="modal__header" data-cy="schedule-subscribe">
   <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close subscribe modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>

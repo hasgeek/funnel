@@ -75,7 +75,6 @@ describe('Test comments feature', () => {
     cy.wait(5000);
      */
 
-    cy.visit('/');
     cy.logout();
 
     cy.login('/', hguser.username, hguser.password);
@@ -89,7 +88,7 @@ describe('Test comments feature', () => {
 
     cy.logout();
     cy.login('/', editor.username, editor.password);
-    cy.visit('/updates');
+    cy.get('a[data-cy="my-updates"]:visible').click();
     cy.wait('@fetch-updates');
     cy.get('[data-cy="notification-box"]').contains(project.title);
     cy.get('[data-cy="comment-sidebar"]').click();

@@ -57,7 +57,7 @@ const Search = {
         $.ajax({
           type: 'GET',
           url: `${url}&page=${page}`,
-          timeout: window.Hasgeek.config.ajaxTimeout,
+          timeout: window.Hasgeek.Config.ajaxTimeout,
           dataType: 'json',
           success(data) {
             widget.activateTab(searchType, data.results, url, page);

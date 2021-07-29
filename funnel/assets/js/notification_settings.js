@@ -12,7 +12,7 @@ $(() => {
         url: config.url,
         data: $(this).parents('.js-autosubmit-form').serializeArray(),
         dataType: 'json',
-        timeout: window.Hasgeek.config.ajaxTimeout,
+        timeout: window.Hasgeek.Config.ajaxTimeout,
         success() {
           if (currentState && transport) {
             $(`input[data-transport="preference-${transport}"]`).attr(

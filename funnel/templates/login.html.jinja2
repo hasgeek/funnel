@@ -1,7 +1,8 @@
 {% extends "account_formlayout.html.jinja2" %}
+{% from "forms.html.jinja2" import ajaxform %}
 {% from "password_login_form.html.jinja2" import passwordlogin %}
 
-{% block bodyattrs %}class="login-page login-page--artwork hg-app no-sticky-header"{% endblock %}
+{% block bodyattrs %}class="login-page login-page--artwork no-sticky-header"{% endblock %}
 
 {% block beforeformcontent %}
   <div>

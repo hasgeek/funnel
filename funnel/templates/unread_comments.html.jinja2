@@ -1,5 +1,5 @@
-{% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import useravatar %}
+{%- from "macros.html.jinja2" import faicon, useravatar %}
+
 {% for membership in commentset_memberships %}
   {%- if membership %}
     <li class="user">

@@ -1,6 +1,5 @@
-{% from "baseframe/forms.html.jinja2" import renderfield, renderform, rendersubmit, widgetscripts %}
-{% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import csrf_tag %}
+{% from "forms.html.jinja2" import renderfield, renderform, rendersubmit, widgetscripts %}
+{%- from "macros.html.jinja2" import faicon, csrf_tag %}
 
 <div class="modal__header">
   <a class="modal__close mui--text-dark" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>

@@ -16,6 +16,7 @@ from flask_rq2 import RQ
 import geoip2.database
 
 from baseframe import Bundle, Version, assets, baseframe
+from baseframe.blueprint import THEME_FILES
 import coaster.app
 
 from ._version import __version__
@@ -32,7 +33,17 @@ redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
 executor = ExecutorWrapper()
 
-# --- Assets ------------------------------------------------------------------
+# --- Assets ---------------------------------------------------------------------------
+
+#: Theme files, for transitioning away from Baseframe templates. These are used by
+#: Baseframe's render_form and other form helper functions.
+THEME_FILES['funnel'] = {
+    'ajaxform.html.jinja2': 'ajaxform.html.jinja2',
+    'autoform.html.jinja2': 'autoform.html.jinja2',
+    'delete.html.jinja2': 'delete.html.jinja2',
+    'message.html.jinja2': 'message.html.jinja2',
+    'redirect.html.jinja2': 'redirect.html.jinja2',
+}
 
 version = Version(__version__)
 assets['funnel.css'][version] = 'css/app.css'
@@ -42,6 +53,7 @@ assets['spectrum.css'][version] = 'css/spectrum.css'
 assets['screens.css'][version] = 'css/screens.css'
 assets['schedules.js'][version] = 'js/schedules.js'
 assets['schedule-print.css'][version] = 'css/schedule-print.css'
+assets['funnel-mui.js'][version] = 'js/libs/mui.js'
 
 try:
     with open(
@@ -52,7 +64,7 @@ except OSError:
     built_assets = {}
     app.logger.error("static/build/manifest.json file missing; run `make`")
 
-# --- Import rest of the app --------------------------------------------------
+# --- Import rest of the app -----------------------------------------------------------
 
 from . import (  # isort:skip  # noqa: F401
     models,
@@ -65,7 +77,7 @@ from . import (  # isort:skip  # noqa: F401
 )
 from .models import db  # isort:skip
 
-# --- Configuration------------------------------------------------------------
+# --- Configuration---------------------------------------------------------------------
 coaster.app.init_app(app)
 coaster.app.init_app(shortlinkapp, init_logging=False)
 
@@ -114,12 +126,18 @@ baseframe.init_app(
     ext_requires=[
         'pygments',
         'toastr',
-        'baseframe-mui',
         'jquery.cookie',
         'timezone',
         'pace',
+        'jquery-modal',
+        'jquery.form',
+        'select2-material',
+        'getdevicepixelratio',
+        'jquery.tinymce.js>=4.0.0',
+        'jquery.truncate8',
+        'funnel-mui',
     ],
-    theme='mui',
+    theme='funnel',
     asset_modules=('baseframe_private_assets',),
 )
 
@@ -198,14 +216,6 @@ app.assets.register(
     'css_screens',
     Bundle(
         assets.require('screens.css'), output='css/screens.packed.css', filters='cssmin'
-    ),
-)
-app.assets.register(
-    'js_jquerytruncate',
-    Bundle(
-        assets.require('!jquery.js', 'jquery.truncate8.js'),
-        output='js/jquerytruncate.packed.js',
-        filters='uglipyjs',
     ),
 )
 app.assets.register(

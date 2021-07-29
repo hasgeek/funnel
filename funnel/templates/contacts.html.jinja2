@@ -1,10 +1,9 @@
 {% extends "layout.html.jinja2" %}
-{% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import account_tabs, useravatar %}
+{%- from "macros.html.jinja2" import faicon, account_tabs, useravatar %}
 
 {% block title %}{% trans %}My contacts{% endtrans %}{% endblock %}
 
-{% block bodyattrs %}class="mui--bg-primary hg-app tabs-navbar"{% endblock %}
+{% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock %}
 
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">

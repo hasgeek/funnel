@@ -33,7 +33,7 @@ const Comments = {
       data() {
         return {
           errorMsg: '',
-          svgIconUrl: window.Hasgeek.config.svgIconUrl,
+          svgIconUrl: window.Hasgeek.Config.svgIconUrl,
           reply: '',
           textarea: '',
           formAction: [
@@ -53,7 +53,7 @@ const Comments = {
         };
       },
       methods: {
-        getInitials: window.Baseframe.Utils.getInitials,
+        getInitials: window.Hasgeek.Utils.getInitials,
         collapse(action) {
           this.hide = action;
         },
@@ -106,7 +106,7 @@ const Comments = {
           return this.now && this.comment.created_at
             ? this.timeago.format(
                 this.comment.created_at,
-                window.Hasgeek.config.locale
+                window.Hasgeek.Config.locale
               )
             : '';
         },
@@ -114,7 +114,7 @@ const Comments = {
           return this.now && this.comment.edited_at
             ? this.timeago.format(
                 this.comment.edited_at,
-                window.Hasgeek.config.locale
+                window.Hasgeek.Config.locale
               )
             : '';
         },
@@ -158,7 +158,7 @@ const Comments = {
           lastSeenUrl,
           refreshTimer: '',
           headerHeight: '',
-          svgIconUrl: window.Hasgeek.config.svgIconUrl,
+          svgIconUrl: window.Hasgeek.Config.svgIconUrl,
           initialLoad: true,
           showmodal: false,
           formTitle: 'New comment',
@@ -178,7 +178,7 @@ const Comments = {
             this.$nextTick(() => {
               const editor = window.CodeMirror.fromTextArea(
                 document.getElementById(textareaId),
-                window.Baseframe.Config.cm_markdown_config
+                window.Hasgeek.Config.cm_markdown_config
               );
               let delay;
               editor.on('change', () => {
@@ -190,7 +190,7 @@ const Comments = {
                   } else {
                     parentApp.textarea = editor.getValue();
                   }
-                }, window.Hasgeek.config.saveEditorContentTimeout);
+                }, window.Hasgeek.Config.saveEditorContentTimeout);
               });
               editor.focus();
             });
@@ -248,7 +248,7 @@ const Comments = {
           $.ajax({
             url: commentsUrl,
             type: 'GET',
-            timeout: window.Hasgeek.config.ajaxTimeout,
+            timeout: window.Hasgeek.Config.ajaxTimeout,
             dataType: 'json',
             success(data) {
               app.updateCommentsList(data.comments);
@@ -261,10 +261,10 @@ const Comments = {
         refreshCommentsTimer() {
           this.refreshTimer = window.setInterval(
             this.fetchCommentsList,
-            window.Hasgeek.config.refreshInterval
+            window.Hasgeek.Config.refreshInterval
           );
         },
-        getInitials: window.Baseframe.Utils.getInitials,
+        getInitials: window.Hasgeek.Utils.getInitials,
       },
       mounted() {
         this.fetchCommentsList();
@@ -325,7 +325,7 @@ const Comments = {
           this.initialLoad = false;
         }
         if (this.scrollTo) {
-          if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
+          if ($(window).width() < window.Hasgeek.Config.mobileBreakpoint) {
             Utils.animateScrollTo(
               $(this.scrollTo).offset().top - this.headerHeight
             );

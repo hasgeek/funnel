@@ -1,8 +1,22 @@
-{% from "baseframe/forms.html.jinja2" import renderform %}
-{% from "baseframe/components.html.jinja2" import faicon, alertbox %}
 {%- set banner_img = 1500 %}
 {%- set profile_logo = 240 %}
 {%- set profile_logo_small = 80 %}
+
+
+{%- macro faicon(icon, icon_size='body', baseline=true, css_class='') -%}
+  {% assets "fa5-sprite" %}<svg class="fa5-icon {%- if icon_size %} fa5-icon--{{icon_size}} {%- endif -%} {%- if baseline %} fa5--align-baseline {%- endif -%} {%- if css_class %} {{ css_class }} {%- endif -%}" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL|make_relative_url }}#{{icon}}"></use></svg>{% endassets %}
+{%- endmacro %}
+
+{%- macro alertbox(category, message="", dismissable=true, css_class='') %}
+  <div class="alert alert--{{category}} {% if dismissable %}alert--dismissable{%- endif -%} {%- if css_class %} {{ css_class }} {%- endif -%}">
+    {%- if dismissable %}
+      <a class="alert__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}">
+      {{ faicon(icon='times', icon_size='title', baseline=true) }}
+      </a>
+    {%- endif -%}
+    <p class="alert__text">{{ message }}</p>
+  </div>
+{%- endmacro %}
 
 {%- macro csrf_tag() %}
 <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
@@ -62,7 +76,7 @@
 {% macro saveprojectform(project, iconsize='body', formid='save-form') %}
   <form id="{{ formid }}" class="js-save-form" action="{{ project.url_for('save') }}" method="POST">
     {{ current_view.SavedProjectForm().hidden_tag() }}
-    <div class="no-jshidden bookmark-wrapper">
+    <div class="bookmark-wrapper">
       {%- if current_auth.is_anonymous %}
         <a class="mui--text-light"  href="{{ url_for('login', next=request.path) }}" data-ga="Login to save project" aria-label="{% trans %}Login to save this project{% endtrans %}">{{ faicon(icon='bookmark', baseline=true, icon_size=iconsize, css_class='mui--text-light') }}</a>
       {%- else %}
@@ -494,14 +508,14 @@
 {% endmacro %}
 
 {% macro page_footer() %}
-  <div class="sub-navbar-container sub-navbar-container--footer mui--bg-accent">
+  <footer class="sub-navbar-container sub-navbar-container--footer mui--bg-accent">
     <nav class="sub-navbar mui-container" id="page-navbar">
       <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'index' %}sub-navbar__item--active{%- endif %}" href="/about">{% trans %}About Hasgeek{% endtrans %}</a>
       <a class="sub-navbar__item mui--text-subhead mui--text-dark" href="/hasgeek">{% trans %}Team &amp; careers{% endtrans %}</a>
       <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'contact' %}sub-navbar__item--active{%- endif %}" href="/about/contact">{% trans %}Contact{% endtrans %}</a>
       <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'policy' %}sub-navbar__item--active{%- endif %}" href="/about/policy">{% trans %}Site policies{% endtrans %}</a>
     </nav>
-  </div>
+  </footer>
 {% endmacro %}
 
 {% macro video_thumbnail(session) %}

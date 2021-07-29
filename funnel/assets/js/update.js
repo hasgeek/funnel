@@ -21,12 +21,12 @@ const Updates = {
         return {
           truncated: true,
           setReadMore: false,
-          svgIconUrl: window.Hasgeek.config.svgIconUrl,
+          svgIconUrl: window.Hasgeek.Config.svgIconUrl,
           now: new Date(),
         };
       },
       methods: {
-        getInitials: window.Baseframe.Utils.getInitials,
+        getInitials: window.Hasgeek.Utils.getInitials,
         truncate(content, length) {
           if (!content) return '';
           const value = content.toString();
@@ -48,7 +48,7 @@ const Updates = {
           return this.now && this.update.published_at
             ? this.timeago.format(
                 this.update.published_at,
-                window.Hasgeek.config.locale
+                window.Hasgeek.Config.locale
               )
             : '';
         },

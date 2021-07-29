@@ -7,10 +7,10 @@ export const useravatar = Ractive.extend({
   data: {
     addprofilelink: true,
     size: 'medium',
-    getInitials: window.Baseframe.Utils.getInitials,
+    getInitials: window.Hasgeek.Utils.getInitials,
     imgurl() {
       return `${this.get('user').avatar}?size=${
-        window.Hasgeek.config.userAvatarImgSize[this.get('size')]
+        window.Hasgeek.Config.userAvatarImgSize[this.get('size')]
       }`;
     },
   },
@@ -20,7 +20,7 @@ export const faicon = Ractive.extend({
   template:
     '<svg class="fa5-icon {{#if icon_size }}fa5-icon--{{icon_size}}{{/if}} {{#if baseline }}fa5--align-baseline{{/if}} {{#if css_class }}{{css_class}}{{/if}}" aria-hidden="true" role="img"><use xlink:href="{{ svgIconUrl }}#{{icon}}"></use></svg>',
   data: {
-    svgIconUrl: window.Hasgeek.config.svgIconUrl,
+    svgIconUrl: window.Hasgeek.Config.svgIconUrl,
   },
 });
 

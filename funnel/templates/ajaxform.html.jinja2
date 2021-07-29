@@ -1,0 +1,20 @@
+<div>
+  {% from "forms.html.jinja2" import renderform, ajaxform, widget_ext_scripts, widgetscripts %}
+  {%- if title -%}
+    <p class="mui--text-title">{{ title }}</p>
+  {%- endif -%}
+  {%- if message %}
+    <p class="form-message">{{ message }}</p>
+  {%- endif %}
+  {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action, cancel_url=cancel_url, multipart=multipart, autosave=autosave, draft_revision=draft_revision) }}
+  {%- if with_chrome -%}
+    {{ ajaxform(ref_id=ref_id, request=request, force=true) }}
+  {%- endif -%}
+
+  {{ widget_ext_scripts(form) }}
+
+  <script type="text/javascript">
+    activate_widgets();
+    {{ widgetscripts(form, script=false) }}
+  </script>
+</div>
