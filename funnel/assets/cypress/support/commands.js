@@ -1,13 +1,3 @@
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-
 Cypress.Commands.add('login', (route, username, password) => {
   cy.visit(route, { failOnStatusCode: false })
     .get('#hgnav')
@@ -39,6 +29,7 @@ Cypress.Commands.add(
     cy.route('**/new').as('member-form');
     cy.route('POST', '**/new').as('add-member');
 
+    cy.wait(2000);
     cy.get('button[data-cy-btn="add-member"]').click();
     cy.wait('@member-form');
     cy.get('.select2-selection__arrow').click({ multiple: true });
@@ -73,6 +64,7 @@ Cypress.Commands.add('add_member', (username, role, fail = false) => {
   cy.route('**/new').as('member-form');
   cy.route('POST', '**/new').as('add-member');
 
+  cy.wait(2000);
   cy.get('button[data-cy-btn="add-member"]').click();
   cy.wait('@member-form');
   cy.get('.select2-selection__arrow').click({ multiple: true });

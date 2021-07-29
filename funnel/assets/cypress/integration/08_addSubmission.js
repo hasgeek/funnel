@@ -47,13 +47,5 @@ describe('Add a new submission', () => {
     cy.wait('@post-comment');
     cy.get('.comment__body').contains(proposal.proposer_note);
     cy.get('.comment__header').contains(user.username);
-
-    cy.visit('/');
-    cy.logout();
-    cy.wait(1000);
-    cy.login(`/${profile.title}`, editor.username, editor.password);
-    cy.visit('/updates');
-    cy.wait('@fetch-updates');
-    cy.get('[data-cy="notification-box"]').contains(proposal.title);
   });
 });

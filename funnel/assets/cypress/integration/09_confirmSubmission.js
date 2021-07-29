@@ -14,7 +14,11 @@ describe('Confirm submission', () => {
     cy.route('POST', '**/new').as('post-comment');
 
     cy.login('/', editor.username, editor.password);
-
+    cy.get('a[data-cy="my-updates"]:visible').click();
+    cy.visit('/updates');
+    cy.wait('@fetch-updates');
+    cy.get('[data-cy="notification-box"]').contains(proposal.title);
+    cy.get('a[data-cy="home-desktop"]').click();
     cy.get(`a[data-cy-title="${project.title}"]`).click();
     cy.location('pathname').should('contain', project.url);
     cy.get('a[data-cy-navbar="submissions"]').click();
