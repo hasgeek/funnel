@@ -8,6 +8,8 @@ describe('Add CFP and labels to project', () => {
   const labels = require('../fixtures/labels.json');
 
   it('Add CFP and labels', () => {
+    var boxCoords = {};
+
     cy.login(
       `/${profile.title}/${project.url}`,
       editor.username,
@@ -20,7 +22,6 @@ describe('Add CFP and labels to project', () => {
     cy.location('pathname').should('contain', 'settings');
     cy.get('a[data-cy="add-cfp"]').click();
     cy.location('pathname').should('contain', '/cfp');
-
     cy.get('#field-instructions')
       .find('.CodeMirror textarea')
       .type(cfp.instructions, { force: true });
@@ -35,6 +36,7 @@ describe('Add CFP and labels to project', () => {
     cy.location('pathname').should('contain', 'settings');
     cy.get('button[data-cy-cfp=open_cfp]').click();
     cy.location('pathname').should('contain', project.url);
+
     cy.get('a[data-cy="project-menu"]:visible').click();
     cy.wait(1000);
     cy.get('a[data-cy-navbar="settings"]:visible').click();
@@ -119,18 +121,20 @@ describe('Add CFP and labels to project', () => {
       });
     });
 
-    cy.get('.ui-draggable-box')
-      .eq(0)
-      .find('.drag-handle')
-      .trigger('mouseover', { which: 1, force: true, view: window })
-      .trigger('mousedown', { which: 1, force: true, view: window })
-      .trigger('mousemove', {
-        pageX: 650,
-        pageY: 550,
-        force: true,
-        view: window,
-      })
-      .trigger('mouseup', { force: true, view: window });
+    cy.get('.ui-draggable-box').then(($target) => {
+      boxCoords = $target[1].getBoundingClientRect();
+      cy.get('.ui-draggable-box')
+        .eq(0)
+        .find('.drag-handle')
+        .trigger('mouseover', { which: 1, force: true, view: window })
+        .trigger('mousedown', { which: 1, force: true, view: window })
+        .trigger('mousemove', {
+          pageX: boxCoords.left,
+          pageY: boxCoords.bottom + boxCoords.height,
+          view: window,
+        })
+        .trigger('mouseup', { force: true, view: window });
+    });
 
     cy.get('button[data-cy="save-label-seq"]').click();
 
