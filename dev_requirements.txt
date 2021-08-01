@@ -25,7 +25,7 @@ types-itsdangerous==1.1.2
 types-maxminddb==0.1.2
 types-python-dateutil==0.1.4
 types-pytz==2021.1.0
-types-requests==2.25.0
+types-requests==2.25.1
 types-setuptools==57.0.0
 types-simplejson==0.1.4
 types-six==0.1.7
