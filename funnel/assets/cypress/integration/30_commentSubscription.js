@@ -9,6 +9,7 @@ describe('Confirm submission comment subscription', () => {
     cy.server();
     cy.route('POST', '**/new').as('post-comment');
     cy.route('POST', '**/subscribe').as('post-subscribe');
+    cy.route('GET', '**/updates?*').as('fetch-updates');
 
     cy.login('/', member.username, member.password);
     cy.get('#hgnav').find('a[data-cy="my-account"]').click();
@@ -28,9 +29,14 @@ describe('Confirm submission comment subscription', () => {
     cy.wait(1000);
 
     cy.login('/', editor.username, editor.password);
+    cy.get('a[data-cy="my-updates"]:visible').click();
+    cy.wait('@fetch-updates');
+    cy.get('[data-cy="notification-box"]').contains(project.title);
+    cy.get('[data-cy="notification-box"]').contains(proposal.title);
     cy.get('[data-cy="comment-sidebar"]').click();
     cy.wait(1000);
-    cy.get('[data-cy="unread-comment"]').should('exist');
+    cy.get('[data-cy="unread-comment"]').contains(project.reply_comment);
+    cy.get('[data-cy="unread-comment"]').contains(proposal.comment_2);
     cy.logout();
     cy.wait(1000);
 
@@ -79,8 +85,6 @@ describe('Confirm submission comment subscription', () => {
     cy.login('/', newuser.username, newuser.newpassword);
     cy.get('[data-cy="comment-sidebar"]').click();
     cy.wait(1000);
-    cy.get('[data-cy="unread-comment"]')
-      .contains(member.username)
-      .should('exist');
+    cy.get('[data-cy="unread-comment"]').contains(proposal.comment_3);
   });
 });
