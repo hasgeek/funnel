@@ -45,14 +45,6 @@ THEME_FILES['funnel'] = {
     'redirect.html.jinja2': 'redirect.html.jinja2',
 }
 
-THEME_FILES['funnel'] = {
-    'ajaxform.html.jinja2': 'ajaxform.html.jinja2',
-    'autoform.html.jinja2': 'autoform.html.jinja2',
-    'delete.html.jinja2': 'delete.html.jinja2',
-    'message.html.jinja2': 'message.html.jinja2',
-    'redirect.html.jinja2': 'redirect.html.jinja2',
-}
-
 version = Version(__version__)
 assets['funnel.css'][version] = 'css/app.css'
 assets['funnel.js'][version] = 'js/scripts.js'
