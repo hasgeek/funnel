@@ -3,6 +3,7 @@ from sqlalchemy.exc import StatementError
 from furl import furl
 import pytest
 
+from coaster.sqlalchemy.statemanager import StateTransitionError
 from funnel.models import ImgeeFurl, Profile
 
 
@@ -50,3 +51,24 @@ def test_user_avatar(db_session, user_twoflower, user_rincewind):
     db_session.commit()
     assert str(user_rincewind.profile.logo_url) == 'https://images.example.com/p.jpg'
     assert user_rincewind.avatar == ImgeeFurl('https://images.example.com/p.jpg')
+
+
+def test_suspended_user_private_profile(db_session, user_wolfgang):
+    """Suspending a user will mark their profile as private."""
+    # Add an email address as contact info is required for public profiles
+    user_wolfgang.add_email('wolfgang@example.org')
+    # Ensure column defaults are set (Profile.state)
+    db_session.commit()
+
+    # Make profile public and confirm
+    user_wolfgang.profile.make_public()
+    assert user_wolfgang.profile.state.PUBLIC
+
+    # Suspend the user. Profile should also turn private, and be locked to that state
+    user_wolfgang.mark_suspended()
+    assert not user_wolfgang.profile.state.PUBLIC
+    assert user_wolfgang.profile.state.PRIVATE
+
+    # A suspended user's profile cannot be made public
+    with pytest.raises(StateTransitionError):
+        user_wolfgang.profile.make_public()

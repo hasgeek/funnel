@@ -42,7 +42,7 @@ from ..models import (
 from ..utils import abort_null
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
-# --- Definitions -------------------------------------------------------------
+# --- Definitions ----------------------------------------------------------------------
 
 # PostgreSQL ts_headline markers
 pg_startsel = '<mark>'
@@ -60,6 +60,8 @@ match_text_breakpoint_re = re.compile('[¦\r\n].*')
 # an extremely unlikely character in our data, we don't bother to make a more accurate
 # regex here.
 html_whitespace_re = re.compile(r'\s+', re.ASCII)
+
+# --- Search provider types ------------------------------------------------------------
 
 
 class SearchProvider:
@@ -176,6 +178,9 @@ class SearchInProjectProvider(SearchInProfileProvider):
             .options(db.load_only(self.model.id))
             .count()
         )
+
+
+# --- Search providers -----------------------------------------------------------------
 
 
 class ProjectSearch(SearchInProfileProvider):
@@ -331,9 +336,21 @@ class ProfileSearch(SearchProvider):
             .filter(
                 Profile.state.PUBLIC,
                 db.or_(
-                    Profile.search_vector.match(squery),
-                    User.search_vector.match(squery),
-                    Organization.search_vector.match(squery),
+                    db.and_(
+                        Profile.user_id.isnot(None),
+                        User.state.ACTIVE,
+                        db.or_(
+                            Profile.search_vector.match(squery),
+                            User.search_vector.match(squery),
+                        ),
+                    ),
+                    db.and_(
+                        Profile.organization_id.isnot(None),
+                        db.or_(
+                            Profile.search_vector.match(squery),
+                            Organization.search_vector.match(squery),
+                        ),
+                    ),
                 ),
             ),
         )

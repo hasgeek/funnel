@@ -380,7 +380,20 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             return []
 
     @with_roles(call={'owner'})
-    @state.transition(None, state.PUBLIC, title=__("Make public"))
+    @state.transition(
+        None,
+        state.PUBLIC,
+        title=__("Make public"),
+        if_=lambda profile: (
+            profile.reserved is False
+            and (
+                profile.user is None
+                or (
+                    profile.user.state.ACTIVE and profile.user.has_verified_contact_info
+                )
+            )
+        ),
+    )
     def make_public(self) -> None:
         pass
 
