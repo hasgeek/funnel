@@ -395,12 +395,14 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         ),
     )
     def make_public(self) -> None:
-        pass
+        """Make a profile public if it is eligible."""
+        pass  # No side-effects in transition
 
     @with_roles(call={'owner'})
     @state.transition(None, state.PRIVATE, title=__("Make private"))
     def make_private(self) -> None:
-        pass
+        """Make a profile private."""
+        pass  # No side-effects in transition
 
     def is_safe_to_delete(self) -> bool:
         """Return True if profile is not protected and has no projects."""
