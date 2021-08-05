@@ -42,7 +42,7 @@ from ..models import (
 from ..utils import abort_null
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
-# --- Definitions -------------------------------------------------------------
+# --- Definitions ----------------------------------------------------------------------
 
 # PostgreSQL ts_headline markers
 pg_startsel = '<mark>'
@@ -60,6 +60,8 @@ match_text_breakpoint_re = re.compile('[¦\r\n].*')
 # an extremely unlikely character in our data, we don't bother to make a more accurate
 # regex here.
 html_whitespace_re = re.compile(r'\s+', re.ASCII)
+
+# --- Search provider types ------------------------------------------------------------
 
 
 class SearchProvider:
@@ -178,6 +180,9 @@ class SearchInProjectProvider(SearchInProfileProvider):
         )
 
 
+# --- Search providers -----------------------------------------------------------------
+
+
 class ProjectSearch(SearchInProfileProvider):
     """Search for projects."""
 
@@ -191,7 +196,7 @@ class ProjectSearch(SearchInProfileProvider):
             .outerjoin(User, Profile.user_id == User.id)
             .outerjoin(Organization, Profile.organization_id == Organization.id)
             .filter(
-                Profile.state.PUBLIC,
+                Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 db.or_(
                     # Search conditions. Any of:
@@ -245,7 +250,7 @@ class ProjectSearch(SearchInProfileProvider):
             .outerjoin(User, Profile.user_id == User.id)
             .outerjoin(Organization, Profile.organization_id == Organization.id)
             .filter(
-                Profile.state.PUBLIC,
+                Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 db.or_(
                     Project.search_vector.match(squery),
@@ -329,7 +334,7 @@ class ProfileSearch(SearchProvider):
             Profile.query.outerjoin(User)
             .outerjoin(Organization)
             .filter(
-                Profile.state.PUBLIC,
+                Profile.state.ACTIVE_AND_PUBLIC,
                 db.or_(
                     Profile.search_vector.match(squery),
                     User.search_vector.match(squery),
@@ -363,7 +368,7 @@ class SessionSearch(SearchInProjectProvider):
             .join(Profile, Project.profile)
             .outerjoin(Proposal, Session.proposal)
             .filter(
-                Profile.state.PUBLIC,
+                Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Session.scheduled,
                 Session.search_vector.match(squery),
@@ -416,7 +421,7 @@ class ProposalSearch(SearchInProjectProvider):
             Proposal.query.join(Project, Proposal.project)
             .join(Profile, Project.profile)
             .filter(
-                Profile.state.PUBLIC,
+                Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Proposal.state.PUBLIC,
                 db.or_(
@@ -506,9 +511,10 @@ class UpdateSearch(SearchInProjectProvider):
             Update.query.join(Project, Update.project)
             .join(Profile, Project.profile)
             .filter(
-                Profile.state.PUBLIC,
+                Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Update.state.PUBLISHED,
+                Update.visibility_state.PUBLIC,  # TODO: Add role check for RESTRICTED
                 Update.search_vector.match(squery),
             ),
         )
@@ -555,7 +561,7 @@ class CommentSearch(SearchInProjectProvider):
             .join(Project, Project.commentset_id == Comment.commentset_id)
             .join(Profile, Project.profile_id == Profile.id)
             .filter(
-                Profile.state.PUBLIC,
+                Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Comment.state.PUBLIC,
                 db.or_(
@@ -573,7 +579,7 @@ class CommentSearch(SearchInProjectProvider):
                 .join(Project, Proposal.project_id == Project.id)
                 .join(Profile, Project.profile_id == Profile.id)
                 .filter(
-                    Profile.state.PUBLIC,
+                    Profile.state.ACTIVE_AND_PUBLIC,
                     Project.state.PUBLISHED,
                     Comment.state.PUBLIC,
                     db.or_(

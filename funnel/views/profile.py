@@ -43,17 +43,22 @@ def feature_profile_new_project(obj):
 
 @Profile.features('new_user_project')
 def feature_profile_new_user_project(obj):
-    return obj.is_user_profile and obj.current_roles.admin and bool(obj.state.PUBLIC)
+    return (
+        obj.is_user_profile
+        and obj.current_roles.admin
+        and obj.is_active
+        and bool(obj.state.PUBLIC)
+    )
 
 
 @Profile.features('make_public')
 def feature_profile_make_public(obj):
-    return obj.current_roles.admin and not bool(obj.state.PUBLIC)
+    return obj.current_roles.admin and obj.make_public.is_available
 
 
 @Profile.features('make_private')
 def feature_profile_make_private(obj):
-    return obj.current_roles.admin and bool(obj.state.PUBLIC)
+    return obj.current_roles.admin and obj.make_private.is_available
 
 
 def template_switcher(templateargs):
