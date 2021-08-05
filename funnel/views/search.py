@@ -196,7 +196,7 @@ class ProjectSearch(SearchInProfileProvider):
             .outerjoin(User, Profile.user_id == User.id)
             .outerjoin(Organization, Profile.organization_id == Organization.id)
             .filter(
-                Profile.state.PUBLIC,
+                Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 db.or_(
                     # Search conditions. Any of:
@@ -250,7 +250,7 @@ class ProjectSearch(SearchInProfileProvider):
             .outerjoin(User, Profile.user_id == User.id)
             .outerjoin(Organization, Profile.organization_id == Organization.id)
             .filter(
-                Profile.state.PUBLIC,
+                Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 db.or_(
                     Project.search_vector.match(squery),
@@ -334,23 +334,11 @@ class ProfileSearch(SearchProvider):
             Profile.query.outerjoin(User)
             .outerjoin(Organization)
             .filter(
-                Profile.state.PUBLIC,
+                Profile.state.ACTIVE_AND_PUBLIC,
                 db.or_(
-                    db.and_(
-                        Profile.user_id.isnot(None),
-                        User.state.ACTIVE,
-                        db.or_(
-                            Profile.search_vector.match(squery),
-                            User.search_vector.match(squery),
-                        ),
-                    ),
-                    db.and_(
-                        Profile.organization_id.isnot(None),
-                        db.or_(
-                            Profile.search_vector.match(squery),
-                            Organization.search_vector.match(squery),
-                        ),
-                    ),
+                    Profile.search_vector.match(squery),
+                    User.search_vector.match(squery),
+                    Organization.search_vector.match(squery),
                 ),
             ),
         )
@@ -380,7 +368,7 @@ class SessionSearch(SearchInProjectProvider):
             .join(Profile, Project.profile)
             .outerjoin(Proposal, Session.proposal)
             .filter(
-                Profile.state.PUBLIC,
+                Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Session.scheduled,
                 Session.search_vector.match(squery),
@@ -433,7 +421,7 @@ class ProposalSearch(SearchInProjectProvider):
             Proposal.query.join(Project, Proposal.project)
             .join(Profile, Project.profile)
             .filter(
-                Profile.state.PUBLIC,
+                Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Proposal.state.PUBLIC,
                 db.or_(
@@ -523,9 +511,10 @@ class UpdateSearch(SearchInProjectProvider):
             Update.query.join(Project, Update.project)
             .join(Profile, Project.profile)
             .filter(
-                Profile.state.PUBLIC,
+                Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Update.state.PUBLISHED,
+                Update.visibility_state.PUBLIC,  # TODO: Add role check for RESTRICTED
                 Update.search_vector.match(squery),
             ),
         )
@@ -572,7 +561,7 @@ class CommentSearch(SearchInProjectProvider):
             .join(Project, Project.commentset_id == Comment.commentset_id)
             .join(Profile, Project.profile_id == Profile.id)
             .filter(
-                Profile.state.PUBLIC,
+                Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Comment.state.PUBLIC,
                 db.or_(
@@ -590,7 +579,7 @@ class CommentSearch(SearchInProjectProvider):
                 .join(Project, Proposal.project_id == Project.id)
                 .join(Profile, Project.profile_id == Profile.id)
                 .filter(
-                    Profile.state.PUBLIC,
+                    Profile.state.ACTIVE_AND_PUBLIC,
                     Project.state.PUBLISHED,
                     Comment.state.PUBLIC,
                     db.or_(

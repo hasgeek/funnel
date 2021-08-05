@@ -55,17 +55,27 @@ def test_user_avatar(db_session, user_twoflower, user_rincewind):
 
 def test_suspended_user_private_profile(db_session, user_wolfgang):
     """Suspending a user will mark their profile as private."""
-    # Add an email address as contact info is required for public profiles
-    user_wolfgang.add_email('wolfgang@example.org')
     # Ensure column defaults are set (Profile.state)
     db_session.commit()
+
+    # Profile cannot be public until the user has verified contact info
+    with pytest.raises(StateTransitionError):
+        user_wolfgang.profile.make_public()
+
+    # Add an email address to meet the criteria for having verified contact info
+    user_wolfgang.add_email('wolfgang@example.org')
 
     # Make profile public and confirm
     user_wolfgang.profile.make_public()
     assert user_wolfgang.profile.state.PUBLIC
 
-    # Suspend the user. Profile should also turn private, and be locked to that state
+    # Suspend the user. Profile can now be made private, but cannot be made public
     user_wolfgang.mark_suspended()
+    # Commit to refresh profile.is_active column property
+    db_session.commit()
+
+    assert user_wolfgang.profile.state.PUBLIC
+    user_wolfgang.profile.make_private()
     assert not user_wolfgang.profile.state.PUBLIC
     assert user_wolfgang.profile.state.PRIVATE
 

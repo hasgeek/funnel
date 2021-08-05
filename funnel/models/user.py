@@ -546,14 +546,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     @state.transition(state.ACTIVE, state.SUSPENDED)
     def mark_suspended(self):
-        """
-        Mark account as suspended on support request.
-
-        Also marks the profile as private so that content under the profile is
-        inaccessible.
-        """
-        if self.profile:
-            self.profile.make_private()
+        """Mark account as suspended on support request."""
+        pass  # No side-effects in transition
 
     @overload
     @classmethod
