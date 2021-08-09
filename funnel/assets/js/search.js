@@ -60,11 +60,17 @@ const Search = {
           timeout: window.Hasgeek.Config.ajaxTimeout,
           dataType: 'json',
           success(data) {
-            widget.activateTab(searchType, data.results, url, page);
+            widget.activateTab(
+              searchType,
+              data.results,
+              url,
+              data.counts,
+              page
+            );
           },
         });
       },
-      activateTab(searchType, result = '', url = '', page) {
+      activateTab(searchType, result = '', url = '', tabs = '', page) {
         if (result) {
           if (page > 1) {
             const existingResults = this.get(`results.${searchType}`);
@@ -76,6 +82,10 @@ const Search = {
           } else {
             this.set(`results.${searchType}`, result);
           }
+        }
+        // Update counts on the tabs
+        if (tabs) {
+          this.set('tabs', tabs);
         }
         this.set('activeTab', searchType);
         $('#scrollable-tabs').animate(
@@ -176,6 +186,8 @@ const Search = {
             'queryString',
             document.querySelector('.js-search-field').value
           );
+          // Clear results for the new query
+          this.set('results', '');
           this.fetchResult(this.getQueryString('type'));
         });
       },
