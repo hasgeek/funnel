@@ -1,30 +1,29 @@
 import { precacheAndRoute } from 'workbox-precaching';
+import { registerRoute, setCatchHandler } from 'workbox-routing';
+import { NetworkFirst, NetworkOnly } from 'workbox-strategies';
+import { skipWaiting, clientsClaim } from 'workbox-core';
 precacheAndRoute(self.__WB_MANIFEST);
 
-workbox.core.skipWaiting();
-workbox.core.clientsClaim();
+skipWaiting();
+clientsClaim();
 
-workbox.routing.registerRoute(
+registerRoute(
   '/api/1/template/offline',
-  new workbox.strategies.NetworkFirst({
+  new NetworkFirst({
     cacheName: 'offline',
   }),
   'GET'
 );
 
-workbox.routing.registerRoute(
+registerRoute(
   '/',
-  new workbox.strategies.NetworkFirst({
+  new NetworkFirst({
     cacheName: 'homepage',
   }),
   'GET'
 );
 
-workbox.routing.registerRoute(
-  new RegExp('/(.*)'),
-  new workbox.strategies.NetworkOnly(),
-  'GET'
-);
+registerRoute(new RegExp('/(.*)'), new NetworkOnly(), 'GET');
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -40,7 +39,7 @@ self.addEventListener('message', (event) => {
   }
 });
 
-workbox.routing.setCatchHandler(({ event }) => {
+setCatchHandler(({ event }) => {
   switch (event.request.destination) {
     case 'document':
       return caches.match('/api/1/template/offline');
