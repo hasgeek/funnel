@@ -118,6 +118,15 @@ class USER_STATE(LabeledEnum):  # noqa: N801
     DELETED = (4, __("Deleted"))
 
 
+class ORGANIZATION_STATE(LabeledEnum):  # noqa: N801
+    """State codes for organizations."""
+
+    #: Regular, active organization
+    ACTIVE = (1, __("Active"))
+    #: Suspended organization (cause and explanation not included here)
+    SUSPENDED = (2, __("Suspended"))
+
+
 class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'user'
     __title_length__ = 80
@@ -145,7 +154,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     locale = with_roles(db.Column(LocaleType, nullable=True), read={'owner'})
     #: Update locale automatically from browser activity
     auto_locale = db.Column(db.Boolean, default=True, nullable=False)
-    #: User's status (active, suspended, merged, deleted)
+    #: User's state code (active, suspended, merged, deleted)
     _state = db.Column(
         'state',
         db.SmallInteger,
@@ -153,7 +162,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         nullable=False,
         default=USER_STATE.ACTIVE,
     )
-    #: User account state
+    #: User account state manager
     state = StateManager('_state', USER_STATE, doc="User account state")
     #: Other user accounts that were merged into this user account
     oldusers = association_proxy('oldids', 'olduser')
@@ -883,6 +892,17 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         read={'all'},
     )
 
+    #: Organization's state (active, suspended)
+    _state = db.Column(
+        'state',
+        db.SmallInteger,
+        StateManager.check_constraint('state', ORGANIZATION_STATE),
+        nullable=False,
+        default=ORGANIZATION_STATE.ACTIVE,
+    )
+    #: Organization state manager
+    state = StateManager('_state', ORGANIZATION_STATE, doc="Organization state")
+
     search_vector = db.deferred(
         db.Column(
             TSVectorType(
@@ -990,6 +1010,16 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             .options(db.joinedload(User.teams))
             .order_by(db.func.lower(User.fullname))
         )
+
+    @state.transition(state.ACTIVE, state.SUSPENDED)
+    def mark_suspended(self):
+        """Mark organization as suspended on support request."""
+        pass  # No side-effects in transition
+
+    @state.transition(state.SUSPENDED, state.ACTIVE)
+    def mark_active(self):
+        """Mark organization as active on support request."""
+        pass  # No side-effects in transition
 
     @overload
     @classmethod
