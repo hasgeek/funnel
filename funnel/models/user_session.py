@@ -11,29 +11,29 @@ from .user import User
 
 __all__ = [
     'UserSession',
-    'UserSessionInvalid',
-    'UserSessionExpired',
-    'UserSessionRevoked',
-    'UserSessionInactiveUser',
+    'UserSessionError',
+    'UserSessionExpiredError',
+    'UserSessionRevokedError',
+    'UserSessionInactiveUserError',
     'auth_client_user_session',
     'user_session_validity_period',
 ]
 
 
-class UserSessionInvalid(Exception):
-    pass
+class UserSessionError(Exception):
+    """Base exception for user session errors."""
 
 
-class UserSessionExpired(UserSessionInvalid):
-    pass
+class UserSessionExpiredError(UserSessionError):
+    """This user session has expired and cannot be marked as currently active."""
 
 
-class UserSessionRevoked(UserSessionInvalid):
-    pass
+class UserSessionRevokedError(UserSessionError):
+    """This user session has been revoked and cannot be marked as currently active."""
 
 
-class UserSessionInactiveUser(UserSessionInvalid):
-    pass
+class UserSessionInactiveUserError(UserSessionError):
+    """This user is not in ACTIVE state and cannot have a currently active session."""
 
 
 user_session_validity_period = timedelta(days=365)
@@ -152,11 +152,11 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
         user_session = cls.query.join(User).filter(cls.buid == buid).one_or_none()
         if user_session is not None:
             if user_session.accessed_at <= utcnow() - user_session_validity_period:
-                raise UserSessionExpired(user_session)
+                raise UserSessionExpiredError(user_session)
             if user_session.revoked_at is not None:
-                raise UserSessionRevoked(user_session)
+                raise UserSessionRevokedError(user_session)
             if not user_session.user.state.ACTIVE:
-                raise UserSessionInactiveUser(user_session)
+                raise UserSessionInactiveUserError(user_session)
         return user_session
 
 
