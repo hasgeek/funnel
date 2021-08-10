@@ -9,10 +9,10 @@ from flask import current_app
 from ..typing import OptionalMigratedTables
 from .user import User, UserEmail, UserEmailClaim, UserExternalId, db
 
-__all__ = ['getuser', 'getextid', 'merge_users', 'IncompleteUserMigration']
+__all__ = ['getuser', 'getextid', 'merge_users', 'IncompleteUserMigrationError']
 
 
-class IncompleteUserMigration(Exception):
+class IncompleteUserMigrationError(Exception):
     """Could not migrate users because of data conflicts."""
 
 
@@ -177,11 +177,11 @@ def do_migrate_instances(
                     if isinstance(result, (list, tuple, set)):
                         migrated_tables.update(result)
                     migrated_tables.add(model.__table__.name)
-                except IncompleteUserMigration:
+                except IncompleteUserMigrationError:
                     safe_to_remove_instance = False
                     current_app.logger.error(
-                        "_do_merge_into interrupted because IncompleteUserMigration"
-                        " raised by %s",
+                        "_do_merge_into interrupted because"
+                        "  IncompleteUserMigrationError raised by %s",
                         model,
                     )
             else:
