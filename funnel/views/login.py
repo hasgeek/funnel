@@ -203,6 +203,7 @@ def login():
                 formid='passwordlogin',
                 ref_id='form-passwordlogin',
                 title=_("Login"),
+                ajax=True,
             ),
             200,
             iframe_block,
@@ -304,6 +305,7 @@ def register():
         title=_("Register account"),
         formid='registeraccount',
         ref_id='form-password-change',
+        ajax=False,
     )
 
 

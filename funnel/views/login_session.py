@@ -33,9 +33,9 @@ from ..models import (
     AuthClientCredential,
     User,
     UserSession,
-    UserSessionExpired,
-    UserSessionInactiveUser,
-    UserSessionRevoked,
+    UserSessionExpiredError,
+    UserSessionInactiveUserError,
+    UserSessionRevokedError,
     auth_client_user_session,
     db,
     user_session_validity_period,
@@ -117,7 +117,7 @@ class LoginManager:
                         lastuser_cookie['sessionid'],
                     )
                     logout_internal()
-            except UserSessionExpired:
+            except UserSessionExpiredError:
                 flash(
                     _(
                         "Looks like you haven’t been here in a while."
@@ -128,7 +128,7 @@ class LoginManager:
                 current_app.logger.info("Got an expired user session; logging out")
                 add_auth_attribute('session', None)
                 logout_internal()
-            except UserSessionRevoked:
+            except UserSessionRevokedError:
                 flash(
                     _(
                         "Your login session was revoked from another device."
@@ -139,7 +139,7 @@ class LoginManager:
                 current_app.logger.info("Got a revoked user session; logging out")
                 add_auth_attribute('session', None)
                 logout_internal()
-            except UserSessionInactiveUser as exc:
+            except UserSessionInactiveUserError as exc:
                 inactive_user = exc.args[0].user
                 if inactive_user.state.SUSPENDED:
                     flash(_("Your account has been suspended"))

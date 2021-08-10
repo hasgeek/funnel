@@ -33,8 +33,8 @@ class SesCommonMailHeaders(DataClassJsonMixin):
 
     from_address: List[str] = field(metadata=config(field_name='from'))
     to_address: List[str] = field(metadata=config(field_name='to'))
-    subject: str
     messageid: str = field(metadata=config(field_name='messageId'))
+    subject: str = ''  # Subject may be missing
 
 
 @dataclass

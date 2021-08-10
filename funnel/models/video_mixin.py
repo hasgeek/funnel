@@ -5,11 +5,11 @@ import urllib.parse
 
 from . import db
 
-__all__ = ['VideoMixin', 'VideoException']
+__all__ = ['VideoMixin', 'VideoError']
 
 
-class VideoException(Exception):
-    pass
+class VideoError(Exception):
+    """A video could not be processed (base exception)."""
 
 
 def parse_video_url(video_url: str) -> Tuple[str, str]:
