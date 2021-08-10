@@ -24,7 +24,3 @@
 {% block afterloginbox %}
   <img class="login-page-artwork" src="{{  url_for('static', filename='img/conversation.svg') }}"/>
 {% endblock %}
-
-{% block footerscripts %}
-  {{ ajaxform(ref_id, request, True) }}
-{% endblock %}
