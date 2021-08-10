@@ -1,0 +1,54 @@
+{
+  "eventType": "Delivery",
+  "mail": {
+    "timestamp": "2020-08-04T13:16: 09.222Z",
+    "source": "no-reply@example.com",
+    "sourceArn": "ARN",
+    "sendingAccountId": "143",
+    "messageId": "01090173b99d6e86-6ca7ca13-b623-49b5-ad73-128c20cb2877-000000",
+    "destination": ["abc@gmail.com"],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "Received",
+        "value": "SMTP"
+      },
+      {
+        "name": "From",
+        "value": "Example <no-reply@example.com>"
+      },
+      {
+        "name": "To",
+        "value": "TEST <test@example.com>"
+      },
+      {
+        "name": "X-SES-CONFIGURATION-SET",
+        "value": "ConfigSet"
+      },
+      {
+        "name": "Subject",
+        "value": "Test"
+      }
+    ],
+    "commonHeaders": {
+      "from": ["Example <no-reply@example.com>"],
+      "to": ["Example <test@example.com>"],
+      "messageId": "01090173b99d6e86-6ca7ca13-b623-49b5-ad73-128c20cb2877-000000"
+    },
+    "tags": {
+      "ses: operation": ["SendSmtpEmail"],
+      "ses: configuration-set": ["ConfigSet"],
+      "ses: source-ip": ["1.1.1.1"],
+      "ses: from-domain": ["example.com"],
+      "ses: caller-identity": ["ses-user"],
+      "ses: outgoing-ip": ["2.2.2.2"]
+    }
+  },
+  "delivery": {
+    "timestamp": "2020-01-01T13:16:11.042Z",
+    "processingTimeMillis": 1820,
+    "recipients": ["test@example.com"],
+    "smtpResponse": "250",
+    "reportingMTA": "amazonses.com"
+  }
+}
