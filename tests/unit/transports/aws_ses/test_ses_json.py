@@ -7,7 +7,7 @@ from funnel.transports.email.aws_ses import (
     SesEvent,
     SnsValidator,
     SnsValidatorChecks,
-    SnsValidatorException,
+    SnsValidatorError,
 )
 
 
@@ -98,5 +98,5 @@ class TestSesEventJson:
         validator.check(message, SnsValidatorChecks.SIGNATURE_VERSION)
         validator.check(message, SnsValidatorChecks.CERTIFICATE_URL)
         validator.check(message, SnsValidatorChecks.TOPIC)
-        with pytest.raises(SnsValidatorException):
+        with pytest.raises(SnsValidatorError):
             validator.check(message, SnsValidatorChecks.SIGNATURE)

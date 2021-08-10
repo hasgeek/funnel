@@ -91,7 +91,7 @@ def test_usersession_authenticate(db_session, user_dibbler):
     dibbler_session.accessed_at = utcnow() - timedelta(days=1000)
     db_session.commit()
     # By default, expired sessions raise an exception
-    with pytest.raises(models.UserSessionExpired):
+    with pytest.raises(models.UserSessionExpiredError):
         models.UserSession.authenticate(dibbler_session.buid)
     # However, silent mode simply returns None
     assert models.UserSession.authenticate(dibbler_session.buid, silent=True) is None
@@ -100,7 +100,7 @@ def test_usersession_authenticate(db_session, user_dibbler):
     dibbler_session.accessed_at = utcnow()
     dibbler_session.revoked_at = utcnow()
     db_session.commit()
-    with pytest.raises(models.UserSessionRevoked):
+    with pytest.raises(models.UserSessionRevokedError):
         models.UserSession.authenticate(dibbler_session.buid)
     # Again, silent mode simply returns None
     assert models.UserSession.authenticate(dibbler_session.buid, silent=True) is None
@@ -123,7 +123,7 @@ def test_usersession_authenticate_suspended_user(db_session, user_dibbler):
     # Now suspend the user
     user_dibbler.mark_suspended()
     db_session.commit()
-    with pytest.raises(models.UserSessionInactiveUser) as exc_info:
+    with pytest.raises(models.UserSessionInactiveUserError) as exc_info:
         models.UserSession.authenticate(dibbler_session.buid)
     assert exc_info.value.args[0] == dibbler_session
     assert exc_info.value.args[0].user == user_dibbler

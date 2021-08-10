@@ -17,7 +17,7 @@ from ..transports.email.aws_ses import (
     SesProcessorAbc,
     SnsNotificationType,
     SnsValidator,
-    SnsValidatorException,
+    SnsValidatorError,
 )
 
 
@@ -212,7 +212,7 @@ def process_ses_event():
     try:
         validator.topics = app.config['SES_NOTIFICATION_TOPICS']
         validator.check(message)
-    except SnsValidatorException:
+    except SnsValidatorError:
         app.logger.warning("SNS/SES event failed validation: %r", message)
         statsd.incr(
             'email_address.event',
