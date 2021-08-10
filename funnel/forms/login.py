@@ -19,12 +19,12 @@ __all__ = [
 ]
 
 
-class LoginPasswordResetException(Exception):
-    pass
+class LoginPasswordResetException(Exception):  # noqa: N818
+    """Exception to signal that a password reset is required (not an error)."""
 
 
-class LoginPasswordWeakException(Exception):
-    pass
+class LoginPasswordWeakException(Exception):  # noqa: N818
+    """Exception to signal that password is weak and needs change (not an error)."""
 
 
 @User.forms('login')

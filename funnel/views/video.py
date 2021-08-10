@@ -14,11 +14,11 @@ import vimeo
 from coaster.utils import parse_duration, parse_isoformat
 
 from .. import redis_store
-from ..models import Proposal, Session, VideoException, VideoMixin
+from ..models import Proposal, Session, VideoError, VideoMixin
 
 
-class YoutubeApiException(Exception):
-    pass
+class YoutubeApiError(VideoError):
+    """The YouTube API failed."""
 
 
 class VideoData(TypedDict):
@@ -36,7 +36,7 @@ class VideoData(TypedDict):
 def video_cache_key(obj: VideoMixin) -> str:
     if obj.video_source and obj.video_id:
         return 'video_cache/' + obj.video_source + '/' + obj.video_id
-    raise VideoException("No video source or ID to create a cache key")
+    raise VideoError("No video source or ID to create a cache key")
 
 
 def get_video_cache(obj: VideoMixin) -> Optional[VideoData]:
@@ -90,7 +90,7 @@ def video_property(obj: VideoMixin) -> Optional[VideoData]:
                     try:
                         youtube_video = youtube_resp.json()
                         if not youtube_video or 'items' not in youtube_video:
-                            raise YoutubeApiException(
+                            raise YoutubeApiError(
                                 "Unable to fetch data, please check the youtube url or API key"
                             )
                         elif not youtube_video['items']:

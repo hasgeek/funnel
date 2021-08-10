@@ -27,8 +27,8 @@ from .auth_resource import get_userinfo
 from .login_session import requires_client_login, requires_login_no_message
 
 
-class ScopeException(Exception):
-    pass
+class ScopeError(Exception):
+    """Requested scope is invalid or beyond access level."""
 
 
 def verifyscope(scope: Iterable, auth_client: AuthClient) -> List[str]:
@@ -39,12 +39,10 @@ def verifyscope(scope: Iterable, auth_client: AuthClient) -> List[str]:
         if item == '*':
             # The '*' resource (full access) is only available to trusted clients
             if not auth_client.trusted:
-                raise ScopeException(
-                    _("Full access is only available to trusted clients")
-                )
+                raise ScopeError(_("Full access is only available to trusted clients"))
         elif item in resource_registry:
             if resource_registry[item]['trusted'] and not auth_client.trusted:
-                raise ScopeException(
+                raise ScopeError(
                     _(
                         "The resource {scope} is only available to trusted clients"
                     ).format(scope=item)
@@ -239,7 +237,7 @@ def oauth_authorize() -> ReturnView:
     # Validation 3.2: Is scope valid?
     try:
         internal_resources = verifyscope(scope, auth_client)
-    except ScopeException as scopeex:
+    except ScopeError as scopeex:
         return oauth_auth_error(redirect_uri, state, 'invalid_scope', str(scopeex))
 
     # Validations complete. Now ask user for permission
@@ -435,7 +433,7 @@ def oauth_token() -> ReturnView:
         try:
             # Confirm the client has access to the scope it wants
             verifyscope(scope, auth_client)
-        except ScopeException as scopeex:
+        except ScopeError as scopeex:
             return oauth_token_error('invalid_scope', str(scopeex))
 
         if buid:
@@ -523,7 +521,7 @@ def oauth_token() -> ReturnView:
         # Validations 4.3: verify scope
         try:
             verifyscope(scope, auth_client)
-        except ScopeException as scopeex:
+        except ScopeError as scopeex:
             return oauth_token_error('invalid_scope', str(scopeex))
         # All good. Grant access
         token = oauth_make_token(user=user, auth_client=auth_client, scope=scope)
