@@ -6622,9 +6622,6 @@ a.loginbutton.hidden,
   z-index: 2;
   line-height: 1;
 }
-.header--fixed .header__dropdown .header__dropdown__item__more-icon--align {
-  top: 2px;
-}
 .header--fixed .header__dropdown .header__dropdown__item__more-icon--ellipsis {
   position: relative;
 }
@@ -6634,7 +6631,7 @@ a.loginbutton.hidden,
   content: '';
   display: block;
   position: absolute;
-  top: -3px;
+  top: 4px;
   width: 24px;
   height: 24px;
   left: -33px;

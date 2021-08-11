@@ -230,9 +230,6 @@
       z-index: 2;
       line-height: 1;
     }
-    .header__dropdown__item__more-icon--align {
-      top: 2px;
-    }
     .header__dropdown__item__more-icon--ellipsis {
       position: relative;
     }
@@ -240,7 +237,7 @@
       content: '';
       display: block;
       position: absolute;
-      top: -3px;
+      top: 4px;
       width: 24px;
       height: 24px;
       left: -33px;
