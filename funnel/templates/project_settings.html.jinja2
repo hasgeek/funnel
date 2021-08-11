@@ -3,46 +3,46 @@
 {% block title %}{% trans %}Settings{% endtrans %}{% endblock %}
 
 {% block left_col %}
+  {%- if project.current_roles.editor %}
   <div class="page-card page-card--nomargin">
     <div class="project-section" id="admin-panel">
       <h2 class="mui--text-left project-section__headline zero-top-margin">{% trans %}Admin panel{% endtrans %}</h2>
       <div>
-        {%- if project.current_roles.editor %}
-          {%- if transition_form %}
-            <div>
-              <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="project-state">{% trans status=project.state.label.title %}Status: {{ status }}{% endtrans %}</p>
-              <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
-                {{ transition_form.hidden_tag() }}
-                <p class="btn-group">
-                  {% for name, transition in transition_form.transition.choices %}
-                    <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %} mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}" data-cy-state="{{ name }}">{{ transition.data['title'] }}</button>
-                  {% endfor %}
-                </p>
-              </form>
-            </div>
-          {%- endif %}
-          {%- if cfp_transition_form %}
-            <div>
-              <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="cfp-state">{% trans status=project.cfp_state.label.title %}Submission status: {{ status }}{% endtrans %}</p>
-              <form action="{{ project.url_for('cfp_transition') }}" method="post" class="form-inline">
-                {{ cfp_transition_form.hidden_tag() }}
-                <p class="btn-group">
-                  {% for name, transition in cfp_transition_form.cfp_transition.choices %}
-                    <button name="cfp_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %} mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}" data-cy-cfp="{{ name }}">{{ transition.data['title'] }}</button>
-                  {% endfor %}
-                </p>
-              </form>
-            </div>
-          {%- endif %}
+        {%- if transition_form %}
+          <div>
+            <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="project-state">{% trans status=project.state.label.title %}Status: {{ status }}{% endtrans %}</p>
+            <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
+              {{ transition_form.hidden_tag() }}
+              <p class="btn-group">
+                {% for name, transition in transition_form.transition.choices %}
+                  <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %} mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}" data-cy-state="{{ name }}">{{ transition.data['title'] }}</button>
+                {% endfor %}
+              </p>
+            </form>
+          </div>
+        {%- endif %}
+        {%- if cfp_transition_form %}
+          <div>
+            <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="cfp-state">{% trans status=project.cfp_state.label.title %}Submission status: {{ status }}{% endtrans %}</p>
+            <form action="{{ project.url_for('cfp_transition') }}" method="post" class="form-inline">
+              {{ cfp_transition_form.hidden_tag() }}
+              <p class="btn-group">
+                {% for name, transition in cfp_transition_form.cfp_transition.choices %}
+                  <button name="cfp_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %} mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}" data-cy-cfp="{{ name }}">{{ transition.data['title'] }}</button>
+                {% endfor %}
+              </p>
+            </form>
+          </div>
         {%- endif %}
       </div>
     </div>
   </div>
-  <div class="page-card page-card--nomargin">
-    <div class="project-section" id="admin-panel">
-      <h2 class="mui--text-left project-section__headline zero-top-margin">{% trans %}Project settings{% endtrans %}</h2>
+  {%- endif %}
+  <div class="page-card">
+    <div id="admin-panel">
+      <h2 class="mui--text-left left-padding top-padding zero-top-margin">{% trans %}Project settings{% endtrans %}</h2>
       <div>
-        <ul class="mui-list--unstyled">
+        <ul class="mui-list--unstyled mui-list--border mui-list--border--padding">
         {% if project.view_for('edit').is_available() %}
           <li class="margin-bottom">
             <a href="{{ project.url_for('edit') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="edit"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='align-left', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Frontmatter{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Title, tagline, banner, description, location and timezone{% endtrans %}</span></span></a>

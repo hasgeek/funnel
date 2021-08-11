@@ -1,9 +1,3 @@
-@media (max-width: 767px) {
-  #root_footer {
-    padding-top: $mui-grid-padding-double;
-  }
-}
-
 .header--fixed {
   bottom: 0;
 
@@ -334,11 +328,22 @@
   z-index: 1;
 }
 
-@media (max-width: 767px) {
-  .content-wrapper {
-    padding-top: 0;
-  }
+.content-wrapper {
+  padding-bottom: $mui-header-height;
+}
 
+.mobile-header .content-wrapper {
+  padding-top: $mui-header-height;
+}
+
+@media (min-width: 768px) {
+  .content-wrapper {
+    padding-top: $mui-header-height;
+    padding-bottom: $mui-grid-padding;
+  }
+}
+
+@media (max-width: 767px) {
   .no-sticky-header {
     .header--fixed {
       display: none;
@@ -346,10 +351,6 @@
     .footer {
       display: none;
     }
-  }
-
-  .mobile-header .content-wrapper {
-    padding-top: $mui-header-height;
   }
 }
 
