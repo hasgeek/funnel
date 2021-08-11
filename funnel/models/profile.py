@@ -147,14 +147,21 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             db.case(
                 [
                     (
-                        user_id.isnot(None),
+                        user_id.isnot(None),  # ← when, ↙ then
                         db.select(User.state.ACTIVE)  # type: ignore[has-type]
                         .where(User.id == user_id)
                         .correlate_except(User)
                         .scalar_subquery(),
-                    )
+                    ),
+                    (
+                        organization_id.isnot(None),  # ← when, ↙ then
+                        db.select(Organization.state.ACTIVE)  # type: ignore[has-type]
+                        .where(Organization.id == organization_id)
+                        .correlate_except(Organization)
+                        .scalar_subquery(),
+                    ),
                 ],
-                else_=expression.true(),  # TODO: Add suspended state to orgs
+                else_=expression.false(),
             )
         ),
         read={'all'},
