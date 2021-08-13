@@ -62,6 +62,7 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @route('sub/new', methods=['GET', 'POST'])
     @route('proposals/new', methods=['GET', 'POST'])
     @requires_login
+    @render_with('submission_form.html.jinja2')
     @requires_roles({'reader'})
     def new_proposal(self):
         # This along with the `reader` role makes it possible for
@@ -88,13 +89,13 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             )
             return redirect(proposal.url_for(), code=303)
 
-        return render_form(
-            form=form,
-            title=_("Make a submission"),
-            submit=_("Submit"),
-            message=markdown_message,
-            cancel_url=self.obj.url_for(),
-        )
+        return {
+            'title': "New submission",
+            'form': form,
+            'project': self.obj,
+            'cancel_url': self.obj.url_for(),
+            'message': markdown_message,
+        }
 
     @route('sub/reorder', methods=['POST'])
     @requires_login

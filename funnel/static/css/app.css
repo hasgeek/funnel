@@ -5627,13 +5627,21 @@ html.touch .collapsible__body--disable {
   top: 0;
   display: block;
 }
-.embed-video-wrapper .no-video {
+.embed-video-wrapper .embed-video-wrapper__video-icon {
   position: absolute;
   top: 50%;
   left: 50%;
   -webkit-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
-  font-size: 32px;
+  font-size: 56px;
+  color: #ffffff;
+  z-index: 2;
+}
+.embed-video-wrapper .embed-video-wrapper__img {
+  position: absolute;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
 }
 
 .embed-video-wrapper--shaped {
@@ -8096,6 +8104,56 @@ a.loginbutton.hidden,
 }
 .img-upload-modal .modal__body .modal .modal__body .popup {
   background-color: #ffffff !important;
+}
+
+.form-video-box {
+  border-radius: 16px;
+  border: solid 1px #f1f1f1;
+  padding: 16px 16px 64px;
+  position: relative;
+}
+.form-video-box .form-video-box__btn {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 2;
+}
+.form-video-box .form-video-box__youtube {
+  position: absolute;
+  bottom: 16px;
+  right: 62px;
+  z-index: 2;
+}
+.form-video-box .form-video-box__youtube .form-video-box__youtube__icon {
+  color: #f00;
+}
+.form-video-box .form-video-box__vimeo {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 2;
+}
+.form-video-box .form-video-box__vimeo .form-video-box__vimeo__icon {
+  color: #86c9ef;
+}
+
+form.mui--bg-accent .CodeMirror {
+  background: #f9f9f9;
+}
+
+.modal-form {
+  display: none;
+}
+
+.jquery-modal .js-modal .modal-form {
+  display: block;
+}
+
+.header-form-submit {
+  position: fixed;
+  top: 2px;
+  right: 16px;
+  z-index: 1001;
 }
 
 .card--banner {

@@ -1,0 +1,145 @@
+{% extends "formlayout.html.jinja2" %}
+{% from "forms.html.jinja2" import renderfield %}
+{% from "macros.html.jinja2" import useravatar, faicon %}
+{% from "project_layout.html.jinja2" import project_header with context %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block bodyattrs %}class="mui--bg-accent"{% endblock %}
+
+{% block contenthead %}
+{% endblock %}
+
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{{ title }}</span>
+    </div>
+  </div>
+{% endblock %}
+
+{% block basecontent %}
+  <div class="mui--bg-primary project-header-wrapper mui--z1">
+    <div class="mui-container">
+      <div class="grid page-content">
+        <div class="grid__col-sm-12">
+          <div class="project-banner project-banner--inner">
+            {{ project_header(project) }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mui-container js-modal-container">
+    <div class="grid page-content">
+      <div class="grid__col-sm-12">
+        {%- if form.errors %}
+          <div class="alert alert--error alert--dismissable">
+            <a class="alert__close" href="javascript:void(0);"  data-target="close flash message" aria-label="close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+            <p class="alert__text">{{ faicon(icon='exclamation-circle') }} {% trans %}Please review the indicated issues{% endtrans %}</p>
+          </div>
+        {%- endif %}
+        {%- if message %}
+          <p class="form-message">{{ message }}</p>
+        {%- endif %}
+        <form data-parsley-validate="true" id="sub-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins mui--bg-accent">
+          {{ form.hidden_tag() }}
+          <div class="mui-form mui--clearfix bottom-padding header-form-submit">
+            <div class="mui--pull-right">
+              <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" data-cy-submit="save-label">Submit</button>
+              <span class="loading mui--hide"></span>
+            </div>
+          </div>
+          <div class="form-video-box">
+            <a role="button" aria-haspopup="true" class="mui-btn mui-btn--raised icon-btn form-video-box__btn js-open-modal" aria-label="{% trans %}Add submission video{% endtrans %}" data-ga="Add submission video">{{ faicon(icon='video-plus', baseline=false) }}</a>
+            <div class="js-modal-field mui--hide"><div class="js-field">{{ renderfield(form.video_url, css_class='top-padding') }}</div></div>
+            <div class="embed-video-wrapper embed-video-wrapper--shaped">
+              <div class="embed-video-wrapper js-embed-video {% if not form.video_url.url %}mui--hide{% endif %}" {% if not form.video_url.url %}data-video-src="{{ form.video_url.url }}"{% endif %}>
+                <p class="video_txt">
+                  {{ faicon(icon='video', icon_size='display1') }}<br>
+                  <a href="{{ form.video_url.url }}" target="_blank" rel="noopener" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
+                </p>
+              </div>
+              <div class="js-default-video-img{% if form.video_url.url %}mui--hide{% endif %}">
+                {{ faicon(icon='play', icon_size='display1', css_class='embed-video-wrapper__video-icon') }}
+                <img class="embed-video-wrapper__img" src="{{ url_for('static', filename='img/default-banner.png') }}"/>
+                <span class="profile-avatar profile-avatar--bigger form-video-box__youtube">{{ faicon(icon='youtube', baseline=false, css_class='form-video-box__youtube__icon') }}</span>
+                <span class="profile-avatar profile-avatar--bigger form-video-box__vimeo">{{ faicon(icon='vimeo', baseline=false, css_class='form-video-box__vimeo__icon') }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="top-padding bottom-padding">
+          {%- if proposal %}
+            {%- for member in proposal.memberships %}{% if not member.is_uncredited %}
+              <div class="user user--smaller right-padding">
+                <div class="user__box">
+                  {{ useravatar(member.user, add_profile_link=false, size='small') }}
+                  <div class="user__box__header">
+                    <p class="mui--text-caption user__box__fullname">{{ member.user.fullname }} {%- if member.label %} <span class="badge">{{ member.label }}</span>{% endif %}</p>
+                  </div>
+                </div>
+              </div>
+            {%- endif %}{% endfor %}
+          {%- else -%}
+            <div class="user user--smaller right-padding">
+              <div class="user__box">
+                {{ useravatar(current_auth.user, add_profile_link=false, size='small') }}
+              </div>
+            </div>
+          {%- endif %}
+          </div>
+          {{ renderfield(form.title) }}
+          {%- for error in form.title.errors %}
+            <div><p class="mui-form__error">{{ error }}</p></div>
+          {%- endfor %}
+          <div class="top-padding bottom-padding">
+            {%- for label in project.labels %}
+              {% if label.has_options and not label.archived and not label.restricted %}
+                {{ faicon(icon='tag', css_class='mui--text-light') }} <span class="mui--text-body2 mui--text-bold mui--text-light">{{ label.title }}</span>
+              {%- endif %}
+            {%- endfor %}
+            <a role="button" aria-haspopup="true" aria-label="{% trans %}Add submission label{% endtrans %}" data-ga="Add submission label" class="margin-left mui--text-light js-open-modal">{{ faicon(icon='pencil', icon_size='caption', baseline=false, css_class='mui--text-light') }}</a>
+            <div class="js-modal-field mui--hide">
+              <div class="js-field">{{ renderfield(form.formlabels, css_class='top-padding') }}</div>
+            </div>
+          </div>
+          {{ renderfield(form.body) }}
+          {%- for error in form.body.errors %}
+            <div><p class="mui-form__error">{{ error }}</p></div>
+          {%- endfor %}
+        </form>
+      </div>
+    </div>
+    <div class="modal-form">
+      <a class="modal__close mui--text-dark js-close-form-modal" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0)" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+      <button class="mui-btn mui-btn--raised mui-btn--primary js-close-form-modal js-modal-btn" rel="modal:close" >Save label</button>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footerscripts %}
+  <script src="{{ built_asset('sub_form.js') }}" type="text/javascript"></script>
+  <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
+  <script>
+  $('body').on('click', '.js-open-modal', function (event) {
+    var field = $(this).next('.js-modal-field');
+    $(this).addClass('active-form-field');
+    event.preventDefault();
+    $('body').append('<div class="js-modal"></div>');
+    $($(field).find('.js-field').detach()).insertBefore($('.modal-form .js-modal-btn');
+    $('.js-modal').append($('.modal-form').detach());
+    $('.js-modal').modal();
+  });
+
+  $('body').on($.modal.AFTER_CLOSE, '.js-modal', function (event) {
+    event.preventDefault();
+    $('.active-form-field').next('.js-modal-field').append($('.modal-form').find('.js-field').detach());
+    $('.js-modal-container').append($('.modal-form').detach());
+    $('.js-modal').remove();
+    $('.active-form-field').removeClass('active-form-field');
+  });
+
+  $('.js-close-form-modal').on('click', function() {
+    $.modal.close();
+  });
+  </script>
+{% endblock %}
