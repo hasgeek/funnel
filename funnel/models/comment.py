@@ -19,9 +19,18 @@ __all__ = ['Comment', 'Commentset']
 # --- Constants ------------------------------------------------------------------------
 
 
+class COMMENTSET_STATE(LabeledEnum):  # noqa: N801
+    DISABLED = (1, __("Disabled"))  # Disabled for all
+    OPEN = (2, __("Open"))  # Open for all
+    PARTICIPANTS = (3, __("Participants-only"))  # Only for participants
+    COLLABORATORS = (4, __("Collaborators-only"))  # Only for editors/collaborators
+
+    NOT_DISABLED = {OPEN, PARTICIPANTS, COLLABORATORS}
+
+
 class COMMENT_STATE(LabeledEnum):  # noqa: N801
     # If you add any new state, you need to migrate the check constraint as well
-    SUBMITTED = (0, 'submitted', __("Submitted"))
+    SUBMITTED = (0, 'submitted', __("Submitted"))  # Using 0 is a legacy mistake
     SCREENED = (1, 'screened', __("Screened"))
     HIDDEN = (2, 'hidden', __("Hidden"))
     SPAM = (3, 'spam', __("Spam"))
@@ -49,6 +58,16 @@ class SET_TYPE:  # noqa: N801
 
 class Commentset(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'commentset'
+    #: Commentset state code
+    _state = db.Column(
+        'state',
+        db.SmallInteger,
+        StateManager.check_constraint('state', COMMENT_STATE),
+        nullable=False,
+        default=COMMENTSET_STATE.OPEN,
+    )
+    #: Commentset state manager
+    state = StateManager('_state', COMMENTSET_STATE, doc="Commentset state")
     #: Type of parent object
     settype = with_roles(
         db.Column('type', db.Integer, nullable=True), read={'all'}, datasets={'primary'}
@@ -120,6 +139,33 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         if 'participant' in parent_roles or 'commenter' in parent_roles:
             roles.add('parent_participant')
         return roles
+
+    @with_roles(call={'all'})
+    @state.requires(state.NOT_DISABLED)
+    def post_comment(self, actor: User, message: str):
+        """Post a comment."""
+        # TODO: Add role check for non-OPEN states. Either:
+        # 1. Add checking for restrictions to the view (retaining @state.requires here),
+        # 2. Make a CommentMixin (like EmailAddressMixin) and insert logic into the
+        #    parent, which can override methods and add custom restrictions
+        comment = Comment(
+            user=actor,
+            commentset=self,
+            message=message,
+        )
+        self.count = Commentset.count + 1
+        db.session.add(comment)
+        return comment
+
+    @state.transition(state.OPEN, state.DISABLED)
+    def disable_comments(self):
+        """Disable posting of comments."""
+
+    @state.transition(state.DISABLED, state.OPEN)
+    def enable_comments(self):
+        """Enable posting of comments."""
+
+    # Transitions for the other two states are pending on the TODO notes in post_comment
 
 
 class Comment(UuidMixin, BaseMixin, db.Model):

@@ -1,6 +1,6 @@
 import pytest
 
-from coaster.sqlalchemy.statemanager import StateTransitionError
+from coaster.sqlalchemy import StateTransitionError
 import funnel.models as models
 
 
