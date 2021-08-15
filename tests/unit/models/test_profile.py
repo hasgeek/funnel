@@ -3,7 +3,7 @@ from sqlalchemy.exc import StatementError
 from furl import furl
 import pytest
 
-from coaster.sqlalchemy.statemanager import StateTransitionError
+from coaster.sqlalchemy import StateTransitionError
 from funnel.models import ImgeeFurl, Profile
 
 
