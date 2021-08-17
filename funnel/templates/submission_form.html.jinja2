@@ -7,6 +7,8 @@
 {% block contenthead %}
 {% endblock %}
 
+{% block bodyattrs %}class="no-sticky-header mobile-header"{% endblock %}
+
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
@@ -29,7 +31,7 @@
   </div>
   <div class="mui-container js-modal-container">
     <div class="grid page-content">
-      <div class="grid__col-sm-12">
+      <div class="grid__col-sm-12 grid__col-md-10 grid__col-lg-8 margin-auto">
         {%- if form.errors %}
           <div class="alert alert--error alert--dismissable">
             <a class="alert__close" href="javascript:void(0);"  data-target="close flash message" aria-label="close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
@@ -37,9 +39,9 @@
           </div>
         {%- endif %}
         {%- if message %}
-          <p class="form-message">{{ message }}</p>
+          <p class="form-message margin-top">{{ message }}</p>
         {%- endif %}
-        <form data-parsley-validate="true" id="sub-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins">
+        <form data-parsley-validate="true" id="sub-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form">
           {{ form.hidden_tag() }}
           <div class="mui-form mui--clearfix bottom-padding header-form-submit">
             <div class="mui--pull-right">
@@ -93,18 +95,23 @@
           {%- for error in form.title.errors %}
             <div><p class="mui-form__error">{{ error }}</p></div>
           {%- endfor %}
-          <div class="flex-wrapper flex-wrapper--baseline top-padding bottom-padding top-padding bottom-padding">
-            {{ faicon(icon='tag-solid', css_class='mui--text-light fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Labels{% endtrans %}</span>
-            <div class="selected-label selected-label--noborder margin-left" id="label-select">
-              {%- for label in proposal.labels %}
-                <span class="label mui--text-caption mui--text-bold" data-labeltxt="{% if label.main_label %}{% if label.main_label.icon_emoji -%}{{ label.main_label.icon_emoji }} {{ label.main_label.title }}{% else -%}{{ label.main_label.title }}{% endif %}{% elif label.icon_emoji -%}{{ label.icon_emoji }} {{ label.title }}{% else -%}{{ label.title }}{% endif %}">{% if label.main_label %}{% if label.main_label.icon_emoji %}{{ label.main_label.icon_emoji }} {% endif %} {{ label.main_label.title }}: {% endif %}{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %} {{ label.title }}</span>
-              {%- endfor %}
+          {%- if form.formlabels %}
+            <div class="flex-wrapper flex-wrapper--baseline top-padding bottom-padding top-padding bottom-padding">
+              {{ faicon(icon='tag-solid', css_class='mui--text-light fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Labels{% endtrans %}</span>
+              <div class="selected-label selected-label--noborder margin-left" id="label-select">
+                {%- for label in proposal.labels %}
+                  <span class="label mui--text-caption mui--text-bold" data-labeltxt="{% if label.main_label %}{% if label.main_label.icon_emoji -%}{{ label.main_label.icon_emoji }} {{ label.main_label.title }}{% else -%}{{ label.main_label.title }}{% endif %}{% elif label.icon_emoji -%}{{ label.icon_emoji }} {{ label.title }}{% else -%}{{ label.title }}{% endif %}">{% if label.main_label %}{% if label.main_label.icon_emoji %}{{ label.main_label.icon_emoji }} {% endif %} {{ label.main_label.title }}: {% endif %}{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %} {{ label.title }}</span>
+                {%- endfor %}
+              </div>
+              <a role="button" aria-haspopup="true" aria-label="{% trans %}Add submission label{% endtrans %}" data-ga="Add submission label" class="mui--text-light js-open-modal">{{ faicon(icon='pencil', icon_size='caption', css_class='mui--text-light link') }}</a>
+              <div class="js-modal-field mui--hide ">
+                <div class="js-field top-padding">{{ renderfield(form.formlabels, css_class='label-select-fields top-padding active') }}</div>
+              </div>
             </div>
-            <a role="button" aria-haspopup="true" aria-label="{% trans %}Add submission label{% endtrans %}" data-ga="Add submission label" class="mui--text-light js-open-modal">{{ faicon(icon='pencil', icon_size='caption', css_class='mui--text-light link') }}</a>
-            <div class="js-modal-field mui--hide ">
-              <div class="js-field top-padding">{{ renderfield(form.formlabels, css_class='label-select-fields top-padding active') }}</div>
-            </div>
-          </div>
+             {%- for error in form.formlabels.errors %}
+              <div><p class="mui-form__error">{{ error }}</p></div>
+            {%- endfor %}
+          {%- endif %}
           {{ renderfield(form.body) }}
           {%- for error in form.body.errors %}
             <div><p class="mui-form__error">{{ error }}</p></div>
