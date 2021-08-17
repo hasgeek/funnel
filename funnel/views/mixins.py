@@ -37,7 +37,7 @@ class ProfileCheckMixin:
         if profile is None:
             raise ValueError("Subclass must set self.profile")
         g.profile = profile
-        if profile.user is not None and not profile.user.state.ACTIVE:
+        if not profile.is_active:
             abort(410)
 
         return super().after_loader()
