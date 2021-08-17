@@ -536,3 +536,9 @@ form.mui--bg-accent .CodeMirror {
   right: $mui-grid-padding;
   z-index: 1001;
 }
+
+@media (min-width: 768px) {
+  .header-form-submit {
+    position: static;
+  }
+}

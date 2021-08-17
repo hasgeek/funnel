@@ -61,7 +61,7 @@ export const LabelsWidget = {
       Widget.updateLabels(labelTxt, attr, this.checked);
     });
 
-    $('.add-label-form input[type="checkbox"]').change(
+    $('.mui-checkbox input[type="checkbox"]').change(
       function clickLabelCheckbox() {
         const labelTxt = Widget.getLabelTxt($(this).parent('label').text());
         Widget.updateLabels(labelTxt, labelTxt, this.checked);

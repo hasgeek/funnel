@@ -8156,6 +8156,11 @@ form.mui--bg-accent .CodeMirror {
   z-index: 1001;
 }
 
+@media (min-width: 768px) {
+  .header-form-submit {
+    position: static;
+  }
+}
 .card--banner {
   border-radius: 16px;
   overflow: hidden;
@@ -9689,16 +9694,16 @@ form.mui--bg-accent .CodeMirror {
 
 .label {
   padding: 4px 8px;
-  font-size: 10px;
+  font-size: 12px;
   text-transform: uppercase;
   color: #4d5763;
   border: 1px solid rgba(132, 146, 166, 0.3);
   background-color: #f9f9f9;
-  border-radius: 16px;
+  border-radius: 2px;
   display: inline-block;
   margin: 0 4px 4px 0;
   text-decoration: none;
-  max-width: 90%;
+  font-weight: 500;
 }
 
 .label:hover {
@@ -9717,11 +9722,17 @@ form.mui--bg-accent .CodeMirror {
   right: 0;
 }
 
-.add-label-form .label-dropdown-wrapper {
+.selected-label--noborder {
+  border-bottom: none;
+  width: auto;
+  display: inline-block;
+}
+
+.label-dropdown-wrapper {
   position: relative;
   margin-bottom: 10px;
 }
-.add-label-form fieldset {
+.label-dropdown-wrapper fieldset {
   border: none;
   position: absolute;
   top: -100px;
@@ -9743,10 +9754,10 @@ form.mui--bg-accent .CodeMirror {
   -o-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
   max-width: 100%;
 }
-.add-label-form fieldset legend {
+.label-dropdown-wrapper fieldset legend {
   display: none;
 }
-.add-label-form fieldset.active {
+.label-dropdown-wrapper fieldset.active {
   top: 0;
   z-index: 1000;
   opacity: 1;
@@ -9758,11 +9769,11 @@ form.mui--bg-accent .CodeMirror {
   -o-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
   transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
 }
-.add-label-form .listwidget .mui-textfield {
+.label-dropdown-wrapper .listwidget .mui-textfield {
   margin-bottom: 0;
   padding-top: 0;
 }
-.add-label-form .listwidget .mui-form__label {
+.label-dropdown-wrapper .listwidget .mui-form__label {
   font-size: 16px;
   line-height: 24px;
   overflow: auto;
@@ -9771,16 +9782,16 @@ form.mui--bg-accent .CodeMirror {
   color: #1f2d3d;
   padding-left: 20px;
 }
-.add-label-form .listwidget ul {
+.label-dropdown-wrapper .listwidget ul {
   padding-left: 20px;
 }
-.add-label-form .listwidget .mui-form__label:before,
-.add-label-form .listwidget .mui-form__label:after {
+.label-dropdown-wrapper .listwidget .mui-form__label:before,
+.label-dropdown-wrapper .listwidget .mui-form__label:after {
   position: absolute;
   content: '';
   display: inline-block;
 }
-.add-label-form .listwidget .mui-form__label:before {
+.label-dropdown-wrapper .listwidget .mui-form__label:before {
   height: 13px;
   width: 13px;
   border: 1px solid #ccc;
@@ -9788,7 +9799,7 @@ form.mui--bg-accent .CodeMirror {
   top: 4px;
   border-radius: 3px;
 }
-.add-label-form .listwidget .mui-form__label:after {
+.label-dropdown-wrapper .listwidget .mui-form__label:after {
   height: 4px;
   width: 8px;
   border-left: 1.4px solid #ffffff;
@@ -9798,17 +9809,17 @@ form.mui--bg-accent .CodeMirror {
   left: 2px;
   top: 8px;
 }
-.add-label-form .listwidget .mui-form__label:after {
+.label-dropdown-wrapper .listwidget .mui-form__label:after {
   content: none;
 }
-.add-label-form .listwidget .mui-form__label.checked:before {
+.label-dropdown-wrapper .listwidget .mui-form__label.checked:before {
   background: #0f73ed;
   border: none;
 }
-.add-label-form .listwidget .mui-form__label.checked:after {
+.label-dropdown-wrapper .listwidget .mui-form__label.checked:after {
   content: '';
 }
-.add-label-form .mui-checkbox {
+.label-dropdown-wrapper .mui-checkbox {
   margin-bottom: 0;
 }
 
@@ -9938,6 +9949,7 @@ form.mui--bg-accent .CodeMirror {
 }
 .comment .comment__header .comment__header__details .badge {
   margin-left: 4px;
+  margin-bottom: 4px;
 }
 .comment .comment__body {
   border-left: 1px solid rgba(132, 146, 166, 0.3);

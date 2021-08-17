@@ -28,7 +28,7 @@
     <p class="mui--text-subhead"><a href="{{ project.url_for('labels') }}">{{ faicon(icon='tag', css_class='fa-icon--right-margin mui--align-middle') }}{% trans %}Manage labels{% endtrans %}</a></p>
   {% endif %}
   {% if proposal_label_admin_form %}
-    <form action="{{ proposal.url_for('edit_labels') }}" method="post" class="add-label-form">
+    <form action="{{ proposal.url_for('edit_labels') }}" method="post">
       {{ proposal_label_admin_form.hidden_tag() }}
       <p class="mui--text-title">Labels</p>
       <div class="selected-label" id="label-select">

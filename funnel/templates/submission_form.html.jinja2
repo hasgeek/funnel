@@ -4,8 +4,6 @@
 {% from "project_layout.html.jinja2" import project_header with context %}
 {% block title %}{{ title }}{% endblock %}
 
-{% block bodyattrs %}class="mui--bg-accent"{% endblock %}
-
 {% block contenthead %}
 {% endblock %}
 
@@ -41,7 +39,7 @@
         {%- if message %}
           <p class="form-message">{{ message }}</p>
         {%- endif %}
-        <form data-parsley-validate="true" id="sub-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins mui--bg-accent">
+        <form data-parsley-validate="true" id="sub-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins">
           {{ form.hidden_tag() }}
           <div class="mui-form mui--clearfix bottom-padding header-form-submit">
             <div class="mui--pull-right">
@@ -51,7 +49,11 @@
           </div>
           <div class="form-video-box">
             <a role="button" aria-haspopup="true" class="mui-btn mui-btn--raised icon-btn form-video-box__btn js-open-modal" aria-label="{% trans %}Add submission video{% endtrans %}" data-ga="Add submission video">{{ faicon(icon='video-plus', baseline=false) }}</a>
-            <div class="js-modal-field mui--hide"><div class="js-field">{{ renderfield(form.video_url, css_class='top-padding') }}</div></div>
+            <div class="js-modal-field mui--hide">
+              <div class="js-field top-padding">
+                {{ renderfield(form.video_url, css_class='top-padding') }}
+              </div>
+            </div>
             <div class="embed-video-wrapper embed-video-wrapper--shaped">
               <div class="embed-video-wrapper js-embed-video {% if not form.video_url.url %}mui--hide{% endif %}" {% if not form.video_url.url %}data-video-src="{{ form.video_url.url }}"{% endif %}>
                 <p class="video_txt">
@@ -91,15 +93,16 @@
           {%- for error in form.title.errors %}
             <div><p class="mui-form__error">{{ error }}</p></div>
           {%- endfor %}
-          <div class="top-padding bottom-padding">
-            {%- for label in project.labels %}
-              {% if label.has_options and not label.archived and not label.restricted %}
-                {{ faicon(icon='tag', css_class='mui--text-light') }} <span class="mui--text-body2 mui--text-bold mui--text-light">{{ label.title }}</span>
-              {%- endif %}
-            {%- endfor %}
-            <a role="button" aria-haspopup="true" aria-label="{% trans %}Add submission label{% endtrans %}" data-ga="Add submission label" class="margin-left mui--text-light js-open-modal">{{ faicon(icon='pencil', icon_size='caption', baseline=false, css_class='mui--text-light') }}</a>
-            <div class="js-modal-field mui--hide">
-              <div class="js-field">{{ renderfield(form.formlabels, css_class='top-padding') }}</div>
+          <div class="flex-wrapper flex-wrapper--baseline top-padding bottom-padding top-padding bottom-padding">
+            {{ faicon(icon='tag-solid', css_class='mui--text-light fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Labels{% endtrans %}</span>
+            <div class="selected-label selected-label--noborder margin-left" id="label-select">
+              {%- for label in proposal.labels %}
+                <span class="label mui--text-caption mui--text-bold" data-labeltxt="{% if label.main_label %}{% if label.main_label.icon_emoji -%}{{ label.main_label.icon_emoji }} {{ label.main_label.title }}{% else -%}{{ label.main_label.title }}{% endif %}{% elif label.icon_emoji -%}{{ label.icon_emoji }} {{ label.title }}{% else -%}{{ label.title }}{% endif %}">{% if label.main_label %}{% if label.main_label.icon_emoji %}{{ label.main_label.icon_emoji }} {% endif %} {{ label.main_label.title }}: {% endif %}{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %} {{ label.title }}</span>
+              {%- endfor %}
+            </div>
+            <a role="button" aria-haspopup="true" aria-label="{% trans %}Add submission label{% endtrans %}" data-ga="Add submission label" class="mui--text-light js-open-modal">{{ faicon(icon='pencil', icon_size='caption', css_class='mui--text-light link') }}</a>
+            <div class="js-modal-field mui--hide ">
+              <div class="js-field top-padding">{{ renderfield(form.formlabels, css_class='label-select-fields top-padding active') }}</div>
             </div>
           </div>
           {{ renderfield(form.body) }}
@@ -111,35 +114,18 @@
     </div>
     <div class="modal-form">
       <a class="modal__close mui--text-dark js-close-form-modal" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0)" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-      <button class="mui-btn mui-btn--raised mui-btn--primary js-close-form-modal js-modal-btn" rel="modal:close" >Save label</button>
+      <button class="mui-btn mui-btn--raised mui-btn--primary js-close-form-modal js-save-modal" rel="modal:close">Save</button>
     </div>
   </div>
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ built_asset('sub_form.js') }}" type="text/javascript"></script>
+  <script src="{{ built_asset('proposal_form.js') }}" type="text/javascript"></script>
+  <script src="{{ built_asset('proposal.js') }}" type="text/javascript"></script>
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
-  <script>
-  $('body').on('click', '.js-open-modal', function (event) {
-    var field = $(this).next('.js-modal-field');
-    $(this).addClass('active-form-field');
-    event.preventDefault();
-    $('body').append('<div class="js-modal"></div>');
-    $($(field).find('.js-field').detach()).insertBefore($('.modal-form .js-modal-btn');
-    $('.js-modal').append($('.modal-form').detach());
-    $('.js-modal').modal();
-  });
-
-  $('body').on($.modal.AFTER_CLOSE, '.js-modal', function (event) {
-    event.preventDefault();
-    $('.active-form-field').next('.js-modal-field').append($('.modal-form').find('.js-field').detach());
-    $('.js-modal-container').append($('.modal-form').detach());
-    $('.js-modal').remove();
-    $('.active-form-field').removeClass('active-form-field');
-  });
-
-  $('.js-close-form-modal').on('click', function() {
-    $.modal.close();
+  <script type="text/javascript">
+  $(function() {
+    window.Hasgeek.LabelsWidget();
   });
   </script>
 {% endblock %}

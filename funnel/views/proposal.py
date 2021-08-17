@@ -72,6 +72,7 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             return redirect(self.obj.url_for(), code=303)
 
         form = ProposalForm(model=Proposal, parent=self.obj)
+        proposal = ''
 
         if form.validate_on_submit():
             proposal = Proposal(user=current_auth.user, project=self.obj)
@@ -93,7 +94,7 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             'title': "New submission",
             'form': form,
             'project': self.obj,
-            'cancel_url': self.obj.url_for(),
+            'proposal': proposal if proposal else '',
             'message': markdown_message,
         }
 
@@ -165,6 +166,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
+    @render_with('submission_form.html.jinja2')
     def edit(self):
         form = ProposalForm(obj=self.obj, model=Proposal, parent=self.obj.project)
         if form.validate_on_submit():
@@ -176,12 +178,13 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.url_for(), code=303)
-        return render_form(
-            form=form,
-            title=_("Edit submission"),
-            submit=_("Update"),
-            message=markdown_message,
-        )
+        return {
+            'title': "Edit submission",
+            'form': form,
+            'project': self.obj.project,
+            'proposal': self.obj,
+            'message': markdown_message,
+        }
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
