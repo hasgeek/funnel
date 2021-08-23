@@ -3,7 +3,7 @@
 {% block admincontentblock %}
 <form data-parsley-validate="true" id="comment-search-form" method="GET"
   action="{{ url_for('siteadmin_comments') }}" accept-charset="UTF-8"
-  class="mui-form mui-form--margins hg-form mui-form--inline">
+  class="mui-form mui-form--margins">
 
   <input type="hidden" id="comment-search-page" name="page" value="1">
 
@@ -39,7 +39,7 @@
   id="form-comments-spam"
   action="{{ url_for('siteadmin_comments_spam') }}"
   method="post"
-  class="form-inline"
+  class="table-wrapper"
 >
   {{ comment_spam_form.hidden_tag() }}
   <table class="mui-table mui-table--bordered mui-table--responsive">
