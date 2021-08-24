@@ -9892,6 +9892,10 @@ form.mui--bg-accent .CodeMirror {
   min-width: 200px;
 }
 
+.proposal-form-preview {
+  margin-top: 99px;
+}
+
 .video {
   margin-bottom: 32px;
 }

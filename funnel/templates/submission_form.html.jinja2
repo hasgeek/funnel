@@ -31,15 +31,12 @@
   </div>
   <div class="mui-container js-modal-container">
     <div class="grid page-content">
-      <div class="grid__col-sm-12 grid__col-md-10 grid__col-lg-8 margin-auto">
+      <div class="grid__col-sm-12 grid__col-md-10 grid__col-lg-6">
         {%- if form.errors %}
           <div class="alert alert--error alert--dismissable">
             <a class="alert__close" href="javascript:void(0);"  data-target="close flash message" aria-label="close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
             <p class="alert__text">{{ faicon(icon='exclamation-circle') }} {% trans %}Please review the indicated issues{% endtrans %}</p>
           </div>
-        {%- endif %}
-        {%- if message %}
-          <p class="form-message margin-top">{{ message }}</p>
         {%- endif %}
         <form data-parsley-validate="true" id="sub-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form">
           {{ form.hidden_tag() }}
@@ -48,6 +45,9 @@
               <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" data-cy-submit="save-label">Submit</button>
               <span class="loading mui--hide"></span>
             </div>
+            {%- if message %}
+              <p class="mui--text-caption zero-bottom-margin mui--pull-right">{{ message }}</p>
+            {%- endif %}
           </div>
           <div class="form-video-box">
             <a role="button" aria-haspopup="true" class="mui-btn mui-btn--raised icon-btn form-video-box__btn js-open-modal" aria-label="{% trans %}Add submission video{% endtrans %}" data-ga="Add submission video">{{ faicon(icon='video-plus', baseline=false) }}</a>
@@ -117,6 +117,10 @@
             <div><p class="mui-form__error">{{ error }}</p></div>
           {%- endfor %}
         </form>
+      </div>
+      <div class="grid__col-sm-12 grid__col-md-10 grid__col-lg-6 proposal-form-preview js-proposal-preview">
+        {%- from "macros.html.jinja2" import proposal_body %}
+        {{ proposal_body(proposal, preview=true) }}
       </div>
     </div>
     <div class="modal-form">
