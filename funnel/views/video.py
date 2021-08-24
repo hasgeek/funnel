@@ -6,9 +6,10 @@ from typing import Optional, Union, cast
 from flask import current_app
 
 from pytz import utc
-from simplejson import JSONDecodeError
+from sentry_sdk import capture_exception
 from typing_extensions import TypedDict
 import requests
+import simplejson
 import vimeo
 
 from coaster.utils import parse_duration, parse_isoformat
@@ -85,7 +86,12 @@ def video_property(obj: VideoMixin) -> Optional[VideoData]:
             }
             if obj.video_source == 'youtube':
                 video_url = f'https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id={obj.video_id}&key={current_app.config["YOUTUBE_API_KEY"]}'
-                youtube_resp = requests.get(video_url)
+                try:
+                    youtube_resp = requests.get(video_url, timeout=30)
+                except requests.exceptions.RequestException as exc:
+                    current_app.logger.error("YouTube API request error: %s", repr(exc))
+                    capture_exception(exc)
+                    return data
                 if youtube_resp.status_code == 200:
                     try:
                         youtube_video = youtube_resp.json()
@@ -109,12 +115,13 @@ def video_property(obj: VideoMixin) -> Optional[VideoData]:
                             data['thumbnail'] = youtube_video['snippet']['thumbnails'][
                                 'medium'
                             ]['url']
-                    except JSONDecodeError as e:
+                    except simplejson.JSONDecodeError as exc:
                         current_app.logger.error(
                             "%s: Unable to parse JSON response while calling '%s'",
-                            e.msg,
+                            exc.msg,
                             video_url,
                         )
+                        capture_exception(exc)
                 else:
                     current_app.logger.error(
                         "HTTP %s: YouTube API request failed for url '%s'",
@@ -130,7 +137,7 @@ def video_property(obj: VideoMixin) -> Optional[VideoData]:
 
                 video_url = f'/videos/{obj.video_id}'
                 vimeo_resp = vimeo_client.get(video_url)
-                # vimeo_resp = requests.get(video_url)
+                # vimeo_resp = requests.get(video_url, timeout=30)
                 if vimeo_resp.status_code == 200:
                     vimeo_video = vimeo_resp.json()
 

@@ -98,7 +98,7 @@ def parse_video_url(video_url: str):
                 video_source = 'googledrive'
             else:
                 raise ValueError(
-                    f"{video_url}: Google drive video URLs need to be in the format: "
+                    f"{video_url}: Google Drive video URLs need to be in the format: "
                     "https://drive.google.com/open?id=1rwHdWYnF4asdhsnDwLECoqZQy4o or "
                     "https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view"
                 )
@@ -107,7 +107,7 @@ def parse_video_url(video_url: str):
             video_source = 'googledrive'
         else:
             raise ValueError(
-                f"{video_url}: Google drive video URLs need to be in the format: "
+                f"{video_url}: Google Drive video URLs need to be in the format: "
                 "https://drive.google.com/open?id=1rwHdWYnF4asdhsnDwLECoqZQy4o or "
                 "https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view"
             )
