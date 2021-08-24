@@ -12,7 +12,6 @@ from ..models import (
     AuthClientCredential,
     AuthClientTeamPermissions,
     AuthClientUserPermissions,
-    AuthToken,
     Organization,
     User,
     UserSession,
@@ -130,64 +129,22 @@ def api_result(status, _jsonp=False, **params):
 
 # --- Client access endpoints -------------------------------------------------
 
-# Client A has obtained a token from user U for access to the user's resources held
-# in client B. It then presents this token to B and asks for the resource. B has not
-# seen this token before, so it calls token/verify to validate it. Lastuser confirms
-# the token is indeed valid for the resource being requested. However, with the
-# removal of client resources, the only valid resource now is the '*' wildcard.
+
 @app.route('/api/1/token/verify', methods=['POST'])
 @requires_client_login
 def token_verify():
-    token = abort_null(request.form.get('access_token'))
-    client_resource = abort_null(
-        request.form.get('resource')
-    )  # Can only be a single resource
-    if not client_resource:
-        # No resource specified by caller
-        return resource_error('no_resource')
-    if client_resource != '*':
-        # Client resources are no longer supported; only the '*' resource is
-        return resource_error('unknown_resource')
-    if not token:
-        # No token specified by caller
-        return resource_error('no_token')
+    """
+    Return notice of deprecated endpoint.
 
-    if not current_auth.auth_client.namespace:
-        # This client has not defined any resources
-        return api_result('error', error='client_no_resources')
+    Funnel no longer manages inter-client resources. Previously:
 
-    authtoken = AuthToken.get(token=token)
-    if authtoken is None:
-        # No such auth token
-        return api_result('error', error='no_token')
-    if (
-        current_auth.auth_client.namespace + ':' + client_resource
-        not in authtoken.effective_scope
-    ) and (current_auth.auth_client.namespace + ':*' not in authtoken.effective_scope):
-        # Token does not grant access to this resource
-        return api_result('error', error='access_denied')
-
-    # All validations passed. Token is valid for this client and scope. Return with
-    # information on the token.
-    # TODO: Don't return validity. Set the HTTP cache headers instead.
-    params = {
-        'validity': 120
-    }  # Period (in seconds) for which this assertion may be cached.
-    if authtoken.user:
-        params['userinfo'] = get_userinfo(
-            authtoken.user, current_auth.auth_client, scope=authtoken.effective_scope
-        )
-    params['clientinfo'] = {
-        'title': authtoken.auth_client.title,
-        'userid': authtoken.auth_client.owner.buid,
-        'buid': authtoken.auth_client.owner.buid,
-        'uuid': authtoken.auth_client.owner.uuid,
-        'owner_title': authtoken.auth_client.owner.pickername,
-        'website': authtoken.auth_client.website,
-        'key': authtoken.auth_client.buid,
-        'trusted': authtoken.auth_client.trusted,
-    }
-    return api_result('ok', **params)
+    Client A has obtained a token from user U for access to the user's resources held
+    in client B. It then presents this token to B and asks for the resource. B has not
+    seen this token before, so it calls token/verify to validate it. Lastuser confirms
+    the token is indeed valid for the resource being requested. However, with the
+    removal of client resources, the only valid resource now is the '*' wildcard.
+    """
+    return api_result('error', error='deprecated')
 
 
 @app.route('/api/1/user/get_by_userid', methods=['GET', 'POST'])
