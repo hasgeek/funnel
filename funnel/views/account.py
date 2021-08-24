@@ -780,8 +780,8 @@ class AccountView(ClassView):
             try:
                 # Now send this
                 msg.transactionid = sms.send(msg.phone_number, template_message)
-            except TransportRecipientError as e:
-                flash(str(e), 'error')
+            except TransportRecipientError as exc:
+                flash(str(exc), 'error')
             except TransportConnectionError:
                 flash(_("Unable to send a message right now. Try again later"), 'error')
             else:

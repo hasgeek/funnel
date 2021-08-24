@@ -3,9 +3,11 @@ from __future__ import annotations
 from typing import Optional, Tuple
 import urllib.parse
 
+from baseframe import _
+
 from . import db
 
-__all__ = ['VideoMixin', 'VideoError']
+__all__ = ['VideoMixin', 'VideoError', 'parse_video_url']
 
 
 class VideoError(Exception):
@@ -71,18 +73,14 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
                 video_source = 'googledrive'
             else:
                 raise ValueError(
-                    f"{video_url}: Google drive video URLs need to be in the format:"
-                    " https://drive.google.com/open?id=1rwHdWYnF4asdhsnDwLECoqZQy4o or"
-                    " https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view"
+                    _("This must be a shareable URL for a single file in Google Drive")
                 )
         elif parsed.path.startswith('/file/d/'):
             video_id = parsed.path.lstrip('/file/d/').rstrip('/view').rstrip('/preview')
             video_source = 'googledrive'
         else:
             raise ValueError(
-                f"{video_url}: Google drive video URLs need to be in the format:"
-                " https://drive.google.com/open?id=1rwHdWYnF4asdhsnDwLECoqZQy4o or"
-                " https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view"
+                _("This must be a shareable URL for a single file in Google Drive")
             )
     return video_source, video_id
 

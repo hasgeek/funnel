@@ -721,28 +721,29 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 )
                 .options(*cls._defercols)
                 .limit(20)
-                .union(
-                    # Query 2: @query -> UserExternalId.username
-                    cls.query.join(UserExternalId)
-                    .filter(
-                        cls.state.ACTIVE,
-                        UserExternalId.service.in_(
-                            UserExternalId.__at_username_services__
-                        ),
-                        db.func.lower(UserExternalId.username).like(
-                            db.func.lower(like_query[1:])
-                        ),
-                    )
-                    .options(*cls._defercols)
-                    .limit(20),
-                    # Query 3: like_query -> User.fullname
-                    cls.query.filter(
-                        cls.state.ACTIVE,
-                        db.func.lower(cls.fullname).like(db.func.lower(like_query)),
-                    )
-                    .options(*cls._defercols)
-                    .limit(20),
-                )
+                # FIXME: Still broken as of SQLAlchemy 1.4.23 (also see next block)
+                # .union(
+                #     # Query 2: @query -> UserExternalId.username
+                #     cls.query.join(UserExternalId)
+                #     .filter(
+                #         cls.state.ACTIVE,
+                #         UserExternalId.service.in_(
+                #             UserExternalId.__at_username_services__
+                #         ),
+                #         db.func.lower(UserExternalId.username).like(
+                #             db.func.lower(like_query[1:])
+                #         ),
+                #     )
+                #     .options(*cls._defercols)
+                #     .limit(20),
+                #     # Query 3: like_query -> User.fullname
+                #     cls.query.filter(
+                #         cls.state.ACTIVE,
+                #         db.func.lower(cls.fullname).like(db.func.lower(like_query)),
+                #     )
+                #     .options(*cls._defercols)
+                #     .limit(20),
+                # )
                 .all()
             )
         elif '@' in query and not query.startswith('@'):

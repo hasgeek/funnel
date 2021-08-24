@@ -233,7 +233,7 @@ def process_ses_event():
     # Subscription confirmation
     if m_type == SnsNotificationType.SubscriptionConfirmation.value:
         # We must confirm the subscription request
-        resp = requests.get(message['SubscribeURL'])
+        resp = requests.get(message['SubscribeURL'], timeout=30)
         statsd.incr(
             'email_address.event',
             tags={
@@ -252,7 +252,7 @@ def process_ses_event():
         # We don't want to unsubscribe, so request a resubscribe. Unsubscribe requests
         # are typically in response to server errors. If an actual unsubscribe is
         # required, this code must be disabled, or the server must be taken offline
-        resp = requests.get(message['SubscribeURL'])
+        resp = requests.get(message['SubscribeURL'], timeout=30)
         statsd.incr(
             'email_address.event',
             tags={

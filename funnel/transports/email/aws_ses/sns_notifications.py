@@ -171,7 +171,7 @@ class SnsValidator:
         public_key = self.public_keys.get(url)
         if not public_key:
             try:
-                pem = requests.get(url).content
+                pem = requests.get(url, timeout=30).content
                 cert = x509.load_pem_x509_certificate(pem, default_backend())
                 public_key = cast(RSAPublicKey, cert.public_key())
                 self.public_keys[url] = public_key
