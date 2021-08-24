@@ -2,8 +2,7 @@ from datetime import datetime
 
 from pytz import utc
 
-from funnel.models import Proposal
-from funnel.models.video_mixin import parse_video_url
+from funnel.models import Proposal, parse_video_url
 
 
 def test_parse_video_url():
