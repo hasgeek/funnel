@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from flask import current_app, flash
-from wtforms.validators import StopValidation
 
 from baseframe import _, __
 from coaster.auth import current_auth
@@ -119,7 +118,7 @@ def video_url_validator(form, field):
     try:
         parse_video_url(field.data)
     except ValueError as exc:
-        raise StopValidation(str(exc))
+        raise forms.validators.StopValidation(str(exc))
 
 
 def tostr(value: object) -> str:
