@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from flask import redirect, request, session
+from flask import current_app, redirect, request, session
 
 from oauth2client import client
+from sentry_sdk import capture_exception
 import requests
+import simplejson
 
 from baseframe import _
 
@@ -51,6 +53,7 @@ class GoogleProvider(LoginProvider):
             credentials = self.flow(callback_url).step2_exchange(code)
             response = requests.get(
                 self.info_url,
+                timeout=30,
                 headers={
                     'Authorization': (
                         credentials.token_response['token_type']  # 'Bearer', etc
@@ -60,14 +63,13 @@ class GoogleProvider(LoginProvider):
                 },
             ).json()
         except (
-            requests.RequestException,
-            requests.ConnectionError,
-            requests.Timeout,
-        ) as e:
+            requests.exceptions.RequestException,
+            simplejson.JSONDecodeError,
+        ) as exc:
+            current_app.logger.error("Google OAuth2 error: %s", repr(exc))
+            capture_exception(exc)
             raise LoginCallbackError(
-                _(
-                    "Unable to authenticate via Google. Internal details: {error}"
-                ).format(error=e)
+                _("Google had an intermittent problem. Try again?")
             )
         if response.get('error'):
             raise LoginCallbackError(

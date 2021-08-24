@@ -6,8 +6,8 @@ from uuid import uuid4
 from flask import current_app, redirect, request, session
 
 from sentry_sdk import capture_exception
-from simplejson import JSONDecodeError
 import requests
+import simplejson
 
 from baseframe import _
 
@@ -77,31 +77,32 @@ class LinkedInProvider(LoginProvider):
                     'redirect_uri': callback_url,
                 },
             ).json()
-        except requests.exceptions.RequestException as e:
+        except (
+            requests.exceptions.RequestException,
+            simplejson.JSONDecodeError,
+        ) as exc:
+            current_app.logger.error("LinkedIn OAuth2 error: %s", repr(exc))
+            capture_exception(exc)
             raise LoginCallbackError(
-                _(
-                    "Unable to authenticate via LinkedIn. Internal details: {error}"
-                ).format(error=e)
-            )
-        except JSONDecodeError as e:
-            current_app.logger.error(e.msg)
-            capture_exception(e)
-            raise LoginCallbackError(
-                _("LinkedIn is having intermittent issues. Try again?")
+                _("LinkedIn had an intermittent problem. Try again?")
             )
         if 'error' in response:
             raise LoginCallbackError(response['error'])
         try:
             info = requests.get(
                 self.user_info,
+                timeout=30,
                 params={'oauth2_access_token': response['access_token']},
                 headers={'x-li-format': 'json'},
             ).json()
-        except requests.exceptions.RequestException as e:
+        except (
+            requests.exceptions.RequestException,
+            simplejson.JSONDecodeError,
+        ) as exc:
+            current_app.logger.error("LinkedIn OAuth2 error: %s", repr(exc))
+            capture_exception(exc)
             raise LoginCallbackError(
-                _(
-                    "Unable to authenticate via LinkedIn. Internal details: {error}"
-                ).format(error=e)
+                _("LinkedIn had an intermittent problem. Try again?")
             )
 
         if not info.get('id'):
@@ -112,14 +113,18 @@ class LinkedInProvider(LoginProvider):
         try:
             email_info = requests.get(
                 self.user_email,
+                timeout=30,
                 params={'oauth2_access_token': response['access_token']},
                 headers={'x-li-format': 'json'},
             ).json()
-        except requests.exceptions.RequestException as e:
+        except (
+            requests.exceptions.RequestException,
+            simplejson.JSONDecodeError,
+        ) as exc:
+            current_app.logger.error("LinkedIn email_info error: %s", repr(exc))
+            capture_exception(exc)
             raise LoginCallbackError(
-                _(
-                    "Unable to fetch email from LinkedIn. Internal details: {error}"
-                ).format(error=e)
+                _("LinkedIn had an intermittent problem. Try again?")
             )
 
         email_address = ''
