@@ -119,8 +119,7 @@
         </form>
       </div>
       <div class="grid__col-sm-12 grid__col-md-10 grid__col-lg-6 proposal-form-preview js-proposal-preview">
-        {%- from "macros.html.jinja2" import proposal_body %}
-        {{ proposal_body(proposal, preview=true) }}
+        {{ proposal.body }}
       </div>
     </div>
     <div class="modal-form">
