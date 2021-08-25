@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from flask import current_app, redirect, request, session
 
+from oauth2client import client
 from sentry_sdk import capture_exception
-import oauth2client
 import requests
 import simplejson
 
@@ -25,7 +25,7 @@ class GoogleProvider(LoginProvider):
         super().__init__(name, title, **kwargs)
 
     def flow(self, callback_url):
-        return oauth2client.client.OAuth2WebServerFlow(
+        return client.OAuth2WebServerFlow(
             client_id=self.client_id,
             client_secret=self.secret,
             scope=['profile', 'email'],
@@ -63,7 +63,7 @@ class GoogleProvider(LoginProvider):
                 },
             ).json()
         except (
-            oauth2client.client.FlowExchangeError,
+            client.FlowExchangeError,
             requests.exceptions.RequestException,
             simplejson.JSONDecodeError,
         ) as exc:
