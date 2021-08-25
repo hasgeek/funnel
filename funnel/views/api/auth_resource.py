@@ -7,8 +7,8 @@ from coaster.auth import current_auth
 from coaster.utils import getbool
 from coaster.views import jsonp, requestargs
 
-from .. import app
-from ..models import (
+from ... import app
+from ...models import (
     AuthClientCredential,
     AuthClientTeamPermissions,
     AuthClientUserPermissions,
@@ -18,10 +18,10 @@ from ..models import (
     db,
     getuser,
 )
-from ..registry import resource_registry
-from ..utils import abort_null
-from .helpers import progressive_rate_limit_validator, validate_rate_limit
-from .login_session import (
+from ...registry import resource_registry
+from ...utils import abort_null
+from ..helpers import progressive_rate_limit_validator, validate_rate_limit
+from ..login_session import (
     requires_client_id_or_user_or_client_login,
     requires_client_login,
     requires_user_or_client_login,

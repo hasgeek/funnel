@@ -9,8 +9,8 @@ from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.utils import newsecret
 
-from .. import app
-from ..models import (
+from ... import app
+from ...models import (
     AuthClient,
     AuthClientCredential,
     AuthCode,
@@ -20,11 +20,11 @@ from ..models import (
     db,
     getuser,
 )
-from ..registry import resource_registry
-from ..typing import ReturnView
-from ..utils import abort_null, make_redirect_url
+from ...registry import resource_registry
+from ...typing import ReturnView
+from ...utils import abort_null, make_redirect_url
+from ..login_session import requires_client_login, requires_login_no_message
 from .auth_resource import get_userinfo
-from .login_session import requires_client_login, requires_login_no_message
 
 
 class ScopeError(Exception):

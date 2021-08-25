@@ -10,9 +10,9 @@ import requests
 from baseframe import statsd
 from coaster.views import render_with
 
-from .. import app
-from ..models import EmailAddress, db
-from ..transports.email.aws_ses import (
+from ... import app
+from ...models import EmailAddress, db
+from ...transports.email.aws_ses import (
     SesEvent,
     SesProcessorAbc,
     SnsNotificationType,

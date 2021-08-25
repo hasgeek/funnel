@@ -7,10 +7,10 @@ from twilio.request_validator import RequestValidator
 from baseframe import statsd
 from coaster.views import render_with
 
-from .. import app
-from ..models import SMS_STATUS, SMSMessage, db
-from ..transports.sms import validate_exotel_token
-from ..utils import abort_null
+from ... import app
+from ...models import SMS_STATUS, SMSMessage, db
+from ...transports.sms import validate_exotel_token
+from ...utils import abort_null
 
 
 @app.route('/api/1/sms/twilio_event', methods=['POST'])
