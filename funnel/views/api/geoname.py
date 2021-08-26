@@ -5,9 +5,9 @@ from typing import List, Optional
 from coaster.utils import getbool
 from coaster.views import render_with, requestargs
 
-from .. import app
-from ..models import GeoName
-from ..typing import ReturnRenderWith
+from ... import app
+from ...models import GeoName
+from ...typing import ReturnRenderWith
 
 
 @app.route('/api/1/geo/get_by_name')

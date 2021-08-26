@@ -10,9 +10,9 @@ import requests
 from baseframe import statsd
 from coaster.views import render_with
 
-from .. import app
-from ..models import EmailAddress, db
-from ..transports.email.aws_ses import (
+from ... import app
+from ...models import EmailAddress, db
+from ...transports.email.aws_ses import (
     SesEvent,
     SesProcessorAbc,
     SnsNotificationType,
@@ -46,6 +46,7 @@ class SesProcessor(SesProcessorAbc):
         return email_address
 
     def bounce(self, ses_event: SesEvent) -> None:
+        """Record an SES email bounce event."""
         assert ses_event.bounce is not None  # nosec
         for bounced in ses_event.bounce.bounced_recipients:
             email_address = self._email_address(bounced.email)
@@ -61,6 +62,7 @@ class SesProcessor(SesProcessorAbc):
         )
 
     def delayed(self, ses_event: SesEvent) -> None:
+        """Record an SES email delayed event."""
         assert ses_event.delivery_delay is not None  # nosec
         for failed in ses_event.delivery_delay.delayed_recipients:
             email_address = self._email_address(failed.email)
@@ -73,12 +75,16 @@ class SesProcessor(SesProcessorAbc):
         )
 
     def complaint(self, ses_event: SesEvent) -> None:
-        # As per SES documentation, ISPs may not report the actual email addresses
-        # that filed the complaint. SES sends us the original recipients who are at
-        # the same domain, as a _maybe_ list. We respond to complaints by blocking their
-        # address from further use. Since this is a serious outcome, we can only do this
-        # when there was a single recipient to the original email.
-        # https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-contents.html#event-publishing-retrieving-sns-contents-complaint-object
+        """
+        Record an SES complaint event.
+
+        As per SES documentation, ISPs may not report the actual email addresses
+        that filed the complaint. SES sends us the original recipients who are at
+        the same domain, as a _maybe_ list. We respond to complaints by blocking their
+        address from further use. Since this is a serious outcome, we can only do this
+        when there was a single recipient to the original email.
+        https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-contents.html#event-publishing-retrieving-sns-contents-complaint-object
+        """
         assert ses_event.complaint is not None  # nosec
         if len(ses_event.complaint.complained_recipients) == 1:
             for complained in ses_event.complaint.complained_recipients:
@@ -111,9 +117,13 @@ class SesProcessor(SesProcessorAbc):
             )
 
     def delivered(self, ses_event: SesEvent) -> None:
-        # Recipients here are strings and not structures. Unusual, but reflected in
-        # the documentation.
-        # https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-examples.html#event-publishing-retrieving-sns-send
+        """
+        Record an SES email delivered event.
+
+        Recipients here are strings and not structures. Unusual, but reflected in
+        the documentation.
+        https://docs.aws.amazon.com/ses/latest/DeveloperGuide/event-publishing-retrieving-sns-examples.html#event-publishing-retrieving-sns-send
+        """
         assert ses_event.delivery is not None  # nosec
         for sent in ses_event.delivery.recipients:
             email_address = self._email_address(sent)
@@ -125,8 +135,12 @@ class SesProcessor(SesProcessorAbc):
         )
 
     def opened(self, ses_event: SesEvent) -> None:
-        # SES doesn't track the recipient that triggered this action, so process this
-        # only if the original email had a single recipient
+        """
+        Record an SES email opened event.
+
+        SES doesn't track the recipient that triggered this action, so process this
+        only if the original email had a single recipient.
+        """
         if len(ses_event.mail.destination) == 1:
             email_address = self._email_address(ses_event.mail.destination[0])
             email_address.mark_active()
@@ -141,8 +155,12 @@ class SesProcessor(SesProcessorAbc):
             )
 
     def click(self, ses_event: SesEvent) -> None:
-        # SES doesn't track the recipient that triggered this action, so process this
-        # only if the original email had a single recipient
+        """
+        Record an SES email click event.
+
+        SES doesn't track the recipient that triggered this action, so process this
+        only if the original email had a single recipient.
+        """
         if len(ses_event.mail.destination) == 1:
             email_address = self._email_address(ses_event.mail.destination[0])
             email_address.mark_active()
