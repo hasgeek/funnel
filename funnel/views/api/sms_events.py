@@ -144,11 +144,11 @@ def process_exotel_event(secret_token: str):
 
     if request.form['Status'] == 'queued':
         sms_message.status = SMS_STATUS.QUEUED
-    elif request.form['Status'] == 'failed' or request.form['Status'] == 'failed_dnd':
+    elif request.form['Status'] in ('failed', 'failed_dnd'):
         sms_message.status = SMS_STATUS.FAILED
     elif request.form['Status'] == 'sent':
         sms_message.status = SMS_STATUS.DELIVERED
-    elif request.form['Status'] == 'sending' or request.form['Status'] == 'submitted':
+    elif request.form['Status'] in ('sending', 'submitted'):
         sms_message.status = SMS_STATUS.PENDING
     else:
         sms_message.status = SMS_STATUS.UNKNOWN

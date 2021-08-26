@@ -16,6 +16,7 @@ from ..helpers import progressive_rate_limit_validator, validate_rate_limit
 @app.route('/api/1/account/password_policy', methods=['POST'])
 @render_with(json=True)
 def password_policy_check() -> ReturnRenderWith:
+    """Check if a password meets policy criteria (strength, embedded personal info)."""
     policy_form = PasswordPolicyForm()
     policy_form.form_nonce.data = policy_form.form_nonce.default()
 
@@ -68,8 +69,11 @@ def password_policy_check() -> ReturnRenderWith:
 @app.route('/api/1/account/username_available', methods=['POST'])
 @render_with(json=True)
 def account_username_availability() -> ReturnRenderWith:
+    """Check whether a username is available for the taking."""
     form = UsernameAvailableForm(edit_user=current_auth.user)
     del form.form_nonce
+
+    # FIXME: Rate limiting must happen _before_ hitting the database.
 
     # This view does not use the simpler ``if form.validate()`` construct because
     # we need to insert the rate limiter _between_ the other validators. This will be

@@ -29,7 +29,7 @@ from ..login_session import (
 
 
 def get_userinfo(user, auth_client, scope=(), user_session=None, get_permissions=True):
-
+    """Return userinfo for a given user, auth client and scope."""
     if '*' in scope or 'id' in scope or 'id/*' in scope:
         userinfo = {
             'userid': user.buid,
@@ -94,6 +94,7 @@ def get_userinfo(user, auth_client, scope=(), user_session=None, get_permissions
 
 
 def resource_error(error, description=None, uri=None):
+    """Return an error response."""
     params = {'status': 'error', 'error': error}
     if description:
         params['error_description'] = description
@@ -110,6 +111,7 @@ def resource_error(error, description=None, uri=None):
 
 
 def api_result(status, _jsonp=False, **params):
+    """Return an API result."""
     status_code = 200
     if status in (200, 201):
         status_code = status
@@ -350,6 +352,7 @@ def user_autocomplete():
 @app.route('/api/1/login/beacon.html')
 @requestargs(('client_id', abort_null), ('login_url', abort_null))
 def login_beacon_iframe(client_id, login_url):
+    """Render a login beacon page suitable for use as an invisible iframe."""
     cred = AuthClientCredential.get(client_id)
     if cred is None:
         abort(404)
@@ -371,6 +374,7 @@ def login_beacon_iframe(client_id, login_url):
 @app.route('/api/1/login/beacon.json')
 @requestargs(('client_id', abort_null))
 def login_beacon_json(client_id):
+    """Confirm if the auth client has a valid auth token for the current user."""
     cred = AuthClientCredential.get(client_id)
     if cred is None:
         abort(404)
