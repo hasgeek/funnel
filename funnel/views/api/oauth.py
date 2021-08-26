@@ -305,11 +305,10 @@ def oauth_authorize() -> ReturnView:
                     current_auth.user, auth_client, scope, current_auth.session
                 ),
             )
-        elif 'deny' in request.form:
+        if 'deny' in request.form:
             # User said no. Return "access_denied" error (OAuth2 spec)
             return oauth_auth_error(redirect_uri, state, 'access_denied')
-        else:
-            raise ValueError("Received an authorize form without a valid action")
+        raise ValueError("Received an authorize form without a valid action")
 
     # GET request or POST with invalid CSRF
     return (
@@ -460,7 +459,7 @@ def oauth_token() -> ReturnView:
         return oauth_token_success(token)
 
     # Validations 3: auth code
-    elif grant_type == 'authorization_code':
+    if grant_type == 'authorization_code':
         if not code:
             return oauth_token_error('invalid_grant', _("Auth code not specified"))
         authcode = AuthCode.get_for_client(auth_client=auth_client, code=code)
@@ -494,7 +493,7 @@ def oauth_token() -> ReturnView:
             ),
         )
 
-    elif grant_type == 'password':
+    if grant_type == 'password':
         # Validations 4.1: password grant_type is only for trusted clients
         if not auth_client.trusted:
             # Refuse to untrusted clients
