@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from urllib.parse import quote
 
-from flask import redirect, request
+from flask import current_app, redirect, request
 
+from sentry_sdk import capture_exception
 import requests
+import simplejson
 
 from baseframe import _
 
@@ -66,6 +68,7 @@ class GitHubProvider(LoginProvider):
                 raise LoginCallbackError(response['error'])
             ghinfo = requests.get(
                 self.user_info,
+                timeout=30,
                 headers={
                     "Authorization": "token {token}".format(
                         token=response['access_token']
@@ -74,6 +77,7 @@ class GitHubProvider(LoginProvider):
             ).json()
             ghemails = requests.get(
                 self.user_emails,
+                timeout=30,
                 headers={
                     'Accept': 'application/vnd.github.v3+json',
                     "Authorization": "token {token}".format(
@@ -81,11 +85,14 @@ class GitHubProvider(LoginProvider):
                     ),
                 },
             ).json()
-        except requests.ConnectionError as e:
+        except (
+            requests.exceptions.RequestException,
+            simplejson.JSONDecodeError,
+        ) as exc:
+            current_app.logger.error("GitHub OAuth2 error: %s", repr(exc))
+            capture_exception(exc)
             raise LoginCallbackError(
-                _(
-                    "GitHub appears to be having temporary issues. Please try again. Internal details: {error}"
-                ).format(error=e)
+                _("GitHub had an intermittent problem. Try again?")
             )
 
         email = None

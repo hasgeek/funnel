@@ -8,7 +8,7 @@ from coaster.auth import current_auth
 import baseframe.forms as forms
 
 from ..models import Project, Proposal
-from .helpers import nullable_strip_filters
+from .helpers import nullable_strip_filters, video_url_validator
 
 __all__ = [
     'ProposalForm',
@@ -155,7 +155,8 @@ class ProposalForm(forms.Form):
         validators=[
             forms.validators.Optional(),
             forms.validators.URL(),
-            forms.validators.ValidUrl(),
+            forms.validators.Length(max=2000),
+            video_url_validator,
         ],
         filters=nullable_strip_filters,
         description=__("YouTube or Vimeo URL (optional)"),

@@ -72,7 +72,9 @@ class TwitterProvider(LoginProvider):
                 include_entities='false', skip_status='true', include_email='true'
             )
         except tweepy.TweepError:
-            raise LoginCallbackError(_("Twitter could not be reached. Try again?"))
+            raise LoginCallbackError(
+                _("Twitter had an intermittent problem. Try again?")
+            )
 
         return {
             'email': getattr(twuser, 'email', None),

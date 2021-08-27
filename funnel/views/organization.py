@@ -66,6 +66,8 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             obj = Organization.get(name=organization)
             if obj is None:
                 abort(404)
+            if not obj.state.ACTIVE:
+                abort(410)
             return obj
         return None
 
@@ -88,6 +90,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             org = Organization(owner=current_auth.user)
             form.populate_obj(org)
             db.session.add(org)
+            db.session.flush()  # Required to auto-create profile
             org.profile.make_public()
             db.session.commit()
             org_data_changed.send(org, changes=['new'], user=current_auth.user)

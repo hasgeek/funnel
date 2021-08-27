@@ -203,6 +203,7 @@ def login():
                 formid='passwordlogin',
                 ref_id='form-passwordlogin',
                 title=_("Login"),
+                ajax=True,
             ),
             200,
             iframe_block,
@@ -304,6 +305,7 @@ def register():
         title=_("Register account"),
         formid='registeraccount',
         ref_id='form-password-change',
+        ajax=False,
     )
 
 
@@ -320,11 +322,11 @@ def login_service(service):
     statsd.gauge('login.progress', 1, delta=True, tags={'service': service})
     try:
         return provider.do(callback_url=callback_url)
-    except (LoginInitError, LoginCallbackError) as e:
+    except (LoginInitError, LoginCallbackError) as exc:
         msg = _("{service} login failed: {error}").format(
-            service=provider.title, error=str(e)
+            service=provider.title, error=str(exc)
         )
-        exception_catchall.send(e, message=msg)
+        exception_catchall.send(exc, message=msg)
         flash(msg, category='danger')
         return redirect(next_url or get_next_url(referrer=True), code=303)
 
@@ -337,11 +339,11 @@ def login_service_callback(service):
     provider = login_registry[service]
     try:
         userdata = provider.callback()
-    except (LoginInitError, LoginCallbackError) as e:
+    except (LoginInitError, LoginCallbackError) as exc:
         msg = _("{service} login failed: {error}").format(
-            service=provider.title, error=str(e)
+            service=provider.title, error=str(exc)
         )
-        exception_catchall.send(e, message=msg)
+        exception_catchall.send(exc, message=msg)
         flash(msg, category='danger')
         if current_auth.is_authenticated:
             return redirect(get_next_url(referrer=False), code=303)

@@ -175,19 +175,23 @@ class CommentsetView(UrlForView, ModelView):
 
         commentform = CommentForm()
         if commentform.validate_on_submit():
-            comment = Comment(
-                user=current_auth.user,
-                commentset=self.obj,
-                message=commentform.message.data,
+            if not self.obj.post_comment.is_available:
+                return {
+                    'status': 'error',
+                    'error': 'disabled',
+                    'error_description': _("Commenting is disabled"),
+                }, 422
+
+            comment = self.obj.post_comment(
+                current_auth.actor, commentform.message.data
             )
 
-            self.obj.count = Commentset.count + 1
-            db.session.add(comment)
-
-            if not self.obj.current_roles.document_subscriber:
-                self.obj.add_subscriber(actor=current_auth.user, user=current_auth.user)
+            if self.obj.current_roles.document_subscriber:
+                self.obj.update_last_seen_at(user=current_auth.actor)
             else:
-                self.obj.update_last_seen_at(user=current_auth.user)
+                self.obj.add_subscriber(
+                    actor=current_auth.actor, user=current_auth.actor
+                )
             db.session.commit()
             dispatch_notification(
                 NewCommentNotification(document=comment.commentset, fragment=comment)
@@ -231,7 +235,9 @@ class CommentsetView(UrlForView, ModelView):
             }
         return {
             'status': 'error',
+            # FIXME: In other views this is `error_details`
             'details': subscribe_form.errors,
+            # FIXME: this needs `error` (code) and `error_description` (text) keys
             'message': _("Request expired. Reload and try again"),
             'form_nonce': subscribe_form.form_nonce.data,
         }, 400
@@ -247,6 +253,7 @@ class CommentsetView(UrlForView, ModelView):
             return {'status': 'ok'}
         return {
             'status': 'error',
+            # FIXME: this needs to be `error` instead of `error_code`
             'error_code': 'update_seen_at_error',
             'error_description': _("This page timed out. Reload and try again"),
             'error_details': csrf_form.errors,
@@ -414,6 +421,7 @@ class CommentView(UrlForView, ModelView):
             return (
                 {
                     'status': 'error',
+                    # FIXME: this needs to be `error` instead of `error_code`
                     'error_code': 'report_spam_error',
                     'error_description': _(
                         "There was an issue reporting this comment. Please try again"
