@@ -141,30 +141,30 @@ def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> 
             else None,
         )
         return msg.sid
-    except TwilioRestException as e:
+    except TwilioRestException as exc:
         # Error codes from
         # https://www.twilio.com/docs/iam/test-credentials#test-sms-messages-parameters-To
         # https://support.twilio.com/hc/en-us/articles/223181868-Troubleshooting-Undelivered-Twilio-SMS-Messages
         # https://www.twilio.com/docs/api/errors#2-anchor
-        if e.code == 21211:
+        if exc.code == 21211:
             raise TransportRecipientError(_("This phone number is invalid"))
-        if e.code == 21408:
+        if exc.code == 21408:
             app.logger.error("Twilio unsupported country (21408) for %s", phone)
             raise TransportRecipientError(
                 _("Hasgeek cannot send messages to phone numbers in this country")
             )
-        if e.code == 21610:
+        if exc.code == 21610:
             raise TransportRecipientError(_("This phone number has been blocked"))
-        if e.code == 21612:
+        if exc.code == 21612:
             app.logger.error("Twilio unsupported carrier (21612) for %s", phone)
             raise TransportRecipientError(
                 _("This phone number is unsupported at this time")
             )
-        if e.code == 21614:
+        if exc.code == 21614:
             raise TransportRecipientError(
                 _("This phone number cannot receive SMS messages")
             )
-        app.logger.error("Unhandled Twilio error %d: %s", e.code, e.msg)
+        app.logger.error("Unhandled Twilio error %d: %s", exc.code, exc.msg)
         raise TransportTransactionError(
             _("Hasgeek was unable to send a message to this phone number")
         )

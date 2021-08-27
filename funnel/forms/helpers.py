@@ -6,7 +6,7 @@ from baseframe import _, __
 from coaster.auth import current_auth
 import baseframe.forms as forms
 
-from ..models import EmailAddress, UserEmailClaim
+from ..models import EmailAddress, UserEmailClaim, parse_video_url
 
 
 class EmailAddressAvailable:
@@ -111,6 +111,14 @@ def image_url_validator():
         message_schemes=__("A https:// URL is required"),
         message_domains=__("Images must be hosted at images.hasgeek.com"),
     )
+
+
+def video_url_validator(form, field):
+    """Validate that video URL is acceptable."""
+    try:
+        parse_video_url(field.data)
+    except ValueError as exc:
+        raise forms.validators.StopValidation(str(exc))
 
 
 def tostr(value: object) -> str:
