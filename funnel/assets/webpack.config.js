@@ -41,7 +41,7 @@ module.exports = {
       'js/notification_settings.js'
     ),
     account_saved: path.resolve(__dirname, 'js/account_saved.js'),
-    app: path.resolve(__dirname, 'sass/app.scss'),
+    main: path.resolve(__dirname, 'sass/app.scss'),
   },
   output: {
     path: path.resolve(__dirname, '../static/build'),
