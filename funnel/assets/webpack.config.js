@@ -41,6 +41,7 @@ module.exports = {
       'js/notification_settings.js'
     ),
     account_saved: path.resolve(__dirname, 'js/account_saved.js'),
+    app: path.resolve(__dirname, 'sass/app.scss'),
   },
   output: {
     path: path.resolve(__dirname, '../static/build'),
@@ -57,6 +58,17 @@ module.exports = {
         options: {
           plugins: ['@babel/plugin-syntax-dynamic-import'],
         },
+      },
+      {
+        test: /\.scss$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: { outputPath: 'css/', name: '[name].min.css' },
+          },
+          'sass-loader',
+        ],
       },
     ],
   },
