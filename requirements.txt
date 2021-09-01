@@ -4,7 +4,7 @@ Babel==2.9.1
 base58==2.1.0
 git+https://github.com/hasgeek/baseframe.git#egg=baseframe
 bcrypt==3.2.0
-better_profanity<0.7  # https://github.com/snguyenthanh/better_profanity/issues/19
+better_profanity==0.7.0  # https://github.com/snguyenthanh/better_profanity/issues/19
 blinker==1.4
 Brotli==1.0.9
 click==8.0.1
