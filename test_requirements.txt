@@ -1,6 +1,6 @@
 coverage==5.5
 coveralls==3.2.0
-fakeredis==1.5.2
+fakeredis==1.6.0
 lxml==4.6.3
 pytest==6.2.4
 pytest-bdd==4.1.0
