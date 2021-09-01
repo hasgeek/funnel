@@ -530,15 +530,70 @@ form.mui--bg-accent .CodeMirror {
   display: block;
 }
 
-.header-form-submit {
-  position: fixed;
-  top: 2px;
-  right: $mui-grid-padding;
-  z-index: 1001;
+.submission-header {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+
+  .submission-header__column {
+    border-right: 1px solid $mui-divider-color;
+  }
+
+  .submission-header__tabs {
+    width: 100%;
+    .submission-header__tabs__tab {
+      width: 50%;
+      text-align: center;
+    }
+    .submission-header__tabs__tab a {
+      padding: 0 $mui-grid-padding/2;
+    }
+    .submission-header__tabs__tab--markdown {
+      text-align: left;
+    }
+  }
+  .submission-header__submit {
+    position: fixed;
+    top: $mui-grid-padding/2;
+    right: $mui-grid-padding;
+    z-index: 1001;
+  }
+  .submission-header__edit-icons {
+    position: absolute;
+    right: -$mui-grid-padding/2;
+    margin-right: 50%;
+    top: -36px;
+  }
+}
+
+.submission-form {
+  .CodeMirror {
+    height: 100%;
+  }
+  .proposal-preview {
+    margin-top: 50px;
+  }
+}
+
+@media (min-width: 368px) {
+  .submission-header {
+    .submission-header__tabs {
+      .submission-header__tabs__tab--markdown {
+        text-align: center;
+      }
+    }
+  }
 }
 
 @media (min-width: 768px) {
-  .header-form-submit {
-    position: static;
+  .submission-header {
+    padding: $mui-grid-padding/2 0;
+    .submission-header__submit,
+    .submission-header__edit-icons {
+      position: static;
+      margin-right: 0;
+    }
+  }
+  .proposal-markdown,
+  .proposal-preview {
+    display: block !important;
   }
 }

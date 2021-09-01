@@ -125,6 +125,25 @@
   }
 }
 
+.mui-form {
+  .mui-form__fields.mui-form__fields--noborder {
+    .mui-textfield > input,
+    .mui-textfield > textarea {
+      border: none !important;
+    }
+    .mui-textfield > label {
+      color: $mui-text-light;
+      font-weight: 500;
+      @include mui-text('body2');
+      transform: none;
+      top: -$mui-grid-padding/4;
+    }
+    .mui-textfield > .CodeMirror {
+      border-bottom: none;
+    }
+  }
+}
+
 .mui-form--margins {
   margin-top: 1 * $mui-grid-padding;
   margin-bottom: 2 * $mui-grid-padding;

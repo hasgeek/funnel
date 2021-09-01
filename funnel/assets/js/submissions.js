@@ -1,7 +1,7 @@
 import { Utils, TableSearch } from './util';
 
 $(() => {
-  window.Hasgeek.proposalsInit = function proposalsInit({
+  window.Hasgeek.submissionsInit = function submissionsInit({
     search = '',
     sort = '',
   }) {

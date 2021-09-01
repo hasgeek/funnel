@@ -95,7 +95,6 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             'form': form,
             'project': self.obj,
             'proposal': proposal if proposal else '',
-            'message': markdown_message,
         }
 
     @route('sub/reorder', methods=['POST'])
@@ -130,7 +129,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     SavedProjectForm = SavedProjectForm
 
     @route('')
-    @render_with('proposal.html.jinja2')
+    @render_with('submission.html.jinja2')
     @requires_roles({'reader'})
     def view(self):
         return {
@@ -140,7 +139,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         }
 
     @route('admin')
-    @render_with('proposal_admin_panel.html.jinja2')
+    @render_with('submission_admin_panel.html.jinja2')
     @requires_roles({'project_editor'})
     def admin(self):
         transition_form = ProposalTransitionForm(obj=self.obj)

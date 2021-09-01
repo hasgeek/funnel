@@ -4391,6 +4391,29 @@ blockquote {
   margin-bottom: 16px;
 }
 
+.mui-form .mui-form__fields.mui-form__fields--noborder .mui-textfield > input,
+.mui-form
+  .mui-form__fields.mui-form__fields--noborder
+  .mui-textfield
+  > textarea {
+  border: none !important;
+}
+.mui-form .mui-form__fields.mui-form__fields--noborder .mui-textfield > label {
+  color: #4d5763;
+  font-weight: 500;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 24px;
+  transform: none;
+  top: -4px;
+}
+.mui-form
+  .mui-form__fields.mui-form__fields--noborder
+  .mui-textfield
+  > .CodeMirror {
+  border-bottom: none;
+}
+
 .mui-form--margins {
   margin-top: 16px;
   margin-bottom: 32px;
@@ -8149,16 +8172,67 @@ form.mui--bg-accent .CodeMirror {
   display: block;
 }
 
-.header-form-submit {
+.submission-header {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+}
+.submission-header .submission-header__column {
+  border-right: 1px solid rgba(132, 146, 166, 0.3);
+}
+.submission-header .submission-header__tabs {
+  width: 100%;
+}
+.submission-header .submission-header__tabs .submission-header__tabs__tab {
+  width: 50%;
+  text-align: center;
+}
+.submission-header .submission-header__tabs .submission-header__tabs__tab a {
+  padding: 0 8px;
+}
+.submission-header
+  .submission-header__tabs
+  .submission-header__tabs__tab--markdown {
+  text-align: left;
+}
+.submission-header .submission-header__submit {
   position: fixed;
-  top: 2px;
+  top: 8px;
   right: 16px;
   z-index: 1001;
 }
+.submission-header .submission-header__edit-icons {
+  position: absolute;
+  right: -8px;
+  margin-right: 50%;
+  top: -36px;
+}
 
+.submission-form .CodeMirror {
+  height: 100%;
+}
+.submission-form .proposal-preview {
+  margin-top: 50px;
+}
+
+@media (min-width: 368px) {
+  .submission-header
+    .submission-header__tabs
+    .submission-header__tabs__tab--markdown {
+    text-align: center;
+  }
+}
 @media (min-width: 768px) {
-  .header-form-submit {
+  .submission-header {
+    padding: 8px 0;
+  }
+  .submission-header .submission-header__submit,
+  .submission-header .submission-header__edit-icons {
     position: static;
+    margin-right: 0;
+  }
+
+  .proposal-markdown,
+  .proposal-preview {
+    display: block !important;
   }
 }
 .card--banner {
@@ -9885,17 +9959,6 @@ form.mui--bg-accent .CodeMirror {
     border-radius: 8px;
   }
 }
-.proposal-subscribe-form label {
-  padding: 8px 16px;
-  text-transform: none;
-  display: block;
-  min-width: 200px;
-}
-
-.proposal-form-preview {
-  margin-top: 99px;
-}
-
 .video {
   margin-bottom: 32px;
 }

@@ -1,6 +1,6 @@
 import { Utils } from './util';
 
-export const Proposal = {
+export const Submission = {
   init() {
     $('.js-subscribe-btn').on('click', function subscribeComments(event) {
       event.preventDefault();
@@ -111,6 +111,6 @@ export const LabelsWidget = {
 };
 
 $(() => {
-  window.Hasgeek.ProposalInit = Proposal.init.bind(Proposal);
+  window.Hasgeek.SubmissionInit = Submission.init.bind(Submission);
   window.Hasgeek.LabelsWidget = LabelsWidget.init.bind(LabelsWidget);
 });

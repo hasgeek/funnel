@@ -1,8 +1,8 @@
-import { Video, Utils } from './util';
+import { Video } from './util';
 
 $(() => {
-  let typingTimer;
-  const typingWaitInterval = 1000;
+  let waitTimer;
+  const debounceInterval = 1000;
 
   function addEmbedVideoPlayer() {
     const videoUrl = $('.js-embed-video').data('video-src');
@@ -11,12 +11,17 @@ $(() => {
 
   function updatePreview() {
     console.log('updatePreview');
-    $('#sub-form').ajaxSubmit({
+    $.ajax({
+      type: 'POST',
+      url: window.Hasgeek.Config.markdownPreviewApi,
+      data: {
+        type: 'submission',
+        text: $('#body').val(),
+      },
       dataType: 'json',
       timeout: window.Hasgeek.Config.ajaxTimeout,
       success(responseData) {
-        $('.js-proposal-preview').html(responseData.preview);
-        Utils.updateFormNonce(responseData);
+        $('.js-proposal-preview').html(responseData.html);
       },
     });
   }
@@ -45,7 +50,6 @@ $(() => {
     $('.js-modal-container').append($('.modal-form').detach());
     $('.js-modal').remove();
     $('.active-form-field').removeClass('active-form-field');
-    updatePreview();
   });
 
   $('.js-close-form-modal').on('click', () => {
@@ -62,20 +66,13 @@ $(() => {
     }
   });
 
-  $('#sub-form input[type="text"]#title').on('change', () => {
-    updatePreview();
-  });
-
-  $('#sub-form input[type="text"]#title').on('keydown', () => {
-    if (typingTimer) clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => {
-      updatePreview();
-    }, typingWaitInterval);
-  });
-
   const editor = document.querySelector('.CodeMirror').CodeMirror;
 
   editor.on('change', () => {
-    updatePreview();
+    console.log('change');
+    if (waitTimer) clearTimeout(waitTimer);
+    waitTimer = setTimeout(() => {
+      updatePreview();
+    }, debounceInterval);
   });
 });
