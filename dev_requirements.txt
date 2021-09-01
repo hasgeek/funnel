@@ -18,7 +18,7 @@ pyupgrade==2.25.0
 sqlalchemy-stubs==0.4
 toml==0.10.2
 types-certifi==2020.4.0
-types-cryptography==3.3.3
+types-cryptography==3.3.5
 types-Flask==1.1.1
 types-geoip2==0.1.2
 types-itsdangerous==1.1.2
