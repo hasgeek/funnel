@@ -28,8 +28,7 @@ $(() => {
     $.modal.close();
   });
 
-  $('.js-switch-panel').on('click', (event) => {
-    event.preventDefault();
+  function closePreviewPanel() {
     const panel = $('.js-proposal-preview');
     const elems = $('.js-switch-panel');
     if (panel.hasClass('close')) {
@@ -39,6 +38,17 @@ $(() => {
     }
     panel.toggleClass('close');
     elems.toggleClass('mui--hide');
+  }
+
+  $('.js-switch-panel').on('click', (event) => {
+    event.preventDefault();
+    closePreviewPanel();
+  });
+
+  $('button[name="submit"]').on('click', () => {
+    if (!$('.js-proposal-preview').hasClass('close')) {
+      closePreviewPanel();
+    }
   });
 
   function updatePreview() {

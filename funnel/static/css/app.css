@@ -9994,10 +9994,10 @@ form.mui--bg-accent .CodeMirror {
     position: fixed;
     top: 16px;
     right: 16px;
-    z-index: 999;
+    z-index: 1000;
   }
   .post-form-block .comment-new-mobile {
-    font-size: 20px;
+    font-size: 18px;
     line-height: 1;
   }
 
