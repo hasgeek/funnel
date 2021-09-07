@@ -70,11 +70,6 @@
                     {{ renderfield(form.formlabels, css_class='label-select-fields top-padding active') }}
                   </div>
                 </div>
-                <div class="selected-label selected-label--noborder margin-top" id="label-select">
-                  {%- for label in proposal.labels %}
-                    <span class="label mui--text-caption mui--text-bold" data-labeltxt="{% if label.main_label %}{% if label.main_label.icon_emoji -%}{{ label.main_label.icon_emoji }} {{ label.main_label.title }}{% else -%}{{ label.main_label.title }}{% endif %}{% elif label.icon_emoji -%}{{ label.icon_emoji }} {{ label.title }}{% else -%}{{ label.title }}{% endif %}">{% if label.main_label %}{% if label.main_label.icon_emoji %}{{ label.main_label.icon_emoji }} {% endif %} {{ label.main_label.title }}: {% endif %}{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %} {{ label.title }}</span>
-                  {%- endfor %}
-                </div>
               </div>
               <div>
                 <a class="js-open-modal mui--text-light mui--text-caption   nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add submission label{% endtrans %}" data-ga="Add submission label">{{ faicon(icon='video-plus', icon_size='caption', baseline=true, css_class='mui--text-light link fa-icon--right-margin') }}{% trans %}Add link to video{% endtrans %} {%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</a>
@@ -83,13 +78,12 @@
                     {{ renderfield(form.video_url, css_class='top-padding') }}
                   </div>
                 </div>
-                <div class="js-embed-video margin-top">{% if proposal.video_url %} {{ proposal.video_url }} {% endif %}</div>
               </div>
             </div>
             {{ renderfield(form.body, css_class='mui-form__fields--noborder', nolabel=true, placeholder='Content') }}
           </div>
           <div class="grid__col-sm-6 proposal-preview js-proposal-preview close" id="preview">
-           {{ proposal.body }}
+            {{ proposal.body }}
           </div>
         </div>
       </div>
@@ -106,10 +100,4 @@
     window.Hasgeek.Config.markdownPreviewApi = {{ url_for('markdown_preview')|tojson }};
   </script>
   <script src="{{ built_asset('submission_form.js') }}" type="text/javascript"></script>
-  <script src="{{ built_asset('submission.js') }}" type="text/javascript"></script>
-  <script type="text/javascript">
-  $(function() {
-    window.Hasgeek.LabelsWidget();
-  });
-  </script>
 {% endblock %}

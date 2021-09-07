@@ -1,22 +1,6 @@
 $(() => {
-  let waitTimer;
+  let textareaWaitTimer;
   const debounceInterval = 1000;
-
-  function updatePreview() {
-    $.ajax({
-      type: 'POST',
-      url: window.Hasgeek.Config.markdownPreviewApi,
-      data: {
-        type: 'submission',
-        text: $('#body').val(),
-      },
-      dataType: 'json',
-      timeout: window.Hasgeek.Config.ajaxTimeout,
-      success(responseData) {
-        $('.js-proposal-preview').html(responseData.html);
-      },
-    });
-  }
 
   $('body').on('click', '.js-open-modal', function (event) {
     const field = $(this).next('.js-modal-field');
@@ -44,22 +28,6 @@ $(() => {
     $.modal.close();
   });
 
-  $('.js-close-form-modal').on('click', () => {
-    const videoUrl = $('#video_url').val();
-    if (videoUrl) {
-      $('.js-embed-video').text(videoUrl);
-    }
-  });
-
-  const editor = document.querySelector('.CodeMirror').CodeMirror;
-
-  editor.on('change', () => {
-    if (waitTimer) clearTimeout(waitTimer);
-    waitTimer = setTimeout(() => {
-      updatePreview();
-    }, debounceInterval);
-  });
-
   $('.js-switch-panel').on('click', (event) => {
     event.preventDefault();
     const panel = $('.js-proposal-preview');
@@ -73,24 +41,28 @@ $(() => {
     elems.toggleClass('mui--hide');
   });
 
-  /* Adding video preview
-  function addEmbedVideoPlayer() {
-    const videoUrl = $('.js-embed-video').data('video-src');
-    Video.embedIframe($('.js-embed-video')[0], videoUrl);
+  function updatePreview() {
+    $.ajax({
+      type: 'POST',
+      url: window.Hasgeek.Config.markdownPreviewApi,
+      data: {
+        type: 'submission',
+        text: $('#body').val(),
+      },
+      dataType: 'json',
+      timeout: window.Hasgeek.Config.ajaxTimeout,
+      success(responseData) {
+        $('.js-proposal-preview').html(responseData.html);
+      },
+    });
   }
 
-  if ($('.js-embed-video').data('video-src') > 0) {
-    addEmbedVideoPlayer();
-  }
+  const editor = document.querySelector('.CodeMirror').CodeMirror;
 
-  $('.js-close-form-modal').on('click', () => {
-    if ($('#video_url').val()) {
-      $('.js-embed-video')
-        .data('video-src', $('#video_url').val())
-        .removeClass('mui--hide');
-      $('.js-default-video-img').addClass('mui--hide');
-      addEmbedVideoPlayer();
-    }
+  editor.on('change', () => {
+    if (textareaWaitTimer) clearTimeout(textareaWaitTimer);
+    textareaWaitTimer = setTimeout(() => {
+      updatePreview();
+    }, debounceInterval);
   });
-  */
 });

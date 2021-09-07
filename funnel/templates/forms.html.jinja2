@@ -170,7 +170,7 @@
     {%- if field.type in ['CSRFTokenField', 'HiddenField', 'NonceField'] -%}
       {# Don't show hidden #}
     {%- else -%}
-      {{ renderfield(field, autofocus=autofocus.val, style=style) }}
+      {{ renderfield(field, autofocus=autofocus.val, style=style, placeholder=false) }}
       {%- if autofocus.val %}{% set autofocus.val = false %}{% endif %}
     {%- endif %}
   {% endfor %}
