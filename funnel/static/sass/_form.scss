@@ -585,6 +585,9 @@ form.mui--bg-accent .CodeMirror {
     .proposal-preview {
       display: block !important;
     }
+    .proposal-markdown {
+      border-right: 1px solid $mui-divider-color;
+    }
     .proposal-preview {
       position: static;
       padding-top: 19px;
