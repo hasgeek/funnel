@@ -1,16 +1,8 @@
-import { Video } from './util';
-
 $(() => {
   let waitTimer;
   const debounceInterval = 1000;
 
-  function addEmbedVideoPlayer() {
-    const videoUrl = $('.js-embed-video').data('video-src');
-    Video.embedIframe($('.js-embed-video')[0], videoUrl);
-  }
-
   function updatePreview() {
-    console.log('updatePreview');
     $.ajax({
       type: 'POST',
       url: window.Hasgeek.Config.markdownPreviewApi,
@@ -24,10 +16,6 @@ $(() => {
         $('.js-proposal-preview').html(responseData.html);
       },
     });
-  }
-
-  if ($('.js-embed-video').data('video-src') > 0) {
-    addEmbedVideoPlayer();
   }
 
   $('body').on('click', '.js-open-modal', function (event) {
@@ -57,6 +45,45 @@ $(() => {
   });
 
   $('.js-close-form-modal').on('click', () => {
+    const videoUrl = $('#video_url').val();
+    if (videoUrl) {
+      $('.js-embed-video').text(videoUrl);
+    }
+  });
+
+  const editor = document.querySelector('.CodeMirror').CodeMirror;
+
+  editor.on('change', () => {
+    if (waitTimer) clearTimeout(waitTimer);
+    waitTimer = setTimeout(() => {
+      updatePreview();
+    }, debounceInterval);
+  });
+
+  $('.js-switch-panel').on('click', (event) => {
+    event.preventDefault();
+    const panel = $('.js-proposal-preview');
+    const elems = $('.js-switch-panel');
+    if (panel.hasClass('close')) {
+      panel.animate({ top: '52' });
+    } else {
+      panel.animate({ top: '100vh' });
+    }
+    panel.toggleClass('close');
+    elems.toggleClass('mui--hide');
+  });
+
+  /* Adding video preview
+  function addEmbedVideoPlayer() {
+    const videoUrl = $('.js-embed-video').data('video-src');
+    Video.embedIframe($('.js-embed-video')[0], videoUrl);
+  }
+
+  if ($('.js-embed-video').data('video-src') > 0) {
+    addEmbedVideoPlayer();
+  }
+
+  $('.js-close-form-modal').on('click', () => {
     if ($('#video_url').val()) {
       $('.js-embed-video')
         .data('video-src', $('#video_url').val())
@@ -65,14 +92,5 @@ $(() => {
       addEmbedVideoPlayer();
     }
   });
-
-  const editor = document.querySelector('.CodeMirror').CodeMirror;
-
-  editor.on('change', () => {
-    console.log('change');
-    if (waitTimer) clearTimeout(waitTimer);
-    waitTimer = setTimeout(() => {
-      updatePreview();
-    }, debounceInterval);
-  });
+  */
 });

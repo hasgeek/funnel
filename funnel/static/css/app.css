@@ -7291,8 +7291,10 @@ a.loginbutton.hidden,
   padding-right: 16px;
 }
 .mobile-nav-wrapper .mobile-nav .mobile-nav__headline {
-  font-size: 22px;
+  font-size: 18px;
   line-height: 1;
+  position: relative;
+  top: -2px;
 }
 
 .tabs-wrapper {
@@ -8172,67 +8174,60 @@ form.mui--bg-accent .CodeMirror {
   display: block;
 }
 
-.submission-header {
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+.modal-form .mui-form__error {
+  color: #f04e45;
 }
-.submission-header .submission-header__column {
-  border-right: 1px solid rgba(132, 146, 166, 0.3);
-}
-.submission-header .submission-header__tabs {
-  width: 100%;
-}
-.submission-header .submission-header__tabs .submission-header__tabs__tab {
-  width: 50%;
-  text-align: center;
-}
-.submission-header .submission-header__tabs .submission-header__tabs__tab a {
-  padding: 0 8px;
-}
-.submission-header
-  .submission-header__tabs
-  .submission-header__tabs__tab--markdown {
-  text-align: left;
-}
-.submission-header .submission-header__submit {
+
+.submission-form .submission-header .submission-header__submit {
   position: fixed;
-  top: 8px;
+  top: 2px;
   right: 16px;
   z-index: 1001;
 }
-.submission-header .submission-header__edit-icons {
-  position: absolute;
-  right: -8px;
-  margin-right: 50%;
-  top: -36px;
+.submission-form
+  .submission-header
+  .submission-header__submit
+  .submission-header__submit__btn
+  .mui-btn {
+  padding: 0 8px;
+  background: none;
+  color: #0f73ed;
+  box-shadow: none;
 }
-
 .submission-form .CodeMirror {
   height: 100%;
 }
 .submission-form .proposal-preview {
-  margin-top: 50px;
+  position: fixed;
+  top: 100vh;
+  right: 0;
+  height: 100vh;
+  left: auto;
+  z-index: 999;
+  background: #ffffff;
+  padding-top: 16px;
 }
 
-@media (min-width: 368px) {
-  .submission-header
-    .submission-header__tabs
-    .submission-header__tabs__tab--markdown {
-    text-align: center;
-  }
-}
 @media (min-width: 768px) {
-  .submission-header {
+  .submission-form .submission-header {
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
     padding: 8px 0;
+    margin-bottom: 16px;
   }
-  .submission-header .submission-header__submit,
-  .submission-header .submission-header__edit-icons {
+  .submission-form .submission-header .submission-header__submit {
     position: static;
-    margin-right: 0;
+    align-items: center;
+    justify-content: space-between;
   }
-
-  .proposal-markdown,
-  .proposal-preview {
+  .submission-form .submission-header .submission-header__column {
+    border-right: 1px solid rgba(132, 146, 166, 0.3);
+  }
+  .submission-form .proposal-markdown,
+  .submission-form .proposal-preview {
     display: block !important;
+  }
+  .submission-form .proposal-preview {
+    position: static;
   }
 }
 .card--banner {

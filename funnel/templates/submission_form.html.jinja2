@@ -12,7 +12,8 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{{ title }}</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon js-switch-panel" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline js-switch-panel">{{ title }}</span>
+      <a aria-label="{% trans %}Back to edit proposal{% endtrans %}" class="mui--text-dark mobile-nav__icon js-switch-panel mui--hide" data-ga="Back to the edit proposal">{{ faicon(icon='times', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline js-switch-panel mui--hide">{% trans %}Edit{% endtrans %}</span>
     </div>
   </div>
 {% endblock %}
@@ -21,10 +22,10 @@
   <div class="js-modal-container">
     <div class="mui-container">
       <div class="grid">
-        <div class="grid__col-sm-12 grid__col-md-10 grid__col-lg-6">
-          <h1 class="mui--text-title margin-bottom bottom-padding"><a href="{{ project.url_for() }}" class="mui--text-dark nounderline" data-cy="project-page">{{ project.title }}</a></h1>
+        <div class="grid__col-sm-12">
+          <h1 class="mui--text-title margin-top margin-bottom"><a href="{{ project.url_for() }}" class="mui--text-dark mui--text-light nounderline mui--text-caption" data-cy="project-page">{{ project.title }}</a></h1>
           {%- if form.errors %}
-            <div class="alert alert--error alert--dismissable">
+            <div class="alert alert--error alert--dismissable margin-bottom">
               <a class="alert__close" href="javascript:void(0);"  data-target="close flash message" aria-label="close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
               <p class="alert__text">{{ faicon(icon='exclamation-circle') }} {% trans %}Please review the indicated issues{% endtrans %}</p>
             </div>
@@ -32,59 +33,26 @@
         </div>
       </div>
     </div>
-    <form class="mui-form submission-form margin-top" id="sub-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8">
+    <form class="mui-form submission-form" id="sub-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8">
       {{ form.hidden_tag() }}
-      <div class="mui-container">
-        <div class="grid">
-          <div class="grid__col-sm-12">
-            {{ renderfield(form.title, css_class='mui-form__fields--noborder') }}
-            {%- for error in form.title.errors %}
-              <div><p class="mui-form__error">{{ error }}</p></div>
-            {%- endfor %}
-          </div>
-        </div>
-      </div>
       <div class="submission-header">
         <div class="mui-container">
           <div class="grid flex-wrapper--center">
-            <ul class="mui-tabs__bar mui--visible-xs-block mui--visible-sm-block submission-header__tabs">
-              <li class="mui--is-active submission-header__tabs__tab submission-header__tabs__tab--markdown"><a data-mui-toggle="tab" data-mui-controls="markdown">{% trans %}Markdown{% endtrans %}</a></li>
-              <li class="submission-header__tabs__tab"><a data-mui-toggle="tab" data-mui-controls="preview">{% trans %}Preview{% endtrans %}</a></li>
-            </ul>
             <div class="grid__col-sm-6 submission-header__column">
               <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between">
                 <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Markdown{% endtrans %}</p>
-                <div class="submission-header__edit-icons">
-                  <a role="button" aria-haspopup="true" class="link-icon js-open-modal" aria-label="{% trans %}Add submission video{% endtrans %}" data-ga="Add submission video">{{ faicon(icon='video-plus', baseline=false, css_class='mui--text-light link') }}</a>
-                  <div class="js-modal-field mui--hide">
-                    <div class="js-field top-padding">
-                      {{ renderfield(form.video_url, css_class='top-padding') }}
-                      {%- for error in form.video_url.errors %}
-                        <div><p class="mui-form__error">{{ error }}</p></div>
-                      {%- endfor %}
-                    </div>
-                  </div>
-                  <a role="button" aria-haspopup="true" aria-label="{% trans %}Add submission label{% endtrans %}" data-ga="Add submission label" class="link-icon js-open-modal">{{ faicon(icon='tag-solid', icon_size='caption', css_class='mui--text-light link') }}</a>
-                  <div class="js-modal-field mui--hide ">
-                    <div class="js-field top-padding">
-                      {{ renderfield(form.formlabels, css_class='label-select-fields top-padding active') }}
-                      {%- for error in form.formlabels.errors %}
-                        <div><p class="mui-form__error">{{ error }}</p></div>
-                      {%- endfor %}
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
             <div class="grid__col-sm-6">
-              <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between">
-                <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Preview{% endtrans %}</p>
-                <div class="mui-form mui--clearfix submission-header__submit">
-                  <div class="mui--pull-right">
-                    <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin" data-cy-submit="save-label">{% trans %}Submit{% endtrans %}</button>
-                    <span class="loading mui--hide"></span>
-                  </div>
+              <div class="flex-wrapper submission-header__submit">
+                <div class="mui--visible-xs-block mui--visible-sm-block submission-header__submit__btn">
+                  <a class="mui-btn js-switch-panel link" data-cy="preview">{% trans %}Preview{% endtrans %}</a>
+                  <a class="mui-btn js-switch-panel mui--hide link" data-cy="edit">{% trans %}Edit{% endtrans %}</a>
+                  <button type="submit" name="submit" class="mui-btn" data-cy="submit">{% trans %}Submit{% endtrans %}</button>
                 </div>
+                <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Preview{% endtrans %}</p>
+                <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin mui--hidden-xs mui--hidden-sm" data-cy="submit">{% trans %}Submit{% endtrans %}</button>
+                <span class="loading mui--hide"></span>
               </div>
             </div>
           </div>
@@ -92,13 +60,35 @@
       </div>
       <div class="mui-container">
         <div class="grid">
-          <div class="grid__col-sm-6 proposal-markdown submission-header__column mui-tabs__pane mui--is-active" id="markdown">
-            {{ renderfield(form.body, css_class='mui-form__fields--noborder') }}
-            {%- for error in form.body.errors %}
-              <div><p class="mui-form__error">{{ error }}</p></div>
-            {%- endfor %}
+          <div class="grid__col-sm-6 proposal-markdown submission-header__column" id="markdown">
+            {{ renderfield(form.title, css_class='mui-form__fields--noborder', nolabel=true, placeholder='Title') }}
+            <div class="submission-header__edit-icons">
+              <div class="bottom-padding">
+                <a class="js-open-modal mui--text-light mui--text-caption nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add labels to submission{% endtrans %}" data-ga="Add label to submission video">{{ faicon(icon='tag-solid', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Select a relevant label{% endtrans %}  {%- if form.formlabels.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</a>
+                <div class="js-modal-field mui--hide">
+                  <div class="js-field top-padding">
+                    {{ renderfield(form.formlabels, css_class='label-select-fields top-padding active') }}
+                  </div>
+                </div>
+                <div class="selected-label selected-label--noborder margin-top" id="label-select">
+                  {%- for label in proposal.labels %}
+                    <span class="label mui--text-caption mui--text-bold" data-labeltxt="{% if label.main_label %}{% if label.main_label.icon_emoji -%}{{ label.main_label.icon_emoji }} {{ label.main_label.title }}{% else -%}{{ label.main_label.title }}{% endif %}{% elif label.icon_emoji -%}{{ label.icon_emoji }} {{ label.title }}{% else -%}{{ label.title }}{% endif %}">{% if label.main_label %}{% if label.main_label.icon_emoji %}{{ label.main_label.icon_emoji }} {% endif %} {{ label.main_label.title }}: {% endif %}{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %} {{ label.title }}</span>
+                  {%- endfor %}
+                </div>
+              </div>
+              <div>
+                <a class="js-open-modal mui--text-light mui--text-caption   nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add submission label{% endtrans %}" data-ga="Add submission label">{{ faicon(icon='video-plus', icon_size='caption', baseline=true, css_class='mui--text-light link fa-icon--right-margin') }}{% trans %}Add link to video{% endtrans %} {%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</a>
+                <div class="js-modal-field mui--hide ">
+                  <div class="js-field top-padding">
+                    {{ renderfield(form.video_url, css_class='top-padding') }}
+                  </div>
+                </div>
+                <div class="js-embed-video margin-top">{% if proposal.video_url %} {{ proposal.video_url }} {% endif %}</div>
+              </div>
+            </div>
+            {{ renderfield(form.body, css_class='mui-form__fields--noborder', nolabel=true, placeholder='Content') }}
           </div>
-          <div class="grid__col-sm-6 proposal-preview js-proposal-preview mui-tabs__pane" id="preview">
+          <div class="grid__col-sm-6 proposal-preview js-proposal-preview close" id="preview">
            {{ proposal.body }}
           </div>
         </div>
