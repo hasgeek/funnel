@@ -23,7 +23,7 @@
     <div class="mui-container">
       <div class="grid">
         <div class="grid__col-sm-12">
-          <h1 class="mui--text-title margin-top margin-bottom"><a href="{{ project.url_for() }}" class="mui--text-dark mui--text-light nounderline mui--text-caption" data-cy="project-page">{{ project.title }}</a></h1>
+          <h1 class="project-form-title margin-top margin-bottom"><a href="{{ project.url_for() }}" class="mui--text-dark mui--text-light nounderline" data-cy="project-page">{{ project.title }}</a></h1>
           {%- if form.errors %}
             <div class="alert alert--error alert--dismissable margin-bottom">
               <a class="alert__close" href="javascript:void(0);"  data-target="close flash message" aria-label="close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>

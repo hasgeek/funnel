@@ -487,34 +487,13 @@
   }
 }
 
-.form-video-box {
-  border-radius: 16px;
-  border: solid 1px $mui-bg-color-primary-dark;
-  padding: $mui-grid-padding $mui-grid-padding 64px;
-  position: relative;
-  .form-video-box__btn {
-    position: absolute;
-    bottom: $mui-grid-padding;
-    right: $mui-grid-padding;
-    z-index: 2;
-  }
-  .form-video-box__youtube {
-    position: absolute;
-    bottom: $mui-grid-padding;
-    right: 62px;
-    z-index: 2;
-    .form-video-box__youtube__icon {
-      color: #f00;
-    }
-  }
-  .form-video-box__vimeo {
-    position: absolute;
-    bottom: $mui-grid-padding;
-    right: $mui-grid-padding;
-    z-index: 2;
-    .form-video-box__vimeo__icon {
-      color: #86c9ef;
-    }
+.project-form-title {
+  font-size: 18px;
+}
+
+@media (min-width: 768px) {
+  .project-form-title {
+    font-size: 20px;
   }
 }
 
@@ -551,7 +530,7 @@ form.mui--bg-accent .CodeMirror {
       }
     }
   }
-  .CodeMirror {
+  #field-body .CodeMirror {
     height: 100%;
   }
   .proposal-preview {

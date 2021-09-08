@@ -75,4 +75,19 @@ $(() => {
       updatePreview();
     }, debounceInterval);
   });
+
+  function removeLineBreaks(text) {
+    return text.replace(/(\r\n|\n|\r)/gm, ' ').replace(/\s+/g, ' ');
+  }
+
+  $('#title')
+    .keypress((event) => {
+      if (event.which === 13) return false;
+      return true;
+    })
+    .blur((event) => {
+      return $(event.currentTarget).val(
+        removeLineBreaks($(event.currentTarget).val())
+      );
+    });
 });

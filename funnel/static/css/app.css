@@ -8131,37 +8131,15 @@ a.loginbutton.hidden,
   background-color: #ffffff !important;
 }
 
-.form-video-box {
-  border-radius: 16px;
-  border: solid 1px #f1f1f1;
-  padding: 16px 16px 64px;
-  position: relative;
-}
-.form-video-box .form-video-box__btn {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  z-index: 2;
-}
-.form-video-box .form-video-box__youtube {
-  position: absolute;
-  bottom: 16px;
-  right: 62px;
-  z-index: 2;
-}
-.form-video-box .form-video-box__youtube .form-video-box__youtube__icon {
-  color: #f00;
-}
-.form-video-box .form-video-box__vimeo {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  z-index: 2;
-}
-.form-video-box .form-video-box__vimeo .form-video-box__vimeo__icon {
-  color: #86c9ef;
+.project-form-title {
+  font-size: 18px;
 }
 
+@media (min-width: 768px) {
+  .project-form-title {
+    font-size: 20px;
+  }
+}
 form.mui--bg-accent .CodeMirror {
   background: #f9f9f9;
 }
@@ -8194,7 +8172,7 @@ form.mui--bg-accent .CodeMirror {
   color: #0f73ed;
   box-shadow: none;
 }
-.submission-form .CodeMirror {
+.submission-form #field-body .CodeMirror {
   height: 100%;
 }
 .submission-form .proposal-preview {
