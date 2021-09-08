@@ -51,6 +51,11 @@ $(() => {
     }
   });
 
+  $.listen('parsley:field:error', (fieldInstance) => {
+    if (fieldInstance.$element.data('parsley-multiple'))
+      $('.label-error-icon').removeClass('mui--hide');
+  });
+
   function updatePreview() {
     $.ajax({
       type: 'POST',

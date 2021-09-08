@@ -23,7 +23,7 @@
     <div class="mui-container">
       <div class="grid">
         <div class="grid__col-sm-12">
-          <h1 class="project-form-title margin-top margin-bottom"><a href="{{ project.url_for() }}" class="mui--text-dark mui--text-light nounderline" data-cy="project-page">{{ project.title }}</a></h1>
+          <h1 class="mui--text-body2 margin-top margin-bottom"><a href="{{ project.url_for() }}" class="mui--text-dark mui--text-light nounderline" data-cy="project-page">{{ project.title }}</a></h1>
           {%- if form.errors %}
             <div class="alert alert--error alert--dismissable margin-bottom">
               <a class="alert__close" href="javascript:void(0);"  data-target="close flash message" aria-label="close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
@@ -65,7 +65,7 @@
             <div class="submission-header__edit-icons">
               <div class="bottom-padding">
                 {%- if form.formlabels %}
-                  <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add labels to submission{% endtrans %}" data-ga="Add label to submission video" data-cy="add-label">{{ faicon(icon='tag-solid', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Label{% endtrans %}</span><span class="mui--pull-right">{% trans %}Select a relevant label{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=true, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.formlabels.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</a>
+                  <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add labels to submission{% endtrans %}" data-ga="Add label to submission video" data-cy="add-label">{{ faicon(icon='tag-solid', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Label{% endtrans %}</span><span class="mui--pull-right">{% trans %}Select a relevant label{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=true, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.formlabels.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='label-error-icon mui--text-danger fa-icon--left-margin') }}{%- else %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='label-error-icon mui--text-danger fa-icon--left-margin mui--hide') }}{%- endif %}</a>
                   <div class="js-modal-field mui--hide">
                     <div class="js-field top-padding">
                       {{ renderfield(form.formlabels, css_class='label-select-fields top-padding active') }}

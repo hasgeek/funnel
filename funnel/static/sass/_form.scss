@@ -530,6 +530,9 @@ form.mui--bg-accent .CodeMirror {
       }
     }
   }
+  #title {
+    font-size: 18px;
+  }
   #field-body .CodeMirror {
     height: 100%;
   }
@@ -559,6 +562,9 @@ form.mui--bg-accent .CodeMirror {
       .submission-header__column {
         border-right: 1px solid $mui-divider-color;
       }
+    }
+    #title {
+      font-size: 20px;
     }
     .proposal-markdown,
     .proposal-preview {
