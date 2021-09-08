@@ -513,27 +513,29 @@ export const Utils = {
       ];
       let vegaliteUrl = 0;
       const loadVegaScript = () => {
-        $.getScript({ url: vegaliteCDN[vegaliteUrl], cache: true }).success(
-          () => {
-            if (vegaliteUrl < vegaliteCDN.length) {
-              vegaliteUrl += 1;
-              loadVegaScript();
-            }
-            // Once all vega js is loaded, initialize vega visualization on all pre tags with class 'language-vega-lite'
-            if (vegaliteUrl === vegaliteCDN.length) {
-              $('.language-vega-lite').each(function embedVegaChart() {
-                vegaEmbed(this, JSON.parse($(this).find('code').text()), {
-                  renderer: 'svg',
-                  actions: {
-                    source: false,
-                    editor: false,
-                    compiled: false,
-                  },
-                });
-              });
-            }
+        $.ajax({
+          url: vegaliteCDN[vegaliteUrl],
+          dataType: 'script',
+          cache: true,
+        }).done(() => {
+          if (vegaliteUrl < vegaliteCDN.length) {
+            vegaliteUrl += 1;
+            loadVegaScript();
           }
-        );
+          // Once all vega js is loaded, initialize vega visualization on all pre tags with class 'language-vega-lite'
+          if (vegaliteUrl === vegaliteCDN.length) {
+            $('.language-vega-lite').each(function embedVegaChart() {
+              vegaEmbed(this, JSON.parse($(this).find('code').text()), {
+                renderer: 'svg',
+                actions: {
+                  source: false,
+                  editor: false,
+                  compiled: false,
+                },
+              });
+            });
+          }
+        });
       };
       loadVegaScript();
     }
