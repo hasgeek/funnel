@@ -125,7 +125,6 @@ describe('Add CFP and labels to project', () => {
 
     cy.get('.ui-draggable-box').then(($target) => {
       boxCoords = $target[1].getBoundingClientRect();
-      console.log(boxCoords);
       cy.get('.ui-draggable-box')
         .eq(0)
         .find('.drag-handle')

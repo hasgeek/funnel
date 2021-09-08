@@ -1,6 +1,6 @@
 {% set current_page = 'proposal' %}
 {% extends "project_layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import embed_video_player, video_action_bar, useravatar, share_dropdown, proposal_card, csrf_tag, proposal_body %}
+{%- from "macros.html.jinja2" import embed_video_player, video_action_bar, useravatar, share_dropdown, proposal_card, csrf_tag %}
 {%- from "js/comments.js.jinja2" import comments_tree, comment_template %}
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}{{ proposal.description }}{% endblock %}
@@ -155,9 +155,7 @@
                     {{ faicon(icon='video-slash', icon_size='headline', baseline=false, css_class='mui-text-light') }}
                     <p class="mui-text-light mui--text-body2">{% trans %}No video{% endtrans %}</p>
                   </div>
-                  {% if not preview %}
-                    <p><a href="{{ proposal.url_for('edit') }}#field-video" class="mui-btn mui-btn--raised icon-btn details__box__video__add-btn" aria-label="{% trans %}Add video{% endtrans %}">{{ faicon(icon='video-plus', baseline=false) }}</a></p>
-                  {% endif %}
+                  <p><a href="{{ proposal.url_for('edit') }}#field-video" class="mui-btn mui-btn--raised icon-btn details__box__video__add-btn" aria-label="{% trans %}Add video{% endtrans %}">{{ faicon(icon='video-plus', baseline=false) }}</a></p>
                 </div>
               </div>
             {% endif %}
