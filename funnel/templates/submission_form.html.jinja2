@@ -33,7 +33,7 @@
         </div>
       </div>
     </div>
-    <form class="mui-form submission-form" id="sub-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8">
+    <form class="mui-form submission-form" id="sub-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" data-parsley-validate="true">
       {{ form.hidden_tag() }}
       <div class="submission-header">
         <div class="mui-container">
@@ -51,7 +51,7 @@
                   <button type="submit" name="submit" class="mui-btn" data-cy="submit">{% trans %}Submit{% endtrans %}</button>
                 </div>
                 <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Preview{% endtrans %}</p>
-                <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin mui--hidden-xs mui--hidden-sm" data-cy="submit">{% trans %}Submit{% endtrans %}</button>
+                <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin mui--hidden-xs mui--hidden-sm" data-cy="form-submit-btn">{% trans %}Submit{% endtrans %}</button>
                 <span class="loading mui--hide"></span>
               </div>
             </div>
@@ -65,7 +65,7 @@
             <div class="submission-header__edit-icons">
               <div class="bottom-padding">
                 {%- if form.formlabels %}
-                  <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add labels to submission{% endtrans %}" data-ga="Add label to submission video">{{ faicon(icon='tag-solid', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Label{% endtrans %}</span><span class="mui--pull-right">{% trans %}Select a relevant label{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=true, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.formlabels.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</a>
+                  <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add labels to submission{% endtrans %}" data-ga="Add label to submission video" data-cy="add-label">{{ faicon(icon='tag-solid', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Label{% endtrans %}</span><span class="mui--pull-right">{% trans %}Select a relevant label{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=true, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.formlabels.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</a>
                   <div class="js-modal-field mui--hide">
                     <div class="js-field top-padding">
                       {{ renderfield(form.formlabels, css_class='label-select-fields top-padding active') }}
@@ -74,7 +74,7 @@
                 {%- endif %}
               </div>
               <div>
-                <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add submission label{% endtrans %}" data-ga="Add submission label">{{ faicon(icon='video-plus', icon_size='caption', baseline=true, css_class='mui--text-light link fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Video url{% endtrans %}</span><span class="mui--pull-right">{% trans %}Add link to video{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</span></a>
+                <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add submission label{% endtrans %}" data-ga="Add submission label" data-cy="add-video">{{ faicon(icon='video-plus', icon_size='caption', baseline=true, css_class='mui--text-light link fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Video url{% endtrans %}</span><span class="mui--pull-right">{% trans %}Add link to video{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</span></a>
                 <div class="js-modal-field mui--hide ">
                   <div class="js-field top-padding">
                     {{ renderfield(form.video_url, css_class='top-padding') }}
@@ -92,7 +92,7 @@
     </form>
     <div class="modal-form">
       <a class="modal__close mui--text-dark js-close-form-modal" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0)" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-      <button class="mui-btn mui-btn--raised mui-btn--primary js-close-form-modal js-save-modal" rel="modal:close">Save</button>
+      <button class="mui-btn mui-btn--raised mui-btn--primary js-close-form-modal js-save-modal" rel="modal:close" data-cy="save">Save</button>
     </div>
   </div>
 {% endblock %}
@@ -101,5 +101,6 @@
   <script type="text/javascript">
     window.Hasgeek.Config.markdownPreviewApi = {{ url_for('markdown_preview')|tojson }};
   </script>
+  <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
   <script src="{{ built_asset('submission_form.js') }}" type="text/javascript"></script>
 {% endblock %}
