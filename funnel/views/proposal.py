@@ -72,7 +72,7 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             return redirect(self.obj.url_for(), code=303)
 
         form = ProposalForm(model=Proposal, parent=self.obj)
-        proposal = ''
+        proposal: Proposal = None
 
         if form.validate_on_submit():
             proposal = Proposal(user=current_auth.user, project=self.obj)
@@ -91,10 +91,10 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             return redirect(proposal.url_for(), code=303)
 
         return {
-            'title': "New submission",
+            'title': _("New submission"),
             'form': form,
             'project': self.obj,
-            'proposal': proposal if proposal else '',
+            'proposal': proposal,
         }
 
     @route('sub/reorder', methods=['POST'])
@@ -178,7 +178,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.url_for(), code=303)
         return {
-            'title': "Edit submission",
+            'title': _("Edit submission"),
             'form': form,
             'project': self.obj.project,
             'proposal': self.obj,
