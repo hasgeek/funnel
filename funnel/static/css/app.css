@@ -8172,8 +8172,17 @@ form.mui--bg-accent .CodeMirror {
   color: #0f73ed;
   box-shadow: none;
 }
+.submission-form .mui-form__fields {
+  margin-bottom: 0;
+}
+.submission-form #title {
+  font-size: 18px;
+  min-height: auto;
+  height: auto;
+  resize: none !important;
+}
 .submission-form #field-body .CodeMirror {
-  height: 100%;
+  height: calc(100vh - 110px);
 }
 .submission-form .proposal-preview {
   position: fixed;
@@ -8184,6 +8193,10 @@ form.mui--bg-accent .CodeMirror {
   z-index: 999;
   background: #ffffff;
   padding-top: 16px;
+}
+
+.modal-form .mui-textfield {
+  margin-bottom: 0;
 }
 
 @media (min-width: 768px) {
@@ -8200,9 +8213,8 @@ form.mui--bg-accent .CodeMirror {
   .submission-form .submission-header .submission-header__column {
     border-right: 1px solid rgba(132, 146, 166, 0.3);
   }
-  .submission-form .proposal-markdown,
-  .submission-form .proposal-preview {
-    display: block !important;
+  .submission-form #title {
+    font-size: 20px;
   }
   .submission-form .proposal-markdown {
     border-right: 1px solid rgba(132, 146, 166, 0.3);

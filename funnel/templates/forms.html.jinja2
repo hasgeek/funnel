@@ -8,7 +8,7 @@
     {%- endif %}
 {%- endmacro %}
 
-{% macro renderfield(field, css_class="", widget_css_class="", sidetext=none, tabindex=none, autofocus=false, nolabel=false, style='horiz', rows=none, placeholder="") -%}
+{% macro renderfield(field, css_class="", widget_css_class="", sidetext=none, tabindex=none, autofocus=false, nolabel=false, style='horiz', rows=none, placeholder=none) -%}
   {%- if field.widget.html_tag in ['ul', 'ol'] %}
     {%- set listwidget = true %}
   {%- elif field.widget.input_type == 'checkbox' %}
@@ -170,7 +170,7 @@
     {%- if field.type in ['CSRFTokenField', 'HiddenField', 'NonceField'] -%}
       {# Don't show hidden #}
     {%- else -%}
-      {{ renderfield(field, autofocus=autofocus.val, style=style, placeholder=false) }}
+      {{ renderfield(field, autofocus=autofocus.val, style=style) }}
       {%- if autofocus.val %}{% set autofocus.val = false %}{% endif %}
     {%- endif %}
   {% endfor %}
