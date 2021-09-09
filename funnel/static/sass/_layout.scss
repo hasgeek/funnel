@@ -22,6 +22,10 @@
   margin-left: $mui-grid-padding/2;
 }
 
+.margin-auto {
+  margin: auto;
+}
+
 .zero-padding {
   padding: 0 !important;
 }
@@ -599,13 +603,21 @@ html.touch .collapsible__body--disable {
     display: block;
   }
 
-  .no-video {
+  .embed-video-wrapper__video-icon {
     position: absolute;
     top: 50%;
     left: 50%;
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
-    font-size: 32px;
+    font-size: 56px;
+    color: $mui-text-white;
+    z-index: 2;
+  }
+  .embed-video-wrapper__img {
+    position: absolute;
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
   }
 }
 
