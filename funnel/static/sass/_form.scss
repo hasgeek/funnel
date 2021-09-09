@@ -531,7 +531,7 @@ form.mui--bg-accent .CodeMirror {
     }
   }
   .mui-form__fields {
-    margin-bottom: 0;
+    margin-bottom: $mui-grid-padding/4;
   }
   #title {
     font-size: 18px;
