@@ -1,3 +1,5 @@
+import { Utils } from './util';
+
 $(() => {
   let textareaWaitTimer;
   const debounceInterval = 1000;
@@ -68,6 +70,7 @@ $(() => {
       timeout: window.Hasgeek.Config.ajaxTimeout,
       success(responseData) {
         $('.js-proposal-preview').html(responseData.html);
+        Utils.addVegaSupport();
       },
     });
   }
