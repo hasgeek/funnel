@@ -1,6 +1,6 @@
 import { Utils } from './util';
 
-export const Proposal = {
+export const Submission = {
   init() {
     $('.js-subscribe-btn').on('click', function subscribeComments(event) {
       event.preventDefault();
@@ -61,7 +61,7 @@ export const LabelsWidget = {
       Widget.updateLabels(labelTxt, attr, this.checked);
     });
 
-    $('.add-label-form input[type="checkbox"]').change(
+    $('.mui-checkbox input[type="checkbox"]').change(
       function clickLabelCheckbox() {
         const labelTxt = Widget.getLabelTxt($(this).parent('label').text());
         Widget.updateLabels(labelTxt, labelTxt, this.checked);
@@ -111,6 +111,6 @@ export const LabelsWidget = {
 };
 
 $(() => {
-  window.Hasgeek.ProposalInit = Proposal.init.bind(Proposal);
+  window.Hasgeek.SubmissionInit = Submission.init.bind(Submission);
   window.Hasgeek.LabelsWidget = LabelsWidget.init.bind(LabelsWidget);
 });

@@ -121,6 +121,8 @@ describe('Add CFP and labels to project', () => {
       });
     });
 
+    cy.wait(1000);
+
     cy.get('.ui-draggable-box').then(($target) => {
       boxCoords = $target[1].getBoundingClientRect();
       cy.get('.ui-draggable-box')
