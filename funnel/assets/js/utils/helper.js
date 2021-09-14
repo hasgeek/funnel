@@ -1,12 +1,7 @@
-/* global gettext, vegaEmbed */
+/* global gettext, ga */
+import Form from './formhelper';
 
-import * as timeago from 'timeago.js';
-/* eslint camelcase: ["error", {allow: ["hi_IN"]}] */
-import hi_IN from 'timeago.js/lib/lang/hi_IN';
-import Gettext from './gettext';
-
-/* global ga */
-export const Utils = {
+const Utils = {
   // convert array of objects into hashmap
   tohashMap(objectArray, key) {
     const hashMap = {};
@@ -75,6 +70,14 @@ export const Utils = {
         }
       });
     }
+  },
+  popupBackHandler() {
+    $('.js-popup-back').on('click', (event) => {
+      if (document.referrer !== '') {
+        event.preventDefault();
+        window.history.back();
+      }
+    });
   },
   navSearchForm() {
     $('.js-search-show').on('click', function toggleSearchForm(event) {
@@ -299,90 +302,6 @@ export const Utils = {
       }
     });
   },
-  getElementId(htmlString) {
-    return htmlString.match(/id="(.*?)"/)[1];
-  },
-  getResponseError(response) {
-    let errorMsg = '';
-
-    // Add server error strings for translations in server_error.js.jinja2
-    if (response.readyState === 4) {
-      if (response.status === 500) {
-        errorMsg = window.Hasgeek.Config.errorMsg.serverError;
-      } else if (
-        response.status === 422 &&
-        response.responseJSON.error === 'requires_sudo'
-      ) {
-        window.location.href = `${
-          window.Hasgeek.Config.accountSudo
-        }?next=${encodeURIComponent(window.location.href)}`;
-      } else {
-        errorMsg = response.responseJSON.error_description;
-      }
-    } else {
-      errorMsg = window.Hasgeek.Config.errorMsg.networkError;
-    }
-    return errorMsg;
-  },
-  handleAjaxError(errorResponse) {
-    Utils.updateFormNonce(errorResponse.responseJSON);
-    const errorMsg = Utils.getResponseError(errorResponse);
-    window.toastr.error(errorMsg);
-    return errorMsg;
-  },
-  formErrorHandler(formId, errorResponse) {
-    $(`#${formId}`).find('button[type="submit"]').attr('disabled', false);
-    $(`#${formId}`).find('.loading').addClass('mui--hide');
-    return Utils.handleAjaxError(errorResponse);
-  },
-  getActionUrl(formId) {
-    return $(`#${formId}`).attr('action');
-  },
-  updateFormNonce(response) {
-    if (response && response.form_nonce) {
-      $('input[name="form_nonce"]').val(response.form_nonce);
-    }
-  },
-  popupBackHandler() {
-    $('.js-popup-back').on('click', (event) => {
-      if (document.referrer !== '') {
-        event.preventDefault();
-        window.history.back();
-      }
-    });
-  },
-  handleModalForm() {
-    $('.js-modal-form').click(function addModalToWindowHash() {
-      window.location.hash = $(this).data('hash');
-    });
-
-    $('body').on($.modal.BEFORE_CLOSE, () => {
-      if (window.location.hash) {
-        window.history.replaceState(
-          '',
-          '',
-          window.location.pathname + window.location.search
-        );
-      }
-    });
-
-    window.addEventListener(
-      'hashchange',
-      () => {
-        if (window.location.hash === '') {
-          $.modal.close();
-        }
-      },
-      false
-    );
-
-    const hashId = window.location.hash.split('#')[1];
-    if (hashId) {
-      if ($(`a.js-modal-form[data-hash="${hashId}"]`).length) {
-        $(`a[data-hash="${hashId}"]`).click();
-      }
-    }
-  },
   setNotifyIcon(unread) {
     if (unread) {
       $('.header__nav-links--updates').addClass(
@@ -451,28 +370,6 @@ export const Utils = {
     }
     return headerHeight;
   },
-  getLocale() {
-    // Instantiate i18n with browser context
-    const { lang } = document.documentElement;
-    const langShortForm = lang.substring(0, 2);
-    window.Hasgeek.Config.locale =
-      window.Hasgeek.Config.availableLanguages[langShortForm];
-    return window.Hasgeek.Config.locale;
-  },
-  loadLangTranslations() {
-    Utils.getLocale();
-
-    window.i18n = new Gettext({
-      translatedLang: window.Hasgeek.Config.locale,
-    });
-    window.gettext = window.i18n.gettext.bind(window.i18n);
-    window.ngettext = window.i18n.ngettext.bind(window.i18n);
-  },
-  getTimeago() {
-    // en_US and zh_CN are built in timeago, other languages requires to be registered.
-    timeago.register('hi_IN', hi_IN);
-    return timeago;
-  },
   activateToggleSwitch() {
     $('.js-toggle').on('change', function submitToggleSwitch() {
       const checkbox = $(this);
@@ -494,7 +391,7 @@ export const Utils = {
           }
         },
         error(response) {
-          Utils.handleAjaxError(response);
+          Form.handleAjaxError(response);
           $(checkbox).prop('checked', previousState);
         },
       });
@@ -504,269 +401,6 @@ export const Utils = {
       event.stopPropagation();
     });
   },
-  addVegaSupport() {
-    if ($('.language-vega-lite').length > 0) {
-      const vegaliteCDN = [
-        'https://cdn.jsdelivr.net/npm/vega@5',
-        'https://cdn.jsdelivr.net/npm/vega-lite@5',
-        'https://cdn.jsdelivr.net/npm/vega-embed@6',
-      ];
-      let vegaliteUrl = 0;
-      const loadVegaScript = () => {
-        $.ajax({
-          url: vegaliteCDN[vegaliteUrl],
-          dataType: 'script',
-          cache: true,
-        }).done(() => {
-          if (vegaliteUrl < vegaliteCDN.length) {
-            vegaliteUrl += 1;
-            loadVegaScript();
-          }
-          // Once all vega js is loaded, initialize vega visualization on all pre tags with class 'language-vega-lite'
-          if (vegaliteUrl === vegaliteCDN.length) {
-            $('.language-vega-lite').each(function embedVegaChart() {
-              vegaEmbed(this, JSON.parse($(this).find('code').text()), {
-                renderer: 'svg',
-                actions: {
-                  source: false,
-                  editor: false,
-                  compiled: false,
-                },
-              });
-            });
-          }
-        });
-      };
-      loadVegaScript();
-    }
-  },
 };
 
-export const ScrollActiveMenu = {
-  init(navId, navItemsClassName, activeMenuClassName) {
-    this.navId = navId;
-    this.navItemsClassName = navItemsClassName;
-    this.activeMenuClassName = activeMenuClassName;
-    this.navItems = [...document.querySelectorAll(`.${navItemsClassName}`)];
-    this.headings = this.navItems.map((navItem) => {
-      if (navItem.classList.contains('js-samepage')) {
-        return document.querySelector(navItem.getAttribute('href'));
-      }
-
-      return false;
-    });
-    this.handleObserver = this.handleObserver.bind(this);
-    this.headings.forEach((heading) => {
-      if (heading) {
-        const threshold =
-          heading.offsetHeight / window.innerHeight > 1
-            ? 0.1
-            : heading.offsetHeight / window.innerHeight;
-        const observer = new IntersectionObserver(this.handleObserver, {
-          rootMargin: '0px',
-          threshold,
-        });
-        observer.observe(heading);
-      }
-    });
-    this.activeNavItem = '';
-  },
-
-  handleObserver(entries) {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        const activeNavItem = this.navItems.find(
-          (navItem) =>
-            navItem.getAttribute('href') ===
-            `#${entry.target.getAttribute('id')}`
-        );
-        this.setActiveNavItem(activeNavItem);
-      }
-    });
-  },
-
-  setActiveNavItem(activeNavItem) {
-    this.activeNavItem = activeNavItem;
-    $(`.${this.navItemsClassName}`).removeClass(this.activeMenuClassName);
-    activeNavItem.classList.add(this.activeMenuClassName);
-    $(`#${this.navId}`).animate(
-      {
-        scrollLeft: activeNavItem.offsetLeft,
-      },
-      'slow'
-    );
-  },
-};
-export const LazyloadImg = {
-  init(imgClassName) {
-    this.imgItems = [...document.querySelectorAll(`.${imgClassName}`)];
-    this.imgItems.forEach((img) => {
-      if (img) {
-        let observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                entry.target.src = entry.target.dataset.src;
-                observer = observer.disconnect();
-              }
-            });
-          },
-          {
-            rootMargin: '0px',
-            threshold: 0,
-          }
-        );
-        observer.observe(img);
-      }
-    });
-  },
-};
-export const SaveProject = ({
-  formId,
-  postUrl = $(`#${formId}`).attr('action'),
-  config = {},
-}) => {
-  const onSuccess = (response) => {
-    $(`#${formId}`)
-      .find('button')
-      .prop('disabled', false)
-      .removeClass('animate-btn--animate');
-
-    $(`#${formId}`)
-      .find('button')
-      .each(function showSaveProgress() {
-        if ($(this).hasClass('animate-btn--show')) {
-          $(this).removeClass('animate-btn--show');
-        } else {
-          $(this).addClass('animate-btn--show');
-          if ($(this).hasClass('animate-btn--saved')) {
-            $(this).addClass('animate-btn--animate');
-            window.toastr.success(
-              gettext('Project added to Account > Saved projects')
-            );
-          }
-        }
-      });
-    Utils.updateFormNonce(response);
-  };
-
-  const onError = (response) => Utils.handleAjaxError(response);
-
-  window.Hasgeek.Forms.handleFormSubmit(
-    formId,
-    postUrl,
-    onSuccess,
-    onError,
-    config
-  );
-};
-
-export const Video = {
-  /* Takes argument
-     `videoWrapper`: video container element,
-     'videoUrl': video url
-    Video id is extracted from the video url (getVideoTypeAndId).
-    The videoID is then used to generate the iframe html.
-    The generated iframe is added to the video container element.
-  */
-  getVideoTypeAndId(url) {
-    const regexMatch = url.match(
-      /(http:|https:|)\/\/(player.|www.)?(y2u\.be|vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/
-    );
-    let type = '';
-    if (regexMatch && regexMatch.length > 5) {
-      if (
-        regexMatch[3].indexOf('youtu') > -1 ||
-        regexMatch[3].indexOf('y2u') > -1
-      ) {
-        type = 'youtube';
-      } else if (regexMatch[3].indexOf('vimeo') > -1) {
-        type = 'vimeo';
-      }
-      return {
-        type,
-        videoId: regexMatch[6],
-      };
-    }
-    return {
-      type,
-      videoId: url,
-    };
-  },
-  embedIframe(videoWrapper, videoUrl) {
-    let videoEmbedUrl = '';
-    const { type, videoId } = this.getVideoTypeAndId(videoUrl);
-    if (type === 'youtube') {
-      videoEmbedUrl = `<iframe src='//www.youtube.com/embed/${videoId}' frameborder='0' allowfullscreen></iframe>`;
-    } else if (type === 'vimeo') {
-      videoEmbedUrl = `<iframe src='https://player.vimeo.com/video/${videoId}' frameborder='0' allowfullscreen></iframe>`;
-    }
-    if (videoEmbedUrl) {
-      videoWrapper.innerHTML = videoEmbedUrl;
-    }
-  },
-};
-
-export class TableSearch {
-  constructor(tableId) {
-    // a little library that takes a table id
-    // and provides a method to search the table's rows for a given query.
-    // the row's td must contain the class 'js-searchable' to be considered
-    // for searching.
-    // Eg:
-    // var tableSearch = new TableSearch('tableId');
-    // var hits = tableSearch.searchRows('someQuery');
-    // 'hits' is a list of ids of the table's rows which contained 'someQuery'
-    this.tableId = tableId;
-    this.rowData = [];
-    this.allMatchedIds = [];
-  }
-
-  getRows() {
-    const tablerow = `#${this.tableId} tbody tr`;
-    return $(tablerow);
-  }
-
-  setRowData() {
-    // Builds a list of objects and sets it the object's rowData
-    const rowMap = [];
-    $.each(this.getRows(), (rowIndex, row) => {
-      const rowid = $(row).attr('id');
-      rowMap.push({
-        rid: `#${rowid}`,
-        text: $(row).find('td.js-searchable').text().toLowerCase(),
-      });
-    });
-    this.rowData = rowMap;
-  }
-
-  setAllMatchedIds(ids) {
-    this.allMatchedIds = ids;
-  }
-
-  searchRows(q) {
-    // Search the rows of the table for a supplied query.
-    // reset data collection on first search or if table has changed
-    if (this.rowData.length !== this.getRows().length) {
-      this.setRowData();
-    } // return cached matched ids if query is blank
-
-    if (q === '' && this.allMatchedIds.length !== 0) {
-      return this.allMatchedIds;
-    }
-
-    const matchedIds = [];
-
-    for (let i = this.rowData.length - 1; i >= 0; i -= 1) {
-      if (this.rowData[i].text.indexOf(q.toLowerCase()) !== -1) {
-        matchedIds.push(this.rowData[i].rid);
-      }
-    } // cache ids if query is blank
-
-    if (q === '') {
-      this.setAllMatchedIds(matchedIds);
-    }
-
-    return matchedIds;
-  }
-}
+export default Utils;

@@ -1,5 +1,5 @@
 import Vue from 'vue/dist/vue.min';
-import Utils from './utils/helper';
+import Utils from './helper';
 
 export const userAvatarUI = Vue.component('useravatar', {
   template:

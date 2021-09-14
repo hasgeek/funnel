@@ -1,6 +1,8 @@
 import Vue from 'vue/dist/vue.min';
-import { Utils } from './util';
-import { userAvatarUI, faSvg, shareDropdown } from './vue_util';
+import Utils from './utils/helper';
+import Form from './utils/formhelper';
+import getTimeago from './utils/getTimeago';
+import { userAvatarUI, faSvg, shareDropdown } from './utils/vue_util';
 
 const Comments = {
   init({
@@ -120,7 +122,7 @@ const Comments = {
         },
       },
       created() {
-        this.timeago = Utils.getTimeago();
+        this.timeago = getTimeago();
       },
       mounted() {
         window.setInterval(() => {
@@ -237,7 +239,7 @@ const Comments = {
               app.refreshCommentsTimer();
             },
             error(response) {
-              parentApp.errorMsg = Utils.formErrorHandler(formId, response);
+              parentApp.errorMsg = Form.formErrorHandler(formId, response);
             },
           });
         },

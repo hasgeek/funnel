@@ -491,7 +491,9 @@ class ProjectView(
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.url_for('view_proposals'), code=303)
-        return render_template('project_cfp.html.jinja2', form=form, project=self.obj)
+        return render_template(
+            'project_cfp.html.jinja2', form=form, ref_id='form-cfp', project=self.obj
+        )
 
     @route('boxoffice_data', methods=['GET', 'POST'])
     @requires_login
@@ -504,7 +506,10 @@ class ProjectView(
             flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.url_for(), code=303)
         return render_form(
-            form=form, title=_("Edit ticket client details"), submit=_("Save changes")
+            form=form,
+            ref_id='form-boxoffice',
+            title=_("Edit ticket client details"),
+            submit=_("Save changes"),
         )
 
     @route('transition', methods=['POST'])

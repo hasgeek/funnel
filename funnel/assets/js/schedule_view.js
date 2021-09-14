@@ -1,6 +1,7 @@
 import Vue from 'vue/dist/vue.min';
-import { Utils } from './util';
-import { faSvg } from './vue_util';
+import Utils from './utils/helper';
+import { faSvg } from './utils/vue_util';
+import addVegaSupport from './utils/vegaembed';
 
 const Schedule = {
   renderScheduleTable() {
@@ -235,7 +236,7 @@ const Schedule = {
         this.handleBrowserResize();
         this.handleBrowserHistory();
         $('#session-modal').on($.modal.OPEN, () => {
-          Utils.addVegaSupport();
+          addVegaSupport();
           window.activateZoomPopup();
         });
       },

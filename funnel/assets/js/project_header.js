@@ -1,4 +1,6 @@
-import { Utils, SaveProject, Video } from './util';
+import Utils from './utils/helper';
+import SaveProject from './utils/bookmark';
+import Video from './utils/embedvideo';
 
 const Ticketing = {
   init(tickets) {

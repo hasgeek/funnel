@@ -1,5 +1,5 @@
 import Vue from 'vue/dist/vue.min';
-import { Utils } from './util';
+import Utils from './utils/helper';
 
 const Notification = {
   init({ markReadUrl, divElem }) {

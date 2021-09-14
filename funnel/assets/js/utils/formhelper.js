@@ -1,0 +1,80 @@
+const Form = {
+  getElementId(htmlString) {
+    return htmlString.match(/id="(.*?)"/)[1];
+  },
+  getResponseError(response) {
+    let errorMsg = '';
+
+    // Add server error strings for translations in server_error.js.jinja2
+    if (response.readyState === 4) {
+      if (response.status === 500) {
+        errorMsg = window.Hasgeek.Config.errorMsg.serverError;
+      } else if (
+        response.status === 422 &&
+        response.responseJSON.error === 'requires_sudo'
+      ) {
+        window.location.href = `${
+          window.Hasgeek.Config.accountSudo
+        }?next=${encodeURIComponent(window.location.href)}`;
+      } else {
+        errorMsg = response.responseJSON.error_description;
+      }
+    } else {
+      errorMsg = window.Hasgeek.Config.errorMsg.networkError;
+    }
+    return errorMsg;
+  },
+  handleAjaxError(errorResponse) {
+    Form.updateFormNonce(errorResponse.responseJSON);
+    const errorMsg = Form.getResponseError(errorResponse);
+    window.toastr.error(errorMsg);
+    return errorMsg;
+  },
+  formErrorHandler(formId, errorResponse) {
+    $(`#${formId}`).find('button[type="submit"]').attr('disabled', false);
+    $(`#${formId}`).find('.loading').addClass('mui--hide');
+    return Form.handleAjaxError(errorResponse);
+  },
+  getActionUrl(formId) {
+    return $(`#${formId}`).attr('action');
+  },
+  updateFormNonce(response) {
+    if (response && response.form_nonce) {
+      $('input[name="form_nonce"]').val(response.form_nonce);
+    }
+  },
+  handleModalForm() {
+    $('.js-modal-form').click(function addModalToWindowHash() {
+      window.location.hash = $(this).data('hash');
+    });
+
+    $('body').on($.modal.BEFORE_CLOSE, () => {
+      if (window.location.hash) {
+        window.history.replaceState(
+          '',
+          '',
+          window.location.pathname + window.location.search
+        );
+      }
+    });
+
+    window.addEventListener(
+      'hashchange',
+      () => {
+        if (window.location.hash === '') {
+          $.modal.close();
+        }
+      },
+      false
+    );
+
+    const hashId = window.location.hash.split('#')[1];
+    if (hashId) {
+      if ($(`a.js-modal-form[data-hash="${hashId}"]`).length) {
+        $(`a[data-hash="${hashId}"]`).click();
+      }
+    }
+  },
+};
+
+export default Form;

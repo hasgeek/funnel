@@ -1,7 +1,8 @@
 import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
-import { Utils } from './util';
-import { userAvatarUI, faSvg, shareDropdown } from './vue_util';
+import Utils from './utils/helper';
+import getTimeago from './utils/getTimeago';
+import { userAvatarUI, faSvg, shareDropdown } from './utils/vue_util';
 
 const Updates = {
   init({
@@ -54,7 +55,7 @@ const Updates = {
         },
       },
       created() {
-        this.timeago = Utils.getTimeago();
+        this.timeago = getTimeago();
       },
       mounted() {
         window.setInterval(() => {

@@ -1,6 +1,11 @@
 /* global jstz, Pace */
 
-import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
+import Utils from './utils/helper';
+import loadLangTranslations from './utils/translations';
+import addVegaSupport from './utils/vegaembed';
+import LazyloadImg from './utils/lazyloadimage';
+import Form from './utils/formhelper';
+import ScrollActiveMenu from './utils/scrollmenu';
 
 $(() => {
   window.Hasgeek.Config.availableLanguages = {
@@ -20,7 +25,7 @@ $(() => {
     medium: '80',
     small: '48',
   };
-  Utils.loadLangTranslations();
+  loadLangTranslations();
   window.Hasgeek.Config.errorMsg = {
     serverError: window.gettext(
       'An internal server error occurred. Our support team has been notified and will investigate'
@@ -43,7 +48,7 @@ $(() => {
   Utils.truncate();
   Utils.showTimeOnCalendar();
   Utils.popupBackHandler();
-  Utils.handleModalForm();
+  Form.handleModalForm();
   if ($('.header__nav-links--updates').length) {
     Utils.updateNotificationStatus();
     window.setInterval(
@@ -61,7 +66,7 @@ $(() => {
       window.Hasgeek.Config.unreadCommentUrl
     );
   }
-  Utils.addVegaSupport();
+  addVegaSupport();
 
   const intersectionObserverComponents =
     function intersectionObserverComponents() {
