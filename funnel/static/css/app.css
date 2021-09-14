@@ -4959,6 +4959,10 @@ blockquote {
   overflow: auto;
   align-items: center;
   margin: 8px 0;
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 .tabs .tabs__item {
   padding: 4px 16px;
@@ -5009,6 +5013,11 @@ blockquote {
 }
 .tabs .tabs__item-control--next {
   right: 0;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .badge {
@@ -5163,7 +5172,7 @@ blockquote {
 }
 
 .separator {
-  margin: 10px 0;
+  margin: 16px 0;
 }
 
 .flex-wrapper {
@@ -7918,7 +7927,7 @@ a.loginbutton.hidden,
     right: 0;
     bottom: 0;
     padding: 16px;
-    overflow: scroll;
+    overflow: auto;
   }
 }
 .modal__body--form .mui-tabs__bar {
@@ -8125,7 +8134,7 @@ a.loginbutton.hidden,
 }
 .img-upload-modal .modal__body .modal .modal__body {
   max-height: calc(100vh - 160px);
-  overflow: scroll;
+  overflow: auto;
 }
 .img-upload-modal .modal__body .modal .modal__body .popup {
   background-color: #ffffff !important;
@@ -8182,7 +8191,7 @@ form.mui--bg-accent .CodeMirror {
   resize: none !important;
 }
 .submission-form #field-body .CodeMirror {
-  height: calc(100vh - 110px);
+  min-height: calc(100vh - 110px);
 }
 .submission-form .proposal-preview {
   position: fixed;
@@ -9734,45 +9743,10 @@ form.mui--bg-accent .CodeMirror {
     bottom: 8px;
   }
 }
-.proposal-move-form div {
-  display: inline-block;
-}
-
-.proposal-move-form .hg-form {
-  margin-top: 13px;
-}
-
-.proposal-move-form .hg-form .mui-btn {
-  margin-left: 5px;
-}
-
-.proposal-move-form .select2-container {
-  margin-top: -11px;
-}
-
-.proposal-move-form label {
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  top: -33px;
-  color: #1f2d3d;
-}
-
 .proposal__admin-panel .mui-select {
   width: 100%;
 }
 
-.proposal__admin-panel .btn-group .mui-btn {
-  margin-bottom: 16px;
-  margin-right: 20px;
-}
-
-@media (min-width: 1200px) {
-  .proposal__admin-panel .btn-group .mui-btn {
-    margin-bottom: 10px;
-    margin-right: 10px;
-  }
-}
 .proposal-content {
   min-height: 100px;
 }
@@ -9812,11 +9786,7 @@ form.mui--bg-accent .CodeMirror {
   width: 100%;
   position: relative;
   cursor: pointer;
-}
-.selected-label .material-icons {
-  position: absolute;
-  bottom: 10px;
-  right: 0;
+  background: #ffffff;
 }
 
 .selected-label--noborder {
@@ -9832,7 +9802,7 @@ form.mui--bg-accent .CodeMirror {
 .label-dropdown-wrapper fieldset {
   border: none;
   position: absolute;
-  top: -100px;
+  top: -50px;
   z-index: -1;
   opacity: 0;
   left: 0px;
