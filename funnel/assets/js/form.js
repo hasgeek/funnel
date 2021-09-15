@@ -25,7 +25,7 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
         dataType: 'json',
         timeout: 15000,
         beforeSend() {
-          $(msgElemId).text(window.gettext('Autosaving…'));
+          $(msgElemId).text(window.gettext('Saving'));
           lastSavedData = $(formId).find('[type!="hidden"]').serialize();
           waitingForResponse = true;
         },

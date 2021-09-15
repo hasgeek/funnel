@@ -4,8 +4,6 @@ const Form = {
   },
   getResponseError(response) {
     let errorMsg = '';
-
-    // Add server error strings for translations in server_error.js.jinja2
     if (response.readyState === 4) {
       if (response.status === 500) {
         errorMsg = window.Hasgeek.Config.errorMsg.serverError;
