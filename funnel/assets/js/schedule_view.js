@@ -1,5 +1,5 @@
 import Vue from 'vue/dist/vue.min';
-import Utils from './utils/helper';
+import ScrollHelper from './utils/scrollhelper';
 import { faSvg } from './utils/vue_util';
 import addVegaSupport from './utils/vegaembed';
 
@@ -149,11 +149,14 @@ const Schedule = {
         },
         disableScroll(event, id) {
           event.preventDefault();
-          Utils.animateScrollTo($(`#${id}`).offset().top - this.headerHeight);
+          ScrollHelper.animateScrollTo(
+            $(`#${id}`).offset().top - this.headerHeight
+          );
         },
         getHeight() {
           this.headerHeight =
-            Utils.getPageHeaderHeight() + $('.schedule__row--sticky').height();
+            ScrollHelper.getPageHeaderHeight() +
+            $('.schedule__row--sticky').height();
         },
         handleBrowserResize() {
           $(window).resize(() => {
@@ -180,7 +183,7 @@ const Schedule = {
             this.pageDetails.url = paths.join('/');
             this.showSessionModal(activeSession);
             // Scroll page to session
-            Utils.animateScrollTo(
+            ScrollHelper.animateScrollTo(
               $(`#${activeSession.url_name_uuid_b58}`).offset().top -
                 this.headerHeight
             );
@@ -195,22 +198,24 @@ const Schedule = {
                     window.location.hash.indexOf('/')
                   )
                 : window.location.hash;
-            Utils.animateScrollTo($(hash).offset().top - this.headerHeight);
+            ScrollHelper.animateScrollTo(
+              $(hash).offset().top - this.headerHeight
+            );
           } else if (
             scrollPos &&
             scrollPos.pageTitle === this.pageDetails.projectTitle
           ) {
             // Scroll page to last viewed position
-            Utils.animateScrollTo(scrollPos.scrollPosY);
+            ScrollHelper.animateScrollTo(scrollPos.scrollPosY);
           } else if ($('.schedule__date--upcoming').length) {
             // Scroll to the upcoming schedule
-            Utils.animateScrollTo(
+            ScrollHelper.animateScrollTo(
               $('.schedule__date--upcoming').first().offset().top -
                 this.headerHeight
             );
           } else {
             // Scroll to the last schedule
-            Utils.animateScrollTo(
+            ScrollHelper.animateScrollTo(
               $(schedule.config.parentContainer)
                 .find('.schedule__date')
                 .last()

@@ -9599,7 +9599,7 @@ form.mui--bg-accent .CodeMirror {
 .gallery {
   background: #000;
   display: flex;
-  overflow: scroll;
+  overflow: auto;
 }
 .gallery .gallery__thumbnail {
   position: relative;
@@ -9891,7 +9891,7 @@ form.mui--bg-accent .CodeMirror {
 }
 
 .proposal-page .jquery-modal.blocker.current .modal {
-  overflow: scroll;
+  overflow: auto;
 }
 .proposal-page
   .jquery-modal.blocker.current
@@ -10558,7 +10558,7 @@ form.mui--bg-accent .CodeMirror {
 .fc-header td {
   display: block;
   width: 100%;
-  overflow: scroll;
+  overflow: auto;
   margin: 0 0 5px;
 }
 .fc-header .fc-header-center {

@@ -1,6 +1,7 @@
 import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
 import Utils from './utils/helper';
+import ScrollHelper from './utils/scrollhelper';
 import getTimeago from './utils/getTimeago';
 import { userAvatarUI, faSvg, shareDropdown } from './utils/vue_util';
 
@@ -81,9 +82,9 @@ const Updates = {
         };
       },
       mounted() {
-        this.headerHeight = Utils.getPageHeaderHeight();
+        this.headerHeight = ScrollHelper.getPageHeaderHeight();
         if (window.location.hash) {
-          Utils.animateScrollTo(
+          ScrollHelper.animateScrollTo(
             document
               .getElementById(window.location.hash)
               .getBoundingClientRect().top - this.headerHeight
@@ -92,7 +93,7 @@ const Updates = {
         Utils.truncate();
 
         $(window).resize(() => {
-          this.headerHeight = Utils.getPageHeaderHeight();
+          this.headerHeight = ScrollHelper.getPageHeaderHeight();
         });
       },
     });

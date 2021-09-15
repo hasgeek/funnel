@@ -1,6 +1,6 @@
-import Utils from './utils/helper';
 import SaveProject from './utils/bookmark';
 import Video from './utils/embedvideo';
+import Analytics from './utils/analytics';
 
 const Ticketing = {
   init(tickets) {
@@ -84,7 +84,7 @@ const Ticketing = {
     $(document).on(
       'boxofficeTicketingEvents',
       (event, userAction, label, value) => {
-        Utils.sendToGA('ticketing', userAction, label, value);
+        Analytics.sendToGA('ticketing', userAction, label, value);
       }
     );
     $(document).on(

@@ -1,4 +1,4 @@
-/* global gettext, ga */
+/* global gettext */
 import Form from './formhelper';
 
 const Utils = {
@@ -26,50 +26,6 @@ const Utils = {
       $(this).find('.collapsible__icon').toggleClass('mui--hide');
       $(this).siblings('.collapsible__body').slideToggle();
     });
-  },
-  animateScrollTo(offsetY) {
-    $('html,body').animate(
-      {
-        scrollTop: offsetY,
-      },
-      'slow'
-    );
-  },
-  smoothScroll() {
-    $('a.js-smooth-scroll').on('click', function clickHandler() {
-      Utils.animateScrollTo($(this.hash).offset().top);
-    });
-  },
-  scrollTabs() {
-    if (document.getElementById('jquery-scroll-tabs')) {
-      // Horizontal scroll to active tab
-      $('#jquery-scroll-tabs').animate(
-        {
-          scrollLeft: document.querySelector('.tabs__item--active').offsetLeft,
-        },
-        'slow'
-      );
-      $('#jquery-scroll-tabs .js-scroll-prev').on('click', (event) => {
-        event.preventDefault();
-        const prevTab = $('.tabs__item--active')
-          .prev('.tabs__item')
-          .attr('href');
-
-        if (prevTab) {
-          window.location.href = prevTab;
-        }
-      });
-      $('#jquery-scroll-tabs .js-scroll-next').on('click', (event) => {
-        event.preventDefault();
-        const nextTab = $('.tabs__item--active')
-          .next('.tabs__item')
-          .attr('href');
-
-        if (nextTab) {
-          window.location.href = nextTab;
-        }
-      });
-    }
   },
   popupBackHandler() {
     $('.js-popup-back').on('click', (event) => {
@@ -193,17 +149,6 @@ const Utils = {
         closeMenu();
       }
     });
-  },
-  sendToGA(category, action, label, value = 0) {
-    if (typeof ga !== 'undefined') {
-      ga('send', {
-        hitType: 'event',
-        eventCategory: category,
-        eventAction: action,
-        eventLabel: label,
-        eventValue: value,
-      });
-    }
   },
   truncate() {
     const readMoreTxt = `&hellip;<span class="js-read-more mui--text-hyperlink read-more">${gettext(
@@ -360,15 +305,6 @@ const Utils = {
       $('.project-links').hide();
       $('.hg-link-btn').removeClass('mui--hide');
     }
-  },
-  getPageHeaderHeight() {
-    let headerHeight;
-    if ($(window).width() < window.Hasgeek.Config.mobileBreakpoint) {
-      headerHeight = $('.mobile-nav').height();
-    } else {
-      headerHeight = $('header').height() + $('nav').height();
-    }
-    return headerHeight;
   },
   activateToggleSwitch() {
     $('.js-toggle').on('change', function submitToggleSwitch() {

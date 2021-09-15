@@ -119,7 +119,7 @@
 .gallery {
   background: #000;
   display: flex;
-  overflow: scroll;
+  overflow: auto;
 
   .gallery__thumbnail {
     position: relative;
@@ -409,7 +409,7 @@
 
 .proposal-page {
   .jquery-modal.blocker.current .modal {
-    overflow: scroll;
+    overflow: auto;
     .mui-select .mui-select__menu {
       max-width: 100%;
       top: 24px !important;
