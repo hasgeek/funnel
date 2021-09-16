@@ -376,7 +376,7 @@
       {%- if profile.features.make_private() %}<li><a href="#make-private-modal" rel="modal:open" role="button" aria-haspopup="true">{% trans %}Make profile private{% endtrans %}</a></li>{% endif %}
     </ul>
   </div>
-  <div class="modal" id="profile-private-modal-title" role="dialog" aria-labelledby="make-private-title" aria-modal="true" tabindex="-1">
+  <div class="modal" id="make-private-modal" role="dialog" aria-labelledby="profile-private-modal-title" aria-modal="true" tabindex="-1">
     <div class="modal__header">
       <a class="mui-btn mui-btn--nostyle modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
       <p class="mui--text-title mui--text-bold mui--text-dark" id="profile-private-modal-title">{% trans %}Make this profile private?{% endtrans %}</p>
