@@ -95,6 +95,7 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             'form': form,
             'project': self.obj,
             'proposal': proposal,
+            'ref_id': 'form-submission',
         }
 
     @route('sub/reorder', methods=['POST'])
@@ -183,6 +184,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             'project': self.obj.project,
             'proposal': self.obj,
             'message': markdown_message,
+            'ref_id': 'form-submission',
         }
 
     @route('delete', methods=['GET', 'POST'])

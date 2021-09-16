@@ -263,12 +263,6 @@
   </div>
 {% endblock %}
 
-{% block pagescripts %}
-  {% assets "js_codemirrormarkdown" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
-{% endblock %}
-
 {% block footerinnerscripts %}
   <script src="{{ built_asset('submission.js') }}" type="text/javascript"></script>
   <script src="{{ built_asset('comments.js') }}" type="text/javascript"></script>
@@ -283,11 +277,11 @@
         user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
         loginUrl: "{{ url_for('login') }}",
         lastSeenUrl: {% if proposal.commentset.current_roles.document_subscriber %}{{ proposal.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
+        codemirrorUrl: {% assets "js_codemirrormarkdown" -%}{{ ASSET_URL|tojson }}{%- endassets -%}
       };
-      window.Hasgeek.Comments(commentsConfig);
       window.Hasgeek.projectHeaderInit();
       window.Hasgeek.SubmissionInit();
+      window.Hasgeek.Comments(commentsConfig);
     });
   </script>
-  <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
 {% endblock %}

@@ -1,6 +1,6 @@
 import jsQR from 'jsqr';
 import vCardsJS from 'vcards-js';
-import { RactiveApp } from './ractive_util';
+import { RactiveApp } from './utils/ractive_util';
 
 const badgeScan = {
   init({ getContactApiUrl, wrapperId, templateId }) {

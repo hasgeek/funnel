@@ -27,7 +27,7 @@
         </div>
       </div>
     </div>
-    <form class="mui-form submission-form" id="sub-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" data-parsley-validate="true">
+    <form class="mui-form submission-form" id="{{ ref_id }}" method="POST" action="{{ request.url }}" accept-charset="UTF-8" data-parsley-validate="true">
       {{ form.hidden_tag() }}
       <div class="submission-header">
         <div class="mui-container">
@@ -91,7 +91,7 @@
   </div>
 {% endblock %}
 
-{% block footerscripts %}
+{% block innerscripts %}
   <script type="text/javascript">
     window.Hasgeek.Config.markdownPreviewApi = {{ url_for('markdown_preview')|tojson }};
   </script>

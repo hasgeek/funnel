@@ -1,4 +1,4 @@
-import { Utils } from './util';
+import Form from './utils/formhelper';
 
 export const Submission = {
   init() {
@@ -17,10 +17,10 @@ export const Submission = {
             window.toastr.success(responseData.message);
           }
           $('.js-subscribed, .js-unsubscribed').toggleClass('mui--hide');
-          Utils.updateFormNonce(responseData);
+          Form.updateFormNonce(responseData);
         },
         error(response) {
-          Utils.handleAjaxError(response);
+          Form.handleAjaxError(response);
         },
       });
     });
