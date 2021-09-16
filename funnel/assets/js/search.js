@@ -1,5 +1,5 @@
-import { Utils } from './util';
-import { RactiveApp } from './ractive_util';
+import Utils from './utils/helper';
+import { RactiveApp } from './utils/ractive_util';
 
 const Search = {
   init(config) {

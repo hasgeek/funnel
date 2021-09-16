@@ -1,4 +1,4 @@
-import { SaveProject } from './util';
+import SaveProject from './utils/bookmark';
 
 $(() => {
   $('.js-save-form').each(function saveProjectButton() {

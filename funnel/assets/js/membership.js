@@ -1,7 +1,7 @@
 import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
-import { Utils } from './util';
-import { userAvatarUI, faSvg } from './vue_util';
+import Form from './utils/formhelper';
+import { userAvatarUI, faSvg } from './utils/vue_util';
 
 const Membership = {
   init({
@@ -71,14 +71,14 @@ const Membership = {
                 $('#member-form').modal('show');
               },
               error(response) {
-                Utils.getResponseError(response);
+                Form.getResponseError(response);
               },
             });
           }
         },
         activateForm() {
-          const formId = Utils.getElementId(this.memberForm);
-          const url = Utils.getActionUrl(formId);
+          const formId = Form.getElementId(this.memberForm);
+          const url = Form.getActionUrl(formId);
           const onSuccess = (responseData) => {
             this.closeForm();
             if (responseData.memberships) {
@@ -88,7 +88,7 @@ const Membership = {
             }
           };
           const onError = (response) => {
-            this.errorMsg = Utils.formErrorHandler(formId, response);
+            this.errorMsg = Form.formErrorHandler(formId, response);
           };
           window.Hasgeek.Forms.handleFormSubmit(
             formId,

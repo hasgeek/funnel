@@ -1,5 +1,6 @@
-import { Utils, TableSearch } from './util';
-import { RactiveApp } from './ractive_util';
+import Utils from './utils/helper';
+import TableSearch from './utils/tablesearch';
+import { RactiveApp } from './utils/ractive_util';
 
 const Store = {
   // Local storage can only save strings, so value is converted into strings and stored.

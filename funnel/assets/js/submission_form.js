@@ -1,4 +1,4 @@
-import { Utils } from './util';
+import addVegaSupport from './utils/vegaembed';
 
 $(() => {
   let textareaWaitTimer;
@@ -70,7 +70,7 @@ $(() => {
       timeout: window.Hasgeek.Config.ajaxTimeout,
       success(responseData) {
         $('.js-proposal-preview').html(responseData.html);
-        Utils.addVegaSupport();
+        addVegaSupport();
       },
     });
   }

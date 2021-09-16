@@ -1,5 +1,5 @@
 import Vue from 'vue/dist/vue.min';
-import { SaveProject } from './util';
+import SaveProject from './utils/bookmark';
 
 $(() => {
   window.Hasgeek.homeInit = function homeInit(config) {

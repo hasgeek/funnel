@@ -41,7 +41,10 @@ module.exports = {
       'js/notification_settings.js'
     ),
     account_saved: path.resolve(__dirname, 'js/account_saved.js'),
+    form: path.resolve(__dirname, 'js/form.js'),
     submission_form: path.resolve(__dirname, 'js/submission_form.js'),
+    labels_form: path.resolve(__dirname, 'js/labels_form.js'),
+    cfp_form: path.resolve(__dirname, 'js/cfp_form.js'),
   },
   output: {
     path: path.resolve(__dirname, '../static/build'),
