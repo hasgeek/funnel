@@ -1,7 +1,8 @@
-import { Utils, TableSearch } from './util';
+import Form from './utils/formhelper';
+import TableSearch from './utils/tablesearch';
 
 $(() => {
-  window.Hasgeek.proposalsInit = function proposalsInit({
+  window.Hasgeek.submissionsInit = function submissionsInit({
     search = '',
     sort = '',
   }) {
@@ -55,7 +56,7 @@ $(() => {
             },
             dataType: 'json',
             error(errorResponse) {
-              Utils.handleAjaxError(errorResponse);
+              Form.handleAjaxError(errorResponse);
               $('.proposal-list-table tbody').sortable('cancel');
             },
           });

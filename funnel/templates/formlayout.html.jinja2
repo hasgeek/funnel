@@ -28,96 +28,16 @@
 {% endblock %}
 
 {% block footerscripts %}
+  <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      var hash = window.location.hash;
-      if (hash) {
-        $('html,body').animate({
-          scrollTop: $(window.location.hash).offset().top - $('.header').outerHeight(),
-        }, 500);
+      var config = {
+        autosave: {%- if autosave %}true{%- else -%}false{%- endif %},
+        formId: '#{{ ref_id }}',
+        msgElemId: '#autosave-msg'
       }
+      window.Hasgeek.form(config);
     });
   </script>
-  {%- if autosave %}
-    <script type="text/javascript">
-      $(function() {
-        var typingTimer;
-        var typingWaitInterval = 1000; // wait till user stops typing for one second to send form data
-        var waitingForResponse = false;
-        var lastSavedData = '';
-
-        $('input[name="form.revision"]').val() ? $('#autosave-msg').text(gettext('These changes have not been published yet')) : '';
-
-        $('#{{ ref_id }}').on('change', function(e) {
-          autosaveForm();
-        });
-
-        $('#{{ ref_id }}').on('keyup', function(e) {
-          if(typingTimer) clearTimeout(typingTimer);
-          typingTimer = setTimeout(autosaveForm, typingWaitInterval);
-        });
-
-        function autosaveForm() {
-          var actionUrl = $('#{{ ref_id }}').attr('action');
-          var sep = (actionUrl.indexOf('?') === -1) ? '?' : '&';
-          if(!waitingForResponse && haveDirtyFields()) {
-            $.ajax({
-              type: 'POST',
-              url: actionUrl + sep + 'form.autosave=true',
-              data: $("#{{ ref_id }}").serialize(),
-              dataType: 'json',
-              timeout: 15000,
-              beforeSend: function() {
-                $('#autosave-msg').text('Autosaving…');
-                lastSavedData = $("#{{ ref_id }}").find('[type!="hidden"]').serialize();
-                waitingForResponse = true;
-              },
-              success: function (remoteData) {
-                // Todo: Update window.history.pushState for new form
-                $('#autosave-msg').text('Changes saved but not published');
-                if(remoteData.revision) {
-                  $('input[name="form.revision"]').val(remoteData.revision);
-                }
-                if(remoteData.form_nonce) {
-                  $('input[name="form_nonce"]').val(remoteData.form_nonce);
-                }
-                waitingForResponse = false;
-                autosaveForm();
-              },
-              error: function (response) {
-                var errorMsg = '';
-                waitingForResponse = false;
-                if (response.readyState === 4) {
-                  if (response.status === 500) {
-                    errorMsg ='Internal Server Error. Please reload and try again.';
-                  } else {
-                    // There is a version mismatch, notify user to reload the page.
-                    waitingForResponse = true;
-                    errorMsg = JSON.parse(response.responseText).error_description;
-                  }
-                } else {
-                  errorMsg = 'Unable to connect. Please reload and try again.';
-                }
-                $('#autosave-msg').text(errorMsg);
-                window.toastr.error(errorMsg);
-              },
-            });
-          }
-
-          function haveDirtyFields() {
-            var latestFormData = $('#{{ ref_id }}').find('[type!="hidden"]').serialize();
-            if (latestFormData !== lastSavedData) {
-              return true;
-            }
-          }
-
-          $(window).bind('beforeunload', function() {
-            if(haveDirtyFields()){
-              return 'You have unsaved changes on this page. Do you want to leave this page?';
-            }
-          });
-        }
-      });
-    </script>
-  {%- endif %}
+  {% block innerscripts %}{% endblock %}
 {% endblock %}

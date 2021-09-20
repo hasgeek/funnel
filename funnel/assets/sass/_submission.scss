@@ -119,7 +119,7 @@
 .gallery {
   background: #000;
   display: flex;
-  overflow: scroll;
+  overflow: auto;
 
   .gallery__thumbnail {
     position: relative;
@@ -244,44 +244,8 @@
   }
 }
 
-.proposal-move-form div {
-  display: inline-block;
-}
-
-.proposal-move-form .hg-form {
-  margin-top: 13px;
-}
-
-.proposal-move-form .hg-form .mui-btn {
-  margin-left: 5px;
-}
-
-.proposal-move-form .select2-container {
-  margin-top: -11px;
-}
-
-.proposal-move-form label {
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  top: -33px;
-  color: $mui-text-dark;
-}
-
 .proposal__admin-panel .mui-select {
   width: 100%;
-}
-
-.proposal__admin-panel .btn-group .mui-btn {
-  margin-bottom: $mui-grid-padding;
-  margin-right: 20px;
-}
-
-@media (min-width: 1200px) {
-  .proposal__admin-panel .btn-group .mui-btn {
-    margin-bottom: 10px;
-    margin-right: 10px;
-  }
 }
 
 .proposal-content {
@@ -302,16 +266,16 @@
 
 .label {
   padding: 4px 8px;
-  font-size: 10px;
+  font-size: 12px;
   text-transform: uppercase;
   color: $mui-text-light;
   border: 1px solid $mui-divider-color;
   background-color: $mui-bg-color-accent;
-  border-radius: 16px;
+  border-radius: 2px;
   display: inline-block;
   margin: 0 4px 4px 0;
   text-decoration: none;
-  max-width: 90%;
+  font-weight: 500;
 }
 
 .label:hover {
@@ -323,23 +287,23 @@
   width: 100%;
   position: relative;
   cursor: pointer;
-
-  .material-icons {
-    position: absolute;
-    bottom: 10px;
-    right: 0;
-  }
+  background: $mui-bg-color-primary;
 }
 
-.add-label-form {
-  .label-dropdown-wrapper {
-    position: relative;
-    margin-bottom: 10px;
-  }
+.selected-label--noborder {
+  border-bottom: none;
+  width: auto;
+  display: inline-block;
+}
+
+.label-dropdown-wrapper {
+  position: relative;
+  margin-bottom: 10px;
+
   fieldset {
     border: none;
     position: absolute;
-    top: -100px;
+    top: -50px;
     z-index: -1;
     opacity: 0;
     left: 0px;
@@ -445,7 +409,7 @@
 
 .proposal-page {
   .jquery-modal.blocker.current .modal {
-    overflow: scroll;
+    overflow: auto;
     .mui-select .mui-select__menu {
       max-width: 100%;
       top: 24px !important;
@@ -465,14 +429,5 @@
     .jquery-modal.blocker.current .modal.markdown-modal {
       border-radius: 8px;
     }
-  }
-}
-
-.proposal-subscribe-form {
-  label {
-    padding: $mui-grid-padding/2 $mui-grid-padding;
-    text-transform: none;
-    display: block;
-    min-width: 200px;
   }
 }

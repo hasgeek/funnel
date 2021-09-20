@@ -1,6 +1,12 @@
 /* global jstz, Pace */
 
-import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
+import Utils from './utils/helper';
+import ScrollHelper from './utils/scrollhelper';
+import loadLangTranslations from './utils/translations';
+import addVegaSupport from './utils/vegaembed';
+import LazyloadImg from './utils/lazyloadimage';
+import Form from './utils/formhelper';
+import Analytics from './utils/analytics';
 
 $(() => {
   window.Hasgeek.Config.availableLanguages = {
@@ -20,7 +26,7 @@ $(() => {
     medium: '80',
     small: '48',
   };
-  Utils.loadLangTranslations();
+  loadLangTranslations();
   window.Hasgeek.Config.errorMsg = {
     serverError: window.gettext(
       'An internal server error occurred. Our support team has been notified and will investigate'
@@ -31,7 +37,7 @@ $(() => {
   };
 
   Utils.collapse();
-  Utils.smoothScroll();
+  ScrollHelper.smoothScroll();
   Utils.navSearchForm();
   Utils.headerMenuDropdown(
     '.js-menu-btn',
@@ -39,11 +45,11 @@ $(() => {
     '.js-account-menu',
     window.Hasgeek.Config.accountMenu
   );
-  Utils.scrollTabs();
+  ScrollHelper.scrollTabs();
   Utils.truncate();
   Utils.showTimeOnCalendar();
   Utils.popupBackHandler();
-  Utils.handleModalForm();
+  Form.handleModalForm();
   if ($('.header__nav-links--updates').length) {
     Utils.updateNotificationStatus();
     window.setInterval(
@@ -61,22 +67,14 @@ $(() => {
       window.Hasgeek.Config.unreadCommentUrl
     );
   }
-  Utils.addVegaSupport();
+  addVegaSupport();
 
   const intersectionObserverComponents =
     function intersectionObserverComponents() {
-      if (document.querySelector('#page-navbar')) {
-        ScrollActiveMenu.init(
-          'page-navbar',
-          'sub-navbar__item',
-          'sub-navbar__item--active'
-        );
-      }
       LazyloadImg.init('js-lazyload-img');
     };
 
   if (
-    document.querySelector('#page-navbar') ||
     document.querySelector('.js-lazyload-img') ||
     document.querySelector('.js-lazyload-results')
   ) {
@@ -117,11 +115,11 @@ $(() => {
     const action =
       $(this).attr('data-ga') || $(this).attr('title') || $(this).html();
     const target = $(this).attr('data-target') || $(this).attr('href') || '';
-    Utils.sendToGA('click', action, target);
+    Analytics.sendToGA('click', action, target);
   });
   $('.search-form__submit').click(function gaHandler() {
     const target = $('.js-search-field').val();
-    Utils.sendToGA('search', target, target);
+    Analytics.sendToGA('search', target, target);
   });
 
   // Detect timezone for login

@@ -142,7 +142,7 @@ class ProposalLabelsAdminForm(forms.Form):
 
 @Proposal.forms('main')
 class ProposalForm(forms.Form):
-    title = forms.StringField(
+    title = forms.TextAreaField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
         filters=[forms.filters.strip()],

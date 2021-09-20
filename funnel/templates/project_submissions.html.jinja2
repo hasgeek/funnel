@@ -71,7 +71,7 @@
   {% assets "js_sortable" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
-  <script src="{{ built_asset('proposals.js') }}" type="text/javascript"></script>
+  <script src="{{ built_asset('submissions.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var config = {
@@ -84,7 +84,7 @@
           permission: {{ project.current_roles.editor|tojson }},
         }
       };
-      window.Hasgeek.proposalsInit(config);
+      window.Hasgeek.submissionsInit(config);
     });
   </script>
 {% endblock %}

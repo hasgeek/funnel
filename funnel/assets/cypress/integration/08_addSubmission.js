@@ -23,9 +23,15 @@ describe('Add a new submission', () => {
     cy.get('#field-body')
       .find('.CodeMirror textarea')
       .type(proposal.content, { force: true });
+    cy.get('a[data-cy="add-video"]').click();
+    cy.wait(1000);
     cy.get('#field-video_url').type(proposal.preview_video);
+    cy.get('button[data-cy="save"]').click();
+    cy.get('a[data-cy="add-label"]').click();
+    cy.wait(1000);
     cy.get('fieldset').find('.listwidget').eq(0).find('input').eq(0).click();
     cy.get('fieldset').find('.listwidget').eq(1).find('input').eq(0).click();
+    cy.get('button[data-cy="save"]').click();
     cy.get('button[data-cy="form-submit-btn"]').click();
 
     cy.get('[data-cy="proposal-title"]')

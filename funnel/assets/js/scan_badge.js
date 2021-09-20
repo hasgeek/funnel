@@ -1,5 +1,5 @@
 import jsQR from 'jsqr';
-import { RactiveApp } from './ractive_util';
+import { RactiveApp } from './utils/ractive_util';
 
 const badgeScan = {
   init({

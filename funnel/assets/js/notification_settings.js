@@ -1,4 +1,4 @@
-import { Utils } from './util';
+import Form from './utils/formhelper';
 
 $(() => {
   window.Hasgeek.notificationSettings = (config) => {
@@ -33,7 +33,7 @@ $(() => {
           }
         },
         error(response) {
-          Utils.handleAjaxError(response);
+          Form.handleAjaxError(response);
           $(checkbox).prop('checked', previousState);
         },
       });

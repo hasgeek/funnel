@@ -63,7 +63,7 @@ def session_edit(
         return render_template(
             'session_form.html.jinja2',
             form=form,
-            formid='session_form',
+            ref_id='session_form',
             title=_("Edit session"),
         )
     if form.validate_on_submit():

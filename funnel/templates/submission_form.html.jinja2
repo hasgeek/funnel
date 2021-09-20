@@ -1,0 +1,100 @@
+{% extends "formlayout.html.jinja2" %}
+{% from "forms.html.jinja2" import renderfield %}
+{% from "macros.html.jinja2" import useravatar, faicon %}
+{% from "project_layout.html.jinja2" import project_header with context %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block contenthead %}
+{% endblock %}
+
+{% block bodyattrs %}class="mui--bg-primary no-sticky-header mobile-header"{% endblock %}
+
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon js-switch-panel" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline js-switch-panel">{{ title }}</span>
+      <a aria-label="{% trans %}Back to edit proposal{% endtrans %}" class="mui--text-dark mobile-nav__icon js-switch-panel mui--hide" data-ga="Back to the edit proposal">{{ faicon(icon='times', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline js-switch-panel mui--hide">{% trans %}Edit{% endtrans %}</span>
+    </div>
+  </div>
+{% endblock %}
+
+{% block basecontent %}
+  <div class="js-modal-container">
+    <div class="mui-container">
+      <div class="grid">
+        <div class="grid__col-sm-12">
+          <h1 class="mui--text-body2 margin-top margin-bottom"><a href="{{ project.url_for() }}" class="mui--text-dark mui--text-light nounderline" data-cy="project-page">{{ project.title }}</a></h1>
+        </div>
+      </div>
+    </div>
+    <form class="mui-form submission-form" id="{{ ref_id }}" method="POST" action="{{ request.url }}" accept-charset="UTF-8" data-parsley-validate="true">
+      {{ form.hidden_tag() }}
+      <div class="submission-header">
+        <div class="mui-container">
+          <div class="grid flex-wrapper--center">
+            <div class="grid__col-sm-6 submission-header__column">
+              <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between">
+                <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Markdown{% endtrans %}</p>
+              </div>
+            </div>
+            <div class="grid__col-sm-6">
+              <div class="flex-wrapper submission-header__submit">
+                <div class="mui--visible-xs-block mui--visible-sm-block submission-header__submit__btn">
+                  <a class="mui-btn js-switch-panel link" data-cy="preview">{% trans %}Preview{% endtrans %}</a>
+                  <a class="mui-btn js-switch-panel mui--hide link" data-cy="edit">{% trans %}Edit{% endtrans %}</a>
+                  <button type="submit" name="submit" class="mui-btn" data-cy="submit">{% trans %}Submit{% endtrans %}</button>
+                </div>
+                <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Preview{% endtrans %}</p>
+                <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin mui--hidden-xs mui--hidden-sm" data-cy="form-submit-btn">{% trans %}Submit{% endtrans %}</button>
+                <span class="loading mui--hide"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-sm-6 proposal-markdown" id="markdown">
+            {{ renderfield(form.title, css_class='mui-form__fields--noborder', nolabel=true, placeholder='Title') }}
+            <div class="submission-header__edit-icons">
+              <div class="bottom-padding">
+                {%- if form.formlabels %}
+                  <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add labels to submission{% endtrans %}" data-ga="Add label to submission video" data-cy="add-label">{{ faicon(icon='tag-solid', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Labels{% endtrans %}</span><span class="mui--pull-right">{% trans %}Select a relevant label{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=true, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.formlabels.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='label-error-icon mui--text-danger fa-icon--left-margin') }}{%- else %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='label-error-icon mui--text-danger fa-icon--left-margin mui--hide') }}{%- endif %}</a>
+                  <div class="js-modal-field mui--hide">
+                    <div class="js-field top-padding">
+                      {{ renderfield(form.formlabels, css_class='label-select-fields top-padding active') }}
+                    </div>
+                  </div>
+                {%- endif %}
+              </div>
+              <div>
+                <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add video url{% endtrans %}" data-ga="Add video url" data-cy="add-video">{{ faicon(icon='video-plus', icon_size='caption', baseline=true, css_class='mui--text-light link fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Video{% endtrans %}</span><span class="mui--pull-right">{% trans %}Link a video{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</span></a>
+                <div class="js-modal-field mui--hide ">
+                  <div class="js-field top-padding">
+                    {{ renderfield(form.video_url, css_class='top-padding') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {{ renderfield(form.body, css_class='mui-form__fields--noborder', nolabel=true, placeholder='Content') }}
+          </div>
+          <div class="grid__col-sm-6 proposal-preview js-proposal-preview close" id="preview">
+            {{ proposal.body }}
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="modal-form">
+      <a class="modal__close mui--text-dark js-close-form-modal" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0)" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+      <button class="mui-btn mui-btn--raised mui-btn--primary js-close-form-modal js-save-modal" rel="modal:close" data-cy="save">Done</button>
+    </div>
+  </div>
+{% endblock %}
+
+{% block innerscripts %}
+  <script type="text/javascript">
+    window.Hasgeek.Config.markdownPreviewApi = {{ url_for('markdown_preview')|tojson }};
+  </script>
+  <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
+  <script src="{{ built_asset('submission_form.js') }}" type="text/javascript"></script>
+{% endblock %}
