@@ -10488,53 +10488,65 @@ form.mui--bg-accent .CodeMirror {
   margin-left: 5px;
 }
 
-.jquery-modal.blocker.current .session-modal--nopadding {
+.jquery-modal.blocker.current .session-modal.session-modal--nopadding {
   padding: 0;
   overflow: visible !important;
   width: 100%;
 }
-.jquery-modal.blocker.current .session-modal--nopadding .modal__header {
-  padding: 16px 16px 5px;
+.jquery-modal.blocker.current
+  .session-modal.session-modal--nopadding
+  .modal__header {
+  padding: 0 16px 4px;
   border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
 .jquery-modal.blocker.current
-  .session-modal--nopadding
+  .session-modal.session-modal--nopadding
+  .modal__header
+  .session-modal__title {
+  max-width: calc(100% - 20px);
+  margin: 8px 0 8px;
+  position: static;
+}
+.jquery-modal.blocker.current
+  .session-modal.session-modal--nopadding
   .modal__header
   .modal__header__title {
-  margin-bottom: 5px;
+  margin-bottom: 4px;
   font-weight: bold;
 }
 .jquery-modal.blocker.current
-  .session-modal--nopadding
+  .session-modal.session-modal--nopadding
   .modal__header
   .modal__header__text {
-  margin: 0 0 5px;
+  margin: 0 0 4px;
 }
-.jquery-modal.blocker.current .session-modal--nopadding .modal__body {
+.jquery-modal.blocker.current
+  .session-modal.session-modal--nopadding
+  .modal__body {
   padding: 0 16px 16px;
   word-break: break-word;
 }
 .jquery-modal.blocker.current
-  .session-modal--nopadding
+  .session-modal.session-modal--nopadding
   .modal__body
   .modal__body__separator {
   margin: 16px 0;
 }
 .jquery-modal.blocker.current
-  .session-modal--nopadding
+  .session-modal.session-modal--nopadding
   .modal__body
   .modal__body__section {
   margin: 0 0 16px;
 }
 .jquery-modal.blocker.current
-  .session-modal--nopadding
+  .session-modal.session-modal--nopadding
   .modal__body
   .modal__body__section
   .modal__body__section__text {
   margin: 0 0 5px;
 }
 .jquery-modal.blocker.current
-  .session-modal--nopadding
+  .session-modal.session-modal--nopadding
   .modal__body
   .details__box--left {
   max-width: 70%;
@@ -10545,7 +10557,8 @@ form.mui--bg-accent .CodeMirror {
   max-width: calc(100% - 20px);
   margin-top: 0;
   position: relative;
-  top: -10px;
+  top: -6px;
+  margin-bottom: 8px;
 }
 
 @media (min-width: 1200px) {

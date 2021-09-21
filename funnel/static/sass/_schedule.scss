@@ -264,22 +264,28 @@
   }
 }
 
-.jquery-modal.blocker.current .session-modal--nopadding {
+.jquery-modal.blocker.current .session-modal.session-modal--nopadding {
   padding: 0;
   overflow: visible !important;
   width: 100%;
 
   .modal__header {
-    padding: $mui-grid-padding $mui-grid-padding 5px;
+    padding: 0 $mui-grid-padding $mui-grid-padding/4;
     border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 
+    .session-modal__title {
+      max-width: calc(100% - 20px);
+      margin: $mui-grid-padding/2 0 $mui-grid-padding/2;
+      position: static;
+    }
+
     .modal__header__title {
-      margin-bottom: 5px;
+      margin-bottom: $mui-grid-padding/4;
       font-weight: bold;
     }
 
     .modal__header__text {
-      margin: 0 0 5px;
+      margin: 0 0 $mui-grid-padding/4;
     }
   }
 
@@ -310,7 +316,8 @@
     max-width: calc(100% - 20px);
     margin-top: 0;
     position: relative;
-    top: -10px;
+    top: -6px;
+    margin-bottom: $mui-grid-padding/2;
   }
 }
 
