@@ -12,7 +12,7 @@
           <h3 class="schedule__date" :class="[schedule.upcoming ? 'schedule__date--upcoming' : '']">{{ schedule.dateStr }}</h3>
           <div class="mui--bg-accent schedule__table">
             <div class="schedule__row schedule__row--sticky">
-              <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" :style="{ minWidth: timeSlotWidth + 'px'}" v-if="(view == 'calendar')"><faicon :icon="'clock'" :icon_size="'subhead'"></faicon></p>
+              <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" :style="{ minWidth: timeSlotWidth + 'px'}" v-if="(view == 'calendar')"><faicon :icon="'clock'" :icon_size="'subhead'" :baseline=false></faicon></p>
               <p class="schedule__row__column schedule__row__column--header" :class="[activeTab == roomkey ? 'js-tab-active' : '']" :style="{width: 'calc(100% - ' + getColumnWidth('header') + 'px)'}" @click="toggleTab(roomkey)" v-for="(room, roomkey, roomindex) in schedule.rooms" v-if="room.title">{{ room.title }}</p>
             </div>
 

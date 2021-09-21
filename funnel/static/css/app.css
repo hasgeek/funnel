@@ -8213,6 +8213,10 @@ form.mui--bg-accent .CodeMirror {
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
     padding: 8px 0;
     margin-bottom: 16px;
+    position: sticky;
+    top: 52px;
+    background: #ffffff;
+    z-index: 1000;
   }
   .submission-form .submission-header .submission-header__submit {
     position: static;
@@ -8760,6 +8764,10 @@ form.mui--bg-accent .CodeMirror {
 .card--upcoming .card__body {
   padding: 0 16px 16px;
   position: relative;
+}
+.card--upcoming .card__body .card__body__location {
+  float: left;
+  max-width: 90%;
 }
 .card--upcoming .card__body .card__body__bookmark {
   float: right;
@@ -10267,19 +10275,21 @@ form.mui--bg-accent .CodeMirror {
 }
 .schedule-grid .schedule .schedule__row--sticky {
   display: flex;
+  align-items: center;
   overflow-x: auto;
   position: sticky;
   position: -webkit-sticky;
-  top: 52px;
+  top: 0;
   order: 1;
   z-index: 2;
   border: none;
   display: flex;
-  box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);
+  background: #ffffff;
+  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
 }
 .schedule-grid .schedule .schedule__row--sticky .schedule__row__column--header {
   display: flex !important;
-  padding: 0 5px;
+  padding: 0 8px;
   margin: 0;
   align-items: center;
   justify-content: center;
@@ -10304,12 +10314,6 @@ form.mui--bg-accent .CodeMirror {
   .schedule__row--sticky
   .schedule__row__column--time--pointer {
   cursor: pointer;
-}
-.schedule-grid
-  .schedule
-  .schedule__row--sticky
-  .schedule__row__column--time--header {
-  padding-top: 12px;
 }
 
 @media (max-width: 767px) {
@@ -10343,10 +10347,17 @@ form.mui--bg-accent .CodeMirror {
   .schedule-grid .schedule .schedule__date {
     padding-left: 0;
   }
-  .schedule-grid .schedule .schedule__row {
+  .schedule-grid .schedule .schedule__table {
     overflow: auto;
   }
-  .schedule-grid .schedule .schedule__row .schedule__row__column {
+  .schedule-grid .schedule .schedule__table .schedule__row {
+    overflow: auto;
+  }
+  .schedule-grid
+    .schedule
+    .schedule__table
+    .schedule__row
+    .schedule__row__column {
     position: relative;
     background-image: url('../img/schedule-box-background.png?1598540764');
     background-size: 20px 10px;
@@ -10354,19 +10365,22 @@ form.mui--bg-accent .CodeMirror {
   }
   .schedule-grid
     .schedule
+    .schedule__table
     .schedule__row
     .schedule__row__column
     .schedule__row__column__content--calendar {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 2;
+    z-index: 1;
     height: 100%;
+    overflow: scroll;
     border: 0;
-    overflow: hidden;
+    border-bottom: 1px solid rgba(132, 146, 166, 0.3);
   }
   .schedule-grid
     .schedule
+    .schedule__table
     .schedule__row
     .schedule__row__column
     .schedule__row__column__content {
@@ -10375,6 +10389,7 @@ form.mui--bg-accent .CodeMirror {
   }
   .schedule-grid
     .schedule
+    .schedule__table
     .schedule__row
     .schedule__row__column
     .schedule__row__column__content
@@ -10383,12 +10398,17 @@ form.mui--bg-accent .CodeMirror {
   }
   .schedule-grid
     .schedule
+    .schedule__table
     .schedule__row
     .schedule__row__column--1
     .schedule__row__column__content {
     width: 100%;
   }
-  .schedule-grid .schedule .schedule__row .schedule__row__column--time {
+  .schedule-grid
+    .schedule
+    .schedule__table
+    .schedule__row
+    .schedule__row__column--time {
     display: block;
     background-image: none;
     border-bottom: 0;
@@ -10404,35 +10424,38 @@ form.mui--bg-accent .CodeMirror {
   }
   .schedule-grid
     .schedule
+    .schedule__table
     .schedule__row
     .schedule__row__column--time--pointer {
     cursor: pointer;
     height: 100%;
   }
-  .schedule-grid .schedule .schedule__row--sticky {
+  .schedule-grid .schedule .schedule__table .schedule__row--sticky {
     overflow: auto;
-    top: 112px;
   }
   .schedule-grid
     .schedule
+    .schedule__table
     .schedule__row--sticky
     .schedule__row__column--header {
-    padding: 16px 10px;
     outline: 1px solid rgba(132, 146, 166, 0.3);
     border: none !important;
   }
   .schedule-grid
     .schedule
+    .schedule__table
     .schedule__row--sticky
     .schedule__row__column--time--header {
     display: block;
-    padding-top: 12px;
+    padding: 8px 0;
   }
-  .schedule-grid .schedule .schedule__row--calendar {
+  .schedule-grid .schedule .schedule__table .schedule__row--calendar {
     border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+    overflow: visible;
   }
   .schedule-grid
     .schedule
+    .schedule__table
     .schedule__row--calendar
     .schedule__row__column
     .schedule__row__column__content {
@@ -10440,16 +10463,12 @@ form.mui--bg-accent .CodeMirror {
   }
   .schedule-grid
     .schedule
+    .schedule__table
     .schedule__row--calendar
     .schedule__row__column
     .schedule__row__column__content
     .schedule__row__column__content__title__duration {
     display: none;
-  }
-}
-@media (min-device-width: 768px) and (max-device-width: 1200px) and (orientation: landscape) {
-  .schedule-grid .schedule .schedule__row--sticky {
-    top: 93px;
   }
 }
 .calendar-wrapper {
