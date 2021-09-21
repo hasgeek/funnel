@@ -181,3 +181,47 @@
   border: 1px solid transparent;
   background: transparentize($mui-primary-color, 0.85);
 }
+
+.tabs-wrapper {
+  background: $mui-bg-color-primary;
+  box-shadow: 0 2px 2px -1px rgba(158, 158, 158, 0.24);
+  width: 100%;
+}
+
+.tabs-wrapper--sticky {
+  position: sticky;
+  order: 1;
+  top: 0;
+  z-index: 998;
+  width: 100%;
+  left: 0;
+}
+
+@media (min-width: 768px) {
+  .tabs-navbar .header {
+    box-shadow: none;
+  }
+  .tabs-wrapper--sticky {
+    top: 50px;
+    width: 100%;
+    left: 0;
+
+    .tabs {
+      padding-left: $mui-grid-padding;
+      padding-right: $mui-grid-padding;
+      width: auto;
+    }
+
+    .tabs__item-control {
+      display: none;
+    }
+  }
+}
+
+.tab-content {
+  margin-top: 2em;
+
+  .tab-content__results {
+    margin-bottom: 1em;
+  }
+}

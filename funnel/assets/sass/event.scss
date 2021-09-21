@@ -1,0 +1,20 @@
+.attendee-table .buttongrp-column {
+  min-width: 250px;
+}
+
+.attendee-table td {
+  word-break: break-word;
+  min-width: 100px;
+}
+
+@media (min-width: 992px) {
+  .attendee-table td {
+    min-width: 80px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .attendee-table td {
+    min-width: 200px;
+  }
+}

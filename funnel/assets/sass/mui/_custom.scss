@@ -9,6 +9,8 @@ $mui-success-color: #ddf5ed !default;
 $mui-warning-color: #fdf6ea !default;
 $mui-info-color: #cfefff !default;
 $mui-neutral-color: #656565 !default;
+$mui-primary-color-lighter: #e1eefd !default;
+$mui-accent-color-lighter: #f2deda !default;
 
 // ============================================================================
 // TEXT COLORS
@@ -24,6 +26,7 @@ $mui-text-warning: #f0a40c !default;
 $mui-text-info: #5da9e8 !default;
 $mui-text-white: #ffffff !default;
 $mui-text-white: #ffffff !default;
+$mui-text-accent-lighter: #1b3a44 !default;
 
 // ============================================================================
 // GLOBAL VARIABLES
@@ -32,6 +35,7 @@ $mui-text-white: #ffffff !default;
 $mui-bg-color-primary: #ffffff !default;
 $mui-bg-color-accent: #f9f9f9 !default;
 $mui-bg-color-dark: #f1f1f1 !default;
+$mui-bg-color-primary-dark: #f1f1f1;
 $mui-body-bg-color: $mui-bg-color-accent !default;
 $mui-btn-danger-bg-color: $mui-text-danger;
 
@@ -88,6 +92,7 @@ $mui-overlay-bg-color: rgba(31, 46, 61, 0.2) !default;
 // ============================================================================
 
 $mui-grid-padding: 16px !default;
+$mui-grid-padding-double: 32px !default;
 $mui-grid-gutter-width: 32px !default;
 
 // ============================================================================
@@ -95,3 +100,9 @@ $mui-grid-gutter-width: 32px !default;
 // ============================================================================
 
 $mui-panel-padding: 16px !default;
+
+// ============================================================================
+// HEADER
+// ============================================================================
+
+$mui-header-height: 52px;

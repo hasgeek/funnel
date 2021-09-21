@@ -20,6 +20,7 @@ module.exports = {
   entry: {
     app: path.resolve(__dirname, 'js/app.js'),
     index: path.resolve(__dirname, 'js/index.js'),
+    index_css: path.resolve(__dirname, 'sass/index.scss'),
     project_header: path.resolve(__dirname, 'js/project_header.js'),
     project: path.resolve(__dirname, 'js/project.js'),
     submissions: path.resolve(__dirname, 'js/submissions.js'),
@@ -42,10 +43,11 @@ module.exports = {
     ),
     account_saved: path.resolve(__dirname, 'js/account_saved.js'),
     form: path.resolve(__dirname, 'js/form.js'),
+    form_css: path.resolve(__dirname, 'sass/form.scss'),
     submission_form: path.resolve(__dirname, 'js/submission_form.js'),
     labels_form: path.resolve(__dirname, 'js/labels_form.js'),
     cfp_form: path.resolve(__dirname, 'js/cfp_form.js'),
-    main: path.resolve(__dirname, 'sass/app.scss'),
+    app_css: path.resolve(__dirname, 'sass/app.scss'),
   },
   output: {
     path: path.resolve(__dirname, '../static/build'),

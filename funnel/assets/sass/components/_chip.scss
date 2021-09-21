@@ -31,7 +31,7 @@
 
 .chip--bg-danger {
   background-color: $mui-danger-color;
-  color: mui-color('white');
+  color: $mui-text-white;
 }
 
 .chip + .chip {

@@ -1,0 +1,71 @@
+.ui-draggable-box {
+  padding: 16px;
+  border-radius: 3px;
+  border: 1px solid $mui-text-accent;
+  background: $mui-bg-color-primary;
+  cursor: move;
+  position: relative;
+  margin: 10px $mui-grid-padding;
+
+  .drag-icon {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+  }
+}
+
+.ui-draggable-box--header {
+  padding: 0;
+  margin: 10px 0;
+}
+
+.ui-draggable-box--header .collapsible__header {
+  margin: 0;
+}
+
+.ui-draggable-box label {
+  cursor: pointer;
+}
+
+.ui-draggable-box:hover {
+  cursor: pointer;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+}
+
+.ui-box-placeholder {
+  margin: 10px $mui-grid-padding;
+  padding: 10px;
+  border-radius: 3px;
+  border: 1px solid $mui-text-accent;
+  background: $mui-bg-color-primary;
+  height: 55px;
+}
+
+.ui-box-placeholder--bigger {
+  @extend .ui-box-placeholder;
+  margin: 10px 0;
+  height: 80px;
+}
+
+.seq-input {
+  position: absolute;
+  width: 20px;
+  border: 0;
+  top: 5px;
+  left: 5px;
+  font-size: 14px;
+  line-height: 1;
+  color: $mui-text-dark;
+  background: transparent;
+  z-index: 2;
+}
+
+.seq-input:focus,
+.seq-input:active {
+  outline: none;
+}
+
+.ui-draggable-box .sp-replacer {
+  margin-top: 5px;
+  margin-left: 5px;
+}

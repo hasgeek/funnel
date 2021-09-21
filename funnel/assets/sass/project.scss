@@ -1,3 +1,7 @@
+.project-page .alert-wrapper {
+  background: $mui-bg-color-primary;
+}
+
 .project-footer {
   position: fixed;
   width: 100%;
@@ -491,37 +495,20 @@
   outline: none;
 }
 
-.setting {
-  display: flex;
-  flex-direction: column;
-  .setting__name {
-    font-weight: 500;
-  }
-  .setting__sub {
-    font-size: 12px;
-  }
+.mui-btn--strike {
+  text-decoration: line-through;
+  -webkit-text-decoration-line: line-through;
 }
 
-@media (min-width: 1200px) {
-  .setting {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    .setting__name {
-      flex-shrink: 0;
-      margin-top: 0;
-      border-right: 1px solid $mui-text-light;
-      padding-right: $mui-grid-padding/2;
-      margin-right: $mui-grid-padding/2;
-      line-height: 1;
-    }
-    .setting__separator {
-      display: block;
-      margin: 0 $mui-grid-padding/2;
-    }
-    .setting__sub {
-      font-size: 16px;
-      line-height: 1;
-    }
+.mui-btn--strike:hover {
+  text-decoration: line-through;
+  -webkit-text-decoration-line: line-through;
+}
+
+.language-placeholder.language-vega-lite.vega-embed {
+  display: block;
+  canvas,
+  svg {
+    max-width: 100% !important;
   }
 }

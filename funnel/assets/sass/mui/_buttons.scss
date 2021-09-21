@@ -49,7 +49,9 @@
 // ============================================================================
 
 .mui-btn {
-  @include mui-text('button');
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
 
   @include button-variant(
     $mui-btn-default-font-color,
