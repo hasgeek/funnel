@@ -26,6 +26,23 @@ $(() => {
     $('.active-form-field').removeClass('active-form-field');
   });
 
+  $('body').on($.modal.OPEN, '.modal', (event) => {
+    event.preventDefault();
+    const formId = $('.modal').find('form').attr('id');
+    const url = Form.getActionUrl(formId);
+    console.log('formId', formId);
+    const onSuccess = (responseData) => {
+      $.modal.close();
+      if (responseData.collaborators) {
+        window.toastr.success(responseData.message);
+      }
+    };
+    const onError = (response) => {
+      this.errorMsg = Form.formErrorHandler(formId, response);
+    };
+    window.Hasgeek.Forms.handleFormSubmit(formId, url, onSuccess, onError, {});
+  });
+
   $('.js-close-form-modal').on('click', () => {
     $.modal.close();
   });

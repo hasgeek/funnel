@@ -17,6 +17,7 @@ __all__ = [
     'ProposalMoveForm',
     'ProposalTransferForm',
     'ProposalTransitionForm',
+    'ProposalCollaboratorForm',
 ]
 
 # FIXME: As labels are user generated content (UGC), these form constructors will
@@ -171,6 +172,20 @@ class ProposalForm(forms.Form):
             self.formlabels.form = label_form
         else:
             del self.formlabels
+
+
+@Proposal.forms('collaborator')
+class ProposalCollaboratorForm(forms.Form):
+    # add a collaborator to a submission
+    user = forms.UserSelectField(
+        __("User"),
+        description=__("Find a user by their name or email address"),
+    )
+    role = forms.TextAreaField(
+        __("Role"),
+        filters=[forms.filters.strip()],
+    )
+    is_private = forms.BooleanField(__("Hide collaborator on submission"))
 
 
 @Proposal.forms('transition')

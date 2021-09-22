@@ -67,14 +67,24 @@
                   </div>
                 {%- endif %}
               </div>
-              <div>
+              <div class="bottom-padding">
                 <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add video url{% endtrans %}" data-ga="Add video url" data-cy="add-video">{{ faicon(icon='video-plus', icon_size='caption', baseline=true, css_class='mui--text-light link fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Video{% endtrans %}</span><span class="mui--pull-right">{% trans %}Link a video{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</span></a>
-                <div class="js-modal-field mui--hide ">
+                <div class="js-modal-field mui--hide">
                   <div class="js-field top-padding">
                     {{ renderfield(form.video_url, css_class='top-padding') }}
                   </div>
                 </div>
               </div>
+              {%- if proposal %}
+                <div>
+                  <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Add collaborator" data-cy="add-video">{{ faicon(icon='user', icon_size='caption', baseline=true, css_class='mui--text-light link fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Collaborators{% endtrans %}</span><span class="mui--pull-right">{{ faicon(icon='plus', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</span></a>
+                  <div class="js-modal-field mui--hide">
+                    <div class="js-field top-padding">
+                      <a class="" href="{{ proposal.url_for('add_collaborator') }}" rel="modal:open" aria-label="Add collaborator" data-ga="Add collaborator" data-cy="add-to-collaborator" role="button" aria-haspopup="true">{{ faicon(icon='plus', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
+                    </div>
+                  </div>
+                </div>
+              {%- endif %}
             </div>
             {{ renderfield(form.body, css_class='mui-form__fields--noborder', nolabel=true, placeholder='Content') }}
           </div>

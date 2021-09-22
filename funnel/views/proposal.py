@@ -18,6 +18,7 @@ from coaster.views import (
 
 from .. import app
 from ..forms import (
+    ProposalCollaboratorForm,
     ProposalForm,
     ProposalLabelsAdminForm,
     ProposalMoveForm,
@@ -186,6 +187,25 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             'message': markdown_message,
             'ref_id': 'form-submission',
         }
+
+    @route('add_collaborator', methods=['GET', 'POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    def add_collaborator(self):
+        collaborator_form = ProposalCollaboratorForm(obj=self.obj, model=Proposal)
+        if collaborator_form.validate_on_submit():
+            return {
+                'status': 'ok',
+                'message': _("The user has been added as an collaborator"),
+                'collaborators': [],
+            }
+        return render_form(
+            form=collaborator_form,
+            title='',
+            submit='Add collaborator',
+            ajax=True,
+            with_chrome=True,
+        )
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
