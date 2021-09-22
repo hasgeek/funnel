@@ -456,6 +456,11 @@
     padding: 0 $mui-grid-padding $mui-grid-padding;
     position: relative;
 
+    .card__body__location {
+      float: left;
+      max-width: 90%;
+    }
+
     .card__body__bookmark {
       float: right;
       margin: $mui-grid-padding/4 0 0;
