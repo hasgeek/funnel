@@ -758,8 +758,10 @@
       padding-right: 16px;
     }
     .mobile-nav__headline {
-      font-size: 22px;
+      font-size: 18px;
       line-height: 1;
+      position: relative;
+      top: -2px;
     }
   }
 }

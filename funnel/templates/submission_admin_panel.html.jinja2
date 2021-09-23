@@ -5,25 +5,19 @@
   <a class="modal__close mui--text-dark" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
   <h3 class="mui--text-title mui--text-bold mui--text-uppercase" data-cy="admin-panel">{% trans %}Admin panel{% endtrans %}</h3>
 </div>
-<div class="modal__body">
+<div class="modal__body proposal__admin-panel">
   {%- if proposal.current_roles.project_editor %}
-    {%- if proposal_move_form %}
-      {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('moveto'), submit=gettext("Move"), style='horiz') }}
-    {%- endif %}
-    {%- if proposal_transfer_form %}
-      {{ renderform(proposal_transfer_form, 'proposal-transfer', action=proposal.url_for('transfer_to'), submit=gettext("Transfer")) }}
-    {%- endif %}
     <p class="mui--text-subhead">{% trans %}Change status of proposal{% endtrans %}</p>
     <form action="{{ proposal.url_for('transition') }}" method="post" class="form-inline">
       {{ transition_form.hidden_tag() }}
-      <p class="btn-group" data-cy="proposal-status">
+      <div class="btn-group" data-cy="proposal-status">
         {% for name, transition in transition_form.transition.choices %}
           <button name="transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %} mui-btn--danger {%- endif %}">{{ transition.data['title'] }}</button>
         {% endfor %}
-      </p>
+      </div>
     </form>
   {% endif %}
-  {% if project.view_for('labels').is_available() %}
+  {% if project.view_for('labels').is_available() and proposal_label_admin_form %}
     <hr>
     <p class="mui--text-subhead"><a href="{{ project.url_for('labels') }}">{{ faicon(icon='tag', css_class='fa-icon--right-margin mui--align-middle') }}{% trans %}Manage labels{% endtrans %}</a></p>
   {% endif %}
@@ -43,6 +37,12 @@
       {{ rendersubmit([("add-label", "Save", '')]) }}
     </form>
   {% endif %}
+  {%- if proposal_move_form %}
+    {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('moveto'), submit=gettext("Move")) }}
+  {%- endif %}
+  {%- if proposal_transfer_form %}
+    {{ renderform(proposal_transfer_form, 'proposal-transfer', action=proposal.url_for('transfer_to'), submit=gettext("Transfer")) }}
+  {%- endif %}
 </div>
 
 {{ widgetscripts(proposal_transfer_form, script=true) }}

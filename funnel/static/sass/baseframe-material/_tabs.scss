@@ -71,6 +71,8 @@
   overflow: auto;
   align-items: center;
   margin: $mui-grid-padding/2 0;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 
   .tabs__item {
     padding: $mui-grid-padding/4 $mui-grid-padding;
@@ -128,6 +130,11 @@
   .tabs__item-control--next {
     right: 0;
   }
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .badge {

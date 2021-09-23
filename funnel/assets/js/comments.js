@@ -1,6 +1,8 @@
 import Vue from 'vue/dist/vue.min';
-import { Utils } from './util';
-import { userAvatarUI, faSvg, shareDropdown } from './vue_util';
+import ScrollHelper from './utils/scrollhelper';
+import Form from './utils/formhelper';
+import getTimeago from './utils/getTimeago';
+import { userAvatarUI, faSvg, shareDropdown } from './utils/vue_util';
 
 const Comments = {
   init({
@@ -120,7 +122,7 @@ const Comments = {
         },
       },
       created() {
-        this.timeago = Utils.getTimeago();
+        this.timeago = getTimeago();
       },
       mounted() {
         window.setInterval(() => {
@@ -237,7 +239,7 @@ const Comments = {
               app.refreshCommentsTimer();
             },
             error(response) {
-              parentApp.errorMsg = Utils.formErrorHandler(formId, response);
+              parentApp.errorMsg = Form.formErrorHandler(formId, response);
             },
           });
         },
@@ -269,7 +271,7 @@ const Comments = {
       mounted() {
         this.fetchCommentsList();
         this.refreshCommentsTimer();
-        this.headerHeight = Utils.getPageHeaderHeight();
+        this.headerHeight = ScrollHelper.getPageHeaderHeight();
 
         $('body').on('click', (e) => {
           if (
@@ -288,7 +290,7 @@ const Comments = {
         });
 
         $(window).resize(() => {
-          this.headerHeight = Utils.getPageHeaderHeight();
+          this.headerHeight = ScrollHelper.getPageHeaderHeight();
         });
 
         const commentSection = document.querySelector(divElem);
@@ -319,14 +321,14 @@ const Comments = {
       },
       updated() {
         if (this.initialLoad && window.location.hash) {
-          Utils.animateScrollTo(
+          ScrollHelper.animateScrollTo(
             $(window.location.hash).offset().top - this.headerHeight
           );
           this.initialLoad = false;
         }
         if (this.scrollTo) {
           if ($(window).width() < window.Hasgeek.Config.mobileBreakpoint) {
-            Utils.animateScrollTo(
+            ScrollHelper.animateScrollTo(
               $(this.scrollTo).offset().top - this.headerHeight
             );
           }
@@ -339,6 +341,12 @@ const Comments = {
 
 $(() => {
   window.Hasgeek.Comments = function initComments(config) {
-    Comments.init(config);
+    $.ajax({
+      url: config.codemirrorUrl,
+      dataType: 'script',
+      cache: true,
+    }).done(() => {
+      Comments.init(config);
+    });
   };
 });

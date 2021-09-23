@@ -8,9 +8,9 @@
     position: fixed;
     top: 16px;
     right: 16px;
-    z-index: 999;
+    z-index: 1000;
     .comment-new-mobile {
-      font-size: 20px;
+      font-size: 18px;
       line-height: 1;
     }
   }
@@ -56,6 +56,7 @@
       }
       .badge {
         margin-left: $mui-grid-padding/4;
+        margin-bottom: $mui-grid-padding/4;
       }
     }
   }

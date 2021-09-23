@@ -88,6 +88,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             'form': form,
             'emptysubform': emptysubform,
             'project': self.obj,
+            'ref_id': 'form-labels',
         }
 
 
@@ -193,6 +194,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
         return {
             'title': "Edit label",
             'form': form,
+            'ref_id': 'form-labels',
             'subforms': subforms,
             'emptysubform': emptysubform,
             'project': self.obj.project,

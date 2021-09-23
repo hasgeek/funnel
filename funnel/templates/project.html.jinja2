@@ -206,20 +206,20 @@
 {% endblock %}
 
 {% block footerinnerscripts %}
-  <script src="{{ built_asset('project.js') }}" type="text/javascript"></script>
-  <script type="text/javascript">
-    $(function() {
-      var projectConfig = {};
+  {%- if project.primary_venue.has_coordinates -%}
+    <script src="{{ built_asset('project.js') }}" type="text/javascript"></script>
+    <script type="text/javascript">
+      $(function() {
+        var projectConfig = {};
 
-      {%- if project.primary_venue.has_coordinates -%}
-        projectConfig.venue = {
-          mapId: "venue-map",
-          latitude: {{ project.primary_venue.latitude|tojson }},
-          longitude: {{ project.primary_venue.longitude|tojson }}
-        };
-      {%- endif %}
+          projectConfig.venue = {
+            mapId: "venue-map",
+            latitude: {{ project.primary_venue.latitude|tojson }},
+            longitude: {{ project.primary_venue.longitude|tojson }}
+          };
 
-      window.Hasgeek.projectInit(projectConfig);
-    });
-  </script>
+        window.Hasgeek.projectInit(projectConfig);
+      });
+    </script>
+  {%- endif %}
 {% endblock %}

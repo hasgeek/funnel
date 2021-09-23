@@ -22,8 +22,8 @@ module.exports = {
     index: path.resolve(__dirname, 'js/index.js'),
     project_header: path.resolve(__dirname, 'js/project_header.js'),
     project: path.resolve(__dirname, 'js/project.js'),
-    proposals: path.resolve(__dirname, 'js/proposals.js'),
-    proposal: path.resolve(__dirname, 'js/proposal.js'),
+    submissions: path.resolve(__dirname, 'js/submissions.js'),
+    submission: path.resolve(__dirname, 'js/submission.js'),
     labels: path.resolve(__dirname, 'js/labels.js'),
     schedule_view: path.resolve(__dirname, 'js/schedule_view.js'),
     event: path.resolve(__dirname, 'js/event.js'),
@@ -41,6 +41,10 @@ module.exports = {
       'js/notification_settings.js'
     ),
     account_saved: path.resolve(__dirname, 'js/account_saved.js'),
+    form: path.resolve(__dirname, 'js/form.js'),
+    submission_form: path.resolve(__dirname, 'js/submission_form.js'),
+    labels_form: path.resolve(__dirname, 'js/labels_form.js'),
+    cfp_form: path.resolve(__dirname, 'js/cfp_form.js'),
   },
   output: {
     path: path.resolve(__dirname, '../static/build'),

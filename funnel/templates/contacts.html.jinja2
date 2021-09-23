@@ -59,16 +59,18 @@
                   </div>
                   <div class="collapsible__body mui-list--aligned">
                     {% for contact in daterow.contacts.all() %}
-                      <div class="user mui--pull-left">
-                        <div class="user__box">
-                          {{ useravatar(contact.ticket_participant) }}
-                          <div class="user__box__header">
-                              <p class="mui--text-subhead zero-bottom-margin">{{ contact.ticket_participant.fullname }}</p>
-                              <p class="mui--text-body2">{{ contact.ticket_participant.email }}</p>
+                      <div class="mui--clearfix">
+                        <div class="user mui--pull-left">
+                          <div class="user__box">
+                            {{ useravatar(contact.ticket_participant.user) }}
+                            <div class="user__box__header">
+                                <p class="mui--text-subhead zero-bottom-margin">{{ contact.ticket_participant.fullname }}</p>
+                                <p class="mui--text-body2 zero-bottom-margin">{{ contact.ticket_participant.email }}</p>
+                            </div>
                           </div>
                         </div>
+                        <a class="mui--pull-right contact-download-btn" onclick="Hasgeek.downloadVcard(this,'{{contact.ticket_participant.fullname}}', '{{contact.ticket_participant.email}}', '{{contact.ticket_participant.phone}}', '{{contact.ticket_participant.company}}')" download href="" aria-label="download contact">{{ faicon(icon='address-card', icon_size='headline') }}</a>
                       </div>
-                      <a class="mui--pull-right contact-download-btn" onclick="Hasgeek.downloadVcard(this,'{{contact.ticket_participant.fullname}}', '{{contact.ticket_participant.email}}', '{{contact.ticket_participant.phone}}', '{{contact.ticket_participant.company}}')" download href="" aria-label="download contact">{{ faicon(icon='address-card', icon_size='headline') }}</a>
                     {%- endfor -%}
                   </div>
                 </div>
