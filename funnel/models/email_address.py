@@ -87,7 +87,7 @@ def canonical_email_representation(email: str) -> List[str]:
     if '@' not in email:
         raise ValueError("Not an email address")
     mailbox, domain = email.split('@', 1)
-    mailbox = mailbox.lower()
+    mailbox = unicodedata.normalize('NFC', mailbox).lower()
     if '+' in mailbox:
         mailbox = mailbox[: mailbox.find('+')]
     domain = idna.encode(domain, uts46=True).decode()
