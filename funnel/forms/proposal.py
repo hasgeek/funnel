@@ -181,11 +181,11 @@ class ProposalCollaboratorForm(forms.Form):
         __("User"),
         description=__("Find a user by their name or email address"),
     )
-    role = forms.TextAreaField(
+    label = forms.TextAreaField(
         __("Role"),
         filters=[forms.filters.strip()],
     )
-    is_private = forms.BooleanField(__("Hide collaborator on submission"))
+    is_uncredited = forms.BooleanField(__("Hide collaborator on submission"))
 
 
 @Proposal.forms('transition')
