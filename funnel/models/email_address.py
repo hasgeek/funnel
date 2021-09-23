@@ -801,7 +801,7 @@ def _send_refcount_event_remove(target, value, initiator):
     emailaddress_refcount_dropping.send(target)
 
 
-def _send_refcount_event_before_delete(mapper, connection, target):
+def _send_refcount_event_before_delete(mapper_, connection, target):
     if target.email_address:
         emailaddress_refcount_dropping.send(target.email_address)
 
