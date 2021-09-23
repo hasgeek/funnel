@@ -106,7 +106,7 @@
           </li>
         {%- endfor -%}
       </ul>
-      {% if draft_projects|length > 3 %}
+      {% if draft_projects|length > 2 %}
         <div class="mui--text-center">
           <a href="javascript:void(0)"  data-target="show all draft projects" class="jquery-show-all mui--text-uppercase" data-projects="js-draft-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
         </div>
@@ -125,11 +125,16 @@
         </div>
         <ul class="grid projects" role="list">
           {% for project in unscheduled_projects %}
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-unscheduled-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
               {{ projectcard(project, save_form_id_prefix='unsched_spf_') }}
             </li>
           {% endfor %}
         </ul>
+        {% if unscheduled_projects|length > 2 %}
+          <div class="mui--text-center">
+            <a href="javascript:void(0)"  data-target="show all unscheduled projects" class="jquery-show-all mui--text-uppercase" data-projects="js-unscheduled-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+          </div>
+        {% endif %}
       </div>
     </div>
   {% endif %}
