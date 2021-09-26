@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Set, TypeVar
+from typing import Any, Iterable, Set, TypeVar
 
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.expression import ClauseList
@@ -24,6 +24,7 @@ __all__ = [
     'MembershipError',
     'MembershipRevokedError',
     'MembershipRecordTypeError',
+    'ReplaceMembership',
 ]
 
 
@@ -564,3 +565,34 @@ class ReorderMembershipMixin(ReorderMixin):
             cls.parent == self.parent,  # type: ignore[attr-defined]
             cls.is_active,  # type: ignore[attr-defined]
         )
+
+
+class ReplaceMembership:
+    """
+    Helper class for editing a membership record from a form.
+
+    Usage::
+
+        >>> replacement = ReplaceMembership(membership)
+        >>> form.populate_obj(replacement)
+        >>> membership = replacement.finalize(actor)
+    """
+
+    def __init__(self, membership: MembershipType):
+        """Create a replacement placeholder."""
+        object.__setattr__(self, '_new', {})
+        object.__setattr__(self, '_membership', membership)
+
+    def __getattr__(self, attr: str):
+        """Get an attribute from the underlying record."""
+        if attr in self._new:
+            return self._new[attr]
+        return getattr(self._membership, attr)
+
+    def __setattr__(self, attr: str, value: Any):
+        """Set a replacement value."""
+        self._new[attr] = value
+
+    def finalize(self, actor: User):
+        """Finalize and return a replacement record."""
+        return self._membership.replace(actor, **self._new)

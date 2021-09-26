@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from baseframe import __
+from baseframe import _, __
 from baseframe.forms.sqlalchemy import QuerySelectField
 from coaster.auth import current_auth
 import baseframe.forms as forms
@@ -17,7 +17,7 @@ __all__ = [
     'ProposalMoveForm',
     'ProposalTransferForm',
     'ProposalTransitionForm',
-    'ProposalCollaboratorForm',
+    'ProposalMemberForm',
 ]
 
 # FIXME: As labels are user generated content (UGC), these form constructors will
@@ -175,17 +175,28 @@ class ProposalForm(forms.Form):
 
 
 @Proposal.forms('collaborator')
-class ProposalCollaboratorForm(forms.Form):
-    # add a collaborator to a submission
+class ProposalMemberForm(forms.Form):
+    __expects__ = ('proposal',)
+    # add or edit a collaborator on a submission
     user = forms.UserSelectField(
         __("User"),
         description=__("Find a user by their name or email address"),
+        validators=[forms.validators.DataRequired()],
     )
     label = forms.TextAreaField(
         __("Role"),
         filters=[forms.filters.strip()],
     )
     is_uncredited = forms.BooleanField(__("Hide collaborator on submission"))
+
+    def validate_user(self, field):
+        for membership in self.proposal.memberships:
+            if membership.user == field.data:
+                raise forms.StopValidation(
+                    _("{user} is already a collaborator").format(
+                        user=field.data.pickername
+                    )
+                )
 
 
 @Proposal.forms('transition')

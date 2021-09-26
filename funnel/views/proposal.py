@@ -18,9 +18,9 @@ from coaster.views import (
 
 from .. import app
 from ..forms import (
-    ProposalCollaboratorForm,
     ProposalForm,
     ProposalLabelsAdminForm,
+    ProposalMemberForm,
     ProposalMoveForm,
     ProposalTransferForm,
     ProposalTransitionForm,
@@ -29,8 +29,10 @@ from ..forms import (
 from ..models import (
     Project,
     Proposal,
+    ProposalMembership,
     ProposalReceivedNotification,
     ProposalSubmittedNotification,
+    ReplaceMembership,
     db,
 )
 from .login_session import requires_login, requires_sudo
@@ -192,12 +194,21 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_login
     @requires_roles({'editor'})
     def add_collaborator(self):
-        collaborator_form = ProposalCollaboratorForm(obj=self.obj, model=Proposal)
+        collaborator_form = ProposalMemberForm(proposal=self.obj)
         if collaborator_form.validate_on_submit():
+            with db.session.no_autoflush:
+                membership = ProposalMembership(
+                    proposal=self.obj, actor=current_auth.user
+                )
+                collaborator_form.populate_obj(membership)
+                db.session.add(membership)
+            db.session.commit()
             return {
                 'status': 'ok',
-                'message': _("The user has been added as an collaborator"),
-                'collaborators': [],
+                'message': _("{user} has been added as an collaborator").format(
+                    user=membership.user.pickername
+                ),
+                'collaborators': [_m.current_access() for _m in self.obj.memberships],
             }
         return render_form(
             form=collaborator_form,
@@ -206,6 +217,60 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ajax=True,
             with_chrome=True,
         )
+
+    @route('edit_collaborator/<membership>', methods=['GET', 'POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    def edit_collaborator(self, membership: str):
+        obj = ProposalMembership.query.filter_by(
+            proposal=self.obj,
+            uuid_b58=membership,
+        ).one_or_404()
+        if not obj.is_active:
+            abort(410)
+        replacement = ReplaceMembership(obj)
+        collaborator_form = ProposalMemberForm(proposal=self.obj, obj=replacement)
+        del collaborator_form.user
+        if collaborator_form.validate_on_submit():
+            with db.session.no_autoflush:
+                collaborator_form.populate_obj(replacement)
+                db.session.add(replacement.finalize(current_auth.user))
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("{user}’s role has been updated").format(
+                    user=obj.user.pickername
+                ),
+                'collaborators': [_m.current_access() for _m in self.obj.memberships],
+            }
+        return render_form(
+            form=collaborator_form,
+            title='',
+            submit='Edit collaborator',
+            ajax=True,
+            with_chrome=True,
+        )
+
+    @route('remove_collaborator/<membership>', methods=['POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    def remove_collaborator(self, membership: str):
+        obj = ProposalMembership.query.filter_by(
+            proposal=self.obj, uuid_b58=membership
+        ).one_or_404()
+        if not obj.is_active:
+            abort(410)
+        if Form().validate_on_submit():
+            obj.revoke(actor=current_auth.user)
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("{user} is no longer a collaborator").format(
+                    user=obj.user.pickername
+                ),
+                'collaborators': [_m.current_access() for _m in self.obj.memberships],
+            }
+        return {'status': 'error', 'error': 'csrf'}, 422
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
