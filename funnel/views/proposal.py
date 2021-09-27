@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from flask import abort, flash, redirect
+from typing import Union
+
+from flask import abort, flash, redirect, request
 
 from baseframe import _, __
 from baseframe.forms import Form, render_delete_sqla, render_form
@@ -27,15 +29,17 @@ from ..forms import (
     SavedProjectForm,
 )
 from ..models import (
+    Profile,
     Project,
     Proposal,
     ProposalMembership,
     ProposalReceivedNotification,
     ProposalSubmittedNotification,
+    ProposalSuuidRedirect,
     db,
 )
 from .login_session import requires_login, requires_sudo
-from .mixins import ProjectViewMixin, ProposalViewMixin
+from .mixins import ProfileCheckMixin, ProjectViewMixin
 from .notification import dispatch_notification
 from .session import session_edit
 
@@ -128,8 +132,53 @@ ProjectProposalView.init_app(app)
 @Proposal.views('main')
 @route('/<profile>/<project>/proposals/<proposal>')
 @route('/<profile>/<project>/sub/<proposal>')
-class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
+class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
+    model = Proposal
+    route_model_map = {
+        'profile': 'project.profile.name',
+        'project': 'project.name',
+        'proposal': 'url_name_uuid_b58',
+    }
+    obj: Union[Proposal, ProposalSuuidRedirect]
+
     SavedProjectForm = SavedProjectForm
+
+    def loader(
+        self,
+        profile: str,  # skipcq: PYL-W0613
+        project: str,  # skipcq: PYL-W0613
+        proposal: str,
+    ) -> Union[Proposal, ProposalSuuidRedirect]:
+        # `profile` and `project` are part of the URL, but unnecessary for loading
+        # a proposal since it has a unique id embedded. These parameters are not
+        # used in the query.
+        obj = (
+            self.model.query.join(Project, Profile)
+            .filter(Proposal.url_name_uuid_b58 == proposal)
+            .first()
+        )
+        if obj is None:
+            if request.method == 'GET':
+                return (
+                    ProposalSuuidRedirect.query.join(Proposal)
+                    .filter(ProposalSuuidRedirect.suuid == proposal.split('-')[-1])
+                    .first_or_404()
+                )
+            abort(404)
+
+        if obj.project.state.DELETED or obj.state.DELETED:
+            abort(410)
+        return obj
+
+    def after_loader(self):
+        if isinstance(self.obj, ProposalSuuidRedirect):
+            if self.obj.proposal:
+                self.profile = self.obj.proposal.project.profile
+                return redirect(self.obj.proposal.url_for())
+            else:
+                abort(410)
+        self.profile = self.obj.project.profile
+        return super().after_loader()
 
     @route('')
     @render_with('submission.html.jinja2')
@@ -216,65 +265,6 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ajax=True,
             with_chrome=True,
         )
-
-    @route('edit_collaborator/<membership>', methods=['GET', 'POST'])
-    @requires_login
-    @requires_roles({'editor'})
-    def edit_collaborator(self, membership: str):
-        obj = (
-            ProposalMembership.query.filter_by(
-                proposal=self.obj,
-                uuid_b58=membership,
-            )
-            .one_or_404()
-            .current_access()
-        )
-        if not obj.is_active:
-            abort(410)
-        collaborator_form = ProposalMemberForm(proposal=self.obj, obj=obj)
-        del collaborator_form.user
-        if collaborator_form.validate_on_submit():
-            with db.session.no_autoflush:
-                with obj.amend_by(current_auth.user) as amendment:
-                    collaborator_form.populate_obj(amendment)
-            db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("{user}’s role has been updated").format(
-                    user=obj.user.pickername
-                ),
-                'collaborators': [_m.current_access() for _m in self.obj.memberships],
-            }
-        return render_form(
-            form=collaborator_form,
-            title='',
-            submit='Edit collaborator',
-            ajax=True,
-            with_chrome=True,
-        )
-
-    @route('remove_collaborator/<membership>', methods=['POST'])
-    @requires_login
-    @requires_roles({'editor'})
-    def remove_collaborator(self, membership: str):
-        obj = (
-            ProposalMembership.query.filter_by(proposal=self.obj, uuid_b58=membership)
-            .one_or_404()
-            .current_access()
-        )
-        if not obj.is_active:
-            abort(410)
-        if Form().validate_on_submit():
-            obj.revoke(actor=current_auth.user)
-            db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("{user} is no longer a collaborator").format(
-                    user=obj.user.pickername
-                ),
-                'collaborators': [_m.current_access() for _m in self.obj.memberships],
-            }
-        return {'status': 'error', 'error': 'csrf'}, 422
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
@@ -412,3 +402,92 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
 
 ProposalView.init_app(app)
+
+
+@ProposalMembership.views('main')
+@route('/<profile>/<project>/proposals/<proposal>/collaborator/<membership>')
+@route('/<profile>/<project>/sub/<proposal>/collaborator/<membership>')
+class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
+    model = ProposalMembership
+    route_model_map = {
+        'profile': 'proposal.project.profile.name',
+        'project': 'proposal.project.name',
+        'proposal': 'proposal.url_name_uuid_b58',
+        'membership': 'uuid_b58',
+    }
+    obj: ProposalMembership
+
+    def loader(
+        self,
+        profile: str,  # skipcq: PYL-W0613
+        project: str,  # skipcq: PYL-W0613
+        proposal: str,  # skipcq: PYL-W0613
+        membership: str,
+    ) -> ProposalMembership:
+        # `profile`, `project` and `proposal` are part of the URL, but unnecessary for
+        # loading a proposal membership since it has a unique id.
+        obj = self.model.query.filter(
+            ProposalMembership.uuid_b58 == membership
+        ).one_or_404()
+        if obj.revoked_at is not None:
+            abort(410)
+        return obj
+
+    def after_loader(self):
+        self.profile = self.obj.proposal.project.profile
+        return super().after_loader()
+
+    @route('edit', methods=['GET', 'POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    def edit(self):
+        membership = self.obj.current_access()
+        collaborator_form = ProposalMemberForm(
+            proposal=self.obj.proposal, obj=membership
+        )
+        del collaborator_form.user
+        if collaborator_form.validate_on_submit():
+            with db.session.no_autoflush:
+                with membership.amend_by(current_auth.user) as amendment:
+                    collaborator_form.populate_obj(amendment)
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("{user}’s role has been updated").format(
+                    user=membership.user.pickername
+                ),
+                'collaborators': [
+                    _m.current_access(datasets=['primary'])
+                    for _m in self.obj.proposal.memberships
+                ],
+            }
+        return render_form(
+            form=collaborator_form,
+            title='',
+            submit='Edit collaborator',
+            ajax=True,
+            with_chrome=True,
+        )
+
+    @route('remove', methods=['POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    def remove(self):
+        membership = self.obj.current_access()
+        if Form().validate_on_submit():
+            membership.revoke(actor=current_auth.user)
+            db.session.commit()
+            return {
+                'status': 'ok',
+                'message': _("{user} is no longer a collaborator").format(
+                    user=membership.user.pickername
+                ),
+                'collaborators': [
+                    _m.current_access(datasets=['primary'])
+                    for _m in self.obj.proposal.memberships
+                ],
+            }
+        return {'status': 'error', 'error': 'csrf'}, 422
+
+
+ProposalMembershipView.init_app(app)

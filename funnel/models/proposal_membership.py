@@ -26,7 +26,12 @@ class ProposalMembership(
     # List of is_role columns in this model
     __data_columns__ = ('seq', 'is_uncredited', 'label')
 
-    __roles__ = {'all': {'read': {'urls', 'user', 'seq', 'is_uncredited', 'label'}}}
+    __roles__ = {
+        'all': {
+            'read': {'urls', 'user', 'seq', 'is_uncredited', 'label'},
+            'call': {'url_for'},
+        }
+    }
     __datasets__ = {
         'primary': {
             'urls',
@@ -58,20 +63,27 @@ class ProposalMembership(
     }
 
     proposal_id = immutable(
-        db.Column(
-            None, db.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
-        )
+        with_roles(
+            db.Column(
+                None, db.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
+            ),
+            read={'subject', 'editor'},
+        ),
     )
     proposal = immutable(
-        db.relationship(
-            Proposal,
-            backref=db.backref(
-                'all_memberships',
-                lazy='dynamic',
-                cascade='all',
-                passive_deletes=True,
+        with_roles(
+            db.relationship(
+                Proposal,
+                backref=db.backref(
+                    'all_memberships',
+                    lazy='dynamic',
+                    cascade='all',
+                    passive_deletes=True,
+                ),
             ),
-        )
+            read={'subject', 'editor'},
+            grants_via={None: {'editor'}},
+        ),
     )
     parent = db.synonym('proposal')
     parent_id = db.synonym('proposal_id')
@@ -116,6 +128,7 @@ class __Proposal:
             order_by=ProposalMembership.seq,
             viewonly=True,
         ),
+        read={'all'},
         # These grants are authoritative and used instead of `offered_roles` above
         grants_via={'user': {'submitter', 'editor'}},
     )
