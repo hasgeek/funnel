@@ -32,7 +32,6 @@ from ..models import (
     ProposalMembership,
     ProposalReceivedNotification,
     ProposalSubmittedNotification,
-    ReplaceMembership,
     db,
 )
 from .login_session import requires_login, requires_sudo
@@ -222,19 +221,22 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_login
     @requires_roles({'editor'})
     def edit_collaborator(self, membership: str):
-        obj = ProposalMembership.query.filter_by(
-            proposal=self.obj,
-            uuid_b58=membership,
-        ).one_or_404()
+        obj = (
+            ProposalMembership.query.filter_by(
+                proposal=self.obj,
+                uuid_b58=membership,
+            )
+            .one_or_404()
+            .current_access()
+        )
         if not obj.is_active:
             abort(410)
-        replacement = ReplaceMembership(obj)
-        collaborator_form = ProposalMemberForm(proposal=self.obj, obj=replacement)
+        collaborator_form = ProposalMemberForm(proposal=self.obj, obj=obj)
         del collaborator_form.user
         if collaborator_form.validate_on_submit():
             with db.session.no_autoflush:
-                collaborator_form.populate_obj(replacement)
-                db.session.add(replacement.finalize(current_auth.user))
+                with obj.amend_by(current_auth.user) as amendment:
+                    collaborator_form.populate_obj(amendment)
             db.session.commit()
             return {
                 'status': 'ok',
@@ -255,9 +257,11 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_login
     @requires_roles({'editor'})
     def remove_collaborator(self, membership: str):
-        obj = ProposalMembership.query.filter_by(
-            proposal=self.obj, uuid_b58=membership
-        ).one_or_404()
+        obj = (
+            ProposalMembership.query.filter_by(proposal=self.obj, uuid_b58=membership)
+            .one_or_404()
+            .current_access()
+        )
         if not obj.is_active:
             abort(410)
         if Form().validate_on_submit():

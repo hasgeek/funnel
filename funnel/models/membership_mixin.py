@@ -24,7 +24,6 @@ __all__ = [
     'MembershipError',
     'MembershipRevokedError',
     'MembershipRecordTypeError',
-    'ReplaceMembership',
 ]
 
 
@@ -226,6 +225,11 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
                 setattr(new, column, getattr(self, column))
         db.session.add(new)
         return new
+
+    @with_roles(call={'editor'})
+    def amend_by(self: MembershipType, actor: User):
+        """Amend a membership in a `with` context."""
+        return AmendMembership(self, actor)
 
     def merge_and_replace(
         self: MembershipType, actor: User, other: MembershipType
@@ -567,32 +571,56 @@ class ReorderMembershipMixin(ReorderMixin):
         )
 
 
-class ReplaceMembership:
+class AmendMembership:
     """
     Helper class for editing a membership record from a form.
 
-    Usage::
+    Usage via the membership base class::
 
-        >>> replacement = ReplaceMembership(membership)
-        >>> form.populate_obj(replacement)
-        >>> membership = replacement.finalize(actor)
+        with membership.amend_by(actor) as amendment:
+            amendment.attr = value
+            form.populate_obj(amendment)
+
+        new_membership = amendment.membership
+
+    The amendment object is not a membership record but a proxy that allows writing
+    to any attribute listed as a data column.
     """
 
-    def __init__(self, membership: MembershipType):
-        """Create a replacement placeholder."""
+    def __init__(self, membership: MembershipType, actor: User):
+        """Create an amendment placeholder."""
+        if membership.revoked_at is not None:
+            raise MembershipRevokedError(
+                "This membership record has already been revoked"
+            )
+        object.__setattr__(self, 'membership', membership)
         object.__setattr__(self, '_new', {})
-        object.__setattr__(self, '_membership', membership)
+        object.__setattr__(self, '_actor', actor)
 
     def __getattr__(self, attr: str):
         """Get an attribute from the underlying record."""
         if attr in self._new:
             return self._new[attr]
-        return getattr(self._membership, attr)
+        return getattr(self.membership, attr)
 
     def __setattr__(self, attr: str, value: Any):
-        """Set a replacement value."""
+        """Set an amended value."""
+        if attr not in self.membership.__data_columns__:
+            raise AttributeError(f"{attr} cannot be set")
         self._new[attr] = value
 
-    def finalize(self, actor: User):
-        """Finalize and return a replacement record."""
-        return self._membership.replace(actor, **self._new)
+    def __enter__(self) -> AmendMembership:
+        """Enter a `with` context."""
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        """Exit a `with` context and replace the membership record."""
+        if exc_type is None:
+            object.__setattr__(
+                self, 'membership', self.membership.replace(self._actor, **self._new)
+            )
+
+    def commit(self):
+        """Commit and return a replacement record when not using a `with` context."""
+        self.__exit__(None, None, None)
+        return self.membership
