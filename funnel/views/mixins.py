@@ -116,7 +116,11 @@ class ProposalViewMixin(ProfileCheckMixin):
     obj: Union[Proposal, ProposalSuuidRedirect]
 
     def loader(
-        self, profile: str, project: str, proposal: str  # skipcq: PYL-W0613
+        self,
+        profile: str,  # skipcq: PYL-W0613
+        project: str,  # skipcq: PYL-W0613
+        proposal: str,
+        membership: str = None,  # skipcq: PYL-W0613
     ) -> Union[Proposal, ProposalSuuidRedirect]:
         # `profile` and `project` are part of the URL, but unnecessary for loading
         # a proposal since it has a unique id embedded. The function parameters are not
