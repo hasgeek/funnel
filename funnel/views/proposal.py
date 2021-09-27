@@ -405,7 +405,6 @@ ProposalView.init_app(app)
 
 
 @ProposalMembership.views('main')
-@route('/<profile>/<project>/proposals/<proposal>/collaborator/<membership>')
 @route('/<profile>/<project>/sub/<proposal>/collaborator/<membership>')
 class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     model = ProposalMembership
@@ -455,16 +454,18 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
                 'status': 'ok',
                 'message': _("{user}’s role has been updated").format(
                     user=membership.user.pickername
-                ),
+                )
+                if amendment.membership is not self.obj
+                else None,
                 'collaborators': [
-                    _m.current_access(datasets=['primary'])
+                    _m.current_access(datasets=['primary', 'related'])
                     for _m in self.obj.proposal.memberships
                 ],
             }
         return render_form(
             form=collaborator_form,
             title='',
-            submit='Edit collaborator',
+            submit='Save',
             ajax=True,
             with_chrome=True,
         )
@@ -483,7 +484,7 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
                     user=membership.user.pickername
                 ),
                 'collaborators': [
-                    _m.current_access(datasets=['primary'])
+                    _m.current_access(datasets=['primary', 'related'])
                     for _m in self.obj.proposal.memberships
                 ],
             }

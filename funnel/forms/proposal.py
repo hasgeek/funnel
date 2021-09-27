@@ -183,8 +183,11 @@ class ProposalMemberForm(forms.Form):
         description=__("Find a user by their name or email address"),
         validators=[forms.validators.DataRequired()],
     )
-    label = forms.TextAreaField(
+    label = forms.StringField(
         __("Role"),
+        description=__(
+            "Optional – A specific role in this submission (like Author or Editor)"
+        ),
         filters=[forms.filters.strip()],
     )
     is_uncredited = forms.BooleanField(__("Hide collaborator on submission"))
