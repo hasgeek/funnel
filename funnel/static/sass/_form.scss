@@ -554,9 +554,31 @@ form.mui--bg-accent .CodeMirror {
   }
 }
 
-.modal-form {
+.modal-form.modal-form--submission {
   .mui-textfield {
     margin-bottom: 0;
+  }
+  .modal-form__title {
+    position: absolute;
+    top: 10px;
+  }
+  .modal-form__new-wrapper {
+    padding: $mui-grid-padding/2 $mui-grid-padding;
+    background-color: $mui-bg-color-accent;
+    margin-left: -$mui-grid-padding;
+    margin-right: -$mui-grid-padding;
+    margin-bottom: $mui-grid-padding;
+    .modal-form__new-wrapper__search {
+      background: $mui-bg-color-primary;
+      border-radius: $mui-grid-padding;
+      padding: $mui-grid-padding/2 $mui-grid-padding;
+      width: 100%;
+      display: inline-block;
+      box-sizing: border-box;
+    }
+  }
+  .modal-form__new-separator {
+    border-left: 1px solid $mui-divider-color;
   }
 }
 

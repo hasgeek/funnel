@@ -1,4 +1,5 @@
 import addVegaSupport from './utils/vegaembed';
+import Form from './utils/formhelper';
 
 $(() => {
   let textareaWaitTimer;

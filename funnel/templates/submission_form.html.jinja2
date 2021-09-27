@@ -59,7 +59,7 @@
             <div class="submission-header__edit-icons">
               <div class="bottom-padding">
                 {%- if form.formlabels %}
-                  <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add labels to submission{% endtrans %}" data-ga="Add label to submission video" data-cy="add-label">{{ faicon(icon='tag-solid', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Labels{% endtrans %}</span><span class="mui--pull-right">{% trans %}Select a relevant label{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=true, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.formlabels.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='label-error-icon mui--text-danger fa-icon--left-margin') }}{%- else %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='label-error-icon mui--text-danger fa-icon--left-margin mui--hide') }}{%- endif %}</a>
+                  <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add labels to submission{% endtrans %}" data-ga="Add label to submission video" data-cy="add-label">{{ faicon(icon='tag-solid', icon_size='body2', baseline=false, css_class='mui--text-light fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Labels{% endtrans %}</span><span class="mui--pull-right">{% trans %}Select a relevant label{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=true, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.formlabels.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='label-error-icon mui--text-danger fa-icon--left-margin') }}{%- else %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='label-error-icon mui--text-danger fa-icon--left-margin mui--hide') }}{%- endif %}</a>
                   <div class="js-modal-field mui--hide">
                     <div class="js-field top-padding">
                       {{ renderfield(form.formlabels, css_class='label-select-fields top-padding active') }}
@@ -68,7 +68,7 @@
                 {%- endif %}
               </div>
               <div class="bottom-padding">
-                <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add video url{% endtrans %}" data-ga="Add video url" data-cy="add-video">{{ faicon(icon='video-plus', icon_size='caption', baseline=true, css_class='mui--text-light link fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Video{% endtrans %}</span><span class="mui--pull-right">{% trans %}Link a video{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</span></a>
+                <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add video url{% endtrans %}" data-ga="Add video url" data-cy="add-video">{{ faicon(icon='video-plus', icon_size='body2', baseline=true, css_class='mui--text-light link fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Video{% endtrans %}</span><span class="mui--pull-right">{% trans %}Link a video{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</span></a>
                 <div class="js-modal-field mui--hide">
                   <div class="js-field top-padding">
                     {{ renderfield(form.video_url, css_class='top-padding') }}
@@ -77,10 +77,47 @@
               </div>
               {%- if proposal %}
                 <div>
-                  <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Add collaborator" data-cy="add-video">{{ faicon(icon='user', icon_size='caption', baseline=true, css_class='mui--text-light link fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Collaborators{% endtrans %}</span><span class="mui--pull-right">{{ faicon(icon='plus', icon_size='caption', baseline=false, css_class='mui--text-light fa-icon--left-margin') }}{%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</span></a>
+                  <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Add collaborator" data-cy="add-video">{{ faicon(icon='user-circle-solid', icon_size='body2', baseline=true, css_class='mui--text-light link fa-icon--right-margin') }}<span class="mui--text-bold">{% trans %}Collaborators{% endtrans %}</span><span class="mui--pull-right"><span class="profile-avatar">{{ faicon(icon='plus', icon_size='body2', baseline=false, css_class='mui--text-hyperlink') }}</span>{%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class='mui--text-danger fa-icon--left-margin') }}{%- endif %}</span></a>
                   <div class="js-modal-field mui--hide">
                     <div class="js-field top-padding">
-                      <a class="" href="{{ proposal.url_for('add_collaborator') }}" rel="modal:open" aria-label="Add collaborator" data-ga="Add collaborator" data-cy="add-to-collaborator" role="button" aria-haspopup="true">{{ faicon(icon='plus', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
+                      <p class="modal-form__title mui--text-title mui--text-bold">{% trans %}Manage collaborators{% endtrans %}</p>
+                      <div class="top-padding">
+                        <div class="modal-form__new-wrapper">
+                          <a href="{{ proposal.url_for('add_collaborator') }}" class="modal-form__new-wrapper__search nounderline" rel="modal:open" aria-label="Add collaborator" data-ga="Add collaborator" data-cy="add-to-collaborator" role="button" aria-haspopup="true">
+                            {{ faicon(icon='search', baseline=false, css_class='mui--text-light right-padding') }}<span class="mui--text-light mui--text-subhead">{% trans %}Search user to add as collaborator{% endtrans %}</span>
+                          </a>
+                        </div>
+                        <p class="mui--text-subhead">{% trans %}Collaborators{% endtrans %}</p>
+                        {% for member in proposal.memberships %}
+                          <div class="flex-wrapper flex-wrapper flex-wrapper--center flex-wrapper--space-between ">
+                            <div class="user">
+                              <div class="user__box">
+                                {{ useravatar(member.user) }}
+                                <div class="user__box__header">
+                                  <p class="mui--text-body2 user__box__fullname">{{ member.user.fullname }}</p>
+                                  {%- if member.user.username %}<p class="mui--text-caption user__box__userid">@{{ member.user.username }} {%- if member.label %} <span class="badge">{{ member.label }}</span>{% endif -%}</p>{%- endif -%}
+                                </div>
+                              </div>
+                            </div>
+                            <div class="flex-wrapper flex-wrapper modal-form__new-separator">
+                              <span class="mui--d-inlineblock left-padding margin-right">
+                                {%- if not member.is_uncredited %}
+                                  {{ faicon(icon='eye', icon_size='caption', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Visible{% endtrans %}
+                                {% else %}
+                                  {{ faicon(icon='eye-slash', icon_size='caption', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Hidden{% endtrans %}
+                                {% endif %}
+                              </span>
+                              <div class="margin-left mui-dropdown mui--d-inlineblock">
+                                <button class="mui-btn mui-btn--nostyle mui--align-middle" data-mui-toggle="dropdown" data-cy="collaborator-menu" aria-label="{% trans %}Collaborator menu{% endtrans %}" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</button>
+                                <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="submission-collaborator-menu">
+                                  <li><a href="{{ proposal.url_for('edit_collaborator', membership=member.uuid_b58) }}" rel="modal:open" aria-label="Add collaborator" data-ga="Add collaborator" data-cy="add-to-collaborator" role="button" aria-haspopup="true">{% trans %}Edit role{% endtrans %}</a></li>
+                                  <li><a href="{{  proposal.url_for('remove_collaborator', membership=member.uuid_b58) }}" rel="modal:open" aria-label="Add collaborator" data-ga="Add collaborator" data-cy="add-to-collaborator" role="button" aria-haspopup="true">{% trans %}Remove{% endtrans %}</a></li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        {% endfor %}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -94,7 +131,7 @@
         </div>
       </div>
     </form>
-    <div class="modal-form">
+    <div class="modal-form modal-form--submission">
       <a class="modal__close mui--text-dark js-close-form-modal" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0)" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
       <button class="mui-btn mui-btn--raised mui-btn--primary js-close-form-modal js-save-modal" rel="modal:close" data-cy="save">Done</button>
     </div>

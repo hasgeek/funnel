@@ -5537,10 +5537,6 @@ html.touch .collapsible__body--disable {
   justify-content: center;
   overflow: hidden;
 }
-.profile-avatar svg {
-  width: 18px;
-  height: 18px;
-}
 .profile-avatar img {
   width: 100%;
   height: 100%;
@@ -8204,8 +8200,32 @@ form.mui--bg-accent .CodeMirror {
   padding-top: 16px;
 }
 
-.modal-form .mui-textfield {
+.modal-form.modal-form--submission .mui-textfield {
   margin-bottom: 0;
+}
+.modal-form.modal-form--submission .modal-form__title {
+  position: absolute;
+  top: 10px;
+}
+.modal-form.modal-form--submission .modal-form__new-wrapper {
+  padding: 8px 16px;
+  background-color: #f9f9f9;
+  margin-left: -16px;
+  margin-right: -16px;
+  margin-bottom: 16px;
+}
+.modal-form.modal-form--submission
+  .modal-form__new-wrapper
+  .modal-form__new-wrapper__search {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 8px 16px;
+  width: 100%;
+  display: inline-block;
+  box-sizing: border-box;
+}
+.modal-form.modal-form--submission .modal-form__new-separator {
+  border-left: 1px solid rgba(132, 146, 166, 0.3);
 }
 
 @media (min-width: 768px) {

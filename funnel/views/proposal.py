@@ -198,7 +198,7 @@ class ProposalView(ProposalViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if collaborator_form.validate_on_submit():
             with db.session.no_autoflush:
                 membership = ProposalMembership(
-                    proposal=self.obj, actor=current_auth.user
+                    proposal=self.obj, granted_by=current_auth.user
                 )
                 collaborator_form.populate_obj(membership)
                 db.session.add(membership)

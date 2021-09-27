@@ -114,9 +114,9 @@
                   </a>
                 </div>
                 <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
-                  <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates profile-avatar profile-avatar--bigger" aria-label="{% trans %}Updates{% endtrans %}" data-cy="my-updates" data-ga="Updates">{{ faicon(icon='bell', baseline=false) }}</a>
+                  <a href="{{ url_for('notifications') }}" class="header__nav-links header__nav-links--right header__nav-links--updates profile-avatar profile-avatar--bigger" aria-label="{% trans %}Updates{% endtrans %}" data-cy="my-updates" data-ga="Updates">{{ faicon(icon='bell', icon_size='title', baseline=false) }}</a>
                   {%- if config['ENABLE_COMMENT_SIDEBAR'] %}
-                    <a href="javascript:void(0)" class="header__nav-links header__nav-links--right profile-avatar profile-avatar--bigger js-comments-btn" aria-label="{% trans %}Comments{% endtrans %}" data-ga="Comments" data-cy="comment-sidebar" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='comment-alt', baseline=false) }}</a>
+                    <a href="javascript:void(0)" class="header__nav-links header__nav-links--right profile-avatar profile-avatar--bigger js-comments-btn" aria-label="{% trans %}Comments{% endtrans %}" data-ga="Comments" data-cy="comment-sidebar" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='comment-alt', icon_size='title', baseline=false) }}</a>
                   {% endif %}
                   <div class="header__nav-links--dropdown">
                     <a class="header__nav-links user user--standalone js-menu-btn" data-cy="my-account" data-ga="account dropdown" aria-label="{% trans %}Account menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">
