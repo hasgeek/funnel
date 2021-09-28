@@ -55,6 +55,13 @@ def reset():
 
     if request.method == 'GET':
         form.username.data = abort_null(request.args.get('username'))
+    elif request.method == 'POST':
+        # Limit use of this endpoint to probe for accounts. Allow 5 submissions per 60
+        # seconds per IP address. This will let a user try a few usernames/emails in
+        # quick succession, and will not block other attempts from the same IP address
+        # in case it is a NAT gateway -- assuming multiple users are not trying to reset
+        # at the same time -- but will limit use of the endpoint for enumeration.
+        validate_rate_limit('account_reset', str(request.remote_addr), 5, 60)
 
     if form.validate_on_submit():
         username = form.username.data
