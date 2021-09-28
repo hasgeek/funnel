@@ -5,7 +5,7 @@ from typing import Union
 from flask import abort, flash, redirect, request
 
 from baseframe import _, __
-from baseframe.forms import Form, render_delete_sqla, render_form
+from baseframe.forms import Form, render_delete_sqla, render_form, render_template
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
 from coaster.views import (
@@ -450,17 +450,23 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
                 with membership.amend_by(current_auth.user) as amendment:
                     collaborator_form.populate_obj(amendment)
             db.session.commit()
+            if amendment.membership is not self.obj:
+                collaborators = (
+                    [
+                        _m.current_access(datasets=['primary', 'related'])
+                        for _m in self.obj.proposal.memberships
+                    ],
+                )
+            else:
+                collaborators = None
             return {
                 'status': 'ok',
                 'message': _("{user}’s role has been updated").format(
                     user=membership.user.pickername
-                )
-                if amendment.membership is not self.obj
-                else None,
-                'collaborators': [
-                    _m.current_access(datasets=['primary', 'related'])
-                    for _m in self.obj.proposal.memberships
-                ],
+                ),
+                'html': render_template(
+                    'collaborator_list.html.jinja2', collaborators=collaborators
+                ),
             }
         return render_form(
             form=collaborator_form,

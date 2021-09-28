@@ -34,9 +34,8 @@ $(() => {
     console.log('formId', formId);
     const onSuccess = (responseData) => {
       $.modal.close();
-      if (responseData.collaborators) {
-        window.toastr.success(responseData.message);
-      }
+      if (responseData.message) window.toastr.success(responseData.message);
+      if (responseData.html) $('.js-collaborator-list').text(responseData.html);
     };
     const onError = (response) => {
       this.errorMsg = Form.formErrorHandler(formId, response);
