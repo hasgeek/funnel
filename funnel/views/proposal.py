@@ -256,7 +256,10 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                 'message': _("{user} has been added as an collaborator").format(
                     user=membership.user.pickername
                 ),
-                'collaborators': [_m.current_access() for _m in self.obj.memberships],
+                'collaborators': [
+                    _m.current_access(datasets=['primary', 'related'])
+                    for _m in self.obj.memberships
+                ],
             }
         return render_form(
             form=collaborator_form,
@@ -436,6 +439,12 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
         self.profile = self.obj.proposal.project.profile
         return super().after_loader()
 
+    def collaborators(self):
+        return [
+            _m.current_access(datasets=['primary', 'related'])
+            for _m in self.obj.proposal.memberships
+        ]
+
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
@@ -450,22 +459,15 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
                 with membership.amend_by(current_auth.user) as amendment:
                     collaborator_form.populate_obj(amendment)
             db.session.commit()
-            if amendment.membership is not self.obj:
-                collaborators = (
-                    [
-                        _m.current_access(datasets=['primary', 'related'])
-                        for _m in self.obj.proposal.memberships
-                    ],
-                )
-            else:
-                collaborators = None
             return {
                 'status': 'ok',
                 'message': _("{user}’s role has been updated").format(
                     user=membership.user.pickername
-                ),
+                )
+                if amendment.membership is not self.obj
+                else None,
                 'html': render_template(
-                    'collaborator_list.html.jinja2', collaborators=collaborators
+                    'collaborator_list.html.jinja2', collaborators=self.collaborators()
                 ),
             }
         return render_form(
@@ -489,10 +491,9 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
                 'message': _("{user} is no longer a collaborator").format(
                     user=membership.user.pickername
                 ),
-                'collaborators': [
-                    _m.current_access(datasets=['primary', 'related'])
-                    for _m in self.obj.proposal.memberships
-                ],
+                'html': render_template(
+                    'collaborator_list.html.jinja2', collaborators=self.collaborators()
+                ),
             }
         return {'status': 'error', 'error': 'csrf'}, 422
 
