@@ -1,3 +1,5 @@
+import Form from './utils/formhelper';
+
 $(() => {
   function applySortable() {
     $(this).sortable({
@@ -37,16 +39,7 @@ $(() => {
           window.location.reload();
         },
         error(response) {
-          let errorMsg = '';
-          if (response.readyState === 4) {
-            if (response.status === 500) {
-              errorMsg = window.Hasgeek.Config.errorMsg.serverError;
-            } else {
-              errorMsg = JSON.parse(response.responseText).error_description;
-            }
-          } else {
-            errorMsg = window.Hasgeek.Config.errorMsg.networkError;
-          }
+          const errorMsg = Form.getResponseError(response);
           window.toastr.error(errorMsg);
         },
       });

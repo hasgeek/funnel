@@ -256,10 +256,13 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                 'message': _("{user} has been added as an collaborator").format(
                     user=membership.user.pickername
                 ),
-                'collaborators': [
-                    _m.current_access(datasets=['primary', 'related'])
-                    for _m in self.obj.memberships
-                ],
+                'html': render_template(
+                    'collaborator_list.html.jinja2',
+                    collaborators=[
+                        _m.current_access(datasets=['primary', 'related'])
+                        for _m in self.obj.memberships
+                    ],
+                ),
             }
         return render_form(
             form=collaborator_form,

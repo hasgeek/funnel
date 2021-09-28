@@ -5,6 +5,34 @@ $(() => {
   let textareaWaitTimer;
   const debounceInterval = 1000;
 
+  function updateCollaboratorsList(responseData) {
+    $.modal.close();
+    if (responseData.message) window.toastr.success(responseData.message);
+    if (responseData.html) $('.js-collaborator-list').html(responseData.html);
+    $('.js-add-collaborator').trigger('click');
+  }
+
+  function updatePreview() {
+    $.ajax({
+      type: 'POST',
+      url: window.Hasgeek.Config.markdownPreviewApi,
+      data: {
+        type: 'submission',
+        text: $('#body').val(),
+      },
+      dataType: 'json',
+      timeout: window.Hasgeek.Config.ajaxTimeout,
+      success(responseData) {
+        $('.js-proposal-preview').html(responseData.html);
+        addVegaSupport();
+      },
+    });
+  }
+
+  function removeLineBreaks(text) {
+    return text.replace(/(\r\n|\n|\r)/gm, ' ').replace(/\s+/g, ' ');
+  }
+
   $('body').on('click', '.js-open-modal', function (event) {
     const field = $(this).next('.js-modal-field');
     $(this).addClass('active-form-field');
@@ -31,14 +59,11 @@ $(() => {
     event.preventDefault();
     const formId = $('.modal').find('form').attr('id');
     const url = Form.getActionUrl(formId);
-    console.log('formId', formId);
     const onSuccess = (responseData) => {
-      $.modal.close();
-      if (responseData.message) window.toastr.success(responseData.message);
-      if (responseData.html) $('.js-collaborator-list').text(responseData.html);
+      updateCollaboratorsList(responseData);
     };
     const onError = (response) => {
-      this.errorMsg = Form.formErrorHandler(formId, response);
+      Form.formErrorHandler(formId, response);
     };
     window.Hasgeek.Forms.handleFormSubmit(formId, url, onSuccess, onError, {});
   });
@@ -75,23 +100,6 @@ $(() => {
       $('.label-error-icon').removeClass('mui--hide');
   });
 
-  function updatePreview() {
-    $.ajax({
-      type: 'POST',
-      url: window.Hasgeek.Config.markdownPreviewApi,
-      data: {
-        type: 'submission',
-        text: $('#body').val(),
-      },
-      dataType: 'json',
-      timeout: window.Hasgeek.Config.ajaxTimeout,
-      success(responseData) {
-        $('.js-proposal-preview').html(responseData.html);
-        addVegaSupport();
-      },
-    });
-  }
-
   const editor = document.querySelector('.CodeMirror').CodeMirror;
 
   editor.on('change', () => {
@@ -100,10 +108,6 @@ $(() => {
       updatePreview();
     }, debounceInterval);
   });
-
-  function removeLineBreaks(text) {
-    return text.replace(/(\r\n|\n|\r)/gm, ' ').replace(/\s+/g, ' ');
-  }
 
   $('#title')
     .keypress((event) => {
@@ -115,4 +119,30 @@ $(() => {
         removeLineBreaks($(event.currentTarget).val())
       );
     });
+
+  $('.js-remove-collaborator').click(function deleteLabelButton(event) {
+    event.preventDefault();
+    const url = $(this).attr('href');
+    const confirmationText = window.gettext(
+      'Are you sure you want to remove %s?',
+      [$(this).attr('title')]
+    );
+
+    if (window.confirm(confirmationText)) {
+      $.ajax({
+        type: 'POST',
+        url,
+        data: {
+          csrf_token: $('meta[name="csrf-token"]').attr('content'),
+        },
+        success(responseData) {
+          updateCollaboratorsList(responseData);
+        },
+        error(response) {
+          const errorMsg = Form.getResponseError(response);
+          window.toastr.error(errorMsg);
+        },
+      });
+    }
+  });
 });

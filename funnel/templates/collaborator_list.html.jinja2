@@ -4,7 +4,7 @@
   <div class="flex-wrapper flex-wrapper flex-wrapper--center flex-wrapper--space-between ">
     <div class="user">
       <div class="user__box">
-        {{ useravatar(member.user) }}
+        {{ useravatar(member.user, add_profile_link=false) }}
         <div class="user__box__header">
           <p class="mui--text-body2 user__box__fullname">{{ member.user.fullname }}</p>
           {%- if member.user.username %}<p class="mui--text-caption user__box__userid">@{{ member.user.username }} {%- if member.label %} <span class="badge">{{ member.label }}</span>{% endif -%}</p>{%- endif -%}
@@ -23,7 +23,7 @@
         <button class="mui-btn mui-btn--nostyle mui--align-middle" data-mui-toggle="dropdown" data-cy="collaborator-menu" aria-label="{% trans %}Collaborator menu{% endtrans %}" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</button>
         <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="submission-collaborator-menu">
           <li><a href="{{ member.url_for('edit') }}" rel="modal:open" aria-label="Add collaborator" data-ga="Edit collaborator" data-cy="edit-collaborator" role="button" aria-haspopup="true">{% trans %}Change role{% endtrans %}</a></li>
-          <li><a href="{{ member.url_for('remove') }}" rel="modal:open" aria-label="Remove collaborator" data-ga="Remove collaborator" data-cy="remove-collaborator" role="button" aria-haspopup="true">{% trans %}Remove{% endtrans %}</a></li>
+          <li><a class="js-remove-collaborator" href="{{ member.url_for('remove') }}" rel="modal:open" aria-label="Remove collaborator" data-ga="Remove collaborator" data-cy="remove-collaborator" role="button" aria-haspopup="true" title="{{ member.user.pickername }}">{% trans %}Remove{% endtrans %}</a></li>
         </ul>
       </div>
     </div>
