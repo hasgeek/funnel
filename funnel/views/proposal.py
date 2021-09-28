@@ -484,6 +484,15 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
     def remove(self):
         membership = self.obj.current_access()
         if Form().validate_on_submit():
+            if len(self.obj.proposal.memberships) == 1:
+                # Can't remove last member
+                return {
+                    'status': 'error',
+                    'error': 'last_collaborator',
+                    'message': _(
+                        "The sole collaborator on a submission cannot be removed"
+                    ),
+                }, 422
             membership.revoke(actor=current_auth.user)
             db.session.commit()
             return {
