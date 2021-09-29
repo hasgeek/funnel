@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import namedtuple
-from typing import Optional
+from typing import Optional, Union
 
 from flask import flash, jsonify, redirect, request, url_for
 
@@ -34,7 +34,7 @@ from ..models import (
     db,
 )
 from ..signals import project_role_change, proposal_role_change
-from ..typing import ReturnRenderWith
+from ..typing import ReturnRenderWith, ReturnView
 from .decorators import etag_cache_for_user, xhr_only
 from .login_session import requires_login
 from .notification import dispatch_notification
@@ -154,7 +154,7 @@ class CommentsetView(UrlForView, ModelView):
     route_model_map = {'commentset': 'uuid_b58'}
     obj: Commentset
 
-    def loader(self, commentset):
+    def loader(self, commentset) -> Commentset:
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
 
     @route('', methods=['GET'])
@@ -271,7 +271,7 @@ class CommentView(UrlForView, ModelView):
     route_model_map = {'commentset': 'commentset.uuid_b58', 'comment': 'uuid_b58'}
     obj: Comment
 
-    def loader(self, commentset, comment):
+    def loader(self, commentset, comment) -> Union[Comment, Commentset]:
         comment = (
             Comment.query.join(Commentset)
             .filter(Commentset.uuid_b58 == commentset, Comment.uuid_b58 == comment)
@@ -285,7 +285,7 @@ class CommentView(UrlForView, ModelView):
             ).one_or_404()
         return comment
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         if isinstance(self.obj, Commentset):
             flash(
                 _("That comment could not be found. It may have been deleted"), 'error'
