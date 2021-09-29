@@ -8161,8 +8161,8 @@ form.mui--bg-accent .CodeMirror {
   display: block;
 }
 
-.modal-form .mui-form__error {
-  color: #f04e45;
+.modal .mui-form.mui-form--margins {
+  margin: 0;
 }
 
 .submission-form .submission-header .submission-header__submit {
@@ -8204,9 +8204,6 @@ form.mui--bg-accent .CodeMirror {
   padding-top: 16px;
 }
 
-.modal-form.modal-form--submission .mui-form.mui-form--margins {
-  margin: 0;
-}
 .modal-form.modal-form--submission .mui-textfield {
   margin-bottom: 0;
 }
