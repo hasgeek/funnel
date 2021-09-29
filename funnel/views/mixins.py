@@ -24,23 +24,27 @@ from ..models import (
     VenueRoom,
     db,
 )
-from ..typing import ReturnRenderWith
+from ..typing import ReturnRenderWith, ReturnView
 
 
 class ProfileCheckMixin:
     """Base class checks for suspended profiles."""
 
-    profile = None
+    profile: Optional[Profile] = None
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         profile = self.profile
         if profile is None:
             raise ValueError("Subclass must set self.profile")
-        g.profile = profile
+        g.profile = profile  # type: ignore[unreachable]
         if not profile.is_active:
             abort(410)
 
-        return super().after_loader()
+        # mypy doesn't know this is a mixin, so it warns that `after_loader` is not
+        # defined in the superclass. We ask it to ignore the problem here instead of
+        # creating an elaborate workaround using `typing.TYPE_CHECKING`.
+        # https://github.com/python/mypy/issues/5837
+        return super().after_loader()  # type: ignore[misc]
 
 
 class ProjectViewMixin(ProfileCheckMixin):
@@ -50,30 +54,32 @@ class ProjectViewMixin(ProfileCheckMixin):
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
-    def loader(self, profile, project, session=None):
-        proj = (
-            self.model.query.join(Profile)
+    def loader(self, profile, project, session=None) -> Union[Project, ProjectRedirect]:
+        obj = (
+            Project.query.join(Profile, Project.profile_id == Profile.id)
             .filter(
                 Project.name == project,
                 db.func.lower(Profile.name) == db.func.lower(profile),
             )
             .first()
         )
-        if proj is None:
-            projredir = (
-                ProjectRedirect.query.join(Profile)
+        if obj is None:
+            obj_redirect = (
+                ProjectRedirect.query.join(
+                    Profile, ProjectRedirect.profile_id == Profile.id
+                )
                 .filter(
                     ProjectRedirect.name == project,
                     db.func.lower(Profile.name) == db.func.lower(profile),
                 )
                 .first_or_404()
             )
-            return projredir
-        if proj.state.DELETED:
+            return obj_redirect
+        if obj.state.DELETED:
             abort(410)
-        return proj
+        return obj
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         if isinstance(self.obj, ProjectRedirect):
             if self.obj.project:
                 self.profile = self.obj.project.profile
@@ -95,13 +101,13 @@ class ProfileViewMixin(ProfileCheckMixin):
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
-    def loader(self, profile):
-        profile = self.model.get(profile)
+    def loader(self, profile) -> Profile:
+        profile = Profile.get(profile)
         if profile is None:
             abort(404)
         return profile
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj
         return super().after_loader()
 
@@ -139,7 +145,7 @@ class ProposalViewMixin(ProfileCheckMixin):
             abort(410)
         return obj
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         if isinstance(self.obj, ProposalSuuidRedirect):
             if self.obj.proposal:
                 self.profile = self.obj.proposal.project.profile
@@ -160,15 +166,14 @@ class SessionViewMixin(ProfileCheckMixin):
     obj: Session
     SavedProjectForm = SavedProjectForm
 
-    def loader(self, profile, project, session):
-        session = (
-            self.model.query.join(Project, Profile)
+    def loader(self, profile, project, session) -> Session:
+        return (
+            Session.query.join(Project, Profile)
             .filter(Session.url_name_uuid_b58 == session)
             .first_or_404()
         )
-        return session
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
         return super().after_loader()
 
@@ -186,9 +191,9 @@ class VenueViewMixin(ProfileCheckMixin):
     }
     obj: Venue
 
-    def loader(self, profile, project, venue):
-        venue = (
-            self.model.query.join(Project, Profile)
+    def loader(self, profile, project, venue) -> Venue:
+        return (
+            Venue.query.join(Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
@@ -196,9 +201,8 @@ class VenueViewMixin(ProfileCheckMixin):
             )
             .first_or_404()
         )
-        return venue
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
         return super().after_loader()
 
@@ -213,9 +217,9 @@ class VenueRoomViewMixin(ProfileCheckMixin):
     }
     obj: VenueRoom
 
-    def loader(self, profile, project, venue, room):
-        room = (
-            self.model.query.join(Venue, Project, Profile)
+    def loader(self, profile, project, venue, room) -> VenueRoom:
+        return (
+            VenueRoom.query.join(Venue, Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
@@ -224,9 +228,8 @@ class VenueRoomViewMixin(ProfileCheckMixin):
             )
             .first_or_404()
         )
-        return room
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.venue.project.profile
         return super().after_loader()
 
@@ -240,9 +243,9 @@ class TicketEventViewMixin(ProfileCheckMixin):
     }
     obj: TicketEvent
 
-    def loader(self, profile, project, name):
+    def loader(self, profile, project, name) -> TicketEvent:
         return (
-            self.model.query.join(Project, Profile)
+            TicketEvent.query.join(Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
@@ -251,7 +254,7 @@ class TicketEventViewMixin(ProfileCheckMixin):
             .one_or_404()
         )
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
         return super().after_loader()
 
