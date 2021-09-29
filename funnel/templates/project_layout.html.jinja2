@@ -345,6 +345,7 @@
   <p class="mui--text-subhead mui--text-bold mui--text-light">{% trans %}Supported by{% endtrans %}</p>
   {%- endif %}
   {% for sponsor in project.sponsor_memberships %}
+  {%- with sponsor_public = sponsor.profile.state.PUBLIC %}
     <div class="card card--shaped card--lessmargin">
       <div class="card__body margin-bottom">
         {% if sponsor.label %}
@@ -353,7 +354,7 @@
         <div class="flex-wrapper flex-wrapper--center">
           <div class="user user--smaller">
             <div class="user__box">
-              <a href="{{ sponsor.profile.url_for() }}" class="nounderline">
+              <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="nounderline">
                 {%- if sponsor.profile.logo_url.url %}
                   <img class="user__box__gravatar" src="{{ sponsor.profile.logo_url }}" alt="{{ sponsor.profile.title }}"/>
                 {%- else %}
@@ -362,16 +363,17 @@
               </a>
             </div>
           </div>
-          <a href="{{ sponsor.profile.url_for() }}" class="mui--text-dark mui--text-subhead mui--text-bold nounderline" data-cy="profile-link">{{ sponsor.profile.title }}</a>
+          <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="mui--text-dark mui--text-subhead mui--text-bold nounderline" data-cy="profile-link">{{ sponsor.profile.title }}</a>
         </div>
         {% if sponsor.profile.description.html %}
-          <div class="mui--text-body2 mui--text-light margin-bottom">{{ sponsor.profile.description.html|preview(min=200, max=300) }} <a href="{{ sponsor.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</a></div>
+          <div class="mui--text-body2 mui--text-light margin-bottom">{{ sponsor.profile.description.html|preview(min=200, max=300) }} {% if sponsor_public %}<a href="{{ sponsor.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</a>{% endif %}</div>
         {% endif %}
         {% if sponsor.is_promoted %}
           <div class="margin-bottom"><p class="mui--text-body2 mui--text-bold mui--text-light zero-bottom-margin">{{ faicon(icon='angle-double-up', baseline=false, css_class='mui--text-light fa-icon--right-margin mui--align-middle') }}{% trans %}Promoted{% endtrans %}</p></div>
         {% endif %}
       </div>
     </div>
+  {%- endwith %}
   {% endfor %}
 {% endmacro %}
 
