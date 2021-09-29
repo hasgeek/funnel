@@ -163,7 +163,7 @@ class OrganizationMembershipView(
     obj: OrganizationMembership
 
     def loader(self, profile, membership) -> OrganizationMembership:
-        obj = (
+        return (
             OrganizationMembership.query.join(Organization, Profile)
             .filter(
                 OrganizationMembership.uuid_b58 == membership,
@@ -172,7 +172,6 @@ class OrganizationMembershipView(
             )
             .first_or_404()
         )
-        return obj
 
     def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.organization.profile
@@ -433,7 +432,7 @@ class ProjectCrewMembershipMixin(ProfileCheckMixin):
     obj: ProjectCrewMembership
 
     def loader(self, profile, project, membership) -> ProjectCrewMembership:
-        obj = (
+        return (
             ProjectCrewMembership.query.join(Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
@@ -442,7 +441,6 @@ class ProjectCrewMembershipMixin(ProfileCheckMixin):
             )
             .first_or_404()
         )
-        return obj
 
     def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
@@ -458,7 +456,6 @@ class ProjectCrewMembershipInviteView(
         obj = super().loader(profile, project, membership)
         if not obj.is_invite or obj.user != current_auth.user:
             abort(404)
-
         return obj
 
     @route('', methods=['GET'])

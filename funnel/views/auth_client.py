@@ -311,12 +311,11 @@ class AuthClientCredentialView(UrlForView, ModelView):
     obj: AuthClientCredential
 
     def loader(self, client, name) -> AuthClientCredential:
-        cred = (
+        return (
             AuthClientCredential.query.join(AuthClient)
             .filter(AuthClient.buid == client, AuthClientCredential.name == name)
             .first_or_404()
         )
-        return cred
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
@@ -348,15 +347,14 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
     obj: AuthClientUserPermissions
 
     def loader(self, client: str, user: str) -> AuthClientUserPermissions:
-        userobj = User.get(buid=user)
-        perm = (
-            AuthClientUserPermissions.query.join(AuthClient)
-            .filter(
-                AuthClient.buid == client, AuthClientUserPermissions.user == userobj
+        return (
+            AuthClientUserPermissions.query.join(
+                AuthClient, AuthClientUserPermissions.auth_client_id == AuthClient.id
             )
+            .join(User, AuthClientUserPermissions.user_id == User.id)
+            .filter(AuthClient.buid == client, User.buid == user)
             .one_or_404()
         )
-        return perm
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
@@ -424,15 +422,14 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
     obj: AuthClientTeamPermissions
 
     def loader(self, client: str, team: str) -> AuthClientTeamPermissions:
-        teamobj = Team.get(buid=team)
-        perm = (
-            AuthClientTeamPermissions.query.join(AuthClient)
-            .filter(
-                AuthClient.buid == client, AuthClientTeamPermissions.team == teamobj
+        return (
+            AuthClientTeamPermissions.query.join(
+                AuthClient, AuthClientTeamPermissions.auth_client_id == AuthClient.id
             )
+            .join(Team, AuthClientTeamPermissions.team_id == Team.id)
+            .filter(AuthClient.buid == client, Team.buid == team)
             .one_or_404()
         )
-        return perm
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login

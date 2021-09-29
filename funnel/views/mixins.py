@@ -54,7 +54,7 @@ class ProjectViewMixin(ProfileCheckMixin):
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
-    def loader(self, profile, project, session=None) -> Project:
+    def loader(self, profile, project, session=None) -> Union[Project, ProjectRedirect]:
         proj = (
             Project.query.join(Profile)
             .filter(
@@ -165,12 +165,11 @@ class SessionViewMixin(ProfileCheckMixin):
     SavedProjectForm = SavedProjectForm
 
     def loader(self, profile, project, session) -> Session:
-        session = (
+        return (
             Session.query.join(Project, Profile)
             .filter(Session.url_name_uuid_b58 == session)
             .first_or_404()
         )
-        return session
 
     def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
@@ -191,7 +190,7 @@ class VenueViewMixin(ProfileCheckMixin):
     obj: Venue
 
     def loader(self, profile, project, venue) -> Venue:
-        venue = (
+        return (
             Venue.query.join(Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
@@ -200,7 +199,6 @@ class VenueViewMixin(ProfileCheckMixin):
             )
             .first_or_404()
         )
-        return venue
 
     def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
@@ -218,7 +216,7 @@ class VenueRoomViewMixin(ProfileCheckMixin):
     obj: VenueRoom
 
     def loader(self, profile, project, venue, room) -> VenueRoom:
-        room = (
+        return (
             VenueRoom.query.join(Venue, Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
@@ -228,7 +226,6 @@ class VenueRoomViewMixin(ProfileCheckMixin):
             )
             .first_or_404()
         )
-        return room
 
     def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.venue.project.profile

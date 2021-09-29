@@ -111,16 +111,16 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
     obj: Label
 
     def loader(self, profile, project, label) -> Label:
-        proj = (
-            Project.query.join(Profile)
+        return (
+            Label.query.join(Project, Label.project_id == Project.id)
+            .join(Profile, Project.profile_id == Profile.id)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
+                Label.name == label,
             )
             .first_or_404()
         )
-        label = Label.query.filter_by(project=proj, name=label).first_or_404()
-        return label
 
     def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
