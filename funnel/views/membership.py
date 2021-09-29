@@ -158,9 +158,9 @@ class OrganizationMembershipView(
     route_model_map = {'profile': 'organization.name', 'membership': 'uuid_b58'}
     obj: OrganizationMembership
 
-    def loader(self, profile, membership):
+    def loader(self, profile, membership) -> OrganizationMembership:
         obj = (
-            self.model.query.join(Organization, Profile)
+            OrganizationMembership.query.join(Organization, Profile)
             .filter(
                 OrganizationMembership.uuid_b58 == membership,
                 OrganizationMembership.organization_id == Profile.organization_id,
@@ -428,9 +428,9 @@ class ProjectCrewMembershipMixin(ProfileCheckMixin):
     }
     obj: ProjectCrewMembership
 
-    def loader(self, profile, project, membership):
+    def loader(self, profile, project, membership) -> ProjectCrewMembership:
         obj = (
-            self.model.query.join(Project, Profile)
+            ProjectCrewMembership.query.join(Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
@@ -450,7 +450,7 @@ class ProjectCrewMembershipMixin(ProfileCheckMixin):
 class ProjectCrewMembershipInviteView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
 ):
-    def loader(self, profile, project, membership):
+    def loader(self, profile, project, membership) -> ProjectCrewMembership:
         obj = super().loader(profile, project, membership)
         if not obj.is_invite or obj.user != current_auth.user:
             abort(404)

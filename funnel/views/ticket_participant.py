@@ -170,9 +170,9 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
     }
     obj: TicketParticipant
 
-    def loader(self, profile, project, ticket_participant):
-        ticket_participant = (
-            self.model.query.join(Project, Profile)
+    def loader(self, profile, project, ticket_participant) -> TicketParticipant:
+        return (
+            TicketParticipant.query.join(Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
@@ -180,7 +180,6 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
             )
             .first_or_404()
         )
-        return ticket_participant
 
     def after_loader(self):
         self.profile = self.obj.project.profile

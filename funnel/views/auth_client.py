@@ -102,8 +102,8 @@ class AuthClientView(UrlForView, ModelView):
     route_model_map = {'client': 'buid'}
     obj: AuthClient
 
-    def loader(self, client):
-        return self.model.query.filter(AuthClient.buid == client).one_or_404()
+    def loader(self, client) -> AuthClient:
+        return AuthClient.query.filter(AuthClient.buid == client).one_or_404()
 
     @route('', methods=['GET'])
     @render_with('auth_client.html.jinja2')
@@ -310,9 +310,9 @@ class AuthClientCredentialView(UrlForView, ModelView):
     route_model_map = {'client': 'auth_client.buid', 'name': 'name'}
     obj: AuthClientCredential
 
-    def loader(self, client, name):
+    def loader(self, client, name) -> AuthClientCredential:
         cred = (
-            self.model.query.join(AuthClient)
+            AuthClientCredential.query.join(AuthClient)
             .filter(AuthClient.buid == client, AuthClientCredential.name == name)
             .first_or_404()
         )
@@ -350,8 +350,10 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
     def loader(self, client: str, user: str) -> AuthClientUserPermissions:
         userobj = User.get(buid=user)
         perm = (
-            self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == client, self.model.user == userobj)
+            AuthClientUserPermissions.query.join(AuthClient)
+            .filter(
+                AuthClient.buid == client, AuthClientUserPermissions.user == userobj
+            )
             .one_or_404()
         )
         return perm
@@ -424,8 +426,10 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
     def loader(self, client: str, team: str) -> AuthClientTeamPermissions:
         teamobj = Team.get(buid=team)
         perm = (
-            self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == client, self.model.team == teamobj)
+            AuthClientTeamPermissions.query.join(AuthClient)
+            .filter(
+                AuthClient.buid == client, AuthClientTeamPermissions.team == teamobj
+            )
             .one_or_404()
         )
         return perm

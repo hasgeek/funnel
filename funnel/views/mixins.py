@@ -50,9 +50,9 @@ class ProjectViewMixin(ProfileCheckMixin):
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
-    def loader(self, profile, project, session=None):
+    def loader(self, profile, project, session=None) -> Project:
         proj = (
-            self.model.query.join(Profile)
+            Project.query.join(Profile)
             .filter(
                 Project.name == project,
                 db.func.lower(Profile.name) == db.func.lower(profile),
@@ -95,8 +95,8 @@ class ProfileViewMixin(ProfileCheckMixin):
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
-    def loader(self, profile):
-        profile = self.model.get(profile)
+    def loader(self, profile) -> Profile:
+        profile = Profile.get(profile)
         if profile is None:
             abort(404)
         return profile
@@ -160,9 +160,9 @@ class SessionViewMixin(ProfileCheckMixin):
     obj: Session
     SavedProjectForm = SavedProjectForm
 
-    def loader(self, profile, project, session):
+    def loader(self, profile, project, session) -> Session:
         session = (
-            self.model.query.join(Project, Profile)
+            Session.query.join(Project, Profile)
             .filter(Session.url_name_uuid_b58 == session)
             .first_or_404()
         )
@@ -186,9 +186,9 @@ class VenueViewMixin(ProfileCheckMixin):
     }
     obj: Venue
 
-    def loader(self, profile, project, venue):
+    def loader(self, profile, project, venue) -> Venue:
         venue = (
-            self.model.query.join(Project, Profile)
+            Venue.query.join(Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
@@ -213,9 +213,9 @@ class VenueRoomViewMixin(ProfileCheckMixin):
     }
     obj: VenueRoom
 
-    def loader(self, profile, project, venue, room):
+    def loader(self, profile, project, venue, room) -> VenueRoom:
         room = (
-            self.model.query.join(Venue, Project, Profile)
+            VenueRoom.query.join(Venue, Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
@@ -240,9 +240,9 @@ class TicketEventViewMixin(ProfileCheckMixin):
     }
     obj: TicketEvent
 
-    def loader(self, profile, project, name):
+    def loader(self, profile, project, name) -> TicketEvent:
         return (
-            self.model.query.join(Project, Profile)
+            TicketEvent.query.join(Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,

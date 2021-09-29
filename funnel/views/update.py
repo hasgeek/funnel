@@ -90,14 +90,13 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     obj: Update
     SavedProjectForm = SavedProjectForm
 
-    def loader(self, profile, project, update):
-        obj = (
-            self.model.query.join(Project)
+    def loader(self, profile, project, update) -> Update:
+        return (
+            Update.query.join(Project)
             .join(Profile, Project.profile_id == Profile.id)
             .filter(Update.url_name_uuid_b58 == update)
             .one_or_404()
         )
-        return obj
 
     def after_loader(self):
         self.profile = self.obj.project.profile

@@ -225,9 +225,9 @@ class TicketTypeView(ProfileCheckMixin, UrlForView, ModelView):
     }
     obj: TicketType
 
-    def loader(self, profile, project, name):
-        ticket_type = (
-            self.model.query.join(Project, Profile)
+    def loader(self, profile, project, name) -> TicketType:
+        return (
+            TicketType.query.join(Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
@@ -235,7 +235,6 @@ class TicketTypeView(ProfileCheckMixin, UrlForView, ModelView):
             )
             .first_or_404()
         )
-        return ticket_type
 
     def after_loader(self):
         self.profile = self.obj.project.profile
@@ -304,9 +303,9 @@ class TicketClientView(ProfileCheckMixin, UrlForView, ModelView):
     }
     obj: TicketClient
 
-    def loader(self, profile, project, client_id):
-        ticket_client = (
-            self.model.query.join(Project, Profile)
+    def loader(self, profile, project, client_id) -> TicketClient:
+        return (
+            TicketClient.query.join(Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
@@ -314,7 +313,6 @@ class TicketClientView(ProfileCheckMixin, UrlForView, ModelView):
             )
             .first_or_404()
         )
-        return ticket_client
 
     def after_loader(self):
         self.profile = self.obj.project.profile

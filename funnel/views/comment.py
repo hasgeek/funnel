@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import namedtuple
-from typing import Optional
+from typing import Optional, Union
 
 from flask import flash, jsonify, redirect, request, url_for
 
@@ -154,7 +154,7 @@ class CommentsetView(UrlForView, ModelView):
     route_model_map = {'commentset': 'uuid_b58'}
     obj: Commentset
 
-    def loader(self, commentset):
+    def loader(self, commentset) -> Commentset:
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
 
     @route('', methods=['GET'])
@@ -271,7 +271,7 @@ class CommentView(UrlForView, ModelView):
     route_model_map = {'commentset': 'commentset.uuid_b58', 'comment': 'uuid_b58'}
     obj: Comment
 
-    def loader(self, commentset, comment):
+    def loader(self, commentset, comment) -> Union[Comment, Commentset]:
         comment = (
             Comment.query.join(Commentset)
             .filter(Commentset.uuid_b58 == commentset, Comment.uuid_b58 == comment)
