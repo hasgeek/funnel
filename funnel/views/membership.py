@@ -42,12 +42,16 @@ from .notification import dispatch_notification
 @Profile.views('members')
 @route('/<profile>/members')
 class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
-    @route('', methods=['GET', 'POST'])
-    @render_with('organization_membership.html.jinja2')
-    def members(self):
+    def after_loader(self) -> Optional[ReturnView]:
         if not self.obj.organization:
             # User profiles don't have memberships
             abort(404)
+        return None
+
+    @route('', methods=['GET', 'POST'])
+    @render_with('organization_membership.html.jinja2')
+    @requires_roles({'reader', 'admin'})
+    def members(self):
         return {
             'profile': self.obj,
             'memberships': [
@@ -61,9 +65,6 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'owner'})
     def new_member(self):
-        if not self.obj.organization:
-            # User profiles don't have memberships
-            abort(404)
         membership_form = OrganizationMembershipForm()
 
         if request.method == 'POST':
