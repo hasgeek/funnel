@@ -38,9 +38,7 @@ $(() => {
     $(this).addClass('active-form-field');
     event.preventDefault();
     $('body').append('<div class="js-modal"></div>');
-    $($(field).find('.js-field').detach()).insertBefore(
-      $('.modal-form .js-save-modal')
-    );
+    $('.modal-form').append($(field).find('.js-field').detach());
     $('.js-modal').append($('.modal-form').detach());
     $('.js-modal').modal();
   });
@@ -66,10 +64,7 @@ $(() => {
       Form.formErrorHandler(formId, response);
     };
     window.Hasgeek.Forms.handleFormSubmit(formId, url, onSuccess, onError, {});
-  });
-
-  $('.js-close-form-modal').on('click', () => {
-    $.modal.close();
+    $('select.select2').select2('open').trigger('select2:open');
   });
 
   function closePreviewPanel() {

@@ -39,7 +39,7 @@ window.Hasgeek.Config = {
 
 function activate_widgets() {
   // Activate codemirror on all textareas with class='markdown'
-  $('textarea.markdown').each(function () {
+  $('textarea.markdown:not([style*="display: none"]').each(function () {
     var editor = CodeMirror.fromTextArea(
       this,
       window.Hasgeek.Config.cm_markdown_config
@@ -54,7 +54,7 @@ function activate_widgets() {
   });
 
   // Activate codemirror on all textareas with class='stylesheet'
-  $('textarea.stylesheet').each(function () {
+  $('textarea.stylesheet:not([style*="display: none"]').each(function () {
     var editor = CodeMirror.fromTextArea(
       this,
       window.Hasgeek.Config.cm_css_config
@@ -66,6 +66,10 @@ function activate_widgets() {
         editor.save();
       }, 300);
     });
+  });
+
+  $(document).on('select2:open', function () {
+    document.querySelector('.select2-search__field').focus();
   });
 }
 
