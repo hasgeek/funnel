@@ -5,11 +5,11 @@ $(() => {
   let textareaWaitTimer;
   const debounceInterval = 1000;
 
-  function updateCollaboratorsList(responseData) {
-    $.modal.close();
+  function updateCollaboratorsList(responseData, updateModal = true) {
+    if (updateModal) $.modal.close();
     if (responseData.message) window.toastr.success(responseData.message);
     if (responseData.html) $('.js-collaborator-list').html(responseData.html);
-    $('.js-add-collaborator').trigger('click');
+    if (updateModal) $('.js-add-collaborator').trigger('click');
   }
 
   function updatePreview() {
@@ -120,29 +120,33 @@ $(() => {
       );
     });
 
-  $('.js-remove-collaborator').click(function deleteLabelButton(event) {
-    event.preventDefault();
-    const url = $(this).attr('href');
-    const confirmationText = window.gettext(
-      'Are you sure you want to remove %s?',
-      [$(this).attr('title')]
-    );
+  $('body').on(
+    'click',
+    '.js-remove-collaborator',
+    function deleteLabelButton(event) {
+      event.preventDefault();
+      const url = $(this).attr('href');
+      const confirmationText = window.gettext(
+        'Are you sure you want to remove %s?',
+        [$(this).attr('title')]
+      );
 
-    if (window.confirm(confirmationText)) {
-      $.ajax({
-        type: 'POST',
-        url,
-        data: {
-          csrf_token: $('meta[name="csrf-token"]').attr('content'),
-        },
-        success(responseData) {
-          updateCollaboratorsList(responseData);
-        },
-        error(response) {
-          const errorMsg = Form.getResponseError(response);
-          window.toastr.error(errorMsg);
-        },
-      });
+      if (window.confirm(confirmationText)) {
+        $.ajax({
+          type: 'POST',
+          url,
+          data: {
+            csrf_token: $('meta[name="csrf-token"]').attr('content'),
+          },
+          success(responseData) {
+            updateCollaboratorsList(responseData, false);
+          },
+          error(response) {
+            const errorMsg = Form.getResponseError(response);
+            window.toastr.error(errorMsg);
+          },
+        });
+      }
     }
-  });
+  );
 });
