@@ -55,27 +55,29 @@ class ProjectViewMixin(ProfileCheckMixin):
     CsrfForm = forms.Form
 
     def loader(self, profile, project, session=None) -> Union[Project, ProjectRedirect]:
-        proj = (
-            Project.query.join(Profile)
+        obj = (
+            Project.query.join(Profile, Project.profile_id == Profile.id)
             .filter(
                 Project.name == project,
                 db.func.lower(Profile.name) == db.func.lower(profile),
             )
             .first()
         )
-        if proj is None:
-            projredir = (
-                ProjectRedirect.query.join(Profile)
+        if obj is None:
+            obj_redirect = (
+                ProjectRedirect.query.join(
+                    Profile, ProjectRedirect.profile_id == Profile.id
+                )
                 .filter(
                     ProjectRedirect.name == project,
                     db.func.lower(Profile.name) == db.func.lower(profile),
                 )
                 .first_or_404()
             )
-            return projredir
-        if proj.state.DELETED:
+            return obj_redirect
+        if obj.state.DELETED:
             abort(410)
-        return proj
+        return obj
 
     def after_loader(self) -> Optional[ReturnView]:
         if isinstance(self.obj, ProjectRedirect):

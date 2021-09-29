@@ -24,7 +24,6 @@ from ..forms import (
 )
 from ..models import (
     MembershipRevokedError,
-    Organization,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
     OrganizationMembership,
@@ -163,15 +162,9 @@ class OrganizationMembershipView(
     obj: OrganizationMembership
 
     def loader(self, profile, membership) -> OrganizationMembership:
-        return (
-            OrganizationMembership.query.join(Organization, Profile)
-            .filter(
-                OrganizationMembership.uuid_b58 == membership,
-                OrganizationMembership.organization_id == Profile.organization_id,
-                db.func.lower(Profile.name) == db.func.lower(profile),
-            )
-            .first_or_404()
-        )
+        return OrganizationMembership.query.filter(
+            OrganizationMembership.uuid_b58 == membership,
+        ).first_or_404()
 
     def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.organization.profile
