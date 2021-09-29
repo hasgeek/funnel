@@ -14,37 +14,33 @@ describe('Add a new submission', () => {
 
     cy.login('/', user.username, user.password);
 
-    // cy.get(`a[data-cy-title="${project.title}"]`).click();
-    // cy.location('pathname').should('contain', project.url);
-    // cy.get('a[data-cy-navbar="submissions"]').click();
-    // cy.get('a[data-cy="propose-a-session"]:visible').click();
-    // cy.location('pathname').should('contain', 'new');
-    // cy.get('#title').type(proposal.title);
-    // cy.get('#field-body')
-    //   .find('.CodeMirror textarea')
-    //   .type(proposal.content, { force: true });
-    // cy.get('a[data-cy="add-video"]').click();
-    // cy.wait(1000);
-    // cy.get('#field-video_url').type(proposal.preview_video);
-    // cy.get('a[data-cy="save"]:visible').click();
-    // cy.get('a[data-cy="add-label"]').click();
-    // cy.wait(1000);
-    // cy.get('fieldset').find('.listwidget').eq(0).find('input').eq(0).click();
-    // cy.get('fieldset').find('.listwidget').eq(1).find('input').eq(0).click();
-    // cy.get('a[data-cy="save"]:visible').click();
-    // cy.get('button[data-cy="form-submit-btn"]').click();
+    cy.get(`a[data-cy-title="${project.title}"]`).click();
+    cy.location('pathname').should('contain', project.url);
+    cy.get('a[data-cy-navbar="submissions"]').click();
+    cy.get('a[data-cy="propose-a-session"]:visible').click();
+    cy.location('pathname').should('contain', 'new');
+    cy.get('#title').type(proposal.title);
+    cy.get('#field-body')
+      .find('.CodeMirror textarea')
+      .type(proposal.content, { force: true });
+    cy.get('a[data-cy="add-video"]').click();
+    cy.wait(1000);
+    cy.get('#field-video_url').type(proposal.preview_video);
+    cy.get('a[data-cy="save"]:visible').click();
+    cy.get('a[data-cy="add-label"]').click();
+    cy.wait(1000);
+    cy.get('fieldset').find('.listwidget').eq(0).find('input').eq(0).click();
+    cy.get('fieldset').find('.listwidget').eq(1).find('input').eq(0).click();
+    cy.get('a[data-cy="save"]:visible').click();
+    cy.get('button[data-cy="form-submit-btn"]').click();
 
-    // cy.get('[data-cy="proposal-title"]')
-    //   .should('exist')
-    //   .contains(proposal.title);
-    // cy.get('[data-cy="proposal-video"]').find('iframe').should('be.visible');
-    // cy.get('a[data-cy="proposal-menu"]:visible').click();
-    // cy.wait(1000);
-    //cy.get('[data-cy-admin="edit"]:visible').click();
-
-    cy.visit(
-      'http://funnel.test:3002/testcypressproject/javascript-2020/sub/end-to-end-testing-EXKPmL2oiUnECgaebwinJN/edit'
-    );
+    cy.get('[data-cy="proposal-title"]')
+      .should('exist')
+      .contains(proposal.title);
+    cy.get('[data-cy="proposal-video"]').find('iframe').should('be.visible');
+    cy.get('a[data-cy="proposal-menu"]:visible').click();
+    cy.wait(1000);
+    cy.get('[data-cy-admin="edit"]:visible').click();
 
     cy.get('a[data-cy="add-collaborator-modal"]').click();
     cy.get('a[data-cy="add-collaborator"]').click();

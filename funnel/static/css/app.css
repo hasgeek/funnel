@@ -8204,7 +8204,7 @@ form.mui--bg-accent .CodeMirror {
   padding-top: 16px;
 }
 
-.modal-form.modal-form--submission .form {
+.modal-form.modal-form--submission .mui-form.mui-form--margins {
   margin: 0;
 }
 .modal-form.modal-form--submission .mui-textfield {
