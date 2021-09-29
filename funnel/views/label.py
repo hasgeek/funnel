@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from flask import flash, redirect, request
 from werkzeug.datastructures import MultiDict
 
@@ -9,6 +11,7 @@ from coaster.views import ModelView, UrlForView, render_with, requires_roles, ro
 from .. import app
 from ..forms import LabelForm, LabelOptionForm
 from ..models import Label, Profile, Project, db
+from ..typing import ReturnView
 from ..utils import abort_null
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProjectViewMixin
@@ -119,7 +122,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
         label = Label.query.filter_by(project=proj, name=label).first_or_404()
         return label
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
         return super().after_loader()
 

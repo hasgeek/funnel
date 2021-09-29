@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from sqlalchemy.exc import IntegrityError
 
 from flask import abort, flash, jsonify, redirect, request, url_for
@@ -27,6 +29,7 @@ from ..models import (
     TicketParticipant,
     db,
 )
+from ..typing import ReturnView
 from ..utils import abort_null, format_twitter_handle, make_qrcode, split_name
 from .helpers import mask_email
 from .login_session import requires_login
@@ -181,7 +184,7 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
             .first_or_404()
         )
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
         return super().after_loader()
 

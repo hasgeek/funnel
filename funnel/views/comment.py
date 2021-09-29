@@ -34,7 +34,7 @@ from ..models import (
     db,
 )
 from ..signals import project_role_change, proposal_role_change
-from ..typing import ReturnRenderWith
+from ..typing import ReturnRenderWith, ReturnView
 from .decorators import etag_cache_for_user, xhr_only
 from .login_session import requires_login
 from .notification import dispatch_notification
@@ -285,7 +285,7 @@ class CommentView(UrlForView, ModelView):
             ).one_or_404()
         return comment
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         if isinstance(self.obj, Commentset):
             flash(
                 _("That comment could not be found. It may have been deleted"), 'error'

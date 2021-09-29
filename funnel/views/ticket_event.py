@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from sqlalchemy.exc import IntegrityError
 
 from flask import abort, flash, jsonify, redirect, request
@@ -26,6 +28,7 @@ from ..models import (
     TicketType,
     db,
 )
+from ..typing import ReturnView
 from .jobs import import_tickets
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProjectViewMixin, TicketEventViewMixin
@@ -236,7 +239,7 @@ class TicketTypeView(ProfileCheckMixin, UrlForView, ModelView):
             .first_or_404()
         )
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
         return super().after_loader()
 
@@ -314,7 +317,7 @@ class TicketClientView(ProfileCheckMixin, UrlForView, ModelView):
             .first_or_404()
         )
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
         return super().after_loader()
 

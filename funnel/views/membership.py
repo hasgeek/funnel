@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from flask import abort, redirect, request
 
 from baseframe import _
@@ -31,6 +33,7 @@ from ..models import (
     ProjectCrewMembership,
     db,
 )
+from ..typing import ReturnView
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
@@ -170,9 +173,9 @@ class OrganizationMembershipView(
         )
         return obj
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.organization.profile
-        super().after_loader()
+        return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
@@ -440,9 +443,9 @@ class ProjectCrewMembershipMixin(ProfileCheckMixin):
         )
         return obj
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
-        super().after_loader()
+        return super().after_loader()
 
 
 @ProjectCrewMembership.views('invite')

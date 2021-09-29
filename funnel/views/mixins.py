@@ -24,23 +24,27 @@ from ..models import (
     VenueRoom,
     db,
 )
-from ..typing import ReturnRenderWith
+from ..typing import ReturnRenderWith, ReturnView
 
 
 class ProfileCheckMixin:
     """Base class checks for suspended profiles."""
 
-    profile = None
+    profile: Optional[Profile] = None
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         profile = self.profile
         if profile is None:
             raise ValueError("Subclass must set self.profile")
-        g.profile = profile
+        g.profile = profile  # type: ignore[unreachable]
         if not profile.is_active:
             abort(410)
 
-        return super().after_loader()
+        # mypy doesn't know this is a mixin, so it warns that `after_loader` is not
+        # defined in the superclass. We ask it to ignore the problem here instead of
+        # creating an elaborate workaround using `typing.TYPE_CHECKING`.
+        # https://github.com/python/mypy/issues/5837
+        return super().after_loader()  # type: ignore[misc]
 
 
 class ProjectViewMixin(ProfileCheckMixin):
@@ -73,7 +77,7 @@ class ProjectViewMixin(ProfileCheckMixin):
             abort(410)
         return proj
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         if isinstance(self.obj, ProjectRedirect):
             if self.obj.project:
                 self.profile = self.obj.project.profile
@@ -101,7 +105,7 @@ class ProfileViewMixin(ProfileCheckMixin):
             abort(404)
         return profile
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj
         return super().after_loader()
 
@@ -139,7 +143,7 @@ class ProposalViewMixin(ProfileCheckMixin):
             abort(410)
         return obj
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         if isinstance(self.obj, ProposalSuuidRedirect):
             if self.obj.proposal:
                 self.profile = self.obj.proposal.project.profile
@@ -168,7 +172,7 @@ class SessionViewMixin(ProfileCheckMixin):
         )
         return session
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
         return super().after_loader()
 
@@ -198,7 +202,7 @@ class VenueViewMixin(ProfileCheckMixin):
         )
         return venue
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
         return super().after_loader()
 
@@ -226,7 +230,7 @@ class VenueRoomViewMixin(ProfileCheckMixin):
         )
         return room
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.venue.project.profile
         return super().after_loader()
 
@@ -251,7 +255,7 @@ class TicketEventViewMixin(ProfileCheckMixin):
             .one_or_404()
         )
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
         return super().after_loader()
 
