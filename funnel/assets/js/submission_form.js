@@ -29,6 +29,18 @@ $(() => {
     });
   }
 
+  function closePreviewPanel() {
+    const panel = $('.js-proposal-preview');
+    const elems = $('.js-switch-panel');
+    if (panel.hasClass('close')) {
+      panel.animate({ top: '52' });
+    } else {
+      panel.animate({ top: '100vh' });
+    }
+    panel.toggleClass('close');
+    elems.toggleClass('mui--hide');
+  }
+
   function removeLineBreaks(text) {
     return text.replace(/(\r\n|\n|\r)/gm, ' ').replace(/\s+/g, ' ');
   }
@@ -55,6 +67,7 @@ $(() => {
 
   $('body').on($.modal.OPEN, '.modal', (event) => {
     event.preventDefault();
+    $('select.select2').select2('open').trigger('select2:open');
     const formId = $('.modal').find('form').attr('id');
     const url = Form.getActionUrl(formId);
     const onSuccess = (responseData) => {
@@ -64,20 +77,7 @@ $(() => {
       Form.formErrorHandler(formId, response);
     };
     window.Hasgeek.Forms.handleFormSubmit(formId, url, onSuccess, onError, {});
-    $('select.select2').select2('open').trigger('select2:open');
   });
-
-  function closePreviewPanel() {
-    const panel = $('.js-proposal-preview');
-    const elems = $('.js-switch-panel');
-    if (panel.hasClass('close')) {
-      panel.animate({ top: '52' });
-    } else {
-      panel.animate({ top: '100vh' });
-    }
-    panel.toggleClass('close');
-    elems.toggleClass('mui--hide');
-  }
 
   $('.js-switch-panel').on('click', (event) => {
     event.preventDefault();
@@ -115,33 +115,9 @@ $(() => {
       );
     });
 
-  $('body').on(
-    'click',
-    '.js-remove-collaborator',
-    function deleteLabelButton(event) {
-      event.preventDefault();
-      const url = $(this).attr('href');
-      const confirmationText = window.gettext(
-        'Are you sure you want to remove %s?',
-        [$(this).attr('title')]
-      );
-
-      if (window.confirm(confirmationText)) {
-        $.ajax({
-          type: 'POST',
-          url,
-          data: {
-            csrf_token: $('meta[name="csrf-token"]').attr('content'),
-          },
-          success(responseData) {
-            updateCollaboratorsList(responseData, false);
-          },
-          error(response) {
-            const errorMsg = Form.getResponseError(response);
-            window.toastr.error(errorMsg);
-          },
-        });
-      }
-    }
-  );
+  const msg = 'Are you sure you want to remove %s?';
+  const onSuccessFn = (responseData) => {
+    updateCollaboratorsList(responseData, false);
+  };
+  Form.handleDelete('.js-remove-collaborator', msg, onSuccessFn);
 });

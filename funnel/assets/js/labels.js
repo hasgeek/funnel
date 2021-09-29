@@ -21,28 +21,9 @@ $(() => {
   }
   $('#label-form').each(applySortable);
 
-  $('.js-delete-btn').click(function deleteLabelButton(event) {
-    event.preventDefault();
-    const url = $(this).attr('href');
-    const confirmationText = window.gettext('Are you sure you want to %s?', [
-      $(this).attr('title').toLowerCase(),
-    ]);
-
-    if (window.confirm(confirmationText)) {
-      $.ajax({
-        type: 'POST',
-        url,
-        data: {
-          csrf_token: $('meta[name="csrf-token"]').attr('content'),
-        },
-        success() {
-          window.location.reload();
-        },
-        error(response) {
-          const errorMsg = Form.getResponseError(response);
-          window.toastr.error(errorMsg);
-        },
-      });
-    }
-  });
+  const msg = 'Are you sure you want to %s?';
+  const onSuccessFn = () => {
+    window.location.reload();
+  };
+  Form.handleDelete('.js-delete-btn', msg, onSuccessFn);
 });
