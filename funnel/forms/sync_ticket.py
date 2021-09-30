@@ -31,12 +31,11 @@ BOXOFFICE_DETAILS_PLACEHOLDER = {'org': 'hasgeek', 'item_collection_id': ''}
 class ProjectBoxofficeForm(forms.Form):
     org = forms.StringField(
         __("Organization name"),
-        validators=[forms.validators.DataRequired()],
         filters=[forms.filters.strip()],
     )
     item_collection_id = forms.StringField(
         __("Item collection id"),
-        validators=[forms.validators.DataRequired()],
+        validators=[forms.validators.AllowedIf('org')],
         filters=[forms.filters.strip()],
     )
 
