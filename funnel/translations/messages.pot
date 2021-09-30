@@ -6054,4 +6054,3 @@ msgstr ""
 #: funnel/views/notifications/update_notification.py:46
 msgid "Update in {project}:"
 msgstr ""
-
