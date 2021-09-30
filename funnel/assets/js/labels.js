@@ -21,9 +21,8 @@ $(() => {
   }
   $('#label-form').each(applySortable);
 
-  const msg = window.gettext('Are you sure you want to %s?');
   const onSuccessFn = () => {
     window.location.reload();
   };
-  Form.handleDelete('.js-delete-btn', msg, onSuccessFn);
+  Form.handleDelete('.js-delete-btn', onSuccessFn);
 });

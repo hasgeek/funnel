@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2021-09-30 12:07+0530\n"
+"POT-Creation-Date: 2021-09-30 12:53+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -68,11 +68,6 @@ msgstr ""
 msgid "These changes have not been published yet"
 msgstr ""
 
-#: funnel/assets/js/labels.js:24
-#, python-format
-msgid "Are you sure you want to %s?"
-msgstr ""
-
 #: funnel/assets/js/project_header.js:48
 msgid "The server is experiencing difficulties. Try again in a few minutes"
 msgstr ""
@@ -99,13 +94,13 @@ msgstr ""
 msgid "There was a problem in contacting the server. Please try again later"
 msgstr ""
 
-#: funnel/assets/js/submission_form.js:118
-#, python-format
-msgid "Are you sure you want to remove %s?"
-msgstr ""
-
 #: funnel/assets/js/utils/bookmark.js:24
 msgid "Project added to Account > Saved projects"
+msgstr ""
+
+#: funnel/assets/js/utils/formhelper.js:82
+#, python-format
+msgid "Are you sure you want to remove %s?"
 msgstr ""
 
 #: funnel/assets/js/utils/helper.js:237
@@ -7409,5 +7404,14 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Unsubscribed from notifications"
+#~ msgstr ""
+
+#~ msgid "Are you sure you want to %s?"
+#~ msgstr ""
+
+#~ msgid "Are you sure you want to remove %s?"
+#~ msgstr ""
+
+#~ msgid "Are you sure you want to remove %s"
 #~ msgstr ""
 

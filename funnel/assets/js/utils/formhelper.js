@@ -73,13 +73,14 @@ const Form = {
       }
     }
   },
-  handleDelete(elementClass, confirmationMessage, onSucessFn) {
+  handleDelete(elementClass, onSucessFn) {
     $('body').on('click', elementClass, function (event) {
       event.preventDefault();
       const url = $(this).attr('href');
-      const confirmationText = window.gettext(confirmationMessage, [
-        $(this).attr('title'),
-      ]);
+      const confirmationText = window.gettext(
+        'Are you sure you want to remove %s?',
+        [$(this).attr('title')]
+      );
 
       if (window.confirm(confirmationText)) {
         $.ajax({

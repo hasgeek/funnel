@@ -31,7 +31,6 @@
         ""
       ],
       "These changes have not been published yet": [""],
-      "Are you sure you want to %s?": [""],
       "The server is experiencing difficulties. Try again in a few minutes": [
         ""
       ],
@@ -47,8 +46,8 @@
       "There was a problem in contacting the server. Please try again later": [
         ""
       ],
-      "Are you sure you want to remove %s?": [""],
       "Project added to Account > Saved projects": [""],
+      "Are you sure you want to remove %s?": [""],
       "Today": [""],
       "Tomorrow": [""],
       "Day after": [""],

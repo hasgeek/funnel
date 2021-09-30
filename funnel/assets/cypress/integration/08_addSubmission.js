@@ -56,6 +56,7 @@ describe('Add a new submission', () => {
     cy.get('#field-label').type('Editor');
     cy.get('.modal').find('button[data-cy="form-submit-btn"]:visible').click();
     cy.get('a.modal__close').click();
+    cy.wait(6000); // Wait for toastr notice to fade out
     cy.get('button[data-cy="form-submit-btn"]').click();
     cy.get('.user__box__fullname').contains(usher.username);
     cy.get('.badge').contains('Editor');

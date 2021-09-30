@@ -115,9 +115,8 @@ $(() => {
       );
     });
 
-  const msg = window.gettext('Are you sure you want to remove %s?');
   const onSuccessFn = (responseData) => {
     updateCollaboratorsList(responseData, false);
   };
-  Form.handleDelete('.js-remove-collaborator', msg, onSuccessFn);
+  Form.handleDelete('.js-remove-collaborator', onSuccessFn);
 });
