@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Union
+from typing import Optional, Union
 
 from flask import abort, flash, redirect, request
 
@@ -38,6 +38,7 @@ from ..models import (
     ProposalSuuidRedirect,
     db,
 )
+from ..typing import ReturnView
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProjectViewMixin
 from .notification import dispatch_notification
@@ -170,7 +171,7 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             abort(410)
         return obj
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         if isinstance(self.obj, ProposalSuuidRedirect):
             if self.obj.proposal:
                 self.profile = self.obj.proposal.project.profile
