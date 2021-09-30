@@ -29,8 +29,15 @@ BOXOFFICE_DETAILS_PLACEHOLDER = {'org': 'hasgeek', 'item_collection_id': ''}
 
 @Project.forms('boxoffice')
 class ProjectBoxofficeForm(forms.Form):
-    boxoffice_data = forms.JsonField(
-        __("Ticket client details"), default=BOXOFFICE_DETAILS_PLACEHOLDER
+    org = forms.StringField(
+        __("Organization name"),
+        validators=[forms.validators.DataRequired()],
+        filters=[forms.filters.strip()],
+    )
+    item_collection_id = forms.StringField(
+        __("Item collection id"),
+        validators=[forms.validators.DataRequired()],
+        filters=[forms.filters.strip()],
     )
 
 
