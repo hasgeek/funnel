@@ -460,6 +460,10 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def all_public(cls):
         return cls.query.join(Project).filter(Project.state.PUBLISHED, cls.state.PUBLIC)
 
+    @classmethod
+    def get(cls, uuid_b58):
+        return cls.query.filter_by(uuid_b58=uuid_b58).one_or_none()
+
 
 add_search_trigger(Proposal, 'search_vector')
 
