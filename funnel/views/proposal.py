@@ -510,5 +510,19 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
             }
         return {'status': 'error', 'error': 'csrf'}, 422
 
+    @route('reorder', methods=['POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    @requestform('other', ('before', getbool))
+    def reorder_proposals(self, other: str, before: bool):
+        if Form().validate_on_submit():
+            other_membership = ProposalMembership.query.filter_by(
+                uuid_b58=other
+            ).one_or_404()
+            self.obj.current_access().reorder_item(other_membership, before)
+            db.session.commit()
+            return {'status': 'ok'}
+        return {'status': 'error'}, 422
+
 
 ProposalMembershipView.init_app(app)
