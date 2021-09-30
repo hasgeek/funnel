@@ -102,8 +102,8 @@ class AuthClientView(UrlForView, ModelView):
     route_model_map = {'client': 'buid'}
     obj: AuthClient
 
-    def loader(self, client):
-        return self.model.query.filter(AuthClient.buid == client).one_or_404()
+    def loader(self, client) -> AuthClient:
+        return AuthClient.query.filter(AuthClient.buid == client).one_or_404()
 
     @route('', methods=['GET'])
     @render_with('auth_client.html.jinja2')
@@ -310,13 +310,12 @@ class AuthClientCredentialView(UrlForView, ModelView):
     route_model_map = {'client': 'auth_client.buid', 'name': 'name'}
     obj: AuthClientCredential
 
-    def loader(self, client, name):
-        cred = (
-            self.model.query.join(AuthClient)
+    def loader(self, client, name) -> AuthClientCredential:
+        return (
+            AuthClientCredential.query.join(AuthClient)
             .filter(AuthClient.buid == client, AuthClientCredential.name == name)
             .first_or_404()
         )
-        return cred
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
@@ -348,13 +347,14 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
     obj: AuthClientUserPermissions
 
     def loader(self, client: str, user: str) -> AuthClientUserPermissions:
-        userobj = User.get(buid=user)
-        perm = (
-            self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == client, self.model.user == userobj)
+        return (
+            AuthClientUserPermissions.query.join(
+                AuthClient, AuthClientUserPermissions.auth_client_id == AuthClient.id
+            )
+            .join(User, AuthClientUserPermissions.user_id == User.id)
+            .filter(AuthClient.buid == client, User.buid == user)
             .one_or_404()
         )
-        return perm
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
@@ -422,13 +422,14 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
     obj: AuthClientTeamPermissions
 
     def loader(self, client: str, team: str) -> AuthClientTeamPermissions:
-        teamobj = Team.get(buid=team)
-        perm = (
-            self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == client, self.model.team == teamobj)
+        return (
+            AuthClientTeamPermissions.query.join(
+                AuthClient, AuthClientTeamPermissions.auth_client_id == AuthClient.id
+            )
+            .join(Team, AuthClientTeamPermissions.team_id == Team.id)
+            .filter(AuthClient.buid == client, Team.buid == team)
             .one_or_404()
         )
-        return perm
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login

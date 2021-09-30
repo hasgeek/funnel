@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from flask import abort, flash, redirect
 
 from baseframe import _, forms
@@ -18,6 +20,7 @@ from coaster.views import (
 from .. import app
 from ..forms import SavedProjectForm, UpdateForm
 from ..models import NewUpdateNotification, Profile, Project, Update, db
+from ..typing import ReturnView
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin
 from .notification import dispatch_notification
@@ -90,16 +93,15 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     obj: Update
     SavedProjectForm = SavedProjectForm
 
-    def loader(self, profile, project, update):
-        obj = (
-            self.model.query.join(Project)
+    def loader(self, profile, project, update) -> Update:
+        return (
+            Update.query.join(Project)
             .join(Profile, Project.profile_id == Profile.id)
             .filter(Update.url_name_uuid_b58 == update)
             .one_or_404()
         )
-        return obj
 
-    def after_loader(self):
+    def after_loader(self) -> Optional[ReturnView]:
         self.profile = self.obj.project.profile
         return super().after_loader()
 

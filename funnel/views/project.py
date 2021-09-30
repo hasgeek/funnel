@@ -507,7 +507,7 @@ class ProjectView(
             return redirect(self.obj.url_for(), code=303)
         return render_form(
             form=form,
-            ref_id='form-boxoffice',
+            formid='boxoffice',
             title=_("Edit ticket client details"),
             submit=_("Save changes"),
         )

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import List, Optional, Set, Union, cast, overload
 import hashlib
+import unicodedata
 
 from sqlalchemy import event, inspect
 from sqlalchemy.ext.declarative import declared_attr
@@ -86,7 +87,7 @@ def canonical_email_representation(email: str) -> List[str]:
     if '@' not in email:
         raise ValueError("Not an email address")
     mailbox, domain = email.split('@', 1)
-    mailbox = mailbox.lower()
+    mailbox = unicodedata.normalize('NFC', mailbox).lower()
     if '+' in mailbox:
         mailbox = mailbox[: mailbox.find('+')]
     domain = idna.encode(domain, uts46=True).decode()
@@ -116,7 +117,11 @@ def email_normalized(email: str) -> str:
     as the mailbox portion is technically case-sensitive, even if unlikely in practice.
     """
     mailbox, domain = email.split('@', 1)
-    mailbox = mailbox.lower()
+
+    # RFC 6532 section 3.1 says Unicode NFC normalization should be used. We also
+    # convert to lowercase on the assumption that two different casings on the same
+    # domain are more likely a typing accident than intended use.
+    mailbox = unicodedata.normalize('NFC', mailbox).lower()
     domain = idna.encode(domain, uts46=True).decode()
     return f'{mailbox}@{domain}'
 
@@ -796,7 +801,7 @@ def _send_refcount_event_remove(target, value, initiator):
     emailaddress_refcount_dropping.send(target)
 
 
-def _send_refcount_event_before_delete(mapper, connection, target):
+def _send_refcount_event_before_delete(mapper_, connection, target):
     if target.email_address:
         emailaddress_refcount_dropping.send(target.email_address)
 

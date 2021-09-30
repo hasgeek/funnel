@@ -570,6 +570,10 @@ form.mui--bg-accent .CodeMirror {
       box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
       padding: $mui-grid-padding/2 0;
       margin-bottom: $mui-grid-padding;
+      position: sticky;
+      top: $mui-header-height;
+      background: $mui-bg-color-primary;
+      z-index: 1000;
       .submission-header__submit {
         position: static;
         align-items: center;
