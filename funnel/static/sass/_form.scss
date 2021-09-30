@@ -509,9 +509,9 @@ form.mui--bg-accent .CodeMirror {
   display: block;
 }
 
-.modal-form {
-  .mui-form__error {
-    color: $mui-text-danger;
+.modal {
+  .mui-form.mui-form--margins {
+    margin: 0;
   }
 }
 
@@ -554,9 +554,13 @@ form.mui--bg-accent .CodeMirror {
   }
 }
 
-.modal-form {
+.modal-form.modal-form--submission {
   .mui-textfield {
     margin-bottom: 0;
+  }
+  .modal-form__title {
+    position: absolute;
+    top: 10px;
   }
 }
 

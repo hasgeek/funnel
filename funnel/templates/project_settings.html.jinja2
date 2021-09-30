@@ -45,42 +45,42 @@
         <ul class="mui-list--unstyled mui-list--border mui-list--border--padding">
         {% if project.view_for('edit').is_available() %}
           <li class="margin-bottom">
-            <a href="{{ project.url_for('edit') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="edit"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='align-left', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Frontmatter{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Title, tagline, banner, description, location and timezone{% endtrans %}</span></span></a>
+            <a href="{{ project.url_for('edit') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="edit"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='align-left', icon_size='title', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Frontmatter{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Title, tagline, banner, description, location and timezone{% endtrans %}</span></span></a>
           </li>
         {% endif %}
         {% if project.view_for('edit_slug').is_available() %}
           <li class="margin-bottom">
-            <a href="{{ project.url_for('edit_slug') }}" class="nounderline flex-wrapper mui--text-dark"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='link', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Custom URL{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Customize the link to this project{% endtrans %}</span></span></a>
+            <a href="{{ project.url_for('edit_slug') }}" class="nounderline flex-wrapper mui--text-dark"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='link', icon_size='title', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Custom URL{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Customize the link to this project{% endtrans %}</span></span></a>
           </li>
         {% endif %}
         {% if project.view_for('edit_livestream').is_available() %}
           <li class="margin-bottom">
-            <a href="{{ project.url_for('edit_livestream') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="add-livestream"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='video', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Livestream{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Embed a livestream (hosted on YouTube or Vimeo){% endtrans %}</span></span></a>
+            <a href="{{ project.url_for('edit_livestream') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="add-livestream"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='video', icon_size='title', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Livestream{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Embed a livestream (hosted on YouTube or Vimeo){% endtrans %}</span></span></a>
           </li>
         {% endif %}
         {% if project.view_for('cfp').is_available() -%}
           <li class="margin-bottom">
-            <a href="{{ project.url_for('cfp') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="add-cfp"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='inbox-in', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Submissions{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Guidelines and timelines for accepting submissions{% endtrans %}</span></span></a>
+            <a href="{{ project.url_for('cfp') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="add-cfp"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='inbox-in', icon_size='title', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Submissions{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Guidelines and timelines for accepting submissions{% endtrans %}</span></span></a>
           </li>
         {%- endif %}
         {% if project.view_for('labels').is_available() %}
           <li class="margin-bottom">
-            <a href="{{ project.url_for('labels') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="manage-labels"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='tag', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Labels{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Manage workflow labels for submissions{% endtrans %}</span></span></a>
+            <a href="{{ project.url_for('labels') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="manage-labels"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='tag', icon_size='title', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Labels{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Manage workflow labels for submissions{% endtrans %}</span></span></a>
           </li>
         {% endif %}
         {% if project.view_for('edit_schedule').is_available() %}
           <li class="margin-bottom">
-            <a href="{{ project.url_for('edit_schedule') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="edit-schedule"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='calendar-alt', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Schedule{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Set dates and times for individual sessions{% endtrans %}</span></span></a>
+            <a href="{{ project.url_for('edit_schedule') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="edit-schedule"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='calendar-alt', icon_size='title', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Schedule{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Set dates and times for individual sessions{% endtrans %}</span></span></a>
           </li>
         {% endif %}
         {% if project.view_for('rsvp_list').is_available() %}
           <li class="margin-bottom">
-            <a href="{{ project.url_for('rsvp_list') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="see-responses"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='users', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Participants{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}See the list of participants{% endtrans %}</span></span></a>
+            <a href="{{ project.url_for('rsvp_list') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="see-responses"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='users', icon_size='title', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Participants{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}See the list of participants{% endtrans %}</span></span></a>
           </li>
         {% endif %}
         {% if project.view_for('venues').is_available() %}
           <li class="margin-bottom">
-            <a href="{{ project.url_for('venues') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="manage-venues"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='map-marker-alt', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Venues{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Manage venues for in-person events{% endtrans %}</span></span></a>
+            <a href="{{ project.url_for('venues') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="manage-venues"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='map-marker-alt', icon_size='title', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Venues{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Manage venues for in-person events{% endtrans %}</span></span></a>
           </li>
         {%- endif %}
         {% if project.view_for('edit_boxoffice_data').is_available() %}
@@ -95,7 +95,7 @@
         {% endif %}
         {% if project.view_for('ticket_events').is_available() %}
           <li class="margin-bottom">
-            <a href="{{ project.url_for('ticket_events') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="scan-checkin"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='barcode-read', icon_size='subhead', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Badge scanner{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Scan participant badges at in-person events{% endtrans %}</span></span></a>
+            <a href="{{ project.url_for('ticket_events') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="scan-checkin"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='barcode-read', icon_size='title', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Badge scanner{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Scan participant badges at in-person events{% endtrans %}</span></span></a>
           </li>
         {% endif %}
         </ul>

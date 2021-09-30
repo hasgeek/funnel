@@ -73,6 +73,33 @@ const Form = {
       }
     }
   },
+  handleDelete(elementClass, onSucessFn) {
+    $('body').on('click', elementClass, function (event) {
+      event.preventDefault();
+      const url = $(this).attr('href');
+      const confirmationText = window.gettext(
+        'Are you sure you want to remove %s?',
+        [$(this).attr('title')]
+      );
+
+      if (window.confirm(confirmationText)) {
+        $.ajax({
+          type: 'POST',
+          url,
+          data: {
+            csrf_token: $('meta[name="csrf-token"]').attr('content'),
+          },
+          success(responseData) {
+            onSucessFn(responseData);
+          },
+          error(response) {
+            const errorMsg = Form.getResponseError(response);
+            window.toastr.error(errorMsg);
+          },
+        });
+      }
+    });
+  },
 };
 
 export default Form;
