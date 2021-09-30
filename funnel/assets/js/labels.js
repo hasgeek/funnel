@@ -21,7 +21,7 @@ $(() => {
   }
   $('#label-form').each(applySortable);
 
-  const msg = 'Are you sure you want to %s?';
+  const msg = window.gettext('Are you sure you want to %s?');
   const onSuccessFn = () => {
     window.location.reload();
   };
