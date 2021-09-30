@@ -3944,7 +3944,7 @@ body {
     line-height: 24px;
   }
 }
-s h1,
+h1,
 h2,
 h3,
 h4,
@@ -3973,6 +3973,10 @@ p {
     margin-bottom: 16px;
   }
 }
+a:focus {
+  outline: none;
+}
+
 ul,
 ol {
   margin-top: 0;
@@ -4836,7 +4840,7 @@ blockquote {
 }
 .jquery-modal.blocker.current .modal {
   display: inline-block;
-  overflow: hidden;
+  overflow: auto;
   padding: 16px;
   border-radius: 8px;
 }
@@ -5536,10 +5540,6 @@ html.touch .collapsible__body--disable {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-}
-.profile-avatar svg {
-  width: 18px;
-  height: 18px;
 }
 .profile-avatar img {
   width: 100%;
@@ -8161,8 +8161,8 @@ form.mui--bg-accent .CodeMirror {
   display: block;
 }
 
-.modal-form .mui-form__error {
-  color: #f04e45;
+.modal .mui-form.mui-form--margins {
+  margin: 0;
 }
 
 .submission-form .submission-header .submission-header__submit {
@@ -8204,8 +8204,12 @@ form.mui--bg-accent .CodeMirror {
   padding-top: 16px;
 }
 
-.modal-form .mui-textfield {
+.modal-form.modal-form--submission .mui-textfield {
   margin-bottom: 0;
+}
+.modal-form.modal-form--submission .modal-form__title {
+  position: absolute;
+  top: 10px;
 }
 
 @media (min-width: 768px) {
@@ -10490,7 +10494,6 @@ form.mui--bg-accent .CodeMirror {
 
 .jquery-modal.blocker.current .session-modal.session-modal--nopadding {
   padding: 0;
-  overflow: visible !important;
   width: 100%;
 }
 .jquery-modal.blocker.current
