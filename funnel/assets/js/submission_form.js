@@ -3,7 +3,7 @@ import Form from './utils/formhelper';
 import SortItem from './utils/sort';
 
 $(() => {
-  window.Hasgeek.submissionFormInit = function submissionsInit(sortUrl) {
+  window.Hasgeek.submissionFormInit = function (sortUrl) {
     let textareaWaitTimer;
     const debounceInterval = 1000;
 
