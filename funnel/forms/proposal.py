@@ -15,7 +15,6 @@ __all__ = [
     'ProposalLabelsAdminForm',
     'ProposalLabelsForm',
     'ProposalMoveForm',
-    'ProposalTransferForm',
     'ProposalTransitionForm',
     'ProposalMemberForm',
 ]
@@ -109,15 +108,6 @@ def proposal_label_admin_form(project: Project, proposal: Optional[Proposal]):
 class ProposalFeaturedForm(forms.Form):
     featured = forms.BooleanField(
         __("Feature this submission"), validators=[forms.validators.InputRequired()]
-    )
-
-
-@Proposal.forms('transfer')
-class ProposalTransferForm(forms.Form):
-    user = forms.UserSelectField(
-        __("Transfer to"),
-        description=__("Transfer this submission to another presenter"),
-        validators=[forms.validators.DataRequired()],
     )
 
 

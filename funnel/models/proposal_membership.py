@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Set
+from typing import Set
 
 from werkzeug.utils import cached_property
 
@@ -135,28 +135,6 @@ class __Proposal:
         # These grants are authoritative and used instead of `offered_roles` above
         grants_via={'user': {'submitter', 'editor'}},
     )
-
-    @with_roles(call={'project_editor'})
-    def transfer_to(self, users: List[User], actor: User):
-        """Replace the members on a proposal."""
-        userset = set(users)  # Make a copy to work on
-        for member in self.memberships:
-            if member.user not in userset:
-                # Revoke this membership
-                member.revoke(actor=actor)
-            else:
-                # Don't need to modify this membership
-                userset.remove(member.user)
-
-        # Add a membership. XXX: This does not append to the `self.memberships` list, so
-        # reading the `first_user` property immediately after setting it will not return
-        # the expected value. A database commit is necessary to refresh the list. This
-        # poor behaviour is only tolerable because the `first_user` property is support
-        # for legacy code pending upgrade
-        for user in userset:
-            db.session.add(
-                ProposalMembership(proposal=self, user=user, granted_by=actor)
-            )
 
     @property
     def first_user(self) -> User:
