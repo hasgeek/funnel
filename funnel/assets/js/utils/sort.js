@@ -1,6 +1,6 @@
 import Form from './formhelper';
 
-function sortItem(wrapperJqueryElem, placeholderClass, sortUrl) {
+function SortItem(wrapperJqueryElem, placeholderClass, sortUrl) {
   let oldList;
   let target;
   let other;
@@ -43,4 +43,4 @@ function sortItem(wrapperJqueryElem, placeholderClass, sortUrl) {
   });
 }
 
-export default sortItem;
+export default SortItem;

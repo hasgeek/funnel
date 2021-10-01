@@ -1,5 +1,5 @@
 import TableSearch from './utils/tablesearch';
-import sortItem from './utils/sort';
+import SortItem from './utils/sort';
 
 $(() => {
   window.Hasgeek.submissionsInit = function submissionsInit({
@@ -22,7 +22,7 @@ $(() => {
     }
 
     if (sort.permission) {
-      sortItem(
+      SortItem(
         $('.proposal-list-table tbody'),
         'proposal-placeholder',
         sort.url

@@ -40,9 +40,6 @@
   {%- if proposal_move_form %}
     {{ renderform(proposal_move_form, 'proposal-move', action=proposal.url_for('moveto'), submit=gettext("Move")) }}
   {%- endif %}
-  {%- if proposal_transfer_form %}
-    {{ renderform(proposal_transfer_form, 'proposal-transfer', action=proposal.url_for('transfer_to'), submit=gettext("Transfer")) }}
-  {%- endif %}
 </div>
 
 {{ widgetscripts(proposal_transfer_form, script=true) }}

@@ -30,7 +30,10 @@ class ProposalMembership(
         'all': {
             'read': {'urls', 'user', 'seq', 'is_uncredited', 'label'},
             'call': {'url_for'},
-        }
+        },
+        'editor': {
+            'call': {'reorder_item', 'reorder_before', 'reorder_after'},
+        },
     }
     __datasets__ = {
         'primary': {
