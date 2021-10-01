@@ -14,7 +14,7 @@ lxml-stubs==0.2.0
 mypy==0.910
 pep8-naming==0.12.1
 pre-commit==2.15.0
-pyupgrade==2.27.0
+pyupgrade==2.29.0
 sqlalchemy-stubs==0.4
 toml==0.10.2
 types-certifi==2020.4.0
