@@ -24,7 +24,6 @@ from ..forms import (
     ProposalLabelsAdminForm,
     ProposalMemberForm,
     ProposalMoveForm,
-    ProposalTransferForm,
     ProposalTransitionForm,
     SavedProjectForm,
 )
@@ -196,7 +195,6 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'project_editor'})
     def admin(self):
         transition_form = ProposalTransitionForm(obj=self.obj)
-        proposal_transfer_form = ProposalTransferForm()
 
         proposal_move_form = None
         if 'move_to' in self.obj.current_access():
@@ -211,7 +209,6 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             'project': self.obj.project,
             'transition_form': transition_form,
             'proposal_move_form': proposal_move_form,
-            'proposal_transfer_form': proposal_transfer_form,
             'proposal_label_admin_form': proposal_label_admin_form,
         }
 
@@ -355,25 +352,6 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         else:
             flash(
                 _("Please choose the project you want to move this submission to"),
-                'error',
-            )
-        return redirect(self.obj.url_for(), 303)
-
-    @route('transfer', methods=['POST'])
-    @requires_login
-    @requires_roles({'project_editor'})
-    def transfer_to(self):
-        proposal_transfer_form = ProposalTransferForm()
-        if proposal_transfer_form.validate_on_submit():
-            target_user = proposal_transfer_form.user.data
-            self.obj.current_access().transfer_to(
-                [target_user], actor=current_auth.actor
-            )
-            db.session.commit()
-            flash(_("This submission has been transferred"), 'success')
-        else:
-            flash(
-                _("Please choose the user you want to transfer this submission to"),
                 'error',
             )
         return redirect(self.obj.url_for(), 303)
