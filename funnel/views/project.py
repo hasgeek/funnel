@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import namedtuple
+from types import SimpleNamespace
 import csv
 import io
 
@@ -499,9 +500,18 @@ class ProjectView(
     @requires_login
     @requires_roles({'promoter'})
     def edit_boxoffice_data(self):
-        form = ProjectBoxofficeForm(obj=self.obj, model=Project)
+        boxoffice_data = self.obj.boxoffice_data or {}
+        form = ProjectBoxofficeForm(
+            obj=SimpleNamespace(
+                org=boxoffice_data.get('org', ''),
+                item_collection_id=boxoffice_data.get('item_collection_id', ''),
+            ),
+            model=Project,
+        )
         if form.validate_on_submit():
             form.populate_obj(self.obj)
+            self.obj.boxoffice_data['org'] = form.org.data
+            self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.url_for(), code=303)
