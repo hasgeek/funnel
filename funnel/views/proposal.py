@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, Union
 
-from flask import abort, flash, redirect, request
+from flask import abort, flash, jsonify, redirect, request
 
 from baseframe import _, __
 from baseframe.forms import Form, render_delete_sqla, render_form, render_template
@@ -124,7 +124,7 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             proposal.current_access().reorder_item(other_proposal, before)
             db.session.commit()
             return {'status': 'ok'}
-        return {'status': 'error'}, 422
+        return {'status': 'error', 'error': 'csrf'}, 422
 
 
 ProjectProposalView.init_app(app)
@@ -239,7 +239,7 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             'ref_id': 'form-submission',
         }
 
-    @route('add_collaborator', methods=['GET', 'POST'])
+    @route('collaborator/new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
     def add_collaborator(self):
@@ -252,19 +252,21 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                 collaborator_form.populate_obj(membership)
                 db.session.add(membership)
             db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("{user} has been added as an collaborator").format(
-                    user=membership.user.pickername
-                ),
-                'html': render_template(
-                    'collaborator_list.html.jinja2',
-                    collaborators=[
-                        _m.current_access(datasets=['primary', 'related'])
-                        for _m in self.obj.memberships
-                    ],
-                ),
-            }
+            return jsonify(
+                {
+                    'status': 'ok',
+                    'message': _("{user} has been added as an collaborator").format(
+                        user=membership.user.pickername
+                    ),
+                    'html': render_template(
+                        'collaborator_list.html.jinja2',
+                        collaborators=[
+                            _m.current_access(datasets=['primary', 'related'])
+                            for _m in self.obj.memberships
+                        ],
+                    ),
+                }
+            )
         return render_form(
             form=collaborator_form,
             title='',
@@ -272,6 +274,24 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             ajax=True,
             with_chrome=True,
         )
+
+    @route('collaborator/reorder', methods=['POST'])
+    @requires_login
+    @requires_roles({'editor'})
+    @render_with(json=True)
+    @requestform('target', 'other', ('before', getbool))
+    def reorder_collaborators(self, target: str, other: str, before: bool):
+        if Form().validate_on_submit():
+            target_membership = ProposalMembership.query.filter_by(
+                uuid_b58=target, proposal=self.obj
+            ).one_or_404()
+            other_membership = ProposalMembership.query.filter_by(
+                uuid_b58=other, proposal=self.obj
+            ).one_or_404()
+            target_membership.current_access().reorder_item(other_membership, before)
+            db.session.commit()
+            return {'status': 'ok'}
+        return {'status': 'error', 'error': 'csrf'}, 422
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
@@ -463,17 +483,20 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
                 with membership.amend_by(current_auth.user) as amendment:
                     collaborator_form.populate_obj(amendment)
             db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("{user}’s role has been updated").format(
-                    user=membership.user.pickername
-                )
-                if amendment.membership is not self.obj
-                else None,
-                'html': render_template(
-                    'collaborator_list.html.jinja2', collaborators=self.collaborators()
-                ),
-            }
+            return jsonify(
+                {
+                    'status': 'ok',
+                    'message': _("{user}’s role has been updated").format(
+                        user=membership.user.pickername
+                    )
+                    if amendment.membership is not self.obj
+                    else None,
+                    'html': render_template(
+                        'collaborator_list.html.jinja2',
+                        collaborators=self.collaborators(),
+                    ),
+                }
+            )
         return render_form(
             form=collaborator_form,
             title='',
@@ -485,6 +508,7 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
     @route('remove', methods=['POST'])
     @requires_login
     @requires_roles({'editor'})
+    @render_with(json=True)
     def remove(self):
         membership = self.obj.current_access()
         if Form().validate_on_submit():
@@ -509,20 +533,6 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
                 ),
             }
         return {'status': 'error', 'error': 'csrf'}, 422
-
-    @route('reorder', methods=['POST'])
-    @requires_login
-    @requires_roles({'editor'})
-    @requestform('other', ('before', getbool))
-    def reorder_proposals(self, other: str, before: bool):
-        if Form().validate_on_submit():
-            other_membership = ProposalMembership.query.filter_by(
-                uuid_b58=other
-            ).one_or_404()
-            self.obj.current_access().reorder_item(other_membership, before)
-            db.session.commit()
-            return {'status': 'ok'}
-        return {'status': 'error'}, 422
 
 
 ProposalMembershipView.init_app(app)
