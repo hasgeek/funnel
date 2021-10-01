@@ -29,6 +29,6 @@ types-requests==2.25.9
 types-setuptools==57.4.0
 types-simplejson==3.17.0
 types-six==1.16.1
-types-toml==0.1.5
+types-toml==0.10.0
 types-Werkzeug==1.0.5
 watchdog==2.1.5
