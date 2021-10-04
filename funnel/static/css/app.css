@@ -8241,6 +8241,15 @@ form.mui--bg-accent .CodeMirror {
     padding-top: 19px;
   }
 }
+.collaborator {
+  background: #ffffff;
+}
+
+.collaborator-placeholder {
+  border-bottom: 1px solid #c0ccda;
+  background: #f9f9f9;
+}
+
 .card--banner {
   border-radius: 16px;
   overflow: hidden;

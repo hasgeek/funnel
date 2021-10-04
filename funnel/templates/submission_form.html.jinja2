@@ -111,9 +111,18 @@
 {% endblock %}
 
 {% block innerscripts %}
+  {% assets "js_sortable" -%}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+  {%- endassets -%}
   <script type="text/javascript">
     window.Hasgeek.Config.markdownPreviewApi = {{ url_for('markdown_preview')|tojson }};
   </script>
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
   <script src="{{ built_asset('submission_form.js') }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      var sortUrl = '{{ proposal.url_for("reorder_collaborators") }}'
+      window.Hasgeek.submissionFormInit(sortUrl);
+    });
+  </script>
 {% endblock %}

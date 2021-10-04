@@ -595,3 +595,12 @@ form.mui--bg-accent .CodeMirror {
     }
   }
 }
+
+.collaborator {
+  background: $mui-bg-color-primary;
+}
+
+.collaborator-placeholder {
+  border-bottom: 1px solid $mui-text-accent;
+  background: $mui-bg-color-accent;
+}
