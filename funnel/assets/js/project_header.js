@@ -97,7 +97,7 @@ const Ticketing = {
             ? Math.min.apply(null, quantityAvailable.filter(Boolean))
             : 0;
         const minPrice = prices.length > 0 ? Math.min(...prices) : -1;
-        if (!isTicketAvailable || minPrice > -1) {
+        if (!isTicketAvailable || minPrice < 0) {
           $('.js-tickets-available').addClass('mui--hide');
           $('.js-tickets-not-available').removeClass('mui--hide');
           $('.js-open-ticket-widget').addClass('register-block__txt--strike');
