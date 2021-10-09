@@ -53,11 +53,11 @@ class EmailAddressAvailable:
                     " logging in or resetting your password"
                 )
             )
-        elif is_valid == 'invalid':
+        if is_valid == 'invalid':
             raise forms.validators.StopValidation(
                 _("This does not appear to be a valid email address")
             )
-        elif is_valid == 'nomx':
+        if is_valid == 'nomx':
             raise forms.validators.StopValidation(
                 _(
                     "The domain name of this email address is missing a DNS MX record."
@@ -65,11 +65,11 @@ class EmailAddressAvailable:
                     " spam. Please ask your tech person to add MX to DNS"
                 )
             )
-        elif is_valid == 'not_new':
+        if is_valid == 'not_new':
             raise forms.validators.StopValidation(
                 _("You have already registered this email address")
             )
-        elif is_valid == 'soft_fail':
+        if is_valid == 'soft_fail':
             # XXX: In the absence of support for warnings in WTForms, we can only use
             # flash messages to communicate
             flash(
@@ -86,7 +86,7 @@ class EmailAddressAvailable:
                     " incorrect, email {support} asking for the address to be activated"
                 ).format(support=current_app.config['SITE_SUPPORT_EMAIL'])
             )
-        elif is_valid is not True:
+        if is_valid is not True:
             current_app.logger.error(
                 "Unknown email address validation code: %r", is_valid
             )

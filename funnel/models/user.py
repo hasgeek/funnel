@@ -969,14 +969,13 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def name(self, value: Optional[str]) -> None:
         if value is None or not value.strip():
             raise ValueError("Name is required")
+        if self.profile is not None:
+            self.profile.name = value
         else:
-            if self.profile is not None:
-                self.profile.name = value
-            else:
-                # This code will only be reachable during `__init__`
-                self.profile = Profile(  # type: ignore[unreachable]
-                    name=value, organization=self, uuid=self.uuid
-                )
+            # This code will only be reachable during `__init__`
+            self.profile = Profile(  # type: ignore[unreachable]
+                name=value, organization=self, uuid=self.uuid
+            )
 
     @name.expression
     def name(cls) -> Select:  # noqa: N805

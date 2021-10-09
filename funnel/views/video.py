@@ -99,7 +99,7 @@ def video_property(obj: VideoMixin) -> Optional[VideoData]:
                             raise YoutubeApiError(
                                 "Unable to fetch data, please check the youtube url or API key"
                             )
-                        elif not youtube_video['items']:
+                        if not youtube_video['items']:
                             # Response has zero item for our given video ID.
                             # This will happen if the video has been removed from YouTube.
                             exists = False

@@ -46,8 +46,7 @@ class GoogleProvider(LoginProvider):
         if request.args.get('error'):
             if request.args['error'] == 'access_denied':
                 raise LoginCallbackError(_("You denied the Google login request"))
-            else:
-                raise LoginCallbackError(_("Unknown failure"))
+            raise LoginCallbackError(_("Unknown failure"))
         code = request.args.get('code', None)
         try:
             credentials = self.flow(callback_url).step2_exchange(code)

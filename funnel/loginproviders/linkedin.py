@@ -57,13 +57,12 @@ class LinkedInProvider(LoginProvider):
         if 'error' in request.args:
             if request.args['error'] == 'access_denied':
                 raise LoginCallbackError(_("You denied the LinkedIn login request"))
-            elif request.args['error'] == 'redirect_uri_mismatch':
+            if request.args['error'] == 'redirect_uri_mismatch':
                 # TODO: Log this as an exception for the server admin to look at
                 raise LoginCallbackError(
                     _("This server's callback URL is misconfigured")
                 )
-            else:
-                raise LoginCallbackError(_("Unknown failure"))
+            raise LoginCallbackError(_("Unknown failure"))
         code = request.args.get('code', None)
         try:
             response = requests.post(
