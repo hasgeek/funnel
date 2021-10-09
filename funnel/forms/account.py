@@ -478,9 +478,7 @@ class NewPhoneForm(forms.RecaptchaForm):
                 raise forms.ValidationError(
                     _("You have already registered this phone number")
                 )
-            raise forms.ValidationError(
-                _("This phone number has already been claimed")
-            )
+            raise forms.ValidationError(_("This phone number has already been claimed"))
         existing = UserPhoneClaim.get_for(user=current_auth.user, phone=number)
         if existing is not None:
             raise forms.ValidationError(_("This phone number is pending verification"))
