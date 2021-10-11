@@ -121,7 +121,10 @@
   <script src="{{ built_asset('submission_form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      var sortUrl = '{{ proposal.url_for("reorder_collaborators") }}'
+      var sortUrl;
+      {%- if proposal %}
+        sortUrl = '{{ proposal.url_for("reorder_collaborators") }}'
+      {%- endif %}
       window.Hasgeek.submissionFormInit(sortUrl);
     });
   </script>
