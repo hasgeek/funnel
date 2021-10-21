@@ -55,10 +55,9 @@ def parse_video_url(video_url: str):
                     f"{video_url}: YouTube video URLs need to be in the format: "
                     "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
                 )
-        elif parsed.path.startswith('/embed'):
-            video_id = parsed.path.lstrip('/embed/')
+        elif parsed.path.startswith('/embed/'):
+            video_id = parsed.path[7:]
             if video_id:
-                video_id = video_id
                 video_source = 'youtube'
             else:
                 raise ValueError(
@@ -73,7 +72,6 @@ def parse_video_url(video_url: str):
     elif parsed.netloc == 'youtu.be':
         video_id = parsed.path.lstrip('/')
         if video_id:
-            video_id = video_id
             video_source = 'youtube'
         else:
             raise ValueError(
@@ -83,7 +81,6 @@ def parse_video_url(video_url: str):
     elif parsed.netloc in ['vimeo.com', 'www.vimeo.com']:
         video_id = parsed.path.lstrip('/')
         if video_id:
-            video_id = video_id
             video_source = 'vimeo'
         else:
             raise ValueError(
@@ -103,7 +100,11 @@ def parse_video_url(video_url: str):
                     "https://drive.google.com/file/d/1rwHdWYnF4asdhsnDwLECoqZQy4o/view"
                 )
         elif parsed.path.startswith('/file/d/'):
-            video_id = parsed.path.lstrip('/file/d/').rstrip('/view').rstrip('/preview')
+            video_id = parsed.path[8:]
+            if video_id.endswith('/view'):
+                video_id = video_id[:-5]
+            elif video_id.endswith('/preview'):
+                video_id = video_id[:-8]
             video_source = 'googledrive'
         else:
             raise ValueError(

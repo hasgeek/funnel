@@ -121,7 +121,7 @@ def run_migrations_online():
             'engine': current_app.extensions['migrate'].db.get_engine(bind=name)
         }
 
-    for name, rec in engines.items():
+    for _name, rec in engines.items():
         engine = rec['engine']
         rec['connection'] = conn = engine.connect()
 
@@ -166,7 +166,7 @@ def run_migrations_online():
 
         for rec in engines.values():
             rec['transaction'].commit()
-    except:  # noqa: E722
+    except:  # noqa: B001, E722
         for rec in engines.values():
             rec['transaction'].rollback()
         raise
