@@ -59,7 +59,7 @@ class ResponseWithForms(Response):
                 return client.get(path, **kwargs)
 
             for link in self._parsed_html.iter('a'):
-                setattr(link, 'click', MethodType(_click, link))
+                link.click = MethodType(_click, link)
 
             # add submit method to all forms
             def _submit(self, client, path=None, **kwargs):
@@ -75,7 +75,7 @@ class ResponseWithForms(Response):
                 return client.open(path, data=data, **kwargs)
 
             for form in self._parsed_html.forms:
-                setattr(form, 'submit', MethodType(_submit, form))
+                form.submit = MethodType(_submit, form)
         return self._parsed_html
 
     @property

@@ -33,8 +33,8 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
                     f"{video_url}: YouTube video URLs need to be in the format:"
                     " https://www.youtube.com/watch?v=dQw4w9WgXcQ"
                 )
-        elif parsed.path.startswith('/embed'):
-            video_id = parsed.path.lstrip('/embed/')
+        elif parsed.path.startswith('/embed/'):
+            video_id = parsed.path[7:]
             if video_id:
                 video_source = 'youtube'
             else:
@@ -76,7 +76,11 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
                     _("This must be a shareable URL for a single file in Google Drive")
                 )
         elif parsed.path.startswith('/file/d/'):
-            video_id = parsed.path.lstrip('/file/d/').rstrip('/view').rstrip('/preview')
+            video_id = parsed.path[8:]
+            if video_id.endswith('/view'):
+                video_id = video_id[:-5]
+            elif video_id.endswith('/preview'):
+                video_id = video_id[:-8]
             video_source = 'googledrive'
         else:
             raise ValueError(

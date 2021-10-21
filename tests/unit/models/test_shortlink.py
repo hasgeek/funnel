@@ -27,7 +27,7 @@ class MockRandomBigint:
 def test_random_bigint():
     """Random numbers are within expected range (this test depends on luck)."""
     randset = set()
-    for loop in range(1000):
+    for _loop in range(1000):
         num = shortlink.random_bigint()
         assert num != 0
         # Bigints are 64-bit (8 bytes). That gives us 63 bits + 1 bit for sign
@@ -40,7 +40,7 @@ def test_random_bigint():
 def test_smaller_random_int():
     """Smaller random numbers are within expected range (this test depends on luck)."""
     randset = set()
-    for loop in range(1000):
+    for _loop in range(1000):
         num = shortlink.random_bigint(True)
         # Smaller ids are 24-bit (3 bytes) and not signed, since they are significantly
         # within bigint sign bit range
@@ -354,11 +354,14 @@ def test_shortlink_get(db_session):
 def test_shortlink_comparator():
     """Shortlink lookup by name generates SQLAlchemy expressions."""
     # Equality and container expressions work
-    shortlink.Shortlink.name == 'example'
-    shortlink.Shortlink.name.in_(['example', 'example_org'])
+    expr = shortlink.Shortlink.name == 'example'
+    assert expr is not None
+    expr = shortlink.Shortlink.name.in_(['example', 'example_org'])
+    assert expr is not None
     # Inequality expression is not supported, nor is anything else
     with pytest.raises(NotImplementedError):
-        shortlink.Shortlink.name != 'example'
+        expr = shortlink.Shortlink.name != 'example'
+        assert expr is not None  # This line won't be reached
 
 
 def test_shortlink_lookup_multiple():

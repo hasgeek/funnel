@@ -1110,11 +1110,11 @@ class NotificationPreferences(BaseMixin, db.Model):
                             setattr(self, t_attr, getattr(type_cls, d_attr))
                 else:
                     # No notification type class either. Turn on everything.
-                    for t_attr, d_attr in transport_attrs:
+                    for t_attr, _d_attr in transport_attrs:
                         if getattr(self, t_attr) is None:
                             setattr(self, t_attr, True)
             else:
-                for t_attr, d_attr in transport_attrs:
+                for t_attr, _d_attr in transport_attrs:
                     if getattr(self, t_attr) is None:
                         # If this transport is enabled for any existing notification
                         # type, also enable here.
