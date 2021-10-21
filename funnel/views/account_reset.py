@@ -252,8 +252,9 @@ def reset_email_do() -> ReturnView:
         session.pop('temp_token', None)
         session.pop('temp_token_at', None)
         # Invalidate all of the user's active sessions
-        counter = None
-        for counter, user_session in enumerate(user.active_user_sessions.all()):
+        user_sessions = user.active_user_sessions.all()
+        session_count = len(user_sessions)
+        for user_session in user_sessions:
             user_session.revoke()
         db.session.commit()
         dispatch_notification(AccountPasswordNotification(document=user))
@@ -263,14 +264,14 @@ def reset_email_do() -> ReturnView:
                 "Your password has been changed. You may now login with your new"
                 " password"
             )
-            if counter is None
+            if session_count is None
             else ngettext(
                 "Your password has been changed. As a precaution, you have been logged"
                 " out of one other device. You may now login with your new password",
                 "Your password has been changed. As a precaution, you have been logged"
                 " out of %(num)d other devices. You may now login with your new"
                 " password",
-                counter + 1,
+                session_count,
             ),
         )
     # Form with id 'form-password-change' will have password strength meter on UI

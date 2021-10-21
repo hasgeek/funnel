@@ -391,7 +391,8 @@ def cleanurl_filter(url):
     if not isinstance(url, furl):
         url = furl(url)
     url.path.normalize()
-    return furl().set(netloc=url.netloc, path=url.path).url.lstrip('//').rstrip('/')
+    # Strip leading and trailing slashes in //hostname/path/ to get hostname/path
+    return furl().set(netloc=url.netloc, path=url.path).url.strip('/')
 
 
 @app.template_filter('shortlink')

@@ -33,7 +33,7 @@ def test_organization_get(db_session, user_twoflower):
     assert get_by_name == org
     # scenario 4: when defercols is set to True
     get_by_name_with_defercols = models.Organization.get(name=name, defercols=True)
-    get_by_name_with_defercols == org
+    assert get_by_name_with_defercols == org
 
 
 def test_organization_all(db_session, org_ankhmorpork, org_citywatch, org_uu):
