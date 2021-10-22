@@ -1,5 +1,5 @@
-import Form from './utils/formhelper';
 import TableSearch from './utils/tablesearch';
+import SortItem from './utils/sort';
 
 $(() => {
   window.Hasgeek.submissionsInit = function submissionsInit({
@@ -22,46 +22,11 @@ $(() => {
     }
 
     if (sort.permission) {
-      let oldList;
-      let target;
-      let other;
-      let before;
-      let newList;
-      let newPosition;
-      $('.proposal-list-table tbody').sortable({
-        handle: '.drag-handle',
-        placeholder: 'proposal-placeholder',
-        forcePlaceholderSize: true,
-        revert: true,
-        scroll: true,
-        start(event, ui) {
-          $('.proposal-placeholder').height($(ui.item).height());
-          oldList = $(this).sortable('toArray');
-        },
-        update(event, ui) {
-          // True if moved up
-          before = !(ui.position.top - ui.originalPosition.top > 0);
-          newList = $(this).sortable('toArray');
-          target = $(ui.item).attr('id');
-          newPosition = newList.indexOf(target);
-          other = oldList[newPosition];
-          $.ajax({
-            url: sort.url,
-            type: 'POST',
-            data: {
-              csrf_token: $('meta[name="csrf-token"]').attr('content'),
-              target,
-              other,
-              before,
-            },
-            dataType: 'json',
-            error(errorResponse) {
-              Form.handleAjaxError(errorResponse);
-              $('.proposal-list-table tbody').sortable('cancel');
-            },
-          });
-        },
-      });
+      SortItem(
+        $('.proposal-list-table tbody'),
+        'proposal-placeholder',
+        sort.url
+      );
     }
   };
 });

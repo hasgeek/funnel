@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from flask import Response
 
+import pytest
 import requests
 
 from funnel.transports import TransportConnectionError, TransportRecipientError
@@ -47,25 +48,16 @@ def test_twilio_callback(client):
 def test_twilio_failures():
     """Test if message sending is a failure."""
     # Invalid Target
-    try:
+    with pytest.raises(TransportRecipientError):
         send(TWILIO_INVALID_TARGET, MESSAGE, callback=False)
-        assert False
-    except TransportRecipientError:
-        assert True
 
-    # Cant route
-    try:
+    # Can't route
+    with pytest.raises(TransportRecipientError):
         send(TWILIO_CANT_ROUTE, MESSAGE, callback=False)
-        assert False
-    except TransportRecipientError:
-        assert True
 
     # No SMS Service
-    try:
+    with pytest.raises(TransportRecipientError):
         send(TWILIO_NO_SMS_SERVICE, MESSAGE, callback=False)
-        assert False
-    except TransportRecipientError:
-        assert True
 
 
 def test_exotel_nonce(client):
@@ -92,10 +84,7 @@ def test_exotel_nonce(client):
 def test_exotel_send_error(client):
     """Only tests if url_for works and usually fails otherwise, which is OK."""
     # Check False Path via monkey patching the requests object
-    try:
+    with pytest.raises(TransportConnectionError):
         with patch.object(requests, 'post') as mock_method:
             mock_method.side_effect = requests.ConnectionError
-            sid = send(EXOTEL_TO, MESSAGE, callback=True)
-            assert sid
-    except TransportConnectionError:
-        assert True
+            send(EXOTEL_TO, MESSAGE, callback=True)

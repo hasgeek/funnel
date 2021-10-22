@@ -190,9 +190,8 @@ def test_merge_with_user1_preferences(
     db_session.commit()
     assert merged == fixtures.user1
     assert NotificationPreferences.query.count() == 2
-    #
-    user1_main_preferences.user == fixtures.user1
-    user1_test_preferences.user == fixtures.user1
+    assert user1_main_preferences.user == fixtures.user1
+    assert user1_test_preferences.user == fixtures.user1
 
 
 def test_merge_with_user2_preferences(
@@ -204,8 +203,8 @@ def test_merge_with_user2_preferences(
     db_session.commit()
     assert merged == fixtures.user1
     assert NotificationPreferences.query.count() == 2
-    user2_main_preferences.user == fixtures.user1
-    user2_test_preferences.user == fixtures.user1
+    assert user2_main_preferences.user == fixtures.user1
+    assert user2_test_preferences.user == fixtures.user1
 
 
 def test_merge_with_both_preferences(

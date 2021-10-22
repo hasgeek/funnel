@@ -97,7 +97,4 @@ def test_vimeo(db_session, new_proposal):
     assert check_video['url'] == check_proposal.video_url
     assert check_video['duration'] == 212
     assert check_video['uploaded_at'] == utc.localize(datetime(2019, 5, 17, 19, 48, 2))
-    assert (
-        check_video['thumbnail']
-        == 'https://i.vimeocdn.com/video/783856813_200x150?r=pad'
-    )
+    assert check_video['thumbnail'].startswith('https://i.vimeocdn.com/video/783856813')
