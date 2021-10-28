@@ -6,7 +6,6 @@ describe('Test comments feature', () => {
   it('Post comment on project page', () => {
     cy.server();
     cy.route('GET', '**/new').as('get-form');
-    cy.route('GET', '**/updates?*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
     cy.route('POST', '**/edit').as('edit-comment');
     cy.route('POST', '**/reply').as('reply-comment');
@@ -23,7 +22,7 @@ describe('Test comments feature', () => {
     cy.wait(2000);
     cy.get('a[data-cy="login-btn"]').click();
     cy.fill_login_details(user.username, user.password);
-
+    cy.wait(2000);
     cy.get('[data-cy="post-comment"]').click();
     cy.get('[data-cy="new-form"]')
       .find('.CodeMirror textarea')

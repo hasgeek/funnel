@@ -68,13 +68,13 @@
   {%- block font_icons %}
   {%- endblock %}
 
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/app.scss') }}" />
   {%- for asset in config.get('ext_css', []) %}
     <link rel="stylesheet" type="text/css" href="{{ asset|ext_asset_url }}" />
   {%- endfor %}
   {% assets "css_all" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/app.scss') }}" />
 
   {% block pageheaders %}{% endblock %}
 </head>
