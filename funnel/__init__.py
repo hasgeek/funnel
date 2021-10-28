@@ -46,7 +46,6 @@ THEME_FILES['funnel'] = {
 }
 
 version = Version(__version__)
-assets['funnel.css'][version] = 'css/app.css'
 assets['funnel.js'][version] = 'js/scripts.js'
 assets['spectrum.js'][version] = 'js/libs/spectrum.js'
 assets['spectrum.css'][version] = 'css/spectrum.css'
