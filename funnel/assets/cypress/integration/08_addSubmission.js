@@ -10,7 +10,7 @@ describe('Add a new submission', () => {
     cy.route('GET', '**/admin').as('fetch-admin-panel');
     cy.route('GET', '**/updates?*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
-    cy.route('GET', '**/add_collaborator').as('get-collaborator-form');
+    cy.route('GET', '**/collaborator/*').as('get-collaborator-form');
 
     cy.login('/', user.username, user.password);
 

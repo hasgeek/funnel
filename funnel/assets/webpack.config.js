@@ -45,6 +45,7 @@ module.exports = {
     submission_form: path.resolve(__dirname, 'js/submission_form.js'),
     labels_form: path.resolve(__dirname, 'js/labels_form.js'),
     cfp_form: path.resolve(__dirname, 'js/cfp_form.js'),
+    app_css: path.resolve(__dirname, 'sass/app.scss'),
   },
   output: {
     path: path.resolve(__dirname, '../static/build'),
@@ -61,6 +62,17 @@ module.exports = {
         options: {
           plugins: ['@babel/plugin-syntax-dynamic-import'],
         },
+      },
+      {
+        test: /\.scss$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: { outputPath: 'css/', name: '[name].[hash].css' },
+          },
+          'sass-loader',
+        ],
       },
     ],
   },
