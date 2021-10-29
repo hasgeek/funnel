@@ -69,7 +69,7 @@ module.exports = {
         use: [
           {
             loader: 'file-loader',
-            options: { outputPath: 'css/', name: '[name].min.css' },
+            options: { outputPath: 'css/', name: '[name].[hash].css' },
           },
           'sass-loader',
         ],
