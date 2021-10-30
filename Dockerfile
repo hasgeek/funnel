@@ -6,7 +6,7 @@ RUN apt-get -y update
 RUN apt-get -y install curl
 
 # get install script and pass it to execute: 
-RUN curl -sL https://deb.nodesource.com/setup_4.x | bash
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash
 
 # and install node 
 RUN apt-get -y install nodejs
