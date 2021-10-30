@@ -64,6 +64,11 @@ except OSError:
     built_assets = {}
     app.logger.error("static/build/manifest.json file missing; run `make`")
 
+# --- add whitenoise -------------------------------------------------------------------
+
+app.wsgi_app = WhiteNoise(app.wsgi_app, root='assets/', prefix='static/')
+
+
 # --- Import rest of the app -----------------------------------------------------------
 
 from . import (  # isort:skip  # noqa: F401
