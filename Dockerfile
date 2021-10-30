@@ -9,7 +9,7 @@ RUN apt-get -y install curl
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash
 
 # and install node 
-RUN apt-get -y install nodejs
+RUN apt-get -y install nodejs git
 
 # We don't want to run our application as root if it is not strictly necessary, even in a container.
 # Create a user and a group called 'app' to run the processes.
