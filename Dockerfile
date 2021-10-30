@@ -24,7 +24,7 @@ COPY . /app
 # Make the directory the working directory for subsequent commands
 WORKDIR /app
 
-RUN cd funnel/assets; make assetsonly
+RUN cd funnel/assets; make assets
 
 # Install from the requirements.txt we copied above
 COPY requirements.txt /tmp
