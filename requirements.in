@@ -58,3 +58,4 @@ zxcvbn==4.4.28
 awscli
 fabric3
 js2py
+whitenoise
