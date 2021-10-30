@@ -82,7 +82,7 @@ pathlib2==2.3.6
 phonenumbers==8.12.31
 premailer==3.10.0
 progressbar2==3.53.1
-psycopg2==2.9.1
+psycopg2-binary
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycountry==20.7.3
