@@ -9,7 +9,7 @@ RUN apt-get -y install curl
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash
 
 # and install node 
-RUN apt-get -y install nodejs git wget
+RUN apt-get -y install nodejs git wget unzip
 
 RUN wget --quiet https://github.com/markokr/pghashlib/archive/master.zip -O pghashlib.zip \
   && unzip pghashlib.zip \
