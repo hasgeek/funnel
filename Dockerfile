@@ -9,16 +9,7 @@ RUN apt-get -y install curl
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash
 
 # and install node 
-RUN apt-get -y install nodejs git wget unzip make
-
-RUN wget --quiet https://github.com/markokr/pghashlib/archive/master.zip -O pghashlib.zip \
-  && unzip pghashlib.zip \
-  && cd pghashlib-master \
-  && PG_CONFIG=/usr/lib/postgresql/$PG_MAJOR/bin/pg_config make \
-  && PG_CONFIG=/usr/lib/postgresql/$PG_MAJOR/bin/pg_config make install \
-  && ldconfig
-
-RUN sed -ri "s/^#?(shared_preload_libraries\s*=\s*)\S+/\1'pg_stat_statements'/" /usr/share/postgresql/$PG_MAJOR/postgresql.conf.sample
+RUN apt-get -y install nodejs git wget unzip make postgresql postgresql-dev python-dev
 
 # We don't want to run our application as root if it is not strictly necessary, even in a container.
 # Create a user and a group called 'app' to run the processes.
