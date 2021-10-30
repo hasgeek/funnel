@@ -66,7 +66,7 @@ except OSError:
 
 # --- add whitenoise -------------------------------------------------------------------
 
-app.wsgi_app = WhiteNoise(app.wsgi_app, root='assets/', prefix='static/')
+app.wsgi_app = WhiteNoise(app.wsgi_app, root='funnel/assets/', prefix='static/')
 
 
 # --- Import rest of the app -----------------------------------------------------------
