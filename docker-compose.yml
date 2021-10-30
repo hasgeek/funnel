@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    image: master-image
+    ports:
+      - 5000:5000
+    command: sh ./runserver.sh
+    volumes:
+    - $HOME/.aws/credentials:/app/.aws/credentials:ro
+  worker:
+    image: master-image
+    depends_on:
+      - redis
+    command: sh ./rq.sh
+    volumes:
+    - $HOME/.aws/credentials:/app/.aws/credentials:ro
+  redis:
+    image: redis
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx
+    volumes:
+      - static_data:/vol/static
+      # - /etc/letsencrypt:/etc/letsencrypt
+      # - ./etc/letsencrypt/www:/var/www/letsencrypt
+    ports:
+      - 80:80
+      - 443:443
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;error_log /dev/stdout info;\"'"
+    depends_on:
+      - web
+volumes:
+  static_data:
