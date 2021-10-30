@@ -18,6 +18,7 @@ import geoip2.database
 from baseframe import Bundle, Version, assets, baseframe
 from baseframe.blueprint import THEME_FILES
 import coaster.app
+from whitenoise import WhiteNoise
 
 from ._version import __version__
 from .executor import ExecutorWrapper

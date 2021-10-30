@@ -82,7 +82,8 @@ pathlib2==2.3.6
 phonenumbers==8.12.31
 premailer==3.10.0
 progressbar2==3.53.1
-psycopg2-binary
+psycopg2==2.9.1
+psycopg2-binary==2.9.1
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycountry==20.7.3
@@ -136,6 +137,7 @@ user-agents==2.2.0
 webassets==2.0
 webencodings==0.5.1
 Werkzeug==2.0.2
+whitenoise==5.3.0
 WTForms==2.3.3
 yarl==1.7.0
 zxcvbn==4.4.28
