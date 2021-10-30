@@ -24,6 +24,8 @@ COPY . /app
 # Make the directory the working directory for subsequent commands
 WORKDIR /app
 
+RUN cd funnel/assets; make assetsonly
+
 # Install from the requirements.txt we copied above
 COPY requirements.txt /tmp
 RUN pip install -r requirements.txt
@@ -36,6 +38,7 @@ RUN chown -R app:app /app
 # Subsequent commands, either in this Dockerfile or in a
 # docker-compose.yml, will run as user 'app'
 USER app
+
 
 # We are done with setting up the image.
 # As this image is used for different
