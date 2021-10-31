@@ -30,6 +30,8 @@ shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True
 
 mail = Mail()
 pages = FlatPages()
+
+
 redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
 executor = ExecutorWrapper()
