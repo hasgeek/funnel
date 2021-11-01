@@ -19,12 +19,12 @@ RUN adduser --system --group --no-create-home app
 
 
 # Make the directory the working directory for subsequent commands
-WORKDIR app
 
 # Place the application components in a dir below the root dir
-# COPY . /app
 
-COPY * /app/
+COPY . /app/
+
+WORKDIR app
 
 RUN cd /app/funnel/assets; make assets
 
