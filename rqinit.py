@@ -2,7 +2,7 @@ from urllib.parse import urlsplit
 
 from funnel import app
 
-REDIS_URL = app.config.get('REDIS_URL', 'redis://localhost:6379/0')
+REDIS_URL = app.config.get('REDIS_URL', 'redis://redis:6379/0')
 
 # REDIS_URL is not taken by setup_default_arguments function of rq/scripts/__init__.py
 # so, parse that into pieces and give it

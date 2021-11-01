@@ -18,6 +18,7 @@ import geoip2.database
 from baseframe import Bundle, Version, assets, baseframe
 from baseframe.blueprint import THEME_FILES
 import coaster.app
+from whitenoise import WhiteNoise
 
 from ._version import __version__
 from .executor import ExecutorWrapper
@@ -29,6 +30,10 @@ shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True
 
 mail = Mail()
 pages = FlatPages()
+
+app.config['CACHE_REDIS_URL']="redis://redis:6379/0"
+app.config['REDIS_URL']="redis://redis:6379/0"
+
 redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
 executor = ExecutorWrapper()
@@ -62,6 +67,11 @@ try:
 except OSError:
     built_assets = {}
     app.logger.error("static/build/manifest.json file missing; run `make`")
+
+# --- add whitenoise -------------------------------------------------------------------
+
+app.wsgi_app = WhiteNoise(app.wsgi_app, root='/app/funnel/static/')
+
 
 # --- Import rest of the app -----------------------------------------------------------
 
