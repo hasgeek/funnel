@@ -18,10 +18,10 @@ RUN apt-get -y install nodejs git wget unzip build-essential make postgresql lib
 RUN adduser --system --group --no-create-home app
 
 # Make the directory the working directory for subsequent commands
-COPY . /app/
+WORKDIR app
 
 # Place the application components in a dir below the root dir
-WORKDIR app
+COPY * /app/
 
 RUN cd /app/funnel/assets; make assets
 
