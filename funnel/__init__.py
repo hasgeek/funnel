@@ -31,6 +31,8 @@ shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True
 mail = Mail()
 pages = FlatPages()
 
+app.config['CACHE_REDIS_URL']="redis://redis:6379/0"
+app.config['REDIS_URL']="redis://redis:6379/0"
 
 redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
