@@ -13,12 +13,12 @@ from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
 
+from whitenoise import WhiteNoise
 import geoip2.database
 
 from baseframe import Bundle, Version, assets, baseframe
 from baseframe.blueprint import THEME_FILES
 import coaster.app
-from whitenoise import WhiteNoise
 
 from ._version import __version__
 from .executor import ExecutorWrapper
@@ -31,8 +31,8 @@ shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True
 mail = Mail()
 pages = FlatPages()
 
-app.config['CACHE_REDIS_URL']="redis://redis:6379/0"
-app.config['REDIS_URL']="redis://redis:6379/0"
+app.config['CACHE_REDIS_URL'] = "redis://redis:6379/0"
+app.config['REDIS_URL'] = "redis://redis:6379/0"
 
 redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
