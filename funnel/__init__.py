@@ -70,7 +70,7 @@ except OSError:
 
 # --- add whitenoise -------------------------------------------------------------------
 
-app.wsgi_app = WhiteNoise(app.wsgi_app, root='/app/funnel/static/')
+app.wsgi_app = WhiteNoise(app.wsgi_app, root='/app/funnel/static/')  # type: ignore[assignment]
 
 
 # --- Import rest of the app -----------------------------------------------------------
@@ -87,8 +87,8 @@ from . import (  # isort:skip  # noqa: F401
 from .models import db  # isort:skip
 
 # --- Configuration---------------------------------------------------------------------
-coaster.app.init_app(app)
-coaster.app.init_app(shortlinkapp, init_logging=False)
+coaster.app.init_app(app, ['py', 'toml'])
+coaster.app.init_app(shortlinkapp, ['py', 'toml'], init_logging=False)
 
 # These are app specific confguration files that must exist
 # inside the `instance/` directory. Sample config files are
