@@ -68,11 +68,6 @@ except OSError:
     built_assets = {}
     app.logger.error("static/build/manifest.json file missing; run `make`")
 
-# --- add whitenoise -------------------------------------------------------------------
-
-app.wsgi_app = WhiteNoise(app.wsgi_app, root='/app/funnel/static/')  # type: ignore[assignment]
-
-
 # --- Import rest of the app -----------------------------------------------------------
 
 from . import (  # isort:skip  # noqa: F401
@@ -307,6 +302,17 @@ app.assets.register(
         filters='cssmin',
     ),
 )
+
+# --- Serve static files with Whitenoise -----------------------------------------------
+
+app.wsgi_app = WhiteNoise(  # type: ignore[assignment]
+    app.wsgi_app, root=app.static_folder, prefix=app.static_url_path
+)
+app.wsgi_app.add_files(  # type: ignore[attr-defined]
+    baseframe.static_folder, prefix=baseframe.static_url_path
+)
+
+# --- Init SQLAlchemy mappers ----------------------------------------------------------
 
 # Database model loading (from Funnel or extensions) is complete.
 # Configure database mappers now, before the process is forked for workers.
