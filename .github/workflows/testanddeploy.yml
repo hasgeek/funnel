@@ -20,16 +20,16 @@ jobs:
       with:
         path: "vivekdurai/funnel"
 
-    - name: Build docker
-      run: | 
-        echo ---Building and starting up docker---
-        docker-compose -f docker-compose.test.yml -p testing up -d
-        echo ---Containers up---
+    # - name: Build docker
+    #   run: | 
+    #     echo ---Building and starting up docker---
+    #     docker-compose -f "docker-compose.ci.yml" -p testing up -d
+    #     echo ---Containers up---
         
     - name: Run test
       run: |
         echo --- Running test cases ---
-        docker-compose -f docker-compose.test.yml -p testing up --build --exit-code-from api-test
+        docker-compose -f "docker-compose.ci.yml" -p testing up --build --exit-code-from web
         echo --- Completed test cases ---
    
     - name: Extract commit
