@@ -1,0 +1,82 @@
+name: test-and-deploy-to-staging-pipeline
+
+on:
+  push:
+    branches: [ aws ]
+  pull_request:
+    branches: [ aws ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: lucasalt/act_base:latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+      with:
+        path: "vivekdurai/funnel"
+
+    - name: Build docker
+      run: | 
+        echo ---Building and starting up docker---
+        docker-compose -f ./funnel/docker-compose.test.yml -p testing up -d
+        echo ---Containers up---
+        
+    - name: Run test
+      run: |
+        echo --- Running test cases ---
+        docker-compose -f ./funnel/docker-compose.test.yml -p testing up --build --exit-code-from api-test
+        echo --- Completed test cases ---
+        
+   - name: Extract commit
+        shell: bash
+        run: |
+          echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+
+
+  - name: Login to Docker Hub
+    uses: docker/login-action@v1
+    with:
+      username: ${{ secrets.DOCKER_HUB_USERNAME }}
+      password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+  - name: Set up Docker Buildx
+    id: buildx
+    uses: docker/setup-buildx-action@v1
+
+  - name: Build and push
+    id: docker_build
+    uses: docker/build-push-action@v2
+    with:
+      context: ./
+      file: ./Dockerfile
+      push: true
+      tags: ${{ secrets.DOCKER_HUB_USERNAME }}/funnel:latest
+
+  - name: Checkout
+    uses: actions/checkout@v2
+  - name: Install SSH key
+    uses: shimataro/ssh-key-action@v2
+    with:
+      key: ${{ secrets.SSH_KEY }}
+      name: id_rsa
+      known_hosts: ${{ secrets.KNOWN_HOSTS }}
+  - name: rsync over ssh
+    run: ./deploy_to_aws.sh
+
+  - name: Image digest
+    run: echo ${{ steps.docker_build.outputs.digest }}
+
+  - name: Get branch name (merge)
+    if: github.event_name != 'pull_request'
+    shell: bash
+    run: echo "BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
+
+  - name: Get branch name (pull request)
+    if: github.event_name == 'pull_request'
+    shell: bash
+    run: echo "BRANCH=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
