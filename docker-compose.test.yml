@@ -2,16 +2,18 @@ version: '3'
 
 services:
   web:
-    build: .
-    image: master-image
+    image: vivekdurai/funnel
     ports:
       - 5000:5000
     command: sh ./runserver.sh
+    depends_on:
+      - postgres
+      - redis
     volumes:
     #- .:/app
     - $HOME/.aws/credentials:/app/.aws/credentials:ro
   worker:
-    image: master-image
+    image: vivekdurai/funnel
     depends_on:
       - redis
     command: sh ./rq.sh
@@ -33,5 +35,14 @@ services:
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;error_log /dev/stdout info;\"'"
     depends_on:
       - web
+  postgres:
+    container_name: 'postgres'
+    image: 'postgres:13'
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - 'pgdata:/var/lib/postgresql/data/'
+
 volumes:
+  pgdata:
   static_data:

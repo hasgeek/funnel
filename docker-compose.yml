@@ -2,8 +2,8 @@ version: '3'
 
 services:
   web:
-    build: .
-    image: master-image
+    # build: .
+    image: vivekdurai/funnel
     ports:
       - 5000:5000
     command: sh ./runserver.sh
@@ -11,7 +11,7 @@ services:
     #- .:/app
     - $HOME/.aws/credentials:/app/.aws/credentials:ro
   worker:
-    image: master-image
+    image: vivekdurai/funnel
     depends_on:
       - redis
     command: sh ./rq.sh
