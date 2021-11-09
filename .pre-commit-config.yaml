@@ -1,6 +1,21 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
+  - repo: https://github.com/jazzband/pip-tools
+    rev: 6.4.0
+    hooks:
+      - id: pip-compile
+        name: pip-compile requirements.in
+        args: [requirements.in]
+        files: ^requirements\.(in|txt)$
+      - id: pip-compile
+        name: pip-compile requirements_dev.in
+        args: [requirements_dev.in]
+        files: ^requirements_dev\.(in|txt)$
+      - id: pip-compile
+        name: pip-compile requirements_test.in
+        args: [requirements_test.in]
+        files: ^requirements_test\.(in|txt)$
   - repo: https://github.com/lucasmbrown/mirrors-autoflake
     rev: v1.3
     hooks:
@@ -38,7 +53,7 @@ repos:
           - pep8-naming==0.12.1
           - toml==0.10.2
   - repo: https://github.com/PyCQA/isort
-    rev: 5.9.3
+    rev: 5.10.1
     hooks:
       - id: isort
         additional_dependencies:
@@ -106,7 +121,6 @@ repos:
       - id: forbid-new-submodules
       - id: mixed-line-ending
       - id: no-commit-to-branch
-      - id: requirements-txt-fixer
       - id: trailing-whitespace
   # Enable after auditing existing templates
   # - repo: https://github.com/thibaudcolas/curlylint

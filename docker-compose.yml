@@ -5,7 +5,9 @@ services:
     build: .
     image: master-image
     ports:
-      - 5000:5000
+      - 3000:3000
+    depends_on:
+      - redis
     command: sh ./runserver.sh
     volumes:
       #- .:/app
