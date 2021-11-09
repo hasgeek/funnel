@@ -14,6 +14,7 @@ isort
 lxml-stubs
 mypy
 pep8-naming
+pip-tools
 pre-commit
 pyupgrade
 sqlalchemy-stubs
