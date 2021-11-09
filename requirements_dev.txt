@@ -12,6 +12,8 @@ bandit==1.7.0
     # via flake8-bandit
 cfgv==3.3.1
     # via pre-commit
+click==8.0.3
+    # via pip-tools
 distlib==0.3.3
     # via virtualenv
 filelock==3.3.2
@@ -80,7 +82,11 @@ nodeenv==1.6.0
     # via pre-commit
 pbr==5.7.0
     # via stevedore
+pep517==0.12.0
+    # via pip-tools
 pep8-naming==0.12.1
+    # via -r requirements_dev.in
+pip-tools==6.4.0
     # via -r requirements_dev.in
 platformdirs==2.4.0
     # via virtualenv
@@ -123,6 +129,8 @@ toml==0.10.2
     #   -r requirements_dev.in
     #   mypy
     #   pre-commit
+tomli==1.2.2
+    # via pep517
 types-certifi==2020.4.0
     # via -r requirements_dev.in
 types-click==7.1.7
@@ -176,6 +184,9 @@ virtualenv==20.10.0
     # via pre-commit
 watchdog==2.1.5
     # via -r requirements_dev.in
+wheel==0.37.0
+    # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:
+# pip
 # setuptools
