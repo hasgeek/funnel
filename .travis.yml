@@ -42,7 +42,7 @@ before_script:
   - 'flask dbconfig | sudo -u postgres psql geoname_testing'
 script:
   - './runtests.sh'
-  - './runfrontendtests.sh'
+  # - './runfrontendtests.sh'
 after_success:
   - coveralls
 notifications:
