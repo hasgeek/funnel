@@ -1,5 +1,8 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+default_stages: [commit]
+ci:
+  skip: [pip-compile no-commit-to-branch]
 repos:
   - repo: https://github.com/jazzband/pip-tools
     rev: 6.4.0
@@ -111,6 +114,7 @@ repos:
       - id: check-xml
       - id: check-yaml
       - id: debug-statements
+      - id: destroyed-symlinks
       - id: detect-aws-credentials
         args: ['--allow-missing-credentials']
       - id: detect-private-key
@@ -122,6 +126,7 @@ repos:
       - id: mixed-line-ending
       - id: no-commit-to-branch
       - id: trailing-whitespace
+        args: ['--markdown-linebreak-ext=md']
   # Enable after auditing existing templates
   # - repo: https://github.com/thibaudcolas/curlylint
   #   rev: v0.13.0
