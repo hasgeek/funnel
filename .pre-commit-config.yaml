@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 default_stages: [commit]
 ci:
-  skip: [pip-compile no-commit-to-branch]
+  skip: ['pip-compile', 'no-commit-to-branch']
 repos:
   - repo: https://github.com/jazzband/pip-tools
     rev: 6.4.0
