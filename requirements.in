@@ -4,7 +4,7 @@ awscli
 Babel
 base58
 bcrypt
-better_profanity==0.7.0  # https://github.com/snguyenthanh/better_profanity/issues/19
+better_profanity!=0.7.0  # https://github.com/snguyenthanh/better_profanity/issues/19
 blinker
 boto3
 Brotli
