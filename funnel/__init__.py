@@ -13,6 +13,7 @@ from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
 
+from whitenoise import WhiteNoise
 import geoip2.database
 
 from baseframe import Bundle, Version, assets, baseframe
@@ -29,6 +30,7 @@ shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True
 
 mail = Mail()
 pages = FlatPages()
+
 redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
 executor = ExecutorWrapper()
@@ -77,8 +79,8 @@ from . import (  # isort:skip  # noqa: F401
 from .models import db  # isort:skip
 
 # --- Configuration---------------------------------------------------------------------
-coaster.app.init_app(app)
-coaster.app.init_app(shortlinkapp, init_logging=False)
+coaster.app.init_app(app, ['py', 'toml'])
+coaster.app.init_app(shortlinkapp, ['py', 'toml'], init_logging=False)
 
 # These are app specific confguration files that must exist
 # inside the `instance/` directory. Sample config files are
@@ -297,6 +299,17 @@ app.assets.register(
         filters='cssmin',
     ),
 )
+
+# --- Serve static files with Whitenoise -----------------------------------------------
+
+app.wsgi_app = WhiteNoise(  # type: ignore[assignment]
+    app.wsgi_app, root=app.static_folder, prefix=app.static_url_path
+)
+app.wsgi_app.add_files(  # type: ignore[attr-defined]
+    baseframe.static_folder, prefix=baseframe.static_url_path
+)
+
+# --- Init SQLAlchemy mappers ----------------------------------------------------------
 
 # Database model loading (from Funnel or extensions) is complete.
 # Configure database mappers now, before the process is forked for workers.

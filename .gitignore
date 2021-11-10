@@ -40,6 +40,7 @@ instance/development.py
 instance/hasgeekapp.py
 instance/production.py
 instance/settings.py
+instance/container_env
 
 # Forbidden secrets
 secrets.dev
@@ -48,6 +49,7 @@ newrelic.ini
 
 # Local venvs (Idea creates them)
 venv/
+env/
 
 # Editors
 .idea/
