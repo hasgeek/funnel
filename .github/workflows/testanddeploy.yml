@@ -32,7 +32,7 @@ jobs:
       run: |
         ls
         echo --- Running test cases ---
-        docker-compose up --build -d web
+        docker-compose up --build --no-cache -d web
         docker-compose -f docker-compose.ci.yml -p testing up --build --exit-code-from web
         echo --- Completed test cases ---
    
@@ -69,7 +69,7 @@ jobs:
         name: id_rsa
         known_hosts: ${{ secrets.KNOWN_HOSTS }}
     - name: rsync over ssh
-      run: ./deploy_to_aws.sh
+      run: ./aws_dev_deploy.sh
 
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
