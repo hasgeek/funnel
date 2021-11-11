@@ -141,3 +141,11 @@ whitenoise==5.3.0
 WTForms==2.3.3
 yarl==1.7.0
 zxcvbn==4.4.28
+coverage==5.5
+coveralls==3.2.0
+fakeredis==1.6.1
+lxml==4.6.3
+pytest==6.2.5
+pytest-bdd==4.1.0
+pytest-cov==2.12.1
+requests-mock==1.9.3
