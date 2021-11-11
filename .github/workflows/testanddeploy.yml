@@ -15,11 +15,9 @@ jobs:
       image: lucasalt/act_base:latest
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
       with:
         ref: aws
-        # path: "vivekdurai/funnel"
 
     - name: Create env file
       run: |
@@ -28,8 +26,8 @@ jobs:
 
     - name: Copy requirements file
       run: |
-        cat requirements_test.txt >> requirements.txt
-        ls requirements.txt
+        cat requirements_test.txt; echo '' >> requirements.txt
+        cat requirements.txt
 
     - name: Run Docker Compose using the docker-compose.ci.yml file
       run: |
@@ -39,11 +37,6 @@ jobs:
         docker-compose -f docker-compose.ci.yml -p testing up --build --exit-code-from web
         echo --- Completed test cases ---
    
-    # - name: Extract commit
-    #   shell: bash
-    #   run: |
-    #       echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
-
     - name: Login to Docker Hub
       uses: docker/login-action@v1
       with:
