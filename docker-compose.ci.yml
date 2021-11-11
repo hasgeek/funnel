@@ -3,7 +3,7 @@ version: '3'
 services:
   web:
     build: .
-    image: web
+    image: master-image
     container_name: web
     ports:
       - 5000:5000
@@ -20,7 +20,7 @@ services:
     #- .:/app
     - $HOME/.aws/credentials:/app/.aws/credentials:ro
   worker:
-    image: web
+    image: master-image
     depends_on:
       - redis
     command: sh ./rq.sh
