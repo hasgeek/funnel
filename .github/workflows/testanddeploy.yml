@@ -28,7 +28,7 @@ jobs:
     #     cat .env
 
 
-    - name: Run test
+    - name: Run Docker Compose using the docker-compose.ci.yml file
       run: |
         ls
         echo --- Running test cases ---
@@ -36,10 +36,10 @@ jobs:
         docker-compose -f docker-compose.ci.yml -p testing up --build --exit-code-from web
         echo --- Completed test cases ---
    
-    - name: Extract commit
-      shell: bash
-      run: |
-          echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+    # - name: Extract commit
+    #   shell: bash
+    #   run: |
+    #       echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
 
     - name: Login to Docker Hub
       uses: docker/login-action@v1
@@ -60,7 +60,7 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKER_HUB_USERNAME }}/funnel:latest
 
-    - name: Checkout
+    - name: Checkout the SSH Key
       uses: actions/checkout@v2
     - name: Install SSH key
       uses: shimataro/ssh-key-action@v2
@@ -68,11 +68,12 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         name: id_rsa
         known_hosts: ${{ secrets.KNOWN_HOSTS }}
-    - name: rsync over ssh
+
+    - name: Run the deploy script
       run: ./aws_dev_deploy.sh
 
-    - name: Image digest
-      run: echo ${{ steps.docker_build.outputs.digest }}
+    # - name: Image digest
+    #   run: echo ${{ steps.docker_build.outputs.digest }}
 
     - name: Get branch name (merge)
       if: github.event_name != 'pull_request'
