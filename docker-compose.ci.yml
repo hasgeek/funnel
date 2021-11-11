@@ -2,10 +2,17 @@ version: '3'
 
 services:
   web:
-    image: vivekdurai/funnel
+    build: .
+    image: web
+    container_name: web
     ports:
       - 5000:5000
     command: sh ./runtests.sh
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
     depends_on:
       - postgres
       - redis
@@ -13,7 +20,7 @@ services:
     #- .:/app
     - $HOME/.aws/credentials:/app/.aws/credentials:ro
   worker:
-    image: vivekdurai/funnel
+    image: web
     depends_on:
       - redis
     command: sh ./rq.sh
