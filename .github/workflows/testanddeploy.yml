@@ -29,7 +29,6 @@ jobs:
     - name: Copy requirements file
       run: |
         cat requirements_test.txt > requirements.txt
-        echo "${{ secrets.SERVER_ENV_TEST }}" > instance/settings.py
 
     - name: Run Docker Compose using the docker-compose.ci.yml file
       run: |
