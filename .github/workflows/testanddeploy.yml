@@ -25,14 +25,17 @@ jobs:
       run: |
         touch instance/settings.py
         echo "${{ secrets.SERVER_ENV_TEST }}" > instance/settings.py
-        cat instance/settings.py
 
+    - name: Copy requirements file
+      run: |
+        cat requirements_test.txt > requirements.txt
+        echo "${{ secrets.SERVER_ENV_TEST }}" > instance/settings.py
 
     - name: Run Docker Compose using the docker-compose.ci.yml file
       run: |
-        ls
-        echo --- Running test cases ---
+        echo --- Building only web first ---
         docker-compose -f docker-compose.ci.yml build --no-cache web
+        echo --- Starting up all the containers ---
         docker-compose -f docker-compose.ci.yml -p testing up --build --exit-code-from web
         echo --- Completed test cases ---
    
