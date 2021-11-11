@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [ aws ]
 
-defaults:
-  run:
-    working-directory: funnel
-
 jobs:
   build:
 
