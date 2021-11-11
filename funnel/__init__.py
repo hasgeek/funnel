@@ -13,12 +13,12 @@ from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
 
+from whitenoise import WhiteNoise
 import geoip2.database
 
 from baseframe import Bundle, Version, assets, baseframe
 from baseframe.blueprint import THEME_FILES
 import coaster.app
-from whitenoise import WhiteNoise
 
 from ._version import __version__
 from .executor import ExecutorWrapper
@@ -30,9 +30,6 @@ shortlinkapp = Flask(__name__, static_folder=None, instance_relative_config=True
 
 mail = Mail()
 pages = FlatPages()
-
-app.config['CACHE_REDIS_URL']="redis://redis:6379/0"
-app.config['REDIS_URL']="redis://redis:6379/0"
 
 redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
@@ -68,11 +65,6 @@ except OSError:
     built_assets = {}
     app.logger.error("static/build/manifest.json file missing; run `make`")
 
-# --- add whitenoise -------------------------------------------------------------------
-
-app.wsgi_app = WhiteNoise(app.wsgi_app, root='/app/funnel/static/')
-
-
 # --- Import rest of the app -----------------------------------------------------------
 
 from . import (  # isort:skip  # noqa: F401
@@ -87,8 +79,8 @@ from . import (  # isort:skip  # noqa: F401
 from .models import db  # isort:skip
 
 # --- Configuration---------------------------------------------------------------------
-coaster.app.init_app(app)
-coaster.app.init_app(shortlinkapp, init_logging=False)
+coaster.app.init_app(app, ['py', 'toml'])
+coaster.app.init_app(shortlinkapp, ['py', 'toml'], init_logging=False)
 
 # These are app specific confguration files that must exist
 # inside the `instance/` directory. Sample config files are
@@ -307,6 +299,17 @@ app.assets.register(
         filters='cssmin',
     ),
 )
+
+# --- Serve static files with Whitenoise -----------------------------------------------
+
+app.wsgi_app = WhiteNoise(  # type: ignore[assignment]
+    app.wsgi_app, root=app.static_folder, prefix=app.static_url_path
+)
+app.wsgi_app.add_files(  # type: ignore[attr-defined]
+    baseframe.static_folder, prefix=baseframe.static_url_path
+)
+
+# --- Init SQLAlchemy mappers ----------------------------------------------------------
 
 # Database model loading (from Funnel or extensions) is complete.
 # Configure database mappers now, before the process is forked for workers.
