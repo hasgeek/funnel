@@ -25,6 +25,12 @@ jobs:
     #     echo ---Building and starting up docker---
     #     docker-compose -f "docker-compose.ci.yml" -p testing up -d
     #     echo ---Containers up---
+
+    # - name: Create env file
+    #   run: |
+    #     touch .env
+    #     echo "${{ secrets.SERVER_ENV_TEST }}" > .env
+    #     cat .env
         
     - name: Run test
       run: |
