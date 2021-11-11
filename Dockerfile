@@ -12,7 +12,7 @@ WORKDIR app
 # Place the application components in a dir below the root dir
 COPY . /app/
 
-RUN cd /app/funnel/assets; make assets
+RUN cd /app/funnel; make
 
 # Install from the requirements.txt we copied above
 COPY requirements.txt /tmp
