@@ -32,6 +32,7 @@ jobs:
       run: |
         ls
         echo --- Running test cases ---
+        docker-compose up --build -d web
         docker-compose -f docker-compose.ci.yml -p testing up --build --exit-code-from web
         echo --- Completed test cases ---
    
