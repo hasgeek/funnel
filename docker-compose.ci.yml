@@ -30,7 +30,7 @@ services:
     image: redis
   nginx:
     build:
-      context: ./nginx
+      context: ./etc/nginx
     container_name: nginx
     volumes:
       - static_data:/vol/static
