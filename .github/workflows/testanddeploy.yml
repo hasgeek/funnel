@@ -21,11 +21,11 @@ jobs:
         ref: aws
         # path: "vivekdurai/funnel"
 
-    # - name: Create env file
-    #   run: |
-    #     touch .env
-    #     echo "${{ secrets.SERVER_ENV_TEST }}" > .env
-    #     cat .env
+    - name: Create env file
+      run: |
+        touch instance/settings.py
+        echo "${{ secrets.SERVER_ENV_TEST }}" > instance/settings.py
+        cat instance/settings.py
 
 
     - name: Run Docker Compose using the docker-compose.ci.yml file

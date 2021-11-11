@@ -61,9 +61,6 @@ chardet==4.0.0
 charset-normalizer==2.0.7
     # via requests
 click==8.0.1
-<<<<<<< HEAD
-coaster @ git+https://github.com/hasgeek/coaster.git
-=======
     # via
     #   -r requirements.in
     #   flask
@@ -74,7 +71,6 @@ coaster @ git+https://github.com/hasgeek/coaster.git
     #   baseframe
 colorama==0.4.3
     # via awscli
->>>>>>> main
 croniter==1.0.15
     # via rq-scheduler
 cryptography==3.4.8
