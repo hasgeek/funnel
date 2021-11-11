@@ -32,7 +32,7 @@ jobs:
       run: |
         ls
         echo --- Running test cases ---
-        docker-compose up --build --no-cache -d web
+        docker-compose -f docker-compose.ci.yml build --no-cache web
         docker-compose -f docker-compose.ci.yml -p testing up --build --exit-code-from web
         echo --- Completed test cases ---
    
