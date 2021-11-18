@@ -1,0 +1,71 @@
+.proposal-card {
+  .proposal-card__body {
+    .proposal-card__body__inner {
+      .proposal-card__body__inner__headline {
+        .proposal-card__body__inner__headline__content {
+          margin-bottom: $mui-grid-padding/2;
+        }
+        .proposal-card__body__inner__headline__info__icon {
+          position: relative;
+          top: 3px;
+        }
+      }
+      .proposal-card__body__inner__details {
+        display: flex;
+        .proposal-card__body__inner__details__video {
+          position: relative;
+          width: 100%;
+          margin-right: $mui-grid-padding/2;
+          margin-bottom: $mui-grid-padding/2;
+          .proposal-card__body__inner__details__video__thumbnail {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56%;
+            min-height: 50px;
+            img {
+              position: absolute;
+              object-fit: contain;
+              width: 100%;
+              height: 100%;
+            }
+          }
+          .proposal-card__body__inner__details__video__thumbnail__icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            color: $mui-text-white;
+            -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 1200px) {
+  .proposal-card {
+    .proposal-card__body {
+      .proposal-card__body__inner--flex {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-direction: row-reverse;
+        .proposal-card__body__inner__details {
+          .proposal-card__body__inner__details__video {
+            display: block;
+            min-width: 200px;
+            margin-left: $mui-grid-padding;
+            margin-top: 0;
+          }
+          .proposal-card__body__inner__details__txt {
+            position: absolute;
+            left: 0;
+            bottom: $mui-grid-padding/2;
+          }
+        }
+      }
+    }
+  }
+}

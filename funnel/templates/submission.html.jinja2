@@ -9,6 +9,8 @@
   {% assets "css_codemirrormarkdown" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/submission.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/comments.scss') }}" />
 {% endblock %}
 
 {% block bodyattrs %}class="mui--bg-accent no-sticky-header mobile-header proposal-page"{% endblock %}
