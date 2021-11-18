@@ -2,7 +2,9 @@
 {% set title_suffix = project.title %}
 {%- from "js/badge.js.jinja2" import scan_checkin_template %}
 {% block title %}{{ ticket_event.title }}{% endblock %}
+
 {% block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/scanbadge.scss') }}" />
 {% endblock %}
 
 {% block bodyattrs %}class="mui--bg-primary no-header"{% endblock %}

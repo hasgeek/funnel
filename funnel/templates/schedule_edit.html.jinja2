@@ -3,12 +3,13 @@
 {% block title %}{% trans %}Schedule{% endtrans %}{% endblock %}
 
 {% block pageheaders %}
-  {% assets 'css_fullcalendar' -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets %}
   {% assets "css_codemirrormarkdown" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/schedule.scss') }}" />
+  {% assets 'css_fullcalendar' -%}
+    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+  {%- endassets %}
 {% endblock %}
 
 {% block top_title %}

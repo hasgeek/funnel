@@ -20,6 +20,7 @@
   {% assets "css_schedule_print" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/schedule.scss') }}" />
   {%- if project.start_at %}
     <script type="application/ld+json">
     {

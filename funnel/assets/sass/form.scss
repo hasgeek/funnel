@@ -1,0 +1,650 @@
+@import 'mui/mixins/forms';
+@import 'app';
+@import 'mui/checkbox-and-radio', 'mui/form', 'mui/select', 'mui/textfield';
+@import 'components/draggablebox';
+
+.form-message {
+  @extend .mui--text-title;
+}
+
+.mui-form {
+  .mui-form__fields {
+    margin-bottom: $mui-grid-padding/2;
+  }
+
+  .mui-textfield,
+  .mui-radio,
+  .mui-checkbox {
+    margin-bottom: $mui-grid-padding/4;
+  }
+
+  .mui-radio,
+  .mui-checkbox {
+    > label {
+      display: flex;
+      align-items: baseline;
+      padding: 0;
+      cursor: default;
+      > input[type='radio'],
+      > input[type='checkbox'] {
+        position: relative;
+        margin: 0 $mui-grid-padding/2 0 0;
+      }
+    }
+  }
+
+  .mui-textfield--float-label {
+    > label {
+      position: absolute;
+      transform: translate(0px, $xFormLabelLineHeight);
+      -webkit-transition: all 0.15s ease-out;
+      -moz-transition: all 0.15s ease-out;
+      -o-transition: all 0.15s ease-out;
+      transition: all 0.15s ease-out;
+    }
+  }
+
+  .mui-form__sidetext,
+  .mui-form__helptext {
+    color: $mui-text-light;
+    margin: $mui-grid-padding/2 0 0;
+    @extend .mui--text-caption;
+  }
+
+  .mui-textfield--addon {
+    display: flex;
+
+    > .mui-form__addon,
+    > input {
+      display: inline-flex;
+    }
+
+    > .mui-form__addon {
+      color: $mui-label-font-color;
+      font-size: $mui-input-font-size;
+      line-height: 2;
+    }
+  }
+
+  input.datetime-date {
+    display: inline;
+    width: 10em;
+  }
+
+  input.datetime-time {
+    display: inline;
+    width: 6.5em;
+  }
+
+  textarea {
+    height: 6em;
+  }
+
+  .mui-form__label {
+    position: static;
+    margin: 0 0 $mui-grid-padding/2;
+    color: $mui-label-font-color;
+    @include mui-text('subhead');
+  }
+
+  .mui-form__error {
+    color: $mui-text-white;
+    margin: $mui-grid-padding/2 0 0;
+    background: $mui-text-danger;
+    border: 1px solid transparentize($mui-text-danger, 0.8);
+    padding: $mui-grid-padding/2 $mui-grid-padding;
+    position: relative;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.14);
+    border-radius: 2px;
+    display: inline-block;
+    @extend .mui--text-caption;
+
+    > li {
+      list-style: none;
+      margin-top: $mui-grid-padding/2;
+    }
+  }
+
+  .mui-form__error:before {
+    display: block;
+    content: '';
+    position: absolute;
+    border: 6px solid transparent;
+    border-bottom: 6px solid $mui-text-danger;
+    top: -13px;
+    left: 20px;
+  }
+
+  .has-error .mui-textfield > input,
+  .has-error .mui-textfield > textarea {
+    border-bottom: 1px solid $mui-text-danger;
+  }
+  .has-error .mui-textfield > label,
+  .has-error label,
+  .has-error .mui-form__helptext {
+    color: $mui-text-danger;
+  }
+
+  .alert {
+    margin-bottom: $mui-grid-padding;
+  }
+}
+
+.mui-form {
+  .mui-form__fields.mui-form__fields--noborder {
+    .mui-textfield > input,
+    .mui-textfield > textarea {
+      border: none !important;
+    }
+    .mui-textfield > label {
+      color: $mui-text-light;
+      font-weight: 500;
+      @include mui-text('body2');
+      transform: none;
+      top: -$mui-grid-padding/4;
+    }
+    .mui-textfield > .CodeMirror {
+      border-bottom: none;
+    }
+  }
+}
+
+.mui-form--margins {
+  margin-top: 1 * $mui-grid-padding;
+  margin-bottom: 2 * $mui-grid-padding;
+}
+
+.mui-select {
+  margin-top: $mui-grid-padding/2;
+  margin-bottom: 0;
+  > label {
+    top: -$mui-grid-padding/4;
+  }
+  .select2 {
+    width: 100% !important;
+  }
+  .mui-select__menu {
+    z-index: 100;
+  }
+}
+// For select dropdown will be on top of the header
+.mui-scroll-lock .header--fixed {
+  z-index: 1;
+}
+
+.listwidget ul,
+.listwidget ol {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+  margin-bottom: 0;
+}
+
+.listwidget ul li,
+.listwidget ol li {
+  position: relative;
+  margin-left: 1.25em;
+}
+
+.listwidget ul input,
+.listwidget ol input {
+  position: absolute;
+  left: -1.25em;
+  top: 0.25em;
+}
+
+.listwidget ul label,
+.listwidget ol label {
+  display: inline-block;
+}
+
+.mui-textfield--password {
+  .password-toggle {
+    position: relative;
+    right: 0;
+    bottom: 22px;
+    float: right;
+  }
+  .password-strength-icon {
+    position: absolute;
+    right: 22px;
+    bottom: 9px;
+    display: none;
+  }
+  .password-strength-icon--show {
+    display: inline-block;
+  }
+  .progress {
+    height: 4px;
+    margin: $mui-grid-padding/2 0 25px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(mui-color('grey'), 0.12),
+      0 1px 2px rgba(mui-color('grey'), 0.24);
+    position: relative;
+    display: none;
+
+    .progress__bar {
+      float: left;
+      width: 0;
+      height: 100%;
+      font-size: 12px;
+      line-height: 20px;
+      color: #fff;
+      text-align: center;
+      background-color: #428bca;
+      box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+      -webkit-transition: width 0.6s ease;
+      -o-transition: width 0.6s ease;
+      transition: width 0.6s ease;
+      max-width: 94% !important;
+    }
+    .progress__txt {
+      position: absolute;
+      top: 4px;
+      left: 0;
+      color: $mui-text-danger;
+    }
+    .progress__bar--danger {
+      background-color: $mui-text-danger;
+    }
+    .progress__bar--success {
+      background-color: $mui-text-success;
+      .progress__txt {
+        color: $mui-text-success;
+      }
+    }
+  }
+}
+
+.imgee {
+  position: relative;
+  .imgee__url-holder {
+    display: block;
+    max-width: 200px;
+    margin-bottom: $mui-grid-padding/2;
+  }
+
+  .imgee__loader {
+    position: absolute;
+    top: 100px;
+    left: 200px;
+    width: 35px;
+    height: 35px;
+  }
+
+  .imgee__button {
+    margin-bottom: $mui-grid-padding/2;
+  }
+}
+
+.modal--fullscreen {
+  iframe.imgee-upload {
+    width: 100%;
+    height: 100vh;
+    border: 0;
+  }
+}
+
+.popup {
+  .mui-container {
+    max-width: calc(100% - 32px);
+    .popup__imgee {
+      padding: 0;
+    }
+  }
+}
+
+.cfp-action-btn {
+  padding: 10px 0;
+  cursor: pointer;
+  margin-right: 10px;
+  border: none;
+  color: $mui-text-hyperlink;
+  background: none;
+}
+
+.cfp-action-btn:focus,
+.cfp-action-btn:hover {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  color: $mui-text-hyperlink;
+}
+
+.inline-form {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.label-form {
+  max-width: 500px;
+
+  .label-form__title-field {
+    width: calc(100% - 130px);
+    display: inline-block;
+  }
+
+  .label-form__title-field--close {
+    width: calc(100% - 114px);
+  }
+
+  .label-form__subform__close-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    background: transparent;
+    padding: 10px;
+  }
+
+  .label-form__subform {
+    margin-left: 20px;
+  }
+
+  .emojipicker {
+    float: left;
+    width: 70px;
+    height: 48px;
+    margin-right: 20px;
+
+    label {
+      display: none;
+    }
+
+    .emojionearea-editor {
+      height: 48px;
+      min-height: 20px;
+      overflow: hidden;
+      white-space: nowrap;
+      position: absolute;
+      top: 0;
+      left: 12px;
+      right: 24px;
+      padding: 6px 0;
+    }
+
+    .emojionearea-button {
+      top: 10px;
+    }
+
+    .emojionearea-editor {
+      left: 6px !important;
+      padding-right: 45px !important;
+    }
+
+    .emojionearea-button .emojionearea-button-open,
+    .emojionearea-button .emojionearea-button-close {
+      right: 3px;
+    }
+
+    .emojionearea .emojionearea-editor [class*='emojione-'],
+    .emojionearea .emojionearea-editor .emojioneemoji {
+      margin: -0.2ex 1ex 0.2ex -0.5ex;
+    }
+  }
+
+  .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {
+    right: -251px;
+  }
+  .emojionearea.emojionearea-standalone
+    .emojionearea-picker.emojionearea-picker-position-bottom
+    .emojionearea-wrapper:after,
+  .emojionearea.emojionearea-standalone
+    .emojionearea-picker.emojionearea-picker-position-top
+    .emojionearea-wrapper:after {
+    right: 0;
+    left: 40px;
+  }
+}
+
+.label-form__subform {
+  .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {
+    right: -210px;
+  }
+  .emojionearea.emojionearea-standalone
+    .emojionearea-picker.emojionearea-picker-position-bottom
+    .emojionearea-wrapper:after,
+  .emojionearea.emojionearea-standalone
+    .emojionearea-picker.emojionearea-picker-position-top
+    .emojionearea-wrapper:after {
+    right: 0;
+    left: 80px;
+  }
+}
+
+.modal-form-page .jquery-modal.blocker.current {
+  padding: 0;
+}
+
+.modal {
+  .mui-form {
+    .mui-select__menu {
+      z-index: 1001;
+    }
+  }
+}
+
+.modal--form {
+  min-width: 100%;
+  min-height: 325px;
+  height: 100%;
+  border-radius: 0;
+
+  .modal--form__action-box {
+    padding: 20px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    border-top: 1px solid rgba(132, 146, 166, 0.3);
+    border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+    z-index: 1002;
+  }
+
+  .modal--form__action-box--revoke {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 20px;
+
+    .mui-btn.mui-btn--nostyle {
+      text-transform: none;
+    }
+  }
+
+  .mui-form {
+    .form-actions {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      padding: $mui-grid-padding;
+      z-index: 1003;
+      .mui-btn--primary {
+        position: relative;
+        top: 8px;
+      }
+    }
+  }
+}
+
+.modal--form.modal--form--edit {
+  .modal--form__action-box,
+  .mui-form .form-actions {
+    bottom: 65px;
+  }
+}
+
+@media (min-width: 768px) {
+  .jquery-modal.blocker.current .modal.modal--form {
+    min-width: 50%;
+    min-height: 80%;
+    height: auto;
+    border-radius: 4px;
+  }
+}
+
+.badge-print-status-btn .mui-form__fields.select2-inline {
+  min-width: 160px;
+}
+
+#form-password-change #field-password .progress {
+  visibility: hidden;
+  display: block;
+}
+
+#form-password-change #field-password .progress.progress--show {
+  visibility: visible;
+}
+
+.mui-form .mui-form__fields.password-field {
+  margin-bottom: 0;
+}
+
+.password-field-sidetext {
+  margin: 0 0 20px;
+}
+
+@media (max-width: 767px) {
+  .modal__inner {
+    position: fixed;
+    background: $mui-bg-color-primary;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 16px;
+    overflow: auto;
+  }
+}
+
+.modal__body--form {
+  .mui-tabs__bar {
+    margin-bottom: 45px;
+  }
+  .mui-btn--primary {
+    width: 100%;
+  }
+  .mui-form {
+    margin-bottom: 0;
+  }
+}
+
+.form-inline-input {
+  display: inline-block;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+.form-inline-label {
+  display: inline-block;
+  width: 70%;
+}
+
+form.mui--bg-accent .CodeMirror {
+  background: $mui-bg-color-accent;
+}
+
+.modal-form {
+  display: none;
+}
+
+.jquery-modal .js-modal .modal-form {
+  display: block;
+}
+
+.modal {
+  .mui-form.mui-form--margins {
+    margin: 0;
+  }
+}
+
+.submission-form {
+  .submission-header {
+    .submission-header__submit {
+      position: fixed;
+      top: 2px;
+      right: $mui-grid-padding;
+      z-index: 1001;
+      .submission-header__submit__btn .mui-btn {
+        padding: 0 8px;
+        background: none;
+        color: $mui-text-hyperlink;
+        box-shadow: none;
+      }
+    }
+  }
+  .mui-form__fields {
+    margin-bottom: $mui-grid-padding/4;
+  }
+  #title {
+    font-size: 18px;
+    min-height: auto;
+    height: auto;
+    resize: none !important;
+  }
+  #field-body .CodeMirror {
+    min-height: calc(100vh - 110px);
+  }
+  .proposal-preview {
+    position: fixed;
+    top: 100vh;
+    right: 0;
+    height: 100vh;
+    left: auto;
+    z-index: 999;
+    background: $mui-bg-color-primary;
+    padding-top: $mui-grid-padding;
+  }
+}
+
+.modal-form.modal-form--submission {
+  .mui-textfield {
+    margin-bottom: 0;
+  }
+  .modal-form__title {
+    position: absolute;
+    top: 10px;
+  }
+}
+
+@media (min-width: 768px) {
+  .submission-form {
+    .submission-header {
+      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+      padding: $mui-grid-padding/2 0;
+      margin-bottom: $mui-grid-padding;
+      position: sticky;
+      top: $mui-header-height;
+      background: $mui-bg-color-primary;
+      z-index: 1000;
+      .submission-header__submit {
+        position: static;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .submission-header__column {
+        border-right: 1px solid $mui-divider-color;
+      }
+    }
+    #title {
+      font-size: 20px;
+    }
+    .proposal-markdown {
+      border-right: 1px solid $mui-divider-color;
+    }
+    .proposal-preview {
+      position: static;
+      padding-top: 19px;
+    }
+  }
+}
+
+.collaborator {
+  background: $mui-bg-color-primary;
+}
+
+.collaborator-placeholder {
+  border-bottom: 1px solid $mui-text-accent;
+  background: $mui-bg-color-accent;
+}

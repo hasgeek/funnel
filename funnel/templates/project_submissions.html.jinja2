@@ -3,6 +3,10 @@
 {%- from "macros.html.jinja2" import proposal_list %}
 {% block title %}{% trans %}Submissions{% endtrans %}{% endblock %}
 
+{% block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/submissions.scss') }}" />
+{% endblock %}
+
 {% block left_col %}
   <div class="page-card  page-card--nomargin">
     <div class="project-section">

@@ -1,10 +1,11 @@
 {% extends "layout.html.jinja2" -%}
 {% block title %}{{ title }}{% endblock %}
 
-{%- block pageheaders %}
+{% block layoutheaders %}
   {% assets "css_codemirrormarkdown" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
 {% endblock %}
 
 {% block contentwrapper %}
