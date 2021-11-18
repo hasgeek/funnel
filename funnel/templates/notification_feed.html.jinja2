@@ -4,6 +4,10 @@
 
 {% block title %}{% if unread_only %}{% trans %}Unread updates{% endtrans %}{% else %}{% trans %}Updates{% endtrans %}{% endif %}{% endblock %}
 
+{% block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/update.scss') }}" />
+{% endblock %}
+
 {% block top_title %}
   <h1 class="mui--text-headline">{{ self.title()|e }}</h1>
 {% endblock %}

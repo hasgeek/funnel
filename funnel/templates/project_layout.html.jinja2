@@ -6,7 +6,9 @@
 {% block description %}{{ project.tagline }}{% endblock %}
 {% block twitter_card %}summary_large_image{% endblock %}
 
-{%- block pageheaders %}
+{% block layoutheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/app.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/project.scss') }}" />
 {% endblock %}
 
 {% block bodyattrs %}class="mui--bg-accent no-sticky-header mobile-header project-page"{% endblock %}

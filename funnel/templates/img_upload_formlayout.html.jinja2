@@ -1,6 +1,9 @@
 {% from "macros.html.jinja2" import faicon %}
 {% from "forms.html.jinja2" import renderform, ajaxform, widget_ext_scripts, widgetscripts %}
 
+<link rel="stylesheet" type="text/css" href="{{ built_asset('css/imgee-modal.scss') }}" />
+<link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
+
 <div class="modal__inner img-upload-modal">
   {% block content %}
     <div class="modal__header">

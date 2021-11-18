@@ -1,6 +1,8 @@
 {% from "forms.html.jinja2" import renderfield, renderform, rendersubmit, widgetscripts %}
 {%- from "macros.html.jinja2" import faicon, csrf_tag %}
 
+<link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
+
 <div class="modal__header">
   <a class="modal__close mui--text-dark" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
   <h3 class="mui--text-title mui--text-bold mui--text-uppercase" data-cy="admin-panel">{% trans %}Admin panel{% endtrans %}</h3>

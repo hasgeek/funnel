@@ -3,31 +3,32 @@
 {%- from "macros.html.jinja2" import faicon, profile_header, video_thumbnail, projectcard, proposal_list %}
 
 {%- block pageheaders %}
-<link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
-<script type="application/ld+json">
-  {
-    "@context" : "http://schema.org",
-     "@type" : "WebSite",
-     "name" : {{ config['SITE_TITLE']|tojson }},
-     "url" : {{ url_for('index', _external=true)|tojson }},
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
-      "query-input": "required name=query"
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/profile.scss') }}" />
+  <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+       "@type" : "WebSite",
+       "name" : {{ config['SITE_TITLE']|tojson }},
+       "url" : {{ url_for('index', _external=true)|tojson }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
+        "query-input": "required name=query"
+      }
     }
-  }
-</script>
-<script type="application/ld+json">
-  {
-    "@context" : "http://schema.org",
-    "@type" : "Person",
-    "name" : {{ profile.title|tojson }},
-    {%- if profile.logo_url.url %}
-    "image" : {{ profile.logo_url.url|tojson }},
-    {%- endif %}
-    "url" : {{ profile.url_for(_external=true)|tojson }}
-  }
-</script>
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : {{ profile.title|tojson }},
+      {%- if profile.logo_url.url %}
+      "image" : {{ profile.logo_url.url|tojson }},
+      {%- endif %}
+      "url" : {{ profile.url_for(_external=true)|tojson }}
+    }
+  </script>
 {%- endblock %}
 
 {% block bodyattrs %}class="mui--bg-primary"{% endblock %}

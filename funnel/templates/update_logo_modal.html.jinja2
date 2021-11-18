@@ -1,6 +1,8 @@
 {% from "macros.html.jinja2" import faicon %}
 {% from "forms.html.jinja2" import renderfield %}
 
+<link rel="stylesheet" type="text/css" href="{{ built_asset('css/imgee-modal.scss') }}" />
+
 <div class="modal__inner img-upload-modal">
   <div class="modal__header">
     <a class="modal__close mui--text-dark" data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>

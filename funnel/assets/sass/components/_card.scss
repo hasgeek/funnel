@@ -1,0 +1,471 @@
+.card {
+  position: relative;
+  background: #fff;
+  margin-bottom: 2 * $mui-grid-padding;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+
+  .card__image {
+    width: 100%;
+  }
+
+  .card__title {
+    padding: 0 $mui-grid-padding;
+  }
+
+  .card__title__heading {
+    margin: $mui-grid-padding/4 auto;
+  }
+
+  .card__header {
+    padding: $mui-grid-padding;
+    background: $mui-bg-color-primary-dark;
+  }
+
+  .card__header__title {
+    width: 80%;
+  }
+
+  .card__body {
+    padding: $mui-grid-padding/2 $mui-grid-padding;
+    word-break: break-word;
+  }
+
+  .card__footer {
+    clear: both;
+    padding: 0 $mui-grid-padding/2;
+  }
+
+  .mui-btn + .mui-btn {
+    margin-left: 0;
+  }
+}
+
+.clickable-card,
+.card--shaped {
+  color: $mui-text-dark;
+  display: block;
+  text-decoration: none;
+}
+
+.card.clickable-card {
+  cursor: pointer;
+}
+
+.card--shaped {
+  border-radius: 16px 16px 0 16px;
+}
+
+.clickable-card:focus,
+.clickable-card:hover,
+.clickable-card:active,
+.card-wrapper:focus,
+.card-wrapper:hover,
+.card-wrapper:active {
+  color: $mui-text-dark;
+  outline: none;
+  text-decoration: none;
+}
+
+.clickable-card .card__title__heading {
+  margin: 0 auto;
+  padding: 4px 0;
+}
+
+.card__image-wrapper {
+  position: relative;
+
+  .card__image__tagline {
+    position: absolute;
+    color: $mui-text-dark;
+    top: 50%;
+    left: $mui-grid-padding;
+    right: $mui-grid-padding;
+    z-index: 3;
+    text-align: center;
+    font-size: 18px;
+    transform: translateY(-50%);
+    max-height: 100%;
+  }
+
+  img {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .card__image-wrapper {
+    .card__image__tagline {
+      font-size: 24px;
+    }
+  }
+}
+
+.card__calendar {
+  padding: $mui-grid-padding/2 0 $mui-grid-padding-double;
+  margin-left: -$mui-grid-padding;
+  margin-right: -$mui-grid-padding;
+
+  .calendar {
+    width: 100%;
+
+    .calendar__month {
+      padding: 0 $mui-grid-padding;
+      margin: 0;
+      width: 100%;
+      display: none;
+      justify-content: space-between;
+
+      .calendar__month__counting {
+        font-size: 12px;
+      }
+      .calendar__month__name {
+        font-size: 12px;
+      }
+    }
+
+    .calendar__month--unique.calendar__month--latest {
+      display: flex;
+    }
+
+    .calendar__weekdays {
+      display: flex;
+      width: 100%;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
+
+      .calendar__weekdays__dates {
+        width: 100%;
+        display: none;
+        flex-wrap: wrap;
+        padding: 0;
+        position: relative;
+        margin: 0 4px;
+
+        .calendar__weekdays__dates__date {
+          position: relative;
+          width: calc(100% / 7.01);
+          text-align: center;
+          margin: 0;
+          padding: 3px 0;
+
+          .calendar__weekdays__dates__date__day {
+            position: relative;
+            z-index: 2;
+            display: block;
+            color: $mui-text-light;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 16px;
+            opacity: 0.6;
+          }
+
+          .calendar__weekdays__dates__date__name {
+            display: block;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            color: $mui-text-light;
+            font-variant: all-small-caps;
+            font-size: 10px;
+            line-height: 14px;
+            font-weight: 600;
+            opacity: 0.6;
+          }
+        }
+
+        .calendar__weekdays__dates__date--today {
+          .calendar__weekdays__dates__date__day {
+            color: $mui-text-dark;
+            font-weight: 600;
+            opacity: 1;
+          }
+          .calendar__weekdays__dates__date__name {
+            color: $mui-text-dark;
+            font-weight: 600;
+            opacity: 1;
+          }
+        }
+
+        .calendar__weekdays__dates__date--active {
+          .calendar__weekdays__dates__date__day,
+          .calendar__weekdays__dates__date__name {
+            opacity: 1;
+          }
+        }
+
+        .calendar__weekdays__dates__date--active:after {
+          content: '';
+          font-weight: bold;
+          border-radius: 8px;
+          width: 34px;
+          height: 38px;
+          text-align: center;
+          position: absolute;
+          top: -2px;
+          left: 0;
+          right: 0;
+          margin: auto;
+          z-index: 1;
+          border: 1px solid $mui-primary-color-lighter;
+        }
+        .calendar__weekdays__dates__date--active:before {
+          content: '';
+          border-left: 5px solid transparent;
+          border-right: 5px solid transparent;
+          border-top: 5px solid $mui-primary-color-lighter;
+          position: absolute;
+          bottom: -5px;
+          right: 0;
+          left: 0;
+          margin: auto;
+          width: 5px;
+          z-index: 2;
+          opacity: 0;
+        }
+
+        .calendar__weekdays__dates__time {
+          display: block;
+          opacity: 0;
+          position: absolute;
+          bottom: -32px;
+          border-radius: 2px;
+          background: $mui-primary-color-lighter;
+          color: $mui-text-dark;
+          left: -42px;
+          margin: auto;
+          padding: 4px;
+          width: 160px;
+          font-size: 12px;
+          line-height: 16px;
+          z-index: 3;
+          transition: opacity 0.1s;
+          -webkit-transition: opacity 0.1s;
+        }
+
+        .calendar__weekdays__dates__date--showtime:hover:after,
+        .calendar__weekdays__dates__date--display:after {
+          background: $mui-primary-color-lighter;
+        }
+
+        .calendar__weekdays__dates__date--showtime:hover
+          .calendar__weekdays__dates__time,
+        .calendar__weekdays__dates__date--display:before,
+        .calendar__weekdays__dates__date--showtime:hover:before,
+        .calendar__weekdays__dates__date--showtime.calendar__weekdays__dates__date--display
+          .calendar__weekdays__dates__time {
+          opacity: 1;
+        }
+
+        .calendar__weekdays__dates__date--1 .calendar__weekdays__dates__time {
+          left: 8px;
+          transform: translate(0, 0);
+        }
+
+        .calendar__weekdays__dates__date--6 .calendar__weekdays__dates__time {
+          transform: translate(-26px, 0);
+        }
+
+        .calendar__weekdays__dates__date--7 .calendar__weekdays__dates__time {
+          left: unset;
+          transform: translate(0, 0);
+          right: 8px;
+        }
+
+        .calendar__weekdays__dates__date--year {
+          text-align: right;
+        }
+
+        .calendar__weekdays__dates__icon {
+          display: none;
+        }
+      }
+
+      .calendar__weekdays__dates--latest {
+        display: flex;
+      }
+    }
+  }
+}
+
+.card__calendar--compact {
+  .calendar {
+    .calendar__weekdays {
+      .calendar__weekdays__dates,
+      .calendar__month {
+        display: none;
+        padding-top: 0;
+      }
+      .calendar__month {
+        padding-bottom: 5px;
+        margin: 0;
+      }
+      .calendar__weekdays__dates--upcoming--first,
+      .calendar__month--upcoming--first {
+        display: flex;
+      }
+      .calendar__weekdays__dates {
+        .calendar__weekdays__dates__icon {
+          position: absolute;
+          line-height: 29px;
+          display: block;
+          z-index: -1;
+          bottom: 0;
+          width: 16px;
+        }
+        .calendar__weekdays__dates__icon--left {
+          position: absolute;
+          left: -4px;
+          line-height: 30px;
+          height: 36px;
+        }
+        .calendar__weekdays__dates__icon--right {
+          position: absolute;
+          right: -4px;
+          line-height: 30px;
+          height: 36px;
+        }
+      }
+    }
+  }
+}
+
+.card--upcoming {
+  border-radius: 16px 16px 0 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+  max-width: 450px;
+  transition: 200ms linear;
+  -webkit-transition: 200ms linear;
+  height: 100%;
+
+  .card__image-wrapper {
+    position: relative;
+    padding-bottom: 56.2%;
+    z-index: 3;
+    overflow: hidden;
+    border-radius: 0 0 0 20px;
+
+    .card__image {
+      position: absolute;
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    }
+    .card__image__tagline {
+      color: $mui-text-dark;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  .card__body {
+    padding: 0 $mui-grid-padding $mui-grid-padding;
+    position: relative;
+
+    .card__body__location {
+      float: left;
+      max-width: 90%;
+    }
+
+    .card__body__bookmark {
+      float: right;
+      margin: $mui-grid-padding/4 0 0;
+    }
+
+    .card__body__title {
+      margin: 0 0 $mui-grid-padding/2;
+    }
+
+    .card__body__title--smaller {
+      width: calc(100% - 20px);
+    }
+
+    .card__body__subtitle {
+      margin: 8px 0;
+      max-width: calc(100% - 20px);
+    }
+
+    .card__body__location {
+      margin: 0 0 $mui-grid-padding/2;
+      float: left;
+    }
+    .card__body__divider {
+      height: 4px;
+      background-color: $mui-bg-color-primary-dark;
+      width: 24px;
+      margin: 12px 0;
+    }
+    .card__body__footer {
+      margin: 12px 0 6.5px;
+    }
+  }
+}
+
+.card--upcoming:hover {
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+}
+
+@media (min-width: 1200px) {
+  .card--upcoming {
+    .card__body {
+      .card__body__subtitle {
+        min-height: 48px;
+      }
+      .card__body__location {
+        min-height: 24px;
+      }
+    }
+  }
+}
+
+.card__image-wrapper--default:after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  background-color: $mui-primary-color;
+  width: 100%;
+  display: block;
+  height: 100%;
+  opacity: 0.7;
+  border-radius: 0 0 0 20px;
+}
+
+.card--small {
+  max-width: 400px;
+}
+
+.card--lessmargin {
+  margin-bottom: $mui-grid-padding;
+}
+
+.card--limited {
+  min-width: 200px;
+}
+
+@media (min-width: 768px) {
+  .card--limited {
+    min-width: 300px;
+  }
+}
+
+.card .card__body--lgtext {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.card__footer--smallerbtn {
+  .mui-btn--small.mui-btn--flat {
+    padding: 0 6px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .card__footer--smallerbtn {
+    .mui-btn--small.mui-btn--flat {
+      padding: 0 16px;
+    }
+  }
+}

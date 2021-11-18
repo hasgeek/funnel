@@ -12,8 +12,8 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon js-switch-panel" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline js-switch-panel">{{ title }}</span>
-      <a aria-label="{% trans %}Back to edit proposal{% endtrans %}" class="mui--text-dark mobile-nav__icon js-switch-panel mui--hide" data-ga="Back to the edit proposal">{{ faicon(icon='times', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline js-switch-panel mui--hide">{% trans %}Edit{% endtrans %}</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon js-switch-panel" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline mobile-nav__headline--lesswidth js-switch-panel">{{ title }}</span>
+      <a aria-label="{% trans %}Back to edit proposal{% endtrans %}" class="mui--text-dark mobile-nav__icon js-switch-panel mui--hide" data-ga="Back to the edit proposal">{{ faicon(icon='times', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline mobile-nav__headline--lesswidth js-switch-panel mui--hide">{% trans %}Edit{% endtrans %}</span>
     </div>
   </div>
 {% endblock %}
