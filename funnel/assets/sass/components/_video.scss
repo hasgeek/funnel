@@ -78,3 +78,19 @@
     word-wrap: break-word;
   }
 }
+
+.details__box__control {
+  background: $mui-text-dark;
+  padding: 4px $mui-grid-padding;
+  color: $mui-text-white;
+  text-align: right;
+
+  .details__box__control__link {
+    color: $mui-text-white;
+    margin-right: $mui-grid-padding;
+  }
+
+  .details__box__control__link:last-child {
+    margin-right: 0;
+  }
+}
