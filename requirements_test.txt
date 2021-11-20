@@ -304,8 +304,8 @@ oauthlib==3.1.1
     # via requests-oauthlib
 orderedmultidict==1.0.1
     # via furl
-packaging==21.0
-    # via bleach
+#packaging==21.0
+#    # via bleach
 paramiko==2.8.0
     # via fabric3
 passlib==1.7.4
