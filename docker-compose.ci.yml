@@ -7,7 +7,7 @@ services:
     container_name: web
     ports:
       - 5000:5000
-    command: sh ./runtests.sh
+    command: sh ./docker-tests.sh
     logging:
       driver: "json-file"
       options:

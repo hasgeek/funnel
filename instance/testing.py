@@ -5,9 +5,9 @@ CACHE_TYPE = 'SimpleCache'
 SECRET_KEYS = ['testkey']  # nosec
 LASTUSER_SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
-SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
+SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:5432/funnel_testing'
 SQLALCHEMY_BINDS = {
-    'geoname': 'postgresql:///geoname_testing',
+    'geoname': 'postgresql://postgres:5432/geoname_testing',
 }
 SERVER_NAME = 'funnel.test:3002'
 SHORTLINK_DOMAIN = 'f.test:3002'
@@ -89,5 +89,5 @@ IMAGE_URL_SCHEMES = ('https',)
 # RQ_CONNECTION_CLASS = 'fakeredis.FakeStrictRedis'
 # RQ_ASYNC = False
 
-RQ_REDIS_URL = 'redis://localhost:6379/9'
+RQ_REDIS_URL = 'redis://redis:6379/9'
 ENABLE_COMMENT_SIDEBAR = True
