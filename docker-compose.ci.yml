@@ -16,6 +16,9 @@ services:
     depends_on:
       - postgres
       - redis
+    extra_hosts:
+      - "funnel.test:127.0.0.1"
+      - "f.test:127.0.0.1"
     volumes:
     #- .:/app
     - $HOME/.aws/credentials:/app/.aws/credentials:ro
