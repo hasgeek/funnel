@@ -22,13 +22,13 @@ retry() {
   done
 }
 
-retry 5 1 psql postgresql://postgres:5432/postgres -c '\l' >/dev/null
+retry 5 1 psql postgresql://postgres@postgres:5432/postgres -c '\l' >/dev/null
 
 echo >&2 "$(date +%Y%m%dt%H%M%S) Postgres is up - executing command"
 
-psql postgresql://postgres:5432/postgres -c 'create database funnel_testing;'
+psql postgresql://postgres@postgres:5432/postgres -c 'create database funnel_testing;'
 flask dbconfig | sudo -u postgres psql funnel_testing
-psql  postgresql://postgres:5432/postgres -c 'create database geoname_testing;'
+psql  postgresql://postgres@postgres:5432/postgres -c 'create database geoname_testing;'
 flask dbconfig | sudo -u postgres psql geoname_testing
 
 if [ -f secrets.test ]; then
