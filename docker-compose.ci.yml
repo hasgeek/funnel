@@ -47,6 +47,7 @@ services:
       - web
   postgres:
     container_name: 'postgres'
+    restart: always
     image: 'postgres:13'
     user: postgres
     ports:
