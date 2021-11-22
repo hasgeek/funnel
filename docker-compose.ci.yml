@@ -14,8 +14,8 @@ services:
         max-size: "200k"
         max-file: "10"
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
     extra_hosts:
       - "funnel.test:127.0.0.1"
       - "f.test:127.0.0.1"
@@ -52,6 +52,11 @@ services:
     user: postgres
     ports:
       - 5432:5432
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:5432"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
     environment:
         POSTGRES_HOST_AUTH_METHOD: trust      
     volumes:
