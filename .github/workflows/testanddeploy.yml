@@ -56,14 +56,19 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKER_HUB_USERNAME }}/funnel:latest
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
     - name: Checkout the SSH Key
       uses: actions/checkout@v2
     - name: Install SSH key
       uses: shimataro/ssh-key-action@v2
       with:
-        key: ${{ secrets.SSH_KEY }}
-        name: id_rsa
-        known_hosts: ${{ secrets.KNOWN_HOSTS }}
+        key: ${{ secrets.DEV_SSH_KEY }}
+        name: githubactions
+        known_hosts: ${{ secrets.DEV_KNOWN_HOSTS }}
 
     - name: Run the deploy script
       run: ./aws_dev_deploy.sh
