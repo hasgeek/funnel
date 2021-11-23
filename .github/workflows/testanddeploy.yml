@@ -34,7 +34,7 @@ jobs:
         echo --- Building only web first ---
         docker-compose -f docker-compose.ci.yml build --no-cache web
         echo --- Starting up all the containers ---
-        docker-compose -f docker-compose.ci.yml up --build
+        docker-compose -f docker-compose.ci.yml up --build --exit-code-from web
         echo --- Completed test cases ---
    
   build:
