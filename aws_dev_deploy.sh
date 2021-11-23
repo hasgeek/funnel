@@ -1,6 +1,6 @@
 #!/bin/bash
 echo 'Starting to Deploy...'
-ssh ec2-user@ec2-3-144-184-165.us-east-2.compute.amazonaws.com " sudo docker image prune -f 
+ssh -o StrictHostKeyChecking=no ec2-user@ec2-3-144-184-165.us-east-2.compute.amazonaws.com " sudo docker image prune -f 
         cd funnel
         sudo docker-compose down
         git fetch origin
