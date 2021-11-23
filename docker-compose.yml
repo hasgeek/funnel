@@ -4,6 +4,7 @@ services:
   web:
     # build: .
     image: vivekdurai/funnel
+    container_name: web
     ports:
       - 3000:3000
     depends_on:
