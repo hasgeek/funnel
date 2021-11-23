@@ -169,6 +169,10 @@ function activateZoomPopup() {
     $('.markdown-modal').modal();
   });
 
+  $('body').on('click', '.markdown table a', function (event) {
+    event.stopPropagation();
+  });
+
   $('body').on($.modal.AFTER_CLOSE, '.markdown-modal', function (event) {
     event.preventDefault();
     $('.markdown-modal').remove();
