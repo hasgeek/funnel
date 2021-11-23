@@ -1,5 +1,3 @@
-from werkzeug.datastructures import MultiDict
-
 from funnel.forms import LabelForm
 from funnel.models import Label
 
@@ -12,57 +10,3 @@ def test_new_label_get(client, new_user, new_project):
     for field in label_form:
         if field not in ('csrf_token', 'form_nonce'):
             assert field.name in resp.data.decode('utf-8')
-
-
-def test_new_label_without_option(client, new_user, new_project):
-    with client.session_transaction() as session:
-        session['userid'] = new_user.userid
-    resp_post = client.post(
-        new_project.url_for('new_label'),
-        data=MultiDict(
-            {
-                'title': "Label V1",
-                'icon_emoji': "👍",
-                'required': False,
-                'restricted': False,
-            }
-        ),
-        follow_redirects=True,
-    )
-    assert "Manage labels" in resp_post.data.decode('utf-8')
-    label_v1 = Label.query.filter_by(
-        title="Label V1", icon_emoji="👍", project=new_project
-    ).first()
-    assert label_v1 is not None
-
-
-def test_new_label_with_option(client, new_user, new_project):
-    with client.session_transaction() as session:
-        session['userid'] = new_user.userid
-    resp_post = client.post(
-        new_project.url_for('new_label'),
-        data=MultiDict(
-            {
-                'title': ["Label V2", "Option V21", "Option V22"],
-                'icon_emoji': ["👍", "", ""],
-                'required': False,
-                'restricted': False,
-            }
-        ),
-        follow_redirects=True,
-    )
-    assert "Manage labels" in resp_post.data.decode('utf-8')
-    label_v2 = Label.query.filter_by(
-        title="Label V2", icon_emoji="👍", project=new_project
-    ).first()
-    assert label_v2 is not None
-    assert label_v2.has_options
-    assert len(label_v2.options) == 2
-
-    assert label_v2.options[0].title == "Option V21"
-    assert label_v2.options[0].icon_emoji == ""
-    assert label_v2.options[0].icon == "OV"
-
-    assert label_v2.options[1].title == "Option V22"
-    assert label_v2.options[1].icon_emoji == ""
-    assert label_v2.options[1].icon == "OV"
