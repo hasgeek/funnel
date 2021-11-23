@@ -80,25 +80,26 @@ jobs:
     - name: Checkout the SSH Key
       uses: actions/checkout@v2
 
-    - name: Create SSH key
-      run: |
-        mkdir -p ~/.ssh/
-        echo "$SSH_PRIVATE_KEY" > ../private.key
-        sudo chmod 600 ../private.key
-        echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-      shell: bash
-      env:
-        SSH_PRIVATE_KEY: ${{secrets.DEV_SSH_KEY}}
-        SSH_KNOWN_HOSTS: ${{secrets.DEV_KNOWN_HOSTS}}
-    # - name: Install SSH key
-    #   uses: shimataro/ssh-key-action@v2
-    #   with:
-    #     key: ${{ secrets.DEV_SSH_KEY }}
-    #     name: github
-    #     known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+    # - name: Create SSH key
+    #   run: |
+    #     mkdir -p ~/.ssh/
+    #     echo "$SSH_PRIVATE_KEY" > ../private.key
+    #     sudo chmod 600 ../private.key
+    #     echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    #   shell: bash
+    #   env:
+    #     SSH_PRIVATE_KEY: ${{secrets.DEV_SSH_KEY}}
+    #     SSH_KNOWN_HOSTS: ${{secrets.DEV_KNOWN_HOSTS}}
 
-    # - name: Adding Known Hosts
-    #   run: ssh-keyscan -H ${{ secrets.DEV_HOST_IP }} >> ~/.ssh/known_hosts
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.DEV_SSH_KEY }}
+        name: github
+        known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+
+    - name: Adding Known Hosts
+      run: ssh-keyscan -H ${{ secrets.DEV_HOST_IP }} >> ~/.ssh/known_hosts
 
     - name: Make executeable
       run: chmod +x ./aws_dev_deploy.sh
