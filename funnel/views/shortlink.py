@@ -28,7 +28,7 @@ def link(name):
     # These two borrowed from Bitly and TinyURL's response headers. They tell the
     # browser to reproduce the HTTP Referer header that was sent to this endpoint, to
     # send it again to the destination URL
-    response.content_security_policy = {'referrer': 'always'}
+    response.content_security_policy['referrer'] = 'always'  # Needs Werkzeug >= 2.0.2
     response.headers['Referrer-Policy'] = 'unsafe-url'
     # TODO: Perform analytics here: log client, set session cookie, etc
     return response
