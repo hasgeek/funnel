@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 echo 'Starting to Deploy...'
 ssh ec2-user@ec2-3-144-184-165.us-east-2.compute.amazonaws.com "
 		docker image prune -f 
