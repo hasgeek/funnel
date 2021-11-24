@@ -91,21 +91,39 @@ jobs:
     #     SSH_PRIVATE_KEY: ${{secrets.DEV_SSH_KEY}}
     #     SSH_KNOWN_HOSTS: ${{secrets.DEV_KNOWN_HOSTS}}
 
-    - name: Install SSH key
-      uses: shimataro/ssh-key-action@v2
+    - name: executing remote ssh commands using ssh key
+      uses: appleboy/ssh-action@master
       with:
+        host: ${{ secrets.DEV_HOST_IP }}
+        username: ec2-user
         key: ${{ secrets.DEV_SSH_KEY }}
-        name: github
-        known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+        port: 22
+        script: |
+          docker image prune -f 
+          cd funnel
+          docker-compose down
+          git fetch origin aws
+          git reset --hard origin/aws  &&  echo 'git fetched and hard reset'
+          aws s3 cp s3://v2-alpha-test-environment-files/container_env instance/settings.py
+          docker-compose build 
+          docker run vivekdurai/funnel flask db upgrade
+          docker-compose up -d
 
-    - name: Adding Known Hosts
-      run: ssh-keyscan -H ${{ secrets.DEV_HOST_IP }} >> ~/.ssh/known_hosts
+    # - name: Install SSH key
+    #   uses: shimataro/ssh-key-action@v2
+    #   with:
+    #     key: ${{ secrets.DEV_SSH_KEY }}
+    #     name: github
+    #     known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
 
-    - name: Make executeable
-      run: chmod +x ./aws_dev_deploy.sh
+    # - name: Adding Known Hosts
+    #   run: ssh-keyscan -H ${{ secrets.DEV_HOST_IP }} >> ~/.ssh/known_hosts
 
-    - name: Run the deploy script
-      run: ./aws_dev_deploy.sh
+    # - name: Make executeable
+    #   run: chmod +x ./aws_dev_deploy.sh
+
+    # - name: Run the deploy script
+    #   run: ./aws_dev_deploy.sh
 
     # - name: Image digest
     #   run: echo ${{ steps.docker_build.outputs.digest }}
