@@ -6,7 +6,7 @@ services:
     image: master-image
     container_name: web
     ports:
-      - 5000:5000
+      - 3000:3000
     command: sh ./docker-tests.sh
     logging:
       driver: "json-file"
