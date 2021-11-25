@@ -22,16 +22,18 @@
 {% endblock %}
 
 {% block basecontent %}
-  <div class="mui-container">
-    <div class="page-content">
-      <div class="grid" id="crew">
-        <div class="grid__col-xs-12">
-          {{ membership_template() }}
+  <div class="mui--bg-accent top-padding">
+    <div class="mui-container">
+      <div class="page-content">
+        <div class="grid" id="crew">
+          <div class="grid__col-xs-12">
+            {{ membership_template() }}
+          </div>
         </div>
       </div>
     </div>
+    {{ profile_member_template () }}
   </div>
-  {{ profile_member_template () }}
 {% endblock %}
 
 {% block footerscripts %}

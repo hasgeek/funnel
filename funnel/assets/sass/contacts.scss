@@ -15,6 +15,12 @@
   }
 }
 
+.contact-download-btn {
+  position: relative;
+  top: 6px;
+  left: -$mui-grid-padding;
+}
+
 @media (min-width: 1200px) {
   .contact-card {
     position: relative;

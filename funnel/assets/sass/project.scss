@@ -3,6 +3,12 @@
 @import 'components/proposal-card';
 @import 'components/switch';
 
+@media (min-width: 768px) {
+  .project-page__content {
+    padding-top: $mui-grid-padding
+  }
+}
+
 .project-footer {
   position: fixed;
   width: 100%;
@@ -528,5 +534,25 @@
       font-size: 16px;
       line-height: 1;
     }
+  }
+}
+
+.project-page .alert-wrapper {
+  background: $mui-bg-color-primary;
+}
+
+.map {
+  position: relative;
+  .map__marker {
+    margin-top: $mui-grid-padding/2;
+    width: 100%;
+    height: 40em;
+  }
+  .map__clear {
+    position: absolute;
+    top: 22px;
+    right: 0;
+    z-index: 2;
+    background: #fff;
   }
 }

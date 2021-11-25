@@ -1,12 +1,12 @@
 //For flex grid
 @import 'reflex/variables';
-@import 'reflex/mixins';
+@import 'reflex/mixins_custom';
 @import 'reflex/grid';
 
 @import 'mui/custom';
 
 // Core variables and mixins
-@import 'mui/colors', 'mui/variables', 'mui/mixins/buttons', 'mui/mixins/typography', 'mui/mixins/util';
+@import 'mui/colors_custom', 'mui/variables', 'mui/mixins/buttons', 'mui/mixins/typography', 'mui/mixins/util';
 
 // Globals
 @import 'mui/globals';
