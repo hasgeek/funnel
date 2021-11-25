@@ -22,6 +22,7 @@ def test_edit_option_label_view(
     assert "Manage labels" in resp.data.decode('utf-8')
     assert "Only main labels can be edited" in resp.data.decode('utf-8')
 
+
 # Separate class because the ``new_label`` fixture has a class scope.
 # If we delete it in any other test classes, it'll mess with other
 # tests in those classes.

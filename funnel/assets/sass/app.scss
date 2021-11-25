@@ -6,15 +6,15 @@
 @import 'mui/custom';
 
 // Core variables and mixins
-@import 'mui/colors', 'mui/variables', 'mui/mixins/buttons', 'mui/mixins/typography', 'mui/mixins/util';
+@import 'mui/colors', 'mui/variables', 'mui/mixins/buttons',
+  'mui/mixins/typography', 'mui/mixins/util';
 
 // Globals
 @import 'mui/globals';
 
 // Components
-@import 'mui/buttons', 'mui/containers',
-  'mui/divider', 'mui/dropdown', 'mui/panel',
-  'mui/table', 'mui/tabs';
+@import 'mui/buttons', 'mui/containers', 'mui/divider', 'mui/dropdown',
+  'mui/panel', 'mui/table', 'mui/tabs';
 
 // Miscellaneous
 @import 'mui/helpers', 'mui/overlay', 'mui/ripple';
