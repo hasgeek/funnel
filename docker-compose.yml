@@ -18,6 +18,7 @@ services:
       - redis
     command: sh ./rq.sh
     volumes:
+      - .:/app
       - $HOME/.aws/credentials:/app/.aws/credentials:ro
   redis:
     image: redis
