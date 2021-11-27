@@ -10,7 +10,7 @@ services:
       - redis
     command: sh ./runserver.sh
     volumes:
-      #- .:/app
+      - .:/app
       - $HOME/.aws/credentials:/app/.aws/credentials:ro
   worker:
     image: vivekdurai/funnel
