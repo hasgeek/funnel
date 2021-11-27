@@ -22,6 +22,14 @@ jobs:
     - name: Create env file
       run: |
         touch instance/settings.py
+        export GOOGLE_MAPS_API_KEY='${{ secrets.GOOGLE_MAPS_API_KEY }}'
+        export YOUTUBE_API_KEY='${{ secrets.YOUTUBE_API_KEY }}'
+        export SMS_TWILIO_SID='${{ secrets.SMS_TWILIO_SID }}'
+        export SMS_TWILIO_TOKEN='${{ secrets.SMS_TWILIO_TOKEN }}'
+        export SMS_TWILIO_FROM='${{ secrets.SMS_TWILIO_FROM }}'
+        export VIMEO_CLIENT_ID='${{ secrets.VIMEO_CLIENT_ID }}'
+        export VIMEO_CLIENT_SECRET='${{ secrets.VIMEO_CLIENT_SECRET }}'
+        export VIMEO_ACCESS_TOKEN='${{ secrets.VIMEO_ACCESS_TOKEN }}'
         echo "${{ secrets.SERVER_ENV_TEST }}" > instance/settings.py
 
     - name: Copy requirements file
@@ -98,7 +106,6 @@ jobs:
           echo 'fetching settings.py from s3'
           ls instance
           aws s3 cp s3://v2-alpha-test-environment-files/container_env instance/settings.py
-          ls 
           ls instance
           echo 'building docker-compose'
           docker-compose build 
