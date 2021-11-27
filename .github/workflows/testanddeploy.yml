@@ -7,75 +7,75 @@ on:
     branches: [ aws ]
 
 jobs:
-  test:
+  # test:
 
-    runs-on: ubuntu-latest
+  #   runs-on: ubuntu-latest
 
-    container:
-      image: lucasalt/act_base:latest
+  #   container:
+  #     image: lucasalt/act_base:latest
 
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        ref: aws
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #     with:
+  #       ref: aws
 
-    - name: Create env file
-      run: |
-        touch instance/settings.py
-        export GOOGLE_MAPS_API_KEY='${{ secrets.GOOGLE_MAPS_API_KEY }}'
-        export YOUTUBE_API_KEY='${{ secrets.YOUTUBE_API_KEY }}'
-        export SMS_TWILIO_SID='${{ secrets.SMS_TWILIO_SID }}'
-        export SMS_TWILIO_TOKEN='${{ secrets.SMS_TWILIO_TOKEN }}'
-        export SMS_TWILIO_FROM='${{ secrets.SMS_TWILIO_FROM }}'
-        export VIMEO_CLIENT_ID='${{ secrets.VIMEO_CLIENT_ID }}'
-        export VIMEO_CLIENT_SECRET='${{ secrets.VIMEO_CLIENT_SECRET }}'
-        export VIMEO_ACCESS_TOKEN='${{ secrets.VIMEO_ACCESS_TOKEN }}'
-        echo "${{ secrets.SERVER_ENV_TEST }}" > instance/settings.py
+  #   - name: Create env file
+  #     run: |
+  #       touch instance/settings.py
+  #       export GOOGLE_MAPS_API_KEY='${{ secrets.GOOGLE_MAPS_API_KEY }}'
+  #       export YOUTUBE_API_KEY='${{ secrets.YOUTUBE_API_KEY }}'
+  #       export SMS_TWILIO_SID='${{ secrets.SMS_TWILIO_SID }}'
+  #       export SMS_TWILIO_TOKEN='${{ secrets.SMS_TWILIO_TOKEN }}'
+  #       export SMS_TWILIO_FROM='${{ secrets.SMS_TWILIO_FROM }}'
+  #       export VIMEO_CLIENT_ID='${{ secrets.VIMEO_CLIENT_ID }}'
+  #       export VIMEO_CLIENT_SECRET='${{ secrets.VIMEO_CLIENT_SECRET }}'
+  #       export VIMEO_ACCESS_TOKEN='${{ secrets.VIMEO_ACCESS_TOKEN }}'
+  #       echo "${{ secrets.SERVER_ENV_TEST }}" > instance/settings.py
 
-    - name: Copy requirements file
-      run: |
-        cat requirements_test.txt > requirements.txt
-        cat requirements.txt
+  #   - name: Copy requirements file
+  #     run: |
+  #       cat requirements_test.txt > requirements.txt
+  #       cat requirements.txt
 
-    - name: Run Docker Compose using the docker-compose.ci.yml file
-      run: |
-        echo --- Building only web first ---
-        docker-compose -f docker-compose.ci.yml build --no-cache web
-        echo --- Starting up all the containers ---
-        docker-compose -f docker-compose.ci.yml up --build --exit-code-from web
-        echo --- Completed test cases ---
+  #   - name: Run Docker Compose using the docker-compose.ci.yml file
+  #     run: |
+  #       echo --- Building only web first ---
+  #       docker-compose -f docker-compose.ci.yml build --no-cache web
+  #       echo --- Starting up all the containers ---
+  #       docker-compose -f docker-compose.ci.yml up --build --exit-code-from web
+  #       echo --- Completed test cases ---
    
-  build:
+  # build:
 
-    needs: test
+  #   needs: test
 
-    runs-on: ubuntu-latest
+  #   runs-on: ubuntu-latest
 
-    steps:
+  #   steps:
 
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        ref: aws
+  #   - name: Checkout
+  #     uses: actions/checkout@v2
+  #     with:
+  #       ref: aws
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  #   - name: Login to Docker Hub
+  #     uses: docker/login-action@v1
+  #     with:
+  #       username: ${{ secrets.DOCKER_HUB_USERNAME }}
+  #       password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-    - name: Set up Docker Buildx
-      id: buildx
-      uses: docker/setup-buildx-action@v1
+  #   - name: Set up Docker Buildx
+  #     id: buildx
+  #     uses: docker/setup-buildx-action@v1
 
-    - name: Build and push
-      id: docker_build
-      uses: docker/build-push-action@v2
-      with:
-        context: ./
-        file: ./Dockerfile
-        push: true
-        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/funnel:latest
+  #   - name: Build and push
+  #     id: docker_build
+  #     uses: docker/build-push-action@v2
+  #     with:
+  #       context: ./
+  #       file: ./Dockerfile
+  #       push: true
+  #       tags: ${{ secrets.DOCKER_HUB_USERNAME }}/funnel:latest
 
   deploy:
 
@@ -104,11 +104,11 @@ jobs:
           echo 'reset git repo'
           git reset --hard origin/aws  &&  echo 'git fetched and hard reset'
           echo 'fetching settings.py from s3'
-          ls instance
           aws s3 cp s3://v2-alpha-test-environment-files/container_env instance/settings.py
           ls instance
+          cat instance/settings.py
           echo 'building docker-compose'
-          docker-compose build 
+          docker-compose build -f docker-compose.yml
           echo 'running migration'
           docker run vivekdurai/funnel flask db upgrade
           echo 'starting docker-compose'
