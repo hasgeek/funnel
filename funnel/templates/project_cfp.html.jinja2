@@ -3,6 +3,30 @@
 {% from "macros.html.jinja2" import faicon %}
 {% block title %}{% trans %}Add submission guidelines and timing{% endtrans %}{% endblock %}
 
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Add submission guidelines and timing{% endtrans %}</span>
+    </div>
+  </div>
+{% endblock %}
+
+{% block contenthead %}
+  <div class="content-head content-head--top-padding mui--bg-accent mui--hidden-xs mui--hidden-sm">
+    <div class="mui-container">
+      <div class="grid">
+        <div class="grid__col-xs-12">
+          {% block top_title %}
+          <h1 class="mui--text-headline">
+            {{ self.title()|e }}
+          </h1>
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
 {% block content %}
   {%- if form.errors %}
     <div class="alert alert--error alert--dismissable">

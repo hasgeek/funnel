@@ -20,7 +20,7 @@
             <ol class="mui-list--aligned mui-list--border">
               {%- for venue in primary_venue_form.venue.query %}
                 <li class="mui--text-subhead">
-                  <input id="venue-{{ loop.index }}" name="{{ primary_venue_form.venue.name }}" value="{{ venue.uuid_b58 }}" type="radio" {%- if venue == project.primary_venue %}disabled{% endif %} class="form-inline-input"><label for="venue-{{ loop.index }}" class="form-inline-label" data-cy="{{ venue.title }}">{{ venue.title }} {%- if venue == project.primary_venue %}<em> (primary) </em>{% endif %}</label>
+                  <input id="venue-{{ loop.index }}" name="{{ primary_venue_form.venue.name }}" value="{{ venue.uuid_b58 }}" type="radio" {%- if venue == project.primary_venue %}disabled{% endif %} class="margin-right"><label for="venue-{{ loop.index }}" class="form-inline-label" data-cy="{{ venue.title }}">{{ venue.title }} {%- if venue == project.primary_venue %}<em> {% trans %}(primary){% endtrans %}</em>{% endif %}</label>
                   <span class="mui--pull-right">
                     <a href="{{ venue.url_for('edit') }}" class="mui--text-title">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
                       &nbsp;&nbsp;&nbsp;<a href="{{ venue.url_for('delete') }}">{{ faicon(icon='trash-alt', icon_size='subhead', css_class='fa5--link') }}</a>

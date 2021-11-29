@@ -397,8 +397,8 @@
 {% endmacro %}
 
 {% macro profile_header(profile, class='', current_page='profile') %}
-  <div class="{% if class %}{{ class }}{% endif %}">
-    <div class="profile mui--bg-accent">
+  <div class="mui-container {% if class %}{{ class }}{% endif %}">
+    <div class="profile">
       <div class="profile__banner">
         <div class="profile__banner__box">
           {%- if profile.banner_image_url.url %}
@@ -488,7 +488,7 @@
       </div>
     </div>
   </div>
-  <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-accent {% if class %}{{ class }}{% endif %}">
+  <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-primary mui--z1 {% if class %}{{ class }}{% endif %}">
     <div class="mui-container">
       <div class="sub-navbar-container__inner">
         <nav class="sub-navbar" id="page-navbar">
@@ -504,7 +504,6 @@
       </div>
     </div>
   </div>
-</div>
 {% endmacro %}
 
 {% macro page_footer() %}

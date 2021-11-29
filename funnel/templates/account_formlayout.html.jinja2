@@ -3,6 +3,11 @@
 
 {% block title %}{{ title }}{% endblock %}
 
+{% block layoutheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/loginform.scss') }}" />
+{% endblock %}
+
 {% block bodyattrs %}class="login-page no-sticky-header"{% endblock %}
 
 {% block headline %}{% endblock %}

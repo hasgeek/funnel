@@ -4,6 +4,10 @@
 {%- from "js/update.js.jinja2" import updates_template %}
 {% block title %}{{ update.title }}{% endblock %}
 
+{%- block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/update.scss') }}" />
+{% endblock %}
+
 {% block mobile_header_title %}{% endblock %}
 
 {% block left_col %}

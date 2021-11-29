@@ -3,6 +3,8 @@
 {%- if not request_is_xhr() %}
   {% extends "formlayout.html.jinja2" %}
   {% block title %}{{ title }}{% endblock %}
+{% else %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
 {%- endif %}
 
 {% block content %}

@@ -2,6 +2,10 @@
 {% block title %}{% trans %}About Hasgeek{% endtrans %}{% endblock %}
 {%- from "macros.html.jinja2" import page_footer %}
 
+{% block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/about.scss') }}" />
+{% endblock %}
+
 {% block contenthead %}
 <div class="profile profile--hg">
 <div class="profile__banner">
