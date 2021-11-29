@@ -75,7 +75,6 @@ jobs:
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/funnel:latest
 
   deploy:
-
     needs: build
 
     runs-on: ubuntu-latest
