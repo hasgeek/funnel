@@ -2,9 +2,9 @@ name: test-and-deploy-to-staging-pipeline
 
 on:
   push:
-    branches: [ aws ]
+    branches: [aws]
   pull_request:
-    branches: [ aws ]
+    branches: [aws]
 
 jobs:
   # test:
@@ -44,7 +44,7 @@ jobs:
   #       echo --- Starting up all the containers ---
   #       docker-compose -f docker-compose.ci.yml up --build --exit-code-from web
   #       echo --- Completed test cases ---
-   
+
   # build:
 
   #   needs: test
@@ -78,37 +78,35 @@ jobs:
   #       tags: ${{ secrets.DOCKER_HUB_USERNAME }}/funnel:latest
 
   deploy:
-
     #needs: build
-    
+
     runs-on: ubuntu-latest
 
     steps:
-
-    - name: deploying via ssh
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.DEV_HOST_IP }}
-        username: ec2-user
-        key: ${{ secrets.DEV_SSH_KEY }}
-        port: 22
-        script: |
-          echo 'pruning unused docker images'
-          docker image prune -f 
-          #echo 'changing folder to funnel'
-          cd funnel
-          echo 'docker-compose down'
-          docker-compose down
-          echo 'fetching git repo'
-          git fetch origin aws
-          echo 'reset git repo'
-          git reset --hard origin/aws  &&  echo 'git fetched and hard reset'
-          echo 'fetching settings.py from s3'
-          # aws s3 cp s3://v2-alpha-test-environment-files/container_env instance/settings.py
-          echo "${{ secrets.SERVER_ENV_DEV }}" > instance/settings.py
-          ls instance
-          cat instance/settings.py
-          echo 'running migration'
-          docker run vivekdurai/funnel flask db upgrade
-          echo 'starting docker-compose'
-          docker-compose up -d
+      - name: deploying via ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEV_HOST_IP }}
+          username: ec2-user
+          key: ${{ secrets.DEV_SSH_KEY }}
+          port: 22
+          script: |
+            echo 'pruning unused docker images'
+            docker image prune -f
+            #echo 'changing folder to funnel'
+            cd funnel
+            echo 'docker-compose down'
+            docker-compose down
+            echo 'fetching git repo'
+            git fetch origin aws
+            echo 'reset git repo'
+            git reset --hard origin/aws  &&  echo 'git fetched and hard reset'
+            echo 'fetching settings.py from s3'
+            # aws s3 cp s3://v2-alpha-test-environment-files/container_env instance/settings.py
+            echo "${{ secrets.SERVER_ENV_DEV }}" > instance/settings.py
+            ls instance
+            cat instance/settings.py
+            echo 'running migration'
+            docker run vivekdurai/funnel flask db upgrade
+            echo 'starting docker-compose'
+            docker-compose up -d

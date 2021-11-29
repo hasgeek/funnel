@@ -10,15 +10,15 @@ services:
       - postgres
       - redis
     volumes:
-    #- .:/app
-    - $HOME/.aws/credentials:/app/.aws/credentials:ro
+      #- .:/app
+      - $HOME/.aws/credentials:/app/.aws/credentials:ro
   worker:
     image: vivekdurai/funnel
     depends_on:
       - redis
     command: sh ./rq.sh
     volumes:
-    - $HOME/.aws/credentials:/app/.aws/credentials:ro
+      - $HOME/.aws/credentials:/app/.aws/credentials:ro
   redis:
     image: redis
   nginx:
@@ -32,7 +32,7 @@ services:
     ports:
       - 80:80
       - 443:443
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;error_log /dev/stdout info;\"'"
+    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;error_log /dev/stdout info;"'''
     depends_on:
       - web
   postgres:
