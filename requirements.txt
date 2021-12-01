@@ -304,7 +304,7 @@ pyyaml==6.0
     # via
     #   awscli
     #   flask-flatpages
-qrcode==7.3
+qrcode==7.3.1
     # via -r requirements.in
 redis==3.5.3
     # via
