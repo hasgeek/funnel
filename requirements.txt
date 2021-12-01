@@ -398,7 +398,7 @@ tweepy==4.4.0
     # via -r requirements.in
 twilio==7.3.1
     # via -r requirements.in
-typing-extensions==3.10.0.2
+typing-extensions==4.0.1
     # via
     #   -r requirements.in
     #   aiohttp
