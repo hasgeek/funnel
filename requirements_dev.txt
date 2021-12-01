@@ -169,7 +169,7 @@ types-simplejson==3.17.0
     # via -r requirements_dev.in
 types-six==1.16.3
     # via -r requirements_dev.in
-types-toml==0.10.0
+types-toml==0.10.1
     # via -r requirements_dev.in
 types-werkzeug==1.0.5
     # via
