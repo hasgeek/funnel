@@ -254,7 +254,7 @@ pycountry==20.7.3
     # via
     #   -r requirements.in
     #   baseframe
-pycparser==2.20
+pycparser==2.21
     # via cffi
 pyisemail==1.3.2
     # via
