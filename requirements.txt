@@ -229,7 +229,7 @@ orderedmultidict==1.0.1
     # via furl
 packaging==21.3
     # via bleach
-paramiko==2.8.0
+paramiko==2.8.1
     # via fabric3
 passlib==1.7.4
     # via -r requirements.in
