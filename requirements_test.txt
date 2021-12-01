@@ -60,7 +60,7 @@ pytest-bdd==4.1.0
     # via -r requirements_test.in
 pytest-cov==2.12.1
     # via -r requirements_test.in
-redis==3.5.3
+redis==4.0.2
     # via fakeredis
 requests==2.26.0
     # via
