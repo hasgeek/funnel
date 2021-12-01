@@ -263,7 +263,7 @@ pyisemail==1.4.0
     #   mxsniff
 pyjsparser==2.7.1
     # via js2py
-pyjwt==1.7.1
+pyjwt==2.3.0
     # via twilio
 pymdown-extensions==8.2
     # via -r requirements.in
