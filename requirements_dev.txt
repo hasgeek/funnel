@@ -175,7 +175,7 @@ types-werkzeug==1.0.5
     # via
     #   -r requirements_dev.in
     #   types-flask
-typing-extensions==3.10.0.2
+typing-extensions==4.0.1
     # via
     #   gitpython
     #   mypy
