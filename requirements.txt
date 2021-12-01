@@ -188,7 +188,7 @@ lxml==4.6.4
     # via premailer
 mako==1.1.6
     # via alembic
-markdown==3.3.4
+markdown==3.3.6
     # via
     #   -r requirements.in
     #   flask-flatpages
