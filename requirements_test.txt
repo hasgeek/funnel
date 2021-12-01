@@ -33,7 +33,7 @@ mako==1.1.6
     # via pytest-bdd
 markupsafe==2.0.1
     # via mako
-packaging==21.2
+packaging==21.3
     # via
     #   fakeredis
     #   pytest
