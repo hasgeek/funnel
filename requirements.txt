@@ -434,7 +434,7 @@ werkzeug==2.0.2
     #   flask
 whitenoise==5.3.0
     # via -r requirements.in
-wtforms==2.3.3
+wtforms==3.0.0
     # via
     #   baseframe
     #   flask-wtf
