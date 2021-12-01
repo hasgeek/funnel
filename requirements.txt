@@ -172,7 +172,7 @@ itsdangerous==2.0.1
     #   -r requirements.in
     #   flask
     #   flask-wtf
-jinja2==3.0.2
+jinja2==3.0.3
     # via
     #   flask
     #   flask-flatpages
