@@ -149,7 +149,7 @@ types-ipaddress==1.0.1
     #   types-maxminddb
 types-itsdangerous==1.1.6
     # via -r requirements_dev.in
-types-jinja2==2.11.8
+types-jinja2==2.11.9
     # via types-flask
 types-markupsafe==1.1.8
     # via types-jinja2
