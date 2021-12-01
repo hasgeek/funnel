@@ -438,7 +438,7 @@ wtforms==3.0.0
     # via
     #   baseframe
     #   flask-wtf
-yarl==1.7.0
+yarl==1.7.2
     # via aiohttp
 zxcvbn==4.4.28
     # via -r requirements.in
