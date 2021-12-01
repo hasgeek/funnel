@@ -56,7 +56,7 @@ pytest==6.2.5
     #   -r requirements_test.in
     #   pytest-bdd
     #   pytest-cov
-pytest-bdd==4.1.0
+pytest-bdd==5.0.0
     # via -r requirements_test.in
 pytest-cov==2.12.1
     # via -r requirements_test.in
