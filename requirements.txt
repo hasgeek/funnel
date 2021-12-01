@@ -58,7 +58,7 @@ cffi==1.15.0
     #   pynacl
 chardet==4.0.0
     # via aiohttp
-charset-normalizer==2.0.7
+charset-normalizer==2.0.8
     # via requests
 click==8.0.1
     # via
