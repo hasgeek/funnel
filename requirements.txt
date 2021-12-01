@@ -16,7 +16,7 @@ async-timeout==4.0.1
     # via aiohttp
 attrs==21.2.0
     # via aiohttp
-awscli==1.22.1
+awscli==1.22.17
     # via -r requirements.in
 babel==2.9.1
     # via -r requirements.in
