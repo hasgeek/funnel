@@ -133,7 +133,7 @@ tomli==1.2.2
     # via pep517
 types-certifi==2020.4.0
     # via -r requirements_dev.in
-types-click==7.1.7
+types-click==7.1.8
     # via types-flask
 types-cryptography==3.3.5
     # via -r requirements_dev.in
