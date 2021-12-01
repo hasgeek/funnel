@@ -123,7 +123,7 @@ flask-babelhg @ git+https://github.com/hasgeek/flask-babelhg.git
     #   baseframe
 flask-caching==1.10.1
     # via baseframe
-flask-executor==0.9.4
+flask-executor==0.10.0
     # via -r requirements.in
 flask-flatpages==0.7.3
     # via -r requirements.in
