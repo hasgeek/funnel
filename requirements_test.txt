@@ -29,7 +29,7 @@ iniconfig==1.1.1
     # via pytest
 lxml==4.6.4
     # via -r requirements_test.in
-mako==1.1.5
+mako==1.1.6
     # via pytest-bdd
 markupsafe==2.0.1
     # via mako
