@@ -8,7 +8,7 @@ attrs==21.2.0
     # via flake8-bugbear
 backports.entry-points-selectable==1.1.1
     # via virtualenv
-bandit==1.7.0
+bandit==1.7.1
     # via flake8-bandit
 cfgv==3.3.1
     # via pre-commit
