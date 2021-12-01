@@ -147,7 +147,7 @@ types-ipaddress==1.0.1
     # via
     #   types-cryptography
     #   types-maxminddb
-types-itsdangerous==1.1.3
+types-itsdangerous==1.1.6
     # via -r requirements_dev.in
 types-jinja2==2.11.8
     # via types-flask
