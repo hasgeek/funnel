@@ -199,7 +199,7 @@ markupsafe==2.0.1
     #   jinja2
     #   mako
     #   wtforms
-marshmallow==3.14.0
+marshmallow==3.14.1
     # via
     #   dataclasses-json
     #   marshmallow-enum
