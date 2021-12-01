@@ -151,7 +151,7 @@ types-itsdangerous==1.1.6
     # via -r requirements_dev.in
 types-jinja2==2.11.9
     # via types-flask
-types-markupsafe==1.1.8
+types-markupsafe==1.1.10
     # via types-jinja2
 types-maxminddb==1.5.0
     # via
