@@ -340,7 +340,7 @@ rq==1.10.0
     #   rq-scheduler
 rq-scheduler==0.11.0
     # via flask-rq2
-rsa==4.7.2
+rsa==4.8
     # via
     #   awscli
     #   oauth2client
