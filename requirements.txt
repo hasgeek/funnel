@@ -6,7 +6,7 @@
 #
 aiohttp==3.8.1
     # via geoip2
-alembic==1.7.1
+alembic==1.7.5
     # via
     #   -r requirements.in
     #   flask-migrate
