@@ -384,7 +384,7 @@ sqlalchemy==1.4.27
     #   alembic
     #   flask-sqlalchemy
     #   sqlalchemy-utils
-sqlalchemy-utils==0.37.8
+sqlalchemy-utils==0.37.9
     # via -r requirements.in
 statsd==3.3.0
     # via baseframe
