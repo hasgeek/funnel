@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, redirect, request, jsonify, render_template
+from flask import abort, jsonify, redirect, render_template, request
 
 from baseframe import _, request_is_xhr
 from baseframe.forms import Form, render_form
@@ -322,13 +322,16 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
             for membership in self.obj.active_crew_memberships
         ]
         if request_is_xhr():
-            return jsonify({
-                'html': render_template('project_membership.html.jinja2', project=project, memberships=memberships)
-            })
-        return {
-            'project': self.obj,
-            'memberships': memberships
-        }
+            return jsonify(
+                {
+                    'html': render_template(
+                        'project_membership.html.jinja2',
+                        project=project,
+                        memberships=memberships,
+                    )
+                }
+            )
+        return {'project': self.obj, 'memberships': memberships}
 
     @route('new', methods=['GET', 'POST'])
     @render_with(json=True)
