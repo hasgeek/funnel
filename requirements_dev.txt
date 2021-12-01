@@ -16,7 +16,7 @@ click==8.0.3
     # via pip-tools
 distlib==0.3.3
     # via virtualenv
-filelock==3.3.2
+filelock==3.4.0
     # via virtualenv
 flake8==4.0.1
     # via
