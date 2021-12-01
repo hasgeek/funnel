@@ -273,7 +273,7 @@ pyopenssl==21.0.0
     # via
     #   baseframe
     #   ndg-httpsclient
-pyparsing==2.4.7
+pyparsing==3.0.6
     # via
     #   httplib2
     #   packaging
