@@ -91,7 +91,7 @@ dnspython==2.1.0
     #   baseframe
     #   mxsniff
     #   pyisemail
-docutils==0.15.2
+docutils==0.18.1
     # via awscli
 emoji==1.6.1
     # via baseframe
