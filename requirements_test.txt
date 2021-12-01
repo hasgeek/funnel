@@ -58,7 +58,7 @@ pytest==6.2.5
     #   pytest-cov
 pytest-bdd==5.0.0
     # via -r requirements_test.in
-pytest-cov==2.12.1
+pytest-cov==3.0.0
     # via -r requirements_test.in
 redis==4.0.2
     # via fakeredis
