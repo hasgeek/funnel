@@ -300,7 +300,7 @@ pytz-deprecation-shim==0.1.0.post0
     # via tzlocal
 pyvimeo==1.1.0
     # via -r requirements.in
-pyyaml==5.4.1
+pyyaml==6.0
     # via
     #   awscli
     #   flask-flatpages
