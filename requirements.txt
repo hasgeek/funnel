@@ -84,7 +84,7 @@ cssselect==1.1.0
     # via premailer
 cssutils==2.3.0
     # via premailer
-dataclasses-json==0.5.5
+dataclasses-json==0.5.6
     # via -r requirements.in
 dnspython==2.1.0
     # via
