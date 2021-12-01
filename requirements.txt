@@ -265,7 +265,7 @@ pyjsparser==2.7.1
     # via js2py
 pyjwt==2.3.0
     # via twilio
-pymdown-extensions==8.2
+pymdown-extensions==9.1
     # via -r requirements.in
 pynacl==1.4.0
     # via paramiko
