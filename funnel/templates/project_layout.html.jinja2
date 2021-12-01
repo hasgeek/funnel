@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{%- from "macros.html.jinja2" import faicon, csrf_tag, calendarwidget, saveprojectform, share_dropdown %}
+{%- from "macros.html.jinja2" import faicon, csrf_tag, calendarwidget, saveprojectform, share_dropdown, useravatar %}
 {%- set banner_img = 1500 %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.tagline }}{% endblock %}
@@ -420,22 +420,22 @@
       <div class="mui-container">
         <div class="sub-navbar-container__inner">
           <nav class="sub-navbar" id="page-navbar">
-            <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}" data-cy-navbar="about">{% trans %}Project overview{% endtrans %}</a>
+            <a class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for() }}" data-cy-navbar="about">{% trans %}Project overview{% endtrans %}</a>
             {%- if project.hasjob_embed_url.url -%}
-              <a class="sub-navbar__item mui--text-subhead mui--text-dark" href="{%- if current_page != 'project' -%}{{ project.url_for() }}{%- endif %}#related-jobs" data-cy-navbar="jobs">{% trans %}Jobs{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+              <a class="sub-navbar__item mui--text-subhead mui--text-dark" href="{{ project.url_for() }}#related-jobs" data-cy-navbar="jobs">{% trans %}Jobs{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
             {%- endif %}
-            <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'updates' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'updates' -%}{{ project.url_for('updates') }}{%- endif %}" data-cy-navbar="updates">{% trans %}Updates{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
-            <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'comments' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'comments' -%}{{ project.url_for('comments') }}{%- endif %}" data-cy-navbar="comments">{% trans %}Comments{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+            <a class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'updates' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for('updates') }}" data-cy-navbar="updates">{% trans %}Updates{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+            <a class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'comments' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for('comments') }}" data-cy-navbar="comments">{% trans %}Comments{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
             {%- if project.current_roles.editor or not project.cfp_state.NONE -%}
-              <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'submissions' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'submissions' -%}{{ project.url_for('view_proposals') }}{%- endif %}" data-cy-navbar="submissions">{% trans %}Submissions{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+              <a class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'submissions' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for('view_proposals') }}" data-cy-navbar="submissions">{% trans %}Submissions{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
             {%- endif %}
             {%- if project.current_roles.editor or project.schedule_start_at or current_page == 'schedule' %}
-              <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'schedule' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'schedule' -%}{{ project.url_for('schedule') }}{%- endif %}" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+              <a class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'schedule' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for('schedule') }}" data-cy-navbar="schedule">{% trans %}Schedule{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
             {%- endif %}
             {% if project.has_sessions_with_video %}
-              <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'videos' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'videos' -%}{{ project.url_for('session_videos') }}{%- endif %}" data-cy-navbar="videos">{% trans %}Videos{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+              <a class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'videos' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for('session_videos') }}" data-cy-navbar="videos">{% trans %}Videos{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
             {%- endif %}
-            <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'crew' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'crew' -%}{{ project.url_for('crew') }}{%- endif %}" data-cy-navbar="crew">{% trans %}Crew{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+            <a class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'crew' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for('crew') }}" data-cy-navbar="crew">{% trans %}Crew{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           </nav>
           <div class="{% if current_page == 'comments' %}comments-page{%- endif %}">
             {{ project_share(project) }}
@@ -447,7 +447,7 @@
 
   <div class="mui-container project-page__content">
     <div class="grid">
-      <div class="grid__col-sm-6 grid__col-md-7 grid__col-lg-8">
+      <div class="js-spa-content grid__col-sm-6 grid__col-md-7 grid__col-lg-8">
         {% block left_col %}{% endblock %}
       </div>
       {% block right_col %}
@@ -488,6 +488,7 @@
   <script src="{{ built_asset('project_header.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
+      var projectTitle = {{ project.title|tojson }};
       var tickets;
       {% if project.features.tickets() -%}
         tickets = {
@@ -503,7 +504,7 @@
         formId: 'save-form',
       };
 
-      window.Hasgeek.projectHeaderInit(saveProjectConfig, tickets);
+      window.Hasgeek.projectHeaderInit(saveProjectConfig, tickets, projectTitle);
     });
   </script>
   {% block footerinnerscripts %}{% endblock %}

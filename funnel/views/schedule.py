@@ -7,12 +7,12 @@ from typing import Any, Dict, List, Optional, cast
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from flask import Response, current_app, json, jsonify
+from flask import Response, current_app, json, jsonify, render_template
 
 from icalendar import Alarm, Calendar, Event, vCalAddress, vText
 from pytz import utc
 
-from baseframe import _, localize_timezone
+from baseframe import _, localize_timezone, request_is_xhr
 from coaster.utils import utcnow
 from coaster.views import (
     ModelView,
@@ -229,16 +229,25 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
         scheduled_sessions_list = session_list_data(
             self.obj.scheduled_sessions, with_modal_url='view_popup'
         )
+        project = self.obj.current_access(datasets=('primary', 'related'))
+        venues = [
+            venue.current_access(datasets=('without_parent', 'related'))
+            for venue in self.obj.venues
+        ]
+        sessions = scheduled_sessions_list
+        schedule = schedule_data(
+            self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
+        )
+        if request_is_xhr():
+            return jsonify({
+                'html': render_template('project_schedule.html.jinja2', project=project, venues=venues,
+                sessions=scheduled_sessions_list, schedule=schedule)
+            })
         return {
-            'project': self.obj.current_access(datasets=('primary', 'related')),
-            'venues': [
-                venue.current_access(datasets=('without_parent', 'related'))
-                for venue in self.obj.venues
-            ],
+            'project': project,
+            'venues': venues,
             'sessions': scheduled_sessions_list,
-            'schedule': schedule_data(
-                self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
-            ),
+            'schedule': schedule
         }
 
     @route('subscribe')

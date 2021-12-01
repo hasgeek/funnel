@@ -13,9 +13,10 @@ from flask import (
     redirect,
     render_template,
     request,
+    jsonify
 )
 
-from baseframe import _, __, forms
+from baseframe import _, __, forms, request_is_xhr
 from baseframe.forms import (
     render_delete_sqla,
     render_form,
@@ -279,15 +280,14 @@ class ProjectView(
     @render_with('project.html.jinja2')
     @requires_roles({'reader'})
     def view(self):
-        transition_form = ProjectTransitionForm(obj=self.obj)
-        rsvp_form = RsvpTransitionForm()
-        current_rsvp = self.obj.rsvp_for(current_auth.user)
         featured_proposals = self.obj.proposals.filter_by(featured=True)
+        project = self.obj.current_access()
+        if request_is_xhr():
+            return jsonify({
+                'html': render_template('project.html.jinja2', project=project, featured_proposals=featured_proposals)
+            })
         return {
             'project': self.obj.current_access(),
-            'current_rsvp': current_rsvp,
-            'rsvp_form': rsvp_form,
-            'transition_form': transition_form,
             'featured_proposals': featured_proposals,
         }
 
@@ -296,10 +296,12 @@ class ProjectView(
     @render_with('project_submissions.html.jinja2')
     @requires_roles({'reader'})
     def view_proposals(self):
-        cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
+        if request_is_xhr():
+            return jsonify({
+                'html': render_template('project_submissions.html.jinja2', project=self.obj),
+            })
         return {
             'project': self.obj,
-            'cfp_transition_form': cfp_transition_form,
         }
 
     @route('videos')
@@ -743,10 +745,16 @@ class ProjectView(
     @render_with('project_comments.html.jinja2')
     @requires_roles({'reader'})
     def comments(self):
+        project = self.obj
         comments = self.obj.commentset.views.json_comments()
         subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
+        if request_is_xhr():
+            return jsonify({
+                'html': render_template('project_comments.html.jinja2', project=project,
+                    subscribed=subscribed, comments=comments)
+            })
         return {
-            'project': self.obj,
+            'project': project,
             'subscribed': subscribed,
             'comments': comments,
         }

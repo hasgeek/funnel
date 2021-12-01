@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, flash, redirect
+from flask import abort, flash, redirect, jsonify
 
-from baseframe import _, forms
+from baseframe import _, forms, request_is_xhr, render_template
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import make_name
@@ -34,21 +34,29 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
     @render_with('project_updates.html.jinja2', json=True)
     @requires_roles({'reader'})
     def updates(self):
-        return {
-            'project': self.obj.current_access(datasets=('primary', 'related')),
-            'draft_updates': (
-                [
-                    update.current_access(datasets=('primary', 'related'))
-                    for update in self.obj.draft_updates
-                ]
-                if self.obj.features.post_update()
-                else []
-            ),
-            'published_updates': [
+        project = self.obj.current_access(datasets=('primary', 'related'))
+        draft_updates = (
+            [
                 update.current_access(datasets=('primary', 'related'))
-                for update in self.obj.published_updates
-            ],
-            'new_update': self.obj.url_for('new_update'),
+                for update in self.obj.draft_updates
+            ]
+            if self.obj.features.post_update()
+            else []
+        )
+        published_updates = [
+            update.current_access(datasets=('primary', 'related'))
+            for update in self.obj.published_updates
+        ]
+        new_update = self.obj.url_for('new_update')
+        if request_is_xhr():
+            return jsonify({
+                'html': render_template('project_updates.html.jinja2', project=project,  draft_updates=draft_updates, published_updates=published_updates, new_update=new_update)
+            })
+        return {
+            'project': project,
+            'draft_updates': draft_updates,
+            'published_updates': published_updates,
+            'new_update': new_update
         }
 
     @route('new', methods=['GET', 'POST'])

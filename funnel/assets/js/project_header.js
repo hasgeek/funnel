@@ -1,6 +1,7 @@
 import SaveProject from './utils/bookmark';
 import Video from './utils/embedvideo';
 import Analytics from './utils/analytics';
+import Spa from './utils/spahelper';
 
 const Ticketing = {
   init(tickets) {
@@ -160,7 +161,11 @@ const Ticketing = {
 };
 
 $(() => {
-  window.Hasgeek.projectHeaderInit = (saveProjectConfig = '', tickets = '') => {
+  window.Hasgeek.projectHeaderInit = (
+    saveProjectConfig = '',
+    tickets = '',
+    projectTitle
+  ) => {
     if (saveProjectConfig) {
       SaveProject(saveProjectConfig);
     }
@@ -190,5 +195,19 @@ $(() => {
     if (tickets) {
       Ticketing.init(tickets);
     }
+
+    Spa.handleBrowserHistory(projectTitle);
+
+    const hightlightNavItem = function () {
+      const navHightlightClass = 'sub-navbar__item--active';
+      $('.sub-navbar__item').removeClass(navHightlightClass);
+      $(this).addClass(navHightlightClass);
+    };
+
+    $('.js-spa-navigate').click(function (event) {
+      event.preventDefault();
+      const url = $(this).attr('href');
+      Spa.fetchPage(url, hightlightNavItem.bind(this));
+    });
   };
 });

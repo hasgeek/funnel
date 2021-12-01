@@ -2,6 +2,8 @@ import Vue from 'vue/dist/vue.min';
 import ScrollHelper from './utils/scrollhelper';
 import { faSvg } from './utils/vue_util';
 import addVegaSupport from './utils/vegaembed';
+import Form from './utils/formhelper';
+import Spa from './utils/spahelper';
 
 const Schedule = {
   renderScheduleTable() {
@@ -80,23 +82,11 @@ const Schedule = {
             .substring(0, 400)
             .concat('..');
         },
-        updateMetaTags(pageDetails) {
-          $('title').html(pageDetails.title);
-          $('meta[name="DC.title"]').attr('content', pageDetails.pageTitle);
-          $('meta[property="og:title"]').attr('content', pageDetails.pageTitle);
-          $('meta[name=description]').attr('content', pageDetails.description);
-          $('meta[property="og:description"]').attr(
-            'content',
-            pageDetails.description
-          );
-          $('link[rel=canonical]').attr('href', pageDetails.url);
-          $('meta[property="og:url"]').attr('content', pageDetails.url);
-        },
         handleBrowserHistory() {
           // On closing modal, update browser history
           $('#session-modal').on($.modal.CLOSE, () => {
             this.modalHtml = '';
-            this.updateMetaTags(this.pageDetails);
+            Spa.updateMetaTags(this.pageDetails);
             if (window.history.state.openModal) {
               window.history.back();
             }
@@ -118,7 +108,7 @@ const Schedule = {
             '',
             backPage
           );
-          this.updateMetaTags(pageDetails);
+          Spa.updateMetaTags(pageDetails);
         },
         showSessionModal(activeSession) {
           const backPage = `${this.pageDetails.url}/${activeSession.url_name_uuid_b58}`;
@@ -137,12 +127,9 @@ const Schedule = {
               success: (sessionHtml) => {
                 this.openModal(sessionHtml, backPage, pageDetails);
               },
-              error() {
-                window.toastr.error(
-                  window.gettext(
-                    'There was a problem in contacting the server. Please try again later'
-                  )
-                );
+              error(response) {
+                const errorMsg = Form.getResponseError(response);
+                window.toastr.error(errorMsg);
               },
             });
           }
