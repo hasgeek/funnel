@@ -159,7 +159,7 @@ httplib2==0.20.2
     # via
     #   oauth2
     #   oauth2client
-icalendar==4.0.7
+icalendar==4.0.9
     # via -r requirements.in
 idna==3.3
     # via
