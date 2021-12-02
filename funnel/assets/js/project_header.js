@@ -202,9 +202,15 @@ $(() => {
       const navHightlightClass = 'sub-navbar__item--active';
       $('.sub-navbar__item').removeClass(navHightlightClass);
       $(this).addClass(navHightlightClass);
+
+      if (window.Hasgeek.subpageTitle) {
+        $('body').addClass('subpproject-page');
+      } else {
+        $('body').removeClass('subpproject-page');
+      }
     };
 
-    $('.js-spa-navigate').click(function (event) {
+    $('body').on('click', '.js-spa-navigate', function (event) {
       event.preventDefault();
       const url = $(this).attr('href');
       Spa.fetchPage(url, hightlightNavItem.bind(this));

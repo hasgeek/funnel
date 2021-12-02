@@ -1,11 +1,6 @@
 @import 'components/variable';
 
 @media (max-width: 767px) {
-  .comments-page {
-    .project-header {
-      display: none;
-    }
-  }
   .post-form-block {
     position: fixed;
     top: 16px;

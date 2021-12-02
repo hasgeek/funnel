@@ -22,13 +22,12 @@ const Spa = {
     $('meta[property="og:url"]').attr('content', pageDetails.url);
   },
   handleBrowserHistory(pageTitle) {
-    $(window).on('popstate', () => {
-      if (window.history.state.subPage) {
-        Spa.fetchPage(window.history.state.prevUrl);
-      } else {
-        window.history.back();
+    window.onpopstate = function (event) {
+      console.log('onpopstate', event.state);
+      if (event.state && event.state.subPage) {
+        Spa.fetchPage(event.state.prevUrl);
       }
-    });
+    };
     this.pageTitle = pageTitle;
   },
   fetchPage(url, hightlightNavItem) {
@@ -37,18 +36,20 @@ const Spa = {
       type: 'GET',
       success(responseData) {
         const pageDetails = {};
+        const currentUrl = window.location.href;
         pageDetails.url = url;
         $('.js-spa-content').html(responseData.html);
+        console.log('url', currentUrl);
         window.history.pushState(
           {
             subPage: true,
-            prevUrl: window.location.href,
+            prevUrl: currentUrl,
           },
           '',
           pageDetails.url
         );
         pageDetails.pageTitle = responseData.title
-          ? `${esponseData.title} – ${Spa.pageTitle}`
+          ? `${responseData.title} – ${Spa.pageTitle}`
           : Spa.pageTitle;
         Spa.updateMetaTags(pageDetails);
         hightlightNavItem();

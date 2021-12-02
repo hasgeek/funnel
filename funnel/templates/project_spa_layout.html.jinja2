@@ -6,7 +6,15 @@
 </div>
 
 {% block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/update.scss') }}" />
+{% endblock %}
+
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="js-spa-navigate mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% block mobile_header_title %}{{ self.title() }}{% endblock %}</span>
+      {% block mobile_header %}{% endblock %}
+    </div>
+  </div>
 {% endblock %}
 
 {% block left_col %}

@@ -11,7 +11,7 @@
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/project.scss') }}" />
 {% endblock %}
 
-{% block bodyattrs %}class="mui--bg-accent no-sticky-header mobile-header project-page"{% endblock %}
+{% block bodyattrs %}class="mui--bg-accent no-sticky-header mobile-header project-page {% if current_page != 'project' %}subpproject-page{%- endif %}"{% endblock %}
 
 {% block contenthead %}
 {% endblock %}
@@ -19,7 +19,7 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% block mobile_header_title %}{{ self.title() }}{% endblock %}</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="js-spa-navigate mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% block mobile_header_title %}{{ self.title() }}{% endblock %}</span>
       {% block mobile_header %}{% endblock %}
     </div>
   </div>
@@ -389,7 +389,18 @@
               {{ project_header(project) }}
             </div>
             <div class="project-banner">
-              {% block project_banner_inner %}{% endblock %}
+              <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl project-details-header">
+                <div class="project-details__box">
+                  {% if project.start_at and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
+                    <div class="project-details__box__content">
+                      <div aria-label="{{ project.datelocation }}">
+                        {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
+                      </div>
+                    </div>
+                  {% endif %}
+                  {{ project_details(project) }}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -413,7 +424,19 @@
     {%- endif %}
   {% endblock %}
 
-  {% block before_navbar %}{%- endblock %}
+  {% block before_navbar %}
+    <div class="mui-container project-page-details">
+      <div class="grid">
+        <div class="grid__col-sm-12 mui--hidden-md mui--hidden-lg mui--hidden-xl">
+          {{ pinned_update(project) }}
+          {{ project_about(project) }}
+          <div class="top-padding">
+            {{ project_host_sponsor(project) }}
+          </div>
+        </div>
+      </div>
+    </div>
+  {%- endblock %}
 
   {% block project_navbar %}
     <div class="mui--bg-primary sub-navbar-container sub-navbar-container--sticky mui--z1 {% if current_page != 'project' %}sub-navbar-container--inner{%- endif %}">
