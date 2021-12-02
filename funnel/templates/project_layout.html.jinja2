@@ -443,7 +443,7 @@
       <div class="mui-container">
         <div class="sub-navbar-container__inner">
           <nav class="sub-navbar" id="page-navbar">
-            <a id="about" class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for() }}" data-cy-navbar="about">{% trans %}Project overview{% endtrans %}</a>
+            <a id="overview" class="js-spa-navigate sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'project' %}sub-navbar__item--active{%- endif %}" href="{{ project.url_for() }}" data-cy-navbar="about">{% trans %}Project overview{% endtrans %}</a>
             {%- if project.hasjob_embed_url.url -%}
               <a class="sub-navbar__item mui--text-subhead mui--text-dark" href="{{ project.url_for() }}#related-jobs" data-cy-navbar="jobs">{% trans %}Jobs{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
             {%- endif %}
