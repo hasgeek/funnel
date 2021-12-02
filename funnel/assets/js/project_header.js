@@ -196,12 +196,10 @@ $(() => {
       Ticketing.init(tickets);
     }
 
-    Spa.handleBrowserHistory(projectTitle);
-
-    const hightlightNavItem = function () {
+    const hightlightNavItem = function (navElem) {
       const navHightlightClass = 'sub-navbar__item--active';
       $('.sub-navbar__item').removeClass(navHightlightClass);
-      $(this).addClass(navHightlightClass);
+      $(`#${navElem}`).addClass(navHightlightClass);
 
       if (window.Hasgeek.subpageTitle) {
         $('body').addClass('subpproject-page');
@@ -210,10 +208,13 @@ $(() => {
       }
     };
 
+    const currentnavItem = $('.sub-navbar__item--active').attr('id');
+    Spa.init(projectTitle, currentnavItem, hightlightNavItem);
+
     $('body').on('click', '.js-spa-navigate', function (event) {
       event.preventDefault();
       const url = $(this).attr('href');
-      Spa.fetchPage(url, hightlightNavItem.bind(this));
+      Spa.fetchPage(url, $(this).attr('id'), true);
     });
   };
 });
