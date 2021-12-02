@@ -234,20 +234,26 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             venue.current_access(datasets=('without_parent', 'related'))
             for venue in self.obj.venues
         ]
-        sessions = scheduled_sessions_list
         schedule = schedule_data(
             self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
         )
         if request_is_xhr():
-            return jsonify({
-                'html': render_template('project_schedule.html.jinja2', project=project, venues=venues,
-                sessions=scheduled_sessions_list, schedule=schedule)
-            })
+            return jsonify(
+                {
+                    'html': render_template(
+                        'project_schedule.html.jinja2',
+                        project=project,
+                        venues=venues,
+                        sessions=scheduled_sessions_list,
+                        schedule=schedule,
+                    )
+                }
+            )
         return {
             'project': project,
             'venues': venues,
             'sessions': scheduled_sessions_list,
-            'schedule': schedule
+            'schedule': schedule,
         }
 
     @route('subscribe')

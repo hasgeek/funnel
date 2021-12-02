@@ -10,10 +10,10 @@ from flask import (
     abort,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
-    jsonify
 )
 
 from baseframe import _, __, forms, request_is_xhr
@@ -283,9 +283,15 @@ class ProjectView(
         featured_proposals = self.obj.proposals.filter_by(featured=True)
         project = self.obj.current_access()
         if request_is_xhr():
-            return jsonify({
-                'html': render_template('project.html.jinja2', project=project, featured_proposals=featured_proposals)
-            })
+            return jsonify(
+                {
+                    'html': render_template(
+                        'project.html.jinja2',
+                        project=project,
+                        featured_proposals=featured_proposals,
+                    )
+                }
+            )
         return {
             'project': self.obj.current_access(),
             'featured_proposals': featured_proposals,
@@ -297,9 +303,13 @@ class ProjectView(
     @requires_roles({'reader'})
     def view_proposals(self):
         if request_is_xhr():
-            return jsonify({
-                'html': render_template('project_submissions.html.jinja2', project=self.obj),
-            })
+            return jsonify(
+                {
+                    'html': render_template(
+                        'project_submissions.html.jinja2', project=self.obj
+                    ),
+                }
+            )
         return {
             'project': self.obj,
         }
@@ -749,10 +759,16 @@ class ProjectView(
         comments = self.obj.commentset.views.json_comments()
         subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
         if request_is_xhr():
-            return jsonify({
-                'html': render_template('project_comments.html.jinja2', project=project,
-                    subscribed=subscribed, comments=comments)
-            })
+            return jsonify(
+                {
+                    'html': render_template(
+                        'project_comments.html.jinja2',
+                        project=project,
+                        subscribed=subscribed,
+                        comments=comments,
+                    )
+                }
+            )
         return {
             'project': project,
             'subscribed': subscribed,
