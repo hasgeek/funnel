@@ -317,6 +317,14 @@ class ProjectView(
     @route('videos')
     @render_with('project_videos.html.jinja2')
     def session_videos(self):
+        if request_is_xhr():
+            return jsonify(
+                {
+                    'html': render_template(
+                        'project_videos.html.jinja2', project=self.obj
+                    ),
+                }
+            )
         return {
             'project': self.obj,
         }

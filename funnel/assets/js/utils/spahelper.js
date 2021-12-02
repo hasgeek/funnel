@@ -6,11 +6,9 @@ const Spa = {
   init(pageTitle, currentnavItem, hightlightNavItemFn) {
     this.pageTitle = pageTitle;
     this.hightlightNavItemFn = hightlightNavItemFn;
-    console.log('currentnavItem', currentnavItem);
     this.handleBrowserHistory(currentnavItem);
   },
   handleBrowserHistory(currentnavItem) {
-    console.log('handleBrowserHistory', currentnavItem);
     // Store the initial content
     window.history.replaceState(
       {

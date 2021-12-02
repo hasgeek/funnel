@@ -1,5 +1,9 @@
 {% set current_page = 'videos' %}
-{% extends "project_layout.html.jinja2" %}
+{%- if not request_is_xhr() -%}
+  {% extends "project_layout.html.jinja2" %}
+{%- else -%}
+  {% extends "project_spa_layout.html.jinja2" %}
+{% endif %}
 {%- from "macros.html.jinja2" import video_thumbnail %}
 {% block title %}{% trans %}Videos{% endtrans %}{% endblock %}
 
