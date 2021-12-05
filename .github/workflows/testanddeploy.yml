@@ -103,9 +103,9 @@ jobs:
           git fetch origin aws
           echo 'reset git repo'
           git reset --hard origin/aws  &&  echo 'git fetched and hard reset'
-          echo 'fetching settings.py from s3'
-          aws s3 cp s3://v2-alpha-test-environment-files/container_env /app/instance/settings.py
-          #echo "${{ secrets.SERVER_ENV_DEV }}" > instance/settings.py
+          echo 'fetching settings.py from github secrets'
+          #aws s3 cp s3://v2-alpha-test-environment-files/container_env /app/instance/settings.py
+          echo "${{ secrets.SERVER_ENV_DEV }}" > /app/instance/settings.py
           ls instance
           cat /app/instance/settings.py
           echo 'running migration'
