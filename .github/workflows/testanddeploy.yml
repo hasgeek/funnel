@@ -109,6 +109,6 @@ jobs:
           ls instance
           cat instance/settings.py
           echo 'running migration'
-          docker run vivekdurai/funnel flask db upgrade
+          docker run -v .:/app vivekdurai/funnel flask db upgrade
           echo 'starting docker-compose'
-          docker-compose up -d
+          docker-compose up -f docker-compose.staging.yml -d

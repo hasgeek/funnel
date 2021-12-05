@@ -18,7 +18,8 @@ services:
     extra_hosts:
       - "hasgeek.dev:127.0.0.1"
     volumes:
-    - $HOME/.aws/credentials:/app/.aws/credentials:ro
+      - .:/app
+      - $HOME/.aws/credentials:/app/.aws/credentials:ro
   redis:
     image: redis
   nginx:
