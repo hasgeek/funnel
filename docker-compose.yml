@@ -8,10 +8,15 @@ services:
       - 3000:3000
     depends_on:
       - redis
-    command: sh ./runserver.sh
+    command: sh ./runserver.production.sh
     volumes:
       - .:/app
       - $HOME/.aws/credentials:/app/.aws/credentials:ro
+    extra_hosts:
+      - "hasgeek.com:127.0.0.1"
+      - "beta.hasgeek.com:127.0.0.1"
+      - "funnel.hasgeek.com:127.0.0.1"
+    restart: always
   worker:
     image: vivekdurai/funnel
     depends_on:
@@ -20,6 +25,7 @@ services:
     volumes:
       - .:/app
       - $HOME/.aws/credentials:/app/.aws/credentials:ro
+    restart: always
   redis:
     image: redis
   nginx:
@@ -28,11 +34,8 @@ services:
     container_name: nginx
     volumes:
       - static_data:/vol/static
-      # - /etc/letsencrypt:/etc/letsencrypt
-      # - ./etc/letsencrypt/www:/var/www/letsencrypt
     ports:
       - 80:80
-      - 443:443
     command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;error_log /dev/stdout info;"'''
     depends_on:
       - web

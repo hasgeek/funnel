@@ -66,9 +66,9 @@ SMS_EXOTEL_FROM = environ.get('SMS_EXOTEL_FROM')
 SMS_DLT_ENTITY_ID = environ.get('SMS_DLT_ENTITY_ID')
 
 #: Twilio support for non-indian numbers
-SMS_TWILIO_SID = environ.get('SMS_TWILIO_SID')
-SMS_TWILIO_TOKEN = environ.get('SMS_TWILIO_TOKEN')
-SMS_TWILIO_FROM = environ.get('SMS_TWILIO_FROM')
+# SMS_TWILIO_SID = environ.get('SMS_TWILIO_SID')
+# SMS_TWILIO_TOKEN = environ.get('SMS_TWILIO_TOKEN')
+# SMS_TWILIO_FROM = environ.get('SMS_TWILIO_FROM')
 
 #: Vimeo API key
 VIMEO_CLIENT_ID = environ.get('VIMEO_CLIENT_ID')

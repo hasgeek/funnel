@@ -9,6 +9,8 @@ RUN adduser --system --group --no-create-home app
 # Make the directory the working directory for subsequent commands
 WORKDIR app
 
+COPY uwsgi.ini /etc/uwsgi/
+
 # Place the application components in a dir below the root dir
 COPY . /app/
 
