@@ -109,6 +109,6 @@ jobs:
           ls instance
           cat instance/settings.py
           echo 'running migration'
-          docker run --mount src="instance",target=instance:Z,type=bind vivekdurai/funnel flask db upgrade
+          docker run --mount src="instance",target=/app/instance:Z,type=bind vivekdurai/funnel flask db upgrade
           echo 'starting docker-compose'
           docker-compose up -f docker-compose.staging.yml -d
