@@ -34,3 +34,4 @@ types-six
 types-toml
 types-Werkzeug
 watchdog
+awsfabrictasks
