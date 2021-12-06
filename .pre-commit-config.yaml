@@ -86,6 +86,7 @@ repos:
           - types-six==1.16.1
           - types-toml==0.10.0
           - types-Werkzeug==1.0.5
+          - types-boto
   - repo: https://github.com/PyCQA/flake8
     rev: 4.0.1
     hooks:
