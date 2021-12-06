@@ -8,15 +8,15 @@ repos:
     rev: 6.4.0
     hooks:
       - id: pip-compile
-        name: pip-compile --upgrade requirements.in
+        name: pip-compile --upgrade --generate-hashes requirements.in
         args: [requirements.in]
         files: ^requirements\.(in|txt)$
       - id: pip-compile
-        name: pip-compile --upgrade requirements_dev.in
+        name: pip-compile --upgrade --generate-hashes requirements_dev.in
         args: [requirements_dev.in]
         files: ^requirements_dev\.(in|txt)$
       - id: pip-compile
-        name: pip-compile --upgrade requirements_test.in
+        name: pip-compile --upgrade --generate-hashes requirements_test.in
         args: [requirements_test.in]
         files: ^requirements_test\.(in|txt)$
   - repo: https://github.com/lucasmbrown/mirrors-autoflake
