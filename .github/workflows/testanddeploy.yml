@@ -108,7 +108,6 @@ jobs:
           echo "${{ secrets.SERVER_ENV_DEV }}" > instance/settings.py
           ls instance
           cat instance/settings.py
-          echo 'running migration'
           #docker run --mount src="instance",target=/app/instance:Z,type=bind vivekdurai/funnel flask db upgrade
           echo 'starting docker-compose'
-          docker-compose up -f docker-compose.staging.yml -d
+          docker-compose -f docker-compose.staging.yml up -d
