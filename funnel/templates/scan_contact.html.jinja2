@@ -5,11 +5,12 @@
 {% block title %}{% trans %}Scan badge{% endtrans %}{% endblock %}
 
 {% block pageheaders %}
-<style>
-  html, body {
-    overflow: hidden;
-  }
-</style>
+  <style type="text/css">
+    html, body {
+      overflow: hidden;
+    }
+  </style>
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/scanbadge.scss') }}" />
 {% endblock %}
 
 {% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock %}

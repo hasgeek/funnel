@@ -4,8 +4,6 @@
 {% from "forms.html.jinja2" import renderfield %}
 {% from "macros.html.jinja2" import faicon, csrf_tag %}
 {% block title %}{% trans %}Setup events{% endtrans %}{% endblock %}
-{% block pageheaders %}
-{% endblock %}
 
 {% block top_title %}
   <h1 class="mui--text-headline"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>

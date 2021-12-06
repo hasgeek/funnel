@@ -1,0 +1,190 @@
+@import 'components/variable';
+@import 'components/subnavbar';
+@import 'components/proposal-card';
+
+.profile {
+  margin-bottom: 60px;
+  .profile__background {
+    display: none;
+  }
+  .profile__banner {
+    position: relative;
+    .grid__col-12 {
+      padding: 0;
+    }
+    .profile__banner__box {
+      position: relative;
+      padding-bottom: 33.3%;
+      .profile__banner__box__img {
+        position: absolute;
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .profile__banner__upload {
+      position: absolute;
+      z-index: 103;
+      bottom: $mui-grid-padding;
+      right: $mui-grid-padding;
+      width: 32px;
+      height: 32px;
+      background-color: $mui-bg-color-accent;
+      border-radius: 50%;
+      vertical-align: middle;
+      margin: auto;
+      padding: 0;
+      .profile__banner__icon {
+        top: 0;
+      }
+    }
+    .profile__logo {
+      position: absolute;
+      bottom: -60px;
+      left: $mui-grid-padding;
+      width: 120px;
+      height: 120px;
+      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.09);
+      background-color: $mui-bg-color-primary;
+      z-index: 100;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .profile__logo__img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+      .profile__logo__nologo {
+        position: absolute;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+        background-color: $mui-bg-color-primary-dark;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        .profile__logo__icon {
+          width: 90px;
+          height: 90px;
+          color: $mui-text-white;
+          position: relative;
+          top: 39px;
+          left: 14px;
+        }
+      }
+      .profile__logo__upload {
+        position: absolute;
+        z-index: 103;
+        bottom: 16px;
+        right: -4px;
+        width: 32px;
+        height: 32px;
+        background-color: $mui-bg-color-accent;
+        border-radius: 50%;
+        vertical-align: middle;
+        margin: auto;
+
+        .profile__logo__upload__icon {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+        }
+      }
+    }
+  }
+}
+
+.profile-create-btn {
+  margin-right: 8px;
+}
+
+.profile-create-btn--mobile {
+  width: calc(100% - 65px);
+  .mui-btn {
+    width: 100%;
+  }
+}
+
+.profile-dropdown-btn {
+  background-color: $mui-bg-color-primary-dark;
+  padding: 6px 16px;
+  text-align: center;
+}
+
+.profile-dropdown-btn:hover,
+.profile-dropdown-btn:focus,
+.profile-dropdown-btn:active {
+  background-color: $mui-bg-color-primary-dark;
+}
+
+.floating-menu-btns {
+  position: absolute;
+  right: $mui-grid-padding;
+  top: -52px;
+}
+
+@media (min-width: 768px) {
+  .profile {
+    position: relative;
+    margin-top: $mui-grid-padding;
+    .profile__background {
+      display: block;
+      position: absolute;
+      z-index: 3;
+      width: 100%;
+      overflow: hidden;
+      height: 100%;
+      left: 0;
+      .profile__background__image {
+        width: 100%;
+        filter: blur(200px);
+        -webkit-filter: blur(200px);
+      }
+    }
+    .profile__banner {
+      z-index: 4;
+      .grid__col-12 {
+        padding: 0 $mui-grid-padding;
+      }
+      .profile__banner__box {
+        padding-bottom: 33.3%;
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      .profile__banner__upload {
+        border-radius: 0;
+        width: auto;
+        height: auto;
+        padding: 0 26px;
+        right: $mui-grid-padding * 2;
+        .profile__banner__icon {
+          top: 2px;
+        }
+      }
+      .profile__logo {
+        bottom: -72px;
+
+        .profile__logo__details {
+          position: absolute;
+          left: 136px;
+          bottom: -$mui-grid-padding/2;
+          min-width: 450px;
+        }
+      }
+      .profile__banner__btns {
+        position: absolute;
+        bottom: -58px;
+        z-index: 1000;
+        right: $mui-grid-padding;
+      }
+    }
+  }
+  .profile-details {
+    padding: 2 * $mui-grid-padding 0 0;
+  }
+}

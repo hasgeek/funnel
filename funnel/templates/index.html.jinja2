@@ -3,41 +3,41 @@
 {%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, featured_section, upcoming_section, open_cfp_section, all_projects_section %}
 {%- from "js/past_projects.js.jinja2" import past_projects_section %}
 
-
 {%- block pageheaders %}
-<meta name="author" href="/humans.txt" />
-<link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
-<script type="application/ld+json">
-  {
-    "@context" : "http://schema.org",
-     "@type" : "WebSite",
-     "name" : {{ config['SITE_TITLE']|tojson }},
-     "url" : {{ url_for('index', _external=true)|tojson }},
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
-      "query-input": "required name=query"
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/index.scss') }}" />
+  <meta name="author" href="/humans.txt" />
+  <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+       "@type" : "WebSite",
+       "name" : {{ config['SITE_TITLE']|tojson }},
+       "url" : {{ url_for('index', _external=true)|tojson }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
+        "query-input": "required name=query"
+      }
     }
-  }
-</script>
-<script type="application/ld+json">
-  {
-    "@context" : "http://schema.org",
-    "@type" : "Organization",
-    "name" : {{ config['SITE_TITLE']|tojson }},
-    "url" : {{ url_for('index', _external=true)|tojson }},
-    "logo" : {{ url_for('static', filename='img/hg-banner.png', v=2, _external=true)|tojson }},
-    "contactPoint" : [{
-      "@type" : "ContactPoint",
-      "telephone" : "+91 7676 33 2020",
-      "contactType" : "customer service"
-    }],
-    "sameAs" : [
-      "https://twitter.com/hasgeek",
-      "https://www.facebook.com/hasgeek"
-    ]
-  }
-</script>
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Organization",
+      "name" : {{ config['SITE_TITLE']|tojson }},
+      "url" : {{ url_for('index', _external=true)|tojson }},
+      "logo" : {{ url_for('static', filename='img/hg-banner.png', v=2, _external=true)|tojson }},
+      "contactPoint" : [{
+        "@type" : "ContactPoint",
+        "telephone" : "+91 7676 33 2020",
+        "contactType" : "customer service"
+      }],
+      "sameAs" : [
+        "https://twitter.com/hasgeek",
+        "https://www.facebook.com/hasgeek"
+      ]
+    }
+  </script>
 {%- endblock %}
 
 {% block bodyattrs %}class="homepage mui--bg-accent"{% endblock %}

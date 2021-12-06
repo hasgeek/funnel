@@ -1,0 +1,185 @@
+// --------------------------------------------------
+// reflex mixins
+// --------------------------------------------------
+//
+// --------------------------------------------------
+// reflex grid generation mixins
+// --------------------------------------------------
+
+@mixin make-reflex-grid($class) {
+  @include loop-reflex-columns($reflex-columns, $class, width);
+}
+
+@mixin calc-reflex-columns($index, $class, $type) {
+  @if $type == width and $index > 0 {
+    .#{$reflex-prefix}#{$class}#{$index} {
+      width: percentage(($index / $reflex-columns));
+      *width: percentage(($index / $reflex-columns)) - 0.1;
+
+      //for ie6 support you can uncomment this line but it will increase css filesize dramatically
+      //@include setupCols();
+    }
+  }
+}
+
+@mixin loop-reflex-columns($index, $class, $type) {
+  @if $index >= 0 {
+    @include calc-reflex-columns($index, $class, $type);
+    // next iteration
+    @include loop-reflex-columns(($index - 1), $class, $type);
+  }
+}
+
+// defaults for all cols
+@mixin setupCols() {
+  @include display-flex();
+  @include flex-direction(column);
+  @include resetWhitespace();
+  position: relative;
+  width: 100%;
+  vertical-align: top;
+  padding: $reflex-grid-spacing;
+}
+
+// defaults for auto cols
+@mixin setupAutoCols() {
+  @include flex(1, 0, 0px); // a unit on last value is required by IE10-11
+
+  @if $legacy-support == true {
+    width: auto !important;
+    max-width: 100%;
+  }
+}
+
+// --------------------------------------------------
+// inline-block specific mixins
+// --------------------------------------------------
+
+@mixin setupWhitespace() {
+  @if $legacy-support == true {
+    letter-spacing: -0.31em !important;
+    *letter-spacing: normal !important;
+    word-spacing: -0.43em !important;
+  }
+}
+
+@mixin resetWhitespace() {
+  @if $legacy-support == true {
+    letter-spacing: normal;
+    word-spacing: normal;
+    white-space: normal;
+  }
+}
+
+// --------------------------------------------------
+// order class generation mixins
+// --------------------------------------------------
+
+@mixin order($order: 0) {
+  -ms-flex-order: $order;
+  -webkit-order: $order;
+  order: $order;
+}
+
+@mixin make-grid--order-helpers() {
+  @include loop-grid--order-helpers($reflex-columns);
+}
+
+@mixin loop-grid--order-helpers($index, $breakpoint: null) {
+  @if $index >= 0 {
+    .#{$reflex-prefix}grid--order-#{$index}#{$breakpoint} {
+      @include order($index);
+    }
+    // next iteration
+    @include loop-grid--order-helpers(($index - 1), $breakpoint);
+  }
+}
+
+// --------------------------------------------------
+// reflex modifier mixins
+// --------------------------------------------------
+
+//
+// display
+// ---
+
+@mixin display-flex-only() {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+
+@mixin display-flex() {
+  @if $legacy-support == true {
+    display: inline-block;
+  }
+
+  @include display-flex-only();
+
+  @if $legacy-support == true {
+    *display: inline;
+    zoom: 1;
+  }
+}
+
+//
+// flex
+// ---
+
+@mixin flex($grow: 0, $shrink: 1, $basis: auto) {
+  @if $basis == 0px {
+    -ms-flex: $grow $shrink auto; //ie10 needs auto
+  } @else {
+    -ms-flex: $grow $shrink $basis;
+  }
+
+  -webkit-flex: $grow $shrink $basis;
+  flex: $grow $shrink $basis;
+}
+
+@mixin flex-grow($grow: 1) {
+  -ms-flex-positive: $grow;
+  -webkit-flex-grow: $grow;
+  flex-grow: $grow;
+}
+
+@mixin flex-shrink($shrink: 1) {
+  -ms-flex-negative: $shrink;
+  -webkit-flex-shrink: $shrink;
+  flex-shrink: $shrink;
+}
+
+@mixin flex-basis($basis: auto) {
+  -ms-flex-preferred-size: $basis;
+  -webkit-flex-basis: $basis;
+  flex-basis: $basis;
+}
+
+@mixin flex-flow($direction: row, $wrap: nowrap) {
+  -ms-flex-wrap: $wrap;
+  -ms-flex-direction: $direction;
+  -webkit-flex-flow: $direction $wrap;
+  flex-flow: $direction $wrap;
+}
+
+@mixin flex-wrap($wrap: wrap) {
+  -ms-flex-wrap: $wrap;
+  -webkit-flex-wrap: $wrap;
+  flex-wrap: $wrap;
+}
+
+@mixin flex-direction($direction: row) {
+  -ms-flex-direction: $direction;
+  -webkit-flex-direction: $direction;
+  flex-direction: $direction;
+}
+
+// --------------------------------------------------
+// other mixins
+// --------------------------------------------------
+
+@mixin box-sizing($boxmodel) {
+  -webkit-box-sizing: $boxmodel;
+  -moz-box-sizing: $boxmodel;
+  box-sizing: $boxmodel;
+}

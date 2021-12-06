@@ -4,23 +4,23 @@
 #
 #    pip-compile requirements.in
 #
-aiohttp==3.7.4.post0
+aiohttp==3.8.1
     # via geoip2
-alembic==1.7.1
+alembic==1.7.5
     # via
     #   -r requirements.in
     #   flask-migrate
 argon2-cffi==21.1.0
     # via -r requirements.in
-async-timeout==3.0.1
+async-timeout==4.0.1
     # via aiohttp
 attrs==21.2.0
     # via aiohttp
-awscli==1.22.1
+awscli==1.22.17
     # via -r requirements.in
 babel==2.9.1
     # via -r requirements.in
-base58==2.1.0
+base58==2.1.1
     # via -r requirements.in
 baseframe @ git+https://github.com/hasgeek/baseframe.git
     # via -r requirements.in
@@ -28,15 +28,15 @@ bcrypt==3.2.0
     # via
     #   -r requirements.in
     #   paramiko
-better-profanity==0.6.1
+better-profanity==0.7.0
     # via -r requirements.in
 bleach==4.1.0
     # via baseframe
 blinker==1.4
     # via -r requirements.in
-boto3==1.20.0
+boto3==1.20.17
     # via -r requirements.in
-botocore==1.23.1
+botocore==1.23.17
     # via
     #   awscli
     #   boto3
@@ -58,9 +58,9 @@ cffi==1.15.0
     #   pynacl
 chardet==4.0.0
     # via aiohttp
-charset-normalizer==2.0.7
+charset-normalizer==2.0.8
     # via requests
-click==8.0.1
+click==8.0.3
     # via
     #   -r requirements.in
     #   flask
@@ -69,11 +69,11 @@ coaster @ git+https://github.com/hasgeek/coaster.git
     # via
     #   -r requirements.in
     #   baseframe
-colorama==0.4.3
+colorama==0.4.4
     # via awscli
 croniter==1.0.15
     # via rq-scheduler
-cryptography==3.4.8
+cryptography==36.0.0
     # via
     #   -r requirements.in
     #   paramiko
@@ -84,22 +84,22 @@ cssselect==1.1.0
     # via premailer
 cssutils==2.3.0
     # via premailer
-dataclasses-json==0.5.5
+dataclasses-json==0.5.6
     # via -r requirements.in
 dnspython==2.1.0
     # via
     #   baseframe
     #   mxsniff
     #   pyisemail
-docutils==0.15.2
+docutils==0.18.1
     # via awscli
 emoji==1.6.1
     # via baseframe
 fabric3==1.14.post1
     # via -r requirements.in
-filelock==3.3.1
+filelock==3.4.0
     # via tldextract
-flask==2.0.1
+flask==2.0.2
     # via
     #   -r requirements.in
     #   baseframe
@@ -123,7 +123,7 @@ flask-babelhg @ git+https://github.com/hasgeek/flask-babelhg.git
     #   baseframe
 flask-caching==1.10.1
     # via baseframe
-flask-executor==0.9.4
+flask-executor==0.10.0
     # via -r requirements.in
 flask-flatpages==0.7.3
     # via -r requirements.in
@@ -139,7 +139,7 @@ flask-sqlalchemy==2.5.1
     # via
     #   -r requirements.in
     #   flask-migrate
-flask-wtf==0.15.1
+flask-wtf==1.0.0
     # via
     #   -r requirements.in
     #   baseframe
@@ -147,7 +147,7 @@ furl==2.1.3
     # via baseframe
 future==0.18.2
     # via tuspy
-geoip2==4.2.0
+geoip2==4.5.0
     # via -r requirements.in
 grapheme==0.6.0
     # via baseframe
@@ -155,11 +155,11 @@ html2text==2020.1.16
     # via -r requirements.in
 html5lib==1.1
     # via baseframe
-httplib2==0.20.1
+httplib2==0.20.2
     # via
     #   oauth2
     #   oauth2client
-icalendar==4.0.7
+icalendar==4.0.9
     # via -r requirements.in
 idna==3.3
     # via
@@ -172,7 +172,7 @@ itsdangerous==2.0.1
     #   -r requirements.in
     #   flask
     #   flask-wtf
-jinja2==3.0.2
+jinja2==3.0.3
     # via
     #   flask
     #   flask-flatpages
@@ -184,11 +184,11 @@ js2py==0.71
     # via -r requirements.in
 jsmin==3.0.0
     # via -r requirements.in
-lxml==4.6.3
+lxml==4.6.4
     # via premailer
-mako==1.1.5
+mako==1.1.6
     # via alembic
-markdown==3.3.4
+markdown==3.3.6
     # via
     #   -r requirements.in
     #   flask-flatpages
@@ -199,7 +199,7 @@ markupsafe==2.0.1
     #   jinja2
     #   mako
     #   wtforms
-marshmallow==3.14.0
+marshmallow==3.14.1
     # via
     #   dataclasses-json
     #   marshmallow-enum
@@ -227,19 +227,19 @@ oauthlib==3.1.1
     # via requests-oauthlib
 orderedmultidict==1.0.1
     # via furl
-packaging==21.0
+packaging==21.3
     # via bleach
-paramiko==2.8.0
+paramiko==2.8.1
     # via fabric3
 passlib==1.7.4
     # via -r requirements.in
-phonenumbers==8.12.31
+phonenumbers==8.12.38
     # via -r requirements.in
 premailer==3.10.0
     # via -r requirements.in
-progressbar2==3.53.1
+progressbar2==3.55.0
     # via -r requirements.in
-psycopg2-binary==2.9.1
+psycopg2-binary==2.9.2
     # via -r requirements.in
 pyasn1==0.4.8
     # via
@@ -254,18 +254,18 @@ pycountry==20.7.3
     # via
     #   -r requirements.in
     #   baseframe
-pycparser==2.20
+pycparser==2.21
     # via cffi
-pyisemail==1.3.2
+pyisemail==1.4.0
     # via
     #   -r requirements.in
     #   baseframe
     #   mxsniff
 pyjsparser==2.7.1
     # via js2py
-pyjwt==1.7.1
+pyjwt==2.3.0
     # via twilio
-pymdown-extensions==8.2
+pymdown-extensions==9.1
     # via -r requirements.in
 pynacl==1.4.0
     # via paramiko
@@ -273,7 +273,7 @@ pyopenssl==21.0.0
     # via
     #   baseframe
     #   ndg-httpsclient
-pyparsing==2.4.7
+pyparsing==3.0.6
     # via
     #   httplib2
     #   packaging
@@ -289,7 +289,7 @@ python-dateutil==2.8.2
     #   rq-scheduler
 python-utils==2.5.6
     # via progressbar2
-pytz==2021.1
+pytz==2021.3
     # via
     #   -r requirements.in
     #   babel
@@ -300,13 +300,13 @@ pytz-deprecation-shim==0.1.0.post0
     # via tzlocal
 pyvimeo==1.1.0
     # via -r requirements.in
-pyyaml==5.4.1
+pyyaml==6.0
     # via
     #   awscli
     #   flask-flatpages
-qrcode==7.3
+qrcode==7.3.1
     # via -r requirements.in
-redis==3.5.3
+redis==4.0.2
     # via
     #   baseframe
     #   flask-redis
@@ -332,7 +332,7 @@ requests-mock==1.9.3
     # via baseframe
 requests-oauthlib==1.3.0
     # via tweepy
-rq==1.9.0
+rq==1.10.0
     # via
     #   -r requirements.in
     #   baseframe
@@ -340,7 +340,7 @@ rq==1.9.0
     #   rq-scheduler
 rq-scheduler==0.11.0
     # via flask-rq2
-rsa==4.7.2
+rsa==4.8
     # via
     #   awscli
     #   oauth2client
@@ -350,7 +350,7 @@ s3transfer==0.5.0
     #   boto3
 semantic-version==2.8.5
     # via baseframe
-sentry-sdk==1.4.3
+sentry-sdk==1.5.0
     # via baseframe
 six==1.16.0
     # via
@@ -378,13 +378,13 @@ six==1.16.0
     #   url-normalize
 speaklater==1.3
     # via baseframe
-sqlalchemy==1.4.23
+sqlalchemy==1.4.27
     # via
     #   -r requirements.in
     #   alembic
     #   flask-sqlalchemy
     #   sqlalchemy-utils
-sqlalchemy-utils==0.37.8
+sqlalchemy-utils==0.37.9
     # via -r requirements.in
 statsd==3.3.0
     # via baseframe
@@ -394,11 +394,11 @@ tldextract==3.1.2
     # via mxsniff
 tuspy==0.2.5
     # via pyvimeo
-tweepy==3.10.0
+tweepy==4.4.0
     # via -r requirements.in
-twilio==6.63.1
+twilio==7.3.1
     # via -r requirements.in
-typing-extensions==3.10.0.2
+typing-extensions==4.0.1
     # via
     #   -r requirements.in
     #   aiohttp
@@ -434,11 +434,11 @@ werkzeug==2.0.2
     #   flask
 whitenoise==5.3.0
     # via -r requirements.in
-wtforms==2.3.3
+wtforms==3.0.0
     # via
     #   baseframe
     #   flask-wtf
-yarl==1.7.0
+yarl==1.7.2
     # via aiohttp
 zxcvbn==4.4.28
     # via -r requirements.in

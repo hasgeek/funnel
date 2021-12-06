@@ -1,0 +1,17 @@
+@import 'components/variable';
+@import 'components/draggablebox';
+
+.label-box--new {
+  margin: $mui-grid-padding auto $mui-grid-padding-double;
+  width: 100%;
+  max-width: 500px;
+
+  a:hover {
+    text-decoration: none;
+  }
+}
+
+.label-placeholder {
+  border: 1px solid $mui-text-accent;
+  background: $mui-bg-color-accent;
+}

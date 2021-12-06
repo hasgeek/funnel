@@ -4,6 +4,11 @@
 
 {% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 
+{%- block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/loginform.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/account.scss') }}" />
+{%- endblock %}
+
 {% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock %}
 
 {% block headline -%}
@@ -102,7 +107,7 @@
               <ol class="mui-list--aligned mui-list--border zero-bottom-margin">
                 {% for useremail in current_auth.user.views.emails_sorted() %}
                 <li>
-                  <input id="useremail-{{loop.index}}" name="email" value="{{useremail}}" type="radio" class="form-inline-input"><label for="useremail-{{loop.index}}" class="form-inline-label">{{ useremail }}{% if useremail.primary %} <span title="{% trans %}Primary{% endtrans %}">{{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=false, css_class="mui--text-success input-align-icon") }}</span> {%- endif -%}
+                  <input id="useremail-{{loop.index}}" name="email" value="{{useremail}}" type="radio" class="margin-right"><label for="useremail-{{loop.index}}" class="form-inline-label">{{ useremail }}{% if useremail.primary %} <span title="{% trans %}Primary{% endtrans %}">{{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=false, css_class="mui--text-success input-align-icon") }}</span> {%- endif -%}
                   </label>
                   {%- if has_multiple_verified_contacts %}
                     <a href="{{ url_for('remove_email', email_hash=useremail.email_address.email_hash) }}" class="mui--pull-right" title="{% trans %}Remove{% endtrans %}">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
@@ -111,7 +116,7 @@
                 {% endfor %}
                 {% for useremail in current_auth.user.emailclaims %}
                 <li>
-                  <input type="radio" disabled="disabled" class="form-inline-input"><span class="form-inline-label">{{ useremail }} <em><a href="{{ url_for('verify_email', email_hash=useremail.email_address.email_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em></span>
+                  <input type="radio" disabled="disabled" class="margin-right"><span class="form-inline-label">{{ useremail }} <em><a href="{{ url_for('verify_email', email_hash=useremail.email_address.email_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em></span>
                   <a href="{{ url_for('remove_email', email_hash=useremail.email_address.email_hash) }}" title="{% trans %}Remove{% endtrans %}" class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class='mui--align-middle') }}</a>
                 </li>
                 {% endfor %}

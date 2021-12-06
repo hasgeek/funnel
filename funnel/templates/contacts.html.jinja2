@@ -3,6 +3,10 @@
 
 {% block title %}{% trans %}My contacts{% endtrans %}{% endblock %}
 
+{% block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/contacts.scss') }}" />
+{% endblock %}
+
 {% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock %}
 
 {% block headline -%}

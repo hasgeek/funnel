@@ -1,4 +1,5 @@
 <div>
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
   {% from "forms.html.jinja2" import renderform, ajaxform, widget_ext_scripts, widgetscripts %}
   {%- if title -%}
     <p class="mui--text-title">{{ title }}</p>

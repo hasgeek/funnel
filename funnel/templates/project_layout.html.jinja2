@@ -6,7 +6,9 @@
 {% block description %}{{ project.tagline }}{% endblock %}
 {% block twitter_card %}summary_large_image{% endblock %}
 
-{%- block pageheaders %}
+{% block layoutheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/app.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/project.scss') }}" />
 {% endblock %}
 
 {% block bodyattrs %}class="mui--bg-accent no-sticky-header mobile-header project-page"{% endblock %}
@@ -443,7 +445,7 @@
     </div>
   {%- endblock %}
 
-  <div class="mui-container">
+  <div class="mui-container project-page__content">
     <div class="grid">
       <div class="grid__col-sm-6 grid__col-md-7 grid__col-lg-8">
         {% block left_col %}{% endblock %}

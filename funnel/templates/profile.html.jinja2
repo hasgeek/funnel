@@ -4,36 +4,36 @@
 {%- from "js/past_projects.js.jinja2" import past_projects_section %}
 
 {%- block pageheaders %}
-<link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
-<script type="application/ld+json">
-  {
-    "@context" : "http://schema.org",
-     "@type" : "WebSite",
-     "name" : {{ config['SITE_TITLE']|tojson }},
-     "url" : {{ url_for('index', _external=true)|tojson }},
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
-      "query-input": "required name=query"
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/index.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/profile.scss') }}" />
+  <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+       "@type" : "WebSite",
+       "name" : {{ config['SITE_TITLE']|tojson }},
+       "url" : {{ url_for('index', _external=true)|tojson }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
+        "query-input": "required name=query"
+      }
     }
-  }
-</script>
-<script type="application/ld+json">
-  {
-    "@context" : "http://schema.org",
-    "@type" : "Organization",
-    "name" : {{ profile.title|tojson }},
-    {%- if profile.banner_image_url.url %}
-    "logo" : {{ profile.banner_image_url.url|tojson }},
-    {%- elif profile.logo_url.url %}
-    "logo" : {{ profile.logo_url.url|tojson }},
-    {% endif %}
-    "url" : {{ profile.url_for(_external=true)|tojson }}
-  }
-</script>
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Organization",
+      "name" : {{ profile.title|tojson }},
+      {%- if profile.banner_image_url.url %}
+      "logo" : {{ profile.banner_image_url.url|tojson }},
+      {%- elif profile.logo_url.url %}
+      "logo" : {{ profile.logo_url.url|tojson }},
+      {% endif %}
+      "url" : {{ profile.url_for(_external=true)|tojson }}
+    }
+  </script>
 {%- endblock %}
-
-{% block bodyattrs %}class="mui--bg-primary"{% endblock %}
 
 {% block contenthead %}
 {% endblock %}
@@ -43,108 +43,108 @@
 {% endblock %}
 
 {% block basecontent %}
-
-  {%- if profile.organization %}
-    {%- with people = profile.organization.views.people_and_teams() %}
-      {%- if people %}
-        <div class="mui-container">
-          <div class="page-content">
-            <div class="grid">
-              <div class="grid__col-xs-12">
-                <h2 class="project-headline">{% trans %}People{% endtrans %}</h2>
-                <ul class="mui-list--unstyled mui-list--border">
-                  {%- for user, teams in people %}
-                    <li class="user">
-                      <div class="user__box">
-                        {{ useravatar(user) }}
-                        <div class="user__box__header">
-                          <h3 class="mui--text-body2 user__box__fullname">{{ user.pickername }}</h3>
-                          <h3 class="mui--text-caption user__box__userid"><span>{% for team in teams %}{{ team.title }}{% if not loop.last %}, {% endif %}{% endfor %}</span></h3>
+  <div class="mui--bg-accent">
+    {%- if profile.organization %}
+      {%- with people = profile.organization.views.people_and_teams() %}
+        {%- if people %}
+          <div class="mui-container">
+            <div class="page-content">
+              <div class="grid">
+                <div class="grid__col-xs-12">
+                  <h2 class="project-headline">{% trans %}People{% endtrans %}</h2>
+                  <ul class="mui-list--unstyled mui-list--border">
+                    {%- for user, teams in people %}
+                      <li class="user">
+                        <div class="user__box">
+                          {{ useravatar(user) }}
+                          <div class="user__box__header">
+                            <h3 class="mui--text-body2 user__box__fullname">{{ user.pickername }}</h3>
+                            <h3 class="mui--text-caption user__box__userid"><span>{% for team in teams %}{{ team.title }}{% if not loop.last %}, {% endif %}{% endfor %}</span></h3>
+                          </div>
                         </div>
-                      </div>
-                    </li>
-                  {%- endfor %}
-                </ul>
+                      </li>
+                    {%- endfor %}
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      {%- endif %}
-    {%- endwith %}
-  {%- endif %}
+        {%- endif %}
+      {%- endwith %}
+    {%- endif %}
 
-  {%- if profile.features.new_project() or draft_projects %}
-  <div class="projects-wrapper">
-    <div class="mui-container">
-      <div class="grid">
-        <div class="grid__col-12">
-          <h2 class="project-headline">{% trans %}Drafts{% endtrans %}</h2>
-        </div>
-      </div>
-      <ul class="grid projects" role="list">
-        {%- if profile.features.new_project() %}
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-ga="Add new project">
-              <div class="card__image-wrapper">
-                <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="new"/>
-                <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class='mui--align-middle card__image-wrapper__icon-wrapper__icon') }}</p>
-              </div>
-              <div class="card__body">
-                <h4 class="mui--text-headline mui--text-bold">{% trans %}Create a new project{% endtrans %}</h4>
-                <p class="mui--text-subhead mui--text-light zero-top-margin">{% trans %}Write, collaborate and get feedback{% endtrans %}</p>
-              </div>
-              <div class="mui-divider"></div>
-              <div class="card__footer">
-                <p class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">{% trans %}New project{% endtrans %}</p>
-              </div>
-            </a>
-          </li>
-        {% endif %}
-        {% for project in draft_projects %}
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
-            {{ projectcard(project, include_calendar=false, save_form_id_prefix='draft_spf_') }}
-          </li>
-        {%- endfor -%}
-      </ul>
-      {% if draft_projects|length > 2 %}
-        <div class="mui--text-center">
-          <a href="javascript:void(0)"  data-target="show all draft projects" class="jquery-show-all mui--text-uppercase" data-projects="js-draft-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
-        </div>
-      {% endif %}
-    </div>
-  </div>
-  {%- endif %}
-
-  {% if unscheduled_projects %}
+    {%- if profile.features.new_project() or draft_projects %}
     <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="project-headline">{% trans %}Unscheduled projects{% endtrans %}</h2>
+            <h2 class="project-headline">{% trans %}Drafts{% endtrans %}</h2>
           </div>
         </div>
         <ul class="grid projects" role="list">
-          {% for project in unscheduled_projects %}
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-unscheduled-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
-              {{ projectcard(project, save_form_id_prefix='unsched_spf_') }}
+          {%- if profile.features.new_project() %}
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-ga="Add new project">
+                <div class="card__image-wrapper">
+                  <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="new"/>
+                  <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class='mui--align-middle card__image-wrapper__icon-wrapper__icon') }}</p>
+                </div>
+                <div class="card__body">
+                  <h4 class="mui--text-headline mui--text-bold">{% trans %}Create a new project{% endtrans %}</h4>
+                  <p class="mui--text-subhead mui--text-light zero-top-margin">{% trans %}Write, collaborate and get feedback{% endtrans %}</p>
+                </div>
+                <div class="mui-divider"></div>
+                <div class="card__footer">
+                  <p class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">{% trans %}New project{% endtrans %}</p>
+                </div>
+              </a>
             </li>
-          {% endfor %}
+          {% endif %}
+          {% for project in draft_projects %}
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
+              {{ projectcard(project, include_calendar=false, save_form_id_prefix='draft_spf_') }}
+            </li>
+          {%- endfor -%}
         </ul>
-        {% if unscheduled_projects|length > 2 %}
+        {% if draft_projects|length > 2 %}
           <div class="mui--text-center">
-            <a href="javascript:void(0)"  data-target="show all unscheduled projects" class="jquery-show-all mui--text-uppercase" data-projects="js-unscheduled-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+            <a href="javascript:void(0)"  data-target="show all draft projects" class="jquery-show-all mui--text-uppercase" data-projects="js-draft-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
           </div>
         {% endif %}
       </div>
     </div>
-  {% endif %}
+    {%- endif %}
 
-  {{ featured_section(featured_project) }}
-  {{ upcoming_section(upcoming_projects) }}
-  {{ open_cfp_section(open_cfp_projects) }}
-  {{ all_projects_section(all_projects) }}
-  {{ past_projects_section() }}
+    {% if unscheduled_projects %}
+      <div class="projects-wrapper">
+        <div class="mui-container">
+          <div class="grid">
+            <div class="grid__col-12">
+              <h2 class="project-headline">{% trans %}Unscheduled projects{% endtrans %}</h2>
+            </div>
+          </div>
+          <ul class="grid projects" role="list">
+            {% for project in unscheduled_projects %}
+              <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-unscheduled-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
+                {{ projectcard(project, save_form_id_prefix='unsched_spf_') }}
+              </li>
+            {% endfor %}
+          </ul>
+          {% if unscheduled_projects|length > 2 %}
+            <div class="mui--text-center">
+              <a href="javascript:void(0)"  data-target="show all unscheduled projects" class="jquery-show-all mui--text-uppercase" data-projects="js-unscheduled-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
 
+    {{ featured_section(featured_project) }}
+    {{ upcoming_section(upcoming_projects) }}
+    {{ open_cfp_section(open_cfp_projects) }}
+    {{ all_projects_section(all_projects) }}
+    {{ past_projects_section() }}
+  </div>
 {% endblock %}
 
 {% block footerscripts %}

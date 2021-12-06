@@ -10,6 +10,10 @@
   <p class="mui--text-subhead">{% trans %}Manage labels{% endtrans %}</p>
 {% endblock %}
 
+{%- block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/labels.scss') }}" />
+{% endblock %}
+
 {% block contentwrapper %}
 <div class="grid">
   <div class="grid__col-xs-12">

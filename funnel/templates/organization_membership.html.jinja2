@@ -3,6 +3,11 @@
 {%- from "macros.html.jinja2" import faicon, profile_header %}
 {%- from "js/membership.js.jinja2" import membership_template, profile_member_template %}
 
+{% block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/profile.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/membership.scss') }}" />
+{% endblock %}
+
 {% block bodyattrs %}class="mui--bg-primary no-sticky-header mobile-header"{% endblock %}
 
 {% block contenthead %}{% endblock %}
@@ -17,16 +22,18 @@
 {% endblock %}
 
 {% block basecontent %}
-  <div class="mui-container">
-    <div class="page-content page-content--mob-nav">
-      <div class="grid" id="crew">
-        <div class="grid__col-xs-12">
-          {{ membership_template() }}
+  <div class="mui--bg-accent top-padding">
+    <div class="mui-container">
+      <div class="page-content">
+        <div class="grid" id="crew">
+          <div class="grid__col-xs-12">
+            {{ membership_template() }}
+          </div>
         </div>
       </div>
     </div>
+    {{ profile_member_template () }}
   </div>
-  {{ profile_member_template () }}
 {% endblock %}
 
 {% block footerscripts %}

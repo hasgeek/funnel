@@ -1,53 +1,37 @@
 //For flex grid
 @import 'reflex/variables';
-@import 'reflex/mixins';
+@import 'reflex/mixins_custom';
 @import 'reflex/grid';
-@import 'reflex/helpers';
 
 @import 'mui/custom';
 
 // Core variables and mixins
-@import 'mui/colors', 'mui/variables', 'mui/mixins';
+@import 'mui/colors_custom', 'mui/variables', 'mui/mixins/buttons',
+  'mui/mixins/typography', 'mui/mixins/util';
 
 // Globals
 @import 'mui/globals';
 
 // Components
-@import 'mui/appbar', 'mui/buttons', 'mui/checkbox-and-radio', 'mui/containers',
-  'mui/divider', 'mui/dropdown', 'mui/form', 'mui/panel', 'mui/select',
-  'mui/table', 'mui/tabs', 'mui/textfield';
+@import 'mui/buttons', 'mui/containers', 'mui/divider', 'mui/dropdown',
+  'mui/panel', 'mui/table', 'mui/tabs';
 
 // Miscellaneous
 @import 'mui/helpers', 'mui/overlay', 'mui/ripple';
 
-@import 'baseframe-material/helper';
-@import 'baseframe-material/menu';
-@import 'baseframe-material/layout';
-@import 'baseframe-material/form';
-@import 'baseframe-material/chip';
-@import 'baseframe-material/card';
-@import 'baseframe-material/alert';
-@import 'baseframe-material/thumbnail';
-@import 'baseframe-material/modal';
-@import 'baseframe-material/tabs';
-@import 'baseframe-material/responsive-table';
+@import 'components/variable';
+@import 'components/helper';
+@import 'components/menu';
+@import 'components/layout';
+@import 'components/chip';
+@import 'components/alert';
+@import 'components/thumbnail';
+@import 'components/modal';
+@import 'components/tabs';
+@import 'components/responsive-table';
+@import 'components/card';
+@import 'components/video';
 
 // Local stylesheets
-@import 'variable';
 @import 'layout';
 @import 'header';
-@import 'home';
-@import 'form';
-@import 'card';
-@import 'project';
-@import 'submission';
-@import 'video';
-@import 'comments';
-@import 'submissions';
-@import 'schedule';
-@import 'label';
-@import 'search';
-@import 'contacts';
-@import 'membership';
-@import 'account';
-@import 'update';
