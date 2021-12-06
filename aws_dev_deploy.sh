@@ -3,7 +3,7 @@ set -e
 echo 'Starting to Deploy...'
 ssh ec2-user@3.144.184.165 "
           echo 'pruning unused docker images'
-          docker image prune -f 
+          docker image prune -f
           #echo 'changing folder to funnel'
           cd funnel
           echo 'docker-compose down'

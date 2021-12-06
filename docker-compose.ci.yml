@@ -9,18 +9,18 @@ services:
       - 3000:3000
     command: sh ./docker-tests.sh
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "200k"
-        max-file: "10"
+        max-size: '200k'
+        max-file: '10'
     depends_on:
       - postgres
       - redis
     extra_hosts:
-      - "funnel.test:127.0.0.1"
-      - "f.test:127.0.0.1"
+      - 'funnel.test:127.0.0.1'
+      - 'f.test:127.0.0.1'
     volumes:
-    - $HOME/.aws/credentials:/app/.aws/credentials:ro
+      - $HOME/.aws/credentials:/app/.aws/credentials:ro
   redis:
     image: redis
   nginx:
@@ -32,7 +32,7 @@ services:
     ports:
       - 80:80
       - 443:443
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;error_log /dev/stdout info;\"'"
+    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;error_log /dev/stdout info;"'''
     depends_on:
       - web
   postgres:
@@ -43,8 +43,8 @@ services:
     ports:
       - 5432:5432
     environment:
-        POSTGRES_HOST_AUTH_METHOD: trust
-        PGUSER: postgres   
+      POSTGRES_HOST_AUTH_METHOD: trust
+      PGUSER: postgres
     volumes:
       - 'pgdata:/var/lib/postgresql/data/'
 volumes:

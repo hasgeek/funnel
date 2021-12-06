@@ -13,9 +13,9 @@ services:
       - .:/app
       - $HOME/.aws/credentials:/app/.aws/credentials:ro
     extra_hosts:
-      - "hasgeek.com:127.0.0.1"
-      - "beta.hasgeek.com:127.0.0.1"
-      - "funnel.hasgeek.com:127.0.0.1"
+      - 'hasgeek.com:127.0.0.1'
+      - 'beta.hasgeek.com:127.0.0.1'
+      - 'funnel.hasgeek.com:127.0.0.1'
     restart: always
   worker:
     image: vivekdurai/funnel
