@@ -1,6 +1,7 @@
 alembic
 argon2-cffi
 awscli
+awsfabrictasks
 Babel
 base58
 bcrypt
@@ -56,8 +57,7 @@ twilio
 typing-extensions
 url-normalize
 user-agents
+uwsgi
 Werkzeug>=2.0.2  # https://github.com/pallets/werkzeug/pull/2237
 whitenoise
 zxcvbn
-uwsgi
-awsfabrictasks
