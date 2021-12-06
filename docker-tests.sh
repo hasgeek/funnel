@@ -31,13 +31,13 @@ psql postgresql://postgres@postgres:5432/postgres -c 'create database funnel_tes
 psql  postgresql://postgres@postgres:5432/postgres -c 'create database geoname_testing;'
 #flask dbconfig | sudo -u postgres psql geoname_testing
 
-if [ -f secrets.test ]; then
-	source ./secrets.test
-fi
-if [ $# -eq 0 ]; then
-    pytest --cov=funnel
-else
-    pytest "$@"
-fi
+# if [ -f secrets.test ]; then
+# 	source ./secrets.test
+# fi
+# if [ $# -eq 0 ]; then
+#     pytest --cov=funnel
+# else
+#     pytest "$@"
+# fi
 
 echo "completed all tests successfully"
