@@ -1,5 +1,6 @@
-from boto.ec2 import connect_to_region
 from fabric.api import env, run
+from fabric.context_managers import cd
+import boto3
 
 staging_region = 'us-east-2'
 production_region = 'ap-south-1'
@@ -19,7 +20,11 @@ production_region = 'ap-south-1'
 #
 
 
-env.key_filename = ["~/.ssh/id_rsa", "~/.ssh/v2betaone.pem", "~/.ssh/v2-alpha.pem"]
+env.key_filename = [
+    "~/.ssh/id_rsa",  # vps
+    "~/.ssh/v2betaone.pem",  # production
+    "~/.ssh/v2-alpha.pem",  # staging
+]
 
 
 def set_hosts(environment):
@@ -40,36 +45,35 @@ def set_hosts(environment):
         env.hosts = ''
         env.user = "hasgeek"
     elif environment == 'staging':
-        tag = 'v2alpha'
+        tag = 'v2-alpha-autodeploy'
         key = "tag:" + tag
         env.hosts = _get_public_dns(staging_region, key, profile_name, '*')
         env.user = "ec2-user"
     else:
-        print('invalid environment')
+        pass
+        # print('invalid environment')
 
 
 def _get_public_dns(region, key, profile_name, value="*"):
     public_dns = []
-    connection = _create_connection(region, profile_name)
-    reservations = connection.get_all_instances(filters={key: value})
-    for reservation in reservations:
-        for instance in reservation.instances:
-            print("Instance", instance.public_dns_name)
-            public_dns.append(str(instance.public_dns_name))
+    boto3.setup_default_session(profile_name=profile_name)
+    client = boto3.client('ec2', region_name=region)
+    reservations = client.describe_instances(Filters=[{'Name': key, 'Values': ['*']}])
+    # print(reservations)
+    for reservation in reservations['Reservations']:
+        for instance in reservation['Instances']:
+            # print(instance)
+            # print("Instance", instance['PublicDnsName'])
+            public_dns.append(str(instance['PublicDnsName']))
     return public_dns
 
 
-def _create_connection(region, profile_name):
-    print("Connecting to ", region)
-
-    conn = connect_to_region(
-        region_name=region,
-        profile_name=profile_name,
-    )
-
-    print("Connection with AWS established")
-    return connection
-
-
+# This is staging specific and is run with the following command:
+# fab set_hosts:staging deploy_to_staging
 def deploy_to_staging():
-    run('sh ./staging_deploy.sh')
+    with cd('funnel'):
+        run('sh staging_deploy.sh')
+
+
+def flask(command):
+    run('flask')
