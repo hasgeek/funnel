@@ -32,5 +32,6 @@ retry 5 1 psql postgresql://postgres@postgres:5432/postgres -c '\l' >/dev/null
 
 echo >&2 "$(date +%Y%m%dt%H%M%S) Postgres is up - executing command"
 
+flask db upgrade
 
 flask run
