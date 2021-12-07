@@ -137,7 +137,7 @@ flask-sqlalchemy==2.5.1
     # via
     #   -r requirements.in
     #   flask-migrate
-flask-wtf==1.0.0
+flask-wtf==0.15.1
     # via
     #   -r requirements.in
     #   baseframe
@@ -434,7 +434,7 @@ werkzeug==2.0.2
     #   flask
 whitenoise==5.3.0
     # via -r requirements.in
-wtforms==3.0.0
+wtforms==2.3.3
     # via
     #   baseframe
     #   flask-wtf
