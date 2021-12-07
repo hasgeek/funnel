@@ -8,7 +8,7 @@ echo 'fetching git repo'
 git fetch origin aws
 echo 'reset git repo'
 git reset --hard origin/aws  &&  echo 'git fetched and hard reset'
-echo 'fetching settings.py from s3'
+echo 'fetching settings.py from s3://v2-alpha-test-environment-files'
 aws s3 cp s3://v2-alpha-test-environment-files/container_env instance/settings.py
 ls instance
 cat instance/settings.py
