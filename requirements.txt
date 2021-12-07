@@ -421,6 +421,8 @@ urllib3==1.26.7
     #   sentry-sdk
 user-agents==2.2.0
     # via -r requirements.in
+uwsgi==2.0.20
+    # via -r requirements.in
 webassets==2.0
     # via flask-assets
 webencodings==0.5.1
