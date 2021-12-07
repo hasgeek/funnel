@@ -73,7 +73,7 @@ def _get_public_dns(region, key, profile_name, value="*"):
 def deploy_to_staging():
     with cd('funnel'):
         run('sh staging_deploy.sh')
-
+        run('docker-compose -f docker-compose.staging.yml up -d')
 
 def flask(command):
     run('flask')
