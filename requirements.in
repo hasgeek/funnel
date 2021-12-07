@@ -1,7 +1,5 @@
 alembic
 argon2-cffi
-awscli
-awsfabrictasks
 Babel
 base58
 bcrypt
