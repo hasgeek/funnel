@@ -91,41 +91,45 @@ const Schedule = {
               window.history.back();
             }
           });
-          // Event listener for back key press since opening modal update browser history
           $(window).on('popstate', () => {
             if (this.modalHtml) {
               $.modal.close();
             }
           });
         },
-        openModal(sessionHtml, backPage, pageDetails) {
+        openModal(sessionHtml, currentPage, pageDetails, activeSession) {
           this.modalHtml = sessionHtml;
           $('#session-modal').modal('show');
-          window.history.pushState(
-            {
-              openModal: true,
-            },
-            '',
-            backPage
-          );
+          let stateData;
+          stateData = {
+            openModal: true,
+            session: activeSession,
+            prevUrl: currentPage,
+          };
+          window.history.pushState(stateData, '', currentPage);
           Spa.updateMetaTags(pageDetails);
         },
         showSessionModal(activeSession) {
-          const backPage = `${this.pageDetails.url}/${activeSession.url_name_uuid_b58}`;
+          const currentPage = `${this.pageDetails.url}/${activeSession.url_name_uuid_b58}`;
           const pageDetails = {
             title: `${activeSession.title} — ${this.pageDetails.projectTitle}`,
             pageTitle: activeSession.title,
             description: activeSession.speaker
               ? `${activeSession.title} by ${activeSession.speaker}`
               : `${activeSession.title}, ${this.pageDetails.projectTitle}`,
-            url: backPage,
+            url: currentPage,
           };
           if (activeSession.modal_url) {
             $.ajax({
               url: activeSession.modal_url,
               type: 'GET',
               success: (sessionHtml) => {
-                this.openModal(sessionHtml, backPage, pageDetails);
+                this.openModal(
+                  sessionHtml,
+                  currentPage,
+                  pageDetails,
+                  activeSession
+                );
               },
               error(response) {
                 const errorMsg = Form.getResponseError(response);

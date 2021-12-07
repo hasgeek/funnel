@@ -27,8 +27,6 @@ const Spa = {
           window.history.state.navId,
           false
         );
-      } else {
-        window.history.back();
       }
     });
   },
