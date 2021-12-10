@@ -21,11 +21,7 @@ const Spa = {
     );
 
     $(window).on('popstate', () => {
-      if (
-        window.history.state &&
-        window.history.state.subPage &&
-        window.location.href !== window.history.state.prevUrl
-      ) {
+      if (window.history.state && window.history.state.subPage) {
         Spa.fetchPage(
           window.history.state.prevUrl,
           window.history.state.navId,
