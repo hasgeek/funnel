@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, jsonify, redirect, render_template, request
+from flask import abort, redirect, request
 
-from baseframe import _, request_is_xhr
+from baseframe import _
 from baseframe.forms import Form, render_form
 from coaster.auth import current_auth
 from coaster.views import (
@@ -36,6 +36,7 @@ from ..typing import ReturnView
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
+from .helpers import html_in_json
 
 
 @Profile.views('members')
@@ -314,23 +315,13 @@ OrganizationMembershipView.init_app(app)
 @route('/<profile>/<project>/crew')
 class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', methods=['GET', 'POST'])
-    @render_with('project_membership.html.jinja2')
+    @render_with(html_in_json('project_membership.html.jinja2'))
     def crew(self):
         project = self.obj
         memberships = [
             membership.current_access(datasets=('without_parent', 'related'))
             for membership in self.obj.active_crew_memberships
         ]
-        if request_is_xhr():
-            return jsonify(
-                {
-                    'html': render_template(
-                        'project_membership.html.jinja2',
-                        project=project,
-                        memberships=memberships,
-                    )
-                }
-            )
         return {'project': self.obj, 'memberships': memberships}
 
     @route('new', methods=['GET', 'POST'])

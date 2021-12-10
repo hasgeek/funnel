@@ -16,7 +16,7 @@ from flask import (
     request,
 )
 
-from baseframe import _, __, forms, request_is_xhr
+from baseframe import _, __, forms
 from baseframe.forms import (
     render_delete_sqla,
     render_form,
@@ -290,32 +290,16 @@ class ProjectView(
 
     @route('sub')
     @route('proposals')
-    @render_with('project_submissions.html.jinja2')
+    @render_with(html_in_json('project_submissions.html.jinja2'))
     @requires_roles({'reader'})
     def view_proposals(self):
-        if request_is_xhr():
-            return jsonify(
-                {
-                    'html': render_template(
-                        'project_submissions.html.jinja2', project=self.obj
-                    ),
-                }
-            )
         return {
             'project': self.obj,
         }
 
     @route('videos')
-    @render_with('project_videos.html.jinja2')
+    @render_with(html_in_json('project_videos.html.jinja2'))
     def session_videos(self):
-        if request_is_xhr():
-            return jsonify(
-                {
-                    'html': render_template(
-                        'project_videos.html.jinja2', project=self.obj
-                    ),
-                }
-            )
         return {
             'project': self.obj,
         }
@@ -751,23 +735,12 @@ class ProjectView(
         }
 
     @route('comments', methods=['GET'])
-    @render_with('project_comments.html.jinja2')
+    @render_with(html_in_json('project_comments.html.jinja2'))
     @requires_roles({'reader'})
     def comments(self):
         project = self.obj
         comments = self.obj.commentset.views.json_comments()
         subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
-        if request_is_xhr():
-            return jsonify(
-                {
-                    'html': render_template(
-                        'project_comments.html.jinja2',
-                        project=project,
-                        subscribed=subscribed,
-                        comments=comments,
-                    )
-                }
-            )
         return {
             'project': project,
             'subscribed': subscribed,

@@ -97,16 +97,16 @@ const Schedule = {
             }
           });
         },
-        openModal(sessionHtml, currentPage, pageDetails, activeSession) {
+        openModal(sessionHtml, currentPage, pageDetails) {
           this.modalHtml = sessionHtml;
           $('#session-modal').modal('show');
-          let stateData;
-          stateData = {
-            openModal: true,
-            session: activeSession,
-            prevUrl: currentPage,
-          };
-          window.history.pushState(stateData, '', currentPage);
+          window.history.pushState(
+            {
+              openModal: true,
+            },
+            '',
+            currentPage
+          );
           Spa.updateMetaTags(pageDetails);
         },
         showSessionModal(activeSession) {
@@ -124,12 +124,7 @@ const Schedule = {
               url: activeSession.modal_url,
               type: 'GET',
               success: (sessionHtml) => {
-                this.openModal(
-                  sessionHtml,
-                  currentPage,
-                  pageDetails,
-                  activeSession
-                );
+                this.openModal(sessionHtml, currentPage, pageDetails);
               },
               error(response) {
                 const errorMsg = Form.getResponseError(response);
@@ -207,12 +202,19 @@ const Schedule = {
           } else {
             // Scroll to the last schedule
             ScrollHelper.animateScrollTo(
-              $(schedule.config.parentContainer)
-                .find('.schedule__date')
-                .last()
-                .offset().top - this.headerHeight
+              $('.schedule__date').last().offset().top - this.headerHeight
             );
           }
+          window.history.replaceState(
+            {
+              subPage: true,
+              prevUrl: this.pageDetails.url,
+              navId: window.history.state.navId,
+              refresh: false,
+            },
+            '',
+            this.pageDetails.url
+          );
 
           // On exiting the page, save page scroll position in session storage
           $(window).bind('beforeunload', () => {

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, flash, jsonify, redirect
+from flask import abort, flash, redirect
 
-from baseframe import _, forms, render_template, request_is_xhr
+from baseframe import _, forms, render_template
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import make_name
@@ -25,13 +25,14 @@ from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin
 from .notification import dispatch_notification
 from .project import ProjectViewMixin
+from .helpers import html_in_json
 
 
 @Project.views('updates')
 @route('/<profile>/<project>/updates')
 class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', methods=['GET'])
-    @render_with('project_updates.html.jinja2', json=True)
+    @render_with(html_in_json('project_updates.html.jinja2'))
     @requires_roles({'reader'})
     def updates(self):
         project = self.obj.current_access(datasets=('primary', 'related'))
@@ -48,18 +49,6 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
             for update in self.obj.published_updates
         ]
         new_update = self.obj.url_for('new_update')
-        if request_is_xhr():
-            return jsonify(
-                {
-                    'html': render_template(
-                        'project_updates.html.jinja2',
-                        project=project,
-                        draft_updates=draft_updates,
-                        published_updates=published_updates,
-                        new_update=new_update,
-                    )
-                }
-            )
         return {
             'project': project,
             'draft_updates': draft_updates,

@@ -15,13 +15,18 @@ const Spa = {
         subPage: true,
         prevUrl: window.location.href,
         navId: currentnavItem,
+        refresh: true,
       },
       '',
       window.location.href
     );
 
     $(window).on('popstate', () => {
-      if (window.history.state && window.history.state.subPage) {
+      if (
+        window.history.state &&
+        window.history.state.subPage &&
+        window.history.state.refresh
+      ) {
         Spa.fetchPage(
           window.history.state.prevUrl,
           window.history.state.navId,
@@ -36,6 +41,7 @@ const Spa = {
         subPage: true,
         prevUrl: pageDetails.url,
         navId: pageDetails.navId,
+        refresh: true,
       },
       '',
       pageDetails.url
@@ -72,7 +78,7 @@ const Spa = {
         const pageDetails = {};
         pageDetails.url = url;
         pageDetails.navId = currentNavId;
-        $('.js-spa-content').html(responseData.html);
+        $('.js-spa-content').html(responseData);
         if (Spa.hightlightNavItemFn) Spa.hightlightNavItemFn(currentNavId);
         pageDetails.title = window.Hasgeek.subpageTitle;
         if (updateHistory) Spa.updateHistory(pageDetails);

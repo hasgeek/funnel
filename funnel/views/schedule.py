@@ -7,12 +7,12 @@ from typing import Any, Dict, List, Optional, cast
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from flask import Response, current_app, json, jsonify, render_template
+from flask import Response, current_app, json, jsonify
 
 from icalendar import Alarm, Calendar, Event, vCalAddress, vText
 from pytz import utc
 
-from baseframe import _, localize_timezone, request_is_xhr
+from baseframe import _, localize_timezone
 from coaster.utils import utcnow
 from coaster.views import (
     ModelView,
@@ -27,7 +27,7 @@ from coaster.views import (
 from .. import app
 from ..models import Project, Proposal, Rsvp, Session, VenueRoom, db
 from ..typing import ReturnRenderWith, ReturnView
-from .helpers import localize_date
+from .helpers import localize_date, html_in_json
 from .login_session import requires_login
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
 
@@ -223,7 +223,7 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
 @route('/<profile>/<project>/schedule')
 class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
-    @render_with('project_schedule.html.jinja2')
+    @render_with(html_in_json('project_schedule.html.jinja2'))
     @requires_roles({'reader'})
     def schedule(self) -> ReturnRenderWith:
         scheduled_sessions_list = session_list_data(
@@ -237,18 +237,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
         schedule = schedule_data(
             self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
         )
-        if request_is_xhr():
-            return jsonify(
-                {
-                    'html': render_template(
-                        'project_schedule.html.jinja2',
-                        project=project,
-                        venues=venues,
-                        sessions=scheduled_sessions_list,
-                        schedule=schedule,
-                    )
-                }
-            )
         return {
             'project': project,
             'venues': venues,

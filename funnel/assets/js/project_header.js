@@ -162,9 +162,9 @@ const Ticketing = {
 
 $(() => {
   window.Hasgeek.projectHeaderInit = (
+    projectTitle,
     saveProjectConfig = '',
-    tickets = '',
-    projectTitle
+    tickets = ''
   ) => {
     if (saveProjectConfig) {
       SaveProject(saveProjectConfig);

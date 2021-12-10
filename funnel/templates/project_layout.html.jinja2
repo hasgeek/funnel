@@ -512,6 +512,9 @@
   <script type="text/javascript">
     $(function() {
       var projectTitle = {{ project.title|tojson }};
+      var saveProjectConfig = {
+        formId: 'save-form',
+      };
       var tickets;
       {% if project.features.tickets() -%}
         tickets = {
@@ -523,11 +526,7 @@
         };
       {%- endif %}
 
-      var saveProjectConfig = {
-        formId: 'save-form',
-      };
-
-      window.Hasgeek.projectHeaderInit(saveProjectConfig, tickets, projectTitle);
+      window.Hasgeek.projectHeaderInit(projectTitle, saveProjectConfig, tickets);
     });
   </script>
   {% block footerinnerscripts %}{% endblock %}
