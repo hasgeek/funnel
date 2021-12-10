@@ -4,7 +4,7 @@ from typing import Optional
 
 from flask import abort, flash, redirect
 
-from baseframe import _, forms, render_template
+from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.utils import make_name
@@ -21,11 +21,11 @@ from .. import app
 from ..forms import SavedProjectForm, UpdateForm
 from ..models import NewUpdateNotification, Profile, Project, Update, db
 from ..typing import ReturnView
+from .helpers import html_in_json
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin
 from .notification import dispatch_notification
 from .project import ProjectViewMixin
-from .helpers import html_in_json
 
 
 @Project.views('updates')

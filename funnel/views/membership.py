@@ -33,10 +33,10 @@ from ..models import (
     db,
 )
 from ..typing import ReturnView
+from .helpers import html_in_json
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
-from .helpers import html_in_json
 
 
 @Profile.views('members')
@@ -317,7 +317,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
     @route('', methods=['GET', 'POST'])
     @render_with(html_in_json('project_membership.html.jinja2'))
     def crew(self):
-        project = self.obj
+        self.obj
         memberships = [
             membership.current_access(datasets=('without_parent', 'related'))
             for membership in self.obj.active_crew_memberships

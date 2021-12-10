@@ -38,7 +38,6 @@ from ..typing import ReturnRenderWith, ReturnView
 from .decorators import etag_cache_for_user, xhr_only
 from .login_session import requires_login
 from .notification import dispatch_notification
-from .helpers import html_in_json
 
 ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
 

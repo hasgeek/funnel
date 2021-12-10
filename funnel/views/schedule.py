@@ -27,7 +27,7 @@ from coaster.views import (
 from .. import app
 from ..models import Project, Proposal, Rsvp, Session, VenueRoom, db
 from ..typing import ReturnRenderWith, ReturnView
-from .helpers import localize_date, html_in_json
+from .helpers import html_in_json, localize_date
 from .login_session import requires_login
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
 
