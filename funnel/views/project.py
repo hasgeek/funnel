@@ -45,7 +45,6 @@ from ..forms import (
     ProjectLivestreamForm,
     ProjectNameForm,
     ProjectTransitionForm,
-    RsvpTransitionForm,
 )
 from ..models import (
     RSVP_STATUS,
@@ -58,6 +57,7 @@ from ..models import (
     db,
 )
 from ..signals import project_role_change
+from .helpers import html_in_json
 from .jobs import import_tickets, tag_locations
 from .login_session import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
@@ -277,24 +277,15 @@ class ProjectView(
     ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
 ):
     @route('')
-    @render_with('project.html.jinja2')
+    @render_with(html_in_json('project.html.jinja2'))
     @requires_roles({'reader'})
     def view(self):
-        featured_proposals = self.obj.proposals.filter_by(featured=True)
-        project = self.obj.current_access()
-        if request_is_xhr():
-            return jsonify(
-                {
-                    'html': render_template(
-                        'project.html.jinja2',
-                        project=project,
-                        featured_proposals=featured_proposals,
-                    )
-                }
-            )
         return {
             'project': self.obj.current_access(),
-            'featured_proposals': featured_proposals,
+            'featured_proposals': [
+                _p.current_access()
+                for _p in self.obj.proposals.filter_by(featured=True)
+            ],
         }
 
     @route('sub')

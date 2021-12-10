@@ -15,6 +15,7 @@ from flask import (
     abort,
     current_app,
     g,
+    jsonify,
     render_template,
     request,
     url_for,
@@ -376,6 +377,16 @@ def compress_response(response: ResponseBase) -> None:
             response.set_data(compress(response.get_data(), algorithm))
             response.headers['Content-Encoding'] = algorithm
             response.vary.add('Accept-Encoding')  # type: ignore[union-attr]
+
+
+# --- Template helpers -----------------------------------------------------------------
+
+
+def html_in_json(template: str):
+    def render_html_in_json(kwargs):
+        return jsonify({'html': render_template(template, **kwargs)})
+
+    return {'text/html': template, 'application/json': render_html_in_json}
 
 
 # --- Filters and URL constructors -----------------------------------------------------
