@@ -94,10 +94,10 @@ jobs:
             cd funnel
             echo 'docker-compose down'
             docker-compose down
-            echo 'fetching git repo'
-            git fetch origin aws
-            echo 'reset git repo'
-            git reset --hard origin/aws  &&  echo 'git fetched and hard reset'
+            echo 'git pull'
+            git pull origin aws
+            #echo 'reset git repo'
+            #git reset --hard origin/aws  &&  echo 'git fetched and hard reset'
             echo 'fetching settings.py from github secrets'
             #aws s3 cp s3://v2-alpha-test-environment-files/container_env instance/settings.py
             echo "${{ secrets.SERVER_ENV_DEV }}" > instance/settings.py
