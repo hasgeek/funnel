@@ -741,10 +741,16 @@ class ProjectView(
         project = self.obj.current_access()
         comments = self.obj.commentset.views.json_comments()
         subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
+        new_comment_url = self.obj.commentset.url_for('new')
+        comments_url = self.obj.commentset.url_for()
+        last_seen_url = self.obj.commentset.url_for('update_last_seen_at') if subscribed else None
         return {
             'project': project,
             'subscribed': subscribed,
             'comments': comments,
+            'new_comment_url': new_comment_url,
+            'comments_url': comments_url,
+            'last_seen_url': last_seen_url
         }
 
     @route('update_featured', methods=['POST'])
