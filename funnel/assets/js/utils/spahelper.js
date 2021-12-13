@@ -78,8 +78,8 @@ const Spa = {
         xhtmljson: 'application/x.html+json',
       },
       converters: {
-        convertToHtml(result) {
-          return result;
+        'text xhtmljson': function (result) {
+          return JSON.parse(result);
         },
       },
       dataType: 'xhtmljson',
@@ -87,7 +87,7 @@ const Spa = {
         const pageDetails = {};
         pageDetails.url = url;
         pageDetails.navId = currentNavId;
-        $('.js-spa-content').html(responseData);
+        $('.js-spa-content').html(responseData.html);
         if (Spa.hightlightNavItemFn) Spa.hightlightNavItemFn(currentNavId);
         pageDetails.title = window.Hasgeek.subpageTitle;
         if (updateHistory) Spa.updateHistory(pageDetails);
