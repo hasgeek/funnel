@@ -386,7 +386,7 @@ def html_in_json(template: str):
     def render_html_in_json(kwargs):
         return jsonify({'html': render_template(template, **kwargs)})
 
-    return {'text/html': template, 'application/json': render_html_in_json, 'application/x.html+json': render_html_in_json}
+    return {'text/html': template, 'application/json': jsonify, 'application/x.html+json': render_html_in_json}
 
 
 # --- Filters and URL constructors -----------------------------------------------------
