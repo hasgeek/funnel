@@ -322,7 +322,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
             membership.current_access(datasets=('without_parent', 'related'))
             for membership in self.obj.active_crew_memberships
         ]
-        return {'project': self.obj, 'memberships': memberships}
+        return {'project': self.obj.current_access(), 'memberships': memberships}
 
     @route('new', methods=['GET', 'POST'])
     @render_with(json=True)

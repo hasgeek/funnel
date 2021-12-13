@@ -74,6 +74,15 @@ const Spa = {
     $.ajax({
       url,
       type: 'GET',
+      accepts: {
+        xhtmljson: 'application/x.html+json',
+      },
+      converters: {
+        convertToHtml(result) {
+          return result;
+        },
+      },
+      dataType: 'xhtmljson',
       success(responseData) {
         const pageDetails = {};
         pageDetails.url = url;

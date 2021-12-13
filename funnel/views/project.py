@@ -294,14 +294,14 @@ class ProjectView(
     @requires_roles({'reader'})
     def view_proposals(self):
         return {
-            'project': self.obj,
+            'project': self.obj.current_access(),
         }
 
     @route('videos')
     @render_with(html_in_json('project_videos.html.jinja2'))
     def session_videos(self):
         return {
-            'project': self.obj,
+            'project': self.obj.current_access(),
         }
 
     @route('editslug', methods=['GET', 'POST'])
@@ -604,7 +604,7 @@ class ProjectView(
     @requires_roles({'promoter'})
     def rsvp_list(self):
         return {
-            'project': self.obj,
+            'project': self.obj.current_access(),
             'going_rsvps': self.obj.rsvps_with(RSVP_STATUS.YES),
         }
 
@@ -738,7 +738,7 @@ class ProjectView(
     @render_with(html_in_json('project_comments.html.jinja2'))
     @requires_roles({'reader'})
     def comments(self):
-        project = self.obj
+        project = self.obj.current_access()
         comments = self.obj.commentset.views.json_comments()
         subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
         return {
