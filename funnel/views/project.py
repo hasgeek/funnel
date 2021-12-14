@@ -295,6 +295,7 @@ class ProjectView(
     def view_proposals(self):
         return {
             'project': self.obj.current_access(),
+            'submissions': self.obj.proposals,
         }
 
     @route('videos')
