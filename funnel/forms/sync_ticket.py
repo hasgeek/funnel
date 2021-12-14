@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-from wtforms.widgets import CheckboxInput, ListWidget
-from wtforms_sqlalchemy.fields import QuerySelectMultipleField
-
 from baseframe import __
 import baseframe.forms as forms
 
@@ -82,10 +79,10 @@ class TicketTypeForm(forms.Form):
         validators=[forms.validators.DataRequired()],
         filters=[forms.filters.strip()],
     )
-    ticket_events = QuerySelectMultipleField(
+    ticket_events = forms.QuerySelectMultipleField(
         __("Events"),
-        widget=ListWidget(),
-        option_widget=CheckboxInput(),
+        widget=forms.ListWidget(),
+        option_widget=forms.CheckboxInput(),
         allow_blank=True,
         get_label='title',
         query_factory=lambda: [],
@@ -132,10 +129,10 @@ class TicketParticipantForm(forms.Form):
         filters=[forms.filters.strip()],
     )
     badge_printed = forms.BooleanField(__("Badge is printed"))
-    ticket_events = QuerySelectMultipleField(
+    ticket_events = forms.QuerySelectMultipleField(
         __("Events"),
-        widget=ListWidget(),
-        option_widget=CheckboxInput(),
+        widget=forms.ListWidget(),
+        option_widget=forms.CheckboxInput(),
         get_label='title',
         validators=[forms.validators.DataRequired("Select at least one event")],
     )

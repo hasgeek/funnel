@@ -80,7 +80,6 @@ known_flask = [
   'werkzeug',
   'itsdangerous',
   'wtforms',
-  'wtforms_sqlalchemy',
   'webassets',
   'flask_assets',
   'flask_babelhg',

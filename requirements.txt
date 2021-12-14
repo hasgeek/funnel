@@ -449,7 +449,7 @@ wtforms==3.0.0
     #   flask-wtf
     #   wtforms-sqlalchemy
 wtforms-sqlalchemy==0.3
-    # via -r requirements.in
+    # via baseframe
 yarl==1.7.2
     # via aiohttp
 zipp==3.6.0
