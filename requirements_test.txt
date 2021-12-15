@@ -8,15 +8,17 @@ attrs==21.2.0
     # via pytest
 certifi==2021.10.8
     # via requests
-charset-normalizer==2.0.8
+charset-normalizer==2.0.9
     # via requests
-coverage==6.2
+coverage[toml]==6.2
     # via
     #   -r requirements_test.in
     #   coveralls
     #   pytest-cov
 coveralls==3.3.1
     # via -r requirements_test.in
+deprecated==1.2.13
+    # via redis
 docopt==0.6.2
     # via coveralls
 fakeredis==1.7.0
@@ -27,7 +29,7 @@ idna==3.3
     # via requests
 iniconfig==1.1.1
     # via pytest
-lxml==4.6.4
+lxml==4.7.1
     # via -r requirements_test.in
 mako==1.1.6
     # via pytest-bdd
@@ -76,8 +78,10 @@ six==1.16.0
 sortedcontainers==2.4.0
     # via fakeredis
 toml==0.10.2
-    # via
-    #   pytest
-    #   pytest-cov
+    # via pytest
+tomli==2.0.0
+    # via coverage
 urllib3==1.26.7
     # via requests
+wrapt==1.13.3
+    # via deprecated
