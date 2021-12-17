@@ -8,18 +8,20 @@ attrs==21.2.0
     # via pytest
 certifi==2021.10.8
     # via requests
-charset-normalizer==2.0.7
+charset-normalizer==2.0.9
     # via requests
-coverage==5.5
+coverage[toml]==6.2
     # via
     #   -r requirements_test.in
     #   coveralls
     #   pytest-cov
-coveralls==3.2.0
+coveralls==3.3.1
     # via -r requirements_test.in
+deprecated==1.2.13
+    # via redis
 docopt==0.6.2
     # via coveralls
-fakeredis==1.6.1
+fakeredis==1.7.0
     # via -r requirements_test.in
 glob2==0.7
     # via pytest-bdd
@@ -27,13 +29,13 @@ idna==3.3
     # via requests
 iniconfig==1.1.1
     # via pytest
-lxml==4.6.3
+lxml==4.7.1
     # via -r requirements_test.in
-mako==1.1.5
+mako==1.1.6
     # via pytest-bdd
 markupsafe==2.0.1
     # via mako
-packaging==21.2
+packaging==21.3
     # via
     #   fakeredis
     #   pytest
@@ -49,18 +51,18 @@ py==1.11.0
     # via
     #   pytest
     #   pytest-bdd
-pyparsing==2.4.7
+pyparsing==3.0.6
     # via packaging
 pytest==6.2.5
     # via
     #   -r requirements_test.in
     #   pytest-bdd
     #   pytest-cov
-pytest-bdd==4.1.0
+pytest-bdd==5.0.0
     # via -r requirements_test.in
-pytest-cov==2.12.1
+pytest-cov==3.0.0
     # via -r requirements_test.in
-redis==3.5.3
+redis==4.0.2
     # via fakeredis
 requests==2.26.0
     # via
@@ -76,8 +78,10 @@ six==1.16.0
 sortedcontainers==2.4.0
     # via fakeredis
 toml==0.10.2
-    # via
-    #   pytest
-    #   pytest-cov
+    # via pytest
+tomli==2.0.0
+    # via coverage
 urllib3==1.26.7
     # via requests
+wrapt==1.13.3
+    # via deprecated
