@@ -20,12 +20,13 @@ docker-compose -f docker-compose.staging.yml up -d postgres
 DOCKER_DB_NAME="$(docker-compose -f docker-compose.staging.yml ps -q postgres)"
 echo $DOCKER_DB_NAME 
 # get the latest backup from s3 and save it to instantbackups
-s3bucket = "s3://hasgeek-instant-db-backup/$(date +'%Y-%m')/instant-$(date +'%Y-%m-%d')"
+s3bucket="$(date +'%Y-%m')/$(date +'%Y-%m-%d')/"
 echo $s3bucket
-latestfile = $(aws s3api list-objects --bucket $s3bucket --query 'sort_by(Contents, &LastModified)[-1].Key' --output text)
+latestfile=$(aws s3api --profile production list-objects-v2 --bucket hasgeek-instant-db-backup --prefix ${s3bucket} --query 'sort_by(Contents, &LastModified)[-1].Key' --output text)
 echo $latestfile
-LOCAL_DUMP_PATH = "/tmp/instantbackups"
-aws s3 cp $s3bucket$latestfile $LOCAL_DUMP_PATH
-docker exec -i "${DOCKER_DB_NAME}" pg_restore -C --clean --no-acl --no-owner  < "${LOCAL_DUMP_PATH}"
+LOCAL_DUMP_PATH="./instantbackups.gz"
+aws s3 --profile production cp s3://hasgeek-instant-db-backup/${latestfile} $LOCAL_DUMP_PATH
+gunzip instantbackups.gz
+docker exec -i "${DOCKER_DB_NAME}" pg_restore -C --clean --no-acl --no-owner  < instantbackups
 docker-compose stop postgres --remove-orphans
 docker-compose -f docker-compose.staging.yml up -d
