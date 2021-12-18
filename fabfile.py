@@ -93,6 +93,7 @@ def instantbackup(arg):
         c.run('sh instant-backup-s3-sql.sh')
     hosts, user = set_hosts('staging')
     with Connection(host=hosts[0], user=user) as c:  
+        c.run('cd funnel')
         c.run('sh staging-restore-db-from-s3.sh')
 
 @task

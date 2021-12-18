@@ -14,7 +14,7 @@ services:
         max-size: '200k'
         max-file: '10'
     depends_on:
-      - postgres
+      # - postgres
       - redis
     extra_hosts:
       - 'funnel.test:127.0.0.1'
