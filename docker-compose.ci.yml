@@ -25,7 +25,7 @@ services:
     image: redis
   nginx:
     build:
-      context: ./etc/nginx
+      context: ./etc/nginx-staging
     container_name: nginx
     restart: always
     volumes:
