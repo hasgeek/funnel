@@ -18,7 +18,7 @@ aws s3 cp s3://v2-alpha-test-environment-files/container_env instance/settings.p
 echo "starting the db"
 docker-compose -f docker-compose.staging.yml up -d postgres
 DOCKER_DB_NAME="$(docker-compose -f docker-compose.staging.yml ps -q postgres)"
-echo $DOCKER_DB_NAME 
+echo $DOCKER_DB_NAME
 # get the latest backup from s3 and save it to instantbackups
 s3bucket="$(date +'%Y-%m')/$(date +'%Y-%m-%d')/"
 echo $s3bucket
