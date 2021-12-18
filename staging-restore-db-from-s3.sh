@@ -5,7 +5,7 @@ set -e
 echo "pruning unused docker images"
 docker image prune -f
 echo "docker-compose down"
-docker-compose down
+docker-compose down --remove-orphans
 echo "git repo pull"
 git pull
 #echo "reset git repo"
