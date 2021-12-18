@@ -20,7 +20,7 @@ Flask-Migrate
 Flask-Redis
 Flask-RQ2
 Flask-SQLAlchemy
-Flask-WTF==0.15.1
+Flask-WTF
 geoip2
 git+https://github.com/hasgeek/baseframe.git#egg=baseframe
 git+https://github.com/hasgeek/coaster.git#egg=coaster
