@@ -1,10 +1,10 @@
+#!/bin/bash
+set -e
 echo "pruning unused docker images"
 docker image prune -f
-echo "changing folder to funnel"
-cd funnel
 echo "docker-compose down"
 docker-compose down
-echo "fetching git repo"
+echo "git repo pull"
 git pull
 #echo "reset git repo"
 #git reset --hard origin/aws && echo "git fetched and hard reset"
