@@ -66,6 +66,11 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         call={'owner', 'project_promoter'},
     )
 
+    __roles__ = {
+        'owner': {'read': {'created_at', 'updated_at'}},
+        'project_promoter': {'read': {'created_at', 'updated_at'}},
+    }
+
     __datasets__ = {
         'primary': {'project', 'user', 'response'},
         'without_parent': {'user', 'response'},
