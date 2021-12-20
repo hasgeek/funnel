@@ -295,9 +295,7 @@ class ProjectView(
     def view_proposals(self):
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
-            'submissions': self.obj.proposals.current_access(
-                datasets=('primary', 'related')
-            ),
+            'submissions': [_p.current_access(datasets=('without_parent', 'related')) for _p in self.obj.proposals]
         }
 
     @route('videos')
@@ -722,8 +720,8 @@ class ProjectView(
                 )
             return redirect(self.obj.url_for('admin'), code=303)
         return {
-            'profile': self.obj.profile.current_access(datasets=('primary', 'related')),
-            'project': self.obj.current_access(datasets=('primary', 'related')),
+            'profile': self.obj.profile.current_access(datasets=('primary',)),
+            'project': self.obj.current_access(datasets=('without_parent', 'related')),
             'ticket_events': self.obj.ticket_events,
         }
 
