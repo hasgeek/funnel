@@ -33,6 +33,7 @@ from ..models import (
     db,
 )
 from ..typing import ReturnView
+from .helpers import html_in_json
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
@@ -314,14 +315,15 @@ OrganizationMembershipView.init_app(app)
 @route('/<profile>/<project>/crew')
 class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', methods=['GET', 'POST'])
-    @render_with('project_membership.html.jinja2')
+    @render_with(html_in_json('project_membership.html.jinja2'))
     def crew(self):
+        memberships = [
+            membership.current_access(datasets=('without_parent', 'related'))
+            for membership in self.obj.active_crew_memberships
+        ]
         return {
-            'project': self.obj,
-            'memberships': [
-                membership.current_access(datasets=('without_parent', 'related'))
-                for membership in self.obj.active_crew_memberships
-            ],
+            'project': self.obj.current_access(datasets=('primary', 'related')),
+            'memberships': memberships,
         }
 
     @route('new', methods=['GET', 'POST'])

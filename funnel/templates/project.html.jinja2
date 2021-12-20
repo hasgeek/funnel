@@ -1,5 +1,10 @@
 {% set current_page = 'project' %}
-{% extends "project_layout.html.jinja2" %}
+{%- if not request_is_xhr() -%}
+  {% extends "project_layout.html.jinja2" %}
+{%- else -%}
+  {% extends "project_spa_layout.html.jinja2" %}
+  {%- from "project_layout.html.jinja2" import pinned_update, project_about with context %}
+{% endif %}
 {% block titleblock %}{{ project.title }}{%- endblock %}
 {%- from "macros.html.jinja2" import proposal_card, video_thumbnail %}
 
@@ -61,35 +66,6 @@
     </div>
   </div>
 {% endblock %}
-
-{% block project_banner_inner %}
-  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl project-details-header">
-    <div class="project-details__box">
-      {% if project.start_at and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
-        <div class="project-details__box__content">
-          <div aria-label="{{ project.datelocation }}">
-            {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
-          </div>
-        </div>
-      {% endif %}
-      {{ project_details(project) }}
-    </div>
-  </div>
-{% endblock %}
-
-{% block before_navbar %}
-  <div class="mui-container">
-    <div class="grid">
-      <div class="grid__col-sm-12 mui--hidden-md mui--hidden-lg mui--hidden-xl">
-        {{ pinned_update(project) }}
-        {{ project_about(project) }}
-        <div class="top-padding">
-          {{ project_host_sponsor(project) }}
-        </div>
-      </div>
-    </div>
-  </div>
-{%- endblock %}
 
 {% block left_col %}
   <div class="mui--hidden-xs mui--hidden-sm">
@@ -206,6 +182,9 @@
 {% endblock %}
 
 {% block footerinnerscripts %}
+  <script type="text/javascript">
+    window.Hasgeek.subpageTitle = '';
+  </script>
   {%- if project.primary_venue.has_coordinates -%}
     <script src="{{ built_asset('project.js') }}" type="text/javascript"></script>
     <script type="text/javascript">

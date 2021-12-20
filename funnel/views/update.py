@@ -21,6 +21,7 @@ from .. import app
 from ..forms import SavedProjectForm, UpdateForm
 from ..models import NewUpdateNotification, Profile, Project, Update, db
 from ..typing import ReturnView
+from .helpers import html_in_json
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin
 from .notification import dispatch_notification
@@ -31,24 +32,28 @@ from .project import ProjectViewMixin
 @route('/<profile>/<project>/updates')
 class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', methods=['GET'])
-    @render_with('project_updates.html.jinja2', json=True)
+    @render_with(html_in_json('project_updates.html.jinja2'))
     @requires_roles({'reader'})
     def updates(self):
+        project = self.obj.current_access(datasets=('primary', 'related'))
+        draft_updates = (
+            [
+                update.current_access(datasets=('without_parent', 'related'))
+                for update in self.obj.draft_updates
+            ]
+            if self.obj.features.post_update()
+            else []
+        )
+        published_updates = [
+            update.current_access(datasets=('without_parent', 'related'))
+            for update in self.obj.published_updates
+        ]
+        new_update = self.obj.url_for('new_update')
         return {
-            'project': self.obj.current_access(datasets=('primary', 'related')),
-            'draft_updates': (
-                [
-                    update.current_access(datasets=('primary', 'related'))
-                    for update in self.obj.draft_updates
-                ]
-                if self.obj.features.post_update()
-                else []
-            ),
-            'published_updates': [
-                update.current_access(datasets=('primary', 'related'))
-                for update in self.obj.published_updates
-            ],
-            'new_update': self.obj.url_for('new_update'),
+            'project': project,
+            'draft_updates': draft_updates,
+            'published_updates': published_updates,
+            'new_update': new_update,
         }
 
     @route('new', methods=['GET', 'POST'])

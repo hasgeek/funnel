@@ -44,7 +44,6 @@ from ..forms import (
     ProjectLivestreamForm,
     ProjectNameForm,
     ProjectTransitionForm,
-    RsvpTransitionForm,
 )
 from ..models import (
     RSVP_STATUS,
@@ -57,6 +56,7 @@ from ..models import (
     db,
 )
 from ..signals import project_role_change
+from .helpers import html_in_json
 from .jobs import import_tickets, tag_locations
 from .login_session import requires_login
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
@@ -276,37 +276,35 @@ class ProjectView(
     ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
 ):
     @route('')
-    @render_with('project.html.jinja2')
+    @render_with(html_in_json('project.html.jinja2'))
     @requires_roles({'reader'})
     def view(self):
-        transition_form = ProjectTransitionForm(obj=self.obj)
-        rsvp_form = RsvpTransitionForm()
-        current_rsvp = self.obj.rsvp_for(current_auth.user)
-        featured_proposals = self.obj.proposals.filter_by(featured=True)
         return {
-            'project': self.obj.current_access(),
-            'current_rsvp': current_rsvp,
-            'rsvp_form': rsvp_form,
-            'transition_form': transition_form,
-            'featured_proposals': featured_proposals,
+            'project': self.obj.current_access(datasets=('primary', 'related')),
+            'featured_proposals': [
+                _p.current_access(datasets=('without_parent', 'related'))
+                for _p in self.obj.proposals.filter_by(featured=True)
+            ],
         }
 
     @route('sub')
     @route('proposals')
-    @render_with('project_submissions.html.jinja2')
+    @render_with(html_in_json('project_submissions.html.jinja2'))
     @requires_roles({'reader'})
     def view_proposals(self):
-        cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         return {
-            'project': self.obj,
-            'cfp_transition_form': cfp_transition_form,
+            'project': self.obj.current_access(datasets=('primary', 'related')),
+            'submissions': [
+                _p.current_access(datasets=('without_parent', 'related'))
+                for _p in self.obj.proposals
+            ],
         }
 
     @route('videos')
-    @render_with('project_videos.html.jinja2')
+    @render_with(html_in_json('project_videos.html.jinja2'))
     def session_videos(self):
         return {
-            'project': self.obj,
+            'project': self.obj.current_access(datasets=('primary', 'related')),
         }
 
     @route('editslug', methods=['GET', 'POST'])
@@ -609,8 +607,11 @@ class ProjectView(
     @requires_roles({'promoter'})
     def rsvp_list(self):
         return {
-            'project': self.obj,
-            'going_rsvps': self.obj.rsvps_with(RSVP_STATUS.YES),
+            'project': self.obj.current_access(datasets=('primary', 'related')),
+            'going_rsvps': [
+                _r.current_access(datasets=('without_parent', 'related'))
+                for _r in self.obj.rsvps_with(RSVP_STATUS.YES)
+            ],
         }
 
     def get_rsvp_state_csv(self, state):
@@ -721,9 +722,11 @@ class ProjectView(
                 )
             return redirect(self.obj.url_for('admin'), code=303)
         return {
-            'profile': self.obj.profile,
-            'project': self.obj,
+            'profile': self.obj.profile.current_access(datasets=('primary',)),
+            'project': self.obj.current_access(datasets=('without_parent', 'related')),
             'ticket_events': self.obj.ticket_events,
+            'ticket_clients': self.obj.ticket_clients,
+            'ticket_types': self.obj.ticket_types,
         }
 
     @route('settings', methods=['GET', 'POST'])
@@ -734,21 +737,30 @@ class ProjectView(
         transition_form = ProjectTransitionForm(obj=self.obj)
         cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         return {
-            'project': self.obj,
+            'project': self.obj.current_access(datasets=('primary', 'related')),
             'transition_form': transition_form,
             'cfp_transition_form': cfp_transition_form,
         }
 
     @route('comments', methods=['GET'])
-    @render_with('project_comments.html.jinja2')
+    @render_with(html_in_json('project_comments.html.jinja2'))
     @requires_roles({'reader'})
     def comments(self):
+        project = self.obj.current_access(datasets=('primary', 'related'))
         comments = self.obj.commentset.views.json_comments()
         subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
+        new_comment_url = self.obj.commentset.url_for('new')
+        comments_url = self.obj.commentset.url_for()
+        last_seen_url = (
+            self.obj.commentset.url_for('update_last_seen_at') if subscribed else None
+        )
         return {
-            'project': self.obj,
+            'project': project,
             'subscribed': subscribed,
             'comments': comments,
+            'new_comment_url': new_comment_url,
+            'comments_url': comments_url,
+            'last_seen_url': last_seen_url,
         }
 
     @route('update_featured', methods=['POST'])

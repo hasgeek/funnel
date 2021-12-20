@@ -2,6 +2,8 @@ import Vue from 'vue/dist/vue.min';
 import ScrollHelper from './utils/scrollhelper';
 import { faSvg } from './utils/vue_util';
 import addVegaSupport from './utils/vegaembed';
+import Form from './utils/formhelper';
+import Spa from './utils/spahelper';
 
 const Schedule = {
   renderScheduleTable() {
@@ -80,35 +82,22 @@ const Schedule = {
             .substring(0, 400)
             .concat('..');
         },
-        updateMetaTags(pageDetails) {
-          $('title').html(pageDetails.title);
-          $('meta[name="DC.title"]').attr('content', pageDetails.pageTitle);
-          $('meta[property="og:title"]').attr('content', pageDetails.pageTitle);
-          $('meta[name=description]').attr('content', pageDetails.description);
-          $('meta[property="og:description"]').attr(
-            'content',
-            pageDetails.description
-          );
-          $('link[rel=canonical]').attr('href', pageDetails.url);
-          $('meta[property="og:url"]').attr('content', pageDetails.url);
-        },
         handleBrowserHistory() {
           // On closing modal, update browser history
           $('#session-modal').on($.modal.CLOSE, () => {
             this.modalHtml = '';
-            this.updateMetaTags(this.pageDetails);
+            Spa.updateMetaTags(this.pageDetails);
             if (window.history.state.openModal) {
               window.history.back();
             }
           });
-          // Event listener for back key press since opening modal update browser history
           $(window).on('popstate', () => {
             if (this.modalHtml) {
               $.modal.close();
             }
           });
         },
-        openModal(sessionHtml, backPage, pageDetails) {
+        openModal(sessionHtml, currentPage, pageDetails) {
           this.modalHtml = sessionHtml;
           $('#session-modal').modal('show');
           window.history.pushState(
@@ -116,33 +105,30 @@ const Schedule = {
               openModal: true,
             },
             '',
-            backPage
+            currentPage
           );
-          this.updateMetaTags(pageDetails);
+          Spa.updateMetaTags(pageDetails);
         },
         showSessionModal(activeSession) {
-          const backPage = `${this.pageDetails.url}/${activeSession.url_name_uuid_b58}`;
+          const currentPage = `${this.pageDetails.url}/${activeSession.url_name_uuid_b58}`;
           const pageDetails = {
             title: `${activeSession.title} — ${this.pageDetails.projectTitle}`,
             pageTitle: activeSession.title,
             description: activeSession.speaker
               ? `${activeSession.title} by ${activeSession.speaker}`
               : `${activeSession.title}, ${this.pageDetails.projectTitle}`,
-            url: backPage,
+            url: currentPage,
           };
           if (activeSession.modal_url) {
             $.ajax({
               url: activeSession.modal_url,
               type: 'GET',
               success: (sessionHtml) => {
-                this.openModal(sessionHtml, backPage, pageDetails);
+                this.openModal(sessionHtml, currentPage, pageDetails);
               },
-              error() {
-                window.toastr.error(
-                  window.gettext(
-                    'There was a problem in contacting the server. Please try again later'
-                  )
-                );
+              error(response) {
+                const errorMsg = Form.getResponseError(response);
+                window.toastr.error(errorMsg);
               },
             });
           }
@@ -216,12 +202,19 @@ const Schedule = {
           } else {
             // Scroll to the last schedule
             ScrollHelper.animateScrollTo(
-              $(schedule.config.parentContainer)
-                .find('.schedule__date')
-                .last()
-                .offset().top - this.headerHeight
+              $('.schedule__date').last().offset().top - this.headerHeight
             );
           }
+          window.history.replaceState(
+            {
+              subPage: true,
+              prevUrl: this.pageDetails.url,
+              navId: window.history.state.navId,
+              refresh: false,
+            },
+            '',
+            this.pageDetails.url
+          );
 
           // On exiting the page, save page scroll position in session storage
           $(window).bind('beforeunload', () => {

@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, cast
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from flask import Response, current_app, json, jsonify
+from flask import Response, current_app, json
 
 from icalendar import Alarm, Calendar, Event, vCalAddress, vText
 from pytz import utc
@@ -27,7 +27,7 @@ from coaster.views import (
 from .. import app
 from ..models import Project, Proposal, Rsvp, Session, VenueRoom, db
 from ..typing import ReturnRenderWith, ReturnView
-from .helpers import localize_date
+from .helpers import html_in_json, localize_date
 from .login_session import requires_login
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
 
@@ -223,22 +223,25 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
 @route('/<profile>/<project>/schedule')
 class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
-    @render_with('project_schedule.html.jinja2')
+    @render_with(html_in_json('project_schedule.html.jinja2'))
     @requires_roles({'reader'})
     def schedule(self) -> ReturnRenderWith:
         scheduled_sessions_list = session_list_data(
             self.obj.scheduled_sessions, with_modal_url='view_popup'
         )
+        project = self.obj.current_access(datasets=('primary', 'related'))
+        venues = [
+            venue.current_access(datasets=('without_parent', 'related'))
+            for venue in self.obj.venues
+        ]
+        schedule = schedule_data(
+            self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
+        )
         return {
-            'project': self.obj.current_access(datasets=('primary', 'related')),
-            'venues': [
-                venue.current_access(datasets=('without_parent', 'related'))
-                for venue in self.obj.venues
-            ],
+            'project': project,
+            'venues': venues,
             'sessions': scheduled_sessions_list,
-            'schedule': schedule_data(
-                self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
-            ),
+            'schedule': schedule,
         }
 
     @route('subscribe')
@@ -306,8 +309,9 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @route('update', methods=['POST'])
     @requires_login
     @requires_roles({'editor'})
+    @render_with(json=True)
     @requestargs(('sessions', json.loads))
-    def update_schedule(self, sessions) -> ReturnView:
+    def update_schedule(self, sessions) -> ReturnRenderWith:
         for session in sessions:
             try:
                 s = Session.query.filter_by(
@@ -325,7 +329,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                 )
         self.obj.update_schedule_timestamps()
         db.session.commit()
-        return jsonify(status=True)
+        return {'status': 'ok'}
 
 
 ProjectScheduleView.init_app(app)

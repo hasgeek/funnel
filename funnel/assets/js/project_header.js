@@ -1,6 +1,7 @@
 import SaveProject from './utils/bookmark';
 import Video from './utils/embedvideo';
 import Analytics from './utils/analytics';
+import Spa from './utils/spahelper';
 
 const Ticketing = {
   init(tickets) {
@@ -160,7 +161,11 @@ const Ticketing = {
 };
 
 $(() => {
-  window.Hasgeek.projectHeaderInit = (saveProjectConfig = '', tickets = '') => {
+  window.Hasgeek.projectHeaderInit = (
+    projectTitle,
+    saveProjectConfig = '',
+    tickets = ''
+  ) => {
     if (saveProjectConfig) {
       SaveProject(saveProjectConfig);
     }
@@ -190,5 +195,26 @@ $(() => {
     if (tickets) {
       Ticketing.init(tickets);
     }
+
+    const hightlightNavItem = function (navElem) {
+      const navHightlightClass = 'sub-navbar__item--active';
+      $('.sub-navbar__item').removeClass(navHightlightClass);
+      $(`#${navElem}`).addClass(navHightlightClass);
+
+      if (window.Hasgeek.subpageTitle) {
+        $('body').addClass('subpproject-page');
+      } else {
+        $('body').removeClass('subpproject-page');
+      }
+    };
+
+    const currentnavItem = $('.sub-navbar__item--active').attr('id');
+    Spa.init(projectTitle, currentnavItem, hightlightNavItem);
+
+    $('body').on('click', '.js-spa-navigate', function (event) {
+      event.preventDefault();
+      const url = $(this).attr('href');
+      Spa.fetchPage(url, $(this).attr('id'), true);
+    });
   };
 });

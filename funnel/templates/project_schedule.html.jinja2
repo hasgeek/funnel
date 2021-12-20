@@ -1,5 +1,9 @@
 {% set current_page = 'schedule' %}
-{% extends "project_layout.html.jinja2" %}
+{%- if not request_is_xhr() -%}
+  {% extends "project_layout.html.jinja2" %}
+{%- else -%}
+  {% extends "project_spa_layout.html.jinja2" %}
+{% endif %}
 {%- from "js/schedule.js.jinja2" import schedule_template %}
 
 {% block title %}{%- if active_session -%}{{ active_session.title }}{%- else -%}{% trans %}Schedule{% endtrans %}{%- endif -%}{% endblock %}
@@ -89,7 +93,8 @@
 {% block footerinnerscripts %}
   <script src="{{ built_asset('schedule_view.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
-    $(document).ready( function() {
+    window.Hasgeek.subpageTitle = {{ self.title()|tojson }};
+    $(function() {
       var scheduleConfig = {
         fromDate: {{ project.start_at_localized|tojson }},
         toDate: {{ project.end_at_localized|tojson }},

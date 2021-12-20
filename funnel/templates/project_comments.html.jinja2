@@ -1,5 +1,9 @@
 {% set current_page = 'comments' %}
-{% extends "project_layout.html.jinja2" %}
+{%- if not request_is_xhr() -%}
+  {% extends "project_layout.html.jinja2" %}
+{%- else -%}
+  {% extends "project_spa_layout.html.jinja2" %}
+{% endif %}
 {% from "forms.html.jinja2" import renderfield, widgetscripts %}
 {%- from "js/comments.js.jinja2" import comments_tree, comment_template %}
 {% block title %}{% trans %}Comments{% endtrans %}{% endblock %}
@@ -23,17 +27,18 @@
 {% block footerinnerscripts %}
   <script src="{{ built_asset('comments.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
+    window.Hasgeek.subpageTitle = {{ self.title()|tojson }};
     $(function() {
       var commentsConfig = {
-        newCommentUrl: "{{ project.commentset.url_for('new') }}",
-        commentsUrl: "{{ project.commentset.url_for() }}",
+        newCommentUrl: {{ new_comment_url|tojson }},
+        commentsUrl: {{ comments_url|tojson }},
         comments: [],
         divElem: "#comments-wrapper",
         commentTemplate: '#comment-template',
         isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
         user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
         loginUrl: "{{ url_for('login') }}",
-        lastSeenUrl: {% if project.commentset.current_roles.document_subscriber %}{{ project.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
+        lastSeenUrl: {% if subscribed %}{{ last_seen_url|tojson }}{% else %}false{% endif %},
         codemirrorUrl: {% assets "js_codemirrormarkdown" -%}{{ ASSET_URL|tojson }}{%- endassets -%}
       };
 

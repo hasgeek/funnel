@@ -8,7 +8,7 @@ describe('View schedule of p roject', () => {
 
   it('View schedule', () => {
     cy.server();
-    cy.route('**/viewsession-popup').as('view-session');
+    cy.route('GET', '**/viewsession-popup').as('view-session');
 
     cy.visit('/');
     cy.get('.upcoming')
@@ -29,7 +29,7 @@ describe('View schedule of p roject', () => {
         cy.get('.schedule__row__column--header').contains(venue.room.title);
       });
     });
-    cy.get('.schedule__row__column--talks').contains(session.time).click();
+    cy.get('[data-cy="session-time"]').contains(session.time).click();
     cy.wait('@view-session');
     cy.get('#session-modal').should('be.visible');
     tomorrow = dayjs().add(1, 'days').format('MMM D, YYYY');
@@ -40,10 +40,10 @@ describe('View schedule of p roject', () => {
     cy.get('[data-cy-session="room"]').contains(session.venue_room);
     cy.get('[data-cy="session-video"]').find('iframe').should('be.visible');
     cy.get('#session-modal').find('a.modal__close').click();
+    cy.wait(1000);
 
-    cy.get('.schedule__row__column--talks').contains(proposal.title).click();
+    cy.get('[data-cy="session-title"]').contains(proposal.title).click();
     cy.wait('@view-session');
-    cy.get('#session-modal').should('be.visible');
     cy.get('[data-cy-session="title"]').contains(proposal.title);
     cy.get('[data-cy-session="speaker"]').contains(user.username);
     cy.get('[data-cy-session="time"]').contains(tomorrow);

@@ -29,15 +29,14 @@
     <div class="grid__col-xs-6 grid__col-sm-8 grid__col-md-6 grid__col-lg-9">
       {{ checkin_count() }}
     </div>
-    <div class="grid__col-xs-12 grid__col-md-3">
-      <form class="search-participant mui-form mui-form--margins">
-        <div class="mui-textfield mui-textfield--float-label">
-          <input class="field-title search-query" id="search" type="text" name="key" value=""/>
-          <label>{{ faicon(icon='search',  baseline=false) }} Search</label>
+    <div class="grid__col-xs-12 grid__col-md-4">
+      <form class="mui--d-inlineblock search search--small search--icon mui--z1">
+        <div class="mui-textfield">
+          <input class="search-query" id="search" type="text" name="key" value="" placeholder="Search"/>{{ faicon(icon='search', css_class='search-form__icon')}}
         </div>
       </form>
     </div>
-    <div class="grid__col-xs-12 grid__col-md-9">
+    <div class="grid__col-xs-12 grid__col-md-8">
       <ul class="mui-list--inline">
         <li><a href="{{ ticket_event.url_for('badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="badges-to-printed">Badges to be printed</a></li>
          <li><a href="{{ ticket_event.url_for('label_badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="label-badges-to-printed">Label badges to be printed</a></li>
