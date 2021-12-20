@@ -724,9 +724,9 @@ class ProjectView(
         return {
             'profile': self.obj.profile.current_access(datasets=('primary',)),
             'project': self.obj.current_access(datasets=('without_parent', 'related')),
-            'ticket_events': self.obj.ticket_events,
-            'ticket_clients': self.obj.ticket_clients,
-            'ticket_types': self.obj.ticket_types,
+            'ticket_events': [_e.current_access() for _e in self.obj.ticket_events],
+            'ticket_clients': [_c.current_access() for _c in self.obj.ticket_clients],
+            'ticket_types': [_t.current_access() for _t in self.obj.ticket_types],
         }
 
     @route('settings', methods=['GET', 'POST'])
