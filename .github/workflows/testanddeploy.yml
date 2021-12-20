@@ -33,7 +33,8 @@ jobs:
 
       - name: Copy requirements file
         run: |
-          cat requirements_test.txt > requirements.txt
+          echo "" >> requirements.txt
+          cat requirements_test.txt >> requirements.txt
           cat requirements.txt
 
       - name: Run Docker Compose using the docker-compose.ci.yml file
