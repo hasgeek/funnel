@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, cast
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from flask import Response, current_app, json, jsonify
+from flask import Response, current_app, json
 
 from icalendar import Alarm, Calendar, Event, vCalAddress, vText
 from pytz import utc

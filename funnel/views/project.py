@@ -295,7 +295,9 @@ class ProjectView(
     def view_proposals(self):
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
-            'submissions': self.obj.proposals.current_access(datasets=('primary', 'related')),
+            'submissions': self.obj.proposals.current_access(
+                datasets=('primary', 'related')
+            ),
         }
 
     @route('videos')
@@ -606,7 +608,10 @@ class ProjectView(
     def rsvp_list(self):
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
-            'going_rsvps': [_r.current_access(datasets=('without_parent', 'related')) for _r in self.obj.rsvps_with(RSVP_STATUS.YES)]
+            'going_rsvps': [
+                _r.current_access(datasets=('without_parent', 'related'))
+                for _r in self.obj.rsvps_with(RSVP_STATUS.YES)
+            ],
         }
 
     def get_rsvp_state_csv(self, state):
