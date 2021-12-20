@@ -317,7 +317,6 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
     @route('', methods=['GET', 'POST'])
     @render_with(html_in_json('project_membership.html.jinja2'))
     def crew(self):
-        self.obj
         memberships = [
             membership.current_access(datasets=('without_parent', 'related'))
             for membership in self.obj.active_crew_memberships

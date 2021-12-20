@@ -327,7 +327,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                 )
         self.obj.update_schedule_timestamps()
         db.session.commit()
-        return jsonify(status=True)
+        return {'status': 'ok'}
 
 
 ProjectScheduleView.init_app(app)

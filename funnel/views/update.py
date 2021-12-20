@@ -38,14 +38,14 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
         project = self.obj.current_access(datasets=('primary', 'related'))
         draft_updates = (
             [
-                update.current_access(datasets=('primary', 'related'))
+                update.current_access(datasets=('without_parent', 'related'))
                 for update in self.obj.draft_updates
             ]
             if self.obj.features.post_update()
             else []
         )
         published_updates = [
-            update.current_access(datasets=('primary', 'related'))
+            update.current_access(datasets=('without_parent', 'related'))
             for update in self.obj.published_updates
         ]
         new_update = self.obj.url_for('new_update')
