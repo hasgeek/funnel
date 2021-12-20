@@ -34,7 +34,7 @@
       <div class="mui-divider"></div>
       <div class="card__footer">
         <a href="{{ project.url_for('new_event') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-ticket-event">{% trans %}New ticketed event{% endtrans %}</a>
-        {%- if project.ticket_events %}
+        {%- if ticket_events %}
           <a href="{{ project.url_for('new_participant') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent" data-cy="add-ticket-participant">{% trans %}Add ticketed participant{% endtrans %}</a>
         {%- endif %}
       </div>
@@ -50,7 +50,7 @@
       </div>
       <div class="card__body">
         <ol class="mui-list--aligned">
-          {%- for ticket_type in project.ticket_types -%}
+          {%- for ticket_type in ticket_types -%}
             <li data-cy-ticket="{{ ticket_type.title }}">
               <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead" data-ga="View ticket type">{{ ticket_type.title }}</a>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-cy="ticket-edit"  data-ga="edit ticket type">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
             </li>
@@ -72,7 +72,7 @@
       </div>
       <div class="card__body">
         <ol class="mui-list--aligned">
-          {%- for client in project.ticket_clients %}
+          {%- for client in ticket_clients %}
             <li>
               <span class="mui--text-subhead">{{client.name}}</span>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ client.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}"  data-ga="Edit ticket client">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
             </li>
@@ -82,7 +82,7 @@
       <div class="mui-divider"></div>
         <div class="card__footer">
           <a href="{{ project.url_for('new_ticket_client') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary" data-cy="new-ticket-client">{% trans %}New ticket client{% endtrans %}</a>
-          {%- if project.ticket_clients %}
+          {%- if ticket_clients %}
             <form method="POST" id="csrf_form-submit" enctype="multipart/form-data" class="mui-form inline-form">
               <div class="form-group">
                 {{ csrf_tag() }}
