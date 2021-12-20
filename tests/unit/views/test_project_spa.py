@@ -1,14 +1,17 @@
 """Test response types for project SPA endpoints."""
 
 from itertools import product
+from typing import Optional
 from urllib.parse import urlsplit
 
 import pytest
 
 # Endpoints to test within the project namespace
 subpages = ['', 'updates', 'comments', 'sub', 'schedule', 'videos', 'crew']
-# XHR header
-xhr_headers = [{}, {'X-Requested-With': 'xmlhttprequest'}]
+# XHR header (without, with)
+xhr_headers = [None, {'X-Requested-With': 'xmlhttprequest'}]
+# Logins (anon, promoter fixture)
+login_sessions = [None, 'promoter_login']
 
 
 @pytest.fixture
@@ -31,10 +34,18 @@ def test_project_url_is_as_expected(project_url):
 
 
 @pytest.mark.parametrize(
-    ['page', 'xhr', 'login'], product(subpages, xhr_headers, [None, 'promoter_login'])
+    ['page', 'xhr', 'login'], product(subpages, xhr_headers, login_sessions)
 )
-def test_default_is_html(request, client, login, project_url, page, xhr):
-    request.getfixturevalue(login) if login else None
+def test_default_is_html(
+    request,
+    client,
+    login: Optional[str],
+    project_url: str,
+    page: str,
+    xhr: Optional[dict],
+):
+    if login:
+        request.getfixturevalue(login)
     headers = {}
     if xhr:
         headers.update(xhr)
@@ -45,10 +56,18 @@ def test_default_is_html(request, client, login, project_url, page, xhr):
 
 
 @pytest.mark.parametrize(
-    ['page', 'xhr', 'login'], product(subpages, xhr_headers, [None, 'promoter_login'])
+    ['page', 'xhr', 'login'], product(subpages, xhr_headers, login_sessions)
 )
-def test_html_response(request, client, login, project_url, page, xhr):
-    request.getfixturevalue(login) if login else None
+def test_html_response(
+    request,
+    client,
+    login: Optional[str],
+    project_url: str,
+    page: str,
+    xhr: Optional[dict],
+):
+    if login:
+        request.getfixturevalue(login)
     headers = {'Accept': 'text/html'}
     if xhr:
         headers.update(xhr)
@@ -58,14 +77,13 @@ def test_html_response(request, client, login, project_url, page, xhr):
     assert bool(xhr) ^ rv.data.decode('utf-8').startswith('<!DOCTYPE html>')
 
 
-@pytest.mark.parametrize(
-    ['page', 'xhr', 'login'], product(subpages, xhr_headers, [None, 'promoter_login'])
-)
-def test_json_response(request, client, login, project_url, page, xhr):
-    request.getfixturevalue(login) if login else None
+@pytest.mark.parametrize(['page', 'login'], product(subpages, login_sessions))
+def test_json_response(
+    request, client, login: Optional[str], project_url: str, page: str
+):
+    if login:
+        request.getfixturevalue(login)
     headers = {'Accept': 'application/json'}
-    if xhr:
-        headers.update(xhr)
     rv = client.get(project_url + page, headers=headers)
     assert rv.status_code == 200
     assert rv.content_type == 'application/json'
@@ -73,10 +91,18 @@ def test_json_response(request, client, login, project_url, page, xhr):
 
 
 @pytest.mark.parametrize(
-    ['page', 'xhr', 'login'], product(subpages, xhr_headers, [None, 'promoter_login'])
+    ['page', 'xhr', 'login'], product(subpages, xhr_headers, login_sessions)
 )
-def test_htmljson_response(request, client, login, project_url, page, xhr):
-    request.getfixturevalue(login) if login else None
+def test_htmljson_response(
+    request,
+    client,
+    login: Optional[str],
+    project_url: str,
+    page: str,
+    xhr: Optional[dict],
+):
+    if login:
+        request.getfixturevalue(login)
     headers = {'Accept': 'application/x.html+json'}
     if xhr:
         headers.update(xhr)
