@@ -383,12 +383,17 @@ def compress_response(response: ResponseBase) -> None:
 
 
 def html_in_json(template: str):
+    def render_json_with_status(kwargs):
+        return jsonify(status='ok', **kwargs)
+
     def render_html_in_json(kwargs):
-        return jsonify({'html': render_template(template, **kwargs)})
+        resp = jsonify({'status': 'ok', 'html': render_template(template, **kwargs)})
+        resp.content_type = 'application/x.html+json; charset=utf-8'
+        return resp
 
     return {
         'text/html': template,
-        'application/json': jsonify,
+        'application/json': render_json_with_status,
         'application/x.html+json': render_html_in_json,
     }
 
