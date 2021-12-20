@@ -24,7 +24,7 @@ latestfile=$(aws s3api --profile production list-objects-v2 --bucket hasgeek-ins
 echo $latestfile
 LOCAL_DUMP_PATH="./instantbackups.gz"
 aws s3 --profile production cp s3://hasgeek-instant-db-backup/${latestfile} $LOCAL_DUMP_PATH
-gunzip instantbackups.gz
+gunzip -f instantbackups.gz
 docker exec -i "${DOCKER_DB_NAME}" pg_restore -C --clean --no-acl --no-owner  < instantbackups
 docker-compose stop postgres --remove-orphans
 docker-compose -f docker-compose.staging.yml up -d
