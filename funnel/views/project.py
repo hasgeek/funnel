@@ -295,7 +295,10 @@ class ProjectView(
     def view_proposals(self):
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
-            'submissions': [_p.current_access(datasets=('without_parent', 'related')) for _p in self.obj.proposals]
+            'submissions': [
+                _p.current_access(datasets=('without_parent', 'related'))
+                for _p in self.obj.proposals
+            ],
         }
 
     @route('videos')
