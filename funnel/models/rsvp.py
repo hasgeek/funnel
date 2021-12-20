@@ -66,7 +66,11 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         call={'owner', 'project_promoter'},
     )
 
-    __datasets__ = {'primary': {'project', 'user', 'response'}, 'related': {'response'}}
+    __datasets__ = {
+        'primary': {'project', 'user', 'response'},
+        'without_parent': {'user', 'response'},
+        'related': {'response'},
+    }
 
     @property
     def response(self):
