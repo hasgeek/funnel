@@ -318,9 +318,10 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                 db.session.commit()
             except NoResultFound:
                 current_app.logger.error(
-                    '%s schedule update error: session = %s',
-                    project=self.obj.name,
-                    session=session,
+                    '%s/%s schedule update error: no existing session matching %s',
+                    self.obj.profile.name,
+                    self.obj.name,
+                    repr(session),
                 )
         self.obj.update_schedule_timestamps()
         db.session.commit()
