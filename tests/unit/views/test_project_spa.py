@@ -5,6 +5,11 @@ from urllib.parse import urlsplit
 
 import pytest
 
+# Endpoints to test within the project namespace
+subpages = ['', 'updates', 'comments', 'sub', 'schedule', 'videos', 'crew']
+# XHR header
+xhr_headers = [{}, {'X-Requested-With': 'xmlhttprequest'}]
+
 
 @pytest.fixture
 def project_url(client, project_expo2010):
@@ -16,10 +21,6 @@ def test_project_url_is_as_expected(project_url):
     assert project_url.endswith('/')
     # URL is relative (for tests)
     assert project_url == '/ankh-morpork/2010/'
-
-
-subpages = ['', 'updates', 'comments', 'sub', 'schedule', 'videos', 'crew']
-xhr_headers = [{}, {'X-Requested-With': 'xmlhttprequest'}]
 
 
 @pytest.mark.parametrize(['page', 'xhr'], product(subpages, xhr_headers))
