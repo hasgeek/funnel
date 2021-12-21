@@ -21,7 +21,7 @@
                     <a href="{{ url }}" aria-label="{{ title }}" class="card card--upcoming clickable-card" data-ga="View project">
                       <div class="card__image-wrapper">
                         {{#if obj.bg_image }}
-                          <img class="card__image" src="{{ obj.bg_image }}?size=1500" alt="{{ title }}"/>
+                          <img class="card__image" src="{{ obj.bg_image }}?size=400" alt="{{ title }}"/>
                         {{else}}
                           <img class="card__image" src="{{ defaultImage }}" alt="{{ title }}"/>
                           <p class="card__image__tagline mui--text-body2">{{ title }}</p>

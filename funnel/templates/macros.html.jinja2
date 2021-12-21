@@ -1,4 +1,6 @@
-{%- set banner_img = 1500 %}
+{%- set spotlight_banner = 700 %}
+{%- set card_banner = 400 %}
+{%- set profile_banner = 1170 %}
 {%- set profile_logo = 240 %}
 {%- set profile_logo_small = 80 %}
 
@@ -150,9 +152,9 @@
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-ga="View project">
     <div class="card__image-wrapper {% if not project.bg_image.url %}card__image-wrapper--default{% endif %}">
       {% if project.bg_image.url %}
-        <img class="card__image js-lazyload-img" data-src="{{ project.bg_image.resize(banner_img) }}" alt="{{ project.title }}"/>
+        <img class="card__image js-lazyload-img" data-src="{{ project.bg_image.resize(card_banner) }}" alt="{{ project.title }}"/>
         <noscript>
-          <img class="card__image" src="{{ project.bg_image.resize(banner_img) }}" alt="{{ project.title }}"/>
+          <img class="card__image" src="{{ project.bg_image.resize(card_banner) }}" alt="{{ project.title }}"/>
         </noscript>
       {% else %}
         <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ project.title }}"/>
@@ -215,7 +217,7 @@
             <div class="card card--spotlight card--spotlight--live">
               <div class="card__image-wrapper">
                 {% if featured_project.bg_image.url %}
-                  <img class="card__image" src="{{ featured_project.bg_image.resize(banner_img) }}" alt="{{ featured_project.title }}"/>
+                  <img class="card__image" src="{{ featured_project.bg_image.resize(spotlight_banner) }}" alt="{{ featured_project.title }}"/>
                 {% else %}
                   <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
                   <p class="card__image__tagline">{{ featured_project.title }}</p>
@@ -261,7 +263,7 @@
               <a class="card card--spotlight clickable-card" href="{{ featured_project.url_for() }}" aria-label="{{ featured_project.title }}" data-cy="spotlight-project" data-ga="View spotlight project">
                 <div class="card__image-wrapper">
                   {% if featured_project.bg_image.url %}
-                    <img class="card__image" src="{{ featured_project.bg_image.resize(banner_img) }}" alt="{{ featured_project.title }}"/>
+                    <img class="card__image" src="{{ featured_project.bg_image.resize(spotlight_banner) }}" alt="{{ featured_project.title }}"/>
                   {% else %}
                     <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
                     <p class="card__image__tagline">{{ featured_project.title }}</p>
@@ -402,7 +404,7 @@
       <div class="profile__banner">
         <div class="profile__banner__box">
           {%- if profile.banner_image_url.url %}
-            <img class="profile__banner__box__img" src="{{ profile.banner_image_url.resize(banner_img) }}" alt="{{ profile.title }}" data-cy="profile-banner-img"/>
+            <img class="profile__banner__box__img" src="{{ profile.banner_image_url.resize(profile_banner) }}" alt="{{ profile.title }}" data-cy="profile-banner-img"/>
           {% else %}
             <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/default-banner-profile.png') }}" alt="{{ profile.title }}"/>
           {% endif %}
