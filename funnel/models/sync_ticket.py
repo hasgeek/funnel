@@ -89,24 +89,45 @@ class TicketEvent(GetTitleMixin, db.Model):
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
         db.relationship(Project, backref=db.backref('ticket_events', cascade='all')),
+        rw={'project_promoter'},
         grants_via={None: project_child_role_map},
     )
     parent = db.synonym('project')
-    ticket_types = db.relationship(
-        'TicketType', secondary=ticket_event_ticket_type, back_populates='ticket_events'
+    ticket_types = with_roles(
+        db.relationship(
+            'TicketType',
+            secondary=ticket_event_ticket_type,
+            back_populates='ticket_events',
+        ),
+        rw={'project_promoter'},
     )
-    ticket_participants = db.relationship(
-        'TicketParticipant',
-        secondary='ticket_event_participant',
-        backref='ticket_events',
-        lazy='dynamic',
+    ticket_participants = with_roles(
+        db.relationship(
+            'TicketParticipant',
+            secondary='ticket_event_participant',
+            backref='ticket_events',
+            lazy='dynamic',
+        ),
+        rw={'project_promoter'},
     )
-    badge_template = db.Column(db.Unicode(250), nullable=True)
+    badge_template = with_roles(
+        db.Column(db.Unicode(250), nullable=True), rw={'project_promoter'}
+    )
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'name'),
         db.UniqueConstraint('project_id', 'title'),
     )
+
+    __roles__ = {
+        'all': {
+            'call': {'url_for'},
+        },
+        'project_promoter': {
+            'read': {'name', 'title'},
+            'write': {'name', 'title'},
+        },
+    }
 
 
 class TicketType(GetTitleMixin, db.Model):
@@ -121,17 +142,33 @@ class TicketType(GetTitleMixin, db.Model):
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
         db.relationship(Project, backref=db.backref('ticket_types', cascade='all')),
+        rw={'project_promoter'},
         grants_via={None: project_child_role_map},
     )
     parent = db.synonym('project')
-    ticket_events = db.relationship(
-        TicketEvent, secondary=ticket_event_ticket_type, back_populates='ticket_types'
+    ticket_events = with_roles(
+        db.relationship(
+            TicketEvent,
+            secondary=ticket_event_ticket_type,
+            back_populates='ticket_types',
+        ),
+        rw={'project_promoter'},
     )
 
     __table_args__ = (
         db.UniqueConstraint('project_id', 'name'),
         db.UniqueConstraint('project_id', 'title'),
     )
+
+    __roles__ = {
+        'all': {
+            'call': {'url_for'},
+        },
+        'project_promoter': {
+            'read': {'name', 'title'},
+            'write': {'name', 'title'},
+        },
+    }
 
 
 class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
@@ -361,16 +398,29 @@ class TicketEventParticipant(BaseMixin, db.Model):
 
 class TicketClient(BaseMixin, db.Model):
     __tablename__ = 'ticket_client'
-    name = db.Column(db.Unicode(80), nullable=False)
-    client_eventid = db.Column(db.Unicode(80), nullable=False)
-    clientid = db.Column(db.Unicode(80), nullable=False)
-    client_secret = db.Column(db.Unicode(80), nullable=False)
-    client_access_token = db.Column(db.Unicode(80), nullable=False)
+    name = with_roles(
+        db.Column(db.Unicode(80), nullable=False), rw={'project_promoter'}
+    )
+    client_eventid = with_roles(
+        db.Column(db.Unicode(80), nullable=False), rw={'project_promoter'}
+    )
+    clientid = with_roles(
+        db.Column(db.Unicode(80), nullable=False), rw={'project_promoter'}
+    )
+    client_secret = with_roles(
+        db.Column(db.Unicode(80), nullable=False), rw={'project_promoter'}
+    )
+    client_access_token = with_roles(
+        db.Column(db.Unicode(80), nullable=False), rw={'project_promoter'}
+    )
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
         db.relationship(Project, backref=db.backref('ticket_clients', cascade='all')),
+        rw={'project_promoter'},
         grants_via={None: project_child_role_map},
     )
+
+    __roles__ = {'all': {'call': {'url_for'}}}
 
     def import_from_list(self, ticket_list):
         """Batch upsert tickets and their associated ticket types and participants."""
