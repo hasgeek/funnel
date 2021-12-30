@@ -37,6 +37,7 @@ from ..models import (
     ProposalSuuidRedirect,
     db,
 )
+from .helpers import html_in_json
 from ..typing import ReturnView
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProjectViewMixin
@@ -181,11 +182,11 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         return super().after_loader()
 
     @route('')
-    @render_with('submission.html.jinja2')
+    @render_with(html_in_json('submission.html.jinja2'))
     @requires_roles({'reader'})
     def view(self):
         return {
-            'project': self.obj.project,
+            'project': self.obj.project.current_access(datasets=('primary', 'related')),
             'proposal': self.obj,
             'subscribed': self.obj.commentset.current_roles.document_subscriber,
         }
