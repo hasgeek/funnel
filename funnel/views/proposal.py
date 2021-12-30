@@ -187,7 +187,7 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     def view(self):
         return {
             'project': self.obj.project.current_access(datasets=('primary', 'related')),
-            'proposal': self.obj,
+            'proposal': self.obj.current_access(datasets=('without_parent', 'related')),
             'subscribed': self.obj.commentset.current_roles.document_subscriber,
         }
 
