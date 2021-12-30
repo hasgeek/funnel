@@ -128,7 +128,8 @@ class Label(BaseScopedNameMixin, db.Model):
                 'restricted',
                 'required',
                 'archived',
-            }
+                'main_label',
+            },
         }
     }
 
