@@ -37,8 +37,8 @@ from ..models import (
     ProposalSuuidRedirect,
     db,
 )
-from .helpers import html_in_json
 from ..typing import ReturnView
+from .helpers import html_in_json
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProjectViewMixin
 from .notification import dispatch_notification
