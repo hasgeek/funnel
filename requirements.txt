@@ -454,7 +454,7 @@ wtforms-sqlalchemy==0.3
     # via baseframe
 yarl==1.7.2
     # via aiohttp
-zipp==3.6.0
+zipp==3.7.0
     # via importlib-metadata
 zxcvbn==4.4.28
     # via -r requirements.in
