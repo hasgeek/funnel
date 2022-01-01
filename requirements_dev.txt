@@ -88,7 +88,7 @@ pep8-naming==0.12.1
     # via -r requirements_dev.in
 pip-tools==6.4.0
     # via -r requirements_dev.in
-platformdirs==2.4.0
+platformdirs==2.4.1
     # via virtualenv
 pre-commit==2.16.0
     # via -r requirements_dev.in
