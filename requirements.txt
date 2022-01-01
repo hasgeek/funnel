@@ -393,7 +393,7 @@ sqlalchemy==1.4.29
     #   flask-sqlalchemy
     #   sqlalchemy-utils
     #   wtforms-sqlalchemy
-sqlalchemy-utils==0.37.9
+sqlalchemy-utils==0.38.2
     # via -r requirements.in
 statsd==3.3.0
     # via baseframe
