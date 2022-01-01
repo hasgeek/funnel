@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements_dev.in
 #
-attrs==21.2.0
+attrs==21.4.0
     # via flake8-bugbear
 backports.entry-points-selectable==1.1.1
     # via virtualenv
