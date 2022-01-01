@@ -316,7 +316,7 @@ pyyaml==6.0
     #   flask-flatpages
 qrcode==7.3.1
     # via -r requirements.in
-redis==4.0.2
+redis==4.1.0
     # via
     #   baseframe
     #   flask-redis
