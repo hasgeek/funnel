@@ -245,7 +245,7 @@ paramiko==2.9.1
     # via fabric3
 passlib==1.7.4
     # via -r requirements.in
-phonenumbers==8.12.39
+phonenumbers==8.12.40
     # via -r requirements.in
 premailer==3.10.0
     # via -r requirements.in
