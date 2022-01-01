@@ -180,7 +180,7 @@ typing-extensions==4.0.1
     #   gitpython
     #   mypy
     #   sqlalchemy-stubs
-virtualenv==20.10.0
+virtualenv==20.12.1
     # via pre-commit
 watchdog==2.1.6
     # via -r requirements_dev.in
