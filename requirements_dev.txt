@@ -135,7 +135,7 @@ types-certifi==2021.10.8.0
     # via -r requirements_dev.in
 types-click==7.1.8
     # via types-flask
-types-cryptography==3.3.9
+types-cryptography==3.3.10
     # via -r requirements_dev.in
 types-enum34==1.1.1
     # via types-cryptography
