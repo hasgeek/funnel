@@ -131,7 +131,7 @@ flask-caching==1.10.1
     # via baseframe
 flask-executor==0.10.0
     # via -r requirements.in
-flask-flatpages==0.7.3
+flask-flatpages==0.8.1
     # via -r requirements.in
 flask-mailman==0.3.0
     # via -r requirements.in
