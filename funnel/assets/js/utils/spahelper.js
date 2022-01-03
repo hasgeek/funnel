@@ -89,7 +89,9 @@ const Spa = {
         pageDetails.navId = currentNavId;
         $('.js-spa-content').html(responseData.html);
         if (Spa.hightlightNavItemFn) Spa.hightlightNavItemFn(currentNavId);
-        pageDetails.title = window.Hasgeek.subpageTitle;
+        pageDetails.title = window.Hasgeek.subpageTitle
+          ? `${window.Hasgeek.subpageTitle} – ${Spa.pageTitle}`
+          : Spa.pageTitle;
         if (updateHistory) Spa.updateHistory(pageDetails);
       },
       error(response) {

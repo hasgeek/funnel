@@ -2,6 +2,7 @@ import SaveProject from './utils/bookmark';
 import Video from './utils/embedvideo';
 import Analytics from './utils/analytics';
 import Spa from './utils/spahelper';
+import Form from './utils/formhelper';
 
 const Ticketing = {
   init(tickets) {
@@ -195,6 +196,8 @@ $(() => {
     if (tickets) {
       Ticketing.init(tickets);
     }
+
+    Form.activateToggleSwitch();
 
     const hightlightNavItem = function (navElem) {
       const navHightlightClass = 'sub-navbar__item--active';

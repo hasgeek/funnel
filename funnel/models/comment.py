@@ -88,7 +88,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {'project', 'proposal', 'update', 'urls'},
-            'call': {'url_for'},
+            'call': {'url_for', 'forms'},
         }
     }
 
