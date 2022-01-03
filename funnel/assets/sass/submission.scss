@@ -332,8 +332,14 @@
 }
 
 .mobile-header-right {
-  position: absolute;
+  position: fixed;
   right: $mui-grid-padding;
-  top: -36px;
+  top: $mui-grid-padding;
   z-index: 1000;
+}
+
+@media (min-width: 768px) {
+  .mobile-header-right {
+    position: static;
+  }
 }
