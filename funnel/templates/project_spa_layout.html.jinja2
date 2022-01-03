@@ -1,5 +1,4 @@
 {%- from "macros.html.jinja2" import faicon, csrf_tag, calendarwidget, saveprojectform, share_dropdown, useravatar %}
-{%- from "project_layout.html.jinja2" import registerblock, project_details, project_host_sponsor with context %}
 
 <div class="mui--hide">
   {% block title %}
@@ -18,38 +17,7 @@
   </div>
 {% endblock %}
 
-<div class="grid__col-sm-6 grid__col-md-7 grid__col-lg-8">
-  {% block left_col %}{% endblock %}
-</div>
-{% block right_col %}
-  <div class="grid__col-sm-6 grid__col-md-5 grid__col-lg-4">
-    <div class="project-details">
-      <div class="card card--shaped card--lessmargin">
-        <div class="card__body project-banner">
-          <div class="project-details__box">
-            {% if project.start_at and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
-              <div class="project-details__box__content mui--hidden-xs mui--hidden-sm">
-                <div aria-label="{{ project.datelocation }}">
-                  {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
-                </div>
-              </div>
-            {% endif %}
-            {% if project.features.tickets() or project.features.rsvp() %}
-              <div class="project-footer {% if current_page == 'project' %}project-footer--main{%- endif %} project-details__box__content">
-                {{ registerblock(project)}}
-              </div>
-            {% endif %}
-            <div class="mui--hidden-xs mui--hidden-sm">
-              {{ project_details(project) }}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="mui--hidden-xs mui--hidden-sm">
-        {{ project_host_sponsor(project) }}
-      </div>
-    </div>
-  </div>
+{% block left_col %}
 {% endblock %}
 
 {% block footerinnerscripts %}
