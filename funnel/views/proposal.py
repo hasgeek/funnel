@@ -186,8 +186,8 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'reader'})
     def view(self):
         return {
-            'project': self.obj.project.current_access(datasets=('primary', 'related')),
-            'proposal': self.obj.current_access(datasets=('without_parent', 'related')),
+            'project': self.obj.project,
+            'proposal': self.obj,
             'subscribed': self.obj.commentset.current_roles.document_subscriber,
         }
 
