@@ -330,3 +330,10 @@
     }
   }
 }
+
+.mobile-header-right {
+  position: absolute;
+  right: $mui-grid-padding;
+  top: -36px;
+  z-index: 1000;
+}

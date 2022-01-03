@@ -106,19 +106,13 @@
 
 {% block mobile_header_title %}{% endblock %}
 
-{% block mobile_header %}
-  <div class="mui--pull-right mobile-nav__icon mobile-nav__icon--right">
-    {{ share_widget(formid='mob', icon_size='title') }}
-  </div>
-{% endblock %}
-
 {% block left_col %}
   <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between nav-btn-wrapper">
     <a class="mui--text-dark mui--text-body2 nounderline js-spa-navigate" href="{{ project.url_for('view_proposals') }}">{{ faicon(icon='chevron-double-left-solid', icon_size='body2', css_class='mui--align-middle btn-margin-right') }}{% trans %}All submissions{% endtrans %}</a>
     <div class="mui--visible-xs-block mui--visible-sm-block">
       {{ prev_next_btn(proposal) }}
     </div>
-    <div class="mui--hidden-xs mui--hidden-sm">
+    <div class="mobile-header-right">
       {{ share_widget(formid='desktop', icon_size='subhead') }}
     </div>
   </div>
