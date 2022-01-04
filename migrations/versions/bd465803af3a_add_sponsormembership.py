@@ -70,4 +70,7 @@ def downgrade():
         op.f('ix_sponsor_membership_profile_id'), table_name='sponsor_membership'
     )
     op.drop_index('ix_sponsor_membership_active', table_name='sponsor_membership')
+    op.drop_constraint(
+        'sponsor_membership_record_type_check', 'sponsor_membership', type_='check'
+    )
     op.drop_table('sponsor_membership')
