@@ -588,7 +588,7 @@
   {% if draggable %}
     <div class="card {%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}">
   {%- else -%}
-    <a class="card clickable-card {%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}" href="{{ proposal.url_for() }}" aria-label="{{ proposal.title }}" data-ga="View submission" data-cy-proposal="{{ proposal.title }}">
+    <a class="card clickable-card js-spa-navigate{%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}" href="{{ proposal.url_for() }}" aria-label="{{ proposal.title }}" data-ga="View submission" data-cy-proposal="{{ proposal.title }}">
   {%- endif %}
     <div class="card__body proposal-card">
       <div class="proposal-card__body">
@@ -628,12 +628,12 @@
           {%- endif -%}
           <div class="proposal-card__body__inner__headline">
             {% if draggable %}
-              <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card"><a class="nounderline mui--text-dark" href="{{ proposal.url_for() }}" data-cy-proposal="{{ proposal.title }}">{{ proposal.title }}</a></h3>
+              <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card"><a class="nounderline mui--text-dark js-spa-navigate" href="{{ proposal.url_for() }}" data-cy-proposal="{{ proposal.title }}">{{ proposal.title }}</a></h3>
             {%- else -%}
               <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card">{{ proposal.title }}</h3>
             {%- endif %}
             {% if proposal.body.html %}
-              <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(max=400) }} {% if draggable %}<a class="nounderline" href="{{ proposal.url_for() }}">{%- endif %}<span class="chip">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</span>{% if draggable %}</a>{%- endif %}</div>
+              <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(max=400) }} {% if draggable %}<a class="nounderline js-spa-navigate" href="{{ proposal.url_for() }}">{%- endif %}<span class="chip">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</span>{% if draggable %}</a>{%- endif %}</div>
             {%- endif -%}
             {% if details %}
               <div class="proposal-card__body__inner__headline__info">

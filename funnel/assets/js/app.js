@@ -58,7 +58,6 @@ $(() => {
     );
   }
   Utils.addWebShare();
-  Utils.activateToggleSwitch();
   if (window.Hasgeek.Config.commentSidebarElem) {
     Utils.headerMenuDropdown(
       '.js-comments-btn',

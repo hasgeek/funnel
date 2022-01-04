@@ -2,6 +2,7 @@ import Form from './utils/formhelper';
 
 export const Submission = {
   init() {
+    Form.activateToggleSwitch();
     $('.js-subscribe-btn').on('click', function subscribeComments(event) {
       event.preventDefault();
       const form = $(this).parents('form');

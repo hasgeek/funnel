@@ -100,6 +100,37 @@ const Form = {
       }
     });
   },
+  activateToggleSwitch() {
+    $('.js-toggle').on('change', function submitToggleSwitch() {
+      const checkbox = $(this);
+      const currentState = this.checked;
+      const previousState = !currentState;
+      const formData = $(checkbox).parent('form').serializeArray();
+      if (!currentState) {
+        formData.push({ name: $(this).attr('name'), value: 'false' });
+      }
+      $.ajax({
+        type: 'POST',
+        url: $(checkbox).parent('form').attr('action'),
+        data: formData,
+        dataType: 'json',
+        timeout: window.Hasgeek.Config.ajaxTimeout,
+        success(responseData) {
+          if (responseData && responseData.message) {
+            window.toastr.success(responseData.message);
+          }
+        },
+        error(response) {
+          Form.handleAjaxError(response);
+          $(checkbox).prop('checked', previousState);
+        },
+      });
+    });
+
+    $('.js-dropdown-toggle').on('click', (event) => {
+      event.stopPropagation();
+    });
+  },
 };
 
 export default Form;
