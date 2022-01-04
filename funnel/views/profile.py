@@ -218,7 +218,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             # sponsored proposals
             submitted_proposals = ''
         else:
-           submitted_proposals = self.obj.user.public_proposals
+            submitted_proposals = self.obj.user.public_proposals
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
