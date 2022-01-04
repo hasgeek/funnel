@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import Dict
 from uuid import UUID
 
+from typing_extensions import Protocol
+
 from baseframe import __
 from funnel.models.moderation import CommentModeratorReport
 
@@ -50,35 +52,34 @@ role_document_subscriber = Role('document_subscriber', __("Document subscriber")
 # --- Mixin classes --------------------------------------------------------------------
 
 
-class DocumentHasProject:
+class NotificationDocumentProtocol(Protocol):
     document_type: str
     document: db.Model
+    document_uuid: UUID
 
+
+class DocumentHasProject:
     @property
-    def preference_context(self) -> Profile:
+    def preference_context(self: NotificationDocumentProtocol) -> Profile:
         return self.document.project.profile
 
-    def hook_context_uuids(self) -> Dict[str, UUID]:
+    def hook_context_uuids(self: NotificationDocumentProtocol) -> Dict[str, UUID]:
         """Return UUIDs of current and parent documents for notification hook hosts."""
         project = self.document.project
         return {
-            self.document_type: self.document_uuid,  # type: ignore[attr-defined]
+            self.document_type: self.document_uuid,
             'project': project.uuid,
             'profile': project.profile.uuid,
         }
 
 
 class DocumentHasProfile:
-    document_type: str
-    document: db.Model
-
     @property
-    def preference_context(self) -> Profile:
+    def preference_context(self: NotificationDocumentProtocol) -> Profile:
         return self.document.profile
 
-    def hook_context_uuids(self) -> Dict[str, UUID]:
+    def hook_context_uuids(self: NotificationDocumentProtocol) -> Dict[str, UUID]:
         """Return UUIDs of current and parent documents for notification hook hosts."""
-        self.document.project
         return {
             self.document_type: self.document_uuid,  # type: ignore[attr-defined]
             'profile': self.document.profile.uuid,

@@ -1212,6 +1212,15 @@ NotificationHook.invited_users = DynamicAssociationProxy(
     'invited_user_memberships', 'user'
 )
 
+# TODO: Spec option to revoke individual notifications in favour of group notifications.
+# This may also require a separate web view for group notifications
+
+
+class NotificationHookTarget:
+    # TODO
+    pass
+
+
 # --- Notification preferences ---------------------------------------------------------
 
 
