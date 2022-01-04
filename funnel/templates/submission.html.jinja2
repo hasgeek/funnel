@@ -231,6 +231,10 @@
       <div class="proposal-content markdown top-padding mui--bg-primary">
         {{ proposal.body }}
       </div>
+      {{ proposal.has_sponsors }}
+      {% for membership in proposal.proposal_sponsor_memberships %}
+       {{ membership }}
+      {%- endfor %}
     </section>
   </div>
 
