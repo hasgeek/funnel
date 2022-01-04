@@ -12,7 +12,7 @@ USE_TWOPHASE = False
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-config = context.config
+config = context.config  # type: ignore[attr-defined]
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -32,7 +32,7 @@ else:
     else:
         bind_names = []
 for bind in bind_names:
-    context.config.set_section_option(
+    context.config.set_section_option(  # type: ignore[attr-defined]
         bind,
         'sqlalchemy.url',
         str(current_app.extensions['migrate'].db.get_engine(bind=bind).url).replace(

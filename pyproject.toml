@@ -105,3 +105,14 @@ reportMissingImports = true
 reportMissingTypeStubs = false
 
 pythonVersion = "3.7"
+
+
+[tool.mypy]
+files = "**/*.py"
+exclude = "node_modules"
+ignore_missing_imports = true
+show_error_codes = true
+warn_unreachable = true
+# Unsafe with pre-commit, see https://github.com/python/mypy/issues/2960
+# warn_unused_ignores = True
+plugins = ["sqlmypy"]
