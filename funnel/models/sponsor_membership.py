@@ -290,14 +290,10 @@ class __Profile:
         read={'admin'},
     )
 
-    sponsored_projects = with_roles(
-        DynamicAssociationProxy('project_sponsor_memberships', 'project'),
-        read={'all'},
-        datasets={'primary', 'without_parent'},
+    sponsored_projects = DynamicAssociationProxy(
+        'project_sponsor_memberships', 'project'
     )
 
-    sponsored_proposals = with_roles(
-        DynamicAssociationProxy('proposal_sponsor_memberships', 'proposal'),
-        read={'all'},
-        datasets={'primary', 'without_parent'},
+    sponsored_proposals = DynamicAssociationProxy(
+        'proposal_sponsor_memberships', 'proposal'
     )
