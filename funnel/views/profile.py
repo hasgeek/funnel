@@ -188,10 +188,11 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     else None
                 ),
                 'sponsored_projects': [
-                    _p.current_access('primary', 'related') for _p in sponsored_projects
+                    _p.current_access(datasets=('primary', 'related'))
+                    for _p in sponsored_projects
                 ],
                 'sponsored_submissions': [
-                    _p.current_access('primary', 'related')
+                    _p.current_access(datasets=('primary', 'related'))
                     for _p in sponsored_submissions
                 ],
             }
