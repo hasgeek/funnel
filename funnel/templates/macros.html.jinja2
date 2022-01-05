@@ -589,6 +589,7 @@
     <div class="mui--pull-right">
       <p class="mui--text-subhead mui--text-light zero-bottom-margin">{% trans %}Supported by{% endtrans %}</p>
       {% for sponsor in sponsors %}
+        {%- with sponsor_public = sponsor.profile.state.PUBLIC %}
         {% if sponsor.label %}
           <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ sponsor.label }}</p>
         {% endif %}
@@ -606,6 +607,7 @@
           </div>
           <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="mui--text-dark mui--text-subhead mui--text-bold nounderline" data-cy="profile-link">{{ sponsor.profile.title }}</a>
         </div>
+        {%- endwith %}
       {%- endfor %}
     </div>
   </div>
