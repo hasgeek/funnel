@@ -221,8 +221,8 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     def user_proposals(self):
         if self.obj.is_organization_profile:
             abort(404)
-        else:
-            submitted_proposals = self.obj.user.public_proposals
+
+        submitted_proposals = self.obj.user.public_proposals
 
         return {
             'profile': self.obj.current_access(datasets=('primary', 'related')),
