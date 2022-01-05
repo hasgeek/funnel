@@ -238,7 +238,7 @@ class __Proposal:
 
 @reopen(Profile)
 class __Profile:
-    sponsor_memberships = db.relationship(
+    project_sponsor_memberships = db.relationship(
         SponsorMembership,
         lazy='dynamic',
         primaryjoin=db.and_(
@@ -249,7 +249,7 @@ class __Profile:
         viewonly=True,
     )
 
-    sponsor_membership_invites = with_roles(
+    project_sponsor_membership_invites = with_roles(
         db.relationship(
             SponsorMembership,
             lazy='dynamic',
@@ -288,4 +288,16 @@ class __Profile:
             viewonly=True,
         ),
         read={'admin'},
+    )
+
+    sponsored_projects = with_roles(
+        DynamicAssociationProxy('project_sponsor_memberships', 'project'),
+        read={'all'},
+        datasets={'primary', 'without_parent'},
+    )
+
+    sponsored_proposals = with_roles(
+        DynamicAssociationProxy('proposal_sponsor_memberships', 'proposal'),
+        read={'all'},
+        datasets={'primary', 'without_parent'},
     )
