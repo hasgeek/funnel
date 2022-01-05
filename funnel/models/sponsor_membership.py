@@ -137,7 +137,10 @@ class ProposalSponsorMembership(
     __data_columns__ = ('seq', 'is_promoted', 'label')
 
     __roles__ = {
-        'all': {'read': {'urls', 'profile', 'proposal', 'is_promoted', 'label', 'seq'}}
+        'all': {
+            'read': {'urls', 'profile', 'proposal', 'is_promoted', 'label', 'seq'},
+            'call': {'url_for'},
+        }
     }
     __datasets__ = {
         'primary': {
@@ -235,7 +238,7 @@ class __Proposal:
 
 @reopen(Profile)
 class __Profile:
-    sponsor_memberships = db.relationship(
+    project_sponsor_memberships = db.relationship(
         SponsorMembership,
         lazy='dynamic',
         primaryjoin=db.and_(
@@ -246,7 +249,7 @@ class __Profile:
         viewonly=True,
     )
 
-    sponsor_membership_invites = with_roles(
+    project_sponsor_membership_invites = with_roles(
         db.relationship(
             SponsorMembership,
             lazy='dynamic',
@@ -285,4 +288,12 @@ class __Profile:
             viewonly=True,
         ),
         read={'admin'},
+    )
+
+    sponsored_projects = DynamicAssociationProxy(
+        'project_sponsor_memberships', 'project'
+    )
+
+    sponsored_proposals = DynamicAssociationProxy(
+        'proposal_sponsor_memberships', 'proposal'
     )

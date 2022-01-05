@@ -41,6 +41,9 @@
 }
 
 @media (min-width: 768px) {
+  .sub-navbar-container__inner {
+    padding: 0 $mui-grid-padding;
+  }
   .sub-navbar-container--sticky {
     position: -webkit-sticky;
     position: sticky;
@@ -70,11 +73,11 @@
     }
 
     .sub-navbar__item:first-child {
-      margin: 0 $mui-grid-padding 0 0;
+      border-top: 0;
     }
 
     .sub-navbar__item:first-child {
-      border-top: 0;
+      margin: 0 $mui-grid-padding 0 0;
     }
 
     .sub-navbar__item__icon {
