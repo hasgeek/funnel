@@ -237,7 +237,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     def past_projects_json(self, page=1, per_page=10):
         projects = self.obj.listed_projects.order_by(None)
         past_projects = projects.filter(Project.state.PAST).order_by(
-            Project.order_by_date()
+            Project.start_at.desc()
         )
         pagination = past_projects.paginate(page=page, per_page=per_page)
         return {
