@@ -585,6 +585,33 @@
   {% if user.profile_url and add_profile_link%}</a>{% endif %}
 {%- endmacro %}
 
+{%- macro list_sponsors(sponsors) %}
+  <div class="mui--clearfix margin-top">
+    <div class="mui--pull-right">
+      <p class="mui--text-subhead mui--text-light zero-bottom-margin">{% trans %}Supported by{% endtrans %}</p>
+      {% for sponsor in sponsors %}
+        {% if sponsor.label %}
+          <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ sponsor.label }}</p>
+        {% endif %}
+        <div class="flex-wrapper flex-wrapper--center">
+          <div class="user user--smaller">
+            <div class="user__box">
+              <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="nounderline">
+                {%- if sponsor.profile.logo_url.url %}
+                  <img class="user__box__gravatar" src="{{ sponsor.profile.logo_url }}" alt="{{ sponsor.profile.title }}"/>
+                {%- else %}
+                  <div class="user__box__gravatar user__box__gravatar--initials">{{ sponsor.profile.title|initials }}</div>
+                {% endif %}
+              </a>
+            </div>
+          </div>
+          <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="mui--text-dark mui--text-subhead mui--text-bold nounderline" data-cy="profile-link">{{ sponsor.profile.title }}</a>
+        </div>
+      {%- endfor %}
+    </div>
+  </div>
+{%- endmacro %}
+
 {%- macro proposal_card(proposal, full_width=false, details=false, css_class='', project='', draggable=false) %}
   {% if draggable %}
     <div class="card {%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}">
@@ -676,6 +703,9 @@
               </div>
             {%- endif -%}
           </div>
+          {%- if proposal.has_sponsors %}
+            {{ list_sponsors(proposal.sponsor_memberships) }}
+          {% endif %}
         </div>
       </div>
     </div>

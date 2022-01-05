@@ -4,7 +4,7 @@
 {%- else -%}
   {% extends "project_spa_layout.html.jinja2" %}
 {% endif %}
-{%- from "macros.html.jinja2" import embed_video_player, video_action_bar, useravatar, share_dropdown, proposal_card, csrf_tag %}
+{%- from "macros.html.jinja2" import embed_video_player, video_action_bar, useravatar, share_dropdown, proposal_card, csrf_tag, list_sponsor %}
 {%- from "js/comments.js.jinja2" import comments_tree, comment_template %}
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}{{ proposal.description }}{% endblock %}
@@ -231,9 +231,9 @@
       <div class="proposal-content markdown top-padding mui--bg-primary">
         {{ proposal.body }}
       </div>
-      {% for membership in proposal.sponsor_memberships %}
-       {{ membership }}
-      {%- endfor %}
+      {%- if proposal.has_sponsors %}
+        {{ list_sponsors(proposal.sponsor_memberships) }}
+      {% endif %}
     </section>
   </div>
 

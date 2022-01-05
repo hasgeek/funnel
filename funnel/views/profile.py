@@ -216,7 +216,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     def user_proposals(self):
         if self.obj.is_organization_profile:
             # sponsored proposals
-            submitted_proposals = ''
+            submitted_proposals = self.obj.proposal_sponsor_memberships
         else:
             submitted_proposals = self.obj.user.public_proposals
 
