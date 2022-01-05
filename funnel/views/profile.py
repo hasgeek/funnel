@@ -189,7 +189,6 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 ),
                 'sponsored_projects': sponsored_projects,
                 'sponsored_submissions': sponsored_submissions,
-
             }
         else:
             abort(404)  # Reserved profile
