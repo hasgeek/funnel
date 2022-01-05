@@ -611,7 +611,7 @@
   </div>
 {%- endmacro %}
 
-{%- macro proposal_card(proposal, full_width=false, details=false, css_class='', project='', draggable=false, spa=false) %}
+{%- macro proposal_card(proposal, full_width=false, details=false, css_class='', project='', draggable=false, spa=false, show_sponsor=true) %}
   <div class="card {%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}">
     <div class="card__body proposal-card">
       <div class="proposal-card__body">
@@ -623,11 +623,7 @@
             {%- for member in proposal.memberships %}{% if not member.is_uncredited %}
               <div class="user user--smaller right-padding">
                 <div class="user__box">
-                  {% if draggable %}
-                    {{ useravatar(member.user, add_profile_link=true, size='small') }}
-                  {%- else -%}
-                    {{ useravatar(member.user, add_profile_link=false, size='small') }}
-                  {%- endif %}
+                  {{ useravatar(member.user, add_profile_link=true, size='small') }}
                   <div class="user__box__header">
                     <p class="mui--text-caption user__box__fullname">{{ member.user.fullname }} {%- if member.label %} <span class="badge">{{ member.label }}</span>{% endif %}</p>
                   </div>
@@ -650,9 +646,9 @@
             </div>
           {%- endif -%}
           <div class="proposal-card__body__inner__headline">
-            <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card"><a class="nounderline mui--text-dark js-spa-navigate" href="{{ proposal.url_for() }}" data-cy-proposal="{{ proposal.title }}">{{ proposal.title }}</a></h3>
+            <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card"><a class="nounderline mui--text-dark {% if spa %}js-spa-navigate{%- endif -%}" href="{{ proposal.url_for() }}" data-cy-proposal="{{ proposal.title }}">{{ proposal.title }}</a></h3>
             {% if proposal.body.html %}
-              <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(max=400) }} <a class="nounderline js-spa-navigate" href="{{ proposal.url_for() }}">  <span class="chip">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</span></a></div>
+              <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(max=400) }} <a class="nounderline {% if spa %}js-spa-navigate{%- endif -%}" href="{{ proposal.url_for() }}">  <span class="chip">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</span></a></div>
             {%- endif -%}
             {% if details %}
               <div class="proposal-card__body__inner__headline__info">
@@ -696,7 +692,7 @@
           </div>
         </div>
       </div>
-      {%- if proposal.has_sponsors %}
+      {%- if show_sponsor and proposal.has_sponsors %}
         {{ list_sponsors(proposal.sponsor_memberships) }}
       {% endif %}
     </div>

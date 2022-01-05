@@ -107,7 +107,7 @@
           </div>
           <ul class="grid projects" role="list">
           {% for proposal in sponsored_submissions %}
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 js-supported-submissions {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">{{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, project=proposal.project, draggable=false, spa=false) }}</li>
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 js-supported-submissions {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">{{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, draggable=false, spa=false, show_sponsor=false) }}</li>
           {% endfor %}
           </ul>
           {% if sponsored_submissions|length > 3 %}
