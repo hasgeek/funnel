@@ -187,8 +187,13 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     if featured_project
                     else None
                 ),
-                'sponsored_projects': sponsored_projects,
-                'sponsored_submissions': sponsored_submissions,
+                'sponsored_projects': [
+                    _p.current_access('primary', 'related') for _p in sponsored_projects
+                ],
+                'sponsored_submissions': [
+                    _p.current_access('primary', 'related')
+                    for _p in sponsored_submissions
+                ],
             }
         else:
             abort(404)  # Reserved profile
