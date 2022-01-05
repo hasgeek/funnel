@@ -154,6 +154,9 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     current_auth.user
                 )
 
+            sponsored_projects = self.obj.sponsored_projects
+            sponsored_submissions = self.obj.sponsored_proposals
+
             ctx = {
                 'template': template_name,
                 'profile': self.obj.current_access(datasets=('primary', 'related')),
@@ -184,6 +187,9 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     if featured_project
                     else None
                 ),
+                'sponsored_projects': sponsored_projects,
+                'sponsored_submissions': sponsored_submissions,
+
             }
         else:
             abort(404)  # Reserved profile
@@ -215,8 +221,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'reader', 'admin'})
     def user_proposals(self):
         if self.obj.is_organization_profile:
-            # sponsored proposals
-            submitted_proposals = self.obj.proposal_sponsor_memberships
+            abort(404)
         else:
             submitted_proposals = self.obj.user.public_proposals
 

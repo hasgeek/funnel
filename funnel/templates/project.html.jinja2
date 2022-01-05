@@ -83,7 +83,7 @@
       <ul class="mui-list--unstyled">
         {% for proposal in featured_proposals %}
           <li>
-            {{ proposal_card(proposal, full_width=true, css_class='page-card__card', project=project) }}
+            {{ proposal_card(proposal, full_width=true, css_class='page-card__card', project=project, spa=true) }}
           </li>
         {%- endfor -%}
       </ul>
