@@ -67,6 +67,9 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     featured = db.Column(db.Boolean, default=False, nullable=False)
     banner_image_url = db.Column(ImgeeType, nullable=True)
 
+    #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
+    versionid = db.Column(db.Integer, nullable=False)
+
     search_vector = db.deferred(
         db.Column(
             TSVectorType(
@@ -106,6 +109,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         ),
         db.Index('ix_session_search_vector', 'search_vector', postgresql_using='gin'),
     )
+
+    __mapper_args__ = {'version_id_col': versionid}
 
     __roles__ = {
         'all': {

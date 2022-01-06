@@ -222,6 +222,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         datasets={'primary', 'without_parent'},
     )
 
+    #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
+    versionid = db.Column(db.Integer, nullable=False)
+
     search_vector = db.deferred(
         db.Column(
             TSVectorType(
@@ -279,6 +282,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'project_cfp_start_at_cfp_end_at_check',
         ),
     )
+
+    __mapper_args__ = {'version_id_col': versionid}
 
     __roles__ = {
         'all': {
