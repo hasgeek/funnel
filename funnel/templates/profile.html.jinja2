@@ -83,12 +83,12 @@
           </div>
           <ul class="grid projects" role="list">
             {% for project in sponsored_projects %}
-              <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-supported-projects {% if loop.index > 3 %}mui--hide{% endif %}" role="listitem">
-                {{ projectcard(project, save_form_id_prefix='unsched_spf_') }}
+              <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-supported-projects {% if loop.index > 6 %}mui--hide{% endif %}" role="listitem">
+                {{ projectcard(project, save_form_id_prefix='support_pro_') }}
               </li>
             {% endfor %}
           </ul>
-          {% if sponsored_projects|length > 3 %}
+          {% if sponsored_projects|length > 6 %}
             <div class="mui--text-center">
               <a href="javascript:void(0)"  data-target="show all supported projects" class="jquery-show-all mui--text-uppercase" data-projects="js-supported-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>
@@ -107,10 +107,10 @@
           </div>
           <ul class="grid projects" role="list">
           {% for proposal in sponsored_submissions %}
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 js-supported-submissions {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">{{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, draggable=false, spa=false, show_sponsor=false) }}</li>
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 js-supported-submissions {% if loop.index > 4 %}mui--hide{% endif %}" role="listitem">{{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, draggable=false, spa=false, show_sponsor=false) }}</li>
           {% endfor %}
           </ul>
-          {% if sponsored_submissions|length > 3 %}
+          {% if sponsored_submissions|length > 4 %}
             <div class="mui--text-center">
               <a href="javascript:void(0)"  data-target="show all supported projects" class="jquery-show-all mui--text-uppercase" data-projects="js-supported-submissions" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>
