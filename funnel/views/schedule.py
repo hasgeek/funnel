@@ -159,6 +159,7 @@ def project_as_session(project: Project) -> SimpleNamespace:
         end_at_localized=project.end_at_localized,
         location=f'{project.location} - {project.url_for(_external=True)}',
         venue_room=None,
+        versionid=project.versionid,
         proposal=SimpleNamespace(labels=()),  # Proposal is used to get a permalink
         url_for=project.url_for,
     )
@@ -216,6 +217,7 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
         desc = _("{session} in 5 minutes").format(session=session.title)
     alarm.add('description', desc)
     event.add_component(alarm)
+    event.add('sequence', session.versionid - 1)  # vCal starts at 0, SQLAlchemy at 1
     return event
 
 
