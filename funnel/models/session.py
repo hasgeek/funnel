@@ -273,8 +273,8 @@ TypeProject = Type[Project]
 
 @reopen(Project)
 class __Project:
-    # Project schedule column expressions
-    # Guide: https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
+    # Project schedule column expressions. Guide:
+    # https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
     schedule_start_at = with_roles(
         db.column_property(
             db.select([db.func.min(Session.start_at)])
@@ -566,15 +566,20 @@ class __Project:
         }
 
         # FIXME: This doesn't work. This code needs to be tested in isolation
-        # session_dates = db.session.query(
-        #     db.cast(
-        #         db.func.date_trunc('day', db.func.timezone(self.timezone.zone, Session.start_at)),
-        #         db.Date).label('date'),
-        #     db.func.count().label('count')
-        #     ).filter(
-        #         Session.project == self,
-        #         Session.scheduled
-        #         ).group_by(db.text('date')).order_by(db.text('date'))
+        # session_dates = (
+        #     db.session.query(
+        #         db.cast(
+        #             db.func.date_trunc(
+        #                 'day', db.func.timezone(self.timezone.zone, Session.start_at)
+        #             ),
+        #             db.Date,
+        #         ).label('date'),
+        #         db.func.count().label('count'),
+        #     )
+        #     .filter(Session.project == self, Session.scheduled)
+        #     .group_by(db.text('date'))
+        #     .order_by(db.text('date'))
+        # )
 
         # if the project's week is within next 2 weeks, send current week as well
         now = utcnow().astimezone(self.timezone)
@@ -621,8 +626,9 @@ class __Project:
         weeks_list = [v for k, v in sorted(weeks.items())]
 
         for week in weeks_list:
-            # Convering to JSON messes up dictionary key order even though we used OrderedDict.
-            # This turns the OrderedDict into a list of tuples and JSON preserves that order.
+            # Convering to JSON messes up dictionary key order even though we used
+            # OrderedDict. This turns the OrderedDict into a list of tuples and JSON
+            # preserves that order.
             week['dates'] = [
                 {
                     'isoformat': date.isoformat(),
