@@ -223,7 +223,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     )
 
     #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
-    versionid = db.Column(db.Integer, nullable=False)
+    versionid = with_roles(db.Column(db.Integer, nullable=False), read={'all'})
 
     search_vector = db.deferred(
         db.Column(
