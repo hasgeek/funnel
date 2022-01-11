@@ -543,20 +543,20 @@ class ProjectView(
     @requires_login
     @requires_roles({'editor'})
     def cfp_transition(self):
-        cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
-        if (
-            cfp_transition_form.validate_on_submit()
-        ):  # check if the provided transition is valid
+        # This needs to be fixed
+        cfp_transition = self.obj.forms.cfp_transition()
+        if cfp_transition.validate_on_submit():
             transition = getattr(
-                self.obj.current_access(), cfp_transition_form.cfp_transition.data
+                self.obj.current_access(), cfp_transition.data
             )
             transition()  # call the transition
             db.session.commit()
-            flash(transition.data['message'], 'success')
+            return {'status': 'ok', 'message': 'This project can now receive submissions.'}
         else:
-            flash(_("Invalid transition for this project’s CfP"), 'error')
-            abort(403)
-        return redirect(self.obj.url_for('view_proposals'))
+            return {
+                'status': 'ok',
+                'message': 'This project can no longer receive submissions.',
+            }
 
     @route('register', methods=['POST'])
     @requires_login

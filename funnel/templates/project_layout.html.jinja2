@@ -296,7 +296,7 @@
     {% if project.cfp_state.OPEN -%}
       <div class="project-details__box__content--lesspadding propose">
         <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
-        {% if project.cfp_end_at_localized -%}<p class="propose__txt">{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-light mui--text-body2">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>{% endif %}
+        {% if project.cfp_end_at_localized -%}<p class="propose__txt mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>{% endif %}
       </div>
     {% elif project.view_for('cfp').is_available() -%}
       <div class="project-details__box__content--lesspadding propose">
