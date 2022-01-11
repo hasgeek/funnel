@@ -351,15 +351,7 @@
 
 @media (max-width: 767px) {
   .subpproject-page {
-    .project-page-details,
-    .livestream-box,
-    .project-banner__box--banner,
-    .project-details-header,
-    .project-details__box__title,
-    .sub-navbar-container--sticky,
-    .pinned--inner,
-    .project-footer,
-    .project-header {
+    .subpproject-page__hide {
       display: none;
     }
     .project-banner.project-banner--inner .project-details__box {

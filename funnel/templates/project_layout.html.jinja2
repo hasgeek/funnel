@@ -79,7 +79,7 @@
       {%- endfor %}
     </div>
   {% elif project.banner_video_url.url or project.bg_image.url or project.view_for('edit_livestream').is_available() or project.view_for('update_banner').is_available() %}
-    <div class="project-banner__box project-banner__box--banner project-banner__left {% if current_page != 'project' or not project.banner_video_url.url and not project.bg_image.url %}project-banner__left--smaller{%- endif %}">
+    <div class="project-banner__box project-banner__box--banner project-banner__left {% if current_page != 'project' or not project.banner_video_url.url and not project.bg_image.url %}project-banner__left--smaller{%- endif %} subpproject-page__hide">
       <div class="embed-video-wrapper embed-video-wrapper--shaped">
         {{ livestream_edit_btn(project) }}
         {{ banner_edit_btn(project) }}
@@ -98,7 +98,7 @@
       </div>
     </div>
   {% endif %}
-  <div class="project-details__box mui--clearfix project-banner__right {% if not project.livestream_urls and not project.banner_video_url.url or not project.bg_image.url %}project-banner__right--smaller{%- endif %}">
+  <div class="project-details__box mui--clearfix project-banner__right {% if not project.livestream_urls and not project.banner_video_url.url or not project.bg_image.url %}project-banner__right--smaller{%- endif %} subpproject-page__hide">
     <div class="top-padding bottom-padding project-details__box__title">
       <div class="project-banner__profile-details">
         {%- if project.profile.logo_url.url %}
@@ -389,7 +389,7 @@
               {{ project_header(project) }}
             </div>
             <div class="project-banner">
-              <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl project-details-header">
+              <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl project-details-header subpproject-page__hide">
                 <div class="project-details__box">
                   {% if project.start_at and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
                     <div class="project-details__box__content">
@@ -425,7 +425,7 @@
   {% endblock %}
 
   {% block before_navbar %}
-    <div class="mui-container project-page-details">
+    <div class="mui-container project-page-details subpproject-page__hide">
       <div class="grid">
         <div class="grid__col-sm-12 mui--hidden-md mui--hidden-lg mui--hidden-xl">
           {{ pinned_update(project) }}
@@ -439,7 +439,7 @@
   {%- endblock %}
 
   {% block project_navbar %}
-    <div class="mui--bg-primary sub-navbar-container sub-navbar-container--sticky mui--z1 {% if current_page != 'project' %}sub-navbar-container--inner{%- endif %}">
+    <div class="mui--bg-primary sub-navbar-container sub-navbar-container--sticky mui--z1 {% if current_page != 'project' %}sub-navbar-container--inner{%- endif %} subpproject-page__hide">
       <div class="mui-container">
         <div class="sub-navbar-container__inner">
           <nav class="sub-navbar" id="page-navbar">
