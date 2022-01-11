@@ -546,12 +546,13 @@ class ProjectView(
         # This needs to be fixed
         cfp_transition = self.obj.forms.cfp_transition()
         if cfp_transition.validate_on_submit():
-            transition = getattr(
-                self.obj.current_access(), cfp_transition.data
-            )
+            transition = getattr(self.obj.current_access(), cfp_transition.data)
             transition()  # call the transition
             db.session.commit()
-            return {'status': 'ok', 'message': 'This project can now receive submissions.'}
+            return {
+                'status': 'ok',
+                'message': 'This project can now receive submissions.',
+            }
         else:
             return {
                 'status': 'ok',
