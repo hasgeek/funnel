@@ -7,6 +7,6 @@
 <div class="modal__body">
   <div class="modal__body__btn mui--text-right">
     <a href="{{ project.url_for('schedule_ical_download', _external=True) }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}Download{% endtrans %}</a>
-    <a href="https://www.google.com/calendar/render?cid={{ project.url_for('schedule_ical_download', _external=True)|urlencode }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">{% trans %}Add to Google Calendar{% endtrans %}</a>
+    <a href="https://www.google.com/calendar/render?cid={{ project.url_for('schedule_ical_download', _scheme='http', _external=True).replace('http://', 'webcal://')|urlencode }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">{% trans %}Add to Google Calendar{% endtrans %}</a>
   </div>
 </div>

@@ -219,7 +219,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
                 'project',
                 'datetime',
             },
-            'call': {'url_for', 'state', 'commentset', 'views'},
+            'call': {'url_for', 'state', 'commentset', 'views', 'getprev', 'getnext'},
         },
         'project_editor': {
             'call': {'reorder_item', 'reorder_before', 'reorder_after'},

@@ -222,6 +222,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         datasets={'primary', 'without_parent'},
     )
 
+    #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
+    versionid = with_roles(db.Column(db.Integer, nullable=False), read={'all'})
+
     search_vector = db.deferred(
         db.Column(
             TSVectorType(
@@ -279,6 +282,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'project_cfp_start_at_cfp_end_at_check',
         ),
     )
+
+    __mapper_args__ = {'version_id_col': versionid}
 
     __roles__ = {
         'all': {
@@ -676,8 +681,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def fetch_sorted(cls):
         return cls.query.filter(cls.state.PUBLISHED).order_by(cls.order_by_date())
 
+    # The base class offers `get(parent, name)`. We accept f'{parent}/{name}' here for
+    # convenience as this is only used in shell access.
     @classmethod
-    def get(cls, profile_project):
+    def get(cls, profile_project):  # skipcq: PYL-W0221
         """Get a project by its URL slug in the form ``<profile>/<project>``."""
         profile_name, project_name = profile_project.split('/')
         return (
@@ -866,5 +873,5 @@ class __Commentset:
 
 
 # Tail imports
-from .project_membership import ProjectCrewMembership  # isort:skip
-from .venue import Venue  # isort:skip
+from .project_membership import ProjectCrewMembership  # isort:skip  # skipcq: FLK-E402
+from .venue import Venue  # isort:skip  # skipcq: FLK-E402

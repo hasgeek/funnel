@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{{ profile.title }}{% endblock %}
-{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, projectcard, featured_section, upcoming_section, open_cfp_section, all_projects_section, profile_header, useravatar %}
+{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, projectcard, featured_section, upcoming_section, open_cfp_section, all_projects_section, profile_header, useravatar, proposal_card %}
 {%- from "js/past_projects.js.jinja2" import past_projects_section %}
 
 {%- block pageheaders %}
@@ -73,12 +73,58 @@
       {%- endwith %}
     {%- endif %}
 
+    {% if sponsored_projects %}
+      <div class="projects-wrapper">
+        <div class="mui-container">
+          <div class="grid">
+            <div class="grid__col-12">
+              <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Supported projects{% endtrans %}</h2>
+            </div>
+          </div>
+          <ul class="grid projects" role="list">
+            {% for project in sponsored_projects %}
+              <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-supported-projects {% if loop.index > 6 %}mui--hide{% endif %}" role="listitem">
+                {{ projectcard(project, save_form_id_prefix='support_pro_') }}
+              </li>
+            {% endfor %}
+          </ul>
+          {% if sponsored_projects|length > 6 %}
+            <div class="mui--text-center">
+              <a href="javascript:void(0)"  data-target="show all supported projects" class="jquery-show-all mui--text-uppercase" data-projects="js-supported-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+    {% if sponsored_submissions %}
+      <div class="projects-wrapper">
+        <div class="mui-container">
+          <div class="grid">
+            <div class="grid__col-12">
+              <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Supported submissions{% endtrans %}</h2>
+            </div>
+          </div>
+          <ul class="grid projects" role="list">
+          {% for proposal in sponsored_submissions %}
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 js-supported-submissions {% if loop.index > 4 %}mui--hide{% endif %}" role="listitem">{{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, draggable=false, spa=false, show_sponsor=false) }}</li>
+          {% endfor %}
+          </ul>
+          {% if sponsored_submissions|length > 4 %}
+            <div class="mui--text-center">
+              <a href="javascript:void(0)"  data-target="show all supported projects" class="jquery-show-all mui--text-uppercase" data-projects="js-supported-submissions" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
     {%- if profile.features.new_project() or draft_projects %}
     <div class="projects-wrapper">
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="project-headline">{% trans %}Drafts{% endtrans %}</h2>
+            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Drafts{% endtrans %}</h2>
           </div>
         </div>
         <ul class="grid projects" role="list">
@@ -120,17 +166,17 @@
         <div class="mui-container">
           <div class="grid">
             <div class="grid__col-12">
-              <h2 class="project-headline">{% trans %}Unscheduled projects{% endtrans %}</h2>
+              <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Unscheduled projects{% endtrans %}</h2>
             </div>
           </div>
           <ul class="grid projects" role="list">
             {% for project in unscheduled_projects %}
-              <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-unscheduled-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
+              <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-unscheduled-projects {% if loop.index > 3 %}mui--hide{% endif %}" role="listitem">
                 {{ projectcard(project, save_form_id_prefix='unsched_spf_') }}
               </li>
             {% endfor %}
           </ul>
-          {% if unscheduled_projects|length > 2 %}
+          {% if unscheduled_projects|length > 3 %}
             <div class="mui--text-center">
               <a href="javascript:void(0)"  data-target="show all unscheduled projects" class="jquery-show-all mui--text-uppercase" data-projects="js-unscheduled-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>

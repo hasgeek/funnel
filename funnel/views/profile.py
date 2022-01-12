@@ -154,6 +154,9 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     current_auth.user
                 )
 
+            sponsored_projects = self.obj.sponsored_projects
+            sponsored_submissions = self.obj.sponsored_proposals
+
             ctx = {
                 'template': template_name,
                 'profile': self.obj.current_access(datasets=('primary', 'related')),
@@ -184,6 +187,14 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     if featured_project
                     else None
                 ),
+                'sponsored_projects': [
+                    _p.current_access(datasets=('primary', 'related'))
+                    for _p in sponsored_projects
+                ],
+                'sponsored_submissions': [
+                    _p.current_access(datasets=('primary', 'related'))
+                    for _p in sponsored_submissions
+                ],
             }
         else:
             abort(404)  # Reserved profile
@@ -232,7 +243,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     def past_projects_json(self, page=1, per_page=10):
         projects = self.obj.listed_projects.order_by(None)
         past_projects = projects.filter(Project.state.PAST).order_by(
-            Project.order_by_date()
+            Project.start_at.desc()
         )
         pagination = past_projects.paginate(page=page, per_page=per_page)
         return {

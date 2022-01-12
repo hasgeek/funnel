@@ -312,3 +312,16 @@
     }
   }
 }
+
+.mobile-header-right {
+  position: fixed;
+  right: $mui-grid-padding;
+  top: $mui-grid-padding;
+  z-index: 1000;
+}
+
+@media (min-width: 768px) {
+  .mobile-header-right {
+    position: static;
+  }
+}

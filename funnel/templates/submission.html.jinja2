@@ -1,6 +1,10 @@
 {% set current_page = 'proposal' %}
-{% extends "project_layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import embed_video_player, video_action_bar, useravatar, share_dropdown, proposal_card, csrf_tag %}
+{%- if not request_is_xhr() -%}
+  {% extends "project_layout.html.jinja2" %}
+{%- else -%}
+  {% extends "project_spa_layout.html.jinja2" %}
+{% endif %}
+{%- from "macros.html.jinja2" import embed_video_player, video_action_bar, useravatar, share_dropdown, proposal_card, csrf_tag, list_sponsors %}
 {%- from "js/comments.js.jinja2" import comments_tree, comment_template %}
 {% block title %}{{ proposal.title }}{% endblock %}
 {% block description %}{{ proposal.description }}{% endblock %}
@@ -13,7 +17,7 @@
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/comments.scss') }}" />
 {% endblock %}
 
-{% block bodyattrs %}class="mui--bg-accent no-sticky-header mobile-header proposal-page"{% endblock %}
+{% block bodyattrs %}class="mui--bg-accent no-sticky-header mobile-header subpproject-page proposal-page"{% endblock %}
 
 {% macro share_widget(formid='desktop', icon_size='body') %}
   <a href="javascript:void(0)" class="hg-link-btn mui--hide mui--text-dark" data-ga="Share dropdown" data-cy="share-project" data-url="{{ proposal.url_for(_external=true) }}?utm_campaign=webshare">{{ faicon(icon='share-alt', icon_size=icon_size, baseline=false, css_class='mui--align-middle') }}</a>
@@ -35,8 +39,8 @@
       <ul class="mui-dropdown__menu mui-dropdown__menu--right" data-cy="share-dropdown">
         <form action="{{ proposal.commentset.url_for('subscribe') }}" method="post" class="mui--d-inlineblock proposal-subscribe-form" id="subscribe-form">
           {{ proposal.commentset.forms.subscribe().hidden_tag() }}
-          <li class="js-subscribed {% if not subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="false" class="mui--text-body2 mui--hide js-subscribe-btn" id="cancel-subscription"><label class="link" for="cancel-subscription" data-cy="cancel-subscription">{{ faicon(icon='bell-slash', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Stop notifications{% endtrans %}</label></li>
-          <li class="js-unsubscribed {% if subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="true" class="mui--text-body2 mui--hide js-subscribe-btn" id="confirm-subscription"><label class="link" for="confirm-subscription" data-cy="subscription">{{ faicon(icon='bell', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Get notifications{% endtrans %}</label></li>
+          <li class="margin-left margin-top margin-bottom js-subscribed {% if not subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="false" class="mui--text-body2 mui--hide js-subscribe-btn" id="cancel-subscription"><label class="link" for="cancel-subscription" data-cy="cancel-subscription">{{ faicon(icon='bell-slash', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Stop notifications{% endtrans %}</label></li>
+          <li class="margin-left margin-top margin-bottom js-unsubscribed {% if subscribed %}mui--hide{% endif %}"><input type="radio" name="subscribe" value="true" class="mui--text-body2 mui--hide js-subscribe-btn" id="confirm-subscription"><label class="link" for="confirm-subscription" data-cy="subscription">{{ faicon(icon='bell', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Get notifications{% endtrans %}</label></li>
         </form>
       </ul>
     </div>
@@ -92,29 +96,23 @@
 {% macro prev_next_btn(proposal, prev_icon='caret-left-solid', next_icon='caret-right-solid') %}
   {% with prev_proposal = proposal.getprev(), next_proposal = proposal.getnext() %}
   {%- if prev_proposal -%}
-    <a href="{{ prev_proposal.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline prev-btn">{{ faicon(icon=prev_icon, icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-right') }}{% trans %}Previous{% endtrans %}</a>
+    <a href="{{ prev_proposal.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline prev-btn js-spa-navigate">{{ faicon(icon=prev_icon, icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-right') }}{% trans %}Previous{% endtrans %}</a>
   {%- endif -%}
   {%- if next_proposal -%}
-    <a href="{{ next_proposal.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline">{% trans %}Next{% endtrans %}{{ faicon(icon=next_icon, icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-left') }}</a>
+    <a href="{{ next_proposal.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline js-spa-navigate">{% trans %}Next{% endtrans %}{{ faicon(icon=next_icon, icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-left') }}</a>
   {%- endif -%}
    {% endwith %}
 {% endmacro %}
 
 {% block mobile_header_title %}{% endblock %}
 
-{% block mobile_header %}
-  <div class="mui--pull-right mobile-nav__icon mobile-nav__icon--right">
-    {{ share_widget(formid='mob', icon_size='title') }}
-  </div>
-{% endblock %}
-
 {% block left_col %}
   <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between nav-btn-wrapper">
-    <a class="mui--text-dark mui--text-body2 nounderline" href="{{ project.url_for('view_proposals') }}">{{ faicon(icon='chevron-double-left-solid', icon_size='body2', css_class='mui--align-middle btn-margin-right') }}{% trans %}All submissions{% endtrans %}</a>
+    <a class="mui--text-dark mui--text-body2 nounderline js-spa-navigate" href="{{ project.url_for('view_proposals') }}">{{ faicon(icon='chevron-double-left-solid', icon_size='body2', css_class='mui--align-middle btn-margin-right') }}{% trans %}All submissions{% endtrans %}</a>
     <div class="mui--visible-xs-block mui--visible-sm-block">
       {{ prev_next_btn(proposal) }}
     </div>
-    <div class="mui--hidden-xs mui--hidden-sm">
+    <div class="mobile-header-right">
       {{ share_widget(formid='desktop', icon_size='subhead') }}
     </div>
   </div>
@@ -233,11 +231,14 @@
       <div class="proposal-content markdown top-padding mui--bg-primary">
         {{ proposal.body }}
       </div>
+      {%- if proposal.has_sponsors %}
+        {{ list_sponsors(proposal.sponsor_memberships) }}
+      {% endif %}
     </section>
   </div>
 
   <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between nav-btn-wrapper">
-    <a class="mui--text-dark mui--text-body2 nounderline" href="{{ project.url_for('view_proposals') }}">{{ faicon(icon='chevron-double-left-solid', icon_size='body2', css_class='mui--align-middle btn-margin-right') }}{% trans %}All submissions{% endtrans %}</a>
+    <a class="mui--text-dark mui--text-body2 nounderline js-spa-navigate" href="{{ project.url_for('view_proposals') }}">{{ faicon(icon='chevron-double-left-solid', icon_size='body2', css_class='mui--align-middle btn-margin-right') }}{% trans %}All submissions{% endtrans %}</a>
     <div>
       {{ prev_next_btn(proposal) }}
     </div>
@@ -259,7 +260,7 @@
     </div>
     {% with next_proposal = proposal.getnext() %}
       {%- if next_proposal -%}
-        {{ proposal_card(next_proposal, project=project) }}
+        {{ proposal_card(next_proposal, project=project, spa=true) }}
       {%- endif -%}
     {% endwith %}
   </div>
@@ -269,6 +270,7 @@
   <script src="{{ built_asset('submission.js') }}" type="text/javascript"></script>
   <script src="{{ built_asset('comments.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
+    window.Hasgeek.subpageTitle = {{ self.title()|tojson }};
     $(function() {
       var commentsConfig = {
         newCommentUrl: "{{ proposal.commentset.url_for('new') }}",
@@ -281,7 +283,6 @@
         lastSeenUrl: {% if proposal.commentset.current_roles.document_subscriber %}{{ proposal.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
         codemirrorUrl: {% assets "js_codemirrormarkdown" -%}{{ ASSET_URL|tojson }}{%- endassets -%}
       };
-      window.Hasgeek.projectHeaderInit();
       window.Hasgeek.SubmissionInit();
       window.Hasgeek.Comments(commentsConfig);
     });
