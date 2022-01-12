@@ -301,7 +301,7 @@
     {% elif project.view_for('cfp').is_available() -%}
       <div class="project-details__box__content--lesspadding propose">
         <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark mui--d-block">
-          {% if project.cfp_state.DRAFT or project.cfp_state.PRIVATE_DRAFT or project.cfp_state.UNAVAILABLE -%}
+          {% if project.cfp_state.DRAFT or project.cfp_state.UNAVAILABLE -%}
             {% trans %}Open submissions{% endtrans %}
           {%- else %}
             {% trans %}Add submission guidelines{% endtrans %}

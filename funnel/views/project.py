@@ -487,6 +487,8 @@ class ProjectView(
         form = CfpForm(obj=self.obj, model=Project)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
+            if self.obj.cfp_end_at and not self.obj.cfp_start_at:
+                self.obj.cfp_start_at = db.func.utcnow()
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.url_for('view_proposals'), code=303)
@@ -551,12 +553,12 @@ class ProjectView(
             db.session.commit()
             return {
                 'status': 'ok',
-                'message': 'This project can now receive submissions.',
+                'message': _("This project can now receive submissions"),
             }
         else:
             return {
                 'status': 'ok',
-                'message': 'This project can no longer receive submissions.',
+                'message': _("This project will no longer accept submissions"),
             }
 
     @route('register', methods=['POST'])

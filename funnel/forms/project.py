@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import re
 
-from baseframe import __
+from baseframe import _, __
 from baseframe.forms.sqlalchemy import AvailableName
-from coaster.utils import sorted_timezones
+from coaster.utils import sorted_timezones, utcnow
 import baseframe.forms as forms
 
 from ..models import Project, Rsvp, SavedProject
@@ -218,26 +218,16 @@ class CfpForm(forms.Form):
             " your review process, and anything else relevant to the submission"
         ),
     )
-    cfp_start_at = forms.DateTimeField(
-        __("Submissions open at"),
-        validators=[forms.validators.Optional()],
-        naive=False,
-    )
     cfp_end_at = forms.DateTimeField(
         __("Submissions close at"),
         description=__("Optional – Leave blank to have no closing date"),
-        validators=[
-            forms.validators.Optional(),
-            forms.validators.AllowedIf(
-                'cfp_start_at',
-                message=__("This requires an opening date to be specified"),
-            ),
-            forms.validators.GreaterThan(
-                'cfp_start_at', __("This must be after the opening date and time")
-            ),
-        ],
+        validators=[forms.validators.Optional()],
         naive=False,
     )
+
+    def validate_cfp_end_at(self, field):
+        if field.data <= utcnow():
+            raise forms.StopValidation(_("Closing date must be in the future"))
 
 
 @Project.forms('transition')
