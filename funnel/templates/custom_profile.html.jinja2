@@ -144,12 +144,12 @@
         <p class="mui--text-body2 mui--text-center margin-bottom">User participation</p>
       </div>
     </div>
-    <div class="grid top-padding profile-subheader__description">
+    <div class="grid top-padding profile-subheader__description flex-wrapper--center">
       <div class="grid__col-xs-12 grid__col-sm-4">
         <p class="mui--text-dark mui--text-title mui--text-bold">On data privacy, security and risk assestment in the India ecosystem</p>
       </div>
       <div class="grid__col-xs-12 grid__col-sm-8">
-        <p class="mui--text-light mui--text-body2">The Privacy Mode programme at Hasgeek focuses on data privacy, security and risk assessment in the Indian tech ecosystem, and has produced three research reports and hosted a conference in 2021.</p>
+        <p class="mui--text-light mui--text-body2">{{ profile.description.html }}</p>
       </div>
     </div>
     <div class="grid profile-subheader__sponsors">
@@ -157,72 +157,42 @@
         <p class="mui--text-dark mui--text-subhead mui--text-bold">Supported by</p>
       </div>
     </div>
-    <div class="grid flex-wrapper--center profile-subheader__spon-logo">
-      <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive" src="https://images.hasgeek.com/embed/file/c9c283be5c98409ebab6c4e187849f13"></p>
-      <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive" src="https://images.hasgeek.com/embed/file/411864badd1043c9852a8895ef6d37d8"></p>
-      <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive" src="https://images.hasgeek.com/embed/file/0de19fea2c7546b5ae542c2e5b995df1"></p>
-      <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive" src="https://images.hasgeek.com/embed/file/5ff41baa9cc543db809da7e57a0b59c2"></p>
-      <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive" src="https://images.hasgeek.com/embed/file/6e10decec1734098964ff009fc097dfa"></p>
-      <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive" src="https://images.hasgeek.com/embed/file/246c562e25594e61a7b0cce3075abb9b"></p>
-    </div>
-  </div>
-  <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-primary mui--z1 {% if class %}{{ class }}{% endif %}">
-    <div class="mui-container">
-      <div class="sub-navbar-container__inner">
-        <nav class="sub-navbar" id="page-navbar">
-          {% if profile.is_organization_profile %}
-            <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-cy-navbar="profile">{% trans %}Home{% endtrans %}</a>
-            <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-cy-navbar="admins">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
-          {% else %}
-          <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for() }}">{% trans %}Sessions{% endtrans %}</a>
-          <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'projects' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_participated_projects') }}">{% trans %}Projects{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
-          <a class="sub-navbar__item mui--text-subhead  mui--text-dark {% if current_page == 'submissions' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_proposals') }}" data-cy="submissions">{% trans %}Submissions{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
-          {% endif %}
-        </nav>
+    <div class="left-padding right-padding">
+      <div class="grid flex-wrapper--center profile-subheader__spon-logo mui--bg-accent">
+        <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/1d779428c1294913ba8183db56198ff6"></p>
+        <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/ee20c65b16464429bdcecc0cb554d65f" style="max-width: 90px"></p>
+        <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/e8451891604143c988c96aea61d743e0" style="max-width: 100px"></p>
+        <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/5ff41baa9cc543db809da7e57a0b59c2"></p>
+        <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/6e10decec1734098964ff009fc097dfa"></p>
+        <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/246c562e25594e61a7b0cce3075abb9b"></p>
       </div>
     </div>
   </div>
 {% endblock %}
 
 {% block basecontent %}
-  <div class="mui--bg-accent">
-    {%- if profile.organization %}
-      {%- with people = profile.organization.views.people_and_teams() %}
-        {%- if people %}
-          <div class="mui-container">
-            <div class="page-content">
-              <div class="grid">
-                <div class="grid__col-xs-12">
-                  <h2 class="project-headline">{% trans %}People{% endtrans %}</h2>
-                  <ul class="mui-list--unstyled mui-list--border">
-                    {%- for user, teams in people %}
-                      <li class="user">
-                        <div class="user__box">
-                          {{ useravatar(user) }}
-                          <div class="user__box__header">
-                            <h3 class="mui--text-body2 user__box__fullname">{{ user.pickername }}</h3>
-                            <h3 class="mui--text-caption user__box__userid"><span>{% for team in teams %}{{ team.title }}{% if not loop.last %}, {% endif %}{% endfor %}</span></h3>
-                          </div>
-                        </div>
-                      </li>
-                    {%- endfor %}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        {%- endif %}
-      {%- endwith %}
-    {%- endif %}
+  <div class="mui--bg-primary">
+
+    {{ featured_section(featured_project) }}
+
+    <div class="top-padding">
+      <div class="mui-container">
+        <ul class="left-padding right-padding mui-list--unstyled mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps">
+          {% if sponsored_projects %}<li class="mui--is-active"><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-1">Sponsored projects</a></li>{% endif %}
+          {% if sponsored_submissions %}<li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-2">Sponsored submissions</a></li>{% endif %}
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-3">Upcoming projects</a></li>
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-4">Accepting submissions projects</a></li>
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-5">All projects</a></li>
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-6">Past projects</a></li>
+          {%- if profile.features.new_project() or draft_projects %}<li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-7">Draft projecrs</a></li>{% endif %}
+          {% if unscheduled_projects %}<li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-8">Unscheduled projects</a></li>{% endif %}
+        </ul>
+      </div>
+    </div>
 
     {% if sponsored_projects %}
-      <div class="projects-wrapper">
+      <div class="projects-wrapper mui-tabs__pane mui--is-active" id="pane-default-1">
         <div class="mui-container">
-          <div class="grid">
-            <div class="grid__col-12">
-              <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Supported projects{% endtrans %}</h2>
-            </div>
-          </div>
           <ul class="grid projects" role="list">
             {% for project in sponsored_projects %}
               <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-supported-projects {% if loop.index > 6 %}mui--hide{% endif %}" role="listitem">
@@ -240,13 +210,8 @@
     {% endif %}
 
     {% if sponsored_submissions %}
-      <div class="projects-wrapper">
+      <div class="projects-wrapper mui-tabs__pane" id="pane-default-2">
         <div class="mui-container">
-          <div class="grid">
-            <div class="grid__col-12">
-              <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Supported submissions{% endtrans %}</h2>
-            </div>
-          </div>
           <ul class="grid projects" role="list">
           {% for proposal in sponsored_submissions %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 js-supported-submissions {% if loop.index > 4 %}mui--hide{% endif %}" role="listitem">{{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, draggable=false, spa=false, show_sponsor=false) }}</li>
@@ -261,8 +226,13 @@
       </div>
     {% endif %}
 
+    <div class="mui-tabs__pane" id="pane-default-3">{{ upcoming_section(upcoming_projects, heading=false) }}</div>
+    <div class="mui-tabs__pane" id="pane-default-4">{{ open_cfp_section(open_cfp_projects, heading=false) }}</div>
+    <div class="mui-tabs__pane" id="pane-default-5">{{ all_projects_section(all_projects, heading=false) }}</div>
+    <div class="mui-tabs__pane" id="pane-default-6">{{ past_projects_section() }}</div>
+
     {%- if profile.features.new_project() or draft_projects %}
-    <div class="projects-wrapper">
+    <div class="projects-wrapper mui-tabs__pane" id="pane-default-7">
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
@@ -304,7 +274,7 @@
     {%- endif %}
 
     {% if unscheduled_projects %}
-      <div class="projects-wrapper">
+      <div class="projects-wrapper mui-tabs__pane" id="pane-default-8">
         <div class="mui-container">
           <div class="grid">
             <div class="grid__col-12">
@@ -326,12 +296,6 @@
         </div>
       </div>
     {% endif %}
-
-    {{ featured_section(featured_project) }}
-    {{ upcoming_section(upcoming_projects) }}
-    {{ open_cfp_section(open_cfp_projects) }}
-    {{ all_projects_section(all_projects) }}
-    {{ past_projects_section() }}
   </div>
 {% endblock %}
 
@@ -340,7 +304,8 @@
   <script type="text/javascript">
     $(function() {
       var homeConfig = {
-        past_projects_json_url: "{{ profile.url_for('past_projects_json') }}"
+        past_projects_json_url: "{{ profile.url_for('past_projects_json') }}",
+        show_heading: false,
       }
       window.Hasgeek.homeInit(homeConfig);
     });
