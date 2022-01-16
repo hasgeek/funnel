@@ -8,7 +8,7 @@ attrs==21.4.0
     # via pytest
 certifi==2021.10.8
     # via requests
-charset-normalizer==2.0.9
+charset-normalizer==2.0.10
     # via requests
 coverage[toml]==6.2
     # via
@@ -64,7 +64,7 @@ pytest-cov==3.0.0
     # via -r requirements_test.in
 redis==4.0.2
     # via fakeredis
-requests==2.27.0
+requests==2.27.1
     # via
     #   coveralls
     #   requests-mock
@@ -81,7 +81,7 @@ toml==0.10.2
     # via pytest
 tomli==2.0.0
     # via coverage
-urllib3==1.26.7
+urllib3==1.26.8
     # via requests
 wrapt==1.13.3
     # via deprecated
