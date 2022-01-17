@@ -191,33 +191,52 @@
 }
 
 .profile-subheader {
-  margin-top: 22px;
-  .profile-subheader__title {
-    font-size: 20px;
-    margin-bottom: 24px;
+  margin-top: $mui-grid-padding;
+  .profile-subheader__details {
+    flex-direction: row;
+    justify-content: left;
+    .profile-subheader__details__title {
+      font-size: 20px;
+      margin-bottom: $mui-grid-padding;
+      display: inline-block;
+      margin-right: $mui-grid-padding/2;
+    }
   }
   .profile-subheader__description {
-    margin-top: 24px;
+    margin-top: $mui-grid-padding;
   }
   .profile-subheader__sponsors {
-    margin-top: 32px;
+    margin-top: $mui-grid-padding;
   }
   .profile-subheader__spon-logo {
-    margin: 24px 0;
+    margin: $mui-grid-padding 0;
+    padding: $mui-grid-padding 0 0;
+    img {
+      margin-bottom: $mui-grid-padding * 3;
+    }
   }
 }
 
 @media (min-width: 768px) {
   .profile-subheader {
-    margin-top: 60px;
-    .profile-subheader__title {
-      font-size: 40px;
+    margin-top: $mui-grid-padding * 2;
+    .profile-subheader__details {
+      flex-direction: column;
+      justify-content: center;
+      .profile-subheader__details__title {
+        font-size: 40px;
+      }
     }
     .profile-subheader__description {
-      margin-top: 85px;
+      margin-top: $mui-grid-padding * 2;
     }
     .profile-subheader__sponsors {
-      margin-top: 53px;
+      margin-top: $mui-grid-padding * 2;
+    }
+    .profile-subheader__spon-logo {
+      img {
+        margin-bottom: $mui-grid-padding;
+      }
     }
   }
 }
