@@ -132,24 +132,25 @@
   <div class="mui-container profile-subheader">
     <div class="grid">
       <div class="grid__col-xs-4 grid__col-sm-4">
-        <p class="profile-subheader__title mui--text-bold mui--text-center mui--text-light">8 +</p>
+        <p class="profile-subheader__title mui--text-bold mui--text-center mui--text-light">5 +</p>
         <p class="mui--text-body2 mui--text-center margin-bottom">Projects supported</p>
       </div>
       <div class="grid__col-xs-4 grid__col-sm-4">
-        <p class="profile-subheader__title mui--text-bold mui--text-center mui--text-light">4 +</p>
+        <p class="profile-subheader__title mui--text-bold mui--text-center mui--text-light">25 +</p>
         <p class="mui--text-body2 mui--text-center margin-bottom">Submissions supported</p>
       </div>
       <div class="grid__col-xs-4 grid__col-sm-4">
-        <p class="profile-subheader__title mui--text-bold mui--text-center mui--text-light">200 +</p>
+        <p class="profile-subheader__title mui--text-bold mui--text-center mui--text-light">300 +</p>
         <p class="mui--text-body2 mui--text-center margin-bottom">User participation</p>
       </div>
     </div>
     <div class="grid top-padding profile-subheader__description flex-wrapper--center">
       <div class="grid__col-xs-12 grid__col-sm-4">
-        <p class="mui--text-dark mui--text-title mui--text-bold">On data privacy, security and risk assestment in the India ecosystem</p>
+        <p class="mui--text-dark mui--text-title mui--text-bold">Deep dives into privacy and security, and understanding needs of the Indian tech ecosystem</p>
       </div>
       <div class="grid__col-xs-12 grid__col-sm-8">
-        <p class="mui--text-light mui--text-body2">{{ profile.description.html }}</p>
+        <p class="mui--text-light mui--text-subhead">How do you build privacy-aware tech products and services? What are standards and how does one comply?</p>
+        <p class="mui--text-light mui--text-subhead">Ask, and find the answer to these questions at Privacy Mode, through research, collaboration, conferences and guides. Follow for updates or pitch your ideas.</p>
       </div>
     </div>
     <div class="grid profile-subheader__sponsors">
@@ -178,8 +179,8 @@
     <div class="top-padding">
       <div class="mui-container">
         <ul class="left-padding right-padding mui-list--unstyled mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps">
-          {% if sponsored_projects %}<li class="mui--is-active"><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-1">Sponsored projects</a></li>{% endif %}
-          {% if sponsored_submissions %}<li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-2">Sponsored submissions</a></li>{% endif %}
+          <li class="mui--is-active"><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-1">Sponsored projects</a></li>
+          <li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-2">Sponsored submissions</a></li>
           <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-3">Upcoming projects</a></li>
           <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-4">Accepting submissions projects</a></li>
           <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-5">All projects</a></li>
@@ -296,6 +297,16 @@
         </div>
       </div>
     {% endif %}
+  </div>
+  <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-primary mui--z1 {% if class %}{{ class }}{% endif %}">
+    <div class="mui-container">
+      <div class="sub-navbar-container__inner">
+        <nav class="sub-navbar" id="page-navbar">
+          <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-cy-navbar="profile">{% trans %}Home{% endtrans %}</a>
+          <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-cy-navbar="admins">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
+        </nav>
+      </div>
+    </div>
   </div>
 {% endblock %}
 

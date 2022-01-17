@@ -56,25 +56,30 @@
 
 {% block basecontent %}
   <a href="/about" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}What’s this about?{% endtrans %}</a>
-  <!-- Privacy tech survey banner -->
-  <div class="projects-wrapper">
+  <div class="spotlight">
     <div class="mui-container">
       <div class="grid">
         <div class="grid__col-12">
-          <div class="card card--banner">
-            <div class="card__body mui--clearfix">
-              <div class="card__body__content">
-                <h3 class="mui--text-headline mui--text-bold zero-top-margin">{% trans %}What is the state of privacy enhancing technologies, data security, and compliance, in the Indian tech industry?{% endtrans %}</h3>
-                <p>{% trans %}This survey, conducted by Hasgeek, in partnership with Omidyar Network India, is aimed at broadly understanding privacy concerns and practices among middle and senior management inside tech organizations, and how factors such as regulated nature of certain businesses, compliance requirements, etc impact the development of privacy enhancing technologies.{% endtrans %}</p>
-                <p>{% trans %}Hasgeek invites you to participate in this survey, as a senior tech practitioner and leader in your organization. There are 32 questions in all and should take approximately 15 minutes to answer them.{% endtrans %}</p>
+          <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Spotlight{% endtrans %}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="mui-container">
+      <div class="grid">
+        <div class="grid__col-12">
+          <a class="card card--spotlight clickable-card" href="https://hasgeek.com/PrivacyMode" aria-label="PrivacyMode" data-cy="spotlight-project" data-ga="View PrivacyMode">
+            <div class="card__image-wrapper">
+              <img class="card__image" src="https://images.hasgeek.com/embed/file/35c10da09d9b4bcdb266a97ddee63707?size=700" alt="PrivacyMode"/>
+            </div>
+            <div class="card__body">
+              <h3 class="card__body__title mui--text-headline mui--text-bold">Privacy Mode</h3>
+              <p class="card__body__subtitle mui--text-title zero-top-margin">Deep dives into privacy and security, and understanding needs of the Indian tech ecosystem</p>
+              <div class="card__body__subtitle">
+                <p class="mui--text-body2 mui--text-light zero-top-margin">How do you build privacy-aware tech products and services? What are standards and how does one comply?</p>
+                <p class="mui--text-body2 mui--text-light zero-top-margin">Ask, and find the answer to these questions at Privacy Mode, through research, collaboration, conferences and guides. Follow for updates or pitch your ideas.</p>
               </div>
-              <div class="card__body__logo">
-                <img src="https://images.hasgeek.com/embed/file/9764d1b67f5b4a73aec24293db510ecf">
-                <h2 class="mui--text-headline mui--text-bold">{% trans %}Answer this survey on privacy and technology{% endtrans %}</h2>
-                <a class="mui-btn mui-btn--primary mui-btn--raised" href="https://bit.ly/privacytech-hasgeek" target="_blank" rel="noopener">{% trans %}Get started{% endtrans %}</a>
-                <p class="mui--text-caption caption"><span>{% trans %}32 questions{% endtrans %}</span><span>{% trans %}~15 mins{% endtrans %}</span></p>
-              </div>
-          </div>
+            </div>
+          </a>
         </div>
       </div>
     </div>
