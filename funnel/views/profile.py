@@ -96,7 +96,10 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             }
 
         elif self.obj.is_organization_profile:
-            template_name = 'profile.html.jinja2'
+            if self.obj.name == 'PrivacyMode':
+                template_name = 'custom_profile.html.jinja2'
+            else:
+                template_name = 'profile.html.jinja2'
 
             # `order_by(None)` clears any existing order defined in relationship.
             # We're using it because we want to define our own order here.
