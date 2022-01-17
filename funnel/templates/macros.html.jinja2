@@ -193,7 +193,7 @@
   </a>
 {% endmacro %}
 
-{% macro featured_section(featured_project) %}
+{% macro featured_section(featured_project, heading=true) %}
   {% if featured_project %}
     {% with current_sessions = featured_project.current_sessions() if
     featured_project is not none else none %}
@@ -252,7 +252,7 @@
         <div class="mui-container">
           <div class="grid">
             <div class="grid__col-12">
-              <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Spotlight{% endtrans %}</h2>
+              {% if heading %}<h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Spotlight{% endtrans %}</h2>{% endif %}
             </div>
           </div>
         </div>
