@@ -43,7 +43,7 @@ $(() => {
               timeout: window.Hasgeek.Config.ajaxTimeout,
               dataType: 'json',
               success(data) {
-                pastProjectsApp.title = data.title;
+                if (config.show_heading) pastProjectsApp.title = data.title;
                 pastProjectsApp.headings = data.headings;
                 pastProjectsApp.pastprojects.push(...data.past_projects);
                 pastProjectsApp.next_page = data.next_page;
