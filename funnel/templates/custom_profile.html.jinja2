@@ -180,124 +180,91 @@
     <div class="top-padding">
       <div class="mui-container">
         <ul class="left-padding right-padding mui-list--unstyled mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps">
-          <li class="mui--is-active"><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-1">Sponsored projects</a></li>
-          <li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-2">Sponsored submissions</a></li>
-          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-3">Upcoming projects</a></li>
-          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-4">Accepting submissions projects</a></li>
-          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-5">All projects</a></li>
-          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-6">Past projects</a></li>
-          {%- if profile.features.new_project() or draft_projects %}<li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-7">Draft projecrs</a></li>{% endif %}
-          {% if unscheduled_projects %}<li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-8">Unscheduled projects</a></li>{% endif %}
+          <li class="mui--is-active"><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-1">Reports and publications</a></li>
+          <li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-2">Guides</a></li>
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-3">Conferences</a></li>
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-4">Programmes</a></li>
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-5">Seminars/Talks</a></li>
         </ul>
       </div>
     </div>
 
-    {% if sponsored_projects %}
       <div class="projects-wrapper mui-tabs__pane mui--is-active" id="pane-default-1">
         <div class="mui-container">
           <ul class="grid projects" role="list">
-            {% for project in sponsored_projects %}
-              <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-supported-projects {% if loop.index > 6 %}mui--hide{% endif %}" role="listitem">
-                {{ projectcard(project, save_form_id_prefix='support_pro_') }}
-              </li>
-            {% endfor %}
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              {{ projectcard(profile.projects_by_name['privacy-in-indian-tech-2020'], save_form_id_prefix='report_') }}
+            </li>
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              {{ projectcard(profile.projects_by_name['non-personal-data'], save_form_id_prefix='report_') }}
+            </li>
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              {{ projectcard(profile.projects_by_name['pdp-bill'], save_form_id_prefix='report_') }}
+            </li>
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              {{ projectcard(profile.projects_by_name['it-rules-2021'], save_form_id_prefix='report_') }}
+            </li>
           </ul>
-          {% if sponsored_projects|length > 6 %}
-            <div class="mui--text-center">
-              <a href="javascript:void(0)"  data-target="show all supported projects" class="jquery-show-all mui--text-uppercase" data-projects="js-supported-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
-            </div>
-          {% endif %}
         </div>
       </div>
-    {% endif %}
 
-    {% if sponsored_submissions %}
       <div class="projects-wrapper mui-tabs__pane" id="pane-default-2">
         <div class="mui-container">
           <ul class="grid projects" role="list">
-          {% for proposal in sponsored_submissions %}
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 js-supported-submissions {% if loop.index > 4 %}mui--hide{% endif %}" role="listitem">{{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, draggable=false, spa=false, show_sponsor=false) }}</li>
-          {% endfor %}
+
           </ul>
-          {% if sponsored_submissions|length > 4 %}
-            <div class="mui--text-center">
-              <a href="javascript:void(0)"  data-target="show all supported projects" class="jquery-show-all mui--text-uppercase" data-projects="js-supported-submissions" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
-            </div>
-          {% endif %}
         </div>
       </div>
-    {% endif %}
 
-    <div class="mui-tabs__pane" id="pane-default-3">{{ upcoming_section(upcoming_projects, heading=false) }}</div>
-    <div class="mui-tabs__pane" id="pane-default-4">{{ open_cfp_section(open_cfp_projects, heading=false) }}</div>
-    <div class="mui-tabs__pane" id="pane-default-5">{{ all_projects_section(all_projects, heading=false) }}</div>
-    <div class="mui-tabs__pane" id="pane-default-6">{{ past_projects_section() }}</div>
-
-    {%- if profile.features.new_project() or draft_projects %}
-    <div class="projects-wrapper mui-tabs__pane" id="pane-default-7">
-      <div class="mui-container">
-        <div class="grid">
-          <div class="grid__col-12">
-            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Drafts{% endtrans %}</h2>
-          </div>
-        </div>
-        <ul class="grid projects" role="list">
-          {%- if profile.features.new_project() %}
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-ga="Add new project">
-                <div class="card__image-wrapper">
-                  <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="new"/>
-                  <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class='mui--align-middle card__image-wrapper__icon-wrapper__icon') }}</p>
-                </div>
-                <div class="card__body">
-                  <h4 class="mui--text-headline mui--text-bold">{% trans %}Create a new project{% endtrans %}</h4>
-                  <p class="mui--text-subhead mui--text-light zero-top-margin">{% trans %}Write, collaborate and get feedback{% endtrans %}</p>
-                </div>
-                <div class="mui-divider"></div>
-                <div class="card__footer">
-                  <p class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">{% trans %}New project{% endtrans %}</p>
-                </div>
-              </a>
-            </li>
-          {% endif %}
-          {% for project in draft_projects %}
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-draft-projects {% if loop.index > 2 %}mui--hide{% endif %}" role="listitem">
-              {{ projectcard(project, include_calendar=false, save_form_id_prefix='draft_spf_') }}
-            </li>
-          {%- endfor -%}
-        </ul>
-        {% if draft_projects|length > 2 %}
-          <div class="mui--text-center">
-            <a href="javascript:void(0)"  data-target="show all draft projects" class="jquery-show-all mui--text-uppercase" data-projects="js-draft-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
-          </div>
-        {% endif %}
-      </div>
-    </div>
-    {%- endif %}
-
-    {% if unscheduled_projects %}
-      <div class="projects-wrapper mui-tabs__pane" id="pane-default-8">
+      <div class="projects-wrapper mui-tabs__pane" id="pane-default-3">
         <div class="mui-container">
-          <div class="grid">
-            <div class="grid__col-12">
-              <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Unscheduled projects{% endtrans %}</h2>
-            </div>
-          </div>
           <ul class="grid projects" role="list">
-            {% for project in unscheduled_projects %}
-              <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4 js-unscheduled-projects {% if loop.index > 3 %}mui--hide{% endif %}" role="listitem">
-                {{ projectcard(project, save_form_id_prefix='unsched_spf_') }}
-              </li>
-            {% endfor %}
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              {{ projectcard(other_profiles['rootconf'].projects_by_name['data-privacy-conference'], save_form_id_prefix='conference_') }}
+            </li>
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              {{ projectcard(other_profiles['rootconf'].projects_by_name['detecting-anomalous-network-patterns'], save_form_id_prefix='rconference_') }}
+            </li>
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              {{ projectcard(other_profiles['rootconf'].projects_by_name['scalable-data-privacy-engineering-conf'], save_form_id_prefix='conference_') }}
+            </li>
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              {{ projectcard(other_profiles['fifthelephant'].projects_by_name['mlops-conference'], save_form_id_prefix='conference_') }}
+            </li>
           </ul>
-          {% if unscheduled_projects|length > 3 %}
-            <div class="mui--text-center">
-              <a href="javascript:void(0)"  data-target="show all unscheduled projects" class="jquery-show-all mui--text-uppercase" data-projects="js-unscheduled-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
-            </div>
-          {% endif %}
         </div>
       </div>
-    {% endif %}
+
+      <div class="projects-wrapper mui-tabs__pane" id="pane-default-4">
+        <div class="mui-container">
+          <ul class="grid projects" role="list">
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              {{ projectcard(profile.projects_by_name['fellowship-programme'], save_form_id_prefix='guide_') }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="projects-wrapper mui-tabs__pane" id="pane-default-5">
+        <div class="mui-container">
+          <ul class="grid projects" role="list">
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              {{ projectcard(profile.projects_by_name['privacy-as-risk-assessment-and-risk-mitigation'], save_form_id_prefix='programmes_') }}
+            </li>
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              {{ projectcard(profile.projects_by_name['data-brokers-and-consequences-for-personal-data'], save_form_id_prefix='talks_') }}
+            </li>
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              {{ projectcard(profile.projects_by_name['plausible-io-a-privacy-preserving-alternative'], save_form_id_prefix='talks_') }}
+            </li>
+            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+              {{ projectcard(profile.projects_by_name['lean-data-practices'], save_form_id_prefix='talks_') }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+
   </div>
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-primary mui--z1 {% if class %}{{ class }}{% endif %}">
     <div class="mui-container">
