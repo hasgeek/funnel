@@ -201,7 +201,6 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 'is_organization_profile',
                 'is_user_profile',
                 'owner',
-                'projects_by_name',
             },
             'call': {'url_for', 'features', 'forms', 'state'},
         }
