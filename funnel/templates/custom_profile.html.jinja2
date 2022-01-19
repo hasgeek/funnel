@@ -180,90 +180,137 @@
     <div class="top-padding">
       <div class="mui-container">
         <ul class="left-padding right-padding mui-list--unstyled mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps">
-          <li class="mui--is-active"><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-1">Reports and publications</a></li>
-          <li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-2">Guides</a></li>
-          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-3">Conferences</a></li>
-          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-4">Programmes</a></li>
-          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-5">Seminars/Talks</a></li>
+          <li  class="mui--is-active"><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-1">Talks</a></li>
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-2">Conferences</a></li>
+          <li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-3">Guides</a></li>
+          <li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-4">Reports and publications</a></li>
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-5">Programmes</a></li>
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-6">All</a></li>
         </ul>
       </div>
     </div>
 
-      <div class="projects-wrapper mui-tabs__pane mui--is-active" id="pane-default-1">
-        <div class="mui-container">
-          <ul class="grid projects" role="list">
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(profile.projects_by_name['privacy-in-indian-tech-2020'], save_form_id_prefix='report_') }}
-            </li>
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(profile.projects_by_name['non-personal-data'], save_form_id_prefix='report_') }}
-            </li>
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(profile.projects_by_name['pdp-bill'], save_form_id_prefix='report_') }}
-            </li>
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(profile.projects_by_name['it-rules-2021'], save_form_id_prefix='report_') }}
-            </li>
-          </ul>
-        </div>
+    <div class="projects-wrapper mui-tabs__pane mui--is-active" id="pane-default-1">
+      <div class="mui-container">
+        <ul class="grid projects" role="list">
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['privacy-as-risk-assessment-and-risk-mitigation'], save_form_id_prefix='programmes_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['data-brokers-and-consequences-for-personal-data'], save_form_id_prefix='talks_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['plausible-io-a-privacy-preserving-alternative'], save_form_id_prefix='talks_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['lean-data-practices'], save_form_id_prefix='talks_') }}
+          </li>
+        </ul>
       </div>
+    </div>
 
-      <div class="projects-wrapper mui-tabs__pane" id="pane-default-2">
-        <div class="mui-container">
-          <ul class="grid projects" role="list">
-
-          </ul>
-        </div>
+    <div class="projects-wrapper mui-tabs__pane" id="pane-default-2">
+      <div class="mui-container">
+        <ul class="grid projects" role="list">
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(other_profiles['rootconf'].projects_by_name['data-privacy-conference'], save_form_id_prefix='conference_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(other_profiles['rootconf'].projects_by_name['detecting-anomalous-network-patterns'], save_form_id_prefix='rconference_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(other_profiles['rootconf'].projects_by_name['scalable-data-privacy-engineering-conf'], save_form_id_prefix='conference_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(other_profiles['fifthelephant'].projects_by_name['mlops-conference'], save_form_id_prefix='conference_') }}
+          </li>
+        </ul>
       </div>
+    </div>
 
-      <div class="projects-wrapper mui-tabs__pane" id="pane-default-3">
-        <div class="mui-container">
-          <ul class="grid projects" role="list">
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(other_profiles['rootconf'].projects_by_name['data-privacy-conference'], save_form_id_prefix='conference_') }}
-            </li>
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(other_profiles['rootconf'].projects_by_name['detecting-anomalous-network-patterns'], save_form_id_prefix='rconference_') }}
-            </li>
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(other_profiles['rootconf'].projects_by_name['scalable-data-privacy-engineering-conf'], save_form_id_prefix='conference_') }}
-            </li>
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(other_profiles['fifthelephant'].projects_by_name['mlops-conference'], save_form_id_prefix='conference_') }}
-            </li>
-          </ul>
-        </div>
+    <div class="projects-wrapper mui-tabs__pane" id="pane-default-3">
+      <div class="mui-container">
+        <ul class="grid projects" role="list">
+
+        </ul>
       </div>
+    </div>
 
-      <div class="projects-wrapper mui-tabs__pane" id="pane-default-4">
-        <div class="mui-container">
-          <ul class="grid projects" role="list">
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(profile.projects_by_name['fellowship-programme'], save_form_id_prefix='guide_') }}
-            </li>
-          </ul>
-        </div>
+    <div class="projects-wrapper mui-tabs__pane" id="pane-default-4">
+      <div class="mui-container">
+        <ul class="grid projects" role="list">
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['privacy-in-indian-tech-2020'], save_form_id_prefix='report_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['non-personal-data'], save_form_id_prefix='report_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['pdp-bill'], save_form_id_prefix='report_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['it-rules-2021'], save_form_id_prefix='report_') }}
+          </li>
+        </ul>
       </div>
+    </div>
 
-      <div class="projects-wrapper mui-tabs__pane" id="pane-default-5">
-        <div class="mui-container">
-          <ul class="grid projects" role="list">
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(profile.projects_by_name['privacy-as-risk-assessment-and-risk-mitigation'], save_form_id_prefix='programmes_') }}
-            </li>
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(profile.projects_by_name['data-brokers-and-consequences-for-personal-data'], save_form_id_prefix='talks_') }}
-            </li>
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(profile.projects_by_name['plausible-io-a-privacy-preserving-alternative'], save_form_id_prefix='talks_') }}
-            </li>
-            <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-              {{ projectcard(profile.projects_by_name['lean-data-practices'], save_form_id_prefix='talks_') }}
-            </li>
-          </ul>
-        </div>
+
+    <div class="projects-wrapper mui-tabs__pane" id="pane-default-5">
+      <div class="mui-container">
+        <ul class="grid projects" role="list">
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['fellowship-programme'], save_form_id_prefix='guide_') }}
+          </li>
+        </ul>
       </div>
+    </div>
 
+    <div class="projects-wrapper mui-tabs__pane" id="pane-default-6">
+      <div class="mui-container">
+        <ul class="grid projects" role="list">
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['privacy-as-risk-assessment-and-risk-mitigation'], save_form_id_prefix='programmes_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['data-brokers-and-consequences-for-personal-data'], save_form_id_prefix='talks_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['plausible-io-a-privacy-preserving-alternative'], save_form_id_prefix='talks_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['lean-data-practices'], save_form_id_prefix='talks_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(other_profiles['rootconf'].projects_by_name['data-privacy-conference'], save_form_id_prefix='conference_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(other_profiles['rootconf'].projects_by_name['detecting-anomalous-network-patterns'], save_form_id_prefix='rconference_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(other_profiles['rootconf'].projects_by_name['scalable-data-privacy-engineering-conf'], save_form_id_prefix='conference_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(other_profiles['fifthelephant'].projects_by_name['mlops-conference'], save_form_id_prefix='conference_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['privacy-in-indian-tech-2020'], save_form_id_prefix='report_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['non-personal-data'], save_form_id_prefix='report_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['pdp-bill'], save_form_id_prefix='report_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['it-rules-2021'], save_form_id_prefix='report_') }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['fellowship-programme'], save_form_id_prefix='guide_') }}
+          </li>
+        </ul>
+      </div>
+    </div>
 
   </div>
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-primary mui--z1 {% if class %}{{ class }}{% endif %}">
