@@ -180,10 +180,10 @@
     <div class="top-padding">
       <div class="mui-container">
         <ul class="left-padding right-padding mui-list--unstyled mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps">
-          <li  class="mui--is-active"><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-1">Talks</a></li>
-          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-2">Conferences</a></li>
-          <li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-3">Guides</a></li>
-          <li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-4">Reports and publications</a></li>
+          <li class="mui--is-active"><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-1">Guides</a></li>
+          <li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-2">Reports and publications</a></li>
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-3">Talks</a></li>
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-4">Conferences</a></li>
           <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-5">Programmes</a></li>
           <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-6">All</a></li>
           {%- if profile.features.new_project() or draft_projects %}<li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-7">Drafts</a></li>{% endif %}
@@ -193,6 +193,35 @@
     </div>
 
     <div class="projects-wrapper mui-tabs__pane mui--is-active" id="pane-default-1">
+      <div class="mui-container">
+        <ul class="grid projects" role="list">
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['best-practice-guide'], add_bookmark=false) }}
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="projects-wrapper mui-tabs__pane" id="pane-default-2">
+      <div class="mui-container">
+        <ul class="grid projects" role="list">
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['privacy-in-indian-tech-2020'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['non-personal-data'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['pdp-bill'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['it-rules-2021'], add_bookmark=false) }}
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="projects-wrapper mui-tabs__pane" id="pane-default-3">
       <div class="mui-container">
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
@@ -211,7 +240,7 @@
       </div>
     </div>
 
-    <div class="projects-wrapper mui-tabs__pane" id="pane-default-2">
+    <div class="projects-wrapper mui-tabs__pane" id="pane-default-4">
       <div class="mui-container">
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
@@ -225,35 +254,6 @@
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
             {{ projectcard(other_profiles['fifthelephant'].projects_by_name['mlops-conference'], add_bookmark=false) }}
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="projects-wrapper mui-tabs__pane" id="pane-default-3">
-      <div class="mui-container">
-        <ul class="grid projects" role="list">
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['best-practice-guide'], add_bookmark=false) }}
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="projects-wrapper mui-tabs__pane" id="pane-default-4">
-      <div class="mui-container">
-        <ul class="grid projects" role="list">
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['privacy-in-indian-tech-2020'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['non-personal-data'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['pdp-bill'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['it-rules-2021'], add_bookmark=false) }}
           </li>
         </ul>
       </div>
@@ -274,6 +274,21 @@
       <div class="mui-container">
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['best-practice-guide'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['privacy-in-indian-tech-2020'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['non-personal-data'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['pdp-bill'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['it-rules-2021'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
             {{ projectcard(profile.projects_by_name['privacy-as-risk-assessment-and-risk-mitigation'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
@@ -296,21 +311,6 @@
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
             {{ projectcard(other_profiles['fifthelephant'].projects_by_name['mlops-conference'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['fellowship-programme'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['privacy-in-indian-tech-2020'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['non-personal-data'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['pdp-bill'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['it-rules-2021'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
             {{ projectcard(profile.projects_by_name['fellowship-programme'], add_bookmark=false) }}
