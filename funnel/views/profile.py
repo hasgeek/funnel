@@ -163,6 +163,14 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ctx = {
                 'template': template_name,
                 'profile': self.obj.current_access(datasets=('primary', 'related')),
+                'other_profiles': {
+                    'rootconf': Profile.query.filter_by(name='rootconf')
+                    .first()
+                    .current_access(datasets=('primary', 'related')),
+                    'fifthelephant': Profile.query.filter_by(name='fifthelephant')
+                    .first()
+                    .current_access(datasets=('primary', 'related')),
+                },
                 'all_projects': [
                     p.current_access(datasets=('without_parent', 'related'))
                     for p in all_projects
