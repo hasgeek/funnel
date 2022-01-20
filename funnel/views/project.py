@@ -545,20 +545,25 @@ class ProjectView(
     @requires_login
     @requires_roles({'editor'})
     def cfp_transition(self):
-        # This needs to be fixed
-        cfp_transition = self.obj.forms.cfp_transition()
+        cfp_transition = self.obj.forms.cfp_transition(obj=self.obj)
         if cfp_transition.validate_on_submit():
-            transition = getattr(self.obj.current_access(), cfp_transition.data)
-            transition()  # call the transition
+            cfp_transition.populate_obj(self.obj)
             db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("This project can now receive submissions"),
-            }
+            if self.obj.cfp_state.OPEN:
+                return {
+                    'status': 'ok',
+                    'message': _("This project can now receive submissions"),
+                }
+            else:
+                return {
+                    'status': 'ok',
+                    'message': _("This project will no longer accept submissions"),
+                }
         else:
             return {
-                'status': 'ok',
-                'message': _("This project will no longer accept submissions"),
+                'status': 'error',
+                'error': 'validation',
+                'error_description': _("Invalid form submission"),
             }
 
     @route('register', methods=['POST'])

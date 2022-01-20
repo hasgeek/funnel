@@ -242,14 +242,21 @@ class ProjectTransitionForm(forms.Form):
 
 @Project.forms('cfp_transition')
 class ProjectCfpTransitionForm(forms.Form):
-    cfp_transition = forms.SelectField(
-        __("CfP status"), validators=[forms.validators.DataRequired()]
+    open = forms.BooleanField(  # noqa: A003
+        __("Open submissions"), validators=[forms.validators.InputRequired()]
     )
 
-    def set_queries(self):
-        self.cfp_transition.choices = list(
-            self.edit_obj.cfp_state.transitions().items()
-        )
+    def get_open(self, obj):
+        self.open.data = bool(obj.cfp_state.OPEN)
+
+    def set_open(self, obj):
+        if self.open.data and not obj.cfp_state.OPEN:
+            # Checkbox: yes, but CfP state is not open, so open it
+            obj.open_cfp()
+        elif not self.open.data and obj.cfp_state.OPEN:
+            # Checkbox: no, but CfP state is open, so close it
+            obj.close_cfp()
+        # No action required in all other cases
 
 
 @SavedProject.forms('main')
