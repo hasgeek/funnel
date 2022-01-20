@@ -737,8 +737,11 @@ class __Profile:
         ),
         viewonly=True,
     )
-    projects_by_name = db.relationship(
-        Project, collection_class=attribute_mapped_collection('name'), viewonly=True
+    projects_by_name = with_roles(
+        db.relationship(
+            Project, collection_class=attribute_mapped_collection('name'), viewonly=True
+        ),
+        read={'all'},
     )
 
     def draft_projects_for(self, user: Optional[User]) -> List[Project]:
