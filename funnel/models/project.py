@@ -433,7 +433,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         type='success',
     )
     def open_cfp(self):
-        pass
+        # If closing date is in the past, remove it
+        if self.cfp_close_at is not None and self.cfp_close_at <= utcnow():
+            self.cfp_close_at = None
+        # If opening date is not set, set it
+        if self.cfp_start_at is None:
+            self.cfp_start_at = db.func.utcnow()
 
     @with_roles(call={'editor'})
     @cfp_state.transition(
