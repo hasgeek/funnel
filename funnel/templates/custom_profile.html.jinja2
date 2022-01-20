@@ -186,6 +186,8 @@
           <li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-4">Reports and publications</a></li>
           <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-5">Programmes</a></li>
           <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-6">All</a></li>
+          {%- if profile.features.new_project() or draft_projects %}<li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-7">Drafts</a></li>{% endif %}
+          {%- if unscheduled_projects %}<li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-8">Unscheduled projects</a></li>{% endif %}
         </ul>
       </div>
     </div>
@@ -194,16 +196,16 @@
       <div class="mui-container">
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['privacy-as-risk-assessment-and-risk-mitigation'], save_form_id_prefix='programmes_') }}
+            {{ projectcard(profile.projects_by_name['privacy-as-risk-assessment-and-risk-mitigation'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['data-brokers-and-consequences-for-personal-data'], save_form_id_prefix='talks_') }}
+            {{ projectcard(profile.projects_by_name['data-brokers-and-consequences-for-personal-data'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['plausible-io-a-privacy-preserving-alternative'], save_form_id_prefix='talks_') }}
+            {{ projectcard(profile.projects_by_name['plausible-io-a-privacy-preserving-alternative'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['lean-data-practices'], save_form_id_prefix='talks_') }}
+            {{ projectcard(profile.projects_by_name['lean-data-practices'], add_bookmark=false) }}
           </li>
         </ul>
       </div>
@@ -213,16 +215,16 @@
       <div class="mui-container">
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(other_profiles['rootconf'].projects_by_name['data-privacy-conference'], save_form_id_prefix='conference_') }}
+            {{ projectcard(other_profiles['rootconf'].projects_by_name['data-privacy-conference'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(other_profiles['rootconf'].projects_by_name['detecting-anomalous-network-patterns'], save_form_id_prefix='rconference_') }}
+            {{ projectcard(other_profiles['rootconf'].projects_by_name['detecting-anomalous-network-patterns'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(other_profiles['rootconf'].projects_by_name['scalable-data-privacy-engineering-conf'], save_form_id_prefix='conference_') }}
+            {{ projectcard(other_profiles['rootconf'].projects_by_name['scalable-data-privacy-engineering-conf'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(other_profiles['fifthelephant'].projects_by_name['mlops-conference'], save_form_id_prefix='conference_') }}
+            {{ projectcard(other_profiles['fifthelephant'].projects_by_name['mlops-conference'], add_bookmark=false) }}
           </li>
         </ul>
       </div>
@@ -231,7 +233,9 @@
     <div class="projects-wrapper mui-tabs__pane" id="pane-default-3">
       <div class="mui-container">
         <ul class="grid projects" role="list">
-
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['best-practice-guide'], add_bookmark=false) }}
+          </li>
         </ul>
       </div>
     </div>
@@ -240,16 +244,16 @@
       <div class="mui-container">
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['privacy-in-indian-tech-2020'], save_form_id_prefix='report_') }}
+            {{ projectcard(profile.projects_by_name['privacy-in-indian-tech-2020'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['non-personal-data'], save_form_id_prefix='report_') }}
+            {{ projectcard(profile.projects_by_name['non-personal-data'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['pdp-bill'], save_form_id_prefix='report_') }}
+            {{ projectcard(profile.projects_by_name['pdp-bill'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['it-rules-2021'], save_form_id_prefix='report_') }}
+            {{ projectcard(profile.projects_by_name['it-rules-2021'], add_bookmark=false) }}
           </li>
         </ul>
       </div>
@@ -260,7 +264,7 @@
       <div class="mui-container">
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['fellowship-programme'], save_form_id_prefix='guide_') }}
+            {{ projectcard(profile.projects_by_name['fellowship-programme'], add_bookmark=false) }}
           </li>
         </ul>
       </div>
@@ -270,47 +274,96 @@
       <div class="mui-container">
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['privacy-as-risk-assessment-and-risk-mitigation'], save_form_id_prefix='programmes_') }}
+            {{ projectcard(profile.projects_by_name['privacy-as-risk-assessment-and-risk-mitigation'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['data-brokers-and-consequences-for-personal-data'], save_form_id_prefix='talks_') }}
+            {{ projectcard(profile.projects_by_name['data-brokers-and-consequences-for-personal-data'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['plausible-io-a-privacy-preserving-alternative'], save_form_id_prefix='talks_') }}
+            {{ projectcard(profile.projects_by_name['plausible-io-a-privacy-preserving-alternative'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['lean-data-practices'], save_form_id_prefix='talks_') }}
+            {{ projectcard(profile.projects_by_name['lean-data-practices'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(other_profiles['rootconf'].projects_by_name['data-privacy-conference'], save_form_id_prefix='conference_') }}
+            {{ projectcard(other_profiles['rootconf'].projects_by_name['data-privacy-conference'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(other_profiles['rootconf'].projects_by_name['detecting-anomalous-network-patterns'], save_form_id_prefix='rconference_') }}
+            {{ projectcard(other_profiles['rootconf'].projects_by_name['detecting-anomalous-network-patterns'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(other_profiles['rootconf'].projects_by_name['scalable-data-privacy-engineering-conf'], save_form_id_prefix='conference_') }}
+            {{ projectcard(other_profiles['rootconf'].projects_by_name['scalable-data-privacy-engineering-conf'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(other_profiles['fifthelephant'].projects_by_name['mlops-conference'], save_form_id_prefix='conference_') }}
+            {{ projectcard(other_profiles['fifthelephant'].projects_by_name['mlops-conference'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['privacy-in-indian-tech-2020'], save_form_id_prefix='report_') }}
+            {{ projectcard(profile.projects_by_name['fellowship-programme'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['non-personal-data'], save_form_id_prefix='report_') }}
+            {{ projectcard(profile.projects_by_name['privacy-in-indian-tech-2020'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['pdp-bill'], save_form_id_prefix='report_') }}
+            {{ projectcard(profile.projects_by_name['non-personal-data'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['it-rules-2021'], save_form_id_prefix='report_') }}
+            {{ projectcard(profile.projects_by_name['pdp-bill'], add_bookmark=false) }}
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['fellowship-programme'], save_form_id_prefix='guide_') }}
+            {{ projectcard(profile.projects_by_name['it-rules-2021'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['fellowship-programme'], add_bookmark=false) }}
           </li>
         </ul>
       </div>
     </div>
+
+    {%- if profile.features.new_project() or draft_projects %}
+      <div class="projects-wrapper mui-tabs__pane" id="pane-default-6">
+        <div class="mui-container">
+          <ul class="grid projects" role="list">
+            {%- if profile.features.new_project() %}
+              <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+                <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-ga="Add new project">
+                  <div class="card__image-wrapper">
+                    <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="new"/>
+                    <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class='mui--align-middle card__image-wrapper__icon-wrapper__icon') }}</p>
+                  </div>
+                  <div class="card__body">
+                    <h4 class="mui--text-headline mui--text-bold">{% trans %}Create a new project{% endtrans %}</h4>
+                    <p class="mui--text-subhead mui--text-light zero-top-margin">{% trans %}Write, collaborate and get feedback{% endtrans %}</p>
+                  </div>
+                  <div class="mui-divider"></div>
+                  <div class="card__footer">
+                    <p class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent">{% trans %}New project{% endtrans %}</p>
+                  </div>
+                </a>
+              </li>
+            {% endif %}
+            {% for project in draft_projects %}
+              <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+                {{ projectcard(project, add_bookmark=false) }}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      </div>
+    {%- endif %}
+
+    {% if unscheduled_projects %}
+      <div class="projects-wrapper mui-tabs__pane" id="pane-default-7">
+        <div class="mui-container">
+          <ul class="grid projects" role="list">
+            {% for project in unscheduled_projects %}
+              <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+                {{ projectcard(project, add_bookmark=false) }}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endif %}
 
   </div>
   <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-primary mui--z1 {% if class %}{{ class }}{% endif %}">
@@ -326,14 +379,4 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ built_asset('index.js') }}" type="text/javascript"></script>
-  <script type="text/javascript">
-    $(function() {
-      var homeConfig = {
-        past_projects_json_url: "{{ profile.url_for('past_projects_json') }}",
-        show_heading: false,
-      }
-      window.Hasgeek.homeInit(homeConfig);
-    });
-  </script>
 {% endblock %}
