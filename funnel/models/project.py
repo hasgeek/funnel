@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Iterable, List, Optional, Set
 
+from sqlalchemy.orm.collections import attribute_mapped_collection
+
 from flask import current_app
 from werkzeug.utils import cached_property
 
@@ -718,6 +720,12 @@ class __Profile:
             db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
         ),
         viewonly=True,
+    )
+    projects_by_name = with_roles(
+        db.relationship(
+            Project, collection_class=attribute_mapped_collection('name'), viewonly=True
+        ),
+        read={'all'},
     )
 
     def draft_projects_for(self, user: Optional[User]) -> List[Project]:
