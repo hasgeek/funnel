@@ -54,7 +54,7 @@ def getuser(name: str) -> Optional[User]:
                     userphone = UserPhone.get(number)
                     if userphone is not None and userphone.user.state.ACTIVE:
                         return userphone.user
-                # No matching userphone? Continue to trying a username
+            # No matching userphone? Continue to trying a username
         except phonenumbers.NumberParseException:
             # Not a phone number. Continue to trying a username
             pass
