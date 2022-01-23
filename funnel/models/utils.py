@@ -6,8 +6,10 @@ from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
 from flask import current_app
 
+import phonenumbers
+
 from ..typing import OptionalMigratedTables
-from .user import User, UserEmail, UserEmailClaim, UserExternalId, db
+from .user import User, UserEmail, UserEmailClaim, UserExternalId, UserPhone, db
 
 __all__ = ['getuser', 'getextid', 'merge_users', 'IncompleteUserMigrationError']
 
@@ -17,7 +19,7 @@ class IncompleteUserMigrationError(Exception):
 
 
 def getuser(name: str) -> Optional[User]:
-    """Get a user with a matching name or email address."""
+    """Get a user with a matching name, email address or phone number."""
     # Treat an '@' or '~' prefix as a username lookup, removing the prefix
     if name.startswith('@') or name.startswith('~'):
         name = name[1:]
@@ -38,7 +40,26 @@ def getuser(name: str) -> Optional[User]:
             # Return user only if in active state
             return useremail.user
         return None
-    # If it wasn't an email address lookup, do a username lookup
+    else:
+        # If it wasn't an email address or an @username, check if it's a phone number.
+        # Local numbers are assumed to be Indian.
+        try:
+            # Both IN and US numbers are 10 digits before prefixes. Try IN first
+            for region in ['IN', 'US']:
+                parsed_number = phonenumbers.parse(name, region)
+                if phonenumbers.is_valid_number(parsed_number):
+                    number = phonenumbers.format_number(
+                        parsed_number, phonenumbers.PhoneNumberFormat.E164
+                    )
+                    userphone = UserPhone.get(number)
+                    if userphone is not None and userphone.user.state.ACTIVE:
+                        return userphone.user
+                # No matching userphone? Continue to trying a username
+        except phonenumbers.NumberParseException:
+            # Not a phone number. Continue to trying a username
+            pass
+
+    # Last guess: username
     return User.get(username=name)
 
 
