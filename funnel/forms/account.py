@@ -169,6 +169,8 @@ class PasswordPolicyForm(forms.Form):
 
 @User.forms('password_reset_request')
 class PasswordResetRequestForm(forms.RecaptchaForm):
+    __returns__ = ('user', 'anchor')
+
     username = forms.StringField(
         __("Username or Email"),
         validators=[forms.validators.DataRequired()],
@@ -176,10 +178,9 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
     )
 
     def validate_username(self, field):
-        user = getuser(field.data)
-        if user is None:
+        self.user, self.anchor = getuser(field.data, True)
+        if self.user is None:
             raise forms.ValidationError(_("Could not find a user with that id"))
-        self.user = user
 
 
 @User.forms('password_create')

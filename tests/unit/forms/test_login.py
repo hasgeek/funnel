@@ -149,7 +149,7 @@ def test_login_wrong_username(user):
         form = LoginForm(meta={'csrf': False})
         assert form.validate() is False
         assert form.user is None
-        assert form.username.errors == ["This user could not be identified"]
+        assert form.username.errors == ["You do not seem to have an account"]
         assert form.password.errors == []
 
 
@@ -236,5 +236,5 @@ def test_login_user_suspended(user):
         assert form.validate() is False
         assert form.user is None
         # FIXME: The user should be informed that their account has been suspended
-        assert form.username.errors == ["This user could not be identified"]
+        assert form.username.errors == ["You do not seem to have an account"]
         assert form.password.errors == []

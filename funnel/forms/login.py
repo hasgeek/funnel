@@ -29,7 +29,7 @@ class LoginPasswordWeakException(Exception):  # noqa: N818
 
 @User.forms('login')
 class LoginForm(forms.Form):
-    __returns__ = ('user', 'weak_password')
+    __returns__ = ('user', 'anchor', 'weak_password')
 
     username = forms.StringField(
         __("Email, phone or username"),
@@ -54,9 +54,10 @@ class LoginForm(forms.Form):
 
     # These two validators depend on being called in sequence
     def validate_username(self, field):
-        self.user = getuser(field.data)
+        self.user, self.anchor = getuser(field.data, True)
         if self.user is None:
-            raise forms.ValidationError(_("This user could not be identified"))
+            # TODO: Automatically forward from here to account registration
+            raise forms.ValidationError(_("You do not seem to have an account"))
 
     def validate_password(self, field) -> None:
         # If there is already an error in the password field, don't bother validating.
@@ -101,7 +102,7 @@ class LoginForm(forms.Form):
         # LoginPasswordWeakException after the test. The calling code in views/login.py
         # supports both outcomes.
 
-        # check_password_strength(<password>)['is_weak'] returns True/False
+        # `check_password_strength(password)['is_weak']` is a bool
         self.weak_password: bool = check_password_strength(field.data)['is_weak']
 
 
