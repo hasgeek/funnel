@@ -32,10 +32,10 @@ class LoginForm(forms.Form):
     __returns__ = ('user', 'weak_password')
 
     username = forms.StringField(
-        __("Username or Email"),
+        __("Email, phone or username"),
         validators=[
             forms.validators.DataRequired(
-                __("An email address or username is required")
+                __("An email address, phone number or username is required")
             )
         ],
         filters=[forms.filters.strip()],

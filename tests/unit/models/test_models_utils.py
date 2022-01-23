@@ -29,7 +29,7 @@ def test_merge_users_newer_older(db_session, user_death, user_rincewind):
 
 def test_getuser(db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang):
     """Test for retrieving username by prepending @."""
-    # Convert fixtures are as we need them to be
+    # Confirm fixtures are as we need them to be
     assert user_twoflower.username is None
     assert user_rincewind.username == 'rincewind'
     assert user_mort.username is None
@@ -52,6 +52,11 @@ def test_getuser(db_session, user_twoflower, user_rincewind, user_mort, user_wol
     user_twoflower.add_email('twoflower@example.org')  # This does not remove the claim
     user_rincewind.add_email('rincewind@example.com')
     user_mort.add_email('mort@example.net')
+
+    # Verified phone numbers
+    user_twoflower.add_phone('+919999999999')
+    user_rincewind.add_phone('+912345678901')
+    user_mort.add_phone('+12345678901')
 
     # Now the tests
 
@@ -76,12 +81,44 @@ def test_getuser(db_session, user_twoflower, user_rincewind, user_mort, user_wol
     # Using an unknown email address retrieves nothing
     assert models.getuser('unknown@example.org') is None
 
+    # Retrieval by unprefixed phone number works for Indian and US phone numbers
+    assert models.getuser('9999999999') is user_twoflower
+    assert models.getuser('2345678901') is user_rincewind
+    assert models.getuser('12345678901') is user_mort  # 1 prefix to distinguish
+    assert models.getuser('99999 99999') is user_twoflower
+    assert models.getuser('23456 78901') is user_rincewind
+    assert models.getuser('1 234 567 8901') is user_mort
+    assert models.getuser('99999-99999') is user_twoflower
+    assert models.getuser('23456-78901') is user_rincewind
+    assert models.getuser('99999.99999') is user_twoflower
+    assert models.getuser('23456.78901') is user_rincewind
+    assert models.getuser('1 (234) 567 8901') is user_mort
+
+    # Retrieval by prefixed phone number works for all phone numbers
+    assert models.getuser('+919999999999') is user_twoflower
+    assert models.getuser('+912345678901') is user_rincewind
+    assert models.getuser('+12345678901') is user_mort
+    assert models.getuser('+91 99999 99999') is user_twoflower
+    assert models.getuser('+91 23456 78901') is user_rincewind
+    assert models.getuser('+1 234 567 8901') is user_mort
+    assert models.getuser('+91-99999-99999') is user_twoflower
+    assert models.getuser('+91-23456-78901') is user_rincewind
+    assert models.getuser('+1-234-567-8901') is user_mort
+    assert models.getuser('+91 99999.99999') is user_twoflower
+    assert models.getuser('+91 23456.78901') is user_rincewind
+    assert models.getuser('+1 (234) 567-8901') is user_mort
+    assert models.getuser('00919999999999') is user_twoflower
+    assert models.getuser('00912345678901') is user_rincewind
+    assert models.getuser('0012345678901') is user_mort
+
     # Suspending an account causes lookup to fail
     user_rincewind.mark_suspended()
     assert models.getuser('rincewind') is None
     assert models.getuser('@rincewind') is None
     assert models.getuser('~rincewind') is None
     assert models.getuser('rincewind@example.com') is None
+    assert models.getuser('2345678901') is user_mort  # Same unprefixed number for both
+    assert models.getuser('+912345678901') is None
 
 
 def test_getextid(db_session, user_rincewind):

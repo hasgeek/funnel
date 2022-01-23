@@ -37,6 +37,20 @@ def user_named(db_session):
     return user
 
 
+@pytest.fixture
+def user_email(db_session, user):
+    retval = user.add_email('user@example.com')
+    db_session.commit()
+    return retval
+
+
+@pytest.fixture
+def user_phone(db_session, user):
+    retval = user.add_phone('+912345678901')
+    db_session.commit()
+    return retval
+
+
 def test_form_has_user(user, user_nameless, user_named):
     """Login form identifies user correctly."""
     with app.test_request_context(method='POST', data={'username': 'user'}):
@@ -167,6 +181,43 @@ def test_login_pass(user):
     """Login succeeds if both username and password match."""
     with app.test_request_context(
         method='POST', data={'username': 'user', 'password': 'test_password'}
+    ):
+        form = LoginForm(meta={'csrf': False})
+        assert form.validate() is True
+        assert form.user == user
+        assert form.username.errors == []
+        assert form.password.errors == []
+
+
+def test_login_email_pass(user, user_email):
+    """Login succeeds if email and password match."""
+    with app.test_request_context(
+        method='POST', data={'username': str(user_email), 'password': 'test_password'}
+    ):
+        form = LoginForm(meta={'csrf': False})
+        assert form.validate() is True
+        assert form.user == user
+        assert form.username.errors == []
+        assert form.password.errors == []
+
+
+def test_login_phone_pass(user, user_phone):
+    """Login succeeds if phone number and password match."""
+    with app.test_request_context(
+        method='POST', data={'username': str(user_phone), 'password': 'test_password'}
+    ):
+        form = LoginForm(meta={'csrf': False})
+        assert form.validate() is True
+        assert form.user == user
+        assert form.username.errors == []
+        assert form.password.errors == []
+
+
+def test_login_partial_phone_pass(user, user_phone):
+    """Login succeeds if unprefixed phone number and password match."""
+    with app.test_request_context(
+        method='POST',
+        data={'username': str(user_phone)[3:], 'password': 'test_password'},
     ):
         form = LoginForm(meta={'csrf': False})
         assert form.validate() is True
