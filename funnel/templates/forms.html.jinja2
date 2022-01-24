@@ -201,9 +201,20 @@
             form.find('input[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
             form.find('button[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
             form.find('.loading').addClass('mui--hide');
-            var errorMsg = errMsg ? errMsg || xhr.statusText
-            form.append({{ alertbox('error', errorMsg) | tojson }});
-          } // No comma or semicolon here
+            var errorTxt;
+            console.log(xhr);
+            if (xhr.readyState === 4) {
+              if (xhr.status === 500) {
+                form.append({{ alertbox('error', 'An internal server error occurred. Our support team has been notified and will investigate') | tojson }});
+              } else if(xhr.status === 429) {
+                form.append({{ alertbox('error', 'Too many requests. Try again later') | tojson }});
+              } else {
+                form.append({{ alertbox('error', 'An error occured when submitting the form') | tojson }});
+              }
+            } else {
+              form.append({{ alertbox('error', 'Unable to connect. Check connection and tap to reload') | tojson }});
+            }
+          }
         });
       });
     </script>

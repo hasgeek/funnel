@@ -34,6 +34,9 @@ $(() => {
     networkError: window.gettext(
       'Unable to connect. Check connection and tap to reload'
     ),
+    rateLimitError: window.gettext(
+      'Too many requests. Try again later'
+    ),
   };
 
   Utils.collapse();
