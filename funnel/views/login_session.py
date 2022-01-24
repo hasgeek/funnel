@@ -255,19 +255,29 @@ def session_mark_accessed(
 
 
 def discard_temp_token():
+    """Discard temporary token that was saved when loading the password reset page."""
     session.pop('temp_token', None)
     session.pop('temp_token_type', None)
     session.pop('temp_token_at', None)
 
 
+def discard_temp_username():
+    """Discard temporary username after a redirect from login to password reset."""
+    session.pop('temp_username', None)
+    session.pop('temp_username_at', None)
+
+
 # Also add future hasjob app here
 @app.before_request
-def clear_expired_temp_token():
+def clear_expired_temp_token_and_username():
     """
-    Clear temp_token from session if it's not used (user abandoned the attempt).
+    Clear unused temporary items from session (user abandoned the attempt).
 
-    This value is set by :func:`funnel.views.account_reset.reset_email` and
-    :meth:`funnel.views.notification.AccountNotificationView.unsubscribe`.
+    These values are set by:
+
+        * :func:`funnel.views.account_reset.reset_with_token`
+        * :func:`funnel.views.login.login`
+        * :meth:`funnel.views.notification.AccountNotificationView.unsubscribe`
     """
     if 'temp_token_at' in session:
         # Give the user 10 minutes to complete the action. Remove the token if it's
@@ -277,7 +287,18 @@ def clear_expired_temp_token():
             current_app.logger.info("Cleared expired temp_token from session cookie")
     elif 'temp_token' in session:
         # We have a temp token without a timestamp. This shouldn't happen, so remove it
-        session.pop('temp_token')
+        discard_temp_token()
+    if 'temp_username_at' in session:
+        # Give temp_username also ten minutes. This is set by the login endpoint when
+        # asking the user to reset their password. It's used in the reset page they are
+        # redirected to, and cleared when they submit the page (but not at load time,
+        # so refreshing the reset page won't clear it).
+        if session['temp_username_at'] < utcnow() - timedelta(minutes=10):
+            discard_temp_username()
+            current_app.logger.info("Cleared expired temp_username from session cookie")
+    elif 'temp_username' in session:
+        # We have a temp username without a timestamp. Remove it
+        discard_temp_username()
 
 
 # Also add future hasjob app here

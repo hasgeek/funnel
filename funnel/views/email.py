@@ -29,11 +29,11 @@ def send_email_verify_link(useremail):
     send_email(subject, [(useremail.user.fullname, useremail.email)], content)
 
 
-def send_password_reset_link(email, user, token):
-    """Mail a password reset link to the user."""
-    subject = _("Reset your password")
+def send_password_reset_link(email, user, otp, token):
+    """Mail a password reset OTP and link to the user."""
+    subject = _("Reset your password - OTP {otp}").format(otp=otp)
     url = url_for(
-        'reset_email',
+        'reset_with_token',
         _external=True,
         token=token,
         utm_medium='email',
@@ -45,6 +45,7 @@ def send_password_reset_link(email, user, token):
         fullname=user.fullname,
         url=url,
         jsonld=jsonld,
+        otp=otp,
     )
     send_email(subject, [(user.fullname, email)], content)
 

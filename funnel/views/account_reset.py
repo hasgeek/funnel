@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from flask import (
     Markup,
+    abort,
     current_app,
     escape,
     flash,
@@ -17,19 +18,31 @@ from pytz import utc
 
 from baseframe import _
 from baseframe.forms import render_form, render_message
-from coaster.utils import getbool, utcnow
+from coaster.utils import getbool, newpin, utcnow
 from coaster.views import requestargs
 
 from .. import app
-from ..forms import PasswordResetForm, PasswordResetRequestForm
-from ..models import AccountPasswordNotification, User, db
+from ..forms import OtpForm, PasswordResetForm, PasswordResetRequestForm
+from ..models import (
+    AccountPasswordNotification,
+    User,
+    UserEmail,
+    UserEmailClaim,
+    UserPhone,
+    db,
+)
 from ..registry import login_registry
 from ..serializers import token_serializer
 from ..typing import ReturnView
-from ..utils import abort_null, mask_email
 from .email import send_password_reset_link
-from .helpers import metarefresh_redirect, validate_rate_limit
-from .login_session import logout_internal
+from .helpers import (
+    make_cached_token,
+    metarefresh_redirect,
+    retrieve_cached_token,
+    send_sms_otp,
+    validate_rate_limit,
+)
+from .login_session import discard_temp_token, discard_temp_username, logout_internal
 from .notification import dispatch_notification
 
 
@@ -43,18 +56,10 @@ def str_pw_set_at(user):
 @app.route('/account/reset', methods=['GET', 'POST'])
 def reset():
     # User wants to reset password
-    # Ask for username or email, verify it, and send a reset code
+    # Ask for phone, email or username, verify it, and send a reset code
     form = PasswordResetRequestForm()
-    if getbool(request.args.get('expired')):
-        message = _(
-            "Your password has expired. Please enter your username or email address to"
-            " request a reset code and set a new password"
-        )
-    else:
-        message = None
-
     if request.method == 'GET':
-        form.username.data = abort_null(request.args.get('username'))
+        form.username.data = session.get('temp_username', '')
     elif request.method == 'POST':
         # Limit use of this endpoint to probe for accounts. Allow 5 submissions per 60
         # seconds per IP address. This will let a user try a few usernames/emails in
@@ -64,70 +69,75 @@ def reset():
         validate_rate_limit('account_reset', str(request.remote_addr), 5, 60)
 
     if form.validate_on_submit():
-        username = form.username.data
         user = form.user
-        if '@' in username and not username.startswith('@'):
-            # They provided an email address. Send reset email to that address
-            email = username
-        else:
-            # Send to their existing address
-            # User.email is a UserEmail object
-            email = str(user.email)
-        if not email and user.emailclaims:
-            email = user.emailclaims[0].email
-        if not email:
-            # They don't have an email address. Maybe they logged in via Twitter
-            # and set a local username and password, but no email. Could happen.
+        anchor = form.anchor
+        if not anchor:
+            # User has no phone or email. Maybe they logged in via Twitter
+            # and set a local username and password, but no email. Could happen
             if len(user.externalids) > 0:
                 extid = user.externalids[0]
+                discard_temp_username()
                 return render_message(
                     title=_("Cannot reset password"),
                     message=Markup(
                         _(
-                            "Your account does not have an email address. However, it"
-                            " is linked to {service} with the ID {username}. You can"
-                            " use that to login"
+                            "Your account does not have a phone number or email"
+                            " address. However, it is linked to {service} with the ID"
+                            " {username}. You can use that to login"
                         ).format(
                             service=login_registry[extid.service].title,
                             username=extid.username or extid.userid,
                         )
                     ),
                 )
-
+            discard_temp_username()
             return render_message(
                 title=_("Cannot reset password"),
                 message=Markup(
                     _(
-                        'Your account does not have an email address. Please'
-                        ' contact <a href="mailto:{email}">{email}</a> for'
-                        ' assistance'
-                    ).format(email=escape(current_app.config['SITE_SUPPORT_EMAIL']))
+                        'Your account does not have a phone number or email address.'
+                        ' Please contact <a href="tel:{phone}">{phone}</a> or'
+                        ' <a href="mailto:{email}">{email}</a> for assistance'
+                    ).format(
+                        phone=escape(current_app.config['SITE_SUPPORT_PHONE']),
+                        email=escape(current_app.config['SITE_SUPPORT_EMAIL']),
+                    )
                 ),
             )
-
         # Allow only two reset attempts per hour to discourage abuse
-        validate_rate_limit('email_reset', user.uuid_b58, 2, 3600)
-        send_password_reset_link(
-            email=email,
-            user=user,
-            token=token_serializer().dumps(
-                {'buid': user.buid, 'pw_set_at': str_pw_set_at(user)}
-            ),
+        validate_rate_limit('account_reset', user.uuid_b58, 2, 3600)
+        token = token_serializer().dumps(
+            {'buid': user.buid, 'pw_set_at': str_pw_set_at(user)}
         )
-        return render_message(
-            title=_("Email sent"),
-            message=_(
-                "You have been sent an email with a link to reset your password, to"
-                " your address {masked_email}. If it doesn’t arrive in a few minutes,"
-                " it may have landed in your spam or junk folder. The reset link is"
-                " valid for 24 hours"
-            ).format(masked_email=mask_email(email)),
+        otp = newpin()
+        # Make an OTP valid for 15 minutes
+        otp_token = make_cached_token(
+            {'otp': otp, 'reset_token': token}, timeout=15 * 60
         )
+        if isinstance(anchor, (UserEmail, UserEmailClaim)):
+            send_password_reset_link(
+                email=str(anchor),
+                user=user,
+                otp=otp,
+                token=token,
+            )
+            discard_temp_username()
+            flash(_("An OTP has been sent to your email address"), 'success')
+            return redirect(url_for('reset_otp', token=otp_token), code=303)
+        if isinstance(anchor, UserPhone):
+            msg = send_sms_otp(str(anchor), otp)
+            if msg is not None:
+                return redirect(url_for('reset_otp', token=otp_token), code=303)
+            # else: render form again, with flash messages from send_sms_otp
+        else:
+            # This should not happen. Phone and email are the only anchor types.
+            # Raise error to developer in case we add more later and miss it here
+            raise ValueError(f"Unknown anchor type {type(anchor)}: {anchor!r}")
+
     return render_form(
         form=form,
         title=_("Reset password"),
-        message=message,
-        submit=_("Send reset link"),
+        submit=_("Send OTP"),
         ajax=False,
         template='account_formlayout.html.jinja2',
     )
@@ -135,7 +145,7 @@ def reset():
 
 @app.route('/account/reset/<token>')
 @requestargs(('cookietest', getbool))
-def reset_email(token: str, cookietest=False) -> ReturnView:
+def reset_with_token(token: str, cookietest=False) -> ReturnView:
     """Move token into session cookie and redirect to a token-free URL."""
     if not cookietest:
         session['temp_token'] = token
@@ -150,25 +160,52 @@ def reset_email(token: str, cookietest=False) -> ReturnView:
         # the less secure meta-refresh redirect (browser extensions can read the URL)
         session['temp_token'] = token
         session['temp_token_at'] = utcnow()
-        return metarefresh_redirect(url_for('reset_email_do'))
+        return metarefresh_redirect(url_for('reset_with_token_do'))
     # implicit: cookietest is True and 'temp_token' in session
-    return redirect(url_for('reset_email_do'))
+    return redirect(url_for('reset_with_token_do'))
 
 
 @app.route('/account/reset/<buid>/<secret>')
-def reset_email_legacy(buid, secret):
+def reset_with_token_legacy(buid, secret):
     flash(
         _(
             "This password reset link is invalid."
-            " If you still need to reset your password, you may request a new link"
+            " If you still need to reset your password, you may request an OTP"
         ),
         'info',
     )
     return redirect(url_for('reset'), code=303)
 
 
+@app.route('/account/reset/otp/<token>', methods=['GET', 'POST'])
+def reset_otp(token) -> ReturnView:
+    """Process a password reset using an OTP."""
+    # This endpoint does not bother to scrub the token from the URL because the token
+    # is paired with an OTP and is not sensitive in itself.
+    otp_data = retrieve_cached_token(token)
+    if not otp_data:
+        abort(404)
+
+    # Allow 5 guesses per 60 seconds
+    validate_rate_limit('account_reset_otp', token, 5, 60)
+
+    form = OtpForm(valid_otp=otp_data['otp'])
+    if form.validate_on_submit():
+        # If the OTP is correct, continue with the email reset link flow
+        return redirect(
+            url_for('reset_with_token', token=otp_data['reset_token']), code=303
+        )
+    return render_form(
+        form=form,
+        title=_("Verify OTP"),
+        submit=_("Confirm"),
+        ajax=False,
+        template='account_formlayout.html.jinja2',
+    )
+
+
 @app.route('/account/reset/do', methods=['GET', 'POST'])
-def reset_email_do() -> ReturnView:
+def reset_with_token_do() -> ReturnView:
 
     # Validate the token
     # 1. Do we have a token? User may have accidentally landed here
@@ -191,24 +228,22 @@ def reset_email_do() -> ReturnView:
         token = token_serializer().loads(session['temp_token'], max_age=86400)
     except itsdangerous.SignatureExpired:
         # Link has expired (timeout).
-        session.pop('temp_token', None)
-        session.pop('temp_token_at', None)
+        discard_temp_token()
         flash(
             _(
                 "This password reset link has expired."
-                " If you still need to reset your password, you may request a new link"
+                " If you still need to reset your password, you may request an OTP"
             ),
             'error',
         )
         return redirect(url_for('reset'), code=303)
     except itsdangerous.BadData:
         # Link is invalid
-        session.pop('temp_token', None)
-        session.pop('temp_token_at', None)
+        discard_temp_token()
         flash(
             _(
                 "This password reset link is invalid."
-                " If you still need to reset your password, you may request a new link"
+                " If you still need to reset your password, you may request an OTP"
             ),
             'error',
         )
@@ -218,8 +253,7 @@ def reset_email_do() -> ReturnView:
     user = User.get(buid=token['buid'])
     if user is None:
         # If the user has disappeared, it's likely because of account deletion.
-        session.pop('temp_token', None)
-        session.pop('temp_token_at', None)
+        discard_temp_token()
         return render_message(
             title=_("Unknown user"),
             message=_("There is no account matching this password reset request"),
@@ -228,12 +262,11 @@ def reset_email_do() -> ReturnView:
     if token['pw_set_at'] != str_pw_set_at(user):
         # Token has been used to set a password, as the timestamp has changed. Ask user
         # if they want to reset their password again
-        session.pop('temp_token', None)
-        session.pop('temp_token_at', None)
+        discard_temp_token()
         flash(
             _(
                 "This password reset link has been used."
-                " If you need to reset your password again, you may request a new link"
+                " If you need to reset your password again, you may request an OTP"
             ),
             'error',
         )
@@ -249,8 +282,7 @@ def reset_email_do() -> ReturnView:
     if form.validate_on_submit():
         current_app.logger.info("Password strength %f", form.password_strength)
         user.password = form.password.data
-        session.pop('temp_token', None)
-        session.pop('temp_token_at', None)
+        discard_temp_token()
         # Invalidate all of the user's active sessions
         user_sessions = user.active_user_sessions.all()
         session_count = len(user_sessions)
@@ -264,7 +296,7 @@ def reset_email_do() -> ReturnView:
                 "Your password has been changed. You may now login with your new"
                 " password"
             )
-            if session_count is None
+            if session_count == 0
             else ngettext(
                 "Your password has been changed. As a precaution, you have been logged"
                 " out of one other device. You may now login with your new password",

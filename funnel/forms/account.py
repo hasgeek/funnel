@@ -38,6 +38,7 @@ __all__ = [
     'PhonePrimaryForm',
     'VerifyEmailForm',
     'VerifyPhoneForm',
+    'OtpForm',
     'supported_locales',
     'timezone_identifiers',
 ]
@@ -68,6 +69,8 @@ class PasswordStrengthValidator:
             user_inputs.append(getattr(form, field_name).data)
 
         if hasattr(form, 'edit_user') and form.edit_user is not None:
+            if form.edit_user.username:
+                user_inputs.append(form.edit_user.username)
             if form.edit_user.fullname:
                 user_inputs.append(form.edit_user.fullname)
 
@@ -172,7 +175,7 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
     __returns__ = ('user', 'anchor')
 
     username = forms.StringField(
-        __("Username or Email"),
+        __("Phone, email or username"),
         validators=[forms.validators.DataRequired()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
@@ -210,19 +213,26 @@ class PasswordCreateForm(forms.Form):
 class PasswordResetForm(forms.RecaptchaForm):
     __returns__ = ('password_strength',)
 
-    username = forms.StringField(
-        __("Username or Email"),
-        validators=[forms.validators.DataRequired()],
-        description=__("Please reconfirm your username or email address"),
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
-    )
+    # TODO: Disabled after the switch to OTP-based reset as it's a seamless flow. The
+    # user no longer leaves and comes back in a different session. However, this should
+    # still be used when the older email link flow is used, so the TODO is to re-enable
+    # conditionally
+
+    # username = forms.StringField(
+    #     __("Phone, email or username"),
+    #     validators=[forms.validators.DataRequired()],
+    #     description=__(
+    #         "Please reconfirm your phone number, email address or username"
+    #     ),
+    #     widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+    # )
 
     password = forms.PasswordField(
         __("New password"),
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
-            PasswordStrengthValidator(user_input_fields=['username']),
+            PasswordStrengthValidator(),
         ],
     )
     confirm_password = forms.PasswordField(
@@ -238,10 +248,7 @@ class PasswordResetForm(forms.RecaptchaForm):
         user = getuser(field.data)
         if user is None or user != self.edit_user:
             raise forms.ValidationError(
-                _(
-                    "This username or email does not match the user the reset code is"
-                    " for"
-                )
+                _("This does not match the user the reset code is for")
             )
 
 
@@ -505,13 +512,37 @@ class VerifyPhoneForm(forms.Form):
         __("Verification code"),
         validators=[forms.validators.DataRequired()],
         filters=[forms.filters.strip()],
-        widget_attrs={'pattern': '[0-9]*', 'autocomplete': 'off'},
+        widget_attrs={
+            'pattern': '[0-9]*',
+            'autocomplete': 'off',
+            'inputmode': 'numeric',
+        },
     )
 
     def validate_verification_code(self, field):
         # self.phoneclaim is set by the view before calling form.validate()
         if self.phoneclaim.verification_code != field.data:
             raise forms.ValidationError(_("Verification code does not match"))
+
+
+class OtpForm(forms.Form):
+    __expects__ = ('valid_otp',)
+
+    otp = forms.StringField(
+        __("OTP"),
+        description=__("One-time password sent to your device"),
+        validators=[forms.validators.DataRequired()],
+        filters=[forms.filters.strip()],
+        widget_attrs={
+            'pattern': '[0-9]*',
+            'autocomplete': 'off',
+            'inputmode': 'numeric',
+        },
+    )
+
+    def validate_otp(self, field):
+        if field.data != self.valid_otp:
+            raise forms.StopValidation(_("OTP is incorrect"))
 
 
 class ModeratorReportForm(forms.Form):

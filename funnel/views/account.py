@@ -50,7 +50,6 @@ from ..models import (
     AuthClient,
     Organization,
     OrganizationMembership,
-    SMSMessage,
     User,
     UserEmail,
     UserEmailClaim,
@@ -62,11 +61,10 @@ from ..models import (
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
-from ..transports import TransportConnectionError, TransportRecipientError, sms
 from ..typing import ReturnRenderWith, ReturnResponse, ReturnView
 from .decorators import etag_cache_for_user, xhr_only
 from .email import send_email_verify_link
-from .helpers import app_url_for, autoset_timezone_and_locale
+from .helpers import app_url_for, autoset_timezone_and_locale, send_sms_otp
 from .login_session import (
     login_internal,
     logout_internal,
@@ -647,30 +645,8 @@ class AccountView(ClassView):
             current_auth.user.main_notification_preferences.by_sms = (
                 form.enable_notifications.data
             )
-            template_message = sms.WebOtpTemplate(
-                otp=userphone.verification_code,
-                helpline_text="call +917676332020",  # TODO: Replace with report URL
-                domain=current_app.config['SERVER_NAME'],
-            )
-            msg = SMSMessage(
-                phone_number=userphone.phone,
-                message=str(template_message),
-            )
-            try:
-                # Now send this
-                msg.transactionid = sms.send(msg.phone_number, template_message)
-            except TransportRecipientError as exc:
-                flash(str(exc), 'error')
-            except TransportConnectionError:
-                flash(_("Unable to send a message right now. Try again later"), 'error')
-            else:
-                # Commit only if an SMS could be sent
-                db.session.add(msg)
-                db.session.commit()
-                flash(
-                    _("A verification code has been sent to your phone number"),
-                    'success',
-                )
+            msg = send_sms_otp(userphone.phone, userphone.verification_code)
+            if msg is not None:
                 user_data_changed.send(current_auth.user, changes=['phone-claim'])
                 return render_redirect(
                     url_for('verify_phone', number=userphone.phone), code=303

@@ -20,7 +20,7 @@ from baseframe import _, __, forms, request_is_xhr, statsd
 from baseframe.forms import render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
-from coaster.utils import getbool
+from coaster.utils import getbool, utcnow
 from coaster.views import get_next_url, requestargs
 
 from .. import app
@@ -161,25 +161,25 @@ def login():
             flash(
                 _(
                     "Your account does not have a password set. Please enter your"
-                    " username or email address to request a reset code and set a"
+                    " phone number or email address to request a reset code and set a"
                     " new password"
                 ),
                 category='danger',
             )
-            return render_redirect(
-                url_for('reset', username=loginform.username.data), code=303
-            )
+            session['temp_username'] = loginform.username.data
+            session['temp_username_at'] = utcnow()
+            return render_redirect(url_for('reset'), code=303)
         except LoginPasswordWeakException:
             flash(
                 _(
                     "Your account has a weak password. Please enter your"
-                    " username or email address to request a reset code and set a"
+                    " phone number or email address to request a reset code and set a"
                     " new password"
                 )
             )
-            return render_redirect(
-                url_for('reset', username=loginform.username.data), code=303
-            )
+            session['temp_username'] = loginform.username.data
+            session['temp_username_at'] = utcnow()
+            return render_redirect(url_for('reset'), code=303)
     elif request.method == 'POST':
         abort(500)
     iframe_block = {'X-Frame-Options': 'SAMEORIGIN'}

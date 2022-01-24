@@ -14,6 +14,7 @@ from ..models import (
 __all__ = [
     'LoginPasswordResetException',
     'LoginPasswordWeakException',
+    'LoginWithoutPassword',
     'LoginForm',
     'LogoutForm',
 ]
@@ -25,6 +26,26 @@ class LoginPasswordResetException(Exception):  # noqa: N818
 
 class LoginPasswordWeakException(Exception):  # noqa: N818
     """Exception to signal that password is weak and needs change (not an error)."""
+
+
+class LoginWithoutPassword(Exception):  # noqa: N818
+    """Exception to signal that login may proceed using an OTP instead of password."""
+
+
+# Validator specifically for LoginForm
+class PasswordlessLoginIntercept:
+    """Allow password to be optional if an anchor (phone, email) is available."""
+
+    message = __("Password is required")
+
+    def __call__(self, form, field):
+        if not field.data:
+            # Use getattr for when :meth:`LoginForm.validate_username` is skipped
+            if getattr(form, 'anchor', None) is not None:
+                # If user has an anchor, we can allow login to proceed passwordless
+                # using an OTP or email link
+                raise LoginWithoutPassword()
+            raise forms.StopValidation(self.message)
 
 
 @User.forms('login')
@@ -44,7 +65,7 @@ class LoginForm(forms.Form):
     password = forms.PasswordField(
         __("Password"),
         validators=[
-            forms.validators.DataRequired(__("Password is required")),
+            PasswordlessLoginIntercept(),
             forms.validators.Length(
                 max=PASSWORD_MAX_LENGTH,
                 message=__("Password must be under %(max)s characters"),
@@ -62,7 +83,7 @@ class LoginForm(forms.Form):
     def validate_password(self, field) -> None:
         # If there is already an error in the password field, don't bother validating.
         # This will be a `Length` validation error, but that one unfortunately does not
-        # raise `StopValidation`, so we'll get called with potentially too much data
+        # raise `StopValidation`. If the length is off, we can end rightaway.
         if field.errors:
             return
 

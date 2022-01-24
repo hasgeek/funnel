@@ -2,6 +2,8 @@
 SITE_TITLE = 'Hasgeek Funnel'
 #: Support contact email
 SITE_SUPPORT_EMAIL = 'test@example.com'
+#: Support contact phone
+SITE_SUPPORT_PHONE = '+1 234 567 8901'
 #: Google Analytics code UA-XXXXXX-X
 GA_CODE = ''
 #: Server name (required to generate URLs)

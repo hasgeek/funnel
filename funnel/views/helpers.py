@@ -14,6 +14,7 @@ from flask import (
     Response,
     abort,
     current_app,
+    flash,
     g,
     jsonify,
     render_template,
@@ -30,12 +31,13 @@ from pytz import timezone as pytz_timezone
 from pytz import utc
 import brotli
 
-from baseframe import cache, statsd
+from baseframe import _, cache, statsd
 
 from .. import app, built_assets, shortlinkapp
 from ..forms import supported_locales
-from ..models import Shortlink, User, db, profanity
+from ..models import Shortlink, SMSMessage, User, db, profanity
 from ..signals import emailaddress_refcount_dropping
+from ..transports import TransportConnectionError, TransportRecipientError, sms
 from .jobs import forget_email
 
 valid_timezones = set(common_timezones)
@@ -377,6 +379,31 @@ def compress_response(response: ResponseBase) -> None:
             response.set_data(compress(response.get_data(), algorithm))
             response.headers['Content-Encoding'] = algorithm
             response.vary.add('Accept-Encoding')  # type: ignore[union-attr]
+
+
+def send_sms_otp(phone, otp) -> Optional[SMSMessage]:
+    """Send an OTP via SMS to a phone number."""
+    template_message = sms.WebOtpTemplate(
+        otp=otp,
+        # TODO: Replace helpline_text with a report URL
+        helpline_text=f"call {app.config['SITE_SUPPORT_PHONE']}",
+        domain=current_app.config['SERVER_NAME'],
+    )
+    msg = SMSMessage(phone_number=phone, message=str(template_message))
+    try:
+        # Now send this
+        msg.transactionid = sms.send(msg.phone_number, template_message)
+    except TransportRecipientError as exc:
+        flash(str(exc), 'error')
+    except TransportConnectionError:
+        flash(_("Unable to send a message right now. Try again later"), 'error')
+    else:
+        # Commit only if an SMS could be sent
+        db.session.add(msg)
+        db.session.commit()
+        flash(_("An OTP has been sent to your phone number"), 'success')
+        return msg
+    return None
 
 
 # --- Template helpers -----------------------------------------------------------------
