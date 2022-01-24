@@ -202,7 +202,6 @@
             form.find('button[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
             form.find('.loading').addClass('mui--hide');
             var errorTxt;
-            console.log(xhr);
             if (xhr.readyState === 4) {
               if (xhr.status === 500) {
                 form.append({{ alertbox('error', 'An internal server error occurred. Our support team has been notified and will investigate') | tojson }});
