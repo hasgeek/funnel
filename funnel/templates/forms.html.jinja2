@@ -196,12 +196,13 @@
             form.find('.loading').removeClass('mui--hide');
             return true;
           },
-          error: function(context, xhr, status, errMsg) {
+          error: function(xhr, status, errMsg) {
             var form = $("#{{ ref_id }}");
             form.find('input[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
             form.find('button[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
             form.find('.loading').addClass('mui--hide');
-            form.append({{ alertbox('error', 'An error occured when submitting the form') | tojson }});
+            var errorMsg = errMsg ? errMsg || xhr.statusText
+            form.append({{ alertbox('error', errorMsg) | tojson }});
           } // No comma or semicolon here
         });
       });
