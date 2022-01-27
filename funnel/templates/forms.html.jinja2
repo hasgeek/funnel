@@ -201,17 +201,19 @@
             form.find('input[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
             form.find('button[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
             form.find('.loading').addClass('mui--hide');
-            var errorTxt;
+            $('.alert').remove();
+            var alertBoxHtml = {{ alertbox('error', '') | tojson }};
+            form.append(alertBoxHtml);
             if (xhr.readyState === 4) {
               if (xhr.status === 500) {
-                form.append({{ alertbox('error', 'An internal server error occurred. Our support team has been notified and will investigate') | tojson }});
+                $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.serverError);
               } else if(xhr.status === 429) {
-                form.append({{ alertbox('error', 'Too many requests. Try again later') | tojson }});
+                $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.rateLimitError);
               } else {
-                form.append({{ alertbox('error', 'An error occured when submitting the form') | tojson }});
+                $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.error);
               }
             } else {
-              form.append({{ alertbox('error', 'Unable to connect. Check connection and tap to reload') | tojson }});
+              $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.networkError);
             }
           }
         });
