@@ -131,6 +131,12 @@ const Form = {
       event.stopPropagation();
     });
   },
+  openSubmissionToggle(checkboxId, cfpStatusDiv) {
+    Form.activateToggleSwitch();
+    $(checkboxId).change(() => {
+      $(cfpStatusDiv).toggleClass('mui--hide');
+    });
+  },
 };
 
 export default Form;

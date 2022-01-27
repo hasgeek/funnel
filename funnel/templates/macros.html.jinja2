@@ -707,24 +707,38 @@
   </div>
 {%- endmacro %}
 
-{%- macro open_submission(project) %}
+{%- macro open_submission(project, showEditBtn=true) %}
   <div class="flex-wrapper flex-wrapper--space-between flex-wrapper--start margin-top bottom-padding">
     <div>
-      <p class="mui--text-subhead mui--text-bold margin-bottom" data-cy="cfp-state">{% trans status=project.cfp_state.label.title %}Submission status: {{ status }}{% endtrans %}</p>
-      {% if project.cfp_state.OPEN -%}
-        {% if project.cfp_end_at_localized -%}<p class="mui--text-light mui--text-body2 zero-bottom-margin">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}.{% endtrans %} {% if project.view_for('cfp').is_available() %}<a href="{{ project.url_for('cfp') }}" class="mui--text-light mui--text-body2 nounderline">{% trans %}Click to pre-set an end dates{% endtrans %}{{ faicon(icon='pencil', icon_size='caption', baseline=false, css_class='mui--text-light margin-left') }}{%- endif %}</a></p>{% endif %}
-      {%- elif project.cfp_state.UNAVAILABLE %}
+      <div class="js-cfp-status {% if not project.cfp_state.OPEN -%} mui--hide {%- endif %}">
+        <p class="mui--text-subhead mui--text-bold margin-bottom" data-cy="cfp-state">{% trans %}Submission status: ON{% endtrans %}</p>
+        {% if not project.end_at_localized -%}
+          {% if not project.view_for('cfp').is_available() or not showEditBtn %}
+            <p class="mui--text-light mui--text-body2 zero-bottom-margin">{% trans %}Accepting submissions{% endtrans %}</p>
+          {% else %}
+            <p  class="mui--text-light mui--text-body2 zero-bottom-margin">{% trans %}Accepting submissions.{% endtrans %}<a href="{{ project.url_for('cfp') }}" class="mui--text-light mui--text-body2"> {% trans %}Click to pre-set an end date{% endtrans %}{{ faicon(icon='pencil', icon_size='caption', baseline=false, css_class='mui--text-light margin-left') }}</a></p>
+          {% endif %}
+        {% else %}
+          {% if not project.view_for('cfp').is_available() or not showEditBtn %}
+            <p class="mui--text-light mui--text-body2 zero-bottom-margin">{% trans date=project.end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}
+          {% else %}
+            <p  class="mui--text-light mui--text-body2 zero-bottom-margin">{% trans date=project.end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}.{% endtrans %}<a href="{{ project.url_for('cfp') }}" class="mui--text-light mui--text-body2"> {% trans %}Click to edit the end date{% endtrans %}{{ faicon(icon='pencil', icon_size='caption', baseline=false, css_class='mui--text-light margin-left') }}</a></p>
+          {% endif %}
+        {%- endif %}
+      </div>
+      <div class="js-cfp-status {% if project.cfp_state.OPEN -%} mui--hide {%- endif %}">
+        <p class="mui--text-subhead mui--text-bold margin-bottom" data-cy="cfp-state">{% trans %}Submission status: OFF{% endtrans %}</p>
         <p class="mui--text-light mui--text-body2 zero-bottom-margin">{% trans %}Not accepting submissions{% endtrans %}</p>
-      {%- endif %}
+      </div>
     </div>
     {%- if project.view_for('cfp').is_available() %}
       <div class="flex-wrapper flex-wrapper--center">
         <form action="{{ project.url_for('cfp_transition') }}" method="post" class="mui--d-inlineblock mui--align-top right-padding">
           {{ csrf_tag() }}
-          <input type="checkbox" name="cfp_transition" id="open-sub" class="switch-input js-toggle" {%- if project.cfp_state.OPEN  %}checked{%- endif %}/>
+          <input type="checkbox" name="open" id="open-sub" class="switch-input js-toggle" {%- if project.cfp_state.OPEN  %}checked{%- endif %}/>
           <label class="switch-label mui--pull-right" for="open-sub"></label>
         </form>
-        <span data-toggle="tooltip" data-placement="top" title="{% trans %}Open to receive submissions{% endtrans %}" aria-label="{% trans %}Open to receive submissions{% endtrans %}">{{ faicon(icon='info-circle', baseline=true) }}</span>
+        <span data-toggle="tooltip" data-placement="top" title="{% trans %}Toggle to enable/disable submissions{% endtrans %}" aria-label="{% trans %}Open to receive submissions{% endtrans %}">{{ faicon(icon='info-circle', baseline=true) }}</span>
       </div>
     {%- endif %}
   </div>

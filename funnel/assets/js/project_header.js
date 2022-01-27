@@ -197,7 +197,7 @@ $(() => {
       Ticketing.init(tickets);
     }
 
-    Form.activateToggleSwitch();
+    Form.openSubmissionToggle('#open-sub', '.js-cfp-status');
 
     const hightlightNavItem = function (navElem) {
       const navHightlightClass = 'sub-navbar__item--active';
