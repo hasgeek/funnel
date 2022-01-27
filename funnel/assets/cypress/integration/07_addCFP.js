@@ -16,32 +16,21 @@ describe('Add CFP and labels to project', () => {
       editor.password
     );
 
-    cy.get('a[data-cy="project-menu"]:visible').click();
-    cy.wait(1000);
-    cy.get('a[data-cy-navbar="settings"]:visible').click();
-    cy.location('pathname').should('contain', 'settings');
+    cy.get('a[data-cy-navbar="submissions"]').click();
     cy.get('a[data-cy="add-cfp"]').click();
     cy.location('pathname').should('contain', '/cfp');
     cy.get('#field-instructions')
       .find('.CodeMirror textarea')
       .type(cfp.instructions, { force: true });
-    cy.get('button[name="open-now"]').click();
-    const cfpEndDay = dayjs().add(20, 'days').format('YYYY-MM-DDTHH:mm');
-    cy.get('#cfp_end_at').type(cfpEndDay);
     cy.get('button[data-cy="add-cfp"]').click();
-    cy.location('pathname').should('contain', project.url);
-    cy.get('a[data-cy="project-menu"]:visible').click();
-    cy.wait(1000);
-    cy.get('a[data-cy-navbar="settings"]:visible').click();
-    cy.location('pathname').should('contain', 'settings');
-    cy.get('button[data-cy-cfp=open_cfp]').click();
-    cy.location('pathname').should('contain', project.url);
+    cy.get('label.switch-label').click();
+    cy.get('p[data-cy="cfp-state"]').contains('ON');
+    cy.get('a[data-cy="propose-a-session"]').should('exist');
 
     cy.get('a[data-cy="project-menu"]:visible').click();
     cy.wait(1000);
     cy.get('a[data-cy-navbar="settings"]:visible').click();
     cy.location('pathname').should('contain', 'settings');
-    cy.get('[data-cy="cfp-state"]').contains('Open');
     cy.get('a[data-cy="manage-labels"').click();
     cy.location('pathname').should('contain', '/labels');
 

@@ -293,23 +293,12 @@
     {% if project.view_for('edit_schedule').is_available() and not project.start_at %}
       <p class="project-details__box__content--lesspadding propose"><a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
     {%- endif %}
-    {% if project.cfp_state.OPEN -%}
-      <div class="project-details__box__content--lesspadding propose">
-        <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
-        {% if project.cfp_end_at_localized -%}<p class="propose__txt mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>{% endif %}
-      </div>
-    {% elif project.view_for('cfp').is_available() -%}
-      <div class="project-details__box__content--lesspadding propose">
-        <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark mui--d-block">
-          {% if project.cfp_state.DRAFT or project.cfp_state.UNAVAILABLE -%}
-            {% trans %}Open submissions{% endtrans %}
-          {%- else %}
-            {% trans %}Add submission guidelines{% endtrans %}
-          {%- endif %}
-        </a>
-      </div>
-    {%- elif project.cfp_state.UNAVAILABLE %}
-      <div class="project-details__box__content--lesspadding propose">
+    <div class="project-details__box__content--lesspadding propose js-cfp-status {% if not project.cfp_state.OPEN -%} mui--hide {%- endif %}">
+      <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
+      {% if project.cfp_end_at_localized -%}<p class="propose__txt mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>{% endif %}
+    </div>
+    {%- if project.cfp_state.UNAVAILABLE %}
+      <div class="project-details__box__content--lesspadding propose js-cfp-status {% if project.cfp_state.OPEN -%} mui--hide {%- endif %}">
         <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block mui-btn--strike" data-cy="Make a submission">{% trans %}Make a submission{% endtrans %}</a>
         <p class="mui--text-light mui--text-caption mui--text-center zero-bottom-margin">{% trans %}Submissions are closed for this project{% endtrans %}</p>
       </div>

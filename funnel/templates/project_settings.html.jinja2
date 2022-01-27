@@ -11,7 +11,7 @@
       <div>
         {%- if transition_form %}
           <div>
-            <p class="mui--text-subhead mui--text-bold margin-bottom" data-cy="project-state">{% trans status=project.state.label.title %}Status: {{ status }}{% endtrans %}</p>
+            <p class="mui--text-subhead mui--text-bold margin-bottom" data-cy="project-state">{% trans status=project.state.label.title %}Project status: {{ status }}{% endtrans %}</p>
             <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
               {{ transition_form.hidden_tag() }}
               <p class="btn-group">
@@ -22,7 +22,13 @@
             </form>
           </div>
         {%- endif %}
+        <hr>
         {{ open_submission(project) }}
+        {%- if project.view_for('cfp').is_available() %}
+          <div class="bottom-padding">
+            <p class="zero-bottom-margin"><a href="{{ project.url_for('cfp') }}" class="mui--text-subhead mui--text-dark mui--text-bold nounderline" data-cy="add-cfp">{% trans %}Add guidelines and timing{% endtrans %}{{ faicon(icon='pencil', icon_size='caption', baseline=false, css_class='mui--text-dark margin-left') }}</a></p>
+          </div>
+        {%- endif %}
       </div>
     </div>
   </div>
@@ -49,7 +55,7 @@
         {% endif %}
         {% if project.view_for('cfp').is_available() -%}
           <li class="margin-bottom">
-            <a href="{{ project.url_for('cfp') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="add-cfp"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='inbox-in', icon_size='title', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Submissions{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Guidelines and timelines for accepting submissions{% endtrans %}</span></span></a>
+            <a href="{{ project.url_for('cfp') }}" class="nounderline flex-wrapper mui--text-dark"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='inbox-in', icon_size='title', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Submissions{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Guidelines and timelines for accepting submissions{% endtrans %}</span></span></a>
           </li>
         {%- endif %}
         {% if project.view_for('labels').is_available() %}
