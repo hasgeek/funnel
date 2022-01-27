@@ -341,5 +341,9 @@
 @media (min-width: 768px) {
   .mobile-header-right {
     position: static;
+    float: right;
+  }
+  .proposal__section__members {
+    max-width: calc(100% - 100px);
   }
 }
