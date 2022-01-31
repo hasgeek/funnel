@@ -735,8 +735,8 @@
       <div class="flex-wrapper flex-wrapper--center">
         <form action="{{ project.url_for('cfp_transition') }}" method="post" class="mui--d-inlineblock mui--align-top right-padding">
           {{ csrf_tag() }}
-          <input type="checkbox" name="open" id="open-sub" class="switch-input js-toggle" {%- if project.cfp_state.OPEN  %}checked{%- endif %} {%- if project.cfp_state.NONE %}disabled{%- endif %}/>
-          <label class="switch-label mui--pull-right {% if project.cfp_state.NONE -%}switch-label--disabled{%- endif %}" for="open-sub"></label>
+          <input type="checkbox" name="open" id="open-sub" class="switch-input js-toggle" {%- if project.cfp_state.OPEN  %}checked{%- endif %} {%- if not project.cfp_state.TOGGLEABLE %}disabled{%- endif %}/>
+          <label class="switch-label mui--pull-right {% if not project.cfp_state.TOGGLEABLE -%}switch-label--disabled{%- endif %}" for="open-sub"></label>
         </form>
         <span data-toggle="tooltip" data-placement="top" title="{% trans %}Toggle to enable/disable submissions{% endtrans %}" aria-label="{% trans %}Open to receive submissions{% endtrans %}">{{ faicon(icon='info-circle', baseline=true) }}</span>
       </div>
@@ -750,7 +750,7 @@
     <a class="mui-btn mui-btn--accent mui-btn--raised" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
     {% if project.cfp_end_at_localized -%}<p class="propose__txt mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>{% endif %}
   </div>
-  {%- if not project.cfp_state.NONE %}
+  {%- if project.cfp_state.TOGGLEABLE and not project.cfp_state.DRAFT  %}
     <div class="project-details__box__content--lesspadding propose js-cfp-status {% if project.cfp_state.OPEN -%} mui--hide {%- endif %}">
       <a class="mui-btn mui-btn--accent mui-btn--raised mui-btn--strike" data-cy="Make a submission">{% trans %}Make a submission{% endtrans %}</a>
       <p class="mui--text-light mui--text-caption zero-bottom-margin">{% trans %}Submissions are closed for this project{% endtrans %}</p>
