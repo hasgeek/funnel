@@ -672,8 +672,8 @@ class AccountView(ClassView):
             if userphone.verification_expired:
                 flash(
                     _(
-                        "This number has been blocked due to too many failed verification"
-                        " attempts"
+                        "This number has been blocked due to too many failed"
+                        " verification attempts"
                     ),
                     'danger',
                 )
@@ -686,8 +686,8 @@ class AccountView(ClassView):
             ):
                 flash(
                     _(
-                        "Your account requires at least one verified email address or phone"
-                        " number"
+                        "Your account requires at least one verified email address or"
+                        " phone number"
                     ),
                     'danger',
                 )

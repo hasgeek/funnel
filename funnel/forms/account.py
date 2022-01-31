@@ -110,7 +110,8 @@ class RegisterForm(forms.RecaptchaForm):
     fullname = forms.StringField(
         __("Full name"),
         description=__(
-            "This account is for you as an individual. We’ll make one for your organization later"
+            "This account is for you as an individual. We’ll make one for your"
+            " organization later"
         ),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
         filters=[forms.filters.strip()],
@@ -181,7 +182,7 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
     )
 
     def validate_username(self, field):
-        self.user, self.anchor = getuser(field.data, True)
+        self.user, self.anchor = getuser(field.data, True)  # skipcq: PYL-W0201
         if self.user is None:
             raise forms.ValidationError(_("Could not find a user with that id"))
 

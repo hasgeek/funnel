@@ -75,7 +75,7 @@ class LoginForm(forms.Form):
 
     # These two validators depend on being called in sequence
     def validate_username(self, field):
-        self.user, self.anchor = getuser(field.data, True)
+        self.user, self.anchor = getuser(field.data, True)  # skipcq: PYL-W0201
         if self.user is None:
             # TODO: Automatically forward from here to account registration
             raise forms.ValidationError(_("You do not seem to have an account"))
