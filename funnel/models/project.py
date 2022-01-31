@@ -381,7 +381,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         ),
         label=('draft', __("Draft")),
     )
-    cfp_state.add_state_group('OPENABLE', cfp_state.CLOSED, cfp_state.DRAFT)
     cfp_state.add_conditional_state(
         'OPEN',
         cfp_state.PUBLIC,
@@ -402,6 +401,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('expired', __("Expired")),
     )
 
+    cfp_state.add_state_group(
+        'OPENABLE', cfp_state.CLOSED, cfp_state.DRAFT, cfp_state.EXPIRED
+    )
     cfp_state.add_state_group('UNAVAILABLE', cfp_state.CLOSED, cfp_state.EXPIRED)
 
     def __init__(self, **kwargs) -> None:
