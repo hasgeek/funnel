@@ -743,3 +743,17 @@
     {%- endif %}
   </div>
 {%- endmacro %}
+
+
+{%- macro add_submission_btn(project) %}
+  <div class="project-details__box__content--lesspadding propose js-cfp-status {% if not project.cfp_state.OPEN -%} mui--hide {%- endif %}">
+    <a class="mui-btn mui-btn--accent mui-btn--raised" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
+    {% if project.cfp_end_at_localized -%}<p class="propose__txt mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>{% endif %}
+  </div>
+  {%- if not project.cfp_state.NONE %}
+    <div class="project-details__box__content--lesspadding propose js-cfp-status {% if project.cfp_state.OPEN -%} mui--hide {%- endif %}">
+      <a class="mui-btn mui-btn--accent mui-btn--raised mui-btn--strike" data-cy="Make a submission">{% trans %}Make a submission{% endtrans %}</a>
+      <p class="mui--text-light mui--text-caption zero-bottom-margin">{% trans %}Submissions are closed for this project{% endtrans %}</p>
+    </div>
+  {%- endif %}
+{%- endmacro %}
