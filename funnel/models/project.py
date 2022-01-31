@@ -58,8 +58,6 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
     PUBLIC = (1, 'public', __("Public"))
     CLOSED = (2, 'closed', __("Closed"))
     ANY = {NONE, PUBLIC, CLOSED}
-    OPENABLE = {NONE, CLOSED}
-    EXISTS = {PUBLIC, CLOSED}
 
 
 # --- Models ------------------------------------------------------------------
@@ -383,6 +381,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         ),
         label=('draft', __("Draft")),
     )
+    cfp_state.add_state_group('OPENABLE', cfp_state.CLOSED, cfp_state.DRAFT)
     cfp_state.add_conditional_state(
         'OPEN',
         cfp_state.PUBLIC,
