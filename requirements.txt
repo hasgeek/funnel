@@ -385,7 +385,7 @@ six==1.16.0
     #   url-normalize
 speaklater==1.3
     # via baseframe
-sqlalchemy==1.4.29
+sqlalchemy==1.4.31
     # via
     #   -r requirements.in
     #   alembic
