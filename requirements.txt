@@ -92,7 +92,7 @@ dataclasses-json==0.5.6
     # via -r requirements.in
 deprecated==1.2.13
     # via redis
-dnspython==2.1.0
+dnspython==2.2.0
     # via
     #   baseframe
     #   mxsniff
