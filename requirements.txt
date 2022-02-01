@@ -32,7 +32,7 @@ bcrypt==3.2.0
     # via
     #   -r requirements.in
     #   paramiko
-better-profanity==0.6.1
+better-profanity==0.7.0
     # via -r requirements.in
 bleach==4.1.0
     # via baseframe
