@@ -43,7 +43,7 @@ parse==1.19.0
     # via
     #   parse-type
     #   pytest-bdd
-parse-type==0.5.2
+parse-type==0.6.0
     # via pytest-bdd
 pluggy==1.0.0
     # via pytest
