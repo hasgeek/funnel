@@ -177,7 +177,7 @@ idna==3.3
     #   requests
     #   tldextract
     #   yarl
-importlib-metadata==4.10.0
+importlib-metadata==4.10.1
     # via markdown
 itsdangerous==2.0.1
     # via
