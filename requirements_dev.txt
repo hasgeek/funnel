@@ -135,7 +135,7 @@ types-click==7.1.8
     # via types-flask
 types-cryptography==3.3.14
     # via -r requirements_dev.in
-types-enum34==1.1.2
+types-enum34==1.1.8
     # via types-cryptography
 types-flask==1.1.6
     # via -r requirements_dev.in
