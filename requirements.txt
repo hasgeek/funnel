@@ -221,7 +221,7 @@ maxminddb==2.2.0
     # via geoip2
 mkdocs-material-extensions==1.0.3
     # via flask-mailman
-multidict==5.2.0
+multidict==6.0.2
     # via
     #   aiohttp
     #   yarl
