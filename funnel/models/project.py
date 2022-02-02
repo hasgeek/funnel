@@ -404,7 +404,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     cfp_state.add_state_group(
         'OPENABLE',
         cfp_state.CLOSED,
-        cfp_state.DRAFT,
+        cfp_state.NONE,
         cfp_state.EXPIRED,
     )
     cfp_state.add_state_group(

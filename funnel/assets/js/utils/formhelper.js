@@ -100,7 +100,7 @@ const Form = {
       }
     });
   },
-  activateToggleSwitch() {
+  activateToggleSwitch(callbckfn = '') {
     $('.js-toggle').on('change', function submitToggleSwitch() {
       const checkbox = $(this);
       const currentState = this.checked;
@@ -119,6 +119,9 @@ const Form = {
           if (responseData && responseData.message) {
             window.toastr.success(responseData.message);
           }
+          if (callbckfn) {
+            callbckfn();
+          }
         },
         error(response) {
           Form.handleAjaxError(response);
@@ -132,10 +135,10 @@ const Form = {
     });
   },
   openSubmissionToggle(checkboxId, cfpStatusDiv) {
-    Form.activateToggleSwitch();
-    $(checkboxId).change(() => {
+    const onSuccess = function () {
       $(cfpStatusDiv).toggleClass('mui--hide');
-    });
+    };
+    Form.activateToggleSwitch(onSuccess);
   },
 };
 
