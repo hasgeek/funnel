@@ -1,6 +1,6 @@
 {% extends "formlayout.html.jinja2" %}
 {% from "forms.html.jinja2" import renderfield, rendersubmit %}
-{% from "macros.html.jinja2" import faicon %}
+{% from "macros.html.jinja2" import faicon, open_submission %}
 {% block title %}{% trans %}Add submission guidelines and timing{% endtrans %}{% endblock %}
 
 {% block baseheadline %}
@@ -28,6 +28,7 @@
 {% endblock %}
 
 {% block content %}
+  {{ open_submission(project, showEditBtn=false) }}
   {%- if form.errors %}
     <div class="alert alert--error alert--dismissable">
       <a class="alert__close" href="javascript:void(0);"  data-target="close flash message" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='subhead') }}</a>
@@ -43,22 +44,9 @@
     {%- for error in form.instructions.errors %}
       <div><p class="mui-form__error">{{ error }}</p></div>
     {%- endfor %}
-    {% if not form.cfp_end_at.data %}
-      <div id="cfp-publish-actions" class="btn-wrapper hide">
-        <button name="open-now" class="mui-btn cfp-action-btn">{% trans %}Open now{% endtrans %}</button>
-        <button name="later" class="mui-btn cfp-action-btn">{% trans %}Open later{% endtrans %}</button>
-      </div>
-    {% endif %}
-    {% if form.cfp_start_at.data or form.cfp_start_at.errors or form.cfp_end_at.data or form.cfp_end_at.errors %}
-      {{ renderfield(form.cfp_start_at, css_class="input-transition js-cfp-start-at") }}
-    {% else %}
-      {{ renderfield(form.cfp_start_at, css_class="mui--hide input-transition js-cfp-start-at") }}
-    {% endif %}
-    {% if form.cfp_end_at.data or form.cfp_end_at.errors %}
-      {{ renderfield(form.cfp_end_at, css_class="input-transition js-cfp-end-at") }}
-    {% else %}
-       {{ renderfield(form.cfp_end_at, css_class="mui--hide input-transition js-cfp-end-at") }}
-    {% endif %}
+    <div class="top-padding">
+      {{ renderfield(form.cfp_end_at) }}
+    </div>
     <div class="mui-form form-actions clearfix">
       <div>
         <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" data-cy="add-cfp">Submit</button>
