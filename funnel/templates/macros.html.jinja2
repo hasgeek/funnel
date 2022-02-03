@@ -711,7 +711,7 @@
   <div class="flex-wrapper flex-wrapper--space-between flex-wrapper--center margin-top bottom-padding">
     <div>
       <div class="js-cfp-status {% if not project.cfp_state.OPEN -%} mui--hide {%- endif %}">
-        <p class="mui--text-subhead mui--text-bold zero-bottom-margin">
+        <p class="mui--text-subhead mui--text-bold zero-bottom-margin" data-cy="cfp-state">
           {% if project.cfp_end_at_localized -%}
             {% if project.view_for('cfp').is_available() and showEditBtn %}<a href="{{ project.url_for('cfp') }}" class="mui--text-dark">{%- endif %}{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}{% if project.view_for('cfp').is_available() and showEditBtn %}</a>{%- endif %}
           {% else %}

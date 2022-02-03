@@ -24,7 +24,7 @@ describe('Add CFP and labels to project', () => {
       .type(cfp.instructions, { force: true });
     cy.get('button[data-cy="add-cfp"]').click();
     cy.get('label.switch-label').click();
-    cy.get('p[data-cy="cfp-state"]').contains('ON');
+    cy.get('p[data-cy="cfp-state"]').contains('Accepting submissions');
     cy.get('a[data-cy="propose-a-session"]').should('exist');
 
     cy.get('a[data-cy="project-menu"]:visible').click();
