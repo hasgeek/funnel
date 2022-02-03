@@ -26,7 +26,7 @@
         {{ open_submission(project) }}
         {%- if project.view_for('cfp').is_available() %}
           <div class="bottom-padding">
-            <p class="zero-bottom-margin"><a href="{{ project.url_for('cfp') }}" class="mui--text-subhead mui--text-dark mui--text-bold nounderline" data-cy="add-cfp">{% trans %}Add guidelines and timing{% endtrans %}{{ faicon(icon='pencil', icon_size='caption', baseline=false, css_class='mui--text-dark margin-left') }}</a></p>
+            <p class="zero-bottom-margin"><a href="{{ project.url_for('cfp') }}" class="mui--text-subhead mui--text-light mui--text-bold nounderline" data-cy="add-cfp">{% trans %}Edit guidelines and timing{% endtrans %}{{ faicon(icon='pencil', icon_size='caption', baseline=false, css_class='mui--text-dark margin-left') }}</a></p>
           </div>
         {%- endif %}
       </div>

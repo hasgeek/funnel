@@ -17,7 +17,7 @@
     <div class="project-section">
       <div class="about__details" id="call-for-proposal">
         {%- if project.view_for('cfp').is_available() %}
-          <p class="margin-bottom"><a href="{{ project.url_for('cfp') }}" class="mui--text-subhead mui--text-dark mui--text-bold nounderline" data-cy="add-cfp">{% trans %}Add guidelines and timing{% endtrans %}{{ faicon(icon='pencil', icon_size='caption', baseline=false, css_class='mui--text-dark margin-left') }}</a></p>
+          <p class="margin-bottom"><a href="{{ project.url_for('cfp') }}" class="mui--text-subhead mui--text-dark mui--text-bold nounderline" data-cy="add-cfp">{% trans %}Edit guidelines and timing{% endtrans %}{{ faicon(icon='pencil', icon_size='caption', baseline=false, css_class='mui--text-dark margin-left') }}</a></p>
         {%- endif %}
         {%- if project.instructions and project.instructions != "None" %}
           <div class="about__details__description margin-bottom">

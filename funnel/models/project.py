@@ -408,12 +408,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         cfp_state.EXPIRED,
     )
     cfp_state.add_state_group(
-        'TOGGLEABLE',
-        cfp_state.PUBLIC,
-        cfp_state.CLOSED,
-        cfp_state.DRAFT,
-    )
-    cfp_state.add_state_group(
         'UNAVAILABLE',
         cfp_state.CLOSED,
         cfp_state.EXPIRED,
