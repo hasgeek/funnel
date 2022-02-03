@@ -743,11 +743,9 @@ class ProjectView(
     @requires_roles({'editor', 'promoter', 'usher'})
     def settings(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
-        cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'transition_form': transition_form,
-            'cfp_transition_form': cfp_transition_form,
         }
 
     @route('comments', methods=['GET'])

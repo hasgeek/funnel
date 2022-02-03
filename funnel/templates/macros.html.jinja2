@@ -712,7 +712,7 @@
     <div>
       <div class="js-cfp-status {% if not project.cfp_state.OPEN -%} mui--hide {%- endif %}">
         <p class="mui--text-subhead mui--text-bold margin-bottom" data-cy="cfp-state">{% trans %}Submission status: ON{% endtrans %}</p>
-        {% if not project.end_at_localized -%}
+        {% if not project.cfp_end_at_localized -%}
           {% if not project.view_for('cfp').is_available() or not showEditBtn %}
             <p class="mui--text-light mui--text-body2 zero-bottom-margin">{% trans %}Accepting submissions{% endtrans %}</p>
           {% else %}
@@ -720,9 +720,9 @@
           {% endif %}
         {% else %}
           {% if not project.view_for('cfp').is_available() or not showEditBtn %}
-            <p class="mui--text-light mui--text-body2 zero-bottom-margin">{% trans date=project.end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}
+            <p class="mui--text-light mui--text-body2 zero-bottom-margin">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}
           {% else %}
-            <p  class="mui--text-light mui--text-body2 zero-bottom-margin">{% trans date=project.end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}.{% endtrans %}<a href="{{ project.url_for('cfp') }}" class="mui--text-light mui--text-body2"> {% trans %}Click to edit the end date{% endtrans %}{{ faicon(icon='pencil', icon_size='caption', baseline=false, css_class='mui--text-light margin-left') }}</a></p>
+            <p  class="mui--text-light mui--text-body2 zero-bottom-margin">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}.{% endtrans %}<a href="{{ project.url_for('cfp') }}" class="mui--text-light mui--text-body2"> {% trans %}Click to edit the end date{% endtrans %}{{ faicon(icon='pencil', icon_size='caption', baseline=false, css_class='mui--text-light margin-left') }}</a></p>
           {% endif %}
         {%- endif %}
       </div>
