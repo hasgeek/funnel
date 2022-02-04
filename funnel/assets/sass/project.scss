@@ -350,12 +350,17 @@
 }
 
 @media (max-width: 767px) {
-  .subpproject-page {
-    .subpproject-page__hide {
+  .subproject-page {
+    .subproject-page__hide {
       display: none;
     }
     .project-banner.project-banner--inner .project-details__box {
       padding: 0;
+    }
+  }
+  .subproject-page.mobile-hide-livestream {
+    .livestream-box {
+      display: none;
     }
   }
 }

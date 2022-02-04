@@ -184,7 +184,7 @@
       {% else %}
         <h3 class="card__body__subtitle mui--text-subhead mui--text-bold">{{ project.title }}</h3>
         <p class="mui--text-caption mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</p>
-        {% if project.cfp_end_at_localized %}
+        {% if project.cfp_end_at_localized and project.cfp_end_at_localized %}
           <hr class="separator">
           <p class="mui--text-caption zero-bottom-margin secondary-color-txt"><em>{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>
         {% endif %}
@@ -671,7 +671,7 @@
                     {{ proposal.state.label.title }}
                   </li>
                   <li class="no-border">{{ proposal.datetime|datetime(format='dd MMM YYYY') }}</li>
-                  {% if proposal.views.video %}
+                  {% if proposal.session and proposal.session.views.video or proposal.views.video %}
                     <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
                       {{ faicon(icon='video', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}
                     </li>
