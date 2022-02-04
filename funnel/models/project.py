@@ -58,8 +58,6 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
     PUBLIC = (1, 'public', __("Public"))
     CLOSED = (2, 'closed', __("Closed"))
     ANY = {NONE, PUBLIC, CLOSED}
-    OPENABLE = {NONE, CLOSED}
-    EXISTS = {PUBLIC, CLOSED}
 
 
 # --- Models ------------------------------------------------------------------
@@ -366,7 +364,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'HAS_PROPOSALS',
         cfp_state.ANY,
         lambda project: db.session.query(project.proposals.exists()).scalar(),
-        label=('has_proposals', __("Has proposals")),
+        label=('has_proposals', __("Has submissions")),
     )
     cfp_state.add_conditional_state(
         'HAS_SESSIONS',
@@ -375,41 +373,20 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('has_sessions', __("Has sessions")),
     )
     cfp_state.add_conditional_state(
-        'PRIVATE_DRAFT',
+        'DRAFT',
         cfp_state.NONE,
         lambda project: project.instructions_html != '',
         lambda project: db.and_(
             project.instructions_html.isnot(None), project.instructions_html != ''
         ),
-        label=('private_draft', __("Private draft")),
-    )
-    cfp_state.add_conditional_state(
-        'DRAFT',
-        cfp_state.PUBLIC,
-        lambda project: project.cfp_start_at is None,
-        lambda project: project.cfp_start_at.is_(None),
         label=('draft', __("Draft")),
-    )
-    cfp_state.add_conditional_state(
-        'UPCOMING',
-        cfp_state.PUBLIC,
-        lambda project: project.cfp_start_at is not None
-        and utcnow() < project.cfp_start_at,
-        lambda project: db.and_(
-            project.cfp_start_at.isnot(None), db.func.utcnow() < project.cfp_start_at
-        ),
-        label=('upcoming', __("Upcoming")),
     )
     cfp_state.add_conditional_state(
         'OPEN',
         cfp_state.PUBLIC,
-        lambda project: project.cfp_start_at is not None
-        and project.cfp_start_at <= utcnow()
-        and (project.cfp_end_at is None or (utcnow() < project.cfp_end_at)),
-        lambda project: db.and_(
-            project.cfp_start_at.isnot(None),
-            project.cfp_start_at <= db.func.utcnow(),
-            db.or_(project.cfp_end_at.is_(None), db.func.utcnow() < project.cfp_end_at),
+        lambda project: project.cfp_end_at is None or (utcnow() < project.cfp_end_at),
+        lambda project: db.or_(
+            project.cfp_end_at.is_(None), db.func.utcnow() < project.cfp_end_at
         ),
         label=('open', __("Open")),
     )
@@ -424,7 +401,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('expired', __("Expired")),
     )
 
-    cfp_state.add_state_group('UNAVAILABLE', cfp_state.CLOSED, cfp_state.EXPIRED)
+    cfp_state.add_state_group(
+        'OPENABLE',
+        cfp_state.CLOSED,
+        cfp_state.NONE,
+        cfp_state.EXPIRED,
+    )
+    cfp_state.add_state_group(
+        'UNAVAILABLE',
+        cfp_state.CLOSED,
+        cfp_state.EXPIRED,
+    )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -452,11 +439,16 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         cfp_state.OPENABLE,
         cfp_state.PUBLIC,
         title=__("Enable submissions"),
-        message=__("Submissions will be accepted within valid dates"),
+        message=__("Submissions will be accepted until the optional closing date"),
         type='success',
     )
     def open_cfp(self):
-        pass
+        # If closing date is in the past, remove it
+        if self.cfp_end_at is not None and self.cfp_end_at <= utcnow():
+            self.cfp_end_at = None
+        # If opening date is not set, set it
+        if self.cfp_start_at is None:
+            self.cfp_start_at = db.func.utcnow()
 
     @with_roles(call={'editor'})
     @cfp_state.transition(

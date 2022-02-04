@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import re
 
-from baseframe import __
+from baseframe import _, __
 from baseframe.forms.sqlalchemy import AvailableName
-from coaster.utils import sorted_timezones
+from coaster.utils import sorted_timezones, utcnow
 import baseframe.forms as forms
 
 from ..models import Project, Rsvp, SavedProject
@@ -218,26 +218,16 @@ class CfpForm(forms.Form):
             " your review process, and anything else relevant to the submission"
         ),
     )
-    cfp_start_at = forms.DateTimeField(
-        __("Submissions open at"),
-        validators=[forms.validators.Optional()],
-        naive=False,
-    )
     cfp_end_at = forms.DateTimeField(
         __("Submissions close at"),
         description=__("Optional – Leave blank to have no closing date"),
-        validators=[
-            forms.validators.Optional(),
-            forms.validators.AllowedIf(
-                'cfp_start_at',
-                message=__("This requires an opening date to be specified"),
-            ),
-            forms.validators.GreaterThan(
-                'cfp_start_at', __("This must be after the opening date and time")
-            ),
-        ],
+        validators=[forms.validators.Optional()],
         naive=False,
     )
+
+    def validate_cfp_end_at(self, field):
+        if field.data <= utcnow():
+            raise forms.StopValidation(_("Closing date must be in the future"))
 
 
 @Project.forms('transition')
@@ -252,14 +242,21 @@ class ProjectTransitionForm(forms.Form):
 
 @Project.forms('cfp_transition')
 class ProjectCfpTransitionForm(forms.Form):
-    cfp_transition = forms.SelectField(
-        __("CfP status"), validators=[forms.validators.DataRequired()]
+    open = forms.BooleanField(  # noqa: A003
+        __("Open submissions"), validators=[forms.validators.InputRequired()]
     )
 
-    def set_queries(self):
-        self.cfp_transition.choices = list(
-            self.edit_obj.cfp_state.transitions().items()
-        )
+    def get_open(self, obj):
+        self.open.data = bool(obj.cfp_state.OPEN)
+
+    def set_open(self, obj):
+        if self.open.data and not obj.cfp_state.OPEN:
+            # Checkbox: yes, but CfP state is not open, so open it
+            obj.open_cfp()
+        elif not self.open.data and obj.cfp_state.OPEN:
+            # Checkbox: no, but CfP state is open, so close it
+            obj.close_cfp()
+        # No action required in all other cases
 
 
 @SavedProject.forms('main')
