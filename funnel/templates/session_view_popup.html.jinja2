@@ -57,7 +57,7 @@
     </div>
   {%- endif %}
   {% if session.proposal %}
-    <p class="separator zero-bottom-margin"><a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" rel="noopener" data-cy="view-proposal">{{ faicon(icon='presentation') }} {% trans %}Open submission for this session{% endtrans %}</a></p>
+    <p class="separator zero-bottom-margin"><a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" rel="noopener" data-cy="view-proposal">{{ faicon(icon='presentation') }} {% trans %}View submission for this session{% endtrans %}</a></p>
   {% endif %}
   {% if session.views.video or session.proposal %}
   <hr class="modal__body__separator">

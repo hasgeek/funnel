@@ -100,8 +100,8 @@ const Form = {
       }
     });
   },
-  activateToggleSwitch() {
-    $('.js-toggle').on('change', function submitToggleSwitch() {
+  activateToggleSwitch(callbckfn = '') {
+    $('body').on('change', '.js-toggle', function submitToggleSwitch() {
       const checkbox = $(this);
       const currentState = this.checked;
       const previousState = !currentState;
@@ -119,6 +119,9 @@ const Form = {
           if (responseData && responseData.message) {
             window.toastr.success(responseData.message);
           }
+          if (callbckfn) {
+            callbckfn();
+          }
         },
         error(response) {
           Form.handleAjaxError(response);
@@ -127,9 +130,19 @@ const Form = {
       });
     });
 
-    $('.js-dropdown-toggle').on('click', (event) => {
-      event.stopPropagation();
-    });
+    $('body').on(
+      'click',
+      '.js-dropdown-toggle',
+      function stopPropagation(event) {
+        event.stopPropagation();
+      }
+    );
+  },
+  openSubmissionToggle(checkboxId, cfpStatusDiv) {
+    const onSuccess = function () {
+      $(cfpStatusDiv).toggleClass('mui--hide');
+    };
+    Form.activateToggleSwitch(onSuccess);
   },
 };
 

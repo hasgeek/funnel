@@ -1,5 +1,6 @@
 {% set current_page = 'settings' %}
 {% extends "project_layout.html.jinja2" %}
+{%- from "macros.html.jinja2" import open_submission %}
 {% block title %}{% trans %}Settings{% endtrans %}{% endblock %}
 
 {% block left_col %}
@@ -10,7 +11,7 @@
       <div>
         {%- if transition_form %}
           <div>
-            <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="project-state">{% trans status=project.state.label.title %}Status: {{ status }}{% endtrans %}</p>
+            <p class="mui--text-subhead mui--text-bold margin-bottom" data-cy="project-state">{% trans status=project.state.label.title %}Project status: {{ status }}{% endtrans %}</p>
             <form action="{{ project.url_for('transition') }}" method="post" class="form-inline">
               {{ transition_form.hidden_tag() }}
               <p class="btn-group">
@@ -21,17 +22,11 @@
             </form>
           </div>
         {%- endif %}
-        {%- if cfp_transition_form %}
-          <div>
-            <p class="mui--text-body2 zero-bottom-margin mui--text-uppercase" data-cy="cfp-state">{% trans status=project.cfp_state.label.title %}Submission status: {{ status }}{% endtrans %}</p>
-            <form action="{{ project.url_for('cfp_transition') }}" method="post" class="form-inline">
-              {{ cfp_transition_form.hidden_tag() }}
-              <p class="btn-group">
-                {% for name, transition in cfp_transition_form.cfp_transition.choices %}
-                  <button name="cfp_transition" value="{{ name }}" class="transition mui-btn mui-btn--small mui-btn--raised {% if transition.data['type'] == 'success' %} mui-btn--primary {% elif transition.data['type'] == 'danger' %} mui-btn--danger {%- endif %}" title="{{ transition.data['title'] }}" data-cy-cfp="{{ name }}">{{ transition.data['title'] }}</button>
-                {% endfor %}
-              </p>
-            </form>
+        <hr>
+        {{ open_submission(project) }}
+        {%- if project.view_for('cfp').is_available() %}
+          <div class="bottom-padding">
+            <p class="zero-bottom-margin"><a href="{{ project.url_for('cfp') }}" class="mui--text-subhead mui--text-light mui--text-bold nounderline" data-cy="add-cfp">{% trans %}Edit guidelines and timing{% endtrans %}{{ faicon(icon='pencil', icon_size='caption', baseline=false, css_class='mui--text-dark margin-left') }}</a></p>
           </div>
         {%- endif %}
       </div>
@@ -60,7 +55,7 @@
         {% endif %}
         {% if project.view_for('cfp').is_available() -%}
           <li class="margin-bottom">
-            <a href="{{ project.url_for('cfp') }}" class="nounderline flex-wrapper mui--text-dark" data-cy="add-cfp"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='inbox-in', icon_size='title', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Submissions{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Guidelines and timelines for accepting submissions{% endtrans %}</span></span></a>
+            <a href="{{ project.url_for('cfp') }}" class="nounderline flex-wrapper mui--text-dark"><span class="profile-avatar profile-avatar--bigger profile-avatar--rectangle flex-item-noshrink margin-right">{{ faicon(icon='inbox-in', icon_size='title', baseline=false, css_class='mui--text-light') }}</span><span class="setting"><span class="setting__name mui--text-subhead">{% trans %}Submissions{% endtrans %}</span><span class="setting__sub mui--text-light">{% trans %}Guidelines and timelines for accepting submissions{% endtrans %}</span></span></a>
           </li>
         {%- endif %}
         {% if project.view_for('labels').is_available() %}

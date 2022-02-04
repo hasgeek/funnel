@@ -171,11 +171,15 @@ $(() => {
       SaveProject(saveProjectConfig);
     }
 
-    $('.js-htmltruncate-expand').click(function expandTruncation(event) {
-      event.preventDefault();
-      $(this).addClass('mui--hide');
-      $(this).next('.js-htmltruncate-full').removeClass('mui--hide');
-    });
+    $('body').on(
+      'click',
+      '.js-htmltruncate-expand',
+      function expandTruncation(event) {
+        event.preventDefault();
+        $(this).addClass('mui--hide');
+        $(this).next('.js-htmltruncate-full').removeClass('mui--hide');
+      }
+    );
 
     // Adding the embed video player
     if ($('.js-embed-video').length > 0) {
@@ -197,7 +201,7 @@ $(() => {
       Ticketing.init(tickets);
     }
 
-    Form.activateToggleSwitch();
+    Form.openSubmissionToggle('#open-sub', '.js-cfp-status');
 
     const hightlightNavItem = function (navElem) {
       const navHightlightClass = 'sub-navbar__item--active';

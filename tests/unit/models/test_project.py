@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from coaster.utils import utcnow
-from funnel.models import Organization, Project, ProjectRedirect, Proposal, Session
+from funnel.models import Organization, ProjectRedirect, Proposal, Session
 
 
 def invalidate_cache(project):
@@ -21,28 +21,6 @@ def invalidate_cache(project):
             pass
 
 
-def test_project_state_conditional(db_session):
-    past_projects = Project.query.filter(Project.state.PAST).all()
-    assert len(past_projects) >= 0
-    upcoming_projects = Project.query.filter(Project.state.UPCOMING).all()
-    assert len(upcoming_projects) >= 0
-
-
-def test_project_cfp_state_conditional(db_session):
-    private_draft_cfp_projects = Project.query.filter(
-        Project.cfp_state.PRIVATE_DRAFT
-    ).all()
-    assert len(private_draft_cfp_projects) >= 0
-    draft_cfp_projects = Project.query.filter(Project.cfp_state.DRAFT).all()
-    assert len(draft_cfp_projects) >= 0
-    upcoming_cfp_projects = Project.query.filter(Project.cfp_state.UPCOMING).all()
-    assert len(upcoming_cfp_projects) >= 0
-    open_cfp_projects = Project.query.filter(Project.cfp_state.OPEN).all()
-    assert len(open_cfp_projects) >= 0
-    expired_cfp_projects = Project.query.filter(Project.cfp_state.EXPIRED).all()
-    assert len(expired_cfp_projects) >= 0
-
-
 def test_cfp_state_draft(db_session, new_organization, new_project):
     assert new_project.cfp_start_at is None
     assert new_project.state.DRAFT
@@ -55,7 +33,8 @@ def test_cfp_state_draft(db_session, new_organization, new_project):
 
     assert new_project.cfp_state.PUBLIC
     assert new_project.cfp_start_at is None
-    assert new_project.cfp_state.DRAFT
+    assert not new_project.cfp_state.DRAFT
+    assert new_project.cfp_state.OPEN
     assert new_project in new_organization.profile.draft_projects
 
     new_project.cfp_start_at = utcnow()

@@ -487,6 +487,8 @@ class ProjectView(
         form = CfpForm(obj=self.obj, model=Project)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
+            if self.obj.cfp_end_at and not self.obj.cfp_start_at:
+                self.obj.cfp_start_at = db.func.utcnow()
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return redirect(self.obj.url_for('view_proposals'), code=303)
@@ -543,20 +545,26 @@ class ProjectView(
     @requires_login
     @requires_roles({'editor'})
     def cfp_transition(self):
-        cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
-        if (
-            cfp_transition_form.validate_on_submit()
-        ):  # check if the provided transition is valid
-            transition = getattr(
-                self.obj.current_access(), cfp_transition_form.cfp_transition.data
-            )
-            transition()  # call the transition
+        cfp_transition = self.obj.forms.cfp_transition(obj=self.obj)
+        if cfp_transition.validate_on_submit():
+            cfp_transition.populate_obj(self.obj)
             db.session.commit()
-            flash(transition.data['message'], 'success')
+            if self.obj.cfp_state.OPEN:
+                return {
+                    'status': 'ok',
+                    'message': _("This project can now receive submissions"),
+                }
+            else:
+                return {
+                    'status': 'ok',
+                    'message': _("This project will no longer accept submissions"),
+                }
         else:
-            flash(_("Invalid transition for this project’s CfP"), 'error')
-            abort(403)
-        return redirect(self.obj.url_for('view_proposals'))
+            return {
+                'status': 'error',
+                'error': 'validation',
+                'error_description': _("Invalid form submission"),
+            }
 
     @route('register', methods=['POST'])
     @requires_login
@@ -735,11 +743,9 @@ class ProjectView(
     @requires_roles({'editor', 'promoter', 'usher'})
     def settings(self):
         transition_form = ProjectTransitionForm(obj=self.obj)
-        cfp_transition_form = ProjectCfpTransitionForm(obj=self.obj)
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'transition_form': transition_form,
-            'cfp_transition_form': cfp_transition_form,
         }
 
     @route('comments', methods=['GET'])

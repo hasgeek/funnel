@@ -163,24 +163,6 @@
   white-space: pre-wrap;
 }
 
-.label {
-  padding: 4px 8px;
-  font-size: 12px;
-  text-transform: uppercase;
-  color: $mui-text-light;
-  border: 1px solid $mui-divider-color;
-  background-color: $mui-bg-color-accent;
-  border-radius: 2px;
-  display: inline-block;
-  margin: 0 4px 4px 0;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.label:hover {
-  text-decoration: none;
-}
-
 .selected-label {
   border-bottom: 1px solid #ccc;
   width: 100%;

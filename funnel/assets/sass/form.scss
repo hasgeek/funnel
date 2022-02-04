@@ -2,6 +2,7 @@
 @import 'app';
 @import 'mui/checkbox-and-radio', 'mui/form', 'mui/select', 'mui/textfield';
 @import 'components/draggablebox';
+@import 'components/switch';
 
 .form-message {
   @extend .mui--text-title;
