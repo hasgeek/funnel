@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import namedtuple
 
-from flask import url_for
+from flask import Markup, url_for
 
 from baseframe import __
 import baseframe.forms as forms
@@ -145,8 +145,9 @@ class UnsubscribeForm(forms.Form):
         self.types.choices = [
             (
                 ntype,
-                notification_type_registry[ntype].title
-                + (" 👈" if ntype == self.notification_type else ''),
+                Markup(f'<strong>{notification_type_registry[ntype].title}</strong> 👈')
+                if ntype == self.notification_type
+                else notification_type_registry[ntype].title,
             )
             for ntype in notification_type_registry
             if ntype in self.edit_obj.notification_preferences
