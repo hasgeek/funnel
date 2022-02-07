@@ -209,9 +209,16 @@ $(() => {
       $(`#${navElem}`).addClass(navHightlightClass);
 
       if (window.Hasgeek.subpageTitle) {
-        $('body').addClass('subpproject-page');
+        $('body').addClass('subproject-page');
+        if (window.Hasgeek.subpageHasVideo) {
+          $('body').addClass('mobile-hide-livestream');
+        } else {
+          $('body').removeClass('mobile-hide-livestream');
+        }
       } else {
-        $('body').removeClass('subpproject-page');
+        $('body')
+          .removeClass('subproject-page')
+          .removeClass('mobile-hide-livestream');
       }
     };
 
