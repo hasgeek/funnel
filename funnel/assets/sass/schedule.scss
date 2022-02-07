@@ -283,6 +283,10 @@
       position: static;
     }
 
+    .modal__header__heading {
+      max-width: calc(100% - 40px);
+    }
+
     .modal__header__title {
       margin-bottom: $mui-grid-padding/4;
       font-weight: bold;

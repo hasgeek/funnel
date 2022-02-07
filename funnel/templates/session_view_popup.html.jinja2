@@ -7,7 +7,7 @@
     {% if session.speaker %}
       <p class="mui--text-subhead modal__header__text" data-cy-session="speaker">{{ faicon(icon='microphone-alt') }} {{ session.speaker }}</p>
     {% endif %}
-    <div class="mui--pull-left">
+    <div class="mui--pull-left modal__header__heading">
       {% if session.scheduled %}
         <p class="mui--text-subhead modal__header__text" data-cy-session="time">{{ faicon(icon='calendar-alt') }} {{ session.start_at_localized|date }}, {{ session.start_at_localized|time }}–{{ session.end_at_localized|time }}
         </p>
