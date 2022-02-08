@@ -271,6 +271,7 @@
 .jquery-modal.blocker.current .session-modal.session-modal--nopadding {
   padding: 0;
   width: 100%;
+  min-height: 100%;
 
   .modal__header {
     padding: 0 $mui-grid-padding $mui-grid-padding/4;
@@ -280,6 +281,10 @@
       max-width: calc(100% - 20px);
       margin: $mui-grid-padding/2 0 $mui-grid-padding/2;
       position: static;
+    }
+
+    .modal__header__heading {
+      max-width: calc(100% - 40px);
     }
 
     .modal__header__title {

@@ -1,4 +1,4 @@
-{%- from "macros.html.jinja2" import faicon, embed_video_player, video_action_bar %}
+{%- from "macros.html.jinja2" import faicon, embed_video_player, video_action_bar, share_dropdown %}
 
 <div class="modal__header mui--bg-accent">
   <a class="modal__close mui--text-dark" data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
@@ -7,17 +7,23 @@
     {% if session.speaker %}
       <p class="mui--text-subhead modal__header__text" data-cy-session="speaker">{{ faicon(icon='microphone-alt') }} {{ session.speaker }}</p>
     {% endif %}
-    {% if session.scheduled %}
-      <p class="mui--text-subhead modal__header__text" data-cy-session="time">{{ faicon(icon='calendar-alt') }} {{ session.start_at_localized|date }}, {{ session.start_at_localized|time }}–{{ session.end_at_localized|time }}
-      </p>
-    {% else %}
-      <p class="mui--text-subhead modal__header__text">
-      {% trans %}This session has not been scheduled yet{% endtrans %}
-      </p>
-    {% endif %}
-    {% if session.venue_room %}
-      <p class="mui--text-subhead modal__header__text" data-cy-session="room">{{ faicon(icon='map-marker-alt') }} {{ session.venue_room.title }}, {{ session.venue_room.venue.title }}</p>
-    {% endif %}
+    <div class="mui--pull-left modal__header__heading">
+      {% if session.scheduled %}
+        <p class="mui--text-subhead modal__header__text" data-cy-session="time">{{ faicon(icon='calendar-alt') }} {{ session.start_at_localized|date }}, {{ session.start_at_localized|time }}–{{ session.end_at_localized|time }}
+        </p>
+      {% else %}
+        <p class="mui--text-subhead modal__header__text">
+        {% trans %}This session has not been scheduled yet{% endtrans %}
+        </p>
+      {% endif %}
+      {% if session.venue_room %}
+        <p class="mui--text-subhead modal__header__text" data-cy-session="room">{{ faicon(icon='map-marker-alt') }} {{ session.venue_room.title }}, {{ session.venue_room.venue.title }}</p>
+      {% endif %}
+    </div>
+    <div class="mui-dropdown mui--pull-right">
+      <a href="javascript:void(0)" class="project-links left-padding" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" aria-label="{% trans %}Share{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='share-alt', baseline=true, icon_size='subhead', css_class='mui--text-light') }}</a>
+      {{ share_dropdown(session.url_for(_external=true), session.title) }}
+    </div>
   </div>
 </div>
 
