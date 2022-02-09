@@ -109,7 +109,7 @@ def schedule_data(
         else:
             data[day] = {}
     schedule = []
-    for day in sorted(data, reverse=True):
+    for day in sorted(data):
         daydata: Dict[str, Any] = {'date': day, 'slots': []}
         daydata['start_at'] = start_end_datetime[day]['start_at'].isoformat()
         daydata['end_at'] = start_end_datetime[day]['end_at'].isoformat()
