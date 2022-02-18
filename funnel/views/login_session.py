@@ -24,7 +24,7 @@ from baseframe import _, request_is_xhr, statsd
 from baseframe.forms import render_form, render_redirect
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
-from coaster.views import get_current_url
+from coaster.views import get_current_url, get_next_url
 
 from .. import app
 from ..forms import PasswordForm
@@ -379,6 +379,16 @@ def update_user_session_timestamp(response):
     return response
 
 
+def set_session_next_url(current=False):
+    """Save the next URL to the session."""
+    if current:
+        session['next'] = get_current_url()
+        session['next_at'] = utcnow()
+    elif 'next' not in session:
+        session['next'] = get_next_url(referrer=True)
+        session['next_at'] = utcnow()
+
+
 def requires_login(f):
     """Decorate a view to require login."""
 
@@ -387,7 +397,7 @@ def requires_login(f):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            session['next'] = get_current_url()
+            set_session_next_url(True)
             return redirect(url_for('login'))
         return f(*args, **kwargs)
 
@@ -405,7 +415,7 @@ def requires_login_no_message(f):
     def decorated_function(*args, **kwargs):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
-            session['next'] = get_current_url()
+            set_session_next_url(True)
             return redirect(url_for('login'))
         return f(*args, **kwargs)
 
@@ -426,7 +436,7 @@ def requires_sudo(f):
         # If the user is not logged in, require login first
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            session['next'] = get_current_url()
+            set_session_next_url(True)
             return render_redirect(url_for('login'))
         # If the user has not authenticated in some time, ask for the password again
         if not current_auth.session.has_sudo:
@@ -440,7 +450,7 @@ def requires_sudo(f):
                     ),
                     'info',
                 )
-                session['next'] = get_current_url()
+                set_session_next_url(True)
                 return render_redirect(url_for('change_password'))
             # A future version of this form may accept password or 2FA (U2F or TOTP)
             form = PasswordForm(edit_user=current_auth.user)

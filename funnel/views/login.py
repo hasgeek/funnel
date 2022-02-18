@@ -20,7 +20,7 @@ from baseframe import _, __, forms, request_is_xhr, statsd
 from baseframe.forms import render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
-from coaster.utils import getbool, utcnow
+from coaster.utils import getbool
 from coaster.views import get_next_url, requestargs
 
 from .. import app
@@ -55,14 +55,8 @@ from .login_session import (
     register_internal,
     requires_login,
     set_loginmethod_cookie,
+    set_session_next_url,
 )
-
-
-def set_session_next_url():
-    """Save the next URL to the session."""
-    if 'next' not in session:
-        session['next'] = get_next_url(referrer=True)
-        session['next_at'] = utcnow()
 
 
 @app.route('/login', methods=['GET', 'POST'])
