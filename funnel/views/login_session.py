@@ -258,16 +258,22 @@ def discard_temp_token():
     session.pop('temp_token', None)
     session.pop('temp_token_type', None)
     session.pop('temp_token_at', None)
+    session.pop('next', None)
+    session.pop('next_at', None)
 
 
 # Also add future hasjob app here
 @app.before_request
 def clear_expired_temp_token():
     """
-    Clear temp_token from session if it's not used (user abandoned the attempt).
+    Clear temp tokens from session if they are not used (user abandoned the attempt).
 
-    This value is set by :func:`funnel.views.account_reset.reset_email` and
-    :meth:`funnel.views.notification.AccountNotificationView.unsubscribe`.
+    These values are set by:
+
+        * :func:`funnel.views.account_reset.reset_email`
+        * :meth:`funnel.views.notification.AccountNotificationView.unsubscribe`
+        * :func:`funnel.views.login.login`
+        * :func:`funnel.views.login.login_service`
     """
     if 'temp_token_at' in session:
         # Give the user 10 minutes to complete the action. Remove the token if it's
@@ -278,6 +284,14 @@ def clear_expired_temp_token():
     elif 'temp_token' in session:
         # We have a temp token without a timestamp. This shouldn't happen, so remove it
         session.pop('temp_token')
+
+    if 'next_at' in session:
+        # Give the user 30 minutes to complete a login process
+        if session['next_at'] < utcnow() - timedelta(minutes=30):
+            discard_temp_token()
+            current_app.logger.info("Cleared expired next URL from session cookie")
+    elif 'next' in session:
+        session.pop('next')
 
 
 # Also add future hasjob app here
