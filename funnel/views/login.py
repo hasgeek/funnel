@@ -315,7 +315,8 @@ def login_service(service):
     if service not in login_registry:
         abort(404)
     provider = login_registry[service]
-    session['next'] = get_next_url(referrer=True)
+    if 'next' not in session:
+        session['next'] = get_next_url(referrer=True)
 
     callback_url = url_for('.login_service_callback', service=service, _external=True)
     statsd.gauge('login.progress', 1, delta=True, tags={'service': service})
