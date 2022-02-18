@@ -333,6 +333,7 @@ def login_service(service):
         )
         exception_catchall.send(exc, message=msg)
         flash(msg, category='danger')
+        session.pop('next_at', None)
         return redirect(session.pop('next'), code=303)
 
 
