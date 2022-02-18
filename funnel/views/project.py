@@ -39,7 +39,6 @@ from ..forms import (
     CfpForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
-    ProjectCfpTransitionForm,
     ProjectForm,
     ProjectLivestreamForm,
     ProjectNameForm,
@@ -545,7 +544,7 @@ class ProjectView(
     @requires_login
     @requires_roles({'editor'})
     def cfp_transition(self):
-        cfp_transition = self.obj.forms.cfp_transition(obj=self.obj)
+        cfp_transition = self.obj.forms.cfp_transition()
         if cfp_transition.validate_on_submit():
             cfp_transition.populate_obj(self.obj)
             db.session.commit()
