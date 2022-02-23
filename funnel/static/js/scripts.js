@@ -488,6 +488,15 @@ window.Hasgeek.Utils = {
     }
     return '';
   },
+  getAvatarColour: function (name) {
+    console.log('getAvatarColour', this);
+    var initials = this.getInitials(name);
+    var stringTotal =
+      initials.length > 1
+        ? initials.charCodeAt(0) + initials.charCodeAt(1)
+        : initials.charCodeAt(0);
+    return stringTotal % 6 || 6;
+  },
 };
 
 window.ParsleyConfig = {

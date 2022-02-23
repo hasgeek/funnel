@@ -291,7 +291,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: $mui-primary-color;
+      background-color: $mui-avatar-color1;
       color: $mui-text-white;
       text-transform: uppercase;
     }
@@ -371,22 +371,24 @@
   }
 }
 
-.user:nth-child(even) {
-  .user__box__gravatar--initials {
-    background: $mui-primary-color;
+.user {
+  .user__box__gravatar--initials[data-avatar-colour = "1"] {
+    background: $mui-avatar-color1;
   }
-}
-
-.user:nth-child(odd) {
-  .user__box__gravatar--initials {
-    background: $mui-accent-color;
+  .user__box__gravatar--initials[data-avatar-colour = "2"] {
+    background: $mui-avatar-color2;
   }
-}
-
-.user:nth-child(4n) {
-  .user__box__gravatar--initials {
-    background: $mui-accent-color-lighter;
-    color: $mui-text-dark;
+  .user__box__gravatar--initials[data-avata-colourr = "3"] {
+    background: $mui-avatar-color3;
+  }
+  .user__box__gravatar--initials[data-avatar-colour = "4"] {
+    background: $mui-avatar-color4;
+  }
+  .user__box__gravatar--initials[data-avatar-colour = "5"] {
+    background: $mui-avatar-color5;
+  }
+  .user__box__gravatar--initials[data-avatar-colour = "6"] {
+    background: $mui-avatar-color6;
   }
 }
 
