@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from functools import wraps
-from typing import List, Optional
+from typing import List, Optional, Tuple
 import re
 
 from flask import Response, abort, jsonify, request
@@ -141,7 +141,7 @@ class LoginProviderRegistry(OrderedDict):
         """Return services which typically use ``@username`` addressing."""
         return [key for key in self if self[key].at_username]
 
-    def at_login_items(self) -> List[tuple]:
+    def at_login_items(self) -> List[Tuple[str, LoginProvider]]:
         """Return services which have the flag at_login set to True."""
         return [(k, v) for (k, v) in self.items() if v.at_login is True]
 
