@@ -141,6 +141,10 @@ class LoginProviderRegistry(OrderedDict):
         """Return services which typically use ``@username`` addressing."""
         return [key for key in self if self[key].at_username]
 
+    def at_login_items(self) -> List[tuple]:
+        """Return services which have the flag at_login set to True."""
+        return [(k, v) for (k, v) in self.items() if v.at_login is True]
+
     def __setitem__(self, key: str, value: LoginProvider):
         """Make a registry entry."""
         retval = super().__setitem__(key, value)
