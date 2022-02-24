@@ -372,22 +372,22 @@
 }
 
 .user {
-  .user__box__gravatar--initials[data-avatar-colour = "1"] {
+  .user__box__gravatar--initials[data-avatar-colour='1'] {
     background: $mui-avatar-color1;
   }
-  .user__box__gravatar--initials[data-avatar-colour = "2"] {
+  .user__box__gravatar--initials[data-avatar-colour='2'] {
     background: $mui-avatar-color2;
   }
-  .user__box__gravatar--initials[data-avata-colourr = "3"] {
+  .user__box__gravatar--initials[data-avata-colourr='3'] {
     background: $mui-avatar-color3;
   }
-  .user__box__gravatar--initials[data-avatar-colour = "4"] {
+  .user__box__gravatar--initials[data-avatar-colour='4'] {
     background: $mui-avatar-color4;
   }
-  .user__box__gravatar--initials[data-avatar-colour = "5"] {
+  .user__box__gravatar--initials[data-avatar-colour='5'] {
     background: $mui-avatar-color5;
   }
-  .user__box__gravatar--initials[data-avatar-colour = "6"] {
+  .user__box__gravatar--initials[data-avatar-colour='6'] {
     background: $mui-avatar-color6;
   }
 }
