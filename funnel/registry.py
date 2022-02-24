@@ -205,7 +205,7 @@ class LoginProvider:
     #: Login form, if required
     form = None
     #: This service's usernames are typically
-    # used for addressing with @username
+    #: used for addressing with @username
     at_username = False
 
     def __init__(
