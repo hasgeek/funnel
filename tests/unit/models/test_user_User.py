@@ -277,27 +277,21 @@ def test_user_all(
     }
 
     # Scenario 2: lookup by buid or username
-    assert (
-        set(
-            models.User.all(
-                buids=[user_twoflower.buid, user_rincewind.buid],
-                usernames=[user_ridcully.username, user_dibbler.username],
-                defercols=defercols,
-            )
+    assert set(
+        models.User.all(
+            buids=[user_twoflower.buid, user_rincewind.buid],
+            usernames=[user_ridcully.username, user_dibbler.username],
+            defercols=defercols,
         )
-        == {user_twoflower, user_rincewind, user_ridcully, user_dibbler}
-    )
+    ) == {user_twoflower, user_rincewind, user_ridcully, user_dibbler}
 
     # Scenario 3: lookup by usernames only
-    assert (
-        set(
-            models.User.all(
-                usernames=[user_ridcully.username, user_dibbler.username],
-                defercols=defercols,
-            )
+    assert set(
+        models.User.all(
+            usernames=[user_ridcully.username, user_dibbler.username],
+            defercols=defercols,
         )
-        == {user_ridcully, user_dibbler}
-    )
+    ) == {user_ridcully, user_dibbler}
 
     # Scenario 4: querying for a merged user buid
     models.merge_users(user_death, user_rincewind)
