@@ -585,7 +585,7 @@
   {% if user and user.avatar %}
     <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar.resize(imgsize) }}" alt="{{ user.title }}"/>
   {%- else %}
-    <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}" role="img" aria-label="{{ user.title }}">{{ user.title|initials }}</div>
+    <div class="user__box__gravatar user__box__gravatar--initials js-avatar-colour {% if css_class %}{{ css_class }}{% endif %}" role="img" aria-label="{{ user.title }}" data-avatar-colour="1">{{ user.title|initials }}</div>
   {% endif %}
   {% if user.profile_url and add_profile_link%}</a>{% endif %}
 {%- endmacro %}
