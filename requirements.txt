@@ -360,7 +360,7 @@ s3transfer==0.5.2
     # via
     #   awscli
     #   boto3
-semantic-version==2.8.5
+semantic-version==2.9.0
     # via baseframe
 sentry-sdk==1.5.2
     # via baseframe
