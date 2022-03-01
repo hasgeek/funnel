@@ -60,7 +60,7 @@ gitdb==4.0.9
     # via gitpython
 gitpython==3.1.27
     # via bandit
-identify==2.4.4
+identify==2.4.11
     # via pre-commit
 isort==5.10.1
     # via
