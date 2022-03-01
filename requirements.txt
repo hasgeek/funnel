@@ -356,7 +356,7 @@ rsa==4.8
     # via
     #   awscli
     #   oauth2client
-s3transfer==0.5.0
+s3transfer==0.5.2
     # via
     #   awscli
     #   boto3
