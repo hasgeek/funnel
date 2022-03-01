@@ -283,7 +283,7 @@ pymdown-extensions==9.2
     # via -r requirements.in
 pynacl==1.5.0
     # via paramiko
-pyopenssl==21.0.0
+pyopenssl==22.0.0
     # via
     #   baseframe
     #   ndg-httpsclient
