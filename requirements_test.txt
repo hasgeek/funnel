@@ -51,7 +51,7 @@ py==1.11.0
     # via
     #   pytest
     #   pytest-bdd
-pyparsing==3.0.6
+pyparsing==3.0.7
     # via packaging
 pytest==6.2.5
     # via
