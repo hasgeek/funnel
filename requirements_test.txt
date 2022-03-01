@@ -21,7 +21,7 @@ deprecated==1.2.13
     # via redis
 docopt==0.6.2
     # via coveralls
-fakeredis==1.7.0
+fakeredis==1.7.1
     # via -r requirements_test.in
 glob2==0.7
     # via pytest-bdd
