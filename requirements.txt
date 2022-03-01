@@ -404,7 +404,7 @@ tuspy==0.2.5
     # via pyvimeo
 tweepy==4.6.0
     # via -r requirements.in
-twilio==7.5.0
+twilio==7.7.0
     # via -r requirements.in
 typing-extensions==4.0.1
     # via
