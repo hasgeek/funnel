@@ -78,7 +78,7 @@ mypy-extensions==0.4.3
     # via mypy
 nodeenv==1.6.0
     # via pre-commit
-pbr==5.8.0
+pbr==5.8.1
     # via stevedore
 pep517==0.12.0
     # via pip-tools
