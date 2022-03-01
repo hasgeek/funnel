@@ -105,7 +105,7 @@ fabric3==1.14.post1
     # via -r requirements.in
 filelock==3.6.0
     # via tldextract
-flask==2.0.2
+flask==2.0.3
     # via
     #   -r requirements.in
     #   baseframe
