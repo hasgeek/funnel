@@ -205,7 +205,7 @@ markdown==3.3.6
     #   -r requirements.in
     #   flask-flatpages
     #   pymdown-extensions
-markupsafe==2.0.1
+markupsafe==2.1.0
     # via
     #   baseframe
     #   jinja2
