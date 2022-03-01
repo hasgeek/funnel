@@ -196,7 +196,7 @@ js2py==0.71
     # via -r requirements.in
 jsmin==3.0.1
     # via -r requirements.in
-lxml==4.7.1
+lxml==4.8.0
     # via premailer
 mako==1.1.6
     # via alembic
