@@ -406,7 +406,7 @@ tweepy==4.6.0
     # via -r requirements.in
 twilio==7.7.0
     # via -r requirements.in
-typing-extensions==4.0.1
+typing-extensions==4.1.1
     # via
     #   -r requirements.in
     #   typing-inspect
