@@ -362,7 +362,7 @@ s3transfer==0.5.2
     #   boto3
 semantic-version==2.9.0
     # via baseframe
-sentry-sdk==1.5.2
+sentry-sdk==1.5.6
     # via baseframe
 six==1.16.0
     # via
