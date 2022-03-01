@@ -179,7 +179,7 @@ typing-extensions==4.1.1
     # via
     #   mypy
     #   sqlalchemy-stubs
-virtualenv==20.13.0
+virtualenv==20.13.2
     # via pre-commit
 watchdog==2.1.6
     # via -r requirements_dev.in
