@@ -398,7 +398,7 @@ statsd==3.3.0
     # via baseframe
 tinydb==4.7.0
     # via tuspy
-tldextract==3.1.2
+tldextract==3.2.0
     # via mxsniff
 tuspy==0.2.5
     # via pyvimeo
