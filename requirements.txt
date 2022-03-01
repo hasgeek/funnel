@@ -165,7 +165,7 @@ html2text==2020.1.16
     # via -r requirements.in
 html5lib==1.1
     # via baseframe
-httplib2==0.20.2
+httplib2==0.20.4
     # via
     #   oauth2
     #   oauth2client
