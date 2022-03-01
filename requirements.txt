@@ -194,7 +194,7 @@ jmespath==0.10.0
     #   botocore
 js2py==0.71
     # via -r requirements.in
-jsmin==3.0.0
+jsmin==3.0.1
     # via -r requirements.in
 lxml==4.7.1
     # via premailer
