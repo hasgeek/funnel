@@ -399,7 +399,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_login
     @requires_roles({'owner'})
     def transition(self):
-        form = self.obj.forms.transition(obj=self.obj)
+        form = self.obj.forms.transition()
         if form.validate_on_submit():
             transition_name = form.transition.data
             getattr(self.obj, transition_name)()

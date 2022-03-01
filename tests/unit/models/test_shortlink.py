@@ -31,7 +31,7 @@ def test_random_bigint():
         num = shortlink.random_bigint()
         assert num != 0
         # Bigints are 64-bit (8 bytes). That gives us 63 bits + 1 bit for sign
-        assert -(2 ** 63) <= num <= 2 ** 63 - 1
+        assert -(2**63) <= num <= 2**63 - 1
         randset.add(num)
     # Ignore up to 2 collisions
     assert 998 <= len(randset) <= 1000
@@ -44,7 +44,7 @@ def test_smaller_random_int():
         num = shortlink.random_bigint(True)
         # Smaller ids are 24-bit (3 bytes) and not signed, since they are significantly
         # within bigint sign bit range
-        assert 0 < num <= 2 ** 24 - 1
+        assert 0 < num <= 2**24 - 1
         randset.add(num)
     # Ignore up to 2 collisions
     assert 998 <= len(randset) <= 1000

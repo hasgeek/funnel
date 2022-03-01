@@ -488,6 +488,15 @@ window.Hasgeek.Utils = {
     }
     return '';
   },
+  getAvatarColour: function (name) {
+    const avatarTypes = 6; // Use one of the six avatar colours [$mui-avatar-color-*]
+    var initials = this.getInitials(name);
+    var stringTotal =
+      initials.length > 1
+        ? initials.charCodeAt(0) + initials.charCodeAt(1)
+        : initials.charCodeAt(0);
+    return stringTotal % avatarTypes || avatarTypes;
+  },
 };
 
 window.ParsleyConfig = {
