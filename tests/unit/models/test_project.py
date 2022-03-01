@@ -32,7 +32,8 @@ def test_cfp_state_draft(db_session, new_organization, new_project):
     db_session.commit()
 
     assert new_project.cfp_state.PUBLIC
-    assert new_project.cfp_start_at is None
+    # Start date is automatically set by open_cfp to utcnow()
+    assert new_project.cfp_start_at > utcnow() - timedelta(minutes=1)
     assert not new_project.cfp_state.DRAFT
     assert new_project.cfp_state.OPEN
     assert new_project in new_organization.profile.draft_projects
@@ -134,13 +135,16 @@ def test_project_dates(db_session, new_project):
     # Invalidate property cache
     invalidate_cache(new_project)
 
-    assert new_project.datelocation == "{start_date} {start_month}–{end_date} {end_month} {year}, {location}".format(
-        start_date=new_session_a.start_at.strftime("%d"),
-        start_month=new_session_a.start_at.strftime("%b"),
-        end_date=new_session_b.end_at.strftime("%d"),
-        end_month=new_session_b.end_at.strftime("%b"),
-        year=new_session_b.end_at.year,
-        location=new_project.location,
+    assert (
+        new_project.datelocation
+        == "{start_date} {start_month}–{end_date} {end_month} {year}, {location}".format(
+            start_date=new_session_a.start_at.strftime("%d"),
+            start_month=new_session_a.start_at.strftime("%b"),
+            end_date=new_session_b.end_at.strftime("%d"),
+            end_month=new_session_b.end_at.strftime("%b"),
+            year=new_session_b.end_at.year,
+            location=new_project.location,
+        )
     )
 
     # Both sessions are on same day
@@ -191,14 +195,17 @@ def test_project_dates(db_session, new_project):
     # Invalidate property cache
     invalidate_cache(new_project)
 
-    assert new_project.datelocation == "{start_date} {start_month} {start_year}–{end_date} {end_month} {end_year}, {location}".format(
-        start_date=new_session_a.start_at.strftime("%d"),
-        start_month=new_session_a.start_at.strftime("%b"),
-        end_date=new_session_b.end_at.strftime("%d"),
-        end_month=new_session_b.end_at.strftime("%b"),
-        start_year=new_session_a.start_at.strftime("%Y"),
-        end_year=new_session_b.end_at.strftime("%Y"),
-        location=new_project.location,
+    assert (
+        new_project.datelocation
+        == "{start_date} {start_month} {start_year}–{end_date} {end_month} {end_year}, {location}".format(
+            start_date=new_session_a.start_at.strftime("%d"),
+            start_month=new_session_a.start_at.strftime("%b"),
+            end_date=new_session_b.end_at.strftime("%d"),
+            end_month=new_session_b.end_at.strftime("%b"),
+            start_year=new_session_a.start_at.strftime("%Y"),
+            end_year=new_session_b.end_at.strftime("%Y"),
+            location=new_project.location,
+        )
     )
 
 
