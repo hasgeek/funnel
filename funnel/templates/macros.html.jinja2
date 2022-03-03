@@ -585,7 +585,7 @@
   {% if user and user.avatar %}
     <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar.resize(imgsize) }}" alt="{{ user.title }}"/>
   {%- else %}
-    <div class="user__box__gravatar user__box__gravatar--initials js-avatar-colour {% if css_class %}{{ css_class }}{% endif %}" role="img" aria-label="{{ user.title }}" data-avatar-colour="1">{{ user.title|initials }}</div>
+    <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}" role="img" aria-label="{{ user.title }}" data-avatar-colour="{{ user.views.avatar_color_code }}">{{ user.title|initials }}</div>
   {% endif %}
   {% if user.profile_url and add_profile_link%}</a>{% endif %}
 {%- endmacro %}
@@ -606,7 +606,7 @@
                 {%- if sponsor.profile.logo_url.url %}
                   <img class="user__box__gravatar" src="{{ sponsor.profile.logo_url }}" alt="{{ sponsor.profile.title }}"/>
                 {%- else %}
-                  <div class="user__box__gravatar user__box__gravatar--initials">{{ sponsor.profile.title|initials }}</div>
+                  <div class="user__box__gravatar user__box__gravatar--initials" data-avatar-colour="{{ sponsor.profile.views.avatar_color_code }}">{{ sponsor.profile.title|initials }}</div>
                 {% endif %}
               </a>
             </div>
@@ -739,11 +739,7 @@
 
 {%- macro add_submission_btn(project) %}
   <div class="project-details__box__content--lesspadding propose js-cfp-status {% if not project.cfp_state.OPEN -%} mui--hide {%- endif %}">
-    <a class="mui-btn mui-btn--accent mui-btn--raised" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
+    <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
     {% if project.cfp_end_at_localized -%}<p class="mui--text-body2 mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>{% endif %}
-  </div>
-  <div class="project-details__box__content--lesspadding propose js-cfp-status {% if project.cfp_state.OPEN -%} mui--hide {%- endif %}">
-    <a class="mui-btn mui-btn--accent mui-btn--raised mui-btn--strike" data-cy="Make a submission">{% trans %}Make a submission{% endtrans %}</a>
-    <p class="mui--text-light mui--text-caption zero-bottom-margin">{% trans %}Submissions are closed for this project{% endtrans %}</p>
   </div>
 {%- endmacro %}

@@ -5,6 +5,7 @@ from typing import Optional
 from flask import abort, flash, redirect, render_template, request, url_for
 
 from baseframe import _
+from baseframe.filters import initials
 from baseframe.forms import (
     render_delete_sqla,
     render_form,
@@ -27,6 +28,7 @@ from ..models import Organization, Team, db
 from ..signals import org_data_changed, team_data_changed
 from ..typing import ReturnView
 from .login_session import requires_login, requires_sudo
+from .helpers import no_avatar_colours
 
 # --- Routes: Organizations ---------------------------------------------------
 
@@ -47,6 +49,17 @@ def people_and_teams(obj):
         for user in obj.people()
     ]
     return result
+
+
+@Organization.views('avatar_color_code', cached_property=True)
+def avatar_color_code(obj):
+    # Return an int from 1 to avatar_color_code from the initials of the given string
+    initial = initials(obj.title)
+    parts = initial.split()
+    string_total = ord(parts[0][0])
+    if len(parts) > 1:
+        string_total += ord(parts[0][1])
+    return string_total % no_avatar_colours or no_avatar_colours
 
 
 @Organization.views('main')
