@@ -124,7 +124,7 @@
       <div class="register-block__txt js-tickets-not-available mui--hide">
         <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% trans %}Sales closed{% endtrans %}</p>
       </div>
-      <a href="javascript:void(0);" class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary mui-btn--disabled zero-top-margin zero-bottom-margin">{% trans %}Get tickets{% endtrans %}</a>
+      <a href="javascript:void(0);" class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin">{% trans %}Get tickets{% endtrans %}</a>
     {% elif project.features.rsvp() %}
       {%- if current_auth.is_anonymous %}
         <div class="register-block__txt">
@@ -378,8 +378,8 @@
                       </div>
                     </div>
                   {% endif %}
+                  {{ registerblock(project) }}
                   {{ project_details(project) }}
-                  {{ registerblock(project)}}
                 </div>
               </div>
             </div>

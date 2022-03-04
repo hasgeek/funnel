@@ -73,9 +73,6 @@
     .register-block__right__menu {
       margin-left: $mui-grid-padding/2;
     }
-    .register-block__txt--strike {
-      text-decoration: line-through;
-    }
   }
 }
 
@@ -89,6 +86,20 @@
     }
     .register-block__txt--longer {
       max-width: calc(100% - 20px);
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .project-footer {
+    .register-block {
+      display: block;
+      .register-block__txt {
+        margin: $mui-grid-padding 0;
+      }
+      .register-block__btn {
+        display: block;
+      }
     }
   }
 }
