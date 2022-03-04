@@ -30,11 +30,6 @@
   padding: 0 !important;
 }
 
-.mui-btn--nomargin {
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-}
-
 .left-padding {
   padding-left: $mui-grid-padding;
 }
@@ -129,12 +124,38 @@
   margin: 5px 0 20px;
 }
 
+// button
+
 .btn-group .mui-btn {
   margin-right: 5px;
 }
 
 .btn-group .mui-btn + .mui-btn {
   margin-left: 0;
+}
+
+.mui-btn--nomargin {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.mui-btn--nopadding {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.mui-btn--nopadding:hover {
+  background: transparent !important;
+}
+
+.mui--is-disabled {
+  background-color: $mui-disabled-color;
+}
+
+@media (min-width: 1200px) {
+  .mui-btn.mui--d-block {
+    max-width: 400px;
+  }
 }
 
 .content-head--top-padding {
@@ -232,19 +253,6 @@
 
 .footer--homepage {
   margin-top: 0;
-}
-
-.mui-btn--nopadding {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.mui-btn--nopadding:hover {
-  background: transparent !important;
-}
-
-.mui--is-disabled {
-  background-color: $mui-disabled-color;
 }
 
 .count-chip {
