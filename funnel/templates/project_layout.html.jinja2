@@ -124,7 +124,7 @@
       <div class="register-block__txt js-tickets-not-available mui--hide">
         <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% trans %}Sales closed{% endtrans %}</p>
       </div>
-      <a href="javascript:void(0);" class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin">{% trans %}Get tickets{% endtrans %}</a>
+      <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin">{% trans %}Get tickets{% endtrans %}</button>
     {% elif project.features.rsvp() %}
       {%- if current_auth.is_anonymous %}
         <div class="register-block__txt">
@@ -143,7 +143,7 @@
       {% if not current_auth.is_anonymous %}
         <div>
           {% if not current_auth.is_anonymous and project.features.rsvp_unregistered() -%}
-            <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__btn register-block__right__btn js-register-btn" href="#register-modal" role="button" aria-haspopup="true">{{ project.views.register_button_text() }}</a>
+            <button class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__btn register-block__right__btn js-register-btn" href="#register-modal" role="button" aria-haspopup="true">{{ project.views.register_button_text() }}</button>
             <div class="modal" id="register-modal" role="dialog" aria-labelledby="confirm-rsvp" aria-modal="true" tabindex="-1">
               <div class="modal__header">
                 <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
