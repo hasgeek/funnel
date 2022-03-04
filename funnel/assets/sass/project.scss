@@ -67,6 +67,9 @@
       margin: 0 $mui-grid-padding 0 0;
       max-width: calc(100% - 125px);
     }
+    .register-block__btn {
+      width: auto;
+    }
     .register-block__right {
       text-align: right;
     }

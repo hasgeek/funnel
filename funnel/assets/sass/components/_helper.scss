@@ -206,7 +206,8 @@ h6 {
   background: transparent !important;
 }
 
-.mui--is-disabled {
+.mui-btn:disabled,
+.mui-btn.mui--is-disabled {
   background-color: $mui-disabled-color;
   pointer-events: unset;
   opacity: 0.65;
