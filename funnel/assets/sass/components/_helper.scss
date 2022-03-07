@@ -208,9 +208,10 @@ h6 {
 
 .mui-btn:disabled,
 .mui-btn.mui--is-disabled {
-  background-color: $mui-disabled-color;
+  background-color: $mui-disabled-bg-color;
+  color: $mui-disabled-color;
   pointer-events: unset;
-  opacity: 0.65;
+  opacity: 1;
 }
 
 .mui-btn.mui--is-disabled:hover,

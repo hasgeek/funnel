@@ -98,7 +98,8 @@
     .register-block {
       display: block;
       .register-block__txt {
-        margin: $mui-grid-padding 0;
+        margin: $mui-grid-padding/2 0 $mui-grid-padding;
+        max-width: 100%;
       }
       .register-block__btn {
         width: 100%;
