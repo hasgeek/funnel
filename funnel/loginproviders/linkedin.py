@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from urllib.parse import quote
 from uuid import uuid4
 
 from flask import current_app, redirect, request, session
@@ -43,7 +42,7 @@ class LinkedInProvider(LoginProvider):
             self.auth_url.add(
                 {
                     'client_id': self.key,
-                    'redirect_uri': quote(callback_url),
+                    'redirect_uri': callback_url,
                     'scope': 'r_liteprofile r_emailaddress',
                     'state': session['linkedin_state'],
                 }
