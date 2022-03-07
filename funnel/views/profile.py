@@ -28,9 +28,9 @@ from coaster.views import (
 from .. import app
 from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm
 from ..models import Profile, Project, db
+from .helpers import no_avatar_colours
 from .login_session import requires_login
 from .mixins import ProfileViewMixin
-from .helpers import no_avatar_colours
 
 
 @Profile.features('new_project')

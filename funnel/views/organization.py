@@ -27,8 +27,8 @@ from ..forms import OrganizationForm, TeamForm
 from ..models import Organization, Team, db
 from ..signals import org_data_changed, team_data_changed
 from ..typing import ReturnView
-from .login_session import requires_login, requires_sudo
 from .helpers import no_avatar_colours
+from .login_session import requires_login, requires_sudo
 
 # --- Routes: Organizations ---------------------------------------------------
 
