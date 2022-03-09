@@ -46,11 +46,11 @@ from ..forms import (
     timezone_identifiers,
 )
 from ..models import (
-    Profile,
     AccountPasswordNotification,
     AuthClient,
     Organization,
     OrganizationMembership,
+    Profile,
     SMSMessage,
     User,
     UserEmail,
