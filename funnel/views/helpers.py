@@ -43,7 +43,7 @@ valid_timezones = set(common_timezones)
 nocache_expires = utc.localize(datetime(1990, 1, 1))
 
 # Six avatar colours defined in _variable.scss
-no_avatar_colours = 6
+avatar_color_count = 5
 
 # --- Utilities ------------------------------------------------------------------------
 

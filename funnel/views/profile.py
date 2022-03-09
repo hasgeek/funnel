@@ -11,7 +11,7 @@ from flask import (
 )
 
 from baseframe import _
-from baseframe.filters import date_filter, initials
+from baseframe.filters import date_filter
 from baseframe.forms import render_form, render_redirect
 from coaster.auth import current_auth
 from coaster.views import (
@@ -28,7 +28,6 @@ from coaster.views import (
 from .. import app
 from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm
 from ..models import Profile, Project, db
-from .helpers import no_avatar_colours
 from .login_session import requires_login
 from .mixins import ProfileViewMixin
 
@@ -65,17 +64,6 @@ def feature_profile_make_private(obj):
 def template_switcher(templateargs):
     template = templateargs.pop('template')
     return Response(render_template(template, **templateargs), mimetype='text/html')
-
-
-@Profile.views('avatar_color_code', cached_property=True)
-def avatar_color_code(obj):
-    # Return an int from 1 to avatar_color_code from the initials of the given string
-    initial = initials(obj.title)
-    parts = initial.split()
-    string_total = ord(parts[0][0])
-    if len(parts) > 1:
-        string_total += ord(parts[0][1])
-    return string_total % no_avatar_colours or no_avatar_colours
 
 
 @Profile.views('main')

@@ -19,7 +19,6 @@ import geoip2.errors
 import user_agents
 
 from baseframe import _
-from baseframe.filters import initials
 from baseframe.forms import (
     render_delete_sqla,
     render_form,
@@ -47,6 +46,7 @@ from ..forms import (
     timezone_identifiers,
 )
 from ..models import (
+    Profile,
     AccountPasswordNotification,
     AuthClient,
     Organization,
@@ -67,7 +67,7 @@ from ..transports import TransportConnectionError, TransportRecipientError, sms
 from ..typing import ReturnRenderWith, ReturnResponse, ReturnView
 from .decorators import etag_cache_for_user, xhr_only
 from .email import send_email_verify_link
-from .helpers import app_url_for, autoset_timezone_and_locale, no_avatar_colours
+from .helpers import app_url_for, autoset_timezone_and_locale, avatar_color_count
 from .login_session import (
     login_internal,
     logout_internal,
@@ -157,14 +157,19 @@ def recent_organization_memberships(
 
 
 @User.views('avatar_color_code', cached_property=True)
+@Organization.views('avatar_color_code', cached_property=True)
+@Profile.views('avatar_color_code', cached_property=True)
 def avatar_color_code(obj):
-    # Return an int from 1 to avatar_color_code from the initials of the given string
-    initial = initials(obj.title)
-    parts = initial.split()
-    string_total = ord(parts[0][0])
-    if len(parts) > 1:
-        string_total += ord(parts[0][1])
-    return string_total % no_avatar_colours or no_avatar_colours
+    # Return an int from 0 to avatar_color_code from the initials of the given string
+    if obj.title:
+        parts = obj.title.split()
+        if len(parts) > 1:
+            total = ord(parts[0][0]) + ord(parts[-1][0])
+        else:
+            total = ord(parts[0][0])
+    else:
+        total = 0
+    return total % avatar_color_count
 
 
 @UserSession.views('user_agent_details')

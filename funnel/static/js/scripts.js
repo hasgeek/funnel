@@ -489,13 +489,16 @@ window.Hasgeek.Utils = {
     return '';
   },
   getAvatarColour: function (name) {
-    const avatarTypes = 6; // Use one of the six avatar colours [$mui-avatar-color-*]
+    const avatarColorCount = 5; // Use one of the six avatar colours [$mui-avatar-color-*]
     var initials = this.getInitials(name);
-    var stringTotal =
-      initials.length > 1
-        ? initials.charCodeAt(0) + initials.charCodeAt(1)
-        : initials.charCodeAt(0);
-    return stringTotal % avatarTypes || avatarTypes;
+    var stringTotal = 0;
+    if(initials.length) {
+      stringTotal = initials.charCodeAt(0);
+      if(initials.length > 1) {
+        stringTotal += initials.charCodeAt(1);
+      }
+    }
+    return stringTotal % avatarColorCount;
   },
 };
 
