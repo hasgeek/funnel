@@ -69,15 +69,6 @@ $(() => {
     );
   }
   addVegaSupport();
-  // Update avatar colour based on name initials
-  if ($('.js-avatar-colour').length) {
-    $.each($('.js-avatar-colour'), (index, name) => {
-      $(name).attr(
-        'data-avatar-colour',
-        window.Hasgeek.Utils.getAvatarColour($(name).text())
-      );
-    });
-  }
 
   const intersectionObserverComponents =
     function intersectionObserverComponents() {

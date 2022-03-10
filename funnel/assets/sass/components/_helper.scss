@@ -183,6 +183,54 @@ h6 {
   margin-left: 8px;
 }
 
+.btn-group .mui-btn {
+  margin-right: 5px;
+}
+
+.btn-group .mui-btn + .mui-btn {
+  margin-left: 0;
+}
+
+.mui-btn--nomargin {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.mui-btn--nopadding {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.mui-btn--nopadding:hover {
+  background: transparent !important;
+}
+
+.mui-btn:disabled,
+.mui-btn.mui--is-disabled {
+  background-color: $mui-disabled-bg-color;
+  color: $mui-disabled-color;
+  pointer-events: unset;
+  opacity: 1;
+}
+
+.mui-btn.mui--is-disabled:hover,
+.mui-btn.mui--is-disabled:active,
+.mui-btn.mui--is-disabled:focus .mui-btn.mui--is-disabled:active:hover {
+  box-shadow: none;
+  background-color: $mui-disabled-bg-color;
+  color: $mui-disabled-color;
+}
+
+.mui-btn.mui--d-block {
+  width: 100%;
+}
+
+@media (min-width: 1200px) {
+  .mui-btn.mui--d-block {
+    max-width: 400px;
+  }
+}
+
 // ============================================================================
 // Font awesome 5
 // ============================================================================
