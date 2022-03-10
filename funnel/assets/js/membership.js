@@ -26,6 +26,7 @@ const Membership = {
           return count - 1;
         },
         getInitials: window.Hasgeek.Utils.getInitials,
+        getAvatarColour: window.Hasgeek.Utils.getAvatarColour,
       },
     });
 

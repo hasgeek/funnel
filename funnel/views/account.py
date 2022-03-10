@@ -160,7 +160,7 @@ def recent_organization_memberships(
 @Organization.views('avatar_color_code', cached_property=True)
 @Profile.views('avatar_color_code', cached_property=True)
 def avatar_color_code(obj):
-    # Return an int from 0 to avatar_color_code from the initials of the given string
+    # Return an int from 0 to avatar_color_count from the initials of the given string
     if obj.title:
         parts = obj.title.split()
         if len(parts) > 1:

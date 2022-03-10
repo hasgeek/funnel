@@ -489,7 +489,7 @@ window.Hasgeek.Utils = {
     return '';
   },
   getAvatarColour: function (name) {
-    const avatarColorCount = 5; // Use one of the six avatar colours [$mui-avatar-color-*]
+    var avatarColorCount = 6;
     var initials = this.getInitials(name);
     var stringTotal = 0;
     if (initials.length) {
