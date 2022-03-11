@@ -137,6 +137,8 @@ class ResourceRegistry(OrderedDict):
 
 
 class LoginProviderData(NamedTuple):
+    """User data supplied by a LoginProvider."""
+
     userid: str
     username: Optional[str] = None
     avatar_url: Optional[str] = None
