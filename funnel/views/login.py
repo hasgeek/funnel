@@ -51,6 +51,7 @@ from ..registry import (
 )
 from ..serializers import crossapp_serializer
 from ..signals import user_data_changed
+from ..typing import ReturnView
 from ..utils import abort_null
 from .email import send_email_verify_link
 from .helpers import app_url_for, metarefresh_redirect, validate_rate_limit
@@ -315,7 +316,7 @@ def register():
 
 
 @app.route('/login/<service>', methods=['GET', 'POST'])
-def login_service(service):
+def login_service(service: str) -> ReturnView:
     """Handle login with a registered service."""
     if service not in login_registry:
         abort(404)
@@ -337,7 +338,7 @@ def login_service(service):
 
 
 @app.route('/login/<service>/callback', methods=['GET', 'POST'])
-def login_service_callback(service):
+def login_service_callback(service: str) -> ReturnView:
     """Handle callback from a login service."""
     if service not in login_registry:
         abort(404)
@@ -393,7 +394,7 @@ def get_user_extid(service, userdata):
     return user, extid, useremail
 
 
-def login_service_postcallback(service: str, userdata: LoginProviderData):
+def login_service_postcallback(service: str, userdata: LoginProviderData) -> ReturnView:
     """
     Process callback from a login provider.
 
