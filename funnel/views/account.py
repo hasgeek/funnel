@@ -50,6 +50,7 @@ from ..models import (
     AuthClient,
     Organization,
     OrganizationMembership,
+    Profile,
     User,
     UserEmail,
     UserEmailClaim,
@@ -64,7 +65,12 @@ from ..signals import user_data_changed
 from ..typing import ReturnRenderWith, ReturnResponse, ReturnView
 from .decorators import etag_cache_for_user, xhr_only
 from .email import send_email_verify_link
-from .helpers import app_url_for, autoset_timezone_and_locale, send_sms_otp
+from .helpers import (
+    app_url_for,
+    autoset_timezone_and_locale,
+    avatar_color_count,
+    send_sms_otp,
+)
 from .login_session import (
     login_internal,
     logout_internal,
@@ -151,6 +157,22 @@ def recent_organization_memberships(
             0, obj.active_organization_admin_memberships.count() - recent - overflow
         ),
     )
+
+
+@User.views('avatar_color_code', cached_property=True)
+@Organization.views('avatar_color_code', cached_property=True)
+@Profile.views('avatar_color_code', cached_property=True)
+def avatar_color_code(obj):
+    # Return an int from 0 to avatar_color_count from the initials of the given string
+    if obj.title:
+        parts = obj.title.split()
+        if len(parts) > 1:
+            total = ord(parts[0][0]) + ord(parts[-1][0])
+        else:
+            total = ord(parts[0][0])
+    else:
+        total = 0
+    return total % avatar_color_count
 
 
 @UserSession.views('user_agent_details')

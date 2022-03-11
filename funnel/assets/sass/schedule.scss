@@ -164,16 +164,13 @@
   .schedule-grid {
     .schedule {
       margin: $mui-grid-padding-double 0;
-      .schedule__date {
-        padding-left: 0;
-      }
       .schedule__table {
         overflow: auto;
         .schedule__row {
           overflow: auto;
           .schedule__row__column {
             position: relative;
-            background-image: image-url('schedule-box-background.png');
+            background-image: url('../../img/schedule-box-background.png');
             background-size: 20px 10px;
             min-width: 200px;
 
@@ -190,6 +187,7 @@
             .schedule__row__column__content {
               width: calc(100% - 1px);
               height: 100%;
+              padding: $mui-grid-padding $mui-grid-padding/2;
               .schedule__row__column__content__title__duration {
                 top: 205px;
               }

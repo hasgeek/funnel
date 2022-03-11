@@ -6,8 +6,8 @@
 
 {% block beforeformcontent %}
   <div>
-    {% for provider in login_registry %}
-      <a class="mui-btn mui-btn--raised login login-{{ provider }} mui--d-block" href="{{ url_for('login_service', service=provider) }}" data-ga="login using {{ provider }}" aria-label="login using {{ provider }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img" alt="{{ login_registry[provider]['title'] }}" aria-label="hidden"/></i>{{ login_registry[provider]['title'] }}</a>
+    {% for provider_name, provider in login_registry.at_login_items() %}
+      <a class="mui-btn mui-btn--raised login login-{{ provider_name }} mui--d-block" href="{{ url_for('login_service', service=provider_name) }}" data-ga="login using {{ provider_name }}" aria-label="{% trans title=provider.title %}Login using {{ title }}{% endtrans %}"><img src="{{ url_for('static', filename='img/' + provider_name + '.svg') }}" class="icon-img" alt="{{ provider.title }}" aria-label="hidden"/></i>{{ provider.title }}</a>
     {% endfor %}
   </div>
 {% endblock %}

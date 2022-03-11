@@ -271,7 +271,7 @@ class SiteadminView(ClassView):
             flash(_("Comment(s) successfully reported as spam"), category='info')
         else:
             flash(
-                _("There was a problem marking the comments as spam. Please try again"),
+                _("There was a problem marking the comments as spam. Try again?"),
                 category='error',
             )
 

@@ -109,8 +109,7 @@
     <script type="text/x-template" id="member-template">
       <div class="member mui--clearfix">
         <div class="user__box mui--pull-left">
-          <img class="user__box__gravatar" :src="member.user.avatar" v-if="member.user.avatar"/>
-          <div class="user__box__gravatar user__box__gravatar--initials" v-else>{{ getInitials(member.user.fullname) }}</div>
+          <useravatar :user='member.user' :addprofilelink=false></useravatar>
           <div class="user__box__header">
             <h3 class="mui--text-body2 user__box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
             <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span>@{{ member.user.username }}</span></h3>

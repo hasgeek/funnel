@@ -6,8 +6,12 @@ import tweepy
 
 from baseframe import _
 
-from ..registry import LoginCallbackError, LoginInitError, LoginProvider
-from ..typing import ReturnLoginProvider
+from ..registry import (
+    LoginCallbackError,
+    LoginInitError,
+    LoginProvider,
+    LoginProviderData,
+)
 
 __all__ = ['TwitterProvider']
 
@@ -48,7 +52,7 @@ class TwitterProvider(LoginProvider):
         except tweepy.TweepError:
             raise LoginInitError(_("Twitter had a temporary problem. Try again?"))
 
-    def callback(self) -> ReturnLoginProvider:
+    def callback(self) -> LoginProviderData:
         auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
         request_token = request.args.get('oauth_token')
         request_verifier = request.args.get('oauth_verifier')
@@ -56,7 +60,7 @@ class TwitterProvider(LoginProvider):
         if not request_token or not request_verifier:
             # No request token or verifier? Not a real callback then
             raise LoginCallbackError(
-                _("If you were trying to use Twitter, please try again")
+                _("Were you trying to login with Twitter? Try again to confirm")
             )
 
         auth.request_token = {
@@ -76,13 +80,12 @@ class TwitterProvider(LoginProvider):
                 _("Twitter had an intermittent problem. Try again?")
             )
 
-        return {
-            'email': getattr(twuser, 'email', None),
-            'userid': twuser.id_str,
-            'username': twuser.screen_name,
-            'fullname': twuser.name.strip() or '',
-            'avatar_url': twuser.profile_image_url_https,
-            'oauth_token': auth.access_token,
-            'oauth_token_secret': auth.access_token_secret,
-            'oauth_token_type': None,  # Twitter doesn't have token types
-        }
+        return LoginProviderData(
+            email=getattr(twuser, 'email', None),
+            userid=twuser.id_str,
+            username=twuser.screen_name,
+            fullname=twuser.name.strip() or '',
+            avatar_url=twuser.profile_image_url_https,
+            oauth_token=auth.access_token,
+            oauth_token_secret=auth.access_token_secret,
+        )

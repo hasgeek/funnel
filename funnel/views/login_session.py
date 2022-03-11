@@ -24,7 +24,7 @@ from baseframe import _, request_is_xhr, statsd
 from baseframe.forms import render_form, render_redirect
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
-from coaster.views import get_current_url
+from coaster.views import get_current_url, get_next_url
 
 from .. import app
 from ..forms import PasswordForm
@@ -254,53 +254,6 @@ def session_mark_accessed(
     statsd.set('users.active_users', obj.user.id, rate=1)
 
 
-def discard_temp_token():
-    """Discard temporary token that was saved when loading the password reset page."""
-    session.pop('temp_token', None)
-    session.pop('temp_token_type', None)
-    session.pop('temp_token_at', None)
-
-
-def discard_temp_username():
-    """Discard temporary username after a redirect from login to password reset."""
-    session.pop('temp_username', None)
-    session.pop('temp_username_at', None)
-
-
-# Also add future hasjob app here
-@app.before_request
-def clear_expired_temp_token_and_username():
-    """
-    Clear unused temporary items from session (user abandoned the attempt).
-
-    These values are set by:
-
-        * :func:`funnel.views.account_reset.reset_with_token`
-        * :func:`funnel.views.login.login`
-        * :meth:`funnel.views.notification.AccountNotificationView.unsubscribe`
-    """
-    if 'temp_token_at' in session:
-        # Give the user 10 minutes to complete the action. Remove the token if it's
-        # been longer than 10 minutes.
-        if session['temp_token_at'] < utcnow() - timedelta(minutes=10):
-            discard_temp_token()
-            current_app.logger.info("Cleared expired temp_token from session cookie")
-    elif 'temp_token' in session:
-        # We have a temp token without a timestamp. This shouldn't happen, so remove it
-        discard_temp_token()
-    if 'temp_username_at' in session:
-        # Give temp_username also ten minutes. This is set by the login endpoint when
-        # asking the user to reset their password. It's used in the reset page they are
-        # redirected to, and cleared when they submit the page (but not at load time,
-        # so refreshing the reset page won't clear it).
-        if session['temp_username_at'] < utcnow() - timedelta(minutes=10):
-            discard_temp_username()
-            current_app.logger.info("Cleared expired temp_username from session cookie")
-    elif 'temp_username' in session:
-        # We have a temp username without a timestamp. Remove it
-        discard_temp_username()
-
-
 # Also add future hasjob app here
 @app.after_request
 def clear_old_session(response):
@@ -386,6 +339,14 @@ def update_user_session_timestamp(response):
     return response
 
 
+def set_session_next_url(current=False):
+    """Save the next URL to the session."""
+    if current:
+        session['next'] = get_current_url()
+    elif 'next' not in session:
+        session['next'] = get_next_url(referrer=True)
+
+
 def requires_login(f):
     """Decorate a view to require login."""
 
@@ -394,7 +355,7 @@ def requires_login(f):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            session['next'] = get_current_url()
+            set_session_next_url(True)
             return redirect(url_for('login'))
         return f(*args, **kwargs)
 
@@ -412,7 +373,7 @@ def requires_login_no_message(f):
     def decorated_function(*args, **kwargs):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
-            session['next'] = get_current_url()
+            set_session_next_url(True)
             return redirect(url_for('login'))
         return f(*args, **kwargs)
 
@@ -433,7 +394,7 @@ def requires_sudo(f):
         # If the user is not logged in, require login first
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            session['next'] = get_current_url()
+            set_session_next_url(True)
             return render_redirect(url_for('login'))
         # If the user has not authenticated in some time, ask for the password again
         if not current_auth.session.has_sudo:
@@ -447,7 +408,7 @@ def requires_sudo(f):
                     ),
                     'info',
                 )
-                session['next'] = get_current_url()
+                set_session_next_url(True)
                 return render_redirect(url_for('change_password'))
             # A future version of this form may accept password or 2FA (U2F or TOTP)
             form = PasswordForm(edit_user=current_auth.user)

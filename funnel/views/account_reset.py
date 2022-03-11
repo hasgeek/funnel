@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import timedelta
+
 from flask import (
     Markup,
     abort,
@@ -18,7 +20,7 @@ from pytz import utc
 
 from baseframe import _
 from baseframe.forms import render_form, render_message
-from coaster.utils import getbool, newpin, utcnow
+from coaster.utils import getbool, newpin
 from coaster.views import requestargs
 
 from .. import app
@@ -40,10 +42,13 @@ from .helpers import (
     metarefresh_redirect,
     retrieve_cached_token,
     send_sms_otp,
+    session_timeouts,
     validate_rate_limit,
 )
-from .login_session import discard_temp_token, discard_temp_username, logout_internal
+from .login_session import logout_internal
 from .notification import dispatch_notification
+
+session_timeouts['reset_token'] = timedelta(minutes=15)
 
 
 def str_pw_set_at(user):
@@ -76,7 +81,7 @@ def reset():
             # and set a local username and password, but no email. Could happen
             if len(user.externalids) > 0:
                 extid = user.externalids[0]
-                discard_temp_username()
+                session.pop('temp_username', None)
                 return render_message(
                     title=_("Cannot reset password"),
                     message=Markup(
@@ -90,7 +95,7 @@ def reset():
                         )
                     ),
                 )
-            discard_temp_username()
+            session.pop('temp_username', None)
             return render_message(
                 title=_("Cannot reset password"),
                 message=Markup(
@@ -121,7 +126,7 @@ def reset():
                 otp=otp,
                 token=token,
             )
-            discard_temp_username()
+            session.pop('temp_username', None)
             flash(_("An OTP has been sent to your email address"), 'success')
             return redirect(url_for('reset_otp', token=otp_token), code=303)
         if isinstance(anchor, UserPhone):
@@ -148,20 +153,18 @@ def reset():
 def reset_with_token(token: str, cookietest=False) -> ReturnView:
     """Move token into session cookie and redirect to a token-free URL."""
     if not cookietest:
-        session['temp_token'] = token
-        session['temp_token_at'] = utcnow()
+        session['reset_token'] = token
         # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
         # and reload the page
         if request.query_string:
             return redirect(request.url + '&cookietest=1')
         return redirect(request.url + '?cookietest=1')
-    if 'temp_token' not in session:  # implicit: cookietest is True
+    if 'reset_token' not in session:  # implicit: cookietest is True
         # Browser is refusing to set cookies on 302 redirects. Set it again and use
         # the less secure meta-refresh redirect (browser extensions can read the URL)
-        session['temp_token'] = token
-        session['temp_token_at'] = utcnow()
+        session['reset_token'] = token
         return metarefresh_redirect(url_for('reset_with_token_do'))
-    # implicit: cookietest is True and 'temp_token' in session
+    # implicit: cookietest is True and 'reset_token' in session
     return redirect(url_for('reset_with_token_do'))
 
 
@@ -209,7 +212,7 @@ def reset_with_token_do() -> ReturnView:
 
     # Validate the token
     # 1. Do we have a token? User may have accidentally landed here
-    if 'temp_token' not in session:
+    if 'reset_token' not in session:
         if request.method == 'GET':
             # No token. GET request. Either user landed here by accident, or browser
             # reloaded this page from history. Send back to to the reset request page
@@ -218,17 +221,17 @@ def reset_with_token_do() -> ReturnView:
         # Reset token was expired from session, likely because they didn't submit
         # the form in time. We no longer know what user this is for. Inform the user
         return render_message(
-            title=_("Please try again"),
-            message=_("This page timed out. Please open the reset link again"),
+            title=_("This page has timed out"),
+            message=_("Open the reset link again to reset your password"),
         )
 
     # 2. There's a token in the session. Is it valid?
     try:
         # Allow 24 hours (86k seconds) validity for the reset token
-        token = token_serializer().loads(session['temp_token'], max_age=86400)
+        token = token_serializer().loads(session['reset_token'], max_age=86400)
     except itsdangerous.SignatureExpired:
         # Link has expired (timeout).
-        discard_temp_token()
+        session.pop('reset_token', None)
         flash(
             _(
                 "This password reset link has expired."
@@ -239,7 +242,7 @@ def reset_with_token_do() -> ReturnView:
         return redirect(url_for('reset'), code=303)
     except itsdangerous.BadData:
         # Link is invalid
-        discard_temp_token()
+        session.pop('reset_token', None)
         flash(
             _(
                 "This password reset link is invalid."
@@ -252,8 +255,10 @@ def reset_with_token_do() -> ReturnView:
     # 3. We have a token and it's not expired. Is there a user?
     user = User.get(buid=token['buid'])
     if user is None:
-        # If the user has disappeared, it's likely because of account deletion.
-        discard_temp_token()
+        # If the user has disappeared, it's likely because this is a dev instance and
+        # the local database has been dropped -- or a future scenario in which db entry
+        # is deleted after account deletion
+        session.pop('reset_token', None)
         return render_message(
             title=_("Unknown user"),
             message=_("There is no account matching this password reset request"),
@@ -262,7 +267,7 @@ def reset_with_token_do() -> ReturnView:
     if token['pw_set_at'] != str_pw_set_at(user):
         # Token has been used to set a password, as the timestamp has changed. Ask user
         # if they want to reset their password again
-        discard_temp_token()
+        session.pop('reset_token', None)
         flash(
             _(
                 "This password reset link has been used."
@@ -282,7 +287,7 @@ def reset_with_token_do() -> ReturnView:
     if form.validate_on_submit():
         current_app.logger.info("Password strength %f", form.password_strength)
         user.password = form.password.data
-        discard_temp_token()
+        session.pop('reset_token', None)
         # Invalidate all of the user's active sessions
         user_sessions = user.active_user_sessions.all()
         session_count = len(user_sessions)

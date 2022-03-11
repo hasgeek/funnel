@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from functools import wraps
-from typing import List, Optional
+from typing import List, NamedTuple, Optional, Tuple
 import re
 
 from flask import Response, abort, jsonify, request
@@ -13,9 +13,9 @@ from baseframe import _
 from baseframe.signals import exception_catchall
 
 from .models import AuthToken, UserExternalId
-from .typing import ReturnLoginProvider
 
-# Bearer token, as per http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-15#section-2.1
+# Bearer token, as per
+# http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-15#section-2.1
 auth_bearer_re = re.compile('^Bearer ([a-zA-Z0-9_.~+/-]+=*)$')
 
 
@@ -89,11 +89,13 @@ class ResourceRegistry(OrderedDict):
                 )  # Read once to avoid reparsing below
                 wildcardscope = usescope.split('/', 1)[0] + '/*'
                 if not (authtoken.auth_client.trusted and '*' in tokenscope):
-                    # If a trusted client has '*' in token scope, all good, else check further
+                    # If a trusted client has '*' in token scope, all good,
+                    # else check further
                     if (usescope not in tokenscope) and (
                         wildcardscope not in tokenscope
                     ):
-                        # Client doesn't have access to this scope either directly or via a wildcard
+                        # Client doesn't have access to this scope either
+                        # directly or via a wildcard
                         return resource_auth_error(
                             _("Token does not provide access to this resource")
                         )
@@ -134,12 +136,35 @@ class ResourceRegistry(OrderedDict):
         return wrapper
 
 
+class LoginProviderData(NamedTuple):
+    """User data supplied by a LoginProvider."""
+
+    userid: str
+    username: Optional[str] = None
+    avatar_url: Optional[str] = None
+    oauth_token: Optional[str] = None
+    oauth_token_secret: Optional[str] = None  # Only used in OAuth1a
+    oauth_token_type: Optional[str] = None
+    oauth_refresh_token: Optional[str] = None
+    oauth_refresh_expiry: Optional[str] = None
+    email: Optional[str] = None
+    emails: List[str] = []
+    emailclaim: Optional[str] = None
+    phone: Optional[str] = None
+    phoneclaim: Optional[str] = None
+    fullname: Optional[str] = None
+
+
 class LoginProviderRegistry(OrderedDict):
     """Registry of login providers."""
 
     def at_username_services(self) -> List[str]:
         """Return services which typically use ``@username`` addressing."""
         return [key for key in self if self[key].at_username]
+
+    def at_login_items(self) -> List[Tuple[str, LoginProvider]]:
+        """Return services which have the flag at_login set to True."""
+        return [(k, v) for (k, v) in self.items() if v.at_login is True]
 
     def __setitem__(self, key: str, value: LoginProvider):
         """Make a registry entry."""
@@ -197,7 +222,8 @@ class LoginProvider:
     icon = None
     #: Login form, if required
     form = None
-    #: This service's usernames are typically used for addressing with @username
+    #: This service's usernames are typically
+    #: used for addressing with @username
     at_username = False
 
     def __init__(
@@ -218,20 +244,22 @@ class LoginProvider:
     def do(self, callback_url: str):
         raise NotImplementedError
 
-    def callback(self) -> ReturnLoginProvider:
+    def callback(self) -> LoginProviderData:
         raise NotImplementedError
 
-        # Template for subclasses:
-        # return {
-        #     'userid': None,  # Unique user id at this service
-        #     'username': None,  # Public username. This may change
-        #     'avatar_url': None,  # URL to avatar image
-        #     'oauth_token': None,  # OAuth token, for OAuth-based services
-        #     'oauth_token_secret': None,  # If required
-        #     'oauth_token_type': None,  # Type of token
-        #     'email': None,  # Verified email address. Service can be trusted
-        #     'emailclaim': None,  # Claimed email address. Must be verified
-        # }
+        # Template for subclasses. All optional values can be skipped
+        # return LoginProviderData(
+        #     userid=None,  # Unique user id at this service
+        #     username=None,  # Public username. This may change
+        #     avatar_url=None,  # URL to avatar image
+        #     oauth_token=None,  # OAuth token, for OAuth-based services
+        #     oauth_token_secret=None,  # If required
+        #     oauth_token_type=None,  # Type of token
+        #     email=None,  # Verified email address. Service can be trusted
+        #     emailclaim=None,  # Claimed email address. Must be verified
+        #     phone=None,  # Verified phone number when service can be trusted
+        #     phoneclaim=None,  # Claimed phone number, needing verification
+        # )
 
 
 # Global registries

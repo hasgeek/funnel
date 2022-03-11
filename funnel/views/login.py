@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from datetime import timedelta
+from secrets import token_urlsafe
 import urllib.parse
-import uuid
 
 from flask import (
     abort,
@@ -43,19 +44,37 @@ from ..models import (
     getextid,
     merge_users,
 )
-from ..registry import LoginCallbackError, LoginInitError, login_registry
+from ..registry import (
+    LoginCallbackError,
+    LoginInitError,
+    LoginProviderData,
+    login_registry,
+)
 from ..serializers import crossapp_serializer
 from ..signals import user_data_changed
+from ..typing import ReturnView
 from ..utils import abort_null
 from .email import send_email_verify_link
-from .helpers import app_url_for, metarefresh_redirect, validate_rate_limit
+from .helpers import (
+    app_url_for,
+    metarefresh_redirect,
+    session_timeouts,
+    validate_rate_limit,
+)
 from .login_session import (
     login_internal,
     logout_internal,
     register_internal,
     requires_login,
     set_loginmethod_cookie,
+    set_session_next_url,
 )
+
+session_timeouts['next'] = timedelta(minutes=30)
+session_timeouts['oauth_callback'] = timedelta(minutes=30)
+session_timeouts['oauth_state'] = timedelta(minutes=30)
+session_timeouts['merge_buid'] = timedelta(minutes=15)
+session_timeouts['login_nonce'] = timedelta(minutes=1)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -80,8 +99,7 @@ def login():
     # TODO: Work out a more robust solution that saves _two_ possible next URL values
     # to the session.
 
-    if 'next' not in session:
-        session['next'] = get_next_url(referrer=True)
+    set_session_next_url()
 
     loginform = LoginForm()
     loginmethod = None
@@ -210,7 +228,7 @@ def login():
         )
 
 
-logout_errormsg = __("Are you trying to logout? Please try again to confirm")
+logout_errormsg = __("Are you trying to logout? Try again to confirm")
 
 
 def logout_client():
@@ -310,15 +328,14 @@ def register():
 
 
 @app.route('/login/<service>', methods=['GET', 'POST'])
-def login_service(service):
+def login_service(service: str) -> ReturnView:
     """Handle login with a registered service."""
     if service not in login_registry:
         abort(404)
     provider = login_registry[service]
-    next_url = get_next_url(referrer=False, default=None)
-    callback_url = url_for(
-        '.login_service_callback', service=service, next=next_url, _external=True
-    )
+    set_session_next_url()
+
+    callback_url = url_for('.login_service_callback', service=service, _external=True)
     statsd.gauge('login.progress', 1, delta=True, tags={'service': service})
     try:
         return provider.do(callback_url=callback_url)
@@ -328,11 +345,11 @@ def login_service(service):
         )
         exception_catchall.send(exc, message=msg)
         flash(msg, category='danger')
-        return redirect(next_url or get_next_url(referrer=True), code=303)
+        return redirect(session.pop('next'), code=303)
 
 
 @app.route('/login/<service>/callback', methods=['GET', 'POST'])
-def login_service_callback(service):
+def login_service_callback(service: str) -> ReturnView:
     """Handle callback from a login service."""
     if service not in login_registry:
         abort(404)
@@ -356,13 +373,13 @@ def login_service_callback(service):
 def get_user_extid(service, userdata):
     """Retrieve user, extid and email from the given service and userdata."""
     provider = login_registry[service]
-    extid = getextid(service=service, userid=userdata['userid'])
+    extid = getextid(service=service, userid=userdata.userid)
 
     user = None
     useremail = None
 
-    if userdata.get('email'):
-        useremail = UserEmail.get(email=userdata['email'])
+    if userdata.email:
+        useremail = UserEmail.get(email=userdata.email)
 
     if extid is not None:
         user = extid.user
@@ -379,7 +396,7 @@ def get_user_extid(service, userdata):
                 other_service != service
                 and other_provider.__class__ == provider.__class__
             ):
-                other_extid = getextid(service=other_service, userid=userdata['userid'])
+                other_extid = getextid(service=other_service, userid=userdata.userid)
                 if other_extid is not None:
                     user = other_extid.user
                     break
@@ -388,7 +405,7 @@ def get_user_extid(service, userdata):
     return user, extid, useremail
 
 
-def login_service_postcallback(service, userdata):
+def login_service_postcallback(service: str, userdata: LoginProviderData) -> ReturnView:
     """
     Process callback from a login provider.
 
@@ -402,29 +419,23 @@ def login_service_postcallback(service, userdata):
     # However, if both extid and useremail are present, they may be different users
 
     if extid is not None:
-        extid.oauth_token = userdata.get('oauth_token')
-        extid.oauth_token_secret = userdata.get('oauth_token_secret')
-        extid.oauth_token_type = userdata.get('oauth_token_type')
-        extid.username = userdata.get('username')
+        extid.oauth_token = userdata.oauth_token
+        extid.oauth_token_secret = userdata.oauth_token_secret
+        extid.oauth_token_type = userdata.oauth_token_type
+        extid.username = userdata.username
         # TODO: Save refresh token and expiry date where present
-        extid.oauth_refresh_token = userdata.get('oauth_refresh_token')
-        extid.oauth_expiry_date = userdata.get('oauth_expiry_date')
-        extid.oauth_refresh_expiry = userdata.get(
-            'oauth_refresh_expiry'
-        )  # TODO: Check this
         extid.last_used_at = db.func.utcnow()
     else:
         # New external id. Register it.
         extid = UserExternalId(
             user=user,  # This may be None right now. Will be handled below
             service=service,
-            userid=userdata['userid'],
-            username=userdata.get('username'),
-            oauth_token=userdata.get('oauth_token'),
-            oauth_token_secret=userdata.get('oauth_token_secret'),
-            oauth_token_type=userdata.get('oauth_token_type'),
-            last_used_at=db.func.utcnow()
-            # TODO: Save refresh token
+            userid=userdata.userid,
+            username=userdata.username,
+            oauth_token=userdata.oauth_token,
+            oauth_token_secret=userdata.oauth_token_secret,
+            oauth_token_type=userdata.oauth_token_type,
+            last_used_at=db.func.utcnow(),
         )
 
     if user is None:
@@ -434,12 +445,12 @@ def login_service_postcallback(service, userdata):
             extid.user = user
         else:
             # Register a new user
-            user = register_internal(None, userdata.get('fullname'), None)
+            user = register_internal(None, userdata.fullname, None)
             extid.user = user
-            if userdata.get('username'):
-                if Profile.is_available_name(userdata['username']):
+            if userdata.username:
+                if Profile.is_available_name(userdata.username):
                     # Set a username for this user if it's available
-                    user.username = userdata['username']
+                    user.username = userdata.username
     else:  # We have an existing user account from extid or useremail
         if current_auth and current_auth.user != user:
             # Woah! Account merger handler required
@@ -451,15 +462,15 @@ def login_service_postcallback(service, userdata):
             session['merge_buid'] = useremail.user.buid
 
     # Check for new email addresses
-    if userdata.get('email') and not useremail:
-        user.add_email(userdata['email'])
+    if userdata.email and not useremail:
+        user.add_email(userdata.email)
 
     # If there are multiple email addresses, add any that are not already claimed.
     # If they are already claimed by another user, this calls for an account merge
     # request, but we can only merge two users at a time. Ask for a merge if there
     # isn't already one pending
-    if userdata.get('emails'):
-        for email in userdata['emails']:
+    if userdata.emails:
+        for email in userdata.emails:
             existing = UserEmail.get(email)
             if existing is not None:
                 if existing.user != user and 'merge_buid' not in session:
@@ -467,14 +478,14 @@ def login_service_postcallback(service, userdata):
             else:
                 user.add_email(email)
 
-    if userdata.get('emailclaim'):
-        emailclaim = UserEmailClaim(user=user, email=userdata['emailclaim'])
+    if userdata.emailclaim:
+        emailclaim = UserEmailClaim(user=user, email=userdata.emailclaim)
         db.session.add(emailclaim)
         send_email_verify_link(emailclaim)
 
     # Is the user's fullname missing? Populate it.
-    if not user.fullname and userdata.get('fullname'):
-        user.fullname = userdata['fullname']
+    if not user.fullname and userdata.fullname:
+        user.fullname = userdata.fullname
 
     if not current_auth:  # If a user isn't already logged in, login now.
         login_internal(user, login_service=service)
@@ -576,7 +587,7 @@ def account_merge():
 @requestargs(('cookietest', getbool))
 def hasjob_login(cookietest=False):
     # 1. Create a login nonce (single use, unlike CSRF)
-    session['login_nonce'] = str(uuid.uuid4())
+    session['login_nonce'] = str(token_urlsafe())
     if not cookietest:
         # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
         if request.query_string:
@@ -632,13 +643,13 @@ def hasjobapp_login_callback(token):
         request_token = crossapp_serializer().loads(token, max_age=30)
     except itsdangerous.BadData:
         current_app.logger.warning("hasjobapp received bad login token: %s", token)
-        flash(_("Your attempt to login failed. Please try again"), 'error')
+        flash(_("Your attempt to login failed. Try again?"), 'error')
         return metarefresh_redirect(url_for('index'))
     if request_token['nonce'] != nonce:
         current_app.logger.warning(
             "hasjobapp received invalid nonce in %r", request_token
         )
-        flash(_("If you were attempting to login, please try again"), 'error')
+        flash(_("Are you trying to login? Try again to confirm"), 'error')
         return metarefresh_redirect(url_for('index'))
 
     # 2. Load user session and 3. Redirect user back to where they came from
