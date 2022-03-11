@@ -5,7 +5,7 @@ ci:
   skip: ['pip-compile', 'no-commit-to-branch']
 repos:
   - repo: https://github.com/jazzband/pip-tools
-    rev: 6.4.0
+    rev: 6.5.1
     hooks:
       - id: pip-compile
         name: pip-compile --upgrade requirements.in
@@ -62,7 +62,7 @@ repos:
         additional_dependencies:
           - toml
   - repo: https://github.com/psf/black
-    rev: 21.12b0
+    rev: 22.1.0
     hooks:
       - id: black
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -71,27 +71,27 @@ repos:
       - id: mypy
         additional_dependencies:
           - toml
-          - lxml-stubs==0.3.0
+          - lxml-stubs==0.3.1
           - sqlalchemy-stubs==0.4
           - types-certifi==2021.10.8.1
           - types-click==7.1.8
-          - types-cryptography==3.3.12
-          - types-enum34==1.1.2
+          - types-cryptography==3.3.15
+          - types-enum34==1.1.8
           - types-flask==1.1.6
           - types-geoip2==3.0.0
-          - types-ipaddress==1.0.2
+          - types-ipaddress==1.0.8
           - types-itsdangerous==1.1.6
           - types-jinja2==2.11.9
           - types-markupsafe==1.1.10
           - types-maxminddb==1.5.0
-          - types-python-dateutil==2.8.6
-          - types-pytz==2021.3.4
-          - types-requests==2.27.7
-          - types-setuptools==57.4.7
+          - types-python-dateutil==2.8.9
+          - types-pytz==2021.3.5
+          - types-requests==2.27.11
+          - types-setuptools==57.4.9
           - types-simplejson==3.17.3
-          - types-six==1.16.9
-          - types-toml==0.10.3
-          - types-urllib3==1.26.7
+          - types-six==1.16.10
+          - types-toml==0.10.4
+          - types-urllib3==1.26.9
           - types-werkzeug==1.0.9
   - repo: https://github.com/PyCQA/flake8
     rev: 4.0.1
@@ -99,7 +99,7 @@ repos:
       - id: flake8
         additional_dependencies: *flake8deps
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.1
+    rev: 1.7.2
     hooks:
       - id: bandit
         language_version: python3

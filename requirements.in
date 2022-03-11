@@ -29,7 +29,7 @@ git+https://github.com/hasgeek/flask-babelhg.git#egg=Flask-Babelhg
 html2text
 icalendar
 idna>=2.5
-itsdangerous
+itsdangerous<2.1.0  # https://github.com/pallets/itsdangerous/pull/273
 js2py
 jsmin>=3.0.0
 Markdown
