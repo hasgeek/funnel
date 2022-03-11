@@ -17,10 +17,16 @@ __all__ = ['LinkedInProvider']
 
 
 class LinkedInProvider(LoginProvider):
-    auth_url = furl('https://www.linkedin.com/uas/oauth2/authorization')
+    auth_url = 'https://www.linkedin.com/uas/oauth2/authorization?response_type=code'
     token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'  # nosec  # noqa: S105
-    user_info = 'https://api.linkedin.com/v2/me?projection=(id,localizedFirstName,localizedLastName)'
-    user_email = 'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))'
+    user_info = (
+        'https://api.linkedin.com/v2/me?'
+        'projection=(id,localizedFirstName,localizedLastName)'
+    )
+    user_email = (
+        'https://api.linkedin.com/v2/emailAddress?'
+        'q=members&projection=(elements*(handle~))'
+    )
 
     def __init__(
         self, name, title, key, secret, at_login=True, priority=False, icon=None
@@ -37,16 +43,16 @@ class LinkedInProvider(LoginProvider):
     def do(self, callback_url):
         session['linkedin_state'] = str(uuid4())
         session['linkedin_callback'] = callback_url
-        return redirect(
-            self.auth_url.add(
-                {
-                    'client_id': self.key,
-                    'redirect_uri': callback_url,
-                    'scope': 'r_liteprofile r_emailaddress',
-                    'state': session['linkedin_state'],
-                }
-            ).url
+        auth_url = furl(self.auth_url)
+        auth_url.add(
+            {
+                'client_id': self.key,
+                'redirect_uri': callback_url,
+                'scope': 'r_liteprofile r_emailaddress',
+                'state': session['linkedin_state'],
+            }
         )
+        return redirect(auth_url.url)
 
     def callback(self) -> LoginProviderData:
         state = session.pop('linkedin_state', None)

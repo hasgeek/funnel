@@ -16,7 +16,7 @@ __all__ = ['GitHubProvider']
 
 class GitHubProvider(LoginProvider):
     at_username = True
-    auth_url = furl('https://github.com/login/oauth/authorize')
+    auth_url = 'https://github.com/login/oauth/authorize'
     token_url = 'https://github.com/login/oauth/access_token'  # nosec  # noqa: S105
     user_info = 'https://api.github.com/user'
     user_emails = 'https://api.github.com/user/emails'
@@ -34,15 +34,15 @@ class GitHubProvider(LoginProvider):
         self.secret = secret
 
     def do(self, callback_url):
-        return redirect(
-            self.auth_url.add(
-                {
-                    'client_id': self.key,
-                    'redirect_uri': callback_url,
-                    'scope': 'user:email',
-                }
-            ).url
+        auth_url = furl(self.auth_url)
+        auth_url.add(
+            {
+                'client_id': self.key,
+                'redirect_uri': callback_url,
+                'scope': 'user:email',
+            }
         )
+        return redirect(auth_url.url)
 
     def callback(self) -> LoginProviderData:
         if request.args.get('error'):
