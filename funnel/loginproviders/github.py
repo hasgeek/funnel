@@ -10,8 +10,7 @@ import simplejson
 
 from baseframe import _
 
-from ..registry import LoginCallbackError, LoginProvider
-from ..typing import ReturnLoginProvider
+from ..registry import LoginCallbackError, LoginProvider, LoginProviderData
 
 __all__ = ['GitHubProvider']
 
@@ -42,7 +41,7 @@ class GitHubProvider(LoginProvider):
             )
         )
 
-    def callback(self) -> ReturnLoginProvider:
+    def callback(self) -> LoginProviderData:
         if request.args.get('error'):
             if request.args['error'] == 'user_denied':
                 raise LoginCallbackError(_("You denied the GitHub login request"))
@@ -105,14 +104,13 @@ class GitHubProvider(LoginProvider):
                     emails.append(result['email'])
         if emails:
             email = emails[0]
-        return {
-            'email': email,
-            'emails': emails,
-            'userid': ghinfo['login'],
-            'username': ghinfo['login'],
-            'fullname': (ghinfo.get('name') or '').strip(),
-            'avatar_url': ghinfo.get('avatar_url'),
-            'oauth_token': response['access_token'],
-            'oauth_token_secret': None,  # OAuth 2 doesn't need token secrets
-            'oauth_token_type': response['token_type'],
-        }
+        return LoginProviderData(
+            email=email,
+            emails=emails,
+            userid=ghinfo['login'],
+            username=ghinfo['login'],
+            fullname=(ghinfo.get('name') or '').strip(),
+            avatar_url=ghinfo.get('avatar_url'),
+            oauth_token=response['access_token'],
+            oauth_token_type=response['token_type'],
+        )
