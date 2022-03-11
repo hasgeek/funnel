@@ -44,7 +44,8 @@ class LinkedInProvider(LoginProvider):
         session['linkedin_state'] = str(uuid4())
         session['linkedin_callback'] = callback_url
         return redirect(
-            furl(self.auth_url).add(
+            furl(self.auth_url)
+            .add(
                 {
                     'client_id': self.key,
                     'redirect_uri': callback_url,
@@ -52,6 +53,7 @@ class LinkedInProvider(LoginProvider):
                     'state': session['linkedin_state'],
                 }
             )
+            .url
         )
 
     def callback(self) -> LoginProviderData:

@@ -35,13 +35,15 @@ class GitHubProvider(LoginProvider):
 
     def do(self, callback_url):
         return redirect(
-            furl(self.auth_url).add(
+            furl(self.auth_url)
+            .add(
                 {
                     'client_id': self.key,
                     'redirect_uri': callback_url,
                     'scope': 'user:email',
                 }
             )
+            .url
         )
 
     def callback(self) -> LoginProviderData:
