@@ -116,7 +116,7 @@ class LinkedInProvider(LoginProvider):
 
         if not info.get('id'):
             raise LoginCallbackError(
-                _("Unable to retrieve user details from LinkedIn. Please try again")
+                _("Unable to retrieve user details from LinkedIn. Try again?")
             )
 
         try:

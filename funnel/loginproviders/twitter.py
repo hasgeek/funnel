@@ -59,9 +59,7 @@ class TwitterProvider(LoginProvider):
 
         if not request_token or not request_verifier:
             # No request token or verifier? Not a real callback then
-            raise LoginCallbackError(
-                _("If you were trying to use Twitter, please try again")
-            )
+            raise LoginCallbackError(_("If you were trying to use Twitter, try again"))
 
         auth.request_token = {
             'oauth_token': request_token,

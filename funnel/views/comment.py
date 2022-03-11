@@ -415,7 +415,7 @@ class CommentView(UrlForView, ModelView):
                     'comments': self.obj.commentset.views.json_comments(),
                 }
             flash(
-                _("There was an issue reporting this comment. Please try again"),
+                _("There was an issue reporting this comment. Try again?"),
                 'error',
             )
             return (
@@ -424,7 +424,7 @@ class CommentView(UrlForView, ModelView):
                     # FIXME: this needs to be `error` instead of `error_code`
                     'error_code': 'report_spam_error',
                     'error_description': _(
-                        "There was an issue reporting this comment. Please try again"
+                        "There was an issue reporting this comment. Try again?"
                     ),
                     'error_details': csrf_form.errors,
                 },

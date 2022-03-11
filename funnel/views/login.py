@@ -216,7 +216,7 @@ def login():
         )
 
 
-logout_errormsg = __("Are you trying to logout? Please try again to confirm")
+logout_errormsg = __("Are you trying to logout? Try again to confirm")
 
 
 def logout_client():
@@ -632,13 +632,13 @@ def hasjobapp_login_callback(token):
         request_token = crossapp_serializer().loads(token, max_age=30)
     except itsdangerous.BadData:
         current_app.logger.warning("hasjobapp received bad login token: %s", token)
-        flash(_("Your attempt to login failed. Please try again"), 'error')
+        flash(_("Your attempt to login failed. Try again?"), 'error')
         return metarefresh_redirect(url_for('index'))
     if request_token['nonce'] != nonce:
         current_app.logger.warning(
             "hasjobapp received invalid nonce in %r", request_token
         )
-        flash(_("If you were attempting to login, please try again"), 'error')
+        flash(_("Are you trying to login? Try again to confirm"), 'error')
         return metarefresh_redirect(url_for('index'))
 
     # 2. Load user session and 3. Redirect user back to where they came from
