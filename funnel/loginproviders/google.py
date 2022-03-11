@@ -9,15 +9,14 @@ import simplejson
 
 from baseframe import _
 
-from ..registry import LoginCallbackError, LoginProvider
-from ..typing import ReturnLoginProvider
+from ..registry import LoginCallbackError, LoginProvider, LoginProviderData
 
 __all__ = ['GoogleProvider']
 
 
 class GoogleProvider(LoginProvider):
     form = None  # Don't need a form for Google
-    info_url = "https://www.googleapis.com/oauth2/v2/userinfo"
+    info_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
 
     def __init__(self, name, title, client_id, **kwargs) -> None:
         self.client_id = client_id
@@ -36,7 +35,7 @@ class GoogleProvider(LoginProvider):
         session['google_callback'] = callback_url
         return redirect(self.flow(callback_url).step1_get_authorize_url())
 
-    def callback(self) -> ReturnLoginProvider:
+    def callback(self) -> LoginProviderData:
         if 'google_callback' in session:
             callback_url = session.pop('google_callback')
         else:
@@ -78,13 +77,12 @@ class GoogleProvider(LoginProvider):
                     error=response['error'].get('message', '')
                 )
             )
-        return {
-            'email': credentials.id_token['email'],
-            'userid': credentials.id_token['email'],
-            'username': credentials.id_token['email'],
-            'fullname': (response.get('name') or '').strip(),
-            'avatar_url': response.get('picture'),
-            'oauth_token': credentials.access_token,
-            'oauth_token_secret': None,  # OAuth 2 doesn't need token secrets
-            'oauth_token_type': credentials.token_response['token_type'],
-        }
+        return LoginProviderData(
+            email=credentials.id_token['email'],
+            userid=credentials.id_token['email'],
+            username=credentials.id_token['email'],
+            fullname=(response.get('name') or '').strip(),
+            avatar_url=response.get('picture'),
+            oauth_token=credentials.access_token,
+            oauth_token_type=credentials.token_response['token_type'],
+        )

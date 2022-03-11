@@ -102,30 +102,32 @@
       </div>
     </div>
   </div>
-  <div class="mui-container profile-details {% if class %}{{ class }}{% endif %}">
-    <div class="grid">
-      <div class="grid__col-12">
-        <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
-          <h2 class="mui--text-bold zero-bottom-margin" data-cy="profile-title"><a href="{{ profile.url_for() }}" class="mui--text-dark">{{ profile.title }}</a></h2>
-          <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
+  <div class="mui-container {% if class %}{{ class }}{% endif %}">
+    <div class="profile-details">
+      <div class="grid">
+        <div class="grid__col-12">
+          <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+            <h2 class="mui--text-bold zero-bottom-margin" data-cy="profile-title"><a href="{{ profile.url_for() }}" class="mui--text-dark">{{ profile.title }}</a></h2>
+            <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
+          </div>
+          <ul class="bullet-separated-list">
+            <li class="">{{ faicon(icon='history') }} {% trans date=profile.owner.created_at|date(format='MMM YYYY')%}Joined {{ date }}{% endtrans %}</li>
+            {% if profile.website %}
+              <li><a href="{{ profile.website }}" target="_blank" rel="noopener nofollow">{{ faicon(icon='globe') }} {{ profile.website|cleanurl }}</a></li>
+            {% endif %}
+          </ul>
+          <div class="mui--visible-xs-block mui--visible-sm-block">
+            {% if profile.features.new_project() %}
+              <div class="mui--d-inlineblock profile-create-btn profile-create-btn--mobile"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a></div>
+            {% elif profile.features.make_public() %}
+              <div class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a></div>
+            {% endif %}
+            {%- if profile.current_roles.admin %}
+              <div class="mui--d-inlineblock {% if profile.features.new_user_project() %}floating-menu-btns{% endif %}">{{ profile_admin_buttons(profile) }}</div>
+            {% endif %}
+          </div>
         </div>
-        <ul class="bullet-separated-list">
-          <li class="">{{ faicon(icon='history') }} {% trans date=profile.owner.created_at|date(format='MMM YYYY')%}Joined {{ date }}{% endtrans %}</li>
-          {% if profile.website %}
-            <li><a href="{{ profile.website }}" target="_blank" rel="noopener nofollow">{{ faicon(icon='globe') }} {{ profile.website|cleanurl }}</a></li>
-          {% endif %}
-        </ul>
-        <div class="mui--visible-xs-block mui--visible-sm-block">
-          {% if profile.features.new_project() %}
-            <div class="mui--d-inlineblock profile-create-btn profile-create-btn--mobile"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a></div>
-          {% elif profile.features.make_public() %}
-            <div class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a></div>
-          {% endif %}
-          {%- if profile.current_roles.admin %}
-            <div class="mui--d-inlineblock {% if profile.features.new_user_project() %}floating-menu-btns{% endif %}">{{ profile_admin_buttons(profile) }}</div>
-          {% endif %}
         </div>
-      </div>
       </div>
     </div>
   </div>
@@ -162,11 +164,11 @@
     <div class="left-padding right-padding">
       <div class="grid flex-wrapper--center profile-subheader__spon-logo mui--bg-accent">
         <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/1d779428c1294913ba8183db56198ff6"></p>
-        <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/ee20c65b16464429bdcecc0cb554d65f" style="max-width: 90px"></p>
-        <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/e8451891604143c988c96aea61d743e0" style="max-width: 100px"></p>
-        <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/7d0813c0bea447dd9c44c5ffd58c50a6"></p>
-        <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/dcfac0e5c29f4bebb1303b612544af49"></p>
         <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/246c562e25594e61a7b0cce3075abb9b"></p>
+        <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/ee20c65b16464429bdcecc0cb554d65f" style="max-width: 90px"></p>
+        <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/7d0813c0bea447dd9c44c5ffd58c50a6"></p>
+        <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/e8451891604143c988c96aea61d743e0" style="max-width: 100px"></p>
+        <p class="grid__col-xs-6 grid__col-sm-4 grid__col-lg-2 zero-bottom-margin"><img class="img-responsive margin-auto" src="https://images.hasgeek.com/embed/file/dcfac0e5c29f4bebb1303b612544af49"></p>
       </div>
     </div>
   </div>
@@ -180,12 +182,12 @@
     <div class="top-padding">
       <div class="mui-container">
         <ul class="left-padding right-padding mui-list--unstyled mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps">
-          <li class="mui--is-active"><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-1">Guides</a></li>
-          <li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-2">Reports and publications</a></li>
-          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-3">Talks</a></li>
-          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-4">Conferences</a></li>
-          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-5">Programmes</a></li>
-          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-6">All</a></li>
+          <li class="mui--is-active"><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-1">All</a></li>
+          <li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-2">Guides</a></li>
+          <li><a class="tabs__item mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-3">Reports and publications</a></li>
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-4">Talks</a></li>
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-5">Conferences</a></li>
+          <li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-6">Programmes</a></li>
           {%- if profile.features.new_project() or draft_projects %}<li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-7">Drafts</a></li>{% endif %}
           {%- if unscheduled_projects %}<li><a class="tabs__item  mui--text-body2" data-mui-toggle="tab" data-mui-controls="pane-default-8">Unscheduled projects</a></li>{% endif %}
         </ul>
@@ -196,13 +198,113 @@
       <div class="mui-container">
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['best-practice-guide'], add_bookmark=false) }}
+            {{ projectcard(profile.projects_by_name['bpg'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['privacy-in-indian-tech-2020'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['non-personal-data'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['pdp-bill'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['it-rules-2021'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            <a class="card card--upcoming clickable-card" href="rootconf/privacy-as-risk-assessment-and-risk-mitigation" aria-label="Privacy as Risk Assessment and Risk Mitigation" data-cy-title="Privacy as Risk Assessment and Risk Mitigation" data-ga="View project">
+              <div class="card__image-wrapper ">
+                <img class="card__image" src="https://images.hasgeek.com/embed/file/2e853b6212514c7284755136e321099f?size=400" alt="Examine the role of technology in elections"/>
+              </div>
+              <div class="card__body">
+                <h3 class="card__body__title mui--text-subhead  card__body__subtitle"><span class="mui--text-bold">Privacy as Risk Assessment and Risk Mitigation:</span> <span class="mui--text-light">Learn how to design organizations that manage risk</span></h3>
+                <p class="card__body__location mui--text-light"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="/static/img/fa5-packed.svg?ff0cb83e#map-marker-alt"></use></svg> Online</p>
+              </div>
+            </a>
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['data-brokers-and-consequences-for-personal-data'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['plausible-io-a-privacy-preserving-alternative'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['lean-data-practices'], add_bookmark=false) }}
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            <a class="card card--upcoming clickable-card" href="onevote/annual-conference" aria-label="One Vote Annual Conference" data-cy-title="One Vote Annual Conference" data-ga="View project">
+              <div class="card__image-wrapper ">
+                <img class="card__image" src="https://images.hasgeek.com/embed/file/26b08cf337374fda89609ba4a4324602?size=400" alt="One Vote Annual Conference"/>
+              </div>
+              <div class="card__body">
+                <h3 class="card__body__title mui--text-subhead  card__body__subtitle"><span class="mui--text-bold">One Vote Annual Conference:</span> <span class="mui--text-light">A conference on technological interventions in elections</span></h3>
+                <p class="card__body__location mui--text-light"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="/static/img/fa5-packed.svg?ff0cb83e#map-marker-alt"></use></svg> Online</p>
+              </div>
+            </a>
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            <a class="card card--upcoming clickable-card" href="/rootconf/data-privacy-conference/" aria-label="Data Privacy Conference" data-cy-title="Data Privacy Conference" data-ga="View project">
+              <div class="card__image-wrapper ">
+                <img class="card__image" src="https://images.hasgeek.com/embed/file/d420ca185c6f446b86a0b63e068213ff?size=400" alt="Data Privacy Conference"/>
+              </div>
+              <div class="card__body">
+                <h3 class="card__body__title mui--text-subhead  card__body__subtitle"><span class="mui--text-bold">Data Privacy Conference:</span> <span class="mui--text-light">On building privacy in engineering and product processes.</span></h3>
+                <p class="card__body__location mui--text-light"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="/static/img/fa5-packed.svg?ff0cb83e#map-marker-alt"></use></svg> Online</p>
+              </div>
+            </a>
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            <a class="card card--upcoming clickable-card" href="/rootconf/detecting-anomalous-network-patterns/" aria-label="Detecting anomalous network patterns" data-cy-title="Detecting anomalous network patterns" data-ga="View project">
+              <div class="card__image-wrapper ">
+                <img class="card__image" src="https://images.hasgeek.com/embed/file/50d598752abb45aeb95f62a3ef0503f1?size=400" alt="Detecting anomalous network patterns"/>
+              </div>
+              <div class="card__body">
+                <h3 class="card__body__title mui--text-subhead  card__body__subtitle"><span class="mui--text-bold">Detecting anomalous network patterns:</span> <span class="mui--text-light">Using anomaly patterns for improved data security, network monitoring and observability.</span></h3>
+                <p class="card__body__location mui--text-light"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="/static/img/fa5-packed.svg?ff0cb83e#map-marker-alt"></use></svg> Online</p>
+              </div>
+            </a>
+           </li>
+           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            <a class="card card--upcoming clickable-card" href="/rootconf/scalable-data-privacy-engineering-conf/" aria-label="Scalable Data Privacy Engineering" data-cy-title="Scalable Data Privacy Engineering" data-ga="View project">
+              <div class="card__image-wrapper ">
+                <img class="card__image" src="https://images.hasgeek.com/embed/file/4667c4870840464ebb17dc0f505b1744?size=400" alt="Scalable Data Privacy Engineering"/>
+              </div>
+              <div class="card__body">
+                  <h3 class="card__body__title mui--text-subhead  card__body__subtitle"><span class="mui--text-bold">Scalable Data Privacy Engineering:</span> <span class="mui--text-light">Balancing scale, with privacy and utility is doable.</span></h3>
+                  <p class="card__body__location mui--text-light"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="/static/img/fa5-packed.svg?ff0cb83e#map-marker-alt"></use></svg> Online</p>
+              </div>
+            </a>
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            <a class="card card--upcoming clickable-card" href="/fifthelephant/mlops-conference/" aria-label="MLOps Conference" data-cy-title="MLOps Conference" data-ga="View project">
+              <div class="card__image-wrapper ">
+                <img class="card__image" src="https://images.hasgeek.com/embed/file/563be1ed815d47188db3aff8d5f67eb9?size=400" alt="MLOps Conference"/>
+              </div>
+              <div class="card__body">
+                <h3 class="card__body__title mui--text-subhead  card__body__subtitle"><span class="mui--text-bold">MLOps Conference:</span> <span class="mui--text-light">On DataOps, productionizing ML models, and running experiments at scale.</span></h3>
+                <p class="card__body__location mui--text-light"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="/static/img/fa5-packed.svg?ff0cb83e#map-marker-alt"></use></svg> Online</p>
+              </div>
+            </a>
+          </li>
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['fellowship-programme'], add_bookmark=false) }}
           </li>
         </ul>
       </div>
     </div>
 
     <div class="projects-wrapper mui-tabs__pane" id="pane-default-2">
+      <div class="mui-container">
+        <ul class="grid projects" role="list">
+          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+            {{ projectcard(profile.projects_by_name['bpg'], add_bookmark=false) }}
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="projects-wrapper mui-tabs__pane" id="pane-default-3">
       <div class="mui-container">
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
@@ -221,7 +323,7 @@
       </div>
     </div>
 
-    <div class="projects-wrapper mui-tabs__pane" id="pane-default-3">
+    <div class="projects-wrapper mui-tabs__pane" id="pane-default-4">
       <div class="mui-container">
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
@@ -236,7 +338,15 @@
             </a>
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['privacy-as-risk-assessment-and-risk-mitigation'], add_bookmark=false) }}
+            <a class="card card--upcoming clickable-card" href="rootconf/privacy-as-risk-assessment-and-risk-mitigation" aria-label="Privacy as Risk Assessment and Risk Mitigation" data-cy-title="Privacy as Risk Assessment and Risk Mitigation" data-ga="View project">
+              <div class="card__image-wrapper ">
+                <img class="card__image" src="https://images.hasgeek.com/embed/file/2e853b6212514c7284755136e321099f?size=400" alt="Examine the role of technology in elections"/>
+              </div>
+              <div class="card__body">
+                <h3 class="card__body__title mui--text-subhead  card__body__subtitle"><span class="mui--text-bold">Privacy as Risk Assessment and Risk Mitigation:</span> <span class="mui--text-light">Learn how to design organizations that manage risk</span></h3>
+                <p class="card__body__location mui--text-light"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="/static/img/fa5-packed.svg?ff0cb83e#map-marker-alt"></use></svg> Online</p>
+              </div>
+            </a>
           </li>
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
             {{ projectcard(profile.projects_by_name['data-brokers-and-consequences-for-personal-data'], add_bookmark=false) }}
@@ -250,111 +360,11 @@
         </ul>
       </div>
     </div>
-
-    <div class="projects-wrapper mui-tabs__pane" id="pane-default-4">
-      <div class="mui-container">
-        <ul class="grid projects" role="list">
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            <a class="card card--upcoming clickable-card" href="onevote/annual-conference" aria-label="One Vote Annual Conference" data-cy-title="One Vote Annual Conference" data-ga="View project">
-              <div class="card__image-wrapper ">
-                <img class="card__image" src="https://images.hasgeek.com/embed/file/26b08cf337374fda89609ba4a4324602?size=400" alt="One Vote Annual Conference"/>
-              </div>
-              <div class="card__body">
-                <h3 class="card__body__title mui--text-subhead  card__body__subtitle"><span class="mui--text-bold">One Vote Annual Conference:</span> <span class="mui--text-light">A conference on technological interventions in elections</span></h3>
-                <p class="card__body__location mui--text-light"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="/static/img/fa5-packed.svg?ff0cb83e#map-marker-alt"></use></svg> Online</p>
-              </div>
-            </a>
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            <a class="card card--upcoming clickable-card" href="/rootconf/data-privacy-conference/" aria-label="Data Privacy Conference" data-cy-title="Data Privacy Conference" data-ga="View project">
-              <div class="card__image-wrapper ">
-                <img class="card__image" src="https://images.hasgeek.com/embed/file/d420ca185c6f446b86a0b63e068213ff?size=400" alt="Data Privacy Conference"/>
-              </div>
-              <div class="card__body">
-                <h3 class="card__body__title mui--text-subhead  card__body__subtitle"><span class="mui--text-bold">Data Privacy Conference:</span> <span class="mui--text-light">On building privacy in engineering and product processes.</span></h3>
-                <p class="card__body__location mui--text-light"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="/static/img/fa5-packed.svg?ff0cb83e#map-marker-alt"></use></svg> Online</p>
-              </div>
-            </a>
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            <a class="card card--upcoming clickable-card" href="/rootconf/detecting-anomalous-network-patterns/" aria-label="Detecting anomalous network patterns" data-cy-title="Detecting anomalous network patterns" data-ga="View project">
-              <div class="card__image-wrapper ">
-                <img class="card__image" src="https://images.hasgeek.com/embed/file/50d598752abb45aeb95f62a3ef0503f1?size=400" alt="Detecting anomalous network patterns"/>
-              </div>
-              <div class="card__body">
-                <h3 class="card__body__title mui--text-subhead  card__body__subtitle"><span class="mui--text-bold">Detecting anomalous network patterns:</span> <span class="mui--text-light">Using anomaly patterns for improved data security, network monitoring and observability.</span></h3>
-                <p class="card__body__location mui--text-light"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="/static/img/fa5-packed.svg?ff0cb83e#map-marker-alt"></use></svg> Online</p>
-              </div>
-            </a>
-           </li>
-           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            <a class="card card--upcoming clickable-card" href="/rootconf/scalable-data-privacy-engineering-conf/" aria-label="Scalable Data Privacy Engineering" data-cy-title="Scalable Data Privacy Engineering" data-ga="View project">
-              <div class="card__image-wrapper ">
-                <img class="card__image" src="https://images.hasgeek.com/embed/file/4667c4870840464ebb17dc0f505b1744?size=400" alt="Scalable Data Privacy Engineering"/>
-              </div>
-              <div class="card__body">
-                  <h3 class="card__body__title mui--text-subhead  card__body__subtitle"><span class="mui--text-bold">Scalable Data Privacy Engineering:</span> <span class="mui--text-light">Balancing scale, with privacy and utility is doable.</span></h3>
-                  <p class="card__body__location mui--text-light"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="/static/img/fa5-packed.svg?ff0cb83e#map-marker-alt"></use></svg> Online</p>
-              </div>
-            </a>
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            <a class="card card--upcoming clickable-card" href="/fifthelephant/mlops-conference/" aria-label="MLOps Conference" data-cy-title="MLOps Conference" data-ga="View project">
-              <div class="card__image-wrapper ">
-                <img class="card__image" src="https://images.hasgeek.com/embed/file/563be1ed815d47188db3aff8d5f67eb9?size=400" alt="MLOps Conference"/>
-              </div>
-              <div class="card__body">
-                <h3 class="card__body__title mui--text-subhead  card__body__subtitle"><span class="mui--text-bold">MLOps Conference:</span> <span class="mui--text-light">On DataOps, productionizing ML models, and running experiments at scale.</span></h3>
-                <p class="card__body__location mui--text-light"><svg class="fa5-icon fa5-icon--caption" aria-hidden="true" role="img"><use xlink:href="/static/img/fa5-packed.svg?ff0cb83e#map-marker-alt"></use></svg> Online</p>
-              </div>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-
 
     <div class="projects-wrapper mui-tabs__pane" id="pane-default-5">
       <div class="mui-container">
         <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['fellowship-programme'], add_bookmark=false) }}
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="projects-wrapper mui-tabs__pane" id="pane-default-6">
-      <div class="mui-container">
-        <ul class="grid projects" role="list">
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['best-practice-guide'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['privacy-in-indian-tech-2020'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['non-personal-data'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['pdp-bill'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['it-rules-2021'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['privacy-as-risk-assessment-and-risk-mitigation'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['data-brokers-and-consequences-for-personal-data'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['plausible-io-a-privacy-preserving-alternative'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
-            {{ projectcard(profile.projects_by_name['lean-data-practices'], add_bookmark=false) }}
-          </li>
-          <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
             <a class="card card--upcoming clickable-card" href="onevote/annual-conference" aria-label="One Vote Annual Conference" data-cy-title="One Vote Annual Conference" data-ga="View project">
               <div class="card__image-wrapper ">
                 <img class="card__image" src="https://images.hasgeek.com/embed/file/26b08cf337374fda89609ba4a4324602?size=400" alt="One Vote Annual Conference"/>
@@ -409,6 +419,14 @@
               </div>
             </a>
           </li>
+        </ul>
+      </div>
+    </div>
+
+
+    <div class="projects-wrapper mui-tabs__pane" id="pane-default-6">
+      <div class="mui-container">
+        <ul class="grid projects" role="list">
           <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
             {{ projectcard(profile.projects_by_name['fellowship-programme'], add_bookmark=false) }}
           </li>

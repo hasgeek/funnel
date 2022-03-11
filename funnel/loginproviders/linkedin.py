@@ -1,27 +1,32 @@
 from __future__ import annotations
 
-from urllib.parse import quote
 from uuid import uuid4
 
 from flask import current_app, redirect, request, session
 
+from furl import furl
 from sentry_sdk import capture_exception
 import requests
 import simplejson
 
 from baseframe import _
 
-from ..registry import LoginCallbackError, LoginProvider
-from ..typing import ReturnLoginProvider
+from ..registry import LoginCallbackError, LoginProvider, LoginProviderData
 
 __all__ = ['LinkedInProvider']
 
 
 class LinkedInProvider(LoginProvider):
-    auth_url = 'https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id={client_id}&scope={scope}&redirect_uri={redirect_uri}&state={state}'
+    auth_url = 'https://www.linkedin.com/uas/oauth2/authorization?response_type=code'
     token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'  # nosec  # noqa: S105
-    user_info = 'https://api.linkedin.com/v2/me?projection=(id,localizedFirstName,localizedLastName)'
-    user_email = 'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))'
+    user_info = (
+        'https://api.linkedin.com/v2/me?'
+        'projection=(id,localizedFirstName,localizedLastName)'
+    )
+    user_email = (
+        'https://api.linkedin.com/v2/emailAddress?'
+        'q=members&projection=(elements*(handle~))'
+    )
 
     def __init__(
         self, name, title, key, secret, at_login=True, priority=False, icon=None
@@ -39,15 +44,19 @@ class LinkedInProvider(LoginProvider):
         session['linkedin_state'] = str(uuid4())
         session['linkedin_callback'] = callback_url
         return redirect(
-            self.auth_url.format(
-                client_id=self.key,
-                redirect_uri=quote(callback_url),
-                scope='r_liteprofile r_emailaddress',
-                state=session['linkedin_state'],
+            furl(self.auth_url)
+            .add(
+                {
+                    'client_id': self.key,
+                    'redirect_uri': callback_url,
+                    'scope': 'r_liteprofile r_emailaddress',
+                    'state': session['linkedin_state'],
+                }
             )
+            .url
         )
 
-    def callback(self) -> ReturnLoginProvider:
+    def callback(self) -> LoginProviderData:
         state = session.pop('linkedin_state', None)
         callback_url = session.pop('linkedin_callback', None)
         if state is None or request.args.get('state') != state:
@@ -131,17 +140,14 @@ class LinkedInProvider(LoginProvider):
         if 'elements' in email_info and email_info['elements']:
             email_address = email_info['elements'][0]['handle~']['emailAddress']
 
-        return {
-            'email': email_address,
-            'userid': info.get('id'),
-            'username': None,
-            'fullname': (
+        return LoginProviderData(
+            email=email_address,
+            userid=info['id'],
+            fullname=(
                 (info.get('localizedFirstName') or '')
                 + ' '
                 + (info.get('localizedLastName') or '')
             ).strip(),
-            'avatar_url': '',
-            'oauth_token': response['access_token'],
-            'oauth_token_secret': None,  # OAuth 2 doesn't need token secrets
-            'oauth_token_type': None,
-        }
+            oauth_token=response['access_token'],
+            oauth_token_type=None,
+        )

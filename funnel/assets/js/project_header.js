@@ -102,7 +102,9 @@ const Ticketing = {
         if (!isTicketAvailable || minPrice < 0) {
           $('.js-tickets-available').addClass('mui--hide');
           $('.js-tickets-not-available').removeClass('mui--hide');
-          $('.js-open-ticket-widget').addClass('register-block__txt--strike');
+          $('.js-open-ticket-widget')
+            .addClass('mui--is-disabled')
+            .prop('disabled', true);
         } else {
           price = `${currency}${minPrice}`;
           if (prices.length > 1) {

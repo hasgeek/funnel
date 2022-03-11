@@ -97,12 +97,6 @@ const Utils = {
             $('.js-load-comments').remove();
           }
           $(menuWrapper).find(menu).append(responseData);
-          $('.header__dropdown__item .js-avatar-colour').attr(
-            'data-avatar-colour',
-            window.Hasgeek.Utils.getAvatarColour(
-              $('.header__dropdown__item .js-avatar-colour').text()
-            )
-          );
           updatePageNumber();
           lazyLoader = document.querySelector('.js-load-comments');
           if (lazyLoader) {
