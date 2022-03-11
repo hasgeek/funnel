@@ -1,6 +1,6 @@
 from base64 import b64encode
+from secrets import token_urlsafe
 from urllib.parse import parse_qs, urlsplit
-import uuid
 
 from funnel.models import AuthToken
 
@@ -55,7 +55,7 @@ def test_auth_untrusted_confidential(
     authcode_params = {
         'client_id': client_hex_credential.cred.name,
         'response_type': 'code',
-        'state': str(uuid.uuid4()),
+        'state': token_urlsafe(),
         'scope': 'id',
         'redirect_uri': client_hex.redirect_uri,
     }
@@ -117,7 +117,7 @@ def test_auth_untrusted_confidential(
 
     # --- Ask for an auth code again, with the same scope ------------------------------
 
-    authcode_params['state'] = str(uuid.uuid4())
+    authcode_params['state'] = token_urlsafe()
     rv = client.get(
         '/api/1/auth',
         query_string=authcode_params,
@@ -129,7 +129,7 @@ def test_auth_untrusted_confidential(
     assert rparams['code'][0] is not None
 
     # However, increasing the scope requires authorization once again
-    authcode_params['state'] = str(uuid.uuid4())
+    authcode_params['state'] = token_urlsafe()
     authcode_params['scope'] = 'id email'
     rv = client.get(
         '/api/1/auth',

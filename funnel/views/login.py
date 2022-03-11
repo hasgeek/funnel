@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from datetime import timedelta
+from secrets import token_urlsafe
 import urllib.parse
-import uuid
 
 from flask import (
     abort,
@@ -54,7 +55,12 @@ from ..signals import user_data_changed
 from ..typing import ReturnView
 from ..utils import abort_null
 from .email import send_email_verify_link
-from .helpers import app_url_for, metarefresh_redirect, validate_rate_limit
+from .helpers import (
+    app_url_for,
+    metarefresh_redirect,
+    session_timeouts,
+    validate_rate_limit,
+)
 from .login_session import (
     login_internal,
     logout_internal,
@@ -63,6 +69,12 @@ from .login_session import (
     set_loginmethod_cookie,
     set_session_next_url,
 )
+
+session_timeouts['next'] = timedelta(minutes=30)
+session_timeouts['oauth_callback'] = timedelta(minutes=30)
+session_timeouts['oauth_state'] = timedelta(minutes=30)
+session_timeouts['merge_buid'] = timedelta(minutes=15)
+session_timeouts['login_nonce'] = timedelta(minutes=1)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -333,7 +345,6 @@ def login_service(service: str) -> ReturnView:
         )
         exception_catchall.send(exc, message=msg)
         flash(msg, category='danger')
-        session.pop('next_at', None)
         return redirect(session.pop('next'), code=303)
 
 
@@ -576,7 +587,7 @@ def account_merge():
 @requestargs(('cookietest', getbool))
 def hasjob_login(cookietest=False):
     # 1. Create a login nonce (single use, unlike CSRF)
-    session['login_nonce'] = str(uuid.uuid4())
+    session['login_nonce'] = str(token_urlsafe())
     if not cookietest:
         # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
         if request.query_string:

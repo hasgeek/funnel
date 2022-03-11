@@ -254,46 +254,6 @@ def session_mark_accessed(
     statsd.set('users.active_users', obj.user.id, rate=1)
 
 
-def discard_temp_token():
-    session.pop('temp_token', None)
-    session.pop('temp_token_type', None)
-    session.pop('temp_token_at', None)
-    session.pop('next', None)
-    session.pop('next_at', None)
-
-
-# Also add future hasjob app here
-@app.before_request
-def clear_expired_temp_token():
-    """
-    Clear temp tokens from session if they are not used (user abandoned the attempt).
-
-    These values are set by:
-
-        * :func:`funnel.views.account_reset.reset_email`
-        * :meth:`funnel.views.notification.AccountNotificationView.unsubscribe`
-        * :func:`funnel.views.login.login`
-        * :func:`funnel.views.login.login_service`
-    """
-    if 'temp_token_at' in session:
-        # Give the user 10 minutes to complete the action. Remove the token if it's
-        # been longer than 10 minutes.
-        if session['temp_token_at'] < utcnow() - timedelta(minutes=10):
-            discard_temp_token()
-            current_app.logger.info("Cleared expired temp_token from session cookie")
-    elif 'temp_token' in session:
-        # We have a temp token without a timestamp. This shouldn't happen, so remove it
-        session.pop('temp_token')
-
-    if 'next_at' in session:
-        # Give the user 30 minutes to complete a login process
-        if session['next_at'] < utcnow() - timedelta(minutes=30):
-            discard_temp_token()
-            current_app.logger.info("Cleared expired next URL from session cookie")
-    elif 'next' in session:
-        session.pop('next')
-
-
 # Also add future hasjob app here
 @app.after_request
 def clear_old_session(response):
@@ -383,10 +343,8 @@ def set_session_next_url(current=False):
     """Save the next URL to the session."""
     if current:
         session['next'] = get_current_url()
-        session['next_at'] = utcnow()
     elif 'next' not in session:
         session['next'] = get_next_url(referrer=True)
-        session['next_at'] = utcnow()
 
 
 def requires_login(f):
