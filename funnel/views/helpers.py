@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from base64 import urlsafe_b64encode
-from datetime import datetime
+from datetime import datetime, timedelta
 from hashlib import blake2b
 from os import urandom
 from typing import Any, Callable, Dict, Optional, Tuple
@@ -18,6 +18,7 @@ from flask import (
     jsonify,
     render_template,
     request,
+    session,
     url_for,
 )
 from werkzeug.routing import BuildError
@@ -31,6 +32,7 @@ from pytz import utc
 import brotli
 
 from baseframe import cache, statsd
+from coaster.utils import utcnow
 
 from .. import app, built_assets, shortlinkapp
 from ..forms import supported_locales
@@ -44,6 +46,40 @@ nocache_expires = utc.localize(datetime(1990, 1, 1))
 
 # Six avatar colours defined in _variable.scss
 avatar_color_count = 6
+
+# --- Classes --------------------------------------------------------------------------
+
+
+class SessionTimeouts(dict):
+    """Dictionary that aids tracking timestamps in session."""
+
+    def __init__(self, *args, **kwargs):
+        """Create a dictionary that separately tracks {key}_at keys."""
+        super().__init__(*args, **kwargs)
+        self.keys_at = {f'{key}_at' for key in self.keys()}
+
+    def __setitem__(self, key: str, value: timedelta):
+        """Add or set a value to the dictionary."""
+        if key in self:
+            raise KeyError(f"Key {key} is already present")
+        if not isinstance(value, timedelta):
+            raise ValueError("Value must be a timedelta")
+        self.keys_at.add(f'{key}_at')
+        return super().__setitem__(key, value)
+
+    def __delitem__(self, key):
+        """Remove a value from the dictionary."""
+        self.keys_at.remove(f'{key}_at')
+        return super().__delitem__(key)
+
+    def has_intersection(self, other):
+        """Check for intersection with other dictionary-like object."""
+        okeys = other.keys()
+        return bool(self.keys_at & okeys or self.keys() & okeys)
+
+
+#: Temporary values that must be periodically expunged from the cookie session
+session_timeouts: Dict[str, timedelta] = SessionTimeouts()
 
 # --- Utilities ------------------------------------------------------------------------
 
@@ -437,6 +473,29 @@ def template_context() -> Dict[str, Any]:
 
 
 # --- Request/response handlers --------------------------------------------------------
+
+
+@app.after_request
+def track_temporary_session_vars(response):
+    """Add timestamps to timed values in session, and remove expired values."""
+    # Process timestamps only if there is at least one match. Most requests will
+    # have no match.
+    if session_timeouts.has_intersection(session):
+        for var, delta in session_timeouts.items():
+            var_at = f'{var}_at'
+            if var in session:
+                if var_at not in session:
+                    # Session has var but not timestamp, so add a timestamp
+                    session[var_at] = utcnow()
+                elif session[var_at] < utcnow() - delta:
+                    # Session var has expired, so remove var and timestamp
+                    session.pop(var)
+                    session.pop(var_at)
+            elif var_at in session:
+                # Timestamp present without var, so remove it
+                session.pop(var_at)
+
+    return response
 
 
 @app.after_request

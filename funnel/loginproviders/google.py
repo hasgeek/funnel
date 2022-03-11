@@ -18,12 +18,12 @@ class GoogleProvider(LoginProvider):
     form = None  # Don't need a form for Google
     info_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
 
-    def __init__(self, name, title, client_id, **kwargs) -> None:
+    def __init__(self, name: str, title: str, client_id: str, **kwargs) -> None:
         self.client_id = client_id
         self.secret = kwargs['secret']
         super().__init__(name, title, **kwargs)
 
-    def flow(self, callback_url):
+    def flow(self, callback_url: str):
         return client.OAuth2WebServerFlow(
             client_id=self.client_id,
             client_secret=self.secret,
@@ -31,16 +31,15 @@ class GoogleProvider(LoginProvider):
             redirect_uri=callback_url,
         )
 
-    def do(self, callback_url):
-        session['google_callback'] = callback_url
+    def do(self, callback_url: str):
+        session['oauth_callback'] = callback_url
         return redirect(self.flow(callback_url).step1_get_authorize_url())
 
     def callback(self) -> LoginProviderData:
-        if 'google_callback' in session:
-            callback_url = session.pop('google_callback')
-        else:
+        callback_url = session.pop('oauth_callback', None)
+        if not callback_url:
             raise LoginCallbackError(
-                _("Duplicate callback. Did you go back in your browser history?")
+                _("Were you trying to login with Google? Try again to confirm")
             )
         if request.args.get('error'):
             if request.args['error'] == 'access_denied':

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from uuid import uuid4
+from secrets import token_urlsafe
 
 from flask import current_app, redirect, request, session
 
@@ -41,8 +41,8 @@ class LinkedInProvider(LoginProvider):
         self.secret = secret
 
     def do(self, callback_url):
-        session['linkedin_state'] = str(uuid4())
-        session['linkedin_callback'] = callback_url
+        session['oauth_state'] = token_urlsafe()
+        session['oauth_callback'] = callback_url
         return redirect(
             furl(self.auth_url)
             .add(
@@ -50,18 +50,18 @@ class LinkedInProvider(LoginProvider):
                     'client_id': self.key,
                     'redirect_uri': callback_url,
                     'scope': 'r_liteprofile r_emailaddress',
-                    'state': session['linkedin_state'],
+                    'state': session['oauth_state'],
                 }
             )
             .url
         )
 
     def callback(self) -> LoginProviderData:
-        state = session.pop('linkedin_state', None)
-        callback_url = session.pop('linkedin_callback', None)
+        state = session.pop('oauth_state', None)
+        callback_url = session.pop('oauth_callback', None)
         if state is None or request.args.get('state') != state:
             raise LoginCallbackError(
-                _("We detected a possible attempt at cross-site request forgery")
+                _("Were you trying to login with LinkedIn? Try again to confirm")
             )
         if 'error' in request.args:
             if request.args['error'] == 'access_denied':
@@ -116,7 +116,7 @@ class LinkedInProvider(LoginProvider):
 
         if not info.get('id'):
             raise LoginCallbackError(
-                _("Unable to retrieve user details from LinkedIn. Please try again")
+                _("Unable to retrieve user details from LinkedIn. Try again?")
             )
 
         try:
