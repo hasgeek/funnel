@@ -34,15 +34,15 @@ class GitHubProvider(LoginProvider):
         self.secret = secret
 
     def do(self, callback_url):
-        auth_url = furl(self.auth_url)
-        auth_url.add(
-            {
-                'client_id': self.key,
-                'redirect_uri': callback_url,
-                'scope': 'user:email',
-            }
+        return redirect(
+            furl(self.auth_url).add(
+                {
+                    'client_id': self.key,
+                    'redirect_uri': callback_url,
+                    'scope': 'user:email',
+                }
+            )
         )
-        return redirect(auth_url.url)
 
     def callback(self) -> LoginProviderData:
         if request.args.get('error'):

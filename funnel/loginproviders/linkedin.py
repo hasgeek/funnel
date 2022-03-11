@@ -43,16 +43,16 @@ class LinkedInProvider(LoginProvider):
     def do(self, callback_url):
         session['linkedin_state'] = str(uuid4())
         session['linkedin_callback'] = callback_url
-        auth_url = furl(self.auth_url)
-        auth_url.add(
-            {
-                'client_id': self.key,
-                'redirect_uri': callback_url,
-                'scope': 'r_liteprofile r_emailaddress',
-                'state': session['linkedin_state'],
-            }
+        return redirect(
+            furl(self.auth_url).add(
+                {
+                    'client_id': self.key,
+                    'redirect_uri': callback_url,
+                    'scope': 'r_liteprofile r_emailaddress',
+                    'state': session['linkedin_state'],
+                }
+            )
         )
-        return redirect(auth_url.url)
 
     def callback(self) -> LoginProviderData:
         state = session.pop('linkedin_state', None)
