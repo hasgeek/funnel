@@ -11,8 +11,7 @@ import simplejson
 
 from baseframe import _
 
-from ..registry import LoginCallbackError, LoginProvider
-from ..typing import ReturnLoginProvider
+from ..registry import LoginCallbackError, LoginProvider, LoginProviderData
 
 __all__ = ['LinkedInProvider']
 
@@ -47,7 +46,7 @@ class LinkedInProvider(LoginProvider):
             )
         )
 
-    def callback(self) -> ReturnLoginProvider:
+    def callback(self) -> LoginProviderData:
         state = session.pop('linkedin_state', None)
         callback_url = session.pop('linkedin_callback', None)
         if state is None or request.args.get('state') != state:
@@ -131,17 +130,14 @@ class LinkedInProvider(LoginProvider):
         if 'elements' in email_info and email_info['elements']:
             email_address = email_info['elements'][0]['handle~']['emailAddress']
 
-        return {
-            'email': email_address,
-            'userid': info.get('id'),
-            'username': None,
-            'fullname': (
+        return LoginProviderData(
+            email=email_address,
+            userid=info['id'],
+            fullname=(
                 (info.get('localizedFirstName') or '')
                 + ' '
                 + (info.get('localizedLastName') or '')
             ).strip(),
-            'avatar_url': '',
-            'oauth_token': response['access_token'],
-            'oauth_token_secret': None,  # OAuth 2 doesn't need token secrets
-            'oauth_token_type': None,
-        }
+            oauth_token=response['access_token'],
+            oauth_token_type=None,
+        )
