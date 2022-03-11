@@ -21,7 +21,7 @@ from baseframe import _, __, forms, request_is_xhr, statsd
 from baseframe.forms import render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
-from coaster.utils import getbool, utcnow
+from coaster.utils import getbool
 from coaster.views import get_next_url, requestargs
 
 from .. import app
@@ -75,6 +75,7 @@ session_timeouts['oauth_callback'] = timedelta(minutes=30)
 session_timeouts['oauth_state'] = timedelta(minutes=30)
 session_timeouts['merge_buid'] = timedelta(minutes=15)
 session_timeouts['login_nonce'] = timedelta(minutes=1)
+session_timeouts['temp_username'] = timedelta(minutes=15)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -185,7 +186,6 @@ def login():
                 category='danger',
             )
             session['temp_username'] = loginform.username.data
-            session['temp_username_at'] = utcnow()
             return render_redirect(url_for('reset'), code=303)
         except LoginPasswordWeakException:
             flash(
@@ -196,7 +196,6 @@ def login():
                 )
             )
             session['temp_username'] = loginform.username.data
-            session['temp_username_at'] = utcnow()
             return render_redirect(url_for('reset'), code=303)
     elif request.method == 'POST':
         abort(500)
