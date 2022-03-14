@@ -55,22 +55,34 @@
   flex-wrap: wrap;
   .register-block__txt {
     font-size: 12px;
-    margin: $mui-grid-padding 0;
+    margin: 0 0 $mui-grid-padding;
     max-width: calc(100% - 125px);
   }
   .register-block__btn {
     width: 100%;
   }
-  .register-block__right {
-    text-align: right;
+  .register-block__btn--small {
+    width: calc(100% - 30px);
   }
   .register-block__right__menu {
     margin-left: $mui-grid-padding/2;
+  }
+  .register-block__rsvp {
+    width: 100%;
+  }
+  .register-block__rsvp--width {
+    width: auto;
   }
 }
 
 .project-footer {
   .register-block {
+    .register-block__txt {
+      margin: 0;
+    }
+    .register-block__rsvp {
+      width: auto;
+    }
     .register-block__btn {
       width: auto;
     }
@@ -96,11 +108,19 @@
   .project-footer {
     .register-block {
       .register-block__txt {
-        margin: $mui-grid-padding/2 0 $mui-grid-padding;
+        margin: 0 0 $mui-grid-padding;
         max-width: 100%;
       }
       .register-block__btn {
         width: 100%;
+      }
+      .register-block__rsvp {
+        width: 100%;
+        display: flex;
+        align-items: center;
+      }
+      .register-block__rsvp--width {
+        width: auto;
       }
     }
   }

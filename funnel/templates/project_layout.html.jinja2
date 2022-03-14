@@ -115,7 +115,7 @@
 {% endmacro %}
 
 {% macro registerblock(project) %}
-  <div class="register-block">
+  <div class="register-block flex-wrapper--fullwidth">
     {% if project.features.tickets()  %}
       <div class="register-block__txt js-tickets-available">
         <p class="js-ticket-price mui--text-subhead mui--text-bold zero-bottom-margin"></p>
@@ -141,9 +141,9 @@
         <p class="register-block__txt register-block__txt--longer mui--text-light zero-bottom-margin" data-cy="registered">{{ project.views.registration_text() }}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class='mui--text-success fa-icon--left-margin') }}</p>
       {%- endif %}
       {% if not current_auth.is_anonymous %}
-        <div>
+        <div class="register-block__rsvp {% if project.features.rsvp_registered() %} register-block__rsvp--width {%- endif %}">
           {% if not current_auth.is_anonymous and project.features.rsvp_unregistered() -%}
-            <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin js-register-btn" href="#register-modal" role="button" aria-haspopup="true">{{ project.views.register_button_text() }}</a>
+            <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__btn js-register-btn {% if project.features.rsvp_registered() or project.view_for('rsvp_list').is_available() %}register-block__btn--small{%- endif %}" href="#register-modal" role="button" aria-haspopup="true">{{ project.views.register_button_text() }}</a>
             <div class="modal" id="register-modal" role="dialog" aria-labelledby="confirm-rsvp" aria-modal="true" tabindex="-1">
               <div class="modal__header">
                 <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
