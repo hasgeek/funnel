@@ -9,7 +9,9 @@ attrs==21.4.0
 awscli==1.22.74
     # via -r requirements_dev.in
 bandit==1.7.4
-    # via flake8-bandit
+    # via
+    #   -r requirements_dev.in
+    #   flake8-bandit
 botocore==1.24.19
     # via
     #   awscli
