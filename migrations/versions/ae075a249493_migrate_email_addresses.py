@@ -144,7 +144,7 @@ def email_blake2b128_hash(email):
 def email_md5sum(email):
     # This does not perform IDNA encoding as the original code that used 128-bit hashes
     # did not process IDNA encoding either
-    return hashlib.md5(  # nosec  # skipcq: PTC-W1003
+    return hashlib.md5(  # noqa  # nosec  # skipcq: PTC-W1003
         email.lower().encode('utf-8')
     ).hexdigest()
 
