@@ -788,6 +788,8 @@ class ProjectView(
     @route('add_sponsor', methods=['POST', 'GET'])
     @render_with('add_sponsor_modal.html.jinja2')
     def add_sponsor(self):
+        if not current_auth.user.is_site_editor:
+            abort(403)
         add_sponsor_form = AddSponsorForm()
         project = self.obj.current_access(datasets=('primary', 'related'))
 

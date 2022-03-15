@@ -227,7 +227,7 @@
         </ul>
       </div>
     {% endif %}
-    {% if current_auth.user %}
+    {% if current_auth.user.is_site_editor %}
       <div class="mui-dropdown left-padding">
         <a href="javascript:void(0)" data-mui-toggle="dropdown" data-ga="Site editor menu" data-cy="project-menu" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Site editor menu{% endtrans %}">{{ faicon(icon='toolbox', baseline=true, icon_size='title', css_class='mui--text-light') }}</a>
         <ul class="mui-dropdown__menu mui-dropdown__menu--right dropdown-menu">
