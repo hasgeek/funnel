@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-class COMMENTSET_STATE:
+class COMMENTSET_STATE:  # noqa: N801
     DISABLED = 1  # Disabled for all
     OPEN = 2  # Open for all
     PARTICIPANTS = 3  # Only for participants

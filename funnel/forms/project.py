@@ -242,7 +242,7 @@ class ProjectTransitionForm(forms.Form):
 
 @Project.forms('cfp_transition')
 class ProjectCfpTransitionForm(forms.Form):
-    open = forms.BooleanField(
+    open = forms.BooleanField(  # noqa: A003
         __("Open submissions"), validators=[forms.validators.InputRequired()]
     )
 

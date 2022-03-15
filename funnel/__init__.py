@@ -67,7 +67,7 @@ except OSError:
 
 # --- Import rest of the app -----------------------------------------------------------
 
-from . import (  # isort:skip
+from . import (  # isort:skip  # noqa: F401
     models,
     signals,
     forms,

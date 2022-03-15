@@ -93,7 +93,7 @@ proposal_membership = table(
 )
 
 
-class MEMBERSHIP_RECORD_TYPE:
+class MEMBERSHIP_RECORD_TYPE:  # noqa: N801
     """Membership record types."""
 
     INVITE = 0

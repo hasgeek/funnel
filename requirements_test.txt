@@ -31,7 +31,7 @@ iniconfig==1.1.1
     # via pytest
 lxml==4.8.0
     # via -r requirements_test.in
-mako==1.1.6
+mako==1.2.0
     # via pytest-bdd
 markupsafe==2.1.0
     # via mako
@@ -54,7 +54,7 @@ py==1.11.0
     #   pytest-bdd
 pyparsing==3.0.7
     # via packaging
-pytest==7.0.1
+pytest==7.1.0
     # via
     #   -r requirements_test.in
     #   pytest-bdd
@@ -84,5 +84,5 @@ tomli==2.0.1
     #   pytest
 urllib3==1.26.8
     # via requests
-wrapt==1.13.3
+wrapt==1.14.0
     # via deprecated

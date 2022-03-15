@@ -6,11 +6,11 @@
 #
 attrs==21.4.0
     # via flake8-bugbear
-awscli==1.22.62
+awscli==1.22.74
     # via -r requirements_dev.in
-bandit==1.7.2
+bandit==1.7.4
     # via flake8-bandit
-botocore==1.24.7
+botocore==1.24.19
     # via
     #   awscli
     #   s3transfer
@@ -42,7 +42,7 @@ flake8==4.0.1
     #   pep8-naming
 flake8-assertive==2.0.0
     # via -r requirements_dev.in
-flake8-bandit==2.1.2
+flake8-bandit==3.0.0
     # via -r requirements_dev.in
 flake8-blind-except==0.2.0
     # via -r requirements_dev.in
@@ -78,11 +78,11 @@ isort==5.10.1
     #   flake8-isort
 jmespath==0.10.0
     # via botocore
-lxml-stubs==0.3.1
+lxml-stubs==0.4.0
     # via -r requirements_dev.in
 mccabe==0.6.1
     # via flake8
-mypy==0.931
+mypy==0.941
     # via
     #   -r requirements_dev.in
     #   sqlalchemy-stubs
@@ -115,7 +115,7 @@ pyflakes==2.4.0
     # via flake8
 python-dateutil==2.8.2
     # via botocore
-pyupgrade==2.31.0
+pyupgrade==2.31.1
     # via -r requirements_dev.in
 pyyaml==5.4.1
     # via
@@ -139,7 +139,7 @@ sqlalchemy-stubs==0.4
     # via -r requirements_dev.in
 stevedore==3.5.0
     # via bandit
-testfixtures==6.18.4
+testfixtures==6.18.5
     # via flake8-isort
 tokenize-rt==4.2.1
     # via pyupgrade
@@ -155,18 +155,14 @@ types-certifi==2021.10.8.1
     # via -r requirements_dev.in
 types-click==7.1.8
     # via types-flask
-types-cryptography==3.3.15
+types-cryptography==3.3.18
     # via -r requirements_dev.in
-types-enum34==1.1.8
-    # via types-cryptography
 types-flask==1.1.6
     # via -r requirements_dev.in
 types-geoip2==3.0.0
     # via -r requirements_dev.in
 types-ipaddress==1.0.8
-    # via
-    #   types-cryptography
-    #   types-maxminddb
+    # via types-maxminddb
 types-itsdangerous==1.1.6
     # via -r requirements_dev.in
 types-jinja2==2.11.9
@@ -181,17 +177,17 @@ types-python-dateutil==2.8.9
     # via -r requirements_dev.in
 types-pytz==2021.3.5
     # via -r requirements_dev.in
-types-requests==2.27.11
+types-requests==2.27.12
     # via -r requirements_dev.in
-types-setuptools==57.4.9
+types-setuptools==57.4.10
     # via -r requirements_dev.in
 types-simplejson==3.17.3
     # via -r requirements_dev.in
-types-six==1.16.10
+types-six==1.16.12
     # via -r requirements_dev.in
 types-toml==0.10.4
     # via -r requirements_dev.in
-types-urllib3==1.26.9
+types-urllib3==1.26.11
     # via types-requests
 types-werkzeug==1.0.9
     # via
@@ -203,7 +199,7 @@ typing-extensions==4.1.1
     #   sqlalchemy-stubs
 urllib3==1.26.8
     # via botocore
-virtualenv==20.13.2
+virtualenv==20.13.3
     # via pre-commit
 watchdog==2.1.6
     # via -r requirements_dev.in
