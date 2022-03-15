@@ -75,7 +75,7 @@ class SessionTimeouts(dict):
     def has_intersection(self, other):
         """Check for intersection with other dictionary-like object."""
         okeys = other.keys()
-        return bool(self.keys_at & okeys or self.keys() & okeys)
+        return not (self.keys_at.isdisjoint(okeys) and self.keys().isdisjoint(okeys))
 
 
 #: Temporary values that must be periodically expunged from the cookie session
