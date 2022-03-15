@@ -178,7 +178,7 @@ class Shortlink(NoIdMixin, db.Model):
     __tablename__ = 'shortlink'
 
     # id of this shortlink, saved as a bigint (8 bytes)
-    id = with_roles(  # noqa: A003
+    id = with_roles(
         # id cannot use the `immutable` wrapper because :meth:`new` changes the id when
         # handling collisions. This needs an "immutable after commit" handler
         db.Column(db.BigInteger, autoincrement=False, nullable=False, primary_key=True),
@@ -211,7 +211,7 @@ class Shortlink(NoIdMixin, db.Model):
         self.id = name_to_bigint(value)
 
     @name.comparator
-    def name(cls):  # noqa: N805
+    def name(cls):
         return ShortLinkToBigIntComparator(cls.id)
 
     # --- Validators

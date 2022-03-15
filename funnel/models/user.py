@@ -103,7 +103,7 @@ class SharedProfileMixin:
     with_roles(profile_url, read={'all'})
 
 
-class USER_STATE(LabeledEnum):  # noqa: N801
+class USER_STATE(LabeledEnum):
     """State codes for user accounts."""
 
     #: Regular, active user
@@ -118,7 +118,7 @@ class USER_STATE(LabeledEnum):  # noqa: N801
     DELETED = (4, __("Deleted"))
 
 
-class ORGANIZATION_STATE(LabeledEnum):  # noqa: N801
+class ORGANIZATION_STATE(LabeledEnum):
     """State codes for organizations."""
 
     #: Regular, active organization
@@ -270,7 +270,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 self.profile = Profile(name=value, user=self, uuid=self.uuid)
 
     @name.expression
-    def name(cls):  # noqa: N805
+    def name(cls):
         return db.select([Profile.name]).where(Profile.user_id == cls.id).label('name')
 
     with_roles(name, read={'all'})
@@ -353,7 +353,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         self,
         email: str,
         primary: bool = False,
-        type: Optional[str] = None,  # noqa: A002  # skipcq: PYL-W0622
+        type: Optional[str] = None,  # skipcq: PYL-W0622
         private: bool = False,
     ) -> UserEmail:
         useremail = UserEmail(user=self, email=email, type=type, private=private)
@@ -403,7 +403,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         self,
         phone: str,
         primary: bool = False,
-        type: Optional[str] = None,  # noqa: A002  # skipcq: PYL-W0622
+        type: Optional[str] = None,  # skipcq: PYL-W0622
         private: bool = False,
     ) -> UserPhone:
         userphone = UserPhone(user=self, phone=phone, type=type, private=private)
@@ -626,7 +626,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         return None
 
     @classmethod
-    def all(  # noqa: A003
+    def all(
         cls,
         buids: Iterable[str] = None,
         usernames: Iterable[str] = None,
@@ -814,7 +814,7 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):
 class DuckTypeUser(RoleMixin):
     """User singleton constructor. Ducktypes a regular user object."""
 
-    id = None  # noqa: A003
+    id = None
     uuid = userid = buid = uuid_b58 = None
     username = name = None
     profile = None
@@ -979,7 +979,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 )
 
     @name.expression
-    def name(cls) -> Select:  # noqa: N805
+    def name(cls) -> Select:
         return (
             db.select([Profile.name])
             .where(Profile.organization_id == cls.id)
@@ -1072,7 +1072,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         return query.one_or_none()
 
     @classmethod
-    def all(  # noqa: A003
+    def all(
         cls,
         buids: Iterable[str] = None,
         names: Iterable[str] = None,
@@ -1174,7 +1174,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
     user = db.relationship(User, backref=db.backref('emails', cascade='all'))
 
     private = db.Column(db.Boolean, nullable=False, default=False)
-    type = db.Column(db.Unicode(30), nullable=True)  # noqa: A003
+    type = db.Column(db.Unicode(30), nullable=True)
 
     def __init__(self, user: User, **kwargs) -> None:
         email = kwargs.pop('email', None)
@@ -1340,7 +1340,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
     verification_code = db.Column(db.String(44), nullable=False, default=newsecret)
 
     private = db.Column(db.Boolean, nullable=False, default=False)
-    type = db.Column(db.Unicode(30), nullable=True)  # noqa: A003
+    type = db.Column(db.Unicode(30), nullable=True)
 
     __table_args__ = (db.UniqueConstraint('user_id', 'email_address_id'),)
 
@@ -1487,7 +1487,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
         )
 
     @classmethod
-    def all(cls, email: str) -> Query:  # noqa: A003
+    def all(cls, email: str) -> Query:
         """
         Return all UserEmailClaim instances with matching email address.
 
@@ -1524,7 +1524,7 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
     gets_text = db.Column(db.Boolean, nullable=False, default=True)
 
     private = db.Column(db.Boolean, nullable=False, default=False)
-    type = db.Column(db.Unicode(30), nullable=True)  # noqa: A003
+    type = db.Column(db.Unicode(30), nullable=True)
 
     def __init__(self, phone, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -1606,7 +1606,7 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
     verification_attempts = db.Column(db.Integer, nullable=False, default=0)
 
     private = db.Column(db.Boolean, nullable=False, default=False)
-    type = db.Column(db.Unicode(30), nullable=True)  # noqa: A003
+    type = db.Column(db.Unicode(30), nullable=True)
 
     __table_args__ = (db.UniqueConstraint('user_id', 'phone'),)
 
@@ -1665,7 +1665,7 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
         return cls.query.filter_by(phone=phone, user=user).one_or_none()
 
     @classmethod
-    def all(cls, phone: str) -> List[UserPhoneClaim]:  # noqa: A003
+    def all(cls, phone: str) -> List[UserPhoneClaim]:
         """
         Return all UserPhoneClaim instances with matching phone number.
 

@@ -21,7 +21,7 @@ from .user import User, UserEmail
 __all__ = ['Rsvp', 'RSVP_STATUS']
 
 
-class RSVP_STATUS(LabeledEnum):  # noqa: N801
+class RSVP_STATUS(LabeledEnum):
     # If you add any new state, you need to add a migration to modify the check constraint
     YES = ('Y', 'yes', __("Going"))
     NO = ('N', 'no', __("Not going"))

@@ -39,7 +39,7 @@ __all__ = [
 ]
 
 
-class EMAIL_DELIVERY_STATE(LabeledEnum):  # noqa: N801
+class EMAIL_DELIVERY_STATE(LabeledEnum):
     """
     Email delivery states. Use ``dict(EMAIL_DELIVERY_STATE)`` to get contents.
 
@@ -321,7 +321,7 @@ class EmailAddress(BaseMixin, db.Model):
     def md5(self) -> Optional[str]:
         """MD5 hash of :property:`email_normalized`, for legacy use only."""
         return (
-            hashlib.md5(  # nosec  # noqa: S303  # skipcq: PTC-W1003
+            hashlib.md5(  # nosec    # skipcq: PTC-W1003
                 self.email_normalized.encode('utf-8')
             ).hexdigest()
             if self.email_normalized

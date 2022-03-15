@@ -20,7 +20,7 @@ branch_labels = None
 depends_on = None
 
 
-class MEMBERSHIP_RECORD_TYPE:  # noqa: N801
+class MEMBERSHIP_RECORD_TYPE:
     INVITE = 0
     ACCEPT = 1
     DIRECT_ADD = 2

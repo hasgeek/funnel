@@ -194,7 +194,7 @@ class SnsValidator:
                 signature,
                 plaintext,
                 PKCS1v15(),
-                SHA1(),  # noqa: S303  # skipcq: PTC-W1003
+                SHA1(),  # skipcq: PTC-W1003
             )
         except InvalidSignature:
             raise SnsSignatureFailureError("Signature mismatch")

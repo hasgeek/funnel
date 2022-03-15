@@ -14,7 +14,7 @@ from sqlalchemy.sql import column, table
 import sqlalchemy as sa
 
 
-class OLD_STATE:  # noqa: N801
+class OLD_STATE:
     DRAFT = 0
     SUBMISSIONS = 1
     VOTING = 2
@@ -24,14 +24,14 @@ class OLD_STATE:  # noqa: N801
     WITHDRAWN = 6
 
 
-class PROJECT_STATE:  # noqa: N801
+class PROJECT_STATE:
     DRAFT = 0
     PUBLISHED = 1
     WITHDRAWN = 2
     DELETED = 3
 
 
-class CFP_STATE:  # noqa: N801
+class CFP_STATE:
     NONE = 0
     PUBLIC = 1
     CLOSED = 2

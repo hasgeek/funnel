@@ -21,7 +21,7 @@ branch_labels = None
 depends_on = None
 
 
-class PROFILE_STATE:  # noqa: N801
+class PROFILE_STATE:
     AUTO = 0
     PUBLIC = 1
     PRIVATE = 2
