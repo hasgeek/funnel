@@ -349,7 +349,7 @@ def test_user_password(user_twoflower):
     # User account starts out with no password
     assert user_twoflower.pw_hash is None
     # User account can set a password
-    user_twoflower.password = 'test-password'
+    user_twoflower.password = 'test-password'  # noqa: S105
     assert user_twoflower.password_is('test-password') is True
     assert user_twoflower.password_is('wrong-password') is False
 
@@ -357,7 +357,7 @@ def test_user_password(user_twoflower):
 def test_user_password_has_expired(db_session, user_twoflower):
     """Test to check if password for a user has expired."""
     assert user_twoflower.pw_hash is None
-    user_twoflower.password = 'test-password'
+    user_twoflower.password = 'test-password'  # noqa: S105
     db_session.commit()  # Required to set pw_expires_at and pw_set_at
     assert user_twoflower.pw_expires_at > user_twoflower.pw_set_at
     assert user_twoflower.password_has_expired() is False

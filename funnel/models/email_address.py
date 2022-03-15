@@ -320,8 +320,9 @@ class EmailAddress(BaseMixin, db.Model):
     @with_roles(call={'all'})
     def md5(self) -> Optional[str]:
         """MD5 hash of :property:`email_normalized`, for legacy use only."""
+        # TODO: After upgrading to Python 3.9, use usedforsecurity=False
         return (
-            hashlib.md5(  # nosec  # noqa: S303  # skipcq: PTC-W1003
+            hashlib.md5(  # noqa  # nosec  # skipcq: PTC-W1003
                 self.email_normalized.encode('utf-8')
             ).hexdigest()
             if self.email_normalized
