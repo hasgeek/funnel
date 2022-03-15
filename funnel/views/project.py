@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 from collections import namedtuple
 from types import SimpleNamespace
@@ -43,6 +42,7 @@ from ..forms import (
     ProjectLivestreamForm,
     ProjectNameForm,
     ProjectTransitionForm,
+    AddSponsorForm,
 )
 from ..models import (
     RSVP_STATUS,
@@ -784,6 +784,22 @@ class ProjectView(
                     'message': 'This project is no longer featured.',
                 }
         return redirect(get_next_url(referrer=True), 303)
+
+    @route('add_sponsor', methods=['POST', 'GET'])
+    @render_with('add_sponsor_modal.html.jinja2')
+    def add_sponsor(self):
+        add_sponsor_form = AddSponsorForm()
+        project = self.obj.current_access(datasets=('primary', 'related'))
+
+        if add_sponsor_form.validate_on_submit():
+            add_sponsor_form.populate_obj(self.obj)
+            db.session.commit()
+            return {'status': 'ok', 'message': 'This profile has been added as sponsor'}
+
+        return {
+            'project': project,
+            'add_sponsor_form': add_sponsor_form,
+        }
 
 
 ProjectView.init_app(app)

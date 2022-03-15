@@ -3,11 +3,11 @@ from __future__ import annotations
 import re
 
 from baseframe import _, __
-from baseframe.forms.sqlalchemy import AvailableName
+from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
 from coaster.utils import sorted_timezones, utcnow
 import baseframe.forms as forms
 
-from ..models import Project, Rsvp, SavedProject
+from ..models import Project, Rsvp, SavedProject, Profile
 from .helpers import image_url_validator, nullable_strip_filters
 
 __all__ = [
@@ -18,6 +18,7 @@ __all__ = [
     'ProjectNameForm',
     'ProjectTransitionForm',
     'ProjectBannerForm',
+    'AddSponsorForm',
     'RsvpTransitionForm',
     'SavedProjectForm',
 ]
@@ -257,6 +258,29 @@ class ProjectCfpTransitionForm(forms.Form):
             # Checkbox: no, but CfP state is open, so close it
             obj.close_cfp()
         # No action required in all other cases
+
+
+@Project.forms('add_sponsor')
+class AddSponsorForm(forms.Form):
+    profile = QuerySelectField(
+        __("Profile"),
+        description=__("Find a profile by their name"),
+        validators=[forms.validators.DataRequired()],
+        get_label='title',
+    )
+    label = forms.StringField(
+        __("Label"),
+        description=__(
+            "Optional – Label to indicate the type of sponsor"
+        ),
+        filters=[forms.filters.strip()],
+    )
+    is_promoted = forms.BooleanField(  # noqa: A003
+        __("Is promoted"), validators=[forms.validators.InputRequired()]
+    )
+
+    def set_queries(self):
+        self.profile.query = Profile.query.filter(Profile.state.ACTIVE_AND_PUBLIC, Profile.organization_id.is_not(None)).all()
 
 
 @SavedProject.forms('main')
