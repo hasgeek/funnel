@@ -340,9 +340,7 @@ def login_service(service: str) -> ReturnView:
     try:
         return provider.do(callback_url=callback_url)
     except (LoginInitError, LoginCallbackError) as exc:
-        msg = _("{service} login failed: {error}").format(
-            service=provider.title, error=str(exc)
-        )
+        msg = str(exc)
         exception_catchall.send(exc, message=msg)
         flash(msg, category='danger')
         return redirect(session.pop('next'), code=303)
