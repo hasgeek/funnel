@@ -7,7 +7,7 @@ from sqlalchemy import event
 from flask.testing import FlaskClient
 from flask.wrappers import Response
 
-from lxml.html import FormElement, HtmlElement, fromstring  # noqa: S410
+from lxml.html import FormElement, HtmlElement, fromstring
 from pytz import utc
 import pytest
 

@@ -35,7 +35,7 @@ _marker = object()
 # --- Constants ------------------------------------------------------------------
 
 
-class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
+class PROPOSAL_STATE(LabeledEnum):
     # Draft-state for future use, so people can save their proposals and submit only when ready
     # If you add any new state, you need to add a migration to modify the check constraint
     DRAFT = (0, 'draft', __("Draft"))

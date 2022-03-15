@@ -162,7 +162,7 @@ class SmsTemplate:
     def process(self) -> None:
         """Process variables (subclasses may override as necessary)."""
 
-    def format(self) -> None:  # noqa: A003
+    def format(self) -> None:
         """Format template with variables."""
         self.process()
         object.__setattr__(

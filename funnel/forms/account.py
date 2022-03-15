@@ -399,7 +399,7 @@ class NewEmailAddressForm(forms.RecaptchaForm):
         filters=strip_filters,
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
-    type = forms.RadioField(  # noqa: A003
+    type = forms.RadioField(
         __("Type"),
         validators=[forms.validators.Optional()],
         filters=[forms.filters.strip()],

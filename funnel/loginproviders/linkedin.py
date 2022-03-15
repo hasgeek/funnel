@@ -18,7 +18,7 @@ __all__ = ['LinkedInProvider']
 
 class LinkedInProvider(LoginProvider):
     auth_url = 'https://www.linkedin.com/uas/oauth2/authorization?response_type=code'
-    token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'  # nosec  # noqa: S105
+    token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'  # nosec
     user_info = (
         'https://api.linkedin.com/v2/me?'
         'projection=(id,localizedFirstName,localizedLastName)'

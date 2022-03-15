@@ -73,7 +73,7 @@
       <div class="grid__col-xs-12 grid__col-sm-6">
         <div class="card">
           <div class="card__header">
-            <h3 class="mui--text-title mui--text-bold">{% trans %}External IDs{% endtrans %} <small>{% trans %}(Use any of these to login){% endtrans %}</small></h3>
+            <h3 class="mui--text-title mui--text-bold">{% trans %}Connected accounts{% endtrans %}</h3>
           </div>
           <div class="card__body card__body--lgtext mui--text-subhead">
             <ol class="mui-list--aligned mui-list--border zero-bottom-margin">
@@ -87,7 +87,6 @@
           </div>
           <div class="mui-divider"></div>
           <div class="card__body card__body--lgtext mui--text-subhead">
-            <p>{% trans %}Adding an external id will merge any Hasgeek account linked to it{% endtrans %}</p>
             {% for provider in login_registry %}
               <a class="mui-btn mui-btn--small mui-btn--raised login login--smaller login-{{ provider }}" href="{{ url_for('login_service', service=provider, next=url_for('account')) }}" title="{{ login_registry[provider]['title'] }}"><img src="{{ url_for('static', filename='img/' + login_registry[provider].icon + '.svg') }}" class="icon-img icon-img--smaller" alt="{{ login_registry[provider]['title'] }}"/>{{ login_registry[provider]['title'] }}</a>
             {% endfor %}

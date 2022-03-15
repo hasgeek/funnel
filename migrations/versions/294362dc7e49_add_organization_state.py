@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-class ORGANIZATION_STATE:  # noqa: N801
+class ORGANIZATION_STATE:
     """State codes for organizations."""
 
     #: Regular, active organization

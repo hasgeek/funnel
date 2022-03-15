@@ -108,7 +108,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         if not archived:
             # If archived == True: return everything (contacts including archived contacts)
             # if archived == False: return only unarchived contacts
-            query = query.filter(cls.archived == False)  # noqa: E712
+            query = query.filter(cls.archived == False)
 
         # from_self turns `SELECT columns` into `SELECT new_columns FROM (SELECT columns)`
         query = (
@@ -220,7 +220,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         if not archived:
             # If archived == True: return everything (contacts including archived contacts)
             # if archived == False: return only unarchived contacts
-            query = query.filter(cls.archived == False)  # noqa: E712
+            query = query.filter(cls.archived == False)
 
         return query
 
@@ -235,7 +235,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         if not archived:
             # If archived == True: return everything (contacts including archived contacts)
             # if archived == False: return only unarchived contacts
-            query = query.filter(cls.archived == False)  # noqa: E712
+            query = query.filter(cls.archived == False)
         return query
 
 
