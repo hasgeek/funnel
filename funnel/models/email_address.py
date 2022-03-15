@@ -321,7 +321,7 @@ class EmailAddress(BaseMixin, db.Model):
     def md5(self) -> Optional[str]:
         """MD5 hash of :property:`email_normalized`, for legacy use only."""
         return (
-            hashlib.md5(  # nosec  # noqa: S324  # skipcq: PTC-W1003
+            hashlib.md5(  # nosec    # skipcq: PTC-W1003
                 self.email_normalized.encode('utf-8')
             ).hexdigest()
             if self.email_normalized
