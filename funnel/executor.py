@@ -57,7 +57,7 @@ class ExecutorWrapper:
             future_key, remove_db_session(fn), *args, **kwargs
         )
 
-    def map(self, fn: F, *iterables, **kwargs):  # noqa: A003
+    def map(self, fn: F, *iterables, **kwargs):
         """Perform a map operation."""
         return self.executor.map(remove_db_session(fn), *iterables, **kwargs)
 

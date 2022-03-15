@@ -149,13 +149,13 @@ def test_cached_token_profanity_reuse():
         wraps=mockids,
     ) as mockid:
         token = make_cached_token(test_payload)
-        assert token == 'okay'  # noqa: S105
+        assert token == 'okay'
         # Profanity filter skipped the first candidate
         assert mockid.call_count == 2
         mockid.reset_mock()
 
         token = make_cached_token(test_payload)
-        assert token == 'new0'  # noqa: S105
+        assert token == 'new0'
         # Dupe filter passed over the second 'okay'
         assert mockid.call_count == 2
         mockid.reset_mock()

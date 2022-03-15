@@ -183,7 +183,7 @@ notification_categories: SimpleNamespace = SimpleNamespace(
 # --- Flags ----------------------------------------------------------------------------
 
 
-class SMS_STATUS(LabeledEnum):  # noqa: N801
+class SMS_STATUS(LabeledEnum):
     QUEUED = (0, __("Queued"))
     PENDING = (1, __("Pending"))
     DELIVERED = (2, __("Delivered"))
@@ -238,7 +238,7 @@ class Notification(NoIdMixin, db.Model):
     )
 
     #: Notification id
-    id = immutable(  # noqa: A003
+    id = immutable(
         db.Column(
             UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
         )
@@ -425,7 +425,7 @@ class Notification(NoIdMixin, db.Model):
         self.eventid = uuid_from_base58(value)
 
     @eventid_b58.comparator
-    def eventid_b58(cls):  # noqa: N805
+    def eventid_b58(cls):
         return SqlUuidB58Comparator(cls.eventid)
 
     @cached_property  # type: ignore[no-redef]
@@ -536,7 +536,7 @@ class Notification(NoIdMixin, db.Model):
     # Make :attr:`type_` available under the name `type`, but declare this at the very
     # end of the class to avoid conflicts with the Python `type` global that is
     # used for type-hinting
-    type = db.synonym('type_')  # noqa: A003
+    type = db.synonym('type_')
 
 
 class PreviewNotification:
@@ -751,7 +751,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         self.eventid = uuid_from_base58(value)
 
     @eventid_b58.comparator
-    def eventid_b58(cls):  # noqa: N805
+    def eventid_b58(cls):
         return SqlUuidB58Comparator(cls.eventid)
 
     with_roles(eventid_b58, read={'owner'})
@@ -770,7 +770,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
             self.read_at = None
 
     @is_read.expression
-    def is_read(cls):  # noqa: N805
+    def is_read(cls):
         return cls.read_at.isnot(None)
 
     with_roles(is_read, rw={'owner'})
@@ -789,7 +789,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
             self.revoked_at = None
 
     @is_revoked.expression
-    def is_revoked(cls):  # noqa: N805
+    def is_revoked(cls):
         return cls.revoked_at.isnot(None)
 
     with_roles(is_revoked, rw={'owner'})

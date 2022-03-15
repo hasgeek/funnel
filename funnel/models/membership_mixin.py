@@ -30,7 +30,7 @@ __all__ = [
 MembershipType = TypeVar('MembershipType', bound='ImmutableMembershipMixin')
 
 
-class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # noqa: N801
+class MEMBERSHIP_RECORD_TYPE(LabeledEnum):
     """Membership record types."""
 
     INVITE = (0, 'invite', __("Invite"))
@@ -133,7 +133,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         )
 
     @is_active.expression
-    def is_active(cls):  # noqa: N805
+    def is_active(cls):
         return db.and_(
             cls.revoked_at.is_(None), cls.record_type != MEMBERSHIP_RECORD_TYPE.INVITE
         )

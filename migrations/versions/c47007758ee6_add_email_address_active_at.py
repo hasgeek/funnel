@@ -17,7 +17,7 @@ branch_labels = None
 depends_on = None
 
 
-class DELIVERY_STATE:  # noqa: N801
+class DELIVERY_STATE:
     SENT = 1
     ACTIVE = 2
 

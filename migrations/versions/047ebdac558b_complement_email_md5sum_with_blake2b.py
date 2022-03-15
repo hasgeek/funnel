@@ -69,9 +69,7 @@ def upgrade():
             sa.update(user_email)
             .where(user_email.c.id == item.id)
             .values(
-                md5sum=hashlib.md5(  # nosec  # noqa: S303
-                    item.email.lower().encode()
-                ).hexdigest(),
+                md5sum=hashlib.md5(item.email.lower().encode()).hexdigest(),  # nosec
                 blake2b=hashlib.blake2b(
                     item.email.lower().encode(), digest_size=16
                 ).digest(),
@@ -95,9 +93,7 @@ def upgrade():
             sa.update(user_email_claim)
             .where(user_email_claim.c.id == item.id)
             .values(
-                md5sum=hashlib.md5(  # nosec  # noqa: S303
-                    item.email.lower().encode()
-                ).hexdigest(),
+                md5sum=hashlib.md5(item.email.lower().encode()).hexdigest(),  # nosec
                 blake2b=hashlib.blake2b(
                     item.email.lower().encode(), digest_size=16
                 ).digest(),

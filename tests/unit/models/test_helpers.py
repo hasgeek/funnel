@@ -153,7 +153,7 @@ def test_add_to_class():
 def image_models(database):
     class MyImageModel(db.Model):
         __tablename__ = 'my_image_model'
-        id = db.Column(db.Integer, primary_key=True)  # noqa: A003
+        id = db.Column(db.Integer, primary_key=True)
         image_url = db.Column(ImgeeType)
 
     database.create_all()

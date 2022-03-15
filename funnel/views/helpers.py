@@ -320,7 +320,7 @@ def validate_rate_limit(
 # This number can be increased to 4 as volumes grow, but will result in a 6 char token
 TOKEN_BYTES_LEN = 3
 # Changing this prefix will break existing tokens. Do not change
-TEXT_TOKEN_PREFIX = 'temp_token/v1/'  # nosec  # noqa: S105
+TEXT_TOKEN_PREFIX = 'temp_token/v1/'  # nosec
 
 
 def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
