@@ -19,11 +19,11 @@ __all__ = [
 ]
 
 
-class LoginPasswordResetException(Exception):
+class LoginPasswordResetException(Exception):  # noqa: N818
     """Exception to signal that a password reset is required (not an error)."""
 
 
-class LoginPasswordWeakException(Exception):
+class LoginPasswordWeakException(Exception):  # noqa: N818
     """Exception to signal that password is weak and needs change (not an error)."""
 
 
