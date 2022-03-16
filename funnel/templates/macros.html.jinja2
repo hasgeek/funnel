@@ -144,7 +144,6 @@
     <a {% if active_tab != 'saved' %}href="{{ url_for('saved') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'saved' %}tabs__item--active{%- endif %}">{% trans %}Saved projects{% endtrans %}</a>
     <a {% if active_tab != 'scan' %}href="{{ url_for('scan_contact') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'scan' %}tabs__item--active{%- endif %}">{% trans %}Scan badge{% endtrans %}</a>
     <a {% if active_tab != 'contacts' %}href="{{ url_for('contacts') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'contacts' %}tabs__item--active{%- endif %}">{% trans %}Contacts{% endtrans %}</a>
-    <a {% if active_tab != 'meeting_credentials' %}href="{{ url_for('meeting_credentials') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'meeting_credentials' %}tabs__item--active{%- endif %}">{% trans %}Meeting Credentials{% endtrans %}</a>
   </div>
 {% endmacro %}
 

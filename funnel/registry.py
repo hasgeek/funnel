@@ -146,7 +146,7 @@ class LoginProviderData(NamedTuple):
     oauth_token_secret: Optional[str] = None  # Only used in OAuth1a
     oauth_token_type: Optional[str] = None
     oauth_refresh_token: Optional[str] = None
-    oauth_refresh_expiry: Optional[str] = None
+    oauth_expires_in: Optional[int] = None
     email: Optional[str] = None
     emails: List[str] = []
     emailclaim: Optional[str] = None

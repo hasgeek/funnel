@@ -18,7 +18,6 @@ from . import (
     label,
     login,
     login_session,
-    meeting_credentials,
     membership,
     mixins,
     notification,

@@ -1698,6 +1698,9 @@ class UserExternalId(BaseMixin, db.Model):
     oauth_token = db.Column(db.UnicodeText, nullable=True)
     oauth_token_secret = db.Column(db.UnicodeText, nullable=True)
     oauth_token_type = db.Column(db.UnicodeText, nullable=True)
+    oauth_refresh_token = db.Column(db.UnicodeText, nullable=True)
+    oauth_expires_in = db.Column(db.Integer, nullable=True)
+    oauth_expires_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
 
     last_used_at = db.Column(
         db.TIMESTAMP(timezone=True), default=db.func.utcnow(), nullable=False

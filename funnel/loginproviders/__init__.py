@@ -7,3 +7,4 @@ from .google import *
 from .init_app import *
 from .linkedin import *
 from .twitter import *
+from .zoom import *

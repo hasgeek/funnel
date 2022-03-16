@@ -340,9 +340,7 @@ def login_service(service: str) -> ReturnView:
     try:
         return provider.do(callback_url=callback_url)
     except (LoginInitError, LoginCallbackError) as exc:
-        msg = _("{service} login failed: {error}").format(
-            service=provider.title, error=str(exc)
-        )
+        msg = str(exc)
         exception_catchall.send(exc, message=msg)
         flash(msg, category='danger')
         return redirect(session.pop('next'), code=303)
@@ -417,13 +415,15 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
     # If extid is not None, user.extid == user, guaranteed.
     # If extid is None but useremail is not None, user == useremail.user
     # However, if both extid and useremail are present, they may be different users
-
     if extid is not None:
         extid.oauth_token = userdata.oauth_token
         extid.oauth_token_secret = userdata.oauth_token_secret
         extid.oauth_token_type = userdata.oauth_token_type
         extid.username = userdata.username
         # TODO: Save refresh token and expiry date where present
+        extid.oauth_refresh_token = userdata.oauth_refresh_token
+        extid.oauth_expires_in = userdata.oauth_expires_in
+        # TODO: Check this
         extid.last_used_at = db.func.utcnow()
     else:
         # New external id. Register it.
@@ -436,8 +436,13 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
             oauth_token_secret=userdata.oauth_token_secret,
             oauth_token_type=userdata.oauth_token_type,
             last_used_at=db.func.utcnow(),
+            oauth_refresh_token=userdata.oauth_refresh_token,
+            oauth_expires_in=userdata.oauth_expires_in,
+            oauth_expires_at=db.func.utcnow()
+            + timedelta(seconds=userdata.oauth_expires_in)
+            if userdata.oauth_expires_in
+            else None,
         )
-
     if user is None:
         if current_auth:
             # Attach this id to currently logged-in user

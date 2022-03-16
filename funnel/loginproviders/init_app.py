@@ -7,6 +7,7 @@ from .github import GitHubProvider
 from .google import GoogleProvider
 from .linkedin import LinkedInProvider
 from .twitter import TwitterProvider
+from .zoom import ZoomProvider
 
 
 def init_app(app):
@@ -53,4 +54,14 @@ def init_app(app):
             icon='github',
             key=app.config['OAUTH_GITHUB_KEY'],
             secret=app.config['OAUTH_GITHUB_SECRET'],
+        )
+    if app.config.get('OAUTH_ZOOM_KEY') and app.config.get('OAUTH_ZOOM_SECRET'):
+        login_registry['zoom'] = ZoomProvider(
+            'zoom',
+            __("Zoom"),
+            at_login=False,
+            priority=False,
+            icon='zoom',
+            key=app.config['OAUTH_ZOOM_KEY'],
+            secret=app.config['OAUTH_ZOOM_SECRET'],
         )
