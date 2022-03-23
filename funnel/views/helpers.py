@@ -32,6 +32,7 @@ from pytz import utc
 import brotli
 
 from baseframe import cache, statsd
+from coaster.sqlalchemy import RoleMixin
 from coaster.utils import utcnow
 
 from .. import app, built_assets, shortlinkapp
@@ -426,7 +427,20 @@ def html_in_json(template: str):
         return jsonify(status='ok', **kwargs)
 
     def render_html_in_json(kwargs):
-        resp = jsonify({'status': 'ok', 'html': render_template(template, **kwargs)})
+        resp = jsonify(
+            {
+                'status': 'ok',
+                'html': render_template(
+                    template,
+                    **{
+                        k: v
+                        if not isinstance(v, RoleMixin)
+                        else v.current_access(datasets=('primary',))
+                        for k, v in kwargs.items()
+                    },
+                ),
+            }
+        )
         resp.content_type = 'application/x.html+json; charset=utf-8'
         return resp
 
