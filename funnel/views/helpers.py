@@ -424,23 +424,18 @@ def compress_response(response: ResponseBase) -> None:
 
 def html_in_json(template: str):
     def render_json_with_status(kwargs):
-        return jsonify(status='ok', **kwargs)
+        return jsonify(
+            status='ok',
+            **{
+                k: v
+                if not isinstance(v, RoleMixin)
+                else v.current_access(datasets=('primary',))
+                for k, v in kwargs.items()
+            },
+        )
 
     def render_html_in_json(kwargs):
-        resp = jsonify(
-            {
-                'status': 'ok',
-                'html': render_template(
-                    template,
-                    **{
-                        k: v
-                        if not isinstance(v, RoleMixin)
-                        else v.current_access(datasets=('primary',))
-                        for k, v in kwargs.items()
-                    },
-                ),
-            }
-        )
+        resp = jsonify({'status': 'ok', 'html': render_template(template, **kwargs)})
         resp.content_type = 'application/x.html+json; charset=utf-8'
         return resp
 
