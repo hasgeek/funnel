@@ -1,1 +1,11 @@
-from . import account, email_events, geoname, markdown, oauth, pwa, resource, sms_events, profile
+from . import (
+    account,
+    email_events,
+    geoname,
+    markdown,
+    oauth,
+    profile,
+    pwa,
+    resource,
+    sms_events,
+)

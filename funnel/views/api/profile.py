@@ -2,9 +2,9 @@ from flask import jsonify
 
 from coaster.views import requestargs
 
-from ..login_session import requires_login
 from ... import app
 from ...models import Profile
+from ..login_session import requires_login
 
 
 @app.route('/api/1/profile/autocomplete')

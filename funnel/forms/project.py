@@ -4,10 +4,10 @@ import re
 
 from baseframe import _, __
 from baseframe.forms.sqlalchemy import AvailableName
-from coaster.utils import sorted_timezones, utcnow, getbool
+from coaster.utils import getbool, sorted_timezones, utcnow
 import baseframe.forms as forms
 
-from ..models import Project, Rsvp, SavedProject, Profile
+from ..models import Profile, Project, Rsvp, SavedProject
 from .helpers import image_url_validator, nullable_strip_filters
 
 __all__ = [
@@ -266,15 +266,11 @@ class AddSponsorForm(forms.Form):
         __("Profile"),
         autocomplete_endpoint='/api/1/profile/autocomplete',
         results_key='profile',
-        description=__(
-            "Find a profile by their name"
-        ),
+        description=__("Find a profile by their name"),
     )
     label = forms.StringField(
         __("Label"),
-        description=__(
-            "Optional – Label to indicate the type of sponsor"
-        ),
+        description=__("Optional – Label to indicate the type of sponsor"),
         filters=[forms.filters.strip()],
     )
     is_promoted = forms.RadioField(

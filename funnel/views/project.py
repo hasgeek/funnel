@@ -1,4 +1,3 @@
-
 from collections import namedtuple
 from types import SimpleNamespace
 import csv
@@ -36,6 +35,7 @@ from coaster.views import (
 
 from .. import app
 from ..forms import (
+    AddSponsorForm,
     CfpForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
@@ -43,7 +43,6 @@ from ..forms import (
     ProjectLivestreamForm,
     ProjectNameForm,
     ProjectTransitionForm,
-    AddSponsorForm,
 )
 from ..models import (
     RSVP_STATUS,
@@ -53,8 +52,8 @@ from ..models import (
     RegistrationConfirmationNotification,
     Rsvp,
     SavedProject,
-    db,
     SponsorMembership,
+    db,
 )
 from ..signals import project_role_change
 from .helpers import html_in_json
@@ -796,7 +795,9 @@ class ProjectView(
         project = self.obj.current_access(datasets=('primary', 'related'))
 
         if form.validate_on_submit():
-            sponsor_membership = SponsorMembership(project=self.obj, granted_by=current_auth.user)
+            sponsor_membership = SponsorMembership(
+                project=self.obj, granted_by=current_auth.user
+            )
             form.populate_obj(sponsor_membership)
             db.session.commit()
             return {'status': 'ok', 'message': 'This profile has been added as sponsor'}
