@@ -27,7 +27,7 @@ from .helpers import (
     visual_field_delimiter,
 )
 from .user import Organization, User
-from .utils import do_migrate_instances
+from .utils import do_migrate_instances, escape_for_sql_like
 
 __all__ = ['Profile']
 
@@ -438,6 +438,12 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def is_safe_to_delete(self) -> bool:
         """Return True if profile is not protected and has no projects."""
         return self.is_protected is False and self.projects.count() == 0
+
+    @classmethod
+    def autocomplete(cls, prefix):
+        return cls.query.filter(
+            cls.name.ilike(escape_for_sql_like(prefix)), cls.state.PUBLIC
+        ).all()
 
 
 add_search_trigger(Profile, 'search_vector')

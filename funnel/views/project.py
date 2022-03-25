@@ -12,6 +12,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    url_for,
 )
 
 from baseframe import _, __, forms
@@ -53,6 +54,7 @@ from ..models import (
     Rsvp,
     SavedProject,
     db,
+    SponsorMembership,
 )
 from ..signals import project_role_change
 from .helpers import html_in_json
@@ -790,17 +792,20 @@ class ProjectView(
     def add_sponsor(self):
         if not current_auth.user.is_site_editor:
             abort(403)
-        add_sponsor_form = AddSponsorForm()
+        form = AddSponsorForm()
         project = self.obj.current_access(datasets=('primary', 'related'))
 
-        if add_sponsor_form.validate_on_submit():
-            add_sponsor_form.populate_obj(self.obj)
+        if form.validate_on_submit():
+            sponsor_membership = SponsorMembership(project=self.obj, granted_by=current_auth.user)
+            form.populate_obj(sponsor_membership)
             db.session.commit()
             return {'status': 'ok', 'message': 'This profile has been added as sponsor'}
 
         return {
             'project': project,
-            'add_sponsor_form': add_sponsor_form,
+            'form': form,
+            'action': self.obj.url_for('add_sponsor'),
+            'ref_id': 'add_sponsor',
         }
 
 

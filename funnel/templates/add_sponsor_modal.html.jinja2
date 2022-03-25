@@ -1,5 +1,5 @@
-{% from "forms.html.jinja2" import renderfield, renderform, rendersubmit, widgetscripts %}
-{%- from "macros.html.jinja2" import faicon, csrf_tag %}
+{% from "forms.html.jinja2" import renderform, widgetscripts, ajaxform %}
+{%- from "macros.html.jinja2" import faicon %}
 
 <link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
 
@@ -8,11 +8,11 @@
   <h3 class="mui--text-title mui--text-bold mui--text-uppercase" data-cy="admin-panel">{% trans %}Admin panel{% endtrans %}</h3>
 </div>
 <div class="modal__body proposal__admin-panel">
-  {{ renderform(add_sponsor_form) }}
+  {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action) }}
+  {{ ajaxform(ref_id=ref_id, request=request, force=true) }}
 </div>
 
 <script type="text/javascript">
-  $(function() {
-
-  });
+  activate_widgets();
+  {{ widgetscripts(form, script=false) }}
 </script>

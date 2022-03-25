@@ -3,8 +3,8 @@ from __future__ import annotations
 import re
 
 from baseframe import _, __
-from baseframe.forms.sqlalchemy import AvailableName, QuerySelectField
-from coaster.utils import sorted_timezones, utcnow
+from baseframe.forms.sqlalchemy import AvailableName
+from coaster.utils import sorted_timezones, utcnow, getbool
 import baseframe.forms as forms
 
 from ..models import Project, Rsvp, SavedProject, Profile
@@ -262,11 +262,13 @@ class ProjectCfpTransitionForm(forms.Form):
 
 @Project.forms('add_sponsor')
 class AddSponsorForm(forms.Form):
-    profile = QuerySelectField(
+    profile = forms.AutocompleteField(
         __("Profile"),
-        description=__("Find a profile by their name"),
-        validators=[forms.validators.DataRequired()],
-        get_label='title',
+        autocomplete_endpoint='/api/1/profile/autocomplete',
+        results_key='profile',
+        description=__(
+            "Find a profile by their name"
+        ),
     )
     label = forms.StringField(
         __("Label"),
@@ -275,12 +277,24 @@ class AddSponsorForm(forms.Form):
         ),
         filters=[forms.filters.strip()],
     )
-    is_promoted = forms.BooleanField(  # noqa: A003
-        __("Is promoted"), validators=[forms.validators.InputRequired()]
+    is_promoted = forms.RadioField(
+        __("Is promoted"),
+        coerce=getbool,
+        default=False,
+        choices=[
+            (
+                False,
+                __("Promoted"),
+            ),
+            (True, __("Not Promoted")),
+        ],
     )
 
-    def set_queries(self):
-        self.profile.query = Profile.query.filter(Profile.state.ACTIVE_AND_PUBLIC, Profile.organization_id.is_not(None)).all()
+    def get_profile(self, obj):
+        self.profile.data = obj.profile
+
+    def set_profile(self, obj):
+        obj.profile = Profile.get(self.profile.data)
 
 
 @SavedProject.forms('main')
