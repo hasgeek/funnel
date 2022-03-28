@@ -8,10 +8,10 @@ from flask import (
     abort,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
-    url_for,
 )
 
 from baseframe import _, __, forms
@@ -787,7 +787,6 @@ class ProjectView(
         return redirect(get_next_url(referrer=True), 303)
 
     @route('add_sponsor', methods=['POST', 'GET'])
-    @render_with('add_sponsor_modal.html.jinja2')
     def add_sponsor(self):
         if not current_auth.user.is_site_editor:
             abort(403)
@@ -796,18 +795,24 @@ class ProjectView(
 
         if form.validate_on_submit():
             sponsor_membership = SponsorMembership(
-                project=self.obj, granted_by=current_auth.user
+                project=self.obj,
+                granted_by=current_auth.user,
+                profile=Profile.get(form.profile.data),
+                is_promoted=form.is_promoted.data,
+                label=form.label.data,
             )
-            form.populate_obj(sponsor_membership)
+            db.session.add(sponsor_membership)
             db.session.commit()
-            return {'status': 'ok', 'message': 'This profile has been added as sponsor'}
-
-        return {
-            'project': project,
-            'form': form,
-            'action': self.obj.url_for('add_sponsor'),
-            'ref_id': 'add_sponsor',
-        }
+            return jsonify(
+                {'status': 'ok', 'message': 'This profile has been added as sponsor'}
+            )
+        return render_template(
+            'add_sponsor_modal.html.jinja2',
+            project=project,
+            form=form,
+            action=self.obj.url_for('add_sponsor'),
+            ref_id='add_sponsor',
+        )
 
 
 ProjectView.init_app(app)
