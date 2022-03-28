@@ -266,7 +266,8 @@ class AddSponsorForm(forms.Form):
         __("Profile"),
         autocomplete_endpoint='/api/1/profile/autocomplete',
         results_key='profile',
-        description=__("Find a profile by their name"),
+        description=__("Search for the name of profile"),
+        validators=[forms.validators.InputRequired()],
     )
     label = forms.StringField(
         __("Label"),
@@ -274,23 +275,17 @@ class AddSponsorForm(forms.Form):
         filters=[forms.filters.strip(), forms.filters.none_if_empty()],
     )
     is_promoted = forms.RadioField(
-        __("Is promoted"),
+        __("Is it a promoted sponsor?"),
         coerce=getbool,
         default=False,
         choices=[
             (
-                False,
-                __("Promoted"),
+                True,
+                __("Yes"),
             ),
-            (True, __("Not Promoted")),
+            (False, __("No")),
         ],
     )
-
-    def get_profile(self, obj):
-        self.profile.data = obj.profile
-
-    def set_profile(self, obj):
-        obj.profile = Profile.get(self.profile.data)
 
 
 @SavedProject.forms('main')

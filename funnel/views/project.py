@@ -803,9 +803,7 @@ class ProjectView(
             )
             db.session.add(sponsor_membership)
             db.session.commit()
-            return jsonify(
-                {'status': 'ok', 'message': 'This profile has been added as sponsor'}
-            )
+            return render_redirect(self.obj.url_for())
         return render_template(
             'add_sponsor_modal.html.jinja2',
             project=project,
