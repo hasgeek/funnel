@@ -7,7 +7,7 @@ from baseframe.forms.sqlalchemy import AvailableName
 from coaster.utils import getbool, sorted_timezones, utcnow
 import baseframe.forms as forms
 
-from ..models import Profile, Project, Rsvp, SavedProject
+from ..models import Project, Rsvp, SavedProject
 from .helpers import image_url_validator, nullable_strip_filters
 
 __all__ = [
