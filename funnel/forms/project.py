@@ -271,7 +271,7 @@ class AddSponsorForm(forms.Form):
     label = forms.StringField(
         __("Label"),
         description=__("Optional – Label to indicate the type of sponsor"),
-        filters=[forms.filters.strip()],
+        filters=[forms.filters.strip(), forms.filters.none_if_empty()],
     )
     is_promoted = forms.RadioField(
         __("Is promoted"),
