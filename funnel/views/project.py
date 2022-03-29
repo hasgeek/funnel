@@ -811,32 +811,32 @@ class ProjectView(
             ref_id='add_sponsor',
         )
 
-    @route('delete_sponsor/<sponsor>')
-    def delete_sponsor(self, sponsor):
-        if not current_auth.user.is_site_editor:
-            abort(403)
-        user = current_auth.user
-        sponsor = db.session.query.filter_by(profile_id=sponsor)
-        sponsor.revoke(actor=user)
-        db.session.add(sponsor)
-        db.session.commit()
+    # @route('delete_sponsor/<sponsor>')
+    # def delete_sponsor(self, sponsor):
+    #     if not current_auth.user.is_site_editor:
+    #         abort(403)
+    #     user = current_auth.user
+    #     sponsor = db.session.query.filter_by(profile_id=sponsor)
+    #     sponsor.revoke(actor=user)
+    #     db.session.add(sponsor)
+    #     db.session.commit()
 
-    @route('edit_sponsor/<sponsor>', methods=['GET', 'POST'])
-    def edit_sponsor(self, sponsor):
-        # TODO RENDER EDIT FORM
-        form = AddSponsorForm()
-        if not current_auth.user.is_site_editor:
-            abort(403)
+    # @route('edit_sponsor/<sponsor>', methods=['GET', 'POST'])
+    # def edit_sponsor(self, sponsor):
+    #     # TODO RENDER EDIT FORM
+    #     form = AddSponsorForm()
+    #     if not current_auth.user.is_site_editor:
+    #         abort(403)
 
-        if request.method == 'POST':
-            if form.validate_on_submit():
-                user = current_auth.user
-                sponsor = db.session.query.filter_by(profile_id=sponsor)
-                sponsor.replace(
-                    actor=user, label=form.label.data, is_promoted=form.is_promoted.data
-                )
-                db.session.add(sponsor)
-                db.session.commit()
+    #     if request.method == 'POST':
+    #         if form.validate_on_submit():
+    #             user = current_auth.user
+    #             sponsor = db.session.query.filter_by(profile_id=sponsor)
+    #             sponsor.replace(
+    #                 actor=user, label=form.label.data, is_promoted=form.is_promoted.data
+    #             )
+    #             db.session.add(sponsor)
+    #             db.session.commit()
 
 
 ProjectView.init_app(app)
