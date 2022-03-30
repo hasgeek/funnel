@@ -18,7 +18,7 @@
         {% if form.csrf_token and form.csrf_token.errors %}
           <p class="mui-form--error">{% trans %}This form timed out because it was open for a long time. Please submit again{% endtrans %}</p>
         {% endif %}
-        <a class="mui-btn mui-btn--raised mui-btn--primary" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel" href="javascript:void(0);" role="button" tabindex="0">{% trans %}Cancel{% endtrans %}</a>
+        <a class="mui-btn mui-btn--raised mui-btn--default" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel" href="javascript:void(0);" role="button" tabindex="0">{% trans %}Cancel{% endtrans %}</a>
         <input class="mui-btn mui-btn--raised mui-btn--danger" type="submit" name="delete" value="{% trans %}Remove{% endtrans %}"/>
       </form>
     {% endif %}
