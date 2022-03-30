@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from baseframe.forms import render_redirect
+from baseframe.forms import render_redirect, render_template
+from baseframe.forms.auto import ConfirmDeleteForm
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
@@ -72,6 +73,35 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             'ref_id': 'edit_sponsor',
             'action': self.obj.url_for('edit_sponsor'),
         }
+
+    @route('remove', methods=['GET', "POST"])
+    @requires_login
+    @requires_roles({'editor'})
+    def remove_sponsor(self):
+        sponsorship = self.obj
+        user = current_auth.user
+
+        form = ConfirmDeleteForm()
+        template = 'delete.html.jinja2'
+        title = "Remove Sponsor?"
+        sponsor_name = self.obj.profile.name
+        if form.validate_on_submit():
+            sponsorship.revoke(actor=user)
+            db.session.add(sponsorship)
+            db.session.commit()
+            return render_redirect(self.project.url_for())
+
+        return render_template(
+            template,
+            form=form,
+            title=title,
+            message=("Do you want to remove ‘{sponsor_name}’ as a sponsor?").format(
+                sponsor_name=sponsor_name
+            ),
+            success=("Sponsor has been removed"),
+            next=self.project.url_for(),
+            cancel_url=self.project.url_for(),
+        )
 
 
 ProjectSponsorView.init_app(app)
