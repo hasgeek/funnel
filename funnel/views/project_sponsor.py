@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-from flask import (
-    render_template,
-)
+from flask import render_template
 
 from baseframe.forms import render_redirect
 from baseframe.forms.auto import ConfirmDeleteForm
-
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
