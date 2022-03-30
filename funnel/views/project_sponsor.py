@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from flask import (
     render_template,
+    flash,
 )
 
+from baseframe import _
 from baseframe.forms import render_redirect
 from baseframe.forms.auto import ConfirmDeleteForm
 
@@ -70,6 +72,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
                 with sponsorship.amend_by(current_auth.user) as amendment:
                     form.populate_obj(amendment)
             db.session.commit()
+            flash(_("Sponsor has been edited"), 'info')
             return render_redirect(self.project.url_for())
 
         return render_template(
@@ -94,6 +97,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             sponsorship.revoke(actor=user)
             db.session.add(sponsorship)
             db.session.commit()
+            flash(_("Sponsor has been removed"), 'info')
             return render_redirect(self.project.url_for())
 
         return render_template(
@@ -103,6 +107,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             message=("Do you want to remove ‘{sponsor_name}’ as a sponsor?").format(
                 sponsor_name=sponsor_name
             ),
+            action=self.obj.url_for('remove_sponsor'),
             success=("Sponsor has been removed"),
             ref_id='remove_sponsor',
             remove=True,
