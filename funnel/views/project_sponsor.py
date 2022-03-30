@@ -5,6 +5,8 @@ from flask import (
 )
 
 from baseframe.forms import render_redirect
+from baseframe.forms.auto import ConfirmDeleteForm
+
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
@@ -53,6 +55,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
         return super().after_loader()
 
     @route('edit', methods=['GET', "POST"])
+    @requires_login
     def edit_sponsor(self):
         if not current_auth.user.is_site_editor:
             abort(403)
@@ -77,12 +80,35 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             ref_id='edit_sponsor',
         )
 
-    @route('delete', methods=['GET', "POST"])
+    @route('remove', methods=['GET', "POST"])
     @requires_login
-    @requires_roles({'editor'})
-    @render_with('add_sponsor_modal.html.jinja2')
-    def delete_sponsor(self):
-        return
+    def remove_sponsor(self):
+        if not current_auth.user.is_site_editor:
+            abort(403)
+        sponsorship = self.obj
+        user = current_auth.user
+
+        form = ConfirmDeleteForm()
+        template = 'delete.html.jinja2'
+        title = "Remove Sponsor?"
+        sponsor_name = self.obj.profile.name
+        if form.validate_on_submit():
+            sponsorship.revoke(actor=user)
+            db.session.add(sponsorship)
+            db.session.commit()
+            return render_redirect(self.project.url_for())
+
+        return render_template(
+            template,
+            form=form,
+            title=title,
+            message=("Do you want to remove ‘{sponsor_name}’ as a sponsor?").format(
+                sponsor_name=sponsor_name
+            ),
+            success=("Sponsor has been removed"),
+            next=self.project.url_for(),
+            cancel_url=self.project.url_for(),
+        )
 
 
 ProjectSponsorView.init_app(app)

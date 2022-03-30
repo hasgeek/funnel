@@ -356,7 +356,7 @@
           <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="mui--text-dark mui--text-subhead mui--text-bold nounderline" data-cy="profile-link">{{ sponsor.profile.title }}</a>
           {% if current_auth.user.is_site_editor %}
             <a href="{{ sponsor.url_for('edit_sponsor') }}" rel="modal:open" aria-label="Edit sponsor" data-ga="Edit sponsor" data-cy="edit-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='edit', baseline=false, css_class='mui--text-light mui--align-middle fa-icon--left-margin fa-icon--right-margin') }}</a>
-            <a href="{{ sponsor.url_for('delete_sponsor') }}" rel="modal:open" aria-label="Delete sponsor" data-ga="Delete sponsor" data-cy="delete-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='trash-alt', baseline=false, css_class='mui--text-light mui--align-middle') }}</a>
+            <a href="{{ sponsor.url_for('remove_sponsor') }}" rel="modal:open" aria-label="Delete sponsor" data-ga="Delete sponsor" data-cy="delete-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='trash-alt', baseline=false, css_class='mui--text-light mui--align-middle') }}</a>
           {% endif %}
         </div>
         {% if sponsor.profile.description.html %}
