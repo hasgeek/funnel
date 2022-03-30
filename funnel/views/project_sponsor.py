@@ -89,8 +89,6 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
         user = current_auth.user
 
         form = ConfirmDeleteForm()
-        template = 'delete.html.jinja2'
-        title = "Remove Sponsor?"
         sponsor_name = self.obj.profile.name
         if form.validate_on_submit():
             sponsorship.revoke(actor=user)
@@ -99,15 +97,15 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             return render_redirect(self.project.url_for())
 
         return render_template(
-            template,
+            'add_sponsor_modal.html.jinja2',
             form=form,
-            title=title,
+            title="Remove Sponsor?",
             message=("Do you want to remove ‘{sponsor_name}’ as a sponsor?").format(
                 sponsor_name=sponsor_name
             ),
             success=("Sponsor has been removed"),
-            next=self.project.url_for(),
-            cancel_url=self.project.url_for(),
+            ref_id='remove_sponsor',
+            remove=True,
         )
 
 
