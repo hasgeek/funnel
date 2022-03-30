@@ -77,6 +77,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             form=form,
             action=self.obj.url_for('edit_sponsor'),
             ref_id='edit_sponsor',
+            sponsorship=sponsorship,
         )
 
     @route('remove', methods=['GET', "POST"])
@@ -104,7 +105,6 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
                 sponsor_name=sponsor_name
             ),
             action=self.obj.url_for('remove_sponsor'),
-            success=("Sponsor has been removed"),
             ref_id='remove_sponsor',
             remove=True,
         )
