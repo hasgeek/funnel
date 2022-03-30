@@ -17,7 +17,7 @@ describe('Profile', () => {
     cy.get('button[data-cy="form-submit-btn"]').click();
 
     // Sponsor profile
-    cy.visit('/')
+    cy.visit('/');
     cy.get('#hgnav').find('a[data-cy="my-account"]').click();
     cy.wait(1000);
     cy.get('a[data-cy="org"]:visible').click();
