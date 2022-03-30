@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from flask import (
-    render_template,
-    flash,
-)
+from flask import flash, render_template
 
 from baseframe import _
 from baseframe.forms import render_redirect
