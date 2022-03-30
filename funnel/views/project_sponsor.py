@@ -8,7 +8,6 @@ from flask import (
 from baseframe import _
 from baseframe.forms import render_redirect
 from baseframe.forms.auto import ConfirmDeleteForm
-
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
