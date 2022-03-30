@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from flask import (
+    render_template,
+)
+
 from baseframe.forms import render_redirect
 from coaster.auth import current_auth
 from coaster.views import (
@@ -49,10 +53,9 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
         return super().after_loader()
 
     @route('edit', methods=['GET', "POST"])
-    @requires_login
-    @requires_roles({'editor'})
-    @render_with('add_sponsor_modal.html.jinja2')
     def edit_sponsor(self):
+        if not current_auth.user.is_site_editor:
+            abort(403)
         sponsorship = self.obj
         form = AddSponsorForm(
             label=self.obj.label, is_promoted=self.obj.is_promoted, obj=sponsorship
@@ -66,12 +69,20 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             db.session.commit()
             return render_redirect(self.project.url_for())
 
-        return {
-            'project': self.project,
-            'form': form,
-            'ref_id': 'edit_sponsor',
-            'action': self.obj.url_for('edit_sponsor'),
-        }
+        return render_template(
+            'add_sponsor_modal.html.jinja2',
+            project=self.project,
+            form=form,
+            action=self.obj.url_for('edit_sponsor'),
+            ref_id='edit_sponsor',
+        )
+
+    @route('delete', methods=['GET', "POST"])
+    @requires_login
+    @requires_roles({'editor'})
+    @render_with('add_sponsor_modal.html.jinja2')
+    def delete_sponsor(self):
+        return
 
 
 ProjectSponsorView.init_app(app)
