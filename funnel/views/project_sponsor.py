@@ -1,19 +1,12 @@
 from __future__ import annotations
 
-from flask import flash, render_template
+from flask import abort, flash, render_template
 
 from baseframe import _
 from baseframe.forms import render_redirect
 from baseframe.forms.auto import ConfirmDeleteForm
 from coaster.auth import current_auth
-from coaster.views import (
-    ModelView,
-    UrlChangeCheck,
-    UrlForView,
-    render_with,
-    requires_roles,
-    route,
-)
+from coaster.views import ModelView, UrlChangeCheck, UrlForView, route
 
 from .. import app
 from ..forms import AddSponsorForm
@@ -61,7 +54,8 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
         form = AddSponsorForm(
             label=self.obj.label, is_promoted=self.obj.is_promoted, obj=sponsorship
         )
-        form.profile.data = [self.profile.name]  # Not working as expected
+        form.profile.data = [self.profile.name]
+
         if form.validate_on_submit():
             del form.profile
             with db.session.no_autoflush:

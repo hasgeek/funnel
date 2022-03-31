@@ -793,6 +793,24 @@ class ProjectView(
         project = self.obj.current_access(datasets=('primary', 'related'))
 
         if form.validate_on_submit():
+            previous_sponsorship = (
+                SponsorMembership.query.filter(SponsorMembership.is_active)
+                .filter_by(
+                    project=self.obj, profile_id=Profile.get(form.profile.data).id
+                )
+                .one_or_none()
+            )
+            if previous_sponsorship is not None:
+                return (
+                    {
+                        'status': 'error',
+                        'error_description': _("Already added as a sponsor"),
+                        'errors': form.errors,
+                        'form_nonce': form.form_nonce.data,
+                    },
+                    400,
+                )
+
             sponsor_membership = SponsorMembership(
                 project=self.obj,
                 granted_by=current_auth.user,
