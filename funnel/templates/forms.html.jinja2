@@ -133,7 +133,7 @@
 {%- endmacro %}
 
 {% macro rendersubmit(buttons=[], css_class="", tabindex='', cancel_url='', style='horiz', csrf_error=false) -%}
-<div class="mui-form form-actions clearfix{% if css_class %} {{ css_class}}{% endif %}">
+<div class="mui-form form-actions mui--clearfix{% if css_class %} {{ css_class}}{% endif %}">
   <div>
     {% for name, value, widget_class in buttons -%}
       <button type="submit"
@@ -209,6 +209,8 @@
                 $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.serverError);
               } else if(xhr.status === 429) {
                 $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.rateLimitError);
+              } else if(xhr.responseJSON.error_description) {
+                $(form).find('.alert__text').text(xhr.responseJSON.error_description);
               } else {
                 $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.error);
               }

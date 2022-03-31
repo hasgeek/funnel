@@ -456,16 +456,8 @@
   }
 
   .mui-form {
-    .form-actions {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      padding: $mui-grid-padding;
-      z-index: 1003;
-      .mui-btn--primary {
-        position: relative;
-        top: 8px;
-      }
+    .form-actions div {
+      float: right;
     }
   }
 }
