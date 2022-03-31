@@ -793,13 +793,22 @@ class ProjectView(
         project = self.obj.current_access(datasets=('primary', 'related'))
 
         if form.validate_on_submit():
+            profile = Profile.get(form.profile.data)
             previous_sponsorship = (
                 SponsorMembership.query.filter(SponsorMembership.is_active)
-                .filter_by(
-                    project=self.obj, profile_id=Profile.get(form.profile.data).id
-                )
+                .filter_by(project=self.obj, profile_id=profile.id)
                 .one_or_none()
             )
+            if profile is None:
+                return (
+                    {
+                        'status': 'error',
+                        'error_description': _("Profile does not exist"),
+                        'errors': form.errors,
+                        'form_nonce': form.form_nonce.data,
+                    },
+                    400,
+                )
             if previous_sponsorship is not None:
                 return (
                     {
@@ -810,18 +819,18 @@ class ProjectView(
                     },
                     400,
                 )
-
-            sponsor_membership = SponsorMembership(
-                project=self.obj,
-                granted_by=current_auth.user,
-                profile=Profile.get(form.profile.data),
-                is_promoted=form.is_promoted.data,
-                label=form.label.data,
-            )
-            db.session.add(sponsor_membership)
-            db.session.commit()
-            flash(_("Sponsor has been added"), 'info')
-            return render_redirect(self.obj.url_for())
+            else:
+                sponsor_membership = SponsorMembership(
+                    project=self.obj,
+                    granted_by=current_auth.user,
+                    profile=profile,
+                    is_promoted=form.is_promoted.data,
+                    label=form.label.data,
+                )
+                db.session.add(sponsor_membership)
+                db.session.commit()
+                flash(_("Sponsor has been added"), 'info')
+                return render_redirect(self.obj.url_for())
         return render_template(
             'add_sponsor_modal.html.jinja2',
             project=project,
