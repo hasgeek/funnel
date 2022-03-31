@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from flask import abort, flash, render_template
+from flask import abort, flash, render_template, request
 
 from baseframe import _
 from baseframe.forms import render_redirect
@@ -34,7 +34,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
     ) -> SponsorMembership:
         obj = (
             self.model.query.join(Project, Profile)
-            .filter(SponsorMembership.id == sponsor)
+            .filter(self.model.id == sponsor)
             .first()
         )
 
@@ -50,21 +50,49 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
     def edit_sponsor(self):
         if not current_auth.user.is_site_editor:
             abort(403)
+        sponsor = (
+            self.model.query.filter(SponsorMembership.is_active)
+            .filter_by(id=self.obj.id)
+            .one_or_none()
+        )
         sponsorship = self.obj
         form = AddSponsorForm(
             label=self.obj.label, is_promoted=self.obj.is_promoted, obj=sponsorship
         )
         form.profile.data = [self.profile.name]
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                if sponsor is not None:
+                    del form.profile
+                    with db.session.no_autoflush:
+                        with sponsorship.amend_by(current_auth.user) as amendment:
+                            form.populate_obj(amendment)
+                    db.session.commit()
+                    flash(_("Sponsor has been edited"), 'info')
+                    return render_redirect(self.project.url_for())
 
-        if form.validate_on_submit():
-            del form.profile
-            with db.session.no_autoflush:
-                with sponsorship.amend_by(current_auth.user) as amendment:
-                    form.populate_obj(amendment)
-            db.session.commit()
-            flash(_("Sponsor has been edited"), 'info')
-            return render_redirect(self.project.url_for())
-
+                else:
+                    return (
+                        {
+                            'status': 'error',
+                            'error_description': _(
+                                "Sponsor has been revoked. Please refresh the page"
+                            ),
+                            'errors': form.errors,
+                            'form_nonce': form.form_nonce.data,
+                        },
+                        400,
+                    )
+            else:
+                return (
+                    {
+                        'status': 'error',
+                        'error_description': _("Sponsor could not be edited"),
+                        'errors': form.errors,
+                        'form_nonce': form.form_nonce.data,
+                    },
+                    400,
+                )
         return render_template(
             'add_sponsor_modal.html.jinja2',
             project=self.project,
@@ -79,17 +107,45 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
     def remove_sponsor(self):
         if not current_auth.user.is_site_editor:
             abort(403)
+        sponsor = (
+            self.model.query.filter(SponsorMembership.is_active)
+            .filter_by(id=self.obj.id)
+            .one_or_none()
+        )
         sponsorship = self.obj
         user = current_auth.user
 
         form = ConfirmDeleteForm()
         sponsor_name = self.obj.profile.name
-        if form.validate_on_submit():
-            sponsorship.revoke(actor=user)
-            db.session.add(sponsorship)
-            db.session.commit()
-            flash(_("Sponsor has been removed"), 'info')
-            return render_redirect(self.project.url_for())
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                if sponsor is not None:
+                    sponsorship.revoke(actor=user)
+                    db.session.add(sponsorship)
+                    db.session.commit()
+                    flash(_("Sponsor has been removed"), 'info')
+                    return render_redirect(self.project.url_for())
+
+                else:
+                    return (
+                        {
+                            'status': 'error',
+                            'error_description': _("Sponsor has already been removed"),
+                            'errors': form.errors,
+                            'form_nonce': form.form_nonce.data,
+                        },
+                        400,
+                    )
+            else:
+                return (
+                    {
+                        'status': 'error',
+                        'error_description': _("Sponsor could not be removed"),
+                        'errors': form.errors,
+                        'form_nonce': form.form_nonce.data,
+                    },
+                    400,
+                )
 
         return render_template(
             'add_sponsor_modal.html.jinja2',
