@@ -437,7 +437,7 @@ webencodings==0.5.1
     # via
     #   bleach
     #   html5lib
-werkzeug==2.0.3
+werkzeug==2.1.0
     # via
     #   -r requirements.in
     #   baseframe
