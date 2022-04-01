@@ -145,7 +145,7 @@ flask-sqlalchemy==2.5.1
     # via
     #   -r requirements.in
     #   flask-migrate
-flask-wtf==1.0.0
+flask-wtf==1.0.1
     # via
     #   -r requirements.in
     #   baseframe
