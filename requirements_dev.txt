@@ -6,7 +6,7 @@
 #
 attrs==21.4.0
     # via flake8-bugbear
-awscli==1.22.74
+awscli==1.22.86
     # via -r requirements_dev.in
 bandit==1.7.4
     # via
