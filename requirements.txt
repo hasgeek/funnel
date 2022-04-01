@@ -88,7 +88,7 @@ cssselect==1.1.0
     # via premailer
 cssutils==2.4.0
     # via premailer
-dataclasses-json==0.5.6
+dataclasses-json==0.5.7
     # via -r requirements.in
 deprecated==1.2.13
     # via redis
