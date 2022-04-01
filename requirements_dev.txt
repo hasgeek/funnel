@@ -84,7 +84,7 @@ lxml-stubs==0.4.0
     # via -r requirements_dev.in
 mccabe==0.7.0
     # via flake8
-mypy==0.941
+mypy==0.942
     # via
     #   -r requirements_dev.in
     #   sqlalchemy-stubs
