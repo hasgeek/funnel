@@ -405,7 +405,7 @@ tldextract==3.2.0
     # via mxsniff
 tuspy==0.2.5
     # via pyvimeo
-tweepy==4.6.0
+tweepy==4.8.0
     # via -r requirements.in
 twilio==7.7.1
     # via -r requirements.in
