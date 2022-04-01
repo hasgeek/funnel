@@ -33,7 +33,7 @@ lxml==4.8.0
     # via -r requirements_test.in
 mako==1.2.0
     # via pytest-bdd
-markupsafe==2.1.0
+markupsafe==2.1.1
     # via mako
 packaging==21.3
     # via
