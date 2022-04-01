@@ -179,7 +179,7 @@ idna==3.3
     #   yarl
 importlib-metadata==4.11.3
     # via markdown
-itsdangerous==2.0.1
+itsdangerous==2.1.2
     # via
     #   -r requirements.in
     #   flask
