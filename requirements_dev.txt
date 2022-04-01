@@ -199,7 +199,7 @@ typing-extensions==4.1.1
     # via
     #   mypy
     #   sqlalchemy-stubs
-urllib3==1.26.8
+urllib3==1.26.9
     # via botocore
 virtualenv==20.13.3
     # via pre-commit
