@@ -38,7 +38,7 @@ bleach==4.1.0
     # via baseframe
 blinker==1.4
     # via -r requirements.in
-boto3==1.21.19
+boto3==1.21.31
     # via -r requirements.in
 botocore==1.24.19
     # via
