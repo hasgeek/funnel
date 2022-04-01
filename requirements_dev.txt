@@ -201,7 +201,7 @@ typing-extensions==4.1.1
     #   sqlalchemy-stubs
 urllib3==1.26.9
     # via botocore
-virtualenv==20.13.3
+virtualenv==20.14.0
     # via pre-commit
 watchdog==2.1.6
     # via -r requirements_dev.in
