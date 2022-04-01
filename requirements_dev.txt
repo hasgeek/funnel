@@ -183,7 +183,7 @@ types-requests==2.27.15
     # via -r requirements_dev.in
 types-setuptools==57.4.11
     # via -r requirements_dev.in
-types-simplejson==3.17.3
+types-simplejson==3.17.4
     # via -r requirements_dev.in
 types-six==1.16.12
     # via -r requirements_dev.in
