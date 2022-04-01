@@ -415,7 +415,7 @@ typing-extensions==4.1.1
     #   typing-inspect
 typing-inspect==0.7.1
     # via dataclasses-json
-tzdata==2021.5
+tzdata==2022.1
     # via pytz-deprecation-shim
 tzlocal==4.1
     # via js2py
