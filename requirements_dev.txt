@@ -177,7 +177,7 @@ types-maxminddb==1.5.0
     #   types-geoip2
 types-python-dateutil==2.8.10
     # via -r requirements_dev.in
-types-pytz==2021.3.5
+types-pytz==2021.3.6
     # via -r requirements_dev.in
 types-requests==2.27.12
     # via -r requirements_dev.in
