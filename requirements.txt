@@ -246,7 +246,7 @@ packaging==21.3
     #   bleach
     #   marshmallow
     #   redis
-paramiko==2.10.2
+paramiko==2.10.3
     # via fabric3
 passlib==1.7.4
     # via -r requirements.in
