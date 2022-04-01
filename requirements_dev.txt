@@ -181,7 +181,7 @@ types-pytz==2021.3.6
     # via -r requirements_dev.in
 types-requests==2.27.15
     # via -r requirements_dev.in
-types-setuptools==57.4.10
+types-setuptools==57.4.11
     # via -r requirements_dev.in
 types-simplejson==3.17.3
     # via -r requirements_dev.in
