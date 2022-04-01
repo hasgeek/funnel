@@ -24,7 +24,7 @@ colorama==0.4.4
     # via awscli
 distlib==0.3.4
     # via virtualenv
-docutils==0.15.2
+docutils==0.18.1
     # via awscli
 filelock==3.6.0
     # via virtualenv
