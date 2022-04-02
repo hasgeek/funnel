@@ -55,9 +55,9 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             .filter_by(id=self.obj.id)
             .one_or_none()
         )
-        sponsorship = self.obj
+        edit_sponsorship = self.obj
         form = AddSponsorForm(
-            label=self.obj.label, is_promoted=self.obj.is_promoted, obj=sponsorship
+            label=self.obj.label, is_promoted=self.obj.is_promoted, obj=edit_sponsorship
         )
         form.profile.data = [self.profile.name]
         if request.method == 'POST':
@@ -65,7 +65,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
                 if sponsor is not None:
                     del form.profile
                     with db.session.no_autoflush:
-                        with sponsorship.amend_by(current_auth.user) as amendment:
+                        with edit_sponsorship.amend_by(current_auth.user) as amendment:
                             form.populate_obj(amendment)
                     db.session.commit()
                     flash(_("Sponsor has been edited"), 'info')
@@ -99,7 +99,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             form=form,
             action=self.obj.url_for('edit_sponsor'),
             ref_id='edit_sponsor',
-            sponsorship=sponsorship,
+            sponsorship=edit_sponsorship,
         )
 
     @route('remove', methods=['GET', "POST"])
@@ -112,7 +112,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             .filter_by(id=self.obj.id)
             .one_or_none()
         )
-        sponsorship = self.obj
+        remove_sponsorship = self.obj
         user = current_auth.user
 
         form = ConfirmDeleteForm()
@@ -120,8 +120,8 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
         if request.method == 'POST':
             if form.validate_on_submit():
                 if sponsor is not None:
-                    sponsorship.revoke(actor=user)
-                    db.session.add(sponsorship)
+                    remove_sponsorship.revoke(actor=user)
+                    db.session.add(remove_sponsorship)
                     db.session.commit()
                     flash(_("Sponsor has been removed"), 'info')
                     return render_redirect(self.project.url_for())
