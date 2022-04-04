@@ -4,17 +4,17 @@ from funnel.models import SiteMembership, SponsorMembership, db
 
 
 @pytest.fixture
-def org_uu(user_vetinari, org_ankhmorpork, project_expo2010):
-    org_uu = SponsorMembership(
+def org_uu_sponsor(user_vetinari, org_uu, project_expo2010):
+    org_uu_sponsor = SponsorMembership(
         granted_by=user_vetinari,
-        profile=org_ankhmorpork.profile,
+        profile=org_uu.profile,
         project=project_expo2010,
         is_promoted=True,
         label="Diamond",
     )
     db.session.add(org_uu)
     db.session.commit()
-    return org_uu
+    return org_uu_sponsor
 
 
 @pytest.fixture
@@ -37,10 +37,10 @@ def user_twoflower_not_site_editor(user_twoflower):
     ['user', 'code'],
     [('user_vetinari_site_editor', 200), ('user_twoflower_not_site_editor', 403)],
 )
-def test_check_site_editor_edit_sponsor(client, org_uu, code, user, request):
+def test_check_site_editor_edit_sponsor(client, org_uu_sponsor, code, user, request):
     db.session.add(request.getfixturevalue(user))
     db.session.commit()
-    endpoint = org_uu.url_for('edit_sponsor')
+    endpoint = org_uu_sponsor.url_for('edit_sponsor')
     with client.session_transaction() as session:
         session['userid'] = request.getfixturevalue(user).user.userid
     rv = client.get(endpoint)
@@ -49,18 +49,18 @@ def test_check_site_editor_edit_sponsor(client, org_uu, code, user, request):
 
 def test_sponsor_edit(
     client,
-    org_uu,
+    org_uu_sponsor,
     user_vetinari,
     user_vetinari_site_editor,
 ):
     db.session.add(user_vetinari_site_editor)
     db.session.commit()
-    endpoint = org_uu.url_for('edit_sponsor')
+    endpoint = org_uu_sponsor.url_for('edit_sponsor')
     csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     with client.session_transaction() as session:
         session['userid'] = user_vetinari_site_editor.user.userid
     data = {
-        'profile': org_uu.profile.name,
+        'profile': org_uu_sponsor.profile.name,
         'label': 'diamond-edited',
         'is_promoted': False,
         'csrf_token': csrf_token,
@@ -70,7 +70,7 @@ def test_sponsor_edit(
 
     edited_sponsor = (
         SponsorMembership.query.filter(SponsorMembership.is_active)
-        .filter_by(profile_id=org_uu.profile.id)
+        .filter_by(profile_id=org_uu_sponsor.profile.id)
         .one_or_none()
     )
     assert edited_sponsor.label == 'diamond-edited'
@@ -79,13 +79,13 @@ def test_sponsor_edit(
 
 def test_sponsor_remove(
     client,
-    org_uu,
+    org_uu_sponsor,
     user_vetinari,
     user_vetinari_site_editor,
 ):
     db.session.add(user_vetinari_site_editor)
     db.session.commit()
-    endpoint = org_uu.url_for('remove_sponsor')
+    endpoint = org_uu_sponsor.url_for('remove_sponsor')
     csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     with client.session_transaction() as session:
         session['userid'] = user_vetinari.userid
@@ -96,6 +96,6 @@ def test_sponsor_remove(
     assert resp_post.status_code == 302
 
     removed_sponsor = SponsorMembership.query.filter_by(
-        profile_id=org_uu.profile.id
+        profile_id=org_uu_sponsor.profile.id
     ).one_or_none()
     assert removed_sponsor.is_active is False
