@@ -1688,20 +1688,34 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
 
 
 class UserExternalId(BaseMixin, db.Model):
+    """Connected account via OAuth."""
+
     __tablename__ = 'user_externalid'
     __at_username_services__: List[str] = []
+    #: Foreign key to user table
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
+    #: User that this connected account belongs to
     user = db.relationship(User, backref=db.backref('externalids', cascade='all'))
+    #: Identity of the external service (in app's login provider registry)
     service = db.Column(db.UnicodeText, nullable=False)
+    #: Unique user id as per external service, used for identifying related accounts
     userid = db.Column(db.UnicodeText, nullable=False)  # Unique id (or obsolete OpenID)
-    username = db.Column(db.UnicodeText, nullable=True)  # LinkedIn returns full URLs
+    #: Optional public-facing username on the external service
+    username = db.Column(db.UnicodeText, nullable=True)  # LinkedIn once used full URLs
+    #: OAuth or OAuth2 access token
     oauth_token = db.Column(db.UnicodeText, nullable=True)
+    #: Optional token secret (not used in OAuth2, used by Twitter with OAuth1a)
     oauth_token_secret = db.Column(db.UnicodeText, nullable=True)
+    #: OAuth token type (typically 'bearer')
     oauth_token_type = db.Column(db.UnicodeText, nullable=True)
+    #: OAuth2 refresh token
     oauth_refresh_token = db.Column(db.UnicodeText, nullable=True)
+    #: OAuth2 token expiry in seconds, as sent by service provider
     oauth_expires_in = db.Column(db.Integer, nullable=True)
-    oauth_expires_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    #: OAuth2 token expiry timestamp, estimate from created_at + oauth_expires_in
+    oauth_expires_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
 
+    #: Timestamp of when this connected account was last (re-)authorised by the user
     last_used_at = db.Column(
         db.TIMESTAMP(timezone=True), default=db.func.utcnow(), nullable=False
     )

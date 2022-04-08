@@ -21,7 +21,7 @@ from baseframe import _, __, forms, request_is_xhr, statsd
 from baseframe.forms import render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
-from coaster.utils import getbool
+from coaster.utils import getbool, utcnow
 from coaster.views import get_next_url, requestargs
 
 from .. import app
@@ -420,10 +420,13 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
         extid.oauth_token_secret = userdata.oauth_token_secret
         extid.oauth_token_type = userdata.oauth_token_type
         extid.username = userdata.username
-        # TODO: Save refresh token and expiry date where present
         extid.oauth_refresh_token = userdata.oauth_refresh_token
         extid.oauth_expires_in = userdata.oauth_expires_in
-        # TODO: Check this
+        extid.oauth_expires_at = (
+            (utcnow() + timedelta(seconds=userdata.oauth_expires_in))
+            if userdata.oauth_expires_in
+            else None,
+        )
         extid.last_used_at = db.func.utcnow()
     else:
         # New external id. Register it.
@@ -435,13 +438,13 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
             oauth_token=userdata.oauth_token,
             oauth_token_secret=userdata.oauth_token_secret,
             oauth_token_type=userdata.oauth_token_type,
-            last_used_at=db.func.utcnow(),
             oauth_refresh_token=userdata.oauth_refresh_token,
             oauth_expires_in=userdata.oauth_expires_in,
             oauth_expires_at=db.func.utcnow()
             + timedelta(seconds=userdata.oauth_expires_in)
             if userdata.oauth_expires_in
             else None,
+            last_used_at=db.func.utcnow(),
         )
     if user is None:
         if current_auth:

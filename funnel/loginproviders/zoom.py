@@ -17,12 +17,12 @@ __all__ = ['ZoomProvider']
 
 
 class ZoomProvider(LoginProvider):
-    at_username = True
-    auth_url = "https://zoom.us/oauth/authorize?response_type=code"  # nosec
+    at_username = False
+    auth_url = 'https://zoom.us/oauth/authorize?response_type=code'  # nosec
     token_url = (
-        "https://zoom.us/oauth/token?grant_type=authorization_code"  # nosec  # noqa
+        'https://zoom.us/oauth/token?grant_type=authorization_code'  # nosec  # noqa
     )
-    user_info = "https://api.zoom.us/v2/users/me"  # nosec
+    user_info_url = 'https://api.zoom.us/v2/users/me'  # nosec
 
     def __init__(
         self, name, title, key, secret, at_login=False, priority=False, icon=None
@@ -77,10 +77,10 @@ class ZoomProvider(LoginProvider):
             if 'error' in response:
                 raise LoginCallbackError(response['error'])
             zoominfo = requests.get(
-                self.user_info,
+                self.user_info_url,
                 timeout=30,
                 headers={
-                    "Authorization": "Bearer {token}".format(
+                    'Authorization': 'Bearer {token}'.format(
                         token=response['access_token']
                     )
                 },

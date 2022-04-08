@@ -18,8 +18,8 @@ class GitHubProvider(LoginProvider):
     at_username = True
     auth_url = 'https://github.com/login/oauth/authorize'
     token_url = 'https://github.com/login/oauth/access_token'  # nosec  # noqa: S105
-    user_info = 'https://api.github.com/user'
-    user_emails = 'https://api.github.com/user/emails'
+    user_info_url = 'https://api.github.com/user'
+    user_emails_url = 'https://api.github.com/user/emails'
 
     def __init__(
         self, name, title, key, secret, at_login=True, priority=False, icon=None
@@ -71,7 +71,7 @@ class GitHubProvider(LoginProvider):
             if 'error' in response:
                 raise LoginCallbackError(response['error'])
             ghinfo = requests.get(
-                self.user_info,
+                self.user_info_url,
                 timeout=30,
                 headers={
                     "Authorization": "token {token}".format(
@@ -80,7 +80,7 @@ class GitHubProvider(LoginProvider):
                 },
             ).json()
             ghemails = requests.get(
-                self.user_emails,
+                self.user_emails_url,
                 timeout=30,
                 headers={
                     'Accept': 'application/vnd.github.v3+json',
