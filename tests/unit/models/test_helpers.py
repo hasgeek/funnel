@@ -5,7 +5,13 @@ from sqlalchemy.exc import StatementError
 import pytest
 
 from funnel.models import ImgeeType, db
-from funnel.models.helpers import add_to_class, reopen, valid_name, valid_username
+from funnel.models.helpers import (
+    add_to_class,
+    autocomplete_tsquery,
+    reopen,
+    valid_name,
+    valid_username,
+)
 
 
 def test_valid_name():
@@ -199,3 +205,10 @@ def test_imgeetype(db_session, image_models):
     assert m2.image_url.resize(120).args['foo'] == 'bar'
     assert m2.image_url.resize(120, 100).args['size'] == '120x100'
     assert m2.image_url.resize(120).args['size'] == '120'
+
+
+def test_autocomplete_tsquery():
+    # Single word autocomplete
+    assert autocomplete_tsquery('word') == "'word':*"
+    # Multi-word autocomplete with stemming
+    assert autocomplete_tsquery('two words') == "'two' <-> 'word':*"

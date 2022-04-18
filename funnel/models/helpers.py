@@ -6,7 +6,7 @@ from typing import Dict, Iterable, Optional, Set, Type
 import os.path
 import re
 
-from sqlalchemy import DDL, event
+from sqlalchemy import DDL, Text, event
 from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
@@ -41,7 +41,7 @@ __all__ = [
     'add_search_trigger',
     'valid_name',
     'valid_username',
-    'quote_like',
+    'autocomplete_like',
     'ImgeeFurl',
     'ImgeeType',
 ]
@@ -345,20 +345,32 @@ def pgquote(identifier: str) -> str:
     )
 
 
-def quote_like(query):
+def autocomplete_like(query):
     """
-    Construct a LIKE query.
+    Construct a LIKE query string for prefix-based matching (autocomplete).
 
     Usage::
 
-        column.like(quote_like(q))
+        column.like(autocomplete_like(query))
+
+    For case-insensitive queries, add an index on LOWER(column) and use::
+
+        db.func.lower(column).like(db.func.lower(autocomplete_like(query)))
     """
     # Escape the '%' and '_' wildcards in SQL LIKE clauses.
     # Some SQL dialects respond to '[' and ']', so remove them.
+    # Suffix a '%' to make a prefix-match query.
     return (
         query.replace('%', r'\%').replace('_', r'\_').replace('[', '').replace(']', '')
         + '%'
     )
+
+
+def autocomplete_tsquery(query: str) -> str:
+    """Return a PostgreSQL tsquery suitable for autocomplete-type matches."""
+    return db.session.query(
+        db.func.cast(db.func.phraseto_tsquery(query or ''), Text) + ':*'
+    ).scalar()
 
 
 def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:

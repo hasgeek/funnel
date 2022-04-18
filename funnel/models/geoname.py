@@ -10,7 +10,7 @@ from coaster.sqlalchemy import Query
 from coaster.utils import make_name
 
 from . import BaseMixin, BaseNameMixin, db
-from .helpers import quote_like
+from .helpers import autocomplete_like
 
 __all__ = ['GeoName', 'GeoCountryInfo', 'GeoAdmin1Code', 'GeoAdmin2Code', 'GeoAltName']
 
@@ -453,7 +453,9 @@ class GeoName(BaseNameMixin, db.Model):
                 else:
                     matches = (
                         GeoAltName.query.filter(
-                            db.func.lower(GeoAltName.title).like(quote_like(ltoken))
+                            db.func.lower(GeoAltName.title).like(
+                                autocomplete_like(ltoken)
+                            )
                         )
                         .options(
                             joinedload('geoname').joinedload('country'),
@@ -521,7 +523,7 @@ class GeoName(BaseNameMixin, db.Model):
         """
         query = (
             cls.query.join(cls.alternate_titles)
-            .filter(db.func.lower(GeoAltName.title).like(quote_like(q.lower())))
+            .filter(db.func.lower(GeoAltName.title).like(autocomplete_like(q.lower())))
             .order_by(db.desc(cls.population))
         )
         if lang:

@@ -220,16 +220,3 @@ def do_migrate_instances(
             migrated_tables.add(table.name)
 
     return safe_to_remove_instance
-
-
-def escape_for_sql_like(query):
-    r"""
-    Escape the '%' and '_' wildcards in SQL LIKE clauses.
-    Some SQL dialects respond to '[' and ']', so remove them.
-    >>> escape_for_sql_like("query%_[]")
-    "query\%\_%"
-    """
-    return (
-        query.replace('%', r'\%').replace('_', r'\_').replace('[', '').replace(']', '')
-        + '%'
-    )

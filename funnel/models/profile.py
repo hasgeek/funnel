@@ -22,12 +22,13 @@ from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
     add_search_trigger,
+    autocomplete_tsquery,
     markdown_content_options,
     valid_username,
     visual_field_delimiter,
 )
 from .user import Organization, User
-from .utils import do_migrate_instances, escape_for_sql_like
+from .utils import do_migrate_instances
 
 __all__ = ['Profile']
 
@@ -440,10 +441,24 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         return self.is_protected is False and self.projects.count() == 0
 
     @classmethod
-    def autocomplete(cls, prefix):
-        return cls.query.filter(
-            cls.name.ilike(escape_for_sql_like(prefix)), cls.state.PUBLIC
-        ).all()
+    def autocomplete(cls, query: str) -> List[Profile]:
+        """Return profiles beginning with the query, for autocomplete."""
+        squery = autocomplete_tsquery(query)
+        return (
+            cls.query.outerjoin(User)
+            .outerjoin(Organization)
+            .filter(cls.state.ACTIVE_AND_PUBLIC, cls.search_vector.match(squery))
+            .union(
+                Profile.query.join(User).filter(
+                    User.state.ACTIVE, User.search_vector.match(squery)
+                ),
+                Profile.query.join(Organization).filter(
+                    Organization.state.ACTIVE, Organization.search_vector.match(squery)
+                ),
+            )
+            .order_by(Profile.name)
+            .all()
+        )
 
 
 add_search_trigger(Profile, 'search_vector')
