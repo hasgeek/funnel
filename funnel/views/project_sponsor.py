@@ -40,7 +40,7 @@ class ProjectSponsorLandingView(
                 existing_sponsorship = SponsorMembership.query.filter(
                     SponsorMembership.is_active,
                     SponsorMembership.project == self.obj,
-                    profile=form.profile.data,
+                    SponsorMembership.profile == form.profile.data,
                 ).one_or_none()
                 if existing_sponsorship is not None:
                     return (
@@ -95,7 +95,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
-        'sponsor': 'uuid_b58',
+        'sponsorship': 'uuid_b58',
     }
 
     def loader(
@@ -112,15 +112,17 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
 
     @route('edit', methods=['GET', "POST"])
     def edit(self):
-        form = edit_sponsor_form(self.obj)
+        sponsorship = self.obj
+        form = edit_sponsor_form(sponsorship)
         if request.method == 'POST':
             if form.validate_on_submit():
                 with db.session.no_autoflush:
-                    with self.obj.amend_by(current_auth.user) as amendment:
+                    with sponsorship.amend_by(current_auth.user) as amendment:
                         form.populate_obj(amendment)
+                    sponsorship = amendment.membership
                     db.session.commit()
                     flash(_("Sponsor has been edited"), 'info')
-                    return render_redirect(self.project.url_for())
+                    return render_redirect(self.obj.project.url_for())
 
             else:
                 return (
@@ -132,10 +134,9 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
                     },
                     400,
                 )
-        sponsorship = amendment.membership
         return render_template(
             'add_sponsor_modal.html.jinja2',
-            project=self.project,
+            project=self.obj.project,
             form=form,
             action=sponsorship.url_for('edit'),
             ref_id='edit_sponsor',
@@ -150,7 +151,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
                 self.obj.revoke(actor=current_auth.user)
                 db.session.commit()
                 flash(_("Sponsor has been removed"), 'info')
-                return render_redirect(self.project.url_for())
+                return render_redirect(self.obj.project.url_for())
             else:
                 return (
                     {
@@ -169,7 +170,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             message=_("Remove ‘{sponsor}’ as a sponsor?").format(
                 sponsor=self.obj.profile.title
             ),
-            action=self.obj.url_for('remove_sponsor'),
+            action=self.obj.url_for('remove'),
             ref_id='remove_sponsor',
             remove=True,
         )

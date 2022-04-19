@@ -40,7 +40,7 @@ def user_twoflower_not_site_editor(user_twoflower):
 def test_check_site_editor_edit_sponsor(client, org_uu_sponsor, code, user, request):
     db.session.add(request.getfixturevalue(user))
     db.session.commit()
-    endpoint = org_uu_sponsor.url_for('edit_sponsor')
+    endpoint = org_uu_sponsor.url_for('edit')
     with client.session_transaction() as session:
         session['userid'] = request.getfixturevalue(user).user.userid
     rv = client.get(endpoint)
@@ -55,7 +55,7 @@ def test_sponsor_edit(
 ):
     db.session.add(user_vetinari_site_editor)
     db.session.commit()
-    endpoint = org_uu_sponsor.url_for('edit_sponsor')
+    endpoint = org_uu_sponsor.url_for('edit')
     csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     with client.session_transaction() as session:
         session['userid'] = user_vetinari_site_editor.user.userid
@@ -85,7 +85,7 @@ def test_sponsor_remove(
 ):
     db.session.add(user_vetinari_site_editor)
     db.session.commit()
-    endpoint = org_uu_sponsor.url_for('remove_sponsor')
+    endpoint = org_uu_sponsor.url_for('remove')
     csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     with client.session_transaction() as session:
         session['userid'] = user_vetinari.userid
