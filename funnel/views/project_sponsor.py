@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import flash, render_template, request
+from flask import abort, flash, render_template, request
 
 from baseframe import _
 from baseframe.forms import render_redirect
@@ -104,11 +104,14 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
         project: str,  # skipcq: PYL-W0613
         sponsorship: Optional[str] = None,
     ) -> SponsorMembership:
-        return (
+        obj = (
             self.model.query.join(Project, Profile)
-            .filter(self.model.uuid_b58 == sponsorship, self.model.is_active)
+            .filter(self.model.uuid_b58 == sponsorship)
             .one_or_404()
         )
+        if not obj.is_active:
+            abort(410)
+        return obj
 
     @route('edit', methods=['GET', "POST"])
     def edit(self):
