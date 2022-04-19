@@ -4,11 +4,11 @@ import re
 
 from baseframe import _, __
 from baseframe.forms.sqlalchemy import AvailableName
-from coaster.utils import getbool, sorted_timezones, utcnow
+from coaster.utils import sorted_timezones, utcnow
 import baseframe.forms as forms
 
 from ..models import Project, Rsvp, SavedProject
-from .helpers import image_url_validator, nullable_strip_filters
+from .helpers import ProfileSelectField, image_url_validator, nullable_strip_filters
 
 __all__ = [
     'CfpForm',
@@ -18,7 +18,7 @@ __all__ = [
     'ProjectNameForm',
     'ProjectTransitionForm',
     'ProjectBannerForm',
-    'AddSponsorForm',
+    'ProjectSponsorForm',
     'RsvpTransitionForm',
     'SavedProjectForm',
 ]
@@ -260,32 +260,21 @@ class ProjectCfpTransitionForm(forms.Form):
         # No action required in all other cases
 
 
-@Project.forms('add_sponsor')
-class AddSponsorForm(forms.Form):
-    profile = forms.AutocompleteField(
+@Project.forms('sponsor')
+class ProjectSponsorForm(forms.Form):
+    profile = ProfileSelectField(
         __("Profile"),
         autocomplete_endpoint='/api/1/profile/autocomplete',
         results_key='profile',
-        description=__("Search for the name of profile"),
-        validators=[forms.validators.InputRequired()],
+        description=__("Choose a sponsor"),
+        validators=[forms.validators.DataRequired()],
     )
     label = forms.StringField(
         __("Label"),
-        description=__("Optional – Label to indicate the type of sponsor"),
+        description=__("Optional – Label for sponsor"),
         filters=[forms.filters.strip(), forms.filters.none_if_empty()],
     )
-    is_promoted = forms.RadioField(
-        __("Is it a promoted sponsor?"),
-        coerce=getbool,
-        default=False,
-        choices=[
-            (
-                True,
-                __("Yes"),
-            ),
-            (False, __("No")),
-        ],
-    )
+    is_promoted = forms.BooleanField(__("Mark this sponsor as promoted"), default=False)
 
 
 @SavedProject.forms('main')

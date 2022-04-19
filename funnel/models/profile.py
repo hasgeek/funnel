@@ -320,6 +320,14 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             else_='',
         )
 
+    @property
+    def pickername(self) -> str:
+        if self.user:
+            return self.user.pickername
+        if self.organization:
+            return self.organization.pickername
+        return self.title
+
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         if self.owner:
             roles = self.owner.roles_for(actor, anchors)

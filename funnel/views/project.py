@@ -34,7 +34,6 @@ from coaster.views import (
 
 from .. import app
 from ..forms import (
-    AddSponsorForm,
     CfpForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
@@ -51,13 +50,12 @@ from ..models import (
     RegistrationConfirmationNotification,
     Rsvp,
     SavedProject,
-    SponsorMembership,
     db,
 )
 from ..signals import project_role_change
 from .helpers import html_in_json
 from .jobs import import_tickets, tag_locations
-from .login_session import requires_login
+from .login_session import requires_login, requires_site_editor
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
 
@@ -769,9 +767,8 @@ class ProjectView(
         }
 
     @route('update_featured', methods=['POST'])
+    @requires_site_editor
     def update_featured(self):
-        if not current_auth.user.is_site_editor:
-            abort(403)
         featured_form = self.obj.forms.featured()
         if featured_form.validate_on_submit():
             featured_form.populate_obj(self.obj)
@@ -784,72 +781,6 @@ class ProjectView(
                     'message': 'This project is no longer featured.',
                 }
         return redirect(get_next_url(referrer=True), 303)
-
-    @route('add_sponsor', methods=['POST', 'GET'])
-    def add_sponsor(self):
-        if not current_auth.user.is_site_editor:
-            abort(403)
-        form = AddSponsorForm()
-        project = self.obj.current_access(datasets=('primary', 'related'))
-
-        if request.method == "POST":
-            if form.validate_on_submit():
-                profile = Profile.get(form.profile.data)
-                previous_sponsorship = (
-                    SponsorMembership.query.filter(SponsorMembership.is_active)
-                    .filter_by(project=self.obj, profile_id=profile.id)
-                    .one_or_none()
-                )
-                if profile is None:
-                    return (
-                        {
-                            'status': 'error',
-                            'error_description': _("Profile does not exist"),
-                            'errors': form.errors,
-                            'form_nonce': form.form_nonce.data,
-                        },
-                        400,
-                    )
-                if previous_sponsorship is not None:
-                    return (
-                        {
-                            'status': 'error',
-                            'error_description': _("Already added as a sponsor"),
-                            'errors': form.errors,
-                            'form_nonce': form.form_nonce.data,
-                        },
-                        400,
-                    )
-                else:
-                    sponsor_membership = SponsorMembership(
-                        project=self.obj,
-                        granted_by=current_auth.user,
-                        profile=profile,
-                        is_promoted=form.is_promoted.data,
-                        label=form.label.data,
-                    )
-                    db.session.add(sponsor_membership)
-                    db.session.commit()
-                    flash(_("Sponsor has been added"), 'info')
-                    return render_redirect(self.obj.url_for())
-
-            else:
-                return (
-                    {
-                        'status': 'error',
-                        'error_description': _("Sponsor could not be added"),
-                        'errors': form.errors,
-                        'form_nonce': form.form_nonce.data,
-                    },
-                    400,
-                )
-        return render_template(
-            'add_sponsor_modal.html.jinja2',
-            project=project,
-            form=form,
-            action=self.obj.url_for('add_sponsor'),
-            ref_id='add_sponsor',
-        )
 
 
 ProjectView.init_app(app)
