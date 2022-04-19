@@ -333,6 +333,8 @@ def login_service(service: str) -> ReturnView:
     if service not in login_registry:
         abort(404)
     provider = login_registry[service]
+    if not login_registry[service].at_login and not current_auth:
+        abort(403)
     set_session_next_url()
 
     callback_url = url_for('.login_service_callback', service=service, _external=True)
