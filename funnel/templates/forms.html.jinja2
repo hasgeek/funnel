@@ -108,7 +108,7 @@
                 <label for="{{ field.id }}">{{ field.label.text }}</label>
               {%- endif %}
             </div>
-          {%- elif (field.type in ['SelectField', 'QuerySelectField', 'SelectMultipleField', 'QuerySelectMultipleField', 'UserSelectField', 'UserSelectMultiField', 'AutocompleteField', 'AutocompleteMultipleField', 'GeonameSelectField', 'GeonameSelectMultiField'] or field.widget_autocomplete) and field.widget.html_tag not in ['ul', 'ol'] %}
+          {%- elif field.type in ['SelectField', 'QuerySelectField', 'SelectMultipleField', 'QuerySelectMultipleField', 'UserSelectField', 'UserSelectMultiField', 'AutocompleteField', 'AutocompleteMultipleField', 'GeonameSelectField', 'GeonameSelectMultiField', 'ProfileSelectField'] and field.widget.html_tag not in ['ul', 'ol'] %}
             <div class="mui-select">
               {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, autofocus=autofocus, rows=rows, placeholder=placeholder)}}
               <label for="{{ field.id }}">{{ field.label.text }}</label>
@@ -356,7 +356,7 @@
       {{ tinymce3_editor(field, script=false) }}
     {%- elif field.widget.input_type == 'tinymce4' -%}
       {{ tinymce4_editor(field, script=false) }}
-    {%- elif field.type in ['AutocompleteField', 'AutocompleteMultipleField'] or field.widget_autocomplete %}
+    {%- elif field.type in ['AutocompleteField', 'AutocompleteMultipleField', 'ProfileSelectField'] %}
       Hasgeek.Forms.textAutocomplete({
         id: {{ field.id|tojson }},
         multiple: {{ field.multiple|tojson }},

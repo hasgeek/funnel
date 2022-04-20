@@ -41,7 +41,7 @@ __all__ = [
     'add_search_trigger',
     'valid_name',
     'valid_username',
-    'autocomplete_like',
+    'quote_autocomplete_like',
     'ImgeeFurl',
     'ImgeeType',
 ]
@@ -345,17 +345,17 @@ def pgquote(identifier: str) -> str:
     )
 
 
-def autocomplete_like(query):
+def quote_autocomplete_like(query):
     """
     Construct a LIKE query string for prefix-based matching (autocomplete).
 
     Usage::
 
-        column.like(autocomplete_like(query))
+        column.like(quote_autocomplete_like(query))
 
     For case-insensitive queries, add an index on LOWER(column) and use::
 
-        db.func.lower(column).like(db.func.lower(autocomplete_like(query)))
+        db.func.lower(column).like(db.func.lower(quote_autocomplete_like(query)))
     """
     # Escape the '%' and '_' wildcards in SQL LIKE clauses.
     # Some SQL dialects respond to '[' and ']', so remove them.
@@ -366,11 +366,12 @@ def autocomplete_like(query):
     )
 
 
-def autocomplete_tsquery(query: str) -> str:
+def quote_autocomplete_tsquery(query: str) -> str:
     """Return a PostgreSQL tsquery suitable for autocomplete-type matches."""
-    return db.session.query(
-        db.func.cast(db.func.phraseto_tsquery(query or ''), Text) + ':*'
-    ).scalar()
+    with db.session.no_autoflush:
+        return db.session.query(
+            db.func.cast(db.func.phraseto_tsquery(query or ''), Text) + ':*'
+        ).scalar()
 
 
 def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:

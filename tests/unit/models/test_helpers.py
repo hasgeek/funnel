@@ -7,7 +7,7 @@ import pytest
 from funnel.models import ImgeeType, db
 from funnel.models.helpers import (
     add_to_class,
-    autocomplete_tsquery,
+    quote_autocomplete_tsquery,
     reopen,
     valid_name,
     valid_username,
@@ -207,8 +207,8 @@ def test_imgeetype(db_session, image_models):
     assert m2.image_url.resize(120).args['size'] == '120'
 
 
-def test_autocomplete_tsquery():
+def test_quote_autocomplete_tsquery():
     # Single word autocomplete
-    assert autocomplete_tsquery('word') == "'word':*"
+    assert quote_autocomplete_tsquery('word') == "'word':*"
     # Multi-word autocomplete with stemming
-    assert autocomplete_tsquery('two words') == "'two' <-> 'word':*"
+    assert quote_autocomplete_tsquery('two words') == "'two' <-> 'word':*"

@@ -22,8 +22,8 @@ from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
     add_search_trigger,
-    autocomplete_tsquery,
     markdown_content_options,
+    quote_autocomplete_tsquery,
     valid_username,
     visual_field_delimiter,
 )
@@ -451,7 +451,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     @classmethod
     def autocomplete(cls, query: str) -> List[Profile]:
         """Return profiles beginning with the query, for autocomplete."""
-        squery = autocomplete_tsquery(query)
+        squery = quote_autocomplete_tsquery(query)
         return (
             cls.query.outerjoin(User)
             .outerjoin(Organization)
