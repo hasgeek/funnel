@@ -15,7 +15,7 @@
         {%- endfor %}
       </ul>
     </li>
-    <li><span class="mui--text-bold">{% trans %}External IDs:{% endtrans %}</span>
+    <li><span class="mui--text-bold">{% trans %}Connected accounts:{% endtrans %}</span>
       <ul>
         {%- for extid in user.externalids %}
           <li><span class="mui--text-bold">{{ login_registry[extid.service].title }}:</span> {{ extid.username }}</li>

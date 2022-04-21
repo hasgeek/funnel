@@ -37,6 +37,16 @@ def test_session_timeouts_dict():
     assert st.keys_at == {'test_at'}
 
 
+def test_session_intersection():
+    st = SessionTimeouts()
+    st['test'] = timedelta(seconds=1)
+    fake_session_intersection = {'test': 'value', 'other': 'other_value'}
+    fake_session_disjoint = {'other': 'other_value', 'yet_other': 'yet_other_value'}
+
+    assert st.has_intersection(fake_session_intersection)
+    assert not st.has_intersection(fake_session_disjoint)
+
+
 @pytest.fixture
 def timeout_var():
     session_timeouts['test_timeout'] = timedelta(seconds=test_timeout_seconds)

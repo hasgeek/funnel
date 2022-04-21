@@ -289,8 +289,10 @@ def set_lastuser_cookie(response):
             secure=current_app.config['SESSION_COOKIE_SECURE'],
             # Don't allow reading this from JS.
             httponly=True,
-            # Don't allow lastuser cookie outside first-party use
-            samesite='Strict',
+            # Using SameSite=Strict will make the browser not send this cookie when
+            # the user arrives from an external site, including an OAuth2 callback. This
+            # breaks the auth flow, so we must use the Lax policy
+            samesite='Lax',
         )
 
         response.set_cookie(
@@ -305,7 +307,7 @@ def set_lastuser_cookie(response):
             # Allow reading this from JS.
             httponly=False,
             # Allow this cookie to be read in third-party website context
-            samesite='Lax',
+            samesite='None',
         )
 
     return response
@@ -637,6 +639,6 @@ def set_loginmethod_cookie(response, value):
         expires=utcnow() + user_session_validity_period,
         secure=current_app.config['SESSION_COOKIE_SECURE'],
         httponly=True,
-        samesite='Strict',
+        samesite='Lax',
     )
     return response

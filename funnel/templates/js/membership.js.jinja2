@@ -109,7 +109,7 @@
     <script type="text/x-template" id="member-template">
       <div class="member mui--clearfix">
         <div class="user__box mui--pull-left">
-          <useravatar :user='member.user' :addprofilelink=false></useravatar>
+          <useravatar :user='member.user' :addprofilelink=true></useravatar>
           <div class="user__box__header">
             <h3 class="mui--text-body2 user__box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
             <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span>@{{ member.user.username }}</span></h3>
@@ -120,7 +120,6 @@
           <li v-if="member.is_promoter" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Promoter') }}</li>
           <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Usher') }}</li>
           <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 0 && rolesCount(member) < 3">{{ gettext('+ %d more role', rolesCount(member)) }}</li>
-          <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-else>{{ gettext('+ %d more roles', rolesCount(member)) }}</li>
         </ul>
       </div>
     </script>
