@@ -64,17 +64,15 @@ class ProjectSponsorLandingView(
                     db.session.commit()
                     flash(_("Sponsor has been added"), 'info')
                     return render_redirect(self.obj.url_for())
-
-            else:
-                return (
-                    {
-                        'status': 'error',
-                        'error_description': _("Sponsor could not be added"),
-                        'errors': form.errors,
-                        'form_nonce': form.form_nonce.data,
-                    },
-                    400,
-                )
+            return (
+                {
+                    'status': 'error',
+                    'error_description': _("Sponsor could not be added"),
+                    'errors': form.errors,
+                    'form_nonce': form.form_nonce.data,
+                },
+                400,
+            )
         return render_template(
             'add_sponsor_modal.html.jinja2',
             project=self.obj,
@@ -115,14 +113,12 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
 
     @route('edit', methods=['GET', "POST"])
     def edit(self):
-        sponsorship = self.obj
-        form = edit_sponsor_form(sponsorship)
+        form = edit_sponsor_form(self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():
                 with db.session.no_autoflush:
-                    with sponsorship.amend_by(current_auth.user) as amendment:
+                    with self.obj.amend_by(current_auth.user) as amendment:
                         form.populate_obj(amendment)
-                    sponsorship = amendment.membership
                     db.session.commit()
                     flash(_("Sponsor has been edited"), 'info')
                     return render_redirect(self.obj.project.url_for())
@@ -141,9 +137,9 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             'add_sponsor_modal.html.jinja2',
             project=self.obj.project,
             form=form,
-            action=sponsorship.url_for('edit'),
+            action=self.obj.url_for('edit'),
             ref_id='edit_sponsor',
-            sponsorship=sponsorship,
+            sponsorship=self.obj,
         )
 
     @route('remove', methods=['GET', "POST"])

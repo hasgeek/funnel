@@ -27,7 +27,10 @@ class ProfileSelectField(forms.AutocompleteField):
     def process_formdata(self, valuelist) -> None:
         if valuelist:
             self.data = Profile.query.filter(
-                Profile.name == valuelist[0], Profile.state.ACTIVE_AND_PUBLIC
+                # Limit to non-suspended (active) profiles. Do not require profile to
+                # be public as well
+                Profile.name == valuelist[0],
+                Profile.is_active,
             ).one_or_none()
         else:
             self.data = None
