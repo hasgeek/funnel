@@ -20,10 +20,9 @@ def project_url(client, project_expo2010):
 
 
 @pytest.fixture
-def promoter_login(client, user_vetinari):
-    with client.session_transaction() as session:
-        session['userid'] = user_vetinari.userid
-    return session
+def promoter_login(login, user_vetinari):
+    login.as_(user_vetinari)
+    return None
 
 
 def test_project_url_is_as_expected(project_url):
@@ -34,18 +33,18 @@ def test_project_url_is_as_expected(project_url):
 
 
 @pytest.mark.parametrize(
-    ['page', 'xhr', 'login'], product(subpages, xhr_headers, login_sessions)
+    ['page', 'xhr', 'use_login'], product(subpages, xhr_headers, login_sessions)
 )
 def test_default_is_html(
     request,
     client,
-    login: Optional[str],
+    use_login: Optional[str],
     project_url: str,
     page: str,
     xhr: Optional[dict],
 ):
-    if login:
-        request.getfixturevalue(login)
+    if use_login:
+        request.getfixturevalue(use_login)
     headers = {}
     if xhr:
         headers.update(xhr)
@@ -56,18 +55,18 @@ def test_default_is_html(
 
 
 @pytest.mark.parametrize(
-    ['page', 'xhr', 'login'], product(subpages, xhr_headers, login_sessions)
+    ['page', 'xhr', 'use_login'], product(subpages, xhr_headers, login_sessions)
 )
 def test_html_response(
     request,
     client,
-    login: Optional[str],
+    use_login: Optional[str],
     project_url: str,
     page: str,
     xhr: Optional[dict],
 ):
-    if login:
-        request.getfixturevalue(login)
+    if use_login:
+        request.getfixturevalue(use_login)
     headers = {'Accept': 'text/html'}
     if xhr:
         headers.update(xhr)
@@ -77,12 +76,12 @@ def test_html_response(
     assert bool(xhr) ^ rv.data.decode('utf-8').startswith('<!DOCTYPE html>')
 
 
-@pytest.mark.parametrize(['page', 'login'], product(subpages, login_sessions))
+@pytest.mark.parametrize(['page', 'use_login'], product(subpages, login_sessions))
 def test_json_response(
-    request, client, login: Optional[str], project_url: str, page: str
+    request, client, use_login: Optional[str], project_url: str, page: str
 ):
-    if login:
-        request.getfixturevalue(login)
+    if use_login:
+        request.getfixturevalue(use_login)
     headers = {'Accept': 'application/json'}
     rv = client.get(project_url + page, headers=headers)
     assert rv.status_code == 200
@@ -91,18 +90,18 @@ def test_json_response(
 
 
 @pytest.mark.parametrize(
-    ['page', 'xhr', 'login'], product(subpages, xhr_headers, login_sessions)
+    ['page', 'xhr', 'use_login'], product(subpages, xhr_headers, login_sessions)
 )
 def test_htmljson_response(
     request,
     client,
-    login: Optional[str],
+    use_login: Optional[str],
     project_url: str,
     page: str,
     xhr: Optional[dict],
 ):
-    if login:
-        request.getfixturevalue(login)
+    if use_login:
+        request.getfixturevalue(use_login)
     headers = {'Accept': 'application/x.html+json'}
     if xhr:
         headers.update(xhr)

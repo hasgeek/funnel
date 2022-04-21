@@ -123,6 +123,7 @@ def test_sponsorship_edit(
 
 def test_sponsorship_remove(
     client,
+    login,
     org_uu_sponsorship,
     user_vetinari,
     user_vetinari_site_editor,
@@ -131,8 +132,7 @@ def test_sponsorship_remove(
     db.session.commit()
     endpoint = org_uu_sponsorship.url_for('remove')
     csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
-    with client.session_transaction() as session:
-        session['userid'] = user_vetinari.userid
+    login.as_(user_vetinari)
     data = {
         'csrf_token': csrf_token,
     }
