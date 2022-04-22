@@ -307,7 +307,7 @@ class AccountNotificationView(ClassView):
             token_type = session.get('unsub_token_type') or request.form['token_type']
 
         # --- Signed tokens (email)
-        if token_type == 'signed':  # nosec
+        if token_type == 'signed':  # nosec  # noqa: S105
             try:
                 # Token will be in session in the GET request, and in request.form
                 # in the POST request because we'll move it over during the GET request.
@@ -328,7 +328,7 @@ class AccountNotificationView(ClassView):
                 return redirect(url_for('notification_preferences'), code=303)
 
         # --- Cached tokens (SMS)
-        elif token_type == 'cached':  # nosec
+        elif token_type == 'cached':  # nosec  # noqa: S105
 
             # Enforce a rate limit per IP on cached tokens, to slow down enumeration.
             # Some ISPs use carrier-grade NAT and will have a single IP for a very
