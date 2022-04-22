@@ -73,7 +73,7 @@ class ProjectSponsorLandingView(
                 400,
             )
         return render_template(
-            'add_sponsor_modal.html.jinja2',
+            'project_sponsor_popup.html.jinja2',
             project=self.obj,
             form=form,
             action=self.obj.url_for('add_sponsor'),
@@ -133,7 +133,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
                     400,
                 )
         return render_template(
-            'add_sponsor_modal.html.jinja2',
+            'project_sponsor_popup.html.jinja2',
             project=self.obj.project,
             form=form,
             action=self.obj.url_for('edit'),
@@ -162,7 +162,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             )
 
         return render_template(
-            'add_sponsor_modal.html.jinja2',
+            'project_sponsor_popup.html.jinja2',
             form=form,
             title="Remove sponsor?",
             message=_("Remove ‘{sponsor}’ as a sponsor?").format(
