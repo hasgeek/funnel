@@ -23,6 +23,7 @@ from .helpers import (
     ImgeeType,
     add_search_trigger,
     markdown_content_options,
+    quote_autocomplete_tsquery,
     valid_username,
     visual_field_delimiter,
 )
@@ -319,6 +320,14 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             else_='',
         )
 
+    @property
+    def pickername(self) -> str:
+        if self.user:
+            return self.user.pickername
+        if self.organization:
+            return self.organization.pickername
+        return self.title
+
     def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
         if self.owner:
             roles = self.owner.roles_for(actor, anchors)
@@ -438,6 +447,26 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def is_safe_to_delete(self) -> bool:
         """Return True if profile is not protected and has no projects."""
         return self.is_protected is False and self.projects.count() == 0
+
+    @classmethod
+    def autocomplete(cls, query: str) -> List[Profile]:
+        """Return profiles beginning with the query, for autocomplete."""
+        squery = quote_autocomplete_tsquery(query)
+        return (
+            cls.query.outerjoin(User)
+            .outerjoin(Organization)
+            .filter(cls.state.ACTIVE_AND_PUBLIC, cls.search_vector.match(squery))
+            .union(
+                Profile.query.join(User).filter(
+                    User.state.ACTIVE, User.search_vector.match(squery)
+                ),
+                Profile.query.join(Organization).filter(
+                    Organization.state.ACTIVE, Organization.search_vector.match(squery)
+                ),
+            )
+            .order_by(Profile.name)
+            .all()
+        )
 
 
 add_search_trigger(Profile, 'search_vector')

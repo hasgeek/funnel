@@ -456,16 +456,8 @@
   }
 
   .mui-form {
-    .form-actions {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      padding: $mui-grid-padding;
-      z-index: 1003;
-      .mui-btn--primary {
-        position: relative;
-        top: 8px;
-      }
+    .form-actions div {
+      float: right;
     }
   }
 }
@@ -648,4 +640,28 @@ form.mui--bg-accent .CodeMirror {
 .collaborator-placeholder {
   border-bottom: 1px solid $mui-text-accent;
   background: $mui-bg-color-accent;
+}
+
+.modal--form {
+  #field-user {
+    margin-bottom: 32px;
+  }
+}
+
+.modal--form--edit {
+  .select2.select2-container {
+    display: none !important;
+  }
+  .select2-hidden-accessible {
+    background-color: #eee;
+    cursor: not-allowed;
+    height: 32px !important;
+    position: relative !important;
+    padding-left: $mui-grid-padding/2 !important;
+    width: calc(100% + $mui-grid-padding) !important;
+  }
+  .mui-select:focus > label,
+  .mui-select > select:focus ~ label {
+    color: rgba(0, 0, 0, 0.54);
+  }
 }

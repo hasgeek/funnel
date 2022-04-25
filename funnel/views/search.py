@@ -709,7 +709,8 @@ def get_squery(text: Optional[str]) -> str:
 
     This function requires ``websearch_to_tsquery`` from PostgreSQL >= 12.
     """
-    return db.session.query(db.func.websearch_to_tsquery(text or '')).scalar()
+    with db.session.no_autoflush:
+        return db.session.query(db.func.websearch_to_tsquery(text or '')).scalar()
 
 
 def clean_matched_text(text: str) -> str:

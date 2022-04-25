@@ -1,6 +1,5 @@
-def test_create_new_member(client, new_user_owner, new_project):
-    with client.session_transaction() as session:
-        session['userid'] = new_user_owner.userid
+def test_create_new_member(client, login, new_user_owner, new_project):
+    login.as_(new_user_owner)
     # GET request should return a form
     resp = client.get(new_project.url_for('new_member'))
     assert resp.status_code == 200

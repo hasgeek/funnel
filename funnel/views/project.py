@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections import namedtuple
 from types import SimpleNamespace
 import csv
@@ -57,7 +55,7 @@ from ..models import (
 from ..signals import project_role_change
 from .helpers import html_in_json
 from .jobs import import_tickets, tag_locations
-from .login_session import requires_login
+from .login_session import requires_login, requires_site_editor
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
 
@@ -769,9 +767,8 @@ class ProjectView(
         }
 
     @route('update_featured', methods=['POST'])
+    @requires_site_editor
     def update_featured(self):
-        if not current_auth.user.is_site_editor:
-            abort(403)
         featured_form = self.obj.forms.featured()
         if featured_form.validate_on_submit():
             featured_form.populate_obj(self.obj)

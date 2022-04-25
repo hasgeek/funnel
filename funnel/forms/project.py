@@ -8,7 +8,7 @@ from coaster.utils import sorted_timezones, utcnow
 import baseframe.forms as forms
 
 from ..models import Project, Rsvp, SavedProject
-from .helpers import image_url_validator, nullable_strip_filters
+from .helpers import ProfileSelectField, image_url_validator, nullable_strip_filters
 
 __all__ = [
     'CfpForm',
@@ -18,6 +18,7 @@ __all__ = [
     'ProjectNameForm',
     'ProjectTransitionForm',
     'ProjectBannerForm',
+    'ProjectSponsorForm',
     'RsvpTransitionForm',
     'SavedProjectForm',
 ]
@@ -257,6 +258,23 @@ class ProjectCfpTransitionForm(forms.Form):
             # Checkbox: no, but CfP state is open, so close it
             obj.close_cfp()
         # No action required in all other cases
+
+
+@Project.forms('sponsor')
+class ProjectSponsorForm(forms.Form):
+    profile = ProfileSelectField(
+        __("Profile"),
+        autocomplete_endpoint='/api/1/profile/autocomplete',
+        results_key='profile',
+        description=__("Choose a sponsor"),
+        validators=[forms.validators.DataRequired()],
+    )
+    label = forms.StringField(
+        __("Label"),
+        description=__("Optional – Label for sponsor"),
+        filters=[forms.filters.strip(), forms.filters.none_if_empty()],
+    )
+    is_promoted = forms.BooleanField(__("Mark this sponsor as promoted"), default=False)
 
 
 @SavedProject.forms('main')

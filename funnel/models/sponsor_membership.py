@@ -27,7 +27,10 @@ class SponsorMembership(
     __data_columns__ = ('seq', 'is_promoted', 'label')
 
     __roles__ = {
-        'all': {'read': {'urls', 'profile', 'project', 'is_promoted', 'label', 'seq'}}
+        'all': {
+            'read': {'urls', 'profile', 'project', 'is_promoted', 'label', 'seq'},
+            'call': {'url_for'},
+        },
     }
     __datasets__ = {
         'primary': {

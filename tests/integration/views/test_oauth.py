@@ -12,11 +12,10 @@ def test_authcode_requires_login(client):
     assert urlsplit(rv.location).path == '/login'
 
 
-def test_authcode_wellformed(client, user_rincewind, client_hex, client_hex_credential):
+def test_authcode_wellformed(client, login, user_rincewind, client_hex_credential):
     """The authcode endpoint will raise 403 if not well formed."""
     # Add a userid to the session (using legacy handler) to create a user login
-    with client.session_transaction() as session:
-        session['userid'] = user_rincewind.userid
+    login.as_(user_rincewind)
 
     # Incomplete request
     query_params = {}
@@ -40,12 +39,11 @@ def test_authcode_wellformed(client, user_rincewind, client_hex, client_hex_cred
 
 
 def test_auth_untrusted_confidential(
-    db_session, client, user_rincewind, client_hex, client_hex_credential
+    client, login, user_rincewind, client_hex, client_hex_credential
 ):
     """Test auth on an untrusted confidential auth client."""
     # Add a userid to the session (using legacy handler) to create a user login
-    with client.session_transaction() as session:
-        session['userid'] = user_rincewind.userid
+    login.as_(user_rincewind)
 
     # Get a CSRF token
     csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
