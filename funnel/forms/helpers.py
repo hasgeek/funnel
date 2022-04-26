@@ -1,12 +1,39 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from flask import current_app, flash
 
 from baseframe import _, __
 from coaster.auth import current_auth
 import baseframe.forms as forms
 
-from ..models import EmailAddress, UserEmailClaim, parse_video_url
+from ..models import EmailAddress, Profile, UserEmailClaim, parse_video_url
+
+
+class ProfileSelectField(forms.AutocompleteField):
+    """Render an autocomplete field for selecting a profile."""
+
+    data: Optional[Profile]
+    widget = forms.Select2Widget()
+    multiple = False
+    widget_autocomplete = True
+
+    def _value(self):
+        if self.data:
+            return self.data.name
+        return ''
+
+    def process_formdata(self, valuelist) -> None:
+        if valuelist:
+            self.data = Profile.query.filter(
+                # Limit to non-suspended (active) profiles. Do not require profile to
+                # be public as well
+                Profile.name == valuelist[0],
+                Profile.is_active,
+            ).one_or_none()
+        else:
+            self.data = None
 
 
 class EmailAddressAvailable:

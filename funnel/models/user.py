@@ -38,7 +38,7 @@ from . import (
     hybrid_property,
 )
 from .email_address import EmailAddress, EmailAddressMixin
-from .helpers import ImgeeFurl, add_search_trigger, quote_like
+from .helpers import ImgeeFurl, add_search_trigger, quote_autocomplete_like
 
 __all__ = [
     'USER_STATE',
@@ -680,7 +680,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """
         # Escape the '%' and '_' wildcards in SQL LIKE clauses.
         # Some SQL dialects respond to '[' and ']', so remove them.
-        like_query = quote_like(query)
+        like_query = quote_autocomplete_like(query)
 
         # We convert to lowercase and use the LIKE operator since ILIKE isn't standard
         # and doesn't use an index in PostgreSQL. There's a functional index for lower()

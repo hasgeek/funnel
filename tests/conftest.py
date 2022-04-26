@@ -175,6 +175,26 @@ def client(request, db_session):
 
 
 @pytest.fixture
+def login(client):
+    """Provide a login fixture."""
+
+    def as_(user):
+        with client.session_transaction() as session:
+            # TODO: This depends on obsolete code in views/login_session that replaces
+            # cookie session authentication with db-backed authentication. It's long
+            # pending removal
+            session['userid'] = user.userid
+
+    def logout():
+        # TODO: Test this
+        client.delete_cookie(
+            client.server_name, 'lastuser', domain=app.config['LASTUSER_COOKIE_DOMAIN']
+        )
+
+    return SimpleNamespace(as_=as_, logout=logout)
+
+
+@pytest.fixture
 def varfixture(request):
     """
     Return a variable fixture.

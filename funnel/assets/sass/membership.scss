@@ -113,25 +113,3 @@
   transform: translateY(-50px);
   opacity: 0;
 }
-
-.modal--form {
-  #field-user {
-    margin-bottom: 32px;
-  }
-}
-
-.modal--form--edit {
-  .select2.select2-container {
-    display: none !important;
-  }
-  .select2-hidden-accessible {
-    background-color: #eee;
-    cursor: not-allowed;
-    height: 32px !important;
-    position: relative !important;
-  }
-  .mui-select:focus > label,
-  .mui-select > select:focus ~ label {
-    color: rgba(0, 0, 0, 0.54);
-  }
-}

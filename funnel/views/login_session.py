@@ -6,6 +6,7 @@ from typing import Optional, Type
 
 from flask import (
     Response,
+    abort,
     current_app,
     flash,
     jsonify,
@@ -459,6 +460,19 @@ def requires_sudo(f):
                 ajax=False,
                 template='account_formlayout.html.jinja2',
             )
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def requires_site_editor(f):
+    """Decorate a view to require site editor permission."""
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        add_auth_attribute('login_required', True)
+        if not current_auth.user or not current_auth.user.is_site_editor:
+            abort(403)
         return f(*args, **kwargs)
 
     return decorated_function

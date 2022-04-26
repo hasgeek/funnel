@@ -27,6 +27,7 @@ from . import (
     organization,
     profile,
     project,
+    project_sponsor,
     proposal,
     schedule,
     search,

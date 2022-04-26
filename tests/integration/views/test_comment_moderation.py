@@ -12,6 +12,7 @@ from funnel.models import (
 def test_comment_report_same(
     client,
     db_session,
+    login,
     new_user,
     new_user2,
     new_user_admin,
@@ -54,8 +55,7 @@ def test_comment_report_same(
 
     assert comment.is_reviewed_by(new_user_admin)
 
-    with client.session_transaction() as session:
-        session['userid'] = new_user.userid
+    login.as_(new_user)
 
     # if new_user also reports it as spam,
     # the report will be removed, and comment will be in Spam state
@@ -83,6 +83,7 @@ def test_comment_report_same(
 def test_comment_report_opposing(
     client,
     db_session,
+    login,
     new_user,
     new_user2,
     new_user_admin,
@@ -122,8 +123,7 @@ def test_comment_report_opposing(
     if created:
         db_session.commit()
 
-    with client.session_transaction() as session:
-        session['userid'] = new_user.userid
+    login.as_(new_user)
     # if new_user reports it as not a spam,
     # a new report will be created, and comment will stay in public state
     csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
@@ -156,6 +156,7 @@ def test_comment_report_opposing(
 def test_comment_report_majority_spam(
     client,
     db_session,
+    login,
     new_user,
     new_user2,
     new_user_admin,
@@ -204,8 +205,7 @@ def test_comment_report_majority_spam(
     db_session.commit()
     report4_id = report4.id
 
-    with client.session_transaction() as session:
-        session['userid'] = new_user.userid
+    login.as_(new_user)
     # if new_user reports it as a spam,
     # the comment will be marked as spam as that's the majority vote
     csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
@@ -236,6 +236,7 @@ def test_comment_report_majority_spam(
 def test_comment_report_majority_ok(
     client,
     db_session,
+    login,
     new_user,
     new_user2,
     new_user_admin,
@@ -284,8 +285,7 @@ def test_comment_report_majority_ok(
     db_session.commit()
     report6_id = report6.id
 
-    with client.session_transaction() as session:
-        session['userid'] = new_user.userid
+    login.as_(new_user)
     # if new_user reports it as not a spam,
     # the comment will not be marked as spam as that's the majority vote,
     # but all the reports will be deleted

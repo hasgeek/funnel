@@ -13,6 +13,7 @@ from ...models import (
     AuthClientTeamPermissions,
     AuthClientUserPermissions,
     Organization,
+    Profile,
     User,
     UserSession,
     db,
@@ -296,13 +297,13 @@ def user_getall(name):
 
 @app.route('/api/1/user/autocomplete', methods=['GET', 'POST'])
 @requires_client_id_or_user_or_client_login
-def user_autocomplete():
+@requestargs(('q', abort_null))
+def user_autocomplete(q=''):
     """
     Return users matching the search term.
 
     Looks up users by their name, @username, or by full email address.
     """
-    q = abort_null(request.values.get('q', ''))
     if not q:
         return api_result('error', error='no_query_provided')
     # Limit length of query to User.fullname limit
@@ -344,6 +345,59 @@ def user_autocomplete():
         for u in users
     ]
     return api_result('ok', users=result, _jsonp=True)
+
+
+@app.route('/api/1/profile/autocomplete')
+@requires_client_id_or_user_or_client_login
+@requestargs(('q', abort_null))
+def profile_autocomplete(q=''):
+    """Return profiles matching the search term."""
+    if not q:
+        return api_result('error', error='no_query_provided')
+
+    # Limit length of query to User.fullname and Organization.title length limit
+    q = q[: max(User.__title_length__, Organization.__title_length__)]
+
+    # Setup rate limiter to not count progressive typing or backspacing towards
+    # attempts. That is, sending 'abc' after 'ab' will not count towards limits, but
+    # sending 'ac' will. When the user backspaces from 'abc' towards 'a', retain 'abc'
+    # as the token until a different query such as 'ac' appears. This effectively
+    # imposes a limit of 20 name lookups per half hour.
+
+    validate_rate_limit(
+        # As this endpoint accepts client_id+user_session in lieu of login cookie,
+        # we may not have an authenticated user. Use the user_session's user in that
+        # case
+        'profile_autocomplete',
+        current_auth.actor.uuid_b58
+        if current_auth.actor
+        else current_auth.session.user.uuid_b58,
+        # Limit 20 attempts
+        20,
+        # Per half hour (60s * 30m = 1800s)
+        1800,
+        # Use a token and validator to count progressive typing and backspacing as a
+        # single rate-limited call
+        token=q,
+        validator=progressive_rate_limit_validator,
+    )
+    profiles = Profile.autocomplete(q)
+    profile_names = [p.name for p in profiles]  # TODO: Update front-end, remove this
+    profiles = [
+        {
+            'uuid_b58': p.uuid_b58,
+            'uuid_b64': p.uuid_b64,
+            'name': p.name,
+            'title': p.title,
+            'label': p.pickername,
+        }
+        for p in profiles
+    ]
+    return api_result(
+        'ok',
+        profile=profile_names,  # TODO: Remove this
+        profiles=profiles,
+    )
 
 
 # --- Public endpoints --------------------------------------------------------

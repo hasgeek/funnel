@@ -82,3 +82,15 @@ def test_suspended_user_private_profile(db_session, user_wolfgang):
     # A suspended user's profile cannot be made public
     with pytest.raises(StateTransitionError):
         user_wolfgang.profile.make_public()
+
+
+def test_profile_autocomplete(
+    db_session, user_rincewind, org_uu, user_lutze, user_librarian
+):
+    # Ensure column defaults are set (Profile.state)
+    db_session.commit()
+
+    assert Profile.autocomplete('rin') == [user_rincewind.profile]
+    assert Profile.autocomplete('u') == [org_uu.profile]
+    assert Profile.autocomplete('unknown') == []
+    assert Profile.autocomplete('l') == [user_librarian.profile, user_lutze.profile]
