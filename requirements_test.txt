@@ -52,10 +52,15 @@ pytest==7.1.2
     #   -r requirements_test.in
     #   pytest-bdd
     #   pytest-cov
+    #   pytest-dotenv
 pytest-bdd==5.0.0
     # via -r requirements_test.in
 pytest-cov==3.0.0
     # via -r requirements_test.in
+pytest-dotenv==0.5.2
+    # via -r requirements_test.in
+python-dotenv==0.20.0
+    # via pytest-dotenv
 requests==2.27.1
     # via
     #   coveralls

@@ -138,7 +138,8 @@ def db_connection(database):
 
 
 # This fixture borrowed from
-# https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/46#issuecomment-829694672
+# https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/46
+# #issuecomment-829694672
 @pytest.fixture(scope='function')
 def db_session(database, db_connection):
     """Create a nested transaction for the test and roll it back after."""
