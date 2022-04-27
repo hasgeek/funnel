@@ -94,6 +94,7 @@ class ZoomProvider(LoginProvider):
             raise LoginCallbackError(_("Zoom had an intermittent problem. Try again?"))
         return LoginProviderData(
             email=zoominfo['email'],
+            emails=[zoominfo['email']],
             userid=zoominfo['id'],
             username=None,
             fullname=zoominfo.get('first_name') + ' ' + zoominfo.get('last_name'),
