@@ -87,9 +87,8 @@ def test_suspended_user_private_profile(db_session, user_wolfgang):
 def test_profile_autocomplete(
     db_session, user_rincewind, org_uu, user_lutze, user_librarian
 ):
-    # Ensure column defaults are set (Profile.state)
-    db_session.commit()
-
+    assert Profile.autocomplete('') == []
+    assert Profile.autocomplete(' ') == []
     assert Profile.autocomplete('rin') == [user_rincewind.profile]
     assert Profile.autocomplete('u') == [org_uu.profile]
     assert Profile.autocomplete('unknown') == []

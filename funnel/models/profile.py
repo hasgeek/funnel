@@ -451,6 +451,9 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     @classmethod
     def autocomplete(cls, query: str) -> List[Profile]:
         """Return profiles beginning with the query, for autocomplete."""
+        query = query.strip()
+        if not query:
+            return []
         squery = quote_autocomplete_tsquery(query)
         return (
             cls.query.outerjoin(User)
