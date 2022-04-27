@@ -305,6 +305,8 @@ python-dateutil==2.8.2
     #   croniter
     #   icalendar
     #   rq-scheduler
+python-dotenv==0.20.0
+    # via -r requirements.in
 python-utils==3.1.0
     # via progressbar2
 pytz==2022.1
