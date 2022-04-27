@@ -1,4 +1,5 @@
 awscli  # Dupe from requirements.in due to conflicting requirements for PyYAML versions
+black
 bandit
 flake8
 flake8-assertive

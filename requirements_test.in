@@ -5,3 +5,4 @@ pytest
 pytest-bdd
 pytest-cov
 requests-mock
+pytest-dotenv
