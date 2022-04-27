@@ -1,6 +1,6 @@
 awscli  # Dupe from requirements.in due to conflicting requirements for PyYAML versions
-black
 bandit
+black
 flake8
 flake8-assertive
 flake8-bandit
@@ -24,7 +24,7 @@ sqlalchemy-stubs
 toml
 types-certifi
 types-cryptography
-types-Flask
+types-flask
 types-geoip2
 types-itsdangerous
 types-maxminddb
@@ -35,5 +35,5 @@ types-setuptools
 types-simplejson
 types-six
 types-toml
-types-Werkzeug
+types-werkzeug
 watchdog

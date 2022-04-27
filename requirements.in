@@ -44,6 +44,7 @@ pycountry
 pyIsEmail
 pymdown-extensions
 python-dateutil
+python-dotenv
 pytz
 PyVimeo
 qrcode
@@ -59,4 +60,3 @@ user-agents
 Werkzeug>=2.0.2  # https://github.com/pallets/werkzeug/pull/2237
 whitenoise
 zxcvbn
-python-dotenv
