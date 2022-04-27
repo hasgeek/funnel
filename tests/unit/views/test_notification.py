@@ -117,7 +117,13 @@ def test_unsubscribe_sms_view(client, unsubscribe_sms_short_url, user_vetinari):
     # Follow the redirect. This will cause yet another redirect
     rv = client.get(rv.location)
     assert rv.status_code == 302
-    assert rv.location == url_for('notification_unsubscribe_do', _external=True)
+    # Werkzeug 2.1 defaults to relative URLs in redirects as per the change in RFC 7231:
+    # https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.2
+    # https://github.com/pallets/werkzeug/issues/2352
+    # Earlier versions of Werkzeug defaulted to RFC 2616 behaviour for an absolute URL:
+    # https://datatracker.ietf.org/doc/html/rfc2616#section-14.30
+    # This test will fail on Werkzeug < 2.1
+    assert rv.location == url_for('notification_unsubscribe_do')
 
     # This time we'll get the unsubscribe form.
     rv = client.get(rv.location)

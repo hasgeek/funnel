@@ -1,6 +1,5 @@
 coverage
 coveralls
-fakeredis
 lxml
 pytest
 pytest-bdd
