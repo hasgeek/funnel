@@ -43,10 +43,10 @@ repos:
       - id: yesqa
         additional_dependencies: &flake8deps
           - bandit==1.7.4
-          - flake8-assertive==2.0.0
+          - flake8-assertive==2.1.0
           - flake8-bandit==3.0.0
-          - flake8-blind-except==0.2.0
-          - flake8-bugbear==22.1.11
+          - flake8-blind-except==0.2.1
+          - flake8-bugbear==22.4.25
           - flake8-builtins==1.5.3
           - flake8-comprehensions==3.8.0
           - flake8-docstrings==1.6.0
@@ -76,7 +76,7 @@ repos:
           - sqlalchemy-stubs==0.4
           - types-certifi==2021.10.8.1
           - types-click==7.1.8
-          - types-cryptography==3.3.18
+          - types-cryptography==3.3.20
           - types-flask==1.1.6
           - types-geoip2==3.0.0
           - types-ipaddress==1.0.8
@@ -84,14 +84,14 @@ repos:
           - types-jinja2==2.11.9
           - types-markupsafe==1.1.10
           - types-maxminddb==1.5.0
-          - types-python-dateutil==2.8.9
-          - types-pytz==2021.3.5
-          - types-requests==2.27.12
-          - types-setuptools==57.4.10
-          - types-simplejson==3.17.3
-          - types-six==1.16.12
-          - types-toml==0.10.4
-          - types-urllib3==1.26.11
+          - types-python-dateutil==2.8.12
+          - types-pytz==2021.3.6
+          - types-requests==2.27.20
+          - types-setuptools==57.4.14
+          - types-simplejson==3.17.5
+          - types-six==1.16.15
+          - types-toml==0.10.5
+          - types-urllib3==1.26.13
           - types-werkzeug==1.0.9
   - repo: https://github.com/PyCQA/flake8
     rev: 4.0.1

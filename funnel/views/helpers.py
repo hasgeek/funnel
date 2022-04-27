@@ -33,6 +33,7 @@ from pytz import utc
 import brotli
 
 from baseframe import _, cache, statsd
+from coaster.sqlalchemy import RoleMixin
 from coaster.utils import utcnow
 
 from .. import app, built_assets, shortlinkapp
@@ -450,7 +451,15 @@ def send_sms_otp(phone, otp) -> Optional[SMSMessage]:
 
 def html_in_json(template: str):
     def render_json_with_status(kwargs):
-        return jsonify(status='ok', **kwargs)
+        return jsonify(
+            status='ok',
+            **{
+                k: v
+                if not isinstance(v, RoleMixin)
+                else v.current_access(datasets=('primary',))
+                for k, v in kwargs.items()
+            },
+        )
 
     def render_html_in_json(kwargs):
         resp = jsonify({'status': 'ok', 'html': render_template(template, **kwargs)})
