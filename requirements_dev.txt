@@ -70,7 +70,7 @@ flake8-polyfill==1.0.2
     # via
     #   flake8-bandit
     #   pep8-naming
-flake8-print==4.0.0
+flake8-print==5.0.0
     # via -r requirements_dev.in
 gitdb==4.0.9
     # via gitpython
