@@ -134,7 +134,7 @@ pyyaml==6.0
     #   awscli
     #   bandit
     #   pre-commit
-rsa==4.7.2
+rsa==4.8
     # via awscli
 s3transfer==0.5.2
     # via awscli
