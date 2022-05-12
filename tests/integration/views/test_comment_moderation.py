@@ -18,6 +18,7 @@ def test_comment_report_same(
     new_user_admin,
     new_user_owner,
     new_project,
+    csrf_token,
 ):
     # Let's give new_user site_editor role
     sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
@@ -59,7 +60,6 @@ def test_comment_report_same(
 
     # if new_user also reports it as spam,
     # the report will be removed, and comment will be in Spam state
-    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report1.uuid_b58),
         data=MultiDict(
@@ -89,6 +89,7 @@ def test_comment_report_opposing(
     new_user_admin,
     new_user_owner,
     new_project,
+    csrf_token,
 ):
     # Let's give new_user site_editor role
     sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
@@ -126,7 +127,6 @@ def test_comment_report_opposing(
     login.as_(new_user)
     # if new_user reports it as not a spam,
     # a new report will be created, and comment will stay in public state
-    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report2.uuid_b58),
         data=MultiDict(
@@ -162,6 +162,7 @@ def test_comment_report_majority_spam(
     new_user_admin,
     new_user_owner,
     new_project,
+    csrf_token,
 ):
     # Let's give new_user site_editor role
     sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
@@ -208,7 +209,6 @@ def test_comment_report_majority_spam(
     login.as_(new_user)
     # if new_user reports it as a spam,
     # the comment will be marked as spam as that's the majority vote
-    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report3.uuid_b58),
         data=MultiDict(
@@ -242,6 +242,7 @@ def test_comment_report_majority_ok(
     new_user_admin,
     new_user_owner,
     new_project,
+    csrf_token,
 ):
     # Let's give new_user site_editor role
     sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
@@ -289,7 +290,6 @@ def test_comment_report_majority_ok(
     # if new_user reports it as not a spam,
     # the comment will not be marked as spam as that's the majority vote,
     # but all the reports will be deleted
-    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report5.uuid_b58),
         data=MultiDict(

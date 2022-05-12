@@ -823,3 +823,9 @@ def new_proposal(db_session, new_user, new_project):
     db_session.add(proposal)
     db_session.commit()
     return proposal
+
+
+@pytest.fixture
+def csrf_token(client):
+    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
+    return csrf_token

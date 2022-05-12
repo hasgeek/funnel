@@ -39,14 +39,11 @@ def test_authcode_wellformed(client, login, user_rincewind, client_hex_credentia
 
 
 def test_auth_untrusted_confidential(
-    client, login, user_rincewind, client_hex, client_hex_credential
+    client, login, user_rincewind, client_hex, client_hex_credential, csrf_token
 ):
     """Test auth on an untrusted confidential auth client."""
     # Add a userid to the session (using legacy handler) to create a user login
     login.as_(user_rincewind)
-
-    # Get a CSRF token
-    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
 
     # --- Create a typical auth code request -------------------------------------------
 
