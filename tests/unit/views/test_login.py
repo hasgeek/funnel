@@ -35,7 +35,7 @@ def test_user_register(client):
     )
 
     assert rv.status_code == 303
-    assert current_auth.user.fullname == 'wheatwater'
+    assert current_auth.user.fullname == fullname
 
 
 def test_user_logout(client, user_wheatwater, login):
@@ -62,4 +62,4 @@ def test_user_login_correct_password(client, user_wheatwater):
     )
 
     assert rv.status_code == 303
-    assert current_auth.user.fullname == 'wheatwater'
+    assert current_auth.user.fullname == fullname
