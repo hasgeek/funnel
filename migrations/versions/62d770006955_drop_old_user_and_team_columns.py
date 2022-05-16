@@ -281,7 +281,7 @@ def downgrade():
 
     # Migrate column data
     for table, old, new in migrate_user_columns:
-        print(f"Restoring {table}.{old}")  # noqa: T001
+        print(f"Restoring {table}.{old}")
         op.execute(
             sa.DDL(
                 f'''
@@ -294,7 +294,7 @@ def downgrade():
         )
 
     for table, old, new in migrate_team_columns:
-        print(f"Restoring {table}.{old}")  # noqa: T001
+        print(f"Restoring {table}.{old}")
         op.execute(
             sa.DDL(
                 f'''
