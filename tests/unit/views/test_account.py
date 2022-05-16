@@ -1,12 +1,9 @@
 """Test account views."""
 
 
-def test_username_available(client, new_user):
+def test_username_available(client, new_user, csrf_token):
     """Test the username availability endpoint."""
     endpoint = '/api/1/account/username_available'
-
-    # Get a CSRF token
-    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
 
     # Does not support GET requests
     rv = client.get(endpoint)
