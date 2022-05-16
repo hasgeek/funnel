@@ -614,7 +614,7 @@ class ProjectView(
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'going_rsvps': [
-                _r.current_access(datasets=('without_parent', 'related'))
+                _r.current_access(datasets=('without_parent', 'related', 'related'))
                 for _r in self.obj.rsvps_with(RSVP_STATUS.YES)
             ],
         }
