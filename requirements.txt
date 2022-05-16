@@ -22,7 +22,7 @@ async-timeout==4.0.2
     #   redis
 attrs==21.4.0
     # via aiohttp
-awscli==1.23.1
+awscli==1.24.0
     # via -r requirements.in
 babel==2.10.1
     # via -r requirements.in
@@ -30,7 +30,7 @@ base58==2.1.1
     # via -r requirements.in
 baseframe @ git+https://github.com/hasgeek/baseframe.git
     # via -r requirements.in
-bcrypt==3.2.0
+bcrypt==3.2.2
     # via
     #   -r requirements.in
     #   paramiko
@@ -40,16 +40,16 @@ bleach==5.0.0
     # via baseframe
 blinker==1.4
     # via -r requirements.in
-boto3==1.22.1
+boto3==1.23.0
     # via -r requirements.in
-botocore==1.25.1
+botocore==1.26.0
     # via
     #   awscli
     #   boto3
     #   s3transfer
 brotli==1.0.9
     # via -r requirements.in
-cachetools==5.0.0
+cachetools==5.1.0
     # via premailer
 certifi==2021.10.8
     # via
@@ -66,7 +66,7 @@ charset-normalizer==2.0.12
     # via
     #   aiohttp
     #   requests
-click==8.1.2
+click==8.1.3
     # via
     #   -r requirements.in
     #   flask
@@ -77,9 +77,9 @@ coaster @ git+https://github.com/hasgeek/coaster.git
     #   baseframe
 colorama==0.4.4
     # via awscli
-croniter==1.3.4
+croniter==1.3.5
     # via rq-scheduler
-cryptography==37.0.0
+cryptography==37.0.2
     # via
     #   -r requirements.in
     #   paramiko
@@ -105,9 +105,9 @@ emoji==1.7.0
     # via baseframe
 fabric3==1.14.post1
     # via -r requirements.in
-filelock==3.6.0
+filelock==3.7.0
     # via tldextract
-flask==2.1.1
+flask==2.1.2
     # via
     #   -r requirements.in
     #   baseframe
@@ -188,7 +188,7 @@ itsdangerous==2.0.1
     #   -r requirements.in
     #   flask
     #   flask-wtf
-jinja2==3.1.1
+jinja2==3.1.2
     # via
     #   flask
     #   flask-flatpages
@@ -204,7 +204,7 @@ lxml==4.8.0
     # via premailer
 mako==1.2.0
     # via alembic
-markdown==3.3.6
+markdown==3.3.7
     # via
     #   -r requirements.in
     #   flask-flatpages
@@ -253,7 +253,7 @@ paramiko==2.10.4
     # via fabric3
 passlib==1.7.4
     # via -r requirements.in
-phonenumbers==8.12.47
+phonenumbers==8.12.48
     # via -r requirements.in
 premailer==3.10.0
     # via -r requirements.in
@@ -276,6 +276,8 @@ pycountry==22.3.5
     #   baseframe
 pycparser==2.21
     # via cffi
+pygments==2.12.0
+    # via -r requirements.in
 pyisemail==1.4.0
     # via
     #   -r requirements.in
@@ -283,7 +285,7 @@ pyisemail==1.4.0
     #   mxsniff
 pyjsparser==2.7.1
     # via js2py
-pyjwt==2.3.0
+pyjwt==2.4.0
     # via twilio
 pymdown-extensions==9.4
     # via -r requirements.in
@@ -293,7 +295,7 @@ pyopenssl==22.0.0
     # via
     #   baseframe
     #   ndg-httpsclient
-pyparsing==3.0.8
+pyparsing==3.0.9
     # via
     #   httplib2
     #   packaging
@@ -307,7 +309,7 @@ python-dateutil==2.8.2
     #   rq-scheduler
 python-dotenv==0.20.0
     # via -r requirements.in
-python-utils==3.1.0
+python-utils==3.2.2
     # via progressbar2
 pytz==2022.1
     # via
@@ -326,7 +328,7 @@ pyyaml==5.4.1
     #   flask-flatpages
 qrcode==7.3.1
     # via -r requirements.in
-redis==4.2.2
+redis==4.3.1
     # via
     #   baseframe
     #   flask-redis
@@ -370,11 +372,10 @@ s3transfer==0.5.2
     #   boto3
 semantic-version==2.9.0
     # via baseframe
-sentry-sdk==1.5.10
+sentry-sdk==1.5.12
     # via baseframe
 six==1.16.0
     # via
-    #   bcrypt
     #   bleach
     #   fabric3
     #   flask-flatpages
@@ -406,13 +407,13 @@ statsd==3.3.0
     # via baseframe
 tinydb==4.7.0
     # via tuspy
-tldextract==3.2.1
+tldextract==3.3.0
     # via mxsniff
 tuspy==0.2.5
     # via pyvimeo
-tweepy==4.8.0
+tweepy==4.9.0
     # via -r requirements.in
-twilio==7.8.2
+twilio==7.9.0
     # via -r requirements.in
 typing-extensions==4.2.0
     # via
@@ -442,14 +443,14 @@ webencodings==0.5.1
     # via
     #   bleach
     #   html5lib
-werkzeug==2.1.1
+werkzeug==2.1.2
     # via
     #   -r requirements.in
     #   baseframe
     #   flask
-whitenoise==6.0.0
+whitenoise==6.1.0
     # via -r requirements.in
-wrapt==1.14.0
+wrapt==1.14.1
     # via deprecated
 wtforms==3.0.1
     # via

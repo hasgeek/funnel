@@ -5,7 +5,7 @@ ci:
   skip: ['pip-compile', 'no-commit-to-branch']
 repos:
   - repo: https://github.com/jazzband/pip-tools
-    rev: 6.6.0
+    rev: 6.6.1
     hooks:
       - id: pip-compile
         name: pip-compile --upgrade requirements.in
@@ -32,7 +32,7 @@ repos:
             '--remove-duplicate-keys',
           ]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.32.0
+    rev: v2.32.1
     hooks:
       - id: pyupgrade
         args:
@@ -48,12 +48,12 @@ repos:
           - flake8-blind-except==0.2.1
           - flake8-bugbear==22.4.25
           - flake8-builtins==1.5.3
-          - flake8-comprehensions==3.8.0
+          - flake8-comprehensions==3.9.0
           - flake8-docstrings==1.6.0
           - flake8-isort==4.1.1
           - flake8-logging-format==0.6.0
           - flake8-mutable==1.2.0
-          - flake8-print==4.0.0
+          - flake8-print==5.0.0
           - pep8-naming==0.12.1
           - toml==0.10.2
   - repo: https://github.com/PyCQA/isort
@@ -67,7 +67,7 @@ repos:
     hooks:
       - id: black
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.942
+    rev: v0.950
     hooks:
       - id: mypy
         additional_dependencies:
@@ -76,7 +76,7 @@ repos:
           - sqlalchemy-stubs==0.4
           - types-certifi==2021.10.8.2
           - types-click==7.1.8
-          - types-cryptography==3.3.20
+          - types-cryptography==3.3.21
           - types-flask==1.1.6
           - types-geoip2==3.0.0
           - types-ipaddress==1.0.8
@@ -84,14 +84,14 @@ repos:
           - types-jinja2==2.11.9
           - types-markupsafe==1.1.10
           - types-maxminddb==1.5.0
-          - types-python-dateutil==2.8.14
-          - types-pytz==2021.3.7
-          - types-requests==2.27.22
+          - types-python-dateutil==2.8.15
+          - types-pytz==2021.3.8
+          - types-requests==2.27.25
           - types-setuptools==57.4.14
           - types-simplejson==3.17.6
           - types-six==1.16.15
-          - types-toml==0.10.6
-          - types-urllib3==1.26.13
+          - types-toml==0.10.7
+          - types-urllib3==1.26.14
           - types-werkzeug==1.0.9
   - repo: https://github.com/PyCQA/flake8
     rev: 4.0.1
