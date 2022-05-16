@@ -47,6 +47,7 @@ python-dateutil
 python-dotenv
 pytz
 PyVimeo
+Pygments
 qrcode
 requests
 rq
