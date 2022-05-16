@@ -44,17 +44,20 @@ def test_user_register(client):
     assert current_auth.user.fullname == "Test User"
 
 
-def test_user_logout(client, login, user_rincewind):
+def test_user_logout(client, login, csrf_token, user_rincewind):
     login.as_(user_rincewind)
+    # FIXME: login.as_ does not actually perform login. Funnel will do it when the
+    # next request is made, so we need another call before logout.
     assert current_auth.user == user_rincewind
-    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     rv = client.post('/account/logout', data={'csrf_token': csrf_token})
 
     assert rv.status_code == 200
     assert current_auth.user is None
 
 
-def test_user_login_correct_password(client, user_rincewind, user_rincewind_email):
+def test_user_login_correct_password(
+    client, user_rincewind_with_password, user_rincewind_email
+):
     csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     rv = client.post(
         '/login',
@@ -69,4 +72,4 @@ def test_user_login_correct_password(client, user_rincewind, user_rincewind_emai
     )
 
     assert rv.status_code == 303
-    assert current_auth.user == user_rincewind
+    assert current_auth.user == user_rincewind_with_password
