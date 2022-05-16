@@ -606,19 +606,20 @@ class __Project:
         today = now.date()
         for project_date, _day_start_at, _day_end_at, session_count in session_dates:
             weekobj = Week.withdate(project_date)
+            weekid = weekobj.isoformat()
             if weekobj.week not in weeks:
-                weeks[weekobj.week]['year'] = weekobj.year
+                weeks[weekid]['year'] = weekobj.year
                 # Order is important, and we need dict to count easily
-                weeks[weekobj.week]['dates'] = OrderedDict()
+                weeks[weekid]['dates'] = OrderedDict()
             for wdate in weekobj.days():
-                weeks[weekobj.week]['dates'].setdefault(wdate, 0)
+                weeks[weekid]['dates'].setdefault(wdate, 0)
                 if project_date.date() == wdate:
                     # If the event is over don't set upcoming for current week
                     if wdate >= today and weekobj >= current_week and session_count > 0:
-                        weeks[weekobj.week]['upcoming'] = True
-                    weeks[weekobj.week]['dates'][wdate] += session_count
-                    if 'month' not in weeks[weekobj.week]:
-                        weeks[weekobj.week]['month'] = format_date(
+                        weeks[weekid]['upcoming'] = True
+                    weeks[weekid]['dates'][wdate] += session_count
+                    if 'month' not in weeks[weekid]:
+                        weeks[weekid]['month'] = format_date(
                             wdate, 'MMM', locale=get_locale()
                         )
 
