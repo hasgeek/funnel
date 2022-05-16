@@ -815,6 +815,7 @@ class DuckTypeUser(RoleMixin):
     """User singleton constructor. Ducktypes a regular user object."""
 
     id = None  # noqa: A003
+    created_at = updated_at = None
     uuid = userid = buid = uuid_b58 = None
     username = name = None
     profile = None
