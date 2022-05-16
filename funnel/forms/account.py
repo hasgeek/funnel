@@ -176,7 +176,7 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
     __returns__ = ('user', 'anchor')
 
     username = forms.StringField(
-        __("Phone, email or username"),
+        __("Phone number or email address"),
         validators=[forms.validators.DataRequired()],
         widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
@@ -220,7 +220,7 @@ class PasswordResetForm(forms.RecaptchaForm):
     # conditionally
 
     # username = forms.StringField(
-    #     __("Phone, email or username"),
+    #     __("Phone number or email address"),
     #     validators=[forms.validators.DataRequired()],
     #     description=__(
     #         "Please reconfirm your phone number, email address or username"
