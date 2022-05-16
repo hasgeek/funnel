@@ -815,11 +815,17 @@ class DuckTypeUser(RoleMixin):
     """User singleton constructor. Ducktypes a regular user object."""
 
     id = None  # noqa: A003
+    created_at = updated_at = None
     uuid = userid = buid = uuid_b58 = None
     username = name = None
     profile = None
     profile_url = None
     email = phone = None
+
+    # Copy registries from User model
+    views = User.views
+    features = User.features
+    forms = User.forms
 
     __roles__ = {
         'all': {
@@ -831,7 +837,8 @@ class DuckTypeUser(RoleMixin):
                 'pickername',
                 'profile',
                 'profile_url',
-            }
+            },
+            'call': {'views', 'forms', 'features', 'url_for'},
         }
     }
 
@@ -856,6 +863,9 @@ class DuckTypeUser(RoleMixin):
     def __str__(self) -> str:
         """Represent user account as a string."""
         return self.pickername
+
+    def url_for(self, *args, **kwargs) -> Literal['']:
+        return ''
 
 
 deleted_user = DuckTypeUser(__("[deleted]"))
