@@ -25,8 +25,7 @@ def user_rincewind_email(user_rincewind):
     return user_rincewind.add_email('rincewind@example.com')
 
 
-def test_user_register(client):
-    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
+def test_user_register(client, csrf_token):
     rv = client.post(
         '/account/register',
         data=MultiDict(
@@ -44,7 +43,7 @@ def test_user_register(client):
     assert current_auth.user.fullname == "Test User"
 
 
-def test_user_logout(client, login, csrf_token, user_rincewind):
+def test_user_logout(client, login, user_rincewind, csrf_token):
     login.as_(user_rincewind)
     # FIXME: login.as_ does not actually perform login. Funnel will do it when the
     # next request is made, so we need another call before logout.
@@ -56,9 +55,8 @@ def test_user_logout(client, login, csrf_token, user_rincewind):
 
 
 def test_user_login_correct_password(
-    client, user_rincewind_with_password, user_rincewind_email
+    client, user_rincewind, user_rincewind_email, csrf_token
 ):
-    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     rv = client.post(
         '/login',
         data=MultiDict(
