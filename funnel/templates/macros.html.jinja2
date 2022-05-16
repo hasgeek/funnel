@@ -58,9 +58,9 @@
               {% if event.previous %}{{ faicon(icon='chevron-left', icon_size='caption', baseline=false, css_class='calendar__weekdays__dates__icon__next') }}{% endif %}
             </p>
             {% for date in week.dates %}
-              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %} {% if date.isoformat >= calendar.today %} calendar__weekdays__dates__date--latest{% endif %} calendar__weekdays__dates__date--{{ loop.index }}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %} data-event-month="{{ week.month }}">
+              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %} {% if date.isoformat >= calendar.today %} calendar__weekdays__dates__date--latest{% endif %} calendar__weekdays__dates__date--{{ (loop.index - 1) % 7 }}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %} data-event-month="{{ week.month }}">
                 <span class="calendar__weekdays__dates__date__day">{{ date.day }}</span>
-                <span class="calendar__weekdays__dates__date__name">{{ calendar.days[loop.index-1] }}</span>
+                <span class="calendar__weekdays__dates__date__name">{{ calendar.days[(loop.index - 1) % 7] }}</span>
                 {% if date.day_start_at %}<span class="calendar__weekdays__dates__time">{{ date.day_start_at }} – {{ date.day_end_at }}</span>{% endif %}
               </p>
             {% endfor %}
