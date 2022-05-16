@@ -821,6 +821,11 @@ class DuckTypeUser(RoleMixin):
     profile_url = None
     email = phone = None
 
+    # Copy registries from User model
+    views = User.views
+    features = User.features
+    forms = User.forms
+
     __roles__ = {
         'all': {
             'read': {
@@ -831,7 +836,8 @@ class DuckTypeUser(RoleMixin):
                 'pickername',
                 'profile',
                 'profile_url',
-            }
+            },
+            'call': {'views', 'forms', 'features', 'url_for'},
         }
     }
 
@@ -856,6 +862,9 @@ class DuckTypeUser(RoleMixin):
     def __str__(self) -> str:
         """Represent user account as a string."""
         return self.pickername
+
+    def url_for(self, *args, **kwargs) -> Literal['']:
+        return ''
 
 
 deleted_user = DuckTypeUser(__("[deleted]"))
