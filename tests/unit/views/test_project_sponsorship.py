@@ -67,10 +67,10 @@ def test_sponsorship_add(
     project_expo2010,
     label,
     is_promoted,
+    csrf_token,
 ):
     login.as_(user_vetinari_site_editor.user)
     endpoint = project_expo2010.url_for('add_sponsor')
-    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     data = {
         'profile': org_uu.name,
         'label': label,
@@ -95,15 +95,11 @@ def test_sponsorship_add(
 
 
 def test_sponsorship_edit(
-    client,
-    login,
-    org_uu_sponsorship,
-    user_vetinari_site_editor,
+    client, login, org_uu_sponsorship, user_vetinari_site_editor, csrf_token
 ):
     assert org_uu_sponsorship.is_promoted is True
     login.as_(user_vetinari_site_editor.user)
     endpoint = org_uu_sponsorship.url_for('edit')
-    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     data = {
         'label': "Edited",
         'csrf_token': csrf_token,
@@ -127,11 +123,11 @@ def test_sponsorship_remove(
     org_uu_sponsorship,
     user_vetinari,
     user_vetinari_site_editor,
+    csrf_token,
 ):
     db.session.add(user_vetinari_site_editor)
     db.session.commit()
     endpoint = org_uu_sponsorship.url_for('remove')
-    csrf_token = client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
     login.as_(user_vetinari)
     data = {
         'csrf_token': csrf_token,
