@@ -568,8 +568,8 @@ def upgrade():
 
     op.execute(sa.DDL(upgrade_triggers))
 
-    print("ALERT! Import data from Lastuser before the next migration")  # noqa: T001
-    print("Use `pg_dump --data-only --exclude-table=alembic_version`")  # noqa: T001
+    print("ALERT! Import data from Lastuser before the next migration")
+    print("Use `pg_dump --data-only --exclude-table=alembic_version`")
 
 
 def downgrade():
