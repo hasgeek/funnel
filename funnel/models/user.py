@@ -815,11 +815,17 @@ class DuckTypeUser(RoleMixin):
     """User singleton constructor. Ducktypes a regular user object."""
 
     id = None  # noqa: A003
+    created_at = updated_at = None
     uuid = userid = buid = uuid_b58 = None
     username = name = None
     profile = None
     profile_url = None
     email = phone = None
+
+    # Copy registries from User model
+    views = User.views
+    features = User.features
+    forms = User.forms
 
     __roles__ = {
         'all': {
@@ -831,7 +837,8 @@ class DuckTypeUser(RoleMixin):
                 'pickername',
                 'profile',
                 'profile_url',
-            }
+            },
+            'call': {'views', 'forms', 'features', 'url_for'},
         }
     }
 
@@ -856,6 +863,9 @@ class DuckTypeUser(RoleMixin):
     def __str__(self) -> str:
         """Represent user account as a string."""
         return self.pickername
+
+    def url_for(self, *args, **kwargs) -> Literal['']:
+        return ''
 
 
 deleted_user = DuckTypeUser(__("[deleted]"))
@@ -1176,6 +1186,12 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
     private = db.Column(db.Boolean, nullable=False, default=False)
     type = db.Column(db.Unicode(30), nullable=True)  # noqa: A003
 
+    __datasets__ = {
+        'primary': {'user', 'email', 'private', 'type'},
+        'without_parent': {'email', 'private', 'type'},
+        'related': {'email', 'private', 'type'},
+    }
+
     def __init__(self, user: User, **kwargs) -> None:
         email = kwargs.pop('email', None)
         if email:
@@ -1343,6 +1359,12 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
     type = db.Column(db.Unicode(30), nullable=True)  # noqa: A003
 
     __table_args__ = (db.UniqueConstraint('user_id', 'email_address_id'),)
+
+    __datasets__ = {
+        'primary': {'user', 'email', 'private', 'type'},
+        'without_parent': {'email', 'private', 'type'},
+        'related': {'email', 'private', 'type'},
+    }
 
     def __init__(self, user: User, **kwargs) -> None:
         email = kwargs.pop('email', None)
@@ -1526,6 +1548,12 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
     private = db.Column(db.Boolean, nullable=False, default=False)
     type = db.Column(db.Unicode(30), nullable=True)  # noqa: A003
 
+    __datasets__ = {
+        'primary': {'user', 'phone', 'private', 'type'},
+        'without_parent': {'phone', 'private', 'type'},
+        'related': {'phone', 'private', 'type'},
+    }
+
     def __init__(self, phone, **kwargs) -> None:
         super().__init__(**kwargs)
         self._phone = phone
@@ -1609,6 +1637,12 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
     type = db.Column(db.Unicode(30), nullable=True)  # noqa: A003
 
     __table_args__ = (db.UniqueConstraint('user_id', 'phone'),)
+
+    __datasets__ = {
+        'primary': {'user', 'phone', 'private', 'type'},
+        'without_parent': {'phone', 'private', 'type'},
+        'related': {'phone', 'private', 'type'},
+    }
 
     def __init__(self, phone, **kwargs) -> None:
         super().__init__(**kwargs)

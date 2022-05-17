@@ -130,9 +130,9 @@ def downloadfile(basepath: str, filename: str, folder: Optional[str] = None):
         os.path.exists(folder_file)
         and (time.time() - os.path.getmtime(folder_file)) < 86400
     ):
-        print(f"Skipping re-download of recent {filename}")
+        print(f"Skipping re-download of recent {filename}")  # noqa: T201
         return
-    print(f"Downloading {filename}...")
+    print(f"Downloading {filename}...")  # noqa: T201
     url = urljoin(basepath, filename)
     r = requests.get(url, stream=True)
     if r.status_code == 200:
@@ -164,7 +164,7 @@ def downloadfile(basepath: str, filename: str, folder: Optional[str] = None):
 
 def load_country_info(fd):
     """Load country geonames from the given file descriptor."""
-    print("Loading country info...")
+    print("Loading country info...")  # noqa: T201
     progress = get_progressbar()
     countryinfo = [
         CountryInfoRecord(*row)
@@ -207,7 +207,7 @@ def load_country_info(fd):
 def load_geonames(fd):
     """Load geonames matching fixed criteria from the given file descriptor."""
     progress = get_progressbar()
-    print("Loading geonames...")
+    print("Loading geonames...")  # noqa: T201
     size = sum(1 for line in fd)
     fd.seek(0)  # Return to start
     loadprogress = ProgressBar(
@@ -272,7 +272,7 @@ def load_geonames(fd):
 
     loadprogress.finish()
 
-    print(f"Sorting {len(geonames)} records...")
+    print(f"Sorting {len(geonames)} records...")  # noqa: T201
 
     geonames = [
         row[2]
@@ -290,7 +290,7 @@ def load_geonames(fd):
     ]
     GeoName.query.all()  # Load all data into session cache for faster lookup
 
-    print(f"Processing {len(geonames)} records...")
+    print(f"Processing {len(geonames)} records...")  # noqa: T201
 
     for item in progress(geonames):
         if item.geonameid:
@@ -335,7 +335,7 @@ def load_geonames(fd):
 def load_alt_names(fd):
     """Load alternative names for geonames from the given file descriptor."""
     progress = get_progressbar()
-    print("Loading alternate names...")
+    print("Loading alternate names...")  # noqa: T201
     size = sum(1 for line in fd)
     fd.seek(0)  # Return to start
     loadprogress = ProgressBar(
@@ -366,7 +366,7 @@ def load_alt_names(fd):
 
     loadprogress.finish()
 
-    print(f"Processing {len(altnames)} records...")
+    print(f"Processing {len(altnames)} records...")  # noqa: T201
     GeoAltName.query.all()  # Load all data into session cache for faster lookup
 
     for item in progress(altnames):
@@ -388,7 +388,7 @@ def load_alt_names(fd):
 
 def load_admin1_codes(fd):
     """Load admin1 codes from the given file descriptor."""
-    print("Loading admin1 codes...")
+    print("Loading admin1 codes...")  # noqa: T201
     progress = get_progressbar()
     admincodes = [
         GeoAdminRecord(*row)
@@ -412,7 +412,7 @@ def load_admin1_codes(fd):
 
 def load_admin2_codes(fd):
     """Load admin2 codes from the given file descriptor."""
-    print("Loading admin2 codes...")
+    print("Loading admin2 codes...")  # noqa: T201
     progress = get_progressbar()
     admincodes = [
         GeoAdminRecord(*row)

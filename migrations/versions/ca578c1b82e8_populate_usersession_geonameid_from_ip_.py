@@ -128,9 +128,11 @@ def upgrade():
                 progress.update(counter)
             progress.finish()
         else:
-            print("Skipping geonameid population as databases are missing")
+            print(  # noqa: T201
+                "Skipping geonameid population as databases are missing"
+            )
     else:
-        print(  # type: ignore[unreachable]
+        print(  # type: ignore[unreachable]  # noqa: T201
             "Skipping geonameid population as geoip2 is not installed"
         )
 

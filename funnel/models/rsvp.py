@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Optional, cast, overload
+from typing import Dict, Optional, Tuple, Union, cast, overload
 
 from flask import current_app
 from werkzeug.utils import cached_property
@@ -16,7 +16,7 @@ from . import NoIdMixin, UuidMixin, db
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
-from .user import User, UserEmail
+from .user import User, UserEmail, UserEmailClaim, UserPhone, UserPhoneClaim
 
 __all__ = ['Rsvp', 'RSVP_STATUS']
 
@@ -121,6 +121,27 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
     def user_email(self) -> Optional[UserEmail]:
         """User's preferred email address for this registration."""
         return self.user.transport_for_email(self.project.profile)
+
+    @with_roles(call={'owner', 'project_promoter'})
+    def user_phone(self) -> Optional[UserEmail]:
+        """User's preferred phone number for this registration."""
+        return self.user.transport_for_sms(self.project.profile)
+
+    @with_roles(call={'owner', 'project_promoter'})
+    def best_contact(
+        self,
+    ) -> Tuple[Union[UserEmail, UserEmailClaim, UserPhone, UserPhoneClaim, None], str]:
+        email = self.user_email()
+        if email:
+            return email, 'e'
+        phone = self.user_phone()
+        if phone:
+            return phone, 'p'
+        if self.user.emailclaims:
+            return self.user.emailclaims[0], 'ec'
+        if self.user.phoneclaims:
+            return self.user.phoneclaims[0], 'pc'
+        return None, ''
 
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
