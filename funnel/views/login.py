@@ -121,7 +121,7 @@ def login():
                 ('user/' + loginform.user.uuid_b58)
                 if loginform.user
                 else ('username/' + loginform.username.data),
-                10,
+                50,
                 3600,
             )
             if success:
@@ -201,12 +201,17 @@ def login():
     elif request.method == 'POST':
         abort(500)
     iframe_block = {'X-Frame-Options': 'SAMEORIGIN'}
-    if request_is_xhr() and formid == 'passwordlogin':
+    if request_is_xhr():
         return (
             render_template(
                 'loginform.html.jinja2',
                 loginform=loginform,
+                lastused=loginmethod,
+                login_registry=login_registry,
+                formid='passwordlogin',
                 ref_id='form-passwordlogin',
+                title=_("Login"),
+                ajax=True,
             ),
             200,
             iframe_block,

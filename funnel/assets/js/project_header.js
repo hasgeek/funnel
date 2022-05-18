@@ -199,6 +199,14 @@ $(() => {
       $('a.js-register-btn').modal('show');
     }
 
+    $('a.js-login-register-btn').click(function addRegisterModalHash() {
+      window.history.pushState(
+        {},
+        '',
+        `?next=${window.location.href}%23${$(this).data('register-modal')}`
+      );
+    });
+
     if (tickets) {
       Ticketing.init(tickets);
     }

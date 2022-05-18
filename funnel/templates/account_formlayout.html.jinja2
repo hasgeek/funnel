@@ -25,7 +25,11 @@
   <div class="login-page-wrapper">
     <div class="login-page__box">
       <div class="login-page__back">
-        <a class="js-popup-back" href="{% if current_auth.is_authenticated %}{{ url_for('account') }}{% else %}{{ url_for('index') }}{% endif %}" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+        {%- if not request_is_xhr() -%}
+          <a class="js-popup-back" href="{% if current_auth.is_authenticated %}{{ url_for('account') }}{% else %}{{ url_for('index') }}{% endif %}" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+        {%- else -%}
+          <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+        {% endif %}
       </div>
       {% block focuscontent %}
         {% block beforeformcontent %}
