@@ -38,7 +38,7 @@ class OrganizationForm(forms.Form):
         ],
         filters=[forms.filters.strip()],
         prefix="https://hasgeek.com/",
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
     def validate_name(self, field):

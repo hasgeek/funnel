@@ -119,7 +119,7 @@ class RegisterForm(forms.RecaptchaForm):
             EmailAddressAvailable(purpose='register'),
         ],
         filters=strip_filters,
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     password = forms.PasswordField(
         __("Password"),
@@ -172,7 +172,7 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
     username = forms.StringField(
         __("Username or Email"),
         validators=[forms.validators.DataRequired()],
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
     def validate_username(self, field):
@@ -213,7 +213,7 @@ class PasswordResetForm(forms.RecaptchaForm):
         __("Username or Email"),
         validators=[forms.validators.DataRequired()],
         description=__("Please reconfirm your username or email address"),
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
     password = forms.PasswordField(
@@ -320,7 +320,7 @@ class AccountForm(forms.Form):
             EmailAddressAvailable(purpose='use'),
         ],
         filters=strip_filters,
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     username = forms.AnnotatedTextField(
         __("Username"),
@@ -334,7 +334,7 @@ class AccountForm(forms.Form):
         ],
         filters=[forms.filters.none_if_empty()],
         prefix="https://hasgeek.com/",
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     timezone = forms.SelectField(
         __("Timezone"),
@@ -344,7 +344,7 @@ class AccountForm(forms.Form):
         ),
         validators=[forms.validators.DataRequired()],
         choices=timezones,
-        widget_attrs={},
+        render_kw={},
     )
     auto_timezone = forms.BooleanField(__("Use your device’s timezone"))
     locale = forms.SelectField(
@@ -368,7 +368,7 @@ class UsernameAvailableForm(forms.Form):
         __("Username"),
         validators=[forms.validators.DataRequired(__("This is required"))],
         filters=[forms.filters.strip()],
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
     def validate_username(self, field):
@@ -397,7 +397,7 @@ class NewEmailAddressForm(forms.RecaptchaForm):
             EmailAddressAvailable(purpose='claim'),
         ],
         filters=strip_filters,
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
     type = forms.RadioField(  # noqa: A003
         __("Type"),
@@ -417,7 +417,7 @@ class EmailPrimaryForm(forms.Form):
         __("Email address"),
         validators=[forms.validators.DataRequired()],
         filters=strip_filters,
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
 
@@ -494,7 +494,7 @@ class PhonePrimaryForm(forms.Form):
     phone = forms.StringField(
         __("Phone number"),
         validators=[forms.validators.DataRequired()],
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
     )
 
 
@@ -504,7 +504,7 @@ class VerifyPhoneForm(forms.Form):
         __("Verification code"),
         validators=[forms.validators.DataRequired()],
         filters=[forms.filters.strip()],
-        widget_attrs={'pattern': '[0-9]*', 'autocomplete': 'off'},
+        render_kw={'pattern': '[0-9]*', 'autocomplete': 'off'},
     )
 
     def validate_verification_code(self, field):
