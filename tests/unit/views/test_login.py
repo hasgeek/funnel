@@ -9,6 +9,7 @@ from coaster.auth import current_auth
 test_passwords = {'rincewind': 'rincewind-password'}
 complex_test_password = 'f7kN{$a58p^AmL@$'  # noqa: S105
 wrong_password = 'wrong_password'  # noqa: S105
+no_password = ''  # noqa: S105
 
 logins = ['rincewind', 'rincewind@example.com', '+12345678901']
 passwords_with_status = [
@@ -18,6 +19,7 @@ passwords_with_status = [
         'auth': True,
     },
     {'password': wrong_password, 'status_code': 200, 'auth': False},
+    {'password': no_password, 'status_code': 200, 'auth': False},
 ]
 
 # sms_response = {
