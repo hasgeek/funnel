@@ -156,6 +156,7 @@ def login() -> ReturnView:
         loginmethod = request.cookies.get('login')
 
     formid = abort_null(request.form.get('form.id'))
+    iframe_block = {'X-Frame-Options': 'SAMEORIGIN'}
     if request.method == 'POST' and formid == 'passwordlogin':
         try:
             success = loginform.validate()
@@ -267,8 +268,16 @@ def login() -> ReturnView:
                 otp_sent = bool(send_sms_otp(str(anchor), otp))
             if otp_sent:
                 otp_form = OtpForm(valid_otp=otp)
-                # TODO: Use appropriate template for OTP form
-                return render_form(otp_form, formid='login-otp', title=_("Enter OTP"))
+                return (
+                    render_template(
+                        'ajaxform.html.jinja2',
+                        form=otp_form,
+                        formid='login-otp',
+                        ref_id='form-otp',
+                    ),
+                    200,
+                    iframe_block,
+                )
             else:
                 flash(
                     _("The OTP could not be sent. Use password to login"),
@@ -304,7 +313,6 @@ def login() -> ReturnView:
     elif request.method == 'POST':
         # This should not happen. We received an incomplete form.
         abort(500)
-    iframe_block = {'X-Frame-Options': 'SAMEORIGIN'}
     if request_is_xhr() and formid == 'passwordlogin':
         return (
             render_template(
