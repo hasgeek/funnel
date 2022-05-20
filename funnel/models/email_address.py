@@ -200,7 +200,7 @@ class EmailAddress(BaseMixin, db.Model):
 
     #: BLAKE2b 160-bit hash of :property:`email_canonical`. Kept permanently for blocked
     #: email detection. Indexed but does not use a unique constraint because a+b@tld and
-    #: a+c@tld are both a@tld canonically.
+    #: a+c@tld are both a@tld canonically but can exist in records separately.
     blake2b160_canonical = immutable(
         db.Column(db.LargeBinary, nullable=False, index=True)
     )

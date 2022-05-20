@@ -444,18 +444,6 @@ class NewPhoneForm(forms.RecaptchaForm):
         description=__("Mobile numbers only, in Indian or international format"),
     )
 
-    # Temporarily removed since we only support mobile numbers at this time. When phone
-    # call validation is added, we can ask for other types of numbers:
-
-    # type = forms.RadioField(__("Type"),
-    #     validators=[forms.validators.Optional()],
-    #     filters=strip_filters,
-    #     choices=[
-    #         (__("Mobile"), __("Mobile")),
-    #         (__("Home"), __("Home")),
-    #         (__("Work"), __("Work")),
-    #         (__("Other"), __("Other"))])
-
     enable_notifications = forms.BooleanField(
         __("Send notifications by SMS"),
         description=__(
@@ -534,7 +522,7 @@ class OtpForm(forms.Form):
         description=__("One-time password sent to your device"),
         validators=[forms.validators.DataRequired()],
         filters=[forms.filters.strip()],
-        widget_attrs={
+        render_kw={
             'pattern': '[0-9]*',
             'autocomplete': 'off',
             'inputmode': 'numeric',

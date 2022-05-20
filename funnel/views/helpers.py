@@ -330,9 +330,13 @@ def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
     """
     Make a short text token that references data in cache with a timeout period.
 
-    This is currently used for SMS unsubscribe links, but can also be used elsewhere.
-    The complementary :func:`retrieve_cached_token` and :func:`delete_cached_token`
-    functions can be used to retrieve and discard data.
+    This is currently used for SMS OTPs and links, including for login, password reset
+    and SMS unsubscribe. The complementary :func:`retrieve_cached_token` and
+    :func:`delete_cached_token` functions can be used to retrieve and discard data.
+
+    This expects (a) the Redis cache to be shared across all HTTP workers, or (b)
+    session binding to the worker. Funnel's Docker implementation as introduced in #1292
+    isolates Redis cache per worker.
 
     :param payload: Data to save against the token
     :param timeout: Timeout period for token in seconds (default 24 hours)

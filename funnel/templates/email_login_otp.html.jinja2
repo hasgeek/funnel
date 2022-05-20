@@ -1,0 +1,12 @@
+{% extends "notifications/layout_email.html.jinja2" %}
+{% block content -%}
+
+  <p>{% trans %}Hello {{ fullname }},{% endtrans %}</p>
+
+  <p>{% trans %}This login OTP is valid for 15 minutes.{% endtrans %}</p>
+
+  <p><big>{% trans %}OTP:{% endtrans %} <strong>{{ otp }}</strong></big></p>
+
+  <p>{% trans %}If you did not ask for this, you may safely ignore this email.{% endtrans %}</p>
+
+{%- endblock %}

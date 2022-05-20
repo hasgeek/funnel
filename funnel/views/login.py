@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 from secrets import token_urlsafe
+from typing import NamedTuple
 import urllib.parse
 
 from flask import (
@@ -18,10 +19,10 @@ from flask import (
 import itsdangerous
 
 from baseframe import _, __, forms, request_is_xhr, statsd
-from baseframe.forms import render_message, render_redirect
+from baseframe.forms import render_form, render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
-from coaster.utils import getbool
+from coaster.utils import getbool, newpin
 from coaster.views import get_next_url, requestargs
 
 from .. import app
@@ -29,7 +30,9 @@ from ..forms import (
     LoginForm,
     LoginPasswordResetException,
     LoginPasswordWeakException,
+    LoginWithoutPassword,
     LogoutForm,
+    OtpForm,
     RegisterForm,
 )
 from ..models import (
@@ -39,6 +42,7 @@ from ..models import (
     UserEmail,
     UserEmailClaim,
     UserExternalId,
+    UserPhone,
     UserSession,
     db,
     getextid,
@@ -54,10 +58,13 @@ from ..serializers import crossapp_serializer
 from ..signals import user_data_changed
 from ..typing import ReturnView
 from ..utils import abort_null
-from .email import send_email_verify_link
+from .email import send_email_verify_link, send_login_otp
 from .helpers import (
     app_url_for,
+    make_cached_token,
     metarefresh_redirect,
+    retrieve_cached_token,
+    send_sms_otp,
     session_timeouts,
     validate_rate_limit,
 )
@@ -76,16 +83,58 @@ session_timeouts['oauth_state'] = timedelta(minutes=30)
 session_timeouts['merge_buid'] = timedelta(minutes=15)
 session_timeouts['login_nonce'] = timedelta(minutes=1)
 session_timeouts['temp_username'] = timedelta(minutes=15)
+session_timeouts['login_otp'] = timedelta(minutes=15)
+
+
+class LoginTimeoutError(Exception):
+    """Exception to indicate the login OTP has expired."""
+
+
+class LoginOtp(NamedTuple):
+    token: str
+    otp: int
+    user: User
+    anchor_hash: str
+
+
+def make_login_otp(user, anchor):
+    """Create an OTP for login and save it to cache and browser cookie session."""
+    otp = newpin()
+    # Make an OTP valid for 15 minutes. Store this OTP in Redis cache and add a ref to
+    # this cache entry in the user's cookie session. The cookie never contains the
+    # actual OTP. See :func:`make_cached_token` for additional documentation.
+    session['login_otp'] = make_cached_token(
+        {'otp': otp, 'user_buid': user.buid, 'anchor': anchor.transport_hash},
+        timeout=15 * 60,
+    )
+    return otp
+
+
+def retrieve_login_otp():
+    """Retrieve an OTP from cache using the token in browser cookie session."""
+    otp_token = session.get('login_otp')
+    if not otp_token:
+        raise LoginTimeoutError('cookie_expired')
+    otp_data = retrieve_cached_token(otp_token)
+    if not otp_data:
+        raise LoginTimeoutError('cache_expired')
+    return LoginOtp(
+        token=otp_token,
+        otp=otp_data['otp'],
+        user=User.get(buid=otp_data['user_buid']),
+        anchor_hash=otp_data['anchor'],
+    )
 
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def login() -> ReturnView:
     # If user is already logged in, send them back
     if current_auth.is_authenticated:
         return redirect(get_next_url(referrer=True), code=303)
 
     # Remember where the user came from if it wasn't already saved.
     # Placing this inside an `if` block has consequences:
+    #
     # 1. If the user aborts this login attempt but tries to login later using the login
     #    button, they will be redirected to the page the original attempt was made from,
     #    not the latest attempt. This can be unexpected behaviour. However, this problem
@@ -95,11 +144,10 @@ def login():
     #    becoming the norm for cross-site referrers, and an OAuth2 login via /auth is
     #    crucially dependent on receiving the next URL from the client, validating it
     #    and saving to session['next'] (to avoid URL length limitations in browsers when
-    #    bounce the user off to a third party login provider like Google). This saved
+    #    we bounce the user off to a third party login provider like Google). This saved
     #    value absolutely cannot be clobbered by the referrer header.
     # TODO: Work out a more robust solution that saves _two_ possible next URL values
     # to the session.
-
     set_session_next_url()
 
     loginform = LoginForm()
@@ -179,9 +227,8 @@ def login():
         except LoginPasswordResetException:
             flash(
                 _(
-                    "Your account does not have a password set. Please enter your"
-                    " phone number or email address to request a reset code and set a"
-                    " new password"
+                    "Your account does not have a password. Please enter your phone"
+                    " number or email address to request an OTP and set a new password"
                 ),
                 category='danger',
             )
@@ -190,14 +237,72 @@ def login():
         except LoginPasswordWeakException:
             flash(
                 _(
-                    "Your account has a weak password. Please enter your"
-                    " phone number or email address to request a reset code and set a"
-                    " new password"
+                    "Your account has a weak password. Please enter your phone number"
+                    " or email address to request an OTP and set a new password"
                 )
             )
             session['temp_username'] = loginform.username.data
             return render_redirect(url_for('reset'), code=303)
+        except LoginWithoutPassword:
+            # Allow 3 OTP requests per hour per anchor. This is distinct from the rate
+            # limiting for password-based login above.
+            user = loginform.user
+            anchor = loginform.anchor
+            validate_rate_limit(
+                'login-otp-send', ('anchor/' + anchor.transport_hash), 3, 3600
+            )
+            otp = make_login_otp(user, anchor)
+            otp_sent = False
+
+            if isinstance(anchor, (UserEmail, UserEmailClaim)):
+                send_login_otp(
+                    email=str(anchor),
+                    user=user,
+                    otp=otp,
+                )
+                otp_sent = True
+                flash(_("An OTP has been sent to your email address"), 'success')
+            elif isinstance(anchor, UserPhone):
+                # send_sms_otp returns an instance of SmsMessage if a message was sent
+                otp_sent = bool(send_sms_otp(str(anchor), otp))
+            if otp_sent:
+                otp_form = OtpForm(valid_otp=otp)
+                # TODO: Use appropriate template for OTP form
+                return render_form(otp_form, formid='login-otp', title=_("Enter OTP"))
+            else:
+                flash(
+                    _("The OTP could not be sent. Use password to login"),
+                    category='error',
+                )
+    elif request.method == 'POST' and formid == 'login-otp':
+        try:
+            otp_data = retrieve_login_otp()
+
+            # Allow 5 guesses per 60 seconds
+            validate_rate_limit('login_otp', otp_data.token, 5, 60)
+
+            otp_form = OtpForm(valid_otp=otp_data.otp)
+            if otp_form.validate_on_submit():
+                login_internal(otp_data.user, login_service='otp')
+                db.session.commit()
+                current_app.logger.info(
+                    "Login successful for %r, possible redirect URL is '%s'",
+                    otp_data.user,
+                    session.get('next', ''),
+                )
+                flash(_("You are now logged in"), category='success')
+                session.pop('login_otp', None)
+                return set_loginmethod_cookie(
+                    render_redirect(get_next_url(session=True), code=303),
+                    'otp',
+                )
+        except LoginTimeoutError as exc:
+            reason = str(exc)
+            current_app.logger.info("Login OTP timed out with %s", reason)
+            flash(_("The OTP has expired. Try again?"), category='error')
+            pass  # Render login form again
     elif request.method == 'POST':
+        # This should not happen. We received an incomplete form.
         abort(500)
     iframe_block = {'X-Frame-Options': 'SAMEORIGIN'}
     if request_is_xhr() and formid == 'passwordlogin':

@@ -50,6 +50,17 @@ def send_password_reset_link(email, user, otp, token):
     send_email(subject, [(user.fullname, email)], content)
 
 
+def send_login_otp(email, user, otp):
+    """Mail a login OTP to the user."""
+    subject = _("Login OTP {otp}").format(otp=otp)
+    content = render_template(
+        'email_login_otp.html.jinja2',
+        fullname=user.fullname,
+        otp=otp,
+    )
+    send_email(subject, [(user.fullname, email)], content)
+
+
 @signals.project_crew_membership_added.connect
 def send_email_for_project_crew_membership_added(
     sender, project, membership, actor, user
