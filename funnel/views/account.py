@@ -239,10 +239,12 @@ class AccountView(ClassView):
     @render_with('account.html.jinja2')
     def account(self) -> ReturnRenderWith:
         logout_form = LogoutForm(user=current_auth.user)
+        user_has_password = current_auth.user.pw_hash is not None
         primary_email_form = EmailPrimaryForm()
         primary_phone_form = PhonePrimaryForm()
         return {
             'user': current_auth.user.current_access(),
+            'user_has_password': user_has_password,
             'authtokens': [
                 _at.current_access()
                 for _at in current_auth.user.authtokens.join(AuthClient)
