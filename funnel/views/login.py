@@ -274,6 +274,7 @@ def login() -> ReturnView:
                         form=otp_form,
                         formid='login-otp',
                         ref_id='form-otp',
+                        cancel_url=url_for('login'),
                     ),
                     200,
                     iframe_block,
