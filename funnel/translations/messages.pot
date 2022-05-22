@@ -2736,7 +2736,7 @@ msgid "Don’t have an account?"
 msgstr ""
 
 #: funnel/templates/login.html.jinja2:21
-msgid "Sign up with email"
+msgid "Sign up"
 msgstr ""
 
 #: funnel/templates/logout_browser_data.html.jinja2:2

@@ -19,7 +19,7 @@ from flask import (
 import itsdangerous
 
 from baseframe import _, __, forms, request_is_xhr, statsd
-from baseframe.forms import render_form, render_message, render_redirect
+from baseframe.forms import render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
 from coaster.utils import getbool, newpin
