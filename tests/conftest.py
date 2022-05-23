@@ -165,6 +165,9 @@ def db_session(database, db_connection):
     transaction.rollback()
     database.session = original_session
 
+    with app.app_context():
+        redis_store.flushdb()
+
 
 # Enable autouse to guard against tests that have implicit database access, or assume
 # app context without a fixture

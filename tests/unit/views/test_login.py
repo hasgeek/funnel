@@ -8,6 +8,7 @@ from werkzeug.datastructures import MultiDict
 import pytest
 
 from coaster.auth import current_auth
+from funnel import redis_store
 from funnel.views.login import retrieve_login_otp
 
 test_passwords = {'rincewind': 'rincewind-password'}
@@ -92,6 +93,11 @@ def test_user_logout(client, login, user_rincewind, csrf_token):
     assert current_auth.user is None
 
 
+def mock_send(phone, message):
+    return json.dumps(sms_response)
+
+
+@patch("funnel.transports.sms.send", mock_send)
 @pytest.mark.parametrize(
     ['login_type', 'passwords_with_status'], product(logins, passwords_with_status)
 )
@@ -116,24 +122,25 @@ def test_login_types(
             }
         ),
     )
-
     assert current_auth.is_authenticated is passwords_with_status['auth']
     assert rv.status_code == passwords_with_status['status_code']
 
 
-def mock_send(phone, message):
-    return json.dumps(sms_response)
-
-
 @patch("funnel.transports.sms.send", mock_send)
+@pytest.mark.parametrize('login_type', logins)
 def test_valid_otp_login(
-    client, user_rincewind, user_rincewind_phone, user_rincewind_email, csrf_token
+    client,
+    user_rincewind,
+    user_rincewind_phone,
+    user_rincewind_email,
+    csrf_token,
+    login_type,
 ):
     rv1 = client.post(
         '/login',
         data=MultiDict(
             {
-                'username': '+12345678901',
+                'username': login_type,
                 'password': '',
                 'csrf_token': csrf_token,
                 'form.id': 'passwordlogin',
@@ -155,24 +162,32 @@ def test_valid_otp_login(
     )
     assert rv2.status_code == 303
     assert current_auth.user == user_rincewind
+    redis_store.flushall()
 
 
 def generate_wrong_otp(retrieved_otp):
-    retrieved_otp = retrieved_otp
     wrong_otp = random.randint(1000, 9999)  # noqa: S311
     if wrong_otp == retrieved_otp:
         generate_wrong_otp(retrieved_otp)
     return wrong_otp
 
 
+@patch("funnel.transports.sms.send", mock_send)
+@pytest.mark.parametrize('login_type', logins)
 def test_invalid_otp_login(
-    client, user_rincewind, user_rincewind_email, user_rincewind_phone, csrf_token
+    client,
+    user_rincewind,
+    user_rincewind_email,
+    user_rincewind_phone,
+    csrf_token,
+    login_type,
+    db_session,
 ):
     rv1 = client.post(
         '/login',
         data=MultiDict(
             {
-                'username': 'rincewind@example.com',
+                'username': login_type,
                 'password': '',
                 'csrf_token': csrf_token,
                 'form.id': 'passwordlogin',
@@ -194,3 +209,4 @@ def test_invalid_otp_login(
     )
     assert rv2.status_code == 200
     assert current_auth.user is None
+    redis_store.flushdb()
