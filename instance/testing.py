@@ -92,3 +92,4 @@ IMAGE_URL_SCHEMES = ('https',)
 
 RQ_REDIS_URL = 'redis://localhost:6379/9'
 ENABLE_COMMENT_SIDEBAR = True
+REDIS_URL = "redis://localhost:6379/9"
