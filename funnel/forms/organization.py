@@ -23,6 +23,7 @@ class OrganizationForm(forms.Form):
             forms.validators.Length(max=Organization.__title_length__),
         ],
         filters=[forms.filters.strip()],
+        render_kw={'autocomplete': 'organization'},
     )
     name = forms.AnnotatedTextField(
         __("Username"),

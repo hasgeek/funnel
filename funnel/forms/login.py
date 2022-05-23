@@ -60,7 +60,11 @@ class LoginForm(forms.Form):
             )
         ],
         filters=[forms.filters.strip()],
-        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'username',
+        },
     )
     password = forms.PasswordField(
         __("Password"),
@@ -71,6 +75,7 @@ class LoginForm(forms.Form):
                 message=__("Password must be under %(max)s characters"),
             ),
         ],
+        render_kw={'autocomplete': 'current-password'},
     )
 
     # These two validators depend on being called in sequence

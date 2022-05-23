@@ -115,6 +115,7 @@ class RegisterForm(forms.RecaptchaForm):
         ),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
         filters=[forms.filters.strip()],
+        render_kw={'autocomplete': 'name'},
     )
     email = forms.EmailField(
         __("Email address"),
@@ -123,7 +124,11 @@ class RegisterForm(forms.RecaptchaForm):
             EmailAddressAvailable(purpose='register'),
         ],
         filters=strip_filters,
-        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'email',
+        },
     )
     password = forms.PasswordField(
         __("Password"),
@@ -132,6 +137,7 @@ class RegisterForm(forms.RecaptchaForm):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(user_input_fields=['fullname', 'email']),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
     confirm_password = forms.PasswordField(
         __("Confirm password"),
@@ -140,6 +146,7 @@ class RegisterForm(forms.RecaptchaForm):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
 
 
@@ -153,6 +160,7 @@ class PasswordForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(max=PASSWORD_MAX_LENGTH),
         ],
+        render_kw={'autocomplete': 'current-password'},
     )
 
     def validate_password(self, field):
@@ -178,7 +186,11 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
     username = forms.StringField(
         __("Phone number or email address"),
         validators=[forms.validators.DataRequired()],
-        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'username',
+        },
     )
 
     def validate_username(self, field):
@@ -199,6 +211,7 @@ class PasswordCreateForm(forms.Form):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
     confirm_password = forms.PasswordField(
         __("Confirm password"),
@@ -207,6 +220,7 @@ class PasswordCreateForm(forms.Form):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
 
 
@@ -235,6 +249,7 @@ class PasswordResetForm(forms.RecaptchaForm):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
     confirm_password = forms.PasswordField(
         __("Confirm password"),
@@ -243,6 +258,7 @@ class PasswordResetForm(forms.RecaptchaForm):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
 
     def validate_username(self, field):
@@ -264,6 +280,7 @@ class PasswordChangeForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(max=PASSWORD_MAX_LENGTH),
         ],
+        render_kw={'autocomplete': 'current-password'},
     )
     password = forms.PasswordField(
         __("New password"),
@@ -272,6 +289,7 @@ class PasswordChangeForm(forms.Form):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
     confirm_password = forms.PasswordField(
         __("Confirm password"),
@@ -280,6 +298,7 @@ class PasswordChangeForm(forms.Form):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
 
     def validate_old_password(self, field):
@@ -320,6 +339,7 @@ class AccountForm(forms.Form):
             forms.validators.Length(max=User.__title_length__),
         ],
         filters=[forms.filters.strip()],
+        render_kw={'autocomplete': 'name'},
     )
     email = forms.EmailField(
         __("Email address"),
@@ -329,7 +349,11 @@ class AccountForm(forms.Form):
             EmailAddressAvailable(purpose='use'),
         ],
         filters=strip_filters,
-        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'email',
+        },
     )
     username = forms.AnnotatedTextField(
         __("Username"),
@@ -343,7 +367,11 @@ class AccountForm(forms.Form):
         ],
         filters=[forms.filters.none_if_empty()],
         prefix="https://hasgeek.com/",
-        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'username',
+        },
     )
     timezone = forms.SelectField(
         __("Timezone"),
@@ -377,7 +405,11 @@ class UsernameAvailableForm(forms.Form):
         __("Username"),
         validators=[forms.validators.DataRequired(__("This is required"))],
         filters=[forms.filters.strip()],
-        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'username',
+        },
     )
 
     def validate_username(self, field):
@@ -406,7 +438,11 @@ class NewEmailAddressForm(forms.RecaptchaForm):
             EmailAddressAvailable(purpose='claim'),
         ],
         filters=strip_filters,
-        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'email',
+        },
     )
     type = forms.RadioField(  # noqa: A003
         __("Type"),
@@ -426,7 +462,11 @@ class EmailPrimaryForm(forms.Form):
         __("Email address"),
         validators=[forms.validators.DataRequired()],
         filters=strip_filters,
-        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'email',
+        },
     )
 
 
@@ -442,6 +482,7 @@ class NewPhoneForm(forms.RecaptchaForm):
         validators=[forms.validators.DataRequired()],
         filters=strip_filters,
         description=__("Mobile numbers only, in Indian or international format"),
+        render_kw={'autocomplete': 'tel'},
     )
 
     enable_notifications = forms.BooleanField(
@@ -491,7 +532,11 @@ class PhonePrimaryForm(forms.Form):
     phone = forms.StringField(
         __("Phone number"),
         validators=[forms.validators.DataRequired()],
-        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'tel',
+        },
     )
 
 
@@ -503,7 +548,7 @@ class VerifyPhoneForm(forms.Form):
         filters=[forms.filters.strip()],
         render_kw={
             'pattern': '[0-9]*',
-            'autocomplete': 'off',
+            'autocomplete': 'one-time-code',
             'autocorrect': 'off',
             'inputmode': 'numeric',
         },
@@ -525,7 +570,7 @@ class OtpForm(forms.Form):
         filters=[forms.filters.strip()],
         render_kw={
             'pattern': '[0-9]*',
-            'autocomplete': 'off',
+            'autocomplete': 'one-time-code',
             'autocorrect': 'off',
             'inputmode': 'numeric',
         },
