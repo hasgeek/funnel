@@ -8,7 +8,6 @@ from werkzeug.datastructures import MultiDict
 import pytest
 
 from coaster.auth import current_auth
-from funnel import redis_store
 from funnel.views.login import retrieve_login_otp
 
 test_passwords = {'rincewind': 'rincewind-password'}
@@ -162,7 +161,6 @@ def test_valid_otp_login(
     )
     assert rv2.status_code == 303
     assert current_auth.user == user_rincewind
-    redis_store.flushall()
 
 
 def generate_wrong_otp(retrieved_otp):
@@ -209,4 +207,3 @@ def test_invalid_otp_login(
     )
     assert rv2.status_code == 200
     assert current_auth.user is None
-    redis_store.flushdb()
