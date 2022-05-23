@@ -1,10 +1,14 @@
 from itertools import product
+from unittest.mock import patch
+import json
+import random
 
 from werkzeug.datastructures import MultiDict
 
 import pytest
 
 from coaster.auth import current_auth
+from funnel.views.login import retrieve_login_otp
 
 test_passwords = {'rincewind': 'rincewind-password'}
 complex_test_password = 'f7kN{$a58p^AmL@$'  # noqa: S105
@@ -22,26 +26,26 @@ passwords_with_status = [
     {'password': no_password, 'status_code': 200, 'auth': False},
 ]
 
-# sms_response = {
-#     "SMSMessage": {
-#         "Sid": "0f477d60517e6e6a0f6d9a7e9af8630e",
-#         "AccountSid": "Exotel",
-#         "From": "0XXXXXX4890/WEBDEV",
-#         "To": "0XXXXX30240",
-#         "DateCreated": "2017-03-03 14:14:20",
-#         "DateUpdated": "2017-03-03 14:14:20",
-#         "DateSent": 'null',
-#         "Body": random_otp(),
-#         "Direction": "outbound-api",
-#         "Uri": "/v1/Accounts/Exotel/SMS/Messages/0f477d60517e6e6a0f6d9a7e9af8630e.json",
-#         "ApiVersion": 'null',
-#         "Price": 'null',
-#         "Status": "queued",
-#         "DetailedStatusCode": "21010",
-#         "DetailedStatus": "PENDING_TO_OPERATOR",
-#         "SmsUnits": 'null',
-#     }
-# }
+sms_response = {
+    "SMSMessage": {
+        "Sid": "0f477d60517e6e6a0f6d9a7e9af8630e",
+        "AccountSid": "Exotel",
+        "From": "0XXXXXX4890/WEBDEV",
+        "To": "0XXXXX30240",
+        "DateCreated": "2017-03-03 14:14:20",
+        "DateUpdated": "2017-03-03 14:14:20",
+        "DateSent": 'null',
+        "Body": '2234',
+        "Direction": "outbound-api",
+        "Uri": "/v1/Accounts/Exotel/SMS/Messages/0f477d60517e6e6a0f6d9a7e9af8630e.json",
+        "ApiVersion": 'null',
+        "Price": 'null',
+        "Status": "queued",
+        "DetailedStatusCode": "21010",
+        "DetailedStatus": "PENDING_TO_OPERATOR",
+        "SmsUnits": 'null',
+    }
+}
 
 
 @pytest.fixture
@@ -88,6 +92,11 @@ def test_user_logout(client, login, user_rincewind, csrf_token):
     assert current_auth.user is None
 
 
+def mock_send(phone, message):
+    return json.dumps(sms_response)
+
+
+@patch("funnel.transports.sms.send", mock_send)
 @pytest.mark.parametrize(
     ['login_type', 'passwords_with_status'], product(logins, passwords_with_status)
 )
@@ -112,13 +121,89 @@ def test_login_types(
             }
         ),
     )
-
     assert current_auth.is_authenticated is passwords_with_status['auth']
     assert rv.status_code == passwords_with_status['status_code']
 
 
-# def mock_send(phone, message, callback):
-#     for prefix, sender in senders_by_prefix:
-#         return sender(phone, message, callback)
+@patch("funnel.transports.sms.send", mock_send)
+@pytest.mark.parametrize('login_type', logins)
+def test_valid_otp_login(
+    client,
+    user_rincewind,
+    user_rincewind_phone,
+    user_rincewind_email,
+    csrf_token,
+    login_type,
+):
+    rv1 = client.post(
+        '/login',
+        data=MultiDict(
+            {
+                'username': login_type,
+                'password': '',
+                'csrf_token': csrf_token,
+                'form.id': 'passwordlogin',
+            }
+        ),
+    )
+    assert rv1.status_code == 200
+    assert current_auth.user is None
 
-# def test_sms(client,)
+    rv2 = client.post(
+        '/login',
+        data=MultiDict(
+            {
+                'otp': retrieve_login_otp().otp,
+                'csrf_token': csrf_token,
+                'form.id': 'login-otp',
+            }
+        ),
+    )
+    assert rv2.status_code == 303
+    assert current_auth.user == user_rincewind
+
+
+def generate_wrong_otp(retrieved_otp):
+    wrong_otp = random.randint(1000, 9999)  # noqa: S311
+    if wrong_otp == retrieved_otp:
+        generate_wrong_otp(retrieved_otp)
+    return wrong_otp
+
+
+@patch("funnel.transports.sms.send", mock_send)
+@pytest.mark.parametrize('login_type', logins)
+def test_invalid_otp_login(
+    client,
+    user_rincewind,
+    user_rincewind_email,
+    user_rincewind_phone,
+    csrf_token,
+    login_type,
+    db_session,
+):
+    rv1 = client.post(
+        '/login',
+        data=MultiDict(
+            {
+                'username': login_type,
+                'password': '',
+                'csrf_token': csrf_token,
+                'form.id': 'passwordlogin',
+            }
+        ),
+    )
+    assert rv1.status_code == 200
+    assert current_auth.user is None
+
+    rv2 = client.post(
+        '/login',
+        data=MultiDict(
+            {
+                'otp': generate_wrong_otp(retrieve_login_otp().otp),
+                'csrf_token': csrf_token,
+                'form.id': 'login-otp',
+            }
+        ),
+    )
+    assert rv2.status_code == 200
+    assert current_auth.user is None

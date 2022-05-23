@@ -90,5 +90,9 @@ IMAGE_URL_SCHEMES = ('https',)
 # RQ_CONNECTION_CLASS = 'fakeredis.FakeStrictRedis'
 # RQ_ASYNC = False
 
-RQ_REDIS_URL = 'redis://localhost:6379/9'
 ENABLE_COMMENT_SIDEBAR = True
+
+REDIS_URL = "redis://localhost:6379/9"
+RQ_REDIS_URL = "redis://localhost:6379/9"
+CACHE_REDIS_URL = "redis://localhost:6379/9"
+CACHE_REDIS_DB = 9
