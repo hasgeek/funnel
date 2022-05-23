@@ -60,7 +60,7 @@ class LoginForm(forms.Form):
             )
         ],
         filters=[forms.filters.strip()],
-        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
     )
     password = forms.PasswordField(
         __("Password"),
