@@ -11,7 +11,7 @@ from lxml.html import FormElement, HtmlElement, fromstring  # noqa: S410
 from pytz import utc
 import pytest
 
-from funnel import app
+from funnel import app, redis_store
 from funnel.models import (
     AuthClient,
     AuthClientCredential,
@@ -126,6 +126,7 @@ def database(request):
     @request.addfinalizer
     def drop_tables():
         with app.app_context():
+            redis_store.flushdb()
             db.drop_all()
 
     return db
