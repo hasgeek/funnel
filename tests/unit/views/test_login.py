@@ -205,5 +205,6 @@ def test_invalid_otp_login(
             }
         ),
     )
+    assert rv2.forms[1]._name() == "#form-passwordlogin"
     assert rv2.status_code == 200
     assert current_auth.user is None
