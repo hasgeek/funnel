@@ -425,7 +425,9 @@ def compress_response(response: ResponseBase) -> None:
             response.vary.add('Accept-Encoding')  # type: ignore[union-attr]
 
 
-def send_sms_otp(phone, otp) -> Optional[SMSMessage]:
+def send_sms_otp(
+    phone: str, otp: str, render_flash: bool = True
+) -> Optional[SMSMessage]:
     """Send an OTP via SMS to a phone number."""
     template_message = sms.WebOtpTemplate(
         otp=otp,
@@ -438,14 +440,17 @@ def send_sms_otp(phone, otp) -> Optional[SMSMessage]:
         # Now send this
         msg.transactionid = sms.send(msg.phone_number, template_message)
     except TransportRecipientError as exc:
-        flash(str(exc), 'error')
+        if render_flash:
+            flash(str(exc), 'error')
     except TransportConnectionError:
-        flash(_("Unable to send a message right now. Try again later"), 'error')
+        if render_flash:
+            flash(_("Unable to send a message right now. Try again later"), 'error')
     else:
         # Commit only if an SMS could be sent
         db.session.add(msg)
         db.session.commit()
-        flash(_("An OTP has been sent to your phone number"), 'success')
+        if render_flash:
+            flash(_("An OTP has been sent to your phone number"), 'success')
         return msg
     return None
 

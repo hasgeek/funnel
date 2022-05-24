@@ -538,6 +538,9 @@ class EmailAddress(BaseMixin, db.Model):
 
         Raises an exception if the address is blocked from use, or the email address
         is syntactically invalid.
+
+        :raises ValueError: If email address syntax is invalid
+        :raises EmailAddressBlockedError: If email address is blocked
         """
         existing = cls._get_existing(email)
         if existing is not None:

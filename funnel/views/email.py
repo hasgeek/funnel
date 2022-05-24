@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from flask import render_template, url_for
 
 from baseframe import _
 
 from .. import signals
+from ..models import User
 from ..transports.email import jsonld_confirm_action, jsonld_view_action, send_email
 
 
@@ -50,15 +53,19 @@ def send_password_reset_link(email, user, otp, token):
     send_email(subject, [(user.fullname, email)], content)
 
 
-def send_login_otp(email, user, otp):
+def send_login_otp(email: str, user: Optional[User], otp: str):
     """Mail a login OTP to the user."""
+    if user is not None:
+        fullname = user.fullname
+    else:
+        fullname = ''
     subject = _("Login OTP {otp}").format(otp=otp)
     content = render_template(
         'email_login_otp.html.jinja2',
-        fullname=user.fullname,
+        fullname=fullname,
         otp=otp,
     )
-    send_email(subject, [(user.fullname, email)], content)
+    send_email(subject, [(fullname, email)], content)
 
 
 @signals.project_crew_membership_added.connect

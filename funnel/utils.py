@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from hashlib import blake2b
 from typing import List, Optional, overload
 import io
 import urllib.parse
@@ -10,6 +11,11 @@ import qrcode
 import qrcode.image.svg
 
 # --- Utilities ------------------------------------------------------------------------
+
+
+def blake2b160_hex(text: str) -> str:
+    """BLAKE2b hash of the given text using digest size 20 (160 bits)."""
+    return blake2b(text.encode('utf-8'), digest_size=20).hexdigest()
 
 
 @overload

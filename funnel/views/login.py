@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 from secrets import token_urlsafe
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, Optional, Union
 import urllib.parse
 
 from flask import (
@@ -22,7 +22,7 @@ from baseframe import _, __, forms, request_is_xhr, statsd
 from baseframe.forms import render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
-from coaster.utils import getbool, newpin
+from coaster.utils import getbool, newpin, require_one_of
 from coaster.views import get_next_url, requestargs
 
 from .. import app
@@ -30,10 +30,12 @@ from ..forms import (
     LoginForm,
     LoginPasswordResetException,
     LoginPasswordWeakException,
-    LoginWithoutPassword,
+    LoginWithOtp,
     LogoutForm,
     OtpForm,
     RegisterForm,
+    RegisterOtpForm,
+    RegisterWithOtp,
 )
 from ..models import (
     AuthClientCredential,
@@ -57,7 +59,7 @@ from ..registry import (
 from ..serializers import crossapp_serializer
 from ..signals import user_data_changed
 from ..typing import ReturnView
-from ..utils import abort_null
+from ..utils import abort_null, blake2b160_hex
 from .email import send_email_verify_link, send_login_otp
 from .helpers import (
     app_url_for,
@@ -85,32 +87,64 @@ session_timeouts['login_nonce'] = timedelta(minutes=1)
 session_timeouts['temp_username'] = timedelta(minutes=15)
 session_timeouts['login_otp'] = timedelta(minutes=15)
 
+block_iframe = {'X-Frame-Options': 'SAMEORIGIN'}
+
 
 class LoginTimeoutError(Exception):
     """Exception to indicate the login OTP has expired."""
 
 
-class LoginOtp(NamedTuple):
+class OtpData(NamedTuple):
     token: str
-    otp: int
-    user: User
-    anchor_hash: str
+    otp: str
+    user: Optional[User]
+    email: Optional[str] = None
+    phone: Optional[str] = None
 
 
-def make_login_otp(user, anchor):
-    """Create an OTP for login and save it to cache and browser cookie session."""
-    otp = newpin()
+def make_otp_session(
+    user: Optional[User],
+    anchor: Union[None, UserEmail, UserEmailClaim, UserPhone],
+    email: Optional[str] = None,
+    phone: Optional[str] = None,
+) -> OtpData:
+    """
+    Create an OTP for login and save it to cache and browser cookie session.
+
+    Accepts an anchor or an explicit email address or phone number.
+    """
+    # Safety check, only one of anchor, email and phone can be provided
+    require_one_of(anchor=anchor, email=email, phone=phone)
     # Make an OTP valid for 15 minutes. Store this OTP in Redis cache and add a ref to
     # this cache entry in the user's cookie session. The cookie never contains the
     # actual OTP. See :func:`make_cached_token` for additional documentation.
-    session['login_otp'] = make_cached_token(
-        {'otp': otp, 'user_buid': user.buid, 'anchor': anchor.transport_hash},
+    otp = newpin()
+    if isinstance(anchor, (UserEmail, UserEmailClaim)):
+        email = str(anchor)
+    elif isinstance(anchor, UserPhone):
+        phone = str(anchor)
+    # Allow 3 OTP requests per hour per anchor. This is distinct from the rate
+    # limiting for password-based login above.
+    validate_rate_limit(
+        'login-otp-send',
+        ('anchor/' + blake2b160_hex(email or phone)),  # type: ignore[arg-type]
+        3,
+        3600,
+    )
+    token = make_cached_token(
+        {
+            'otp': otp,
+            'user_buid': user.buid if user else None,
+            'email': email,
+            'phone': phone,
+        },
         timeout=15 * 60,
     )
-    return otp
+    session['login_otp'] = token
+    return OtpData(token, otp, user, email, phone)
 
 
-def retrieve_login_otp():
+def retrieve_otp_session() -> OtpData:
     """Retrieve an OTP from cache using the token in browser cookie session."""
     otp_token = session.get('login_otp')
     if not otp_token:
@@ -118,11 +152,34 @@ def retrieve_login_otp():
     otp_data = retrieve_cached_token(otp_token)
     if not otp_data:
         raise LoginTimeoutError('cache_expired')
-    return LoginOtp(
+    return OtpData(
         token=otp_token,
         otp=otp_data['otp'],
-        user=User.get(buid=otp_data['user_buid']),
-        anchor_hash=otp_data['anchor'],
+        user=User.get(buid=otp_data['user_buid']) if otp_data['user_buid'] else None,
+        email=otp_data['email'],
+        phone=otp_data['phone'],
+    )
+
+
+def get_otp_form(otp_data: OtpData) -> Union[OtpForm, RegisterOtpForm]:
+    if otp_data.user:
+        form = OtpForm(valid_otp=otp_data.otp)
+    else:
+        form = RegisterOtpForm(valid_otp=otp_data.otp)
+    return form
+
+
+def render_otp_form(form: Union[OtpForm, RegisterOtpForm]) -> ReturnView:
+    return (
+        render_template(
+            'ajaxform.html.jinja2',
+            form=form,
+            formid='login-otp',
+            ref_id='form-otp',
+            cancel_url=url_for('login'),
+        ),
+        200,
+        block_iframe,
     )
 
 
@@ -156,7 +213,6 @@ def login() -> ReturnView:
         loginmethod = request.cookies.get('login')
 
     formid = abort_null(request.form.get('form.id'))
-    iframe_block = {'X-Frame-Options': 'SAMEORIGIN'}
     if request.method == 'POST' and formid == 'passwordlogin':
         try:
             success = loginform.validate()
@@ -176,6 +232,8 @@ def login() -> ReturnView:
             )
             if success:
                 user = loginform.user
+                if TYPE_CHECKING:
+                    assert isinstance(user, User)  # nosec
                 login_internal(user, login_service='password')
                 db.session.commit()
                 if loginform.weak_password:
@@ -244,68 +302,92 @@ def login() -> ReturnView:
             )
             session['temp_username'] = loginform.username.data
             return render_redirect(url_for('reset'), code=303)
-        except LoginWithoutPassword:
-            # Allow 3 OTP requests per hour per anchor. This is distinct from the rate
-            # limiting for password-based login above.
-            user = loginform.user
-            anchor = loginform.anchor
-            validate_rate_limit(
-                'login-otp-send', ('anchor/' + anchor.transport_hash), 3, 3600
+        except (LoginWithOtp, RegisterWithOtp):
+            otp_data = make_otp_session(
+                loginform.user,
+                loginform.anchor,
+                email=loginform.new_email,
+                phone=loginform.new_phone,
             )
-            otp = make_login_otp(user, anchor)
             otp_sent = False
 
-            if isinstance(anchor, (UserEmail, UserEmailClaim)):
+            if otp_data.email:
                 send_login_otp(
-                    email=str(anchor),
-                    user=user,
-                    otp=otp,
+                    email=otp_data.email,
+                    user=otp_data.user,
+                    otp=otp_data.otp,
                 )
                 otp_sent = True
                 flash(_("An OTP has been sent to your email address"), 'success')
-            elif isinstance(anchor, UserPhone):
+            elif otp_data.phone:
                 # send_sms_otp returns an instance of SmsMessage if a message was sent
-                otp_sent = bool(send_sms_otp(str(anchor), otp))
+                otp_sent = bool(
+                    send_sms_otp(otp_data.phone, otp_data.otp, render_flash=False)
+                )
+                if otp_sent:
+                    flash(_("An OTP has been sent to your phone number"), 'success')
             if otp_sent:
-                otp_form = OtpForm(valid_otp=otp)
-                return (
-                    render_template(
-                        'ajaxform.html.jinja2',
-                        form=otp_form,
-                        formid='login-otp',
-                        ref_id='form-otp',
-                        cancel_url=url_for('login'),
-                    ),
-                    200,
-                    iframe_block,
-                )
+                return render_otp_form(get_otp_form(otp_data))
             else:
-                flash(
-                    _("The OTP could not be sent. Use password to login"),
-                    category='error',
-                )
+                if otp_data.user:
+                    flash(
+                        _(
+                            "The OTP could not be sent. Use password to login or try"
+                            " again"
+                        ),
+                        category='error',
+                    )
+                else:
+                    flash(
+                        _("The OTP could not be sent. Please register with a password"),
+                        category='error',
+                    )
+                    return render_redirect(url_for('register'), code=303)
     elif request.method == 'POST' and formid == 'login-otp':
         try:
-            otp_data = retrieve_login_otp()
+            otp_data = retrieve_otp_session()
 
             # Allow 5 guesses per 60 seconds
             validate_rate_limit('login_otp', otp_data.token, 5, 60)
 
-            otp_form = OtpForm(valid_otp=otp_data.otp)
+            otp_form = get_otp_form(otp_data)
             if otp_form.validate_on_submit():
-                login_internal(otp_data.user, login_service='otp')
-                db.session.commit()
-                current_app.logger.info(
-                    "Login successful for %r, possible redirect URL is '%s'",
-                    otp_data.user,
-                    session.get('next', ''),
-                )
-                flash(_("You are now logged in"), category='success')
+                if not otp_data.user:
+                    # Register an account
+                    user = register_internal(None, otp_form.fullname.data, None)
+                    if TYPE_CHECKING:
+                        assert isinstance(user, User)  # nosec
+                    if otp_data.email:
+                        user.add_email(otp_data.email, primary=True)
+                    if otp_data.phone:
+                        user.add_phone(otp_data.phone, primary=True)
+                    login_internal(user, login_service='otp')
+                    db.session.commit()
+                    current_app.logger.info(
+                        "OTP registration successful for %r,"
+                        " possible redirect URL is '%s'",
+                        user,
+                        session.get('next', ''),
+                    )
+                    flash(
+                        _("You are now one of us. Welcome aboard!"), category='success'
+                    )
+                else:
+                    login_internal(otp_data.user, login_service='otp')
+                    db.session.commit()
+                    current_app.logger.info(
+                        "Login successful for %r, possible redirect URL is '%s'",
+                        otp_data.user,
+                        session.get('next', ''),
+                    )
+                    flash(_("You are now logged in"), category='success')
                 session.pop('login_otp', None)
                 return set_loginmethod_cookie(
                     render_redirect(get_next_url(session=True), code=303),
                     'otp',
                 )
+            else:
+                return render_otp_form(otp_form)
         except LoginTimeoutError as exc:
             reason = str(exc)
             current_app.logger.info("Login OTP timed out with %s", reason)
@@ -313,7 +395,7 @@ def login() -> ReturnView:
             pass  # Render login form again
     elif request.method == 'POST':
         # This should not happen. We received an incomplete form.
-        abort(500)
+        abort(403)
     if request_is_xhr() and formid == 'passwordlogin':
         return (
             render_template(
@@ -322,7 +404,7 @@ def login() -> ReturnView:
                 ref_id='form-passwordlogin',
             ),
             200,
-            iframe_block,
+            block_iframe,
         )
     else:
         return (
@@ -337,7 +419,7 @@ def login() -> ReturnView:
                 ajax=True,
             ),
             200,
-            iframe_block,
+            block_iframe,
         )
 
 

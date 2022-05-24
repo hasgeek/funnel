@@ -38,7 +38,6 @@ __all__ = [
     'PhonePrimaryForm',
     'VerifyEmailForm',
     'VerifyPhoneForm',
-    'OtpForm',
     'supported_locales',
     'timezone_identifiers',
 ]
@@ -105,6 +104,15 @@ class PasswordStrengthValidator:
 
 @User.forms('register')
 class RegisterForm(forms.RecaptchaForm):
+    """
+    Traditional account registration form.
+
+    This form has been deprecated by the combination of
+    :class:`~funnel.forms.login.LoginForm` and :class:`~funnel.forms.RegisterOtpForm`
+    for most users. Users who cannot receive an OTP (unsupported country for phone)
+    will continue to use password-based registration.
+    """
+
     __returns__ = ('password_strength',)  # Set by PasswordStrengthValidator
 
     fullname = forms.StringField(
@@ -189,7 +197,6 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
         render_kw={
             'autocorrect': 'off',
             'autocapitalize': 'off',
-            'autocomplete': 'username',
         },
     )
 
@@ -228,19 +235,21 @@ class PasswordCreateForm(forms.Form):
 class PasswordResetForm(forms.RecaptchaForm):
     __returns__ = ('password_strength',)
 
-    # TODO: Disabled after the switch to OTP-based reset as it's a seamless flow. The
-    # user no longer leaves and comes back in a different session. However, this should
-    # still be used when the older email link flow is used, so the TODO is to re-enable
-    # conditionally
+    # TODO: This form has been deprecated with OTP-based reset as that doesn't need
+    # username and now uses :class:`PasswordCreateForm`. This form is retained in the
+    # interim in case email link-based flow is reintroduced. It should be removed
+    # after a waiting period (as of May 2022).
 
-    # username = forms.StringField(
-    #     __("Phone number or email address"),
-    #     validators=[forms.validators.DataRequired()],
-    #     description=__(
-    #         "Please reconfirm your phone number, email address or username"
-    #     ),
-    #     render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
-    # )
+    username = forms.StringField(
+        __("Phone number or email address"),
+        validators=[forms.validators.DataRequired()],
+        description=__("Please reconfirm your phone number, email address or username"),
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'username',
+        },
+    )
 
     password = forms.PasswordField(
         __("New password"),
@@ -370,7 +379,6 @@ class AccountForm(forms.Form):
         render_kw={
             'autocorrect': 'off',
             'autocapitalize': 'off',
-            'autocomplete': 'username',
         },
     )
     timezone = forms.SelectField(
@@ -408,7 +416,6 @@ class UsernameAvailableForm(forms.Form):
         render_kw={
             'autocorrect': 'off',
             'autocapitalize': 'off',
-            'autocomplete': 'username',
         },
     )
 
@@ -558,27 +565,6 @@ class VerifyPhoneForm(forms.Form):
         # self.phoneclaim is set by the view before calling form.validate()
         if self.phoneclaim.verification_code != field.data:
             raise forms.ValidationError(_("Verification code does not match"))
-
-
-class OtpForm(forms.Form):
-    __expects__ = ('valid_otp',)
-
-    otp = forms.StringField(
-        __("OTP"),
-        description=__("One-time password sent to your device"),
-        validators=[forms.validators.DataRequired()],
-        filters=[forms.filters.strip()],
-        render_kw={
-            'pattern': '[0-9]*',
-            'autocomplete': 'one-time-code',
-            'autocorrect': 'off',
-            'inputmode': 'numeric',
-        },
-    )
-
-    def validate_otp(self, field):
-        if field.data != self.valid_otp:
-            raise forms.StopValidation(_("OTP is incorrect"))
 
 
 class ModeratorReportForm(forms.Form):

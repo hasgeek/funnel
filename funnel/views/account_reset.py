@@ -24,7 +24,7 @@ from coaster.utils import getbool, newpin
 from coaster.views import requestargs
 
 from .. import app
-from ..forms import OtpForm, PasswordResetForm, PasswordResetRequestForm
+from ..forms import OtpForm, PasswordCreateForm, PasswordResetRequestForm
 from ..models import (
     AccountPasswordNotification,
     User,
@@ -282,7 +282,7 @@ def reset_with_token_do() -> ReturnView:
     logout_internal()
     db.session.commit()
     # Reset code is valid. Now ask user to choose a new password
-    form = PasswordResetForm()
+    form = PasswordCreateForm()
     form.edit_user = user
     if form.validate_on_submit():
         current_app.logger.info("Password strength %f", form.password_strength)

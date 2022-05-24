@@ -1,7 +1,7 @@
 import pytest
 
 from funnel import app
-from funnel.forms import LoginForm, LoginWithoutPassword
+from funnel.forms import LoginForm, LoginWithOtp
 from funnel.models import User
 
 
@@ -67,7 +67,7 @@ def test_form_has_user_nameless(user, user_nameless, user_named):
         form = LoginForm(meta={'csrf': False})
         try:
             form.validate()
-        except LoginWithoutPassword:  # Since we did not provide a password
+        except LoginWithOtp:  # Since we did not provide a password
             pass
         assert form.user == user_nameless
 
@@ -78,7 +78,7 @@ def test_form_has_user_named(user, user_nameless, user_named):
         form = LoginForm(meta={'csrf': False})
         try:
             form.validate()
-        except LoginWithoutPassword:  # Since we did not provide a password
+        except LoginWithOtp:  # Since we did not provide a password
             pass
         assert form.user == user_named
 
@@ -91,7 +91,7 @@ def test_form_has_user_named_by_email(user, user_nameless, user_named):
         form = LoginForm(meta={'csrf': False})
         try:
             form.validate()
-        except LoginWithoutPassword:  # Since we did not provide a password
+        except LoginWithOtp:  # Since we did not provide a password
             pass
         assert form.user == user_named
 
@@ -120,7 +120,7 @@ def test_login_no_password_with_email(user, user_email):
     """Passwordless login if password is not provided but user has email."""
     with app.test_request_context(method='POST', data={'username': 'user'}):
         form = LoginForm(meta={'csrf': False})
-        with pytest.raises(LoginWithoutPassword):
+        with pytest.raises(LoginWithOtp):
             assert form.validate() is True
         assert form.user == user
         assert form.anchor == user_email
@@ -130,7 +130,7 @@ def test_login_no_password_with_phone_and_email(user, user_email, user_phone):
     """Passwordless login if password is not provided but user has phone or email."""
     with app.test_request_context(method='POST', data={'username': 'user'}):
         form = LoginForm(meta={'csrf': False})
-        with pytest.raises(LoginWithoutPassword):
+        with pytest.raises(LoginWithOtp):
             assert form.validate() is True
         assert form.user == user
         assert form.anchor == user_phone  # Phone number is default anchor
@@ -140,7 +140,7 @@ def test_login_no_password_with_email_and_phone(user, user_email, user_phone):
     """Passwordless login if password is not provided but user used email."""
     with app.test_request_context(method='POST', data={'username': 'user@example.com'}):
         form = LoginForm(meta={'csrf': False})
-        with pytest.raises(LoginWithoutPassword):
+        with pytest.raises(LoginWithOtp):
             assert form.validate() is True
         assert form.user == user
         assert form.anchor == user_email  # The anchor used in username takes priority
