@@ -146,6 +146,8 @@ def test_valid_otp_login(
             }
         ),
     )
+
+    assert rv1.forms[0]._name() == '#form-otp'
     assert rv1.status_code == 200
     assert current_auth.user is None
 
@@ -192,6 +194,7 @@ def test_invalid_otp_login(
             }
         ),
     )
+    assert rv1.forms[0]._name() == '#form-otp'
     assert rv1.status_code == 200
     assert current_auth.user is None
 
