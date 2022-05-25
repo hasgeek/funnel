@@ -359,8 +359,10 @@ def login() -> ReturnView:
                         assert isinstance(user, User)  # nosec
                     if otp_data.email:
                         user.add_email(otp_data.email, primary=True)
+                        user.main_notification_preferences.by_email = True
                     if otp_data.phone:
                         user.add_phone(otp_data.phone, primary=True)
+                        user.main_notification_preferences.by_sms = True
                     login_internal(user, login_service='otp')
                     db.session.commit()
                     current_app.logger.info(
