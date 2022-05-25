@@ -1202,7 +1202,7 @@ class __User:
                 user=self,
                 notification_type='',
                 by_email=True,
-                by_sms=False,
+                by_sms=True,
                 by_webpush=False,
                 by_telegram=False,
                 by_whatsapp=False,
