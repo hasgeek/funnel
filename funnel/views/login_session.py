@@ -388,7 +388,9 @@ def requires_sudo(f):
     Decorate a view to require user to have re-authenticated recently.
 
     Requires the endpoint to support the POST method, as it renders a password form
-    within the same request, without redirecting the user to a gatekeeping endpoint.
+    within the same request, avoiding redirecting the user to a gatekeeping endpoint
+    unless the request needs JSON, in which case a HTML form cannot be rendered. The
+    user is redirected to the `account_sudo` endpoint in this case.
     """
 
     @wraps(f)

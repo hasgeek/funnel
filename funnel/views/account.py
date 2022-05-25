@@ -255,6 +255,7 @@ class AccountView(ClassView):
     @route('sudo', endpoint='account_sudo', methods=['GET', 'POST'])
     @requires_sudo
     def sudo(self) -> ReturnResponse:
+        """Render a sudo prompt, as needed by :func:`requires_sudo`."""
         return redirect(get_next_url(), code=303)
 
     @route('saved', endpoint='saved')
