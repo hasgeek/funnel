@@ -8,7 +8,7 @@ from werkzeug.datastructures import MultiDict
 import pytest
 
 from coaster.auth import current_auth
-from funnel.views.login import retrieve_login_otp
+from funnel.views.login import retrieve_otp_session
 
 test_passwords = {'rincewind': 'rincewind-password'}
 complex_test_password = 'f7kN{$a58p^AmL@$'  # noqa: S105
@@ -16,6 +16,7 @@ wrong_password = 'wrong_password'  # noqa: S105
 no_password = ''  # noqa: S105
 
 logins = ['rincewind', 'rincewind@example.com', '+12345678901']
+register_types = ['example@example.com', '+12345678901']
 passwords_with_status = [
     {
         'password': complex_test_password,
@@ -46,6 +47,10 @@ sms_response = {
         "SmsUnits": 'null',
     }
 }
+
+
+def mock_send(phone, message):
+    return json.dumps(sms_response)
 
 
 @pytest.fixture
@@ -82,6 +87,39 @@ def test_user_register(client, csrf_token):
     assert current_auth.user.fullname == "Test User"
 
 
+@patch("funnel.transports.sms.send", mock_send)
+@pytest.mark.parametrize('register_type', register_types)
+def test_user_register_otp(client, csrf_token, register_type):
+    rv1 = client.post(
+        '/login',
+        data=MultiDict(
+            {
+                'csrf_token': csrf_token,
+                'form.id': 'passwordlogin',
+                'username': register_type,
+                'password': '',
+            }
+        ),
+    )
+    otp = retrieve_otp_session().otp
+    assert rv1.forms[0]._name() == "#form-otp"
+    assert rv1.status_code == 200
+
+    rv2 = client.post(
+        '/login',
+        data=MultiDict(
+            {
+                'csrf_token': csrf_token,
+                'form.id': 'login-otp',
+                'fullname': 'Test User',
+                'otp': otp,
+            }
+        ),
+    )
+    assert rv2.status_code == 303
+    assert current_auth.user.fullname == "Test User"
+
+
 def test_user_logout(client, login, user_rincewind, csrf_token):
     login.as_(user_rincewind)
     client.get('/')
@@ -90,10 +128,6 @@ def test_user_logout(client, login, user_rincewind, csrf_token):
 
     assert rv.status_code == 200
     assert current_auth.user is None
-
-
-def mock_send(phone, message):
-    return json.dumps(sms_response)
 
 
 @patch("funnel.transports.sms.send", mock_send)
@@ -155,7 +189,7 @@ def test_valid_otp_login(
         '/login',
         data=MultiDict(
             {
-                'otp': retrieve_login_otp().otp,
+                'otp': retrieve_otp_session().otp,
                 'csrf_token': csrf_token,
                 'form.id': 'login-otp',
             }
@@ -202,12 +236,12 @@ def test_invalid_otp_login(
         '/login',
         data=MultiDict(
             {
-                'otp': generate_wrong_otp(retrieve_login_otp().otp),
+                'otp': generate_wrong_otp(retrieve_otp_session().otp),
                 'csrf_token': csrf_token,
                 'form.id': 'login-otp',
             }
         ),
     )
-    assert rv2.forms[1]._name() == "#form-passwordlogin"
+    assert rv2.forms[0]._name() == "#form-otp"
     assert rv2.status_code == 200
     assert current_auth.user is None
