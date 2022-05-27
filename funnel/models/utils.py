@@ -10,6 +10,7 @@ from typing_extensions import Literal
 import phonenumbers
 
 from ..typing import OptionalMigratedTables
+from ..utils import PHONE_LOOKUP_REGIONS
 from .user import User, UserEmail, UserEmailClaim, UserExternalId, UserPhone, db
 
 __all__ = [
@@ -18,7 +19,6 @@ __all__ = [
     'getextid',
     'getuser',
     'merge_users',
-    'normalize_phone_number',
 ]
 
 
@@ -29,25 +29,6 @@ class IncompleteUserMigrationError(Exception):
 class UserAndAnchor(NamedTuple):
     user: Optional[User]
     anchor: Union[None, UserEmail, UserEmailClaim, UserPhone]
-
-
-def normalize_phone_number(candidate: str) -> Optional[str]:
-    """Attempt to parse a phone number from a candidate and return in E164 format."""
-    # Assume unprefixed numbers to be a local number in India (+91) or US (+1).
-    # Both IN and US numbers are 10 digits before prefixes. We start with IN and
-    # return the _first_ candidate that is likely to be a valid number. This behaviour
-    # differentiates it from similar code in :func:`getuser`, where the loop exits with
-    # the _last_ valid candidate (as it's coupled with a UserPhone lookup)
-    try:
-        for region in ['IN', 'US']:  # This list repeats in :func:`getuser`
-            parsed_number = phonenumbers.parse(candidate, region)
-            if phonenumbers.is_valid_number(parsed_number):
-                return phonenumbers.format_number(
-                    parsed_number, phonenumbers.PhoneNumberFormat.E164
-                )
-    except phonenumbers.NumberParseException:
-        pass
-    return None
 
 
 @overload
@@ -96,9 +77,9 @@ def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnc
     else:
         # If it wasn't an email address or an @username, check if it's a phone number
         try:
-            # Assume unprefixed numbers to be a local number in India (+91) or US (+1).
-            # Both IN and US numbers are 10 digits before prefixes; try IN first
-            for region in ['IN', 'US']:
+            # Assume unprefixed numbers to be a local number in one of our supported
+            # regions, in order of priority
+            for region in PHONE_LOOKUP_REGIONS:
                 parsed_number = phonenumbers.parse(name, region)
                 if phonenumbers.is_valid_number(parsed_number):
                     number = phonenumbers.format_number(

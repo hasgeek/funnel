@@ -16,8 +16,8 @@ from ..models import (
     UserSession,
     check_password_strength,
     getuser,
-    normalize_phone_number,
 )
+from ..utils import normalize_phone_number
 
 __all__ = [
     'LoginPasswordResetException',
