@@ -1,0 +1,4 @@
+[bandit]
+exclude = ^tests
+
+# There's another copy in .pre-commit-config.yaml and in setup.cfg for flake8-bandit
