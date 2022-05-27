@@ -122,8 +122,12 @@ def database(request):
     """Provide a database structure."""
     with app.app_context():
         db.create_all()
-    with app.app_context():
         redis_store.flushdb()
+
+    @request.addfinalizer
+    def drop_tables():
+        with app.app_context():
+            db.drop_all()
 
     return db
 

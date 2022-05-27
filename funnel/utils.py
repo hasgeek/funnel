@@ -14,7 +14,7 @@ import qrcode.image.svg
 
 
 def blake2b160_hex(text: str) -> str:
-    """BLAKE2b hash of the given text using digest size 20 (160 bits)."""
+    """BLAKE2b hex digest of the given text using digest size 20 (160 bits)."""
     return blake2b(text.encode('utf-8'), digest_size=20).hexdigest()
 
 
