@@ -19,7 +19,7 @@ Cypress.Commands.add('fill_login_details', (username, password) => {
   cy.get('.field-username').type(username, { log: false });
   cy.get('a[data-cy="password-login"]').click();
   cy.get('.field-password').type(password, { log: false });
-  cy.get('.form-actions').find('button').click();
+  cy.get('.form-actions').find('button:visible').click();
   cy.wait('@login', { timeout: 20000 });
 });
 
