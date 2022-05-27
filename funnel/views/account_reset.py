@@ -189,10 +189,10 @@ def reset_otp(token) -> ReturnView:
     if not otp_data:
         abort(404)
 
-    # Allow 5 guesses per 60 seconds
-    validate_rate_limit('account_reset_otp', token, 5, 60)
-
     form = OtpForm(valid_otp=otp_data['otp'])
+    if form.is_submitted():
+        # Allow 5 guesses per 60 seconds
+        validate_rate_limit('account_reset_otp', token, 5, 60)
     if form.validate_on_submit():
         # If the OTP is correct, continue with the email reset link flow
         return redirect(
