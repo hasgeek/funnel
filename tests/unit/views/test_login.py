@@ -11,9 +11,9 @@ from coaster.auth import current_auth
 from funnel.views.login import retrieve_otp_session
 
 test_passwords = {'rincewind': 'rincewind-password'}
-complex_test_password = 'f7kN{$a58p^AmL@$'  # noqa: S105
-wrong_password = 'wrong_password'  # noqa: S105
-no_password = ''  # noqa: S105
+complex_test_password = 'f7kN{$a58p^AmL@$'  # nosec  # noqa: S105
+wrong_password = 'wrong_password'  # nosec  # noqa: S105
+no_password = ''  # nosec  # noqa: S105
 
 logins = ['rincewind', 'rincewind@example.com', '+12345678901']
 register_types = ['example@example.com', '+12345678901']
@@ -200,7 +200,7 @@ def test_valid_otp_login(
 
 
 def generate_wrong_otp(retrieved_otp):
-    wrong_otp = random.randint(1000, 9999)  # noqa: S311
+    wrong_otp = random.randint(1000, 9999)  # nosec  # noqa: S311
     if wrong_otp == retrieved_otp:
         generate_wrong_otp(retrieved_otp)
     return wrong_otp

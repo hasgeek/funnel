@@ -12,8 +12,10 @@ class TestUserExternalId(TestDatabaseFixture):
         """Test for creating an instance of UserExternalId."""
         crusoe = self.fixtures.crusoe
         service = 'google'
-        oauth_token = '196461869-pPh2cPTnlqGHcJBcyQ4CR407d1j5LY4OdbhNQuvX'  # noqa: S105
-        oauth_token_type = 'Bearer'  # noqa: S105
+        oauth_token = (
+            '196461869-pPh2cPTnlqGHcJBcyQ4CR407d1j5LY4OdbhNQuvX'  # nosec  # noqa: S105
+        )
+        oauth_token_type = 'Bearer'  # nosec  # noqa: S105
         result = models.UserExternalId(
             service=service,
             user=crusoe,
@@ -36,7 +38,7 @@ class TestUserExternalId(TestDatabaseFixture):
 
         crusoe = self.fixtures.crusoe
         oauth_token = environ.get('TWITTER_OAUTH_TOKEN')
-        oauth_token_type = 'Bearer'  # noqa: S105
+        oauth_token_type = 'Bearer'  # nosec  # noqa: S105
         externalid = models.UserExternalId(
             service=service,
             user=crusoe,
