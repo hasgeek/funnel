@@ -1,7 +1,7 @@
 import pytest
 
 from funnel import app
-from funnel.forms import LoginForm, LoginWithOtp
+from funnel.forms import LoginForm, LoginWithOtp, RegisterWithOtp
 from funnel.forms.login import MSG_INCORRECT_PASSWORD, MSG_NO_ACCOUNT
 from funnel.models import User
 
@@ -102,7 +102,7 @@ def test_login_no_data(user):
 
 
 def test_login_no_password(user):
-    """Login fails if password is not provided."""
+    """Login fails if password is not provided and user has no email/phone."""
     with app.test_request_context(method='POST', data={'username': 'user'}):
         form = LoginForm(meta={'csrf': False})
         assert form.validate() is False
@@ -274,3 +274,39 @@ def test_login_user_suspended(user):
         # FIXME: The user should be informed that their account has been suspended
         assert form.username.errors == [MSG_NO_ACCOUNT]
         assert form.password.errors == []
+
+
+def test_register_email_otp():
+    """Login with non-existent account and valid email signals a registration."""
+    with app.test_request_context(
+        method='POST', data={'username': 'example@example.com', 'password': ''}
+    ):
+        form = LoginForm(meta={'csrf': False})
+        with pytest.raises(RegisterWithOtp):
+            form.validate()
+        assert form.user is None
+        assert form.anchor is None
+        assert form.new_email == 'example@example.com'
+        assert form.new_phone is None
+
+
+@pytest.mark.parametrize(
+    ['phone_number', 'full_phone_number'],
+    [
+        ('+912345678901', '+912345678901'),
+        ('9845012345', '+919845012345'),
+        ('5005550000', '+15005550000'),
+    ],
+)
+def test_register_phome_otp(phone_number, full_phone_number):
+    """Login with non-existent account and valid phone signals a registration."""
+    with app.test_request_context(
+        method='POST', data={'username': phone_number, 'password': ''}
+    ):
+        form = LoginForm(meta={'csrf': False})
+        with pytest.raises(RegisterWithOtp):
+            form.validate()
+        assert form.user is None
+        assert form.anchor is None
+        assert form.new_email is None
+        assert form.new_phone == full_phone_number
