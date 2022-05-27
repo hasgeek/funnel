@@ -2,6 +2,7 @@ import pytest
 
 from funnel import app
 from funnel.forms import LoginForm, LoginWithOtp
+from funnel.forms.login import MSG_INCORRECT_PASSWORD, MSG_NO_ACCOUNT
 from funnel.models import User
 
 
@@ -65,10 +66,8 @@ def test_form_has_user_nameless(user, user_nameless, user_named):
         method='POST', data={'username': 'nameless@example.com'}
     ):
         form = LoginForm(meta={'csrf': False})
-        try:
+        with pytest.raises(LoginWithOtp):  # Since we did not provide a password
             form.validate()
-        except LoginWithOtp:  # Since we did not provide a password
-            pass
         assert form.user == user_nameless
 
 
@@ -76,10 +75,8 @@ def test_form_has_user_named(user, user_nameless, user_named):
     """Login form identifies user correctly."""
     with app.test_request_context(method='POST', data={'username': 'user-named'}):
         form = LoginForm(meta={'csrf': False})
-        try:
+        with pytest.raises(LoginWithOtp):  # Since we did not provide a password
             form.validate()
-        except LoginWithOtp:  # Since we did not provide a password
-            pass
         assert form.user == user_named
 
 
@@ -89,10 +86,8 @@ def test_form_has_user_named_by_email(user, user_nameless, user_named):
         method='POST', data={'username': 'named@example.com'}
     ):
         form = LoginForm(meta={'csrf': False})
-        try:
+        with pytest.raises(LoginWithOtp):  # Since we did not provide a password
             form.validate()
-        except LoginWithOtp:  # Since we did not provide a password
-            pass
         assert form.user == user_named
 
 
@@ -188,7 +183,7 @@ def test_login_wrong_username(user):
         form = LoginForm(meta={'csrf': False})
         assert form.validate() is False
         assert form.user is None
-        assert form.username.errors == ["You do not seem to have an account"]
+        assert form.username.errors == [MSG_NO_ACCOUNT]
         assert form.password.errors == []
 
 
@@ -201,7 +196,7 @@ def test_login_wrong_password(user):
         assert form.validate() is False
         assert form.user == user
         assert form.username.errors == []
-        assert form.password.errors == ["Incorrect password"]
+        assert form.password.errors == [MSG_INCORRECT_PASSWORD]
 
 
 def test_login_long_password(user):
@@ -213,7 +208,9 @@ def test_login_long_password(user):
         assert form.validate() is False
         assert form.user == user
         assert form.username.errors == []
-        assert form.password.errors == ["Password must be under 100 characters"]
+        assert form.password.errors == [
+            form.password.validators[1].message % {'max': 100}
+        ]
 
 
 def test_login_pass(user):
@@ -275,5 +272,5 @@ def test_login_user_suspended(user):
         assert form.validate() is False
         assert form.user is None
         # FIXME: The user should be informed that their account has been suspended
-        assert form.username.errors == ["You do not seem to have an account"]
+        assert form.username.errors == [MSG_NO_ACCOUNT]
         assert form.password.errors == []

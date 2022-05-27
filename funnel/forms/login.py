@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, Union
 
-from baseframe import _, __
+from baseframe import __
 import baseframe.forms as forms
 
 from ..models import (
@@ -30,6 +30,16 @@ __all__ = [
     'RegisterOtpForm',
 ]
 
+# --- Error messages -------------------------------------------------------------------
+
+MSG_EMAIL_BLOCKED = __("This email address has been blocked from use")
+MSG_INCORRECT_PASSWORD = __("Incorrect password")
+MSG_NO_ACCOUNT = __("This account could not be identified")
+MSG_INCORRECT_OTP = __("OTP is incorrect")
+MSG_NO_LOGIN_SESSION = __("That does not appear to be a valid login session")
+
+# --- Exceptions -----------------------------------------------------------------------
+
 
 class LoginPasswordResetException(Exception):  # noqa: N818
     """Exception to signal that a password reset is required (not an error)."""
@@ -46,6 +56,8 @@ class LoginWithOtp(Exception):  # noqa: N818
 class RegisterWithOtp(Exception):  # noqa: N818
     """Exception to signal for new user account registration after OTP validation."""
 
+
+# --- Validators -----------------------------------------------------------------------
 
 # Validator specifically for LoginForm
 class PasswordlessLoginIntercept:
@@ -66,6 +78,9 @@ class PasswordlessLoginIntercept:
             ):
                 raise RegisterWithOtp()
             raise forms.StopValidation(self.message)
+
+
+# --- Forms ----------------------------------------------------------------------------
 
 
 @User.forms('login')
@@ -145,9 +160,7 @@ class LoginForm(forms.Form):
                     # This gets us a normalized email address
                     self.new_email = str(email_address)
                 except EmailAddressBlockedError:
-                    raise forms.ValidationError(
-                        _("This email address has been blocked from use")
-                    )
+                    raise forms.ValidationError(MSG_EMAIL_BLOCKED)
                 return
             else:
                 # TODO: Use future PhoneNumber model here, analogous to EmailAddress
@@ -156,7 +169,7 @@ class LoginForm(forms.Form):
                     self.new_phone = phone
                     return
             # Not a known user and not a valid email address or phone number -> error
-            raise forms.ValidationError(_("This account could not be identified"))
+            raise forms.ValidationError(MSG_NO_ACCOUNT)
 
     def validate_password(self, field) -> None:
         # If there is already an error in the password field, don't bother validating.
@@ -168,8 +181,8 @@ class LoginForm(forms.Form):
         # We use `getattr` here as `self.user` won't be set if the `DataRequired`
         # validator failed on the `user` field, thereby blocking the call to
         # `validate_username`
-        if not getattr(self, 'user', None):
-            if not self.username.errors:
+        if getattr(self, 'user', None) is None:
+            if self.username.errors:
                 # Username field has errors. We don't need to raise an error then
                 return
             # There is no matching user account, but since the user is attempting a
@@ -177,7 +190,7 @@ class LoginForm(forms.Form):
             # revealing a nonexistent account. Note that OTP flow will identify a
             # non-existent account through the use of `RegisterOtpForm` instead of
             # `OtpForm`, but it will also notify the target by sending them an OTP
-            raise forms.ValidationError(_("Incorrect password"))
+            raise forms.ValidationError(MSG_INCORRECT_PASSWORD)
 
         # From here on `self.user` is guaranteed to be a `User` instance, but mypy
         # can't infer and must be told
@@ -193,7 +206,7 @@ class LoginForm(forms.Form):
         # Check password. If valid but using a deprecated algorithm like bcrypt, also
         # perform an automatic hash upgrade
         if not self.user.password_is(field.data, upgrade_hash=True):
-            raise forms.ValidationError(_("Incorrect password"))
+            raise forms.ValidationError(MSG_INCORRECT_PASSWORD)
 
         # Test for weak password. This gives us two options:
         #
@@ -228,9 +241,7 @@ class LogoutForm(forms.Form):
     def validate_sessionid(self, field):
         user_session = UserSession.get(buid=field.data)
         if not user_session or user_session.user != self.user:
-            raise forms.ValidationError(
-                _("That does not appear to be a valid login session")
-            )
+            raise forms.ValidationError(MSG_NO_LOGIN_SESSION)
         self.user_session = user_session
 
 
@@ -254,7 +265,7 @@ class OtpForm(forms.Form):
 
     def validate_otp(self, field):
         if field.data != self.valid_otp:
-            raise forms.StopValidation(_("OTP is incorrect"))
+            raise forms.StopValidation(MSG_INCORRECT_OTP)
 
 
 class RegisterOtpForm(forms.Form):
@@ -288,4 +299,4 @@ class RegisterOtpForm(forms.Form):
 
     def validate_otp(self, field):
         if field.data != self.valid_otp:
-            raise forms.StopValidation(_("OTP is incorrect"))
+            raise forms.StopValidation(MSG_INCORRECT_OTP)
