@@ -8,7 +8,7 @@ from werkzeug.datastructures import MultiDict
 import pytest
 
 from coaster.auth import current_auth
-from funnel.views.login import retrieve_otp_session
+from funnel.views.helpers import retrieve_otp_session
 
 test_passwords = {'rincewind': 'rincewind-password'}
 complex_test_password = 'f7kN{$a58p^AmL@$'  # nosec  # noqa: S105

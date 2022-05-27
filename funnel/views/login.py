@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 from secrets import token_urlsafe
-from typing import TYPE_CHECKING, NamedTuple, Optional, Union
+from typing import TYPE_CHECKING, Union
 import urllib.parse
 
 from flask import (
@@ -22,7 +22,7 @@ from baseframe import _, __, forms, request_is_xhr, statsd
 from baseframe.forms import render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
-from coaster.utils import getbool, newpin, require_one_of
+from coaster.utils import getbool
 from coaster.views import get_next_url, requestargs
 
 from .. import app
@@ -44,7 +44,6 @@ from ..models import (
     UserEmail,
     UserEmailClaim,
     UserExternalId,
-    UserPhone,
     UserSession,
     db,
     getextid,
@@ -59,13 +58,15 @@ from ..registry import (
 from ..serializers import crossapp_serializer
 from ..signals import user_data_changed
 from ..typing import ReturnView
-from ..utils import abort_null, blake2b160_hex
+from ..utils import abort_null
 from .email import send_email_verify_link, send_login_otp
 from .helpers import (
+    OtpData,
+    OtpTimeoutError,
     app_url_for,
-    make_cached_token,
+    make_otp_session,
     metarefresh_redirect,
-    retrieve_cached_token,
+    retrieve_otp_session,
     send_sms_otp,
     session_timeouts,
     validate_rate_limit,
@@ -85,80 +86,8 @@ session_timeouts['oauth_state'] = timedelta(minutes=30)
 session_timeouts['merge_buid'] = timedelta(minutes=15)
 session_timeouts['login_nonce'] = timedelta(minutes=1)
 session_timeouts['temp_username'] = timedelta(minutes=15)
-session_timeouts['login_otp'] = timedelta(minutes=15)
 
 block_iframe = {'X-Frame-Options': 'SAMEORIGIN'}
-
-
-class LoginTimeoutError(Exception):
-    """Exception to indicate the login OTP has expired."""
-
-
-class OtpData(NamedTuple):
-    token: str
-    otp: str
-    user: Optional[User]
-    email: Optional[str] = None
-    phone: Optional[str] = None
-
-
-def make_otp_session(
-    user: Optional[User],
-    anchor: Union[None, UserEmail, UserEmailClaim, UserPhone],
-    email: Optional[str] = None,
-    phone: Optional[str] = None,
-) -> OtpData:
-    """
-    Create an OTP for login and save it to cache and browser cookie session.
-
-    Accepts an anchor or an explicit email address or phone number.
-    """
-    # Safety check, only one of anchor, email and phone can be provided
-    require_one_of(anchor=anchor, email=email, phone=phone)
-    # Make an OTP valid for 15 minutes. Store this OTP in Redis cache and add a ref to
-    # this cache entry in the user's cookie session. The cookie never contains the
-    # actual OTP. See :func:`make_cached_token` for additional documentation.
-    otp = newpin()
-    if isinstance(anchor, (UserEmail, UserEmailClaim)):
-        email = str(anchor)
-    elif isinstance(anchor, UserPhone):
-        phone = str(anchor)
-    # Allow 3 OTP requests per hour per anchor. This is distinct from the rate
-    # limiting for password-based login above.
-    validate_rate_limit(
-        'login-otp-send',
-        ('anchor/' + blake2b160_hex(email or phone)),  # type: ignore[arg-type]
-        3,
-        3600,
-    )
-    token = make_cached_token(
-        {
-            'otp': otp,
-            'user_buid': user.buid if user else None,
-            'email': email,
-            'phone': phone,
-        },
-        timeout=15 * 60,
-    )
-    session['login_otp'] = token
-    return OtpData(token, otp, user, email, phone)
-
-
-def retrieve_otp_session() -> OtpData:
-    """Retrieve an OTP from cache using the token in browser cookie session."""
-    otp_token = session.get('login_otp')
-    if not otp_token:
-        raise LoginTimeoutError('cookie_expired')
-    otp_data = retrieve_cached_token(otp_token)
-    if not otp_data:
-        raise LoginTimeoutError('cache_expired')
-    return OtpData(
-        token=otp_token,
-        otp=otp_data['otp'],
-        user=User.get(buid=otp_data['user_buid']) if otp_data['user_buid'] else None,
-        email=otp_data['email'],
-        phone=otp_data['phone'],
-    )
 
 
 def get_otp_form(otp_data: OtpData) -> Union[OtpForm, RegisterOtpForm]:
@@ -363,7 +292,7 @@ def login() -> ReturnView:
             otp_data = retrieve_otp_session()
 
             # Allow 5 guesses per 60 seconds
-            validate_rate_limit('login_otp', otp_data.token, 5, 60)
+            validate_rate_limit('otp', otp_data.token, 5, 60)
 
             otp_form = get_otp_form(otp_data)
             if otp_form.validate_on_submit():
@@ -396,14 +325,14 @@ def login() -> ReturnView:
                         session.get('next', ''),
                     )
                     flash(_("You are now logged in"), category='success')
-                session.pop('login_otp', None)
+                session.pop('otp', None)
                 return set_loginmethod_cookie(
                     render_redirect(get_next_url(session=True), code=303),
                     'otp',
                 )
             else:
                 return render_otp_form(otp_form)
-        except LoginTimeoutError as exc:
+        except OtpTimeoutError as exc:
             reason = str(exc)
             current_app.logger.info("Login OTP timed out with %s", reason)
             flash(_("The OTP has expired. Try again?"), category='error')

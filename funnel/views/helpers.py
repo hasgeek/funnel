@@ -4,7 +4,7 @@ from base64 import urlsafe_b64encode
 from datetime import datetime, timedelta
 from hashlib import blake2b
 from os import urandom
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, NamedTuple, Optional, Tuple, Union
 from urllib.parse import unquote, urljoin, urlsplit
 import gzip
 import zlib
@@ -34,13 +34,23 @@ import brotli
 
 from baseframe import _, cache, statsd
 from coaster.sqlalchemy import RoleMixin
-from coaster.utils import utcnow
+from coaster.utils import newpin, require_one_of, utcnow
 
 from .. import app, built_assets, shortlinkapp
 from ..forms import supported_locales
-from ..models import Shortlink, SMSMessage, User, db, profanity
+from ..models import (
+    Shortlink,
+    SMSMessage,
+    User,
+    UserEmail,
+    UserEmailClaim,
+    UserPhone,
+    db,
+    profanity,
+)
 from ..signals import emailaddress_refcount_dropping
 from ..transports import TransportConnectionError, TransportRecipientError, sms
+from ..utils import blake2b160_hex
 from .jobs import forget_email
 
 valid_timezones = set(common_timezones)
@@ -51,6 +61,10 @@ nocache_expires = utc.localize(datetime(1990, 1, 1))
 avatar_color_count = 6
 
 # --- Classes --------------------------------------------------------------------------
+
+
+class OtpTimeoutError(Exception):
+    """Exception to indicate the OTP has expired."""
 
 
 class SessionTimeouts(dict):
@@ -84,7 +98,77 @@ class SessionTimeouts(dict):
 #: Temporary values that must be periodically expunged from the cookie session
 session_timeouts: Dict[str, timedelta] = SessionTimeouts()
 
+
+class OtpData(NamedTuple):
+    token: str
+    otp: str
+    user: Optional[User]
+    email: Optional[str] = None
+    phone: Optional[str] = None
+
+
 # --- Utilities ------------------------------------------------------------------------
+
+session_timeouts['otp'] = timedelta(minutes=15)
+
+
+def make_otp_session(
+    user: Optional[User],
+    anchor: Union[None, UserEmail, UserEmailClaim, UserPhone],
+    email: Optional[str] = None,
+    phone: Optional[str] = None,
+) -> OtpData:
+    """
+    Create an OTP for login and save it to cache and browser cookie session.
+
+    Accepts an anchor or an explicit email address or phone number.
+    """
+    # Safety check, only one of anchor, email and phone can be provided
+    require_one_of(anchor=anchor, email=email, phone=phone)
+    # Make an OTP valid for 15 minutes. Store this OTP in Redis cache and add a ref to
+    # this cache entry in the user's cookie session. The cookie never contains the
+    # actual OTP. See :func:`make_cached_token` for additional documentation.
+    otp = newpin()
+    if isinstance(anchor, (UserEmail, UserEmailClaim)):
+        email = str(anchor)
+    elif isinstance(anchor, UserPhone):
+        phone = str(anchor)
+    # Allow 3 OTP requests per hour per anchor. This is distinct from the rate
+    # limiting for password-based login above.
+    validate_rate_limit(
+        'otp-send',
+        ('anchor/' + blake2b160_hex(email or phone)),  # type: ignore[arg-type]
+        3,
+        3600,
+    )
+    token = make_cached_token(
+        {
+            'otp': otp,
+            'user_buid': user.buid if user else None,
+            'email': email,
+            'phone': phone,
+        },
+        timeout=15 * 60,
+    )
+    session['otp'] = token
+    return OtpData(token, otp, user, email, phone)
+
+
+def retrieve_otp_session() -> OtpData:
+    """Retrieve an OTP from cache using the token in browser cookie session."""
+    otp_token = session.get('otp')
+    if not otp_token:
+        raise OtpTimeoutError('cookie_expired')
+    otp_data = retrieve_cached_token(otp_token)
+    if not otp_data:
+        raise OtpTimeoutError('cache_expired')
+    return OtpData(
+        token=otp_token,
+        otp=otp_data['otp'],
+        user=User.get(buid=otp_data['user_buid']) if otp_data['user_buid'] else None,
+        email=otp_data['email'],
+        phone=otp_data['phone'],
+    )
 
 
 def metarefresh_redirect(url: str):
