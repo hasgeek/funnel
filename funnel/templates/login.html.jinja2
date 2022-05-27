@@ -14,7 +14,7 @@
 {% block form %}
   <div id="passwordform">
     <p class="mui--text-body2 mui--text-light login-page__box__title mui--text-center"><span class="login-page__box__title__txt">{% trans %}or use your password instead{% endtrans %}</span></p>
-    {{ passwordlogin(loginform, ref_id) }}
+    {{ passwordlogin(loginform, formid, ref_id) }}
   </div>
 {% endblock %}
 {% block afterformcontent %}

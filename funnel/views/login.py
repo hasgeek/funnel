@@ -177,6 +177,21 @@ def render_otp_form(form: Union[OtpForm, RegisterOtpForm]) -> ReturnView:
             formid='login-otp',
             ref_id='form-otp',
             cancel_url=url_for('login'),
+            ajax=True,
+            with_chrome=True,
+        ),
+        200,
+        block_iframe,
+    )
+
+
+def render_login_form(form: LoginForm) -> ReturnView:
+    return (
+        render_template(
+            'loginform.html.jinja2',
+            loginform=form,
+            formid='passwordlogin',
+            ref_id='form-passwordlogin',
         ),
         200,
         block_iframe,
@@ -392,20 +407,12 @@ def login() -> ReturnView:
             reason = str(exc)
             current_app.logger.info("Login OTP timed out with %s", reason)
             flash(_("The OTP has expired. Try again?"), category='error')
-            pass  # Render login form again
+            return render_login_form(loginform)
     elif request.method == 'POST':
         # This should not happen. We received an incomplete form.
         abort(403)
     if request_is_xhr() and formid == 'passwordlogin':
-        return (
-            render_template(
-                'loginform.html.jinja2',
-                loginform=loginform,
-                ref_id='form-passwordlogin',
-            ),
-            200,
-            block_iframe,
-        )
+        return render_login_form(loginform)
     else:
         return (
             render_template(
