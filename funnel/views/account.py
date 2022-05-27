@@ -656,6 +656,7 @@ class AccountView(ClassView):
 
     @route('phone/new', methods=['GET', 'POST'], endpoint='add_phone')
     def add_phone(self) -> ReturnView:
+        # TODO: Replace UserPhoneClaim with the login_otp system
         form = NewPhoneForm()
         if form.validate_on_submit():
             userphone = UserPhoneClaim.get_for(

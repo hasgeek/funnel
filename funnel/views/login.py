@@ -387,15 +387,7 @@ def login() -> ReturnView:
                     'otp',
                 )
             else:
-                return render_form(
-                    otp_form,
-                    title=_("OTP login"),
-                    formid='login-otp',
-                    submit=_("Submit"),
-                    cancel_url=url_for('login'),
-                    ajax=False,
-                    template='account_formlayout.html.jinja2',
-                )
+                return render_otp_form(otp_form)
         except LoginTimeoutError as exc:
             reason = str(exc)
             current_app.logger.info("Login OTP timed out with %s", reason)
