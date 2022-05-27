@@ -298,7 +298,7 @@ def test_register_email_otp():
         ('5005550000', '+15005550000'),
     ],
 )
-def test_register_phome_otp(phone_number, full_phone_number):
+def test_register_phone_otp(phone_number, full_phone_number):
     """Login with non-existent account and valid phone signals a registration."""
     with app.test_request_context(
         method='POST', data={'username': phone_number, 'password': ''}
