@@ -200,7 +200,7 @@ def login() -> ReturnView:
                         render_redirect(app_url_for(app, 'change_password'), code=303),
                         'password',
                     )
-                elif user.password_has_expired():
+                if user.password_has_expired():
                     current_app.logger.info(
                         "Login successful for %r, but password has expired."
                         " Possible redirect URL is '%s' after password change",
@@ -218,17 +218,16 @@ def login() -> ReturnView:
                         render_redirect(app_url_for(app, 'change_password'), code=303),
                         'password',
                     )
-                else:
-                    current_app.logger.info(
-                        "Login successful for %r, possible redirect URL is '%s'",
-                        user,
-                        session.get('next', ''),
-                    )
-                    flash(_("You are now logged in"), category='success')
-                    return set_loginmethod_cookie(
-                        render_redirect(get_next_url(session=True), code=303),
-                        'password',
-                    )
+                current_app.logger.info(
+                    "Login successful for %r, possible redirect URL is '%s'",
+                    user,
+                    session.get('next', ''),
+                )
+                flash(_("You are now logged in"), category='success')
+                return set_loginmethod_cookie(
+                    render_redirect(get_next_url(session=True), code=303),
+                    'password',
+                )
         except LoginPasswordResetException:
             flash(
                 _(
@@ -275,21 +274,20 @@ def login() -> ReturnView:
                     flash(_("An OTP has been sent to your phone number"), 'success')
             if otp_sent:
                 return render_otp_form(get_otp_form(otp_data))
+            if otp_data.user:
+                flash(
+                    _(
+                        "The OTP could not be sent. Use password to login or try"
+                        " again"
+                    ),
+                    category='error',
+                )
             else:
-                if otp_data.user:
-                    flash(
-                        _(
-                            "The OTP could not be sent. Use password to login or try"
-                            " again"
-                        ),
-                        category='error',
-                    )
-                else:
-                    flash(
-                        _("The OTP could not be sent. Please register with a password"),
-                        category='error',
-                    )
-                    return render_redirect(url_for('register'), code=303)
+                flash(
+                    _("The OTP could not be sent. Please register with a password"),
+                    category='error',
+                )
+                return render_redirect(url_for('register'), code=303)
     elif request.method == 'POST' and formid == 'login-otp':
         try:
             otp_data = retrieve_otp_session('login')
@@ -328,13 +326,12 @@ def login() -> ReturnView:
                         session.get('next', ''),
                     )
                     flash(_("You are now logged in"), category='success')
-                delete_otp_session('login')
+                delete_otp_session()
                 return set_loginmethod_cookie(
                     render_redirect(get_next_url(session=True), code=303),
                     'otp',
                 )
-            else:
-                return render_otp_form(otp_form)
+            return render_otp_form(otp_form)
         except OtpTimeoutError as exc:
             reason = str(exc)
             current_app.logger.info("Login OTP timed out with %s", reason)
@@ -349,21 +346,20 @@ def login() -> ReturnView:
         abort(403)
     if request_is_xhr() and formid == 'passwordlogin':
         return render_login_form(loginform)
-    else:
-        return (
-            render_template(
-                'login.html.jinja2',
-                loginform=loginform,
-                lastused=loginmethod,
-                login_registry=login_registry,
-                formid='passwordlogin',
-                ref_id='form-passwordlogin',
-                title=_("Login"),
-                ajax=True,
-            ),
-            200,
-            block_iframe,
-        )
+    return (
+        render_template(
+            'login.html.jinja2',
+            loginform=loginform,
+            lastused=loginmethod,
+            login_registry=login_registry,
+            formid='passwordlogin',
+            ref_id='form-passwordlogin',
+            title=_("Login"),
+            ajax=True,
+        ),
+        200,
+        block_iframe,
+    )
 
 
 logout_errormsg = __("Are you trying to logout? Try again to confirm")
@@ -398,17 +394,15 @@ def logout_client():
 
 @app.route('/logout')
 def logout():
-
+    """Inform user of deprecated logout endpoint."""
     # Logout, but protect from CSRF attempts
     if 'client_id' in request.args:
         return logout_client()
-    else:
-        # Don't allow GET-based logouts
-        if current_auth.user:
-            flash(_("To logout, use the logout button"), 'info')
-            return redirect(url_for('account'), code=303)
-        else:
-            return redirect(url_for('index'), code=303)
+    # Don't allow GET-based logouts
+    if current_auth.user:
+        flash(_("To logout, use the logout button"), 'info')
+        return redirect(url_for('account'), code=303)
+    return redirect(url_for('index'), code=303)
 
 
 @app.route('/account/logout', methods=['POST'])
@@ -500,8 +494,7 @@ def login_service_callback(service: str) -> ReturnView:
         flash(msg, category='danger')
         if current_auth.is_authenticated:
             return redirect(get_next_url(referrer=False), code=303)
-        else:
-            return redirect(url_for('login'), code=303)
+        return redirect(url_for('login'), code=303)
     statsd.gauge('login.progress', -1, delta=True, tags={'service': service})
     return login_service_postcallback(service, userdata)
 
@@ -649,8 +642,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
         return set_loginmethod_cookie(
             metarefresh_redirect(url_for('account_merge', next=login_next)), service
         )
-    else:
-        return set_loginmethod_cookie(metarefresh_redirect(login_next), service)
+    return set_loginmethod_cookie(metarefresh_redirect(login_next), service)
 
 
 @app.route('/account/merge', methods=['GET', 'POST'])
@@ -681,9 +673,8 @@ def account_merge():
                 flash(_("Account merger failed"), 'danger')
                 session.pop('merge_buid', None)
             return redirect(get_next_url(), code=303)
-        else:
-            session.pop('merge_buid', None)
-            return redirect(get_next_url(), code=303)
+        session.pop('merge_buid', None)
+        return redirect(get_next_url(), code=303)
     return render_template(
         'account_merge.html.jinja2',
         form=form,
@@ -821,8 +812,7 @@ def hasjob_logout():
     ):
         flash(logout_errormsg, 'danger')
         return redirect(url_for('index'), code=303)
-    else:
-        logout_internal()
-        db.session.commit()
-        flash(_("You are now logged out"), category='info')
-        return redirect(get_next_url(), code=303)
+    logout_internal()
+    db.session.commit()
+    flash(_("You are now logged out"), category='info')
+    return redirect(get_next_url(), code=303)

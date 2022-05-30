@@ -41,6 +41,7 @@ from .email import send_password_reset_link
 from .helpers import (
     OtpReasonError,
     OtpTimeoutError,
+    delete_otp_session,
     make_otp_session,
     metarefresh_redirect,
     retrieve_otp_session,
@@ -203,12 +204,13 @@ def reset_otp() -> ReturnView:
         validate_rate_limit('account_reset_otp', otp_data.token, 5, 60)
     if form.validate_on_submit():
         # If the OTP is correct, continue with the email reset link flow
+        delete_otp_session()
         return redirect(
             url_for(
                 'reset_with_token',
                 token=make_reset_token(otp_data.user),  # type: ignore[arg-type]
-                code=303,
-            )
+            ),
+            code=303,
         )
     return render_form(
         form=form,

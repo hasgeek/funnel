@@ -625,7 +625,7 @@ class EmailAddress(BaseMixin, db.Model):
                 return 'not_new'
         if existing.delivery_state.SOFT_FAIL:
             return 'soft_fail'
-        elif existing.delivery_state.HARD_FAIL:
+        if existing.delivery_state.HARD_FAIL:
             return 'hard_fail'
         return True
 
@@ -760,10 +760,10 @@ def _validate_email(target, value: object, old_value: object, initiator):
     if not value and value is not None:
         # Only `None` is an acceptable falsy value
         raise ValueError("An email address is required")
-    elif old_value == value:
+    if old_value == value:
         # Old value is new value. Do nothing. Return without validating
         return
-    elif old_value is NO_VALUE and inspect(target).has_identity is False:
+    if old_value is NO_VALUE and inspect(target).has_identity is False:
         # Old value is unknown and target is a transient object. Continue
         pass
     elif value is None:

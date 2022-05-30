@@ -164,12 +164,11 @@ class LoginForm(forms.Form):
                 except EmailAddressBlockedError:
                     raise forms.ValidationError(MSG_EMAIL_BLOCKED)
                 return
-            else:
-                # TODO: Use future PhoneNumber model here, analogous to EmailAddress
-                phone = normalize_phone_number(field.data)
-                if phone is not None:
-                    self.new_phone = phone
-                    return
+            # TODO: Use future PhoneNumber model here, analogous to EmailAddress
+            phone = normalize_phone_number(field.data)
+            if phone is not None:
+                self.new_phone = phone
+                return
             # Not a known user and not a valid email address or phone number -> error
             raise forms.ValidationError(MSG_NO_ACCOUNT)
 

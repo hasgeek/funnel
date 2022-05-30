@@ -186,7 +186,7 @@ def retrieve_otp_session(reason: str) -> OtpData:
     )
 
 
-def delete_otp_session(reason: str) -> bool:
+def delete_otp_session() -> bool:
     """Delete OTP request from cookie session and cache."""
     token = session.pop('otp', None)
     if not token:
