@@ -105,6 +105,8 @@ session_timeouts: Dict[str, timedelta] = SessionTimeouts()
 
 
 class OtpData(NamedTuple):
+    """Data in an OTP request."""
+
     reason: str
     token: str
     otp: str

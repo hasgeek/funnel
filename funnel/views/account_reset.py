@@ -20,8 +20,9 @@ from pytz import utc
 
 from baseframe import _
 from baseframe.forms import render_form, render_message
-from coaster.utils import getbool, newpin
+from coaster.utils import getbool
 from coaster.views import requestargs
+from funnel.models.email_address import EmailAddress
 
 from .. import app
 from ..forms import OtpForm, PasswordCreateForm, PasswordResetRequestForm
@@ -38,9 +39,11 @@ from ..serializers import token_serializer
 from ..typing import ReturnView
 from .email import send_password_reset_link
 from .helpers import (
-    make_cached_token,
+    OtpReasonError,
+    OtpTimeoutError,
+    make_otp_session,
     metarefresh_redirect,
-    retrieve_cached_token,
+    retrieve_otp_session,
     send_sms_otp,
     session_timeouts,
     validate_rate_limit,
@@ -51,11 +54,18 @@ from .notification import dispatch_notification
 session_timeouts['reset_token'] = timedelta(minutes=15)
 
 
-def str_pw_set_at(user):
+def str_pw_set_at(user: User) -> str:
     """Render user.pw_set_at as a string, for comparison."""
     if user.pw_set_at is not None:
         return user.pw_set_at.astimezone(utc).replace(microsecond=0).isoformat()
     return 'None'
+
+
+def make_reset_token(user: User) -> str:
+    """Make an email password reset token."""
+    return token_serializer().dumps(
+        {'buid': user.buid, 'pw_set_at': str_pw_set_at(user)}
+    )
 
 
 @app.route('/account/reset', methods=['GET', 'POST'])
@@ -112,28 +122,22 @@ def reset():
             )
         # Allow only three reset attempts per hour to discourage abuse
         validate_rate_limit('account_reset', user.uuid_b58, 3, 3600)
-        token = token_serializer().dumps(
-            {'buid': user.buid, 'pw_set_at': str_pw_set_at(user)}
-        )
-        otp = newpin()
-        # Make an OTP valid for 15 minutes
-        otp_token = make_cached_token(
-            {'otp': otp, 'reset_token': token}, timeout=15 * 60
-        )
-        if isinstance(anchor, (UserEmail, UserEmailClaim)):
+        otp_data = make_otp_session('reset', user, anchor)
+        email_token = make_reset_token(user)
+        if isinstance(anchor, (UserEmail, UserEmailClaim, EmailAddress)):
             send_password_reset_link(
                 email=str(anchor),
                 user=user,
-                otp=otp,
-                token=token,
+                otp=otp_data.otp,
+                token=email_token,
             )
             session.pop('temp_username', None)
             flash(_("An OTP has been sent to your email address"), 'success')
-            return redirect(url_for('reset_otp', token=otp_token), code=303)
+            return redirect(url_for('reset_otp'), code=303)
         if isinstance(anchor, UserPhone):
-            msg = send_sms_otp(str(anchor), otp)
+            msg = send_sms_otp(str(anchor), otp_data.otp)
             if msg is not None:
-                return redirect(url_for('reset_otp', token=otp_token), code=303)
+                return redirect(url_for('reset_otp'), code=303)
             # else: render form again, with flash messages from send_sms_otp
         else:
             # This should not happen. Phone and email are the only anchor types.
@@ -171,6 +175,7 @@ def reset_with_token(token: str, cookietest=False) -> ReturnView:
 
 @app.route('/account/reset/<buid>/<secret>')
 def reset_with_token_legacy(buid, secret):
+    """Old links with separate user id and secret are no longer valid."""
     flash(
         _(
             "This password reset link is invalid."
@@ -181,23 +186,29 @@ def reset_with_token_legacy(buid, secret):
     return redirect(url_for('reset'), code=303)
 
 
-@app.route('/account/reset/otp/<token>', methods=['GET', 'POST'])
-def reset_otp(token) -> ReturnView:
+@app.route('/account/reset/otp', methods=['GET', 'POST'])
+def reset_otp() -> ReturnView:
     """Process a password reset using an OTP."""
-    # This endpoint does not bother to scrub the token from the URL because the token
-    # is paired with an OTP and is not sensitive in itself.
-    otp_data = retrieve_cached_token(token)
-    if not otp_data:
-        abort(404)
+    try:
+        otp_data = retrieve_otp_session('reset')
+    except OtpTimeoutError:
+        flash(_("This OTP has expired"), category='error')
+        return redirect(url_for('reset'), code=303)
+    except OtpReasonError:
+        abort(403)
 
-    form = OtpForm(valid_otp=otp_data['otp'])
+    form = OtpForm(valid_otp=otp_data.otp)
     if form.is_submitted():
         # Allow 5 guesses per 60 seconds
-        validate_rate_limit('account_reset_otp', token, 5, 60)
+        validate_rate_limit('account_reset_otp', otp_data.token, 5, 60)
     if form.validate_on_submit():
         # If the OTP is correct, continue with the email reset link flow
         return redirect(
-            url_for('reset_with_token', token=otp_data['reset_token']), code=303
+            url_for(
+                'reset_with_token',
+                token=make_reset_token(otp_data.user),  # type: ignore[arg-type]
+                code=303,
+            )
         )
     return render_form(
         form=form,
@@ -210,7 +221,7 @@ def reset_otp(token) -> ReturnView:
 
 @app.route('/account/reset/do', methods=['GET', 'POST'])
 def reset_with_token_do() -> ReturnView:
-
+    """Reset account password using a token in cookie session."""
     # Validate the token
     # 1. Do we have a token? User may have accidentally landed here
     if 'reset_token' not in session:
@@ -283,8 +294,7 @@ def reset_with_token_do() -> ReturnView:
     logout_internal()
     db.session.commit()
     # Reset code is valid. Now ask user to choose a new password
-    form = PasswordCreateForm()
-    form.edit_user = user
+    form = PasswordCreateForm(edit_user=user)
     if form.validate_on_submit():
         current_app.logger.info("Password strength %f", form.password_strength)
         user.password = form.password.data

@@ -189,6 +189,8 @@ class PasswordPolicyForm(forms.Form):
 
 @User.forms('password_reset_request')
 class PasswordResetRequestForm(forms.RecaptchaForm):
+    """Request a password reset."""
+
     __returns__ = ('user', 'anchor')
 
     username = forms.StringField(
@@ -201,6 +203,7 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
     )
 
     def validate_username(self, field):
+        """Process username to retrieve user."""
         self.user, self.anchor = getuser(field.data, True)  # skipcq: PYL-W0201
         if self.user is None:
             raise forms.ValidationError(_("Could not find a user with that id"))
