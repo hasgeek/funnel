@@ -51,7 +51,6 @@ from ..models import (
     Organization,
     OrganizationMembership,
     Profile,
-    SMSMessage,
     User,
     UserEmail,
     UserEmailClaim,
@@ -63,11 +62,15 @@ from ..models import (
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
-from ..transports import TransportConnectionError, TransportRecipientError, sms
 from ..typing import ReturnRenderWith, ReturnResponse, ReturnView
 from .decorators import etag_cache_for_user, xhr_only
 from .email import send_email_verify_link
-from .helpers import app_url_for, autoset_timezone_and_locale, avatar_color_count
+from .helpers import (
+    app_url_for,
+    autoset_timezone_and_locale,
+    avatar_color_count,
+    send_sms_otp,
+)
 from .login_session import (
     login_internal,
     logout_internal,
@@ -236,10 +239,12 @@ class AccountView(ClassView):
     @render_with('account.html.jinja2')
     def account(self) -> ReturnRenderWith:
         logout_form = LogoutForm(user=current_auth.user)
+        user_has_password = current_auth.user.pw_hash is not None
         primary_email_form = EmailPrimaryForm()
         primary_phone_form = PhonePrimaryForm()
         return {
             'user': current_auth.user.current_access(),
+            'user_has_password': user_has_password,
             'authtokens': [
                 _at.current_access()
                 for _at in current_auth.user.authtokens.join(AuthClient)
@@ -651,6 +656,7 @@ class AccountView(ClassView):
 
     @route('phone/new', methods=['GET', 'POST'], endpoint='add_phone')
     def add_phone(self) -> ReturnView:
+        # TODO: Replace UserPhoneClaim with the login_otp system
         form = NewPhoneForm()
         if form.validate_on_submit():
             userphone = UserPhoneClaim.get_for(
@@ -664,30 +670,8 @@ class AccountView(ClassView):
             current_auth.user.main_notification_preferences.by_sms = (
                 form.enable_notifications.data
             )
-            template_message = sms.WebOtpTemplate(
-                otp=userphone.verification_code,
-                helpline_text="call +917676332020",  # TODO: Replace with report URL
-                domain=current_app.config['SERVER_NAME'],
-            )
-            msg = SMSMessage(
-                phone_number=userphone.phone,
-                message=str(template_message),
-            )
-            try:
-                # Now send this
-                msg.transactionid = sms.send(msg.phone_number, template_message)
-            except TransportRecipientError as exc:
-                flash(str(exc), 'error')
-            except TransportConnectionError:
-                flash(_("Unable to send a message right now. Try again later"), 'error')
-            else:
-                # Commit only if an SMS could be sent
-                db.session.add(msg)
-                db.session.commit()
-                flash(
-                    _("A verification code has been sent to your phone number"),
-                    'success',
-                )
+            msg = send_sms_otp(userphone.phone, userphone.verification_code)
+            if msg is not None:
                 user_data_changed.send(current_auth.user, changes=['phone-claim'])
                 return render_redirect(
                     url_for('verify_phone', number=userphone.phone), code=303
@@ -713,8 +697,8 @@ class AccountView(ClassView):
             if userphone.verification_expired:
                 flash(
                     _(
-                        "This number has been blocked due to too many failed verification"
-                        " attempts"
+                        "This number has been blocked due to too many failed"
+                        " verification attempts"
                     ),
                     'danger',
                 )
@@ -727,8 +711,8 @@ class AccountView(ClassView):
             ):
                 flash(
                     _(
-                        "Your account requires at least one verified email address or phone"
-                        " number"
+                        "Your account requires at least one verified email address or"
+                        " phone number"
                     ),
                     'danger',
                 )

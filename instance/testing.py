@@ -1,7 +1,7 @@
 from os import environ
 
 TESTING = True
-CACHE_TYPE = 'SimpleCache'
+CACHE_TYPE = 'RedisCache'
 SECRET_KEYS = ['testkey']  # nosec
 LASTUSER_SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
@@ -18,6 +18,8 @@ UPLOAD_FOLDER = '/tmp'  # nosec  # noqa: S108
 TIMEZONE = 'Asia/Kolkata'
 GOOGLE_MAPS_API_KEY = environ.get('GOOGLE_MAPS_API_KEY')
 BOXOFFICE_SERVER = 'https://boxoffice.hasgeek.com/api/1/'
+# Use Redis db 9 for tests
+REDIS_URL = RQ_REDIS_URL = CACHE_REDIS_URL = 'redis://localhost:6379/9'
 
 UNSUBSCRIBE_DOMAIN = 'bye.test'
 #: Recaptcha for the registration form
@@ -30,6 +32,7 @@ WTF_CSRF_ENABLED = True
 YOUTUBE_API_KEY = environ.get('YOUTUBE_API_KEY', '')
 
 SITE_SUPPORT_EMAIL = environ.get('SITE_SUPPORT_EMAIL')
+SITE_SUPPORT_PHONE = environ.get('SITE_SUPPORT_PHONE')
 MAIL_SUPPRESS_SEND = True
 MAIL_SERVER = environ.get('MAIL_SERVER')
 MAIL_PORT = int(environ.get('MAIL_PORT', 25))
@@ -84,10 +87,4 @@ IMGEE_HOST = 'https://images.example.com'
 IMAGE_URL_DOMAINS = ('images.example.com',)
 IMAGE_URL_SCHEMES = ('https',)
 
-# Needed for unit tests, but will break Cypress tests
-# Must be added to a fixture for unit tests
-# RQ_CONNECTION_CLASS = 'fakeredis.FakeStrictRedis'
-# RQ_ASYNC = False
-
-RQ_REDIS_URL = 'redis://localhost:6379/9'
 ENABLE_COMMENT_SIDEBAR = True

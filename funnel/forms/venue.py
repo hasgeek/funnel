@@ -109,7 +109,7 @@ class VenuePrimaryForm(forms.Form):
         get_pk=lambda v: v.uuid_b58,
         get_label='title',
         allow_blank=False,
-        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
     )
 
     def set_queries(self):

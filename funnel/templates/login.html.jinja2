@@ -14,11 +14,11 @@
 {% block form %}
   <div id="passwordform">
     <p class="mui--text-body2 mui--text-light login-page__box__title mui--text-center"><span class="login-page__box__title__txt">{% trans %}or use your password instead{% endtrans %}</span></p>
-    {{ passwordlogin(loginform, ref_id) }}
+    {{ passwordlogin(loginform, formid, ref_id) }}
   </div>
 {% endblock %}
 {% block afterformcontent %}
-  <p class="mui--text-subhead login-page__box__note">{% trans %}Don’t have an account?{% endtrans %} <a href="{{ url_for('register') }}" data-cy="signup">{% trans %}Sign up with email{% endtrans %}</a></p>
+  <p class="mui--text-subhead login-page__box__note">{% trans %}Don’t have an account?{% endtrans %} <a href="{{ url_for('register') }}" data-cy="signup">{% trans %}Sign up{% endtrans %}</a></p>
 {% endblock %}
 
 {% block afterloginbox %}

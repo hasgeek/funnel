@@ -2838,8 +2838,8 @@ msgid "Don’t have an account?"
 msgstr "अकाउंट नहीं है?"
 
 #: funnel/templates/login.html.jinja2:21
-msgid "Sign up with email"
-msgstr "ईमेल के ज़रिए साइन अप करें"
+msgid "Sign up"
+msgstr "साइन अप करें"
 
 #: funnel/templates/logout_browser_data.html.jinja2:2
 msgid "Logging out…"
