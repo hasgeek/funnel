@@ -60,6 +60,7 @@ def str_pw_set_at(user):
 
 @app.route('/account/reset', methods=['GET', 'POST'])
 def reset():
+    """Reset password."""
     # User wants to reset password
     # Ask for phone, email or username, verify it, and send a reset code
     form = PasswordResetRequestForm()
@@ -109,8 +110,8 @@ def reset():
                     )
                 ),
             )
-        # Allow only two reset attempts per hour to discourage abuse
-        validate_rate_limit('account_reset', user.uuid_b58, 2, 3600)
+        # Allow only three reset attempts per hour to discourage abuse
+        validate_rate_limit('account_reset', user.uuid_b58, 3, 3600)
         token = token_serializer().dumps(
             {'buid': user.buid, 'pw_set_at': str_pw_set_at(user)}
         )

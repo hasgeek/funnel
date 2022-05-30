@@ -34,7 +34,9 @@ __all__ = [
 
 MSG_EMAIL_BLOCKED = __("This email address has been blocked from use")
 MSG_INCORRECT_PASSWORD = __("Incorrect password")
-MSG_NO_ACCOUNT = __("This account could not be identified")
+MSG_NO_ACCOUNT = __(
+    "This account could not be identified. Try with a phone number or email address"
+)
 MSG_INCORRECT_OTP = __("OTP is incorrect")
 MSG_NO_LOGIN_SESSION = __("That does not appear to be a valid login session")
 

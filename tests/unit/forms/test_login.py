@@ -213,6 +213,18 @@ def test_login_long_password(user):
         ]
 
 
+@pytest.mark.parametrize('username', ('unknown@example.com', '+15005550000'))
+def test_login_no_probing(username):
+    """Login fails if email/phone is not present, but as an incorrect password."""
+    with app.test_request_context(
+        method='POST', data={'username': username, 'password': 'wrong_password'}
+    ):
+        form = LoginForm(meta={'csrf': False})
+        assert form.validate() is False
+        assert form.username.errors == []
+        assert form.password.errors == [MSG_INCORRECT_PASSWORD]
+
+
 def test_login_pass(user):
     """Login succeeds if both username and password match."""
     with app.test_request_context(

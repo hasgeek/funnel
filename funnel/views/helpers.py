@@ -39,6 +39,7 @@ from coaster.utils import newpin, require_one_of, utcnow
 from .. import app, built_assets, shortlinkapp
 from ..forms import supported_locales
 from ..models import (
+    EmailAddress,
     Shortlink,
     SMSMessage,
     User,
@@ -65,6 +66,10 @@ avatar_color_count = 6
 
 class OtpTimeoutError(Exception):
     """Exception to indicate the OTP has expired."""
+
+
+class OtpReasonError(Exception):
+    """OTP is being used for a different reason than originally intended."""
 
 
 class SessionTimeouts(dict):
@@ -100,6 +105,7 @@ session_timeouts: Dict[str, timedelta] = SessionTimeouts()
 
 
 class OtpData(NamedTuple):
+    reason: str
     token: str
     otp: str
     user: Optional[User]
@@ -113,8 +119,9 @@ session_timeouts['otp'] = timedelta(minutes=15)
 
 
 def make_otp_session(
+    reason: str,
     user: Optional[User],
-    anchor: Union[None, UserEmail, UserEmailClaim, UserPhone],
+    anchor: Union[None, UserEmail, UserEmailClaim, UserPhone, EmailAddress],
     email: Optional[str] = None,
     phone: Optional[str] = None,
 ) -> OtpData:
@@ -129,7 +136,7 @@ def make_otp_session(
     # this cache entry in the user's cookie session. The cookie never contains the
     # actual OTP. See :func:`make_cached_token` for additional documentation.
     otp = newpin()
-    if isinstance(anchor, (UserEmail, UserEmailClaim)):
+    if isinstance(anchor, (UserEmail, UserEmailClaim, EmailAddress)):
         email = str(anchor)
     elif isinstance(anchor, UserPhone):
         phone = str(anchor)
@@ -143,6 +150,7 @@ def make_otp_session(
     )
     token = make_cached_token(
         {
+            'reason': reason,
             'otp': otp,
             'user_buid': user.buid if user else None,
             'email': email,
@@ -151,10 +159,12 @@ def make_otp_session(
         timeout=15 * 60,
     )
     session['otp'] = token
-    return OtpData(token, otp, user, email, phone)
+    return OtpData(
+        reason=reason, token=token, otp=otp, user=user, email=email, phone=phone
+    )
 
 
-def retrieve_otp_session() -> OtpData:
+def retrieve_otp_session(reason: str) -> OtpData:
     """Retrieve an OTP from cache using the token in browser cookie session."""
     otp_token = session.get('otp')
     if not otp_token:
@@ -162,7 +172,10 @@ def retrieve_otp_session() -> OtpData:
     otp_data = retrieve_cached_token(otp_token)
     if not otp_data:
         raise OtpTimeoutError('cache_expired')
+    if otp_data['reason'] != reason:
+        raise OtpReasonError(reason)
     return OtpData(
+        reason=reason,
         token=otp_token,
         otp=otp_data['otp'],
         user=User.get(buid=otp_data['user_buid']) if otp_data['user_buid'] else None,
@@ -171,7 +184,17 @@ def retrieve_otp_session() -> OtpData:
     )
 
 
+def delete_otp_session(reason: str) -> bool:
+    """Delete OTP request from cookie session and cache."""
+    token = session.pop('otp', None)
+    if not token:
+        return False
+    delete_cached_token(token)
+    return True
+
+
 def metarefresh_redirect(url: str):
+    """Redirect using a ``Meta: Refresh`` HTML header."""
     return Response(render_template('meta_refresh.html.jinja2', url=url))
 
 

@@ -62,8 +62,10 @@ from ..utils import abort_null
 from .email import send_email_verify_link, send_login_otp
 from .helpers import (
     OtpData,
+    OtpReasonError,
     OtpTimeoutError,
     app_url_for,
+    delete_otp_session,
     make_otp_session,
     metarefresh_redirect,
     retrieve_otp_session,
@@ -248,6 +250,7 @@ def login() -> ReturnView:
             return render_redirect(url_for('reset'), code=303)
         except (LoginWithOtp, RegisterWithOtp):
             otp_data = make_otp_session(
+                'login',
                 loginform.user,
                 loginform.anchor,
                 email=loginform.new_email,
@@ -289,7 +292,7 @@ def login() -> ReturnView:
                     return render_redirect(url_for('register'), code=303)
     elif request.method == 'POST' and formid == 'login-otp':
         try:
-            otp_data = retrieve_otp_session()
+            otp_data = retrieve_otp_session('login')
 
             # Allow 5 guesses per 60 seconds
             validate_rate_limit('otp', otp_data.token, 5, 60)
@@ -302,9 +305,9 @@ def login() -> ReturnView:
                     if TYPE_CHECKING:
                         assert isinstance(user, User)  # nosec
                     if otp_data.email:
-                        user.add_email(otp_data.email, primary=True)
+                        db.session.add(user.add_email(otp_data.email, primary=True))
                     if otp_data.phone:
-                        user.add_phone(otp_data.phone, primary=True)
+                        db.session.add(user.add_phone(otp_data.phone, primary=True))
                     login_internal(user, login_service='otp')
                     db.session.commit()
                     current_app.logger.info(
@@ -325,7 +328,7 @@ def login() -> ReturnView:
                         session.get('next', ''),
                     )
                     flash(_("You are now logged in"), category='success')
-                session.pop('otp', None)
+                delete_otp_session('login')
                 return set_loginmethod_cookie(
                     render_redirect(get_next_url(session=True), code=303),
                     'otp',
@@ -337,6 +340,10 @@ def login() -> ReturnView:
             current_app.logger.info("Login OTP timed out with %s", reason)
             flash(_("The OTP has expired. Try again?"), category='error')
             return render_login_form(loginform)
+        except OtpReasonError as exc:
+            reason = str(exc)
+            current_app.logger.info("Login got OTP meant for %s", reason)
+            abort(403)
     elif request.method == 'POST':
         # This should not happen. We received an incomplete form.
         abort(403)
@@ -592,7 +599,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
 
     # Check for new email addresses
     if userdata.email and not useremail:
-        user.add_email(userdata.email)
+        db.session.add(user.add_email(userdata.email))
 
     # If there are multiple email addresses, add any that are not already claimed.
     # If they are already claimed by another user, this calls for an account merge
@@ -605,7 +612,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
                 if existing.user != user and 'merge_buid' not in session:
                     session['merge_buid'] = existing.user.buid
             else:
-                user.add_email(email)
+                db.session.add(user.add_email(email))
 
     if userdata.emailclaim:
         emailclaim = UserEmailClaim(user=user, email=userdata.emailclaim)

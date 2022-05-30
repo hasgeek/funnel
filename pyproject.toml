@@ -117,6 +117,16 @@ warn_unreachable = true
 warn_unused_ignores = false
 plugins = ['sqlmypy']
 
+[tool.pylint.message_control]
+max-line-length = 88
+disable = [
+  'duplicate-code',
+  'fixme',
+  'invalid-name',
+  'no-member',
+  'unused-argument',
+]
+
 [tool.bandit]
 exclude_dirs = ['node_modules']
 
