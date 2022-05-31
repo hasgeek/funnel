@@ -173,7 +173,7 @@ def login() -> ReturnView:
                 ('user/' + loginform.user.uuid_b58)
                 if loginform.user
                 else ('username/' + loginform.username.data),
-                50,
+                10,
                 3600,
             )
             if success:
