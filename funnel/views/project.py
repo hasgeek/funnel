@@ -1,4 +1,4 @@
-from collections import namedtuple
+from dataclasses import dataclass
 from types import SimpleNamespace
 import csv
 import io
@@ -59,14 +59,19 @@ from .login_session import requires_login, requires_site_editor
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
 
-CountWords = namedtuple(
-    'CountWords', ['unregistered', 'registered', 'not_following', 'following']
-)
+
+@dataclass
+class CountWords:
+    """Labels for a count of registrations."""
+
+    unregistered: str
+    registered: str
+    not_following: str
+    following: str
+
 
 registration_count_messages = [
-    CountWords(
-        __("Be the first to register!"), None, __("Be the first follower!"), None
-    ),
+    CountWords(__("Be the first to register!"), '', __("Be the first follower!"), ''),
     CountWords(
         __("One registration so far"),
         __("You have registered"),

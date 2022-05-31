@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import NamedTuple, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 
 from flask import abort, render_template, url_for
 
@@ -36,12 +37,14 @@ class ChangeFreq(str, Enum):
         return self.value
 
 
-class SitemapIndex(NamedTuple):
+@dataclass
+class SitemapIndex:
     loc: str
     lastmod: Optional[datetime] = None
 
 
-class SitemapPage(NamedTuple):
+@dataclass
+class SitemapPage:
     loc: str
     lastmod: Optional[datetime] = None
     changefreq: Optional[ChangeFreq] = None

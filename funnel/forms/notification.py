@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from collections import namedtuple
+from dataclasses import dataclass
+from typing import Callable, Optional
 
 from flask import Markup, url_for
 
@@ -16,21 +17,23 @@ __all__ = [
     'SetNotificationPreferenceForm',
 ]
 
-TransportLabels = namedtuple(
-    'TransportLabels',
-    [
-        'title',
-        'requirement',
-        'requirement_action',
-        'unsubscribe_form',
-        'unsubscribe_description',
-        'switch',
-        'enabled_main',
-        'enabled',
-        'disabled_main',
-        'disabled',
-    ],
-)
+
+@dataclass
+class TransportLabels:
+    """UI labels for a supported transport."""
+
+    title: str
+    requirement: str
+    requirement_action: Callable[[], Optional[str]]
+    unsubscribe_form: str
+    unsubscribe_description: str
+    switch: str
+    enabled_main: str
+    enabled: str
+    disabled_main: str
+    disabled: str
+
+
 transport_labels = {
     'email': TransportLabels(
         title=__("Email"),

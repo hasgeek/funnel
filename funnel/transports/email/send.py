@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from email.utils import formataddr, getaddresses, parseaddr
-from typing import Dict, List, NamedTuple, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
@@ -30,7 +31,8 @@ __all__ = [
 EmailRecipient = Union[User, Tuple[Optional[str], str], str]
 
 
-class EmailAttachment(NamedTuple):
+@dataclass
+class EmailAttachment:
     """An email attachment. Must have content, filename and mimetype."""
 
     content: str
