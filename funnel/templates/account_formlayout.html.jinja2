@@ -230,9 +230,8 @@
 
       // Toggle username field input mode to tel/email to change keyboard in mobile
       $('#username').attr('inputmode', 'tel');
-      $('#username').next('.js-keyboard-switcher').removeClass('mui--hide');
 
-      $('.js-keyboard-switcher').on('click touchstart touchend', function(event) {
+      $('body').on('click touchstart touchend', '.js-keyboard-switcher', function(event) {
         event.preventDefault();
         $('.js-keyboard-switcher').removeClass('mui--hide');
         $(this).addClass('mui--hide');
