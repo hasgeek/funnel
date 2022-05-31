@@ -217,16 +217,27 @@
         });
       }
 
+      //Toggle between OTP/Password login
       $('body').on('click', '.js-toggle-login', function() {
         $('.js-fields-toggle').toggleClass('mui--hide');
       });
-
 
       $('.js-password-field input').on('change', function() {
         if($('.js-password-field').hasClass('mui--hide')) {
           $('.js-fields-toggle').toggleClass('mui--hide');
         }
       })
+
+      // Toggle username field input mode to tel/email to change keyboard in mobile
+      $('#username').attr('inputmode', 'tel');
+      $('#username').next('.js-keyboard-switcher').removeClass('mui--hide');
+
+      $('.js-keyboard-switcher').on('click touchstart touchend', function(event) {
+        event.preventDefault();
+        $('.js-keyboard-switcher').removeClass('mui--hide');
+        $(this).addClass('mui--hide');
+        $('#username').attr('inputmode', $(this).data('inputmode'));
+      });
 
     });
   </script>

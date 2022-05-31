@@ -75,6 +75,8 @@
           {%- elif field.widget.input_type in ['text', 'email', 'search', 'url', 'number', 'tel'] and field.widget.html_tag not in ['ul', 'ol'] %}
             <div class="mui-textfield mui-textfield--float-label">
               {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, autofocus=autofocus, rows=rows, placeholder=placeholder)}}
+              <a href="javascript:void(0)" class="badge mui-textfield__toggle js-keyboard-switcher mui--hide mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="email">Use email address</a>
+              <a href="javascript:void(0)" class="badge mui-textfield__toggle js-keyboard-switcher mui--hide mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="tel">Use phone number</a>
               {%- if not nolabel %}
                 <label for="{{ field.id }}">{{ field.label.text }}</label>
               {%- endif %}
@@ -86,8 +88,8 @@
           {%- elif field.widget.input_type == 'password' and field.widget.html_tag not in ['ul', 'ol'] %}
             <div class="mui-textfield mui-textfield--password mui-textfield--float-label">
               {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, autofocus=autofocus, rows=rows, placeholder=placeholder)}}
-              <a href="javascript:void(0)" class="js-show-password password-toggle" aria-label="show password"tabindex="-1">{{ faicon(icon='eye', icon_size='title', css_class='mui--text-light') }}</a>
-              <a href="javascript:void(0)" class="js-hide-password password-toggle mui--hide" aria-label="hide password" tabindex="-1">{{ faicon(icon='eye-slash', icon_size='title', css_class='mui--text-light') }}</a>
+              <a href="javascript:void(0)" class="js-show-password mui-textfield__toggle" aria-label="show password"tabindex="-1">{{ faicon(icon='eye', icon_size='title', css_class='mui--text-light') }}</a>
+              <a href="javascript:void(0)" class="js-hide-password mui-textfield__toggle mui--hide" aria-label="hide password" tabindex="-1">{{ faicon(icon='eye-slash', icon_size='title', css_class='mui--text-light') }}</a>
               {%- if not nolabel %}
                 <label for="{{ field.id }}">{{ field.label.text }}</label>
               {%- endif %}

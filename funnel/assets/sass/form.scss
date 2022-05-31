@@ -200,12 +200,6 @@
 }
 
 .mui-textfield--password {
-  .password-toggle {
-    position: relative;
-    right: 0;
-    bottom: 22px;
-    float: right;
-  }
   .password-strength-icon {
     position: absolute;
     right: 22px;
@@ -256,6 +250,13 @@
       }
     }
   }
+}
+
+.mui-textfield__toggle {
+  z-index: 2;
+  position: absolute;
+  right: 0;
+  top: 24px;
 }
 
 .imgee {
