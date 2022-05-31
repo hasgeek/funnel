@@ -271,6 +271,12 @@ def test_email_address_get(db_session):
     assert EmailAddress.get('invalid') is None
     assert EmailAddress.get('unknown@example.com') is None
 
+    # Get works on blocked addresses
+    email_to_block = ea3.email
+    EmailAddress.mark_blocked(email_to_block)
+    assert ea3.is_blocked is True
+    assert EmailAddress.get(email_to_block) == ea3
+
 
 def test_email_address_invalid_hash_raises_error(db_session):
     """Retrieving an email address with an invalid hash will raise ValueError."""

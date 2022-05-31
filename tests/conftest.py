@@ -7,11 +7,11 @@ from sqlalchemy import event
 from flask.testing import FlaskClient
 from flask.wrappers import Response
 
-from lxml.html import FormElement, HtmlElement, fromstring  # noqa: S410
+from lxml.html import FormElement, HtmlElement, fromstring  # nosec  # noqa: S410
 from pytz import utc
 import pytest
 
-from funnel import app
+from funnel import app, redis_store
 from funnel.models import (
     AuthClient,
     AuthClientCredential,
@@ -122,6 +122,7 @@ def database(request):
     """Provide a database structure."""
     with app.app_context():
         db.create_all()
+        redis_store.flushdb()
 
     @request.addfinalizer
     def drop_tables():
@@ -164,6 +165,9 @@ def db_session(database, db_connection):
     transaction.rollback()
     database.session = original_session
 
+    with app.app_context():
+        redis_store.flushdb()
+
 
 # Enable autouse to guard against tests that have implicit database access, or assume
 # app context without a fixture
@@ -173,6 +177,11 @@ def client(request, db_session):
     with app.app_context():  # Not required for test_client, but required for autouse
         with FlaskClient(app, ResponseWithForms, use_cookies=True) as test_client:
             yield test_client
+
+
+@pytest.fixture
+def csrf_token(client):
+    return client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
 
 
 @pytest.fixture
@@ -823,8 +832,3 @@ def new_proposal(db_session, new_user, new_project):
     db_session.add(proposal)
     db_session.commit()
     return proposal
-
-
-@pytest.fixture
-def csrf_token(client):
-    return client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)

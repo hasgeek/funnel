@@ -4,7 +4,7 @@ from base64 import urlsafe_b64encode
 from datetime import datetime, timedelta
 from hashlib import blake2b
 from os import urandom
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, NamedTuple, Optional, Tuple, Union
 from urllib.parse import unquote, urljoin, urlsplit
 import gzip
 import zlib
@@ -14,6 +14,7 @@ from flask import (
     Response,
     abort,
     current_app,
+    flash,
     g,
     jsonify,
     render_template,
@@ -31,14 +32,26 @@ from pytz import timezone as pytz_timezone
 from pytz import utc
 import brotli
 
-from baseframe import cache, statsd
+from baseframe import _, cache, statsd
 from coaster.sqlalchemy import RoleMixin
-from coaster.utils import utcnow
+from coaster.utils import newpin, require_one_of, utcnow
 
 from .. import app, built_assets, shortlinkapp
 from ..forms import supported_locales
-from ..models import Shortlink, User, db, profanity
+from ..models import (
+    EmailAddress,
+    Shortlink,
+    SMSMessage,
+    User,
+    UserEmail,
+    UserEmailClaim,
+    UserPhone,
+    db,
+    profanity,
+)
 from ..signals import emailaddress_refcount_dropping
+from ..transports import TransportConnectionError, TransportRecipientError, sms
+from ..utils import blake2b160_hex
 from .jobs import forget_email
 
 valid_timezones = set(common_timezones)
@@ -49,6 +62,14 @@ nocache_expires = utc.localize(datetime(1990, 1, 1))
 avatar_color_count = 6
 
 # --- Classes --------------------------------------------------------------------------
+
+
+class OtpTimeoutError(Exception):
+    """Exception to indicate the OTP has expired."""
+
+
+class OtpReasonError(Exception):
+    """OTP is being used for a different reason than originally intended."""
 
 
 class SessionTimeouts(dict):
@@ -82,10 +103,100 @@ class SessionTimeouts(dict):
 #: Temporary values that must be periodically expunged from the cookie session
 session_timeouts: Dict[str, timedelta] = SessionTimeouts()
 
+
+class OtpData(NamedTuple):
+    """Data in an OTP request."""
+
+    reason: str
+    token: str
+    otp: str
+    user: Optional[User]
+    email: Optional[str] = None
+    phone: Optional[str] = None
+
+
 # --- Utilities ------------------------------------------------------------------------
+
+session_timeouts['otp'] = timedelta(minutes=15)
+
+
+def make_otp_session(
+    reason: str,
+    user: Optional[User],
+    anchor: Union[None, UserEmail, UserEmailClaim, UserPhone, EmailAddress],
+    email: Optional[str] = None,
+    phone: Optional[str] = None,
+) -> OtpData:
+    """
+    Create an OTP for login and save it to cache and browser cookie session.
+
+    Accepts an anchor or an explicit email address or phone number.
+    """
+    # Safety check, only one of anchor, email and phone can be provided
+    require_one_of(anchor=anchor, email=email, phone=phone)
+    # Make an OTP valid for 15 minutes. Store this OTP in Redis cache and add a ref to
+    # this cache entry in the user's cookie session. The cookie never contains the
+    # actual OTP. See :func:`make_cached_token` for additional documentation.
+    otp = newpin()
+    if isinstance(anchor, (UserEmail, UserEmailClaim, EmailAddress)):
+        email = str(anchor)
+    elif isinstance(anchor, UserPhone):
+        phone = str(anchor)
+    # Allow 3 OTP requests per hour per anchor. This is distinct from the rate
+    # limiting for password-based login above.
+    validate_rate_limit(
+        'otp-send',
+        ('anchor/' + blake2b160_hex(email or phone)),  # type: ignore[arg-type]
+        3,
+        3600,
+    )
+    token = make_cached_token(
+        {
+            'reason': reason,
+            'otp': otp,
+            'user_buid': user.buid if user else None,
+            'email': email,
+            'phone': phone,
+        },
+        timeout=15 * 60,
+    )
+    session['otp'] = token
+    return OtpData(
+        reason=reason, token=token, otp=otp, user=user, email=email, phone=phone
+    )
+
+
+def retrieve_otp_session(reason: str) -> OtpData:
+    """Retrieve an OTP from cache using the token in browser cookie session."""
+    otp_token = session.get('otp')
+    if not otp_token:
+        raise OtpTimeoutError('cookie_expired')
+    otp_data = retrieve_cached_token(otp_token)
+    if not otp_data:
+        raise OtpTimeoutError('cache_expired')
+    if otp_data['reason'] != reason:
+        raise OtpReasonError(reason)
+    return OtpData(
+        reason=reason,
+        token=otp_token,
+        otp=otp_data['otp'],
+        user=User.get(buid=otp_data['user_buid']) if otp_data['user_buid'] else None,
+        email=otp_data['email'],
+        phone=otp_data['phone'],
+    )
+
+
+def delete_otp_session() -> bool:
+    """Delete OTP request from cookie session and cache."""
+    token = session.pop('otp', None)
+    if not token:
+        return False
+    delete_cached_token(token)
+    return True
 
 
 def metarefresh_redirect(url: str):
+    """Redirect using a ``Meta: Refresh`` HTML header."""
     return Response(render_template('meta_refresh.html.jinja2', url=url))
 
 
@@ -328,9 +439,13 @@ def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
     """
     Make a short text token that references data in cache with a timeout period.
 
-    This is currently used for SMS unsubscribe links, but can also be used elsewhere.
-    The complementary :func:`retrieve_cached_token` and :func:`delete_cached_token`
-    functions can be used to retrieve and discard data.
+    This is currently used for SMS OTPs and links, including for login, password reset
+    and SMS unsubscribe. The complementary :func:`retrieve_cached_token` and
+    :func:`delete_cached_token` functions can be used to retrieve and discard data.
+
+    This expects (a) the Redis cache to be shared across all HTTP workers, or (b)
+    session binding to the worker. Funnel's Docker implementation as introduced in #1292
+    isolates Redis cache per worker.
 
     :param payload: Data to save against the token
     :param timeout: Timeout period for token in seconds (default 24 hours)
@@ -417,6 +532,36 @@ def compress_response(response: ResponseBase) -> None:
             response.set_data(compress(response.get_data(), algorithm))
             response.headers['Content-Encoding'] = algorithm
             response.vary.add('Accept-Encoding')  # type: ignore[union-attr]
+
+
+def send_sms_otp(
+    phone: str, otp: str, render_flash: bool = True
+) -> Optional[SMSMessage]:
+    """Send an OTP via SMS to a phone number."""
+    template_message = sms.WebOtpTemplate(
+        otp=otp,
+        # TODO: Replace helpline_text with a report URL
+        helpline_text=f"call {app.config['SITE_SUPPORT_PHONE']}",
+        domain=current_app.config['SERVER_NAME'],
+    )
+    msg = SMSMessage(phone_number=phone, message=str(template_message))
+    try:
+        # Now send this
+        msg.transactionid = sms.send(msg.phone_number, template_message)
+    except TransportRecipientError as exc:
+        if render_flash:
+            flash(str(exc), 'error')
+    except TransportConnectionError:
+        if render_flash:
+            flash(_("Unable to send a message right now. Try again later"), 'error')
+    else:
+        # Commit only if an SMS could be sent
+        db.session.add(msg)
+        db.session.commit()
+        if render_flash:
+            flash(_("An OTP has been sent to your phone number"), 'success')
+        return msg
+    return None
 
 
 # --- Template helpers -----------------------------------------------------------------

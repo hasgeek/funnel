@@ -1,6 +1,14 @@
 <div>
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
   {% from "forms.html.jinja2" import renderform, ajaxform, widget_ext_scripts, widgetscripts %}
+  {%- from "macros.html.jinja2" import alertbox -%}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        {{ alertbox(category, message) }}
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
   {%- if title -%}
     <p class="mui--text-title">{{ title }}</p>
   {%- endif -%}
