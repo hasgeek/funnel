@@ -8,6 +8,8 @@ SITE_SUPPORT_PHONE = '+1 234 567 8901'
 GA_CODE = ''
 #: Server name (required to generate URLs)
 SERVER_NAME = 'funnel.test:3000'
+#: Default domain (server name without port number)
+DEFAULT_DOMAIN = 'funnel.test'
 #: Database backend
 SQLALCHEMY_DATABASE_URI = 'postgresql://host/database'
 SQLALCHEMY_BINDS = {
@@ -36,10 +38,7 @@ TWITTER_ID = "hasgeek"
 #: DEFAULT_MAIL_SENDER : default None
 MAIL_FAIL_SILENTLY = False
 MAIL_SERVER = 'localhost'
-DEFAULT_MAIL_SENDER = ('Bill Gate', 'test@example.com')
-
-# Required for Flask-Mail to work.
-MAIL_DEFAULT_SENDER = DEFAULT_MAIL_SENDER
+MAIL_DEFAULT_SENDER = 'Sender <sender@domain.tld>'
 #: Logging: recipients of error emails
 ADMINS = []  # type: ignore[var-annotated]  # Remove this comment when editing
 #: Log file
