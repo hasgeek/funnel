@@ -79,9 +79,9 @@ def run_migrations_offline():
 
     for name, rec in engines.items():
         logger.info("Migrating database %s", (name or '<default>'))
-        file_ = '%s.sql' % name
+        file_ = f'{name}.sql'
         logger.info("Writing output to %s", file_)
-        with open(file_, 'w') as buffer:
+        with open(file_, 'w', encoding='utf-8') as buffer:
             context.configure(
                 url=rec['url'],
                 output_buffer=buffer,
@@ -152,8 +152,8 @@ def run_migrations_online():
                 logger.info("Migrating database %s", name or '<default>')
                 context.configure(
                     connection=rec['connection'],
-                    upgrade_token='%s_upgrades' % name,
-                    downgrade_token='%s_downgrades' % name,
+                    upgrade_token=f'{name}_upgrades',
+                    downgrade_token=f'{name}_downgrades',
                     target_metadata=get_metadata(name),
                     process_revision_directives=process_revision_directives,
                     **current_app.extensions['migrate'].configure_args,

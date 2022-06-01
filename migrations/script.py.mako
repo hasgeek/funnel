@@ -21,13 +21,15 @@ depends_on = ${repr(depends_on)}
 
 
 def upgrade(engine_name=''):
+    """Upgrade all databases."""
     # Do not modify. Edit `upgrade_` instead
-    globals().get('upgrade_%s' % engine_name, lambda: None)()
+    globals().get(f'upgrade_{engine_name}', lambda: None)()
 
 
 def downgrade(engine_name=''):
+    """Downgrade all databases."""
     # Do not modify. Edit `downgrade_` instead
-    globals().get('downgrade_%s' % engine_name, lambda: None)()
+    globals().get(f'downgrade_{engine_name}', lambda: None)()
 
 <%
     from flask import current_app
@@ -47,10 +49,12 @@ def downgrade(engine_name=''):
 % for db_name in db_names:
 
 def upgrade_${db_name}():
+    """Upgrade database bind '${db_name}'."""
     ${context.get("%s_upgrades" % db_name, "pass")}
 
 
 def downgrade_${db_name}():
+    """Downgrade database bind '${db_name}'."""
     ${context.get("%s_downgrades" % db_name, "pass")}
 
 % endfor

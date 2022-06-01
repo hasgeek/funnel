@@ -856,10 +856,9 @@ class ProjectLocation(TimestampMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`ProjectLocation` as a string."""
-        return '<ProjectLocation %d %s for project %s>' % (
-            self.geonameid,
-            'primary' if self.primary else 'secondary',
-            self.project,
+        pri_sec = 'primary' if self.primary else 'secondary'
+        return (
+            f'<ProjectLocation {self.geonameid} {pri_sec} for project {self.project!r}>'
         )
 
 
@@ -872,5 +871,6 @@ class __Commentset:
 
 
 # Tail imports
-from .project_membership import ProjectCrewMembership  # isort:skip  # skipcq: FLK-E402
-from .venue import Venue  # isort:skip  # skipcq: FLK-E402
+# pylint: disable=wrong-import-position
+from .project_membership import ProjectCrewMembership  # isort:skip
+from .venue import Venue  # isort:skip

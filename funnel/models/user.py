@@ -1799,9 +1799,10 @@ user_phone_primary_table = add_primary_relationship(
     User, 'primary_phone', UserPhone, 'user', 'user_id'
 )
 
-# Anchor type
+#: Anchor type
 Anchor = Union[UserEmail, UserEmailClaim, UserPhone, UserPhoneClaim, EmailAddress]
 
 # Tail imports
+# pylint: disable=wrong-import-position
 from .profile import Profile  # isort:skip
 from .organization_membership import OrganizationMembership  # isort:skip

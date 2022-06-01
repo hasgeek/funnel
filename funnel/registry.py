@@ -49,8 +49,9 @@ class ResourceRegistry(OrderedDict):
                 message,
                 401,
                 {
-                    'WWW-Authenticate': 'Bearer realm="Token Required" scope="%s"'
-                    % usescope
+                    'WWW-Authenticate': (
+                        f'Bearer realm="Token Required" scope="{usescope}"'
+                    )
                 },
             )
 

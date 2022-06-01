@@ -153,7 +153,7 @@ def downloadfile(basepath: str, filename: str, folder: Optional[str] = None):
             ],
         ).start()
         readbytes = 0
-        with open(folder_file, 'wb') as fd:
+        with open(folder_file, 'wb', encoding='utf-8') as fd:
             for chunk in r.iter_content(1024):
                 if not chunk:
                     break  # Break when done. The connection remains open for Keep-Alive

@@ -340,9 +340,7 @@ def valid_name(candidate: str) -> bool:
 
 def pgquote(identifier: str) -> str:
     """Add double quotes to the given identifier if required (PostgreSQL only)."""
-    return (
-        ('"%s"' % identifier) if identifier in POSTGRESQL_RESERVED_WORDS else identifier
-    )
+    return f'"{identifier}"' if identifier in POSTGRESQL_RESERVED_WORDS else identifier
 
 
 def quote_autocomplete_like(query):

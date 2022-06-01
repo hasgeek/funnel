@@ -548,4 +548,5 @@ class __Project:
 
 
 # Tail imports
+# pylint: disable=wrong-import-position
 from .proposal_membership import ProposalMembership  # isort:skip

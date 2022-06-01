@@ -257,8 +257,8 @@ class Label(BaseScopedNameMixin, db.Model):
     def __repr__(self):
         """Represent :class:`Label` as a string."""
         if self.main_label:
-            return f"<Label {self.main_label.name}/{self.name}>"
-        return "<Label %s>" % self.name
+            return f'<Label {self.main_label.name}/{self.name}>'
+        return f'<Label {self.name}>'
 
     def apply_to(self, proposal):
         if self.has_options:

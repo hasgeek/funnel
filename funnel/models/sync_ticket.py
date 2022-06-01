@@ -540,4 +540,5 @@ class __Project:
 
 
 # Tail imports to avoid cyclic dependency errors, for symbols used only in methods
+# pylint: disable=wrong-import-position
 from .contact_exchange import ContactExchange  # isort:skip
