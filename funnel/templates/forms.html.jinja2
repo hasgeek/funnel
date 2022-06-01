@@ -371,7 +371,6 @@
 
   $('.js-keyboard-switcher').on('click', function(event) {
     event.preventDefault();
-    console.log($(this).data('placeholder'))
     $('.js-keyboard-switcher').removeClass('mui--hide');
     $(this).addClass('mui--hide');
     $('#username').attr('inputmode', $(this).data('inputmode'));
