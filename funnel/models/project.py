@@ -450,7 +450,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         if self.cfp_start_at is None:
             self.cfp_start_at = db.func.utcnow()
 
-    @with_roles(call={'editor'})
+    @with_roles(call={'editor'})  # skipcq: PTC-W0049
     @cfp_state.transition(
         cfp_state.PUBLIC,
         cfp_state.CLOSED,
@@ -478,7 +478,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         self.published_at = db.func.utcnow()
         return first_published
 
-    @with_roles(call={'editor'})
+    @with_roles(call={'editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.PUBLISHED,
         state.WITHDRAWN,
@@ -873,4 +873,4 @@ class __Commentset:
 # Tail imports
 # pylint: disable=wrong-import-position
 from .project_membership import ProjectCrewMembership  # isort:skip
-from .venue import Venue  # isort:skip
+from .venue import Venue  # isort:skip  # skipcq: FLK-E402

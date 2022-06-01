@@ -96,7 +96,7 @@ class TestEventModels(unittest.TestCase):
 
         self.session = self.db_session
 
-        @request.addfinalizer
+        @request.addfinalizer  # skipcq: PTC-W0065
         def tearDown():
             self.ctx.pop()
 

@@ -130,7 +130,7 @@ def test_add_to_class():
     assert not hasattr(ReferenceClass, 'eggs')
 
     # New methods can be added
-    @add_to_class(ReferenceClass)
+    @add_to_class(ReferenceClass)  # skipcq: PTC-W0065
     def eggs(self):  # skipcq: PTC-W0065
         return 'is_eggs'
 
@@ -153,7 +153,7 @@ def test_add_to_class():
     # Existing attributes cannot be replaced
     with pytest.raises(AttributeError):
 
-        @add_to_class(ReferenceClass, 'spameggs')
+        @add_to_class(ReferenceClass, 'spameggs')  # skipcq: PTC-W0049
         def new_foobar(self):
             pass
 
