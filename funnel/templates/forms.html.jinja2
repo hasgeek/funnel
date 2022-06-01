@@ -369,7 +369,7 @@
     }
   });
 
-  $('.js-keyboard-switcher').on('click', function(event) {
+  $('.js-keyboard-switcher').on('click touchstart touchend', function(event) {
     event.preventDefault();
     $('.js-keyboard-switcher').removeClass('mui--hide');
     $(this).addClass('mui--hide');
