@@ -107,6 +107,7 @@ def render_otp_form(form: Union[OtpForm, RegisterOtpForm]) -> ReturnView:
             form=form,
             formid='login-otp',
             ref_id='form-otp',
+            action=url_for('login'),
             cancel_url=url_for('login'),
             ajax=True,
             with_chrome=True,

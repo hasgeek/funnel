@@ -211,7 +211,7 @@
                 $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.serverError);
               } else if(xhr.status === 429) {
                 $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.rateLimitError);
-              } else if(xhr.responseJSON.error_description) {
+              } else if(xhr.responseJSON && xhr.responseJSON.error_description) {
                 $(form).find('.alert__text').text(xhr.responseJSON.error_description);
               } else {
                 $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.error);
