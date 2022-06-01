@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from collections import namedtuple
+from dataclasses import dataclass
+from datetime import datetime
 from itertools import groupby
-from typing import Iterable, Optional, Set
+from typing import Collection, Iterable, Optional, Set
+from uuid import UUID
 
 from sqlalchemy.ext.associationproxy import association_proxy
 
@@ -17,9 +19,25 @@ from .user import User
 __all__ = ['ContactExchange']
 
 
-# Named tuples for returning contacts grouped by project and date
-ProjectId = namedtuple('ProjectId', ['id', 'uuid', 'uuid_b58', 'title', 'timezone'])
-DateCountContacts = namedtuple('DateCountContacts', ['date', 'count', 'contacts'])
+# Data classes for returning contacts grouped by project and date
+@dataclass
+class ProjectId:
+    """Holder for minimal :class:`~funnel.models.project.Project` information."""
+
+    id: int  # noqa: A003
+    uuid: UUID
+    uuid_b58: str
+    title: str
+    timezone: str
+
+
+@dataclass
+class DateCountContacts:
+    """Contacts per date of a Project's schedule."""
+
+    date: datetime
+    count: int
+    contacts: Collection[ContactExchange]
 
 
 class ContactExchange(TimestampMixin, RoleMixin, db.Model):

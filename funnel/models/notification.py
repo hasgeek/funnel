@@ -74,12 +74,12 @@ is supported using an unusual primary and foreign key structure the in
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 from types import SimpleNamespace
 from typing import (
     Callable,
     Dict,
     Generator,
-    NamedTuple,
     Optional,
     Sequence,
     Set,
@@ -133,7 +133,10 @@ notification_type_registry: Dict[str, Notification] = {}
 notification_web_types: Set[Notification] = set()
 
 
-class NotificationCategory(NamedTuple):
+@dataclass
+class NotificationCategory:
+    """Category for a notification."""
+
     priority_id: int
     title: str
     available_for: Callable[[User], bool]

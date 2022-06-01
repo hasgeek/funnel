@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections import namedtuple
+from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
@@ -35,75 +35,70 @@ csv.field_size_limit(sys.maxsize)
 geo = AppGroup('geoname', help="Process geoname data.")
 
 
-CountryInfoRecord = namedtuple(
-    'CountryInfoRecord',
-    [
-        'iso_alpha2',
-        'iso_alpha3',
-        'iso_numeric',
-        'fips_code',
-        'title',
-        'capital',
-        'area_in_sqkm',
-        'population',
-        'continent',
-        'tld',
-        'currency_code',
-        'currency_name',
-        'phone',
-        'postal_code_format',
-        'postal_code_regex',
-        'languages',
-        'geonameid',
-        'neighbours',
-        'equivalent_fips_code',
-    ],
-)
+@dataclass
+class CountryInfoRecord:
+    iso_alpha2: str
+    iso_alpha3: str
+    iso_numeric: str
+    fips_code: str
+    title: str
+    capital: str
+    area_in_sqkm: str
+    population: str
+    continent: str
+    tld: str
+    currency_code: str
+    currency_name: str
+    phone: str
+    postal_code_format: str
+    postal_code_regex: str
+    languages: str
+    geonameid: str
+    neighbours: str
+    equivalent_fips_code: str
 
 
-GeoNameRecord = namedtuple(
-    'GeoNameRecord',
-    [
-        'geonameid',
-        'title',
-        'ascii_title',
-        'alternatenames',
-        'latitude',
-        'longitude',
-        'fclass',
-        'fcode',
-        'country_id',
-        'cc2',
-        'admin1',
-        'admin2',
-        'admin3',
-        'admin4',
-        'population',
-        'elevation',
-        'dem',
-        'timezone',
-        'moddate',
-    ],
-)
+@dataclass
+class GeoNameRecord:
+    geonameid: str
+    title: str
+    ascii_title: str
+    alternatenames: str
+    latitude: str
+    longitude: str
+    fclass: str
+    fcode: str
+    country_id: str
+    cc2: str
+    admin1: str
+    admin2: str
+    admin3: str
+    admin4: str
+    population: str
+    elevation: str
+    dem: str
+    timezone: str
+    moddate: str
 
 
-GeoAdminRecord = namedtuple(
-    'GeoAdminRecord', ['code', 'title', 'ascii_title', 'geonameid']
-)
+@dataclass
+class GeoAdminRecord:
+    code: str
+    title: str
+    ascii_title: str
+    geonameid: str
 
-GeoAltNameRecord = namedtuple(
-    'GeoAltNameRecord',
-    [
-        'id',
-        'geonameid',
-        'lang',
-        'title',
-        'is_preferred_name',
-        'is_short_name',
-        'is_colloquial',
-        'is_historic',
-    ],
-)
+
+@dataclass
+class GeoAltNameRecord:
+    id: str  # noqa: A003
+    geonameid: str
+    lang: str
+    title: str
+    is_preferred_name: str
+    is_short_name: str
+    is_colloquial: str
+    is_historic: str
 
 
 def get_progressbar():

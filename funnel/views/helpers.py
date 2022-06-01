@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from base64 import urlsafe_b64encode
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from hashlib import blake2b
 from os import urandom
-from typing import Any, Callable, Dict, NamedTuple, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Optional, Tuple, Union
 from urllib.parse import unquote, urljoin, urlsplit
 import gzip
 import zlib
@@ -104,7 +105,8 @@ class SessionTimeouts(dict):
 session_timeouts: Dict[str, timedelta] = SessionTimeouts()
 
 
-class OtpData(NamedTuple):
+@dataclass
+class OtpData:
     """Data in an OTP request."""
 
     reason: str

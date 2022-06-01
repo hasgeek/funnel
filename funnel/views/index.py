@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import NamedTuple
+from dataclasses import dataclass
 import os.path
 
 from flask import Response, g, jsonify, render_template, url_for
@@ -15,7 +15,8 @@ from ..forms import SavedProjectForm
 from ..models import Project, db
 
 
-class PolicyPage(NamedTuple):
+@dataclass
+class PolicyPage:
     path: str
     title: str
 

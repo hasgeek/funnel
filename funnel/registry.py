@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from collections import OrderedDict
+from dataclasses import dataclass
 from functools import wraps
-from typing import List, NamedTuple, Optional, Tuple
+from typing import Collection, List, Optional, Tuple
 import re
 
 from flask import Response, abort, jsonify, request
@@ -136,7 +137,8 @@ class ResourceRegistry(OrderedDict):
         return wrapper
 
 
-class LoginProviderData(NamedTuple):
+@dataclass
+class LoginProviderData:
     """User data supplied by a LoginProvider."""
 
     userid: str
@@ -148,7 +150,7 @@ class LoginProviderData(NamedTuple):
     oauth_refresh_token: Optional[str] = None
     oauth_refresh_expiry: Optional[str] = None
     email: Optional[str] = None
-    emails: List[str] = []
+    emails: Collection[str] = ()
     emailclaim: Optional[str] = None
     phone: Optional[str] = None
     phoneclaim: Optional[str] = None

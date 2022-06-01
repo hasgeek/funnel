@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import List, NamedTuple, Optional, cast
+from dataclasses import dataclass
+from typing import Collection, Optional, cast
 
 from flask import Markup, escape, render_template
 
@@ -20,12 +21,13 @@ from ...transports.sms import MessageTemplate
 from ..notification import RenderNotification
 
 
-class DecisionFactor(NamedTuple):
+@dataclass
+class DecisionFactor:
     """Evaluation criteria for the content of notification (for grants/edits only)."""
 
     template: str
     is_subject: bool = False
-    rtypes: List[str] = []
+    rtypes: Collection[str] = ()
     is_owner: Optional[bool] = None
     is_actor: Optional[bool] = None
 
