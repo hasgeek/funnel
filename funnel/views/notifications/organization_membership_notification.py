@@ -31,7 +31,10 @@ class DecisionFactor:
     is_owner: Optional[bool] = None
     is_actor: Optional[bool] = None
 
-    def match(self, is_subject, record_type, membership):
+    def match(
+        self, is_subject: bool, record_type: str, membership: OrganizationMembership
+    ) -> bool:
+        """Test if this :class:`DecisionFactor` is a match."""
         return (
             (self.is_subject is is_subject)
             and (not self.rtypes or record_type in self.rtypes)

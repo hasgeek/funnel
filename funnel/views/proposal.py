@@ -176,8 +176,7 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             if self.obj.proposal:
                 self.profile = self.obj.proposal.project.profile
                 return redirect(self.obj.proposal.url_for())
-            else:
-                abort(410)
+            abort(410)
         self.profile = self.obj.project.profile
         return super().after_loader()
 
@@ -366,12 +365,14 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             featured_form.populate_obj(self.obj)
             db.session.commit()
             if self.obj.featured:
-                return {'status': 'ok', 'message': 'This submission has been featured'}
-            else:
                 return {
                     'status': 'ok',
-                    'message': 'This submission is no longer featured',
+                    'message': _("This submission has been featured"),
                 }
+            return {
+                'status': 'ok',
+                'message': _("This submission is no longer featured"),
+            }
         return (
             {
                 'status': 'error',
@@ -398,13 +399,12 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             db.session.commit()
             flash(_("Labels have been saved for this submission"), 'info')
             return redirect(self.obj.url_for(), 303)
-        else:
-            flash(_("Labels could not be saved for this submission"), 'error')
-            return render_form(
-                form,
-                submit=_("Save changes"),
-                title=_("Edit labels for '{}'").format(self.obj.title),
-            )
+        flash(_("Labels could not be saved for this submission"), 'error')
+        return render_form(
+            form,
+            submit=_("Save changes"),
+            title=_("Edit labels for '{}'").format(self.obj.title),
+        )
 
 
 ProposalView.init_app(app)

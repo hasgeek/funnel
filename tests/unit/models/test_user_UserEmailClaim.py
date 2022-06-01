@@ -1,4 +1,4 @@
-import funnel.models as models
+from funnel import models
 
 from .test_db import TestDatabaseFixture
 
@@ -12,9 +12,7 @@ class TestUserEmailClaim(TestDatabaseFixture):
         self.db_session.commit()
         assert isinstance(result, models.UserEmailClaim)
         assert crusoe == result.user
-        assert '<UserEmailClaim {email} of {user}>'.format(
-            email=new_email, user=repr(crusoe)[1:-1]
-        ) in (repr(result))
+        assert f'<UserEmailClaim {new_email} of {repr(crusoe)[1:-1]}>' in (repr(result))
 
     def test_useremailclaim_get(self):
         """Test for retrieving a UserEmailClaim instance given a user."""

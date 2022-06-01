@@ -1,10 +1,9 @@
+from coaster.auth import current_auth
 from funnel import app
 
 
 @app.route('/test/api/usertest')
 def user_test():
-    from coaster.auth import current_auth
-
     return current_auth.user.username if current_auth.user is not None else "<anon>"
 
 

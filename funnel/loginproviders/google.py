@@ -44,8 +44,7 @@ class GoogleProvider(LoginProvider):
         if request.args.get('error'):
             if request.args['error'] == 'access_denied':
                 raise LoginCallbackError(_("You denied the Google login request"))
-            else:
-                raise LoginCallbackError(_("Unknown failure"))
+            raise LoginCallbackError(_("Unknown failure"))
         code = request.args.get('code', None)
         try:
             credentials = self.flow(callback_url).step2_exchange(code)
@@ -69,7 +68,7 @@ class GoogleProvider(LoginProvider):
             capture_exception(exc)
             raise LoginCallbackError(
                 _("Google had an intermittent problem. Try again?")
-            )
+            ) from exc
         if response.get('error'):
             raise LoginCallbackError(
                 _("Unable to login via Google: {error}").format(

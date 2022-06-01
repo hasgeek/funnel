@@ -1,3 +1,5 @@
+# pylint: disable=attribute-defined-outside-init
+
 import unittest
 
 import pytest
@@ -9,7 +11,7 @@ from .fixtures import Fixtures
 
 class TestDatabaseFixture(unittest.TestCase):
     @pytest.fixture(autouse=True)
-    def pytest_fixtures(self, client, db_session):
+    def _pytest_fixtures(self, client, db_session):
         self.client = client
         self.db_session = db_session
         self.app = app

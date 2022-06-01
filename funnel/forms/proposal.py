@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import Optional
 
-from baseframe import _, __
+from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import QuerySelectField
 from coaster.auth import current_auth
-import baseframe.forms as forms
 
 from ..models import Project, Proposal
 from .helpers import nullable_strip_filters, video_url_validator

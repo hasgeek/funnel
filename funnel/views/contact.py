@@ -178,11 +178,10 @@ class ContactView(ClassView):
                 current_app.logger.warning("Contact already scanned")
                 db.session.rollback()
             return jsonify(contact=contact_details(ticket_participant))
-        else:
-            # FIXME: when status='error', the message should be in `error_description`.
-            return make_response(
-                jsonify(status='error', message=_("Unauthorized contact exchange")), 403
-            )
+        # FIXME: when status='error', the message should be in `error_description`.
+        return make_response(
+            jsonify(status='error', message=_("Unauthorized contact exchange")), 403
+        )
 
 
 ContactView.init_app(app)

@@ -5,8 +5,7 @@ from typing import Callable, Optional
 
 from flask import Markup, url_for
 
-from baseframe import __
-import baseframe.forms as forms
+from baseframe import __, forms
 
 from ..models import User, notification_type_registry
 from ..transports import platform_transports
@@ -148,13 +147,13 @@ class UnsubscribeForm(forms.Form):
         self.types.choices = [
             (
                 ntype,
-                Markup(f'<strong>{notification_type_registry[ntype].title}</strong> 👈')
+                Markup(f'<strong>{nvalue.title}</strong> 👈')
                 if ntype == self.notification_type
-                else notification_type_registry[ntype].title,
+                else nvalue.title,
             )
-            for ntype in notification_type_registry
+            for ntype, nvalue in notification_type_registry.items()
             if ntype in self.edit_obj.notification_preferences
-            and notification_type_registry[ntype].allow_transport(self.transport)
+            and nvalue.allow_transport(self.transport)
         ]  # Sorted by definition order. Usable until we introduce grouping
 
     def get_main(self, obj):

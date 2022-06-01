@@ -8,7 +8,7 @@ from unittest.mock import patch
 from furl import furl
 import pytest
 
-import funnel.models.shortlink as shortlink
+from funnel.models import shortlink
 
 
 class MockRandomBigint:
@@ -68,7 +68,7 @@ def test_mock_random_bigint():
 
 
 @pytest.mark.parametrize(
-    ['lhs', 'rhs'],
+    ('lhs', 'rhs'),
     [
         ('https://example.com', 'example.com'),
         ('https://example.com/', 'https://example.com'),
@@ -126,14 +126,14 @@ uni_name_bigint_mappings = [
 ]
 
 
-@pytest.mark.parametrize(['name', 'bigint'], name_bigint_mappings)
+@pytest.mark.parametrize(('name', 'bigint'), name_bigint_mappings)
 def test_bigint_to_name(name, bigint):
     """Bigints can be mapped to names."""
     assert shortlink.bigint_to_name(bigint) == name
 
 
 @pytest.mark.parametrize(
-    ['name', 'bigint'], name_bigint_mappings + uni_name_bigint_mappings
+    ('name', 'bigint'), name_bigint_mappings + uni_name_bigint_mappings
 )
 def test_name_to_bigint(name, bigint):
     """Names can be mapped to bigints."""
@@ -154,21 +154,21 @@ def test_name_to_bigint_data_type():
         shortlink.name_to_bigint(None)
 
     # Value is too long (length limit is 11)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Shortlink name is too long'):
         shortlink.name_to_bigint('A' * 12)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Shortlink name is too long'):
         shortlink.name_to_bigint('B' * 12)
 
     # Value contains invalid characters
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Shortlink name contains invalid characters'):
         shortlink.name_to_bigint('A/B')
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Shortlink name contains invalid characters'):
         shortlink.name_to_bigint('A@B')
 
 
 def test_shortlink_id_equals_zero(db_session):
     """Shortlink cannot have an id of 0."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Id cannot be zero'):
         shortlink.Shortlink(id=0)
 
 
@@ -219,7 +219,7 @@ def test_shortlink_constructor_with_reuse(db_session):
 
 
 @pytest.mark.parametrize(
-    ['longid', 'match'], [(146727516324, False), (-1, False), (4235324, True)]
+    ('longid', 'match'), [(146727516324, False), (-1, False), (4235324, True)]
 )
 def test_shortlink_reuse_with_shorter(db_session, longid, match):
     """Shortlink reuse with shorter will avoid longer ids."""
@@ -235,7 +235,7 @@ def test_shortlink_constructor_with_name(db_session):
     sl1 = shortlink.Shortlink.new('example.com', name='example')
     assert sl1.name == 'example'
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='name is not available'):
         # This will cause an SAWarning before it raises ValueError. We ignore it
         # using the filterwarnings decorator:
         #     SAWarning: New instance <Shortlink at 0x...> with identity key
@@ -360,8 +360,7 @@ def test_shortlink_comparator():
     assert expr is not None
     # Inequality expression is not supported, nor is anything else
     with pytest.raises(NotImplementedError):
-        expr = shortlink.Shortlink.name != 'example'
-        assert expr is not None  # This line won't be reached
+        _expr = shortlink.Shortlink.name != 'example'  # noqa: F841
 
 
 def test_shortlink_lookup_multiple():

@@ -10,7 +10,12 @@ def test_project_crew_membership(db_session, new_user, new_user_owner, new_proje
     # new_user is profile admin
     assert 'admin' in new_project.profile.roles_for(new_user_owner)
     # but it has no role in the project yet
-    assert 'editor' not in new_project.roles_for(new_user_owner)._contents()
+    assert (
+        'editor'
+        not in new_project.roles_for(  # pylint: disable=protected-access
+            new_user_owner
+        )._contents()
+    )
     assert 'promoter' not in new_project.roles_for(new_user_owner)
     assert 'usher' not in new_project.roles_for(new_user_owner)
 

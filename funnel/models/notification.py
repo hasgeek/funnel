@@ -1163,7 +1163,7 @@ class NotificationPreferences(BaseMixin, db.Model):
         if value == '':  # Special-cased name for main preferences
             return value
         if value is None or value not in notification_type_registry:
-            raise ValueError("Invalid notification_type: %s" % value)
+            raise ValueError(f"Invalid notification_type: {value}")
         return value
 
 

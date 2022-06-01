@@ -313,15 +313,14 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
                     postgresql_where=db.column('revoked_at').is_(None),
                 ),
             )
-        else:
-            return (
-                db.Index(
-                    'ix_' + cls.__tablename__ + '_active',
-                    'user_id',
-                    unique=True,
-                    postgresql_where=db.column('revoked_at').is_(None),
-                ),
-            )
+        return (
+            db.Index(
+                'ix_' + cls.__tablename__ + '_active',
+                'user_id',
+                unique=True,
+                postgresql_where=db.column('revoked_at').is_(None),
+            ),
+        )
 
     @hybrid_property
     def is_self_granted(self) -> bool:
@@ -430,15 +429,14 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
                     postgresql_where=db.column('revoked_at').is_(None),
                 ),
             )
-        else:
-            return (
-                db.Index(
-                    'ix_' + cls.__tablename__ + '_active',
-                    'profile_id',
-                    unique=True,
-                    postgresql_where=db.column('revoked_at').is_(None),
-                ),
-            )
+        return (
+            db.Index(
+                'ix_' + cls.__tablename__ + '_active',
+                'profile_id',
+                unique=True,
+                postgresql_where=db.column('revoked_at').is_(None),
+            ),
+        )
 
     @hybrid_property
     def is_self_granted(self) -> bool:

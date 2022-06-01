@@ -88,7 +88,7 @@ class TestAuthToken(TestDatabaseFixture):
         assert isinstance(result, AuthToken)
         assert result.auth_client == dachsadv
 
-    def test_authtoken_all(self):
+    def test_authtoken_all(self):  # pylint: disable=too-many-locals
         """Test for retreiving all AuthToken instances for given users."""
         auth_client = self.fixtures.auth_client
 
@@ -183,7 +183,7 @@ class TestAuthToken(TestDatabaseFixture):
         auth_token.algorithm = valid_algorithm
         assert auth_token._algorithm == valid_algorithm
         assert auth_token.algorithm == valid_algorithm
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match='Unrecognized algorithm'):
             auth_token.algorithm = "hmac-sha-2016"
 
 

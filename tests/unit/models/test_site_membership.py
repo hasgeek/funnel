@@ -69,8 +69,8 @@ def test_siteadmin_roles(db_session, user_mort, user_death):
     assert user_mort.is_site_editor is False
 
     # At least one role is required, so this will fail
+    membership.replace(actor=user_mort, is_comment_moderator=False)
     with pytest.raises(IntegrityError):
-        membership.replace(actor=user_mort, is_comment_moderator=False)
         db_session.commit()
     db_session.rollback()
     # The membership record must be revoked to remove all roles

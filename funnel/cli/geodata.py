@@ -1,3 +1,5 @@
+"""Process geonames data."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -37,6 +39,8 @@ geo = AppGroup('geoname', help="Process geoname data.")
 
 @dataclass
 class CountryInfoRecord:
+    """Geonames country info record."""
+
     iso_alpha2: str
     iso_alpha3: str
     iso_numeric: str
@@ -60,6 +64,8 @@ class CountryInfoRecord:
 
 @dataclass
 class GeoNameRecord:
+    """Geonames name record."""
+
     geonameid: str
     title: str
     ascii_title: str
@@ -83,6 +89,8 @@ class GeoNameRecord:
 
 @dataclass
 class GeoAdminRecord:
+    """Geonames admin record."""
+
     code: str
     title: str
     ascii_title: str
@@ -91,6 +99,8 @@ class GeoAdminRecord:
 
 @dataclass
 class GeoAltNameRecord:
+    """Geonames alt name record."""
+
     id: str  # noqa: A003
     geonameid: str
     lang: str
@@ -143,7 +153,7 @@ def downloadfile(basepath: str, filename: str, folder: Optional[str] = None):
             ],
         ).start()
         readbytes = 0
-        with open(folder_file, 'wb') as fd:
+        with open(folder_file, 'wb', encoding='utf-8') as fd:
             for chunk in r.iter_content(1024):
                 if not chunk:
                     break  # Break when done. The connection remains open for Keep-Alive
@@ -449,17 +459,17 @@ def download():
 @geo.command('process')
 def process():
     """Process downloaded geonames data."""
-    with open('geoname_data/countryInfo.txt', newline='') as fd:
+    with open('geoname_data/countryInfo.txt', newline='', encoding='utf-8') as fd:
         load_country_info(fd)
-    with open('geoname_data/admin1CodesASCII.txt', newline='') as fd:
+    with open('geoname_data/admin1CodesASCII.txt', newline='', encoding='utf-8') as fd:
         load_admin1_codes(fd)
-    with open('geoname_data/admin2Codes.txt', newline='') as fd:
+    with open('geoname_data/admin2Codes.txt', newline='', encoding='utf-8') as fd:
         load_admin2_codes(fd)
-    with open('geoname_data/IN.txt', newline='') as fd:
+    with open('geoname_data/IN.txt', newline='', encoding='utf-8') as fd:
         load_geonames(fd)
-    with open('geoname_data/allCountries.txt', newline='') as fd:
+    with open('geoname_data/allCountries.txt', newline='', encoding='utf-8') as fd:
         load_geonames(fd)
-    with open('geoname_data/alternateNames.txt', newline='') as fd:
+    with open('geoname_data/alternateNames.txt', newline='', encoding='utf-8') as fd:
         load_alt_names(fd)
 
 
