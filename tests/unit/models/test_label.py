@@ -20,7 +20,7 @@ def test_child_label_from_fixture(new_main_label):
     assert label_a1.icon == "👍"
     assert not label_a1.has_options
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='This flag must be set on the parent'):
         # because Label A1 is not a main and optioned label,
         # it's restricted flag cannot be set
         label_a1.restricted = True
@@ -32,7 +32,7 @@ def test_label_from_fixture(new_label):
     assert new_label.icon == "🔟"
     assert not new_label.has_options
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Labels without options cannot be mandatory'):
         # because Label B is not a parent label, it cannot be required
         new_label.required = True
 

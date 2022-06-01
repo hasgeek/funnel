@@ -42,20 +42,20 @@ def mock_send(phone, message):
     return json.dumps(sms_response)
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_rincewind_with_password(user_rincewind):
     user_rincewind.password = complex_test_password
     return user_rincewind
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_rincewind_phone(db_session, user_rincewind):
     up = user_rincewind.add_phone('+12345678901')
     db_session.add(up)
     return up
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_rincewind_email(db_session, user_rincewind):
     ue = user_rincewind.add_email('rincewind@example.com')
     db_session.add(ue)
@@ -125,7 +125,7 @@ def test_user_logout(client, login, user_rincewind, csrf_token):
 
 @patch('funnel.transports.sms.send', mock_send)
 @pytest.mark.parametrize(
-    ['login_type', 'password_with_status'],
+    ('login_type', 'password_with_status'),
     product(
         logins,
         [

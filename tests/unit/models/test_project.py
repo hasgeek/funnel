@@ -209,7 +209,7 @@ def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def second_organization(db_session, new_user2):
     org2 = Organization(owner=new_user2, title="Second test org", name='test-org-2')
     db_session.add(org2)
@@ -239,10 +239,10 @@ def test_project_rename(
     assert redirect.project == new_project
 
     # However, using an invalid name is blocked
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Invalid value for name'):
         new_project.name = None
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Invalid value for name'):
         new_project.name = 'this is invalid'
 
     # Changing project also creates a redirect from the old project

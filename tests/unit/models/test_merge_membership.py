@@ -3,7 +3,7 @@ import pytest
 from funnel.models import OrganizationMembership, merge_users
 
 
-@pytest.fixture
+@pytest.fixture()
 def death_membership(db_session, org_ankhmorpork, user_death):
     membership = OrganizationMembership(organization=org_ankhmorpork, user=user_death)
     db_session.add(membership)
@@ -11,7 +11,7 @@ def death_membership(db_session, org_ankhmorpork, user_death):
     return membership
 
 
-@pytest.fixture
+@pytest.fixture()
 def death_owner_membership(db_session, org_ankhmorpork, user_death):
     membership = OrganizationMembership(
         organization=org_ankhmorpork, user=user_death, is_owner=True
@@ -21,7 +21,7 @@ def death_owner_membership(db_session, org_ankhmorpork, user_death):
     return membership
 
 
-@pytest.fixture
+@pytest.fixture()
 def rincewind_membership(db_session, org_ankhmorpork, user_rincewind):
     membership = OrganizationMembership(
         organization=org_ankhmorpork, user=user_rincewind
@@ -31,7 +31,7 @@ def rincewind_membership(db_session, org_ankhmorpork, user_rincewind):
     return membership
 
 
-@pytest.fixture
+@pytest.fixture()
 def rincewind_owner_membership(db_session, org_ankhmorpork, user_rincewind):
     membership = OrganizationMembership(
         organization=org_ankhmorpork, user=user_rincewind, is_owner=True

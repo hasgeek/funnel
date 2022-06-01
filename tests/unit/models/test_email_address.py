@@ -29,7 +29,7 @@ hash_map = {
 }
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def refcount_data():
     refcount_signal_fired = set()
 
@@ -92,9 +92,9 @@ def test_canonical_email_representation():
         'example@gmail.com',
         'exam.pl.e@googlemail.com',
     ]
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Not an email address'):
         cemail('')
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Not an email address'):
         cemail('invalid')
 
 
@@ -147,16 +147,18 @@ def test_email_address_init():
 
 def test_email_address_init_error():
     """`EmailAddress` constructor will reject various forms of bad input."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='A string email address is required'):
         # Must be a string
         EmailAddress(None)
-    with pytest.raises(ValueError):
+    # FIXME: Wrong cause of error
+    with pytest.raises(ValueError, match='not enough values to unpack'):
         # Must not be blank
         EmailAddress('')
-    with pytest.raises(ValueError):
+    # FIXME: Wrong cause of error
+    with pytest.raises(ValueError, match='not enough values to unpack'):
         # Must be syntactically valid
         EmailAddress('invalid')
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Value is not an email address'):
         # Must be syntactically valid (caught elsewhere internally)
         EmailAddress('@invalid')
 
@@ -193,12 +195,14 @@ def test_email_address_mutability():
     assert ea.blake2b160 == hash_map['example@example.com']
 
     # But changing to another email address is not allowed
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Email address cannot be changed'):
         ea.email = 'other@example.com'
 
     # Change is also not allowed by blanking and then setting to another
     ea.email = None
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError, match='Email address does not match existing blake2b160 hash'
+    ):
         ea.email = 'other@example.com'
 
     # Changing the domain is also not allowed
@@ -206,7 +210,7 @@ def test_email_address_mutability():
         ea.domain = 'gmail.com'
 
     # Setting to an invalid value is not allowed
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='An email address is required'):
         ea.email = ''
 
 
@@ -283,7 +287,7 @@ def test_email_address_get(db_session):
 
 def test_email_address_invalid_hash_raises_error(db_session):
     """Retrieving an email address with an invalid hash will raise ValueError."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Invalid character'):
         EmailAddress.get(email_hash='invalid')
 
 
@@ -328,10 +332,11 @@ def test_email_address_add(db_session):
     assert ea5.email == ea3.email == 'Other@example.com'
 
     # Adding an invalid email address will raise an error
-    with pytest.raises(ValueError):
+    # FIXME: Wrong cause of error
+    with pytest.raises(ValueError, match='not enough values to unpack'):
         EmailAddress.add('invalid')
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='A string email address is required'):
         EmailAddress.add(None)
 
 

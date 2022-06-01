@@ -22,7 +22,7 @@ from funnel.views.helpers import (
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def testapp():
     """Create a test app with an `index` view."""
     new_app = Flask(__name__)

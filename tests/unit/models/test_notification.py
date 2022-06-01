@@ -58,7 +58,7 @@ def notification_types():
     return SimpleNamespace(**locals())
 
 
-@pytest.fixture
+@pytest.fixture()
 def project_fixtures(db_session):  # pylint: disable=too-many-locals
     """Provide users, one org and one project, for tests on them."""
     user_owner = User(username='user-owner', fullname="User Owner")
@@ -160,7 +160,7 @@ def test_project_roles(project_fixtures):
     assert 'participant' not in bystander_roles
 
 
-@pytest.fixture
+@pytest.fixture()
 def update(project_fixtures, db_session):
     """Publish an update as a fixture."""
     new_update = Update(
@@ -282,18 +282,18 @@ def test_user_notification_preferences(notification_types, db_session):
     )
 
     # There cannot be two sets of preferences for the same notification type
-    with pytest.raises(IntegrityError):
-        db_session.add(
-            NotificationPreferences(
-                user=user,
-                notification_type=nt.TestNewUpdateNotification.cls_type(),
-            )
+    db_session.add(
+        NotificationPreferences(
+            user=user,
+            notification_type=nt.TestNewUpdateNotification.cls_type(),
         )
+    )
+    with pytest.raises(IntegrityError):
         db_session.commit()
     db_session.rollback()
 
     # Preferences cannot be set for invalid types
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Invalid notification_type'):
         NotificationPreferences(user=user, notification_type='invalid')
     db_session.rollback()
 

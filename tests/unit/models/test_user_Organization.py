@@ -68,9 +68,9 @@ def test_organization_pickername(db_session, org_uu):
 
 def test_organization_name(db_session, org_ankhmorpork):
     """Test for retrieving and setting an Organization's name."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Invalid account name'):
         org_ankhmorpork.name = '35453496*%&^$%^'
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Invalid account name'):
         org_ankhmorpork.name = '-Insurgent'
     org_ankhmorpork.name = 'anky'
     assert org_ankhmorpork.name == 'anky'

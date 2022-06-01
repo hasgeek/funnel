@@ -6,7 +6,7 @@ from funnel.forms.login import MSG_INCORRECT_PASSWORD, MSG_NO_ACCOUNT
 from funnel.models import User
 
 
-@pytest.fixture
+@pytest.fixture()
 def user(db_session):
     new_user = User(  # nosec  # noqa: S106
         username='user', fullname="User", password='test_password'
@@ -16,7 +16,7 @@ def user(db_session):
     return new_user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_nameless(db_session):
     new_user = User(  # nosec  # noqa: S106
         fullname="Nameless User", password='test_password_nameless'
@@ -27,7 +27,7 @@ def user_nameless(db_session):
     return new_user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_named(db_session):
     new_user = User(  # nosec  # noqa: S106
         username='user-named', fullname="Named User", password='test_password_named'
@@ -38,14 +38,14 @@ def user_named(db_session):
     return new_user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_email(db_session, user):
     retval = user.add_email('user@example.com')
     db_session.commit()
     return retval
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_phone(db_session, user):
     retval = user.add_phone('+912345678901')
     db_session.commit()
@@ -213,7 +213,7 @@ def test_login_long_password(user):
         ]
 
 
-@pytest.mark.parametrize('username', ('unknown@example.com', '+15005550000'))
+@pytest.mark.parametrize('username', ['unknown@example.com', '+15005550000'])
 def test_login_no_probing(username):
     """Login fails if email/phone is not present, but as an incorrect password."""
     with app.test_request_context(
@@ -303,7 +303,7 @@ def test_register_email_otp():
 
 
 @pytest.mark.parametrize(
-    ['phone_number', 'full_phone_number'],
+    ('phone_number', 'full_phone_number'),
     [
         ('+912345678901', '+912345678901'),
         ('9845012345', '+919845012345'),

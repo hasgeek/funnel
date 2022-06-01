@@ -183,7 +183,7 @@ class TestAuthToken(TestDatabaseFixture):
         auth_token.algorithm = valid_algorithm
         assert auth_token._algorithm == valid_algorithm
         assert auth_token.algorithm == valid_algorithm
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match='Unrecognized algorithm'):
             auth_token.algorithm = "hmac-sha-2016"
 
 

@@ -143,7 +143,7 @@ def db_connection(database):
 # This fixture borrowed from
 # https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/46
 # #issuecomment-829694672
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def db_session(database, db_connection):
     """Create a nested transaction for the test and roll it back after."""
     original_session = database.session
@@ -184,12 +184,12 @@ def client(request, db_session):
             yield test_client
 
 
-@pytest.fixture
+@pytest.fixture()
 def csrf_token(client):
     return client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
 
 
-@pytest.fixture
+@pytest.fixture()
 def login(client):
     """Provide a login fixture."""
 
@@ -209,7 +209,7 @@ def login(client):
     return SimpleNamespace(as_=as_, logout=logout)
 
 
-@pytest.fixture
+@pytest.fixture()
 def varfixture(request):
     """
     Return a variable fixture.
@@ -239,7 +239,7 @@ def varfixture(request):
 # --- Users
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_twoflower(db_session):
     """
     Twoflower is a tourist from the Agatean Empire who goes on adventures.
@@ -253,7 +253,7 @@ def user_twoflower(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_rincewind(db_session):
     """
     Rincewind is a wizard and a former member of Unseen University.
@@ -266,7 +266,7 @@ def user_rincewind(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_death(db_session):
     """
     Death is the epoch user, present at the beginning and always having the last word.
@@ -284,7 +284,7 @@ def user_death(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_mort(db_session):
     """
     Mort is Death's apprentice, and a site admin in tests.
@@ -298,7 +298,7 @@ def user_mort(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_susan(db_session):
     """
     Susan Sto Helit (also written Sto-Helit) is Death's grand daughter.
@@ -310,7 +310,7 @@ def user_susan(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_lutze(db_session):
     """
     Lu-Tze is a history monk and sweeper at the Monastery of Oi-Dong.
@@ -322,7 +322,7 @@ def user_lutze(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_ridcully(db_session):
     """
     Mustrum Ridcully, archchancellor of Unseen University.
@@ -334,7 +334,7 @@ def user_ridcully(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_librarian(db_session):
     """
     Librarian of Unseen University, currently an orangutan.
@@ -346,7 +346,7 @@ def user_librarian(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_ponder_stibbons(db_session):
     """
     Ponder Stibbons, maintainer of Hex, the computer powered by an Anthill Inside.
@@ -358,7 +358,7 @@ def user_ponder_stibbons(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_vetinari(db_session):
     """
     Havelock Vetinari, patrician (aka dictator) of Ankh-Morpork.
@@ -370,7 +370,7 @@ def user_vetinari(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_vimes(db_session):
     """
     Samuel Vimes, commander of the Ankh-Morpork City Watch.
@@ -382,7 +382,7 @@ def user_vimes(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_carrot(db_session):
     """
     Carrot Ironfoundersson, captain of the Ankh-Morpork City Watch.
@@ -394,7 +394,7 @@ def user_carrot(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_angua(db_session):
     """
     Delphine Angua von Überwald, member of the Ankh-Morpork City Watch, and foreigner.
@@ -412,7 +412,7 @@ def user_angua(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_dibbler(db_session):
     """
     Cut Me Own Throat (or C.M.O.T) Dibbler, huckster who exploits small opportunities.
@@ -424,7 +424,7 @@ def user_dibbler(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_wolfgang(db_session):
     """
     Wolfgang von Überwald, brother of Angua, violent shapeshifter.
@@ -437,7 +437,7 @@ def user_wolfgang(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_om(db_session):
     """
     Great God Om of the theocracy of Omnia, who has lost his believers.
@@ -453,7 +453,7 @@ def user_om(db_session):
 # --- Organizations
 
 
-@pytest.fixture
+@pytest.fixture()
 def org_ankhmorpork(db_session, user_vetinari):
     """
     City of Ankh-Morpork, here representing the government rather than location.
@@ -466,7 +466,7 @@ def org_ankhmorpork(db_session, user_vetinari):
     return org
 
 
-@pytest.fixture
+@pytest.fixture()
 def org_uu(db_session, user_ridcully, user_librarian, user_ponder_stibbons):
     """
     Unseen University is located in Ankh-Morpork.
@@ -499,7 +499,7 @@ def org_uu(db_session, user_ridcully, user_librarian, user_ponder_stibbons):
     return org
 
 
-@pytest.fixture
+@pytest.fixture()
 def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot):
     """
     City Watch of Ankh-Morpork (a sub-organization).
@@ -531,7 +531,7 @@ def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot):
 # of the product being tested. Maintaining fidelity to Discworld is hard.
 
 
-@pytest.fixture
+@pytest.fixture()
 def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
     """Ankh-Morpork hosts its 2010 expo."""
     db_session.flush()
@@ -547,7 +547,7 @@ def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
     return project
 
 
-@pytest.fixture
+@pytest.fixture()
 def project_expo2011(db_session, org_ankhmorpork, user_vetinari):
     """Ankh-Morpork hosts its 2011 expo."""
     db_session.flush()
@@ -563,7 +563,7 @@ def project_expo2011(db_session, org_ankhmorpork, user_vetinari):
     return project
 
 
-@pytest.fixture
+@pytest.fixture()
 def project_ai1(db_session, org_uu, user_ponder_stibbons):
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
@@ -588,7 +588,7 @@ def project_ai1(db_session, org_uu, user_ponder_stibbons):
     return project
 
 
-@pytest.fixture
+@pytest.fixture()
 def project_ai2(db_session, org_uu, user_ponder_stibbons):
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
@@ -612,7 +612,7 @@ def project_ai2(db_session, org_uu, user_ponder_stibbons):
 # --- Client apps
 
 
-@pytest.fixture
+@pytest.fixture()
 def client_hex(db_session, org_uu):
     """
     Hex, supercomputer at Unseen University, powered by an Anthill Inside.
@@ -631,14 +631,14 @@ def client_hex(db_session, org_uu):
     return auth_client
 
 
-@pytest.fixture
+@pytest.fixture()
 def client_hex_credential(db_session, client_hex):
     cred, secret = AuthClientCredential.new(client_hex)
     db_session.add(cred)
     return SimpleNamespace(cred=cred, secret=secret)
 
 
-@pytest.fixture
+@pytest.fixture()
 def all_fixtures(  # pylint: disable=too-many-arguments,too-many-locals
     db_session,
     user_twoflower,
@@ -697,7 +697,7 @@ TEST_DATA = {
 }
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_user(db_session):
     user = User(**TEST_DATA['users']['testuser'])
     db_session.add(user)
@@ -705,7 +705,7 @@ def new_user(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_user2(db_session):
     user = User(**TEST_DATA['users']['testuser2'])
     db_session.add(user)
@@ -713,7 +713,7 @@ def new_user2(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_user_owner(db_session):
     user = User(**TEST_DATA['users']['test-org-owner'])
     db_session.add(user)
@@ -721,7 +721,7 @@ def new_user_owner(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_user_admin(db_session):
     user = User(**TEST_DATA['users']['test-org-admin'])
     db_session.add(user)
@@ -729,7 +729,7 @@ def new_user_admin(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_organization(db_session, new_user_owner, new_user_admin):
     org = Organization(owner=new_user_owner, title="Test org", name='test-org')
     db_session.add(org)
@@ -742,7 +742,7 @@ def new_organization(db_session, new_user_owner, new_user_admin):
     return org
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_team(db_session, new_user, new_organization):
     team = Team(title="Owners", organization=new_organization)
     db_session.add(team)
@@ -751,7 +751,7 @@ def new_team(db_session, new_user, new_organization):
     return team
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_project(db_session, new_organization, new_user):
     project = Project(
         profile=new_organization.profile,
@@ -766,7 +766,7 @@ def new_project(db_session, new_organization, new_user):
     return project
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_project2(db_session, new_organization, new_user_owner):
     project = Project(
         profile=new_organization.profile,
@@ -781,7 +781,7 @@ def new_project2(db_session, new_organization, new_user_owner):
     return project
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_main_label(db_session, new_project):
     main_label_a = Label(
         title="Parent Label A", project=new_project, description="A test parent label"
@@ -799,7 +799,7 @@ def new_main_label(db_session, new_project):
     return main_label_a
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_main_label_unrestricted(db_session, new_project):
     main_label_b = Label(
         title="Parent Label B", project=new_project, description="A test parent label"
@@ -817,7 +817,7 @@ def new_main_label_unrestricted(db_session, new_project):
     return main_label_b
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_label(db_session, new_project):
     label_b = Label(title="Label B", icon_emoji="🔟", project=new_project)
     new_project.all_labels.append(label_b)
@@ -826,7 +826,7 @@ def new_label(db_session, new_project):
     return label_b
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_proposal(db_session, new_user, new_project):
     proposal = Proposal(
         user=new_user,

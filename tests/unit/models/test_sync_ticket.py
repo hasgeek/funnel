@@ -49,7 +49,7 @@ class TestEventModels(unittest.TestCase):
     app = app
 
     @pytest.fixture(autouse=True)
-    def fixture_setup(self, request, db_session):
+    def _fixture_setup(self, request, db_session):
         self.db_session = db_session
         self.ctx = self.app.test_request_context()
         self.ctx.push()

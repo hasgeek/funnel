@@ -37,10 +37,10 @@ def test_dates_have_timezone():
             assert dt.tzinfo is utc
 
     # Both functions will not accept naive timestamps
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='must be specified in UTC'):
         all_sitemap_months(naive_now)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='UTC timezone required'):
         all_sitemap_days(naive_now)
 
 

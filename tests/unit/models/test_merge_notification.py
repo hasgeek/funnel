@@ -26,7 +26,7 @@ def test_notification_type():
     return MergeTestNotification
 
 
-@pytest.fixture
+@pytest.fixture()
 def fixtures(db_session):
     owner = User(
         username='owner',
@@ -52,7 +52,7 @@ def fixtures(db_session):
     return SimpleNamespace(**locals())
 
 
-@pytest.fixture
+@pytest.fixture()
 def notification(db_session, fixtures):
     new_notification = OrganizationAdminMembershipNotification(
         document=fixtures.org, fragment=fixtures.membership
@@ -62,7 +62,7 @@ def notification(db_session, fixtures):
     return new_notification
 
 
-@pytest.fixture
+@pytest.fixture()
 def user1_notification(db_session, fixtures, notification):
     un = UserNotification(
         eventid=notification.eventid,
@@ -75,7 +75,7 @@ def user1_notification(db_session, fixtures, notification):
     return un
 
 
-@pytest.fixture
+@pytest.fixture()
 def user2_notification(db_session, fixtures, notification):
     un = UserNotification(
         eventid=notification.eventid,
@@ -88,7 +88,7 @@ def user2_notification(db_session, fixtures, notification):
     return un
 
 
-@pytest.fixture
+@pytest.fixture()
 def user1_main_preferences(db_session, fixtures):
     prefs = NotificationPreferences(user=fixtures.user1, notification_type='')
     db_session.add(prefs)
@@ -96,7 +96,7 @@ def user1_main_preferences(db_session, fixtures):
     return prefs
 
 
-@pytest.fixture
+@pytest.fixture()
 def user1_test_preferences(db_session, fixtures, test_notification_type):
     prefs = NotificationPreferences(user=fixtures.user1, notification_type='merge_test')
     db_session.add(prefs)
@@ -104,7 +104,7 @@ def user1_test_preferences(db_session, fixtures, test_notification_type):
     return prefs
 
 
-@pytest.fixture
+@pytest.fixture()
 def user2_main_preferences(db_session, fixtures):
     prefs = NotificationPreferences(user=fixtures.user2, notification_type='')
     db_session.add(prefs)
@@ -112,7 +112,7 @@ def user2_main_preferences(db_session, fixtures):
     return prefs
 
 
-@pytest.fixture
+@pytest.fixture()
 def user2_test_preferences(db_session, fixtures, test_notification_type):
     prefs = NotificationPreferences(user=fixtures.user2, notification_type='merge_test')
     db_session.add(prefs)

@@ -3,7 +3,7 @@ import pytest
 from funnel.models import SiteMembership, SponsorMembership, db
 
 
-@pytest.fixture
+@pytest.fixture()
 def org_uu_sponsorship(user_vetinari, org_uu, project_expo2010):
     sponsorship = SponsorMembership(
         granted_by=user_vetinari,
@@ -17,7 +17,7 @@ def org_uu_sponsorship(user_vetinari, org_uu, project_expo2010):
     return sponsorship
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_vetinari_site_editor(db_session, user_vetinari):
     site_editor = SiteMembership(
         user=user_vetinari, granted_by=user_vetinari, is_site_editor=True
@@ -27,7 +27,7 @@ def user_vetinari_site_editor(db_session, user_vetinari):
     return site_editor
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_twoflower_not_site_editor(db_session, user_twoflower):
     not_site_editor = SiteMembership(
         user=user_twoflower, granted_by=user_twoflower, is_comment_moderator=True
@@ -38,7 +38,7 @@ def user_twoflower_not_site_editor(db_session, user_twoflower):
 
 
 @pytest.mark.parametrize(
-    ['user_site_membership', 'status_code'],
+    ('user_site_membership', 'status_code'),
     [('user_vetinari_site_editor', 200), ('user_twoflower_not_site_editor', 403)],
 )
 def test_check_site_editor_edit_sponsorship(  # pylint:disable=too-many-arguments
@@ -51,7 +51,7 @@ def test_check_site_editor_edit_sponsorship(  # pylint:disable=too-many-argument
 
 
 @pytest.mark.parametrize(
-    ['label', 'is_promoted'],
+    ('label', 'is_promoted'),
     [
         (None, False),
         (None, True),

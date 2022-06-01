@@ -15,7 +15,7 @@ def test_session_timeouts_dict():
     assert st == {}  # pylint: disable=use-implicit-booleaness-not-comparison
     assert st.keys_at == set()
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='must be a timedelta'):
         st['test'] = 'not a timestamp'
 
     st['test'] = timedelta(seconds=1)
@@ -47,14 +47,15 @@ def test_session_intersection():
     assert not st.has_intersection(fake_session_disjoint)
 
 
-@pytest.fixture
-def timeout_var():
+@pytest.fixture()
+def _timeout_var():
     session_timeouts['test_timeout'] = timedelta(seconds=test_timeout_seconds)
     yield
     session_timeouts.pop('test_timeout')
 
 
-def test_session_temp_vars(client, timeout_var):
+@pytest.mark.usefixtures('_timeout_var')
+def test_session_temp_vars(client):
     with client.session_transaction() as session:
         assert 'test_timeout' not in session
         assert 'test_timeout_at' not in session
