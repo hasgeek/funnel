@@ -25,7 +25,11 @@
   <div class="login-page-wrapper">
     <div class="login-page__box">
       <div class="login-page__back">
-        <a class="js-popup-back" href="{% if current_auth.is_authenticated %}{{ url_for('account') }}{% else %}{{ url_for('index') }}{% endif %}" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+        {%- if not request_is_xhr() -%}
+          <a class="js-popup-back" href="{% if current_auth.is_authenticated %}{{ url_for('account') }}{% else %}{{ url_for('index') }}{% endif %}" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+        {%- else -%}
+          <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+        {% endif %}
       </div>
       {% block focuscontent %}
         {% block beforeformcontent %}
@@ -217,8 +221,20 @@
         });
       }
 
+      $('body').on('click', '.js-show-password', function () {
+        $(this).parent().find('.js-password-toggle').toggleClass('mui--hide');
+        $(this).parent().find('input').attr('type', 'text');
+      });
+
+      $('body').on('click', '.js-hide-password', function () {
+        $(this).parent().find('.js-password-toggle').toggleClass('mui--hide');
+        $(this).parent().find('input').attr('type', 'password');
+      });
+
+
       //Toggle between OTP/Password login
-      $('body').on('click', '.js-toggle-login', function() {
+      $('body').on('click', '.js-toggle-login', function(event) {
+        event.preventDefault();
         $('.js-fields-toggle').toggleClass('mui--hide');
       });
 
@@ -226,10 +242,7 @@
         if($('.js-password-field').hasClass('mui--hide')) {
           $('.js-fields-toggle').toggleClass('mui--hide');
         }
-      })
-
-      // Toggle username field input mode to tel/email to change keyboard in mobile
-      $('#username').attr('inputmode', 'tel');
+      });
 
       $('body').on('click touchstart touchend', '.js-keyboard-switcher', function(event) {
         event.preventDefault();

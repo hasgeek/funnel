@@ -123,6 +123,8 @@ def render_login_form(form: LoginForm) -> ReturnView:
             loginform=form,
             formid='passwordlogin',
             ref_id='form-passwordlogin',
+            ajax=True,
+            with_chrome=True,
         ),
         200,
         block_iframe,
@@ -344,7 +346,7 @@ def login() -> ReturnView:
     elif request.method == 'POST':
         # This should not happen. We received an incomplete form.
         abort(403)
-    if request_is_xhr() and formid == 'passwordlogin':
+    if request_is_xhr():
         return render_login_form(loginform)
     return (
         render_template(

@@ -15,7 +15,9 @@
   {%- if message %}
     <p class="form-message">{{ message }}</p>
   {%- endif %}
-  {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action, cancel_url=cancel_url, multipart=multipart, autosave=autosave, draft_revision=draft_revision) }}
+  {% block form %}
+    {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action, cancel_url=cancel_url, multipart=multipart, autosave=autosave, draft_revision=draft_revision) }}
+  {% endblock %}
   {%- if with_chrome -%}
     {{ ajaxform(ref_id=ref_id, request=request, force=true) }}
   {%- endif -%}
@@ -24,6 +26,6 @@
 
   <script type="text/javascript">
     activate_widgets();
-    {{ widgetscripts(form, script=false) }}
+    {{ widgetscripts(form, script=false, ref_id=ref_id) }}
   </script>
 </div>
