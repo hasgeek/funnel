@@ -75,8 +75,8 @@
           {%- elif field.widget.input_type in ['text', 'email', 'search', 'url', 'number', 'tel'] and field.widget.html_tag not in ['ul', 'ol'] %}
             <div class="mui-textfield mui-textfield--float-label">
               {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, autofocus=autofocus, rows=rows, placeholder=placeholder)}}
-              <a href="javascript:void(0)" class="badge mui-textfield__toggle js-keyboard-switcher mui--hide mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="email">Use email address</a>
-              <a href="javascript:void(0)" class="badge mui-textfield__toggle js-keyboard-switcher mui--hide mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="tel">Use phone number</a>
+              <a href="javascript:void(0)" class="badge mui-textfield__toggle js-keyboard-switcher mui--hide mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="email" data-placeholder="{% trans %}Email address{% endtrans %}">Use email address</a>
+              <a href="javascript:void(0)" class="badge mui-textfield__toggle js-keyboard-switcher mui--hide mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="tel" data-placeholder="{% trans %}Phone number{% endtrans %}">Use phone number</a>
               {%- if not nolabel %}
                 <label for="{{ field.id }}">{{ field.label.text }}</label>
               {%- endif %}
@@ -344,12 +344,14 @@
   {%- endif %}
 
 
-  $('.js-show-password').on('click', function () {
+  $('.js-show-password').on('click', function (event) {
+    event.preventDefault();
     $(this).parent().find('.js-password-toggle').toggleClass('mui--hide');
     $(this).parent().find('input').attr('type', 'text');
   });
 
-  $('.js-hide-password').on('click', function () {
+  $('.js-hide-password').on('click', function (event) {
+    event.preventDefault();
     $(this).parent().find('.js-password-toggle').toggleClass('mui--hide');
     $(this).parent().find('input').attr('type', 'password');
   });
@@ -367,17 +369,21 @@
     }
   });
 
-  $('.js-keyboard-switcher').on('click touchstart touchend', function(event) {
+  $('.js-keyboard-switcher').on('click', function(event) {
     event.preventDefault();
+    console.log($(this).data('placeholder'))
     $('.js-keyboard-switcher').removeClass('mui--hide');
     $(this).addClass('mui--hide');
     $('#username').attr('inputmode', $(this).data('inputmode'));
+    $('#username').attr('placeholder', $(this).data('placeholder'));
   });
 
   // Toggle username field input mode to tel/email to change keyboard in mobile
   if($('#username').length > 0) {
+    let switchToEmailBtn = $('#username').next('.js-keyboard-switcher');
     $('#username').attr('inputmode', 'tel');
-    $('#username').next('.js-keyboard-switcher').removeClass('mui--hide');
+    switchToEmailBtn.removeClass('mui--hide');
+    $('#username').attr('placeholder', switchToEmailBtn.next('.js-keyboard-switcher').data('placeholder'));
   }
 
   {%- for field in form -%}
