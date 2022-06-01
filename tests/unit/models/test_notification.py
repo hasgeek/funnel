@@ -1,3 +1,5 @@
+# pylint: disable=possibly-unused-variable
+
 from types import SimpleNamespace
 
 from sqlalchemy.exc import IntegrityError
@@ -57,7 +59,7 @@ def notification_types():
 
 
 @pytest.fixture
-def project_fixtures(db_session):
+def project_fixtures(db_session):  # pylint: disable=too-many-locals
     """Provide users, one org and one project, for tests on them."""
     user_owner = User(username='user-owner', fullname="User Owner")
     user_owner.add_email('owner@example.com')
@@ -161,17 +163,17 @@ def test_project_roles(project_fixtures):
 @pytest.fixture
 def update(project_fixtures, db_session):
     """Publish an update as a fixture."""
-    update = Update(
+    new_update = Update(
         project=project_fixtures.project,
         user=project_fixtures.user_editor,
         title="New update",
         body="New update body",
     )
-    db_session.add(update)
+    db_session.add(new_update)
     db_session.commit()
-    update.publish(project_fixtures.user_editor)
+    new_update.publish(project_fixtures.user_editor)
     db_session.commit()
-    return update
+    return new_update
 
 
 def test_update_roles(project_fixtures, update):
@@ -230,9 +232,9 @@ def test_update_notification_structure(
     # Extract all the user notifications and confirm they're correctly assigned
     user_notifications = list(notification.dispatch())
     # We got user assignees
-    assert user_notifications != []
+    assert user_notifications
     # A second call to dispatch() will yield nothing
-    assert list(notification.dispatch()) == []
+    assert not list(notification.dispatch())
 
     # Notifications are issued strictly in the order specified in cls.roles
     role_order = []
@@ -260,13 +262,14 @@ def test_update_notification_structure(
 
 def test_user_notification_preferences(notification_types, db_session):
     """Test that users have a notification_preferences dict."""
+    nt = notification_types  # Short var for keeping lines within 88 columns below
     user = User(fullname="User")
     db_session.add(user)
     db_session.commit()
     assert user.notification_preferences == {}
     np = NotificationPreferences(
         user=user,
-        notification_type=notification_types.TestNewUpdateNotification.cls_type(),
+        notification_type=nt.TestNewUpdateNotification.cls_type(),
     )
     db_session.add(np)
     db_session.commit()
@@ -275,7 +278,7 @@ def test_user_notification_preferences(notification_types, db_session):
     assert user.notification_preferences['update_new_test'].user == user
     assert (
         user.notification_preferences['update_new_test'].type_cls
-        == notification_types.TestNewUpdateNotification
+        == nt.TestNewUpdateNotification
     )
 
     # There cannot be two sets of preferences for the same notification type
@@ -283,7 +286,7 @@ def test_user_notification_preferences(notification_types, db_session):
         db_session.add(
             NotificationPreferences(
                 user=user,
-                notification_type=notification_types.TestNewUpdateNotification.cls_type(),
+                notification_type=nt.TestNewUpdateNotification.cls_type(),
             )
         )
         db_session.commit()
@@ -297,7 +300,7 @@ def test_user_notification_preferences(notification_types, db_session):
     # Preferences can be set for other notification types though
     np2 = NotificationPreferences(
         user=user,
-        notification_type=notification_types.TestProposalReceivedNotification.cls_type(),
+        notification_type=nt.TestProposalReceivedNotification.cls_type(),
     )
     db_session.add(np2)
     db_session.commit()

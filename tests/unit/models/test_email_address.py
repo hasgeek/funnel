@@ -1,3 +1,4 @@
+# pylint: disable=possibly-unused-variable
 from types import SimpleNamespace
 
 from sqlalchemy.exc import IntegrityError
@@ -18,8 +19,10 @@ from funnel.signals import emailaddress_refcount_dropping
 
 # Fixture used across tests.
 hash_map = {
-    'example@example.com': b'X5Q\xc1<\xceE<\x05\x9c\xa7\x0f\xee{\xcd\xc2\xe5\xbd\x82\xa1',
-    'example+extra@example.com': b'\xcfi\xf2\xdfph\xc0\x81\xfb\xe8\\\xa6\xa5\xf1\xfb:\xbb\xe4\x88\xde',
+    'example@example.com': b'X5Q\xc1<\xceE<\x05\x9c\xa7\x0f\xee'
+    b'{\xcd\xc2\xe5\xbd\x82\xa1',
+    'example+extra@example.com': b'\xcfi\xf2\xdfph\xc0\x81\xfb\xe8'
+    b'\\\xa6\xa5\xf1\xfb:\xbb\xe4\x88\xde',
     'example@gmail.com': b"\tC*\xd2\x9a\xcb\xdfR\xcb\xbf=>2D'(\xa8V\x13\xa7",
     'example@googlemail.com': b'x\xd6#Ue\xa8-_\xeclJ+o8\xfe\x1f\xa1\x0b:9',
     'eg@räksmörgås.org': b'g\xc4B`\x9ej\x05\xf8\xa6\x9b\\"l\x0c$\xd4\xa8\xe42j',
@@ -420,7 +423,9 @@ def email_models(database):
     return SimpleNamespace(**locals())
 
 
-def test_email_address_mixin(email_models, db_session):
+def test_email_address_mixin(  # pylint: disable=too-many-locals,too-many-statements
+    email_models, db_session
+):
     """The EmailAddressMixin class adds safety checks for using an email address."""
     models = email_models
 

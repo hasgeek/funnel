@@ -88,7 +88,7 @@ class TestAuthToken(TestDatabaseFixture):
         assert isinstance(result, AuthToken)
         assert result.auth_client == dachsadv
 
-    def test_authtoken_all(self):
+    def test_authtoken_all(self):  # pylint: disable=too-many-locals
         """Test for retreiving all AuthToken instances for given users."""
         auth_client = self.fixtures.auth_client
 

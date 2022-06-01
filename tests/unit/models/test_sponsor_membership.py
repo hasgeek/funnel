@@ -48,7 +48,7 @@ def dibbler_sponsor(db_session, project_expo2010, user_dibbler, user_vetinari):
     return sponsor
 
 
-def test_auto_seq(
+def test_auto_seq(  # pylint: disable=too-many-arguments
     db_session, project_expo2010, org_citywatch, org_uu, user_dibbler, user_vetinari
 ):
     """Sequence numbers are auto-issued in commit order."""
@@ -86,7 +86,7 @@ def test_auto_seq(
     assert sponsor3.seq == 3
 
 
-def test_expo_has_sponsors(
+def test_expo_has_sponsors(  # pylint: disable=too-many-arguments
     db_session,
     project_expo2010,
     dibbler_sponsor,
@@ -124,7 +124,7 @@ def test_expo_sponsor_reorder(
     assert dibbler_sponsor.seq == 1
 
 
-def test_expo_sponsor_seq_reissue(
+def test_expo_sponsor_seq_reissue(  # pylint: disable=too-many-arguments
     db_session,
     project_expo2010,
     citywatch_sponsor,

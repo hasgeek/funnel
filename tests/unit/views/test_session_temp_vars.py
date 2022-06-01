@@ -12,7 +12,7 @@ test_timeout_seconds = 1
 def test_session_timeouts_dict():
     st = SessionTimeouts()
     assert isinstance(st.keys_at, set)
-    assert st == {}
+    assert st == {}  # pylint: disable=use-implicit-booleaness-not-comparison
     assert st.keys_at == set()
 
     with pytest.raises(ValueError):
@@ -29,7 +29,7 @@ def test_session_timeouts_dict():
 
     # Key can be removed and added again in the unlikely situation where this is needed
     del st['test']
-    assert st == {}
+    assert st == {}  # pylint: disable=use-implicit-booleaness-not-comparison
     assert st.keys_at == set()
 
     st['test'] = timedelta(seconds=2)

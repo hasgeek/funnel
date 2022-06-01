@@ -2,8 +2,8 @@ from sqlalchemy.exc import IntegrityError
 
 import pytest
 
+from funnel import models
 from funnel.models import db
-import funnel.models as models
 
 
 def test_is_available_name(db_session, user_rincewind):

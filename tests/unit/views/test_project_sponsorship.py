@@ -5,43 +5,43 @@ from funnel.models import SiteMembership, SponsorMembership, db
 
 @pytest.fixture
 def org_uu_sponsorship(user_vetinari, org_uu, project_expo2010):
-    org_uu_sponsorship = SponsorMembership(
+    sponsorship = SponsorMembership(
         granted_by=user_vetinari,
         profile=org_uu.profile,
         project=project_expo2010,
         is_promoted=True,
         label="Diamond",
     )
-    db.session.add(org_uu)
+    db.session.add(sponsorship)
     db.session.commit()
-    return org_uu_sponsorship
+    return sponsorship
 
 
 @pytest.fixture
 def user_vetinari_site_editor(db_session, user_vetinari):
-    user_vetinari_site_editor = SiteMembership(
+    site_editor = SiteMembership(
         user=user_vetinari, granted_by=user_vetinari, is_site_editor=True
     )
-    db_session.add(user_vetinari_site_editor)
+    db_session.add(site_editor)
     db.session.commit()
-    return user_vetinari_site_editor
+    return site_editor
 
 
 @pytest.fixture
 def user_twoflower_not_site_editor(db_session, user_twoflower):
-    user_twoflower_not_site_editor = SiteMembership(
+    not_site_editor = SiteMembership(
         user=user_twoflower, granted_by=user_twoflower, is_comment_moderator=True
     )
-    db_session.add(user_twoflower_not_site_editor)
+    db_session.add(not_site_editor)
     db.session.commit()
-    return user_twoflower_not_site_editor
+    return not_site_editor
 
 
 @pytest.mark.parametrize(
     ['user_site_membership', 'status_code'],
     [('user_vetinari_site_editor', 200), ('user_twoflower_not_site_editor', 403)],
 )
-def test_check_site_editor_edit_sponsorship(
+def test_check_site_editor_edit_sponsorship(  # pylint:disable=too-many-arguments
     request, client, login, org_uu_sponsorship, user_site_membership, status_code
 ):
     login.as_(request.getfixturevalue(user_site_membership).user)
@@ -59,7 +59,7 @@ def test_check_site_editor_edit_sponsorship(
         ('Test sponsor2', True),
     ],
 )
-def test_sponsorship_add(
+def test_sponsorship_add(  # pylint:disable=too-many-arguments
     client,
     login,
     user_vetinari_site_editor,
@@ -117,7 +117,7 @@ def test_sponsorship_edit(
     assert edited_sponsorship.is_promoted is False
 
 
-def test_sponsorship_remove(
+def test_sponsorship_remove(  # pylint:disable=too-many-arguments
     client,
     login,
     org_uu_sponsorship,

@@ -1,4 +1,5 @@
 """Test sessions."""
+# pylint: disable=possibly-unused-variable
 from datetime import datetime, timedelta
 from types import SimpleNamespace
 

@@ -2,7 +2,7 @@ from sqlalchemy.exc import IntegrityError
 
 import pytest
 
-import funnel.models as models
+from funnel import models
 
 
 def test_scopemixin_scope(db_session, client_hex, user_rincewind):

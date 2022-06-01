@@ -8,7 +8,7 @@ from unittest.mock import patch
 from furl import furl
 import pytest
 
-import funnel.models.shortlink as shortlink
+from funnel.models import shortlink
 
 
 class MockRandomBigint:

@@ -22,7 +22,6 @@ def project_url(client, project_expo2010):
 @pytest.fixture
 def promoter_login(login, user_vetinari):
     login.as_(user_vetinari)
-    return None
 
 
 def test_project_url_is_as_expected(project_url):
@@ -35,7 +34,7 @@ def test_project_url_is_as_expected(project_url):
 @pytest.mark.parametrize(
     ['page', 'xhr', 'use_login'], product(subpages, xhr_headers, login_sessions)
 )
-def test_default_is_html(
+def test_default_is_html(  # pylint: disable=too-many-arguments
     request,
     client,
     use_login: Optional[str],
@@ -57,7 +56,7 @@ def test_default_is_html(
 @pytest.mark.parametrize(
     ['page', 'xhr', 'use_login'], product(subpages, xhr_headers, login_sessions)
 )
-def test_html_response(
+def test_html_response(  # pylint: disable=too-many-arguments
     request,
     client,
     use_login: Optional[str],
@@ -92,7 +91,7 @@ def test_json_response(
 @pytest.mark.parametrize(
     ['page', 'xhr', 'use_login'], product(subpages, xhr_headers, login_sessions)
 )
-def test_htmljson_response(
+def test_htmljson_response(  # pylint: disable=too-many-arguments
     request,
     client,
     use_login: Optional[str],

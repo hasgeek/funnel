@@ -58,7 +58,7 @@ def test_merge_without_membership(
     assert set(org_ankhmorpork.admin_users) == {user_vetinari}
 
 
-def test_merge_with_death_membership(
+def test_merge_with_death_membership(  # pylint: disable=too-many-arguments
     db_session,
     org_ankhmorpork,
     user_death,
@@ -79,7 +79,7 @@ def test_merge_with_death_membership(
     assert death_membership.revoked_at is None
 
 
-def test_merge_with_rincewind_membership(
+def test_merge_with_rincewind_membership(  # pylint: disable=too-many-arguments
     db_session,
     org_ankhmorpork,
     user_death,
@@ -100,7 +100,7 @@ def test_merge_with_rincewind_membership(
     assert rincewind_membership.revoked_at is None
 
 
-def test_merge_with_admin_membership(
+def test_merge_with_admin_membership(  # pylint: disable=too-many-arguments
     db_session,
     org_ankhmorpork,
     user_death,
@@ -128,7 +128,7 @@ def test_merge_with_admin_membership(
     assert rincewind_membership.revoked_at is not None
 
 
-def test_merge_with_death_owner_membership(
+def test_merge_with_death_owner_membership(  # pylint: disable=too-many-arguments
     db_session,
     org_ankhmorpork,
     user_death,
@@ -156,7 +156,7 @@ def test_merge_with_death_owner_membership(
     assert rincewind_membership.revoked_at is not None
 
 
-def test_merge_with_rincewind_owner_membership(
+def test_merge_with_rincewind_owner_membership(  # pylint: disable=too-many-arguments
     db_session,
     org_ankhmorpork,
     user_death,
@@ -184,7 +184,7 @@ def test_merge_with_rincewind_owner_membership(
     assert rincewind_owner_membership.revoked_at is not None
 
 
-def test_merge_with_owner_membership(
+def test_merge_with_owner_membership(  # pylint: disable=too-many-arguments
     db_session,
     org_ankhmorpork,
     user_death,
@@ -216,7 +216,7 @@ def test_merge_with_owner_membership(
     assert rincewind_owner_membership.revoked_at is not None
 
 
-def test_merge_multiple_memberships(
+def test_merge_multiple_memberships(  # pylint: disable=too-many-arguments
     db_session,
     org_ankhmorpork,
     org_uu,

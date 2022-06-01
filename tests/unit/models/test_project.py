@@ -54,7 +54,9 @@ def test_cfp_state_draft(db_session, new_organization, new_project):
     assert new_project not in new_organization.profile.draft_projects
 
 
-def test_project_dates(db_session, new_project):
+def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
+    db_session, new_project
+):
     # without any session the project will have no start and end dates
     assert new_project.sessions.count() == 0
     assert new_project.schedule_start_at is None
@@ -105,15 +107,14 @@ def test_project_dates(db_session, new_project):
     invalidate_cache(new_project)
 
     # both session dates are in same month, hence the format below.
+    f_start_at = start_time_a.day
+    f_end_at = end_time_b.day
+    f_month = start_time_a.strftime('%b')
+    f_year = end_time_b.year
+    f_location = new_project.location
     assert (
         new_project.datelocation
-        == "{start_at}–{end_at} {month} {year}, {location}".format(
-            start_at=start_time_a.day,
-            end_at=end_time_b.day,
-            month=start_time_a.strftime("%b"),
-            year=end_time_b.year,
-            location=new_project.location,
-        )
+        == f'{f_start_at}–{f_end_at} {f_month} {f_year}, {f_location}'
     )
 
     # The sessions are in different months
@@ -135,16 +136,15 @@ def test_project_dates(db_session, new_project):
     # Invalidate property cache
     invalidate_cache(new_project)
 
-    assert (
-        new_project.datelocation
-        == "{start_date} {start_month}–{end_date} {end_month} {year}, {location}".format(
-            start_date=new_session_a.start_at.strftime("%d"),
-            start_month=new_session_a.start_at.strftime("%b"),
-            end_date=new_session_b.end_at.strftime("%d"),
-            end_month=new_session_b.end_at.strftime("%b"),
-            year=new_session_b.end_at.year,
-            location=new_project.location,
-        )
+    f_start_date = new_session_a.start_at.strftime('%d')
+    f_start_month = new_session_a.start_at.strftime('%b')
+    f_end_date = new_session_b.end_at.strftime('%d')
+    f_end_month = new_session_b.end_at.strftime('%b')
+    f_year = new_session_b.end_at.year
+    f_loc = new_project.location
+
+    assert new_project.datelocation == (
+        f'{f_start_date} {f_start_month}–{f_end_date} {f_end_month} {f_year}, {f_loc}'
     )
 
     # Both sessions are on same day
@@ -166,14 +166,14 @@ def test_project_dates(db_session, new_project):
     # Invalidate property cache
     invalidate_cache(new_project)
 
+    f_start_date = new_session_a.start_at.strftime('%d')
+    f_end_month = new_session_b.end_at.strftime('%b')
+    f_year = new_session_b.end_at.year
+    f_location = new_project.location
+
     assert (
         new_project.datelocation
-        == "{start_date} {end_month} {year}, {location}".format(
-            start_date=new_session_a.start_at.strftime("%d"),
-            end_month=new_session_b.end_at.strftime("%b"),
-            year=new_session_b.end_at.year,
-            location=new_project.location,
-        )
+        == f'{f_start_date} {f_end_month} {f_year}, {f_location}'
     )
 
     # The sessions are in different years
@@ -195,17 +195,17 @@ def test_project_dates(db_session, new_project):
     # Invalidate property cache
     invalidate_cache(new_project)
 
+    f_start_date = new_session_a.start_at.strftime('%d')
+    f_start_month = new_session_a.start_at.strftime('%b')
+    f_end_date = new_session_b.end_at.strftime('%d')
+    f_end_month = new_session_b.end_at.strftime('%b')
+    f_start_year = new_session_a.start_at.strftime('%Y')
+    f_end_year = new_session_b.end_at.strftime('%Y')
+    f_location = new_project.location
+
     assert (
-        new_project.datelocation
-        == "{start_date} {start_month} {start_year}–{end_date} {end_month} {end_year}, {location}".format(
-            start_date=new_session_a.start_at.strftime("%d"),
-            start_month=new_session_a.start_at.strftime("%b"),
-            end_date=new_session_b.end_at.strftime("%d"),
-            end_month=new_session_b.end_at.strftime("%b"),
-            start_year=new_session_a.start_at.strftime("%Y"),
-            end_year=new_session_b.end_at.strftime("%Y"),
-            location=new_project.location,
-        )
+        new_project.datelocation == f'{f_start_date} {f_start_month} {f_start_year}'
+        f'–{f_end_date} {f_end_month} {f_end_year}, {f_location}'
     )
 
 

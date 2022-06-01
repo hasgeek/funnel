@@ -53,7 +53,7 @@ class ResponseWithForms(Response):
             self._parsed_html = fromstring(self.data)
 
             # add click method to all links
-            def _click(self, client, **kwargs):
+            def _click(self, client, **kwargs):  # pylint: disable=redefined-outer-name
                 # `self` is the `a` element here
                 path = self.attrib['href']
                 return client.get(path, **kwargs)
@@ -62,7 +62,9 @@ class ResponseWithForms(Response):
                 link.click = MethodType(_click, link)  # type: ignore[attr-defined]
 
             # add submit method to all forms
-            def _submit(self, client, path=None, **kwargs):
+            def _submit(
+                self, client, path=None, **kwargs
+            ):  # pylint: disable=redefined-outer-name
                 # `self` is the `form` element here
                 data = dict(self.form_values())
                 if 'data' in kwargs:
@@ -155,7 +157,10 @@ def db_session(database, db_connection):
     # https://docs.sqlalchemy.org/en/13/orm/session_transaction.html#joining-a-session-into-an-external-transaction-such-as-for-test-suites
     @event.listens_for(database.session, 'after_transaction_end')
     def restart_savepoint(session, transaction_in):
-        if transaction_in.nested and not transaction_in._parent.nested:
+        if (
+            transaction_in.nested
+            and not transaction_in._parent.nested  # pylint: disable=protected-access
+        ):
             session.expire_all()
             session.begin_nested()
 
@@ -615,15 +620,15 @@ def client_hex(db_session, org_uu):
     Owned by UU (owner) and administered by Ponder Stibbons (no corresponding role).
     """
     # TODO: AuthClient needs to move to profile as parent
-    client = AuthClient(
+    auth_client = AuthClient(
         title="Hex",
         organization=org_uu,
         confidential=True,
         website='https://example.org/',
         redirect_uris=['https://example.org/callback'],
     )
-    db_session.add(client)
-    return client
+    db_session.add(auth_client)
+    return auth_client
 
 
 @pytest.fixture
@@ -634,7 +639,7 @@ def client_hex_credential(db_session, client_hex):
 
 
 @pytest.fixture
-def all_fixtures(
+def all_fixtures(  # pylint: disable=too-many-arguments,too-many-locals
     db_session,
     user_twoflower,
     user_rincewind,

@@ -1,3 +1,4 @@
+# pylint: disable=possibly-unused-variable
 from types import SimpleNamespace
 
 from sqlalchemy.exc import StatementError
@@ -77,34 +78,36 @@ def test_reopen():
         pass
 
     class OriginalClass:
-        def foo(self):
-            return "foo"
+        def spam(self):
+            return "spam"
 
     saved_reference = OriginalClass
 
     @reopen(OriginalClass)
     class ReopenedClass:
-        def bar(self):
-            return "bar"
+        def eggs(self):
+            return "eggs"
 
     # The decorator returns the original class with the decorated class's contents
     assert ReopenedClass is OriginalClass
     assert saved_reference is ReopenedClass
-    assert ReopenedClass.foo is OriginalClass.foo
-    assert ReopenedClass.bar is OriginalClass.bar
+    assert ReopenedClass.spam is OriginalClass.spam
+    assert ReopenedClass.eggs is OriginalClass.eggs
 
     # The decorator will refuse to process classes with base classes
     with pytest.raises(TypeError):
 
         @reopen(OriginalClass)
-        class Subclass(UnrelatedMixin):
+        class Subclass(UnrelatedMixin):  # pylint: disable=unused-variable
             pass
 
     # The decorator will refuse to process classes with metaclasses
     with pytest.raises(TypeError):
 
         @reopen(OriginalClass)
-        class HasMetaclass(with_metaclass=UnrelatedMixin):
+        class HasMetaclass(  # pylint: disable=unused-variable
+            with_metaclass=UnrelatedMixin
+        ):
             pass
 
     # The decorator will refuse to process classes that affect the original's attributes
@@ -112,45 +115,45 @@ def test_reopen():
     with pytest.raises(TypeError):
 
         @reopen(OriginalClass)
-        class HasSlots:
-            __slots__ = ['foo', 'bar']
+        class HasSlots:  # pylint: disable=unused-variable
+            __slots__ = ['spam', 'eggs']
 
 
 def test_add_to_class():
     """Add to class adds new attributes to a class."""
 
     class ReferenceClass:
-        def foo(self):
-            return 'is_foo'
+        def spam(self):
+            return 'is_spam'
 
-    assert ReferenceClass().foo() == 'is_foo'
-    assert not hasattr(ReferenceClass, 'bar')
+    assert ReferenceClass().spam() == 'is_spam'
+    assert not hasattr(ReferenceClass, 'eggs')
 
     # New methods can be added
     @add_to_class(ReferenceClass)
-    def bar(self):  # skipcq: PTC-W0065
-        return 'is_bar'
+    def eggs(self):  # skipcq: PTC-W0065
+        return 'is_eggs'
 
-    assert hasattr(ReferenceClass, 'bar')
-    assert ReferenceClass().bar() == 'is_bar'
-    assert not hasattr(ReferenceClass, 'foobar')
-    assert not hasattr(ReferenceClass, 'foobar_property')
+    assert hasattr(ReferenceClass, 'eggs')
+    assert ReferenceClass().eggs() == 'is_eggs'
+    assert not hasattr(ReferenceClass, 'spameggs')
+    assert not hasattr(ReferenceClass, 'spameggs_property')
 
     # New methods can have a custom name and can take any decorator valid in the class
-    @add_to_class(ReferenceClass, 'foobar')
+    @add_to_class(ReferenceClass, 'spameggs')
     @property
-    def foobar_property(self):
-        return 'is_foobar'
+    def spameggs_property(self):
+        return 'is_spameggs'
 
-    assert hasattr(ReferenceClass, 'foobar')
-    assert not hasattr(ReferenceClass, 'foobar_property')
-    assert ReferenceClass.foobar is foobar_property
-    assert ReferenceClass().foobar == 'is_foobar'
+    assert hasattr(ReferenceClass, 'spameggs')
+    assert not hasattr(ReferenceClass, 'spameggs_property')
+    assert ReferenceClass.spameggs is spameggs_property
+    assert ReferenceClass().spameggs == 'is_spameggs'
 
     # Existing attributes cannot be replaced
     with pytest.raises(AttributeError):
 
-        @add_to_class(ReferenceClass, 'foobar')
+        @add_to_class(ReferenceClass, 'spameggs')
         def new_foobar(self):
             pass
 

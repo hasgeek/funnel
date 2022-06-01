@@ -1,3 +1,4 @@
+# pylint: disable=possibly-unused-variable
 from datetime import timedelta
 from types import SimpleNamespace
 
@@ -53,12 +54,12 @@ def fixtures(db_session):
 
 @pytest.fixture
 def notification(db_session, fixtures):
-    notification = OrganizationAdminMembershipNotification(
+    new_notification = OrganizationAdminMembershipNotification(
         document=fixtures.org, fragment=fixtures.membership
     )
-    db_session.add(notification)
+    db_session.add(new_notification)
     db_session.commit()
-    return notification
+    return new_notification
 
 
 @pytest.fixture
@@ -149,8 +150,8 @@ def test_merge_with_user2_notifications(db_session, fixtures, user2_notification
     """Merge without only user2 notifications gets it transferred to user1."""
     assert Notification.query.count() == 1
     assert UserNotification.query.count() == 1
-    notification = UserNotification.query.one()
-    assert notification.user == fixtures.user2
+    new_notification = UserNotification.query.one()
+    assert new_notification.user == fixtures.user2
     merged = merge_users(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
@@ -159,8 +160,8 @@ def test_merge_with_user2_notifications(db_session, fixtures, user2_notification
     # Since user_id is part of the primary key of UserNotification, session.commit()
     # won't refresh it. It can no longer find that pkey. Therefore we must load it
     # afresh from db for the test here
-    notification = UserNotification.query.one()
-    assert notification.user == fixtures.user1
+    second_notification = UserNotification.query.one()
+    assert second_notification.user == fixtures.user1
 
 
 def test_merge_with_dupe_notifications(
@@ -207,7 +208,7 @@ def test_merge_with_user2_preferences(
     assert user2_test_preferences.user == fixtures.user1
 
 
-def test_merge_with_both_preferences(
+def test_merge_with_both_preferences(  # pylint: disable=too-many-arguments
     db_session,
     fixtures,
     user1_main_preferences,

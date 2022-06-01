@@ -1,3 +1,4 @@
+# pylint: disable=attribute-defined-outside-init
 import unittest
 
 import pytest

@@ -1,7 +1,7 @@
 import pytest
 
 from coaster.sqlalchemy import StateTransitionError
-import funnel.models as models
+from funnel import models
 
 
 def test_organization_init(db_session, user_twoflower):

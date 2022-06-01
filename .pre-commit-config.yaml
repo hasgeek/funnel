@@ -48,7 +48,7 @@ repos:
           - flake8-blind-except==0.2.1
           - flake8-bugbear==22.4.25
           - flake8-builtins==1.5.3
-          - flake8-comprehensions==3.9.0
+          - flake8-comprehensions==3.10.0
           - flake8-docstrings==1.6.0
           - flake8-isort==4.1.1
           - flake8-logging-format==0.6.0
@@ -84,14 +84,14 @@ repos:
           - types-jinja2==2.11.9
           - types-markupsafe==1.1.10
           - types-maxminddb==1.5.0
-          - types-python-dateutil==2.8.15
+          - types-python-dateutil==2.8.17
           - types-pytz==2021.3.8
-          - types-requests==2.27.25
-          - types-setuptools==57.4.14
+          - types-requests==2.27.29
+          - types-setuptools==57.4.17
           - types-simplejson==3.17.6
           - types-six==1.16.15
           - types-toml==0.10.7
-          - types-urllib3==1.26.14
+          - types-urllib3==1.26.15
           - types-werkzeug==1.0.9
   - repo: https://github.com/PyCQA/flake8
     rev: 4.0.1
@@ -104,6 +104,7 @@ repos:
   #     - id: pylint
   #       additional_dependencies:
   #         - toml
+  #         - pylint-pytest
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.4
     hooks:
