@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from flask import abort
 
+from baseframe import forms
 from coaster.auth import current_auth
 from coaster.views import ClassView, render_with, requestargs, route
-import baseframe.forms as forms
 
 from .. import app
 from ..models import UserNotification, db

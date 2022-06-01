@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, Union
 
-from baseframe import __
-import baseframe.forms as forms
+from baseframe import __, forms
 
 from ..models import (
     PASSWORD_MAX_LENGTH,

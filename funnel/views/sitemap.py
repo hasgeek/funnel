@@ -24,6 +24,8 @@ from .index import policy_pages
 
 
 class ChangeFreq(str, Enum):
+    """Enum for sitemap change frequency."""
+
     always = 'always'
     hourly = 'hourly'
     daily = 'daily'
@@ -39,12 +41,16 @@ class ChangeFreq(str, Enum):
 
 @dataclass
 class SitemapIndex:
+    """Sitemap index."""
+
     loc: str
     lastmod: Optional[datetime] = None
 
 
 @dataclass
 class SitemapPage:
+    """Sitemap page."""
+
     loc: str
     lastmod: Optional[datetime] = None
     changefreq: Optional[ChangeFreq] = None

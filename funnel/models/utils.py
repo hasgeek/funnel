@@ -11,7 +11,7 @@ import phonenumbers
 
 from ..typing import OptionalMigratedTables
 from ..utils import PHONE_LOOKUP_REGIONS
-from .user import User, UserEmail, UserEmailClaim, UserExternalId, UserPhone, db
+from .user import Anchor, User, UserEmail, UserEmailClaim, UserExternalId, UserPhone, db
 
 __all__ = [
     'IncompleteUserMigrationError',
@@ -27,8 +27,10 @@ class IncompleteUserMigrationError(Exception):
 
 
 class UserAndAnchor(NamedTuple):
+    """User and anchor used to find the user (usable as a 2-tuple)."""
+
     user: Optional[User]
-    anchor: Union[None, UserEmail, UserEmailClaim, UserPhone]
+    anchor: Optional[Anchor]
 
 
 @overload
@@ -117,6 +119,7 @@ def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnc
 
 
 def getextid(service: str, userid: str) -> Optional[UserExternalId]:
+    """Return a matching external id."""
     return UserExternalId.get(service=service, userid=userid)
 
 

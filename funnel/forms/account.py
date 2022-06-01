@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-import phonenumbers
+from typing import Optional
 
-from baseframe import _, __
+from baseframe import _, __, forms
 from coaster.auth import current_auth
 from coaster.utils import sorted_timezones
-import baseframe.forms as forms
 
 from ..models import (
     MODERATOR_REPORT_TYPE,
     PASSWORD_MAX_LENGTH,
     PASSWORD_MIN_LENGTH,
+    Anchor,
     Profile,
     User,
     UserEmailClaim,
@@ -19,6 +19,7 @@ from ..models import (
     check_password_strength,
     getuser,
 )
+from ..utils import normalize_phone_number
 from .helpers import EmailAddressAvailable, strip_filters
 
 __all__ = [
@@ -193,6 +194,9 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
 
     __returns__ = ('user', 'anchor')
 
+    user: Optional[User] = None
+    anchor: Optional[Anchor] = None
+
     username = forms.StringField(
         __("Phone number or email address"),
         validators=[forms.validators.DataRequired()],
@@ -204,7 +208,7 @@ class PasswordResetRequestForm(forms.RecaptchaForm):
 
     def validate_username(self, field):
         """Process username to retrieve user."""
-        self.user, self.anchor = getuser(field.data, True)  # skipcq: PYL-W0201
+        self.user, self.anchor = getuser(field.data, True)
         if self.user is None:
             raise forms.ValidationError(_("Could not find a user with that id"))
 
@@ -506,19 +510,11 @@ class NewPhoneForm(forms.RecaptchaForm):
 
     def validate_phone(self, field):
         # Step 1: Validate number
-        try:
-            # Assume Indian number if no country code is specified
-            # TODO: Guess country from IP address
-            parsed_number = phonenumbers.parse(field.data, 'IN')
-            if not phonenumbers.is_valid_number(parsed_number):
-                raise ValueError("Invalid number")
-        except (phonenumbers.NumberParseException, ValueError):
+        number = normalize_phone_number(field.data)
+        if not number:
             raise forms.StopValidation(
                 _("This does not appear to be a valid phone number")
             )
-        number = phonenumbers.format_number(
-            parsed_number, phonenumbers.PhoneNumberFormat.E164
-        )
         # Step 2: Check if number has already been claimed
         existing = UserPhone.get(phone=number)
         if existing is not None:
@@ -526,10 +522,7 @@ class NewPhoneForm(forms.RecaptchaForm):
                 raise forms.ValidationError(
                     _("You have already registered this phone number")
                 )
-            else:
-                raise forms.ValidationError(
-                    _("This phone number has already been claimed")
-                )
+            raise forms.ValidationError(_("This phone number has already been claimed"))
         existing = UserPhoneClaim.get_for(user=current_auth.user, phone=number)
         if existing is not None:
             raise forms.ValidationError(_("This phone number is pending verification"))

@@ -7,7 +7,6 @@ from flask import Response, g, jsonify, render_template, url_for
 
 from baseframe import _, __
 from baseframe.filters import date_filter
-from coaster.auth import current_auth
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, pages
@@ -17,6 +16,8 @@ from ..models import Project, db
 
 @dataclass
 class PolicyPage:
+    """Policy page."""
+
     path: str
     title: str
 
@@ -113,14 +114,6 @@ class IndexView(ClassView):
 
 
 IndexView.init_app(app)
-
-
-@app.route('/api/whoami')
-def whoami():
-    if current_auth.user:
-        return jsonify(message=f"Hey {current_auth.user.fullname}!", code=200)
-    else:
-        return jsonify(message="Hmm, so who _are_ you?", code=401)
 
 
 @app.route('/past.json')

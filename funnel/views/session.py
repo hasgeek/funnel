@@ -104,8 +104,7 @@ def session_edit(
                 'proposal_id': session.proposal_id,  # FIXME: Switch to UUID
             }
             return jsonify(status=True, data=data)
-        else:
-            return redirect(session.url_for('view'))
+        return redirect(session.url_for('view'))
     return jsonify(
         status=False,
         form=render_template(

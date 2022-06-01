@@ -224,7 +224,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
             if user is None:
                 raise ValueError("User not provided")
             return AuthToken.get_for(auth_client=self, user=user)
-        elif user_session and user_session.user == user:
+        if user_session and user_session.user == user:
             return AuthToken.get_for(auth_client=self, user_session=user_session)
         return None
 
@@ -254,13 +254,12 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
     def all_for(cls, user: Optional[User]):
         if user is None:
             return cls.query.order_by(cls.title)
-        else:
-            return cls.query.filter(
-                db.or_(
-                    cls.user == user,
-                    cls.organization_id.in_(user.organizations_as_owner_ids()),
-                )
-            ).order_by(cls.title)
+        return cls.query.filter(
+            db.or_(
+                cls.user == user,
+                cls.organization_id.in_(user.organizations_as_owner_ids()),
+            )
+        ).order_by(cls.title)
 
 
 class AuthClientCredential(BaseMixin, db.Model):
@@ -443,8 +442,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
     def user(self) -> User:
         if self.user_session:
             return self.user_session.user
-        else:
-            return self._user
+        return self._user
 
     @user.setter
     def user(self, value: User):
@@ -574,10 +572,9 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         require_one_of(user=user, user_session=user_session)
         if user is not None:
             return cls.query.filter_by(auth_client=auth_client, user=user).one_or_none()
-        else:
-            return cls.query.filter_by(
-                auth_client=auth_client, user_session=user_session
-            ).one_or_none()
+        return cls.query.filter_by(
+            auth_client=auth_client, user_session=user_session
+        ).one_or_none()
 
     @classmethod
     def all(  # noqa: A003
@@ -591,7 +588,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
             count = users.count()
             if count == 1:
                 return query.filter_by(user=users.first()).all()
-            elif count > 1:
+            if count > 1:
                 return query.filter(
                     AuthToken.user_id.in_(users.options(load_only('id')))
                 ).all()
@@ -602,7 +599,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
                 # may not be an actual list with indexed access. For example,
                 # Organization.owner_users is a DynamicAssociationProxy.
                 return query.filter_by(user=tuple(users)[0]).all()
-            elif count > 1:
+            if count > 1:
                 return query.filter(AuthToken.user_id.in_([u.id for u in users])).all()
 
         return []

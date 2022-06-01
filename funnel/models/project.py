@@ -795,8 +795,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
     def redirect_view_args(self):
         if self.project:
             return {'profile': self.profile.name, 'project': self.project.name}
-        else:
-            return {}
+        return {}
 
     @classmethod
     def add(cls, project, profile=None, name=None):

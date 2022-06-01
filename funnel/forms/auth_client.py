@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from urllib.parse import urlparse
 
-from baseframe import _, __
+from baseframe import _, __, forms
 from coaster.utils import getbool
-import baseframe.forms as forms
 
 from ..models import (
     AuthClient,

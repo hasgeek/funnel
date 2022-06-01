@@ -120,10 +120,15 @@ plugins = ['sqlmypy']
 [tool.pylint.message_control]
 max-line-length = 88
 disable = [
+  'cyclic-import',
   'duplicate-code',
   'fixme',
   'invalid-name',
   'no-member',
+  'no-self-use',
+  'too-few-public-methods',
+  'too-many-instance-attributes',
+  'too-many-lines',
   'unused-argument',
 ]
 

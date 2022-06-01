@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections import namedtuple
 from typing import Optional, Union
 
 from flask import flash, jsonify, redirect, request, url_for
@@ -38,8 +37,6 @@ from ..typing import ReturnRenderWith, ReturnView
 from .decorators import etag_cache_for_user, xhr_only
 from .login_session import requires_login
 from .notification import dispatch_notification
-
-ProposalComment = namedtuple('ProposalComment', ['proposal', 'comment'])
 
 
 @project_role_change.connect

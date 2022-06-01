@@ -493,8 +493,7 @@ class __Project:
             return Proposal.query.filter(
                 Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
             )
-        else:
-            return self.proposals
+        return self.proposals
 
     @property
     def proposals_by_state(self):

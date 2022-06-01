@@ -124,9 +124,9 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         )
 
         if not archived:
-            # If archived == True: return everything (contacts including archived contacts)
-            # if archived == False: return only unarchived contacts
-            query = query.filter(cls.archived == False)  # noqa: E712
+            # If archived: return everything (contacts including archived contacts)
+            # If not archived: return only unarchived contacts
+            query = query.filter(cls.archived.is_(False))
 
         # from_self turns `SELECT columns` into `SELECT new_columns FROM (SELECT columns)`
         query = (
@@ -219,13 +219,16 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         return groups
 
     @classmethod
-    def contacts_for_project_and_date(cls, user, project, date, archived=False):
+    def contacts_for_project_and_date(
+        cls, user: User, project: Project, date: datetime, archived=False
+    ):
         """Return contacts for a given user, project and date."""
         query = cls.query.join(TicketParticipant).filter(
             cls.user == user,
-            # For safety always use objects instead of column values. The following expression
-            # should have been `Participant.project == project`. However, we are using `id` here
-            # because `project` may be an instance of ProjectId returned by `grouped_counts_for`
+            # For safety always use objects instead of column values. The following
+            # expression should have been `Participant.project == project`. However, we
+            # are using `id` here because `project` may be an instance of ProjectId
+            # returned by `grouped_counts_for`
             TicketParticipant.project_id == project.id,
             db.cast(
                 db.func.date_trunc(
@@ -236,9 +239,9 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             == date,
         )
         if not archived:
-            # If archived == True: return everything (contacts including archived contacts)
-            # if archived == False: return only unarchived contacts
-            query = query.filter(cls.archived == False)  # noqa: E712
+            # If archived: return everything (contacts including archived contacts)
+            # If not archived: return only unarchived contacts
+            query = query.filter(cls.archived.is_(False))
 
         return query
 
@@ -247,13 +250,14 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         """Return contacts for a given user and project."""
         query = cls.query.join(TicketParticipant).filter(
             cls.user == user,
-            # See explanation for the following expression in `contacts_for_project_and_date`
+            # See explanation for the following expression in
+            # `contacts_for_project_and_date`
             TicketParticipant.project_id == project.id,
         )
         if not archived:
-            # If archived == True: return everything (contacts including archived contacts)
-            # if archived == False: return only unarchived contacts
-            query = query.filter(cls.archived == False)  # noqa: E712
+            # If archived: return everything (contacts including archived contacts)
+            # If not archived: return only unarchived contacts
+            query = query.filter(cls.archived.is_(False))
         return query
 
 

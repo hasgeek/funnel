@@ -151,8 +151,7 @@ class Label(BaseScopedNameMixin, db.Model):
     def title_for_name(self):
         if self.main_label:
             return f"{self.main_label.title}/{self.title}"
-        else:
-            return self.title
+        return self.title
 
     @property
     def form_label_text(self):
@@ -166,8 +165,7 @@ class Label(BaseScopedNameMixin, db.Model):
     def has_proposals(self):
         if not self.has_options:
             return bool(self.proposals)
-        else:
-            return any(bool(option.proposals) for option in self.options)
+        return any(bool(option.proposals) for option in self.options)
 
     @hybrid_property
     def restricted(self):
@@ -260,8 +258,7 @@ class Label(BaseScopedNameMixin, db.Model):
         """Represent :class:`Label` as a string."""
         if self.main_label:
             return f"<Label {self.main_label.name}/{self.name}>"
-        else:
-            return "<Label %s>" % self.name
+        return "<Label %s>" % self.name
 
     def apply_to(self, proposal):
         if self.has_options:
@@ -363,8 +360,7 @@ class ProposalLabelProxy:
         """Get proposal label proxy."""
         if obj is not None:
             return ProposalLabelProxyWrapper(obj)
-        else:
-            return self
+        return self
 
 
 @reopen(Project)
