@@ -347,7 +347,9 @@ def login() -> ReturnView:
     elif request.method == 'POST':
         # This should not happen. We received an incomplete form.
         abort(403)
-    if request_is_xhr():
+    if request_is_xhr() and formid == 'passwordlogin':
+        return render_login_form(loginform)
+    elif request_is_xhr() and request.method == 'GET':
         return render_login_form(loginform)
     return (
         render_template(
