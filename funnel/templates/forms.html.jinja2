@@ -342,6 +342,38 @@
   <script type="text/javascript">
     $(function() {
   {%- endif %}
+
+
+  $('.js-show-password').on('click', function () {
+    $(this).parent().find('.js-password-toggle').toggleClass('mui--hide');
+    $(this).parent().find('input').attr('type', 'text');
+  });
+
+  $('.js-hide-password').on('click', function () {
+    $(this).parent().find('.js-password-toggle').toggleClass('mui--hide');
+    $(this).parent().find('input').attr('type', 'password');
+  });
+
+
+  //Toggle between OTP/Password login
+  $('.js-toggle-login').on('click', function(event) {
+    event.preventDefault();
+    $('.js-fields-toggle').toggleClass('mui--hide');
+  });
+
+  $('.js-password-field input').on('change', function() {
+    if($('.js-password-field').hasClass('mui--hide')) {
+      $('.js-fields-toggle').toggleClass('mui--hide');
+    }
+  });
+
+  $('.js-keyboard-switcher').on('click touchstart touchend', function(event) {
+    event.preventDefault();
+    $('.js-keyboard-switcher').removeClass('mui--hide');
+    $(this).addClass('mui--hide');
+    $('#username').attr('inputmode', $(this).data('inputmode'));
+  });
+
   // Toggle username field input mode to tel/email to change keyboard in mobile
   if($('#username').length > 0) {
     $('#username').attr('inputmode', 'tel');

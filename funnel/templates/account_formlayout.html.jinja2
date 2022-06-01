@@ -221,36 +221,6 @@
         });
       }
 
-      $('body').on('click', '.js-show-password', function () {
-        $(this).parent().find('.js-password-toggle').toggleClass('mui--hide');
-        $(this).parent().find('input').attr('type', 'text');
-      });
-
-      $('body').on('click', '.js-hide-password', function () {
-        $(this).parent().find('.js-password-toggle').toggleClass('mui--hide');
-        $(this).parent().find('input').attr('type', 'password');
-      });
-
-
-      //Toggle between OTP/Password login
-      $('body').on('click', '.js-toggle-login', function(event) {
-        event.preventDefault();
-        $('.js-fields-toggle').toggleClass('mui--hide');
-      });
-
-      $('.js-password-field input').on('change', function() {
-        if($('.js-password-field').hasClass('mui--hide')) {
-          $('.js-fields-toggle').toggleClass('mui--hide');
-        }
-      });
-
-      $('body').on('click touchstart touchend', '.js-keyboard-switcher', function(event) {
-        event.preventDefault();
-        $('.js-keyboard-switcher').removeClass('mui--hide');
-        $(this).addClass('mui--hide');
-        $('#username').attr('inputmode', $(this).data('inputmode'));
-      });
-
     });
   </script>
 {% endblock %}
