@@ -106,9 +106,9 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
         if self.project is not None:
             return self.project
-        elif self.proposal is not None:
+        if self.proposal is not None:
             return self.proposal
-        elif self.update is not None:
+        if self.update is not None:
             return self.update
         raise TypeError("Commentset has an unknown parent")
 

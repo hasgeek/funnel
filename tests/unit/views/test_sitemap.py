@@ -37,14 +37,14 @@ def test_dates_have_timezone():
             assert dt.tzinfo is utc
 
     # Both functions will not accept naive timestamps
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='must be specified in UTC'):
         all_sitemap_months(naive_now)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='UTC timezone required'):
         all_sitemap_days(naive_now)
 
 
-def test_all_sitemap_months_days():
+def test_all_sitemap_months_days():  # pylint: disable=too-many-statements
     """The sitemap months and days ranges are contiguous."""
     # Test dates 14, 15, 16 & 17, at midnight and noon, to see month/day rollover
 

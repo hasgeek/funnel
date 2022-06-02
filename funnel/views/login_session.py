@@ -435,8 +435,6 @@ def requires_sudo(f):
                     # identifier should be included to reload to the same dialog the
                     # user was sent away from.
 
-                    # TODO: Remove this line before merging PR
-                    app.logger.debug("Raising requires_sudo error over JSON")
                     return make_response(
                         jsonify(
                             status='error',
@@ -447,10 +445,7 @@ def requires_sudo(f):
                         ),
                         422,
                     )
-                else:
-                    # TODO: Remove this line before merging PR
-                    app.logger.debug("Redirecting user to this page for requires_sudo")
-                    return render_template('redirect.html.jinja2', url=request.url)
+                return render_template('redirect.html.jinja2', url=request.url)
 
             return render_form(
                 form=form,

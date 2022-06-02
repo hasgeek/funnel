@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from collections import namedtuple
+from dataclasses import dataclass
 from datetime import timedelta
+from typing import Any
 import sys
 
 from flask.cli import AppGroup
@@ -18,7 +19,13 @@ from ..views.notification import dispatch_notification
 
 # --- Data sources ---------------------------------------------------------------------
 
-DataSource = namedtuple('DataSource', ['basequery', 'datecolumn'])
+
+@dataclass
+class DataSource:
+    """Source for data (query object and datetime column)."""
+
+    basequery: Any
+    datecolumn: Any
 
 
 def data_sources():

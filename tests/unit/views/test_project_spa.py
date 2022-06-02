@@ -11,18 +11,17 @@ subpages = ['', 'updates', 'comments', 'sub', 'schedule', 'videos', 'crew']
 # XHR header (without, with)
 xhr_headers = [None, {'X-Requested-With': 'xmlhttprequest'}]
 # Logins (anon, promoter fixture)
-login_sessions = [None, 'promoter_login']
+login_sessions = [None, '_promoter_login']
 
 
-@pytest.fixture
+@pytest.fixture()
 def project_url(client, project_expo2010):
     return urlsplit(project_expo2010.url_for()).path
 
 
-@pytest.fixture
-def promoter_login(login, user_vetinari):
+@pytest.fixture()
+def _promoter_login(login, user_vetinari):
     login.as_(user_vetinari)
-    return None
 
 
 def test_project_url_is_as_expected(project_url):
@@ -33,9 +32,9 @@ def test_project_url_is_as_expected(project_url):
 
 
 @pytest.mark.parametrize(
-    ['page', 'xhr', 'use_login'], product(subpages, xhr_headers, login_sessions)
+    ('page', 'xhr', 'use_login'), product(subpages, xhr_headers, login_sessions)
 )
-def test_default_is_html(
+def test_default_is_html(  # pylint: disable=too-many-arguments
     request,
     client,
     use_login: Optional[str],
@@ -55,9 +54,9 @@ def test_default_is_html(
 
 
 @pytest.mark.parametrize(
-    ['page', 'xhr', 'use_login'], product(subpages, xhr_headers, login_sessions)
+    ('page', 'xhr', 'use_login'), product(subpages, xhr_headers, login_sessions)
 )
-def test_html_response(
+def test_html_response(  # pylint: disable=too-many-arguments
     request,
     client,
     use_login: Optional[str],
@@ -76,7 +75,7 @@ def test_html_response(
     assert bool(xhr) ^ rv.data.decode('utf-8').startswith('<!DOCTYPE html>')
 
 
-@pytest.mark.parametrize(['page', 'use_login'], product(subpages, login_sessions))
+@pytest.mark.parametrize(('page', 'use_login'), product(subpages, login_sessions))
 def test_json_response(
     request, client, use_login: Optional[str], project_url: str, page: str
 ):
@@ -86,13 +85,14 @@ def test_json_response(
     rv = client.get(project_url + page, headers=headers)
     assert rv.status_code == 200
     assert rv.content_type == 'application/json'
-    assert 'status' in rv.json and rv.json['status'] == 'ok'
+    assert 'status' in rv.json
+    assert rv.json['status'] == 'ok'
 
 
 @pytest.mark.parametrize(
-    ['page', 'xhr', 'use_login'], product(subpages, xhr_headers, login_sessions)
+    ('page', 'xhr', 'use_login'), product(subpages, xhr_headers, login_sessions)
 )
-def test_htmljson_response(
+def test_htmljson_response(  # pylint: disable=too-many-arguments
     request,
     client,
     use_login: Optional[str],
@@ -108,6 +108,7 @@ def test_htmljson_response(
     rv = client.get(project_url + page, headers=headers)
     assert rv.status_code == 200
     assert rv.content_type == 'application/x.html+json; charset=utf-8'
-    assert 'status' in rv.json and rv.json['status'] == 'ok'
+    assert 'status' in rv.json
+    assert rv.json['status'] == 'ok'
     assert 'html' in rv.json
     assert bool(xhr) ^ rv.json['html'].startswith('<!DOCTYPE html>')

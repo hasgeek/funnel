@@ -3,7 +3,7 @@ from datetime import timedelta
 import pytest
 
 from coaster.utils import buid, utcnow
-import funnel.models as models
+from funnel import models
 
 sample_user_agent = (
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like'

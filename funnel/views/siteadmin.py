@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections import Counter, namedtuple
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import timedelta
 from functools import wraps
@@ -54,6 +54,12 @@ class AuthClientUserReport:
     title: str
     website: str
     counts: Dict[str, int] = field(default_factory=counts_template.copy)
+
+
+@dataclass
+class ReportCounter:
+    report_type: int
+    frequency: int
 
 
 def requires_siteadmin(f):
@@ -339,8 +345,6 @@ class SiteadminView(ClassView):
                 + [report_form.report_type.data]
             )
             # if there is already a report for this comment
-            ReportCounter = namedtuple('ReportCounter', ['report_type', 'frequency'])
-
             most_common_two = [
                 ReportCounter(report_type, frequency)
                 for report_type, frequency in report_counter.most_common(2)

@@ -273,7 +273,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         label=('scheduled', __("Confirmed &amp; scheduled")),
     )
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.AWAITING_DETAILS,
         state.DRAFT,
@@ -284,7 +284,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def withdraw(self):
         pass
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.DRAFT,
         state.SUBMITTED,
@@ -297,7 +297,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
 
     # TODO: remove project_editor once ProposalMembership UI
     # has been implemented
-    @with_roles(call={'project_editor'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.UNDO_TO_SUBMITTED,
         state.SUBMITTED,
@@ -308,7 +308,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def undo_to_submitted(self):
         pass
 
-    @with_roles(call={'project_editor'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.CONFIRMABLE,
         state.CONFIRMED,
@@ -319,7 +319,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def confirm(self):
         pass
 
-    @with_roles(call={'project_editor'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.CONFIRMED,
         state.SUBMITTED,
@@ -330,7 +330,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def unconfirm(self):
         pass
 
-    @with_roles(call={'project_editor'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.WAITLISTABLE,
         state.WAITLISTED,
@@ -341,7 +341,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def waitlist(self):
         pass
 
-    @with_roles(call={'project_editor'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.REJECTABLE,
         state.REJECTED,
@@ -352,7 +352,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def reject(self):
         pass
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.CANCELLABLE,
         state.CANCELLED,
@@ -363,7 +363,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def cancel(self):
         pass
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.CANCELLED,
         state.SUBMITTED,
@@ -374,7 +374,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def undo_cancel(self):
         pass
 
-    @with_roles(call={'project_editor'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.SUBMITTED,
         state.AWAITING_DETAILS,
@@ -385,7 +385,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def awaiting_details(self):
         pass
 
-    @with_roles(call={'project_editor'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.EVALUATEABLE,
         state.UNDER_EVALUATION,
@@ -396,7 +396,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def under_evaluation(self):
         pass
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.DELETABLE,
         state.DELETED,
@@ -493,8 +493,7 @@ class __Project:
             return Proposal.query.filter(
                 Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
             )
-        else:
-            return self.proposals
+        return self.proposals
 
     @property
     def proposals_by_state(self):
@@ -549,4 +548,5 @@ class __Project:
 
 
 # Tail imports
+# pylint: disable=wrong-import-position
 from .proposal_membership import ProposalMembership  # isort:skip

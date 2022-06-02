@@ -58,8 +58,7 @@ class GetTitleMixin(BaseScopedNameMixin):
             raise TypeError("Expects current_name xor current_title")
         if current_name:
             return cls.query.filter_by(parent=parent, name=current_name).one_or_none()
-        else:
-            return cls.query.filter_by(parent=parent, title=current_title).one_or_none()
+        return cls.query.filter_by(parent=parent, title=current_title).one_or_none()
 
     @classmethod
     def upsert(cls, parent, current_name=None, current_title=None, **fields):
@@ -541,4 +540,5 @@ class __Project:
 
 
 # Tail imports to avoid cyclic dependency errors, for symbols used only in methods
+# pylint: disable=wrong-import-position
 from .contact_exchange import ContactExchange  # isort:skip

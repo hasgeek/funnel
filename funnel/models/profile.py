@@ -282,10 +282,9 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def title(self) -> str:
         if self.user:
             return self.user.fullname
-        elif self.organization:
+        if self.organization:
             return self.organization.title
-        else:
-            return ''
+        return ''
 
     @title.setter
     def title(self, value: str) -> None:
@@ -363,11 +362,11 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         """
         if not name:
             return 'blank'
-        elif name.lower() in cls.reserved_names:
+        if name.lower() in cls.reserved_names:
             return 'reserved'
-        elif not valid_username(name):
+        if not valid_username(name):
             return 'invalid'
-        elif len(name) > cls.__name_length__:
+        if len(name) > cls.__name_length__:
             return 'long'
         existing = (
             cls.query.filter(db.func.lower(cls.name) == db.func.lower(name))
@@ -381,9 +380,9 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         if existing is not None:
             if existing.reserved:
                 return 'reserved'
-            elif existing.user_id:
+            if existing.user_id:
                 return 'user'
-            elif existing.organization_id:
+            if existing.organization_id:
                 return 'org'
         return None
 
@@ -420,8 +419,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     def teams(self) -> List:
         if self.organization:
             return self.organization.teams
-        else:
-            return []
+        return []
 
     @with_roles(call={'owner'})
     @state.transition(

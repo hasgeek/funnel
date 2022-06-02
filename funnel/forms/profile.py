@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from baseframe import _, __
-import baseframe.forms as forms
+from baseframe import _, __, forms
 
 from ..models import Profile
 from .helpers import image_url_validator, nullable_strip_filters
