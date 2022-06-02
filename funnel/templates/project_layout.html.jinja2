@@ -131,7 +131,7 @@
           <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% if project.features.follow_mode() %}{% trans %}Free updates{% endtrans %}{% else %}{% trans %}Free{% endtrans %}{% endif %}</p>
           <p class="mui--text-caption mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}</p>
         </div>
-        <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__btn js-login-register-btn" href="{{ url_for('login', next=request.path) }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
+        <a class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin register-block__btn js-login-register-btn" href="{{ url_for('login', next=request.path) }}%23register-modal" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
       {% elif project.features.rsvp_unregistered() -%}
         <div class="register-block__txt {% if project.view_for('rsvp_list').is_available() %}register-block__txt--short{%- endif %}">
           <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% if project.features.follow_mode() %}{% trans %}Free updates{% endtrans %}{% else %}{% trans %}Free{% endtrans %}{% endif %}</p>
@@ -390,7 +390,6 @@
                       </div>
                     </div>
                   {% endif %}
-                  {{ registerblock(project) }}
                   {{ project_details(project) }}
                 </div>
               </div>
