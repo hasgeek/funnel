@@ -41,13 +41,13 @@ premailer
 progressbar2
 psycopg2-binary
 pycountry
+Pygments
 pyIsEmail
 pymdown-extensions
 python-dateutil
 python-dotenv
 pytz
 PyVimeo
-Pygments
 qrcode
 requests
 rq

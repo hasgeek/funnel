@@ -2,7 +2,7 @@ from sqlalchemy.exc import IntegrityError
 
 import pytest
 
-import funnel.models as models
+from funnel import models
 
 
 def test_scopemixin_scope(db_session, client_hex, user_rincewind):
@@ -31,7 +31,7 @@ def test_scopemixin_add_scope(db_session, client_hex, user_rincewind):
 def test_authcode_scope_null(db_session, client_hex, user_rincewind):
     """`AuthCode` can't have null scope but can have empty scope."""
     # Scope can't be None or empty
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Scope cannot be None'):
         models.AuthCode(
             auth_client=client_hex,
             user=user_rincewind,
@@ -71,7 +71,7 @@ def test_authcode_scope_null(db_session, client_hex, user_rincewind):
 def test_authtoken_scope_null(db_session, client_hex, user_rincewind):
     """`AuthToken` can't have null scope but can have empty scope."""
     # Scope can't be None or empty
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Scope cannot be None'):
         models.AuthToken(
             auth_client=client_hex,
             user=user_rincewind,

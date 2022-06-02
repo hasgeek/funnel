@@ -5,7 +5,7 @@ from coaster.sqlalchemy import ImmutableColumnError
 from funnel.models import SponsorMembership
 
 
-@pytest.fixture
+@pytest.fixture()
 def citywatch_sponsor(db_session, project_expo2010, org_citywatch, user_vetinari):
     """Add City Watch as a sponsor of Expo 2010."""
     sponsor = SponsorMembership(
@@ -19,7 +19,7 @@ def citywatch_sponsor(db_session, project_expo2010, org_citywatch, user_vetinari
     return sponsor
 
 
-@pytest.fixture
+@pytest.fixture()
 def uu_sponsor(db_session, project_expo2010, org_uu, user_vetinari):
     """Add Unseen University as a sponsor of Expo 2010."""
     sponsor = SponsorMembership(
@@ -33,7 +33,7 @@ def uu_sponsor(db_session, project_expo2010, org_uu, user_vetinari):
     return sponsor
 
 
-@pytest.fixture
+@pytest.fixture()
 def dibbler_sponsor(db_session, project_expo2010, user_dibbler, user_vetinari):
     """Add CMOT Dibbler as a promoted sponsor of Expo 2010."""
     sponsor = SponsorMembership(
@@ -48,7 +48,7 @@ def dibbler_sponsor(db_session, project_expo2010, user_dibbler, user_vetinari):
     return sponsor
 
 
-def test_auto_seq(
+def test_auto_seq(  # pylint: disable=too-many-arguments
     db_session, project_expo2010, org_citywatch, org_uu, user_dibbler, user_vetinari
 ):
     """Sequence numbers are auto-issued in commit order."""
@@ -86,7 +86,7 @@ def test_auto_seq(
     assert sponsor3.seq == 3
 
 
-def test_expo_has_sponsors(
+def test_expo_has_sponsors(  # pylint: disable=too-many-arguments
     db_session,
     project_expo2010,
     dibbler_sponsor,
@@ -124,7 +124,7 @@ def test_expo_sponsor_reorder(
     assert dibbler_sponsor.seq == 1
 
 
-def test_expo_sponsor_seq_reissue(
+def test_expo_sponsor_seq_reissue(  # pylint: disable=too-many-arguments
     db_session,
     project_expo2010,
     citywatch_sponsor,

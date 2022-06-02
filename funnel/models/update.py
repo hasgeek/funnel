@@ -215,9 +215,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     def __repr__(self) -> str:
         """Represent :class:`Update` as a string."""
-        return '<Update "{title}" {uuid_b58}>'.format(
-            title=self.title, uuid_b58=self.uuid_b58
-        )
+        return f'<Update "{self.title}" {self.uuid_b58}>'
 
     @property
     def visibility_label(self) -> str:

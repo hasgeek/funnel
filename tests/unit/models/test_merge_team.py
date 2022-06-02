@@ -6,7 +6,7 @@ import pytest
 from funnel.models import Organization, Team, User, db, merge_users
 
 
-@pytest.fixture
+@pytest.fixture()
 def team_merge_data(db_session):
     user1 = User(
         username='user1',

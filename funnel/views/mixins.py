@@ -82,8 +82,7 @@ class ProjectViewMixin(ProfileCheckMixin):
             if self.obj.project:
                 self.profile = self.obj.project.profile
                 return redirect(self.obj.project.url_for())
-            else:
-                abort(410)
+            abort(410)  # Project has been deleted
         self.profile = self.obj.profile
         return super().after_loader()
 
@@ -245,8 +244,7 @@ class DraftViewMixin:
         draft = self.get_draft(obj)
         if draft is not None:
             return draft.revision, draft.formdata
-        else:
-            return None, None
+        return None, None
 
     def autosave_post(self, obj: Optional[UuidMixin] = None) -> ReturnRenderWith:
         """Handle autosave POST requests."""
@@ -273,6 +271,20 @@ class DraftViewMixin:
             # find the last draft
             draft = self.get_draft(obj)
 
+            if draft is None and client_revision:
+                # The form contains a revision ID but no draft exists.
+                # Somebody is making autosave requests with an invalid draft ID.
+                return (
+                    {
+                        'status': 'error',
+                        'error': 'invalid_or_expired_revision',
+                        'error_description': _(
+                            "Invalid revision ID or the existing changes have been"
+                            " submitted already. Please reload"
+                        ),
+                    },
+                    400,
+                )
             if draft is not None:
                 if client_revision is None or (
                     client_revision is not None
@@ -291,31 +303,20 @@ class DraftViewMixin:
                         },
                         400,
                     )
-                elif (
+                if (
                     client_revision is not None
                     and str(draft.revision) == client_revision
                 ):
-                    # revision ID sent my client matches, save updated draft data and update revision ID
+                    # revision ID sent by client matches, save updated draft data and
+                    # update revision ID. Since `formdata` is a `MultiDict`, we cannot
+                    # use `formdata.update`. The behaviour is different
+                    draft.formdata.update(incoming_data)
                     existing = draft.formdata
-                    for key in incoming_data.keys():
-                        if existing[key] != incoming_data[key]:
-                            existing[key] = incoming_data[key]
+                    for key, value in incoming_data.items():
+                        if existing[key] != value:
+                            existing[key] = value
                     draft.formdata = existing
                     draft.revision = uuid4()
-            elif client_revision:  # Implicit: draft is None
-                # The form contains a revision ID but no draft exists.
-                # Somebody is making autosave requests with an invalid draft ID.
-                return (
-                    {
-                        'status': 'error',
-                        'error': 'invalid_or_expired_revision',
-                        'error_description': _(
-                            "Invalid revision ID or the existing changes have been"
-                            " submitted already. Please reload"
-                        ),
-                    },
-                    400,
-                )
             else:
                 # no draft exists and no client revision, so create a draft
                 draft = Draft(
@@ -327,12 +328,11 @@ class DraftViewMixin:
             db.session.add(draft)
             db.session.commit()
             return {'revision': draft.revision, 'form_nonce': form.form_nonce.default()}
-        else:
-            return (
-                {
-                    'status': 'error',
-                    'error': 'invalid_csrf',
-                    'error_description': _("Invalid CSRF token"),
-                },
-                400,
-            )
+        return (
+            {
+                'status': 'error',
+                'error': 'invalid_csrf',
+                'error_description': _("Invalid CSRF token"),
+            },
+            400,
+        )

@@ -106,8 +106,8 @@ def send_via_exotel(phone: str, message: SmsTemplate, callback: bool = True) -> 
                 )
             return transactionid
         raise TransportTransactionError(_("Exotel API error"), r.status_code, r.text)
-    except requests.ConnectionError:
-        raise TransportConnectionError(_("Exotel not reachable"))
+    except requests.ConnectionError as exc:
+        raise TransportConnectionError(_("Exotel not reachable")) from exc
 
 
 def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> str:
@@ -147,27 +147,29 @@ def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> 
         # https://support.twilio.com/hc/en-us/articles/223181868-Troubleshooting-Undelivered-Twilio-SMS-Messages
         # https://www.twilio.com/docs/api/errors#2-anchor
         if exc.code == 21211:
-            raise TransportRecipientError(_("This phone number is invalid"))
+            raise TransportRecipientError(_("This phone number is invalid")) from exc
         if exc.code == 21408:
             app.logger.error("Twilio unsupported country (21408) for %s", phone)
             raise TransportRecipientError(
                 _("Hasgeek cannot send messages to phone numbers in this country")
-            )
+            ) from exc
         if exc.code == 21610:
-            raise TransportRecipientError(_("This phone number has been blocked"))
+            raise TransportRecipientError(
+                _("This phone number has been blocked")
+            ) from exc
         if exc.code == 21612:
             app.logger.error("Twilio unsupported carrier (21612) for %s", phone)
             raise TransportRecipientError(
                 _("This phone number is unsupported at this time")
-            )
+            ) from exc
         if exc.code == 21614:
             raise TransportRecipientError(
                 _("This phone number cannot receive SMS messages")
-            )
+            ) from exc
         app.logger.error("Unhandled Twilio error %d: %s", exc.code, exc.msg)
         raise TransportTransactionError(
             _("Hasgeek was unable to send a message to this phone number")
-        )
+        ) from exc
 
 
 senders_by_prefix = [('+91', send_via_exotel), ('+', send_via_twilio)]

@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, Union
 
-from baseframe import __
-import baseframe.forms as forms
+from baseframe import __, forms
 
 from ..models import (
     PASSWORD_MAX_LENGTH,
@@ -161,8 +160,8 @@ class LoginForm(forms.Form):
                     email_address = EmailAddress.add(field.data)
                     # This gets us a normalized email address
                     self.new_email = str(email_address)
-                except EmailAddressBlockedError:
-                    raise forms.ValidationError(MSG_EMAIL_BLOCKED)
+                except EmailAddressBlockedError as exc:
+                    raise forms.ValidationError(MSG_EMAIL_BLOCKED) from exc
                 return
             # TODO: Use future PhoneNumber model here, analogous to EmailAddress
             phone = normalize_phone_number(field.data)

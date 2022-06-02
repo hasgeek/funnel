@@ -108,39 +108,37 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                         },
                         400,
                     )
-                else:
-                    new_membership = OrganizationMembership(
-                        organization=self.obj.organization, granted_by=current_auth.user
-                    )
-                    membership_form.populate_obj(new_membership)
-                    db.session.add(new_membership)
-                    db.session.commit()
-                    dispatch_notification(
-                        OrganizationAdminMembershipNotification(
-                            document=new_membership.organization,
-                            fragment=new_membership,
-                        )
-                    )
-                    return {
-                        'status': 'ok',
-                        'message': _("The user has been added as an admin"),
-                        'memberships': [
-                            membership.current_access(
-                                datasets=('without_parent', 'related')
-                            )
-                            for membership in self.obj.organization.active_admin_memberships
-                        ],
-                    }
-            else:
-                return (
-                    {
-                        'status': 'error',
-                        'error_description': _("The new admin could not be added"),
-                        'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data,
-                    },
-                    400,
+                new_membership = OrganizationMembership(
+                    organization=self.obj.organization, granted_by=current_auth.user
                 )
+                membership_form.populate_obj(new_membership)
+                db.session.add(new_membership)
+                db.session.commit()
+                dispatch_notification(
+                    OrganizationAdminMembershipNotification(
+                        document=new_membership.organization,
+                        fragment=new_membership,
+                    )
+                )
+                return {
+                    'status': 'ok',
+                    'message': _("The user has been added as an admin"),
+                    'memberships': [
+                        membership.current_access(
+                            datasets=('without_parent', 'related')
+                        )
+                        for membership in self.obj.organization.active_admin_memberships
+                    ],
+                }
+            return (
+                {
+                    'status': 'error',
+                    'error_description': _("The new admin could not be added"),
+                    'errors': membership_form.errors,
+                    'form_nonce': membership_form.form_nonce.data,
+                },
+                400,
+            )
 
         membership_form_html = render_form(
             form=membership_form,
@@ -228,16 +226,15 @@ class OrganizationMembershipView(
                         for membership in self.obj.organization.active_admin_memberships
                     ],
                 }
-            else:
-                return (
-                    {
-                        'status': 'error',
-                        'error_description': _("Please pick one or more roles"),
-                        'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data,
-                    },
-                    400,
-                )
+            return (
+                {
+                    'status': 'error',
+                    'error_description': _("Please pick one or more roles"),
+                    'errors': membership_form.errors,
+                    'form_nonce': membership_form.form_nonce.data,
+                },
+                400,
+            )
 
         membership_form_html = render_form(
             form=membership_form,
@@ -282,15 +279,14 @@ class OrganizationMembershipView(
                         for membership in self.obj.organization.active_admin_memberships
                     ],
                 }
-            else:
-                return (
-                    {
-                        'status': 'error',
-                        'errors': form.errors,
-                        'form_nonce': form.form_nonce.data,
-                    },
-                    400,
-                )
+            return (
+                {
+                    'status': 'error',
+                    'errors': form.errors,
+                    'form_nonce': form.form_nonce.data,
+                },
+                400,
+            )
 
         form_html = render_form(
             form=form,
@@ -366,45 +362,43 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
                         },
                         400,
                     )
-                else:
-                    new_membership = ProjectCrewMembership(
-                        project=self.obj, granted_by=current_auth.user
-                    )
-                    membership_form.populate_obj(new_membership)
-                    db.session.add(new_membership)
-                    # TODO: Once invite is introduced, send invite email here
-                    db.session.commit()
-                    signals.project_role_change.send(
-                        self.obj, actor=current_auth.user, user=new_membership.user
-                    )
-                    signals.project_crew_membership_added.send(
-                        self.obj,
-                        project=self.obj,
-                        membership=new_membership,
-                        actor=current_auth.user,
-                        user=new_membership.user,
-                    )
-                    db.session.commit()
-                    return {
-                        'status': 'ok',
-                        'message': _("The user has been added as a member"),
-                        'memberships': [
-                            membership.current_access(
-                                datasets=('without_parent', 'related')
-                            )
-                            for membership in self.obj.active_crew_memberships
-                        ],
-                    }
-            else:
-                return (
-                    {
-                        'status': 'error',
-                        'error_description': _("The new member could not be added"),
-                        'errors': membership_form.errors,
-                        'form_nonce': membership_form.form_nonce.data,
-                    },
-                    400,
+                new_membership = ProjectCrewMembership(
+                    project=self.obj, granted_by=current_auth.user
                 )
+                membership_form.populate_obj(new_membership)
+                db.session.add(new_membership)
+                # TODO: Once invite is introduced, send invite email here
+                db.session.commit()
+                signals.project_role_change.send(
+                    self.obj, actor=current_auth.user, user=new_membership.user
+                )
+                signals.project_crew_membership_added.send(
+                    self.obj,
+                    project=self.obj,
+                    membership=new_membership,
+                    actor=current_auth.user,
+                    user=new_membership.user,
+                )
+                db.session.commit()
+                return {
+                    'status': 'ok',
+                    'message': _("The user has been added as a member"),
+                    'memberships': [
+                        membership.current_access(
+                            datasets=('without_parent', 'related')
+                        )
+                        for membership in self.obj.active_crew_memberships
+                    ],
+                }
+            return (
+                {
+                    'status': 'error',
+                    'error_description': _("The new member could not be added"),
+                    'errors': membership_form.errors,
+                    'form_nonce': membership_form.form_nonce.data,
+                },
+                400,
+            )
 
         membership_form_html = render_form(
             form=membership_form,
@@ -529,16 +523,15 @@ class ProjectCrewMembershipView(
                         for membership in self.obj.project.active_crew_memberships
                     ],
                 }
-            else:
-                return (
-                    {
-                        'status': 'error',
-                        'error_description': _("Please pick one or more roles"),
-                        'errors': form.errors,
-                        'form_nonce': form.form_nonce.data,
-                    },
-                    400,
-                )
+            return (
+                {
+                    'status': 'error',
+                    'error_description': _("Please pick one or more roles"),
+                    'errors': form.errors,
+                    'form_nonce': form.form_nonce.data,
+                },
+                400,
+            )
 
         membership_form_html = render_form(
             form=form,
@@ -582,8 +575,7 @@ class ProjectCrewMembershipView(
                         for membership in self.obj.project.active_crew_memberships
                     ],
                 }
-            else:
-                return ({'status': 'error', 'errors': form.errors}, 400)
+            return ({'status': 'error', 'errors': form.errors}, 400)
 
         form_html = render_form(
             form=form,

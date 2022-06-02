@@ -130,10 +130,8 @@ class CommentNotification(RenderNotification):
             comment = self.comment
         return Markup(self.activity_template_inline(comment)).format(
             actor=Markup(
-                '<a href="{url}">{name}</a>'.format(
-                    url=escape(self.actor.profile_url),
-                    name=escape(self.actor.pickername),
-                )
+                f'<a href="{escape(self.actor.profile_url)}">'
+                f'{escape(self.actor.pickername)}</a>'
             )
             if self.actor.profile_url
             else escape(self.actor.pickername),

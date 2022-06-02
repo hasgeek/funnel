@@ -2,8 +2,8 @@ from sqlalchemy.exc import IntegrityError
 
 import pytest
 
+from funnel import models
 from funnel.models import db
-import funnel.models as models
 
 
 def test_is_available_name(db_session, user_rincewind):
@@ -116,15 +116,15 @@ def test_cant_remove_username(db_session, user_twoflower):
     assert user_twoflower.profile == profile  # Renamed, not replaced
 
     # Can't be removed even though it was None to start with
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Name is required'):
         user_twoflower.username = None
 
     # Can't be a blank value
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Name is required'):
         user_twoflower.username = ''
 
     # Can't be an invalid value
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Name is required'):
         user_twoflower.username = ' '
 
 
@@ -141,7 +141,7 @@ def test_cant_remove_orgname(db_session, org_uu):
     assert org_uu.name == 'unseen'
     assert org_uu.profile == profile
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Name is required'):
         org_uu.name = None
 
 

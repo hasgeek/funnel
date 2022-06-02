@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from flask import Markup, url_for
 
-from baseframe import _, __
+from baseframe import _, __, forms
 from coaster.auth import current_auth
-import baseframe.forms as forms
 
 from ..models import Organization, Profile, Team
 

@@ -8,7 +8,7 @@ aiohttp==3.8.1
     # via geoip2
 aiosignal==1.2.0
     # via aiohttp
-alembic==1.7.7
+alembic==1.8.0
     # via
     #   -r requirements.in
     #   flask-migrate
@@ -22,7 +22,7 @@ async-timeout==4.0.2
     #   redis
 attrs==21.4.0
     # via aiohttp
-awscli==1.24.0
+awscli==1.25.0
     # via -r requirements.in
 babel==2.10.1
     # via -r requirements.in
@@ -40,18 +40,20 @@ bleach==5.0.0
     # via baseframe
 blinker==1.4
     # via -r requirements.in
-boto3==1.23.0
+boto3==1.24.0
     # via -r requirements.in
-botocore==1.26.0
+botocore==1.27.0
     # via
     #   awscli
     #   boto3
     #   s3transfer
 brotli==1.0.9
     # via -r requirements.in
-cachetools==5.1.0
+cachelib==0.7.0
+    # via flask-caching
+cachetools==5.2.0
     # via premailer
-certifi==2021.10.8
+certifi==2022.5.18.1
     # via
     #   requests
     #   sentry-sdk
@@ -99,13 +101,13 @@ dnspython==2.2.1
     #   baseframe
     #   mxsniff
     #   pyisemail
-docutils==0.15.2
+docutils==0.16
     # via awscli
 emoji==1.7.0
     # via baseframe
 fabric3==1.14.post1
     # via -r requirements.in
-filelock==3.7.0
+filelock==3.7.1
     # via tldextract
 flask==2.1.2
     # via
@@ -129,7 +131,7 @@ flask-babelhg @ git+https://github.com/hasgeek/flask-babelhg.git
     # via
     #   -r requirements.in
     #   baseframe
-flask-caching==1.10.1
+flask-caching==1.11.1
     # via baseframe
 flask-executor==0.10.0
     # via -r requirements.in
@@ -179,7 +181,7 @@ idna==3.3
     #   requests
     #   tldextract
     #   yarl
-importlib-metadata==4.11.3
+importlib-metadata==4.11.4
     # via
     #   flask
     #   markdown
@@ -200,7 +202,7 @@ js2py==0.71
     # via -r requirements.in
 jsmin==3.0.1
     # via -r requirements.in
-lxml==4.8.0
+lxml==4.9.0
     # via premailer
 mako==1.2.0
     # via alembic
@@ -215,7 +217,7 @@ markupsafe==2.1.1
     #   jinja2
     #   mako
     #   wtforms
-marshmallow==3.15.0
+marshmallow==3.16.0
     # via
     #   dataclasses-json
     #   marshmallow-enum
@@ -249,11 +251,11 @@ packaging==21.3
     # via
     #   marshmallow
     #   redis
-paramiko==2.10.4
+paramiko==2.11.0
     # via fabric3
 passlib==1.7.4
     # via -r requirements.in
-phonenumbers==8.12.48
+phonenumbers==8.12.49
     # via -r requirements.in
 premailer==3.10.0
     # via -r requirements.in
@@ -309,7 +311,7 @@ python-dateutil==2.8.2
     #   rq-scheduler
 python-dotenv==0.20.0
     # via -r requirements.in
-python-utils==3.2.2
+python-utils==3.3.3
     # via progressbar2
 pytz==2022.1
     # via
@@ -366,11 +368,11 @@ rsa==4.7.2
     # via
     #   awscli
     #   oauth2client
-s3transfer==0.5.2
+s3transfer==0.6.0
     # via
     #   awscli
     #   boto3
-semantic-version==2.9.0
+semantic-version==2.10.0
     # via baseframe
 sentry-sdk==1.5.12
     # via baseframe
@@ -394,7 +396,7 @@ six==1.16.0
     #   url-normalize
 speaklater==1.3
     # via baseframe
-sqlalchemy==1.4.36
+sqlalchemy==1.4.37
     # via
     #   -r requirements.in
     #   alembic
@@ -411,9 +413,9 @@ tldextract==3.3.0
     # via mxsniff
 tuspy==0.2.5
     # via pyvimeo
-tweepy==4.9.0
+tweepy==4.10.0
     # via -r requirements.in
-twilio==7.9.0
+twilio==7.9.1
     # via -r requirements.in
 typing-extensions==4.2.0
     # via

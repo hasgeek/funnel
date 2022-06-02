@@ -22,17 +22,17 @@ from funnel.views.helpers import (
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def testapp():
     """Create a test app with an `index` view."""
-    testapp = Flask(__name__)
+    new_app = Flask(__name__)
 
-    @testapp.route('/')
+    @new_app.route('/')
     def index():  # skipcq: PTC-W0065
         """Unused index view, only referred to via url_for."""
         return 'test_index'
 
-    return testapp
+    return new_app
 
 
 class MockUrandom:
