@@ -559,11 +559,7 @@ class GeoAltName(BaseMixin, db.Model):
 
     def __repr__(self) -> str:
         """Return representation."""
-        return '<GeoAltName {} "{}" of {}>'.format(
-            self.lang,
-            self.title,
-            repr(self.geoname)[1:-1] if self.geoname else None,
-        )
+        return f'<GeoAltName {self.lang} "{self.title}" of {self.geoname!r}>'
 
     def as_dict(self) -> dict:
         """Convert this record into a dictionary suitable for casting to JSON."""

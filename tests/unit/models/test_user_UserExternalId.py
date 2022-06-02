@@ -25,9 +25,8 @@ class TestUserExternalId(TestDatabaseFixture):
             oauth_token_type=oauth_token_type,
         )
         assert isinstance(result, models.UserExternalId)
-        assert (
-            f'<UserExternalId {service}:{crusoe.email.email} of {repr(crusoe)[1:-1]}>'
-            in repr(result)
+        assert f'<UserExternalId {service}:{crusoe.email.email} of {crusoe!r}>' in repr(
+            result
         )
 
     def test_userexternalid_get(self):
@@ -55,16 +54,14 @@ class TestUserExternalId(TestDatabaseFixture):
             service=service, userid=crusoe.email.email
         )
         assert isinstance(get_by_userid, models.UserExternalId)
-        assert (
-            f'<UserExternalId {service}:{crusoe.email.email} of {repr(crusoe)[1:-1]}>'
-            in repr(get_by_userid)
+        assert f'<UserExternalId {service}:{crusoe.email.email} of {crusoe!r}>' in repr(
+            get_by_userid
         )
         # scenario 3: when username is passed
         get_by_username = models.UserExternalId.get(
             service=service, username=crusoe.email.email
         )
         assert isinstance(get_by_username, models.UserExternalId)
-        assert (
-            f'<UserExternalId {service}:{crusoe.email.email} of {repr(crusoe)[1:-1]}>'
-            in repr(get_by_username)
+        assert f'<UserExternalId {service}:{crusoe.email.email} of {crusoe!r}>' in repr(
+            get_by_username
         )

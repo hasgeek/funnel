@@ -38,13 +38,16 @@ class ScopeMixin:
     _scope: str
 
     @declared_attr  # type: ignore[no-redef]
-    def _scope(cls):
+    def _scope(cls):  # pylint: disable=no-self-argument
+        """Database column for storing scopes as a space-separated string."""
         return db.Column('scope', db.UnicodeText, nullable=cls.__scope_null_allowed__)
 
     scope: Iterable[str]
 
     @declared_attr  # type: ignore[no-redef]
-    def scope(cls):
+    def scope(cls):  # pylint: disable=no-self-argument
+        """Represent scope column as a container of strings."""
+        # pylint: disable=protected-access
         @property
         def scope(self) -> Tuple[str, ...]:
             if not self._scope:
@@ -64,6 +67,7 @@ class ScopeMixin:
             if not self._scope and self.__scope_null_allowed__:
                 self._scope = None
 
+        # pylint: enable=protected-access
         return db.synonym('_scope', descriptor=scope)
 
     def add_scope(self, additional: Union[str, Iterable]) -> None:
@@ -459,11 +463,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`AuthToken` as a string."""
-        return '<AuthToken {token} of {auth_client} {user}>'.format(
-            token=self.token,
-            auth_client=repr(self.auth_client)[1:-1],
-            user=repr(self.user)[1:-1],
-        )
+        return f'<AuthToken {self.token} of {self.auth_client!r} {self.user!r}>'
 
     @property
     def effective_scope(self) -> List:

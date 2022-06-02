@@ -261,8 +261,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
 
     def __repr__(self):
         """Represent :class:`Proposal` as a string."""
-        return '<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
-            proposal=self.title, project=self.project.title, user=self.user.fullname
+        return (
+            f'<Proposal "{self.title}" in project "{self.project.title}"'
+            f' by "{self.user.fullname}">'
         )
 
     # State transitions

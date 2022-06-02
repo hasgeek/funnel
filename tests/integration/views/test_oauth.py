@@ -38,7 +38,7 @@ def test_authcode_wellformed(client, login, user_rincewind, client_hex_credentia
     # TODO: Add redirect_uri, response_type, state, scope
 
 
-def test_auth_untrusted_confidential(  # pylint:disable=too-many-arguments
+def test_auth_untrusted_confidential(  # pylint: disable=too-many-arguments
     client, login, user_rincewind, client_hex, client_hex_credential, csrf_token
 ):
     """Test auth on an untrusted confidential auth client."""

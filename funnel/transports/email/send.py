@@ -156,7 +156,7 @@ def send_email(
             EmailAddress.add(email) for name, email in getaddresses(msg.recipients())
         ]
     except EmailAddressBlockedError as exc:
-        raise TransportRecipientError(exc)
+        raise TransportRecipientError(exc) from exc
     # FIXME: This won't raise an exception on delivery_state.HARD_FAIL. We need to do
     # catch that, remove the recipient, and notify the user via the upcoming
     # notification centre. (Raise a TransportRecipientError)

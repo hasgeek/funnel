@@ -284,7 +284,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     __table_args__: tuple
 
     @declared_attr  # type: ignore[no-redef]
-    def user_id(cls):  # skipcq: PYL-E0102
+    def user_id(cls):  # pylint: disable=no-self-argument
         return db.Column(
             None,
             db.ForeignKey('user.id', ondelete='CASCADE'),
@@ -294,15 +294,15 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
 
     @with_roles(read={'subject', 'editor'}, grants={'subject'})
     @declared_attr
-    def user(cls):
+    def user(cls):  # pylint: disable=no-self-argument
         return immutable(db.relationship(User, foreign_keys=[cls.user_id]))
 
     @declared_attr
-    def subject(cls):
+    def subject(cls):  # pylint: disable=no-self-argument
         return db.synonym('user')
 
     @declared_attr  # type: ignore[no-redef]
-    def __table_args__(cls):
+    def __table_args__(cls):  # pylint: disable=no-self-argument
         if cls.parent_id is not None:
             return (
                 db.Index(
@@ -400,7 +400,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
     __table_args__: tuple
 
     @declared_attr  # type: ignore[no-redef]
-    def profile_id(cls):  # skipcq: PYL-E0102
+    def profile_id(cls):  # pylint: disable=no-self-argument
         return db.Column(
             None,
             db.ForeignKey('profile.id', ondelete='CASCADE'),
