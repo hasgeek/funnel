@@ -113,6 +113,7 @@ def render_otp_form(form: Union[OtpForm, RegisterOtpForm]) -> ReturnView:
             form=form,
             formid='login-otp',
             ref_id='form-otp',
+            action=url_for('login'),
             cancel_url=url_for('login'),
             ajax=True,
             with_chrome=True,
@@ -130,6 +131,8 @@ def render_login_form(form: LoginForm) -> ReturnView:
             loginform=form,
             formid='passwordlogin',
             ref_id='form-passwordlogin',
+            ajax=True,
+            with_chrome=True,
         ),
         200,
         block_iframe,
@@ -353,6 +356,8 @@ def login() -> ReturnView:
         # This should not happen. We received an incomplete form.
         abort(403)
     if request_is_xhr() and formid == 'passwordlogin':
+        return render_login_form(loginform)
+    elif request_is_xhr() and request.method == 'GET':
         return render_login_form(loginform)
     return (
         render_template(
