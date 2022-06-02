@@ -104,7 +104,7 @@ class PasswordStrengthValidator:
 
 
 @User.forms('register')
-class RegisterForm(forms.RecaptchaForm):
+class RegisterForm(forms.Form):
     """
     Traditional account registration form.
 
@@ -189,7 +189,7 @@ class PasswordPolicyForm(forms.Form):
 
 
 @User.forms('password_reset_request')
-class PasswordResetRequestForm(forms.RecaptchaForm):
+class PasswordResetRequestForm(forms.Form):
     """Request a password reset."""
 
     __returns__ = ('user', 'anchor')
@@ -239,7 +239,7 @@ class PasswordCreateForm(forms.Form):
 
 
 @User.forms('password_reset')
-class PasswordResetForm(forms.RecaptchaForm):
+class PasswordResetForm(forms.Form):
     __returns__ = ('password_strength',)
 
     # TODO: This form has been deprecated with OTP-based reset as that doesn't need
@@ -443,7 +443,7 @@ def validate_emailclaim(form, field):
 
 
 @User.forms('email_add')
-class NewEmailAddressForm(forms.RecaptchaForm):
+class NewEmailAddressForm(forms.Form):
     email = forms.EmailField(
         __("Email address"),
         validators=[
@@ -490,7 +490,7 @@ class VerifyEmailForm(forms.Form):
 
 
 @User.forms('phone_add')
-class NewPhoneForm(forms.RecaptchaForm):
+class NewPhoneForm(forms.Form):
     phone = forms.TelField(
         __("Phone number"),
         validators=[forms.validators.DataRequired()],
