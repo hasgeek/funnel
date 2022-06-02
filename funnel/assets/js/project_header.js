@@ -203,7 +203,7 @@ $(() => {
       window.history.pushState(
         {},
         '',
-        `?next=${window.location.href}%23${$(this).data('register-modal')}`
+        `${$(this).attr('href')}%23${$(this).data('register-modal')}`
       );
     });
 
