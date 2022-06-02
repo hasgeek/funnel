@@ -192,8 +192,8 @@ class SmsTemplate:
         """Get a format variable."""
         try:
             return self._format_kwargs[attr]
-        except KeyError:
-            raise AttributeError(attr)
+        except KeyError as exc:
+            raise AttributeError(attr) from exc
 
     def __getitem__(self, key: str):
         """Get a format variable via dictionary access, defaulting to ''."""

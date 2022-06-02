@@ -41,7 +41,7 @@ def user_twoflower_not_site_editor(db_session, user_twoflower):
     ('user_site_membership', 'status_code'),
     [('user_vetinari_site_editor', 200), ('user_twoflower_not_site_editor', 403)],
 )
-def test_check_site_editor_edit_sponsorship(  # pylint:disable=too-many-arguments
+def test_check_site_editor_edit_sponsorship(  # pylint: disable=too-many-arguments
     request, client, login, org_uu_sponsorship, user_site_membership, status_code
 ):
     login.as_(request.getfixturevalue(user_site_membership).user)
@@ -59,7 +59,7 @@ def test_check_site_editor_edit_sponsorship(  # pylint:disable=too-many-argument
         ('Test sponsor2', True),
     ],
 )
-def test_sponsorship_add(  # pylint:disable=too-many-arguments
+def test_sponsorship_add(  # pylint: disable=too-many-arguments
     client,
     login,
     user_vetinari_site_editor,
@@ -117,7 +117,7 @@ def test_sponsorship_edit(
     assert edited_sponsorship.is_promoted is False
 
 
-def test_sponsorship_remove(  # pylint:disable=too-many-arguments
+def test_sponsorship_remove(  # pylint: disable=too-many-arguments
     client,
     login,
     org_uu_sponsorship,

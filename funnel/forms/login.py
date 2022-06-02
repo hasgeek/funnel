@@ -160,8 +160,8 @@ class LoginForm(forms.Form):
                     email_address = EmailAddress.add(field.data)
                     # This gets us a normalized email address
                     self.new_email = str(email_address)
-                except EmailAddressBlockedError:
-                    raise forms.ValidationError(MSG_EMAIL_BLOCKED)
+                except EmailAddressBlockedError as exc:
+                    raise forms.ValidationError(MSG_EMAIL_BLOCKED) from exc
                 return
             # TODO: Use future PhoneNumber model here, analogous to EmailAddress
             phone = normalize_phone_number(field.data)
