@@ -6,6 +6,4 @@ For general enquiries, email us at [info@hasgeek.com](mailto:info@hasgeek.com). 
 
 You can also call us at [+91 7676 33 2020](tel:+917676332020). This goes straight to the mobile numbers of all team members. If all of us are unable to take a call (or you hang up before we answer), we’ll call you back as soon as we can.
 
-As a remote-only company, we do not have a physical location.
-
-We’re unfortunately unable to take appointments for any product or service you’d like to pitch us, so please don’t call or email about that. No physical visits either: as a remote-first company, this is only our official location. The team works from home.
+As a remote-only company, we do not have a physical location. Everybody works from home or a co-working location of their convenience.
