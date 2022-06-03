@@ -120,9 +120,7 @@ class ContactView(ClassView):
         return self.contacts_to_csv(
             contacts,
             timezone=project.timezone,
-            filename='contacts-{project}-{date}'.format(
-                project=make_name(project.title), date=date.strftime('%Y%m%d')
-            ),
+            filename=f'contacts-{make_name(project.title)}-{date.strftime("%Y%m%d")}',
         )
 
     @route('<uuid_b58>.csv', endpoint='contacts_project_csv')
@@ -155,7 +153,7 @@ class ContactView(ClassView):
         ticket_participant = TicketParticipant.query.filter_by(puk=puk, key=key).first()
         if ticket_participant is None:
             return make_response(
-                jsonify(status='error', message="Attendee details not found"), 404
+                jsonify(status='error', message=_("Attendee details not found")), 404
             )
         project = ticket_participant.project
         if project.end_at:
@@ -178,11 +176,10 @@ class ContactView(ClassView):
                 current_app.logger.warning("Contact already scanned")
                 db.session.rollback()
             return jsonify(contact=contact_details(ticket_participant))
-        else:
-            # FIXME: when status='error', the message should be in `error_description`.
-            return make_response(
-                jsonify(status='error', message=_("Unauthorized contact exchange")), 403
-            )
+        # FIXME: when status='error', the message should be in `error_description`.
+        return make_response(
+            jsonify(status='error', message=_("Unauthorized contact exchange")), 403
+        )
 
 
 ContactView.init_app(app)

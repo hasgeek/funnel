@@ -4,9 +4,13 @@
 #
 #    pip-compile requirements_dev.in
 #
+astroid==2.11.5
+    # via pylint
 attrs==21.4.0
-    # via flake8-bugbear
-awscli==1.24.0
+    # via
+    #   flake8-bugbear
+    #   pytest
+awscli==1.25.0
     # via -r requirements_dev.in
 bandit==1.7.4
     # via
@@ -14,7 +18,7 @@ bandit==1.7.4
     #   flake8-bandit
 black==22.3.0
     # via -r requirements_dev.in
-botocore==1.26.0
+botocore==1.27.0
     # via
     #   awscli
     #   s3transfer
@@ -23,14 +27,17 @@ cfgv==3.3.1
 click==8.1.3
     # via
     #   black
+    #   flask
     #   pip-tools
 colorama==0.4.4
     # via awscli
+dill==0.3.5.1
+    # via pylint
 distlib==0.3.4
     # via virtualenv
-docutils==0.15.2
+docutils==0.16
     # via awscli
-filelock==3.7.0
+filelock==3.7.1
     # via virtualenv
 flake8==4.0.1
     # via
@@ -56,7 +63,7 @@ flake8-bugbear==22.4.25
     # via -r requirements_dev.in
 flake8-builtins==1.5.3
     # via -r requirements_dev.in
-flake8-comprehensions==3.9.0
+flake8-comprehensions==3.10.0
     # via -r requirements_dev.in
 flake8-docstrings==1.6.0
     # via -r requirements_dev.in
@@ -66,29 +73,54 @@ flake8-logging-format==0.6.0
     # via -r requirements_dev.in
 flake8-mutable==1.2.0
     # via -r requirements_dev.in
+flake8-plugin-utils==1.3.2
+    # via flake8-pytest-style
 flake8-polyfill==1.0.2
     # via
     #   flake8-bandit
     #   pep8-naming
 flake8-print==5.0.0
     # via -r requirements_dev.in
+flake8-pytest-style==1.6.0
+    # via -r requirements_dev.in
+flask==2.1.2
+    # via flask-sqlalchemy
+flask-sqlalchemy==2.5.1
+    # via pylint-flask-sqlalchemy
 gitdb==4.0.9
     # via gitpython
 gitpython==3.1.27
     # via bandit
-identify==2.5.0
+identify==2.5.1
     # via pre-commit
+importlib-metadata==4.11.4
+    # via flask
+iniconfig==1.1.1
+    # via pytest
 isort==5.10.1
     # via
     #   -r requirements_dev.in
     #   flake8-isort
+    #   pylint
+itsdangerous==2.0.1
+    # via
+    #   -r requirements_dev.in
+    #   flask
+jinja2==3.1.2
+    # via flask
 jmespath==1.0.0
     # via botocore
+lazy-object-proxy==1.7.1
+    # via astroid
 lxml-stubs==0.4.0
     # via -r requirements_dev.in
+markupsafe==2.1.1
+    # via jinja2
 mccabe==0.6.1
-    # via flake8
-mypy==0.950
+    # via
+    #   flake8
+    #   pylint
+mypy==0.960
     # via
     #   -r requirements_dev.in
     #   sqlalchemy-stubs
@@ -98,6 +130,8 @@ mypy-extensions==0.4.3
     #   mypy
 nodeenv==1.6.0
     # via pre-commit
+packaging==21.3
+    # via pytest
 pathspec==0.9.0
     # via black
 pbr==5.9.0
@@ -106,14 +140,19 @@ pep517==0.12.0
     # via pip-tools
 pep8-naming==0.12.1
     # via -r requirements_dev.in
-pip-tools==6.6.1
+pip-tools==6.6.2
     # via -r requirements_dev.in
 platformdirs==2.5.2
     # via
     #   black
+    #   pylint
     #   virtualenv
+pluggy==1.0.0
+    # via pytest
 pre-commit==2.19.0
     # via -r requirements_dev.in
+py==1.11.0
+    # via pytest
 pyasn1==0.4.8
     # via rsa
 pycodestyle==2.8.0
@@ -125,6 +164,19 @@ pydocstyle==6.1.1
     # via flake8-docstrings
 pyflakes==2.4.0
     # via flake8
+pylint==2.13.9
+    # via
+    #   -r requirements_dev.in
+    #   pylint-flask-sqlalchemy
+    #   pylint-pytest
+pylint-flask-sqlalchemy==0.2.0
+    # via -r requirements_dev.in
+pylint-pytest==1.1.2
+    # via -r requirements_dev.in
+pyparsing==3.0.9
+    # via packaging
+pytest==7.1.2
+    # via pylint-pytest
 python-dateutil==2.8.2
     # via botocore
 pyupgrade==2.32.1
@@ -136,7 +188,7 @@ pyyaml==5.4.1
     #   pre-commit
 rsa==4.7.2
     # via awscli
-s3transfer==0.5.2
+s3transfer==0.6.0
     # via awscli
 six==1.16.0
     # via
@@ -146,6 +198,8 @@ smmap==5.0.0
     # via gitdb
 snowballstemmer==2.2.0
     # via pydocstyle
+sqlalchemy==1.4.37
+    # via flask-sqlalchemy
 sqlalchemy-stubs==0.4
     # via -r requirements_dev.in
 stevedore==3.5.0
@@ -163,6 +217,8 @@ tomli==2.0.1
     #   black
     #   mypy
     #   pep517
+    #   pylint
+    #   pytest
 types-certifi==2021.10.8.2
     # via -r requirements_dev.in
 types-click==7.1.8
@@ -185,13 +241,13 @@ types-maxminddb==1.5.0
     # via
     #   -r requirements_dev.in
     #   types-geoip2
-types-python-dateutil==2.8.15
+types-python-dateutil==2.8.17
     # via -r requirements_dev.in
 types-pytz==2021.3.8
     # via -r requirements_dev.in
-types-requests==2.27.25
+types-requests==2.27.29
     # via -r requirements_dev.in
-types-setuptools==57.4.14
+types-setuptools==57.4.17
     # via -r requirements_dev.in
 types-simplejson==3.17.6
     # via -r requirements_dev.in
@@ -199,7 +255,7 @@ types-six==1.16.15
     # via -r requirements_dev.in
 types-toml==0.10.7
     # via -r requirements_dev.in
-types-urllib3==1.26.14
+types-urllib3==1.26.15
     # via types-requests
 types-werkzeug==1.0.9
     # via
@@ -207,8 +263,10 @@ types-werkzeug==1.0.9
     #   types-flask
 typing-extensions==4.2.0
     # via
+    #   astroid
     #   black
     #   mypy
+    #   pylint
     #   sqlalchemy-stubs
 urllib3==1.26.9
     # via botocore
@@ -216,8 +274,14 @@ virtualenv==20.14.1
     # via pre-commit
 watchdog==2.1.8
     # via -r requirements_dev.in
+werkzeug==2.1.2
+    # via flask
 wheel==0.37.1
     # via pip-tools
+wrapt==1.14.1
+    # via astroid
+zipp==3.8.0
+    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

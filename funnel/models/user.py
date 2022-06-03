@@ -54,6 +54,7 @@ __all__ = [
     'UserPhone',
     'UserPhoneClaim',
     'UserExternalId',
+    'Anchor',
 ]
 
 
@@ -288,8 +289,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if self.state.MERGED:
             # If our state is MERGED, there _must_ be a corresponding UserOldId record
             return cast(UserOldId, UserOldId.get(self.uuid)).user
-        else:
-            return self
+        return self
 
     def _set_password(self, password: Optional[str]):
         if password is None:
@@ -321,7 +321,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         # Bcrypt passwords are transparently upgraded if requested.
         if argon2.identify(self.pw_hash):
             return argon2.verify(password, self.pw_hash)
-        elif bcrypt.identify(self.pw_hash):
+        if bcrypt.identify(self.pw_hash):
             verified = bcrypt.verify(password, self.pw_hash)
             if verified and upgrade_hash:
                 self.pw_hash = argon2.hash(password)
@@ -330,9 +330,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     def __repr__(self) -> str:
         """Represent :class:`User` as a string."""
-        return '<User {username} "{fullname}">'.format(
-            username=self.username or self.buid, fullname=self.fullname
-        )
+        return f'<User {self.username or self.buid} "{self.fullname}">'
 
     def __str__(self) -> str:
         """Return picker name for user."""
@@ -341,11 +339,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @property
     def pickername(self) -> str:
         if self.username:
-            return '{fullname} (@{username})'.format(
-                fullname=self.fullname, username=self.username
-            )
-        else:
-            return self.fullname
+            return f'{self.fullname} (@{self.username})'
+        return self.fullname
 
     with_roles(pickername, read={'all'})
 
@@ -353,7 +348,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         self,
         email: str,
         primary: bool = False,
-        type: Optional[str] = None,  # noqa: A002  # skipcq: PYL-W0622
+        type: Optional[str] = None,  # noqa: A002  # pylint: disable=redefined-builtin
         private: bool = False,
     ) -> UserEmail:
         useremail = UserEmail(user=self, email=email, type=type, private=private)
@@ -403,7 +398,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         self,
         phone: str,
         primary: bool = False,
-        type: Optional[str] = None,  # noqa: A002  # skipcq: PYL-W0622
+        type: Optional[str] = None,  # noqa: A002  # pylint: disable=redefined-builtin
         private: bool = False,
     ) -> UserPhone:
         userphone = UserPhone(user=self, phone=phone, type=type, private=private)
@@ -802,9 +797,7 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):
 
     def __repr__(self) -> str:
         """Represent :class:`UserOldId` as a string."""
-        return '<UserOldId {buid} of {user}>'.format(
-            buid=self.buid, user=repr(self.user)[1:-1]
-        )
+        return f'<UserOldId {self.buid} of {self.user!r}>'
 
     @classmethod
     def get(cls, uuid: UUID) -> Optional[UserOldId]:
@@ -979,14 +972,13 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def name(self, value: Optional[str]) -> None:
         if value is None or not value.strip():
             raise ValueError("Name is required")
+        if self.profile is not None:
+            self.profile.name = value
         else:
-            if self.profile is not None:
-                self.profile.name = value
-            else:
-                # This code will only be reachable during `__init__`
-                self.profile = Profile(  # type: ignore[unreachable]
-                    name=value, organization=self, uuid=self.uuid
-                )
+            # This code will only be reachable during `__init__`
+            self.profile = Profile(  # type: ignore[unreachable]
+                name=value, organization=self, uuid=self.uuid
+            )
 
     @name.expression
     def name(cls) -> Select:  # noqa: N805
@@ -1000,9 +992,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`Organization` as a string."""
-        return '<Organization {name} "{title}">'.format(
-            name=self.name or self.buid, title=self.title
-        )
+        return f'<Organization {self.name} "{self.title}">'
 
     @property
     def pickername(self) -> str:
@@ -1133,9 +1123,7 @@ class Team(UuidMixin, BaseMixin, db.Model):
 
     def __repr__(self) -> str:
         """Represent :class:`Team` as a string."""
-        return '<Team {team} of {organization}>'.format(
-            team=self.title, organization=repr(self.organization)[1:-1]
-        )
+        return f'<Team {self.title} of {self.organization!r}>'
 
     @property
     def pickername(self) -> str:
@@ -1200,9 +1188,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
 
     def __repr__(self) -> str:
         """Represent :class:`UserEmail` as a string."""
-        return '<UserEmail {email} of {user}>'.format(
-            email=self.email, user=repr(self.user)[1:-1]
-        )
+        return f'<UserEmail {self.email} of {self.user!r}>'
 
     def __str__(self) -> str:
         """Email address as a string."""
@@ -1381,9 +1367,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`UserEmailClaim` as a string."""
-        return '<UserEmailClaim {email} of {user}>'.format(
-            email=self.email, user=repr(self.user)[1:-1]
-        )
+        return f'<UserEmailClaim {self.email} of {self.user!r}>'
 
     def __str__(self):
         """Return email as a string."""
@@ -1566,9 +1550,7 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
 
     def __repr__(self) -> str:
         """Represent :class:`UserPhone` as a string."""
-        return '<UserPhone {phone} of {user}>'.format(
-            phone=self.phone, user=repr(self.user)[1:-1]
-        )
+        return f'<UserPhone {self.phone} of {self.user!r}>'
 
     def __str__(self) -> str:
         """Return phone number as a string."""
@@ -1657,9 +1639,7 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`UserPhoneClaim` as a string."""
-        return '<UserPhoneClaim {phone} of {user}>'.format(
-            phone=self.phone, user=repr(self.user)[1:-1]
-        )
+        return f'<UserPhoneClaim {self.phone} of {self.user!r}>'
 
     def __str__(self):
         """Return phone number as a string."""
@@ -1748,9 +1728,7 @@ class UserExternalId(BaseMixin, db.Model):
 
     def __repr__(self) -> str:
         """Represent :class:`UserExternalId` as a string."""
-        return '<UserExternalId {service}:{username} of {user}>'.format(
-            service=self.service, username=self.username, user=repr(self.user)[1:-1]
-        )
+        return f'<UserExternalId {self.service}:{self.username} of {self.user!r}>'
 
     @overload
     @classmethod
@@ -1803,6 +1781,10 @@ user_phone_primary_table = add_primary_relationship(
     User, 'primary_phone', UserPhone, 'user', 'user_id'
 )
 
+#: Anchor type
+Anchor = Union[UserEmail, UserEmailClaim, UserPhone, UserPhoneClaim, EmailAddress]
+
 # Tail imports
+# pylint: disable=wrong-import-position
 from .profile import Profile  # isort:skip
 from .organization_membership import OrganizationMembership  # isort:skip

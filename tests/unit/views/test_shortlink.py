@@ -8,7 +8,7 @@ from funnel import shortlinkapp
 from funnel.models import Shortlink
 
 
-@pytest.fixture
+@pytest.fixture()
 def shortlink_client(request, db_session):
     """Provide a test client for shortlinkapp."""
     with shortlinkapp.test_client() as test_client:

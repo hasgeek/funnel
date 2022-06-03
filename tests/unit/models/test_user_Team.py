@@ -1,6 +1,6 @@
 import pytest
 
-import funnel.models as models
+from funnel import models
 
 from .test_db import TestDatabaseFixture
 

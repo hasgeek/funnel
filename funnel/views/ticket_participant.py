@@ -50,9 +50,7 @@ def ticket_participant_badge_data(ticket_participants, project):
                 'twitter': format_twitter_handle(ticket_participant.twitter),
                 'company': ticket_participant.company,
                 'qrcode_content': make_qrcode(
-                    "{puk}{key}".format(
-                        puk=ticket_participant.puk, key=ticket_participant.key
-                    )
+                    f'{ticket_participant.puk}{ticket_participant.key}'
                 ),
                 'order_no': ticket.order_no if ticket is not None else '',
             }
@@ -337,7 +335,7 @@ class TicketEventParticipantCheckinView(ClassView):
         attendee = TicketEventParticipant.get(ticket_event, ticket_participant.uuid_b58)
         if attendee is None:
             return (
-                {'error': 'not_found', 'error_description': "Attendee not found"},
+                {'error': 'not_found', 'error_description': _("Attendee not found")},
                 404,
             )
         attendee.checked_in = checked_in

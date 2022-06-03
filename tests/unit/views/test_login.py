@@ -1,30 +1,20 @@
 from itertools import product
 from unittest.mock import patch
-import random
+import json
 
 from werkzeug.datastructures import MultiDict
 
 import pytest
 
 from coaster.auth import current_auth
+from coaster.utils import newpin
 from funnel.views.helpers import retrieve_otp_session
 
 test_passwords = {'rincewind': 'rincewind-password'}
 complex_test_password = 'f7kN{$a58p^AmL@$'  # nosec  # noqa: S105
-wrong_password = 'wrong_password'  # nosec  # noqa: S105
-no_password = ''  # nosec  # noqa: S105
 
 logins = ['rincewind', 'rincewind@example.com', '+12345678901']
 register_types = ['example@example.com', '+12345678901']
-passwords_with_status = [
-    {
-        'password': complex_test_password,
-        'status_code': 303,
-        'auth': True,
-    },
-    {'password': wrong_password, 'status_code': 200, 'auth': False},
-    {'password': no_password, 'status_code': 200, 'auth': False},
-]
 
 sms_response = {
     "SMSMessage": {
@@ -48,20 +38,21 @@ sms_response = {
 }
 
 
-@pytest.fixture
+
+@pytest.fixture()
 def user_rincewind_with_password(user_rincewind):
     user_rincewind.password = complex_test_password
     return user_rincewind
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_rincewind_phone(db_session, user_rincewind):
     up = user_rincewind.add_phone('+12345678901')
     db_session.add(up)
     return up
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_rincewind_email(db_session, user_rincewind):
     ue = user_rincewind.add_email('rincewind@example.com')
     db_session.add(ue)
@@ -166,12 +157,20 @@ def test_user_logout(client, login, user_rincewind, csrf_token):
 
 
 @pytest.mark.parametrize(
-    ['login_type', 'passwords_with_status'], product(logins, passwords_with_status)
+    ('login_type', 'password_with_status'),
+    product(
+        logins,
+        [
+            {'password': complex_test_password, 'status_code': 303, 'auth': True},
+            {'password': 'wrong-password', 'status_code': 200, 'auth': False},
+            {'password': '', 'status_code': 200, 'auth': False},  # Trigger OTP login,
+        ],
+    ),
 )
-def test_login_types(
+def test_login_types(  # pylint: disable=too-many-arguments
     client,
     csrf_token,
-    passwords_with_status,
+    password_with_status,
     login_type,
     user_rincewind,
     user_rincewind_with_password,
@@ -276,14 +275,15 @@ def test_valid_otp_login_email(
 
 
 def generate_wrong_otp(retrieved_otp):
-    wrong_otp = random.randint(1000, 9999)  # nosec  # noqa: S311
-    if wrong_otp == retrieved_otp:
-        generate_wrong_otp(retrieved_otp)
+    while True:
+        wrong_otp = newpin()
+        if wrong_otp != retrieved_otp:
+            break
     return wrong_otp
 
 
 @pytest.mark.parametrize('login_type', logins)
-def test_invalid_otp_login(
+def test_invalid_otp_login(  # pylint: disable=too-many-arguments
     client,
     user_rincewind,
     user_rincewind_email,

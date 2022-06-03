@@ -58,7 +58,8 @@ assets['funnel-mui.js'][version] = 'js/libs/mui.js'
 
 try:
     with open(
-        os.path.join(cast(str, app.static_folder), 'build/manifest.json')
+        os.path.join(cast(str, app.static_folder), 'build/manifest.json'),
+        encoding='utf-8',
     ) as built_manifest:
         built_assets = json.load(built_manifest)
 except OSError:

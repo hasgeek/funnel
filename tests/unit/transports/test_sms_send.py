@@ -84,7 +84,7 @@ def test_exotel_nonce(client):
 def test_exotel_send_error(client):
     """Only tests if url_for works and usually fails otherwise, which is OK."""
     # Check False Path via monkey patching the requests object
-    with pytest.raises(TransportConnectionError):
-        with patch.object(requests, 'post') as mock_method:
-            mock_method.side_effect = requests.ConnectionError
+    with patch.object(requests, 'post') as mock_method:
+        mock_method.side_effect = requests.ConnectionError
+        with pytest.raises(TransportConnectionError):
             send(EXOTEL_TO, MESSAGE, callback=True)

@@ -7,9 +7,8 @@ from flask_babelhg import get_locale
 
 import pycountry
 
-from baseframe import _, __
+from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import QuerySelectField
-import baseframe.forms as forms
 
 from ..models import Venue, VenueRoom
 

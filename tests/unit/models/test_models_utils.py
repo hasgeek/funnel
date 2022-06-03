@@ -1,4 +1,4 @@
-import funnel.models as models
+from funnel import models
 
 
 def test_merge_users_older_newer(db_session, user_death, user_rincewind):
@@ -27,7 +27,9 @@ def test_merge_users_newer_older(db_session, user_death, user_rincewind):
     assert user_rincewind.state.MERGED
 
 
-def test_getuser(db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang):
+def test_getuser(  # pylint: disable=too-many-statements
+    db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
+):
     """Test for retrieving a user from a username, email address or phone number."""
     # Confirm fixtures are as we need them to be
     assert user_twoflower.username is None

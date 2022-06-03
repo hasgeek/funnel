@@ -644,10 +644,8 @@ class AccountView(ClassView):
         return render_form(
             form=verify_form,
             title=_("Resend the verification email?"),
-            message=_(
-                "We will resend the verification email to {email}".format(
-                    email=emailclaim.email
-                )
+            message=_("We will resend the verification email to {email}").format(
+                email=emailclaim.email
             ),
             formid="email_verify",
             submit=_("Send"),
