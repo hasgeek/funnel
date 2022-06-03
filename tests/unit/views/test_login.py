@@ -1,6 +1,5 @@
 from itertools import product
 from unittest.mock import patch
-import json
 
 from werkzeug.datastructures import MultiDict
 
@@ -36,7 +35,6 @@ sms_response = {
         "SmsUnits": 'null',
     }
 }
-
 
 
 @pytest.fixture()
