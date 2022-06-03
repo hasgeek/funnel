@@ -547,7 +547,7 @@ def send_sms_otp(
     msg = SMSMessage(phone_number=phone, message=str(template_message))
     try:
         # Now send this
-        msg.transactionid = sms.send(msg.phone_number, template_message)
+        msg.transactionid = sms.send(phone=msg.phone_number, message=template_message)
     except TransportRecipientError as exc:
         if render_flash:
             flash(str(exc), 'error')

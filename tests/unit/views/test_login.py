@@ -1,6 +1,5 @@
 from itertools import product
 from unittest.mock import patch
-import json
 import random
 
 from werkzeug.datastructures import MultiDict
@@ -49,10 +48,6 @@ sms_response = {
 }
 
 
-def mock_send(phone, message):
-    return json.dumps(sms_response)
-
-
 @pytest.fixture
 def user_rincewind_with_password(user_rincewind):
     user_rincewind.password = complex_test_password
@@ -91,21 +86,21 @@ def test_user_register(client, csrf_token):
     assert current_auth.user.fullname == "Test User"
 
 
-@patch('funnel.transports.sms.send', mock_send)
-@pytest.mark.parametrize('register_type', register_types)
-def test_user_register_otp(client, csrf_token, register_type):
-    rv1 = client.post(
-        '/login',
-        data=MultiDict(
-            {
-                'csrf_token': csrf_token,
-                'form.id': 'passwordlogin',
-                'username': register_type,
-                'password': '',
-            }
-        ),
-    )
-    otp = retrieve_otp_session('login').otp
+def test_user_register_otp_sms(client, csrf_token):
+    caught_otp = None
+    with patch('funnel.transports.sms.send', return_value=None) as mock:
+        rv1 = client.post(
+            '/login',
+            data=MultiDict(
+                {
+                    'csrf_token': csrf_token,
+                    'form.id': 'passwordlogin',
+                    'username': '+12345678901',
+                    'password': '',
+                }
+            ),
+        )
+        caught_otp = mock.call_args.kwargs['message'].otp
     assert rv1.forms[0]._name() == '#form-otp'
     assert rv1.status_code == 200
 
@@ -116,7 +111,43 @@ def test_user_register_otp(client, csrf_token, register_type):
                 'csrf_token': csrf_token,
                 'form.id': 'login-otp',
                 'fullname': 'Test User',
-                'otp': otp,
+                'otp': caught_otp,
+            }
+        ),
+    )
+    assert rv2.status_code == 303
+    assert current_auth.user.fullname == "Test User"
+
+
+def test_user_register_otp_email(
+    client,
+    csrf_token,
+):
+    caught_otp = None
+    with patch('funnel.views.login.send_login_otp') as mock:
+        rv1 = client.post(
+            '/login',
+            data=MultiDict(
+                {
+                    'csrf_token': csrf_token,
+                    'form.id': 'passwordlogin',
+                    'username': 'rincewind@example.com',
+                    'password': '',
+                }
+            ),
+        )
+        caught_otp = mock.call_args.kwargs['otp']
+    assert rv1.forms[0]._name() == '#form-otp'
+    assert rv1.status_code == 200
+
+    rv2 = client.post(
+        '/login',
+        data=MultiDict(
+            {
+                'csrf_token': csrf_token,
+                'form.id': 'login-otp',
+                'fullname': 'Test User',
+                'otp': caught_otp,
             }
         ),
     )
@@ -134,7 +165,6 @@ def test_user_logout(client, login, user_rincewind, csrf_token):
     assert current_auth.user is None
 
 
-@patch('funnel.transports.sms.send', mock_send)
 @pytest.mark.parametrize(
     ['login_type', 'passwords_with_status'], product(logins, passwords_with_status)
 )
@@ -148,24 +178,24 @@ def test_login_types(
     user_rincewind_phone,
     user_rincewind_email,
 ):
-    rv = client.post(
-        '/login',
-        data=MultiDict(
-            {
-                'username': str(login_type),
-                'password': passwords_with_status['password'],
-                'csrf_token': csrf_token,
-                'form.id': 'passwordlogin',
-            }
-        ),
-    )
+    with patch('funnel.transports.sms.send', return_value=None):
+        rv = client.post(
+            '/login',
+            data=MultiDict(
+                {
+                    'username': str(login_type),
+                    'password': passwords_with_status['password'],
+                    'csrf_token': csrf_token,
+                    'form.id': 'passwordlogin',
+                }
+            ),
+        )
     assert current_auth.is_authenticated is passwords_with_status['auth']
     assert rv.status_code == passwords_with_status['status_code']
 
 
-@patch('funnel.transports.sms.send', mock_send)
-@pytest.mark.parametrize('login_type', logins)
-def test_valid_otp_login(
+@pytest.mark.parametrize('login_type', ['rincewind', '+12345678901'])
+def test_valid_otp_login_sms(
     client,
     user_rincewind,
     user_rincewind_phone,
@@ -173,17 +203,20 @@ def test_valid_otp_login(
     csrf_token,
     login_type,
 ):
-    rv1 = client.post(
-        '/login',
-        data=MultiDict(
-            {
-                'username': login_type,
-                'password': '',
-                'csrf_token': csrf_token,
-                'form.id': 'passwordlogin',
-            }
-        ),
-    )
+    caught_otp = None
+    with patch('funnel.transports.sms.send', return_value=None) as mock:
+        rv1 = client.post(
+            '/login',
+            data=MultiDict(
+                {
+                    'username': login_type,
+                    'password': '',
+                    'csrf_token': csrf_token,
+                    'form.id': 'passwordlogin',
+                }
+            ),
+        )
+        caught_otp = mock.call_args.kwargs['message'].otp
 
     assert rv1.forms[0]._name() == '#form-otp'
     assert rv1.status_code == 200
@@ -193,7 +226,46 @@ def test_valid_otp_login(
         '/login',
         data=MultiDict(
             {
-                'otp': retrieve_otp_session('login').otp,
+                'otp': caught_otp,
+                'csrf_token': csrf_token,
+                'form.id': 'login-otp',
+            }
+        ),
+    )
+    assert rv2.status_code == 303
+    assert current_auth.user == user_rincewind
+
+
+def test_valid_otp_login_email(
+    client,
+    user_rincewind,
+    user_rincewind_email,
+    csrf_token,
+):
+    caught_otp = None
+    with patch('funnel.views.login.send_login_otp') as mock:
+        rv1 = client.post(
+            '/login',
+            data=MultiDict(
+                {
+                    'username': 'rincewind@example.com',
+                    'password': '',
+                    'csrf_token': csrf_token,
+                    'form.id': 'passwordlogin',
+                }
+            ),
+        )
+        caught_otp = mock.call_args.kwargs['otp']
+
+    assert rv1.forms[0]._name() == '#form-otp'
+    assert rv1.status_code == 200
+    assert current_auth.user is None
+
+    rv2 = client.post(
+        '/login',
+        data=MultiDict(
+            {
+                'otp': caught_otp,
                 'csrf_token': csrf_token,
                 'form.id': 'login-otp',
             }
@@ -210,7 +282,6 @@ def generate_wrong_otp(retrieved_otp):
     return wrong_otp
 
 
-@patch('funnel.transports.sms.send', mock_send)
 @pytest.mark.parametrize('login_type', logins)
 def test_invalid_otp_login(
     client,
@@ -221,17 +292,18 @@ def test_invalid_otp_login(
     login_type,
     db_session,
 ):
-    rv1 = client.post(
-        '/login',
-        data=MultiDict(
-            {
-                'username': login_type,
-                'password': '',
-                'csrf_token': csrf_token,
-                'form.id': 'passwordlogin',
-            }
-        ),
-    )
+    with patch('funnel.transports.sms.send', return_value=None):
+        rv1 = client.post(
+            '/login',
+            data=MultiDict(
+                {
+                    'username': login_type,
+                    'password': '',
+                    'csrf_token': csrf_token,
+                    'form.id': 'passwordlogin',
+                }
+            ),
+        )
     assert rv1.forms[0]._name() == '#form-otp'
     assert rv1.status_code == 200
     assert current_auth.user is None
