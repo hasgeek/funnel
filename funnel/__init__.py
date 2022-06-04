@@ -68,7 +68,7 @@ except OSError:
 
 # --- Import rest of the app -----------------------------------------------------------
 
-from . import (  # isort:skip  # noqa: F401
+from . import (  # isort:skip  # noqa: F401  # pylint: disable=wrong-import-position
     models,
     signals,
     forms,
@@ -76,12 +76,15 @@ from . import (  # isort:skip  # noqa: F401
     transports,
     views,
     cli,
+    proxies,
 )
-from .models import db  # isort:skip
+from .models import db  # isort:skip  # pylint: disable=wrong-import-position
 
 # --- Configuration---------------------------------------------------------------------
 coaster.app.init_app(app, ['py', 'toml'])
 coaster.app.init_app(shortlinkapp, ['py', 'toml'], init_logging=False)
+proxies.init_app(app)
+proxies.init_app(shortlinkapp)
 
 # These are app specific confguration files that must exist
 # inside the `instance/` directory. Sample config files are
