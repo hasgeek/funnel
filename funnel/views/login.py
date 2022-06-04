@@ -268,7 +268,9 @@ def login() -> ReturnView:
             elif otp_data.phone:
                 # send_sms_otp returns an instance of SmsMessage if a message was sent
                 otp_sent = bool(
-                    send_sms_otp(otp_data.phone, otp_data.otp, render_flash=False)
+                    send_sms_otp(
+                        phone=otp_data.phone, otp=otp_data.otp, render_flash=False
+                    )
                 )
                 if otp_sent:
                     flash(_("An OTP has been sent to your phone number"), 'success')
