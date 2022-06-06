@@ -26,9 +26,10 @@ from baseframe.forms import render_form, render_redirect
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
 from coaster.views import get_current_url, get_next_url
+from funnel.views.helpers import send_sms_otp
 
 from .. import app
-from ..forms import PasswordForm
+from ..forms import OtpForm
 from ..models import (
     AuthClient,
     AuthClientCredential,
@@ -44,7 +45,13 @@ from ..models import (
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
 from ..utils import abort_null
-from .helpers import app_url_for, autoset_timezone_and_locale, get_scheme_netloc
+from .helpers import (
+    app_url_for,
+    autoset_timezone_and_locale,
+    get_scheme_netloc,
+    make_otp_session,
+    send_email_login_otp,
+)
 
 # Constant value, needed for cookie max_age
 user_session_validity_period_total_seconds = int(
@@ -414,7 +421,31 @@ def requires_sudo(f):
                 set_session_next_url(True)
                 return render_redirect(url_for('change_password'))
             # A future version of this form may accept password or 2FA (U2F or TOTP)
-            form = PasswordForm(edit_user=current_auth.user)
+            otp_data = make_otp_session(
+                'sudo',
+                user=current_auth.user,
+                anchor=current_auth.user.default_anchor(),
+            )
+            otp_sent = False
+
+            if otp_data.email:
+                send_email_login_otp(
+                    email=otp_data.email,
+                    user=otp_data.user,
+                    otp=otp_data.otp,
+                )
+                otp_sent = True
+                flash(_("An OTP has been sent to your email address"), 'success')
+            elif otp_data.phone:
+                # send_sms_otp returns an instance of SmsMessage if a message was sent
+                otp_sent = bool(
+                    send_sms_otp(
+                        phone=otp_data.phone, otp=otp_data.otp, render_flash=False
+                    )
+                )
+                if otp_sent:
+                    flash(_("An OTP has been sent to your phone number"), 'success')
+            form = OtpForm(valid_otp=otp_data.otp)
             if form.validate_on_submit():
                 # User has successfully authenticated. Update their sudo timestamp and
                 # reload the page with a GET request, as the wrapped view may need to
