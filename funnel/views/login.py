@@ -59,7 +59,7 @@ from ..serializers import crossapp_serializer
 from ..signals import user_data_changed
 from ..typing import ReturnView
 from ..utils import abort_null
-from .email import send_email_verify_link, send_login_otp
+from .email import send_email_verify_link
 from .helpers import (
     OtpData,
     OtpReasonError,
@@ -69,6 +69,7 @@ from .helpers import (
     make_otp_session,
     metarefresh_redirect,
     retrieve_otp_session,
+    send_email_login_otp,
     send_sms_otp,
     session_timeouts,
     validate_rate_limit,
@@ -258,7 +259,7 @@ def login() -> ReturnView:
             otp_sent = False
 
             if otp_data.email:
-                send_login_otp(
+                send_email_login_otp(
                     email=otp_data.email,
                     user=otp_data.user,
                     otp=otp_data.otp,

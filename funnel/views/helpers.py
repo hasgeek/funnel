@@ -52,6 +52,7 @@ from ..models import (
 )
 from ..signals import emailaddress_refcount_dropping
 from ..transports import TransportConnectionError, TransportRecipientError, sms
+from ..transports.email import send_email
 from ..utils import blake2b160_hex
 from .jobs import forget_email
 
@@ -564,6 +565,21 @@ def send_sms_otp(
             flash(_("An OTP has been sent to your phone number"), 'success')
         return msg
     return None
+
+
+def send_email_login_otp(email: str, user: Optional[User], otp: str):
+    """Mail a login OTP to the user."""
+    if user is not None:
+        fullname = user.fullname
+    else:
+        fullname = ''
+    subject = _("Login OTP {otp}").format(otp=otp)
+    content = render_template(
+        'email_login_otp.html.jinja2',
+        fullname=fullname,
+        otp=otp,
+    )
+    send_email(subject, [(fullname, email)], content)
 
 
 # --- Template helpers -----------------------------------------------------------------
