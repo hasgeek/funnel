@@ -344,6 +344,21 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     with_roles(pickername, read={'all'})
 
+    def default_anchor(
+        self, claim=True
+    ) -> Optional[
+        Union[UserEmail, UserEmailClaim, UserPhone, UserPhoneClaim, EmailAddress]
+    ]:
+        """Return default anchor."""
+        if self.phone:
+            return self.phone
+        if self.email:
+            return self.email
+        if claim is True and self.emailclaims:
+            return self.emailclaims[0]
+        # This user has no anchors
+        return None
+
     def add_email(
         self,
         email: str,
