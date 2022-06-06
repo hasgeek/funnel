@@ -412,6 +412,7 @@ def logout():
 @app.route('/account/logout', methods=['POST'])
 @requires_login
 def account_logout():
+    """Process a logout request."""
     form = LogoutForm(user=current_auth.user)
     if form.validate():
         if form.user_session:
@@ -438,6 +439,7 @@ def account_logout():
 
 @app.route('/account/register', methods=['GET', 'POST'])
 def register():
+    """Register a new account (deprecated)."""
     if current_auth.is_authenticated:
         return redirect(url_for('index'), code=303)
     form = RegisterForm()

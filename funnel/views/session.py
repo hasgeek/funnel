@@ -104,10 +104,11 @@ def session_edit(
                 'delete_url': session.url_for('delete'),
                 'proposal_id': session.proposal_id,  # FIXME: Switch to UUID
             }
-            # FIXME: Return ``status='ok'``
+            # FIXME: Return ``status='ok'`` and ``edited=True``
             return jsonify(status=True, data=data)
         return redirect(session.url_for('view'))
     return jsonify(
+        # FIXME: Return ``status='ok'`` and ``edited=False``
         status=False,
         form=render_template(
             'session_form.html.jinja2',
