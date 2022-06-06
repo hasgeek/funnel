@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 from functools import wraps
-from typing import Optional, Type
+from typing import Optional, Tuple, Type
 
 from flask import (
     Response,
@@ -12,7 +12,6 @@ from flask import (
     jsonify,
     make_response,
     redirect,
-    render_template,
     request,
     session,
     url_for,
@@ -21,16 +20,17 @@ import itsdangerous
 
 import geoip2.errors
 
-from baseframe import _, request_is_xhr, statsd
+from baseframe import _, statsd
 from baseframe.forms import render_form, render_redirect
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
 from coaster.views import get_current_url, get_next_url
-from funnel.views.helpers import send_sms_otp
+from funnel.views.helpers import OtpData, send_sms_otp
 
 from .. import app
-from ..forms import OtpForm
+from ..forms import OtpForm, PasswordForm
 from ..models import (
+    Anchor,
     AuthClient,
     AuthClientCredential,
     User,
@@ -42,16 +42,21 @@ from ..models import (
     db,
     user_session_validity_period,
 )
+from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
 from ..utils import abort_null
+from .email import send_email_login_otp
 from .helpers import (
+    OtpReasonError,
+    OtpTimeoutError,
     app_url_for,
     autoset_timezone_and_locale,
     delete_otp_session,
     get_scheme_netloc,
     make_otp_session,
-    send_email_login_otp,
+    retrieve_otp_session,
+    validate_rate_limit,
 )
 
 # Constant value, needed for cookie max_age
@@ -391,6 +396,38 @@ def requires_login_no_message(f):
     return decorated_function
 
 
+def _make_and_send_otp(reason: str, user: User, anchor: Anchor) -> Tuple[OtpData, bool]:
+    otp_data = make_otp_session(
+        'sudo',
+        user=current_auth.user,
+        anchor=anchor,
+    )
+    otp_sent = False
+    if otp_data.email:
+        send_email_login_otp(
+            email=otp_data.email,
+            user=otp_data.user,
+            otp=otp_data.otp,
+        )
+        otp_sent = True
+        flash(_("An OTP has been sent to your email address"), 'success')
+    elif otp_data.phone:
+        # send_sms_otp returns an instance of SmsMessage if a message was sent
+        otp_sent = bool(
+            send_sms_otp(
+                phone=otp_data.phone,
+                otp=otp_data.otp,
+                render_flash=False,
+            )
+        )
+        if otp_sent:
+            flash(
+                _("An OTP has been sent to your phone number"),
+                'success',
+            )
+    return otp_data, otp_sent
+
+
 def requires_sudo(f):
     """
     Decorate a view to require user to have re-authenticated recently.
@@ -407,10 +444,45 @@ def requires_sudo(f):
             flash(_("You need to be logged in for that page"), 'info')
             set_session_next_url(True)
             return render_redirect(url_for('login'))
-        # If the user has not authenticated in some time, ask for the password again
-        if not current_auth.session.has_sudo:
-            # If the user doesn't have a password, ask them to set one first
-            if not current_auth.user.pw_hash:
+        if current_auth.session.has_sudo:
+            # This user authenticated recently. Nothing further required.
+            return f(*args, **kwargs)
+
+        if request_wants.json:
+            # A JSON-only endpoint can't render a form, so we have to redirect
+            # the browser to the account_sudo endpoint, asking it to redirect
+            # back here after getting the user's password. That will be:
+            # `url_for('account_sudo', next=request.url)`. Ideally, a fragment
+            # identifier should be included to reload to the same dialog the
+            # user was sent away from.
+
+            return make_response(
+                jsonify(
+                    status='error',
+                    error='requires_sudo',
+                    error_description=_(
+                        "This request must be confirmed with your password"
+                    ),
+                ),
+                422,
+            )
+
+        form = None
+        anchor = current_auth.user.default_anchor()
+
+        if request.method == 'GET':
+            # If the user has a password, ask for it
+            if current_auth.user.pw_hash:
+                form = PasswordForm(edit_user=current_auth.user)
+                # A future version of this form may accept password or 2FA (U2F or TOTP)
+            # User does not have a password. Try to send an OTP
+            elif anchor:
+                otp_data, otp_sent = _make_and_send_otp(
+                    'sudo', user=current_auth.user, anchor=anchor
+                )
+                if otp_sent:
+                    form = OtpForm(valid_otp=otp_data.otp)
+            if form is None:
                 flash(
                     _(
                         "This operation requires you to confirm your password. However,"
@@ -421,85 +493,61 @@ def requires_sudo(f):
                 )
                 set_session_next_url(True)
                 return render_redirect(url_for('change_password'))
-            # A future version of this form may accept password or 2FA (U2F or TOTP)
-            otp_data = make_otp_session(
-                'sudo',
-                user=current_auth.user,
-                anchor=current_auth.user.default_anchor(),
-            )
-            otp_sent = False
-            set_session_next_url(True)
-            if otp_data.email:
-                send_email_login_otp(
-                    email=otp_data.email,
-                    user=otp_data.user,
-                    otp=otp_data.otp,
-                )
-                otp_sent = True
-                flash(_("An OTP has been sent to your email address"), 'success')
-            elif otp_data.phone:
-                # send_sms_otp returns an instance of SmsMessage if a message was sent
-                otp_sent = bool(
-                    send_sms_otp(
-                        phone=otp_data.phone, otp=otp_data.otp, render_flash=False
-                    )
-                )
-                if otp_sent:
-                    flash(_("An OTP has been sent to your phone number"), 'success')
-            form = OtpForm(valid_otp=otp_data.otp)
-            formid = abort_null(request.form.get('form.id'))
-            if request.method == 'POST' and formid == 'password':
-                # User has successfully authenticated. Update their sudo timestamp and
-                # reload the page with a GET request, as the wrapped view may need to
-                # render its own form
-                current_auth.session.set_sudo()
-                login_internal(otp_data.user, login_service='otp')
-                db.session.commit()
-                current_app.logger.info(
-                    "Login successful for %r, possible redirect URL is '%s'",
-                    otp_data.user,
-                    session.get('next', ''),
-                )
-                flash(_("You are now authenticated"), category='success')
-                delete_otp_session()
-                db.session.commit()
-                continue_url = session.pop('next', request.url)
-                return set_loginmethod_cookie(
-                    redirect(continue_url, code=303),
-                    'otp',
-                )
-            if request_is_xhr():
-                # We can't render a form if it's an XHR request, so we need to ask for
-                # the page to be loaded afresh
-                if request.accept_mimetypes.best == 'application/json':
-                    # A JSON-only endpoint can't render a form, so we have to redirect
-                    # the browser to the account_sudo endpoint, asking it to redirect
-                    # back here after getting the user's password. That will be:
-                    # `url_for('account_sudo', next=request.url)`. Ideally, a fragment
-                    # identifier should be included to reload to the same dialog the
-                    # user was sent away from.
 
-                    return make_response(
-                        jsonify(
-                            status='error',
-                            error='requires_sudo',
-                            error_description=_(
-                                "This request must be confirmed with your password"
-                            ),
-                        ),
-                        422,
-                    )
-                return render_template('redirect.html.jinja2', url=request.url)
+        elif request.method == 'POST':
+            try:
+                formid = abort_null(request.form.get('form.id'))
+                if formid == 'sudo-otp':
+                    otp_data = retrieve_otp_session('sudo')
+                    form = OtpForm(valid_otp=otp_data.otp)
+                elif formid == 'sudo-password':
+                    form = PasswordForm(edit_user=current_auth.user)
+                else:
+                    # Unknown form
+                    abort(403)
+                validate_rate_limit('sudo', current_auth.user.userid, 5, 60)
+                if form.validate_on_submit():
+                    # User has successfully authenticated. Update their sudo timestamp
+                    # and reload the page with a GET request, as the wrapped view may
+                    # need to render its own form
+                    current_auth.session.set_sudo()
+                    db.session.commit()
+                    continue_url = session.pop('next', request.url)
+                    delete_otp_session()
+                    # TODO: use render_redirect from use-request-wants branch
+                    return redirect(continue_url, code=303)
+            except OtpTimeoutError as exc:
+                reason = str(exc)
+                current_app.logger.info("Sudo OTP timed out with %s", reason)
+                otp_data, otp_sent = _make_and_send_otp(
+                    'sudo', user=current_auth.user, anchor=anchor
+                )
+                if not otp_sent:
+                    abort(500)  # FIXME: Figure out likelihood and resolution
+                form = OtpForm(valid_otp=otp_data.otp)
+            except OtpReasonError as exc:
+                reason = str(exc)
+                current_app.logger.info("Sudo got OTP meant for %s", reason)
+                abort(403)
+        else:
+            abort(405)  # Only GET and POST are supported
 
-            return render_form(
-                form=form,
-                title=_("Confirm with your password to proceed"),
-                formid='password',
-                submit=_("Confirm"),
-                ajax=False,
-                template='account_formlayout.html.jinja2',
-            )
-        return f(*args, **kwargs)
+        if isinstance(form, OtpForm):
+            title = _("Confirm this operation with an OTP")
+            formid = 'sudo-otp'
+        elif isinstance(form, PasswordForm):
+            title = _("Confirm with your password to proceed")
+            formid = 'sudo-password'
+        else:
+            abort(500)  # This should never happen
+        return render_form(
+            form=form,
+            title=title,
+            formid=formid,
+            submit=_("Confirm"),
+            ajax=False,
+            template='account_formlayout.html.jinja2',
+        )
 
     return decorated_function
 
