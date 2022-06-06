@@ -358,7 +358,20 @@ def login() -> ReturnView:
     if request_is_xhr() and formid == 'passwordlogin':
         return render_login_form(loginform)
     elif request_is_xhr() and request.method == 'GET':
-        return render_login_form(loginform)
+        return (
+            render_template(
+                'login.html.jinja2',
+                loginform=loginform,
+                lastused=loginmethod,
+                login_registry=login_registry,
+                formid='passwordlogin',
+                ref_id='form-passwordlogin',
+                ajax=True,
+                with_chrome=True,
+            ),
+            200,
+            block_iframe,
+        )
     return (
         render_template(
             'login.html.jinja2',

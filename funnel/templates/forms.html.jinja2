@@ -143,21 +143,18 @@
         data-cy="form-submit-btn"
         >{{ value|e }}</button>
     {% endfor %}
-    {% if cancel_url %}<a href="{{ cancel_url }}" class="mui-btn mui-btn--raised mui-btn" data-cy="form-cancel-btn">{% trans %}Cancel{% endtrans %}</a>{% endif %}
+    {% if cancel_url %}<a href="{{ cancel_url }}" class="mui-btn mui-btn--raised mui-btn js-form-back-btn" data-cy="form-cancel-btn">{% trans %}Cancel{% endtrans %}</a>{% endif %}
     <span class="loading mui--hide">&nbsp;</span>
     {% if csrf_error -%}
-      <div><p class="mui-form__error">{% trans -%}
-        This form has timed out. Please submit again to confirm
-      {%- endtrans %}</p></div>
+      <div>
+        <p class="mui-form__error">{% trans -%}This form has timed out. Please submit again to confirm{%- endtrans %}</p>
+      </div>
     {%- endif %}
   </div>
 </div>
 {%- endmacro %}
 
 {% macro renderform_inner(form, formid, style='horiz', autosave=False, draft_revision=None) -%}
-  {%- if form.errors %}
-    {{ alertbox('error', 'Please review the indicated issues') }}
-  {%- endif %}
   {% if message %}<p>{{ message }}</p>{% endif %}
   <div style="display:none;"><input type="hidden" name="form.id" value="{{ formid }}" /></div>
   {{ form.hidden_tag() }}

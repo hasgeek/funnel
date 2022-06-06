@@ -386,9 +386,19 @@
   margin-left: -20px;
 }
 
+.profile-avatar--nomargin + .profile-avatar--nomargin {
+  margin: 0;
+}
+
 .profile-avatar--bigger {
   width: 40px;
   height: 40px;
+}
+
+.profile-avatar--bigger--padding {
+  width: 40px;
+  height: 40px;
+  padding: $mui-grid-padding/2;
 }
 
 .profile-avatar--rectangle {
