@@ -8,8 +8,12 @@ import pytest
 
 # Endpoints to test within the project namespace
 subpages = ['', 'updates', 'comments', 'sub', 'schedule', 'videos', 'crew']
-# XHR header (without, with)
-xhr_headers = [None, {'X-Requested-With': 'xmlhttprequest'}]
+# XHR header (without, with, with+accept)
+xhr_headers = [
+    None,
+    {'X-Requested-With': 'xmlhttprequest'},
+    {'X-Requested-With': 'xmlhttprequest', 'Accept': 'text/html, */*'},
+]
 # Logins (anon, promoter fixture)
 login_sessions = [None, '_promoter_login']
 
@@ -48,7 +52,7 @@ def test_default_is_html(  # pylint: disable=too-many-arguments
     """Pages render as full HTML by default."""
     if use_login:
         request.getfixturevalue(use_login)
-    headers = {'Accept': 'text/html'}
+    headers = {}
     if xhr:
         headers.update(xhr)
     rv = client.get(project_url + page, headers=headers)
@@ -71,7 +75,7 @@ def test_html_response(  # pylint: disable=too-many-arguments
     """Asking for a HTML page or a fragment (via XHR) returns a page or a fragment."""
     if use_login:
         request.getfixturevalue(use_login)
-    headers = {'Accept': 'text/html'}
+    headers = {}
     if xhr:
         headers.update(xhr)
     rv = client.get(project_url + page, headers=headers)
@@ -109,9 +113,10 @@ def test_htmljson_response(  # pylint: disable=too-many-arguments
     """Asking for HTML in JSON returns that as full HTML or a fragment."""
     if use_login:
         request.getfixturevalue(use_login)
-    headers = {'Accept': 'application/x.html+json'}
+    headers = {}
     if xhr:
         headers.update(xhr)
+    headers['Accept'] = 'application/x.html+json'
     rv = client.get(project_url + page, headers=headers)
     assert rv.status_code == 200
     assert rv.content_type == 'application/x.html+json; charset=utf-8'
