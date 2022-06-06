@@ -1,5 +1,5 @@
 {% set current_page = 'submissions' %}
-{%- if not request_is_xhr() -%}
+{%- if not request_wants.html_fragment -%}
   {% extends "project_layout.html.jinja2" %}
 {%- else -%}
   {% extends "project_spa_layout.html.jinja2" %}

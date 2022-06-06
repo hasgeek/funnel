@@ -21,7 +21,7 @@ import itsdangerous
 
 import geoip2.errors
 
-from baseframe import _, request_is_xhr, statsd
+from baseframe import _, statsd
 from baseframe.forms import render_form, render_redirect
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
@@ -41,6 +41,7 @@ from ..models import (
     db,
     user_session_validity_period,
 )
+from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
 from ..utils import abort_null
@@ -424,27 +425,25 @@ def requires_sudo(f):
                 continue_url = session.pop('next', request.url)
                 return redirect(continue_url, code=303)
 
-            if request_is_xhr():
-                # We can't render a form if it's an XHR request, so we need to ask for
-                # the page to be loaded afresh
-                if request.accept_mimetypes.best == 'application/json':
-                    # A JSON-only endpoint can't render a form, so we have to redirect
-                    # the browser to the account_sudo endpoint, asking it to redirect
-                    # back here after getting the user's password. That will be:
-                    # `url_for('account_sudo', next=request.url)`. Ideally, a fragment
-                    # identifier should be included to reload to the same dialog the
-                    # user was sent away from.
+            if request_wants.json:
+                # A JSON-only endpoint can't render a form, so we have to redirect the
+                # browser to the account_sudo endpoint, asking it to redirect back here
+                # after getting the user's password. That will be:
+                # `url_for('account_sudo', next=request.url)`. Ideally, a fragment
+                # identifier should be included to reload to the same dialog the user
+                # was sent away from.
 
-                    return make_response(
-                        jsonify(
-                            status='error',
-                            error='requires_sudo',
-                            error_description=_(
-                                "This request must be confirmed with your password"
-                            ),
+                return make_response(
+                    jsonify(
+                        status='error',
+                        error='requires_sudo',
+                        error_description=_(
+                            "This request must be confirmed with your password"
                         ),
-                        422,
-                    )
+                    ),
+                    422,
+                )
+            if request_wants.html_fragment:
                 return render_template('redirect.html.jinja2', url=request.url)
 
             return render_form(

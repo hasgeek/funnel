@@ -58,10 +58,7 @@ class RequestWants:
     @test_uses('Accept')
     def json(self) -> bool:
         """Request wants a JSON response."""
-        return (
-            request.accept_mimetypes.best_match(('red/herring', 'application/json'))
-            == 'application/json'
-        )
+        return request.accept_mimetypes.best == 'application/json'
 
     @test_uses('X-Requested-With', 'Accept', 'HX-Request', 'HX-Target')
     def html_fragment(self) -> bool:

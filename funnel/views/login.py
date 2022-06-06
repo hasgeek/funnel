@@ -18,7 +18,7 @@ from flask import (
 )
 import itsdangerous
 
-from baseframe import _, __, forms, request_is_xhr, statsd
+from baseframe import _, __, forms, statsd
 from baseframe.forms import render_message, render_redirect
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
@@ -49,6 +49,7 @@ from ..models import (
     getextid,
     merge_users,
 )
+from ..proxies import request_wants
 from ..registry import (
     LoginCallbackError,
     LoginInitError,
@@ -346,7 +347,7 @@ def login() -> ReturnView:
     elif request.method == 'POST':
         # This should not happen. We received an incomplete form.
         abort(403)
-    if request_is_xhr() and formid == 'passwordlogin':
+    if request_wants.html_fragment and formid == 'passwordlogin':
         return render_login_form(loginform)
     return (
         render_template(
@@ -415,7 +416,7 @@ def account_logout():
         if form.user_session:
             form.user_session.revoke()
             db.session.commit()
-            if request_is_xhr():
+            if request_wants.json:
                 return {'status': 'ok'}
             return redirect(url_for('account'), code=303)
 
@@ -426,7 +427,7 @@ def account_logout():
             render_template('logout_browser_data.html.jinja2', next=get_next_url())
         )
 
-    if request_is_xhr():
+    if request_wants.json:
         return {'status': 'error', 'errors': list(form.errors.values())}
 
     for error in form.errors.values():
