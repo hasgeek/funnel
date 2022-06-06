@@ -48,6 +48,7 @@ from ..utils import abort_null
 from .helpers import (
     app_url_for,
     autoset_timezone_and_locale,
+    delete_otp_session,
     get_scheme_netloc,
     make_otp_session,
     send_email_login_otp,
@@ -427,7 +428,7 @@ def requires_sudo(f):
                 anchor=current_auth.user.default_anchor(),
             )
             otp_sent = False
-
+            set_session_next_url(True)
             if otp_data.email:
                 send_email_login_otp(
                     email=otp_data.email,
@@ -446,15 +447,27 @@ def requires_sudo(f):
                 if otp_sent:
                     flash(_("An OTP has been sent to your phone number"), 'success')
             form = OtpForm(valid_otp=otp_data.otp)
-            if form.validate_on_submit():
+            formid = abort_null(request.form.get('form.id'))
+            if request.method == 'POST' and formid == 'password':
                 # User has successfully authenticated. Update their sudo timestamp and
                 # reload the page with a GET request, as the wrapped view may need to
                 # render its own form
                 current_auth.session.set_sudo()
+                login_internal(otp_data.user, login_service='otp')
+                db.session.commit()
+                current_app.logger.info(
+                    "Login successful for %r, possible redirect URL is '%s'",
+                    otp_data.user,
+                    session.get('next', ''),
+                )
+                flash(_("You are now authenticated"), category='success')
+                delete_otp_session()
                 db.session.commit()
                 continue_url = session.pop('next', request.url)
-                return redirect(continue_url, code=303)
-
+                return set_loginmethod_cookie(
+                    redirect(continue_url, code=303),
+                    'otp',
+                )
             if request_is_xhr():
                 # We can't render a form if it's an XHR request, so we need to ask for
                 # the page to be loaded afresh
