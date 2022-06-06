@@ -12,7 +12,7 @@ from flask import (
 
 from baseframe import _
 from baseframe.filters import date_filter
-from baseframe.forms import render_form, render_redirect
+from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
@@ -28,6 +28,7 @@ from coaster.views import (
 from .. import app
 from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm
 from ..models import Profile, Project, db
+from .helpers import render_redirect
 from .login_session import requires_login
 from .mixins import ProfileViewMixin
 

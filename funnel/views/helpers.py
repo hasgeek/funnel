@@ -18,6 +18,7 @@ from flask import (
     flash,
     g,
     jsonify,
+    redirect,
     render_template,
     request,
     session,
@@ -50,6 +51,7 @@ from ..models import (
     db,
     profanity,
 )
+from ..proxies import request_wants
 from ..signals import emailaddress_refcount_dropping
 from ..transports import TransportConnectionError, TransportRecipientError, sms
 from ..utils import blake2b160_hex
@@ -220,8 +222,11 @@ def app_url_for(
 
     The provided app must have `SERVER_NAME` in its config for URL construction to work.
     """
-    # 'app' here is the parameter, not the module-level import
-    if current_app and current_app._get_current_object() is target_app:  # type: ignore[attr-defined]
+    if (  # pylint: disable=protected-access
+        current_app
+        and current_app._get_current_object()  # type: ignore[attr-defined]
+        is target_app
+    ):
         return url_for(
             endpoint,
             _external=_external,
@@ -567,6 +572,17 @@ def send_sms_otp(
 
 
 # --- Template helpers -----------------------------------------------------------------
+
+
+def render_redirect(url: str, code=302):
+    """Render a redirect that is sensitive to the request type."""
+    if request_wants.html_fragment:
+        return (
+            render_template('redirect.html.jinja2', url=url),
+            200,
+            {'HX-Redirect': url},
+        )
+    return redirect(url, code)
 
 
 def html_in_json(template: str):

@@ -19,7 +19,7 @@ from flask import (
 import itsdangerous
 
 from baseframe import _, __, forms, statsd
-from baseframe.forms import render_message, render_redirect
+from baseframe.forms import render_message
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
 from coaster.utils import getbool
@@ -69,6 +69,7 @@ from .helpers import (
     delete_otp_session,
     make_otp_session,
     metarefresh_redirect,
+    render_redirect,
     retrieve_otp_session,
     send_sms_otp,
     session_timeouts,

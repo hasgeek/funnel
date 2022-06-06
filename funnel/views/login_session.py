@@ -12,7 +12,6 @@ from flask import (
     jsonify,
     make_response,
     redirect,
-    render_template,
     request,
     session,
     url_for,
@@ -22,7 +21,7 @@ import itsdangerous
 import geoip2.errors
 
 from baseframe import _, statsd
-from baseframe.forms import render_form, render_redirect
+from baseframe.forms import render_form
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
 from coaster.views import get_current_url, get_next_url
@@ -45,7 +44,12 @@ from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
 from ..utils import abort_null
-from .helpers import app_url_for, autoset_timezone_and_locale, get_scheme_netloc
+from .helpers import (
+    app_url_for,
+    autoset_timezone_and_locale,
+    get_scheme_netloc,
+    render_redirect,
+)
 
 # Constant value, needed for cookie max_age
 user_session_validity_period_total_seconds = int(
@@ -444,7 +448,7 @@ def requires_sudo(f):
                     422,
                 )
             if request_wants.html_fragment:
-                return render_template('redirect.html.jinja2', url=request.url)
+                return render_redirect(url=request.url, code=303)
 
             return render_form(
                 form=form,
