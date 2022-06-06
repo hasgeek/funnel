@@ -68,8 +68,8 @@ class RequestWants:
             and request.environ.get('HTTP_HX_TARGET', '') != ''
         ) or (
             request.environ.get('HTTP_X_REQUESTED_WITH', '').lower() == 'xmlhttprequest'
-            and request.accept_mimetypes.best_match(('red/herring', 'text/html'))
-            == 'text/html'
+            and request.accept_mimetypes.best
+            in ('text/html', 'application/x.html+json')  # Custom mimetype for Funnel
         )
 
     @test_uses('Accept')
