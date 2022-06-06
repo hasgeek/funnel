@@ -577,10 +577,10 @@ def send_sms_otp(
 def render_redirect(url: str, code=302):
     """Render a redirect that is sensitive to the request type."""
     if request_wants.html_fragment:
-        return (
+        return Response(
             render_template('redirect.html.jinja2', url=url),
-            200,
-            {'HX-Redirect': url},
+            status=200,
+            headers={'HX-Redirect': url},
         )
     return redirect(url, code)
 

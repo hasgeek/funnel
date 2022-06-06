@@ -69,7 +69,12 @@ class RequestWants:
         ) or (
             request.environ.get('HTTP_X_REQUESTED_WITH', '').lower() == 'xmlhttprequest'
             and request.accept_mimetypes.best
-            in ('text/html', 'application/x.html+json')  # Custom mimetype for Funnel
+            in (
+                None,  # No Accept header
+                '*/*',  # Default for jQuery requests
+                'text/html',  # HTML mimetype
+                'application/x.html+json',  # Custom mimetype for Funnel
+            )
         )
 
     @test_uses('Accept')

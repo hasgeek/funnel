@@ -74,7 +74,7 @@ def test_request_wants_json(accept_header, result):
     [
         (True, 'application/json', False),
         (True, 'text/html', True),
-        (True, '*/*', False),
+        (True, '*/*', True),
         (False, 'application/json', False),
         (False, 'text/html', False),
         (False, '*/*', False),
