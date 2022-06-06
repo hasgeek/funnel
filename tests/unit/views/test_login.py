@@ -24,7 +24,7 @@ BLANK_PASSWORD = ''  # nosec  # noqa: S105
 
 # Functions to patch to capture OTPs
 PATCH_SMS_OTP = 'funnel.transports.sms.send'
-PATCH_EMAIL_OTP = 'funnel.views.login.send_login_otp'
+PATCH_EMAIL_OTP = 'funnel.views.login.send_email_login_otp'
 
 
 @pytest.fixture()
