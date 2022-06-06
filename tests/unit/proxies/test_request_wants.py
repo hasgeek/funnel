@@ -57,7 +57,7 @@ def test_request_wants_is_an_instance():
         ('application/json', True),
         ('text/html', False),
         ('application/json;q=0.8, text/html;q=0.7', True),
-        ('text/html;q=0.9, application/json;q=0.8', True),
+        ('text/html;q=0.9, application/json;q=0.8', False),
         ('*/*', False),
     ],
 )
