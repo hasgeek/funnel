@@ -92,30 +92,26 @@ def test_request_wants_html_fragment_xhr(xhr, accept_header, result):
 
 
 @pytest.mark.parametrize(
-    ('hx_request', 'hx_target', 'accept_header', 'result'),
+    ('hx_request', 'accept_header', 'result'),
     [
-        (True, 'form', 'application/json', True),
-        (True, 'form', 'text/html', True),
-        (True, 'form', '*/*', True),
-        (True, None, 'application/json', False),
-        (True, None, 'text/html', False),
-        (True, None, '*/*', False),
-        (False, 'form', 'application/json', False),
-        (False, 'form', 'text/html', False),
-        (False, 'form', '*/*', False),
-        (False, None, 'application/json', False),
-        (False, None, 'text/html', False),
-        (False, None, '*/*', False),
+        (True, 'application/json', False),
+        (True, 'text/html', True),
+        (True, '*/*', True),
+        (True, None, True),
+        (False, 'application/json', False),
+        (False, 'text/html', False),
+        (False, '*/*', False),
+        (False, None, False),
     ],
 )
-def test_request_wants_html_fragment_htmx(hx_request, hx_target, accept_header, result):
+def test_request_wants_html_fragment_htmx(hx_request, accept_header, result):
     """Request wants a HTML fragment (HTMX version)."""
     # The Accept header is not a factor in HTMX calls.
-    headers = {'Accept': accept_header}
+    headers = {}
+    if accept_header:
+        headers['Accept'] = accept_header
     if hx_request:
         headers['HX-Request'] = 'true'
-    if hx_target:
-        headers['HX-Target'] = hx_target
     with app.test_request_context(headers=headers):
         assert request_wants.html_fragment is result
     # Without request context is always False
@@ -175,5 +171,4 @@ def test_response_varies(test_app):
         'Accept',
         'X-Requested-With',
         'HX-Request',
-        'HX-Target',
     }
