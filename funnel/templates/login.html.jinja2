@@ -1,4 +1,4 @@
-{%- if not request_is_xhr() -%}
+{%- if not request_wants.html_fragment -%}
   {% extends "account_formlayout.html.jinja2" %}
 {%- else -%}
   {% extends "ajaxform.html.jinja2" %}
@@ -13,7 +13,7 @@
 
 {% block form %}
   <div id="passwordform">
-    {%- if request_is_xhr() -%}
+    {%- if request_wants.html_fragment -%}
       <p class="mui--text-body2 mui--text-light mui--text-bold mui--text-left">{% trans %}Hello!{% endtrans %}</p>
       <p class="mui--text-body2 mui--text-light mui--text-left">{% trans %}Tell us where you'd like to get updates. We'll send an OTP to confirm.{% endtrans %}</p>
     {% endif %}
