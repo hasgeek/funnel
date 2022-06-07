@@ -136,7 +136,7 @@ def url_blake2b160_hash(value: Union[str, furl], normalize=True) -> bytes:
     """
     Hash a URL, for duplicate URL lookup.
 
-    This function is currently not used, as its utility is uncertain:
+    This function is currently not used as its utility is uncertain:
 
     1. Since hashes are shorter than full URLs, a URL lookup by hash may have better
        performance.
@@ -208,10 +208,12 @@ class Shortlink(NoIdMixin, db.Model):
 
     @name.setter
     def name(self, value: Union[str, bytes]):
+        """Set a name."""
         self.id = name_to_bigint(value)
 
     @name.comparator
-    def name(cls):  # noqa: N805
+    def name(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        """Compare name to id in a SQL expression."""
         return ShortLinkToBigIntComparator(cls.id)
 
     # --- Validators
@@ -312,11 +314,11 @@ class Shortlink(NoIdMixin, db.Model):
                 db.session.add(shortlink)
                 # 3. Emit `RELEASE SAVEPOINT`
                 savepoint.commit()
-            except IntegrityError:
+            except IntegrityError as exc:
                 # 4. Emit `ROLLBACK TO SAVEPOINT`
                 savepoint.rollback()
                 # Name not available. Re-raise as a ValueError
-                raise ValueError(f"Shortlink name is not available: {name}")
+                raise ValueError(f"Shortlink name is not available: {name}") from exc
             return shortlink
 
         # Not a custom name. Keep trying ids until one succeeds

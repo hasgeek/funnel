@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from collections import namedtuple
+from dataclasses import dataclass
+from datetime import datetime
 from itertools import groupby
-from typing import Iterable, Optional, Set
+from typing import Collection, Iterable, Optional, Set
+from uuid import UUID
 
 from sqlalchemy.ext.associationproxy import association_proxy
 
@@ -17,9 +19,25 @@ from .user import User
 __all__ = ['ContactExchange']
 
 
-# Named tuples for returning contacts grouped by project and date
-ProjectId = namedtuple('ProjectId', ['id', 'uuid', 'uuid_b58', 'title', 'timezone'])
-DateCountContacts = namedtuple('DateCountContacts', ['date', 'count', 'contacts'])
+# Data classes for returning contacts grouped by project and date
+@dataclass
+class ProjectId:
+    """Holder for minimal :class:`~funnel.models.project.Project` information."""
+
+    id: int  # noqa: A003
+    uuid: UUID
+    uuid_b58: str
+    title: str
+    timezone: str
+
+
+@dataclass
+class DateCountContacts:
+    """Contacts per date of a Project's schedule."""
+
+    date: datetime
+    count: int
+    contacts: Collection[ContactExchange]
 
 
 class ContactExchange(TimestampMixin, RoleMixin, db.Model):
@@ -106,9 +124,9 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         )
 
         if not archived:
-            # If archived == True: return everything (contacts including archived contacts)
-            # if archived == False: return only unarchived contacts
-            query = query.filter(cls.archived == False)  # noqa: E712
+            # If archived: return everything (contacts including archived contacts)
+            # If not archived: return only unarchived contacts
+            query = query.filter(cls.archived.is_(False))
 
         # from_self turns `SELECT columns` into `SELECT new_columns FROM (SELECT columns)`
         query = (
@@ -201,13 +219,16 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         return groups
 
     @classmethod
-    def contacts_for_project_and_date(cls, user, project, date, archived=False):
+    def contacts_for_project_and_date(
+        cls, user: User, project: Project, date: datetime, archived=False
+    ):
         """Return contacts for a given user, project and date."""
         query = cls.query.join(TicketParticipant).filter(
             cls.user == user,
-            # For safety always use objects instead of column values. The following expression
-            # should have been `Participant.project == project`. However, we are using `id` here
-            # because `project` may be an instance of ProjectId returned by `grouped_counts_for`
+            # For safety always use objects instead of column values. The following
+            # expression should have been `Participant.project == project`. However, we
+            # are using `id` here because `project` may be an instance of ProjectId
+            # returned by `grouped_counts_for`
             TicketParticipant.project_id == project.id,
             db.cast(
                 db.func.date_trunc(
@@ -218,9 +239,9 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             == date,
         )
         if not archived:
-            # If archived == True: return everything (contacts including archived contacts)
-            # if archived == False: return only unarchived contacts
-            query = query.filter(cls.archived == False)  # noqa: E712
+            # If archived: return everything (contacts including archived contacts)
+            # If not archived: return only unarchived contacts
+            query = query.filter(cls.archived.is_(False))
 
         return query
 
@@ -229,13 +250,14 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         """Return contacts for a given user and project."""
         query = cls.query.join(TicketParticipant).filter(
             cls.user == user,
-            # See explanation for the following expression in `contacts_for_project_and_date`
+            # See explanation for the following expression in
+            # `contacts_for_project_and_date`
             TicketParticipant.project_id == project.id,
         )
         if not archived:
-            # If archived == True: return everything (contacts including archived contacts)
-            # if archived == False: return only unarchived contacts
-            query = query.filter(cls.archived == False)  # noqa: E712
+            # If archived: return everything (contacts including archived contacts)
+            # If not archived: return only unarchived contacts
+            query = query.filter(cls.archived.is_(False))
         return query
 
 

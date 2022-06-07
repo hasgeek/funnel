@@ -1,4 +1,5 @@
 """Test sessions."""
+# pylint: disable=possibly-unused-variable
 from datetime import datetime, timedelta
 from types import SimpleNamespace
 
@@ -12,7 +13,7 @@ from funnel.models import Project, Session, db
 # TODO: Create a second parallel project and confirm they don't clash
 
 
-@pytest.fixture
+@pytest.fixture()
 def block_of_sessions(db_session, new_project):
 
     # DocType HTML5's schedule, but using UTC to simplify testing

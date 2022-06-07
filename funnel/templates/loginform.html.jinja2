@@ -1,4 +1,12 @@
 {% from "forms.html.jinja2" import ajaxform %}
+{%- from "macros.html.jinja2" import alertbox -%}
 {% from "password_login_form.html.jinja2" import passwordlogin %}
-{{ passwordlogin(loginform, ref_id) }}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      {{ alertbox(category, message) }}
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+{{ passwordlogin(loginform, formid, ref_id) }}
 {{ ajaxform(ref_id, request) }}

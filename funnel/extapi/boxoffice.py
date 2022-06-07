@@ -24,9 +24,7 @@ class Boxoffice:
     def get_orders(self, ic):
         url = urljoin(
             self.base_url,
-            'ic/{ic}/orders?access_token={token}'.format(
-                ic=ic, token=self.access_token
-            ),
+            f'ic/{ic}/orders?access_token={self.access_token}',
         )
         return requests.get(url).json().get('orders')
 

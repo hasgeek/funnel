@@ -3,7 +3,7 @@ from __future__ import annotations
 from flask import Markup, abort, flash, redirect, render_template, request, url_for
 
 from baseframe import _
-from baseframe.forms import render_delete_sqla, render_form, render_redirect
+from baseframe.forms import render_delete_sqla, render_form
 from coaster.auth import current_auth
 from coaster.views import (
     ClassView,
@@ -32,6 +32,7 @@ from ..models import (
     db,
 )
 from ..typing import ReturnView
+from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo
 
 # --- Routes: client apps -----------------------------------------------------

@@ -1,4 +1,4 @@
-from collections import namedtuple
+from dataclasses import dataclass
 from types import SimpleNamespace
 import csv
 import io
@@ -14,12 +14,7 @@ from flask import (
 )
 
 from baseframe import _, __, forms
-from baseframe.forms import (
-    render_delete_sqla,
-    render_form,
-    render_message,
-    render_redirect,
-)
+from baseframe.forms import render_delete_sqla, render_form, render_message
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
 from coaster.views import (
@@ -53,20 +48,25 @@ from ..models import (
     db,
 )
 from ..signals import project_role_change
-from .helpers import html_in_json
+from .helpers import html_in_json, render_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import requires_login, requires_site_editor
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
 
-CountWords = namedtuple(
-    'CountWords', ['unregistered', 'registered', 'not_following', 'following']
-)
+
+@dataclass
+class CountWords:
+    """Labels for a count of registrations."""
+
+    unregistered: str
+    registered: str
+    not_following: str
+    following: str
+
 
 registration_count_messages = [
-    CountWords(
-        __("Be the first to register!"), None, __("Be the first follower!"), None
-    ),
+    CountWords(__("Be the first to register!"), '', __("Be the first follower!"), ''),
     CountWords(
         __("One registration so far"),
         __("You have registered"),
@@ -140,16 +140,16 @@ def get_registration_text(count: int, registered=False, follow_mode=False) -> st
     if count <= 10:
         if registered and not follow_mode:
             return registration_count_messages[count].registered
-        elif not registered and not follow_mode:
+        if not registered and not follow_mode:
             return registration_count_messages[count].unregistered
-        elif registered and follow_mode:
+        if registered and follow_mode:
             return registration_count_messages[count].following
         return registration_count_messages[count].not_following
     if registered and not follow_mode:
         return greater_than_10_count.registered.format(num=count - 1)
-    elif not registered and not follow_mode:
+    if not registered and not follow_mode:
         return greater_than_10_count.unregistered.format(num=count)
-    elif registered and follow_mode:
+    if registered and follow_mode:
         return greater_than_10_count.following.format(num=count - 1)
     return greater_than_10_count.not_following.format(num=count)
 
@@ -228,8 +228,7 @@ def project_registration_text(obj: Project) -> str:
 def project_register_button_text(obj: Project) -> str:
     if obj.features.follow_mode():
         return _("Follow")
-    else:
-        return _("Register")
+    return _("Register")
 
 
 @Profile.views('project_new')
@@ -363,35 +362,30 @@ class ProjectView(
                 autosave=True,
                 draft_revision=draft_revision,
             )
-        elif request.method == 'POST':
-            if getbool(request.args.get('form.autosave')):
-                return self.autosave_post()
-            else:
-                form = ProjectForm(
-                    obj=self.obj, profile=self.obj.profile, model=Project
-                )
-                if form.validate_on_submit():
-                    form.populate_obj(self.obj)
-                    db.session.commit()
-                    flash(_("Your changes have been saved"), 'info')
-                    tag_locations.queue(self.obj.id)
+        if getbool(request.args.get('form.autosave')):
+            return self.autosave_post()
+        form = ProjectForm(obj=self.obj, profile=self.obj.profile, model=Project)
+        if form.validate_on_submit():
+            form.populate_obj(self.obj)
+            db.session.commit()
+            flash(_("Your changes have been saved"), 'info')
+            tag_locations.queue(self.obj.id)
 
-                    # Find and delete draft if it exists
-                    if self.get_draft() is not None:
-                        self.delete_draft()
-                        db.session.commit()
+            # Find and delete draft if it exists
+            if self.get_draft() is not None:
+                self.delete_draft()
+                db.session.commit()
 
-                    return redirect(self.obj.url_for(), code=303)
-                else:
-                    # Reset nonce to avoid conflict with autosave
-                    form.form_nonce.data = form.form_nonce.default()
-                    return render_form(
-                        form=form,
-                        title=_("Edit project"),
-                        submit=_("Save changes"),
-                        autosave=True,
-                        draft_revision=request.form.get('form.revision'),
-                    )
+            return redirect(self.obj.url_for(), code=303)
+        # Reset nonce to avoid conflict with autosave
+        form.form_nonce.data = form.form_nonce.default()
+        return render_form(
+            form=form,
+            title=_("Edit project"),
+            submit=_("Save changes"),
+            autosave=True,
+            draft_revision=request.form.get('form.revision'),
+        )
 
     @route('delete', methods=['GET', 'POST'])
     @requires_login
@@ -445,10 +439,7 @@ class ProjectView(
                 db.session.commit()
                 flash(_("Your changes have been saved"), 'info')
                 return render_redirect(self.obj.url_for(), code=303)
-            else:
-                return render_form(
-                    form=form, title="", submit=_("Save banner"), ajax=True
-                )
+            return render_form(form=form, title="", submit=_("Save banner"), ajax=True)
         return render_form(
             form=form,
             title="",
@@ -467,15 +458,14 @@ class ProjectView(
             self.obj.bg_image = None
             db.session.commit()
             return render_redirect(self.obj.url_for(), code=303)
-        else:
-            current_app.logger.error(
-                "CSRF form validation error when removing project banner"
-            )
-            flash(
-                _("Were you trying to remove the banner? Try again to confirm"),
-                'error',
-            )
-            return render_redirect(self.obj.url_for(), code=303)
+        current_app.logger.error(
+            "CSRF form validation error when removing project banner"
+        )
+        flash(
+            _("Were you trying to remove the banner? Try again to confirm"),
+            'error',
+        )
+        return render_redirect(self.obj.url_for(), code=303)
 
     @route('cfp', methods=['GET', 'POST'])
     @requires_login
@@ -551,17 +541,15 @@ class ProjectView(
                     'status': 'ok',
                     'message': _("This project can now receive submissions"),
                 }
-            else:
-                return {
-                    'status': 'ok',
-                    'message': _("This project will no longer accept submissions"),
-                }
-        else:
             return {
-                'status': 'error',
-                'error': 'validation',
-                'error_description': _("Invalid form submission"),
+                'status': 'ok',
+                'message': _("This project will no longer accept submissions"),
             }
+        return {
+            'status': 'error',
+            'error': 'validation',
+            'error_description': _("Invalid form submission"),
+        }
 
     @route('register', methods=['POST'])
     @requires_login
@@ -647,11 +635,8 @@ class ProjectView(
             headers=[
                 (
                     'Content-Disposition',
-                    'attachment;filename="{filename}.csv"'.format(
-                        filename='ticket-participants-{project}-{state}'.format(
-                            project=make_name(self.obj.title), state=state
-                        )
-                    ),
+                    f'attachment;filename='
+                    f'"ticket-participants-{make_name(self.obj.title)}-{state}.csv"',
                 )
             ],
         )
@@ -692,16 +677,15 @@ class ProjectView(
                     db.session.commit()
             # Send new form nonce
             return {'status': 'ok', 'form_nonce': form.form_nonce.data}
-        else:
-            return (
-                {
-                    'status': 'error',
-                    'error': 'project_save_form_invalid',
-                    'error_description': _("This page timed out. Reload and try again"),
-                    'form_nonce': form.form_nonce.data,
-                },
-                400,
-            )
+        return (
+            {
+                'status': 'error',
+                'error': 'project_save_form_invalid',
+                'error_description': _("This page timed out. Reload and try again"),
+                'form_nonce': form.form_nonce.data,
+            },
+            400,
+        )
 
     @route('admin', methods=['GET', 'POST'])
     @render_with('project_admin.html.jinja2')
@@ -775,11 +759,10 @@ class ProjectView(
             db.session.commit()
             if self.obj.site_featured:
                 return {'status': 'ok', 'message': 'This project has been featured.'}
-            else:
-                return {
-                    'status': 'ok',
-                    'message': 'This project is no longer featured.',
-                }
+            return {
+                'status': 'ok',
+                'message': 'This project is no longer featured.',
+            }
         return redirect(get_next_url(referrer=True), 303)
 
 

@@ -192,8 +192,8 @@ class SmsTemplate:
         """Get a format variable."""
         try:
             return self._format_kwargs[attr]
-        except KeyError:
-            raise AttributeError(attr)
+        except KeyError as exc:
+            raise AttributeError(attr) from exc
 
     def __getitem__(self, key: str):
         """Get a format variable via dictionary access, defaulting to ''."""
@@ -300,8 +300,8 @@ class SmsTemplate:
                 # parent class, let this pass. If not, raise a warning.
                 if not cls.registered_templateid:
                     app.logger.warning(
-                        "App config is missing SMS_DLT_TEMPLATE_IDS['%s'] for template"
-                        " %s",
+                        "App config is missing SMS_DLT_TEMPLATE_IDS['%s']"
+                        " for template %s",
                         subcls_config_name,
                         subcls.__name__,
                     )

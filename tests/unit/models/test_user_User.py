@@ -3,7 +3,7 @@ from datetime import timedelta
 import pytest
 
 from coaster.utils import utcnow
-import funnel.models as models
+from funnel import models
 
 
 def test_user(db_session):
@@ -93,7 +93,9 @@ def test_user_del_email(db_session, user_twoflower):
 
     assert len(user_twoflower.emails) == 3
     assert user_twoflower.primary_email is not None
-    assert str(user_twoflower.primary_email) == 'twoflower@example.org'  # type: ignore[unreachable]
+    assert (  # type: ignore[unreachable]
+        str(user_twoflower.primary_email) == 'twoflower@example.org'
+    )
     assert {str(e) for e in user_twoflower.emails} == {
         'twoflower@example.org',
         'twoflower@example.com',
@@ -165,7 +167,9 @@ def test_user_del_phone(db_session, user_twoflower):
 
     assert len(user_twoflower.phones) == 3
     assert user_twoflower.primary_phone is not None
-    assert str(user_twoflower.primary_phone) == '+12345678900'  # type: ignore[unreachable]
+    assert (  # type: ignore[unreachable]
+        str(user_twoflower.primary_phone) == '+12345678900'
+    )
     assert {str(e) for e in user_twoflower.phones} == {
         '+12345678900',
         '+12345678901',
@@ -244,7 +248,7 @@ def test_user_autocomplete(
 
 
 @pytest.mark.parametrize('defercols', [False, True])
-def test_user_all(
+def test_user_all(  # pylint: disable=too-many-arguments
     db_session,
     user_twoflower,
     user_rincewind,
@@ -349,7 +353,7 @@ def test_user_password(user_twoflower):
     # User account starts out with no password
     assert user_twoflower.pw_hash is None
     # User account can set a password
-    user_twoflower.password = 'test-password'  # noqa: S105
+    user_twoflower.password = 'test-password'  # nosec  # noqa: S105
     assert user_twoflower.password_is('test-password') is True
     assert user_twoflower.password_is('wrong-password') is False
 
@@ -357,7 +361,7 @@ def test_user_password(user_twoflower):
 def test_user_password_has_expired(db_session, user_twoflower):
     """Test to check if password for a user has expired."""
     assert user_twoflower.pw_hash is None
-    user_twoflower.password = 'test-password'  # noqa: S105
+    user_twoflower.password = 'test-password'  # nosec  # noqa: S105
     db_session.commit()  # Required to set pw_expires_at and pw_set_at
     assert user_twoflower.pw_expires_at > user_twoflower.pw_set_at
     assert user_twoflower.password_has_expired() is False

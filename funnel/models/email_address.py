@@ -200,7 +200,7 @@ class EmailAddress(BaseMixin, db.Model):
 
     #: BLAKE2b 160-bit hash of :property:`email_canonical`. Kept permanently for blocked
     #: email detection. Indexed but does not use a unique constraint because a+b@tld and
-    #: a+c@tld are both a@tld canonically.
+    #: a+c@tld are both a@tld canonically but can exist in records separately.
     blake2b160_canonical = immutable(
         db.Column(db.LargeBinary, nullable=False, index=True)
     )
@@ -538,6 +538,9 @@ class EmailAddress(BaseMixin, db.Model):
 
         Raises an exception if the address is blocked from use, or the email address
         is syntactically invalid.
+
+        :raises ValueError: If email address syntax is invalid
+        :raises EmailAddressBlockedError: If email address is blocked
         """
         existing = cls._get_existing(email)
         if existing is not None:
@@ -622,7 +625,7 @@ class EmailAddress(BaseMixin, db.Model):
                 return 'not_new'
         if existing.delivery_state.SOFT_FAIL:
             return 'soft_fail'
-        elif existing.delivery_state.HARD_FAIL:
+        if existing.delivery_state.HARD_FAIL:
             return 'hard_fail'
         return True
 
@@ -757,10 +760,10 @@ def _validate_email(target, value: object, old_value: object, initiator):
     if not value and value is not None:
         # Only `None` is an acceptable falsy value
         raise ValueError("An email address is required")
-    elif old_value == value:
+    if old_value == value:
         # Old value is new value. Do nothing. Return without validating
         return
-    elif old_value is NO_VALUE and inspect(target).has_identity is False:
+    if old_value is NO_VALUE and inspect(target).has_identity is False:
         # Old value is unknown and target is a transient object. Continue
         pass
     elif value is None:

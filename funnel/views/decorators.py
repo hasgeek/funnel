@@ -7,9 +7,10 @@ from typing import Any, Callable, Optional, Set, TypeVar, Union, cast
 
 from flask import Response, make_response, redirect, request, url_for
 
-from baseframe import cache, request_is_xhr
+from baseframe import cache
 from coaster.auth import current_auth
 
+from ..proxies import request_wants
 from ..typing import ReturnView
 from .helpers import compress_response
 
@@ -33,7 +34,7 @@ def xhr_only(redirect_to: Union[str, Callable[[], str], None] = None):
     def decorator(f: F) -> F:
         @wraps(f)
         def wrapper(*args, **kwargs) -> ReturnView:
-            if not request_is_xhr():
+            if not request_wants.html_fragment:
                 if redirect_to is None:
                     destination = url_for('index')
                 elif callable(redirect_to):

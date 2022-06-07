@@ -5,12 +5,7 @@ from typing import Optional
 from flask import abort, flash, redirect, render_template, request, url_for
 
 from baseframe import _
-from baseframe.forms import (
-    render_delete_sqla,
-    render_form,
-    render_message,
-    render_redirect,
-)
+from baseframe.forms import render_delete_sqla, render_form, render_message
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
@@ -26,6 +21,7 @@ from ..forms import OrganizationForm, TeamForm
 from ..models import Organization, Team, db
 from ..signals import org_data_changed, team_data_changed
 from ..typing import ReturnView
+from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo
 
 # --- Routes: Organizations ---------------------------------------------------

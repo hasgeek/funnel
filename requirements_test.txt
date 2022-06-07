@@ -6,11 +6,11 @@
 #
 attrs==21.4.0
     # via pytest
-certifi==2021.10.8
+certifi==2022.5.18.1
     # via requests
 charset-normalizer==2.0.12
     # via requests
-coverage[toml]==6.3.3
+coverage[toml]==6.4
     # via
     #   -r requirements_test.in
     #   coveralls
@@ -25,7 +25,7 @@ idna==3.3
     # via requests
 iniconfig==1.1.1
     # via pytest
-lxml==4.8.0
+lxml==4.9.0
     # via -r requirements_test.in
 mako==1.2.0
     # via pytest-bdd

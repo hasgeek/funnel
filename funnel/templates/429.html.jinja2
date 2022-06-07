@@ -4,10 +4,10 @@
 {% block top_title %}
   <div class="mui--text-center">
     <img src="{{ url_for('static', filename='img/error-429.svg') }}" class="emoticon"/>
-    <h1 class="mui--text-light mui--text-display1">{% trans %}Hey, slowdown{% endtrans %}</h1>
+    <h1 class="mui--text-light mui--text-display1">{% trans %}Slow down!{% endtrans %}</h1>
   </div>
 {% endblock %}
 
 {% block content %}
-  <p class="mui--text-subhead mui--text-center">{% trans %}You are sending too many requests{% endtrans %}</p>
+  <p class="mui--text-subhead mui--text-center">{% trans %}This is unusually high activity. Try again later{% endtrans %}</p>
 {% endblock %}

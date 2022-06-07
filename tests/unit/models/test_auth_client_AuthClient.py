@@ -1,7 +1,7 @@
 import pytest
 
 from coaster.utils import utcnow
-import funnel.models as models
+from funnel import models
 
 from .test_db import TestDatabaseFixture
 
@@ -60,7 +60,10 @@ class TestClient(TestDatabaseFixture):
         varys_session = models.UserSession(
             user=varys,
             ipaddr='192.168.1.99',
-            user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36',
+            user_agent=(
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36'
+                ' (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36'
+            ),
             accessed_at=utcnow(),
         )
         lannisters_auth_token = models.AuthToken(

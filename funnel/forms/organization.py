@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from flask import Markup, url_for
 
-from baseframe import _, __
+from baseframe import _, __, forms
 from coaster.auth import current_auth
-import baseframe.forms as forms
 
 from ..models import Organization, Profile, Team
 
@@ -23,6 +22,7 @@ class OrganizationForm(forms.Form):
             forms.validators.Length(max=Organization.__title_length__),
         ],
         filters=[forms.filters.strip()],
+        render_kw={'autocomplete': 'organization'},
     )
     name = forms.AnnotatedTextField(
         __("Username"),
@@ -38,7 +38,7 @@ class OrganizationForm(forms.Form):
         ],
         filters=[forms.filters.strip()],
         prefix="https://hasgeek.com/",
-        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
     )
 
     def validate_name(self, field):

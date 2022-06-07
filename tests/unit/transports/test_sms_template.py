@@ -13,7 +13,7 @@ from funnel.transports.sms import (
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def app():
     app = Flask(__name__)
     app.config['SMS_DLT_ENTITY_ID'] = 'dlt_entity_id'
@@ -28,31 +28,29 @@ class MyMessage(SmsTemplate):
 
 def test_validate_registered_template():
     """Test DLT registered template validator."""
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(
+        ValueError,
+        match='Registered template must be within 2000 chars',
+    ):
 
         class TemplateTooLong(SmsTemplate):
             registered_template = template = 'a' * 2001
 
-    assert (
-        str(exc_info.value)
-        == "Registered template must be within 2000 chars (currently 2001 chars)"
-    )
-
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(
+        ValueError, match='Registered template must use {#var#}, not {# var #}'
+    ):
 
         class TemplateVarSpaceWrong(SmsTemplate):
             registered_template = '{# var #}'
             template = '{var}'
 
-    assert str(exc_info.value) == "Registered template must use {#var#}, not {# var #}"
-
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(
+        ValueError, match='Registered template must use {#var#}, not {#VAR#}'
+    ):
 
         class TemplateVarCaseWrong(SmsTemplate):
             registered_template = '{#VAR#}'
             template = '{var}'
-
-    assert str(exc_info.value) == "Registered template must use {#var#}, not {#VAR#}"
 
 
 def test_template_lengths():
@@ -132,39 +130,35 @@ def test_template_lengths():
 
 def test_validate_template():
     """Test Python template validator."""
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(
+        ValueError, match='Python template does not match registered template'
+    ):
 
         class TemplatSpaceMismatch(SmsTemplate):
             registered_template = '{#var#} '  # extra space
             template = '{var}'  # no space
 
-    assert "template does not match" in str(exc_info.value)
-
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(
+        ValueError, match='Python template does not match registered template'
+    ):
 
         class TemplateCaseMismatch(SmsTemplate):
             registered_template = 'I{#var#} '  # uppercase
             template = 'i{var}'  # lowercase
 
-    assert "template does not match" in str(exc_info.value)
-
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(
+        ValueError, match="Template field 'text' in TemplateVarReserved is reserved"
+    ):
 
         class TemplateVarReserved(SmsTemplate):
             registered_template = "{#var#}"
             template = "{text}"
 
-    assert "Template field 'text' in TemplateVarReserved is reserved" in str(
-        exc_info.value
-    )
-
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(ValueError, match='Templates cannot have positional fields'):
 
         class TemplateVarPositional(SmsTemplate):
             registered_template = "{#var#}"
             template = "{}"
-
-    assert "Templates cannot have positional fields" in str(exc_info.value)
 
 
 def test_validate_no_entity_template_id():

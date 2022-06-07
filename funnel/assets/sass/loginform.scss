@@ -48,10 +48,6 @@
       top: 50%;
     }
 
-    .mui-btn--primary {
-      width: 100%;
-    }
-
     .mui-form {
       margin: 0;
     }
@@ -92,43 +88,43 @@
   }
 }
 
-.login,
-.login:hover,
-.login:active {
+.mui-btn.login,
+.mui-btn.login:hover,
+.mui-btn.login:active {
   color: $mui-text-white;
   font-size: 16px;
   text-transform: capitalize;
 }
 
-.login {
+.mui-btn.login {
   margin: 0;
   margin-bottom: $mui-grid-padding;
 }
 
-.login--smaller {
+.mui-btn.login--smaller {
   margin-right: $mui-grid-padding/2;
   margin-bottom: $mui-grid-padding/2;
 }
 
-.login-twitter,
-.login-twitter:hover,
-.login-twitter:active {
+.mui-btn.login-twitter,
+.mui-btn.login-twitter:hover,
+.mui-btn.login-twitter:active {
   background-color: #08a0e9;
 }
-.login-google,
-.login-google:hover,
-.login-google:active {
+.mui-btn.login-google,
+.mui-btn.login-google:hover,
+.mui-btn.login-google:active {
   color: #757575;
   background: $mui-bg-color-primary;
 }
-.login-linkedin,
-.login-linkedin:hover,
-.login-linkedin:active {
+.mui-btn.login-linkedin,
+.mui-btn.login-linkedin:hover,
+.mui-btn.login-linkedin:active {
   background-color: #0074b2;
 }
-.login-github,
-.login-github:hover,
-.login-github:active {
+.mui-btn.login-github,
+.mui-btn.login-github:hover,
+.mui-btn.login-github:active {
   background-color: #444444;
 }
 
