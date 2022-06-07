@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from functools import wraps
-from typing import Callable, cast
+from typing import Any, Callable, Optional, TypeVar, cast
 
 from flask import (  # type: ignore[attr-defined]
     Response,
@@ -15,8 +15,10 @@ from werkzeug.utils import cached_property
 
 __all__ = ['request_wants']
 
+TestFunc = TypeVar('TestFunc', bound=Callable[['RequestWants'], Any])
 
-def test_uses(*headers: str):
+
+class TestUses:
     """
     Identify HTTP headers accessed in this test, to be set in the response Vary header.
 
@@ -24,27 +26,32 @@ def test_uses(*headers: str):
     method into a cached property.
     """
 
-    def decorator(f: Callable[[RequestWants], bool]) -> Callable[[RequestWants], bool]:
+    def __init__(self, *headers: str) -> None:
+        self.headers = headers
+
+    def __call__(self, f: TestFunc) -> TestFunc:
+        headers = self.headers
+
         @wraps(f)
-        def inner(self: RequestWants) -> bool:
+        def wrapper(self: RequestWants) -> Any:
             self.response_vary.update(headers)
             if not has_request_context():
                 return False
             return f(self)
 
-        return cast(Callable[['RequestWants'], bool], cached_property(inner))
-
-    return decorator
+        return cast(TestFunc, cached_property(wrapper))
 
 
 class RequestWants:
     """
-    Holding class for tests on the sort of response the current request wants.
+    Holding class for tests on what the current request wants in a response.
 
-    Each test is implemented as a `cached_property` that returns a boolean. The test
-    also updates :attr:`response_vary` with the headers that were accessed. The view
-    must set a ``Vary`` header in the response with the contents of
-    ``request_wants.response_vary``.
+    Each test is implemented as a `cached_property` returning a `bool` or `str`. The
+    test also updates :attr:`response_vary` with the headers that were accessed. The
+    view must set a ``Vary`` header in the response with the contents of
+    ``request_wants.response_vary``. This is automated via :func:`response_varies`,
+    which is registered as an `after_request` handler by
+    :func:`~funnel.proxies.init_app`.
     """
 
     def __init__(self):
@@ -55,29 +62,26 @@ class RequestWants:
 
     # --- request_wants tests ----------------------------------------------------------
 
-    @test_uses('Accept')
+    @TestUses('Accept')
     def json(self) -> bool:
         """Request wants a JSON response."""
         return request.accept_mimetypes.best == 'application/json'
 
-    @test_uses('X-Requested-With', 'Accept', 'HX-Request', 'HX-Target')
+    @TestUses('X-Requested-With', 'Accept', 'HX-Request')
     def html_fragment(self) -> bool:
         """Request wants a HTML fragment for embedding (XHR or HTMX)."""
-        return (
+        return request.accept_mimetypes.best in (
+            None,  # No Accept header
+            '*/*',  # Default for jQuery and HTMX requests
+            'text/html',  # HTML mimetype
+            'application/x.html+json',  # Custom mimetype for Funnel
+        ) and (
             request.environ.get('HTTP_HX_REQUEST', '') == 'true'
-            and request.environ.get('HTTP_HX_TARGET', '') != ''
-        ) or (
-            request.environ.get('HTTP_X_REQUESTED_WITH', '').lower() == 'xmlhttprequest'
-            and request.accept_mimetypes.best
-            in (
-                None,  # No Accept header
-                '*/*',  # Default for jQuery requests
-                'text/html',  # HTML mimetype
-                'application/x.html+json',  # Custom mimetype for Funnel
-            )
+            or request.environ.get('HTTP_X_REQUESTED_WITH', '').lower()
+            == 'xmlhttprequest'
         )
 
-    @test_uses('Accept')
+    @TestUses('Accept')
     def html_in_json(self) -> bool:
         """Request wants HTML embedded in JSON (custom type for this project)."""
         return (
@@ -87,10 +91,30 @@ class RequestWants:
             == 'application/x.html+json'
         )
 
-    @test_uses('HX-Request')
+    @TestUses('HX-Request')
     def htmx(self) -> bool:
         """Request wants a HTMX-compatible response."""
-        return request.environ.get('HTTP_HX_REQUEST', '') == 'true'
+        return request.environ.get('HTTP_HX_REQUEST') == 'true'
+
+    @TestUses('HX-Trigger')
+    def hx_trigger(self) -> Optional[str]:
+        """Id of element that triggered a HTMX request."""
+        return request.environ.get('HTTP_HX_TRIGGER')
+
+    @TestUses('HX-Trigger-Name')
+    def hx_trigger_name(self) -> Optional[str]:
+        """Name of element that triggered a HTMX request."""
+        return request.environ.get('HTTP_HX_TRIGGER_NAME')
+
+    @TestUses('HX-Target')
+    def hx_target(self) -> Optional[str]:
+        """Target of a HTMX request."""
+        return request.environ.get('HTTP_HX_TARGET')
+
+    @TestUses('HX-Prompt')
+    def hx_prompt(self) -> Optional[str]:
+        """Content of user prompt in HTMX."""
+        return request.environ.get('HTTP_HX_PROMPT')
 
     # --- End of request_wants tests ---------------------------------------------------
 
