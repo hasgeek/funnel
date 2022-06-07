@@ -361,7 +361,7 @@ def login() -> ReturnView:
         abort(403)
     if request_wants.html_fragment and formid == 'passwordlogin':
         return render_login_form(loginform)
-    elif request_is_xhr() and request.method == 'GET':
+    elif request_wants.html_fragment:
         return (
             render_template(
                 'login.html.jinja2',
