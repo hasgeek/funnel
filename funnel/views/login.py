@@ -290,7 +290,9 @@ def login() -> ReturnView:
                 if otp_sent:
                     flash(_("An OTP has been sent to your phone number"), 'success')
             if otp_sent:
-                return render_otp_form(get_otp_form(otp_data), url_for('login', next=next_url))
+                return render_otp_form(
+                    get_otp_form(otp_data), url_for('login', next=next_url)
+                )
             if otp_data.user:
                 flash(
                     _(
