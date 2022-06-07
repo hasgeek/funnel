@@ -4,7 +4,7 @@ from typing import Optional, cast
 
 from flask import jsonify, redirect, render_template, request
 
-from baseframe import _, request_is_xhr
+from baseframe import _
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.views import (
@@ -19,6 +19,7 @@ from coaster.views import (
 from .. import app
 from ..forms import SavedSessionForm, SessionForm
 from ..models import Project, Proposal, SavedSession, Session, db
+from ..proxies import request_wants
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import localize_date
 from .login_session import requires_login
@@ -89,7 +90,7 @@ def session_edit(
         session = cast(Session, session)  # Tell mypy session is not None
         session.project.update_schedule_timestamps()
         db.session.commit()
-        if request_is_xhr():
+        if request_wants.json:
             data = {
                 'id': session.url_id,
                 'title': session.title,
@@ -103,9 +104,11 @@ def session_edit(
                 'delete_url': session.url_for('delete'),
                 'proposal_id': session.proposal_id,  # FIXME: Switch to UUID
             }
+            # FIXME: Return ``status='ok'`` and ``edited=True``
             return jsonify(status=True, data=data)
         return redirect(session.url_for('view'))
     return jsonify(
+        # FIXME: Return ``status='ok'`` and ``edited=False``
         status=False,
         form=render_template(
             'session_form.html.jinja2',

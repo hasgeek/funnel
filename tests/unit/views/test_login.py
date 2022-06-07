@@ -1,5 +1,6 @@
 """Tests for the login, logout and register views."""
 
+from datetime import timedelta
 from itertools import product
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -312,3 +313,27 @@ def test_invalid_otp_login(
     assert rv2.forms[0].attrib['id'] == 'form-otp'
     assert rv2.status_code == 200
     assert current_auth.user is None
+
+
+def test_user_has_sudo(user_rincewind, login, client):
+    login.as_(user_rincewind)
+    client.get('/')
+    rv = client.get('/account/sudo')
+    assert rv.status_code == 303
+
+
+def test_user_password_sudo_timedout(user_rincewind_with_password, login, client):
+    login.as_(user_rincewind_with_password)
+    client.get('account')
+    current_auth.session.sudo_enabled_at -= timedelta(minutes=25)
+    rv = client.get('/account/sudo')
+    assert rv.forms[1].attrib['id'] == 'form-sudo-password'
+
+
+def test_user_otp_sudo_timedout(user_rincewind, user_rincewind_phone, login, client):
+    login.as_(user_rincewind)
+    client.get('account')
+    current_auth.session.sudo_enabled_at -= timedelta(minutes=25)
+    with patch(PATCH_SMS_OTP, return_value=None):
+        rv = client.get('/account/sudo')
+    assert rv.forms[1].attrib['id'] == 'form-sudo-otp'

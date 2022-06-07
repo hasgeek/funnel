@@ -58,10 +58,7 @@ class RequestWants:
     @test_uses('Accept')
     def json(self) -> bool:
         """Request wants a JSON response."""
-        return (
-            request.accept_mimetypes.best_match(('red/herring', 'application/json'))
-            == 'application/json'
-        )
+        return request.accept_mimetypes.best == 'application/json'
 
     @test_uses('X-Requested-With', 'Accept', 'HX-Request', 'HX-Target')
     def html_fragment(self) -> bool:
@@ -71,8 +68,13 @@ class RequestWants:
             and request.environ.get('HTTP_HX_TARGET', '') != ''
         ) or (
             request.environ.get('HTTP_X_REQUESTED_WITH', '').lower() == 'xmlhttprequest'
-            and request.accept_mimetypes.best_match(('red/herring', 'text/html'))
-            == 'text/html'
+            and request.accept_mimetypes.best
+            in (
+                None,  # No Accept header
+                '*/*',  # Default for jQuery requests
+                'text/html',  # HTML mimetype
+                'application/x.html+json',  # Custom mimetype for Funnel
+            )
         )
 
     @test_uses('Accept')

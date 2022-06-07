@@ -21,7 +21,7 @@ import itsdangerous
 import geoip2.errors
 
 from baseframe import _, statsd
-from baseframe.forms import render_form, render_redirect
+from baseframe.forms import render_form
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
 from coaster.views import get_current_url, get_next_url
@@ -55,6 +55,7 @@ from .helpers import (
     delete_otp_session,
     get_scheme_netloc,
     make_otp_session,
+    render_redirect,
     retrieve_otp_session,
     validate_rate_limit,
 )
@@ -433,7 +434,9 @@ def requires_sudo(f):
     Decorate a view to require user to have re-authenticated recently.
 
     Requires the endpoint to support the POST method, as it renders a password form
-    within the same request, without redirecting the user to a gatekeeping endpoint.
+    within the same request, avoiding redirecting the user to a gatekeeping endpoint
+    unless the request needs JSON, in which case a HTML form cannot be rendered. The
+    user is redirected to the `account_sudo` endpoint in this case.
     """
 
     @wraps(f)
@@ -540,6 +543,28 @@ def requires_sudo(f):
             formid = 'sudo-password'
         else:
             abort(500)  # This should never happen
+
+        if request_wants.json:
+            # A JSON-only endpoint can't render a form, so we have to redirect the
+            # browser to the account_sudo endpoint, asking it to redirect back here
+            # after getting the user's password. That will be:
+            # `url_for('account_sudo', next=request.url)`. Ideally, a fragment
+            # identifier should be included to reload to the same dialog the user
+            # was sent away from.
+
+            return make_response(
+                jsonify(
+                    status='error',
+                    error='requires_sudo',
+                    error_description=_(
+                        "This request must be confirmed with your password"
+                    ),
+                ),
+                422,
+            )
+        if request_wants.html_fragment:
+            return render_redirect(url=request.url, code=303)
+
         return render_form(
             form=form,
             title=title,

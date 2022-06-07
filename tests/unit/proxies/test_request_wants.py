@@ -57,7 +57,7 @@ def test_request_wants_is_an_instance():
         ('application/json', True),
         ('text/html', False),
         ('application/json;q=0.8, text/html;q=0.7', True),
-        ('text/html;q=0.9, application/json;q=0.8', True),
+        ('text/html;q=0.9, application/json;q=0.8', False),
         ('*/*', False),
     ],
 )
@@ -74,7 +74,7 @@ def test_request_wants_json(accept_header, result):
     [
         (True, 'application/json', False),
         (True, 'text/html', True),
-        (True, '*/*', False),
+        (True, '*/*', True),
         (False, 'application/json', False),
         (False, 'text/html', False),
         (False, '*/*', False),

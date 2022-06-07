@@ -5,7 +5,6 @@ from typing import Optional
 from flask import abort, flash, render_template, request
 
 from baseframe import _
-from baseframe.forms import render_redirect
 from baseframe.forms.auto import ConfirmDeleteForm
 from coaster.auth import current_auth
 from coaster.views import ModelView, UrlChangeCheck, UrlForView, route
@@ -13,6 +12,7 @@ from coaster.views import ModelView, UrlChangeCheck, UrlForView, route
 from .. import app
 from ..forms import ProjectSponsorForm
 from ..models import Profile, Project, SponsorMembership, db
+from .helpers import render_redirect
 from .login_session import requires_login, requires_site_editor
 from .mixins import ProjectViewMixin
 
