@@ -54,6 +54,7 @@ from ..models import (
 from ..proxies import request_wants
 from ..signals import emailaddress_refcount_dropping
 from ..transports import TransportConnectionError, TransportRecipientError, sms
+from ..typing import ReturnView
 from ..utils import blake2b160_hex
 from .jobs import forget_email
 
@@ -574,7 +575,7 @@ def send_sms_otp(
 # --- Template helpers -----------------------------------------------------------------
 
 
-def render_redirect(url: str, code=302):
+def render_redirect(url: str, code: int = 302) -> ResponseBase:
     """Render a redirect that is sensitive to the request type."""
     if request_wants.html_fragment:
         return Response(
@@ -585,8 +586,11 @@ def render_redirect(url: str, code=302):
     return redirect(url, code)
 
 
-def html_in_json(template: str):
-    def render_json_with_status(kwargs):
+def html_in_json(template: str) -> Dict[str, Union[str, Callable[[dict], ReturnView]]]:
+    """Render a HTML fragment in a JSON wrapper, for use with ``@render_with``."""
+
+    def render_json_with_status(kwargs) -> ResponseBase:
+        """Render plain JSON."""
         return jsonify(
             status='ok',
             **{
@@ -597,7 +601,8 @@ def html_in_json(template: str):
             },
         )
 
-    def render_html_in_json(kwargs):
+    def render_html_in_json(kwargs) -> ResponseBase:
+        """Render HTML fragment in JSON."""
         resp = jsonify({'status': 'ok', 'html': render_template(template, **kwargs)})
         resp.content_type = 'application/x.html+json; charset=utf-8'
         return resp
