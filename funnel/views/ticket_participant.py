@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from flask import abort, flash, jsonify, redirect, request, url_for
 
-from baseframe import _, forms, request_is_xhr
+from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.utils import getbool, uuid_to_base58
 from coaster.views import (
@@ -29,6 +29,7 @@ from ..models import (
     TicketParticipant,
     db,
 )
+from ..proxies import request_wants
 from ..typing import ReturnView
 from ..utils import abort_null, format_twitter_handle, make_qrcode, split_name
 from .helpers import mask_email
@@ -234,7 +235,7 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
                 attendee = TicketEventParticipant.get(self.obj, ticket_participant_id)
                 attendee.checked_in = checked_in
             db.session.commit()
-            if request_is_xhr():
+            if request_wants.json:
                 return jsonify(
                     status=True,
                     ticket_participant_ids=ticket_participant_ids,

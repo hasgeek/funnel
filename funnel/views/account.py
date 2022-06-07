@@ -19,12 +19,7 @@ import geoip2.errors
 import user_agents
 
 from baseframe import _
-from baseframe.forms import (
-    render_delete_sqla,
-    render_form,
-    render_message,
-    render_redirect,
-)
+from baseframe.forms import render_delete_sqla, render_form, render_message
 from coaster.auth import current_auth
 from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import ClassView, get_next_url, render_with, route
@@ -69,6 +64,7 @@ from .helpers import (
     app_url_for,
     autoset_timezone_and_locale,
     avatar_color_count,
+    render_redirect,
     send_sms_otp,
 )
 from .login_session import (

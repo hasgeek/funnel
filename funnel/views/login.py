@@ -18,8 +18,8 @@ from flask import (
 )
 import itsdangerous
 
-from baseframe import _, __, forms, request_is_xhr, statsd
-from baseframe.forms import render_message, render_redirect
+from baseframe import _, __, forms, statsd
+from baseframe.forms import render_message
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
 from coaster.utils import getbool
@@ -49,6 +49,7 @@ from ..models import (
     getextid,
     merge_users,
 )
+from ..proxies import request_wants
 from ..registry import (
     LoginCallbackError,
     LoginInitError,
@@ -68,6 +69,7 @@ from .helpers import (
     delete_otp_session,
     make_otp_session,
     metarefresh_redirect,
+    render_redirect,
     retrieve_otp_session,
     send_sms_otp,
     session_timeouts,
@@ -346,7 +348,7 @@ def login() -> ReturnView:
     elif request.method == 'POST':
         # This should not happen. We received an incomplete form.
         abort(403)
-    if request_is_xhr() and formid == 'passwordlogin':
+    if request_wants.html_fragment and formid == 'passwordlogin':
         return render_login_form(loginform)
     return (
         render_template(
@@ -410,12 +412,13 @@ def logout():
 @app.route('/account/logout', methods=['POST'])
 @requires_login
 def account_logout():
+    """Process a logout request."""
     form = LogoutForm(user=current_auth.user)
     if form.validate():
         if form.user_session:
             form.user_session.revoke()
             db.session.commit()
-            if request_is_xhr():
+            if request_wants.json:
                 return {'status': 'ok'}
             return redirect(url_for('account'), code=303)
 
@@ -426,7 +429,7 @@ def account_logout():
             render_template('logout_browser_data.html.jinja2', next=get_next_url())
         )
 
-    if request_is_xhr():
+    if request_wants.json:
         return {'status': 'error', 'errors': list(form.errors.values())}
 
     for error in form.errors.values():
@@ -436,6 +439,7 @@ def account_logout():
 
 @app.route('/account/register', methods=['GET', 'POST'])
 def register():
+    """Register a new account (deprecated)."""
     if current_auth.is_authenticated:
         return redirect(url_for('index'), code=303)
     form = RegisterForm()
