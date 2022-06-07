@@ -107,16 +107,17 @@ def get_otp_form(otp_data: OtpData) -> Union[OtpForm, RegisterOtpForm]:
     return form
 
 
-def render_otp_form(form: Union[OtpForm, RegisterOtpForm]) -> ReturnView:
+def render_otp_form(form: Union[OtpForm, RegisterOtpForm], next_url) -> ReturnView:
     """Render OTP form."""
     return (
         render_template(
-            'ajaxform.html.jinja2',
+            'otpform.html.jinja2',
             form=form,
             formid='login-otp',
             ref_id='form-otp',
             action=url_for('login'),
-            cancel_url=url_for('login'),
+            submit=_("Confirm"),
+            cancel_url=next_url,
             ajax=True,
             with_chrome=True,
         ),
@@ -165,6 +166,7 @@ def login() -> ReturnView:
     # TODO: Work out a more robust solution that saves _two_ possible next URL values
     # to the session.
     set_session_next_url()
+    next_url = session.get('next', '')
 
     loginform = LoginForm()
     loginmethod = None
@@ -288,7 +290,7 @@ def login() -> ReturnView:
                 if otp_sent:
                     flash(_("An OTP has been sent to your phone number"), 'success')
             if otp_sent:
-                return render_otp_form(get_otp_form(otp_data))
+                return render_otp_form(get_otp_form(otp_data), url_for('login', next=next_url))
             if otp_data.user:
                 flash(
                     _(
@@ -346,7 +348,7 @@ def login() -> ReturnView:
                     render_redirect(get_next_url(session=True), code=303),
                     'otp',
                 )
-            return render_otp_form(otp_form)
+            return render_otp_form(otp_form, url_for('login', next=next_url))
         except OtpTimeoutError as exc:
             reason = str(exc)
             current_app.logger.info("Login OTP timed out with %s", reason)

@@ -143,7 +143,7 @@
         data-cy="form-submit-btn"
         >{{ value|e }}</button>
     {% endfor %}
-    {% if cancel_url %}<a href="{{ cancel_url }}" class="mui-btn mui-btn--raised mui-btn js-form-back-btn" data-cy="form-cancel-btn">{% trans %}Cancel{% endtrans %}</a>{% endif %}
+    {% if cancel_url %}<a href="{{ cancel_url }}" class="mui-btn mui-btn--raised mui-btn" data-cy="form-cancel-btn">{% trans %}Cancel{% endtrans %}</a>{% endif %}
     <span class="loading mui--hide">&nbsp;</span>
     {% if csrf_error -%}
       <div>
