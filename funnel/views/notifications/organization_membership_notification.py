@@ -171,13 +171,14 @@ class RenderShared:
     emoji_prefix = "🔑 "
 
     def activity_template(self, membership: OrganizationMembership = None) -> str:
-        ...
+        """Return a Python string template with an appropriate message."""
+        raise NotImplementedError("Subclasses must implement `activity_template`")
 
     def membership_actor(
         self, membership: OrganizationMembership = None
     ) -> Optional[User]:
         """Actor who granted or revoked, for the template."""
-        ...
+        raise NotImplementedError("Subclasses must implement `membership_actor`")
 
     @property
     def actor(self) -> User:
@@ -191,30 +192,25 @@ class RenderShared:
         return MEMBERSHIP_RECORD_TYPE[self.membership.record_type].name
 
     def activity_html(self, membership: OrganizationMembership = None) -> str:
+        """Return HTML rendering of :meth:`activity_template`."""
         if membership is None:
             membership = self.membership
         actor = self.membership_actor(membership)
         return Markup(self.activity_template(membership)).format(
             user=Markup(
-                '<a href="{url}">{name}</a>'.format(
-                    url=escape(membership.user.profile_url),
-                    name=escape(membership.user.pickername),
-                )
+                f'<a href="{escape(membership.user.profile_url)}">'
+                f'{escape(membership.user.pickername)}</a>'
             )
             if membership.user.profile_url
             else escape(membership.user.pickername),
             organization=Markup(
-                '<a href="{url}">{title}</a>'.format(
-                    url=escape(cast(str, self.organization.profile_url)),
-                    title=escape(self.organization.pickername),
-                )
+                f'<a href="{escape(cast(str, self.organization.profile_url))}">'
+                f'{escape(self.organization.pickername)}</a>'
             ),
             actor=(
                 Markup(
-                    '<a href="{url}">{name}</a>'.format(
-                        url=escape(actor.profile_url),
-                        name=escape(actor.pickername),
-                    )
+                    f'<a href="{escape(actor.profile_url)}">'
+                    f'{escape(actor.pickername)}</a>'
                 )
                 if actor.profile_url
                 else escape(actor.pickername)
@@ -224,6 +220,7 @@ class RenderShared:
         )
 
     def email_subject(self) -> str:
+        """Subject line for email."""
         actor = self.membership_actor()
         return self.emoji_prefix + self.activity_template().format(
             user=self.membership.user.pickername,
@@ -232,6 +229,7 @@ class RenderShared:
         )
 
     def sms(self) -> MessageTemplate:
+        """SMS notification."""
         actor = self.membership_actor()
         return MessageTemplate(
             message=self.activity_template().format(

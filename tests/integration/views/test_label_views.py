@@ -1,7 +1,7 @@
 from funnel.models import Label
 
 
-def test_manage_labels_view(  # pylint:disable=too-many-arguments
+def test_manage_labels_view(  # pylint: disable=too-many-arguments
     client, login, new_project, new_user, new_label, new_main_label
 ):
     login.as_(new_user)

@@ -14,12 +14,7 @@ from flask import (
 )
 
 from baseframe import _, __, forms
-from baseframe.forms import (
-    render_delete_sqla,
-    render_form,
-    render_message,
-    render_redirect,
-)
+from baseframe.forms import render_delete_sqla, render_form, render_message
 from coaster.auth import current_auth
 from coaster.utils import getbool, make_name
 from coaster.views import (
@@ -53,7 +48,7 @@ from ..models import (
     db,
 )
 from ..signals import project_role_change
-from .helpers import html_in_json
+from .helpers import html_in_json, render_redirect
 from .jobs import import_tickets, tag_locations
 from .login_session import requires_login, requires_site_editor
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin

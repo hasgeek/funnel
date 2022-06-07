@@ -342,10 +342,8 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                 self.obj.current_access().move_to(target_project)
                 db.session.commit()
             flash(
-                _(
-                    "This submission has been moved to {project}".format(
-                        project=target_project.title
-                    )
+                _("This submission has been moved to {project}").format(
+                    project=target_project.title
                 ),
                 'success',
             )

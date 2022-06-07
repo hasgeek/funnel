@@ -1,4 +1,4 @@
-# pylint:disable=too-many-arguments,too-many-locals
+# pylint: disable=too-many-arguments,too-many-locals
 from flask import url_for
 from werkzeug.datastructures import MultiDict
 

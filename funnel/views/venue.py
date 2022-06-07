@@ -3,12 +3,13 @@ from __future__ import annotations
 from flask import flash, request
 
 from baseframe import _
-from baseframe.forms import render_delete_sqla, render_form, render_redirect
+from baseframe.forms import render_delete_sqla, render_form
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app
 from ..forms.venue import VenueForm, VenuePrimaryForm, VenueRoomForm
 from ..models import Project, Venue, VenueRoom, db
+from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProjectViewMixin, VenueRoomViewMixin, VenueViewMixin
 

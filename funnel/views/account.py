@@ -19,12 +19,7 @@ import geoip2.errors
 import user_agents
 
 from baseframe import _
-from baseframe.forms import (
-    render_delete_sqla,
-    render_form,
-    render_message,
-    render_redirect,
-)
+from baseframe.forms import render_delete_sqla, render_form, render_message
 from coaster.auth import current_auth
 from coaster.sqlalchemy import RoleAccessProxy
 from coaster.views import ClassView, get_next_url, render_with, route
@@ -69,6 +64,7 @@ from .helpers import (
     app_url_for,
     autoset_timezone_and_locale,
     avatar_color_count,
+    render_redirect,
     send_sms_otp,
 )
 from .login_session import (
@@ -260,6 +256,7 @@ class AccountView(ClassView):
     @route('sudo', endpoint='account_sudo', methods=['GET', 'POST'])
     @requires_sudo
     def sudo(self) -> ReturnResponse:
+        """Render a sudo prompt, as needed by :func:`requires_sudo`."""
         return redirect(get_next_url(), code=303)
 
     @route('saved', endpoint='saved')
@@ -644,10 +641,8 @@ class AccountView(ClassView):
         return render_form(
             form=verify_form,
             title=_("Resend the verification email?"),
-            message=_(
-                "We will resend the verification email to {email}".format(
-                    email=emailclaim.email
-                )
+            message=_("We will resend the verification email to {email}").format(
+                email=emailclaim.email
             ),
             formid="email_verify",
             submit=_("Send"),

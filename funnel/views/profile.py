@@ -12,7 +12,7 @@ from flask import (
 
 from baseframe import _
 from baseframe.filters import date_filter
-from baseframe.forms import render_form, render_redirect
+from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
@@ -28,6 +28,7 @@ from coaster.views import (
 from .. import app
 from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm
 from ..models import Profile, Project, db
+from .helpers import render_redirect
 from .login_session import requires_login
 from .mixins import ProfileViewMixin
 
@@ -96,10 +97,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             }
 
         elif self.obj.is_organization_profile:
-            if self.obj.name == 'PrivacyMode':
-                template_name = 'custom_profile.html.jinja2'
-            else:
-                template_name = 'profile.html.jinja2'
+            template_name = 'profile.html.jinja2'
 
             # `order_by(None)` clears any existing order defined in relationship.
             # We're using it because we want to define our own order here.
