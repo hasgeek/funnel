@@ -158,9 +158,10 @@ def login() -> ReturnView:
     if current_auth.is_authenticated:
         return redirect(get_next_url(referrer=True, session=True), code=303)
 
-    # Remember where the user came from if it wasn't already saved.
-    if 'next' not in session:
-        set_session_next_url()
+    # Remember where the user came from if it wasn't already saved. In a GET request,
+    # the `next` request argument always takes priority over a previously saved next
+    # destination
+    set_session_next_url(current=False, overwrite=request.method == 'GET')
     next_url = session['next']
 
     loginform = LoginForm()
@@ -491,7 +492,7 @@ def login_service(service: str) -> ReturnView:
     if service not in login_registry:
         abort(404)
     provider = login_registry[service]
-    set_session_next_url()
+    set_session_next_url(current=False)
 
     callback_url = url_for('.login_service_callback', service=service, _external=True)
     statsd.gauge('login.progress', 1, delta=True, tags={'service': service})
