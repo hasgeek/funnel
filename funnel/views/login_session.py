@@ -351,7 +351,7 @@ def set_session_next_url(current=False):
     """Save the next URL to the session."""
     if current:
         session['next'] = get_current_url()
-    elif 'next' not in session:
+    else:
         session['next'] = get_next_url(referrer=True)
 
 

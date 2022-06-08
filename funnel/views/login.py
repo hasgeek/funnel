@@ -107,6 +107,15 @@ def get_otp_form(otp_data: OtpData) -> Union[OtpForm, RegisterOtpForm]:
     return form
 
 
+def otp_cancel_url(next_url):
+    """URL for where to go when login OTP form is cancelled."""
+    return (
+        url_for('login', next=next_url)
+        if not request_wants.html_fragment
+        else session.get('next', next_url)
+    )
+
+
 def render_otp_form(form: Union[OtpForm, RegisterOtpForm], next_url) -> ReturnView:
     """Render OTP form."""
     return (
@@ -290,9 +299,7 @@ def login() -> ReturnView:
                 if otp_sent:
                     flash(_("An OTP has been sent to your phone number"), 'success')
             if otp_sent:
-                return render_otp_form(
-                    get_otp_form(otp_data), url_for('login', next=next_url)
-                )
+                return render_otp_form(get_otp_form(otp_data), otp_cancel_url(next_url))
             if otp_data.user:
                 flash(
                     _(
@@ -350,7 +357,7 @@ def login() -> ReturnView:
                     render_redirect(get_next_url(session=True), code=303),
                     'otp',
                 )
-            return render_otp_form(otp_form, url_for('login', next=next_url))
+            return render_otp_form(otp_form, otp_cancel_url(next_url))
         except OtpTimeoutError as exc:
             reason = str(exc)
             current_app.logger.info("Login OTP timed out with %s", reason)
@@ -365,7 +372,7 @@ def login() -> ReturnView:
         abort(403)
     if request_wants.html_fragment and formid == 'passwordlogin':
         return render_login_form(loginform)
-    elif request_wants.html_fragment:
+    if request_wants.html_fragment:
         return (
             render_template(
                 'login.html.jinja2',
