@@ -34,7 +34,9 @@ $(() => {
     networkError: window.gettext(
       'Unable to connect. Check connection and refresh the page'
     ),
-    rateLimitError: window.gettext('429 Too many requests. Try again later'),
+    rateLimitError: window.gettext(
+      'This is unusually high activity. Try again later'
+    ),
     error: window.gettext('An error occured when submitting the form'),
   };
 

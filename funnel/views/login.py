@@ -361,6 +361,7 @@ def login() -> ReturnView:
             formid='passwordlogin',
             ref_id='form-passwordlogin',
             title=_("Login"),
+            ajax=True,
             with_chrome=request_wants.html_fragment,
         ),
         200,
