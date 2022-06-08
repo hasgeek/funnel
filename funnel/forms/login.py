@@ -1,3 +1,5 @@
+"""Forms for login and logout."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, Union
@@ -122,7 +124,7 @@ class LoginForm(forms.Form):
         __("Phone number or email address"),
         validators=[
             forms.validators.DataRequired(
-                __("An email address, phone number or username is required")
+                __("A phone number or email address is required")
             )
         ],
         filters=[forms.filters.strip()],
@@ -147,6 +149,7 @@ class LoginForm(forms.Form):
 
     # These two validators depend on being called in sequence
     def validate_username(self, field):
+        """Process username field and load user and anchor."""
         self.user, self.anchor = getuser(field.data, True)  # skipcq: PYL-W0201
         self.new_email = self.new_phone = None
         if self.user is None:
@@ -172,6 +175,7 @@ class LoginForm(forms.Form):
             raise forms.ValidationError(MSG_NO_ACCOUNT)
 
     def validate_password(self, field) -> None:
+        """Validate password if provided."""
         # If there is already an error in the password field, don't bother validating.
         # This will be a `Length` validation error, but that one unfortunately does not
         # raise `StopValidation`. If the length is off, we can end rightaway.
@@ -228,6 +232,8 @@ class LoginForm(forms.Form):
 
 @User.forms('logout')
 class LogoutForm(forms.Form):
+    """Process a logout request."""
+
     __expects__ = ('user',)
     __returns__ = ('user_session',)
 
@@ -239,6 +245,7 @@ class LogoutForm(forms.Form):
     )
 
     def validate_sessionid(self, field):
+        """Validate login session belongs to the user who invoked this form."""
         user_session = UserSession.get(buid=field.data)
         if not user_session or user_session.user != self.user:
             raise forms.ValidationError(MSG_NO_LOGIN_SESSION)
@@ -264,6 +271,7 @@ class OtpForm(forms.Form):
     )
 
     def validate_otp(self, field):
+        """Confirm OTP is as expected."""
         if field.data != self.valid_otp:
             raise forms.StopValidation(MSG_INCORRECT_OTP)
 
@@ -298,5 +306,6 @@ class RegisterOtpForm(forms.Form):
     )
 
     def validate_otp(self, field):
+        """Confirm OTP is as expected."""
         if field.data != self.valid_otp:
             raise forms.StopValidation(MSG_INCORRECT_OTP)

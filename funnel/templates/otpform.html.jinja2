@@ -1,0 +1,19 @@
+{% extends "ajaxform.html.jinja2" %}
+{% from "forms.html.jinja2" import renderform, renderform_inner %}
+{% block form %}
+  <form data-parsley-validate="true" id="{{ ref_id }}" method="POST" {%- if action %} action="{{ action }}" {%- endif %}{%- if multipart %} enctype="multipart/form-data" {%- endif %} accept-charset="UTF-8" class="mui-form mui-form--margins hg-form">
+    {{ renderform_inner(form, formid) }}
+    <div class="mui-form form-actions mui--clearfix{% if css_class %} {{ css_class}}{% endif %}">
+      <div>
+        <button type="submit" name="{{ submit|e }}" class="mui-btn mui-btn--raised mui-btn--primary" data-cy="form-submit-btn">{{ submit }}</button>
+        <a href="{{ cancel_url }}" class="mui-btn mui-btn--raised" data-cy="form-cancel-btn">{% trans %}Cancel{% endtrans %}</a>
+        <span class="loading mui--hide">&nbsp;</span>
+        {% if csrf_error -%}
+          <div>
+            <p class="mui-form__error">{% trans -%}This form has timed out. Please submit again to confirm{%- endtrans %}</p>
+          </div>
+        {%- endif %}
+      </div>
+    </div>
+  </form>
+{% endblock %}

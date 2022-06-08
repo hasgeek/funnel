@@ -88,50 +88,6 @@
   }
 }
 
-.mui-btn.login,
-.mui-btn.login:hover,
-.mui-btn.login:active {
-  color: $mui-text-white;
-  font-size: 16px;
-  text-transform: capitalize;
-}
-
-.mui-btn.login {
-  margin: 0;
-  margin-bottom: $mui-grid-padding;
-}
-
-.mui-btn.login--smaller {
-  margin-right: $mui-grid-padding/2;
-  margin-bottom: $mui-grid-padding/2;
-}
-
-.mui-btn.login-twitter,
-.mui-btn.login-twitter:hover,
-.mui-btn.login-twitter:active {
-  background-color: #08a0e9;
-}
-.mui-btn.login-google,
-.mui-btn.login-google:hover,
-.mui-btn.login-google:active {
-  color: #757575;
-  background: $mui-bg-color-primary;
-}
-.mui-btn.login-linkedin,
-.mui-btn.login-linkedin:hover,
-.mui-btn.login-linkedin:active {
-  background-color: #0074b2;
-}
-.mui-btn.login-github,
-.mui-btn.login-github:hover,
-.mui-btn.login-github:active {
-  background-color: #444444;
-}
-
-.mui-btn.login + .mui-btn.login {
-  margin-left: 0;
-}
-
 a.loginbutton.hidden,
 .js a.loginbutton.jshidden,
 .no-js a.loginbutton.no-jshidden {
