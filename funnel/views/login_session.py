@@ -347,12 +347,22 @@ def update_user_session_timestamp(response):
     return response
 
 
-def set_session_next_url(current=True, overwrite=False):
-    """Save the next URL to the session."""
+def save_session_next_url(current: bool = True) -> bool:
+    """
+    Save the next URL to the session.
+
+    In a GET request, the ``next`` request argument always takes priority over a
+    previously saved next destination.
+
+    :param current: Save current URL (before redirecting the user to the login page)
+    """
     if current:
         session['next'] = get_current_url()
-    elif 'next' not in session or overwrite:
+        return True
+    if 'next' not in session or (request.method == 'GET' and 'next' in request.args):
         session['next'] = get_next_url(referrer=True)
+        return True
+    return False
 
 
 def requires_login(f):
@@ -363,7 +373,7 @@ def requires_login(f):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            set_session_next_url()
+            save_session_next_url()
             return redirect(url_for('login'))
         return f(*args, **kwargs)
 
@@ -381,7 +391,7 @@ def requires_login_no_message(f):
     def decorated_function(*args, **kwargs):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
-            set_session_next_url()
+            save_session_next_url()
             return redirect(url_for('login'))
         return f(*args, **kwargs)
 
@@ -404,7 +414,7 @@ def requires_sudo(f):
         # If the user is not logged in, require login first
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            set_session_next_url()
+            save_session_next_url()
             return render_redirect(url_for('login'))
         # If the user has not authenticated in some time, ask for the password again
         if not current_auth.session.has_sudo:
@@ -418,7 +428,7 @@ def requires_sudo(f):
                     ),
                     'info',
                 )
-                set_session_next_url()
+                save_session_next_url()
                 return render_redirect(url_for('change_password'))
             # A future version of this form may accept password or 2FA (U2F or TOTP)
             form = PasswordForm(edit_user=current_auth.user)

@@ -82,8 +82,8 @@ from .login_session import (
     logout_internal,
     register_internal,
     requires_login,
+    save_session_next_url,
     set_loginmethod_cookie,
-    set_session_next_url,
 )
 
 session_timeouts['next'] = timedelta(minutes=30)
@@ -120,8 +120,7 @@ def render_otp_form(
             action=url_for('login'),
             submit=_("Confirm"),
             cancel_url=cancel_url,
-            ajax=True,
-            with_chrome=True,
+            with_chrome=request_wants.html_fragment,  # with_chrome is a legacy name
         ),
         200,
         block_iframe,
@@ -136,8 +135,7 @@ def render_login_form(form: LoginForm) -> ReturnView:
             loginform=form,
             formid='passwordlogin',
             ref_id='form-passwordlogin',
-            ajax=True,
-            with_chrome=True,
+            with_chrome=request_wants.html_fragment,  # with_chrome is a legacy name
         ),
         200,
         block_iframe,
@@ -149,12 +147,10 @@ def login() -> ReturnView:
     """Process a login attempt."""
     # If user is already logged in, send them back
     if current_auth.is_authenticated:
-        return redirect(get_next_url(referrer=True, session=True), code=303)
+        return render_redirect(get_next_url(referrer=True, session=True), code=303)
 
-    # Remember where the user came from if it wasn't already saved. In a GET request,
-    # the `next` request argument always takes priority over a previously saved next
-    # destination
-    set_session_next_url(current=False, overwrite=request.method == 'GET')
+    # Remember where the user came from if it wasn't already saved.
+    save_session_next_url(current=False)
     next_url = session['next']
 
     loginform = LoginForm()
@@ -354,21 +350,8 @@ def login() -> ReturnView:
         abort(403)
     if request_wants.html_fragment and formid == 'passwordlogin':
         return render_login_form(loginform)
-    if request_wants.html_fragment:
-        return (
-            render_template(
-                'login.html.jinja2',
-                loginform=loginform,
-                lastused=loginmethod,
-                login_registry=login_registry,
-                formid='passwordlogin',
-                ref_id='form-passwordlogin',
-                ajax=True,
-                with_chrome=True,
-            ),
-            200,
-            block_iframe,
-        )
+
+    # Default action, render the full login page
     return (
         render_template(
             'login.html.jinja2',
@@ -378,7 +361,7 @@ def login() -> ReturnView:
             formid='passwordlogin',
             ref_id='form-passwordlogin',
             title=_("Login"),
-            ajax=True,
+            with_chrome=request_wants.html_fragment,
         ),
         200,
         block_iframe,
@@ -487,7 +470,7 @@ def login_service(service: str) -> ReturnView:
     if service not in login_registry:
         abort(404)
     provider = login_registry[service]
-    set_session_next_url(current=False, overwrite=True)
+    save_session_next_url(current=False)
 
     callback_url = url_for('.login_service_callback', service=service, _external=True)
     statsd.gauge('login.progress', 1, delta=True, tags={'service': service})
