@@ -159,9 +159,9 @@ def login() -> ReturnView:
         return redirect(get_next_url(referrer=True, session=True), code=303)
 
     # Remember where the user came from if it wasn't already saved.
-    if request.method == 'GET':
+    if 'next' not in session:
         set_session_next_url()
-    next_url = session.get('next', '')
+    next_url = session['next']
 
     loginform = LoginForm()
     loginmethod = None
