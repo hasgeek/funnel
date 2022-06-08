@@ -1,3 +1,5 @@
+"""Support functions for requiring authentication and maintaining a login session."""
+
 from __future__ import annotations
 
 from datetime import timedelta
@@ -347,18 +349,13 @@ def update_user_session_timestamp(response):
     return response
 
 
-def save_session_next_url(current: bool = True) -> bool:
+def save_session_next_url() -> bool:
     """
     Save the next URL to the session.
 
     In a GET request, the ``next`` request argument always takes priority over a
     previously saved next destination.
-
-    :param current: Save current URL (before redirecting the user to the login page)
     """
-    if current:
-        session['next'] = get_current_url()
-        return True
     if 'next' not in session or (request.method == 'GET' and 'next' in request.args):
         session['next'] = get_next_url(referrer=True)
         return True
@@ -373,8 +370,7 @@ def requires_login(f):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            save_session_next_url()
-            return redirect(url_for('login'))
+            return redirect(url_for('login', next=get_current_url()))
         return f(*args, **kwargs)
 
     return decorated_function
@@ -391,8 +387,7 @@ def requires_login_no_message(f):
     def decorated_function(*args, **kwargs):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
-            save_session_next_url()
-            return redirect(url_for('login'))
+            return redirect(url_for('login', next=get_current_url()))
         return f(*args, **kwargs)
 
     return decorated_function
@@ -414,8 +409,7 @@ def requires_sudo(f):
         # If the user is not logged in, require login first
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            save_session_next_url()
-            return render_redirect(url_for('login'))
+            return render_redirect(url_for('login', next=get_current_url()))
         # If the user has not authenticated in some time, ask for the password again
         if not current_auth.session.has_sudo:
             # If the user doesn't have a password, ask them to set one first
@@ -428,7 +422,7 @@ def requires_sudo(f):
                     ),
                     'info',
                 )
-                save_session_next_url()
+                session['next'] = get_current_url()
                 return render_redirect(url_for('change_password'))
             # A future version of this form may accept password or 2FA (U2F or TOTP)
             form = PasswordForm(edit_user=current_auth.user)
@@ -444,10 +438,10 @@ def requires_sudo(f):
             if request_wants.json:
                 # A JSON-only endpoint can't render a form, so we have to redirect the
                 # browser to the account_sudo endpoint, asking it to redirect back here
-                # after getting the user's password. That will be:
-                # `url_for('account_sudo', next=request.url)`. Ideally, a fragment
-                # identifier should be included to reload to the same dialog the user
-                # was sent away from.
+                # after getting the user's password. That will be the JavaScript
+                # equivalent of ``url_for('account_sudo', next=get_current_url())``.
+                # Ideally, a fragment identifier should be included to reload to the
+                # same dialog the user was sent away from.
 
                 return make_response(
                     jsonify(
@@ -460,6 +454,7 @@ def requires_sudo(f):
                     422,
                 )
             if request_wants.html_fragment:
+                # If the request wanted a HTML fragment, re-render as a full page
                 return render_redirect(url=request.url, code=303)
 
             return render_form(

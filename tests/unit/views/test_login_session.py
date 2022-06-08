@@ -22,7 +22,7 @@ from funnel.views.login_session import save_session_next_url
     ],
 )
 def test_save_session_next_url_not_current(existing, method, nextarg, saved, result):
-    """Test if save_session_next_url(current=False) behaves appropriately."""
+    """Test if save_session_next_url() behaves appropriately."""
     if nextarg:
         test_url = f'/test_url?next={nextarg}'
     else:
@@ -33,5 +33,5 @@ def test_save_session_next_url_not_current(existing, method, nextarg, saved, res
         else:
             session.pop('next', None)
 
-        assert save_session_next_url(current=False) is saved
+        assert save_session_next_url() is saved
         assert session['next'] == result

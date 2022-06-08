@@ -150,7 +150,7 @@ def login() -> ReturnView:
         return render_redirect(get_next_url(referrer=True, session=True), code=303)
 
     # Remember where the user came from if it wasn't already saved.
-    save_session_next_url(current=False)
+    save_session_next_url()
     next_url = session['next']
 
     loginform = LoginForm()
@@ -470,7 +470,7 @@ def login_service(service: str) -> ReturnView:
     if service not in login_registry:
         abort(404)
     provider = login_registry[service]
-    save_session_next_url(current=False)
+    save_session_next_url()
 
     callback_url = url_for('.login_service_callback', service=service, _external=True)
     statsd.gauge('login.progress', 1, delta=True, tags={'service': service})
