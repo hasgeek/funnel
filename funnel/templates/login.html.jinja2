@@ -15,11 +15,11 @@
   <div id="passwordform">
     {%- if request_wants.html_fragment -%}
       <p class="mui--text-body2 mui--text-light mui--text-bold mui--text-left">{% trans %}Hello!{% endtrans %}</p>
-      <p class="mui--text-body2 mui--text-light mui--text-left">{% trans %}Tell us where you'd like to get updates. We'll send an OTP to confirm.{% endtrans %}</p>
+      <p class="mui--text-body2 mui--text-light mui--text-bold mui--text-left">{% trans %}Tell us where you’d like to get updates. We’ll send an OTP to confirm.{% endtrans %}</p>
     {% endif %}
     {{ passwordlogin(loginform, formid, ref_id) }}
   </div>
-  <p class="mui--text-body2 mui--text-light mui--text-bold mui--text-center top-padding">{% trans %}"Or, use your existing account, no OTP required"{% endtrans %}</p>
+  <p class="mui--text-body2 mui--text-light mui--text-bold mui--text-center top-padding">{% trans %}Or, use your existing account, no OTP required{% endtrans %}</p>
   {{ sociallogin(login_registry) }}
 {% endblock %}
 
