@@ -107,7 +107,9 @@ def get_otp_form(otp_data: OtpData) -> Union[OtpForm, RegisterOtpForm]:
     return form
 
 
-def render_otp_form(form: Union[OtpForm, RegisterOtpForm], next_url) -> ReturnView:
+def render_otp_form(
+    form: Union[OtpForm, RegisterOtpForm], cancel_url: str
+) -> ReturnView:
     """Render OTP form."""
     return (
         render_template(
@@ -117,7 +119,7 @@ def render_otp_form(form: Union[OtpForm, RegisterOtpForm], next_url) -> ReturnVi
             ref_id='form-otp',
             action=url_for('login'),
             submit=_("Confirm"),
-            cancel_url=next_url,
+            cancel_url=cancel_url,
             ajax=True,
             with_chrome=True,
         ),
@@ -479,13 +481,13 @@ def register():
     )
 
 
-@app.route('/login/<service>', methods=['GET', 'POST'])
+@app.route('/login/<service>')
 def login_service(service: str) -> ReturnView:
     """Handle login with a registered service."""
     if service not in login_registry:
         abort(404)
     provider = login_registry[service]
-    set_session_next_url(current=False)
+    set_session_next_url(current=False, overwrite=True)
 
     callback_url = url_for('.login_service_callback', service=service, _external=True)
     statsd.gauge('login.progress', 1, delta=True, tags={'service': service})
