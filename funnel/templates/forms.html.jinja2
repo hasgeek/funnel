@@ -86,8 +86,8 @@
           {%- elif field.widget.input_type == 'password' and field.widget.html_tag not in ['ul', 'ol'] %}
             <div class="mui-textfield mui-textfield--password mui-textfield--float-label">
               {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, autofocus=autofocus, rows=rows, placeholder=placeholder)}}
-              <a href="javascript:void(0)" class="js-show-password password-toggle" aria-label="show password"tabindex="-1">{{ faicon(icon='eye', icon_size='title', css_class='mui--text-light') }}</a>
-              <a href="javascript:void(0)" class="js-hide-password password-toggle mui--hide" aria-label="hide password" tabindex="-1">{{ faicon(icon='eye-slash', icon_size='title', css_class='mui--text-light') }}</a>
+              <a href="javascript:void(0)" class="js-show-password js-password-toggle password-toggle" aria-label="show password"tabindex="-1">{{ faicon(icon='eye', icon_size='title', css_class='mui--text-light') }}</a>
+              <a href="javascript:void(0)" class="js-hide-password js-password-toggle password-toggle mui--hide" aria-label="hide password" tabindex="-1">{{ faicon(icon='eye-slash', icon_size='title', css_class='mui--text-light') }}</a>
               {%- if not nolabel %}
                 <label for="{{ field.id }}">{{ field.label.text }}</label>
               {%- endif %}
@@ -146,18 +146,15 @@
     {% if cancel_url %}<a href="{{ cancel_url }}" class="mui-btn mui-btn--raised mui-btn" data-cy="form-cancel-btn">{% trans %}Cancel{% endtrans %}</a>{% endif %}
     <span class="loading mui--hide">&nbsp;</span>
     {% if csrf_error -%}
-      <div><p class="mui-form__error">{% trans -%}
-        This form has timed out. Please submit again to confirm
-      {%- endtrans %}</p></div>
+      <div>
+        <p class="mui-form__error">{% trans -%}This form has timed out. Please submit again to confirm{%- endtrans %}</p>
+      </div>
     {%- endif %}
   </div>
 </div>
 {%- endmacro %}
 
 {% macro renderform_inner(form, formid, style='horiz', autosave=False, draft_revision=None) -%}
-  {%- if form.errors %}
-    {{ alertbox('error', 'Please review the indicated issues') }}
-  {%- endif %}
   {% if message %}<p>{{ message }}</p>{% endif %}
   <div style="display:none;"><input type="hidden" name="form.id" value="{{ formid }}" /></div>
   {{ form.hidden_tag() }}
@@ -184,7 +181,7 @@
 {% endmacro %}
 
 {%- macro ajaxform(ref_id, request, force=false) %}
-  {%- if force or request_is_xhr() %}
+  {%- if force or request_wants.html_fragment %}
     <script type="text/javascript">
       $(function() {
         $("#{{ ref_id }}").ajaxForm({
@@ -209,7 +206,7 @@
                 $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.serverError);
               } else if(xhr.status === 429) {
                 $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.rateLimitError);
-              } else if(xhr.responseJSON.error_description) {
+              } else if(xhr.responseJSON && xhr.responseJSON.error_description) {
                 $(form).find('.alert__text').text(xhr.responseJSON.error_description);
               } else {
                 $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.error);
@@ -340,15 +337,29 @@
   <script type="text/javascript">
     $(function() {
   {%- endif %}
-    $('body').on('click', '.js-show-password', function () {
-      $(this).parent().find('.password-toggle').toggleClass('mui--hide');
-      $(this).parent().find('input').attr('type', 'text');
-    });
 
-    $('body').on('click', '.js-hide-password', function () {
-      $(this).parent().find('.password-toggle').toggleClass('mui--hide');
-      $(this).parent().find('input').attr('type', 'password');
-    });
+  $('.js-show-password').on('click', function (event) {
+    event.preventDefault();
+    $(this).parent().find('.js-password-toggle').toggleClass('mui--hide');
+    $(this).parent().find('input').attr('type', 'text');
+  });
+  $('.js-hide-password').on('click', function (event) {
+    event.preventDefault();
+    $(this).parent().find('.js-password-toggle').toggleClass('mui--hide');
+    $(this).parent().find('input').attr('type', 'password');
+  });
+
+  //Toggle between OTP/Password login
+  $('.js-toggle-login').on('click', function(event) {
+    event.preventDefault();
+    $('.js-fields-toggle').toggleClass('mui--hide');
+  });
+  $('.js-password-field input').on('change', function() {
+    if($('.js-password-field').hasClass('mui--hide')) {
+      $('.js-fields-toggle').toggleClass('mui--hide');
+    }
+  });
+
   {%- for field in form -%}
     {%- if field.type == 'FormField' %}
       {{ widgetscripts(field.form, script=false) }}

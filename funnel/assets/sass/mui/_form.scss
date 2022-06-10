@@ -58,3 +58,21 @@
     }
   }
 }
+
+// mui _textfield.scss
+@mixin float-label {
+  color: $mui-label-font-color;
+  font-size: $mui-label-font-size;
+  line-height: $xFormLabelLineHeight;
+  transform: translate(0px, 0px);
+  text-overflow: ellipsis;
+}
+
+.mui-textfield--float-label {
+  input:-webkit-autofill ~ label {
+    @include float-label;
+  }
+  input:autofill ~ label {
+    @include float-label;
+  }
+}

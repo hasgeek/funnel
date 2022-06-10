@@ -1,3 +1,5 @@
+"""Support functions for requiring authentication and maintaining a login session."""
+
 from __future__ import annotations
 
 from datetime import timedelta
@@ -12,7 +14,6 @@ from flask import (
     jsonify,
     make_response,
     redirect,
-    render_template,
     request,
     session,
     url_for,
@@ -21,8 +22,8 @@ import itsdangerous
 
 import geoip2.errors
 
-from baseframe import _, request_is_xhr, statsd
-from baseframe.forms import render_form, render_redirect
+from baseframe import _, statsd
+from baseframe.forms import render_form
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
 from coaster.views import get_current_url, get_next_url
@@ -41,10 +42,16 @@ from ..models import (
     db,
     user_session_validity_period,
 )
+from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
 from ..utils import abort_null
-from .helpers import app_url_for, autoset_timezone_and_locale, get_scheme_netloc
+from .helpers import (
+    app_url_for,
+    autoset_timezone_and_locale,
+    get_scheme_netloc,
+    render_redirect,
+)
 
 # Constant value, needed for cookie max_age
 user_session_validity_period_total_seconds = int(
@@ -342,12 +349,17 @@ def update_user_session_timestamp(response):
     return response
 
 
-def set_session_next_url(current=False):
-    """Save the next URL to the session."""
-    if current:
-        session['next'] = get_current_url()
-    elif 'next' not in session:
+def save_session_next_url() -> bool:
+    """
+    Save the next URL to the session.
+
+    In a GET request, the ``next`` request argument always takes priority over a
+    previously saved next destination.
+    """
+    if 'next' not in session or (request.method == 'GET' and 'next' in request.args):
         session['next'] = get_next_url(referrer=True)
+        return True
+    return False
 
 
 def requires_login(f):
@@ -358,8 +370,7 @@ def requires_login(f):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            set_session_next_url(True)
-            return redirect(url_for('login'))
+            return redirect(url_for('login', next=get_current_url()))
         return f(*args, **kwargs)
 
     return decorated_function
@@ -376,8 +387,7 @@ def requires_login_no_message(f):
     def decorated_function(*args, **kwargs):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
-            set_session_next_url(True)
-            return redirect(url_for('login'))
+            return redirect(url_for('login', next=get_current_url()))
         return f(*args, **kwargs)
 
     return decorated_function
@@ -388,7 +398,9 @@ def requires_sudo(f):
     Decorate a view to require user to have re-authenticated recently.
 
     Requires the endpoint to support the POST method, as it renders a password form
-    within the same request, without redirecting the user to a gatekeeping endpoint.
+    within the same request, avoiding redirecting the user to a gatekeeping endpoint
+    unless the request needs JSON, in which case a HTML form cannot be rendered. The
+    user is redirected to the `account_sudo` endpoint in this case.
     """
 
     @wraps(f)
@@ -397,8 +409,7 @@ def requires_sudo(f):
         # If the user is not logged in, require login first
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            set_session_next_url(True)
-            return render_redirect(url_for('login'))
+            return render_redirect(url_for('login', next=get_current_url()))
         # If the user has not authenticated in some time, ask for the password again
         if not current_auth.session.has_sudo:
             # If the user doesn't have a password, ask them to set one first
@@ -411,7 +422,7 @@ def requires_sudo(f):
                     ),
                     'info',
                 )
-                set_session_next_url(True)
+                session['next'] = get_current_url()
                 return render_redirect(url_for('change_password'))
             # A future version of this form may accept password or 2FA (U2F or TOTP)
             form = PasswordForm(edit_user=current_auth.user)
@@ -424,33 +435,27 @@ def requires_sudo(f):
                 continue_url = session.pop('next', request.url)
                 return redirect(continue_url, code=303)
 
-            if request_is_xhr():
-                # We can't render a form if it's an XHR request, so we need to ask for
-                # the page to be loaded afresh
-                if request.accept_mimetypes.best == 'application/json':
-                    # A JSON-only endpoint can't render a form, so we have to redirect
-                    # the browser to the account_sudo endpoint, asking it to redirect
-                    # back here after getting the user's password. That will be:
-                    # `url_for('account_sudo', next=request.url)`. Ideally, a fragment
-                    # identifier should be included to reload to the same dialog the
-                    # user was sent away from.
+            if request_wants.json:
+                # A JSON-only endpoint can't render a form, so we have to redirect the
+                # browser to the account_sudo endpoint, asking it to redirect back here
+                # after getting the user's password. That will be the JavaScript
+                # equivalent of ``url_for('account_sudo', next=get_current_url())``.
+                # Ideally, a fragment identifier should be included to reload to the
+                # same dialog the user was sent away from.
 
-                    # TODO: Remove this line before merging PR
-                    app.logger.debug("Raising requires_sudo error over JSON")
-                    return make_response(
-                        jsonify(
-                            status='error',
-                            error='requires_sudo',
-                            error_description=_(
-                                "This request must be confirmed with your password"
-                            ),
+                return make_response(
+                    jsonify(
+                        status='error',
+                        error='requires_sudo',
+                        error_description=_(
+                            "This request must be confirmed with your password"
                         ),
-                        422,
-                    )
-                else:
-                    # TODO: Remove this line before merging PR
-                    app.logger.debug("Redirecting user to this page for requires_sudo")
-                    return render_template('redirect.html.jinja2', url=request.url)
+                    ),
+                    422,
+                )
+            if request_wants.html_fragment:
+                # If the request wanted a HTML fragment, re-render as a full page
+                return render_redirect(url=request.url, code=303)
 
             return render_form(
                 form=form,

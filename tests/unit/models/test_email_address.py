@@ -1,3 +1,4 @@
+# pylint: disable=possibly-unused-variable
 from types import SimpleNamespace
 
 from sqlalchemy.exc import IntegrityError
@@ -18,15 +19,17 @@ from funnel.signals import emailaddress_refcount_dropping
 
 # Fixture used across tests.
 hash_map = {
-    'example@example.com': b'X5Q\xc1<\xceE<\x05\x9c\xa7\x0f\xee{\xcd\xc2\xe5\xbd\x82\xa1',
-    'example+extra@example.com': b'\xcfi\xf2\xdfph\xc0\x81\xfb\xe8\\\xa6\xa5\xf1\xfb:\xbb\xe4\x88\xde',
+    'example@example.com': b'X5Q\xc1<\xceE<\x05\x9c\xa7\x0f\xee'
+    b'{\xcd\xc2\xe5\xbd\x82\xa1',
+    'example+extra@example.com': b'\xcfi\xf2\xdfph\xc0\x81\xfb\xe8'
+    b'\\\xa6\xa5\xf1\xfb:\xbb\xe4\x88\xde',
     'example@gmail.com': b"\tC*\xd2\x9a\xcb\xdfR\xcb\xbf=>2D'(\xa8V\x13\xa7",
     'example@googlemail.com': b'x\xd6#Ue\xa8-_\xeclJ+o8\xfe\x1f\xa1\x0b:9',
     'eg@räksmörgås.org': b'g\xc4B`\x9ej\x05\xf8\xa6\x9b\\"l\x0c$\xd4\xa8\xe42j',
 }
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def refcount_data():
     refcount_signal_fired = set()
 
@@ -89,9 +92,9 @@ def test_canonical_email_representation():
         'example@gmail.com',
         'exam.pl.e@googlemail.com',
     ]
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Not an email address'):
         cemail('')
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Not an email address'):
         cemail('invalid')
 
 
@@ -144,16 +147,18 @@ def test_email_address_init():
 
 def test_email_address_init_error():
     """`EmailAddress` constructor will reject various forms of bad input."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='A string email address is required'):
         # Must be a string
         EmailAddress(None)
-    with pytest.raises(ValueError):
+    # FIXME: Wrong cause of error
+    with pytest.raises(ValueError, match='not enough values to unpack'):
         # Must not be blank
         EmailAddress('')
-    with pytest.raises(ValueError):
+    # FIXME: Wrong cause of error
+    with pytest.raises(ValueError, match='not enough values to unpack'):
         # Must be syntactically valid
         EmailAddress('invalid')
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Value is not an email address'):
         # Must be syntactically valid (caught elsewhere internally)
         EmailAddress('@invalid')
 
@@ -190,12 +195,14 @@ def test_email_address_mutability():
     assert ea.blake2b160 == hash_map['example@example.com']
 
     # But changing to another email address is not allowed
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Email address cannot be changed'):
         ea.email = 'other@example.com'
 
     # Change is also not allowed by blanking and then setting to another
     ea.email = None
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError, match='Email address does not match existing blake2b160 hash'
+    ):
         ea.email = 'other@example.com'
 
     # Changing the domain is also not allowed
@@ -203,7 +210,7 @@ def test_email_address_mutability():
         ea.domain = 'gmail.com'
 
     # Setting to an invalid value is not allowed
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='An email address is required'):
         ea.email = ''
 
 
@@ -271,10 +278,16 @@ def test_email_address_get(db_session):
     assert EmailAddress.get('invalid') is None
     assert EmailAddress.get('unknown@example.com') is None
 
+    # Get works on blocked addresses
+    email_to_block = ea3.email
+    EmailAddress.mark_blocked(email_to_block)
+    assert ea3.is_blocked is True
+    assert EmailAddress.get(email_to_block) == ea3
+
 
 def test_email_address_invalid_hash_raises_error(db_session):
     """Retrieving an email address with an invalid hash will raise ValueError."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Invalid character'):
         EmailAddress.get(email_hash='invalid')
 
 
@@ -319,10 +332,11 @@ def test_email_address_add(db_session):
     assert ea5.email == ea3.email == 'Other@example.com'
 
     # Adding an invalid email address will raise an error
-    with pytest.raises(ValueError):
+    # FIXME: Wrong cause of error
+    with pytest.raises(ValueError, match='not enough values to unpack'):
         EmailAddress.add('invalid')
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='A string email address is required'):
         EmailAddress.add(None)
 
 
@@ -414,7 +428,9 @@ def email_models(database):
     return SimpleNamespace(**locals())
 
 
-def test_email_address_mixin(email_models, db_session):
+def test_email_address_mixin(  # pylint: disable=too-many-locals,too-many-statements
+    email_models, db_session
+):
     """The EmailAddressMixin class adds safety checks for using an email address."""
     models = email_models
 

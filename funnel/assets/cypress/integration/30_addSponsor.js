@@ -6,8 +6,8 @@ describe('Add sponsor to project', () => {
 
   it('Add sponsor', () => {
     cy.server();
-    cy.route('GET', '**/add_sponsor').as('add-sponsor-form');
-    cy.route('POST', '**/add_sponsor').as('add-sponsor');
+    cy.route('GET', '**/sponsors/add').as('add-sponsor-form');
+    cy.route('POST', '**/sponsors/add').as('add-sponsor');
     cy.route('GET', '**/sponsors/**/edit').as('edit-sponsor-form');
     cy.route('POST', '**/sponsors/**/edit').as('edit-sponsor');
     cy.route('GET', '**/sponsors/**/remove').as('remove-sponsor-form');
@@ -36,7 +36,7 @@ describe('Add sponsor to project', () => {
 
     cy.get('a[data-cy="edit-sponsor"]:visible').click();
     cy.wait('@edit-sponsor-form');
-    cy.get('#is_promoted-0').click();
+    cy.get('#is_promoted').click();
     cy.get('button[data-cy="form-submit-btn"]').click();
     cy.wait('@edit-sponsor');
 

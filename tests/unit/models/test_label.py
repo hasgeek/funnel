@@ -20,7 +20,7 @@ def test_child_label_from_fixture(new_main_label):
     assert label_a1.icon == "👍"
     assert not label_a1.has_options
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='This flag must be set on the parent'):
         # because Label A1 is not a main and optioned label,
         # it's restricted flag cannot be set
         label_a1.restricted = True
@@ -32,7 +32,7 @@ def test_label_from_fixture(new_label):
     assert new_label.icon == "🔟"
     assert not new_label.has_options
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Labels without options cannot be mandatory'):
         # because Label B is not a parent label, it cannot be required
         new_label.required = True
 
@@ -67,7 +67,7 @@ def test_label_icon(new_label):
 
 def test_label_archived(new_label):
     assert new_label.archived is False
-    assert new_label._archived is False
+    assert new_label._archived is False  # pylint: disable=protected-access
     new_label.archived = True
-    assert new_label._archived is True
+    assert new_label._archived is True  # pylint: disable=protected-access
     assert new_label.archived is True  # type: ignore[unreachable]

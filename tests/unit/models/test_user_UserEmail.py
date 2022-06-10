@@ -1,8 +1,8 @@
 import base58
 import pytest
 
+from funnel import models
 from funnel.models.email_address import email_blake2b160_hash
-import funnel.models as models
 
 from .test_db import TestDatabaseFixture
 

@@ -116,3 +116,29 @@ warn_unreachable = true
 # Unsafe with pre-commit, see https://github.com/python/mypy/issues/2960
 warn_unused_ignores = false
 plugins = ['sqlmypy']
+
+[tool.pylint.master]
+load-plugins = ['pylint_pytest', 'pylint_flask_sqlalchemy']
+max-parents = 10
+
+[tool.pylint.message_control]
+max-line-length = 88
+disable = [
+  'comparison-with-callable',  # Pylint is confused by SQLAlchemy attributes
+  'cyclic-import',  # We have tail imports all over
+  'duplicate-code',  # Too many false positives
+  'fixme',  # Our workflow is to tag for future fixes
+  'invalid-name',  # Flake8 covers our naming convention requirements
+  'no-member',  # Pylint gets confused over how some members become part of an instance
+  'no-self-use',  # Views and overriden methods don't necessarily use `self`
+  'too-few-public-methods',  # Data classes and validator classes have few methods
+  'too-many-instance-attributes',  # Some instances are just bags of attributes
+  'too-many-lines',  # We have large files that include all related functionality
+  'unused-argument',  # Arguments required for spec compatibility aren't always used
+]
+
+[tool.bandit]
+exclude_dirs = ['node_modules']
+
+[tool.bandit.assert_used]
+skips = ['*/*_test.py', '*/test_*.py']

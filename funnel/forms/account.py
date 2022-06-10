@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-import phonenumbers
+from typing import Optional
 
-from baseframe import _, __
+from baseframe import _, __, forms
 from coaster.auth import current_auth
 from coaster.utils import sorted_timezones
-import baseframe.forms as forms
 
 from ..models import (
     MODERATOR_REPORT_TYPE,
     PASSWORD_MAX_LENGTH,
     PASSWORD_MIN_LENGTH,
+    Anchor,
     Profile,
     User,
     UserEmailClaim,
@@ -19,6 +19,7 @@ from ..models import (
     check_password_strength,
     getuser,
 )
+from ..utils import normalize_phone_number
 from .helpers import EmailAddressAvailable, strip_filters
 
 __all__ = [
@@ -68,6 +69,8 @@ class PasswordStrengthValidator:
             user_inputs.append(getattr(form, field_name).data)
 
         if hasattr(form, 'edit_user') and form.edit_user is not None:
+            if form.edit_user.username:
+                user_inputs.append(form.edit_user.username)
             if form.edit_user.fullname:
                 user_inputs.append(form.edit_user.fullname)
 
@@ -101,16 +104,27 @@ class PasswordStrengthValidator:
 
 
 @User.forms('register')
-class RegisterForm(forms.RecaptchaForm):
+class RegisterForm(forms.Form):
+    """
+    Traditional account registration form.
+
+    This form has been deprecated by the combination of
+    :class:`~funnel.forms.login.LoginForm` and :class:`~funnel.forms.RegisterOtpForm`
+    for most users. Users who cannot receive an OTP (unsupported country for phone)
+    will continue to use password-based registration.
+    """
+
     __returns__ = ('password_strength',)  # Set by PasswordStrengthValidator
 
     fullname = forms.StringField(
         __("Full name"),
         description=__(
-            "This account is for you as an individual. We’ll make one for your organization later"
+            "This account is for you as an individual. We’ll make one for your"
+            " organization later"
         ),
         validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
         filters=[forms.filters.strip()],
+        render_kw={'autocomplete': 'name'},
     )
     email = forms.EmailField(
         __("Email address"),
@@ -119,7 +133,11 @@ class RegisterForm(forms.RecaptchaForm):
             EmailAddressAvailable(purpose='register'),
         ],
         filters=strip_filters,
-        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'email',
+        },
     )
     password = forms.PasswordField(
         __("Password"),
@@ -128,6 +146,7 @@ class RegisterForm(forms.RecaptchaForm):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(user_input_fields=['fullname', 'email']),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
     confirm_password = forms.PasswordField(
         __("Confirm password"),
@@ -136,6 +155,7 @@ class RegisterForm(forms.RecaptchaForm):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
 
 
@@ -149,6 +169,7 @@ class PasswordForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(max=PASSWORD_MAX_LENGTH),
         ],
+        render_kw={'autocomplete': 'current-password'},
     )
 
     def validate_password(self, field):
@@ -168,18 +189,28 @@ class PasswordPolicyForm(forms.Form):
 
 
 @User.forms('password_reset_request')
-class PasswordResetRequestForm(forms.RecaptchaForm):
+class PasswordResetRequestForm(forms.Form):
+    """Request a password reset."""
+
+    __returns__ = ('user', 'anchor')
+
+    user: Optional[User] = None
+    anchor: Optional[Anchor] = None
+
     username = forms.StringField(
-        __("Username or Email"),
+        __("Phone number or email address"),
         validators=[forms.validators.DataRequired()],
-        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+        },
     )
 
     def validate_username(self, field):
-        user = getuser(field.data)
-        if user is None:
+        """Process username to retrieve user."""
+        self.user, self.anchor = getuser(field.data, True)
+        if self.user is None:
             raise forms.ValidationError(_("Could not find a user with that id"))
-        self.user = user
 
 
 @User.forms('password_create')
@@ -194,6 +225,7 @@ class PasswordCreateForm(forms.Form):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
     confirm_password = forms.PasswordField(
         __("Confirm password"),
@@ -202,18 +234,28 @@ class PasswordCreateForm(forms.Form):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
 
 
 @User.forms('password_reset')
-class PasswordResetForm(forms.RecaptchaForm):
+class PasswordResetForm(forms.Form):
     __returns__ = ('password_strength',)
 
+    # TODO: This form has been deprecated with OTP-based reset as that doesn't need
+    # username and now uses :class:`PasswordCreateForm`. This form is retained in the
+    # interim in case email link-based flow is reintroduced. It should be removed
+    # after a waiting period (as of May 2022).
+
     username = forms.StringField(
-        __("Username or Email"),
+        __("Phone number or email address"),
         validators=[forms.validators.DataRequired()],
-        description=__("Please reconfirm your username or email address"),
-        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
+        description=__("Please reconfirm your phone number, email address or username"),
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'username',
+        },
     )
 
     password = forms.PasswordField(
@@ -221,8 +263,9 @@ class PasswordResetForm(forms.RecaptchaForm):
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
-            PasswordStrengthValidator(user_input_fields=['username']),
+            PasswordStrengthValidator(),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
     confirm_password = forms.PasswordField(
         __("Confirm password"),
@@ -231,16 +274,14 @@ class PasswordResetForm(forms.RecaptchaForm):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
 
     def validate_username(self, field):
         user = getuser(field.data)
         if user is None or user != self.edit_user:
             raise forms.ValidationError(
-                _(
-                    "This username or email does not match the user the reset code is"
-                    " for"
-                )
+                _("This does not match the user the reset code is for")
             )
 
 
@@ -255,6 +296,7 @@ class PasswordChangeForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(max=PASSWORD_MAX_LENGTH),
         ],
+        render_kw={'autocomplete': 'current-password'},
     )
     password = forms.PasswordField(
         __("New password"),
@@ -263,6 +305,7 @@ class PasswordChangeForm(forms.Form):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
     confirm_password = forms.PasswordField(
         __("Confirm password"),
@@ -271,6 +314,7 @@ class PasswordChangeForm(forms.Form):
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             forms.validators.EqualTo('password'),
         ],
+        render_kw={'autocomplete': 'new-password'},
     )
 
     def validate_old_password(self, field):
@@ -311,6 +355,7 @@ class AccountForm(forms.Form):
             forms.validators.Length(max=User.__title_length__),
         ],
         filters=[forms.filters.strip()],
+        render_kw={'autocomplete': 'name'},
     )
     email = forms.EmailField(
         __("Email address"),
@@ -320,7 +365,11 @@ class AccountForm(forms.Form):
             EmailAddressAvailable(purpose='use'),
         ],
         filters=strip_filters,
-        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'email',
+        },
     )
     username = forms.AnnotatedTextField(
         __("Username"),
@@ -334,7 +383,10 @@ class AccountForm(forms.Form):
         ],
         filters=[forms.filters.none_if_empty()],
         prefix="https://hasgeek.com/",
-        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+        },
     )
     timezone = forms.SelectField(
         __("Timezone"),
@@ -368,7 +420,10 @@ class UsernameAvailableForm(forms.Form):
         __("Username"),
         validators=[forms.validators.DataRequired(__("This is required"))],
         filters=[forms.filters.strip()],
-        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+        },
     )
 
     def validate_username(self, field):
@@ -388,7 +443,7 @@ def validate_emailclaim(form, field):
 
 
 @User.forms('email_add')
-class NewEmailAddressForm(forms.RecaptchaForm):
+class NewEmailAddressForm(forms.Form):
     email = forms.EmailField(
         __("Email address"),
         validators=[
@@ -397,7 +452,11 @@ class NewEmailAddressForm(forms.RecaptchaForm):
             EmailAddressAvailable(purpose='claim'),
         ],
         filters=strip_filters,
-        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'email',
+        },
     )
     type = forms.RadioField(  # noqa: A003
         __("Type"),
@@ -417,7 +476,11 @@ class EmailPrimaryForm(forms.Form):
         __("Email address"),
         validators=[forms.validators.DataRequired()],
         filters=strip_filters,
-        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'email',
+        },
     )
 
 
@@ -427,25 +490,14 @@ class VerifyEmailForm(forms.Form):
 
 
 @User.forms('phone_add')
-class NewPhoneForm(forms.RecaptchaForm):
+class NewPhoneForm(forms.Form):
     phone = forms.TelField(
         __("Phone number"),
         validators=[forms.validators.DataRequired()],
         filters=strip_filters,
         description=__("Mobile numbers only, in Indian or international format"),
+        render_kw={'autocomplete': 'tel'},
     )
-
-    # Temporarily removed since we only support mobile numbers at this time. When phone
-    # call validation is added, we can ask for other types of numbers:
-
-    # type = forms.RadioField(__("Type"),
-    #     validators=[forms.validators.Optional()],
-    #     filters=strip_filters,
-    #     choices=[
-    #         (__("Mobile"), __("Mobile")),
-    #         (__("Home"), __("Home")),
-    #         (__("Work"), __("Work")),
-    #         (__("Other"), __("Other"))])
 
     enable_notifications = forms.BooleanField(
         __("Send notifications by SMS"),
@@ -458,19 +510,11 @@ class NewPhoneForm(forms.RecaptchaForm):
 
     def validate_phone(self, field):
         # Step 1: Validate number
-        try:
-            # Assume Indian number if no country code is specified
-            # TODO: Guess country from IP address
-            parsed_number = phonenumbers.parse(field.data, 'IN')
-            if not phonenumbers.is_valid_number(parsed_number):
-                raise ValueError("Invalid number")
-        except (phonenumbers.NumberParseException, ValueError):
+        number = normalize_phone_number(field.data)
+        if not number:
             raise forms.StopValidation(
                 _("This does not appear to be a valid phone number")
             )
-        number = phonenumbers.format_number(
-            parsed_number, phonenumbers.PhoneNumberFormat.E164
-        )
         # Step 2: Check if number has already been claimed
         existing = UserPhone.get(phone=number)
         if existing is not None:
@@ -478,10 +522,7 @@ class NewPhoneForm(forms.RecaptchaForm):
                 raise forms.ValidationError(
                     _("You have already registered this phone number")
                 )
-            else:
-                raise forms.ValidationError(
-                    _("This phone number has already been claimed")
-                )
+            raise forms.ValidationError(_("This phone number has already been claimed"))
         existing = UserPhoneClaim.get_for(user=current_auth.user, phone=number)
         if existing is not None:
             raise forms.ValidationError(_("This phone number is pending verification"))
@@ -494,7 +535,11 @@ class PhonePrimaryForm(forms.Form):
     phone = forms.StringField(
         __("Phone number"),
         validators=[forms.validators.DataRequired()],
-        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={
+            'autocorrect': 'off',
+            'autocapitalize': 'off',
+            'autocomplete': 'tel',
+        },
     )
 
 
@@ -504,7 +549,12 @@ class VerifyPhoneForm(forms.Form):
         __("Verification code"),
         validators=[forms.validators.DataRequired()],
         filters=[forms.filters.strip()],
-        render_kw={'pattern': '[0-9]*', 'autocomplete': 'off'},
+        render_kw={
+            'pattern': '[0-9]*',
+            'autocomplete': 'one-time-code',
+            'autocorrect': 'off',
+            'inputmode': 'numeric',
+        },
     )
 
     def validate_verification_code(self, field):

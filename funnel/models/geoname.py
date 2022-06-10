@@ -70,7 +70,7 @@ class GeoCountryInfo(BaseNameMixin, db.Model):
 
     def __repr__(self):
         """Return representation."""
-        return '<GeoCountryInfo %d "%s">' % (self.geonameid, self.title)
+        return f'<GeoCountryInfo {self.geonameid} "{self.title}">'
 
 
 class GeoAdmin1Code(BaseMixin, db.Model):
@@ -97,7 +97,7 @@ class GeoAdmin1Code(BaseMixin, db.Model):
 
     def __repr__(self):
         """Return representation."""
-        return '<GeoAdmin1Code %d "%s">' % (self.geonameid, self.ascii_title)
+        return f'<GeoAdmin1Code {self.geonameid} "self.ascii_title">'
 
 
 class GeoAdmin2Code(BaseMixin, db.Model):
@@ -125,7 +125,7 @@ class GeoAdmin2Code(BaseMixin, db.Model):
 
     def __repr__(self):
         """Return representation."""
-        return '<GeoAdmin2Code %d "%s">' % (self.geonameid, self.ascii_title)
+        return f'<GeoAdmin2Code {self.geonameid} "self.ascii_title">'
 
 
 class GeoName(BaseNameMixin, db.Model):
@@ -293,12 +293,9 @@ class GeoName(BaseNameMixin, db.Model):
 
     def __repr__(self) -> str:
         """Return representation."""
-        return '<GeoName %d %s %s %s "%s">' % (
-            self.geonameid,
-            self.country_id,
-            self.fclass,
-            self.fcode,
-            self.ascii_title,
+        return (
+            f'<GeoName {self.geonameid} {self.country_id} {self.fclass} {self.fcode}'
+            f' "{self.ascii_title}">'
         )
 
     def related_geonames(self) -> Dict[str, GeoName]:
@@ -562,11 +559,7 @@ class GeoAltName(BaseMixin, db.Model):
 
     def __repr__(self) -> str:
         """Return representation."""
-        return '<GeoAltName {} "{}" of {}>'.format(
-            self.lang,
-            self.title,
-            repr(self.geoname)[1:-1] if self.geoname else None,
-        )
+        return f'<GeoAltName {self.lang} "{self.title}" of {self.geoname!r}>'
 
     def as_dict(self) -> dict:
         """Convert this record into a dictionary suitable for casting to JSON."""

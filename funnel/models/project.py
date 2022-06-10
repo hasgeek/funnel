@@ -428,11 +428,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`Project` as a string."""
-        return '<Project {}/{} "{}">'.format(
-            self.profile.name if self.profile else '(none)',
-            self.name,
-            self.title,
-        )
+        return f'<Project {self.profile.name}/{self.name} "{self.title}">'
 
     @with_roles(call={'editor'})
     @cfp_state.transition(
@@ -450,7 +446,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         if self.cfp_start_at is None:
             self.cfp_start_at = db.func.utcnow()
 
-    @with_roles(call={'editor'})
+    @with_roles(call={'editor'})  # skipcq: PTC-W0049
     @cfp_state.transition(
         cfp_state.PUBLIC,
         cfp_state.CLOSED,
@@ -478,7 +474,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         self.published_at = db.func.utcnow()
         return first_published
 
-    @with_roles(call={'editor'})
+    @with_roles(call={'editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.PUBLISHED,
         state.WITHDRAWN,
@@ -786,17 +782,17 @@ class ProjectRedirect(TimestampMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`ProjectRedirect` as a string."""
-        return '<ProjectRedirect {}/{}: {}>'.format(
-            self.profile.name,
-            self.name,
-            self.project.name if self.project else '(none)',
+        if not self.project:
+            return f'<ProjectRedirect {self.profile.name}/{self.name}: (none)>'
+        return (
+            f'<ProjectRedirect {self.profile.name}/{self.name}'
+            f' → {self.project.profile.name}/{self.project.name}>'
         )
 
     def redirect_view_args(self):
         if self.project:
             return {'profile': self.profile.name, 'project': self.project.name}
-        else:
-            return {}
+        return {}
 
     @classmethod
     def add(cls, project, profile=None, name=None):
@@ -857,10 +853,9 @@ class ProjectLocation(TimestampMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`ProjectLocation` as a string."""
-        return '<ProjectLocation %d %s for project %s>' % (
-            self.geonameid,
-            'primary' if self.primary else 'secondary',
-            self.project,
+        pri_sec = 'primary' if self.primary else 'secondary'
+        return (
+            f'<ProjectLocation {self.geonameid} {pri_sec} for project {self.project!r}>'
         )
 
 
@@ -873,5 +868,6 @@ class __Commentset:
 
 
 # Tail imports
-from .project_membership import ProjectCrewMembership  # isort:skip  # skipcq: FLK-E402
+# pylint: disable=wrong-import-position
+from .project_membership import ProjectCrewMembership  # isort:skip
 from .venue import Venue  # isort:skip  # skipcq: FLK-E402

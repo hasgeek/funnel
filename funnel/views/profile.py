@@ -12,7 +12,7 @@ from flask import (
 
 from baseframe import _
 from baseframe.filters import date_filter
-from baseframe.forms import render_form, render_redirect
+from baseframe.forms import render_form
 from coaster.auth import current_auth
 from coaster.views import (
     ModelView,
@@ -28,6 +28,7 @@ from coaster.views import (
 from .. import app
 from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm
 from ..models import Profile, Project, db
+from .helpers import render_redirect
 from .login_session import requires_login
 from .mixins import ProfileViewMixin
 
@@ -96,10 +97,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             }
 
         elif self.obj.is_organization_profile:
-            if self.obj.name == 'PrivacyMode':
-                template_name = 'custom_profile.html.jinja2'
-            else:
-                template_name = 'profile.html.jinja2'
+            template_name = 'profile.html.jinja2'
 
             # `order_by(None)` clears any existing order defined in relationship.
             # We're using it because we want to define our own order here.
@@ -310,10 +308,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 db.session.commit()
                 flash(_("Your changes have been saved"), 'info')
                 return render_redirect(self.obj.url_for(), code=303)
-            else:
-                return render_form(
-                    form=form, title="", submit=_("Save logo"), ajax=True
-                )
+            return render_form(form=form, title="", submit=_("Save logo"), ajax=True)
         return render_form(
             form=form,
             title="",
@@ -332,14 +327,11 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             self.obj.logo_url = None
             db.session.commit()
             return render_redirect(self.obj.url_for(), code=303)
-        else:
-            current_app.logger.error(
-                "CSRF form validation error when removing profile logo"
-            )
-            flash(
-                _("Were you trying to remove the logo? Try again to confirm"), 'error'
-            )
-            return render_redirect(self.obj.url_for(), code=303)
+        current_app.logger.error(
+            "CSRF form validation error when removing profile logo"
+        )
+        flash(_("Were you trying to remove the logo? Try again to confirm"), 'error')
+        return render_redirect(self.obj.url_for(), code=303)
 
     @route('update_banner', methods=['GET', 'POST'])
     @render_with('update_logo_modal.html.jinja2')
@@ -364,10 +356,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 db.session.commit()
                 flash(_("Your changes have been saved"), 'info')
                 return render_redirect(self.obj.url_for(), code=303)
-            else:
-                return render_form(
-                    form=form, title="", submit=_("Save banner"), ajax=True
-                )
+            return render_form(form=form, title="", submit=_("Save banner"), ajax=True)
         return render_form(
             form=form,
             title="",
@@ -385,15 +374,14 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             self.obj.banner_image_url = None
             db.session.commit()
             return render_redirect(self.obj.url_for(), code=303)
-        else:
-            current_app.logger.error(
-                "CSRF form validation error when removing profile banner"
-            )
-            flash(
-                _("Were you trying to remove the banner? Try again to confirm"),
-                'error',
-            )
-            return render_redirect(self.obj.url_for(), code=303)
+        current_app.logger.error(
+            "CSRF form validation error when removing profile banner"
+        )
+        flash(
+            _("Were you trying to remove the banner? Try again to confirm"),
+            'error',
+        )
+        return render_redirect(self.obj.url_for(), code=303)
 
     @route('transition', methods=['POST'])
     @requires_login

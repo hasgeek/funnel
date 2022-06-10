@@ -49,8 +49,10 @@ class TwitterProvider(LoginProvider):
         try:
             redirect_url = auth.get_authorization_url()
             return redirect(redirect_url)
-        except tweepy.TweepError:
-            raise LoginInitError(_("Twitter had a temporary problem. Try again?"))
+        except tweepy.TweepError as exc:
+            raise LoginInitError(
+                _("Twitter had a temporary problem. Try again?")
+            ) from exc
 
     def callback(self) -> LoginProviderData:
         auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
@@ -75,10 +77,10 @@ class TwitterProvider(LoginProvider):
             twuser = api.verify_credentials(
                 include_entities='false', skip_status='true', include_email='true'
             )
-        except tweepy.TweepError:
+        except tweepy.TweepError as exc:
             raise LoginCallbackError(
                 _("Twitter had an intermittent problem. Try again?")
-            )
+            ) from exc
 
         return LoginProviderData(
             email=getattr(twuser, 'email', None),

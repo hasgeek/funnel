@@ -5,8 +5,8 @@ from typing import Any, List, Optional
 from urllib.parse import quote as urlquote
 import re
 
+from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
-import sqlalchemy.sql.expression as expression
 
 from flask import Markup, redirect, request, url_for
 
@@ -103,8 +103,7 @@ class SearchProvider:
             self.regconfig,
             self.title_column,
             db.func.to_tsquery(squery),
-            'HighlightAll=TRUE, StartSel="%s", StopSel="%s"'
-            % (pg_startsel, pg_stopsel),
+            f'HighlightAll=TRUE, StartSel="{pg_startsel}", StopSel="{pg_stopsel}"',
             type_=db.UnicodeText,
         )
 
@@ -114,9 +113,9 @@ class SearchProvider:
             self.regconfig,
             self.hltext,
             db.func.to_tsquery(squery),
-            'MaxFragments=2, FragmentDelimiter="%s",'
-            ' MinWords=5, MaxWords=20,'
-            ' StartSel="%s", StopSel="%s"' % (pg_delimiter, pg_startsel, pg_stopsel),
+            f'MaxFragments=2, FragmentDelimiter="{pg_delimiter}",'
+            f' MinWords=5, MaxWords=20,'
+            f' StartSel="{pg_startsel}", StopSel="{pg_stopsel}"',
             type_=db.UnicodeText,
         )
 

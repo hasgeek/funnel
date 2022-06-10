@@ -65,9 +65,9 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             self.obj.all_labels.append(label)
             self.obj.all_labels.reorder()
 
-            for idx in range(len(titlelist)):
+            for title, emoji in zip(titlelist, emojilist):
                 subform = LabelOptionForm(
-                    MultiDict({'title': titlelist[idx], 'icon_emoji': emojilist[idx]}),
+                    MultiDict({'title': title, 'icon_emoji': emoji}),
                     meta={'csrf': False},
                 )  # parent form has valid CSRF token
 
@@ -76,13 +76,12 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
                         _("Error with a label option: {}").format(subform.errors.pop()),
                         category='error',
                     )
-                    return {'title': "Add label", 'form': form, 'project': self.obj}
-                else:
-                    subl = Label(project=self.obj)
-                    subform.populate_obj(subl)
-                    subl.make_name()
-                    db.session.add(subl)
-                    label.options.append(subl)
+                    return {'title': _("Add label"), 'form': form, 'project': self.obj}
+                subl = Label(project=self.obj)
+                subform.populate_obj(subl)
+                subl.make_name()
+                db.session.add(subl)
+                label.options.append(subl)
 
             db.session.commit()
             return redirect(self.obj.url_for('labels'), code=303)
@@ -151,20 +150,20 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
             titlelist.pop(0)
             emojilist.pop(0)
 
-            for idx in range(len(titlelist)):
-                if namelist[idx]:
+            for counter, (name, title, emoji) in enumerate(
+                zip(namelist, titlelist, emojilist)
+            ):
+                if name:
                     # existing option
                     subl = Label.query.filter_by(
-                        project=self.obj.project, name=namelist[idx]
+                        project=self.obj.project, name=name
                     ).first()
-                    subl.title = titlelist[idx]
-                    subl.icon_emoji = emojilist[idx]
-                    subl.seq = idx + 1
+                    subl.title = title
+                    subl.icon_emoji = emoji
+                    subl.seq = counter + 1  # Counter is 0-indexed, seq is 1-indexed
                 else:
                     subform = LabelOptionForm(
-                        MultiDict(
-                            {'title': titlelist[idx], 'icon_emoji': emojilist[idx]}
-                        ),
+                        MultiDict({'title': title, 'icon_emoji': emoji}),
                         meta={'csrf': False},
                     )  # parent form has valid CSRF token
 
@@ -180,14 +179,13 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
                             'form': form,
                             'project': self.obj.project,
                         }
-                    else:
-                        subl = Label(project=self.obj.project)
-                        subform.populate_obj(subl)
-                        subl.make_name()
-                        self.obj.project.labels.append(subl)
-                        self.obj.options.append(subl)
-                        self.obj.options.reorder()
-                        db.session.add(subl)
+                    subl = Label(project=self.obj.project)
+                    subform.populate_obj(subl)
+                    subl.make_name()
+                    self.obj.project.labels.append(subl)
+                    self.obj.options.append(subl)
+                    self.obj.options.reorder()
+                    db.session.add(subl)
 
             form.populate_obj(self.obj)
             db.session.commit()

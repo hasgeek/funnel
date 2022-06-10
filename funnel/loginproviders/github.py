@@ -50,13 +50,12 @@ class GitHubProvider(LoginProvider):
         if request.args.get('error'):
             if request.args['error'] == 'user_denied':
                 raise LoginCallbackError(_("You denied the GitHub login request"))
-            elif request.args['error'] == 'redirect_uri_mismatch':
+            if request.args['error'] == 'redirect_uri_mismatch':
                 # TODO: Log this as an exception for the server admin to look at
                 raise LoginCallbackError(
                     _("This server's callback URL is misconfigured")
                 )
-            else:
-                raise LoginCallbackError(_("Unknown failure"))
+            raise LoginCallbackError(_("Unknown failure"))
         code = request.args.get('code', None)
         try:
             response = requests.post(
@@ -73,20 +72,14 @@ class GitHubProvider(LoginProvider):
             ghinfo = requests.get(
                 self.user_info,
                 timeout=30,
-                headers={
-                    "Authorization": "token {token}".format(
-                        token=response['access_token']
-                    )
-                },
+                headers={'Authorization': f'token {response["access_token"]}'},
             ).json()
             ghemails = requests.get(
                 self.user_emails,
                 timeout=30,
                 headers={
                     'Accept': 'application/vnd.github.v3+json',
-                    "Authorization": "token {token}".format(
-                        token=response['access_token']
-                    ),
+                    'Authorization': f'token {response["access_token"]}',
                 },
             ).json()
         except (
@@ -97,7 +90,7 @@ class GitHubProvider(LoginProvider):
             capture_exception(exc)
             raise LoginCallbackError(
                 _("GitHub had an intermittent problem. Try again?")
-            )
+            ) from exc
 
         email = None
         emails = []

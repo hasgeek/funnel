@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import re
 
-from baseframe import _, __
+from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import AvailableName
 from coaster.utils import sorted_timezones, utcnow
-import baseframe.forms as forms
 
 from ..models import Project, Rsvp, SavedProject
 from .helpers import ProfileSelectField, image_url_validator, nullable_strip_filters
@@ -180,7 +179,7 @@ class ProjectNameForm(forms.Form):
         ],
         filters=[forms.filters.strip()],
         prefix="https://hasgeek.com/<profile>/",
-        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
     )
 
 

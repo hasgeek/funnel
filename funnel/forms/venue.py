@@ -7,9 +7,8 @@ from flask_babelhg import get_locale
 
 import pycountry
 
-from baseframe import _, __
+from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import QuerySelectField
-import baseframe.forms as forms
 
 from ..models import Venue, VenueRoom
 
@@ -109,7 +108,7 @@ class VenuePrimaryForm(forms.Form):
         get_pk=lambda v: v.uuid_b58,
         get_label='title',
         allow_blank=False,
-        render_kw={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
     )
 
     def set_queries(self):

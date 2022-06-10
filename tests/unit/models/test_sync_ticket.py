@@ -1,3 +1,4 @@
+# pylint: disable=attribute-defined-outside-init
 import unittest
 
 import pytest
@@ -48,7 +49,7 @@ class TestEventModels(unittest.TestCase):
     app = app
 
     @pytest.fixture(autouse=True)
-    def fixture_setup(self, request, db_session):
+    def _fixture_setup(self, request, db_session):
         self.db_session = db_session
         self.ctx = self.app.test_request_context()
         self.ctx.push()
@@ -79,7 +80,7 @@ class TestEventModels(unittest.TestCase):
         self.project.make_name()
         self.db_session.commit()
 
-        self.ticket_client = TicketClient(  # noqa: S106
+        self.ticket_client = TicketClient(  # nosec # noqa: S106
             name="test client",
             client_eventid='123',
             clientid='123',
@@ -95,7 +96,7 @@ class TestEventModels(unittest.TestCase):
 
         self.session = self.db_session
 
-        @request.addfinalizer
+        @request.addfinalizer  # skipcq: PTC-W0065
         def tearDown():
             self.ctx.pop()
 

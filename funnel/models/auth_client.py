@@ -38,13 +38,16 @@ class ScopeMixin:
     _scope: str
 
     @declared_attr  # type: ignore[no-redef]
-    def _scope(cls):
+    def _scope(cls):  # pylint: disable=no-self-argument
+        """Database column for storing scopes as a space-separated string."""
         return db.Column('scope', db.UnicodeText, nullable=cls.__scope_null_allowed__)
 
     scope: Iterable[str]
 
     @declared_attr  # type: ignore[no-redef]
-    def scope(cls):
+    def scope(cls):  # pylint: disable=no-self-argument
+        """Represent scope column as a container of strings."""
+        # pylint: disable=protected-access
         @property
         def scope(self) -> Tuple[str, ...]:
             if not self._scope:
@@ -64,6 +67,7 @@ class ScopeMixin:
             if not self._scope and self.__scope_null_allowed__:
                 self._scope = None
 
+        # pylint: enable=protected-access
         return db.synonym('_scope', descriptor=scope)
 
     def add_scope(self, additional: Union[str, Iterable]) -> None:
@@ -224,7 +228,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
             if user is None:
                 raise ValueError("User not provided")
             return AuthToken.get_for(auth_client=self, user=user)
-        elif user_session and user_session.user == user:
+        if user_session and user_session.user == user:
             return AuthToken.get_for(auth_client=self, user_session=user_session)
         return None
 
@@ -254,13 +258,12 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
     def all_for(cls, user: Optional[User]):
         if user is None:
             return cls.query.order_by(cls.title)
-        else:
-            return cls.query.filter(
-                db.or_(
-                    cls.user == user,
-                    cls.organization_id.in_(user.organizations_as_owner_ids()),
-                )
-            ).order_by(cls.title)
+        return cls.query.filter(
+            db.or_(
+                cls.user == user,
+                cls.organization_id.in_(user.organizations_as_owner_ids()),
+            )
+        ).order_by(cls.title)
 
 
 class AuthClientCredential(BaseMixin, db.Model):
@@ -443,8 +446,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
     def user(self) -> User:
         if self.user_session:
             return self.user_session.user
-        else:
-            return self._user
+        return self._user
 
     @user.setter
     def user(self, value: User):
@@ -461,11 +463,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
 
     def __repr__(self):
         """Represent :class:`AuthToken` as a string."""
-        return '<AuthToken {token} of {auth_client} {user}>'.format(
-            token=self.token,
-            auth_client=repr(self.auth_client)[1:-1],
-            user=repr(self.user)[1:-1],
-        )
+        return f'<AuthToken {self.token} of {self.auth_client!r} {self.user!r}>'
 
     @property
     def effective_scope(self) -> List:
@@ -574,10 +572,9 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         require_one_of(user=user, user_session=user_session)
         if user is not None:
             return cls.query.filter_by(auth_client=auth_client, user=user).one_or_none()
-        else:
-            return cls.query.filter_by(
-                auth_client=auth_client, user_session=user_session
-            ).one_or_none()
+        return cls.query.filter_by(
+            auth_client=auth_client, user_session=user_session
+        ).one_or_none()
 
     @classmethod
     def all(  # noqa: A003
@@ -591,7 +588,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
             count = users.count()
             if count == 1:
                 return query.filter_by(user=users.first()).all()
-            elif count > 1:
+            if count > 1:
                 return query.filter(
                     AuthToken.user_id.in_(users.options(load_only('id')))
                 ).all()
@@ -602,7 +599,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
                 # may not be an actual list with indexed access. For example,
                 # Organization.owner_users is a DynamicAssociationProxy.
                 return query.filter_by(user=tuple(users)[0]).all()
-            elif count > 1:
+            if count > 1:
                 return query.filter(AuthToken.user_id.in_([u.id for u in users])).all()
 
         return []
