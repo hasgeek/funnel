@@ -1,3 +1,5 @@
+"""Transport layer for communication with users (email and SMS)."""
+
 from __future__ import annotations
 
 from . import email, sms, telegram, webpush, whatsapp

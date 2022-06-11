@@ -1,3 +1,5 @@
+"""Forms for notifications."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -103,7 +105,11 @@ transport_labels = {
 
 @User.forms('unsubscribe')
 class UnsubscribeForm(forms.Form):
+    """Form to unsubscribe from notifications."""
+
     __expects__ = ('transport', 'notification_type')
+    transport: str
+    notification_type: str
 
     # To consider: Replace the field's ListWidget with a GroupedListWidget, and show all
     # known notifications by category, not just the ones the user has received a
@@ -157,9 +163,11 @@ class UnsubscribeForm(forms.Form):
         ]  # Sorted by definition order. Usable until we introduce grouping
 
     def get_main(self, obj):
+        """Get main preferences switch (global enable/disable)."""
         return obj.main_notification_preferences.by_transport(self.transport)
 
     def get_types(self, obj):
+        """Get status for each notification type for the selected transport."""
         # Populate data with all notification types for which the user has the
         # current transport enabled
         return [
@@ -169,9 +177,11 @@ class UnsubscribeForm(forms.Form):
         ]
 
     def set_main(self, obj):
+        """Set main preferences switch (global enable/disable)."""
         obj.main_notification_preferences.set_transport(self.transport, self.main.data)
 
     def set_types(self, obj):
+        """Set status for each notification type for the selected transport."""
         # self.types.data will only contain the enabled preferences. Therefore, iterate
         # through all choices and toggle true or false based on whether it's in the
         # enabled list. This uses dict access instead of .get because the rows are known
@@ -199,8 +209,8 @@ class SetNotificationPreferenceForm(forms.Form):
         ]
         self.transport.choices = [
             (transport, transport)
-            for transport in platform_transports
-            if platform_transports[transport]
+            for transport, is_available in platform_transports.items()
+            if is_available
         ]
 
     def status_message(self):

@@ -1,3 +1,5 @@
+"""Forms for project venue management."""
+
 from __future__ import annotations
 
 import gettext
@@ -19,6 +21,8 @@ valid_color_re = re.compile(r'^[a-fA-F\d]{6}|[a-fA-F\d]{3}$')
 
 @Venue.forms('main')
 class VenueForm(forms.Form):
+    """Form for a venue."""
+
     title = forms.StringField(
         __("Name"),
         description=__("Name of the venue"),
@@ -79,6 +83,8 @@ class VenueForm(forms.Form):
 
 @VenueRoom.forms('main')
 class VenueRoomForm(forms.Form):
+    """Form for a room in a venue."""
+
     title = forms.StringField(
         __("Name"),
         description=__("Name of the room"),
@@ -102,6 +108,8 @@ class VenueRoomForm(forms.Form):
 
 @Venue.forms('primary')
 class VenuePrimaryForm(forms.Form):
+    """Select a primary venue."""
+
     venue = QuerySelectField(
         __("Venue"),
         validators=[forms.validators.DataRequired()],

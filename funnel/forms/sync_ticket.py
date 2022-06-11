@@ -1,4 +1,8 @@
+"""Synchronize tickets from an external service (Boxoffice, previously Explara)."""
+
 from __future__ import annotations
+
+from typing import Optional
 
 from baseframe import __, forms
 
@@ -7,6 +11,7 @@ from ..models import (
     TicketClient,
     TicketEvent,
     TicketParticipant,
+    User,
     UserEmail,
     db,
 )
@@ -25,6 +30,8 @@ BOXOFFICE_DETAILS_PLACEHOLDER = {'org': 'hasgeek', 'item_collection_id': ''}
 
 @Project.forms('boxoffice')
 class ProjectBoxofficeForm(forms.Form):
+    """Link a Boxoffice ticket collection to a project."""
+
     org = forms.StringField(
         __("Organization name"),
         filters=[forms.filters.strip()],
@@ -38,6 +45,8 @@ class ProjectBoxofficeForm(forms.Form):
 
 @TicketEvent.forms('main')
 class TicketEventForm(forms.Form):
+    """Form for a ticketed event (a project may have multiple events)."""
+
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
@@ -52,6 +61,8 @@ class TicketEventForm(forms.Form):
 
 @TicketClient.forms('main')
 class TicketClientForm(forms.Form):
+    """Form for a Boxoffice client access token."""
+
     name = forms.StringField(
         __("Name"),
         validators=[forms.validators.DataRequired()],
@@ -73,6 +84,8 @@ class TicketClientForm(forms.Form):
 
 @TicketEvent.forms('ticket_type')
 class TicketTypeForm(forms.Form):
+    """Form for a type of ticket."""
+
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
@@ -90,7 +103,10 @@ class TicketTypeForm(forms.Form):
 
 @TicketParticipant.forms('main')
 class TicketParticipantForm(forms.Form):
+    """Form for a participant in a ticket."""
+
     __returns__ = ('user',)
+    user: Optional[User] = None
 
     fullname = forms.StringField(
         __("Fullname"),
@@ -137,11 +153,15 @@ class TicketParticipantForm(forms.Form):
     )
 
     def set_queries(self):
+        """Prepare form for use."""
         if self.edit_parent is not None:
             self.ticket_events.query = self.edit_parent.ticket_events
 
-    def validate(self):
-        result = super().validate()
+    def validate(self, extra_validators=None, send_signals=True) -> bool:
+        """Validate entire form."""
+        result = super().validate(
+            extra_validators=extra_validators, send_signals=send_signals
+        )
         with db.session.no_autoflush:
             useremail = UserEmail.get(email=self.email.data)
             if useremail is not None:
@@ -153,6 +173,8 @@ class TicketParticipantForm(forms.Form):
 
 @TicketParticipant.forms('badge')
 class TicketParticipantBadgeForm(forms.Form):
+    """Form for participant badge status."""
+
     choices = [('', "Badge printing status"), ('t', "Printed"), ('f', "Not printed")]
     badge_printed = forms.SelectField(
         "", choices=[(val_title[0], val_title[1]) for val_title in choices]

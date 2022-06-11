@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from hashlib import blake2b
-from typing import List, Optional, overload
+from typing import List, Optional, Union, overload
 import io
 import urllib.parse
 
 from flask import abort
 
+from typing_extensions import Literal
 import phonenumbers
 import qrcode
 import qrcode.image.svg
@@ -19,23 +20,54 @@ PHONE_LOOKUP_REGIONS = ['IN', 'US']
 # --- Utilities ------------------------------------------------------------------------
 
 
-def normalize_phone_number(candidate: str) -> Optional[str]:
-    """Attempt to parse a phone number from a candidate and return in E164 format."""
+@overload
+def normalize_phone_number(candidate: str, sms: Literal[False]) -> Optional[str]:
+    ...
+
+
+@overload
+def normalize_phone_number(
+    candidate: str, sms: Literal[True]
+) -> Optional[Union[str, Literal[False]]]:
+    ...
+
+
+def normalize_phone_number(
+    candidate: str, sms: bool = False
+) -> Optional[Union[str, Literal[False]]]:
+    """
+    Attempt to parse a phone number from a candidate and return in E164 format.
+
+    :param sms: Validate that the number is from a range that supports SMS delivery,
+        returning `False` if it isn't
+    """
     # Assume unprefixed numbers to be a local number in one of the supported common
     # regions. We start with the higher priority home region and return the _first_
     # candidate that is likely to be a valid number. This behaviour differentiates it
     # from similar code in :func:`~funnel.models.utils.getuser`, where the loop exits
     # with the _last_ valid candidate (as it's coupled with a
     # :class:`~funnel.models.user.UserPhone` lookup)
+    sms_invalid = False
     try:
         for region in PHONE_LOOKUP_REGIONS:
             parsed_number = phonenumbers.parse(candidate, region)
             if phonenumbers.is_valid_number(parsed_number):
+                if sms:
+                    if phonenumbers.number_type(parsed_number) not in (
+                        phonenumbers.PhoneNumberType.MOBILE,
+                        phonenumbers.PhoneNumberType.FIXED_LINE_OR_MOBILE,
+                    ):
+                        sms_invalid = True
+                        continue  # Not valid for SMS
                 return phonenumbers.format_number(
                     parsed_number, phonenumbers.PhoneNumberFormat.E164
                 )
     except phonenumbers.NumberParseException:
         pass
+    # We found a number that is valid, but the caller wanted it to be valid for SMS and
+    # it isn't, so return a special flag
+    if sms_invalid:
+        return False
     return None
 
 
@@ -69,7 +101,7 @@ def make_redirect_url(
     url: str, use_fragment: bool = False, **params: Optional[str]
 ) -> str:
     """
-    Make a redirect URL.
+    Make an OAuth2 redirect URL.
 
     :param bool use_fragments: Insert parameters into the fragment rather than the query
         component of the URL. This is required for OAuth2 public clients

@@ -213,7 +213,7 @@ def test_login_long_password(user):
         ]
 
 
-@pytest.mark.parametrize('username', ['unknown@example.com', '+15005550000'])
+@pytest.mark.parametrize('username', ['unknown@example.com', '+919845012345'])
 def test_login_no_probing(username):
     """Login fails if email/phone is not present, but as an incorrect password."""
     with app.test_request_context(
@@ -305,9 +305,9 @@ def test_register_email_otp():
 @pytest.mark.parametrize(
     ('phone_number', 'full_phone_number'),
     [
-        ('+912345678901', '+912345678901'),
+        ('+919845012345', '+919845012345'),
         ('9845012345', '+919845012345'),
-        ('5005550000', '+15005550000'),
+        ('2345678900', '+12345678900'),
     ],
 )
 def test_register_phone_otp(phone_number, full_phone_number):
