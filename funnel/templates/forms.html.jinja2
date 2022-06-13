@@ -364,6 +364,18 @@
     }
   });
 
+  if($('#username').length > 0) {
+    $('#username').attr('inputmode', 'tel');
+    $('.js-keyboard-switcher').toggleClass('badge--inactive');
+  }
+
+  $('.js-keyboard-switcher').on('click touchstart touchend', function(event) {
+    event.preventDefault();
+    $('.js-keyboard-switcher').addClass('badge--inactive');
+      $(this).removeClass('badge--inactive');
+    $('#username').attr('inputmode', $(this).data('inputmode'));
+  });
+
   {%- for field in form -%}
     {%- if field.type == 'FormField' %}
       {{ widgetscripts(field.form, script=false) }}
