@@ -78,6 +78,10 @@
               {%- if not nolabel %}
                 <label for="{{ field.id }}">{{ field.label.text }}</label>
               {%- endif %}
+              <div class="keyboard-switch">
+                <a href="javascript:void(0)" class="badge js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="email">Use email address</a>
+                <a href="javascript:void(0)" class="badge badge--inactive js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="tel">Use phone number</a>
+              </div>
             </div>
           {%- elif field.type == 'ImgeeField' %}
             <div class="imgee">

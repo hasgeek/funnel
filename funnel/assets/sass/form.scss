@@ -695,3 +695,11 @@ form.mui--bg-accent .CodeMirror {
 .login-github:active {
   background-color: #444444;
 }
+
+.keyboard-switch {
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  bottom: $mui-grid-padding/2;
+  width: calc(100% - #{$mui-grid-padding-double});
+}

@@ -147,6 +147,7 @@
   text-align: center;
   display: inline-block;
   background-color: transparentize($mui-primary-color, 0.85);
+  border: 1px solid transparentize($mui-primary-color, 0.85);
   border-radius: 2px;
   padding: 0 $mui-grid-padding/2;
   font-size: 10px;
@@ -181,4 +182,8 @@
 .badge--primary {
   border: 1px solid transparent;
   background: transparentize($mui-primary-color, 0.85);
+}
+
+.badge--inactive {
+  background-color: $mui-bg-color-primary;
 }
