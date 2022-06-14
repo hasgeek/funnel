@@ -78,9 +78,9 @@
               {%- if not nolabel %}
                 <label for="{{ field.id }}">{{ field.label.text }}</label>
               {%- endif %}
-              <div class="keyboard-switch">
-                <a href="javascript:void(0)" class="badge js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="email">Use email address</a>
-                <a href="javascript:void(0)" class="badge badge--inactive js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="tel">Use phone number</a>
+              <div class="tabs keyboard-switch">
+                <a href="javascript:void(0)" class="tabs__item tabs__item--active mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="email">Use email address</a>
+                <a href="javascript:void(0)" class="tabs__item  mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="tel">Use phone number</a>
               </div>
             </div>
           {%- elif field.type == 'ImgeeField' %}
@@ -367,15 +367,18 @@
   // Change username field input mode to tel
   if($('#username').length > 0) {
     $('#username').attr('inputmode', 'tel');
-    $('.js-keyboard-switcher').toggleClass('badge--inactive');
+    $('#username').attr('autocomplete', 'tel');
+    $('.js-keyboard-switcher').toggleClass('tabs__item--active');
   }
 
   // Add support to toggle username field input mode between tel & email to change keyboard in mobile
   $('.js-keyboard-switcher').on('click touchstart touchend', function(event) {
     event.preventDefault();
-    $('.js-keyboard-switcher').addClass('badge--inactive');
-      $(this).removeClass('badge--inactive');
-    $('#username').attr('inputmode', $(this).data('inputmode'));
+    var inputMode = $(this).data('inputmode');
+    $('.js-keyboard-switcher').removeClass('tabs__item--active');
+    $(this).addClass('tabs__item--active');
+    $('#username').attr('inputmode', inputMode);
+    $('#username').attr('autocomplete', inputMode);
   });
 
   {%- for field in form -%}
