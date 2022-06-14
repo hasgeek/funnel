@@ -157,11 +157,9 @@ class TicketParticipantForm(forms.Form):
         if self.edit_parent is not None:
             self.ticket_events.query = self.edit_parent.ticket_events
 
-    def validate(self, extra_validators=None, send_signals=True) -> bool:
-        """Validate entire form."""
-        result = super().validate(
-            extra_validators=extra_validators, send_signals=send_signals
-        )
+    def validate(self, *args, **kwargs) -> bool:
+        """Validate form."""
+        result = super().validate(*args, **kwargs)
         with db.session.no_autoflush:
             useremail = UserEmail.get(email=self.email.data)
             if useremail is not None:

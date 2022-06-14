@@ -202,7 +202,6 @@ class PasswordResetRequestForm(forms.Form):
     """Form to request a password reset."""
 
     __returns__ = ('user', 'anchor')
-
     user: Optional[User] = None
     anchor: Optional[Anchor] = None
 
