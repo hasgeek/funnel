@@ -78,6 +78,10 @@
               {%- if not nolabel %}
                 <label for="{{ field.id }}">{{ field.label.text }}</label>
               {%- endif %}
+              <div class="tabs keyboard-switch">
+                <a href="javascript:void(0)" class="tabs__item tabs__item--active mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="email">Use email address</a>
+                <a href="javascript:void(0)" class="tabs__item  mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="tel">Use phone number</a>
+              </div>
             </div>
           {%- elif field.type == 'ImgeeField' %}
             <div class="imgee">
@@ -358,6 +362,23 @@
     if($('.js-password-field').hasClass('mui--hide')) {
       $('.js-fields-toggle').toggleClass('mui--hide');
     }
+  });
+
+  // Change username field input mode to tel
+  if($('#username').length > 0) {
+    $('#username').attr('inputmode', 'tel');
+    $('#username').attr('autocomplete', 'tel');
+    $('.js-keyboard-switcher').toggleClass('tabs__item--active');
+  }
+
+  // Add support to toggle username field input mode between tel & email to change keyboard in mobile
+  $('.js-keyboard-switcher').on('click touchstart touchend', function(event) {
+    event.preventDefault();
+    var inputMode = $(this).data('inputmode');
+    $('.js-keyboard-switcher').removeClass('tabs__item--active');
+    $(this).addClass('tabs__item--active');
+    $('#username').attr('inputmode', inputMode);
+    $('#username').attr('autocomplete', inputMode);
   });
 
   {%- for field in form -%}
