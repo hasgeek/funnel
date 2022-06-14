@@ -702,4 +702,11 @@ form.mui--bg-accent .CodeMirror {
   position: fixed;
   bottom: $mui-grid-padding/2;
   width: calc(100% - #{$mui-grid-padding-double});
+  z-index: 2;
+  padding: $mui-grid-padding 0;
+  margin: 0;
+
+  .tabs {
+    margin: 0;
+  }
 }
