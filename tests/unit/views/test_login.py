@@ -1,6 +1,5 @@
 """Tests for the login, logout and register views."""
 
-from itertools import product
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -167,17 +166,15 @@ def test_user_logout(client, login, user_rincewind, csrf_token):
 @pytest.mark.usefixtures(
     'user_rincewind_with_password', 'user_rincewind_phone', 'user_rincewind_email'
 )
+@pytest.mark.parametrize('login_username', LOGIN_USERNAMES)
 @pytest.mark.parametrize(
-    ('login_username', 'password_status_auth'),
-    product(
-        LOGIN_USERNAMES,
-        [
-            SimpleNamespace(password=COMPLEX_TEST_PASSWORD, status_code=303, auth=True),
-            SimpleNamespace(password=WRONG_PASSWORD, status_code=200, auth=False),
-            # Blank password triggers OTP flow:
-            SimpleNamespace(password=BLANK_PASSWORD, status_code=200, auth=False),
-        ],
-    ),
+    'password_status_auth',
+    [
+        SimpleNamespace(password=COMPLEX_TEST_PASSWORD, status_code=303, auth=True),
+        SimpleNamespace(password=WRONG_PASSWORD, status_code=200, auth=False),
+        # Blank password triggers OTP flow:
+        SimpleNamespace(password=BLANK_PASSWORD, status_code=200, auth=False),
+    ],
 )
 def test_login_usernames(
     client,
