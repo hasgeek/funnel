@@ -1,4 +1,8 @@
+"""Forms for organizations and teams."""
+
 from __future__ import annotations
+
+from typing import Optional
 
 from flask import Markup, url_for
 
@@ -12,6 +16,10 @@ __all__ = ['OrganizationForm', 'TeamForm']
 
 @Organization.forms('main')
 class OrganizationForm(forms.Form):
+    """Form for an organization's name and title."""
+
+    edit_obj: Optional[Organization] = None
+
     title = forms.StringField(
         __("Organization name"),
         description=__(
@@ -41,7 +49,8 @@ class OrganizationForm(forms.Form):
         render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
     )
 
-    def validate_name(self, field):
+    def validate_name(self, field) -> None:
+        """Validate name is valid and available for this organization."""
         reason = Profile.validate_name_candidate(field.data)
         if not reason:
             return  # name is available
@@ -83,6 +92,8 @@ class OrganizationForm(forms.Form):
 
 @Team.forms('main')
 class TeamForm(forms.Form):
+    """Form for a team in an organization."""
+
     title = forms.StringField(
         __("Team name"),
         validators=[

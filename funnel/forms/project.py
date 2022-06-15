@@ -108,14 +108,14 @@ class ProjectForm(forms.Form):
         description=__("Landing page contents"),
     )
 
-    def validate_location(self, field):
+    def validate_location(self, field) -> None:
         """Validate location field to not have quotes (from copy paste of hint)."""
         if re.search(double_quote_re, field.data) is not None:
             raise forms.ValidationError(
                 __("Quotes are not necessary in the location name")
             )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
         self.bg_image.profile = self.profile.name
         if self.edit_obj and self.edit_obj.schedule_start_at:
             # Don't allow user to directly manipulate timestamps when it's done via
@@ -169,6 +169,9 @@ class ProjectLivestreamForm(forms.Form):
 class ProjectNameForm(forms.Form):
     """Form to change the URL name of a project."""
 
+    # TODO: Add validators for profile and unique name here instead of delegating to
+    # the view. Also add `set_queries` method to change ``name.prefix``
+
     name = forms.AnnotatedTextField(
         __("Custom URL"),
         description=__(
@@ -213,7 +216,8 @@ class ProjectBannerForm(forms.Form):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.bg_image.widget_type = 'modal'
         self.bg_image.profile = self.profile.name
 
@@ -238,7 +242,7 @@ class CfpForm(forms.Form):
         naive=False,
     )
 
-    def validate_cfp_end_at(self, field):
+    def validate_cfp_end_at(self, field) -> None:
         """Validate closing date to be in the future."""
         if field.data <= utcnow():
             raise forms.StopValidation(_("Closing date must be in the future"))
@@ -252,7 +256,8 @@ class ProjectTransitionForm(forms.Form):
         __("Status"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.transition.choices = list(self.edit_obj.state.transitions().items())
 
 
@@ -320,8 +325,8 @@ class RsvpTransitionForm(forms.Form):
         __("Status"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self):
-        """Configure the form."""
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         # Usually you need to use an instance's state.transitions to find
         # all the valid transitions for the current state of the instance.
         # But for RSVP, we're showing all the options all the time, so this

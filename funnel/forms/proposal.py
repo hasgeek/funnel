@@ -125,7 +125,8 @@ class ProposalLabelsForm(forms.Form):
 
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.formlabels.form = proposal_label_form(
             project=self.edit_parent, proposal=self.edit_obj
         )
@@ -137,7 +138,8 @@ class ProposalLabelsAdminForm(forms.Form):
 
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.formlabels.form = proposal_label_admin_form(
             project=self.edit_parent, proposal=self.edit_obj
         )
@@ -168,7 +170,8 @@ class ProposalForm(forms.Form):
     )
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         label_form = proposal_label_form(
             project=self.edit_parent, proposal=self.edit_obj
         )
@@ -200,7 +203,7 @@ class ProposalMemberForm(forms.Form):
     )
     is_uncredited = forms.BooleanField(__("Hide collaborator on submission"))
 
-    def validate_user(self, field):
+    def validate_user(self, field) -> None:
         """Validate user field to confirm user is not an existing collaborator."""
         for membership in self.proposal.memberships:
             if membership.user == field.data:
@@ -219,7 +222,8 @@ class ProposalTransitionForm(forms.Form):
         __("Status"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         # value: transition method name
         # label: transition object itself
         # We need the whole object to get the additional metadata in templates
@@ -237,5 +241,6 @@ class ProposalMoveForm(forms.Form):
         get_label='title',
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.target.query = current_auth.user.projects_as_editor

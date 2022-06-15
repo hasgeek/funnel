@@ -152,7 +152,7 @@ class TicketParticipantForm(forms.Form):
         validators=[forms.validators.DataRequired("Select at least one event")],
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
         """Prepare form for use."""
         if self.edit_parent is not None:
             self.ticket_events.query = self.edit_parent.ticket_events

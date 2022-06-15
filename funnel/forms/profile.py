@@ -56,7 +56,8 @@ class ProfileForm(OrganizationForm):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.logo_url.profile = self.profile.name
 
     def make_for_user(self):
@@ -85,7 +86,8 @@ class ProfileTransitionForm(forms.Form):
         __("Project status"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.transition.choices = list(self.edit_obj.state.transitions().items())
 
 
@@ -110,7 +112,8 @@ class ProfileLogoForm(forms.Form):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.logo_url.widget_type = 'modal'
         self.logo_url.profile = self.profile.name
 
@@ -136,6 +139,7 @@ class ProfileBannerForm(forms.Form):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.banner_image_url.widget_type = 'modal'
         self.banner_image_url.profile = self.profile.name

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2022-06-15 13:21+0530\n"
+"POT-Creation-Date: 2022-06-15 23:41+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -148,7 +148,7 @@ msgstr ""
 msgid "Full name"
 msgstr "शुभ नाम"
 
-#: funnel/forms/account.py:124 funnel/forms/login.py:293
+#: funnel/forms/account.py:124 funnel/forms/login.py:292
 msgid ""
 "This account is for you as an individual. We’ll make one for your "
 "organization later"
@@ -162,7 +162,7 @@ msgid "Email address"
 msgstr "ईमेल पता"
 
 #: funnel/forms/account.py:146 funnel/forms/account.py:173
-#: funnel/forms/account.py:200 funnel/forms/login.py:140
+#: funnel/forms/account.py:200 funnel/forms/login.py:139
 msgid "Password"
 msgstr "पासवर्ड"
 
@@ -177,7 +177,7 @@ msgid "Incorrect password"
 msgstr "गलत पासवर्ड"
 
 #: funnel/forms/account.py:243 funnel/forms/account.py:300
-#: funnel/forms/login.py:125
+#: funnel/forms/login.py:124
 msgid "Phone number or email address"
 msgstr ""
 
@@ -239,7 +239,7 @@ msgid "Required for sending you tickets, invoices and notifications"
 msgstr "आपको टिकट, इनवॉइस और नोटिफिकेशन भेजने के लिए आवश्यक है"
 
 #: funnel/forms/account.py:433 funnel/forms/account.py:482
-#: funnel/forms/organization.py:28
+#: funnel/forms/organization.py:36
 msgid "Username"
 msgstr "यूजरनेम"
 
@@ -355,17 +355,17 @@ msgstr "वेरिफिकेशन कोड मेल नहीं खा�
 msgid "Report type"
 msgstr "रिपोर्ट टाइप"
 
-#: funnel/forms/auth_client.py:31 funnel/templates/auth_client.html.jinja2:37
+#: funnel/forms/auth_client.py:41 funnel/templates/auth_client.html.jinja2:37
 #: funnel/templates/auth_client_credential.html.jinja2:10
 msgid "Application title"
 msgstr "ऐप्लिकेशन का शीर्षक"
 
-#: funnel/forms/auth_client.py:34
+#: funnel/forms/auth_client.py:44
 msgid "The name of your application"
 msgstr "आपके ऐप्लिकेशन का नाम"
 
-#: funnel/forms/auth_client.py:37 funnel/forms/session.py:27
-#: funnel/forms/venue.py:33 funnel/forms/venue.py:95
+#: funnel/forms/auth_client.py:47 funnel/forms/session.py:27
+#: funnel/forms/venue.py:33 funnel/forms/venue.py:96
 #: funnel/templates/auth_client.html.jinja2:39
 #: funnel/templates/autherror.html.jinja2:11
 #: funnel/templates/oauth_authorize.html.jinja2:14
@@ -373,11 +373,11 @@ msgstr "आपके ऐप्लिकेशन का नाम"
 msgid "Description"
 msgstr "विवरण"
 
-#: funnel/forms/auth_client.py:39
+#: funnel/forms/auth_client.py:49
 msgid "A description to help users recognize your application"
 msgstr "यूजर द्वारा आपके ऐप्लिकेशन की पहचान करने में मदद के लिए एक विवरण"
 
-#: funnel/forms/auth_client.py:42
+#: funnel/forms/auth_client.py:52
 #: funnel/templates/account_organizations.html.jinja2:44
 #: funnel/templates/auth_client.html.jinja2:41
 #: funnel/templates/auth_client_index.html.jinja2:16
@@ -386,23 +386,23 @@ msgstr "यूजर द्वारा आपके ऐप्लिकेशन
 msgid "Owner"
 msgstr "ओनर"
 
-#: funnel/forms/auth_client.py:44
+#: funnel/forms/auth_client.py:54
 msgid ""
 "User or organization that owns this application. Changing the owner will "
 "revoke all currently assigned permissions for this app"
 msgstr "यूजर या संगठन जो इस ऐप्लिकेशन का मालिक है. ओनर बदलने स"
 
-#: funnel/forms/auth_client.py:50
+#: funnel/forms/auth_client.py:60
 msgid "Application type"
 msgstr "ऐप्लिकेशन टाइप"
 
-#: funnel/forms/auth_client.py:56
+#: funnel/forms/auth_client.py:66
 msgid "Confidential (server-hosted app, capable of storing secret key securely)"
 msgstr ""
 "गोपनीय (सर्वर-होस्टेड ऐप, गुप्त कुंजी को सुरक्षित रूप से संग्रहीत करने "
 "में सक्षम)"
 
-#: funnel/forms/auth_client.py:62
+#: funnel/forms/auth_client.py:73
 msgid ""
 "Public (native or in-browser app, not capable of storing secret key "
 "securely)"
@@ -410,19 +410,19 @@ msgstr ""
 "सार्वजनिक (नेटिव या इन-ब्राउज़र ऐप, सीक्रेट की (कुंजी) को सुरक्षित रूप से"
 " संग्रहीत करने में सक्षम नहीं)"
 
-#: funnel/forms/auth_client.py:69
+#: funnel/forms/auth_client.py:81
 msgid "Application website"
 msgstr "ऐप्लिकेशन वेबसाइट"
 
-#: funnel/forms/auth_client.py:72
+#: funnel/forms/auth_client.py:84
 msgid "Website where users may access this application"
 msgstr "वेबसाइट जहां यूजर इस ऐप्लिकेशन का उपयोग कर सकते हैं"
 
-#: funnel/forms/auth_client.py:75 funnel/templates/auth_client.html.jinja2:48
+#: funnel/forms/auth_client.py:87 funnel/templates/auth_client.html.jinja2:48
 msgid "Redirect URLs"
 msgstr "रीडायरेक्ट URLs"
 
-#: funnel/forms/auth_client.py:81
+#: funnel/forms/auth_client.py:93
 msgid ""
 "OAuth2 Redirect URL. If your app is available on multiple hostnames, list"
 " each redirect URL on a separate line"
@@ -430,11 +430,11 @@ msgstr ""
 "OAuth2 रीडायरेक्ट URL. अगर आपका ऐप कई होस्टनेम पर उपलब्ध है, तो हर "
 "अलग-अलग लाइन पर प्रत्येक रीडायरेक्ट URLलिस्ट करें"
 
-#: funnel/forms/auth_client.py:87
+#: funnel/forms/auth_client.py:99
 msgid "Allow anyone to login"
 msgstr "किसी को भी लॉगिन करने दें"
 
-#: funnel/forms/auth_client.py:89
+#: funnel/forms/auth_client.py:101
 msgid ""
 "If your application requires access to be restricted to specific users, "
 "uncheck this, and only users who have been assigned a permission to the "
@@ -444,52 +444,52 @@ msgstr ""
 "की ज़रूरत है, तो इसे अनचेक करें, और वे यूजर जिन्हें ऐप्लिकेशन की अनुमति "
 "दी गई है, केवल वे लॉगिन करने में सक्षम होंगे"
 
-#: funnel/forms/auth_client.py:107
+#: funnel/forms/auth_client.py:120
 msgid "Invalid owner"
 msgstr "अवैध ओनर"
 
-#: funnel/forms/auth_client.py:126
+#: funnel/forms/auth_client.py:141
 msgid "The scheme, domain and port must match that of the website URL"
 msgstr "स्कीम, डोमेन और पोर्ट वेबसाइट URL से मेल खाना चाहिए"
 
-#: funnel/forms/auth_client.py:135
+#: funnel/forms/auth_client.py:150
 msgid "What’s this for?"
 msgstr "यह किस लिए है?"
 
-#: funnel/forms/auth_client.py:138
+#: funnel/forms/auth_client.py:153
 msgid "Add a description to help yourself remember why this was generated"
 msgstr ""
 "खुद को यह याद रखने में मदद करने के लिए विवरण डालें कि यह क्यों बनाया गया "
 "था"
 
-#: funnel/forms/auth_client.py:149
+#: funnel/forms/auth_client.py:165
 msgid "Permission ‘{perm}’ is malformed"
 msgstr "अनुमति ‘{perm}’ गलत बनाया गया है"
 
-#: funnel/forms/auth_client.py:161 funnel/forms/membership.py:20
-#: funnel/forms/membership.py:43 funnel/forms/proposal.py:190
+#: funnel/forms/auth_client.py:177 funnel/forms/membership.py:20
+#: funnel/forms/membership.py:43 funnel/forms/proposal.py:193
 #: funnel/templates/siteadmin_comments.html.jinja2:53
 msgid "User"
 msgstr "यूजर"
 
-#: funnel/forms/auth_client.py:163 funnel/forms/organization.py:97
+#: funnel/forms/auth_client.py:179 funnel/forms/organization.py:108
 msgid "Lookup a user by their username or email address"
 msgstr "किसी यूजर को उनके यूजरनेम या ईमेल पते से खोजें"
 
-#: funnel/forms/auth_client.py:166 funnel/forms/auth_client.py:182
-#: funnel/forms/auth_client.py:198 funnel/templates/auth_client.html.jinja2:150
+#: funnel/forms/auth_client.py:182 funnel/forms/auth_client.py:201
+#: funnel/forms/auth_client.py:219 funnel/templates/auth_client.html.jinja2:150
 msgid "Permissions"
 msgstr "अनुमतियां"
 
-#: funnel/forms/auth_client.py:177
+#: funnel/forms/auth_client.py:196
 msgid "Team"
 msgstr "टीम"
 
-#: funnel/forms/auth_client.py:179
+#: funnel/forms/auth_client.py:198
 msgid "Select a team to assign permissions to"
 msgstr "अनुमति देने के लिए टीम का चयन करें"
 
-#: funnel/forms/auth_client.py:189
+#: funnel/forms/auth_client.py:210
 msgid "Unknown team"
 msgstr "अज्ञात टीम"
 
@@ -497,11 +497,11 @@ msgstr "अज्ञात टीम"
 msgid "Get notifications"
 msgstr ""
 
-#: funnel/forms/helpers.py:74
+#: funnel/forms/helpers.py:78
 msgid "This email address has been claimed by someone else"
 msgstr "इस ईमेल पते का इस्तेमाल किसी और के द्वारा किया जा चुका है"
 
-#: funnel/forms/helpers.py:77
+#: funnel/forms/helpers.py:81
 msgid ""
 "This email address is already registered. You may want to try logging in "
 "or resetting your password"
@@ -509,11 +509,11 @@ msgstr ""
 "यह ईमेल पता पहले से रजिस्टर है. आपको लॉगिन करनी चाहिए या फिर अपने पासवर्ड"
 " को रीसेट करनी चाहिए"
 
-#: funnel/forms/helpers.py:84
+#: funnel/forms/helpers.py:88
 msgid "This does not appear to be a valid email address"
 msgstr "यह ईमेल पता सही नहीं लग रहा है"
 
-#: funnel/forms/helpers.py:88
+#: funnel/forms/helpers.py:92
 msgid ""
 "The domain name of this email address is missing a DNS MX record. We "
 "require an MX record as missing MX is a strong indicator of spam. Please "
@@ -523,11 +523,11 @@ msgstr ""
 "आवश्यकता होती है क्योंकि गैर-मौजूद MX वाले ईमेल को फर्ज़ी माना जाता है. "
 "कृपया अपने वेबसाइट निर्माणकर्ता से DNS में MX जोड़ने को बोलें"
 
-#: funnel/forms/helpers.py:96
+#: funnel/forms/helpers.py:100
 msgid "You have already registered this email address"
 msgstr "आपने पहले ही इस ईमेल को रजिस्टर कर लिया है"
 
-#: funnel/forms/helpers.py:102
+#: funnel/forms/helpers.py:106
 msgid ""
 "This email address appears to be having temporary problems with receiving"
 " email. Please use another if necessary"
@@ -535,7 +535,7 @@ msgstr ""
 "इस ईमेल पते पर फिलहाल ईमेल पाए जाने में समस्या नज़र आ रही है. अगर कुछ "
 "महत्वपूर्ण ह"
 
-#: funnel/forms/helpers.py:110
+#: funnel/forms/helpers.py:114
 msgid ""
 "This email address is no longer valid. If you believe this to be "
 "incorrect, email {support} asking for the address to be activated"
@@ -543,7 +543,7 @@ msgstr ""
 "यह ईमेल पता अब वैध नहीं है. अगर फिर भी आपको ये गलत लगता है, तो इस पते को "
 "सक्रिय करने के लिए {support} को ईमेल भेजें"
 
-#: funnel/forms/helpers.py:125
+#: funnel/forms/helpers.py:129
 msgid ""
 "You or someone else has made an account with this email address but has "
 "not confirmed it. Do you need to reset your password?"
@@ -551,15 +551,15 @@ msgstr ""
 "आपने या किसी और ने इसे ईमेल पते से एक अकाउंट बनाया था, पर उसकी पुष्टि "
 "नहीं की है. क्या आप अपना पासवर्ड रीसेट करना चाहेंगे?"
 
-#: funnel/forms/helpers.py:137 funnel/forms/project.py:160
+#: funnel/forms/helpers.py:142 funnel/forms/project.py:160
 msgid "A https:// URL is required"
 msgstr "https:// URL आवश्यक है"
 
-#: funnel/forms/helpers.py:138
+#: funnel/forms/helpers.py:143
 msgid "Images must be hosted at images.hasgeek.com"
 msgstr "तस्वीरें images.hasgeek.com पर होस्ट की जानी चाहिए"
 
-#: funnel/forms/label.py:16 funnel/forms/project.py:297
+#: funnel/forms/label.py:16 funnel/forms/project.py:299
 msgid "Label"
 msgstr "लेबल"
 
@@ -611,28 +611,28 @@ msgstr "यह कोई वैध लॉग इन सेशन नहीं �
 msgid "Password is required"
 msgstr "पासवर्ड आवश्यक है"
 
-#: funnel/forms/login.py:128
+#: funnel/forms/login.py:127
 msgid "A phone number or email address is required"
 msgstr ""
 
-#: funnel/forms/login.py:145
+#: funnel/forms/login.py:144
 #, python-format
 msgid "Password must be under %(max)s characters"
 msgstr "पासवर्ड %(max)s पात्र से ज्यादा का नहीं हो सकता"
 
-#: funnel/forms/login.py:249
+#: funnel/forms/login.py:248
 msgid "Session id"
 msgstr "सेशन आईडी"
 
-#: funnel/forms/login.py:267 funnel/forms/login.py:303
+#: funnel/forms/login.py:266 funnel/forms/login.py:302
 msgid "OTP"
 msgstr ""
 
-#: funnel/forms/login.py:268 funnel/forms/login.py:304
+#: funnel/forms/login.py:267 funnel/forms/login.py:303
 msgid "One-time password sent to your device"
 msgstr ""
 
-#: funnel/forms/login.py:292 funnel/forms/profile.py:64
+#: funnel/forms/login.py:291 funnel/forms/profile.py:65
 msgid "Your name"
 msgstr "आपका नाम"
 
@@ -641,7 +641,7 @@ msgid "Please select a user"
 msgstr "कोई यूजर चुनें"
 
 #: funnel/forms/membership.py:22 funnel/forms/membership.py:45
-#: funnel/forms/proposal.py:191
+#: funnel/forms/proposal.py:194
 msgid "Find a user by their name or email address"
 msgstr "नाम या ईमेल पते द्वारा यूजर को खोजें"
 
@@ -906,31 +906,31 @@ msgstr "अनसब्सक्राइब टोकन"
 msgid "Unsubscribe token type"
 msgstr "अनसब्सक्राइब टोकन प्रकार"
 
-#: funnel/forms/notification.py:199
+#: funnel/forms/notification.py:200
 msgid "Notification type"
 msgstr "नोटिफिकेशन का प्रकार"
 
-#: funnel/forms/notification.py:201
+#: funnel/forms/notification.py:202
 msgid "Transport"
 msgstr "यातायात"
 
-#: funnel/forms/notification.py:203
+#: funnel/forms/notification.py:204
 msgid "Enable this transport"
 msgstr "यह यातायात सुविधा सक्षम करें"
 
-#: funnel/forms/notification.py:207
+#: funnel/forms/notification.py:209
 msgid "Main switch"
 msgstr "मेन स्विच"
 
-#: funnel/forms/organization.py:16 funnel/forms/sync_ticket.py:36
+#: funnel/forms/organization.py:24 funnel/forms/sync_ticket.py:36
 msgid "Organization name"
 msgstr "संगठन का नाम"
 
-#: funnel/forms/organization.py:17
+#: funnel/forms/organization.py:25
 msgid "Your organization’s given name, without legal suffixes such as Pvt Ltd"
 msgstr "आपके संगठन का नाम, बगैर किसी प्रकार के जैसे कि Pvt Ltd (प्र. लि.)"
 
-#: funnel/forms/organization.py:29
+#: funnel/forms/organization.py:37
 msgid ""
 "A short name for your organization’s profile page. Single word containing"
 " letters, numbers and dashes only. Pick something permanent: changing it "
@@ -940,15 +940,15 @@ msgstr ""
 "अक्षर, नंबर और डैश ही शामिल हों. कुछ स्थाई सा नाम रखें: इसे बदलने से वेब "
 "पर मौजूद पुराने लिंक काम नहीं करेंगे"
 
-#: funnel/forms/organization.py:50
+#: funnel/forms/organization.py:59
 msgid "Names can only have letters, numbers and dashes (except at the ends)"
 msgstr "नाम में केवल अक्षर, नंबर और डैश (अंत में छोड़कर) हो सकते हैं"
 
-#: funnel/forms/organization.py:56
+#: funnel/forms/organization.py:65
 msgid "This name is reserved"
 msgstr "यह नाम रिज़र्व है"
 
-#: funnel/forms/organization.py:68
+#: funnel/forms/organization.py:77
 msgid ""
 "This is <em>your</em> current username. You must change it first from <a "
 "href=\"{account}\">your account</a> before you can assign it to an "
@@ -957,27 +957,27 @@ msgstr ""
 "यह <em>आपका</em> मौजूदा यूजरनेम है. इसे किसी संगठन को सौंपने से पहले आपको"
 " <a href=\"{account}\">अपने अकाउंट</a> से बदलना होगा"
 
-#: funnel/forms/organization.py:75
+#: funnel/forms/organization.py:84
 msgid "This name has been taken by another user"
 msgstr "यह यूजरनेम किसी दूसरे यूजर द्वारा लिया जा चुका है"
 
-#: funnel/forms/organization.py:78
+#: funnel/forms/organization.py:87
 msgid "This name has been taken by another organization"
 msgstr "यह यूजरनेम किसी दूसरे संगठन द्वारा लिया जा चुका है"
 
-#: funnel/forms/organization.py:87
+#: funnel/forms/organization.py:98
 msgid "Team name"
 msgstr "टीम का नाम"
 
-#: funnel/forms/organization.py:95 funnel/templates/auth_client.html.jinja2:66
+#: funnel/forms/organization.py:106 funnel/templates/auth_client.html.jinja2:66
 msgid "Users"
 msgstr "यूजर्स"
 
-#: funnel/forms/organization.py:100
+#: funnel/forms/organization.py:111
 msgid "Make this team public"
 msgstr "इस टीम को सार्वजनिक बनाएं"
 
-#: funnel/forms/organization.py:101
+#: funnel/forms/organization.py:112
 msgid "Team members will be listed on the organization’s profile page"
 msgstr "टीम के सदस्य संगठन के प्रोफाइल पेज पर दिखाए जाएंगे"
 
@@ -989,11 +989,11 @@ msgstr "स्वागत संदेश"
 msgid "Please write a message for the profile page"
 msgstr "कृपया प्रोफाइल पेज के लिए एक संदेश लिखें"
 
-#: funnel/forms/profile.py:37 funnel/forms/profile.py:75
+#: funnel/forms/profile.py:37 funnel/forms/profile.py:76
 msgid "This message will be shown on the profile page"
 msgstr "यह संदेश प्रोफाइल पेज पर दिखाया जाएगा"
 
-#: funnel/forms/profile.py:40 funnel/forms/profile.py:104
+#: funnel/forms/profile.py:40 funnel/forms/profile.py:106
 msgid "Profile image"
 msgstr "प्रोफाइल चित्र"
 
@@ -1001,11 +1001,11 @@ msgstr "प्रोफाइल चित्र"
 msgid "Website URL"
 msgstr "वेबसाइट URL"
 
-#: funnel/forms/profile.py:65
+#: funnel/forms/profile.py:66
 msgid "Your full name, in the form others can recognise you by"
 msgstr "आपका पूरा नाम, जिससे कि दूसरे व्यक्ति आपको जान सकें"
 
-#: funnel/forms/profile.py:68
+#: funnel/forms/profile.py:69
 msgid ""
 "A short name for mentioning you with @username, and the URL to your "
 "profile page. Single word containing letters, numbers and dashes only. "
@@ -1016,20 +1016,20 @@ msgstr ""
 "शब्द जिसमें केवल अक्षर, नंबर और डैश मौजूद हों. कुछ स्थाई सा नाम रखें: इसे"
 " बदलने से वेब पर मौजूद पुराने लिंक काम नहीं करेंगे"
 
-#: funnel/forms/profile.py:74
+#: funnel/forms/profile.py:75
 msgid "About you"
 msgstr "आपका परिचय"
 
-#: funnel/forms/profile.py:85
+#: funnel/forms/profile.py:86
 msgid "Project status"
 msgstr "प्रोजेक्ट की स्थिति"
 
-#: funnel/forms/profile.py:130 funnel/forms/project.py:97
+#: funnel/forms/profile.py:133 funnel/forms/project.py:97
 #: funnel/forms/project.py:210
 msgid "Banner image"
 msgstr "बैनर का चित्र"
 
-#: funnel/forms/project.py:42 funnel/forms/proposal.py:151
+#: funnel/forms/project.py:42 funnel/forms/proposal.py:153
 #: funnel/forms/session.py:19 funnel/forms/sync_ticket.py:51
 #: funnel/forms/sync_ticket.py:90 funnel/forms/update.py:17
 #: funnel/templates/auth_client_index.html.jinja2:15
@@ -1134,58 +1134,58 @@ msgstr ""
 "इस URL में कुछ गैर-उपयोगी वर्ण मौजूद हैं. इसमें केवल लोअरकेस अक्षर, नंबर "
 "और हायफ़न ही रह सकते हैं"
 
-#: funnel/forms/project.py:229
+#: funnel/forms/project.py:230
 msgid "Guidelines"
 msgstr "दिशानिर्देश"
 
-#: funnel/forms/project.py:232
+#: funnel/forms/project.py:233
 msgid ""
 "Set guidelines for the type of submissions your project is accepting, "
 "your review process, and anything else relevant to the submission"
 msgstr ""
 
-#: funnel/forms/project.py:238
+#: funnel/forms/project.py:239
 msgid "Submissions close at"
 msgstr "सबमिशन बंद होने का समय"
 
-#: funnel/forms/project.py:239
+#: funnel/forms/project.py:240
 msgid "Optional – Leave blank to have no closing date"
 msgstr ""
 
-#: funnel/forms/project.py:247
+#: funnel/forms/project.py:248
 msgid "Closing date must be in the future"
 msgstr ""
 
-#: funnel/forms/project.py:255 funnel/forms/project.py:323
-#: funnel/forms/proposal.py:219
+#: funnel/forms/project.py:256 funnel/forms/project.py:325
+#: funnel/forms/proposal.py:222
 msgid "Status"
 msgstr "स्थिति"
 
-#: funnel/forms/project.py:267
+#: funnel/forms/project.py:269
 msgid "Open submissions"
 msgstr "सबमिशन को खोलें"
 
-#: funnel/forms/project.py:290
+#: funnel/forms/project.py:292
 msgid "Profile"
 msgstr ""
 
-#: funnel/forms/project.py:293
+#: funnel/forms/project.py:295
 msgid "Choose a sponsor"
 msgstr ""
 
-#: funnel/forms/project.py:298
+#: funnel/forms/project.py:300
 msgid "Optional – Label for sponsor"
 msgstr ""
 
-#: funnel/forms/project.py:301
+#: funnel/forms/project.py:303
 msgid "Mark this sponsor as promoted"
 msgstr ""
 
-#: funnel/forms/project.py:309
+#: funnel/forms/project.py:311
 msgid "Save this project?"
 msgstr "इस प्रोजेक्ट को सहेजें?"
 
-#: funnel/forms/project.py:312 funnel/forms/session.py:75
+#: funnel/forms/project.py:314 funnel/forms/session.py:75
 msgid "Note to self"
 msgstr "खुद याद रखने की बात"
 
@@ -1197,47 +1197,47 @@ msgstr "कृपया, कोई एक चुनें"
 msgid "Feature this submission"
 msgstr ""
 
-#: funnel/forms/proposal.py:126 funnel/forms/proposal.py:138
-#: funnel/forms/proposal.py:169 funnel/templates/labels.html.jinja2:5
+#: funnel/forms/proposal.py:126 funnel/forms/proposal.py:139
+#: funnel/forms/proposal.py:171 funnel/templates/labels.html.jinja2:5
 #: funnel/templates/project_settings.html.jinja2:63
 #: funnel/templates/submission_form.html.jinja2:62
 msgid "Labels"
 msgstr "लेबल"
 
-#: funnel/forms/proposal.py:156 funnel/forms/update.py:22
+#: funnel/forms/proposal.py:158 funnel/forms/update.py:22
 #: funnel/templates/siteadmin_comments.html.jinja2:55
 msgid "Content"
 msgstr "विषय सूची"
 
-#: funnel/forms/proposal.py:159 funnel/templates/submission_form.html.jinja2:72
+#: funnel/forms/proposal.py:161 funnel/templates/submission_form.html.jinja2:72
 msgid "Video"
 msgstr "वीडियो"
 
-#: funnel/forms/proposal.py:167
+#: funnel/forms/proposal.py:169
 msgid "YouTube or Vimeo URL (optional)"
 msgstr "YouTube या Vimeo URL (ऐच्छिक)"
 
-#: funnel/forms/proposal.py:195 funnel/templates/js/membership.js.jinja2:24
+#: funnel/forms/proposal.py:198 funnel/templates/js/membership.js.jinja2:24
 msgid "Role"
 msgstr ""
 
-#: funnel/forms/proposal.py:196
+#: funnel/forms/proposal.py:199
 msgid "Optional – A specific role in this submission (like Author or Editor)"
 msgstr ""
 
-#: funnel/forms/proposal.py:201
+#: funnel/forms/proposal.py:204
 msgid "Hide collaborator on submission"
 msgstr ""
 
-#: funnel/forms/proposal.py:208
+#: funnel/forms/proposal.py:211
 msgid "{user} is already a collaborator"
 msgstr ""
 
-#: funnel/forms/proposal.py:234
+#: funnel/forms/proposal.py:238
 msgid "Move proposal to"
 msgstr "प्रस्ताव को भेजें"
 
-#: funnel/forms/proposal.py:235
+#: funnel/forms/proposal.py:239
 msgid "Move this proposal to another project"
 msgstr "इस प्रस्ताव को दूसरे प्रोजेक्ट में भेजें"
 
@@ -1296,7 +1296,7 @@ msgid "Badge template URL"
 msgstr "बैच टेम्पलेट URL"
 
 #: funnel/forms/sync_ticket.py:67 funnel/forms/venue.py:27
-#: funnel/forms/venue.py:89 funnel/templates/js/membership.js.jinja2:23
+#: funnel/forms/venue.py:90 funnel/templates/js/membership.js.jinja2:23
 msgid "Name"
 msgstr "नाम"
 
@@ -1392,27 +1392,27 @@ msgstr "देश"
 msgid "Pick a location on the map"
 msgstr "मैप पर स्थान दर्शाएं"
 
-#: funnel/forms/venue.py:90
+#: funnel/forms/venue.py:91
 msgid "Name of the room"
 msgstr "कमरे का नाम"
 
-#: funnel/forms/venue.py:95
+#: funnel/forms/venue.py:96
 msgid "An optional note about the room"
 msgstr "कमरे के बारे में एक वैकल्पिक नोट"
 
-#: funnel/forms/venue.py:98
+#: funnel/forms/venue.py:99
 msgid "Room colour"
 msgstr "कमरे का रंग"
 
-#: funnel/forms/venue.py:100
+#: funnel/forms/venue.py:101
 msgid "RGB colour for the room. Enter without the '#'. E.g. CCCCCC"
 msgstr "कमरे का RGB रंग. बगैर ‘#’ के दर्ज करें. जैसे CCCCCC"
 
-#: funnel/forms/venue.py:106
-msgid "Please enter a valid color code"
+#: funnel/forms/venue.py:108
+msgid "Please enter a valid colour code"
 msgstr "कृपया एक वैध कलर कोड दर्ज करें"
 
-#: funnel/forms/venue.py:114 funnel/templates/project.html.jinja2:166
+#: funnel/forms/venue.py:116 funnel/templates/project.html.jinja2:166
 msgid "Venue"
 msgstr "ईवेंट का स्थान"
 

@@ -114,7 +114,6 @@ class LoginForm(forms.Form):
     """
 
     __returns__ = ('user', 'anchor', 'weak_password', 'new_email', 'new_phone')
-
     user: Optional[User] = None
     anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone]] = None
     weak_password: Optional[bool] = None
@@ -149,7 +148,7 @@ class LoginForm(forms.Form):
     )
 
     # These two validators depend on being called in sequence
-    def validate_username(self, field):
+    def validate_username(self, field) -> None:
         """Process username field and load user and anchor."""
         self.user, self.anchor = getuser(field.data, True)  # skipcq: PYL-W0201
         self.new_email = self.new_phone = None
@@ -249,7 +248,7 @@ class LogoutForm(forms.Form):
         __("Session id"), validators=[forms.validators.Optional()]
     )
 
-    def validate_sessionid(self, field):
+    def validate_sessionid(self, field) -> None:
         """Validate login session belongs to the user who invoked this form."""
         user_session = UserSession.get(buid=field.data)
         if not user_session or user_session.user != self.user:
@@ -276,7 +275,7 @@ class OtpForm(forms.Form):
         },
     )
 
-    def validate_otp(self, field):
+    def validate_otp(self, field) -> None:
         """Confirm OTP is as expected."""
         if field.data != self.valid_otp:
             raise forms.StopValidation(MSG_INCORRECT_OTP)
@@ -312,7 +311,7 @@ class RegisterOtpForm(forms.Form):
         },
     )
 
-    def validate_otp(self, field):
+    def validate_otp(self, field) -> None:
         """Confirm OTP is as expected."""
         if field.data != self.valid_otp:
             raise forms.StopValidation(MSG_INCORRECT_OTP)

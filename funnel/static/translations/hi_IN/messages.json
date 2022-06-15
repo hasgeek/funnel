@@ -542,7 +542,7 @@
       "RGB colour for the room. Enter without the '#'. E.g. CCCCCC": [
         "कमरे का RGB रंग. बगैर ‘#’ के दर्ज करें. जैसे CCCCCC"
       ],
-      "Please enter a valid color code": ["कृपया एक वैध कलर कोड दर्ज करें"],
+      "Please enter a valid colour code": ["कृपया एक वैध कलर कोड दर्ज करें"],
       "Venue": ["ईवेंट का स्थान"],
       "You denied the GitHub login request": [
         "आपने GitHub लॉग इन अनुरोध को ख़ारिज कर दिया है"

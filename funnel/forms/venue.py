@@ -69,7 +69,8 @@ class VenueForm(forms.Form):
         validators=[forms.validators.Optional(), forms.validators.ValidCoordinates()],
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         pycountry_locale = gettext.translation(
             'iso3166-2', pycountry.LOCALES_DIR, languages=[str(get_locale()), 'en']
         )
@@ -101,9 +102,10 @@ class VenueRoomForm(forms.Form):
         default="CCCCCC",
     )
 
-    def validate_bgcolor(self, field):
+    def validate_bgcolor(self, field) -> None:
+        """Validate colour to be in RGB."""
         if not valid_color_re.match(field.data):
-            raise forms.ValidationError(_("Please enter a valid color code"))
+            raise forms.ValidationError(_("Please enter a valid colour code"))
 
 
 @Venue.forms('primary')
@@ -119,5 +121,6 @@ class VenuePrimaryForm(forms.Form):
         render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.venue.query = self.edit_parent.venues
