@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from flask import request
 
 from baseframe import _
@@ -10,7 +12,6 @@ from coaster.views import render_with
 
 from ... import app
 from ...forms import PasswordPolicyForm, UsernameAvailableForm
-from ...models import check_password_strength
 from ...typing import ReturnRenderWith
 from ..helpers import progressive_rate_limit_validator, validate_rate_limit
 
@@ -19,52 +20,30 @@ from ..helpers import progressive_rate_limit_validator, validate_rate_limit
 @render_with(json=True)
 def password_policy_check() -> ReturnRenderWith:
     """Check if a password meets policy criteria (strength, embedded personal info)."""
-    policy_form = PasswordPolicyForm()
-    policy_form.form_nonce.data = policy_form.form_nonce.default()
+    form = PasswordPolicyForm(edit_user=current_auth.user)
+    form.form_nonce.data = form.form_nonce.default()
 
-    if policy_form.validate_on_submit():
-        user_inputs = []
-
-        if current_auth.user:
-            if current_auth.user.fullname:
-                user_inputs.append(current_auth.user.fullname)
-
-            for useremail in current_auth.user.emails:
-                user_inputs.append(str(useremail))
-            for emailclaim in current_auth.user.emailclaims:
-                user_inputs.append(str(emailclaim))
-
-            for userphone in current_auth.user.phones:
-                user_inputs.append(str(userphone))
-            for phoneclaim in current_auth.user.phoneclaims:
-                user_inputs.append(str(phoneclaim))
-
-        tested_password = check_password_strength(
-            policy_form.password.data,
-            user_inputs=user_inputs if user_inputs else None,
-        )
+    if form.validate_on_submit():
         return {
             'status': 'ok',
             'result': {
                 # zxcvbn scores are 0-4, frond-end expects strength value from 0.0-1.0.
                 # Keeping the backend score to backend will let us switch strength
                 # calculations later on.
-                'strength': tested_password['score'] / 4.0,
-                'is_weak': tested_password['is_weak'],
+                'strength': float(cast(int, form.password_strength)) / 4.0,
+                'is_weak': form.is_weak,
                 'strength_verbose': (
-                    _("Weak password")
-                    if tested_password['is_weak']
-                    else _("Strong password")
+                    _("Weak password") if form.is_weak else _("Strong password")
                 ),
-                'warning': tested_password['warning'],
-                'suggestions': tested_password['suggestions'],
+                'warning': form.warning,
+                'suggestions': form.suggestions,
             },
         }
     return {
         'status': 'error',
         'error': 'password_policy_error',
         'error_description': _("Something went wrong. Please reload and try again"),
-        'error_details': policy_form.errors,
+        'error_details': form.errors,
     }, 422
 
 

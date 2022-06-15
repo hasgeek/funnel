@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Iterable, Optional
 
 from baseframe import _, __, forms
 from coaster.utils import sorted_timezones
@@ -65,7 +65,7 @@ class PasswordStrengthValidator:
         self.user_input_fields = user_input_fields
         self.message = message or self.default_message
 
-    def __call__(self, form, field):
+    def __call__(self, form, field) -> None:
         user_inputs = []
         for field_name in self.user_input_fields:
             user_inputs.append(getattr(form, field_name).data)
@@ -91,16 +91,16 @@ class PasswordStrengthValidator:
         )
         # Stick password strength into the form for logging in the view and possibly
         # rendering into UI
-        form.password_strength = float(tested_password['score'])
+        form.password_strength = tested_password.score
         # No test failures? All good then
-        if not tested_password['is_weak']:
+        if not tested_password.is_weak:
             return
         # Tell the user to make up a better password
         raise forms.validators.StopValidation(
-            tested_password['warning']
-            if tested_password['warning']
-            else '\n'.join(tested_password['suggestions'])
-            if tested_password['suggestions']
+            tested_password.warning
+            if tested_password.warning
+            else '\n'.join(tested_password.suggestions)
+            if tested_password.suggestions
             else self.message
         )
 
@@ -117,7 +117,7 @@ class RegisterForm(forms.Form):
     """
 
     __returns__ = ('password_strength',)  # Set by PasswordStrengthValidator
-    password_strength: Optional[float] = None
+    password_strength: Optional[int] = None
 
     fullname = forms.StringField(
         __("Full name"),
@@ -188,6 +188,14 @@ class PasswordForm(forms.Form):
 class PasswordPolicyForm(forms.Form):
     """Form to validate any candidate password against policy."""
 
+    __expects__ = ('edit_user',)
+    __returns__ = ('password_strength', 'is_weak', 'warning', 'suggestions')
+    edit_user: User
+    password_strength: Optional[int] = None
+    is_weak: Optional[bool] = None
+    warning: Optional[str] = None
+    suggestions: Iterable[str] = ()
+
     password = forms.PasswordField(
         __("Password"),
         validators=[
@@ -195,6 +203,32 @@ class PasswordPolicyForm(forms.Form):
             forms.validators.Length(max=PASSWORD_MAX_LENGTH),
         ],
     )
+
+    def validate_password(self, field) -> None:
+        """Test password strength and save resuls (no errors raised)."""
+        user_inputs = []
+
+        if self.edit_user:
+            if self.edit_user.fullname:
+                user_inputs.append(self.edit_user.fullname)
+
+            for useremail in self.edit_user.emails:
+                user_inputs.append(str(useremail))
+            for emailclaim in self.edit_user.emailclaims:
+                user_inputs.append(str(emailclaim))
+
+            for userphone in self.edit_user.phones:
+                user_inputs.append(str(userphone))
+            for phoneclaim in self.edit_user.phoneclaims:
+                user_inputs.append(str(phoneclaim))
+
+        tested_password = check_password_strength(
+            field.data, user_inputs=user_inputs if user_inputs else None
+        )
+        self.password_strength = tested_password.score
+        self.is_weak = tested_password.is_weak
+        self.warning = tested_password.warning
+        self.suggestions = tested_password.suggestions
 
 
 @User.forms('password_reset_request')
@@ -228,7 +262,7 @@ class PasswordCreateForm(forms.Form):
     __returns__ = ('password_strength',)
     __expects__ = ('edit_user',)
     edit_user: User
-    password_strength: Optional[float] = None
+    password_strength: Optional[int] = None
 
     password = forms.PasswordField(
         __("New password"),
@@ -255,7 +289,7 @@ class PasswordResetForm(forms.Form):
     """Form to reset a password for a user, requiring the user id as a failsafe."""
 
     __returns__ = ('password_strength',)
-    password_strength: Optional[float] = None
+    password_strength: Optional[int] = None
 
     # TODO: This form has been deprecated with OTP-based reset as that doesn't need
     # username and now uses :class:`PasswordCreateForm`. This form is retained in the
@@ -308,7 +342,7 @@ class PasswordChangeForm(forms.Form):
     __returns__ = ('password_strength',)
     __expects__ = ('edit_user',)
     edit_user: User
-    password_strength: Optional[float] = None
+    password_strength: Optional[int] = None
 
     old_password = forms.PasswordField(
         __("Current password"),

@@ -229,8 +229,8 @@ class LoginForm(forms.Form):
         # LoginPasswordWeakException after the test. The calling code in views/login.py
         # supports both outcomes.
 
-        # `check_password_strength(password)['is_weak']` is a bool
-        self.weak_password: bool = check_password_strength(field.data)['is_weak']
+        # `check_password_strength(password).is_weak` is a bool
+        self.weak_password: bool = check_password_strength(field.data).is_weak
 
 
 @User.forms('logout')
