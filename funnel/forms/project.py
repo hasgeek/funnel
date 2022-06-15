@@ -269,12 +269,12 @@ class ProjectCfpTransitionForm(forms.Form):
         __("Open submissions"), validators=[forms.validators.InputRequired()]
     )
 
-    def get_open(self, obj: Project) -> None:
-        """Get open date from project."""
-        self.open.data = bool(obj.cfp_state.OPEN)
+    def get_open(self, obj: Project) -> bool:
+        """Get open state from project."""
+        return bool(obj.cfp_state.OPEN)
 
     def set_open(self, obj: Project) -> None:
-        """Set open date on project."""
+        """Set open state and date on project."""
         if self.open.data and not obj.cfp_state.OPEN:
             # Checkbox: yes, but CfP state is not open, so open it
             obj.open_cfp()

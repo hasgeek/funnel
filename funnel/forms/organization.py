@@ -18,7 +18,7 @@ __all__ = ['OrganizationForm', 'TeamForm']
 class OrganizationForm(forms.Form):
     """Form for an organization's name and title."""
 
-    edit_obj: Optional[Organization] = None
+    edit_obj: Optional[Organization]
 
     title = forms.StringField(
         __("Organization name"),
