@@ -121,7 +121,7 @@ class AuthClientForm(forms.Form):
             self.user = None
             self.organization = orgs[0]
 
-    def _urls_match(self, url1, url2):
+    def _urls_match(self, url1: str, url2: str) -> bool:
         """Validate two URLs have the same base component (minus path)."""
         p1 = urlparse(url1)
         p2 = urlparse(url2)
@@ -156,7 +156,7 @@ class AuthClientCredentialForm(forms.Form):
     )
 
 
-def permission_validator(form, field):
+def permission_validator(form, field) -> None:
     """Validate permission strings to be appropriately named."""
     permlist = field.data.split()
     for perm in permlist:
