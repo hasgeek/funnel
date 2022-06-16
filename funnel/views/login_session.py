@@ -48,7 +48,7 @@ from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
 from ..utils import abort_null
-from .email import send_email_login_otp
+from .email import send_email_sudo_otp
 from .helpers import (
     OtpReasonError,
     OtpTimeoutError,
@@ -410,9 +410,9 @@ def _make_and_send_otp(reason: str, user: User, anchor: Anchor) -> Tuple[OtpData
     )
     otp_sent = False
     if otp_data.email:
-        send_email_login_otp(
+        send_email_sudo_otp(
             email=otp_data.email,
-            user=otp_data.user,
+            user=otp_data.user,  # type: ignore[arg-type]
             otp=otp_data.otp,
         )
         otp_sent = True

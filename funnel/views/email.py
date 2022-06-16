@@ -70,6 +70,17 @@ def send_email_login_otp(email: str, user: Optional[User], otp: str) -> str:
     return send_email(subject, [(fullname, email)], content)
 
 
+def send_email_sudo_otp(email: str, user: User, otp: str) -> str:
+    """Mail a sudo OTP to the user."""
+    subject = _("Confirmation OTP {otp}").format(otp=otp)
+    content = render_template(
+        'email_sudo_otp.html.jinja2',
+        fullname=user.fullname,
+        otp=otp,
+    )
+    return send_email(subject, [(user.fullname, email)], content)
+
+
 @signals.project_crew_membership_added.connect
 def send_email_for_project_crew_membership_added(
     sender, project, membership, actor, user
