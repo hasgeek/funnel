@@ -120,6 +120,7 @@ plugins = ['sqlmypy']
 [tool.pylint.master]
 load-plugins = ['pylint_pytest', 'pylint_flask_sqlalchemy']
 max-parents = 10
+init-hook = "import os; sys.path.append(os.getcwd())"
 
 [tool.pylint.message_control]
 max-line-length = 88
