@@ -115,7 +115,7 @@ OtpSessionType = TypeVar('OtpSessionType', bound='OtpSession')
 
 @dataclass
 class OtpSession:
-    """Data in an OTP request."""
+    """Make or retrieve an OTP in the user's cookie session."""
 
     reason: str
     token: str
