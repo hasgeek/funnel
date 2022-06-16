@@ -1,8 +1,11 @@
+"""Helpers for models."""
+
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import dataclass
 from textwrap import dedent
-from typing import Dict, Iterable, Optional, Set, Type
+from typing import Dict, Iterable, List, Optional, Set, Type
 import os.path
 import re
 
@@ -15,7 +18,6 @@ from flask import current_app
 
 from better_profanity import profanity
 from furl import furl
-from typing_extensions import TypedDict
 from zxcvbn import zxcvbn
 import pymdownx.superfences
 
@@ -130,9 +132,10 @@ RESERVED_NAMES: Set[str] = {
 }
 
 
-class PasswordCheckType(TypedDict):
+@dataclass
+class PasswordCheckType:
     """
-    Typed dictionary for :func:`check_password_strength`.
+    Return type for :func:`check_password_strength`.
 
     Includes integer score from zxcvbn:
 
@@ -151,7 +154,7 @@ class PasswordCheckType(TypedDict):
     is_weak: bool
     score: int  # One of 0, 1, 2, 3, 4
     warning: str
-    suggestions: str
+    suggestions: List[str]
 
 
 #: Minimum length for a password
@@ -164,19 +167,20 @@ PASSWORD_MIN_SCORE = 3
 
 
 def check_password_strength(
-    password: str, user_inputs: Optional[Iterable] = None
+    password: str, user_inputs: Optional[Iterable[str]] = None
 ) -> PasswordCheckType:
+    """Check the strength of a password using zxcvbn."""
     result = zxcvbn(password, user_inputs)
-    return {
-        'is_weak': (
+    return PasswordCheckType(
+        is_weak=(
             len(password) < PASSWORD_MIN_LENGTH
             or result['score'] < PASSWORD_MIN_SCORE
             or bool(result['feedback']['warning'])
         ),
-        'score': result['score'],
-        'warning': result['feedback']['warning'],
-        'suggestions': result['feedback']['suggestions'],
-    }
+        score=result['score'],
+        warning=result['feedback']['warning'],
+        suggestions=result['feedback']['suggestions'],
+    )
 
 
 # re.IGNORECASE needs re.ASCII because of a quirk in the characters it matches.

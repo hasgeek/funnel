@@ -23,7 +23,7 @@ class CommentsetSubscribeForm(forms.Form):
     """Subscribe to comments."""
 
     subscribe = forms.BooleanField(
-        '',
+        "",
         description=__("Get notifications"),
         validators=[forms.validators.InputRequired()],
     )

@@ -1,7 +1,9 @@
+"""Forms for notifications."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Optional
+from typing import Callable, List, Optional
 
 from flask import Markup, url_for
 
@@ -103,7 +105,11 @@ transport_labels = {
 
 @User.forms('unsubscribe')
 class UnsubscribeForm(forms.Form):
+    """Form to unsubscribe from notifications."""
+
     __expects__ = ('transport', 'notification_type')
+    transport: str
+    notification_type: str
 
     # To consider: Replace the field's ListWidget with a GroupedListWidget, and show all
     # known notifications by category, not just the ones the user has received a
@@ -135,7 +141,8 @@ class UnsubscribeForm(forms.Form):
         __("Unsubscribe token type"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         # Populate choices with all notification types that the user has a preference
         # row for.
         if self.transport in transport_labels:
@@ -156,10 +163,12 @@ class UnsubscribeForm(forms.Form):
             and nvalue.allow_transport(self.transport)
         ]  # Sorted by definition order. Usable until we introduce grouping
 
-    def get_main(self, obj):
+    def get_main(self, obj) -> bool:
+        """Get main preferences switch (global enable/disable)."""
         return obj.main_notification_preferences.by_transport(self.transport)
 
-    def get_types(self, obj):
+    def get_types(self, obj) -> List[str]:
+        """Get status for each notification type for the selected transport."""
         # Populate data with all notification types for which the user has the
         # current transport enabled
         return [
@@ -168,10 +177,12 @@ class UnsubscribeForm(forms.Form):
             if user_prefs.by_transport(self.transport)
         ]
 
-    def set_main(self, obj):
+    def set_main(self, obj) -> None:
+        """Set main preferences switch (global enable/disable)."""
         obj.main_notification_preferences.set_transport(self.transport, self.main.data)
 
-    def set_types(self, obj):
+    def set_types(self, obj) -> None:
+        """Set status for each notification type for the selected transport."""
         # self.types.data will only contain the enabled preferences. Therefore, iterate
         # through all choices and toggle true or false based on whether it's in the
         # enabled list. This uses dict access instead of .get because the rows are known
@@ -192,15 +203,16 @@ class SetNotificationPreferenceForm(forms.Form):
     )
     enabled = forms.BooleanField(__("Enable this transport"))
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         # The main switch is special-cased with an empty string for notification type
         self.notification_type.choices = [('', __("Main switch"))] + [
             (ntype, cls.title) for ntype, cls in notification_type_registry.items()
         ]
         self.transport.choices = [
             (transport, transport)
-            for transport in platform_transports
-            if platform_transports[transport]
+            for transport, is_available in platform_transports.items()
+            if is_available
         ]
 
     def status_message(self):

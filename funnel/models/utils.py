@@ -1,3 +1,5 @@
+"""Utilities to operate on models."""
+
 from __future__ import annotations
 
 from typing import NamedTuple, Optional, Set, Union, overload

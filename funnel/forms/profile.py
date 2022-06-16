@@ -1,3 +1,5 @@
+"""Forms for user and organization profiles."""
+
 from __future__ import annotations
 
 from baseframe import _, __, forms
@@ -23,6 +25,7 @@ class ProfileForm(OrganizationForm):
     """
 
     __expects__ = ('profile',)
+    profile: Profile
 
     description = forms.MarkdownField(
         __("Welcome message"),
@@ -53,10 +56,12 @@ class ProfileForm(OrganizationForm):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.logo_url.profile = self.profile.name
 
     def make_for_user(self):
+        """Customise form for a user profile."""
         self.title.label.text = __("Your name")
         self.title.description = __(
             "Your full name, in the form others can recognise you by"
@@ -75,11 +80,14 @@ class ProfileForm(OrganizationForm):
 
 @Profile.forms('transition')
 class ProfileTransitionForm(forms.Form):
+    """Form to transition a profile between public and private state."""
+
     transition = forms.SelectField(
         __("Project status"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.transition.choices = list(self.edit_obj.state.transitions().items())
 
 
@@ -92,6 +100,7 @@ class ProfileLogoForm(forms.Form):
     """
 
     __expects__ = ('profile',)
+    profile: Profile
 
     logo_url = forms.ImgeeField(
         __("Profile image"),
@@ -103,7 +112,8 @@ class ProfileLogoForm(forms.Form):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.logo_url.widget_type = 'modal'
         self.logo_url.profile = self.profile.name
 
@@ -117,6 +127,7 @@ class ProfileBannerForm(forms.Form):
     """
 
     __expects__ = ('profile',)
+    profile: Profile
 
     banner_image_url = forms.ImgeeField(
         __("Banner image"),
@@ -128,6 +139,7 @@ class ProfileBannerForm(forms.Form):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.banner_image_url.widget_type = 'modal'
         self.banner_image_url.profile = self.profile.name

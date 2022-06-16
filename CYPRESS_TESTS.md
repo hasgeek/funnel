@@ -1,6 +1,6 @@
 Instructions to run frontend tests written in Cypress test runner in development.
 
-1. Add these environment variables to `secrets.test`:
+1. Add these environment variables to `.env.testing`:
    export RECAPTCHA_PUBLIC_KEY=''
    export RECAPTCHA_PRIVATE_KEY=''
    export CYPRESS_BOXOFFICE_SECRET_KEY=''
@@ -12,5 +12,5 @@ Instructions to run frontend tests written in Cypress test runner in development
    export VIMEO_CLIENT_ID=''
    export VIMEO_CLIENT_SECRET=''
    export VIMEO_ACCESS_TOKEN=''
-2. Create test db 'funnel_testing'
+2. Create test db 'funnel_testing' and 'geoname_testing'
 3. Run runfrontendtests.sh to start server and execute Cypress test cases.
