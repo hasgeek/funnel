@@ -58,7 +58,7 @@ def normalize_phone_number(
                         phonenumbers.PhoneNumberType.FIXED_LINE_OR_MOBILE,
                     ):
                         sms_invalid = True
-                        continue  # Not valid for SMS
+                        continue  # Not valid for SMS, continue searching regions
                 return phonenumbers.format_number(
                     parsed_number, phonenumbers.PhoneNumberFormat.E164
                 )
