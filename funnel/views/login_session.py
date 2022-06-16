@@ -27,7 +27,7 @@ from baseframe.forms import render_form
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
 from coaster.views import get_current_url, get_next_url
-from funnel.views.helpers import OtpData, send_sms_otp
+from funnel.views.helpers import OtpSession, send_sms_otp
 
 from .. import app
 from ..forms import OtpForm, PasswordForm
@@ -54,11 +54,8 @@ from .helpers import (
     OtpTimeoutError,
     app_url_for,
     autoset_timezone_and_locale,
-    delete_otp_session,
     get_scheme_netloc,
-    make_otp_session,
     render_redirect,
-    retrieve_otp_session,
     validate_rate_limit,
 )
 
@@ -402,8 +399,10 @@ def requires_login_no_message(f):
     return decorated_function
 
 
-def _make_and_send_otp(reason: str, user: User, anchor: Anchor) -> Tuple[OtpData, bool]:
-    otp_data = make_otp_session(
+def _make_and_send_otp(
+    reason: str, user: User, anchor: Anchor
+) -> Tuple[OtpSession, bool]:
+    otp_data = OtpSession.make(
         'sudo',
         user=current_auth.user,
         anchor=anchor,
@@ -505,7 +504,7 @@ def requires_sudo(f):
             try:
                 formid = abort_null(request.form.get('form.id'))
                 if formid == 'sudo-otp':
-                    otp_data = retrieve_otp_session('sudo')
+                    otp_data = OtpSession.retrieve('sudo')
                     form = OtpForm(valid_otp=otp_data.otp)
                 elif formid == 'sudo-password':
                     form = PasswordForm(edit_user=current_auth.user)
@@ -520,7 +519,7 @@ def requires_sudo(f):
                     current_auth.session.set_sudo()
                     db.session.commit()
                     continue_url = session.pop('next', request.url)
-                    delete_otp_session()
+                    OtpSession.delete()
                     return render_redirect(continue_url, code=303)
             except OtpTimeoutError as exc:
                 reason = str(exc)

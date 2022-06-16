@@ -13,7 +13,7 @@ import pytest
 from coaster.auth import current_auth
 from coaster.utils import newpin, utcnow
 from funnel.registry import LoginProviderData
-from funnel.views.helpers import delete_otp_session, retrieve_otp_session
+from funnel.views.helpers import OtpSession
 
 # User fixture's details
 RINCEWIND_USERNAME = 'rincewind'
@@ -344,7 +344,7 @@ def test_invalid_otp_login(
         '/login',
         data=MultiDict(
             {
-                'otp': generate_wrong_otp(retrieve_otp_session('login').otp),
+                'otp': generate_wrong_otp(OtpSession.retrieve('login').otp),
                 'csrf_token': csrf_token,
                 'form.id': 'login-otp',
             }
@@ -484,7 +484,7 @@ def test_otp_timeout_error(user_rincewind_phone, user_rincewind, csrf_token, cli
         )
         caught_otp = mock.call_args.kwargs['otp']
 
-    delete_otp_session()
+    OtpSession.delete()
 
     rv2 = client.post(
         '/login',

@@ -106,10 +106,11 @@ class SessionTimeouts(dict):
 
 #: Temporary values that must be periodically expunged from the cookie session
 session_timeouts: Dict[str, timedelta] = SessionTimeouts()
+session_timeouts['otp'] = timedelta(minutes=15)
 
 
 @dataclass
-class OtpData:
+class OtpSession:
     """Data in an OTP request."""
 
     reason: str
@@ -119,85 +120,86 @@ class OtpData:
     email: Optional[str] = None
     phone: Optional[str] = None
 
+    @classmethod
+    def make(  # pylint: disable=too-many-arguments
+        cls,
+        reason: str,
+        user: Optional[User],
+        anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone, EmailAddress]],
+        email: Optional[str] = None,
+        phone: Optional[str] = None,
+    ) -> OtpSession:
+        """
+        Create an OTP for login and save it to cache and browser cookie session.
+
+        Accepts an anchor or an explicit email address or phone number.
+        """
+        # Safety check, only one of anchor, email and phone can be provided
+        require_one_of(anchor=anchor, email=email, phone=phone)
+        # Make an OTP valid for 15 minutes. Store this OTP in Redis cache and add a ref
+        # to this cache entry in the user's cookie session. The cookie never contains
+        # the actual OTP. See :func:`make_cached_token` for additional documentation.
+        otp = newpin()
+        if isinstance(anchor, (UserEmail, UserEmailClaim, EmailAddress)):
+            email = str(anchor)
+        elif isinstance(anchor, UserPhone):
+            phone = str(anchor)
+        # Allow 3 OTP requests per hour per anchor. This is distinct from the rate
+        # limiting for password-based login above.
+        validate_rate_limit(
+            'otp-send',
+            ('anchor/' + blake2b160_hex(email or phone)),  # type: ignore[arg-type]
+            3,
+            3600,
+        )
+        token = make_cached_token(
+            {
+                'reason': reason,
+                'otp': otp,
+                'user_buid': user.buid if user else None,
+                'email': email,
+                'phone': phone,
+            },
+            timeout=15 * 60,
+        )
+        session['otp'] = token
+        return cls(
+            reason=reason, token=token, otp=otp, user=user, email=email, phone=phone
+        )
+
+    @classmethod
+    def retrieve(cls, reason: str) -> OtpSession:
+        """Retrieve an OTP from cache using the token in browser cookie session."""
+        otp_token = session.get('otp')
+        if not otp_token:
+            raise OtpTimeoutError('cookie_expired')
+        otp_data = retrieve_cached_token(otp_token)
+        if not otp_data:
+            raise OtpTimeoutError('cache_expired')
+        if otp_data['reason'] != reason:
+            raise OtpReasonError(reason)
+        return cls(
+            reason=reason,
+            token=otp_token,
+            otp=otp_data['otp'],
+            user=User.get(buid=otp_data['user_buid'])
+            if otp_data['user_buid']
+            else None,
+            email=otp_data['email'],
+            phone=otp_data['phone'],
+        )
+
+    @staticmethod
+    def delete() -> bool:
+        """Delete OTP request from cookie session and cache."""
+        token = session.pop('otp', None)
+        if not token:
+            return False
+        delete_cached_token(token)
+        return True
+
 
 # --- Utilities ------------------------------------------------------------------------
-
-session_timeouts['otp'] = timedelta(minutes=15)
-
-
-def make_otp_session(
-    reason: str,
-    user: Optional[User],
-    anchor: Union[None, UserEmail, UserEmailClaim, UserPhone, EmailAddress],
-    email: Optional[str] = None,
-    phone: Optional[str] = None,
-) -> OtpData:
-    """
-    Create an OTP for login and save it to cache and browser cookie session.
-
-    Accepts an anchor or an explicit email address or phone number.
-    """
-    # Safety check, only one of anchor, email and phone can be provided
-    require_one_of(anchor=anchor, email=email, phone=phone)
-    # Make an OTP valid for 15 minutes. Store this OTP in Redis cache and add a ref to
-    # this cache entry in the user's cookie session. The cookie never contains the
-    # actual OTP. See :func:`make_cached_token` for additional documentation.
-    otp = newpin()
-    if isinstance(anchor, (UserEmail, UserEmailClaim, EmailAddress)):
-        email = str(anchor)
-    elif isinstance(anchor, UserPhone):
-        phone = str(anchor)
-    # Allow 3 OTP requests per hour per anchor. This is distinct from the rate
-    # limiting for password-based login above.
-    validate_rate_limit(
-        'otp-send',
-        ('anchor/' + blake2b160_hex(email or phone)),  # type: ignore[arg-type]
-        3,
-        3600,
-    )
-    token = make_cached_token(
-        {
-            'reason': reason,
-            'otp': otp,
-            'user_buid': user.buid if user else None,
-            'email': email,
-            'phone': phone,
-        },
-        timeout=15 * 60,
-    )
-    session['otp'] = token
-    return OtpData(
-        reason=reason, token=token, otp=otp, user=user, email=email, phone=phone
-    )
-
-
-def retrieve_otp_session(reason: str) -> OtpData:
-    """Retrieve an OTP from cache using the token in browser cookie session."""
-    otp_token = session.get('otp')
-    if not otp_token:
-        raise OtpTimeoutError('cookie_expired')
-    otp_data = retrieve_cached_token(otp_token)
-    if not otp_data:
-        raise OtpTimeoutError('cache_expired')
-    if otp_data['reason'] != reason:
-        raise OtpReasonError(reason)
-    return OtpData(
-        reason=reason,
-        token=otp_token,
-        otp=otp_data['otp'],
-        user=User.get(buid=otp_data['user_buid']) if otp_data['user_buid'] else None,
-        email=otp_data['email'],
-        phone=otp_data['phone'],
-    )
-
-
-def delete_otp_session() -> bool:
-    """Delete OTP request from cookie session and cache."""
-    token = session.pop('otp', None)
-    if not token:
-        return False
-    delete_cached_token(token)
-    return True
 
 
 def metarefresh_redirect(url: str):

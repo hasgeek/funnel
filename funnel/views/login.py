@@ -64,15 +64,12 @@ from ..typing import ReturnView
 from ..utils import abort_null
 from .email import send_email_login_otp, send_email_verify_link
 from .helpers import (
-    OtpData,
     OtpReasonError,
+    OtpSession,
     OtpTimeoutError,
     app_url_for,
-    delete_otp_session,
-    make_otp_session,
     metarefresh_redirect,
     render_redirect,
-    retrieve_otp_session,
     send_sms_otp,
     session_timeouts,
     validate_rate_limit,
@@ -98,7 +95,7 @@ block_iframe = {'X-Frame-Options': 'SAMEORIGIN'}
 LOGOUT_ERRORMSG = __("Are you trying to logout? Try again to confirm")
 
 
-def get_otp_form(otp_data: OtpData) -> Union[OtpForm, RegisterOtpForm]:
+def get_otp_form(otp_data: OtpSession) -> Union[OtpForm, RegisterOtpForm]:
     """Return variant of OTP form depending on whether there's a user account."""
     if otp_data.user:
         form = OtpForm(valid_otp=otp_data.otp)
@@ -248,7 +245,7 @@ def login() -> ReturnView:
             session['temp_username'] = loginform.username.data
             return render_redirect(url_for('reset'), code=303)
         except (LoginWithOtp, RegisterWithOtp):
-            otp_data = make_otp_session(
+            otp_data = OtpSession.make(
                 'login',
                 loginform.user,
                 loginform.anchor,
@@ -294,7 +291,7 @@ def login() -> ReturnView:
                 return render_redirect(url_for('register'), code=303)
     elif request.method == 'POST' and formid == 'login-otp':
         try:
-            otp_data = retrieve_otp_session('login')
+            otp_data = OtpSession.retrieve('login')
 
             # Allow 5 guesses per 60 seconds
             validate_rate_limit('otp', otp_data.token, 5, 60)
@@ -330,7 +327,7 @@ def login() -> ReturnView:
                         session.get('next', ''),
                     )
                     flash(_("You are now logged in"), category='success')
-                delete_otp_session()
+                OtpSession.delete()
                 return set_loginmethod_cookie(
                     render_redirect(get_next_url(session=True), code=303),
                     'otp',

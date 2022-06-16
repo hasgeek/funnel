@@ -40,11 +40,9 @@ from ..typing import ReturnView
 from .email import send_password_reset_link
 from .helpers import (
     OtpReasonError,
+    OtpSession,
     OtpTimeoutError,
-    delete_otp_session,
-    make_otp_session,
     metarefresh_redirect,
-    retrieve_otp_session,
     send_sms_otp,
     session_timeouts,
     validate_rate_limit,
@@ -123,7 +121,7 @@ def reset():
             )
         # Allow only three reset attempts per hour to discourage abuse
         validate_rate_limit('account_reset', user.uuid_b58, 3, 3600)
-        otp_data = make_otp_session('reset', user, anchor)
+        otp_data = OtpSession.make('reset', user, anchor)
         email_token = make_reset_token(user)
         if isinstance(anchor, (UserEmail, UserEmailClaim, EmailAddress)):
             send_password_reset_link(
@@ -191,7 +189,7 @@ def reset_with_token_legacy(buid, secret):
 def reset_otp() -> ReturnView:
     """Process a password reset using an OTP."""
     try:
-        otp_data = retrieve_otp_session('reset')
+        otp_data = OtpSession.retrieve('reset')
     except OtpTimeoutError:
         flash(_("This OTP has expired"), category='error')
         return redirect(url_for('reset'), code=303)
@@ -204,7 +202,7 @@ def reset_otp() -> ReturnView:
         validate_rate_limit('account_reset_otp', otp_data.token, 5, 60)
     if form.validate_on_submit():
         # If the OTP is correct, continue with the email reset link flow
-        delete_otp_session()
+        OtpSession.delete()
         return redirect(
             url_for(
                 'reset_with_token',
