@@ -1,3 +1,5 @@
+"""View helpers."""
+
 from __future__ import annotations
 
 from base64 import urlsafe_b64encode
@@ -5,7 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from hashlib import blake2b
 from os import urandom
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Optional, Tuple, Type, TypeVar, Union
 from urllib.parse import unquote, urljoin, urlsplit
 import gzip
 import zlib
@@ -108,6 +110,8 @@ class SessionTimeouts(dict):
 session_timeouts: Dict[str, timedelta] = SessionTimeouts()
 session_timeouts['otp'] = timedelta(minutes=15)
 
+OtpSessionType = TypeVar('OtpSessionType', bound='OtpSession')
+
 
 @dataclass
 class OtpSession:
@@ -122,13 +126,13 @@ class OtpSession:
 
     @classmethod
     def make(  # pylint: disable=too-many-arguments
-        cls,
+        cls: Type[OtpSessionType],
         reason: str,
         user: Optional[User],
         anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone, EmailAddress]],
         email: Optional[str] = None,
         phone: Optional[str] = None,
-    ) -> OtpSession:
+    ) -> OtpSessionType:
         """
         Create an OTP for login and save it to cache and browser cookie session.
 
@@ -168,7 +172,7 @@ class OtpSession:
         )
 
     @classmethod
-    def retrieve(cls, reason: str) -> OtpSession:
+    def retrieve(cls: Type[OtpSessionType], reason: str) -> OtpSessionType:
         """Retrieve an OTP from cache using the token in browser cookie session."""
         otp_token = session.get('otp')
         if not otp_token:
