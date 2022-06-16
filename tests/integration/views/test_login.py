@@ -1,6 +1,7 @@
 """Tests for the login, logout and register views."""
 
 from datetime import timedelta
+from os import environ
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -538,15 +539,16 @@ def test_otp_reason_error(user_rincewind_phone, user_rincewind, csrf_token, clie
     assert rv3.status_code == 403
 
 
+@pytest.mark.skipif(environ.get('OAUTH_GITHUB_KEY') == '', reason='no test credentials')
 def test_login_external(db_session, client, callback_mock, do_mock, user_twoflower):
     rv1 = client.get('/login/github')
     assert rv1.status_code == 302
-
     rv2 = client.get(rv1.location)
     assert rv2.status_code == 200
     assert current_auth.user.name == user_twoflower.name
 
 
+@pytest.mark.skipif(environ.get('OAUTH_GITHUB_KEY') == '', reason='no test credentials')
 def test_account_merge(
     user_twoflower,
     user_rincewind_email,
