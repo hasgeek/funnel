@@ -1,3 +1,5 @@
+"""View helper functions for sending email inline in a request."""
+
 from __future__ import annotations
 
 from typing import Optional
@@ -7,11 +9,11 @@ from flask import render_template, url_for
 from baseframe import _
 
 from .. import signals
-from ..models import User
+from ..models import User, UserEmail
 from ..transports.email import jsonld_confirm_action, jsonld_view_action, send_email
 
 
-def send_email_verify_link(useremail):
+def send_email_verify_link(useremail: UserEmail) -> str:
     """Mail a verification link to the user."""
     subject = _("Verify your email address")
     url = url_for(
@@ -29,10 +31,10 @@ def send_email_verify_link(useremail):
         url=url,
         jsonld=jsonld,
     )
-    send_email(subject, [(useremail.user.fullname, useremail.email)], content)
+    return send_email(subject, [(useremail.user.fullname, useremail.email)], content)
 
 
-def send_password_reset_link(email, user, otp, token):
+def send_password_reset_link(email: str, user: User, otp: str, token: str) -> str:
     """Mail a password reset OTP and link to the user."""
     subject = _("Reset your password - OTP {otp}").format(otp=otp)
     url = url_for(
@@ -50,10 +52,10 @@ def send_password_reset_link(email, user, otp, token):
         jsonld=jsonld,
         otp=otp,
     )
-    send_email(subject, [(user.fullname, email)], content)
+    return send_email(subject, [(user.fullname, email)], content)
 
 
-def send_email_login_otp(email: str, user: Optional[User], otp: str):
+def send_email_login_otp(email: str, user: Optional[User], otp: str) -> str:
     """Mail a login OTP to the user."""
     if user is not None:
         fullname = user.fullname
@@ -65,7 +67,7 @@ def send_email_login_otp(email: str, user: Optional[User], otp: str):
         fullname=fullname,
         otp=otp,
     )
-    send_email(subject, [(fullname, email)], content)
+    return send_email(subject, [(fullname, email)], content)
 
 
 @signals.project_crew_membership_added.connect
