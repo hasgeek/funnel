@@ -1,6 +1,5 @@
 """Test response types for project SPA endpoints."""
 
-from itertools import product
 from typing import Optional
 from urllib.parse import urlsplit
 
@@ -38,9 +37,9 @@ def test_project_url_is_as_expected(project_url):
     assert project_url == '/ankh-morpork/2010/'
 
 
-@pytest.mark.parametrize(
-    ('page', 'xhr', 'use_login'), product(subpages, xhr_headers, login_sessions)
-)
+@pytest.mark.parametrize('page', subpages)
+@pytest.mark.parametrize('xhr', xhr_headers)
+@pytest.mark.parametrize('use_login', login_sessions)
 def test_default_is_html(  # pylint: disable=too-many-arguments
     request,
     client,
@@ -61,9 +60,9 @@ def test_default_is_html(  # pylint: disable=too-many-arguments
     assert bool(xhr) ^ rv.data.decode('utf-8').startswith('<!DOCTYPE html>')
 
 
-@pytest.mark.parametrize(
-    ('page', 'xhr', 'use_login'), product(subpages, xhr_headers, login_sessions)
-)
+@pytest.mark.parametrize('page', subpages)
+@pytest.mark.parametrize('xhr', xhr_headers)
+@pytest.mark.parametrize('use_login', login_sessions)
 def test_html_response(  # pylint: disable=too-many-arguments
     request,
     client,
@@ -84,7 +83,8 @@ def test_html_response(  # pylint: disable=too-many-arguments
     assert bool(xhr) ^ rv.data.decode('utf-8').startswith('<!DOCTYPE html>')
 
 
-@pytest.mark.parametrize(('page', 'use_login'), product(subpages, login_sessions))
+@pytest.mark.parametrize('page', subpages)
+@pytest.mark.parametrize('use_login', login_sessions)
 def test_json_response(
     request, client, use_login: Optional[str], project_url: str, page: str
 ):
@@ -99,9 +99,9 @@ def test_json_response(
     assert rv.json['status'] == 'ok'
 
 
-@pytest.mark.parametrize(
-    ('page', 'xhr', 'use_login'), product(subpages, xhr_headers, login_sessions)
-)
+@pytest.mark.parametrize('page', subpages)
+@pytest.mark.parametrize('xhr', xhr_headers)
+@pytest.mark.parametrize('use_login', login_sessions)
 def test_htmljson_response(  # pylint: disable=too-many-arguments
     request,
     client,

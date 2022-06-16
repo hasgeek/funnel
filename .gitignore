@@ -63,6 +63,7 @@ env/
 .settings
 *.wpr
 .vscode
+*.sublime-workspace
 
 # Local DBs
 dump.rdb

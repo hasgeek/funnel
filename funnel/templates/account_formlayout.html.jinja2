@@ -217,17 +217,6 @@
         });
       }
 
-      $('body').on('click', '.js-toggle-login', function() {
-        $('.js-fields-toggle').toggleClass('mui--hide');
-      });
-
-
-      $('.js-password-field input').on('change', function() {
-        if($('.js-password-field').hasClass('mui--hide')) {
-          $('.js-fields-toggle').toggleClass('mui--hide');
-        }
-      })
-
     });
   </script>
 {% endblock %}

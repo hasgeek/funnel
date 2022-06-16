@@ -186,6 +186,7 @@ def client(request, db_session):
 
 @pytest.fixture()
 def csrf_token(client):
+    """Supply a CSRF token for use in form submissions."""
     return client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
 
 

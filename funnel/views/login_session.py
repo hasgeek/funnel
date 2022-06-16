@@ -1,3 +1,5 @@
+"""Support functions for requiring authentication and maintaining a login session."""
+
 from __future__ import annotations
 
 from datetime import timedelta
@@ -356,12 +358,17 @@ def update_user_session_timestamp(response):
     return response
 
 
-def set_session_next_url(current=False):
-    """Save the next URL to the session."""
-    if current:
-        session['next'] = get_current_url()
-    elif 'next' not in session:
+def save_session_next_url() -> bool:
+    """
+    Save the next URL to the session.
+
+    In a GET request, the ``next`` request argument always takes priority over a
+    previously saved next destination.
+    """
+    if 'next' not in session or (request.method == 'GET' and 'next' in request.args):
         session['next'] = get_next_url(referrer=True)
+        return True
+    return False
 
 
 def requires_login(f):
@@ -372,8 +379,7 @@ def requires_login(f):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            set_session_next_url(True)
-            return redirect(url_for('login'))
+            return redirect(url_for('login', next=get_current_url()))
         return f(*args, **kwargs)
 
     return decorated_function
@@ -390,8 +396,7 @@ def requires_login_no_message(f):
     def decorated_function(*args, **kwargs):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
-            set_session_next_url(True)
-            return redirect(url_for('login'))
+            return redirect(url_for('login', next=get_current_url()))
         return f(*args, **kwargs)
 
     return decorated_function
@@ -445,8 +450,7 @@ def requires_sudo(f):
         # If the user is not logged in, require login first
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            set_session_next_url(True)
-            return render_redirect(url_for('login'))
+            return render_redirect(url_for('login', next=get_current_url()))
         if current_auth.session.has_sudo:
             # This user authenticated recently. Nothing further required.
             return f(*args, **kwargs)
@@ -494,7 +498,7 @@ def requires_sudo(f):
                     ),
                     'info',
                 )
-                set_session_next_url(True)
+                session['next'] = get_current_url()
                 return render_redirect(url_for('change_password'))
 
         elif request.method == 'POST':
@@ -517,8 +521,7 @@ def requires_sudo(f):
                     db.session.commit()
                     continue_url = session.pop('next', request.url)
                     delete_otp_session()
-                    # TODO: use render_redirect from use-request-wants branch
-                    return redirect(continue_url, code=303)
+                    return render_redirect(continue_url, code=303)
             except OtpTimeoutError as exc:
                 reason = str(exc)
                 current_app.logger.info("Sudo OTP timed out with %s", reason)

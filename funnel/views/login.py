@@ -1,3 +1,5 @@
+"""Views for login, logout and account merger."""
+
 from __future__ import annotations
 
 from datetime import timedelta
@@ -80,8 +82,8 @@ from .login_session import (
     logout_internal,
     register_internal,
     requires_login,
+    save_session_next_url,
     set_loginmethod_cookie,
-    set_session_next_url,
 )
 
 session_timeouts['next'] = timedelta(minutes=30)
@@ -93,8 +95,11 @@ session_timeouts['temp_username'] = timedelta(minutes=15)
 
 block_iframe = {'X-Frame-Options': 'SAMEORIGIN'}
 
+LOGOUT_ERRORMSG = __("Are you trying to logout? Try again to confirm")
+
 
 def get_otp_form(otp_data: OtpData) -> Union[OtpForm, RegisterOtpForm]:
+    """Return variant of OTP form depending on whether there's a user account."""
     if otp_data.user:
         form = OtpForm(valid_otp=otp_data.otp)
     else:
@@ -102,16 +107,20 @@ def get_otp_form(otp_data: OtpData) -> Union[OtpForm, RegisterOtpForm]:
     return form
 
 
-def render_otp_form(form: Union[OtpForm, RegisterOtpForm]) -> ReturnView:
+def render_otp_form(
+    form: Union[OtpForm, RegisterOtpForm], cancel_url: str
+) -> ReturnView:
+    """Render OTP form."""
     return (
         render_template(
-            'ajaxform.html.jinja2',
+            'otpform.html.jinja2',
             form=form,
             formid='login-otp',
             ref_id='form-otp',
-            cancel_url=url_for('login'),
-            ajax=True,
-            with_chrome=True,
+            action=url_for('login'),
+            submit=_("Confirm"),
+            cancel_url=cancel_url,
+            with_chrome=request_wants.html_fragment,  # with_chrome is a legacy name
         ),
         200,
         block_iframe,
@@ -119,12 +128,14 @@ def render_otp_form(form: Union[OtpForm, RegisterOtpForm]) -> ReturnView:
 
 
 def render_login_form(form: LoginForm) -> ReturnView:
+    """Render login form."""
     return (
         render_template(
             'loginform.html.jinja2',
             loginform=form,
             formid='passwordlogin',
             ref_id='form-passwordlogin',
+            with_chrome=request_wants.html_fragment,  # with_chrome is a legacy name
         ),
         200,
         block_iframe,
@@ -133,27 +144,14 @@ def render_login_form(form: LoginForm) -> ReturnView:
 
 @app.route('/login', methods=['GET', 'POST'])
 def login() -> ReturnView:
+    """Process a login attempt."""
     # If user is already logged in, send them back
     if current_auth.is_authenticated:
-        return redirect(get_next_url(referrer=True), code=303)
+        return render_redirect(get_next_url(referrer=True, session=True), code=303)
 
     # Remember where the user came from if it wasn't already saved.
-    # Placing this inside an `if` block has consequences:
-    #
-    # 1. If the user aborts this login attempt but tries to login later using the login
-    #    button, they will be redirected to the page the original attempt was made from,
-    #    not the latest attempt. This can be unexpected behaviour. However, this problem
-    #    does not exist for pages guarded with @requires_login as `next` is always saved
-    #    in there.
-    # 2. Browsers are increasingly tending towards stripping the referrer header. It is
-    #    becoming the norm for cross-site referrers, and an OAuth2 login via /auth is
-    #    crucially dependent on receiving the next URL from the client, validating it
-    #    and saving to session['next'] (to avoid URL length limitations in browsers when
-    #    we bounce the user off to a third party login provider like Google). This saved
-    #    value absolutely cannot be clobbered by the referrer header.
-    # TODO: Work out a more robust solution that saves _two_ possible next URL values
-    # to the session.
-    set_session_next_url()
+    save_session_next_url()
+    next_url = session['next']
 
     loginform = LoginForm()
     loginmethod = None
@@ -277,7 +275,9 @@ def login() -> ReturnView:
                 if otp_sent:
                     flash(_("An OTP has been sent to your phone number"), 'success')
             if otp_sent:
-                return render_otp_form(get_otp_form(otp_data))
+                return render_otp_form(
+                    get_otp_form(otp_data), url_for('login', next=next_url)
+                )
             if otp_data.user:
                 flash(
                     _(
@@ -335,7 +335,7 @@ def login() -> ReturnView:
                     render_redirect(get_next_url(session=True), code=303),
                     'otp',
                 )
-            return render_otp_form(otp_form)
+            return render_otp_form(otp_form, url_for('login', next=next_url))
         except OtpTimeoutError as exc:
             reason = str(exc)
             current_app.logger.info("Login OTP timed out with %s", reason)
@@ -350,6 +350,8 @@ def login() -> ReturnView:
         abort(403)
     if request_wants.html_fragment and formid == 'passwordlogin':
         return render_login_form(loginform)
+
+    # Default action, render the full login page
     return (
         render_template(
             'login.html.jinja2',
@@ -360,13 +362,11 @@ def login() -> ReturnView:
             ref_id='form-passwordlogin',
             title=_("Login"),
             ajax=True,
+            with_chrome=request_wants.html_fragment,
         ),
         200,
         block_iframe,
     )
-
-
-logout_errormsg = __("Are you trying to logout? Try again to confirm")
 
 
 def logout_client():
@@ -381,14 +381,14 @@ def logout_client():
     ):
         # No referrer or such client, or request didn't come from the client website.
         # Possible CSRF. Don't logout and don't send them back
-        flash(logout_errormsg, 'danger')
+        flash(LOGOUT_ERRORMSG, 'danger')
         return redirect(url_for('account'), code=303)
 
     # If there is a next destination, is it in the same domain as the client?
     if 'next' in request.args:
         if not auth_client.host_matches(request.args['next']):
             # Host doesn't match. Assume CSRF and redirect to account without logout
-            flash(logout_errormsg, 'danger')
+            flash(LOGOUT_ERRORMSG, 'danger')
             return redirect(url_for('account'), code=303)
     # All good. Log them out and send them back
     logout_internal()
@@ -465,13 +465,13 @@ def register():
     )
 
 
-@app.route('/login/<service>', methods=['GET', 'POST'])
+@app.route('/login/<service>')
 def login_service(service: str) -> ReturnView:
     """Handle login with a registered service."""
     if service not in login_registry:
         abort(404)
     provider = login_registry[service]
-    set_session_next_url()
+    save_session_next_url()
 
     callback_url = url_for('.login_service_callback', service=service, _external=True)
     statsd.gauge('login.progress', 1, delta=True, tags={'service': service})
@@ -654,6 +654,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
 @app.route('/account/merge', methods=['GET', 'POST'])
 @requires_login
 def account_merge():
+    """Merge two accounts."""
     if 'merge_buid' not in session:
         return redirect(get_next_url(), code=303)
     other_user = User.get(buid=session['merge_buid'])
@@ -719,6 +720,7 @@ def account_merge():
 # @hasjobapp.route('/login', endpoint='login')
 @requestargs(('cookietest', getbool))
 def hasjob_login(cookietest=False):
+    """Process login in Hasjob (pending future merger)."""
     # 1. Create a login nonce (single use, unlike CSRF)
     session['login_nonce'] = str(token_urlsafe())
     if not cookietest:
@@ -745,6 +747,7 @@ def hasjob_login(cookietest=False):
 # @requires_login_no_message  # 1. Ensure user login
 # @requestargs('code')
 # def login_hasjob(code):
+#     """Process a request for login initiated from Hasjob."""
 #     # 2. Verify signature of code
 #     try:
 #         request_code = crossapp_serializer().loads(code)
@@ -763,6 +766,7 @@ def hasjob_login(cookietest=False):
 # @hasjobapp.route('/login/callback', endpoint='login_callback')
 @requestargs('token')
 def hasjobapp_login_callback(token):
+    """Process callback from Hasjob to confirm a login attempt."""
     nonce = session.pop('login_nonce', None)
     if not nonce:
         # Can't proceed if this happens
@@ -807,6 +811,7 @@ def hasjobapp_login_callback(token):
 # Retained for future hasjob integration
 # @hasjobapp.route('/logout', endpoint='logout')
 def hasjob_logout():
+    """Process a logout request in Hasjob."""
     # Revoke session and redirect to homepage. Don't bother to ask `app` to logout
     # as well since the session is revoked. `app` will notice and drop cookies on
     # the next request there
@@ -816,7 +821,7 @@ def hasjob_logout():
         urllib.parse.urlsplit(request.referrer).netloc
         != urllib.parse.urlsplit(request.url).netloc
     ):
-        flash(logout_errormsg, 'danger')
+        flash(LOGOUT_ERRORMSG, 'danger')
         return redirect(url_for('index'), code=303)
     logout_internal()
     db.session.commit()

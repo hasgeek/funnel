@@ -1,3 +1,5 @@
+"""Forms for login and logout."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, Union
@@ -38,6 +40,7 @@ MSG_NO_ACCOUNT = __(
 )
 MSG_INCORRECT_OTP = __("OTP is incorrect")
 MSG_NO_LOGIN_SESSION = __("That does not appear to be a valid login session")
+MSG_PHONE_NO_SMS = __("This phone number cannot receive SMS messages")
 
 # --- Exceptions -----------------------------------------------------------------------
 
@@ -111,18 +114,17 @@ class LoginForm(forms.Form):
     """
 
     __returns__ = ('user', 'anchor', 'weak_password', 'new_email', 'new_phone')
-
-    user: Optional[User]
-    anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone]]
-    weak_password: Optional[bool]
-    new_email: Optional[str]
-    new_phone: Optional[str]
+    user: Optional[User] = None
+    anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone]] = None
+    weak_password: Optional[bool] = None
+    new_email: Optional[str] = None
+    new_phone: Optional[str] = None
 
     username = forms.StringField(
         __("Phone number or email address"),
         validators=[
             forms.validators.DataRequired(
-                __("An email address, phone number or username is required")
+                __("A phone number or email address is required")
             )
         ],
         filters=[forms.filters.strip()],
@@ -146,7 +148,8 @@ class LoginForm(forms.Form):
     )
 
     # These two validators depend on being called in sequence
-    def validate_username(self, field):
+    def validate_username(self, field) -> None:
+        """Process username field and load user and anchor."""
         self.user, self.anchor = getuser(field.data, True)  # skipcq: PYL-W0201
         self.new_email = self.new_phone = None
         if self.user is None:
@@ -164,7 +167,9 @@ class LoginForm(forms.Form):
                     raise forms.ValidationError(MSG_EMAIL_BLOCKED) from exc
                 return
             # TODO: Use future PhoneNumber model here, analogous to EmailAddress
-            phone = normalize_phone_number(field.data)
+            phone = normalize_phone_number(field.data, sms=True)
+            if phone is False:
+                raise forms.ValidationError(MSG_PHONE_NO_SMS)
             if phone is not None:
                 self.new_phone = phone
                 return
@@ -172,6 +177,7 @@ class LoginForm(forms.Form):
             raise forms.ValidationError(MSG_NO_ACCOUNT)
 
     def validate_password(self, field) -> None:
+        """Validate password if provided."""
         # If there is already an error in the password field, don't bother validating.
         # This will be a `Length` validation error, but that one unfortunately does not
         # raise `StopValidation`. If the length is off, we can end rightaway.
@@ -222,14 +228,18 @@ class LoginForm(forms.Form):
         # LoginPasswordWeakException after the test. The calling code in views/login.py
         # supports both outcomes.
 
-        # `check_password_strength(password)['is_weak']` is a bool
-        self.weak_password: bool = check_password_strength(field.data)['is_weak']
+        # `check_password_strength(password).is_weak` is a bool
+        self.weak_password: bool = check_password_strength(field.data).is_weak
 
 
 @User.forms('logout')
 class LogoutForm(forms.Form):
+    """Process a logout request."""
+
     __expects__ = ('user',)
     __returns__ = ('user_session',)
+    user: User
+    user_session: Optional[UserSession] = None
 
     # We use `StringField`` even though the field is not visible. This does not use
     # `HiddenField`, because that gets rendered with `hidden_tag`, and not `SubmitField`
@@ -238,7 +248,8 @@ class LogoutForm(forms.Form):
         __("Session id"), validators=[forms.validators.Optional()]
     )
 
-    def validate_sessionid(self, field):
+    def validate_sessionid(self, field) -> None:
+        """Validate login session belongs to the user who invoked this form."""
         user_session = UserSession.get(buid=field.data)
         if not user_session or user_session.user != self.user:
             raise forms.ValidationError(MSG_NO_LOGIN_SESSION)
@@ -249,6 +260,7 @@ class OtpForm(forms.Form):
     """Verify an OTP."""
 
     __expects__ = ('valid_otp',)
+    valid_otp: str
 
     otp = forms.StringField(
         __("OTP"),
@@ -263,7 +275,8 @@ class OtpForm(forms.Form):
         },
     )
 
-    def validate_otp(self, field):
+    def validate_otp(self, field) -> None:
+        """Confirm OTP is as expected."""
         if field.data != self.valid_otp:
             raise forms.StopValidation(MSG_INCORRECT_OTP)
 
@@ -272,6 +285,7 @@ class RegisterOtpForm(forms.Form):
     """Verify an OTP and register an account."""
 
     __expects__ = ('valid_otp',)
+    valid_otp: str
 
     fullname = forms.StringField(
         __("Your name"),
@@ -297,6 +311,7 @@ class RegisterOtpForm(forms.Form):
         },
     )
 
-    def validate_otp(self, field):
+    def validate_otp(self, field) -> None:
+        """Confirm OTP is as expected."""
         if field.data != self.valid_otp:
             raise forms.StopValidation(MSG_INCORRECT_OTP)

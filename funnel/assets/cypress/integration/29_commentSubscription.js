@@ -82,9 +82,9 @@ describe('Confirm submission comment subscription', () => {
     cy.logout();
     cy.wait(1000);
 
-    cy.login('/', newuser.username, newuser.newpassword);
-    cy.get('[data-cy="comment-sidebar"]').click();
-    cy.wait(1000);
-    cy.get('[data-cy="unread-comment"]').contains(proposal.comment_3);
+    // cy.login('/', newuser.username, newuser.newpassword);
+    // cy.get('[data-cy="comment-sidebar"]').click();
+    // cy.wait(1000);
+    // cy.get('[data-cy="unread-comment"]').contains(proposal.comment_3);
   });
 });

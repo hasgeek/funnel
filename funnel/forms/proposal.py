@@ -1,3 +1,5 @@
+"""Forms for proposals (submissions) and their labels."""
+
 from __future__ import annotations
 
 from typing import Optional
@@ -26,13 +28,16 @@ __all__ = [
 # Do not add UGC field names to a form. Override populate_obj instead
 
 
-def proposal_label_form(project: Project, proposal: Optional[Proposal]):
+def proposal_label_form(
+    project: Project, proposal: Optional[Proposal]
+) -> Optional[forms.Form]:
     """Return a label form for the given project and proposal."""
     if not project.labels:
-        return
+        return None
 
+    # FIXME: See above
     class ProposalLabelForm(forms.Form):
-        pass
+        """Form for user-selectable labels on a proposal."""
 
     for label in project.labels:
         if label.has_options and not label.archived and not label.restricted:
@@ -62,11 +67,13 @@ def proposal_label_form(project: Project, proposal: Optional[Proposal]):
     return form
 
 
-def proposal_label_admin_form(project: Project, proposal: Optional[Proposal]):
+def proposal_label_admin_form(
+    project: Project, proposal: Optional[Proposal]
+) -> Optional[forms.Form]:
     """Return a label form to use in admin panel for given project and proposal."""
-
+    # FIXME: See above
     class ProposalLabelAdminForm(forms.Form):
-        pass
+        """Forms for editor-selectable labels on a proposal."""
 
     for label in project.labels:
         if not label.archived and (label.restricted or not label.has_options):
@@ -105,6 +112,8 @@ def proposal_label_admin_form(project: Project, proposal: Optional[Proposal]):
 
 @Proposal.forms('featured')
 class ProposalFeaturedForm(forms.Form):
+    """Form to mark a proposal as featured within a project."""
+
     featured = forms.BooleanField(
         __("Feature this submission"), validators=[forms.validators.InputRequired()]
     )
@@ -112,9 +121,12 @@ class ProposalFeaturedForm(forms.Form):
 
 @Proposal.forms('labels')
 class ProposalLabelsForm(forms.Form):
+    """Form to add labels to a proposal, collaborator version."""
+
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.formlabels.form = proposal_label_form(
             project=self.edit_parent, proposal=self.edit_obj
         )
@@ -122,9 +134,12 @@ class ProposalLabelsForm(forms.Form):
 
 # FIXME: There is no "admin" in a project anymore. Is this form for editors?
 class ProposalLabelsAdminForm(forms.Form):
+    """Form to add labels to a proposal, editor version."""
+
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.formlabels.form = proposal_label_admin_form(
             project=self.edit_parent, proposal=self.edit_obj
         )
@@ -132,6 +147,8 @@ class ProposalLabelsAdminForm(forms.Form):
 
 @Proposal.forms('main')
 class ProposalForm(forms.Form):
+    """Add or edit a proposal (now called submission)."""
+
     title = forms.TextAreaField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
@@ -153,7 +170,8 @@ class ProposalForm(forms.Form):
     )
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         label_form = proposal_label_form(
             project=self.edit_parent, proposal=self.edit_obj
         )
@@ -165,7 +183,11 @@ class ProposalForm(forms.Form):
 
 @Proposal.forms('collaborator')
 class ProposalMemberForm(forms.Form):
+    """Form to manage collaborators on a proposal (internally a membership)."""
+
     __expects__ = ('proposal',)
+    proposal: Proposal
+
     # add or edit a collaborator on a submission
     user = forms.UserSelectField(
         __("User"),
@@ -181,7 +203,8 @@ class ProposalMemberForm(forms.Form):
     )
     is_uncredited = forms.BooleanField(__("Hide collaborator on submission"))
 
-    def validate_user(self, field):
+    def validate_user(self, field) -> None:
+        """Validate user field to confirm user is not an existing collaborator."""
         for membership in self.proposal.memberships:
             if membership.user == field.data:
                 raise forms.StopValidation(
@@ -193,11 +216,14 @@ class ProposalMemberForm(forms.Form):
 
 @Proposal.forms('transition')
 class ProposalTransitionForm(forms.Form):
+    """Form to change the state of a proposal."""
+
     transition = forms.SelectField(
         __("Status"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         # value: transition method name
         # label: transition object itself
         # We need the whole object to get the additional metadata in templates
@@ -206,6 +232,8 @@ class ProposalTransitionForm(forms.Form):
 
 @Proposal.forms('move')
 class ProposalMoveForm(forms.Form):
+    """Form to move a proposal to another project."""
+
     target = QuerySelectField(
         __("Move proposal to"),
         description=__("Move this proposal to another project"),
@@ -213,5 +241,6 @@ class ProposalMoveForm(forms.Form):
         get_label='title',
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.target.query = current_auth.user.projects_as_editor
