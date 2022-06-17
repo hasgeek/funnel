@@ -34,6 +34,8 @@ PATCH_GET_USER_EXT_ID = 'funnel.views.login.get_user_extid'
 
 TEST_OAUTH_TOKEN = 'test_oauth_token'  # nosec  # noqa: S105
 
+skipif_no_github = environ.get('OAUTH_GITHUB_KEY') is None
+
 
 @pytest.fixture()
 def user_rincewind_with_password(user_rincewind):
@@ -539,7 +541,7 @@ def test_otp_reason_error(user_rincewind_phone, user_rincewind, csrf_token, clie
     assert rv3.status_code == 403
 
 
-@pytest.mark.skipif(environ.get('OAUTH_GITHUB_KEY') == '', reason='no test credentials')
+@pytest.mark.skipif(skipif_no_github, reason='no test credentials')
 def test_login_external(db_session, client, callback_mock, do_mock, user_twoflower):
     rv1 = client.get('/login/github')
     assert rv1.status_code == 302
@@ -548,7 +550,7 @@ def test_login_external(db_session, client, callback_mock, do_mock, user_twoflow
     assert current_auth.user.name == user_twoflower.name
 
 
-@pytest.mark.skipif(environ.get('OAUTH_GITHUB_KEY') == '', reason='no test credentials')
+@pytest.mark.skipif(skipif_no_github, reason='no test credentials')
 def test_account_merge(
     user_twoflower,
     user_rincewind_email,
