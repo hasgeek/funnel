@@ -78,7 +78,7 @@ class OtpReasonError(Exception):
     """OTP is being used for a different reason than originally intended."""
 
 
-class SessionTimeouts(dict):
+class SessionTimeouts(Dict[str, timedelta]):
     """
     Singleton dictionary that aids tracking timestamps in session.
 
@@ -111,13 +111,14 @@ class SessionTimeouts(dict):
 
 
 #: Temporary values that must be periodically expunged from the cookie session
-session_timeouts: Dict[str, timedelta] = SessionTimeouts()
+session_timeouts = SessionTimeouts()
 session_timeouts['otp'] = timedelta(minutes=15)
 
 
-#: Tell mypy that ``OtpSession.make(user)`` is ``OtpSession.user``. We need both
-#: ``User`` and ``Optional[User]`` so that the value of ``loginform.user`` can be
-#: passed to :meth:`OtpSession.make`
+#: Tell mypy that the type of ``OtpSession.user`` is same as ``OtpSession.make(user)``.
+#: We need both ``User`` and ``Optional[User]`` so that the value of ``loginform.user``
+#: can be passed to :meth:`OtpSession.make`. This usage is documented in PEP 484:
+#: https://peps.python.org/pep-0484/#user-defined-generic-types
 OptionalUserType = TypeVar('OptionalUserType', User, Optional[User])
 
 
