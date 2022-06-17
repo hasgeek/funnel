@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from hashlib import blake2b
 from os import urandom
-from typing import Any, Callable, Dict, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, Generic, Optional, Tuple, Type, TypeVar, Union
 from urllib.parse import unquote, urljoin, urlsplit
 import gzip
 import zlib
@@ -79,7 +79,11 @@ class OtpReasonError(Exception):
 
 
 class SessionTimeouts(dict):
-    """Dictionary that aids tracking timestamps in session."""
+    """
+    Singleton dictionary that aids tracking timestamps in session.
+
+    Use the :attr:`session_timeouts` instance instead of this class.
+    """
 
     def __init__(self, *args, **kwargs):
         """Create a dictionary that separately tracks {key}_at keys."""
@@ -111,14 +115,20 @@ session_timeouts: Dict[str, timedelta] = SessionTimeouts()
 session_timeouts['otp'] = timedelta(minutes=15)
 
 
+#: Tell mypy that ``OtpSession.make(user)`` is ``OtpSession.user``. We need both
+#: ``User`` and ``Optional[User]`` so that the value of ``loginform.user`` can be
+#: passed to :meth:`OtpSession.make`
+OptionalUserType = TypeVar('OptionalUserType', User, Optional[User])
+
+
 @dataclass
-class OtpSession:
+class OtpSession(Generic[OptionalUserType]):
     """Make or retrieve an OTP in the user's cookie session."""
 
     reason: str
     token: str
     otp: str
-    user: Optional[User]
+    user: OptionalUserType
     email: Optional[str] = None
     phone: Optional[str] = None
 
@@ -126,7 +136,7 @@ class OtpSession:
     def make(  # pylint: disable=too-many-arguments
         cls: Type[OtpSession],
         reason: str,
-        user: Optional[User],
+        user: OptionalUserType,
         anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone, EmailAddress]],
         email: Optional[str] = None,
         phone: Optional[str] = None,
@@ -158,7 +168,7 @@ class OtpSession:
             {
                 'reason': reason,
                 'otp': otp,
-                'user_buid': user.buid if user else None,
+                'user_buid': user.buid if user is not None else None,
                 'email': email,
                 'phone': phone,
             },

@@ -411,7 +411,7 @@ def _make_and_send_otp(
     if otp_data.email:
         send_email_sudo_otp(
             email=otp_data.email,
-            user=otp_data.user,  # type: ignore[arg-type]
+            user=otp_data.user,
             otp=otp_data.otp,
         )
         otp_sent = True
