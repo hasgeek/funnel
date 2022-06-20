@@ -64,7 +64,6 @@ from .helpers import (
     autoset_timezone_and_locale,
     avatar_color_count,
     render_redirect,
-    send_sms_otp,
 )
 from .login_session import (
     login_internal,
@@ -73,6 +72,7 @@ from .login_session import (
     requires_sudo,
 )
 from .notification import dispatch_notification
+from .otp import send_sms_otp
 
 
 @User.views()

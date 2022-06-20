@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 from base64 import urlsafe_b64encode
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 from hashlib import blake2b
 from os import urandom
-from typing import Any, Callable, Dict, Generic, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Optional, Tuple, Union
 from urllib.parse import unquote, urljoin, urlsplit
 import gzip
 import zlib
@@ -17,7 +16,6 @@ from flask import (
     Response,
     abort,
     current_app,
-    flash,
     g,
     jsonify,
     redirect,
@@ -36,28 +34,16 @@ from pytz import timezone as pytz_timezone
 from pytz import utc
 import brotli
 
-from baseframe import _, cache, statsd
+from baseframe import cache, statsd
 from coaster.sqlalchemy import RoleMixin
-from coaster.utils import newpin, require_one_of, utcnow
+from coaster.utils import utcnow
 
 from .. import app, built_assets, shortlinkapp
 from ..forms import supported_locales
-from ..models import (
-    EmailAddress,
-    Shortlink,
-    SMSMessage,
-    User,
-    UserEmail,
-    UserEmailClaim,
-    UserPhone,
-    db,
-    profanity,
-)
+from ..models import Shortlink, User, db, profanity
 from ..proxies import request_wants
 from ..signals import emailaddress_refcount_dropping
-from ..transports import TransportConnectionError, TransportRecipientError, sms
 from ..typing import ReturnView
-from ..utils import blake2b160_hex
 from .jobs import forget_email
 
 valid_timezones = set(common_timezones)
@@ -68,14 +54,6 @@ nocache_expires = utc.localize(datetime(1990, 1, 1))
 avatar_color_count = 6
 
 # --- Classes --------------------------------------------------------------------------
-
-
-class OtpTimeoutError(Exception):
-    """Exception to indicate the OTP has expired."""
-
-
-class OtpReasonError(Exception):
-    """OTP is being used for a different reason than originally intended."""
 
 
 class SessionTimeouts(Dict[str, timedelta]):
@@ -112,105 +90,6 @@ class SessionTimeouts(Dict[str, timedelta]):
 
 #: Temporary values that must be periodically expunged from the cookie session
 session_timeouts = SessionTimeouts()
-session_timeouts['otp'] = timedelta(minutes=15)
-
-
-#: Tell mypy that the type of ``OtpSession.user`` is same as ``OtpSession.make(user)``.
-#: We need both ``User`` and ``Optional[User]`` so that the value of ``loginform.user``
-#: can be passed to :meth:`OtpSession.make`. This usage is documented in PEP 484:
-#: https://peps.python.org/pep-0484/#user-defined-generic-types
-OptionalUserType = TypeVar('OptionalUserType', User, Optional[User])
-
-
-@dataclass
-class OtpSession(Generic[OptionalUserType]):
-    """Make or retrieve an OTP in the user's cookie session."""
-
-    reason: str
-    token: str
-    otp: str
-    user: OptionalUserType
-    email: Optional[str] = None
-    phone: Optional[str] = None
-
-    @classmethod
-    def make(  # pylint: disable=too-many-arguments
-        cls: Type[OtpSession],
-        reason: str,
-        user: OptionalUserType,
-        anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone, EmailAddress]],
-        email: Optional[str] = None,
-        phone: Optional[str] = None,
-    ) -> OtpSession:
-        """
-        Create an OTP for login and save it to cache and browser cookie session.
-
-        Accepts an anchor or an explicit email address or phone number.
-        """
-        # Safety check, only one of anchor, email and phone can be provided
-        require_one_of(anchor=anchor, email=email, phone=phone)
-        # Make an OTP valid for 15 minutes. Store this OTP in Redis cache and add a ref
-        # to this cache entry in the user's cookie session. The cookie never contains
-        # the actual OTP. See :func:`make_cached_token` for additional documentation.
-        otp = newpin()
-        if isinstance(anchor, (UserEmail, UserEmailClaim, EmailAddress)):
-            email = str(anchor)
-        elif isinstance(anchor, UserPhone):
-            phone = str(anchor)
-        # Allow 3 OTP requests per hour per anchor. This is distinct from the rate
-        # limiting for password-based login above.
-        validate_rate_limit(
-            'otp-send',
-            ('anchor/' + blake2b160_hex(email or phone)),  # type: ignore[arg-type]
-            3,
-            3600,
-        )
-        token = make_cached_token(
-            {
-                'reason': reason,
-                'otp': otp,
-                'user_buid': user.buid if user is not None else None,
-                'email': email,
-                'phone': phone,
-            },
-            timeout=15 * 60,
-        )
-        session['otp'] = token
-        return cls(
-            reason=reason, token=token, otp=otp, user=user, email=email, phone=phone
-        )
-
-    @classmethod
-    def retrieve(cls: Type[OtpSession], reason: str) -> OtpSession:
-        """Retrieve an OTP from cache using the token in browser cookie session."""
-        otp_token = session.get('otp')
-        if not otp_token:
-            raise OtpTimeoutError('cookie_expired')
-        otp_data = retrieve_cached_token(otp_token)
-        if not otp_data:
-            raise OtpTimeoutError('cache_expired')
-        if otp_data['reason'] != reason:
-            raise OtpReasonError(reason)
-        return cls(
-            reason=reason,
-            token=otp_token,
-            otp=otp_data['otp'],
-            user=User.get(buid=otp_data['user_buid'])
-            if otp_data['user_buid']
-            else None,
-            email=otp_data['email'],
-            phone=otp_data['phone'],
-        )
-
-    @staticmethod
-    def delete() -> bool:
-        """Delete OTP request from cookie session and cache."""
-        token = session.pop('otp', None)
-        if not token:
-            return False
-        delete_cached_token(token)
-        return True
-
 
 # --- Utilities ------------------------------------------------------------------------
 
@@ -362,7 +241,7 @@ def progressive_rate_limit_validator(
     return (True, False)
 
 
-def validate_rate_limit(
+def validate_rate_limit(  # pylint: disable=too-many-arguments
     resource: str,
     identifier: str,
     attempts: int,
@@ -557,36 +436,6 @@ def compress_response(response: ResponseBase) -> None:
             response.vary.add('Accept-Encoding')  # type: ignore[union-attr]
 
 
-def send_sms_otp(
-    phone: str, otp: str, render_flash: bool = True
-) -> Optional[SMSMessage]:
-    """Send an OTP via SMS to a phone number."""
-    template_message = sms.WebOtpTemplate(
-        otp=otp,
-        # TODO: Replace helpline_text with a report URL
-        helpline_text=f"call {app.config['SITE_SUPPORT_PHONE']}",
-        domain=current_app.config['SERVER_NAME'],
-    )
-    msg = SMSMessage(phone_number=phone, message=str(template_message))
-    try:
-        # Now send this
-        msg.transactionid = sms.send(phone=msg.phone_number, message=template_message)
-    except TransportRecipientError as exc:
-        if render_flash:
-            flash(str(exc), 'error')
-    except TransportConnectionError:
-        if render_flash:
-            flash(_("Unable to send a message right now. Try again later"), 'error')
-    else:
-        # Commit only if an SMS could be sent
-        db.session.add(msg)
-        db.session.commit()
-        if render_flash:
-            flash(_("An OTP has been sent to your phone number"), 'success')
-        return msg
-    return None
-
-
 # --- Template helpers -----------------------------------------------------------------
 
 
@@ -634,11 +483,13 @@ def html_in_json(template: str) -> Dict[str, Union[str, Callable[[dict], ReturnV
 
 @app.template_filter('url_join')
 def url_join(base, url=''):
+    """Join URLs in a template filter."""
     return urljoin(base, url)
 
 
 @app.template_filter('cleanurl')
 def cleanurl_filter(url):
+    """Clean a URL in a template filter."""
     if not isinstance(url, furl):
         url = furl(url)
     url.path.normalize()
@@ -648,20 +499,20 @@ def cleanurl_filter(url):
 
 @app.template_filter('shortlink')
 def shortlink(url, actor=None):
-    """Return a short link suitable for SMS. Caller must perform a database commit."""
+    """
+    Return a short link suitable for SMS, in a template filter.
+
+    Caller must perform a database commit.
+    """
     sl = Shortlink.new(url, reuse=True, shorter=True, actor=actor)
     db.session.add(sl)
     return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
 
 
-def built_asset(assetname):
-    return built_assets[assetname]
-
-
 @app.context_processor
 def template_context() -> Dict[str, Any]:
     """Add template context items."""
-    return {'built_asset': built_asset}
+    return {'built_asset': lambda assetname: built_assets[assetname]}
 
 
 # --- Request/response handlers --------------------------------------------------------

@@ -64,13 +64,9 @@ from ..typing import ReturnView
 from ..utils import abort_null
 from .email import send_email_login_otp, send_email_verify_link
 from .helpers import (
-    OtpReasonError,
-    OtpSession,
-    OtpTimeoutError,
     app_url_for,
     metarefresh_redirect,
     render_redirect,
-    send_sms_otp,
     session_timeouts,
     validate_rate_limit,
 )
@@ -82,6 +78,7 @@ from .login_session import (
     save_session_next_url,
     set_loginmethod_cookie,
 )
+from .otp import OtpReasonError, OtpSession, OtpTimeoutError, send_sms_otp
 
 session_timeouts['next'] = timedelta(minutes=30)
 session_timeouts['oauth_callback'] = timedelta(minutes=30)

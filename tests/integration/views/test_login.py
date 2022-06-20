@@ -13,7 +13,7 @@ import pytest
 from coaster.auth import current_auth
 from coaster.utils import newpin, utcnow
 from funnel.registry import LoginProviderData
-from funnel.views.helpers import OtpSession
+from funnel.views.otp import OtpSession
 
 # User fixture's details
 RINCEWIND_USERNAME = 'rincewind'

@@ -27,7 +27,6 @@ from baseframe.forms import render_form
 from coaster.auth import add_auth_attribute, current_auth, request_has_auth
 from coaster.utils import utcnow
 from coaster.views import get_current_url, get_next_url
-from funnel.views.helpers import OtpSession, send_sms_otp
 
 from .. import app
 from ..forms import OtpForm, PasswordForm
@@ -50,14 +49,13 @@ from ..signals import user_login, user_registered
 from ..utils import abort_null
 from .email import send_email_sudo_otp
 from .helpers import (
-    OtpReasonError,
-    OtpTimeoutError,
     app_url_for,
     autoset_timezone_and_locale,
     get_scheme_netloc,
     render_redirect,
     validate_rate_limit,
 )
+from .otp import OtpReasonError, OtpSession, OtpTimeoutError, send_sms_otp
 
 # Constant value, needed for cookie max_age
 user_session_validity_period_total_seconds = int(

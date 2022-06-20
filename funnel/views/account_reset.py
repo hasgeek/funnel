@@ -38,17 +38,10 @@ from ..registry import login_registry
 from ..serializers import token_serializer
 from ..typing import ReturnView
 from .email import send_password_reset_link
-from .helpers import (
-    OtpReasonError,
-    OtpSession,
-    OtpTimeoutError,
-    metarefresh_redirect,
-    send_sms_otp,
-    session_timeouts,
-    validate_rate_limit,
-)
+from .helpers import metarefresh_redirect, session_timeouts, validate_rate_limit
 from .login_session import logout_internal
 from .notification import dispatch_notification
+from .otp import OtpReasonError, OtpSession, OtpTimeoutError, send_sms_otp
 
 session_timeouts['reset_token'] = timedelta(minutes=15)
 
