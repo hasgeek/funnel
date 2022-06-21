@@ -72,6 +72,9 @@ repos:
     rev: v0.960
     hooks:
       - id: mypy
+        # warn-unused-ignores is unsafe with pre-commit, see
+        # https://github.com/python/mypy/issues/2960
+        args: ['--no-warn-unused-ignores', '--ignore-missing-imports']
         additional_dependencies:
           - toml
           - lxml-stubs==0.4.0
