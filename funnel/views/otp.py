@@ -7,8 +7,10 @@ from datetime import timedelta
 from typing import Dict, Generic, Optional, Type, TypeVar, Union
 
 from flask import current_app, flash, render_template, session, url_for
+from werkzeug.exceptions import Forbidden, RequestTimeout
 
 from baseframe import _
+from coaster.auth import current_auth
 from coaster.utils import newpin, require_one_of
 
 from .. import app
@@ -39,12 +41,20 @@ session_timeouts['otp'] = timedelta(minutes=15)
 # --- Exceptions -----------------------------------------------------------------------
 
 
-class OtpTimeoutError(Exception):
+class OtpError(Exception):
+    """Base class for OTP errors."""
+
+
+class OtpTimeoutError(OtpError, RequestTimeout):
     """Exception to indicate the OTP has expired."""
 
 
-class OtpReasonError(Exception):
+class OtpReasonError(OtpError, Forbidden):
     """OTP is being used for a different reason than originally intended."""
+
+
+class OtpUserError(OtpError, Forbidden):
+    """OTP is being used by a different user."""
 
 
 # --- Typing ---------------------------------------------------------------------------
@@ -167,13 +177,19 @@ class OtpSession(Generic[OptionalUserType]):
             raise OtpTimeoutError('cache_expired')
         if otp_data['reason'] != reason:
             raise OtpReasonError(reason)
+        user = User.get(buid=otp_data['user_buid']) if otp_data['user_buid'] else None
+        if (
+            user is not None
+            and current_auth.user is not None
+            and user != current_auth.user
+        ):
+            # The user is replaying someone else's cookie session
+            raise OtpUserError('user_mismatch')
         return cls(
             reason=reason,
             token=otp_token,
             otp=otp_data['otp'],
-            user=User.get(buid=otp_data['user_buid'])
-            if otp_data['user_buid']
-            else None,
+            user=user,
             email=otp_data['email'],
             phone=otp_data['phone'],
         )
