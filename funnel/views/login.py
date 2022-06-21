@@ -62,7 +62,7 @@ from ..serializers import crossapp_serializer
 from ..signals import user_data_changed
 from ..typing import ReturnView
 from ..utils import abort_null
-from .email import send_email_login_otp, send_email_verify_link
+from .email import send_email_verify_link
 from .helpers import (
     app_url_for,
     metarefresh_redirect,
@@ -78,7 +78,7 @@ from .login_session import (
     save_session_next_url,
     set_loginmethod_cookie,
 )
-from .otp import OtpReasonError, OtpSession, OtpTimeoutError, send_sms_otp
+from .otp import OtpReasonError, OtpSession, OtpTimeoutError
 
 session_timeouts['next'] = timedelta(minutes=30)
 session_timeouts['oauth_callback'] = timedelta(minutes=30)
@@ -92,12 +92,12 @@ block_iframe = {'X-Frame-Options': 'SAMEORIGIN'}
 LOGOUT_ERRORMSG = __("Are you trying to logout? Try again to confirm")
 
 
-def get_otp_form(otp_data: OtpSession) -> Union[OtpForm, RegisterOtpForm]:
+def get_otp_form(otp_session: OtpSession) -> Union[OtpForm, RegisterOtpForm]:
     """Return variant of OTP form depending on whether there's a user account."""
-    if otp_data.user:
-        form = OtpForm(valid_otp=otp_data.otp)
+    if otp_session.user:
+        form = OtpForm(valid_otp=otp_session.otp)
     else:
-        form = RegisterOtpForm(valid_otp=otp_data.otp)
+        form = RegisterOtpForm(valid_otp=otp_session.otp)
     return form
 
 
@@ -242,40 +242,21 @@ def login() -> ReturnView:
             session['temp_username'] = loginform.username.data
             return render_redirect(url_for('reset'), code=303)
         except (LoginWithOtp, RegisterWithOtp):
-            otp_data = OtpSession.make(
+            otp_session = OtpSession.make(
                 'login',
                 loginform.user,
                 loginform.anchor,
                 email=loginform.new_email,
                 phone=loginform.new_phone,
             )
-            otp_sent = False
-
-            if otp_data.email:
-                send_email_login_otp(
-                    email=otp_data.email,
-                    user=otp_data.user,
-                    otp=otp_data.otp,
-                )
-                otp_sent = True
-                flash(_("An OTP has been sent to your email address"), 'success')
-            elif otp_data.phone:
-                # send_sms_otp returns an instance of SmsMessage if a message was sent
-                otp_sent = bool(
-                    send_sms_otp(
-                        phone=otp_data.phone, otp=otp_data.otp, render_flash=False
-                    )
-                )
-                if otp_sent:
-                    flash(_("An OTP has been sent to your phone number"), 'success')
-            if otp_sent:
+            if otp_session.send():
                 return render_otp_form(
-                    get_otp_form(otp_data), url_for('login', next=next_url)
+                    get_otp_form(otp_session), url_for('login', next=next_url)
                 )
-            if otp_data.user:
+            if otp_session.user:
                 flash(
                     _(
-                        "The OTP could not be sent. Use password to login or try"
+                        "The OTP could not be sent. Use password to login, or try"
                         " again"
                     ),
                     category='error',
@@ -288,22 +269,22 @@ def login() -> ReturnView:
                 return render_redirect(url_for('register'), code=303)
     elif request.method == 'POST' and formid == 'login-otp':
         try:
-            otp_data = OtpSession.retrieve('login')
+            otp_session = OtpSession.retrieve('login')
 
             # Allow 5 guesses per 60 seconds
-            validate_rate_limit('otp', otp_data.token, 5, 60)
+            validate_rate_limit('otp', otp_session.token, 5, 60)
 
-            otp_form = get_otp_form(otp_data)
+            otp_form = get_otp_form(otp_session)
             if otp_form.validate_on_submit():
-                if not otp_data.user:
+                if not otp_session.user:
                     # Register an account
                     user = register_internal(None, otp_form.fullname.data, None)
                     if TYPE_CHECKING:
                         assert isinstance(user, User)  # nosec
-                    if otp_data.email:
-                        db.session.add(user.add_email(otp_data.email, primary=True))
-                    if otp_data.phone:
-                        db.session.add(user.add_phone(otp_data.phone, primary=True))
+                    if otp_session.email:
+                        db.session.add(user.add_email(otp_session.email, primary=True))
+                    if otp_session.phone:
+                        db.session.add(user.add_phone(otp_session.phone, primary=True))
                     login_internal(user, login_service='otp')
                     db.session.commit()
                     current_app.logger.info(
@@ -316,11 +297,11 @@ def login() -> ReturnView:
                         _("You are now one of us. Welcome aboard!"), category='success'
                     )
                 else:
-                    login_internal(otp_data.user, login_service='otp')
+                    login_internal(otp_session.user, login_service='otp')
                     db.session.commit()
                     current_app.logger.info(
                         "Login successful for %r, possible redirect URL is '%s'",
-                        otp_data.user,
+                        otp_session.user,
                         session.get('next', ''),
                     )
                     flash(_("You are now logged in"), category='success')

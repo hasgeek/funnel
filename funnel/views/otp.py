@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 from typing import Dict, Generic, Optional, Type, TypeVar, Union
 
-from flask import current_app, flash, session
+from flask import current_app, flash, render_template, session, url_for
 
 from baseframe import _
 from coaster.utils import newpin, require_one_of
@@ -21,13 +21,16 @@ from ..models import (
     UserPhone,
     db,
 )
+from ..serializers import token_serializer
 from ..transports import TransportConnectionError, TransportRecipientError, sms
+from ..transports.email import jsonld_view_action, send_email
 from ..utils import blake2b160_hex
 from .helpers import (
     delete_cached_token,
     make_cached_token,
     retrieve_cached_token,
     session_timeouts,
+    str_pw_set_at,
     validate_rate_limit,
 )
 
@@ -51,6 +54,8 @@ class OtpReasonError(Exception):
 #: can be passed to :meth:`OtpSession.make`. This usage is documented in PEP 484:
 #: https://peps.python.org/pep-0484/#user-defined-generic-types
 OptionalUserType = TypeVar('OptionalUserType', User, Optional[User])
+#: Define type for subclasses
+OtpSessionType = TypeVar('OtpSessionType', bound='OtpSession')
 
 # --- Registry -------------------------------------------------------------------------
 
@@ -61,7 +66,17 @@ _reason_subclasses: Dict[str, OtpSession] = {}
 
 @dataclass
 class OtpSession(Generic[OptionalUserType]):
-    """Make or retrieve an OTP in the user's cookie session."""
+    """
+    Make or retrieve an OTP in the user's cookie session.
+
+    This class has an experimental implementation of using a subclass registry to
+    retrieve the appropriate subclass given a parameter to the base class. It is unclear
+    at the time of this implementation whether this approach has any benefit over the
+    caller directly instantiating the appropriate subclass, and is meant to create an
+    opportunity to evaluate before this pattern comes up again. The
+    :class:`~funnel.models.notification.Notification` model is a prior use case, but
+    that one is handled by SQLAlchemy.
+    """
 
     reason: str
     token: str
@@ -69,7 +84,9 @@ class OtpSession(Generic[OptionalUserType]):
     user: OptionalUserType
     email: Optional[str] = None
     phone: Optional[str] = None
+    link_token: Optional[str] = None
 
+    # __new__ gets called before __init__ and can replace the class that is created
     def __new__(cls, reason, **kwargs):
         """Return a subclass that contains the appropriate methods for given reason."""
         if reason not in _reason_subclasses:
@@ -78,6 +95,9 @@ class OtpSession(Generic[OptionalUserType]):
         use_cls = _reason_subclasses[reason]
         return super().__new__(use_cls)
 
+    # __init_subclass__ gets called for ``class Subclass(OtpSession, reason='...'):``
+    # and receives `reason` as a kwarg. However, declaring it in the method signature
+    # upsets PyLint, so we pop it from kwargs.
     def __init_subclass__(cls, *args, **kwargs):
         """Register a subclass for use by __new__."""
         reason = kwargs.pop('reason', None)
@@ -91,13 +111,13 @@ class OtpSession(Generic[OptionalUserType]):
 
     @classmethod
     def make(  # pylint: disable=too-many-arguments
-        cls: Type[OtpSession],
+        cls: Type[OtpSessionType],
         reason: str,
         user: OptionalUserType,
         anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone, EmailAddress]],
         email: Optional[str] = None,
         phone: Optional[str] = None,
-    ) -> OtpSession:
+    ) -> OtpSessionType:
         """
         Create an OTP for login and save it to cache and browser cookie session.
 
@@ -137,7 +157,7 @@ class OtpSession(Generic[OptionalUserType]):
         )
 
     @classmethod
-    def retrieve(cls: Type[OtpSession], reason: str) -> OtpSession:
+    def retrieve(cls: Type[OtpSessionType], reason: str) -> OtpSessionType:
         """Retrieve an OTP from cache using the token in browser cookie session."""
         otp_token = session.get('otp')
         if not otp_token:
@@ -169,6 +189,8 @@ class OtpSession(Generic[OptionalUserType]):
 
     def send_sms(self, render_flash: bool = True) -> Optional[SMSMessage]:
         """Send an OTP via SMS to a phone number."""
+        if not self.phone:
+            return None
         template_message = sms.WebOtpTemplate(
             otp=self.otp,
             # TODO: Replace helpline_text with a report URL
@@ -186,7 +208,9 @@ class OtpSession(Generic[OptionalUserType]):
                 flash(str(exc), 'error')
         except TransportConnectionError:
             if render_flash:
-                flash(_("Unable to send a message right now. Try again later"), 'error')
+                flash(
+                    _("Unable to send an OTP to your phone number right now"), 'error'
+                )
         else:
             # Commit only if an SMS could be sent
             db.session.add(msg)
@@ -212,46 +236,85 @@ class OtpSession(Generic[OptionalUserType]):
         return False
 
 
-def send_sms_otp(
-    phone: str, otp: str, render_flash: bool = True
-) -> Optional[SMSMessage]:
-    """Send an OTP via SMS to a phone number."""
-    template_message = sms.WebOtpTemplate(
-        otp=otp,
-        # TODO: Replace helpline_text with a report URL
-        helpline_text=f"call {app.config['SITE_SUPPORT_PHONE']}",
-        domain=current_app.config['SERVER_NAME'],
-    )
-    msg = SMSMessage(phone_number=phone, message=str(template_message))
-    try:
-        # Now send this
-        msg.transactionid = sms.send(phone=msg.phone_number, message=template_message)
-    except TransportRecipientError as exc:
+class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
+    """OtpSession variant for login."""
+
+    def send_email(self, render_flash: bool = True) -> Optional[str]:
+        """Email a login OTP to the user."""
+        if not self.email:
+            return None
+        if self.user is not None:
+            fullname = self.user.fullname
+        else:
+            fullname = ''
+        subject = _("Login OTP {otp}").format(otp=self.otp)
+        content = render_template(
+            'email_login_otp.html.jinja2',
+            fullname=fullname,
+            otp=self.otp,
+        )
         if render_flash:
-            flash(str(exc), 'error')
-    except TransportConnectionError:
+            flash(_("An OTP has been sent to your email address"), 'success')
+        return send_email(subject, [(fullname, self.email)], content)
+
+
+class OtpSessionForSudo(OtpSession[User], reason='sudo'):
+    """OtpSession variant for sudo confirmation."""
+
+    def send_email(self, render_flash: bool = True) -> Optional[str]:
+        """Email a sudo OTP to the user."""
+        if not self.email:
+            return None
+        subject = _("Confirmation OTP {otp}").format(otp=self.otp)
+        content = render_template(
+            'email_sudo_otp.html.jinja2',
+            fullname=self.user.fullname,
+            otp=self.otp,
+        )
         if render_flash:
-            flash(_("Unable to send a message right now. Try again later"), 'error')
-    else:
-        # Commit only if an SMS could be sent
-        db.session.add(msg)
-        db.session.commit()
+            flash(_("An OTP has been sent to your email address"), 'success')
+        return send_email(subject, [(self.user.fullname, self.email)], content)
+
+
+@dataclass  # Required since this subclass has a __post_init__
+class OtpSessionForReset(OtpSession[User], reason='reset'):
+    """OtpSession variant for password reset."""
+
+    def __post_init__(self):
+        """Make link token."""
+        self.link_token = token_serializer().dumps(
+            {'buid': self.user.buid, 'pw_set_at': str_pw_set_at(self.user)}
+        )
+
+    def send_email(self, render_flash: bool = True) -> Optional[str]:
+        """Send OTP and reset link via email."""
+        if not self.email:
+            return None
+
+        subject = _("Reset your password - OTP {otp}").format(otp=self.otp)
+        url = url_for(
+            'reset_with_token',
+            _external=True,
+            token=self.link_token,
+            utm_medium='email',
+            utm_campaign='reset',
+        )
+        jsonld = jsonld_view_action(subject, url, _("Reset password"))
+        content = render_template(
+            'email_account_reset.html.jinja2',
+            fullname=self.user.fullname,
+            url=url,
+            jsonld=jsonld,
+            otp=self.otp,
+        )
         if render_flash:
-            flash(_("An OTP has been sent to your phone number"), 'success')
-        return msg
-    return None
+            flash(_("An OTP has been sent to your email address"), 'success')
+        return send_email(subject, [(self.user.fullname, self.email)], content)
 
 
-class OtpSessionForLogin(OtpSession, reason='login'):
-    # TODO
-    pass
+class OtpSessionForNewPhone(OtpSession[User], reason='new-phone'):
+    """OtpSession variant for new phone number."""
 
-
-class OtpSessionForSudo(OtpSession, reason='sudo'):
-    # TODO
-    pass
-
-
-class OtpSessionForReset(OtpSession, reason='reset'):
-    # TODO
-    pass
+    def send_email(self, render_flash: bool = True) -> Optional[str]:
+        """OTP for phone does not require email."""
+        return None

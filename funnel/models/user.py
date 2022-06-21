@@ -1,3 +1,5 @@
+"""User, organization, team and user anchor models."""
+
 from __future__ import annotations
 
 from datetime import timedelta
@@ -487,13 +489,17 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     def transport_for_email(self, context) -> Optional[UserEmail]:
         """Return user's preferred email address within a context."""
         # Per-profile/project customization is a future option
-        return cast(UserEmail, self.email) if self.state.ACTIVE and self.email else None
+        if self.state.ACTIVE:
+            return self.email or None
+        return None
 
     @with_roles(call={'owner'})
     def transport_for_sms(self, context) -> Optional[UserPhone]:
         """Return user's preferred phone number within a context."""
         # Per-profile/project customization is a future option
-        return cast(UserPhone, self.phone) if self.state.ACTIVE and self.phone else None
+        if self.state.ACTIVE:
+            return self.phone or None
+        return None
 
     @with_roles(call={'owner'})
     def transport_for_webpush(self, context):  # TODO  # pragma: no cover
@@ -787,7 +793,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 # XXX: Deprecated, still here for Baseframe compatibility
 User.userid = User.uuid_b64
 
-auto_init_default(User._state)  # skipcq: PYL-W0212
+auto_init_default(User._state)  # pylint: disable=protected-access
 add_search_trigger(User, 'search_vector')
 
 

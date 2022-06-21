@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from flask import render_template, url_for
 
 from baseframe import _
@@ -50,32 +48,6 @@ def send_password_reset_link(email: str, user: User, otp: str, token: str) -> st
         fullname=user.fullname,
         url=url,
         jsonld=jsonld,
-        otp=otp,
-    )
-    return send_email(subject, [(user.fullname, email)], content)
-
-
-def send_email_login_otp(email: str, user: Optional[User], otp: str) -> str:
-    """Mail a login OTP to the user."""
-    if user is not None:
-        fullname = user.fullname
-    else:
-        fullname = ''
-    subject = _("Login OTP {otp}").format(otp=otp)
-    content = render_template(
-        'email_login_otp.html.jinja2',
-        fullname=fullname,
-        otp=otp,
-    )
-    return send_email(subject, [(fullname, email)], content)
-
-
-def send_email_sudo_otp(email: str, user: User, otp: str) -> str:
-    """Mail a sudo OTP to the user."""
-    subject = _("Confirmation OTP {otp}").format(otp=otp)
-    content = render_template(
-        'email_sudo_otp.html.jinja2',
-        fullname=user.fullname,
         otp=otp,
     )
     return send_email(subject, [(user.fullname, email)], content)

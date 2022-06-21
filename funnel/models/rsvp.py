@@ -214,7 +214,10 @@ class __Project:
         return (
             cast(Project, self)
             .rsvps.join(User)
-            .filter(User.state.ACTIVE, Rsvp._state == status)  # skipcq: PYL-W0212
+            .filter(
+                User.state.ACTIVE,
+                Rsvp._state == status,  # pylint: disable=protected-access
+            )
         )
 
     def rsvp_counts(self) -> Dict[str, int]:

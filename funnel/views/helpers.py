@@ -94,6 +94,13 @@ session_timeouts = SessionTimeouts()
 # --- Utilities ------------------------------------------------------------------------
 
 
+def str_pw_set_at(user: User) -> str:
+    """Render user.pw_set_at as a string, for comparison."""
+    if user.pw_set_at is not None:
+        return user.pw_set_at.astimezone(utc).replace(microsecond=0).isoformat()
+    return 'None'
+
+
 def metarefresh_redirect(url: str):
     """Redirect using a ``Meta: Refresh`` HTML header."""
     return Response(render_template('meta_refresh.html.jinja2', url=url))

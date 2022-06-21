@@ -72,7 +72,6 @@ from .login_session import (
     requires_sudo,
 )
 from .notification import dispatch_notification
-from .otp import send_sms_otp
 
 
 @User.views()
@@ -664,7 +663,9 @@ class AccountView(ClassView):
             current_auth.user.main_notification_preferences.by_sms = (
                 form.enable_notifications.data
             )
-            msg = send_sms_otp(userphone.phone, userphone.verification_code)
+            # FIXME!!!!!! Replace with OtpSession
+            # FIXME: msg = send_sms_otp(userphone.phone, userphone.verification_code)
+            msg = 'sent?'  # FIXME
             if msg is not None:
                 user_data_changed.send(current_auth.user, changes=['phone-claim'])
                 return render_redirect(

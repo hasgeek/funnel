@@ -11,7 +11,7 @@ from werkzeug.datastructures import MultiDict
 import pytest
 
 from coaster.auth import current_auth
-from coaster.utils import newpin, utcnow
+from coaster.utils import utcnow
 from funnel.registry import LoginProviderData
 from funnel.views.otp import OtpSession
 
@@ -27,9 +27,9 @@ BLANK_PASSWORD = ''  # nosec  # noqa: S105
 WEAK_TEST_PASSWORD = 'password'  # nosec  # noqa: S105
 
 # Functions to patch to capture OTPs
-PATCH_SMS_OTP = 'funnel.transports.sms.send'
-PATCH_SEND_SMS = 'funnel.views.login.send_sms_otp'
-PATCH_EMAIL_OTP = 'funnel.views.login.send_email_login_otp'
+PATCH_SMS_SEND = 'funnel.transports.sms.send'
+PATCH_SMS_OTP = 'funnel.views.otp.OtpSession.send_sms'
+PATCH_EMAIL_OTP = 'funnel.views.otp.OtpSessionForLogin.send_email'
 PATCH_GET_USER_EXT_ID = 'funnel.views.login.get_user_extid'
 
 TEST_OAUTH_TOKEN = 'test_oauth_token'  # nosec  # noqa: S105
@@ -92,15 +92,6 @@ def callback_mock(user_twoflower):
         yield mock
 
 
-def generate_wrong_otp(correct_otp):
-    """Generate a random OTP that does not match the reference correct OTP."""
-    while True:
-        wrong_otp = newpin()
-        if wrong_otp != correct_otp:
-            break
-    return wrong_otp
-
-
 def test_user_rincewind_has_username(user_rincewind):
     """Confirm user fixture has the username required for further tests."""
     assert user_rincewind.username == RINCEWIND_USERNAME
@@ -130,7 +121,7 @@ def test_user_register(client, csrf_token):
 
 def test_user_register_otp_sms(client, csrf_token):
     """Providing an unknown phone number sends an OTP and registers an account."""
-    with patch(PATCH_SMS_OTP, return_value=None) as mock:
+    with patch(PATCH_SMS_SEND, return_value=None) as mock:
         rv1 = client.post(
             '/login',
             data=MultiDict(
@@ -143,7 +134,7 @@ def test_user_register_otp_sms(client, csrf_token):
             ),
         )
         caught_otp = mock.call_args.kwargs['message'].otp
-    assert rv1.forms[0].attrib['id'] == 'form-otp'
+    assert rv1.form('form-otp') is not None
     assert rv1.status_code == 200
 
     rv2 = client.post(
@@ -166,7 +157,7 @@ def test_user_register_otp_email(
     csrf_token,
 ):
     """Providing an unknown email address sends an OTP and registers an account."""
-    with patch(PATCH_EMAIL_OTP) as mock:
+    with patch(PATCH_EMAIL_OTP, autospec=True) as mock:
         rv1 = client.post(
             '/login',
             data=MultiDict(
@@ -178,8 +169,8 @@ def test_user_register_otp_email(
                 }
             ),
         )
-        caught_otp = mock.call_args.kwargs['otp']
-    assert rv1.forms[0].attrib['id'] == 'form-otp'
+        caught_otp = mock.call_args.args[0].otp
+    assert rv1.form('form-otp') is not None
     assert rv1.status_code == 200
 
     rv2 = client.post(
@@ -229,7 +220,7 @@ def test_login_usernames(
     password_status_auth,
 ):
     """Test how the login view responds to correct, incorrect and missing password."""
-    with patch(PATCH_SMS_OTP, return_value=None):
+    with patch(PATCH_SMS_SEND, return_value=None):
         rv = client.post(
             '/login',
             data=MultiDict(
@@ -249,7 +240,7 @@ def test_login_usernames(
 @pytest.mark.parametrize('login_username', [RINCEWIND_USERNAME, RINCEWIND_PHONE])
 def test_valid_otp_login_sms(client, csrf_token, user_rincewind, login_username):
     """Test OTP login using username or phone number."""
-    with patch(PATCH_SMS_OTP, return_value=None) as mock:
+    with patch(PATCH_SMS_SEND, return_value=None) as mock:
         rv1 = client.post(
             '/login',
             data=MultiDict(
@@ -263,7 +254,7 @@ def test_valid_otp_login_sms(client, csrf_token, user_rincewind, login_username)
         )
         caught_otp = mock.call_args.kwargs['message'].otp
 
-    assert rv1.forms[0].attrib['id'] == 'form-otp'
+    assert rv1.form('form-otp') is not None
     assert rv1.status_code == 200
     assert current_auth.user is None
 
@@ -285,7 +276,7 @@ def test_valid_otp_login_sms(client, csrf_token, user_rincewind, login_username)
 @pytest.mark.parametrize('login_username', [RINCEWIND_USERNAME, RINCEWIND_EMAIL])
 def test_valid_otp_login_email(client, csrf_token, user_rincewind, login_username):
     """Test OTP login using username or email address."""
-    with patch(PATCH_EMAIL_OTP) as mock:
+    with patch(PATCH_EMAIL_OTP, autospec=True) as mock:
         rv1 = client.post(
             '/login',
             data=MultiDict(
@@ -297,9 +288,9 @@ def test_valid_otp_login_email(client, csrf_token, user_rincewind, login_usernam
                 }
             ),
         )
-        caught_otp = mock.call_args.kwargs['otp']
+        caught_otp = mock.call_args.args[0].otp
 
-    assert rv1.forms[0].attrib['id'] == 'form-otp'
+    assert rv1.form('form-otp') is not None
     assert rv1.status_code == 200
     assert current_auth.user is None
 
@@ -325,8 +316,8 @@ def test_invalid_otp_login(
     login_username,
 ):
     """Using an incorrect OTP causes a login failure."""
-    with patch(PATCH_SMS_OTP, return_value=None):
-        with patch(PATCH_EMAIL_OTP, return_value=None):
+    with patch(PATCH_SMS_SEND, return_value=None):
+        with patch(PATCH_EMAIL_OTP, return_value=None, autospec=True):
             rv1 = client.post(
                 '/login',
                 data=MultiDict(
@@ -338,7 +329,8 @@ def test_invalid_otp_login(
                     }
                 ),
             )
-    assert rv1.forms[0].attrib['id'] == 'form-otp'
+    # The response contains an OTP form
+    assert rv1.form('form-otp') is not None
     assert rv1.status_code == 200
     assert current_auth.user is None
 
@@ -346,13 +338,13 @@ def test_invalid_otp_login(
         '/login',
         data=MultiDict(
             {
-                'otp': generate_wrong_otp(OtpSession.retrieve('login').otp),
+                'otp': 'invalid',
                 'csrf_token': csrf_token,
                 'form.id': 'login-otp',
             }
         ),
     )
-    assert rv2.forms[0].attrib['id'] == 'form-otp'
+    assert rv2.form('form-otp') is not None
     assert rv2.status_code == 200
     assert current_auth.user is None
 
@@ -376,7 +368,7 @@ def test_user_otp_sudo_timedout(user_rincewind, user_rincewind_phone, login, cli
     login.as_(user_rincewind)
     client.get('account')
     current_auth.session.sudo_enabled_at -= timedelta(minutes=25)
-    with patch(PATCH_SMS_OTP, return_value=None):
+    with patch(PATCH_SMS_SEND, return_value=None):
         rv = client.get('/account/sudo')
     assert rv.forms[1].attrib['id'] == 'form-sudo-otp'
 
@@ -450,7 +442,7 @@ def test_login_password_exception(
 
 
 def test_sms_otp_not_sent(user_rincewind_phone, csrf_token, client):
-    with patch(PATCH_SEND_SMS, return_value=None):
+    with patch(PATCH_SMS_OTP, return_value=None, autospec=True):
         rv1 = client.post(
             '/login',
             data=MultiDict(
@@ -464,15 +456,15 @@ def test_sms_otp_not_sent(user_rincewind_phone, csrf_token, client):
         )
 
     assert (
-        rv1.data.decode("utf-8").find(
-            'The OTP could not be sent. Use password to login or try again'
+        rv1.data.decode('utf-8').find(
+            "The OTP could not be sent. Use password to login, or try again"
         )
         != -1
     )
 
 
 def test_otp_timeout_error(user_rincewind_phone, user_rincewind, csrf_token, client):
-    with patch(PATCH_SEND_SMS, return_value=None) as mock:
+    with patch(PATCH_SMS_OTP, return_value=None, autospec=True) as mock:
         client.post(
             '/login',
             data=MultiDict(
@@ -484,7 +476,7 @@ def test_otp_timeout_error(user_rincewind_phone, user_rincewind, csrf_token, cli
                 }
             ),
         )
-        caught_otp = mock.call_args.kwargs['otp']
+        caught_otp = mock.call_args.args[0].otp
 
     OtpSession.delete()
 
@@ -500,11 +492,11 @@ def test_otp_timeout_error(user_rincewind_phone, user_rincewind, csrf_token, cli
     )
     assert rv2.status_code == 200
     assert current_auth.user is None
-    assert rv2.data.decode("utf-8").find('The OTP has expired. Try again?') != -1
+    assert rv2.data.decode('utf-8').find("The OTP has expired. Try again?") != -1
 
 
 def test_otp_reason_error(user_rincewind_phone, user_rincewind, csrf_token, client):
-    with patch(PATCH_SEND_SMS, return_value=None) as mock:
+    with patch(PATCH_SMS_OTP, return_value=None, autospec=True) as mock:
         client.post(
             '/login',
             data=MultiDict(
@@ -526,7 +518,7 @@ def test_otp_reason_error(user_rincewind_phone, user_rincewind, csrf_token, clie
                 }
             ),
         )
-        caught_otp = mock.call_args.kwargs['otp']
+        caught_otp = mock.call_args.args[0].otp
 
     rv3 = client.post(
         '/login',

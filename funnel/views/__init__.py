@@ -1,3 +1,4 @@
+"""All app views and view helpers."""
 # flake8: noqa
 
 from __future__ import annotations
@@ -25,6 +26,7 @@ from . import (
     notification_preferences,
     notifications,
     organization,
+    otp,
     profile,
     project,
     project_sponsor,

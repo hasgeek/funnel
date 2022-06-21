@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 from functools import wraps
-from typing import Optional, Tuple, Type
+from typing import Optional, Type
 
 from flask import (
     Response,
@@ -31,7 +31,6 @@ from coaster.views import get_current_url, get_next_url
 from .. import app
 from ..forms import OtpForm, PasswordForm
 from ..models import (
-    Anchor,
     AuthClient,
     AuthClientCredential,
     User,
@@ -47,7 +46,6 @@ from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
 from ..utils import abort_null
-from .email import send_email_sudo_otp
 from .helpers import (
     app_url_for,
     autoset_timezone_and_locale,
@@ -55,7 +53,7 @@ from .helpers import (
     render_redirect,
     validate_rate_limit,
 )
-from .otp import OtpReasonError, OtpSession, OtpTimeoutError, send_sms_otp
+from .otp import OtpReasonError, OtpSession, OtpTimeoutError
 
 # Constant value, needed for cookie max_age
 user_session_validity_period_total_seconds = int(
@@ -88,7 +86,7 @@ class LoginManager:
         add_auth_attribute('session', None)
 
         lastuser_cookie = {}
-        lastuser_cookie_headers = {}  # Ignored for now, intended for future changes
+        _lastuser_cookie_headers = {}  # Ignored for now, intended for future changes
 
         # Migrate data from Flask cookie session
         if 'sessionid' in session:
@@ -100,7 +98,7 @@ class LoginManager:
             try:
                 (
                     lastuser_cookie,
-                    lastuser_cookie_headers,
+                    _lastuser_cookie_headers,
                 ) = lastuser_serializer().loads(
                     request.cookies['lastuser'], return_header=True
                 )
@@ -397,40 +395,6 @@ def requires_login_no_message(f):
     return decorated_function
 
 
-def _make_and_send_otp(
-    reason: str, user: User, anchor: Anchor
-) -> Tuple[OtpSession, bool]:
-    otp_data = OtpSession.make(
-        'sudo',
-        user=current_auth.user,
-        anchor=anchor,
-    )
-    otp_sent = False
-    if otp_data.email:
-        send_email_sudo_otp(
-            email=otp_data.email,
-            user=otp_data.user,
-            otp=otp_data.otp,
-        )
-        otp_sent = True
-        flash(_("An OTP has been sent to your email address"), 'success')
-    elif otp_data.phone:
-        # send_sms_otp returns an instance of SmsMessage if a message was sent
-        otp_sent = bool(
-            send_sms_otp(
-                phone=otp_data.phone,
-                otp=otp_data.otp,
-                render_flash=False,
-            )
-        )
-        if otp_sent:
-            flash(
-                _("An OTP has been sent to your phone number"),
-                'success',
-            )
-    return otp_data, otp_sent
-
-
 def requires_sudo(f):
     """
     Decorate a view to require user to have re-authenticated recently.
@@ -481,11 +445,11 @@ def requires_sudo(f):
                 # A future version of this form may accept password or 2FA (U2F or TOTP)
             # User does not have a password. Try to send an OTP
             elif anchor:
-                otp_data, otp_sent = _make_and_send_otp(
+                otp_session = OtpSession.make(
                     'sudo', user=current_auth.user, anchor=anchor
                 )
-                if otp_sent:
-                    form = OtpForm(valid_otp=otp_data.otp)
+                if otp_session.send():
+                    form = OtpForm(valid_otp=otp_session.otp)
             if form is None:
                 flash(
                     _(
@@ -502,8 +466,8 @@ def requires_sudo(f):
             try:
                 formid = abort_null(request.form.get('form.id'))
                 if formid == 'sudo-otp':
-                    otp_data = OtpSession.retrieve('sudo')
-                    form = OtpForm(valid_otp=otp_data.otp)
+                    otp_session = OtpSession.retrieve('sudo')
+                    form = OtpForm(valid_otp=otp_session.otp)
                 elif formid == 'sudo-password':
                     form = PasswordForm(edit_user=current_auth.user)
                 else:
@@ -522,12 +486,13 @@ def requires_sudo(f):
             except OtpTimeoutError as exc:
                 reason = str(exc)
                 current_app.logger.info("Sudo OTP timed out with %s", reason)
-                otp_data, otp_sent = _make_and_send_otp(
+                otp_session = OtpSession.make(
                     'sudo', user=current_auth.user, anchor=anchor
                 )
-                if not otp_sent:
+                if not otp_session.send():
+                    form = OtpForm(valid_otp=otp_session.otp)
                     abort(500)  # FIXME: Figure out likelihood and resolution
-                form = OtpForm(valid_otp=otp_data.otp)
+                form = OtpForm(valid_otp=otp_session.otp)
             except OtpReasonError as exc:
                 reason = str(exc)
                 current_app.logger.info("Sudo got OTP meant for %s", reason)
