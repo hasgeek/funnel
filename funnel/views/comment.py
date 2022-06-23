@@ -251,8 +251,7 @@ class CommentsetView(UrlForView, ModelView):
             return {'status': 'ok'}
         return {
             'status': 'error',
-            # FIXME: this needs to be `error` instead of `error_code`
-            'error_code': 'update_seen_at_error',
+            'error': 'update_seen_at_error',
             'error_description': _("This page timed out. Reload and try again"),
             'error_details': csrf_form.errors,
         }, 422
@@ -419,8 +418,7 @@ class CommentView(UrlForView, ModelView):
             return (
                 {
                     'status': 'error',
-                    # FIXME: this needs to be `error` instead of `error_code`
-                    'error_code': 'report_spam_error',
+                    'error': 'report_spam_error',
                     'error_description': _(
                         "There was an issue reporting this comment. Try again?"
                     ),

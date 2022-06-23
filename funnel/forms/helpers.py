@@ -1,3 +1,5 @@
+"""Helpers for forms."""
+
 from __future__ import annotations
 
 from typing import Optional
@@ -19,11 +21,13 @@ class ProfileSelectField(forms.AutocompleteField):
     widget_autocomplete = True
 
     def _value(self):
+        """Return value for HTML rendering."""
         if self.data:
             return self.data.name
         return ''
 
     def process_formdata(self, valuelist) -> None:
+        """Process incoming form data."""
         if valuelist:
             self.data = Profile.query.filter(
                 # Limit to non-suspended (active) profiles. Do not require profile to
@@ -131,6 +135,7 @@ class EmailAddressAvailable:
 
 
 def image_url_validator():
+    """Customise ValidUrl for hosted image URL validation."""
     return forms.validators.ValidUrl(
         allowed_schemes=lambda: current_app.config.get('IMAGE_URL_SCHEMES', ('https',)),
         allowed_domains=lambda: current_app.config.get('IMAGE_URL_DOMAINS'),
@@ -140,7 +145,7 @@ def image_url_validator():
 
 
 def video_url_validator(form, field):
-    """Validate that video URL is acceptable."""
+    """Validate the video URL to be acceptable."""
     try:
         parse_video_url(field.data)
     except ValueError as exc:

@@ -18,7 +18,7 @@ from flask import (
 import geoip2.errors
 import user_agents
 
-from baseframe import _
+from baseframe import _, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
 from coaster.auth import current_auth
 from coaster.sqlalchemy import RoleAccessProxy
@@ -35,7 +35,6 @@ from ..forms import (
     PasswordCreateForm,
     PhonePrimaryForm,
     SavedProjectForm,
-    VerifyEmailForm,
     VerifyPhoneForm,
     supported_locales,
     timezone_identifiers,
@@ -483,7 +482,7 @@ class AccountView(ClassView):
 
     @route('email/new', methods=['GET', 'POST'], endpoint='add_email')
     def add_email(self) -> ReturnView:
-        form = NewEmailAddressForm()
+        form = NewEmailAddressForm(edit_user=current_auth.user)
         if form.validate_on_submit():
             useremail = UserEmailClaim.get_for(
                 user=current_auth.user, email=form.email.data
@@ -632,14 +631,14 @@ class AccountView(ClassView):
             abort(404)
         if emailclaim is None:
             abort(404)
-        verify_form = VerifyEmailForm()
-        if verify_form.validate_on_submit():
+        form = forms.Form()
+        if form.validate_on_submit():
             send_email_verify_link(emailclaim)
             db.session.commit()
             flash(_("The verification email has been sent to this address"), 'success')
             return render_redirect(url_for('account'), code=303)
         return render_form(
-            form=verify_form,
+            form=form,
             title=_("Resend the verification email?"),
             message=_("We will resend the verification email to {email}").format(
                 email=emailclaim.email
@@ -652,7 +651,7 @@ class AccountView(ClassView):
     @route('phone/new', methods=['GET', 'POST'], endpoint='add_phone')
     def add_phone(self) -> ReturnView:
         # TODO: Replace UserPhoneClaim with the login_otp system
-        form = NewPhoneForm()
+        form = NewPhoneForm(edit_user=current_auth.user)
         if form.validate_on_submit():
             userphone = UserPhoneClaim.get_for(
                 user=current_auth.user, phone=form.phone.data

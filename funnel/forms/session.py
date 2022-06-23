@@ -1,3 +1,5 @@
+"""Scheduled sessions in projects."""
+
 from __future__ import annotations
 
 from baseframe import __, forms
@@ -11,6 +13,8 @@ __all__ = ['SavedSessionForm', 'SessionForm']
 
 @Session.forms('main')
 class SessionForm(forms.Form):
+    """Form for a session in a project."""
+
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
@@ -63,6 +67,8 @@ class SessionForm(forms.Form):
 
 @SavedSession.forms('main')
 class SavedSessionForm(forms.Form):
+    """Bookmark a session."""
+
     save = forms.BooleanField(
         __("Save this session?"), validators=[forms.validators.InputRequired()]
     )

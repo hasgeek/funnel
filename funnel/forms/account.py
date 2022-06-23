@@ -1,9 +1,10 @@
+"""Forms for user account settings."""
+
 from __future__ import annotations
 
-from typing import Optional
+from typing import Iterable, Optional
 
 from baseframe import _, __, forms
-from coaster.auth import current_auth
 from coaster.utils import sorted_timezones
 
 from ..models import (
@@ -37,7 +38,6 @@ __all__ = [
     'NewEmailAddressForm',
     'NewPhoneForm',
     'PhonePrimaryForm',
-    'VerifyEmailForm',
     'VerifyPhoneForm',
     'supported_locales',
     'timezone_identifiers',
@@ -54,7 +54,9 @@ supported_locales = {
 
 
 class PasswordStrengthValidator:
-    default_message = _(
+    """Validate password strength (reused across forms)."""
+
+    default_message = __(
         "This password is too simple. Add complexity by making it longer and using"
         " a mix of upper and lower case letters, numbers and symbols"
     )
@@ -63,7 +65,7 @@ class PasswordStrengthValidator:
         self.user_input_fields = user_input_fields
         self.message = message or self.default_message
 
-    def __call__(self, form, field):
+    def __call__(self, form, field) -> None:
         user_inputs = []
         for field_name in self.user_input_fields:
             user_inputs.append(getattr(form, field_name).data)
@@ -89,16 +91,16 @@ class PasswordStrengthValidator:
         )
         # Stick password strength into the form for logging in the view and possibly
         # rendering into UI
-        form.password_strength = float(tested_password['score'])
+        form.password_strength = tested_password.score
         # No test failures? All good then
-        if not tested_password['is_weak']:
+        if not tested_password.is_weak:
             return
         # Tell the user to make up a better password
         raise forms.validators.StopValidation(
-            tested_password['warning']
-            if tested_password['warning']
-            else '\n'.join(tested_password['suggestions'])
-            if tested_password['suggestions']
+            tested_password.warning
+            if tested_password.warning
+            else '\n'.join(tested_password.suggestions)
+            if tested_password.suggestions
             else self.message
         )
 
@@ -115,6 +117,7 @@ class RegisterForm(forms.Form):
     """
 
     __returns__ = ('password_strength',)  # Set by PasswordStrengthValidator
+    password_strength: Optional[int] = None
 
     fullname = forms.StringField(
         __("Full name"),
@@ -161,7 +164,10 @@ class RegisterForm(forms.Form):
 
 @User.forms('password')
 class PasswordForm(forms.Form):
+    """Form to validate a user's password, for password-gated sudo actions."""
+
     __expects__ = ('edit_user',)
+    edit_user: User
 
     password = forms.PasswordField(
         __("Password"),
@@ -172,13 +178,24 @@ class PasswordForm(forms.Form):
         render_kw={'autocomplete': 'current-password'},
     )
 
-    def validate_password(self, field):
+    def validate_password(self, field) -> None:
+        """Check for password match."""
         if not self.edit_user.password_is(field.data):
             raise forms.ValidationError(_("Incorrect password"))
 
 
 @User.forms('password_policy')
 class PasswordPolicyForm(forms.Form):
+    """Form to validate any candidate password against policy."""
+
+    __expects__ = ('edit_user',)
+    __returns__ = ('password_strength', 'is_weak', 'warning', 'suggestions')
+    edit_user: User
+    password_strength: Optional[int] = None
+    is_weak: Optional[bool] = None
+    warning: Optional[str] = None
+    suggestions: Iterable[str] = ()
+
     password = forms.PasswordField(
         __("Password"),
         validators=[
@@ -187,13 +204,38 @@ class PasswordPolicyForm(forms.Form):
         ],
     )
 
+    def validate_password(self, field) -> None:
+        """Test password strength and save resuls (no errors raised)."""
+        user_inputs = []
+
+        if self.edit_user:
+            if self.edit_user.fullname:
+                user_inputs.append(self.edit_user.fullname)
+
+            for useremail in self.edit_user.emails:
+                user_inputs.append(str(useremail))
+            for emailclaim in self.edit_user.emailclaims:
+                user_inputs.append(str(emailclaim))
+
+            for userphone in self.edit_user.phones:
+                user_inputs.append(str(userphone))
+            for phoneclaim in self.edit_user.phoneclaims:
+                user_inputs.append(str(phoneclaim))
+
+        tested_password = check_password_strength(
+            field.data, user_inputs=user_inputs if user_inputs else None
+        )
+        self.password_strength = tested_password.score
+        self.is_weak = tested_password.is_weak
+        self.warning = tested_password.warning
+        self.suggestions = tested_password.suggestions
+
 
 @User.forms('password_reset_request')
 class PasswordResetRequestForm(forms.Form):
-    """Request a password reset."""
+    """Form to request a password reset."""
 
     __returns__ = ('user', 'anchor')
-
     user: Optional[User] = None
     anchor: Optional[Anchor] = None
 
@@ -206,7 +248,7 @@ class PasswordResetRequestForm(forms.Form):
         },
     )
 
-    def validate_username(self, field):
+    def validate_username(self, field) -> None:
         """Process username to retrieve user."""
         self.user, self.anchor = getuser(field.data, True)
         if self.user is None:
@@ -215,8 +257,12 @@ class PasswordResetRequestForm(forms.Form):
 
 @User.forms('password_create')
 class PasswordCreateForm(forms.Form):
+    """Form to accept a new password for a given user, without existing password."""
+
     __returns__ = ('password_strength',)
     __expects__ = ('edit_user',)
+    edit_user: User
+    password_strength: Optional[int] = None
 
     password = forms.PasswordField(
         __("New password"),
@@ -240,7 +286,10 @@ class PasswordCreateForm(forms.Form):
 
 @User.forms('password_reset')
 class PasswordResetForm(forms.Form):
+    """Form to reset a password for a user, requiring the user id as a failsafe."""
+
     __returns__ = ('password_strength',)
+    password_strength: Optional[int] = None
 
     # TODO: This form has been deprecated with OTP-based reset as that doesn't need
     # username and now uses :class:`PasswordCreateForm`. This form is retained in the
@@ -277,7 +326,8 @@ class PasswordResetForm(forms.Form):
         render_kw={'autocomplete': 'new-password'},
     )
 
-    def validate_username(self, field):
+    def validate_username(self, field) -> None:
+        """Confirm the user provided by the client is who this form is meant for."""
         user = getuser(field.data)
         if user is None or user != self.edit_user:
             raise forms.ValidationError(
@@ -287,8 +337,12 @@ class PasswordResetForm(forms.Form):
 
 @User.forms('password_change')
 class PasswordChangeForm(forms.Form):
+    """Form to change a user's password after confirming the old password."""
+
     __returns__ = ('password_strength',)
     __expects__ = ('edit_user',)
+    edit_user: User
+    password_strength: Optional[int] = None
 
     old_password = forms.PasswordField(
         __("Current password"),
@@ -317,14 +371,16 @@ class PasswordChangeForm(forms.Form):
         render_kw={'autocomplete': 'new-password'},
     )
 
-    def validate_old_password(self, field):
+    def validate_old_password(self, field) -> None:
+        """Validate the old password to be correct."""
         if self.edit_user is None:
             raise forms.ValidationError(_("Not logged in"))
         if not self.edit_user.password_is(field.data):
             raise forms.ValidationError(_("Incorrect password"))
 
 
-def raise_username_error(reason):
+def raise_username_error(reason: str) -> str:
+    """Provide a user-friendly error message for a username field error."""
     if reason == 'blank':
         raise forms.ValidationError(_("This is required"))
     if reason == 'long':
@@ -345,6 +401,8 @@ def raise_username_error(reason):
 
 @User.forms('main')
 class AccountForm(forms.Form):
+    """Form to edit basic account details."""
+
     fullname = forms.StringField(
         __("Full name"),
         description=__(
@@ -406,7 +464,8 @@ class AccountForm(forms.Form):
     )
     auto_locale = forms.BooleanField(__("Use your device’s language"))
 
-    def validate_username(self, field):
+    def validate_username(self, field) -> None:
+        """Validate if username is appropriately formatted and available to use."""
         reason = self.edit_obj.validate_name_candidate(field.data)
         if not reason:
             return  # Username is available
@@ -414,7 +473,10 @@ class AccountForm(forms.Form):
 
 
 class UsernameAvailableForm(forms.Form):
+    """Form to check for whether a username is available to use."""
+
     __expects__ = ('edit_user',)
+    edit_user: User
 
     username = forms.StringField(
         __("Username"),
@@ -426,7 +488,8 @@ class UsernameAvailableForm(forms.Form):
         },
     )
 
-    def validate_username(self, field):
+    def validate_username(self, field) -> None:
+        """Validate for username being valid and available (with optionally user)."""
         if self.edit_user:  # User is setting a username
             reason = self.edit_user.validate_name_candidate(field.data)
         else:  # New user is creating an account, so no user object yet
@@ -437,13 +500,19 @@ class UsernameAvailableForm(forms.Form):
 
 
 def validate_emailclaim(form, field):
-    existing = UserEmailClaim.get_for(user=current_auth.user, email=field.data)
+    """Validate if an email address is already pending verification."""
+    existing = UserEmailClaim.get_for(user=form.edit_user, email=field.data)
     if existing is not None:
         raise forms.StopValidation(_("This email address is pending verification"))
 
 
 @User.forms('email_add')
 class NewEmailAddressForm(forms.Form):
+    """Form to add a new email address to a user account."""
+
+    __expects__ = ('edit_user',)
+    edit_user: User
+
     email = forms.EmailField(
         __("Email address"),
         validators=[
@@ -472,6 +541,8 @@ class NewEmailAddressForm(forms.Form):
 
 @User.forms('email_primary')
 class EmailPrimaryForm(forms.Form):
+    """Form to mark an email address as a user's primary."""
+
     email = forms.EmailField(
         __("Email address"),
         validators=[forms.validators.DataRequired()],
@@ -484,13 +555,13 @@ class EmailPrimaryForm(forms.Form):
     )
 
 
-@User.forms('email_verify')
-class VerifyEmailForm(forms.Form):
-    pass
-
-
 @User.forms('phone_add')
 class NewPhoneForm(forms.Form):
+    """Form to add a new mobile number (SMS-capable) to a user account."""
+
+    __expects__ = ('edit_user',)
+    edit_user: User
+
     phone = forms.TelField(
         __("Phone number"),
         validators=[forms.validators.DataRequired()],
@@ -508,9 +579,14 @@ class NewPhoneForm(forms.Form):
         default=True,
     )
 
-    def validate_phone(self, field):
+    def validate_phone(self, field) -> None:
+        """Validate a phone number to be a mobile number and to be available."""
         # Step 1: Validate number
-        number = normalize_phone_number(field.data)
+        number = normalize_phone_number(field.data, sms=True)
+        if number is False:
+            raise forms.StopValidation(
+                _("This phone number cannot receive SMS messages")
+            )
         if not number:
             raise forms.StopValidation(
                 _("This does not appear to be a valid phone number")
@@ -518,12 +594,12 @@ class NewPhoneForm(forms.Form):
         # Step 2: Check if number has already been claimed
         existing = UserPhone.get(phone=number)
         if existing is not None:
-            if existing.user == current_auth.user:
+            if existing.user == self.edit_user:
                 raise forms.ValidationError(
                     _("You have already registered this phone number")
                 )
             raise forms.ValidationError(_("This phone number has already been claimed"))
-        existing = UserPhoneClaim.get_for(user=current_auth.user, phone=number)
+        existing = UserPhoneClaim.get_for(user=self.edit_user, phone=number)
         if existing is not None:
             raise forms.ValidationError(_("This phone number is pending verification"))
         # Step 3: If validations pass, use the reformatted number
@@ -532,6 +608,8 @@ class NewPhoneForm(forms.Form):
 
 @User.forms('phone_primary')
 class PhonePrimaryForm(forms.Form):
+    """Form to mark a phone number as a user's primary."""
+
     phone = forms.StringField(
         __("Phone number"),
         validators=[forms.validators.DataRequired()],
@@ -545,6 +623,8 @@ class PhonePrimaryForm(forms.Form):
 
 @User.forms('phone_verify')
 class VerifyPhoneForm(forms.Form):
+    """Verify a phone number with an OTP (TODO: pending deprecation with OtpForm)."""
+
     verification_code = forms.StringField(
         __("Verification code"),
         validators=[forms.validators.DataRequired()],
@@ -557,18 +637,22 @@ class VerifyPhoneForm(forms.Form):
         },
     )
 
-    def validate_verification_code(self, field):
+    def validate_verification_code(self, field) -> None:
+        """Validate verification code provided by user matches what is expected."""
         # self.phoneclaim is set by the view before calling form.validate()
         if self.phoneclaim.verification_code != field.data:
             raise forms.ValidationError(_("Verification code does not match"))
 
 
 class ModeratorReportForm(forms.Form):
+    """Form to accept a comment moderator's report (spam or not spam)."""
+
     report_type = forms.SelectField(
         __("Report type"), coerce=int, validators=[forms.validators.InputRequired()]
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.report_type.choices = [
             (idx, report_type.title)
             for idx, report_type in MODERATOR_REPORT_TYPE.items()
