@@ -26,7 +26,7 @@
       var formid = "#" + {{ ref_id|tojson }};
       var form = $(formid);
       if (form) {
-        form.addEventListener('submit', e => {
+        form.submit(function(){
           ac.abort();
         });
       }
@@ -35,7 +35,7 @@
         signal: ac.signal
       }).then(otp => {
         $(input).val(otp.code)
-        if (form) form.submit();
+        form.submit();
       }).catch(err => {
         console.log(err);
       });
