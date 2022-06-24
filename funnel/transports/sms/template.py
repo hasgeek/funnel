@@ -175,6 +175,7 @@ class SmsTemplate:
 
     @property
     def text(self) -> str:
+        """Format template as plain text."""
         if self._text is None:
             self.format()
         # self.format() ensures `_text` is str, but mypy doesn't know
@@ -274,6 +275,7 @@ class SmsTemplate:
 
     @classmethod
     def validate_no_entity_template_id(cls) -> None:
+        """Validate that confidential information is not present in the class spec."""
         if cls.registered_entityid is not None or cls.registered_templateid is not None:
             raise TypeError(
                 "Registered entity id and template id are not public information and"
@@ -385,6 +387,8 @@ class TwoLineTemplate(SmsTemplate):
 
 
 class MessageTemplate(OneLineTemplate):
+    """Template for a message without a URL."""
+
     template = '{message}\n\n\n{unsubscribe_url} to stop - Hasgeek'
 
     message: str
