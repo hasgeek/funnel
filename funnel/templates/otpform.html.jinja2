@@ -21,15 +21,10 @@
 {% block form_script %}
   if ('OTPCredential' in window) {
     var input = $('input[autocomplete="one-time-code"]');
-    if(input) {
-      var ac = new AbortController();
-      var formid = "#" + {{ ref_id|tojson }};
-      var form = $(formid);
-      if (form) {
-        form.submit(function(){
-          ac.abort();
-        });
-      }
+    var form = $("#" + {{ ref_id|tojson }});
+    var ac = new AbortController();
+    console.log(input, form);
+    if(input && form) {
       navigator.credentials.get({
         otp: { transport:['sms'] },
         signal: ac.signal
