@@ -660,21 +660,21 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @classmethod
     def all_unsorted(cls):
         """Return query of all published projects, without ordering criteria."""
-        return cls.query.outerjoin(Venue).filter(cls.state.PUBLISHED)
+        return (
+            cls.query.join(Profile)
+            .outerjoin(Venue)
+            .filter(cls.state.PUBLISHED, Profile.is_verified.is_(True))
+        )
 
     @classmethod
     def all(cls):  # noqa: A003
         """Return all published projects, ordered by date."""
         return cls.all_unsorted().order_by(cls.order_by_date())
 
-    @classmethod
-    def fetch_sorted(cls):
-        return cls.query.filter(cls.state.PUBLISHED).order_by(cls.order_by_date())
-
     # The base class offers `get(parent, name)`. We accept f'{parent}/{name}' here for
     # convenience as this is only used in shell access.
     @classmethod
-    def get(cls, profile_project):  # skipcq: PYL-W0221
+    def get(cls, profile_project):  # pylint: disable=arguments-differ
         """Get a project by its URL slug in the form ``<profile>/<project>``."""
         profile_name, project_name = profile_project.split('/')
         return (
