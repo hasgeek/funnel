@@ -5,10 +5,10 @@
     {{ renderform_inner(form, formid) }}
     <div class="mui-form form-actions mui--clearfix{% if css_class %} {{ css_class}}{% endif %}">
       <div>
-        <button type="submit" name="{{ submit|e }}" class="mui-btn mui-btn--raised mui-btn--primary" data-cy="form-submit-btn">{{ submit }}</button>
+        <input type="submit" name="{{ submit|e }}" class="mui-btn mui-btn--raised mui-btn--primary" data-cy="form-submit-btn"/>
         <a href="{{ cancel_url }}" class="mui-btn mui-btn--raised" data-cy="form-cancel-btn">{% trans %}Cancel{% endtrans %}</a>
         <span class="loading mui--hide">&nbsp;</span>
-        {% if csrf_error -%}
+        {% if form.csrf_token and form.csrf_token.errors -%}
           <div>
             <p class="mui-form__error">{% trans -%}This form has timed out. Please submit again to confirm{%- endtrans %}</p>
           </div>
@@ -24,7 +24,6 @@
     var ac = new AbortController();
     var formid = "#" + {{ ref_id|tojson }};
     var form = document.querySelector(formid);
-    console.log(input, form);
     if (input && form) {
       form.addEventListener('submit', e => {
         ac.abort();
