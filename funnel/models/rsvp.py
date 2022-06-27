@@ -145,6 +145,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
 
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         project_ids = {rsvp.project_id for rsvp in new_user.rsvps}
         for rsvp in old_user.rsvps:
             if rsvp.project_id not in project_ids:

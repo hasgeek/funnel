@@ -101,6 +101,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
 
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         ticket_participant_ids = {
             ce.ticket_participant_id for ce in new_user.scanned_contacts
         }

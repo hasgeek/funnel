@@ -49,6 +49,7 @@ class SavedProject(NoIdMixin, db.Model):
 
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         project_ids = {sp.project_id for sp in new_user.saved_projects}
         for sp in old_user.saved_projects:
             if sp.project_id not in project_ids:
@@ -95,6 +96,7 @@ class SavedSession(NoIdMixin, db.Model):
 
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         project_ids = {ss.project_id for ss in new_user.saved_sessions}
         for ss in old_user.saved_sessions:
             if ss.project_id not in project_ids:

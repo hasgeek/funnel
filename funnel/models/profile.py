@@ -402,6 +402,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         if old_user.profile is not None and new_user.profile is None:
             # New user doesn't have a profile. Simply transfer ownership.
             new_user.profile = old_user.profile

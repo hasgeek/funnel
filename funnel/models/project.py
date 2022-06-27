@@ -687,6 +687,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def migrate_profile(
         cls, old_profile: Profile, new_profile: Profile
     ) -> OptionalMigratedTables:
+        """Migrate from one profile to another when merging user accounts."""
         names = {project.name for project in new_profile.projects}
         for project in old_profile.projects:
             if project.name in names:
