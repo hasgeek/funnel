@@ -8,6 +8,9 @@ from typing import Dict, Generic, Optional, Type, TypeVar, Union
 
 from flask import current_app, flash, render_template, session, url_for
 from werkzeug.exceptions import Forbidden, RequestTimeout, TooManyRequests
+from werkzeug.utils import cached_property
+
+import phonenumbers
 
 from baseframe import _
 from coaster.auth import current_auth
@@ -31,7 +34,7 @@ from ..transports import (
     sms,
 )
 from ..transports.email import jsonld_view_action, send_email
-from ..utils import blake2b160_hex
+from ..utils import blake2b160_hex, mask_email, mask_phone
 from .helpers import (
     delete_cached_token,
     make_cached_token,
@@ -205,6 +208,20 @@ class OtpSession(Generic[OptionalUserType]):
         delete_cached_token(token)
         return True
 
+    @cached_property
+    def display_phone(self) -> str:
+        """Return a display phone number."""
+        if self.phone is None:
+            return ''
+        return mask_phone(self.phone)
+
+    @cached_property
+    def display_email(self) -> str:
+        """Return a display email address."""
+        if self.email is None:
+            return ''
+        return mask_email(self.email)
+
     def send_sms(
         self, flash_success: bool = True, flash_failure: bool = True
     ) -> Optional[SMSMessage]:
@@ -229,14 +246,22 @@ class OtpSession(Generic[OptionalUserType]):
         except (TransportConnectionError, TransportTransactionError):
             if flash_failure:
                 flash(
-                    _("Unable to send an OTP to your phone number right now"), 'error'
+                    _(
+                        "Unable to send an OTP to your phone number {number} right now"
+                    ).format(number=self.display_phone),
+                    'error',
                 )
         else:
             # Commit only if an SMS could be sent
             db.session.add(msg)
             db.session.commit()
             if flash_success:
-                flash(_("An OTP has been sent to your phone number"), 'success')
+                flash(
+                    _("An OTP has been sent to your phone number {number}").format(
+                        number=self.display_phone
+                    ),
+                    'success',
+                )
             return msg
         return None
 
@@ -291,12 +316,32 @@ class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
             otp=self.otp,
         )
         if flash_success:
-            flash(_("An OTP has been sent to your email address"), 'success')
+            flash(
+                _("An OTP has been sent to your email address {email}").format(
+                    email=self.display_email
+                ),
+                'success',
+            )
         return send_email(subject, [(fullname, self.email)], content)
 
 
 class OtpSessionForSudo(OtpSession[User], reason='sudo'):
     """OtpSession variant for sudo confirmation."""
+
+    @cached_property
+    def display_phone(self) -> str:  # type: ignore[override]
+        """Reveal phone number when used for sudo."""
+        if self.phone is not None:
+            return phonenumbers.format_number(
+                phonenumbers.parse(self.phone),
+                phonenumbers.PhoneNumberFormat.INTERNATIONAL,
+            )
+        return ''
+
+    @cached_property
+    def display_email(self) -> str:  # type: ignore[override]
+        """Reveal email address when used for sudo."""
+        return self.email if self.email is not None else ''
 
     def send_email(
         self, flash_success: bool = True, flash_failure: bool = True
@@ -311,7 +356,12 @@ class OtpSessionForSudo(OtpSession[User], reason='sudo'):
             otp=self.otp,
         )
         if flash_success:
-            flash(_("An OTP has been sent to your email address"), 'success')
+            flash(
+                _("An OTP has been sent to your email address {email}").format(
+                    email=self.display_email
+                ),
+                'success',
+            )
         return send_email(subject, [(self.user.fullname, self.email)], content)
 
 
@@ -349,7 +399,12 @@ class OtpSessionForReset(OtpSession[User], reason='reset'):
             otp=self.otp,
         )
         if flash_success:
-            flash(_("An OTP has been sent to your email address"), 'success')
+            flash(
+                _("An OTP has been sent to your email address {email}").format(
+                    email=self.display_email
+                ),
+                'success',
+            )
         return send_email(subject, [(self.user.fullname, self.email)], content)
 
 
