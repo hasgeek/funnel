@@ -476,7 +476,7 @@ def requires_sudo(f):
                 else:
                     # Unknown form
                     abort(403)
-                validate_rate_limit('sudo', current_auth.user.userid, 5, 60)
+                validate_rate_limit('account_sudo', current_auth.user.userid, 5, 60)
                 if form.validate_on_submit():
                     # User has successfully authenticated. Update their sudo timestamp
                     # and reload the page with a GET request, as the wrapped view may

@@ -705,7 +705,7 @@ class AccountView(ClassView):
         form = OtpForm(valid_otp=otp_session.otp)
         if form.is_submitted():
             # Allow 5 guesses per 60 seconds
-            validate_rate_limit('phone_add_otp', otp_session.token, 5, 60)
+            validate_rate_limit('account_phone-otp', otp_session.token, 5, 60)
         if form.validate_on_submit():
             OtpSession.delete()
             if TYPE_CHECKING:

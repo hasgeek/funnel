@@ -272,7 +272,7 @@ def login() -> ReturnView:
             otp_session = OtpSession.retrieve('login')
 
             # Allow 5 guesses per 60 seconds
-            validate_rate_limit('otp', otp_session.token, 5, 60)
+            validate_rate_limit('login_otp', otp_session.token, 5, 60)
 
             otp_form = get_otp_form(otp_session)
             if otp_form.validate_on_submit():
