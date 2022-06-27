@@ -224,6 +224,8 @@ def user_session_location(obj: UserSession) -> str:
 @UserSession.views('login_service')
 def user_session_login_service(obj: UserSession) -> Optional[str]:
     """Return the login provider that was used to create the login session."""
+    if obj.login_service == 'otp':
+        return _("OTP")
     if obj.login_service in login_registry:
         return login_registry[obj.login_service].title
     return None
