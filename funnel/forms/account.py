@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from hashlib import sha1
+from typing import Dict, Iterable, Optional
+
+from flask_babelhg import ngettext
+
+import requests
 
 from baseframe import _, __, forms
 from coaster.utils import sorted_timezones
@@ -39,6 +44,7 @@ __all__ = [
     'PhonePrimaryForm',
     'supported_locales',
     'timezone_identifiers',
+    'pwned_password_validator',
 ]
 
 
@@ -103,6 +109,49 @@ class PasswordStrengthValidator:
         )
 
 
+def pwned_password_validator(_form, field) -> None:
+    """Validate password against the pwned password API."""
+    phash = sha1(field.data.encode()).hexdigest().upper()  # noqa: S324  # nosec
+    prefix, suffix = phash[:5], phash[5:]
+
+    try:
+        rv = requests.get(f'https://api.pwnedpasswords.com/range/{prefix}')
+        if rv.status_code != 200:
+            # API call had an error and we can't proceed with validation.
+            return
+        # This API returns minimal plaintext containing ``suffix:count``, one per line.
+        # The following code is defensive, attempting to add mitigations:
+        # 1. If there's no : separator, add it with a zero count
+        # 2. Strip text on either side of the colon
+        # 3. If count is not a number, default it to 0
+        matches: Dict[str, int] = {
+            _s: int(_v) if _v.isdigit() else 0
+            for _s, _v in [
+                (_s.strip(), _v.strip())
+                for _s, _v in [
+                    (_l + (':0' if ':' not in _l else '')).split(':', 1)
+                    for _l in rv.text.splitlines()
+                ]
+            ]
+        }
+    except requests.RequestException:
+        # An exception occurred and we have no data to validate password against
+        return
+
+    # If we have data, check for our hash suffix in the returned range of matches
+    count = matches.get(suffix, None)
+    if count is not None:
+        raise forms.validators.StopValidation(
+            ngettext(
+                "This password was found in a breached password list and is not safe to"
+                " use",
+                "This password was found in breached password lists %(num)d times and"
+                " is not safe to use",
+                count,
+            )
+        )
+
+
 @User.forms('register')
 class RegisterForm(forms.Form):
     """
@@ -146,6 +195,7 @@ class RegisterForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(user_input_fields=['fullname', 'email']),
+            pwned_password_validator,
         ],
         render_kw={'autocomplete': 'new-password'},
     )
@@ -268,6 +318,7 @@ class PasswordCreateForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
+            pwned_password_validator,
         ],
         render_kw={'autocomplete': 'new-password'},
     )
@@ -311,6 +362,7 @@ class PasswordResetForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
+            pwned_password_validator,
         ],
         render_kw={'autocomplete': 'new-password'},
     )
@@ -356,6 +408,7 @@ class PasswordChangeForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
+            pwned_password_validator,
         ],
         render_kw={'autocomplete': 'new-password'},
     )

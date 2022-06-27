@@ -1,9 +1,12 @@
 """Test account forms."""
 
+from types import SimpleNamespace
+
 import pytest
 
+from baseframe.forms.validators import StopValidation
 from funnel import app
-from funnel.forms import PasswordPolicyForm
+from funnel.forms import PasswordPolicyForm, pwned_password_validator
 
 
 @pytest.fixture(autouse=True)
@@ -67,3 +70,21 @@ def test_okay_password(form):
     assert form.password_strength == 4
     assert form.warning == ''
     assert form.suggestions == []
+
+
+def test_pwned_password_validator():
+    """Test the pwned password validator."""
+    assert (
+        pwned_password_validator(
+            None, SimpleNamespace(data='this is unlikely to be in the breach list')
+        )
+        is None
+    )
+
+    with pytest.raises(StopValidation, match='times and is not safe'):
+        pwned_password_validator(None, SimpleNamespace(data='123456'))
+
+    with pytest.raises(StopValidation, match='times and is not safe'):
+        pwned_password_validator(
+            None, SimpleNamespace(data='correct horse battery staple')
+        )
