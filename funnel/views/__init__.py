@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from . import (
+from . import (  # skipcq: PY-W2000
     account,
     account_reset,
     api,

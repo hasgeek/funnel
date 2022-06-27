@@ -329,19 +329,20 @@ def test_valid_otp_login_email(client, csrf_token, user_rincewind, login_usernam
 @pytest.mark.parametrize('login_username', LOGIN_USERNAMES)
 def test_invalid_otp_login(client, csrf_token, login_username):
     """Using an incorrect OTP causes a login failure."""
-    with patch(PATCH_SMS_OTP_LOGIN, return_value=None, autospec=True):
-        with patch(PATCH_EMAIL_OTP_LOGIN, return_value=None, autospec=True):
-            rv1 = client.post(
-                '/login',
-                data=MultiDict(
-                    {
-                        'username': login_username,
-                        'password': '',
-                        'csrf_token': csrf_token,
-                        'form.id': 'passwordlogin',
-                    }
-                ),
-            )
+    with patch(PATCH_SMS_OTP_LOGIN, return_value=None, autospec=True), patch(
+        PATCH_EMAIL_OTP_LOGIN, return_value=None, autospec=True
+    ):
+        rv1 = client.post(
+            '/login',
+            data=MultiDict(
+                {
+                    'username': login_username,
+                    'password': '',
+                    'csrf_token': csrf_token,
+                    'form.id': 'passwordlogin',
+                }
+            ),
+        )
     assert rv1.status_code == 200
     assert current_auth.user is None
 
