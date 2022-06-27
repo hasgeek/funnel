@@ -101,10 +101,11 @@
 
 .profile-create-btn {
   margin-right: 8px;
+  margin-top: 0;
 }
 
 .profile-create-btn--mobile {
-  width: calc(100% - 65px);
+  width: 100%;
   .mui-btn {
     width: 100%;
   }
@@ -112,7 +113,7 @@
 
 .profile-dropdown-btn {
   background-color: $mui-bg-color-primary-dark;
-  padding: 6px 16px;
+  padding: $mui-grid-padding/2 $mui-grid-padding;
   text-align: center;
 }
 
@@ -122,10 +123,9 @@
   background-color: $mui-bg-color-primary-dark;
 }
 
-.floating-menu-btns {
-  position: absolute;
-  right: $mui-grid-padding;
-  top: -52px;
+.mobile-nav__menu .profile-dropdown-btn {
+  background-color: transparent;
+  margin-right: -$mui-grid-padding;
 }
 
 @media (min-width: 768px) {

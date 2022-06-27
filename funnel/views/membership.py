@@ -393,7 +393,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
             return (
                 {
                     'status': 'error',
-                    'error_description': _("The new member could not be added"),
+                    'error_description': _("Please pick one or more roles"),
                     'errors': membership_form.errors,
                     'form_nonce': membership_form.form_nonce.data,
                 },

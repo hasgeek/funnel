@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{{ profile.title }}{% endblock %}
-{%- from "macros.html.jinja2" import faicon, profile_header, video_thumbnail, projectcard, proposal_list %}
+{%- from "macros.html.jinja2" import faicon, profile_header, video_thumbnail, projectcard, proposal_list, profile_admin_buttons %}
 
 {%- block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/profile.scss') }}" />
@@ -30,6 +30,8 @@
     }
   </script>
 {%- endblock %}
+
+{% block bodyattrs %}class="mui--bg-primary mobile-header"{% endblock %}
 
 {% block contenthead %}
 {% endblock %}
