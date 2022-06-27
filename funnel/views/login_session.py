@@ -31,6 +31,7 @@ from coaster.views import get_current_url, get_next_url
 from .. import app
 from ..forms import OtpForm, PasswordForm
 from ..models import (
+    USER_SESSION_VALIDITY_PERIOD,
     AuthClient,
     AuthClientCredential,
     User,
@@ -40,7 +41,6 @@ from ..models import (
     UserSessionRevokedError,
     auth_client_user_session,
     db,
-    user_session_validity_period,
 )
 from ..proxies import request_wants
 from ..serializers import lastuser_serializer
@@ -56,8 +56,8 @@ from .helpers import (
 from .otp import OtpSession, OtpTimeoutError
 
 # Constant value, needed for cookie max_age
-user_session_validity_period_total_seconds = int(
-    user_session_validity_period.total_seconds()
+USER_SESSION_VALIDITY_PERIOD_TOTAL_SECONDS = int(
+    USER_SESSION_VALIDITY_PERIOD.total_seconds()
 )
 
 
@@ -706,9 +706,9 @@ def set_loginmethod_cookie(response, value):
         'login',
         value,
         # Keep this cookie for a year
-        max_age=user_session_validity_period_total_seconds,
+        max_age=USER_SESSION_VALIDITY_PERIOD_TOTAL_SECONDS,
         # Expire one year from now
-        expires=utcnow() + user_session_validity_period,
+        expires=utcnow() + USER_SESSION_VALIDITY_PERIOD,
         secure=current_app.config['SESSION_COOKIE_SECURE'],
         httponly=True,
         samesite='Lax',
