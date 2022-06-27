@@ -1,4 +1,4 @@
-"""OTP support."""
+"""Support for OTPs using Redis cache and browser session cookie."""
 
 from __future__ import annotations
 
@@ -51,7 +51,7 @@ class OtpError(Exception):
 
 
 class OtpTimeoutError(OtpError, RequestTimeout):
-    """Exception to indicate the OTP has expired."""
+    """Exception to indicate the OTP has expired (from cache or cookie)."""
 
 
 class OtpReasonError(OtpError, Forbidden):
@@ -117,7 +117,7 @@ class OtpSession(Generic[OptionalUserType]):
         """Register a subclass for use by __new__."""
         reason = kwargs.pop('reason', None)
         if not reason:
-            raise TypeError("Subclasses of OtpSession must have a reason kwarg")
+            raise TypeError("Subclasses of OtpSession must have a `reason` kwarg")
         super().__init_subclass__(*args, **kwargs)
         if reason in _reason_subclasses:
             raise TypeError(f"OtpSession subclass for {reason} already exists")
