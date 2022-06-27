@@ -270,6 +270,7 @@ class AccountView(ClassView):
     @requires_sudo
     def sudo(self) -> ReturnResponse:
         """Render a sudo prompt, as needed by :func:`requires_sudo`."""
+        # TODO: get_next_url() should recognise other app domains (for Hasjob)
         return redirect(get_next_url(), code=303)
 
     @route('saved', endpoint='saved')
@@ -826,7 +827,9 @@ AccountView.init_app(app)
 # @hasjobapp.route('/account/sudo', endpoint='account_sudo')
 def otherapp_account_sudo() -> ReturnResponse:
     """Support the sudo endpoint in other apps."""
-    next_url = request.args.get('next')
+    next_url = get_next_url(default=None)
     if next_url:
+        # FIXME: Convert relative ``next_url`` into an absolute URL and ensure
+        # :meth:`AccountView.sudo` recognises this app's domain
         return redirect(app_url_for(app, 'account_sudo', next=next_url))
     return redirect(app_url_for(app, 'account_sudo'))

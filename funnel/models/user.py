@@ -297,6 +297,11 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """User has any verified contact info (email or phone)."""
         return bool(self.emails) or bool(self.phones)
 
+    @property
+    def has_contact_info(self) -> bool:
+        """User has any contact information (including unverified)."""
+        return self.has_verified_contact_info or bool(self.emailclaims)
+
     def merged_user(self) -> User:
         """Return the user account that this account was merged into (default: self)."""
         if self.state.MERGED:
@@ -359,17 +364,13 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     with_roles(pickername, read={'all'})
 
-    def default_anchor(
-        self, claim: bool = True
-    ) -> Optional[Union[UserEmail, UserEmailClaim, UserPhone]]:
-        """Return default anchor."""
-        if self.phone:
-            return self.phone
+    def default_email(self) -> Optional[Union[UserEmail, UserEmailClaim]]:
+        """Return default email address (verified if present, else unverified)."""
         if self.email:
             return self.email
-        if claim and self.emailclaims:
+        if self.emailclaims:
             return self.emailclaims[0]
-        # This user has no anchors
+        # This user has no email addresses
         return None
 
     def add_email(

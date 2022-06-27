@@ -130,8 +130,8 @@ class OtpSession(Generic[OptionalUserType]):
         reason: str,
         user: OptionalUserType,
         anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone, EmailAddress]],
-        email: Optional[str] = None,
         phone: Optional[str] = None,
+        email: Optional[str] = None,
     ) -> OtpSessionType:
         """
         Create an OTP for login and save it to cache and browser cookie session.
@@ -205,7 +205,9 @@ class OtpSession(Generic[OptionalUserType]):
         delete_cached_token(token)
         return True
 
-    def send_sms(self, render_flash: bool = True) -> Optional[SMSMessage]:
+    def send_sms(
+        self, flash_success: bool = True, flash_failure: bool = True
+    ) -> Optional[SMSMessage]:
         """Send an OTP via SMS to a phone number."""
         if not self.phone:
             return None
@@ -222,10 +224,10 @@ class OtpSession(Generic[OptionalUserType]):
                 phone=msg.phone_number, message=template_message
             )
         except TransportRecipientError as exc:
-            if render_flash:
+            if flash_failure:
                 flash(str(exc), 'error')
         except (TransportConnectionError, TransportTransactionError):
-            if render_flash:
+            if flash_failure:
                 flash(
                     _("Unable to send an OTP to your phone number right now"), 'error'
                 )
@@ -233,16 +235,18 @@ class OtpSession(Generic[OptionalUserType]):
             # Commit only if an SMS could be sent
             db.session.add(msg)
             db.session.commit()
-            if render_flash:
+            if flash_success:
                 flash(_("An OTP has been sent to your phone number"), 'success')
             return msg
         return None
 
-    def send_email(self, render_flash: bool = True) -> Optional[str]:
+    def send_email(
+        self, flash_success: bool = True, flash_failure: bool = True
+    ) -> Optional[str]:
         """Send an OTP via email (stub implementation)."""
         raise NotImplementedError("Subclasses must implement send_email")
 
-    def send(self, render_flash: bool = True) -> bool:
+    def send(self, flash_success: bool = True, flash_failure: bool = True) -> bool:
         """Send an OTP via SMS or email."""
         # Allow 3 OTP sends per hour per anchor
         validate_rate_limit(
@@ -255,19 +259,21 @@ class OtpSession(Generic[OptionalUserType]):
             3600,
         )
         if self.phone:
-            success = bool(self.send_sms(render_flash))
+            success = bool(self.send_sms(flash_success, flash_failure))
             if success:
                 return success
             # If an SMS could not be sent, fallback to sending email
         if self.email:
-            return bool(self.send_email(render_flash))
+            return bool(self.send_email(flash_success, flash_failure))
         return False
 
 
 class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
     """OtpSession variant for login."""
 
-    def send_email(self, render_flash: bool = True) -> Optional[str]:
+    def send_email(
+        self, flash_success: bool = True, flash_failure: bool = True
+    ) -> Optional[str]:
         """Email a login OTP to the user."""
         if not self.email:
             return None
@@ -281,7 +287,7 @@ class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
             fullname=fullname,
             otp=self.otp,
         )
-        if render_flash:
+        if flash_success:
             flash(_("An OTP has been sent to your email address"), 'success')
         return send_email(subject, [(fullname, self.email)], content)
 
@@ -289,7 +295,9 @@ class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
 class OtpSessionForSudo(OtpSession[User], reason='sudo'):
     """OtpSession variant for sudo confirmation."""
 
-    def send_email(self, render_flash: bool = True) -> Optional[str]:
+    def send_email(
+        self, flash_success: bool = True, flash_failure: bool = True
+    ) -> Optional[str]:
         """Email a sudo OTP to the user."""
         if not self.email:
             return None
@@ -299,7 +307,7 @@ class OtpSessionForSudo(OtpSession[User], reason='sudo'):
             fullname=self.user.fullname,
             otp=self.otp,
         )
-        if render_flash:
+        if flash_success:
             flash(_("An OTP has been sent to your email address"), 'success')
         return send_email(subject, [(self.user.fullname, self.email)], content)
 
@@ -314,7 +322,9 @@ class OtpSessionForReset(OtpSession[User], reason='reset'):
             {'buid': self.user.buid, 'pw_set_at': str_pw_set_at(self.user)}
         )
 
-    def send_email(self, render_flash: bool = True) -> Optional[str]:
+    def send_email(
+        self, flash_success: bool = True, flash_failure: bool = True
+    ) -> Optional[str]:
         """Send OTP and reset link via email."""
         if not self.email:
             return None
@@ -335,7 +345,7 @@ class OtpSessionForReset(OtpSession[User], reason='reset'):
             jsonld=jsonld,
             otp=self.otp,
         )
-        if render_flash:
+        if flash_success:
             flash(_("An OTP has been sent to your email address"), 'success')
         return send_email(subject, [(self.user.fullname, self.email)], content)
 
@@ -343,6 +353,8 @@ class OtpSessionForReset(OtpSession[User], reason='reset'):
 class OtpSessionForNewPhone(OtpSession[User], reason='add-phone'):
     """OtpSession variant for adding a phone number."""
 
-    def send_email(self, render_flash: bool = True) -> Optional[str]:
+    def send_email(
+        self, flash_success: bool = True, flash_failure: bool = True
+    ) -> Optional[str]:
         """OTP for phone does not require email."""
         return None

@@ -109,10 +109,9 @@ def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnc
             return UserAndAnchor(None, None)
         if user.phone:
             return UserAndAnchor(user, user.phone)
-        if user.email:
-            return UserAndAnchor(user, user.email)
-        if user.emailclaims:
-            return UserAndAnchor(user, user.emailclaims[0])
+        useremail = user.default_email()
+        if useremail:
+            return UserAndAnchor(user, useremail)
         # This user has no anchors
         return UserAndAnchor(user, None)
 
