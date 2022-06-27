@@ -11,6 +11,7 @@ from flask import (
     abort,
     current_app,
     flash,
+    g,
     jsonify,
     make_response,
     redirect,
@@ -34,6 +35,7 @@ from ..models import (
     USER_SESSION_VALIDITY_PERIOD,
     AuthClient,
     AuthClientCredential,
+    Profile,
     User,
     UserSession,
     UserSessionExpiredError,
@@ -51,6 +53,7 @@ from .helpers import (
     autoset_timezone_and_locale,
     get_scheme_netloc,
     render_redirect,
+    session_timeouts,
     validate_rate_limit,
 )
 from .otp import OtpSession, OtpTimeoutError
@@ -59,6 +62,36 @@ from .otp import OtpSession, OtpTimeoutError
 USER_SESSION_VALIDITY_PERIOD_TOTAL_SECONDS = int(
     USER_SESSION_VALIDITY_PERIOD.total_seconds()
 )
+# For quick lookup of matching supported methods in request.url_rule.methods
+GET_AND_POST = frozenset({'GET', 'POST'})
+
+session_timeouts['sudo_context'] = timedelta(minutes=15)
+
+
+def save_sudo_preference_context() -> None:
+    """Save sudo preference context to cookie session before redirecting."""
+    profile = getattr(g, 'profile', None)
+    if profile is not None:
+        session['sudo_context'] = {'type': 'profile', 'uuid_b64': profile.uuid_b64}
+    else:
+        session.pop('sudo_context', None)
+
+
+def get_sudo_preference_context() -> Optional[Profile]:
+    """Get optional preference context for sudo endpoint."""
+    profile = getattr(g, 'profile', None)
+    if profile is not None:
+        return profile
+    sudo_context = session.get('sudo_context', {})
+    if sudo_context.get('type') != 'profile':
+        # Only Profile context is supported at this time
+        return None
+    return Profile.query.filter_by(uuid_b64=sudo_context['uuid_b64']).one_or_none()
+
+
+def del_sudo_preference_context() -> None:
+    """Remove optional sudo preference context from cookie session."""
+    session.pop('sudo_context', None)
 
 
 class LoginManager:
@@ -400,16 +433,18 @@ def requires_login_no_message(f):
 
 def requires_sudo(f):
     """
-    Decorate a view to require user to have re-authenticated recently.
+    Decorate a view to require the current user to have re-authenticated recently.
 
-    Requires the endpoint to support the POST method, as it renders a password form
-    within the same request, avoiding redirecting the user to a gatekeeping endpoint
-    unless the request needs JSON, in which case a HTML form cannot be rendered. The
-    user is redirected to the `account_sudo` endpoint in this case.
+    Renders an authentication prompt (password or OTP) within the same request if the
+    URL rule supports both GET and POST, and the request does not want a HTML fragment
+    or JSON response. In other cases, it redirects the user to a sudo endpoint, attempts
+    to reload the same page to force a full render instead of a HTML fragment, or sends
+    a JSON error response asking the client to use the sudo endpoint.
     """
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        """Prompt for re-authentication to proceed."""
         add_auth_attribute('login_required', True)
         # If the user is not logged in, require login first
         if not current_auth.is_authenticated:
@@ -417,49 +452,57 @@ def requires_sudo(f):
             return render_redirect(url_for('login', next=get_current_url()))
         if current_auth.session.has_sudo:
             # This user authenticated recently. Nothing further required.
+            del_sudo_preference_context()
             return f(*args, **kwargs)
 
         if request_wants.json:
             # A JSON-only endpoint can't render a form, so we have to redirect the
-            # browser to the ``account_sudo`` endpoint, asking it to redirect back here
-            # after getting the user's password. That will be `url_for('account_sudo',
-            # next=get_current_url())` but generated in JavaScript client-side to ensure
-            # the fragment identifier is included, and will thereby reload to the same
-            # modal the user was sent away from. A backup URL without fragment
-            # identifier is included in this response
-
+            # browser to the ``account_sudo`` endpoint, returning after authentication.
+            # That redirect will be to the client-side JavaScript equivalent of
+            # `url_for('account_sudo', next=request.url)`, in particular ensuring that
+            # the host page URL including the fragment identifier is used (NOT this
+            # request's URL)
+            save_sudo_preference_context()
             return make_response(
                 jsonify(
                     status='error',
                     error='requires_sudo',
-                    error_description=_(
-                        "This request must be confirmed with an OTP or your password"
-                    ),
-                    url=url_for('account_sudo', next=get_current_url()),
+                    error_description=_("This request requires re-authentication"),
+                    sudo_url=url_for('account_sudo'),  # No `?next=` here
                 ),
                 422,
             )
 
+        if not GET_AND_POST.issubset(request.url_rule.methods):
+            # This view does not support GET or POST methods, which we need. Send the
+            # user off to the sudo endpoint for authentication.
+            save_sudo_preference_context()
+            return render_redirect(
+                url_for('account_sudo', next=get_current_url()), code=303
+            )
+
         if request_wants.html_fragment:
             # If the request wanted a HTML fragment, reload as a full page to ensure the
-            # sudo form is rendered properly. The fragment identifier cannot be
+            # sudo form is properly rendered. The fragment identifier cannot be
             # preserved in this case.
             return render_redirect(url=request.url, code=303)
 
+        # We'll need a password form or an OTP form, depending on whether the user has a
+        # password or contact info for an OTP. If neither is available, we'll ask them
+        # to set a password on their account
         form = None
 
         if request.method == 'GET':
-            # If the user has a password, ask for it
+            # If the user has a password, use a password form
             if current_auth.user.pw_hash:
-                # A future version of this form may accept 2FA (U2F or TOTP) instead of
-                # a password
+                # A future version may accept 2FA (U2F or TOTP) instead of a password
                 form = PasswordForm(edit_user=current_auth.user)
-
             elif current_auth.user.has_contact_info:
-                # User does not have a password. Try to send an OTP to phone, falling
-                # back to email.
-                userphone = current_auth.user.phone
-                useremail = current_auth.user.default_email()
+                # User does not have a password but has contact info. Try to send an OTP
+                # to their phone, falling back to email
+                context = get_sudo_preference_context()
+                userphone = current_auth.user.transport_for_sms(context=context)
+                useremail = current_auth.user.default_email(context=context)
                 otp_session = OtpSession.make(
                     'sudo',
                     user=current_auth.user,
@@ -468,9 +511,13 @@ def requires_sudo(f):
                     email=str(useremail) if useremail else None,
                 )
                 if otp_session.send(flash_failure=False):
+                    # Use OtpForm only if an OTP could be sent. Failure messages are
+                    # suppressed because the fallback option is to ask the user to set a
+                    # password
                     form = OtpForm(valid_otp=otp_session.otp)
 
-            # If an OTP could not be sent, ask the user to set their password
+            # If the user does not have a password and an OTP could not be sent (usable
+            # form is None), ask the user to set a password
             if form is None:
                 flash(
                     _(

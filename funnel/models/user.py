@@ -364,15 +364,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     with_roles(pickername, read={'all'})
 
-    def default_email(self) -> Optional[Union[UserEmail, UserEmailClaim]]:
-        """Return default email address (verified if present, else unverified)."""
-        if self.email:
-            return self.email
-        if self.emailclaims:
-            return self.emailclaims[0]
-        # This user has no email addresses
-        return None
-
     def add_email(
         self,
         email: str,
@@ -510,7 +501,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @with_roles(call={'owner'})
     def transport_for_email(self, context) -> Optional[UserEmail]:
         """Return user's preferred email address within a context."""
-        # Per-profile/project customization is a future option
+        # TODO: Per-profile/project customization is a future option
         if self.state.ACTIVE:
             return self.email or None
         return None
@@ -518,7 +509,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @with_roles(call={'owner'})
     def transport_for_sms(self, context) -> Optional[UserPhone]:
         """Return user's preferred phone number within a context."""
-        # Per-profile/project customization is a future option
+        # TODO: Per-profile/project customization is a future option
         if self.state.ACTIVE:
             return self.phone or None
         return None
@@ -563,6 +554,26 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         Helper method to call ``self.transport_for_<transport>(context)``.
         """
         return getattr(self, 'transport_for_' + transport)(context)
+
+    def default_email(self, context=None) -> Optional[Union[UserEmail, UserEmailClaim]]:
+        """
+        Return default email address (verified if present, else unverified).
+
+        ..note::
+            This is a temporary helper method, pending merger of :class:`UserEmailClaim`
+            into :class:`UserEmail` with :attr:`~UserEmail.verified` ``== False``. The
+            appropriate replacement is :meth:`User.transport_for_email` with a context.
+        """
+        email = self.transport_for_email(context=context)
+        if email:
+            return email
+        # Fallback when ``transport_for_email`` returns None
+        if self.email:
+            return self.email
+        if self.emailclaims:
+            return self.emailclaims[0]
+        # This user has no email addresses
+        return None
 
     @property
     def _self_is_owner_and_admin_of_self(self):

@@ -69,6 +69,7 @@ from .helpers import (
     validate_rate_limit,
 )
 from .login_session import (
+    del_sudo_preference_context,
     login_internal,
     logout_internal,
     requires_login,
@@ -272,7 +273,8 @@ class AccountView(ClassView):
     @requires_sudo
     def sudo(self) -> ReturnResponse:
         """Render a sudo prompt, as needed by :func:`requires_sudo`."""
-        # TODO: get_next_url() should recognise other app domains (for Hasjob)
+        del_sudo_preference_context()
+        # TODO: get_next_url() should recognise other app domains (for Hasjob).
         return redirect(get_next_url(), code=303)
 
     @route('saved', endpoint='saved')

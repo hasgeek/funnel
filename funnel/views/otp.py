@@ -7,7 +7,7 @@ from datetime import timedelta
 from typing import Dict, Generic, Optional, Type, TypeVar, Union
 
 from flask import current_app, flash, render_template, session, url_for
-from werkzeug.exceptions import Forbidden, RequestTimeout
+from werkzeug.exceptions import Forbidden, RequestTimeout, TooManyRequests
 
 from baseframe import _
 from coaster.auth import current_auth
@@ -244,26 +244,29 @@ class OtpSession(Generic[OptionalUserType]):
         self, flash_success: bool = True, flash_failure: bool = True
     ) -> Optional[str]:
         """Send an OTP via email (stub implementation)."""
-        raise NotImplementedError("Subclasses must implement send_email")
+        raise NotImplementedError("Subclasses must implement ``send_email``")
 
     def send(self, flash_success: bool = True, flash_failure: bool = True) -> bool:
         """Send an OTP via SMS or email."""
         # Allow 3 OTP sends per hour per anchor
-        validate_rate_limit(
-            'otp-send',
-            (
-                'anchor/'
-                + blake2b160_hex(self.phone or self.email)  # type: ignore[arg-type]
-            ),
-            3,
-            3600,
-        )
-        if self.phone:
-            success = bool(self.send_sms(flash_success, flash_failure))
-            if success:
-                return success
-            # If an SMS could not be sent, fallback to sending email
-        if self.email:
+        if self.phone is not None:
+            try:
+                validate_rate_limit(
+                    'otp-send', 'phone/' + blake2b160_hex(self.phone), 3, 3600
+                )
+                success = bool(self.send_sms(flash_success, flash_failure))
+                if success:
+                    return success
+            except TooManyRequests as exc:
+                if self.email is None:
+                    # There is no fallback to email OTP, so this is a hard rate limit
+                    raise exc
+            # If an SMS could not be sent (connection error, recipient error, rate
+            # limit) but email is available, fallback to sending email
+        if self.email is not None:
+            validate_rate_limit(
+                'otp-send', 'email/' + blake2b160_hex(self.email), 3, 3600
+            )
             return bool(self.send_email(flash_success, flash_failure))
         return False
 
