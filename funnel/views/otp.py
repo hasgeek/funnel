@@ -338,8 +338,8 @@ class OtpSessionForReset(OtpSession[User], reason='reset'):
         return send_email(subject, [(self.user.fullname, self.email)], content)
 
 
-class OtpSessionForNewPhone(OtpSession[User], reason='new-phone'):
-    """OtpSession variant for new phone number."""
+class OtpSessionForNewPhone(OtpSession[User], reason='add-phone'):
+    """OtpSession variant for adding a phone number."""
 
     def send_email(self, render_flash: bool = True) -> Optional[str]:
         """OTP for phone does not require email."""

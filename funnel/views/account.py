@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
-from typing import Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 from flask import (
     Markup,
@@ -33,11 +33,11 @@ from ..forms import (
     LogoutForm,
     NewEmailAddressForm,
     NewPhoneForm,
+    OtpForm,
     PasswordChangeForm,
     PasswordCreateForm,
     PhonePrimaryForm,
     SavedProjectForm,
-    VerifyPhoneForm,
     supported_locales,
     timezone_identifiers,
 )
@@ -66,6 +66,7 @@ from .helpers import (
     autoset_timezone_and_locale,
     avatar_color_count,
     render_redirect,
+    validate_rate_limit,
 )
 from .login_session import (
     login_internal,
@@ -74,6 +75,7 @@ from .login_session import (
     requires_sudo,
 )
 from .notification import dispatch_notification
+from .otp import OtpSession, OtpTimeoutError
 
 
 @User.views()
@@ -674,30 +676,62 @@ class AccountView(ClassView):
         """Add a new phone number."""
         form = NewPhoneForm(edit_user=current_auth.user)
         if form.validate_on_submit():
-            userphone = UserPhoneClaim.get_for(
-                user=current_auth.user, phone=form.phone.data
+            otp_session = OtpSession.make(
+                'add-phone', user=current_auth.user, anchor=None, phone=form.phone.data
             )
-            if userphone is None:
-                userphone = UserPhoneClaim(
-                    user=current_auth.user, phone=form.phone.data
+            if otp_session.send():
+                current_auth.user.main_notification_preferences.by_sms = (
+                    form.enable_notifications.data
                 )
-                db.session.add(userphone)
-            current_auth.user.main_notification_preferences.by_sms = (
-                form.enable_notifications.data
-            )
-            # FIXME!!!!!! Replace with OtpSession
-            # FIXME: msg = send_sms_otp(userphone.phone, userphone.verification_code)
-            msg = 'sent?'  # FIXME
-            if msg is not None:
-                user_data_changed.send(current_auth.user, changes=['phone-claim'])
-                return render_redirect(
-                    url_for('verify_phone', number=userphone.phone), code=303
-                )
+                return render_redirect(url_for('verify_phone'), code=303)
         return render_form(
             form=form,
             title=_("Add a phone number"),
             formid='phone_add',
             submit=_("Verify phone"),
+            ajax=False,
+            template='account_formlayout.html.jinja2',
+        )
+
+    @route('phone/verify', methods=['GET', 'POST'], endpoint='verify_phone')
+    def verify_phone(self) -> ReturnView:
+        """Verify a phone number with an OTP."""
+        try:
+            otp_session = OtpSession.retrieve('add-phone')
+        except OtpTimeoutError:
+            flash(_("This OTP has expired"), category='error')
+            return render_redirect(url_for('add_phone'), code=303)
+
+        form = OtpForm(valid_otp=otp_session.otp)
+        if form.is_submitted():
+            # Allow 5 guesses per 60 seconds
+            validate_rate_limit('phone_add_otp', otp_session.token, 5, 60)
+        if form.validate_on_submit():
+            OtpSession.delete()
+            if TYPE_CHECKING:
+                assert otp_session.phone is not None  # nosec
+            if UserPhone.get(otp_session.phone) is None:
+                # If there are no existing phone numbers, this will be a primary
+                primary = not current_auth.user.phones
+                userphone = UserPhone(
+                    user=current_auth.user, phone=otp_session.phone, gets_text=True
+                )
+                userphone.primary = primary
+                db.session.add(userphone)
+                db.session.commit()
+                flash(_("Your phone number has been verified"), 'success')
+                user_data_changed.send(current_auth.user, changes=['phone'])
+                return render_redirect(url_for('account'), code=303)
+            flash(
+                _("This phone number has already been claimed by another user"),
+                'danger',
+            )
+            return render_redirect(url_for('add_phone'), code=303)
+        return render_form(
+            form=form,
+            title=_("Verify phone number"),
+            formid='phone_verify',
+            submit=_("Verify"),
             ajax=False,
             template='account_formlayout.html.jinja2',
         )
@@ -751,54 +785,6 @@ class AccountView(ClassView):
             ),
             next=url_for('account'),
             delete_text=_("Remove"),
-        )
-
-    @route('phone/<number>/verify', methods=['GET', 'POST'], endpoint='verify_phone')
-    def verify_phone(self, number: str) -> ReturnView:
-        phoneclaim = UserPhoneClaim.query.filter_by(
-            user=current_auth.user, phone=number
-        ).one_or_404()
-        if phoneclaim.verification_expired:
-            flash(
-                _("You provided an incorrect verification code too many times"),
-                'danger',
-            )
-            # Block attempts to verify this number, but also keep the claim so that a
-            # new claim cannot be made. A periodic sweep to delete old claims is needed.
-            return render_redirect(url_for('account'), code=303)
-
-        form = VerifyPhoneForm()
-        form.phoneclaim = phoneclaim
-        if form.validate_on_submit():
-            if UserPhone.get(phoneclaim.phone) is None:
-                # If there are no existing phone numbers, this will be a primary
-                primary = not current_auth.user.phones
-                userphone = UserPhone(
-                    user=current_auth.user, phone=phoneclaim.phone, gets_text=True
-                )
-                userphone.primary = primary
-                db.session.add(userphone)
-                db.session.delete(phoneclaim)
-                db.session.commit()
-                flash(_("Your phone number has been verified"), 'success')
-                user_data_changed.send(current_auth.user, changes=['phone'])
-                return render_redirect(url_for('account'), code=303)
-            db.session.delete(phoneclaim)
-            db.session.commit()
-            flash(
-                _("This phone number has already been claimed by another user"),
-                'danger',
-            )
-        elif form.is_submitted():
-            phoneclaim.verification_attempts += 1
-            db.session.commit()
-        return render_form(
-            form=form,
-            title=_("Verify phone number"),
-            formid='phone_verify',
-            submit=_("Verify"),
-            ajax=False,
-            template='account_formlayout.html.jinja2',
         )
 
     # Userid is a path here because obsolete OpenID ids are URLs (both direct and via

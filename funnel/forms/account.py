@@ -16,7 +16,6 @@ from ..models import (
     User,
     UserEmailClaim,
     UserPhone,
-    UserPhoneClaim,
     check_password_strength,
     getuser,
 )
@@ -38,7 +37,6 @@ __all__ = [
     'NewEmailAddressForm',
     'NewPhoneForm',
     'PhonePrimaryForm',
-    'VerifyPhoneForm',
     'supported_locales',
     'timezone_identifiers',
 ]
@@ -403,6 +401,8 @@ def raise_username_error(reason: str) -> str:
 class AccountForm(forms.Form):
     """Form to edit basic account details."""
 
+    edit_obj: User
+
     fullname = forms.StringField(
         __("Full name"),
         description=__(
@@ -598,10 +598,8 @@ class NewPhoneForm(forms.Form):
                 raise forms.ValidationError(
                     _("You have already registered this phone number")
                 )
+            # TODO: This should be a mechanism for merging accounts
             raise forms.ValidationError(_("This phone number has already been claimed"))
-        existing = UserPhoneClaim.get_for(user=self.edit_user, phone=number)
-        if existing is not None:
-            raise forms.ValidationError(_("This phone number is pending verification"))
         # Step 3: If validations pass, use the reformatted number
         field.data = number  # Save stripped number
 
@@ -619,29 +617,6 @@ class PhonePrimaryForm(forms.Form):
             'autocomplete': 'tel',
         },
     )
-
-
-@User.forms('phone_verify')
-class VerifyPhoneForm(forms.Form):
-    """Verify a phone number with an OTP (TODO: pending deprecation with OtpForm)."""
-
-    verification_code = forms.StringField(
-        __("Verification code"),
-        validators=[forms.validators.DataRequired()],
-        filters=[forms.filters.strip()],
-        render_kw={
-            'pattern': '[0-9]*',
-            'autocomplete': 'one-time-code',
-            'autocorrect': 'off',
-            'inputmode': 'numeric',
-        },
-    )
-
-    def validate_verification_code(self, field) -> None:
-        """Validate verification code provided by user matches what is expected."""
-        # self.phoneclaim is set by the view before calling form.validate()
-        if self.phoneclaim.verification_code != field.data:
-            raise forms.ValidationError(_("Verification code does not match"))
 
 
 class ModeratorReportForm(forms.Form):

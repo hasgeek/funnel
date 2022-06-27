@@ -411,8 +411,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if useremail is not None:
             return useremail
         # No primary? Maybe there's one that's not set as primary?
-        useremail = UserEmail.query.filter_by(user=self).first()
-        if useremail is not None:
+        if self.emails:
+            useremail = self.emails[0]
             # XXX: Mark as primary. This may or may not be saved depending on
             # whether the request ended in a database commit.
             self.primary_email = useremail
@@ -439,7 +439,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if primary:
             self.primary_phone = userphone
         return userphone
-        # FIXME: This should remove competing instances of UserPhoneClaim
 
     def del_phone(self, phone: str) -> None:
         """Remove a phone number from the user's account."""
@@ -463,8 +462,8 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if userphone is not None:
             return userphone
         # No primary? Maybe there's one that's not set as primary?
-        userphone = UserPhone.query.filter_by(user=self).first()
-        if userphone is not None:
+        if self.phones:
+            userphone = self.phones[0]
             # XXX: Mark as primary. This may or may not be saved depending on
             # whether the request ended in a database commit.
             self.primary_phone = userphone
