@@ -58,40 +58,25 @@ from .helpers import (
 )
 from .otp import OtpSession, OtpTimeoutError
 
-# Constant value, needed for cookie max_age
+# --- Constants ------------------------------------------------------------------------
+
+#: User session validity in seconds, needed for cookie max_age
 USER_SESSION_VALIDITY_PERIOD_TOTAL_SECONDS = int(
     USER_SESSION_VALIDITY_PERIOD.total_seconds()
 )
-# For quick lookup of matching supported methods in request.url_rule.methods
+#: For quick lookup of matching supported methods in request.url_rule.methods
 GET_AND_POST = frozenset({'GET', 'POST'})
+#: Form id for sudo OTP form
+FORMID_SUDO_OTP = 'sudo-otp'
+#: Form id for sudo password form
+FORMID_SUDO_PASSWORD = 'sudo-password'  # noqa: S105  # nosec
+
+# --- Registry entries -----------------------------------------------------------------
 
 session_timeouts['sudo_context'] = timedelta(minutes=15)
 
 
-def save_sudo_preference_context() -> None:
-    """Save sudo preference context to cookie session before redirecting."""
-    profile = getattr(g, 'profile', None)
-    if profile is not None:
-        session['sudo_context'] = {'type': 'profile', 'uuid_b64': profile.uuid_b64}
-    else:
-        session.pop('sudo_context', None)
-
-
-def get_sudo_preference_context() -> Optional[Profile]:
-    """Get optional preference context for sudo endpoint."""
-    profile = getattr(g, 'profile', None)
-    if profile is not None:
-        return profile
-    sudo_context = session.get('sudo_context', {})
-    if sudo_context.get('type') != 'profile':
-        # Only Profile context is supported at this time
-        return None
-    return Profile.query.filter_by(uuid_b64=sudo_context['uuid_b64']).one_or_none()
-
-
-def del_sudo_preference_context() -> None:
-    """Remove optional sudo preference context from cookie session."""
-    session.pop('sudo_context', None)
+# --- Login manager --------------------------------------------------------------------
 
 
 class LoginManager:
@@ -223,6 +208,8 @@ class LoginManager:
 
 # For compatibility with baseframe.forms.fields.UserSelectFieldBase
 LoginManager.usermanager = LoginManager
+
+# --- View helpers ---------------------------------------------------------------------
 
 
 @UserSession.views('mark_accessed')
@@ -387,6 +374,9 @@ def update_user_session_timestamp(response):
     return response
 
 
+# --- Utility functions and decorators -------------------------------------------------
+
+
 def save_session_next_url() -> bool:
     """
     Save the next URL to the session.
@@ -431,6 +421,32 @@ def requires_login_no_message(f):
     return decorated_function
 
 
+def save_sudo_preference_context() -> None:
+    """Save sudo preference context to cookie session before redirecting."""
+    profile = getattr(g, 'profile', None)
+    if profile is not None:
+        session['sudo_context'] = {'type': 'profile', 'uuid_b64': profile.uuid_b64}
+    else:
+        session.pop('sudo_context', None)
+
+
+def get_sudo_preference_context() -> Optional[Profile]:
+    """Get optional preference context for sudo endpoint."""
+    profile = getattr(g, 'profile', None)
+    if profile is not None:
+        return profile
+    sudo_context = session.get('sudo_context', {})
+    if sudo_context.get('type') != 'profile':
+        # Only Profile context is supported at this time
+        return None
+    return Profile.query.filter_by(uuid_b64=sudo_context['uuid_b64']).one_or_none()
+
+
+def del_sudo_preference_context() -> None:
+    """Remove optional sudo preference context from cookie session."""
+    session.pop('sudo_context', None)
+
+
 def requires_sudo(f):
     """
     Decorate a view to require the current user to have re-authenticated recently.
@@ -451,7 +467,7 @@ def requires_sudo(f):
             flash(_("You need to be logged in for that page"), 'info')
             return render_redirect(url_for('login', next=get_current_url()))
         if current_auth.session.has_sudo:
-            # This user authenticated recently. Nothing further required.
+            # This user authenticated recently, so no intervention is required
             del_sudo_preference_context()
             return f(*args, **kwargs)
 
@@ -483,12 +499,12 @@ def requires_sudo(f):
 
         if request_wants.html_fragment:
             # If the request wanted a HTML fragment, reload as a full page to ensure the
-            # sudo form is properly rendered. The fragment identifier cannot be
-            # preserved in this case.
+            # authentication form is properly rendered. The current page's fragment
+            # identifier cannot be preserved in this case.
             return render_redirect(url=request.url, code=303)
 
         # We'll need a password form or an OTP form, depending on whether the user has a
-        # password or contact info for an OTP. If neither is available, we'll ask them
+        # password or contact info for an OTP. If neither are available, we'll ask them
         # to set a password on their account
         form = None
 
@@ -532,27 +548,29 @@ def requires_sudo(f):
 
         elif request.method == 'POST':
             formid = abort_null(request.form.get('form.id'))
-            if formid == 'sudo-otp':
+            if formid == FORMID_SUDO_OTP:
                 try:
                     otp_session = OtpSession.retrieve('sudo')
                 except OtpTimeoutError:
                     # Reload the page to send another OTP
                     return render_redirect(url=request.url, code=303)
                 form = OtpForm(valid_otp=otp_session.otp)
-            elif formid == 'sudo-password':
+            elif formid == FORMID_SUDO_PASSWORD:
                 form = PasswordForm(edit_user=current_auth.user)
             else:
                 # Unknown form
-                abort(403)
+                abort(422)
+
+            # Allow 5 password or OTP guesses per 60 seconds
             validate_rate_limit('account_sudo', current_auth.user.userid, 5, 60)
             if form.validate_on_submit():
                 # User has successfully authenticated. Update their sudo timestamp
                 # and reload the page with a GET request, as the wrapped view may
                 # need to render its own form
                 current_auth.session.set_sudo()
-                db.session.commit()
                 continue_url = session.pop('next', request.url)
                 OtpSession.delete()
+                db.session.commit()
                 return render_redirect(continue_url, code=303)
         else:
             # Only GET and POST are supported. We may get here if the decorated view
@@ -561,10 +579,10 @@ def requires_sudo(f):
 
         if isinstance(form, OtpForm):
             title = _("Confirm this operation with an OTP")
-            formid = 'sudo-otp'
+            formid = FORMID_SUDO_OTP
         elif isinstance(form, PasswordForm):
             title = _("Confirm with your password to proceed")
-            formid = 'sudo-password'
+            formid = FORMID_SUDO_PASSWORD
         else:  # pragma: no cover
             abort(500)  # This should never happen
 
