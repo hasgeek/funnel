@@ -515,6 +515,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
 
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         if not old_user or not new_user:
             return None  # Don't mess with client-only tokens
         oldtokens = cls.query.filter_by(user=old_user).all()
@@ -648,6 +649,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
 
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         for operm in old_user.client_permissions:
             merge_performed = False
             for nperm in new_user.client_permissions:

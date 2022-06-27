@@ -31,6 +31,7 @@ class ProfileCheckMixin:
     profile: Optional[Profile] = None
 
     def after_loader(self) -> Optional[ReturnView]:
+        """Post-process loader."""
         profile = self.profile
         if profile is None:
             raise ValueError("Subclass must set self.profile")

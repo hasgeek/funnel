@@ -186,11 +186,11 @@ class LoginError(Exception):
     """External service login failure."""
 
 
-class LoginInitError(Exception):
+class LoginInitError(LoginError):
     """External service login failure (during init)."""
 
 
-class LoginCallbackError(Exception):
+class LoginCallbackError(LoginError):
     """External service login failure (during callback)."""
 
 

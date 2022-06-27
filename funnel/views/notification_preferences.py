@@ -1,3 +1,5 @@
+"""Views for notification preferences."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -51,6 +53,8 @@ unsubscribe_link_invalid = __(
 
 @route('/account/notifications')
 class AccountNotificationView(ClassView):
+    """Views for notification settings (under account settings)."""
+
     # TODO: This class does not use ModelView on User because some routes do not require
     # a logged in user. While it would be nice to have current_auth.user.url_for('...'),
     # this does not work when there is no current_auth.user. However, this can be
@@ -63,6 +67,7 @@ class AccountNotificationView(ClassView):
     @requires_login
     @render_with('notification_preferences.html.jinja2')
     def notification_preferences(self) -> ReturnRenderWith:
+        """View for notification preferences."""
         main_preferences = current_auth.user.main_notification_preferences
         user_preferences = current_auth.user.notification_preferences
         preferences = {
@@ -240,6 +245,7 @@ class AccountNotificationView(ClassView):
     def unsubscribe(
         self, token: str, token_type: Optional[str], cookietest: bool = False
     ):
+        """View for unsubscribing from a notification type or disabling a transport."""
         # This route strips the token from the URL before rendering the page, to avoid
         # leaking the token to web analytics software.
 
@@ -334,7 +340,9 @@ class AccountNotificationView(ClassView):
             # Some ISPs use carrier-grade NAT and will have a single IP for a very
             # large number of users, so we have generous limits. 100 unsubscribes per
             # 10 minutes (600s) per IP address.
-            validate_rate_limit('sms_unsubscribe', str(request.remote_addr), 100, 600)
+            validate_rate_limit(
+                'account_unsubscribe-sms', str(request.remote_addr), 100, 600
+            )
 
             payload = retrieve_cached_token(
                 session.get('unsub_token') or request.form['token']

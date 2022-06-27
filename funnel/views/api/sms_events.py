@@ -1,3 +1,5 @@
+"""Callback handlers from SMS providers (Exotel and Twilio)."""
+
 from __future__ import annotations
 
 from flask import request
@@ -119,7 +121,7 @@ def process_exotel_event(secret_token: str):
         )
         return {'status': 'error', 'error': 'invalid_signature'}, 422
 
-    # This code segment needs to be re-written once Phone Number model is
+    # This code segment needs to be re-written once PhoneNumber model is
     # in place. The Message parameter has to be '' because exotel does not send
     # back the message as per the API model, but the DB model expects it
     # and we get a exception, otherwise.

@@ -62,18 +62,11 @@ from ..serializers import crossapp_serializer
 from ..signals import user_data_changed
 from ..typing import ReturnView
 from ..utils import abort_null
-from .email import send_email_verify_link, send_login_otp
+from .email import send_email_verify_link
 from .helpers import (
-    OtpData,
-    OtpReasonError,
-    OtpTimeoutError,
     app_url_for,
-    delete_otp_session,
-    make_otp_session,
     metarefresh_redirect,
     render_redirect,
-    retrieve_otp_session,
-    send_sms_otp,
     session_timeouts,
     validate_rate_limit,
 )
@@ -85,6 +78,7 @@ from .login_session import (
     save_session_next_url,
     set_loginmethod_cookie,
 )
+from .otp import OtpSession, OtpTimeoutError
 
 session_timeouts['next'] = timedelta(minutes=30)
 session_timeouts['oauth_callback'] = timedelta(minutes=30)
@@ -98,12 +92,12 @@ block_iframe = {'X-Frame-Options': 'SAMEORIGIN'}
 LOGOUT_ERRORMSG = __("Are you trying to logout? Try again to confirm")
 
 
-def get_otp_form(otp_data: OtpData) -> Union[OtpForm, RegisterOtpForm]:
+def get_otp_form(otp_session: OtpSession) -> Union[OtpForm, RegisterOtpForm]:
     """Return variant of OTP form depending on whether there's a user account."""
-    if otp_data.user:
-        form = OtpForm(valid_otp=otp_data.otp)
+    if otp_session.user:
+        form = OtpForm(valid_otp=otp_session.otp)
     else:
-        form = RegisterOtpForm(valid_otp=otp_data.otp)
+        form = RegisterOtpForm(valid_otp=otp_session.otp)
     return form
 
 
@@ -248,68 +242,38 @@ def login() -> ReturnView:
             session['temp_username'] = loginform.username.data
             return render_redirect(url_for('reset'), code=303)
         except (LoginWithOtp, RegisterWithOtp):
-            otp_data = make_otp_session(
+            otp_session = OtpSession.make(
                 'login',
                 loginform.user,
                 loginform.anchor,
-                email=loginform.new_email,
                 phone=loginform.new_phone,
+                email=loginform.new_email,
             )
-            otp_sent = False
-
-            if otp_data.email:
-                send_login_otp(
-                    email=otp_data.email,
-                    user=otp_data.user,
-                    otp=otp_data.otp,
-                )
-                otp_sent = True
-                flash(_("An OTP has been sent to your email address"), 'success')
-            elif otp_data.phone:
-                # send_sms_otp returns an instance of SmsMessage if a message was sent
-                otp_sent = bool(
-                    send_sms_otp(
-                        phone=otp_data.phone, otp=otp_data.otp, render_flash=False
-                    )
-                )
-                if otp_sent:
-                    flash(_("An OTP has been sent to your phone number"), 'success')
-            if otp_sent:
+            if otp_session.send():
                 return render_otp_form(
-                    get_otp_form(otp_data), url_for('login', next=next_url)
+                    get_otp_form(otp_session), url_for('login', next=next_url)
                 )
-            if otp_data.user:
-                flash(
-                    _(
-                        "The OTP could not be sent. Use password to login or try"
-                        " again"
-                    ),
-                    category='error',
-                )
-            else:
-                flash(
-                    _("The OTP could not be sent. Please register with a password"),
-                    category='error',
-                )
-                return render_redirect(url_for('register'), code=303)
+            # If an OTP could not be sent, flash messages from otp_session.send() will
+            # be rendered and this view will fallback to the default render of the
+            # initial screen
     elif request.method == 'POST' and formid == 'login-otp':
         try:
-            otp_data = retrieve_otp_session('login')
+            otp_session = OtpSession.retrieve('login')
 
             # Allow 5 guesses per 60 seconds
-            validate_rate_limit('otp', otp_data.token, 5, 60)
+            validate_rate_limit('login_otp', otp_session.token, 5, 60)
 
-            otp_form = get_otp_form(otp_data)
+            otp_form = get_otp_form(otp_session)
             if otp_form.validate_on_submit():
-                if not otp_data.user:
+                if not otp_session.user:
                     # Register an account
                     user = register_internal(None, otp_form.fullname.data, None)
                     if TYPE_CHECKING:
                         assert isinstance(user, User)  # nosec
-                    if otp_data.email:
-                        db.session.add(user.add_email(otp_data.email, primary=True))
-                    if otp_data.phone:
-                        db.session.add(user.add_phone(otp_data.phone, primary=True))
+                    if otp_session.email:
+                        db.session.add(user.add_email(otp_session.email, primary=True))
+                    if otp_session.phone:
+                        db.session.add(user.add_phone(otp_session.phone, primary=True))
                     login_internal(user, login_service='otp')
                     db.session.commit()
                     current_app.logger.info(
@@ -322,15 +286,15 @@ def login() -> ReturnView:
                         _("You are now one of us. Welcome aboard!"), category='success'
                     )
                 else:
-                    login_internal(otp_data.user, login_service='otp')
+                    login_internal(otp_session.user, login_service='otp')
                     db.session.commit()
                     current_app.logger.info(
                         "Login successful for %r, possible redirect URL is '%s'",
-                        otp_data.user,
+                        otp_session.user,
                         session.get('next', ''),
                     )
                     flash(_("You are now logged in"), category='success')
-                delete_otp_session()
+                OtpSession.delete()
                 return set_loginmethod_cookie(
                     render_redirect(get_next_url(session=True), code=303),
                     'otp',
@@ -341,13 +305,9 @@ def login() -> ReturnView:
             current_app.logger.info("Login OTP timed out with %s", reason)
             flash(_("The OTP has expired. Try again?"), category='error')
             return render_login_form(loginform)
-        except OtpReasonError as exc:
-            reason = str(exc)
-            current_app.logger.info("Login got OTP meant for %s", reason)
-            abort(403)
     elif request.method == 'POST':
         # This should not happen. We received an incomplete form.
-        abort(403)
+        abort(422)
     if request_wants.html_fragment and formid == 'passwordlogin':
         return render_login_form(loginform)
 
@@ -430,10 +390,11 @@ def account_logout():
         )
 
     if request_wants.json:
-        return {'status': 'error', 'errors': list(form.errors.values())}
+        return {'status': 'error', 'errors': form.errors}
 
-    for error in form.errors.values():
-        flash(error, 'error')
+    for field_errors in form.errors.values():
+        for error in field_errors:
+            flash(error, 'error')
     return redirect(url_for('account'), code=303)
 
 
@@ -477,7 +438,7 @@ def login_service(service: str) -> ReturnView:
     statsd.gauge('login.progress', 1, delta=True, tags={'service': service})
     try:
         return provider.do(callback_url=callback_url)
-    except (LoginInitError, LoginCallbackError) as exc:
+    except LoginInitError as exc:
         msg = str(exc)
         exception_catchall.send(exc, message=msg)
         flash(msg, category='danger')
@@ -492,7 +453,7 @@ def login_service_callback(service: str) -> ReturnView:
     provider = login_registry[service]
     try:
         userdata = provider.callback()
-    except (LoginInitError, LoginCallbackError) as exc:
+    except LoginCallbackError as exc:
         msg = _("{service} login failed: {error}").format(
             service=provider.title, error=str(exc)
         )

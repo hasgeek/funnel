@@ -10,6 +10,7 @@ from funnel.utils import (
     format_twitter_handle,
     make_redirect_url,
     mask_email,
+    mask_phone,
     normalize_phone_number,
     split_name,
 )
@@ -32,7 +33,15 @@ def test_make_redirect_url():
 
 def test_mask_email():
     """Test for masking email to offer a hint of what it is, without revealing much."""
-    assert mask_email('foobar@example.com') == 'f****@e****'
+    assert mask_email('foobar@example.com') == 'f••••@e••••'
+    assert mask_email('not-email') == 'n••••'
+    assert mask_email('also@not@email') == 'a••••@n••••'
+
+
+def test_mask_phone():
+    """Test for masking a phone number to only reveal CC and last two digits."""
+    assert mask_phone('+18001234567') == '+1 •••-•••-••67'
+    assert mask_phone('+919845012345') == '+91 ••••• •••45'
 
 
 def test_extract_twitter_handle():

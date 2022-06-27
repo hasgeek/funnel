@@ -210,7 +210,7 @@ class SMSMessage(BaseMixin, db.Model):
     fail_reason = db.Column(db.UnicodeText, nullable=True)
 
 
-# -- Notification models ---------------------------------------------------------------
+# --- Notification models --------------------------------------------------------------
 
 
 class Notification(NoIdMixin, db.Model):
@@ -986,6 +986,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         for user_notification in cls.query.filter_by(user_id=old_user.id).all():
             existing = cls.query.get((new_user.id, user_notification.eventid))
             # TODO: Instead of dropping old_user's dupe notifications, check which of
@@ -1150,6 +1151,7 @@ class NotificationPreferences(BaseMixin, db.Model):
 
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         for ntype, prefs in list(old_user.notification_preferences.items()):
             if ntype in new_user.notification_preferences:
                 db.session.delete(prefs)
