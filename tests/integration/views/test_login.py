@@ -1,7 +1,6 @@
 """Tests for the login, logout and register views."""
 
 from datetime import timedelta
-from os import environ
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -13,7 +12,13 @@ import pytest
 from coaster.auth import current_auth
 from coaster.utils import utcnow
 from funnel.forms.login import LoginPasswordWeakException
-from funnel.registry import LoginCallbackError, LoginInitError, LoginProviderData
+from funnel.loginproviders.github import GitHubProvider
+from funnel.registry import (
+    LoginCallbackError,
+    LoginInitError,
+    LoginProviderData,
+    login_registry,
+)
 from funnel.transports import TransportConnectionError, TransportRecipientError
 from funnel.views.otp import OtpSession
 
@@ -23,10 +28,12 @@ RINCEWIND_PHONE = '+12345678900'
 RINCEWIND_EMAIL = 'rincewind@example.com'
 LOGIN_USERNAMES = [RINCEWIND_USERNAME, RINCEWIND_EMAIL, RINCEWIND_PHONE]
 
+# Test credentials
 COMPLEX_TEST_PASSWORD = 'f7kN{$a58p^AmL@$'  # nosec  # noqa: S105
 WRONG_PASSWORD = 'wrong-password'  # nosec  # noqa: S105
 BLANK_PASSWORD = ''  # nosec  # noqa: S105
 WEAK_TEST_PASSWORD = 'password'  # nosec  # noqa: S105
+TEST_OAUTH_TOKEN = 'test_oauth_token'  # nosec  # noqa: S105
 
 # Functions to patch to capture OTPs
 PATCH_SMS_SEND = 'funnel.transports.sms.send'
@@ -35,9 +42,26 @@ PATCH_SMS_OTP_LOGIN = 'funnel.views.otp.OtpSessionForLogin.send_sms'
 PATCH_EMAIL_OTP_LOGIN = 'funnel.views.otp.OtpSessionForLogin.send_email'
 PATCH_GET_USER_EXT_ID = 'funnel.views.login.get_user_extid'
 
-TEST_OAUTH_TOKEN = 'test_oauth_token'  # nosec  # noqa: S105
+# Login provider patches
+PATCH_LOGINHUB_DO = 'funnel.loginproviders.github.GitHubProvider.do'
+PATCH_LOGINHUB_CALLBACK = 'funnel.loginproviders.github.GitHubProvider.callback'
 
-skipif_no_github = environ.get('OAUTH_GITHUB_KEY') is None
+
+# This fixture needs session scope as login_registry doesn't take kindly to lost items
+@pytest.fixture(scope='session')
+def loginhub():
+    """Fake login provider for tests."""
+    login_registry['loginhub'] = GitHubProvider(  # noqa: S106  # nosec
+        'loginhub',
+        "Login Hub",
+        at_login=True,
+        priority=False,
+        icon='github',
+        key='no-key',
+        secret='no-secret',
+    )
+    yield login_registry['loginhub']
+    del login_registry['loginhub']
 
 
 @pytest.fixture()
@@ -71,20 +95,20 @@ def user_rincewind_with_weak_password(user_rincewind):
 
 
 @pytest.fixture()
-def mock_github_do():
-    """Mock GitHub login provider's do method."""
+def mock_loginhub_do(loginhub):
+    """Mock LoginHub login provider's do method."""
     with patch(
-        'funnel.loginproviders.github.GitHubProvider.do',
-        return_value=redirect('login/github/callback'),
+        PATCH_LOGINHUB_DO,
+        return_value=redirect('/login/loginhub/callback'),
     ) as mock:
         yield mock
 
 
 @pytest.fixture()
-def mock_github_callback():
-    """Mock GitHub login provider's callback method."""
+def mock_loginhub_callback(loginhub):
+    """Mock LoginHub login provider's callback method."""
     with patch(
-        'funnel.loginproviders.github.GitHubProvider.callback',
+        PATCH_LOGINHUB_CALLBACK,
         return_value=LoginProviderData(
             email=RINCEWIND_EMAIL,
             userid='rincewind-github',
@@ -501,11 +525,10 @@ def test_otp_reason_error(client, csrf_token):
     assert rv.status_code == 403
 
 
-@pytest.mark.skipif(skipif_no_github, reason='no test credentials')
-@pytest.mark.usefixtures('mock_github_do', 'mock_github_callback')
+@pytest.mark.usefixtures('mock_loginhub_do', 'mock_loginhub_callback')
 def test_login_external(client, user_twoflower):
     """External login flow works under mocked conditions."""
-    rv1 = client.get('/login/github')
+    rv1 = client.get('/login/loginhub')
     assert rv1.status_code == 302
     rv2 = client.get(rv1.location)
     assert rv2.status_code == 200
@@ -710,56 +733,52 @@ def test_account_register_is_authenticated(client, login, user_rincewind):
     assert rv.location == '/'
 
 
-@pytest.mark.skipif(skipif_no_github, reason='no test credentials')
 def test_login_service_init_error(client):
     """If a login service raises an init error, the login attempt is aborted."""
     with patch(
-        'funnel.loginproviders.github.GitHubProvider.do',
+        PATCH_LOGINHUB_DO,
         side_effect=LoginInitError,
     ):
-        rv = client.get('/login/github')
+        rv = client.get('/login/loginhub')
     assert 'danger' in str(session['_flashes'])
     assert rv.status_code == 303
     assert rv.location == '/'
 
 
-@pytest.mark.skipif(skipif_no_github, reason='no test credentials')
 def test_login_service_callback_error(client):
     """If a login service raises a callback error, the login attempt is aborted."""
     with patch(
-        'funnel.loginproviders.github.GitHubProvider.callback',
+        PATCH_LOGINHUB_CALLBACK,
         side_effect=LoginCallbackError,
     ):
-        rv = client.get('/login/github/callback')
-    assert 'GitHub login failed' in str(session['_flashes'])
+        rv = client.get('/login/loginhub/callback')
+    assert 'Login Hub login failed' in str(session['_flashes'])
     assert rv.status_code == 303
     assert rv.location == '/login'
 
 
-@pytest.mark.skipif(skipif_no_github, reason='no test credentials')
 def test_login_service_callback_is_authenticated(client, login, user_rincewind):
     """A callback error when logged in is handled."""
     login.as_(user_rincewind)
 
     with patch(
-        'funnel.loginproviders.github.GitHubProvider.callback',
+        PATCH_LOGINHUB_CALLBACK,
         side_effect=LoginCallbackError,
     ):
-        rv = client.get('/login/github/callback')
-    assert 'GitHub login failed' in str(session['_flashes'])
+        rv = client.get('/login/loginhub/callback')
+    assert 'Login Hub login failed' in str(session['_flashes'])
     assert rv.status_code == 303
     assert rv.location == '/'
 
 
-@pytest.mark.skipif(skipif_no_github, reason='no test credentials')
 @pytest.mark.usefixtures(
-    'user_rincewind', 'user_rincewind_email', 'mock_github_callback'
+    'user_rincewind', 'user_rincewind_email', 'mock_loginhub_callback'
 )
 def test_account_merge(client, csrf_token, login, user_twoflower):
     """An external login service can trigger an account merger."""
     login.as_(user_twoflower)
 
-    client.get('/login/github/callback')
+    client.get('/login/loginhub/callback')
     assert 'merge_buid' in session
     # Response may contain a meta-refresh redirect, so we don't test status_code or
     # location header here

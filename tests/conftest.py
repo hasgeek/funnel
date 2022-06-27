@@ -1,3 +1,5 @@
+"""Test configuration and fixtures."""
+
 from datetime import datetime
 from types import MethodType, SimpleNamespace
 from typing import List, Optional
