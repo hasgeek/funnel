@@ -148,14 +148,6 @@ class OtpSession(Generic[OptionalUserType]):
             phone = str(anchor)
         if isinstance(anchor, (UserEmail, UserEmailClaim, EmailAddress)):
             email = str(anchor)
-        # Allow 3 OTP requests per hour per anchor. This is distinct from the rate
-        # limiting for password-based login above.
-        validate_rate_limit(
-            'otp-send',
-            ('anchor/' + blake2b160_hex(phone or email)),  # type: ignore[arg-type]
-            3,
-            3600,
-        )
         token = make_cached_token(
             {
                 'reason': reason,
@@ -252,11 +244,21 @@ class OtpSession(Generic[OptionalUserType]):
 
     def send(self, render_flash: bool = True) -> bool:
         """Send an OTP via SMS or email."""
+        # Allow 3 OTP sends per hour per anchor
+        validate_rate_limit(
+            'otp-send',
+            (
+                'anchor/'
+                + blake2b160_hex(self.phone or self.email)  # type: ignore[arg-type]
+            ),
+            3,
+            3600,
+        )
         if self.phone:
             success = bool(self.send_sms(render_flash))
             if success:
                 return success
-            # If an SMS could not be send, fallback to sending email.
+            # If an SMS could not be sent, fallback to sending email
         if self.email:
             return bool(self.send_email(render_flash))
         return False
