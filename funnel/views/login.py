@@ -249,7 +249,7 @@ def login() -> ReturnView:
                 email=loginform.new_email,
                 phone=loginform.new_phone,
             )
-            if otp_session.send():
+            if otp_session.send(flash_failure=False):
                 return render_otp_form(
                     get_otp_form(otp_session), url_for('login', next=next_url)
                 )
