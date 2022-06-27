@@ -53,7 +53,7 @@ from .helpers import (
     render_redirect,
     validate_rate_limit,
 )
-from .otp import OtpReasonError, OtpSession, OtpTimeoutError
+from .otp import OtpSession, OtpTimeoutError
 
 # Constant value, needed for cookie max_age
 user_session_validity_period_total_seconds = int(
@@ -73,10 +73,12 @@ class LoginManager:
 
     @property
     def autocomplete_endpoint(self):
+        """Endpoint for autocomplete of user name (used in Baseframe)."""
         return app_url_for(app, 'user_autocomplete')
 
     @property
     def getuser_endpoint(self):
+        """Endpoint for getting a user by userid (used in Baseframe)."""
         return app_url_for(app, 'user_get_by_userids')
 
     @staticmethod
@@ -267,6 +269,7 @@ def session_mark_accessed(
 # Also add future hasjob app here
 @app.after_request
 def clear_old_session(response):
+    """Delete cookies that _may_ accidentally be present (and conflicting)."""
     for cookie_name, domains in app.config.get('DELETE_COOKIES', {}).items():
         if cookie_name in request.cookies:
             for domain in domains:
@@ -493,10 +496,6 @@ def requires_sudo(f):
                     form = OtpForm(valid_otp=otp_session.otp)
                     abort(500)  # FIXME: Figure out likelihood and resolution
                 form = OtpForm(valid_otp=otp_session.otp)
-            except OtpReasonError as exc:
-                reason = str(exc)
-                current_app.logger.info("Sudo got OTP meant for %s", reason)
-                abort(403)
         else:
             abort(405)  # Only GET and POST are supported
 
@@ -681,6 +680,7 @@ def login_internal(user, user_session=None, login_service=None):
 
 
 def logout_internal():
+    """Logout current user (helper function)."""
     add_auth_attribute('user', None)
     if current_auth.session:
         current_auth.session.revoke()
@@ -698,6 +698,7 @@ def logout_internal():
 
 
 def register_internal(username, fullname, password):
+    """Register a user account (helper function)."""
     user = User(username=username, fullname=fullname, password=password)
     if not username:
         user.username = None
@@ -707,6 +708,8 @@ def register_internal(username, fullname, password):
 
 
 def set_loginmethod_cookie(response, value):
+    """Record the login method that was used, to provide a UI hint the next time."""
+    # TODO: This is deprecated now that the primary emphasis is on OTP login.
     response.set_cookie(
         'login',
         value,

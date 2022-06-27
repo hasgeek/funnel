@@ -6,7 +6,6 @@ from datetime import timedelta
 
 from flask import (
     Markup,
-    abort,
     current_app,
     escape,
     flash,
@@ -37,7 +36,7 @@ from .helpers import (
 )
 from .login_session import logout_internal
 from .notification import dispatch_notification
-from .otp import OtpReasonError, OtpSession, OtpTimeoutError
+from .otp import OtpSession, OtpTimeoutError
 
 session_timeouts['reset_token'] = timedelta(minutes=15)
 
@@ -152,8 +151,6 @@ def reset_otp() -> ReturnView:
     except OtpTimeoutError:
         flash(_("This OTP has expired"), category='error')
         return redirect(url_for('reset'), code=303)
-    except OtpReasonError:
-        abort(403)
 
     form = OtpForm(valid_otp=otp_session.otp)
     if form.is_submitted():

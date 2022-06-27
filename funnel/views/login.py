@@ -78,7 +78,7 @@ from .login_session import (
     save_session_next_url,
     set_loginmethod_cookie,
 )
-from .otp import OtpReasonError, OtpSession, OtpTimeoutError
+from .otp import OtpSession, OtpTimeoutError
 
 session_timeouts['next'] = timedelta(minutes=30)
 session_timeouts['oauth_callback'] = timedelta(minutes=30)
@@ -316,10 +316,6 @@ def login() -> ReturnView:
             current_app.logger.info("Login OTP timed out with %s", reason)
             flash(_("The OTP has expired. Try again?"), category='error')
             return render_login_form(loginform)
-        except OtpReasonError as exc:
-            reason = str(exc)
-            current_app.logger.info("Login got OTP meant for %s", reason)
-            abort(403)
     elif request.method == 'POST':
         # This should not happen. We received an incomplete form.
         abort(403)

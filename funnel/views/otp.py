@@ -24,7 +24,12 @@ from ..models import (
     db,
 )
 from ..serializers import token_serializer
-from ..transports import TransportConnectionError, TransportRecipientError, sms
+from ..transports import (
+    TransportConnectionError,
+    TransportRecipientError,
+    TransportTransactionError,
+    sms,
+)
 from ..transports.email import jsonld_view_action, send_email
 from ..utils import blake2b160_hex
 from .helpers import (
@@ -171,11 +176,16 @@ class OtpSession(Generic[OptionalUserType]):
         """Retrieve an OTP from cache using the token in browser cookie session."""
         otp_token = session.get('otp')
         if not otp_token:
+            current_app.logger.info("%s OTP timed out: cookie_expired", reason)
             raise OtpTimeoutError('cookie_expired')
         otp_data = retrieve_cached_token(otp_token)
         if not otp_data:
+            current_app.logger.info("%s OTP timed out: cache_expired", reason)
             raise OtpTimeoutError('cache_expired')
         if otp_data['reason'] != reason:
+            current_app.logger.info(
+                "%s got OTP meant for %s", reason, otp_data['reason']
+            )
             raise OtpReasonError(reason)
         user = User.get(buid=otp_data['user_buid']) if otp_data['user_buid'] else None
         if (
@@ -222,7 +232,7 @@ class OtpSession(Generic[OptionalUserType]):
         except TransportRecipientError as exc:
             if render_flash:
                 flash(str(exc), 'error')
-        except TransportConnectionError:
+        except (TransportConnectionError, TransportTransactionError):
             if render_flash:
                 flash(
                     _("Unable to send an OTP to your phone number right now"), 'error'
