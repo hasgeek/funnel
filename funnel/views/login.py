@@ -246,8 +246,8 @@ def login() -> ReturnView:
                 'login',
                 loginform.user,
                 loginform.anchor,
-                email=loginform.new_email,
                 phone=loginform.new_phone,
+                email=loginform.new_email,
             )
             if otp_session.send(flash_failure=False):
                 return render_otp_form(

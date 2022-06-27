@@ -130,8 +130,8 @@ class OtpSession(Generic[OptionalUserType]):
         reason: str,
         user: OptionalUserType,
         anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone, EmailAddress]],
-        email: Optional[str] = None,
         phone: Optional[str] = None,
+        email: Optional[str] = None,
     ) -> OtpSessionType:
         """
         Create an OTP for login and save it to cache and browser cookie session.

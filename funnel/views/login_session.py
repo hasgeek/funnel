@@ -420,39 +420,57 @@ def requires_sudo(f):
             return f(*args, **kwargs)
 
         if request_wants.json:
-            # A JSON-only endpoint can't render a form, so we have to redirect
-            # the browser to the account_sudo endpoint, asking it to redirect
-            # back here after getting the user's password. That will be:
-            # `url_for('account_sudo', next=request.url)`. Ideally, a fragment
-            # identifier should be included to reload to the same dialog the
-            # user was sent away from.
+            # A JSON-only endpoint can't render a form, so we have to redirect the
+            # browser to the ``account_sudo`` endpoint, asking it to redirect back here
+            # after getting the user's password. That will be `url_for('account_sudo',
+            # next=get_current_url())` but generated in JavaScript client-side to ensure
+            # the fragment identifier is included, and will thereby reload to the same
+            # modal the user was sent away from. A backup URL without fragment
+            # identifier is included in this response
 
             return make_response(
                 jsonify(
                     status='error',
                     error='requires_sudo',
                     error_description=_(
-                        "This request must be confirmed with your password"
+                        "This request must be confirmed with an OTP or your password"
                     ),
+                    url=url_for('account_sudo', next=get_current_url()),
                 ),
                 422,
             )
 
+        if request_wants.html_fragment:
+            # If the request wanted a HTML fragment, reload as a full page to ensure the
+            # sudo form is rendered properly. The fragment identifier cannot be
+            # preserved in this case.
+            return render_redirect(url=request.url, code=303)
+
         form = None
-        anchor = current_auth.user.default_anchor()
 
         if request.method == 'GET':
             # If the user has a password, ask for it
             if current_auth.user.pw_hash:
+                # A future version of this form may accept 2FA (U2F or TOTP) instead of
+                # a password
                 form = PasswordForm(edit_user=current_auth.user)
-                # A future version of this form may accept password or 2FA (U2F or TOTP)
-            # User does not have a password. Try to send an OTP
-            elif anchor:
+
+            elif current_auth.user.has_contact_info:
+                # User does not have a password. Try to send an OTP to phone, falling
+                # back to email.
+                userphone = current_auth.user.phone
+                useremail = current_auth.user.default_email()
                 otp_session = OtpSession.make(
-                    'sudo', user=current_auth.user, anchor=anchor
+                    'sudo',
+                    user=current_auth.user,
+                    anchor=None,
+                    phone=str(userphone) if userphone else None,
+                    email=str(useremail) if useremail else None,
                 )
-                if otp_session.send():
+                if otp_session.send(flash_failure=False):
                     form = OtpForm(valid_otp=otp_session.otp)
+
+            # If an OTP could not be sent, ask the user to set their password
             if form is None:
                 flash(
                     _(
@@ -466,38 +484,33 @@ def requires_sudo(f):
                 return render_redirect(url_for('change_password'))
 
         elif request.method == 'POST':
-            try:
-                formid = abort_null(request.form.get('form.id'))
-                if formid == 'sudo-otp':
+            formid = abort_null(request.form.get('form.id'))
+            if formid == 'sudo-otp':
+                try:
                     otp_session = OtpSession.retrieve('sudo')
-                    form = OtpForm(valid_otp=otp_session.otp)
-                elif formid == 'sudo-password':
-                    form = PasswordForm(edit_user=current_auth.user)
-                else:
-                    # Unknown form
-                    abort(403)
-                validate_rate_limit('account_sudo', current_auth.user.userid, 5, 60)
-                if form.validate_on_submit():
-                    # User has successfully authenticated. Update their sudo timestamp
-                    # and reload the page with a GET request, as the wrapped view may
-                    # need to render its own form
-                    current_auth.session.set_sudo()
-                    db.session.commit()
-                    continue_url = session.pop('next', request.url)
-                    OtpSession.delete()
-                    return render_redirect(continue_url, code=303)
-            except OtpTimeoutError as exc:
-                reason = str(exc)
-                current_app.logger.info("Sudo OTP timed out with %s", reason)
-                otp_session = OtpSession.make(
-                    'sudo', user=current_auth.user, anchor=anchor
-                )
-                if not otp_session.send():
-                    form = OtpForm(valid_otp=otp_session.otp)
-                    abort(500)  # FIXME: Figure out likelihood and resolution
+                except OtpTimeoutError:
+                    # Reload the page to send another OTP
+                    return render_redirect(url=request.url, code=303)
                 form = OtpForm(valid_otp=otp_session.otp)
+            elif formid == 'sudo-password':
+                form = PasswordForm(edit_user=current_auth.user)
+            else:
+                # Unknown form
+                abort(403)
+            validate_rate_limit('account_sudo', current_auth.user.userid, 5, 60)
+            if form.validate_on_submit():
+                # User has successfully authenticated. Update their sudo timestamp
+                # and reload the page with a GET request, as the wrapped view may
+                # need to render its own form
+                current_auth.session.set_sudo()
+                db.session.commit()
+                continue_url = session.pop('next', request.url)
+                OtpSession.delete()
+                return render_redirect(continue_url, code=303)
         else:
-            abort(405)  # Only GET and POST are supported
+            # Only GET and POST are supported. We may get here if the decorated view
+            # supports others methods (like PUT or DELETE)
+            abort(405)
 
         if isinstance(form, OtpForm):
             title = _("Confirm this operation with an OTP")
@@ -505,29 +518,8 @@ def requires_sudo(f):
         elif isinstance(form, PasswordForm):
             title = _("Confirm with your password to proceed")
             formid = 'sudo-password'
-        else:
+        else:  # pragma: no cover
             abort(500)  # This should never happen
-
-        if request_wants.json:
-            # A JSON-only endpoint can't render a form, so we have to redirect the
-            # browser to the account_sudo endpoint, asking it to redirect back here
-            # after getting the user's password. That will be:
-            # `url_for('account_sudo', next=request.url)`. Ideally, a fragment
-            # identifier should be included to reload to the same dialog the user
-            # was sent away from.
-
-            return make_response(
-                jsonify(
-                    status='error',
-                    error='requires_sudo',
-                    error_description=_(
-                        "This request must be confirmed with your password"
-                    ),
-                ),
-                422,
-            )
-        if request_wants.html_fragment:
-            return render_redirect(url=request.url, code=303)
 
         return render_form(
             form=form,
