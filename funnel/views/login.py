@@ -249,24 +249,13 @@ def login() -> ReturnView:
                 phone=loginform.new_phone,
                 email=loginform.new_email,
             )
-            if otp_session.send(flash_failure=False):
+            if otp_session.send():
                 return render_otp_form(
                     get_otp_form(otp_session), url_for('login', next=next_url)
                 )
-            if otp_session.user:
-                flash(
-                    _(
-                        "The OTP could not be sent. Use password to login, or try"
-                        " again"
-                    ),
-                    category='error',
-                )
-            else:
-                flash(
-                    _("The OTP could not be sent. Please register with a password"),
-                    category='error',
-                )
-                return render_redirect(url_for('register'), code=303)
+            # If an OTP could not be sent, flash messages from otp_session.send() will
+            # be rendered and this view will fallback to the default render of the
+            # initial screen
     elif request.method == 'POST' and formid == 'login-otp':
         try:
             otp_session = OtpSession.retrieve('login')
@@ -318,7 +307,7 @@ def login() -> ReturnView:
             return render_login_form(loginform)
     elif request.method == 'POST':
         # This should not happen. We received an incomplete form.
-        abort(403)
+        abort(422)
     if request_wants.html_fragment and formid == 'passwordlogin':
         return render_login_form(loginform)
 
@@ -401,10 +390,11 @@ def account_logout():
         )
 
     if request_wants.json:
-        return {'status': 'error', 'errors': list(form.errors.values())}
+        return {'status': 'error', 'errors': form.errors}
 
-    for error in form.errors.values():
-        flash(error, 'error')
+    for field_errors in form.errors.values():
+        for error in field_errors:
+            flash(error, 'error')
     return redirect(url_for('account'), code=303)
 
 
@@ -448,7 +438,7 @@ def login_service(service: str) -> ReturnView:
     statsd.gauge('login.progress', 1, delta=True, tags={'service': service})
     try:
         return provider.do(callback_url=callback_url)
-    except (LoginInitError, LoginCallbackError) as exc:
+    except LoginInitError as exc:
         msg = str(exc)
         exception_catchall.send(exc, message=msg)
         flash(msg, category='danger')
@@ -463,7 +453,7 @@ def login_service_callback(service: str) -> ReturnView:
     provider = login_registry[service]
     try:
         userdata = provider.callback()
-    except (LoginInitError, LoginCallbackError) as exc:
+    except LoginCallbackError as exc:
         msg = _("{service} login failed: {error}").format(
             service=provider.title, error=str(exc)
         )

@@ -222,18 +222,22 @@ class OtpSession(Generic[OptionalUserType]):
             return ''
         return mask_email(self.email)
 
+    def compose_sms(self) -> sms.WebOtpTemplate:
+        """Compose an OTP SMS message."""
+        return sms.WebOtpTemplate(
+            otp=self.otp,
+            # TODO: Replace helpline_text with a report URL
+            helpline_text=f"call {app.config['SITE_SUPPORT_PHONE']}",
+            domain=current_app.config['SERVER_NAME'],
+        )
+
     def send_sms(
         self, flash_success: bool = True, flash_failure: bool = True
     ) -> Optional[SMSMessage]:
         """Send an OTP via SMS to a phone number."""
         if not self.phone:
             return None
-        template_message = sms.WebOtpTemplate(
-            otp=self.otp,
-            # TODO: Replace helpline_text with a report URL
-            helpline_text=f"call {app.config['SITE_SUPPORT_PHONE']}",
-            domain=current_app.config['SERVER_NAME'],
-        )
+        template_message = self.compose_sms()
         msg = SMSMessage(phone_number=self.phone, message=str(template_message))
         try:
             # Now send this
@@ -298,6 +302,69 @@ class OtpSession(Generic[OptionalUserType]):
 
 class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
     """OtpSession variant for login."""
+
+    def send_sms(
+        self, flash_success: bool = True, flash_failure: bool = True
+    ) -> Optional[SMSMessage]:
+        """Send an OTP via SMS to a phone number."""
+        if not self.phone:
+            return None
+        template_message = self.compose_sms()
+        msg = SMSMessage(phone_number=self.phone, message=str(template_message))
+        try:
+            # Now send this
+            msg.transactionid = sms.send(
+                phone=msg.phone_number, message=template_message
+            )
+        except TransportRecipientError:
+            if flash_failure:
+                if self.user:
+                    flash(
+                        _(
+                            "Your phone number {number} is not supported for SMS. Use"
+                            " password to login"
+                        ).format(number=self.display_phone),
+                        'error',
+                    )
+                else:
+                    flash(
+                        _(
+                            "Your phone number {number} is not supported for SMS. Use"
+                            " an email address to register"
+                        ).format(number=self.display_phone),
+                        'error',
+                    )
+        except (TransportConnectionError, TransportTransactionError):
+            if flash_failure:
+                if self.user:
+                    flash(
+                        _(
+                            "Unable to send an OTP to your phone number {number} right"
+                            " now. Use password to login, or try again later"
+                        ).format(number=self.display_phone),
+                        'error',
+                    )
+                else:
+                    flash(
+                        _(
+                            "Unable to send an OTP to your phone number {number} right"
+                            " now. Use an email address to register, or try again later"
+                        ).format(number=self.display_phone),
+                        'error',
+                    )
+        else:
+            # Commit only if an SMS could be sent
+            db.session.add(msg)
+            db.session.commit()
+            if flash_success:
+                flash(
+                    _("An OTP has been sent to your phone number {number}").format(
+                        number=self.display_phone
+                    ),
+                    'success',
+                )
+            return msg
+        return None
 
     def send_email(
         self, flash_success: bool = True, flash_failure: bool = True

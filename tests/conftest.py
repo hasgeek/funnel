@@ -200,6 +200,8 @@ def login(client):
             # cookie session authentication with db-backed authentication. It's long
             # pending removal
             session['userid'] = user.userid
+        # Perform a request to convert the session userid into a UserSession
+        client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
 
     def logout():
         # TODO: Test this
