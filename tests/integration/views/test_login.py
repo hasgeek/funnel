@@ -12,7 +12,8 @@ import pytest
 
 from coaster.auth import current_auth
 from coaster.utils import utcnow
-from funnel.registry import LoginProviderData
+from funnel.forms.login import LoginPasswordWeakException
+from funnel.registry import LoginCallbackError, LoginProviderData
 from funnel.views.otp import OtpSession
 
 # User fixture's details
@@ -58,9 +59,6 @@ def user_rincewind_email(db_session, user_rincewind):
     ue = user_rincewind.add_email(RINCEWIND_EMAIL)
     db_session.add(ue)
     return ue
-
-
-# test_weak_password, test_expired_password, test_otp_not_sent, test_otp_timeout
 
 
 @pytest.fixture()
@@ -195,7 +193,6 @@ def test_user_logout(client, login, user_rincewind, csrf_token):
     client.get('/')
     assert current_auth.user == user_rincewind
     rv = client.post('/account/logout', data={'csrf_token': csrf_token})
-
     assert rv.status_code == 200
     assert current_auth.user is None
 
@@ -329,8 +326,6 @@ def test_invalid_otp_login(
                     }
                 ),
             )
-    # The response contains an OTP form
-    assert rv1.form('form-otp') is not None
     assert rv1.status_code == 200
     assert current_auth.user is None
 
@@ -399,6 +394,7 @@ def test_expired_password(
     client,
     db_session,
 ):
+    client.get('/login')
     db_session.add(user_rincewind_with_password)
     db_session.commit()
     user_rincewind_with_password.pw_expires_at = utcnow()
@@ -542,6 +538,196 @@ def test_login_external(db_session, client, callback_mock, do_mock, user_twoflow
     assert current_auth.user.name == user_twoflower.name
 
 
+def test_service_not_in_registry(client):
+    rv1 = client.get('login/some_service')
+    rv2 = client.get('login/some_service/callback')
+    assert rv1.status_code == 404
+    assert rv2.status_code == 404
+
+
+def test_logout_using_client_id(client, user_twoflower, login):
+    login.as_(user_twoflower)
+    client.get('')
+    rv1 = client.get('/logout?client_id=twoflower')
+
+    assert '_flashes' in session
+    assert rv1.status_code == 303
+
+    rv2 = client.get('/logout?next=twoflower.com')
+    assert '_flashes' in session
+    assert rv2.status_code == 303
+
+
+def test_already_logged_in(client, login, user_rincewind, csrf_token):
+    login.as_(user_rincewind)
+    client.get('/')
+    rv = client.get('/login')
+    assert rv.status_code == 303
+
+
+def test_otp_not_sent_register(client, csrf_token, caplog):
+    with patch(PATCH_SMS_OTP, return_value=None, autospec=True):
+        rv1 = client.post(
+            '/login',
+            data=MultiDict(
+                {
+                    'username': RINCEWIND_PHONE,
+                    'password': '',
+                    'csrf_token': csrf_token,
+                    'form.id': 'passwordlogin',
+                }
+            ),
+        )
+        assert 'The OTP could not be sent. Please register with a password' in str(
+            session['_flashes']
+        )
+        assert rv1.status_code == 303
+
+
+def test_weak_password_exception(
+    user_rincewind_email, user_rincewind_with_weak_password, client, csrf_token
+):
+    with patch(
+        'funnel.forms.login.LoginForm.validate_password',
+        side_effect=LoginPasswordWeakException,
+        autospec=True,
+    ):
+
+        rv = client.post(
+            '/login',
+            data=MultiDict(
+                {
+                    'csrf_token': csrf_token,
+                    'username': RINCEWIND_EMAIL,
+                    'form.id': 'passwordlogin',
+                    'password': WEAK_TEST_PASSWORD,
+                }
+            ),
+        )
+    assert (
+        'Your account has a weak password. Please enter your phone number or email address to request an OTP and set a new password'
+        in str(session['_flashes'])
+    )
+    assert rv.status_code == 303
+
+
+def test_incomplete_form(client, csrf_token, user_rincewind_email):
+    rv = client.post(
+        '/login',
+        data=MultiDict(
+            {
+                'csrf_token': csrf_token,
+                'username': RINCEWIND_EMAIL,
+                'password': WEAK_TEST_PASSWORD,
+            }
+        ),
+    )
+    assert rv.status_code == 403
+
+
+def test_render_login_form(client, csrf_token, user_rincewind_email):
+    rv = client.get(
+        '/login',
+        headers={'X-Requested-With': 'XmlHttpRequest'},
+        data={'form.id': 'passwordlogin'},
+    )
+    assert rv.form('form-passwordlogin') is not None
+
+
+def test_logout_redirect_index(client):
+    rv = client.get('/logout')
+    assert rv.status_code == 303
+    assert rv.location == '/'
+
+
+def test_account_logout_user_session(client, user_rincewind, login, csrf_token):
+    login.as_(user_rincewind)
+    client.get('/')
+    rv = client.post(
+        '/account/logout',
+        data={'sessionid': current_auth.session.buid, 'csrf_token': csrf_token},
+    )
+    assert rv.status_code == 303
+    assert rv.location == '/account'
+
+
+def test_account_logout_user_session_json(client, user_rincewind, login, csrf_token):
+    login.as_(user_rincewind)
+    client.get('/')
+    rv = client.post(
+        '/account/logout',
+        data={'sessionid': current_auth.session.buid, 'csrf_token': csrf_token},
+        headers={'Accept': 'application/json'},
+    )
+    assert rv.json['status'] == 'ok'
+    assert rv.status_code == 200
+
+
+def test_account_logout_errors_json(client, user_rincewind, login, csrf_token):
+    login.as_(user_rincewind)
+    client.get('/')
+
+    rv = client.post(
+        '/account/logout',
+        headers={'Accept': 'application/json'},
+    )
+    assert rv.json['errors'] == [['The CSRF token is missing.']]
+
+
+def test_account_logout_errors(client, user_rincewind, login, csrf_token):
+    login.as_(user_rincewind)
+    client.get('/')
+
+    rv = client.post(
+        '/account/logout',
+    )
+    assert rv.status_code == 303
+    assert rv.location == '/account'
+    assert 'The CSRF token is missing.' in str(session['_flashes'])
+
+
+def test_account_register_is_authenticated(client, user_rincewind, login):
+    login.as_(user_rincewind)
+    client.get('/')
+
+    rv = client.get('/account/register')
+    assert rv.status_code == 303
+    assert rv.location == '/'
+
+
+def test_login_service(client, user_rincewind, login):
+    with patch(
+        'funnel.loginproviders.github.GitHubProvider.do',
+        side_effect=LoginCallbackError,
+    ):
+        rv = client.get('/login/github')
+    assert 'danger' in str(session['_flashes'])
+    assert rv.status_code == 303
+
+
+def test_login_service_callback(client, user_rincewind, login):
+    with patch(
+        'funnel.loginproviders.github.GitHubProvider.do',
+        side_effect=LoginCallbackError,
+    ):
+        rv = client.get('/login/github/callback')
+    assert 'GitHub login failed' in str(session['_flashes'])
+    assert rv.status_code == 303
+
+
+def test_login_service_callback_is_authenticated(client, user_rincewind, login):
+    login.as_(user_rincewind)
+    client.get('/')
+
+    with patch(
+        'funnel.loginproviders.github.GitHubProvider.do',
+        side_effect=LoginCallbackError,
+    ):
+        rv = client.get('/login/github/callback')
+    assert 'GitHub login failed' in str(session['_flashes'])
+    assert rv.status_code == 303
+
+
 @pytest.mark.skipif(skipif_no_github, reason='no test credentials')
 def test_account_merge(
     user_twoflower,
@@ -578,23 +764,3 @@ def test_merge_buid_not_in_session(user_twoflower, login, client):
     rv = client.get('account/merge')
     assert 'merge_buid' not in session
     assert rv.status_code == 303
-
-
-# def test_service_not_in_registry(client):
-#     rv1 = client.get('login/some_service')
-#     rv2 = client.get('login/some_service/callback')
-#     assert rv1.status_code == 404
-#     assert rv2.status_code == 404
-
-
-# def test_logout_using_client_id(client, user_twoflower, login):
-#     login.as_(user_twoflower)
-#     client.get('')
-#     rv1 = client.get('/logout?client_id=twoflower')
-
-#     assert '_flashes' in session
-#     assert rv1.status_code == 303
-
-#     rv2 = client.get('/logout?next=twoflower.com')
-#     assert '_flashes' in session
-#     assert rv2.status_code == 303
