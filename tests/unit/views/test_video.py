@@ -2,11 +2,9 @@ from datetime import datetime
 import logging
 
 from pytz import utc
-from requests import RequestException
+import requests
 
 from funnel.models import Proposal, parse_video_url
-
-LOGGER = logging.getLogger(__name__)
 
 
 def test_parse_video_url():
@@ -105,18 +103,18 @@ def test_vimeo(db_session, new_proposal):
 
 
 def test_vimeo_request_exception(
+    caplog,
+    requests_mock,
+    db_session,
     user_vetinari,
     org_ankhmorpork,
     project_expo2010,
     new_proposal,
-    db_session,
-    requests_mock,
-    caplog,
 ):
     caplog.set_level(logging.WARNING)
     requests_mock.get(
         'https://api.vimeo.com/videos/336892869',
-        exc=RequestException,
+        exc=requests.exceptions.RequestException,
     )
     new_proposal.video_url = 'https://vimeo.com/336892869'
     new_proposal.views.video
@@ -124,18 +122,18 @@ def test_vimeo_request_exception(
 
 
 def test_youtube_request_exception(
+    caplog,
+    requests_mock,
+    db_session,
     user_vetinari,
     org_ankhmorpork,
     project_expo2010,
     new_proposal,
-    db_session,
-    requests_mock,
-    caplog,
 ):
     caplog.set_level(logging.WARNING)
     requests_mock.get(
         'https://www.googleapis.com/youtube/v3/videos',
-        exc=RequestException,
+        exc=requests.exceptions.RequestException,
     )
     new_proposal.video_url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
     new_proposal.views.video
