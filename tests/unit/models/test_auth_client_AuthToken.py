@@ -1,3 +1,6 @@
+"""Tests for AuthToken model."""
+
+# pylint: disable=protected-access
 from datetime import timedelta
 
 import pytest

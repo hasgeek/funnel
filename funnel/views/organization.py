@@ -74,14 +74,14 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
         if not current_auth.user.has_verified_contact_info:
             flash(
                 _(
-                    "You need to have a verified email address"
-                    " or phone number to create an organization"
+                    "You need to have a verified email address or phone number to"
+                    " create an organization"
                 ),
                 'error',
             )
             return redirect(get_next_url(referrer=True), code=303)
 
-        form = OrganizationForm()
+        form = OrganizationForm(user=current_auth.user)
         if form.validate_on_submit():
             org = Organization(owner=current_auth.user)
             form.populate_obj(org)

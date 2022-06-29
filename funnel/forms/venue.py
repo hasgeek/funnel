@@ -12,7 +12,7 @@ import pycountry
 from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import QuerySelectField
 
-from ..models import Venue, VenueRoom
+from ..models import Project, Venue, VenueRoom
 
 __all__ = ['VenueForm', 'VenuePrimaryForm', 'VenueRoomForm']
 
@@ -105,12 +105,16 @@ class VenueRoomForm(forms.Form):
     def validate_bgcolor(self, field) -> None:
         """Validate colour to be in RGB."""
         if not valid_color_re.match(field.data):
-            raise forms.ValidationError(_("Please enter a valid colour code"))
+            raise forms.validators.ValidationError(
+                _("Please enter a valid colour code")
+            )
 
 
 @Venue.forms('primary')
 class VenuePrimaryForm(forms.Form):
     """Select a primary venue."""
+
+    edit_parent: Project
 
     venue = QuerySelectField(
         __("Venue"),

@@ -469,17 +469,17 @@ def resource_id(authtoken, args, files=None):
 def session_verify(authtoken, args, files=None):
     """Verify a UserSession."""
     sessionid = abort_null(args['sessionid'])
-    session = UserSession.authenticate(buid=sessionid, silent=True)
-    if session and session.user == authtoken.user:
-        session.views.mark_accessed(auth_client=authtoken.auth_client)
+    user_session = UserSession.authenticate(buid=sessionid, silent=True)
+    if user_session is not None and user_session.user == authtoken.user:
+        user_session.views.mark_accessed(auth_client=authtoken.auth_client)
         db.session.commit()
         return {
             'active': True,
-            'sessionid': session.buid,
-            'userid': session.user.buid,
-            'buid': session.user.buid,
-            'user_uuid': session.user.uuid,
-            'sudo': session.has_sudo,
+            'sessionid': user_session.buid,
+            'userid': user_session.user.buid,
+            'buid': user_session.user.buid,
+            'user_uuid': user_session.user.uuid,
+            'sudo': user_session.has_sudo,
         }
     return {'active': False}
 

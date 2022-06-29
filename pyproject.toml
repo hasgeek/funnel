@@ -120,7 +120,15 @@ warn_redundant_casts = false
 [tool.pylint.master]
 load-plugins = ['pylint_pytest', 'pylint_flask_sqlalchemy']
 max-parents = 10
-init-hook = "import os; sys.path.append(os.getcwd())"
+init-hook = """
+import os, astroid.bases
+# Tell Pylint where to find the funnel package from within tests
+sys.path.append(os.getcwd())
+# Tell Pylint hybrid_property and cached_property are property-types
+astroid.bases.POSSIBLE_PROPERTIES.add('hybrid_property')
+astroid.bases.POSSIBLE_PROPERTIES.add('cached_property')
+"""
+
 
 [tool.pylint.message_control]
 max-line-length = 88
@@ -133,8 +141,10 @@ disable = [
   'no-member',  # Pylint gets confused over how some members become part of an instance
   'no-self-use',  # Views and overriden methods don't necessarily use `self`
   'too-few-public-methods',  # Data classes and validator classes have few methods
+  'too-many-ancestors',  # Our models have a large number of mixin classes
   'too-many-instance-attributes',  # Some instances are just bags of attributes
   'too-many-lines',  # We have large files that include all related functionality
+  'too-many-public-methods',  # Models and views have many public methods
   'unused-argument',  # Arguments required for spec compatibility aren't always used
 ]
 

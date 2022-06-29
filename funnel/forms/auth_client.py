@@ -87,7 +87,7 @@ class AuthClientForm(forms.Form):
         __("Redirect URLs"),
         validators=[
             forms.validators.OptionalIf('confidential'),
-            forms.ForEach([forms.URL()]),
+            forms.validators.ForEach([forms.validators.URL()]),
         ],
         filters=[forms.filters.strip_each()],
         description=__(
@@ -117,7 +117,7 @@ class AuthClientForm(forms.Form):
                 if org.buid == field.data
             ]
             if len(orgs) != 1:
-                raise forms.ValidationError(_("Invalid owner"))
+                raise forms.validators.ValidationError(_("Invalid owner"))
             self.user = None
             self.organization = orgs[0]
 
@@ -137,7 +137,7 @@ class AuthClientForm(forms.Form):
         if self.confidential.data and not self._urls_match(
             self.website.data, field.data
         ):
-            raise forms.ValidationError(
+            raise forms.validators.ValidationError(
                 _("The scheme, domain and port must match that of the website URL")
             )
 
@@ -161,7 +161,7 @@ def permission_validator(form, field) -> None:
     permlist = field.data.split()
     for perm in permlist:
         if not valid_name(perm):
-            raise forms.ValidationError(
+            raise forms.validators.ValidationError(
                 _("Permission ‘{perm}’ is malformed").format(perm=perm)
             )
     permlist.sort()
@@ -207,7 +207,7 @@ class TeamPermissionAssignForm(forms.Form):
         # FIXME: Replace with QuerySelectField using RadioWidget.
         teams = [team for team in self.organization.teams if team.buid == field.data]
         if len(teams) != 1:
-            raise forms.ValidationError(_("Unknown team"))
+            raise forms.validators.ValidationError(_("Unknown team"))
         self.team = teams[0]
 
 

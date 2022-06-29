@@ -15,19 +15,21 @@ from funnel.transports.sms import (
 
 @pytest.fixture()
 def app():
-    app = Flask(__name__)
-    app.config['SMS_DLT_ENTITY_ID'] = 'dlt_entity_id'
-    app.config['SMS_DLT_TEMPLATE_IDS'] = {}
-    return app
+    test_app = Flask(__name__)
+    test_app.config['SMS_DLT_ENTITY_ID'] = 'dlt_entity_id'
+    test_app.config['SMS_DLT_TEMPLATE_IDS'] = {}
+    return test_app
 
 
 class MyMessage(SmsTemplate):
     registered_template = "Insert {#var#} here"
     template = "Insert {var} here"
+    plaintext_template = "{var} here"
 
 
 def test_validate_registered_template():
     """Test DLT registered template validator."""
+    # pylint: disable=unused-variable
     with pytest.raises(
         ValueError,
         match='Registered template must be within 2000 chars',
@@ -130,6 +132,7 @@ def test_template_lengths():
 
 def test_validate_template():
     """Test Python template validator."""
+    # pylint: disable=unused-variable
     with pytest.raises(
         ValueError, match='Python template does not match registered template'
     ):
@@ -163,6 +166,7 @@ def test_validate_template():
 
 def test_validate_no_entity_template_id():
     """Entity id and template id must not appear in the class definition."""
+    # pylint: disable=unused-variable
     with pytest.raises(TypeError):
 
         class TemplateHasEntityid(SmsTemplate):
@@ -205,9 +209,11 @@ def test_init_app(app):
 def test_inline_use():
     assert str(MyMessage(var="sample1")) == "Insert sample1 here"
     assert MyMessage(var="sample2").text == "Insert sample2 here"
+    assert MyMessage(var="sample3").plaintext == "sample3 here"
 
 
 def test_object_use():
+    # pylint: disable=attribute-defined-outside-init
     msg = MyMessage()
     msg.var = "sample1"
     assert msg.var == "sample1"
@@ -215,6 +221,9 @@ def test_object_use():
     msg.var = "sample2"
     assert msg.var == "sample2"
     assert msg.text == "Insert sample2 here"
+    msg.var = "sample3"
+    assert msg.var == "sample3"
+    assert msg.plaintext == "sample3 here"
 
 
 # --- Test the registered templates
@@ -304,9 +313,19 @@ def test_message_template():
         message='123456789_' * 20,
         unsubscribe_url='https://unsubscribe.example/',
     )
+    assert len(msg.message) == 200
     assert str(msg) == (
         '123456789_123456789_123456789_123456789_123456789_123456789_123456789_'
         '123456789_123456789_123456789_123456789_123456789_…\n\n\n'
         'https://unsubscribe.example/ to stop - Hasgeek'
     )
     assert len(msg.message) == 121
+
+    # However, the plaintext template is formatted before truncation and will not be
+    # truncated
+    assert msg.plaintext == (
+        '123456789_123456789_123456789_123456789_123456789_123456789_123456789_'
+        '123456789_123456789_123456789_123456789_123456789_123456789_123456789_'
+        '123456789_123456789_123456789_123456789_123456789_123456789_'
+    )
+    assert len(msg.plaintext) == 200

@@ -426,7 +426,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
         db.session.add(new_membership)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`Project` as a string."""
         return f'<Project {self.profile.name}/{self.name} "{self.title}">'
 
@@ -634,7 +634,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         self.start_at = self.schedule_start_at
         self.end_at = self.schedule_end_at
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.add('reader')
@@ -684,7 +684,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
 
     @classmethod
-    def migrate_profile(
+    def migrate_profile(  # type: ignore[return]
         cls, old_profile: Profile, new_profile: Profile
     ) -> OptionalMigratedTables:
         """Migrate from one profile to another when merging user accounts."""
@@ -698,7 +698,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 )
                 project.name += '-' + buid()
             project.profile = new_profile
-        return None
 
 
 add_search_trigger(Project, 'search_vector')
@@ -781,7 +780,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
     )
     project = db.relationship(Project, backref='redirects')
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`ProjectRedirect` as a string."""
         if not self.project:
             return f'<ProjectRedirect {self.profile.name}/{self.name}: (none)>'
@@ -821,7 +820,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
         return redirect
 
     @classmethod
-    def migrate_profile(
+    def migrate_profile(  # type: ignore[return]
         cls, old_profile: Profile, new_profile: Profile
     ) -> OptionalMigratedTables:
         """
@@ -838,7 +837,6 @@ class ProjectRedirect(TimestampMixin, db.Model):
                 # Discard project redirect since the name is already taken by another
                 # redirect in the new profile
                 db.session.delete(pr)
-        return None
 
 
 class ProjectLocation(TimestampMixin, db.Model):
@@ -852,7 +850,7 @@ class ProjectLocation(TimestampMixin, db.Model):
     geonameid = db.Column(db.Integer, primary_key=True, nullable=False, index=True)
     primary = db.Column(db.Boolean, default=True, nullable=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`ProjectLocation` as a string."""
         pri_sec = 'primary' if self.primary else 'secondary'
         return (

@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Optional
 
-from flask import abort, flash, redirect, request, session, url_for
+from flask import abort, current_app, flash, redirect, request, session, url_for
 import itsdangerous
 
 from baseframe import _, __
@@ -197,7 +197,7 @@ class AccountNotificationView(ClassView):
 
         user = User.get(buid=payload['buid'])
         if user is None:
-            app.logger.error(
+            current_app.logger.error(
                 "Auto unsubscribe view cannot find user with buid %s", payload['buid']
             )
             # We can't use `render_message` here because the unsubscribe token is still
@@ -208,7 +208,7 @@ class AccountNotificationView(ClassView):
         if payload['transport'] == 'email' and 'hash' in payload:
             email_address = EmailAddress.get(email_hash=payload['hash'])
             if email_address is None:
-                app.logger.error(
+                current_app.logger.error(
                     "Auto unsubscribe view cannot find email address with hash %s",
                     payload['hash'],
                 )
@@ -386,7 +386,7 @@ class AccountNotificationView(ClassView):
         # :meth:`NotificationView.unsubscribe_token` above
         user = User.get(buid=payload['buid'])
         if user is None:
-            app.logger.error(
+            current_app.logger.error(
                 "Unsubscribe view cannot find user with buid %s", payload['buid']
             )
             return render_message(
@@ -396,7 +396,7 @@ class AccountNotificationView(ClassView):
         if payload['transport'] == 'email' and 'hash' in payload:
             email_address = EmailAddress.get(email_hash=payload['hash'])
             if email_address is None:
-                app.logger.error(
+                current_app.logger.error(
                     "Unsubscribe view cannot find email address with hash %s",
                     payload['hash'],
                 )

@@ -63,24 +63,24 @@ class SessionTimeouts(Dict[str, timedelta]):
     Use the :attr:`session_timeouts` instance instead of this class.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Create a dictionary that separately tracks {key}_at keys."""
         super().__init__(*args, **kwargs)
         self.keys_at = {f'{key}_at' for key in self.keys()}
 
-    def __setitem__(self, key: str, value: timedelta):
+    def __setitem__(self, key: str, value: timedelta) -> None:
         """Add or set a value to the dictionary."""
         if key in self:
             raise KeyError(f"Key {key} is already present")
         if not isinstance(value, timedelta):
             raise ValueError("Value must be a timedelta")
         self.keys_at.add(f'{key}_at')
-        return super().__setitem__(key, value)
+        super().__setitem__(key, value)
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         """Remove a value from the dictionary."""
         self.keys_at.remove(f'{key}_at')
-        return super().__delitem__(key)
+        super().__delitem__(key)
 
     def has_intersection(self, other):
         """Check for intersection with other dictionary-like object."""
@@ -125,9 +125,7 @@ def app_url_for(
     The provided app must have `SERVER_NAME` in its config for URL construction to work.
     """
     if (  # pylint: disable=protected-access
-        current_app
-        and current_app._get_current_object()  # type: ignore[attr-defined]
-        is target_app
+        current_app and current_app._get_current_object() is target_app
     ):
         return url_for(
             endpoint,
@@ -154,21 +152,6 @@ def app_url_for(
     if _anchor:
         result += f'#{url_quote(_anchor)}'
     return result
-
-
-def mask_email(email: str) -> str:
-    """
-    Masks an email address to obfuscate it while (hopefully) keeping it recognisable.
-
-    >>> mask_email('foobar@example.com')
-    'foo***@example.com'
-    >>> mask_email('not-email')
-    'not-em***'
-    """
-    if '@' not in email:
-        return f'{email[:-3]}***'
-    username, domain = email.split('@')
-    return f'{username[:-3]}***@{domain}'
 
 
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):
@@ -288,7 +271,10 @@ def validate_rate_limit(  # pylint: disable=too-many-arguments
         tags={'resource': resource},
     )
     cache_key = f'rate_limit/v1/{resource}/{identifier}'
-    cache_value: Optional[Tuple[int, str]] = cache.get(cache_key)
+    # XXX: Typing for cache.get is incorrectly specified as returning Optional[str]
+    cache_value: Optional[Tuple[int, str]] = cache.get(  # type: ignore[assignment]
+        cache_key
+    )
     if cache_value is None:
         count, cache_token = None, None
         statsd.incr('rate_limit', tags={'resource': resource, 'status_code': 201})
@@ -376,7 +362,8 @@ def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
 
 def retrieve_cached_token(token: str) -> Optional[dict]:
     """Retrieve cached data given a token generated using :func:`make_cached_token`."""
-    return cache.get(TEXT_TOKEN_PREFIX + token)
+    # XXX: Typing for cache.get is incorrectly specified as returning Optional[str]
+    return cache.get(TEXT_TOKEN_PREFIX + token)  # type: ignore[return-value]
 
 
 def delete_cached_token(token: str) -> bool:
@@ -421,7 +408,7 @@ def compress_response(response: ResponseBase) -> None:
     This function should ideally be used with a cache layer, such as
     :func:`~funnel.views.decorators.etag_cache_for_user`.
     """
-    if (
+    if (  # pylint: disable=too-many-boolean-expressions
         response.content_length is not None
         and response.content_length > 500
         and 200 <= response.status_code < 300

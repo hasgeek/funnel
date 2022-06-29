@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta
-from typing import Optional, Type, cast
+from typing import Any, Dict, Optional, Type
 
 from flask_babelhg import get_locale
 from werkzeug.utils import cached_property
@@ -32,6 +32,7 @@ from .helpers import (
 from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
+from .user import User
 from .venue import VenueRoom
 from .video_mixin import VideoMixin
 
@@ -186,9 +187,10 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     }
 
     @hybrid_property
-    def user(self):
-        if self.proposal:
+    def user(self) -> Optional[User]:
+        if self.proposal is not None:
             return self.proposal.first_user
+        return None
 
     @hybrid_property
     def scheduled(self):
@@ -196,8 +198,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         return self.start_at is not None and self.end_at is not None
 
     @scheduled.expression
-    def scheduled(self):
-        return (self.start_at.isnot(None)) & (self.end_at.isnot(None))
+    def scheduled(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        return (cls.start_at.isnot(None)) & (cls.end_at.isnot(None))
 
     @cached_property
     def start_at_localized(self):
@@ -265,10 +267,6 @@ class __VenueRoom:
         primaryjoin=db.and_(Session.venue_room_id == VenueRoom.id, Session.scheduled),
         viewonly=True,
     )
-
-
-# For casting in classmethod
-TypeProject = Type[Project]
 
 
 @reopen(Project)
@@ -397,15 +395,14 @@ class __Project:
         )
 
     @with_roles(call={'all'})
-    def next_starting_at(
-        self, timestamp: Optional[datetime] = None
+    def next_starting_at(  # type: ignore[misc]
+        self: Project, timestamp: Optional[datetime] = None
     ) -> Optional[datetime]:
         """
         Return timestamp of next session from given timestamp.
 
         Supplements :attr:`next_session_at` to also consider projects without sessions.
         """
-        self = cast(Project, self)
         # If there's no `self.start_at`, there is no session either
         if self.start_at is not None:
             if timestamp is None:
@@ -428,7 +425,9 @@ class __Project:
         return None
 
     @classmethod
-    def starting_at(cls, timestamp: datetime, within: timedelta, gap: timedelta):
+    def starting_at(  # type: ignore[misc]
+        cls: Type[Project], timestamp: datetime, within: timedelta, gap: timedelta
+    ):
         """
         Return projects that are about to start, for sending notifications.
 
@@ -446,7 +445,6 @@ class __Project:
 
         # Check project starting time before looking for individual sessions, as some
         # projects will have no sessions
-        cls = cast(TypeProject, cls)
         return (
             cls.query.filter(
                 cls.id.in_(
@@ -486,9 +484,9 @@ class __Project:
         )
 
     @with_roles(call={'all'})
-    def current_sessions(self):
+    def current_sessions(self: Project) -> Optional[dict]:  # type: ignore[misc]
         if self.start_at is None or (self.start_at > utcnow() + timedelta(minutes=30)):
-            return
+            return None
 
         current_sessions = (
             self.sessions.outerjoin(VenueRoom)
@@ -508,7 +506,7 @@ class __Project:
             ],
         }
 
-    def calendar_weeks(self, leading_weeks=True):
+    def calendar_weeks(self: Project, leading_weeks=True):  # type: ignore[misc]
         # session_dates is a list of tuples in this format -
         # (date, day_start_at, day_end_at, event_count)
         if self.schedule_start_at:
@@ -602,7 +600,7 @@ class __Project:
                     session_dates.insert(0, (now + timedelta(days=7), None, None, 0))
                 session_dates.insert(0, (now, None, None, 0))
 
-        weeks = defaultdict(dict)
+        weeks: Dict[str, Dict[str, Any]] = defaultdict(dict)
         today = now.date()
         for project_date, _day_start_at, _day_end_at, session_count in session_dates:
             weekobj = Week.withdate(project_date)

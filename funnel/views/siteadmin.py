@@ -1,3 +1,5 @@
+"""Siteadmin views."""
+
 from __future__ import annotations
 
 from collections import Counter
@@ -10,7 +12,7 @@ import csv
 
 from sqlalchemy.dialects.postgresql import INTERVAL
 
-from flask import abort, flash, redirect, render_template, request, url_for
+from flask import abort, current_app, flash, redirect, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import Form
@@ -58,6 +60,8 @@ class AuthClientUserReport:
 
 @dataclass
 class ReportCounter:
+    """Data structure for counting report types against frequency of reports."""
+
     report_type: int
     frequency: int
 
@@ -269,7 +273,9 @@ class SiteadminView(ClassView):
         # Avoid request.form.getlist('comment_id') here
         if comment_spam_form.validate_on_submit():
             comments = Comment.query.filter(
-                Comment.uuid_b58.in_(request.form.getlist('comment_id'))
+                Comment.uuid_b58.in_(  # type: ignore[attr-defined]
+                    request.form.getlist('comment_id')
+                )
             )
             for comment in comments:
                 CommentModeratorReport.submit(actor=current_auth.user, comment=comment)
@@ -383,7 +389,7 @@ class SiteadminView(ClassView):
             # Redirect to a new report
             return redirect(url_for('siteadmin_review_comments_random'))
 
-        app.logger.debug(report_form.errors)
+        current_app.logger.debug(report_form.errors)
 
         return {
             'report': comment_report,

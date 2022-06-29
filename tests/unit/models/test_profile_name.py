@@ -106,7 +106,7 @@ def test_cant_remove_username(db_session, user_twoflower):
     db_session.commit()
     assert user_twoflower.username == 'username'
     assert user_twoflower.profile is not None
-    profile = user_twoflower.profile  # type: ignore[unreachable]
+    profile = user_twoflower.profile
     assert isinstance(profile, models.Profile)
 
     user_twoflower.username = 'twoflower'

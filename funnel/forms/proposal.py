@@ -6,13 +6,13 @@ from typing import Optional
 
 from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import QuerySelectField
-from coaster.auth import current_auth
 
-from ..models import Project, Proposal
+from ..models import Project, Proposal, User
 from .helpers import nullable_strip_filters, video_url_validator
 
 __all__ = [
     'ProposalForm',
+    'ProposalFeaturedForm',
     'ProposalLabelsAdminForm',
     'ProposalLabelsForm',
     'ProposalMoveForm',
@@ -123,6 +123,7 @@ class ProposalFeaturedForm(forms.Form):
 class ProposalLabelsForm(forms.Form):
     """Form to add labels to a proposal, collaborator version."""
 
+    edit_parent: Project
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
     def set_queries(self) -> None:
@@ -136,6 +137,7 @@ class ProposalLabelsForm(forms.Form):
 class ProposalLabelsAdminForm(forms.Form):
     """Form to add labels to a proposal, editor version."""
 
+    edit_parent: Project
     formlabels = forms.FormField(forms.Form, __("Labels"))
 
     def set_queries(self) -> None:
@@ -148,6 +150,8 @@ class ProposalLabelsAdminForm(forms.Form):
 @Proposal.forms('main')
 class ProposalForm(forms.Form):
     """Add or edit a proposal (now called submission)."""
+
+    edit_parent: Project
 
     title = forms.TextAreaField(
         __("Title"),
@@ -207,7 +211,7 @@ class ProposalMemberForm(forms.Form):
         """Validate user field to confirm user is not an existing collaborator."""
         for membership in self.proposal.memberships:
             if membership.user == field.data:
-                raise forms.StopValidation(
+                raise forms.validators.StopValidation(
                     _("{user} is already a collaborator").format(
                         user=field.data.pickername
                     )
@@ -217,6 +221,8 @@ class ProposalMemberForm(forms.Form):
 @Proposal.forms('transition')
 class ProposalTransitionForm(forms.Form):
     """Form to change the state of a proposal."""
+
+    edit_obj: Proposal
 
     transition = forms.SelectField(
         __("Status"), validators=[forms.validators.DataRequired()]
@@ -234,6 +240,9 @@ class ProposalTransitionForm(forms.Form):
 class ProposalMoveForm(forms.Form):
     """Form to move a proposal to another project."""
 
+    __expects__ = ('user',)
+    user: User
+
     target = QuerySelectField(
         __("Move proposal to"),
         description=__("Move this proposal to another project"),
@@ -243,4 +252,4 @@ class ProposalMoveForm(forms.Form):
 
     def set_queries(self) -> None:
         """Prepare form for use."""
-        self.target.query = current_auth.user.projects_as_editor
+        self.target.query = self.user.projects_as_editor

@@ -20,6 +20,7 @@ from coaster.views import (
 
 from .. import app
 from ..forms import (
+    ProposalFeaturedForm,
     ProposalForm,
     ProposalLabelsAdminForm,
     ProposalMemberForm,
@@ -198,7 +199,7 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
 
         proposal_move_form = None
         if 'move_to' in self.obj.current_access():
-            proposal_move_form = ProposalMoveForm()
+            proposal_move_form = ProposalMoveForm(user=current_auth.user)
 
         proposal_label_admin_form = ProposalLabelsAdminForm(
             model=Proposal, obj=self.obj, parent=self.obj.project
@@ -335,7 +336,7 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_login
     @requires_roles({'project_editor'})
     def moveto(self):
-        proposal_move_form = ProposalMoveForm()
+        proposal_move_form = ProposalMoveForm(user=current_auth.user)
         if proposal_move_form.validate_on_submit():
             target_project = proposal_move_form.target.data
             if target_project != self.obj.project:
@@ -358,7 +359,7 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_login
     @requires_roles({'project_editor'})
     def update_featured(self):
-        featured_form = self.obj.forms.featured()
+        featured_form = ProposalFeaturedForm(obj=self.obj)
         if featured_form.validate_on_submit():
             featured_form.populate_obj(self.obj)
             db.session.commit()

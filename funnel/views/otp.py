@@ -77,7 +77,7 @@ OtpSessionType = TypeVar('OtpSessionType', bound='OtpSession')
 
 # --- Registry -------------------------------------------------------------------------
 
-_reason_subclasses: Dict[str, OtpSession] = {}
+_reason_subclasses: Dict[str, Type[OtpSession]] = {}
 
 # --- Classes --------------------------------------------------------------------------
 
@@ -105,7 +105,7 @@ class OtpSession(Generic[OptionalUserType]):
     link_token: Optional[str] = None
 
     # __new__ gets called before __init__ and can replace the class that is created
-    def __new__(cls, reason, **kwargs):
+    def __new__(cls, reason: str, **kwargs) -> OtpSession:
         """Return a subclass that contains the appropriate methods for given reason."""
         if reason not in _reason_subclasses:
             raise TypeError(f"Unknown OtpSession reason {reason}")
@@ -116,7 +116,7 @@ class OtpSession(Generic[OptionalUserType]):
     # __init_subclass__ gets called for ``class Subclass(OtpSession, reason='...'):``
     # and receives `reason` as a kwarg. However, declaring it in the method signature
     # upsets PyLint, so we pop it from kwargs.
-    def __init_subclass__(cls, *args, **kwargs):
+    def __init_subclass__(cls, *args, **kwargs) -> None:
         """Register a subclass for use by __new__."""
         reason = kwargs.pop('reason', None)
         if not reason:
@@ -396,7 +396,7 @@ class OtpSessionForSudo(OtpSession[User], reason='sudo'):
     """OtpSession variant for sudo confirmation."""
 
     @cached_property
-    def display_phone(self) -> str:  # type: ignore[override]
+    def display_phone(self) -> str:
         """Reveal phone number when used for sudo."""
         if self.phone is not None:
             return phonenumbers.format_number(
@@ -406,7 +406,7 @@ class OtpSessionForSudo(OtpSession[User], reason='sudo'):
         return ''
 
     @cached_property
-    def display_email(self) -> str:  # type: ignore[override]
+    def display_email(self) -> str:
         """Reveal email address when used for sudo."""
         return self.email if self.email is not None else ''
 
@@ -436,7 +436,7 @@ class OtpSessionForSudo(OtpSession[User], reason='sudo'):
 class OtpSessionForReset(OtpSession[User], reason='reset'):
     """OtpSession variant for password reset."""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Make link token."""
         self.link_token = token_serializer().dumps(
             {'buid': self.user.buid, 'pw_set_at': str_pw_set_at(self.user)}

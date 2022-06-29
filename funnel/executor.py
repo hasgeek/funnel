@@ -18,7 +18,8 @@ def remove_db_session(f: F) -> F:
     Required until this underlying issue is resolved:
     https://github.com/dchevell/flask-executor/issues/15
     """
-    from .models import db  # Don't import models at top-level before app is ready
+    # Don't import models at top-level before app is ready
+    from .models import db  # pylint: disable=import-outside-toplevel
 
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -39,7 +40,7 @@ class ExecutorWrapper:
     Consult the Flask-Executor documentation for usage notes.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Create an Executor."""
         self.executor = Executor(*args, **kwargs)
 
