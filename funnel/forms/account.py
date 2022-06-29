@@ -130,12 +130,12 @@ def pwned_password_validator(_form, field) -> None:
         # 3. Ensure the suffix is uppercase
         # 4. If count is not a number, default it to 0 (ie, this is not a match)
         matches: Dict[str, int] = {
-            _s.upper(): int(_v) if _v.isdigit() else 0
-            for _s, _v in (
-                (_s.strip(), _v.strip())
-                for _s, _v in (
-                    (_l + (':1' if ':' not in _l else '')).split(':', 1)
-                    for _l in rv.text.splitlines()
+            line_suffix.upper(): int(line_count) if line_count.isdigit() else 0
+            for line_suffix, line_count in (
+                (split1.strip(), split2.strip())
+                for split1, split2 in (
+                    (line + (':1' if ':' not in line else '')).split(':', 1)
+                    for line in rv.text.splitlines()
                 )
             )
         }
