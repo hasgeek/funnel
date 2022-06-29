@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Set, TypeVar
+from typing import Any, Generic, Iterable, Optional, Set, TypeVar
 
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.expression import ClauseList
@@ -61,6 +61,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     __data_columns__: Iterable[str] = ()
     #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
     parent_id: db.Column
+    #: Parent object
+    parent: Optional[db.Model]
     #: Subject of this membership (subclasses must define)
     subject = None
 
@@ -149,7 +151,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     with_roles(is_invite, read={'subject', 'editor'})
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f'<{self.__class__.__name__} {self.subject!r} in {self.parent!r} '
             + ('active' if self.is_active else 'revoked')
@@ -311,12 +313,12 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
         return db.synonym('user')
 
     @declared_attr  # type: ignore[no-redef]
-    def __table_args__(cls):  # pylint: disable=no-self-argument
+    def __table_args__(cls) -> tuple:  # pylint: disable=no-self-argument
         """Table arguments for SQLAlchemy."""
         if cls.parent_id is not None:
             return (
                 db.Index(
-                    'ix_' + cls.__tablename__ + '_active',
+                    'ix_' + cls.__tablename__ + '_active',  # type: ignore[attr-defined]
                     cls.parent_id.name,
                     'user_id',
                     unique=True,
@@ -325,7 +327,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
             )
         return (
             db.Index(
-                'ix_' + cls.__tablename__ + '_active',
+                'ix_' + cls.__tablename__ + '_active',  # type: ignore[attr-defined]
                 'user_id',
                 unique=True,
                 postgresql_where=db.column('revoked_at').is_(None),
@@ -587,7 +589,7 @@ class ReorderMembershipMixin(ReorderMixin):
         )
 
 
-class AmendMembership:
+class AmendMembership(Generic[MembershipType]):
     """
     Helper class for editing a membership record from a form.
 
@@ -603,7 +605,7 @@ class AmendMembership:
     to any attribute listed as a data column.
     """
 
-    def __init__(self, membership: MembershipType, actor: User):
+    def __init__(self, membership: MembershipType, actor: User) -> None:
         """Create an amendment placeholder."""
         if membership.revoked_at is not None:
             raise MembershipRevokedError(
@@ -613,13 +615,13 @@ class AmendMembership:
         object.__setattr__(self, '_new', {})
         object.__setattr__(self, '_actor', actor)
 
-    def __getattr__(self, attr: str):
+    def __getattr__(self, attr: str) -> Any:
         """Get an attribute from the underlying record."""
         if attr in self._new:
             return self._new[attr]
         return getattr(self.membership, attr)
 
-    def __setattr__(self, attr: str, value: Any):
+    def __setattr__(self, attr: str, value: Any) -> None:
         """Set an amended value."""
         if attr not in self.membership.__data_columns__:
             raise AttributeError(f"{attr} cannot be set")
@@ -636,7 +638,7 @@ class AmendMembership:
                 self, 'membership', self.membership.replace(self._actor, **self._new)
             )
 
-    def commit(self):
+    def commit(self) -> MembershipType:
         """Commit and return a replacement record when not using a `with` context."""
         self.__exit__(None, None, None)
         return self.membership

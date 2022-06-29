@@ -77,6 +77,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from types import SimpleNamespace
 from typing import (
+    Any,
     Callable,
     Dict,
     Generator,
@@ -557,15 +558,20 @@ class PreviewNotification:
         NotificationFor(PreviewNotification(NotificationType), user)
     """
 
-    def __init__(self, cls, document, fragment=None) -> None:
+    def __init__(
+        self,
+        cls: Notification,
+        document: UuidModelType,
+        fragment: Optional[UuidModelType] = None,
+    ) -> None:
         self.eventid = self.eventid_b58 = self.id = 'preview'  # May need to be a UUID
         self.cls = cls
         self.document = document
         self.document_uuid = document.uuid
         self.fragment = fragment
-        self.fragment_uuid = fragment.uuid
+        self.fragment_uuid = fragment.uuid if fragment is not None else None
 
-    def __getattr__(self, attr: str):
+    def __getattr__(self, attr: str) -> Any:
         """Get an attribute."""
         return getattr(self.cls, attr)
 

@@ -102,7 +102,9 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, db.Model):
     is_usher = db.Column(db.Boolean, nullable=False, default=False)
 
     @declared_attr
-    def __table_args__(cls):  # pylint: disable=no-self-argument
+    def __table_args__(  # type: ignore[override]  # pylint: disable=no-self-argument
+        cls,
+    ) -> tuple:
         """Table arguments."""
         args = list(super().__table_args__)
         kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None

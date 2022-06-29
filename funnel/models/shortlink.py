@@ -233,7 +233,7 @@ class Shortlink(NoIdMixin, db.Model):
 
     # --- Methods
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return string representation of self."""
         return f'Shortlink(name={self.name!r}, url={self.url!r})'
 

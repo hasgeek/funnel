@@ -70,7 +70,7 @@ class GeoCountryInfo(BaseNameMixin, db.Model):
         ),
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return representation."""
         return f'<GeoCountryInfo {self.geonameid} "{self.title}">'
 
@@ -97,7 +97,7 @@ class GeoAdmin1Code(BaseMixin, db.Model):
     country = db.relationship('GeoCountryInfo')
     admin1_code = db.Column(db.Unicode)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return representation."""
         return f'<GeoAdmin1Code {self.geonameid} "self.ascii_title">'
 
@@ -125,7 +125,7 @@ class GeoAdmin2Code(BaseMixin, db.Model):
     admin1_code = db.Column(db.Unicode)
     admin2_code = db.Column(db.Unicode)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return representation."""
         return f'<GeoAdmin2Code {self.geonameid} "self.ascii_title">'
 

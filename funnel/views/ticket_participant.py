@@ -31,8 +31,13 @@ from ..models import (
 )
 from ..proxies import request_wants
 from ..typing import ReturnView
-from ..utils import abort_null, format_twitter_handle, make_qrcode, split_name
-from .helpers import mask_email
+from ..utils import (
+    abort_null,
+    format_twitter_handle,
+    make_qrcode,
+    mask_email,
+    split_name,
+)
 from .login_session import requires_login
 from .mixins import ProfileCheckMixin, ProjectViewMixin, TicketEventViewMixin
 

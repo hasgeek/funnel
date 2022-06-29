@@ -101,7 +101,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
         db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`UserSession` as a string."""
         return f'<UserSession {self.buid}>'
 

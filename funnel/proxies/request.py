@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from functools import wraps
-from typing import Any, Callable, Optional, TypeVar, cast
+from typing import Any, Callable, Optional, Set, TypeVar, cast
 
 from flask import (  # type: ignore[attr-defined]
     Response,
@@ -54,10 +54,10 @@ class RequestWants:
     :func:`~funnel.proxies.init_app`.
     """
 
-    def __init__(self):
-        self.response_vary = set()
+    def __init__(self) -> None:
+        self.response_vary: Set[str] = set()
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return has_request_context()
 
     # --- request_wants tests ----------------------------------------------------------

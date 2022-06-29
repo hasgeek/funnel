@@ -240,7 +240,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         'ACTIVE_AND_PUBLIC', state.PUBLIC, lambda profile: profile.is_active
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`Profile` as a string."""
         return f'<Profile "{self.name}">'
 

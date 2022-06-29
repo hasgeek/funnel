@@ -39,7 +39,7 @@ class ExecutorWrapper:
     Consult the Flask-Executor documentation for usage notes.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Create an Executor."""
         self.executor = Executor(*args, **kwargs)
 

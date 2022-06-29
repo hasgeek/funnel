@@ -426,7 +426,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
         db.session.add(new_membership)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`Project` as a string."""
         return f'<Project {self.profile.name}/{self.name} "{self.title}">'
 
@@ -781,7 +781,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
     )
     project = db.relationship(Project, backref='redirects')
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`ProjectRedirect` as a string."""
         if not self.project:
             return f'<ProjectRedirect {self.profile.name}/{self.name}: (none)>'
@@ -852,7 +852,7 @@ class ProjectLocation(TimestampMixin, db.Model):
     geonameid = db.Column(db.Integer, primary_key=True, nullable=False, index=True)
     primary = db.Column(db.Boolean, default=True, nullable=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`ProjectLocation` as a string."""
         pri_sec = 'primary' if self.primary else 'secondary'
         return (

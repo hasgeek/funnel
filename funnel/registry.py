@@ -169,17 +169,15 @@ class LoginProviderRegistry(OrderedDict):
         """Return services which have the flag at_login set to True."""
         return [(k, v) for (k, v) in self.items() if v.at_login is True]
 
-    def __setitem__(self, key: str, value: LoginProvider):
+    def __setitem__(self, key: str, value: LoginProvider) -> None:
         """Make a registry entry."""
-        retval = super().__setitem__(key, value)
+        super().__setitem__(key, value)
         UserExternalId.__at_username_services__ = self.at_username_services()
-        return retval
 
-    def __delitem__(self, key: str):
+    def __delitem__(self, key: str) -> None:
         """Remove a registry entry."""
-        retval = super().__delitem__(key)
+        super().__delitem__(key)
         UserExternalId.__at_username_services__ = self.at_username_services()
-        return retval
 
 
 class LoginError(Exception):
@@ -245,9 +243,11 @@ class LoginProvider:
         self.icon = icon
 
     def do(self, callback_url: str):
+        """Initiate a login with this login provider."""
         raise NotImplementedError
 
     def callback(self) -> LoginProviderData:
+        """Process callback from login provider."""
         raise NotImplementedError
 
         # Template for subclasses. All optional values can be skipped

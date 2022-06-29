@@ -177,7 +177,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
         }
     }
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`AuthClient` as a string."""
         return f'<AuthClient "{self.title}" {self.buid}>'
 
@@ -407,7 +407,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
 
     __tablename__ = 'auth_token'
     # User id is null for client-only tokens and public clients as the user is
-    # identified via user_session.user there)
+    # identified via user_session.user there
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     _user: User = db.relationship(
         User,
@@ -482,7 +482,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
             self.refresh_token = make_buid()
         self.secret = newsecret()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`AuthToken` as a string."""
         return f'<AuthToken {self.token} of {self.auth_client!r} {self.user!r}>'
 

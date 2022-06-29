@@ -56,7 +56,7 @@ class EmailAddressAvailable:
             raise ValueError("Invalid purpose")
         self.purpose = purpose
 
-    def __call__(self, form, field):
+    def __call__(self, form, field) -> None:
         # Get actor (from existing obj, or current_auth.actor)
         actor = None
         if hasattr(form, 'edit_obj'):

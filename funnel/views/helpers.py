@@ -63,24 +63,24 @@ class SessionTimeouts(Dict[str, timedelta]):
     Use the :attr:`session_timeouts` instance instead of this class.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Create a dictionary that separately tracks {key}_at keys."""
         super().__init__(*args, **kwargs)
         self.keys_at = {f'{key}_at' for key in self.keys()}
 
-    def __setitem__(self, key: str, value: timedelta):
+    def __setitem__(self, key: str, value: timedelta) -> None:
         """Add or set a value to the dictionary."""
         if key in self:
             raise KeyError(f"Key {key} is already present")
         if not isinstance(value, timedelta):
             raise ValueError("Value must be a timedelta")
         self.keys_at.add(f'{key}_at')
-        return super().__setitem__(key, value)
+        super().__setitem__(key, value)
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         """Remove a value from the dictionary."""
         self.keys_at.remove(f'{key}_at')
-        return super().__delitem__(key)
+        super().__delitem__(key)
 
     def has_intersection(self, other):
         """Check for intersection with other dictionary-like object."""
@@ -152,21 +152,6 @@ def app_url_for(
     if _anchor:
         result += f'#{url_quote(_anchor)}'
     return result
-
-
-def mask_email(email: str) -> str:
-    """
-    Masks an email address to obfuscate it while (hopefully) keeping it recognisable.
-
-    >>> mask_email('foobar@example.com')
-    'foo***@example.com'
-    >>> mask_email('not-email')
-    'not-em***'
-    """
-    if '@' not in email:
-        return f'{email[:-3]}***'
-    username, domain = email.split('@')
-    return f'{username[:-3]}***@{domain}'
 
 
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):

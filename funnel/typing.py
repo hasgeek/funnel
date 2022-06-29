@@ -26,7 +26,7 @@ class ModelType(Protocol):
     """Protocol class for models."""
 
     __tablename__: str
-    __table_args__: Union[Tuple, Tuple[Tuple, Dict]]
+    __table_args__: tuple
     query: Query
 
 

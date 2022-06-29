@@ -1056,7 +1056,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     with_roles(name, read={'all'})
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`Organization` as a string."""
         return f'<Organization {self.name} "{self.title}">'
 
@@ -1439,7 +1439,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
             self.email.lower().encode(), digest_size=16
         ).digest()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`UserEmailClaim` as a string."""
         return f'<UserEmailClaim {self.email} of {self.user!r}>'
 
@@ -1617,7 +1617,7 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
         'related': {'phone', 'private', 'type'},
     }
 
-    def __init__(self, phone, **kwargs) -> None:
+    def __init__(self, phone: str, **kwargs) -> None:
         super().__init__(**kwargs)
         self._phone = phone
 
@@ -1712,7 +1712,7 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
         'related': {'phone', 'private', 'type'},
     }
 
-    def __init__(self, phone, **kwargs) -> None:
+    def __init__(self, phone: str, **kwargs) -> None:
         super().__init__(**kwargs)
         self.verification_code = newpin()
         self._phone = phone
@@ -1724,7 +1724,7 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
 
     phone = db.synonym('_phone', descriptor=phone)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`UserPhoneClaim` as a string."""
         return f'<UserPhoneClaim {self.phone} of {self.user!r}>'
 

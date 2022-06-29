@@ -64,7 +64,7 @@ class SiteMembership(ImmutableUserMembershipMixin, db.Model):
         )
         return tuple(args)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return representation of membership."""
         return (
             f'<{self.__class__.__name__} {self.subject!r} '

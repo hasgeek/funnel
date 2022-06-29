@@ -1,7 +1,9 @@
+"""Non-database model for registered SMS templates in India."""
+
 from __future__ import annotations
 
 from string import Formatter
-from typing import Dict, Optional, Pattern, cast
+from typing import Any, Dict, Optional, Pattern, cast
 import re
 
 from flask import Flask, current_app
@@ -189,14 +191,14 @@ class SmsTemplate:
         """Return a representation of self."""
         return f'<{self.__class__.__name__} {self.text!r}>'
 
-    def __getattr__(self, attr: str):
+    def __getattr__(self, attr: str) -> Any:
         """Get a format variable."""
         try:
             return self._format_kwargs[attr]
         except KeyError as exc:
             raise AttributeError(attr) from exc
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> Any:
         """Get a format variable via dictionary access, defaulting to ''."""
         return getattr(self, key, '')
 

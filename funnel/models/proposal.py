@@ -259,7 +259,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             ProposalMembership(proposal=self, user=self.user, granted_by=self.user)
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`Proposal` as a string."""
         return (
             f'<Proposal "{self.title}" in project "{self.project.title}"'
