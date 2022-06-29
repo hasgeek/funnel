@@ -1,3 +1,5 @@
+"""OAuth2 API views."""
+
 from __future__ import annotations
 
 from typing import Iterable, List, Optional, cast
@@ -208,8 +210,8 @@ def oauth_authorize() -> ReturnView:
             _("Redirect URI hostname doesn't match"),
         )
 
-    # Validation 1.4: AuthClient allows login for this user
-    if not auth_client.allow_login_for(current_auth.user):
+    # Validation 1.4: AuthClient allows access for this user
+    if not auth_client.allow_access_for(current_auth.user):
         return oauth_auth_error(
             auth_client.redirect_uri,
             state,
@@ -475,7 +477,7 @@ def oauth_token() -> ReturnView:
         if not set(scope).issubset(set(authcode.scope)):
             return oauth_token_error('invalid_scope', _("Scope expanded"))
         # Scope not exceeded. Use whatever the authcode allows
-        scope = authcode.scope
+        scope = list(authcode.scope)
         if redirect_uri != authcode.redirect_uri:
             return oauth_token_error('invalid_client', _("redirect_uri does not match"))
 

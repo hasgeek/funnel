@@ -1,3 +1,5 @@
+"""Views for a user or organization profile."""
+
 from __future__ import annotations
 
 from flask import (
@@ -26,7 +28,12 @@ from coaster.views import (
 )
 
 from .. import app
-from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm
+from ..forms import (
+    ProfileBannerForm,
+    ProfileForm,
+    ProfileLogoForm,
+    ProfileTransitionForm,
+)
 from ..models import Profile, Project, db
 from .helpers import render_redirect
 from .login_session import requires_login
@@ -269,7 +276,9 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit(self):
-        form = ProfileForm(obj=self.obj, model=Profile, profile=self.obj)
+        form = ProfileForm(
+            obj=self.obj, model=Profile, profile=self.obj, user=current_auth.user
+        )
         if self.obj.user:
             form.make_for_user()
         if form.validate_on_submit():
@@ -387,7 +396,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_login
     @requires_roles({'owner'})
     def transition(self):
-        form = self.obj.forms.transition()
+        form = ProfileTransitionForm(obj=self.obj)
         if form.validate_on_submit():
             transition_name = form.transition.data
             getattr(self.obj, transition_name)()

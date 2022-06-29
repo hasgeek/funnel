@@ -196,8 +196,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         return self.start_at is not None and self.end_at is not None
 
     @scheduled.expression
-    def scheduled(self):
-        return (self.start_at.isnot(None)) & (self.end_at.isnot(None))
+    def scheduled(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        return (cls.start_at.isnot(None)) & (cls.end_at.isnot(None))
 
     @cached_property
     def start_at_localized(self):

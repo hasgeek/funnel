@@ -1,9 +1,11 @@
+"""View decorator utility functions."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta
 from functools import wraps
 from hashlib import blake2b
-from typing import Any, Callable, Optional, Set, TypeVar, Union, cast
+from typing import Any, Callable, Dict, Optional, Set, TypeVar, Union, cast
 
 from flask import Response, make_response, redirect, request, url_for
 
@@ -109,7 +111,12 @@ def etag_cache_for_user(
 
             # 2. Get existing data from cache. There may be multiple copies of data,
             # for each distinct rhash. Look for the one matching our rhash
-            cache_data = cache.get(cache_key)
+
+            # XXX: Typing for cache.get is incorrectly specified as returning
+            # Optional[str]
+            cache_data: Optional[Dict] = cache.get(  # type: ignore[assignment]
+                cache_key
+            )
             response_data = None
             if cache_data:
                 rhash_data = cache_data.get(rhash, {})
@@ -173,13 +180,7 @@ def etag_cache_for_user(
                 response.last_modified or datetime.utcnow()
             ) + timedelta(seconds=cast(int, max_age))
 
-            # mypy errors:
-            # 1. error: Incompatible return value type (got
-            #    "werkzeug.wrappers.response.Response", expected
-            #    "flask.wrappers.Response") [return-value]
-            # 2. error: Argument 1 to "make_conditional" of "Response" has incompatible
-            #    type "Request"; expected "Dict[str, Any]"  [arg-type]
-            return response.make_conditional(request)  # type: ignore[return-value,arg-type]
+            return response.make_conditional(request)
 
         return cast(F, wrapper)
 

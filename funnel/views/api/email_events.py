@@ -1,3 +1,5 @@
+"""Handle email events from service providers (AWS SES)."""
+
 from __future__ import annotations
 
 from email.utils import parseaddr
@@ -130,7 +132,7 @@ class SesProcessor(SesProcessorAbc):
             email_address.mark_sent()
         statsd.incr(
             'email_address.event',
-            count=ses_event.delivery.recipients,
+            count=len(ses_event.delivery.recipients),
             tags={'engine': 'aws_ses', 'stage': 'processed', 'event': 'delivered'},
         )
 

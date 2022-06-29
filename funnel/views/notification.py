@@ -1,3 +1,5 @@
+"""Views for sending and rendering notifications."""
+
 from __future__ import annotations
 
 from collections import defaultdict
@@ -11,6 +13,8 @@ from uuid import uuid4
 from flask import url_for
 from flask_babelhg import force_locale
 from werkzeug.utils import cached_property
+
+from typing_extensions import Literal
 
 from baseframe import __, statsd
 from coaster.auth import current_auth
@@ -27,6 +31,7 @@ __all__ = ['RenderNotification', 'dispatch_notification']
 
 @UserNotification.views('render')
 def render_user_notification(obj):
+    """Render web notifications for the user."""
     return Notification.renderers[obj.notification.type](obj).web()
 
 
@@ -51,9 +56,7 @@ class RenderNotification:
     """
 
     #: Aliases for document and fragment, to make render methods clearer
-    aliases: Dict[str, str] = {}
-    # XXX: Replace type after moving to Python 3.8:
-    # Dict[Literal['document', 'fragment'], str]
+    aliases: Dict[Literal['document', 'fragment'], str] = {}
 
     #: Emoji prefix, for transports that support them
     emoji_prefix = ''

@@ -17,12 +17,11 @@ from ..models import (
     ProjectRedirect,
     Session,
     TicketEvent,
-    UuidMixin,
     Venue,
     VenueRoom,
     db,
 )
-from ..typing import ReturnRenderWith, ReturnView
+from ..typing import ReturnRenderWith, ReturnView, UuidModelType
 
 
 class ProfileCheckMixin:
@@ -35,7 +34,7 @@ class ProfileCheckMixin:
         profile = self.profile
         if profile is None:
             raise ValueError("Subclass must set self.profile")
-        g.profile = profile  # type: ignore[unreachable]
+        g.profile = profile
         if not profile.is_active:
             abort(410)
 
@@ -49,7 +48,7 @@ class ProfileCheckMixin:
 class ProjectViewMixin(ProfileCheckMixin):
     model = Project
     route_model_map = {'profile': 'profile.name', 'project': 'name'}
-    obj: Union[Project, ProjectRedirect]
+    obj: Project
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
@@ -214,10 +213,10 @@ class TicketEventViewMixin(ProfileCheckMixin):
 
 
 class DraftViewMixin:
-    obj: UuidMixin
-    model: Type[UuidMixin]
+    obj: UuidModelType
+    model: Type[UuidModelType]
 
-    def get_draft(self, obj: Optional[UuidMixin] = None) -> Optional[Draft]:
+    def get_draft(self, obj: Optional[UuidModelType] = None) -> Optional[Draft]:
         """
         Return the draft object for `obj`. Defaults to `self.obj`.
 
@@ -235,7 +234,7 @@ class DraftViewMixin:
             raise ValueError(_("There is no draft for the given object"))
 
     def get_draft_data(
-        self, obj: Optional[UuidMixin] = None
+        self, obj: Optional[UuidModelType] = None
     ) -> Union[Tuple[None, None], Tuple[int, dict]]:
         """
         Return a tuple of draft data.
@@ -247,11 +246,12 @@ class DraftViewMixin:
             return draft.revision, draft.formdata
         return None, None
 
-    def autosave_post(self, obj: Optional[UuidMixin] = None) -> ReturnRenderWith:
+    def autosave_post(self, obj: Optional[UuidModelType] = None) -> ReturnRenderWith:
         """Handle autosave POST requests."""
         obj = obj if obj is not None else self.obj
         if 'form.revision' not in request.form:
-            # as form.autosave is true, the form should have `form.revision` field even if it's empty
+            # as form.autosave is true, the form should have `form.revision` field even
+            # if it's empty
             return (
                 {
                     'status': 'error',

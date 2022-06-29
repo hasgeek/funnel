@@ -272,27 +272,30 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         self._user = value
 
     @user.expression
-    def user(cls):  # noqa: N805
+    def user(cls):  # noqa: N805  # pylint: disable=no-self-argument
         return cls._user
 
     with_roles(user, read={'all'}, datasets={'primary', 'related', 'json', 'minimal'})
 
     @hybrid_property
     def message(self) -> Union[str, Markup]:
+        """Return the message of the comment if not deleted or removed."""
         return (
             _('[deleted]')
             if self.state.DELETED
             else _('[removed]')
             if self.state.SPAM
-            else self._message
+            else self._message.html
         )
 
     @message.setter
     def message(self, value: str) -> None:
-        self._message = value
+        """Edit the message of a comment."""
+        self._message = value  # type: ignore[assignment]
 
     @message.expression
-    def message(cls):  # noqa: N805
+    def message(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        """Return SQL expression for comment message column."""
         return cls._message
 
     with_roles(

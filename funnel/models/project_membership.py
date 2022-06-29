@@ -1,3 +1,5 @@
+"""Project crew and (future) participant registration membership."""
+
 from __future__ import annotations
 
 from typing import Dict, Iterable, Optional, Set
@@ -100,7 +102,7 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, db.Model):
     is_usher = db.Column(db.Boolean, nullable=False, default=False)
 
     @declared_attr
-    def __table_args__(cls):
+    def __table_args__(cls):  # pylint: disable=no-self-argument
         """Table arguments."""
         args = list(super().__table_args__)
         kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None

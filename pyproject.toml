@@ -120,7 +120,15 @@ warn_redundant_casts = false
 [tool.pylint.master]
 load-plugins = ['pylint_pytest', 'pylint_flask_sqlalchemy']
 max-parents = 10
-init-hook = "import os; sys.path.append(os.getcwd())"
+init-hook = """
+import os, astroid.bases
+# Tell Pylint where to find the funnel package from within tests
+sys.path.append(os.getcwd())
+# Tell Pylint hybrid_property and cached_property are property-types
+astroid.bases.POSSIBLE_PROPERTIES.add('hybrid_property')
+astroid.bases.POSSIBLE_PROPERTIES.add('cached_property')
+"""
+
 
 [tool.pylint.message_control]
 max-line-length = 88

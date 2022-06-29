@@ -3,16 +3,38 @@
 from __future__ import annotations
 
 from typing import Dict, List, Optional, Set, Tuple, TypeVar, Union
+from uuid import UUID
 
 from werkzeug.wrappers import Response  # Base class for Flask Response
 
+from typing_extensions import Protocol
+
+from coaster.sqlalchemy import Query
+
 __all__ = [
+    'ModelType',
+    'UuidModelType',
     'OptionalMigratedTables',
     'ReturnRenderWith',
     'ReturnResponse',
     'ReturnView',
     'T',
 ]
+
+
+class ModelType(Protocol):
+    """Protocol class for models."""
+
+    __tablename__: str
+    __table_args__: Union[Tuple, Tuple[Tuple, Dict]]
+    query: Query
+
+
+class UuidModelType(ModelType):
+    """Protocol class for models with UUID column."""
+
+    uuid: UUID
+
 
 #: Flask response headers can be a dict or list of key-value pairs
 ResponseHeaders = Union[Dict[str, str], List[Tuple[str, str]]]

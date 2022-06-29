@@ -107,8 +107,8 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
 from .. import models  # For locals() namespace, to discover models from type defn
-from ..typing import OptionalMigratedTables, T
-from . import BaseMixin, NoIdMixin, UuidMixin, UUIDType, db, hybrid_property
+from ..typing import OptionalMigratedTables, T, UuidModelType
+from . import BaseMixin, NoIdMixin, UUIDType, db, hybrid_property
 from .helpers import reopen
 from .user import User, UserEmail, UserPhone
 
@@ -187,6 +187,8 @@ notification_categories: SimpleNamespace = SimpleNamespace(
 
 
 class SMS_STATUS(LabeledEnum):  # noqa: N801
+    """SMS delivery status."""
+
     QUEUED = (0, __("Queued"))
     PENDING = (1, __("Pending"))
     DELIVERED = (2, __("Delivered"))
@@ -198,6 +200,8 @@ class SMS_STATUS(LabeledEnum):  # noqa: N801
 
 
 class SMSMessage(BaseMixin, db.Model):
+    """An outbound SMS message."""
+
     __tablename__ = 'sms_message'
     # Phone number that the message was sent to
     phone_number = immutable(db.Column(db.String(15), nullable=False))
@@ -255,18 +259,18 @@ class Notification(NoIdMixin, db.Model):
     description = ''
 
     #: Subclasses must set document type to aid loading of :attr:`document`
-    document: UuidMixin
+    document: UuidModelType
 
     #: Subclasses must set fragment type to aid loading of :attr:`fragment`
-    fragment: Optional[UuidMixin]
+    fragment: Optional[UuidModelType]
 
     #: Document model is auto-populated from the document type
-    document_model: UuidMixin
+    document_model: Type[UuidModelType]
     #: Document type is auto-populated from the document model
     document_type: str
 
     #: Fragment model is auto-populated from the fragment type
-    fragment_model: Optional[UuidMixin]
+    fragment_model: Optional[Type[UuidModelType]]
 
     #: Fragment type is auto-populated from the fragment model
     fragment_type: Optional[str]
@@ -411,6 +415,7 @@ class Notification(NoIdMixin, db.Model):
 
     @classmethod
     def cls_type(cls) -> str:
+        """Return notification type."""
         return cls.__mapper_args__['polymorphic_identity']
 
     @property
@@ -428,7 +433,8 @@ class Notification(NoIdMixin, db.Model):
         self.eventid = uuid_from_base58(value)
 
     @eventid_b58.comparator
-    def eventid_b58(cls):  # noqa: N805
+    def eventid_b58(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        """Return SQL comparator for Base58 rendering."""
         return SqlUuidB58Comparator(cls.eventid)
 
     @cached_property  # type: ignore[no-redef]
@@ -571,6 +577,7 @@ class UserNotificationMixin:
 
     @property
     def notification_type(self) -> str:
+        """Return the notification type identifier."""
         return self.notification.type
 
     with_roles(notification_type, read={'owner'})
@@ -593,6 +600,7 @@ class UserNotificationMixin:
     # https://github.com/python/mypy/issues/4125
     @property
     def is_revoked(self) -> bool:
+        """Test if notification has been revoked."""
         raise NotImplementedError("Subclass must provide this property")
 
     @is_revoked.setter
@@ -754,7 +762,8 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         self.eventid = uuid_from_base58(value)
 
     @eventid_b58.comparator
-    def eventid_b58(cls):  # noqa: N805
+    def eventid_b58(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        """Return SQL comparator for Base58 representation."""
         return SqlUuidB58Comparator(cls.eventid)
 
     with_roles(eventid_b58, read={'owner'})
@@ -773,7 +782,8 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
             self.read_at = None
 
     @is_read.expression
-    def is_read(cls):  # noqa: N805
+    def is_read(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        """Test if notification has been marked as read, as a SQL expression."""
         return cls.read_at.isnot(None)
 
     with_roles(is_read, rw={'owner'})
@@ -791,9 +801,12 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         else:
             self.revoked_at = None
 
+    # pylint: disable=no-self-argument,arguments-renamed,invalid-overridden-method
     @is_revoked.expression
     def is_revoked(cls):  # noqa: N805
         return cls.revoked_at.isnot(None)
+
+    # pylint: enable=no-self-argument,arguments-renamed,invalid-overridden-method
 
     with_roles(is_revoked, rw={'owner'})
 
@@ -962,6 +975,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     @classmethod
     def web_notifications_for(cls, user: User, unread_only: bool = False) -> Query:
+        """Return web notifications for a user, optionally returning unread-only."""
         query = UserNotification.query.join(Notification).filter(
             Notification.type.in_(notification_web_types),
             UserNotification.user == user,
@@ -973,6 +987,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     @classmethod
     def unread_count_for(cls, user: User) -> int:
+        """Return unread notification count for a user."""
         return (
             UserNotification.query.join(Notification)
             .filter(
@@ -1202,6 +1217,7 @@ class __User:
 
     @cached_property
     def main_notification_preferences(self) -> NotificationPreferences:
+        """Return user's main notification preferences, toggling transports on/off."""
         if not self._main_notification_preferences:
             main = NotificationPreferences(
                 user=self,

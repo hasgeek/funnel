@@ -32,6 +32,8 @@ from ..forms import (
     CfpForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
+    ProjectCfpTransitionForm,
+    ProjectFeaturedForm,
     ProjectForm,
     ProjectLivestreamForm,
     ProjectNameForm,
@@ -266,9 +268,11 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
 ProfileProjectView.init_app(app)
 
 
+# mypy has trouble with the definition of `obj` and `model` between ProjectViewMixin and
+# DraftViewMixin
 @Project.views('main')
 @route('/<profile>/<project>/')
-class ProjectView(
+class ProjectView(  # type: ignore[misc]
     ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
 ):
     @route('')
@@ -532,7 +536,7 @@ class ProjectView(
     @requires_login
     @requires_roles({'editor'})
     def cfp_transition(self):
-        cfp_transition = self.obj.forms.cfp_transition()
+        cfp_transition = ProjectCfpTransitionForm(obj=self.obj)
         if cfp_transition.validate_on_submit():
             cfp_transition.populate_obj(self.obj)
             db.session.commit()
@@ -747,7 +751,7 @@ class ProjectView(
     @route('update_featured', methods=['POST'])
     @requires_site_editor
     def update_featured(self):
-        featured_form = self.obj.forms.featured()
+        featured_form = ProjectFeaturedForm(obj=self.obj)
         if featured_form.validate_on_submit():
             featured_form.populate_obj(self.obj)
             db.session.commit()

@@ -27,7 +27,7 @@ def test_amend_siteadmin(db_session, user_vetinari, user_vimes):
 
     assert amendment.membership is not membership
     assert membership.revoked_at is not None
-    assert membership.is_active is False  # type: ignore[unreachable]
+    assert membership.is_active is False
 
     assert amendment.membership.revoked_at is None
     assert amendment.membership.is_active is True

@@ -694,14 +694,14 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
             # Use .outerjoin(Profile) or users without usernames will be excluded
             query = cls.query.outerjoin(Profile).filter(
                 db.or_(
-                    cls.buid.in_(buids),
+                    cls.buid.in_(buids),  # type: ignore[attr-defined]
                     db.func.lower(Profile.name).in_(
                         [username.lower() for username in usernames]
                     ),
                 )
             )
         elif buids:
-            query = cls.query.filter(cls.buid.in_(buids))
+            query = cls.query.filter(cls.buid.in_(buids))  # type: ignore[attr-defined]
         elif usernames:
             query = cls.query.join(Profile).filter(
                 db.func.lower(Profile.name).in_(
@@ -1148,7 +1148,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         """Get all organizations with matching `buids` and `names`."""
         orgs = []
         if buids:
-            query = cls.query.filter(cls.buid.in_(buids))
+            query = cls.query.filter(cls.buid.in_(buids))  # type: ignore[attr-defined]
             if defercols:
                 query = query.options(*cls._defercols)
             orgs.extend(query.all())

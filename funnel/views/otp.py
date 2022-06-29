@@ -396,7 +396,7 @@ class OtpSessionForSudo(OtpSession[User], reason='sudo'):
     """OtpSession variant for sudo confirmation."""
 
     @cached_property
-    def display_phone(self) -> str:  # type: ignore[override]
+    def display_phone(self) -> str:
         """Reveal phone number when used for sudo."""
         if self.phone is not None:
             return phonenumbers.format_number(
@@ -406,7 +406,7 @@ class OtpSessionForSudo(OtpSession[User], reason='sudo'):
         return ''
 
     @cached_property
-    def display_email(self) -> str:  # type: ignore[override]
+    def display_email(self) -> str:
         """Reveal email address when used for sudo."""
         return self.email if self.email is not None else ''
 

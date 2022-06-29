@@ -125,9 +125,7 @@ def app_url_for(
     The provided app must have `SERVER_NAME` in its config for URL construction to work.
     """
     if (  # pylint: disable=protected-access
-        current_app
-        and current_app._get_current_object()  # type: ignore[attr-defined]
-        is target_app
+        current_app and current_app._get_current_object() is target_app
     ):
         return url_for(
             endpoint,
@@ -288,7 +286,10 @@ def validate_rate_limit(  # pylint: disable=too-many-arguments
         tags={'resource': resource},
     )
     cache_key = f'rate_limit/v1/{resource}/{identifier}'
-    cache_value: Optional[Tuple[int, str]] = cache.get(cache_key)
+    # XXX: Typing for cache.get is incorrectly specified as returning Optional[str]
+    cache_value: Optional[Tuple[int, str]] = cache.get(  # type: ignore[assignment]
+        cache_key
+    )
     if cache_value is None:
         count, cache_token = None, None
         statsd.incr('rate_limit', tags={'resource': resource, 'status_code': 201})
@@ -376,7 +377,8 @@ def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
 
 def retrieve_cached_token(token: str) -> Optional[dict]:
     """Retrieve cached data given a token generated using :func:`make_cached_token`."""
-    return cache.get(TEXT_TOKEN_PREFIX + token)
+    # XXX: Typing for cache.get is incorrectly specified as returning Optional[str]
+    return cache.get(TEXT_TOKEN_PREFIX + token)  # type: ignore[return-value]
 
 
 def delete_cached_token(token: str) -> bool:

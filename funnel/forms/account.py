@@ -234,7 +234,7 @@ class PasswordForm(forms.Form):
     def validate_password(self, field) -> None:
         """Check for password match."""
         if not self.edit_user.password_is(field.data):
-            raise forms.ValidationError(_("Incorrect password"))
+            raise forms.validators.ValidationError(_("Incorrect password"))
 
 
 @User.forms('password_policy')
@@ -305,7 +305,9 @@ class PasswordResetRequestForm(forms.Form):
         """Process username to retrieve user."""
         self.user, self.anchor = getuser(field.data, True)
         if self.user is None:
-            raise forms.ValidationError(_("Could not find a user with that id"))
+            raise forms.validators.ValidationError(
+                _("Could not find a user with that id")
+            )
 
 
 @User.forms('password_create')
@@ -385,7 +387,7 @@ class PasswordResetForm(forms.Form):
         """Confirm the user provided by the client is who this form is meant for."""
         user = getuser(field.data)
         if user is None or user != self.edit_user:
-            raise forms.ValidationError(
+            raise forms.validators.ValidationError(
                 _("This does not match the user the reset code is for")
             )
 
@@ -430,29 +432,29 @@ class PasswordChangeForm(forms.Form):
     def validate_old_password(self, field) -> None:
         """Validate the old password to be correct."""
         if self.edit_user is None:
-            raise forms.ValidationError(_("Not logged in"))
+            raise forms.validators.ValidationError(_("Not logged in"))
         if not self.edit_user.password_is(field.data):
-            raise forms.ValidationError(_("Incorrect password"))
+            raise forms.validators.ValidationError(_("Incorrect password"))
 
 
 def raise_username_error(reason: str) -> str:
     """Provide a user-friendly error message for a username field error."""
     if reason == 'blank':
-        raise forms.ValidationError(_("This is required"))
+        raise forms.validators.ValidationError(_("This is required"))
     if reason == 'long':
-        raise forms.ValidationError(_("This is too long"))
+        raise forms.validators.ValidationError(_("This is too long"))
     if reason == 'invalid':
-        raise forms.ValidationError(
+        raise forms.validators.ValidationError(
             _(
                 "Usernames can only have alphabets, numbers and dashes (except at the"
                 " ends)"
             )
         )
     if reason == 'reserved':
-        raise forms.ValidationError(_("This username is reserved"))
+        raise forms.validators.ValidationError(_("This username is reserved"))
     if reason in ('user', 'org'):
-        raise forms.ValidationError(_("This username has been taken"))
-    raise forms.ValidationError(_("This username is not available"))
+        raise forms.validators.ValidationError(_("This username has been taken"))
+    raise forms.validators.ValidationError(_("This username is not available"))
 
 
 @User.forms('main')
@@ -561,7 +563,9 @@ def validate_emailclaim(form, field):
     """Validate if an email address is already pending verification."""
     existing = UserEmailClaim.get_for(user=form.edit_user, email=field.data)
     if existing is not None:
-        raise forms.StopValidation(_("This email address is pending verification"))
+        raise forms.validators.StopValidation(
+            _("This email address is pending verification")
+        )
 
 
 @User.forms('email_add')
@@ -642,22 +646,24 @@ class NewPhoneForm(forms.Form):
         # Step 1: Validate number
         number = normalize_phone_number(field.data, sms=True)
         if number is False:
-            raise forms.StopValidation(
+            raise forms.validators.StopValidation(
                 _("This phone number cannot receive SMS messages")
             )
         if not number:
-            raise forms.StopValidation(
+            raise forms.validators.StopValidation(
                 _("This does not appear to be a valid phone number")
             )
         # Step 2: Check if number has already been claimed
         existing = UserPhone.get(phone=number)
         if existing is not None:
             if existing.user == self.edit_user:
-                raise forms.ValidationError(
+                raise forms.validators.ValidationError(
                     _("You have already registered this phone number")
                 )
             # TODO: This should be a mechanism for merging accounts
-            raise forms.ValidationError(_("This phone number has already been claimed"))
+            raise forms.validators.ValidationError(
+                _("This phone number has already been claimed")
+            )
         # Step 3: If validations pass, use the reformatted number
         field.data = number  # Save stripped number
 
