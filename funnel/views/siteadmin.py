@@ -10,7 +10,7 @@ import csv
 
 from sqlalchemy.dialects.postgresql import INTERVAL
 
-from flask import abort, flash, redirect, render_template, request, url_for
+from flask import abort, current_app, flash, redirect, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import Form
@@ -383,7 +383,7 @@ class SiteadminView(ClassView):
             # Redirect to a new report
             return redirect(url_for('siteadmin_review_comments_random'))
 
-        app.logger.debug(report_form.errors)
+        current_app.logger.debug(report_form.errors)
 
         return {
             'report': comment_report,

@@ -3,7 +3,7 @@ from __future__ import annotations
 from email.utils import parseaddr
 from typing import List
 
-from flask import request
+from flask import current_app, request
 
 import requests
 
@@ -231,7 +231,7 @@ def process_ses_event():
         validator.topics = app.config['SES_NOTIFICATION_TOPICS']
         validator.check(message)
     except SnsValidatorError:
-        app.logger.warning("SNS/SES event failed validation: %r", message)
+        current_app.logger.warning("SNS/SES event failed validation: %r", message)
         statsd.incr(
             'email_address.event',
             tags={
