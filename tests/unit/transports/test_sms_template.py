@@ -321,7 +321,7 @@ def test_message_template():
     )
     assert len(msg.message) == 121
 
-    # However, the plain template is formatted before truncation and will not be
+    # However, the plaintext template is formatted before truncation and will not be
     # truncated
     assert msg.plaintext == (
         '123456789_123456789_123456789_123456789_123456789_123456789_123456789_'

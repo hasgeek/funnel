@@ -75,7 +75,7 @@ class SmsTemplate:
     template can be provided to allow use outside an SMS context, such as text messages
     to other messengers. This template is formatted before truncation::
 
-        class SmsTemplate(SmsTemplate):
+        class RegisteredTemplate(SmsTemplate):
             registered_template = '{#var#}{#var#}{#var#}{#var#}\n\n{#var#} to stop'
             template = '{content}\n\n{unsubscribe_url} to stop'
             plaintext_template = '{content}'
@@ -89,7 +89,7 @@ class SmsTemplate:
                 return self.template_var_len - len(self.unsubscribe_url)
 
 
-        class MessageTemplate(SmsTemplate):
+        class MessageTemplate(RegisteredTemplate):
             @property
             def content(self):
                 return _("You have a message from {user}").format(user=self.user)

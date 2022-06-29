@@ -807,6 +807,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         else:
             self.revoked_at = None
 
+    # PyLint complains because the hybrid property doesn't resemble the mixin's property
     # pylint: disable=no-self-argument,arguments-renamed,invalid-overridden-method
     @is_revoked.expression
     def is_revoked(cls):  # noqa: N805
