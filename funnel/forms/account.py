@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from hashlib import sha1
 from typing import Dict, Iterable, Optional
+import hashlib
 
 from flask_babelhg import ngettext
 
@@ -111,7 +111,11 @@ class PasswordStrengthValidator:
 
 def pwned_password_validator(_form, field) -> None:
     """Validate password against the pwned password API."""
-    phash = sha1(field.data.encode()).hexdigest().upper()  # noqa: S324  # nosec
+    phash = (
+        hashlib.new('sha1', field.data.encode(), usedforsecurity=False)
+        .hexdigest()
+        .upper()
+    )
     prefix, suffix = phash[:5], phash[5:]
 
     try:
@@ -120,19 +124,20 @@ def pwned_password_validator(_form, field) -> None:
             # API call had an error and we can't proceed with validation.
             return
         # This API returns minimal plaintext containing ``suffix:count``, one per line.
-        # The following code is defensive, attempting to add mitigations:
-        # 1. If there's no : separator, add it with a zero count
+        # The following code is defensive, attempting to add mitigations (inner->outer):
+        # 1. If there's no : separator, assume a count of 1
         # 2. Strip text on either side of the colon
-        # 3. If count is not a number, default it to 0
+        # 3. Ensure the suffix is uppercase
+        # 4. If count is not a number, default it to 0 (ie, this is not a match)
         matches: Dict[str, int] = {
-            _s: int(_v) if _v.isdigit() else 0
-            for _s, _v in [
+            _s.upper(): int(_v) if _v.isdigit() else 0
+            for _s, _v in (
                 (_s.strip(), _v.strip())
-                for _s, _v in [
-                    (_l + (':0' if ':' not in _l else '')).split(':', 1)
+                for _s, _v in (
+                    (_l + (':1' if ':' not in _l else '')).split(':', 1)
                     for _l in rv.text.splitlines()
-                ]
-            ]
+                )
+            )
         }
     except requests.RequestException:
         # An exception occurred and we have no data to validate password against
@@ -140,7 +145,7 @@ def pwned_password_validator(_form, field) -> None:
 
     # If we have data, check for our hash suffix in the returned range of matches
     count = matches.get(suffix, None)
-    if count is not None:
+    if count:  # not 0 and not None
         raise forms.validators.StopValidation(
             ngettext(
                 "This password was found in a breached password list and is not safe to"

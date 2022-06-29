@@ -1,8 +1,10 @@
 """Test account forms."""
 
+from contextlib import nullcontext as does_not_raise
 from types import SimpleNamespace
 
 import pytest
+import requests_mock
 
 from baseframe.forms.validators import StopValidation
 from funnel import app
@@ -88,3 +90,63 @@ def test_pwned_password_validator():
         pwned_password_validator(
             None, SimpleNamespace(data='correct horse battery staple')
         )
+
+
+# Test for whether the validator handles mangled API output. These hashes are for the
+# test password 123456.
+
+# Standard response
+resp1 = '''D01CFF3583DDA6607D167C59DCB47012719:3
+D032E84B0AEB4E773555C73D6B13BEA7A44:1
+D09CA3762AF61E59520943DC26494F8941B:37359195
+D0A4AA2E841C50022BB2EA424E43F8FC403:23
+D10B1F9D5901978256CE5B2AD832F292D5A:2'''
+
+# Response has spaces around the colon
+resp2 = '''D01CFF3583DDA6607D167C59DCB47012719 : 3
+D032E84B0AEB4E773555C73D6B13BEA7A44 : 1
+D09CA3762AF61E59520943DC26494F8941B : 37359195
+D0A4AA2E841C50022BB2EA424E43F8FC403 : 23
+D10B1F9D5901978256CE5B2AD832F292D5A : 2'''
+
+# Response is lowercase (and has spaces)
+resp3 = '''d01cff3583dda6607d167c59dcb47012719 : 3
+d032e84b0aeb4e773555c73d6b13bea7a44 : 1
+d09ca3762af61e59520943dc26494f8941b : 37359195
+d0a4aa2e841c50022bb2ea424e43f8fc403 : 23
+d10b1f9d5901978256ce5b2ad832f292d5a : 2'''
+
+# Response is missing counts (assumed to be 1)
+resp4 = '''D01CFF3583DDA6607D167C59DCB47012719
+D032E84B0AEB4E773555C73D6B13BEA7A44
+D09CA3762AF61E59520943DC26494F8941B
+D0A4AA2E841C50022BB2EA424E43F8FC403
+D10B1F9D5901978256CE5B2AD832F292D5A'''
+
+# Response has invalid data (not a count)
+resp5 = ''''D01CFF3583DDA6607D167C59DCB47012719:a
+D032E84B0AEB4E773555C73D6B13BEA7A44:b
+D09CA3762AF61E59520943DC26494F8941B:c
+D0A4AA2E841C50022BB2EA424E43F8FC403:d
+D10B1F9D5901978256CE5B2AD832F292D5A:e'''
+
+
+# This parametrizing technique is documented at
+# https://docs.pytest.org/en/6.2.x/example/parametrize.html
+# #parametrizing-conditional-raising
+@pytest.mark.parametrize(
+    ('text', 'expectation'),
+    [
+        (resp1, pytest.raises(StopValidation)),
+        (resp2, pytest.raises(StopValidation)),
+        (resp3, pytest.raises(StopValidation)),
+        (resp4, pytest.raises(StopValidation)),
+        (resp5, does_not_raise()),
+    ],
+)
+def test_mangled_response_pwned_password_validator(text, expectation):
+    """Test that the validator successfully parses mangled output in the API."""
+    with requests_mock.Mocker() as m:
+        m.get('https://api.pwnedpasswords.com/range/7C4A8', text=text)
+        with expectation:
+            pwned_password_validator(None, SimpleNamespace(data='123456'))
