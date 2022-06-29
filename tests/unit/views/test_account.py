@@ -1,6 +1,9 @@
 """Test account views."""
 
 
+PWNED_PASSWORD = "thisisone1"  # noqa: S105 #nosec
+
+
 def test_username_available(client, new_user, csrf_token):
     """Test the username availability endpoint."""
     endpoint = '/api/1/account/username_available'
@@ -46,3 +49,41 @@ def test_username_available(client, new_user, csrf_token):
         'error_description': "Usernames can only have alphabets, numbers and dashes"
         " (except at the ends)",
     }
+
+
+def test_pwned_password(client, new_user, csrf_token, login):
+    login.as_(new_user)
+    client.get('/')
+    rv = client.post(
+        'account/password',
+        data={
+            'username': new_user.username,
+            'form.id': 'password-change',
+            'password': PWNED_PASSWORD,
+            'confirm_password': PWNED_PASSWORD,
+            'csrf_token': csrf_token,
+        },
+    )
+    assert "This password was found in breached password lists" in rv.data.decode()
+
+
+def test_pwned_password_mock_endpoint_down(
+    client, new_user, csrf_token, login, requests_mock
+):
+    requests_mock.get('https://api.pwnedpasswords.com/range/1F074', status_code=404)
+    login.as_(new_user)
+    client.get('/')
+
+    rv = client.post(
+        'account/password',
+        data={
+            'username': new_user.username,
+            'form.id': 'password-change',
+            'password': PWNED_PASSWORD,
+            'confirm_password': PWNED_PASSWORD,
+            'csrf_token': csrf_token,
+        },
+    )
+
+    assert rv.status_code == 303
+    assert rv.location == '/account'
