@@ -68,7 +68,8 @@ class SharedProfileMixin:
     # (both models need separate expressions) without triggering an inspection
     # of the `profile` relationship, which does not exist yet as the backrefs
     # are only fully setup when module loading is finished.
-    # Doc: https://docs.sqlalchemy.org/en/latest/orm/extensions/hybrid.html#reusing-hybrid-properties-across-subclasses
+    # Doc: https://docs.sqlalchemy.org/en/latest/orm/extensions/hybrid.html
+    # #reusing-hybrid-properties-across-subclasses
 
     name: Optional[str]
     profile: Optional[Profile]
@@ -606,7 +607,6 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @state.transition(state.ACTIVE, state.SUSPENDED)
     def mark_suspended(self):
         """Mark account as suspended on support request."""
-        pass  # No side-effects in transition
 
     @overload
     @classmethod
@@ -1082,12 +1082,10 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @state.transition(state.ACTIVE, state.SUSPENDED)
     def mark_suspended(self):
         """Mark organization as suspended on support request."""
-        pass  # No side-effects in transition
 
     @state.transition(state.SUSPENDED, state.ACTIVE)
     def mark_active(self):
         """Mark organization as active on support request."""
-        pass  # No side-effects in transition
 
     @overload
     @classmethod
@@ -1448,7 +1446,9 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
         return self.email
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
         """Migrate one user account to another when merging user accounts."""
         emails = {claim.email for claim in new_user.emailclaims}
         for claim in list(old_user.emailclaims):
@@ -1457,7 +1457,6 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
             else:
                 # New user also made the same claim. Delete old user's claim
                 db.session.delete(claim)
-        return None
 
     @overload
     @classmethod
@@ -1743,7 +1742,9 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
         )
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
         """Migrate one user account to another when merging user accounts."""
         phones = {claim.email for claim in new_user.phoneclaims}
         for claim in list(old_user.phoneclaims):
@@ -1752,7 +1753,6 @@ class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
             else:
                 # New user also made the same claim. Delete old user's claim
                 db.session.delete(claim)
-        return None
 
     @hybrid_property
     def verification_expired(self) -> bool:

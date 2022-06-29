@@ -85,7 +85,11 @@ def video_property(obj: VideoMixin) -> Optional[VideoData]:
                 'thumbnail': '',
             }
             if obj.video_source == 'youtube':
-                video_url = f'https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id={obj.video_id}&key={current_app.config["YOUTUBE_API_KEY"]}'
+                video_url = (
+                    f'https://www.googleapis.com/youtube/v3/videos'
+                    f'?part=snippet,contentDetails&id={obj.video_id}'
+                    f'&key={current_app.config["YOUTUBE_API_KEY"]}'
+                )
                 try:
                     youtube_resp = requests.get(video_url, timeout=30)
                 except requests.exceptions.RequestException as exc:
@@ -97,7 +101,7 @@ def video_property(obj: VideoMixin) -> Optional[VideoData]:
                         youtube_video = youtube_resp.json()
                         if not youtube_video or 'items' not in youtube_video:
                             raise YoutubeApiError(
-                                "Unable to fetch data, please check the youtube url or API key"
+                                "API Error: Check the YouTube URL or API key"
                             )
                         if not youtube_video['items']:
                             # Response has zero item for our given video ID. This will

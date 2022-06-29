@@ -134,7 +134,7 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, db.Model):
             roles.add('usher')
         return roles
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         if 'editor' in self.project.roles_for(actor, anchors):
             roles.add('project_editor')

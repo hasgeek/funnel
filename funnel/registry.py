@@ -227,20 +227,24 @@ class LoginProvider:
     #: used for addressing with @username
     at_username = False
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         name: str,
         title: str,
+        key: str,
+        secret: str,
         at_login: bool = True,
-        priority: bool = False,
         icon: Optional[str] = None,
         **kwargs,
     ) -> None:
         self.name = name
         self.title = title
+        self.key = key
+        self.secret = secret
         self.at_login = at_login
-        self.priority = priority
         self.icon = icon
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
     def do(self, callback_url: str):
         """Initiate a login with this login provider."""

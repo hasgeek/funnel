@@ -110,7 +110,7 @@ def process_recipient(recipient: EmailRecipient) -> str:
     return formataddr((realname, emailaddr))
 
 
-def send_email(
+def send_email(  # pylint: disable=too-many-arguments
     subject: str,
     to: List[EmailRecipient],
     content: str,

@@ -36,8 +36,9 @@ _marker = object()
 
 
 class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
-    # Draft-state for future use, so people can save their proposals and submit only when ready
-    # If you add any new state, you need to add a migration to modify the check constraint
+    # Draft-state for future use, so people can save their proposals and submit only
+    # when ready. If you add any new state, you need to add a migration to modify the
+    # check constraint
     DRAFT = (0, 'draft', __("Draft"))
     SUBMITTED = (1, 'submitted', __("Submitted"))
     CONFIRMED = (2, 'confirmed', __("Confirmed"))
@@ -108,7 +109,9 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
 # --- Models ------------------------------------------------------------------
 
 
-class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Model):
+class Proposal(  # type: ignore[misc]
+    UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Model
+):
     __tablename__ = 'proposal'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
@@ -443,7 +446,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             .first()
         )
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         if self.state.DRAFT:
             if 'reader' in roles:
@@ -462,7 +465,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         return cls.query.join(Project).filter(Project.state.PUBLISHED, cls.state.PUBLIC)
 
     @classmethod
-    def get(cls, uuid_b58):
+    def get(cls, uuid_b58):  # pylint: disable=arguments-differ
+        """Get a proposal by its public Base58 id."""
         return cls.query.filter_by(uuid_b58=uuid_b58).one_or_none()
 
 

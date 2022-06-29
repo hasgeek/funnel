@@ -408,7 +408,7 @@ def compress_response(response: ResponseBase) -> None:
     This function should ideally be used with a cache layer, such as
     :func:`~funnel.views.decorators.etag_cache_for_user`.
     """
-    if (
+    if (  # pylint: disable=too-many-boolean-expressions
         response.content_length is not None
         and response.content_length > 500
         and 200 <= response.status_code < 300

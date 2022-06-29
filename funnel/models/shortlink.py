@@ -153,7 +153,7 @@ def url_blake2b160_hash(value: Union[str, furl], normalize=True) -> bytes:
     return hashlib.blake2b(value.encode('utf-8'), digest_size=20).digest()
 
 
-class ShortLinkToBigIntComparator(Comparator):
+class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-method
     """
     Comparator to allow lookup by shortlink name instead of numeric id.
 

@@ -108,7 +108,8 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
     __roles__ = {
         'all': {
             'read': {
-                'id',  # TODO: Used in SessionForm.venue_room_id; needs to be .venue_room
+                # TODO: id is used in SessionForm.venue_room_id; needs to be .venue_room
+                'id',
                 'name',
                 'title',
                 'description',

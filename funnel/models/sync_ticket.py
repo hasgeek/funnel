@@ -53,18 +53,20 @@ ticket_event_ticket_type = db.Table(
 
 class GetTitleMixin(BaseScopedNameMixin):
     @classmethod
-    def get(cls, parent, current_name=None, current_title=None):
-        if not (bool(current_name) ^ bool(current_title)):
-            raise TypeError("Expects current_name xor current_title")
-        if current_name:
-            return cls.query.filter_by(parent=parent, name=current_name).one_or_none()
-        return cls.query.filter_by(parent=parent, title=current_title).one_or_none()
+    def get(cls, parent, name=None, title=None):
+        if not bool(name) ^ bool(title):
+            raise TypeError("Expects name xor title")
+        if name:
+            return cls.query.filter_by(parent=parent, name=name).one_or_none()
+        return cls.query.filter_by(parent=parent, title=title).one_or_none()
 
     @classmethod
-    def upsert(cls, parent, current_name=None, current_title=None, **fields):
+    def upsert(  # pylint: disable=arguments-renamed
+        cls, parent, current_name=None, current_title=None, **fields
+    ):
         instance = cls.get(parent, current_name, current_title)
         if instance is not None:
-            instance._set_fields(fields)
+            instance._set_fields(fields)  # pylint: disable=protected-access
         else:
             fields.pop('title', None)
             instance = cls(parent=parent, title=current_title, **fields)
@@ -235,7 +237,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
         'scanner': {'read': {'email'}},
     }
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         if actor is not None:
             if actor == self.user:
@@ -283,7 +285,7 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
             user = None
         if ticket_participant is not None:
             ticket_participant.user = user
-            ticket_participant._set_fields(fields)
+            ticket_participant._set_fields(fields)  # pylint: disable=protected-access
         else:
             with db.session.no_autoflush:
                 ticket_participant = cls(
@@ -504,7 +506,7 @@ class SyncTicket(BaseMixin, db.Model):
         """
         ticket = cls.get(ticket_client, order_no, ticket_no)
         if ticket is not None:
-            ticket._set_fields(fields)
+            ticket._set_fields(fields)  # pylint: disable=protected-access
         else:
             fields.pop('ticket_client', None)
             fields.pop('order_no', None)

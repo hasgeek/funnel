@@ -337,7 +337,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             return self.organization.pickername
         return self.title
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
         if self.owner:
             roles = self.owner.roles_for(actor, anchors)
         else:
@@ -411,7 +411,9 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         return value
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
         """Migrate one user account to another when merging user accounts."""
         if old_user.profile is not None and new_user.profile is None:
             # New user doesn't have a profile. Simply transfer ownership.
@@ -424,7 +426,6 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             if done:
                 db.session.delete(old_user.profile)
         # Do nothing if old_user.profile is None and new_user.profile is not None
-        return None
 
     @property
     def teams(self) -> List:
@@ -445,13 +446,11 @@ class Profile(UuidMixin, BaseMixin, db.Model):
     )
     def make_public(self) -> None:
         """Make a profile public if it is eligible."""
-        pass  # No side-effects in transition
 
     @with_roles(call={'owner'})
     @state.transition(state.NOT_PRIVATE, state.PRIVATE, title=__("Make private"))
     def make_private(self) -> None:
         """Make a profile private."""
-        pass  # No side-effects in transition
 
     def is_safe_to_delete(self) -> bool:
         """Return True if profile is not protected and has no projects."""

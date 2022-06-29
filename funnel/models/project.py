@@ -634,7 +634,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         self.start_at = self.schedule_start_at
         self.end_at = self.schedule_end_at
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.add('reader')
@@ -684,7 +684,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
 
     @classmethod
-    def migrate_profile(
+    def migrate_profile(  # type: ignore[return]
         cls, old_profile: Profile, new_profile: Profile
     ) -> OptionalMigratedTables:
         """Migrate from one profile to another when merging user accounts."""
@@ -698,7 +698,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 )
                 project.name += '-' + buid()
             project.profile = new_profile
-        return None
 
 
 add_search_trigger(Project, 'search_vector')
@@ -821,7 +820,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
         return redirect
 
     @classmethod
-    def migrate_profile(
+    def migrate_profile(  # type: ignore[return]
         cls, old_profile: Profile, new_profile: Profile
     ) -> OptionalMigratedTables:
         """
@@ -838,7 +837,6 @@ class ProjectRedirect(TimestampMixin, db.Model):
                 # Discard project redirect since the name is already taken by another
                 # redirect in the new profile
                 db.session.delete(pr)
-        return None
 
 
 class ProjectLocation(TimestampMixin, db.Model):

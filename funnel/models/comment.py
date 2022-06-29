@@ -133,7 +133,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
 
     with_roles(last_comment, read={'all'}, datasets={'primary'})
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         parent_roles = self.parent.roles_for(actor, anchors)
         if 'participant' in parent_roles or 'commenter' in parent_roles:
@@ -365,7 +365,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def mark_not_spam(self) -> None:
         """Mark this comment as not spam."""
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         roles.add('reader')
         return roles

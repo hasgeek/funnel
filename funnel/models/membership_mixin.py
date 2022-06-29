@@ -354,7 +354,9 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
         )
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
         """
         Migrate memberhip records from one user to another.
 
@@ -403,7 +405,6 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
             {'granted_by_id': new_user.id}, synchronize_session=False
         )
         db.session.flush()
-        return None
 
 
 class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
@@ -475,7 +476,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
         )
 
     @classmethod
-    def migrate_profile(
+    def migrate_profile(  # type: ignore[return]
         cls, old_profile: Profile, new_profile: Profile
     ) -> OptionalMigratedTables:
         """
@@ -519,7 +520,6 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
             {'profile_id': new_profile.id}, synchronize_session=False
         )
         db.session.flush()
-        return None
 
 
 class ReorderMembershipMixin(ReorderMixin):

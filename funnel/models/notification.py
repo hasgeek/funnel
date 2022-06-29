@@ -1006,7 +1006,9 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         )
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
         """Migrate one user account to another when merging user accounts."""
         for user_notification in cls.query.filter_by(user_id=old_user.id).all():
             existing = cls.query.get((new_user.id, user_notification.eventid))
@@ -1018,7 +1020,6 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         cls.query.filter_by(user_id=old_user.id).update(
             {'user_id': new_user.id}, synchronize_session=False
         )
-        return None
 
 
 class NotificationFor(UserNotificationMixin):
@@ -1171,7 +1172,9 @@ class NotificationPreferences(BaseMixin, db.Model):
         return notification_type_registry.get(self.notification_type)
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
         """Migrate one user account to another when merging user accounts."""
         for ntype, prefs in list(old_user.notification_preferences.items()):
             if ntype in new_user.notification_preferences:
@@ -1179,7 +1182,6 @@ class NotificationPreferences(BaseMixin, db.Model):
         NotificationPreferences.query.filter_by(user_id=old_user.id).update(
             {'user_id': new_user.id}, synchronize_session=False
         )
-        return None
 
     @db.validates('notification_type')
     def _valid_notification_type(self, key: str, value: Optional[str]) -> str:

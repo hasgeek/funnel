@@ -42,12 +42,11 @@ from .notification import dispatch_notification
 @Profile.views('members')
 @route('/<profile>/members')
 class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> Optional[ReturnView]:  # type: ignore[return]
         """Don't render member views for user profiles."""
         if not self.obj.organization:
             # User profiles don't have memberships
             abort(404)
-        return None
 
     @route('', methods=['GET', 'POST'])
     @render_with('organization_membership.html.jinja2')

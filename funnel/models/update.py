@@ -312,7 +312,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     with_roles(is_currently_restricted, read={'all'})
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         if not self.visibility_state.RESTRICTED:
             # Everyone gets reader role when the post is not restricted.
@@ -329,7 +329,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         )
 
     @with_roles(read={'all'})
-    def getnext(self):
+    def getnext(self) -> Optional[Update]:
+        """Get next published update."""
         if self.state.PUBLISHED:
             return (
                 Update.query.filter(
@@ -340,9 +341,11 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
                 .order_by(Update.number.asc())
                 .first()
             )
+        return None
 
     @with_roles(read={'all'})
-    def getprev(self):
+    def getprev(self) -> Optional[Update]:
+        """Get previous published update."""
         if self.state.PUBLISHED:
             return (
                 Update.query.filter(
@@ -353,11 +356,12 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
                 .order_by(Update.number.desc())
                 .first()
             )
+        return None
 
 
 add_search_trigger(Update, 'search_vector')
-auto_init_default(Update._visibility_state)
-auto_init_default(Update._state)
+auto_init_default(Update._visibility_state)  # pylint: disable=protected-access
+auto_init_default(Update._state)  # pylint: disable=protected-access
 
 
 @reopen(Project)

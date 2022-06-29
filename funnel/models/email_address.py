@@ -704,7 +704,7 @@ class EmailAddressMixin:
     def email(cls):  # pylint: disable=no-self-argument
         """Shorthand for ``self.email_address.email``."""
 
-        def email_get(self):
+        def email_get(self) -> Optional[str]:
             """
             Shorthand for ``self.email_address.email``.
 
@@ -718,6 +718,7 @@ class EmailAddressMixin:
             """
             if self.email_address:
                 return self.email_address.email
+            return None
 
         if cls.__email_for__:
 

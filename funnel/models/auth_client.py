@@ -540,10 +540,10 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
         return True
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
         """Migrate one user account to another when merging user accounts."""
-        if not old_user or not new_user:
-            return None  # Don't mess with client-only tokens
         oldtokens = cls.query.filter_by(user=old_user).all()
         newtokens: Dict[int, List[AuthToken]] = {}  # AuthClient: token mapping
         for token in cls.query.filter_by(user=new_user).all():
@@ -562,7 +562,6 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
                         break
             if merge_performed is False:
                 token.user = new_user  # Reassign this token to newuser
-        return None
 
     @classmethod
     def get(cls, token: str) -> Optional[AuthToken]:
@@ -673,7 +672,9 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
         return self.user.pickername
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
         """Migrate one user account to another when merging user accounts."""
         for operm in old_user.client_permissions:
             merge_performed = False
@@ -689,7 +690,6 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
                     merge_performed = True
             if not merge_performed:
                 operm.user = new_user
-        return None
 
     @classmethod
     def get(
