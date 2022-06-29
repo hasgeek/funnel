@@ -153,14 +153,14 @@ class Profile(UuidMixin, BaseMixin, db.Model):
                 [
                     (
                         user_id.isnot(None),  # ← when, ↙ then
-                        db.select(User.state.ACTIVE)
+                        db.select(User.state.ACTIVE)  # type: ignore[has-type]
                         .where(User.id == user_id)
                         .correlate_except(User)
                         .scalar_subquery(),
                     ),
                     (
                         organization_id.isnot(None),  # ← when, ↙ then
-                        db.select(Organization.state.ACTIVE)
+                        db.select(Organization.state.ACTIVE)  # type: ignore[has-type]
                         .where(Organization.id == organization_id)
                         .correlate_except(Organization)
                         .scalar_subquery(),
