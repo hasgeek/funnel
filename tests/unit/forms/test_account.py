@@ -4,7 +4,6 @@ from contextlib import nullcontext as does_not_raise
 from types import SimpleNamespace
 
 import pytest
-import requests_mock
 
 from baseframe.forms.validators import StopValidation
 from funnel import app
@@ -144,9 +143,8 @@ D10B1F9D5901978256CE5B2AD832F292D5A:e'''
         (resp5, does_not_raise()),
     ],
 )
-def test_mangled_response_pwned_password_validator(text, expectation):
+def test_mangled_response_pwned_password_validator(requests_mock, text, expectation):
     """Test that the validator successfully parses mangled output in the API."""
-    with requests_mock.Mocker() as m:
-        m.get('https://api.pwnedpasswords.com/range/7C4A8', text=text)
-        with expectation:
-            pwned_password_validator(None, SimpleNamespace(data='123456'))
+    requests_mock.get('https://api.pwnedpasswords.com/range/7C4A8', text=text)
+    with expectation:
+        pwned_password_validator(None, SimpleNamespace(data='123456'))
