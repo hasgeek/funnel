@@ -264,14 +264,6 @@ class RenderNotification:
             return f"{self.notification.preference_context.title} (via Hasgeek)"
         return "Hasgeek"
 
-    def text(self) -> str:
-        """
-        Render a short plain text notification.
-
-        Subclasses MUST implement this.
-        """
-        raise NotImplementedError("Subclasses must implement `text`")
-
     def sms(self) -> SmsTemplate:
         """
         Render a short text message. Templates must use a single line with a link.
@@ -279,6 +271,10 @@ class RenderNotification:
         Subclasses MUST implement this.
         """
         raise NotImplementedError("Subclasses must implement `sms`")
+
+    def text(self) -> str:
+        """Render a short plain text notification using the SMS template."""
+        return self.sms().text
 
     def sms_with_unsubscribe(self) -> SmsTemplate:
         """Add an unsubscribe link to the SMS message."""
