@@ -11,6 +11,8 @@ from flask import (
     redirect,
     render_template,
     request,
+    session,
+    url_for,
 )
 
 from baseframe import _, __, forms
@@ -21,6 +23,7 @@ from coaster.views import (
     ModelView,
     UrlChangeCheck,
     UrlForView,
+    get_current_url,
     get_next_url,
     render_with,
     requires_roles,
@@ -240,6 +243,10 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     @requires_login
     @requires_roles({'admin'})
     def new_project(self):
+        if not current_auth.user.features.allowed_creator:
+            flash(_("Confirm your phone number to continue"), 'error')
+            session['next'] = get_current_url()
+            return render_redirect(url_for('add_phone'), code=303)
         form = ProjectForm(model=Project, profile=self.obj)
 
         if request.method == 'GET':

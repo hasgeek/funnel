@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, Union
 
-from flask import flash, jsonify, redirect, request, url_for
+from flask import flash, jsonify, redirect, request, session, url_for
 
 from baseframe import _, forms
 from baseframe.forms import Form, render_form
@@ -36,6 +36,7 @@ from ..proxies import request_wants
 from ..signals import project_role_change, proposal_role_change
 from ..typing import ReturnRenderWith, ReturnView
 from .decorators import etag_cache_for_user, xhr_only
+from .helpers import render_redirect
 from .login_session import requires_login
 from .notification import dispatch_notification
 
@@ -170,6 +171,10 @@ class CommentsetView(UrlForView, ModelView):
     def new(self):
         if self.obj.parent is None:
             return redirect('/')
+        if not current_auth.user.features.allowed_creator:
+            flash(_("Confirm your phone number to continue"), 'error')
+            session['next'] = self.obj.url_for()
+            return render_redirect(url_for('add_phone'), code=303)
 
         commentform = CommentForm()
         if commentform.validate_on_submit():
@@ -303,6 +308,11 @@ class CommentView(UrlForView, ModelView):
     @route('reply', methods=['GET', 'POST'])
     @requires_roles({'reader'})
     def reply(self):
+        if not current_auth.user.features.allowed_creator:
+            flash(_("Confirm your phone number to continue"), 'error')
+            session['next'] = self.obj.url_for()
+            return render_redirect(url_for('add_phone'), code=303)
+
         commentform = CommentForm()
 
         if commentform.validate_on_submit():

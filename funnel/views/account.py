@@ -179,6 +179,12 @@ def avatar_color_code(obj: Union[User, Organization, Profile]) -> int:
     return total % avatar_color_count
 
 
+@User.features('allowed_creator', property=True)
+def user_is_allowed_to_create(obj: User) -> bool:
+    """Test whether the user is allowed to create content."""
+    return bool(obj.phone) or (obj.profile is not None and obj.profile.is_verified)
+
+
 @UserSession.views('user_agent_details')
 def user_agent_details(obj: UserSession) -> Dict[str, str]:
     """Return a friendly identifier for the user's browser (HTTP user agent)."""
@@ -726,7 +732,9 @@ class AccountView(ClassView):
                 db.session.commit()
                 flash(_("Your phone number has been verified"), 'success')
                 user_data_changed.send(current_auth.user, changes=['phone'])
-                return render_redirect(url_for('account'), code=303)
+                return render_redirect(
+                    get_next_url(session=True, default=url_for('account')), code=303
+                )
             flash(
                 _("This phone number has already been claimed by another user"),
                 'danger',

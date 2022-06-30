@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, flash, redirect, render_template, request, url_for
+from flask import abort, flash, render_template, request, session, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_message
@@ -11,7 +11,7 @@ from coaster.views import (
     ModelView,
     UrlChangeCheck,
     UrlForView,
-    get_next_url,
+    get_current_url,
     requires_roles,
     route,
 )
@@ -71,15 +71,10 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     @route('/new', methods=['GET', 'POST'])
     def new(self) -> ReturnView:
         """Create a new organization."""
-        if not current_auth.user.has_verified_contact_info:
-            flash(
-                _(
-                    "You need to have a verified email address or phone number to"
-                    " create an organization"
-                ),
-                'error',
-            )
-            return redirect(get_next_url(referrer=True), code=303)
+        if not current_auth.user.features.allowed_creator:
+            flash(_("Confirm your phone number to continue"), 'error')
+            session['next'] = get_current_url()
+            return render_redirect(url_for('add_phone'), code=303)
 
         form = OrganizationForm(user=current_auth.user)
         if form.validate_on_submit():
