@@ -15,7 +15,7 @@
         font-family: sans-serif;
         font-size: 14px;
       }
-      .loading a {
+      .loading span {
         padding: 10px;
         border-radius: 10px;
         background-color: #eee;
@@ -24,7 +24,7 @@
     </style>
   </head>
   <body>
-    <p class="loading">{% trans %}Logging out…{% endtrans %}</p>
+    <p class="loading"><span>{% trans %}Logging out…{% endtrans %}</span></p>
     <script type="text/javascript">
       if ('serviceWorker' in navigator) {
         caches.keys().then(function(cacheNames) {

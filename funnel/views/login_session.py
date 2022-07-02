@@ -306,48 +306,51 @@ def clear_old_session(response):
 @app.after_request
 def set_lastuser_cookie(response):
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
-    if request_has_auth() and hasattr(current_auth, 'cookie'):
-        if not getattr(current_auth, 'suppress_cookie', False):
-            response.vary.add('Cookie')
-            expires = utcnow() + current_app.config['PERMANENT_SESSION_LIFETIME']
-            response.set_cookie(
-                'lastuser',
-                value=lastuser_serializer().dumps(
-                    current_auth.cookie, header_fields={'v': 1}
-                ),
-                # Keep this cookie for a year.
-                max_age=31557600,
-                # Expire one year from now.
-                expires=expires,
-                # Place cookie in master domain.
-                domain=current_app.config.get('LASTUSER_COOKIE_DOMAIN'),
-                # HTTPS cookie if session is too.
-                secure=current_app.config['SESSION_COOKIE_SECURE'],
-                # Don't allow reading this from JS.
-                httponly=True,
-                # Using SameSite=Strict will make the browser not send this cookie when
-                # the user arrives from an external site, including an OAuth2 callback.
-                # We mitigate this for auth using the `@reload_for_cookies` decorator,
-                # but use a Lax policy for now as (a) all POST requests are
-                # CSRF-protected, and (b) an inbound link that renders for an anonymous
-                # user will be confusing for a logged-in user
-                samesite='Lax',
-            )
+    if (
+        request_has_auth()
+        and hasattr(current_auth, 'cookie')
+        and not getattr(current_auth, 'suppress_cookie', False)
+    ):
+        response.vary.add('Cookie')
+        expires = utcnow() + current_app.config['PERMANENT_SESSION_LIFETIME']
+        response.set_cookie(
+            'lastuser',
+            value=lastuser_serializer().dumps(
+                current_auth.cookie, header_fields={'v': 1}
+            ),
+            # Keep this cookie for a year.
+            max_age=31557600,
+            # Expire one year from now.
+            expires=expires,
+            # Place cookie in master domain.
+            domain=current_app.config.get('LASTUSER_COOKIE_DOMAIN'),
+            # HTTPS cookie if session is too.
+            secure=current_app.config['SESSION_COOKIE_SECURE'],
+            # Don't allow reading this from JS.
+            httponly=True,
+            # Using SameSite=Strict will make the browser not send this cookie when
+            # the user arrives from an external site, including an OAuth2 callback.
+            # We mitigate this for auth using the `@reload_for_cookies` decorator,
+            # but use a Lax policy for now as (a) all POST requests are
+            # CSRF-protected, and (b) an inbound link that renders for an anonymous
+            # user will be confusing for a logged-in user
+            samesite='Lax',
+        )
 
-            response.set_cookie(
-                'hasuser',
-                value='1' if current_auth.is_authenticated else '0',
-                # Keep this cookie for a year.
-                max_age=31557600,
-                # Expire one year from now.
-                expires=expires,
-                # HTTPS cookie if session is too.
-                secure=current_app.config['SESSION_COOKIE_SECURE'],
-                # Allow reading this from JS.
-                httponly=False,
-                # Allow this cookie to be read in third-party website context
-                samesite='None',
-            )
+        response.set_cookie(
+            'hasuser',
+            value='1' if current_auth.is_authenticated else '0',
+            # Keep this cookie for a year.
+            max_age=31557600,
+            # Expire one year from now.
+            expires=expires,
+            # HTTPS cookie if session is too.
+            secure=current_app.config['SESSION_COOKIE_SECURE'],
+            # Allow reading this from JS.
+            httponly=False,
+            # Allow this cookie to be read in third-party website context
+            samesite='None',
+        )
 
     return response
 
