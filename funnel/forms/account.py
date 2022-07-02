@@ -462,29 +462,13 @@ class AccountForm(forms.Form):
 
     fullname = forms.StringField(
         __("Full name"),
-        description=__(
-            "This is your name. We will make an account for your organization later"
-        ),
+        description=__("This is your name, not of your organization"),
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(max=User.__title_length__),
         ],
         filters=[forms.filters.strip()],
         render_kw={'autocomplete': 'name'},
-    )
-    email = forms.EmailField(
-        __("Email address"),
-        description=__("Required for sending you tickets, invoices and notifications"),
-        validators=[
-            forms.validators.DataRequired(),
-            EmailAddressAvailable(purpose='use'),
-        ],
-        filters=strip_filters,
-        render_kw={
-            'autocorrect': 'off',
-            'autocapitalize': 'off',
-            'autocomplete': 'email',
-        },
     )
     username = forms.AnnotatedTextField(
         __("Username"),

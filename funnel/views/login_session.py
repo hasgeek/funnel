@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 from functools import wraps
-from typing import Optional, Type, cast
+from typing import Any, Callable, Optional, Type, cast
 
 from flask import (
     Response,
@@ -46,7 +46,7 @@ from ..models import (
 from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
-from ..typing import WrappedFunc
+from ..typing import ReturnDecorator, WrappedFunc
 from ..utils import abort_null
 from .helpers import (
     app_url_for,
@@ -388,6 +388,35 @@ def save_session_next_url() -> bool:
         session['next'] = get_next_url(referrer=True)
         return True
     return False
+
+
+def requires_user_not_spammy(
+    get_current: Optional[Callable[..., str]] = None
+) -> ReturnDecorator:
+    """Decorate a view to require the user to have creator rights."""
+
+    def decorator(f: WrappedFunc) -> WrappedFunc:
+        @wraps(f)
+        def wrapper(*args, **kwargs) -> Any:
+            """Validate user rights in a view."""
+            if not current_auth.is_authenticated:
+                flash(_("You need to be logged in for that page"), 'info')
+                return render_redirect(
+                    url_for('login', next=get_current_url()), code=303
+                )
+            if not current_auth.user.features.not_likely_throwaway:
+                flash(_("Confirm your phone number to continue"), 'error')
+
+                session['next'] = (
+                    get_current(*args, **kwargs) if get_current else get_current_url()
+                )
+                return render_redirect(url_for('add_phone'), code=303)
+
+            return f(*args, **kwargs)
+
+        return cast(WrappedFunc, wrapper)
+
+    return decorator
 
 
 def requires_login(f: WrappedFunc) -> WrappedFunc:

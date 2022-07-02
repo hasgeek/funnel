@@ -146,6 +146,16 @@ disable = [
   'too-many-lines',  # We have large files that include all related functionality
   'too-many-public-methods',  # Models and views have many public methods
   'unused-argument',  # Arguments required for spec compatibility aren't always used
+
+  # Temporarily disabled
+  # 'missing-class-docstring',
+  # 'missing-function-docstring',
+  # 'missing-module-docstring',
+  'too-many-branches',
+  'too-many-nested-blocks',
+  'too-many-return-statements',
+  'too-many-statements',
+  'too-many-locals',
 ]
 
 [tool.bandit]

@@ -598,7 +598,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
 
     # Finally: set a login method cookie and send user on their way
     if not current_auth.user.is_profile_complete():
-        login_next = url_for('account_new', next=next_url)
+        login_next = url_for('account_edit', next=next_url)
     else:
         login_next = next_url
 

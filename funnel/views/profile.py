@@ -2,15 +2,7 @@
 
 from __future__ import annotations
 
-from flask import (
-    Response,
-    abort,
-    current_app,
-    flash,
-    redirect,
-    render_template,
-    request,
-)
+from flask import abort, current_app, flash, redirect, render_template, request
 
 from baseframe import _
 from baseframe.filters import date_filter
@@ -36,7 +28,7 @@ from ..forms import (
 )
 from ..models import Profile, Project, db
 from .helpers import render_redirect
-from .login_session import requires_login
+from .login_session import requires_login, requires_user_not_spammy
 from .mixins import ProfileViewMixin
 
 
@@ -71,14 +63,14 @@ def feature_profile_make_private(obj):
 
 def template_switcher(templateargs):
     template = templateargs.pop('template')
-    return Response(render_template(template, **templateargs), mimetype='text/html')
+    return render_template(template, **templateargs)
 
 
 @Profile.views('main')
 @route('/<profile>')
 class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
-    @render_with({'*/*': template_switcher}, json=True)
+    @render_with({'text/html': template_switcher}, json=True)
     @requires_roles({'reader', 'admin'})
     def view(self):
         template_name = None
@@ -275,6 +267,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'admin'})
+    @requires_user_not_spammy()
     def edit(self):
         form = ProfileForm(
             obj=self.obj, model=Profile, profile=self.obj, user=current_auth.user
@@ -309,6 +302,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('edit_logo', methods=['GET', 'POST'])
     @requires_roles({'admin'})
+    @requires_user_not_spammy()
     def edit_logo_url(self):
         form = ProfileLogoForm(obj=self.obj, profile=self.obj)
         if request.method == 'POST':
