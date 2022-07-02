@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from datetime import timedelta
 from functools import wraps
 from io import StringIO
-from typing import Dict, Optional
+from typing import Dict, Optional, cast
 import csv
 
 from sqlalchemy.dialects.postgresql import INTERVAL
@@ -32,7 +32,7 @@ from ..models import (
     auth_client_user_session,
     db,
 )
-from ..typing import ReturnRenderWith, ReturnResponse, ReturnView
+from ..typing import ReturnRenderWith, ReturnResponse, ReturnView, WrappedFunc
 from ..utils import abort_null
 from .login_session import requires_login
 
@@ -66,28 +66,28 @@ class ReportCounter:
     frequency: int
 
 
-def requires_siteadmin(f):
+def requires_siteadmin(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require siteadmin privilege."""
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         if not current_auth.user or not current_auth.user.is_site_admin:
             abort(403)
         return f(*args, **kwargs)
 
-    return decorated_function
+    return cast(WrappedFunc, wrapper)
 
 
-def requires_comment_moderator(f):
+def requires_comment_moderator(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require comment moderator privilege."""
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         if not current_auth.user or not current_auth.user.is_comment_moderator:
             abort(403)
         return f(*args, **kwargs)
 
-    return decorated_function
+    return cast(WrappedFunc, wrapper)
 
 
 @route('/siteadmin')

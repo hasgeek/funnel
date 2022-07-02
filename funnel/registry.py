@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from dataclasses import dataclass
 from functools import wraps
-from typing import Collection, List, Optional, Tuple
+from typing import Collection, List, Optional, Tuple, cast
 import re
 
 from flask import Response, abort, jsonify, request
@@ -14,6 +14,7 @@ from baseframe import _
 from baseframe.signals import exception_catchall
 
 from .models import AuthToken, UserExternalId
+from .typing import WrappedFunc
 
 # Bearer token, as per
 # http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-15#section-2.1
@@ -55,9 +56,9 @@ class ResourceRegistry(OrderedDict):
                 },
             )
 
-        def wrapper(f):
+        def decorator(f: WrappedFunc) -> WrappedFunc:
             @wraps(f)
-            def decorated_function():
+            def wrapper():
                 if request.method == 'GET':
                     args = request.args
                 elif request.method in ['POST', 'PUT', 'DELETE']:
@@ -133,9 +134,9 @@ class ResourceRegistry(OrderedDict):
                 'trusted': trusted,
                 'f': f,
             }
-            return decorated_function
+            return cast(WrappedFunc, wrapper)
 
-        return wrapper
+        return decorator
 
 
 @dataclass

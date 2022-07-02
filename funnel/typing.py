@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Set, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, TypeVar, Union
 from uuid import UUID
 
 from werkzeug.wrappers import Response  # Base class for Flask Response
@@ -18,6 +18,8 @@ __all__ = [
     'ReturnRenderWith',
     'ReturnResponse',
     'ReturnView',
+    'WrappedFunc',
+    'ReturnDecorator',
     'T',
 ]
 
@@ -60,6 +62,11 @@ ReturnView = Union[
 
 #: Type used to indicate that a decorator returns its decorated attribute
 T = TypeVar('T')
+
+#: Type used for functions and methods wrapped in a decorator
+WrappedFunc = TypeVar('WrappedFunc', bound=Callable[..., Any])
+#: Return type for decorator factories
+ReturnDecorator = Callable[[WrappedFunc], WrappedFunc]
 
 #: Return type of the `migrate_user` and `migrate_profile` methods
 OptionalMigratedTables = Optional[Union[List[str], Tuple[str], Set[str]]]
