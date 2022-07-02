@@ -2,7 +2,8 @@
 
 from datetime import datetime
 from types import MethodType, SimpleNamespace
-from typing import List, Optional
+from typing import List, NamedTuple, Optional
+import re
 
 from sqlalchemy import event
 
@@ -29,6 +30,28 @@ from funnel.models import (
 
 # --- ResponseWithForms, to make form submission in the test client testing easier
 # --- Adapted from the abandoned Flask-Fillin package
+
+
+_meta_refresh_content_re = re.compile(
+    r"""
+    \s*
+    (?P<timeout>\d+)      # Timeout
+    \s*
+    ;?                    # ; separator for optional URL
+    \s*
+    (?:URL\s*=\s*["']?)?  # Optional 'URL=' or 'URL="' prefix
+    (?P<url>.*?)          # Optional URL
+    (?:["']?\s*)          # Optional closing quote for URL
+    """,
+    re.ASCII | re.IGNORECASE | re.VERBOSE,
+)
+
+
+class MetaRefreshContent(NamedTuple):
+    """Timeout and optional URL in a Meta Refresh tag."""
+
+    timeout: int
+    url: Optional[str] = None
 
 
 class ResponseWithForms(Response):
@@ -117,6 +140,20 @@ class ResponseWithForms(Response):
             return links[0]
         return None
 
+    @property
+    def metarefresh(self) -> Optional[MetaRefreshContent]:
+        """Return content of Meta Refresh tag if present."""
+        meta_elements = self.html.cssselect('meta[http-equiv="refresh"]')
+        if not meta_elements:
+            return None
+        content = meta_elements[0].attrib.get('content')
+        if content is None:
+            return None
+        match = _meta_refresh_content_re.fullmatch(content)
+        if match is None:
+            return None
+        return MetaRefreshContent(int(match['timeout']), match['url'] or None)
+
 
 # --- New fixtures, to replace the legacy tests below as tests are updated
 
@@ -203,7 +240,7 @@ def login(client):
             # pending removal
             session['userid'] = user.userid
         # Perform a request to convert the session userid into a UserSession
-        client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
+        client.get('/api/1/user/get')
 
     def logout():
         # TODO: Test this

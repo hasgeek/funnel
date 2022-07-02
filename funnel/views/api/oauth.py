@@ -25,7 +25,11 @@ from ...models import (
 from ...registry import resource_registry
 from ...typing import ReturnView
 from ...utils import abort_null, make_redirect_url
-from ..login_session import requires_client_login, requires_login_no_message
+from ..login_session import (
+    reload_for_cookies,
+    requires_client_login,
+    requires_login_no_message,
+)
 from .resource import get_userinfo
 
 
@@ -138,7 +142,7 @@ def oauth_auth_success(
             auth_client=auth_client,
             redirect_to=redirect_to,
         )
-    response = redirect(redirect_to, code=303)
+    response = redirect(redirect_to, 303)
     response.headers['Cache-Control'] = 'no-cache, no-store, max-age=0, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     return response
@@ -161,7 +165,7 @@ def oauth_auth_error(
         params['error_uri'] = error_uri
     clear_flashed_messages()
     response = redirect(
-        make_redirect_url(redirect_uri, use_fragment=False, **params), code=303
+        make_redirect_url(redirect_uri, use_fragment=False, **params), 303
     )
     response.headers['Cache-Control'] = 'no-cache, no-store, max-age=0, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
@@ -169,6 +173,7 @@ def oauth_auth_error(
 
 
 @app.route('/api/1/auth', methods=['GET', 'POST'])
+@reload_for_cookies
 @requires_login_no_message
 def oauth_authorize() -> ReturnView:
     """Provide authorization endpoint for OAuth2 server."""

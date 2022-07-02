@@ -63,17 +63,12 @@ from ..signals import user_data_changed
 from ..typing import ReturnView
 from ..utils import abort_null
 from .email import send_email_verify_link
-from .helpers import (
-    app_url_for,
-    metarefresh_redirect,
-    render_redirect,
-    session_timeouts,
-    validate_rate_limit,
-)
+from .helpers import app_url_for, render_redirect, session_timeouts, validate_rate_limit
 from .login_session import (
     login_internal,
     logout_internal,
     register_internal,
+    reload_for_cookies,
     requires_login,
     save_session_next_url,
     set_loginmethod_cookie,
@@ -141,7 +136,7 @@ def login() -> ReturnView:
     """Process a login attempt."""
     # If user is already logged in, send them back
     if current_auth.is_authenticated:
-        return render_redirect(get_next_url(referrer=True, session=True), code=303)
+        return render_redirect(get_next_url(referrer=True, session=True))
 
     # Remember where the user came from if it wasn't already saved.
     save_session_next_url()
@@ -191,7 +186,7 @@ def login() -> ReturnView:
                         category='danger',
                     )
                     return set_loginmethod_cookie(
-                        render_redirect(app_url_for(app, 'change_password'), code=303),
+                        render_redirect(app_url_for(app, 'change_password')),
                         'password',
                     )
                 if user.password_has_expired():
@@ -209,7 +204,7 @@ def login() -> ReturnView:
                         category='warning',
                     )
                     return set_loginmethod_cookie(
-                        render_redirect(app_url_for(app, 'change_password'), code=303),
+                        render_redirect(app_url_for(app, 'change_password')),
                         'password',
                     )
                 current_app.logger.info(
@@ -219,7 +214,7 @@ def login() -> ReturnView:
                 )
                 flash(_("You are now logged in"), category='success')
                 return set_loginmethod_cookie(
-                    render_redirect(get_next_url(session=True), code=303),
+                    render_redirect(get_next_url(session=True)),
                     'password',
                 )
         except LoginPasswordResetException:
@@ -231,7 +226,7 @@ def login() -> ReturnView:
                 category='danger',
             )
             session['temp_username'] = loginform.username.data
-            return render_redirect(url_for('reset'), code=303)
+            return render_redirect(url_for('reset'))
         except LoginPasswordWeakException:
             flash(
                 _(
@@ -240,7 +235,7 @@ def login() -> ReturnView:
                 )
             )
             session['temp_username'] = loginform.username.data
-            return render_redirect(url_for('reset'), code=303)
+            return render_redirect(url_for('reset'))
         except (LoginWithOtp, RegisterWithOtp):
             otp_session = OtpSession.make(
                 'login',
@@ -296,7 +291,7 @@ def login() -> ReturnView:
                     flash(_("You are now logged in"), category='success')
                 OtpSession.delete()
                 return set_loginmethod_cookie(
-                    render_redirect(get_next_url(session=True), code=303),
+                    render_redirect(get_next_url(session=True)),
                     'otp',
                 )
             return render_otp_form(otp_form, url_for('login', next=next_url))
@@ -342,18 +337,22 @@ def logout_client():
         # No referrer or such client, or request didn't come from the client website.
         # Possible CSRF. Don't logout and don't send them back
         flash(LOGOUT_ERRORMSG, 'danger')
-        return redirect(url_for('account'), code=303)
+        return render_redirect(url_for('account'))
 
     # If there is a next destination, is it in the same domain as the client?
     if 'next' in request.args:
         if not auth_client.host_matches(request.args['next']):
             # Host doesn't match. Assume CSRF and redirect to account without logout
             flash(LOGOUT_ERRORMSG, 'danger')
-            return redirect(url_for('account'), code=303)
+            return render_redirect(url_for('account'))
     # All good. Log them out and send them back
     logout_internal()
     db.session.commit()
-    return redirect(get_next_url(external=True), code=303)
+    return make_response(
+        render_template(
+            'logout_browser_data.html.jinja2', next=get_next_url(external=True)
+        )
+    )
 
 
 @app.route('/logout')
@@ -365,13 +364,13 @@ def logout():
     # Don't allow GET-based logouts
     if current_auth.user:
         flash(_("To logout, use the logout button"), 'info')
-        return redirect(url_for('account'), code=303)
-    return redirect(url_for('index'), code=303)
+        return render_redirect(url_for('account'))
+    return render_redirect(url_for('index'))
 
 
 @app.route('/account/logout', methods=['POST'])
 @requires_login
-def account_logout():
+def account_logout() -> ReturnView:
     """Process a logout request."""
     form = LogoutForm(user=current_auth.user)
     if form.validate():
@@ -380,7 +379,7 @@ def account_logout():
             db.session.commit()
             if request_wants.json:
                 return {'status': 'ok'}
-            return redirect(url_for('account'), code=303)
+            return render_redirect(url_for('account'))
 
         logout_internal()
         db.session.commit()
@@ -395,14 +394,14 @@ def account_logout():
     for field_errors in form.errors.values():
         for error in field_errors:
             flash(error, 'error')
-    return redirect(url_for('account'), code=303)
+    return render_redirect(url_for('account'))
 
 
 @app.route('/account/register', methods=['GET', 'POST'])
 def register():
     """Register a new account (deprecated)."""
     if current_auth.is_authenticated:
-        return redirect(url_for('index'), code=303)
+        return render_redirect(url_for('index'))
     form = RegisterForm()
     if form.validate_on_submit():
         current_app.logger.info("Password strength %f", form.password_strength)
@@ -413,7 +412,7 @@ def register():
         login_internal(user, login_service='password')
         db.session.commit()
         flash(_("You are now one of us. Welcome aboard!"), category='success')
-        return redirect(get_next_url(session=True), code=303)
+        return render_redirect(get_next_url(session=True))
     # Form with id 'form-password-change' will have password strength meter on UI
     return render_template(
         'signup_form.html.jinja2',
@@ -442,14 +441,16 @@ def login_service(service: str) -> ReturnView:
         msg = str(exc)
         exception_catchall.send(exc, message=msg)
         flash(msg, category='danger')
-        return redirect(session.pop('next'), code=303)
+        return render_redirect(session.pop('next'))
 
 
 @app.route('/login/<service>/callback', methods=['GET', 'POST'])
+@reload_for_cookies
 def login_service_callback(service: str) -> ReturnView:
     """Handle callback from a login service."""
     if service not in login_registry:
         abort(404)
+
     provider = login_registry[service]
     try:
         userdata = provider.callback()
@@ -460,8 +461,8 @@ def login_service_callback(service: str) -> ReturnView:
         exception_catchall.send(exc, message=msg)
         flash(msg, category='danger')
         if current_auth.is_authenticated:
-            return redirect(get_next_url(referrer=False), code=303)
-        return redirect(url_for('login'), code=303)
+            return render_redirect(get_next_url(referrer=False))
+        return render_redirect(url_for('login'))
     statsd.gauge('login.progress', -1, delta=True, tags={'service': service})
     return login_service_postcallback(service, userdata)
 
@@ -602,14 +603,11 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
     else:
         login_next = next_url
 
-    # Use a meta-refresh redirect because some versions of Firefox and Safari will
-    # not set cookies in a 30x redirect if the first redirect in the sequence originated
-    # on another domain. Our redirect chain is provider -> callback -> destination page.
     if 'merge_buid' in session:
         return set_loginmethod_cookie(
-            metarefresh_redirect(url_for('account_merge', next=login_next)), service
+            render_redirect(url_for('account_merge', next=login_next)), service
         )
-    return set_loginmethod_cookie(metarefresh_redirect(login_next), service)
+    return set_loginmethod_cookie(render_redirect(login_next), service)
 
 
 @app.route('/account/merge', methods=['GET', 'POST'])
@@ -617,11 +615,11 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
 def account_merge():
     """Merge two accounts."""
     if 'merge_buid' not in session:
-        return redirect(get_next_url(), code=303)
+        return render_redirect(get_next_url())
     other_user = User.get(buid=session['merge_buid'])
     if other_user is None:
         session.pop('merge_buid', None)
-        return redirect(get_next_url(), code=303)
+        return render_redirect(get_next_url())
     form = forms.Form()
     if form.validate_on_submit():
         if 'merge' in request.form:
@@ -640,9 +638,9 @@ def account_merge():
             else:
                 flash(_("Account merger failed"), 'danger')
                 session.pop('merge_buid', None)
-            return redirect(get_next_url(), code=303)
+            return render_redirect(get_next_url())
         session.pop('merge_buid', None)
-        return redirect(get_next_url(), code=303)
+        return render_redirect(get_next_url())
     return render_template(
         'account_merge.html.jinja2',
         form=form,
@@ -680,7 +678,7 @@ def account_merge():
 
 # @hasjobapp.route('/login', endpoint='login')
 @requestargs(('cookietest', getbool))
-def hasjob_login(cookietest=False):
+def hasjob_login(cookietest: bool = False) -> ReturnView:
     """Process login in Hasjob (pending future merger)."""
     # 1. Create a login nonce (single use, unlike CSRF)
     session['login_nonce'] = str(token_urlsafe())
@@ -705,6 +703,7 @@ def hasjob_login(cookietest=False):
 # Retained for future hasjob integration
 
 # @app.route('/login/hasjob')
+# @reload_for_cookies
 # @requires_login_no_message  # 1. Ensure user login
 # @requestargs('code')
 # def login_hasjob(code):
@@ -714,7 +713,7 @@ def hasjob_login(cookietest=False):
 #         request_code = crossapp_serializer().loads(code)
 #     except itsdangerous.BadData:
 #         current_app.logger.warning("hasjobapp login code is bad: %s", code)
-#         return redirect(url_for('index'))
+#         return redirect(url_for('index'), 303)
 #     # 3. Create token
 #     token = crossapp_serializer().dumps(
 #         {'nonce': request_code['nonce'], 'sessionid': current_auth.session.buid}
@@ -725,6 +724,7 @@ def hasjob_login(cookietest=False):
 
 # Retained for future hasjob integration
 # @hasjobapp.route('/login/callback', endpoint='login_callback')
+@reload_for_cookies
 @requestargs('token')
 def hasjobapp_login_callback(token):
     """Process callback from Hasjob to confirm a login attempt."""
@@ -732,7 +732,7 @@ def hasjobapp_login_callback(token):
     if not nonce:
         # Can't proceed if this happens
         current_app.logger.warning("hasjobapp is missing an expected login nonce")
-        return redirect(url_for('index'), code=303)
+        return render_redirect(url_for('index'))
 
     # 1. Verify token
     try:
@@ -742,13 +742,13 @@ def hasjobapp_login_callback(token):
     except itsdangerous.BadData:
         current_app.logger.warning("hasjobapp received bad login token: %s", token)
         flash(_("Your attempt to login failed. Try again?"), 'error')
-        return metarefresh_redirect(url_for('index'))
+        return render_redirect(url_for('index'))
     if request_token['nonce'] != nonce:
         current_app.logger.warning(
             "hasjobapp received invalid nonce in %r", request_token
         )
         flash(_("Are you trying to login? Try again to confirm"), 'error')
-        return metarefresh_redirect(url_for('index'))
+        return render_redirect(url_for('index'))
 
     # 2. Load user session and 3. Redirect user back to where they came from
     user_session = UserSession.get(request_token['sessionid'])
@@ -760,13 +760,13 @@ def hasjobapp_login_callback(token):
         current_app.logger.debug(
             "hasjobapp login succeeded for %r, %r", user, user_session
         )
-        return metarefresh_redirect(get_next_url(session=True))
+        return render_redirect(get_next_url(session=True))
 
     # No user session? That shouldn't happen. Log it
     current_app.logger.warning(
         "User session is unexpectedly invalid in %r", request_token
     )
-    return redirect(url_for('index'))
+    return render_redirect(url_for('index'))
 
 
 # Retained for future hasjob integration
@@ -783,8 +783,8 @@ def hasjob_logout():
         != urllib.parse.urlsplit(request.url).netloc
     ):
         flash(LOGOUT_ERRORMSG, 'danger')
-        return redirect(url_for('index'), code=303)
+        return render_redirect(url_for('index'))
     logout_internal()
     db.session.commit()
     flash(_("You are now logged out"), category='info')
-    return redirect(get_next_url(), code=303)
+    return render_redirect(get_next_url())

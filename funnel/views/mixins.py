@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Optional, Tuple, Type, Union
 from uuid import uuid4
 
-from flask import abort, g, redirect, request
+from flask import abort, g, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
@@ -22,6 +22,7 @@ from ..models import (
     db,
 )
 from ..typing import ReturnRenderWith, ReturnView, UuidModelType
+from .helpers import render_redirect
 
 
 class ProfileCheckMixin:
@@ -81,7 +82,10 @@ class ProjectViewMixin(ProfileCheckMixin):
         if isinstance(self.obj, ProjectRedirect):
             if self.obj.project:
                 self.profile = self.obj.project.profile
-                return redirect(self.obj.project.url_for())
+                return render_redirect(
+                    self.obj.project.url_for(),
+                    302 if request.method == 'GET' else 303,
+                )
             abort(410)  # Project has been deleted
         self.profile = self.obj.profile
         return super().after_loader()

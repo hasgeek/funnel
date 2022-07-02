@@ -29,6 +29,7 @@ from ..transports import platform_transports
 from ..typing import ReturnRenderWith
 from .helpers import (
     metarefresh_redirect,
+    render_redirect,
     retrieve_cached_token,
     session_timeouts,
     validate_rate_limit,
@@ -190,10 +191,10 @@ class AccountNotificationView(ClassView):
         except itsdangerous.SignatureExpired:
             # Link has expired. It's been over a year!
             flash(unsubscribe_link_expired, 'error')
-            return redirect(url_for('notification_preferences'), code=303)
+            return render_redirect(url_for('notification_preferences'))
         except itsdangerous.BadData:
             flash(unsubscribe_link_invalid, 'error')
-            return redirect(url_for('notification_preferences'), code=303)
+            return render_redirect(url_for('notification_preferences'))
 
         user = User.get(buid=payload['buid'])
         if user is None:
@@ -203,7 +204,7 @@ class AccountNotificationView(ClassView):
             # We can't use `render_message` here because the unsubscribe token is still
             # in the URL
             flash(_("This unsubscribe link is for a non-existent user"), 'error')
-            return redirect(url_for('index'), code=303)
+            return render_redirect(url_for('index'))
         # Check transport again in case this endpoint is extended to other transports
         if payload['transport'] == 'email' and 'hash' in payload:
             email_address = EmailAddress.get(email_hash=payload['hash'])
@@ -221,7 +222,7 @@ class AccountNotificationView(ClassView):
         # We can't use `render_message` here because the unsubscribe token is still in
         # the URL
         flash(_("You have been unsubscribed from this notification type"), 'success')
-        return redirect(url_for('index'), code=303)
+        return render_redirect(url_for('index'))
 
     @route(
         'unsubscribe/<token>',
@@ -255,7 +256,10 @@ class AccountNotificationView(ClassView):
             (request.method == 'GET' and 'unsub_token' not in session)
             or (request.method == 'POST' and 'token' not in request.form)
         ):
-            return redirect(url_for('notification_preferences'))
+            return render_redirect(
+                url_for('notification_preferences'),
+                302 if request.method == 'GET' else 303,
+            )
 
         # Step 2: We have a URL token, but no `cookietest=1` in the URL. Copy token into
         # session and reload the page with the flag set
@@ -326,12 +330,12 @@ class AccountNotificationView(ClassView):
                 session.pop('unsub_token', None)
                 session.pop('unsub_token_type', None)
                 flash(unsubscribe_link_expired, 'error')
-                return redirect(url_for('notification_preferences'), code=303)
+                return render_redirect(url_for('notification_preferences'))
             except itsdangerous.BadData:
                 session.pop('unsub_token', None)
                 session.pop('unsub_token_type', None)
                 flash(unsubscribe_link_invalid, 'error')
-                return redirect(url_for('notification_preferences'), code=303)
+                return render_redirect(url_for('notification_preferences'))
 
         # --- Cached tokens (SMS)
         elif token_type == 'cached':  # nosec  # noqa: S105
@@ -352,7 +356,7 @@ class AccountNotificationView(ClassView):
                 session.pop('unsub_token', None)
                 session.pop('unsub_token_type', None)
                 flash(unsubscribe_link_invalid, 'error')
-                return redirect(url_for('notification_preferences'), code=303)
+                return render_redirect(url_for('notification_preferences'))
 
             # Do `.replace(tzinfo=None)` on the datetime because -- while we use
             # naive timestamps when making the token -- there was a period of confusion
@@ -365,7 +369,7 @@ class AccountNotificationView(ClassView):
                 session.pop('unsub_token', None)
                 session.pop('unsub_token_type', None)
                 flash(unsubscribe_link_expired, 'error')
-                return redirect(url_for('notification_preferences'), code=303)
+                return render_redirect(url_for('notification_preferences'))
 
         else:
             # This is not supposed to happen

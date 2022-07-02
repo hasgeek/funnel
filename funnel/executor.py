@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from functools import wraps
-from typing import cast
+from typing import Any, cast
 
 from flask_executor import Executor
 from flask_executor.executor import ExecutorJob, FutureProxy
@@ -25,7 +25,7 @@ def remove_db_session(f: WrappedFunc) -> WrappedFunc:
     from .models import db  # pylint: disable=import-outside-toplevel
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         """Remove database session regardless of outcome."""
         try:
             result = f(*args, **kwargs)

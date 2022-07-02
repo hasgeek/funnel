@@ -14,12 +14,14 @@ from flask import (
     g,
     jsonify,
     make_response,
+    redirect,
     request,
     session,
     url_for,
 )
 import itsdangerous
 
+from furl import furl
 import geoip2.errors
 
 from baseframe import _, statsd
@@ -52,6 +54,7 @@ from .helpers import (
     app_url_for,
     autoset_timezone_and_locale,
     get_scheme_netloc,
+    metarefresh_redirect,
     render_redirect,
     session_timeouts,
     validate_rate_limit,
@@ -303,9 +306,13 @@ def clear_old_session(response):
 @app.after_request
 def set_lastuser_cookie(response):
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
-    if request_has_auth() and hasattr(current_auth, 'cookie'):
+    if (
+        request_has_auth()
+        and hasattr(current_auth, 'cookie')
+        and not getattr(current_auth, 'suppress_cookie', False)
+    ):
         response.vary.add('Cookie')
-        expires = utcnow() + timedelta(days=365)
+        expires = utcnow() + current_app.config['PERMANENT_SESSION_LIFETIME']
         response.set_cookie(
             'lastuser',
             value=lastuser_serializer().dumps(
@@ -322,8 +329,11 @@ def set_lastuser_cookie(response):
             # Don't allow reading this from JS.
             httponly=True,
             # Using SameSite=Strict will make the browser not send this cookie when
-            # the user arrives from an external site, including an OAuth2 callback. This
-            # breaks the auth flow, so we must use the Lax policy
+            # the user arrives from an external site, including an OAuth2 callback.
+            # We mitigate this for auth using the `@reload_for_cookies` decorator,
+            # but use a Lax policy for now as (a) all POST requests are
+            # CSRF-protected, and (b) an inbound link that renders for an anonymous
+            # user will be confusing for a logged-in user
             samesite='Lax',
         )
 
@@ -390,6 +400,42 @@ def save_session_next_url() -> bool:
     return False
 
 
+def reload_for_cookies(f: WrappedFunc) -> WrappedFunc:
+    """
+    Decorate a view to reload to obtain SameSite=strict cookies.
+
+    This decorator is required for login callback and OAuth2 auth endpoints, which must
+    have cookies to function. This decorator must be outer to any other decorator that
+    depends on auth or session cookies::
+
+        @route('/path')
+        @reload_for_cookies
+        @requires_login
+        def view():
+            ...
+    """
+
+    @wraps(f)
+    def wrapper(*args, **kwargs) -> Any:
+        if 'lastuser' not in request.cookies:
+            add_auth_attribute('suppress_cookie', True)
+            attempt = request.args.get('cookiereload')
+            if not attempt:
+                # First attempt: reload with HTTP 303
+                url = furl(request.url)
+                url.args['cookiereload'] = 'r'
+                return redirect(str(url), 303)
+            if attempt == 'r':
+                # Second attempt: reload with Meta Refresh
+                url = furl(request.url)
+                url.args['cookiereload'] = 'm'
+                return metarefresh_redirect(str(url))
+            # If both attempts fail, there is no 'lastuser' cookie forthcoming
+        return f(*args, **kwargs)
+
+    return cast(WrappedFunc, wrapper)
+
+
 def requires_user_not_spammy(
     get_current: Optional[Callable[..., str]] = None
 ) -> ReturnDecorator:
@@ -423,11 +469,14 @@ def requires_login(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require login."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            return render_redirect(url_for('login', next=get_current_url()), code=303)
+            return render_redirect(
+                url_for('login', next=get_current_url()),
+                302 if request.method == 'GET' else 303,
+            )
         return f(*args, **kwargs)
 
     return cast(WrappedFunc, wrapper)
@@ -441,10 +490,13 @@ def requires_login_no_message(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
-            return render_redirect(url_for('login', next=get_current_url()), code=303)
+            return render_redirect(
+                url_for('login', next=get_current_url()),
+                302 if request.method == 'GET' else 303,
+            )
         return f(*args, **kwargs)
 
     return cast(WrappedFunc, wrapper)
@@ -488,7 +540,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         """Prompt for re-authentication to proceed."""
         add_auth_attribute('login_required', True)
         # If the user is not logged in, require login first
@@ -518,19 +570,22 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
                 422,
             )
 
-        if not GET_AND_POST.issubset(request.url_rule.methods):
+        if not GET_AND_POST.issubset(
+            request.url_rule.methods  # type: ignore[union-attr]
+        ):
             # This view does not support GET or POST methods, which we need. Send the
             # user off to the sudo endpoint for authentication.
             save_sudo_preference_context()
             return render_redirect(
-                url_for('account_sudo', next=get_current_url()), code=303
+                url_for('account_sudo', next=get_current_url()),
+                302 if request.method == 'GET' else 303,
             )
 
         if request_wants.html_fragment:
             # If the request wanted a HTML fragment, reload as a full page to ensure the
             # authentication form is properly rendered. The current page's fragment
             # identifier cannot be preserved in this case.
-            return render_redirect(url=request.url, code=303)
+            return render_redirect(request.url, 302 if request.method == 'GET' else 303)
 
         # We'll need a password form or an OTP form, depending on whether the user has a
         # password or contact info for an OTP. If neither are available, we'll ask them
@@ -582,7 +637,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
                     otp_session = OtpSession.retrieve('sudo')
                 except OtpTimeoutError:
                     # Reload the page to send another OTP
-                    return render_redirect(url=request.url, code=303)
+                    return render_redirect(url=request.url)
                 form = OtpForm(valid_otp=otp_session.otp)
             elif formid == FORMID_SUDO_PASSWORD:
                 form = PasswordForm(edit_user=current_auth.user)
@@ -600,7 +655,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
                 continue_url = session.pop('next', request.url)
                 OtpSession.delete()
                 db.session.commit()
-                return render_redirect(continue_url, code=303)
+                return render_redirect(continue_url)
         else:
             # Only GET and POST are supported. We may get here if the decorated view
             # supports others methods (like PUT or DELETE)
@@ -609,7 +664,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
         if isinstance(form, OtpForm):
             title = _("Confirm this operation with an OTP")
             formid = FORMID_SUDO_OTP
-        elif isinstance(form, PasswordForm):
+        elif isinstance(form, PasswordForm):  # type: ignore[unreachable]
             title = _("Confirm with your password to proceed")
             formid = FORMID_SUDO_PASSWORD
         else:  # pragma: no cover
@@ -631,7 +686,7 @@ def requires_site_editor(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require site editor permission."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         add_auth_attribute('login_required', True)
         if not current_auth.user or not current_auth.user.is_site_editor:
             abort(403)
@@ -667,7 +722,7 @@ def requires_client_login(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require a client login via HTTP Basic Authorization."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         result = _client_login_inner()
         if result is None:
             return f(*args, **kwargs)
@@ -684,7 +739,7 @@ def requires_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         add_auth_attribute('login_required', True)
         # Check for user first:
         if current_auth.is_authenticated:
@@ -707,7 +762,7 @@ def requires_client_id_or_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         add_auth_attribute('login_required', True)
 
         # Is there a user? Go right ahead

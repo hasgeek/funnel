@@ -45,7 +45,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
                 self.obj.primary_venue = venue
             db.session.commit()
             flash(_("You have added a new venue to the project"), 'success')
-            return render_redirect(self.obj.url_for('venues'), code=303)
+            return render_redirect(self.obj.url_for('venues'))
         return render_form(
             form=form,
             title=_("New venue"),
@@ -92,7 +92,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
                 flash(_("You have changed the primary venue"), 'success')
         else:
             flash(_("Please select a venue"), 'danger')
-        return render_redirect(self.obj.url_for('venues'), code=303)
+        return render_redirect(self.obj.url_for('venues'))
 
 
 ProjectVenueView.init_app(app)
@@ -111,7 +111,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
             self.obj.make_name(reserved=RESERVED_VENUE)
             db.session.commit()
             flash(_("Saved changes to this venue"), 'success')
-            return render_redirect(self.obj.project.url_for('venues'), code=303)
+            return render_redirect(self.obj.project.url_for('venues'))
         return render_form(
             form=form,
             title=_("Edit venue"),
@@ -148,7 +148,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
             self.obj.rooms.append(room)
             db.session.commit()
             flash(_("You have added a room at this venue"), 'success')
-            return render_redirect(self.obj.project.url_for('venues'), code=303)
+            return render_redirect(self.obj.project.url_for('venues'))
         return render_form(
             form=form,
             title=_("New room"),
@@ -174,7 +174,7 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             self.obj.make_name(reserved=RESERVED_VENUEROOM)
             db.session.commit()
             flash(_("Saved changes to this room"), 'success')
-            return render_redirect(self.obj.venue.project.url_for('venues'), code=303)
+            return render_redirect(self.obj.venue.project.url_for('venues'))
         return render_form(
             form=form,
             title=_("Edit room"),

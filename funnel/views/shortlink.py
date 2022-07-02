@@ -11,7 +11,7 @@ from .helpers import app_url_for
 
 @shortlinkapp.route('/')
 def index():
-    return redirect(app_url_for(app, 'index'), code=301)
+    return redirect(app_url_for(app, 'index'), 301)
 
 
 @shortlinkapp.route('/<name>')

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, Union
 
-from flask import flash, jsonify, redirect, request, url_for
+from flask import flash, jsonify, request, url_for
 
 from baseframe import _, forms
 from baseframe.forms import Form, render_form
@@ -36,6 +36,7 @@ from ..proxies import request_wants
 from ..signals import project_role_change, proposal_role_change
 from ..typing import ReturnRenderWith, ReturnView
 from .decorators import etag_cache_for_user, xhr_only
+from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
 from .notification import dispatch_notification
 
@@ -162,7 +163,7 @@ class CommentsetView(UrlForView, ModelView):
             return jsonify(
                 {'subscribed': subscribed, 'comments': self.obj.views.json_comments()}
             )
-        return redirect(self.obj.views.url(), code=303)
+        return render_redirect(self.obj.views.url())
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
@@ -241,7 +242,7 @@ class CommentsetView(UrlForView, ModelView):
     @route('seen', methods=['POST'])
     @requires_login
     @render_with(json=True)
-    def update_last_seen_at(self):
+    def update_last_seen_at(self) -> ReturnRenderWith:
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
             self.obj.update_last_seen_at(user=current_auth.user)
@@ -285,13 +286,13 @@ class CommentView(UrlForView, ModelView):
             flash(
                 _("That comment could not be found. It may have been deleted"), 'error'
             )
-            return redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
         return super().after_loader()
 
     @route('')
     @requires_roles({'reader'})
     def view(self):
-        return redirect(self.obj.views.url(), code=303)
+        return render_redirect(self.obj.views.url())
 
     @route('json')
     @requires_roles({'reader'})

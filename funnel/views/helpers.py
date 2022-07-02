@@ -26,7 +26,6 @@ from flask import (
 )
 from werkzeug.routing import BuildError
 from werkzeug.urls import url_quote
-from werkzeug.wrappers import Response as ResponseBase
 
 from furl import furl
 from pytz import common_timezones
@@ -43,7 +42,7 @@ from ..forms import supported_locales
 from ..models import Shortlink, User, db, profanity
 from ..proxies import request_wants
 from ..signals import emailaddress_refcount_dropping
-from ..typing import ReturnView
+from ..typing import ReturnResponse, ReturnView
 from .jobs import forget_email
 
 valid_timezones = set(common_timezones)
@@ -102,7 +101,7 @@ def str_pw_set_at(user: User) -> str:
 
 
 def metarefresh_redirect(url: str):
-    """Redirect using a ``Meta: Refresh`` HTML header."""
+    """Redirect using a non-standard Refresh header in a Meta tag."""
     return Response(render_template('meta_refresh.html.jinja2', url=url))
 
 
@@ -401,7 +400,7 @@ def decompress(data: bytes, algorithm: str) -> bytes:
     raise ValueError("Unknown compression algorithm")
 
 
-def compress_response(response: ResponseBase) -> None:
+def compress_response(response: ReturnResponse) -> None:
     """
     Conditionally compress a response based on request parameters.
 
@@ -433,12 +432,24 @@ def compress_response(response: ResponseBase) -> None:
 # --- Template helpers -----------------------------------------------------------------
 
 
-def render_redirect(url: str, code: int = 302) -> ResponseBase:
-    """Render a redirect that is sensitive to the request type."""
+def render_redirect(url: str, code: int = 303) -> ReturnResponse:
+    """
+    Render a redirect that is sensitive to the request type.
+
+    Defaults to 303 redirects to safely handle browser history in POST -> GET
+    transitions. Caller must specify 302 for instances where a request is being
+    intercepted (typically in a view decorator).
+    """
     if request_wants.html_fragment:
         return Response(
             render_template('redirect.html.jinja2', url=url),
             status=200,
+            headers={'HX-Redirect': url},
+        )
+    if request_wants.json:
+        return jsonify(
+            {'status': 'error', 'error': 'redirect', 'location': url},
+            status=422,
             headers={'HX-Redirect': url},
         )
     return redirect(url, code)
@@ -447,7 +458,7 @@ def render_redirect(url: str, code: int = 302) -> ResponseBase:
 def html_in_json(template: str) -> Dict[str, Union[str, Callable[[dict], ReturnView]]]:
     """Render a HTML fragment in a JSON wrapper, for use with ``@render_with``."""
 
-    def render_json_with_status(kwargs) -> ResponseBase:
+    def render_json_with_status(kwargs) -> ReturnResponse:
         """Render plain JSON."""
         return jsonify(
             status='ok',
@@ -459,7 +470,7 @@ def html_in_json(template: str) -> Dict[str, Union[str, Callable[[dict], ReturnV
             },
         )
 
-    def render_html_in_json(kwargs) -> ResponseBase:
+    def render_html_in_json(kwargs) -> ReturnResponse:
         """Render HTML fragment in JSON."""
         resp = jsonify({'status': 'ok', 'html': render_template(template, **kwargs)})
         resp.content_type = 'application/x.html+json; charset=utf-8'

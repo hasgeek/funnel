@@ -111,7 +111,7 @@ def mock_loginhub_callback(loginhub):
         PATCH_LOGINHUB_CALLBACK,
         return_value=LoginProviderData(
             email=RINCEWIND_EMAIL,
-            userid='rincewind-github',
+            userid='rincewind-loginhub',
             fullname='Rincewind',
             oauth_token=TEST_OAUTH_TOKEN,
         ),
@@ -527,13 +527,14 @@ def test_otp_reason_error(client, csrf_token):
 
 
 @pytest.mark.usefixtures('mock_loginhub_do', 'mock_loginhub_callback')
-def test_login_external(client, user_twoflower):
+def test_login_external(client):
     """External login flow works under mocked conditions."""
-    rv1 = client.get('/login/loginhub')
-    assert rv1.status_code == 302
-    rv2 = client.get(rv1.location)
-    assert rv2.status_code == 200
-    assert current_auth.user.name == user_twoflower.name
+    rv = client.get('/login/loginhub', follow_redirects=True)
+    if rv.metarefresh is not None:
+        rv = client.get(rv.metarefresh.url, follow_redirects=True)
+    assert rv.status_code == 200
+    assert current_auth.user is not None
+    assert current_auth.user.fullname == 'Rincewind'
 
 
 def test_service_not_in_registry(client):
@@ -752,10 +753,10 @@ def test_login_service_callback_error(client):
         PATCH_LOGINHUB_CALLBACK,
         side_effect=LoginCallbackError,
     ):
-        rv = client.get('/login/loginhub/callback')
-    assert 'Login Hub login failed' in str(session['_flashes'])
-    assert rv.status_code == 303
-    assert rv.location == '/login'
+        rv = client.get('/login/loginhub/callback', follow_redirects=True)
+        if rv.metarefresh is not None:
+            rv = client.get(rv.metarefresh.url, follow_redirects=True)
+    assert 'Login Hub login failed' in rv.data.decode()
 
 
 def test_login_service_callback_is_authenticated(client, login, user_rincewind):
@@ -766,10 +767,10 @@ def test_login_service_callback_is_authenticated(client, login, user_rincewind):
         PATCH_LOGINHUB_CALLBACK,
         side_effect=LoginCallbackError,
     ):
-        rv = client.get('/login/loginhub/callback')
-    assert 'Login Hub login failed' in str(session['_flashes'])
-    assert rv.status_code == 303
-    assert rv.location == '/'
+        rv = client.get('/login/loginhub/callback', follow_redirects=True)
+        if rv.metarefresh is not None:
+            rv = client.get(rv.metarefresh.url, follow_redirects=True)
+    assert 'Login Hub login failed' in rv.data.decode()
 
 
 @pytest.mark.usefixtures(
@@ -779,7 +780,9 @@ def test_account_merge(client, csrf_token, login, user_twoflower):
     """An external login service can trigger an account merger."""
     login.as_(user_twoflower)
 
-    client.get('/login/loginhub/callback')
+    rv = client.get('/login/loginhub/callback')
+    if rv.status_code == 302:
+        rv = client.get(rv.location)
     assert 'merge_buid' in session
     # Response may contain a meta-refresh redirect, so we don't test status_code or
     # location header here
