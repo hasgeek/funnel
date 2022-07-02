@@ -2,15 +2,7 @@
 
 from __future__ import annotations
 
-from flask import (
-    Response,
-    abort,
-    current_app,
-    flash,
-    redirect,
-    render_template,
-    request,
-)
+from flask import Response, abort, current_app, flash, render_template, request
 
 from baseframe import _
 from baseframe.filters import date_filter
@@ -285,7 +277,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
         return render_form(
             form=form,
             title=_("Edit profile details"),
@@ -316,7 +308,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 form.populate_obj(self.obj)
                 db.session.commit()
                 flash(_("Your changes have been saved"), 'info')
-                return render_redirect(self.obj.url_for(), code=303)
+                return render_redirect(self.obj.url_for())
             return render_form(form=form, title="", submit=_("Save logo"), ajax=True)
         return render_form(
             form=form,
@@ -335,12 +327,12 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if form.validate_on_submit():
             self.obj.logo_url = None
             db.session.commit()
-            return render_redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
         current_app.logger.error(
             "CSRF form validation error when removing profile logo"
         )
         flash(_("Were you trying to remove the logo? Try again to confirm"), 'error')
-        return render_redirect(self.obj.url_for(), code=303)
+        return render_redirect(self.obj.url_for())
 
     @route('update_banner', methods=['GET', 'POST'])
     @render_with('update_logo_modal.html.jinja2')
@@ -364,7 +356,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 form.populate_obj(self.obj)
                 db.session.commit()
                 flash(_("Your changes have been saved"), 'info')
-                return render_redirect(self.obj.url_for(), code=303)
+                return render_redirect(self.obj.url_for())
             return render_form(form=form, title="", submit=_("Save banner"), ajax=True)
         return render_form(
             form=form,
@@ -382,7 +374,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if form.validate_on_submit():
             self.obj.banner_image_url = None
             db.session.commit()
-            return render_redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
         current_app.logger.error(
             "CSRF form validation error when removing profile banner"
         )
@@ -390,7 +382,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             _("Were you trying to remove the banner? Try again to confirm"),
             'error',
         )
-        return render_redirect(self.obj.url_for(), code=303)
+        return render_redirect(self.obj.url_for())
 
     @route('transition', methods=['POST'])
     @requires_login
@@ -406,7 +398,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             flash(
                 _("There was a problem saving your changes. Please try again"), 'error'
             )
-        return redirect(get_next_url(referrer=True), code=303)
+        return render_redirect(get_next_url(referrer=True))
 
 
 ProfileView.init_app(app)

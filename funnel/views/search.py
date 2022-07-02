@@ -8,7 +8,7 @@ import re
 from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
 
-from flask import Markup, redirect, request, url_for
+from flask import Markup, request, url_for
 
 from typing_extensions import TypedDict
 
@@ -40,6 +40,7 @@ from ..models import (
     visual_field_delimiter,
 )
 from ..utils import abort_null
+from .helpers import render_redirect
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
 # --- Definitions ----------------------------------------------------------------------
@@ -851,7 +852,7 @@ class SearchView(ClassView):
         # Can't use @requestargs for stype as it doesn't support name changes
         stype = abort_null(request.args.get('type'))
         if not squery:
-            return redirect(url_for('index'))
+            return render_redirect(url_for('index'), 302)
         if stype is None or stype not in search_providers:
             return {'type': None, 'counts': search_counts(squery)}
         return {
@@ -878,7 +879,7 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
             request.args.get('type')
         )  # Can't use requestargs as it doesn't support name changes
         if not squery:
-            return redirect(url_for('index'))
+            return render_redirect(url_for('index'), 302)
         if (
             stype is None
             or stype not in search_providers
@@ -912,7 +913,7 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
             request.args.get('type')
         )  # Can't use requestargs as it doesn't support name changes
         if not squery:
-            return redirect(url_for('index'))
+            return render_redirect(url_for('index'), 302)
         if (
             stype is None
             or stype not in search_providers

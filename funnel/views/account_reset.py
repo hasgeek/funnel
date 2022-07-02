@@ -30,6 +30,7 @@ from ..serializers import token_serializer
 from ..typing import ReturnView
 from .helpers import (
     metarefresh_redirect,
+    render_redirect,
     session_timeouts,
     str_pw_set_at,
     validate_rate_limit,
@@ -98,7 +99,8 @@ def reset():
         otp_session = OtpSession.make('reset', user, anchor)
         if otp_session.send():
             session.pop('temp_username', None)
-            return redirect(url_for('reset_otp'), code=303)
+            return render_redirect(url_for('reset_otp'))
+
             # else: render form again, with flash messages from otp_session.send()
 
     return render_form(
@@ -140,7 +142,7 @@ def reset_with_token_legacy(buid, secret):
         ),
         'info',
     )
-    return redirect(url_for('reset'), code=303)
+    return render_redirect(url_for('reset'))
 
 
 @app.route('/account/reset/otp', methods=['GET', 'POST'])
@@ -150,7 +152,7 @@ def reset_otp() -> ReturnView:
         otp_session = OtpSession.retrieve('reset')
     except OtpTimeoutError:
         flash(_("This OTP has expired"), category='error')
-        return redirect(url_for('reset'), code=303)
+        return render_redirect(url_for('reset'))
 
     form = OtpForm(valid_otp=otp_session.otp)
     if form.is_submitted():
@@ -159,12 +161,11 @@ def reset_otp() -> ReturnView:
     if form.validate_on_submit():
         # If the OTP is correct, continue with the email reset link flow
         OtpSession.delete()
-        return redirect(
+        return render_redirect(
             url_for(
                 'reset_with_token',
                 token=otp_session.link_token,
-            ),
-            code=303,
+            )
         )
     return render_form(
         form=form,
@@ -184,7 +185,7 @@ def reset_with_token_do() -> ReturnView:
         if request.method == 'GET':
             # No token. GET request. Either user landed here by accident, or browser
             # reloaded this page from history. Send back to to the reset request page
-            return redirect(url_for('reset'), code=303)
+            return render_redirect(url_for('reset'))
 
         # Reset token was expired from session, likely because they didn't submit
         # the form in time. We no longer know what user this is for. Inform the user
@@ -207,7 +208,7 @@ def reset_with_token_do() -> ReturnView:
             ),
             'error',
         )
-        return redirect(url_for('reset'), code=303)
+        return render_redirect(url_for('reset'))
     except itsdangerous.BadData:
         # Link is invalid
         session.pop('reset_token', None)
@@ -218,7 +219,7 @@ def reset_with_token_do() -> ReturnView:
             ),
             'error',
         )
-        return redirect(url_for('reset'), code=303)
+        return render_redirect(url_for('reset'))
 
     # 3. We have a token and it's not expired. Is there a user?
     user = User.get(buid=token['buid'])
@@ -243,7 +244,7 @@ def reset_with_token_do() -> ReturnView:
             ),
             'error',
         )
-        return redirect(url_for('reset'), code=303)
+        return render_redirect(url_for('reset'))
 
     # All good? Proceed with request
     # Logout *after* validating the reset request to prevent DoS attacks on the user

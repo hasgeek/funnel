@@ -138,7 +138,7 @@ def oauth_auth_success(
             auth_client=auth_client,
             redirect_to=redirect_to,
         )
-    response = redirect(redirect_to, code=303)
+    response = redirect(redirect_to, 303)
     response.headers['Cache-Control'] = 'no-cache, no-store, max-age=0, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     return response
@@ -161,7 +161,7 @@ def oauth_auth_error(
         params['error_uri'] = error_uri
     clear_flashed_messages()
     response = redirect(
-        make_redirect_url(redirect_uri, use_fragment=False, **params), code=303
+        make_redirect_url(redirect_uri, use_fragment=False, **params), 303
     )
     response.headers['Cache-Control'] = 'no-cache, no-store, max-age=0, must-revalidate'
     response.headers['Pragma'] = 'no-cache'

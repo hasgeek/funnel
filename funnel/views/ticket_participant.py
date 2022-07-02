@@ -4,7 +4,7 @@ from typing import Optional
 
 from sqlalchemy.exc import IntegrityError
 
-from flask import abort, flash, jsonify, redirect, request, url_for
+from flask import abort, flash, jsonify, request, url_for
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -38,6 +38,7 @@ from ..utils import (
     mask_email,
     split_name,
 )
+from .helpers import render_redirect
 from .login_session import requires_login
 from .mixins import ProfileCheckMixin, ProjectViewMixin, TicketEventViewMixin
 
@@ -155,7 +156,7 @@ class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
             except IntegrityError:
                 db.session.rollback()
                 flash(_("This participant already exists"), 'info')
-            return redirect(self.obj.url_for('admin'), code=303)
+            return render_redirect(self.obj.url_for('admin'))
         return render_form(
             form=form, title=_("New ticketed participant"), submit=_("Add participant")
         )
@@ -201,7 +202,7 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.project.url_for('admin'), code=303)
+            return render_redirect(self.obj.project.url_for('admin'))
         return render_form(
             form=form, title=_("Edit Participant"), submit=_("Save changes")
         )
@@ -246,7 +247,7 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
                     ticket_participant_ids=ticket_participant_ids,
                     checked_in=checked_in,
                 )
-        return redirect(self.obj.url_for('view'), code=303)
+        return render_redirect(self.obj.url_for('view'))
 
     @route('ticket_participants/json')
     @render_with(json=True)

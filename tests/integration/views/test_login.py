@@ -531,7 +531,7 @@ def test_login_external(client, user_twoflower):
     """External login flow works under mocked conditions."""
     rv1 = client.get('/login/loginhub')
     assert rv1.status_code == 302
-    rv2 = client.get(rv1.location)
+    rv2 = client.get(rv1.location, follow_redirects=True)
     assert rv2.status_code == 200
     assert current_auth.user.name == user_twoflower.name
 
@@ -753,6 +753,8 @@ def test_login_service_callback_error(client):
         side_effect=LoginCallbackError,
     ):
         rv = client.get('/login/loginhub/callback')
+        if rv.status_code == 302:
+            rv = client.get(rv.location)
     assert 'Login Hub login failed' in str(session['_flashes'])
     assert rv.status_code == 303
     assert rv.location == '/login'
@@ -767,6 +769,8 @@ def test_login_service_callback_is_authenticated(client, login, user_rincewind):
         side_effect=LoginCallbackError,
     ):
         rv = client.get('/login/loginhub/callback')
+        if rv.status_code == 302:
+            rv = client.get(rv.location)
     assert 'Login Hub login failed' in str(session['_flashes'])
     assert rv.status_code == 303
     assert rv.location == '/'
@@ -779,7 +783,9 @@ def test_account_merge(client, csrf_token, login, user_twoflower):
     """An external login service can trigger an account merger."""
     login.as_(user_twoflower)
 
-    client.get('/login/loginhub/callback')
+    rv = client.get('/login/loginhub/callback')
+    if rv.status_code == 302:
+        rv = client.get(rv.location)
     assert 'merge_buid' in session
     # Response may contain a meta-refresh redirect, so we don't test status_code or
     # location header here

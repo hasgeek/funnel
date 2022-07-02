@@ -5,16 +5,16 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from functools import wraps
 from hashlib import blake2b
-from typing import Callable, Dict, Optional, Set, Union, cast
+from typing import Any, Callable, Dict, Optional, Set, Union, cast
 
-from flask import Response, make_response, redirect, request, url_for
+from flask import Response, make_response, request, url_for
 
 from baseframe import cache
 from coaster.auth import current_auth
 
 from ..proxies import request_wants
-from ..typing import ReturnDecorator, ReturnView, WrappedFunc
-from .helpers import compress_response
+from ..typing import ReturnDecorator, ReturnResponse, WrappedFunc
+from .helpers import compress_response, render_redirect
 
 
 def xml_response(f: WrappedFunc) -> WrappedFunc:
@@ -34,7 +34,7 @@ def xhr_only(
 
     def decorator(f: WrappedFunc) -> WrappedFunc:
         @wraps(f)
-        def wrapper(*args, **kwargs) -> ReturnView:
+        def wrapper(*args, **kwargs) -> Any:
             if not request_wants.html_fragment:
                 if redirect_to is None:
                     destination = url_for('index')
@@ -42,7 +42,9 @@ def xhr_only(
                     destination = redirect_to()
                 else:
                     destination = redirect_to
-                return redirect(destination)
+                return render_redirect(
+                    destination, 302 if request.method == 'GET' else 303
+                )
             return f(*args, **kwargs)
 
         return cast(WrappedFunc, wrapper)
@@ -69,9 +71,9 @@ def etag_cache_for_user(
     if max_age is None:
         max_age = timeout
 
-    def decorator(f: WrappedFunc) -> WrappedFunc:
+    def decorator(f: WrappedFunc) -> Callable[..., Response]:
         @wraps(f)
-        def wrapper(*args, **kwargs) -> Response:
+        def wrapper(*args, **kwargs) -> ReturnResponse:
             # No ETag or cache storage if the request is not GET or HEAD
             if request.method not in ('GET', 'HEAD'):
                 return f(*args, **kwargs)

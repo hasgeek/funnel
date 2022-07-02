@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, flash, redirect, render_template, request, url_for
+from flask import abort, flash, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form, render_message
@@ -79,7 +79,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
                 ),
                 'error',
             )
-            return redirect(get_next_url(referrer=True), code=303)
+            return render_redirect(get_next_url(referrer=True))
 
         form = OrganizationForm(user=current_auth.user)
         if form.validate_on_submit():
@@ -90,7 +90,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             org.profile.make_public()
             db.session.commit()
             org_data_changed.send(org, changes=['new'], user=current_auth.user)
-            return render_redirect(org.profile.url_for('edit'), code=303)
+            return render_redirect(org.profile.url_for('edit'))
         return render_form(
             form=form,
             title=_("Create a new organization"),
@@ -156,7 +156,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             form.populate_obj(team)
             db.session.commit()
             team_data_changed.send(team, changes=['new'], user=current_auth.user)
-            return render_redirect(self.obj.url_for('teams'), code=303)
+            return render_redirect(self.obj.url_for('teams'))
         return render_form(
             form=form, title=_("Create new team"), formid='new_team', submit=_("Create")
         )
@@ -195,7 +195,7 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             team_data_changed.send(self.obj, changes=['edit'], user=current_auth.user)
-            return render_redirect(self.obj.organization.url_for('teams'), code=303)
+            return render_redirect(self.obj.organization.url_for('teams'))
         return render_form(
             form=form,
             title=_("Edit team: {title}").format(title=self.obj.title),

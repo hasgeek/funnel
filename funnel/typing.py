@@ -44,10 +44,11 @@ ResponseHeaders = Union[Dict[str, str], List[Tuple[str, str]]]
 #: Flask views accept a response status code that is either an int or a string
 ResponseStatusCode = Union[int, str]
 
-#: Flask views can return a Response or a string
+#: Flask views can return a Response, a string or a JSON dictionary
 ResponseTypes = Union[
     str,  # A string (typically `render_template`)
     Response,  # Fully formed response object
+    Dict[str, Any],  # JSON response
 ]
 
 #: Return type for Flask views (formats accepted by :func:`~flask.make_response`)

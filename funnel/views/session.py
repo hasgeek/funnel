@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, cast
 
-from flask import jsonify, redirect, render_template, request
+from flask import jsonify, render_template, request
 
 from baseframe import _
 from coaster.auth import current_auth
@@ -21,7 +21,7 @@ from ..forms import SavedSessionForm, SessionForm
 from ..models import Project, Proposal, SavedSession, Session, db
 from ..proxies import request_wants
 from ..typing import ReturnRenderWith, ReturnView
-from .helpers import localize_date
+from .helpers import localize_date, render_redirect
 from .login_session import requires_login
 from .mixins import ProjectViewMixin, SessionViewMixin
 from .schedule import schedule_data, session_data, session_list_data
@@ -106,7 +106,7 @@ def session_edit(
             }
             # FIXME: Return ``status='ok'`` and ``edited=True``
             return jsonify(status=True, data=data)
-        return redirect(session.url_for('view'))
+        return render_redirect(session.url_for('view'))
     return jsonify(
         # FIXME: Return ``status='ok'`` and ``edited=False``
         status=False,
