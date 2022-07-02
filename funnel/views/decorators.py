@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from functools import wraps
 from hashlib import blake2b
-from typing import Any, Callable, Dict, Optional, Set, TypeVar, Union, cast
+from typing import Callable, Dict, Optional, Set, Union, cast
 
 from flask import Response, make_response, redirect, request, url_for
 
@@ -13,27 +13,26 @@ from baseframe import cache
 from coaster.auth import current_auth
 
 from ..proxies import request_wants
-from ..typing import ReturnView
+from ..typing import ReturnDecorator, ReturnView, WrappedFunc
 from .helpers import compress_response
 
-# https://mypy.readthedocs.io/en/stable/generics.html#declaring-decorators
-F = TypeVar('F', bound=Callable[..., Any])
 
-
-def xml_response(f: F) -> F:
+def xml_response(f: WrappedFunc) -> WrappedFunc:
     """Wrap the view result in a :class:`Response` with XML mimetype."""
 
     @wraps(f)
     def wrapper(*args, **kwargs) -> Response:
         return Response(f(*args, **kwargs), mimetype='application/xml')
 
-    return cast(F, wrapper)
+    return cast(WrappedFunc, wrapper)
 
 
-def xhr_only(redirect_to: Union[str, Callable[[], str], None] = None):
+def xhr_only(
+    redirect_to: Union[str, Callable[[], str], None] = None
+) -> ReturnDecorator:
     """Render a view only when it's an XHR request."""
 
-    def decorator(f: F) -> F:
+    def decorator(f: WrappedFunc) -> WrappedFunc:
         @wraps(f)
         def wrapper(*args, **kwargs) -> ReturnView:
             if not request_wants.html_fragment:
@@ -46,7 +45,7 @@ def xhr_only(redirect_to: Union[str, Callable[[], str], None] = None):
                 return redirect(destination)
             return f(*args, **kwargs)
 
-        return cast(F, wrapper)
+        return cast(WrappedFunc, wrapper)
 
     return decorator
 
@@ -57,7 +56,7 @@ def etag_cache_for_user(
     timeout: int,
     max_age: Optional[int] = None,
     query_params: Optional[Set] = None,
-):
+) -> ReturnDecorator:
     """
     Cache and compress a response, and add an ETag header for browser cache.
 
@@ -70,7 +69,7 @@ def etag_cache_for_user(
     if max_age is None:
         max_age = timeout
 
-    def decorator(f: F) -> F:
+    def decorator(f: WrappedFunc) -> WrappedFunc:
         @wraps(f)
         def wrapper(*args, **kwargs) -> Response:
             # No ETag or cache storage if the request is not GET or HEAD
@@ -182,6 +181,6 @@ def etag_cache_for_user(
 
             return response.make_conditional(request)
 
-        return cast(F, wrapper)
+        return cast(WrappedFunc, wrapper)
 
     return decorator

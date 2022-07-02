@@ -8,7 +8,7 @@ from funnel.models import AuthToken
 def test_authcode_requires_login(client):
     """The authcode endpoint requires a login."""
     rv = client.get('/api/1/auth')
-    assert rv.status_code == 302
+    assert rv.status_code == 303
     assert urlsplit(rv.location).path == '/login'
 
 
