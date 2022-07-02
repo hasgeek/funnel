@@ -63,17 +63,12 @@ from ..signals import user_data_changed
 from ..typing import ReturnView
 from ..utils import abort_null
 from .email import send_email_verify_link
-from .helpers import (
-    app_url_for,
-    metarefresh_redirect,
-    render_redirect,
-    session_timeouts,
-    validate_rate_limit,
-)
+from .helpers import app_url_for, render_redirect, session_timeouts, validate_rate_limit
 from .login_session import (
     login_internal,
     logout_internal,
     register_internal,
+    reload_for_cookies,
     requires_login,
     save_session_next_url,
     set_loginmethod_cookie,
@@ -353,7 +348,11 @@ def logout_client():
     # All good. Log them out and send them back
     logout_internal()
     db.session.commit()
-    return render_redirect(get_next_url(external=True))
+    return make_response(
+        render_template(
+            'logout_browser_data.html.jinja2', next=get_next_url(external=True)
+        )
+    )
 
 
 @app.route('/logout')
@@ -446,16 +445,11 @@ def login_service(service: str) -> ReturnView:
 
 
 @app.route('/login/<service>/callback', methods=['GET', 'POST'])
-@requestargs(('cookietest', getbool))
-def login_service_callback(service: str, cookietest: bool = False) -> ReturnView:
+@reload_for_cookies
+def login_service_callback(service: str) -> ReturnView:
     """Handle callback from a login service."""
     if service not in login_registry:
         abort(404)
-    if not cookietest:
-        # Reconstruct current URL with ?cookietest=1 or &cookietest=1 appended
-        if request.query_string:
-            return redirect(request.url + '&cookietest=1')
-        return redirect(request.url + '?cookietest=1')
 
     provider = login_registry[service]
     try:
@@ -609,14 +603,11 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
     else:
         login_next = next_url
 
-    # Use a meta-refresh redirect because some versions of Firefox and Safari will
-    # not set cookies in a 30x redirect if the first redirect in the sequence originated
-    # on another domain. Our redirect chain is provider -> callback -> destination page.
     if 'merge_buid' in session:
         return set_loginmethod_cookie(
-            metarefresh_redirect(url_for('account_merge', next=login_next)), service
+            render_redirect(url_for('account_merge', next=login_next)), service
         )
-    return set_loginmethod_cookie(metarefresh_redirect(login_next), service)
+    return set_loginmethod_cookie(render_redirect(login_next), service)
 
 
 @app.route('/account/merge', methods=['GET', 'POST'])
@@ -712,6 +703,7 @@ def hasjob_login(cookietest: bool = False) -> ReturnView:
 # Retained for future hasjob integration
 
 # @app.route('/login/hasjob')
+# @reload_for_cookies
 # @requires_login_no_message  # 1. Ensure user login
 # @requestargs('code')
 # def login_hasjob(code):
@@ -732,6 +724,7 @@ def hasjob_login(cookietest: bool = False) -> ReturnView:
 
 # Retained for future hasjob integration
 # @hasjobapp.route('/login/callback', endpoint='login_callback')
+@reload_for_cookies
 @requestargs('token')
 def hasjobapp_login_callback(token):
     """Process callback from Hasjob to confirm a login attempt."""
@@ -749,13 +742,13 @@ def hasjobapp_login_callback(token):
     except itsdangerous.BadData:
         current_app.logger.warning("hasjobapp received bad login token: %s", token)
         flash(_("Your attempt to login failed. Try again?"), 'error')
-        return metarefresh_redirect(url_for('index'))
+        return render_redirect(url_for('index'))
     if request_token['nonce'] != nonce:
         current_app.logger.warning(
             "hasjobapp received invalid nonce in %r", request_token
         )
         flash(_("Are you trying to login? Try again to confirm"), 'error')
-        return metarefresh_redirect(url_for('index'))
+        return render_redirect(url_for('index'))
 
     # 2. Load user session and 3. Redirect user back to where they came from
     user_session = UserSession.get(request_token['sessionid'])
@@ -767,7 +760,7 @@ def hasjobapp_login_callback(token):
         current_app.logger.debug(
             "hasjobapp login succeeded for %r, %r", user, user_session
         )
-        return metarefresh_redirect(get_next_url(session=True))
+        return render_redirect(get_next_url(session=True))
 
     # No user session? That shouldn't happen. Log it
     current_app.logger.warning(
