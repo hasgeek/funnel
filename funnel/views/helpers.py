@@ -101,7 +101,7 @@ def str_pw_set_at(user: User) -> str:
 
 
 def metarefresh_redirect(url: str):
-    """Redirect using a ``Meta: Refresh`` HTML header."""
+    """Redirect using a non-standard Refresh header in a Meta tag."""
     return Response(render_template('meta_refresh.html.jinja2', url=url))
 
 

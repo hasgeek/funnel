@@ -14,12 +14,14 @@ from flask import (
     g,
     jsonify,
     make_response,
+    redirect,
     request,
     session,
     url_for,
 )
 import itsdangerous
 
+from furl import furl
 import geoip2.errors
 
 from baseframe import _, statsd
@@ -52,6 +54,7 @@ from .helpers import (
     app_url_for,
     autoset_timezone_and_locale,
     get_scheme_netloc,
+    metarefresh_redirect,
     render_redirect,
     session_timeouts,
     validate_rate_limit,
@@ -304,43 +307,47 @@ def clear_old_session(response):
 def set_lastuser_cookie(response):
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
     if request_has_auth() and hasattr(current_auth, 'cookie'):
-        response.vary.add('Cookie')
-        expires = utcnow() + current_app.config['PERMANENT_SESSION_LIFETIME']
-        response.set_cookie(
-            'lastuser',
-            value=lastuser_serializer().dumps(
-                current_auth.cookie, header_fields={'v': 1}
-            ),
-            # Keep this cookie for a year.
-            max_age=31557600,
-            # Expire one year from now.
-            expires=expires,
-            # Place cookie in master domain.
-            domain=current_app.config.get('LASTUSER_COOKIE_DOMAIN'),
-            # HTTPS cookie if session is too.
-            secure=current_app.config['SESSION_COOKIE_SECURE'],
-            # Don't allow reading this from JS.
-            httponly=True,
-            # Using SameSite=Strict will make the browser not send this cookie when
-            # the user arrives from an external site, including an OAuth2 callback. This
-            # breaks the auth flow, so we must use the Lax policy
-            samesite='Lax',
-        )
+        if not getattr(current_auth, 'suppress_cookie', False):
+            response.vary.add('Cookie')
+            expires = utcnow() + current_app.config['PERMANENT_SESSION_LIFETIME']
+            response.set_cookie(
+                'lastuser',
+                value=lastuser_serializer().dumps(
+                    current_auth.cookie, header_fields={'v': 1}
+                ),
+                # Keep this cookie for a year.
+                max_age=31557600,
+                # Expire one year from now.
+                expires=expires,
+                # Place cookie in master domain.
+                domain=current_app.config.get('LASTUSER_COOKIE_DOMAIN'),
+                # HTTPS cookie if session is too.
+                secure=current_app.config['SESSION_COOKIE_SECURE'],
+                # Don't allow reading this from JS.
+                httponly=True,
+                # Using SameSite=Strict will make the browser not send this cookie when
+                # the user arrives from an external site, including an OAuth2 callback.
+                # We mitigate this for auth using the `@reload_for_cookies` decorator,
+                # but use a Lax policy for now as (a) all POST requests are
+                # CSRF-protected, and (b) an inbound link that renders for an anonymous
+                # user will be confusing for a logged-in user
+                samesite='Lax',
+            )
 
-        response.set_cookie(
-            'hasuser',
-            value='1' if current_auth.is_authenticated else '0',
-            # Keep this cookie for a year.
-            max_age=31557600,
-            # Expire one year from now.
-            expires=expires,
-            # HTTPS cookie if session is too.
-            secure=current_app.config['SESSION_COOKIE_SECURE'],
-            # Allow reading this from JS.
-            httponly=False,
-            # Allow this cookie to be read in third-party website context
-            samesite='None',
-        )
+            response.set_cookie(
+                'hasuser',
+                value='1' if current_auth.is_authenticated else '0',
+                # Keep this cookie for a year.
+                max_age=31557600,
+                # Expire one year from now.
+                expires=expires,
+                # HTTPS cookie if session is too.
+                secure=current_app.config['SESSION_COOKIE_SECURE'],
+                # Allow reading this from JS.
+                httponly=False,
+                # Allow this cookie to be read in third-party website context
+                samesite='None',
+            )
 
     return response
 
@@ -388,6 +395,42 @@ def save_session_next_url() -> bool:
         session['next'] = get_next_url(referrer=True)
         return True
     return False
+
+
+def reload_for_cookies(f: WrappedFunc) -> WrappedFunc:
+    """
+    Decorate a view to reload to obtain SameSite=strict cookies.
+
+    This decorator is required for login callback and OAuth2 auth endpoints, which must
+    have cookies to function. This decorator must be outer to any other decorator that
+    depends on auth or session cookies::
+
+        @route('/path')
+        @reload_for_cookies
+        @requires_login
+        def view():
+            ...
+    """
+
+    @wraps(f)
+    def wrapper(*args, **kwargs) -> Any:
+        if 'lastuser' not in request.cookies:
+            add_auth_attribute('suppress_cookie', True)
+            attempt = request.args.get('cookiereload')
+            if not attempt:
+                # First attempt: reload with HTTP 303
+                url = furl(request.url)
+                url.args['cookiereload'] = 'r'
+                return redirect(str(url), 303)
+            if attempt == 'r':
+                # Second attempt: reload with Meta Refresh
+                url = furl(request.url)
+                url.args['cookiereload'] = 'm'
+                return metarefresh_redirect(str(url))
+            # If both attempts fail, there is no 'lastuser' cookie forthcoming
+        return f(*args, **kwargs)
+
+    return cast(WrappedFunc, wrapper)
 
 
 def requires_login(f: WrappedFunc) -> WrappedFunc:
