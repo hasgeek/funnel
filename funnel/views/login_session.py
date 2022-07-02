@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 from functools import wraps
-from typing import Optional, Type
+from typing import Optional, Type, cast
 
 from flask import (
     Response,
@@ -14,7 +14,6 @@ from flask import (
     g,
     jsonify,
     make_response,
-    redirect,
     request,
     session,
     url_for,
@@ -47,6 +46,7 @@ from ..models import (
 from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
+from ..typing import WrappedFunc
 from ..utils import abort_null
 from .helpers import (
     app_url_for,
@@ -390,21 +390,21 @@ def save_session_next_url() -> bool:
     return False
 
 
-def requires_login(f):
+def requires_login(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require login."""
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            return redirect(url_for('login', next=get_current_url()))
+            return render_redirect(url_for('login', next=get_current_url()), code=303)
         return f(*args, **kwargs)
 
-    return decorated_function
+    return cast(WrappedFunc, wrapper)
 
 
-def requires_login_no_message(f):
+def requires_login_no_message(f: WrappedFunc) -> WrappedFunc:
     """
     Decorate a view to require login, without displaying a friendly message.
 
@@ -412,13 +412,13 @@ def requires_login_no_message(f):
     """
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
-            return redirect(url_for('login', next=get_current_url()))
+            return render_redirect(url_for('login', next=get_current_url()), code=303)
         return f(*args, **kwargs)
 
-    return decorated_function
+    return cast(WrappedFunc, wrapper)
 
 
 def save_sudo_preference_context() -> None:
@@ -447,7 +447,7 @@ def del_sudo_preference_context() -> None:
     session.pop('sudo_context', None)
 
 
-def requires_sudo(f):
+def requires_sudo(f: WrappedFunc) -> WrappedFunc:
     """
     Decorate a view to require the current user to have re-authenticated recently.
 
@@ -459,7 +459,7 @@ def requires_sudo(f):
     """
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         """Prompt for re-authentication to proceed."""
         add_auth_attribute('login_required', True)
         # If the user is not logged in, require login first
@@ -595,20 +595,20 @@ def requires_sudo(f):
             template='account_formlayout.html.jinja2',
         )
 
-    return decorated_function
+    return cast(WrappedFunc, wrapper)
 
 
-def requires_site_editor(f):
+def requires_site_editor(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require site editor permission."""
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         add_auth_attribute('login_required', True)
         if not current_auth.user or not current_auth.user.is_site_editor:
             abort(403)
         return f(*args, **kwargs)
 
-    return decorated_function
+    return cast(WrappedFunc, wrapper)
 
 
 def _client_login_inner():
@@ -634,20 +634,20 @@ def _client_login_inner():
     return None
 
 
-def requires_client_login(f):
+def requires_client_login(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require a client login via HTTP Basic Authorization."""
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         result = _client_login_inner()
         if result is None:
             return f(*args, **kwargs)
         return result
 
-    return decorated_function
+    return cast(WrappedFunc, wrapper)
 
 
-def requires_user_or_client_login(f):
+def requires_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
     """
     Decorate a view to require a user or client login.
 
@@ -655,7 +655,7 @@ def requires_user_or_client_login(f):
     """
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         add_auth_attribute('login_required', True)
         # Check for user first:
         if current_auth.is_authenticated:
@@ -666,10 +666,10 @@ def requires_user_or_client_login(f):
             return f(*args, **kwargs)
         return result
 
-    return decorated_function
+    return cast(WrappedFunc, wrapper)
 
 
-def requires_client_id_or_user_or_client_login(f):
+def requires_client_id_or_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
     """
     Decorate view to require a client_id and session, or a user, or client login.
 
@@ -678,7 +678,7 @@ def requires_client_id_or_user_or_client_login(f):
     """
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         add_auth_attribute('login_required', True)
 
         # Is there a user? Go right ahead
@@ -715,7 +715,7 @@ def requires_client_id_or_user_or_client_login(f):
             return f(*args, **kwargs)
         return result
 
-    return decorated_function
+    return cast(WrappedFunc, wrapper)
 
 
 def login_internal(user, user_session=None, login_service=None):
