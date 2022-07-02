@@ -124,28 +124,6 @@ def test_user_rincewind_has_username(user_rincewind):
     assert user_rincewind.username == RINCEWIND_USERNAME
 
 
-def test_user_register(client, csrf_token):
-    """Register a user account using the legacy registration view."""
-    rv1 = client.get('/account/register')
-    assert rv1.form('form-password-change') is not None
-
-    rv2 = client.post(
-        '/account/register',
-        data=MultiDict(
-            {
-                'csrf_token': csrf_token,
-                'fullname': "Test User",
-                'email': 'email@example.com',
-                'password': COMPLEX_TEST_PASSWORD,
-                'confirm_password': COMPLEX_TEST_PASSWORD,
-            }
-        ),
-    )
-
-    assert rv2.status_code == 303
-    assert current_auth.user.fullname == "Test User"
-
-
 def test_user_register_otp_sms(client, csrf_token):
     """Providing an unknown phone number sends an OTP and registers an account."""
     with patch(PATCH_SMS_SEND, return_value=None) as mock:
@@ -724,15 +702,6 @@ def test_account_logout_csrf_validation_html(client, login, user_rincewind):
     assert rv.status_code == 303
     assert rv.location == '/account'
     assert 'The CSRF token is missing.' in str(session['_flashes'])
-
-
-def test_account_register_is_authenticated(client, login, user_rincewind):
-    """Register endpoint does not work when user is logged in."""
-    login.as_(user_rincewind)
-
-    rv = client.get('/account/register')
-    assert rv.status_code == 303
-    assert rv.location == '/'
 
 
 def test_login_service_init_error(client):

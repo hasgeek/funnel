@@ -35,7 +35,6 @@ from ..forms import (
     LoginWithOtp,
     LogoutForm,
     OtpForm,
-    RegisterForm,
     RegisterOtpForm,
     RegisterWithOtp,
 )
@@ -395,34 +394,6 @@ def account_logout() -> ReturnView:
         for error in field_errors:
             flash(error, 'error')
     return render_redirect(url_for('account'))
-
-
-@app.route('/account/register', methods=['GET', 'POST'])
-def register():
-    """Register a new account (deprecated)."""
-    if current_auth.is_authenticated:
-        return render_redirect(url_for('index'))
-    form = RegisterForm()
-    if form.validate_on_submit():
-        current_app.logger.info("Password strength %f", form.password_strength)
-        user = register_internal(None, form.fullname.data, form.password.data)
-        useremail = UserEmailClaim(user=user, email=form.email.data)
-        db.session.add(useremail)
-        send_email_verify_link(useremail)
-        login_internal(user, login_service='password')
-        db.session.commit()
-        flash(_("You are now one of us. Welcome aboard!"), category='success')
-        return render_redirect(get_next_url(session=True))
-    # Form with id 'form-password-change' will have password strength meter on UI
-    return render_template(
-        'signup_form.html.jinja2',
-        form=form,
-        login_registry=login_registry,
-        title=_("Register account"),
-        formid='registeraccount',
-        ref_id='form-password-change',
-        ajax=False,
-    )
 
 
 @app.route('/login/<service>')
