@@ -439,7 +439,7 @@ def reload_for_cookies(f: WrappedFunc) -> WrappedFunc:
 def requires_user_not_spammy(
     get_current: Optional[Callable[..., str]] = None
 ) -> ReturnDecorator:
-    """Decorate a view to require the user to have creator rights."""
+    """Decorate a view to require the user to prove they are not likely a spammer."""
 
     def decorator(f: WrappedFunc) -> WrappedFunc:
         @wraps(f)

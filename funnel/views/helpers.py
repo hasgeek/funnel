@@ -447,11 +447,10 @@ def render_redirect(url: str, code: int = 303) -> ReturnResponse:
             headers={'HX-Redirect': url},
         )
     if request_wants.json:
-        return jsonify(
-            {'status': 'error', 'error': 'redirect', 'location': url},
-            status=422,
-            headers={'HX-Redirect': url},
-        )
+        response = jsonify({'status': 'error', 'error': 'redirect', 'location': url})
+        response.status_code = 422
+        response.headers['HX-Redirect'] = url
+        return response
     return redirect(url, code)
 
 
