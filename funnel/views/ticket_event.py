@@ -4,7 +4,7 @@ from typing import Optional
 
 from sqlalchemy.exc import IntegrityError
 
-from flask import abort, flash, jsonify, redirect, request
+from flask import abort, flash, jsonify, request
 
 from baseframe import _, forms
 from baseframe.forms import render_delete_sqla, render_form
@@ -29,6 +29,7 @@ from ..models import (
     db,
 )
 from ..typing import ReturnView
+from .helpers import render_redirect
 from .jobs import import_tickets
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProjectViewMixin, TicketEventViewMixin
@@ -73,7 +74,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
             except IntegrityError:
                 db.session.rollback()
                 flash(_("This event already exists"), 'info')
-            return redirect(self.obj.url_for('admin'), code=303)
+            return render_redirect(self.obj.url_for('admin'))
         return render_form(form=form, title=_("New Event"), submit=_("Add event"))
 
     @route('ticket_type/new', methods=['GET', 'POST'])
@@ -92,7 +93,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
             except IntegrityError:
                 db.session.rollback()
                 flash(_("This ticket type already exists"), 'info')
-            return redirect(self.obj.url_for('admin'), code=303)
+            return render_redirect(self.obj.url_for('admin'))
         return render_form(
             form=form, title=_("New Ticket Type"), submit=_("Add ticket type")
         )
@@ -111,7 +112,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
             except IntegrityError:
                 db.session.rollback()
                 flash(_("This ticket client already exists"), 'info')
-            return redirect(self.obj.url_for('admin'), code=303)
+            return render_redirect(self.obj.url_for('admin'))
         return render_form(
             form=form, title=_("New Ticket Client"), submit=_("Add ticket client")
         )
@@ -163,7 +164,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
                         {'badge_printed': badge_printed}, synchronize_session=False
                     )
                     db.session.commit()
-                    return redirect(self.obj.url_for('view'), code=303)
+                    return render_redirect(self.obj.url_for('view'))
             else:
                 # Unknown form
                 abort(400)
@@ -182,7 +183,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.project.url_for('admin'), code=303)
+            return render_redirect(self.obj.project.url_for('admin'))
         return render_form(form=form, title=_("Edit event"), submit=_("Save changes"))
 
     @route('delete', methods=['GET', 'POST'])
@@ -268,7 +269,7 @@ class TicketTypeView(ProfileCheckMixin, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.project.url_for('admin'), code=303)
+            return render_redirect(self.obj.project.url_for('admin'))
         return render_form(
             form=form, title=_("Edit ticket type"), submit=_("Save changes")
         )
@@ -329,7 +330,7 @@ class TicketClientView(ProfileCheckMixin, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.project.url_for('admin'), code=303)
+            return render_redirect(self.obj.project.url_for('admin'))
         return render_form(
             form=form, title=_("Edit ticket client"), submit=_("Save changes")
         )

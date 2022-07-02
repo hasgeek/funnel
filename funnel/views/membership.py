@@ -1,8 +1,10 @@
+"""Views for organization admin and project crew membership management."""
+
 from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, redirect, request
+from flask import abort, request
 
 from baseframe import _
 from baseframe.forms import Form, render_form
@@ -33,7 +35,7 @@ from ..models import (
     db,
 )
 from ..typing import ReturnView
-from .helpers import html_in_json
+from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
@@ -467,7 +469,7 @@ class ProjectCrewMembershipInviteView(
             elif membership_invite_form.action.data == 'decline':
                 self.obj.revoke(actor=current_auth.user)
             db.session.commit()
-        return redirect(self.obj.project.url_for(), 303)
+        return render_redirect(self.obj.project.url_for())
 
 
 ProjectCrewMembershipInviteView.init_app(app)

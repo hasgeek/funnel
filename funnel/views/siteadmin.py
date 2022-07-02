@@ -7,12 +7,12 @@ from dataclasses import dataclass, field
 from datetime import timedelta
 from functools import wraps
 from io import StringIO
-from typing import Dict, Optional, cast
+from typing import Any, Dict, Optional, cast
 import csv
 
 from sqlalchemy.dialects.postgresql import INTERVAL
 
-from flask import abort, current_app, flash, redirect, render_template, request, url_for
+from flask import abort, current_app, flash, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import Form
@@ -34,6 +34,7 @@ from ..models import (
 )
 from ..typing import ReturnRenderWith, ReturnResponse, ReturnView, WrappedFunc
 from ..utils import abort_null
+from .helpers import render_redirect
 from .login_session import requires_login
 
 # XXX: Replace with TypedDict when upgrading to Python 3.8+
@@ -70,7 +71,7 @@ def requires_siteadmin(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require siteadmin privilege."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         if not current_auth.user or not current_auth.user.is_site_admin:
             abort(403)
         return f(*args, **kwargs)
@@ -82,7 +83,7 @@ def requires_comment_moderator(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require comment moderator privilege."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         if not current_auth.user or not current_auth.user.is_comment_moderator:
             abort(403)
         return f(*args, **kwargs)
@@ -287,7 +288,7 @@ class SiteadminView(ClassView):
                 category='error',
             )
 
-        return redirect(url_for('siteadmin_comments'))
+        return render_redirect(url_for('siteadmin_comments'))
 
     @route('comments/review', endpoint='siteadmin_review_comments_random')
     @requires_comment_moderator
@@ -295,11 +296,11 @@ class SiteadminView(ClassView):
         """Evaluate an existing comment spam report, selected at random."""
         random_report = CommentModeratorReport.get_one(exclude_user=current_auth.user)
         if random_report is not None:
-            return redirect(
+            return render_redirect(
                 url_for('siteadmin_review_comment', report=random_report.uuid_b58)
             )
         flash(_("There are no comment reports to review at this time"), 'error')
-        return redirect(url_for('siteadmin_comments'))
+        return render_redirect(url_for('siteadmin_comments'))
 
     @route(
         'comments/review/<report>',
@@ -316,11 +317,11 @@ class SiteadminView(ClassView):
 
         if comment_report.comment.is_reviewed_by(current_auth.user):
             flash(_("You cannot review same comment twice"), 'error')
-            return redirect(url_for('siteadmin_review_comments_random'))
+            return render_redirect(url_for('siteadmin_review_comments_random'))
 
         if comment_report.user == current_auth.user:
             flash(_("You cannot review your own report"), 'error')
-            return redirect(url_for('siteadmin_review_comments_random'))
+            return render_redirect(url_for('siteadmin_review_comments_random'))
 
         # get all existing reports for the same comment
         existing_reports = CommentModeratorReport.get_all(
@@ -337,7 +338,7 @@ class SiteadminView(ClassView):
             ).update({'resolved_at': db.func.utcnow()}, synchronize_session='fetch')
             db.session.commit()
             # Redirect to a new report
-            return redirect(url_for('siteadmin_review_comments_random'))
+            return render_redirect(url_for('siteadmin_review_comments_random'))
 
         report_form = ModeratorReportForm()
         report_form.form_nonce.data = report_form.form_nonce.default()
@@ -387,7 +388,7 @@ class SiteadminView(ClassView):
             db.session.commit()
 
             # Redirect to a new report
-            return redirect(url_for('siteadmin_review_comments_random'))
+            return render_redirect(url_for('siteadmin_review_comments_random'))
 
         current_app.logger.debug(report_form.errors)
 

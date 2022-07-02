@@ -275,7 +275,7 @@ class AccountView(ClassView):
         """Render a sudo prompt, as needed by :func:`requires_sudo`."""
         del_sudo_preference_context()
         # TODO: get_next_url() should recognise other app domains (for Hasjob).
-        return redirect(get_next_url(), code=303)
+        return render_redirect(get_next_url())
 
     @route('saved', endpoint='saved')
     @render_with('account_saved.html.jinja2')
@@ -352,8 +352,8 @@ class AccountView(ClassView):
                 flash(_("Your profile has been updated"), category='success')
 
             if newprofile:
-                return render_redirect(get_next_url(), code=303)
-            return render_redirect(url_for('account'), code=303)
+                return render_redirect(get_next_url())
+            return render_redirect(url_for('account'))
         if newprofile:
             return render_form(
                 form,
@@ -492,7 +492,7 @@ class AccountView(ClassView):
             # setting the password, falling back to the account page if there's nowhere
             # else to send them.
             return render_redirect(
-                get_next_url(session=True, default=url_for('account')), code=303
+                get_next_url(session=True, default=url_for('account'))
             )
         # Form with id 'form-password-change' will have password strength meter on UI
         return render_form(
@@ -521,7 +521,7 @@ class AccountView(ClassView):
             db.session.commit()
             flash(_("We sent you an email to confirm your address"), 'success')
             user_data_changed.send(current_auth.user, changes=['email-claim'])
-            return render_redirect(url_for('account'), code=303)
+            return render_redirect(url_for('account'))
         return render_form(
             form=form,
             title=_("Add an email address"),
@@ -553,7 +553,7 @@ class AccountView(ClassView):
                 )
         else:
             flash(_("Please select an email address"), 'danger')
-        return render_redirect(url_for('account'), code=303)
+        return render_redirect(url_for('account'))
 
     @route('phone/makeprimary', methods=['POST'], endpoint='make_phone_primary')
     def make_phone_primary(self) -> ReturnView:
@@ -577,7 +577,7 @@ class AccountView(ClassView):
                 )
         else:
             flash(_("Please select a phone number"), 'danger')
-        return render_redirect(url_for('account'), code=303)
+        return render_redirect(url_for('account'))
 
     @route(
         'email/<email_hash>/remove',
@@ -608,7 +608,7 @@ class AccountView(ClassView):
                 ),
                 'danger',
             )
-            return render_redirect(url_for('account'), code=303)
+            return render_redirect(url_for('account'))
         if request.method == 'POST':
             # FIXME: Confirm validation success
             user_data_changed.send(current_auth.user, changes=['email-delete'])
@@ -648,7 +648,7 @@ class AccountView(ClassView):
             # address belongs to this user, to prevent this endpoint from being used as
             # a probe for email addresses in the database.
             flash(_("This email address is already verified"), 'danger')
-            return render_redirect(url_for('account'), code=303)
+            return render_redirect(url_for('account'))
 
         # Get the existing email claim that we're resending a verification link for
         try:
@@ -664,7 +664,7 @@ class AccountView(ClassView):
             send_email_verify_link(emailclaim)
             db.session.commit()
             flash(_("The verification email has been sent to this address"), 'success')
-            return render_redirect(url_for('account'), code=303)
+            return render_redirect(url_for('account'))
         return render_form(
             form=form,
             title=_("Resend the verification email?"),
@@ -688,7 +688,7 @@ class AccountView(ClassView):
                 current_auth.user.main_notification_preferences.by_sms = (
                     form.enable_notifications.data
                 )
-                return render_redirect(url_for('verify_phone'), code=303)
+                return render_redirect(url_for('verify_phone'))
         return render_form(
             form=form,
             title=_("Add a phone number"),
@@ -705,7 +705,7 @@ class AccountView(ClassView):
             otp_session = OtpSession.retrieve('add-phone')
         except OtpTimeoutError:
             flash(_("This OTP has expired"), category='error')
-            return render_redirect(url_for('add_phone'), code=303)
+            return render_redirect(url_for('add_phone'))
 
         form = OtpForm(valid_otp=otp_session.otp)
         if form.is_submitted():
@@ -726,12 +726,12 @@ class AccountView(ClassView):
                 db.session.commit()
                 flash(_("Your phone number has been verified"), 'success')
                 user_data_changed.send(current_auth.user, changes=['phone'])
-                return render_redirect(url_for('account'), code=303)
+                return render_redirect(url_for('account'))
             flash(
                 _("This phone number has already been claimed by another user"),
                 'danger',
             )
-            return render_redirect(url_for('add_phone'), code=303)
+            return render_redirect(url_for('add_phone'))
         return render_form(
             form=form,
             title=_("Verify phone number"),
@@ -761,7 +761,7 @@ class AccountView(ClassView):
                 )
                 # Block attempts to delete this number if verification failed.
                 # It needs to be deleted in a background sweep.
-                return render_redirect(url_for('account'), code=303)
+                return render_redirect(url_for('account'))
             if (
                 isinstance(userphone, UserPhone)
                 and current_auth.user.verified_contact_count == 1
@@ -773,7 +773,7 @@ class AccountView(ClassView):
                     ),
                     'danger',
                 )
-                return render_redirect(url_for('account'), code=303)
+                return render_redirect(url_for('account'))
 
         if request.method == 'POST':
             # FIXME: Confirm validation success

@@ -3,15 +3,7 @@ from types import SimpleNamespace
 import csv
 import io
 
-from flask import (
-    Response,
-    abort,
-    current_app,
-    flash,
-    redirect,
-    render_template,
-    request,
-)
+from flask import Response, abort, current_app, flash, render_template, request
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
@@ -256,7 +248,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
             # tag locations
             tag_locations.queue(project.id)
 
-            return redirect(project.url_for(), code=303)
+            return render_redirect(project.url_for())
         return render_form(
             form=form,
             title=_("Create a new project"),
@@ -321,7 +313,7 @@ class ProjectView(  # type: ignore[misc]
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
-            return redirect(self.obj.url_for())
+            return render_redirect(self.obj.url_for())
         return render_form(form=form, title=_("Customize the URL"), submit=_("Save"))
 
     @route('editlivestream', methods=['GET', 'POST'])
@@ -332,7 +324,7 @@ class ProjectView(  # type: ignore[misc]
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
-            return redirect(self.obj.url_for())
+            return render_redirect(self.obj.url_for())
         return render_form(
             form=form, title=_("Add or edit livestream URLs"), submit=_("Save changes")
         )
@@ -380,7 +372,7 @@ class ProjectView(  # type: ignore[misc]
                 self.delete_draft()
                 db.session.commit()
 
-            return redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
         # Reset nonce to avoid conflict with autosave
         form.form_nonce.data = form.form_nonce.default()
         return render_form(
@@ -442,7 +434,7 @@ class ProjectView(  # type: ignore[misc]
                 form.populate_obj(self.obj)
                 db.session.commit()
                 flash(_("Your changes have been saved"), 'info')
-                return render_redirect(self.obj.url_for(), code=303)
+                return render_redirect(self.obj.url_for())
             return render_form(form=form, title="", submit=_("Save banner"), ajax=True)
         return render_form(
             form=form,
@@ -461,7 +453,7 @@ class ProjectView(  # type: ignore[misc]
         if form.validate_on_submit():
             self.obj.bg_image = None
             db.session.commit()
-            return render_redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
         current_app.logger.error(
             "CSRF form validation error when removing project banner"
         )
@@ -469,7 +461,7 @@ class ProjectView(  # type: ignore[misc]
             _("Were you trying to remove the banner? Try again to confirm"),
             'error',
         )
-        return render_redirect(self.obj.url_for(), code=303)
+        return render_redirect(self.obj.url_for())
 
     @route('cfp', methods=['GET', 'POST'])
     @requires_login
@@ -482,7 +474,7 @@ class ProjectView(  # type: ignore[misc]
                 self.obj.cfp_start_at = db.func.utcnow()
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.url_for('view_proposals'), code=303)
+            return render_redirect(self.obj.url_for('view_proposals'))
         return render_template(
             'project_cfp.html.jinja2', form=form, ref_id='form-cfp', project=self.obj
         )
@@ -505,7 +497,7 @@ class ProjectView(  # type: ignore[misc]
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
         return render_form(
             form=form,
             formid='boxoffice',
@@ -530,7 +522,7 @@ class ProjectView(  # type: ignore[misc]
         else:
             flash(_("Invalid transition for this project"), 'error')
             abort(403)
-        return redirect(self.obj.url_for())
+        return render_redirect(self.obj.url_for())
 
     @route('cfp_transition', methods=['POST'])
     @requires_login
@@ -573,7 +565,7 @@ class ProjectView(  # type: ignore[misc]
                 )
         else:
             flash(_("Were you trying to register? Try again to confirm"), 'error')
-        return redirect(get_next_url(referrer=request.referrer), code=303)
+        return render_redirect(get_next_url(referrer=request.referrer))
 
     @route('deregister', methods=['POST'])
     @requires_login
@@ -596,7 +588,7 @@ class ProjectView(  # type: ignore[misc]
                 _("Were you trying to cancel your registration? Try again to confirm"),
                 'error',
             )
-        return redirect(get_next_url(referrer=request.referrer), code=303)
+        return render_redirect(get_next_url(referrer=request.referrer))
 
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')
@@ -707,7 +699,7 @@ class ProjectView(  # type: ignore[misc]
                     ),
                     'info',
                 )
-            return redirect(self.obj.url_for('admin'), code=303)
+            return render_redirect(self.obj.url_for('admin'))
         return {
             'profile': self.obj.profile.current_access(datasets=('primary',)),
             'project': self.obj.current_access(datasets=('without_parent', 'related')),
@@ -761,7 +753,7 @@ class ProjectView(  # type: ignore[misc]
                 'status': 'ok',
                 'message': 'This project is no longer featured.',
             }
-        return redirect(get_next_url(referrer=True), 303)
+        return render_redirect(get_next_url(referrer=True))
 
 
 ProjectView.init_app(app)

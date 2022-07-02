@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from flask import Markup, abort, flash, redirect, render_template, request, url_for
+from flask import Markup, abort, flash, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form
@@ -82,7 +82,7 @@ class AuthClientCreateView(ClassView):
             auth_client.trusted = False
             db.session.add(auth_client)
             db.session.commit()
-            return render_redirect(auth_client.url_for(), code=303)
+            return render_redirect(auth_client.url_for())
 
         return render_form(
             form=form,
@@ -149,7 +149,7 @@ class AuthClientView(UrlForView, ModelView):
             self.obj.user = form.user
             self.obj.organization = form.organization
             db.session.commit()
-            return render_redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
 
         return render_form(
             form=form,
@@ -184,7 +184,7 @@ class AuthClientView(UrlForView, ModelView):
     def disconnect(self) -> ReturnView:
         auth_token = self.obj.authtoken_for(current_auth.user)
         if auth_token is None:
-            return redirect(self.obj.url_for())
+            return render_redirect(self.obj.url_for())
 
         return render_delete_sqla(
             auth_token,
@@ -282,7 +282,7 @@ class AuthClientView(UrlForView, ModelView):
                     ),
                     'success',
                 )
-            return render_redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
         return render_form(
             form=form,
             title=_("Assign permissions"),
@@ -385,7 +385,7 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
                     ),
                     'success',
                 )
-            return render_redirect(self.obj.auth_client.url_for(), code=303)
+            return render_redirect(self.obj.auth_client.url_for())
         return render_form(
             form=form,
             title=_("Edit permissions"),
@@ -460,7 +460,7 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
                     ),
                     'success',
                 )
-            return render_redirect(self.obj.auth_client.url_for(), code=303)
+            return render_redirect(self.obj.auth_client.url_for())
         return render_form(
             form=form,
             title=_("Edit permissions"),

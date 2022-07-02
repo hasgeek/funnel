@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 from functools import wraps
-from typing import Optional, Type, cast
+from typing import Any, Optional, Type, cast
 
 from flask import (
     Response,
@@ -394,11 +394,14 @@ def requires_login(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require login."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
-            return render_redirect(url_for('login', next=get_current_url()), code=303)
+            return render_redirect(
+                url_for('login', next=get_current_url()),
+                302 if request.method == 'GET' else 303,
+            )
         return f(*args, **kwargs)
 
     return cast(WrappedFunc, wrapper)
@@ -412,10 +415,13 @@ def requires_login_no_message(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         add_auth_attribute('login_required', True)
         if not current_auth.is_authenticated:
-            return render_redirect(url_for('login', next=get_current_url()), code=303)
+            return render_redirect(
+                url_for('login', next=get_current_url()),
+                302 if request.method == 'GET' else 303,
+            )
         return f(*args, **kwargs)
 
     return cast(WrappedFunc, wrapper)
@@ -459,7 +465,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         """Prompt for re-authentication to proceed."""
         add_auth_attribute('login_required', True)
         # If the user is not logged in, require login first
@@ -489,19 +495,22 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
                 422,
             )
 
-        if not GET_AND_POST.issubset(request.url_rule.methods):
+        if not GET_AND_POST.issubset(
+            request.url_rule.methods  # type: ignore[union-attr]
+        ):
             # This view does not support GET or POST methods, which we need. Send the
             # user off to the sudo endpoint for authentication.
             save_sudo_preference_context()
             return render_redirect(
-                url_for('account_sudo', next=get_current_url()), code=303
+                url_for('account_sudo', next=get_current_url()),
+                302 if request.method == 'GET' else 303,
             )
 
         if request_wants.html_fragment:
             # If the request wanted a HTML fragment, reload as a full page to ensure the
             # authentication form is properly rendered. The current page's fragment
             # identifier cannot be preserved in this case.
-            return render_redirect(url=request.url, code=303)
+            return render_redirect(request.url, 302 if request.method == 'GET' else 303)
 
         # We'll need a password form or an OTP form, depending on whether the user has a
         # password or contact info for an OTP. If neither are available, we'll ask them
@@ -553,7 +562,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
                     otp_session = OtpSession.retrieve('sudo')
                 except OtpTimeoutError:
                     # Reload the page to send another OTP
-                    return render_redirect(url=request.url, code=303)
+                    return render_redirect(url=request.url)
                 form = OtpForm(valid_otp=otp_session.otp)
             elif formid == FORMID_SUDO_PASSWORD:
                 form = PasswordForm(edit_user=current_auth.user)
@@ -571,7 +580,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
                 continue_url = session.pop('next', request.url)
                 OtpSession.delete()
                 db.session.commit()
-                return render_redirect(continue_url, code=303)
+                return render_redirect(continue_url)
         else:
             # Only GET and POST are supported. We may get here if the decorated view
             # supports others methods (like PUT or DELETE)
@@ -580,7 +589,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
         if isinstance(form, OtpForm):
             title = _("Confirm this operation with an OTP")
             formid = FORMID_SUDO_OTP
-        elif isinstance(form, PasswordForm):
+        elif isinstance(form, PasswordForm):  # type: ignore[unreachable]
             title = _("Confirm with your password to proceed")
             formid = FORMID_SUDO_PASSWORD
         else:  # pragma: no cover
@@ -602,7 +611,7 @@ def requires_site_editor(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require site editor permission."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         add_auth_attribute('login_required', True)
         if not current_auth.user or not current_auth.user.is_site_editor:
             abort(403)
@@ -638,7 +647,7 @@ def requires_client_login(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require a client login via HTTP Basic Authorization."""
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         result = _client_login_inner()
         if result is None:
             return f(*args, **kwargs)
@@ -655,7 +664,7 @@ def requires_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         add_auth_attribute('login_required', True)
         # Check for user first:
         if current_auth.is_authenticated:
@@ -678,7 +687,7 @@ def requires_client_id_or_user_or_client_login(f: WrappedFunc) -> WrappedFunc:
     """
 
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         add_auth_attribute('login_required', True)
 
         # Is there a user? Go right ahead
