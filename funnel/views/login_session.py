@@ -160,6 +160,7 @@ class LoginManager:
                 )
                 current_app.logger.info("Got an expired user session; logging out")
                 add_auth_attribute('session', None)
+                # TODO: Force render of logout page to clear client-side data
                 logout_internal()
             except UserSessionRevokedError:
                 flash(
@@ -171,6 +172,7 @@ class LoginManager:
                 )
                 current_app.logger.info("Got a revoked user session; logging out")
                 add_auth_attribute('session', None)
+                # TODO: Force render of logout page to clear client-side data
                 logout_internal()
             except UserSessionInactiveUserError as exc:
                 inactive_user = exc.args[0].user
@@ -184,6 +186,7 @@ class LoginManager:
                     flash(_("Your account is not active"))
                 current_app.logger.info("Got an inactive user; logging out")
                 add_auth_attribute('session', None)
+                # TODO: Force render of logout page to clear client-side data
                 logout_internal()
 
         # Transition users with 'userid' to 'sessionid'

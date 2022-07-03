@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{#- This page must not have any JS or external resources, as it's meant to redirect immediately AND not leak the URL #}
+{#- This page must not have any external resources, as it's meant to redirect immediately AND not leak the URL #}
 <html>
   <head>
     <meta http-equiv="refresh" content="0; url={{ url }}" />
@@ -27,5 +27,6 @@
   </head>
   <body>
     <p class="loading"><a href="{{ url }}">{% trans %}Loading…{% endtrans %}</a></p>
+    <script type="text/javascript">window.location.replace({{ url|tojson }});</script>
   </body>
 </html>
