@@ -40,7 +40,7 @@ from ..models import (
 )
 from ..typing import ReturnView
 from .helpers import html_in_json, render_redirect
-from .login_session import requires_login, requires_sudo
+from .login_session import requires_login, requires_sudo, requires_user_not_spammy
 from .mixins import ProfileCheckMixin, ProjectViewMixin
 from .notification import dispatch_notification
 from .session import session_edit
@@ -72,6 +72,7 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @requires_login
     @render_with('submission_form.html.jinja2')
     @requires_roles({'reader'})
+    @requires_user_not_spammy()
     def new_proposal(self):
         # This along with the `reader` role makes it possible for
         # anyone to submit a proposal if the CFP is open.
