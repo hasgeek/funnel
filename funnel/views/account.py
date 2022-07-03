@@ -179,6 +179,17 @@ def avatar_color_code(obj: Union[User, Organization, Profile]) -> int:
     return total % avatar_color_count
 
 
+@User.features('not_likely_throwaway', property=True)
+def user_not_likely_throwaway(obj: User) -> bool:
+    """
+    Confirm the user is not likely to be a throwaway account.
+
+    Current criteria: user must have a verified phone number, or user's profile must
+    be marked as verified.
+    """
+    return bool(obj.phone) or (obj.profile is not None and obj.profile.is_verified)
+
+
 @UserSession.views('user_agent_details')
 def user_agent_details(obj: UserSession) -> Dict[str, str]:
     """Return a friendly identifier for the user's browser (HTTP user agent)."""
@@ -296,81 +307,19 @@ class AccountView(ClassView):
         """Render organizations for the user account."""
         return {}
 
-    @route(
-        'edit',
-        methods=['GET', 'POST'],
-        defaults={'newprofile': False},
-        endpoint='account_edit',
-    )
-    @route(
-        'new',
-        methods=['GET', 'POST'],
-        defaults={'newprofile': True},
-        endpoint='account_new',
-    )
-    def account_edit(self, newprofile: bool = False) -> ReturnView:
-        """Edit account fullname, username and biography."""
+    @route('edit', methods=['GET', 'POST'], endpoint='account_edit')
+    def edit(self) -> ReturnView:
+        """Edit user's fullname, username, timezone and locale."""
         form = AccountForm(obj=current_auth.user)
-        form.edit_user = current_auth.user
-        if current_auth.user.email or newprofile is False:
-            del form.email
-
         if form.validate_on_submit():
-            # Can't auto-populate here because user.email is read-only
-            current_auth.user.fullname = form.fullname.data
-            current_auth.user.username = form.username.data
-            current_auth.user.timezone = form.timezone.data
-            current_auth.user.auto_timezone = form.auto_timezone.data
-            current_auth.user.locale = form.locale.data
-            current_auth.user.auto_locale = form.auto_locale.data
+            form.populate_obj(current_auth.user)
             autoset_timezone_and_locale(current_auth.user)
 
-            if newprofile and not current_auth.user.email:
-                useremail = UserEmailClaim.get_for(
-                    user=current_auth.user, email=form.email.data
-                )
-                if useremail is None:
-                    useremail = UserEmailClaim(
-                        user=current_auth.user, email=form.email.data
-                    )
-                    db.session.add(useremail)
-                send_email_verify_link(useremail)
-                db.session.commit()
-                user_data_changed.send(
-                    current_auth.user, changes=['profile', 'email-claim']
-                )
-                flash(
-                    _(
-                        "Your profile has been updated. We sent you an email to confirm"
-                        " your address"
-                    ),
-                    category='success',
-                )
-            else:
-                db.session.commit()
-                user_data_changed.send(current_auth.user, changes=['profile'])
-                flash(_("Your profile has been updated"), category='success')
+            db.session.commit()
+            user_data_changed.send(current_auth.user, changes=['profile'])
+            flash(_("Your profile has been updated"), category='success')
 
-            if newprofile:
-                return render_redirect(get_next_url())
-            return render_redirect(url_for('account'))
-        if newprofile:
-            return render_form(
-                form,
-                title=_("Update account"),
-                # Form with id 'form-account_new' will have username validation
-                # in account_formlayout.html.jinja2
-                formid='account_new',
-                submit=_("Continue"),
-                message=Markup(
-                    _(
-                        "Hello, {fullname}. Please spare a minute to fill out your"
-                        " account"
-                    ).format(fullname=escape(current_auth.user.fullname))
-                ),
-                ajax=False,
-                template='account_formlayout.html.jinja2',
-            )
+            return render_redirect(get_next_url(default=url_for('account')))
         return render_form(
             form,
             title=_("Edit account"),
@@ -726,7 +675,9 @@ class AccountView(ClassView):
                 db.session.commit()
                 flash(_("Your phone number has been verified"), 'success')
                 user_data_changed.send(current_auth.user, changes=['phone'])
-                return render_redirect(url_for('account'))
+                return render_redirect(
+                    get_next_url(session=True, default=url_for('account'))
+                )
             flash(
                 _("This phone number has already been claimed by another user"),
                 'danger',

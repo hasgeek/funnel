@@ -35,7 +35,6 @@ from ..forms import (
     LoginWithOtp,
     LogoutForm,
     OtpForm,
-    RegisterForm,
     RegisterOtpForm,
     RegisterWithOtp,
 )
@@ -397,34 +396,6 @@ def account_logout() -> ReturnView:
     return render_redirect(url_for('account'))
 
 
-@app.route('/account/register', methods=['GET', 'POST'])
-def register():
-    """Register a new account (deprecated)."""
-    if current_auth.is_authenticated:
-        return render_redirect(url_for('index'))
-    form = RegisterForm()
-    if form.validate_on_submit():
-        current_app.logger.info("Password strength %f", form.password_strength)
-        user = register_internal(None, form.fullname.data, form.password.data)
-        useremail = UserEmailClaim(user=user, email=form.email.data)
-        db.session.add(useremail)
-        send_email_verify_link(useremail)
-        login_internal(user, login_service='password')
-        db.session.commit()
-        flash(_("You are now one of us. Welcome aboard!"), category='success')
-        return render_redirect(get_next_url(session=True))
-    # Form with id 'form-password-change' will have password strength meter on UI
-    return render_template(
-        'signup_form.html.jinja2',
-        form=form,
-        login_registry=login_registry,
-        title=_("Register account"),
-        formid='registeraccount',
-        ref_id='form-password-change',
-        ajax=False,
-    )
-
-
 @app.route('/login/<service>')
 def login_service(service: str) -> ReturnView:
     """Handle login with a registered service."""
@@ -599,7 +570,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
 
     # Finally: set a login method cookie and send user on their way
     if not current_auth.user.is_profile_complete():
-        login_next = url_for('account_new', next=next_url)
+        login_next = url_for('account_edit', next=next_url)
     else:
         login_next = next_url
 

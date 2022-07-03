@@ -37,7 +37,7 @@ from ..signals import project_role_change, proposal_role_change
 from ..typing import ReturnRenderWith, ReturnView
 from .decorators import etag_cache_for_user, xhr_only
 from .helpers import render_redirect
-from .login_session import requires_login
+from .login_session import requires_login, requires_user_not_spammy
 from .notification import dispatch_notification
 
 
@@ -167,6 +167,7 @@ class CommentsetView(UrlForView, ModelView):
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
+    @requires_user_not_spammy(lambda self: self.obj.url_for())
     @render_with(json=True)
     def new(self):
         commentform = CommentForm()
@@ -300,6 +301,7 @@ class CommentView(UrlForView, ModelView):
 
     @route('reply', methods=['GET', 'POST'])
     @requires_roles({'reader'})
+    @requires_user_not_spammy(lambda self: self.obj.url_for())
     def reply(self):
         commentform = CommentForm()
 

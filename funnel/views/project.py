@@ -1,3 +1,5 @@
+"""Views for projects."""
+
 from dataclasses import dataclass
 from types import SimpleNamespace
 import csv
@@ -44,7 +46,11 @@ from ..models import (
 from ..signals import project_role_change
 from .helpers import html_in_json, render_redirect
 from .jobs import import_tickets, tag_locations
-from .login_session import requires_login, requires_site_editor
+from .login_session import (
+    requires_login,
+    requires_site_editor,
+    requires_user_not_spammy,
+)
 from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
 
@@ -231,6 +237,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'admin'})
+    @requires_user_not_spammy()
     def new_project(self):
         form = ProjectForm(model=Project, profile=self.obj)
 

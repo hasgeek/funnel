@@ -28,7 +28,6 @@ from ..utils import normalize_phone_number
 from .helpers import EmailAddressAvailable, strip_filters
 
 __all__ = [
-    'RegisterForm',
     'PasswordForm',
     'PasswordCreateForm',
     'PasswordPolicyForm',
@@ -152,64 +151,6 @@ def pwned_password_validator(_form, field) -> None:
                 count,
             )
         )
-
-
-@User.forms('register')
-class RegisterForm(forms.Form):
-    """
-    Traditional account registration form.
-
-    This form has been deprecated by the combination of
-    :class:`~funnel.forms.login.LoginForm` and :class:`~funnel.forms.RegisterOtpForm`
-    for most users. Users who cannot receive an OTP (unsupported country for phone)
-    will continue to use password-based registration.
-    """
-
-    __returns__ = ('password_strength',)  # Set by PasswordStrengthValidator
-    password_strength: Optional[int] = None
-
-    fullname = forms.StringField(
-        __("Full name"),
-        description=__(
-            "This account is for you as an individual. We’ll make one for your"
-            " organization later"
-        ),
-        validators=[forms.validators.DataRequired(), forms.validators.Length(max=80)],
-        filters=[forms.filters.strip()],
-        render_kw={'autocomplete': 'name'},
-    )
-    email = forms.EmailField(
-        __("Email address"),
-        validators=[
-            forms.validators.DataRequired(),
-            EmailAddressAvailable(purpose='register'),
-        ],
-        filters=strip_filters,
-        render_kw={
-            'autocorrect': 'off',
-            'autocapitalize': 'off',
-            'autocomplete': 'email',
-        },
-    )
-    password = forms.PasswordField(
-        __("Password"),
-        validators=[
-            forms.validators.DataRequired(),
-            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
-            PasswordStrengthValidator(user_input_fields=['fullname', 'email']),
-            pwned_password_validator,
-        ],
-        render_kw={'autocomplete': 'new-password'},
-    )
-    confirm_password = forms.PasswordField(
-        __("Confirm password"),
-        validators=[
-            forms.validators.DataRequired(),
-            forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
-            forms.validators.EqualTo('password'),
-        ],
-        render_kw={'autocomplete': 'new-password'},
-    )
 
 
 @User.forms('password')
@@ -462,29 +403,13 @@ class AccountForm(forms.Form):
 
     fullname = forms.StringField(
         __("Full name"),
-        description=__(
-            "This is your name. We will make an account for your organization later"
-        ),
+        description=__("This is your name, not of your organization"),
         validators=[
             forms.validators.DataRequired(),
             forms.validators.Length(max=User.__title_length__),
         ],
         filters=[forms.filters.strip()],
         render_kw={'autocomplete': 'name'},
-    )
-    email = forms.EmailField(
-        __("Email address"),
-        description=__("Required for sending you tickets, invoices and notifications"),
-        validators=[
-            forms.validators.DataRequired(),
-            EmailAddressAvailable(purpose='use'),
-        ],
-        filters=strip_filters,
-        render_kw={
-            'autocorrect': 'off',
-            'autocapitalize': 'off',
-            'autocomplete': 'email',
-        },
     )
     username = forms.AnnotatedTextField(
         __("Username"),

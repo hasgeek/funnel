@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 from functools import wraps
-from typing import Any, Optional, Type, cast
+from typing import Any, Callable, Optional, Type, cast
 
 from flask import (
     Response,
@@ -48,7 +48,7 @@ from ..models import (
 from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
-from ..typing import WrappedFunc
+from ..typing import ReturnDecorator, WrappedFunc
 from ..utils import abort_null
 from .helpers import (
     app_url_for,
@@ -160,6 +160,7 @@ class LoginManager:
                 )
                 current_app.logger.info("Got an expired user session; logging out")
                 add_auth_attribute('session', None)
+                # TODO: Force render of logout page to clear client-side data
                 logout_internal()
             except UserSessionRevokedError:
                 flash(
@@ -171,6 +172,7 @@ class LoginManager:
                 )
                 current_app.logger.info("Got a revoked user session; logging out")
                 add_auth_attribute('session', None)
+                # TODO: Force render of logout page to clear client-side data
                 logout_internal()
             except UserSessionInactiveUserError as exc:
                 inactive_user = exc.args[0].user
@@ -184,6 +186,7 @@ class LoginManager:
                     flash(_("Your account is not active"))
                 current_app.logger.info("Got an inactive user; logging out")
                 add_auth_attribute('session', None)
+                # TODO: Force render of logout page to clear client-side data
                 logout_internal()
 
         # Transition users with 'userid' to 'sessionid'
@@ -309,7 +312,10 @@ def set_lastuser_cookie(response):
     if (
         request_has_auth()
         and hasattr(current_auth, 'cookie')
-        and not getattr(current_auth, 'suppress_cookie', False)
+        and not (
+            current_auth.cookie == {}
+            and getattr(current_auth, 'suppress_empty_cookie', False)
+        )
     ):
         response.vary.add('Cookie')
         expires = utcnow() + current_app.config['PERMANENT_SESSION_LIFETIME']
@@ -418,7 +424,7 @@ def reload_for_cookies(f: WrappedFunc) -> WrappedFunc:
     @wraps(f)
     def wrapper(*args, **kwargs) -> Any:
         if 'lastuser' not in request.cookies:
-            add_auth_attribute('suppress_cookie', True)
+            add_auth_attribute('suppress_empty_cookie', True)
             attempt = request.args.get('cookiereload')
             if not attempt:
                 # First attempt: reload with HTTP 303
@@ -434,6 +440,38 @@ def reload_for_cookies(f: WrappedFunc) -> WrappedFunc:
         return f(*args, **kwargs)
 
     return cast(WrappedFunc, wrapper)
+
+
+def requires_user_not_spammy(
+    get_current: Optional[Callable[..., str]] = None
+) -> ReturnDecorator:
+    """Decorate a view to require the user to prove they are not likely a spammer."""
+
+    def decorator(f: WrappedFunc) -> WrappedFunc:
+        """Apply decorator using the specified :attr:`get_current` function."""
+
+        @wraps(f)
+        def wrapper(*args, **kwargs) -> Any:
+            """Validate user rights in a view."""
+            if not current_auth.is_authenticated:
+                flash(_("You need to be logged in for that page"), 'info')
+                return render_redirect(
+                    url_for('login', next=get_current_url()),
+                    302 if request.method == 'GET' else 303,
+                )
+            if not current_auth.user.features.not_likely_throwaway:
+                flash(_("Confirm your phone number to continue"), 'info')
+
+                session['next'] = (
+                    get_current(*args, **kwargs) if get_current else get_current_url()
+                )
+                return render_redirect(url_for('add_phone'), code=303)
+
+            return f(*args, **kwargs)
+
+        return cast(WrappedFunc, wrapper)
+
+    return decorator
 
 
 def requires_login(f: WrappedFunc) -> WrappedFunc:

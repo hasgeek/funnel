@@ -441,7 +441,7 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         if_=lambda profile: (
             profile.reserved is False
             and profile.is_active
-            and (profile.user is None or profile.user.has_verified_contact_info)
+            and (profile.user is None or profile.user.features.not_likely_throwaway)
         ),
     )
     def make_public(self) -> None:

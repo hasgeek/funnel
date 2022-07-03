@@ -4,7 +4,7 @@ from datetime import timedelta
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from flask import redirect, session
+from flask import redirect, request, session
 from werkzeug.datastructures import MultiDict
 
 import pytest
@@ -122,28 +122,6 @@ def mock_loginhub_callback(loginhub):
 def test_user_rincewind_has_username(user_rincewind):
     """Confirm user fixture has the username required for further tests."""
     assert user_rincewind.username == RINCEWIND_USERNAME
-
-
-def test_user_register(client, csrf_token):
-    """Register a user account using the legacy registration view."""
-    rv1 = client.get('/account/register')
-    assert rv1.form('form-password-change') is not None
-
-    rv2 = client.post(
-        '/account/register',
-        data=MultiDict(
-            {
-                'csrf_token': csrf_token,
-                'fullname': "Test User",
-                'email': 'email@example.com',
-                'password': COMPLEX_TEST_PASSWORD,
-                'confirm_password': COMPLEX_TEST_PASSWORD,
-            }
-        ),
-    )
-
-    assert rv2.status_code == 303
-    assert current_auth.user.fullname == "Test User"
 
 
 def test_user_register_otp_sms(client, csrf_token):
@@ -529,10 +507,19 @@ def test_otp_reason_error(client, csrf_token):
 @pytest.mark.usefixtures('mock_loginhub_do', 'mock_loginhub_callback')
 def test_login_external(client):
     """External login flow works under mocked conditions."""
-    rv = client.get('/login/loginhub', follow_redirects=True)
+    rv = client.get('/login/loginhub')
+    assert rv.status_code == 302
+    assert rv.location == '/login/loginhub/callback'
+    rv = client.get(rv.location, follow_redirects=True)
     if rv.metarefresh is not None:
-        rv = client.get(rv.metarefresh.url, follow_redirects=True)
-    assert rv.status_code == 200
+        rv = client.get(rv.metarefresh.url)
+    assert current_auth.user is not None
+    assert current_auth.user.fullname == 'Rincewind'
+    assert current_auth.cookie != {}
+    # User is logged in and is now being sent off to either index or /account/edit
+    assert rv.status_code == 303
+    client.get(rv.location)
+    assert request.path in ('/', '/account/edit')
     assert current_auth.user is not None
     assert current_auth.user.fullname == 'Rincewind'
 
@@ -724,15 +711,6 @@ def test_account_logout_csrf_validation_html(client, login, user_rincewind):
     assert rv.status_code == 303
     assert rv.location == '/account'
     assert 'The CSRF token is missing.' in str(session['_flashes'])
-
-
-def test_account_register_is_authenticated(client, login, user_rincewind):
-    """Register endpoint does not work when user is logged in."""
-    login.as_(user_rincewind)
-
-    rv = client.get('/account/register')
-    assert rv.status_code == 303
-    assert rv.location == '/'
 
 
 def test_login_service_init_error(client):
