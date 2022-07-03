@@ -344,8 +344,8 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @requires_roles({'reader'})
     def schedule_room_ical(self) -> Response:
         cal = Calendar()
-        cal.add('prodid', "-//Hasgeek//NONSGML Funnel//EN"),
-        cal.add('version', "2.0")
+        cal.add('prodid', '-//Hasgeek//NONSGML Funnel//EN')
+        cal.add('version', '2.0')
         cal.add(
             'name',
             f"{self.obj.venue.project.title} @"

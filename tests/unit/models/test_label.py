@@ -70,4 +70,4 @@ def test_label_archived(new_label):
     assert new_label._archived is False  # pylint: disable=protected-access
     new_label.archived = True
     assert new_label._archived is True  # pylint: disable=protected-access
-    assert new_label.archived is True  # type: ignore[unreachable]
+    assert new_label.archived is True

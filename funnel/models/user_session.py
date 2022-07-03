@@ -16,7 +16,7 @@ __all__ = [
     'UserSessionRevokedError',
     'UserSessionInactiveUserError',
     'auth_client_user_session',
-    'user_session_validity_period',
+    'USER_SESSION_VALIDITY_PERIOD',
 ]
 
 
@@ -36,7 +36,7 @@ class UserSessionInactiveUserError(UserSessionError):
     """This user is not in ACTIVE state and cannot have a currently active session."""
 
 
-user_session_validity_period = timedelta(days=365)
+USER_SESSION_VALIDITY_PERIOD = timedelta(days=365)
 
 #: When a user logs into an client app, the user's session is logged against
 #: the client app in this table
@@ -101,7 +101,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
         db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`UserSession` as a string."""
         return f'<UserSession {self.buid}>'
 
@@ -139,7 +139,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
                     # Session key must match.
                     cls.buid == buid,
                     # Sessions are valid for one year...
-                    cls.accessed_at > db.func.utcnow() - user_session_validity_period,
+                    cls.accessed_at > db.func.utcnow() - USER_SESSION_VALIDITY_PERIOD,
                     # ...unless explicitly revoked (or user logged out).
                     cls.revoked_at.is_(None),
                     # User account must be active
@@ -151,7 +151,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
         # Not silent? Raise exceptions on expired and revoked sessions
         user_session = cls.query.join(User).filter(cls.buid == buid).one_or_none()
         if user_session is not None:
-            if user_session.accessed_at <= utcnow() - user_session_validity_period:
+            if user_session.accessed_at <= utcnow() - USER_SESSION_VALIDITY_PERIOD:
                 raise UserSessionExpiredError(user_session)
             if user_session.revoked_at is not None:
                 raise UserSessionRevokedError(user_session)
@@ -167,7 +167,7 @@ class __User:
         lazy='dynamic',
         primaryjoin=db.and_(
             UserSession.user_id == User.id,
-            UserSession.accessed_at > db.func.utcnow() - user_session_validity_period,
+            UserSession.accessed_at > db.func.utcnow() - USER_SESSION_VALIDITY_PERIOD,
             UserSession.revoked_at.is_(None),
         ),
         order_by=UserSession.accessed_at.desc(),

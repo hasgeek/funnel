@@ -1,8 +1,10 @@
+"""Views for organization admin and project crew membership management."""
+
 from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, redirect, request
+from flask import abort, request
 
 from baseframe import _
 from baseframe.forms import Form, render_form
@@ -33,7 +35,7 @@ from ..models import (
     db,
 )
 from ..typing import ReturnView
-from .helpers import html_in_json
+from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProfileViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
@@ -42,12 +44,11 @@ from .notification import dispatch_notification
 @Profile.views('members')
 @route('/<profile>/members')
 class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
-    def after_loader(self) -> Optional[ReturnView]:
+    def after_loader(self) -> Optional[ReturnView]:  # type: ignore[return]
         """Don't render member views for user profiles."""
         if not self.obj.organization:
             # User profiles don't have memberships
             abort(404)
-        return None
 
     @route('', methods=['GET', 'POST'])
     @render_with('organization_membership.html.jinja2')
@@ -393,7 +394,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
             return (
                 {
                     'status': 'error',
-                    'error_description': _("The new member could not be added"),
+                    'error_description': _("Please pick one or more roles"),
                     'errors': membership_form.errors,
                     'form_nonce': membership_form.form_nonce.data,
                 },
@@ -468,7 +469,7 @@ class ProjectCrewMembershipInviteView(
             elif membership_invite_form.action.data == 'decline':
                 self.obj.revoke(actor=current_auth.user)
             db.session.commit()
-        return redirect(self.obj.project.url_for(), 303)
+        return render_redirect(self.obj.project.url_for())
 
 
 ProjectCrewMembershipInviteView.init_app(app)

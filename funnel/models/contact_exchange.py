@@ -90,7 +90,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         'subject': {'read': {'user', 'ticket_participant', 'scanned_at'}},
     }
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         if actor is not None:
             if actor == self.user:
@@ -100,7 +100,10 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         return roles
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         ticket_participant_ids = {
             ce.ticket_participant_id for ce in new_user.scanned_contacts
         }
@@ -110,7 +113,6 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             else:
                 # Discard duplicate contact exchange
                 db.session.delete(ce)
-        return None
 
     @classmethod
     def grouped_counts_for(cls, user, archived=False):
@@ -128,7 +130,8 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             # If not archived: return only unarchived contacts
             query = query.filter(cls.archived.is_(False))
 
-        # from_self turns `SELECT columns` into `SELECT new_columns FROM (SELECT columns)`
+        # from_self turns `SELECT columns` into `SELECT new_columns FROM (SELECT
+        # columns)`
         query = (
             query.from_self(
                 Project.id.label('id'),
@@ -160,7 +163,10 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         #   project_uuid AS uuid,
         #   project_title AS title,
         #   project_timezone AS "timezone",
-        #   date_trunc('day', timezone("timezone", contact_exchange_scanned_at))::date AS date,
+        #   date_trunc(
+        #     'day',
+        #     timezone("timezone", contact_exchange_scanned_at)
+        #   )::date AS date,
         #   count(*) AS count
         # FROM (
         #   SELECT
@@ -192,7 +198,8 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         #   ...  # More projects
         #   ]
 
-        # We don't do it here, but this can easily be converted into a dictionary of {project: dates}:
+        # We don't do it here, but this can easily be converted into a dictionary of
+        # {project: dates}:
         # >>> OrderedDict(result)  # Preserve order with most recent projects first
         # >>> dict(result)         # Don't preserve order
 

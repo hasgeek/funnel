@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, flash, redirect
+from flask import abort, flash
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -21,7 +21,7 @@ from .. import app
 from ..forms import SavedProjectForm, UpdateForm
 from ..models import NewUpdateNotification, Profile, Project, Update, db
 from ..typing import ReturnView
-from .helpers import html_in_json
+from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin
 from .notification import dispatch_notification
@@ -68,7 +68,7 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
             update.name = make_name(update.title)
             db.session.add(update)
             db.session.commit()
-            return redirect(update.url_for(), code=303)
+            return render_redirect(update.url_for())
 
         return render_form(
             form=form,
@@ -125,7 +125,7 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'editor'})
     def publish(self):
         if not self.obj.state.DRAFT:
-            return redirect(self.obj.url_for())
+            return render_redirect(self.obj.url_for())
         form = forms.Form()
         if form.validate_on_submit():
             first_publishing = self.obj.publish(actor=current_auth.user)
@@ -138,7 +138,7 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                 _("There was an error publishing this update. Reload and try again"),
                 'error',
             )
-        return redirect(self.obj.project.url_for('updates'))
+        return render_redirect(self.obj.project.url_for('updates'))
 
     @route('edit', methods=['GET', 'POST'])
     @render_with(json=True)
@@ -149,7 +149,7 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("The update has been edited"), 'success')
-            return redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
 
         return render_form(
             form=form,
@@ -169,7 +169,7 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             self.obj.delete(actor=current_auth.user)
             db.session.commit()
             flash(_("The update has been deleted"), 'success')
-            return redirect(self.obj.project.url_for('updates'))
+            return render_redirect(self.obj.project.url_for('updates'))
 
         return render_form(
             form=form,

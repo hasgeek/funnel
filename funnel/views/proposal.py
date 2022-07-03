@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, Union
 
-from flask import abort, flash, jsonify, redirect, request
+from flask import abort, flash, jsonify, request
 
 from baseframe import _, __
 from baseframe.forms import Form, render_delete_sqla, render_form, render_template
@@ -20,6 +20,7 @@ from coaster.views import (
 
 from .. import app
 from ..forms import (
+    ProposalFeaturedForm,
     ProposalForm,
     ProposalLabelsAdminForm,
     ProposalMemberForm,
@@ -38,7 +39,7 @@ from ..models import (
     db,
 )
 from ..typing import ReturnView
-from .helpers import html_in_json
+from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProjectViewMixin
 from .notification import dispatch_notification
@@ -76,7 +77,7 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
         # anyone to submit a proposal if the CFP is open.
         if not self.obj.cfp_state.OPEN and not self.obj.current_roles.editor:
             flash(_("This project is not accepting submissions"), 'error')
-            return redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
 
         form = ProposalForm(model=Proposal, parent=self.obj)
         proposal: Proposal = None
@@ -95,7 +96,7 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                     document=proposal.project, fragment=proposal
                 ),
             )
-            return redirect(proposal.url_for(), code=303)
+            return render_redirect(proposal.url_for())
 
         return {
             'title': _("New submission"),
@@ -175,7 +176,10 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         if isinstance(self.obj, ProposalSuuidRedirect):
             if self.obj.proposal:
                 self.profile = self.obj.proposal.project.profile
-                return redirect(self.obj.proposal.url_for())
+                return render_redirect(
+                    self.obj.proposal.url_for(),
+                    302 if request.method == 'GET' else 303,
+                )
             abort(410)
         self.profile = self.obj.project.profile
         return super().after_loader()
@@ -198,7 +202,7 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
 
         proposal_move_form = None
         if 'move_to' in self.obj.current_access():
-            proposal_move_form = ProposalMoveForm()
+            proposal_move_form = ProposalMoveForm(user=current_auth.user)
 
         proposal_label_admin_form = ProposalLabelsAdminForm(
             model=Proposal, obj=self.obj, parent=self.obj.project
@@ -226,7 +230,7 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             self.obj.edited_at = db.func.utcnow()
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
         return {
             'title': _("Edit submission"),
             'form': form,
@@ -313,9 +317,8 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'project_editor'})
     def transition(self):
         transition_form = ProposalTransitionForm(obj=self.obj)
-        if (
-            transition_form.validate_on_submit()
-        ):  # check if the provided transition is valid
+        # check if the provided transition is valid
+        if transition_form.validate_on_submit():
             transition = getattr(
                 self.obj.current_access(), transition_form.transition.data
             )
@@ -325,17 +328,17 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
 
             if transition_form.transition.data == 'delete':
                 # if the proposal is deleted, don't redirect to proposal page
-                return redirect(self.obj.project.url_for('view_proposals'))
+                return render_redirect(self.obj.project.url_for('view_proposals'))
         else:
             flash(_("Invalid transition for this submission"), 'error')
             abort(403)
-        return redirect(self.obj.url_for())
+        return render_redirect(self.obj.url_for())
 
     @route('move', methods=['POST'])
     @requires_login
     @requires_roles({'project_editor'})
     def moveto(self):
-        proposal_move_form = ProposalMoveForm()
+        proposal_move_form = ProposalMoveForm(user=current_auth.user)
         if proposal_move_form.validate_on_submit():
             target_project = proposal_move_form.target.data
             if target_project != self.obj.project:
@@ -352,13 +355,13 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                 _("Please choose the project you want to move this submission to"),
                 'error',
             )
-        return redirect(self.obj.url_for(), 303)
+        return render_redirect(self.obj.url_for())
 
     @route('update_featured', methods=['POST'])
     @requires_login
     @requires_roles({'project_editor'})
     def update_featured(self):
-        featured_form = self.obj.forms.featured()
+        featured_form = ProposalFeaturedForm(obj=self.obj)
         if featured_form.validate_on_submit():
             featured_form.populate_obj(self.obj)
             db.session.commit()
@@ -396,7 +399,7 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Labels have been saved for this submission"), 'info')
-            return redirect(self.obj.url_for(), 303)
+            return render_redirect(self.obj.url_for())
         flash(_("Labels could not be saved for this submission"), 'error')
         return render_form(
             form,

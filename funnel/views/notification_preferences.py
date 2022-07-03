@@ -1,9 +1,11 @@
+"""Views for notification preferences."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta
 from typing import Optional
 
-from flask import abort, flash, redirect, request, session, url_for
+from flask import abort, current_app, flash, redirect, request, session, url_for
 import itsdangerous
 
 from baseframe import _, __
@@ -27,6 +29,7 @@ from ..transports import platform_transports
 from ..typing import ReturnRenderWith
 from .helpers import (
     metarefresh_redirect,
+    render_redirect,
     retrieve_cached_token,
     session_timeouts,
     validate_rate_limit,
@@ -51,6 +54,8 @@ unsubscribe_link_invalid = __(
 
 @route('/account/notifications')
 class AccountNotificationView(ClassView):
+    """Views for notification settings (under account settings)."""
+
     # TODO: This class does not use ModelView on User because some routes do not require
     # a logged in user. While it would be nice to have current_auth.user.url_for('...'),
     # this does not work when there is no current_auth.user. However, this can be
@@ -63,6 +68,7 @@ class AccountNotificationView(ClassView):
     @requires_login
     @render_with('notification_preferences.html.jinja2')
     def notification_preferences(self) -> ReturnRenderWith:
+        """View for notification preferences."""
         main_preferences = current_auth.user.main_notification_preferences
         user_preferences = current_auth.user.notification_preferences
         preferences = {
@@ -185,25 +191,25 @@ class AccountNotificationView(ClassView):
         except itsdangerous.SignatureExpired:
             # Link has expired. It's been over a year!
             flash(unsubscribe_link_expired, 'error')
-            return redirect(url_for('notification_preferences'), code=303)
+            return render_redirect(url_for('notification_preferences'))
         except itsdangerous.BadData:
             flash(unsubscribe_link_invalid, 'error')
-            return redirect(url_for('notification_preferences'), code=303)
+            return render_redirect(url_for('notification_preferences'))
 
         user = User.get(buid=payload['buid'])
         if user is None:
-            app.logger.error(
+            current_app.logger.error(
                 "Auto unsubscribe view cannot find user with buid %s", payload['buid']
             )
             # We can't use `render_message` here because the unsubscribe token is still
             # in the URL
             flash(_("This unsubscribe link is for a non-existent user"), 'error')
-            return redirect(url_for('index'), code=303)
+            return render_redirect(url_for('index'))
         # Check transport again in case this endpoint is extended to other transports
         if payload['transport'] == 'email' and 'hash' in payload:
             email_address = EmailAddress.get(email_hash=payload['hash'])
             if email_address is None:
-                app.logger.error(
+                current_app.logger.error(
                     "Auto unsubscribe view cannot find email address with hash %s",
                     payload['hash'],
                 )
@@ -216,7 +222,7 @@ class AccountNotificationView(ClassView):
         # We can't use `render_message` here because the unsubscribe token is still in
         # the URL
         flash(_("You have been unsubscribed from this notification type"), 'success')
-        return redirect(url_for('index'), code=303)
+        return render_redirect(url_for('index'))
 
     @route(
         'unsubscribe/<token>',
@@ -240,6 +246,7 @@ class AccountNotificationView(ClassView):
     def unsubscribe(
         self, token: str, token_type: Optional[str], cookietest: bool = False
     ):
+        """View for unsubscribing from a notification type or disabling a transport."""
         # This route strips the token from the URL before rendering the page, to avoid
         # leaking the token to web analytics software.
 
@@ -249,7 +256,10 @@ class AccountNotificationView(ClassView):
             (request.method == 'GET' and 'unsub_token' not in session)
             or (request.method == 'POST' and 'token' not in request.form)
         ):
-            return redirect(url_for('notification_preferences'))
+            return render_redirect(
+                url_for('notification_preferences'),
+                302 if request.method == 'GET' else 303,
+            )
 
         # Step 2: We have a URL token, but no `cookietest=1` in the URL. Copy token into
         # session and reload the page with the flag set
@@ -320,12 +330,12 @@ class AccountNotificationView(ClassView):
                 session.pop('unsub_token', None)
                 session.pop('unsub_token_type', None)
                 flash(unsubscribe_link_expired, 'error')
-                return redirect(url_for('notification_preferences'), code=303)
+                return render_redirect(url_for('notification_preferences'))
             except itsdangerous.BadData:
                 session.pop('unsub_token', None)
                 session.pop('unsub_token_type', None)
                 flash(unsubscribe_link_invalid, 'error')
-                return redirect(url_for('notification_preferences'), code=303)
+                return render_redirect(url_for('notification_preferences'))
 
         # --- Cached tokens (SMS)
         elif token_type == 'cached':  # nosec  # noqa: S105
@@ -334,7 +344,9 @@ class AccountNotificationView(ClassView):
             # Some ISPs use carrier-grade NAT and will have a single IP for a very
             # large number of users, so we have generous limits. 100 unsubscribes per
             # 10 minutes (600s) per IP address.
-            validate_rate_limit('sms_unsubscribe', str(request.remote_addr), 100, 600)
+            validate_rate_limit(
+                'account_unsubscribe-sms', str(request.remote_addr), 100, 600
+            )
 
             payload = retrieve_cached_token(
                 session.get('unsub_token') or request.form['token']
@@ -344,7 +356,7 @@ class AccountNotificationView(ClassView):
                 session.pop('unsub_token', None)
                 session.pop('unsub_token_type', None)
                 flash(unsubscribe_link_invalid, 'error')
-                return redirect(url_for('notification_preferences'), code=303)
+                return render_redirect(url_for('notification_preferences'))
 
             # Do `.replace(tzinfo=None)` on the datetime because -- while we use
             # naive timestamps when making the token -- there was a period of confusion
@@ -357,7 +369,7 @@ class AccountNotificationView(ClassView):
                 session.pop('unsub_token', None)
                 session.pop('unsub_token_type', None)
                 flash(unsubscribe_link_expired, 'error')
-                return redirect(url_for('notification_preferences'), code=303)
+                return render_redirect(url_for('notification_preferences'))
 
         else:
             # This is not supposed to happen
@@ -378,7 +390,7 @@ class AccountNotificationView(ClassView):
         # :meth:`NotificationView.unsubscribe_token` above
         user = User.get(buid=payload['buid'])
         if user is None:
-            app.logger.error(
+            current_app.logger.error(
                 "Unsubscribe view cannot find user with buid %s", payload['buid']
             )
             return render_message(
@@ -388,7 +400,7 @@ class AccountNotificationView(ClassView):
         if payload['transport'] == 'email' and 'hash' in payload:
             email_address = EmailAddress.get(email_hash=payload['hash'])
             if email_address is None:
-                app.logger.error(
+                current_app.logger.error(
                     "Unsubscribe view cannot find email address with hash %s",
                     payload['hash'],
                 )

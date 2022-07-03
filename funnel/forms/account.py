@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from hashlib import sha1
+from typing import Dict, Iterable, Optional
+
+from flask_babelhg import ngettext
+
+import requests
 
 from baseframe import _, __, forms
 from coaster.utils import sorted_timezones
@@ -16,7 +21,6 @@ from ..models import (
     User,
     UserEmailClaim,
     UserPhone,
-    UserPhoneClaim,
     check_password_strength,
     getuser,
 )
@@ -38,9 +42,9 @@ __all__ = [
     'NewEmailAddressForm',
     'NewPhoneForm',
     'PhonePrimaryForm',
-    'VerifyPhoneForm',
     'supported_locales',
     'timezone_identifiers',
+    'pwned_password_validator',
 ]
 
 
@@ -105,6 +109,51 @@ class PasswordStrengthValidator:
         )
 
 
+def pwned_password_validator(_form, field) -> None:
+    """Validate password against the pwned password API."""
+    # Add usedforsecurity=False when migrating to Python 3.9+
+    phash = sha1(field.data.encode()).hexdigest().upper()  # noqa: S324  # nosec
+    prefix, suffix = phash[:5], phash[5:]
+
+    try:
+        rv = requests.get(f'https://api.pwnedpasswords.com/range/{prefix}')
+        if rv.status_code != 200:
+            # API call had an error and we can't proceed with validation.
+            return
+        # This API returns minimal plaintext containing ``suffix:count``, one per line.
+        # The following code is defensive, attempting to add mitigations (inner->outer):
+        # 1. If there's no : separator, assume a count of 1
+        # 2. Strip text on either side of the colon
+        # 3. Ensure the suffix is uppercase
+        # 4. If count is not a number, default it to 0 (ie, this is not a match)
+        matches: Dict[str, int] = {
+            line_suffix.upper(): int(line_count) if line_count.isdigit() else 0
+            for line_suffix, line_count in (
+                (split1.strip(), split2.strip())
+                for split1, split2 in (
+                    (line + (':1' if ':' not in line else '')).split(':', 1)
+                    for line in rv.text.splitlines()
+                )
+            )
+        }
+    except requests.RequestException:
+        # An exception occurred and we have no data to validate password against
+        return
+
+    # If we have data, check for our hash suffix in the returned range of matches
+    count = matches.get(suffix, None)
+    if count:  # not 0 and not None
+        raise forms.validators.StopValidation(
+            ngettext(
+                "This password was found in a breached password list and is not safe to"
+                " use",
+                "This password was found in breached password lists %(num)d times and"
+                " is not safe to use",
+                count,
+            )
+        )
+
+
 @User.forms('register')
 class RegisterForm(forms.Form):
     """
@@ -148,6 +197,7 @@ class RegisterForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(user_input_fields=['fullname', 'email']),
+            pwned_password_validator,
         ],
         render_kw={'autocomplete': 'new-password'},
     )
@@ -181,7 +231,7 @@ class PasswordForm(forms.Form):
     def validate_password(self, field) -> None:
         """Check for password match."""
         if not self.edit_user.password_is(field.data):
-            raise forms.ValidationError(_("Incorrect password"))
+            raise forms.validators.ValidationError(_("Incorrect password"))
 
 
 @User.forms('password_policy')
@@ -252,7 +302,9 @@ class PasswordResetRequestForm(forms.Form):
         """Process username to retrieve user."""
         self.user, self.anchor = getuser(field.data, True)
         if self.user is None:
-            raise forms.ValidationError(_("Could not find a user with that id"))
+            raise forms.validators.ValidationError(
+                _("Could not find a user with that id")
+            )
 
 
 @User.forms('password_create')
@@ -270,6 +322,7 @@ class PasswordCreateForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
+            pwned_password_validator,
         ],
         render_kw={'autocomplete': 'new-password'},
     )
@@ -313,6 +366,7 @@ class PasswordResetForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
+            pwned_password_validator,
         ],
         render_kw={'autocomplete': 'new-password'},
     )
@@ -330,7 +384,7 @@ class PasswordResetForm(forms.Form):
         """Confirm the user provided by the client is who this form is meant for."""
         user = getuser(field.data)
         if user is None or user != self.edit_user:
-            raise forms.ValidationError(
+            raise forms.validators.ValidationError(
                 _("This does not match the user the reset code is for")
             )
 
@@ -358,6 +412,7 @@ class PasswordChangeForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(min=PASSWORD_MIN_LENGTH, max=PASSWORD_MAX_LENGTH),
             PasswordStrengthValidator(),
+            pwned_password_validator,
         ],
         render_kw={'autocomplete': 'new-password'},
     )
@@ -374,34 +429,36 @@ class PasswordChangeForm(forms.Form):
     def validate_old_password(self, field) -> None:
         """Validate the old password to be correct."""
         if self.edit_user is None:
-            raise forms.ValidationError(_("Not logged in"))
+            raise forms.validators.ValidationError(_("Not logged in"))
         if not self.edit_user.password_is(field.data):
-            raise forms.ValidationError(_("Incorrect password"))
+            raise forms.validators.ValidationError(_("Incorrect password"))
 
 
 def raise_username_error(reason: str) -> str:
     """Provide a user-friendly error message for a username field error."""
     if reason == 'blank':
-        raise forms.ValidationError(_("This is required"))
+        raise forms.validators.ValidationError(_("This is required"))
     if reason == 'long':
-        raise forms.ValidationError(_("This is too long"))
+        raise forms.validators.ValidationError(_("This is too long"))
     if reason == 'invalid':
-        raise forms.ValidationError(
+        raise forms.validators.ValidationError(
             _(
                 "Usernames can only have alphabets, numbers and dashes (except at the"
                 " ends)"
             )
         )
     if reason == 'reserved':
-        raise forms.ValidationError(_("This username is reserved"))
+        raise forms.validators.ValidationError(_("This username is reserved"))
     if reason in ('user', 'org'):
-        raise forms.ValidationError(_("This username has been taken"))
-    raise forms.ValidationError(_("This username is not available"))
+        raise forms.validators.ValidationError(_("This username has been taken"))
+    raise forms.validators.ValidationError(_("This username is not available"))
 
 
 @User.forms('main')
 class AccountForm(forms.Form):
     """Form to edit basic account details."""
+
+    edit_obj: User
 
     fullname = forms.StringField(
         __("Full name"),
@@ -503,7 +560,9 @@ def validate_emailclaim(form, field):
     """Validate if an email address is already pending verification."""
     existing = UserEmailClaim.get_for(user=form.edit_user, email=field.data)
     if existing is not None:
-        raise forms.StopValidation(_("This email address is pending verification"))
+        raise forms.validators.StopValidation(
+            _("This email address is pending verification")
+        )
 
 
 @User.forms('email_add')
@@ -584,24 +643,24 @@ class NewPhoneForm(forms.Form):
         # Step 1: Validate number
         number = normalize_phone_number(field.data, sms=True)
         if number is False:
-            raise forms.StopValidation(
+            raise forms.validators.StopValidation(
                 _("This phone number cannot receive SMS messages")
             )
         if not number:
-            raise forms.StopValidation(
+            raise forms.validators.StopValidation(
                 _("This does not appear to be a valid phone number")
             )
         # Step 2: Check if number has already been claimed
         existing = UserPhone.get(phone=number)
         if existing is not None:
             if existing.user == self.edit_user:
-                raise forms.ValidationError(
+                raise forms.validators.ValidationError(
                     _("You have already registered this phone number")
                 )
-            raise forms.ValidationError(_("This phone number has already been claimed"))
-        existing = UserPhoneClaim.get_for(user=self.edit_user, phone=number)
-        if existing is not None:
-            raise forms.ValidationError(_("This phone number is pending verification"))
+            # TODO: This should be a mechanism for merging accounts
+            raise forms.validators.ValidationError(
+                _("This phone number has already been claimed")
+            )
         # Step 3: If validations pass, use the reformatted number
         field.data = number  # Save stripped number
 
@@ -619,29 +678,6 @@ class PhonePrimaryForm(forms.Form):
             'autocomplete': 'tel',
         },
     )
-
-
-@User.forms('phone_verify')
-class VerifyPhoneForm(forms.Form):
-    """Verify a phone number with an OTP (TODO: pending deprecation with OtpForm)."""
-
-    verification_code = forms.StringField(
-        __("Verification code"),
-        validators=[forms.validators.DataRequired()],
-        filters=[forms.filters.strip()],
-        render_kw={
-            'pattern': '[0-9]*',
-            'autocomplete': 'one-time-code',
-            'autocorrect': 'off',
-            'inputmode': 'numeric',
-        },
-    )
-
-    def validate_verification_code(self, field) -> None:
-        """Validate verification code provided by user matches what is expected."""
-        # self.phoneclaim is set by the view before calling form.validate()
-        if self.phoneclaim.verification_code != field.data:
-            raise forms.ValidationError(_("Verification code does not match"))
 
 
 class ModeratorReportForm(forms.Form):

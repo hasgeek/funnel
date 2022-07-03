@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import flash, redirect, request
+from flask import flash, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
@@ -13,6 +13,7 @@ from ..forms import LabelForm, LabelOptionForm
 from ..models import Label, Profile, Project, db
 from ..typing import ReturnView
 from ..utils import abort_null
+from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProjectViewMixin
 
@@ -84,7 +85,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
                 label.options.append(subl)
 
             db.session.commit()
-            return redirect(self.obj.url_for('labels'), code=303)
+            return render_redirect(self.obj.url_for('labels'))
         return {
             'title': "Add label",
             'form': form,
@@ -139,7 +140,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
                     subforms.append(LabelOptionForm(obj=subl, parent=self.obj.project))
         else:
             flash(_("Only main labels can be edited"), category='error')
-            return redirect(self.obj.project.url_for('labels'), code=303)
+            return render_redirect(self.obj.project.url_for('labels'))
 
         if form.validate_on_submit():
             namelist = [abort_null(x) for x in request.values.getlist('name')]
@@ -191,7 +192,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
             db.session.commit()
             flash(_("Label has been edited"), category='success')
 
-            return redirect(self.obj.project.url_for('labels'), code=303)
+            return render_redirect(self.obj.project.url_for('labels'))
         return {
             'title': "Edit label",
             'form': form,
@@ -212,7 +213,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
             flash(_("The label has been archived"), category='success')
         else:
             flash(_("CSRF token is missing"), category='error')
-        return redirect(self.obj.project.url_for('labels'), code=303)
+        return render_redirect(self.obj.project.url_for('labels'))
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
@@ -234,7 +235,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
                 self.obj.main_label.options.reorder()
                 db.session.commit()
             flash(_("The label has been deleted"), category='success')
-        return redirect(self.obj.project.url_for('labels'), code=303)
+        return render_redirect(self.obj.project.url_for('labels'))
 
 
 LabelView.init_app(app)

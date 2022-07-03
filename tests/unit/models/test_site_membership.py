@@ -43,7 +43,7 @@ def test_siteadmin_roles(db_session, user_mort, user_death):
     # Now confirm all roles are present
     assert user_mort.active_site_membership == membership
     assert user_mort.is_site_admin is True
-    assert user_mort.is_comment_moderator is True  # type: ignore[unreachable]
+    assert user_mort.is_comment_moderator is True
     assert user_mort.is_user_moderator is True
     assert user_mort.is_site_editor is True
 
@@ -105,7 +105,7 @@ def test_site_membership_migrate_user_transfer(db_session, user_death, user_mort
 
     assert membership.user == user_mort
     assert user_mort.active_site_membership is not None
-    assert user_death.active_site_membership is None  # type: ignore[unreachable]
+    assert user_death.active_site_membership is None
 
     SiteMembership.migrate_user(old_user=user_mort, new_user=user_death)
     db_session.commit()
@@ -155,9 +155,7 @@ def test_site_membership_migrate_user_retain(db_session, user_death, user_mort):
     assert user_mort.active_site_membership is None
     assert user_death.active_site_membership is not None
 
-    SiteMembership.migrate_user(  # type: ignore[unreachable]
-        old_user=user_mort, new_user=user_death
-    )
+    SiteMembership.migrate_user(old_user=user_mort, new_user=user_death)
     db_session.commit()
     invalidate_cache(user_mort)
     invalidate_cache(user_death)
@@ -204,7 +202,7 @@ def test_site_membership_migrate_user_merge(db_session, user_death, user_mort):
     assert mort_membership.user == user_mort
     assert death_membership.user == user_death
     assert user_mort.active_site_membership is not None
-    assert user_death.active_site_membership is not None  # type: ignore[unreachable]
+    assert user_death.active_site_membership is not None
 
     SiteMembership.migrate_user(old_user=user_mort, new_user=user_death)
     db_session.commit()

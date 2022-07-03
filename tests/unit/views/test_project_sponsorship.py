@@ -81,7 +81,7 @@ def test_sponsorship_add(  # pylint: disable=too-many-arguments
         data['is_promoted'] = True
 
     rv = client.post(endpoint, data=data)
-    assert rv.status_code == 302
+    assert rv.status_code == 303
 
     added_sponsorship = SponsorMembership.query.filter(
         SponsorMembership.is_active,
@@ -106,7 +106,7 @@ def test_sponsorship_edit(
         # Set is_promoted to False by excluding it from form data (how HTML forms work)
     }
     rv = client.post(endpoint, data=data)
-    assert rv.status_code == 302
+    assert rv.status_code == 303
 
     edited_sponsorship = SponsorMembership.query.filter(
         SponsorMembership.is_active,
@@ -133,7 +133,7 @@ def test_sponsorship_remove(  # pylint: disable=too-many-arguments
         'csrf_token': csrf_token,
     }
     rv = client.post(endpoint, data=data)
-    assert rv.status_code == 302
+    assert rv.status_code == 303
 
     no_sponsor = SponsorMembership.query.filter(
         SponsorMembership.is_active,

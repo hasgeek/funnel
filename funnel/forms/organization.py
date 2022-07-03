@@ -7,9 +7,8 @@ from typing import Optional
 from flask import Markup, url_for
 
 from baseframe import _, __, forms
-from coaster.auth import current_auth
 
-from ..models import Organization, Profile, Team
+from ..models import Organization, Profile, Team, User
 
 __all__ = ['OrganizationForm', 'TeamForm']
 
@@ -18,6 +17,8 @@ __all__ = ['OrganizationForm', 'TeamForm']
 class OrganizationForm(forms.Form):
     """Form for an organization's name and title."""
 
+    __expects__ = ('user',)
+    user: User
     edit_obj: Optional[Organization]
 
     title = forms.StringField(
@@ -55,24 +56,21 @@ class OrganizationForm(forms.Form):
         if not reason:
             return  # name is available
         if reason == 'invalid':
-            raise forms.ValidationError(
+            raise forms.validators.ValidationError(
                 _(
                     "Names can only have letters, numbers and dashes (except at the"
                     " ends)"
                 )
             )
         if reason == 'reserved':
-            raise forms.ValidationError(_("This name is reserved"))
+            raise forms.validators.ValidationError(_("This name is reserved"))
         if self.edit_obj and field.data.lower() == self.edit_obj.name.lower():
             # Name is not reserved or invalid under current rules. It's also not changed
             # from existing name, or has only changed case. This is a validation pass.
             return
         if reason == 'user':
-            if (
-                current_auth.user.username
-                and field.data.lower() == current_auth.user.username.lower()
-            ):
-                raise forms.ValidationError(
+            if self.user.username and field.data.lower() == self.user.username.lower():
+                raise forms.validators.ValidationError(
                     Markup(
                         _(
                             "This is <em>your</em> current username."
@@ -81,9 +79,11 @@ class OrganizationForm(forms.Form):
                         ).format(account=url_for('account'))
                     )
                 )
-            raise forms.ValidationError(_("This name has been taken by another user"))
+            raise forms.validators.ValidationError(
+                _("This name has been taken by another user")
+            )
         if reason == 'org':
-            raise forms.ValidationError(
+            raise forms.validators.ValidationError(
                 _("This name has been taken by another organization")
             )
         # We're not supposed to get an unknown reason. Flag error to developers.
