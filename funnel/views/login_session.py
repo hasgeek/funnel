@@ -442,16 +442,19 @@ def requires_user_not_spammy(
     """Decorate a view to require the user to prove they are not likely a spammer."""
 
     def decorator(f: WrappedFunc) -> WrappedFunc:
+        """Apply decorator using the specified :attr:`get_current` function."""
+
         @wraps(f)
         def wrapper(*args, **kwargs) -> Any:
             """Validate user rights in a view."""
             if not current_auth.is_authenticated:
                 flash(_("You need to be logged in for that page"), 'info')
                 return render_redirect(
-                    url_for('login', next=get_current_url()), code=303
+                    url_for('login', next=get_current_url()),
+                    302 if request.method == 'GET' else 303,
                 )
             if not current_auth.user.features.not_likely_throwaway:
-                flash(_("Confirm your phone number to continue"), 'error')
+                flash(_("Confirm your phone number to continue"), 'info')
 
                 session['next'] = (
                     get_current(*args, **kwargs) if get_current else get_current_url()
