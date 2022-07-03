@@ -309,7 +309,10 @@ def set_lastuser_cookie(response):
     if (
         request_has_auth()
         and hasattr(current_auth, 'cookie')
-        and not getattr(current_auth, 'suppress_cookie', False)
+        and not (
+            current_auth.cookie == {}
+            and getattr(current_auth, 'suppress_empty_cookie', False)
+        )
     ):
         response.vary.add('Cookie')
         expires = utcnow() + current_app.config['PERMANENT_SESSION_LIFETIME']
@@ -418,7 +421,7 @@ def reload_for_cookies(f: WrappedFunc) -> WrappedFunc:
     @wraps(f)
     def wrapper(*args, **kwargs) -> Any:
         if 'lastuser' not in request.cookies:
-            add_auth_attribute('suppress_cookie', True)
+            add_auth_attribute('suppress_empty_cookie', True)
             attempt = request.args.get('cookiereload')
             if not attempt:
                 # First attempt: reload with HTTP 303

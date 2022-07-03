@@ -4,7 +4,7 @@ from datetime import timedelta
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from flask import redirect, session
+from flask import redirect, request, session
 from werkzeug.datastructures import MultiDict
 
 import pytest
@@ -507,10 +507,19 @@ def test_otp_reason_error(client, csrf_token):
 @pytest.mark.usefixtures('mock_loginhub_do', 'mock_loginhub_callback')
 def test_login_external(client):
     """External login flow works under mocked conditions."""
-    rv = client.get('/login/loginhub', follow_redirects=True)
+    rv = client.get('/login/loginhub')
+    assert rv.status_code == 302
+    assert rv.location == '/login/loginhub/callback'
+    rv = client.get(rv.location, follow_redirects=True)
     if rv.metarefresh is not None:
-        rv = client.get(rv.metarefresh.url, follow_redirects=True)
-    assert rv.status_code == 200
+        rv = client.get(rv.metarefresh.url)
+    assert current_auth.user is not None
+    assert current_auth.user.fullname == 'Rincewind'
+    assert current_auth.cookie != {}
+    # User is logged in and is now being sent off to either index or /account/edit
+    assert rv.status_code == 303
+    client.get(rv.location)
+    assert request.path in ('/', '/account/edit')
     assert current_auth.user is not None
     assert current_auth.user.fullname == 'Rincewind'
 
