@@ -381,26 +381,28 @@
     $('#username').attr('autocomplete', inputMode);
   });
 
-  if ('OTPCredential' in window && document.querySelector('input[autocomplete="one-time-code"]')) {
-    var input = document.querySelector('input[autocomplete="one-time-code"]');
-    var formid = "#" + {{ ref_id|tojson }};
-    var form = document.querySelector(formid);
-    if (input && form) {
-      var ac = new AbortController();
-      form.addEventListener('submit', e => {
-        ac.abort();
-      });
-      navigator.credentials.get({
-        otp: { transport:['sms'] },
-        signal: ac.signal
-      }).then(otp => {
-        input.value = otp.code;
-        form.submit();
-      }).catch(err => {
-        console.log(err);
-      });
+  {% if form and form.otp %}
+    if ('OTPCredential' in window) {
+      var input = document.querySelector('input[autocomplete="one-time-code"]');
+      var formid = "#" + {{ ref_id|tojson }};
+      var form = document.querySelector(formid);
+      if (input && form) {
+        var ac = new AbortController();
+        form.addEventListener('submit', e => {
+          ac.abort();
+        });
+        navigator.credentials.get({
+          otp: { transport:['sms'] },
+          signal: ac.signal
+        }).then(otp => {
+          input.value = otp.code;
+          form.submit();
+        }).catch(err => {
+          console.log(err);
+        });
+      }
     }
-  }
+  {%- endif -%}
 
   {%- for field in form -%}
     {%- if field.type == 'FormField' %}
