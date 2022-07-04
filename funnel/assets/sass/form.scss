@@ -697,7 +697,7 @@ form.mui--bg-accent .CodeMirror {
 }
 
 .keyboard-switch {
-  display: flex;
+  display: none;
   justify-content: space-between;
   position: fixed;
   bottom: $mui-grid-padding/2;
@@ -710,4 +710,8 @@ form.mui--bg-accent .CodeMirror {
   .tabs {
     margin: 0;
   }
+}
+
+input#username:focus ~ .keyboard-switch {
+  display: flex;
 }

@@ -406,7 +406,7 @@
 {% macro profile_header(profile, class='', current_page='profile', title='') %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
-      <a href="{{ profile.url_for() }}" aria-label="{% trans %}Back to the profile{% endtrans %}" class="js-spa-navigate mui--text-dark mobile-nav__icon" data-ga="Back to the profile page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{%- if title %}{{ title }}{% endif %}</span>
+      <a href="{% if current_page != 'profile' %}{{ profile.url_for() }}{% else %}javascript:history.back(){% endif %}" aria-label="{% trans %}Back to the profile{% endtrans %}" class="js-spa-navigate mui--text-dark mobile-nav__icon" data-ga="Back to the profile page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{%- if title %}{{ title }}{% endif %}</span>
       {% if current_page == 'profile' and profile.current_roles.admin %}
         <div class="mobile-nav__menu">{{ profile_admin_buttons(profile) }}</div>
       {%- endif %}
