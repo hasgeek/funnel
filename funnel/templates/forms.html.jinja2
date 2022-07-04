@@ -381,6 +381,30 @@
     $('#username').attr('autocomplete', inputMode);
   });
 
+  {% if form and form.otp %}
+    if ('OTPCredential' in window) {
+      var formid = "#" + {{ ref_id|tojson }};
+      var form = document.querySelector(formid);
+      var inputField = formid + ' input[autocomplete="one-time-code"]'
+      var input = document.querySelector(inputField);
+      if (form && input) {
+        var ac = new AbortController();
+        form.addEventListener('submit', e => {
+          ac.abort();
+        });
+        navigator.credentials.get({
+          otp: { transport:['sms'] },
+          signal: ac.signal
+        }).then(otp => {
+          input.value = otp.code;
+          form.submit();
+        }).catch(err => {
+          console.log(err);
+        });
+      }
+    }
+  {%- endif -%}
+
   {%- for field in form -%}
     {%- if field.type == 'FormField' %}
       {{ widgetscripts(field.form, script=false) }}
