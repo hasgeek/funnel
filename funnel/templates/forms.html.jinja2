@@ -383,10 +383,11 @@
 
   {% if form and form.otp %}
     if ('OTPCredential' in window) {
-      var input = document.querySelector('input[autocomplete="one-time-code"]');
       var formid = "#" + {{ ref_id|tojson }};
       var form = document.querySelector(formid);
-      if (input && form) {
+      var inputField = formid + ' input[autocomplete="one-time-code"]'
+      var input = document.querySelector(inputField);
+      if (form && input) {
         var ac = new AbortController();
         form.addEventListener('submit', e => {
           ac.abort();
