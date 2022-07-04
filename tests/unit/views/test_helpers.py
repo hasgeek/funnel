@@ -1,5 +1,8 @@
+"""Tests for view helpers."""
+
 from base64 import urlsafe_b64decode
 from datetime import datetime
+from typing import Any
 from unittest.mock import patch
 from urllib.parse import urlsplit
 
@@ -38,11 +41,11 @@ def testapp():
 class MockUrandom:
     """Mock for urandom."""
 
-    def __init__(self, sequence):
+    def __init__(self, sequence) -> None:
         self.sequence = sequence
         self.counter = 0
 
-    def __call__(self, length: int):
+    def __call__(self, length: int) -> Any:
         value = self.sequence[self.counter % len(self.sequence)]
         self.counter += 1
         return value

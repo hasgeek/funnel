@@ -1,3 +1,5 @@
+"""Views for notification feed (updates page)."""
+
 from __future__ import annotations
 
 from flask import abort
@@ -102,7 +104,7 @@ class AllNotificationsView(ClassView):
     def mark_unread(self, eventid_b58: str) -> ReturnRenderWith:
         form = forms.Form()
         del form.form_nonce
-        if forms.validate_on_submit():
+        if form.validate_on_submit():
             un = UserNotification.get_for(current_auth.user, eventid_b58)
             if un is None:
                 abort(404)

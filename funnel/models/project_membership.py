@@ -1,3 +1,5 @@
+"""Project crew and (future) participant registration membership."""
+
 from __future__ import annotations
 
 from typing import Dict, Iterable, Optional, Set
@@ -100,7 +102,9 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, db.Model):
     is_usher = db.Column(db.Boolean, nullable=False, default=False)
 
     @declared_attr
-    def __table_args__(cls):
+    def __table_args__(  # type: ignore[override]  # pylint: disable=no-self-argument
+        cls,
+    ) -> tuple:
         """Table arguments."""
         args = list(super().__table_args__)
         kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
@@ -130,7 +134,7 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, db.Model):
             roles.add('usher')
         return roles
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
         roles = super().roles_for(actor, anchors)
         if 'editor' in self.project.roles_for(actor, anchors):
             roles.add('project_editor')

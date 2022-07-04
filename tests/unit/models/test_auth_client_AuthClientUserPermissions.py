@@ -26,16 +26,6 @@ class TestUserClientPermissions(TestDatabaseFixture):
         )
         assert result.pickername == finnick.pickername
 
-    def test_userclientpermissions_buid(self):
-        """Test for UserClientPermissions' buid."""
-        beetee = models.User(username='beetee', fullname="Beetee")
-        district3 = models.AuthClient(title='District 3')
-        access_permissions = 'siteadmin'
-        result = models.AuthClientUserPermissions(
-            user=beetee, auth_client=district3, access_permissions=access_permissions
-        )
-        assert result.buid == beetee.buid
-
 
 def test_userclientpermissions_migrate_user_move(
     db_session, user_twoflower, user_rincewind, client_hex

@@ -1,6 +1,8 @@
+"""Geoname data models."""
+
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Union, cast
+from typing import Collection, Dict, List, Optional, Union, cast
 import re
 
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -68,7 +70,7 @@ class GeoCountryInfo(BaseNameMixin, db.Model):
         ),
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return representation."""
         return f'<GeoCountryInfo {self.geonameid} "{self.title}">'
 
@@ -95,7 +97,7 @@ class GeoAdmin1Code(BaseMixin, db.Model):
     country = db.relationship('GeoCountryInfo')
     admin1_code = db.Column(db.Unicode)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return representation."""
         return f'<GeoAdmin1Code {self.geonameid} "self.ascii_title">'
 
@@ -123,7 +125,7 @@ class GeoAdmin2Code(BaseMixin, db.Model):
     admin1_code = db.Column(db.Unicode)
     admin2_code = db.Column(db.Unicode)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return representation."""
         return f'<GeoAdmin2Code {self.geonameid} "self.ascii_title">'
 
@@ -195,6 +197,7 @@ class GeoName(BaseNameMixin, db.Model):
 
     @property
     def short_title(self) -> str:
+        """Return a short title for this geoname record."""
         if self.has_country:
             return self.has_country.title
         if self.has_admin1code:
@@ -205,6 +208,7 @@ class GeoName(BaseNameMixin, db.Model):
 
     @property
     def picker_title(self) -> str:
+        """Return a disambiguation title for this geoname record."""
         title = self.use_title
         country = self.country_id
         if country == 'US':
@@ -245,10 +249,12 @@ class GeoName(BaseNameMixin, db.Model):
 
     @property
     def geoname(self) -> GeoName:
+        """Return geoname record (self!)."""
         return self
 
     @property
     def use_title(self) -> str:
+        """Return a recommended usable title."""
         usetitle = self.ascii_title
         if self.fclass == 'A' and self.fcode.startswith('PCL'):
             if 'of the' in usetitle:
@@ -265,10 +271,8 @@ class GeoName(BaseNameMixin, db.Model):
             )
         return usetitle
 
-    def make_name(self, reserved: Optional[List[str]] = None) -> None:
+    def make_name(self, reserved: Collection[str] = ()) -> None:
         """Create a unique name for this geoname record."""
-        if not reserved:
-            reserved = []
         if self.ascii_title:
             usetitle = self.use_title
             if self.id:

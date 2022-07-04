@@ -501,6 +501,8 @@ def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
 
 
 class ImgeeFurl(furl):
+    """Furl with a resize method specifically for Imgee URLs."""
+
     def resize(self, width: int, height: Optional[int] = None) -> furl:
         """
         Return image url with `?size=WxH` suffixed to it.
@@ -515,7 +517,9 @@ class ImgeeFurl(furl):
         return self
 
 
-class ImgeeType(UrlType):
+class ImgeeType(UrlType):  # pylint: disable=abstract-method
+    """Column that stores an Imgee URL and casts the content into :class:`ImgeeFurl`."""
+
     url_parser = ImgeeFurl
     cache_ok = True
 

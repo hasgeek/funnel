@@ -58,12 +58,12 @@ def test_suspended_user_private_profile(db_session, user_wolfgang):
     # Ensure column defaults are set (Profile.state)
     db_session.commit()
 
-    # Profile cannot be public until the user has verified contact info
+    # Profile cannot be public until the user has a verified phone number
     with pytest.raises(StateTransitionError):
         user_wolfgang.profile.make_public()
 
     # Add an email address to meet the criteria for having verified contact info
-    user_wolfgang.add_email('wolfgang@example.org')
+    user_wolfgang.add_phone('+1234567890')
 
     # Make profile public and confirm
     user_wolfgang.profile.make_public()

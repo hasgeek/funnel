@@ -1,14 +1,8 @@
+"""Views for a user or organization profile."""
+
 from __future__ import annotations
 
-from flask import (
-    Response,
-    abort,
-    current_app,
-    flash,
-    redirect,
-    render_template,
-    request,
-)
+from flask import abort, current_app, flash, render_template, request
 
 from baseframe import _
 from baseframe.filters import date_filter
@@ -26,10 +20,15 @@ from coaster.views import (
 )
 
 from .. import app
-from ..forms import ProfileBannerForm, ProfileForm, ProfileLogoForm
+from ..forms import (
+    ProfileBannerForm,
+    ProfileForm,
+    ProfileLogoForm,
+    ProfileTransitionForm,
+)
 from ..models import Profile, Project, db
 from .helpers import render_redirect
-from .login_session import requires_login
+from .login_session import requires_login, requires_user_not_spammy
 from .mixins import ProfileViewMixin
 
 
@@ -64,14 +63,14 @@ def feature_profile_make_private(obj):
 
 def template_switcher(templateargs):
     template = templateargs.pop('template')
-    return Response(render_template(template, **templateargs), mimetype='text/html')
+    return render_template(template, **templateargs)
 
 
 @Profile.views('main')
 @route('/<profile>')
 class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
-    @render_with({'*/*': template_switcher}, json=True)
+    @render_with({'text/html': template_switcher}, json=True)
     @requires_roles({'reader', 'admin'})
     def view(self):
         template_name = None
@@ -268,15 +267,18 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'admin'})
+    @requires_user_not_spammy()
     def edit(self):
-        form = ProfileForm(obj=self.obj, model=Profile, profile=self.obj)
+        form = ProfileForm(
+            obj=self.obj, model=Profile, profile=self.obj, user=current_auth.user
+        )
         if self.obj.user:
             form.make_for_user()
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
         return render_form(
             form=form,
             title=_("Edit profile details"),
@@ -300,6 +302,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('edit_logo', methods=['GET', 'POST'])
     @requires_roles({'admin'})
+    @requires_user_not_spammy()
     def edit_logo_url(self):
         form = ProfileLogoForm(obj=self.obj, profile=self.obj)
         if request.method == 'POST':
@@ -307,7 +310,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 form.populate_obj(self.obj)
                 db.session.commit()
                 flash(_("Your changes have been saved"), 'info')
-                return render_redirect(self.obj.url_for(), code=303)
+                return render_redirect(self.obj.url_for())
             return render_form(form=form, title="", submit=_("Save logo"), ajax=True)
         return render_form(
             form=form,
@@ -326,12 +329,12 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if form.validate_on_submit():
             self.obj.logo_url = None
             db.session.commit()
-            return render_redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
         current_app.logger.error(
             "CSRF form validation error when removing profile logo"
         )
         flash(_("Were you trying to remove the logo? Try again to confirm"), 'error')
-        return render_redirect(self.obj.url_for(), code=303)
+        return render_redirect(self.obj.url_for())
 
     @route('update_banner', methods=['GET', 'POST'])
     @render_with('update_logo_modal.html.jinja2')
@@ -355,7 +358,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 form.populate_obj(self.obj)
                 db.session.commit()
                 flash(_("Your changes have been saved"), 'info')
-                return render_redirect(self.obj.url_for(), code=303)
+                return render_redirect(self.obj.url_for())
             return render_form(form=form, title="", submit=_("Save banner"), ajax=True)
         return render_form(
             form=form,
@@ -373,7 +376,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if form.validate_on_submit():
             self.obj.banner_image_url = None
             db.session.commit()
-            return render_redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
         current_app.logger.error(
             "CSRF form validation error when removing profile banner"
         )
@@ -381,13 +384,13 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             _("Were you trying to remove the banner? Try again to confirm"),
             'error',
         )
-        return render_redirect(self.obj.url_for(), code=303)
+        return render_redirect(self.obj.url_for())
 
     @route('transition', methods=['POST'])
     @requires_login
     @requires_roles({'owner'})
     def transition(self):
-        form = self.obj.forms.transition()
+        form = ProfileTransitionForm(obj=self.obj)
         if form.validate_on_submit():
             transition_name = form.transition.data
             getattr(self.obj, transition_name)()
@@ -397,7 +400,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             flash(
                 _("There was a problem saving your changes. Please try again"), 'error'
             )
-        return redirect(get_next_url(referrer=True), code=303)
+        return render_redirect(get_next_url(referrer=True))
 
 
 ProfileView.init_app(app)

@@ -82,8 +82,10 @@ class ProfileForm(OrganizationForm):
 class ProfileTransitionForm(forms.Form):
     """Form to transition a profile between public and private state."""
 
+    edit_obj: Profile
+
     transition = forms.SelectField(
-        __("Project status"), validators=[forms.validators.DataRequired()]
+        __("Profile visibility"), validators=[forms.validators.DataRequired()]
     )
 
     def set_queries(self) -> None:

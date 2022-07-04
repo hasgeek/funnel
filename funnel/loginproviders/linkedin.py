@@ -28,18 +28,6 @@ class LinkedInProvider(LoginProvider):
         'q=members&projection=(elements*(handle~))'
     )
 
-    def __init__(
-        self, name, title, key, secret, at_login=True, priority=False, icon=None
-    ) -> None:
-        self.name = name
-        self.title = title
-        self.at_login = at_login
-        self.priority = priority
-        self.icon = icon
-
-        self.key = key
-        self.secret = secret
-
     def do(self, callback_url):
         session['oauth_state'] = token_urlsafe()
         session['oauth_callback'] = callback_url

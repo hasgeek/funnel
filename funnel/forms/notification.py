@@ -108,6 +108,7 @@ class UnsubscribeForm(forms.Form):
     """Form to unsubscribe from notifications."""
 
     __expects__ = ('transport', 'notification_type')
+    edit_obj: User
     transport: str
     notification_type: str
 

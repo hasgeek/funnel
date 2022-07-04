@@ -3,6 +3,7 @@
 # https://datatracker.ietf.org/doc/html/rfc2606#section-3
 # https://datatracker.ietf.org/doc/html/rfc6761#section-6.5
 
+from typing import Any
 from unittest.mock import patch
 
 from furl import furl
@@ -14,11 +15,11 @@ from funnel.models import shortlink
 class MockRandomBigint:
     """Mock for random_bigint that returns from a pre-determined sequence."""
 
-    def __init__(self, sequence):
+    def __init__(self, sequence) -> None:
         self.sequence = sequence
         self.counter = 0
 
-    def __call__(self, smaller: bool = False):
+    def __call__(self, smaller: bool = False) -> Any:
         value = self.sequence[self.counter % len(self.sequence)]
         self.counter += 1
         return value

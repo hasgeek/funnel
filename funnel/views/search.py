@@ -8,7 +8,7 @@ import re
 from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
 
-from flask import Markup, redirect, request, url_for
+from flask import Markup, request, url_for
 
 from typing_extensions import TypedDict
 
@@ -40,6 +40,7 @@ from ..models import (
     visual_field_delimiter,
 )
 from ..utils import abort_null
+from .helpers import render_redirect
 from .mixins import ProfileViewMixin, ProjectViewMixin
 
 # --- Definitions ----------------------------------------------------------------------
@@ -140,7 +141,7 @@ class SearchProvider:
 
     def all_query(self, squery: str) -> Query:
         """Search entire site."""
-        ...
+        raise NotImplementedError("Subclasses must implement all_query")
 
     def all_count(self, squery: str) -> int:
         """Return count of results for :meth:`all_query`."""
@@ -152,7 +153,7 @@ class SearchInProfileProvider(SearchProvider):
 
     def profile_query(self, squery: str, profile: Profile) -> Query:
         """Search in a profile."""
-        ...
+        raise NotImplementedError("Subclasses must implement profile_query")
 
     def profile_count(self, squery: str, profile: Profile) -> int:
         """Return count of results for :meth:`profile_query`."""
@@ -168,7 +169,7 @@ class SearchInProjectProvider(SearchInProfileProvider):
 
     def project_query(self, squery: str, project: Project) -> Query:
         """Search in a project."""
-        ...
+        raise NotImplementedError("Subclasses must implement project_query")
 
     def project_count(self, squery: str, project: Project) -> int:
         """Return count of results for :meth:`project_query`."""
@@ -782,7 +783,7 @@ def search_counts(
 
 
 # @cache.memoize(timeout=300)
-def search_results(
+def search_results(  # pylint: disable=too-many-arguments
     squery: str,
     stype: str,
     page=1,
@@ -851,7 +852,7 @@ class SearchView(ClassView):
         # Can't use @requestargs for stype as it doesn't support name changes
         stype = abort_null(request.args.get('type'))
         if not squery:
-            return redirect(url_for('index'))
+            return render_redirect(url_for('index'), 302)
         if stype is None or stype not in search_providers:
             return {'type': None, 'counts': search_counts(squery)}
         return {
@@ -878,7 +879,7 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
             request.args.get('type')
         )  # Can't use requestargs as it doesn't support name changes
         if not squery:
-            return redirect(url_for('index'))
+            return render_redirect(url_for('index'), 302)
         if (
             stype is None
             or stype not in search_providers
@@ -912,7 +913,7 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
             request.args.get('type')
         )  # Can't use requestargs as it doesn't support name changes
         if not squery:
-            return redirect(url_for('index'))
+            return render_redirect(url_for('index'), 302)
         if (
             stype is None
             or stype not in search_providers

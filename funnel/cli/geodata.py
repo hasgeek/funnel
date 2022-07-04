@@ -163,8 +163,8 @@ def downloadfile(basepath: str, filename: str, folder: Optional[str] = None):
         progress.finish()
 
         if filename.lower().endswith('.zip'):
-            zipf = zipfile.ZipFile(folder_file, 'r')
-            zipf.extractall(folder)
+            with zipfile.ZipFile(folder_file, 'r') as zipf:
+                zipf.extractall(folder)
 
 
 def load_country_info(fd):

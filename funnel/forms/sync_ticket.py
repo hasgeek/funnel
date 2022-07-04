@@ -107,6 +107,7 @@ class TicketParticipantForm(forms.Form):
 
     __returns__ = ('user',)
     user: Optional[User] = None
+    edit_parent: Project
 
     fullname = forms.StringField(
         __("Fullname"),
@@ -154,8 +155,7 @@ class TicketParticipantForm(forms.Form):
 
     def set_queries(self) -> None:
         """Prepare form for use."""
-        if self.edit_parent is not None:
-            self.ticket_events.query = self.edit_parent.ticket_events
+        self.ticket_events.query = self.edit_parent.ticket_events
 
     def validate(self, *args, **kwargs) -> bool:
         """Validate form."""

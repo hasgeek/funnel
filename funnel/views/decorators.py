@@ -1,39 +1,40 @@
+"""View decorator utility functions."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta
 from functools import wraps
 from hashlib import blake2b
-from typing import Any, Callable, Optional, Set, TypeVar, Union, cast
+from typing import Any, Callable, Dict, Optional, Set, Union, cast
 
-from flask import Response, make_response, redirect, request, url_for
+from flask import Response, make_response, request, url_for
 
 from baseframe import cache
 from coaster.auth import current_auth
 
 from ..proxies import request_wants
-from ..typing import ReturnView
-from .helpers import compress_response
-
-# https://mypy.readthedocs.io/en/stable/generics.html#declaring-decorators
-F = TypeVar('F', bound=Callable[..., Any])
+from ..typing import ReturnDecorator, ReturnResponse, WrappedFunc
+from .helpers import compress_response, render_redirect
 
 
-def xml_response(f: F) -> F:
+def xml_response(f: WrappedFunc) -> WrappedFunc:
     """Wrap the view result in a :class:`Response` with XML mimetype."""
 
     @wraps(f)
     def wrapper(*args, **kwargs) -> Response:
         return Response(f(*args, **kwargs), mimetype='application/xml')
 
-    return cast(F, wrapper)
+    return cast(WrappedFunc, wrapper)
 
 
-def xhr_only(redirect_to: Union[str, Callable[[], str], None] = None):
+def xhr_only(
+    redirect_to: Union[str, Callable[[], str], None] = None
+) -> ReturnDecorator:
     """Render a view only when it's an XHR request."""
 
-    def decorator(f: F) -> F:
+    def decorator(f: WrappedFunc) -> WrappedFunc:
         @wraps(f)
-        def wrapper(*args, **kwargs) -> ReturnView:
+        def wrapper(*args, **kwargs) -> Any:
             if not request_wants.html_fragment:
                 if redirect_to is None:
                     destination = url_for('index')
@@ -41,10 +42,12 @@ def xhr_only(redirect_to: Union[str, Callable[[], str], None] = None):
                     destination = redirect_to()
                 else:
                     destination = redirect_to
-                return redirect(destination)
+                return render_redirect(
+                    destination, 302 if request.method == 'GET' else 303
+                )
             return f(*args, **kwargs)
 
-        return cast(F, wrapper)
+        return cast(WrappedFunc, wrapper)
 
     return decorator
 
@@ -55,7 +58,7 @@ def etag_cache_for_user(
     timeout: int,
     max_age: Optional[int] = None,
     query_params: Optional[Set] = None,
-):
+) -> ReturnDecorator:
     """
     Cache and compress a response, and add an ETag header for browser cache.
 
@@ -68,9 +71,9 @@ def etag_cache_for_user(
     if max_age is None:
         max_age = timeout
 
-    def decorator(f: F) -> F:
+    def decorator(f: WrappedFunc) -> Callable[..., Response]:
         @wraps(f)
-        def wrapper(*args, **kwargs) -> Response:
+        def wrapper(*args, **kwargs) -> ReturnResponse:
             # No ETag or cache storage if the request is not GET or HEAD
             if request.method not in ('GET', 'HEAD'):
                 return f(*args, **kwargs)
@@ -109,7 +112,12 @@ def etag_cache_for_user(
 
             # 2. Get existing data from cache. There may be multiple copies of data,
             # for each distinct rhash. Look for the one matching our rhash
-            cache_data = cache.get(cache_key)
+
+            # XXX: Typing for cache.get is incorrectly specified as returning
+            # Optional[str]
+            cache_data: Optional[Dict] = cache.get(  # type: ignore[assignment]
+                cache_key
+            )
             response_data = None
             if cache_data:
                 rhash_data = cache_data.get(rhash, {})
@@ -173,14 +181,8 @@ def etag_cache_for_user(
                 response.last_modified or datetime.utcnow()
             ) + timedelta(seconds=cast(int, max_age))
 
-            # mypy errors:
-            # 1. error: Incompatible return value type (got
-            #    "werkzeug.wrappers.response.Response", expected
-            #    "flask.wrappers.Response") [return-value]
-            # 2. error: Argument 1 to "make_conditional" of "Response" has incompatible
-            #    type "Request"; expected "Dict[str, Any]"  [arg-type]
-            return response.make_conditional(request)  # type: ignore[return-value,arg-type]
+            return response.make_conditional(request)
 
-        return cast(F, wrapper)
+        return cast(WrappedFunc, wrapper)
 
     return decorator

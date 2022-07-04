@@ -31,8 +31,8 @@ class ExplaraAPI:
         Get the entire dump of orders for a given eventid in batches.
 
         Batches are of size 50, owing to the restriction imposed by Explara's API.
-        Explara does not make any assurances w.r.t the order; hence no order is assumed and
-        the entire dump is retrieved.
+        Explara does not make any assurances w.r.t the order; hence no order is assumed
+        and the entire dump is retrieved.
         """
         ticket_orders = []
         completed = False

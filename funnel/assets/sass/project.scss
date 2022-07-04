@@ -281,7 +281,7 @@
     }
 
     .card__calendar {
-      padding: 0;
+      padding: 0 0 $mui-grid-padding;
       .calendar {
         .calendar__month--unique {
           display: none;

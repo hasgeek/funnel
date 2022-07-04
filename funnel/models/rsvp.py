@@ -22,7 +22,8 @@ __all__ = ['Rsvp', 'RSVP_STATUS']
 
 
 class RSVP_STATUS(LabeledEnum):  # noqa: N801
-    # If you add any new state, you need to add a migration to modify the check constraint
+    # If you add any new state, you need to add a migration to modify the check
+    # constraint
     YES = ('Y', 'yes', __("Going"))
     NO = ('N', 'no', __("Not going"))
     MAYBE = ('M', 'maybe', __("Maybe"))
@@ -144,7 +145,10 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         return None, ''
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         project_ids = {rsvp.project_id for rsvp in new_user.rsvps}
         for rsvp in old_user.rsvps:
             if rsvp.project_id not in project_ids:
@@ -152,12 +156,11 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
             else:
                 current_app.logger.warning(
                     "Discarding conflicting RSVP (%s) from %r on %r",
-                    rsvp._state,
+                    rsvp._state,  # pylint: disable=protected-access
                     old_user,
                     rsvp.project,
                 )
                 db.session.delete(rsvp)
-        return None
 
     @overload
     @classmethod
@@ -214,15 +217,21 @@ class __Project:
         return (
             cast(Project, self)
             .rsvps.join(User)
-            .filter(User.state.ACTIVE, Rsvp._state == status)  # skipcq: PYL-W0212
+            .filter(
+                User.state.ACTIVE,
+                Rsvp._state == status,  # pylint: disable=protected-access
+            )
         )
 
     def rsvp_counts(self) -> Dict[str, int]:
         return dict(
-            db.session.query(Rsvp._state, db.func.count(Rsvp._state))
+            db.session.query(
+                Rsvp._state,  # pylint: disable=protected-access
+                db.func.count(Rsvp._state),  # pylint: disable=protected-access
+            )
             .join(User)
             .filter(User.state.ACTIVE, Rsvp.project == self)
-            .group_by(Rsvp._state)
+            .group_by(Rsvp._state)  # pylint: disable=protected-access
             .all()
         )
 

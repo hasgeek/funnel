@@ -177,7 +177,6 @@
     list-style: none;
     overflow: auto;
     background: $mui-bg-color-primary;
-    z-index: -1;
   }
   .header__dropdown {
     .user .user__box .user__box__header {
@@ -617,7 +616,7 @@
       line-height: 1;
     }
     .mobile-nav__icon--right {
-      padding-right: 16px;
+      padding-right: $mui-grid-padding;
     }
     .mobile-nav__headline {
       font-size: 18px;
@@ -633,6 +632,11 @@
     }
     .mobile-nav__headline--lesswidth {
       max-width: calc(100% - 220px);
+    }
+    .mobile-nav__menu {
+      float: right;
+      margin-top: $mui-grid-padding;
+      margin-right: $mui-grid-padding;
     }
   }
 }

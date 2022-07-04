@@ -1,3 +1,5 @@
+"""Tests for the OAuth2 API endpoints."""
+
 from base64 import b64encode
 from secrets import token_urlsafe
 from urllib.parse import parse_qs, urlsplit
@@ -7,14 +9,18 @@ from funnel.models import AuthToken
 
 def test_authcode_requires_login(client):
     """The authcode endpoint requires a login."""
-    rv = client.get('/api/1/auth')
+    rv = client.get('/api/1/auth', follow_redirects=True)
+    assert rv.status_code == 200
+    assert rv.metarefresh is not None
+    # Auth is attempting to reload itself using meta-refresh to get a cookie
+    assert urlsplit(rv.metarefresh.url).path == '/api/1/auth'
+    rv = client.get(rv.metarefresh.url)
     assert rv.status_code == 302
     assert urlsplit(rv.location).path == '/login'
 
 
 def test_authcode_wellformed(client, login, user_rincewind, client_hex_credential):
     """The authcode endpoint will raise 403 if not well formed."""
-    # Add a userid to the session (using legacy handler) to create a user login
     login.as_(user_rincewind)
 
     # Incomplete request
@@ -42,7 +48,6 @@ def test_auth_untrusted_confidential(  # pylint: disable=too-many-arguments
     client, login, user_rincewind, client_hex, client_hex_credential, csrf_token
 ):
     """Test auth on an untrusted confidential auth client."""
-    # Add a userid to the session (using legacy handler) to create a user login
     login.as_(user_rincewind)
 
     # --- Create a typical auth code request -------------------------------------------

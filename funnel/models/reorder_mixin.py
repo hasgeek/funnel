@@ -1,3 +1,5 @@
+"""Mixin class to support reordering."""
+
 from __future__ import annotations
 
 from typing import TypeVar, Union
