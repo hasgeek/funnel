@@ -10,16 +10,18 @@ def init_models():
         user_admin = User(username='admin-user', fullname='admin-user')
         user_admin.password = 'admin-user129_Ftz'  # noqa: S105  # nosec
         user_admin_email = UserEmail(email='adminuser@example.com', user=user_admin)
+        db.session.add(user_admin.add_phone('9901234567', primary=True))
 
         user = User(username='member-user', fullname='member-user')
         user.password = 'member-user341_Wer'  # noqa: S105  # nosec
         user_email = UserEmail(email='memberuser@example.com', user=user)
 
-        profile_owner = User(username='profile-cypress', fullname='profile-cypress')
+        profile_owner = User(username='profile-cypress', fullname='profile-cypress', )
         profile_owner.password = 'profile-cypress123_St'  # noqa: S105  # nosec
         profile_owner_email = UserEmail(
             email='profileowner@example.com', user=profile_owner
         )
+        db.session.add(profile_owner.add_phone('9900112233', primary=True))
 
         promoter = User(username='promoter-user', fullname='promoter-user')
         promoter.password = 'promoter-user34_qQE'  # noqa: S105  # nosec
