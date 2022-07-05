@@ -24,7 +24,13 @@ exclude = '''
 )/
 '''
 
+[tool.djlint]
+profile='jinja'
+extension='.html.jinja2'
+indent=2
+
 [tool.curlylint]
+# Curlylint is not used, but the configuration is preserved here for future use
 include = '\.html.jinja2$'
 template_tags = [['set'], ['trans', 'pluralize', 'endtrans']]
 exclude = '''
