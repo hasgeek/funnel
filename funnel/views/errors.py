@@ -18,6 +18,16 @@ def error403(e):
     }, 403
 
 
+@app.errorhandler(404)
+@render_with('404.html.jinja2', json=True)
+def error404(e):
+    return {
+        'status': 'error',
+        'error': '404',
+        'error_description': '404 Not Found',
+    }, 404
+
+
 @app.errorhandler(405)
 @render_with('405.html.jinja2', json=True)
 def error405(e):
