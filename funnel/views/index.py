@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import os.path
 
-from flask import Response, g, jsonify, render_template, url_for
+from flask import Response, g, render_template
 
 from baseframe import _, __
 from baseframe.filters import date_filter
@@ -167,42 +167,6 @@ def policy(path):
         'policy.html.jinja2',
         index=policy_pages,
         page=pages.get_or_404(os.path.join('about', path)),
-    )
-
-
-@app.route('/manifest.json')
-@app.route('/manifest.webmanifest')
-def manifest():
-    return jsonify(
-        {
-            "name": app.config['SITE_TITLE'],
-            "short_name": app.config['SITE_TITLE'],
-            "description": _("Discussion spaces for geeks"),
-            "scope": "/",
-            "theme_color": "#e3e1e1",
-            "background_color": "#ffffff",
-            "display": "standalone",
-            "orientation": "portrait",
-            "start_url": "/?utm_source=WebApp",
-            "icons": [
-                {
-                    "src": url_for(
-                        'static', filename='img/android-chrome-192x192.png', v=2
-                    ),
-                    "sizes": "192x192",
-                    "type": "image/png",
-                    "purpose": "any",
-                },
-                {
-                    "src": url_for(
-                        'static', filename='img/android-chrome-512x512.png', v=2
-                    ),
-                    "sizes": "512x512",
-                    "type": "image/png",
-                    "purpose": "any",
-                },
-            ],
-        }
     )
 
 
