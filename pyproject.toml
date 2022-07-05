@@ -26,7 +26,7 @@ exclude = '''
 
 [tool.djlint]
 profile='jinja'
-extension='.html.jinja2'
+extension='.jinja2'
 indent=2
 
 [tool.curlylint]

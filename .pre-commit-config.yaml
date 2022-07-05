@@ -164,4 +164,4 @@ repos:
     rev: v1.3.0
     hooks:
       - id: djlint-jinja
-        files: '\\.jinja2'
+        files: \.(jinja2|j2)$

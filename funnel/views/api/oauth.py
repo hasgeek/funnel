@@ -164,6 +164,7 @@ def oauth_auth_error(
     if error_uri is not None:
         params['error_uri'] = error_uri
     clear_flashed_messages()
+    db.session.commit()
     response = redirect(
         make_redirect_url(redirect_uri, use_fragment=False, **params), 303
     )
