@@ -11,5 +11,13 @@ babel:
 	pybabel compile -f -d funnel/translations
 	cd funnel/assets; make babel
 
-deps:
-	pip-compile --upgrade requirements.in requirements_dev.in requirements_test.in
+deps: deps-main deps-dev deps-test
+
+deps-main:
+	pip-compile --upgrade requirements.in
+
+deps-dev:
+	pip-compile --upgrade requirements_dev.in
+
+deps-test:
+	pip-compile --upgrade requirements_test.in

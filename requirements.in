@@ -21,6 +21,7 @@ Flask-Redis
 Flask-RQ2
 Flask-SQLAlchemy
 Flask-WTF
+furl
 geoip2
 git+https://github.com/hasgeek/baseframe.git#egg=baseframe
 git+https://github.com/hasgeek/coaster.git#egg=coaster
