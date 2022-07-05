@@ -10,3 +10,6 @@ babel:
 	pybabel update -N -i funnel/translations/messages.pot -d funnel/translations
 	pybabel compile -f -d funnel/translations
 	cd funnel/assets; make babel
+
+deps:
+	pip-compile --upgrade requirements.in requirements_dev.in requirements_test.in

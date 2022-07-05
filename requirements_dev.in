@@ -1,6 +1,6 @@
-awscli  # Dupe from requirements.in due to conflicting requirements for PyYAML versions
 bandit
 black
+djlint
 flake8
 flake8-assertive
 flake8-bandit
