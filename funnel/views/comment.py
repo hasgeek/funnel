@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Optional, Union
 
-from flask import flash, jsonify, request, url_for
+from flask import flash, request, url_for
 
 from baseframe import _, forms
 from baseframe.forms import Form, render_form
@@ -159,18 +159,20 @@ class CommentsetView(UrlForView, ModelView):
         return Commentset.query.filter(Commentset.uuid_b58 == commentset).one_or_404()
 
     @route('', methods=['GET'])
-    def view(self):
+    def view(self) -> ReturnView:
         subscribed = bool(self.obj.current_roles.document_subscriber)
         if request_wants.json:
-            return jsonify(
-                {'subscribed': subscribed, 'comments': self.obj.views.json_comments()}
-            )
+            return {
+                'status': 'ok',
+                'subscribed': subscribed,
+                'comments': self.obj.views.json_comments(),
+            }
         return render_redirect(self.obj.views.url())
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_user_not_spammy(lambda self: self.obj.url_for())
-    def new(self):
+    def new(self) -> ReturnView:
         commentform = CommentForm()
         if commentform.validate_on_submit():
             if not self.obj.post_comment.is_available:
@@ -199,7 +201,7 @@ class CommentsetView(UrlForView, ModelView):
                 'message': _("Your comment has been posted"),
                 'comments': self.obj.views.json_comments(),
                 'comment': comment.current_access(datasets=('json', 'related')),
-            }
+            }, 201
         commentform_html = render_form(
             form=commentform,
             title='',
@@ -207,11 +209,11 @@ class CommentsetView(UrlForView, ModelView):
             ajax=False,
             with_chrome=False,
         )
-        return {'form': commentform_html}
+        return {'status': 'ok', 'form': commentform_html}
 
     @route('subscribe', methods=['POST'])
     @requires_login
-    def subscribe(self):
+    def subscribe(self) -> ReturnView:
         subscribe_form = CommentsetSubscribeForm()
         subscribe_form.form_nonce.data = subscribe_form.form_nonce.default()
         if subscribe_form.validate_on_submit():
@@ -290,18 +292,21 @@ class CommentView(UrlForView, ModelView):
 
     @route('')
     @requires_roles({'reader'})
-    def view(self):
+    def view(self) -> ReturnView:
         return render_redirect(self.obj.views.url())
 
     @route('json')
     @requires_roles({'reader'})
-    def view_json(self):
-        return jsonify(status=True, message=self.obj.message.text)
+    def view_json(self) -> ReturnView:
+        return {
+            'status': True,  # FIXME: return 'status': 'ok'
+            'message': self.obj.message,
+        }
 
     @route('reply', methods=['GET', 'POST'])
     @requires_roles({'reader'})
     @requires_user_not_spammy(lambda self: self.obj.url_for())
-    def reply(self):
+    def reply(self) -> ReturnView:
         commentform = CommentForm()
 
         if commentform.validate_on_submit():
@@ -335,12 +340,12 @@ class CommentView(UrlForView, ModelView):
             ajax=False,
             with_chrome=False,
         )
-        return {'form': commentform_html}
+        return {'status': 'ok', 'form': commentform_html}
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'author'})
-    def edit(self):
+    def edit(self) -> ReturnView:
         commentform = CommentForm(obj=self.obj)
         if commentform.validate_on_submit():
             self.obj.message = commentform.message.data
@@ -359,12 +364,12 @@ class CommentView(UrlForView, ModelView):
             ajax=False,
             with_chrome=False,
         )
-        return {'form': commentform_html}
+        return {'status': 'ok', 'form': commentform_html}
 
     @route('delete', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'author'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         delcommentform = Form()
 
         if delcommentform.validate_on_submit():
@@ -385,11 +390,11 @@ class CommentView(UrlForView, ModelView):
             ajax=False,
             with_chrome=False,
         )
-        return {'form': delcommentform_html}
+        return {'status': 'ok', 'form': delcommentform_html}
 
     @route('report_spam', methods=['GET', 'POST'])
     @requires_login
-    def report_spam(self):
+    def report_spam(self) -> ReturnView:
         csrf_form = forms.Form()
         if request.method == 'POST':
             if csrf_form.validate():
@@ -430,7 +435,7 @@ class CommentView(UrlForView, ModelView):
             ajax=False,
             with_chrome=False,
         )
-        return {'form': reportspamform_html}
+        return {'status': 'ok', 'form': reportspamform_html}
 
 
 CommentView.init_app(app)

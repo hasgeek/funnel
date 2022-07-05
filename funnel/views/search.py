@@ -41,6 +41,7 @@ from ..models import (
     db,
     visual_field_delimiter,
 )
+from ..typing import ReturnRenderWith
 from ..utils import abort_null
 from .helpers import render_redirect
 from .mixins import ProfileViewMixin, ProjectViewMixin
@@ -848,16 +849,17 @@ class SearchView(ClassView):
     @route('/search')
     @render_with('search.html.jinja2', json=True)
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))
-    def search(self, q=None, page=1, per_page=20):
+    def search(self, q=None, page=1, per_page=20) -> ReturnRenderWith:
         """Perform site-level search."""
         squery = get_squery(q)
         # Can't use @requestargs for stype as it doesn't support name changes
-        stype = abort_null(request.args.get('type'))
+        stype: Optional[str] = abort_null(request.args.get('type'))
         if not squery:
             return render_redirect(url_for('index'), 302)
         if stype is None or stype not in search_providers:
-            return {'type': None, 'counts': search_counts(squery)}
+            return {'status': 'ok', 'type': None, 'counts': search_counts(squery)}
         return {
+            'status': 'ok',
             'type': stype,
             'counts': search_counts(squery),
             'results': search_results(squery, stype, page=page, per_page=per_page),
@@ -874,10 +876,10 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
     @render_with('search.html.jinja2', json=True)
     @requires_roles({'reader', 'admin'})
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))
-    def search(self, q=None, page=1, per_page=20):
+    def search(self, q=None, page=1, per_page=20) -> ReturnRenderWith:
         """Perform search within a profile."""
         squery = get_squery(q)
-        stype = abort_null(
+        stype: Optional[str] = abort_null(
             request.args.get('type')
         )  # Can't use requestargs as it doesn't support name changes
         if not squery:
@@ -887,8 +889,13 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
             or stype not in search_providers
             or not isinstance(search_providers[stype], SearchInProfileProvider)
         ):
-            return {'type': None, 'counts': search_counts(squery, profile=self.obj)}
+            return {
+                'status': 'ok',
+                'type': None,
+                'counts': search_counts(squery, profile=self.obj),
+            }
         return {
+            'status': 'ok',
             'profile': self.obj.current_access(datasets=('primary', 'related')),
             'type': stype,
             'counts': search_counts(squery, profile=self.obj),
@@ -908,10 +915,10 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
     @render_with('search.html.jinja2', json=True)
     @requires_roles({'reader', 'crew', 'participant'})
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))
-    def search(self, q=None, page=1, per_page=20):
+    def search(self, q=None, page=1, per_page=20) -> ReturnRenderWith:
         """Perform search within a project."""
         squery = get_squery(q)
-        stype = abort_null(
+        stype: Optional[str] = abort_null(
             request.args.get('type')
         )  # Can't use requestargs as it doesn't support name changes
         if not squery:
@@ -922,11 +929,13 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
             or not isinstance(search_providers[stype], SearchInProjectProvider)
         ):
             return {
+                'status': 'ok',
                 'project': self.obj.current_access(datasets=('primary', 'related')),
                 'type': None,
                 'counts': search_counts(squery, project=self.obj),
             }
         return {
+            'status': 'ok',
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'type': stype,
             'counts': search_counts(squery, project=self.obj),

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import List, Tuple
+
 from flask import Markup, abort, flash, render_template, request, url_for
 
 from baseframe import _
@@ -33,7 +35,7 @@ from ..models import (
     User,
     db,
 )
-from ..typing import ReturnView
+from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo
 
@@ -42,7 +44,7 @@ from .login_session import requires_login, requires_sudo
 
 @app.route('/apps')
 @requires_login
-def client_list():
+def client_list() -> ReturnView:
     return render_template(
         'auth_client_index.html.jinja2',
         auth_clients=AuthClient.all_for(current_auth.user),
@@ -50,13 +52,13 @@ def client_list():
 
 
 @app.route('/apps/all')
-def client_list_all():
+def client_list_all() -> ReturnView:
     return render_template(
         'auth_client_index.html.jinja2', auth_clients=AuthClient.all_for(None)
     )
 
 
-def available_client_owners():
+def available_client_owners() -> List[Tuple[str, str]]:
     """Return a list of possible client owners for the current user."""
     choices = []
     choices.append((current_auth.user.buid, current_auth.user.pickername))
@@ -69,7 +71,7 @@ def available_client_owners():
 class AuthClientCreateView(ClassView):
     @route('', endpoint='authclient_new')
     @requires_login
-    def new(self):
+    def new(self) -> ReturnView:
         form = AuthClientForm(model=AuthClient)
         form.edit_user = current_auth.user
         form.client_owner.choices = available_client_owners()
@@ -111,7 +113,7 @@ class AuthClientView(UrlForView, ModelView):
     @route('', methods=['GET'])
     @render_with('auth_client.html.jinja2')
     @requires_roles({'all'})
-    def view(self):
+    def view(self) -> ReturnRenderWith:
         if self.obj.user:
             permassignments = AuthClientUserPermissions.all_forclient(self.obj).all()
         else:
@@ -121,7 +123,7 @@ class AuthClientView(UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'owner'})
-    def edit(self):
+    def edit(self) -> ReturnView:
         form = AuthClientForm(obj=self.obj, model=AuthClient)
         form.edit_user = current_auth.user
         form.client_owner.choices = available_client_owners()
@@ -164,7 +166,7 @@ class AuthClientView(UrlForView, ModelView):
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
     @requires_roles({'owner'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         return render_delete_sqla(
             self.obj,
             db,
@@ -207,7 +209,7 @@ class AuthClientView(UrlForView, ModelView):
     @route('cred', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'owner'})
-    def cred_new(self):
+    def cred_new(self) -> ReturnView:
         form = AuthClientCredentialForm()
         if request.method == 'GET' and not self.obj.credentials:
             form.title.data = _("Default")
@@ -232,7 +234,7 @@ class AuthClientView(UrlForView, ModelView):
     @route('perms/new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'owner'})
-    def permission_user_new(self):
+    def permission_user_new(self) -> ReturnView:
         if self.obj.user:
             form = UserPermissionAssignForm()
         elif self.obj.organization:
@@ -323,7 +325,7 @@ class AuthClientCredentialView(UrlForView, ModelView):
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
     @requires_roles({'owner'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         return render_delete_sqla(
             self.obj,
             db,

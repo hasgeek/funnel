@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date as date_type
 from datetime import datetime
 from itertools import groupby
 from typing import Collection, Iterable, Optional
@@ -232,7 +233,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
 
     @classmethod
     def contacts_for_project_and_date(
-        cls, user: User, project: Project, date: datetime, archived=False
+        cls, user: User, project: Project, date: date_type, archived=False
     ):
         """Return contacts for a given user, project and date."""
         query = cls.query.join(TicketParticipant).filter(

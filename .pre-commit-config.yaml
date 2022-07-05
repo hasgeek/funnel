@@ -111,7 +111,8 @@ repos:
     rev: v2.14.4
     hooks:
       - id: pylint
-        args: ['--disable=import-error', '-rn', '-sn']
+        args:
+          ['--disable=import-error', '-rn', '-sn', '--ignore-paths', 'tests']
         additional_dependencies:
           - toml
           - pylint-pytest

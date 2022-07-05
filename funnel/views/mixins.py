@@ -335,7 +335,11 @@ class DraftViewMixin:
                 )
             db.session.add(draft)
             db.session.commit()
-            return {'revision': draft.revision, 'form_nonce': form.form_nonce.default()}
+            return {
+                'status': 'ok',
+                'revision': draft.revision,
+                'form_nonce': form.form_nonce.default(),
+            }
         return (
             {
                 'status': 'error',

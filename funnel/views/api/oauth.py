@@ -386,7 +386,7 @@ def oauth_make_token(
     return token
 
 
-def oauth_token_success(token: AuthToken, **params: str) -> ReturnView:
+def oauth_token_success(token: AuthToken, **params) -> ReturnView:
     """Return an OAuth2 token after successful validation and token generation."""
     params['access_token'] = token.token
     params['token_type'] = token.token_type

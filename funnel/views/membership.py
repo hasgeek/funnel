@@ -34,7 +34,7 @@ from ..models import (
     ProjectCrewMembership,
     db,
 )
-from ..typing import ReturnView
+from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProfileViewMixin, ProjectViewMixin
@@ -53,7 +53,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
     @route('', methods=['GET', 'POST'])
     @render_with('organization_membership.html.jinja2')
     @requires_roles({'reader', 'admin'})
-    def members(self):
+    def members(self) -> ReturnRenderWith:
         """Render a list of organization admin members."""
         return {
             'profile': self.obj,
@@ -66,7 +66,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'owner'})
-    def new_member(self):
+    def new_member(self) -> ReturnView:
         membership_form = OrganizationMembershipForm()
 
         if request.method == 'POST':
@@ -129,7 +129,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                         )
                         for membership in self.obj.organization.active_admin_memberships
                     ],
-                }
+                }, 201
             return (
                 {
                     'status': 'error',
@@ -147,7 +147,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
             ajax=False,
             with_chrome=False,
         )
-        return {'form': membership_form_html}
+        return {'status': 'ok', 'form': membership_form_html}
 
 
 OrganizationMembersView.init_app(app)
@@ -174,7 +174,7 @@ class OrganizationMembershipView(
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'profile_owner'})
-    def edit(self):
+    def edit(self) -> ReturnView:
         previous_membership = self.obj
         membership_form = OrganizationMembershipForm(obj=previous_membership)
 
@@ -242,12 +242,12 @@ class OrganizationMembershipView(
             ajax=False,
             with_chrome=False,
         )
-        return {'form': membership_form_html}
+        return {'status': 'ok', 'form': membership_form_html}
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
     @requires_roles({'profile_owner'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         form = Form()
         if form.is_submitted():
             if form.validate():
@@ -296,7 +296,7 @@ class OrganizationMembershipView(
             ajax=False,
             with_chrome=False,
         )
-        return {'form': form_html}
+        return {'status': 'ok', 'form': form_html}
 
 
 OrganizationMembershipView.init_app(app)
@@ -310,7 +310,7 @@ OrganizationMembershipView.init_app(app)
 class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', methods=['GET', 'POST'])
     @render_with(html_in_json('project_membership.html.jinja2'))
-    def crew(self):
+    def crew(self) -> ReturnRenderWith:
         memberships = [
             membership.current_access(datasets=('without_parent', 'related'))
             for membership in self.obj.active_crew_memberships
@@ -323,7 +323,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'profile_admin'})
-    def new_member(self):
+    def new_member(self) -> ReturnView:
         membership_form = ProjectCrewMembershipForm()
 
         if request.method == 'POST':
@@ -404,7 +404,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
             ajax=False,
             with_chrome=False,
         )
-        return {'form': membership_form_html}
+        return {'status': 'ok', 'form': membership_form_html}
 
 
 ProjectMembershipView.init_app(app)
@@ -449,7 +449,7 @@ class ProjectCrewMembershipInviteView(
     @route('', methods=['GET'])
     @render_with('membership_invite_actions.html.jinja2')
     @requires_login
-    def invite(self):
+    def invite(self) -> ReturnRenderWith:
         return {
             'membership': self.obj.current_access(datasets=('primary', 'related')),
             'form': Form(),
@@ -457,7 +457,7 @@ class ProjectCrewMembershipInviteView(
 
     @route('action', methods=['POST'])
     @requires_login
-    def invite_action(self):
+    def invite_action(self) -> ReturnView:
         membership_invite_form = ProjectCrewMembershipInviteForm()
         if membership_invite_form.validate_on_submit():
             if membership_invite_form.action.data == 'accept':
@@ -479,7 +479,7 @@ class ProjectCrewMembershipView(
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'profile_admin'})
-    def edit(self):
+    def edit(self) -> ReturnView:
         previous_membership = self.obj
         form = ProjectCrewMembershipForm(obj=previous_membership)
 
@@ -536,12 +536,12 @@ class ProjectCrewMembershipView(
             ajax=False,
             with_chrome=False,
         )
-        return {'form': membership_form_html}
+        return {'status': 'ok', 'form': membership_form_html}
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
     @requires_roles({'profile_admin'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         form = Form()
         if request.method == 'POST':
             if form.validate_on_submit():
@@ -582,7 +582,7 @@ class ProjectCrewMembershipView(
             ajax=False,
             with_chrome=False,
         )
-        return {'form': form_html}
+        return {'status': 'ok', 'form': form_html}
 
 
 ProjectCrewMembershipView.init_app(app)

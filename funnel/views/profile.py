@@ -27,6 +27,7 @@ from ..forms import (
     ProfileTransitionForm,
 )
 from ..models import Profile, Project, db
+from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
 from .mixins import ProfileViewMixin
@@ -72,7 +73,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
     @render_with({'text/html': template_switcher}, json=True)
     @requires_roles({'reader', 'admin'})
-    def view(self):
+    def view(self) -> ReturnRenderWith:
         template_name = None
         ctx = {}
 
@@ -204,7 +205,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('in/projects')
     @render_with('user_profile_projects.html.jinja2', json=True)
     @requires_roles({'reader', 'admin'})
-    def user_participated_projects(self):
+    def user_participated_projects(self) -> ReturnRenderWith:
         if self.obj.is_organization_profile:
             abort(404)
 
@@ -224,7 +225,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('in/proposals')  # Legacy route, will be auto-redirected to `in/submissions`
     @render_with('user_profile_proposals.html.jinja2', json=True)
     @requires_roles({'reader', 'admin'})
-    def user_proposals(self):
+    def user_proposals(self) -> ReturnRenderWith:
         if self.obj.is_organization_profile:
             abort(404)
 
@@ -240,7 +241,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('past.json')
     @requestargs(('page', int), ('per_page', int))
-    def past_projects_json(self, page=1, per_page=10):
+    def past_projects_json(self, page: int = 1, per_page: int = 10) -> ReturnView:
         projects = self.obj.listed_projects.order_by(None)
         past_projects = projects.filter(Project.state.PAST).order_by(
             Project.start_at.desc()
@@ -268,7 +269,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     @requires_user_not_spammy()
-    def edit(self):
+    def edit(self) -> ReturnView:
         form = ProfileForm(
             obj=self.obj, model=Profile, profile=self.obj, user=current_auth.user
         )
@@ -290,7 +291,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('update_logo', methods=['GET', 'POST'])
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
-    def update_logo(self):
+    def update_logo(self) -> ReturnRenderWith:
         form = ProfileLogoForm(profile=self.obj)
         edit_logo_url = self.obj.url_for('edit_logo_url')
         delete_logo_url = self.obj.url_for('remove_logo')
@@ -303,7 +304,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('edit_logo', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     @requires_user_not_spammy()
-    def edit_logo_url(self):
+    def edit_logo_url(self) -> ReturnView:
         form = ProfileLogoForm(obj=self.obj, profile=self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():
@@ -323,7 +324,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('remove_logo', methods=['POST'])
     @requires_login
     @requires_roles({'admin'})
-    def remove_logo(self):
+    def remove_logo(self) -> ReturnView:
         form = self.CsrfForm()
         if form.validate_on_submit():
             self.obj.logo_url = None
@@ -338,7 +339,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('update_banner', methods=['GET', 'POST'])
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
-    def update_banner(self):
+    def update_banner(self) -> ReturnRenderWith:
         form = ProfileBannerForm(profile=self.obj)
         edit_logo_url = self.obj.url_for('edit_banner_image_url')
         delete_logo_url = self.obj.url_for('remove_banner')
@@ -350,7 +351,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('edit_banner', methods=['GET', 'POST'])
     @requires_roles({'admin'})
-    def edit_banner_image_url(self):
+    def edit_banner_image_url(self) -> ReturnView:
         form = ProfileBannerForm(obj=self.obj, profile=self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():
@@ -370,7 +371,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('remove_banner', methods=['POST'])
     @requires_login
     @requires_roles({'admin'})
-    def remove_banner(self):
+    def remove_banner(self) -> ReturnView:
         form = self.CsrfForm()
         if form.validate_on_submit():
             self.obj.banner_image_url = None
@@ -388,7 +389,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('transition', methods=['POST'])
     @requires_login
     @requires_roles({'owner'})
-    def transition(self):
+    def transition(self) -> ReturnView:
         form = ProfileTransitionForm(obj=self.obj)
         if form.validate_on_submit():
             transition_name = form.transition.data

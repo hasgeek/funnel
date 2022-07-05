@@ -1,7 +1,7 @@
 """Tests for request_wants proxy."""
 # pylint: disable=import-error
 
-from flask import Flask, jsonify
+from flask import Flask
 
 import pytest
 
@@ -28,7 +28,7 @@ def test_app():
     @tapp.route('/json_or_html')
     def json_or_html():
         if request_wants.json:
-            return jsonify({'status': 'ok'})
+            return {'status': 'ok'}
         return '<html><body><p>Status: ok</p></body></html>'
 
     return tapp

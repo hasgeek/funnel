@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from flask import abort, flash, render_template, request
 
@@ -14,6 +14,7 @@ from coaster.views import ModelView, UrlChangeCheck, UrlForView, route
 from .. import app
 from ..forms import ProjectSponsorForm
 from ..models import Profile, Project, SponsorMembership, db
+from ..typing import ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_site_editor
 from .mixins import ProjectViewMixin
@@ -34,11 +35,13 @@ class ProjectSponsorLandingView(
     __decorators__ = [requires_login, requires_site_editor]
 
     @route('sponsors/add', methods=['POST', 'GET'])
-    def add_sponsor(self):
+    def add_sponsor(self) -> ReturnView:
         form = ProjectSponsorForm()
 
         if request.method == 'POST':
             if form.validate_on_submit():
+                if TYPE_CHECKING:
+                    assert isinstance(form.profile.data, Profile)  # nosec
                 existing_sponsorship = SponsorMembership.query.filter(
                     SponsorMembership.is_active,
                     SponsorMembership.project == self.obj,
@@ -113,7 +116,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
         return obj
 
     @route('edit', methods=['GET', "POST"])
-    def edit(self):
+    def edit(self) -> ReturnView:
         form = edit_sponsor_form(self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():
@@ -144,7 +147,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
         )
 
     @route('remove', methods=['GET', "POST"])
-    def remove(self):
+    def remove(self) -> ReturnView:
         form = ConfirmDeleteForm()
         if request.method == 'POST':
             if form.validate_on_submit():

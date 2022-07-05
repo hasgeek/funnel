@@ -297,7 +297,7 @@ class AccountView(ClassView):
     @route('menu', endpoint='account_menu')
     @etag_cache_for_user('account_menu', 1, 900)
     @xhr_only(lambda: url_for('account'))
-    def menu(self):
+    def menu(self) -> ReturnView:
         """Render account menu."""
         return render_template('account_menu.html.jinja2')
 

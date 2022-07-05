@@ -13,7 +13,7 @@ from coaster.views import ModelView, UrlForView, render_with, requires_roles, ro
 from .. import app
 from ..forms import LabelForm, LabelOptionForm
 from ..models import Label, Profile, Project, db
-from ..typing import ReturnView
+from ..typing import ReturnRenderWith, ReturnView
 from ..utils import abort_null
 from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo
@@ -27,7 +27,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @render_with('labels.html.jinja2')
     @requires_login
     @requires_roles({'editor'})
-    def labels(self):
+    def labels(self) -> ReturnRenderWith:
         form = forms.Form()
         if form.validate_on_submit():
             namelist = [abort_null(x) for x in request.values.getlist('name')]
@@ -43,7 +43,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @requires_login
     @render_with('labels_form.html.jinja2')
     @requires_roles({'editor'})
-    def new_label(self):
+    def new_label(self) -> ReturnRenderWith:
         form = LabelForm(model=Label, parent=self.obj.parent)
         emptysubform = LabelOptionForm(MultiDict({}))
         if form.validate_on_submit():
@@ -89,7 +89,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             db.session.commit()
             return render_redirect(self.obj.url_for('labels'))
         return {
-            'title': "Add label",
+            'title': _("Add label"),
             'form': form,
             'emptysubform': emptysubform,
             'project': self.obj,
@@ -132,7 +132,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
     @requires_login
     @render_with('labels_form.html.jinja2')
     @requires_roles({'project_editor'})
-    def edit(self):
+    def edit(self) -> ReturnRenderWith:
         emptysubform = LabelOptionForm(MultiDict({}))
         subforms = []
         if self.obj.is_main_label:
@@ -178,7 +178,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
                             category='error',
                         )
                         return {
-                            'title': "Edit label",
+                            'title': _("Edit label"),
                             'form': form,
                             'project': self.obj.project,
                         }
@@ -196,7 +196,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
 
             return render_redirect(self.obj.project.url_for('labels'))
         return {
-            'title': "Edit label",
+            'title': _("Edit label"),
             'form': form,
             'ref_id': 'form-labels',
             'subforms': subforms,
@@ -207,7 +207,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
     @route('archive', methods=['POST'])
     @requires_login
     @requires_roles({'project_editor'})
-    def archive(self):
+    def archive(self) -> ReturnView:
         form = forms.Form()
         if form.validate_on_submit():
             self.obj.archived = True
@@ -220,7 +220,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
     @requires_roles({'project_editor'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         if self.obj.has_proposals:
             flash(
                 _("Labels that have been assigned to submissions cannot be deleted"),
