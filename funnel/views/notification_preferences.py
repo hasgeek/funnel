@@ -131,7 +131,6 @@ class AccountNotificationView(ClassView):
 
     @route('set', endpoint='set_notification_preference', methods=['POST'])
     @requires_login
-    @render_with(json=True)
     def set_notification_preference(self) -> ReturnRenderWith:
         """Set one notification preference."""
         form = SetNotificationPreferenceForm()

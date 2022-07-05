@@ -55,7 +55,6 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
         )
 
     @route('update_venue_settings', methods=['POST'])
-    @render_with(json=True)
     @requires_login
     @requires_roles({'editor'})
     def update_venue_settings(self):

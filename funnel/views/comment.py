@@ -168,7 +168,6 @@ class CommentsetView(UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_user_not_spammy(lambda self: self.obj.url_for())
-    @render_with(json=True)
     def new(self):
         commentform = CommentForm()
         if commentform.validate_on_submit():
@@ -210,7 +209,6 @@ class CommentsetView(UrlForView, ModelView):
 
     @route('subscribe', methods=['POST'])
     @requires_login
-    @render_with(json=True)
     def subscribe(self):
         subscribe_form = CommentsetSubscribeForm()
         subscribe_form.form_nonce.data = subscribe_form.form_nonce.default()
@@ -241,7 +239,6 @@ class CommentsetView(UrlForView, ModelView):
 
     @route('seen', methods=['POST'])
     @requires_login
-    @render_with(json=True)
     def update_last_seen_at(self) -> ReturnRenderWith:
         csrf_form = forms.Form()
         if csrf_form.validate_on_submit():
@@ -340,7 +337,6 @@ class CommentView(UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @render_with(json=True)
     @requires_roles({'author'})
     def edit(self):
         commentform = CommentForm(obj=self.obj)
@@ -365,7 +361,6 @@ class CommentView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_login
-    @render_with(json=True)
     @requires_roles({'author'})
     def delete(self):
         delcommentform = Form()

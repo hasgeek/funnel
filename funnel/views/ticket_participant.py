@@ -250,7 +250,6 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
         return render_redirect(self.obj.url_for('view'))
 
     @route('ticket_participants/json')
-    @render_with(json=True)
     @requires_roles({'project_promoter', 'project_usher'})
     def participants_json(self):
         checkin_count = 0
@@ -316,7 +315,6 @@ class TicketEventParticipantCheckinView(ClassView):
     __decorators__ = [requires_login]
 
     @route('checkin', methods=['POST'])
-    @render_with(json=True)
     def checkin_puk(self, profile, project, ticket_event, puk):
         abort(403)
 

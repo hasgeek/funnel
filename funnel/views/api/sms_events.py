@@ -7,7 +7,6 @@ from flask import current_app, request
 from twilio.request_validator import RequestValidator
 
 from baseframe import statsd
-from coaster.views import render_with
 
 from ... import app
 from ...models import SMS_STATUS, SMSMessage, db
@@ -16,7 +15,6 @@ from ...utils import abort_null
 
 
 @app.route('/api/1/sms/twilio_event', methods=['POST'])
-@render_with(json=True)
 def process_twilio_event():
     """Process SMS callback event from Twilio."""
     # Register the fact that we got a Twilio SMS event.
@@ -95,7 +93,6 @@ def process_twilio_event():
 
 
 @app.route('/api/1/sms/exotel_event/<secret_token>', methods=['POST'])
-@render_with(json=True)
 def process_exotel_event(secret_token: str):
     """Process SMS callback event from Exotel."""
     # Register the fact that we got a Exotel SMS event.

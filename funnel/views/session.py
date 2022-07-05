@@ -218,7 +218,6 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
         return jsonify(status=True, modal_url=modal_url)
 
     @route('save', methods=['POST'])
-    @render_with(json=True)
     @requires_login
     # @requires_roles({'reader'})
     def save(self) -> ReturnRenderWith:

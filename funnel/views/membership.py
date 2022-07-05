@@ -64,7 +64,6 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
         }
 
     @route('new', methods=['GET', 'POST'])
-    @render_with(json=True)
     @requires_login
     @requires_roles({'owner'})
     def new_member(self):
@@ -173,7 +172,6 @@ class OrganizationMembershipView(
         return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
-    @render_with(json=True)
     @requires_login
     @requires_roles({'profile_owner'})
     def edit(self):
@@ -247,7 +245,6 @@ class OrganizationMembershipView(
         return {'form': membership_form_html}
 
     @route('delete', methods=['GET', 'POST'])
-    @render_with(json=True)
     @requires_sudo
     @requires_roles({'profile_owner'})
     def delete(self):
@@ -324,7 +321,6 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
         }
 
     @route('new', methods=['GET', 'POST'])
-    @render_with(json=True)
     @requires_login
     @requires_roles({'profile_admin'})
     def new_member(self):
@@ -481,7 +477,6 @@ class ProjectCrewMembershipView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
 ):
     @route('edit', methods=['GET', 'POST'])
-    @render_with(json=True)
     @requires_login
     @requires_roles({'profile_admin'})
     def edit(self):
@@ -544,7 +539,6 @@ class ProjectCrewMembershipView(
         return {'form': membership_form_html}
 
     @route('delete', methods=['GET', 'POST'])
-    @render_with(json=True)
     @requires_sudo
     @requires_roles({'profile_admin'})
     def delete(self):

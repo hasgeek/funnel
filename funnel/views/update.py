@@ -141,7 +141,6 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         return render_redirect(self.obj.project.url_for('updates'))
 
     @route('edit', methods=['GET', 'POST'])
-    @render_with(json=True)
     @requires_roles({'editor'})
     def edit(self):
         form = UpdateForm(obj=self.obj)
@@ -159,7 +158,6 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @render_with(json=True)
     @requires_sudo
     @requires_roles({'editor'})
     def delete(self):

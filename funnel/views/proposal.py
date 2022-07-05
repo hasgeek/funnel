@@ -280,7 +280,6 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('collaborator/reorder', methods=['POST'])
     @requires_login
     @requires_roles({'editor'})
-    @render_with(json=True)
     @requestform('target', 'other', ('before', getbool))
     def reorder_collaborators(self, target: str, other: str, before: bool):
         if Form().validate_on_submit():
@@ -489,7 +488,6 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
     @route('remove', methods=['POST'])
     @requires_login
     @requires_roles({'editor'})
-    @render_with(json=True)
     def remove(self):
         membership = self.obj.current_access()
         if Form().validate_on_submit():

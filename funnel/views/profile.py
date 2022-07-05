@@ -321,7 +321,6 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         )
 
     @route('remove_logo', methods=['POST'])
-    @render_with(json=True)
     @requires_login
     @requires_roles({'admin'})
     def remove_logo(self):

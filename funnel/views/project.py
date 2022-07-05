@@ -337,7 +337,6 @@ class ProjectView(  # type: ignore[misc]
         )
 
     @route('edit', methods=['GET', 'POST'])
-    @render_with(json=True)
     @requires_login
     @requires_roles({'editor'})
     def edit(self):
@@ -452,7 +451,6 @@ class ProjectView(  # type: ignore[misc]
         )
 
     @route('remove_banner', methods=['POST'])
-    @render_with(json=True)
     @requires_login
     @requires_roles({'editor'})
     def remove_banner(self):
@@ -653,7 +651,6 @@ class ProjectView(  # type: ignore[misc]
         return self.get_rsvp_state_csv(state=RSVP_STATUS.MAYBE)
 
     @route('save', methods=['POST'])
-    @render_with(json=True)
     @requires_login
     @requires_roles({'reader'})
     def save(self):

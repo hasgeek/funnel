@@ -10,7 +10,6 @@ from flask import current_app, request
 import requests
 
 from baseframe import statsd
-from coaster.views import render_with
 
 from ... import app
 from ...models import EmailAddress, db
@@ -195,7 +194,6 @@ sns_headers: List[str] = [
 
 
 @app.route('/api/1/email/ses_event', methods=['POST'])
-@render_with(json=True)
 def process_ses_event():
     """
     Process SES Events from AWS.

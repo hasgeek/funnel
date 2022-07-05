@@ -8,7 +8,6 @@ from flask import request
 
 from baseframe import _
 from coaster.auth import current_auth
-from coaster.views import render_with
 
 from ... import app
 from ...forms import PasswordPolicyForm, UsernameAvailableForm
@@ -17,7 +16,6 @@ from ..helpers import progressive_rate_limit_validator, validate_rate_limit
 
 
 @app.route('/api/1/account/password_policy', methods=['POST'])
-@render_with(json=True)
 def password_policy_check() -> ReturnRenderWith:
     """Check if a password meets policy criteria (strength, embedded personal info)."""
     form = PasswordPolicyForm(edit_user=current_auth.user)
@@ -48,7 +46,6 @@ def password_policy_check() -> ReturnRenderWith:
 
 
 @app.route('/api/1/account/username_available', methods=['POST'])
-@render_with(json=True)
 def account_username_availability() -> ReturnRenderWith:
     """Check whether a username is available for the taking."""
     form = UsernameAvailableForm(edit_user=current_auth.user)

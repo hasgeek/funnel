@@ -311,7 +311,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @route('update', methods=['POST'])
     @requires_login
     @requires_roles({'editor'})
-    @render_with(json=True)
     @requestargs(('sessions', json.loads))
     def update_schedule(self, sessions) -> ReturnRenderWith:
         for session in sessions:
