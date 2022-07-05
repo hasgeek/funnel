@@ -1,3 +1,5 @@
+"""Templates for rendering HTTP error pages (4xx, 500)."""
+
 from __future__ import annotations
 
 from coaster.views import render_with

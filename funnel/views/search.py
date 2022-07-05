@@ -1,3 +1,5 @@
+"""Views for site, profile and project search."""
+
 from __future__ import annotations
 
 from html import unescape as html_unescape

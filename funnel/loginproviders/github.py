@@ -1,3 +1,5 @@
+"""GitHub OAuth2 client."""
+
 from __future__ import annotations
 
 from flask import current_app, redirect, request

@@ -1,4 +1,4 @@
-"""Profile model."""
+"""Profile model, linked to a User or Organization model."""
 
 from __future__ import annotations
 

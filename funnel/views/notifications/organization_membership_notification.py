@@ -274,11 +274,13 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
         raise ValueError("No suitable template found for membership record")
 
     def web(self) -> str:
+        """Render for web."""
         return render_template(
             'notifications/organization_membership_granted_web.html.jinja2', view=self
         )
 
     def email_content(self) -> str:
+        """Render email content."""
         return render_template(
             'notifications/organization_membership_granted_email.html.jinja2', view=self
         )
@@ -313,11 +315,13 @@ class RenderOrganizationAdminMembershipRevokedNotification(
         return _("{user} was removed as an admin of {organization} by {actor}")
 
     def web(self) -> str:
+        """Render for web."""
         return render_template(
             'notifications/organization_membership_revoked_web.html.jinja2', view=self
         )
 
     def email_content(self) -> str:
+        """Render email content."""
         return render_template(
             'notifications/organization_membership_revoked_email.html.jinja2', view=self
         )

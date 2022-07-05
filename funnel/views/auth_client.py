@@ -1,3 +1,5 @@
+"""Views to browse and manage client auth apps."""
+
 from __future__ import annotations
 
 from flask import Markup, abort, flash, render_template, request, url_for

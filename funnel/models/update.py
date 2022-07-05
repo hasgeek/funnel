@@ -1,3 +1,5 @@
+"""Model for updates to a project."""
+
 from __future__ import annotations
 
 from typing import Iterable, Optional, Set

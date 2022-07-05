@@ -1,3 +1,5 @@
+"""Miscellaneous CLI commands."""
+
 from __future__ import annotations
 
 from baseframe import baseframe_translations

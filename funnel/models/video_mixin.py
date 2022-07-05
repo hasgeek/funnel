@@ -1,3 +1,5 @@
+"""Mixin class for models that support a single embedded video."""
+
 from __future__ import annotations
 
 from typing import Optional, Tuple

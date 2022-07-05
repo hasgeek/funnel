@@ -1,4 +1,4 @@
-"""Mixin class to support reordering."""
+"""Mixin class to support reordering in any model with a container model."""
 
 from __future__ import annotations
 

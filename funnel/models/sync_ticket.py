@@ -1,3 +1,5 @@
+"""Models for syncing tickets to a project from an external ticketing provider."""
+
 from __future__ import annotations
 
 from typing import Iterable, Optional, Set

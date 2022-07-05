@@ -1,3 +1,5 @@
+"""Models for sponsors of a project or proposal (submission)."""
+
 from __future__ import annotations
 
 from typing import Set

@@ -1,3 +1,5 @@
+"""Views for venues in a project."""
+
 from __future__ import annotations
 
 from flask import flash, request

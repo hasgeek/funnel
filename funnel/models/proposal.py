@@ -1,3 +1,5 @@
+"""Proposal (submission) model, the primary content type within a project."""
+
 from __future__ import annotations
 
 from typing import Iterable, Optional, Set
@@ -415,7 +417,7 @@ class Proposal(  # type: ignore[misc]
     def move_to(self, project):
         """Move to a new project and reset :attr:`url_id`."""
         self.project = project
-        self.url_id = None
+        self.url_id = None  # pylint: disable=attribute-defined-outside-init
         self.make_id()
 
     def update_description(self) -> None:

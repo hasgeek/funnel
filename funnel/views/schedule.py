@@ -1,3 +1,5 @@
+"""Views for managing a project's schedule."""
+
 from __future__ import annotations
 
 from collections import defaultdict

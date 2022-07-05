@@ -1,3 +1,5 @@
+"""Model for project venue and rooms within a venue (legacy, pending global venues)."""
+
 from __future__ import annotations
 
 from sqlalchemy.ext.orderinglist import ordering_list

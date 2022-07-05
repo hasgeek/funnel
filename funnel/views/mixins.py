@@ -1,3 +1,6 @@
+"""Mixins for model views."""
+# TODO: Move each mixin into the main file for each view, or into <model>_mixin.py
+
 from __future__ import annotations
 
 from typing import Optional, Tuple, Type, Union

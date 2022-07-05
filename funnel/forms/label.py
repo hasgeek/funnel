@@ -1,3 +1,5 @@
+"""Forms for workflow labels."""
+
 from __future__ import annotations
 
 from baseframe import __, forms

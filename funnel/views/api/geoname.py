@@ -1,3 +1,5 @@
+"""API views for geoname data."""
+
 from __future__ import annotations
 
 from typing import List, Optional

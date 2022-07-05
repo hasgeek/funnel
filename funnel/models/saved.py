@@ -1,3 +1,5 @@
+"""Models for user bookmarks of projects and sessions."""
+
 from __future__ import annotations
 
 from typing import Iterable, Optional, Set

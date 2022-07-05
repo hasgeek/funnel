@@ -1,3 +1,5 @@
+"""Progressive Web App API support endpoints."""
+
 from flask import render_template
 
 from ... import app

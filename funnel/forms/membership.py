@@ -1,3 +1,5 @@
+"""Forms for organization admin and project crew memberships."""
+
 from __future__ import annotations
 
 from baseframe import _, __, forms

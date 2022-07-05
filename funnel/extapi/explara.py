@@ -1,3 +1,5 @@
+"""External API support for Explara."""
+
 from __future__ import annotations
 
 import requests

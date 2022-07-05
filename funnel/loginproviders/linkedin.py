@@ -1,3 +1,5 @@
+"""LinkedIn OAuth2 client."""
+
 from __future__ import annotations
 
 from secrets import token_urlsafe

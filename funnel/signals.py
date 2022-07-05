@@ -1,3 +1,10 @@
+"""
+Signals to communicate between internal parts of the app (deprecated).
+
+This is an older system and relatively unused in newer code as the signalling system is
+not type-friendly.
+"""
+
 from __future__ import annotations
 
 from flask.signals import Namespace

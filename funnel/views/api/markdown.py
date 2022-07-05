@@ -1,3 +1,5 @@
+"""Markdown preview view."""
+
 from flask import request
 
 from coaster.utils import markdown

@@ -4,24 +4,26 @@
 #
 #    pip-compile requirements_dev.in
 #
-astroid==2.11.5
+astroid==2.11.6
     # via pylint
 attrs==21.4.0
     # via
     #   flake8-bugbear
     #   pytest
-awscli==1.25.0
+awscli==1.25.22
     # via -r requirements_dev.in
 bandit==1.7.4
     # via
     #   -r requirements_dev.in
     #   flake8-bandit
-black==22.3.0
+black==22.6.0
     # via -r requirements_dev.in
-botocore==1.27.0
+botocore==1.27.22
     # via
     #   awscli
     #   s3transfer
+build==0.8.0
+    # via pip-tools
 cfgv==3.3.1
     # via pre-commit
 click==8.1.3
@@ -59,7 +61,7 @@ flake8-bandit==3.0.0
     # via -r requirements_dev.in
 flake8-blind-except==0.2.1
     # via -r requirements_dev.in
-flake8-bugbear==22.4.25
+flake8-bugbear==22.7.1
     # via -r requirements_dev.in
 flake8-builtins==1.5.3
     # via -r requirements_dev.in
@@ -76,9 +78,7 @@ flake8-mutable==1.2.0
 flake8-plugin-utils==1.3.2
     # via flake8-pytest-style
 flake8-polyfill==1.0.2
-    # via
-    #   flake8-bandit
-    #   pep8-naming
+    # via flake8-bandit
 flake8-print==5.0.0
     # via -r requirements_dev.in
 flake8-pytest-style==1.6.0
@@ -93,7 +93,7 @@ gitpython==3.1.27
     # via bandit
 identify==2.5.1
     # via pre-commit
-importlib-metadata==4.11.4
+importlib-metadata==4.12.0
     # via flask
 iniconfig==1.1.1
     # via pytest
@@ -108,7 +108,7 @@ itsdangerous==2.0.1
     #   flask
 jinja2==3.1.2
     # via flask
-jmespath==1.0.0
+jmespath==1.0.1
     # via botocore
 lazy-object-proxy==1.7.1
     # via astroid
@@ -120,7 +120,7 @@ mccabe==0.6.1
     # via
     #   flake8
     #   pylint
-mypy==0.960
+mypy==0.961
     # via
     #   -r requirements_dev.in
     #   sqlalchemy-stubs
@@ -128,19 +128,21 @@ mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
-nodeenv==1.6.0
+nodeenv==1.7.0
     # via pre-commit
 packaging==21.3
-    # via pytest
+    # via
+    #   build
+    #   pytest
 pathspec==0.9.0
     # via black
 pbr==5.9.0
     # via stevedore
 pep517==0.12.0
-    # via pip-tools
-pep8-naming==0.12.1
+    # via build
+pep8-naming==0.13.0
     # via -r requirements_dev.in
-pip-tools==6.6.2
+pip-tools==6.8.0
     # via -r requirements_dev.in
 platformdirs==2.5.2
     # via
@@ -164,7 +166,7 @@ pydocstyle==6.1.1
     # via flake8-docstrings
 pyflakes==2.4.0
     # via flake8
-pylint==2.13.9
+pylint==2.14.4
     # via
     #   -r requirements_dev.in
     #   pylint-flask-sqlalchemy
@@ -179,7 +181,7 @@ pytest==7.1.2
     # via pylint-pytest
 python-dateutil==2.8.2
     # via botocore
-pyupgrade==2.32.1
+pyupgrade==2.34.0
     # via -r requirements_dev.in
 pyyaml==5.4.1
     # via
@@ -198,7 +200,7 @@ smmap==5.0.0
     # via gitdb
 snowballstemmer==2.2.0
     # via pydocstyle
-sqlalchemy==1.4.37
+sqlalchemy==1.4.39
     # via flask-sqlalchemy
 sqlalchemy-stubs==0.4
     # via -r requirements_dev.in
@@ -215,11 +217,14 @@ toml==0.10.2
 tomli==2.0.1
     # via
     #   black
+    #   build
     #   mypy
     #   pep517
     #   pylint
     #   pytest
-types-certifi==2021.10.8.2
+tomlkit==0.11.0
+    # via pylint
+types-certifi==2021.10.8.3
     # via -r requirements_dev.in
 types-click==7.1.8
     # via types-flask
@@ -241,17 +246,17 @@ types-maxminddb==1.5.0
     # via
     #   -r requirements_dev.in
     #   types-geoip2
-types-python-dateutil==2.8.17
+types-python-dateutil==2.8.18
     # via -r requirements_dev.in
-types-pytz==2021.3.8
+types-pytz==2022.1.1
     # via -r requirements_dev.in
-types-requests==2.27.29
+types-requests==2.28.0
     # via -r requirements_dev.in
-types-setuptools==57.4.17
+types-setuptools==57.4.18
     # via -r requirements_dev.in
 types-simplejson==3.17.6
     # via -r requirements_dev.in
-types-six==1.16.15
+types-six==1.16.17
     # via -r requirements_dev.in
 types-toml==0.10.7
     # via -r requirements_dev.in
@@ -261,7 +266,7 @@ types-werkzeug==1.0.9
     # via
     #   -r requirements_dev.in
     #   types-flask
-typing-extensions==4.2.0
+typing-extensions==4.3.0
     # via
     #   astroid
     #   black
@@ -270,9 +275,9 @@ typing-extensions==4.2.0
     #   sqlalchemy-stubs
 urllib3==1.26.9
     # via botocore
-virtualenv==20.14.1
+virtualenv==20.15.1
     # via pre-commit
-watchdog==2.1.8
+watchdog==2.1.9
     # via -r requirements_dev.in
 werkzeug==2.1.2
     # via flask

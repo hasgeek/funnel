@@ -1,3 +1,5 @@
+"""Comment and Commentset models."""
+
 from __future__ import annotations
 
 from typing import Iterable, List, Optional, Set, Union

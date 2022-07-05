@@ -1,3 +1,5 @@
+"""Model for a user's auth (login) session."""
+
 from __future__ import annotations
 
 from datetime import timedelta

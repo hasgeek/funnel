@@ -1,3 +1,5 @@
+"""Project update notifications."""
+
 from __future__ import annotations
 
 from flask import render_template

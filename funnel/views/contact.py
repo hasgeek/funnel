@@ -1,3 +1,5 @@
+"""Views for scanned contacts, available under account settings."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta

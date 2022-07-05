@@ -1,4 +1,4 @@
-"""Signals for user/org models."""
+"""Signals for user/org models using the older untyped Blinker system (deprecated)."""
 
 from __future__ import annotations
 

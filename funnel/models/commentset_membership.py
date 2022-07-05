@@ -1,3 +1,5 @@
+"""Model for membership to a commentset for new comment notifications."""
+
 from __future__ import annotations
 
 from typing import Set
