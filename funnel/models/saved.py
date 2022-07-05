@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional, Set
+from typing import Iterable, Optional
 
-from coaster.sqlalchemy import with_roles
+from coaster.sqlalchemy import LazyRoleSet, with_roles
 
 from ..typing import OptionalMigratedTables
 from . import NoIdMixin, db
@@ -43,7 +43,9 @@ class SavedProject(NoIdMixin, db.Model):
     #: User's plaintext note to self on why they saved this (optional)
     description = db.Column(db.UnicodeText, nullable=True)
 
-    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None and actor == self.user:
             roles.add('owner')
@@ -91,7 +93,9 @@ class SavedSession(NoIdMixin, db.Model):
     #: User's plaintext note to self on why they saved this (optional)
     description = db.Column(db.UnicodeText, nullable=True)
 
-    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None and actor == self.user:
             roles.add('owner')

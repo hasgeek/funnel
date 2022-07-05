@@ -5,11 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from itertools import groupby
-from typing import Collection, Iterable, Optional, Set
+from typing import Collection, Iterable, Optional
 from uuid import UUID
 
 from sqlalchemy.ext.associationproxy import association_proxy
 
+from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58
 
 from ..typing import OptionalMigratedTables
@@ -92,7 +93,9 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         'subject': {'read': {'user', 'ticket_participant', 'scanned_at'}},
     }
 
-    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None:
             if actor == self.user:

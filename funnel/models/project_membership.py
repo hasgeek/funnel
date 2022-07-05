@@ -8,7 +8,12 @@ from sqlalchemy.ext.declarative import declared_attr
 
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
+from coaster.sqlalchemy import (
+    DynamicAssociationProxy,
+    LazyRoleSet,
+    immutable,
+    with_roles,
+)
 
 from . import db
 from .helpers import reopen
@@ -134,7 +139,9 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, db.Model):
             roles.add('usher')
         return roles
 
-    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if 'editor' in self.project.roles_for(actor, anchors):
             roles.add('project_editor')

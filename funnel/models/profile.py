@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Optional, Set, Union
+from typing import Iterable, List, Optional, Union
 
 from sqlalchemy.sql import expression
 
 from baseframe import __
-from coaster.sqlalchemy import Query, StateManager, immutable, with_roles
+from coaster.sqlalchemy import LazyRoleSet, Query, StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
@@ -337,7 +337,9 @@ class Profile(UuidMixin, BaseMixin, db.Model):
             return self.organization.pickername
         return self.title
 
-    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         if self.owner:
             roles = self.owner.roles_for(actor, anchors)
         else:

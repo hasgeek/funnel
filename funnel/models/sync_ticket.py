@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Optional, Set
+from typing import Iterable, Optional
 import base64
 import os
+
+from coaster.sqlalchemy import LazyRoleSet
 
 from . import BaseMixin, BaseScopedNameMixin, UuidMixin, db, with_roles
 from .email_address import EmailAddress, EmailAddressMixin
@@ -239,7 +241,9 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
         'scanner': {'read': {'email'}},
     }
 
-    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None:
             if actor == self.user:
