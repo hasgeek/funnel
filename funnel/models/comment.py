@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from typing import Iterable, List, Optional, Set, Union
 
-from flask import Markup
+from sqlalchemy.orm import CompositeProperty
+
 from werkzeug.utils import cached_property
 
 from baseframe import _, __
@@ -12,7 +13,7 @@ from coaster.sqlalchemy import LazyRoleSet, RoleAccessProxy, StateManager, with_
 from coaster.utils import LabeledEnum
 
 from . import BaseMixin, MarkdownColumn, TSVectorType, UuidMixin, db, hybrid_property
-from .helpers import add_search_trigger, reopen
+from .helpers import MessageComposite, add_search_trigger, reopen
 from .user import DuckTypeUser, User, deleted_user, removed_user
 
 __all__ = ['Comment', 'Commentset']
@@ -53,6 +54,10 @@ class SET_TYPE:  # noqa: N801
     PROPOSAL = 2
     COMMENT = 3
     UPDATE = 4
+
+
+message_deleted = MessageComposite(__("[deleted]"), 'del')
+message_removed = MessageComposite(__("[removed]"), 'del')
 
 
 # --- Models ---------------------------------------------------------------------------
@@ -146,7 +151,9 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
 
     @with_roles(call={'all'})
     @state.requires(state.NOT_DISABLED)
-    def post_comment(self, actor: User, message: str):
+    def post_comment(
+        self, actor: User, message: str, in_reply_to: Optional[Comment] = None
+    ) -> Comment:
         """Post a comment."""
         # TODO: Add role check for non-OPEN states. Either:
         # 1. Add checking for restrictions to the view (retaining @state.requires here),
@@ -156,6 +163,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
             user=actor,
             commentset=self,
             message=message,
+            in_reply_to=in_reply_to,
         )
         self.count = Commentset.count + 1
         db.session.add(comment)
@@ -281,15 +289,17 @@ class Comment(UuidMixin, BaseMixin, db.Model):
 
     with_roles(user, read={'all'}, datasets={'primary', 'related', 'json', 'minimal'})
 
+    # XXX: We're returning MarkownComposite, not CompositeProperty, but mypy doesn't
+    # know. This is pending a fix to SQLAlchemy's type system, hopefully in 2.0
     @hybrid_property
-    def message(self) -> Union[str, Markup]:
+    def message(self) -> Union[CompositeProperty, MessageComposite]:
         """Return the message of the comment if not deleted or removed."""
         return (
-            _('[deleted]')
+            message_deleted
             if self.state.DELETED
-            else _('[removed]')
+            else message_removed
             if self.state.SPAM
-            else self._message.html
+            else self._message
         )
 
     @message.setter
@@ -349,7 +359,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         """Delete this comment."""
         if len(self.replies) > 0:
             self.user = None  # type: ignore[assignment]
-            self.message = ''
+            self.message = ''  # type: ignore[assignment]
         else:
             if self.in_reply_to and self.in_reply_to.state.DELETED:
                 # If the comment this is replying to is deleted, ask it to reconsider

@@ -6,8 +6,6 @@ from flask import current_app, json, redirect, render_template, request
 from werkzeug.exceptions import HTTPException, MethodNotAllowed, NotFound
 from werkzeug.routing import RequestRedirect
 
-from baseframe import _
-
 from .. import app
 from ..models import db
 from ..proxies import request_wants
@@ -24,42 +22,26 @@ templates = {
 }
 
 
-@app.errorhandler(Exception)
-def handle_error(exc: Exception) -> ReturnView:
+@app.errorhandler(HTTPException)
+def handle_error(exc: HTTPException) -> ReturnView:
     """Render all errors with a custom template."""
     db.session.rollback()
     json_response = request_wants.json or request.path.startswith('/api/')
-    if isinstance(exc, HTTPException):
-        response = exc.get_response()
-        if json_response:
-            response.data = json.dumps(
-                {
-                    'status': 'error',
-                    'code': exc.code,
-                    'name': exc.name,
-                    'error': str(exc.code),
-                    'error_description': exc.description,
-                }
-            )
-            response.content_type = 'application/json'
-        elif exc.code in templates:
-            response.data = render_template(templates[exc.code])
-        return response
-
-    # We've received an error that is not an instance of HTTPException.
-    # This happens for unhandled exceptions raised in code.
+    response = exc.get_response()
     if json_response:
-        return {
-            'status': 'error',
-            'code': 500,
-            'name': 'Internal Server Error',
-            'error': '500',
-            'error_description': _(
-                "An internal server error occured. Our support team has been notified"
-                " and will look into this. Try again later"
-            ),
-        }
-    return render_template(templates[500]), 500
+        response.data = json.dumps(
+            {
+                'status': 'error',
+                'code': exc.code,
+                'name': exc.name,
+                'error': str(exc.code),
+                'error_description': exc.description,
+            }
+        )
+        response.content_type = 'application/json'
+    elif exc.code in templates:
+        response.data = render_template(templates[exc.code])
+    return response
 
 
 @app.errorhandler(404)
