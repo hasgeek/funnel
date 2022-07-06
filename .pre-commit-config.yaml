@@ -1,13 +1,11 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 default_stages: [commit]
-# Enable this to enforce common Python version between dev and CI:
+# Enable this to enforce a common Python version:
 # default_language_version:
-#   python: python3.7
+#   python: python3.9
 ci:
   skip: ['pip-compile', 'yesqa', 'no-commit-to-branch']
-  default_language_version:
-    python: python3.9
 repos:
   - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
     rev: v1.5.1
