@@ -22,5 +22,12 @@ describe('Project', () => {
     cy.title().should('include', project.title);
     // TODO: After imgee merger, add tests to upload and select image
     cy.get('[data-cy="add-project-banner"]').should('exist');
+
+    cy.get('a[data-cy="project-menu"]:visible').click();
+    cy.wait(1000);
+    cy.get('a[data-cy-admin="edit"]:visible').click();
+    cy.get('#tagline').type(project.tagline);
+    cy.get('button[data-cy="form-submit-btn"]').click();
+    cy.title().should('include', project.title);
   });
 });
