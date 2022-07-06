@@ -146,7 +146,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
             submit='Add member',
             ajax=False,
             with_chrome=False,
-        )
+        ).get_data(as_text=True)
         return {'status': 'ok', 'form': membership_form_html}
 
 
@@ -241,7 +241,7 @@ class OrganizationMembershipView(
             submit='Edit membership',
             ajax=False,
             with_chrome=False,
-        )
+        ).get_data(as_text=True)
         return {'status': 'ok', 'form': membership_form_html}
 
     @route('delete', methods=['GET', 'POST'])
@@ -295,7 +295,7 @@ class OrganizationMembershipView(
             submit=_("Remove"),
             ajax=False,
             with_chrome=False,
-        )
+        ).get_data(as_text=True)
         return {'status': 'ok', 'form': form_html}
 
 
@@ -403,7 +403,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
             submit='Add member',
             ajax=False,
             with_chrome=False,
-        )
+        ).get_data(as_text=True)
         return {'status': 'ok', 'form': membership_form_html}
 
 
@@ -535,7 +535,7 @@ class ProjectCrewMembershipView(
             submit='Edit membership',
             ajax=False,
             with_chrome=False,
-        )
+        ).get_data(as_text=True)
         return {'status': 'ok', 'form': membership_form_html}
 
     @route('delete', methods=['GET', 'POST'])
@@ -581,7 +581,7 @@ class ProjectCrewMembershipView(
             submit=_("Remove"),
             ajax=False,
             with_chrome=False,
-        )
+        ).get_data(as_text=True)
         return {'status': 'ok', 'form': form_html}
 
 

@@ -49,12 +49,6 @@ blinker==1.4
     # via
     #   -r requirements.in
     #   coaster
-boto3==1.24.22
-    # via -r requirements.in
-botocore==1.27.22
-    # via
-    #   boto3
-    #   s3transfer
 brotli==1.0.9
     # via -r requirements.in
 cachelib==0.9.0
@@ -88,7 +82,7 @@ coaster @ git+https://github.com/hasgeek/coaster.git
     #   baseframe
 croniter==1.3.5
     # via rq-scheduler
-cryptography==37.0.2
+cryptography==37.0.4
     # via
     #   -r requirements.in
     #   paramiko
@@ -219,10 +213,6 @@ jinja2==3.1.2
     #   flask
     #   flask-babelhg
     #   flask-flatpages
-jmespath==1.0.1
-    # via
-    #   boto3
-    #   botocore
 joblib==1.1.0
     # via nltk
 js2py==0.71
@@ -344,7 +334,6 @@ python-dateutil==2.8.2
     # via
     #   -r requirements.in
     #   baseframe
-    #   botocore
     #   croniter
     #   icalendar
     #   rq-scheduler
@@ -408,8 +397,6 @@ rq-scheduler==0.11.0
     # via flask-rq2
 rsa==4.8
     # via oauth2client
-s3transfer==0.6.0
-    # via boto3
 semantic-version==2.10.0
     # via
     #   baseframe
@@ -490,7 +477,6 @@ url-normalize==1.4.3
     # via -r requirements.in
 urllib3==1.26.9
     # via
-    #   botocore
     #   geoip2
     #   requests
     #   sentry-sdk

@@ -1,12 +1,16 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 default_stages: [commit]
-# Enable this to enforce common Python version between dev and CI:
+# Enable this to enforce a common Python version:
 # default_language_version:
-#   python: python3.7
+#   python: python3.9
 ci:
   skip: ['pip-compile', 'yesqa', 'no-commit-to-branch']
 repos:
+  - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
+    rev: v1.5.1
+    hooks:
+      - id: check-pre-commit-ci-config
   - repo: https://github.com/jazzband/pip-tools
     rev: 6.8.0
     hooks:
@@ -99,7 +103,7 @@ repos:
           - types-simplejson==3.17.6
           - types-six==1.16.17
           - types-toml==0.10.7
-          - types-urllib3==1.26.15
+          - types-urllib3==1.26.16
           - types-werkzeug==1.0.9
           - typing-extensions==4.3.0
   - repo: https://github.com/PyCQA/flake8
@@ -162,7 +166,7 @@ repos:
         args: ['--single-quote', '--trailing-comma', 'es5']
         exclude: funnel/templates/js/
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.3.0
+    rev: v1.4.0
     hooks:
       - id: djlint-jinja
         files: \.(jinja2|j2)$
