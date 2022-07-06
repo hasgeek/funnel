@@ -1,4 +1,6 @@
+"""Test for project ticket sync models."""
 # pylint: disable=attribute-defined-outside-init
+
 import unittest
 
 import pytest

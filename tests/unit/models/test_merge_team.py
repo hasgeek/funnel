@@ -1,3 +1,5 @@
+"""Tests for Team member merger when merging user accounts."""
+
 from datetime import timedelta
 from types import SimpleNamespace
 

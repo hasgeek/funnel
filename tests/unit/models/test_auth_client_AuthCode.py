@@ -1,3 +1,5 @@
+"""Tests for AuthCode model."""
+
 from funnel import models
 
 from .test_db import TestDatabaseFixture

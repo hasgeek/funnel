@@ -1,3 +1,5 @@
+"""Tests for UserPhone model."""
+
 from funnel import models
 
 from .test_db import TestDatabaseFixture

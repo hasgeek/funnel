@@ -1,3 +1,4 @@
+"""Tests for Notification and UserNotification models."""
 # pylint: disable=possibly-unused-variable
 
 from types import SimpleNamespace

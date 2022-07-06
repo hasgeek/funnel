@@ -1,3 +1,5 @@
+"""Tests for Proposal model."""
+
 from funnel.models import Proposal
 
 

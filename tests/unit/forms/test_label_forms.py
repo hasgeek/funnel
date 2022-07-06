@@ -1,3 +1,5 @@
+"""Test Label forms."""
+
 from werkzeug.datastructures import MultiDict
 
 from funnel.forms import LabelForm

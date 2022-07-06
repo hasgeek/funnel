@@ -1,3 +1,5 @@
+"""Tests for Project forms."""
+
 from werkzeug.datastructures import MultiDict
 
 import requests_mock

@@ -1,3 +1,5 @@
+"""Test embedded video view helpers."""
+
 from datetime import datetime
 
 from pytz import utc

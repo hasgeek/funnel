@@ -1,3 +1,5 @@
+"""Tests for Project model."""
+
 from datetime import datetime, timedelta
 
 import pytest

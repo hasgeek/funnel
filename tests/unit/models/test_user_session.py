@@ -1,3 +1,5 @@
+"""Tests for UserSession model."""
+
 from datetime import timedelta
 
 import pytest

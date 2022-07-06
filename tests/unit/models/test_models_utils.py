@@ -1,3 +1,5 @@
+"""Tests for model processing utilities."""
+
 from funnel import models
 
 

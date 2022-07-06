@@ -1,3 +1,5 @@
+"""Tests for Profile model."""
+
 from sqlalchemy.exc import StatementError
 
 from furl import furl

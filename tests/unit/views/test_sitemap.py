@@ -1,3 +1,5 @@
+"""Test sitemap views."""
+
 from datetime import datetime, timedelta
 
 from werkzeug.exceptions import NotFound

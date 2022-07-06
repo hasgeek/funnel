@@ -1,3 +1,5 @@
+"""Tests for AuthClientCredential model."""
+
 from funnel import models
 
 from .test_db import TestDatabaseFixture

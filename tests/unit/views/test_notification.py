@@ -1,3 +1,5 @@
+"""Test Notification views."""
+
 from urllib.parse import urlsplit
 
 from flask import url_for
