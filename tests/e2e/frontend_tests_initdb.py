@@ -1,5 +1,5 @@
 from funnel import app
-from funnel.models import SiteMembership, User, UserEmail, Organization, db
+from funnel.models import Organization, SiteMembership, User, UserEmail, db
 
 
 def init_models():
@@ -17,7 +17,10 @@ def init_models():
         user_email = UserEmail(email='memberuser@example.com', user=user)
         db.session.add(user.add_phone('9900234567', primary=True))
 
-        profile_owner = User(username='profile-cypress', fullname='profile-cypress', )
+        profile_owner = User(
+            username='profile-cypress',
+            fullname='profile-cypress',
+        )
         profile_owner.password = 'profile-cypress123_St'  # noqa: S105  # nosec
         profile_owner_email = UserEmail(
             email='profileowner@example.com', user=profile_owner
@@ -44,7 +47,9 @@ def init_models():
             user=profile_owner, is_site_editor=True, granted_by=profile_owner
         )
 
-        org = Organization(name='testcypressproject', title='testcypressproject', owner=profile_owner)
+        org = Organization(
+            name='testcypressproject', title='testcypressproject', owner=profile_owner
+        )
         org.profile.is_verified = True
 
         db.session.add_all(
@@ -63,7 +68,7 @@ def init_models():
                 editor_email,
                 user2,
                 sm,
-                org
+                org,
             ]
         )
         db.session.commit()
