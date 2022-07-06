@@ -64,8 +64,8 @@ def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
     with pytest.raises(StateTransitionError):
         user_wolfgang.profile.make_public()
 
-    # Add an email address to meet the criteria for having verified contact info
-    user_wolfgang.add_phone('+1234567890')
+    # Add a phone number to meet the criteria for having verified contact info
+    user_wolfgang.add_phone('+12345678900')
 
     # Make profile public and confirm
     user_wolfgang.profile.make_public()

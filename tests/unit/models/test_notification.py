@@ -67,7 +67,7 @@ def project_fixtures(db_session):  # pylint: disable=too-many-locals
 
     user_editor = User(username='user-editor', fullname="User Editor")
     user_editor.add_email('editor@example.com')
-    user_editor_phone = UserPhone(user=user_editor, phone='+1234567890')
+    user_editor_phone = UserPhone(user=user_editor, phone='+12345678900')
 
     user_participant = User(username='user-participant', title="User Participant")
 

@@ -32,7 +32,7 @@ dill==0.3.5.1
     # via pylint
 distlib==0.3.4
     # via virtualenv
-djlint==1.3.0
+djlint==1.4.0
     # via -r requirements_dev.in
 filelock==3.7.1
     # via virtualenv
@@ -256,7 +256,7 @@ types-six==1.16.17
     # via -r requirements_dev.in
 types-toml==0.10.7
     # via -r requirements_dev.in
-types-urllib3==1.26.15
+types-urllib3==1.26.16
     # via types-requests
 types-werkzeug==1.0.9
     # via
