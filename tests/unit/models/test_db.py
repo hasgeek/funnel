@@ -1,3 +1,4 @@
+"""Fixture class for legacy tests."""
 # pylint: disable=attribute-defined-outside-init
 
 import unittest

@@ -1,3 +1,5 @@
+"""Create database structure and fixtures for Cypress tests."""
+
 from funnel import app
 from funnel.models import SiteMembership, User, UserEmail, db
 

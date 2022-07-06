@@ -60,7 +60,7 @@ class ResponseWithForms(Response):
 
     Usage::
 
-        def test_mytest(client):
+        def test_mytest(client) -> None:
             response = client.get('/page_with_forms')
             form = response.form('login')
             form.fields['username'] = 'my username'
@@ -259,7 +259,7 @@ def varfixture(request):
     Usage::
 
         @pytest.mark.parametrize('varfixture', ['fixture1', 'fixture2'], indirect=True)
-        def test_me(varfixture):
+        def test_me(varfixture) -> None:
             ...
 
     This fixture can also be ignored, and a test can access a variable fixture directly:

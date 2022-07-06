@@ -66,7 +66,6 @@ class AllNotificationsView(ClassView):
         return UserNotification.unread_count_for(current_auth.user)
 
     @route('count', endpoint='notifications_count')
-    @render_with(json=True)
     def unread(self) -> ReturnRenderWith:
         # This view must NOT have a `@requires_login` decorator as that will insert
         # it as the next page after login
@@ -81,7 +80,6 @@ class AllNotificationsView(ClassView):
         'mark_read/<eventid_b58>', endpoint='notification_mark_read', methods=['POST']
     )
     @requires_login
-    @render_with(json=True)
     def mark_read(self, eventid_b58: str) -> ReturnRenderWith:
         form = forms.Form()
         del form.form_nonce
@@ -100,7 +98,6 @@ class AllNotificationsView(ClassView):
         methods=['POST'],
     )
     @requires_login
-    @render_with(json=True)
     def mark_unread(self, eventid_b58: str) -> ReturnRenderWith:
         form = forms.Form()
         del form.form_nonce

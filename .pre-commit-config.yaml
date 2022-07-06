@@ -11,16 +11,16 @@ repos:
     rev: 6.8.0
     hooks:
       - id: pip-compile
-        name: pip-compile --upgrade requirements.in
-        args: ['--upgrade', 'requirements.in']
+        name: pip-compile requirements.in
+        args: ['requirements.in']
         files: ^requirements\.(in|txt)$
       - id: pip-compile
-        name: pip-compile --upgrade requirements_dev.in
-        args: ['--upgrade', 'requirements_dev.in']
+        name: pip-compile requirements_dev.in
+        args: ['requirements_dev.in']
         files: ^requirements_dev\.(in|txt)$
       - id: pip-compile
-        name: pip-compile --upgrade requirements_test.in
-        args: ['--upgrade', 'requirements_test.in']
+        name: pip-compile requirements_test.in
+        args: ['requirements_test.in']
         files: ^requirements_test\.(in|txt)$
   - repo: https://github.com/lucasmbrown/mirrors-autoflake
     rev: v1.3
@@ -49,7 +49,7 @@ repos:
           - flake8-assertive==2.1.0
           - flake8-bandit==3.0.0
           - flake8-blind-except==0.2.1
-          - flake8-bugbear==22.4.25
+          - flake8-bugbear==22.7.1
           - flake8-builtins==1.5.3
           - flake8-comprehensions==3.10.0
           - flake8-docstrings==1.6.0
@@ -82,7 +82,7 @@ repos:
           - toml
           - lxml-stubs==0.4.0
           - sqlalchemy-stubs==0.4
-          - types-certifi==2021.10.8.2
+          - types-certifi==2021.10.8.3
           - types-click==7.1.8
           - types-cryptography==3.3.21
           - types-flask==1.1.6
@@ -92,27 +92,31 @@ repos:
           - types-jinja2==2.11.9
           - types-markupsafe==1.1.10
           - types-maxminddb==1.5.0
-          - types-python-dateutil==2.8.17
-          - types-pytz==2021.3.8
-          - types-requests==2.27.29
-          - types-setuptools==57.4.17
+          - types-python-dateutil==2.8.18
+          - types-pytz==2022.1.1
+          - types-requests==2.28.0
+          - types-setuptools==57.4.18
           - types-simplejson==3.17.6
-          - types-six==1.16.15
+          - types-six==1.16.17
           - types-toml==0.10.7
           - types-urllib3==1.26.15
           - types-werkzeug==1.0.9
+          - typing-extensions==4.3.0
   - repo: https://github.com/PyCQA/flake8
     rev: 4.0.1
     hooks:
       - id: flake8
         additional_dependencies: *flake8deps
-  # - repo: https://github.com/PyCQA/pylint
-  #   rev: v2.14.0-b1
-  #   hooks:
-  #     - id: pylint
-  #       additional_dependencies:
-  #         - toml
-  #         - pylint-pytest
+  - repo: https://github.com/PyCQA/pylint
+    rev: v2.14.4
+    hooks:
+      - id: pylint
+        args:
+          ['--disable=import-error', '-rn', '-sn', '--ignore-paths', 'tests']
+        additional_dependencies:
+          - toml
+          - pylint-pytest
+          - pylint-flask-sqlalchemy
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.4
     hooks:
@@ -151,14 +155,14 @@ repos:
       - id: no-commit-to-branch
       - id: trailing-whitespace
         args: ['--markdown-linebreak-ext=md']
-  # Enable after auditing existing templates
-  # - repo: https://github.com/thibaudcolas/curlylint
-  #   rev: v0.13.0
-  #   hooks:
-  #     - id: curlylint
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.7.1
     hooks:
       - id: prettier
         args: ['--single-quote', '--trailing-comma', 'es5']
         exclude: funnel/templates/js/
+  - repo: https://github.com/Riverside-Healthcare/djLint
+    rev: v1.3.0
+    hooks:
+      - id: djlint-jinja
+        files: \.(jinja2|j2)$

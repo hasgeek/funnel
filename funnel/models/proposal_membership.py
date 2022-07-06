@@ -1,3 +1,5 @@
+"""Membership model for collaborators on a proposal (submission)."""
+
 from __future__ import annotations
 
 from typing import Set

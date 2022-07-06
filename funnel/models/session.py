@@ -1,3 +1,5 @@
+"""Session with timestamps within a project."""
+
 from __future__ import annotations
 
 from collections import OrderedDict, defaultdict

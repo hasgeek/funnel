@@ -164,6 +164,7 @@ def oauth_auth_error(
     if error_uri is not None:
         params['error_uri'] = error_uri
     clear_flashed_messages()
+    db.session.commit()
     response = redirect(
         make_redirect_url(redirect_uri, use_fragment=False, **params), 303
     )
@@ -385,7 +386,7 @@ def oauth_make_token(
     return token
 
 
-def oauth_token_success(token: AuthToken, **params: str) -> ReturnView:
+def oauth_token_success(token: AuthToken, **params) -> ReturnView:
     """Return an OAuth2 token after successful validation and token generation."""
     params['access_token'] = token.token
     params['token_type'] = token.token_type

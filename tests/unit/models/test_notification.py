@@ -1,3 +1,4 @@
+"""Tests for Notification and UserNotification models."""
 # pylint: disable=possibly-unused-variable
 
 from types import SimpleNamespace
@@ -121,7 +122,7 @@ def project_fixtures(db_session):  # pylint: disable=too-many-locals
     return SimpleNamespace(**locals())
 
 
-def test_project_roles(project_fixtures):
+def test_project_roles(project_fixtures) -> None:
     """Test that the fixtures have roles set up correctly."""
     owner_roles = project_fixtures.project.roles_for(project_fixtures.user_owner)
     assert 'editor' in owner_roles
@@ -176,7 +177,7 @@ def update(project_fixtures, db_session):
     return new_update
 
 
-def test_update_roles(project_fixtures, update):
+def test_update_roles(project_fixtures, update) -> None:
     """Test whether Update grants the project_* roles to users."""
     owner_roles = update.roles_for(project_fixtures.user_owner)
     assert 'project_editor' in owner_roles
@@ -260,7 +261,7 @@ def test_update_notification_structure(
     assert project_fixtures.user_bystander not in all_recipients
 
 
-def test_user_notification_preferences(notification_types, db_session):
+def test_user_notification_preferences(notification_types, db_session) -> None:
     """Test that users have a notification_preferences dict."""
     nt = notification_types  # Short var for keeping lines within 88 columns below
     user = User(fullname="User")

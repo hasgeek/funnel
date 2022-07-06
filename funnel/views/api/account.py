@@ -8,17 +8,15 @@ from flask import request
 
 from baseframe import _
 from coaster.auth import current_auth
-from coaster.views import render_with
 
 from ... import app
 from ...forms import PasswordPolicyForm, UsernameAvailableForm
-from ...typing import ReturnRenderWith
+from ...typing import ReturnView
 from ..helpers import progressive_rate_limit_validator, validate_rate_limit
 
 
 @app.route('/api/1/account/password_policy', methods=['POST'])
-@render_with(json=True)
-def password_policy_check() -> ReturnRenderWith:
+def password_policy_check() -> ReturnView:
     """Check if a password meets policy criteria (strength, embedded personal info)."""
     form = PasswordPolicyForm(edit_user=current_auth.user)
     form.form_nonce.data = form.form_nonce.default()
@@ -48,8 +46,7 @@ def password_policy_check() -> ReturnRenderWith:
 
 
 @app.route('/api/1/account/username_available', methods=['POST'])
-@render_with(json=True)
-def account_username_availability() -> ReturnRenderWith:
+def account_username_availability() -> ReturnView:
     """Check whether a username is available for the taking."""
     form = UsernameAvailableForm(edit_user=current_auth.user)
     del form.form_nonce
@@ -101,7 +98,7 @@ def account_username_availability() -> ReturnRenderWith:
     # 400/422 is the wrong code as the request is valid and the error is app content
     return {
         'status': 'error',
-        'error': 'validation_failure',
+        'error': 'validation_failure',  # FIXME: Change to 'error': 'validation'
         # Use the first known error as the description
         'error_description': (
             str(form.username.errors[0])

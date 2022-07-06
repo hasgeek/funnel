@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from flask import (
     Markup,
@@ -43,7 +44,7 @@ session_timeouts['reset_token'] = timedelta(minutes=15)
 
 
 @app.route('/account/reset', methods=['GET', 'POST'])
-def reset():
+def reset() -> ReturnView:
     """Reset password."""
     # User wants to reset password
     # Ask for phone, email or username, verify it, and send a reset code
@@ -61,6 +62,8 @@ def reset():
     if form.validate_on_submit():
         user = form.user
         anchor = form.anchor
+        if TYPE_CHECKING:
+            assert isinstance(user, User)  # nosec
         if not anchor:
             # User has no phone or email. Maybe they logged in via Twitter
             # and set a local username and password, but no email. Could happen
@@ -133,7 +136,7 @@ def reset_with_token(token: str, cookietest=False) -> ReturnView:
 
 
 @app.route('/account/reset/<buid>/<secret>')
-def reset_with_token_legacy(buid, secret):
+def reset_with_token_legacy(buid: str, secret: str) -> ReturnView:
     """Old links with separate user id and secret are no longer valid."""
     flash(
         _(

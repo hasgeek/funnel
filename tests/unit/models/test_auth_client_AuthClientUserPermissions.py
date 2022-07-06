@@ -1,10 +1,12 @@
+"""Tests for AuthClientUserPermissions model."""
+
 from funnel import models
 
 from .test_db import TestDatabaseFixture
 
 
 class TestUserClientPermissions(TestDatabaseFixture):
-    def test_userclientpermissions(self):
+    def test_userclientpermissions(self) -> None:
         """Test for verifying creation of UserClientPermissions instance."""
         gustav = models.User(username='gustav')
         auth_client = self.fixtures.auth_client
@@ -16,7 +18,7 @@ class TestUserClientPermissions(TestDatabaseFixture):
         self.db_session.commit()
         assert isinstance(result, models.AuthClientUserPermissions)
 
-    def test_userclientpermissions_pickername(self):
+    def test_userclientpermissions_pickername(self) -> None:
         """Test for UserClientPermissions' pickername."""
         finnick = models.User(username='finnick', fullname="Finnick Odair")
         district4 = models.AuthClient(title="District 4")

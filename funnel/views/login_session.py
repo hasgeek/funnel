@@ -417,7 +417,7 @@ def reload_for_cookies(f: WrappedFunc) -> WrappedFunc:
         @route('/path')
         @reload_for_cookies
         @requires_login
-        def view():
+        def view() -> ReturnView:
             ...
     """
 

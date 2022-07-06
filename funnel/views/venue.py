@@ -1,3 +1,5 @@
+"""Views for venues in a project."""
+
 from __future__ import annotations
 
 from flask import flash, request
@@ -9,6 +11,7 @@ from coaster.views import ModelView, UrlForView, render_with, requires_roles, ro
 from .. import app
 from ..forms.venue import VenueForm, VenuePrimaryForm, VenueRoomForm
 from ..models import Project, Venue, VenueRoom, db
+from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProjectViewMixin, VenueRoomViewMixin, VenueViewMixin
@@ -24,7 +27,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
     @render_with('venues.html.jinja2')
     @requires_login
     @requires_roles({'editor'})
-    def venues(self):
+    def venues(self) -> ReturnRenderWith:
         return {
             'project': self.obj,
             'venues': self.obj.venues,
@@ -34,7 +37,7 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
-    def new_venue(self):
+    def new_venue(self) -> ReturnView:
         form = VenueForm()
         if form.validate_on_submit():
             venue = Venue()
@@ -55,12 +58,11 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
         )
 
     @route('update_venue_settings', methods=['POST'])
-    @render_with(json=True)
     @requires_login
     @requires_roles({'editor'})
-    def update_venue_settings(self):
+    def update_venue_settings(self) -> ReturnView:
         if request.json is None:
-            return {'error': _("Invalid data")}, 400
+            return {'status': 'error', 'error': _("Invalid data")}, 400
         for venue_uuid_b58 in request.json.keys():
             venue = Venue.query.filter_by(uuid_b58=venue_uuid_b58).first()
             if venue is not None:
@@ -75,12 +77,13 @@ class ProjectVenueView(ProjectViewMixin, UrlForView, ModelView):
                         room_obj.seq = room['seq']
                         db.session.add(room_obj)
         db.session.commit()
+        # FIXME: Return status='ok'
         return {'status': True}
 
     @route('makeprimary', methods=['POST'])
     @requires_login
     @requires_roles({'editor'})
-    def makeprimary_venue(self):
+    def makeprimary_venue(self) -> ReturnView:
         form = VenuePrimaryForm(parent=self.obj)
         if form.validate_on_submit():
             venue = form.venue.data
@@ -104,7 +107,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'project_editor'})
-    def edit(self):
+    def edit(self) -> ReturnView:
         form = VenueForm(obj=self.obj)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
@@ -123,7 +126,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
     @requires_roles({'project_editor'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         return render_delete_sqla(
             self.obj,
             db,
@@ -139,7 +142,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'project_editor'})
-    def new_venueroom(self):
+    def new_venueroom(self) -> ReturnView:
         form = VenueRoomForm()
         if form.validate_on_submit():
             room = VenueRoom()
@@ -167,7 +170,7 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'project_editor'})
-    def edit(self):
+    def edit(self) -> ReturnView:
         form = VenueRoomForm(obj=self.obj)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
@@ -186,7 +189,7 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
     @requires_roles({'project_editor'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         return render_delete_sqla(
             self.obj,
             db,

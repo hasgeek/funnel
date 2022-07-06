@@ -1,3 +1,5 @@
+"""Tests for Team member merger when merging user accounts."""
+
 from datetime import timedelta
 from types import SimpleNamespace
 
@@ -22,7 +24,7 @@ def team_merge_data(db_session):
     return SimpleNamespace(**locals())
 
 
-def test_team_migrate_user1(team_merge_data):
+def test_team_migrate_user1(team_merge_data) -> None:
     """
     Test to verify teams are transferred when merging users.
 
@@ -41,7 +43,7 @@ def test_team_migrate_user1(team_merge_data):
     assert team_merge_data.user2.teams == []
 
 
-def test_team_migrate_user2(team_merge_data):
+def test_team_migrate_user2(team_merge_data) -> None:
     """
     Test to verify teams are transferred when merging users.
 
@@ -60,7 +62,7 @@ def test_team_migrate_user2(team_merge_data):
     assert team_merge_data.user2.teams == []
 
 
-def test_team_migrate_user3(team_merge_data):
+def test_team_migrate_user3(team_merge_data) -> None:
     """
     Test to verify teams are transferred when merging users.
 

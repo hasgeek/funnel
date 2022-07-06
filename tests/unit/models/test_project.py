@@ -1,3 +1,5 @@
+"""Tests for Project model."""
+
 from datetime import datetime, timedelta
 
 import pytest
@@ -21,7 +23,7 @@ def invalidate_cache(project):
             pass
 
 
-def test_cfp_state_draft(db_session, new_organization, new_project):
+def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
     assert new_project.cfp_start_at is None
     assert new_project.state.DRAFT
     assert new_project.cfp_state.NONE
@@ -280,7 +282,9 @@ def test_project_rename(
     assert new_redirect.project == new_project2
 
 
-def test_project_featured_proposal(db_session, user_twoflower, project_expo2010):
+def test_project_featured_proposal(
+    db_session, user_twoflower, project_expo2010
+) -> None:
     # `has_featured_proposals` returns None if the project has no proposals
     assert project_expo2010.has_featured_proposals is False
 

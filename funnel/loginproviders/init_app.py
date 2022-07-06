@@ -1,3 +1,5 @@
+"""Configure login provider OAuth clients."""
+
 from __future__ import annotations
 
 from baseframe import __

@@ -11,7 +11,6 @@ from flask import (
     abort,
     current_app,
     flash,
-    make_response,
     redirect,
     render_template,
     request,
@@ -348,15 +347,13 @@ def logout_client():
     # All good. Log them out and send them back
     logout_internal()
     db.session.commit()
-    return make_response(
-        render_template(
-            'logout_browser_data.html.jinja2', next=get_next_url(external=True)
-        )
+    return render_template(
+        'logout_browser_data.html.jinja2', next=get_next_url(external=True)
     )
 
 
 @app.route('/logout')
-def logout():
+def logout() -> ReturnView:
     """Inform user of deprecated logout endpoint."""
     # Logout, but protect from CSRF attempts
     if 'client_id' in request.args:
@@ -384,9 +381,7 @@ def account_logout() -> ReturnView:
         logout_internal()
         db.session.commit()
         flash(_("You are now logged out"), category='info')
-        return make_response(
-            render_template('logout_browser_data.html.jinja2', next=get_next_url())
-        )
+        return render_template('logout_browser_data.html.jinja2', next=get_next_url())
 
     if request_wants.json:
         return {'status': 'error', 'errors': form.errors}
@@ -584,7 +579,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
 
 @app.route('/account/merge', methods=['GET', 'POST'])
 @requires_login
-def account_merge():
+def account_merge() -> ReturnView:
     """Merge two accounts."""
     if 'merge_buid' not in session:
         return render_redirect(get_next_url())

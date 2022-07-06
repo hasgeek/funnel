@@ -33,19 +33,19 @@ MESSAGE = OneLineTemplate(
 )
 
 
-def test_twilio_success():
+def test_twilio_success() -> None:
     """Test if message sending is a success."""
     sid = send(TWILIO_CLEAN_TARGET, MESSAGE, callback=False)
     assert sid
 
 
-def test_twilio_callback(client):
+def test_twilio_callback(client) -> None:
     """Test if message sending is a success when a callback is requested."""
     sid = send(TWILIO_CLEAN_TARGET, MESSAGE, callback=True)
     assert sid
 
 
-def test_twilio_failures():
+def test_twilio_failures() -> None:
     """Test if message sending is a failure."""
     # Invalid Target
     with pytest.raises(TransportRecipientError):
@@ -60,7 +60,7 @@ def test_twilio_failures():
         send(TWILIO_NO_SMS_SERVICE, MESSAGE, callback=False)
 
 
-def test_exotel_nonce(client):
+def test_exotel_nonce(client) -> None:
     """Test if the exotel nonce works as expected."""
     # Make a token
     token = make_exotel_token(EXOTEL_TO)
@@ -81,7 +81,7 @@ def test_exotel_nonce(client):
     assert data['status'] == 'ok'
 
 
-def test_exotel_send_error(client):
+def test_exotel_send_error(client) -> None:
     """Only tests if url_for works and usually fails otherwise, which is OK."""
     # Check False Path via monkey patching the requests object
     with patch.object(requests, 'post') as mock_method:

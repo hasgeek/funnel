@@ -1,4 +1,6 @@
+"""Tests for model helpers."""
 # pylint: disable=possibly-unused-variable
+
 from types import SimpleNamespace
 
 from sqlalchemy.exc import StatementError
@@ -15,7 +17,7 @@ from funnel.models.helpers import (
 )
 
 
-def test_valid_name():
+def test_valid_name() -> None:
     """Names are lowercase and contain letters, numbers and non-terminal hyphens."""
     assert valid_name('example person') is False
     assert valid_name('example_person') is False
@@ -43,7 +45,7 @@ def test_valid_name():
     assert valid_name('-Ab') is False
 
 
-def test_valid_username():
+def test_valid_username() -> None:
     """Usernames contain letters, numbers and non-terminal hyphens."""
     assert valid_username('example person') is False
     assert valid_username('example_person') is False
@@ -71,10 +73,13 @@ def test_valid_username():
     assert valid_username('-Ab') is False
 
 
-def test_reopen():
+def test_reopen() -> None:
     """Test reopening a class to add more to it."""
 
     class UnrelatedMixin:
+        pass
+
+    class TestMetaclass(type):  # pylint: disable=unused-variable
         pass
 
     class OriginalClass:
@@ -91,8 +96,8 @@ def test_reopen():
     # The decorator returns the original class with the decorated class's contents
     assert ReopenedClass is OriginalClass
     assert saved_reference is ReopenedClass
-    assert ReopenedClass.spam is OriginalClass.spam
-    assert ReopenedClass.eggs is OriginalClass.eggs
+    assert ReopenedClass.spam is OriginalClass.spam  # type: ignore[attr-defined]
+    assert ReopenedClass.eggs is OriginalClass.eggs  # type: ignore[attr-defined]
 
     # The decorator will refuse to process classes with base classes
     with pytest.raises(TypeError):
@@ -105,9 +110,7 @@ def test_reopen():
     with pytest.raises(TypeError):
 
         @reopen(OriginalClass)
-        class HasMetaclass(  # pylint: disable=unused-variable
-            with_metaclass=UnrelatedMixin
-        ):
+        class HasMetaclass(metaclass=TestMetaclass):  # pylint: disable=unused-variable
             pass
 
     # The decorator will refuse to process classes that affect the original's attributes
@@ -119,7 +122,7 @@ def test_reopen():
             __slots__ = ['spam', 'eggs']
 
 
-def test_add_to_class():
+def test_add_to_class() -> None:
     """Add to class adds new attributes to a class."""
 
     class ReferenceClass:
@@ -135,20 +138,20 @@ def test_add_to_class():
         return 'is_eggs'
 
     assert hasattr(ReferenceClass, 'eggs')
-    assert ReferenceClass().eggs() == 'is_eggs'
+    assert ReferenceClass().eggs() == 'is_eggs'  # type: ignore[attr-defined]
     assert not hasattr(ReferenceClass, 'spameggs')
     assert not hasattr(ReferenceClass, 'spameggs_property')
 
     # New methods can have a custom name and can take any decorator valid in the class
-    @add_to_class(ReferenceClass, 'spameggs')
+    @add_to_class(ReferenceClass, 'spameggs')  # type: ignore[misc]
     @property
     def spameggs_property(self):
         return 'is_spameggs'
 
     assert hasattr(ReferenceClass, 'spameggs')
     assert not hasattr(ReferenceClass, 'spameggs_property')
-    assert ReferenceClass.spameggs is spameggs_property
-    assert ReferenceClass().spameggs == 'is_spameggs'
+    assert ReferenceClass.spameggs is spameggs_property  # type: ignore[attr-defined]
+    assert ReferenceClass().spameggs == 'is_spameggs'  # type: ignore[attr-defined]
 
     # Existing attributes cannot be replaced
     with pytest.raises(AttributeError):
@@ -169,7 +172,7 @@ def image_models(database):
     return SimpleNamespace(**locals())
 
 
-def test_imgeetype(db_session, image_models):
+def test_imgeetype(db_session, image_models) -> None:
     valid_url = "https://images.example.com/embed/file/randomimagehash"
     valid_url_with_resize = (
         "https://images.example.com/embed/file/randomimagehash?size=120x100"
@@ -198,19 +201,25 @@ def test_imgeetype(db_session, image_models):
 
     m2.image_url = valid_url_with_resize
     db_session.commit()
-    assert m2.image_url.url == valid_url_with_resize
-    assert m2.image_url.resize(120, 100).args['size'] == '120x100'
-    assert m2.image_url.resize(120).args['size'] == '120'
+    assert m2.image_url.url == valid_url_with_resize  # type: ignore[attr-defined]
+    assert (
+        m2.image_url.resize(120, 100).args['size']  # type: ignore[attr-defined]
+        == '120x100'
+    )
+    assert m2.image_url.resize(120).args['size'] == '120'  # type: ignore[attr-defined]
 
     m2.image_url = valid_url_with_qs
     db_session.commit()
-    assert m2.image_url.url == valid_url_with_qs
-    assert m2.image_url.resize(120).args['foo'] == 'bar'
-    assert m2.image_url.resize(120, 100).args['size'] == '120x100'
-    assert m2.image_url.resize(120).args['size'] == '120'
+    assert m2.image_url.url == valid_url_with_qs  # type: ignore[attr-defined]
+    assert m2.image_url.resize(120).args['foo'] == 'bar'  # type: ignore[attr-defined]
+    assert (
+        m2.image_url.resize(120, 100).args['size']  # type: ignore[attr-defined]
+        == '120x100'
+    )
+    assert m2.image_url.resize(120).args['size'] == '120'  # type: ignore[attr-defined]
 
 
-def test_quote_autocomplete_tsquery():
+def test_quote_autocomplete_tsquery() -> None:
     # Single word autocomplete
     assert quote_autocomplete_tsquery('word') == "'word':*"
     # Multi-word autocomplete with stemming

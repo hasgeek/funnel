@@ -12,6 +12,8 @@ alembic==1.8.0
     # via
     #   -r requirements.in
     #   flask-migrate
+aniso8601==9.0.1
+    # via coaster
 argon2-cffi==21.3.0
     # via -r requirements.in
 argon2-cffi-bindings==21.2.0
@@ -22,49 +24,55 @@ async-timeout==4.0.2
     #   redis
 attrs==21.4.0
     # via aiohttp
-awscli==1.25.0
-    # via -r requirements.in
-babel==2.10.1
-    # via -r requirements.in
+babel==2.10.3
+    # via
+    #   -r requirements.in
+    #   flask-babelhg
 base58==2.1.1
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   coaster
 baseframe @ git+https://github.com/hasgeek/baseframe.git
     # via -r requirements.in
 bcrypt==3.2.2
     # via
     #   -r requirements.in
+    #   coaster
     #   paramiko
 better-profanity==0.6.1
     # via -r requirements.in
-bleach==5.0.0
-    # via baseframe
-blinker==1.4
-    # via -r requirements.in
-boto3==1.24.0
-    # via -r requirements.in
-botocore==1.27.0
+bleach==5.0.1
     # via
-    #   awscli
+    #   baseframe
+    #   coaster
+blinker==1.4
+    # via
+    #   -r requirements.in
+    #   coaster
+boto3==1.24.22
+    # via -r requirements.in
+botocore==1.27.22
+    # via
     #   boto3
     #   s3transfer
 brotli==1.0.9
     # via -r requirements.in
-cachelib==0.7.0
+cachelib==0.9.0
     # via flask-caching
 cachetools==5.2.0
     # via premailer
-certifi==2022.5.18.1
+certifi==2022.6.15
     # via
     #   requests
     #   sentry-sdk
     #   tuspy
-cffi==1.15.0
+cffi==1.15.1
     # via
     #   argon2-cffi-bindings
     #   bcrypt
     #   cryptography
     #   pynacl
-charset-normalizer==2.0.12
+charset-normalizer==2.1.0
     # via
     #   aiohttp
     #   requests
@@ -72,13 +80,12 @@ click==8.1.3
     # via
     #   -r requirements.in
     #   flask
+    #   nltk
     #   rq
 coaster @ git+https://github.com/hasgeek/coaster.git
     # via
     #   -r requirements.in
     #   baseframe
-colorama==0.4.4
-    # via awscli
 croniter==1.3.5
     # via rq-scheduler
 cryptography==37.0.2
@@ -90,7 +97,7 @@ cssmin==0.2.0
     # via baseframe
 cssselect==1.1.0
     # via premailer
-cssutils==2.4.0
+cssutils==2.4.2
     # via premailer
 dataclasses-json==0.5.7
     # via -r requirements.in
@@ -101,8 +108,6 @@ dnspython==2.2.1
     #   baseframe
     #   mxsniff
     #   pyisemail
-docutils==0.16
-    # via awscli
 emoji==1.7.0
     # via baseframe
 fabric3==1.14.post1
@@ -113,7 +118,9 @@ flask==2.1.2
     # via
     #   -r requirements.in
     #   baseframe
+    #   coaster
     #   flask-assets
+    #   flask-babelhg
     #   flask-caching
     #   flask-executor
     #   flask-flatpages
@@ -121,17 +128,19 @@ flask==2.1.2
     #   flask-migrate
     #   flask-redis
     #   flask-rq2
+    #   flask-script
     #   flask-sqlalchemy
     #   flask-wtf
 flask-assets==2.0
     # via
     #   -r requirements.in
     #   baseframe
+    #   coaster
 flask-babelhg @ git+https://github.com/hasgeek/flask-babelhg.git
     # via
     #   -r requirements.in
     #   baseframe
-flask-caching==1.11.1
+flask-caching==2.0.0
     # via baseframe
 flask-executor==0.10.0
     # via -r requirements.in
@@ -140,14 +149,19 @@ flask-flatpages==0.8.1
 flask-mailman==0.3.0
     # via -r requirements.in
 flask-migrate==3.1.0
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   coaster
 flask-redis==0.4.0
     # via -r requirements.in
 flask-rq2==18.3
     # via -r requirements.in
+flask-script==2.0.6
+    # via coaster
 flask-sqlalchemy==2.5.1
     # via
     #   -r requirements.in
+    #   coaster
     #   flask-migrate
 flask-wtf==1.0.1
     # via
@@ -158,17 +172,24 @@ frozenlist==1.3.0
     #   aiohttp
     #   aiosignal
 furl==2.1.3
-    # via baseframe
+    # via
+    #   -r requirements.in
+    #   baseframe
+    #   coaster
 future==0.18.2
     # via tuspy
-geoip2==4.5.0
+geoip2==4.6.0
     # via -r requirements.in
 grapheme==0.6.0
     # via baseframe
 html2text==2020.1.16
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   coaster
 html5lib==1.1
-    # via baseframe
+    # via
+    #   baseframe
+    #   coaster
 httplib2==0.20.4
     # via
     #   oauth2
@@ -181,10 +202,12 @@ idna==3.3
     #   requests
     #   tldextract
     #   yarl
-importlib-metadata==4.11.4
+importlib-metadata==4.12.0
     # via
     #   flask
     #   markdown
+isoweek==1.3.3
+    # via coaster
 itsdangerous==2.0.1
     # via
     #   -r requirements.in
@@ -192,32 +215,38 @@ itsdangerous==2.0.1
     #   flask-wtf
 jinja2==3.1.2
     # via
+    #   coaster
     #   flask
+    #   flask-babelhg
     #   flask-flatpages
-jmespath==1.0.0
+jmespath==1.0.1
     # via
     #   boto3
     #   botocore
+joblib==1.1.0
+    # via nltk
 js2py==0.71
     # via -r requirements.in
 jsmin==3.0.1
     # via -r requirements.in
-lxml==4.9.0
+lxml==4.9.1
     # via premailer
-mako==1.2.0
+mako==1.2.1
     # via alembic
 markdown==3.3.7
     # via
     #   -r requirements.in
+    #   coaster
     #   flask-flatpages
     #   pymdown-extensions
 markupsafe==2.1.1
     # via
     #   baseframe
+    #   coaster
     #   jinja2
     #   mako
     #   wtforms
-marshmallow==3.16.0
+marshmallow==3.17.0
     # via
     #   dataclasses-json
     #   marshmallow-enum
@@ -237,6 +266,8 @@ mypy-extensions==0.4.3
     # via typing-inspect
 ndg-httpsclient==0.5.1
     # via baseframe
+nltk==3.7
+    # via coaster
 oauth2==1.9.0.post1
     # via -r requirements.in
 oauth2client==4.1.3
@@ -255,12 +286,14 @@ paramiko==2.11.0
     # via fabric3
 passlib==1.7.4
     # via -r requirements.in
-phonenumbers==8.12.49
+phonenumbers==8.12.51
     # via -r requirements.in
 premailer==3.10.0
     # via -r requirements.in
 progressbar2==4.0.0
     # via -r requirements.in
+psycopg2==2.9.3
+    # via coaster
 psycopg2-binary==2.9.3
     # via -r requirements.in
 pyasn1==0.4.8
@@ -278,8 +311,12 @@ pycountry==22.3.5
     #   baseframe
 pycparser==2.21
     # via cffi
+pyexecjs==1.5.1
+    # via coaster
 pygments==2.12.0
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   coaster
 pyisemail==1.4.0
     # via
     #   -r requirements.in
@@ -289,8 +326,10 @@ pyjsparser==2.7.1
     # via js2py
 pyjwt==2.4.0
     # via twilio
-pymdown-extensions==9.4
-    # via -r requirements.in
+pymdown-extensions==9.5
+    # via
+    #   -r requirements.in
+    #   coaster
 pynacl==1.5.0
     # via paramiko
 pyopenssl==22.0.0
@@ -318,25 +357,28 @@ pytz==2022.1
     #   -r requirements.in
     #   babel
     #   baseframe
+    #   coaster
     #   icalendar
     #   twilio
 pytz-deprecation-shim==0.1.0.post0
     # via tzlocal
 pyvimeo==1.1.0
     # via -r requirements.in
-pyyaml==5.4.1
+pyyaml==6.0
     # via
-    #   awscli
+    #   coaster
     #   flask-flatpages
 qrcode==7.3.1
     # via -r requirements.in
-redis==4.3.1
+redis==4.3.4
     # via
     #   baseframe
     #   flask-redis
     #   flask-rq2
     #   rq
-requests==2.27.1
+regex==2022.6.2
+    # via nltk
+requests==2.28.1
     # via
     #   -r requirements.in
     #   baseframe
@@ -364,18 +406,18 @@ rq==1.10.1
     #   rq-scheduler
 rq-scheduler==0.11.0
     # via flask-rq2
-rsa==4.7.2
-    # via
-    #   awscli
-    #   oauth2client
+rsa==4.8
+    # via oauth2client
 s3transfer==0.6.0
-    # via
-    #   awscli
-    #   boto3
+    # via boto3
 semantic-version==2.10.0
+    # via
+    #   baseframe
+    #   coaster
+sentry-sdk==1.6.0
     # via baseframe
-sentry-sdk==1.5.12
-    # via baseframe
+simplejson==3.17.6
+    # via coaster
 six==1.16.0
     # via
     #   bleach
@@ -388,6 +430,7 @@ six==1.16.0
     #   oauth2client
     #   orderedmultidict
     #   paramiko
+    #   pyexecjs
     #   python-dateutil
     #   requests-file
     #   requests-mock
@@ -396,30 +439,40 @@ six==1.16.0
     #   url-normalize
 speaklater==1.3
     # via baseframe
-sqlalchemy==1.4.37
+sqlalchemy==1.4.39
     # via
     #   -r requirements.in
     #   alembic
+    #   coaster
     #   flask-sqlalchemy
     #   sqlalchemy-utils
     #   wtforms-sqlalchemy
 sqlalchemy-utils==0.38.2
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   coaster
 statsd==3.3.0
     # via baseframe
 tinydb==4.7.0
     # via tuspy
 tldextract==3.3.0
-    # via mxsniff
+    # via
+    #   coaster
+    #   mxsniff
+toml==0.10.2
+    # via coaster
+tqdm==4.64.0
+    # via nltk
 tuspy==0.2.5
     # via pyvimeo
 tweepy==4.10.0
     # via -r requirements.in
-twilio==7.9.1
+twilio==7.10.0
     # via -r requirements.in
-typing-extensions==4.2.0
+typing-extensions==4.3.0
     # via
     #   -r requirements.in
+    #   coaster
     #   typing-inspect
 typing-inspect==0.7.1
     # via dataclasses-json
@@ -427,8 +480,12 @@ tzdata==2022.1
     # via pytz-deprecation-shim
 tzlocal==4.2
     # via js2py
-ua-parser==0.10.0
+ua-parser==0.15.0
     # via user-agents
+uglipyjs==0.2.5
+    # via coaster
+unidecode==1.3.4
+    # via coaster
 url-normalize==1.4.3
     # via -r requirements.in
 urllib3==1.26.9
@@ -440,7 +497,9 @@ urllib3==1.26.9
 user-agents==2.2.0
     # via -r requirements.in
 webassets==2.0
-    # via flask-assets
+    # via
+    #   coaster
+    #   flask-assets
 webencodings==0.5.1
     # via
     #   bleach
@@ -449,8 +508,9 @@ werkzeug==2.1.2
     # via
     #   -r requirements.in
     #   baseframe
+    #   coaster
     #   flask
-whitenoise==6.1.0
+whitenoise==6.2.0
     # via -r requirements.in
 wrapt==1.14.1
     # via deprecated

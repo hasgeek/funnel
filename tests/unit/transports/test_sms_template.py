@@ -27,7 +27,7 @@ class MyMessage(SmsTemplate):
     plaintext_template = "{var} here"
 
 
-def test_validate_registered_template():
+def test_validate_registered_template() -> None:
     """Test DLT registered template validator."""
     # pylint: disable=unused-variable
     with pytest.raises(
@@ -55,7 +55,7 @@ def test_validate_registered_template():
             template = '{var}'
 
 
-def test_template_lengths():
+def test_template_lengths() -> None:
     """Static and variable character lengths are calculated automatically."""
 
     class OneVarTemplate(SmsTemplate):
@@ -130,7 +130,7 @@ def test_template_lengths():
     assert tm.available_var_len() == 59
 
 
-def test_validate_template():
+def test_validate_template() -> None:
     """Test Python template validator."""
     # pylint: disable=unused-variable
     with pytest.raises(
@@ -164,7 +164,7 @@ def test_validate_template():
             template = "{}"
 
 
-def test_validate_no_entity_template_id():
+def test_validate_no_entity_template_id() -> None:
     """Entity id and template id must not appear in the class definition."""
     # pylint: disable=unused-variable
     with pytest.raises(TypeError):
@@ -178,7 +178,7 @@ def test_validate_no_entity_template_id():
             registered_templateid = '12345'
 
 
-def test_subclass_config(app):
+def test_subclass_config(app) -> None:
     class MySubMessage(MyMessage):
         pass
 
@@ -198,7 +198,7 @@ def test_subclass_config(app):
     assert MySubMessage.registered_templateid == 'qwerty'
 
 
-def test_init_app(app):
+def test_init_app(app) -> None:
     assert SmsTemplate.registered_entityid is None
     assert MyMessage.registered_entityid is None
     SmsTemplate.init_app(app)
@@ -206,13 +206,13 @@ def test_init_app(app):
     assert MyMessage.registered_entityid == 'dlt_entity_id'
 
 
-def test_inline_use():
+def test_inline_use() -> None:
     assert str(MyMessage(var="sample1")) == "Insert sample1 here"
     assert MyMessage(var="sample2").text == "Insert sample2 here"
     assert MyMessage(var="sample3").plaintext == "sample3 here"
 
 
-def test_object_use():
+def test_object_use() -> None:
     # pylint: disable=attribute-defined-outside-init
     msg = MyMessage()
     msg.var = "sample1"
@@ -229,7 +229,7 @@ def test_object_use():
 # --- Test the registered templates
 
 
-def test_web_otp_template():
+def test_web_otp_template() -> None:
     t = WebOtpTemplate(otp='1234', helpline_text="call 12345", domain='example.com')
     assert str(t) == (
         'OTP is 1234 for Hasgeek.\n\n'
@@ -238,7 +238,7 @@ def test_web_otp_template():
     )
 
 
-def test_one_line_template():
+def test_one_line_template() -> None:
     # Regular use
     t = OneLineTemplate(
         text1='123456789_' * 2,
@@ -265,7 +265,7 @@ def test_one_line_template():
     assert len(msg.text1) == 100  # Including the added ellipsis
 
 
-def test_two_line_template():
+def test_two_line_template() -> None:
     # Regular use
     t = TwoLineTemplate(
         text1='123456789_' * 2,
@@ -297,7 +297,7 @@ def test_two_line_template():
     assert len(msg.text2) == 66
 
 
-def test_message_template():
+def test_message_template() -> None:
     # Regular use
     t = MessageTemplate(
         message='123456789_' * 2,

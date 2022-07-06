@@ -1,9 +1,11 @@
+"""Proposal (submission) model, the primary content type within a project."""
+
 from __future__ import annotations
 
-from typing import Iterable, Optional, Set
+from typing import Iterable, Optional
 
 from baseframe import __
-from coaster.sqlalchemy import StateManager, with_roles
+from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from . import (
@@ -415,7 +417,7 @@ class Proposal(  # type: ignore[misc]
     def move_to(self, project):
         """Move to a new project and reset :attr:`url_id`."""
         self.project = project
-        self.url_id = None
+        self.url_id = None  # pylint: disable=attribute-defined-outside-init
         self.make_id()
 
     def update_description(self) -> None:
@@ -446,7 +448,9 @@ class Proposal(  # type: ignore[misc]
             .first()
         )
 
-    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if self.state.DRAFT:
             if 'reader' in roles:

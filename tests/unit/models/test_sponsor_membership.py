@@ -169,7 +169,7 @@ def test_expo_sponsor_seq_reissue(  # pylint: disable=too-many-arguments
     ]
 
 
-def test_change_promoted_flag(db_session, project_expo2010, citywatch_sponsor):
+def test_change_promoted_flag(db_session, project_expo2010, citywatch_sponsor) -> None:
     """Change sponsor is_promoted flag."""
     assert citywatch_sponsor.is_promoted is False
     # Flag can be changed with a revision
@@ -186,7 +186,7 @@ def test_change_promoted_flag(db_session, project_expo2010, citywatch_sponsor):
         new_record.is_promoted = False
 
 
-def test_change_label(db_session, project_expo2010, citywatch_sponsor):
+def test_change_label(db_session, project_expo2010, citywatch_sponsor) -> None:
     """Change sponsor label."""
     assert citywatch_sponsor.label is None
     # Flag can be changed with a revision
@@ -205,7 +205,7 @@ def test_change_label(db_session, project_expo2010, citywatch_sponsor):
         new_record.label = None
 
 
-def test_sponsor_offered_roles(db_session, project_expo2010, citywatch_sponsor):
+def test_sponsor_offered_roles(db_session, project_expo2010, citywatch_sponsor) -> None:
     """Sponsors don't get a role from the sponsor membership."""
     assert citywatch_sponsor.offered_roles == set()
 

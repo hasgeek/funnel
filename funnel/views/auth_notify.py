@@ -1,3 +1,5 @@
+"""Legacy handlers for notifying auth clients of user data changes (deprecated)."""
+
 from __future__ import annotations
 
 from ..models import AuthToken

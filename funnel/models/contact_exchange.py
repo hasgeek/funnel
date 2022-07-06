@@ -1,13 +1,17 @@
+"""Model for contacts scanned from badges at in-person events."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date as date_type
 from datetime import datetime
 from itertools import groupby
-from typing import Collection, Iterable, Optional, Set
+from typing import Collection, Iterable, Optional
 from uuid import UUID
 
 from sqlalchemy.ext.associationproxy import association_proxy
 
+from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58
 
 from ..typing import OptionalMigratedTables
@@ -90,7 +94,9 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         'subject': {'read': {'user', 'ticket_participant', 'scanned_at'}},
     }
 
-    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None:
             if actor == self.user:
@@ -227,7 +233,7 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
 
     @classmethod
     def contacts_for_project_and_date(
-        cls, user: User, project: Project, date: datetime, archived=False
+        cls, user: User, project: Project, date: date_type, archived=False
     ):
         """Return contacts for a given user, project and date."""
         query = cls.query.join(TicketParticipant).filter(

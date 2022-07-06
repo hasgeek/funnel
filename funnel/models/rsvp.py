@@ -1,3 +1,5 @@
+"""Legacy project registration model, storing RSVP states (Y/N/M/A)."""
+
 from __future__ import annotations
 
 from typing import Dict, Optional, Tuple, Union, cast, overload

@@ -1,11 +1,19 @@
+"""Model for updates to a project."""
+
 from __future__ import annotations
 
-from typing import Iterable, Optional, Set
+from typing import Iterable, Optional
 
 from sqlalchemy.orm import Query as BaseQuery
 
 from baseframe import __
-from coaster.sqlalchemy import Query, StateManager, auto_init_default, with_roles
+from coaster.sqlalchemy import (
+    LazyRoleSet,
+    Query,
+    StateManager,
+    auto_init_default,
+    with_roles,
+)
 from coaster.utils import LabeledEnum
 
 from . import (
@@ -312,7 +320,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
 
     with_roles(is_currently_restricted, read={'all'})
 
-    def roles_for(self, actor: Optional[User] = None, anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if not self.visibility_state.RESTRICTED:
             # Everyone gets reader role when the post is not restricted.

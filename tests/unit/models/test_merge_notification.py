@@ -1,4 +1,6 @@
+"""Tests for merging notifications with user account merger."""
 # pylint: disable=possibly-unused-variable
+
 from datetime import timedelta
 from types import SimpleNamespace
 
@@ -17,7 +19,7 @@ from funnel.models import (
 
 
 @pytest.fixture(scope='session')
-def test_notification_type():
+def fixture_notification_type():
     class MergeTestNotification(Notification):
         """Test notification."""
 
@@ -97,7 +99,7 @@ def user1_main_preferences(db_session, fixtures):
 
 
 @pytest.fixture()
-def user1_test_preferences(db_session, fixtures, test_notification_type):
+def user1_test_preferences(db_session, fixtures, fixture_notification_type):
     prefs = NotificationPreferences(user=fixtures.user1, notification_type='merge_test')
     db_session.add(prefs)
     db_session.commit()
@@ -113,7 +115,7 @@ def user2_main_preferences(db_session, fixtures):
 
 
 @pytest.fixture()
-def user2_test_preferences(db_session, fixtures, test_notification_type):
+def user2_test_preferences(db_session, fixtures, fixture_notification_type):
     prefs = NotificationPreferences(user=fixtures.user2, notification_type='merge_test')
     db_session.add(prefs)
     db_session.commit()
@@ -123,7 +125,7 @@ def user2_test_preferences(db_session, fixtures, test_notification_type):
 # --- Tests for UserNotification -------------------------------------------------------
 
 
-def test_merge_without_notifications(db_session, fixtures):
+def test_merge_without_notifications(db_session, fixtures) -> None:
     """Merge without any notifications works."""
     assert Notification.query.count() == 0
     assert UserNotification.query.count() == 0
@@ -134,7 +136,9 @@ def test_merge_without_notifications(db_session, fixtures):
     assert UserNotification.query.count() == 0
 
 
-def test_merge_with_user1_notifications(db_session, fixtures, user1_notification):
+def test_merge_with_user1_notifications(
+    db_session, fixtures, user1_notification
+) -> None:
     """Merge without only user1 notifications works."""
     assert Notification.query.count() == 1
     assert UserNotification.query.count() == 1
@@ -146,7 +150,9 @@ def test_merge_with_user1_notifications(db_session, fixtures, user1_notification
     assert user1_notification.user == fixtures.user1
 
 
-def test_merge_with_user2_notifications(db_session, fixtures, user2_notification):
+def test_merge_with_user2_notifications(
+    db_session, fixtures, user2_notification
+) -> None:
     """Merge without only user2 notifications gets it transferred to user1."""
     assert Notification.query.count() == 1
     assert UserNotification.query.count() == 1

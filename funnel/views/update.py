@@ -1,3 +1,5 @@
+"""Views for updates in a project."""
+
 from __future__ import annotations
 
 from typing import Optional
@@ -20,7 +22,7 @@ from coaster.views import (
 from .. import app
 from ..forms import SavedProjectForm, UpdateForm
 from ..models import NewUpdateNotification, Profile, Project, Update, db
-from ..typing import ReturnView
+from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin
@@ -34,7 +36,7 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
     @route('', methods=['GET'])
     @render_with(html_in_json('project_updates.html.jinja2'))
     @requires_roles({'reader'})
-    def updates(self):
+    def updates(self) -> ReturnRenderWith:
         project = self.obj.current_access(datasets=('primary', 'related'))
         draft_updates = (
             [
@@ -59,7 +61,7 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
-    def new_update(self):
+    def new_update(self) -> ReturnView:
         form = UpdateForm()
 
         if form.validate_on_submit():
@@ -112,7 +114,7 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('', methods=['GET'])
     @render_with('update_details.html.jinja2')
-    def view(self):
+    def view(self) -> ReturnRenderWith:
         if not self.obj.current_roles.reader and self.obj.state.WITHDRAWN:
             abort(410)
         return {
@@ -123,7 +125,7 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('publish', methods=['POST'])
     @requires_roles({'editor'})
-    def publish(self):
+    def publish(self) -> ReturnView:
         if not self.obj.state.DRAFT:
             return render_redirect(self.obj.url_for())
         form = forms.Form()
@@ -141,9 +143,8 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         return render_redirect(self.obj.project.url_for('updates'))
 
     @route('edit', methods=['GET', 'POST'])
-    @render_with(json=True)
     @requires_roles({'editor'})
-    def edit(self):
+    def edit(self) -> ReturnView:
         form = UpdateForm(obj=self.obj)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
@@ -159,10 +160,9 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @render_with(json=True)
     @requires_sudo
     @requires_roles({'editor'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         form = forms.Form()
 
         if form.validate_on_submit():

@@ -1,3 +1,5 @@
+"""Membership model for admins of an organization."""
+
 from __future__ import annotations
 
 from typing import Set

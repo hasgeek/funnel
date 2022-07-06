@@ -1,3 +1,5 @@
+"""Views for videos embedded in various models."""
+
 from __future__ import annotations
 
 from datetime import datetime

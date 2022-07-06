@@ -1,3 +1,5 @@
+"""Twitter OAuth1a client."""
+
 from __future__ import annotations
 
 from flask import redirect, request

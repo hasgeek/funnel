@@ -1,4 +1,4 @@
-"""Notifications of new comments."""
+"""̌Comment noficiations."""
 
 from __future__ import annotations
 

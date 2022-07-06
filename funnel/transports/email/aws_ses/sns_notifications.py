@@ -1,3 +1,5 @@
+"""AWS SNS notification types and validators for AWS SES notifications."""
+
 from __future__ import annotations
 
 from enum import Enum, IntFlag

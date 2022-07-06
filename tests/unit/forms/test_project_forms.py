@@ -1,3 +1,5 @@
+"""Tests for Project forms."""
+
 from werkzeug.datastructures import MultiDict
 
 import requests_mock
@@ -5,7 +7,7 @@ import requests_mock
 from funnel.forms import ProjectLivestreamForm
 
 
-def test_livestream_form_valid():
+def test_livestream_form_valid() -> None:
     with requests_mock.Mocker() as m:
         valid_urls = [
             "https://y2u.be/dQw4w9WgXcQ",
@@ -32,7 +34,7 @@ def test_livestream_form_valid():
         assert form2.validate()
 
 
-def test_livestream_form_invalid():
+def test_livestream_form_invalid() -> None:
     with requests_mock.Mocker() as m:
         m.get("https://www.vimeo.com/336892869", text='resp')
         form = ProjectLivestreamForm(

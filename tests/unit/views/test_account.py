@@ -1,8 +1,9 @@
 """Test account views."""
 
 
-def test_username_available(client, user_rincewind, csrf_token):
+def test_username_available(db_session, client, user_rincewind, csrf_token) -> None:
     """Test the username availability endpoint."""
+    db_session.commit()
     endpoint = '/api/1/account/username_available'
 
     # Does not support GET requests
@@ -53,7 +54,7 @@ def test_username_available(client, user_rincewind, csrf_token):
 PWNED_PASSWORD = "thisisone1"  # noqa: S105 #nosec
 
 
-def test_pwned_password(client, csrf_token, login, user_rincewind):
+def test_pwned_password(client, csrf_token, login, user_rincewind) -> None:
     """Pwned password validator will block attempt to use a compromised password."""
     login.as_(user_rincewind)
     client.get('/')

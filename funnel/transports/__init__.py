@@ -1,4 +1,4 @@
-"""Transport layer for communication with users (email and SMS)."""
+"""Transport layer for communication with users (email, SMS, others)."""
 
 from __future__ import annotations
 

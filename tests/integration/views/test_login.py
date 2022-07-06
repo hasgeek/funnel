@@ -119,12 +119,12 @@ def mock_loginhub_callback(loginhub):
         yield mock
 
 
-def test_user_rincewind_has_username(user_rincewind):
+def test_user_rincewind_has_username(user_rincewind) -> None:
     """Confirm user fixture has the username required for further tests."""
     assert user_rincewind.username == RINCEWIND_USERNAME
 
 
-def test_user_register_otp_sms(client, csrf_token):
+def test_user_register_otp_sms(client, csrf_token) -> None:
     """Providing an unknown phone number sends an OTP and registers an account."""
     with patch(PATCH_SMS_SEND, return_value=None) as mock:
         rv1 = client.post(
@@ -157,7 +157,7 @@ def test_user_register_otp_sms(client, csrf_token):
     assert current_auth.user.fullname == "Rincewind"
 
 
-def test_user_register_otp_email(client, csrf_token):
+def test_user_register_otp_email(client, csrf_token) -> None:
     """Providing an unknown email address sends an OTP and registers an account."""
     with patch(PATCH_EMAIL_OTP_LOGIN, autospec=True) as mock:
         rv1 = client.post(
@@ -191,7 +191,7 @@ def test_user_register_otp_email(client, csrf_token):
     assert str(current_auth.user.email) == RINCEWIND_EMAIL
 
 
-def test_user_logout(client, csrf_token, login, user_rincewind):
+def test_user_logout(client, csrf_token, login, user_rincewind) -> None:
     """Logout works as a POST request."""
     login.as_(user_rincewind)
     assert current_auth.user == user_rincewind
@@ -213,7 +213,9 @@ def test_user_logout(client, csrf_token, login, user_rincewind):
         SimpleNamespace(password=BLANK_PASSWORD, status_code=200, auth=False),
     ],
 )
-def test_login_usernames(client, csrf_token, login_username, password_status_auth):
+def test_login_usernames(
+    client, csrf_token, login_username, password_status_auth
+) -> None:
     """Test how the login view responds to correct, incorrect and missing password."""
     with patch(PATCH_SMS_SEND, return_value=None):
         rv = client.post(
@@ -233,7 +235,9 @@ def test_login_usernames(client, csrf_token, login_username, password_status_aut
 
 @pytest.mark.usefixtures('user_rincewind_phone')
 @pytest.mark.parametrize('login_username', [RINCEWIND_USERNAME, RINCEWIND_PHONE])
-def test_valid_otp_login_sms(client, csrf_token, user_rincewind, login_username):
+def test_valid_otp_login_sms(
+    client, csrf_token, user_rincewind, login_username
+) -> None:
     """Test OTP login using username or phone number."""
     with patch(PATCH_SMS_SEND, return_value=None) as mock:
         rv1 = client.post(
@@ -269,7 +273,9 @@ def test_valid_otp_login_sms(client, csrf_token, user_rincewind, login_username)
 
 @pytest.mark.usefixtures('user_rincewind_email')
 @pytest.mark.parametrize('login_username', [RINCEWIND_USERNAME, RINCEWIND_EMAIL])
-def test_valid_otp_login_email(client, csrf_token, user_rincewind, login_username):
+def test_valid_otp_login_email(
+    client, csrf_token, user_rincewind, login_username
+) -> None:
     """Test OTP login using username or email address."""
     with patch(PATCH_EMAIL_OTP_LOGIN, autospec=True) as mock:
         rv1 = client.post(
@@ -305,7 +311,7 @@ def test_valid_otp_login_email(client, csrf_token, user_rincewind, login_usernam
 
 @pytest.mark.usefixtures('user_rincewind_phone', 'user_rincewind_email')
 @pytest.mark.parametrize('login_username', LOGIN_USERNAMES)
-def test_invalid_otp_login(client, csrf_token, login_username):
+def test_invalid_otp_login(client, csrf_token, login_username) -> None:
     """Using an incorrect OTP causes a login failure."""
     with patch(PATCH_SMS_OTP_LOGIN, return_value=None, autospec=True), patch(
         PATCH_EMAIL_OTP_LOGIN, return_value=None, autospec=True
@@ -339,14 +345,14 @@ def test_invalid_otp_login(client, csrf_token, login_username):
     assert current_auth.user is None
 
 
-def test_user_has_sudo(client, login, user_rincewind):
+def test_user_has_sudo(client, login, user_rincewind) -> None:
     """Test that user has sudo mode enabled immediately after login."""
     login.as_(user_rincewind)
     rv = client.get('/account/sudo')
     assert rv.status_code == 303
 
 
-def test_user_password_sudo_prompt(client, login, user_rincewind_with_password):
+def test_user_password_sudo_prompt(client, login, user_rincewind_with_password) -> None:
     """User with a password gets a sudo password prompt."""
     login.as_(user_rincewind_with_password)
     client.get('/account')
@@ -356,7 +362,7 @@ def test_user_password_sudo_prompt(client, login, user_rincewind_with_password):
 
 
 @pytest.mark.usefixtures('user_rincewind_phone')
-def test_user_otp_sudo_timedout(client, login, user_rincewind):
+def test_user_otp_sudo_timedout(client, login, user_rincewind) -> None:
     """User without a password gets a sudo OTP prompt."""
     login.as_(user_rincewind)
     client.get('/account')
@@ -367,7 +373,7 @@ def test_user_otp_sudo_timedout(client, login, user_rincewind):
 
 
 @pytest.mark.usefixtures('user_rincewind_email', 'user_rincewind_with_weak_password')
-def test_weak_password(client, csrf_token):
+def test_weak_password(client, csrf_token) -> None:
     """User attempting to login with a weak password is asked to change it."""
     rv = client.post(
         '/login',
@@ -385,7 +391,7 @@ def test_weak_password(client, csrf_token):
 
 
 @pytest.mark.usefixtures('user_rincewind_email')
-def test_expired_password(client, csrf_token, user_rincewind_with_password):
+def test_expired_password(client, csrf_token, user_rincewind_with_password) -> None:
     """User attempting to login with an expired password is asked to change it."""
     user_rincewind_with_password.pw_expires_at = utcnow()
     rv = client.post(
@@ -404,7 +410,7 @@ def test_expired_password(client, csrf_token, user_rincewind_with_password):
 
 
 @pytest.mark.usefixtures('user_rincewind_email')
-def test_login_password_exception(client, csrf_token):
+def test_login_password_exception(client, csrf_token) -> None:
     """User logging in to an account without a password is asked to reset it."""
     rv = client.post(
         '/login',
@@ -423,7 +429,7 @@ def test_login_password_exception(client, csrf_token):
 
 
 @pytest.mark.usefixtures('user_rincewind_phone')
-def test_sms_otp_not_sent(client, csrf_token):
+def test_sms_otp_not_sent(client, csrf_token) -> None:
     """When an OTP could not be sent, user is prompted to use a password."""
     with patch(PATCH_SMS_SEND, side_effect=TransportConnectionError, autospec=True):
         rv1 = client.post(
@@ -443,7 +449,7 @@ def test_sms_otp_not_sent(client, csrf_token):
 
 
 @pytest.mark.usefixtures('user_rincewind_phone')
-def test_otp_timeout_error(client, csrf_token):
+def test_otp_timeout_error(client, csrf_token) -> None:
     """When an OTP has expired, the user is prompted to try again."""
     with patch(PATCH_SMS_OTP_LOGIN, return_value=None, autospec=True) as mock:
         client.post(
@@ -477,7 +483,7 @@ def test_otp_timeout_error(client, csrf_token):
 
 
 @pytest.mark.usefixtures('user_rincewind_phone')
-def test_otp_reason_error(client, csrf_token):
+def test_otp_reason_error(client, csrf_token) -> None:
     """When an OTP is used for an incorrect reason, it is rejected with a 403."""
     with patch(PATCH_SMS_OTP, return_value=True, autospec=True) as mock:
         client.post(
@@ -505,7 +511,7 @@ def test_otp_reason_error(client, csrf_token):
 
 
 @pytest.mark.usefixtures('mock_loginhub_do', 'mock_loginhub_callback')
-def test_login_external(client):
+def test_login_external(client) -> None:
     """External login flow works under mocked conditions."""
     rv = client.get('/login/loginhub')
     assert rv.status_code == 302
@@ -524,14 +530,14 @@ def test_login_external(client):
     assert current_auth.user.fullname == 'Rincewind'
 
 
-def test_service_not_in_registry(client):
+def test_service_not_in_registry(client) -> None:
     """Attempting to use an unknown external login causes a 404."""
     assert client.get('/login/unknown').status_code == 404
     assert client.get('/login/unknown/callback').status_code == 404
 
 
 @pytest.mark.skip(reason="Test is incomplete")
-def test_logout_using_client_id(client, login, user_twoflower):
+def test_logout_using_client_id(client, login, user_twoflower) -> None:
     """Logout works using a valid client id and HTTP referrer."""
     login.as_(user_twoflower)
     rv1 = client.get('/logout?client_id=twoflower')
@@ -544,7 +550,7 @@ def test_logout_using_client_id(client, login, user_twoflower):
     assert rv2.status_code == 303
 
 
-def test_already_logged_in(client, login, user_rincewind):
+def test_already_logged_in(client, login, user_rincewind) -> None:
     """Login endpoint sends user away if they are already logged in."""
     login.as_(user_rincewind)
     rv = client.get('/login')
@@ -559,7 +565,9 @@ def test_already_logged_in(client, login, user_rincewind):
         ('+919845012345', 'Use an email address to register'),
     ],
 )
-def test_phone_otp_not_supported(client, csrf_token, phone_number, message_fragment):
+def test_phone_otp_not_supported(
+    client, csrf_token, phone_number, message_fragment
+) -> None:
     """If phone number is an unsupported recipient, they are asked to try email."""
     with patch(PATCH_SMS_SEND, side_effect=TransportRecipientError, autospec=True):
         rv1 = client.post(
@@ -587,7 +595,7 @@ def test_phone_otp_not_supported(client, csrf_token, phone_number, message_fragm
         ('+919845012345', 'Use an email address to register, or try again later'),
     ],
 )
-def test_phone_otp_not_sent(client, csrf_token, phone_number, message_fragment):
+def test_phone_otp_not_sent(client, csrf_token, phone_number, message_fragment) -> None:
     """If OTP cannot be sent to phone, they are asked to try password/email."""
     with patch(PATCH_SMS_SEND, side_effect=TransportConnectionError, autospec=True):
         rv1 = client.post(
@@ -608,7 +616,7 @@ def test_phone_otp_not_sent(client, csrf_token, phone_number, message_fragment):
 
 
 @pytest.mark.usefixtures('user_rincewind_email', 'user_rincewind_with_weak_password')
-def test_weak_password_exception(client, csrf_token):
+def test_weak_password_exception(client, csrf_token) -> None:
     """If login form blocks weak password, login view will force user to reset it."""
     with patch(
         'funnel.forms.login.LoginForm.validate_password',
@@ -633,7 +641,7 @@ def test_weak_password_exception(client, csrf_token):
 
 
 @pytest.mark.usefixtures('user_rincewind_email')
-def test_incomplete_form(client, csrf_token):
+def test_incomplete_form(client, csrf_token) -> None:
     """A login form without form.id is rejected."""
     rv = client.post(
         '/login',
@@ -648,7 +656,7 @@ def test_incomplete_form(client, csrf_token):
     assert rv.status_code == 422
 
 
-def test_render_login_form(client):
+def test_render_login_form(client) -> None:
     """Login in an embedded view renders a HTML fragment."""
     rv = client.get(
         '/login',
@@ -659,14 +667,14 @@ def test_render_login_form(client):
     assert not rv.data.decode('utf-8').startswith('<!DOCTYPE html>')
 
 
-def test_logout_redirect_index(client):
+def test_logout_redirect_index(client) -> None:
     """GET request to legacy /logout is rejected."""
     rv = client.get('/logout')
     assert rv.status_code == 303
     assert rv.location == '/'
 
 
-def test_account_logout_user_session(client, csrf_token, login, user_rincewind):
+def test_account_logout_user_session(client, csrf_token, login, user_rincewind) -> None:
     """POST to logout with a session id removes that session in the background."""
     login.as_(user_rincewind)
     rv = client.post(
@@ -677,7 +685,9 @@ def test_account_logout_user_session(client, csrf_token, login, user_rincewind):
     assert rv.location == '/account'
 
 
-def test_account_logout_user_session_json(client, csrf_token, login, user_rincewind):
+def test_account_logout_user_session_json(
+    client, csrf_token, login, user_rincewind
+) -> None:
     """POST to logout can return a JSON confirmation."""
     login.as_(user_rincewind)
     rv = client.post(
@@ -689,7 +699,7 @@ def test_account_logout_user_session_json(client, csrf_token, login, user_rincew
     assert rv.status_code == 200
 
 
-def test_account_logout_csrf_validation_json(client, login, user_rincewind):
+def test_account_logout_csrf_validation_json(client, login, user_rincewind) -> None:
     """Logout needs a CSRF token to prevent CSRF logout (JSON response)."""
     login.as_(user_rincewind)
 
@@ -701,7 +711,7 @@ def test_account_logout_csrf_validation_json(client, login, user_rincewind):
     assert rv.json['errors'] == {'csrf_token': ['The CSRF token is missing.']}
 
 
-def test_account_logout_csrf_validation_html(client, login, user_rincewind):
+def test_account_logout_csrf_validation_html(client, login, user_rincewind) -> None:
     """Logout needs a CSRF token to prevent CSRF logout (HTML response)."""
     login.as_(user_rincewind)
 
@@ -713,7 +723,7 @@ def test_account_logout_csrf_validation_html(client, login, user_rincewind):
     assert 'The CSRF token is missing.' in str(session['_flashes'])
 
 
-def test_login_service_init_error(client):
+def test_login_service_init_error(client) -> None:
     """If a login service raises an init error, the login attempt is aborted."""
     with patch(
         PATCH_LOGINHUB_DO,
@@ -725,7 +735,7 @@ def test_login_service_init_error(client):
     assert rv.location == '/'
 
 
-def test_login_service_callback_error(client):
+def test_login_service_callback_error(client) -> None:
     """If a login service raises a callback error, the login attempt is aborted."""
     with patch(
         PATCH_LOGINHUB_CALLBACK,
@@ -737,7 +747,7 @@ def test_login_service_callback_error(client):
     assert 'Login Hub login failed' in rv.data.decode()
 
 
-def test_login_service_callback_is_authenticated(client, login, user_rincewind):
+def test_login_service_callback_is_authenticated(client, login, user_rincewind) -> None:
     """A callback error when logged in is handled."""
     login.as_(user_rincewind)
 
@@ -754,7 +764,7 @@ def test_login_service_callback_is_authenticated(client, login, user_rincewind):
 @pytest.mark.usefixtures(
     'user_rincewind', 'user_rincewind_email', 'mock_loginhub_callback'
 )
-def test_account_merge(client, csrf_token, login, user_twoflower):
+def test_account_merge(client, csrf_token, login, user_twoflower) -> None:
     """An external login service can trigger an account merger."""
     login.as_(user_twoflower)
 
@@ -774,7 +784,7 @@ def test_account_merge(client, csrf_token, login, user_twoflower):
     assert 'merge_buid' not in session
 
 
-def test_merge_buid_not_in_session(client, login, user_twoflower):
+def test_merge_buid_not_in_session(client, login, user_twoflower) -> None:
     """Account merger endpoint will fail when no merger is in progress."""
     login.as_(user_twoflower)
 

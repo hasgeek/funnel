@@ -113,7 +113,7 @@ def find_projects(starting_times, within, gap):
     }
 
 
-def test_project_starting_at(db_session, block_of_sessions):
+def test_project_starting_at(db_session, block_of_sessions) -> None:
     block_of_sessions.refresh()
 
     # Loop through the day at 5 min intervals from 8 AM, looking for start time
@@ -179,7 +179,7 @@ def test_project_starting_at(db_session, block_of_sessions):
     }
 
 
-def test_long_session_fail(db_session, new_project):
+def test_long_session_fail(db_session, new_project) -> None:
     """Sessions cannot exceed 24 hours."""
     # Less than 24 hours is fine:
     db_session.add(
