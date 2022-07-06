@@ -147,6 +147,24 @@ class AllCommentsView(ClassView):
 AllCommentsView.init_app(app)
 
 
+def do_post_comment(
+    commentset: Commentset,
+    actor: User,
+    message: str,
+    in_reply_to: Optional[Comment] = None,
+) -> Comment:
+    """Support function for posting a comment and updating a subscription."""
+    comment = commentset.post_comment(
+        actor=actor, message=message, in_reply_to=in_reply_to
+    )
+    if commentset.current_roles.document_subscriber:
+        commentset.update_last_seen_at(user=actor)
+    else:
+        commentset.add_subscriber(actor=actor, user=actor)
+    db.session.commit()
+    return comment
+
+
 @route('/comments/<commentset>')
 class CommentsetView(UrlForView, ModelView):
     """Views for commentset display within a host document."""
@@ -181,18 +199,9 @@ class CommentsetView(UrlForView, ModelView):
                     'error': 'disabled',
                     'error_description': _("Commenting is disabled"),
                 }, 422
-
-            comment = self.obj.post_comment(
-                current_auth.actor, commentform.message.data
+            comment = do_post_comment(
+                self.obj, current_auth.actor, commentform.message.data
             )
-
-            if self.obj.current_roles.document_subscriber:
-                self.obj.update_last_seen_at(user=current_auth.actor)
-            else:
-                self.obj.add_subscriber(
-                    actor=current_auth.actor, user=current_auth.actor
-                )
-            db.session.commit()
             dispatch_notification(
                 NewCommentNotification(document=comment.commentset, fragment=comment)
             )
@@ -308,18 +317,19 @@ class CommentView(UrlForView, ModelView):
     @requires_user_not_spammy(lambda self: self.obj.url_for())
     def reply(self) -> ReturnView:
         commentform = CommentForm()
-
         if commentform.validate_on_submit():
-            comment = Comment(
-                in_reply_to=self.obj,
-                user=current_auth.user,
-                commentset=self.obj.commentset,
-                message=commentform.message.data,
+            if not self.obj.commentset.post_comment.is_available:
+                return {
+                    'status': 'error',
+                    'error': 'disabled',
+                    'error_description': _("Commenting is disabled"),
+                }, 422
+            comment = do_post_comment(
+                self.obj.commentset,
+                current_auth.actor,
+                commentform.message.data,
+                self.obj,
             )
-
-            self.obj.commentset.count = Commentset.count + 1
-            db.session.add(comment)
-            db.session.commit()
             dispatch_notification(
                 CommentReplyNotification(
                     document=comment.in_reply_to, fragment=comment

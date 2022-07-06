@@ -5,10 +5,13 @@ from types import SimpleNamespace
 
 from sqlalchemy.exc import StatementError
 
+from flask_babelhg import lazy_gettext
+
 import pytest
 
 from funnel.models import ImgeeType, db
 from funnel.models.helpers import (
+    MessageComposite,
     add_to_class,
     quote_autocomplete_tsquery,
     reopen,
@@ -224,3 +227,22 @@ def test_quote_autocomplete_tsquery() -> None:
     assert quote_autocomplete_tsquery('word') == "'word':*"
     # Multi-word autocomplete with stemming
     assert quote_autocomplete_tsquery('two words') == "'two' <-> 'word':*"
+
+
+def test_message_composite() -> None:
+    """Test MessageComposite has similar properties to MarkdownComposite."""
+    text1 = MessageComposite("Text1")
+    assert text1.text == "Text1"
+    assert text1.html == "<p>Text1</p>"
+
+    text2 = MessageComposite(lazy_gettext("Text2"))
+    assert text2.text == "Text2"
+    assert text2.html == "<p>Text2</p>"
+
+    text3 = MessageComposite("Text3", 'del')
+    assert text3.text == "Text3"
+    assert text3.html == "<p><del>Text3</del></p>"
+
+    text4 = MessageComposite(lazy_gettext("Text4"), 'mark')
+    assert text4.text == "Text4"
+    assert text4.html == "<p><mark>Text4</mark></p>"

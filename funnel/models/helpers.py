@@ -5,7 +5,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import Dict, Iterable, List, Optional, Set, Type
+from typing import Any, Dict, Iterable, List, Optional, Set, Type
 import os.path
 import re
 
@@ -14,7 +14,8 @@ from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
 
-from flask import current_app
+from flask import Markup, current_app
+from flask import escape as html_escape
 
 from better_profanity import profanity
 from furl import furl
@@ -498,6 +499,35 @@ def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
         'update': update_statement,
         'drop': drop_statement,
     }
+
+
+class MessageComposite:
+    """
+    Mimic MarkdownComposite for static messages.
+
+    :param text: Message text
+    :param tag: Optional wrapper tag for HTML rendering
+    """
+
+    def __init__(self, text: str, tag: Optional[str] = None):
+        self.text = text
+        self.tag = tag
+
+    def __html__(self) -> str:
+        """Return HTML version of string."""
+        # Localize lazy string on demand
+        tag = self.tag
+        if tag:
+            return f'<p><{tag}>{html_escape(self.text)}</{tag}></p>'
+        return f'<p>{html_escape(self.text)}</p>'
+
+    @property
+    def html(self) -> Markup:
+        return Markup(self.__html__())
+
+    def __json__(self) -> Dict[str, Any]:
+        """Return JSON-compatible rendering of contents."""
+        return {'text': self.text, 'html': self.__html__()}
 
 
 class ImgeeFurl(furl):
