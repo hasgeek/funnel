@@ -2,12 +2,13 @@
 
 from base64 import b64encode
 from secrets import token_urlsafe
+from typing import Dict
 from urllib.parse import parse_qs, urlsplit
 
 from funnel.models import AuthToken
 
 
-def test_authcode_requires_login(client):
+def test_authcode_requires_login(client) -> None:
     """The authcode endpoint requires a login."""
     rv = client.get('/api/1/auth', follow_redirects=True)
     assert rv.status_code == 200
@@ -19,12 +20,14 @@ def test_authcode_requires_login(client):
     assert urlsplit(rv.location).path == '/login'
 
 
-def test_authcode_wellformed(client, login, user_rincewind, client_hex_credential):
+def test_authcode_wellformed(
+    client, login, user_rincewind, client_hex_credential
+) -> None:
     """The authcode endpoint will raise 403 if not well formed."""
     login.as_(user_rincewind)
 
     # Incomplete request
-    query_params = {}
+    query_params: Dict[str, str] = {}
     rv = client.get('/api/1/auth', query_string=query_params)
     assert rv.status_code == 403
     assert "Missing client_id" in rv.get_data(as_text=True)

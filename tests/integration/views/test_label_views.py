@@ -1,9 +1,11 @@
+"""Test Label views."""
+
 from funnel.models import Label
 
 
 def test_manage_labels_view(  # pylint: disable=too-many-arguments
     client, login, new_project, new_user, new_label, new_main_label
-):
+) -> None:
     login.as_(new_user)
     resp = client.get(new_project.url_for('labels'))
     assert "Manage labels" in resp.data.decode('utf-8')
@@ -11,7 +13,7 @@ def test_manage_labels_view(  # pylint: disable=too-many-arguments
     assert new_main_label.title in resp.data.decode('utf-8')
 
 
-def test_edit_option_label_view(client, login, new_user, new_main_label):
+def test_edit_option_label_view(client, login, new_user, new_main_label) -> None:
     login.as_(new_user)
     opt_label = new_main_label.options[0]
     resp = client.post(opt_label.url_for('edit'), follow_redirects=True)
@@ -24,7 +26,7 @@ def test_edit_option_label_view(client, login, new_user, new_main_label):
 # tests in those classes.
 
 
-def test_main_label_delete(client, login, new_user, new_label):
+def test_main_label_delete(client, login, new_user, new_label) -> None:
     login.as_(new_user)
     resp = client.post(new_label.url_for('delete'), follow_redirects=True)
     assert "Manage labels" in resp.data.decode('utf-8')
@@ -33,7 +35,7 @@ def test_main_label_delete(client, login, new_user, new_label):
     assert label is None
 
 
-def test_optioned_label_delete(client, login, new_user, new_main_label):
+def test_optioned_label_delete(client, login, new_user, new_main_label) -> None:
     login.as_(new_user)
     label_a1 = new_main_label.options[0]
     label_a2 = new_main_label.options[1]

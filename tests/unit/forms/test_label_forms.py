@@ -3,7 +3,7 @@ from werkzeug.datastructures import MultiDict
 from funnel.forms import LabelForm
 
 
-def test_label_form():
+def test_label_form() -> None:
     form = LabelForm(
         MultiDict(
             {
@@ -18,7 +18,7 @@ def test_label_form():
     assert form.validate()
 
 
-def test_label_form_invalid():
+def test_label_form_invalid() -> None:
     form = LabelForm(
         MultiDict({'icon_emoji': "🔟", 'required': False, 'restricted': False}),
         meta={'csrf': False},

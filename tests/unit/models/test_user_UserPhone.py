@@ -4,13 +4,13 @@ from .test_db import TestDatabaseFixture
 
 
 class TestUserPhone(TestDatabaseFixture):
-    def test_userphone(self):
+    def test_userphone(self) -> None:
         """Test for verifying creationg of UserPhone instance."""
         phone = "+987645321"
         result = models.UserPhone(phone=phone)
         assert isinstance(result, models.UserPhone)
 
-    def test_userphone_get(self):
+    def test_userphone_get(self) -> None:
         """Test for verifying UserPhone's get given a phone number."""
         crusoe = self.fixtures.crusoe
         phone = '+8080808080'
@@ -19,7 +19,7 @@ class TestUserPhone(TestDatabaseFixture):
         assert result.user == crusoe
         assert result.phone == phone
 
-    def test_userphone_unicode(self):
+    def test_userphone_unicode(self) -> None:
         """Test that `str(UserPhone)` returns phone number as a string."""
         phone = '+8080808080'
         result = str(models.UserPhone(phone))

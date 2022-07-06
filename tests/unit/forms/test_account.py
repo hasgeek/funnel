@@ -34,13 +34,13 @@ def form(request):
 
 
 @pytest.mark.formdata()
-def test_password_policy_form_no_data(form):
+def test_password_policy_form_no_data(form) -> None:
     """Test form validation for missing password."""
     assert form.validate() is False
 
 
 @pytest.mark.formdata({'password': 'weak'})
-def test_weak_password(form):
+def test_weak_password(form) -> None:
     """Test weak password validation."""
     assert form.validate() is True
     assert form.is_weak is True
@@ -51,7 +51,7 @@ def test_weak_password(form):
 
 @pytest.mark.formdata({'password': 'rincewind123'})
 @pytest.mark.formuser('user_rincewind')
-def test_related_password(form):
+def test_related_password(form) -> None:
     """Password cannot be related to user identifiers (username, email, etc)."""
     assert form.validate() is True
     assert form.edit_user is not None
@@ -63,7 +63,7 @@ def test_related_password(form):
 
 @pytest.mark.formdata({'password': 'this-is-a-sufficiently-long-password'})
 @pytest.mark.formuser('user_rincewind')
-def test_okay_password(form):
+def test_okay_password(form) -> None:
     """Long passwords are valid."""
     assert form.validate() is True
     assert form.edit_user is not None
@@ -73,13 +73,11 @@ def test_okay_password(form):
     assert form.suggestions == []
 
 
-def test_pwned_password_validator():
+def test_pwned_password_validator() -> None:
     """Test the pwned password validator."""
-    assert (
-        pwned_password_validator(
-            None, SimpleNamespace(data='this is unlikely to be in the breach list')
-        )
-        is None
+    # Validation success = no return value, no exception
+    pwned_password_validator(
+        None, SimpleNamespace(data='this is unlikely to be in the breach list')
     )
 
     with pytest.raises(StopValidation, match='times and is not safe'):
@@ -143,7 +141,9 @@ D10B1F9D5901978256CE5B2AD832F292D5A:e'''
         (resp5, does_not_raise()),
     ],
 )
-def test_mangled_response_pwned_password_validator(requests_mock, text, expectation):
+def test_mangled_response_pwned_password_validator(
+    requests_mock, text, expectation
+) -> None:
     """Test that the validator successfully parses mangled output in the API."""
     requests_mock.get('https://api.pwnedpasswords.com/range/7C4A8', text=text)
     with expectation:

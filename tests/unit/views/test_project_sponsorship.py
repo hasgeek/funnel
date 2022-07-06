@@ -1,3 +1,5 @@
+"""Test ProjectSponsorship views."""
+
 import pytest
 
 from funnel.models import SiteMembership, SponsorMembership, db

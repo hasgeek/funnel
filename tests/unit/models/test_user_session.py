@@ -11,13 +11,13 @@ sample_user_agent = (
 )
 
 
-def test_usersession_init(db_session):
+def test_usersession_init(db_session) -> None:
     """Test to verify the creation of UserSession instance."""
     result = models.UserSession()
     assert isinstance(result, models.UserSession)
 
 
-def test_usersession_has_sudo(db_session, user_twoflower):
+def test_usersession_has_sudo(db_session, user_twoflower) -> None:
     """Test to set sudo and test if UserSession instance has_sudo."""
     another_user_session = models.UserSession(
         user=user_twoflower,
@@ -31,7 +31,7 @@ def test_usersession_has_sudo(db_session, user_twoflower):
     assert another_user_session.has_sudo is True
 
 
-def test_usersession_revoke(db_session, user_twoflower):
+def test_usersession_revoke(db_session, user_twoflower) -> None:
     """Test to revoke on UserSession instance."""
     yet_another_usersession = models.UserSession(
         user=user_twoflower,
@@ -44,7 +44,7 @@ def test_usersession_revoke(db_session, user_twoflower):
     assert result.revoked_at is not None
 
 
-def test_usersession_get(db_session, user_twoflower):
+def test_usersession_get(db_session, user_twoflower) -> None:
     """Test for verifying UserSession's get method."""
     twoflower_buid = buid()
     twoflower_session = models.UserSession(
@@ -59,7 +59,7 @@ def test_usersession_get(db_session, user_twoflower):
     assert result.user_id == user_twoflower.id
 
 
-def test_usersession_active_sessions(db_session, user_twoflower):
+def test_usersession_active_sessions(db_session, user_twoflower) -> None:
     """Test for verifying UserSession's active_sessions."""
     twoflower_session = models.UserSession(
         user=user_twoflower,
@@ -72,7 +72,7 @@ def test_usersession_active_sessions(db_session, user_twoflower):
     assert user_twoflower.active_user_sessions.all() == [twoflower_session]
 
 
-def test_usersession_authenticate(db_session, user_dibbler):
+def test_usersession_authenticate(db_session, user_dibbler) -> None:
     """Test to verify authenticate method on UserSession."""
     dibbler_session = models.UserSession(
         user=user_dibbler,
@@ -106,7 +106,7 @@ def test_usersession_authenticate(db_session, user_dibbler):
     assert models.UserSession.authenticate(dibbler_session.buid, silent=True) is None
 
 
-def test_usersession_authenticate_suspended_user(db_session, user_dibbler):
+def test_usersession_authenticate_suspended_user(db_session, user_dibbler) -> None:
     """Test to verify authenticate method on UserSession with a suspended user."""
     dibbler_session = models.UserSession(
         user=user_dibbler,

@@ -16,7 +16,7 @@ from funnel.utils import (
 )
 
 
-def test_make_redirect_url():
+def test_make_redirect_url() -> None:
     """Test OAuth2 redirect URL constructor."""
     # scenario 1: straight forward splitting
     result = make_redirect_url('http://example.com/?foo=bar', foo='baz')
@@ -31,20 +31,20 @@ def test_make_redirect_url():
     assert result == expected_result
 
 
-def test_mask_email():
+def test_mask_email() -> None:
     """Test for masking email to offer a hint of what it is, without revealing much."""
     assert mask_email('foobar@example.com') == 'f••••@e••••'
     assert mask_email('not-email') == 'n••••'
     assert mask_email('also@not@email') == 'a••••@n••••'
 
 
-def test_mask_phone():
+def test_mask_phone() -> None:
     """Test for masking a phone number to only reveal CC and last two digits."""
     assert mask_phone('+18001234567') == '+1 •••-•••-••67'
     assert mask_phone('+919845012345') == '+91 ••••• •••45'
 
 
-def test_extract_twitter_handle():
+def test_extract_twitter_handle() -> None:
     """Test for extracing a Twitter handle from a URL or username."""
     expected = 'shreyas_satish'
     assert extract_twitter_handle('https://twitter.com/shreyas_satish') == expected
@@ -59,17 +59,17 @@ def test_extract_twitter_handle():
     assert extract_twitter_handle('') is None
 
 
-def test_split_name():
+def test_split_name() -> None:
     """Test for splitting a name to extract first name (for name badges)."""
     assert split_name("ABC DEF EFG") == ["ABC", "DEF EFG"]
 
 
-def test_format_twitter_handle():
+def test_format_twitter_handle() -> None:
     """Test for formatting a Twitter handle into an @handle."""
     assert format_twitter_handle("testusername") == "@testusername"
 
 
-def test_abort_null():
+def test_abort_null() -> None:
     """Test that abort_null raises an exception if the input has a null byte."""
     assert abort_null('all okay') == 'all okay'
     with pytest.raises(BadRequest):
@@ -89,6 +89,6 @@ def test_abort_null():
         ('junk', False, None),
     ],
 )
-def test_normalize_phone_number(candidate, expected, sms):
+def test_normalize_phone_number(candidate, expected, sms) -> None:
     """Test that normalize_phone_number is able to parse a number."""
     assert normalize_phone_number(candidate, sms) == expected

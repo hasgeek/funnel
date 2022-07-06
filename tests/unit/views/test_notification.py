@@ -92,14 +92,16 @@ def unsubscribe_sms_short_url(
     return notification_view.unsubscribe_short_url('sms')
 
 
-def test_unsubscribe_view_is_well_formatted(unsubscribe_sms_short_url, user_vetinari):
+def test_unsubscribe_view_is_well_formatted(
+    unsubscribe_sms_short_url, user_vetinari
+) -> None:
     """Confirm the SMS unsubscribe URL is well formatted."""
     prefix = 'https://bye.test/'
     assert unsubscribe_sms_short_url.startswith(prefix)
     assert len(unsubscribe_sms_short_url) == len(prefix) + 4  # 4 char random value
 
 
-def test_unsubscribe_sms_view(client, unsubscribe_sms_short_url, user_vetinari):
+def test_unsubscribe_sms_view(client, unsubscribe_sms_short_url, user_vetinari) -> None:
     """Confirm the unsubscribe URL renders a form."""
     unsub_url = url_for(
         'notification_unsubscribe_short',

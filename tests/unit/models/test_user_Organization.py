@@ -1,10 +1,14 @@
+"""Tests for UserExternalId model."""
+
+from typing import cast
+
 import pytest
 
 from coaster.sqlalchemy import StateTransitionError
 from funnel import models
 
 
-def test_organization_init(db_session, user_twoflower):
+def test_organization_init(db_session, user_twoflower) -> None:
     """Test for initializing a Organization instance."""
     name = 'inn-sewer-ants'
     title = 'Inn-sewer-ants-polly-sea'
@@ -14,7 +18,7 @@ def test_organization_init(db_session, user_twoflower):
     assert org.name == name
 
 
-def test_organization_get(db_session, user_twoflower):
+def test_organization_get(db_session, user_twoflower) -> None:
     """Test for retrieving an organization."""
     name = 'inn-sewer-ants'
     title = 'Inn-sewer-ants-polly-sea'
@@ -23,9 +27,9 @@ def test_organization_get(db_session, user_twoflower):
     db_session.commit()
     # scenario 1: when neither name or buid are passed
     with pytest.raises(TypeError):
-        models.Organization.get()
+        models.Organization.get()  # type: ignore[call-overload]
     # scenario 2: when buid is passed
-    buid = org.buid
+    buid = cast(str, org.buid)
     get_by_buid = models.Organization.get(buid=buid)
     assert get_by_buid == org
     # scenario 3: when username is passed
@@ -36,7 +40,7 @@ def test_organization_get(db_session, user_twoflower):
     assert get_by_name_with_defercols == org
 
 
-def test_organization_all(db_session, org_ankhmorpork, org_citywatch, org_uu):
+def test_organization_all(db_session, org_ankhmorpork, org_citywatch, org_uu) -> None:
     """Test for getting all organizations (takes buid or name optionally)."""
     db_session.commit()
     # scenario 1: when neither buids nor names are given
@@ -60,13 +64,13 @@ def test_organization_all(db_session, org_ankhmorpork, org_citywatch, org_uu):
     assert set(all_by_buids_with_defercols) == orglist
 
 
-def test_organization_pickername(db_session, org_uu):
+def test_organization_pickername(db_session, org_uu) -> None:
     """Test for checking Organization's pickername."""
     assert isinstance(org_uu.pickername, str)
     assert org_uu.pickername == f'{org_uu.title} (@{org_uu.name})'
 
 
-def test_organization_name(db_session, org_ankhmorpork):
+def test_organization_name(db_session, org_ankhmorpork) -> None:
     """Test for retrieving and setting an Organization's name."""
     with pytest.raises(ValueError, match='Invalid account name'):
         org_ankhmorpork.name = '35453496*%&^$%^'
@@ -78,7 +82,7 @@ def test_organization_name(db_session, org_ankhmorpork):
     assert org_ankhmorpork.name == 'AnkhMorpork'
 
 
-def test_organization_suspend_restore(db_session, org_citywatch):
+def test_organization_suspend_restore(db_session, org_citywatch) -> None:
     """Test for an organization being suspended and restored."""
     db_session.commit()
     assert org_citywatch.state.ACTIVE

@@ -1,7 +1,7 @@
 from funnel.models import Proposal
 
 
-def test_reorder(db_session, user_twoflower, project_expo2010):
+def test_reorder(db_session, user_twoflower, project_expo2010) -> None:
     proposal1 = Proposal(
         user=user_twoflower,
         project=project_expo2010,

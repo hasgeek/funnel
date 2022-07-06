@@ -1,4 +1,4 @@
-from os import environ
+"""Tests for UserExternalId model."""
 
 import pytest
 
@@ -8,7 +8,7 @@ from .test_db import TestDatabaseFixture
 
 
 class TestUserExternalId(TestDatabaseFixture):
-    def test_userexternalid(self):
+    def test_userexternalid(self) -> None:
         """Test for creating an instance of UserExternalId."""
         crusoe = self.fixtures.crusoe
         service = 'google'
@@ -29,15 +29,15 @@ class TestUserExternalId(TestDatabaseFixture):
             result
         )
 
-    def test_userexternalid_get(self):
+    def test_userexternalid_get(self) -> None:
         """Retrieve a UserExternalId given a service and userid or username."""
         service = 'twitter'
         # scenario 1: when neither userid nor username is passed
         with pytest.raises(TypeError):
-            models.UserExternalId.get(service)
+            models.UserExternalId.get(service)  # type: ignore[call-overload]
 
         crusoe = self.fixtures.crusoe
-        oauth_token = environ.get('TWITTER_OAUTH_TOKEN')
+        oauth_token = 'this-is-a-sample-token'  # nosec  # noqa: S105
         oauth_token_type = 'Bearer'  # nosec  # noqa: S105
         externalid = models.UserExternalId(
             service=service,
