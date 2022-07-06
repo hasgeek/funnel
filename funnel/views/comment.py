@@ -217,7 +217,7 @@ class CommentsetView(UrlForView, ModelView):
             submit=_("Post comment"),
             ajax=False,
             with_chrome=False,
-        )
+        ).get_data(as_text=True)
         return {'status': 'ok', 'form': commentform_html}
 
     @route('subscribe', methods=['POST'])
@@ -349,7 +349,7 @@ class CommentView(UrlForView, ModelView):
             submit=_("Post comment"),
             ajax=False,
             with_chrome=False,
-        )
+        ).get_data(as_text=True)
         return {'status': 'ok', 'form': commentform_html}
 
     @route('edit', methods=['GET', 'POST'])
@@ -373,7 +373,7 @@ class CommentView(UrlForView, ModelView):
             submit=_("Edit comment"),
             ajax=False,
             with_chrome=False,
-        )
+        ).get_data(as_text=True)
         return {'status': 'ok', 'form': commentform_html}
 
     @route('delete', methods=['GET', 'POST'])
@@ -399,7 +399,7 @@ class CommentView(UrlForView, ModelView):
             submit=_("Delete"),
             ajax=False,
             with_chrome=False,
-        )
+        ).get_data(as_text=True)
         return {'status': 'ok', 'form': delcommentform_html}
 
     @route('report_spam', methods=['GET', 'POST'])
@@ -444,7 +444,7 @@ class CommentView(UrlForView, ModelView):
             submit=_("Confirm"),
             ajax=False,
             with_chrome=False,
-        )
+        ).get_data(as_text=True)
         return {'status': 'ok', 'form': reportspamform_html}
 
 
