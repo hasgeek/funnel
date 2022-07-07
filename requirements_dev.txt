@@ -32,7 +32,7 @@ dill==0.3.5.1
     # via pylint
 distlib==0.3.4
     # via virtualenv
-djlint==1.4.0
+djlint==1.6.0
     # via -r requirements_dev.in
 filelock==3.7.1
     # via virtualenv
@@ -216,7 +216,7 @@ tomli==2.0.1
     #   pep517
     #   pylint
     #   pytest
-tomlkit==0.11.0
+tomlkit==0.11.1
     # via pylint
 tqdm==4.64.0
     # via djlint

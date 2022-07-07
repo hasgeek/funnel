@@ -6,7 +6,7 @@ from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Type
 
-from flask_babelhg import get_locale
+from flask_babel import get_locale
 from werkzeug.utils import cached_property
 
 from babel.dates import format_date

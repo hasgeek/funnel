@@ -5,7 +5,7 @@ from __future__ import annotations
 import gettext
 import re
 
-from flask_babelhg import get_locale
+from flask_babel import get_locale
 
 import pycountry
 

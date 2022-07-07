@@ -9,7 +9,7 @@ import logging
 import os.path
 
 from flask import Flask
-from flask_babelhg import get_locale
+from flask_babel import get_locale
 from flask_flatpages import FlatPages
 from flask_mailman import Mail
 from flask_migrate import Migrate

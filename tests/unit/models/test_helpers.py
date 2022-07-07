@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 from sqlalchemy.exc import StatementError
 
-from flask_babelhg import lazy_gettext
+from flask_babel import lazy_gettext
 
 import pytest
 
