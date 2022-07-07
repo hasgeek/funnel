@@ -12,6 +12,7 @@ dataclasses-json
 fabric3
 Flask
 Flask-Assets
+Flask-Babel
 Flask-Executor
 Flask-FlatPages
 flask-mailman
@@ -24,7 +25,6 @@ furl
 geoip2
 git+https://github.com/hasgeek/baseframe.git#egg=baseframe
 git+https://github.com/hasgeek/coaster.git#egg=coaster
-git+https://github.com/hasgeek/flask-babelhg.git#egg=Flask-Babelhg
 html2text
 icalendar
 idna>=2.5

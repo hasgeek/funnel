@@ -11,7 +11,7 @@ from typing import Dict, List, Optional
 from uuid import uuid4
 
 from flask import url_for
-from flask_babelhg import force_locale
+from flask_babel import force_locale
 from werkzeug.utils import cached_property
 
 from typing_extensions import Literal

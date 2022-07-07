@@ -5,7 +5,7 @@ from __future__ import annotations
 from hashlib import sha1
 from typing import Dict, Iterable, Optional
 
-from flask_babelhg import ngettext
+from flask_babel import ngettext
 
 import requests
 

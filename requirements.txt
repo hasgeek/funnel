@@ -27,7 +27,7 @@ attrs==21.4.0
 babel==2.10.3
     # via
     #   -r requirements.in
-    #   flask-babelhg
+    #   flask-babel
 base58==2.1.1
     # via
     #   -r requirements.in
@@ -114,7 +114,7 @@ flask==2.1.2
     #   baseframe
     #   coaster
     #   flask-assets
-    #   flask-babelhg
+    #   flask-babel
     #   flask-caching
     #   flask-executor
     #   flask-flatpages
@@ -130,7 +130,7 @@ flask-assets==2.0
     #   -r requirements.in
     #   baseframe
     #   coaster
-flask-babelhg @ git+https://github.com/hasgeek/flask-babelhg.git
+flask-babel==2.0.0
     # via
     #   -r requirements.in
     #   baseframe
@@ -211,7 +211,7 @@ jinja2==3.1.2
     # via
     #   coaster
     #   flask
-    #   flask-babelhg
+    #   flask-babel
     #   flask-flatpages
 joblib==1.1.0
     # via nltk
@@ -347,6 +347,7 @@ pytz==2022.1
     #   babel
     #   baseframe
     #   coaster
+    #   flask-babel
     #   icalendar
     #   twilio
 pytz-deprecation-shim==0.1.0.post0
@@ -403,8 +404,6 @@ semantic-version==2.10.0
     #   coaster
 sentry-sdk==1.6.0
     # via baseframe
-simplejson==3.17.6
-    # via coaster
 six==1.16.0
     # via
     #   bleach
@@ -424,8 +423,6 @@ six==1.16.0
     #   sqlalchemy-utils
     #   tuspy
     #   url-normalize
-speaklater==1.3
-    # via baseframe
 sqlalchemy==1.4.39
     # via
     #   -r requirements.in

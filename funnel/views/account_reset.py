@@ -15,7 +15,7 @@ from flask import (
     session,
     url_for,
 )
-from flask_babelhg import ngettext
+from flask_babel import ngettext
 import itsdangerous
 
 from baseframe import _
