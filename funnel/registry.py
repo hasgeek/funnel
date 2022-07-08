@@ -155,7 +155,6 @@ class LoginProviderData:
     emails: Collection[str] = ()
     emailclaim: Optional[str] = None
     phone: Optional[str] = None
-    phoneclaim: Optional[str] = None
     fullname: Optional[str] = None
 
 
@@ -266,7 +265,6 @@ class LoginProvider:
         #     email=None,  # Verified email address. Service can be trusted
         #     emailclaim=None,  # Claimed email address. Must be verified
         #     phone=None,  # Verified phone number when service can be trusted
-        #     phoneclaim=None,  # Claimed phone number, needing verification
         # )
 
 

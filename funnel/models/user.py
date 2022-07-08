@@ -27,7 +27,7 @@ from coaster.sqlalchemy import (
     failsafe_add,
     with_roles,
 )
-from coaster.utils import LabeledEnum, newpin, newsecret, require_one_of, utcnow
+from coaster.utils import LabeledEnum, newsecret, require_one_of, utcnow
 
 from ..typing import OptionalMigratedTables
 from . import (
@@ -54,7 +54,6 @@ __all__ = [
     'UserEmail',
     'UserEmailClaim',
     'UserPhone',
-    'UserPhoneClaim',
     'UserExternalId',
     'Anchor',
 ]
@@ -1689,109 +1688,6 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
         return [cls.__table__.name, user_phone_primary_table.name]
 
 
-class UserPhoneClaim(PhoneHashMixin, BaseMixin, db.Model):
-    """A claimed phone number (deprecated by OtpSession verification)."""
-
-    __tablename__ = 'user_phone_claim'
-    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(User, backref=db.backref('phoneclaims', cascade='all'))
-    _phone = db.Column('phone', db.UnicodeText, nullable=False, index=True)
-    gets_text = db.Column(db.Boolean, nullable=False, default=True)
-    verification_code = db.Column(db.Unicode(4), nullable=False, default=newpin)
-    verification_attempts = db.Column(db.Integer, nullable=False, default=0)
-
-    private = db.Column(db.Boolean, nullable=False, default=False)
-    type = db.Column(db.Unicode(30), nullable=True)  # noqa: A003
-
-    __table_args__ = (db.UniqueConstraint('user_id', 'phone'),)
-
-    __datasets__ = {
-        'primary': {'user', 'phone', 'private', 'type'},
-        'without_parent': {'phone', 'private', 'type'},
-        'related': {'phone', 'private', 'type'},
-    }
-
-    def __init__(self, phone: str, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.verification_code = newpin()
-        self._phone = phone
-
-    @hybrid_property
-    def phone(self) -> str:  # type: ignore[override]
-        """Return raw phone number."""
-        return self._phone
-
-    phone = db.synonym('_phone', descriptor=phone)
-
-    def __repr__(self) -> str:
-        """Represent :class:`UserPhoneClaim` as a string."""
-        return f'<UserPhoneClaim {self.phone} of {self.user!r}>'
-
-    def __str__(self):
-        """Return phone number as a string."""
-        return self.phone
-
-    def parsed(self) -> phonenumbers.PhoneNumber:
-        """Return parsed phone number using libphonenumbers."""
-        return phonenumbers.parse(self._phone)
-
-    def formatted(self) -> str:
-        """Return a phone number formatted for user display."""
-        return phonenumbers.format_number(
-            self.parsed(), phonenumbers.PhoneNumberFormat.INTERNATIONAL
-        )
-
-    @classmethod
-    def migrate_user(  # type: ignore[return]
-        cls, old_user: User, new_user: User
-    ) -> OptionalMigratedTables:
-        """Migrate one user account to another when merging user accounts."""
-        phones = {claim.email for claim in new_user.phoneclaims}
-        for claim in list(old_user.phoneclaims):
-            if claim.phone not in phones:
-                claim.user = new_user
-            else:
-                # New user also made the same claim. Delete old user's claim
-                db.session.delete(claim)
-
-    @hybrid_property
-    def verification_expired(self) -> bool:
-        """Check if phone number has had too many verification attempts."""
-        return self.verification_attempts >= 3
-
-    @classmethod
-    def get_for(cls, user: User, phone: str) -> Optional[UserPhoneClaim]:
-        """
-        Return a UserPhoneClaim with matching phone number for the given user.
-
-        :param str phone: Phone number to lookup (must be an exact match)
-        :param User user: User who claimed this phone number
-        """
-        return cls.query.filter_by(phone=phone, user=user).one_or_none()
-
-    @classmethod
-    def all(cls, phone: str) -> List[UserPhoneClaim]:  # noqa: A003
-        """
-        Return all UserPhoneClaim instances with matching phone number.
-
-        :param str phone: Phone number to lookup (must be an exact match)
-        """
-        return cls.query.filter_by(phone=phone).all()
-
-    @classmethod
-    def delete_expired(cls) -> None:
-        """Delete expired phone claims."""
-        # Delete if:
-        # 1. The claim is > 1 hour old
-        # 2. Too many unsuccessful verification attempts
-        cls.query.filter(
-            db.or_(
-                cls.updated_at < (utcnow() - timedelta(hours=1)),
-                cls.verification_expired,
-            )
-        ).delete(synchronize_session=False)
-
-
 class UserExternalId(BaseMixin, db.Model):
     """An external connected account for a user."""
 
@@ -1875,7 +1771,7 @@ user_phone_primary_table = add_primary_relationship(
 )
 
 #: Anchor type
-Anchor = Union[UserEmail, UserEmailClaim, UserPhone, UserPhoneClaim, EmailAddress]
+Anchor = Union[UserEmail, UserEmailClaim, UserPhone, EmailAddress]
 
 # Tail imports
 # pylint: disable=wrong-import-position

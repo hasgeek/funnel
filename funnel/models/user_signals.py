@@ -23,19 +23,9 @@ from ..signals import (
     model_userphone_deleted,
     model_userphone_edited,
     model_userphone_new,
-    model_userphoneclaim_deleted,
-    model_userphoneclaim_edited,
-    model_userphoneclaim_new,
+    user_data_changed,
 )
-from .user import (
-    Organization,
-    Team,
-    User,
-    UserEmail,
-    UserEmailClaim,
-    UserPhone,
-    UserPhoneClaim,
-)
+from .user import Organization, Team, User, UserEmail, UserEmailClaim, UserPhone
 
 
 @event.listens_for(User, 'after_insert')
@@ -96,6 +86,7 @@ def _useremail_edited(_mapper, _connection, target):
 @event.listens_for(UserEmail, 'after_delete')
 def _useremail_deleted(_mapper, _connection, target):
     model_useremail_deleted.send(target)
+    user_data_changed.send(target.user, changes=['email-delete'])
 
 
 @event.listens_for(UserEmailClaim, 'after_insert')
@@ -126,18 +117,4 @@ def _userphone_edited(_mapper, _connection, target):
 @event.listens_for(UserPhone, 'after_delete')
 def _userphone_deleted(_mapper, _connection, target):
     model_userphone_deleted.send(target)
-
-
-@event.listens_for(UserPhoneClaim, 'after_insert')
-def _userphoneclaim_new(_mapper, _connection, target):
-    model_userphoneclaim_new.send(target)
-
-
-@event.listens_for(UserPhoneClaim, 'after_update')
-def _userphoneclaim_edited(_mapper, _connection, target):
-    model_userphoneclaim_edited.send(target)
-
-
-@event.listens_for(UserPhoneClaim, 'after_delete')
-def _userphoneclaim_deleted(_mapper, _connection, target):
-    model_userphoneclaim_deleted.send(target)
+    user_data_changed.send(target.user, changes=['phone-delete'])

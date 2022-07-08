@@ -13,7 +13,6 @@ from flask import (
     flash,
     redirect,
     render_template,
-    request,
     url_for,
 )
 
@@ -52,7 +51,6 @@ from ..models import (
     UserEmailClaim,
     UserExternalId,
     UserPhone,
-    UserPhoneClaim,
     UserSession,
     db,
 )
@@ -558,9 +556,6 @@ class AccountView(ClassView):
                 'danger',
             )
             return render_redirect(url_for('account'))
-        if request.method == 'POST':
-            # FIXME: Confirm validation success
-            user_data_changed.send(current_auth.user, changes=['email-delete'])
         return render_delete_sqla(
             useremail,
             db,
@@ -696,39 +691,11 @@ class AccountView(ClassView):
     @requires_sudo
     def remove_phone(self, number: str) -> ReturnView:
         """Remove a phone number from the user's account."""
-        userphone: Union[None, UserPhone, UserPhoneClaim]
-        userphone = UserPhone.get(phone=number)
-        if userphone is None or userphone.user != current_auth.user:
-            userphone = UserPhoneClaim.get_for(user=current_auth.user, phone=number)
-            if userphone is None:
-                abort(404)
-            if userphone.verification_expired:
-                flash(
-                    _(
-                        "This number has been blocked due to too many failed"
-                        " verification attempts"
-                    ),
-                    'danger',
-                )
-                # Block attempts to delete this number if verification failed.
-                # It needs to be deleted in a background sweep.
-                return render_redirect(url_for('account'))
-            if (
-                isinstance(userphone, UserPhone)
-                and current_auth.user.verified_contact_count == 1
-            ):
-                flash(
-                    _(
-                        "Your account requires at least one verified email address or"
-                        " phone number"
-                    ),
-                    'danger',
-                )
-                return render_redirect(url_for('account'))
+        userphone: Union[None, UserPhone]
+        userphone = UserPhone.get_for(user=current_auth.user, phone=number)
+        if userphone is None:
+            abort(404)
 
-        if request.method == 'POST':
-            # FIXME: Confirm validation success
-            user_data_changed.send(current_auth.user, changes=['phone-delete'])
         return render_delete_sqla(
             userphone,
             db,
