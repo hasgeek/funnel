@@ -23,7 +23,7 @@ from baseframe import _, __, forms, statsd
 from baseframe.forms import render_message
 from baseframe.signals import exception_catchall
 from coaster.auth import current_auth
-from coaster.utils import getbool
+from coaster.utils import getbool, utcnow
 from coaster.views import get_next_url, requestargs
 
 from .. import app
@@ -398,6 +398,8 @@ def login_service(service: str) -> ReturnView:
     if service not in login_registry:
         abort(404)
     provider = login_registry[service]
+    if not login_registry[service].at_login and not current_auth:
+        abort(403)
     save_session_next_url()
 
     callback_url = url_for('.login_service_callback', service=service, _external=True)
@@ -481,13 +483,18 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
     # If extid is not None, user.extid == user, guaranteed.
     # If extid is None but useremail is not None, user == useremail.user
     # However, if both extid and useremail are present, they may be different users
-
     if extid is not None:
         extid.oauth_token = userdata.oauth_token
         extid.oauth_token_secret = userdata.oauth_token_secret
         extid.oauth_token_type = userdata.oauth_token_type
         extid.username = userdata.username
-        # TODO: Save refresh token and expiry date where present
+        extid.oauth_refresh_token = userdata.oauth_refresh_token
+        extid.oauth_expires_in = userdata.oauth_expires_in
+        extid.oauth_expires_at = (
+            (utcnow() + timedelta(seconds=userdata.oauth_expires_in))
+            if userdata.oauth_expires_in
+            else None,
+        )
         extid.last_used_at = db.func.utcnow()
     else:
         # New external id. Register it.
@@ -499,9 +506,14 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
             oauth_token=userdata.oauth_token,
             oauth_token_secret=userdata.oauth_token_secret,
             oauth_token_type=userdata.oauth_token_type,
+            oauth_refresh_token=userdata.oauth_refresh_token,
+            oauth_expires_in=userdata.oauth_expires_in,
+            oauth_expires_at=db.func.utcnow()
+            + timedelta(seconds=userdata.oauth_expires_in)
+            if userdata.oauth_expires_in
+            else None,
             last_used_at=db.func.utcnow(),
         )
-
     if user is None:
         if current_auth:
             # Attach this id to currently logged-in user

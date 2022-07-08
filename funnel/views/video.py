@@ -11,7 +11,6 @@ from pytz import utc
 from sentry_sdk import capture_exception
 from typing_extensions import TypedDict
 import requests
-import simplejson
 import vimeo
 
 from coaster.utils import parse_duration, parse_isoformat
@@ -101,33 +100,32 @@ def video_property(obj: VideoMixin) -> Optional[VideoData]:
                 if youtube_resp.status_code == 200:
                     try:
                         youtube_video = youtube_resp.json()
-                        if not youtube_video or 'items' not in youtube_video:
-                            raise YoutubeApiError(
-                                "API Error: Check the YouTube URL or API key"
-                            )
-                        if not youtube_video['items']:
-                            # Response has zero item for our given video ID. This will
-                            # happen if the video has been removed from YouTube.
-                            exists = False
-                        else:
-                            youtube_video = youtube_video['items'][0]
-
-                            data['duration'] = parse_duration(
-                                youtube_video['contentDetails']['duration']
-                            ).total_seconds()
-                            data['uploaded_at'] = parse_isoformat(
-                                youtube_video['snippet']['publishedAt'], naive=False
-                            )
-                            data['thumbnail'] = youtube_video['snippet']['thumbnails'][
-                                'medium'
-                            ]['url']
-                    except simplejson.JSONDecodeError as exc:
+                    except requests.exceptions.JSONDecodeError as exc:
                         current_app.logger.error(
-                            "%s: Unable to parse JSON response while calling '%s'",
-                            exc.msg,
+                            "Unable to parse JSON response while calling '%s'",
                             video_url,
                         )
                         capture_exception(exc)
+                    if not youtube_video or 'items' not in youtube_video:
+                        raise YoutubeApiError(
+                            "API Error: Check the YouTube URL or API key"
+                        )
+                    if not youtube_video['items']:
+                        # Response has zero item for our given video ID. This will
+                        # happen if the video has been removed from YouTube.
+                        exists = False
+                    else:
+                        youtube_video = youtube_video['items'][0]
+
+                        data['duration'] = parse_duration(
+                            youtube_video['contentDetails']['duration']
+                        ).total_seconds()
+                        data['uploaded_at'] = parse_isoformat(
+                            youtube_video['snippet']['publishedAt'], naive=False
+                        )
+                        data['thumbnail'] = youtube_video['snippet']['thumbnails'][
+                            'medium'
+                        ]['url']
                 else:
                     current_app.logger.error(
                         "HTTP %s: YouTube API request failed for url '%s'",

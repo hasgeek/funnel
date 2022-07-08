@@ -150,7 +150,7 @@ class LoginProviderData:
     oauth_token_secret: Optional[str] = None  # Only used in OAuth1a
     oauth_token_type: Optional[str] = None
     oauth_refresh_token: Optional[str] = None
-    oauth_refresh_expiry: Optional[str] = None
+    oauth_expires_in: Optional[int] = None
     email: Optional[str] = None
     emails: Collection[str] = ()
     emailclaim: Optional[str] = None
@@ -219,10 +219,6 @@ class LoginProvider:
     :param str icon: URL to icon for login provider.
     """
 
-    #: URL to icon for the login button
-    icon = None
-    #: Login form, if required
-    form = None
     #: This service's usernames are typically
     #: used for addressing with @username
     at_username = False
