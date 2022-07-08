@@ -72,13 +72,6 @@ periodic = AppGroup(
 )
 
 
-@periodic.command('phoneclaims')
-def phoneclaims():
-    """Sweep phone claims to close all unclaimed beyond expiry period (10m)."""
-    models.UserPhoneClaim.delete_expired()
-    db.session.commit()
-
-
 @periodic.command('project_starting_alert')
 def project_starting_alert():
     """Send notifications for projects that are about to start schedule (5m)."""

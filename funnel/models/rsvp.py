@@ -18,7 +18,7 @@ from . import NoIdMixin, UuidMixin, db
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
-from .user import User, UserEmail, UserEmailClaim, UserPhone, UserPhoneClaim
+from .user import User, UserEmail, UserEmailClaim, UserPhone
 
 __all__ = ['Rsvp', 'RSVP_STATUS']
 
@@ -133,7 +133,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
     @with_roles(call={'owner', 'project_promoter'})
     def best_contact(
         self,
-    ) -> Tuple[Union[UserEmail, UserEmailClaim, UserPhone, UserPhoneClaim, None], str]:
+    ) -> Tuple[Union[UserEmail, UserEmailClaim, UserPhone, None], str]:
         email = self.user_email()
         if email:
             return email, 'e'
@@ -142,8 +142,6 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
             return phone, 'p'
         if self.user.emailclaims:
             return self.user.emailclaims[0], 'ec'
-        if self.user.phoneclaims:
-            return self.user.phoneclaims[0], 'pc'
         return None, ''
 
     @classmethod

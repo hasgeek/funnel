@@ -28,6 +28,7 @@ exclude = '''
 profile='jinja'
 extension='.jinja2'
 indent=2
+ignore="T028,H006"
 
 [tool.curlylint]
 # Curlylint is not used, but the configuration is preserved here for future use

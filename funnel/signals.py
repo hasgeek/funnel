@@ -36,10 +36,6 @@ model_userphone_new = model_signals.signal('model-useremail-new')
 model_userphone_edited = model_signals.signal('model-useremail-edited')
 model_userphone_deleted = model_signals.signal('model-useremail-deleted')
 
-model_userphoneclaim_new = model_signals.signal('model-useremail-new')
-model_userphoneclaim_edited = model_signals.signal('model-useremail-edited')
-model_userphoneclaim_deleted = model_signals.signal('model-useremail-deleted')
-
 resource_access_granted = model_signals.signal('resource-access-granted')
 
 emailaddress_refcount_dropping = model_signals.signal(

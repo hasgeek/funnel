@@ -19,7 +19,6 @@ user_changes_to_notify = {
     'email-delete',
     'email-update-primary',
     'phone',
-    'phone-claim',
     'phone-delete',
     'team-membership',
 }
@@ -67,7 +66,6 @@ def notify_user_data_changed(user, changes):
                             notify_changes.append(change)
                     elif change in [
                         'phone',
-                        'phone-claim',
                         'phone-delete',
                         'phone-update-primary',
                     ]:

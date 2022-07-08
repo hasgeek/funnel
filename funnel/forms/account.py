@@ -86,8 +86,6 @@ class PasswordStrengthValidator:
 
             for userphone in form.edit_user.phones:
                 user_inputs.append(str(userphone))
-            for phoneclaim in form.edit_user.phoneclaims:
-                user_inputs.append(str(phoneclaim))
 
         tested_password = check_password_strength(
             field.data, user_inputs=user_inputs if user_inputs else None
@@ -210,8 +208,6 @@ class PasswordPolicyForm(forms.Form):
 
             for userphone in self.edit_user.phones:
                 user_inputs.append(str(userphone))
-            for phoneclaim in self.edit_user.phoneclaims:
-                user_inputs.append(str(phoneclaim))
 
         tested_password = check_password_strength(
             field.data, user_inputs=user_inputs if user_inputs else None

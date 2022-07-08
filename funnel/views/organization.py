@@ -63,7 +63,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
         return None
 
     # The /new root URL is intentional
-    @route('/new', methods=['GET', 'POST'])
+    @route('/new', methods=['GET', 'POST'], endpoint='new_organization')
     @requires_user_not_spammy()
     def new(self) -> ReturnView:
         """Create a new organization."""
