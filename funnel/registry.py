@@ -219,10 +219,6 @@ class LoginProvider:
     :param str icon: URL to icon for login provider.
     """
 
-    #: URL to icon for the login button
-    icon = None
-    #: Login form, if required
-    form = None
     #: This service's usernames are typically
     #: used for addressing with @username
     at_username = False

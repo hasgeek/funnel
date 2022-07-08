@@ -17,7 +17,6 @@ __all__ = ['GoogleProvider']
 
 
 class GoogleProvider(LoginProvider):
-    form = None  # Don't need a form for Google
     info_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
 
     def flow(self, callback_url: str):

@@ -1,32 +1,34 @@
 """Track OAuth2 refresh token and expiry.
 
 Revision ID: b7165507d80c
-Revises: 0fae06340346
+Revises: 9ad724b3e8cc
 Create Date: 2022-03-15 15:38:33.306920
 
 """
+
+from typing import Optional, Tuple, Union
 
 from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'b7165507d80c'
-down_revision = '0fae06340346'
-branch_labels = None
-depends_on = None
+down_revision = '9ad724b3e8cc'
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade(engine_name=''):
+def upgrade(engine_name='') -> None:
     # Do not modify. Edit `upgrade_` instead
-    globals().get('upgrade_%s' % engine_name, lambda: None)()
+    globals().get(f'upgrade_{engine_name}', lambda: None)()
 
 
-def downgrade(engine_name=''):
+def downgrade(engine_name='') -> None:
     # Do not modify. Edit `downgrade_` instead
-    globals().get('downgrade_%s' % engine_name, lambda: None)()
+    globals().get(f'downgrade_{engine_name}', lambda: None)()
 
 
-def upgrade_():
+def upgrade_() -> None:
     op.add_column(
         'user_externalid',
         sa.Column('oauth_refresh_token', sa.UnicodeText(), nullable=True),
@@ -46,7 +48,7 @@ def upgrade_():
     )
 
 
-def downgrade_():
+def downgrade_() -> None:
     op.drop_index(
         op.f('ix_user_externalid_oauth_expires_at'), table_name='user_externalid'
     )
@@ -55,9 +57,9 @@ def downgrade_():
     op.drop_column('user_externalid', 'oauth_refresh_token')
 
 
-def upgrade_geoname():
+def upgrade_geoname() -> None:
     pass
 
 
-def downgrade_geoname():
+def downgrade_geoname() -> None:
     pass
