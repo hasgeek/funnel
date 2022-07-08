@@ -1,35 +1,35 @@
+"""Proposal (submission) model, the primary content type within a project."""
+
 from __future__ import annotations
 
-from typing import Iterable, Optional, Set
-
-from sqlalchemy.ext.hybrid import hybrid_property
-
-from werkzeug.utils import cached_property
+from typing import Iterable, Optional
 
 from baseframe import __
-from coaster.sqlalchemy import SqlSplitIdComparator, StateManager, with_roles
+from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from ..utils import geonameid_from_location
 from . import (
     BaseMixin,
     BaseScopedIdNameMixin,
     MarkdownColumn,
-    TimestampMixin,
     TSVectorType,
-    UrlType,
     UuidMixin,
     db,
 )
-from .commentvote import SET_TYPE, Commentset, Voteset
-from .email_address import EmailAddressMixin
-from .helpers import add_search_trigger, reopen, visual_field_delimiter
+from .comment import SET_TYPE, Commentset
+from .helpers import (
+    add_search_trigger,
+    markdown_content_options,
+    reopen,
+    visual_field_delimiter,
+)
 from .project import Project
 from .project_membership import project_child_role_map
+from .reorder_mixin import ReorderMixin
 from .user import User
-from .video import VideoMixin
+from .video_mixin import VideoMixin
 
-__all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalRedirect', 'ProposalSuuidRedirect']
+__all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalSuuidRedirect']
 
 _marker = object()
 
@@ -37,9 +37,10 @@ _marker = object()
 # --- Constants ------------------------------------------------------------------
 
 
-class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
-    # Draft-state for future use, so people can save their proposals and submit only when ready
-    # If you add any new state, you need to add a migration to modify the check constraint
+class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
+    # Draft-state for future use, so people can save their proposals and submit only
+    # when ready. If you add any new state, you need to add a migration to modify the
+    # check constraint
     DRAFT = (0, 'draft', __("Draft"))
     SUBMITTED = (1, 'submitted', __("Submitted"))
     CONFIRMED = (2, 'confirmed', __("Confirmed"))
@@ -110,63 +111,46 @@ class PROPOSAL_STATE(LabeledEnum):  # NOQA: N801
 # --- Models ------------------------------------------------------------------
 
 
-class Proposal(
-    UuidMixin,
-    EmailAddressMixin,  # TODO: Remove this, email is in user account anyway
-    BaseScopedIdNameMixin,
-    VideoMixin,
-    db.Model,
+class Proposal(  # type: ignore[misc]
+    UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Model
 ):
     __tablename__ = 'proposal'
-    __email_for__ = 'owner'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
     user = with_roles(
         db.relationship(
             User,
             primaryjoin=user_id == User.id,
-            backref=db.backref('proposals', cascade='all', lazy='dynamic'),
+            backref=db.backref('created_proposals', cascade='all', lazy='dynamic'),
         ),
-        grants={'creator'},
+        grants={'creator', 'participant'},
     )
-
-    speaker_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    speaker = with_roles(
-        db.relationship(
-            User,
-            primaryjoin=speaker_id == User.id,
-            lazy='joined',
-            backref=db.backref('speaker_at', cascade='all', lazy='dynamic'),
-        ),
-        grants={'presenter'},
-    )
-
-    # TODO: Remove this, phone is in user account anyway
-    phone = db.Column(db.Unicode(80), nullable=True)
-
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
         db.relationship(
             Project,
             primaryjoin=project_id == Project.id,
-            backref=db.backref('proposals', cascade='all', lazy='dynamic'),
+            backref=db.backref(
+                'proposals', cascade='all', lazy='dynamic', order_by='Proposal.url_id'
+            ),
         ),
         grants_via={None: project_child_role_map},
     )
+    parent_id = db.synonym('project_id')
     parent = db.synonym('project')
 
-    # TODO: Deprecated
-    abstract = MarkdownColumn('abstract', nullable=True)
-    # TODO: Deprecated
-    outline = MarkdownColumn('outline', nullable=True)
-    # TODO: Deprecated
-    requirements = MarkdownColumn('requirements', nullable=True)
-    # TODO: Deprecated
-    slides = db.Column(UrlType, nullable=True)
-    # TODO: Deprecated
-    links = db.Column(db.Text, default='', nullable=True)
-    # TODO: Deprecated
-    bio = MarkdownColumn('bio', nullable=True)
+    #: Reuse the `url_id` column from BaseScopedIdNameMixin as a sorting order column.
+    #: `url_id` was a public number on talkfunnel.com, but is private on hasgeek.com.
+    #: Old values are now served as redirects from Nginx config, so the column is
+    #: redundant and can be renamed pending a patch to the base class in Coaster. This
+    #: number is no longer considered suitable for public display because it is assigned
+    #: to all proposals, including drafts. A user-facing sequence will have gaps.
+    #: Should numbering be required in the product, see `Update.number` for a better
+    #: implementation.
+    seq = db.synonym('url_id')
+
+    # TODO: Stand-in for `submitted_at` until proposals have a workflow-driven datetime
+    datetime = db.synonym('created_at')
 
     _state = db.Column(
         'state',
@@ -176,11 +160,6 @@ class Proposal(
         nullable=False,
     )
     state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
-
-    voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
-    voteset = db.relationship(
-        Voteset, uselist=False, lazy='joined', cascade='all', single_parent=True
-    )
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = db.relationship(
@@ -192,15 +171,15 @@ class Proposal(
         back_populates='proposal',
     )
 
-    body = MarkdownColumn('body', nullable=False, default='')
+    body = MarkdownColumn(
+        'body', nullable=False, default='', options=markdown_content_options
+    )
     description = db.Column(db.Unicode, nullable=False, default='')
     custom_description = db.Column(db.Boolean, nullable=False, default=False)
     template = db.Column(db.Boolean, nullable=False, default=False)
     featured = db.Column(db.Boolean, nullable=False, default=False)
 
     edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
-    # TODO: Deprecated, take from proposer profile
-    location = db.Column(db.Unicode(80), nullable=False, default='')
 
     search_vector = db.deferred(
         db.Column(
@@ -217,7 +196,6 @@ class Proposal(
                 hltext=lambda: db.func.concat_ws(
                     visual_field_delimiter,
                     Proposal.title,
-                    User.fullname,
                     Proposal.body_html,
                 ),
             ),
@@ -226,7 +204,9 @@ class Proposal(
     )
 
     __table_args__ = (
-        db.UniqueConstraint('project_id', 'url_id'),
+        db.UniqueConstraint(
+            'project_id', 'url_id', name='proposal_project_id_url_id_key'
+        ),
         db.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
     )
 
@@ -239,25 +219,16 @@ class Proposal(
                 'title',
                 'body',
                 'user',
-                'speaker',
-                'owner',
-                'speaking',
-                'bio',  # TODO: Deprecated
-                'abstract',  # TODO: Deprecated
-                'outline',  # TODO: Deprecated
-                'requirements',  # TODO: Deprecated
-                'slides',  # TODO: Deprecated
-                'video',
-                'links',  # TODO: Deprecated
-                'location',  # TODO: Deprecated
+                'first_user',
                 'session',
                 'project',
                 'datetime',
             },
-            'call': {'url_for', 'state', 'commentset'},
+            'call': {'url_for', 'state', 'commentset', 'views', 'getprev', 'getnext'},
         },
-        'reviewer': {'read': {'email', 'phone'}},
-        'project_editor': {'read': {'email', 'phone'}},
+        'project_editor': {
+            'call': {'reorder_item', 'reorder_before', 'reorder_after'},
+        },
     }
 
     __datasets__ = {
@@ -268,20 +239,9 @@ class Proposal(
             'title',
             'body',
             'user',
-            'speaker',
-            'speaking',
-            'bio',  # TODO: Deprecated
-            'abstract',  # TODO: Deprecated
-            'outline',  # TODO: Deprecated
-            'requirements',  # TODO: Deprecated
-            'slides',  # TODO: Deprecated
-            'video',
-            'links',  # TODO: Deprecated
-            'location',  # TODO: Deprecated
+            'first_user',
             'session',
             'project',
-            'email',  # TODO: Deprecated
-            'phone',  # TODO: Deprecated
         },
         'without_parent': {
             'urls',
@@ -290,49 +250,26 @@ class Proposal(
             'title',
             'body',
             'user',
-            'speaker',
-            'speaking',
-            'bio',  # TODO: Deprecated
-            'abstract',  # TODO: Deprecated
-            'outline',  # TODO: Deprecated
-            'requirements',  # TODO: Deprecated
-            'slides',  # TODO: Deprecated
-            'video',
-            'links',  # TODO: Deprecated
-            'location',  # TODO: Deprecated
+            'first_user',
             'session',
-            'email',  # TODO: Deprecated
-            'phone',  # TODO: Deprecated
         },
         'related': {'urls', 'uuid_b58', 'url_name_uuid_b58', 'title'},
     }
 
     def __init__(self, **kwargs) -> None:
-        super(Proposal, self).__init__(**kwargs)
-        self.voteset = Voteset(settype=SET_TYPE.PROPOSAL)
+        super().__init__(**kwargs)
         self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
-
-    def __repr__(self):
-        """Represent :class:`Proposal` as a string."""
-        return '<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
-            proposal=self.title, project=self.project.title, user=self.owner.fullname
+        # Assume self.user is set. Fail if not.
+        db.session.add(
+            ProposalMembership(proposal=self, user=self.user, granted_by=self.user)
         )
 
-    @db.validates('project')
-    def _validate_project(self, key, value):
-        if not value:
-            raise ValueError(value)
-
-        if value != self.project and self.project is not None:
-            redirect = ProposalRedirect.query.get((self.project_id, self.url_id))
-            if redirect is None:
-                redirect = ProposalRedirect(
-                    project=self.project, url_id=self.url_id, proposal=self
-                )
-                db.session.add(redirect)
-            else:
-                redirect.proposal = self
-        return value
+    def __repr__(self) -> str:
+        """Represent :class:`Proposal` as a string."""
+        return (
+            f'<Proposal "{self.title}" in project "{self.project.title}"'
+            f' by "{self.user.fullname}">'
+        )
 
     # State transitions
     state.add_conditional_state(
@@ -342,7 +279,7 @@ class Proposal(
         label=('scheduled', __("Confirmed &amp; scheduled")),
     )
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.AWAITING_DETAILS,
         state.DRAFT,
@@ -353,7 +290,7 @@ class Proposal(
     def withdraw(self):
         pass
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.DRAFT,
         state.SUBMITTED,
@@ -366,7 +303,7 @@ class Proposal(
 
     # TODO: remove project_editor once ProposalMembership UI
     # has been implemented
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.UNDO_TO_SUBMITTED,
         state.SUBMITTED,
@@ -377,7 +314,7 @@ class Proposal(
     def undo_to_submitted(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.CONFIRMABLE,
         state.CONFIRMED,
@@ -388,7 +325,7 @@ class Proposal(
     def confirm(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.CONFIRMED,
         state.SUBMITTED,
@@ -399,7 +336,7 @@ class Proposal(
     def unconfirm(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.WAITLISTABLE,
         state.WAITLISTED,
@@ -410,7 +347,7 @@ class Proposal(
     def waitlist(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.REJECTABLE,
         state.REJECTED,
@@ -421,7 +358,7 @@ class Proposal(
     def reject(self):
         pass
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.CANCELLABLE,
         state.CANCELLED,
@@ -432,7 +369,7 @@ class Proposal(
     def cancel(self):
         pass
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.CANCELLED,
         state.SUBMITTED,
@@ -443,7 +380,7 @@ class Proposal(
     def undo_cancel(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.SUBMITTED,
         state.AWAITING_DETAILS,
@@ -454,7 +391,7 @@ class Proposal(
     def awaiting_details(self):
         pass
 
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.EVALUATEABLE,
         state.UNDER_EVALUATION,
@@ -465,7 +402,7 @@ class Proposal(
     def under_evaluation(self):
         pass
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.DELETABLE,
         state.DELETED,
@@ -476,62 +413,12 @@ class Proposal(
     def delete(self):
         pass
 
-    # These 3 transitions are not in the editorial workflow anymore - Feb 23 2018
-
-    # @with_roles(call={'project_editor'})
-    # @state.transition(state.SUBMITTED, state.SHORTLISTED, title=__("Shortlist"), message=__("This proposal has been shortlisted"), type='success')
-    # def shortlist(self):
-    #     pass
-
-    # @with_roles(call={'project_editor'})
-    # @state.transition(state.SHORLISTABLE, state.SHORTLISTED_FOR_REHEARSAL, title=__("Shortlist for rehearsal"), message=__("This proposal has been shortlisted for rehearsal"), type='success')
-    # def shortlist_for_rehearsal(self):
-    #     pass
-
-    # @with_roles(call={'project_editor'})
-    # @state.transition(state.SHORTLISTED_FOR_REHEARSAL, state.REHEARSAL, title=__("Rehearsal ongoing"), message=__("Rehearsal is now ongoing for this proposal"), type='success')
-    # def rehearsal_ongoing(self):
-    #     pass
-
-    @with_roles(call={'project_editor', 'reviewer'})
+    @with_roles(call={'project_editor'})
     def move_to(self, project):
         """Move to a new project and reset :attr:`url_id`."""
         self.project = project
-        self.url_id = None
+        self.url_id = None  # pylint: disable=attribute-defined-outside-init
         self.make_id()
-
-    @with_roles(call={'project_editor', 'reviewer'})
-    def transfer_to(self, user):
-        """Transfer the proposal to a new user and speaker."""
-        self.speaker = user
-
-    @property
-    def owner(self):
-        return self.speaker or self.user
-
-    @property
-    def speaking(self):
-        return self.speaker == self.user
-
-    @speaking.setter
-    def speaking(self, value):
-        if value:
-            self.speaker = self.user
-        else:
-            if self.speaker == self.user:
-                self.speaker = None  # Reset only if it's currently set to user
-
-    @hybrid_property
-    def datetime(self):
-        return self.created_at  # Until proposals have a workflow-driven datetime
-
-    @cached_property
-    def has_outstation_speaker(self) -> bool:
-        """Verify if geocoded proposal location field differs from project location."""
-        if not self.location:
-            return False
-        geonameid = geonameid_from_location(self.location)
-        return bool(geonameid) and self.project.location_geonameid.isdisjoint(geonameid)
 
     def update_description(self) -> None:
         if not self.custom_description:
@@ -543,47 +430,28 @@ class Proposal(
 
     def getnext(self):
         return (
-            Proposal.query.filter(Proposal.project == self.project)
-            .filter(Proposal.id != self.id)
-            .filter(Proposal._state == self.state.value)
-            .filter(Proposal.created_at < self.created_at)
-            .order_by(db.desc('created_at'))
+            Proposal.query.filter(
+                Proposal.project == self.project,
+                Proposal.seq > self.seq,
+            )
+            .order_by(Proposal.seq.asc())
             .first()
         )
 
     def getprev(self):
         return (
-            Proposal.query.filter(Proposal.project == self.project)
-            .filter(Proposal.id != self.id)
-            .filter(Proposal._state == self.state.value)
-            .filter(Proposal.created_at > self.created_at)
-            .order_by('created_at')
+            Proposal.query.filter(
+                Proposal.project == self.project,
+                Proposal.seq < self.seq,
+            )
+            .order_by(Proposal.seq.desc())
             .first()
         )
 
-    def votes_count(self):
-        return len(self.voteset.votes)
-
-    def permissions(self, user: Optional[User], inherited: Optional[Set] = None) -> Set:
-        perms = super(Proposal, self).permissions(user, inherited)
-        if user is not None:
-            perms.update(('vote_proposal', 'new_comment', 'vote_comment'))
-            if user == self.owner:
-                perms.update(
-                    (
-                        'view-proposal',
-                        'edit_proposal',
-                        'delete-proposal',  # FIXME: Prevent deletion of confirmed proposals
-                        'submit-proposal',  # For workflows, to confirm the form is ready for submission (from draft state)
-                        'transfer-proposal',
-                    )
-                )
-                if self.speaker != self.user:
-                    perms.add('decline-proposal')  # Decline speaking
-        return perms
-
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
-        roles = super(Proposal, self).roles_for(actor, anchors)
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
+        roles = super().roles_for(actor, anchors)
         if self.state.DRAFT:
             if 'reader' in roles:
                 # https://github.com/hasgeek/funnel/pull/220#discussion_r168724439
@@ -591,10 +459,7 @@ class Proposal(
         else:
             roles.add('reader')
 
-        # remove the owner check after proposal membership is implemented
-        if self.owner == actor or roles.has_any(
-            ('project_participant', 'presenter', 'reviewer')
-        ):
+        if roles.has_any(('project_participant', 'submitter')):
             roles.add('commenter')
 
         return roles
@@ -603,66 +468,13 @@ class Proposal(
     def all_public(cls):
         return cls.query.join(Project).filter(Project.state.PUBLISHED, cls.state.PUBLIC)
 
+    @classmethod
+    def get(cls, uuid_b58):  # pylint: disable=arguments-differ
+        """Get a proposal by its public Base58 id."""
+        return cls.query.filter_by(uuid_b58=uuid_b58).one_or_none()
+
 
 add_search_trigger(Proposal, 'search_vector')
-
-
-class ProposalRedirect(TimestampMixin, db.Model):
-    __tablename__ = 'proposal_redirect'
-
-    project_id = db.Column(
-        None, db.ForeignKey('project.id'), nullable=False, primary_key=True
-    )
-    project = db.relationship(
-        Project,
-        primaryjoin=project_id == Project.id,
-        backref=db.backref('proposal_redirects', cascade='all'),
-    )
-    parent = db.synonym('project')
-    url_id = db.Column(db.Integer, nullable=False, primary_key=True)
-
-    proposal_id = db.Column(
-        None, db.ForeignKey('proposal.id', ondelete='SET NULL'), nullable=True
-    )
-    proposal = db.relationship(Proposal, backref='redirects')
-
-    @hybrid_property
-    def url_id_name(self):
-        """
-        Return :attr:`url_id` as a string.
-
-        This property is also available as :attr:`url_name` for legacy reasons. This
-        property will likely never be called directly on an instance. It exists for the
-        SQL comparator that will be called to load the instance.
-        """
-        return str(self.url_id)
-
-    @url_id_name.comparator  # type: ignore[no-redef]
-    def url_id_name(cls):  # NOQA: N805
-        return SqlSplitIdComparator(cls.url_id, splitindex=0)
-
-    url_name = url_id_name  # Legacy name
-
-    def __repr__(self):
-        """Represent :class:`ProposalRedirect` as a string."""
-        return '<ProposalRedirect %s/%s/%s: %s/%s/%s>' % (
-            self.project.profile.name,
-            self.project.name,
-            self.url_id,
-            self.proposal.project.profile.name if self.proposal else "(none)",
-            self.proposal.project.name if self.proposal else "(none)",
-            self.proposal.url_id if self.proposal else "(none)",
-        )
-
-    def redirect_view_args(self):
-        if self.proposal:
-            return {
-                'profile': self.proposal.project.profile.name,
-                'project': self.proposal.project.name,
-                'proposal': self.proposal.url_name,
-            }
-        else:
-            return {}
 
 
 class ProposalSuuidRedirect(BaseMixin, db.Model):
@@ -679,13 +491,7 @@ class ProposalSuuidRedirect(BaseMixin, db.Model):
 
 @reopen(Commentset)
 class __Commentset:
-    proposal = with_roles(
-        db.relationship(Proposal, uselist=False, back_populates='commentset'),
-        # TODO: Remove creator to subscriber mapping when proposals use memberships
-        grants_via={
-            None: {'presenter': 'document_subscriber', 'creator': 'document_subscriber'}
-        },
-    )
+    proposal = db.relationship(Proposal, uselist=False, back_populates='commentset')
 
 
 @reopen(Project)
@@ -696,8 +502,7 @@ class __Project:
             return Proposal.query.filter(
                 Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
             )
-        else:
-            return self.proposals
+        return self.proposals
 
     @property
     def proposals_by_state(self):
@@ -733,3 +538,24 @@ class __Project:
             .order_by(db.desc('created_at'))
             .all(),
         }
+
+    # Whether the project has any featured proposals. Returns `None` instead of
+    # a boolean if the project does not have any proposal.
+    _has_featured_proposals = db.column_property(
+        db.exists()
+        .where(Proposal.project_id == Project.id)
+        .where(Proposal.featured.is_(True))
+        .correlate_except(Proposal),
+        deferred=True,
+    )
+
+    @property
+    def has_featured_proposals(self) -> bool:
+        return bool(self._has_featured_proposals)
+
+    with_roles(has_featured_proposals, read={'all'})
+
+
+# Tail imports
+# pylint: disable=wrong-import-position
+from .proposal_membership import ProposalMembership  # isort:skip

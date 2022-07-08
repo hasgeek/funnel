@@ -3,7 +3,11 @@
 {%- from "macros.html.jinja2" import page_footer %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1"><strong>{{ self.title() }}</strong></h1>
+  <h1 class="mui--text-headline"><strong>{{ self.title() }}</strong></h1>
+{% endblock %}
+
+{% block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/about.scss') }}" />
 {% endblock %}
 
 {% block contentwrapper -%}

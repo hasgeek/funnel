@@ -1,6 +1,6 @@
 {% extends "formlayout.html.jinja2" %}
-{% from "baseframe/forms.html.jinja2" import renderfield %}
-{% from "baseframe/components.html.jinja2" import faicon %}
+{% from "forms.html.jinja2" import renderfield %}
+{% from "macros.html.jinja2" import faicon %}
 {% block title %}{{ title }}{% endblock %}
 
 {% block pageheaders %}
@@ -11,7 +11,7 @@
 
 {% macro labelformfields(lform, subform=false, empty=false) %}
   {%- if subform %}
-    <div class="ui-dragable-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
+    <div class="ui-draggable-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
       {{ lform.hidden_tag() }}
       {{ faicon(icon='grip-vertical', css_class='mui--text-light  mui--align-middle') }}
       {{ renderfield(lform.seq, css_class="seq-input") }}
@@ -40,7 +40,7 @@
   {%- if message %}
     <p class="form-message">{{ message }}</p>
   {%- endif %}
-  <form data-parsley-validate="true" id="label-form" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins label-form">
+  <form data-parsley-validate="true" id="{{ ref_id }}" method="POST" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form mui-form--margins label-form">
     {{ form.hidden_tag() }}
     {{ labelformfields(form) }}
     <div id="child-form" class="label-form__subform">
@@ -65,66 +65,26 @@
     {%- endfor %}
     <div class="mui-form form-actions clearfix">
       <div>
-        <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject" data-cy-submit="save-label">Save label</button>
+        <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" data-cy-submit="save-label">{% trans %}Done{% endtrans %}</button>
         <span class="loading mui--hide"></span>
       </div>
     </div>
   </form>
 {% endblock %}
 
-{% block footerscripts %}
+{% block innerscripts %}
   {% assets "js_emojionearea" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
   {% assets "js_sortable" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
+  <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
+  <script src="{{ built_asset('labels_form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      function initEmojiPicker() {
-        $('input.field-icon_emoji:not([style*="display: none"])').emojioneArea({
-          pickerPosition: 'bottom',
-          autocomplete: false,
-          standalone: true
-        });
-      }
-      function applySortable() {
-        $(this).sortable({
-          placeholder: $(this).data('drag-placeholder'),
-          cursor: 'move',
-          update: function() {
-              $(this).children().each(function(index) {
-                $(this).children('input[name$="seq"]').val(++index);
-              });
-          }
-        });
-      }
-      $('#add-sublabel-form').click(function(event) {
-        event.preventDefault();
-        var formHtml = {{ labelformfields(emptysubform, subform=true, empty=true)|tojson|safe }};
-        $('#child-form').append(formHtml);
-        activate_widgets();
-        initEmojiPicker();
-        $('.js-required-field').removeClass('mui--hide');
-        $('.js-required-field input').prop('checked', true);
-        $("#child-form").each(applySortable);
-      });
-      $('#child-form').on('click', '.js-remove-sublabel-form', function() {
-        event.preventDefault();
-        $(this).parent().remove();
-      });
-      initEmojiPicker();
-      $("#child-form").each(applySortable);
-
-      $('#label-form').on('submit', function(event) {
-        var optionCount = $("#child-form").find('.ui-dragable-box').length;
-        if(optionCount === 1) {
-          event.preventDefault();
-          window.toastr.error('Minimum 2 or more options are needed');
-          return false;
-        }
-      });
+      var formHtml = {{ labelformfields(emptysubform, subform=true, empty=true)|tojson|safe }};
+      window.Hasgeek.LabelsFormInit(formHtml);
     });
   </script>
-  <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
 {% endblock %}

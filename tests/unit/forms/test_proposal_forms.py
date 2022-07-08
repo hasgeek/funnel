@@ -1,3 +1,6 @@
+"""Tests for Proposal forms."""
+
+from funnel import app
 from funnel.forms import ProposalLabelsAdminForm, ProposalLabelsForm
 from funnel.models import Proposal
 
@@ -13,9 +16,10 @@ def test_proposal_label_admin_form(
     assert not new_label.restricted
     assert not new_label.has_options
 
-    label_admin_form = ProposalLabelsAdminForm(
-        obj=new_proposal, model=Proposal, parent=new_proposal.project
-    )
+    with app.test_request_context():
+        label_admin_form = ProposalLabelsAdminForm(
+            obj=new_proposal, model=Proposal, parent=new_proposal.project
+        )
     # Label form in admin panel shows restricted and optioned labels
     assert hasattr(label_admin_form.formlabels, new_main_label.name)
     # Label form in admin panel doesn't show unrestricted labels
@@ -45,9 +49,10 @@ def test_proposal_label_form(
     assert not new_label.restricted
     assert not new_label.has_options
 
-    label_form = ProposalLabelsForm(
-        obj=new_proposal, model=Proposal, parent=new_proposal.project
-    )
+    with app.test_request_context():
+        label_form = ProposalLabelsForm(
+            obj=new_proposal, model=Proposal, parent=new_proposal.project
+        )
     # Label form in edit page doesn't show restricted labels
     assert not hasattr(label_form.formlabels, new_main_label.name)
     # Label form in edit page shows non-restricted optioned labels

@@ -1,3 +1,7 @@
+"""AWS SNS notification types and validators for AWS SES notifications."""
+
+from __future__ import annotations
+
 from enum import Enum, IntFlag
 from typing import Dict, Pattern, Sequence, cast
 import base64
@@ -15,7 +19,7 @@ __all__ = [
     'SnsNotificationType',
     'SnsValidator',
     'SnsValidatorChecks',
-    'SnsValidatorException',
+    'SnsValidatorError',
 ]
 
 
@@ -27,27 +31,27 @@ class SnsNotificationType(Enum):
     UnsubscribeConfirmation = 'UnsubscribeConfirmation'
 
 
-class SnsValidatorException(Exception):
+class SnsValidatorError(Exception):
     """Base exception for SNS message validator."""
 
 
-class SnsTopicException(SnsValidatorException):
+class SnsTopicError(SnsValidatorError):
     """Topic is not what we expect it to be."""
 
 
-class SnsSignatureVersionException(SnsValidatorException):
+class SnsSignatureVersionError(SnsValidatorError):
     """Signature Version does not match."""
 
 
-class SnsCertURLException(SnsValidatorException):
+class SnsCertURLError(SnsValidatorError):
     """Certificate URL does not match the one from AWS."""
 
 
-class SnsMessageTypeException(SnsValidatorException):
+class SnsMessageTypeError(SnsValidatorError):
     """Does not belong to known message types."""
 
 
-class SnsSignatureFailureException(SnsValidatorException):
+class SnsSignatureFailureError(SnsValidatorError):
     """Signature does not match with what we computed."""
 
 
@@ -92,20 +96,20 @@ class SnsValidator:
     def _check_topics(self, message: Dict[str, str]) -> None:
         topic = message.get('TopicArn')
         if not topic:
-            raise SnsTopicException("No Topic")
+            raise SnsTopicError("No Topic")
         if topic not in self.topics:
-            raise SnsTopicException("Received topic is not in the list of interest")
+            raise SnsTopicError("Received topic is not in the list of interest")
 
     def _check_signature_version(self, message: Dict[str, str]) -> None:
         if message.get('SignatureVersion') != self.sig_version:
-            raise SnsSignatureVersionException("Signature version is invalid")
+            raise SnsSignatureVersionError("Signature version is invalid")
 
     def _check_cert_url(self, message: Dict[str, str]) -> None:
         cert_url = message.get('SigningCertURL')
         if not cert_url:
-            raise SnsCertURLException("Missing SigningCertURL field in message")
+            raise SnsCertURLError("Missing SigningCertURL field in message")
         if not self.cert_regex.search(cert_url):
-            raise SnsCertURLException("Invalid certificate URL")
+            raise SnsCertURLError("Invalid certificate URL")
 
     @staticmethod
     def _get_text_to_sign(message: Dict[str, str]) -> str:
@@ -169,12 +173,12 @@ class SnsValidator:
         public_key = self.public_keys.get(url)
         if not public_key:
             try:
-                pem = requests.get(url).content
+                pem = requests.get(url, timeout=30).content
                 cert = x509.load_pem_x509_certificate(pem, default_backend())
                 public_key = cast(RSAPublicKey, cert.public_key())
                 self.public_keys[url] = public_key
             except requests.exceptions.RequestException as exc:
-                raise SnsSignatureFailureException(exc)
+                raise SnsSignatureFailureError(exc) from exc
         return public_key
 
     def _check_signature(self, message: Dict[str, str]) -> None:
@@ -188,9 +192,14 @@ class SnsValidator:
         plaintext = self._get_text_to_sign(message).encode()
         signature = base64.b64decode(message.get('Signature', ''))
         try:
-            public_key.verify(signature, plaintext, PKCS1v15(), SHA1())  # nosec
-        except InvalidSignature:
-            raise SnsSignatureFailureException("Signature mismatch")
+            public_key.verify(  # nosec
+                signature,
+                plaintext,
+                PKCS1v15(),
+                SHA1(),  # noqa: S303  # skipcq: PTC-W1003
+            )
+        except InvalidSignature as exc:
+            raise SnsSignatureFailureError("Signature mismatch") from exc
 
     def check(
         self,

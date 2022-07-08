@@ -1,3 +1,6 @@
+"""Test for project ticket sync models."""
+# pylint: disable=attribute-defined-outside-init
+
 import unittest
 
 import pytest
@@ -48,14 +51,14 @@ class TestEventModels(unittest.TestCase):
     app = app
 
     @pytest.fixture(autouse=True)
-    def fixture_setup(self, request, db_session):
+    def _fixture_setup(self, request, db_session):
         self.db_session = db_session
         self.ctx = self.app.test_request_context()
         self.ctx.push()
         # Initial Setup
         random_user_id = uuid_b58()
         self.user = User(
-            username='lukes{userid}'.format(userid=random_user_id.lower()),
+            username=f'lukes{random_user_id.lower()}',
             fullname="Luke Skywalker",
         )
 
@@ -79,7 +82,7 @@ class TestEventModels(unittest.TestCase):
         self.project.make_name()
         self.db_session.commit()
 
-        self.ticket_client = TicketClient(
+        self.ticket_client = TicketClient(  # nosec # noqa: S106
             name="test client",
             client_eventid='123',
             clientid='123',
@@ -95,11 +98,11 @@ class TestEventModels(unittest.TestCase):
 
         self.session = self.db_session
 
-        @request.addfinalizer
+        @request.addfinalizer  # skipcq: PTC-W0065
         def tearDown():
             self.ctx.pop()
 
-    def test_import_from_list(self):
+    def test_import_from_list(self) -> None:
         # test bookings
         self.ticket_client.import_from_list(ticket_list)
         p1 = TicketParticipant.query.filter_by(

@@ -1,6 +1,9 @@
 """Organization admin and project crew membership notifications."""
 
-from typing import List, NamedTuple, Optional
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Collection, Optional, cast
 
 from flask import Markup, escape, render_template
 
@@ -14,27 +17,29 @@ from ...models import (
     OrganizationMembership,
     User,
 )
+from ...transports.sms import MessageTemplate
 from ..notification import RenderNotification
 
 
-class DecisionFactor(NamedTuple):
+@dataclass
+class DecisionFactor:
     """Evaluation criteria for the content of notification (for grants/edits only)."""
 
     template: str
     is_subject: bool = False
-    rtypes: List[str] = []
+    rtypes: Collection[str] = ()
     is_owner: Optional[bool] = None
     is_actor: Optional[bool] = None
 
-    def match(self, is_subject, record_type, membership):
+    def match(
+        self, is_subject: bool, record_type: str, membership: OrganizationMembership
+    ) -> bool:
+        """Test if this :class:`DecisionFactor` is a match."""
         return (
             (self.is_subject is is_subject)
             and (not self.rtypes or record_type in self.rtypes)
             and (self.is_owner is None or self.is_owner is membership.is_owner)
-            and (
-                self.is_actor is None
-                or (self.is_actor is bool(membership.user == membership.granted_by))
-            )
+            and (self.is_actor is None or (self.is_actor is membership.is_self_granted))
         )
 
 
@@ -166,13 +171,14 @@ class RenderShared:
     emoji_prefix = "🔑 "
 
     def activity_template(self, membership: OrganizationMembership = None) -> str:
-        ...
+        """Return a Python string template with an appropriate message."""
+        raise NotImplementedError("Subclasses must implement `activity_template`")
 
     def membership_actor(
         self, membership: OrganizationMembership = None
     ) -> Optional[User]:
         """Actor who granted or revoked, for the template."""
-        ...
+        raise NotImplementedError("Subclasses must implement `membership_actor`")
 
     @property
     def actor(self) -> User:
@@ -183,33 +189,28 @@ class RenderShared:
     def record_type(self):
         """Membership record type as a string, for templates."""
         # There are four record types: invite, accept, direct_add, amend
-        return MEMBERSHIP_RECORD_TYPE[self.membership.record_type].name  # type: ignore[misc]
+        return MEMBERSHIP_RECORD_TYPE[self.membership.record_type].name
 
-    def activity_html(self, membership: OrganizationMembership = None) -> Markup:
-        if not membership:
+    def activity_html(self, membership: OrganizationMembership = None) -> str:
+        """Return HTML rendering of :meth:`activity_template`."""
+        if membership is None:
             membership = self.membership
         actor = self.membership_actor(membership)
         return Markup(self.activity_template(membership)).format(
             user=Markup(
-                '<a href="{url}">{name}</a>'.format(
-                    url=escape(membership.user.profile_url),
-                    name=escape(membership.user.pickername),
-                )
+                f'<a href="{escape(membership.user.profile_url)}">'
+                f'{escape(membership.user.pickername)}</a>'
             )
             if membership.user.profile_url
             else escape(membership.user.pickername),
             organization=Markup(
-                '<a href="{url}">{title}</a>'.format(
-                    url=escape(self.organization.profile_url),
-                    title=escape(self.organization.pickername),
-                )
+                f'<a href="{escape(cast(str, self.organization.profile_url))}">'
+                f'{escape(self.organization.pickername)}</a>'
             ),
             actor=(
                 Markup(
-                    '<a href="{url}">{name}</a>'.format(
-                        url=escape(actor.profile_url),
-                        name=escape(actor.pickername),
-                    )
+                    f'<a href="{escape(actor.profile_url)}">'
+                    f'{escape(actor.pickername)}</a>'
                 )
                 if actor.profile_url
                 else escape(actor.pickername)
@@ -219,19 +220,23 @@ class RenderShared:
         )
 
     def email_subject(self) -> str:
+        """Subject line for email."""
         actor = self.membership_actor()
         return self.emoji_prefix + self.activity_template().format(
             user=self.membership.user.pickername,
             organization=self.organization.pickername,
-            actor=(actor.pickername if actor else _("(unknown)")),
+            actor=(actor.pickername if actor is not None else _("(unknown)")),
         )
 
-    def sms(self) -> str:
+    def sms(self) -> MessageTemplate:
+        """SMS notification."""
         actor = self.membership_actor()
-        return self.activity_template().format(
-            user=self.membership.user.pickername,
-            organization=self.organization.pickername,
-            actor=(actor.pickername if actor else _("(unknown)")),
+        return MessageTemplate(
+            message=self.activity_template().format(
+                user=self.membership.user.pickername,
+                organization=self.organization.pickername,
+                actor=(actor.pickername if actor is not None else _("(unknown)")),
+            )
         )
 
 
@@ -256,7 +261,7 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
 
         Accepts an optional membership object for use in rollups.
         """
-        if not membership:
+        if membership is None:
             membership = self.membership
         for df in decision_factors:
             if df.match(
@@ -269,11 +274,13 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
         raise ValueError("No suitable template found for membership record")
 
     def web(self) -> str:
+        """Render for web."""
         return render_template(
             'notifications/organization_membership_granted_web.html.jinja2', view=self
         )
 
     def email_content(self) -> str:
+        """Render email content."""
         return render_template(
             'notifications/organization_membership_granted_email.html.jinja2', view=self
         )
@@ -298,7 +305,7 @@ class RenderOrganizationAdminMembershipRevokedNotification(
 
     def activity_template(self, membership: OrganizationMembership = None) -> str:
         """Return a single line summary of changes."""
-        if not membership:
+        if membership is None:
             membership = self.membership
         # LHS = user object, RHS = role proxy, so compare uuid
         if self.user_notification.user.uuid == membership.user.uuid:
@@ -308,11 +315,13 @@ class RenderOrganizationAdminMembershipRevokedNotification(
         return _("{user} was removed as an admin of {organization} by {actor}")
 
     def web(self) -> str:
+        """Render for web."""
         return render_template(
             'notifications/organization_membership_revoked_web.html.jinja2', view=self
         )
 
     def email_content(self) -> str:
+        """Render email content."""
         return render_template(
             'notifications/organization_membership_revoked_email.html.jinja2', view=self
         )

@@ -1,23 +1,16 @@
 {% extends "user_profile.html.jinja2" %}
 
-{% block bodytag %}
-  <body class="mui--bg-primary hg-app no-sticky-header page-with-banner">
-{% endblock %}
+{% block bodyattrs %}class="mui--bg-primary no-sticky-header mobile-header"{% endblock %}
 
 {% block baseheadline %}
-  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
-    <div class="mobile-nav mui--z1">
-      <a href="{{ profile.url_for() }}" aria-label="{% trans %}Back to the profile{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the profile page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% trans %}Projects{% endtrans %}</span>
-    </div>
-  </div>
-  {{ profile_header(profile,  class='mui--hidden-xs mui--hidden-sm', current_page='projects') }}
+  {{ profile_header(profile,  class='mui--hidden-xs mui--hidden-sm', current_page='projects', title=gettext("Projects")) }}
 {% endblock %}
 
 {% block contentwrapper %}
-  <div class="grid" id="tagged-sessions">
+  <div class="grid projects-wrapper" id="tagged-projects">
     <div class="grid__col-xs-12">
       {% if not participated_projects %}
-        <p class="mui-panel mui--bg-accent">{% trans %}No participation yet.{% endtrans %}</p>
+        <p class="mui-panel mui--bg-accent">{% trans %}No participation yet{% endtrans %}</p>
       {% endif %}
     </div>
     <ul class="mui-list--unstyled grid upcoming" role="list">

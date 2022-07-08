@@ -1,39 +1,45 @@
+"""Test configuration."""
+
 from os import environ
 
 TESTING = True
-CACHE_TYPE = 'null'
+CACHE_TYPE = 'RedisCache'
 SECRET_KEYS = ['testkey']  # nosec
 LASTUSER_SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
 SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
-SERVER_NAME = 'funnel.travis.local:3002'
-DEFAULT_DOMAIN = 'funnel.travis.local'
+SQLALCHEMY_BINDS = {
+    'geoname': 'postgresql:///geoname_testing',
+}
+SERVER_NAME = 'funnel.test:3002'
+SHORTLINK_DOMAIN = 'f.test:3002'
+DEFAULT_DOMAIN = 'funnel.test'
 STATIC_SUBDOMAIN = 'static'
-LASTUSER_COOKIE_DOMAIN = '.funnel.travis.local:3002'
-UPLOAD_FOLDER = '/tmp'  # nosec
+LASTUSER_COOKIE_DOMAIN = '.funnel.test:3002'
+UPLOAD_FOLDER = '/tmp'  # nosec  # noqa: S108
 TIMEZONE = 'Asia/Kolkata'
-ASSET_BASE_PATH = "build"
-HASCORE_SERVER = 'https://api.hasgeek.com'
 GOOGLE_MAPS_API_KEY = environ.get('GOOGLE_MAPS_API_KEY')
 BOXOFFICE_SERVER = 'https://boxoffice.hasgeek.com/api/1/'
+# Use Redis db 9 for tests
+REDIS_URL = RQ_REDIS_URL = CACHE_REDIS_URL = 'redis://localhost:6379/9'
 
-ASSET_MANIFEST_PATH = "static/build/manifest.json"
-ASSET_BASE_PATH = "build"
+UNSUBSCRIBE_DOMAIN = 'bye.test'
 #: Recaptcha for the registration form
 RECAPTCHA_USE_SSL = True
 RECAPTCHA_PUBLIC_KEY = environ.get('RECAPTCHA_PUBLIC_KEY')
 RECAPTCHA_PRIVATE_KEY = environ.get('RECAPTCHA_PRIVATE_KEY')
 RECAPTCHA_OPTIONS = ''
-WTF_CSRF_ENABLED = False
+WTF_CSRF_ENABLED = True
 
 YOUTUBE_API_KEY = environ.get('YOUTUBE_API_KEY', '')
 
 SITE_SUPPORT_EMAIL = environ.get('SITE_SUPPORT_EMAIL')
+SITE_SUPPORT_PHONE = environ.get('SITE_SUPPORT_PHONE')
 MAIL_SUPPRESS_SEND = True
 MAIL_SERVER = environ.get('MAIL_SERVER')
-MAIL_PORT = environ.get('MAIL_PORT')
-MAIL_USE_SSL = environ.get('MAIL_USE_SSL')
-MAIL_USE_TLS = environ.get('MAIL_USE_TLS')
+MAIL_PORT = int(environ.get('MAIL_PORT', 25))
+MAIL_USE_SSL = bool(environ.get('MAIL_USE_SSL', False))
+MAIL_USE_TLS = bool(environ.get('MAIL_USE_TLS', False))
 MAIL_DEFAULT_SENDER = environ.get('MAIL_DEFAULT_SENDER', 'test@example.com')
 MAIL_USERNAME = environ.get('MAIL_USERNAME')
 MAIL_PASSWORD = environ.get('MAIL_PASSWORD')
@@ -62,14 +68,19 @@ GA_CODE = environ.get('GA_CODE')
 SMS_EXOTEL_SID = environ.get('SMS_EXOTEL_SID')
 SMS_EXOTEL_TOKEN = environ.get('SMS_EXOTEL_TOKEN')
 SMS_EXOTEL_FROM = environ.get('SMS_EXOTEL_FROM')
-SMS_EXOTEL_DLT_ID = environ.get('SMS_EXOTEL_DLT_ID')
+SMS_DLT_ENTITY_ID = environ.get('SMS_DLT_ENTITY_ID')
 
 #: Twilio support for non-indian numbers
 SMS_TWILIO_SID = environ.get('SMS_TWILIO_SID')
 SMS_TWILIO_TOKEN = environ.get('SMS_TWILIO_TOKEN')
 SMS_TWILIO_FROM = environ.get('SMS_TWILIO_FROM')
 
-# SES Notification Topic
+#: Vimeo API key
+VIMEO_CLIENT_ID = environ.get('VIMEO_CLIENT_ID')
+VIMEO_CLIENT_SECRET = environ.get('VIMEO_CLIENT_SECRET')
+VIMEO_ACCESS_TOKEN = environ.get('VIMEO_ACCESS_TOKEN')
+
+#: SES notification topics
 SES_NOTIFICATION_TOPICS = [  # nosec
     'arn:aws:sns:ap-south-1:817922165072:ses-events-for-hasgeek_dot_com'
 ]
@@ -78,7 +89,4 @@ IMGEE_HOST = 'https://images.example.com'
 IMAGE_URL_DOMAINS = ('images.example.com',)
 IMAGE_URL_SCHEMES = ('https',)
 
-# Needed for unit tests, but will break Cypress tests
-# Must be added to a fixture for unit tests
-# RQ_CONNECTION_CLASS = 'fakeredis.FakeStrictRedis'
-# RQ_ASYNC = False
+ENABLE_COMMENT_SIDEBAR = True

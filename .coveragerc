@@ -22,3 +22,9 @@ exclude_lines =
     if 0:
     if False:
     if __name__ == .__main__.:
+
+    # Ignore stubs
+    \.\.\.
+
+    # Ignore type checking
+    if TYPE_CHECKING

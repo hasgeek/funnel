@@ -1,15 +1,12 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
 {%- from "js/event_checkin.js.jinja2" import checkin_count, participant_list %}
-{% from "baseframe/forms.html.jinja2" import renderfield %}
-{% from "baseframe/components.html.jinja2" import faicon %}
-{% from "macros.html.jinja2" import csrf_tag %}
+{% from "forms.html.jinja2" import renderfield %}
+{% from "macros.html.jinja2" import faicon, csrf_tag %}
 {% block title %}{% trans %}Setup events{% endtrans %}{% endblock %}
-{% block pageheaders %}
-{% endblock %}
 
 {% block top_title %}
-  <h1 class="mui--text-display1"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
+  <h1 class="mui--text-headline"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
   <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" data-cy="back-to-setup">{{ faicon(icon='arrow-left', icon_size='subhead') }} {% trans %}Back to setup events{% endtrans %}</a></p>
 {% endblock %}
 
@@ -32,15 +29,14 @@
     <div class="grid__col-xs-6 grid__col-sm-8 grid__col-md-6 grid__col-lg-9">
       {{ checkin_count() }}
     </div>
-    <div class="grid__col-xs-12 grid__col-md-3">
-      <form class="search-participant mui-form mui-form--margins">
-        <div class="mui-textfield mui-textfield--float-label">
-          <input class="field-title search-query" id="search" type="text" name="key" value=""/>
-          <label>{{ faicon(icon='search',  baseline=false) }} Search</label>
+    <div class="grid__col-xs-12 grid__col-md-4">
+      <form class="mui--d-inlineblock search search--small search--icon mui--z1">
+        <div class="mui-textfield">
+          <input class="search-query" id="search" type="text" name="key" value="" placeholder="Search"/>{{ faicon(icon='search', css_class='search-form__icon')}}
         </div>
       </form>
     </div>
-    <div class="grid__col-xs-12 grid__col-md-9">
+    <div class="grid__col-xs-12 grid__col-md-8">
       <ul class="mui-list--inline">
         <li><a href="{{ ticket_event.url_for('badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="badges-to-printed">Badges to be printed</a></li>
          <li><a href="{{ ticket_event.url_for('label_badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="label-badges-to-printed">Label badges to be printed</a></li>
@@ -75,7 +71,7 @@
 {% endblock %}
 
 {% block footerscripts %}
-<script src="{{ url_for('static', filename=asset_path('event')) }}" type="text/javascript"></script>
+<script src="{{ built_asset('event.js') }}" type="text/javascript"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     /* Check-in scenarios:
@@ -101,7 +97,7 @@
       tableId: 'ticket-participants-table',
       inputId: 'search'
     };
-    Hasgeek.EventInit(ticketEventConfig);
+    Hasgeek.ticketEventInit(ticketEventConfig);
     //If there is no network, display a confirmation dialog when user closes/reloades the page
     window.onbeforeunload = function() {
       if (!navigator.onLine) {
@@ -114,7 +110,7 @@
       if ($('#badge_form select.field-badge_printed').val() === '') {
         return false;
       } else {
-        return window.confirm('Are you sure? Selected action will apply to all listed participants.');
+        return window.confirm(gettext('Are you sure? Selected action will apply to all listed participants'));
       }
     });
   });

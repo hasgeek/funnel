@@ -1,17 +1,15 @@
-SITE_TITLE = 'Hasgeek App'
-#: Lastuser client id
-LASTUSER_CLIENT_ID = ''
-#: Lastuser client secret
-LASTUSER_CLIENT_SECRET = ''
-LASTUSER_COOKIE_DOMAIN = ''
-#: Flat pages
-FLATPAGES_AUTO_RELOAD = False
-FLATPAGES_EXTENSION = '.md'
-ASSET_BASE_PATH = 'build'
-ASSET_MANIFEST_PATH = "static/build/manifest.json"
-
+#: The title of this site
+SITE_TITLE = "Hasgeek"
+#: Site id
+SITE_ID = 'hasgeek'
+#: Auth cookie domain (must be dot-prefixed to serve auth for subdomains)
+LASTUSER_COOKIE_DOMAIN = '.funnel.test'
+#: Session cookies must be domain-local
+SESSION_COOKIE_DOMAIN = False
+#: Ensure session cookie isn't shared with subdomains
 SESSION_COOKIE_NAME = 'root_session'
+#: Delete cookies that aren't supposed to be set here
 DELETE_COOKIES = {
-    'session': (None, '.hasgeekapp.local'),
-    'root_session': ('.hasgeekapp.local',),
+    'session': [None, '.funnel.test'],  # Delete from None only in hasgeekapp!
+    'root_session': ['.funnel.test'],
 }

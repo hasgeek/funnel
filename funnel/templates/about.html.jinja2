@@ -2,6 +2,10 @@
 {% block title %}{% trans %}About Hasgeek{% endtrans %}{% endblock %}
 {%- from "macros.html.jinja2" import page_footer %}
 
+{% block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/about.scss') }}" />
+{% endblock %}
+
 {% block contenthead %}
 <div class="profile profile--hg">
 <div class="profile__banner">
@@ -20,9 +24,9 @@
 {% endblock %}
 
 {% block contentwrapper -%}
-  <div class="grid">
+  <div class="grid top-padding">
     <div class="grid__col-xs-12">
-      <p class="about-top-content">{% trans %}It’s 2021, and the world as we know it is slightly upturned. Meeting new people and geeking-out about your passion has become harder than it used to be. These special interactions that drive us to do new things and explore new ideas also need a new place. It’s time to rebuild everything. Join us.{% endtrans %}</p>
+      <p class="about-top-content">{% trans %}It’s 2022, and the world as we know it is slightly upturned. Meeting new people and geeking-out about your passion has become harder than it used to be. These special interactions that drive us to do new things and explore new ideas also need a new place. It’s time to rebuild everything. Join us.{% endtrans %}</p>
       <h2 class="about-heading mui--text-bold project-headline">{% trans %}Find your peers{% endtrans %}</h2>
       <div class="flex-content image-wrapper">
         <p class="about-content fifty-width">{% trans %}Ideas need voices. Voices need a place to interact with other voices. Find peers around you who recognize your value. Create projects that spark a conversation.{% endtrans %}</p>

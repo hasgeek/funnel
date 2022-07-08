@@ -1,12 +1,12 @@
 {% extends "layout.html.jinja2" %}
-{% from "baseframe/forms.html.jinja2" import ajaxform %}
+
 {% block content %}
 	<p class="mui--text-title">{{ message }}</p>
 	<form id="delete" method="POST" class="mui-form">
 	  <input type="hidden" name="form.id" value="delete"/>
 	  {{ form.hidden_tag() }}
 	  {% if form.csrf_token.errors %}
-	    <p class="mui-form--error">{% trans %}This form timed out because it was open for a long time. Please submit again.{% endtrans %}</p>
+	    <p class="mui-form--error">{% trans %}This form timed out because it was open for a long time. Please submit again{% endtrans %}</p>
 	  {% endif %}
 	  <input class="mui-btn mui-btn--raised mui-btn--danger" type="submit" name="delete" value="{% trans %}Delete{% endtrans %}"/>
 	  <input class="mui-btn mui-btn--raised mui-btn--primary" type="submit" name="cancel" value="{% trans %}Cancel{% endtrans %}"/>

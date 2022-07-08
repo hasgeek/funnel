@@ -1,15 +1,14 @@
 {% extends "layout.html.jinja2" %}
-{% from "baseframe/mui/forms.html.jinja2" import renderform, renderform_inner, renderfield, rendersubmit, ajaxform, widget_ext_scripts, widgetscripts %}
+{% from "forms.html.jinja2" import renderform, renderform_inner, renderfield, rendersubmit, ajaxform, widget_ext_scripts, widgetscripts %}
 
 {% block title %}{{ title }}{% endblock %}
 
-{% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="login-page hg-app no-sticky-header">
-  {%- else %}
-    <body class="login-page no-sticky-header">
-  {%- endif %}
+{% block layoutheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/loginform.scss') }}" />
 {% endblock %}
+
+{% block bodyattrs %}class="login-page no-sticky-header"{% endblock %}
 
 {% block headline %}{% endblock %}
 
@@ -20,7 +19,7 @@
 
   <div class="alert alert--error cookies-required-alert alert--dismissable">
     <a class="alert__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-    <p class="alert__text">{% trans %}Cookies are required to login. Please enable cookies in your browser’s settings and reload this page.{% endtrans %}</p>
+    <p class="alert__text">{% trans %}Cookies are required to login. Please enable cookies in your browser’s settings and reload this page{% endtrans %}</p>
   </div>
 
   <div class="login-page-wrapper">
@@ -44,7 +43,10 @@
   </div>
 {% endblock %}
 
-{% block layoutscripts %}
+{% block serviceworker %}
+{% endblock %}
+
+{% block footerscripts %}
   {{ widget_ext_scripts(form) }}
   <script type="text/javascript">
     $(function() {
@@ -85,11 +87,11 @@
       });
 
 
-      $('#form-account_edit #field-username #username, #form-account_new #field-username #username').on('change', function(e) {
+      $('#form-account_edit #field-username #username').on('change', function(e) {
         checkUsernameAvailability(this);
       });
 
-      $('#form-account_edit #field-username #username, #form-account_new #field-username #username').on('keydown', function(e) {
+      $('#form-account_edit #field-username #username').on('keydown', function(e) {
         var usernamefield = this;
         if(typingTimerUsername) clearTimeout(typingTimerUsername);
         typingTimerUsername = setTimeout(function() {
@@ -214,7 +216,7 @@
           }
         });
       }
+
     });
   </script>
-  {% block footerscripts %}{% endblock %}
 {% endblock %}

@@ -1,10 +1,12 @@
+"""Notification types."""
+
 from __future__ import annotations
 
 from baseframe import __
-from funnel.models.moderation import CommentModeratorReport
 
 from . import db
-from .commentvote import Comment, Commentset
+from .comment import Comment, Commentset
+from .moderation import CommentModeratorReport
 from .notification import Notification, notification_categories
 from .organization_membership import OrganizationMembership
 from .profile import Profile
@@ -35,18 +37,24 @@ __all__ = [
 
 
 class DocumentHasProject:
+    """Mixin class for documents linked to a project."""
+
     document: db.Model
 
     @property
     def preference_context(self) -> Profile:
+        """Return document's project's profile as preference context."""
         return self.document.project.profile
 
 
 class DocumentHasProfile:
+    """Mixin class for documents linked to a profile."""
+
     document: db.Model
 
     @property
     def preference_context(self) -> Profile:
+        """Return document's profile as preference context."""
         return self.document.profile
 
 

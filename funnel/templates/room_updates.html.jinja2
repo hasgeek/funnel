@@ -1,5 +1,5 @@
 {% extends "screens_layout.html.jinja2" %}
-{% block bodytag %}<body class="room_updates">{% endblock %}
+{% block bodyattrs %}class="room_updates"{% endblock %}
 
 {% block screens_pageheaders %}
 <meta http-equiv="refresh" content="60">
@@ -24,20 +24,20 @@
 	{% else %}
 		<div id="current-title"></div>
 	{% endif %}
-	{% if next %}
+	{% if next_session %}
 		<div id="next" class="details">
 			<div class="nextlabel">{% trans %}Next{% endtrans %}</div>
 			<div class="timetitle">
 				<div class="time">
 					{% if nextdiff >= 1 and nextdiff < 2 %}{% trans %}Tomorrow {% endtrans %}{% endif %}
-					{% if nextdiff >= 2 %}next.start_at|time{% endif %}
-					{{ next.start_at|time }} - {{ next.end_at.|time }}
+					{% if nextdiff >= 2 %}next_session.start_at|time{% endif %}
+					{{ next_session.start_at|time }} - {{ next_session.end_at|time }}
 				</div>
-				<div class="title">{{ next.title }}</div>
+				<div class="title">{{ next_session.title }}</div>
 			</div>
 			<div class="speaker">Testing</div>
-			{% if next.speaker %}
-				<div class="speaker">{{ next.speaker }}</div>
+			{% if next_session.speaker %}
+				<div class="speaker">{{ next_session.speaker }}</div>
 			{% endif %}
 		</div>
 	{% endif %}
@@ -45,8 +45,5 @@
 {% endblock %}
 
 {% block footerscripts %}
-{{ super() }}
-
+	{{ super() }}
 {% endblock %}
-
-{% block footer_logo %}{% endblock %}

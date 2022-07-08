@@ -1,0 +1,32 @@
+.img-upload-modal {
+  .imgee {
+    .imgee__button,
+    .imgee__url-holder {
+      display: none;
+    }
+  }
+  .modal__body {
+    .mui-form__fields {
+      margin: 0;
+    }
+    .modal {
+      padding: 0 !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      .modal__header {
+        .modal__close {
+          display: none;
+        }
+      }
+      .modal__body {
+        max-height: calc(100vh - 160px);
+        overflow: auto;
+        .popup {
+          background-color: #fff !important;
+        }
+      }
+    }
+  }
+}

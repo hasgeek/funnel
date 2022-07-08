@@ -1,20 +1,26 @@
-from typing import NamedTuple
+"""Home page and static pages."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
 import os.path
 
-from flask import Response, g, jsonify, redirect, render_template, url_for
+from flask import Response, g, render_template
 
 from baseframe import _, __
 from baseframe.filters import date_filter
-from coaster.auth import current_auth
-from coaster.views import ClassView, load_model, render_with, requestargs, route
+from coaster.views import ClassView, render_with, requestargs, route
 
-from .. import app, funnelapp, lastuserapp, pages
+from .. import app, pages
 from ..forms import SavedProjectForm
-from ..models import Project, Proposal, db
-from .helpers import app_url_for
+from ..models import Project, db
+from ..typing import ReturnRenderWith, ReturnView
 
 
-class PolicyPage(NamedTuple):
+@dataclass
+class PolicyPage:
+    """Policy page."""
+
     path: str
     title: str
 
@@ -34,15 +40,24 @@ class IndexView(ClassView):
     current_section = 'home'
     SavedProjectForm = SavedProjectForm
 
+    @route('', endpoint='index')
     @render_with('index.html.jinja2')
-    def home(self):
+    def home(self) -> ReturnRenderWith:
         g.profile = None
-        projects = Project.all_unsorted(legacy=False)
+        projects = Project.all_unsorted()
         # TODO: Move these queries into the Project class
         all_projects = (
             projects.filter(
                 Project.state.PUBLISHED,
-                db.or_(Project.schedule_state.LIVE, Project.schedule_state.UPCOMING),
+                db.or_(
+                    Project.state.LIVE,
+                    Project.state.UPCOMING,
+                    db.and_(
+                        Project.start_at.is_(None),
+                        Project.published_at.isnot(None),
+                        Project.site_featured.is_(True),
+                    ),
+                ),
             )
             .order_by(Project.next_session_at.asc())
             .all()
@@ -52,8 +67,14 @@ class IndexView(ClassView):
         featured_project = (
             projects.filter(
                 Project.state.PUBLISHED,
-                db.or_(Project.schedule_state.LIVE, Project.schedule_state.UPCOMING),
-                Project.featured.is_(True),
+                db.or_(
+                    Project.state.LIVE,
+                    Project.state.UPCOMING,
+                    db.and_(
+                        Project.start_at.is_(None), Project.published_at.isnot(None)
+                    ),
+                ),
+                Project.site_featured.is_(True),
             )
             .order_by(Project.next_session_at.asc())
             .limit(1)
@@ -95,38 +116,17 @@ class IndexView(ClassView):
         }
 
 
-@route('/')
-class FunnelIndexView(ClassView):
-    @render_with('funnelindex.html.jinja2')
-    def home(self):
-        g.profile = None
-        projects = Project.fetch_sorted(legacy=True).all()
-        return {'projects': projects}
-
-
-IndexView.add_route_for('home', '', endpoint='index')
 IndexView.init_app(app)
-FunnelIndexView.add_route_for('home', '', endpoint='index')
-FunnelIndexView.init_app(funnelapp)
-
-
-@app.route('/api/whoami')
-@funnelapp.route('/api/whoami')
-def whoami():
-    if current_auth.user:
-        return jsonify(message="Hey {0}!".format(current_auth.user.fullname), code=200)
-    else:
-        return jsonify(message="Hmm, so who _are_ you?", code=401)
 
 
 @app.route('/past.json')
 @requestargs(('page', int), ('per_page', int))
-def past_projects_json(page=1, per_page=10):
+def past_projects_json(page: int = 1, per_page: int = 10) -> ReturnView:
     g.profile = None
-    projects = Project.all_unsorted(legacy=False)
-    past_projects = projects.filter(
-        Project.state.PUBLISHED, Project.schedule_state.PAST
-    ).order_by(Project.schedule_start_at.desc())
+    projects = Project.all_unsorted()
+    past_projects = projects.filter(Project.state.PAST).order_by(
+        Project.start_at.desc()
+    )
     pagination = past_projects.paginate(page=page, per_page=per_page)
     return {
         'status': 'ok',
@@ -137,9 +137,7 @@ def past_projects_json(page=1, per_page=10):
         'past_projects': [
             {
                 'title': p.title,
-                'datetime': date_filter(
-                    p.schedule_end_at_localized, format='dd MMM yyyy'
-                ),
+                'datetime': date_filter(p.end_at_localized, format='dd MMM yyyy'),
                 'venue': p.primary_venue.city if p.primary_venue else p.location,
                 'url': p.url_for(),
             }
@@ -148,31 +146,22 @@ def past_projects_json(page=1, per_page=10):
     }
 
 
-@funnelapp.route('/<project>/<int:id>-<name>')
-@funnelapp.route('/<project>/<int:id>')
-@load_model(Proposal, {'id': 'id'}, 'proposal')
-def proposal_redirect(proposal):
-    return redirect(proposal.url_for())
-
-
 @app.route('/about')
-def about():
+def about() -> ReturnView:
     return render_template('about.html.jinja2')
 
 
-@app.route('/about/contact', defaults={'path': 'contact'})
-def contact(path):
+@app.route('/about/contact')
+def contact() -> ReturnView:
     return render_template(
-        'contact.html.jinja2',
-        path=path,
-        page=pages.get_or_404(os.path.join('about', path)),
+        'contact.html.jinja2', page=pages.get_or_404('about/contact')
     )
 
 
 # Trailing slash in `/about/policy/` is required for relative links in `index.md`
 @app.route('/about/policy/', defaults={'path': 'policy/index'})
 @app.route('/about/<path:path>')
-def policy(path):
+def policy(path: str) -> ReturnView:
     return render_template(
         'policy.html.jinja2',
         index=policy_pages,
@@ -180,54 +169,8 @@ def policy(path):
     )
 
 
-@app.route('/api/1/template/offline')
-def offline():
-    return render_template('offline.html.jinja2')
-
-
-@app.route('/service-worker.js')
-def sw():
-    return app.send_static_file('service-worker.js')
-
-
-@app.route('/manifest.json')
-@app.route('/manifest.webmanifest')
-def manifest():
-    return jsonify(
-        {
-            "name": app.config['SITE_TITLE'],
-            "short_name": app.config['SITE_TITLE'],
-            "description": _("Discussion spaces for geeks"),
-            "scope": "/",
-            "theme_color": "#e3e1e1",
-            "background_color": "#ffffff",
-            "display": "standalone",
-            "orientation": "portrait",
-            "start_url": "/?utm_source=WebApp",
-            "icons": [
-                {
-                    "src": url_for(
-                        'static', filename='img/android-chrome-192x192.png', v=2
-                    ),
-                    "sizes": "192x192",
-                    "type": "image/png",
-                    "purpose": "any",
-                },
-                {
-                    "src": url_for(
-                        'static', filename='img/android-chrome-512x512.png', v=2
-                    ),
-                    "sizes": "512x512",
-                    "type": "image/png",
-                    "purpose": "any",
-                },
-            ],
-        }
-    )
-
-
 @app.route('/opensearch.xml')
-def opensearch():
+def opensearch() -> ReturnView:
     return Response(
         render_template('opensearch.xml.jinja2'),
         mimetype='application/opensearchdescription+xml',
@@ -235,13 +178,5 @@ def opensearch():
 
 
 @app.route('/robots.txt')
-def robotstxt():
+def robotstxt() -> ReturnView:
     return Response(render_template('robots.txt.jinja2'), mimetype='text/plain')
-
-
-# --- Lastuser legacy routes -----------------------------------------------------------
-
-
-@lastuserapp.route('/', endpoint='index')
-def lastuser_index():
-    return redirect(app_url_for(app, 'index'))

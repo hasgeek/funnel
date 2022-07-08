@@ -1,6 +1,8 @@
 """Encryption serializers."""
 
-import itsdangerous
+from __future__ import annotations
+
+from itsdangerous import JSONWebSignatureSerializer, URLSafeTimedSerializer
 
 from coaster.app import KeyRotationWrapper
 
@@ -10,19 +12,17 @@ from . import app
 # Lastuser cookie serializer
 def lastuser_serializer() -> KeyRotationWrapper:
     return KeyRotationWrapper(
-        itsdangerous.JSONWebSignatureSerializer, app.config['LASTUSER_SECRET_KEYS']
+        JSONWebSignatureSerializer, app.config['LASTUSER_SECRET_KEYS']
     )
 
 
-# Talkfunnel login support
-def talkfunnel_serializer() -> KeyRotationWrapper:
+# Future Hasjob login support
+def crossapp_serializer() -> KeyRotationWrapper:
     return KeyRotationWrapper(
-        itsdangerous.URLSafeTimedSerializer, app.config['LASTUSER_SECRET_KEYS']
+        URLSafeTimedSerializer, app.config['LASTUSER_SECRET_KEYS']
     )
 
 
 # Signed tokens in email with TTL
 def token_serializer() -> KeyRotationWrapper:
-    return KeyRotationWrapper(
-        itsdangerous.URLSafeTimedSerializer, app.config['SECRET_KEYS']
-    )
+    return KeyRotationWrapper(URLSafeTimedSerializer, app.config['SECRET_KEYS'])

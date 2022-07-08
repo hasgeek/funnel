@@ -1,14 +1,23 @@
+"""Project crew and (future) participant registration membership."""
+
+from __future__ import annotations
+
 from typing import Dict, Iterable, Optional, Set
 
 from sqlalchemy.ext.declarative import declared_attr
 
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
+from coaster.sqlalchemy import (
+    DynamicAssociationProxy,
+    LazyRoleSet,
+    immutable,
+    with_roles,
+)
 
 from . import db
 from .helpers import reopen
-from .membership import ImmutableMembershipMixin
+from .membership_mixin import ImmutableUserMembershipMixin
 from .project import Project
 from .user import User
 
@@ -21,15 +30,19 @@ project_child_role_map: Dict[str, str] = {
     'usher': 'project_usher',
     'crew': 'project_crew',
     'participant': 'project_participant',
+    'reader': 'reader',
 }
 
 
-class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
+class ProjectCrewMembership(ImmutableUserMembershipMixin, db.Model):
     """Users can be crew members of projects, with specified access rights."""
 
     __tablename__ = 'project_crew_membership'
 
-    # List of is_role columns in this model
+    #: Legacy data has no granted_by
+    __null_granted_by__ = True
+
+    #: List of is_role columns in this model
     __data_columns__ = ('is_editor', 'is_promoter', 'is_usher')
 
     __roles__ = {
@@ -78,8 +91,8 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
             ),
         )
     )
-    parent = immutable(db.synonym('project'))
-    parent_id = immutable(db.synonym('project_id'))
+    parent = db.synonym('project')
+    parent_id = db.synonym('project_id')
 
     # Project crew roles (at least one must be True):
 
@@ -94,9 +107,12 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
     is_usher = db.Column(db.Boolean, nullable=False, default=False)
 
     @declared_attr
-    def __table_args__(cls):
+    def __table_args__(  # type: ignore[override]  # pylint: disable=no-self-argument
+        cls,
+    ) -> tuple:
         """Table arguments."""
         args = list(super().__table_args__)
+        kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
         args.append(
             db.CheckConstraint(
                 db.or_(
@@ -107,24 +123,26 @@ class ProjectCrewMembership(ImmutableMembershipMixin, db.Model):
                 name='project_crew_membership_has_role',
             )
         )
+        if kwargs:
+            args.append(kwargs)
         return tuple(args)
 
     @cached_property
-    def offered_roles(self):
+    def offered_roles(self) -> Set[str]:
         """Roles offered by this membership record."""
-        roles = set()
+        roles = {'crew', 'participant'}
         if self.is_editor:
             roles.add('editor')
         if self.is_promoter:
             roles.add('promoter')
         if self.is_usher:
             roles.add('usher')
-        roles.add('crew')
-        roles.add('participant')
         return roles
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
-        roles = super(ProjectCrewMembership, self).roles_for(actor, anchors)
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
+        roles = super().roles_for(actor, anchors)
         if 'editor' in self.project.roles_for(actor, anchors):
             roles.add('project_editor')
         if 'admin' in self.project.profile.roles_for(actor, anchors):

@@ -1,3 +1,7 @@
+"""Legacy handlers for notifying auth clients of user data changes (deprecated)."""
+
+from __future__ import annotations
+
 from ..models import AuthToken
 from ..signals import (
     org_data_changed,
@@ -15,7 +19,6 @@ user_changes_to_notify = {
     'email-delete',
     'email-update-primary',
     'phone',
-    'phone-claim',
     'phone-delete',
     'team-membership',
 }
@@ -63,13 +66,12 @@ def notify_user_data_changed(user, changes):
                             notify_changes.append(change)
                     elif change in [
                         'phone',
-                        'phone-claim',
                         'phone-delete',
                         'phone-update-primary',
                     ]:
                         if {'phone', 'phone/*'}.intersection(tokenscope):
                             notify_changes.append(change)
-                    elif change in ['team-membership']:
+                    elif change in ['team-membership']:  # skipcq: PTC-W0048
                         if {
                             'organizations',
                             'organizations/*',

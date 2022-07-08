@@ -1,4 +1,7 @@
+"""Forms provide an interface between views and models, validating data before save."""
 # flake8: noqa
+
+from __future__ import annotations
 
 from .account import *
 from .auth_client import *

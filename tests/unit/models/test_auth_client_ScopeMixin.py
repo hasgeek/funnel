@@ -1,11 +1,14 @@
+"""Tests for the ScopeMixin model mixin."""
+
+# pylint: disable=protected-access
 from sqlalchemy.exc import IntegrityError
 
 import pytest
 
-import funnel.models as models
+from funnel import models
 
 
-def test_scopemixin_scope(db_session, client_hex, user_rincewind):
+def test_scopemixin_scope(db_session, client_hex, user_rincewind) -> None:
     """Retrieve scope on an ScopeMixin inherited class instance via `scope`."""
     scope = 'tricks'
     token = models.AuthToken(
@@ -16,7 +19,7 @@ def test_scopemixin_scope(db_session, client_hex, user_rincewind):
     assert token.scope == (scope,)
 
 
-def test_scopemixin_add_scope(db_session, client_hex, user_rincewind):
+def test_scopemixin_add_scope(db_session, client_hex, user_rincewind) -> None:
     """Test for adding scope to a ScopeMixin inherited class instance."""
     scope1 = 'spells'
     scope2 = 'charms'
@@ -28,10 +31,10 @@ def test_scopemixin_add_scope(db_session, client_hex, user_rincewind):
     assert token.scope == (scope2, scope1)
 
 
-def test_authcode_scope_null(db_session, client_hex, user_rincewind):
+def test_authcode_scope_null(db_session, client_hex, user_rincewind) -> None:
     """`AuthCode` can't have null scope but can have empty scope."""
     # Scope can't be None or empty
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Scope cannot be None'):
         models.AuthCode(
             auth_client=client_hex,
             user=user_rincewind,
@@ -68,10 +71,10 @@ def test_authcode_scope_null(db_session, client_hex, user_rincewind):
         db_session.commit()
 
 
-def test_authtoken_scope_null(db_session, client_hex, user_rincewind):
+def test_authtoken_scope_null(db_session, client_hex, user_rincewind) -> None:
     """`AuthToken` can't have null scope but can have empty scope."""
     # Scope can't be None or empty
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Scope cannot be None'):
         models.AuthToken(
             auth_client=client_hex,
             user=user_rincewind,
@@ -104,7 +107,7 @@ def test_authtoken_scope_null(db_session, client_hex, user_rincewind):
         db_session.commit()
 
 
-def test_authclient_scope_null(db_session, user_rincewind):
+def test_authclient_scope_null(db_session, user_rincewind) -> None:
     """`AuthClient` can have empty scope."""
     auth_client = models.AuthClient(
         user=user_rincewind,
@@ -132,10 +135,10 @@ def test_authclient_scope_null(db_session, user_rincewind):
     assert auth_client.scope == ('another', 'scope')
     assert auth_client._scope == 'another scope'
     # Scope can be reset to None in models that allow it (only AuthClient)
-    auth_client.scope = None
+    auth_client.scope = None  # type: ignore[assignment]
     assert auth_client.scope == ()
     assert auth_client._scope is None
-    auth_client.scope = ''
+    auth_client.scope = ''  # type: ignore[unreachable]
     assert auth_client.scope == ()
     assert auth_client._scope is None
     auth_client.scope = ()

@@ -1,3 +1,5 @@
+"""Tests for Team member merger when merging user accounts."""
+
 from datetime import timedelta
 from types import SimpleNamespace
 
@@ -6,7 +8,7 @@ import pytest
 from funnel.models import Organization, Team, User, db, merge_users
 
 
-@pytest.fixture
+@pytest.fixture()
 def team_merge_data(db_session):
     user1 = User(
         username='user1',
@@ -22,7 +24,7 @@ def team_merge_data(db_session):
     return SimpleNamespace(**locals())
 
 
-def test_team_migrate_user1(team_merge_data):
+def test_team_migrate_user1(team_merge_data) -> None:
     """
     Test to verify teams are transferred when merging users.
 
@@ -41,7 +43,7 @@ def test_team_migrate_user1(team_merge_data):
     assert team_merge_data.user2.teams == []
 
 
-def test_team_migrate_user2(team_merge_data):
+def test_team_migrate_user2(team_merge_data) -> None:
     """
     Test to verify teams are transferred when merging users.
 
@@ -60,7 +62,7 @@ def test_team_migrate_user2(team_merge_data):
     assert team_merge_data.user2.teams == []
 
 
-def test_team_migrate_user3(team_merge_data):
+def test_team_migrate_user3(team_merge_data) -> None:
     """
     Test to verify teams are transferred when merging users.
 
@@ -69,10 +71,10 @@ def test_team_migrate_user3(team_merge_data):
     team_merge_data.team.users.append(team_merge_data.user1)
     team_merge_data.team.users.append(team_merge_data.user2)
     team_merge_data.db_session.commit()
-    assert list(team_merge_data.team.users) == [
+    assert set(team_merge_data.team.users) == {
         team_merge_data.user1,
         team_merge_data.user2,
-    ]
+    }
     assert team_merge_data.user1.teams == [team_merge_data.team]
     assert team_merge_data.user2.teams == [team_merge_data.team]
 

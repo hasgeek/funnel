@@ -1,26 +1,14 @@
 {% extends "layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import calendarwidget %}
-{% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import account_tabs, projectcard %}
+{%- from "macros.html.jinja2" import faicon, account_tabs, projectcard, calendarwidget %}
 
 {% block title %}{% trans %}My account{% endtrans %}{% endblock %}
 
-{% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app tabs-navbar">
-  {%- else %}
-    <body class="mui--bg-primary">
-  {%- endif %}
-{% endblock %}
+{% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock %}
 
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
     <div class="mui-container">
-      <div class="grid">
-        <div class="grid__col-12">
-          {{ account_tabs(active_tab='saved') }}
-        </div>
-      </div>
+      {{ account_tabs(active_tab='saved') }}
     </div>
   </div>
 {%- endblock %}
@@ -40,5 +28,5 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('account_saved')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('account_saved.js') }}" type="text/javascript"></script>
 {% endblock %}

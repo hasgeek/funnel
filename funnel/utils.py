@@ -1,18 +1,93 @@
+"""Utility functions."""
+
 from __future__ import annotations
 
-from typing import List, Optional, Set
+from hashlib import blake2b
+from typing import List, Optional, Union, overload
 import io
 import urllib.parse
 
-from flask import abort, current_app
+from flask import abort
 
+from typing_extensions import Literal
+import phonenumbers
 import qrcode
 import qrcode.image.svg
-import requests
 
-from baseframe import cache
+# Unprefixed phone numbers are assumed to be a local number in India (+91) or US (+1).
+# Both IN and US numbers are 10 digits before prefixes. We try IN first as it's the
+# higher priority home region.
+PHONE_LOOKUP_REGIONS = ['IN', 'US']
 
-# --- Utilities ---------------------------------------------------------------
+MASK_DIGITS = str.maketrans('0123456789', '•' * 10)
+
+# --- Utilities ------------------------------------------------------------------------
+
+
+@overload
+def normalize_phone_number(candidate: str, sms: Literal[False]) -> Optional[str]:
+    ...
+
+
+@overload
+def normalize_phone_number(
+    candidate: str, sms: Literal[True]
+) -> Optional[Union[str, Literal[False]]]:
+    ...
+
+
+def normalize_phone_number(
+    candidate: str, sms: bool = False
+) -> Optional[Union[str, Literal[False]]]:
+    """
+    Attempt to parse a phone number from a candidate and return in E164 format.
+
+    :param sms: Validate that the number is from a range that supports SMS delivery,
+        returning `False` if it isn't
+    """
+    # Assume unprefixed numbers to be a local number in one of the supported common
+    # regions. We start with the higher priority home region and return the _first_
+    # candidate that is likely to be a valid number. This behaviour differentiates it
+    # from similar code in :func:`~funnel.models.utils.getuser`, where the loop exits
+    # with the _last_ valid candidate (as it's coupled with a
+    # :class:`~funnel.models.user.UserPhone` lookup)
+    sms_invalid = False
+    try:
+        for region in PHONE_LOOKUP_REGIONS:
+            parsed_number = phonenumbers.parse(candidate, region)
+            if phonenumbers.is_valid_number(parsed_number):
+                if sms:
+                    if phonenumbers.number_type(parsed_number) not in (
+                        phonenumbers.PhoneNumberType.MOBILE,
+                        phonenumbers.PhoneNumberType.FIXED_LINE_OR_MOBILE,
+                    ):
+                        sms_invalid = True
+                        continue  # Not valid for SMS, continue searching regions
+                return phonenumbers.format_number(
+                    parsed_number, phonenumbers.PhoneNumberFormat.E164
+                )
+    except phonenumbers.NumberParseException:
+        pass
+    # We found a number that is valid, but the caller wanted it to be valid for SMS and
+    # it isn't, so return a special flag
+    if sms_invalid:
+        return False
+    return None
+
+
+def blake2b160_hex(text: str) -> str:
+    """BLAKE2b hex digest of the given text using digest size 20 (160 bits)."""
+    return blake2b(text.encode('utf-8'), digest_size=20).hexdigest()
+
+
+@overload
+def abort_null(text: str) -> str:
+    ...
+
+
+@overload
+def abort_null(text: None) -> None:
+    ...
 
 
 def abort_null(text: Optional[str]) -> Optional[str]:
@@ -30,7 +105,7 @@ def make_redirect_url(
     url: str, use_fragment: bool = False, **params: Optional[str]
 ) -> str:
     """
-    Make a redirect URL.
+    Make an OAuth2 redirect URL.
 
     :param bool use_fragments: Insert parameters into the fragment rather than the query
         component of the URL. This is required for OAuth2 public clients
@@ -54,46 +129,32 @@ def make_redirect_url(
 
 
 def mask_email(email: str) -> str:
-    """
-    Mask an email address.
-
-    >>> mask_email('foobar@example.com')
-    'f****@e****'
-    >>> mask_email('not-email')
-    'n****'
-    """
+    """Mask an email address to only offer a hint of what it is."""
     if '@' not in email:
-        return '{e}****'.format(e=email[0])
-    username, domain = email.split('@')
-    return '{u}****@{d}****'.format(u=username[0], d=domain[0])
+        return f'{email[0]}••••'
+    username, domain = email.split('@', 1)
+    return f'{username[0]}••••@{domain[0]}••••'
 
 
-@cache.memoize(timeout=86400)
-def geonameid_from_location(text: str) -> Set[int]:
-    """
-    Convert location string into a set of matching geonameids.
-
-    Eg: "Bangalore" -> {1277333}
-
-    Returns an empty set if the request timed out, or if the Hascore config
-    wasn't set.
-    To detect multiple locations, split them up and pass each location individually
-    """
-    if 'HASCORE_SERVER' in current_app.config:
-        url = urllib.parse.urljoin(
-            current_app.config['HASCORE_SERVER'], '/1/geo/parse_locations'
+def mask_phone(phone: str) -> str:
+    """Mask a valid phone number to only reveal the country code and last two digits."""
+    parsed = phonenumbers.parse(phone)
+    formatted = phonenumbers.format_number(
+        parsed, phonenumbers.PhoneNumberFormat.INTERNATIONAL
+    )
+    cc_prefix = f'+{parsed.country_code}'
+    if formatted.startswith(cc_prefix):
+        prefix, middle, suffix = (
+            cc_prefix,
+            formatted[len(cc_prefix) : -2],
+            formatted[-2:],
         )
-        try:
-            response = requests.get(url, params={'q': text}, timeout=2.0).json()
-            geonameids = [
-                field['geoname']['geonameid']
-                for field in response['result']
-                if 'geoname' in field
-            ]
-            return set(geonameids)
-        except requests.exceptions.Timeout:
-            pass
-    return set()
+    else:
+        prefix, middle, suffix = '', formatted[:-2], formatted[-2:]
+
+    middle = middle.translate(MASK_DIGITS)
+
+    return f'{prefix}{middle}{suffix}'
 
 
 def extract_twitter_handle(handle: str) -> Optional[str]:
@@ -108,7 +169,8 @@ def extract_twitter_handle(handle: str) -> Optional[str]:
     **Notes**
 
     - Returns `None` for invalid cases.
-    - Twitter restricts the length of handles to 15. 16 is the threshold here, since a user might prefix their handle with an '@', a valid case.
+    - Twitter restricts the length of handles to 15. 16 is the threshold here, since a
+      user might prefix their handle with an '@', a valid case.
     - Tests in `tests/test_util.py`.
     """
     if not handle:
@@ -128,7 +190,7 @@ def extract_twitter_handle(handle: str) -> Optional[str]:
 
 
 def format_twitter_handle(handle: str) -> str:
-    return "@{handle}".format(handle=handle) if handle else ""
+    return f"@{handle}" if handle else ""
 
 
 def split_name(fullname: str) -> List:

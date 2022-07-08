@@ -1,6 +1,5 @@
 {% extends "notifications/layout_web.html.jinja2" %}
-{%- from "macros.html.jinja2" import project_title %}
-{%- from "baseframe/components.html.jinja2" import faicon %}
+{%- from "macros.html.jinja2" import faicon, project_title %}
 
 {% block content %}
   {%- if view.is_rollup %}
@@ -11,7 +10,7 @@
     </p>
     <ol class="mui-list--aligned">
       {%- for proposal in view.fragments %}
-      <li>{% trans url=proposal.url_for(), proposal=proposal.title, actor=proposal.owner.pickername, age=proposal.datetime|age %}
+      <li>{% trans url=proposal.url_for(), proposal=proposal.title, actor=proposal.user.pickername, age=proposal.datetime|age %}
         <a href="{{ url }}">{{ proposal }}</a> by {{ actor }} {{ age }}
           {% endtrans %}
       </li>
@@ -20,7 +19,7 @@
   {%- else %}
     <p>
       {% trans project=project_title(project), project_url=project.url_for(), proposal=proposal.title, proposal_url=proposal.url_for(), actor=view.actor.pickername -%}
-        Your project <a href="{{ project_url }}">{{ project }}</a> has received a new submission: <a href="{{ proposal_url }}">{{ proposal }}</a> from {{ actor }}.
+        Your project <a href="{{ project_url }}">{{ project }}</a> has received a new submission: <a href="{{ proposal_url }}">{{ proposal }}</a> from {{ actor }}
       {%- endtrans %}
     </p>
   {%- endif %}

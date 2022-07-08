@@ -1,13 +1,13 @@
 language: python
 python:
-  - 3.7
+  - 3.9
 addons:
-  postgresql: 12
+  postgresql: 13
   apt:
     packages:
-      - postgresql-12
-      - postgresql-client-12
-      - postgresql-12-hll
+      - postgresql-13
+      - postgresql-client-13
+      - postgresql-13-hll
 
 # The "secure" values are secrets which encode these variables
 # SMS_TWILIO_SID   (Test Account ID for Twilio for tests to pass)
@@ -15,7 +15,7 @@ addons:
 # SMS_TWILIO_FROM  (Test From Number for Twilio for tests to pass)
 env:
   global:
-    - PGVER=12
+    - PGVER=13
     - PGPORT=5433
     - secure: VSk63d0fSpVr5HNKORE9QJ01BoRkE4PyiADMnO6n7ka0TULzeIyCoPmwNlwaSPi3UounssdLUsR9SOPUwg8FLPBiYoHoTqxaL2y6dVJcP7F1uW8ofJ3M3+edOHfjY/txkktQ36os0pXXFukSzVDajA4J/vZ2A9Pj8nnqmF5siJc=
     - secure: bi2i66oahTdm00psMe6FuTRVmTubcqZms1nm2UUrllLhALRfJDcT7boBsIkM/pSEHCI76yVVHCQxAL9ouEu0kBlCV9aCCPh0MAAGSVn+LE7ru0U76C9Yoivok5wDJpXo+zUo+RPYdn/VGlY6XI1nAZgur3ZjnkkgUp8dKhcNoHw=
@@ -25,23 +25,24 @@ services:
   - postgresql
 before_install:
   - sudo sed -i -e '/local.*peer/s/postgres/all/' -e 's/peer\|md5/trust/g' /etc/postgresql/*/main/pg_hba.conf
-  - sudo systemctl restart postgresql@12-main
+  - sudo systemctl restart postgresql@13-main
 install:
   - pip install -U pip wheel
   - pip install git+https://github.com/hasgeek/flask-babelhg.git
   - pip install -r requirements.txt
-  - pip install -r test_requirements.txt
+  - pip install -r requirements_test.txt
   - pip install idna --upgrade
   - make
-  - pip install six --upgrade --ignore-installed
 before_script:
-  - sudo -- sh -c "echo '127.0.0.1  funnel.travis.local' >> /etc/hosts"
+  - sudo -- sh -c "echo '127.0.0.1  funnel.test' >> /etc/hosts"
+  - sudo -- sh -c "echo '127.0.0.1  f.test' >> /etc/hosts"
   - psql -c 'create database funnel_testing;' -U postgres
-  - './manage.py dbconfig | sudo -u postgres psql funnel_testing'
-  - python -c "import six; print('Six:', six.__version__)"
+  - 'flask dbconfig | sudo -u postgres psql funnel_testing'
+  - psql -c 'create database geoname_testing;' -U postgres
+  - 'flask dbconfig | sudo -u postgres psql geoname_testing'
 script:
   - './runtests.sh'
-  - './runfrontendtests.sh'
+  # - './runfrontendtests.sh'
 after_success:
   - coveralls
 notifications:

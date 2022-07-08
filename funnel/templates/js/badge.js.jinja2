@@ -23,7 +23,7 @@
         </div>
 
         {{#if showModal}}
-        <div id="status-msg" class="modal" tabindex="-1" role="dialog">
+        <div id="status-msg" class="modal" role="dialog" aria-modal="true" tabindex="-1" >
           <div class="modal__header">
             <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-ga="close checkin modal" on-click="closeModal(event)" aria-label="{{ gettext('Close') }}"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
             <h3 class="mui--text-title">{{ gettext('Check in status') }}</h3>
@@ -61,7 +61,7 @@
           {{#if video}}<faicon icon='expand' baseline=false css_class='scanner-wrapper__badge--icon'></faicon>{{/if}}
         </div>
         {{#if showModal}}
-        <div id="status-msg" class="modal" tabindex="-1" role="dialog">
+        <div id="status-msg" class="modal" role="dialog" aria-modal="true" tabindex="-1" >
           <div class="modal__header">
             <a class="modal__close mui--text-dark" href="javascript:void(0);" on-click="closeModal(event)" data-ga="close contact details modal"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
           </div>
@@ -113,7 +113,7 @@
                         <p class="mui--text-subhead"><faicon icon='briefcase' css_class=' icon-img--smaller'></faicon>{{ contacts[i].company }}</p>
                       {{/if}}
                     </div>
-                    <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" on-click="downloadContact(event)" download href="" aria-label="{{ gettext('download contact'). }}"><faicon icon='address-card' icon_size='headline' baseline=false css_class='mui--align-middle'></faicon></a>
+                    <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" on-click="downloadContact(event)" download href="" aria-label="{{ gettext('download contact') }}"><faicon icon='address-card' icon_size='headline' baseline=false css_class='mui--align-middle'></faicon></a>
                   </div>
                 </div>
               </div>

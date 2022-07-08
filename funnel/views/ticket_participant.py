@@ -1,8 +1,14 @@
+"""Views for ticketed participants synced from a ticketing provider."""
+
+from __future__ import annotations
+
+from typing import Optional
+
 from sqlalchemy.exc import IntegrityError
 
-from flask import abort, flash, g, jsonify, redirect, request, url_for
+from flask import abort, flash, request, url_for
 
-from baseframe import _, forms, request_is_xhr
+from baseframe import _, forms
 from baseframe.forms import render_form
 from coaster.utils import getbool, uuid_to_base58
 from coaster.views import (
@@ -14,7 +20,7 @@ from coaster.views import (
     route,
 )
 
-from .. import app, funnelapp
+from .. import app
 from ..forms import TicketParticipantForm
 from ..models import (
     Profile,
@@ -25,11 +31,18 @@ from ..models import (
     TicketParticipant,
     db,
 )
-from ..utils import abort_null, format_twitter_handle, make_qrcode, split_name
-from .decorators import legacy_redirect
-from .helpers import mask_email
+from ..proxies import request_wants
+from ..typing import ReturnRenderWith, ReturnView
+from ..utils import (
+    abort_null,
+    format_twitter_handle,
+    make_qrcode,
+    mask_email,
+    split_name,
+)
+from .helpers import render_redirect
 from .login_session import requires_login
-from .mixins import ProjectViewMixin, TicketEventViewMixin
+from .mixins import ProfileCheckMixin, ProjectViewMixin, TicketEventViewMixin
 
 
 def ticket_participant_badge_data(ticket_participants, project):
@@ -46,17 +59,18 @@ def ticket_participant_badge_data(ticket_participants, project):
                 'twitter': format_twitter_handle(ticket_participant.twitter),
                 'company': ticket_participant.company,
                 'qrcode_content': make_qrcode(
-                    "{puk}{key}".format(
-                        puk=ticket_participant.puk, key=ticket_participant.key
-                    )
+                    f'{ticket_participant.puk}{ticket_participant.key}'
                 ),
-                'order_no': ticket.order_no if ticket else '',
+                'order_no': ticket.order_no if ticket is not None else '',
             }
         )
     return badges
 
 
-def ticket_participant_data(ticket_participant, project_id, full=False):
+# FIXME: Do not process integer primary keys
+def ticket_participant_data(
+    ticket_participant: TicketParticipant, project_id: int, full=False
+):
     data = {
         '_id': ticket_participant.id,
         'puk': ticket_participant.puk,
@@ -117,23 +131,22 @@ def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
 @Project.views('ticket_participant')
 @route('/<profile>/<project>/ticket_participants')
 class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect]
-
     @route('json')
     @requires_login
     @requires_roles({'promoter', 'usher'})
-    def participants_json(self):
-        return jsonify(
-            ticket_participants=[
+    def participants_json(self) -> ReturnView:
+        return {
+            'status': 'ok',
+            'ticket_participants': [
                 ticket_participant_data(ticket_participant, self.obj.id)
                 for ticket_participant in self.obj.ticket_participants
-            ]
-        )
+            ],
+        }
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'promoter'})
-    def new_participant(self):
+    def new_participant(self) -> ReturnView:
         form = TicketParticipantForm(parent=self.obj)
         if form.validate_on_submit():
             ticket_participant = TicketParticipant(project=self.obj)
@@ -145,26 +158,20 @@ class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                flash(_("This participant already exists."), 'info')
-            return redirect(self.obj.url_for('admin'), code=303)
+                flash(_("This participant already exists"), 'info')
+            return render_redirect(self.obj.url_for('admin'))
         return render_form(
             form=form, title=_("New ticketed participant"), submit=_("Add participant")
         )
 
 
-@route('/<project>/ticket_participants', subdomain='<profile>')
-class FunnelProjectTicketParticipantView(ProjectTicketParticipantView):
-    pass
-
-
 ProjectTicketParticipantView.init_app(app)
-FunnelProjectTicketParticipantView.init_app(funnelapp)
 
 
 @TicketParticipant.views('main')
 @route('/<profile>/<project>/ticket_participant/<ticket_participant>')
-class TicketParticipantView(UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, requires_login]
+class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
+    __decorators__ = [requires_login]
 
     model = TicketParticipant
     route_model_map = {
@@ -172,10 +179,11 @@ class TicketParticipantView(UrlForView, ModelView):
         'project': 'project.name',
         'ticket_participant': 'uuid_b58',
     }
+    obj: TicketParticipant
 
-    def loader(self, profile, project, ticket_participant):
-        ticket_participant = (
-            self.model.query.join(Project, Profile)
+    def loader(self, profile, project, ticket_participant) -> TicketParticipant:
+        return (
+            TicketParticipant.query.join(Project, Profile)
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
@@ -183,22 +191,21 @@ class TicketParticipantView(UrlForView, ModelView):
             )
             .first_or_404()
         )
-        return ticket_participant
 
-    def after_loader(self):
-        g.profile = self.obj.project.profile
-        return super(TicketParticipantView, self).after_loader()
+    def after_loader(self) -> Optional[ReturnView]:
+        self.profile = self.obj.project.profile
+        return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
     @requires_roles({'project_promoter'})
-    def edit(self):
+    def edit(self) -> ReturnView:
         form = TicketParticipantForm(obj=self.obj, parent=self.obj.project)
         if form.validate_on_submit():
             self.obj.user = form.user
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.project.url_for('admin'), code=303)
+            return render_redirect(self.obj.project.url_for('admin'))
         return render_form(
             form=form, title=_("Edit Participant"), submit=_("Save changes")
         )
@@ -206,33 +213,27 @@ class TicketParticipantView(UrlForView, ModelView):
     @route('badge', methods=['GET'])
     @render_with('badge.html.jinja2')
     @requires_roles({'project_promoter', 'project_usher'})
-    def badge(self):
+    def badge(self) -> ReturnRenderWith:
         return {'badges': ticket_participant_badge_data([self.obj], self.obj.project)}
 
     @route('label_badge', methods=['GET'])
     @render_with('label_badge.html.jinja2')
     @requires_roles({'project_promoter', 'project_usher'})
-    def label_badge(self):
+    def label_badge(self) -> ReturnRenderWith:
         return {'badges': ticket_participant_badge_data([self.obj], self.obj.project)}
 
 
-@route('/<project>/ticket_participant/<uuid_b58>', subdomain='<profile>')
-class FunnelTicketParticipantView(TicketParticipantView):
-    pass
-
-
 TicketParticipantView.init_app(app)
-FunnelTicketParticipantView.init_app(funnelapp)
 
 
 @TicketEvent.views('ticket_participant')
 @route('/<profile>/<project>/ticket_event/<name>')
 class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
-    __decorators__ = [legacy_redirect, requires_login]
+    __decorators__ = [requires_login]
 
     @route('ticket_participants/checkin', methods=['GET', 'POST'])
     @requires_roles({'project_promoter', 'project_usher'})
-    def checkin(self):
+    def checkin(self) -> ReturnView:
         form = forms.Form()
         if form.validate_on_submit():
             checked_in = getbool(request.form.get('checkin'))
@@ -243,18 +244,18 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
                 attendee = TicketEventParticipant.get(self.obj, ticket_participant_id)
                 attendee.checked_in = checked_in
             db.session.commit()
-            if request_is_xhr():
-                return jsonify(
-                    status=True,
-                    ticket_participant_ids=ticket_participant_ids,
-                    checked_in=checked_in,
-                )
-        return redirect(self.obj.url_for('view'), code=303)
+            if request_wants.json:
+                return {
+                    # FIXME: return 'status': 'ok'
+                    'status': True,
+                    'ticket_participant_ids': ticket_participant_ids,
+                    'checked_in': checked_in,
+                }
+        return render_redirect(self.obj.url_for('view'))
 
     @route('ticket_participants/json')
-    @render_with(json=True)
     @requires_roles({'project_promoter', 'project_usher'})
-    def participants_json(self):
+    def participants_json(self) -> ReturnView:
         checkin_count = 0
         ticket_participants = []
         for ticket_participant in TicketParticipant.checkin_list(self.obj):
@@ -267,6 +268,7 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
                 checkin_count += 1
 
         return {
+            'status': 'ok',
             'ticket_participants': ticket_participants,
             'total_participants': len(ticket_participants),
             'total_checkedin': checkin_count,
@@ -275,7 +277,7 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
     @route('badges')
     @render_with('badge.html.jinja2')
     @requires_roles({'project_promoter', 'project_usher'})
-    def badges(self):
+    def badges(self) -> ReturnRenderWith:
         badge_printed = getbool(request.args.get('badge_printed', 'f'))
         ticket_participants = (
             TicketParticipant.query.join(TicketEventParticipant)
@@ -293,7 +295,7 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
     @route('label_badges')
     @render_with('label_badge.html.jinja2')
     @requires_roles({'project_promoter', 'project_usher'})
-    def label_badges(self):
+    def label_badges(self) -> ReturnRenderWith:
         badge_printed = getbool(request.args.get('badge_printed', 'f'))
         ticket_participants = (
             TicketParticipant.query.join(TicketEventParticipant)
@@ -309,13 +311,7 @@ class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
         }
 
 
-@route('/<project>/ticket_event/<name>', subdomain='<profile>')
-class FunnelTicketEventParticipantView(TicketEventParticipantView):
-    pass
-
-
 TicketEventParticipantView.init_app(app)
-FunnelTicketEventParticipantView.init_app(funnelapp)
 
 
 # FIXME: make this endpoint use uuid_b58 instead of puk, along with badge generation
@@ -324,11 +320,14 @@ class TicketEventParticipantCheckinView(ClassView):
     __decorators__ = [requires_login]
 
     @route('checkin', methods=['POST'])
-    @render_with(json=True)
-    def checkin_puk(self, profile, project, ticket_event, puk):
+    def checkin_puk(
+        self, profile: str, project: str, ticket_event: str, puk: str
+    ) -> ReturnView:
         abort(403)
 
-        checked_in = getbool(request.form.get('checkin', 't'))
+        checked_in = getbool(  # type: ignore[unreachable]
+            request.form.get('checkin', 't')
+        )
         ticket_event = (
             TicketEvent.query.join(Project, Profile)
             .filter(
@@ -348,9 +347,9 @@ class TicketEventParticipantCheckinView(ClassView):
             .first_or_404()
         )
         attendee = TicketEventParticipant.get(ticket_event, ticket_participant.uuid_b58)
-        if not attendee:
+        if attendee is None:
             return (
-                {'error': 'not_found', 'error_description': "Attendee not found"},
+                {'error': 'not_found', 'error_description': _("Attendee not found")},
                 404,
             )
         attendee.checked_in = checked_in

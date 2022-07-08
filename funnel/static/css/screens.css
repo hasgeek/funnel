@@ -41,7 +41,7 @@ body.room_updates {
 
 #room_updates {
   position: absolute;
-  top: 1%;
+  top: 22px;
   left: 0%;
   bottom: 0%;
   right: 0%;
@@ -57,10 +57,11 @@ body.room_updates {
   top: 0%;
   right: 10%;
   text-align: center;
-  padding: 0 2% 0 0;
+  padding: 0 16px 0 0;
   font-size: 4.5em;
   font-weight: 600;
   border-bottom: 12px solid;
+  color: #1f2d3d;
 }
 
 /*Common styles for all details on room updates page*/

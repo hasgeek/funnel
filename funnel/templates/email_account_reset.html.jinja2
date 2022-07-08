@@ -3,7 +3,11 @@
 
   <p>{% trans %}Hello {{ fullname }},{% endtrans %}</p>
 
-  <p>{% trans %}You &ndash; or someone claiming to be you &ndash; asked for your password to be reset. This link is valid for 24 hours.{% endtrans %}</p>
+  <p>{% trans %}You &ndash; or someone claiming to be you &ndash; asked for your password to be reset. This OTP is valid for 15 minutes.{% endtrans %}</p>
+
+  <p><big>{% trans %}OTP:{% endtrans %} <strong>{{ otp }}</strong></big></p>
+
+  <p>{% trans %}You can also use this link:{% endtrans %}</p>
 
   <p class="btn-bar"><a class="btn" href="{{ url }}">{% trans %}Reset your password{% endtrans %}</a></p>
 

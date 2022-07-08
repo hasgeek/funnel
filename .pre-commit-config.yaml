@@ -1,6 +1,31 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+default_stages: [commit]
+# Enable this to enforce a common Python version:
+# default_language_version:
+#   python: python3.9
+ci:
+  skip: ['pip-compile', 'yesqa', 'no-commit-to-branch']
 repos:
+  - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
+    rev: v1.5.1
+    hooks:
+      - id: check-pre-commit-ci-config
+  - repo: https://github.com/jazzband/pip-tools
+    rev: 6.8.0
+    hooks:
+      - id: pip-compile
+        name: pip-compile requirements.in
+        args: ['requirements.in']
+        files: ^requirements\.(in|txt)$
+      - id: pip-compile
+        name: pip-compile requirements_dev.in
+        args: ['requirements_dev.in']
+        files: ^requirements_dev\.(in|txt)$
+      - id: pip-compile
+        name: pip-compile requirements_test.in
+        args: ['requirements_test.in']
+        files: ^requirements_test\.(in|txt)$
   - repo: https://github.com/lucasmbrown/mirrors-autoflake
     rev: v1.3
     hooks:
@@ -13,78 +38,138 @@ repos:
             '--remove-unused-variables',
             '--remove-duplicate-keys',
           ]
-  - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.7.0
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.34.0
+    hooks:
+      - id: pyupgrade
+        args:
+          ['--keep-runtime-typing', '--py3-plus', '--py36-plus', '--py37-plus']
+  - repo: https://github.com/asottile/yesqa
+    rev: v1.3.0
+    hooks:
+      - id: yesqa
+        additional_dependencies: &flake8deps
+          - bandit==1.7.4
+          - flake8-assertive==2.1.0
+          - flake8-bandit==3.0.0
+          - flake8-blind-except==0.2.1
+          - flake8-bugbear==22.7.1
+          - flake8-builtins==1.5.3
+          - flake8-comprehensions==3.10.0
+          - flake8-docstrings==1.6.0
+          - flake8-isort==4.1.1
+          - flake8-logging-format==0.6.0
+          - flake8-mutable==1.2.0
+          - flake8-plugin-utils==1.3.2
+          - flake8-print==5.0.0
+          - flake8-pytest-style==1.6.0
+          - pep8-naming==0.12.1
+          - toml==0.10.2
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.10.1
     hooks:
       - id: isort
         additional_dependencies:
           - toml
-  - repo: https://github.com/ambv/black
-    rev: 20.8b1
+  - repo: https://github.com/psf/black
+    rev: 22.6.0
     hooks:
       - id: black
-  # Enable after indentation issue is fixed: https://github.com/thibaudcolas/curlylint/issues/6
-  # - repo: https://github.com/thibaudcolas/curlylint
-  #   rev: v0.12.0
-  #   hooks:
-  #     - id: curlylint
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.961
+    hooks:
+      - id: mypy
+        # warn-unused-ignores is unsafe with pre-commit, see
+        # https://github.com/python/mypy/issues/2960
+        args: ['--no-warn-unused-ignores', '--ignore-missing-imports']
+        additional_dependencies:
+          - toml
+          - lxml-stubs==0.4.0
+          - sqlalchemy-stubs==0.4
+          - types-certifi==2021.10.8.3
+          - types-click==7.1.8
+          - types-cryptography==3.3.21
+          - types-flask==1.1.6
+          - types-geoip2==3.0.0
+          - types-ipaddress==1.0.8
+          - types-itsdangerous==1.1.6
+          - types-jinja2==2.11.9
+          - types-markupsafe==1.1.10
+          - types-maxminddb==1.5.0
+          - types-python-dateutil==2.8.18
+          - types-pytz==2022.1.1
+          - types-requests==2.28.0
+          - types-setuptools==57.4.18
+          - types-six==1.16.17
+          - types-toml==0.10.7
+          - types-urllib3==1.26.16
+          - types-werkzeug==1.0.9
+          - typing-extensions==4.3.0
+  - repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+        additional_dependencies: *flake8deps
+  - repo: https://github.com/PyCQA/pylint
+    rev: v2.14.4
+    hooks:
+      - id: pylint
+        args: [
+            '--disable=import-error',
+            '-rn', # Disable full report
+            '-sn', # Disable evaluation score
+            '--ignore-paths=tests,migrations',
+          ]
+        additional_dependencies:
+          - toml
+          - pylint-pytest
+          - pylint-flask-sqlalchemy
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.4
+    hooks:
+      - id: bandit
+        language_version: python3
+        args: ['-c', 'pyproject.toml']
+        additional_dependencies:
+          - toml
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
+    rev: v4.3.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
-      - id: check-byte-order-marker
       - id: check-case-conflict
       - id: check-docstring-first
       - id: check-executables-have-shebangs
       - id: check-json
       - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
       - id: check-symlinks
       - id: check-toml
+      - id: check-vcs-permalinks
       - id: check-xml
       - id: check-yaml
       - id: debug-statements
+      - id: destroyed-symlinks
       - id: detect-aws-credentials
         args: ['--allow-missing-credentials']
       - id: detect-private-key
       - id: end-of-file-fixer
+      - id: fix-byte-order-marker
       - id: fix-encoding-pragma
         args: ['--remove']
       - id: forbid-new-submodules
       - id: mixed-line-ending
       - id: no-commit-to-branch
-      - id: requirements-txt-fixer
       - id: trailing-whitespace
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.790
-    hooks:
-      - id: mypy
-        additional_dependencies: [sqlalchemy-stubs==0.4]
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.4
-    hooks:
-      - id: flake8
-        additional_dependencies:
-          - toml
-          - flake8-assertive
-          - flake8-blind-except
-          - flake8-builtins
-          - flake8-comprehensions
-          - flake8-docstrings
-          - flake8-isort
-          - flake8-logging-format
-          - flake8-mutable
-          - flake8-print
-          - pep8-naming
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.0
-    hooks:
-      - id: bandit
-        language_version: python3
-        exclude: (^tests|funnel/loginproviders/flask_oauth.py)
+        args: ['--markdown-linebreak-ext=md']
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.2.1
+    rev: v2.7.1
     hooks:
       - id: prettier
         args: ['--single-quote', '--trailing-comma', 'es5']
         exclude: funnel/templates/js/
+  - repo: https://github.com/Riverside-Healthcare/djLint
+    rev: v1.4.0
+    hooks:
+      - id: djlint-jinja
+        files: \.(jinja2|j2)$

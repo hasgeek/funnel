@@ -1,3 +1,7 @@
+"""External API support for Boxoffice."""
+
+from __future__ import annotations
+
 from urllib.parse import urljoin
 
 from flask import current_app
@@ -9,7 +13,7 @@ from ..utils import extract_twitter_handle
 __all__ = ['Boxoffice']
 
 
-class Boxoffice(object):
+class Boxoffice:
     """Interface that enables data retrieval from Boxoffice."""
 
     def __init__(self, access_token, base_url=None) -> None:
@@ -22,9 +26,7 @@ class Boxoffice(object):
     def get_orders(self, ic):
         url = urljoin(
             self.base_url,
-            'ic/{ic}/orders?access_token={token}'.format(
-                ic=ic, token=self.access_token
-            ),
+            f'ic/{ic}/orders?access_token={self.access_token}',
         )
         return requests.get(url).json().get('orders')
 

@@ -1,5 +1,8 @@
-from baseframe import __
-import baseframe.forms as forms
+"""Forms for project updates."""
+
+from __future__ import annotations
+
+from baseframe import __, forms
 
 from ..models import Update
 
@@ -8,6 +11,8 @@ __all__ = ['UpdateForm']
 
 @Update.forms('main')
 class UpdateForm(forms.Form):
+    """Post an update in a project."""
+
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],

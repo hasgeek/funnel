@@ -1,15 +1,20 @@
-from baseframe import __
+"""Scheduled sessions in projects."""
+
+from __future__ import annotations
+
+from baseframe import __, forms
 from coaster.utils import nullint
-import baseframe.forms as forms
 
 from ..models import SavedSession, Session
-from .helpers import image_url_validator
+from .helpers import image_url_validator, nullable_strip_filters, video_url_validator
 
 __all__ = ['SavedSessionForm', 'SessionForm']
 
 
 @Session.forms('main')
 class SessionForm(forms.Form):
+    """Form for a session in a project."""
+
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
@@ -37,6 +42,7 @@ class SessionForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=nullable_strip_filters,
     )
     is_break = forms.BooleanField(__("This session is a break period"), default=False)
     featured = forms.BooleanField(__("This is a featured session"), default=False)
@@ -46,19 +52,23 @@ class SessionForm(forms.Form):
     end_at = forms.HiddenField(
         __("End Time"), validators=[forms.validators.DataRequired()]
     )
-    video_url = forms.StringField(
+    video_url = forms.URLField(
         __("Video URL"),
         description=__("URL of the uploaded video after the session is over"),
         validators=[
             forms.validators.Optional(),
-            forms.validators.ValidUrl(),
+            forms.validators.URL(),
             forms.validators.Length(max=2000),
+            video_url_validator,
         ],
+        filters=nullable_strip_filters,
     )
 
 
 @SavedSession.forms('main')
 class SavedSessionForm(forms.Form):
+    """Bookmark a session."""
+
     save = forms.BooleanField(
         __("Save this session?"), validators=[forms.validators.InputRequired()]
     )

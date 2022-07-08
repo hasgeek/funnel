@@ -1,10 +1,10 @@
 import jsQR from 'jsqr';
 import vCardsJS from 'vcards-js';
-import { ractiveApp } from './ractive_util';
+import { RactiveApp } from './utils/ractive_util';
 
 const badgeScan = {
   init({ getContactApiUrl, wrapperId, templateId }) {
-    const badgeScanComponent = new ractiveApp({
+    const badgeScanComponent = new RactiveApp({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
       data: {
@@ -54,7 +54,7 @@ const badgeScan = {
           type: 'POST',
           url: getContactApiUrl,
           data: formValues,
-          timeout: window.Hasgeek.config.ajaxTimeout,
+          timeout: window.Hasgeek.Config.ajaxTimeout,
           dataType: 'json',
 
           success(response) {
@@ -82,16 +82,12 @@ const badgeScan = {
 
             if (response.readyState === 4) {
               if (response.status === 500) {
-                errorMsg = window.gettext(
-                  'The server is experiencing difficulties. Try again in a few minutes'
-                );
+                errorMsg = window.Hasgeek.Config.errorMsg.serverError;
               } else {
                 errorMsg = JSON.parse(response.responseText).message;
               }
             } else {
-              errorMsg = window.gettext(
-                'This device has no internet connection'
-              );
+              errorMsg = window.Hasgeek.Config.errorMsg.networkError;
             }
 
             badgeScanComponent.set({
@@ -104,8 +100,9 @@ const badgeScan = {
       },
 
       startRenderFrameLoop() {
-        let timerId;
-        timerId = window.requestAnimationFrame(badgeScanComponent.renderFrame);
+        const timerId = window.requestAnimationFrame(
+          badgeScanComponent.renderFrame
+        );
         this.set('timerId', timerId);
       },
 
@@ -161,9 +158,9 @@ const badgeScan = {
         }
 
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          let video = document.getElementById('qrreader');
-          let canvasElement = document.createElement('canvas');
-          let canvas = canvasElement.getContext('2d');
+          const video = document.getElementById('qrreader');
+          const canvasElement = document.createElement('canvas');
+          const canvas = canvasElement.getContext('2d');
 
           navigator.mediaDevices
             .getUserMedia({ video: { facingMode: 'environment' } })
@@ -180,7 +177,7 @@ const badgeScan = {
           this.set(
             'error',
             window.gettext(
-              'Unable to access video stream. Please make sure you have camera enabled or try a different browser.'
+              'Unable to access video stream. Please make sure you have camera enabled or try a different browser'
             )
           );
         }
@@ -194,7 +191,7 @@ const badgeScan = {
   },
 };
 $(() => {
-  window.Hasgeek.BadgeScanInit = function (scanConfig) {
+  window.Hasgeek.badgeScanInit = function badgeScanInit(scanConfig) {
     badgeScan.init(scanConfig);
   };
 });

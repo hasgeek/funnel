@@ -1,11 +1,19 @@
+"""Model for updates to a project."""
+
 from __future__ import annotations
 
-from typing import Iterable, Optional, Set
+from typing import Iterable, Optional
 
 from sqlalchemy.orm import Query as BaseQuery
 
 from baseframe import __
-from coaster.sqlalchemy import Query, StateManager, auto_init_default, with_roles
+from coaster.sqlalchemy import (
+    LazyRoleSet,
+    Query,
+    StateManager,
+    auto_init_default,
+    with_roles,
+)
 from coaster.utils import LabeledEnum
 
 from . import (
@@ -17,22 +25,21 @@ from . import (
     TSVectorType,
     User,
     UuidMixin,
-    Voteset,
     db,
 )
-from .commentvote import SET_TYPE
+from .comment import SET_TYPE
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 
 __all__ = ['Update']
 
 
-class UPDATE_STATE(LabeledEnum):  # NOQA: N801
+class UPDATE_STATE(LabeledEnum):  # noqa: N801
     DRAFT = (0, 'draft', __("Draft"))
     PUBLISHED = (1, 'published', __("Published"))
     DELETED = (2, 'deleted', __("Deleted"))
 
 
-class VISIBILITY_STATE(LabeledEnum):  # NOQA: N801
+class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
     PUBLIC = (0, 'public', __("Public"))
     RESTRICTED = (1, 'restricted', __("Restricted"))
 
@@ -77,6 +84,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     project = with_roles(
         db.relationship(Project, backref=db.backref('updates', lazy='dynamic')),
         read={'all'},
+        datasets={'primary'},
         grants_via={
             None: {
                 'editor': {'editor', 'project_editor'},
@@ -131,9 +139,6 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     edited_at = with_roles(
         db.Column(db.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
-
-    voteset_id = db.Column(None, db.ForeignKey('voteset.id'), nullable=False)
-    voteset = with_roles(db.relationship(Voteset, uselist=False), read={'all'})
 
     commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
     commentset = with_roles(
@@ -191,29 +196,46 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             'urls',
             'uuid_b58',
         },
+        'without_parent': {
+            'name',
+            'title',
+            'number',
+            'body',
+            'body_text',
+            'body_html',
+            'published_at',
+            'edited_at',
+            'user',
+            'is_pinned',
+            'is_restricted',
+            'is_currently_restricted',
+            'visibility_label',
+            'state_label',
+            'urls',
+            'uuid_b58',
+        },
         'related': {'name', 'title', 'urls'},
     }
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.voteset = Voteset(settype=SET_TYPE.UPDATE)
         self.commentset = Commentset(settype=SET_TYPE.UPDATE)
 
     def __repr__(self) -> str:
         """Represent :class:`Update` as a string."""
-        return '<Update "{title}" {uuid_b58}>'.format(
-            title=self.title, uuid_b58=self.uuid_b58
-        )
+        return f'<Update "{self.title}" {self.uuid_b58}>'
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def visibility_label(self) -> str:
         return self.visibility_state.label.title
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(visibility_label, read={'all'})
+
     @property
     def state_label(self) -> str:
         return self.state.label.title
+
+    with_roles(state_label, read={'all'})
 
     state.add_conditional_state(
         'UNPUBLISHED',
@@ -240,9 +262,11 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             first_publishing = True
             self.published_at = db.func.utcnow()
         if self.number is None:
-            self.number = db.select(
-                [db.func.coalesce(db.func.max(Update.number), 0) + 1]
-            ).where(Update.project == self.project)
+            self.number = (
+                db.select([db.func.coalesce(db.func.max(Update.number), 0) + 1])
+                .where(Update.project == self.project)
+                .scalar_subquery()
+            )
         return first_publishing
 
     @with_roles(call={'editor'})
@@ -277,7 +301,6 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     def make_restricted(self) -> None:
         pass
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def is_restricted(self) -> bool:
         return bool(self.visibility_state.RESTRICTED)
@@ -289,12 +312,17 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         elif not value and self.visibility_state.RESTRICTED:
             self.make_public()
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(is_restricted, read={'all'})
+
     @property
     def is_currently_restricted(self) -> bool:
         return self.is_restricted and not self.current_roles.reader
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    with_roles(is_currently_restricted, read={'all'})
+
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if not self.visibility_state.RESTRICTED:
             # Everyone gets reader role when the post is not restricted.
@@ -310,29 +338,60 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             Project.state.PUBLISHED, cls.state.PUBLISHED, cls.visibility_state.PUBLIC
         )
 
+    @with_roles(read={'all'})
+    def getnext(self) -> Optional[Update]:
+        """Get next published update."""
+        if self.state.PUBLISHED:
+            return (
+                Update.query.filter(
+                    Update.project == self.project,
+                    Update.state.PUBLISHED,
+                    Update.number > self.number,
+                )
+                .order_by(Update.number.asc())
+                .first()
+            )
+        return None
+
+    @with_roles(read={'all'})
+    def getprev(self) -> Optional[Update]:
+        """Get previous published update."""
+        if self.state.PUBLISHED:
+            return (
+                Update.query.filter(
+                    Update.project == self.project,
+                    Update.state.PUBLISHED,
+                    Update.number < self.number,
+                )
+                .order_by(Update.number.desc())
+                .first()
+            )
+        return None
+
 
 add_search_trigger(Update, 'search_vector')
-auto_init_default(Update._visibility_state)
-auto_init_default(Update._state)
+auto_init_default(Update._visibility_state)  # pylint: disable=protected-access
+auto_init_default(Update._state)  # pylint: disable=protected-access
 
 
 @reopen(Project)
 class __Project:
     updates: BaseQuery
 
-    @with_roles(read={'all'})  # type: ignore[misc]
     @property
     def published_updates(self) -> BaseQuery:
         return self.updates.filter(Update.state.PUBLISHED).order_by(
             Update.is_pinned.desc(), Update.published_at.desc()
         )
 
-    @with_roles(read={'editor'})  # type: ignore[misc]
+    with_roles(published_updates, read={'all'})
+
     @property
     def draft_updates(self) -> BaseQuery:
         return self.updates.filter(Update.state.DRAFT).order_by(Update.created_at)
 
-    @with_roles(read={'all'})  # type: ignore[misc]
+    with_roles(draft_updates, read={'editor'})
+
     @property
     def pinned_update(self) -> Optional[Update]:
         return (
@@ -340,3 +399,5 @@ class __Project:
             .order_by(Update.published_at.desc())
             .first()
         )
+
+    with_roles(pinned_update, read={'all'})

@@ -1,3 +1,12 @@
+"""
+Signals to communicate between internal parts of the app (deprecated).
+
+This is an older system and relatively unused in newer code as the signalling system is
+not type-friendly.
+"""
+
+from __future__ import annotations
+
 from flask.signals import Namespace
 
 model_signals = Namespace()
@@ -27,10 +36,6 @@ model_userphone_new = model_signals.signal('model-useremail-new')
 model_userphone_edited = model_signals.signal('model-useremail-edited')
 model_userphone_deleted = model_signals.signal('model-useremail-deleted')
 
-model_userphoneclaim_new = model_signals.signal('model-useremail-new')
-model_userphoneclaim_edited = model_signals.signal('model-useremail-edited')
-model_userphoneclaim_deleted = model_signals.signal('model-useremail-deleted')
-
 resource_access_granted = model_signals.signal('resource-access-granted')
 
 emailaddress_refcount_dropping = model_signals.signal(
@@ -50,3 +55,7 @@ session_revoked = app_signals.signal('session-revoked')
 project_crew_membership_added = app_signals.signal('project_crew_membership_added')
 project_crew_membership_invited = app_signals.signal('project_crew_membership_invited')
 project_crew_membership_revoked = app_signals.signal('project_crew_membership_revoked')
+
+# Commentset role change signals (sends user, document)
+project_role_change = app_signals.signal('project_role_change')
+proposal_role_change = app_signals.signal('proposal_role_change')

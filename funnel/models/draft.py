@@ -1,3 +1,7 @@
+"""Model for unvalidated drafts for web forms."""
+
+from __future__ import annotations
+
 from werkzeug.datastructures import MultiDict
 
 from . import JsonDict, NoIdMixin, UUIDType, db

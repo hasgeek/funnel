@@ -1,19 +1,20 @@
-{% from "baseframe/forms.html.jinja2" import renderform_inner, rendersubmit, ajaxform %}
+{% from "forms.html.jinja2" import renderform_inner, rendersubmit, ajaxform %}
 
-{%- if not request_is_xhr() %}
+{%- if not request_wants.html_fragment %}
   {% extends "formlayout.html.jinja2" %}
   {% block title %}{{ title }}{% endblock %}
+{% else %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
 {%- endif %}
 
 {% block content %}
-	<form id="{{ formid }}" method="POST" accept-charset="UTF-8" class="mui-form">
-    {{ form.hidden_tag() }}
-	  {{ renderform_inner(form, formid or None) }}
-    {%- if not request_is_xhr() %}
+  <form id="{{ ref_id }}" method="POST" accept-charset="UTF-8" class="mui-form" action="{{ request.url }}">
+    {{ renderform_inner(form, formid or None) }}
+    {%- if not request_wants.html_fragment %}
       {{ rendersubmit([("Save session", "save session", '')]) }}
     {%- endif %}
-	</form>
-  {%- if request_is_xhr() %}
-    {{ ajaxform(ref_id=formid, request=request, force=false) }}
+  </form>
+  {%- if request_wants.html_fragment %}
+    {{ ajaxform(ref_id=ref_id, request=request, force=false) }}
   {%- endif %}
 {% endblock %}

@@ -10,7 +10,7 @@
 .webassets-cache
 __pycache__
 
-# MacOS File
+# MacOS file
 .DS_Store
 
 # Assets and static files
@@ -19,12 +19,16 @@ funnel/assets/cypress/videos
 funnel/static/build
 funnel/static/gen
 funnel/static/service-worker.js
+funnel/static/service-worker.js.map
 funnel/static/img/fa5-packed.svg
 node_modules
 *.packed.css
 *.packed.js
 .webassets-cache
 baseframe-packed.*
+
+# Download files
+geoname_data
 
 # Log files
 error.log
@@ -33,19 +37,23 @@ ghostdriver.log
 
 # Instance Files that should not be checked-in.
 instance/development.py
-instance/funnelapp.py
 instance/hasgeekapp.py
-instance/lastuserapp.py
 instance/production.py
 instance/settings.py
+instance/container_env
 
 # Forbidden secrets
 secrets.dev
 secrets.test
 newrelic.ini
+.env
+.env.testing
+.env.staging
+.env.production
 
 # Local venvs (Idea creates them)
 venv/
+env/
 
 # Editors
 .idea/
@@ -55,6 +63,7 @@ venv/
 .settings
 *.wpr
 .vscode
+*.sublime-workspace
 
 # Local DBs
 dump.rdb

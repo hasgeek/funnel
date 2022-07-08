@@ -1,3 +1,5 @@
+"""Test sitemap views."""
+
 from datetime import datetime, timedelta
 
 from werkzeug.exceptions import NotFound
@@ -17,13 +19,13 @@ from funnel.views.sitemap import (
 )
 
 
-def test_string_changefreq():
+def test_string_changefreq() -> None:
     """The ChangeFreq enum can be cast to and compared with str."""
     assert ChangeFreq.daily == 'daily'
     assert str(ChangeFreq.daily) == 'daily'
 
 
-def test_dates_have_timezone():
+def test_dates_have_timezone() -> None:
     """Sitemap month and date functions require UTC timestamps."""
     aware_now = utcnow()
     naive_now = aware_now.replace(tzinfo=None)
@@ -37,14 +39,14 @@ def test_dates_have_timezone():
             assert dt.tzinfo is utc
 
     # Both functions will not accept naive timestamps
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='must be specified in UTC'):
         all_sitemap_months(naive_now)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='UTC timezone required'):
         all_sitemap_days(naive_now)
 
 
-def test_all_sitemap_months_days():
+def test_all_sitemap_months_days() -> None:  # pylint: disable=too-many-statements
     """The sitemap months and days ranges are contiguous."""
     # Test dates 14, 15, 16 & 17, at midnight and noon, to see month/day rollover
 
@@ -113,7 +115,7 @@ def test_all_sitemap_months_days():
     assert months[-1] == earliest_date
 
 
-def test_validate_daterange():
+def test_validate_daterange() -> None:
     """Test the values that validate_dayrange accepts."""
     # String dates are accepted
     assert validate_daterange('2015', '11', '05') == (
@@ -198,7 +200,7 @@ def test_validate_daterange():
         validate_daterange('2015', '11', 'invalid')
 
 
-def test_changefreq_for_age():
+def test_changefreq_for_age() -> None:
     """Test that changefreq is age-appropriate."""
     # Less than a day
     assert changefreq_for_age(timedelta(hours=1)) == ChangeFreq.hourly
@@ -213,7 +215,7 @@ def test_changefreq_for_age():
     assert changefreq_for_age(timedelta(days=180)) == ChangeFreq.yearly
 
 
-def test_sitemap(client):
+def test_sitemap(client) -> None:
     """Test sitemap endpoints (caveat: no content checks)."""
     expected_content_type = 'application/xml; charset=utf-8'
 

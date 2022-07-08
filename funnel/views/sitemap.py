@@ -1,6 +1,11 @@
+"""Sitemap views."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import NamedTuple, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 
 from flask import abort, render_template, url_for
 
@@ -14,13 +19,15 @@ from coaster.views import ClassView, route
 
 from .. import app, executor
 from ..models import Profile, Project, Proposal, Session, Update
-from .decorators import remove_db_session, xml_response
+from .decorators import xml_response
 from .index import policy_pages
 
 # --- Sitemap models -------------------------------------------------------------------
 
 
 class ChangeFreq(str, Enum):
+    """Enum for sitemap change frequency."""
+
     always = 'always'
     hourly = 'hourly'
     daily = 'daily'
@@ -34,12 +41,18 @@ class ChangeFreq(str, Enum):
         return self.value
 
 
-class SitemapIndex(NamedTuple):
+@dataclass
+class SitemapIndex:
+    """Sitemap index."""
+
     loc: str
     lastmod: Optional[datetime] = None
 
 
-class SitemapPage(NamedTuple):
+@dataclass
+class SitemapPage:
+    """Sitemap page."""
+
     loc: str
     lastmod: Optional[datetime] = None
     changefreq: Optional[ChangeFreq] = None
@@ -159,7 +172,6 @@ def changefreq_for_age(age: timedelta) -> ChangeFreq:
 
 
 @executor.job
-@remove_db_session
 def query_profile(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
@@ -174,7 +186,6 @@ def query_profile(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) ->
 
 
 @executor.job
-@remove_db_session
 def query_project(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
@@ -197,7 +208,6 @@ def query_project(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) ->
 
 
 @executor.job
-@remove_db_session
 def query_update(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
@@ -212,7 +222,6 @@ def query_update(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> 
 
 
 @executor.job
-@remove_db_session
 def query_proposal(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(
@@ -227,7 +236,6 @@ def query_proposal(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -
 
 
 @executor.job
-@remove_db_session
 def query_session(dtstart: datetime, dtend: datetime, changefreq: ChangeFreq) -> list:
     return [
         SitemapPage(

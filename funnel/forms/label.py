@@ -1,5 +1,8 @@
-from baseframe import __
-import baseframe.forms as forms
+"""Forms for workflow labels."""
+
+from __future__ import annotations
+
+from baseframe import __, forms
 
 from ..models import Label
 
@@ -23,9 +26,9 @@ class LabelForm(forms.Form):
         "", validators=[forms.validators.Optional(), forms.validators.IsEmoji()]
     )
     required = forms.BooleanField(
-        __("Make this label mandatory in proposal forms"),
+        __("Make this label mandatory in submission forms"),
         default=False,
-        description=__("If checked, proposers must select one of the options"),
+        description=__("If checked, submitters must select one of the options"),
     )
     restricted = forms.BooleanField(
         __("Restrict use of this label to editors"),

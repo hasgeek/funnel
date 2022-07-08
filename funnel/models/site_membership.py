@@ -1,15 +1,21 @@
+"""Site-level membership records."""
+
+from __future__ import annotations
+
+from typing import Set
+
 from sqlalchemy.ext.declarative import declared_attr
 
 from werkzeug.utils import cached_property
 
 from . import User, db
 from .helpers import reopen
-from .membership import ImmutableMembershipMixin
+from .membership_mixin import ImmutableUserMembershipMixin
 
 __all__ = ['SiteMembership']
 
 
-class SiteMembership(ImmutableMembershipMixin, db.Model):
+class SiteMembership(ImmutableUserMembershipMixin, db.Model):
     """Membership roles for users who are site administrators."""
 
     __tablename__ = 'site_membership'
@@ -31,6 +37,7 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
 
     #: SiteMembership doesn't have a container limiting its scope
     parent_id = None
+    parent = None
 
     # Site admin roles (at least one must be True):
 
@@ -42,7 +49,7 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
     is_site_editor = db.Column(db.Boolean, nullable=False, default=False)
 
     @declared_attr
-    def __table_args__(cls):
+    def __table_args__(cls):  # pylint: disable=no-self-argument
         """Table arguments."""
         args = list(super().__table_args__)
         args.append(
@@ -57,8 +64,16 @@ class SiteMembership(ImmutableMembershipMixin, db.Model):
         )
         return tuple(args)
 
+    def __repr__(self) -> str:
+        """Return representation of membership."""
+        return (
+            f'<{self.__class__.__name__} {self.subject!r} '
+            + ('active' if self.is_active else 'revoked')
+            + '>'
+        )
+
     @cached_property
-    def offered_roles(self):
+    def offered_roles(self) -> Set[str]:
         """
         Roles offered by this membership record.
 
@@ -92,6 +107,7 @@ class __User:
 
     @cached_property
     def is_comment_moderator(self) -> bool:
+        """Test if this user is a comment moderator."""
         return (
             self.active_site_membership is not None
             and self.active_site_membership.is_comment_moderator
@@ -99,6 +115,7 @@ class __User:
 
     @cached_property
     def is_user_moderator(self) -> bool:
+        """Test if this user is an account moderator."""
         return (
             self.active_site_membership is not None
             and self.active_site_membership.is_user_moderator
@@ -106,6 +123,7 @@ class __User:
 
     @cached_property
     def is_site_editor(self) -> bool:
+        """Test if this user is a site editor."""
         return (
             self.active_site_membership is not None
             and self.active_site_membership.is_site_editor
@@ -114,4 +132,5 @@ class __User:
     # site_admin means user has one or more of above roles
     @cached_property
     def is_site_admin(self) -> bool:
+        """Test if this user has any site-level admin rights."""
         return self.active_site_membership is not None

@@ -1,3 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-rqworker -c rqinit funnel
+# For macOS: https://stackoverflow.com/a/52230415/78903
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
+flask rq worker funnel

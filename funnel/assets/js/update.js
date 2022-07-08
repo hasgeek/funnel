@@ -1,7 +1,9 @@
 import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
-import { Utils } from './util';
-import { userAvatarUI, faSvg, shareDropdown } from './vue_util';
+import Utils from './utils/helper';
+import ScrollHelper from './utils/scrollhelper';
+import getTimeago from './utils/getTimeago';
+import { userAvatarUI, faSvg, shareDropdown } from './utils/vue_util';
 
 const Updates = {
   init({
@@ -21,22 +23,21 @@ const Updates = {
         return {
           truncated: true,
           setReadMore: false,
-          svgIconUrl: window.Hasgeek.config.svgIconUrl,
+          svgIconUrl: window.Hasgeek.Config.svgIconUrl,
           now: new Date(),
         };
       },
       methods: {
-        getInitials: window.Baseframe.Utils.getInitials,
+        getInitials: window.Hasgeek.Utils.getInitials,
         truncate(content, length) {
           if (!content) return '';
-          let value = content.toString();
+          const value = content.toString();
           if (value.length > length) {
             this.setReadMore = true;
-            let txt = `${value.substring(0, length)} ...`;
+            const txt = `${value.substring(0, length)} ...`;
             return txt;
-          } else {
-            return value;
           }
+          return value;
         },
         readMore(event, action) {
           event.preventDefault();
@@ -46,17 +47,16 @@ const Updates = {
       },
       computed: {
         age() {
-          console.log(this.timeago.format(this.update.published_at, 'en_IN'));
           return this.now && this.update.published_at
             ? this.timeago.format(
                 this.update.published_at,
-                window.Hasgeek.config.locale
+                window.Hasgeek.Config.locale
               )
             : '';
         },
       },
       created() {
-        this.timeago = Utils.getTimeago();
+        this.timeago = getTimeago();
       },
       mounted() {
         window.setInterval(() => {
@@ -82,9 +82,9 @@ const Updates = {
         };
       },
       mounted() {
-        this.headerHeight = Utils.getPageHeaderHeight();
+        this.headerHeight = ScrollHelper.getPageHeaderHeight();
         if (window.location.hash) {
-          Utils.animateScrollTo(
+          ScrollHelper.animateScrollTo(
             document
               .getElementById(window.location.hash)
               .getBoundingClientRect().top - this.headerHeight
@@ -93,7 +93,7 @@ const Updates = {
         Utils.truncate();
 
         $(window).resize(() => {
-          this.headerHeight = Utils.getPageHeaderHeight();
+          this.headerHeight = ScrollHelper.getPageHeaderHeight();
         });
       },
     });
@@ -103,7 +103,7 @@ const Updates = {
 };
 
 $(() => {
-  window.Hasgeek.UpdatesInit = function (config) {
+  window.Hasgeek.updatesInit = function updatesInit(config) {
     Updates.init(config);
   };
 });

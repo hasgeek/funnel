@@ -1,6 +1,9 @@
 import Vue from 'vue/dist/vue.min';
-import { Utils } from './util';
-import { faSvg } from './vue_util';
+import ScrollHelper from './utils/scrollhelper';
+import { faSvg } from './utils/vue_util';
+import addVegaSupport from './utils/vegaembed';
+import Form from './utils/formhelper';
+import Spa from './utils/spahelper';
 
 const Schedule = {
   renderScheduleTable() {
@@ -29,12 +32,12 @@ const Schedule = {
             description: schedule.config.pageDescription,
           },
           view: 'agenda',
-          svgIconUrl: window.Hasgeek.config.svgIconUrl,
+          svgIconUrl: window.Hasgeek.Config.svgIconUrl,
         };
       },
       methods: {
         toggleTab(room) {
-          if (this.width < window.Hasgeek.config.mobileBreakpoint) {
+          if (this.width < window.Hasgeek.Config.mobileBreakpoint) {
             this.activeTab = room;
           }
         },
@@ -56,7 +59,7 @@ const Schedule = {
         getColumnWidth(columnType) {
           if (
             columnType === 'header' ||
-            this.width >= window.Hasgeek.config.mobileBreakpoint
+            this.width >= window.Hasgeek.Config.mobileBreakpoint
           ) {
             if (this.view === 'calendar') {
               return this.timeSlotWidth / this.rowWidth;
@@ -79,94 +82,74 @@ const Schedule = {
             .substring(0, 400)
             .concat('..');
         },
-        updateMetaTags(pageDetails) {
-          $('title').html(pageDetails.title);
-          $('meta[name="DC.title"]').attr('content', pageDetails.pageTitle);
-          $('meta[property="og:title"]').attr('content', pageDetails.pageTitle);
-          $('meta[name=description]').attr('content', pageDetails.description);
-          $('meta[property="og:description"]').attr(
-            'content',
-            pageDetails.description
-          );
-          $('link[rel=canonical]').attr('href', pageDetails.url);
-          $('meta[property="og:url"]').attr('content', pageDetails.url);
-        },
         handleBrowserHistory() {
           // On closing modal, update browser history
           $('#session-modal').on($.modal.CLOSE, () => {
             this.modalHtml = '';
-            window.history.pushState('', '', this.pageDetails.url);
-            this.updateMetaTags(this.pageDetails);
+            Spa.updateMetaTags(this.pageDetails);
+            if (window.history.state.openModal) {
+              window.history.back();
+            }
           });
-          // Event listener for back key press since opening modal update browser history
           $(window).on('popstate', () => {
             if (this.modalHtml) {
               $.modal.close();
-            } else if (window.history.state) {
-              // Open the modal with previous session viewed
-              this.openModal(
-                window.history.state.html,
-                window.history.state.backPage,
-                window.history.state.pageDetails
-              );
             }
           });
         },
-        openModal(sessionHtml, backPage, pageDetails) {
+        openModal(sessionHtml, currentPage, pageDetails) {
           this.modalHtml = sessionHtml;
           $('#session-modal').modal('show');
           window.history.pushState(
             {
-              html: sessionHtml,
-              backpage: backPage,
-              pageDetails,
+              openModal: true,
             },
             '',
-            backPage
+            currentPage
           );
-          this.updateMetaTags(pageDetails);
+          Spa.updateMetaTags(pageDetails);
         },
         showSessionModal(activeSession) {
-          const backPage = `${this.pageDetails.url}/${activeSession.url_name_uuid_b58}`;
+          const currentPage = `${this.pageDetails.url}/${activeSession.url_name_uuid_b58}`;
           const pageDetails = {
             title: `${activeSession.title} — ${this.pageDetails.projectTitle}`,
             pageTitle: activeSession.title,
             description: activeSession.speaker
               ? `${activeSession.title} by ${activeSession.speaker}`
               : `${activeSession.title}, ${this.pageDetails.projectTitle}`,
-            url: backPage,
+            url: currentPage,
           };
           if (activeSession.modal_url) {
             $.ajax({
               url: activeSession.modal_url,
               type: 'GET',
               success: (sessionHtml) => {
-                this.openModal(sessionHtml, backPage, pageDetails);
+                this.openModal(sessionHtml, currentPage, pageDetails);
               },
-              error() {
-                window.toastr.error(
-                  window.gettext(
-                    'There was a problem in contacting the server. Please try again later'
-                  )
-                );
+              error(response) {
+                const errorMsg = Form.getResponseError(response);
+                window.toastr.error(errorMsg);
               },
             });
           }
         },
         disableScroll(event, id) {
           event.preventDefault();
-          Utils.animateScrollTo($(`#${id}`).offset().top - this.headerHeight);
+          ScrollHelper.animateScrollTo(
+            $(`#${id}`).offset().top - this.headerHeight
+          );
         },
         getHeight() {
           this.headerHeight =
-            Utils.getPageHeaderHeight() + $('.schedule__row--sticky').height();
+            ScrollHelper.getPageHeaderHeight() +
+            $('.schedule__row--sticky').height();
         },
         handleBrowserResize() {
           $(window).resize(() => {
             this.width = $(window).width();
             this.height = $(window).height();
 
-            if (this.width < window.Hasgeek.config.mobileBreakpoint) {
+            if (this.width < window.Hasgeek.Config.mobileBreakpoint) {
               this.view = 'agenda';
             }
             this.getHeight();
@@ -186,7 +169,7 @@ const Schedule = {
             this.pageDetails.url = paths.join('/');
             this.showSessionModal(activeSession);
             // Scroll page to session
-            Utils.animateScrollTo(
+            ScrollHelper.animateScrollTo(
               $(`#${activeSession.url_name_uuid_b58}`).offset().top -
                 this.headerHeight
             );
@@ -201,28 +184,37 @@ const Schedule = {
                     window.location.hash.indexOf('/')
                   )
                 : window.location.hash;
-            Utils.animateScrollTo($(hash).offset().top - this.headerHeight);
+            ScrollHelper.animateScrollTo(
+              $(hash).offset().top - this.headerHeight
+            );
           } else if (
             scrollPos &&
             scrollPos.pageTitle === this.pageDetails.projectTitle
           ) {
             // Scroll page to last viewed position
-            Utils.animateScrollTo(scrollPos.scrollPosY);
+            ScrollHelper.animateScrollTo(scrollPos.scrollPosY);
           } else if ($('.schedule__date--upcoming').length) {
             // Scroll to the upcoming schedule
-            Utils.animateScrollTo(
+            ScrollHelper.animateScrollTo(
               $('.schedule__date--upcoming').first().offset().top -
                 this.headerHeight
             );
           } else {
             // Scroll to the last schedule
-            Utils.animateScrollTo(
-              $(schedule.config.parentContainer)
-                .find('.schedule__date')
-                .last()
-                .offset().top - this.headerHeight
+            ScrollHelper.animateScrollTo(
+              $('.schedule__date').last().offset().top - this.headerHeight
             );
           }
+          window.history.replaceState(
+            {
+              subPage: true,
+              prevUrl: this.pageDetails.url,
+              navId: window.history.state.navId,
+              refresh: false,
+            },
+            '',
+            this.pageDetails.url
+          );
 
           // On exiting the page, save page scroll position in session storage
           $(window).bind('beforeunload', () => {
@@ -241,6 +233,10 @@ const Schedule = {
         this.animateWindowScrollWithHeader();
         this.handleBrowserResize();
         this.handleBrowserHistory();
+        $('#session-modal').on($.modal.OPEN, () => {
+          addVegaSupport();
+          window.activateZoomPopup();
+        });
       },
     });
 
@@ -310,7 +306,7 @@ const Schedule = {
     };
   },
   init(config) {
-    let self = this;
+    const self = this;
     this.config = config;
     this.config.rooms = {};
     if (!this.config.venues.length) {

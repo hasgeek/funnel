@@ -1,48 +1,126 @@
+"""Utilities to operate on models."""
+
 from __future__ import annotations
 
-from typing import Optional, Set, Union
+from typing import NamedTuple, Optional, Set, Union, overload
 
 from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
 from flask import current_app
 
+from typing_extensions import Literal
+import phonenumbers
+
 from ..typing import OptionalMigratedTables
-from .user import User, UserEmail, UserEmailClaim, UserExternalId, db
+from ..utils import PHONE_LOOKUP_REGIONS
+from .user import Anchor, User, UserEmail, UserEmailClaim, UserExternalId, UserPhone, db
 
-__all__ = ['getuser', 'getextid', 'merge_users', 'IncompleteUserMigration']
+__all__ = [
+    'IncompleteUserMigrationError',
+    'UserAndAnchor',
+    'getextid',
+    'getuser',
+    'merge_users',
+]
 
 
-class IncompleteUserMigration(Exception):
+class IncompleteUserMigrationError(Exception):
     """Could not migrate users because of data conflicts."""
 
 
+class UserAndAnchor(NamedTuple):
+    """User and anchor used to find the user (usable as a 2-tuple)."""
+
+    user: Optional[User]
+    anchor: Optional[Anchor]
+
+
+@overload
 def getuser(name: str) -> Optional[User]:
-    """Get a user with a matching name or email address."""
+    ...
+
+
+@overload
+def getuser(name: str, anchor: Literal[False]) -> Optional[User]:
+    ...
+
+
+@overload
+def getuser(name: str, anchor: Literal[True]) -> UserAndAnchor:
+    ...
+
+
+def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnchor]:
+    """
+    Get a user with a matching name, email address or phone number.
+
+    Optionally returns an anchor (phone or email) instead of the user account.
+    """
     # Treat an '@' or '~' prefix as a username lookup, removing the prefix
     if name.startswith('@') or name.startswith('~'):
         name = name[1:]
     # If there's an '@' in the middle, treat as an email address
     elif '@' in name:
-        # TODO: This lookup may be more efficient for email claims if we query the
-        # EmailAddress model directly, doing a join with UserEmail and UserEmailClaim.
         useremail: Union[None, UserEmail, UserEmailClaim]
         useremail = UserEmail.get(email=name)
-        if not useremail:
+        if useremail is None:
             # If there's no verified email address, look for a claim.
             useremail = (
                 UserEmailClaim.all(email=name)
                 .order_by(UserEmailClaim.created_at)
                 .first()
             )
-        if useremail and useremail.user is not None and useremail.user.state.ACTIVE:
+        if useremail is not None and useremail.user.state.ACTIVE:
             # Return user only if in active state
+            if anchor:
+                return UserAndAnchor(useremail.user, useremail)
             return useremail.user
+        if anchor:
+            return UserAndAnchor(None, None)
         return None
-    # If it wasn't an email address lookup, do a username lookup
-    return User.get(username=name)
+    else:
+        # If it wasn't an email address or an @username, check if it's a phone number
+        try:
+            # Assume unprefixed numbers to be a local number in one of our supported
+            # regions, in order of priority
+            for region in PHONE_LOOKUP_REGIONS:
+                parsed_number = phonenumbers.parse(name, region)
+                if phonenumbers.is_valid_number(parsed_number):
+                    number = phonenumbers.format_number(
+                        parsed_number, phonenumbers.PhoneNumberFormat.E164
+                    )
+                    userphone = UserPhone.get(number)
+                    if userphone is not None and userphone.user.state.ACTIVE:
+                        if anchor:
+                            return UserAndAnchor(userphone.user, userphone)
+                        return userphone.user
+            # No matching userphone? Continue to trying as a username
+        except phonenumbers.NumberParseException:
+            # This was not a parseable phone number. Continue to trying as a username
+            pass
+
+    # Last guess: username
+    user = User.get(username=name)
+
+    # If the caller wanted an anchor, try to return one (phone, then email) instead of
+    # the user account
+    if anchor:
+        if user is None:
+            return UserAndAnchor(None, None)
+        if user.phone:
+            return UserAndAnchor(user, user.phone)
+        useremail = user.default_email()
+        if useremail:
+            return UserAndAnchor(user, useremail)
+        # This user has no anchors
+        return UserAndAnchor(user, None)
+
+    # Anchor not requested. Return the user account
+    return user
 
 
 def getextid(service: str, userid: str) -> Optional[UserExternalId]:
+    """Return a matching external id."""
     return UserExternalId.get(service=service, userid=userid)
 
 
@@ -91,10 +169,7 @@ def do_migrate_instances(
     )  # 'id' is from IdMixin via BaseMixin
 
     # Session (for queries)
-    # This used to retrieve session from the model's query, but that affects testing,
-    # so, we're back to using the global session.
-    # Old: session = old_instance.query.session
-    session = db.session
+    session = old_instance.query.session
 
     # Keep track of all migrated tables
     migrated_tables: Set[str] = set()
@@ -134,22 +209,28 @@ def do_migrate_instances(
                         # The target column (typically user_id) is part of a unique
                         # or primary key constraint. We can't migrate automatically.
                         current_app.logger.error(
-                            "do_migrate_table interrupted because column is part of a "
-                            "unique constraint: %s",
+                            "do_migrate_table interrupted because column is part of a"
+                            " unique constraint: %s",
                             column,
                         )
                         return False
 
-        # TODO: If this table uses Flask-SQLAlchemy's bind_key mechanism,
+        # This following code is disabled but preserved because we don't fully
+        # understand multi-db bind setups. It isn't a current requirement because we
+        # don't have fkeys spanning databases, but we may in future (in which case it's
+        # a relationship and not a db-enforced foreign key). Original comment follows:
+
+        # If this table uses Flask-SQLAlchemy's bind_key mechanism,
         # session.execute won't bind to the correct engine, so the table cannot be
         # migrated. If we attempt to retrieve and connect to the correct engine, we may
         # lose the transaction. We need to confirm this.
-        if table.info.get('bind_key'):
-            current_app.logger.error(
-                "do_migrate_table interrupted because table has bind_key: %s",
-                table.name,
-            )
-            return False
+
+        # if table.info.get('bind_key'):
+        #     current_app.logger.error(
+        #         "do_migrate_table interrupted because table has bind_key: %s",
+        #         table.name,
+        #     )
+        #     return False
 
         for column in target_columns:
             session.execute(
@@ -174,11 +255,11 @@ def do_migrate_instances(
                     if isinstance(result, (list, tuple, set)):
                         migrated_tables.update(result)
                     migrated_tables.add(model.__table__.name)
-                except IncompleteUserMigration:
+                except IncompleteUserMigrationError:
                     safe_to_remove_instance = False
                     current_app.logger.error(
-                        "_do_merge_into interrupted because IncompleteUserMigration "
-                        "raised by %s",
+                        "_do_merge_into interrupted because"
+                        "  IncompleteUserMigrationError raised by %s",
                         model,
                     )
             else:

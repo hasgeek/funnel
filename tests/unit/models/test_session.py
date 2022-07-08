@@ -1,6 +1,9 @@
 """Test sessions."""
+# pylint: disable=possibly-unused-variable
 from datetime import datetime, timedelta
 from types import SimpleNamespace
+
+import sqlalchemy.exc
 
 from pytz import utc
 import pytest
@@ -10,7 +13,7 @@ from funnel.models import Project, Session, db
 # TODO: Create a second parallel project and confirm they don't clash
 
 
-@pytest.fixture
+@pytest.fixture()
 def block_of_sessions(db_session, new_project):
 
     # DocType HTML5's schedule, but using UTC to simplify testing
@@ -110,7 +113,7 @@ def find_projects(starting_times, within, gap):
     }
 
 
-def test_project_starting_at(db_session, block_of_sessions):
+def test_project_starting_at(db_session, block_of_sessions) -> None:
     block_of_sessions.refresh()
 
     # Loop through the day at 5 min intervals from 8 AM, looking for start time
@@ -119,22 +122,13 @@ def test_project_starting_at(db_session, block_of_sessions):
         for multipler in range(100)
     ]
 
-    # At first nothing will match because the project and its schedule are not published
+    # At first nothing will match because the project is not published
     assert (
         find_projects(starting_times, timedelta(minutes=5), timedelta(minutes=60)) == {}
     )
 
-    # Publishing the project isn't enough
+    # Publishing the project makes it work
     block_of_sessions.new_project.publish()
-    assert (
-        find_projects(starting_times, timedelta(minutes=5), timedelta(minutes=60)) == {}
-    )
-
-    # Schedule must be published too
-    block_of_sessions.new_project.publish_schedule()
-
-    # Now it works:
-
     found_projects = find_projects(
         starting_times, timedelta(minutes=5), timedelta(minutes=60)
     )
@@ -183,3 +177,40 @@ def test_project_starting_at(db_session, block_of_sessions):
     assert found_projects == {
         utc.localize(datetime(2010, 10, 9, 8, 59)): [block_of_sessions.new_project],
     }
+
+
+def test_long_session_fail(db_session, new_project) -> None:
+    """Sessions cannot exceed 24 hours."""
+    # Less than 24 hours is fine:
+    db_session.add(
+        Session(
+            project=new_project,
+            start_at=utc.localize(datetime(2010, 10, 9, 9, 0)),
+            end_at=utc.localize(datetime(2010, 10, 10, 8, 59, 59)),
+            title="Less than 24 hours by 1 second",
+        )
+    )
+    db_session.commit()
+
+    # Exactly 24 hours is fine:
+    db_session.add(
+        Session(
+            project=new_project,
+            start_at=utc.localize(datetime(2010, 10, 9, 9, 0)),
+            end_at=utc.localize(datetime(2010, 10, 10, 9, 0)),
+            title="Exactly 24 hours",
+        )
+    )
+    db_session.commit()
+
+    # Anything above 24 hours will fail:
+    db_session.add(
+        Session(
+            project=new_project,
+            start_at=utc.localize(datetime(2010, 10, 9, 9, 0)),
+            end_at=utc.localize(datetime(2010, 10, 10, 9, 0, 1)),
+            title="Longer than 24 hours by 1 second",
+        )
+    )
+    with pytest.raises(sqlalchemy.exc.IntegrityError):
+        db_session.commit()

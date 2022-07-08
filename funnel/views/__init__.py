@@ -1,18 +1,20 @@
+"""All app views and view helpers."""
 # flake8: noqa
 
-from . import (
+from __future__ import annotations
+
+from . import (  # skipcq: PY-W2000
     account,
     account_delete,
     account_reset,
+    api,
     auth_client,
     auth_notify,
-    auth_oauth,
-    auth_resource,
-    commentvote,
+    comment,
     contact,
     decorators,
     email,
-    email_events,
+    errors,
     helpers,
     index,
     label,
@@ -25,17 +27,20 @@ from . import (
     notification_preferences,
     notifications,
     organization,
+    otp,
     profile,
     project,
+    project_sponsor,
     proposal,
     schedule,
     search,
     session,
+    shortlink,
     siteadmin,
     sitemap,
-    sms_events,
     ticket_event,
     ticket_participant,
     update,
     venue,
+    video,
 )

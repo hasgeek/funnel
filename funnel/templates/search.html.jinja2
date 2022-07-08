@@ -1,16 +1,9 @@
 {% extends "layout.html.jinja2" %}
 {%- from "js/search.js.jinja2" import search_results_template %}
-{% from "baseframe/forms.html.jinja2" import ajaxform %}
 {% block title %}{% trans %}Search{% endtrans %}{% endblock %}
 {% block description %}{% trans %}Search{% endtrans %}{% endblock %}
 
-{% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app tabs-navbar">
-  {%- else %}
-    <body class="mui--bg-primary">
-  {%- endif %}
-{% endblock %}
+{% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock %}
 
 {% block headline -%}
 {%- endblock %}
@@ -22,7 +15,7 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('search')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('search.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var searchConfig = {
@@ -30,7 +23,7 @@
         results: {{results|default("")|tojson}},
         defaultImage: "{{url_for('static', filename='img/default-banner.png')}}",
       };
-      Hasgeek.Search(searchConfig);
+      Hasgeek.searchInit(searchConfig);
     });
   </script>
 {% endblock %}

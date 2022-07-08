@@ -1,39 +1,37 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{{ profile.title }}{% endblock %}
-{% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import profile_header, video_thumbnail, projectcard, proposal_list %}
+{%- from "macros.html.jinja2" import faicon, profile_header, video_thumbnail, projectcard, proposal_list, profile_admin_buttons %}
 
 {%- block pageheaders %}
-<link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
-<script type="application/ld+json">
-  {
-    "@context" : "http://schema.org",
-     "@type" : "WebSite",
-     "name" : {{ config['SITE_TITLE']|tojson }},
-     "url" : {{ url_for('index', _external=true)|tojson }},
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
-      "query-input": "required name=query"
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/profile.scss') }}" />
+  <link rel="search" type="application/opensearchdescription+xml" href="{{ url_for('opensearch') }}" title="{{ config['SITE_TITLE'] }}" />
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+       "@type" : "WebSite",
+       "name" : {{ config['SITE_TITLE']|tojson }},
+       "url" : {{ url_for('index', _external=true)|tojson }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
+        "query-input": "required name=query"
+      }
     }
-  }
-</script>
-<script type="application/ld+json">
-  {
-    "@context" : "http://schema.org",
-    "@type" : "Person",
-    "name" : {{ profile.title|tojson }},
-    {%- if profile.logo_url.url %}
-    "image" : {{ profile.logo_url.url|tojson }},
-    {%- endif %}
-    "url" : {{ profile.url_for(_external=true)|tojson }}
-  }
-</script>
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : {{ profile.title|tojson }},
+      {%- if profile.logo_url.url %}
+      "image" : {{ profile.logo_url.url|tojson }},
+      {%- endif %}
+      "url" : {{ profile.url_for(_external=true)|tojson }}
+    }
+  </script>
 {%- endblock %}
 
-{% block bodytag %}
-  <body class="mui--bg-primary hg-app page-with-banner">
-{% endblock %}
+{% block bodyattrs %}class="mui--bg-primary mobile-header"{% endblock %}
 
 {% block contenthead %}
 {% endblock %}
@@ -42,17 +40,25 @@
   {{ profile_header(profile) }}
 {% endblock %}
 
-{% block contentwrapper %}
-  <div class="grid" id="tagged-sessions">
-    <div class="grid__col-xs-12">
-      {% if not tagged_sessions %}
-        <p class="mui-panel mui--bg-accent">{% trans %}No tagged sessions yet.{% endtrans %}</p>
-      {% endif %}
-    </div>
-    {% for session in tagged_sessions %}
-      <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
-        {{ video_thumbnail(session) }}
+{% block basecontent %}
+  <div class="mui--bg-accent top-padding">
+    <div class="mui-container">
+      <div class="page-content">
+        {% block contentwrapper %}
+          <div class="grid projects-wrapper" id="tagged-sessions">
+            <div class="grid__col-xs-12">
+              {% if not tagged_sessions %}
+                <p class="mui-panel mui--bg-accent">{% trans %}No tagged sessions yet{% endtrans %}</p>
+              {% endif %}
+            </div>
+            {% for session in tagged_sessions %}
+              <div class="grid__col-xs-12 grid__col-sm-6 grid__col-sm-4">
+                {{ video_thumbnail(session) }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endblock %}
       </div>
-    {% endfor %}
+    </div>
   </div>
 {% endblock %}

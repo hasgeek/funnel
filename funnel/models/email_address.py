@@ -1,11 +1,13 @@
+"""Email address model, storing an email db distinctly from its uses."""
+
 from __future__ import annotations
 
-from typing import Any, List, Optional, Set, Union, cast, overload
+from typing import List, Optional, Set, Union, cast, overload
 import hashlib
+import unicodedata
 
 from sqlalchemy import event, inspect
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import mapper
 from sqlalchemy.orm.attributes import NO_VALUE
 from sqlalchemy.sql.expression import BinaryExpression
@@ -27,7 +29,7 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, require_one_of
 
 from ..signals import emailaddress_refcount_dropping
-from . import BaseMixin, db
+from . import BaseMixin, db, hybrid_property
 
 __all__ = [
     'EMAIL_DELIVERY_STATE',
@@ -39,7 +41,7 @@ __all__ = [
 ]
 
 
-class EMAIL_DELIVERY_STATE(LabeledEnum):  # NOQA: N801
+class EMAIL_DELIVERY_STATE(LabeledEnum):  # noqa: N801
     """
     Email delivery states. Use ``dict(EMAIL_DELIVERY_STATE)`` to get contents.
 
@@ -87,7 +89,7 @@ def canonical_email_representation(email: str) -> List[str]:
     if '@' not in email:
         raise ValueError("Not an email address")
     mailbox, domain = email.split('@', 1)
-    mailbox = mailbox.lower()
+    mailbox = unicodedata.normalize('NFC', mailbox).lower()
     if '+' in mailbox:
         mailbox = mailbox[: mailbox.find('+')]
     domain = idna.encode(domain, uts46=True).decode()
@@ -117,7 +119,11 @@ def email_normalized(email: str) -> str:
     as the mailbox portion is technically case-sensitive, even if unlikely in practice.
     """
     mailbox, domain = email.split('@', 1)
-    mailbox = mailbox.lower()
+
+    # RFC 6532 section 3.1 says Unicode NFC normalization should be used. We also
+    # convert to lowercase on the assumption that two different casings on the same
+    # domain are more likely a typing accident than intended use.
+    mailbox = unicodedata.normalize('NFC', mailbox).lower()
     domain = idna.encode(domain, uts46=True).decode()
     return f'{mailbox}@{domain}'
 
@@ -196,7 +202,7 @@ class EmailAddress(BaseMixin, db.Model):
 
     #: BLAKE2b 160-bit hash of :property:`email_canonical`. Kept permanently for blocked
     #: email detection. Indexed but does not use a unique constraint because a+b@tld and
-    #: a+c@tld are both a@tld canonically.
+    #: a+c@tld are both a@tld canonically but can exist in records separately.
     blake2b160_canonical = immutable(
         db.Column(db.LargeBinary, nullable=False, index=True)
     )
@@ -275,7 +281,8 @@ class EmailAddress(BaseMixin, db.Model):
         To set this flag, call :classmethod:`mark_blocked` using the email address. The
         flag will be simultaneously set on all matching instances.
         """
-        return self._is_blocked
+        with db.session.no_autoflush:
+            return self._is_blocked
 
     @hybrid_property
     def domain(self) -> Optional[str]:
@@ -315,8 +322,9 @@ class EmailAddress(BaseMixin, db.Model):
     @with_roles(call={'all'})
     def md5(self) -> Optional[str]:
         """MD5 hash of :property:`email_normalized`, for legacy use only."""
+        # TODO: After upgrading to Python 3.9, use usedforsecurity=False
         return (
-            hashlib.md5(  # NOQA: S303 # skipcq: PTC-W1003 # nosec
+            hashlib.md5(  # noqa  # nosec  # skipcq: PTC-W1003
                 self.email_normalized.encode('utf-8')
             ).hexdigest()
             if self.email_normalized
@@ -350,7 +358,7 @@ class EmailAddress(BaseMixin, db.Model):
             for related_obj in getattr(self, backref_name)
         )
 
-    def is_available_for(self, owner: Any) -> bool:
+    def is_available_for(self, owner: object) -> bool:
         """Return True if this EmailAddress is available for the given owner."""
         for backref_name in self.__exclusive_backrefs__:
             for related_obj in getattr(self, backref_name):
@@ -400,7 +408,7 @@ class EmailAddress(BaseMixin, db.Model):
         """
         for obj in cls.get_canonical(email, is_blocked=False).all():
             obj.email = None
-            obj._is_blocked = True
+            obj._is_blocked = True  # pylint: disable=protected-access
 
     @overload
     @classmethod
@@ -532,9 +540,12 @@ class EmailAddress(BaseMixin, db.Model):
 
         Raises an exception if the address is blocked from use, or the email address
         is syntactically invalid.
+
+        :raises ValueError: If email address syntax is invalid
+        :raises EmailAddressBlockedError: If email address is blocked
         """
         existing = cls._get_existing(email)
-        if existing:
+        if existing is not None:
             # Restore the email column if it's not present. Do not modify it otherwise
             if not existing.email:
                 existing.email = email
@@ -544,7 +555,7 @@ class EmailAddress(BaseMixin, db.Model):
         return new_email
 
     @classmethod
-    def add_for(cls, owner: Optional[Any], email: str) -> EmailAddress:
+    def add_for(cls, owner: Optional[object], email: str) -> EmailAddress:
         """
         Create a new :class:`EmailAddress` after validation.
 
@@ -552,7 +563,7 @@ class EmailAddress(BaseMixin, db.Model):
         exclusive relationship with another owner.
         """
         existing = cls._get_existing(email)
-        if existing:
+        if existing is not None:
             if not existing.is_available_for(owner):
                 raise EmailAddressInUseError("This email address is in use")
             # No exclusive lock found? Let it be used then
@@ -565,7 +576,7 @@ class EmailAddress(BaseMixin, db.Model):
     @classmethod
     def validate_for(
         cls,
-        owner: Optional[Any],
+        owner: Optional[object],
         email: str,
         check_dns: bool = False,
         new: bool = False,
@@ -591,7 +602,7 @@ class EmailAddress(BaseMixin, db.Model):
             existing = cls._get_existing(email)
         except EmailAddressBlockedError:
             return False
-        if not existing:
+        if existing is None:
             diagnosis = cls.is_valid_email_address(
                 email, check_dns=check_dns, diagnose=True
             )
@@ -616,7 +627,7 @@ class EmailAddress(BaseMixin, db.Model):
                 return 'not_new'
         if existing.delivery_state.SOFT_FAIL:
             return 'soft_fail'
-        elif existing.delivery_state.HARD_FAIL:
+        if existing.delivery_state.HARD_FAIL:
             return 'hard_fail'
         return True
 
@@ -666,7 +677,8 @@ class EmailAddressMixin:
     email_address_id: int
 
     @declared_attr  # type: ignore[no-redef]
-    def email_address_id(cls):
+    def email_address_id(cls):  # pylint: disable=no-self-argument
+        """Foreign key to email_address table."""
         return db.Column(
             None,
             db.ForeignKey('email_address.id', ondelete='SET NULL'),
@@ -678,7 +690,8 @@ class EmailAddressMixin:
     email_address: Optional[EmailAddress]
 
     @declared_attr  # type: ignore[no-redef]
-    def email_address(cls):
+    def email_address(cls):  # pylint: disable=no-self-argument
+        """Instance of :class:`EmailAddress` as a relationship."""
         backref_name = 'used_in_' + cls.__tablename__
         EmailAddress.__backrefs__.add(backref_name)
         if cls.__email_for__ and cls.__email_is_exclusive__:
@@ -688,8 +701,10 @@ class EmailAddressMixin:
     email: Optional[str]
 
     @declared_attr  # type: ignore[no-redef]
-    def email(cls):
-        def email_get(self):
+    def email(cls):  # pylint: disable=no-self-argument
+        """Shorthand for ``self.email_address.email``."""
+
+        def email_get(self) -> Optional[str]:
             """
             Shorthand for ``self.email_address.email``.
 
@@ -703,6 +718,7 @@ class EmailAddressMixin:
             """
             if self.email_address:
                 return self.email_address.email
+            return None
 
         if cls.__email_for__:
 
@@ -740,21 +756,21 @@ class EmailAddressMixin:
         return self.email_address.email_hash if self.email_address else None
 
 
-auto_init_default(EmailAddress._delivery_state)
-auto_init_default(EmailAddress.delivery_state_at)
-auto_init_default(EmailAddress._is_blocked)
+auto_init_default(EmailAddress._delivery_state)  # pylint: disable=protected-access
+auto_init_default(EmailAddress.delivery_state_at)  # pylint: disable=protected-access
+auto_init_default(EmailAddress._is_blocked)  # pylint: disable=protected-access
 
 
 @event.listens_for(EmailAddress.email, 'set')
-def _validate_email(target, value: Any, old_value: Any, initiator):
+def _validate_email(target, value: object, old_value: object, initiator):
     # First: check if value is acceptable and email attribute can be set
     if not value and value is not None:
         # Only `None` is an acceptable falsy value
         raise ValueError("An email address is required")
-    elif old_value == value:
+    if old_value == value:
         # Old value is new value. Do nothing. Return without validating
         return
-    elif old_value is NO_VALUE and inspect(target).has_identity is False:
+    if old_value is NO_VALUE and inspect(target).has_identity is False:
         # Old value is unknown and target is a transient object. Continue
         pass
     elif value is None:
@@ -776,7 +792,9 @@ def _validate_email(target, value: Any, old_value: Any, initiator):
 
     # Second: If we have a value, does it look like an email address?
     # This does not check if it's a reachable mailbox; merely if it has valid syntax
-    if value and not EmailAddress.is_valid_email_address(value):
+    if value is not None and not (
+        isinstance(value, str) and EmailAddress.is_valid_email_address(value)
+    ):
         raise ValueError("Value is not an email address")
 
     # All clear? Now check against the hash
@@ -784,9 +802,11 @@ def _validate_email(target, value: Any, old_value: Any, initiator):
         hashed = email_blake2b160_hash(value)
         if hashed != target.blake2b160:
             raise ValueError("Email address does not match existing blake2b160 hash")
-        target._domain = idna.encode(value.split('@', 1)[1], uts46=True).decode()
+        target._domain = idna.encode(  # pylint: disable=protected-access
+            value.split('@', 1)[1], uts46=True
+        ).decode()
     else:
-        target._domain = None
+        target._domain = None  # pylint: disable=protected-access
     # We don't have to set target.email because SQLAlchemy will do that for us.
 
 
@@ -794,7 +814,7 @@ def _send_refcount_event_remove(target, value, initiator):
     emailaddress_refcount_dropping.send(target)
 
 
-def _send_refcount_event_before_delete(mapper, connection, target):
+def _send_refcount_event_before_delete(mapper_, connection, target):
     if target.email_address:
         emailaddress_refcount_dropping.send(target.email_address)
 

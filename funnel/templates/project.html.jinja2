@@ -1,22 +1,26 @@
 {% set current_page = 'project' %}
-{% extends "project_layout.html.jinja2" %}
+{%- if not request_wants.html_fragment -%}
+  {% extends "project_layout.html.jinja2" %}
+{%- else -%}
+  {% extends "project_spa_layout.html.jinja2" %}
+  {%- from "project_layout.html.jinja2" import pinned_update, project_about with context %}
+{% endif %}
 {% block titleblock %}{{ project.title }}{%- endblock %}
-{% from "baseframe/components.html.jinja2" import alertbox %}
 {%- from "macros.html.jinja2" import proposal_card, video_thumbnail %}
 
 {%- block pageheaders %}
   {% assets "css_leaflet" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
-  {%- if project.schedule_start_at %}
+  {%- if project.start_at %}
     <script type="application/ld+json">
     {
       "@context": "http://schema.org",
       "@type": "Event",
       "name": {{ project.title|tojson }},
       "url": {{ project.url_for(_external=true)|tojson }},
-      "startDate": {{ project.schedule_start_at_localized|tojson }},
-      "endDate": {{ project.schedule_end_at_localized|tojson }},
+      "startDate": {{ project.start_at_localized|tojson }},
+      "endDate": {{ project.end_at_localized|tojson }},
       "eventStatus": "https://schema.org/EventScheduled",
       {% if project.primary_venue -%}
       "location": {
@@ -58,29 +62,28 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
-      <a href="{{ url_for('index') }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
+      <a href="{{ url_for('index') }}" aria-label="{% trans %}Back to the home{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project home">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
     </div>
   </div>
-  {% if project.features.tickets() or project.features.rsvp() %}
-    <div class="project-footer mui--visible-xs-block mui--visible-sm-block">
-      {{ registerblock(project) }}
-    </div>
-  {% endif %}
 {% endblock %}
 
-{% block base_content_inner %}
-  {% if featured_proposals.count() > 0 %}
+{% block left_col %}
+  <div class="mui--hidden-xs mui--hidden-sm">
+    {{ pinned_update(project) }}
+    {{ project_about(project) }}
+  </div>
+  {% if project.has_featured_proposals %}
     <div class="page-card">
       <div class="project-section" id="submissions">
         <div class="project-section__headline">
-          <h2 class="project-section__headline mui--text-left zero-top-margin">{% trans %}Submissions{% endtrans %}</h2>
-          <a class="mui-btn mui-btn--flat mui-btn--primary" href="{{ project.url_for('view_proposals') }}">{% trans %}See all{% endtrans %}</a>
+          <h2 class="project-section__headline mui--text-left zero-top-margin">{% trans %}Featured submissions{% endtrans %}</h2>
+          <a class="mui-btn mui-btn--raised zero-top-margin" href="{{ project.url_for('view_proposals') }}">{% trans %}See all{% endtrans %}</a>
         </div>
       </div>
       <ul class="mui-list--unstyled">
         {% for proposal in featured_proposals %}
           <li>
-            {{ proposal_card(proposal, full_width=true, css_class='page-card__card', project=project) }}
+            {{ proposal_card(proposal, full_width=true, css_class='page-card__card', project=project, spa=true) }}
           </li>
         {%- endfor -%}
       </ul>
@@ -92,7 +95,7 @@
       <div class="project-section" id="sessions">
         <div class="project-section__headline">
           <h2 class="mui--text-left zero-top-margin">{% trans %}Sessions{% endtrans %}</h2>
-          <a class="mui-btn mui-btn--flat mui-btn--primary" href="{{ project.url_for('schedule') }}">{% trans %}See all{% endtrans %}</a>
+          <a class="mui-btn mui-btn--raised zero-top-margin" href="{{ project.url_for('schedule') }}">{% trans %}See all{% endtrans %}</a>
         </div>
       </div>
       <ul class="mui-list--unstyled">
@@ -113,7 +116,9 @@
                       <div class="proposal-card__body__inner__headline">
                         <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
                         <p class="mui--text-body2">{{ session.speaker }}</p>
-                        <div class="mui--text-light margin-bottom">{{ session.description.html|preview(max=200) }}</div>
+                        {% if session.description.html %}
+                          <div class="mui--text-light margin-bottom">{{ session.description.html|preview(min=100, max=200) }}<span class="chip">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</span></div>
+                        {%- endif %}
                         <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ session.start_at|datetime(format='dd MMM YYYY, h:mm a') }}</p>
                       </div>
                     </div>
@@ -131,11 +136,11 @@
    <div class="page-card">
       <div class="project-section" id="videos">
         <div class="project-section__headline" id="videos">
-          <h2 class="mui--text-left zero-top-margin">{% trans %}Videos{% endtrans %}</h2>
-          <a class="mui--text-subhead mui--text-capitalize" href="{{ project.url_for('session_videos') }}">{% trans %}See all{% endtrans %}</a>
+          <h2 class="mui--text-left zero-top-margin zero-top-margin">{% trans %}Videos{% endtrans %}</h2>
+          <a class="mui-btn mui-btn--raised zero-top-margin" href="{{ project.url_for('session_videos') }}">{% trans %}See all{% endtrans %}</a>
         </div>
       </div>
-      <div class="grid">
+      <div class="grid top-padding">
         {% for session in project.sessions_with_video[:5] %}
           <div class="grid__col-xs-12 grid__col-sm-6">
             {{ video_thumbnail(session) }}
@@ -149,7 +154,7 @@
     <div class="page-card">
       <div class="project-section" id="related-jobs">
         <h2 class="mui--text-left project-section__headline zero-top-margin">{% trans %}Related jobs{% endtrans %}</h2>
-        <div class="hasjob-embed" data-href="{{ project.hasjob_embed_url }}" {% if project.hasjob_embed_limit -%}data-jobpost-limit="{{ project.hasjob_embed_limit }}"{%- else %}data-jobpost-limit="8"{%- endif %}></div>
+        <div class="hasjob-embed top-padding" data-href="{{ project.hasjob_embed_url }}" {% if project.hasjob_embed_limit -%}data-jobpost-limit="{{ project.hasjob_embed_limit }}"{%- else %}data-jobpost-limit="8"{%- endif %}></div>
         <script src="{{ config['HASJOB_SERVER']|url_join('embed.js') }}" type="text/javascript"></script>
       </div>
     </div>
@@ -159,7 +164,7 @@
     <div class="page-card">
       <div class="project-section" id="venue">
         <h2 class="mui--text-left project-section__headline zero-top-margin">{% trans %}Venue{% endtrans %}</h2>
-        <div class="mui--text-body2">
+        <div class="mui--text-body2 bottom-padding">
           <p class="zero-bottom-margin">{{ project.primary_venue.title }}</p>
           <p class="zero-bottom-margin">{{ project.primary_venue.address1 }}</p>
           <p class="zero-bottom-margin">{{ project.primary_venue.address2 }}</p>
@@ -177,20 +182,23 @@
 {% endblock %}
 
 {% block footerinnerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('project')) }}" type="text/javascript"></script>
   <script type="text/javascript">
-    $(function() {
-      var projectConfig = {};
-
-      {%- if project.primary_venue.has_coordinates -%}
-        projectConfig.venue = {
-          mapId: "venue-map",
-          latitude: {{ project.primary_venue.latitude|tojson }},
-          longitude: {{ project.primary_venue.longitude|tojson }}
-        };
-      {%- endif %}
-
-      window.Hasgeek.ProjectInit(projectConfig);
-    });
+    window.Hasgeek.subpageTitle = '';
   </script>
+  {%- if project.primary_venue.has_coordinates -%}
+    <script src="{{ built_asset('project.js') }}" type="text/javascript"></script>
+    <script type="text/javascript">
+      $(function() {
+        var projectConfig = {};
+
+          projectConfig.venue = {
+            mapId: "venue-map",
+            latitude: {{ project.primary_venue.latitude|tojson }},
+            longitude: {{ project.primary_venue.longitude|tojson }}
+          };
+
+        window.Hasgeek.projectInit(projectConfig);
+      });
+    </script>
+  {%- endif %}
 {% endblock %}

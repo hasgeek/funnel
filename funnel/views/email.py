@@ -1,12 +1,17 @@
+"""View helper functions for sending email inline in a request."""
+
+from __future__ import annotations
+
 from flask import render_template, url_for
 
 from baseframe import _
 
 from .. import signals
+from ..models import User, UserEmail
 from ..transports.email import jsonld_confirm_action, jsonld_view_action, send_email
 
 
-def send_email_verify_link(useremail):
+def send_email_verify_link(useremail: UserEmail) -> str:
     """Mail a verification link to the user."""
     subject = _("Verify your email address")
     url = url_for(
@@ -24,14 +29,14 @@ def send_email_verify_link(useremail):
         url=url,
         jsonld=jsonld,
     )
-    send_email(subject, [(useremail.user.fullname, useremail.email)], content)
+    return send_email(subject, [(useremail.user.fullname, useremail.email)], content)
 
 
-def send_password_reset_link(email, user, token):
-    """Mail a password reset link to the user."""
-    subject = _("Reset your password")
+def send_password_reset_link(email: str, user: User, otp: str, token: str) -> str:
+    """Mail a password reset OTP and link to the user."""
+    subject = _("Reset your password - OTP {otp}").format(otp=otp)
     url = url_for(
-        'reset_email',
+        'reset_with_token',
         _external=True,
         token=token,
         utm_medium='email',
@@ -43,8 +48,9 @@ def send_password_reset_link(email, user, token):
         fullname=user.fullname,
         url=url,
         jsonld=jsonld,
+        otp=otp,
     )
-    send_email(subject, [(user.fullname, email)], content)
+    return send_email(subject, [(user.fullname, email)], content)
 
 
 @signals.project_crew_membership_added.connect

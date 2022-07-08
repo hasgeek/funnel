@@ -1,34 +1,24 @@
 {% extends "layout.html.jinja2" %}
-{% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import account_tabs %}
+{%- from "macros.html.jinja2" import faicon, account_tabs %}
 {%- from "js/badge.js.jinja2" import scan_badge_template %}
 
 {% block title %}{% trans %}Scan badge{% endtrans %}{% endblock %}
 
 {% block pageheaders %}
-<style>
-  html, body {
-    overflow: hidden;
-  }
-</style>
+  <style type="text/css">
+    html, body {
+      overflow: hidden;
+    }
+  </style>
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/scanbadge.scss') }}" />
 {% endblock %}
 
-{% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app tabs-navbar">
-  {%- else %}
-    <body class="mui--bg-primary">
-  {%- endif %}
-{% endblock %}
+{% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock %}
 
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
     <div class="mui-container">
-      <div class="grid">
-        <div class="grid__col-12">
-          {{ account_tabs(active_tab='scan') }}
-        </div>
-      </div>
+      {{ account_tabs(active_tab='scan') }}
     </div>
   </div>
 {%- endblock %}
@@ -38,7 +28,7 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('scan_contact')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('scan_contact.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       var scanConfig = {
@@ -46,7 +36,7 @@
         wrapperId: 'scan-badge-wrapper',
         templateId: 'scan-badge-template',
       };
-      window.Hasgeek.BadgeScanInit(scanConfig);
+      window.Hasgeek.badgeScanInit(scanConfig);
     });
   </script>
 {% endblock %}

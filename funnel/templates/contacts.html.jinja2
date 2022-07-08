@@ -1,25 +1,18 @@
 {% extends "layout.html.jinja2" %}
-{% from "baseframe/components.html.jinja2" import faicon %}
-{%- from "macros.html.jinja2" import account_tabs, useravatar %}
+{%- from "macros.html.jinja2" import faicon, account_tabs, useravatar %}
 
 {% block title %}{% trans %}My contacts{% endtrans %}{% endblock %}
 
-{% block bodytag %}
-  {%- if not config['LEGACY'] -%}
-    <body class="mui--bg-primary hg-app tabs-navbar">
-  {%- else %}
-    <body class="mui--bg-primary">
-  {%- endif %}
+{% block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/contacts.scss') }}" />
 {% endblock %}
+
+{% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock %}
 
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
     <div class="mui-container">
-      <div class="grid">
-        <div class="grid__col-12">
-          {{ account_tabs(active_tab='contacts') }}
-        </div>
-      </div>
+      {{ account_tabs(active_tab='contacts') }}
     </div>
   </div>
 {%- endblock %}
@@ -70,16 +63,18 @@
                   </div>
                   <div class="collapsible__body mui-list--aligned">
                     {% for contact in daterow.contacts.all() %}
-                      <div class="user mui--pull-left">
-                        <div class="user__box">
-                          {{ useravatar(contact.ticket_participant) }}
-                          <div class="user__box__header">
-                              <p class="mui--text-subhead zero-bottom-margin">{{ contact.ticket_participant.fullname }}</p>
-                              <p class="mui--text-body2">{{ contact.ticket_participant.email }}</p>
+                      <div class="mui--clearfix">
+                        <div class="user mui--pull-left">
+                          <div class="user__box">
+                            {{ useravatar(contact.ticket_participant.user) }}
+                            <div class="user__box__header">
+                                <p class="mui--text-subhead zero-bottom-margin">{{ contact.ticket_participant.fullname }}</p>
+                                <p class="mui--text-body2 zero-bottom-margin">{{ contact.ticket_participant.email }}</p>
+                            </div>
                           </div>
                         </div>
+                        <a class="mui--pull-right contact-download-btn" onclick="Hasgeek.downloadVcard(this,'{{contact.ticket_participant.fullname}}', '{{contact.ticket_participant.email}}', '{{contact.ticket_participant.phone}}', '{{contact.ticket_participant.company}}')" download href="" aria-label="download contact">{{ faicon(icon='address-card', icon_size='headline') }}</a>
                       </div>
-                      <a class="mui--pull-right contact-download-btn" onclick="Hasgeek.downloadVcard(this,'{{contact.ticket_participant.fullname}}', '{{contact.ticket_participant.email}}', '{{contact.ticket_participant.phone}}', '{{contact.ticket_participant.company}}')" download href="" aria-label="download contact">{{ faicon(icon='address-card', icon_size='headline') }}</a>
                     {%- endfor -%}
                   </div>
                 </div>
@@ -93,5 +88,5 @@
 {% endblock %}
 
 {% block footerscripts %}
-  <script src="{{ url_for('static', filename=asset_path('contact')) }}" type="text/javascript"></script>
+  <script src="{{ built_asset('contact.js') }}" type="text/javascript"></script>
 {% endblock %}

@@ -1,5 +1,5 @@
 import Vue from 'vue/dist/vue.min';
-import { Utils } from './util';
+import Utils from './utils/helper';
 
 const Notification = {
   init({ markReadUrl, divElem }) {
@@ -11,7 +11,7 @@ const Notification = {
           eventids: [],
           next_num: 1,
           waitingForResponse: false,
-          markReadUrl: markReadUrl,
+          markReadUrl,
           observer: '',
           lazyLoader: '',
         };
@@ -27,9 +27,9 @@ const Notification = {
             $.ajax({
               type: 'GET',
               data: {
-                page: page,
+                page,
               },
-              timeout: window.Hasgeek.config.ajaxTimeout,
+              timeout: window.Hasgeek.Config.ajaxTimeout,
               dataType: 'json',
               success(data) {
                 notificationApp.addNotifications(data.notifications, refresh);
@@ -84,22 +84,21 @@ const Notification = {
         },
         updateReadStatus(notification) {
           if ($(notification).attr('data-visible-time')) {
-            let notificationItem = this.notifications[
-              $(notification).attr('data-index')
-            ];
-            let url = this.markReadUrl.replace(
+            const notificationItem =
+              this.notifications[$(notification).attr('data-index')];
+            const url = this.markReadUrl.replace(
               'eventid_b58',
               notificationItem.notification.eventid_b58
             );
             $.ajax({
               type: 'POST',
-              url: url,
+              url,
               data: {
                 csrf_token: $('meta[name="csrf-token"]').attr('content'),
               },
               dataType: 'json',
-              timeout: window.Hasgeek.config.ajaxTimeout,
-              success: function (responseData) {
+              timeout: window.Hasgeek.Config.ajaxTimeout,
+              success(responseData) {
                 notificationItem.notification.is_read = true;
                 notificationItem.observer.unobserve(notification);
                 Utils.setNotifyIcon(responseData.unread);
@@ -108,13 +107,13 @@ const Notification = {
           }
         },
         notificationInViewport(entries) {
-          let app = this;
+          const app = this;
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               $(entry.target).attr('data-visible-time', entry.time);
-              window.setTimeout(function () {
+              window.setTimeout(() => {
                 app.updateReadStatus(entry.target);
-              }, window.Hasgeek.config.readReceiptTimeout);
+              }, window.Hasgeek.Config.readReceiptTimeout);
             } else {
               $(entry.target).attr('data-visible-time', '');
             }
@@ -126,11 +125,11 @@ const Notification = {
         this.lazyoad();
         window.setInterval(() => {
           this.fetchResult(1, true);
-        }, window.Hasgeek.config.refreshInterval);
+        }, window.Hasgeek.Config.refreshInterval);
       },
       updated() {
-        let app = this;
-        $.each($('.update--unread'), function (index, elem) {
+        const app = this;
+        $.each($('.update--unread'), (index, elem) => {
           app.notificationInViewport = app.notificationInViewport.bind(app);
           const notificationObserver = new IntersectionObserver(
             app.notificationInViewport,
@@ -140,7 +139,8 @@ const Notification = {
             }
           );
           notificationObserver.observe(elem);
-          let notificationItem = app.notifications[$(elem).attr('data-index')];
+          const notificationItem =
+            app.notifications[$(elem).attr('data-index')];
           notificationItem.observer = notificationObserver;
         });
       },
@@ -149,7 +149,7 @@ const Notification = {
 };
 
 $(() => {
-  window.Hasgeek.Notification = function (config) {
+  window.Hasgeek.notificationInit = (config) => {
     Notification.init(config);
   };
 });

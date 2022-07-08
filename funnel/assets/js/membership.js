@@ -1,7 +1,7 @@
 import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
-import { Utils } from './util';
-import { userAvatarUI, faSvg } from './vue_util';
+import Form from './utils/formhelper';
+import { userAvatarUI, faSvg } from './utils/vue_util';
 
 const Membership = {
   init({
@@ -25,7 +25,8 @@ const Membership = {
           if (member.is_usher) count += 1;
           return count - 1;
         },
-        getInitials: window.Baseframe.Utils.getInitials,
+        getInitials: window.Hasgeek.Utils.getInitials,
+        getAvatarColour: window.Hasgeek.Utils.getAvatarColour,
       },
     });
 
@@ -42,14 +43,14 @@ const Membership = {
           newMemberUrl,
           members: members.length > 0 ? members : '',
           isUserProfileAdmin,
-          roles: roles,
+          roles,
           memberForm: '',
           activeMember: '',
           errorMsg: '',
           view: 'name',
           search: '',
           showInfo: false,
-          svgIconUrl: window.Hasgeek.config.svgIconUrl,
+          svgIconUrl: window.Hasgeek.Config.svgIconUrl,
           isMobile: false,
           ready: false,
         };
@@ -63,7 +64,7 @@ const Membership = {
             $.ajax({
               type: 'GET',
               url,
-              timeout: window.Hasgeek.config.ajaxTimeout,
+              timeout: window.Hasgeek.Config.ajaxTimeout,
               dataType: 'json',
               success(data) {
                 const vueFormHtml = data.form;
@@ -71,14 +72,14 @@ const Membership = {
                 $('#member-form').modal('show');
               },
               error(response) {
-                Utils.getResponseError(response);
+                Form.getResponseError(response);
               },
             });
           }
         },
         activateForm() {
-          const formId = Utils.getElementId(this.memberForm);
-          const url = Utils.getActionUrl(formId);
+          const formId = Form.getElementId(this.memberForm);
+          const url = Form.getActionUrl(formId);
           const onSuccess = (responseData) => {
             this.closeForm();
             if (responseData.memberships) {
@@ -88,9 +89,9 @@ const Membership = {
             }
           };
           const onError = (response) => {
-            this.errorMsg = Utils.formErrorHandler(formId, response);
+            this.errorMsg = Form.formErrorHandler(formId, response);
           };
-          window.Baseframe.Forms.handleFormSubmit(
+          window.Hasgeek.Forms.handleFormSubmit(
             formId,
             url,
             onSuccess,
@@ -131,7 +132,7 @@ const Membership = {
         },
         onWindowResize() {
           this.isMobile =
-            $(window).width() < window.Hasgeek.config.mobileBreakpoint;
+            $(window).width() < window.Hasgeek.Config.mobileBreakpoint;
         },
       },
       computed: {
@@ -165,7 +166,7 @@ const Membership = {
 };
 
 $(() => {
-  window.Hasgeek.Membership = function (config) {
+  window.Hasgeek.membershipInit = (config) => {
     Membership.init(config);
   };
 });

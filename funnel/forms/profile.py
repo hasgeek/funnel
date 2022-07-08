@@ -1,8 +1,11 @@
-from baseframe import _, __
-import baseframe.forms as forms
+"""Forms for user and organization profiles."""
+
+from __future__ import annotations
+
+from baseframe import _, __, forms
 
 from ..models import Profile
-from .helpers import image_url_validator
+from .helpers import image_url_validator, nullable_strip_filters
 from .organization import OrganizationForm
 
 __all__ = [
@@ -22,6 +25,7 @@ class ProfileForm(OrganizationForm):
     """
 
     __expects__ = ('profile',)
+    profile: Profile
 
     description = forms.MarkdownField(
         __("Welcome message"),
@@ -39,6 +43,7 @@ class ProfileForm(OrganizationForm):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=nullable_strip_filters,
     )
     website = forms.URLField(
         __("Website URL"),
@@ -48,13 +53,15 @@ class ProfileForm(OrganizationForm):
             forms.validators.URL(),
             forms.validators.ValidUrl(),
         ],
-        filters=[forms.filters.none_if_empty()],
+        filters=nullable_strip_filters,
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.logo_url.profile = self.profile.name
 
     def make_for_user(self):
+        """Customise form for a user profile."""
         self.title.label.text = __("Your name")
         self.title.description = __(
             "Your full name, in the form others can recognise you by"
@@ -73,11 +80,16 @@ class ProfileForm(OrganizationForm):
 
 @Profile.forms('transition')
 class ProfileTransitionForm(forms.Form):
+    """Form to transition a profile between public and private state."""
+
+    edit_obj: Profile
+
     transition = forms.SelectField(
-        __("Project status"), validators=[forms.validators.DataRequired()]
+        __("Profile visibility"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.transition.choices = list(self.edit_obj.state.transitions().items())
 
 
@@ -90,6 +102,7 @@ class ProfileLogoForm(forms.Form):
     """
 
     __expects__ = ('profile',)
+    profile: Profile
 
     logo_url = forms.ImgeeField(
         __("Profile image"),
@@ -98,9 +111,11 @@ class ProfileLogoForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=nullable_strip_filters,
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.logo_url.widget_type = 'modal'
         self.logo_url.profile = self.profile.name
 
@@ -114,6 +129,7 @@ class ProfileBannerForm(forms.Form):
     """
 
     __expects__ = ('profile',)
+    profile: Profile
 
     banner_image_url = forms.ImgeeField(
         __("Banner image"),
@@ -122,8 +138,10 @@ class ProfileBannerForm(forms.Form):
             forms.validators.Length(max=2000),
             image_url_validator(),
         ],
+        filters=nullable_strip_filters,
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.banner_image_url.widget_type = 'modal'
         self.banner_image_url.profile = self.profile.name

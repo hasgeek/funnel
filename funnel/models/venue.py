@@ -1,3 +1,7 @@
+"""Model for project venue and rooms within a venue (legacy, pending global venues)."""
+
+from __future__ import annotations
+
 from sqlalchemy.ext.orderinglist import ordering_list
 
 from coaster.sqlalchemy import add_primary_relationship, with_roles
@@ -15,7 +19,8 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
 
     project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
     project = with_roles(
-        db.relationship(Project), grants_via={None: project_child_role_map}
+        db.relationship(Project, back_populates='venues'),
+        grants_via={None: project_child_role_map},
     )
     parent = db.synonym('project')
     description = MarkdownColumn('description', default='', nullable=False)
@@ -31,6 +36,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
         cascade='all',
         order_by='VenueRoom.seq',
         collection_class=ordering_list('seq', count_from=1),
+        back_populates='venue',
     )
 
     seq = db.Column(db.Integer, nullable=False)
@@ -88,28 +94,24 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
     __tablename__ = 'venue_room'
 
     venue_id = db.Column(None, db.ForeignKey('venue.id'), nullable=False)
-    venue = db.relationship(Venue)
-    parent = with_roles(
-        db.synonym('venue'),
+    venue = with_roles(
+        db.relationship(Venue, back_populates='rooms'),
         # Since Venue already remaps Project roles, we just want the remapped role names
         grants_via={None: set(project_child_role_map.values())},
     )
+    parent = db.synonym('venue')
     description = MarkdownColumn('description', default='', nullable=False)
     bgcolor = db.Column(db.Unicode(6), nullable=False, default='229922')
 
     seq = db.Column(db.Integer, nullable=False)
-
-    scheduled_sessions = db.relationship(
-        "Session",
-        primaryjoin='and_(Session.venue_room_id == VenueRoom.id, Session.scheduled)',
-    )
 
     __table_args__ = (db.UniqueConstraint('venue_id', 'name'),)
 
     __roles__ = {
         'all': {
             'read': {
-                'id',  # TODO: Used in SessionForm.venue_room_id; needs to be .venue_room
+                # TODO: id is used in SessionForm.venue_room_id; needs to be .venue_room
+                'id',
                 'name',
                 'title',
                 'description',
@@ -147,7 +149,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
 
     @property
     def scoped_name(self):
-        return '{parent}/{name}'.format(parent=self.parent.name, name=self.name)
+        return f'{self.parent.name}/{self.name}'
 
 
 add_primary_relationship(Project, 'primary_venue', Venue, 'project', 'project_id')
@@ -156,6 +158,17 @@ with_roles(Project.primary_venue, read={'all'}, datasets={'primary', 'without_pa
 
 @reopen(Project)
 class __Project:
+    venues = with_roles(
+        db.relationship(
+            Venue,
+            cascade='all',
+            order_by='Venue.seq',
+            collection_class=ordering_list('seq', count_from=1),
+            back_populates='project',
+        ),
+        read={'all'},
+    )
+
     @property
     def rooms(self):
         return [room for venue in self.venues for room in venue.rooms]

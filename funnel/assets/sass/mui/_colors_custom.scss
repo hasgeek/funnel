@@ -1,0 +1,64 @@
+/**
+ * MUI Colors module
+ */
+
+// ============================================================================
+// COLOR FUNCTION
+// ============================================================================
+@function mui-color($mui-key1, $mui-key2: '500') {
+  // check key1
+  @if map-has-key($mui-colors, $mui-key1) == false {
+    @warn "Color `#{$mui-key1}` not found.";
+    @return null;
+  }
+
+  $mui-mapVal: map-get($mui-colors, $mui-key1);
+
+  // use second key
+  @if type-of($mui-mapVal) == 'map' {
+    // check key2
+    @if map-has-key($mui-mapVal, $mui-key2) == false {
+      @warn "Color `#{$mui-key1}` `#{$mui-key2}` not found.";
+      @return null;
+    }
+
+    $mui-mapVal: map-get($mui-mapVal, $mui-key2);
+  }
+
+  @return $mui-mapVal;
+}
+
+// ============================================================================
+// COLOR MAP
+// ============================================================================
+$mui-colors: (
+  'red': (
+    '500': #f44336,
+  ),
+  'pink': (
+    'A100': #ff80ab,
+    'A200': #ff4081,
+    'A400': #f50057,
+  ),
+  'blue': (
+    '100': #bbdefb,
+    '500': #2196f3,
+    '700': #1976d2,
+  ),
+  'grey': (
+    '100': #f5f5f5,
+    '200': #eeeeee,
+    '300': #e0e0e0,
+    '500': #9e9e9e,
+    '800': #424242,
+  ),
+  'black': #000,
+  'white': #fff,
+  'black-alpha-12': rgba(#000, 0.12),
+  'black-alpha-38': rgba(#000, 0.38),
+  'black-alpha-54': rgba(#000, 0.54),
+  'black-alpha-87': rgba(#000, 0.87),
+  'white-alpha-12': rgba(#fff, 0.12),
+  'white-alpha-30': rgba(#fff, 0.3),
+  'white-alpha-70': rgba(#fff, 0.7),
+);

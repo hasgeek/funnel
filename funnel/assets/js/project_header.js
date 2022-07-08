@@ -1,4 +1,8 @@
-import { Utils, SaveProject, Video } from './util';
+import SaveProject from './utils/bookmark';
+import Video from './utils/embedvideo';
+import Analytics from './utils/analytics';
+import Spa from './utils/spahelper';
+import Form from './utils/formhelper';
 
 const Ticketing = {
   init(tickets) {
@@ -27,9 +31,9 @@ const Ticketing = {
     $.get({
       url,
       crossDomain: true,
-      timeout: window.Hasgeek.config.ajaxTimeout,
+      timeout: window.Hasgeek.Config.ajaxTimeout,
       retries: 5,
-      retryInterval: window.Hasgeek.config.retryInterval,
+      retryInterval: window.Hasgeek.Config.retryInterval,
 
       success(data) {
         const boxofficeScript = document.createElement('script');
@@ -55,7 +59,7 @@ const Ticketing = {
               );
             } else {
               errorMsg = window.gettext(
-                'Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com '
+                'Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com'
               );
             }
 
@@ -82,20 +86,25 @@ const Ticketing = {
     $(document).on(
       'boxofficeTicketingEvents',
       (event, userAction, label, value) => {
-        Utils.sendToGA('ticketing', userAction, label, value);
+        Analytics.sendToGA('ticketing', userAction, label, value);
       }
     );
     $(document).on(
       'boxofficeShowPriceEvent',
       (event, prices, currency, quantityAvailable) => {
-        let price, minPrice, maxPrice, isTicketAvailable;
-        isTicketAvailable =
-          quantityAvailable.length > 0 ? Math.min(...quantityAvailable) : 0;
-        minPrice = prices.length > 0 ? Math.min(...prices) : 0;
-        if (!isTicketAvailable || !minPrice) {
+        let price;
+        let maxPrice;
+        const isTicketAvailable =
+          quantityAvailable.length > 0
+            ? Math.min.apply(null, quantityAvailable.filter(Boolean))
+            : 0;
+        const minPrice = prices.length > 0 ? Math.min(...prices) : -1;
+        if (!isTicketAvailable || minPrice < 0) {
           $('.js-tickets-available').addClass('mui--hide');
           $('.js-tickets-not-available').removeClass('mui--hide');
-          $('.js-open-ticket-widget').addClass('register-block__txt--strike');
+          $('.js-open-ticket-widget')
+            .addClass('mui--is-disabled')
+            .prop('disabled', true);
         } else {
           price = `${currency}${minPrice}`;
           if (prices.length > 1) {
@@ -109,7 +118,8 @@ const Ticketing = {
   },
 
   initTicketModal() {
-    if (window.location.hash.indexOf('#tickets') > -1) {
+    this.urlHash = '#tickets';
+    if (window.location.hash.indexOf(this.urlHash) > -1) {
       this.openTicketModal();
     }
 
@@ -124,11 +134,7 @@ const Ticketing = {
     });
 
     $(window).on('popstate', () => {
-      if (window.history.state.openModal) {
-        this.hideTicketModal();
-      } else if (window.history.state) {
-        this.openTicketModal();
-      }
+      this.hideTicketModal();
     });
   },
 
@@ -136,10 +142,9 @@ const Ticketing = {
     window.history.pushState(
       {
         openModal: true,
-        prevUrl: window.location.href,
       },
       '',
-      '#tickets'
+      this.urlHash
     );
     $('.header').addClass('header--lowzindex');
     $('.tickets-wrapper__modal').addClass('tickets-wrapper__modal--show');
@@ -147,48 +152,85 @@ const Ticketing = {
   },
 
   hideTicketModal() {
-    if (window.history.state.openModal) {
-      window.history.pushState('', '', window.history.state.prevUrl);
+    if ($('.tickets-wrapper__modal').hasClass('tickets-wrapper__modal--show')) {
       $('.header').removeClass('header--lowzindex');
       $('.tickets-wrapper__modal').removeClass('tickets-wrapper__modal--show');
       $('.tickets-wrapper__modal').hide();
+      if (window.history.state.openModal) {
+        window.history.back();
+      }
     }
   },
 };
 
 $(() => {
-  window.Hasgeek.ProjectHeaderInit = function init(
+  window.Hasgeek.projectHeaderInit = (
+    projectTitle,
     saveProjectConfig = '',
     tickets = ''
-  ) {
+  ) => {
     if (saveProjectConfig) {
       SaveProject(saveProjectConfig);
     }
 
-    $('.js-htmltruncate-expand').click(function (event) {
-      event.preventDefault();
-      $(this).addClass('mui--hide');
-      $(this).next('.js-htmltruncate-full').removeClass('mui--hide');
-    });
+    $('body').on(
+      'click',
+      '.js-htmltruncate-expand',
+      function expandTruncation(event) {
+        event.preventDefault();
+        $(this).addClass('mui--hide');
+        $(this).next('.js-htmltruncate-full').removeClass('mui--hide');
+      }
+    );
 
     // Adding the embed video player
     if ($('.js-embed-video').length > 0) {
-      $('.js-embed-video').each(function () {
-        let videoUrl = $(this).data('video-src');
+      $('.js-embed-video').each(function addEmbedVideoPlayer() {
+        const videoUrl = $(this).data('video-src');
         Video.embedIframe(this, videoUrl);
       });
     }
 
-    $('a.js-register-btn').click(function () {
-      $(this).modal();
+    $('a.js-register-btn').click(function showRegistrationModal() {
+      $(this).modal('show');
     });
 
     if (window.location.hash.includes('register-modal')) {
-      $('a.js-register-btn:visible').modal();
+      $('a.js-register-btn').modal('show');
     }
 
     if (tickets) {
       Ticketing.init(tickets);
     }
+
+    Form.openSubmissionToggle('#open-sub', '.js-cfp-status');
+
+    const hightlightNavItem = function (navElem) {
+      const navHightlightClass = 'sub-navbar__item--active';
+      $('.sub-navbar__item').removeClass(navHightlightClass);
+      $(`#${navElem}`).addClass(navHightlightClass);
+
+      if (window.Hasgeek.subpageTitle) {
+        $('body').addClass('subproject-page');
+        if (window.Hasgeek.subpageHasVideo) {
+          $('body').addClass('mobile-hide-livestream');
+        } else {
+          $('body').removeClass('mobile-hide-livestream');
+        }
+      } else {
+        $('body')
+          .removeClass('subproject-page')
+          .removeClass('mobile-hide-livestream');
+      }
+    };
+
+    const currentnavItem = $('.sub-navbar__item--active').attr('id');
+    Spa.init(projectTitle, currentnavItem, hightlightNavItem);
+
+    $('body').on('click', '.js-spa-navigate', function (event) {
+      event.preventDefault();
+      const url = $(this).attr('href');
+      Spa.fetchPage(url, $(this).attr('id'), true);
+    });
   };
 });

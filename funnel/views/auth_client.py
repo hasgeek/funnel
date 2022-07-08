@@ -1,14 +1,20 @@
-from flask import Markup, abort, flash, redirect, render_template, request, url_for
+"""Views to browse and manage client auth apps."""
+
+from __future__ import annotations
+
+from typing import List, Tuple
+
+from flask import Markup, abort, flash, render_template, request, url_for
 
 from baseframe import _
-from baseframe.forms import render_delete_sqla, render_form, render_redirect
+from baseframe.forms import render_delete_sqla, render_form
 from coaster.auth import current_auth
 from coaster.views import (
     ClassView,
     ModelView,
     UrlForView,
     render_with,
-    requires_permission,
+    requires_roles,
     route,
 )
 
@@ -29,6 +35,8 @@ from ..models import (
     User,
     db,
 )
+from ..typing import ReturnRenderWith, ReturnView
+from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo
 
 # --- Routes: client apps -----------------------------------------------------
@@ -36,7 +44,7 @@ from .login_session import requires_login, requires_sudo
 
 @app.route('/apps')
 @requires_login
-def client_list():
+def client_list() -> ReturnView:
     return render_template(
         'auth_client_index.html.jinja2',
         auth_clients=AuthClient.all_for(current_auth.user),
@@ -44,13 +52,13 @@ def client_list():
 
 
 @app.route('/apps/all')
-def client_list_all():
+def client_list_all() -> ReturnView:
     return render_template(
         'auth_client_index.html.jinja2', auth_clients=AuthClient.all_for(None)
     )
 
 
-def available_client_owners():
+def available_client_owners() -> List[Tuple[str, str]]:
     """Return a list of possible client owners for the current user."""
     choices = []
     choices.append((current_auth.user.buid, current_auth.user.pickername))
@@ -63,7 +71,7 @@ def available_client_owners():
 class AuthClientCreateView(ClassView):
     @route('', endpoint='authclient_new')
     @requires_login
-    def new(self):
+    def new(self) -> ReturnView:
         form = AuthClientForm(model=AuthClient)
         form.edit_user = current_auth.user
         form.client_owner.choices = available_client_owners()
@@ -78,7 +86,7 @@ class AuthClientCreateView(ClassView):
             auth_client.trusted = False
             db.session.add(auth_client)
             db.session.commit()
-            return render_redirect(auth_client.url_for(), code=303)
+            return render_redirect(auth_client.url_for())
 
         return render_form(
             form=form,
@@ -93,18 +101,19 @@ AuthClientCreateView.init_app(app)
 
 
 @AuthClient.views('main')
-@route('/apps/info/<app>')
+@route('/apps/info/<client>')
 class AuthClientView(UrlForView, ModelView):
     model = AuthClient
-    route_model_map = {'app': 'buid'}
+    route_model_map = {'client': 'buid'}
+    obj: AuthClient
 
-    def loader(self, app):
-        return self.model.query.filter(AuthClient.buid == app).one_or_404()
+    def loader(self, client) -> AuthClient:
+        return AuthClient.query.filter(AuthClient.buid == client).one_or_404()
 
     @route('', methods=['GET'])
     @render_with('auth_client.html.jinja2')
-    @requires_permission('view')
-    def view(self):
+    @requires_roles({'all'})
+    def view(self) -> ReturnRenderWith:
         if self.obj.user:
             permassignments = AuthClientUserPermissions.all_forclient(self.obj).all()
         else:
@@ -113,8 +122,8 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('edit')
-    def edit(self):
+    @requires_roles({'owner'})
+    def edit(self) -> ReturnView:
         form = AuthClientForm(obj=self.obj, model=AuthClient)
         form.edit_user = current_auth.user
         form.client_owner.choices = available_client_owners()
@@ -144,7 +153,7 @@ class AuthClientView(UrlForView, ModelView):
             self.obj.user = form.user
             self.obj.organization = form.organization
             db.session.commit()
-            return render_redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
 
         return render_form(
             form=form,
@@ -156,8 +165,8 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_permission('delete')
-    def delete(self):
+    @requires_roles({'owner'})
+    def delete(self) -> ReturnView:
         return render_delete_sqla(
             self.obj,
             db,
@@ -165,7 +174,7 @@ class AuthClientView(UrlForView, ModelView):
             message=_(
                 "Delete application ‘{title}’? This will also delete all associated"
                 " content including access tokens issued on behalf of users. This"
-                " operation is permanent and cannot be undone."
+                " operation is permanent and cannot be undone"
             ).format(title=self.obj.title),
             success=_(
                 "You have deleted application ‘{title}’ and all its associated"
@@ -176,10 +185,10 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('disconnect', methods=['GET', 'POST'])
     @requires_sudo
-    def disconnect(self):
+    def disconnect(self) -> ReturnView:
         auth_token = self.obj.authtoken_for(current_auth.user)
-        if not auth_token:
-            return redirect(self.obj.url_for())
+        if auth_token is None:
+            return render_redirect(self.obj.url_for())
 
         return render_delete_sqla(
             auth_token,
@@ -188,7 +197,7 @@ class AuthClientView(UrlForView, ModelView):
             message=_(
                 "Disconnect application {app}? This will not remove any of your data in"
                 " this app, but will prevent it from accessing any further data from"
-                " your Hasgeek account."
+                " your Hasgeek account"
             ).format(app=self.obj.title),
             delete_text=_("Disconnect"),
             success=_("You have disconnected {app} from your account").format(
@@ -199,8 +208,8 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('cred', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('edit')
-    def cred_new(self):
+    @requires_roles({'owner'})
+    def cred_new(self) -> ReturnView:
         form = AuthClientCredentialForm()
         if request.method == 'GET' and not self.obj.credentials:
             form.title.data = _("Default")
@@ -224,8 +233,8 @@ class AuthClientView(UrlForView, ModelView):
 
     @route('perms/new', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('assign-permissions')
-    def permission_user_new(self):
+    @requires_roles({'owner'})
+    def permission_user_new(self) -> ReturnView:
         if self.obj.user:
             form = UserPermissionAssignForm()
         elif self.obj.organization:
@@ -242,7 +251,7 @@ class AuthClientView(UrlForView, ModelView):
                 permassign = AuthClientUserPermissions.get(
                     auth_client=self.obj, user=form.user.data
                 )
-                if permassign:
+                if permassign is not None:
                     perms.update(permassign.access_permissions.split())
                 else:
                     permassign = AuthClientUserPermissions(
@@ -253,7 +262,7 @@ class AuthClientView(UrlForView, ModelView):
                 permassign = AuthClientTeamPermissions.get(
                     auth_client=self.obj, team=form.team
                 )
-                if permassign:
+                if permassign is not None:
                     perms.update(permassign.access_permissions.split())
                 else:
                     permassign = AuthClientTeamPermissions(
@@ -277,14 +286,14 @@ class AuthClientView(UrlForView, ModelView):
                     ),
                     'success',
                 )
-            return render_redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
         return render_form(
             form=form,
             title=_("Assign permissions"),
             message=Markup(
                 _(
                     'Add and edit teams from <a href="{url}">your organization’s teams'
-                    ' page</a>.'
+                    ' page</a>'
                 ).format(url=self.obj.organization.url_for('teams'))
             )
             if self.obj.organization
@@ -300,23 +309,23 @@ AuthClientView.init_app(app)
 
 
 @AuthClientCredential.views('main')
-@route('/apps/info/<app>/cred/<name>')
+@route('/apps/info/<client>/cred/<name>')
 class AuthClientCredentialView(UrlForView, ModelView):
     model = AuthClientCredential
-    route_model_map = {'app': 'auth_client.buid', 'name': 'name'}
+    route_model_map = {'client': 'auth_client.buid', 'name': 'name'}
+    obj: AuthClientCredential
 
-    def loader(self, app, name):
-        cred = (
-            self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == app, AuthClientCredential.name == name)
+    def loader(self, client, name) -> AuthClientCredential:
+        return (
+            AuthClientCredential.query.join(AuthClient)
+            .filter(AuthClient.buid == client, AuthClientCredential.name == name)
             .first_or_404()
         )
-        return cred
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_permission('delete')
-    def delete(self):
+    @requires_roles({'owner'})
+    def delete(self) -> ReturnView:
         return render_delete_sqla(
             self.obj,
             db,
@@ -336,28 +345,29 @@ AuthClientCredentialView.init_app(app)
 
 
 @AuthClientUserPermissions.views('main')
-@route('/apps/info/<app>/perms/u/<user>')
+@route('/apps/info/<client>/perms/u/<user>')
 class AuthClientUserPermissionsView(UrlForView, ModelView):
     model = AuthClientUserPermissions
-    route_model_map = {'app': 'auth_client.buid', 'user': 'user.buid'}
+    route_model_map = {'client': 'auth_client.buid', 'user': 'user.buid'}
+    obj: AuthClientUserPermissions
 
-    def loader(self, app, user):
-        user = User.get(buid=user)
-        perm = (
-            self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == app, self.model.user == user)
+    def loader(self, client: str, user: str) -> AuthClientUserPermissions:
+        return (
+            AuthClientUserPermissions.query.join(
+                AuthClient, AuthClientUserPermissions.auth_client_id == AuthClient.id
+            )
+            .join(User, AuthClientUserPermissions.user_id == User.id)
+            .filter(AuthClient.buid == client, User.buid == user)
             .one_or_404()
         )
-        return perm
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('assign-permissions')
-    def edit(self):
+    @requires_roles({'owner'})
+    def edit(self) -> ReturnView:
         form = AuthClientPermissionEditForm()
-        if request.method == 'GET':
-            if self.obj:
-                form.perms.data = self.obj.access_permissions
+        if request.method == 'GET' and self.obj:
+            form.perms.data = self.obj.access_permissions
         if form.validate_on_submit():
             perms = ' '.join(sorted(form.perms.data.split()))
             if not perms:
@@ -379,7 +389,7 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
                     ),
                     'success',
                 )
-            return render_redirect(self.obj.auth_client.url_for(), code=303)
+            return render_redirect(self.obj.auth_client.url_for())
         return render_form(
             form=form,
             title=_("Edit permissions"),
@@ -390,8 +400,8 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_permission('assign-permissions')
-    def delete(self):
+    @requires_roles({'owner'})
+    def delete(self) -> ReturnView:
         return render_delete_sqla(
             self.obj,
             db,
@@ -410,28 +420,29 @@ AuthClientUserPermissionsView.init_app(app)
 
 
 @AuthClientTeamPermissions.views('main')
-@route('/apps/info/<app>/perms/t/<team>')
+@route('/apps/info/<client>/perms/t/<team>')
 class AuthClientTeamPermissionsView(UrlForView, ModelView):
     model = AuthClientTeamPermissions
-    route_model_map = {'app': 'auth_client.buid', 'team': 'team.buid'}
+    route_model_map = {'client': 'auth_client.buid', 'team': 'team.buid'}
+    obj: AuthClientTeamPermissions
 
-    def loader(self, app, team):
-        team = Team.get(buid=team)
-        perm = (
-            self.model.query.join(AuthClient)
-            .filter(AuthClient.buid == app, self.model.team == team)
+    def loader(self, client: str, team: str) -> AuthClientTeamPermissions:
+        return (
+            AuthClientTeamPermissions.query.join(
+                AuthClient, AuthClientTeamPermissions.auth_client_id == AuthClient.id
+            )
+            .join(Team, AuthClientTeamPermissions.team_id == Team.id)
+            .filter(AuthClient.buid == client, Team.buid == team)
             .one_or_404()
         )
-        return perm
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_permission('assign-permissions')
-    def edit(self):
+    @requires_roles({'owner'})
+    def edit(self) -> ReturnView:
         form = AuthClientPermissionEditForm()
-        if request.method == 'GET':
-            if self.obj:
-                form.perms.data = self.obj.access_permissions
+        if request.method == 'GET' and self.obj:
+            form.perms.data = self.obj.access_permissions
         if form.validate_on_submit():
             perms = ' '.join(sorted(form.perms.data.split()))
             if not perms:
@@ -453,7 +464,7 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
                     ),
                     'success',
                 )
-            return render_redirect(self.obj.auth_client.url_for(), code=303)
+            return render_redirect(self.obj.auth_client.url_for())
         return render_form(
             form=form,
             title=_("Edit permissions"),
@@ -464,8 +475,8 @@ class AuthClientTeamPermissionsView(UrlForView, ModelView):
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_permission('assign-permissions')
-    def delete(self):
+    @requires_roles({'owner'})
+    def delete(self) -> ReturnView:
         return render_delete_sqla(
             self.obj,
             db,

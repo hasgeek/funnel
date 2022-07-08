@@ -1,59 +1,83 @@
 /* global jstz, Pace */
 
-import { Utils, ScrollActiveMenu, LazyloadImg } from './util';
+import Utils from './utils/helper';
+import ScrollHelper from './utils/scrollhelper';
+import loadLangTranslations from './utils/translations';
+import addVegaSupport from './utils/vegaembed';
+import LazyloadImg from './utils/lazyloadimage';
+import Form from './utils/formhelper';
+import Analytics from './utils/analytics';
 
 $(() => {
-  window.Hasgeek.config.availableLanguages = {
+  window.Hasgeek.Config.availableLanguages = {
     en: 'en_IN',
     hi: 'hi_IN',
   };
-  window.Hasgeek.config.mobileBreakpoint = 768; // this breakpoint switches to desktop UI
-  window.Hasgeek.config.ajaxTimeout = 30000;
-  window.Hasgeek.config.retryInterval = 10000;
-  window.Hasgeek.config.closeModalTimeout = 10000;
-  window.Hasgeek.config.refreshInterval = 60000;
-  window.Hasgeek.config.notificationRefreshInterval = 300000;
-  window.Hasgeek.config.readReceiptTimeout = 5000;
-  window.Hasgeek.config.saveEditorContentTimeout = 300;
-  window.Hasgeek.config.userAvatarImgSize = {
+  window.Hasgeek.Config.mobileBreakpoint = 768; // this breakpoint switches to desktop UI
+  window.Hasgeek.Config.ajaxTimeout = 30000;
+  window.Hasgeek.Config.retryInterval = 10000;
+  window.Hasgeek.Config.closeModalTimeout = 10000;
+  window.Hasgeek.Config.refreshInterval = 60000;
+  window.Hasgeek.Config.notificationRefreshInterval = 300000;
+  window.Hasgeek.Config.readReceiptTimeout = 5000;
+  window.Hasgeek.Config.saveEditorContentTimeout = 300;
+  window.Hasgeek.Config.userAvatarImgSize = {
     big: '160',
     medium: '80',
     small: '48',
   };
-
-  Utils.loadLangTranslations();
+  loadLangTranslations();
+  window.Hasgeek.Config.errorMsg = {
+    serverError: window.gettext(
+      'An internal server error occurred. Our support team has been notified and will investigate'
+    ),
+    networkError: window.gettext(
+      'Unable to connect. Check connection and refresh the page'
+    ),
+    rateLimitError: window.gettext(
+      'This is unusually high activity. Try again later'
+    ),
+    error: window.gettext('An error occured when submitting the form'),
+  };
 
   Utils.collapse();
-  Utils.smoothScroll();
+  ScrollHelper.smoothScroll();
   Utils.navSearchForm();
-  Utils.scrollTabs();
+  Utils.headerMenuDropdown(
+    '.js-menu-btn',
+    '.js-account-menu-wrapper',
+    '.js-account-menu',
+    window.Hasgeek.Config.accountMenu
+  );
+  ScrollHelper.scrollTabs();
   Utils.truncate();
   Utils.showTimeOnCalendar();
   Utils.popupBackHandler();
-  Utils.handleModalForm();
+  Form.handleModalForm();
   if ($('.header__nav-links--updates').length) {
     Utils.updateNotificationStatus();
     window.setInterval(
       Utils.updateNotificationStatus,
-      window.Hasgeek.config.notificationRefreshInterval
+      window.Hasgeek.Config.notificationRefreshInterval
     );
   }
   Utils.addWebShare();
-  Utils.activateToggleSwitch();
+  if (window.Hasgeek.Config.commentSidebarElem) {
+    Utils.headerMenuDropdown(
+      '.js-comments-btn',
+      '.js-comments-wrapper',
+      '.js-comment-sidebar',
+      window.Hasgeek.Config.unreadCommentUrl
+    );
+  }
+  addVegaSupport();
 
-  const intersectionObserverComponents = function () {
-    if (document.querySelector('#page-navbar')) {
-      ScrollActiveMenu.init(
-        'page-navbar',
-        'sub-navbar__item',
-        'sub-navbar__item--active'
-      );
-    }
-    LazyloadImg.init('js-lazyload-img');
-  };
+  const intersectionObserverComponents =
+    function intersectionObserverComponents() {
+      LazyloadImg.init('js-lazyload-img');
+    };
 
   if (
-    document.querySelector('#page-navbar') ||
     document.querySelector('.js-lazyload-img') ||
     document.querySelector('.js-lazyload-results')
   ) {
@@ -70,7 +94,7 @@ $(() => {
         'src',
         'https://cdn.polyfill.io/v2/polyfill.min.js?features=IntersectionObserver'
       );
-      polyfill.onload = function () {
+      polyfill.onload = function loadintersectionObserverComponents() {
         intersectionObserverComponents();
       };
       document.head.appendChild(polyfill);
@@ -94,31 +118,17 @@ $(() => {
     const action =
       $(this).attr('data-ga') || $(this).attr('title') || $(this).html();
     const target = $(this).attr('data-target') || $(this).attr('href') || '';
-    Utils.sendToGA('click', action, target);
+    Analytics.sendToGA('click', action, target);
   });
   $('.search-form__submit').click(function gaHandler() {
     const target = $('.js-search-field').val();
-    Utils.sendToGA('search', target, target);
+    Analytics.sendToGA('search', target, target);
   });
 
   // Detect timezone for login
   if ($.cookie('timezone') === null) {
     $.cookie('timezone', jstz.determine().name(), { path: '/' });
   }
-
-  $.ajax({
-    type: 'GET',
-    url: window.Hasgeek.config.notificationCount,
-    dataType: 'json',
-    timeout: window.Hasgeek.config.ajaxTimeout,
-    success: function (responseData) {
-      if (responseData.unread) {
-        $('.header__nav-links--updates').addClass(
-          'header__nav-links--updates--unread'
-        );
-      }
-    },
-  });
 });
 
 if (
@@ -129,7 +139,7 @@ if (
   )
 ) {
   $('.pace').addClass('pace-hide');
-  window.onbeforeunload = function () {
+  window.onbeforeunload = function stopPace() {
     Pace.stop();
   };
 }

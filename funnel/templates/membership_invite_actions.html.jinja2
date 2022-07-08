@@ -9,7 +9,7 @@
   <div class="page-content page-content--mob-nav">
     <div class="grid" id="membership">
       <div class="grid__col-xs-12">
-        <p>{% trans project=membership.project.title %}You have been invited to {{ project }}.{% endtrans %}</p>
+        <p>{% trans project=membership.project.title %}You have been invited to {{ project }}{% endtrans %}</p>
         <form method='POST' action="{{ membership.url_for('invite_action') }}">
           {{ form.hidden_tag() }}
           <button type="submit" name="action" value="accept">Accept</button>

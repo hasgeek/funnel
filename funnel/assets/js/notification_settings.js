@@ -1,19 +1,19 @@
-import { Utils } from './util';
+import Form from './utils/formhelper';
 
 $(() => {
-  window.Hasgeek.NotificationSettings = function (config) {
-    $('.js-toggle-switch').on('change', function () {
-      let checkbox = $(this);
-      let transport = $(this).attr('id');
-      let currentState = this.checked;
-      let previousState = !currentState;
+  window.Hasgeek.notificationSettings = (config) => {
+    $('.js-toggle-switch').on('change', function toggleNotifications() {
+      const checkbox = $(this);
+      const transport = $(this).attr('id');
+      const currentState = this.checked;
+      const previousState = !currentState;
       $.ajax({
         type: 'POST',
         url: config.url,
         data: $(this).parents('.js-autosubmit-form').serializeArray(),
         dataType: 'json',
-        timeout: window.Hasgeek.config.ajaxTimeout,
-        success: function () {
+        timeout: window.Hasgeek.Config.ajaxTimeout,
+        success() {
           if (currentState && transport) {
             $(`input[data-transport="preference-${transport}"]`).attr(
               'disabled',
@@ -32,8 +32,8 @@ $(() => {
             );
           }
         },
-        error: function (response) {
-          Utils.handleAjaxError(response);
+        error(response) {
+          Form.handleAjaxError(response);
           $(checkbox).prop('checked', previousState);
         },
       });

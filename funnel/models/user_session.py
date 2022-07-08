@@ -1,3 +1,7 @@
+"""Model for a user's auth (login) session."""
+
+from __future__ import annotations
+
 from datetime import timedelta
 
 from coaster.utils import utcnow
@@ -9,27 +13,32 @@ from .user import User
 
 __all__ = [
     'UserSession',
-    'UserSessionInvalid',
-    'UserSessionExpired',
-    'UserSessionRevoked',
+    'UserSessionError',
+    'UserSessionExpiredError',
+    'UserSessionRevokedError',
+    'UserSessionInactiveUserError',
     'auth_client_user_session',
-    'user_session_validity_period',
+    'USER_SESSION_VALIDITY_PERIOD',
 ]
 
 
-class UserSessionInvalid(Exception):
-    pass
+class UserSessionError(Exception):
+    """Base exception for user session errors."""
 
 
-class UserSessionExpired(UserSessionInvalid):
-    pass
+class UserSessionExpiredError(UserSessionError):
+    """This user session has expired and cannot be marked as currently active."""
 
 
-class UserSessionRevoked(UserSessionInvalid):
-    pass
+class UserSessionRevokedError(UserSessionError):
+    """This user session has been revoked and cannot be marked as currently active."""
 
 
-user_session_validity_period = timedelta(days=365)
+class UserSessionInactiveUserError(UserSessionError):
+    """This user is not in ACTIVE state and cannot have a currently active session."""
+
+
+USER_SESSION_VALIDITY_PERIOD = timedelta(days=365)
 
 #: When a user logs into an client app, the user's session is logged against
 #: the client app in this table
@@ -73,7 +82,17 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
         User, backref=db.backref('all_user_sessions', cascade='all', lazy='dynamic')
     )
 
+    #: User's last known IP address
     ipaddr = db.Column(db.String(45), nullable=False)
+    #: City geonameid from IP address
+    geonameid_city = db.Column(db.Integer, nullable=True)
+    #: State/subdivision geonameid from IP address
+    geonameid_subdivision = db.Column(db.Integer, nullable=True)
+    #: Country geonameid from IP address
+    geonameid_country = db.Column(db.Integer, nullable=True)
+    #: User's network, from IP address
+    geoip_asn = db.Column(db.Integer, nullable=True)
+    #: User agent
     user_agent = db.Column(db.UnicodeText, nullable=False)
     #: The login service that was used to make this session
     login_service = db.Column(db.Unicode, nullable=True)
@@ -84,7 +103,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
         db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`UserSession` as a string."""
         return f'<UserSession {self.buid}>'
 
@@ -109,23 +128,37 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
 
     @classmethod
     def authenticate(cls, buid, silent=False):
+        """
+        Retrieve a user session that is supposed to be active.
+
+        If a session is invalid, exceptions will be raised to indicate the problem,
+        unless silent mode is enabled.
+        """
         if silent:
-            return cls.query.filter(
-                # Session key must match.
-                cls.buid == buid,
-                # Sessions are valid for one year...
-                cls.accessed_at > db.func.utcnow() - user_session_validity_period,
-                # ...unless explicitly revoked (or user logged out)
-                cls.revoked_at.is_(None),
-            ).one_or_none()
+            return (
+                cls.query.join(User)
+                .filter(
+                    # Session key must match.
+                    cls.buid == buid,
+                    # Sessions are valid for one year...
+                    cls.accessed_at > db.func.utcnow() - USER_SESSION_VALIDITY_PERIOD,
+                    # ...unless explicitly revoked (or user logged out).
+                    cls.revoked_at.is_(None),
+                    # User account must be active
+                    User.state.ACTIVE,
+                )
+                .one_or_none()
+            )
 
         # Not silent? Raise exceptions on expired and revoked sessions
-        user_session = cls.query.filter(cls.buid == buid).one_or_none()
-        if user_session:
-            if user_session.accessed_at <= utcnow() - user_session_validity_period:
-                raise UserSessionExpired(user_session)
+        user_session = cls.query.join(User).filter(cls.buid == buid).one_or_none()
+        if user_session is not None:
+            if user_session.accessed_at <= utcnow() - USER_SESSION_VALIDITY_PERIOD:
+                raise UserSessionExpiredError(user_session)
             if user_session.revoked_at is not None:
-                raise UserSessionRevoked(user_session)
+                raise UserSessionRevokedError(user_session)
+            if not user_session.user.state.ACTIVE:
+                raise UserSessionInactiveUserError(user_session)
         return user_session
 
 
@@ -136,8 +169,9 @@ class __User:
         lazy='dynamic',
         primaryjoin=db.and_(
             UserSession.user_id == User.id,
-            UserSession.accessed_at > db.func.utcnow() - user_session_validity_period,
+            UserSession.accessed_at > db.func.utcnow() - USER_SESSION_VALIDITY_PERIOD,
             UserSession.revoked_at.is_(None),
         ),
         order_by=UserSession.accessed_at.desc(),
+        viewonly=True,
     )

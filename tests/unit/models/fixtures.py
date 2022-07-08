@@ -1,3 +1,6 @@
+"""Fixtures for legacy tests."""
+# pylint: disable=attribute-defined-outside-init
+
 from funnel.models import (
     AuthClient,
     AuthClientTeamPermissions,
@@ -11,8 +14,8 @@ from funnel.models import (
 )
 
 
-class Fixtures(object):
-    def make_fixtures(self, db_session):
+class Fixtures:
+    def make_fixtures(self, db_session):  # pylint: disable=too-many-locals
         """
         Create fixtures.
 
@@ -53,7 +56,6 @@ class Fixtures(object):
             title="Batdog Adventures",
             organization=batdog,
             confidential=True,
-            namespace='fun.batdogadventures.com',
             website="http://batdogadventures.com",
         )
         db_session.add(auth_client)

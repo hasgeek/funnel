@@ -1,8 +1,8 @@
-import { SaveProject } from './util';
 import Vue from 'vue/dist/vue.min';
+import SaveProject from './utils/bookmark';
 
 $(() => {
-  window.Hasgeek.HomeInit = function (config) {
+  window.Hasgeek.homeInit = function homeInit(config) {
     // Expand CFP section
     $('.jquery-show-all').click(function showAll(event) {
       event.preventDefault();
@@ -11,8 +11,8 @@ $(() => {
       $(this).addClass('mui--hide');
     });
 
-    $('.js-save-form').each(function () {
-      let projectSaveConfig = {
+    $('.js-save-form').each(function saveProjectButton() {
+      const projectSaveConfig = {
         formId: $(this).attr('id'),
         postUrl: $(this).attr('action'),
       };
@@ -40,10 +40,10 @@ $(() => {
               data: {
                 page: pastProjectsApp.next_page,
               },
-              timeout: window.Hasgeek.config.ajaxTimeout,
+              timeout: window.Hasgeek.Config.ajaxTimeout,
               dataType: 'json',
               success(data) {
-                pastProjectsApp.title = data.title;
+                if (config.show_heading) pastProjectsApp.title = data.title;
                 pastProjectsApp.headings = data.headings;
                 pastProjectsApp.pastprojects.push(...data.past_projects);
                 pastProjectsApp.next_page = data.next_page;

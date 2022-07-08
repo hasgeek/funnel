@@ -1,3 +1,7 @@
+"""External API support for Explara."""
+
+from __future__ import annotations
+
 import requests
 
 from ..utils import extract_twitter_handle
@@ -9,7 +13,7 @@ def strip_or_empty(val):
     return val.strip() if val else ''
 
 
-class ExplaraAPI(object):
+class ExplaraAPI:
     """
     Interface that enables data retrieval from Explara.
 
@@ -29,8 +33,8 @@ class ExplaraAPI(object):
         Get the entire dump of orders for a given eventid in batches.
 
         Batches are of size 50, owing to the restriction imposed by Explara's API.
-        Explara does not make any assurances w.r.t the order; hence no order is assumed and
-        the entire dump is retrieved.
+        Explara does not make any assurances w.r.t the order; hence no order is assumed
+        and the entire dump is retrieved.
         """
         ticket_orders = []
         completed = False

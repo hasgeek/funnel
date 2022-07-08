@@ -1,6 +1,8 @@
 import Vue from 'vue/dist/vue.min';
-import { Utils } from './util';
-import { userAvatarUI, faSvg, shareDropdown } from './vue_util';
+import ScrollHelper from './utils/scrollhelper';
+import Form from './utils/formhelper';
+import getTimeago from './utils/getTimeago';
+import { userAvatarUI, faSvg, shareDropdown } from './utils/vue_util';
 
 const Comments = {
   init({
@@ -22,7 +24,7 @@ const Comments = {
     };
 
     Vue.mixin({
-      created: function () {
+      created() {
         this.COMMENTACTIONS = COMMENTACTIONS;
       },
     });
@@ -33,7 +35,7 @@ const Comments = {
       data() {
         return {
           errorMsg: '',
-          svgIconUrl: window.Hasgeek.config.svgIconUrl,
+          svgIconUrl: window.Hasgeek.Config.svgIconUrl,
           reply: '',
           textarea: '',
           formAction: [
@@ -53,7 +55,7 @@ const Comments = {
         };
       },
       methods: {
-        getInitials: window.Baseframe.Utils.getInitials,
+        getInitials: window.Hasgeek.Utils.getInitials,
         collapse(action) {
           this.hide = action;
         },
@@ -106,7 +108,7 @@ const Comments = {
           return this.now && this.comment.created_at
             ? this.timeago.format(
                 this.comment.created_at,
-                window.Hasgeek.config.locale
+                window.Hasgeek.Config.locale
               )
             : '';
         },
@@ -114,13 +116,13 @@ const Comments = {
           return this.now && this.comment.edited_at
             ? this.timeago.format(
                 this.comment.edited_at,
-                window.Hasgeek.config.locale
+                window.Hasgeek.Config.locale
               )
             : '';
         },
       },
       created() {
-        this.timeago = Utils.getTimeago();
+        this.timeago = getTimeago();
       },
       mounted() {
         window.setInterval(() => {
@@ -158,7 +160,7 @@ const Comments = {
           lastSeenUrl,
           refreshTimer: '',
           headerHeight: '',
-          svgIconUrl: window.Hasgeek.config.svgIconUrl,
+          svgIconUrl: window.Hasgeek.Config.svgIconUrl,
           initialLoad: true,
           showmodal: false,
           formTitle: 'New comment',
@@ -176,21 +178,21 @@ const Comments = {
         activateForm(action, textareaId, parentApp = app) {
           if (textareaId) {
             this.$nextTick(() => {
-              let editor = window.CodeMirror.fromTextArea(
+              const editor = window.CodeMirror.fromTextArea(
                 document.getElementById(textareaId),
-                window.Baseframe.Config.cm_markdown_config
+                window.Hasgeek.Config.cm_markdown_config
               );
               let delay;
-              editor.on('change', function () {
+              editor.on('change', () => {
                 clearTimeout(delay);
-                delay = setTimeout(function () {
+                delay = setTimeout(() => {
                   editor.save();
                   if (action === parentApp.COMMENTACTIONS.REPLY) {
                     parentApp.reply = editor.getValue();
                   } else {
                     parentApp.textarea = editor.getValue();
                   }
-                }, window.Hasgeek.config.saveEditorContentTimeout);
+                }, window.Hasgeek.Config.saveEditorContentTimeout);
               });
               editor.focus();
             });
@@ -207,7 +209,7 @@ const Comments = {
           }
         },
         submitCommentForm(formId, postUrl, action, parentApp = app) {
-          let commentContent = $(`#${formId}`)
+          const commentContent = $(`#${formId}`)
             .find('textarea[name="message"]')
             .val();
           $.ajax({
@@ -237,7 +239,7 @@ const Comments = {
               app.refreshCommentsTimer();
             },
             error(response) {
-              parentApp.errorMsg = Utils.formErrorHandler(formId, response);
+              parentApp.errorMsg = Form.formErrorHandler(formId, response);
             },
           });
         },
@@ -248,7 +250,7 @@ const Comments = {
           $.ajax({
             url: commentsUrl,
             type: 'GET',
-            timeout: window.Hasgeek.config.ajaxTimeout,
+            timeout: window.Hasgeek.Config.ajaxTimeout,
             dataType: 'json',
             success(data) {
               app.updateCommentsList(data.comments);
@@ -261,15 +263,15 @@ const Comments = {
         refreshCommentsTimer() {
           this.refreshTimer = window.setInterval(
             this.fetchCommentsList,
-            window.Hasgeek.config.refreshInterval
+            window.Hasgeek.Config.refreshInterval
           );
         },
-        getInitials: window.Baseframe.Utils.getInitials,
+        getInitials: window.Hasgeek.Utils.getInitials,
       },
       mounted() {
         this.fetchCommentsList();
         this.refreshCommentsTimer();
-        this.headerHeight = Utils.getPageHeaderHeight();
+        this.headerHeight = ScrollHelper.getPageHeaderHeight();
 
         $('body').on('click', (e) => {
           if (
@@ -288,13 +290,13 @@ const Comments = {
         });
 
         $(window).resize(() => {
-          this.headerHeight = Utils.getPageHeaderHeight();
+          this.headerHeight = ScrollHelper.getPageHeaderHeight();
         });
 
         const commentSection = document.querySelector(divElem);
         if (commentSection && lastSeenUrl) {
           const observer = new IntersectionObserver(
-            function (entries) {
+            (entries) => {
               entries.forEach((entry) => {
                 if (entry.isIntersecting) {
                   $.ajax({
@@ -319,14 +321,14 @@ const Comments = {
       },
       updated() {
         if (this.initialLoad && window.location.hash) {
-          Utils.animateScrollTo(
+          ScrollHelper.animateScrollTo(
             $(window.location.hash).offset().top - this.headerHeight
           );
           this.initialLoad = false;
         }
         if (this.scrollTo) {
-          if ($(window).width() < window.Hasgeek.config.mobileBreakpoint) {
-            Utils.animateScrollTo(
+          if ($(window).width() < window.Hasgeek.Config.mobileBreakpoint) {
+            ScrollHelper.animateScrollTo(
               $(this.scrollTo).offset().top - this.headerHeight
             );
           }
@@ -338,7 +340,13 @@ const Comments = {
 };
 
 $(() => {
-  window.Hasgeek.Comments = function (config) {
-    Comments.init(config);
+  window.Hasgeek.Comments = function initComments(config) {
+    $.ajax({
+      url: config.codemirrorUrl,
+      dataType: 'script',
+      cache: true,
+    }).done(() => {
+      Comments.init(config);
+    });
   };
 });

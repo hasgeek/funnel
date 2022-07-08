@@ -1,6 +1,6 @@
-from sqlalchemy.exc import IntegrityError
+"""Tests for SiteMembership model."""
 
-from werkzeug.utils import invalidate_cached_property  # type: ignore[attr-defined]
+from sqlalchemy.exc import IntegrityError
 
 import pytest
 
@@ -15,10 +15,14 @@ def invalidate_cache(user):
         'is_user_moderator',
         'is_site_editor',
     ):
-        invalidate_cached_property(user, attr)
+        try:
+            delattr(user, attr)
+        except KeyError:
+            # Not cached, ignore
+            pass
 
 
-def test_siteadmin_roles(db_session, user_mort):
+def test_siteadmin_roles(db_session, user_mort, user_death) -> None:
     """`SiteMembership` grants siteadmin roles."""
     assert user_mort.active_site_membership is None
     assert user_mort.is_site_admin is False
@@ -29,6 +33,7 @@ def test_siteadmin_roles(db_session, user_mort):
     # Create membership granting all siteadmin roles
     membership = SiteMembership(
         user=user_mort,
+        granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=True,
         is_site_editor=True,
@@ -66,8 +71,8 @@ def test_siteadmin_roles(db_session, user_mort):
     assert user_mort.is_site_editor is False
 
     # At least one role is required, so this will fail
+    membership.replace(actor=user_mort, is_comment_moderator=False)
     with pytest.raises(IntegrityError):
-        membership.replace(actor=user_mort, is_comment_moderator=False)
         db_session.commit()
     db_session.rollback()
     # The membership record must be revoked to remove all roles
@@ -82,7 +87,9 @@ def test_siteadmin_roles(db_session, user_mort):
     assert user_mort.is_site_editor is False
 
 
-def test_site_membership_migrate_user_transfer(db_session, user_death, user_mort):
+def test_site_membership_migrate_user_transfer(
+    db_session, user_death, user_mort
+) -> None:
     """Test for transfer of a site membership when merging users."""
     assert user_mort.active_site_membership is None
     assert user_death.active_site_membership is None
@@ -90,6 +97,7 @@ def test_site_membership_migrate_user_transfer(db_session, user_death, user_mort
     # Create membership granting all siteadmin roles to Mort
     membership = SiteMembership(
         user=user_mort,
+        granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=True,
         is_site_editor=True,
@@ -115,7 +123,7 @@ def test_site_membership_migrate_user_transfer(db_session, user_death, user_mort
     assert user_death.active_site_membership is not None
 
 
-def test_site_membership_migrate_user_retain(db_session, user_death, user_mort):
+def test_site_membership_migrate_user_retain(db_session, user_death, user_mort) -> None:
     """Test for retaining a site membership when merging users."""
     assert user_mort.active_site_membership is None
     assert user_death.active_site_membership is None
@@ -123,6 +131,7 @@ def test_site_membership_migrate_user_retain(db_session, user_death, user_mort):
     # Create membership granting all siteadmin roles to Mort and then revoke it
     old_membership = SiteMembership(
         user=user_mort,
+        granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=True,
         is_site_editor=True,
@@ -135,6 +144,7 @@ def test_site_membership_migrate_user_retain(db_session, user_death, user_mort):
     # Create membership granting all siteadmin roles to Death
     membership = SiteMembership(
         user=user_death,
+        granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=True,
         is_site_editor=True,
@@ -166,7 +176,7 @@ def test_site_membership_migrate_user_retain(db_session, user_death, user_mort):
     assert user_death.active_site_membership is not None
 
 
-def test_site_membership_migrate_user_merge(db_session, user_death, user_mort):
+def test_site_membership_migrate_user_merge(db_session, user_death, user_mort) -> None:
     """Test for merging site memberships when merging users."""
     assert user_mort.active_site_membership is None
     assert user_death.active_site_membership is None
@@ -174,6 +184,7 @@ def test_site_membership_migrate_user_merge(db_session, user_death, user_mort):
     # Create membership granting one siteadmin role to Mort
     mort_membership = SiteMembership(
         user=user_mort,
+        granted_by=user_death,
         is_comment_moderator=True,
         is_user_moderator=False,
         is_site_editor=False,
@@ -184,6 +195,7 @@ def test_site_membership_migrate_user_merge(db_session, user_death, user_mort):
     # Create membership granting one siteadmin role to Death
     death_membership = SiteMembership(
         user=user_death,
+        granted_by=user_death,
         is_comment_moderator=False,
         is_user_moderator=True,
         is_site_editor=False,
@@ -217,3 +229,38 @@ def test_site_membership_migrate_user_merge(db_session, user_death, user_mort):
     assert membership.is_comment_moderator is True
     assert membership.is_user_moderator is True
     assert membership.is_site_editor is False  # This was not granted to either user
+
+
+def test_amend_siteadmin(db_session, user_vetinari, user_vimes) -> None:
+    """Amend a membership record."""
+    membership = SiteMembership(
+        user=user_vimes,
+        granted_by=user_vetinari,
+        is_comment_moderator=True,
+        is_user_moderator=False,
+        is_site_editor=False,
+    )
+    db_session.add(membership)
+    db_session.commit()
+
+    assert membership.revoked_at is None
+    assert membership.is_active is True
+    assert membership.is_comment_moderator is True
+    assert membership.is_user_moderator is False
+    assert membership.is_site_editor is False
+
+    with membership.amend_by(user_vetinari) as amendment:
+        assert amendment.membership is membership
+        assert amendment.is_comment_moderator is True
+        amendment.is_comment_moderator = False
+        amendment.is_user_moderator = True
+
+    assert amendment.membership is not membership
+    assert membership.revoked_at is not None
+    assert membership.is_active is False  # type: ignore[unreachable]
+
+    assert amendment.membership.revoked_at is None
+    assert amendment.membership.is_active is True
+    assert amendment.membership.is_comment_moderator is False
+    assert amendment.membership.is_user_moderator is True
+    assert amendment.membership.is_site_editor is False

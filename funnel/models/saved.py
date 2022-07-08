@@ -1,8 +1,10 @@
+"""Models for user bookmarks of projects and sessions."""
+
 from __future__ import annotations
 
-from typing import Iterable, Optional, Set
+from typing import Iterable, Optional
 
-from coaster.sqlalchemy import with_roles
+from coaster.sqlalchemy import LazyRoleSet, with_roles
 
 from ..typing import OptionalMigratedTables
 from . import NoIdMixin, db
@@ -41,21 +43,25 @@ class SavedProject(NoIdMixin, db.Model):
     #: User's plaintext note to self on why they saved this (optional)
     description = db.Column(db.UnicodeText, nullable=True)
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
-        roles = super(SavedProject, self).roles_for(actor, anchors)
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
+        roles = super().roles_for(actor, anchors)
         if actor is not None and actor == self.user:
             roles.add('owner')
         return roles
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         project_ids = {sp.project_id for sp in new_user.saved_projects}
         for sp in old_user.saved_projects:
             if sp.project_id not in project_ids:
                 sp.user = new_user
             else:
                 db.session.delete(sp)
-        return None
 
 
 class SavedSession(NoIdMixin, db.Model):
@@ -87,14 +93,19 @@ class SavedSession(NoIdMixin, db.Model):
     #: User's plaintext note to self on why they saved this (optional)
     description = db.Column(db.UnicodeText, nullable=True)
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
-        roles = super(SavedSession, self).roles_for(actor, anchors)
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
+        roles = super().roles_for(actor, anchors)
         if actor is not None and actor == self.user:
             roles.add('owner')
         return roles
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         project_ids = {ss.project_id for ss in new_user.saved_sessions}
         for ss in old_user.saved_sessions:
             if ss.project_id not in project_ids:
@@ -103,7 +114,6 @@ class SavedSession(NoIdMixin, db.Model):
                 # TODO: `if ss.description`, don't discard, but add it to existing's
                 # description
                 db.session.delete(ss)
-        return None
 
 
 @reopen(User)

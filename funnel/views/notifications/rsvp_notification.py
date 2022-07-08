@@ -1,5 +1,11 @@
+"""Project registration (RSVP) notifications."""
+
+from __future__ import annotations
+
+from typing import List, Optional
+
 from flask import render_template
-from flask_babelhg import get_locale
+from flask_babel import get_locale
 
 from baseframe import _, __
 from baseframe.filters import datetime_filter
@@ -10,29 +16,38 @@ from ...models import (
     Rsvp,
 )
 from ...transports import email
+from ...transports.sms import MessageTemplate, OneLineTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
 from ..schedule import schedule_ical
 
 
 class RegistrationBase:
+    """Base class for project registration notifications."""
+
+    rsvp: Rsvp
     emoji_prefix = "🎟️ "
 
-    def email_attachments(self):
+    def email_attachments(self) -> Optional[List[email.EmailAttachment]]:
+        """Provide a calendar attachment."""
         # Attach a vCalendar of schedule, but only if there are sessions.
         # This will include the user as an attendee with RSVP=TRUE/FALSE.
         # The mimetype apparently changes how Gmail interprets the file. text/calendar
         # works for a single session and shows the date, while application/ics shows all
         # sessions without a single prominent date. Behaviour in other mail clients is
         # untested at this time.
-        session_count = self.rsvp.project.session_count
-        if session_count:
+        if self.rsvp.project.start_at:
+            # Session count will be 0 when there are no scheduled sessions, but the
+            # Project has an independent `start_at`. If 0 or 1, treat as one session
+            session_count = self.rsvp.project.session_count
             return [
                 email.EmailAttachment(
                     content=schedule_ical(self.rsvp.project, self.rsvp),
                     filename='event.ics',
                     mimetype=(
-                        'text/calendar' if session_count == 1 else 'application/ics'
+                        'text/calendar'
+                        if session_count in (0, 1)
+                        else 'application/ics'
                     ),
                 )
             ]
@@ -43,7 +58,6 @@ class RegistrationBase:
 class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotification):
     """Notify the participant when they register."""
 
-    rsvp: Rsvp
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you have registered for this project")
@@ -70,24 +84,21 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
             ),
         )
 
-    def sms(self):
-        next_session_at = self.rsvp.project.next_session_at
-        if next_session_at:
-            template = _(
-                "You have registered for {project}."
-                " The next session starts {datetime}."
-                " You will get a reminder 10m prior. {url}"
-            )
+    def sms(self) -> OneLineTemplate:
+        project = self.rsvp.project
+        next_at = project.next_starting_at()
+        if next_at:
+            template = _("You have registered for {project}. Next session: {datetime}.")
         else:
-            template = _("You have registered for {project} {url}")
-        return template.format(
-            project=self.rsvp.project.joined_title('>'),
-            url=shortlink(
-                self.rsvp.project.url_for(_external=True, **self.tracking_tags('sms'))
+            template = _("You have registered for {project}")
+        return OneLineTemplate(
+            text1=template.format(
+                project=project.joined_title('>'),
+                datetime=datetime_filter(
+                    next_at, self.datetime_format_sms, locale=get_locale()
+                ),
             ),
-            datetime=datetime_filter(
-                next_session_at, self.datetime_format_sms, locale=get_locale()
-            ),
+            url=shortlink(project.url_for(_external=True, **self.tracking_tags('sms'))),
         )
 
 
@@ -95,7 +106,6 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
 class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotification):
     """Notify the participant when they cancel registration."""
 
-    rsvp: Rsvp
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you had registered for this project")
@@ -119,7 +129,9 @@ class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotific
             ),
         )
 
-    def sms(self):
-        return _("You have cancelled your registration for {project}").format(
-            project=self.rsvp.project.joined_title('>'),
+    def sms(self) -> MessageTemplate:
+        return MessageTemplate(
+            message=_("You have cancelled your registration for {project}").format(
+                project=self.rsvp.project.joined_title('>'),
+            ),
         )

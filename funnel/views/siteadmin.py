@@ -1,14 +1,18 @@
-from collections import Counter, namedtuple
+"""Siteadmin views."""
+
+from __future__ import annotations
+
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import timedelta
 from functools import wraps
 from io import StringIO
-from typing import Dict, Optional
+from typing import Any, Dict, Optional, cast
 import csv
 
 from sqlalchemy.dialects.postgresql import INTERVAL
 
-from flask import abort, flash, redirect, render_template, request, url_for
+from flask import abort, current_app, flash, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import Form
@@ -28,8 +32,9 @@ from ..models import (
     auth_client_user_session,
     db,
 )
-from ..typing import ReturnRenderWith, ReturnResponse, ReturnView
+from ..typing import ReturnRenderWith, ReturnResponse, ReturnView, WrappedFunc
 from ..utils import abort_null
+from .helpers import render_redirect
 from .login_session import requires_login
 
 # XXX: Replace with TypedDict when upgrading to Python 3.8+
@@ -54,28 +59,36 @@ class AuthClientUserReport:
     counts: Dict[str, int] = field(default_factory=counts_template.copy)
 
 
-def requires_siteadmin(f):
+@dataclass
+class ReportCounter:
+    """Data structure for counting report types against frequency of reports."""
+
+    report_type: int
+    frequency: int
+
+
+def requires_siteadmin(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require siteadmin privilege."""
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         if not current_auth.user or not current_auth.user.is_site_admin:
             abort(403)
         return f(*args, **kwargs)
 
-    return decorated_function
+    return cast(WrappedFunc, wrapper)
 
 
-def requires_comment_moderator(f):
+def requires_comment_moderator(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require comment moderator privilege."""
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         if not current_auth.user or not current_auth.user.is_comment_moderator:
             abort(403)
         return f(*args, **kwargs)
 
-    return decorated_function
+    return cast(WrappedFunc, wrapper)
 
 
 @route('/siteadmin')
@@ -120,7 +133,7 @@ class SiteadminView(ClassView):
             .order_by('month')
         )
 
-        outfile = StringIO()
+        outfile = StringIO(newline='')
         out = csv.writer(outfile, 'excel')
         out.writerow(['month', 'count'])
         for month, count in users_by_month:
@@ -195,7 +208,7 @@ class SiteadminView(ClassView):
             reverse=True,
         )
 
-        outfile = StringIO()
+        outfile = StringIO(newline='')
         out = csv.writer(outfile, 'excel')
         out.writerow(
             ['title', 'hour', 'day', 'week', 'month', 'quarter', 'halfyear', 'year']
@@ -261,7 +274,9 @@ class SiteadminView(ClassView):
         # Avoid request.form.getlist('comment_id') here
         if comment_spam_form.validate_on_submit():
             comments = Comment.query.filter(
-                Comment.uuid_b58.in_(request.form.getlist('comment_id'))
+                Comment.uuid_b58.in_(  # type: ignore[attr-defined]
+                    request.form.getlist('comment_id')
+                )
             )
             for comment in comments:
                 CommentModeratorReport.submit(actor=current_auth.user, comment=comment)
@@ -269,11 +284,11 @@ class SiteadminView(ClassView):
             flash(_("Comment(s) successfully reported as spam"), category='info')
         else:
             flash(
-                _("There was a problem marking the comments as spam. Please try again"),
+                _("There was a problem marking the comments as spam. Try again?"),
                 category='error',
             )
 
-        return redirect(url_for('siteadmin_comments'))
+        return render_redirect(url_for('siteadmin_comments'))
 
     @route('comments/review', endpoint='siteadmin_review_comments_random')
     @requires_comment_moderator
@@ -281,11 +296,11 @@ class SiteadminView(ClassView):
         """Evaluate an existing comment spam report, selected at random."""
         random_report = CommentModeratorReport.get_one(exclude_user=current_auth.user)
         if random_report is not None:
-            return redirect(
+            return render_redirect(
                 url_for('siteadmin_review_comment', report=random_report.uuid_b58)
             )
         flash(_("There are no comment reports to review at this time"), 'error')
-        return redirect(url_for('siteadmin_comments'))
+        return render_redirect(url_for('siteadmin_comments'))
 
     @route(
         'comments/review/<report>',
@@ -300,19 +315,18 @@ class SiteadminView(ClassView):
             uuid_b58=report
         ).one_or_404()
 
+        if comment_report.comment.is_reviewed_by(current_auth.user):
+            flash(_("You cannot review same comment twice"), 'error')
+            return render_redirect(url_for('siteadmin_review_comments_random'))
+
         if comment_report.user == current_auth.user:
             flash(_("You cannot review your own report"), 'error')
-            return redirect(url_for('siteadmin_review_comments_random'))
+            return render_redirect(url_for('siteadmin_review_comments_random'))
 
         # get all existing reports for the same comment
         existing_reports = CommentModeratorReport.get_all(
             exclude_user=current_auth.user
         ).filter_by(comment_id=comment_report.comment_id)
-
-        if comment_report not in existing_reports:
-            # current report should be in the existing unreviewed reports
-            flash(_("You cannot review same comment twice"), 'error')
-            return redirect(url_for('siteadmin_review_comments_random'))
 
         if comment_report.comment.state.SPAM:
             # if a comment is marked as spam by some other mechanism, like direct
@@ -324,7 +338,7 @@ class SiteadminView(ClassView):
             ).update({'resolved_at': db.func.utcnow()}, synchronize_session='fetch')
             db.session.commit()
             # Redirect to a new report
-            return redirect(url_for('siteadmin_review_comments_random'))
+            return render_redirect(url_for('siteadmin_review_comments_random'))
 
         report_form = ModeratorReportForm()
         report_form.form_nonce.data = report_form.form_nonce.default()
@@ -338,8 +352,6 @@ class SiteadminView(ClassView):
                 + [report_form.report_type.data]
             )
             # if there is already a report for this comment
-            ReportCounter = namedtuple('ReportCounter', ['report_type', 'frequency'])
-
             most_common_two = [
                 ReportCounter(report_type, frequency)
                 for report_type, frequency in report_counter.most_common(2)
@@ -356,9 +368,12 @@ class SiteadminView(ClassView):
                 elif most_common_two[0].report_type == MODERATOR_REPORT_TYPE.OK:
                     if not comment_report.comment.state.DELETED:
                         comment_report.comment.mark_not_spam()
-                CommentModeratorReport.query.filter_by(
-                    comment=comment_report.comment
-                ).update({'resolved_at': db.func.utcnow()}, synchronize_session='fetch')
+                with db.session.no_autoflush:
+                    CommentModeratorReport.query.filter_by(
+                        comment=comment_report.comment
+                    ).update(
+                        {'resolved_at': db.func.utcnow()}, synchronize_session='fetch'
+                    )
             else:
                 # current report is different from existing report and
                 # no report has majority frequency.
@@ -373,9 +388,9 @@ class SiteadminView(ClassView):
             db.session.commit()
 
             # Redirect to a new report
-            return redirect(url_for('siteadmin_review_comments_random'))
+            return render_redirect(url_for('siteadmin_review_comments_random'))
 
-        app.logger.debug(report_form.errors)
+        current_app.logger.debug(report_form.errors)
 
         return {
             'report': comment_report,

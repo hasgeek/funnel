@@ -1,3 +1,6 @@
+"""Tests for merging notifications with user account merger."""
+# pylint: disable=possibly-unused-variable
+
 from datetime import timedelta
 from types import SimpleNamespace
 
@@ -16,7 +19,7 @@ from funnel.models import (
 
 
 @pytest.fixture(scope='session')
-def test_notification_type():
+def fixture_notification_type():
     class MergeTestNotification(Notification):
         """Test notification."""
 
@@ -25,7 +28,7 @@ def test_notification_type():
     return MergeTestNotification
 
 
-@pytest.fixture
+@pytest.fixture()
 def fixtures(db_session):
     owner = User(
         username='owner',
@@ -51,17 +54,17 @@ def fixtures(db_session):
     return SimpleNamespace(**locals())
 
 
-@pytest.fixture
+@pytest.fixture()
 def notification(db_session, fixtures):
-    notification = OrganizationAdminMembershipNotification(
+    new_notification = OrganizationAdminMembershipNotification(
         document=fixtures.org, fragment=fixtures.membership
     )
-    db_session.add(notification)
+    db_session.add(new_notification)
     db_session.commit()
-    return notification
+    return new_notification
 
 
-@pytest.fixture
+@pytest.fixture()
 def user1_notification(db_session, fixtures, notification):
     un = UserNotification(
         eventid=notification.eventid,
@@ -74,7 +77,7 @@ def user1_notification(db_session, fixtures, notification):
     return un
 
 
-@pytest.fixture
+@pytest.fixture()
 def user2_notification(db_session, fixtures, notification):
     un = UserNotification(
         eventid=notification.eventid,
@@ -87,7 +90,7 @@ def user2_notification(db_session, fixtures, notification):
     return un
 
 
-@pytest.fixture
+@pytest.fixture()
 def user1_main_preferences(db_session, fixtures):
     prefs = NotificationPreferences(user=fixtures.user1, notification_type='')
     db_session.add(prefs)
@@ -95,15 +98,15 @@ def user1_main_preferences(db_session, fixtures):
     return prefs
 
 
-@pytest.fixture
-def user1_test_preferences(db_session, fixtures, test_notification_type):
+@pytest.fixture()
+def user1_test_preferences(db_session, fixtures, fixture_notification_type):
     prefs = NotificationPreferences(user=fixtures.user1, notification_type='merge_test')
     db_session.add(prefs)
     db_session.commit()
     return prefs
 
 
-@pytest.fixture
+@pytest.fixture()
 def user2_main_preferences(db_session, fixtures):
     prefs = NotificationPreferences(user=fixtures.user2, notification_type='')
     db_session.add(prefs)
@@ -111,8 +114,8 @@ def user2_main_preferences(db_session, fixtures):
     return prefs
 
 
-@pytest.fixture
-def user2_test_preferences(db_session, fixtures, test_notification_type):
+@pytest.fixture()
+def user2_test_preferences(db_session, fixtures, fixture_notification_type):
     prefs = NotificationPreferences(user=fixtures.user2, notification_type='merge_test')
     db_session.add(prefs)
     db_session.commit()
@@ -122,7 +125,7 @@ def user2_test_preferences(db_session, fixtures, test_notification_type):
 # --- Tests for UserNotification -------------------------------------------------------
 
 
-def test_merge_without_notifications(db_session, fixtures):
+def test_merge_without_notifications(db_session, fixtures) -> None:
     """Merge without any notifications works."""
     assert Notification.query.count() == 0
     assert UserNotification.query.count() == 0
@@ -133,7 +136,9 @@ def test_merge_without_notifications(db_session, fixtures):
     assert UserNotification.query.count() == 0
 
 
-def test_merge_with_user1_notifications(db_session, fixtures, user1_notification):
+def test_merge_with_user1_notifications(
+    db_session, fixtures, user1_notification
+) -> None:
     """Merge without only user1 notifications works."""
     assert Notification.query.count() == 1
     assert UserNotification.query.count() == 1
@@ -145,12 +150,14 @@ def test_merge_with_user1_notifications(db_session, fixtures, user1_notification
     assert user1_notification.user == fixtures.user1
 
 
-def test_merge_with_user2_notifications(db_session, fixtures, user2_notification):
+def test_merge_with_user2_notifications(
+    db_session, fixtures, user2_notification
+) -> None:
     """Merge without only user2 notifications gets it transferred to user1."""
     assert Notification.query.count() == 1
     assert UserNotification.query.count() == 1
-    notification = UserNotification.query.one()
-    assert notification.user == fixtures.user2
+    new_notification = UserNotification.query.one()
+    assert new_notification.user == fixtures.user2
     merged = merge_users(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
@@ -159,8 +166,8 @@ def test_merge_with_user2_notifications(db_session, fixtures, user2_notification
     # Since user_id is part of the primary key of UserNotification, session.commit()
     # won't refresh it. It can no longer find that pkey. Therefore we must load it
     # afresh from db for the test here
-    notification = UserNotification.query.one()
-    assert notification.user == fixtures.user1
+    second_notification = UserNotification.query.one()
+    assert second_notification.user == fixtures.user1
 
 
 def test_merge_with_dupe_notifications(
@@ -190,9 +197,8 @@ def test_merge_with_user1_preferences(
     db_session.commit()
     assert merged == fixtures.user1
     assert NotificationPreferences.query.count() == 2
-    #
-    user1_main_preferences.user == fixtures.user1
-    user1_test_preferences.user == fixtures.user1
+    assert user1_main_preferences.user == fixtures.user1
+    assert user1_test_preferences.user == fixtures.user1
 
 
 def test_merge_with_user2_preferences(
@@ -204,11 +210,11 @@ def test_merge_with_user2_preferences(
     db_session.commit()
     assert merged == fixtures.user1
     assert NotificationPreferences.query.count() == 2
-    user2_main_preferences.user == fixtures.user1
-    user2_test_preferences.user == fixtures.user1
+    assert user2_main_preferences.user == fixtures.user1
+    assert user2_test_preferences.user == fixtures.user1
 
 
-def test_merge_with_both_preferences(
+def test_merge_with_both_preferences(  # pylint: disable=too-many-arguments
     db_session,
     fixtures,
     user1_main_preferences,

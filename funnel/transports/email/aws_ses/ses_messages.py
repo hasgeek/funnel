@@ -1,5 +1,7 @@
 """This module contains SES message types, as received over SNS."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
@@ -31,8 +33,8 @@ class SesCommonMailHeaders(DataClassJsonMixin):
 
     from_address: List[str] = field(metadata=config(field_name='from'))
     to_address: List[str] = field(metadata=config(field_name='to'))
-    subject: str
     messageid: str = field(metadata=config(field_name='messageId'))
+    subject: str = ''  # Subject may be missing
 
 
 @dataclass

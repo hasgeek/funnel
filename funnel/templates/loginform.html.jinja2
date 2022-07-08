@@ -1,4 +1,6 @@
-{% from "baseframe/forms.html.jinja2" import ajaxform %}
-{% from "password_login_form.html.jinja2" import passwordlogin %}
-{{ passwordlogin(loginform, ref_id) }}
-{{ ajaxform(ref_id, request) }}
+{% extends "ajaxform.html.jinja2" %}
+{% from "password_login_form.html.jinja2" import passwordlogin, sociallogin %}
+{% block title %}{% endblock %}
+{% block form %}
+  {{ passwordlogin(loginform, formid, ref_id) }}
+{% endblock %}

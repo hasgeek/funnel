@@ -1,9 +1,9 @@
-import { Utils } from './util';
-import { ractiveApp } from './ractive_util';
+import Utils from './utils/helper';
+import { RactiveApp } from './utils/ractive_util';
 
 const Search = {
   init(config) {
-    const widget = new ractiveApp({
+    const widget = new RactiveApp({
       el: '#search-wrapper',
       template: '#search-template',
       data: {
@@ -57,14 +57,20 @@ const Search = {
         $.ajax({
           type: 'GET',
           url: `${url}&page=${page}`,
-          timeout: window.Hasgeek.config.ajaxTimeout,
+          timeout: window.Hasgeek.Config.ajaxTimeout,
           dataType: 'json',
           success(data) {
-            widget.activateTab(searchType, data.results, url, page);
+            widget.activateTab(
+              searchType,
+              data.results,
+              url,
+              data.counts,
+              page
+            );
           },
         });
       },
-      activateTab(searchType, result = '', url = '', page) {
+      activateTab(searchType, result = '', url = '', tabs = '', page) {
         if (result) {
           if (page > 1) {
             const existingResults = this.get(`results.${searchType}`);
@@ -76,6 +82,10 @@ const Search = {
           } else {
             this.set(`results.${searchType}`, result);
           }
+        }
+        // Update counts on the tabs
+        if (tabs) {
+          this.set('tabs', tabs);
         }
         this.set('activeTab', searchType);
         $('#scrollable-tabs').animate(
@@ -165,18 +175,28 @@ const Search = {
         this.initTab();
         this.observe(
           'activeTab',
-          function () {
+          () => {
             Utils.showTimeOnCalendar();
           },
           { defer: true }
         );
+        $('.js-search-form').submit((event) => {
+          event.preventDefault();
+          this.set(
+            'queryString',
+            document.querySelector('.js-search-field').value
+          );
+          // Clear results for the new query
+          this.set('results', '');
+          this.fetchResult(this.getQueryString('type'));
+        });
       },
     });
   },
 };
 
 $(() => {
-  window.Hasgeek.Search = function (config) {
+  window.Hasgeek.searchInit = function searchInit(config) {
     Search.init(config);
   };
 });

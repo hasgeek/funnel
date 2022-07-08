@@ -1,0 +1,38 @@
+@import 'components/variable';
+@import 'components/collapsible';
+
+.contact-card {
+  position: relative;
+
+  .contact-card__details {
+    width: 100%;
+
+    .contact-card__details__download-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+  }
+}
+
+.contact-download-btn {
+  position: relative;
+  top: 6px;
+  left: -$mui-grid-padding;
+}
+
+@media (min-width: 1200px) {
+  .contact-card {
+    position: relative;
+
+    .contact-card__details {
+      width: calc(100% - 80px);
+
+      .contact-card__details__download-btn {
+        position: relative;
+        top: 0;
+        right: 0;
+      }
+    }
+  }
+}
