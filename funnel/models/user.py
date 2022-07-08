@@ -610,36 +610,53 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
     @state.transition(state.ACTIVE, state.DELETED)
     def do_delete(self):
         """Delete user account."""
-        # 1. Delete profile
+        # 0: Safety check
         if self.profile:
             if not self.profile.is_safe_to_delete():
                 raise ValueError("Profile cannot be deleted")
-            db.session.delete(self.profile)
-        # FIXME: Ask for auth clients to be transferred
-        # 2. Delete contact information
+        # 1. Delete contact information
         for contact_source in (
             self.emails,
             self.emailclaims,
             self.phones,
-            self.phoneclaims,
             self.externalids,
         ):
             for contact in contact_source:
                 db.session.delete(contact)
-        # 3. Revoke all active memberships
+        # 2. Revoke all active memberships
         for membership_source in (
             self.active_organization_admin_memberships,
             self.projects_as_crew_active_memberships,
-            self.proposal_active_memberships,
+            self.proposal_memberships,
         ):
             for membership in membership_source:
                 membership.revoke(actor=self)
         if self.active_site_membership:
             self.active_site_membership.revoke(actor=self)
+        if self.profile:
+            for membership_source in (
+                self.profile.project_sponsor_membership_invites,
+                self.profile.project_sponsor_memberships,
+                self.profile.proposal_sponsor_membership_invites,
+                self.profile.proposal_sponsor_memberships,
+            ):
+                for membership in membership_source:
+                    membership.revoke(actor=self)
 
-        # 6. Revoke auth tokens
+        # 3. Revoke auth tokens
+        # TODO: AuthToken.all_for(self).delete(synchronize_session=False)
 
-        # 5. Clear fullname and stored password hash
+        # 4. Revoke all active login sessions
+        for user_session in self.active_user_sessions:
+            user_session.revoke()
+
+        # 5. Mark profile as deleted. However, the record is preserved in case it
+        # backreferences from any profile memberships, and to prevent re-use of the
+        # username until purging
+        if self.profile:
+            self.profile.do_delete()
+
+        # 6. Clear fullname and stored password hash
         self.fullname = ''
         self.password = None
 
@@ -902,13 +919,19 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):
 class DuckTypeUser(RoleMixin):
     """User singleton constructor. Ducktypes a regular user object."""
 
-    id = None  # noqa: A003
-    created_at = updated_at = None
-    uuid = userid = buid = uuid_b58 = None
-    username = name = None
-    profile = None
-    profile_url = None
-    email = phone = None
+    id: None = None  # noqa: A003
+    created_at: None = None
+    updated_at: None = None
+    uuid: None = None
+    userid: None = None
+    buid: None = None
+    uuid_b58: None = None
+    username: None = None
+    name: None = None
+    profile: None = None
+    profile_url: None = None
+    email: None = None
+    phone: None = None
 
     # Copy registries from User model
     views = User.views
@@ -1064,7 +1087,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     @hybrid_property  # type: ignore[override]
     def name(self) -> str:  # type: ignore[override]
-        """Return @name (username) from linked profile."""  # noqa: D402
+        """Return username from linked profile."""
         return self.profile.name
 
     @name.setter

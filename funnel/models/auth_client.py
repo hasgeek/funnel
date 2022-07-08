@@ -632,6 +632,15 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
 
         return []
 
+    @classmethod
+    def all_for(cls, user: User) -> QueryBaseClass:
+        """Get all AuthTokens for a specified user."""
+        return cls.query.filter_by(user=user).union(
+            cls.query.join(UserSession).filter(
+                UserSession.user == user, cls.user_session_id.isnot(None)
+            )
+        )
+
 
 # This model's name is in plural because it defines multiple permissions within each
 # instance

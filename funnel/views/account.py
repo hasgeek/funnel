@@ -754,15 +754,16 @@ class AccountView(ClassView):
             # Go ahead, delete
             current_auth.user.do_delete()
             db.session.commit()
-            flash(_("TODO: Your account has been deleted"), 'success')
+            flash(_("Your account has been deleted"), 'success')
             logout_internal()
-            return redirect(url_for('index'))
+            return render_template(
+                'logout_browser_data.html.jinja2', next=url_for('index')
+            )
         return render_form(
             form=form,
             title=_("You are about to delete your account permanently"),
             submit=("Delete account"),
             ajax=False,
-            template='account_delete.html.jinja2',
             cancel_url=url_for('account'),
         )
 

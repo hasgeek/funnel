@@ -1,9 +1,0 @@
-{% extends "account_formlayout.html.jinja2" %}
-
-{% block form %}
-  <h2 class="mui--text-headline login-page__box__heading mui--text-center">{{ title }}</h2>
-  <form data-parsley-validate="true" id="{{ ref_id }}" method="POST" {%- if action %} action="{{ action }}" {%- endif %}{%- if multipart %} enctype="multipart/form-data" {%- endif %} accept-charset="UTF-8" class="mui-form mui-form--margins hg-form {%- if style == 'horiz' %} mui-form--inline{% endif %}">
-    {{ renderform_inner(form, formid) }}
-    {{ rendersubmit([(none, submit, 'mui-btn--danger')], cancel_url=cancel_url, csrf_error=form.csrf_token.errors if form.csrf_token else "") }}
-  </form>
-{% endblock %}

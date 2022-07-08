@@ -1,10 +1,11 @@
 """Helper functions for account delete validation."""
 
-from typing import Callable, NamedTuple
+from typing import Callable, List, NamedTuple, Optional
 
 from baseframe import __
 
 from ..models import User
+from ..typing import ReturnDecorator, WrappedFunc
 
 # --- Delete validator registry --------------------------------------------------------
 
@@ -18,13 +19,13 @@ class DeleteValidator(NamedTuple):
 
 #: A list of validators that confirm there is no objection to deleting a user
 #: account (returning True to allow deletion to proceed).
-account_delete_validators = []
+account_delete_validators: List[DeleteValidator] = []
 
 
-def delete_validator(title: str, message: str, name: str = None):
+def delete_validator(title: str, message: str, name: str = None) -> ReturnDecorator:
     """Register an account delete validator."""
 
-    def decorator(func: Callable[[User], bool]):
+    def decorator(func: WrappedFunc) -> WrappedFunc:
         account_delete_validators.append(
             DeleteValidator(func, name or func.__name__, title, message)
         )
@@ -54,7 +55,8 @@ def profile_is_protected(user: User) -> bool:
         " account can be deleted"
     ),
 )
-def single_owner_organization(user):
+def single_owner_organization(user: User) -> bool:
+    """Fail if user is the sole owner of one or more organizations."""
     for org in user.organizations_as_owner:
         # TODO: Optimize query for large organizations
         if list(org.owner_users) == [user]:
@@ -65,11 +67,12 @@ def single_owner_organization(user):
 @delete_validator(
     title=__("This account has projects"),
     message=__(
-        "Projects are collaborative spaces with other users.  Projects must be"
+        "Projects are collaborative spaces with other users. Projects must be"
         " transferred to a new host before the account can be deleted"
     ),
 )
-def profile_has_projects(user):
+def profile_has_projects(user: User) -> bool:
+    """Fail if user has projects in their profile."""
     if user.profile is not None:
         # TODO: Break down `is_safe_to_delete()` into individual components
         # and apply to org delete as well
@@ -77,10 +80,27 @@ def profile_has_projects(user):
     return True
 
 
+@delete_validator(
+    title=__("This account is the owner of client apps"),
+    message=__(
+        "Client apps must be deleted or transferred to other owners before the account"
+        " can be deleted"
+    ),
+)
+def user_owns_apps(user: User) -> bool:
+    """Fail if user is the owner of client apps."""
+    if user.clients:
+        return False
+    return True
+
+
 # --- Delete validator view helper -----------------------------------------------------
+
+
 @User.views()
-def validate_account_delete(obj):
+def validate_account_delete(obj) -> Optional[DeleteValidator]:
     for validator in account_delete_validators:
         proceed = validator.validate(obj)
         if not proceed:
             return validator
+    return None
