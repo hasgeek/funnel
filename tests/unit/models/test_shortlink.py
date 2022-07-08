@@ -3,28 +3,29 @@
 # https://datatracker.ietf.org/doc/html/rfc2606#section-3
 # https://datatracker.ietf.org/doc/html/rfc6761#section-6.5
 
+from typing import Any
 from unittest.mock import patch
 
 from furl import furl
 import pytest
 
-import funnel.models.shortlink as shortlink
+from funnel.models import shortlink
 
 
 class MockRandomBigint:
     """Mock for random_bigint that returns from a pre-determined sequence."""
 
-    def __init__(self, sequence):
+    def __init__(self, sequence) -> None:
         self.sequence = sequence
         self.counter = 0
 
-    def __call__(self, smaller: bool = False):
+    def __call__(self, smaller: bool = False) -> Any:
         value = self.sequence[self.counter % len(self.sequence)]
         self.counter += 1
         return value
 
 
-def test_random_bigint():
+def test_random_bigint() -> None:
     """Random numbers are within expected range (this test depends on luck)."""
     randset = set()
     for _loop in range(1000):
@@ -37,7 +38,7 @@ def test_random_bigint():
     assert 998 <= len(randset) <= 1000
 
 
-def test_smaller_random_int():
+def test_smaller_random_int() -> None:
     """Smaller random numbers are within expected range (this test depends on luck)."""
     randset = set()
     for _loop in range(1000):
@@ -50,7 +51,7 @@ def test_smaller_random_int():
     assert 998 <= len(randset) <= 1000
 
 
-def test_mock_random_bigint():
+def test_mock_random_bigint() -> None:
     """Test that MockRandomBigint works as expected."""
     prng_values = [43, 123, 5345, 123, 5435]
     mockfunc = MockRandomBigint(prng_values)
@@ -68,13 +69,13 @@ def test_mock_random_bigint():
 
 
 @pytest.mark.parametrize(
-    ['lhs', 'rhs'],
+    ('lhs', 'rhs'),
     [
         ('https://example.com', 'example.com'),
         ('https://example.com/', 'https://example.com'),
     ],
 )
-def test_url_hash_is_normalized(lhs, rhs):
+def test_url_hash_is_normalized(lhs, rhs) -> None:
     """URL hash is normalized by default, and handles furl objects."""
     assert shortlink.url_blake2b160_hash(lhs) == shortlink.url_blake2b160_hash(rhs)
     assert shortlink.url_blake2b160_hash(furl(lhs)) == shortlink.url_blake2b160_hash(
@@ -85,7 +86,7 @@ def test_url_hash_is_normalized(lhs, rhs):
     )
 
 
-def test_url_hash_is_constant():
+def test_url_hash_is_constant() -> None:
     """URL hashes are a guaranteed identical output (including in the future)."""
     # These values should never need revision.
     example_com = 'https://example.com/'
@@ -126,16 +127,16 @@ uni_name_bigint_mappings = [
 ]
 
 
-@pytest.mark.parametrize(['name', 'bigint'], name_bigint_mappings)
-def test_bigint_to_name(name, bigint):
+@pytest.mark.parametrize(('name', 'bigint'), name_bigint_mappings)
+def test_bigint_to_name(name, bigint) -> None:
     """Bigints can be mapped to names."""
     assert shortlink.bigint_to_name(bigint) == name
 
 
 @pytest.mark.parametrize(
-    ['name', 'bigint'], name_bigint_mappings + uni_name_bigint_mappings
+    ('name', 'bigint'), name_bigint_mappings + uni_name_bigint_mappings
 )
-def test_name_to_bigint(name, bigint):
+def test_name_to_bigint(name, bigint) -> None:
     """Names can be mapped to bigints."""
     # Works with `str`
     assert shortlink.name_to_bigint(name) == bigint
@@ -143,66 +144,68 @@ def test_name_to_bigint(name, bigint):
     assert shortlink.name_to_bigint(name.encode()) == bigint
 
 
-def test_name_to_bigint_data_type():
+def test_name_to_bigint_data_type() -> None:
     """name_to_bigint is fussy about data type."""
     # Calling with something not str or bytes will raise an error
     with pytest.raises(TypeError):
-        shortlink.name_to_bigint(12345)
+        shortlink.name_to_bigint(12345)  # type: ignore[arg-type]
     with pytest.raises(TypeError):
-        shortlink.name_to_bigint(True)
+        shortlink.name_to_bigint(True)  # type: ignore[arg-type]
     with pytest.raises(TypeError):
-        shortlink.name_to_bigint(None)
+        shortlink.name_to_bigint(None)  # type: ignore[arg-type]
 
     # Value is too long (length limit is 11)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Shortlink name is too long'):
         shortlink.name_to_bigint('A' * 12)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Shortlink name is too long'):
         shortlink.name_to_bigint('B' * 12)
 
     # Value contains invalid characters
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Shortlink name contains invalid characters'):
         shortlink.name_to_bigint('A/B')
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Shortlink name contains invalid characters'):
         shortlink.name_to_bigint('A@B')
 
 
-def test_shortlink_id_equals_zero(db_session):
+def test_shortlink_id_equals_zero(db_session) -> None:
     """Shortlink cannot have an id of 0."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Id cannot be zero'):
         shortlink.Shortlink(id=0)
 
 
-def test_shortlink_url_is_normalized(db_session):
+def test_shortlink_url_is_normalized(db_session) -> None:
     """Shortlink URLs are normalized."""
     sl = shortlink.Shortlink(url='example.com')
     assert sl.url == 'https://example.com/'
 
 
-def test_shortlink_without_id_has_empty_name(db_session):
+def test_shortlink_without_id_has_empty_name(db_session) -> None:
     """Shortlink without an id has empty name."""
     sl = shortlink.Shortlink()
     assert sl.name == ''
 
 
-def test_shortlink_with_small_id_has_short_name(db_session):
+def test_shortlink_with_small_id_has_short_name(db_session) -> None:
     """Shortlink with small id has a short name."""
     sl = shortlink.Shortlink(id=1)
     assert sl.name == 'AQ'
 
 
-def test_shortlink_gets_id_from_name(db_session):
+def test_shortlink_gets_id_from_name(db_session) -> None:
     """Shortlink with a name will get an id from the name."""
     sl = shortlink.Shortlink(name='AQ')
     assert sl.id == 1
 
 
-def test_constructor_reuse_with_name(db_session):
+def test_constructor_reuse_with_name(db_session) -> None:
     """Shortlink constructor with both `reuse` and `name` will fail."""
     with pytest.raises(TypeError):
-        shortlink.Shortlink.new('https://example.com/', reuse=True, name='example')
+        shortlink.Shortlink.new(  # type: ignore[call-overload]
+            'https://example.com/', reuse=True, name='example'
+        )
 
 
-def test_shortlink_constructor_with_reuse(db_session):
+def test_shortlink_constructor_with_reuse(db_session) -> None:
     """Shortlink constructor will return existing when asked to reuse."""
     sl1 = shortlink.Shortlink.new('example.com', reuse=True)
     sl2 = shortlink.Shortlink.new('example.org', reuse=True)
@@ -219,9 +222,9 @@ def test_shortlink_constructor_with_reuse(db_session):
 
 
 @pytest.mark.parametrize(
-    ['longid', 'match'], [(146727516324, False), (-1, False), (4235324, True)]
+    ('longid', 'match'), [(146727516324, False), (-1, False), (4235324, True)]
 )
-def test_shortlink_reuse_with_shorter(db_session, longid, match):
+def test_shortlink_reuse_with_shorter(db_session, longid, match) -> None:
     """Shortlink reuse with shorter will avoid longer ids."""
     sl1 = shortlink.Shortlink(id=longid, url='example.com')
     db_session.add(sl1)
@@ -230,12 +233,12 @@ def test_shortlink_reuse_with_shorter(db_session, longid, match):
 
 
 @pytest.mark.filterwarnings('ignore:New instance')
-def test_shortlink_constructor_with_name(db_session):
+def test_shortlink_constructor_with_name(db_session) -> None:
     """Shortlink constructor will accept a name."""
     sl1 = shortlink.Shortlink.new('example.com', name='example')
     assert sl1.name == 'example'
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='name is not available'):
         # This will cause an SAWarning before it raises ValueError. We ignore it
         # using the filterwarnings decorator:
         #     SAWarning: New instance <Shortlink at 0x...> with identity key
@@ -252,7 +255,7 @@ def test_shortlink_constructor_with_name(db_session):
 
 
 @pytest.mark.filterwarnings('ignore:New instance')
-def test_shortlink_constructor_handle_collisions(db_session):
+def test_shortlink_constructor_handle_collisions(db_session) -> None:
     """Shortlink constructor will handle random id collisions gracefully."""
     prngids = MockRandomBigint([42, 42, 128, 128, 128, 384])
     with patch(
@@ -302,7 +305,7 @@ def test_shortlink_constructor_handle_collisions(db_session):
     assert sl4.url == 'https://example.org/'
 
 
-def test_shortlink_new_profanity_filter(db_session):
+def test_shortlink_new_profanity_filter(db_session) -> None:
     """Generated shortlink ids are tested against a profanity filter."""
     prngids = MockRandomBigint(
         [
@@ -327,7 +330,7 @@ def test_shortlink_new_profanity_filter(db_session):
         mockid.reset_mock()
 
 
-def test_shortlink_name_available(db_session):
+def test_shortlink_name_available(db_session) -> None:
     """Shortlink has a `name_available` classmethod to test for availability."""
     assert shortlink.Shortlink.name_available('example') is True
     shortlink.Shortlink.new('example.org', name='example')
@@ -336,7 +339,7 @@ def test_shortlink_name_available(db_session):
     assert shortlink.Shortlink.name_available('example_too_long') is False
 
 
-def test_shortlink_get(db_session):
+def test_shortlink_get(db_session) -> None:
     """Shortlink has a `get` classmethod."""
     assert shortlink.Shortlink.get('example') is None
     shortlink.Shortlink.new('example.org', name='example')
@@ -351,20 +354,21 @@ def test_shortlink_get(db_session):
     assert shortlink.Shortlink.get('example', True) == sl
 
 
-def test_shortlink_comparator():
+def test_shortlink_comparator() -> None:
     """Shortlink lookup by name generates SQLAlchemy expressions."""
     # Equality and container expressions work
     expr = shortlink.Shortlink.name == 'example'
     assert expr is not None
-    expr = shortlink.Shortlink.name.in_(['example', 'example_org'])
+    expr = shortlink.Shortlink.name.in_(  # type: ignore[attr-defined]
+        ['example', 'example_org']
+    )
     assert expr is not None
     # Inequality expression is not supported, nor is anything else
     with pytest.raises(NotImplementedError):
-        expr = shortlink.Shortlink.name != 'example'
-        assert expr is not None  # This line won't be reached
+        _expr = shortlink.Shortlink.name != 'example'  # noqa: F841
 
 
-def test_shortlink_lookup_multiple():
+def test_shortlink_lookup_multiple() -> None:
     """Shortlink allows lookup by name."""
     sl1 = shortlink.Shortlink.new('example.org', name='example')
     sl2 = shortlink.Shortlink.new('example.com', name='example_com')
@@ -372,5 +376,7 @@ def test_shortlink_lookup_multiple():
     assert shortlink.Shortlink.query.filter_by(name='example_com').all() == [sl2]
     assert shortlink.Shortlink.query.filter_by(name='unknown').all() == []
     assert shortlink.Shortlink.query.filter(
-        shortlink.Shortlink.name.in_(['example', 'example_com', 'unknown'])
+        shortlink.Shortlink.name.in_(  # type: ignore[attr-defined]
+            ['example', 'example_com', 'unknown']
+        )
     ).all() == [sl1, sl2]

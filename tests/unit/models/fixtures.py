@@ -1,3 +1,6 @@
+"""Fixtures for legacy tests."""
+# pylint: disable=attribute-defined-outside-init
+
 from funnel.models import (
     AuthClient,
     AuthClientTeamPermissions,
@@ -12,7 +15,7 @@ from funnel.models import (
 
 
 class Fixtures:
-    def make_fixtures(self, db_session):
+    def make_fixtures(self, db_session):  # pylint: disable=too-many-locals
         """
         Create fixtures.
 

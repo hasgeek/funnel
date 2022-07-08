@@ -1,3 +1,5 @@
+"""Email address model, storing an email db distinctly from its uses."""
+
 from __future__ import annotations
 
 from typing import List, Optional, Set, Union, cast, overload
@@ -200,7 +202,7 @@ class EmailAddress(BaseMixin, db.Model):
 
     #: BLAKE2b 160-bit hash of :property:`email_canonical`. Kept permanently for blocked
     #: email detection. Indexed but does not use a unique constraint because a+b@tld and
-    #: a+c@tld are both a@tld canonically.
+    #: a+c@tld are both a@tld canonically but can exist in records separately.
     blake2b160_canonical = immutable(
         db.Column(db.LargeBinary, nullable=False, index=True)
     )
@@ -406,7 +408,7 @@ class EmailAddress(BaseMixin, db.Model):
         """
         for obj in cls.get_canonical(email, is_blocked=False).all():
             obj.email = None
-            obj._is_blocked = True
+            obj._is_blocked = True  # pylint: disable=protected-access
 
     @overload
     @classmethod
@@ -538,6 +540,9 @@ class EmailAddress(BaseMixin, db.Model):
 
         Raises an exception if the address is blocked from use, or the email address
         is syntactically invalid.
+
+        :raises ValueError: If email address syntax is invalid
+        :raises EmailAddressBlockedError: If email address is blocked
         """
         existing = cls._get_existing(email)
         if existing is not None:
@@ -622,7 +627,7 @@ class EmailAddress(BaseMixin, db.Model):
                 return 'not_new'
         if existing.delivery_state.SOFT_FAIL:
             return 'soft_fail'
-        elif existing.delivery_state.HARD_FAIL:
+        if existing.delivery_state.HARD_FAIL:
             return 'hard_fail'
         return True
 
@@ -672,7 +677,8 @@ class EmailAddressMixin:
     email_address_id: int
 
     @declared_attr  # type: ignore[no-redef]
-    def email_address_id(cls):
+    def email_address_id(cls):  # pylint: disable=no-self-argument
+        """Foreign key to email_address table."""
         return db.Column(
             None,
             db.ForeignKey('email_address.id', ondelete='SET NULL'),
@@ -684,7 +690,8 @@ class EmailAddressMixin:
     email_address: Optional[EmailAddress]
 
     @declared_attr  # type: ignore[no-redef]
-    def email_address(cls):
+    def email_address(cls):  # pylint: disable=no-self-argument
+        """Instance of :class:`EmailAddress` as a relationship."""
         backref_name = 'used_in_' + cls.__tablename__
         EmailAddress.__backrefs__.add(backref_name)
         if cls.__email_for__ and cls.__email_is_exclusive__:
@@ -694,8 +701,10 @@ class EmailAddressMixin:
     email: Optional[str]
 
     @declared_attr  # type: ignore[no-redef]
-    def email(cls):
-        def email_get(self):
+    def email(cls):  # pylint: disable=no-self-argument
+        """Shorthand for ``self.email_address.email``."""
+
+        def email_get(self) -> Optional[str]:
             """
             Shorthand for ``self.email_address.email``.
 
@@ -709,6 +718,7 @@ class EmailAddressMixin:
             """
             if self.email_address:
                 return self.email_address.email
+            return None
 
         if cls.__email_for__:
 
@@ -746,9 +756,9 @@ class EmailAddressMixin:
         return self.email_address.email_hash if self.email_address else None
 
 
-auto_init_default(EmailAddress._delivery_state)
-auto_init_default(EmailAddress.delivery_state_at)
-auto_init_default(EmailAddress._is_blocked)
+auto_init_default(EmailAddress._delivery_state)  # pylint: disable=protected-access
+auto_init_default(EmailAddress.delivery_state_at)  # pylint: disable=protected-access
+auto_init_default(EmailAddress._is_blocked)  # pylint: disable=protected-access
 
 
 @event.listens_for(EmailAddress.email, 'set')
@@ -757,10 +767,10 @@ def _validate_email(target, value: object, old_value: object, initiator):
     if not value and value is not None:
         # Only `None` is an acceptable falsy value
         raise ValueError("An email address is required")
-    elif old_value == value:
+    if old_value == value:
         # Old value is new value. Do nothing. Return without validating
         return
-    elif old_value is NO_VALUE and inspect(target).has_identity is False:
+    if old_value is NO_VALUE and inspect(target).has_identity is False:
         # Old value is unknown and target is a transient object. Continue
         pass
     elif value is None:
@@ -792,9 +802,11 @@ def _validate_email(target, value: object, old_value: object, initiator):
         hashed = email_blake2b160_hash(value)
         if hashed != target.blake2b160:
             raise ValueError("Email address does not match existing blake2b160 hash")
-        target._domain = idna.encode(value.split('@', 1)[1], uts46=True).decode()
+        target._domain = idna.encode(  # pylint: disable=protected-access
+            value.split('@', 1)[1], uts46=True
+        ).decode()
     else:
-        target._domain = None
+        target._domain = None  # pylint: disable=protected-access
     # We don't have to set target.email because SQLAlchemy will do that for us.
 
 

@@ -1,8 +1,9 @@
+"""Forms for organization admin and project crew memberships."""
+
 from __future__ import annotations
 
-from baseframe import _, __
+from baseframe import _, __, forms
 from coaster.utils import getbool
-import baseframe.forms as forms
 
 from ..models import OrganizationMembership, ProjectCrewMembership
 
@@ -15,7 +16,8 @@ __all__ = [
 
 @OrganizationMembership.forms('main')
 class OrganizationMembershipForm(forms.Form):
-    # add a member to a project
+    """Form to add a member to an organization (admin or owner)."""
+
     user = forms.UserSelectField(
         __("User"),
         validators=[forms.validators.DataRequired(_("Please select a user"))],
@@ -37,7 +39,8 @@ class OrganizationMembershipForm(forms.Form):
 
 @ProjectCrewMembership.forms('main')
 class ProjectCrewMembershipForm(forms.Form):
-    # add a member to a project
+    """Form to add a project crew member."""
+
     user = forms.UserSelectField(
         __("User"),
         validators=[forms.validators.DataRequired(_("Please select a user"))],
@@ -63,8 +66,9 @@ class ProjectCrewMembershipForm(forms.Form):
         ),
     )
 
-    def validate(self, extra_validators=None):
-        is_valid = super().validate(extra_validators)
+    def validate(self, *args, **kwargs):
+        """Validate form."""
+        is_valid = super().validate(*args, **kwargs)
         if not any([self.is_editor.data, self.is_promoter.data, self.is_usher.data]):
             self.is_usher.errors.append("Please select one or more roles")
             is_valid = False
@@ -73,6 +77,8 @@ class ProjectCrewMembershipForm(forms.Form):
 
 @ProjectCrewMembership.forms('invite')
 class ProjectCrewMembershipInviteForm(forms.Form):
+    """Form to invite a user to be a project crew member."""
+
     action = forms.SelectField(
         __("Choice"),
         choices=[('accept', __("Accept")), ('decline', __("Decline"))],

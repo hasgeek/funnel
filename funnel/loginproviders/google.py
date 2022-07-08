@@ -1,3 +1,5 @@
+"""Google OAuth2 client."""
+
 from __future__ import annotations
 
 from flask import current_app, redirect, request, session
@@ -18,14 +20,9 @@ class GoogleProvider(LoginProvider):
     form = None  # Don't need a form for Google
     info_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
 
-    def __init__(self, name: str, title: str, client_id: str, **kwargs) -> None:
-        self.client_id = client_id
-        self.secret = kwargs['secret']
-        super().__init__(name, title, **kwargs)
-
     def flow(self, callback_url: str):
         return client.OAuth2WebServerFlow(
-            client_id=self.client_id,
+            client_id=self.key,
             client_secret=self.secret,
             scope=['profile', 'email'],
             redirect_uri=callback_url,
@@ -44,8 +41,7 @@ class GoogleProvider(LoginProvider):
         if request.args.get('error'):
             if request.args['error'] == 'access_denied':
                 raise LoginCallbackError(_("You denied the Google login request"))
-            else:
-                raise LoginCallbackError(_("Unknown failure"))
+            raise LoginCallbackError(_("Unknown failure"))
         code = request.args.get('code', None)
         try:
             credentials = self.flow(callback_url).step2_exchange(code)
@@ -69,7 +65,7 @@ class GoogleProvider(LoginProvider):
             capture_exception(exc)
             raise LoginCallbackError(
                 _("Google had an intermittent problem. Try again?")
-            )
+            ) from exc
         if response.get('error'):
             raise LoginCallbackError(
                 _("Unable to login via Google: {error}").format(

@@ -1,3 +1,5 @@
+"""Tests for Project model."""
+
 from datetime import datetime, timedelta
 
 import pytest
@@ -21,7 +23,7 @@ def invalidate_cache(project):
             pass
 
 
-def test_cfp_state_draft(db_session, new_organization, new_project):
+def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
     assert new_project.cfp_start_at is None
     assert new_project.state.DRAFT
     assert new_project.cfp_state.NONE
@@ -54,7 +56,9 @@ def test_cfp_state_draft(db_session, new_organization, new_project):
     assert new_project not in new_organization.profile.draft_projects
 
 
-def test_project_dates(db_session, new_project):
+def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
+    db_session, new_project
+):
     # without any session the project will have no start and end dates
     assert new_project.sessions.count() == 0
     assert new_project.schedule_start_at is None
@@ -105,15 +109,14 @@ def test_project_dates(db_session, new_project):
     invalidate_cache(new_project)
 
     # both session dates are in same month, hence the format below.
+    f_start_at = start_time_a.day
+    f_end_at = end_time_b.day
+    f_month = start_time_a.strftime('%b')
+    f_year = end_time_b.year
+    f_location = new_project.location
     assert (
         new_project.datelocation
-        == "{start_at}–{end_at} {month} {year}, {location}".format(
-            start_at=start_time_a.day,
-            end_at=end_time_b.day,
-            month=start_time_a.strftime("%b"),
-            year=end_time_b.year,
-            location=new_project.location,
-        )
+        == f'{f_start_at}–{f_end_at} {f_month} {f_year}, {f_location}'
     )
 
     # The sessions are in different months
@@ -135,16 +138,15 @@ def test_project_dates(db_session, new_project):
     # Invalidate property cache
     invalidate_cache(new_project)
 
-    assert (
-        new_project.datelocation
-        == "{start_date} {start_month}–{end_date} {end_month} {year}, {location}".format(
-            start_date=new_session_a.start_at.strftime("%d"),
-            start_month=new_session_a.start_at.strftime("%b"),
-            end_date=new_session_b.end_at.strftime("%d"),
-            end_month=new_session_b.end_at.strftime("%b"),
-            year=new_session_b.end_at.year,
-            location=new_project.location,
-        )
+    f_start_date = new_session_a.start_at.strftime('%d')
+    f_start_month = new_session_a.start_at.strftime('%b')
+    f_end_date = new_session_b.end_at.strftime('%d')
+    f_end_month = new_session_b.end_at.strftime('%b')
+    f_year = new_session_b.end_at.year
+    f_loc = new_project.location
+
+    assert new_project.datelocation == (
+        f'{f_start_date} {f_start_month}–{f_end_date} {f_end_month} {f_year}, {f_loc}'
     )
 
     # Both sessions are on same day
@@ -166,14 +168,14 @@ def test_project_dates(db_session, new_project):
     # Invalidate property cache
     invalidate_cache(new_project)
 
+    f_start_date = new_session_a.start_at.strftime('%d')
+    f_end_month = new_session_b.end_at.strftime('%b')
+    f_year = new_session_b.end_at.year
+    f_location = new_project.location
+
     assert (
         new_project.datelocation
-        == "{start_date} {end_month} {year}, {location}".format(
-            start_date=new_session_a.start_at.strftime("%d"),
-            end_month=new_session_b.end_at.strftime("%b"),
-            year=new_session_b.end_at.year,
-            location=new_project.location,
-        )
+        == f'{f_start_date} {f_end_month} {f_year}, {f_location}'
     )
 
     # The sessions are in different years
@@ -195,21 +197,21 @@ def test_project_dates(db_session, new_project):
     # Invalidate property cache
     invalidate_cache(new_project)
 
+    f_start_date = new_session_a.start_at.strftime('%d')
+    f_start_month = new_session_a.start_at.strftime('%b')
+    f_end_date = new_session_b.end_at.strftime('%d')
+    f_end_month = new_session_b.end_at.strftime('%b')
+    f_start_year = new_session_a.start_at.strftime('%Y')
+    f_end_year = new_session_b.end_at.strftime('%Y')
+    f_location = new_project.location
+
     assert (
-        new_project.datelocation
-        == "{start_date} {start_month} {start_year}–{end_date} {end_month} {end_year}, {location}".format(
-            start_date=new_session_a.start_at.strftime("%d"),
-            start_month=new_session_a.start_at.strftime("%b"),
-            end_date=new_session_b.end_at.strftime("%d"),
-            end_month=new_session_b.end_at.strftime("%b"),
-            start_year=new_session_a.start_at.strftime("%Y"),
-            end_year=new_session_b.end_at.strftime("%Y"),
-            location=new_project.location,
-        )
+        new_project.datelocation == f'{f_start_date} {f_start_month} {f_start_year}'
+        f'–{f_end_date} {f_end_month} {f_end_year}, {f_location}'
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def second_organization(db_session, new_user2):
     org2 = Organization(owner=new_user2, title="Second test org", name='test-org-2')
     db_session.add(org2)
@@ -239,10 +241,10 @@ def test_project_rename(
     assert redirect.project == new_project
 
     # However, using an invalid name is blocked
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Invalid value for name'):
         new_project.name = None
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Invalid value for name'):
         new_project.name = 'this is invalid'
 
     # Changing project also creates a redirect from the old project
@@ -280,7 +282,9 @@ def test_project_rename(
     assert new_redirect.project == new_project2
 
 
-def test_project_featured_proposal(db_session, user_twoflower, project_expo2010):
+def test_project_featured_proposal(
+    db_session, user_twoflower, project_expo2010
+) -> None:
     # `has_featured_proposals` returns None if the project has no proposals
     assert project_expo2010.has_featured_proposals is False
 

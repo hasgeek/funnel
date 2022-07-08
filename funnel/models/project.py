@@ -1,6 +1,8 @@
+"""Project model."""
+
 from __future__ import annotations
 
-from typing import Iterable, List, Optional, Set
+from typing import Iterable, List, Optional
 
 from sqlalchemy.orm.collections import attribute_mapped_collection
 
@@ -10,7 +12,7 @@ from werkzeug.utils import cached_property
 from pytz import utc
 
 from baseframe import __, localize_timezone
-from coaster.sqlalchemy import StateManager, with_roles
+from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
 
 from ..typing import OptionalMigratedTables
@@ -426,13 +428,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
         db.session.add(new_membership)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`Project` as a string."""
-        return '<Project {}/{} "{}">'.format(
-            self.profile.name if self.profile else '(none)',
-            self.name,
-            self.title,
-        )
+        return f'<Project {self.profile.name}/{self.name} "{self.title}">'
 
     @with_roles(call={'editor'})
     @cfp_state.transition(
@@ -450,7 +448,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         if self.cfp_start_at is None:
             self.cfp_start_at = db.func.utcnow()
 
-    @with_roles(call={'editor'})
+    @with_roles(call={'editor'})  # skipcq: PTC-W0049
     @cfp_state.transition(
         cfp_state.PUBLIC,
         cfp_state.CLOSED,
@@ -478,7 +476,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         self.published_at = db.func.utcnow()
         return first_published
 
-    @with_roles(call={'editor'})
+    @with_roles(call={'editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.PUBLISHED,
         state.WITHDRAWN,
@@ -638,7 +636,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         self.start_at = self.schedule_start_at
         self.end_at = self.schedule_end_at
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.add('reader')
@@ -664,21 +664,21 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @classmethod
     def all_unsorted(cls):
         """Return query of all published projects, without ordering criteria."""
-        return cls.query.outerjoin(Venue).filter(cls.state.PUBLISHED)
+        return (
+            cls.query.join(Profile)
+            .outerjoin(Venue)
+            .filter(cls.state.PUBLISHED, Profile.is_verified.is_(True))
+        )
 
     @classmethod
     def all(cls):  # noqa: A003
         """Return all published projects, ordered by date."""
         return cls.all_unsorted().order_by(cls.order_by_date())
 
-    @classmethod
-    def fetch_sorted(cls):
-        return cls.query.filter(cls.state.PUBLISHED).order_by(cls.order_by_date())
-
     # The base class offers `get(parent, name)`. We accept f'{parent}/{name}' here for
     # convenience as this is only used in shell access.
     @classmethod
-    def get(cls, profile_project):  # skipcq: PYL-W0221
+    def get(cls, profile_project):  # pylint: disable=arguments-differ
         """Get a project by its URL slug in the form ``<profile>/<project>``."""
         profile_name, project_name = profile_project.split('/')
         return (
@@ -688,9 +688,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
 
     @classmethod
-    def migrate_profile(
+    def migrate_profile(  # type: ignore[return]
         cls, old_profile: Profile, new_profile: Profile
     ) -> OptionalMigratedTables:
+        """Migrate from one profile to another when merging user accounts."""
         names = {project.name for project in new_profile.projects}
         for project in old_profile.projects:
             if project.name in names:
@@ -701,7 +702,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 )
                 project.name += '-' + buid()
             project.profile = new_profile
-        return None
 
 
 add_search_trigger(Project, 'search_vector')
@@ -784,19 +784,19 @@ class ProjectRedirect(TimestampMixin, db.Model):
     )
     project = db.relationship(Project, backref='redirects')
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`ProjectRedirect` as a string."""
-        return '<ProjectRedirect {}/{}: {}>'.format(
-            self.profile.name,
-            self.name,
-            self.project.name if self.project else '(none)',
+        if not self.project:
+            return f'<ProjectRedirect {self.profile.name}/{self.name}: (none)>'
+        return (
+            f'<ProjectRedirect {self.profile.name}/{self.name}'
+            f' → {self.project.profile.name}/{self.project.name}>'
         )
 
     def redirect_view_args(self):
         if self.project:
             return {'profile': self.profile.name, 'project': self.project.name}
-        else:
-            return {}
+        return {}
 
     @classmethod
     def add(cls, project, profile=None, name=None):
@@ -824,7 +824,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
         return redirect
 
     @classmethod
-    def migrate_profile(
+    def migrate_profile(  # type: ignore[return]
         cls, old_profile: Profile, new_profile: Profile
     ) -> OptionalMigratedTables:
         """
@@ -841,7 +841,6 @@ class ProjectRedirect(TimestampMixin, db.Model):
                 # Discard project redirect since the name is already taken by another
                 # redirect in the new profile
                 db.session.delete(pr)
-        return None
 
 
 class ProjectLocation(TimestampMixin, db.Model):
@@ -855,12 +854,11 @@ class ProjectLocation(TimestampMixin, db.Model):
     geonameid = db.Column(db.Integer, primary_key=True, nullable=False, index=True)
     primary = db.Column(db.Boolean, default=True, nullable=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`ProjectLocation` as a string."""
-        return '<ProjectLocation %d %s for project %s>' % (
-            self.geonameid,
-            'primary' if self.primary else 'secondary',
-            self.project,
+        pri_sec = 'primary' if self.primary else 'secondary'
+        return (
+            f'<ProjectLocation {self.geonameid} {pri_sec} for project {self.project!r}>'
         )
 
 
@@ -873,5 +871,6 @@ class __Commentset:
 
 
 # Tail imports
-from .project_membership import ProjectCrewMembership  # isort:skip  # skipcq: FLK-E402
+# pylint: disable=wrong-import-position
+from .project_membership import ProjectCrewMembership  # isort:skip
 from .venue import Venue  # isort:skip  # skipcq: FLK-E402

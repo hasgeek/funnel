@@ -1,17 +1,19 @@
+"""Markdown preview view."""
+
 from flask import request
 
 from coaster.utils import markdown
-from coaster.views import render_with
 
 from ... import app
 from ...models import markdown_content_options
+from ...typing import ReturnView
 
 extra_markdown_types = {'profile', 'project', 'submission', 'session'}
 
 
 @app.route('/api/1/preview/markdown', methods=['POST'])
-@render_with(json=True)
-def markdown_preview():
+def markdown_preview() -> ReturnView:
+    """Render Markdown in the backend, with custom options based on use case."""
     mtype = request.form.get('type')
     text = request.form.get('text')
     if mtype in extra_markdown_types:

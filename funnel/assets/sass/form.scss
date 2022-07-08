@@ -456,16 +456,8 @@
   }
 
   .mui-form {
-    .form-actions {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      padding: $mui-grid-padding;
-      z-index: 1003;
-      .mui-btn--primary {
-        position: relative;
-        top: 8px;
-      }
+    .form-actions div {
+      float: right;
     }
   }
 }
@@ -648,4 +640,78 @@ form.mui--bg-accent .CodeMirror {
 .collaborator-placeholder {
   border-bottom: 1px solid $mui-text-accent;
   background: $mui-bg-color-accent;
+}
+
+.modal--form {
+  #field-user {
+    margin-bottom: 32px;
+  }
+}
+
+.modal--form--edit {
+  .select2.select2-container {
+    display: none !important;
+  }
+  .select2-hidden-accessible {
+    background-color: #eee;
+    cursor: not-allowed;
+    height: 32px !important;
+    position: relative !important;
+    padding-left: $mui-grid-padding/2 !important;
+    width: calc(100% + $mui-grid-padding) !important;
+  }
+  .mui-select:focus > label,
+  .mui-select > select:focus ~ label {
+    color: rgba(0, 0, 0, 0.54);
+  }
+}
+
+.social-login-wrapper {
+  max-width: 80%;
+  margin: auto;
+}
+
+.login-twitter,
+.login-twitter:hover,
+.login-twitter:active {
+  background-color: #08a0e9;
+}
+
+.login-google,
+.login-google:hover,
+.login-google:active {
+  color: #757575;
+  background: $mui-bg-color-primary;
+}
+
+.login-linkedin,
+.login-linkedin:hover,
+.login-linkedin:active {
+  background-color: #0074b2;
+}
+
+.login-github,
+.login-github:hover,
+.login-github:active {
+  background-color: #444444;
+}
+
+.keyboard-switch {
+  display: none;
+  justify-content: space-between;
+  position: fixed;
+  bottom: $mui-grid-padding/2;
+  width: calc(100% - #{$mui-grid-padding-double});
+  z-index: 2;
+  padding: $mui-grid-padding/2 0;
+  margin: 0;
+  background: $mui-bg-color-primary;
+
+  .tabs {
+    margin: 0;
+  }
+}
+
+input#username:focus ~ .keyboard-switch {
+  display: flex;
 }

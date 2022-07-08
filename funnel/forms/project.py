@@ -1,14 +1,16 @@
+"""Forms for a project."""
+
 from __future__ import annotations
 
+from typing import Optional
 import re
 
-from baseframe import _, __
+from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import AvailableName
 from coaster.utils import sorted_timezones, utcnow
-import baseframe.forms as forms
 
-from ..models import Project, Rsvp, SavedProject
-from .helpers import image_url_validator, nullable_strip_filters
+from ..models import Profile, Project, Rsvp, SavedProject
+from .helpers import ProfileSelectField, image_url_validator, nullable_strip_filters
 
 __all__ = [
     'CfpForm',
@@ -16,8 +18,10 @@ __all__ = [
     'ProjectForm',
     'ProjectLivestreamForm',
     'ProjectNameForm',
+    'ProjectFeaturedForm',
     'ProjectTransitionForm',
     'ProjectBannerForm',
+    'ProjectSponsorForm',
     'RsvpTransitionForm',
     'SavedProjectForm',
 ]
@@ -34,6 +38,8 @@ class ProjectForm(forms.Form):
     """
 
     __expects__ = ('profile',)
+    profile: Profile
+    edit_obj: Optional[Project]
 
     title = forms.StringField(
         __("Title"),
@@ -105,15 +111,16 @@ class ProjectForm(forms.Form):
         description=__("Landing page contents"),
     )
 
-    def validate_location(self, field):
+    def validate_location(self, field) -> None:
+        """Validate location field to not have quotes (from copy paste of hint)."""
         if re.search(double_quote_re, field.data) is not None:
-            raise forms.ValidationError(
+            raise forms.validators.ValidationError(
                 __("Quotes are not necessary in the location name")
             )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
         self.bg_image.profile = self.profile.name
-        if self.edit_obj and self.edit_obj.schedule_start_at:
+        if self.edit_obj is not None and self.edit_obj.schedule_start_at:
             # Don't allow user to directly manipulate timestamps when it's done via
             # Session objects
             del self.start_at
@@ -122,12 +129,16 @@ class ProjectForm(forms.Form):
 
 @Project.forms('featured')
 class ProjectFeaturedForm(forms.Form):
+    """Form to mark a project as featured site-wide."""
+
     site_featured = forms.BooleanField(
         __("Feature this project"), validators=[forms.validators.InputRequired()]
     )
 
 
 class ProjectLivestreamForm(forms.Form):
+    """Form to add a livestream URL to a project."""
+
     livestream_urls = forms.TextListField(
         __(
             "Livestream URLs. One per line. Must be on YouTube or Vimeo."
@@ -159,6 +170,11 @@ class ProjectLivestreamForm(forms.Form):
 
 
 class ProjectNameForm(forms.Form):
+    """Form to change the URL name of a project."""
+
+    # TODO: Add validators for profile and unique name here instead of delegating to
+    # the view. Also add `set_queries` method to change ``name.prefix``
+
     name = forms.AnnotatedTextField(
         __("Custom URL"),
         description=__(
@@ -179,7 +195,7 @@ class ProjectNameForm(forms.Form):
         ],
         filters=[forms.filters.strip()],
         prefix="https://hasgeek.com/<profile>/",
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
     )
 
 
@@ -191,6 +207,7 @@ class ProjectBannerForm(forms.Form):
     """
 
     __expects__ = ('profile',)
+    profile: Profile
 
     bg_image = forms.ImgeeField(
         __("Banner image"),
@@ -202,13 +219,16 @@ class ProjectBannerForm(forms.Form):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.bg_image.widget_type = 'modal'
         self.bg_image.profile = self.profile.name
 
 
 @Project.forms('cfp')
 class CfpForm(forms.Form):
+    """Form for editing instructions for submissions to a project."""
+
     instructions = forms.MarkdownField(
         __("Guidelines"),
         validators=[forms.validators.DataRequired()],
@@ -225,31 +245,43 @@ class CfpForm(forms.Form):
         naive=False,
     )
 
-    def validate_cfp_end_at(self, field):
+    def validate_cfp_end_at(self, field) -> None:
+        """Validate closing date to be in the future."""
         if field.data <= utcnow():
-            raise forms.StopValidation(_("Closing date must be in the future"))
+            raise forms.validators.StopValidation(
+                _("Closing date must be in the future")
+            )
 
 
 @Project.forms('transition')
 class ProjectTransitionForm(forms.Form):
+    """Form for transitioning a project's state."""
+
+    edit_obj: Project
+
     transition = forms.SelectField(
         __("Status"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.transition.choices = list(self.edit_obj.state.transitions().items())
 
 
 @Project.forms('cfp_transition')
 class ProjectCfpTransitionForm(forms.Form):
+    """Form for transitioning a project's submission state."""
+
     open = forms.BooleanField(  # noqa: A003
         __("Open submissions"), validators=[forms.validators.InputRequired()]
     )
 
-    def get_open(self, obj):
-        self.open.data = bool(obj.cfp_state.OPEN)
+    def get_open(self, obj: Project) -> bool:
+        """Get open state from project."""
+        return bool(obj.cfp_state.OPEN)
 
-    def set_open(self, obj):
+    def set_open(self, obj: Project) -> None:
+        """Set open state and date on project."""
         if self.open.data and not obj.cfp_state.OPEN:
             # Checkbox: yes, but CfP state is not open, so open it
             obj.open_cfp()
@@ -259,8 +291,29 @@ class ProjectCfpTransitionForm(forms.Form):
         # No action required in all other cases
 
 
+@Project.forms('sponsor')
+class ProjectSponsorForm(forms.Form):
+    """Form to add or edit a sponsor on a project."""
+
+    profile = ProfileSelectField(
+        __("Profile"),
+        autocomplete_endpoint='/api/1/profile/autocomplete',
+        results_key='profile',
+        description=__("Choose a sponsor"),
+        validators=[forms.validators.DataRequired()],
+    )
+    label = forms.StringField(
+        __("Label"),
+        description=__("Optional – Label for sponsor"),
+        filters=[forms.filters.strip(), forms.filters.none_if_empty()],
+    )
+    is_promoted = forms.BooleanField(__("Mark this sponsor as promoted"), default=False)
+
+
 @SavedProject.forms('main')
 class SavedProjectForm(forms.Form):
+    """Form to bookmark a project."""
+
     save = forms.BooleanField(
         __("Save this project?"), validators=[forms.validators.InputRequired()]
     )
@@ -273,11 +326,14 @@ class SavedProjectForm(forms.Form):
 
 @Rsvp.forms('transition')
 class RsvpTransitionForm(forms.Form):
+    """Form to change RSVP state between Yes, No and Maybe."""
+
     transition = forms.SelectField(
         __("Status"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         # Usually you need to use an instance's state.transitions to find
         # all the valid transitions for the current state of the instance.
         # But for RSVP, we're showing all the options all the time, so this

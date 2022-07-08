@@ -1,3 +1,5 @@
+"""Membership model for admins of an organization."""
+
 from __future__ import annotations
 
 from typing import Set
@@ -136,6 +138,7 @@ class __Organization:
     )
 
     active_invitations = db.relationship(
+        # pylint: disable=invalid-unary-operand-type
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=db.and_(
@@ -190,6 +193,7 @@ class __User:
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=db.and_(
+            # pylint: disable=invalid-unary-operand-type
             db.remote(OrganizationMembership.user_id) == User.id,
             OrganizationMembership.is_invite,
             ~OrganizationMembership.is_active,  # type: ignore[operator]

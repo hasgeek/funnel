@@ -11,9 +11,16 @@ const Form = {
         response.status === 422 &&
         response.responseJSON.error === 'requires_sudo'
       ) {
-        window.location.href = `${
-          window.Hasgeek.Config.accountSudo
-        }?next=${encodeURIComponent(window.location.href)}`;
+        window.location.assign(
+          `${window.Hasgeek.Config.accountSudo}?next=${encodeURIComponent(
+            window.location.href
+          )}`
+        );
+      } else if (
+        response.status === 422 &&
+        response.responseJSON.error === 'redirect'
+      ) {
+        window.location.assign(response.responseJSON.location);
       } else {
         errorMsg = response.responseJSON.error_description;
       }

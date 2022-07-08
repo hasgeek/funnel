@@ -48,10 +48,6 @@
       top: 50%;
     }
 
-    .mui-btn--primary {
-      width: 100%;
-    }
-
     .mui-form {
       margin: 0;
     }
@@ -90,50 +86,6 @@
       margin: 0 auto $mui-grid-padding * 2;
     }
   }
-}
-
-.login,
-.login:hover,
-.login:active {
-  color: $mui-text-white;
-  font-size: 16px;
-  text-transform: capitalize;
-}
-
-.login {
-  margin: 0;
-  margin-bottom: $mui-grid-padding;
-}
-
-.login--smaller {
-  margin-right: $mui-grid-padding/2;
-  margin-bottom: $mui-grid-padding/2;
-}
-
-.login-twitter,
-.login-twitter:hover,
-.login-twitter:active {
-  background-color: #08a0e9;
-}
-.login-google,
-.login-google:hover,
-.login-google:active {
-  color: #757575;
-  background: $mui-bg-color-primary;
-}
-.login-linkedin,
-.login-linkedin:hover,
-.login-linkedin:active {
-  background-color: #0074b2;
-}
-.login-github,
-.login-github:hover,
-.login-github:active {
-  background-color: #444444;
-}
-
-.mui-btn.login + .mui-btn.login {
-  margin-left: 0;
 }
 
 a.loginbutton.hidden,

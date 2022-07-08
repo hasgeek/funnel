@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from email.utils import formataddr, getaddresses, parseaddr
-from typing import Dict, List, NamedTuple, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from flask import current_app
 from flask_mailman import EmailMultiAlternatives
@@ -30,7 +31,8 @@ __all__ = [
 EmailRecipient = Union[User, Tuple[Optional[str], str], str]
 
 
-class EmailAttachment(NamedTuple):
+@dataclass
+class EmailAttachment:
     """An email attachment. Must have content, filename and mimetype."""
 
     content: str
@@ -108,7 +110,7 @@ def process_recipient(recipient: EmailRecipient) -> str:
     return formataddr((realname, emailaddr))
 
 
-def send_email(
+def send_email(  # pylint: disable=too-many-arguments
     subject: str,
     to: List[EmailRecipient],
     content: str,
@@ -154,7 +156,7 @@ def send_email(
             EmailAddress.add(email) for name, email in getaddresses(msg.recipients())
         ]
     except EmailAddressBlockedError as exc:
-        raise TransportRecipientError(exc)
+        raise TransportRecipientError(exc) from exc
     # FIXME: This won't raise an exception on delivery_state.HARD_FAIL. We need to do
     # catch that, remove the recipient, and notify the user via the upcoming
     # notification centre. (Raise a TransportRecipientError)

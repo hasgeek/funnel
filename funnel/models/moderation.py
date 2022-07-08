@@ -1,3 +1,5 @@
+"""Site moderator models."""
+
 from __future__ import annotations
 
 from baseframe import __

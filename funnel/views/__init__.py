@@ -1,8 +1,9 @@
+"""All app views and view helpers."""
 # flake8: noqa
 
 from __future__ import annotations
 
-from . import (
+from . import (  # skipcq: PY-W2000
     account,
     account_reset,
     api,
@@ -25,8 +26,10 @@ from . import (
     notification_preferences,
     notifications,
     organization,
+    otp,
     profile,
     project,
+    project_sponsor,
     proposal,
     schedule,
     search,

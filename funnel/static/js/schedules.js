@@ -202,6 +202,7 @@ $(function () {
           url: events.current.modal_url,
           type: 'POST',
           data: data,
+          dataType: 'json',
           success: function (result) {
             if (result.status) {
               events.update_obj_data(result.data);

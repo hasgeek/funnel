@@ -1,3 +1,6 @@
+"""Tests for Notification and UserNotification models."""
+# pylint: disable=possibly-unused-variable
+
 from types import SimpleNamespace
 
 from sqlalchemy.exc import IntegrityError
@@ -56,15 +59,15 @@ def notification_types():
     return SimpleNamespace(**locals())
 
 
-@pytest.fixture
-def project_fixtures(db_session):
+@pytest.fixture()
+def project_fixtures(db_session):  # pylint: disable=too-many-locals
     """Provide users, one org and one project, for tests on them."""
     user_owner = User(username='user-owner', fullname="User Owner")
     user_owner.add_email('owner@example.com')
 
     user_editor = User(username='user-editor', fullname="User Editor")
     user_editor.add_email('editor@example.com')
-    user_editor_phone = UserPhone(user=user_editor, phone='+1234567890')
+    user_editor_phone = UserPhone(user=user_editor, phone='+12345678900')
 
     user_participant = User(username='user-participant', title="User Participant")
 
@@ -119,7 +122,7 @@ def project_fixtures(db_session):
     return SimpleNamespace(**locals())
 
 
-def test_project_roles(project_fixtures):
+def test_project_roles(project_fixtures) -> None:
     """Test that the fixtures have roles set up correctly."""
     owner_roles = project_fixtures.project.roles_for(project_fixtures.user_owner)
     assert 'editor' in owner_roles
@@ -158,23 +161,23 @@ def test_project_roles(project_fixtures):
     assert 'participant' not in bystander_roles
 
 
-@pytest.fixture
+@pytest.fixture()
 def update(project_fixtures, db_session):
     """Publish an update as a fixture."""
-    update = Update(
+    new_update = Update(
         project=project_fixtures.project,
         user=project_fixtures.user_editor,
         title="New update",
         body="New update body",
     )
-    db_session.add(update)
+    db_session.add(new_update)
     db_session.commit()
-    update.publish(project_fixtures.user_editor)
+    new_update.publish(project_fixtures.user_editor)
     db_session.commit()
-    return update
+    return new_update
 
 
-def test_update_roles(project_fixtures, update):
+def test_update_roles(project_fixtures, update) -> None:
     """Test whether Update grants the project_* roles to users."""
     owner_roles = update.roles_for(project_fixtures.user_owner)
     assert 'project_editor' in owner_roles
@@ -230,9 +233,9 @@ def test_update_notification_structure(
     # Extract all the user notifications and confirm they're correctly assigned
     user_notifications = list(notification.dispatch())
     # We got user assignees
-    assert user_notifications != []
+    assert user_notifications
     # A second call to dispatch() will yield nothing
-    assert list(notification.dispatch()) == []
+    assert not list(notification.dispatch())
 
     # Notifications are issued strictly in the order specified in cls.roles
     role_order = []
@@ -258,15 +261,16 @@ def test_update_notification_structure(
     assert project_fixtures.user_bystander not in all_recipients
 
 
-def test_user_notification_preferences(notification_types, db_session):
+def test_user_notification_preferences(notification_types, db_session) -> None:
     """Test that users have a notification_preferences dict."""
+    nt = notification_types  # Short var for keeping lines within 88 columns below
     user = User(fullname="User")
     db_session.add(user)
     db_session.commit()
     assert user.notification_preferences == {}
     np = NotificationPreferences(
         user=user,
-        notification_type=notification_types.TestNewUpdateNotification.cls_type(),
+        notification_type=nt.TestNewUpdateNotification.cls_type(),
     )
     db_session.add(np)
     db_session.commit()
@@ -275,29 +279,29 @@ def test_user_notification_preferences(notification_types, db_session):
     assert user.notification_preferences['update_new_test'].user == user
     assert (
         user.notification_preferences['update_new_test'].type_cls
-        == notification_types.TestNewUpdateNotification
+        == nt.TestNewUpdateNotification
     )
 
     # There cannot be two sets of preferences for the same notification type
-    with pytest.raises(IntegrityError):
-        db_session.add(
-            NotificationPreferences(
-                user=user,
-                notification_type=notification_types.TestNewUpdateNotification.cls_type(),
-            )
+    db_session.add(
+        NotificationPreferences(
+            user=user,
+            notification_type=nt.TestNewUpdateNotification.cls_type(),
         )
+    )
+    with pytest.raises(IntegrityError):
         db_session.commit()
     db_session.rollback()
 
     # Preferences cannot be set for invalid types
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Invalid notification_type'):
         NotificationPreferences(user=user, notification_type='invalid')
     db_session.rollback()
 
     # Preferences can be set for other notification types though
     np2 = NotificationPreferences(
         user=user,
-        notification_type=notification_types.TestProposalReceivedNotification.cls_type(),
+        notification_type=nt.TestProposalReceivedNotification.cls_type(),
     )
     db_session.add(np2)
     db_session.commit()

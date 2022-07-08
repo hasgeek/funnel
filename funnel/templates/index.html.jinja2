@@ -29,7 +29,8 @@
       "logo" : {{ url_for('static', filename='img/hg-banner.png', v=2, _external=true)|tojson }},
       "contactPoint" : [{
         "@type" : "ContactPoint",
-        "telephone" : "+91 7676 33 2020",
+        "telephone" : {{ config['SITE_SUPPORT_PHONE']|tojson }},
+        "email": {{ config['SITE_SUPPORT_EMAIL']|tojson }},
         "contactType" : "customer service"
       }],
       "sameAs" : [
@@ -56,36 +57,6 @@
 
 {% block basecontent %}
   <a href="/about" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}What’s this about?{% endtrans %}</a>
-  <div class="projects-wrapper">
-    <div class="spotlight">
-      <div class="mui-container">
-        <div class="grid">
-          <div class="grid__col-12">
-            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Spotlight{% endtrans %}</h2>
-          </div>
-        </div>
-      </div>
-      <div class="mui-container">
-        <div class="grid">
-          <div class="grid__col-12">
-            <a class="card card--spotlight clickable-card" href="https://hasgeek.com/PrivacyMode" aria-label="Privacy Mode" data-ga="View Privacy Mode">
-              <div class="card__image-wrapper">
-                <img class="card__image" src="https://images.hasgeek.com/embed/file/e22698b318354c7289cde8a64db99066" alt="Privacy Mode"/>
-              </div>
-              <div class="card__body">
-                <h3 class="card__body__title mui--text-headline mui--text-bold">Privacy Mode</h3>
-                <p class="card__body__subtitle mui--text-title zero-top-margin">Deep dives into privacy and security, and understanding needs of the Indian tech ecosystem</p>
-                <div class="card__body__subtitle">
-                  <p class="mui--text-body2 mui--text-light zero-top-margin">How do you build privacy-aware tech products and services? What are standards and how does one comply?</p>
-                  <p class="mui--text-body2 mui--text-light zero-top-margin">Ask, and find the answer to these questions at Privacy Mode, through research, collaboration, conferences and guides. Follow for updates or pitch your ideas.</p>
-                </div>
-              </div>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
   {{ featured_section(featured_project, heading=false) }}
   {{ upcoming_section(upcoming_projects) }}
   {{ open_cfp_section(open_cfp_projects) }}

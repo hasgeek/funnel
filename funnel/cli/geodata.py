@@ -1,6 +1,8 @@
+"""Process geonames data."""
+
 from __future__ import annotations
 
-from collections import namedtuple
+from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
@@ -35,75 +37,78 @@ csv.field_size_limit(sys.maxsize)
 geo = AppGroup('geoname', help="Process geoname data.")
 
 
-CountryInfoRecord = namedtuple(
-    'CountryInfoRecord',
-    [
-        'iso_alpha2',
-        'iso_alpha3',
-        'iso_numeric',
-        'fips_code',
-        'title',
-        'capital',
-        'area_in_sqkm',
-        'population',
-        'continent',
-        'tld',
-        'currency_code',
-        'currency_name',
-        'phone',
-        'postal_code_format',
-        'postal_code_regex',
-        'languages',
-        'geonameid',
-        'neighbours',
-        'equivalent_fips_code',
-    ],
-)
+@dataclass
+class CountryInfoRecord:
+    """Geonames country info record."""
+
+    iso_alpha2: str
+    iso_alpha3: str
+    iso_numeric: str
+    fips_code: str
+    title: str
+    capital: str
+    area_in_sqkm: str
+    population: str
+    continent: str
+    tld: str
+    currency_code: str
+    currency_name: str
+    phone: str
+    postal_code_format: str
+    postal_code_regex: str
+    languages: str
+    geonameid: str
+    neighbours: str
+    equivalent_fips_code: str
 
 
-GeoNameRecord = namedtuple(
-    'GeoNameRecord',
-    [
-        'geonameid',
-        'title',
-        'ascii_title',
-        'alternatenames',
-        'latitude',
-        'longitude',
-        'fclass',
-        'fcode',
-        'country_id',
-        'cc2',
-        'admin1',
-        'admin2',
-        'admin3',
-        'admin4',
-        'population',
-        'elevation',
-        'dem',
-        'timezone',
-        'moddate',
-    ],
-)
+@dataclass
+class GeoNameRecord:
+    """Geonames name record."""
+
+    geonameid: str
+    title: str
+    ascii_title: str
+    alternatenames: str
+    latitude: str
+    longitude: str
+    fclass: str
+    fcode: str
+    country_id: str
+    cc2: str
+    admin1: str
+    admin2: str
+    admin3: str
+    admin4: str
+    population: str
+    elevation: str
+    dem: str
+    timezone: str
+    moddate: str
 
 
-GeoAdminRecord = namedtuple(
-    'GeoAdminRecord', ['code', 'title', 'ascii_title', 'geonameid']
-)
+@dataclass
+class GeoAdminRecord:
+    """Geonames admin record."""
 
-GeoAltNameRecord = namedtuple(
-    'GeoAltNameRecord',
-    [
-        'id',
-        'geonameid',
-        'lang',
-        'title',
-        'is_preferred_name',
-        'is_short_name',
-        'is_colloquial',
-        'is_historic',
-    ],
-)
+    code: str
+    title: str
+    ascii_title: str
+    geonameid: str
+
+
+@dataclass
+class GeoAltNameRecord:
+    """Geonames alt name record."""
+
+    id: str  # noqa: A003
+    geonameid: str
+    lang: str
+    title: str
+    is_preferred_name: str
+    is_short_name: str
+    is_colloquial: str
+    is_historic: str
 
 
 def get_progressbar():
@@ -130,9 +135,9 @@ def downloadfile(basepath: str, filename: str, folder: Optional[str] = None):
         os.path.exists(folder_file)
         and (time.time() - os.path.getmtime(folder_file)) < 86400
     ):
-        print(f"Skipping re-download of recent {filename}")  # noqa: T001
+        print(f"Skipping re-download of recent {filename}")  # noqa: T201
         return
-    print(f"Downloading {filename}...")  # noqa: T001
+    print(f"Downloading {filename}...")  # noqa: T201
     url = urljoin(basepath, filename)
     r = requests.get(url, stream=True)
     if r.status_code == 200:
@@ -148,7 +153,7 @@ def downloadfile(basepath: str, filename: str, folder: Optional[str] = None):
             ],
         ).start()
         readbytes = 0
-        with open(folder_file, 'wb') as fd:
+        with open(folder_file, 'wb', encoding='utf-8') as fd:
             for chunk in r.iter_content(1024):
                 if not chunk:
                     break  # Break when done. The connection remains open for Keep-Alive
@@ -158,13 +163,13 @@ def downloadfile(basepath: str, filename: str, folder: Optional[str] = None):
         progress.finish()
 
         if filename.lower().endswith('.zip'):
-            zipf = zipfile.ZipFile(folder_file, 'r')
-            zipf.extractall(folder)
+            with zipfile.ZipFile(folder_file, 'r') as zipf:
+                zipf.extractall(folder)
 
 
 def load_country_info(fd):
     """Load country geonames from the given file descriptor."""
-    print("Loading country info...")  # noqa: T001
+    print("Loading country info...")  # noqa: T201
     progress = get_progressbar()
     countryinfo = [
         CountryInfoRecord(*row)
@@ -207,7 +212,7 @@ def load_country_info(fd):
 def load_geonames(fd):
     """Load geonames matching fixed criteria from the given file descriptor."""
     progress = get_progressbar()
-    print("Loading geonames...")  # noqa: T001
+    print("Loading geonames...")  # noqa: T201
     size = sum(1 for line in fd)
     fd.seek(0)  # Return to start
     loadprogress = ProgressBar(
@@ -272,7 +277,7 @@ def load_geonames(fd):
 
     loadprogress.finish()
 
-    print(f"Sorting {len(geonames)} records...")  # noqa: T001
+    print(f"Sorting {len(geonames)} records...")  # noqa: T201
 
     geonames = [
         row[2]
@@ -290,7 +295,7 @@ def load_geonames(fd):
     ]
     GeoName.query.all()  # Load all data into session cache for faster lookup
 
-    print(f"Processing {len(geonames)} records...")  # noqa: T001
+    print(f"Processing {len(geonames)} records...")  # noqa: T201
 
     for item in progress(geonames):
         if item.geonameid:
@@ -335,7 +340,7 @@ def load_geonames(fd):
 def load_alt_names(fd):
     """Load alternative names for geonames from the given file descriptor."""
     progress = get_progressbar()
-    print("Loading alternate names...")  # noqa: T001
+    print("Loading alternate names...")  # noqa: T201
     size = sum(1 for line in fd)
     fd.seek(0)  # Return to start
     loadprogress = ProgressBar(
@@ -366,7 +371,7 @@ def load_alt_names(fd):
 
     loadprogress.finish()
 
-    print(f"Processing {len(altnames)} records...")  # noqa: T001
+    print(f"Processing {len(altnames)} records...")  # noqa: T201
     GeoAltName.query.all()  # Load all data into session cache for faster lookup
 
     for item in progress(altnames):
@@ -388,7 +393,7 @@ def load_alt_names(fd):
 
 def load_admin1_codes(fd):
     """Load admin1 codes from the given file descriptor."""
-    print("Loading admin1 codes...")  # noqa: T001
+    print("Loading admin1 codes...")  # noqa: T201
     progress = get_progressbar()
     admincodes = [
         GeoAdminRecord(*row)
@@ -412,7 +417,7 @@ def load_admin1_codes(fd):
 
 def load_admin2_codes(fd):
     """Load admin2 codes from the given file descriptor."""
-    print("Loading admin2 codes...")  # noqa: T001
+    print("Loading admin2 codes...")  # noqa: T201
     progress = get_progressbar()
     admincodes = [
         GeoAdminRecord(*row)
@@ -454,17 +459,17 @@ def download():
 @geo.command('process')
 def process():
     """Process downloaded geonames data."""
-    with open('geoname_data/countryInfo.txt', newline='') as fd:
+    with open('geoname_data/countryInfo.txt', newline='', encoding='utf-8') as fd:
         load_country_info(fd)
-    with open('geoname_data/admin1CodesASCII.txt', newline='') as fd:
+    with open('geoname_data/admin1CodesASCII.txt', newline='', encoding='utf-8') as fd:
         load_admin1_codes(fd)
-    with open('geoname_data/admin2Codes.txt', newline='') as fd:
+    with open('geoname_data/admin2Codes.txt', newline='', encoding='utf-8') as fd:
         load_admin2_codes(fd)
-    with open('geoname_data/IN.txt', newline='') as fd:
+    with open('geoname_data/IN.txt', newline='', encoding='utf-8') as fd:
         load_geonames(fd)
-    with open('geoname_data/allCountries.txt', newline='') as fd:
+    with open('geoname_data/allCountries.txt', newline='', encoding='utf-8') as fd:
         load_geonames(fd)
-    with open('geoname_data/alternateNames.txt', newline='') as fd:
+    with open('geoname_data/alternateNames.txt', newline='', encoding='utf-8') as fd:
         load_alt_names(fd)
 
 

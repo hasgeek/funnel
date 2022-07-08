@@ -1,8 +1,8 @@
 coverage
 coveralls
-fakeredis
 lxml
 pytest
 pytest-bdd
 pytest-cov
+pytest-dotenv
 requests-mock

@@ -1,8 +1,9 @@
+"""Scheduled sessions in projects."""
+
 from __future__ import annotations
 
-from baseframe import __
+from baseframe import __, forms
 from coaster.utils import nullint
-import baseframe.forms as forms
 
 from ..models import SavedSession, Session
 from .helpers import image_url_validator, nullable_strip_filters, video_url_validator
@@ -12,6 +13,8 @@ __all__ = ['SavedSessionForm', 'SessionForm']
 
 @Session.forms('main')
 class SessionForm(forms.Form):
+    """Form for a session in a project."""
+
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
@@ -64,6 +67,8 @@ class SessionForm(forms.Form):
 
 @SavedSession.forms('main')
 class SavedSessionForm(forms.Form):
+    """Bookmark a session."""
+
     save = forms.BooleanField(
         __("Save this session?"), validators=[forms.validators.InputRequired()]
     )

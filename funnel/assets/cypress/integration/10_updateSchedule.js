@@ -82,12 +82,12 @@ describe('Add schedule and livestream', () => {
     cy.wait(1000);
     cy.login('/', siteEditor.username, siteEditor.password);
     cy.get('.upcoming').find('.card--upcoming').contains(project.title).click();
-    cy.get('a[data-cy="project-menu"]').click();
+    cy.get('a[data-cy="site-editor-menu"]').click();
     cy.wait(1000);
     cy.get('input#featured-project').click({ force: true });
     cy.get('a[data-cy="home-desktop"]').click();
     cy.get('[data-cy="spotlight-project"]').contains(project.title).click();
-    cy.get('a[data-cy="project-menu"]').click();
+    cy.get('a[data-cy="site-editor-menu"]').click();
     cy.wait(1000);
     cy.get('input#featured-project').click({ force: true });
     cy.get('a[data-cy="home-desktop"]').click();

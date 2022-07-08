@@ -1,3 +1,4 @@
+"""Provide configuration for models and import all into a common `models` namespace."""
 # flake8: noqa
 
 from __future__ import annotations
@@ -35,6 +36,7 @@ TimestampMixin.__with_timezone__ = True
 # Some of these imports are order sensitive due to circular dependencies
 # All of them have to be imported after TimestampMixin is patched
 
+# pylint: disable=wrong-import-position
 from .helpers import *  # isort:skip
 from .user import *  # isort:skip
 from .user_signals import *  # isort:skip

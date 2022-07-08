@@ -1,3 +1,5 @@
+"""Test handling of temporary variables in cookie session."""
+
 from datetime import timedelta
 import time
 
@@ -9,14 +11,14 @@ from funnel.views.helpers import SessionTimeouts, session_timeouts
 test_timeout_seconds = 1
 
 
-def test_session_timeouts_dict():
+def test_session_timeouts_dict() -> None:
     st = SessionTimeouts()
     assert isinstance(st.keys_at, set)
-    assert st == {}
+    assert st == {}  # pylint: disable=use-implicit-booleaness-not-comparison
     assert st.keys_at == set()
 
-    with pytest.raises(ValueError):
-        st['test'] = 'not a timestamp'
+    with pytest.raises(ValueError, match='must be a timedelta'):
+        st['test'] = 'not a timestamp'  # type: ignore[assignment]
 
     st['test'] = timedelta(seconds=1)
 
@@ -29,7 +31,7 @@ def test_session_timeouts_dict():
 
     # Key can be removed and added again in the unlikely situation where this is needed
     del st['test']
-    assert st == {}
+    assert st == {}  # pylint: disable=use-implicit-booleaness-not-comparison
     assert st.keys_at == set()
 
     st['test'] = timedelta(seconds=2)
@@ -37,7 +39,7 @@ def test_session_timeouts_dict():
     assert st.keys_at == {'test_at'}
 
 
-def test_session_intersection():
+def test_session_intersection() -> None:
     st = SessionTimeouts()
     st['test'] = timedelta(seconds=1)
     fake_session_intersection = {'test': 'value', 'other': 'other_value'}
@@ -47,14 +49,15 @@ def test_session_intersection():
     assert not st.has_intersection(fake_session_disjoint)
 
 
-@pytest.fixture
-def timeout_var():
+@pytest.fixture()
+def _timeout_var():
     session_timeouts['test_timeout'] = timedelta(seconds=test_timeout_seconds)
     yield
     session_timeouts.pop('test_timeout')
 
 
-def test_session_temp_vars(client, timeout_var):
+@pytest.mark.usefixtures('_timeout_var')
+def test_session_temp_vars(client) -> None:
     with client.session_transaction() as session:
         assert 'test_timeout' not in session
         assert 'test_timeout_at' not in session

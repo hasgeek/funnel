@@ -1,3 +1,5 @@
+"""LinkedIn OAuth2 client."""
+
 from __future__ import annotations
 
 from secrets import token_urlsafe
@@ -28,18 +30,6 @@ class LinkedInProvider(LoginProvider):
         'q=members&projection=(elements*(handle~))'
     )
 
-    def __init__(
-        self, name, title, key, secret, at_login=True, priority=False, icon=None
-    ) -> None:
-        self.name = name
-        self.title = title
-        self.at_login = at_login
-        self.priority = priority
-        self.icon = icon
-
-        self.key = key
-        self.secret = secret
-
     def do(self, callback_url):
         session['oauth_state'] = token_urlsafe()
         session['oauth_callback'] = callback_url
@@ -66,13 +56,12 @@ class LinkedInProvider(LoginProvider):
         if 'error' in request.args:
             if request.args['error'] == 'access_denied':
                 raise LoginCallbackError(_("You denied the LinkedIn login request"))
-            elif request.args['error'] == 'redirect_uri_mismatch':
+            if request.args['error'] == 'redirect_uri_mismatch':
                 # TODO: Log this as an exception for the server admin to look at
                 raise LoginCallbackError(
                     _("This server's callback URL is misconfigured")
                 )
-            else:
-                raise LoginCallbackError(_("Unknown failure"))
+            raise LoginCallbackError(_("Unknown failure"))
         code = request.args.get('code', None)
         try:
             response = requests.post(
@@ -94,7 +83,7 @@ class LinkedInProvider(LoginProvider):
             capture_exception(exc)
             raise LoginCallbackError(
                 _("LinkedIn had an intermittent problem. Try again?")
-            )
+            ) from exc
         if 'error' in response:
             raise LoginCallbackError(response['error'])
         try:
@@ -112,7 +101,7 @@ class LinkedInProvider(LoginProvider):
             capture_exception(exc)
             raise LoginCallbackError(
                 _("LinkedIn had an intermittent problem. Try again?")
-            )
+            ) from exc
 
         if not info.get('id'):
             raise LoginCallbackError(
@@ -134,7 +123,7 @@ class LinkedInProvider(LoginProvider):
             capture_exception(exc)
             raise LoginCallbackError(
                 _("LinkedIn had an intermittent problem. Try again?")
-            )
+            ) from exc
 
         email_address = ''
         if 'elements' in email_info and email_info['elements']:

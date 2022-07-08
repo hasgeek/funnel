@@ -1,14 +1,15 @@
+"""Handle email events from service providers (AWS SES)."""
+
 from __future__ import annotations
 
 from email.utils import parseaddr
 from typing import List
 
-from flask import request
+from flask import current_app, request
 
 import requests
 
 from baseframe import statsd
-from coaster.views import render_with
 
 from ... import app
 from ...models import EmailAddress, db
@@ -19,6 +20,7 @@ from ...transports.email.aws_ses import (
     SnsValidator,
     SnsValidatorError,
 )
+from ...typing import ReturnView
 
 
 class SesProcessor(SesProcessorAbc):
@@ -130,7 +132,7 @@ class SesProcessor(SesProcessorAbc):
             email_address.mark_sent()
         statsd.incr(
             'email_address.event',
-            count=ses_event.delivery.recipients,
+            count=len(ses_event.delivery.recipients),
             tags={'engine': 'aws_ses', 'stage': 'processed', 'event': 'delivered'},
         )
 
@@ -193,8 +195,7 @@ sns_headers: List[str] = [
 
 
 @app.route('/api/1/email/ses_event', methods=['POST'])
-@render_with(json=True)
-def process_ses_event():
+def process_ses_event() -> ReturnView:
     """
     Process SES Events from AWS.
 
@@ -231,7 +232,7 @@ def process_ses_event():
         validator.topics = app.config['SES_NOTIFICATION_TOPICS']
         validator.check(message)
     except SnsValidatorError:
-        app.logger.warning("SNS/SES event failed validation: %r", message)
+        current_app.logger.warning("SNS/SES event failed validation: %r", message)
         statsd.incr(
             'email_address.event',
             tags={

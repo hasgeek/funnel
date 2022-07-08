@@ -1,12 +1,14 @@
+"""Tests for User model."""
+
 from datetime import timedelta
 
 import pytest
 
 from coaster.utils import utcnow
-import funnel.models as models
+from funnel import models
 
 
-def test_user(db_session):
+def test_user(db_session) -> None:
     """Test for creation of user object from User model."""
     user = models.User(username='hrun', fullname="Hrun the Barbarian")
     db_session.add(user)
@@ -19,13 +21,13 @@ def test_user(db_session):
     assert hrun == user
 
 
-def test_user_pickername(user_twoflower, user_rincewind):
+def test_user_pickername(user_twoflower, user_rincewind) -> None:
     """Test to verify pickername contains fullname and optional username."""
     assert user_twoflower.pickername == "Twoflower"
     assert user_rincewind.pickername == "Rincewind (@rincewind)"
 
 
-def test_user_is_profile_complete(db_session, user_twoflower, user_rincewind):
+def test_user_is_profile_complete(db_session, user_twoflower, user_rincewind) -> None:
     """
     Test to check if user profile is complete.
 
@@ -55,12 +57,12 @@ def test_user_is_profile_complete(db_session, user_twoflower, user_rincewind):
     assert user_twoflower.is_profile_complete() is True
 
 
-def test_user_organization_owned(user_ridcully, org_uu):
+def test_user_organization_owned(user_ridcully, org_uu) -> None:
     """Test for verifying organizations a user is a owner of."""
     assert list(user_ridcully.organizations_as_owner) == [org_uu]
 
 
-def test_user_email(db_session, user_twoflower):
+def test_user_email(db_session, user_twoflower) -> None:
     """Add and retrieve an email address."""
     assert user_twoflower.email == ''
     useremail = user_twoflower.add_email('twoflower@example.org')
@@ -82,7 +84,7 @@ def test_user_email(db_session, user_twoflower):
     assert useremail2.primary is True
 
 
-def test_user_del_email(db_session, user_twoflower):
+def test_user_del_email(db_session, user_twoflower) -> None:
     """Delete an email address from a user's account."""
     assert user_twoflower.primary_email is None
     assert len(user_twoflower.emails) == 0
@@ -93,7 +95,9 @@ def test_user_del_email(db_session, user_twoflower):
 
     assert len(user_twoflower.emails) == 3
     assert user_twoflower.primary_email is not None
-    assert str(user_twoflower.primary_email) == 'twoflower@example.org'  # type: ignore[unreachable]
+    assert (  # type: ignore[unreachable]
+        str(user_twoflower.primary_email) == 'twoflower@example.org'
+    )
     assert {str(e) for e in user_twoflower.emails} == {
         'twoflower@example.org',
         'twoflower@example.com',
@@ -132,7 +136,7 @@ def test_user_del_email(db_session, user_twoflower):
     assert user_twoflower.email == ''
 
 
-def test_user_phone(db_session, user_twoflower):
+def test_user_phone(db_session, user_twoflower) -> None:
     """Test to retrieve UserPhone property phone."""
     assert user_twoflower.phone == ''
     userphone = user_twoflower.add_phone('+12345678900')
@@ -154,7 +158,7 @@ def test_user_phone(db_session, user_twoflower):
     assert userphone2.primary is True
 
 
-def test_user_del_phone(db_session, user_twoflower):
+def test_user_del_phone(db_session, user_twoflower) -> None:
     """Delete an phone address from a user's account."""
     assert user_twoflower.primary_phone is None
     assert len(user_twoflower.phones) == 0
@@ -165,7 +169,9 @@ def test_user_del_phone(db_session, user_twoflower):
 
     assert len(user_twoflower.phones) == 3
     assert user_twoflower.primary_phone is not None
-    assert str(user_twoflower.primary_phone) == '+12345678900'  # type: ignore[unreachable]
+    assert (  # type: ignore[unreachable]
+        str(user_twoflower.primary_phone) == '+12345678900'
+    )
     assert {str(e) for e in user_twoflower.phones} == {
         '+12345678900',
         '+12345678901',
@@ -244,7 +250,7 @@ def test_user_autocomplete(
 
 
 @pytest.mark.parametrize('defercols', [False, True])
-def test_user_all(
+def test_user_all(  # pylint: disable=too-many-arguments
     db_session,
     user_twoflower,
     user_rincewind,
@@ -307,7 +313,7 @@ def test_user_all(
     }
 
 
-def test_user_add_email(db_session, user_rincewind):
+def test_user_add_email(db_session, user_rincewind) -> None:
     """Test to add email address for a user."""
     # scenario 1: if primary flag is True and user has no existing email
     email1 = 'rincewind@example.org'
@@ -333,7 +339,7 @@ def test_user_add_email(db_session, user_rincewind):
     assert useremail2.primary is False
 
 
-def test_make_email_primary(user_rincewind):
+def test_make_email_primary(user_rincewind) -> None:
     """Test to make an email primary for a user."""
     email = 'rincewind@example.org'
     useremail = user_rincewind.add_email(email)
@@ -344,20 +350,20 @@ def test_make_email_primary(user_rincewind):
     assert useremail.primary is True
 
 
-def test_user_password(user_twoflower):
+def test_user_password(user_twoflower) -> None:
     """Test to set user password."""
     # User account starts out with no password
     assert user_twoflower.pw_hash is None
     # User account can set a password
-    user_twoflower.password = 'test-password'  # noqa: S105
+    user_twoflower.password = 'test-password'  # nosec  # noqa: S105
     assert user_twoflower.password_is('test-password') is True
     assert user_twoflower.password_is('wrong-password') is False
 
 
-def test_user_password_has_expired(db_session, user_twoflower):
+def test_user_password_has_expired(db_session, user_twoflower) -> None:
     """Test to check if password for a user has expired."""
     assert user_twoflower.pw_hash is None
-    user_twoflower.password = 'test-password'  # noqa: S105
+    user_twoflower.password = 'test-password'  # nosec  # noqa: S105
     db_session.commit()  # Required to set pw_expires_at and pw_set_at
     assert user_twoflower.pw_expires_at > user_twoflower.pw_set_at
     assert user_twoflower.password_has_expired() is False
@@ -365,7 +371,7 @@ def test_user_password_has_expired(db_session, user_twoflower):
     assert user_twoflower.password_has_expired() is True
 
 
-def test_password_hash_upgrade(user_twoflower):
+def test_password_hash_upgrade(user_twoflower) -> None:
     """Test for password hash upgrade."""
     # pw_hash contains bcrypt.hash('password')
     user_twoflower.pw_hash = (
@@ -383,7 +389,7 @@ def test_password_hash_upgrade(user_twoflower):
     assert user_twoflower.pw_hash.startswith('$argon2id$')
 
 
-def test_password_not_truncated(user_twoflower):
+def test_password_not_truncated(user_twoflower) -> None:
     """Argon2 passwords are not truncated at up to 1000 characters."""
     # Bcrypt passwords are truncated at 72 characters, making larger length limits
     # pointless. Argon2 passwords are not truncated for a very large size. Passlib has
@@ -394,7 +400,7 @@ def test_password_not_truncated(user_twoflower):
     assert not user_twoflower.password_is('1' * 999 + 'b')
 
 
-def test_user_merged_user(db_session, user_death, user_rincewind):
+def test_user_merged_user(db_session, user_death, user_rincewind) -> None:
     """Test for checking if user had a old id."""
     db_session.commit()
     assert user_death.state.ACTIVE
@@ -405,12 +411,12 @@ def test_user_merged_user(db_session, user_death, user_rincewind):
     assert {o.uuid for o in user_death.oldids} == {user_rincewind.uuid}
 
 
-def test_user_get(db_session, user_twoflower, user_rincewind, user_death):
+def test_user_get(db_session, user_twoflower, user_rincewind, user_death) -> None:
     """Test for User's get method."""
     # scenario 1: if both username and buid not passed
     db_session.commit()
     with pytest.raises(TypeError):
-        models.User.get()
+        models.User.get()  # type: ignore[call-overload]
 
     # scenario 2: if buid is passed
     lookup_by_buid = models.User.get(buid=user_twoflower.buid)
