@@ -37,7 +37,6 @@ types-python-dateutil
 types-pytz
 types-requests
 types-setuptools
-types-simplejson
 types-six
 types-toml
 types-werkzeug

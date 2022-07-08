@@ -7,7 +7,6 @@ from flask import current_app, redirect, request, session
 from oauth2client import client
 from sentry_sdk import capture_exception
 import requests
-import simplejson
 
 from baseframe import _
 
@@ -58,7 +57,7 @@ class GoogleProvider(LoginProvider):
         except (
             client.FlowExchangeError,
             requests.exceptions.RequestException,
-            simplejson.JSONDecodeError,
+            requests.exceptions.JSONDecodeError,
         ) as exc:
             current_app.logger.error("Google OAuth2 error: %s", repr(exc))
             capture_exception(exc)

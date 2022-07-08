@@ -7,7 +7,6 @@ from flask import current_app, redirect, request
 from furl import furl
 from sentry_sdk import capture_exception
 import requests
-import simplejson
 
 from baseframe import _
 
@@ -74,7 +73,7 @@ class GitHubProvider(LoginProvider):
             ).json()
         except (
             requests.exceptions.RequestException,
-            simplejson.JSONDecodeError,
+            requests.exceptions.JSONDecodeError,
         ) as exc:
             current_app.logger.error("GitHub OAuth2 error: %s", repr(exc))
             capture_exception(exc)
