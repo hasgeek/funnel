@@ -356,7 +356,7 @@
   //Toggle between OTP/Password login
   $('.js-toggle-login').on('click', function(event) {
     event.preventDefault();
-    if($(this).attr('data-login-mode') == 'remove-password') {
+    if($(this).attr('id') == 'use-otp-login') {
       $('.js-password-field').find('input').val('');
     }
     $('.js-fields-toggle').toggleClass('mui--hide');
