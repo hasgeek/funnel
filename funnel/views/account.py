@@ -13,6 +13,7 @@ from flask import (
     flash,
     redirect,
     render_template,
+    request,
     url_for,
 )
 
@@ -556,7 +557,7 @@ class AccountView(ClassView):
                 'danger',
             )
             return render_redirect(url_for('account'))
-        return render_delete_sqla(
+        result = render_delete_sqla(
             useremail,
             db,
             title=_("Confirm removal"),
@@ -569,6 +570,9 @@ class AccountView(ClassView):
             next=url_for('account'),
             delete_text=_("Remove"),
         )
+        if request.method == 'POST' and result.status_code in (302, 303):
+            user_data_changed.send(current_auth.user, changes=['email-delete'])
+        return result
 
     @route(
         'email/<email_hash>/verify',
@@ -696,7 +700,7 @@ class AccountView(ClassView):
         if userphone is None:
             abort(404)
 
-        return render_delete_sqla(
+        result = render_delete_sqla(
             userphone,
             db,
             title=_("Confirm removal"),
@@ -709,6 +713,9 @@ class AccountView(ClassView):
             next=url_for('account'),
             delete_text=_("Remove"),
         )
+        if request.method == 'POST' and result.status_code in (302, 303):
+            user_data_changed.send(current_auth.user, changes=['phone-delete'])
+        return result
 
     # Userid is a path here because obsolete OpenID ids are URLs (both direct and via
     # Google's pre-OAuth2 OpenID protocol)
