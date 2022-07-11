@@ -39,7 +39,7 @@ repos:
             '--remove-duplicate-keys',
           ]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.34.0
+    rev: v2.37.1
     hooks:
       - id: pyupgrade
         args:
@@ -169,7 +169,7 @@ repos:
         args: ['--single-quote', '--trailing-comma', 'es5']
         exclude: funnel/templates/js/
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.4.0
+    rev: v1.7.0
     hooks:
       - id: djlint-jinja
         files: \.(jinja2|j2)$
