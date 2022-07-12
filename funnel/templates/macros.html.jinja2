@@ -147,7 +147,7 @@
   </div>
 {% endmacro %}
 
-{% macro projectcard(project, include_calendar=true, calendarwidget_compact=true, save_form_id_prefix='spf_', add_bookmark=true) %}
+{% macro projectcard(project, include_calendar=true, calendarwidget_compact=true, include_details=true, save_form_id_prefix='spf_', add_bookmark=true) %}
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-ga="View project">
     <div class="card__image-wrapper {% if not project.bg_image.url %}card__image-wrapper--default{% endif %}">
       {% if project.bg_image.url %}
@@ -175,13 +175,15 @@
             {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
           </div>
         {% endif %}
-        <h3 class="card__body__title mui--text-subhead {% if not project.start_at %} card__body__subtitle {% endif %}"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
-        <p class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</p>
+        {%- if include_details %}
+          <h3 class="card__body__title mui--text-subhead {% if not project.start_at %} card__body__subtitle {% endif %}"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
+          <p class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</p>
+        {% endif %}
         {%- if not current_auth.is_anonymous and add_bookmark %}
           {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
           <div class="card__body__bookmark card__body__bookmark--pushup">{{ saveprojectform(project, formid=save_form_id) }}</div>
         {% endif %}
-      {% else %}
+      {% elif include_details %}
         <h3 class="card__body__subtitle mui--text-subhead mui--text-bold">{{ project.title }}</h3>
         <p class="mui--text-caption mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</p>
         {% if project.cfp_state.OPEN and project.cfp_end_at_localized %}
@@ -257,40 +259,23 @@
           </div>
         </div>
         <div class="mui-container">
-          <div class="grid">
-            <div class="grid__col-12">
-              <a class="card card--spotlight clickable-card" href="{{ featured_project.url_for() }}" aria-label="{{ featured_project.title }}" data-cy="spotlight-project" data-ga="View spotlight project">
-                <div class="card__image-wrapper">
-                  {% if featured_project.bg_image.url %}
-                    <img class="card__image" src="{{ featured_project.bg_image.resize(spotlight_banner) }}" alt="{{ featured_project.title }}"/>
+          <div class="grid flex-wrapper--center">
+            <div class="grid__col-6 mui--text-left">
+              <div class="">
+                <span class="profile-avatar profile-avatar--bigger">
+                  {%- if featured_project.profile.logo_url.url %}
+                    <img src="{{ featured_project.profile.logo_url }}" alt="{{ featured_project.profile.title }}"/>
                   {% else %}
-                    <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
-                    <p class="card__image__tagline">{{ featured_project.title }}</p>
+                    <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.profile.title }}"/>
                   {% endif %}
-                </div>
-                <div class="card__body">
-                  <h3 class="card__body__title mui--text-headline mui--text-bold">{{ featured_project.title }}</h3>
-                  {% if featured_project.tagline %}
-                  <p class="card__body__subtitle mui--text-subhead zero-top-margin js-truncate mui--text-light" data-truncate-lines="3">{{ featured_project.tagline }}</p>
-                  {% endif %}
-                  {% if featured_project.calendar_weeks_compact.weeks and featured_project.calendar_weeks_compact.weeks|length > 0 %}
-                    <div aria-label="{{ featured_project.datelocation }}">
-                      {{ calendarwidget(featured_project.calendar_weeks_compact) }}
-                    </div>
-                  {% endif %}
-                  {% if featured_project.primary_venue %}
-                    <p class="card__body__location mui--text-light">{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}</p>
-                  {% elif featured_project.location %}
-                    <p class="card__body__location mui--text-light">{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}</p>
-                  {% endif %}
-                  {%- if not current_auth.is_anonymous %}
-                    {% set save_form_id = "featured_" + featured_project.uuid_b58 %}
-                    <div class="card__body__bookmark">
-                      {{ saveprojectform(featured_project, formid=save_form_id) }}
-                    </div>
-                  {% endif %}
-                </div>
-              </a>
+                </span>
+              </div>
+              <h3 class="mui--text-headline mui--text-bold">{{ featured_project.title }}</h3>
+              <p class="mui--text-subhead mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</p>
+              <a href="{{ featured_project.profile.url_for() }}" class="mui--text-body2 mui--text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
+            </div>
+            <div class="grid__col-6">
+              {{ projectcard(featured_project, include_details=false, save_form_id_prefix='spotlight_spf_', add_bookmark=false) }}
             </div>
           </div>
         </div>
@@ -315,6 +300,47 @@
           <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
             {{ projectcard(project, save_form_id_prefix='upcoming_spf_') }}
           </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro profiles_section(profiles) %}
+  {% if profiles %}
+    <div class="projects-wrapper">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Explore profiles{% endtrans %}</h2>
+          </div>
+        </div>
+        <ul class="grid projects flex-wrapper flex-wrapper--horizontal" role="list">
+          {% for profile in profiles %}
+            <li class="grid__col-12" role="listitem">
+              <div class="card profile-card">
+                <div class="card__body">
+                  <div>
+                    <span class="profile-avatar profile-avatar--bigger margin-auto">
+                      {%- if profile.logo_url.url %}
+                        <img src="{{ profile.logo_url }}"
+                             alt="{{ profile.title }}"/>
+                      {% else %}
+                        <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
+                             alt="{{ profile.title }}"/>
+                      {% endif %}
+                    </span>
+                  </div>
+                  <h3 class="mui--text-subhead mui--text-bold top-padding margin-bottom mui--text-center">{{ profile.title }}</h3>
+                  <div class="markdown js-truncate mui--text-center mui--text-caption mui--text-light bottom-padding" data-truncate-lines="3">{{ profile.description.html }}</div>
+                  <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">12 projects</p>
+                  <div class="margin-bottom">
+                    <a class="mui-btn mui-btn--primary mui-btn--raised full-width-btn" href="{{ profile.url_for() }} ">{% trans %}Explore{% endtrans %}</a>
+                  </div>
+                </div>
+              </div>
+            </li>
           {%- endfor -%}
         </ul>
       </div>

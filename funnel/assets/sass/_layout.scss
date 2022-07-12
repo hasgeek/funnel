@@ -86,6 +86,15 @@
   flex-wrap: wrap;
 }
 
+.flex-wrapper--horizontal {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.flex-wrapper--horizontal::-webkit-scrollbar {
+  display: none;
+}
+
 .flex-item-noshrink {
   flex-shrink: 0;
 }
