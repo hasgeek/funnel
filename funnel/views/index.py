@@ -13,7 +13,7 @@ from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, pages
 from ..forms import SavedProjectForm
-from ..models import Project, db, Profile
+from ..models import Profile, Project, db
 from ..typing import ReturnRenderWith, ReturnView
 
 
@@ -93,8 +93,7 @@ class IndexView(ClassView):
             .all()
         )
         verified_profiles = (
-            Profile.all_public().filter(Profile.is_verified.is_(True))
-            .all()
+            Profile.all_public().filter(Profile.is_verified.is_(True)).all()
         )
 
         return {
@@ -121,7 +120,6 @@ class IndexView(ClassView):
                 p.access_for(roles={'all'}, datasets=('primary', 'related'))
                 for p in verified_profiles
             ],
-
         }
 
 
