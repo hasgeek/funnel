@@ -243,6 +243,18 @@ class __Proposal:
 
 @reopen(Profile)
 class __Profile:
+    # pylint: disable=invalid-unary-operand-type
+    noninvite_project_sponsor_memberships = db.relationship(
+        SponsorMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            SponsorMembership.profile_id == Profile.id,
+            ~SponsorMembership.is_invite,  # type: ignore[operator]
+        ),
+        order_by=SponsorMembership.granted_at.desc(),
+        viewonly=True,
+    )
+
     project_sponsor_memberships = db.relationship(
         SponsorMembership,
         lazy='dynamic',
@@ -261,12 +273,23 @@ class __Profile:
             primaryjoin=db.and_(
                 SponsorMembership.profile_id == Profile.id,
                 SponsorMembership.is_invite,
-                SponsorMembership.is_active,
+                SponsorMembership.revoked_at.is_(None),  # type: ignore[has-type]
             ),
             order_by=SponsorMembership.granted_at.desc(),
             viewonly=True,
         ),
         read={'admin'},
+    )
+
+    noninvite_proposal_sponsor_memberships = db.relationship(
+        ProposalSponsorMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            ProposalSponsorMembership.profile_id == Profile.id,
+            ~ProposalSponsorMembership.is_invite,  # type: ignore[operator]
+        ),
+        order_by=ProposalSponsorMembership.granted_at.desc(),
+        viewonly=True,
     )
 
     proposal_sponsor_memberships = db.relationship(
@@ -287,7 +310,9 @@ class __Profile:
             primaryjoin=db.and_(
                 ProposalSponsorMembership.profile_id == Profile.id,
                 ProposalSponsorMembership.is_invite,
-                ProposalSponsorMembership.is_active,
+                ProposalSponsorMembership.revoked_at.is_(  # type: ignore[has-type]
+                    None
+                ),
             ),
             order_by=ProposalSponsorMembership.granted_at.desc(),
             viewonly=True,
@@ -302,3 +327,11 @@ class __Profile:
     sponsored_proposals = DynamicAssociationProxy(
         'proposal_sponsor_memberships', 'proposal'
     )
+
+
+Profile.__active_membership_attrs__.update(
+    {'project_sponsor_memberships', 'proposal_sponsor_memberships'}
+)
+Profile.__noninvite_membership_attrs__.update(
+    {'noninvite_project_sponsor_memberships', 'noninvite_proposal_sponsor_memberships'}
+)

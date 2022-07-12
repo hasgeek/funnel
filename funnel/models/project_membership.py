@@ -208,12 +208,25 @@ class __Project:
 # Similarly for users (add as needs come up)
 @reopen(User)
 class __User:
+    # pylint: disable=invalid-unary-operand-type
+
     # This relationship is only useful to check if the user has ever been a crew member.
     # Most operations will want to use one of the active membership relationships.
     projects_as_crew_memberships = db.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         foreign_keys=[ProjectCrewMembership.user_id],
+        viewonly=True,
+    )
+
+    # This is used to determine if it is safe to purge the subject's database record
+    projects_as_crew_noninvite_memberships = db.relationship(
+        ProjectCrewMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            ProjectCrewMembership.user_id == User.id,
+            ~ProjectCrewMembership.is_invite,  # type: ignore[operator]
+        ),
         viewonly=True,
     )
     projects_as_crew_active_memberships = db.relationship(
@@ -243,3 +256,7 @@ class __User:
     projects_as_editor = DynamicAssociationProxy(
         'projects_as_editor_active_memberships', 'project'
     )
+
+
+User.__active_membership_attrs__.add('projects_as_crew_active_memberships')
+User.__noninvite_membership_attrs__.add('projects_as_crew_noninvite_memberships')

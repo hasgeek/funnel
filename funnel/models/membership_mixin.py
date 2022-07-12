@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Generic, Iterable, Optional, Set, TypeVar
 
+from sqlalchemy import event
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.expression import ClauseList
 
@@ -17,7 +18,7 @@ from ..typing import OptionalMigratedTables
 from . import BaseMixin, UuidMixin, db, hybrid_property
 from .profile import Profile
 from .reorder_mixin import ReorderMixin
-from .user import User
+from .user import EnumerateMembershipsMixin, User
 
 __all__ = [
     'MEMBERSHIP_RECORD_TYPE',
@@ -64,7 +65,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     #: Parent object
     parent: Optional[db.Model]
     #: Subject of this membership (subclasses must define)
-    subject = None
+    subject: Any = None
 
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
@@ -287,6 +288,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     # mypy type declaration
     user_id: db.Column
     user: User
+    subject: User
     __table_args__: tuple
 
     @declared_attr  # type: ignore[no-redef]
@@ -307,7 +309,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
         """User who is the subject of this membership record."""
         return immutable(db.relationship(User, foreign_keys=[cls.user_id]))
 
-    @declared_attr
+    @declared_attr  # type: ignore[no-redef]
     def subject(cls):  # pylint: disable=no-self-argument
         """Subject of this membership record."""
         return db.synonym('user')
@@ -412,6 +414,8 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
 
     # mypy type declaration
     profile_id: db.Column
+    profile: Profile
+    subject: Profile
     __table_args__: tuple
 
     @declared_attr  # type: ignore[no-redef]
@@ -424,13 +428,15 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
             index=True,
         )
 
-    @with_roles(read={'subject', 'editor'}, grants_via={None: {'admin': 'subject'}})
+    @with_roles(  # type: ignore[no-redef]
+        read={'subject', 'editor'}, grants_via={None: {'admin': 'subject'}}
+    )
     @declared_attr
     def profile(cls):  # pylint: disable=no-self-argument
         """Profile that is the subject of this membership record."""
         return immutable(db.relationship(Profile, foreign_keys=[cls.profile_id]))
 
-    @declared_attr
+    @declared_attr  # type: ignore[no-redef]
     def subject(cls):  # pylint: disable=no-self-argument
         """Subject of this membership record."""
         return db.synonym('profile')
@@ -642,3 +648,28 @@ class AmendMembership(Generic[MembershipType]):
         """Commit and return a replacement record when not using a `with` context."""
         self.__exit__(None, None, None)
         return self.membership
+
+
+@event.listens_for(EnumerateMembershipsMixin, 'mapper_configured', propagate=True)
+def _confirm_enumerated_mixins(mapper, class_) -> None:
+    expected_class = ImmutableMembershipMixin
+    if issubclass(class_, User):
+        expected_class = ImmutableUserMembershipMixin
+    elif issubclass(class_, Profile):
+        expected_class = ImmutableProfileMembershipMixin
+    for source in (
+        class_.__active_membership_attrs__,
+        class_.__noninvite_membership_attrs__,
+    ):
+        for attr_name in source:
+            relationship = getattr(class_, attr_name, None)
+            if relationship is None:
+                raise AttributeError(
+                    f'{class_.__name__} does not have a relationship named'
+                    f' {attr_name!r} targeting a subclass of {expected_class.__name__}'
+                )
+            if not issubclass(relationship.property.mapper.class_, expected_class):
+                raise AttributeError(
+                    f'{class_.__name__}.{attr_name} should be a relationship to a'
+                    f' subclass of {expected_class.__name__}'
+                )

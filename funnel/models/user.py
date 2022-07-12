@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Iterable, List, Optional, Union, cast, overload
+from typing import Iterable, Iterator, List, Optional, Set, Union, cast, overload
 from uuid import UUID
 import hashlib
+import itertools
 
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.sql.expression import Select
@@ -133,7 +134,41 @@ class ORGANIZATION_STATE(LabeledEnum):  # noqa: N801
     SUSPENDED = (2, __("Suspended"))
 
 
-class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
+class EnumerateMembershipsMixin:
+    """Support mixin for enumeration of memberships."""
+
+    __active_membership_attrs__: Set[str]
+    __noninvite_membership_attrs__: Set[str]
+
+    def __init_subclass__(cls, **kwargs) -> None:
+        super().__init_subclass__(**kwargs)
+        cls.__active_membership_attrs__ = set()
+        cls.__noninvite_membership_attrs__ = set()
+
+    def active_memberships(self) -> Iterator:
+        """Enumerate all active memberships."""
+        return itertools.chain(
+            *(list(getattr(self, attr)) for attr in self.__active_membership_attrs__)
+        )
+
+    def has_any_memberships(self) -> bool:
+        """
+        Test for any non-invite membership records that must be preserved.
+
+        This is used to test for whether the subject User or Profile is safe to purge
+        (hard delete) from the database. If non-invite memberships are present, the
+        subject cannot be purged as immutable records must be preserved. Instead, the
+        subject must be put into DELETED state with all PII scrubbed.
+        """
+        return any(
+            db.session.query(getattr(self, attr).exists()).scalar()
+            for attr in self.__noninvite_membership_attrs__
+        )
+
+
+class User(
+    SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model
+):
     """User model."""
 
     __tablename__ = 'user'
@@ -614,6 +649,7 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         if self.profile:
             if not self.profile.is_safe_to_delete():
                 raise ValueError("Profile cannot be deleted")
+
         # 1. Delete contact information
         for contact_source in (
             self.emails,
@@ -623,13 +659,12 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
         ):
             for contact in contact_source:
                 db.session.delete(contact)
+
         # 2. Revoke all active memberships
-        for membership_source in (
-            self.active_organization_admin_memberships,
-            self.projects_as_crew_active_memberships,
-            self.proposal_memberships,
-        ):
-            for membership in membership_source:
+        for membership in self.active_memberships():
+            membership.revoke(actor=self)
+        if self.profile:
+            for membership in self.profile.active_memberships():
                 membership.revoke(actor=self)
         if self.active_site_membership:
             self.active_site_membership.revoke(actor=self)
@@ -643,18 +678,22 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
                 for membership in membership_source:
                     membership.revoke(actor=self)
 
-        # 3. Revoke auth tokens
-        # TODO: AuthToken.all_for(self).delete(synchronize_session=False)
+        # 3. Drop all team memberships
+        self.teams.clear()
 
-        # 4. Revoke all active login sessions
+        # 4. Revoke auth tokens
+        self.revoke_all_auth_tokens()  # Defined in auth_client.py
+        self.revoke_all_auth_client_permissions()  # Same place
+
+        # 5. Revoke all active login sessions
         for user_session in self.active_user_sessions:
             user_session.revoke()
 
-        # 5. Mark profile as deleted. However, the record is preserved in case it
-        # backreferences from any profile memberships, and to prevent re-use of the
-        # username until purging
+        # 6. Delete profile model and release username, unless it is implicated in
+        #    membership records (including revoked records).
         if self.profile:
-            self.profile.do_delete()
+            if self.profile.do_delete(self) and self.profile.is_safe_to_purge():
+                db.session.delete(self.profile)
 
         # 6. Clear fullname and stored password hash
         self.fullname = ''
@@ -1004,7 +1043,9 @@ team_membership = db.Table(
 )
 
 
-class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
+class Organization(
+    SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model
+):
     """An organization of one or more users with distinct roles."""
 
     __tablename__ = 'organization'

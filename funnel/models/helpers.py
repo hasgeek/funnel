@@ -5,7 +5,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import Any, Dict, Iterable, List, Optional, Set, Type
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Type, TypeVar
 import os.path
 import re
 
@@ -233,7 +233,7 @@ markdown_content_options['extension_configs'].setdefault('pymdownx.superfences',
 ]
 
 
-def add_to_class(cls: Type, name: Optional[str] = None):
+def add_to_class(cls: Type, name: Optional[str] = None) -> Callable[[T], T]:
     """
     Add a new method to a class via a decorator. Takes an optional attribute name.
 
@@ -249,8 +249,11 @@ def add_to_class(cls: Type, name: Optional[str] = None):
             pass
     """
 
-    def decorator(attr):
-        use_name = name or attr.__name__
+    def decorator(attr: T) -> T:
+        use_name: Optional[str] = name or getattr(attr, '__name__', None)
+        if not use_name:  # pragma: no cover
+            # None or '' not allowed
+            raise ValueError(f"Could not determine name for {attr!r}")
         if use_name in cls.__dict__:
             raise AttributeError(f"{cls.__name__} already has attribute {use_name}")
         setattr(cls, use_name, attr)
@@ -259,7 +262,11 @@ def add_to_class(cls: Type, name: Optional[str] = None):
     return decorator
 
 
-def reopen(cls: Type[T]):
+ReopenedType = TypeVar('ReopenedType', bound=type)
+TempType = TypeVar('TempType', bound=type)
+
+
+def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
     """
     Move the contents of the decorated class into an existing class and return it.
 
@@ -269,12 +276,12 @@ def reopen(cls: Type[T]):
         class __ExistingClass:
             @property
             def new_property(self):
-                pass
+                ...
 
     This is equivalent to::
 
         def new_property(self):
-            pass
+            ...
 
         ExistingClass.new_property = property(new_property)
 
@@ -289,7 +296,7 @@ def reopen(cls: Type[T]):
     properties that do more processing.
     """
 
-    def decorator(temp_cls: Type) -> Type[T]:
+    def decorator(temp_cls: TempType) -> ReopenedType:
         if temp_cls.__bases__ != (object,):
             raise TypeError("Reopened class cannot add base classes")
         if temp_cls.__class__ is not type:
