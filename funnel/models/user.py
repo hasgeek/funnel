@@ -147,6 +147,8 @@ class EnumerateMembershipsMixin:
 
     def active_memberships(self) -> Iterator:
         """Enumerate all active memberships."""
+        # Each collection is cast into a list before chaining to ensure that it does not
+        # change during processing (if, for example, membership is revoked or replaced).
         return itertools.chain(
             *(list(getattr(self, attr)) for attr in self.__active_membership_attrs__)
         )
@@ -646,9 +648,8 @@ class User(
     def do_delete(self):
         """Delete user account."""
         # 0: Safety check
-        if self.profile:
-            if not self.profile.is_safe_to_delete():
-                raise ValueError("Profile cannot be deleted")
+        if self.profile and not self.profile.is_safe_to_delete():
+            raise ValueError("Profile cannot be deleted")
 
         # 1. Delete contact information
         for contact_source in (
@@ -664,23 +665,12 @@ class User(
         for membership in self.active_memberships():
             if membership.revoke_on_subject_delete:
                 membership.revoke(actor=self)
-        if self.profile:
-            for membership in self.profile.active_memberships():
-                membership.revoke(actor=self)
+        # TODO: freeze fullname in unrevoked memberships (pending title column there)
         if (
             self.active_site_membership
             and self.active_site_membership.revoke_on_subject_delete
         ):
             self.active_site_membership.revoke(actor=self)
-        if self.profile:
-            for membership_source in (
-                self.profile.project_sponsor_membership_invites,
-                self.profile.project_sponsor_memberships,
-                self.profile.proposal_sponsor_membership_invites,
-                self.profile.proposal_sponsor_memberships,
-            ):
-                for membership in membership_source:
-                    membership.revoke(actor=self)
 
         # 3. Drop all team memberships
         self.teams.clear()
@@ -693,11 +683,14 @@ class User(
         for user_session in self.active_user_sessions:
             user_session.revoke()
 
-        # 6. Delete profile model and release username, unless it is implicated in
-        #    membership records (including revoked records).
-        if self.profile:
-            if self.profile.do_delete(self) and self.profile.is_safe_to_purge():
-                db.session.delete(self.profile)
+        # 6. Delete profile and release username, unless it is implicated in membership
+        #    records (including revoked records).
+        if (
+            self.profile
+            and self.profile.do_delete(self)  # This call removes data and confirms it
+            and self.profile.is_safe_to_purge()
+        ):
+            db.session.delete(self.profile)
 
         # 6. Clear fullname and stored password hash
         self.fullname = ''

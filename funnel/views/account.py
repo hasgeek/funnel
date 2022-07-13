@@ -750,6 +750,7 @@ class AccountView(ClassView):
     @route('delete', methods=['GET', 'POST'], endpoint='account_delete')
     @requires_sudo
     def delete(self):
+        """Delete user account."""
         # Perform sanity checks: can this user account be deleted?
         objection = current_auth.user.views.validate_account_delete()
         if objection:

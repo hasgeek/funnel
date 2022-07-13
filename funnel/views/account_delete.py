@@ -1,6 +1,7 @@
 """Helper functions for account delete validation."""
 
-from typing import Callable, List, NamedTuple, Optional
+from dataclasses import dataclass
+from typing import Callable, List, Optional
 
 from baseframe import __
 
@@ -10,7 +11,10 @@ from ..typing import ReturnDecorator, WrappedFunc
 # --- Delete validator registry --------------------------------------------------------
 
 
-class DeleteValidator(NamedTuple):
+@dataclass
+class DeleteValidator:
+    """Delete validator metadata."""
+
     validate: Callable[[User], bool]
     name: str
     title: str
@@ -26,6 +30,7 @@ def delete_validator(title: str, message: str, name: str = None) -> ReturnDecora
     """Register an account delete validator."""
 
     def decorator(func: WrappedFunc) -> WrappedFunc:
+        """Create a DeleteValidator."""
         account_delete_validators.append(
             DeleteValidator(func, name or func.__name__, title, message)
         )
@@ -57,11 +62,8 @@ def profile_is_protected(user: User) -> bool:
 )
 def single_owner_organization(user: User) -> bool:
     """Fail if user is the sole owner of one or more organizations."""
-    for org in user.organizations_as_owner:
-        # TODO: Optimize query for large organizations
-        if list(org.owner_users) == [user]:
-            return False
-    return True
+    # TODO: Optimize org.owner_users lookup for large organizations
+    return all(tuple(org.owner_users) != (user,) for org in user.organizations_as_owner)
 
 
 @delete_validator(
@@ -98,7 +100,8 @@ def user_owns_apps(user: User) -> bool:
 
 
 @User.views()
-def validate_account_delete(obj) -> Optional[DeleteValidator]:
+def validate_account_delete(obj: User) -> Optional[DeleteValidator]:
+    """Validate if user account is safe to delete, returning an optional objection."""
     for validator in account_delete_validators:
         proceed = validator.validate(obj)
         if not proceed:

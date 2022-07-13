@@ -658,6 +658,7 @@ class AmendMembership(Generic[MembershipType]):
 
 @event.listens_for(EnumerateMembershipsMixin, 'mapper_configured', propagate=True)
 def _confirm_enumerated_mixins(mapper, class_) -> None:
+    """Confirm that the membership collection attributes actually exist."""
     expected_class = ImmutableMembershipMixin
     if issubclass(class_, User):
         expected_class = ImmutableUserMembershipMixin

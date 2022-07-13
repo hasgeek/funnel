@@ -788,9 +788,11 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):
 @reopen(User)
 class __User:
     def revoke_all_auth_tokens(self) -> None:
+        """Revoke all auth tokens directly linked to the user."""
         AuthToken.all_for(cast(User, self)).delete(synchronize_session=False)
 
     def revoke_all_auth_client_permissions(self) -> None:
+        """Revoke all permissions on client apps assigned to user."""
         AuthClientUserPermissions.all_for(cast(User, self)).delete(
             synchronize_session=False
         )
