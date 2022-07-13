@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any, Generic, Iterable, Optional, Set, TypeVar
+from typing import Any, ClassVar, Generic, Iterable, Optional, Set, TypeVar
 
 from sqlalchemy import event
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.expression import ClauseList
 
 from werkzeug.utils import cached_property
-
-from typing_extensions import ClassVar
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, immutable, with_roles
