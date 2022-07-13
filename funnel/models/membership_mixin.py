@@ -10,6 +10,8 @@ from sqlalchemy.sql.expression import ClauseList
 
 from werkzeug.utils import cached_property
 
+from typing_extensions import ClassVar
+
 from baseframe import __
 from coaster.sqlalchemy import StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
@@ -59,13 +61,17 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     #: Can granted_by be null? Only in memberships based on legacy data
     __null_granted_by__ = False
     #: List of columns that will be copied into a new row when a membership is amended
-    __data_columns__: Iterable[str] = ()
+    __data_columns__: ClassVar[Iterable[str]] = ()
     #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
     parent_id: db.Column
     #: Parent object
     parent: Optional[db.Model]
     #: Subject of this membership (subclasses must define)
     subject: Any = None
+
+    #: Should an active membership record be revoked when the subject is soft-deleted?
+    #: (Hard deletes will cascade and also delete all membership records.)
+    revoke_on_subject_delete: ClassVar[bool] = True
 
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database

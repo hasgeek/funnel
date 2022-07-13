@@ -64,6 +64,8 @@ class SponsorMembership(
         },
     }
 
+    revoke_on_subject_delete = False
+
     project_id = immutable(
         db.Column(None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False)
     )
@@ -176,6 +178,8 @@ class ProposalSponsorMembership(
             'seq',
         },
     }
+
+    revoke_on_subject_delete = False
 
     proposal_id = immutable(
         db.Column(

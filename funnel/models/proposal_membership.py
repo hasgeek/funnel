@@ -67,6 +67,8 @@ class ProposalMembership(
         },
     }
 
+    revoke_on_subject_delete = False
+
     proposal_id = immutable(
         with_roles(
             db.Column(

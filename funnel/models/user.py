@@ -662,11 +662,15 @@ class User(
 
         # 2. Revoke all active memberships
         for membership in self.active_memberships():
-            membership.revoke(actor=self)
+            if membership.revoke_on_subject_delete:
+                membership.revoke(actor=self)
         if self.profile:
             for membership in self.profile.active_memberships():
                 membership.revoke(actor=self)
-        if self.active_site_membership:
+        if (
+            self.active_site_membership
+            and self.active_site_membership.revoke_on_subject_delete
+        ):
             self.active_site_membership.revoke(actor=self)
         if self.profile:
             for membership_source in (
