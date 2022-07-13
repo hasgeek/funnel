@@ -769,6 +769,7 @@ class AccountView(ClassView):
             )
         return render_form(
             form=form,
+            formid="account-delete",
             title=_("You are about to delete your account permanently"),
             submit=("Delete account"),
             ajax=False,
