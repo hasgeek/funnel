@@ -480,7 +480,6 @@
 .profile-card:before,
 .profile-card:after {
   content: '';
-  @extend .card;
   border-radius: $mui-grid-padding;
   position: absolute;
   bottom: -4px;
@@ -491,6 +490,8 @@
   min-width: auto;
   margin: auto;
   z-index: -1;
+  background: $mui-bg-color-primary;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
 }
 
 .profile-card:after {

@@ -297,6 +297,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 'urls',  # From UrlForMixin
                 'created_at',  # From TimestampMixin, used for ical render timestamp
                 'updated_at',  # From TimestampMixin, used for ical render timestamp
+                'published_projects',
             },
             'call': {
                 'features',  # From RegistryMixin
@@ -765,6 +766,12 @@ class __Profile:
                 )
             ]
         return []
+
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})
+    @cached_property
+    def published_projects(self) -> int:
+        projects = self.listed_projects.order_by(None)
+        return projects.filter(Project.state.PUBLISHED).count()
 
 
 class ProjectRedirect(TimestampMixin, db.Model):

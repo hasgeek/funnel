@@ -92,9 +92,12 @@ class IndexView(ClassView):
             .order_by(Project.next_session_at.asc())
             .all()
         )
-        verified_profiles = (
-            Profile.all_public().filter(Profile.is_verified.is_(True)).all()
-        )
+
+        for p in app.config['FEATURED_PROFILES']:
+            profile = Profile.query.filter_by(name=p).first()
+            print(profile)
+            if profile:
+                print(profile.published_projects)
 
         return {
             'all_projects': [
@@ -116,10 +119,10 @@ class IndexView(ClassView):
                 if featured_project
                 else None
             ),
-            'verified_profiles': [
-                p.access_for(roles={'all'}, datasets=('primary', 'related'))
-                for p in verified_profiles
-            ],
+            'featured_profiles': (
+                Profile.query.filter_by(name=p).first().access_for(roles={'all'}, datasets=('primary', 'related'))
+                for p in app.config['FEATURED_PROFILES']  if Profile.query.filter_by(name=p).first()
+            ),
         }
 
 
