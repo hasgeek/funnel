@@ -93,12 +93,6 @@ class IndexView(ClassView):
             .all()
         )
 
-        for p in app.config['FEATURED_PROFILES']:
-            profile = Profile.query.filter_by(name=p).first()
-            print(profile)
-            if profile:
-                print(profile.published_projects)
-
         return {
             'all_projects': [
                 p.access_for(roles={'all'}, datasets=('primary', 'related'))
