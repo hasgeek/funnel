@@ -761,9 +761,9 @@ class AccountView(ClassView):
         if form.validate_on_submit():
             # Go ahead, delete
             current_auth.user.do_delete()
-            db.session.commit()
             flash(_("Your account has been deleted"), 'success')
             logout_internal()
+            db.session.commit()
             return render_template(
                 'logout_browser_data.html.jinja2', next=url_for('index')
             )

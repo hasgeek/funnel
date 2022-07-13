@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any, Generic, Iterable, Optional, Set, TypeVar
+from typing import Any, Callable, ClassVar, Generic, Iterable, Optional, Set, TypeVar
 
 from sqlalchemy import event
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.expression import ClauseList
 
 from werkzeug.utils import cached_property
-
-from typing_extensions import ClassVar
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, immutable, with_roles
@@ -22,6 +20,7 @@ from .profile import Profile
 from .reorder_mixin import ReorderMixin
 from .user import EnumerateMembershipsMixin, User
 
+# Export only symbols needed in views.
 __all__ = [
     'MEMBERSHIP_RECORD_TYPE',
     'MembershipError',
@@ -29,17 +28,27 @@ __all__ = [
     'MembershipRecordTypeError',
 ]
 
+# --- Typing ---------------------------------------------------------------------------
 
 MembershipType = TypeVar('MembershipType', bound='ImmutableMembershipMixin')
+FrozenAttributionType = TypeVar('FrozenAttributionType', bound='FrozenAttributionMixin')
+SubjectType = TypeVar('SubjectType', User, Profile)
+
+# --- Enum -----------------------------------------------------------------------------
 
 
 class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # noqa: N801
     """Membership record types."""
 
+    # TODO: Convert into IntEnum
+
     INVITE = (0, 'invite', __("Invite"))
     ACCEPT = (1, 'accept', __("Accept"))
     DIRECT_ADD = (2, 'direct_add', __("Direct add"))
     AMEND = (3, 'amend', __("Amend"))
+
+
+# --- Exceptions -----------------------------------------------------------------------
 
 
 class MembershipError(Exception):
@@ -52,6 +61,9 @@ class MembershipRevokedError(MembershipError):
 
 class MembershipRecordTypeError(MembershipError):
     """Membership record type is invalid."""
+
+
+# --- Classes --------------------------------------------------------------------------
 
 
 class ImmutableMembershipMixin(UuidMixin, BaseMixin):
@@ -196,7 +208,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
                 "This membership record has already been revoked"
             )
         if not set(data.keys()).issubset(self.__data_columns__):
-            raise AttributeError("Unknown role")
+            raise AttributeError("Unknown data attribute")
 
         # Perform sanity check. If nothing changed, just return self
         has_changes = False
@@ -609,6 +621,66 @@ class ReorderMembershipMixin(ReorderMixin):
             cls.parent == self.parent,  # type: ignore[attr-defined]
             cls.is_active,  # type: ignore[attr-defined]
         )
+
+
+class FrozenAttributionMixin(Generic[SubjectType]):
+    """Provides a `title` data column and support method to freeze it."""
+
+    subject: SubjectType
+    replace: Callable[..., FrozenAttributionType]
+    #: Flag to let self.replace() recognise that we're setting a new title
+    _use_raw_title: bool = False
+
+    @declared_attr
+    def _title(cls):  # pylint: disable=no-self-argument
+        """Create optional attribution title for this membership record."""
+        return immutable(
+            db.Column(
+                'title', db.Unicode, db.CheckConstraint("title <> ''"), nullable=True
+            )
+        )
+
+    @property
+    def title(self) -> str:
+        """Attribution title for this record."""
+        if self._use_raw_title:
+            return self._title  # This may be None
+        return self._title or self.subject.title
+
+    @title.setter
+    def title(self, value: Optional[str]) -> None:
+        """Set or clear custom attribution title."""
+        self._title = value or None  # Don't set empty string
+
+    @property
+    def name(self):
+        """Return subject's name."""
+        return self.subject.name
+
+    @property
+    def pickername(self):
+        """Return subject's pickername."""
+        return self.subject.pickername
+
+    @with_roles(call={'owner', 'subject'})
+    def freeze_subject_attribution(
+        self: FrozenAttributionType, actor: User
+    ) -> FrozenAttributionType:
+        """
+        Freeze subject attribution and return a replacement record.
+
+        Subclasses that support subject attribution must override this method. The
+        default implementation returns `self`.
+        """
+        if self._title is None:
+            self._use_raw_title = True
+            membership: FrozenAttributionType = self.replace(
+                actor=actor, title=self.subject.title
+            )
+            del self._use_raw_title
+        else:
+            membership = self
+        return membership
 
 
 class AmendMembership(Generic[MembershipType]):

@@ -16,8 +16,8 @@ import sqlalchemy as sa
 ${imports if imports else ""}
 
 # revision identifiers, used by Alembic.
-revision = ${repr(up_revision)}
-down_revision = ${repr(down_revision)}
+revision: str = ${repr(up_revision)}
+down_revision: str = ${repr(down_revision)}
 branch_labels: Optional[Union[str, Tuple[str, ...]]] = ${repr(branch_labels)}
 depends_on: Optional[Union[str, Tuple[str, ...]]] = ${repr(depends_on)}
 

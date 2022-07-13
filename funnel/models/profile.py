@@ -466,7 +466,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
         """Delete contents of this profile."""
         if self.is_safe_to_delete():
             for membership in self.active_memberships():
-                membership = membership.freeze_subject_attribution()
+                membership = membership.freeze_subject_attribution(actor)
                 if membership.revoke_on_subject_delete:
                     membership.revoke(actor=actor)
             return True

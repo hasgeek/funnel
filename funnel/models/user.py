@@ -663,7 +663,7 @@ class User(
 
         # 2. Revoke all active memberships
         for membership in self.active_memberships():
-            membership = membership.freeze_subject_attribution()
+            membership = membership.freeze_subject_attribution(self)
             if membership.revoke_on_subject_delete:
                 membership.revoke(actor=self)
         # TODO: freeze fullname in unrevoked memberships (pending title column there)
