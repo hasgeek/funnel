@@ -4,10 +4,13 @@ from __future__ import annotations
 
 from typing import Any, Generic, Iterable, Optional, Set, TypeVar
 
+from sqlalchemy import event
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.expression import ClauseList
 
 from werkzeug.utils import cached_property
+
+from typing_extensions import ClassVar
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, immutable, with_roles
@@ -17,7 +20,7 @@ from ..typing import OptionalMigratedTables
 from . import BaseMixin, UuidMixin, db, hybrid_property
 from .profile import Profile
 from .reorder_mixin import ReorderMixin
-from .user import User
+from .user import EnumerateMembershipsMixin, User
 
 __all__ = [
     'MEMBERSHIP_RECORD_TYPE',
@@ -58,13 +61,17 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     #: Can granted_by be null? Only in memberships based on legacy data
     __null_granted_by__ = False
     #: List of columns that will be copied into a new row when a membership is amended
-    __data_columns__: Iterable[str] = ()
+    __data_columns__: ClassVar[Iterable[str]] = ()
     #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
     parent_id: db.Column
     #: Parent object
     parent: Optional[db.Model]
     #: Subject of this membership (subclasses must define)
-    subject = None
+    subject: Any = None
+
+    #: Should an active membership record be revoked when the subject is soft-deleted?
+    #: (Hard deletes will cascade and also delete all membership records.)
+    revoke_on_subject_delete: ClassVar[bool] = True
 
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
@@ -181,25 +188,25 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(call={'editor'})
     def replace(
-        self: MembershipType, actor: User, accept=False, **roles: object
+        self: MembershipType, actor: User, accept: bool = False, **data: Any
     ) -> MembershipType:
         """Replace this membership record with changes to role columns."""
         if self.revoked_at is not None:
             raise MembershipRevokedError(
                 "This membership record has already been revoked"
             )
-        if not set(roles.keys()).issubset(self.__data_columns__):
+        if not set(data.keys()).issubset(self.__data_columns__):
             raise AttributeError("Unknown role")
 
         # Perform sanity check. If nothing changed, just return self
         has_changes = False
-        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE:
-            # If the existing record is an INVITE, this must be an ACCEPT. This is an
-            # acceptable change
+        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE and accept:
+            # If the existing record is an INVITE and this is an ACCEPT, we have
+            # a record change even if no data changed
             has_changes = True
         else:
-            # If it's not an ACCEPT, are the supplied roles different from existing?
-            for column_name, column_value in roles.items():
+            # If it's not an ACCEPT, are the supplied data different from existing?
+            for column_name, column_value in data.items():
                 if column_value != getattr(self, column_name):
                     has_changes = True
         if not has_changes:
@@ -224,8 +231,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             new.record_type = MEMBERSHIP_RECORD_TYPE.AMEND
 
         for column in self.__data_columns__:
-            if column in roles:
-                setattr(new, column, roles[column])
+            if column in data:
+                setattr(new, column, data[column])
             else:
                 setattr(new, column, getattr(self, column))
         db.session.add(new)
@@ -239,7 +246,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     def merge_and_replace(
         self: MembershipType, actor: User, other: MembershipType
     ) -> MembershipType:
-        """Replace this record by merging roles from an independent record."""
+        """Replace this record by merging data from an independent record."""
         if self.__class__ is not other.__class__:
             raise TypeError("Merger requires membership records of the same type")
         if self.revoked_at is not None:
@@ -258,15 +265,15 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             # If both records are invites or neither is an invite, use existing records
             this = self
 
-        role_columns = {}
+        data_columns = {}
         for column in this.__data_columns__:
             column_value = getattr(this, column)
             if not column_value:
                 # Replace falsy values with value from the other record. This may need
                 # a more robust mechanism in the future if there are multi-value columns
                 column_value = getattr(other, column)
-            role_columns[column] = column_value
-        replacement = this.replace(actor, **role_columns)
+            data_columns[column] = column_value
+        replacement = this.replace(actor, **data_columns)
         other.revoke(actor)
 
         return replacement
@@ -280,6 +287,16 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             raise ValueError("Invite must be accepted by the invited user")
         return self.replace(actor, accept=True)
 
+    @with_roles(call={'owner', 'subject'})
+    def freeze_subject_attribution(self: MembershipType, actor: User) -> MembershipType:
+        """
+        Freeze subject attribution and return a replacement record.
+
+        Subclasses that support subject attribution must override this method. The
+        default implementation returns `self`.
+        """
+        return self
+
 
 class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     """Support class for immutable memberships for users."""
@@ -287,6 +304,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     # mypy type declaration
     user_id: db.Column
     user: User
+    subject: User
     __table_args__: tuple
 
     @declared_attr  # type: ignore[no-redef]
@@ -307,7 +325,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
         """User who is the subject of this membership record."""
         return immutable(db.relationship(User, foreign_keys=[cls.user_id]))
 
-    @declared_attr
+    @declared_attr  # type: ignore[no-redef]
     def subject(cls):  # pylint: disable=no-self-argument
         """Subject of this membership record."""
         return db.synonym('user')
@@ -412,6 +430,8 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
 
     # mypy type declaration
     profile_id: db.Column
+    profile: Profile
+    subject: Profile
     __table_args__: tuple
 
     @declared_attr  # type: ignore[no-redef]
@@ -424,13 +444,15 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
             index=True,
         )
 
-    @with_roles(read={'subject', 'editor'}, grants_via={None: {'admin': 'subject'}})
+    @with_roles(  # type: ignore[no-redef]
+        read={'subject', 'editor'}, grants_via={None: {'admin': 'subject'}}
+    )
     @declared_attr
     def profile(cls):  # pylint: disable=no-self-argument
         """Profile that is the subject of this membership record."""
         return immutable(db.relationship(Profile, foreign_keys=[cls.profile_id]))
 
-    @declared_attr
+    @declared_attr  # type: ignore[no-redef]
     def subject(cls):  # pylint: disable=no-self-argument
         """Subject of this membership record."""
         return db.synonym('profile')
@@ -642,3 +664,29 @@ class AmendMembership(Generic[MembershipType]):
         """Commit and return a replacement record when not using a `with` context."""
         self.__exit__(None, None, None)
         return self.membership
+
+
+@event.listens_for(EnumerateMembershipsMixin, 'mapper_configured', propagate=True)
+def _confirm_enumerated_mixins(mapper, class_) -> None:
+    """Confirm that the membership collection attributes actually exist."""
+    expected_class = ImmutableMembershipMixin
+    if issubclass(class_, User):
+        expected_class = ImmutableUserMembershipMixin
+    elif issubclass(class_, Profile):
+        expected_class = ImmutableProfileMembershipMixin
+    for source in (
+        class_.__active_membership_attrs__,
+        class_.__noninvite_membership_attrs__,
+    ):
+        for attr_name in source:
+            relationship = getattr(class_, attr_name, None)
+            if relationship is None:
+                raise AttributeError(
+                    f'{class_.__name__} does not have a relationship named'
+                    f' {attr_name!r} targeting a subclass of {expected_class.__name__}'
+                )
+            if not issubclass(relationship.property.mapper.class_, expected_class):
+                raise AttributeError(
+                    f'{class_.__name__}.{attr_name} should be a relationship to a'
+                    f' subclass of {expected_class.__name__}'
+                )

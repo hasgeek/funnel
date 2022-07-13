@@ -144,7 +144,7 @@ class __Organization:
         primaryjoin=db.and_(
             db.remote(OrganizationMembership.organization_id) == Organization.id,
             OrganizationMembership.is_invite,
-            ~OrganizationMembership.is_active,  # type: ignore[operator]
+            OrganizationMembership.revoked_at.is_(None),  # type: ignore[has-type]
         ),
         viewonly=True,
     )
@@ -161,10 +161,21 @@ class __Organization:
 # For now just admin and owner
 @reopen(User)
 class __User:
+    # pylint: disable=invalid-unary-operand-type
     organization_admin_memberships = db.relationship(
         OrganizationMembership,
         lazy='dynamic',
         foreign_keys=[OrganizationMembership.user_id],
+        viewonly=True,
+    )
+
+    noninvite_organization_admin_memberships = db.relationship(
+        OrganizationMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            db.remote(OrganizationMembership.user_id) == User.id,
+            ~OrganizationMembership.is_invite,  # type: ignore[operator]
+        ),
         viewonly=True,
     )
 
@@ -193,10 +204,9 @@ class __User:
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=db.and_(
-            # pylint: disable=invalid-unary-operand-type
             db.remote(OrganizationMembership.user_id) == User.id,
             OrganizationMembership.is_invite,
-            ~OrganizationMembership.is_active,  # type: ignore[operator]
+            OrganizationMembership.revoked_at.is_(None),  # type: ignore[has-type]
         ),
         viewonly=True,
     )
@@ -208,3 +218,7 @@ class __User:
     organizations_as_admin = DynamicAssociationProxy(
         'active_organization_admin_memberships', 'organization'
     )
+
+
+User.__active_membership_attrs__.add('active_organization_admin_memberships')
+User.__noninvite_membership_attrs__.add('noninvite_organization_admin_memberships')

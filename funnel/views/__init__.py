@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from . import (  # skipcq: PY-W2000
     account,
+    account_delete,
     account_reset,
     api,
     auth_client,

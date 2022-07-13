@@ -120,6 +120,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):
     def revoke(self):
         if not self.revoked_at:
             self.revoked_at = db.func.utcnow()
+            self.authtokens.delete(synchronize_session='fetch')
             session_revoked.send(self)
 
     @classmethod

@@ -67,6 +67,8 @@ class ProposalMembership(
         },
     }
 
+    revoke_on_subject_delete = False
+
     proposal_id = immutable(
         with_roles(
             db.Column(
@@ -149,10 +151,22 @@ class __Proposal:
 
 @reopen(User)
 class __User:
+    # pylint: disable=invalid-unary-operand-type
+
     all_proposal_memberships = db.relationship(
         ProposalMembership,
         lazy='dynamic',
         foreign_keys=[ProposalMembership.user_id],
+        viewonly=True,
+    )
+
+    noninvite_proposal_memberships = db.relationship(
+        ProposalMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            ProposalMembership.user_id == User.id,
+            ~ProposalMembership.is_invite,  # type: ignore[operator]
+        ),
         viewonly=True,
     )
 
@@ -174,9 +188,16 @@ class __User:
         return (
             self.proposal_memberships.join(Proposal, ProposalMembership.proposal)
             .join(Project, Proposal.project)
-            .filter()
+            .filter(
+                ProposalMembership.is_uncredited.is_(False),
+                # TODO: Include proposal state filter (pending proposal workflow fix)
+            )
         )
 
     public_proposals = DynamicAssociationProxy(
         'public_proposal_memberships', 'proposal'
     )
+
+
+User.__active_membership_attrs__.add('proposal_memberships')
+User.__noninvite_membership_attrs__.add('noninvite_proposal_memberships')

@@ -28,6 +28,7 @@ from coaster.views import ClassView, get_next_url, render_with, route
 
 from .. import app
 from ..forms import (
+    AccountDeleteForm,
     AccountForm,
     EmailPrimaryForm,
     LogoutForm,
@@ -744,6 +745,34 @@ class AccountView(ClassView):
             ),
             next=url_for('account'),
             delete_text=_("Remove"),
+        )
+
+    @route('delete', methods=['GET', 'POST'], endpoint='account_delete')
+    @requires_sudo
+    def delete(self):
+        """Delete user account."""
+        # Perform sanity checks: can this user account be deleted?
+        objection = current_auth.user.views.validate_account_delete()
+        if objection:
+            return render_message(title=objection.title, message=objection.message)
+
+        # If everything okay, ask user to confirm and then proceed
+        form = AccountDeleteForm()
+        if form.validate_on_submit():
+            # Go ahead, delete
+            current_auth.user.do_delete()
+            db.session.commit()
+            flash(_("Your account has been deleted"), 'success')
+            logout_internal()
+            return render_template(
+                'logout_browser_data.html.jinja2', next=url_for('index')
+            )
+        return render_form(
+            form=form,
+            title=_("You are about to delete your account permanently"),
+            submit=("Delete account"),
+            ajax=False,
+            cancel_url=url_for('account'),
         )
 
 

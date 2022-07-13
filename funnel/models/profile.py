@@ -29,7 +29,7 @@ from .helpers import (
     valid_username,
     visual_field_delimiter,
 )
-from .user import Organization, User
+from .user import EnumerateMembershipsMixin, Organization, User
 from .utils import do_migrate_instances
 
 __all__ = ['Profile']
@@ -48,7 +48,7 @@ class PROFILE_STATE(LabeledEnum):  # noqa: N801
 
 # This model does not use BaseNameMixin because it has no title column. The title comes
 # from the linked User or Organization
-class Profile(UuidMixin, BaseMixin, db.Model):
+class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
     """
     Public-facing profiles for :class:`User` and :class:`Organization` models.
 
@@ -455,8 +455,22 @@ class Profile(UuidMixin, BaseMixin, db.Model):
         """Make a profile private."""
 
     def is_safe_to_delete(self) -> bool:
-        """Return True if profile is not protected and has no projects."""
+        """Test if profile is not protected and has no projects."""
         return self.is_protected is False and self.projects.count() == 0
+
+    def is_safe_to_purge(self) -> bool:
+        """Test if profile is safe to delete and has no memberships (active or not)."""
+        return self.is_safe_to_delete() and not self.has_any_memberships()
+
+    def do_delete(self, actor: User) -> bool:
+        """Delete contents of this profile."""
+        if self.is_safe_to_delete():
+            for membership in self.active_memberships():
+                membership = membership.freeze_subject_attribution()
+                if membership.revoke_on_subject_delete:
+                    membership.revoke(actor=actor)
+            return True
+        return False
 
     @classmethod
     def autocomplete(cls, query: str) -> List[Profile]:
