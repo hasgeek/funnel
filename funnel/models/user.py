@@ -145,7 +145,7 @@ class EnumerateMembershipsMixin:
         cls.__active_membership_attrs__ = set()
         cls.__noninvite_membership_attrs__ = set()
 
-    def active_memberships(self) -> Iterator:
+    def active_memberships(self) -> Iterator[ImmutableMembershipMixin]:
         """Enumerate all active memberships."""
         # Each collection is cast into a list before chaining to ensure that it does not
         # change during processing (if, for example, membership is revoked or replaced).
@@ -663,6 +663,7 @@ class User(
 
         # 2. Revoke all active memberships
         for membership in self.active_memberships():
+            membership = membership.freeze_subject_attribution()
             if membership.revoke_on_subject_delete:
                 membership.revoke(actor=self)
         # TODO: freeze fullname in unrevoked memberships (pending title column there)
@@ -1887,5 +1888,6 @@ Anchor = Union[UserEmail, UserEmailClaim, UserPhone, EmailAddress]
 
 # Tail imports
 # pylint: disable=wrong-import-position
-from .profile import Profile  # isort:skip
+from .membership_mixin import ImmutableMembershipMixin  # isort: skip
 from .organization_membership import OrganizationMembership  # isort:skip
+from .profile import Profile  # isort:skip

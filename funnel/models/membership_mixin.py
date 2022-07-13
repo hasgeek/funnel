@@ -287,6 +287,16 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             raise ValueError("Invite must be accepted by the invited user")
         return self.replace(actor, accept=True)
 
+    @with_roles(call={'owner', 'subject'})
+    def freeze_subject_attribution(self: MembershipType, actor: User) -> MembershipType:
+        """
+        Freeze subject attribution and return a replacement record.
+
+        Subclasses that support subject attribution must override this method. The
+        default implementation returns `self`.
+        """
+        return self
+
 
 class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     """Support class for immutable memberships for users."""
