@@ -188,14 +188,14 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(call={'editor'})
     def replace(
-        self: MembershipType, actor: User, accept=False, **roles: object
+        self: MembershipType, actor: User, accept: bool = False, **data: Any
     ) -> MembershipType:
         """Replace this membership record with changes to role columns."""
         if self.revoked_at is not None:
             raise MembershipRevokedError(
                 "This membership record has already been revoked"
             )
-        if not set(roles.keys()).issubset(self.__data_columns__):
+        if not set(data.keys()).issubset(self.__data_columns__):
             raise AttributeError("Unknown role")
 
         # Perform sanity check. If nothing changed, just return self
@@ -205,8 +205,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             # acceptable change
             has_changes = True
         else:
-            # If it's not an ACCEPT, are the supplied roles different from existing?
-            for column_name, column_value in roles.items():
+            # If it's not an ACCEPT, are the supplied data different from existing?
+            for column_name, column_value in data.items():
                 if column_value != getattr(self, column_name):
                     has_changes = True
         if not has_changes:
@@ -231,8 +231,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             new.record_type = MEMBERSHIP_RECORD_TYPE.AMEND
 
         for column in self.__data_columns__:
-            if column in roles:
-                setattr(new, column, roles[column])
+            if column in data:
+                setattr(new, column, data[column])
             else:
                 setattr(new, column, getattr(self, column))
         db.session.add(new)
@@ -246,7 +246,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     def merge_and_replace(
         self: MembershipType, actor: User, other: MembershipType
     ) -> MembershipType:
-        """Replace this record by merging roles from an independent record."""
+        """Replace this record by merging data from an independent record."""
         if self.__class__ is not other.__class__:
             raise TypeError("Merger requires membership records of the same type")
         if self.revoked_at is not None:
@@ -265,15 +265,15 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             # If both records are invites or neither is an invite, use existing records
             this = self
 
-        role_columns = {}
+        data_columns = {}
         for column in this.__data_columns__:
             column_value = getattr(this, column)
             if not column_value:
                 # Replace falsy values with value from the other record. This may need
                 # a more robust mechanism in the future if there are multi-value columns
                 column_value = getattr(other, column)
-            role_columns[column] = column_value
-        replacement = this.replace(actor, **role_columns)
+            data_columns[column] = column_value
+        replacement = this.replace(actor, **data_columns)
         other.revoke(actor)
 
         return replacement
