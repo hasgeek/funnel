@@ -200,9 +200,9 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
         # Perform sanity check. If nothing changed, just return self
         has_changes = False
-        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE:
-            # If the existing record is an INVITE, this must be an ACCEPT. This is an
-            # acceptable change
+        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE and accept:
+            # If the existing record is an INVITE and this is an ACCEPT, we have
+            # a record change even if no data changed
             has_changes = True
         else:
             # If it's not an ACCEPT, are the supplied data different from existing?
