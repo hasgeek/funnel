@@ -46,7 +46,7 @@ class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # noqa: N801
     ACCEPT = (2, 'accept', __("Accept"))
     DIRECT_ADD = (3, 'direct_add', __("Direct add"))
     AMEND = (4, 'amend', __("Amend"))
-    # MIGRATED = (5, 'migrated', __("Migrated"))
+    # Forthcoming: MIGRATE = (5, 'migrate', __("Migrate"))
 
 
 # --- Exceptions -----------------------------------------------------------------------
