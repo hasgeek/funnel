@@ -114,8 +114,11 @@ class IndexView(ClassView):
                 else None
             ),
             'featured_profiles': (
-                Profile.query.filter_by(name=p).first().access_for(roles={'all'}, datasets=('primary', 'related'))
-                for p in app.config['FEATURED_PROFILES']  if Profile.query.filter_by(name=p).first()
+                Profile.query.filter_by(name=p)
+                .first()
+                .access_for(roles={'all'}, datasets=('primary', 'related'))
+                for p in app.config['FEATURED_PROFILES']
+                if Profile.query.filter_by(name=p).first()
             ),
         }
 
