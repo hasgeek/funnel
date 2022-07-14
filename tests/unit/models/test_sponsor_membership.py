@@ -1,14 +1,14 @@
-"""Test SponsorMembership."""
+"""Test ProjectSponsorMembership."""
 import pytest
 
 from coaster.sqlalchemy import ImmutableColumnError
-from funnel.models import SponsorMembership
+from funnel.models import ProjectSponsorMembership
 
 
 @pytest.fixture()
 def citywatch_sponsor(db_session, project_expo2010, org_citywatch, user_vetinari):
     """Add City Watch as a sponsor of Expo 2010."""
-    sponsor = SponsorMembership(
+    sponsor = ProjectSponsorMembership(
         project=project_expo2010,
         profile=org_citywatch.profile,
         granted_by=user_vetinari,
@@ -22,7 +22,7 @@ def citywatch_sponsor(db_session, project_expo2010, org_citywatch, user_vetinari
 @pytest.fixture()
 def uu_sponsor(db_session, project_expo2010, org_uu, user_vetinari):
     """Add Unseen University as a sponsor of Expo 2010."""
-    sponsor = SponsorMembership(
+    sponsor = ProjectSponsorMembership(
         project=project_expo2010,
         profile=org_uu.profile,
         granted_by=user_vetinari,
@@ -36,7 +36,7 @@ def uu_sponsor(db_session, project_expo2010, org_uu, user_vetinari):
 @pytest.fixture()
 def dibbler_sponsor(db_session, project_expo2010, user_dibbler, user_vetinari):
     """Add CMOT Dibbler as a promoted sponsor of Expo 2010."""
-    sponsor = SponsorMembership(
+    sponsor = ProjectSponsorMembership(
         project=project_expo2010,
         profile=user_dibbler.profile,
         granted_by=user_vetinari,
@@ -52,7 +52,7 @@ def test_auto_seq(  # pylint: disable=too-many-arguments
     db_session, project_expo2010, org_citywatch, org_uu, user_dibbler, user_vetinari
 ):
     """Sequence numbers are auto-issued in commit order."""
-    sponsor1 = SponsorMembership(
+    sponsor1 = ProjectSponsorMembership(
         project=project_expo2010,
         profile=org_citywatch.profile,
         granted_by=user_vetinari,
@@ -61,7 +61,7 @@ def test_auto_seq(  # pylint: disable=too-many-arguments
     db_session.add(sponsor1)
     db_session.commit()
 
-    sponsor2 = SponsorMembership(
+    sponsor2 = ProjectSponsorMembership(
         project=project_expo2010,
         profile=org_uu.profile,
         granted_by=user_vetinari,
@@ -70,7 +70,7 @@ def test_auto_seq(  # pylint: disable=too-many-arguments
     db_session.add(sponsor2)
     db_session.commit()
 
-    sponsor3 = SponsorMembership(
+    sponsor3 = ProjectSponsorMembership(
         project=project_expo2010,
         profile=user_dibbler.profile,
         granted_by=user_vetinari,
@@ -143,7 +143,7 @@ def test_expo_sponsor_seq_reissue(  # pylint: disable=too-many-arguments
 
     # Dibbler removes self and introduces Wolfgang
     dibbler_sponsor.revoke(actor=user_dibbler)
-    wolfgang_sponsor = SponsorMembership(
+    wolfgang_sponsor = ProjectSponsorMembership(
         project=project_expo2010,
         profile=user_wolfgang.profile,
         granted_by=user_dibbler,

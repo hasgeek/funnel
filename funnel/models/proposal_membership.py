@@ -10,7 +10,11 @@ from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import db
 from .helpers import reopen
-from .membership_mixin import ImmutableUserMembershipMixin, ReorderMembershipMixin
+from .membership_mixin import (
+    FrozenAttributionMixin,
+    ImmutableUserMembershipMixin,
+    ReorderMembershipMixin,
+)
 from .project import Project
 from .proposal import Proposal
 from .user import User
@@ -19,18 +23,21 @@ __all__ = ['ProposalMembership']
 
 
 class ProposalMembership(
-    ReorderMembershipMixin, ImmutableUserMembershipMixin, db.Model
+    FrozenAttributionMixin,
+    ReorderMembershipMixin,
+    ImmutableUserMembershipMixin,
+    db.Model,
 ):
     """Users can be presenters or reviewers on proposals."""
 
     __tablename__ = 'proposal_membership'
 
-    # List of is_role columns in this model
-    __data_columns__ = ('seq', 'is_uncredited', 'label')
+    # List of data columns in this model
+    __data_columns__ = ('seq', 'is_uncredited', 'label', 'title')
 
     __roles__ = {
         'all': {
-            'read': {'urls', 'user', 'seq', 'is_uncredited', 'label'},
+            'read': {'is_uncredited', 'label', 'seq', 'title', 'urls', 'user'},
             'call': {'url_for'},
         },
         'editor': {
@@ -39,31 +46,34 @@ class ProposalMembership(
     }
     __datasets__ = {
         'primary': {
-            'urls',
-            'uuid_b58',
-            'offered_roles',
-            'seq',
             'is_uncredited',
             'label',
-            'user',
+            'offered_roles',
             'proposal',
+            'seq',
+            'title',
+            'urls',
+            'user',
+            'uuid_b58',
         },
         'without_parent': {
-            'urls',
-            'uuid_b58',
-            'offered_roles',
-            'seq',
             'is_uncredited',
             'label',
+            'offered_roles',
+            'seq',
+            'title',
+            'urls',
             'user',
+            'uuid_b58',
         },
         'related': {
-            'urls',
-            'uuid_b58',
-            'offered_roles',
-            'seq',
             'is_uncredited',
             'label',
+            'offered_roles',
+            'seq',
+            'title',
+            'urls',
+            'uuid_b58',
         },
     }
 
