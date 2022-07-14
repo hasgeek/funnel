@@ -111,6 +111,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
     )
     state = StateManager('_state', PROFILE_STATE, doc="Current state of the profile")
 
+    tagline = db.Column(db.Unicode, nullable=True)
     description = MarkdownColumn(
         'description', default='', nullable=False, options=markdown_content_options
     )
