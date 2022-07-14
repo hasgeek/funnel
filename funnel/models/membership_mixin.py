@@ -85,6 +85,10 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     #: (Hard deletes will cascade and also delete all membership records.)
     revoke_on_subject_delete: ClassVar[bool] = True
 
+    #: Internal flag for using only local data when replacing a record, used from
+    #: :class:`FrozenAttributionMixin`
+    _local_data_only: bool = False
+
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
     granted_at: db.Column = immutable(
@@ -218,9 +222,11 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             has_changes = True
         else:
             # If it's not an ACCEPT, are the supplied data different from existing?
+            self._local_data_only = True
             for column_name, column_value in data.items():
                 if column_value != getattr(self, column_name):
                     has_changes = True
+            del self._local_data_only
         if not has_changes:
             # Nothing is changing. This is probably a form submit with no changes.
             # Do nothing and return self
@@ -230,7 +236,9 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
         self.revoked_at = db.func.utcnow()
         self.revoked_by = actor
+        self._local_data_only = True
         new = self.copy_template(parent_id=self.parent_id, granted_by=self.granted_by)
+        del self._local_data_only
 
         # if existing record type is INVITE, then ACCEPT or amend as new INVITE
         # else replace it with AMEND
@@ -242,11 +250,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         else:
             new.record_type = MEMBERSHIP_RECORD_TYPE.AMEND
 
+        self._local_data_only = True
         for column in self.__data_columns__:
             if column in data:
                 setattr(new, column, data[column])
             else:
                 setattr(new, column, getattr(self, column))
+        del self._local_data_only
         db.session.add(new)
         return new
 
@@ -277,6 +287,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             # If both records are invites or neither is an invite, use existing records
             this = self
 
+        self._local_data_only = True
         data_columns = {}
         for column in this.__data_columns__:
             column_value = getattr(this, column)
@@ -285,6 +296,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
                 # a more robust mechanism in the future if there are multi-value columns
                 column_value = getattr(other, column)
             data_columns[column] = column_value
+        del self._local_data_only
         replacement = this.replace(actor, **data_columns)
         other.revoke(actor)
 
@@ -628,8 +640,7 @@ class FrozenAttributionMixin(Generic[SubjectType]):
 
     subject: SubjectType
     replace: Callable[..., FrozenAttributionType]
-    #: Flag to let self.replace() recognise that we're setting a new title
-    _use_raw_title: bool = False
+    _local_data_only: bool
 
     @declared_attr
     def _title(cls):  # pylint: disable=no-self-argument
@@ -643,7 +654,7 @@ class FrozenAttributionMixin(Generic[SubjectType]):
     @property
     def title(self) -> str:
         """Attribution title for this record."""
-        if self._use_raw_title:
+        if self._local_data_only:
             return self._title  # This may be None
         return self._title or self.subject.title
 
@@ -666,18 +677,11 @@ class FrozenAttributionMixin(Generic[SubjectType]):
     def freeze_subject_attribution(
         self: FrozenAttributionType, actor: User
     ) -> FrozenAttributionType:
-        """
-        Freeze subject attribution and return a replacement record.
-
-        Subclasses that support subject attribution must override this method. The
-        default implementation returns `self`.
-        """
+        """Freeze subject attribution and return a replacement record."""
         if self._title is None:
-            self._use_raw_title = True
             membership: FrozenAttributionType = self.replace(
                 actor=actor, title=self.subject.title
             )
-            del self._use_raw_title
         else:
             membership = self
         return membership
