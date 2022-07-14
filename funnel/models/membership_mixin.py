@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Generic, Iterable, Optional, Set, TypeVar
+from typing import Any, ClassVar, Generic, Iterable, Optional, Set, TypeVar
 
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql.expression import ClauseList
