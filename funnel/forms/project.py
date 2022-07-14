@@ -68,12 +68,12 @@ class ProjectForm(forms.Form):
         filters=[forms.filters.strip()],
     )
     start_at = forms.DateTimeField(
-        __("Optional - Starting time"),
+        __("Optional – Starting time"),
         validators=[forms.validators.Optional()],
         naive=False,
     )
     end_at = forms.DateTimeField(
-        __("Optional - Ending time"),
+        __("Optional – Ending time"),
         validators=[
             forms.validators.RequiredIf(
                 'start_at',
