@@ -6,7 +6,7 @@ Create Date: 2022-07-13 22:41:32.454251
 
 """
 
-from typing import Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from alembic import op
 from sqlalchemy.sql import column, table
@@ -19,7 +19,7 @@ depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
 # (table, column, check, values)
-table_column_check_values = [
+table_column_check_values: List[Tuple[str, str, Optional[str], Tuple[int, ...]]] = [
     ('comment_moderator_report', 'report_type', None, (1, 2)),
     ('comment', 'state', 'comment_state_check', (1, 2, 3, 4, 5, 6)),
     (
@@ -69,6 +69,9 @@ table_column_check_values = [
     (
         'commentset_membership',
         'record_type',
+        # 'commentset_membership_record_type_check' constraint was missing in the
+        # original migration, but will be present in a new db created with model
+        # reflection. If the migration errors out, replace None here with the string
         None,
         (1, 2, 3, 4),
     ),
