@@ -476,6 +476,15 @@
   padding: $mui-grid-padding;
   position: relative;
   height: 100%;
+  .card__body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .profile-card__btn-wrapper {
+    margin-top: auto;
+    margin-bottom: $mui-grid-padding/2;
+  }
 }
 
 .profile-card:before,

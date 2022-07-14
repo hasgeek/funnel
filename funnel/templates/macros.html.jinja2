@@ -330,33 +330,37 @@
             <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Explore communities{% endtrans %}</h2>
           </div>
         </div>
-        <ul class="grid projects flex-wrapper flex-wrapper--horizontal" role="list">
-          {% for profile in profiles %}
-            <li class="grid__col-12" role="listitem">
-              <div class="card profile-card">
-                <div class="card__body">
-                  <div>
-                    <span class="profile-avatar profile-avatar--bigger margin-auto">
-                      {%- if profile.logo_url.url %}
-                        <img src="{{ profile.logo_url }}"
-                             alt="{{ profile.title }}"/>
-                      {% else %}
-                        <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
-                             alt="{{ profile.title }}"/>
-                      {% endif %}
-                    </span>
-                  </div>
-                  <h3 class="mui--text-subhead mui--text-bold top-padding margin-bottom mui--text-center">{{ profile.title }}</h3>
-                  <div class="markdown js-truncate mui--text-center mui--text-caption mui--text-light bottom-padding" data-truncate-lines="3">{{ profile.tagline or profile.description }}</div>
-                  <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans count=profile.published_project_count %}One project{% pluralize %}{{ count }} projects{% endtrans %}</p>
-                  <div class="margin-bottom">
-                    <a class="mui-btn mui-btn--primary mui-btn--raised full-width-btn" href="{{ profile.url_for() }} ">{% trans %}Explore{% endtrans %}</a>
+      </div>
+      <div class="featured-profiles">
+        <div class="mui-container">
+          <ul class="grid projects flex-wrapper flex-wrapper--nowrap" role="list">
+            {% for profile in profiles %}
+              <li class="grid__col-12" role="listitem">
+                <div class="card profile-card">
+                  <div class="card__body">
+                    <div>
+                      <span class="profile-avatar profile-avatar--bigger margin-auto">
+                        {%- if profile.logo_url.url %}
+                          <img src="{{ profile.logo_url }}"
+                               alt="{{ profile.title }}"/>
+                        {% else %}
+                          <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
+                               alt="{{ profile.title }}"/>
+                        {% endif %}
+                      </span>
+                    </div>
+                    <h3 class="mui--text-subhead mui--text-bold top-padding margin-bottom mui--text-center">{{ profile.title }}</h3>
+                    <div class="markdown js-truncate mui--text-center mui--text-caption mui--text-light bottom-padding" data-truncate-lines="3">{{ profile.tagline or profile.description }}</div>
+                    <div class="profile-card__btn-wrapper">
+                      <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans count=profile.published_project_count %}One project{% pluralize %}{{ count }} projects{% endtrans %}</p>
+                      <a class="mui-btn mui-btn--primary mui-btn--raised full-width-btn" href="{{ profile.url_for() }} ">{% trans %}Explore{% endtrans %}</a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </li>
-          {%- endfor -%}
-        </ul>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
       </div>
     </div>
   {% endif %}

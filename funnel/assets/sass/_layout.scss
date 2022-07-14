@@ -86,8 +86,11 @@
   flex-wrap: wrap;
 }
 
-.flex-wrapper--horizontal {
+.flex-wrapper--nowrap {
   flex-wrap: nowrap;
+}
+
+.flex-wrapper--horizontal {
   overflow-x: auto;
 }
 
