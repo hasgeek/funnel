@@ -55,11 +55,11 @@ class EMAIL_DELIVERY_STATE(LabeledEnum):  # noqa: N801
     the email server. Active state requires incoming link handlers to report activity.
     """
 
-    UNKNOWN = (0, 'unknown')  # Never mailed
-    SENT = (1, 'sent')  # Mail sent, nothing further known
-    # ACTIVE state (2, 'active') has been removed
-    SOFT_FAIL = (3, 'soft_fail')  # Soft fail reported
-    HARD_FAIL = (4, 'hard_fail')  # Hard fail reported
+    UNKNOWN = (1, 'unknown')  # Never mailed
+    SENT = (2, 'sent')  # Mail sent, nothing further known
+    # ACTIVE state (3, 'active') has been removed
+    SOFT_FAIL = (4, 'soft_fail')  # Soft fail reported
+    HARD_FAIL = (5, 'hard_fail')  # Hard fail reported
 
 
 def canonical_email_representation(email: str) -> List[str]:

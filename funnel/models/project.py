@@ -47,18 +47,18 @@ __all__ = ['Project', 'ProjectLocation', 'ProjectRedirect']
 
 
 class PROJECT_STATE(LabeledEnum):  # noqa: N801
-    DRAFT = (0, 'draft', __("Draft"))
-    PUBLISHED = (1, 'published', __("Published"))
-    WITHDRAWN = (2, 'withdrawn', __("Withdrawn"))
-    DELETED = (3, 'deleted', __("Deleted"))
+    DRAFT = (1, 'draft', __("Draft"))
+    PUBLISHED = (2, 'published', __("Published"))
+    WITHDRAWN = (3, 'withdrawn', __("Withdrawn"))
+    DELETED = (4, 'deleted', __("Deleted"))
     DELETABLE = {DRAFT, PUBLISHED, WITHDRAWN}
     PUBLISHABLE = {DRAFT, WITHDRAWN}
 
 
 class CFP_STATE(LabeledEnum):  # noqa: N801
-    NONE = (0, 'none', __("None"))
-    PUBLIC = (1, 'public', __("Public"))
-    CLOSED = (2, 'closed', __("Closed"))
+    NONE = (1, 'none', __("None"))
+    PUBLIC = (2, 'public', __("Public"))
+    CLOSED = (3, 'closed', __("Closed"))
     ANY = {NONE, PUBLIC, CLOSED}
 
 
