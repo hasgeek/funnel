@@ -471,10 +471,11 @@
 }
 
 .profile-card {
-  min-width: 180px;
+  min-width: 220px;
   border-radius: $mui-grid-padding;
   padding: $mui-grid-padding;
   position: relative;
+  height: 100%;
 }
 
 .profile-card:before,
