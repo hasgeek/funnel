@@ -4,7 +4,17 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from hashlib import blake2b, sha256
-from typing import Dict, Iterable, List, Optional, Sequence, Tuple, Union, overload
+from typing import (
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    cast,
+    overload,
+)
 import urllib.parse
 
 from sqlalchemy.ext.declarative import declared_attr
@@ -21,6 +31,7 @@ from coaster.utils import newsecret, require_one_of, utcnow
 
 from ..typing import OptionalMigratedTables
 from . import BaseMixin, UuidMixin, db
+from .helpers import reopen
 from .user import Organization, Team, User
 from .user_session import UserSession, auth_client_user_session
 
@@ -86,6 +97,7 @@ class AuthClient(ScopeMixin, UuidMixin, BaseMixin, db.Model):
 
     __tablename__ = 'auth_client'
     __scope_null_allowed__ = True
+    # TODO: merge columns into a profile_id column
     #: User who owns this client
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
     user = with_roles(
@@ -631,6 +643,11 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):
 
         return []
 
+    @classmethod
+    def all_for(cls, user: User) -> QueryBaseClass:
+        """Get all AuthTokens for a specified user (direct only)."""
+        return cls.query.filter_by(user=user)
+
 
 # This model's name is in plural because it defines multiple permissions within each
 # instance
@@ -699,6 +716,11 @@ class AuthClientUserPermissions(BaseMixin, db.Model):
         return cls.query.filter_by(auth_client=auth_client, user=user).one_or_none()
 
     @classmethod
+    def all_for(cls, user: User) -> QueryBaseClass:
+        """Get all permissions assigned to user for various clients."""
+        return cls.query.filter_by(user=user)
+
+    @classmethod
     def all_forclient(cls, auth_client: AuthClient) -> QueryBaseClass:
         """Get all permissions assigned on the specified auth client."""
         return cls.query.filter_by(auth_client=auth_client)
@@ -761,3 +783,16 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):
     def all_forclient(cls, auth_client: AuthClient) -> QueryBaseClass:
         """Get all permissions assigned on the specified auth client."""
         return cls.query.filter_by(auth_client=auth_client)
+
+
+@reopen(User)
+class __User:
+    def revoke_all_auth_tokens(self) -> None:
+        """Revoke all auth tokens directly linked to the user."""
+        AuthToken.all_for(cast(User, self)).delete(synchronize_session=False)
+
+    def revoke_all_auth_client_permissions(self) -> None:
+        """Revoke all permissions on client apps assigned to user."""
+        AuthClientUserPermissions.all_for(cast(User, self)).delete(
+            synchronize_session=False
+        )

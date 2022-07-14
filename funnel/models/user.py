@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Iterable, List, Optional, Union, cast, overload
+from typing import Iterable, Iterator, List, Optional, Set, Union, cast, overload
 from uuid import UUID
 import hashlib
+import itertools
 
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.sql.expression import Select
@@ -113,15 +114,15 @@ class USER_STATE(LabeledEnum):  # noqa: N801
     """State codes for user accounts."""
 
     #: Regular, active user
-    ACTIVE = (0, __("Active"))  # XXX: Using 0 in a state code is a legacy mistake
+    ACTIVE = (1, __("Active"))
     #: Suspended account (cause and explanation not included here)
-    SUSPENDED = (1, __("Suspended"))
+    SUSPENDED = (2, __("Suspended"))
     #: Merged into another user
-    MERGED = (2, __("Merged"))
+    MERGED = (3, __("Merged"))
     #: Invited to make an account, doesn't have one yet
-    INVITED = (3, __("Invited"))
+    INVITED = (4, __("Invited"))
     #: Permanently deleted account
-    DELETED = (4, __("Deleted"))
+    DELETED = (5, __("Deleted"))
 
 
 class ORGANIZATION_STATE(LabeledEnum):  # noqa: N801
@@ -133,7 +134,43 @@ class ORGANIZATION_STATE(LabeledEnum):  # noqa: N801
     SUSPENDED = (2, __("Suspended"))
 
 
-class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
+class EnumerateMembershipsMixin:
+    """Support mixin for enumeration of memberships."""
+
+    __active_membership_attrs__: Set[str]
+    __noninvite_membership_attrs__: Set[str]
+
+    def __init_subclass__(cls, **kwargs) -> None:
+        super().__init_subclass__(**kwargs)
+        cls.__active_membership_attrs__ = set()
+        cls.__noninvite_membership_attrs__ = set()
+
+    def active_memberships(self) -> Iterator[ImmutableMembershipMixin]:
+        """Enumerate all active memberships."""
+        # Each collection is cast into a list before chaining to ensure that it does not
+        # change during processing (if, for example, membership is revoked or replaced).
+        return itertools.chain(
+            *(list(getattr(self, attr)) for attr in self.__active_membership_attrs__)
+        )
+
+    def has_any_memberships(self) -> bool:
+        """
+        Test for any non-invite membership records that must be preserved.
+
+        This is used to test for whether the subject User or Profile is safe to purge
+        (hard delete) from the database. If non-invite memberships are present, the
+        subject cannot be purged as immutable records must be preserved. Instead, the
+        subject must be put into DELETED state with all PII scrubbed.
+        """
+        return any(
+            db.session.query(getattr(self, attr).exists()).scalar()
+            for attr in self.__noninvite_membership_attrs__
+        )
+
+
+class User(
+    SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model
+):
     """User model."""
 
     __tablename__ = 'user'
@@ -605,7 +642,60 @@ class User(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     @state.transition(state.ACTIVE, state.SUSPENDED)
     def mark_suspended(self):
-        """Mark account as suspended on support request."""
+        """Mark account as suspended on support or moderator request."""
+
+    @state.transition(state.ACTIVE, state.DELETED)
+    def do_delete(self):
+        """Delete user account."""
+        # 0: Safety check
+        if self.profile and not self.profile.is_safe_to_delete():
+            raise ValueError("Profile cannot be deleted")
+
+        # 1. Delete contact information
+        for contact_source in (
+            self.emails,
+            self.emailclaims,
+            self.phones,
+            self.externalids,
+        ):
+            for contact in contact_source:
+                db.session.delete(contact)
+
+        # 2. Revoke all active memberships
+        for membership in self.active_memberships():
+            membership = membership.freeze_subject_attribution(self)
+            if membership.revoke_on_subject_delete:
+                membership.revoke(actor=self)
+        # TODO: freeze fullname in unrevoked memberships (pending title column there)
+        if (
+            self.active_site_membership
+            and self.active_site_membership.revoke_on_subject_delete
+        ):
+            self.active_site_membership.revoke(actor=self)
+
+        # 3. Drop all team memberships
+        self.teams.clear()
+
+        # 4. Revoke auth tokens
+        self.revoke_all_auth_tokens()  # Defined in auth_client.py
+        self.revoke_all_auth_client_permissions()  # Same place
+
+        # 5. Revoke all active login sessions
+        for user_session in self.active_user_sessions:
+            user_session.revoke()
+
+        # 6. Delete profile and release username, unless it is implicated in membership
+        #    records (including revoked records).
+        if (
+            self.profile
+            and self.profile.do_delete(self)  # This call removes data and confirms it
+            and self.profile.is_safe_to_purge()
+        ):
+            db.session.delete(self.profile)
+
+        # 6. Clear fullname and stored password hash
+        self.fullname = ''
+        self.password = None
 
     @overload
     @classmethod
@@ -866,13 +956,19 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):
 class DuckTypeUser(RoleMixin):
     """User singleton constructor. Ducktypes a regular user object."""
 
-    id = None  # noqa: A003
-    created_at = updated_at = None
-    uuid = userid = buid = uuid_b58 = None
-    username = name = None
-    profile = None
-    profile_url = None
-    email = phone = None
+    id: None = None  # noqa: A003
+    created_at: None = None
+    updated_at: None = None
+    uuid: None = None
+    userid: None = None
+    buid: None = None
+    uuid_b58: None = None
+    username: None = None
+    name: None = None
+    profile: None = None
+    profile_url: None = None
+    email: None = None
+    phone: None = None
 
     # Copy registries from User model
     views = User.views
@@ -945,7 +1041,9 @@ team_membership = db.Table(
 )
 
 
-class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
+class Organization(
+    SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model
+):
     """An organization of one or more users with distinct roles."""
 
     __tablename__ = 'organization'
@@ -1028,7 +1126,7 @@ class Organization(SharedProfileMixin, UuidMixin, BaseMixin, db.Model):
 
     @hybrid_property  # type: ignore[override]
     def name(self) -> str:  # type: ignore[override]
-        """Return @name (username) from linked profile."""  # noqa: D402
+        """Return username from linked profile."""
         return self.profile.name
 
     @name.setter
@@ -1790,5 +1888,6 @@ Anchor = Union[UserEmail, UserEmailClaim, UserPhone, EmailAddress]
 
 # Tail imports
 # pylint: disable=wrong-import-position
-from .profile import Profile  # isort:skip
+from .membership_mixin import ImmutableMembershipMixin  # isort: skip
 from .organization_membership import OrganizationMembership  # isort:skip
+from .profile import Profile  # isort:skip

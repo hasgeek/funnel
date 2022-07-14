@@ -33,13 +33,13 @@ class COMMENTSET_STATE(LabeledEnum):  # noqa: N801
 
 class COMMENT_STATE(LabeledEnum):  # noqa: N801
     # If you add any new state, you need to migrate the check constraint as well
-    SUBMITTED = (0, 'submitted', __("Submitted"))  # Using 0 is a legacy mistake
-    SCREENED = (1, 'screened', __("Screened"))
-    HIDDEN = (2, 'hidden', __("Hidden"))
-    SPAM = (3, 'spam', __("Spam"))
+    SUBMITTED = (1, 'submitted', __("Submitted"))
+    SCREENED = (2, 'screened', __("Screened"))
+    HIDDEN = (3, 'hidden', __("Hidden"))
+    SPAM = (4, 'spam', __("Spam"))
     # Deleted state for when there are replies to be preserved
-    DELETED = (4, 'deleted', __("Deleted"))
-    VERIFIED = (5, 'verified', __("Verified"))
+    DELETED = (5, 'deleted', __("Deleted"))
+    VERIFIED = (6, 'verified', __("Verified"))
 
     PUBLIC = {SUBMITTED, VERIFIED}
     REMOVED = {SPAM, DELETED}
@@ -69,7 +69,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     _state = db.Column(
         'state',
         db.SmallInteger,
-        StateManager.check_constraint('state', COMMENT_STATE),
+        StateManager.check_constraint('state', COMMENTSET_STATE),
         nullable=False,
         default=COMMENTSET_STATE.OPEN,
     )

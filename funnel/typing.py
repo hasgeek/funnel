@@ -7,7 +7,7 @@ from uuid import UUID
 
 from werkzeug.wrappers import Response  # Base class for Flask Response
 
-from typing_extensions import Protocol
+from typing_extensions import ParamSpec, Protocol
 
 from coaster.sqlalchemy import Query
 
@@ -21,6 +21,7 @@ __all__ = [
     'WrappedFunc',
     'ReturnDecorator',
     'T',
+    'P',
 ]
 
 
@@ -61,11 +62,13 @@ ReturnView = Union[
     ],  # Response + status code + headers
 ]
 
-#: Type used to indicate that a decorator returns its decorated attribute
+#: Type used to indicate type continuity within a block of code
 T = TypeVar('T')
+#: Type used to indicate parameter continuity within a block of code
+P = ParamSpec('P')
 
 #: Type used for functions and methods wrapped in a decorator
-WrappedFunc = TypeVar('WrappedFunc', bound=Callable[..., Any])
+WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
 #: Return type for decorator factories
 ReturnDecorator = Callable[[WrappedFunc], WrappedFunc]
 

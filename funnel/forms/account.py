@@ -35,6 +35,7 @@ __all__ = [
     'PasswordResetForm',
     'PasswordChangeForm',
     'AccountForm',
+    'AccountDeleteForm',
     'UsernameAvailableForm',
     'EmailPrimaryForm',
     'ModeratorReportForm',
@@ -448,6 +449,27 @@ class AccountForm(forms.Form):
         if not reason:
             return  # Username is available
         raise_username_error(reason)
+
+
+@User.forms('delete')
+class AccountDeleteForm(forms.Form):
+    """Delete user account."""
+
+    confirm1 = forms.BooleanField(
+        __(
+            "I understand that deletion is permanent and my account cannot be recovered"
+        ),
+        validators=[forms.validators.DataRequired(__("You must accept this"))],
+    )
+    confirm2 = forms.BooleanField(
+        __(
+            "I understand that deleting my account will remove personal details such as"
+            " my name and contact details, but not messages sent to other users, or"
+            " public content such as comments, job posts and submissions to projects"
+        ),
+        description=__("Public content must be deleted individually"),
+        validators=[forms.validators.DataRequired(__("You must accept this"))],
+    )
 
 
 class UsernameAvailableForm(forms.Form):

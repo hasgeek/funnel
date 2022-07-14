@@ -190,11 +190,11 @@ notification_categories: SimpleNamespace = SimpleNamespace(
 class SMS_STATUS(LabeledEnum):  # noqa: N801
     """SMS delivery status."""
 
-    QUEUED = (0, __("Queued"))
-    PENDING = (1, __("Pending"))
-    DELIVERED = (2, __("Delivered"))
-    FAILED = (3, __("Failed"))
-    UNKNOWN = (4, __("Unknown"))
+    QUEUED = (1, __("Queued"))
+    PENDING = (2, __("Pending"))
+    DELIVERED = (3, __("Delivered"))
+    FAILED = (4, __("Failed"))
+    UNKNOWN = (5, __("Unknown"))
 
 
 # --- Legacy models --------------------------------------------------------------------

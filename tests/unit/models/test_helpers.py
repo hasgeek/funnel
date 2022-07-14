@@ -103,14 +103,14 @@ def test_reopen() -> None:
     assert ReopenedClass.eggs is OriginalClass.eggs  # type: ignore[attr-defined]
 
     # The decorator will refuse to process classes with base classes
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match='cannot add base classes'):
 
         @reopen(OriginalClass)
         class Subclass(UnrelatedMixin):  # pylint: disable=unused-variable
             pass
 
     # The decorator will refuse to process classes with metaclasses
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match='cannot add a metaclass'):
 
         @reopen(OriginalClass)
         class HasMetaclass(metaclass=TestMetaclass):  # pylint: disable=unused-variable
@@ -118,7 +118,7 @@ def test_reopen() -> None:
 
     # The decorator will refuse to process classes that affect the original's attributes
     # (__slots__, __getattribute__, __get/set/delattr__)
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match='contains unsupported __attributes__'):
 
         @reopen(OriginalClass)
         class HasSlots:  # pylint: disable=unused-variable
