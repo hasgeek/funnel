@@ -45,6 +45,8 @@ describe('Adding crew to profile', () => {
       .contains('Admin');
 
     cy.add_member(hguser.username, 'owner', true);
+    cy.get('a.modal__close:visible').click();
+    cy.wait(1000);
 
     cy.get('a[data-cy="profile-public"]:visible').click();
     cy.wait(1000);

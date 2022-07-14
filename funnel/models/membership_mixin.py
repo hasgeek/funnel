@@ -42,10 +42,11 @@ class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # noqa: N801
 
     # TODO: Convert into IntEnum
 
-    INVITE = (0, 'invite', __("Invite"))
-    ACCEPT = (1, 'accept', __("Accept"))
-    DIRECT_ADD = (2, 'direct_add', __("Direct add"))
-    AMEND = (3, 'amend', __("Amend"))
+    INVITE = (1, 'invite', __("Invite"))
+    ACCEPT = (2, 'accept', __("Accept"))
+    DIRECT_ADD = (3, 'direct_add', __("Direct add"))
+    AMEND = (4, 'amend', __("Amend"))
+    # Forthcoming: MIGRATE = (5, 'migrate', __("Migrate"))
 
 
 # --- Exceptions -----------------------------------------------------------------------
