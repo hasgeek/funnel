@@ -30,7 +30,7 @@ class ProfileForm(OrganizationForm):
     tagline = forms.StringField(
         __("Bio"),
         validators=[forms.validators.Optional(), forms.validators.Length(max=160)],
-        filters=[forms.filters.strip(), forms.filters.none_if_empty()],
+        filters=nullable_strip_filters,
         description=__("A brief statement about your organization"),
     )
     description = forms.MarkdownField(

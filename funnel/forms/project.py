@@ -305,7 +305,7 @@ class ProjectSponsorForm(forms.Form):
     label = forms.StringField(
         __("Label"),
         description=__("Optional – Label for sponsor"),
-        filters=[forms.filters.strip(), forms.filters.none_if_empty()],
+        filters=nullable_strip_filters,
     )
     is_promoted = forms.BooleanField(__("Mark this sponsor as promoted"), default=False)
 
