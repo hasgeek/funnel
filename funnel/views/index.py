@@ -113,13 +113,15 @@ class IndexView(ClassView):
                 if featured_project
                 else None
             ),
-            'featured_profiles': (
-                Profile.query.filter_by(name=p)
-                .first()
-                .access_for(roles={'all'}, datasets=('primary', 'related'))
-                for p in app.config['FEATURED_PROFILES']
-                if Profile.query.filter_by(name=p).first()
-            ),
+            'featured_profiles': [
+                p.current_access(datasets=('primary', 'related'))
+                for p in Profile.query.filter(
+                    Profile.is_verified.is_(True),
+                    Profile.organization_id.isnot(None),
+                )
+                .order_by(db.func.random())
+                .limit(6)
+            ],
         }
 
 

@@ -235,11 +235,14 @@ def project_register_button_text(obj: Project) -> str:
 @Profile.views('project_new')
 @route('/<profile>')
 class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
+    """Project views inside the profile (new project view only)."""
+
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'admin'})
     @requires_user_not_spammy()
     def new_project(self) -> ReturnView:
+        """Create a new project."""
         form = ProjectForm(model=Project, profile=self.obj)
 
         if request.method == 'GET':
@@ -275,10 +278,13 @@ ProfileProjectView.init_app(app)
 class ProjectView(  # type: ignore[misc]
     ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
 ):
+    """All main project views."""
+
     @route('')
     @render_with(html_in_json('project.html.jinja2'))
     @requires_roles({'reader'})
     def view(self) -> ReturnRenderWith:
+        """Render project landing lage."""
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'featured_proposals': [
@@ -292,6 +298,7 @@ class ProjectView(  # type: ignore[misc]
     @render_with(html_in_json('project_submissions.html.jinja2'))
     @requires_roles({'reader'})
     def view_proposals(self) -> ReturnRenderWith:
+        """Render project proposals/submissions."""
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'submissions': [
@@ -303,6 +310,7 @@ class ProjectView(  # type: ignore[misc]
     @route('videos')
     @render_with(html_in_json('project_videos.html.jinja2'))
     def session_videos(self) -> ReturnRenderWith:
+        """Render project videos."""
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
         }
@@ -311,6 +319,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     @requires_roles({'editor'})
     def edit_slug(self) -> ReturnView:
+        """Edit project's URL slug."""
         form = ProjectNameForm(obj=self.obj)
         form.name.prefix = self.obj.profile.url_for(_external=True)
         # Hasgeek profile URLs currently do not have a trailing slash, but this form
@@ -328,6 +337,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     @requires_roles({'editor'})
     def edit_livestream(self) -> ReturnView:
+        """Edit project's livestream URLs."""
         form = ProjectLivestreamForm(obj=self.obj)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
@@ -341,6 +351,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     @requires_roles({'editor'})
     def edit(self) -> ReturnView:
+        """Edit project description."""
         if request.method == 'GET':
             # Find draft if it exists
             draft_revision, initial_formdata = self.get_draft_data()
@@ -422,6 +433,7 @@ class ProjectView(  # type: ignore[misc]
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'editor'})
     def update_banner(self) -> ReturnRenderWith:
+        """Update project banner."""
         form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
         edit_logo_url = self.obj.url_for('edit_banner')
         delete_logo_url = self.obj.url_for('remove_banner')
@@ -435,6 +447,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     @requires_roles({'editor'})
     def edit_banner(self) -> ReturnView:
+        """Edit project banner."""
         form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
         if request.method == 'POST':
             if form.validate_on_submit():
@@ -455,6 +468,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     @requires_roles({'editor'})
     def remove_banner(self) -> ReturnView:
+        """Remove project banner."""
         form = self.CsrfForm()
         if form.validate_on_submit():
             self.obj.bg_image = None
@@ -473,6 +487,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     @requires_roles({'editor'})
     def cfp(self) -> ReturnView:
+        """Edit project submission instructions."""
         form = CfpForm(obj=self.obj, model=Project)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
@@ -489,6 +504,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     @requires_roles({'promoter'})
     def edit_boxoffice_data(self) -> ReturnView:
+        """Edit Boxoffice ticket sync data."""
         boxoffice_data = self.obj.boxoffice_data or {}
         form = ProjectBoxofficeForm(
             obj=SimpleNamespace(
@@ -515,6 +531,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     @requires_roles({'editor'})
     def transition(self) -> ReturnView:
+        """Change project's state."""
         transition_form = ProjectTransitionForm(obj=self.obj)
         if (
             transition_form.validate_on_submit()
@@ -534,6 +551,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     @requires_roles({'editor'})
     def cfp_transition(self) -> ReturnView:
+        """Change project CfP state (submissions)."""
         cfp_transition = ProjectCfpTransitionForm(obj=self.obj)
         if cfp_transition.validate_on_submit():
             cfp_transition.populate_obj(self.obj)
@@ -556,6 +574,7 @@ class ProjectView(  # type: ignore[misc]
     @route('register', methods=['POST'])
     @requires_login
     def register(self) -> ReturnView:
+        """Register for project as a participant."""
         form = forms.Form()
         if form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
@@ -576,6 +595,7 @@ class ProjectView(  # type: ignore[misc]
     @route('deregister', methods=['POST'])
     @requires_login
     def deregister(self) -> ReturnView:
+        """Unregister from project as a participant."""
         form = forms.Form()
         if form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user)
@@ -601,6 +621,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     @requires_roles({'promoter'})
     def rsvp_list(self) -> ReturnRenderWith:
+        """List all project participants."""
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'going_rsvps': [
@@ -610,6 +631,7 @@ class ProjectView(  # type: ignore[misc]
         }
 
     def get_rsvp_state_csv(self, state):
+        """Export participant list as a CSV."""
         outfile = io.StringIO(newline='')
         out = csv.writer(outfile)
         out.writerow(['fullname', 'email', 'created_at'])
@@ -655,6 +677,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     @requires_roles({'reader'})
     def save(self) -> ReturnView:
+        """Save (bookmark) a project."""
         form = self.SavedProjectForm()
         form.form_nonce.data = form.form_nonce.default()
         if form.validate_on_submit():
@@ -718,6 +741,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     @requires_roles({'editor', 'promoter', 'usher'})
     def settings(self) -> ReturnRenderWith:
+        """Render landing page for project settings."""
         transition_form = ProjectTransitionForm(obj=self.obj)
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
@@ -728,6 +752,7 @@ class ProjectView(  # type: ignore[misc]
     @render_with(html_in_json('project_comments.html.jinja2'))
     @requires_roles({'reader'})
     def comments(self) -> ReturnRenderWith:
+        """View comments on project."""
         project = self.obj.current_access(datasets=('primary', 'related'))
         comments = self.obj.commentset.views.json_comments()
         subscribed = bool(self.obj.commentset.current_roles.document_subscriber)
@@ -748,6 +773,7 @@ class ProjectView(  # type: ignore[misc]
     @route('update_featured', methods=['POST'])
     @requires_site_editor
     def update_featured(self) -> ReturnView:
+        """Mark project as site-featured."""
         featured_form = ProjectFeaturedForm(obj=self.obj)
         if featured_form.validate_on_submit():
             featured_form.populate_obj(self.obj)
