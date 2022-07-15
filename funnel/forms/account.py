@@ -25,7 +25,7 @@ from ..models import (
     getuser,
 )
 from ..utils import normalize_phone_number
-from .helpers import EmailAddressAvailable, strip_filters
+from .helpers import EmailAddressAvailable, nullable_strip_filters, strip_filters
 
 __all__ = [
     'PasswordForm',
@@ -418,7 +418,7 @@ class AccountForm(forms.Form):
             forms.validators.DataRequired(),
             forms.validators.Length(max=Profile.__name_length__),
         ],
-        filters=[forms.filters.none_if_empty()],
+        filters=nullable_strip_filters,
         prefix="https://hasgeek.com/",
         render_kw={
             'autocorrect': 'off',

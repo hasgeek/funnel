@@ -766,6 +766,13 @@ class __Profile:
             ]
         return []
 
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})
+    @cached_property
+    def published_project_count(self) -> int:
+        return (
+            self.listed_projects.filter(Project.state.PUBLISHED).order_by(None).count()
+        )
+
 
 class ProjectRedirect(TimestampMixin, db.Model):
     __tablename__ = 'project_redirect'

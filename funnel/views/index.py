@@ -13,7 +13,7 @@ from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, pages
 from ..forms import SavedProjectForm
-from ..models import Project, db
+from ..models import Profile, Project, db
 from ..typing import ReturnRenderWith, ReturnView
 
 
@@ -113,6 +113,15 @@ class IndexView(ClassView):
                 if featured_project
                 else None
             ),
+            'featured_profiles': [
+                p.current_access(datasets=('primary', 'related'))
+                for p in Profile.query.filter(
+                    Profile.is_verified.is_(True),
+                    Profile.organization_id.isnot(None),
+                )
+                .order_by(db.func.random())
+                .limit(6)
+            ],
         }
 
 
