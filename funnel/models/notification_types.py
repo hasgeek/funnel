@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import ClassVar, Dict
 from uuid import UUID
 
 from typing_extensions import Protocol
@@ -55,14 +55,16 @@ role_document_subscriber = Role('document_subscriber', __("Document subscriber")
 
 
 class NotificationDocumentProtocol(Protocol):
-    """Protocol for documents linked to a project."""
+    """Protocol class for notifications with a linked document."""
 
-    document_type: str
+    document_type: ClassVar[str]
     document: db.Model
     document_uuid: UUID
 
 
 class DocumentHasProject:
+    """Mixin class for documents linked to a project."""
+
     @property
     def preference_context(self: NotificationDocumentProtocol) -> Profile:
         """Return document's project's profile as preference context."""
