@@ -3,15 +3,14 @@
 {%- set profile_logo = 240 %}
 {%- set profile_logo_small = 80 %}
 
-
-{%- macro faicon(icon, icon_size='body', baseline=true, css_class='') -%}
-  {% assets "fa5-sprite" %}<svg class="fa5-icon {%- if icon_size %} fa5-icon--{{icon_size}} {%- endif -%} {%- if baseline %} fa5--align-baseline {%- endif -%} {%- if css_class %} {{ css_class }} {%- endif -%}" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL|make_relative_url }}#{{icon}}"></use></svg>{% endassets %}
+{%- macro faicon(icon, icon_size='body', baseline=true, css_class="") -%}
+  {% assets "fa5-sprite" %}<svg class="fa5-icon {%- if icon_size %} fa5-icon--{{ icon_size }} {%- endif -%} {%- if baseline %} fa5--align-baseline {%- endif -%} {%- if css_class %} {{ css_class }} {%- endif -%}" aria-hidden="true" role="img"><use xlink:href="{{ ASSET_URL|make_relative_url }}#{{ icon }}"></use></svg>{% endassets %}
 {%- endmacro %}
 
-{%- macro alertbox(category, message="", dismissable=true, css_class='') %}
-  <div class="alert alert--{{category}} {% if dismissable %}alert--dismissable{%- endif -%} {%- if css_class %} {{ css_class }} {%- endif -%}">
+{%- macro alertbox(category, message="", dismissable=true, css_class="") %}
+  <div class="alert alert--{{ category }} {% if dismissable %}alert--dismissable{%- endif -%} {%- if css_class %} {{ css_class }} {%- endif -%}">
     {%- if dismissable %}
-      <a class="alert__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}">
+      <a class="alert__close" href="#" aria-label="{% trans %}Close{% endtrans %}">
       {{ faicon(icon='times', icon_size='title', baseline=true) }}
       </a>
     {%- endif -%}
@@ -20,15 +19,15 @@
 {%- endmacro %}
 
 {%- macro csrf_tag() %}
-<input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}">
+<input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
 {%- endmacro %}
 
 {% macro project_title(project) %}
   {%- if project.short_title == project.title -%}
-    {#- Project title is not an extension of profile title, so display profile title too -#}
+    {# Project title is not an extension of profile title, so display profile title too -#}
     {{ project.profile.title }} › {{ project.title }}
   {%- else -%}
-    {#- Project title derives from profile title, so profile is not needed. -#}
+    {# Project title derives from profile title, so profile is not needed. -#}
     {{ project.title }}
   {%- endif %}
 {%- endmacro %}
@@ -51,21 +50,21 @@
             {% endif %}
           {% endif %}
           <p class="calendar__month {% if week.upcoming %}calendar__month--upcoming{% endif %} {% if event.first_week == week %}calendar__month--upcoming--first calendar__month--latest{% endif %} {% if week.month != event.month %}calendar__month--unique{% endif %} {% if loop.index == calendar.weeks|length and not week.upcoming %}calendar__month--latest{% endif %}"><span class="calendar__month__counting" data-today="{{ calendar.today }}" data-month="{{ week.month }}"></span><span class="calendar__month__name mui--text-light">{{ week.month }} {{ week.year }}</span></p>
-          {% set event.month = week.month  %}
-          {% set event.year = week.year  %}
+          {% set event.month = week.month %}
+          {% set event.year = week.year %}
           <div class="calendar__weekdays__dates {% if week.upcoming %}calendar__weekdays__dates--upcoming{% endif %} {% if event.first_week == week %}calendar__weekdays__dates--upcoming--first calendar__weekdays__dates--latest {% endif %} {% if loop.index == calendar.weeks|length and not week.upcoming %}calendar__weekdays__dates--latest {% endif %}"  data-month="{{ week.month }}">
             <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--left">
-              {% if event.previous %}{{ faicon(icon='chevron-left', icon_size='caption', baseline=false, css_class='calendar__weekdays__dates__icon__next') }}{% endif %}
+              {% if event.previous %}{{ faicon(icon='chevron-left', icon_size='caption', baseline=false, css_class="calendar__weekdays__dates__icon__next") }}{% endif %}
             </p>
             {% for date in week.dates %}
-              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %} {% if date.isoformat >= calendar.today %} calendar__weekdays__dates__date--latest{% endif %} calendar__weekdays__dates__date--{{ loop.index }}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %} data-event-month="{{ week.month }}">
+              <p class="calendar__weekdays__dates__date {% if date.count > 0 %}calendar__weekdays__dates__date--active {% elif date.isoformat == calendar.today %} calendar__weekdays__dates__date--today{% endif %} {% if date.day_start_at %} calendar__weekdays__dates__date--showtime{% endif %} {% if date.isoformat >= calendar.today %} calendar__weekdays__dates__date--latest{% endif %} calendar__weekdays__dates__date--{{ (loop.index - 1) % 7 }}" {% if date.count > 0 %} data-event-date="{{ date.isoformat }}" {% endif %} data-event-month="{{ week.month }}">
                 <span class="calendar__weekdays__dates__date__day">{{ date.day }}</span>
-                <span class="calendar__weekdays__dates__date__name">{{ calendar.days[loop.index-1] }}</span>
+                <span class="calendar__weekdays__dates__date__name">{{ calendar.days[(loop.index - 1) % 7] }}</span>
                 {% if date.day_start_at %}<span class="calendar__weekdays__dates__time">{{ date.day_start_at }} – {{ date.day_end_at }}</span>{% endif %}
               </p>
             {% endfor %}
             <p class="calendar__weekdays__dates__date calendar__weekdays__dates__icon calendar__weekdays__dates__icon--right">
-              {% if event.next  %}{{ faicon(icon='chevron-right', icon_size='caption', baseline=false, css_class='calendar__weekdays__dates__icon__next') }}{% endif %}
+              {% if event.next %}{{ faicon(icon='chevron-right', icon_size='caption', baseline=false, css_class="calendar__weekdays__dates__icon__next") }}{% endif %}
             </p>
           </div>
         {% endfor %}
@@ -74,29 +73,29 @@
   </div>
 {% endmacro %}
 
-{% macro saveprojectform(project, iconsize='body', formid='save-form') %}
-  <form id="{{ formid }}" class="js-save-form" action="{{ project.url_for('save') }}" method="POST">
+{% macro saveprojectform(project, iconsize='body', formid="save-form") %}
+  <form id="{{ formid }}" class="js-save-form" action="{{ project.url_for('save') }}" method="post">
     {{ current_view.SavedProjectForm().hidden_tag() }}
     <div class="bookmark-wrapper">
       {%- if current_auth.is_anonymous %}
-        <a class="mui--text-light"  href="{{ url_for('login', next=request.path) }}" data-ga="Login to save project" aria-label="{% trans %}Login to save this project{% endtrans %}">{{ faicon(icon='bookmark', baseline=true, icon_size=iconsize, css_class='mui--text-light') }}</a>
+        <a class="mui--text-light"  href="{{ url_for('login', next=request.path) }}" data-ga="Login to save project" aria-label="{% trans %}Login to save this project{% endtrans %}">{{ faicon(icon='bookmark', baseline=true, icon_size=iconsize, css_class="mui--text-light") }}</a>
       {%- else %}
-        <input type="hidden" name="save" value="">
-        <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-ga="Save this project" onclick="this.form.save.value=this.value" data-cy="bookmark" aria-label="{% trans %}Save this project{% endtrans %}">{{ faicon(icon='bookmark', baseline=true, icon_size=iconsize, css_class='mui--text-light') }}
+        <input type="hidden" name="save" value=""/>
+        <button type="submit" value="true" class="mui-btn mui-btn--nostyle animate-btn {% if not project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-ga="Save this project" onclick="this.form.save.value=this.value" data-cy="bookmark" aria-label="{% trans %}Save this project{% endtrans %}">{{ faicon(icon='bookmark', baseline=true, icon_size=iconsize, css_class="mui--text-light") }}
         </button>
-        <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-ga="Unsave this project" onclick="this.form.save.value=this.value" data-cy="bookmarked" aria-label="{% trans %}Unsave this project{% endtrans %}">{{ faicon(icon='bookmark-solid', baseline=true, icon_size=iconsize, css_class='bookmarked') }}</button>
+        <button type="submit" value="false" class="mui-btn mui-btn--nostyle animate-btn animate-btn--saved{% if project.is_saved_by(current_auth.user) %} animate-btn--show {% endif %}" data-ga="Unsave this project" onclick="this.form.save.value=this.value" data-cy="bookmarked" aria-label="{% trans %}Unsave this project{% endtrans %}">{{ faicon(icon='bookmark-solid', baseline=true, icon_size=iconsize, css_class="bookmarked") }}</button>
       {%- endif %}
     </div>
   </form>
 {% endmacro %}
 
-{% macro share_dropdown(url, title, css_class='') %}
+{% macro share_dropdown(url, title, css_class="") %}
   <ul class="mui-dropdown__menu mui-dropdown__menu--right mui-dropdown__menu--hg-link {% if css_class %}{{ css_class }}{%- endif %}" data-cy="share-dropdown">
-    <li><a class="mui--text-body2 js-copy-link" href="javascript:void(0)" data-ga="Copy link to share" role="menuitem">{{ faicon(icon='copy', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Copy link{% endtrans %}<span class="js-copy-url" aria-hidden="true">{{ url}}?utm_campaign=webshare</span></a></li>
-    <li><a class="mui--text-body2" href="mailto:?subject={{ title }}&amp;body={{ url }}&amp;utm_campaign=share-email" data-ga="Email" role="menuitem">{{ faicon(icon='envelope', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Email{% endtrans %}</a></li>
-    <li><a class="mui--text-body2" target="_blank" rel="noopener" href="//twitter.com/share?url={{ url }}&amp;via=Hasgeek&amp;text={{ title }}&amp;utm_campaign=share-twitter" data-url="{{ url }}" data-via="Hasgeek" data-text="{{ title }}" data-ga="Tweet" role="menuitem">{{ faicon(icon='twitter-square', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Twitter{% endtrans %}</a></li>
-    <li><a class="mui--text-body2" target="_blank" rel="noopener" href="//www.facebook.com/sharer.php?u={{ url }}&amp;t={{ title }}&amp;utm_campaign=share-facebook" data-href="{{ url }}" data-ga="Share on facebook" role="menuitem">{{ faicon(icon='facebook-square', baseline=true,css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Facebook{% endtrans %}</a></li>
-    <li><a class="mui--text-body2" href="https://www.linkedin.com/shareArticle?mini=true&url={{ url }}&title={{ title }}&amp;utm_campaign=share-linkedin" data-ga="Share on linkedin" role="menuitem">{{ faicon(icon='linkedin', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}LinkedIn{% endtrans %}</a></li>
+    <li><a class="mui--text-body2 js-copy-link" href="#" data-ga="Copy link to share" role="menuitem">{{ faicon(icon='copy', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Copy link{% endtrans %}<span class="js-copy-url" aria-hidden="true">{{ url }}?utm_campaign=webshare</span></a></li>
+    <li><a class="mui--text-body2" href="mailto:?subject={{ title }}&amp;body={{ url }}&amp;utm_campaign=share-email" data-ga="Email" role="menuitem">{{ faicon(icon='envelope', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Email{% endtrans %}</a></li>
+    <li><a class="mui--text-body2" target="_blank" rel="noopener" href="https://twitter.com/share?url={{ url }}&amp;via=Hasgeek&amp;text={{ title }}&amp;utm_campaign=share-twitter" data-url="{{ url }}" data-via="Hasgeek" data-text="{{ title }}" data-ga="Tweet" role="menuitem">{{ faicon(icon='twitter-square', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Twitter{% endtrans %}</a></li>
+    <li><a class="mui--text-body2" target="_blank" rel="noopener" href="https://www.facebook.com/sharer.php?u={{ url }}&amp;t={{ title }}&amp;utm_campaign=share-facebook" data-href="{{ url }}" data-ga="Share on facebook" role="menuitem">{{ faicon(icon='facebook-square', baseline=true,css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Facebook{% endtrans %}</a></li>
+    <li><a class="mui--text-body2" href="https://www.linkedin.com/shareArticle?mini=true&url={{ url }}&title={{ title }}&amp;utm_campaign=share-linkedin" data-ga="Share on linkedin" role="menuitem">{{ faicon(icon='linkedin', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}LinkedIn{% endtrans %}</a></li>
   </ul>
 {% endmacro %}
 
@@ -105,7 +104,7 @@
     <iframe src="{{ video.embeddable_url }}" frameborder="0" allowfullscreen></iframe>
   {% else %}
     <p class="video_txt">
-      {{ faicon(icon='video', icon_size='display1') }}<br>
+      {{ faicon(icon='video', icon_size='display1') }}<br/>
       <a href="{{ video.id }}" target="_blank" rel="noopener" class="mui--text-title">{% trans %}Preview video{% endtrans %}</a>
     </p>
   {%- endif %}
@@ -117,20 +116,20 @@
   {%- endif %}
 
   {%- if proposal and proposal.current_roles.editor %}
-    <a class="details__box__control__link mui--text-subhead" href="{{ proposal.url_for('edit') }}#field-video" data-cy="edit-video" aria-label="{% trans %}Edit submission video{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
+    <a class="details__box__control__link mui--text-subhead" href="{{ proposal.url_for('edit') }}#field-video" data-cy="edit-video" aria-label="{% trans %}Edit submission video{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class="fa5--link") }}</a>
   {% elif session and session.project.current_roles.editor %}
-    <a class="details__box__control__link mui--text-subhead" href="{{ session.url_for('edit') }}" data-cy="edit-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
+    <a class="details__box__control__link mui--text-subhead" href="{{ session.url_for('edit') }}" data-cy="edit-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', css_class="fa5--link") }}</a>
   {%- endif %}
 
   {%- if share and (proposal or session) %}
     {%- if proposal %}
-      {% set url, title = proposal.url_for(_external=true), proposal.title  %}
+      {% set url, title = proposal.url_for(_external=true), proposal.title %}
     {% else %}
       {% set url, title = session.url_for(_external=true), session.title %}
     {%- endif %}
-    <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ url }}?utm_campaign=webshare" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
+    <a href="#" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ url }}?utm_campaign=webshare" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
     <div class="mui-dropdown">
-      <a href="javascript:void(0)" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
+      <a href="#" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
       {{ share_dropdown(url, title) }}
     </div>
   {%- endif %}
@@ -147,7 +146,7 @@
   </div>
 {% endmacro %}
 
-{% macro projectcard(project, include_calendar=true, calendarwidget_compact=true, save_form_id_prefix='spf_') %}
+{% macro projectcard(project, include_calendar=true, calendarwidget_compact=true, save_form_id_prefix='spf_', add_bookmark=true) %}
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-ga="View project">
     <div class="card__image-wrapper {% if not project.bg_image.url %}card__image-wrapper--default{% endif %}">
       {% if project.bg_image.url %}
@@ -161,11 +160,11 @@
       {% endif %}
     </div>
     <div class="card__body">
-      {%- if not current_auth.is_anonymous and not include_calendar %}
+      {%- if not current_auth.is_anonymous and not include_calendar and add_bookmark %}
         {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
         <div class="card__body__bookmark card__body__bookmark--pushup">{{ saveprojectform(project, formid=save_form_id) }}</div>
       {% endif %}
-      {%- if include_calendar%}
+      {%- if include_calendar %}
         {% if calendarwidget_compact and project.start_at and project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
             {{ calendarwidget(project.calendar_weeks_compact) }}
@@ -177,23 +176,23 @@
         {% endif %}
         <h3 class="card__body__title mui--text-subhead {% if not project.start_at %} card__body__subtitle {% endif %}"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
         <p class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</p>
-        {%- if not current_auth.is_anonymous %}
+        {%- if not current_auth.is_anonymous and add_bookmark %}
           {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
           <div class="card__body__bookmark card__body__bookmark--pushup">{{ saveprojectform(project, formid=save_form_id) }}</div>
         {% endif %}
       {% else %}
         <h3 class="card__body__subtitle mui--text-subhead mui--text-bold">{{ project.title }}</h3>
         <p class="mui--text-caption mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</p>
-        {% if project.cfp_end_at_localized %}
-          <hr class="separator">
-          <p class="mui--text-caption zero-bottom-margin secondary-color-txt"><em>{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>
+        {% if project.cfp_state.OPEN and project.cfp_end_at_localized %}
+          <hr class="separator"/>
+          <p class="mui--text-caption zero-bottom-margin secondary-color-txt">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>
         {% endif %}
       {% endif %}
     </div>
   </a>
 {% endmacro %}
 
-{% macro featured_section(featured_project) %}
+{% macro featured_section(featured_project, heading=true) %}
   {% if featured_project %}
     {% with current_sessions = featured_project.current_sessions() if
     featured_project is not none else none %}
@@ -252,7 +251,7 @@
         <div class="mui-container">
           <div class="grid">
             <div class="grid__col-12">
-              <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Spotlight{% endtrans %}</h2>
+              {% if heading %}<h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Spotlight{% endtrans %}</h2>{% endif %}
             </div>
           </div>
         </div>
@@ -299,15 +298,17 @@
   {% endif %}
 {% endmacro %}
 
-{% macro upcoming_section(upcoming_projects) %}
+{% macro upcoming_section(upcoming_projects, heading=true) %}
   {% if upcoming_projects|length > 0 %}
     <div class="projects-wrapper">
       <div class="mui-container">
+        {% if heading %}
         <div class="grid">
           <div class="grid__col-12">
             <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Upcoming{% endtrans %}</h2>
           </div>
         </div>
+        {% endif %}
         <ul class="mui-list--unstyled grid upcoming" role="list">
           {% for project in upcoming_projects %}
           <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
@@ -320,15 +321,62 @@
   {% endif %}
 {% endmacro %}
 
-{% macro open_cfp_section(open_cfp_projects) %}
+{% macro featured_profiles_section(profiles) %}
+  {% if profiles %}
+    <div class="projects-wrapper">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Explore communities{% endtrans %}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="featured-profiles">
+        <div class="mui-container">
+          <ul class="grid projects flex-wrapper flex-wrapper--nowrap" role="list">
+            {% for profile in profiles %}
+              <li class="grid__col-12" role="listitem">
+                <div class="card profile-card">
+                  <div class="card__body">
+                    <div>
+                      <span class="profile-avatar profile-avatar--bigger margin-auto">
+                        {%- if profile.logo_url.url %}
+                          <img src="{{ profile.logo_url }}"
+                               alt="{{ profile.title }}"/>
+                        {% else %}
+                          <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
+                               alt="{{ profile.title }}"/>
+                        {% endif %}
+                      </span>
+                    </div>
+                    <h3 class="mui--text-subhead mui--text-bold top-padding margin-bottom mui--text-center">{{ profile.title }}</h3>
+                    <div class="markdown js-truncate mui--text-center mui--text-caption mui--text-light bottom-padding" data-truncate-lines="3">{{ profile.tagline or profile.description }}</div>
+                    <div class="profile-card__btn-wrapper">
+                      <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans count=profile.published_project_count %}One project{% pluralize %}{{ count }} projects{% endtrans %}</p>
+                      <a class="mui-btn mui-btn--primary mui-btn--raised full-width-btn" href="{{ profile.url_for() }} ">{% trans %}Explore{% endtrans %}</a>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro open_cfp_section(open_cfp_projects, heading=true) %}
   {% if open_cfp_projects %}
     <div class="projects-wrapper">
       <div class="mui-container">
+        {% if heading %}
         <div class="grid">
           <div class="grid__col-12">
             <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Accepting submissions{% endtrans %}</h2>
           </div>
         </div>
+        {% endif %}
         <ul class="grid projects" role="list">
           {% for project in open_cfp_projects %}
             <li class="grid__col-xs-12 grid__col-sm-4 grid__col-lg-3 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}"
@@ -339,7 +387,7 @@
         </ul>
         {% if open_cfp_projects|length > 4 %}
           <div class="mui--text-center">
-            <a href="javascript:void(0)" data-target="show all cfp projects" class="jquery-show-all mui--text-uppercase" data-projects="js-cfp-projects" data-ga="Show all cfp projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+            <a href="#" data-target="show all cfp projects" class="jquery-show-all mui--text-uppercase" data-projects="js-cfp-projects" data-ga="Show all cfp projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
           </div>
         {% endif %}
       </div>
@@ -347,15 +395,17 @@
   {% endif %}
 {% endmacro %}
 
-{% macro all_projects_section(all_projects) %}
+{% macro all_projects_section(all_projects, heading=true) %}
   {% if all_projects %}
     <div class="projects-wrapper">
       <div class="mui-container">
+        {% if heading %}
         <div class="grid">
           <div class="grid__col-12">
             <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}All projects{% endtrans %}</h2>
           </div>
         </div>
+        {% endif %}
         <ul class="grid projects" role="list">
           {% for project in all_projects %}
             <li class="grid__col-12 grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
@@ -370,7 +420,7 @@
 
 {% macro profile_admin_buttons(profile) %}
   <div class="mui-dropdown mui--d-inlineblock">
-    <a href="javascript:void(0)" class="mui--text-title mui-btn profile-dropdown-btn" data-mui-toggle="dropdown" data-ga="Open profile menu" data-cy="admin-dropdown" aria-label="{% trans %}Profile menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
+    <a href="#" class="mui--text-title mui--text-light profile-dropdown-btn" data-mui-toggle="dropdown" data-ga="Open profile menu" data-cy="admin-dropdown" aria-label="{% trans %}Profile menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
     <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="profile-edit-menu">
       {%- if profile.organization %}<li><a href="{{ profile.urls['members'] }}" data-cy-btn="profile-crew">{%- if profile.current_roles.owner %}{% trans %}Manage admins{% endtrans %}{% else %}{% trans %}View admins{% endtrans %}{% endif %}</a></li>{% endif %}
       <li><a href="{{ profile.url_for('edit') }}" data-cy-btn="edit-details">{% trans %}Edit this profile{% endtrans %}</a></li>
@@ -379,7 +429,7 @@
   </div>
   <div class="modal" id="make-private-modal" role="dialog" aria-labelledby="profile-private-modal-title" aria-modal="true" tabindex="-1">
     <div class="modal__header">
-      <a class="mui-btn mui-btn--nostyle modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+      <a class="mui-btn mui-btn--nostyle modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
       <p class="mui--text-title mui--text-bold mui--text-dark" id="profile-private-modal-title">{% trans %}Make this profile private?{% endtrans %}</p>
     </div>
     <div class="modal__body">
@@ -397,7 +447,15 @@
   </div>
 {% endmacro %}
 
-{% macro profile_header(profile, class='', current_page='profile') %}
+{% macro profile_header(profile, class="", current_page='profile', title="") %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
+    <div class="mobile-nav mui--z1">
+      <a href="{% if current_page != 'profile' %}{{ profile.url_for() }}{% else %}javascript:history.back(){% endif %}" aria-label="{% trans %}Back to the profile{% endtrans %}" class="js-spa-navigate mui--text-dark mobile-nav__icon" data-ga="Back to the profile page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{%- if title %}{{ title }}{% endif %}</span>
+      {% if current_page == 'profile' and profile.current_roles.admin %}
+        <div class="mobile-nav__menu">{{ profile_admin_buttons(profile) }}</div>
+      {%- endif %}
+    </div>
+  </div>
   <div class="mui-container {% if class %}{{ class }}{% endif %}">
     <div class="profile">
       <div class="profile__banner">
@@ -412,16 +470,16 @@
           <div class="grid">
             <div class="grid__col-12">
               {%- if profile.current_roles.admin %}
-                <a href="{{ profile.url_for('update_banner') }}" class="mui-btn mui-btn--default mui-btn--raised profile__banner__upload js-modal-form" aria-label="{% trans %}Add cover photo url{% endtrans %}" data-cy="add-banner" rel="modal:open" data-hash="edit_banner" aria-haspopup="true">{{ faicon(icon='camera', icon_size='body2', css_class='profile__banner__icon') }} <span class="mui--hidden-xs mui--hidden-sm">{% trans %}Add cover photo{% endtrans %}</span></a>
+                <a href="{{ profile.url_for('update_banner') }}" class="mui-btn mui-btn--default mui-btn--raised profile__banner__upload js-modal-form" aria-label="{% trans %}Add cover photo url{% endtrans %}" data-cy="add-banner" rel="modal:open" data-hash="edit_banner" aria-haspopup="true">{{ faicon(icon='camera', icon_size='body2', css_class="profile__banner__icon") }} <span class="mui--hidden-xs mui--hidden-sm">{% trans %}Add cover photo{% endtrans %}</span></a>
               {% endif %}
               <div class="profile__logo">
                 {%- if profile.logo_url.url %}
                   <img class="profile__logo__img" src="{{ profile.logo_url.resize(profile_logo) }}" alt="{{ profile.title }}"/>
                 {% else %}
-                  <span class="profile__logo__nologo">{{ faicon(icon='user-solid', css_class='profile__logo__icon') }}</span>
+                  <span class="profile__logo__nologo">{{ faicon(icon='user-solid', css_class="profile__logo__icon") }}</span>
                 {% endif %}
                 {%- if profile.current_roles.admin %}
-                  <a href="{{ profile.url_for('update_logo') }}" class="profile__logo__upload mui--text-dark js-modal-form" rel="modal:open" data-hash="edit_logo" role="button" aria-haspopup="true">{{ faicon(icon='camera', baseline=false, icon_size='body2', css_class='profile__logo__upload__icon') }}</a>
+                  <a href="{{ profile.url_for('update_logo') }}" class="profile__logo__upload mui--text-dark js-modal-form" rel="modal:open" data-hash="edit_logo" role="button" aria-haspopup="true">{{ faicon(icon='camera', baseline=false, icon_size='body2', css_class="profile__logo__upload__icon") }}</a>
                 {% endif %}
                 <div class="mui--hidden-xs mui--hidden-sm profile__logo__details">
                   <h2 class="mui--text-dark mui--text-bold zero-bottom-margin"><a class="mui--text-dark" data-cy="profile-title" href="{{ profile.url_for() }}">{{ profile.title }}</a></h2>
@@ -429,24 +487,24 @@
                 </div>
               </div>
               <div class="profile__banner__btns mui--hidden-xs mui--hidden-sm">
-                {% if profile.features.new_project()  %}
+                {% if profile.features.new_project() %}
                   <a class="mui-btn mui-btn--primary mui-btn--raised profile-create-btn" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a>
                 {% elif profile.features.make_public() %}
-                  <a class="mui-btn mui-btn--raised mui-btn--primary" href="#make-public-modal" rel="modal:open" role="button" aria-haspopup="true">{% trans %}Make profile public{% endtrans %}</a>
+                  <a class="mui-btn mui-btn--raised mui-btn--primary profile-create-btn" href="#make-public-modal" rel="modal:open" role="button" aria-haspopup="true" data-cy="profile-public">{% trans %}Make profile public{% endtrans %}</a>
                   <div class="modal" id="make-public-modal" role="dialog" aria-labelledby="profile-public-modal-title" aria-modal="true" tabindex="-1">
                     <div class="modal__header">
-                      <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+                      <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
                       <p class="mui--text-title mui--text-bold mui--text-dark" id="profile-public-modal-title">{% trans %}Make this profile public?{% endtrans %}</p>
                     </div>
                     <div class="modal__body">
                       <ul class="mui-list--aligned mui--text-body2">
                         <li>{% trans %}Your profile will be visible to anyone visiting the page{% endtrans %}</li>
                         <li>{% trans %}Your profile will be listed in search results{% endtrans %}</li>
-                        {#- <li>{% trans %}You can host projects{% endtrans %}</li> #}
+                        {# <li>{% trans %}You can host projects{% endtrans %}</li> -#}
                       </ul>
                       <form action="{{ profile.url_for('transition') }}" method="post">
                         {{ profile.forms.transition().hidden_tag() }}
-                        <button name="transition" value="make_public" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right">{% trans %}Make public{% endtrans %}</button>
+                        <button name="transition" value="make_public" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right" data-cy="make-public-btn">{% trans %}Make public{% endtrans %}</button>
                       </form>
                     </div>
                   </div>
@@ -461,31 +519,29 @@
       </div>
     </div>
   </div>
-  <div class="mui-container profile-details {% if class %}{{ class }}{% endif %}">
-    <div class="grid">
-      <div class="grid__col-12">
-        <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
-          <h2 class="mui--text-bold zero-bottom-margin" data-cy="profile-title"><a href="{{ profile.url_for() }}" class="mui--text-dark">{{ profile.title }}</a></h2>
-          <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
+  <div class="mui-container {% if class %}{{ class }}{% endif %}">
+    <div class="profile-details">
+      <div class="grid">
+        <div class="grid__col-12">
+          <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl">
+            <h2 class="mui--text-bold zero-bottom-margin" data-cy="profile-title"><a href="{{ profile.url_for() }}" class="mui--text-dark">{{ profile.title }}</a></h2>
+            <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
+          </div>
+          <ul class="bullet-separated-list">
+            <li>{{ faicon(icon='history') }} {% trans date=profile.owner.created_at|date(format='MMM YYYY')%}Joined {{ date }}{% endtrans %}</li>
+            {% if profile.website %}
+              <li><a href="{{ profile.website }}" target="_blank" rel="noopener nofollow">{{ faicon(icon='globe') }} {{ profile.website|cleanurl }}</a></li>
+            {% endif %}
+          </ul>
+          <div class="markdown">{{ profile.description.html }}</div>
+          <div class="mui--visible-xs-block mui--visible-sm-block">
+            {% if profile.features.new_project() %}
+              <div class="mui--d-inlineblock profile-create-btn profile-create-btn--mobile"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a></div>
+            {% elif profile.features.make_public() %}
+              <div class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a></div>
+            {% endif %}
+          </div>
         </div>
-        <ul class="bullet-separated-list">
-          <li class="">{{ faicon(icon='history') }} {% trans date=profile.owner.created_at|date(format='MMM YYYY')%}Joined {{ date }}{% endtrans %}</li>
-          {% if profile.website %}
-            <li><a href="{{ profile.website }}" target="_blank" rel="noopener nofollow">{{ faicon(icon='globe') }} {{ profile.website|cleanurl }}</a></li>
-          {% endif %}
-        </ul>
-        <div class="markdown">{{ profile.description.html }}</div>
-        <div class="mui--visible-xs-block mui--visible-sm-block">
-          {% if profile.features.new_project() %}
-            <div class="mui--d-inlineblock profile-create-btn profile-create-btn--mobile"><a class="mui-btn mui-btn--primary mui-btn--raised" href="{{ profile.url_for('new_project') }} ">{{ faicon(icon='plus', icon_size='caption') }}  {% trans %}New project{% endtrans %}</a></div>
-          {% elif profile.features.make_public() %}
-            <div class="mui--d-inlineblock profile-create-btn"><a class="mui-btn mui-btn--primary mui-btn--raised" href="#make-public-modal" rel="modal:open">{% trans %}Make profile public{% endtrans %}</a></div>
-          {% endif %}
-          {%- if profile.current_roles.admin %}
-            <div class="mui--d-inlineblock {% if profile.features.new_user_project() %}floating-menu-btns{% endif %}">{{ profile_admin_buttons(profile) }}</div>
-          {% endif %}
-        </div>
-      </div>
       </div>
     </div>
   </div>
@@ -497,7 +553,7 @@
             <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'profile' -%}{{ profile.url_for() }}{%- endif %}" data-cy-navbar="profile">{% trans %}Home{% endtrans %}</a>
             <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'admins' %}sub-navbar__item--active{%- endif %}" href="{%- if current_page != 'admins' -%}{{ profile.urls['members'] }}{%- endif %}" data-cy-navbar="admins">{% trans %}Admins{% endtrans %} <span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {% else %}
-          <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for() }}">{% trans %}Sessions{% endtrans %}</a>
+          <a class="sub-navbar__item mui--text-subhead mui--text-dark mui--hidden-xs mui--hidden-sm {% if current_page == 'profile' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for() }}">{% trans %}Sessions{% endtrans %}</a>
           <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if current_page == 'projects' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_participated_projects') }}">{% trans %}Projects{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           <a class="sub-navbar__item mui--text-subhead  mui--text-dark {% if current_page == 'submissions' %}sub-navbar__item--active{%- endif %}" href="{{ profile.url_for('user_proposals') }}" data-cy="submissions">{% trans %}Submissions{% endtrans %}<span class="sub-navbar__item__icon mui--pull-right">{{ faicon(icon='chevron-right', icon_size='subhead') }}</span></a>
           {% endif %}
@@ -510,10 +566,10 @@
 {% macro page_footer() %}
   <footer class="sub-navbar-container sub-navbar-container--footer mui--bg-accent">
     <nav class="sub-navbar mui-container" id="page-navbar">
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'index' %}sub-navbar__item--active{%- endif %}" href="/about">{% trans %}About Hasgeek{% endtrans %}</a>
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark" href="/hasgeek">{% trans %}Team &amp; careers{% endtrans %}</a>
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'contact' %}sub-navbar__item--active{%- endif %}" href="/about/contact">{% trans %}Contact{% endtrans %}</a>
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'policy' %}sub-navbar__item--active{%- endif %}" href="/about/policy">{% trans %}Site policies{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'index' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('about') }}">{% trans %}About Hasgeek{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark" href="{{ url_for('profile', profile='hasgeek') }}">{% trans %}Team &amp; careers{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'contact' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('contact') }}">{% trans %}Contact{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'policy' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('policy') }}">{% trans %}Site policies{% endtrans %}</a>
     </nav>
   </footer>
 {% endmacro %}
@@ -522,10 +578,10 @@
   <div class="video">
     <a class="video__thumbnail {%- if not (session.views.video.thumbnail or session.banner_image_url.url) %} video__thumnail--novideo {%- endif %}" href="{%- if session.proposal %}{{ session.proposal.url_for() }}{%- else %}{{ session.url_for() }}{%- endif %}" data-ga="view session video">
       {%- if session.views.video.thumbnail %}
-        <img src="{{ session.views.video.thumbnail }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail" alt="{{ session.title }}">
+        <img src="{{ session.views.video.thumbnail }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail" alt="{{ session.title }}"/>
         <div class="video__thumbnail__icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
       {%- elif session.banner_image_url.url %}
-        <img src="{{ session.banner_image_url }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail" alt="{{ session.title }}">
+        <img src="{{ session.banner_image_url }}" class="video__thumbnail__img img-responsive" data-cy="thumbnail" alt="{{ session.title }}"/>
       {%- endif %}
     </a>
     <p class="mui--text-subhead mui--text-bold video__txt" data-cy="title">{{ session.title }}</p>
@@ -543,17 +599,17 @@
   </div>
 {% endmacro %}
 
-{%- macro proposal_list(proposals, project='', css_class='') %}
+{%- macro proposal_list(proposals, project='', css_class="", spa=false) %}
   <table id="submissions-table" class="proposal-list-table mui-table">
     <tbody>
       {%- with reorderable=project and project.features.reorder_proposals() %}
       {% for proposal in proposals %}
         <tr id="{{ proposal.uuid_b58 }}" {%- if reorderable %}class="sortable" data-drag-placeholder="proposal-placeholder" draggable="true"{%- endif %}>
-          <td class="js-searchable {%- if reorderable %} drag-box drag-box--no-border ui-draggable-box{%- endif %}">
+          <td class="js-searchable zero-padding {%- if reorderable %} drag-box drag-box--no-border ui-draggable-box{%- endif %}">
             {%- if project and reorderable %}
-              {{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, project=project, draggable=true) }}
+              {{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, project=project, draggable=true, spa=spa) }}
             {%- else %}
-              {{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, project=project, draggable=false) }}
+              {{ proposal_card(proposal, full_width=true, details=true, css_class=css_class, project=project, draggable=false, spa=spa) }}
             {%- endif %}
           </td>
         </tr>
@@ -567,7 +623,7 @@
   </table>
 {%- endmacro %}
 
-{%- macro useravatar(user, css_class='', add_profile_link=true,  size='medium') %}
+{%- macro useravatar(user, css_class="", add_profile_link=true,  size='medium') %}
   {% if size == 'big' %}
     {%- set imgsize = 160 %}
   {%- elif size == 'medium' %}
@@ -578,18 +634,43 @@
   {% if user.profile_url and add_profile_link %}<a href="{{ user.profile_url }}" class="nounderline">{% endif %}
   {% if user and user.avatar %}
     <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar.resize(imgsize) }}" alt="{{ user.title }}"/>
-  {%- else %}
-    <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}" role="img" aria-label="{{ user.title }}">{{ user.title|initials }}</div>
+  {%- elif user %}
+    <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}" role="img" aria-label="{{ user.title }}" data-avatar-colour="{{ user.views and user.views.avatar_color_code or '' }}">{{ user.title|initials }}</div>
   {% endif %}
-  {% if user.profile_url and add_profile_link%}</a>{% endif %}
+  {% if user.profile_url and add_profile_link %}</a>{% endif %}
 {%- endmacro %}
 
-{%- macro proposal_card(proposal, full_width=false, details=false, css_class='', project='', draggable=false) %}
-  {% if draggable %}
-    <div class="card {%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}">
-  {%- else -%}
-    <a class="card clickable-card js-spa-navigate{%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}" href="{{ proposal.url_for() }}" aria-label="{{ proposal.title }}" data-ga="View submission" data-cy-proposal="{{ proposal.title }}">
-  {%- endif %}
+{%- macro list_sponsors(sponsors) %}
+  <div class="mui--clearfix margin-top">
+    <div class="mui--pull-right">
+      <p class="mui--text-subhead mui--text-light zero-bottom-margin">{% trans %}Supported by{% endtrans %}</p>
+      {% for sponsor in sponsors %}
+        {%- with sponsor_public = sponsor.profile.state.PUBLIC %}
+        {% if sponsor.label %}
+          <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ sponsor.label }}</p>
+        {% endif %}
+        <div class="flex-wrapper flex-wrapper--center">
+          <div class="user user--smaller">
+            <div class="user__box">
+              <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="nounderline">
+                {%- if sponsor.profile.logo_url.url %}
+                  <img class="user__box__gravatar" src="{{ sponsor.profile.logo_url }}" alt="{{ sponsor.profile.title }}"/>
+                {%- else %}
+                  <div class="user__box__gravatar user__box__gravatar--initials" data-avatar-colour="{{ sponsor.profile.views.avatar_color_code }}">{{ sponsor.profile.title|initials }}</div>
+                {% endif %}
+              </a>
+            </div>
+          </div>
+          <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="mui--text-dark mui--text-subhead mui--text-bold nounderline" data-cy="profile-link">{{ sponsor.profile.title }}</a>
+        </div>
+        {%- endwith %}
+      {%- endfor %}
+    </div>
+  </div>
+{%- endmacro %}
+
+{%- macro proposal_card(proposal, full_width=false, details=false, css_class="", project='', draggable=false, spa=false, show_sponsor=true) %}
+  <div class="card {%- if not full_width %} card--shaped{%- endif -%} {%- if css_class %} {{ css_class }}{%- endif -%}">
     <div class="card__body proposal-card">
       <div class="proposal-card__body">
         <div {% if draggable %}class="drag-box__header"{%- endif %}>
@@ -600,11 +681,7 @@
             {%- for member in proposal.memberships %}{% if not member.is_uncredited %}
               <div class="user user--smaller right-padding">
                 <div class="user__box">
-                  {% if draggable %}
-                    {{ useravatar(member.user, add_profile_link=true, size='small') }}
-                  {%- else -%}
-                    {{ useravatar(member.user, add_profile_link=false, size='small') }}
-                  {%- endif %}
+                  {{ useravatar(member.user, add_profile_link=true, size='small') }}
                   <div class="user__box__header">
                     <p class="mui--text-caption user__box__fullname">{{ member.user.fullname }} {%- if member.label %} <span class="badge">{{ member.label }}</span>{% endif %}</p>
                   </div>
@@ -614,26 +691,22 @@
             </div>
           {%- endif %}
           {% if draggable %}
-            {{ faicon(icon='grip-vertical', baseline=false, css_class='drag-handle') }}
+            {{ faicon(icon='grip-vertical', baseline=false, css_class="drag-handle") }}
           {%- endif %}
         </div>
         <div class="proposal-card__body__inner {%- if full_width and proposal.views.video and proposal.views.video.thumbnail %} proposal-card__body__inner--flex {%- endif -%}">
           {% if proposal.views.video and proposal.views.video.thumbnail %}
             <div class="proposal-card__body__inner__details">
               <div class="proposal-card__body__inner__details__video">
-                <div  class="proposal-card__body__inner__details__video__thumbnail"><img src="{{ proposal.views.video.thumbnail }}"></div>
+                <div  class="proposal-card__body__inner__details__video__thumbnail"><img src="{{ proposal.views.video.thumbnail }}" alt="{% trans %}Video thumbnail{% endtrans %}"/></div>
                 <div class="proposal-card__body__inner__details__video__thumbnail__icon">{{ faicon(icon='play', icon_size='headline', baseline=false) }}</div>
               </div>
             </div>
           {%- endif -%}
           <div class="proposal-card__body__inner__headline">
-            {% if draggable %}
-              <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card"><a class="nounderline mui--text-dark js-spa-navigate" href="{{ proposal.url_for() }}" data-cy-proposal="{{ proposal.title }}">{{ proposal.title }}</a></h3>
-            {%- else -%}
-              <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card">{{ proposal.title }}</h3>
-            {%- endif %}
+            <h3 class="mui--text-title mui--text-bold zero-top-margin" data-cy="proposal-card"><a class="nounderline mui--text-dark {% if spa %}js-spa-navigate{%- endif -%}" href="{{ proposal.url_for() }}" data-cy-proposal="{{ proposal.title }}">{{ proposal.title }}</a></h3>
             {% if proposal.body.html %}
-              <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(max=400) }} {% if draggable %}<a class="nounderline js-spa-navigate" href="{{ proposal.url_for() }}">{%- endif %}<span class="chip">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</span>{% if draggable %}</a>{%- endif %}</div>
+              <div class="proposal-card__body__inner__headline__content mui--text-light">{{ proposal.body.html|preview(max=400) }} <a class="nounderline {% if spa %}js-spa-navigate{%- endif -%}" href="{{ proposal.url_for() }}">  <span class="chip">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class="mui--align-middle") }}</span></a></div>
             {%- endif -%}
             {% if details %}
               <div class="proposal-card__body__inner__headline__info">
@@ -648,9 +721,9 @@
                     {{ proposal.state.label.title }}
                   </li>
                   <li class="no-border">{{ proposal.datetime|datetime(format='dd MMM YYYY') }}</li>
-                  {% if proposal.views.video %}
+                  {% if proposal.session and proposal.session.views.video or proposal.views.video %}
                     <li class="no-border" data-toggle="tooltip" data-placement="top" title="{% trans %}This proposal has a preview video{% endtrans %}" aria-label="{% trans %}This proposal has a preview video{% endtrans %}">
-                      {{ faicon(icon='video', icon_size='subhead', baseline=true, css_class='proposal-card__body__inner__headline__info__icon') }}
+                      {{ faicon(icon='video', icon_size='subhead', baseline=true, css_class="proposal-card__body__inner__headline__info__icon") }}
                     </li>
                   {% endif %}
                 </ul>
@@ -677,6 +750,45 @@
           </div>
         </div>
       </div>
+      {%- if show_sponsor and proposal.has_sponsors %}
+        {{ list_sponsors(proposal.sponsor_memberships) }}
+      {% endif %}
     </div>
-  </a>
+  </div>
+{%- endmacro %}
+
+{%- macro open_submission(project, showEditBtn=true) %}
+  <div class="flex-wrapper flex-wrapper--space-between flex-wrapper--center margin-top bottom-padding">
+    <div>
+      <div class="js-cfp-status {% if not project.cfp_state.OPEN -%} mui--hide {%- endif %}">
+        <p class="mui--text-subhead mui--text-bold zero-bottom-margin" data-cy="cfp-state">
+          {% if project.cfp_end_at_localized -%}
+            {% if project.view_for('cfp').is_available() and showEditBtn %}<a href="{{ project.url_for('cfp') }}" class="mui--text-dark">{%- endif %}{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}{% if project.view_for('cfp').is_available() and showEditBtn %}</a>{%- endif %}
+          {% else %}
+            {% trans %}Accepting submissions{% endtrans %}
+          {%- endif %}
+        </p>
+      </div>
+      <div class="js-cfp-status {% if project.cfp_state.OPEN -%} mui--hide {%- endif %}">
+        <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% trans %}Not accepting submissions{% endtrans %}</p>
+      </div>
+    </div>
+    {%- if project.view_for('cfp').is_available() %}
+      <div class="flex-wrapper flex-wrapper--center">
+        <form action="{{ project.url_for('cfp_transition') }}" method="post" class="mui--d-inlineblock mui--align-top right-padding">
+          {{ csrf_tag() }}
+          <input type="checkbox" name="open" id="open-sub" class="switch-input js-toggle" {%- if project.cfp_state.OPEN %}checked{%- endif %}/>
+          <label class="switch-label mui--pull-right" for="open-sub"></label>
+        </form>
+        <span data-toggle="tooltip" data-placement="top" title="{% trans %}Toggle to enable/disable submissions{% endtrans %}" aria-label="{% trans %}Open to receive submissions{% endtrans %}">{{ faicon(icon='info-circle', baseline=true) }}</span>
+      </div>
+    {%- endif %}
+  </div>
+{%- endmacro %}
+
+{%- macro add_submission_btn(project) %}
+  <div class="project-details__box__content--lesspadding propose js-cfp-status {% if not project.cfp_state.OPEN -%} mui--hide {%- endif %}">
+    <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
+    {% if project.cfp_end_at_localized -%}<p class="mui--text-body2 mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>{% endif %}
+  </div>
 {%- endmacro %}

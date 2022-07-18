@@ -1,21 +1,22 @@
+"""Callback handlers from SMS providers (Exotel and Twilio)."""
+
 from __future__ import annotations
 
-from flask import request
+from flask import current_app, request
 
 from twilio.request_validator import RequestValidator
 
 from baseframe import statsd
-from coaster.views import render_with
 
 from ... import app
 from ...models import SMS_STATUS, SMSMessage, db
 from ...transports.sms import validate_exotel_token
+from ...typing import ReturnView
 from ...utils import abort_null
 
 
 @app.route('/api/1/sms/twilio_event', methods=['POST'])
-@render_with(json=True)
-def process_twilio_event():
+def process_twilio_event() -> ReturnView:
     """Process SMS callback event from Twilio."""
     # Register the fact that we got a Twilio SMS event.
     # If there are too many rejects, then most likely a hack attempt.
@@ -76,7 +77,7 @@ def process_twilio_event():
         sms_message.status = SMS_STATUS.UNKNOWN
     # Done
     db.session.commit()
-    app.logger.info(
+    current_app.logger.info(
         "Twilio event for phone: %s %s",
         request.form['To'],
         request.form['MessageStatus'],
@@ -93,8 +94,7 @@ def process_twilio_event():
 
 
 @app.route('/api/1/sms/exotel_event/<secret_token>', methods=['POST'])
-@render_with(json=True)
-def process_exotel_event(secret_token: str):
+def process_exotel_event(secret_token: str) -> ReturnView:
     """Process SMS callback event from Exotel."""
     # Register the fact that we got a Exotel SMS event.
     # If there are too many rejects, then most likely a hack attempt.
@@ -119,7 +119,7 @@ def process_exotel_event(secret_token: str):
         )
         return {'status': 'error', 'error': 'invalid_signature'}, 422
 
-    # This code segment needs to be re-written once Phone Number model is
+    # This code segment needs to be re-written once PhoneNumber model is
     # in place. The Message parameter has to be '' because exotel does not send
     # back the message as per the API model, but the DB model expects it
     # and we get a exception, otherwise.
@@ -154,7 +154,7 @@ def process_exotel_event(secret_token: str):
         sms_message.status = SMS_STATUS.UNKNOWN
     # Done
     db.session.commit()
-    app.logger.info(
+    current_app.logger.info(
         "Exotel event for phone: %s %s",
         request.form['To'],
         request.form['Status'],

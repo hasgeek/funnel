@@ -1,7 +1,9 @@
+"""Site moderator models."""
+
 from __future__ import annotations
 
 from baseframe import __
-from coaster.sqlalchemy import with_roles
+from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from . import BaseMixin, Comment, SiteMembership, User, UuidMixin, db
@@ -11,8 +13,8 @@ __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
 
 
 class MODERATOR_REPORT_TYPE(LabeledEnum):  # noqa: N801
-    OK = (0, 'ok', __("Not spam"))
-    SPAM = (1, 'spam', __("Spam"))
+    OK = (1, 'ok', __("Not spam"))
+    SPAM = (2, 'spam', __("Spam"))
 
 
 class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
@@ -34,7 +36,10 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
         backref=db.backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
     report_type = db.Column(
-        db.SmallInteger, nullable=False, default=MODERATOR_REPORT_TYPE.SPAM
+        db.SmallInteger,
+        StateManager.check_constraint('report_type', MODERATOR_REPORT_TYPE),
+        nullable=False,
+        default=MODERATOR_REPORT_TYPE.SPAM,
     )
     reported_at = db.Column(
         db.TIMESTAMP(timezone=True), default=db.func.utcnow(), nullable=False

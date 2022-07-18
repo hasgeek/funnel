@@ -1,14 +1,14 @@
-"""Test SponsorMembership."""
+"""Test ProjectSponsorMembership."""
 import pytest
 
 from coaster.sqlalchemy import ImmutableColumnError
-from funnel.models import SponsorMembership
+from funnel.models import ProjectSponsorMembership
 
 
-@pytest.fixture
+@pytest.fixture()
 def citywatch_sponsor(db_session, project_expo2010, org_citywatch, user_vetinari):
     """Add City Watch as a sponsor of Expo 2010."""
-    sponsor = SponsorMembership(
+    sponsor = ProjectSponsorMembership(
         project=project_expo2010,
         profile=org_citywatch.profile,
         granted_by=user_vetinari,
@@ -19,10 +19,10 @@ def citywatch_sponsor(db_session, project_expo2010, org_citywatch, user_vetinari
     return sponsor
 
 
-@pytest.fixture
+@pytest.fixture()
 def uu_sponsor(db_session, project_expo2010, org_uu, user_vetinari):
     """Add Unseen University as a sponsor of Expo 2010."""
-    sponsor = SponsorMembership(
+    sponsor = ProjectSponsorMembership(
         project=project_expo2010,
         profile=org_uu.profile,
         granted_by=user_vetinari,
@@ -33,10 +33,10 @@ def uu_sponsor(db_session, project_expo2010, org_uu, user_vetinari):
     return sponsor
 
 
-@pytest.fixture
+@pytest.fixture()
 def dibbler_sponsor(db_session, project_expo2010, user_dibbler, user_vetinari):
     """Add CMOT Dibbler as a promoted sponsor of Expo 2010."""
-    sponsor = SponsorMembership(
+    sponsor = ProjectSponsorMembership(
         project=project_expo2010,
         profile=user_dibbler.profile,
         granted_by=user_vetinari,
@@ -48,11 +48,11 @@ def dibbler_sponsor(db_session, project_expo2010, user_dibbler, user_vetinari):
     return sponsor
 
 
-def test_auto_seq(
+def test_auto_seq(  # pylint: disable=too-many-arguments
     db_session, project_expo2010, org_citywatch, org_uu, user_dibbler, user_vetinari
 ):
     """Sequence numbers are auto-issued in commit order."""
-    sponsor1 = SponsorMembership(
+    sponsor1 = ProjectSponsorMembership(
         project=project_expo2010,
         profile=org_citywatch.profile,
         granted_by=user_vetinari,
@@ -61,7 +61,7 @@ def test_auto_seq(
     db_session.add(sponsor1)
     db_session.commit()
 
-    sponsor2 = SponsorMembership(
+    sponsor2 = ProjectSponsorMembership(
         project=project_expo2010,
         profile=org_uu.profile,
         granted_by=user_vetinari,
@@ -70,7 +70,7 @@ def test_auto_seq(
     db_session.add(sponsor2)
     db_session.commit()
 
-    sponsor3 = SponsorMembership(
+    sponsor3 = ProjectSponsorMembership(
         project=project_expo2010,
         profile=user_dibbler.profile,
         granted_by=user_vetinari,
@@ -86,7 +86,7 @@ def test_auto_seq(
     assert sponsor3.seq == 3
 
 
-def test_expo_has_sponsors(
+def test_expo_has_sponsors(  # pylint: disable=too-many-arguments
     db_session,
     project_expo2010,
     dibbler_sponsor,
@@ -124,7 +124,7 @@ def test_expo_sponsor_reorder(
     assert dibbler_sponsor.seq == 1
 
 
-def test_expo_sponsor_seq_reissue(
+def test_expo_sponsor_seq_reissue(  # pylint: disable=too-many-arguments
     db_session,
     project_expo2010,
     citywatch_sponsor,
@@ -143,7 +143,7 @@ def test_expo_sponsor_seq_reissue(
 
     # Dibbler removes self and introduces Wolfgang
     dibbler_sponsor.revoke(actor=user_dibbler)
-    wolfgang_sponsor = SponsorMembership(
+    wolfgang_sponsor = ProjectSponsorMembership(
         project=project_expo2010,
         profile=user_wolfgang.profile,
         granted_by=user_dibbler,
@@ -169,7 +169,7 @@ def test_expo_sponsor_seq_reissue(
     ]
 
 
-def test_change_promoted_flag(db_session, project_expo2010, citywatch_sponsor):
+def test_change_promoted_flag(db_session, project_expo2010, citywatch_sponsor) -> None:
     """Change sponsor is_promoted flag."""
     assert citywatch_sponsor.is_promoted is False
     # Flag can be changed with a revision
@@ -186,7 +186,7 @@ def test_change_promoted_flag(db_session, project_expo2010, citywatch_sponsor):
         new_record.is_promoted = False
 
 
-def test_change_label(db_session, project_expo2010, citywatch_sponsor):
+def test_change_label(db_session, project_expo2010, citywatch_sponsor) -> None:
     """Change sponsor label."""
     assert citywatch_sponsor.label is None
     # Flag can be changed with a revision
@@ -205,7 +205,7 @@ def test_change_label(db_session, project_expo2010, citywatch_sponsor):
         new_record.label = None
 
 
-def test_sponsor_offered_roles(db_session, project_expo2010, citywatch_sponsor):
+def test_sponsor_offered_roles(db_session, project_expo2010, citywatch_sponsor) -> None:
     """Sponsors don't get a role from the sponsor membership."""
     assert citywatch_sponsor.offered_roles == set()
 

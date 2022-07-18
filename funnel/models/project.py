@@ -1,6 +1,10 @@
+"""Project model."""
+
 from __future__ import annotations
 
-from typing import Iterable, List, Optional, Set
+from typing import Iterable, List, Optional
+
+from sqlalchemy.orm.collections import attribute_mapped_collection
 
 from flask import current_app
 from werkzeug.utils import cached_property
@@ -8,7 +12,7 @@ from werkzeug.utils import cached_property
 from pytz import utc
 
 from baseframe import __, localize_timezone
-from coaster.sqlalchemy import StateManager, with_roles
+from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
 
 from ..typing import OptionalMigratedTables
@@ -43,21 +47,19 @@ __all__ = ['Project', 'ProjectLocation', 'ProjectRedirect']
 
 
 class PROJECT_STATE(LabeledEnum):  # noqa: N801
-    DRAFT = (0, 'draft', __("Draft"))
-    PUBLISHED = (1, 'published', __("Published"))
-    WITHDRAWN = (2, 'withdrawn', __("Withdrawn"))
-    DELETED = (3, 'deleted', __("Deleted"))
+    DRAFT = (1, 'draft', __("Draft"))
+    PUBLISHED = (2, 'published', __("Published"))
+    WITHDRAWN = (3, 'withdrawn', __("Withdrawn"))
+    DELETED = (4, 'deleted', __("Deleted"))
     DELETABLE = {DRAFT, PUBLISHED, WITHDRAWN}
     PUBLISHABLE = {DRAFT, WITHDRAWN}
 
 
 class CFP_STATE(LabeledEnum):  # noqa: N801
-    NONE = (0, 'none', __("None"))
-    PUBLIC = (1, 'public', __("Public"))
-    CLOSED = (2, 'closed', __("Closed"))
+    NONE = (1, 'none', __("None"))
+    PUBLIC = (2, 'public', __("Public"))
+    CLOSED = (3, 'closed', __("Closed"))
     ANY = {NONE, PUBLIC, CLOSED}
-    OPENABLE = {NONE, CLOSED}
-    EXISTS = {PUBLIC, CLOSED}
 
 
 # --- Models ------------------------------------------------------------------
@@ -222,6 +224,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         datasets={'primary', 'without_parent'},
     )
 
+    #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
+    versionid = with_roles(db.Column(db.Integer, nullable=False), read={'all'})
+
     search_vector = db.deferred(
         db.Column(
             TSVectorType(
@@ -279,6 +284,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             'project_cfp_start_at_cfp_end_at_check',
         ),
     )
+
+    __mapper_args__ = {'version_id_col': versionid}
 
     __roles__ = {
         'all': {
@@ -359,7 +366,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'HAS_PROPOSALS',
         cfp_state.ANY,
         lambda project: db.session.query(project.proposals.exists()).scalar(),
-        label=('has_proposals', __("Has proposals")),
+        label=('has_proposals', __("Has submissions")),
     )
     cfp_state.add_conditional_state(
         'HAS_SESSIONS',
@@ -368,41 +375,20 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('has_sessions', __("Has sessions")),
     )
     cfp_state.add_conditional_state(
-        'PRIVATE_DRAFT',
+        'DRAFT',
         cfp_state.NONE,
         lambda project: project.instructions_html != '',
         lambda project: db.and_(
             project.instructions_html.isnot(None), project.instructions_html != ''
         ),
-        label=('private_draft', __("Private draft")),
-    )
-    cfp_state.add_conditional_state(
-        'DRAFT',
-        cfp_state.PUBLIC,
-        lambda project: project.cfp_start_at is None,
-        lambda project: project.cfp_start_at.is_(None),
         label=('draft', __("Draft")),
-    )
-    cfp_state.add_conditional_state(
-        'UPCOMING',
-        cfp_state.PUBLIC,
-        lambda project: project.cfp_start_at is not None
-        and utcnow() < project.cfp_start_at,
-        lambda project: db.and_(
-            project.cfp_start_at.isnot(None), db.func.utcnow() < project.cfp_start_at
-        ),
-        label=('upcoming', __("Upcoming")),
     )
     cfp_state.add_conditional_state(
         'OPEN',
         cfp_state.PUBLIC,
-        lambda project: project.cfp_start_at is not None
-        and project.cfp_start_at <= utcnow()
-        and (project.cfp_end_at is None or (utcnow() < project.cfp_end_at)),
-        lambda project: db.and_(
-            project.cfp_start_at.isnot(None),
-            project.cfp_start_at <= db.func.utcnow(),
-            db.or_(project.cfp_end_at.is_(None), db.func.utcnow() < project.cfp_end_at),
+        lambda project: project.cfp_end_at is None or (utcnow() < project.cfp_end_at),
+        lambda project: db.or_(
+            project.cfp_end_at.is_(None), db.func.utcnow() < project.cfp_end_at
         ),
         label=('open', __("Open")),
     )
@@ -417,7 +403,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         label=('expired', __("Expired")),
     )
 
-    cfp_state.add_state_group('UNAVAILABLE', cfp_state.CLOSED, cfp_state.EXPIRED)
+    cfp_state.add_state_group(
+        'OPENABLE',
+        cfp_state.CLOSED,
+        cfp_state.NONE,
+        cfp_state.EXPIRED,
+    )
+    cfp_state.add_state_group(
+        'UNAVAILABLE',
+        cfp_state.CLOSED,
+        cfp_state.EXPIRED,
+    )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -432,26 +428,27 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
         db.session.add(new_membership)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`Project` as a string."""
-        return '<Project {}/{} "{}">'.format(
-            self.profile.name if self.profile else '(none)',
-            self.name,
-            self.title,
-        )
+        return f'<Project {self.profile.name}/{self.name} "{self.title}">'
 
     @with_roles(call={'editor'})
     @cfp_state.transition(
         cfp_state.OPENABLE,
         cfp_state.PUBLIC,
         title=__("Enable submissions"),
-        message=__("Submissions will be accepted within valid dates"),
+        message=__("Submissions will be accepted until the optional closing date"),
         type='success',
     )
     def open_cfp(self):
-        pass
+        # If closing date is in the past, remove it
+        if self.cfp_end_at is not None and self.cfp_end_at <= utcnow():
+            self.cfp_end_at = None
+        # If opening date is not set, set it
+        if self.cfp_start_at is None:
+            self.cfp_start_at = db.func.utcnow()
 
-    @with_roles(call={'editor'})
+    @with_roles(call={'editor'})  # skipcq: PTC-W0049
     @cfp_state.transition(
         cfp_state.PUBLIC,
         cfp_state.CLOSED,
@@ -479,7 +476,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         self.published_at = db.func.utcnow()
         return first_published
 
-    @with_roles(call={'editor'})
+    @with_roles(call={'editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.PUBLISHED,
         state.WITHDRAWN,
@@ -639,7 +636,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         self.start_at = self.schedule_start_at
         self.end_at = self.schedule_end_at
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
         roles.add('reader')
@@ -665,19 +664,21 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @classmethod
     def all_unsorted(cls):
         """Return query of all published projects, without ordering criteria."""
-        return cls.query.outerjoin(Venue).filter(cls.state.PUBLISHED)
+        return (
+            cls.query.join(Profile)
+            .outerjoin(Venue)
+            .filter(cls.state.PUBLISHED, Profile.is_verified.is_(True))
+        )
 
     @classmethod
     def all(cls):  # noqa: A003
         """Return all published projects, ordered by date."""
         return cls.all_unsorted().order_by(cls.order_by_date())
 
+    # The base class offers `get(parent, name)`. We accept f'{parent}/{name}' here for
+    # convenience as this is only used in shell access.
     @classmethod
-    def fetch_sorted(cls):
-        return cls.query.filter(cls.state.PUBLISHED).order_by(cls.order_by_date())
-
-    @classmethod
-    def get(cls, profile_project):
+    def get(cls, profile_project):  # pylint: disable=arguments-differ
         """Get a project by its URL slug in the form ``<profile>/<project>``."""
         profile_name, project_name = profile_project.split('/')
         return (
@@ -687,9 +688,10 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         )
 
     @classmethod
-    def migrate_profile(
+    def migrate_profile(  # type: ignore[return]
         cls, old_profile: Profile, new_profile: Profile
     ) -> OptionalMigratedTables:
+        """Migrate from one profile to another when merging user accounts."""
         names = {project.name for project in new_profile.projects}
         for project in old_profile.projects:
             if project.name in names:
@@ -700,7 +702,6 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                 )
                 project.name += '-' + buid()
             project.profile = new_profile
-        return None
 
 
 add_search_trigger(Project, 'search_vector')
@@ -727,6 +728,12 @@ class __Profile:
             db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
         ),
         viewonly=True,
+    )
+    projects_by_name = with_roles(
+        db.relationship(
+            Project, collection_class=attribute_mapped_collection('name'), viewonly=True
+        ),
+        read={'all'},
     )
 
     def draft_projects_for(self, user: Optional[User]) -> List[Project]:
@@ -759,6 +766,13 @@ class __Profile:
             ]
         return []
 
+    @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})
+    @cached_property
+    def published_project_count(self) -> int:
+        return (
+            self.listed_projects.filter(Project.state.PUBLISHED).order_by(None).count()
+        )
+
 
 class ProjectRedirect(TimestampMixin, db.Model):
     __tablename__ = 'project_redirect'
@@ -777,19 +791,19 @@ class ProjectRedirect(TimestampMixin, db.Model):
     )
     project = db.relationship(Project, backref='redirects')
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`ProjectRedirect` as a string."""
-        return '<ProjectRedirect {}/{}: {}>'.format(
-            self.profile.name,
-            self.name,
-            self.project.name if self.project else '(none)',
+        if not self.project:
+            return f'<ProjectRedirect {self.profile.name}/{self.name}: (none)>'
+        return (
+            f'<ProjectRedirect {self.profile.name}/{self.name}'
+            f' → {self.project.profile.name}/{self.project.name}>'
         )
 
     def redirect_view_args(self):
         if self.project:
             return {'profile': self.profile.name, 'project': self.project.name}
-        else:
-            return {}
+        return {}
 
     @classmethod
     def add(cls, project, profile=None, name=None):
@@ -817,7 +831,7 @@ class ProjectRedirect(TimestampMixin, db.Model):
         return redirect
 
     @classmethod
-    def migrate_profile(
+    def migrate_profile(  # type: ignore[return]
         cls, old_profile: Profile, new_profile: Profile
     ) -> OptionalMigratedTables:
         """
@@ -834,7 +848,6 @@ class ProjectRedirect(TimestampMixin, db.Model):
                 # Discard project redirect since the name is already taken by another
                 # redirect in the new profile
                 db.session.delete(pr)
-        return None
 
 
 class ProjectLocation(TimestampMixin, db.Model):
@@ -848,12 +861,11 @@ class ProjectLocation(TimestampMixin, db.Model):
     geonameid = db.Column(db.Integer, primary_key=True, nullable=False, index=True)
     primary = db.Column(db.Boolean, default=True, nullable=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`ProjectLocation` as a string."""
-        return '<ProjectLocation %d %s for project %s>' % (
-            self.geonameid,
-            'primary' if self.primary else 'secondary',
-            self.project,
+        pri_sec = 'primary' if self.primary else 'secondary'
+        return (
+            f'<ProjectLocation {self.geonameid} {pri_sec} for project {self.project!r}>'
         )
 
 
@@ -866,5 +878,6 @@ class __Commentset:
 
 
 # Tail imports
+# pylint: disable=wrong-import-position
 from .project_membership import ProjectCrewMembership  # isort:skip
-from .venue import Venue  # isort:skip
+from .venue import Venue  # isort:skip  # skipcq: FLK-E402

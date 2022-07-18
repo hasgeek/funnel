@@ -1,3 +1,5 @@
+"""Flask-Migrate and Alembic environment."""
+
 from __future__ import annotations
 
 from logging.config import fileConfig
@@ -12,11 +14,12 @@ USE_TWOPHASE = False
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-config = context.config  # type: ignore[attr-defined]
+config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-fileConfig(config.config_file_name)
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
 logger = logging.getLogger('alembic.env')
 
 config.set_main_option(
@@ -31,13 +34,13 @@ else:
         bind_names = get_bind_names()
     else:
         bind_names = []
-for bind in bind_names:
-    context.config.set_section_option(  # type: ignore[attr-defined]
-        bind,
+for this_bind in bind_names:
+    context.config.set_section_option(
+        this_bind,
         'sqlalchemy.url',
-        str(current_app.extensions['migrate'].db.get_engine(bind=bind).url).replace(
-            '%', '%%'
-        ),
+        str(
+            current_app.extensions['migrate'].db.get_engine(bind=this_bind).url
+        ).replace('%', '%%'),
     )
 target_metadata = current_app.extensions['migrate'].db.metadata
 
@@ -79,9 +82,9 @@ def run_migrations_offline():
 
     for name, rec in engines.items():
         logger.info("Migrating database %s", (name or '<default>'))
-        file_ = '%s.sql' % name
+        file_ = f'{name}.sql'
         logger.info("Writing output to %s", file_)
-        with open(file_, 'w') as buffer:
+        with open(file_, 'w', encoding='utf-8') as buffer:
             context.configure(
                 url=rec['url'],
                 output_buffer=buffer,
@@ -101,7 +104,7 @@ def run_migrations_online():
     # this callback is used to prevent an auto-migration from being generated
     # when there are no changes to the schema
     # reference: https://alembic.zzzcomputing.com/en/latest/cookbook.html
-    def process_revision_directives(context, revision, directives):
+    def process_revision_directives(_context, _revision, directives):
         if getattr(config.cmd_opts, 'autogenerate', False):
             script = directives[0]
             if len(script.upgrade_ops_list) >= len(bind_names) + 1:
@@ -152,8 +155,8 @@ def run_migrations_online():
                 logger.info("Migrating database %s", name or '<default>')
                 context.configure(
                     connection=rec['connection'],
-                    upgrade_token='%s_upgrades' % name,
-                    downgrade_token='%s_downgrades' % name,
+                    upgrade_token=f'{name}_upgrades',
+                    downgrade_token=f'{name}_downgrades',
                     target_metadata=get_metadata(name),
                     process_revision_directives=process_revision_directives,
                     **current_app.extensions['migrate'].configure_args,

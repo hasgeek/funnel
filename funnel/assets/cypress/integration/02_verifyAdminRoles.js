@@ -28,6 +28,7 @@ describe('Profile admin roles', () => {
     cy.get('[data-cy="member"]').contains(owner.username).click();
     cy.get('#member-form', { timeout: 10000 }).should('not.be.visible');
     cy.wait(1000);
+
     cy.get('a[data-cy="my-updates"]:visible').click();
     cy.wait('@fetch-updates');
     cy.get('[data-cy="notification-box"]').contains(profile.title);

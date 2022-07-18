@@ -1,12 +1,15 @@
+"""Hasgeek website app bootstrap."""
+
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import cast
 import json
 import logging
 import os.path
 
 from flask import Flask
-from flask_babelhg import get_locale
+from flask_babel import get_locale
 from flask_flatpages import FlatPages
 from flask_mailman import Mail
 from flask_migrate import Migrate
@@ -58,7 +61,8 @@ assets['funnel-mui.js'][version] = 'js/libs/mui.js'
 
 try:
     with open(
-        os.path.join(cast(str, app.static_folder), 'build/manifest.json')
+        os.path.join(cast(str, app.static_folder), 'build/manifest.json'),
+        encoding='utf-8',
     ) as built_manifest:
         built_assets = json.load(built_manifest)
 except OSError:
@@ -67,7 +71,7 @@ except OSError:
 
 # --- Import rest of the app -----------------------------------------------------------
 
-from . import (  # isort:skip  # noqa: F401
+from . import (  # isort:skip  # noqa: F401  # pylint: disable=wrong-import-position
     models,
     signals,
     forms,
@@ -75,12 +79,16 @@ from . import (  # isort:skip  # noqa: F401
     transports,
     views,
     cli,
+    proxies,
 )
-from .models import db  # isort:skip
+from .models import db  # isort:skip  # pylint: disable=wrong-import-position
 
 # --- Configuration---------------------------------------------------------------------
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)
 coaster.app.init_app(app, ['py', 'toml'])
 coaster.app.init_app(shortlinkapp, ['py', 'toml'], init_logging=False)
+proxies.init_app(app)
+proxies.init_app(shortlinkapp)
 
 # These are app specific confguration files that must exist
 # inside the `instance/` directory. Sample config files are

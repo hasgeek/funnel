@@ -1,3 +1,5 @@
+"""Model for membership to a commentset for new comment notifications."""
+
 from __future__ import annotations
 
 from typing import Set
@@ -167,6 +169,7 @@ class __Commentset:
 
     def add_subscriber(self, actor: User, user: User) -> bool:
         """Return True is subscriber is added or unmuted, False if already exists."""
+        changed = False
         subscription = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()
@@ -176,12 +179,13 @@ class __Commentset:
                 user=user,
                 granted_by=actor,
             )
-            subscription.update_last_seen_at()
             db.session.add(subscription)
-            return True
-        else:
-            subscription.update_last_seen_at()
-        return False
+            changed = True
+        elif subscription.is_muted:
+            subscription = subscription.replace(actor=actor, is_muted=False)
+            changed = True
+        subscription.update_last_seen_at()
+        return changed
 
     def mute_subscriber(self, actor: User, user: User) -> bool:
         """Return True if subscriber was muted, False if already muted or missing."""

@@ -11,9 +11,16 @@ const Form = {
         response.status === 422 &&
         response.responseJSON.error === 'requires_sudo'
       ) {
-        window.location.href = `${
-          window.Hasgeek.Config.accountSudo
-        }?next=${encodeURIComponent(window.location.href)}`;
+        window.location.assign(
+          `${window.Hasgeek.Config.accountSudo}?next=${encodeURIComponent(
+            window.location.href
+          )}`
+        );
+      } else if (
+        response.status === 422 &&
+        response.responseJSON.error === 'redirect'
+      ) {
+        window.location.assign(response.responseJSON.location);
       } else {
         errorMsg = response.responseJSON.error_description;
       }
@@ -100,8 +107,8 @@ const Form = {
       }
     });
   },
-  activateToggleSwitch() {
-    $('.js-toggle').on('change', function submitToggleSwitch() {
+  activateToggleSwitch(callbckfn = '') {
+    $('body').on('change', '.js-toggle', function submitToggleSwitch() {
       const checkbox = $(this);
       const currentState = this.checked;
       const previousState = !currentState;
@@ -119,6 +126,9 @@ const Form = {
           if (responseData && responseData.message) {
             window.toastr.success(responseData.message);
           }
+          if (callbckfn) {
+            callbckfn();
+          }
         },
         error(response) {
           Form.handleAjaxError(response);
@@ -127,9 +137,19 @@ const Form = {
       });
     });
 
-    $('.js-dropdown-toggle').on('click', (event) => {
-      event.stopPropagation();
-    });
+    $('body').on(
+      'click',
+      '.js-dropdown-toggle',
+      function stopPropagation(event) {
+        event.stopPropagation();
+      }
+    );
+  },
+  openSubmissionToggle(checkboxId, cfpStatusDiv) {
+    const onSuccess = function () {
+      $(cfpStatusDiv).toggleClass('mui--hide');
+    };
+    Form.activateToggleSwitch(onSuccess);
   },
 };
 

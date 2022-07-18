@@ -46,6 +46,10 @@ instance/container_env
 secrets.dev
 secrets.test
 newrelic.ini
+.env
+.env.testing
+.env.staging
+.env.production
 
 # Local venvs (Idea creates them)
 venv/
@@ -59,6 +63,7 @@ env/
 .settings
 *.wpr
 .vscode
+*.sublime-workspace
 
 # Local DBs
 dump.rdb

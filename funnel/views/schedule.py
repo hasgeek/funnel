@@ -1,3 +1,5 @@
+"""Views for managing a project's schedule."""
+
 from __future__ import annotations
 
 from collections import defaultdict
@@ -159,6 +161,7 @@ def project_as_session(project: Project) -> SimpleNamespace:
         end_at_localized=project.end_at_localized,
         location=f'{project.location} - {project.url_for(_external=True)}',
         venue_room=None,
+        versionid=project.versionid,
         proposal=SimpleNamespace(labels=()),  # Proposal is used to get a permalink
         url_for=project.url_for,
     )
@@ -216,6 +219,7 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
         desc = _("{session} in 5 minutes").format(session=session.title)
     alarm.add('description', desc)
     event.add_component(alarm)
+    event.add('sequence', session.versionid - 1)  # vCal starts at 0, SQLAlchemy at 1
     return event
 
 
@@ -309,7 +313,6 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @route('update', methods=['POST'])
     @requires_login
     @requires_roles({'editor'})
-    @render_with(json=True)
     @requestargs(('sessions', json.loads))
     def update_schedule(self, sessions) -> ReturnRenderWith:
         for session in sessions:
@@ -342,8 +345,8 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @requires_roles({'reader'})
     def schedule_room_ical(self) -> Response:
         cal = Calendar()
-        cal.add('prodid', "-//Hasgeek//NONSGML Funnel//EN"),
-        cal.add('version', "2.0")
+        cal.add('prodid', '-//Hasgeek//NONSGML Funnel//EN')
+        cal.add('version', '2.0')
         cal.add(
             'name',
             f"{self.obj.venue.project.title} @"

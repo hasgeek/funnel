@@ -1,3 +1,5 @@
+"""Views for sending and rendering notifications."""
+
 from __future__ import annotations
 
 from collections import defaultdict
@@ -5,12 +7,14 @@ from datetime import datetime
 from email.utils import formataddr
 from functools import wraps
 from itertools import filterfalse, zip_longest
-from typing import Dict
+from typing import Dict, List, Optional
 from uuid import uuid4
 
 from flask import url_for
-from flask_babelhg import force_locale
+from flask_babel import force_locale
 from werkzeug.utils import cached_property
+
+from typing_extensions import Literal
 
 from baseframe import __, statsd
 from coaster.auth import current_auth
@@ -27,6 +31,7 @@ __all__ = ['RenderNotification', 'dispatch_notification']
 
 @UserNotification.views('render')
 def render_user_notification(obj):
+    """Render web notifications for the user."""
     return Notification.renderers[obj.notification.type](obj).web()
 
 
@@ -51,9 +56,7 @@ class RenderNotification:
     """
 
     #: Aliases for document and fragment, to make render methods clearer
-    aliases: Dict[str, str] = {}
-    # XXX: Replace type after moving to Python 3.8:
-    # Dict[Literal['document', 'fragment'], str]
+    aliases: Dict[Literal['document', 'fragment'], str] = {}
 
     #: Emoji prefix, for transports that support them
     emoji_prefix = ''
@@ -225,7 +228,7 @@ class RenderNotification:
         """Actor that prompted this notification. May be overriden."""
         return self.notification.user
 
-    def web(self):
+    def web(self) -> str:
         """
         Render for display on the website.
 
@@ -233,7 +236,7 @@ class RenderNotification:
         """
         raise NotImplementedError("Subclasses must implement `web`")
 
-    def email_subject(self):
+    def email_subject(self) -> str:
         """
         Render the subject of an email update, suitable for handing over to send_email.
 
@@ -241,7 +244,7 @@ class RenderNotification:
         """
         raise NotImplementedError("Subclasses must implement `email_subject`")
 
-    def email_content(self):
+    def email_content(self) -> str:
         """
         Render an email update, suitable for handing over to send_email.
 
@@ -249,18 +252,16 @@ class RenderNotification:
         """
         raise NotImplementedError("Subclasses must implement `email_content`")
 
-    def email_attachments(self):
+    def email_attachments(self) -> Optional[List[email.EmailAttachment]]:
         """Render optional attachments to an email notification."""
         return None
 
-    def email_from(self):
+    def email_from(self) -> str:
         """Sender of an email."""
         # FIXME: This field is NOT localized as it's causing an unknown downstream
         # issue that renders the From name as `=?utf-8?b?Tm90a...`
         if self.notification.preference_context:
-            return "{sender} (via Hasgeek)".format(
-                sender=self.notification.preference_context.title
-            )
+            return f"{self.notification.preference_context.title} (via Hasgeek)"
         return "Hasgeek"
 
     def sms(self) -> SmsTemplate:
@@ -271,36 +272,39 @@ class RenderNotification:
         """
         raise NotImplementedError("Subclasses must implement `sms`")
 
+    def text(self) -> str:
+        """Render a short plain text notification using the SMS template."""
+        return self.sms().text
+
     def sms_with_unsubscribe(self) -> SmsTemplate:
         """Add an unsubscribe link to the SMS message."""
-        # SMS templates can't be translated, so the "Hi!" and "to stop" are static
         msg = self.sms()
         msg.unsubscribe_url = self.unsubscribe_short_url('sms')
         return msg
 
-    def webpush(self):
+    def webpush(self) -> str:
         """
         Render a web push notification.
 
-        Default implementation uses SMS render.
+        Default implementation uses :meth:`text`.
         """
-        raise NotImplementedError("Subclasses must implement `webpush`")
+        return self.text()
 
-    def telegram(self):
+    def telegram(self) -> str:
         """
         Render a Telegram HTML message.
 
-        Default implementation uses SMS render.
+        Default implementation uses :meth:`text`.
         """
-        raise NotImplementedError("Subclasses must implement `telegram`")
+        return self.text()
 
-    def whatsapp(self):
+    def whatsapp(self) -> str:
         """
         Render a WhatsApp-formatted text message.
 
-        Default implementation uses SMS render.
+        Default implementation uses :meth:`text`.
         """
-        raise NotImplementedError("Subclasses must implement `whatsapp`")
+        return self.text()
 
 
 # --- Dispatch functions ---------------------------------------------------------------
@@ -363,8 +367,11 @@ def dispatch_notification(*notifications):
 
 
 def transport_worker_wrapper(func):
+    """Create working context for a notification transport dispatch worker."""
+
     @wraps(func)
     def inner(user_notification_ids):
+        """Convert a notification id into an object for worker to process."""
         with app.app_context():
             queue = [
                 UserNotification.query.get(identity)
@@ -393,7 +400,10 @@ def transport_worker_wrapper(func):
 
 @rq.job('funnel')
 @transport_worker_wrapper
-def dispatch_transport_email(user_notification, view):
+def dispatch_transport_email(
+    user_notification: UserNotification, view: RenderNotification
+):
+    """Deliver a user notification over email."""
     if not user_notification.user.main_notification_preferences.by_transport('email'):
         # Cancel delivery if user's main switch is off. This was already checked, but
         # the worker may be delayed and the user may have changed their preference.
@@ -414,9 +424,12 @@ def dispatch_transport_email(user_notification, view):
                 (
                     # formataddr can't handle lazy_gettext strings, so cast to regular
                     str(user_notification.notification.title),
-                    user_notification.notification.type
-                    + '-notification.'
-                    + app.config['DEFAULT_DOMAIN'],
+                    # pylint: disable=consider-using-f-string
+                    '{type}-notification.{domain}'.format(
+                        type=user_notification.notification.type,
+                        domain=app.config['DEFAULT_DOMAIN'],
+                    ),
+                    # pylint: enable=consider-using-f-string
                 )
             ),
             'List-Help': f'<{url_for("notification_preferences")}>',
@@ -437,6 +450,7 @@ def dispatch_transport_email(user_notification, view):
 @rq.job('funnel')
 @transport_worker_wrapper
 def dispatch_transport_sms(user_notification, view):
+    """Deliver a user notification over SMS."""
     if not user_notification.user.main_notification_preferences.by_transport('sms'):
         # Cancel delivery if user's main switch is off. This was already checked, but
         # the worker may be delayed and the user may have changed their preference.
@@ -464,6 +478,7 @@ DISPATCH_BATCH_SIZE = 10
 
 @rq.job('funnel')
 def dispatch_notification_job(eventid, notification_ids):
+    """Process :class:`Notification` into batches of :class:`UserNotification`."""
     with app.app_context():
         notifications = [
             Notification.query.get((eventid, nid)) for nid in notification_ids

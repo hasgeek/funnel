@@ -63,7 +63,8 @@ $xFormLabelLineHeight: floor($mui-label-font-size * 1.25);
       &.mui--is-not-empty,
       &[value]:not([value='']):not(.mui--is-empty):not(.mui--is-not-empty),
       &:not(:empty):not(.mui--is-empty):not(.mui--is-not-empty) {
-        ~ label {
+        ~ label,
+        .float-label {
           color: $mui-label-font-color;
           font-size: $mui-label-font-size;
           line-height: $xFormLabelLineHeight;

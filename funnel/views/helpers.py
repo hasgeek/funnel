@@ -1,10 +1,12 @@
+"""View helpers."""
+
 from __future__ import annotations
 
 from base64 import urlsafe_b64encode
-from datetime import datetime
+from datetime import datetime, timedelta
 from hashlib import blake2b
 from os import urandom
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple, Union
 from urllib.parse import unquote, urljoin, urlsplit
 import gzip
 import zlib
@@ -16,13 +18,14 @@ from flask import (
     current_app,
     g,
     jsonify,
+    redirect,
     render_template,
     request,
+    session,
     url_for,
 )
 from werkzeug.routing import BuildError
 from werkzeug.urls import url_quote
-from werkzeug.wrappers import Response as ResponseBase
 
 from furl import furl
 from pytz import common_timezones
@@ -31,21 +34,74 @@ from pytz import utc
 import brotli
 
 from baseframe import cache, statsd
+from coaster.sqlalchemy import RoleMixin
+from coaster.utils import utcnow
 
 from .. import app, built_assets, shortlinkapp
 from ..forms import supported_locales
 from ..models import Shortlink, User, db, profanity
+from ..proxies import request_wants
 from ..signals import emailaddress_refcount_dropping
+from ..typing import ReturnResponse, ReturnView
 from .jobs import forget_email
 
 valid_timezones = set(common_timezones)
 
 nocache_expires = utc.localize(datetime(1990, 1, 1))
 
+# Six avatar colours defined in _variable.scss
+avatar_color_count = 6
+
+# --- Classes --------------------------------------------------------------------------
+
+
+class SessionTimeouts(Dict[str, timedelta]):
+    """
+    Singleton dictionary that aids tracking timestamps in session.
+
+    Use the :attr:`session_timeouts` instance instead of this class.
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        """Create a dictionary that separately tracks {key}_at keys."""
+        super().__init__(*args, **kwargs)
+        self.keys_at = {f'{key}_at' for key in self.keys()}
+
+    def __setitem__(self, key: str, value: timedelta) -> None:
+        """Add or set a value to the dictionary."""
+        if key in self:
+            raise KeyError(f"Key {key} is already present")
+        if not isinstance(value, timedelta):
+            raise ValueError("Value must be a timedelta")
+        self.keys_at.add(f'{key}_at')
+        super().__setitem__(key, value)
+
+    def __delitem__(self, key) -> None:
+        """Remove a value from the dictionary."""
+        self.keys_at.remove(f'{key}_at')
+        super().__delitem__(key)
+
+    def has_intersection(self, other):
+        """Check for intersection with other dictionary-like object."""
+        okeys = other.keys()
+        return not (self.keys_at.isdisjoint(okeys) and self.keys().isdisjoint(okeys))
+
+
+#: Temporary values that must be periodically expunged from the cookie session
+session_timeouts = SessionTimeouts()
+
 # --- Utilities ------------------------------------------------------------------------
 
 
+def str_pw_set_at(user: User) -> str:
+    """Render user.pw_set_at as a string, for comparison."""
+    if user.pw_set_at is not None:
+        return user.pw_set_at.astimezone(utc).replace(microsecond=0).isoformat()
+    return 'None'
+
+
 def metarefresh_redirect(url: str):
+    """Redirect using a non-standard Refresh header in a Meta tag."""
     return Response(render_template('meta_refresh.html.jinja2', url=url))
 
 
@@ -67,8 +123,9 @@ def app_url_for(
 
     The provided app must have `SERVER_NAME` in its config for URL construction to work.
     """
-    # 'app' here is the parameter, not the module-level import
-    if current_app and current_app._get_current_object() is target_app:  # type: ignore[attr-defined]
+    if (  # pylint: disable=protected-access
+        current_app and current_app._get_current_object() is target_app
+    ):
         return url_for(
             endpoint,
             _external=_external,
@@ -94,21 +151,6 @@ def app_url_for(
     if _anchor:
         result += f'#{url_quote(_anchor)}'
     return result
-
-
-def mask_email(email: str) -> str:
-    """
-    Masks an email address to obfuscate it while (hopefully) keeping it recognisable.
-
-    >>> mask_email('foobar@example.com')
-    'foo***@example.com'
-    >>> mask_email('not-email')
-    'not-em***'
-    """
-    if '@' not in email:
-        return f'{email[:-3]}***'
-    username, domain = email.split('@')
-    return f'{username[:-3]}***@{domain}'
 
 
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):
@@ -188,7 +230,7 @@ def progressive_rate_limit_validator(
     return (True, False)
 
 
-def validate_rate_limit(
+def validate_rate_limit(  # pylint: disable=too-many-arguments
     resource: str,
     identifier: str,
     attempts: int,
@@ -228,7 +270,10 @@ def validate_rate_limit(
         tags={'resource': resource},
     )
     cache_key = f'rate_limit/v1/{resource}/{identifier}'
-    cache_value: Optional[Tuple[int, str]] = cache.get(cache_key)
+    # XXX: Typing for cache.get is incorrectly specified as returning Optional[str]
+    cache_value: Optional[Tuple[int, str]] = cache.get(  # type: ignore[assignment]
+        cache_key
+    )
     if cache_value is None:
         count, cache_token = None, None
         statsd.incr('rate_limit', tags={'resource': resource, 'status_code': 201})
@@ -288,9 +333,13 @@ def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
     """
     Make a short text token that references data in cache with a timeout period.
 
-    This is currently used for SMS unsubscribe links, but can also be used elsewhere.
-    The complementary :func:`retrieve_cached_token` and :func:`delete_cached_token`
-    functions can be used to retrieve and discard data.
+    This is currently used for SMS OTPs and links, including for login, password reset
+    and SMS unsubscribe. The complementary :func:`retrieve_cached_token` and
+    :func:`delete_cached_token` functions can be used to retrieve and discard data.
+
+    This expects (a) the Redis cache to be shared across all HTTP workers, or (b)
+    session binding to the worker. Funnel's Docker implementation as introduced in #1292
+    isolates Redis cache per worker.
 
     :param payload: Data to save against the token
     :param timeout: Timeout period for token in seconds (default 24 hours)
@@ -312,7 +361,8 @@ def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
 
 def retrieve_cached_token(token: str) -> Optional[dict]:
     """Retrieve cached data given a token generated using :func:`make_cached_token`."""
-    return cache.get(TEXT_TOKEN_PREFIX + token)
+    # XXX: Typing for cache.get is incorrectly specified as returning Optional[str]
+    return cache.get(TEXT_TOKEN_PREFIX + token)  # type: ignore[return-value]
 
 
 def delete_cached_token(token: str) -> bool:
@@ -350,14 +400,14 @@ def decompress(data: bytes, algorithm: str) -> bytes:
     raise ValueError("Unknown compression algorithm")
 
 
-def compress_response(response: ResponseBase) -> None:
+def compress_response(response: ReturnResponse) -> None:
     """
     Conditionally compress a response based on request parameters.
 
     This function should ideally be used with a cache layer, such as
     :func:`~funnel.views.decorators.etag_cache_for_user`.
     """
-    if (
+    if (  # pylint: disable=too-many-boolean-expressions
         response.content_length is not None
         and response.content_length > 500
         and 200 <= response.status_code < 300
@@ -382,11 +432,45 @@ def compress_response(response: ResponseBase) -> None:
 # --- Template helpers -----------------------------------------------------------------
 
 
-def html_in_json(template: str):
-    def render_json_with_status(kwargs):
-        return jsonify(status='ok', **kwargs)
+def render_redirect(url: str, code: int = 303) -> ReturnResponse:
+    """
+    Render a redirect that is sensitive to the request type.
 
-    def render_html_in_json(kwargs):
+    Defaults to 303 redirects to safely handle browser history in POST -> GET
+    transitions. Caller must specify 302 for instances where a request is being
+    intercepted (typically in a view decorator).
+    """
+    if request_wants.html_fragment:
+        return Response(
+            render_template('redirect.html.jinja2', url=url),
+            status=200,
+            headers={'HX-Redirect': url},
+        )
+    if request_wants.json:
+        response = jsonify({'status': 'error', 'error': 'redirect', 'location': url})
+        response.status_code = 422
+        response.headers['HX-Redirect'] = url
+        return response
+    return redirect(url, code)
+
+
+def html_in_json(template: str) -> Dict[str, Union[str, Callable[[dict], ReturnView]]]:
+    """Render a HTML fragment in a JSON wrapper, for use with ``@render_with``."""
+
+    def render_json_with_status(kwargs) -> ReturnResponse:
+        """Render plain JSON."""
+        return jsonify(
+            status='ok',
+            **{
+                k: v
+                if not isinstance(v, RoleMixin)
+                else v.current_access(datasets=('primary',))
+                for k, v in kwargs.items()
+            },
+        )
+
+    def render_html_in_json(kwargs) -> ReturnResponse:
+        """Render HTML fragment in JSON."""
         resp = jsonify({'status': 'ok', 'html': render_template(template, **kwargs)})
         resp.content_type = 'application/x.html+json; charset=utf-8'
         return resp
@@ -403,11 +487,13 @@ def html_in_json(template: str):
 
 @app.template_filter('url_join')
 def url_join(base, url=''):
+    """Join URLs in a template filter."""
     return urljoin(base, url)
 
 
 @app.template_filter('cleanurl')
 def cleanurl_filter(url):
+    """Clean a URL in a template filter."""
     if not isinstance(url, furl):
         url = furl(url)
     url.path.normalize()
@@ -417,23 +503,46 @@ def cleanurl_filter(url):
 
 @app.template_filter('shortlink')
 def shortlink(url, actor=None):
-    """Return a short link suitable for SMS. Caller must perform a database commit."""
+    """
+    Return a short link suitable for SMS, in a template filter.
+
+    Caller must perform a database commit.
+    """
     sl = Shortlink.new(url, reuse=True, shorter=True, actor=actor)
     db.session.add(sl)
     return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
 
 
-def built_asset(assetname):
-    return built_assets[assetname]
-
-
 @app.context_processor
 def template_context() -> Dict[str, Any]:
     """Add template context items."""
-    return {'built_asset': built_asset}
+    return {'built_asset': lambda assetname: built_assets[assetname]}
 
 
 # --- Request/response handlers --------------------------------------------------------
+
+
+@app.after_request
+def track_temporary_session_vars(response):
+    """Add timestamps to timed values in session, and remove expired values."""
+    # Process timestamps only if there is at least one match. Most requests will
+    # have no match.
+    if session_timeouts.has_intersection(session):
+        for var, delta in session_timeouts.items():
+            var_at = f'{var}_at'
+            if var in session:
+                if var_at not in session:
+                    # Session has var but not timestamp, so add a timestamp
+                    session[var_at] = utcnow()
+                elif session[var_at] < utcnow() - delta:
+                    # Session var has expired, so remove var and timestamp
+                    session.pop(var)
+                    session.pop(var_at)
+            elif var_at in session:
+                # Timestamp present without var, so remove it
+                session.pop(var_at)
+
+    return response
 
 
 @app.after_request

@@ -1,6 +1,8 @@
+"""Geoname data models."""
+
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Union, cast
+from typing import Collection, Dict, List, Optional, Union, cast
 import re
 
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -10,7 +12,7 @@ from coaster.sqlalchemy import Query
 from coaster.utils import make_name
 
 from . import BaseMixin, BaseNameMixin, db
-from .helpers import quote_like
+from .helpers import quote_autocomplete_like
 
 __all__ = ['GeoName', 'GeoCountryInfo', 'GeoAdmin1Code', 'GeoAdmin2Code', 'GeoAltName']
 
@@ -68,9 +70,9 @@ class GeoCountryInfo(BaseNameMixin, db.Model):
         ),
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return representation."""
-        return '<GeoCountryInfo %d "%s">' % (self.geonameid, self.title)
+        return f'<GeoCountryInfo {self.geonameid} "{self.title}">'
 
 
 class GeoAdmin1Code(BaseMixin, db.Model):
@@ -95,9 +97,9 @@ class GeoAdmin1Code(BaseMixin, db.Model):
     country = db.relationship('GeoCountryInfo')
     admin1_code = db.Column(db.Unicode)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return representation."""
-        return '<GeoAdmin1Code %d "%s">' % (self.geonameid, self.ascii_title)
+        return f'<GeoAdmin1Code {self.geonameid} "self.ascii_title">'
 
 
 class GeoAdmin2Code(BaseMixin, db.Model):
@@ -123,9 +125,9 @@ class GeoAdmin2Code(BaseMixin, db.Model):
     admin1_code = db.Column(db.Unicode)
     admin2_code = db.Column(db.Unicode)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return representation."""
-        return '<GeoAdmin2Code %d "%s">' % (self.geonameid, self.ascii_title)
+        return f'<GeoAdmin2Code {self.geonameid} "self.ascii_title">'
 
 
 class GeoName(BaseNameMixin, db.Model):
@@ -195,6 +197,7 @@ class GeoName(BaseNameMixin, db.Model):
 
     @property
     def short_title(self) -> str:
+        """Return a short title for this geoname record."""
         if self.has_country:
             return self.has_country.title
         if self.has_admin1code:
@@ -205,6 +208,7 @@ class GeoName(BaseNameMixin, db.Model):
 
     @property
     def picker_title(self) -> str:
+        """Return a disambiguation title for this geoname record."""
         title = self.use_title
         country = self.country_id
         if country == 'US':
@@ -245,10 +249,12 @@ class GeoName(BaseNameMixin, db.Model):
 
     @property
     def geoname(self) -> GeoName:
+        """Return geoname record (self!)."""
         return self
 
     @property
     def use_title(self) -> str:
+        """Return a recommended usable title."""
         usetitle = self.ascii_title
         if self.fclass == 'A' and self.fcode.startswith('PCL'):
             if 'of the' in usetitle:
@@ -265,10 +271,8 @@ class GeoName(BaseNameMixin, db.Model):
             )
         return usetitle
 
-    def make_name(self, reserved: Optional[List[str]] = None) -> None:
+    def make_name(self, reserved: Collection[str] = ()) -> None:
         """Create a unique name for this geoname record."""
-        if not reserved:
-            reserved = []
         if self.ascii_title:
             usetitle = self.use_title
             if self.id:
@@ -293,12 +297,9 @@ class GeoName(BaseNameMixin, db.Model):
 
     def __repr__(self) -> str:
         """Return representation."""
-        return '<GeoName %d %s %s %s "%s">' % (
-            self.geonameid,
-            self.country_id,
-            self.fclass,
-            self.fcode,
-            self.ascii_title,
+        return (
+            f'<GeoName {self.geonameid} {self.country_id} {self.fclass} {self.fcode}'
+            f' "{self.ascii_title}">'
         )
 
     def related_geonames(self) -> Dict[str, GeoName]:
@@ -453,7 +454,9 @@ class GeoName(BaseNameMixin, db.Model):
                 else:
                     matches = (
                         GeoAltName.query.filter(
-                            db.func.lower(GeoAltName.title).like(quote_like(ltoken))
+                            db.func.lower(GeoAltName.title).like(
+                                quote_autocomplete_like(ltoken)
+                            )
                         )
                         .options(
                             joinedload('geoname').joinedload('country'),
@@ -521,7 +524,9 @@ class GeoName(BaseNameMixin, db.Model):
         """
         query = (
             cls.query.join(cls.alternate_titles)
-            .filter(db.func.lower(GeoAltName.title).like(quote_like(q.lower())))
+            .filter(
+                db.func.lower(GeoAltName.title).like(quote_autocomplete_like(q.lower()))
+            )
             .order_by(db.desc(cls.population))
         )
         if lang:
@@ -558,11 +563,7 @@ class GeoAltName(BaseMixin, db.Model):
 
     def __repr__(self) -> str:
         """Return representation."""
-        return '<GeoAltName {} "{}" of {}>'.format(
-            self.lang,
-            self.title,
-            repr(self.geoname)[1:-1] if self.geoname else None,
-        )
+        return f'<GeoAltName {self.lang} "{self.title}" of {self.geoname!r}>'
 
     def as_dict(self) -> dict:
         """Convert this record into a dictionary suitable for casting to JSON."""

@@ -4,7 +4,7 @@
     "messages": {
       "": {
         "domain": "messages",
-        "plural_forms": "nplurals=2; plural=(n != 1)",
+        "plural_forms": "nplurals=2; plural=(n != 1);",
         "lang": "hi"
       },
       "A Bearer token is required in the Authorization header": [
@@ -24,7 +24,9 @@
       "An internal server error occurred. Our support team has been notified and will investigate": [
         ""
       ],
-      "Unable to connect. Check connection and tap to reload": [""],
+      "Unable to connect. Check connection and refresh the page": [""],
+      "This is unusually high activity. Try again later": [""],
+      "An error occured when submitting the form": [""],
       "Saving": [""],
       "Changes saved but not published": [""],
       "You have unsaved changes on this page. Do you want to leave this page?": [
@@ -41,9 +43,6 @@
         ""
       ],
       "Unable to access video stream. Please make sure you have camera enabled or try a different browser": [
-        ""
-      ],
-      "There was a problem in contacting the server. Please try again later": [
         ""
       ],
       "Project added to Account > Saved projects": [""],
@@ -66,17 +65,13 @@
       "Password": ["पासवर्ड"],
       "Confirm password": ["पासवर्ड की पुष्टि करें"],
       "Incorrect password": ["गलत पासवर्ड"],
-      "Username or Email": ["यूजरनेम या ईमेल"],
+      "Phone number or email address": [""],
       "Could not find a user with that id": [
         "इस आईडी से जुड़ा कोई यूजर नहीं मिला"
       ],
       "New password": ["नया पासवर्ड"],
-      "Please reconfirm your username or email address": [
-        "कृपया अपने यूजरनेम या ईमेल पते की दोबारा पुष्टि करें"
-      ],
-      "This username or email does not match the user the reset code is for": [
-        "जिस यूजर के लिए यह रिसेट कोड है उस यूजर से कोई मिलता हुआ कोई यूजरनेम या ईमेल नहीं मिला"
-      ],
+      "Please reconfirm your phone number, email address or username": [""],
+      "This does not match the user the reset code is for": [""],
       "Current password": ["वर्तमान पासवर्ड"],
       "Not logged in": ["लॉगिन नहीं है"],
       "This is required": ["यह आवश्यक है"],
@@ -121,6 +116,9 @@
       "Send notifications by SMS": ["SMS द्वारा नोटिफिकेशन भेजें"],
       "Unsubscribe anytime, and control what notifications are sent from the Notifications tab under account settings": [
         "कभी भी सदस्यता समाप्त करें, और कौन सी नोटिफिकेशन भेजी जाती हैं, इसे खाता सेटिंग के तहत नोटिफिकेशन टैब से नियंत्रित करें"
+      ],
+      "This phone number cannot receive SMS messages": [
+        "यह फोन नंबर SMS मैसेज प्राप्त नहीं कर सकता है"
       ],
       "This does not appear to be a valid phone number": [
         "यह एक मान्य फोन नंबर प्रतीत नहीं होता है"
@@ -225,18 +223,23 @@
         "अगर चुना गया, तो केवल संपादक और समीक्षक ही प्रस्ताव में इस लेबल का उपयोग कर सकते हैं"
       ],
       "Option": ["विकल्प"],
-      "An email address or username is required": [
-        "एक ईमेल पता या फिर यूजरनाम की आवश्यकता है"
+      "This email address has been blocked from use": [""],
+      "This account could not be identified. Try with a phone number or email address": [
+        ""
       ],
-      "Password is required": ["पासवर्ड आवश्यक है"],
-      "Password must be under %(max)s characters": [
-        "पासवर्ड %(max)s पात्र से ज्यादा का नहीं हो सकता"
-      ],
-      "This user could not be identified": ["इस यूजर की पहचान नहीं हो सकी"],
-      "Session id": ["सेशन आईडी"],
+      "OTP is incorrect": [""],
       "That does not appear to be a valid login session": [
         "यह कोई वैध लॉग इन सेशन नहीं लग रहा"
       ],
+      "Password is required": ["पासवर्ड आवश्यक है"],
+      "A phone number or email address is required": [""],
+      "Password must be under %(max)s characters": [
+        "पासवर्ड %(max)s पात्र से ज्यादा का नहीं हो सकता"
+      ],
+      "Session id": ["सेशन आईडी"],
+      "OTP": [""],
+      "One-time password sent to your device": [""],
+      "Your name": ["आपका नाम"],
       "Please select a user": ["कोई यूजर चुनें"],
       "Find a user by their name or email address": [
         "नाम या ईमेल पते द्वारा यूजर को खोजें"
@@ -409,7 +412,6 @@
       ],
       "Profile image": ["प्रोफाइल चित्र"],
       "Website URL": ["वेबसाइट URL"],
-      "Your name": ["आपका नाम"],
       "Your full name, in the form others can recognise you by": [
         "आपका पूरा नाम, जिससे कि दूसरे व्यक्ति आपको जान सकें"
       ],
@@ -430,8 +432,8 @@
         "यदि यह प्रोजेक्ट केवल-ऑनलाइन हो, तो “ऑनलाइन” का इस्तेमाल करें"
       ],
       "%(max)d characters maximum": ["अधिकतर %(max)d वर्ण"],
-      "Optional - Starting time": [""],
-      "Optional - Ending time": [""],
+      "Optional – Starting time": [""],
+      "Optional – Ending time": [""],
       "This is required when starting time is specified": [""],
       "This requires a starting time too": [""],
       "This must be after the starting time": [""],
@@ -461,21 +463,19 @@
       "Set guidelines for the type of submissions your project is accepting, your review process, and anything else relevant to the submission": [
         ""
       ],
-      "Submissions open at": ["सबमिशन खुलने का समय"],
       "Submissions close at": ["सबमिशन बंद होने का समय"],
       "Optional – Leave blank to have no closing date": [""],
-      "This requires an opening date to be specified": [""],
-      "This must be after the opening date and time": [""],
+      "Closing date must be in the future": [""],
       "Status": ["स्थिति"],
-      "CfP status": ["CfP की स्थिति"],
+      "Open submissions": ["सबमिशन को खोलें"],
+      "Profile": [""],
+      "Choose a sponsor": [""],
+      "Optional – Label for sponsor": [""],
+      "Mark this sponsor as promoted": [""],
       "Save this project?": ["इस प्रोजेक्ट को सहेजें?"],
       "Note to self": ["खुद याद रखने की बात"],
       "Please select one": ["कृपया, कोई एक चुनें"],
       "Feature this submission": [""],
-      "Transfer to": ["इसे भेजें"],
-      "Transfer this submission to another presenter": [
-        "इस सबमिशन को किसी और को ट्रांसफर करें"
-      ],
       "Labels": ["लेबल"],
       "Content": ["विषय सूची"],
       "Video": ["वीडियो"],
@@ -505,7 +505,7 @@
         "सेशन ख़त्म होने के बाद अपलोड किए गए वीडियो का URL"
       ],
       "Save this session?": ["इस सेशन को सेव करें?"],
-      "Ticket client details": ["टिकट क्लाइंट का विवरण"],
+      "Item collection id": [""],
       "Badge template URL": ["बैच टेम्पलेट URL"],
       "Name": ["नाम"],
       "Client id": ["क्लाइंट आईडी"],
@@ -542,7 +542,7 @@
       "RGB colour for the room. Enter without the '#'. E.g. CCCCCC": [
         "कमरे का RGB रंग. बगैर ‘#’ के दर्ज करें. जैसे CCCCCC"
       ],
-      "Please enter a valid color code": ["कृपया एक वैध कलर कोड दर्ज करें"],
+      "Please enter a valid colour code": ["कृपया एक वैध कलर कोड दर्ज करें"],
       "Venue": ["ईवेंट का स्थान"],
       "You denied the GitHub login request": [
         "आपने GitHub लॉग इन अनुरोध को ख़ारिज कर दिया है"
@@ -552,9 +552,7 @@
       ],
       "Unknown failure": ["अज्ञात समस्या"],
       "GitHub had an intermittent problem. Try again?": [""],
-      "Duplicate callback. Did you go back in your browser history?": [
-        "डुप्लीकेट कॉलबैक. क्या आप अपने ब्राउज़र के इतिहास में वापस से गए थे?"
-      ],
+      "Were you trying to login with Google? Try again to confirm": [""],
       "You denied the Google login request": [
         "आपने Google लॉग इन अनुरोध को ख़ारिज कर दिया"
       ],
@@ -565,18 +563,14 @@
       "Google": ["Google"],
       "LinkedIn": ["LinkedIn"],
       "GitHub": ["GitHub"],
-      "We detected a possible attempt at cross-site request forgery": [
-        "हमें क्रॉस-साइट अनुरोध के भीतर संभावित धोखाधड़ी का पता चला है"
-      ],
+      "Were you trying to login with LinkedIn? Try again to confirm": [""],
       "You denied the LinkedIn login request": [
         "आपने LinkedIn लॉग इन अनुरोध को ख़ारिज कर दिया"
       ],
       "LinkedIn had an intermittent problem. Try again?": [""],
-      "Unable to retrieve user details from LinkedIn. Please try again": [
-        "LinkedIn से यूजर की जानकारी प्राप्त करने में असमर्थ रहा. आंतरिक विवरण: {error}"
-      ],
+      "Unable to retrieve user details from LinkedIn. Try again?": [""],
       "Twitter had a temporary problem. Try again?": [""],
-      "If you were trying to use Twitter, please try again": [""],
+      "Were you trying to login with Twitter? Try again to confirm": [""],
       "Twitter had an intermittent problem. Try again?": [""],
       "Unrecognized algorithm ‘{value}’": ["अज्ञात ऍल्गोरिथम ‘{value}’"],
       "Disabled": [""],
@@ -684,12 +678,11 @@
       "Live": ["लाइव"],
       "Upcoming": ["आने वाले"],
       "Published without sessions": ["बिना सेशन के प्रकाशित कर दिया गया"],
-      "Has proposals": ["जिनमें प्रस्ताव हों"],
+      "Has submissions": [""],
       "Has sessions": ["जिनमें सेशन हों"],
-      "Private draft": ["निजी ड्राफ्ट"],
       "Expired": ["अवधि समाप्त"],
       "Enable submissions": [""],
-      "Submissions will be accepted within valid dates": [""],
+      "Submissions will be accepted until the optional closing date": [""],
       "Disable submissions": [""],
       "Submissions will no longer be accepted": [""],
       "Publish project": ["प्रोजेक्ट प्रकाशित करें"],
@@ -752,6 +745,9 @@
       "Merged": ["संयोजित"],
       "Invited": ["आमंत्रित"],
       "This must be a shareable URL for a single file in Google Drive": [""],
+      "${}": [""],
+      ".": [""],
+      "@": [""],
       "The room sequence and colours have been updated": [""],
       "The server could not be reached. Check connection and try again": [""],
       "Edit session": ["सेशन संपादित करें"],
@@ -786,10 +782,7 @@
       "The page you are looking for has been removed": [
         "आप जिस पेज पर जाना चाहते थे उसे हटा दिया गया है"
       ],
-      "Hey, slowdown": ["अरे, ज़रा रुकिए"],
-      "You are sending too many requests": [
-        "आप बहुत ज़्यादा अनुरोध भेज रहे हैं"
-      ],
+      "Slow down!": [""],
       "Internal server error": ["आंतरिक सर्वर त्रुटि"],
       "Our support team has been notified and will look into this. Try again later": [
         "हमारे सहयोगी टीम को सूचित कर दिया गया है और वो इसकी जांच करेंगे. बाद में फिर से कोशिश करें"
@@ -799,8 +792,8 @@
         "हम कुछ ही देर में इसे शुरू कर देंगे. पर यदि देरी होती है, तो जानकारी पाने के लिए हमें <a href=\"mailto:%(support_email)s\">%(support_email)s</a> पर ईमेल करें"
       ],
       "About Hasgeek": ["Hasgeek का परिचय"],
-      "It’s 2021, and the world as we know it is slightly upturned. Meeting new people and geeking-out about your passion has become harder than it used to be. These special interactions that drive us to do new things and explore new ideas also need a new place. It’s time to rebuild everything. Join us.": [
-        "साल 2021 चल रहा है, और जैसा कि हम जानते हैं पूरी दुनिया में सबकुछ थोड़ा बदल सा गया है. नए लोगों से मिलना और उनसे अपने जूनून और सोच को जाहिर करना पहले के दौर के मुकाबले कठिन हो गया है. वो ख़ास मुलाकात-बात जिनसे हमें नई चीज़ें करने और नए विचारों को जानने में सक्षम हो पाते थे उसके लिए भी एक नई जगह चाहिए. समय आ गया है कि सबकुछ दोबारा से बनाएं. हमसे जुड़ें."
+      "It’s 2022, and the world as we know it is slightly upturned. Meeting new people and geeking-out about your passion has become harder than it used to be. These special interactions that drive us to do new things and explore new ideas also need a new place. It’s time to rebuild everything. Join us.": [
+        ""
       ],
       "Find your peers": ["अपने साथियों को ढूंढें"],
       "Ideas need voices. Voices need a place to interact with other voices. Find peers around you who recognize your value. Create projects that spark a conversation.": [
@@ -819,16 +812,11 @@
       "From device": ["इस डिवाइस से"],
       "Edit": ["संपादित करें"],
       "Change password": ["पासवर्ड बदलें"],
+      "Set password": ["पासवर्ड सेट करें"],
       "Logout": ["लॉग आउट करें"],
-      "External IDs": ["एक्सटर्नल IDs"],
-      "(Use any of these to login)": [
-        "(लॉग इन के लिए इनमें से एक का इस्तेमाल करें)"
-      ],
+      "Connected accounts": [""],
       "Last used %(last_used_at)s": ["आखरी बार इस्तेमाल %(last_used_at)s"],
       "Remove": ["हटाएं"],
-      "Adding an external id will merge any Hasgeek account linked to it": [
-        "एक्सटर्नल आईडी को जोड़ने से उसमें पहले से मौजूद Hasgeek अकाउंट भी जुड़ जाएगा"
-      ],
       "Email addresses": ["ईमेल पते"],
       "Primary": ["प्राथमिक"],
       "(pending verification)": ["(वेरीफिकेशन बाकी है)"],
@@ -867,7 +855,7 @@
       "Name:": ["नाम:"],
       "Username:": ["यूजरनेम:"],
       "Email addresses:": ["ईमेल पते:"],
-      "External IDs:": ["एक्सटर्नल IDs:"],
+      "Connected accounts:": [""],
       "You appear to have two accounts. Would you like to merge them?": [
         "शायद आपके पास दो अकाउंट हैं. क्या आप उन दोनों को जोड़ना चाहेंगे?"
       ],
@@ -938,18 +926,40 @@
       "Download CSV": ["CSV डाउनलोड करें"],
       "CSV": ["CSV"],
       "Download contacts CSV": ["कॉन्टैक्ट की CSV फाइल डाउनलोड करें"],
+      "Add cover photo url": ["कवर फोटो का URL जोड़ें"],
+      "Add cover photo": ["कवर फोटो जोड़ें"],
+      "New project": ["नया प्रोजेक्ट"],
+      "Make profile public": ["प्रोफाइल को सार्वजनिक बनाएं"],
+      "Make this profile public?": ["इस प्रोफाइल को सार्वजनिक बनाएं?"],
+      "Your profile will be visible to anyone visiting the page": [
+        "आपका प्रोफाइल इस पेज पर आने वाले सभी व्यक्तियों को दिखाई देगा"
+      ],
+      "Your profile will be listed in search results": [
+        "आपका प्रोफाइल खोज प्राणिमों में दिखाई देगा"
+      ],
+      "Joined %(date)s": ["%(date)s को जुड़े"],
+      "Create a new project": ["नया प्रोजेक्ट बनाएं"],
+      "Write, collaborate and get feedback": [
+        "लिखें, दूसरे से जुड़ें और प्रतिक्रिया पाएं"
+      ],
+      "Privacy Mode: 2022 Plans": [""],
+      "Admins": ["एडमिन"],
       "This form timed out because it was open for a long time. Please submit again": [
         "इस फॉर्म की समय सीमा समाप्त हो गई क्योंकि यह काफी देर से खुली हुई थी. कृपया दोबारा जमा करें"
       ],
       "Hello %(fullname)s,": ["नमस्ते %(fullname)s,"],
-      "You &ndash; or someone claiming to be you &ndash; asked for your password to be reset. This link is valid for 24 hours.": [
-        "आप &ndash; या आपकी जानकारी उपयोग करने वाले किसी व्यक्ति &ndash; ने आपके पासवर्ड को रिसेट करने की अनुरोध की है. यह लिंक 24 घंटों तक वैध रहेगा."
+      "You &ndash; or someone claiming to be you &ndash; asked for your password to be reset. This OTP is valid for 15 minutes.": [
+        ""
       ],
+      "OTP:": [""],
+      "You can also use this link:": [""],
       "Reset your password": ["अपना पासवर्ड रिसेट करें"],
       "If you did not ask for this, you may safely ignore this email.": [
         "अगर आपने इसकी अनुरोध नहीं की है, तो फिर आप इस ईमेल को अनदेखा कर दें."
       ],
       "Confirm your email address": ["अपने ईमेल पते की पुष्टि करें"],
+      "Hello!": [""],
+      "This login OTP is valid for 15 minutes.": [""],
       "\n    %(actor)s has added you to ‘%(project)s’ as a crew member.\n  ": [
         "\n    %(actor)s ने आपको ‘%(project)s’ दल के सदस्य के रूप में जोड़ा है.\n  "
       ],
@@ -986,9 +996,10 @@
       "Account menu": [""],
       "Account": ["अकाउंट"],
       "Login": ["लॉगिन"],
-      "or use your password instead": ["या फिर अपने पासवर्ड का उपयोग करें"],
-      "Don’t have an account?": ["अकाउंट नहीं है?"],
-      "Sign up with email": ["ईमेल के ज़रिए साइन अप करें"],
+      "Tell us where you’d like to get updates. We’ll send an OTP to confirm.": [
+        ""
+      ],
+      "Or, use your existing account, no OTP required": [""],
       "Logging out…": ["लॉग आउट हो रहा है…"],
       "Login to save this project": [""],
       "Save this project": [""],
@@ -1002,7 +1013,7 @@
       "Notifications": ["नोटिफिकेशन"],
       "Scan badge": ["बैज स्कैन करें"],
       "Contacts": ["कॉन्टैक्ट"],
-      "Submissions close %(date)s": [""],
+      "Accepting submissions till %(date)s": [""],
       "Live schedule": ["लाइव कार्यक्रम"],
       "Livestream": ["लाइवस्ट्रीम"],
       "Livestream and schedule": ["लाइवस्ट्रीम और कार्यक्रम"],
@@ -1033,19 +1044,6 @@
       "Any existing projects will become inaccessible until the profile is public again": [
         "जब तक कि इस प्रोफाइल को दोबारा से सार्वजनिक नहीं बनाया जाता तब तक कोई भी मौजूदा प्रोजेक्ट इसके द्वारा एक्सेस नहीं किया जा सकता"
       ],
-      "Add cover photo url": ["कवर फोटो का URL जोड़ें"],
-      "Add cover photo": ["कवर फोटो जोड़ें"],
-      "New project": ["नया प्रोजेक्ट"],
-      "Make profile public": ["प्रोफाइल को सार्वजनिक बनाएं"],
-      "Make this profile public?": ["इस प्रोफाइल को सार्वजनिक बनाएं?"],
-      "Your profile will be visible to anyone visiting the page": [
-        "आपका प्रोफाइल इस पेज पर आने वाले सभी व्यक्तियों को दिखाई देगा"
-      ],
-      "Your profile will be listed in search results": [
-        "आपका प्रोफाइल खोज प्राणिमों में दिखाई देगा"
-      ],
-      "Joined %(date)s": ["%(date)s को जुड़े"],
-      "Admins": ["एडमिन"],
       "Sessions": ["सेशन"],
       "Projects": ["प्रोजेक्ट"],
       "Submissions": ["सबमिशन"],
@@ -1055,10 +1053,15 @@
       "(No sessions have been submitted)": [
         "(सेशन की कोई जानकारी नहीं दी गई है)"
       ],
+      "Supported by": [""],
       "more": [""],
       "This proposal has a preview video": [
         "इस प्रस्ताव के साथ एक प्रीव्यू वीडियो मौजूद है"
       ],
+      "Not accepting submissions": [""],
+      "Toggle to enable/disable submissions": [""],
+      "Open to receive submissions": [""],
+      "Make a submission": ["एक सबमिशन भेजें"],
       "Manage membership": ["सदस्यता प्रबंधित करें"],
       "You have been invited to %(project)s": [
         "आपको %(project)s में आमंत्रित किया गया है"
@@ -1099,18 +1102,20 @@
       "Teams": ["टीम"],
       "New team": ["नया टीम"],
       "Linked apps": ["जुड़े हुए ऐप्स"],
+      "Use OTP": [""],
+      "Have a password?": [""],
       "Forgot password?": ["पासवर्ड भूल गए हैं?"],
       "By signing in, you agree to Hasgeek’s <a href=\"/about/policy/terms\" target=\"_blank\" rel=\"noopener\">terms of service</a> and <a href=\"/about/policy/privacy\" target=\"_blank\" rel=\"noopener\">privacy policy</a>": [
         "साइन इन करने पर, आप Hasgeek की <a href=\"/about/policy/terms\" target=\"_blank\" rel=\"noopener\">सेवा की शर्तों</a> और <a href=\"/about/policy/privacy\" target=\"_blank\" rel=\"noopener\">गोपनीयता निति</a> की सहमती देते हैं"
       ],
+      "Login using %(title)s": [""],
       "People": ["सदस्य"],
+      "Supported projects": [""],
+      "Supported submissions": [""],
       "Drafts": ["ड्राफ्ट"],
-      "Create a new project": ["नया प्रोजेक्ट बनाएं"],
-      "Write, collaborate and get feedback": [
-        "लिखें, दूसरे से जुड़ें और प्रतिक्रिया पाएं"
-      ],
       "Unscheduled projects": ["अनिर्धारित प्रोजेक्ट"],
       "Back to the home": [""],
+      "Featured submissions": [""],
       "See all": ["सारे देखें"],
       "Videos": ["वीडियो"],
       "Related jobs": ["सम्बंधित नौकरियां"],
@@ -1136,8 +1141,6 @@
       "Add submission guidelines and timing": [
         "सब्मिशन की दिशा-निर्देश और समय-सूची जोड़ें"
       ],
-      "Open now": ["अभी खोलें"],
-      "Open later": ["बाद में खोलें"],
       "Back to the project": ["प्रोजेक्ट पर वापस जाएं"],
       "Pinned update": [""],
       "This update is for participants only": [
@@ -1167,31 +1170,25 @@
       "Edit description": [""],
       "Settings": ["सेटिंग्स"],
       "Update venue": ["ईवेंट का स्थान अपडेट करें"],
+      "Site editor menu": [""],
       "Featured projects appear under Spotlight on the home page": [""],
+      "Add sponsor": [""],
       "This project is not published. Visit settings to publish": [""],
       "Related events": ["सम्बंधित ईवेंट"],
       "Add schedule": [""],
-      "Make a submission": ["एक सबमिशन भेजें"],
-      "Open submissions": ["सबमिशन को खोलें"],
-      "Add submission guidelines": [
-        "सबमिशन की दिशा-निर्देश और समय-सूची जोड़ें"
-      ],
-      "Submissions are closed for this project": [
-        "इस प्रोजेक्ट के लिए प्रस्ताव जमा करने की सुविधा बंद की जा चुकी है"
-      ],
       "Hosted by": [""],
-      "Supported by": [""],
       "Promoted": [""],
       "Project overview": [""],
       "Jobs": ["नौकरियां"],
       "Crew": ["दल"],
       "Participants": ["प्रतिभागी"],
+      "(Unverified)": [""],
       "%(title)s by %(speaker)s, %(project)s": [
         "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
       ],
       "Edit schedule": ["कार्यक्रम को संपादित करें"],
-      "Status: %(status)s": ["स्थिति: %(status)s"],
-      "Submission status: %(status)s": ["सबमिशन की स्थिति: %(status)s"],
+      "Project status: %(status)s": [""],
+      "Edit guidelines and timing": [""],
       "Project settings": [""],
       "Frontmatter": [""],
       "Title, tagline, banner, description, location and timezone": [""],
@@ -1203,13 +1200,12 @@
       "See the list of participants": [""],
       "Venues": ["ईवेंट का स्थान"],
       "Manage venues for in-person events": [""],
+      "Beta": [""],
+      "Add the ticketing widget": [""],
       "Setup ticketed events for check-in at venues": [""],
       "Badge scanner": [""],
       "Scan participant badges at in-person events": [""],
-      "Modify guidelines and timing": [""],
-      "Modify guidelines": [""],
       "expand": [""],
-      "Add guidelines and timing": [""],
       "Add new update": ["नई जानकारी डालें"],
       "Post an update…": ["नई जानकारी पोस्ट करें…"],
       "This project has not posted any updates yet": [
@@ -1233,9 +1229,7 @@
         "सेशन के साथ जुड़ी कोई वीडियो नहीं है"
       ],
       "Add session video": ["सेशन की वीडियो जोड़ें"],
-      "Open submission for this session": [
-        "इस सेशन के लिए सबमिशन की प्रक्रिया खोलें"
-      ],
+      "View submission for this session": [""],
       "or use your email instead": ["या फिर अपने ईमेल का उपयोग करें"],
       "Already have an account?": ["पहले से कोई अकाउंट है?"],
       "Query": ["सवाल"],
@@ -1268,7 +1262,6 @@
       "Submitted %(date)s ": ["%(date)s को सबमिट "],
       "Change status of proposal": ["प्रस्ताव की स्थिति बदलें"],
       "Move": ["दूसरी जगह भेजें"],
-      "Transfer": ["ट्रांसफर"],
       "Back to edit proposal": [""],
       "Markdown": [""],
       "Preview": [""],
@@ -1297,6 +1290,7 @@
       "No participation yet": ["अब तक कहीं हिस्सा नहीं लिया गया है"],
       "No submissions": ["कोई भी सबमिशन नही"],
       "Manage venues": ["ईवेंट के स्थानों को संपादित करें"],
+      "(primary)": [""],
       "(No venues)": ["(कोई ईवेंट का स्थान मौजूद नहीं है)"],
       "Add venue": ["ईवेंट का स्थान जोड़ें"],
       "(No rooms)": ["(कोई रूम मौजूद नहीं है)"],
@@ -1328,7 +1322,6 @@
       "Members you add will appear here…": [""],
       "Remove this member": [""],
       "+ %d more role": [""],
-      "+ %d more roles": [""],
       "Agenda view": [""],
       "Calendar view": [""],
       "Update": ["अपडेट करें"],
@@ -1433,9 +1426,6 @@
       "This phone number is unsupported at this time": [
         "यह फोन नंबर इस समय असमर्थित है"
       ],
-      "This phone number cannot receive SMS messages": [
-        "यह फोन नंबर SMS मैसेज प्राप्त नहीं कर सकता है"
-      ],
       "Hasgeek was unable to send a message to this phone number": [
         "Hasgeek इस फोन नंबर पर मैसेज भेजने में असमर्थ रहा"
       ],
@@ -1478,7 +1468,6 @@
       "The confirmation link you clicked on is either invalid or has expired": [
         "आपके द्वारा क्लिक की गई पुष्टि लिंक या तो अमान्य है या एक्स्पायर हो गई है"
       ],
-      "Set password": ["पासवर्ड सेट करें"],
       "Your new password has been saved": [
         "आपका नया पासवर्ड सेव किया जा चुका है"
       ],
@@ -1529,12 +1518,6 @@
         "हम वेरिफिकेशन ईमेल को {email} पर दोबारा भेज देंगे"
       ],
       "Send": ["भेजें"],
-      "Unable to send a message right now. Try again later": [
-        "फिलहाल मैसेज भेजने में असमर्थ रहा. बाद में दोबारा प्रयास करें"
-      ],
-      "A verification code has been sent to your phone number": [
-        "आपके फोन नंबर पर एक वेरिफिकेशन कोड भेजा गया है"
-      ],
       "Add a phone number": ["एक फोन नंबर दर्ज करें"],
       "Verify phone": ["फोन वेरिफाई करें"],
       "This number has been blocked due to too many failed verification attempts": [
@@ -1563,37 +1546,31 @@
       "You have removed the {service} account ‘{username}’": [
         "आपने {service} खाता ‘{username}’ हटा दिया है"
       ],
-      "Your password has expired. Please enter your username or email address to request a reset code and set a new password": [
-        "आपका पासवर्ड एक्स्पायर हो चुका है. रीसेट कोड का अनुरोध करने और एक नया पासवर्ड सेट करने के लिए कृपया अपना यूजरनेम या ईमेल पता दर्ज करें"
-      ],
       "Cannot reset password": ["पासवर्ड रीसेट नहीं किया जा सकता"],
-      "Your account does not have an email address. However, it is linked to {service} with the ID {username}. You can use that to login": [
-        "आपके खाते में ईमेल पता दर्ज नहीं है. हालांकि, यह ID {username} के साथ {service} से जुड़ा हुआ है. आप लॉगिन करने के लिए उसका उपयोग कर सकते हैं"
+      "Your account does not have a phone number or email address. However, it is linked to {service} with the ID {username}. You can use that to login": [
+        ""
       ],
-      "Your account does not have an email address. Please contact <a href=\"mailto:{email}\">{email}</a> for assistance": [
-        "आपके खाते में ईमेल पता दर्ज नहीं है. सहायता के लिए कृपया <a href=\"mailto:{email}\">{email}</a> से संपर्क करें"
+      "Your account does not have a phone number or email address. Please contact <a href=\"tel:{phone}\">{phone}</a> or <a href=\"mailto:{email}\">{email}</a> for assistance": [
+        ""
       ],
-      "Email sent": ["ईमेल भेज दिया गया है"],
-      "You have been sent an email with a link to reset your password, to your address {masked_email}. If it doesn’t arrive in a few minutes, it may have landed in your spam or junk folder. The reset link is valid for 24 hours": [
-        "आपको अपना पासवर्ड रीसेट करने के लिए एक लिंक के साथ एक ईमेल भेजा गया है, आपके {masked_email} पते पर. अगर यह कुछ मिनटों में नहीं आता है, तो यह आपके स्पैम या जंक फोल्डर में जा सकता है. रीसेट लिंक 24 घंटे के लिए मान्य है"
+      "An OTP has been sent to your email address": [""],
+      "Send OTP": [""],
+      "This password reset link is invalid. If you still need to reset your password, you may request an OTP": [
+        ""
       ],
-      "Send reset link": ["रीसेट लिंक भेजें"],
-      "This password reset link is invalid. If you still need to reset your password, you may request a new link": [
-        "यह पासवर्ड रीसेट लिंक अमान्य है. अगर आपको अभी भी अपना पासवर्ड रीसेट करने की ज़रूरत है, तो आप एक नए लिंक के लिए अनुरोध कर सकते हैं"
-      ],
-      "Please try again": ["कृपया दोबारा प्रयास करें"],
-      "This page timed out. Please open the reset link again": [
-        "इस पेज की समय-सीमा समााप्त हो चुकी है. कृपया रीसेट लिंक दोबारा खोलें"
-      ],
-      "This password reset link has expired. If you still need to reset your password, you may request a new link": [
-        "यह पासवर्ड रीसेट लिंक एक्स्पायर हो चुका है. अगर आपको अभी भी अपना पासवर्ड रीसेट करने की ज़रूरत है, तो आप एक नए लिंक के लिए अनुरोध कर सकते हैं"
+      "This OTP has expired": [""],
+      "Verify OTP": [""],
+      "This page has timed out": [""],
+      "Open the reset link again to reset your password": [""],
+      "This password reset link has expired. If you still need to reset your password, you may request an OTP": [
+        ""
       ],
       "Unknown user": ["अज्ञात यूजर"],
       "There is no account matching this password reset request": [
         "इस पासवर्ड रीसेट अनुरोध से मेल खाने योग्य कोई खाता नहीं है"
       ],
-      "This password reset link has been used. If you need to reset your password again, you may request a new link": [
-        "इस पासवर्ड रीसेट लिंक का उपयोग किया जा चुका है. अगर आपको अपना पासवर्ड फिर से रीसेट करने की ज़रूरत है, तो आप एक नए लिंक के लिए अनुरोध कर सकते हैं"
+      "This password reset link has been used. If you need to reset your password again, you may request an OTP": [
+        ""
       ],
       "Password reset complete": ["पासवर्ड रीसेट पूरा हुआ"],
       "Your password has been changed. You may now login with your new password": [
@@ -1684,14 +1661,14 @@
       "The comment has been reported as spam": [
         "कमेंट को स्पैम के रूप में रिपोर्ट कर दिया गया है"
       ],
-      "There was an issue reporting this comment. Please try again": [
-        "इस कमेंट को रिपोर्ट करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
-      ],
+      "There was an issue reporting this comment. Try again?": [""],
       "Do you want to mark this comment as spam?": [""],
       "This project has concluded": ["यह प्रोजेक्ट समाप्त हो गई है"],
       "Unauthorized contact exchange": ["अनधिकृत संपर्क विनिमय"],
       "Verify your email address": ["अपना ईमेल पता वेरिफाई करें"],
       "Verify email address": ["ईमेल पता वेरिफाई करें"],
+      "Reset your password - OTP {otp}": [""],
+      "Login OTP {otp}": [""],
       "You have been added to {project} as a crew member": [
         "आपको दल के सदस्य के रूप में {project} में जोड़ा गया है"
       ],
@@ -1701,6 +1678,10 @@
       "You have been removed from {project} as a crew member": [
         "आपको दल के सदस्य के रूप में {project} से हटा दिया गया है"
       ],
+      "Unable to send a message right now. Try again later": [
+        "फिलहाल मैसेज भेजने में असमर्थ रहा. बाद में दोबारा प्रयास करें"
+      ],
+      "An OTP has been sent to your phone number": [""],
       "Terms of service": ["सेवा की शर्तें"],
       "Sponsorship &amp; advertising": ["प्रायोजन और विज्ञापन"],
       "Privacy policy": ["गोपनीयता नीति"],
@@ -1713,6 +1694,7 @@
       "Discussion spaces for geeks": ["लोगों के लिए चर्चा की जगह"],
       "Your changes have been saved": ["आपके परिवर्तनों को सेव किया गया है"],
       "Error with a label option: {}": ["लेबल विकल्प में त्रुटि: {}"],
+      "Add label": [""],
       "Only main labels can be edited": [
         "केवल मुख्य लेबल संपादित किए जा सकते हैं"
       ],
@@ -1721,6 +1703,7 @@
       "CSRF token is missing": ["CSRF टोकन नामौजूद है"],
       "Labels that have been assigned to submissions cannot be deleted": [""],
       "The label has been deleted": ["लेबल मिटा दिया गया है"],
+      "Are you trying to logout? Try again to confirm": [""],
       "You have a weak password. To ensure the safety of your account, please choose a stronger password": [
         "आपका पासवर्ड कमज़ोर है. अपने खाते की सुरक्षा सुनिश्चित करने के लिए, कृपया एक मज़बूत पासवर्ड चुनें"
       ],
@@ -1728,22 +1711,22 @@
         "आपका पासवर्ड एक साल पुराना है. अपने खाते की सुरक्षा सुनिश्चित करने के लिए, कृपया एक नया पासवर्ड चुनें"
       ],
       "You are now logged in": ["अब आप लॉग इन हो गए हैं"],
-      "Your account does not have a password set. Please enter your username or email address to request a reset code and set a new password": [
-        "आपके खाते का पासवर्ड सेट नहीं है. रीसेट कोड का अनुरोध करने और एक नया पासवर्ड सेट करने के लिए कृपया अपना यूजरनेम या ईमेल पता दर्ज करें"
+      "Your account does not have a password. Please enter your phone number or email address to request an OTP and set a new password": [
+        ""
       ],
-      "Your account has a weak password. Please enter your username or email address to request a reset code and set a new password": [
-        "आपके खाते का पासवर्ड कमजोर है. रीसेट कोड का अनुरोध करने और एक नया पासवर्ड सेट करने के लिए कृपया अपना यूजरनेम या ईमेल पता दर्ज करें"
+      "Your account has a weak password. Please enter your phone number or email address to request an OTP and set a new password": [
+        ""
       ],
-      "Are you trying to logout? Please try again to confirm": [
-        "क्या आप लॉग आउट करने का प्रयास कर रहे हैं? पुष्टि करने के लिए कृपया दोबारा प्रयास करें"
+      "The OTP could not be sent. Use password to login or try again": [""],
+      "The OTP could not be sent. Please register with a password": [""],
+      "You are now one of us. Welcome aboard!": [
+        "आप अब हम में से एक हैं. दल में स्वागत है!"
       ],
+      "The OTP has expired. Try again?": [""],
       "To logout, use the logout button": [
         "लॉग आउट करने के लिए, लॉग आउट बटन का उपयोग करें"
       ],
       "You are now logged out": ["अब आप लॉग आउट हो चुके हैं"],
-      "You are now one of us. Welcome aboard!": [
-        "आप अब हम में से एक हैं. दल में स्वागत है!"
-      ],
       "Register account": ["खाता रजिस्टर करें"],
       "{service} login failed: {error}": ["{service} लॉगिन विफल: {error}"],
       "You have logged in via {service}": [
@@ -1755,12 +1738,8 @@
       "Please enable cookies in your browser": [
         "कृपया अपने ब्राउज़र में कुकीज़ को सक्षम करें"
       ],
-      "Your attempt to login failed. Please try again": [
-        "लॉगिन करने का आपका प्रयास विफल रहा. कृपया दोबारा प्रयास करें"
-      ],
-      "If you were attempting to login, please try again": [
-        "अगर आप लॉगिन करने का प्रयास कर रहे हैं, तो कृपया दोबारा प्रयास करें"
-      ],
+      "Your attempt to login failed. Try again?": [""],
+      "Are you trying to login? Try again to confirm": [""],
       "Looks like you haven’t been here in a while. Please login again": [
         "ऐसा लगता है आप कुछ समय के लिए यहां नहीं थे. कृपया दोबारा लॉगिन करें"
       ],
@@ -1823,11 +1802,11 @@
         "दिए गए ऑब्जेक्ट का कोई ड्राफ्ट नहीं है"
       ],
       "Form must contain a revision ID": ["फॉर्म में एक संशोधन ID होना चाहिए"],
-      "There have been changes to this draft since you last edited it. Please reload": [
-        "आपके पिछले संपादन के बाद से इस ड्राफ्ट में बदलाव किए गए हैं. कृपया रीलोड करें"
-      ],
       "Invalid revision ID or the existing changes have been submitted already. Please reload": [
         "अमान्य संशोधन ID या मौजूदा परिवर्तन पहले ही जमा किए जा चुके हैं. कृपया रीलोड करें"
+      ],
+      "There have been changes to this draft since you last edited it. Please reload": [
+        "आपके पिछले संपादन के बाद से इस ड्राफ्ट में बदलाव किए गए हैं. कृपया रीलोड करें"
       ],
       "Invalid CSRF token": ["अमान्य CSRF टोकन"],
       "You are receiving this because you have an account at hasgeek.com": [
@@ -1978,14 +1957,22 @@
       "Invalid transition for this project": [
         "इस प्रोजेक्ट के लिए अमान्य परिवर्तन"
       ],
-      "Invalid transition for this project’s CfP": [
-        "इस प्रोजेक्ट के CfP के लिए अमान्य परिवर्तन"
-      ],
+      "This project can now receive submissions": [""],
+      "This project will no longer accept submissions": [""],
+      "Invalid form submission": [""],
       "Were you trying to register? Try again to confirm": [""],
       "Were you trying to cancel your registration? Try again to confirm": [""],
       "Importing tickets from vendors… Reload the page in about 30 seconds…": [
         "विक्रेताओं से टिकट आयात हो रहा है… पेज को लगभग 30 सेकंड में रिलोड करें…"
       ],
+      "{sponsor} is already a sponsor": [""],
+      "Sponsor has been added": [""],
+      "Sponsor could not be added": [""],
+      "Sponsor has been edited": [""],
+      "Sponsor could not be edited": [""],
+      "Sponsor has been removed": [""],
+      "Sponsor could not be removed": [""],
+      "Remove ‘{sponsor}’ as a sponsor?": [""],
       "This form uses <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> for formatting": [
         "यह फॉर्म फॉर्मेटिंग के लिए <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> का उपयोग करता है"
       ],
@@ -2001,8 +1988,8 @@
       "Invalid transition for this submission": [""],
       "This submission has been moved to {project}": [""],
       "Please choose the project you want to move this submission to": [""],
-      "This submission has been transferred": ["यह प्रस्ताव भेज दिया गया है"],
-      "Please choose the user you want to transfer this submission to": [""],
+      "This submission has been featured": [""],
+      "This submission is no longer featured": [""],
       "Labels have been saved for this submission": [""],
       "Labels could not be saved for this submission": [""],
       "Edit labels for '{}'": ["'{}' के लिए लेबल संपादित करें"],
@@ -2022,9 +2009,7 @@
       "Comment(s) successfully reported as spam": [
         "कमेंट को सफलतापूर्वक स्पैम के रूप में रिपोर्ट कर दिया गया है"
       ],
-      "There was a problem marking the comments as spam. Please try again": [
-        "कमेंटों को स्पैम के रूप में चिह्नित करने में एक समस्या उत्पन्न हुई थी. कृपया दोबारा प्रयास करें"
-      ],
+      "There was a problem marking the comments as spam. Try again?": [""],
       "There are no comment reports to review at this time": [
         "इस समय समीक्षा करने के लिए कोई कमेंट रिपोर्ट नहीं है"
       ],
@@ -2064,6 +2049,7 @@
       "New ticketed participant": ["नए टिकट वाले प्रतिभागी"],
       "Add participant": ["प्रतिभागी जोड़ें"],
       "Edit Participant": ["प्रतिभागी संपादित करें"],
+      "Attendee not found": [""],
       "Post an update": ["एक अपडेट पोस्ट करें"],
       "Save & preview": ["सेव करें और देखें"],
       "The update has been published": ["अपडेट पब्लिश हो चुकी है"],

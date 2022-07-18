@@ -1,10 +1,12 @@
-import funnel.models as models
+"""Tests for UserOldId model."""
+
+from funnel import models
 
 from .test_db import TestDatabaseFixture
 
 
 class TestUserOldId(TestDatabaseFixture):
-    def test_useroldid_get(self):
+    def test_useroldid_get(self) -> None:
         """Test for verifying creation and retrieval of UserOldId instance."""
         crusoe = self.fixtures.crusoe
         bathound = models.User(username="bathound", fullname="Bathound")

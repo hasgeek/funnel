@@ -1,3 +1,6 @@
+"""Tests for EmailAddress model."""
+# pylint: disable=possibly-unused-variable
+
 from types import SimpleNamespace
 
 from sqlalchemy.exc import IntegrityError
@@ -18,15 +21,17 @@ from funnel.signals import emailaddress_refcount_dropping
 
 # Fixture used across tests.
 hash_map = {
-    'example@example.com': b'X5Q\xc1<\xceE<\x05\x9c\xa7\x0f\xee{\xcd\xc2\xe5\xbd\x82\xa1',
-    'example+extra@example.com': b'\xcfi\xf2\xdfph\xc0\x81\xfb\xe8\\\xa6\xa5\xf1\xfb:\xbb\xe4\x88\xde',
+    'example@example.com': b'X5Q\xc1<\xceE<\x05\x9c\xa7\x0f\xee'
+    b'{\xcd\xc2\xe5\xbd\x82\xa1',
+    'example+extra@example.com': b'\xcfi\xf2\xdfph\xc0\x81\xfb\xe8'
+    b'\\\xa6\xa5\xf1\xfb:\xbb\xe4\x88\xde',
     'example@gmail.com': b"\tC*\xd2\x9a\xcb\xdfR\xcb\xbf=>2D'(\xa8V\x13\xa7",
     'example@googlemail.com': b'x\xd6#Ue\xa8-_\xeclJ+o8\xfe\x1f\xa1\x0b:9',
     'eg@räksmörgås.org': b'g\xc4B`\x9ej\x05\xf8\xa6\x9b\\"l\x0c$\xd4\xa8\xe42j',
 }
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def refcount_data():
     refcount_signal_fired = set()
 
@@ -38,7 +43,7 @@ def refcount_data():
     emailaddress_refcount_dropping.disconnect(refcount_signal_receiver)
 
 
-def test_email_normalized():
+def test_email_normalized() -> None:
     """Normalized email addresses are lowercase, with IDN encoded into punycode."""
     assert email_normalized('example@example.com') == 'example@example.com'
     assert email_normalized('Example@Example.com') == 'example@example.com'
@@ -52,7 +57,7 @@ def test_email_normalized():
     )
 
 
-def test_email_hash_stability():
+def test_email_hash_stability() -> None:
     """Safety test to ensure email_blakeb160_hash doesn't change spec."""
     ehash = email_blake2b160_hash
     assert ehash('example@example.com') == hash_map['example@example.com']
@@ -63,7 +68,7 @@ def test_email_hash_stability():
     assert ehash('eg@räksmörgås.org') == hash_map['eg@räksmörgås.org']
 
 
-def test_canonical_email_representation():
+def test_canonical_email_representation() -> None:
     """Test canonical email representation."""
     cemail = canonical_email_representation
     assert cemail('example@example.com') == ['example@example.com']
@@ -89,13 +94,13 @@ def test_canonical_email_representation():
         'example@gmail.com',
         'exam.pl.e@googlemail.com',
     ]
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Not an email address'):
         cemail('')
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Not an email address'):
         cemail('invalid')
 
 
-def test_email_address_init():
+def test_email_address_init() -> None:
     """`EmailAddress` instances can be created using a string email address."""
     # Ordinary use constructor passes without incident
     ea1 = EmailAddress('example@example.com')
@@ -142,23 +147,25 @@ def test_email_address_init():
     # is used.
 
 
-def test_email_address_init_error():
+def test_email_address_init_error() -> None:
     """`EmailAddress` constructor will reject various forms of bad input."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='A string email address is required'):
         # Must be a string
-        EmailAddress(None)
-    with pytest.raises(ValueError):
+        EmailAddress(None)  # type: ignore[arg-type]
+    # FIXME: Wrong cause of error
+    with pytest.raises(ValueError, match='not enough values to unpack'):
         # Must not be blank
         EmailAddress('')
-    with pytest.raises(ValueError):
+    # FIXME: Wrong cause of error
+    with pytest.raises(ValueError, match='not enough values to unpack'):
         # Must be syntactically valid
         EmailAddress('invalid')
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Value is not an email address'):
         # Must be syntactically valid (caught elsewhere internally)
         EmailAddress('@invalid')
 
 
-def test_email_address_mutability():
+def test_email_address_mutability() -> None:
     """`EmailAddress` can be mutated to change casing or delete the address only."""
     ea = EmailAddress('example@example.com')
     assert ea.email == 'example@example.com'
@@ -181,7 +188,7 @@ def test_email_address_mutability():
     ea.email = None
     assert ea.email is None
     assert ea.domain is None
-    assert ea.blake2b160 == hash_map['example@example.com']
+    assert ea.blake2b160 == hash_map['example@example.com']  # type: ignore[unreachable]
 
     # Restoring allowed (case insensitive)
     ea.email = 'exAmple@exAmple.com'
@@ -190,12 +197,14 @@ def test_email_address_mutability():
     assert ea.blake2b160 == hash_map['example@example.com']
 
     # But changing to another email address is not allowed
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Email address cannot be changed'):
         ea.email = 'other@example.com'
 
     # Change is also not allowed by blanking and then setting to another
     ea.email = None
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError, match='Email address does not match existing blake2b160 hash'
+    ):
         ea.email = 'other@example.com'
 
     # Changing the domain is also not allowed
@@ -203,11 +212,11 @@ def test_email_address_mutability():
         ea.domain = 'gmail.com'
 
     # Setting to an invalid value is not allowed
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='An email address is required'):
         ea.email = ''
 
 
-def test_email_address_md5():
+def test_email_address_md5() -> None:
     """`EmailAddress` has an MD5 method for legacy applications."""
     ea = EmailAddress('example@example.com')
     assert ea.md5() == '23463b99b62a72f26ed677cc556c44e8'
@@ -215,22 +224,22 @@ def test_email_address_md5():
     assert ea.md5() is None
 
 
-def test_email_address_is_blocked_flag():
+def test_email_address_is_blocked_flag() -> None:
     """`EmailAddress` has a read-only is_blocked flag that is normally False."""
     ea = EmailAddress('example@example.com')
     assert ea.is_blocked is False
     with pytest.raises(AttributeError):
-        ea.is_blocked = True
+        ea.is_blocked = True  # type: ignore[misc]
 
 
-def test_email_address_can_commit(db_session):
+def test_email_address_can_commit(db_session) -> None:
     """An EmailAddress can be committed to db."""
     ea = EmailAddress('example@example.com')
     db_session.add(ea)
     db_session.commit()
 
 
-def test_email_address_conflict_integrity_error(db_session):
+def test_email_address_conflict_integrity_error(db_session) -> None:
     """A conflicting EmailAddress cannot be committed to db."""
     ea1 = EmailAddress('example@example.com')
     db_session.add(ea1)
@@ -248,7 +257,7 @@ def test_email_address_conflict_integrity_error(db_session):
         db_session.commit()
 
 
-def test_email_address_get(db_session):
+def test_email_address_get(db_session) -> None:
     """Email addresses can be loaded using EmailAddress.get."""
     ea1 = EmailAddress('example@example.com')
     ea2 = EmailAddress('example+extra@example.com')
@@ -271,14 +280,20 @@ def test_email_address_get(db_session):
     assert EmailAddress.get('invalid') is None
     assert EmailAddress.get('unknown@example.com') is None
 
+    # Get works on blocked addresses
+    email_to_block = ea3.email
+    EmailAddress.mark_blocked(email_to_block)
+    assert ea3.is_blocked is True
+    assert EmailAddress.get(email_to_block) == ea3
 
-def test_email_address_invalid_hash_raises_error(db_session):
+
+def test_email_address_invalid_hash_raises_error(db_session) -> None:
     """Retrieving an email address with an invalid hash will raise ValueError."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Invalid character'):
         EmailAddress.get(email_hash='invalid')
 
 
-def test_email_address_get_canonical(db_session):
+def test_email_address_get_canonical(db_session) -> None:
     """EmailAddress.get_canonical returns all matching records."""
     ea1 = EmailAddress('example@example.com')
     ea2 = EmailAddress('example+extra@example.com')
@@ -289,7 +304,7 @@ def test_email_address_get_canonical(db_session):
     assert set(EmailAddress.get_canonical('Example@example.com')) == {ea1, ea2}
 
 
-def test_email_address_add(db_session):
+def test_email_address_add(db_session) -> None:
     """Using EmailAddress.add will auto-add to session and return existing instances."""
     ea1 = EmailAddress.add('example@example.com')
     assert isinstance(ea1, EmailAddress)
@@ -319,14 +334,15 @@ def test_email_address_add(db_session):
     assert ea5.email == ea3.email == 'Other@example.com'
 
     # Adding an invalid email address will raise an error
-    with pytest.raises(ValueError):
+    # FIXME: Wrong cause of error
+    with pytest.raises(ValueError, match='not enough values to unpack'):
         EmailAddress.add('invalid')
 
-    with pytest.raises(ValueError):
-        EmailAddress.add(None)
+    with pytest.raises(ValueError, match='A string email address is required'):
+        EmailAddress.add(None)  # type: ignore[arg-type]
 
 
-def test_email_address_blocked(db_session):
+def test_email_address_blocked(db_session) -> None:
     """A blocked email address cannot be used via EmailAddress.add."""
     ea1 = EmailAddress.add('example@example.com')
     ea2 = EmailAddress.add('example+extra@example.com')
@@ -342,7 +358,7 @@ def test_email_address_blocked(db_session):
         EmailAddress.add('Example@example.com')
 
 
-def test_email_address_delivery_state(db_session):
+def test_email_address_delivery_state(db_session) -> None:
     """An email address can have the last known delivery state set on it."""
     ea = EmailAddress.add('example@example.com')
     assert ea.delivery_state.UNKNOWN
@@ -414,7 +430,9 @@ def email_models(database):
     return SimpleNamespace(**locals())
 
 
-def test_email_address_mixin(email_models, db_session):
+def test_email_address_mixin(  # pylint: disable=too-many-locals,too-many-statements
+    email_models, db_session
+):
     """The EmailAddressMixin class adds safety checks for using an email address."""
     models = email_models
 
@@ -548,7 +566,7 @@ def test_email_address_mixin(email_models, db_session):
     assert ea1.email == 'example@example.com'
 
 
-def test_email_address_refcount_drop(email_models, db_session, refcount_data):
+def test_email_address_refcount_drop(email_models, db_session, refcount_data) -> None:
     """Test that EmailAddress.refcount drop events are fired."""
     models = email_models
 
@@ -587,7 +605,7 @@ def test_email_address_refcount_drop(email_models, db_session, refcount_data):
     assert ea.refcount() == 0
 
 
-def test_email_address_validate_for(email_models, db_session):
+def test_email_address_validate_for(email_models, db_session) -> None:
     """EmailAddress.validate_for can be used to determine availability."""
     models = email_models
 
@@ -653,7 +671,9 @@ def test_email_address_validate_for(email_models, db_session):
     assert EmailAddress.validate_for(anon_user, 'invalid') == 'invalid'
 
 
-def test_email_address_existing_but_unused_validate_for(email_models, db_session):
+def test_email_address_existing_but_unused_validate_for(
+    email_models, db_session
+) -> None:
     """An unused but existing email address should be available to claim."""
     models = email_models
     user = models.EmailUser()
@@ -665,7 +685,7 @@ def test_email_address_existing_but_unused_validate_for(email_models, db_session
     assert EmailAddress.validate_for(user, 'unclaimed@example.com') is True
 
 
-def test_email_address_validate_for_check_dns(email_models, db_session):
+def test_email_address_validate_for_check_dns(email_models, db_session) -> None:
     """Validate_for with check_dns=True. Separate test as DNS lookup may fail."""
     models = email_models
 

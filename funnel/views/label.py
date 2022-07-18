@@ -1,8 +1,10 @@
+"""Workflow label views."""
+
 from __future__ import annotations
 
 from typing import Optional
 
-from flask import flash, redirect, request
+from flask import flash, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
@@ -11,8 +13,9 @@ from coaster.views import ModelView, UrlForView, render_with, requires_roles, ro
 from .. import app
 from ..forms import LabelForm, LabelOptionForm
 from ..models import Label, Profile, Project, db
-from ..typing import ReturnView
+from ..typing import ReturnRenderWith, ReturnView
 from ..utils import abort_null
+from .helpers import render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin, ProjectViewMixin
 
@@ -24,7 +27,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @render_with('labels.html.jinja2')
     @requires_login
     @requires_roles({'editor'})
-    def labels(self):
+    def labels(self) -> ReturnRenderWith:
         form = forms.Form()
         if form.validate_on_submit():
             namelist = [abort_null(x) for x in request.values.getlist('name')]
@@ -40,7 +43,7 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
     @requires_login
     @render_with('labels_form.html.jinja2')
     @requires_roles({'editor'})
-    def new_label(self):
+    def new_label(self) -> ReturnRenderWith:
         form = LabelForm(model=Label, parent=self.obj.parent)
         emptysubform = LabelOptionForm(MultiDict({}))
         if form.validate_on_submit():
@@ -65,9 +68,9 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             self.obj.all_labels.append(label)
             self.obj.all_labels.reorder()
 
-            for idx in range(len(titlelist)):
+            for title, emoji in zip(titlelist, emojilist):
                 subform = LabelOptionForm(
-                    MultiDict({'title': titlelist[idx], 'icon_emoji': emojilist[idx]}),
+                    MultiDict({'title': title, 'icon_emoji': emoji}),
                     meta={'csrf': False},
                 )  # parent form has valid CSRF token
 
@@ -76,18 +79,17 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
                         _("Error with a label option: {}").format(subform.errors.pop()),
                         category='error',
                     )
-                    return {'title': "Add label", 'form': form, 'project': self.obj}
-                else:
-                    subl = Label(project=self.obj)
-                    subform.populate_obj(subl)
-                    subl.make_name()
-                    db.session.add(subl)
-                    label.options.append(subl)
+                    return {'title': _("Add label"), 'form': form, 'project': self.obj}
+                subl = Label(project=self.obj)
+                subform.populate_obj(subl)
+                subl.make_name()
+                db.session.add(subl)
+                label.options.append(subl)
 
             db.session.commit()
-            return redirect(self.obj.url_for('labels'), code=303)
+            return render_redirect(self.obj.url_for('labels'))
         return {
-            'title': "Add label",
+            'title': _("Add label"),
             'form': form,
             'emptysubform': emptysubform,
             'project': self.obj,
@@ -130,7 +132,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
     @requires_login
     @render_with('labels_form.html.jinja2')
     @requires_roles({'project_editor'})
-    def edit(self):
+    def edit(self) -> ReturnRenderWith:
         emptysubform = LabelOptionForm(MultiDict({}))
         subforms = []
         if self.obj.is_main_label:
@@ -140,7 +142,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
                     subforms.append(LabelOptionForm(obj=subl, parent=self.obj.project))
         else:
             flash(_("Only main labels can be edited"), category='error')
-            return redirect(self.obj.project.url_for('labels'), code=303)
+            return render_redirect(self.obj.project.url_for('labels'))
 
         if form.validate_on_submit():
             namelist = [abort_null(x) for x in request.values.getlist('name')]
@@ -151,20 +153,20 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
             titlelist.pop(0)
             emojilist.pop(0)
 
-            for idx in range(len(titlelist)):
-                if namelist[idx]:
+            for counter, (name, title, emoji) in enumerate(
+                zip(namelist, titlelist, emojilist)
+            ):
+                if name:
                     # existing option
                     subl = Label.query.filter_by(
-                        project=self.obj.project, name=namelist[idx]
+                        project=self.obj.project, name=name
                     ).first()
-                    subl.title = titlelist[idx]
-                    subl.icon_emoji = emojilist[idx]
-                    subl.seq = idx + 1
+                    subl.title = title
+                    subl.icon_emoji = emoji
+                    subl.seq = counter + 1  # Counter is 0-indexed, seq is 1-indexed
                 else:
                     subform = LabelOptionForm(
-                        MultiDict(
-                            {'title': titlelist[idx], 'icon_emoji': emojilist[idx]}
-                        ),
+                        MultiDict({'title': title, 'icon_emoji': emoji}),
                         meta={'csrf': False},
                     )  # parent form has valid CSRF token
 
@@ -176,26 +178,25 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
                             category='error',
                         )
                         return {
-                            'title': "Edit label",
+                            'title': _("Edit label"),
                             'form': form,
                             'project': self.obj.project,
                         }
-                    else:
-                        subl = Label(project=self.obj.project)
-                        subform.populate_obj(subl)
-                        subl.make_name()
-                        self.obj.project.labels.append(subl)
-                        self.obj.options.append(subl)
-                        self.obj.options.reorder()
-                        db.session.add(subl)
+                    subl = Label(project=self.obj.project)
+                    subform.populate_obj(subl)
+                    subl.make_name()
+                    self.obj.project.labels.append(subl)
+                    self.obj.options.append(subl)
+                    self.obj.options.reorder()
+                    db.session.add(subl)
 
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Label has been edited"), category='success')
 
-            return redirect(self.obj.project.url_for('labels'), code=303)
+            return render_redirect(self.obj.project.url_for('labels'))
         return {
-            'title': "Edit label",
+            'title': _("Edit label"),
             'form': form,
             'ref_id': 'form-labels',
             'subforms': subforms,
@@ -206,7 +207,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
     @route('archive', methods=['POST'])
     @requires_login
     @requires_roles({'project_editor'})
-    def archive(self):
+    def archive(self) -> ReturnView:
         form = forms.Form()
         if form.validate_on_submit():
             self.obj.archived = True
@@ -214,12 +215,12 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
             flash(_("The label has been archived"), category='success')
         else:
             flash(_("CSRF token is missing"), category='error')
-        return redirect(self.obj.project.url_for('labels'), code=303)
+        return render_redirect(self.obj.project.url_for('labels'))
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
     @requires_roles({'project_editor'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         if self.obj.has_proposals:
             flash(
                 _("Labels that have been assigned to submissions cannot be deleted"),
@@ -236,7 +237,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
                 self.obj.main_label.options.reorder()
                 db.session.commit()
             flash(_("The label has been deleted"), category='success')
-        return redirect(self.obj.project.url_for('labels'), code=303)
+        return render_redirect(self.obj.project.url_for('labels'))
 
 
 LabelView.init_app(app)

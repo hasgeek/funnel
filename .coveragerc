@@ -25,3 +25,6 @@ exclude_lines =
 
     # Ignore stubs
     \.\.\.
+
+    # Ignore type checking
+    if TYPE_CHECKING

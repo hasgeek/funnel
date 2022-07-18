@@ -1,10 +1,12 @@
+"""Views for timestamped sessions in a project."""
+
 from __future__ import annotations
 
 from typing import Optional, cast
 
-from flask import jsonify, redirect, render_template, request
+from flask import render_template, request
 
-from baseframe import _, request_is_xhr
+from baseframe import _
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
 from coaster.views import (
@@ -19,8 +21,9 @@ from coaster.views import (
 from .. import app
 from ..forms import SavedSessionForm, SessionForm
 from ..models import Project, Proposal, SavedSession, Session, db
+from ..proxies import request_wants
 from ..typing import ReturnRenderWith, ReturnView
-from .helpers import localize_date
+from .helpers import localize_date, render_redirect
 from .login_session import requires_login
 from .mixins import ProjectViewMixin, SessionViewMixin
 from .schedule import schedule_data, session_data, session_list_data
@@ -89,7 +92,7 @@ def session_edit(
         session = cast(Session, session)  # Tell mypy session is not None
         session.project.update_schedule_timestamps()
         db.session.commit()
-        if request_is_xhr():
+        if request_wants.json:
             data = {
                 'id': session.url_id,
                 'title': session.title,
@@ -103,18 +106,19 @@ def session_edit(
                 'delete_url': session.url_for('delete'),
                 'proposal_id': session.proposal_id,  # FIXME: Switch to UUID
             }
-            return jsonify(status=True, data=data)
-        else:
-            return redirect(session.url_for('view'))
-    return jsonify(
-        status=False,
-        form=render_template(
+            # FIXME: Return ``status='ok'`` and ``edited=True``
+            return {'status': True, 'data': data}
+        return render_redirect(session.url_for('view'))
+    return {
+        # FIXME: Return ``status='ok'`` and ``edited=False``
+        'status': False,
+        'form': render_template(
             'session_form.html.jinja2',
             form=form,
             formid='session_new',
             title=_("Edit session"),
         ),
-    )
+    }
 
 
 @Project.views('session_new')
@@ -141,6 +145,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
             self.obj.project.scheduled_sessions, with_modal_url='view_popup'
         )
         return {
+            'status': 'ok',
             'project': self.obj.project.current_access(
                 datasets=('without_parent', 'related')
             ),
@@ -191,7 +196,7 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('deletesession', methods=['POST'])
     @requires_login
     @requires_roles({'project_editor'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         modal_url = (
             self.obj.proposal.url_for('schedule')
             if self.obj.proposal is not None
@@ -205,22 +210,23 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
         self.obj.project.update_schedule_timestamps()
         db.session.commit()
         if self.obj.project.features.schedule_no_sessions():
-            return jsonify(
-                status=True,
-                modal_url=modal_url,
-                message=_(
+            # FIXME: return 'status': 'ok'
+            return {
+                'status': True,
+                'modal_url': modal_url,
+                'message': _(
                     "This project will not be listed as it has no sessions in the"
                     " schedule"
                 ),
-            )
-        return jsonify(status=True, modal_url=modal_url)
+            }
+        return {'status': True, 'modal_url': modal_url}
 
     @route('save', methods=['POST'])
-    @render_with(json=True)
     @requires_login
     # @requires_roles({'reader'})
     def save(self) -> ReturnRenderWith:
         form = SavedSessionForm()
+        created = False
         if form.validate_on_submit():
             session_save = SavedSession.query.filter_by(
                 user=current_auth.user, session=self.obj
@@ -230,13 +236,14 @@ class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
                     session_save = SavedSession(
                         user=current_auth.user, session=self.obj
                     )
+                    created = True
                     form.populate_obj(session_save)
                     db.session.commit()
             else:
                 if session_save is not None:
                     db.session.delete(session_save)
                     db.session.commit()
-            return {'status': 'ok'}
+            return {'status': 'ok'}, 201 if created else 200
         return (
             {
                 'status': 'error',

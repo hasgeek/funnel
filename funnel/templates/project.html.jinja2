@@ -1,5 +1,5 @@
 {% set current_page = 'project' %}
-{%- if not request_is_xhr() -%}
+{%- if not request_wants.html_fragment -%}
   {% extends "project_layout.html.jinja2" %}
 {%- else -%}
   {% extends "project_spa_layout.html.jinja2" %}
@@ -76,14 +76,14 @@
     <div class="page-card">
       <div class="project-section" id="submissions">
         <div class="project-section__headline">
-          <h2 class="project-section__headline mui--text-left zero-top-margin">{% trans %}Submissions{% endtrans %}</h2>
+          <h2 class="project-section__headline mui--text-left zero-top-margin">{% trans %}Featured submissions{% endtrans %}</h2>
           <a class="mui-btn mui-btn--raised zero-top-margin" href="{{ project.url_for('view_proposals') }}">{% trans %}See all{% endtrans %}</a>
         </div>
       </div>
       <ul class="mui-list--unstyled">
         {% for proposal in featured_proposals %}
           <li>
-            {{ proposal_card(proposal, full_width=true, css_class='page-card__card', project=project) }}
+            {{ proposal_card(proposal, full_width=true, css_class='page-card__card', project=project, spa=true) }}
           </li>
         {%- endfor -%}
       </ul>

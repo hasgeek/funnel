@@ -5789,8 +5789,9 @@ html.touch .collapsible__body--disable {
   left: 0;
   top: 50%;
 }
-.login-page .login-page__box .mui-btn--primary {
+.login-page .login-page__box .mui-btn {
   width: 100%;
+  margin: 4px 0;
 }
 .login-page .login-page__box .mui-form {
   margin: 0;

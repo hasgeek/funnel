@@ -1,3 +1,5 @@
+"""Notification types."""
+
 from __future__ import annotations
 
 from typing import Dict
@@ -6,10 +8,10 @@ from uuid import UUID
 from typing_extensions import Protocol
 
 from baseframe import __
-from funnel.models.moderation import CommentModeratorReport
 
 from . import db
 from .comment import Comment, Commentset
+from .moderation import CommentModeratorReport
 from .notification import Notification, Role, notification_categories
 from .organization_membership import OrganizationMembership
 from .profile import Profile
@@ -53,6 +55,8 @@ role_document_subscriber = Role('document_subscriber', __("Document subscriber")
 
 
 class NotificationDocumentProtocol(Protocol):
+    """Protocol for documents linked to a project."""
+
     document_type: str
     document: db.Model
     document_uuid: UUID
@@ -61,6 +65,7 @@ class NotificationDocumentProtocol(Protocol):
 class DocumentHasProject:
     @property
     def preference_context(self: NotificationDocumentProtocol) -> Profile:
+        """Return document's project's profile as preference context."""
         return self.document.project.profile
 
     def hook_context_uuids(self: NotificationDocumentProtocol) -> Dict[str, UUID]:
@@ -74,8 +79,13 @@ class DocumentHasProject:
 
 
 class DocumentHasProfile:
+    """Mixin class for documents linked to a profile."""
+
+    document: db.Model
+
     @property
     def preference_context(self: NotificationDocumentProtocol) -> Profile:
+        """Return document's profile as preference context."""
         return self.document.profile
 
     def hook_context_uuids(self: NotificationDocumentProtocol) -> Dict[str, UUID]:

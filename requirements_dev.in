@@ -1,3 +1,6 @@
+bandit
+black
+djlint
 flake8
 flake8-assertive
 flake8-bandit
@@ -10,18 +13,23 @@ flake8-isort
 flake8-logging-format
 flake8-mutable
 flake8-print
+flake8-pytest-style
 isort
+itsdangerous<2.1.0  # Dupe from requirements.in due to version pin there
 lxml-stubs
 mypy
 pep8-naming
 pip-tools
 pre-commit
+pylint
+pylint-flask-sqlalchemy
+pylint-pytest
 pyupgrade
 sqlalchemy-stubs
 toml
 types-certifi
 types-cryptography
-types-Flask
+types-flask
 types-geoip2
 types-itsdangerous
 types-maxminddb
@@ -29,8 +37,7 @@ types-python-dateutil
 types-pytz
 types-requests
 types-setuptools
-types-simplejson
 types-six
 types-toml
-types-Werkzeug
+types-werkzeug
 watchdog

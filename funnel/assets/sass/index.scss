@@ -274,3 +274,11 @@
     padding: $mui-grid-padding;
   }
 }
+
+.featured-profiles {
+  overflow-x: auto;
+}
+
+.featured-profiles::-webkit-scrollbar {
+  display: none;
+}

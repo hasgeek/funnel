@@ -1,6 +1,8 @@
+"""Legacy project registration model, storing RSVP states (Y/N/M/A)."""
+
 from __future__ import annotations
 
-from typing import Dict, Optional, cast, overload
+from typing import Dict, Optional, Tuple, Union, cast, overload
 
 from flask import current_app
 from werkzeug.utils import cached_property
@@ -16,13 +18,14 @@ from . import NoIdMixin, UuidMixin, db
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
-from .user import User, UserEmail
+from .user import User, UserEmail, UserEmailClaim, UserPhone
 
 __all__ = ['Rsvp', 'RSVP_STATUS']
 
 
 class RSVP_STATUS(LabeledEnum):  # noqa: N801
-    # If you add any new state, you need to add a migration to modify the check constraint
+    # If you add any new state, you need to add a migration to modify the check
+    # constraint
     YES = ('Y', 'yes', __("Going"))
     NO = ('N', 'no', __("Not going"))
     MAYBE = ('M', 'maybe', __("Maybe"))
@@ -122,8 +125,30 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         """User's preferred email address for this registration."""
         return self.user.transport_for_email(self.project.profile)
 
+    @with_roles(call={'owner', 'project_promoter'})
+    def user_phone(self) -> Optional[UserEmail]:
+        """User's preferred phone number for this registration."""
+        return self.user.transport_for_sms(self.project.profile)
+
+    @with_roles(call={'owner', 'project_promoter'})
+    def best_contact(
+        self,
+    ) -> Tuple[Union[UserEmail, UserEmailClaim, UserPhone, None], str]:
+        email = self.user_email()
+        if email:
+            return email, 'e'
+        phone = self.user_phone()
+        if phone:
+            return phone, 'p'
+        if self.user.emailclaims:
+            return self.user.emailclaims[0], 'ec'
+        return None, ''
+
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         project_ids = {rsvp.project_id for rsvp in new_user.rsvps}
         for rsvp in old_user.rsvps:
             if rsvp.project_id not in project_ids:
@@ -131,12 +156,11 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
             else:
                 current_app.logger.warning(
                     "Discarding conflicting RSVP (%s) from %r on %r",
-                    rsvp._state,
+                    rsvp._state,  # pylint: disable=protected-access
                     old_user,
                     rsvp.project,
                 )
                 db.session.delete(rsvp)
-        return None
 
     @overload
     @classmethod
@@ -193,15 +217,21 @@ class __Project:
         return (
             cast(Project, self)
             .rsvps.join(User)
-            .filter(User.state.ACTIVE, Rsvp._state == status)  # skipcq: PYL-W0212
+            .filter(
+                User.state.ACTIVE,
+                Rsvp._state == status,  # pylint: disable=protected-access
+            )
         )
 
     def rsvp_counts(self) -> Dict[str, int]:
         return dict(
-            db.session.query(Rsvp._state, db.func.count(Rsvp._state))
+            db.session.query(
+                Rsvp._state,  # pylint: disable=protected-access
+                db.func.count(Rsvp._state),  # pylint: disable=protected-access
+            )
             .join(User)
             .filter(User.state.ACTIVE, Rsvp.project == self)
-            .group_by(Rsvp._state)
+            .group_by(Rsvp._state)  # pylint: disable=protected-access
             .all()
         )
 

@@ -102,7 +102,9 @@ const Ticketing = {
         if (!isTicketAvailable || minPrice < 0) {
           $('.js-tickets-available').addClass('mui--hide');
           $('.js-tickets-not-available').removeClass('mui--hide');
-          $('.js-open-ticket-widget').addClass('register-block__txt--strike');
+          $('.js-open-ticket-widget')
+            .addClass('mui--is-disabled')
+            .prop('disabled', true);
         } else {
           price = `${currency}${minPrice}`;
           if (prices.length > 1) {
@@ -171,11 +173,15 @@ $(() => {
       SaveProject(saveProjectConfig);
     }
 
-    $('.js-htmltruncate-expand').click(function expandTruncation(event) {
-      event.preventDefault();
-      $(this).addClass('mui--hide');
-      $(this).next('.js-htmltruncate-full').removeClass('mui--hide');
-    });
+    $('body').on(
+      'click',
+      '.js-htmltruncate-expand',
+      function expandTruncation(event) {
+        event.preventDefault();
+        $(this).addClass('mui--hide');
+        $(this).next('.js-htmltruncate-full').removeClass('mui--hide');
+      }
+    );
 
     // Adding the embed video player
     if ($('.js-embed-video').length > 0) {
@@ -197,7 +203,7 @@ $(() => {
       Ticketing.init(tickets);
     }
 
-    Form.activateToggleSwitch();
+    Form.openSubmissionToggle('#open-sub', '.js-cfp-status');
 
     const hightlightNavItem = function (navElem) {
       const navHightlightClass = 'sub-navbar__item--active';
@@ -205,9 +211,16 @@ $(() => {
       $(`#${navElem}`).addClass(navHightlightClass);
 
       if (window.Hasgeek.subpageTitle) {
-        $('body').addClass('subpproject-page');
+        $('body').addClass('subproject-page');
+        if (window.Hasgeek.subpageHasVideo) {
+          $('body').addClass('mobile-hide-livestream');
+        } else {
+          $('body').removeClass('mobile-hide-livestream');
+        }
       } else {
-        $('body').removeClass('subpproject-page');
+        $('body')
+          .removeClass('subproject-page')
+          .removeClass('mobile-hide-livestream');
       }
     };
 

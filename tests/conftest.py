@@ -1,17 +1,20 @@
+"""Test configuration and fixtures."""
+
 from datetime import datetime
 from types import MethodType, SimpleNamespace
-from typing import List, Optional
+from typing import List, NamedTuple, Optional
+import re
 
 from sqlalchemy import event
 
 from flask.testing import FlaskClient
 from flask.wrappers import Response
 
-from lxml.html import FormElement, HtmlElement, fromstring  # noqa: S410
+from lxml.html import FormElement, HtmlElement, fromstring  # nosec  # noqa: S410
 from pytz import utc
 import pytest
 
-from funnel import app
+from funnel import app, redis_store
 from funnel.models import (
     AuthClient,
     AuthClientCredential,
@@ -29,13 +32,35 @@ from funnel.models import (
 # --- Adapted from the abandoned Flask-Fillin package
 
 
+_meta_refresh_content_re = re.compile(
+    r"""
+    \s*
+    (?P<timeout>\d+)      # Timeout
+    \s*
+    ;?                    # ; separator for optional URL
+    \s*
+    (?:URL\s*=\s*["']?)?  # Optional 'URL=' or 'URL="' prefix
+    (?P<url>.*?)          # Optional URL
+    (?:["']?\s*)          # Optional closing quote for URL
+    """,
+    re.ASCII | re.IGNORECASE | re.VERBOSE,
+)
+
+
+class MetaRefreshContent(NamedTuple):
+    """Timeout and optional URL in a Meta Refresh tag."""
+
+    timeout: int
+    url: Optional[str] = None
+
+
 class ResponseWithForms(Response):
     """
     Wrapper for the test client response that makes form submission easier.
 
     Usage::
 
-        def test_mytest(client):
+        def test_mytest(client) -> None:
             response = client.get('/page_with_forms')
             form = response.form('login')
             form.fields['username'] = 'my username'
@@ -53,16 +78,18 @@ class ResponseWithForms(Response):
             self._parsed_html = fromstring(self.data)
 
             # add click method to all links
-            def _click(self, client, **kwargs):
+            def _click(self, client, **kwargs):  # pylint: disable=redefined-outer-name
                 # `self` is the `a` element here
                 path = self.attrib['href']
                 return client.get(path, **kwargs)
 
             for link in self._parsed_html.iter('a'):
-                link.click = MethodType(_click, link)
+                link.click = MethodType(_click, link)  # type: ignore[attr-defined]
 
             # add submit method to all forms
-            def _submit(self, client, path=None, **kwargs):
+            def _submit(
+                self, client, path=None, **kwargs
+            ):  # pylint: disable=redefined-outer-name
                 # `self` is the `form` element here
                 data = dict(self.form_values())
                 if 'data' in kwargs:
@@ -74,7 +101,7 @@ class ResponseWithForms(Response):
                     kwargs['method'] = self.method
                 return client.open(path, data=data, **kwargs)
 
-            for form in self._parsed_html.forms:
+            for form in self._parsed_html.forms:  # type: ignore[attr-defined]
                 form.submit = MethodType(_submit, form)
         return self._parsed_html
 
@@ -113,6 +140,20 @@ class ResponseWithForms(Response):
             return links[0]
         return None
 
+    @property
+    def metarefresh(self) -> Optional[MetaRefreshContent]:
+        """Return content of Meta Refresh tag if present."""
+        meta_elements = self.html.cssselect('meta[http-equiv="refresh"]')
+        if not meta_elements:
+            return None
+        content = meta_elements[0].attrib.get('content')
+        if content is None:
+            return None
+        match = _meta_refresh_content_re.fullmatch(content)
+        if match is None:
+            return None
+        return MetaRefreshContent(int(match['timeout']), match['url'] or None)
+
 
 # --- New fixtures, to replace the legacy tests below as tests are updated
 
@@ -122,6 +163,7 @@ def database(request):
     """Provide a database structure."""
     with app.app_context():
         db.create_all()
+        redis_store.flushdb()
 
     @request.addfinalizer
     def drop_tables():
@@ -138,8 +180,9 @@ def db_connection(database):
 
 
 # This fixture borrowed from
-# https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/46#issuecomment-829694672
-@pytest.fixture(scope='function')
+# https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/46
+# #issuecomment-829694672
+@pytest.fixture()
 def db_session(database, db_connection):
     """Create a nested transaction for the test and roll it back after."""
     original_session = database.session
@@ -153,7 +196,10 @@ def db_session(database, db_connection):
     # https://docs.sqlalchemy.org/en/13/orm/session_transaction.html#joining-a-session-into-an-external-transaction-such-as-for-test-suites
     @event.listens_for(database.session, 'after_transaction_end')
     def restart_savepoint(session, transaction_in):
-        if transaction_in.nested and not transaction_in._parent.nested:
+        if (
+            transaction_in.nested
+            and not transaction_in._parent.nested  # pylint: disable=protected-access
+        ):
             session.expire_all()
             session.begin_nested()
 
@@ -162,6 +208,9 @@ def db_session(database, db_connection):
     database.session.close()
     transaction.rollback()
     database.session = original_session
+
+    with app.app_context():
+        redis_store.flushdb()
 
 
 # Enable autouse to guard against tests that have implicit database access, or assume
@@ -174,7 +223,35 @@ def client(request, db_session):
             yield test_client
 
 
-@pytest.fixture
+@pytest.fixture()
+def csrf_token(client):
+    """Supply a CSRF token for use in form submissions."""
+    return client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
+
+
+@pytest.fixture()
+def login(client):
+    """Provide a login fixture."""
+
+    def as_(user):
+        with client.session_transaction() as session:
+            # TODO: This depends on obsolete code in views/login_session that replaces
+            # cookie session authentication with db-backed authentication. It's long
+            # pending removal
+            session['userid'] = user.userid
+        # Perform a request to convert the session userid into a UserSession
+        client.get('/api/1/user/get')
+
+    def logout():
+        # TODO: Test this
+        client.delete_cookie(
+            client.server_name, 'lastuser', domain=app.config['LASTUSER_COOKIE_DOMAIN']
+        )
+
+    return SimpleNamespace(as_=as_, logout=logout)
+
+
+@pytest.fixture()
 def varfixture(request):
     """
     Return a variable fixture.
@@ -182,7 +259,7 @@ def varfixture(request):
     Usage::
 
         @pytest.mark.parametrize('varfixture', ['fixture1', 'fixture2'], indirect=True)
-        def test_me(varfixture):
+        def test_me(varfixture) -> None:
             ...
 
     This fixture can also be ignored, and a test can access a variable fixture directly:
@@ -204,7 +281,7 @@ def varfixture(request):
 # --- Users
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_twoflower(db_session):
     """
     Twoflower is a tourist from the Agatean Empire who goes on adventures.
@@ -218,7 +295,7 @@ def user_twoflower(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_rincewind(db_session):
     """
     Rincewind is a wizard and a former member of Unseen University.
@@ -231,7 +308,7 @@ def user_rincewind(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_death(db_session):
     """
     Death is the epoch user, present at the beginning and always having the last word.
@@ -249,7 +326,7 @@ def user_death(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_mort(db_session):
     """
     Mort is Death's apprentice, and a site admin in tests.
@@ -263,7 +340,7 @@ def user_mort(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_susan(db_session):
     """
     Susan Sto Helit (also written Sto-Helit) is Death's grand daughter.
@@ -275,7 +352,7 @@ def user_susan(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_lutze(db_session):
     """
     Lu-Tze is a history monk and sweeper at the Monastery of Oi-Dong.
@@ -287,7 +364,7 @@ def user_lutze(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_ridcully(db_session):
     """
     Mustrum Ridcully, archchancellor of Unseen University.
@@ -299,7 +376,7 @@ def user_ridcully(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_librarian(db_session):
     """
     Librarian of Unseen University, currently an orangutan.
@@ -311,7 +388,7 @@ def user_librarian(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_ponder_stibbons(db_session):
     """
     Ponder Stibbons, maintainer of Hex, the computer powered by an Anthill Inside.
@@ -323,7 +400,7 @@ def user_ponder_stibbons(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_vetinari(db_session):
     """
     Havelock Vetinari, patrician (aka dictator) of Ankh-Morpork.
@@ -335,7 +412,7 @@ def user_vetinari(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_vimes(db_session):
     """
     Samuel Vimes, commander of the Ankh-Morpork City Watch.
@@ -347,7 +424,7 @@ def user_vimes(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_carrot(db_session):
     """
     Carrot Ironfoundersson, captain of the Ankh-Morpork City Watch.
@@ -359,7 +436,7 @@ def user_carrot(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_angua(db_session):
     """
     Delphine Angua von Überwald, member of the Ankh-Morpork City Watch, and foreigner.
@@ -377,7 +454,7 @@ def user_angua(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_dibbler(db_session):
     """
     Cut Me Own Throat (or C.M.O.T) Dibbler, huckster who exploits small opportunities.
@@ -389,7 +466,7 @@ def user_dibbler(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_wolfgang(db_session):
     """
     Wolfgang von Überwald, brother of Angua, violent shapeshifter.
@@ -402,7 +479,7 @@ def user_wolfgang(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_om(db_session):
     """
     Great God Om of the theocracy of Omnia, who has lost his believers.
@@ -418,7 +495,7 @@ def user_om(db_session):
 # --- Organizations
 
 
-@pytest.fixture
+@pytest.fixture()
 def org_ankhmorpork(db_session, user_vetinari):
     """
     City of Ankh-Morpork, here representing the government rather than location.
@@ -431,7 +508,7 @@ def org_ankhmorpork(db_session, user_vetinari):
     return org
 
 
-@pytest.fixture
+@pytest.fixture()
 def org_uu(db_session, user_ridcully, user_librarian, user_ponder_stibbons):
     """
     Unseen University is located in Ankh-Morpork.
@@ -464,7 +541,7 @@ def org_uu(db_session, user_ridcully, user_librarian, user_ponder_stibbons):
     return org
 
 
-@pytest.fixture
+@pytest.fixture()
 def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot):
     """
     City Watch of Ankh-Morpork (a sub-organization).
@@ -496,7 +573,7 @@ def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot):
 # of the product being tested. Maintaining fidelity to Discworld is hard.
 
 
-@pytest.fixture
+@pytest.fixture()
 def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
     """Ankh-Morpork hosts its 2010 expo."""
     db_session.flush()
@@ -512,7 +589,7 @@ def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
     return project
 
 
-@pytest.fixture
+@pytest.fixture()
 def project_expo2011(db_session, org_ankhmorpork, user_vetinari):
     """Ankh-Morpork hosts its 2011 expo."""
     db_session.flush()
@@ -528,7 +605,7 @@ def project_expo2011(db_session, org_ankhmorpork, user_vetinari):
     return project
 
 
-@pytest.fixture
+@pytest.fixture()
 def project_ai1(db_session, org_uu, user_ponder_stibbons):
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
@@ -553,7 +630,7 @@ def project_ai1(db_session, org_uu, user_ponder_stibbons):
     return project
 
 
-@pytest.fixture
+@pytest.fixture()
 def project_ai2(db_session, org_uu, user_ponder_stibbons):
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
@@ -577,7 +654,7 @@ def project_ai2(db_session, org_uu, user_ponder_stibbons):
 # --- Client apps
 
 
-@pytest.fixture
+@pytest.fixture()
 def client_hex(db_session, org_uu):
     """
     Hex, supercomputer at Unseen University, powered by an Anthill Inside.
@@ -585,26 +662,26 @@ def client_hex(db_session, org_uu):
     Owned by UU (owner) and administered by Ponder Stibbons (no corresponding role).
     """
     # TODO: AuthClient needs to move to profile as parent
-    client = AuthClient(
+    auth_client = AuthClient(
         title="Hex",
         organization=org_uu,
         confidential=True,
         website='https://example.org/',
         redirect_uris=['https://example.org/callback'],
     )
-    db_session.add(client)
-    return client
+    db_session.add(auth_client)
+    return auth_client
 
 
-@pytest.fixture
+@pytest.fixture()
 def client_hex_credential(db_session, client_hex):
     cred, secret = AuthClientCredential.new(client_hex)
     db_session.add(cred)
     return SimpleNamespace(cred=cred, secret=secret)
 
 
-@pytest.fixture
-def all_fixtures(
+@pytest.fixture()
+def all_fixtures(  # pylint: disable=too-many-arguments,too-many-locals
     db_session,
     user_twoflower,
     user_rincewind,
@@ -662,7 +739,7 @@ TEST_DATA = {
 }
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_user(db_session):
     user = User(**TEST_DATA['users']['testuser'])
     db_session.add(user)
@@ -670,7 +747,7 @@ def new_user(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_user2(db_session):
     user = User(**TEST_DATA['users']['testuser2'])
     db_session.add(user)
@@ -678,7 +755,7 @@ def new_user2(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_user_owner(db_session):
     user = User(**TEST_DATA['users']['test-org-owner'])
     db_session.add(user)
@@ -686,7 +763,7 @@ def new_user_owner(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_user_admin(db_session):
     user = User(**TEST_DATA['users']['test-org-admin'])
     db_session.add(user)
@@ -694,7 +771,7 @@ def new_user_admin(db_session):
     return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_organization(db_session, new_user_owner, new_user_admin):
     org = Organization(owner=new_user_owner, title="Test org", name='test-org')
     db_session.add(org)
@@ -707,7 +784,7 @@ def new_organization(db_session, new_user_owner, new_user_admin):
     return org
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_team(db_session, new_user, new_organization):
     team = Team(title="Owners", organization=new_organization)
     db_session.add(team)
@@ -716,7 +793,7 @@ def new_team(db_session, new_user, new_organization):
     return team
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_project(db_session, new_organization, new_user):
     project = Project(
         profile=new_organization.profile,
@@ -731,7 +808,7 @@ def new_project(db_session, new_organization, new_user):
     return project
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_project2(db_session, new_organization, new_user_owner):
     project = Project(
         profile=new_organization.profile,
@@ -746,7 +823,7 @@ def new_project2(db_session, new_organization, new_user_owner):
     return project
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_main_label(db_session, new_project):
     main_label_a = Label(
         title="Parent Label A", project=new_project, description="A test parent label"
@@ -764,7 +841,7 @@ def new_main_label(db_session, new_project):
     return main_label_a
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_main_label_unrestricted(db_session, new_project):
     main_label_b = Label(
         title="Parent Label B", project=new_project, description="A test parent label"
@@ -782,7 +859,7 @@ def new_main_label_unrestricted(db_session, new_project):
     return main_label_b
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_label(db_session, new_project):
     label_b = Label(title="Label B", icon_emoji="🔟", project=new_project)
     new_project.all_labels.append(label_b)
@@ -791,7 +868,7 @@ def new_label(db_session, new_project):
     return label_b
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_proposal(db_session, new_user, new_project):
     proposal = Proposal(
         user=new_user,

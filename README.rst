@@ -3,7 +3,7 @@ Hasgeek
 
 Code for Hasgeek.com at https://hasgeek.com/
 
-Copyright © 2010-2021 by Hasgeek
+Copyright © 2010-2022 by Hasgeek
 
 This code is open source under the AGPL v3 license (see LICENSE.txt). We welcome your examination of our code to:
 

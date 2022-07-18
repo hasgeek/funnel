@@ -1,8 +1,10 @@
+"""Test Project views."""
+
 from funnel.views.project import get_registration_text
 
 
 class TestProject:
-    def test_registration_text(self):
+    def test_registration_text(self) -> None:
         assert get_registration_text(count=0, registered=False).startswith(
             "Be the first"
         )

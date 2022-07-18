@@ -1,4 +1,5 @@
 """Test sessions."""
+# pylint: disable=possibly-unused-variable
 from datetime import datetime, timedelta
 from types import SimpleNamespace
 
@@ -12,7 +13,7 @@ from funnel.models import Project, Session, db
 # TODO: Create a second parallel project and confirm they don't clash
 
 
-@pytest.fixture
+@pytest.fixture()
 def block_of_sessions(db_session, new_project):
 
     # DocType HTML5's schedule, but using UTC to simplify testing
@@ -112,7 +113,7 @@ def find_projects(starting_times, within, gap):
     }
 
 
-def test_project_starting_at(db_session, block_of_sessions):
+def test_project_starting_at(db_session, block_of_sessions) -> None:
     block_of_sessions.refresh()
 
     # Loop through the day at 5 min intervals from 8 AM, looking for start time
@@ -178,7 +179,7 @@ def test_project_starting_at(db_session, block_of_sessions):
     }
 
 
-def test_long_session_fail(db_session, new_project):
+def test_long_session_fail(db_session, new_project) -> None:
     """Sessions cannot exceed 24 hours."""
     # Less than 24 hours is fine:
     db_session.add(

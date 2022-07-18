@@ -32,8 +32,12 @@ $(() => {
       'An internal server error occurred. Our support team has been notified and will investigate'
     ),
     networkError: window.gettext(
-      'Unable to connect. Check connection and tap to reload'
+      'Unable to connect. Check connection and refresh the page'
     ),
+    rateLimitError: window.gettext(
+      'This is unusually high activity. Try again later'
+    ),
+    error: window.gettext('An error occured when submitting the form'),
   };
 
   Utils.collapse();

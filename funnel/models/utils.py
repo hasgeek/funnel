@@ -1,30 +1,66 @@
+"""Utilities to operate on models."""
+
 from __future__ import annotations
 
-from typing import Optional, Set, Union
+from typing import NamedTuple, Optional, Set, Union, overload
 
 from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
 from flask import current_app
 
-from ..typing import OptionalMigratedTables
-from .user import User, UserEmail, UserEmailClaim, UserExternalId, db
+from typing_extensions import Literal
+import phonenumbers
 
-__all__ = ['getuser', 'getextid', 'merge_users', 'IncompleteUserMigrationError']
+from ..typing import OptionalMigratedTables
+from ..utils import PHONE_LOOKUP_REGIONS
+from .user import Anchor, User, UserEmail, UserEmailClaim, UserExternalId, UserPhone, db
+
+__all__ = [
+    'IncompleteUserMigrationError',
+    'UserAndAnchor',
+    'getextid',
+    'getuser',
+    'merge_users',
+]
 
 
 class IncompleteUserMigrationError(Exception):
     """Could not migrate users because of data conflicts."""
 
 
+class UserAndAnchor(NamedTuple):
+    """User and anchor used to find the user (usable as a 2-tuple)."""
+
+    user: Optional[User]
+    anchor: Optional[Anchor]
+
+
+@overload
 def getuser(name: str) -> Optional[User]:
-    """Get a user with a matching name or email address."""
+    ...
+
+
+@overload
+def getuser(name: str, anchor: Literal[False]) -> Optional[User]:
+    ...
+
+
+@overload
+def getuser(name: str, anchor: Literal[True]) -> UserAndAnchor:
+    ...
+
+
+def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnchor]:
+    """
+    Get a user with a matching name, email address or phone number.
+
+    Optionally returns an anchor (phone or email) instead of the user account.
+    """
     # Treat an '@' or '~' prefix as a username lookup, removing the prefix
     if name.startswith('@') or name.startswith('~'):
         name = name[1:]
     # If there's an '@' in the middle, treat as an email address
     elif '@' in name:
-        # TODO: This lookup may be more efficient for email claims if we query the
-        # EmailAddress model directly, doing a join with UserEmail and UserEmailClaim.
         useremail: Union[None, UserEmail, UserEmailClaim]
         useremail = UserEmail.get(email=name)
         if useremail is None:
@@ -36,13 +72,55 @@ def getuser(name: str) -> Optional[User]:
             )
         if useremail is not None and useremail.user.state.ACTIVE:
             # Return user only if in active state
+            if anchor:
+                return UserAndAnchor(useremail.user, useremail)
             return useremail.user
+        if anchor:
+            return UserAndAnchor(None, None)
         return None
-    # If it wasn't an email address lookup, do a username lookup
-    return User.get(username=name)
+    else:
+        # If it wasn't an email address or an @username, check if it's a phone number
+        try:
+            # Assume unprefixed numbers to be a local number in one of our supported
+            # regions, in order of priority
+            for region in PHONE_LOOKUP_REGIONS:
+                parsed_number = phonenumbers.parse(name, region)
+                if phonenumbers.is_valid_number(parsed_number):
+                    number = phonenumbers.format_number(
+                        parsed_number, phonenumbers.PhoneNumberFormat.E164
+                    )
+                    userphone = UserPhone.get(number)
+                    if userphone is not None and userphone.user.state.ACTIVE:
+                        if anchor:
+                            return UserAndAnchor(userphone.user, userphone)
+                        return userphone.user
+            # No matching userphone? Continue to trying as a username
+        except phonenumbers.NumberParseException:
+            # This was not a parseable phone number. Continue to trying as a username
+            pass
+
+    # Last guess: username
+    user = User.get(username=name)
+
+    # If the caller wanted an anchor, try to return one (phone, then email) instead of
+    # the user account
+    if anchor:
+        if user is None:
+            return UserAndAnchor(None, None)
+        if user.phone:
+            return UserAndAnchor(user, user.phone)
+        useremail = user.default_email()
+        if useremail:
+            return UserAndAnchor(user, useremail)
+        # This user has no anchors
+        return UserAndAnchor(user, None)
+
+    # Anchor not requested. Return the user account
+    return user
 
 
 def getextid(service: str, userid: str) -> Optional[UserExternalId]:
+    """Return a matching external id."""
     return UserExternalId.get(service=service, userid=userid)
 
 

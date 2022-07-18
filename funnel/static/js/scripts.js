@@ -488,6 +488,18 @@ window.Hasgeek.Utils = {
     }
     return '';
   },
+  getAvatarColour: function (name) {
+    var avatarColorCount = 6;
+    var initials = this.getInitials(name);
+    var stringTotal = 0;
+    if (initials.length) {
+      stringTotal = initials.charCodeAt(0);
+      if (initials.length > 1) {
+        stringTotal += initials.charCodeAt(1);
+      }
+    }
+    return stringTotal % avatarColorCount;
+  },
 };
 
 window.ParsleyConfig = {

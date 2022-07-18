@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from collections import OrderedDict
+from dataclasses import dataclass
 from functools import wraps
-from typing import List, Optional
+from typing import Callable, Collection, List, Optional, Tuple, cast
 import re
 
 from flask import Response, abort, jsonify, request
@@ -13,9 +14,10 @@ from baseframe import _
 from baseframe.signals import exception_catchall
 
 from .models import AuthToken, UserExternalId
-from .typing import ReturnLoginProvider
+from .typing import ReturnResponse, WrappedFunc
 
-# Bearer token, as per http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-15#section-2.1
+# Bearer token, as per
+# http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-15#section-2.1
 auth_bearer_re = re.compile('^Bearer ([a-zA-Z0-9_.~+/-]+=*)$')
 
 
@@ -48,14 +50,15 @@ class ResourceRegistry(OrderedDict):
                 message,
                 401,
                 {
-                    'WWW-Authenticate': 'Bearer realm="Token Required" scope="%s"'
-                    % usescope
+                    'WWW-Authenticate': (
+                        f'Bearer realm="Token Required" scope="{usescope}"'
+                    )
                 },
             )
 
-        def wrapper(f):
+        def decorator(f: WrappedFunc) -> Callable[..., ReturnResponse]:
             @wraps(f)
-            def decorated_function():
+            def wrapper() -> ReturnResponse:
                 if request.method == 'GET':
                     args = request.args
                 elif request.method in ['POST', 'PUT', 'DELETE']:
@@ -89,11 +92,13 @@ class ResourceRegistry(OrderedDict):
                 )  # Read once to avoid reparsing below
                 wildcardscope = usescope.split('/', 1)[0] + '/*'
                 if not (authtoken.auth_client.trusted and '*' in tokenscope):
-                    # If a trusted client has '*' in token scope, all good, else check further
+                    # If a trusted client has '*' in token scope, all good,
+                    # else check further
                     if (usescope not in tokenscope) and (
                         wildcardscope not in tokenscope
                     ):
-                        # Client doesn't have access to this scope either directly or via a wildcard
+                        # Client doesn't have access to this scope either
+                        # directly or via a wildcard
                         return resource_auth_error(
                             _("Token does not provide access to this resource")
                         )
@@ -105,13 +110,13 @@ class ResourceRegistry(OrderedDict):
                 try:
                     result = f(authtoken, args, request.files)
                     response = jsonify({'status': 'ok', 'result': result})
-                except Exception as exception:  # noqa: B902
-                    exception_catchall.send(exception)
+                except Exception as exc:  # noqa: B902  # pylint: disable=broad-except
+                    exception_catchall.send(exc)
                     response = jsonify(
                         {
                             'status': 'error',
-                            'error': exception.__class__.__name__,
-                            'error_description': str(exception),
+                            'error': exc.__class__.__name__,
+                            'error_description': str(exc),
                         }
                     )
                     response.status_code = 500
@@ -129,9 +134,28 @@ class ResourceRegistry(OrderedDict):
                 'trusted': trusted,
                 'f': f,
             }
-            return decorated_function
+            return cast(WrappedFunc, wrapper)
 
-        return wrapper
+        return decorator
+
+
+@dataclass
+class LoginProviderData:
+    """User data supplied by a LoginProvider."""
+
+    userid: str
+    username: Optional[str] = None
+    avatar_url: Optional[str] = None
+    oauth_token: Optional[str] = None
+    oauth_token_secret: Optional[str] = None  # Only used in OAuth1a
+    oauth_token_type: Optional[str] = None
+    oauth_refresh_token: Optional[str] = None
+    oauth_expires_in: Optional[int] = None
+    email: Optional[str] = None
+    emails: Collection[str] = ()
+    emailclaim: Optional[str] = None
+    phone: Optional[str] = None
+    fullname: Optional[str] = None
 
 
 class LoginProviderRegistry(OrderedDict):
@@ -141,28 +165,30 @@ class LoginProviderRegistry(OrderedDict):
         """Return services which typically use ``@username`` addressing."""
         return [key for key in self if self[key].at_username]
 
-    def __setitem__(self, key: str, value: LoginProvider):
-        """Make a registry entry."""
-        retval = super().__setitem__(key, value)
-        UserExternalId.__at_username_services__ = self.at_username_services()
-        return retval
+    def at_login_items(self) -> List[Tuple[str, LoginProvider]]:
+        """Return services which have the flag at_login set to True."""
+        return [(k, v) for (k, v) in self.items() if v.at_login is True]
 
-    def __delitem__(self, key: str):
-        """Remove a registry entry."""
-        retval = super().__delitem__(key)
+    def __setitem__(self, key: str, value: LoginProvider) -> None:
+        """Make a registry entry."""
+        super().__setitem__(key, value)
         UserExternalId.__at_username_services__ = self.at_username_services()
-        return retval
+
+    def __delitem__(self, key: str) -> None:
+        """Remove a registry entry."""
+        super().__delitem__(key)
+        UserExternalId.__at_username_services__ = self.at_username_services()
 
 
 class LoginError(Exception):
     """External service login failure."""
 
 
-class LoginInitError(Exception):
+class LoginInitError(LoginError):
     """External service login failure (during init)."""
 
 
-class LoginCallbackError(Exception):
+class LoginCallbackError(LoginError):
     """External service login failure (during callback)."""
 
 
@@ -193,45 +219,49 @@ class LoginProvider:
     :param str icon: URL to icon for login provider.
     """
 
-    #: URL to icon for the login button
-    icon = None
-    #: Login form, if required
-    form = None
-    #: This service's usernames are typically used for addressing with @username
+    #: This service's usernames are typically
+    #: used for addressing with @username
     at_username = False
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         name: str,
         title: str,
+        key: str,
+        secret: str,
         at_login: bool = True,
-        priority: bool = False,
         icon: Optional[str] = None,
         **kwargs,
     ) -> None:
         self.name = name
         self.title = title
+        self.key = key
+        self.secret = secret
         self.at_login = at_login
-        self.priority = priority
         self.icon = icon
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
     def do(self, callback_url: str):
+        """Initiate a login with this login provider."""
         raise NotImplementedError
 
-    def callback(self) -> ReturnLoginProvider:
+    def callback(self) -> LoginProviderData:
+        """Process callback from login provider."""
         raise NotImplementedError
 
-        # Template for subclasses:
-        # return {
-        #     'userid': None,  # Unique user id at this service
-        #     'username': None,  # Public username. This may change
-        #     'avatar_url': None,  # URL to avatar image
-        #     'oauth_token': None,  # OAuth token, for OAuth-based services
-        #     'oauth_token_secret': None,  # If required
-        #     'oauth_token_type': None,  # Type of token
-        #     'email': None,  # Verified email address. Service can be trusted
-        #     'emailclaim': None,  # Claimed email address. Must be verified
-        # }
+        # Template for subclasses. All optional values can be skipped
+        # return LoginProviderData(
+        #     userid=None,  # Unique user id at this service
+        #     username=None,  # Public username. This may change
+        #     avatar_url=None,  # URL to avatar image
+        #     oauth_token=None,  # OAuth token, for OAuth-based services
+        #     oauth_token_secret=None,  # If required
+        #     oauth_token_type=None,  # Type of token
+        #     email=None,  # Verified email address. Service can be trusted
+        #     emailclaim=None,  # Claimed email address. Must be verified
+        #     phone=None,  # Verified phone number when service can be trusted
+        # )
 
 
 # Global registries

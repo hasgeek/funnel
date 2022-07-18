@@ -1,5 +1,8 @@
+"""Tests for view helpers."""
+
 from base64 import urlsafe_b64decode
 from datetime import datetime
+from typing import Any
 from unittest.mock import patch
 from urllib.parse import urlsplit
 
@@ -22,33 +25,33 @@ from funnel.views.helpers import (
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def testapp():
     """Create a test app with an `index` view."""
-    testapp = Flask(__name__)
+    new_app = Flask(__name__)
 
-    @testapp.route('/')
+    @new_app.route('/')
     def index():  # skipcq: PTC-W0065
         """Unused index view, only referred to via url_for."""
         return 'test_index'
 
-    return testapp
+    return new_app
 
 
 class MockUrandom:
     """Mock for urandom."""
 
-    def __init__(self, sequence):
+    def __init__(self, sequence) -> None:
         self.sequence = sequence
         self.counter = 0
 
-    def __call__(self, length: int):
+    def __call__(self, length: int) -> Any:
         value = self.sequence[self.counter % len(self.sequence)]
         self.counter += 1
         return value
 
 
-def test_app_url_for(testapp):
+def test_app_url_for(testapp) -> None:
     """Test that app_url_for works cross-app and in-app."""
     # App context is not necessary to use app_url_for
     url = app_url_for(app, 'index')
@@ -83,7 +86,7 @@ def test_app_url_for(testapp):
         assert change_password_url2 == change_password_url
 
 
-def test_urlclean_filter():
+def test_urlclean_filter() -> None:
     """The cleanurl filter produces compact browser-like URLs."""
     assert (
         cleanurl_filter(furl("https://example.com/some/path/?query=value"))
@@ -117,7 +120,7 @@ def test_urlclean_filter():
     assert cleanurl_filter("") == ""
 
 
-def test_cached_token():
+def test_cached_token() -> None:
     """Test simplistic use of cached tokens (for SMS unsubscribe)."""
     test_payload = {
         'hello': 'world',
@@ -133,7 +136,7 @@ def test_cached_token():
     assert retrieve_cached_token(token) is None
 
 
-def test_cached_token_profanity_reuse():
+def test_cached_token_profanity_reuse() -> None:
     """Test with a mock for the profanity filter and reuse filter in cached tokens."""
     mockids = MockUrandom(
         [
@@ -149,19 +152,19 @@ def test_cached_token_profanity_reuse():
         wraps=mockids,
     ) as mockid:
         token = make_cached_token(test_payload)
-        assert token == 'okay'  # noqa: S105
+        assert token == 'okay'  # nosec  # noqa: S105
         # Profanity filter skipped the first candidate
         assert mockid.call_count == 2
         mockid.reset_mock()
 
         token = make_cached_token(test_payload)
-        assert token == 'new0'  # noqa: S105
+        assert token == 'new0'  # nosec  # noqa: S105
         # Dupe filter passed over the second 'okay'
         assert mockid.call_count == 2
         mockid.reset_mock()
 
 
-def test_compress_decompress():
+def test_compress_decompress() -> None:
     """Test compress and decompress function on sample data."""
     # Compression is only effective on larger inputs, so the outputs here may be
     # larger than inputs.
