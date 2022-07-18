@@ -432,8 +432,8 @@
         "यदि यह प्रोजेक्ट केवल-ऑनलाइन हो, तो “ऑनलाइन” का इस्तेमाल करें"
       ],
       "%(max)d characters maximum": ["अधिकतर %(max)d वर्ण"],
-      "Optional - Starting time": [""],
-      "Optional - Ending time": [""],
+      "Optional – Starting time": [""],
+      "Optional – Ending time": [""],
       "This is required when starting time is specified": [""],
       "This requires a starting time too": [""],
       "This must be after the starting time": [""],

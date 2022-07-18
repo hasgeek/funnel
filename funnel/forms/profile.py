@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from baseframe import _, __, forms
+from baseframe import __, forms
 
 from ..models import Profile
 from .helpers import image_url_validator, nullable_strip_filters
@@ -27,14 +27,16 @@ class ProfileForm(OrganizationForm):
     __expects__ = ('profile',)
     profile: Profile
 
+    tagline = forms.StringField(
+        __("Bio"),
+        validators=[forms.validators.Optional(), forms.validators.Length(max=160)],
+        filters=nullable_strip_filters,
+        description=__("A brief statement about your organization"),
+    )
     description = forms.MarkdownField(
         __("Welcome message"),
-        validators=[
-            forms.validators.DataRequired(
-                _("Please write a message for the profile page")
-            )
-        ],
-        description=__("This message will be shown on the profile page"),
+        validators=[forms.validators.Optional()],
+        description=__("Optional – This message will be shown on the profile page"),
     )
     logo_url = forms.ImgeeField(
         label=__("Profile image"),
@@ -66,15 +68,16 @@ class ProfileForm(OrganizationForm):
         self.title.description = __(
             "Your full name, in the form others can recognise you by"
         )
+        self.tagline.description = __("A brief statement about yourself")
         self.name.description = __(
             "A short name for mentioning you with @username, and the URL to your"
             " profile page. Single word containing letters, numbers and dashes only."
             " Pick something permanent: changing it will break existing links from"
             " around the web"
         )
-        self.description.label.text = __("About you")
+        self.description.label.text = __("More about you")
         self.description.description = __(
-            "This message will be shown on the profile page"
+            "Optional – This message will be shown on the profile page"
         )
 
 

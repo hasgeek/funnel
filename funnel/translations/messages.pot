@@ -1014,11 +1014,11 @@ msgid "%(max)d characters maximum"
 msgstr ""
 
 #: funnel/forms/project.py:68
-msgid "Optional - Starting time"
+msgid "Optional – Starting time"
 msgstr ""
 
 #: funnel/forms/project.py:73
-msgid "Optional - Ending time"
+msgid "Optional – Ending time"
 msgstr ""
 
 #: funnel/forms/project.py:77

@@ -41,24 +41,24 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
     # Draft-state for future use, so people can save their proposals and submit only
     # when ready. If you add any new state, you need to add a migration to modify the
     # check constraint
-    DRAFT = (0, 'draft', __("Draft"))
-    SUBMITTED = (1, 'submitted', __("Submitted"))
-    CONFIRMED = (2, 'confirmed', __("Confirmed"))
-    WAITLISTED = (3, 'waitlisted', __("Waitlisted"))
-    REJECTED = (5, 'rejected', __("Rejected"))
-    CANCELLED = (6, 'cancelled', __("Cancelled"))
-    AWAITING_DETAILS = (7, 'awaiting_details', __("Awaiting details"))
-    UNDER_EVALUATION = (8, 'under_evaluation', __("Under evaluation"))
-    DELETED = (11, 'deleted', __("Deleted"))
+    DRAFT = (1, 'draft', __("Draft"))
+    SUBMITTED = (2, 'submitted', __("Submitted"))
+    CONFIRMED = (3, 'confirmed', __("Confirmed"))
+    WAITLISTED = (4, 'waitlisted', __("Waitlisted"))
+    REJECTED = (6, 'rejected', __("Rejected"))
+    CANCELLED = (7, 'cancelled', __("Cancelled"))
+    AWAITING_DETAILS = (8, 'awaiting_details', __("Awaiting details"))
+    UNDER_EVALUATION = (9, 'under_evaluation', __("Under evaluation"))
+    DELETED = (12, 'deleted', __("Deleted"))
 
     # These 3 are not in the editorial workflow anymore - Feb 23 2018
-    SHORTLISTED = (4, 'shortlisted', __("Shortlisted"))
+    SHORTLISTED = (5, 'shortlisted', __("Shortlisted"))
     SHORTLISTED_FOR_REHEARSAL = (
-        9,
+        10,
         'shortlisted_for_rehearsal',
         __("Shortlisted for rehearsal"),
     )
-    REHEARSAL = (10, 'rehearsal', __("Rehearsal ongoing"))
+    REHEARSAL = (11, 'rehearsal', __("Rehearsal ongoing"))
 
     # Groups
     PUBLIC = {  # States visible to the public

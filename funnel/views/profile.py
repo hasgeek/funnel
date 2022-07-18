@@ -70,7 +70,7 @@ def template_switcher(templateargs):
 @Profile.views('main')
 @route('/<profile>')
 class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
-    @route('')
+    @route('', endpoint='profile')
     @render_with({'text/html': template_switcher}, json=True)
     @requires_roles({'reader', 'admin'})
     def view(self) -> ReturnRenderWith:

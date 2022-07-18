@@ -34,14 +34,14 @@ __all__ = ['Update']
 
 
 class UPDATE_STATE(LabeledEnum):  # noqa: N801
-    DRAFT = (0, 'draft', __("Draft"))
-    PUBLISHED = (1, 'published', __("Published"))
-    DELETED = (2, 'deleted', __("Deleted"))
+    DRAFT = (1, 'draft', __("Draft"))
+    PUBLISHED = (2, 'published', __("Published"))
+    DELETED = (3, 'deleted', __("Deleted"))
 
 
 class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
-    PUBLIC = (0, 'public', __("Public"))
-    RESTRICTED = (1, 'restricted', __("Restricted"))
+    PUBLIC = (1, 'public', __("Public"))
+    RESTRICTED = (2, 'restricted', __("Restricted"))
 
 
 class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):

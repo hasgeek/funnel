@@ -114,15 +114,15 @@ class USER_STATE(LabeledEnum):  # noqa: N801
     """State codes for user accounts."""
 
     #: Regular, active user
-    ACTIVE = (0, __("Active"))  # XXX: Using 0 in a state code is a legacy mistake
+    ACTIVE = (1, __("Active"))
     #: Suspended account (cause and explanation not included here)
-    SUSPENDED = (1, __("Suspended"))
+    SUSPENDED = (2, __("Suspended"))
     #: Merged into another user
-    MERGED = (2, __("Merged"))
+    MERGED = (3, __("Merged"))
     #: Invited to make an account, doesn't have one yet
-    INVITED = (3, __("Invited"))
+    INVITED = (4, __("Invited"))
     #: Permanently deleted account
-    DELETED = (4, __("Deleted"))
+    DELETED = (5, __("Deleted"))
 
 
 class ORGANIZATION_STATE(LabeledEnum):  # noqa: N801
@@ -663,7 +663,7 @@ class User(
 
         # 2. Revoke all active memberships
         for membership in self.active_memberships():
-            membership = membership.freeze_subject_attribution()
+            membership = membership.freeze_subject_attribution(self)
             if membership.revoke_on_subject_delete:
                 membership.revoke(actor=self)
         # TODO: freeze fullname in unrevoked memberships (pending title column there)
