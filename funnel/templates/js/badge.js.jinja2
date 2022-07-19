@@ -7,7 +7,7 @@
             <p class="mui--text-danger mui--text-subhead page-content">{{ error }}</p>
           {{/if}}
           <video id="qrreader" class="scanner-wrapper__camera" playsinline autoplay></video>
-          {{#if video}}<faicon icon='expand' baseline=false css_class='scanner-wrapper__badge--icon'></faicon>
+          {{#if video}}<faicon icon='expand' baseline=false css_class="scanner-wrapper__badge--icon"></faicon>
           <div>
             <div class="mui-select camera-dropdown">
               <select value="{{selectedCamera}}" class="mui--d-inlineblock">
@@ -25,7 +25,7 @@
         {{#if showModal}}
         <div id="status-msg" class="modal" role="dialog" aria-modal="true" tabindex="-1" >
           <div class="modal__header">
-            <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-ga="close checkin modal" on-click="closeModal(event)" aria-label="{{ gettext('Close') }}"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
+            <a class="modal__close mui--text-dark" href="#" onclick="return false;"  data-ga="close checkin modal" on-click="closeModal(event)" aria-label="{{ gettext('Close') }}"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
             <h3 class="mui--text-title">{{ gettext('Check in status') }}</h3>
           </div>
           <div class="modal__body">
@@ -39,7 +39,7 @@
               <h4>{{ gettext('Attendee details not found') }}</h4>
             {{/if}}
             <div class="mui--text-right modal__body__btn">
-              <a href="javascript:void(0);"  data-target="close modal" on-click="closeModal(event)" class="mui-btn mui-btn--flat mui-btn--accent">{{ gettext('Close') }}</a>
+              <a href="#" onclick="return false;"  data-target="close modal" on-click="closeModal(event)" class="mui-btn mui-btn--flat mui-btn--accent">{{ gettext('Close') }}</a>
             </div>
           </div>
         </div>
@@ -58,34 +58,34 @@
             <p class="mui--text-subhead mui--text-danger page-content">{{ error }}</p>
           {{/if}}
           <video id="qrreader" class="scanner-wrapper__camera"></video>
-          {{#if video}}<faicon icon='expand' baseline=false css_class='scanner-wrapper__badge--icon'></faicon>{{/if}}
+          {{#if video}}<faicon icon='expand' baseline=false css_class="scanner-wrapper__badge--icon"></faicon>{{/if}}
         </div>
         {{#if showModal}}
         <div id="status-msg" class="modal" role="dialog" aria-modal="true" tabindex="-1" >
           <div class="modal__header">
-            <a class="modal__close mui--text-dark" href="javascript:void(0);" on-click="closeModal(event)" data-ga="close contact details modal"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
+            <a class="modal__close mui--text-dark" href="#" onclick="return false;" on-click="closeModal(event)" data-ga="close contact details modal"><faicon icon='times' icon_size='title' baseline=true></faicon></a>
           </div>
           <div class="modal__body">
             {{#if scanning}}
               <h4 class="mui--text-headlin mui--align-middle">{{ gettext('Scanning') }} <faicon icon='times' icon_size='title' baseline=true></faicon></h4>
             {{elseif contactFound}}
-              <h3 class="mui--text-title mui--text-bold"><faicon icon='user' css_class=' icon-img--smaller'></faicon>{{ contact.fullname }}</h3>
-              <p class="mui--text-subhead"><faicon icon='envelope' css_class=' icon-img--smaller'></faicon>{{ contact.email }}</p>
+              <h3 class="mui--text-title mui--text-bold"><faicon icon='user' css_class=" icon-img--smaller"></faicon>{{ contact.fullname }}</h3>
+              <p class="mui--text-subhead"><faicon icon='envelope' css_class=" icon-img--smaller"></faicon>{{ contact.email }}</p>
               {{#if contact.phone }}
-                <p class="mui--text-subhead"><faicon icon='phone-alt' css_class=' icon-img--smaller'></faicon>{{ contact.phone }}</p>
+                <p class="mui--text-subhead"><faicon icon='phone-alt' css_class="icon-img--smaller"></faicon>{{ contact.phone }}</p>
               {{/if}}
               {{#if contact.twitter }}
-                <p class="mui--text-subhead"><faicon icon='twitter-square' css_class=' icon-img--smaller'></faicon>{{ contact.twitter }}</p>
+                <p class="mui--text-subhead"><faicon icon='twitter-square' css_class="icon-img--smaller"></faicon>{{ contact.twitter }}</p>
               {{/if}}
               {{#if contact.company }}
-                <p class="mui--text-subhead"><faicon icon='briefcase' css_class=' icon-img--smaller'></faicon>{{ contact.company }}</p>
+                <p class="mui--text-subhead"><faicon icon='briefcase' css_class="icon-img--smaller"></faicon>{{ contact.company }}</p>
               {{/if}}
               <p class="mui--text-body2"><i>{{ gettext('This contact has been added to contacts tab in the account page') }}</i></p>
             {{else}}
               <h4 class="mui--text-danger">{{ errorMsg }}</h4>
             {{/if}}
             <div class="mui--text-right modal__body__btn">
-              <a href="javascript:void(0);" on-click="closeModal(event)" class="mui-btn mui-btn--flat mui-btn--accent">{{ gettext('Close') }}</a>
+              <a href="#" onclick="return false;" on-click="closeModal(event)" class="mui-btn mui-btn--flat mui-btn--accent">{{ gettext('Close') }}</a>
             </div>
           </div>
         </div>
@@ -101,19 +101,19 @@
                 <div>
                   <div class="mui--clearfix">
                     <div class="mui--pull-left contact-card__details">
-                      <h3 class="mui--text-title mui--text-bold"><faicon icon='user' css_class=' icon-img--smaller'></faicon>{{ contacts[i].fullname }}</h3>
-                      <p class="mui--text-subhead"><faicon icon='envelope' css_class=' icon-img--smaller'></faicon>{{ contacts[i].email }}</p>
+                      <h3 class="mui--text-title mui--text-bold"><faicon icon='user' css_class=" icon-img--smaller"></faicon>{{ contacts[i].fullname }}</h3>
+                      <p class="mui--text-subhead"><faicon icon='envelope' css_class="icon-img--smaller"></faicon>{{ contacts[i].email }}</p>
                       {{#if contacts[i].phone }}
-                        <p class="mui--text-subhead"><faicon icon='phone-alt' css_class=' icon-img--smaller'></faicon>{{ contacts[i].phone }}</p>
+                        <p class="mui--text-subhead"><faicon icon='phone-alt' css_class="icon-img--smaller"></faicon>{{ contacts[i].phone }}</p>
                       {{/if}}
                       {{#if contacts[i].twitter }}
-                        <p class="mui--text-subhead"><faicon icon='twitter-sqaure' css_class=' icon-img--smaller'></faicon>{{ contacts[i].twitter }}</p>
+                        <p class="mui--text-subhead"><faicon icon='twitter-sqaure' css_class="icon-img--smaller"></faicon>{{ contacts[i].twitter }}</p>
                       {{/if}}
                       {{#if contacts[i].company }}
-                        <p class="mui--text-subhead"><faicon icon='briefcase' css_class=' icon-img--smaller'></faicon>{{ contacts[i].company }}</p>
+                        <p class="mui--text-subhead"><faicon icon='briefcase' css_class="icon-img--smaller"></faicon>{{ contacts[i].company }}</p>
                       {{/if}}
                     </div>
-                    <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" on-click="downloadContact(event)" download href="" aria-label="{{ gettext('download contact') }}"><faicon icon='address-card' icon_size='headline' baseline=false css_class='mui--align-middle'></faicon></a>
+                    <a class="mui-btn mui-btn--flat mui-btn--primary mui--pull-right contact-card__details__download-btn" on-click="downloadContact(event)" download href="" aria-label="{{ gettext('download contact') }}"><faicon icon='address-card' icon_size='headline' baseline=false css_class="mui--align-middle"></faicon></a>
                   </div>
                 </div>
               </div>

@@ -1,8 +1,8 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = membership.project.title %}
-{% block title %}{% trans %}Manage membership{% endtrans %}{% endblock %}
+{% block title %}{% trans %}Manage membership{% endtrans %}{% endblock title %}
 
-{% block contenthead %}{% endblock %}
+{% block contenthead %}{% endblock contenthead %}
 
 {% block basecontent %}
 <div class="mui-container">
@@ -10,7 +10,7 @@
     <div class="grid" id="membership">
       <div class="grid__col-xs-12">
         <p>{% trans project=membership.project.title %}You have been invited to {{ project }}{% endtrans %}</p>
-        <form method='POST' action="{{ membership.url_for('invite_action') }}">
+        <form method='post' action="{{ membership.url_for('invite_action') }}">
           {{ form.hidden_tag() }}
           <button type="submit" name="action" value="accept">Accept</button>
           <button type="submit" name="action" value="decline">Decline</button>
@@ -19,4 +19,4 @@
     </div>
   </div>
 </div>
-{% endblock %}
+{% endblock basecontent %}

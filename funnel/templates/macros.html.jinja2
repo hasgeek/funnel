@@ -10,7 +10,7 @@
 {%- macro alertbox(category, message="", dismissable=true, css_class="") %}
   <div class="alert alert--{{ category }} {% if dismissable %}alert--dismissable{%- endif -%} {%- if css_class %} {{ css_class }} {%- endif -%}">
     {%- if dismissable %}
-      <a class="alert__close" href="#" aria-label="{% trans %}Close{% endtrans %}">
+      <a class="alert__close" href="#" onclick="return false;" aria-label="{% trans %}Close{% endtrans %}">
       {{ faicon(icon='times', icon_size='title', baseline=true) }}
       </a>
     {%- endif -%}
@@ -91,7 +91,7 @@
 
 {% macro share_dropdown(url, title, css_class="") %}
   <ul class="mui-dropdown__menu mui-dropdown__menu--right mui-dropdown__menu--hg-link {% if css_class %}{{ css_class }}{%- endif %}" data-cy="share-dropdown">
-    <li><a class="mui--text-body2 js-copy-link" href="#" data-ga="Copy link to share" role="menuitem">{{ faicon(icon='copy', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Copy link{% endtrans %}<span class="js-copy-url" aria-hidden="true">{{ url }}?utm_campaign=webshare</span></a></li>
+    <li><a class="mui--text-body2 js-copy-link" href="#" onclick="return false;" data-ga="Copy link to share" role="menuitem">{{ faicon(icon='copy', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Copy link{% endtrans %}<span class="js-copy-url" aria-hidden="true">{{ url }}?utm_campaign=webshare</span></a></li>
     <li><a class="mui--text-body2" href="mailto:?subject={{ title }}&amp;body={{ url }}&amp;utm_campaign=share-email" data-ga="Email" role="menuitem">{{ faicon(icon='envelope', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Email{% endtrans %}</a></li>
     <li><a class="mui--text-body2" target="_blank" rel="noopener" href="https://twitter.com/share?url={{ url }}&amp;via=Hasgeek&amp;text={{ title }}&amp;utm_campaign=share-twitter" data-url="{{ url }}" data-via="Hasgeek" data-text="{{ title }}" data-ga="Tweet" role="menuitem">{{ faicon(icon='twitter-square', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Twitter{% endtrans %}</a></li>
     <li><a class="mui--text-body2" target="_blank" rel="noopener" href="https://www.facebook.com/sharer.php?u={{ url }}&amp;t={{ title }}&amp;utm_campaign=share-facebook" data-href="{{ url }}" data-ga="Share on facebook" role="menuitem">{{ faicon(icon='facebook-square', baseline=true,css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Facebook{% endtrans %}</a></li>
@@ -127,9 +127,9 @@
     {% else %}
       {% set url, title = session.url_for(_external=true), session.title %}
     {%- endif %}
-    <a href="#" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ url }}?utm_campaign=webshare" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
+    <a href="#" onclick="return false;" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ url }}?utm_campaign=webshare" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
     <div class="mui-dropdown">
-      <a href="#" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
+      <a href="#" onclick="return false;" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
       {{ share_dropdown(url, title) }}
     </div>
   {%- endif %}
@@ -387,7 +387,7 @@
         </ul>
         {% if open_cfp_projects|length > 4 %}
           <div class="mui--text-center">
-            <a href="#" data-target="show all cfp projects" class="jquery-show-all mui--text-uppercase" data-projects="js-cfp-projects" data-ga="Show all cfp projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+            <a href="#" onclick="return false;" data-target="show all cfp projects" class="jquery-show-all mui--text-uppercase" data-projects="js-cfp-projects" data-ga="Show all cfp projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
           </div>
         {% endif %}
       </div>
@@ -420,7 +420,7 @@
 
 {% macro profile_admin_buttons(profile) %}
   <div class="mui-dropdown mui--d-inlineblock">
-    <a href="#" class="mui--text-title mui--text-light profile-dropdown-btn" data-mui-toggle="dropdown" data-ga="Open profile menu" data-cy="admin-dropdown" aria-label="{% trans %}Profile menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
+    <a href="#" onclick="return false;" class="mui--text-title mui--text-light profile-dropdown-btn" data-mui-toggle="dropdown" data-ga="Open profile menu" data-cy="admin-dropdown" aria-label="{% trans %}Profile menu{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</a>
     <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="profile-edit-menu">
       {%- if profile.organization %}<li><a href="{{ profile.urls['members'] }}" data-cy-btn="profile-crew">{%- if profile.current_roles.owner %}{% trans %}Manage admins{% endtrans %}{% else %}{% trans %}View admins{% endtrans %}{% endif %}</a></li>{% endif %}
       <li><a href="{{ profile.url_for('edit') }}" data-cy-btn="edit-details">{% trans %}Edit this profile{% endtrans %}</a></li>
@@ -429,7 +429,7 @@
   </div>
   <div class="modal" id="make-private-modal" role="dialog" aria-labelledby="profile-private-modal-title" aria-modal="true" tabindex="-1">
     <div class="modal__header">
-      <a class="mui-btn mui-btn--nostyle modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+      <a class="mui-btn mui-btn--nostyle modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
       <p class="mui--text-title mui--text-bold mui--text-dark" id="profile-private-modal-title">{% trans %}Make this profile private?{% endtrans %}</p>
     </div>
     <div class="modal__body">
@@ -493,7 +493,7 @@
                   <a class="mui-btn mui-btn--raised mui-btn--primary profile-create-btn" href="#make-public-modal" rel="modal:open" role="button" aria-haspopup="true" data-cy="profile-public">{% trans %}Make profile public{% endtrans %}</a>
                   <div class="modal" id="make-public-modal" role="dialog" aria-labelledby="profile-public-modal-title" aria-modal="true" tabindex="-1">
                     <div class="modal__header">
-                      <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+                      <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
                       <p class="mui--text-title mui--text-bold mui--text-dark" id="profile-public-modal-title">{% trans %}Make this profile public?{% endtrans %}</p>
                     </div>
                     <div class="modal__body">

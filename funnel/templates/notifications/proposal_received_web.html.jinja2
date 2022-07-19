@@ -23,7 +23,7 @@
       {%- endtrans %}
     </p>
   {%- endif %}
-{%- endblock %}
+{%- endblock content %}
 
 {%- block avatar %}
   {%- if view.is_rollup %}
@@ -31,4 +31,4 @@
   {%- else %}
     {%- if view.actor %}{{ useravatar(view.actor) }}{% endif %}
   {%- endif %}
-{%- endblock %}
+{%- endblock avatar %}

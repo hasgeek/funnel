@@ -1,15 +1,15 @@
 {% extends "layout.html.jinja2" %}
-{% block headerbox %}{% endblock %}
+{% block headerbox %}{% endblock headerbox %}
 
 {% block pageheaders %}
   {% assets 'css_screens' -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets %}
   {% block screens_pageheaders %}
-  {% endblock %}
-{% endblock %}
+  {% endblock screens_pageheaders %}
+{% endblock pageheaders %}
 
-{% block basecontent %}{% endblock %}
+{% block basecontent %}{% endblock basecontent %}
 
 {% block footer %}
-{% endblock %}
+{% endblock footer %}

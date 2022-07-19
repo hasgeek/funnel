@@ -2,23 +2,23 @@
 
 <div class="mui--hide">
   {% block title %}
-  {% endblock %}
+  {% endblock title %}
 </div>
 
 {% block pageheaders %}
-{% endblock %}
+{% endblock pageheaders %}
 
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="js-spa-navigate mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% block mobile_header_title %}{{ self.title() }}{% endblock %}</span>
-      {% block mobile_header %}{% endblock %}
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="js-spa-navigate mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% block mobile_header_title %}{{ self.title() }}{% endblock mobile_header_title %}</span>
+      {% block mobile_header %}{% endblock mobile_header %}
     </div>
   </div>
-{% endblock %}
+{% endblock baseheadline %}
 
 {% block left_col %}
-{% endblock %}
+{% endblock left_col %}
 
 {% block footerinnerscripts %}
-{% endblock %}
+{% endblock footerinnerscripts %}

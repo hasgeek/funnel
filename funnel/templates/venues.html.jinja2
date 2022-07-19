@@ -1,11 +1,11 @@
 {% extends "layout.html.jinja2" %}
 {% from "macros.html.jinja2" import faicon %}
-{% block title %}{% trans %}Venues{% endtrans %}{% endblock %}
+{% block title %}{% trans %}Venues{% endtrans %}{% endblock title %}
 
 {% block top_title %}
   <h1 class="mui--text-headline"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
   <p class="mui--text-subhead">Venues</p>
-{% endblock %}
+{% endblock top_title %}
 
 {% block contentwrapper %}
   <div class="grid">
@@ -14,16 +14,16 @@
         <div class="card__header">
           <h3><b>{% trans %}Manage venues{% endtrans %}</b></h3>
         </div>
-        <form action="{{ project.url_for('makeprimary_venue') }}" method="POST">
+        <form action="{{ project.url_for('makeprimary_venue') }}" method="post">
           {{ primary_venue_form.hidden_tag() }}
           <div class="card__body card__body--lgtext mui--text-subhead">
             <ol class="mui-list--aligned mui-list--border">
               {%- for venue in primary_venue_form.venue.query %}
                 <li class="mui--text-subhead">
-                  <input id="venue-{{ loop.index }}" name="{{ primary_venue_form.venue.name }}" value="{{ venue.uuid_b58 }}" type="radio" {%- if venue == project.primary_venue %}disabled{% endif %} class="margin-right"><label for="venue-{{ loop.index }}" class="form-inline-label" data-cy="{{ venue.title }}">{{ venue.title }} {%- if venue == project.primary_venue %}<em> {% trans %}(primary){% endtrans %}</em>{% endif %}</label>
+                  <input id="venue-{{ loop.index }}" name="{{ primary_venue_form.venue.name }}" value="{{ venue.uuid_b58 }}" type="radio" {%- if venue == project.primary_venue %}disabled{% endif %} class="margin-right" /><label for="venue-{{ loop.index }}" class="form-inline-label" data-cy="{{ venue.title }}">{{ venue.title }} {%- if venue == project.primary_venue %}<em> {% trans %}(primary){% endtrans %}</em>{% endif %}</label>
                   <span class="mui--pull-right">
-                    <a href="{{ venue.url_for('edit') }}" class="mui--text-title">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
-                      &nbsp;&nbsp;&nbsp;<a href="{{ venue.url_for('delete') }}">{{ faicon(icon='trash-alt', icon_size='subhead', css_class='fa5--link') }}</a>
+                    <a href="{{ venue.url_for('edit') }}" class="mui--text-title">{{ faicon(icon='edit', icon_size='subhead', css_class="fa5--link") }}</a>
+                      &nbsp;&nbsp;&nbsp;<a href="{{ venue.url_for('delete') }}">{{ faicon(icon='trash-alt', icon_size='subhead', css_class="fa5--link") }}</a>
                   </span>
                 </li>
               {% else %}
@@ -52,10 +52,10 @@
             <ol class="mui-list--aligned mui-list--border">
               {%- for room in venue.rooms %}
                 <li class="mui--text-subhead">
-                  <span class="mui--text-subhead mui--text-bold" data-cy-room="{{room.title}}">{{ room.title }}</span>
+                  <span class="mui--text-subhead mui--text-bold" data-cy-room="{{ room.title }}">{{ room.title }}</span>
                   <span class="mui--pull-right">
-                    <a href="{{ room.url_for('edit') }}" class="mui--text-title">{{ faicon(icon='edit', icon_size='subhead', css_class='fa5--link') }}</a>
-                    &nbsp;&nbsp;&nbsp;<a href="{{ room.url_for('delete') }}" class="mui--text-title">{{ faicon(icon='trash-alt', icon_size='subhead', css_class='fa5--link') }}</a>
+                    <a href="{{ room.url_for('edit') }}" class="mui--text-title">{{ faicon(icon='edit', icon_size='subhead', css_class="fa5--link") }}</a>
+                    &nbsp;&nbsp;&nbsp;<a href="{{ room.url_for('delete') }}" class="mui--text-title">{{ faicon(icon='trash-alt', icon_size='subhead', css_class="fa5--link") }}</a>
                   </span>
                   <div class="mui--text-body2">{{ room.description }}</div>
                 </li>
@@ -72,4 +72,4 @@
       </div>
     {%- endfor %}
   </div>
-{% endblock %}
+{% endblock contentwrapper %}

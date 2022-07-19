@@ -1,13 +1,13 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}500 Internal Server Error{% endblock %}
+{% block title %}500 Internal Server Error{% endblock title %}
 
 {% block top_title %}
   <div class="mui--text-center">
-    <img src="{{ url_for('static', filename='img/error-500.svg') }}" class="emoticon"/>
+    <img src="{{ url_for('static', filename='img/error-500.svg') }}" class="emoticon" alt="{% trans %}Internal server error{% endtrans %}"/>
     <h1 class="mui--text-light mui--text-display1">{% trans %}Internal server error{% endtrans %}</h1>
   </div>
-{% endblock %}
+{% endblock top_title %}
 
 {% block content %}
   <p class="mui--text-subhead mui--text-center">{% trans %}Our support team has been notified and will look into this. Try again later{% endtrans %}</p>
-{% endblock %}
+{% endblock content %}

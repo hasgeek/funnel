@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{{ profile.title }}{% endblock %}
+{% block title %}{{ profile.title }}{% endblock title %}
 {%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, projectcard, featured_section, upcoming_section, open_cfp_section, all_projects_section, profile_header, useravatar, proposal_card %}
 {%- from "js/past_projects.js.jinja2" import past_projects_section %}
 
@@ -33,16 +33,16 @@
       "url" : {{ profile.url_for(_external=true)|tojson }}
     }
   </script>
-{%- endblock %}
+{%- endblock pageheaders %}
 
-{% block bodyattrs %}class="mui--bg-primary mobile-header"{% endblock %}
+{% block bodyattrs %}class="mui--bg-primary mobile-header"{% endblock bodyattrs %}
 
 {% block contenthead %}
-{% endblock %}
+{% endblock contenthead %}
 
 {% block baseheadline %}
   {{ profile_header(profile) }}
-{% endblock %}
+{% endblock baseheadline %}
 
 {% block basecontent %}
   <div class="mui--bg-accent">
@@ -92,7 +92,7 @@
           </ul>
           {% if sponsored_projects|length > 6 %}
             <div class="mui--text-center">
-              <a href="javascript:void(0)"  data-target="show all supported projects" class="jquery-show-all mui--text-uppercase" data-projects="js-supported-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+              <a href="#" onclick="return false;"  data-target="show all supported projects" class="jquery-show-all mui--text-uppercase" data-projects="js-supported-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>
           {% endif %}
         </div>
@@ -114,7 +114,7 @@
           </ul>
           {% if sponsored_submissions|length > 4 %}
             <div class="mui--text-center">
-              <a href="javascript:void(0)"  data-target="show all supported projects" class="jquery-show-all mui--text-uppercase" data-projects="js-supported-submissions" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+              <a href="#" onclick="return false;"  data-target="show all supported projects" class="jquery-show-all mui--text-uppercase" data-projects="js-supported-submissions" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>
           {% endif %}
         </div>
@@ -135,7 +135,7 @@
               <a class="card card--upcoming card--new clickable-card" href="{{ profile.url_for('new_project') }}" aria-label="{% trans %}Create a new project{% endtrans %}" data-cy="new-project" data-ga="Add new project">
                 <div class="card__image-wrapper">
                   <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="new"/>
-                  <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class='mui--align-middle card__image-wrapper__icon-wrapper__icon') }}</p>
+                  <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class="mui--align-middle card__image-wrapper__icon-wrapper__icon") }}</p>
                 </div>
                 <div class="card__body">
                   <h4 class="mui--text-headline mui--text-bold">{% trans %}Create a new project{% endtrans %}</h4>
@@ -156,7 +156,7 @@
         </ul>
         {% if draft_projects|length > 2 %}
           <div class="mui--text-center">
-            <a href="javascript:void(0)"  data-target="show all draft projects" class="jquery-show-all mui--text-uppercase" data-projects="js-draft-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+            <a href="#" onclick="return false;"  data-target="show all draft projects" class="jquery-show-all mui--text-uppercase" data-projects="js-draft-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
           </div>
         {% endif %}
       </div>
@@ -180,7 +180,7 @@
           </ul>
           {% if unscheduled_projects|length > 3 %}
             <div class="mui--text-center">
-              <a href="javascript:void(0)"  data-target="show all unscheduled projects" class="jquery-show-all mui--text-uppercase" data-projects="js-unscheduled-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+              <a href="#" onclick="return false;"  data-target="show all unscheduled projects" class="jquery-show-all mui--text-uppercase" data-projects="js-unscheduled-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>
           {% endif %}
         </div>
@@ -193,7 +193,7 @@
     {{ all_projects_section(all_projects) }}
     {{ past_projects_section() }}
   </div>
-{% endblock %}
+{% endblock basecontent %}
 
 {% block footerscripts %}
   <script src="{{ built_asset('index.js') }}" type="text/javascript"></script>
@@ -205,4 +205,4 @@
       window.Hasgeek.homeInit(homeConfig);
     });
   </script>
-{% endblock %}
+{% endblock footerscripts %}

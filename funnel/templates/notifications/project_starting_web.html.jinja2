@@ -3,7 +3,7 @@
 
 {%- block avatar %}
   {{ useravatar(view.project.profile.owner) }}
-{%- endblock -%}
+{%- endblock avatar -%}
 
 {%- block content -%}
   <p>
@@ -11,4 +11,4 @@
       <a href="{{ url }}">{{ project }}</a> starts at {{ start_time }}
     {%- endtrans %}
   </p>
-{%- endblock -%}
+{%- endblock content -%}

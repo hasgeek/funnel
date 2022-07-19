@@ -1,6 +1,6 @@
 {% extends "ajaxform.html.jinja2" %}
 {% from "password_login_form.html.jinja2" import passwordlogin, sociallogin %}
-{% block title %}{% endblock %}
+{% block title %}{% endblock title %}
 {% block form %}
   {{ passwordlogin(loginform, formid, ref_id) }}
-{% endblock %}
+{% endblock form %}
