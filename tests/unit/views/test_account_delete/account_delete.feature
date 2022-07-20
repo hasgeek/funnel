@@ -11,7 +11,7 @@ Feature: Account Delete
         Given user Ridcully is logged in
         And user Ridcully is the sole owner of Unseen University
         When user Ridcully visits the delete endpoint
-        Then user Ridcully is displayed 'This account has organizations without co-owners' warning
+        Then 'This account has organizations without co-owners' warning is shown to the user
 
     Scenario: User Librarian visits the delete endpoint
         Given user Librarian is logged in
@@ -23,4 +23,4 @@ Feature: Account Delete
         Given user Librarian has a protected profile
         And user Librarian is logged in
         When user Librarian visits the delete endpoint
-        Then 'This account is protected' message is shown to the user
+        Then 'This account is protected' warning is shown to the user

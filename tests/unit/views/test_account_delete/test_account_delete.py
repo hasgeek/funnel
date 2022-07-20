@@ -44,9 +44,7 @@ def ridcully_go_to_endpoint(client, login, user_ridcully):
     return rv
 
 
-@then(
-    "user Ridcully is displayed 'This account has organizations without co-owners' warning"
-)
+@then("'This account has organizations without co-owners' warning is shown to the user")
 def ridcully_account_delete_form(ridcully_go_to_endpoint):
     assert ridcully_go_to_endpoint.form('form-account-delete') is None
     assert (
@@ -111,7 +109,7 @@ def protected_librarian_go_to_endpoint(client, login, user_librarian):
     return rv
 
 
-@then("'This account is protected' message is shown to the user")
+@then("'This account is protected' warning is shown to the user")
 def protected_librarian_account_delete_form(
     protected_librarian_go_to_endpoint, user_librarian
 ):
