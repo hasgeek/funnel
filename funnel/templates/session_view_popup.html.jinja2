@@ -1,7 +1,7 @@
 {%- from "macros.html.jinja2" import faicon, embed_video_player, video_action_bar, share_dropdown %}
 
 <div class="modal__header mui--bg-accent">
-  <a class="modal__close mui--text-dark" data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" href="javascript:void(0);" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+  <a class="modal__close mui--text-dark" data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
   <h3 class="js-modal-title mui--text-headline session-modal__title" data-cy-session="title">{{ session.title }}</h3>
   <div class="mui--clearfix">
     {% if session.speaker %}
@@ -21,7 +21,7 @@
       {% endif %}
     </div>
     <div class="mui-dropdown mui--pull-right">
-      <a href="javascript:void(0)" class="project-links left-padding" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" aria-label="{% trans %}Share{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='share-alt', baseline=true, icon_size='subhead', css_class='mui--text-light') }}</a>
+      <a href="#" onclick="return false;" class="project-links left-padding" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" aria-label="{% trans %}Share{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='share-alt', baseline=true, icon_size='subhead', css_class="mui--text-light") }}</a>
       {{ share_dropdown(session.url_for(_external=true), session.title) }}
     </div>
   </div>
@@ -60,7 +60,7 @@
     <p class="separator zero-bottom-margin"><a class="mui--text-subhead" href="{{ session.proposal.url_for('view') }}" target="_blank" rel="noopener" data-cy="view-proposal">{{ faicon(icon='presentation') }} {% trans %}View submission for this session{% endtrans %}</a></p>
   {% endif %}
   {% if session.views.video or session.proposal %}
-  <hr class="modal__body__separator">
+  <hr class="modal__body__separator" />
   {% endif %}
   {% if session.description %}
     <div class="modal__body__section">

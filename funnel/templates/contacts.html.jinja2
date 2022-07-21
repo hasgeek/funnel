@@ -1,21 +1,21 @@
 {% extends "layout.html.jinja2" %}
 {%- from "macros.html.jinja2" import faicon, account_tabs, useravatar %}
 
-{% block title %}{% trans %}My contacts{% endtrans %}{% endblock %}
+{% block title %}{% trans %}My contacts{% endtrans %}{% endblock title %}
 
 {% block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/contacts.scss') }}" />
-{% endblock %}
+{% endblock pageheaders %}
 
-{% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock %}
+{% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock bodyattrs %}
 
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
     <div class="mui-container">
-      {{ account_tabs(active_tab='contacts') }}
+      {{ account_tabs(active_tab="contacts") }}
     </div>
   </div>
-{%- endblock %}
+{%- endblock headline %}
 
 {% block basecontent %}
   <div class="mui-container tab-content">
@@ -23,10 +23,10 @@
       <div class="grid__col-xs-12 grid__col-sm-6">
         {% for project,dates in contacts %}
           <div class="tab-content__results zero-bottom-margin">
-            <div class="collapsible__header collapsible__header--smaller mui--pull-left" role="button" aria-expanded="false" aria-controls="collapse-{{project.id}}">
+            <div class="collapsible__header collapsible__header--smaller mui--pull-left" role="button" aria-expanded="false" aria-controls="collapse-{{ project.id }}">
               <p class="mui--text-subhead zero-bottom-margin collapsible__header__title">
-                {{ faicon(icon='angle-right', css_class='collapsible__icon') }}
-                {{ faicon(icon='angle-down', css_class='collapsible__icon mui--hide') }}
+                {{ faicon(icon='angle-right', css_class="collapsible__icon") }}
+                {{ faicon(icon='angle-down', css_class="collapsible__icon mui--hide") }}
                 {{ project.title }}
               </p>
             </div>
@@ -41,15 +41,16 @@
                 </li>
               </ul>
             </div>
-            <div class="collapsible__body mui-list--aligned" id="collapse-{{project.id}}">
+            <div class="collapsible__body mui-list--aligned" id="collapse-{{ project.id }}">
               {% for daterow in dates %}
                 <div class="collapsible">
-                  <div class="collapsible__header collapsible__header--smaller mui--pull-left" role="button" aria-expanded="false" aria-controls="collapse-{{daterow.date}}">
+                  <div class="collapsible__header collapsible__header--smaller mui--pull-left" role="button" aria-expanded="false" aria-controls="collapse-{{ daterow.date }}">
                     <p class="mui--text-subhead zero-bottom-margin collapsible__header__title">
-                      {{ faicon(icon='angle-right', css_class='collapsible__icon') }}
-                      {{ faicon(icon='angle-down', css_class='collapsible__icon mui--hide') }} {{ daterow.date.isoformat()  }} ({{ daterow.count }})</span></p>
+                      {{ faicon(icon='angle-right', css_class="collapsible__icon") }}
+                      {{ faicon(icon='angle-down', css_class="collapsible__icon mui--hide") }} {{ daterow.date.isoformat() }} ({{ daterow.count }})
+                    </p>
                   </div>
-                  <div class="collapsible__dropdown mui-dropdown mui--pull-right mui--align-middle" id="collapse-{{daterow.date}}">
+                  <div class="collapsible__dropdown mui-dropdown mui--pull-right mui--align-middle" id="collapse-{{ daterow.date }}">
                     <button class="mui-btn mui-btn--nostyle mui--text-subhead" data-mui-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Dropdown menu{% endtrans %}">
                       {{ faicon(icon='ellipsis-v', icon_size='subhead') }}
                     </button>
@@ -73,7 +74,7 @@
                             </div>
                           </div>
                         </div>
-                        <a class="mui--pull-right contact-download-btn" onclick="Hasgeek.downloadVcard(this,'{{contact.ticket_participant.fullname}}', '{{contact.ticket_participant.email}}', '{{contact.ticket_participant.phone}}', '{{contact.ticket_participant.company}}')" download href="" aria-label="download contact">{{ faicon(icon='address-card', icon_size='headline') }}</a>
+                        <a class="mui--pull-right contact-download-btn" onclick="Hasgeek.downloadVcard(this,'{{ contact.ticket_participant.fullname }}', '{{ contact.ticket_participant.email }}', '{{ contact.ticket_participant.phone }}', '{{ contact.ticket_participant.company }}')" aria-label="download contact" download href="#" onclick="return false;">{{ faicon(icon='address-card', icon_size='headline') }}</a>
                       </div>
                     {%- endfor -%}
                   </div>
@@ -85,8 +86,8 @@
       </div>
     </div>
   </div>
-{% endblock %}
+{% endblock basecontent %}
 
 {% block footerscripts %}
   <script src="{{ built_asset('contact.js') }}" type="text/javascript"></script>
-{% endblock %}
+{% endblock footerscripts %}

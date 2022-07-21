@@ -4,7 +4,7 @@
       <div class="membership-wrapper" v-if="ready">
         <div class="mui--clearfix">
           <div class="btn-wrapper membership-wrapper--half" v-if="isUserProfileAdmin">
-            <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" :aria-label="gettext('Add new member')" data-cy-btn="add-member"><faicon :icon="'plus'"></faicon> {{ gettext('Add new member') }}</p></button>
+            <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" :aria-label="gettext('Add new member')" data-cy-btn="add-member"><faicon :icon="'plus'"></faicon> {{ gettext('Add new member') }}</button>
           </div>
           <div class="membership-wrapper--half" v-if="members">
             <form class="mui-form mui--d-inlineblock search search--small search--icon mui--z1" v-on:submit.prevent>
@@ -15,13 +15,13 @@
             </form>
           </div>
         </div>
-        <hr class="separator">
+        <hr class="separator" />
         <div v-if="members">
           <div class="mui--clearfix membership-wrapper__filter">
             <p class="mui--text-body2 mui--text-light mui--text-uppercase mui--pull-left membership-wrapper__filter--txt">{{ members.length }} <span v-if="members.length > 1">{{ gettext('members') }}</span><span v-else>{{ gettext('member') }}</span></p>
             <div class="mui--pull-right">
-               <button class="mui-btn mui-btn--nostyle mui--text-body2" @click="filter($event, 'name')" :class="[view == 'name' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">{{ gettext('Name') }}</button>
-                <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-body2" @click="filter($event, 'role')"  :class="[view == 'role' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">{{ gettext('Role') }}</button>
+              <button class="mui-btn mui-btn--nostyle mui--text-body2" @click="filter($event, 'name')" :class="[view == 'name' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">{{ gettext('Name') }}</button>
+              <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-body2" @click="filter($event, 'role')"  :class="[view == 'role' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">{{ gettext('Role') }}</button>
             </div>
           </div>
           <div v-if="view == 'role'" class="membership-wrapper__members bottom-padding margin-bottom">
@@ -67,7 +67,7 @@
           <p class="mui--text-caption mui--text-center mui--text-light zero-bottom-margin">{{ gettext('Members you add will appear here…') }}</p>
         </div>
         <div id="member-form" class="modal modal--form" :class="[activeMember ? 'modal--form--edit' : '']" role="dialog" aria-modal="true" tabindex="-1">
-          <a class="modal__close mui--text-dark" href="javascript:void(0);" :aria-label="gettext('Close')" rel="modal:close"  data-ga="close view member modal" role="button" tabindex="0">
+          <a class="modal__close mui--text-dark" href="#" onclick="return false;" :aria-label="gettext('Close')" rel="modal:close"  data-ga="close view member modal" role="button" tabindex="0">
             <faicon :icon="'times'" :icon_size="'title'"></faicon>
           </a>
           <component :is="Form"></component>

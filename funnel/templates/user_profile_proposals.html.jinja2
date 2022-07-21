@@ -1,10 +1,10 @@
 {% extends "user_profile.html.jinja2" %}
 
-{% block bodyattrs %}class="mui--bg-primary no-sticky-header mobile-header"{% endblock %}
+{% block bodyattrs %}class="mui--bg-primary no-sticky-header mobile-header"{% endblock bodyattrs %}
 
 {% block baseheadline %}
-  {{ profile_header(profile,  class='mui--hidden-xs mui--hidden-sm', current_page='submissions', title=gettext("Submissions")) }}
-{% endblock %}
+  {{ profile_header(profile,  class="mui--hidden-xs mui--hidden-sm", current_page="submissions", title=gettext("Submissions")) }}
+{% endblock baseheadline %}
 
 {% block contentwrapper %}
   <div class="grid projects-wrapper" id="tagged-submissions">
@@ -16,7 +16,7 @@
       {% endif %}
     </div>
   </div>
-{% endblock %}
+{% endblock contentwrapper %}
 
 {% block footerscripts %}
-{% endblock %}
+{% endblock footerscripts %}

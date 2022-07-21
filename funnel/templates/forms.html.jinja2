@@ -8,7 +8,7 @@
     {%- endif %}
 {%- endmacro %}
 
-{% macro renderfield(field, css_class="", widget_css_class="", sidetext=none, tabindex=none, autofocus=false, nolabel=false, style='horiz', rows=none, placeholder=none) -%}
+{% macro renderfield(field, css_class="", widget_css_class="", sidetext=none, tabindex=none, autofocus=false, nolabel=false, style="horiz", rows=none, placeholder=none) -%}
   {%- if field.widget.html_tag in ['ul', 'ol'] %}
     {%- set listwidget = true %}
   {%- elif field.widget.input_type == 'checkbox' %}
@@ -63,8 +63,8 @@
           {%- elif field.type == 'CoordinatesField' %}
             <div class="map">
               <div class="mui-textfield no-jshidden">
-                <input type="text" class="map__search-field" id="{{ field.id }}_search" placeholder="Enter a location">
-                <a href="javascript:void(0)" id="{{ field.id }}_clear" class="map__clear" aria-label="clear location">{{ faicon(icon='times', icon_size='title') }}</a>
+                <input type="text" class="map__search-field" id="{{ field.id }}_search" placeholder="Enter a location" />
+                <a href="#" onclick="return false;" id="{{ field.id }}_clear" class="map__clear" aria-label="clear location">{{ faicon(icon='times', icon_size='title') }}</a>
                 {%- if not nolabel %}
                   <label for="{{ field.id }}">{{ field.label.text }}</label>
                 {%- endif %}
@@ -79,8 +79,8 @@
                 <label for="{{ field.id }}">{{ field.label.text }}</label>
               {%- endif %}
               <div class="tabs keyboard-switch">
-                <a href="javascript:void(0)" class="tabs__item tabs__item--active mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="email">Use email address</a>
-                <a href="javascript:void(0)" class="tabs__item  mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="tel">Use phone number</a>
+                <a href="#" onclick="return false;" class="tabs__item tabs__item--active mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="email">Use email address</a>
+                <a href="#" onclick="return false;" class="tabs__item  mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="tel">Use phone number</a>
               </div>
             </div>
           {%- elif field.type == 'ImgeeField' %}
@@ -90,14 +90,14 @@
           {%- elif field.widget.input_type == 'password' and field.widget.html_tag not in ['ul', 'ol'] %}
             <div class="mui-textfield mui-textfield--password mui-textfield--float-label">
               {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, autofocus=autofocus, rows=rows, placeholder=placeholder)}}
-              <a href="javascript:void(0)" class="js-show-password js-password-toggle password-toggle" aria-label="show password"tabindex="-1">{{ faicon(icon='eye', icon_size='title', css_class='mui--text-light') }}</a>
-              <a href="javascript:void(0)" class="js-hide-password js-password-toggle password-toggle mui--hide" aria-label="hide password" tabindex="-1">{{ faicon(icon='eye-slash', icon_size='title', css_class='mui--text-light') }}</a>
+              <a href="#" onclick="return false;" class="js-show-password js-password-toggle password-toggle" aria-label="show password"tabindex="-1">{{ faicon(icon='eye', icon_size='title', css_class="mui--text-light") }}</a>
+              <a href="#" onclick="return false;" class="js-hide-password js-password-toggle password-toggle mui--hide" aria-label="hide password" tabindex="-1">{{ faicon(icon='eye-slash', icon_size='title', css_class="mui--text-light") }}</a>
               {%- if not nolabel %}
                 <label for="{{ field.id }}">{{ field.label.text }}</label>
               {%- endif %}
               <div class="password-strength">
-                <span class="password-strength-icon js-password-weak">{{ faicon(icon='times', icon_size='title', baseline=false, css_class='mui--text-danger') }}</span>
-                <span class="password-strength-icon js-password-good">{{ faicon(icon='check', icon_size='title', baseline=false, css_class='mui--text-success') }}</span>
+                <span class="password-strength-icon js-password-weak">{{ faicon(icon='times', icon_size='title', baseline=false, css_class="mui--text-danger") }}</span>
+                <span class="password-strength-icon js-password-good">{{ faicon(icon='check', icon_size='title', baseline=false, css_class="mui--text-success") }}</span>
                 <div class="progress">
                   <div class="progress__bar">
                     <span class="progress__txt mui--text-body2"></span>
@@ -124,7 +124,7 @@
             </div>
           {%- endif %}
           {%- if sidetext %}
-            <span class="mui-form__sidetext">{{sidetext}}</span>
+            <span class="mui-form__sidetext">{{ sidetext }}</span>
           {%- endif %}
           {{ rendererrors(field) }}
           {%- if field.description %}
@@ -136,8 +136,8 @@
   {%- endif %}
 {%- endmacro %}
 
-{% macro rendersubmit(buttons=[], css_class="", tabindex='', cancel_url='', style='horiz', csrf_error=false) -%}
-<div class="mui-form form-actions mui--clearfix{% if css_class %} {{ css_class}}{% endif %}">
+{% macro rendersubmit(buttons=[], css_class="", tabindex='', cancel_url='', style="horiz", csrf_error=false) -%}
+<div class="mui-form form-actions mui--clearfix{% if css_class %} {{ css_class }}{% endif %}">
   <div>
     {% for name, value, widget_class in buttons -%}
       <button type="submit"
@@ -158,7 +158,7 @@
 </div>
 {%- endmacro %}
 
-{% macro renderform_inner(form, formid, style='horiz', autosave=False, draft_revision=None) -%}
+{% macro renderform_inner(form, formid, style="horiz", autosave=False, draft_revision=None) -%}
   {% if message %}<p>{{ message }}</p>{% endif %}
   <div style="display:none;"><input type="hidden" name="form.id" value="{{ formid }}" /></div>
   {{ form.hidden_tag() }}
@@ -177,8 +177,8 @@
   {% endfor %}
 {%- endmacro %}
 
-{%- macro renderform(form, formid, submit, ref_id='form', message='', action=None, cancel_url='', multipart=false, style='', autosave=False, draft_revision=None) %}
-<form data-parsley-validate="true" id="{{ ref_id }}" method="POST" {%- if action %} action="{{ action }}" {%- endif %}{%- if multipart %} enctype="multipart/form-data" {%- endif %} accept-charset="UTF-8" class="mui-form mui-form--margins hg-form {%- if style == 'horiz' %} mui-form--inline{% endif %}">
+{%- macro renderform(form, formid, submit, ref_id="form", message='', action=None, cancel_url='', multipart=false, style="", autosave=False, draft_revision=None) %}
+<form data-parsley-validate="true" id="{{ ref_id }}" method="post" {%- if action %} action="{{ action }}" {%- endif %}{%- if multipart %} enctype="multipart/form-data" {%- endif %} accept-charset="UTF-8" class="mui-form mui-form--margins hg-form {%- if style == 'horiz' %} mui-form--inline{% endif %}">
   {{ renderform_inner(form, formid or none, style=style, autosave=autosave, draft_revision=draft_revision) }}
   {{ rendersubmit([(none, submit or _("Submit"), 'mui-btn--primary')], cancel_url=cancel_url, style=style, csrf_error=form.csrf_token.errors if form.csrf_token else "") }}
 </form>
@@ -313,11 +313,11 @@
 
 {%- macro map_marker_script(field) %}
   new window.Hasgeek.MapMarker({
-    location_id: "{{ field.id}}_search",
+    location_id: "{{ field.id }}_search",
     map_id: "{{ field.id }}_map",
     latitude_id: "{{ field.id }}_latitude",
-    longitude_id: "{{ field.id}}_longitude",
-    clear_id: "{{ field.id}}_clear"
+    longitude_id: "{{ field.id }}_longitude",
+    clear_id: "{{ field.id }}_clear"
   });
 {% endmacro %}
 
@@ -336,7 +336,7 @@
   {%- endwith %}
 {% endmacro %}
 
-{% macro widgetscripts(form, script=true, ref_id='') -%}
+{% macro widgetscripts(form, script=true, ref_id="") -%}
   {%- if script %}
   <script type="text/javascript">
     $(function() {

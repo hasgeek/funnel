@@ -1,20 +1,20 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{{ profile.title }}{% endblock %}
+{% block title %}{{ profile.title }}{% endblock title %}
 {%- from "macros.html.jinja2" import faicon, profile_header %}
 {%- from "js/membership.js.jinja2" import membership_template, profile_member_template %}
 
 {% block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/profile.scss') }}" />
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/membership.scss') }}" />
-{% endblock %}
+{% endblock pageheaders %}
 
-{% block bodyattrs %}class="mui--bg-primary no-sticky-header mobile-header"{% endblock %}
+{% block bodyattrs %}class="mui--bg-primary no-sticky-header mobile-header"{% endblock bodyattrs %}
 
-{% block contenthead %}{% endblock %}
+{% block contenthead %}{% endblock contenthead %}
 
 {% block baseheadline %}
-  {{ profile_header(profile, class='mui--hidden-xs mui--hidden-sm', current_page='admins', title=gettext("Admins")) }}
-{% endblock %}
+  {{ profile_header(profile, class="mui--hidden-xs mui--hidden-sm", current_page="admins", title=gettext("Admins")) }}
+{% endblock baseheadline %}
 
 {% block basecontent %}
   <div class="mui--bg-accent top-padding">
@@ -29,7 +29,7 @@
     </div>
     {{ profile_member_template () }}
   </div>
-{% endblock %}
+{% endblock basecontent %}
 
 {% block footerscripts %}
   <script src="{{ built_asset('membership.js') }}" type="text/javascript"></script>
@@ -55,4 +55,4 @@
 
     });
   </script>
-{% endblock %}
+{% endblock footerscripts %}

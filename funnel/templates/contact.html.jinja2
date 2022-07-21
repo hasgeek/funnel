@@ -1,16 +1,16 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{{ page.title }}{% endblock %}
+{% block title %}{{ page.title }}{% endblock title %}
 {%- from "macros.html.jinja2" import page_footer %}
 
 {% block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/about.scss') }}" />
-{% endblock %}
+{% endblock pageheaders %}
 
 {% block contenthead %}
 <div class="profile profile--hg">
 <div class="profile__banner">
   <div class="profile__banner__box">
-    <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/default-banner-profile.png') }}"/>
+    <img class="profile__banner__box__img profile__banner__box__img--default" src="{{ url_for('static', filename='img/default-banner-profile.png') }}" alt="{{ self.title() }}"/>
   </div>
   <div class="mui-container profile__banner__box__heading">
     <div class="grid">
@@ -21,7 +21,7 @@
   </div>
 </div>
 </div>
-{% endblock %}
+{% endblock contenthead %}
 
 {% block contentwrapper -%}
   <div class="grid">
@@ -29,11 +29,11 @@
       {{ page.html | safe }}
     </div>
   </div>
-{%- endblock %}
+{%- endblock contentwrapper %}
 
 {% block basefooter %}
   {{ page_footer() }}
-{% endblock %}
+{% endblock basefooter %}
 
 {% block footerscripts %}
-{% endblock %}
+{% endblock footerscripts %}

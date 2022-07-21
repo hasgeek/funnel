@@ -1,17 +1,15 @@
-{% extends 'siteadmin_layout.html.jinja2' %}
+{% extends "siteadmin_layout.html.jinja2" %}
 
 {% block admincontentblock %}
-<form data-parsley-validate="true" id="comment-search-form" method="GET"
+<form data-parsley-validate="true" id="comment-search-form" method="get"
   action="{{ url_for('siteadmin_comments') }}" accept-charset="UTF-8"
   class="mui-form mui-form--margins">
-
-  <input type="hidden" id="comment-search-page" name="page" value="1">
-
+  <input type="hidden" id="comment-search-page" name="page" value="1" />
   <div class="mui-form__fields" id="field-query">
     <div class="mui-form__controls">
       <div class="mui-textfield mui-textfield--float-label">
         <input autofocus class="field-query " id="comment-search-query"
-          name="query" type="text" value="{{ query }}">
+          name="query" type="text" value="{{ query }}" />
         <label>{% trans %}Query{% endtrans %}</label>
       </div>
     </div>
@@ -122,4 +120,4 @@
     }
   });
 </script>
-{% endblock %}
+{% endblock footerscripts %}

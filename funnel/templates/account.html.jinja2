@@ -4,6 +4,7 @@
 {% block title -%}
   {% trans %}My account{% endtrans %}
 {%- endblock title %}
+
 {%- block pageheaders %}
   <link rel="stylesheet"
         type="text/css"
@@ -12,14 +13,17 @@
         type="text/css"
         href="{{ built_asset('css/account.scss') }}"/>
 {%- endblock pageheaders %}
+
 {% block bodyattrs -%}
   class="mui--bg-primary tabs-navbar"
 {%- endblock bodyattrs %}
+
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
     <div class="mui-container">{{ account_tabs(active_tab='account') }}</div>
   </div>
 {%- endblock headline %}
+
 {% block basecontent -%}
   <div class="mui-container tab-content">
     <div class="grid">
@@ -64,7 +68,7 @@
               {%- endif %}
             </p>
             <p class="mui--text-subhead">
-              {{ faicon('clock', css_class="icon-img--smaller") }}
+              {{ faicon(icon='clock', css_class="icon-img--smaller") }}
               <span class="item">{{ current_auth.user.views.timezone() }}
                 {%- if current_auth.user.auto_timezone %}
                   <small class="subitem"><em>{% trans %}From device{% endtrans %}</em></small>
@@ -72,7 +76,7 @@
               </span>
             </p>
             <p class="mui--text-subhead">
-              {{ faicon('font-case', css_class="icon-img--smaller") }}
+              {{ faicon(icon='font-case', css_class="icon-img--smaller") }}
               <span class="item">{{ current_auth.user.views.locale() }}
                 {%- if current_auth.user.auto_locale %}
                   <small class="subitem"><em>{% trans %}From device{% endtrans %}</em></small>
@@ -217,7 +221,7 @@
                         {{ userphone.formatted() }}
                       </label>
                       {% if userphone.primary %}
-                        <span title="{% trans %}Primary{% endtrans %}">{{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=false, css_class="mui--text-success input-align-icon ") }}</span>
+                        <span title="{% trans %}Primary{% endtrans %}">{{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=false, css_class="mui--text-success input-align-icon") }}</span>
                       {%- endif -%}
                       {% if has_multiple_verified_contacts -%}
                         <a href="{{ url_for('remove_phone', number=userphone.phone) }}"

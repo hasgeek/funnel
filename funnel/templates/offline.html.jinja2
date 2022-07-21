@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{% trans %}Offline{% endtrans %}{% endblock %}
+{% block title %}{% trans %}Offline{% endtrans %}{% endblock title %}
 
-{% block contenthead %}{% endblock %}
+{% block contenthead %}{% endblock contenthead %}
 
 {% block basecontent %}
   <div class="page-content">
@@ -11,7 +11,7 @@
       </div>
     </div>
   </div>
-{% endblock %}
+{% endblock basecontent %}
 
 {% block serviceworker %}
-{% endblock %}
+{% endblock serviceworker %}

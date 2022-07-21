@@ -1,11 +1,11 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{% block title %}{% trans %}Manage check-in{% endtrans %}{% endblock %}
+{% block title %}{% trans %}Manage check-in{% endtrans %}{% endblock title %}
 
 {% block top_title %}
   <h1 class="mui--text-headline"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
   <p class="mui--text-subhead">{% trans %}Manage check-in{% endtrans %}</p>
-{% endblock %}
+{% endblock top_title %}
 
 {% block contentwrapper %}
   <div class="grid">
@@ -19,7 +19,7 @@
           <ol class="mui-list--aligned">
             {%- for ticket_event in ticket_events %}
               <li class="mui--text-title">
-                <a href="{{ ticket_event.url_for('scan_badge') }}" aria-label=" {% trans title=ticket_event.title %} View {{title}} attendees{% endtrans %}"><strong>{{ ticket_event.title }}</strong></a>
+                <a href="{{ ticket_event.url_for('scan_badge') }}" aria-label=" {% trans title=ticket_event.title %} View {{ title }} attendees{% endtrans %}"><strong>{{ ticket_event.title }}</strong></a>
               </li>
             {%- endfor %}
           </ol>
@@ -27,4 +27,4 @@
       </div>
     </div>
   </div>
-{% endblock %}
+{% endblock contentwrapper %}

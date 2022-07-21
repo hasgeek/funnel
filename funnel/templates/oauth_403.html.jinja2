@@ -1,7 +1,7 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{% trans %}Unavailable{% endtrans %}{% endblock %}
+{% block title %}{% trans %}Unavailable{% endtrans %}{% endblock title %}
 
 {% block content %}
   <p>{% trans %}There was an error in the authorization request:{% endtrans %}</p>
   <p>{{ reason }}</p>
-{% endblock %}
+{% endblock content %}
