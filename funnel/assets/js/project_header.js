@@ -3,6 +3,7 @@ import Video from './utils/embedvideo';
 import Analytics from './utils/analytics';
 import Spa from './utils/spahelper';
 import Form from './utils/formhelper';
+import TypeformEmbed from './utils/typeform_embed';
 
 const Ticketing = {
   init(tickets) {
@@ -233,50 +234,7 @@ $(() => {
       Spa.fetchPage(url, $(this).attr('id'), true);
     });
 
-    function loadTypeFormEmbed() {
-      const head = document.querySelector('head');
-      const typeformStyle = document.createElement('link');
-      typeformStyle.rel = 'stylesheet';
-      typeformStyle.href = 'https://embed.typeform.com/next/css/popup.css';
-      head.appendChild(typeformStyle);
-
-      const body = document.querySelector('body');
-      const typeformScript = document.createElement('script');
-      typeformScript.type = 'text/javascript';
-      typeformScript.src = 'https://embed.typeform.com/next/embed.js';
-      body.appendChild(typeformScript);
-    }
-
-    function addTypeformEmbed(typeformId, parentElem) {
-      const typeformDiv = `<div class="typeform-wrapper" data-tf-widget="${typeformId}" data-tf-inline-on-mobile data-tf-medium="snippet" ></div>`;
-      parentElem.append(typeformDiv);
-    }
-
-    let includeTypeFormScript;
-
-    $('#about .markdown')
-      .find('a')
-      .each(function () {
-        const txt = $(this).attr('href');
-        let urlSplit;
-        let typeformId;
-        const parent = $(this).parents('#about');
-        if (txt.includes('typeform')) {
-          includeTypeFormScript = true;
-          urlSplit = txt.split('/');
-          typeformId = urlSplit.slice(-1);
-          typeformId = typeformId.includes('?')
-            ? typeformId.split('?')[0]
-            : typeformId;
-          $(this).remove();
-          if (typeformId) {
-            addTypeformEmbed(typeformId, parent);
-          }
-        }
-      });
-
-    if (includeTypeFormScript) {
-      loadTypeFormEmbed();
-    }
+    // Include parent container
+    TypeformEmbed.init('#about .markdown');
   };
 });
