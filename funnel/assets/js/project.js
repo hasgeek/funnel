@@ -1,4 +1,5 @@
 import L from 'leaflet';
+import TypeformEmbed from './utils/typeform_embed';
 
 const EmbedMap = {
   init({ mapId, latitude, longitude }) {
@@ -48,5 +49,7 @@ $(() => {
     if (venue) {
       EmbedMap.init(venue);
     }
+    // Include parent container
+    TypeformEmbed.init('#about .markdown');
   };
 });
