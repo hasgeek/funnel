@@ -49,7 +49,7 @@ def test_bad_message(client) -> None:
 
 
 @pytest.mark.skip(reason="Certificate has expired")
-def test_complaint_message(client):
+def test_complaint_message(client) -> None:
     """Test Complaint message."""
     with open(os.path.join(DATA_DIR, 'full-message.json'), encoding='utf-8') as file:
         data = file.read()
@@ -60,7 +60,7 @@ def test_complaint_message(client):
 
 
 @pytest.mark.skip(reason="Certificate has expired")
-def test_delivery_message(client):
+def test_delivery_message(client) -> None:
     """Test Delivery message."""
     with open(
         os.path.join(DATA_DIR, 'delivery-message.json'), encoding='utf-8'
@@ -73,7 +73,7 @@ def test_delivery_message(client):
 
 
 @pytest.mark.skip(reason="Certificate has expired")
-def test_bounce_message(client):
+def test_bounce_message(client) -> None:
     """Test Bounce message."""
     with open(os.path.join(DATA_DIR, 'bounce-message.json'), encoding='utf-8') as file:
         data = file.read()

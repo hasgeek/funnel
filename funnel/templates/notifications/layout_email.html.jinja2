@@ -21,24 +21,24 @@
           border-left: 3px solid #ccc;
         }
       </style>
-    {%- endblock %}
+    {%- endblock stylesheet %}
   </head>
   <body>
     {%- block jsonld %}{%- if jsonld %}
       <script type="application/ld+json">
         {{ jsonld|tojson }}
       </script>
-    {%- endif %}{%- endblock %}
-    <div>{% block content %}{% endblock %}</div>
+    {%- endif %}{%- endblock jsonld %}
+    <div>{% block content %}{% endblock content %}</div>
     <div>{% block footer %}
       {%- if view %}
-        <hr>
+        <hr/>
         <p>
           {{ view.reason_email }}
           &bull;
           <a href="{{ view.unsubscribe_url_email }}">{% trans %}Unsubscribe or manage preferences{% endtrans %}</a>
         </p>
       {%- endif %}
-    {% endblock %}</div>
+    {% endblock footer %}</div>
   </body>
 </html>

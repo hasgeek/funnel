@@ -1,24 +1,23 @@
-{% extends 'siteadmin_layout.html.jinja2' %}
+{% extends "siteadmin_layout.html.jinja2" %}
 
 {% block top_title %}
-<h1 class="mui--text-headline"><strong>{% trans %}Review comments{% endtrans %}</strong></h1>
-{% endblock %}
+  <h1 class="mui--text-headline"><strong>{% trans %}Review comments{% endtrans %}</strong></h1>
+{% endblock top_title %}
 
 {% block admincontentblock %}
-<div class="mui-panel">
-  <p>{% trans %}This comment has been reported as spam{% endtrans %}</p>
-  <form action="{{ url_for('siteadmin_review_comment', report=report.uuid_b58) }}" method="post">
-    {{ report_form.hidden_tag() }}
-    {% for value, title in report_form.report_type.choices %}
-    <button name="report_type" value="{{ value }}" class="mui-btn mui-btn--small mui-btn--accent">{{ title }}</button>
-    {% endfor %}
-  </form>
-</div>
-<div class="mui-panel">{{ report.comment.message }}</div>
-<div><a target="_blank" rel="noopener" href="{{ report.comment.url_for(_external=True) }}">[Link to comment]</a></div>
-
+  <div class="mui-panel">
+    <p>{% trans %}This comment has been reported as spam{% endtrans %}</p>
+    <form action="{{ url_for('siteadmin_review_comment', report=report.uuid_b58) }}" method="post">
+      {{ report_form.hidden_tag() }}
+      {% for value, title in report_form.report_type.choices %}
+      <button name="report_type" value="{{ value }}" class="mui-btn mui-btn--small mui-btn--accent">{{ title }}</button>
+      {% endfor %}
+    </form>
+  </div>
+  <div class="mui-panel">{{ report.comment.message }}</div>
+  <div>
+    <a target="_blank" rel="noopener" href="{{ report.comment.url_for(_external=True) }}">[Link to comment]</a>
+  </div>
 {% endblock admincontentblock %}
 
-{% block footerscripts %}
-
-{% endblock %}
+{% block footerscripts %}{% endblock footerscripts %}

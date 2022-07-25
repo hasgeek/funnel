@@ -1,11 +1,13 @@
+"""Test ProjectSponsorship views."""
+
 import pytest
 
-from funnel.models import SiteMembership, SponsorMembership, db
+from funnel.models import ProjectSponsorMembership, SiteMembership, db
 
 
 @pytest.fixture()
 def org_uu_sponsorship(user_vetinari, org_uu, project_expo2010):
-    sponsorship = SponsorMembership(
+    sponsorship = ProjectSponsorMembership(
         granted_by=user_vetinari,
         profile=org_uu.profile,
         project=project_expo2010,
@@ -81,12 +83,12 @@ def test_sponsorship_add(  # pylint: disable=too-many-arguments
         data['is_promoted'] = True
 
     rv = client.post(endpoint, data=data)
-    assert rv.status_code == 302
+    assert rv.status_code == 303
 
-    added_sponsorship = SponsorMembership.query.filter(
-        SponsorMembership.is_active,
-        SponsorMembership.project == project_expo2010,
-        SponsorMembership.profile == org_uu.profile,
+    added_sponsorship = ProjectSponsorMembership.query.filter(
+        ProjectSponsorMembership.is_active,
+        ProjectSponsorMembership.project == project_expo2010,
+        ProjectSponsorMembership.profile == org_uu.profile,
     ).one_or_none()
     assert added_sponsorship is not None
     assert added_sponsorship.profile == org_uu.profile
@@ -106,12 +108,12 @@ def test_sponsorship_edit(
         # Set is_promoted to False by excluding it from form data (how HTML forms work)
     }
     rv = client.post(endpoint, data=data)
-    assert rv.status_code == 302
+    assert rv.status_code == 303
 
-    edited_sponsorship = SponsorMembership.query.filter(
-        SponsorMembership.is_active,
-        SponsorMembership.project == org_uu_sponsorship.project,
-        SponsorMembership.profile == org_uu_sponsorship.profile,
+    edited_sponsorship = ProjectSponsorMembership.query.filter(
+        ProjectSponsorMembership.is_active,
+        ProjectSponsorMembership.project == org_uu_sponsorship.project,
+        ProjectSponsorMembership.profile == org_uu_sponsorship.profile,
     ).one_or_none()
     assert edited_sponsorship.label == "Edited"
     assert edited_sponsorship.is_promoted is False
@@ -133,12 +135,12 @@ def test_sponsorship_remove(  # pylint: disable=too-many-arguments
         'csrf_token': csrf_token,
     }
     rv = client.post(endpoint, data=data)
-    assert rv.status_code == 302
+    assert rv.status_code == 303
 
-    no_sponsor = SponsorMembership.query.filter(
-        SponsorMembership.is_active,
-        SponsorMembership.project == org_uu_sponsorship.project,
-        SponsorMembership.profile == org_uu_sponsorship.profile,
+    no_sponsor = ProjectSponsorMembership.query.filter(
+        ProjectSponsorMembership.is_active,
+        ProjectSponsorMembership.project == org_uu_sponsorship.project,
+        ProjectSponsorMembership.profile == org_uu_sponsorship.profile,
     ).one_or_none()
     assert no_sponsor is None
     assert org_uu_sponsorship.is_active is False

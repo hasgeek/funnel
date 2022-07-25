@@ -1,11 +1,11 @@
 """Provides the request_wants proxy for views and templates."""
+
 from __future__ import annotations
 
 from functools import wraps
-from typing import Any, Callable, Optional, TypeVar, cast
+from typing import Any, Callable, Optional, Set, TypeVar, cast
 
 from flask import (  # type: ignore[attr-defined]
-    Response,
     _request_ctx_stack,
     has_request_context,
     request,
@@ -13,12 +13,14 @@ from flask import (  # type: ignore[attr-defined]
 from werkzeug.local import LocalProxy
 from werkzeug.utils import cached_property
 
+from ..typing import ReturnDecorator, ReturnResponse
+
 __all__ = ['request_wants']
 
 TestFunc = TypeVar('TestFunc', bound=Callable[['RequestWants'], Any])
 
 
-class TestUses:
+def test_uses(*headers: str) -> ReturnDecorator:
     """
     Identify HTTP headers accessed in this test, to be set in the response Vary header.
 
@@ -26,12 +28,7 @@ class TestUses:
     method into a cached property.
     """
 
-    def __init__(self, *headers: str) -> None:
-        self.headers = headers
-
-    def __call__(self, f: TestFunc) -> TestFunc:
-        headers = self.headers
-
+    def decorator(f: TestFunc) -> TestFunc:
         @wraps(f)
         def wrapper(self: RequestWants) -> Any:
             self.response_vary.update(headers)
@@ -40,6 +37,8 @@ class TestUses:
             return f(self)
 
         return cast(TestFunc, cached_property(wrapper))
+
+    return decorator
 
 
 class RequestWants:
@@ -54,20 +53,20 @@ class RequestWants:
     :func:`~funnel.proxies.init_app`.
     """
 
-    def __init__(self):
-        self.response_vary = set()
+    def __init__(self) -> None:
+        self.response_vary: Set[str] = set()
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return has_request_context()
 
     # --- request_wants tests ----------------------------------------------------------
 
-    @TestUses('Accept')
+    @test_uses('Accept')
     def json(self) -> bool:
         """Request wants a JSON response."""
         return request.accept_mimetypes.best == 'application/json'
 
-    @TestUses('X-Requested-With', 'Accept', 'HX-Request')
+    @test_uses('X-Requested-With', 'Accept', 'HX-Request')
     def html_fragment(self) -> bool:
         """Request wants a HTML fragment for embedding (XHR or HTMX)."""
         return request.accept_mimetypes.best in (
@@ -81,7 +80,7 @@ class RequestWants:
             == 'xmlhttprequest'
         )
 
-    @TestUses('Accept')
+    @test_uses('Accept')
     def html_in_json(self) -> bool:
         """Request wants HTML embedded in JSON (custom type for this project)."""
         return (
@@ -91,27 +90,27 @@ class RequestWants:
             == 'application/x.html+json'
         )
 
-    @TestUses('HX-Request')
+    @test_uses('HX-Request')
     def htmx(self) -> bool:
         """Request wants a HTMX-compatible response."""
         return request.environ.get('HTTP_HX_REQUEST') == 'true'
 
-    @TestUses('HX-Trigger')
+    @test_uses('HX-Trigger')
     def hx_trigger(self) -> Optional[str]:
         """Id of element that triggered a HTMX request."""
         return request.environ.get('HTTP_HX_TRIGGER')
 
-    @TestUses('HX-Trigger-Name')
+    @test_uses('HX-Trigger-Name')
     def hx_trigger_name(self) -> Optional[str]:
         """Name of element that triggered a HTMX request."""
         return request.environ.get('HTTP_HX_TRIGGER_NAME')
 
-    @TestUses('HX-Target')
+    @test_uses('HX-Target')
     def hx_target(self) -> Optional[str]:
         """Target of a HTMX request."""
         return request.environ.get('HTTP_HX_TARGET')
 
-    @TestUses('HX-Prompt')
+    @test_uses('HX-Prompt')
     def hx_prompt(self) -> Optional[str]:
         """Content of user prompt in HTMX."""
         return request.environ.get('HTTP_HX_PROMPT')
@@ -132,7 +131,7 @@ def _get_request_wants() -> RequestWants:
 request_wants = LocalProxy(_get_request_wants)
 
 
-def response_varies(response: Response) -> Response:
+def response_varies(response: ReturnResponse) -> ReturnResponse:
     """App ``after_request`` handler to set response ``Vary`` header."""
     response.vary.update(request_wants.response_vary)  # type: ignore[union-attr]
     return response

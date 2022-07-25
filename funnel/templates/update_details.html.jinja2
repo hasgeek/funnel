@@ -2,24 +2,24 @@
 {% extends "project_layout.html.jinja2" %}
 {% from "forms.html.jinja2" import renderform %}
 {%- from "js/update.js.jinja2" import updates_template %}
-{% block title %}{{ update.title }}{% endblock %}
+{% block title %}{{ update.title }}{% endblock title %}
 
 {%- block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/update.scss') }}" />
-{% endblock %}
+{% endblock pageheaders %}
 
-{% block mobile_header_title %}{% endblock %}
+{% block mobile_header_title %}{% endblock mobile_header_title %}
 
 {% block left_col %}
   <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between nav-btn-wrapper">
-    <a class="mui--text-dark mui--text-body2 nounderline" href="{{ project.url_for('updates') }}">{{ faicon(icon='chevron-double-left-solid', icon_size='body2', css_class='mui--align-middle btn-margin-right') }}{% trans %}All updates{% endtrans %}</a>
+    <a class="mui--text-dark mui--text-body2 nounderline" href="{{ project.url_for('updates') }}">{{ faicon(icon='chevron-double-left-solid', icon_size='body2', css_class="mui--align-middle btn-margin-right") }}{% trans %}All updates{% endtrans %}</a>
     <div>
       {% with prev_update = update.getprev(), next_update = update.getnext() %}
       {%- if next_update -%}
-        <a href="{{ next_update.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline">{{ faicon(icon='caret-left-solid', icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-right') }}{% trans %}Next{% endtrans %}</a>
+        <a href="{{ next_update.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline">{{ faicon(icon='caret-left-solid', icon_size='subhead', baseline=false, css_class="mui--align-middle btn-margin-right") }}{% trans %}Next{% endtrans %}</a>
       {%- endif -%}
       {%- if prev_update -%}
-        <a href="{{ prev_update.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline next-btn">{% trans %}Previous{% endtrans %}{{ faicon(icon='caret-right-solid', icon_size='subhead', baseline=false, css_class='mui--align-middle btn-margin-left') }}</a>
+        <a href="{{ prev_update.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline next-btn">{% trans %}Previous{% endtrans %}{{ faicon(icon='caret-right-solid', icon_size='subhead', baseline=false, css_class="mui--align-middle btn-margin-left") }}</a>
       {%- endif -%}
       {% endwith %}
     </div>
@@ -34,7 +34,7 @@
       {% endif %}
     </div>
   </div>
-{% endblock %}
+{% endblock left_col %}
 
 {% block footerinnerscripts %}
   <script src="{{ built_asset('update.js') }}" type="text/javascript"></script>
@@ -54,4 +54,4 @@
       window.Hasgeek.projectHeaderInit();
     });
   </script>
-{% endblock %}
+{% endblock footerinnerscripts %}

@@ -2,13 +2,13 @@
 {% from "forms.html.jinja2" import rendersubmit %}
 {%- from "macros.html.jinja2" import faicon, account_tabs, csrf_tag, useravatar %}
 
-{% block title %}{% trans %}My account{% endtrans %}{% endblock %}
+{% block title %}{% trans %}My account{% endtrans %}{% endblock title %}
 
 {%- block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/account.scss') }}" />
-{%- endblock %}
+{%- endblock pageheaders %}
 
-{% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock %}
+{% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock bodyattrs %}
 
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
@@ -16,7 +16,7 @@
       {{ account_tabs(active_tab='notification_preferences') }}
     </div>
   </div>
-{%- endblock %}
+{%- endblock headline %}
 
 {% block basecontent %}
   <div class="mui-container tab-content">
@@ -25,7 +25,7 @@
         <ul class="mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps mui--text-capitalize" role="tablist">
           {% for transport in transports %}
             <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
-              <a class="mui--text-body2" href="javascript:void(0);" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ transport }}">{{ transport_details[transport]['title'] }}</a>
+              <a class="mui--text-body2" href="#" onclick="return false;" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ transport }}">{{ transport_details[transport]['title'] }}</a>
             </li>
           {%- endfor %}
         </ul>
@@ -33,11 +33,11 @@
           <div role="tabpanel" class="preference mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ transport }}">
             <div class="preference__switch mui--clearfix">
               {% if transport_details[transport]['available'] %}
-                <form method="POST" class="js-autosubmit-form right-padding">
+                <form method="post" class="js-autosubmit-form right-padding">
                   {{ csrf_tag() }}
-                  <input type="hidden" name="notification_type" value="">
-                  <input type="hidden" name="transport" value="{{ transport }}">
-                  <input type="checkbox" name="enabled" {%- if main_preferences[transport] %}checked{%- endif %} id="{{ transport }}" class="switch-input js-toggle-switch"/>
+                  <input type="hidden" name="notification_type" value="" />
+                  <input type="hidden" name="transport" value="{{ transport }}" />
+                  <input type="checkbox" name="enabled" {%- if main_preferences[transport] %}checked{%- endif %} id="{{ transport }}" class="switch-input js-toggle-switch" />
                   <label class="switch-label mui--pull-right" for="{{ transport }}">
                   </label>
                 </form>
@@ -64,11 +64,11 @@
                         <p class="preference__title__header">{{ type.title }}</p>
                         <p class="preference__title__subheader mui--text-light">{{ type.description }}</p>
                       </div>
-                      <form method="POST" class="js-autosubmit-form">
+                      <form method="post" class="js-autosubmit-form">
                         {{ csrf_tag() }}
-                        <input type="hidden" name="notification_type" value="{{ type.notification_type }}">
-                        <input type="hidden" name="transport" value="{{ transport }}">
-                        <input type="checkbox" name="enabled" {%- if type.preferences[transport] %}checked{%- endif %} id="{{ type.notification_type }}-{{ transport }}" class="switch-input js-toggle-switch" data-transport="preference-{{ transport }}"/>
+                        <input type="hidden" name="notification_type" value="{{ type.notification_type }}" />
+                        <input type="hidden" name="transport" value="{{ transport }}" />
+                        <input type="checkbox" name="enabled" {%- if type.preferences[transport] %}checked{%- endif %} id="{{ type.notification_type }}-{{ transport }}" class="switch-input js-toggle-switch" data-transport="preference-{{ transport }}" />
                         <label class="switch-label mui--pull-right {%- if not main_preferences[transport] %} switch-label--disabled{%- endif %}" for="{{ type.notification_type }}-{{ transport }}" data-transport="preference-{{ transport }}">
                         </label>
                       </form>
@@ -84,7 +84,7 @@
       </div>
     </div>
   </div>
-{% endblock %}
+{% endblock basecontent %}
 
 {% block footerscripts %}
   <script src="{{ built_asset('notification_settings.js') }}" type="text/javascript"></script>
@@ -96,4 +96,4 @@
       window.Hasgeek.notificationSettings(config);
     });
   </script>
-{% endblock %}
+{% endblock footerscripts %}

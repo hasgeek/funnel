@@ -1,6 +1,9 @@
+"""Test configuration and fixtures."""
+
 from datetime import datetime
 from types import MethodType, SimpleNamespace
-from typing import List, Optional
+from typing import List, NamedTuple, Optional
+import re
 
 from sqlalchemy import event
 
@@ -29,13 +32,35 @@ from funnel.models import (
 # --- Adapted from the abandoned Flask-Fillin package
 
 
+_meta_refresh_content_re = re.compile(
+    r"""
+    \s*
+    (?P<timeout>\d+)      # Timeout
+    \s*
+    ;?                    # ; separator for optional URL
+    \s*
+    (?:URL\s*=\s*["']?)?  # Optional 'URL=' or 'URL="' prefix
+    (?P<url>.*?)          # Optional URL
+    (?:["']?\s*)          # Optional closing quote for URL
+    """,
+    re.ASCII | re.IGNORECASE | re.VERBOSE,
+)
+
+
+class MetaRefreshContent(NamedTuple):
+    """Timeout and optional URL in a Meta Refresh tag."""
+
+    timeout: int
+    url: Optional[str] = None
+
+
 class ResponseWithForms(Response):
     """
     Wrapper for the test client response that makes form submission easier.
 
     Usage::
 
-        def test_mytest(client):
+        def test_mytest(client) -> None:
             response = client.get('/page_with_forms')
             form = response.form('login')
             form.fields['username'] = 'my username'
@@ -114,6 +139,20 @@ class ResponseWithForms(Response):
         if links:
             return links[0]
         return None
+
+    @property
+    def metarefresh(self) -> Optional[MetaRefreshContent]:
+        """Return content of Meta Refresh tag if present."""
+        meta_elements = self.html.cssselect('meta[http-equiv="refresh"]')
+        if not meta_elements:
+            return None
+        content = meta_elements[0].attrib.get('content')
+        if content is None:
+            return None
+        match = _meta_refresh_content_re.fullmatch(content)
+        if match is None:
+            return None
+        return MetaRefreshContent(int(match['timeout']), match['url'] or None)
 
 
 # --- New fixtures, to replace the legacy tests below as tests are updated
@@ -200,6 +239,8 @@ def login(client):
             # cookie session authentication with db-backed authentication. It's long
             # pending removal
             session['userid'] = user.userid
+        # Perform a request to convert the session userid into a UserSession
+        client.get('/api/1/user/get')
 
     def logout():
         # TODO: Test this
@@ -218,7 +259,7 @@ def varfixture(request):
     Usage::
 
         @pytest.mark.parametrize('varfixture', ['fixture1', 'fixture2'], indirect=True)
-        def test_me(varfixture):
+        def test_me(varfixture) -> None:
             ...
 
     This fixture can also be ignored, and a test can access a variable fixture directly:

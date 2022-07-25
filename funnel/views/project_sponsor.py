@@ -1,6 +1,8 @@
+"""Views for managing sponsors of a project."""
+
 from __future__ import annotations
 
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from flask import abort, flash, render_template, request
 
@@ -11,7 +13,8 @@ from coaster.views import ModelView, UrlChangeCheck, UrlForView, route
 
 from .. import app
 from ..forms import ProjectSponsorForm
-from ..models import Profile, Project, SponsorMembership, db
+from ..models import Profile, Project, ProjectSponsorMembership, db
+from ..typing import ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_site_editor
 from .mixins import ProjectViewMixin
@@ -32,15 +35,17 @@ class ProjectSponsorLandingView(
     __decorators__ = [requires_login, requires_site_editor]
 
     @route('sponsors/add', methods=['POST', 'GET'])
-    def add_sponsor(self):
+    def add_sponsor(self) -> ReturnView:
         form = ProjectSponsorForm()
 
         if request.method == 'POST':
             if form.validate_on_submit():
-                existing_sponsorship = SponsorMembership.query.filter(
-                    SponsorMembership.is_active,
-                    SponsorMembership.project == self.obj,
-                    SponsorMembership.profile == form.profile.data,
+                if TYPE_CHECKING:
+                    assert isinstance(form.profile.data, Profile)  # nosec
+                existing_sponsorship = ProjectSponsorMembership.query.filter(
+                    ProjectSponsorMembership.is_active,
+                    ProjectSponsorMembership.project == self.obj,
+                    ProjectSponsorMembership.profile == form.profile.data,
                 ).one_or_none()
                 if existing_sponsorship is not None:
                     return (
@@ -54,7 +59,7 @@ class ProjectSponsorLandingView(
                         },
                         400,
                     )
-                sponsor_membership = SponsorMembership(
+                sponsor_membership = ProjectSponsorMembership(
                     project=self.obj,
                     granted_by=current_auth.user,
                 )
@@ -84,11 +89,11 @@ class ProjectSponsorLandingView(
 ProjectSponsorLandingView.init_app(app)
 
 
-@SponsorMembership.views('main')
+@ProjectSponsorMembership.views('main')
 @route('/<profile>/<project>/sponsors/<sponsorship>')
 class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [requires_login, requires_site_editor]
-    model = SponsorMembership
+    model = ProjectSponsorMembership
     route_model_map = {
         'profile': 'project.profile.name',
         'project': 'project.name',
@@ -100,7 +105,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
         profile: str,  # skipcq: PYL-W0613
         project: str,  # skipcq: PYL-W0613
         sponsorship: Optional[str] = None,
-    ) -> SponsorMembership:
+    ) -> ProjectSponsorMembership:
         obj = (
             self.model.query.join(Project, Profile)
             .filter(self.model.uuid_b58 == sponsorship)
@@ -111,7 +116,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
         return obj
 
     @route('edit', methods=['GET', "POST"])
-    def edit(self):
+    def edit(self) -> ReturnView:
         form = edit_sponsor_form(self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():
@@ -142,7 +147,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
         )
 
     @route('remove', methods=['GET', "POST"])
-    def remove(self):
+    def remove(self) -> ReturnView:
         form = ConfirmDeleteForm()
         if request.method == 'POST':
             if form.validate_on_submit():

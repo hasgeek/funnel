@@ -3,7 +3,7 @@ from flask_mailman.message import sanitize_address
 from funnel.transports.email import process_recipient
 
 
-def test_process_recipient():
+def test_process_recipient() -> None:
     """
     Test whether process_recipient produces output compatible with sanitize_address.
 

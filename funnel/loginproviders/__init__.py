@@ -1,3 +1,4 @@
+"""Login provider implementations."""
 # flake8: noqa
 
 from __future__ import annotations
@@ -7,3 +8,4 @@ from .google import *
 from .init_app import *
 from .linkedin import *
 from .twitter import *
+from .zoom import *

@@ -1,4 +1,6 @@
+"""Test for project ticket sync models."""
 # pylint: disable=attribute-defined-outside-init
+
 import unittest
 
 import pytest
@@ -100,7 +102,7 @@ class TestEventModels(unittest.TestCase):
         def tearDown():
             self.ctx.pop()
 
-    def test_import_from_list(self):
+    def test_import_from_list(self) -> None:
         # test bookings
         self.ticket_client.import_from_list(ticket_list)
         p1 = TicketParticipant.query.filter_by(

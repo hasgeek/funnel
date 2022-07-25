@@ -24,7 +24,14 @@ exclude = '''
 )/
 '''
 
+[tool.djlint]
+profile='jinja'
+extension='.jinja2'
+indent=2
+ignore="T028,H006"
+
 [tool.curlylint]
+# Curlylint is not used, but the configuration is preserved here for future use
 include = '\.html.jinja2$'
 template_tags = [['set'], ['trans', 'pluralize', 'endtrans']]
 exclude = '''
@@ -82,7 +89,7 @@ known_flask = [
   'wtforms',
   'webassets',
   'flask_assets',
-  'flask_babelhg',
+  'flask_babel',
   'flask_executor',
   'flask_flatpages',
   'flask_mailman',
@@ -110,17 +117,32 @@ pythonVersion = '3.7'
 [tool.mypy]
 files = '**/*.py'
 exclude = 'node_modules'
+plugins = ['sqlmypy']
 ignore_missing_imports = true
 show_error_codes = true
 warn_unreachable = true
-# Unsafe with pre-commit, see https://github.com/python/mypy/issues/2960
-warn_unused_ignores = false
-plugins = ['sqlmypy']
+warn_unused_ignores = true
+warn_redundant_casts = false
+check_untyped_defs = false
+
+[[tool.mypy.overrides]]
+# This override doesn't seem to work
+module = ['tests']
+check_untyped_defs = true
+warn_unreachable = false
 
 [tool.pylint.master]
 load-plugins = ['pylint_pytest', 'pylint_flask_sqlalchemy']
 max-parents = 10
-init-hook = "import os; sys.path.append(os.getcwd())"
+init-hook = """
+import os, astroid.bases
+# Tell Pylint where to find the funnel package from within tests
+sys.path.append(os.getcwd())
+# Tell Pylint hybrid_property and cached_property are property-types
+astroid.bases.POSSIBLE_PROPERTIES.add('hybrid_property')
+astroid.bases.POSSIBLE_PROPERTIES.add('cached_property')
+"""
+
 
 [tool.pylint.message_control]
 max-line-length = 88
@@ -131,11 +153,22 @@ disable = [
   'fixme',  # Our workflow is to tag for future fixes
   'invalid-name',  # Flake8 covers our naming convention requirements
   'no-member',  # Pylint gets confused over how some members become part of an instance
-  'no-self-use',  # Views and overriden methods don't necessarily use `self`
   'too-few-public-methods',  # Data classes and validator classes have few methods
+  'too-many-ancestors',  # Our models have a large number of mixin classes
   'too-many-instance-attributes',  # Some instances are just bags of attributes
   'too-many-lines',  # We have large files that include all related functionality
+  'too-many-public-methods',  # Models and views have many public methods
   'unused-argument',  # Arguments required for spec compatibility aren't always used
+  'wrong-import-position',  # Let black and isort handle this
+
+  # Temporarily disabled pending audit and fixes
+  'missing-class-docstring',
+  'missing-function-docstring',
+  'too-many-branches',
+  'too-many-nested-blocks',
+  'too-many-return-statements',
+  'too-many-statements',
+  'too-many-locals',
 ]
 
 [tool.bandit]

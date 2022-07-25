@@ -1,3 +1,5 @@
+"""GitHub OAuth2 client."""
+
 from __future__ import annotations
 
 from flask import current_app, redirect, request
@@ -5,7 +7,6 @@ from flask import current_app, redirect, request
 from furl import furl
 from sentry_sdk import capture_exception
 import requests
-import simplejson
 
 from baseframe import _
 
@@ -18,20 +19,8 @@ class GitHubProvider(LoginProvider):
     at_username = True
     auth_url = 'https://github.com/login/oauth/authorize'
     token_url = 'https://github.com/login/oauth/access_token'  # nosec  # noqa: S105
-    user_info = 'https://api.github.com/user'
-    user_emails = 'https://api.github.com/user/emails'
-
-    def __init__(
-        self, name, title, key, secret, at_login=True, priority=False, icon=None
-    ) -> None:
-        self.name = name
-        self.title = title
-        self.at_login = at_login
-        self.priority = priority
-        self.icon = icon
-
-        self.key = key
-        self.secret = secret
+    user_info_url = 'https://api.github.com/user'
+    user_emails_url = 'https://api.github.com/user/emails'
 
     def do(self, callback_url):
         return redirect(
@@ -70,12 +59,12 @@ class GitHubProvider(LoginProvider):
             if 'error' in response:
                 raise LoginCallbackError(response['error'])
             ghinfo = requests.get(
-                self.user_info,
+                self.user_info_url,
                 timeout=30,
                 headers={'Authorization': f'token {response["access_token"]}'},
             ).json()
             ghemails = requests.get(
-                self.user_emails,
+                self.user_emails_url,
                 timeout=30,
                 headers={
                     'Accept': 'application/vnd.github.v3+json',
@@ -84,7 +73,7 @@ class GitHubProvider(LoginProvider):
             ).json()
         except (
             requests.exceptions.RequestException,
-            simplejson.JSONDecodeError,
+            requests.exceptions.JSONDecodeError,
         ) as exc:
             current_app.logger.error("GitHub OAuth2 error: %s", repr(exc))
             capture_exception(exc)

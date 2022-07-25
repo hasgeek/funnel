@@ -1,12 +1,12 @@
 {% extends "layout.html.jinja2" -%}
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{{ title }}{% endblock title %}
 
 {% block layoutheaders %}
   {% assets "css_codemirrormarkdown" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
-{% endblock %}
+{% endblock layoutheaders %}
 
 {% block contentwrapper %}
 <div class="grid">
@@ -14,19 +14,19 @@
     {%- if autosave %}
       <div><p class="mui--text-subhead mui--text-light mui--pull-right" id="autosave-msg"></p></div>
     {% endif %}
-    {% block content %}{% endblock %}
+    {% block content %}{% endblock content %}
   </div>
 </div>
-{% endblock %}
+{% endblock contentwrapper %}
 
 {% block pagescripts %}
   {% assets "js_codemirrormarkdown" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
-{% endblock %}
+{% endblock pagescripts %}
 
 {% block serviceworker %}
-{% endblock %}
+{% endblock serviceworker %}
 
 {% block footerscripts %}
   <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
@@ -40,5 +40,5 @@
       window.Hasgeek.form(config);
     });
   </script>
-  {% block innerscripts %}{% endblock %}
-{% endblock %}
+  {% block innerscripts %}{% endblock innerscripts %}
+{% endblock footerscripts %}

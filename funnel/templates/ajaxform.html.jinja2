@@ -17,7 +17,7 @@
   {%- endif %}
   {% block form %}
     {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action, cancel_url=cancel_url, multipart=multipart, autosave=autosave, draft_revision=draft_revision) }}
-  {% endblock %}
+  {% endblock form %}
   {%- if with_chrome -%}
     {{ ajaxform(ref_id=ref_id, request=request, force=true) }}
   {%- endif -%}
@@ -26,6 +26,6 @@
 
   <script type="text/javascript">
     activate_widgets();
-    {{ widgetscripts(form, script=false) }}
+    {{ widgetscripts(form, script=false, ref_id=ref_id) }}
   </script>
 </div>

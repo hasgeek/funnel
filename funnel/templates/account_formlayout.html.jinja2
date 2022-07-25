@@ -1,16 +1,16 @@
 {% extends "layout.html.jinja2" %}
 {% from "forms.html.jinja2" import renderform, renderform_inner, renderfield, rendersubmit, ajaxform, widget_ext_scripts, widgetscripts %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{{ title }}{% endblock title %}
 
 {% block layoutheaders %}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/loginform.scss') }}" />
-{% endblock %}
+{% endblock layoutheaders %}
 
-{% block bodyattrs %}class="login-page no-sticky-header"{% endblock %}
+{% block bodyattrs %}class="login-page no-sticky-header"{% endblock bodyattrs %}
 
-{% block headline %}{% endblock %}
+{% block headline %}{% endblock headline %}
 
 {% block content %}
   {%- if message %}
@@ -18,7 +18,7 @@
   {%- endif %}
 
   <div class="alert alert--error cookies-required-alert alert--dismissable">
-    <a class="alert__close" href="javascript:void(0);" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+    <a class="alert__close" href="#" onclick="return false;" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
     <p class="alert__text">{% trans %}Cookies are required to login. Please enable cookies in your browser’s settings and reload this page{% endtrans %}</p>
   </div>
 
@@ -29,22 +29,22 @@
       </div>
       {% block focuscontent %}
         {% block beforeformcontent %}
-        {% endblock %}
+        {% endblock beforeformcontent %}
         {% block form %}
           <h2 class="mui--text-headline login-page__box__heading mui--text-center">{{ title }}</h2>
           {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action, cancel_url=cancel_url, multipart=multipart, autosave=autosave, draft_revision=draft_revision) }}
-        {% endblock %}
+        {% endblock form %}
         {% block afterformcontent %}
-        {% endblock %}
-      {% endblock %}
+        {% endblock afterformcontent %}
+      {% endblock focuscontent %}
     </div>
     {% block afterloginbox %}
-    {% endblock %}
+    {% endblock afterloginbox %}
   </div>
-{% endblock %}
+{% endblock content %}
 
 {% block serviceworker %}
-{% endblock %}
+{% endblock serviceworker %}
 
 {% block footerscripts %}
   {{ widget_ext_scripts(form) }}
@@ -87,11 +87,11 @@
       });
 
 
-      $('#form-account_edit #field-username #username, #form-account_new #field-username #username').on('change', function(e) {
+      $('#form-account_edit #field-username #username').on('change', function(e) {
         checkUsernameAvailability(this);
       });
 
-      $('#form-account_edit #field-username #username, #form-account_new #field-username #username').on('keydown', function(e) {
+      $('#form-account_edit #field-username #username').on('keydown', function(e) {
         var usernamefield = this;
         if(typingTimerUsername) clearTimeout(typingTimerUsername);
         typingTimerUsername = setTimeout(function() {
@@ -219,4 +219,4 @@
 
     });
   </script>
-{% endblock %}
+{% endblock footerscripts %}

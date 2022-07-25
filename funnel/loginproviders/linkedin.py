@@ -1,3 +1,5 @@
+"""LinkedIn OAuth2 client."""
+
 from __future__ import annotations
 
 from secrets import token_urlsafe
@@ -7,7 +9,6 @@ from flask import current_app, redirect, request, session
 from furl import furl
 from sentry_sdk import capture_exception
 import requests
-import simplejson
 
 from baseframe import _
 
@@ -27,18 +28,6 @@ class LinkedInProvider(LoginProvider):
         'https://api.linkedin.com/v2/emailAddress?'
         'q=members&projection=(elements*(handle~))'
     )
-
-    def __init__(
-        self, name, title, key, secret, at_login=True, priority=False, icon=None
-    ) -> None:
-        self.name = name
-        self.title = title
-        self.at_login = at_login
-        self.priority = priority
-        self.icon = icon
-
-        self.key = key
-        self.secret = secret
 
     def do(self, callback_url):
         session['oauth_state'] = token_urlsafe()
@@ -87,7 +76,7 @@ class LinkedInProvider(LoginProvider):
             ).json()
         except (
             requests.exceptions.RequestException,
-            simplejson.JSONDecodeError,
+            requests.exceptions.JSONDecodeError,
         ) as exc:
             current_app.logger.error("LinkedIn OAuth2 error: %s", repr(exc))
             capture_exception(exc)
@@ -105,7 +94,7 @@ class LinkedInProvider(LoginProvider):
             ).json()
         except (
             requests.exceptions.RequestException,
-            simplejson.JSONDecodeError,
+            requests.exceptions.JSONDecodeError,
         ) as exc:
             current_app.logger.error("LinkedIn OAuth2 error: %s", repr(exc))
             capture_exception(exc)
@@ -127,7 +116,7 @@ class LinkedInProvider(LoginProvider):
             ).json()
         except (
             requests.exceptions.RequestException,
-            simplejson.JSONDecodeError,
+            requests.exceptions.JSONDecodeError,
         ) as exc:
             current_app.logger.error("LinkedIn email_info error: %s", repr(exc))
             capture_exception(exc)

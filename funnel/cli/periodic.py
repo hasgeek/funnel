@@ -1,3 +1,5 @@
+"""Periodic maintenance actions."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -68,13 +70,6 @@ def data_sources():
 periodic = AppGroup(
     'periodic', help="Periodic tasks from cron (with recommended intervals)"
 )
-
-
-@periodic.command('phoneclaims')
-def phoneclaims():
-    """Sweep phone claims to close all unclaimed beyond expiry period (10m)."""
-    models.UserPhoneClaim.delete_expired()
-    db.session.commit()
 
 
 @periodic.command('project_starting_alert')

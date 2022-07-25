@@ -29,7 +29,7 @@ def _promoter_login(login, user_vetinari):
     login.as_(user_vetinari)
 
 
-def test_project_url_is_as_expected(project_url):
+def test_project_url_is_as_expected(project_url) -> None:
     """Test the :func:`project_url` fixture before it's used in other tests."""
     # URL ends with '/'
     assert project_url.endswith('/')

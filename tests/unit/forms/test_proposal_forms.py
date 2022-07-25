@@ -1,3 +1,5 @@
+"""Tests for Proposal forms."""
+
 from funnel import app
 from funnel.forms import ProposalLabelsAdminForm, ProposalLabelsForm
 from funnel.models import Proposal

@@ -5,7 +5,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import Dict, Iterable, List, Optional, Set, Type
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Type, TypeVar
 import os.path
 import re
 
@@ -14,7 +14,8 @@ from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
 
-from flask import current_app
+from flask import Markup, current_app
+from flask import escape as html_escape
 
 from better_profanity import profanity
 from furl import furl
@@ -232,7 +233,7 @@ markdown_content_options['extension_configs'].setdefault('pymdownx.superfences',
 ]
 
 
-def add_to_class(cls: Type, name: Optional[str] = None):
+def add_to_class(cls: Type, name: Optional[str] = None) -> Callable[[T], T]:
     """
     Add a new method to a class via a decorator. Takes an optional attribute name.
 
@@ -248,8 +249,11 @@ def add_to_class(cls: Type, name: Optional[str] = None):
             pass
     """
 
-    def decorator(attr):
-        use_name = name or attr.__name__
+    def decorator(attr: T) -> T:
+        use_name: Optional[str] = name or getattr(attr, '__name__', None)
+        if not use_name:  # pragma: no cover
+            # None or '' not allowed
+            raise ValueError(f"Could not determine name for {attr!r}")
         if use_name in cls.__dict__:
             raise AttributeError(f"{cls.__name__} already has attribute {use_name}")
         setattr(cls, use_name, attr)
@@ -258,7 +262,11 @@ def add_to_class(cls: Type, name: Optional[str] = None):
     return decorator
 
 
-def reopen(cls: Type[T]):
+ReopenedType = TypeVar('ReopenedType', bound=type)
+TempType = TypeVar('TempType', bound=type)
+
+
+def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
     """
     Move the contents of the decorated class into an existing class and return it.
 
@@ -268,12 +276,12 @@ def reopen(cls: Type[T]):
         class __ExistingClass:
             @property
             def new_property(self):
-                pass
+                ...
 
     This is equivalent to::
 
         def new_property(self):
-            pass
+            ...
 
         ExistingClass.new_property = property(new_property)
 
@@ -288,7 +296,7 @@ def reopen(cls: Type[T]):
     properties that do more processing.
     """
 
-    def decorator(temp_cls: Type) -> Type[T]:
+    def decorator(temp_cls: TempType) -> ReopenedType:
         if temp_cls.__bases__ != (object,):
             raise TypeError("Reopened class cannot add base classes")
         if temp_cls.__class__ is not type:
@@ -500,7 +508,38 @@ def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
     }
 
 
+class MessageComposite:
+    """
+    Mimic MarkdownComposite for static messages.
+
+    :param text: Message text
+    :param tag: Optional wrapper tag for HTML rendering
+    """
+
+    def __init__(self, text: str, tag: Optional[str] = None):
+        self.text = text
+        self.tag = tag
+
+    def __html__(self) -> str:
+        """Return HTML version of string."""
+        # Localize lazy string on demand
+        tag = self.tag
+        if tag:
+            return f'<p><{tag}>{html_escape(self.text)}</{tag}></p>'
+        return f'<p>{html_escape(self.text)}</p>'
+
+    @property
+    def html(self) -> Markup:
+        return Markup(self.__html__())
+
+    def __json__(self) -> Dict[str, Any]:
+        """Return JSON-compatible rendering of contents."""
+        return {'text': self.text, 'html': self.__html__()}
+
+
 class ImgeeFurl(furl):
+    """Furl with a resize method specifically for Imgee URLs."""
+
     def resize(self, width: int, height: Optional[int] = None) -> furl:
         """
         Return image url with `?size=WxH` suffixed to it.
@@ -515,7 +554,9 @@ class ImgeeFurl(furl):
         return self
 
 
-class ImgeeType(UrlType):
+class ImgeeType(UrlType):  # pylint: disable=abstract-method
+    """Column that stores an Imgee URL and casts the content into :class:`ImgeeFurl`."""
+
     url_parser = ImgeeFurl
     cache_ok = True
 

@@ -1,9 +1,11 @@
+"""Project registration (RSVP) notifications."""
+
 from __future__ import annotations
 
 from typing import List, Optional
 
 from flask import render_template
-from flask_babelhg import get_locale
+from flask_babel import get_locale
 
 from baseframe import _, __
 from baseframe.filters import datetime_filter

@@ -1,3 +1,5 @@
+"""Drop database contents after Cypress tests."""
+
 from funnel import app
 from funnel.models import db
 

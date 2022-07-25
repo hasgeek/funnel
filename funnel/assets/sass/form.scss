@@ -666,38 +666,8 @@ form.mui--bg-accent .CodeMirror {
   }
 }
 
-.social-login-wrapper {
-  max-width: 80%;
-  margin: auto;
-}
-
-.login-twitter,
-.login-twitter:hover,
-.login-twitter:active {
-  background-color: #08a0e9;
-}
-
-.login-google,
-.login-google:hover,
-.login-google:active {
-  color: #757575;
-  background: $mui-bg-color-primary;
-}
-
-.login-linkedin,
-.login-linkedin:hover,
-.login-linkedin:active {
-  background-color: #0074b2;
-}
-
-.login-github,
-.login-github:hover,
-.login-github:active {
-  background-color: #444444;
-}
-
 .keyboard-switch {
-  display: flex;
+  display: none;
   justify-content: space-between;
   position: fixed;
   bottom: $mui-grid-padding/2;
@@ -710,4 +680,8 @@ form.mui--bg-accent .CodeMirror {
   .tabs {
     margin: 0;
   }
+}
+
+input#username:focus ~ .keyboard-switch {
+  display: flex;
 }

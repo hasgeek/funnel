@@ -1,4 +1,8 @@
+"""Workflow label models."""
+
 from __future__ import annotations
+
+from typing import Union
 
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.sql import case, exists
@@ -43,11 +47,13 @@ class Label(BaseScopedNameMixin, db.Model):
     project = with_roles(
         db.relationship(Project), grants_via={None: project_child_role_map}
     )
-    # `parent` is required for :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
+    # `parent` is required for
+    # :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
     parent = db.synonym('project')
 
-    #: Parent label's id. Do not write to this column directly, as we don't have the ability to
-    #: validate the value within the app. Always use the :attr:`main_label` relationship.
+    #: Parent label's id. Do not write to this column directly, as we don't have the
+    #: ability to : validate the value within the app. Always use the :attr:`main_label`
+    #: relationship.
     main_label_id = db.Column(
         'main_label_id',
         None,
@@ -64,8 +70,9 @@ class Label(BaseScopedNameMixin, db.Model):
         collection_class=ordering_list('seq', count_from=1),
     )
 
-    # TODO: Add sqlalchemy validator for `main_label` to ensure the parent's project matches.
-    # Ideally add a SQL post-update trigger as well (code is in coaster's add_primary_relationship)
+    # TODO: Add sqlalchemy validator for `main_label` to ensure the parent's project
+    # matches. Ideally add a SQL post-update trigger as well (code is in coaster's
+    # add_primary_relationship)
 
     #: Sequence number for this label, used in UI for ordering
     seq = db.Column(db.Integer, nullable=False)
@@ -169,7 +176,9 @@ class Label(BaseScopedNameMixin, db.Model):
 
     @hybrid_property
     def restricted(self):
-        return self.main_label._restricted if self.main_label else self._restricted
+        return (  # pylint: disable=protected-access
+            self.main_label._restricted if self.main_label else self._restricted
+        )
 
     @restricted.setter
     def restricted(self, value):
@@ -178,7 +187,7 @@ class Label(BaseScopedNameMixin, db.Model):
         self._restricted = value
 
     @restricted.expression
-    def restricted(cls):  # noqa: N805
+    def restricted(cls):  # noqa: N805  # pylint: disable=no-self-argument
         return case(
             [
                 (
@@ -194,7 +203,9 @@ class Label(BaseScopedNameMixin, db.Model):
     @hybrid_property
     def archived(self):
         return self._archived or (
-            self.main_label._archived if self.main_label else False
+            self.main_label._archived  # pylint: disable=protected-access
+            if self.main_label
+            else False
         )
 
     @archived.setter
@@ -202,7 +213,7 @@ class Label(BaseScopedNameMixin, db.Model):
         self._archived = value
 
     @archived.expression
-    def archived(cls):  # noqa: N805
+    def archived(cls):  # noqa: N805  # pylint: disable=no-self-argument
         return case(
             [
                 (cls._archived.is_(True), cls._archived),
@@ -221,7 +232,7 @@ class Label(BaseScopedNameMixin, db.Model):
         return bool(self.options)
 
     @has_options.expression
-    def has_options(cls):  # noqa: N805
+    def has_options(cls):  # noqa: N805  # pylint: disable=no-self-argument
         return exists().where(Label.main_label_id == cls.id)
 
     @property
@@ -254,7 +265,7 @@ class Label(BaseScopedNameMixin, db.Model):
                 result = self.title.strip()[:3]
         return result
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`Label` as a string."""
         if self.main_label:
             return f'<Label {self.main_label.name}/{self.name}>'
@@ -290,17 +301,20 @@ add_search_trigger(Label, 'search_vector')
 
 
 class ProposalLabelProxyWrapper:
-    def __init__(self, obj) -> None:
+    _obj: Proposal
+
+    def __init__(self, obj: Proposal) -> None:
         object.__setattr__(self, '_obj', obj)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Union[bool, str, None]:
         """Get an attribute."""
         # What this does:
-        # 1. Check if the project has this label (including archived labels). If not, raise error
-        # 2. If this is not a parent label:
-        # 2a. Check if proposal has this label set. If so, return True, else False
-        # 3. If this is a parent label:
-        # 3a. If the proposal has one of the options set, return its name. If not, return None
+        # 1. Check if the project has this label (including archived labels). If not,
+        #    raise error
+        # 2. If this is not a parent label: 2a. Check if proposal has this label set. If
+        #    so, return True, else False
+        # 3. If this is a parent label: 3a. If the proposal has one of the options set,
+        #    return its name. If not, return None
 
         label = Label.query.filter(
             Label.name == name, Label.project == self._obj.project
@@ -316,7 +330,7 @@ class ProposalLabelProxyWrapper:
         label_options = list(set(self._obj.labels).intersection(set(label.options)))
         return label_options[0].name if len(label_options) > 0 else None
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: bool) -> None:
         """Set an attribute."""
         label = Label.query.filter(
             Label.name == name,
@@ -370,7 +384,7 @@ class __Project:
         primaryjoin=db.and_(
             Label.project_id == Project.id,
             Label.main_label_id.is_(None),
-            Label._archived.is_(False),
+            Label._archived.is_(False),  # pylint: disable=protected-access
         ),
         order_by=Label.seq,
         viewonly=True,

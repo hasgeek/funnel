@@ -1,3 +1,5 @@
+"""Test embedded video view helpers."""
+
 from datetime import datetime
 import logging
 
@@ -7,7 +9,7 @@ import requests
 from funnel.models import Proposal, parse_video_url
 
 
-def test_parse_video_url():
+def test_parse_video_url() -> None:
     assert parse_video_url('https://www.youtube.com/watch?v=dQw4w9WgXcQ') == (
         'youtube',
         'dQw4w9WgXcQ',
@@ -21,7 +23,7 @@ def test_parse_video_url():
     ) == ('googledrive', '1rwHdWYnF4asdhsnDwLECoqZQy4o')
 
 
-def test_youtube_video_delete(db_session, new_proposal):
+def test_youtube_video_delete(db_session, new_proposal) -> None:
     assert new_proposal.title == "Test Proposal"
 
     new_proposal.video_url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
@@ -37,7 +39,7 @@ def test_youtube_video_delete(db_session, new_proposal):
     assert new_proposal.video_id is None
 
 
-def test_youtube(db_session, new_proposal):
+def test_youtube(db_session, new_proposal) -> None:
     assert new_proposal.title == "Test Proposal"
 
     new_proposal.video_url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
@@ -63,7 +65,7 @@ def test_youtube(db_session, new_proposal):
     )
 
 
-def test_vimeo_video_delete(db_session, new_proposal):
+def test_vimeo_video_delete(db_session, new_proposal) -> None:
     assert new_proposal.title == "Test Proposal"
 
     new_proposal.video_url = 'https://vimeo.com/336892869'
@@ -79,7 +81,7 @@ def test_vimeo_video_delete(db_session, new_proposal):
     assert new_proposal.video_id is None
 
 
-def test_vimeo(db_session, new_proposal):
+def test_vimeo(db_session, new_proposal) -> None:
     assert new_proposal.title == "Test Proposal"
 
     new_proposal.video_url = 'https://vimeo.com/336892869'

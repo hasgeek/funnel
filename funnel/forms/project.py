@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Optional
 import re
 
 from baseframe import _, __, forms
@@ -17,6 +18,7 @@ __all__ = [
     'ProjectForm',
     'ProjectLivestreamForm',
     'ProjectNameForm',
+    'ProjectFeaturedForm',
     'ProjectTransitionForm',
     'ProjectBannerForm',
     'ProjectSponsorForm',
@@ -37,6 +39,7 @@ class ProjectForm(forms.Form):
 
     __expects__ = ('profile',)
     profile: Profile
+    edit_obj: Optional[Project]
 
     title = forms.StringField(
         __("Title"),
@@ -65,12 +68,12 @@ class ProjectForm(forms.Form):
         filters=[forms.filters.strip()],
     )
     start_at = forms.DateTimeField(
-        __("Optional - Starting time"),
+        __("Optional – Starting time"),
         validators=[forms.validators.Optional()],
         naive=False,
     )
     end_at = forms.DateTimeField(
-        __("Optional - Ending time"),
+        __("Optional – Ending time"),
         validators=[
             forms.validators.RequiredIf(
                 'start_at',
@@ -111,13 +114,13 @@ class ProjectForm(forms.Form):
     def validate_location(self, field) -> None:
         """Validate location field to not have quotes (from copy paste of hint)."""
         if re.search(double_quote_re, field.data) is not None:
-            raise forms.ValidationError(
+            raise forms.validators.ValidationError(
                 __("Quotes are not necessary in the location name")
             )
 
     def set_queries(self) -> None:
         self.bg_image.profile = self.profile.name
-        if self.edit_obj and self.edit_obj.schedule_start_at:
+        if self.edit_obj is not None and self.edit_obj.schedule_start_at:
             # Don't allow user to directly manipulate timestamps when it's done via
             # Session objects
             del self.start_at
@@ -245,12 +248,16 @@ class CfpForm(forms.Form):
     def validate_cfp_end_at(self, field) -> None:
         """Validate closing date to be in the future."""
         if field.data <= utcnow():
-            raise forms.StopValidation(_("Closing date must be in the future"))
+            raise forms.validators.StopValidation(
+                _("Closing date must be in the future")
+            )
 
 
 @Project.forms('transition')
 class ProjectTransitionForm(forms.Form):
     """Form for transitioning a project's state."""
+
+    edit_obj: Project
 
     transition = forms.SelectField(
         __("Status"), validators=[forms.validators.DataRequired()]
@@ -298,7 +305,7 @@ class ProjectSponsorForm(forms.Form):
     label = forms.StringField(
         __("Label"),
         description=__("Optional – Label for sponsor"),
-        filters=[forms.filters.strip(), forms.filters.none_if_empty()],
+        filters=nullable_strip_filters,
     )
     is_promoted = forms.BooleanField(__("Mark this sponsor as promoted"), default=False)
 

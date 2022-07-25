@@ -1,16 +1,19 @@
+"""Comment and Commentset models."""
+
 from __future__ import annotations
 
 from typing import Iterable, List, Optional, Set, Union
 
-from flask import Markup
+from sqlalchemy.orm import CompositeProperty
+
 from werkzeug.utils import cached_property
 
 from baseframe import _, __
-from coaster.sqlalchemy import RoleAccessProxy, StateManager, with_roles
+from coaster.sqlalchemy import LazyRoleSet, RoleAccessProxy, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from . import BaseMixin, MarkdownColumn, TSVectorType, UuidMixin, db, hybrid_property
-from .helpers import add_search_trigger, reopen
+from .helpers import MessageComposite, add_search_trigger, reopen
 from .user import DuckTypeUser, User, deleted_user, removed_user
 
 __all__ = ['Comment', 'Commentset']
@@ -30,13 +33,13 @@ class COMMENTSET_STATE(LabeledEnum):  # noqa: N801
 
 class COMMENT_STATE(LabeledEnum):  # noqa: N801
     # If you add any new state, you need to migrate the check constraint as well
-    SUBMITTED = (0, 'submitted', __("Submitted"))  # Using 0 is a legacy mistake
-    SCREENED = (1, 'screened', __("Screened"))
-    HIDDEN = (2, 'hidden', __("Hidden"))
-    SPAM = (3, 'spam', __("Spam"))
+    SUBMITTED = (1, 'submitted', __("Submitted"))
+    SCREENED = (2, 'screened', __("Screened"))
+    HIDDEN = (3, 'hidden', __("Hidden"))
+    SPAM = (4, 'spam', __("Spam"))
     # Deleted state for when there are replies to be preserved
-    DELETED = (4, 'deleted', __("Deleted"))
-    VERIFIED = (5, 'verified', __("Verified"))
+    DELETED = (5, 'deleted', __("Deleted"))
+    VERIFIED = (6, 'verified', __("Verified"))
 
     PUBLIC = {SUBMITTED, VERIFIED}
     REMOVED = {SPAM, DELETED}
@@ -53,6 +56,10 @@ class SET_TYPE:  # noqa: N801
     UPDATE = 4
 
 
+message_deleted = MessageComposite(__("[deleted]"), 'del')
+message_removed = MessageComposite(__("[removed]"), 'del')
+
+
 # --- Models ---------------------------------------------------------------------------
 
 
@@ -62,7 +69,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     _state = db.Column(
         'state',
         db.SmallInteger,
-        StateManager.check_constraint('state', COMMENT_STATE),
+        StateManager.check_constraint('state', COMMENTSET_STATE),
         nullable=False,
         default=COMMENTSET_STATE.OPEN,
     )
@@ -133,7 +140,9 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
 
     with_roles(last_comment, read={'all'}, datasets={'primary'})
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         parent_roles = self.parent.roles_for(actor, anchors)
         if 'participant' in parent_roles or 'commenter' in parent_roles:
@@ -142,7 +151,9 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
 
     @with_roles(call={'all'})
     @state.requires(state.NOT_DISABLED)
-    def post_comment(self, actor: User, message: str):
+    def post_comment(
+        self, actor: User, message: str, in_reply_to: Optional[Comment] = None
+    ) -> Comment:
         """Post a comment."""
         # TODO: Add role check for non-OPEN states. Either:
         # 1. Add checking for restrictions to the view (retaining @state.requires here),
@@ -152,6 +163,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
             user=actor,
             commentset=self,
             message=message,
+            in_reply_to=in_reply_to,
         )
         self.count = Commentset.count + 1
         db.session.add(comment)
@@ -272,27 +284,32 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         self._user = value
 
     @user.expression
-    def user(cls):  # noqa: N805
+    def user(cls):  # noqa: N805  # pylint: disable=no-self-argument
         return cls._user
 
     with_roles(user, read={'all'}, datasets={'primary', 'related', 'json', 'minimal'})
 
+    # XXX: We're returning MarkownComposite, not CompositeProperty, but mypy doesn't
+    # know. This is pending a fix to SQLAlchemy's type system, hopefully in 2.0
     @hybrid_property
-    def message(self) -> Union[str, Markup]:
+    def message(self) -> Union[CompositeProperty, MessageComposite]:
+        """Return the message of the comment if not deleted or removed."""
         return (
-            _('[deleted]')
+            message_deleted
             if self.state.DELETED
-            else _('[removed]')
+            else message_removed
             if self.state.SPAM
             else self._message
         )
 
     @message.setter
     def message(self, value: str) -> None:
-        self._message = value
+        """Edit the message of a comment."""
+        self._message = value  # type: ignore[assignment]
 
     @message.expression
-    def message(cls):  # noqa: N805
+    def message(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        """Return SQL expression for comment message column."""
         return cls._message
 
     with_roles(
@@ -342,7 +359,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         """Delete this comment."""
         if len(self.replies) > 0:
             self.user = None  # type: ignore[assignment]
-            self.message = ''
+            self.message = ''  # type: ignore[assignment]
         else:
             if self.in_reply_to and self.in_reply_to.state.DELETED:
                 # If the comment this is replying to is deleted, ask it to reconsider
@@ -362,7 +379,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     def mark_not_spam(self) -> None:
         """Mark this comment as not spam."""
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         roles.add('reader')
         return roles

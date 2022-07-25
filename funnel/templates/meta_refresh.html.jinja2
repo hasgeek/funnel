@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-{#- This page must not have any JS or external resources, as it's meant to redirect immediately AND not leak the URL #}
-<html>
+{#- This page must not have any external resources, as it's meant to redirect immediately AND not leak the URL #}
+<html lang="en">
   <head>
-    <meta http-equiv="refresh" content="0; {{ url }}" />
+    <meta http-equiv="refresh" content="0; url={{ url }}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% trans %}Loading…{% endtrans %}</title>
     <style type="text/css">
@@ -27,5 +27,8 @@
   </head>
   <body>
     <p class="loading"><a href="{{ url }}">{% trans %}Loading…{% endtrans %}</a></p>
+    <script type="text/javascript">
+      window.location.replace({{ url|tojson }});
+    </script>
   </body>
 </html>

@@ -1,9 +1,11 @@
+"""Proposal (submission) model, the primary content type within a project."""
+
 from __future__ import annotations
 
-from typing import Iterable, Optional, Set
+from typing import Iterable, Optional
 
 from baseframe import __
-from coaster.sqlalchemy import StateManager, with_roles
+from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from . import (
@@ -36,26 +38,27 @@ _marker = object()
 
 
 class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
-    # Draft-state for future use, so people can save their proposals and submit only when ready
-    # If you add any new state, you need to add a migration to modify the check constraint
-    DRAFT = (0, 'draft', __("Draft"))
-    SUBMITTED = (1, 'submitted', __("Submitted"))
-    CONFIRMED = (2, 'confirmed', __("Confirmed"))
-    WAITLISTED = (3, 'waitlisted', __("Waitlisted"))
-    REJECTED = (5, 'rejected', __("Rejected"))
-    CANCELLED = (6, 'cancelled', __("Cancelled"))
-    AWAITING_DETAILS = (7, 'awaiting_details', __("Awaiting details"))
-    UNDER_EVALUATION = (8, 'under_evaluation', __("Under evaluation"))
-    DELETED = (11, 'deleted', __("Deleted"))
+    # Draft-state for future use, so people can save their proposals and submit only
+    # when ready. If you add any new state, you need to add a migration to modify the
+    # check constraint
+    DRAFT = (1, 'draft', __("Draft"))
+    SUBMITTED = (2, 'submitted', __("Submitted"))
+    CONFIRMED = (3, 'confirmed', __("Confirmed"))
+    WAITLISTED = (4, 'waitlisted', __("Waitlisted"))
+    REJECTED = (6, 'rejected', __("Rejected"))
+    CANCELLED = (7, 'cancelled', __("Cancelled"))
+    AWAITING_DETAILS = (8, 'awaiting_details', __("Awaiting details"))
+    UNDER_EVALUATION = (9, 'under_evaluation', __("Under evaluation"))
+    DELETED = (12, 'deleted', __("Deleted"))
 
     # These 3 are not in the editorial workflow anymore - Feb 23 2018
-    SHORTLISTED = (4, 'shortlisted', __("Shortlisted"))
+    SHORTLISTED = (5, 'shortlisted', __("Shortlisted"))
     SHORTLISTED_FOR_REHEARSAL = (
-        9,
+        10,
         'shortlisted_for_rehearsal',
         __("Shortlisted for rehearsal"),
     )
-    REHEARSAL = (10, 'rehearsal', __("Rehearsal ongoing"))
+    REHEARSAL = (11, 'rehearsal', __("Rehearsal ongoing"))
 
     # Groups
     PUBLIC = {  # States visible to the public
@@ -108,7 +111,9 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
 # --- Models ------------------------------------------------------------------
 
 
-class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Model):
+class Proposal(  # type: ignore[misc]
+    UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Model
+):
     __tablename__ = 'proposal'
 
     user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
@@ -259,7 +264,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             ProposalMembership(proposal=self, user=self.user, granted_by=self.user)
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`Proposal` as a string."""
         return (
             f'<Proposal "{self.title}" in project "{self.project.title}"'
@@ -412,7 +417,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def move_to(self, project):
         """Move to a new project and reset :attr:`url_id`."""
         self.project = project
-        self.url_id = None
+        self.url_id = None  # pylint: disable=attribute-defined-outside-init
         self.make_id()
 
     def update_description(self) -> None:
@@ -443,7 +448,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             .first()
         )
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if self.state.DRAFT:
             if 'reader' in roles:
@@ -462,7 +469,8 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         return cls.query.join(Project).filter(Project.state.PUBLISHED, cls.state.PUBLIC)
 
     @classmethod
-    def get(cls, uuid_b58):
+    def get(cls, uuid_b58):  # pylint: disable=arguments-differ
+        """Get a proposal by its public Base58 id."""
         return cls.query.filter_by(uuid_b58=uuid_b58).one_or_none()
 
 

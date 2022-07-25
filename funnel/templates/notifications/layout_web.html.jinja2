@@ -4,12 +4,12 @@
   {%- if view.has_current_access() %}
     <div class="user">
       <div class="user__box user__box--topalign">
-        {% block avatar %}{% if view.actor %}{{ useravatar(view.actor) }}{% endif %}{% endblock %}
+        {% block avatar %}{% if view.actor %}{{ useravatar(view.actor) }}{% endif %}{% endblock avatar %}
         <div class="user__box__header">
           <div class="mui--text-subhead" data-cy="notification-box">
             {%- block content %}
               {% trans %}(This template is missing content){% endtrans %}
-            {%- endblock %}
+            {%- endblock content %}
           </div>
           {%- if not view.is_rollup %}
             <p class="mui--text-body2 zero-bottom-margin">{{ view.user_notification.created_at|age }}</p>
@@ -20,9 +20,9 @@
   {%- else %}
     {%- block no_access %}
       <p>
-        {{ faicon(icon='exclamation-circle', baseline=true, css_class='fa-icon--right-margin') }}
+        {{ faicon(icon='exclamation-circle', baseline=true, css_class="fa-icon--right-margin") }}
         {%- trans %}This update is no longer available{% endtrans %}
       </p>
-    {%- endblock %}
+    {%- endblock no_access %}
   {%- endif %}
-{% endblock %}
+{% endblock update %}

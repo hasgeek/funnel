@@ -1,3 +1,5 @@
+"""Google OAuth2 client."""
+
 from __future__ import annotations
 
 from flask import current_app, redirect, request, session
@@ -5,7 +7,6 @@ from flask import current_app, redirect, request, session
 from oauth2client import client
 from sentry_sdk import capture_exception
 import requests
-import simplejson
 
 from baseframe import _
 
@@ -15,17 +16,11 @@ __all__ = ['GoogleProvider']
 
 
 class GoogleProvider(LoginProvider):
-    form = None  # Don't need a form for Google
     info_url = 'https://www.googleapis.com/oauth2/v2/userinfo'
-
-    def __init__(self, name: str, title: str, client_id: str, **kwargs) -> None:
-        self.client_id = client_id
-        self.secret = kwargs['secret']
-        super().__init__(name, title, **kwargs)
 
     def flow(self, callback_url: str):
         return client.OAuth2WebServerFlow(
-            client_id=self.client_id,
+            client_id=self.key,
             client_secret=self.secret,
             scope=['profile', 'email'],
             redirect_uri=callback_url,
@@ -62,7 +57,7 @@ class GoogleProvider(LoginProvider):
         except (
             client.FlowExchangeError,
             requests.exceptions.RequestException,
-            simplejson.JSONDecodeError,
+            requests.exceptions.JSONDecodeError,
         ) as exc:
             current_app.logger.error("Google OAuth2 error: %s", repr(exc))
             capture_exception(exc)

@@ -1,12 +1,15 @@
+"""Hasgeek website app bootstrap."""
+
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import cast
 import json
 import logging
 import os.path
 
 from flask import Flask
-from flask_babelhg import get_locale
+from flask_babel import get_locale
 from flask_flatpages import FlatPages
 from flask_mailman import Mail
 from flask_migrate import Migrate
@@ -81,6 +84,7 @@ from . import (  # isort:skip  # noqa: F401  # pylint: disable=wrong-import-posi
 from .models import db  # isort:skip  # pylint: disable=wrong-import-position
 
 # --- Configuration---------------------------------------------------------------------
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)
 coaster.app.init_app(app, ['py', 'toml'])
 coaster.app.init_app(shortlinkapp, ['py', 'toml'], init_logging=False)
 proxies.init_app(app)

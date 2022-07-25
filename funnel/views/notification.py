@@ -1,3 +1,5 @@
+"""Views for sending and rendering notifications."""
+
 from __future__ import annotations
 
 from collections import defaultdict
@@ -9,8 +11,10 @@ from typing import Dict, List, Optional
 from uuid import uuid4
 
 from flask import url_for
-from flask_babelhg import force_locale
+from flask_babel import force_locale
 from werkzeug.utils import cached_property
+
+from typing_extensions import Literal
 
 from baseframe import __, statsd
 from coaster.auth import current_auth
@@ -27,6 +31,7 @@ __all__ = ['RenderNotification', 'dispatch_notification']
 
 @UserNotification.views('render')
 def render_user_notification(obj):
+    """Render web notifications for the user."""
     return Notification.renderers[obj.notification.type](obj).web()
 
 
@@ -51,9 +56,7 @@ class RenderNotification:
     """
 
     #: Aliases for document and fragment, to make render methods clearer
-    aliases: Dict[str, str] = {}
-    # XXX: Replace type after moving to Python 3.8:
-    # Dict[Literal['document', 'fragment'], str]
+    aliases: Dict[Literal['document', 'fragment'], str] = {}
 
     #: Emoji prefix, for transports that support them
     emoji_prefix = ''
@@ -261,14 +264,6 @@ class RenderNotification:
             return f"{self.notification.preference_context.title} (via Hasgeek)"
         return "Hasgeek"
 
-    def text(self) -> str:
-        """
-        Render a short plain text notification.
-
-        Subclasses MUST implement this.
-        """
-        raise NotImplementedError("Subclasses must implement `text`")
-
     def sms(self) -> SmsTemplate:
         """
         Render a short text message. Templates must use a single line with a link.
@@ -276,6 +271,10 @@ class RenderNotification:
         Subclasses MUST implement this.
         """
         raise NotImplementedError("Subclasses must implement `sms`")
+
+    def text(self) -> str:
+        """Render a short plain text notification using the SMS template."""
+        return self.sms().text
 
     def sms_with_unsubscribe(self) -> SmsTemplate:
         """Add an unsubscribe link to the SMS message."""

@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{{ config['SITE_TITLE'] }}{% endblock %}
-{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, featured_section, upcoming_section, open_cfp_section, all_projects_section %}
+{% block title %}{{ config['SITE_TITLE'] }}{% endblock title %}
+{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, featured_section, upcoming_section, open_cfp_section, all_projects_section, featured_profiles_section %}
 {%- from "js/past_projects.js.jinja2" import past_projects_section %}
 
 {%- block pageheaders %}
@@ -39,30 +39,31 @@
       ]
     }
   </script>
-{%- endblock %}
+{%- endblock pageheaders %}
 
-{% block bodyattrs %}class="homepage mui--bg-accent"{% endblock %}
+{% block bodyattrs %}class="homepage mui--bg-accent"{% endblock bodyattrs %}
 
 {% block description -%}
   {% trans %}Explore your passions with communities of like-minded geeks{% endtrans %}
   {%- if featured_project %} {% trans %}Spotlight:{% endtrans %} {{ featured_project.title_inline }} {{ featured_project.tagline }}
   {%- endif %}
-{%- endblock %}
+{%- endblock description %}
 
 {% block contenthead %}
-{% endblock %}
+{% endblock contenthead %}
 
 {% block baseheadline %}
-{% endblock %}
+{% endblock baseheadline %}
 
 {% block basecontent %}
-  <a href="/about" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class='mui--align-middle') }} </span>{% trans %}What’s this about?{% endtrans %}</a>
+  <a href="{{ url_for('about') }}" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}</a>
   {{ featured_section(featured_project, heading=false) }}
   {{ upcoming_section(upcoming_projects) }}
+  {{ featured_profiles_section(featured_profiles) }}
   {{ open_cfp_section(open_cfp_projects) }}
   {{ all_projects_section(all_projects) }}
   {{ past_projects_section() }}
-{% endblock %}
+{% endblock basecontent %}
 
 {% block footerscripts %}
   <script src="{{ built_asset('index.js') }}" type="text/javascript"></script>
@@ -84,4 +85,4 @@
       });
     }
   </script>
-{% endblock %}
+{% endblock footerscripts %}

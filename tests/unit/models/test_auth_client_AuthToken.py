@@ -1,3 +1,6 @@
+"""Tests for AuthToken model."""
+
+# pylint: disable=protected-access
 from datetime import timedelta
 
 import pytest
@@ -9,7 +12,7 @@ from .test_db import TestDatabaseFixture
 
 
 class TestAuthToken(TestDatabaseFixture):
-    def test_authtoken_init(self):
+    def test_authtoken_init(self) -> None:
         """Test for verifying creation of AuthToken instance."""
         auth_client = self.fixtures.auth_client
         crusoe = self.fixtures.crusoe
@@ -18,7 +21,7 @@ class TestAuthToken(TestDatabaseFixture):
         assert result.user == crusoe
         assert result.auth_client == auth_client
 
-    def test_authtoken_refresh(self):
+    def test_authtoken_refresh(self) -> None:
         """Test to verify creation of new token while retaining the refresh token."""
         auth_client = self.fixtures.auth_client
         hagrid = User(username='hagrid', fullname='Rubeus Hagrid')
@@ -31,7 +34,7 @@ class TestAuthToken(TestDatabaseFixture):
         assert existing_token != auth_token.token
         assert existing_secret != auth_token.secret
 
-    def test_authtoken_is_valid(self):
+    def test_authtoken_is_valid(self) -> None:
         """Test for verifying if AuthToken's token is valid."""
         auth_client = self.fixtures.auth_client
         # scenario 1: when validity is unlimited (0)
@@ -70,7 +73,7 @@ class TestAuthToken(TestDatabaseFixture):
         )
         assert not cedric_token.is_valid()
 
-    def test_authtoken_get(self):
+    def test_authtoken_get(self) -> None:
         """Test for retreiving a AuthToken instance given a token."""
         specialdachs = self.fixtures.specialdachs
         oakley = self.fixtures.oakley
@@ -88,7 +91,7 @@ class TestAuthToken(TestDatabaseFixture):
         assert isinstance(result, AuthToken)
         assert result.auth_client == dachsadv
 
-    def test_authtoken_all(self):  # pylint: disable=too-many-locals
+    def test_authtoken_all(self) -> None:  # pylint: disable=too-many-locals
         """Test for retreiving all AuthToken instances for given users."""
         auth_client = self.fixtures.auth_client
 
@@ -148,7 +151,7 @@ class TestAuthToken(TestDatabaseFixture):
         result5 = AuthToken.all(users)
         assert result5 == []
 
-    def test_authtoken_user(self):
+    def test_authtoken_user(self) -> None:
         """Test for checking AuthToken's user property."""
         crusoe = self.fixtures.crusoe
         oakley = self.fixtures.oakley
@@ -172,7 +175,7 @@ class TestAuthToken(TestDatabaseFixture):
         assert isinstance(auth_token_without_user_session._user, User)
         assert auth_token_without_user_session._user == oakley
 
-    def test_authtoken_algorithm(self):
+    def test_authtoken_algorithm(self) -> None:
         """Test for checking AuthToken's algorithm property."""
         auth_client = self.fixtures.auth_client
         snape = User(username='snape', fullname='Professor Severus Snape')

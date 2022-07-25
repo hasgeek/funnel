@@ -15,7 +15,7 @@
     <script id='ticket-participant-row' type='text/ractive'>
     {{#each ticket_participants}}
       <tr id="p-{{ puuid_b58 }}">
-        <td class='js-searchable' data-th="Name" data-cy="ticket-participant">{{#if has_user }}<faicon icon='user-check' icon_size='subhead' baseline=true css_class='mui--text-success fa-icon--right-margin'></faicon>{{/if}}{{ fullname }}</td>
+        <td class='js-searchable' data-th="Name" data-cy="ticket-participant">{{#if has_user }}<faicon icon='user-check' icon_size='subhead' baseline=true css_class="mui--text-success fa-icon--right-margin"></faicon>{{/if}}{{ fullname }}</td>
         <td class='js-searchable' data-th="Tickets">{{ ticket_type_titles }}</td>
         <td class='js-searchable' data-th="Email">{{ email }}</td>
         <td class='js-searchable' data-th="Company">{{ company }}</td>

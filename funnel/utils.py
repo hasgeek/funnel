@@ -1,3 +1,5 @@
+"""Utility functions."""
+
 from __future__ import annotations
 
 from hashlib import blake2b
@@ -16,6 +18,8 @@ import qrcode.image.svg
 # Both IN and US numbers are 10 digits before prefixes. We try IN first as it's the
 # higher priority home region.
 PHONE_LOOKUP_REGIONS = ['IN', 'US']
+
+MASK_DIGITS = str.maketrans('0123456789', '•' * 10)
 
 # --- Utilities ------------------------------------------------------------------------
 
@@ -125,18 +129,32 @@ def make_redirect_url(
 
 
 def mask_email(email: str) -> str:
-    """
-    Mask an email address.
-
-    >>> mask_email('foobar@example.com')
-    'f****@e****'
-    >>> mask_email('not-email')
-    'n****'
-    """
+    """Mask an email address to only offer a hint of what it is."""
     if '@' not in email:
-        return f'{email[0]}****'
-    username, domain = email.split('@')
-    return f'{username[0]}****@{domain[0]}****'
+        return f'{email[0]}••••'
+    username, domain = email.split('@', 1)
+    return f'{username[0]}••••@{domain[0]}••••'
+
+
+def mask_phone(phone: str) -> str:
+    """Mask a valid phone number to only reveal the country code and last two digits."""
+    parsed = phonenumbers.parse(phone)
+    formatted = phonenumbers.format_number(
+        parsed, phonenumbers.PhoneNumberFormat.INTERNATIONAL
+    )
+    cc_prefix = f'+{parsed.country_code}'
+    if formatted.startswith(cc_prefix):
+        prefix, middle, suffix = (
+            cc_prefix,
+            formatted[len(cc_prefix) : -2],
+            formatted[-2:],
+        )
+    else:
+        prefix, middle, suffix = '', formatted[:-2], formatted[-2:]
+
+    middle = middle.translate(MASK_DIGITS)
+
+    return f'{prefix}{middle}{suffix}'
 
 
 def extract_twitter_handle(handle: str) -> Optional[str]:

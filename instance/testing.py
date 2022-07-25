@@ -1,3 +1,5 @@
+"""Test configuration."""
+
 from os import environ
 
 TESTING = True

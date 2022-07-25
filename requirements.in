@@ -1,12 +1,10 @@
 alembic
 argon2-cffi
-awscli
 Babel
 base58
 bcrypt
 better_profanity!=0.7.0  # https://github.com/snguyenthanh/better_profanity/issues/19
 blinker
-boto3
 Brotli
 click
 cryptography
@@ -14,6 +12,7 @@ dataclasses-json
 fabric3
 Flask
 Flask-Assets
+Flask-Babel
 Flask-Executor
 Flask-FlatPages
 flask-mailman
@@ -22,10 +21,10 @@ Flask-Redis
 Flask-RQ2
 Flask-SQLAlchemy
 Flask-WTF
+furl
 geoip2
 git+https://github.com/hasgeek/baseframe.git#egg=baseframe
 git+https://github.com/hasgeek/coaster.git#egg=coaster
-git+https://github.com/hasgeek/flask-babelhg.git#egg=Flask-Babelhg
 html2text
 icalendar
 idna>=2.5

@@ -2,24 +2,75 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Set, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, TypeVar, Union
+from uuid import UUID
 
-from flask.typing import ResponseReturnValue
 from werkzeug.wrappers import Response  # Base class for Flask Response
 
+from typing_extensions import ParamSpec, Protocol
+
+from coaster.sqlalchemy import Query
+
 __all__ = [
+    'ModelType',
+    'UuidModelType',
     'OptionalMigratedTables',
     'ReturnRenderWith',
     'ReturnResponse',
     'ReturnView',
+    'WrappedFunc',
+    'ReturnDecorator',
     'T',
+    'P',
 ]
 
-#: Flask 2.0 replaces our previous custom definition of ReturnView
-ReturnView = ResponseReturnValue
 
-#: Type used to indicate that a decorator returns its decorated attribute
+class ModelType(Protocol):
+    """Protocol class for models."""
+
+    __tablename__: str
+    __table_args__: tuple
+    query: Query
+
+
+class UuidModelType(ModelType):
+    """Protocol class for models with UUID column."""
+
+    uuid: UUID
+
+
+#: Flask response headers can be a dict or list of key-value pairs
+ResponseHeaders = Union[Dict[str, str], List[Tuple[str, str]]]
+
+#: Flask views accept a response status code that is either an int or a string
+ResponseStatusCode = Union[int, str]
+
+#: Flask views can return a Response, a string or a JSON dictionary
+ResponseTypes = Union[
+    str,  # A string (typically `render_template`)
+    Response,  # Fully formed response object
+    Dict[str, Any],  # JSON response
+]
+
+#: Return type for Flask views (formats accepted by :func:`~flask.make_response`)
+ReturnView = Union[
+    ResponseTypes,  # Only a response
+    Tuple[ResponseTypes, ResponseStatusCode],  # Response + status code
+    Tuple[ResponseTypes, ResponseHeaders],  # Response + headers
+    Tuple[
+        ResponseTypes, ResponseStatusCode, ResponseHeaders
+    ],  # Response + status code + headers
+]
+
+#: Type used to indicate type continuity within a block of code
 T = TypeVar('T')
+#: Type used to indicate parameter continuity within a block of code
+P = ParamSpec('P')
+
+#: Type used for functions and methods wrapped in a decorator
+WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
+#: Return type for decorator factories
+ReturnDecorator = Callable[[WrappedFunc], WrappedFunc]
 
 #: Return type of the `migrate_user` and `migrate_profile` methods
 OptionalMigratedTables = Optional[Union[List[str], Tuple[str], Set[str]]]

@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from dataclasses import dataclass
 from functools import wraps
-from typing import Collection, List, Optional, Tuple
+from typing import Callable, Collection, List, Optional, Tuple, cast
 import re
 
 from flask import Response, abort, jsonify, request
@@ -14,6 +14,7 @@ from baseframe import _
 from baseframe.signals import exception_catchall
 
 from .models import AuthToken, UserExternalId
+from .typing import ReturnResponse, WrappedFunc
 
 # Bearer token, as per
 # http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-15#section-2.1
@@ -55,9 +56,9 @@ class ResourceRegistry(OrderedDict):
                 },
             )
 
-        def wrapper(f):
+        def decorator(f: WrappedFunc) -> Callable[..., ReturnResponse]:
             @wraps(f)
-            def decorated_function():
+            def wrapper() -> ReturnResponse:
                 if request.method == 'GET':
                     args = request.args
                 elif request.method in ['POST', 'PUT', 'DELETE']:
@@ -133,9 +134,9 @@ class ResourceRegistry(OrderedDict):
                 'trusted': trusted,
                 'f': f,
             }
-            return decorated_function
+            return cast(WrappedFunc, wrapper)
 
-        return wrapper
+        return decorator
 
 
 @dataclass
@@ -149,12 +150,11 @@ class LoginProviderData:
     oauth_token_secret: Optional[str] = None  # Only used in OAuth1a
     oauth_token_type: Optional[str] = None
     oauth_refresh_token: Optional[str] = None
-    oauth_refresh_expiry: Optional[str] = None
+    oauth_expires_in: Optional[int] = None
     email: Optional[str] = None
     emails: Collection[str] = ()
     emailclaim: Optional[str] = None
     phone: Optional[str] = None
-    phoneclaim: Optional[str] = None
     fullname: Optional[str] = None
 
 
@@ -169,28 +169,26 @@ class LoginProviderRegistry(OrderedDict):
         """Return services which have the flag at_login set to True."""
         return [(k, v) for (k, v) in self.items() if v.at_login is True]
 
-    def __setitem__(self, key: str, value: LoginProvider):
+    def __setitem__(self, key: str, value: LoginProvider) -> None:
         """Make a registry entry."""
-        retval = super().__setitem__(key, value)
+        super().__setitem__(key, value)
         UserExternalId.__at_username_services__ = self.at_username_services()
-        return retval
 
-    def __delitem__(self, key: str):
+    def __delitem__(self, key: str) -> None:
         """Remove a registry entry."""
-        retval = super().__delitem__(key)
+        super().__delitem__(key)
         UserExternalId.__at_username_services__ = self.at_username_services()
-        return retval
 
 
 class LoginError(Exception):
     """External service login failure."""
 
 
-class LoginInitError(Exception):
+class LoginInitError(LoginError):
     """External service login failure (during init)."""
 
 
-class LoginCallbackError(Exception):
+class LoginCallbackError(LoginError):
     """External service login failure (during callback)."""
 
 
@@ -221,33 +219,35 @@ class LoginProvider:
     :param str icon: URL to icon for login provider.
     """
 
-    #: URL to icon for the login button
-    icon = None
-    #: Login form, if required
-    form = None
     #: This service's usernames are typically
     #: used for addressing with @username
     at_username = False
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         name: str,
         title: str,
+        key: str,
+        secret: str,
         at_login: bool = True,
-        priority: bool = False,
         icon: Optional[str] = None,
         **kwargs,
     ) -> None:
         self.name = name
         self.title = title
+        self.key = key
+        self.secret = secret
         self.at_login = at_login
-        self.priority = priority
         self.icon = icon
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
     def do(self, callback_url: str):
+        """Initiate a login with this login provider."""
         raise NotImplementedError
 
     def callback(self) -> LoginProviderData:
+        """Process callback from login provider."""
         raise NotImplementedError
 
         # Template for subclasses. All optional values can be skipped
@@ -261,7 +261,6 @@ class LoginProvider:
         #     email=None,  # Verified email address. Service can be trusted
         #     emailclaim=None,  # Claimed email address. Must be verified
         #     phone=None,  # Verified phone number when service can be trusted
-        #     phoneclaim=None,  # Claimed phone number, needing verification
         # )
 
 

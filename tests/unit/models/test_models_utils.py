@@ -1,7 +1,9 @@
+"""Tests for model processing utilities."""
+
 from funnel import models
 
 
-def test_merge_users_older_newer(db_session, user_death, user_rincewind):
+def test_merge_users_older_newer(db_session, user_death, user_rincewind) -> None:
     """Test to verify merger of user accounts and return new user (older first)."""
     # Scenario 1: if first user's created_at date is older than second user's
     # created_at
@@ -14,7 +16,7 @@ def test_merge_users_older_newer(db_session, user_death, user_rincewind):
     assert user_rincewind.state.MERGED
 
 
-def test_merge_users_newer_older(db_session, user_death, user_rincewind):
+def test_merge_users_newer_older(db_session, user_death, user_rincewind) -> None:
     """Test to verify merger of user accounts and return new user (newer first)."""
     # Scenario 2: if second user's created_at date is older than first user's
     # created_at
@@ -220,7 +222,7 @@ def test_getuser_anchor(
     assert models.getuser('+912345678901', True) == (None, None)
 
 
-def test_getextid(db_session, user_rincewind):
+def test_getextid(db_session, user_rincewind) -> None:
     """Retrieve user given service and userid."""
     service = 'sample-service'
     userid = 'rincewind@sample-service'

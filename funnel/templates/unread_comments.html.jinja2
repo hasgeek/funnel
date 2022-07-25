@@ -20,9 +20,9 @@
                   <img src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ membership.parent.project.title }}" />
                 {% endif %}
                 {% if membership.parent.project.bg_image %}
-                  {{ faicon(icon='file-solid', baseline=false, css_class='user__box__banner__wrapper__icon mui--text-white') }}
+                  {{ faicon(icon='file-solid', baseline=false, css_class="user__box__banner__wrapper__icon mui--text-white") }}
                 {% else %}
-                  {{ faicon(icon='file-solid', baseline=false, css_class='user__box__banner__wrapper__icon') }}
+                  {{ faicon(icon='file-solid', baseline=false, css_class="user__box__banner__wrapper__icon") }}
                 {% endif %}
               {%- endif %}
             </div>
@@ -47,7 +47,7 @@
 
 {%- if page == 1 and not commentset_memberships|length %}
   <li class="left-padding right-padding margin-top mui--text-center">
-    <p class="flex-wrapper flex-wrapper--justify-center margin-bottom"><span class="profile-avatar profile-avatar--bigger">{{ faicon(icon='comment-alt-lines', icon_size='title', baseline=false, css_class='mui--text-light') }}</span></p>
+    <p class="flex-wrapper flex-wrapper--justify-center margin-bottom"><span class="profile-avatar profile-avatar--bigger">{{ faicon(icon='comment-alt-lines', icon_size='title', baseline=false, css_class="mui--text-light") }}</span></p>
     <p class="mui--text-title mui--text-bold margin-bottom">{% trans %}No comments yet{% endtrans %}</p>
     <p class="mui--text-subhead mui--text-light margin-bottom">{% trans %}Join a project to start a discussion{% endtrans %}</p>
   </li>

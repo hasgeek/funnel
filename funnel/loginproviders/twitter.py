@@ -1,3 +1,5 @@
+"""Twitter OAuth1a client."""
+
 from __future__ import annotations
 
 from flask import redirect, request
@@ -19,32 +21,8 @@ __all__ = ['TwitterProvider']
 class TwitterProvider(LoginProvider):
     at_username = True
 
-    def __init__(
-        self,
-        name,
-        title,
-        key,
-        secret,
-        access_key,
-        access_secret,
-        at_login=True,
-        priority=True,
-        icon=None,
-    ) -> None:
-        self.name = name
-        self.title = title
-        self.at_login = at_login
-        self.priority = priority
-        self.icon = icon
-        self.consumer_key = key
-        self.consumer_secret = secret
-        self.access_key = access_key
-        self.access_secret = access_secret
-
     def do(self, callback_url):
-        auth = tweepy.OAuthHandler(
-            self.consumer_key, self.consumer_secret, callback_url
-        )
+        auth = tweepy.OAuthHandler(self.key, self.secret, callback_url)
 
         try:
             redirect_url = auth.get_authorization_url()
@@ -55,7 +33,7 @@ class TwitterProvider(LoginProvider):
             ) from exc
 
     def callback(self) -> LoginProviderData:
-        auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
+        auth = tweepy.OAuthHandler(self.key, self.secret)
         request_token = request.args.get('oauth_token')
         request_verifier = request.args.get('oauth_verifier')
 

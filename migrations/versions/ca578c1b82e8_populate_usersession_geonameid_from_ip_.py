@@ -132,9 +132,7 @@ def upgrade():
                 "Skipping geonameid population as databases are missing"
             )
     else:
-        print(  # type: ignore[unreachable]  # noqa: T201
-            "Skipping geonameid population as geoip2 is not installed"
-        )
+        print("Skipping geonameid population as geoip2 is not installed")  # noqa: T201
 
 
 def downgrade():

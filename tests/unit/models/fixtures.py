@@ -1,4 +1,6 @@
+"""Fixtures for legacy tests."""
 # pylint: disable=attribute-defined-outside-init
+
 from funnel.models import (
     AuthClient,
     AuthClientTeamPermissions,

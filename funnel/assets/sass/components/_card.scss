@@ -1,6 +1,6 @@
 .card {
   position: relative;
-  background: #fff;
+  background: $mui-bg-color-primary;
   margin-bottom: 2 * $mui-grid-padding;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
 
@@ -342,7 +342,7 @@
   .card__image-wrapper {
     position: relative;
     padding-bottom: 56.2%;
-    z-index: 3;
+    z-index: 2;
     overflow: hidden;
     border-radius: 0 0 0 20px;
 
@@ -468,4 +468,44 @@
       padding: 0 16px;
     }
   }
+}
+
+.profile-card {
+  min-width: 220px;
+  border-radius: $mui-grid-padding;
+  padding: $mui-grid-padding;
+  position: relative;
+  height: 100%;
+  .card__body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .profile-card__btn-wrapper {
+    margin-top: auto;
+    margin-bottom: $mui-grid-padding/2;
+  }
+}
+
+.profile-card:before,
+.profile-card:after {
+  content: '';
+  border-radius: $mui-grid-padding;
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 98%;
+  min-width: auto;
+  margin: auto;
+  z-index: -1;
+  background: $mui-bg-color-primary;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+}
+
+.profile-card:after {
+  bottom: -8px;
+  z-index: -2;
+  width: 95%;
 }

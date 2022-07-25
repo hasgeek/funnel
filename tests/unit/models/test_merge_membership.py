@@ -1,3 +1,5 @@
+"""Tests for membership model mergers when merging user accounts."""
+
 import pytest
 
 from funnel.models import OrganizationMembership, merge_users
