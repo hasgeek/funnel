@@ -142,7 +142,6 @@ def video_property(obj: VideoMixin) -> Optional[VideoData]:
                 video_url = f'/videos/{obj.video_id}'
                 try:
                     vimeo_resp = vimeo_client.get(video_url)
-                    # vimeo_resp = requests.get(video_url, timeout=30)
                 except requests.exceptions.RequestException as exc:
                     current_app.logger.error("Vimeo API request error: %s", repr(exc))
                     capture_exception(exc)
