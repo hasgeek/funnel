@@ -7,7 +7,7 @@
 
 {% block basecontent %}
 <div id="room_updates">
-	<div id="room" {% if room.bgcolor %} style="border-bottom-color: #{{ room.bgcolor }}"{% endif %}>
+	{# djlint:off #}<div id="room" {% if room.bgcolor %} style="border-bottom-color: #{{ room.bgcolor }}"{% endif %}>{# djlint:on #}
 		{{ room.title }}
 	</div>
 	{% if current %}

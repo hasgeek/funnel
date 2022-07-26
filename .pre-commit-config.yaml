@@ -155,4 +155,4 @@ repos:
     rev: v1.7.2
     hooks:
       - id: djlint-jinja
-        files: \.(jinja2|j2)$
+        files: \.html\.(jinja2|j2)$
