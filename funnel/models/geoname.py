@@ -293,6 +293,7 @@ class GeoName(BaseNameMixin, db.Model):
                     )
 
             with db.session.no_autoflush:
+                # pylint: disable=attribute-defined-outside-init
                 self.name = str(make_name(usetitle, maxlength=250, checkused=checkused))
 
     def __repr__(self) -> str:

@@ -10,7 +10,7 @@ certifi==2022.6.15
     # via requests
 charset-normalizer==2.1.0
     # via requests
-coverage[toml]==6.4.1
+coverage[toml]==6.4.2
     # via
     #   -r requirements_test.in
     #   coveralls
@@ -53,7 +53,7 @@ pytest==7.1.2
     #   pytest-bdd
     #   pytest-cov
     #   pytest-dotenv
-pytest-bdd==6.0.0
+pytest-bdd==6.0.1
     # via -r requirements_test.in
 pytest-cov==3.0.0
     # via -r requirements_test.in
@@ -75,5 +75,5 @@ tomli==2.0.1
     # via
     #   coverage
     #   pytest
-urllib3==1.26.9
+urllib3==1.26.11
     # via requests

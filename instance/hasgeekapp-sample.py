@@ -1,3 +1,5 @@
+"""Sample configuration."""
+
 #: The title of this site
 SITE_TITLE = "Hasgeek"
 #: Site id
