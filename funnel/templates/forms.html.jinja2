@@ -136,7 +136,7 @@
   {%- endif %}
 {%- endmacro %}
 
-{% macro rendersubmit(buttons=[], css_class="", tabindex='', cancel_url='', style="horiz", csrf_error=false) -%}
+{# djlint: off #}{% macro rendersubmit(buttons=[], css_class="", tabindex='', cancel_url='', style="horiz", csrf_error=false) -%}{# djlint:on #}
 <div class="mui-form form-actions mui--clearfix{% if css_class %} {{ css_class }}{% endif %}">
   <div>
     {% for name, value, widget_class in buttons -%}
@@ -158,9 +158,9 @@
 </div>
 {%- endmacro %}
 
-{% macro renderform_inner(form, formid, style="horiz", autosave=False, draft_revision=None) -%}
+{% macro renderform_inner(form, formid, style="horiz", autosave=false, draft_revision=none) -%}
   {% if message %}<p>{{ message }}</p>{% endif %}
-  <div style="display:none;"><input type="hidden" name="form.id" value="{{ formid }}" /></div>
+  {# djlint:off #}<div style="display:none;">{# djlint:on #}<input type="hidden" name="form.id" value="{{ formid }}" /></div>
   {{ form.hidden_tag() }}
   {%- if autosave %}
     <input type="hidden" name="form.revision" value="{{ draft_revision if draft_revision is not none }}" />
@@ -177,7 +177,7 @@
   {% endfor %}
 {%- endmacro %}
 
-{%- macro renderform(form, formid, submit, ref_id="form", message='', action=None, cancel_url='', multipart=false, style="", autosave=False, draft_revision=None) %}
+{# djlint: off #}{%- macro renderform(form, formid, submit, ref_id="form", message='', action=none, cancel_url='', multipart=false, style="", autosave=false, draft_revision=none) %}{# djlint: on #}
 <form data-parsley-validate="true" id="{{ ref_id }}" method="post" {%- if action %} action="{{ action }}" {%- endif %}{%- if multipart %} enctype="multipart/form-data" {%- endif %} accept-charset="UTF-8" class="mui-form mui-form--margins hg-form {%- if style == 'horiz' %} mui-form--inline{% endif %}">
   {{ renderform_inner(form, formid or none, style=style, autosave=autosave, draft_revision=draft_revision) }}
   {{ rendersubmit([(none, submit or _("Submit"), 'mui-btn--primary')], cancel_url=cancel_url, style=style, csrf_error=form.csrf_token.errors if form.csrf_token else "") }}

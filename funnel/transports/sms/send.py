@@ -151,7 +151,11 @@ def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> 
         if exc.code == 21408:
             current_app.logger.error("Twilio unsupported country (21408) for %s", phone)
             raise TransportRecipientError(
-                _("Hasgeek cannot send messages to phone numbers in this country")
+                _(
+                    "Hasgeek cannot send messages to phone numbers in this country."
+                    "Please contact support via email at {email} if this affects your"
+                    "use of the site"
+                ).format(email=app.config['SITE_SUPPORT_EMAIL'])
             ) from exc
         if exc.code == 21610:
             raise TransportRecipientError(

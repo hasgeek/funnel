@@ -9,7 +9,7 @@
 
 {% block content %}
   <form id="{{ ref_id }}" method="post" accept-charset="UTF-8" class="mui-form" action="{{ request.url }}">
-    {{ renderform_inner(form, formid or None) }}
+    {{ renderform_inner(form, formid or none) }}
     {%- if not request_wants.html_fragment %}
       {{ rendersubmit([("Save session", "save session", '')]) }}
     {%- endif %}

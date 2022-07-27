@@ -30,6 +30,13 @@ CREATE EXTENSION IF NOT EXISTS hll;
     )
 
 
+@app.cli.command('dbcreate')
+def dbcreate():
+    """Populate database schema."""
+    db.create_all()
+    db.session.commit()
+
+
 @app.cli.command('baseframe_translations_path')
 def baseframe_translations_path():
     """Show path to Baseframe translations."""
