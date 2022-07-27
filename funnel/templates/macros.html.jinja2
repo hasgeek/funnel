@@ -146,8 +146,26 @@
   </div>
 {% endmacro %}
 
-{% macro projectcard(project, include_calendar=true, calendarwidget_compact=true, save_form_id_prefix='spf_', add_bookmark=true) %}
+{% macro projectcard(project, include_calendar=true, calendarwidget_compact=true, include_profile=true, include_details=true, save_form_id_prefix='spf_', add_bookmark=true) %}
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-ga="View project">
+    {%- if include_profile %}
+    <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left">
+      <div class="flex-wrapper flex-wrapper--center">
+        <span class="profile-avatar margin-right">
+          {%- if project.profile.logo_url.url %}
+            <img src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+          {% else %}
+            <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ project.profile.title }}"/>
+          {% endif %}
+        </span>
+        <span class="profile-avatar-title mui--text-body2 mui--text-bold mui--text-dark">{{ project.profile.title }}</span>
+      </div>
+      {%- if not current_auth.is_anonymous and add_bookmark %}
+        {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
+        <div class="card__body__bookmark card__body__bookmark--pushup">{{ saveprojectform(project, formid=save_form_id) }}</div>
+      {% endif %}
+    </div>
+    {% endif %}
     <div class="card__image-wrapper {% if not project.bg_image.url %}card__image-wrapper--default{% endif %}">
       {% if project.bg_image.url %}
         <img class="card__image js-lazyload-img" data-src="{{ project.bg_image.resize(card_banner) }}" alt="{{ project.title }}"/>
@@ -160,10 +178,6 @@
       {% endif %}
     </div>
     <div class="card__body">
-      {%- if not current_auth.is_anonymous and not include_calendar and add_bookmark %}
-        {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
-        <div class="card__body__bookmark card__body__bookmark--pushup">{{ saveprojectform(project, formid=save_form_id) }}</div>
-      {% endif %}
       {%- if include_calendar %}
         {% if calendarwidget_compact and project.start_at and project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
@@ -174,19 +188,19 @@
             {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
           </div>
         {% endif %}
-        <h3 class="card__body__title mui--text-subhead {% if not project.start_at %} card__body__subtitle {% endif %}"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
-        <p class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</p>
-        {%- if not current_auth.is_anonymous and add_bookmark %}
-          {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
-          <div class="card__body__bookmark card__body__bookmark--pushup">{{ saveprojectform(project, formid=save_form_id) }}</div>
+        {%- if include_details %}
+          <h3 class="card__body__title mui--text-subhead {% if not project.start_at %} card__body__subtitle {% endif %}"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
         {% endif %}
-      {% else %}
+      {% elif include_details %}
         <h3 class="card__body__subtitle mui--text-subhead mui--text-bold">{{ project.title }}</h3>
         <p class="mui--text-caption mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</p>
         {% if project.cfp_state.OPEN and project.cfp_end_at_localized %}
-          <hr class="separator"/>
+          <hr class="separator" />
           <p class="mui--text-caption zero-bottom-margin secondary-color-txt">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>
         {% endif %}
+      {% endif %}
+      {%- if include_details %}
+        <div class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</div>
       {% endif %}
     </div>
   </a>
@@ -194,6 +208,7 @@
 
 {% macro featured_section(featured_project, heading=true) %}
   {% if featured_project %}
+    <div class="mui--bg-primary">
     {% with current_sessions = featured_project.current_sessions() if
     featured_project is not none else none %}
     {% if current_sessions and current_sessions.sessions|length > 0 %}
@@ -248,53 +263,59 @@
 
     <div class="projects-wrapper">
       <div class="spotlight">
-        <div class="mui-container">
-          <div class="grid">
+        {% if heading %}
+          <div class="mui-container">
+            <div class="grid">
+              <div class="grid__col-12">
+                <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Spotlight{% endtrans %}</h2>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="mui-container mui--hidden-lg mui--hidden-xl">
+          <div class="grid flex-wrapper--center">
             <div class="grid__col-12">
-              {% if heading %}<h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Spotlight{% endtrans %}</h2>{% endif %}
+              {{ projectcard(featured_project, include_profile=true, include_details=true, save_form_id_prefix='spotlight_spfm_', add_bookmark=true) }}
             </div>
           </div>
         </div>
-        <div class="mui-container">
-          <div class="grid">
-            <div class="grid__col-12">
-              <a class="card card--spotlight clickable-card" href="{{ featured_project.url_for() }}" aria-label="{{ featured_project.title }}" data-cy="spotlight-project" data-ga="View spotlight project">
-                <div class="card__image-wrapper">
-                  {% if featured_project.bg_image.url %}
-                    <img class="card__image" src="{{ featured_project.bg_image.resize(spotlight_banner) }}" alt="{{ featured_project.title }}"/>
-                  {% else %}
-                    <img class="card__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ featured_project.title }}"/>
-                    <p class="card__image__tagline">{{ featured_project.title }}</p>
-                  {% endif %}
+
+        <div class="mui-container mui--hidden-xs mui--hidden-sm mui--hidden-md spotlight-container">
+          <div class="grid flex-wrapper--start">
+            <div class="grid__col-md-6 grid__col-lg-7 mui--text-left spotlight-container__details">
+              <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-bottom">
+                <div class="flex-wrapper flex-wrapper--center">
+                  <span class="profile-avatar margin-right">
+                    {%- if featured_project.profile.logo_url.url %}
+                      <img src="{{ featured_project.profile.logo_url }}" alt="{{ featured_project.profile.title }}"/>
+                    {% else %}
+                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.profile.title }}"/>
+                    {% endif %}
+                  </span>
+                  <span class="profile-avatar-title mui--text-subhead mui--text-bold mui--text-dark">{{ featured_project.profile.title }}</span>
                 </div>
-                <div class="card__body">
-                  <h3 class="card__body__title mui--text-headline mui--text-bold">{{ featured_project.title }}</h3>
-                  {% if featured_project.tagline %}
-                  <p class="card__body__subtitle mui--text-subhead zero-top-margin js-truncate mui--text-light" data-truncate-lines="3">{{ featured_project.tagline }}</p>
-                  {% endif %}
-                  {% if featured_project.calendar_weeks_compact.weeks and featured_project.calendar_weeks_compact.weeks|length > 0 %}
-                    <div aria-label="{{ featured_project.datelocation }}">
-                      {{ calendarwidget(featured_project.calendar_weeks_compact) }}
-                    </div>
-                  {% endif %}
-                  {% if featured_project.primary_venue %}
-                    <p class="card__body__location mui--text-light">{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.primary_venue.title }}{% if featured_project.primary_venue.city %}, {{ featured_project.primary_venue.city }}{% endif %}</p>
-                  {% elif featured_project.location %}
-                    <p class="card__body__location mui--text-light">{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}</p>
-                  {% endif %}
-                  {%- if not current_auth.is_anonymous %}
-                    {% set save_form_id = "featured_" + featured_project.uuid_b58 %}
-                    <div class="card__body__bookmark">
-                      {{ saveprojectform(featured_project, formid=save_form_id) }}
-                    </div>
-                  {% endif %}
-                </div>
-              </a>
+                {%- if not current_auth.is_anonymous %}
+                  {% set save_form_id = "spotlight_spfm_desktop_" + featured_project.uuid_b58 %}
+                  <div>{{ saveprojectform(featured_project, formid=save_form_id) }}</div>
+                {% endif %}
+              </div>
+              <h3 class="mui--text-headline mui--text-bold">{{ featured_project.title }}</h3>
+              <p class="mui--text-subhead mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</p>
+              <div class="bottom-padding mui--text-light">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
+              <a href="{{ featured_project.profile.url_for() }}" class="mui--text-body2 mui--text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
+            </div>
+            <div class="grid__col-md-1 grid__col-lg-1">
+            </div>
+            <div class="grid__col-md-5 grid__col-lg-4">
+              {{ projectcard(featured_project, include_profile=false, include_details=false, add_bookmark=false) }}
             </div>
           </div>
         </div>
+
       </div>
     </div>
+  </div>
   {% endif %}
 {% endmacro %}
 
@@ -311,7 +332,7 @@
         {% endif %}
         <ul class="mui-list--unstyled grid upcoming" role="list">
           {% for project in upcoming_projects %}
-          <li class="grid__col-xs-12 grid__col-sm-6 grid__col-lg-4" role="listitem">
+          <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4 grid__col-lg-3" role="listitem">
             {{ projectcard(project, save_form_id_prefix='upcoming_spf_') }}
           </li>
           {%- endfor -%}
@@ -379,7 +400,7 @@
         {% endif %}
         <ul class="grid projects" role="list">
           {% for project in open_cfp_projects %}
-            <li class="grid__col-xs-12 grid__col-sm-4 grid__col-lg-3 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}"
+            <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4 grid__col-lg-3 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}"
               role="listitem">
               {{ projectcard(project, include_calendar=false, save_form_id_prefix='open_spf_') }}
             </li>
