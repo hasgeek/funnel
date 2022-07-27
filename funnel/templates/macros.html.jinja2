@@ -178,7 +178,7 @@
       {% endif %}
     </div>
     <div class="card__body">
-      {%- if include_calendar%}
+      {%- if include_calendar %}
         {% if calendarwidget_compact and project.start_at and project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
           <div aria-label="{{ project.datelocation }}">
             {{ calendarwidget(project.calendar_weeks_compact) }}
@@ -195,7 +195,7 @@
         <h3 class="card__body__subtitle mui--text-subhead mui--text-bold">{{ project.title }}</h3>
         <p class="mui--text-caption mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</p>
         {% if project.cfp_state.OPEN and project.cfp_end_at_localized %}
-          <hr class="separator">
+          <hr class="separator" />
           <p class="mui--text-caption zero-bottom-margin secondary-color-txt">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>
         {% endif %}
       {% endif %}
