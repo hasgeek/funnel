@@ -94,7 +94,7 @@
     <li><a class="mui--text-body2 js-copy-link" href="#" onclick="return false;" data-ga="Copy link to share" role="menuitem">{{ faicon(icon='copy', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Copy link{% endtrans %}<span class="js-copy-url" aria-hidden="true">{{ url|shortlink }}?utm_campaign=webshare</span></a></li>
     <li><a class="mui--text-body2" href="mailto:?subject={{ title }}&amp;body={{ url }}&amp;utm_campaign=share-email" data-ga="Email" role="menuitem">{{ faicon(icon='envelope', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Email{% endtrans %}</a></li>
     <li><a class="mui--text-body2" target="_blank" rel="noopener" href="https://twitter.com/share?text={{ title|urlencode }}+(via+@hasgeek)&amp;url={{ url|urlencode }}&amp;utm_campaign=share-twitter" data-url="{{ url }}" data-via="hasgeek" data-text="{{ title }}" data-ga="Tweet" role="menuitem">{{ faicon(icon='twitter-square', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Twitter{% endtrans %}</a></li>
-    <li><a class="mui--text-body2" target="_blank" rel="noopener" href="https://www.facebook.com/sharer.php?u={{ url }}&amp;t={{ title }}&amp;utm_campaign=share-facebook" data-href="{{ url|urlencode }}" data-ga="Share on facebook" role="menuitem">{{ faicon(icon='facebook-square', baseline=true,css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Facebook{% endtrans %}</a></li>
+    <li><a class="mui--text-body2" target="_blank" rel="noopener" href="https://www.facebook.com/sharer.php?u={{ url|urlencode }}&amp;t={{ title }}&amp;utm_campaign=share-facebook" data-href="{{ url }}" data-ga="Share on facebook" role="menuitem">{{ faicon(icon='facebook-square', baseline=true,css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Facebook{% endtrans %}</a></li>
     <li><a class="mui--text-body2" href="https://www.linkedin.com/shareArticle?mini=true&url={{ url|urlencode }}&title={{ title }}&amp;utm_campaign=share-linkedin" data-ga="Share on linkedin" role="menuitem">{{ faicon(icon='linkedin', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}LinkedIn{% endtrans %}</a></li>
   </ul>
 {% endmacro %}
@@ -127,7 +127,9 @@
     {% else %}
       {% set url, title = session.url_for(_external=true), session.title %}
     {%- endif %}
-    <a href="#" onclick="return false;" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ url }}?utm_campaign=webshare" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
+    {%- with url_with_utm = {{ url }}?utm_campaign=webshare %}
+      <a href="#" onclick="return false;" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ url_with_utm|shortlink }}" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
+    {% endwith %}
     <div class="mui-dropdown">
       <a href="#" onclick="return false;" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
       {{ share_dropdown(url, title) }}

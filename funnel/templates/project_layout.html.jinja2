@@ -201,7 +201,9 @@
       <a href="#" onclick="return false;" class="project-links left-padding" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" aria-label="{% trans %}Share{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
       {{ share_dropdown(project.url_for(_external=true), project.title) }}
     </div>
-    <a href="#" onclick="return false;" class="hg-link-btn mui--hide left-padding" data-url="{{ project.url_for(_external=true) }}?utm_campaign=webshare" role="button" aria-label="{% trans %}Share this project{% endtrans %}">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
+    {%- with url_with_utm = {{ project.url_for(_external=true) }}?utm_campaign=webshare %}
+      <a href="#" onclick="return false;" class="hg-link-btn mui--hide left-padding" data-url="{{ url_with_utm|shortlink }}" role="button" aria-label="{% trans %}Share this project{% endtrans %}">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
+    {% endwith %}
     {% if project.state.PUBLISHED %}
       <a class="add-calendar left-padding" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-ga="Add to calendar" data-cy="add-to-calendar" role="button" aria-haspopup="true">{{ faicon(icon='calendar-plus', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
     {% endif %}

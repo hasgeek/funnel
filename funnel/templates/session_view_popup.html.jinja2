@@ -21,6 +21,9 @@
       {% endif %}
     </div>
     <div class="mui-dropdown mui--pull-right">
+      {%- with url_with_utm = {{ session.url_for(_external=true) }}?utm_campaign=webshare %}
+        <a href="#" onclick="return false;" class="hg-link-btn mui--hide left-padding" data-url="{{ url_with_utm|shortlink }}" role="button" aria-label="{% trans %}Share this session{% endtrans %}">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
+      {% endwith %}
       <a href="#" onclick="return false;" class="project-links left-padding" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" aria-label="{% trans %}Share{% endtrans %}" role="button" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='share-alt', baseline=true, icon_size='subhead', css_class="mui--text-light") }}</a>
       {{ share_dropdown(session.url_for(_external=true), session.title) }}
     </div>
