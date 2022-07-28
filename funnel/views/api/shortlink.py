@@ -39,7 +39,7 @@ def create_shortlink(
                 'error_description': _("A custom name requires special authorization"),
             }, 403
         try:
-            sl = Shortlink.new(url, shorter=shorter, name=name)
+            sl = Shortlink.new(url, shorter=shorter, name=name, actor=current_auth.user)
         except ValueError:
             existing = Shortlink.get(name)
             # existing will be None if the internal record is marked as disabled
@@ -49,7 +49,7 @@ def create_shortlink(
                     'error': 'unavailable',
                     'error_description': _("This name is not available"),
                 }, 422
-            sl = existing  # Return existing if both name and URL URL is matching
+            sl = existing  # Return existing if it's a match
     else:
         sl = Shortlink.new(url, shorter=shorter, reuse=True)
     status_code = 201 if sl.is_new else 200
