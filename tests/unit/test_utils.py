@@ -85,7 +85,7 @@ def test_abort_null() -> None:
         ('98450-12345', True, '+919845012345'),
         ('+91 98450 12345', True, '+919845012345'),
         ('8022223333', False, '+918022223333'),
-        ('8022223333', True, '+18022223333'),  # Landline in India, ambiguous in US
+        ('+18022223333', True, '+18022223333'),  # Landline in India, ambiguous in US
         ('junk', False, None),
     ],
 )
