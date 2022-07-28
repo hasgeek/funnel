@@ -13,7 +13,6 @@ from sqlalchemy.ext.hybrid import Comparator
 
 from furl import furl
 from typing_extensions import Literal
-from url_normalize import url_normalize
 
 from coaster.sqlalchemy import immutable, with_roles
 
@@ -48,6 +47,16 @@ _valid_name_re = re.compile('^[A-Za-z0-9_-]*$')
 
 
 # --- Helpers --------------------------------------------------------------------------
+
+
+def normalize_url(url: Union[str, furl], default_scheme: str = 'https') -> furl:
+    """Normalize a URL with a default scheme and path."""
+    url = furl(url)
+    if not url.scheme:
+        url.scheme = default_scheme
+    if not url.path:
+        url.path = '/'
+    return url
 
 
 def random_bigint(smaller: bool = False) -> int:
@@ -132,7 +141,7 @@ def bigint_to_name(value: int) -> str:
     )
 
 
-def url_blake2b160_hash(value: Union[str, furl], normalize=True) -> bytes:
+def url_blake2b160_hash(value: Union[str, furl]) -> bytes:
     """
     Hash a URL, for duplicate URL lookup.
 
@@ -146,10 +155,7 @@ def url_blake2b160_hash(value: Union[str, furl], normalize=True) -> bytes:
     3. Hash index performance may be better if it uses 128 bits and is indexed as a UUID
        integer rather than a string/binary, but this is speculative and needs homework.
     """
-    if normalize:
-        value = url_normalize(str(value))
-    else:
-        value = str(value)
+    value = str(normalize_url(value))
     return hashlib.blake2b(value.encode('utf-8'), digest_size=20).digest()
 
 
@@ -230,9 +236,9 @@ class Shortlink(NoIdMixin, db.Model):
 
     @db.validates('url')
     def _validate_url(self, key, value) -> str:  # skipcq: PYL-R0201
-        value = url_normalize(str(value))
+        value = str(normalize_url(value))
         # If URL hashes are added to the model, the value must be set here using
-        # `url_blake2b160_hash(value, normalize=False)`
+        # `url_blake2b160_hash(value)`
         return value
 
     # --- Methods
@@ -286,7 +292,7 @@ class Shortlink(NoIdMixin, db.Model):
         # This method is not named __new__ because SQLAlchemy depends on the default
         # implementation of __new__ when loading instances from the database.
         # https://docs.sqlalchemy.org/en/14/orm/constructors.html
-        url = url_normalize(str(url))
+        url = normalize_url(url)
         if reuse:
             if name:
                 # The overload definitions are meant to ensure that mypy will flag any
