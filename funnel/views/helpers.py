@@ -11,6 +11,9 @@ from urllib.parse import unquote, urljoin, urlsplit
 import gzip
 import zlib
 
+from sqlalchemy import event
+from sqlalchemy.orm import Session
+
 from flask import (
     Flask,
     Response,
@@ -502,13 +505,13 @@ def cleanurl_filter(url):
 
 
 @app.template_filter('shortlink')
-def shortlink(url, actor=None):
+def shortlink(url, actor: Optional[User] = None, shorter: bool = True) -> str:
     """
     Return a short link suitable for SMS, in a template filter.
 
     Caller must perform a database commit.
     """
-    sl = Shortlink.new(url, reuse=True, shorter=True, actor=actor)
+    sl = Shortlink.new(url, reuse=True, shorter=shorter, actor=actor)
     db.session.add(sl)
     return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
 
@@ -517,6 +520,45 @@ def shortlink(url, actor=None):
 def template_context() -> Dict[str, Any]:
     """Add template context items."""
     return {'built_asset': lambda assetname: built_assets[assetname]}
+
+
+# --- Database autocommit --------------------------------------------------------------
+
+
+# This code adapted from https://stackoverflow.com/a/50512788/78903
+@event.listens_for(Session, 'after_flush')
+def log_flush(db_session, _flush_context):
+    """Make a note that a database flush occurred."""
+    db_session.info['flushed'] = True
+
+
+@event.listens_for(Session, 'after_commit')
+@event.listens_for(Session, 'after_rollback')
+def reset_flushed(db_session):
+    """Remove note of database flush after database commit."""
+    if 'flushed' in db_session.info:
+        del db_session.info['flushed']
+
+
+def db_has_uncommitted_changes():
+    """Check for any changes to database that are pending commit."""
+    return (
+        any(db.session.new)
+        or any(db.session.deleted)
+        or any(x for x in db.session.dirty if db.session.is_modified(x))
+        or db.session.info.get('flushed', False)
+    )
+
+
+@app.after_request
+def commit_db_session(response):
+    """Commit database session at the end of a request."""
+    # This handler is primarily required for the `|shortlink` template filter, which
+    # may make a database entry in a view's ``return render_template(...)`` call and
+    # is therefore too late for a commit within the view
+    if db_has_uncommitted_changes():
+        db.session.commit()
+    return response
 
 
 # --- Request/response handlers --------------------------------------------------------

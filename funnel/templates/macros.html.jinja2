@@ -90,13 +90,15 @@
 {% endmacro %}
 
 {% macro share_dropdown(url, title, css_class="") %}
+  {%- with url_copy=url+'?utm_campaign=share-copy', url_email=url+'?utm_campaign=share-email', url_twitter=url+'?utm_campaign=share-twitter', url_facebook=url+'?utm_campaign=share-facebook', url_linkedin=url+'?utm_campaign=share-linkedin' %}
   <ul class="mui-dropdown__menu mui-dropdown__menu--right mui-dropdown__menu--hg-link {% if css_class %}{{ css_class }}{%- endif %}" data-cy="share-dropdown">
-    <li><a class="mui--text-body2 js-copy-link" href="#" onclick="return false;" data-ga="Copy link to share" role="menuitem">{{ faicon(icon='copy', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Copy link{% endtrans %}<span class="js-copy-url" aria-hidden="true">{{ url|shortlink }}?utm_campaign=webshare</span></a></li>
-    <li><a class="mui--text-body2" href="mailto:?subject={{ title }}&amp;body={{ url }}&amp;utm_campaign=share-email" data-ga="Email" role="menuitem">{{ faicon(icon='envelope', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Email{% endtrans %}</a></li>
-    <li><a class="mui--text-body2" target="_blank" rel="noopener" href="https://twitter.com/share?text={{ title|urlencode }}+(via+@hasgeek)&amp;url={{ url|urlencode }}&amp;utm_campaign=share-twitter" data-url="{{ url }}" data-via="hasgeek" data-text="{{ title }}" data-ga="Tweet" role="menuitem">{{ faicon(icon='twitter-square', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Twitter{% endtrans %}</a></li>
-    <li><a class="mui--text-body2" target="_blank" rel="noopener" href="https://www.facebook.com/sharer.php?u={{ url|urlencode }}&amp;t={{ title }}&amp;utm_campaign=share-facebook" data-href="{{ url }}" data-ga="Share on facebook" role="menuitem">{{ faicon(icon='facebook-square', baseline=true,css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Facebook{% endtrans %}</a></li>
-    <li><a class="mui--text-body2" href="https://www.linkedin.com/shareArticle?mini=true&url={{ url|urlencode }}&title={{ title }}&amp;utm_campaign=share-linkedin" data-ga="Share on linkedin" role="menuitem">{{ faicon(icon='linkedin', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}LinkedIn{% endtrans %}</a></li>
+    <li><a class="mui--text-body2 js-copy-link" href="#" onclick="return false;" data-ga="Copy link to share" role="menuitem">{{ faicon(icon='copy', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Copy link{% endtrans %}<span class="js-copy-url" aria-hidden="true">{{ url_copy|shortlink }}</span></a></li>
+    <li><a class="mui--text-body2" href="mailto:?subject={{ title|urlencode }}&amp;body={{ url_email|urlencode }}" data-ga="Email" role="menuitem">{{ faicon(icon='envelope', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Email{% endtrans %}</a></li>
+    <li><a class="mui--text-body2" target="_blank" rel="noopener" href="https://twitter.com/share?text={{ title|urlencode }}+(via+@hasgeek)&amp;url={{ url_twitter|urlencode }}" data-url="{{ url_twitter }}" data-via="hasgeek" data-text="{{ title }}" data-ga="Tweet" role="menuitem">{{ faicon(icon='twitter-square', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Twitter{% endtrans %}</a></li>
+    <li><a class="mui--text-body2" target="_blank" rel="noopener" href="https://www.facebook.com/sharer.php?u={{ url_facebook|urlencode }}&amp;t={{ title|urlencode }}" data-href="{{ url_facebook }}" data-ga="Share on facebook" role="menuitem">{{ faicon(icon='facebook-square', baseline=true,css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Facebook{% endtrans %}</a></li>
+    <li><a class="mui--text-body2" href="https://www.linkedin.com/shareArticle?mini=true&url={{ url_linkedin|urlencode }}&title={{ title|urlencode }}" data-ga="Share on linkedin" role="menuitem">{{ faicon(icon='linkedin', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}LinkedIn{% endtrans %}</a></li>
   </ul>
+  {%- endwith %}
 {% endmacro %}
 
 {% macro embed_video_player(video) %}
@@ -127,9 +129,7 @@
     {% else %}
       {% set url, title = session.url_for(_external=true), session.title %}
     {%- endif %}
-    {%- with url_with_utm = {{ url }}?utm_campaign=webshare %}
-      <a href="#" onclick="return false;" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ url_with_utm|shortlink }}" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
-    {% endwith %}
+    <a href="#" onclick="return false;" class="details__box__control__link mui--text-subhead hg-link-btn mui--hide" data-ga="Share dropdown" data-cy="share-project" data-url="{{ (url+'?utm_campaign=webshare')|shortlink }}" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
     <div class="mui-dropdown">
       <a href="#" onclick="return false;" class="details__box__control__link mui--text-subhead project-links" data-mui-toggle="dropdown" data-ga="Share dropdown" data-cy="share-project" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size='subhead') }}</a>
       {{ share_dropdown(url, title) }}
