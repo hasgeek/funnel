@@ -61,7 +61,8 @@ class RenderProposalReceivedNotification(RenderNotification):
             ),
             text2=self.proposal.title,
             url=shortlink(
-                self.proposal.url_for(_external=True, **self.tracking_tags('sms'))
+                self.proposal.url_for(_external=True, **self.tracking_tags('sms')),
+                shorter=True,
             ),
         )
 
@@ -103,6 +104,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
             ),
             text2=self.proposal.title,
             url=shortlink(
-                self.proposal.url_for(_external=True, **self.tracking_tags('sms'))
+                self.proposal.url_for(_external=True, **self.tracking_tags('sms')),
+                shorter=True,
             ),
         )

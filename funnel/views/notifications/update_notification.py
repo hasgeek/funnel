@@ -50,6 +50,7 @@ class RenderNewUpdateNotification(RenderNotification):
             ),
             text2=self.update.title,
             url=shortlink(
-                self.update.url_for(_external=True, **self.tracking_tags('sms'))
+                self.update.url_for(_external=True, **self.tracking_tags('sms')),
+                shorter=True,
             ),
         )
