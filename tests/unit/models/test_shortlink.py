@@ -71,12 +71,12 @@ def test_mock_random_bigint() -> None:
 @pytest.mark.parametrize(
     ('lhs', 'rhs'),
     [
-        ('https://example.com', 'example.com'),
+        ('https://example.com', '//example.com'),
         ('https://example.com/', 'https://example.com'),
     ],
 )
 def test_url_hash_is_normalized(lhs, rhs) -> None:
-    """URL hash is normalized by default, and handles furl objects."""
+    """URL hash is normalized and handles furl objects."""
     assert shortlink.url_blake2b160_hash(lhs) == shortlink.url_blake2b160_hash(rhs)
     assert shortlink.url_blake2b160_hash(furl(lhs)) == shortlink.url_blake2b160_hash(
         rhs
@@ -96,13 +96,6 @@ def test_url_hash_is_constant() -> None:
 
     assert shortlink.url_blake2b160_hash(example_com) == example_com_hash
     assert shortlink.url_blake2b160_hash(furl(example_com)) == example_com_hash
-    assert (
-        shortlink.url_blake2b160_hash(example_com, normalize=False) == example_com_hash
-    )
-    assert (
-        shortlink.url_blake2b160_hash(furl(example_com), normalize=False)
-        == example_com_hash
-    )
 
 
 #: These mappings are bi-directional.
@@ -175,7 +168,7 @@ def test_shortlink_id_equals_zero(db_session) -> None:
 
 def test_shortlink_url_is_normalized(db_session) -> None:
     """Shortlink URLs are normalized."""
-    sl = shortlink.Shortlink(url='example.com')
+    sl = shortlink.Shortlink(url='https://example.com')
     assert sl.url == 'https://example.com/'
 
 
@@ -207,14 +200,14 @@ def test_constructor_reuse_with_name(db_session) -> None:
 
 def test_shortlink_constructor_with_reuse(db_session) -> None:
     """Shortlink constructor will return existing when asked to reuse."""
-    sl1 = shortlink.Shortlink.new('example.com', reuse=True)
-    sl2 = shortlink.Shortlink.new('example.org', reuse=True)
+    sl1 = shortlink.Shortlink.new('https://example.com', reuse=True)
+    sl2 = shortlink.Shortlink.new('https://example.org', reuse=True)
     assert sl1 != sl2
 
     # db_session.add(...) is not required because Shortlink already adds to session
     # db_session.commit() is not required for this test because Shortlink does not
     # disable autoflush
-    sl3 = shortlink.Shortlink.new('example.com/', reuse=True)
+    sl3 = shortlink.Shortlink.new('https://example.com/', reuse=True)
     assert sl3 == sl1
     assert sl3.id == sl1.id
     assert sl3 != sl2
@@ -226,16 +219,16 @@ def test_shortlink_constructor_with_reuse(db_session) -> None:
 )
 def test_shortlink_reuse_with_shorter(db_session, longid, match) -> None:
     """Shortlink reuse with shorter will avoid longer ids."""
-    sl1 = shortlink.Shortlink(id=longid, url='example.com')
+    sl1 = shortlink.Shortlink(id=longid, url='https://example.com')
     db_session.add(sl1)
-    sl2 = shortlink.Shortlink.new(url='example.com', shorter=True, reuse=True)
+    sl2 = shortlink.Shortlink.new(url='https://example.com', shorter=True, reuse=True)
     assert (sl2.id == sl1.id) is match
 
 
 @pytest.mark.filterwarnings('ignore:New instance')
 def test_shortlink_constructor_with_name(db_session) -> None:
     """Shortlink constructor will accept a name."""
-    sl1 = shortlink.Shortlink.new('example.com', name='example')
+    sl1 = shortlink.Shortlink.new('https://example.com', name='example')
     assert sl1.name == 'example'
 
     with pytest.raises(ValueError, match='name is not available'):
@@ -244,11 +237,11 @@ def test_shortlink_constructor_with_name(db_session) -> None:
         #     SAWarning: New instance <Shortlink at 0x...> with identity key
         #     (<class 'funnel.models.shortlink.Shortlink'>, (141113946412667,), None)
         #     conflicts with persistent instance <Shortlink at 0x...>
-        shortlink.Shortlink.new('example.org', name='example')
+        shortlink.Shortlink.new('https://example.org', name='example')
 
     # The db transaction remains open after an error, allowing additional inserts
-    sl2 = shortlink.Shortlink.new('example.org', name='example_org')
-    sl3 = shortlink.Shortlink.new('example.org', reuse=True)
+    sl2 = shortlink.Shortlink.new('https://example.org', name='example_org')
+    sl3 = shortlink.Shortlink.new('https://example.org', reuse=True)
     assert sl3 == sl2
     assert sl3.id == sl2.id
     assert sl3.name == sl2.name == 'example_org'
@@ -262,25 +255,25 @@ def test_shortlink_constructor_handle_collisions(db_session) -> None:
         'funnel.models.shortlink.random_bigint',
         wraps=prngids,
     ) as mockid:
-        sl1 = shortlink.Shortlink.new('example.org')
+        sl1 = shortlink.Shortlink.new('https://example.org')
         assert sl1.id == 42
         assert mockid.call_count == 1
         mockid.assert_called_with(False)
         mockid.reset_mock()
 
-        sl2 = shortlink.Shortlink.new('example.com', shorter=False)
+        sl2 = shortlink.Shortlink.new('https://example.com', shorter=False)
         assert sl2.id == 128
         assert mockid.call_count == 2  # Returned 42 the first time, 128 second time
         mockid.assert_called_with(False)
         mockid.reset_mock()
 
-        sl3 = shortlink.Shortlink.new('example.net', shorter=True)
+        sl3 = shortlink.Shortlink.new('https://example.net', shorter=True)
         assert sl3.id == 384
         assert mockid.call_count == 3  # Returned 128, 128, 384
         mockid.assert_called_with(True)  # Called with smaller=True
         mockid.reset_mock()
 
-        sl4 = shortlink.Shortlink.new('example.org', name='example')
+        sl4 = shortlink.Shortlink.new('https://example.org', name='example')
         assert sl4.name == 'example'
         assert mockid.call_count == 0
         mockid.reset_mock()
@@ -319,12 +312,12 @@ def test_shortlink_new_profanity_filter(db_session) -> None:
         'funnel.models.shortlink.random_bigint',
         wraps=prngids,
     ) as mockid:
-        sl1 = shortlink.Shortlink.new('example.org')
+        sl1 = shortlink.Shortlink.new('https://example.org')
         assert sl1.name == 'works'
         assert mockid.call_count == 1
         mockid.reset_mock()
 
-        sl2 = shortlink.Shortlink.new('example.com')
+        sl2 = shortlink.Shortlink.new('https://example.com')
         assert sl2.name == 'okay'
         assert mockid.call_count == 3  # Middle mocks got dropped by profanity filter
         mockid.reset_mock()
@@ -333,7 +326,7 @@ def test_shortlink_new_profanity_filter(db_session) -> None:
 def test_shortlink_name_available(db_session) -> None:
     """Shortlink has a `name_available` classmethod to test for availability."""
     assert shortlink.Shortlink.name_available('example') is True
-    shortlink.Shortlink.new('example.org', name='example')
+    shortlink.Shortlink.new('https://example.org', name='example')
     assert shortlink.Shortlink.name_available('example') is False
     assert shortlink.Shortlink.name_available('example_org') is True
     assert shortlink.Shortlink.name_available('example_too_long') is False
@@ -342,7 +335,7 @@ def test_shortlink_name_available(db_session) -> None:
 def test_shortlink_get(db_session) -> None:
     """Shortlink has a `get` classmethod."""
     assert shortlink.Shortlink.get('example') is None
-    shortlink.Shortlink.new('example.org', name='example')
+    shortlink.Shortlink.new('https://example.org', name='example')
     sl = shortlink.Shortlink.get('example')
     assert sl is not None
     assert sl.name == 'example'
@@ -370,8 +363,8 @@ def test_shortlink_comparator() -> None:
 
 def test_shortlink_lookup_multiple() -> None:
     """Shortlink allows lookup by name."""
-    sl1 = shortlink.Shortlink.new('example.org', name='example')
-    sl2 = shortlink.Shortlink.new('example.com', name='example_com')
+    sl1 = shortlink.Shortlink.new('https://example.org', name='example')
+    sl2 = shortlink.Shortlink.new('https://example.com', name='example_com')
     assert shortlink.Shortlink.query.filter_by(name='example').all() == [sl1]
     assert shortlink.Shortlink.query.filter_by(name='example_com').all() == [sl2]
     assert shortlink.Shortlink.query.filter_by(name='unknown').all() == []

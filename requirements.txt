@@ -423,7 +423,6 @@ six==1.16.0
     #   requests-file
     #   requests-mock
     #   tuspy
-    #   url-normalize
 sqlalchemy==1.4.39
     # via
     #   -r requirements.in
@@ -471,8 +470,6 @@ uglipyjs==0.2.5
     # via coaster
 unidecode==1.3.4
     # via coaster
-url-normalize==1.4.3
-    # via -r requirements.in
 urllib3==1.26.11
     # via
     #   geoip2
