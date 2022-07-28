@@ -177,6 +177,10 @@ class Shortlink(NoIdMixin, db.Model):
 
     __tablename__ = 'shortlink'
 
+    #: Non-persistent attribute for Shortlink.new to flag if this is a new shortlink.
+    #: Any future instance cache system must NOT cache this value
+    is_new = False
+
     # id of this shortlink, saved as a bigint (8 bytes)
     id = with_roles(  # noqa: A003
         # id cannot use the `immutable` wrapper because :meth:`new` changes the id when
@@ -308,6 +312,7 @@ class Shortlink(NoIdMixin, db.Model):
             # User wants a custom name? Try using it, but no guarantee this will work
             try:
                 shortlink = cls(name=name, url=url, user=actor)
+                shortlink.is_new = True
                 # 1. Emit `BEGIN SAVEPOINT`
                 savepoint = db.session.begin_nested()
                 # 2. Tell SQLAlchemy to prepare to commit this record within savepoint
@@ -323,6 +328,7 @@ class Shortlink(NoIdMixin, db.Model):
 
         # Not a custom name. Keep trying ids until one succeeds
         shortlink = cls(id=random_bigint(shorter), url=url, user=actor)
+        shortlink.is_new = True
         while True:
             if profanity.contains_profanity(shortlink.name):
                 shortlink.id = random_bigint(shorter)
