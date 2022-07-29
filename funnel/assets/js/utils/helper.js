@@ -311,8 +311,8 @@ const Utils = {
         const copyLink = function () {
           const selection = window.getSelection();
           const range = document.createRange();
-          selection.removeAllRanges();
           range.selectNodeContents($(linkElem).find('.js-copy-url')[0]);
+          selection.removeAllRanges();
           selection.addRange(range);
           document.execCommand('copy');
           window.toastr.success(gettext('Link copied'));
@@ -324,7 +324,8 @@ const Utils = {
           utils
             .fetchShortUrl($(linkElem).find('.js-copy-url').first().html())
             .then((shortlink) => {
-              $(linkElem).find('.js-copy-url').html(shortlink);
+              $(linkElem).find('.js-copy-url').text(shortlink);
+              $(linkElem).attr('data-shortlink', true);
             })
             .finally(() => {
               copyLink();
