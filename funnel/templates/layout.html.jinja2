@@ -264,6 +264,7 @@
       window.Hasgeek.Config.commentSidebarElem = '#js-unread-comments';
       window.Hasgeek.Config.unreadCommentUrl = {{ url_for('comments')|tojson }};
     {% endif %}
+    window.Hasgeek.Config.shorturlApi = {{ url_for('create_shortlink')|tojson }};
   </script>
   <script src="{{ built_asset('app.js') }}" type="text/javascript"></script>
 

@@ -268,33 +268,56 @@ const Utils = {
     });
   },
   addWebShare() {
+    const utils = this;
     if (navigator.share) {
       $('.project-links').hide();
       $('.hg-link-btn').removeClass('mui--hide');
 
       $('body').on('click', '.hg-link-btn', function clickWebShare(event) {
         event.preventDefault();
-        navigator.share({
-          title: $(this).data('title') || document.title,
-          url:
-            $(this).data('url') ||
-            (document.querySelector('link[rel=canonical]') &&
-              document.querySelector('link[rel=canonical]').href) ||
-            window.location.href,
-          text: $(this).data('text') || '',
-        });
+        let url =
+          $(this).data('url') ||
+          (document.querySelector('link[rel=canonical]') &&
+            document.querySelector('link[rel=canonical]').href) ||
+          window.location.href;
+        utils
+          .fetchShortUrl(url)
+          .then((shortlink) => {
+            console.log(shortlink);
+            url = shortlink;
+          })
+          .finally(() => {
+            console.log('title', $(this).data('title'));
+            console.log('url ', url);
+            navigator.share({
+              title: $(this).data('title') || document.title,
+              url,
+              text: $(this).data('text') || '',
+            });
+          });
       });
     } else {
       $('body').on('click', '.js-copy-link', function clickCopyLink(event) {
         event.preventDefault();
         const selection = window.getSelection();
         const range = document.createRange();
-        range.selectNodeContents($(this).find('.js-copy-url')[0]);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        document.execCommand('copy');
-        window.toastr.success(gettext('Link copied'));
-        selection.removeAllRanges();
+        utils
+          .fetchShortUrl($(this).find('.js-copy-url').first().html())
+          .then((shortlink) => {
+            console.log(shortlink);
+            $(this).find('.js-copy-url').html(shortlink);
+          })
+          .finally(() => {
+            selection.removeAllRanges();
+            window.copy = $(this).find('.js-copy-url')[0];
+            console.log('this', $(this).find('.js-copy-url')[0]);
+            range.selectNode($(this).find('.js-copy-url')[0]);
+            console.log('range', range);
+            selection.addRange(range);
+            document.execCommand('copy');
+            window.toastr.success(gettext('Link copied'));
+            selection.removeAllRanges();
+          });
       });
     }
   },
@@ -303,6 +326,18 @@ const Utils = {
       $('.project-links').hide();
       $('.hg-link-btn').removeClass('mui--hide');
     }
+  },
+  async fetchShortUrl(url) {
+    const response = await fetch(window.Hasgeek.Config.shorturlApi, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `url=${url}`,
+    });
+    const jsonResponse = await response.json();
+    return jsonResponse.shortlink;
   },
 };
 
