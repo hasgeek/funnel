@@ -312,7 +312,7 @@ const Utils = {
           const selection = window.getSelection();
           const range = document.createRange();
           selection.removeAllRanges();
-          range.selectNode($(linkElem).find('.js-copy-url')[0]);
+          range.selectNodeContents($(linkElem).find('.js-copy-url')[0]);
           selection.addRange(range);
           document.execCommand('copy');
           window.toastr.success(gettext('Link copied'));
