@@ -24,7 +24,7 @@ from funnel.views.otp import OtpSession
 
 # User fixture's details
 RINCEWIND_USERNAME = 'rincewind'
-RINCEWIND_PHONE = '+12345678900'
+RINCEWIND_PHONE = '+917676332020'
 RINCEWIND_EMAIL = 'rincewind@example.com'
 LOGIN_USERNAMES = [RINCEWIND_USERNAME, RINCEWIND_EMAIL, RINCEWIND_PHONE]
 

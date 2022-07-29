@@ -17,7 +17,7 @@ import qrcode.image.svg
 # Unprefixed phone numbers are assumed to be a local number in India (+91) or US (+1).
 # Both IN and US numbers are 10 digits before prefixes. We try IN first as it's the
 # higher priority home region.
-PHONE_LOOKUP_REGIONS = ['IN', 'US']
+PHONE_LOOKUP_REGIONS = ['IN']
 
 MASK_DIGITS = str.maketrans('0123456789', '•' * 10)
 
