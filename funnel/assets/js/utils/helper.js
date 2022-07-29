@@ -361,8 +361,12 @@ const Utils = {
       },
       body: `url=${encodeURIComponent(url)}`,
     });
-    const json = await response.json();
-    return json.shortlink;
+    if (response.ok) {
+      const json = await response.json();
+      return json.shortlink;
+    }
+    // Call failed, return the original URL
+    return url;
   },
 };
 
