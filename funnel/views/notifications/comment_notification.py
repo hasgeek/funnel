@@ -55,7 +55,8 @@ class RenderCommentReportReceivedNotification(RenderNotification):
                     report=self.report.uuid_b58,
                     _external=True,
                     **self.tracking_tags('sms'),
-                )
+                ),
+                shorter=True,
             ),
         )
 
@@ -162,6 +163,7 @@ class CommentNotification(RenderNotification):
         return OneLineTemplate(
             text1=self.activity_template_inline().format(actor=self.actor.pickername),
             url=shortlink(
-                self.comment.url_for(_external=True, **self.tracking_tags('sms'))
+                self.comment.url_for(_external=True, **self.tracking_tags('sms')),
+                shorter=True,
             ),
         )

@@ -46,6 +46,7 @@ class RenderProjectStartingNotification(RenderNotification):
                 time=time_filter(self.session.start_at_localized),
             ),
             url=shortlink(
-                self.project.url_for(_external=True, **self.tracking_tags('sms'))
+                self.project.url_for(_external=True, **self.tracking_tags('sms')),
+                shorter=True,
             ),
         )

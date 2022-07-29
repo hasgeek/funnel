@@ -24,7 +24,8 @@ from flask import (
     session,
     url_for,
 )
-from werkzeug.routing import BuildError
+from werkzeug.exceptions import MethodNotAllowed, NotFound
+from werkzeug.routing import BuildError, RequestRedirect
 from werkzeug.urls import url_quote
 
 from furl import furl
@@ -151,6 +152,64 @@ def app_url_for(
     if _anchor:
         result += f'#{url_quote(_anchor)}'
     return result
+
+
+def validate_is_app_url(url: Union[str, furl], method: str = 'GET') -> bool:
+    """Confirm if an external URL is served by the current app (runtime-only)."""
+    # Parse or copy URL and remove username and password before further analysis
+    parsed_url = furl(url).remove(username=True, password=True)
+    if not parsed_url.host or not parsed_url.scheme:
+        return False  # This validator requires a full URL
+
+    if current_app.url_map.host_matching:
+        # This URL adapter matches explicit hosts, so we just give it the URL as its
+        # server_name
+        server_name = parsed_url.netloc
+        subdomain = None
+    else:
+        # Next, validate whether the URL's host/netloc is valid for this app's config
+        # or for the hostname indicated by the current request
+        subdomain = None
+
+        # If config specifies a SERVER_NAME and app has subdomains, test against it
+        server_name = current_app.config['SERVER_NAME']
+        if server_name:
+            if not (
+                parsed_url.netloc == server_name
+                or (
+                    current_app.subdomain_matching
+                    and parsed_url.netloc.endswith(f'.{server_name}')
+                )
+            ):
+                return False
+            subdomain = (
+                (current_app.url_map.default_subdomain or None)
+                if current_app.subdomain_matching
+                else None
+            )
+
+        # If config does not specify a SERVER_NAME, match against request.host
+        if not server_name:
+            # Compare request.host with parsed_url.host since there's no port here
+            if parsed_url.host != request.host:
+                return False
+            server_name = request.host
+
+        # Host is validated, now make an adapter to match the path
+        adapter = current_app.url_map.bind(
+            server_name,
+            subdomain=subdomain,
+            script_name=current_app.config['APPLICATION_ROOT'],
+            url_scheme=current_app.config['PREFERRED_URL_SCHEME'],
+        )
+
+    while True:  # Keep looping on redirects
+        try:
+            return bool(adapter.match(parsed_url.path, method=method))
+        except RequestRedirect as exc:
+            parsed_url = furl(exc.new_url)
+        except (MethodNotAllowed, NotFound):
+            return False
 
 
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):
@@ -502,13 +561,15 @@ def cleanurl_filter(url):
 
 
 @app.template_filter('shortlink')
-def shortlink(url, actor=None):
+def shortlink(url: str, actor: Optional[User] = None, shorter: bool = True) -> str:
     """
-    Return a short link suitable for SMS, in a template filter.
+    Return a short link suitable for sharing, in a template filter.
 
     Caller must perform a database commit.
+
+    :param shorter: Use a shorter shortlink, ideal for SMS or a small database
     """
-    sl = Shortlink.new(url, reuse=True, shorter=True, actor=actor)
+    sl = Shortlink.new(url, reuse=True, shorter=shorter, actor=actor)
     db.session.add(sl)
     return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
 
