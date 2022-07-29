@@ -273,7 +273,7 @@ const Utils = {
       $('.project-links').hide();
       $('.hg-link-btn').removeClass('mui--hide');
 
-      const mobileShare = function (title, url, text) {
+      const mobileShare = (title, url, text) => {
         navigator.share({
           title,
           url,
@@ -283,20 +283,22 @@ const Utils = {
 
       $('body').on('click', '.hg-link-btn', function clickWebShare(event) {
         event.preventDefault();
+        const linkElem = this;
         let url =
-          $(this).data('url') ||
+          $(linkElem).data('url') ||
           (document.querySelector('link[rel=canonical]') &&
             document.querySelector('link[rel=canonical]').href) ||
           window.location.href;
         const title = $(this).data('title') || document.title;
         const text = $(this).data('text') || '';
-        if ($(this).attr('data-shortlink')) {
+        if ($(linkElem).attr('data-shortlink')) {
           mobileShare(title, url, text);
         } else {
           utils
             .fetchShortUrl(url)
             .then((shortlink) => {
               url = shortlink;
+              $(linkElem).attr('data-shortlink', true);
             })
             .finally(() => {
               mobileShare(title, url, text);
@@ -307,16 +309,26 @@ const Utils = {
       $('body').on('click', '.js-copy-link', function clickCopyLink(event) {
         event.preventDefault();
         const linkElem = this;
-
-        const copyLink = function () {
-          const selection = window.getSelection();
-          const range = document.createRange();
-          range.selectNodeContents($(linkElem).find('.js-copy-url')[0]);
-          selection.removeAllRanges();
-          selection.addRange(range);
-          document.execCommand('copy');
-          window.toastr.success(gettext('Link copied'));
-          selection.removeAllRanges();
+        const copyLink = () => {
+          const url = $(linkElem).find('.js-copy-url').first().text();
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(
+              () => window.toastr.success(gettext('Link copied')),
+              () => window.toastr.success(gettext('Could not copy link'))
+            );
+          } else {
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents($(linkElem).find('.js-copy-url')[0]);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            if (document.execCommand('copy')) {
+              window.toastr.success(gettext('Link copied'));
+            } else {
+              window.toastr.success(gettext('Could not copy link'));
+            }
+            selection.removeAllRanges();
+          }
         };
         if ($(linkElem).attr('data-shortlink')) {
           copyLink();
