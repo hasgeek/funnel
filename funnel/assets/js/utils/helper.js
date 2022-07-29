@@ -283,12 +283,9 @@ const Utils = {
         utils
           .fetchShortUrl(url)
           .then((shortlink) => {
-            console.log(shortlink);
             url = shortlink;
           })
           .finally(() => {
-            console.log('title', $(this).data('title'));
-            console.log('url ', url);
             navigator.share({
               title: $(this).data('title') || document.title,
               url,
@@ -304,15 +301,11 @@ const Utils = {
         utils
           .fetchShortUrl($(this).find('.js-copy-url').first().html())
           .then((shortlink) => {
-            console.log(shortlink);
             $(this).find('.js-copy-url').html(shortlink);
           })
           .finally(() => {
             selection.removeAllRanges();
-            window.copy = $(this).find('.js-copy-url')[0];
-            console.log('this', $(this).find('.js-copy-url')[0]);
             range.selectNode($(this).find('.js-copy-url')[0]);
-            console.log('range', range);
             selection.addRange(range);
             document.execCommand('copy');
             window.toastr.success(gettext('Link copied'));
