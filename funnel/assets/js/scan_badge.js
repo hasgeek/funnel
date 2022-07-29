@@ -43,7 +43,9 @@ const badgeScan = {
         $('#status-msg').modal('show');
         const url = checkinApiUrl.replace('puk', qrcode.substring(0, 8));
         const csrfToken = $("meta[name='csrf-token']").attr('content');
-        const formValues = `checkin=t&csrf_token=${csrfToken}`;
+        const formValues = `checkin=t&csrf_token=${encodeURIComponent(
+          csrfToken
+        )}`;
         $.ajax({
           type: 'POST',
           url,

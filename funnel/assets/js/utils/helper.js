@@ -89,7 +89,7 @@ const Utils = {
     const fetchMenu = (pageNo = 1) => {
       $.ajax({
         type: 'GET',
-        url: `${url}?page=${pageNo}`,
+        url: `${url}?page=${encodeURIComponent(pageNo)}`,
         timeout: window.Hasgeek.Config.ajaxTimeout,
         success(responseData) {
           if (observer) {
@@ -347,7 +347,7 @@ const Utils = {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: `url=${url}`,
+      body: `url=${encodeURIComponent(url)}`,
     });
     const json = await response.json();
     return json.shortlink;
