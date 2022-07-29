@@ -3,7 +3,7 @@ import Form from './utils/formhelper';
 import SortItem from './utils/sort';
 
 $(() => {
-  window.Hasgeek.submissionFormInit = function (sortUrl) {
+  window.Hasgeek.submissionFormInit = (sortUrl) => {
     let textareaWaitTimer;
     const debounceInterval = 1000;
 
@@ -47,7 +47,7 @@ $(() => {
       return text.replace(/(\r\n|\n|\r)/gm, ' ').replace(/\s+/g, ' ');
     }
 
-    $('body').on('click', '.js-open-modal', function (event) {
+    $('body').on('click', '.js-open-modal', (event) => {
       const field = $(this).next('.js-modal-field');
       $(this).addClass('active-form-field');
       event.preventDefault();

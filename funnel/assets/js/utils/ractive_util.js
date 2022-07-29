@@ -9,9 +9,9 @@ export const useravatar = Ractive.extend({
     size: 'medium',
     getInitials: window.Hasgeek.Utils.getInitials,
     imgurl() {
-      return `${this.get('user').avatar}?size=${
+      return `${this.get('user').avatar}?size=${encodeURIComponent(
         window.Hasgeek.Config.userAvatarImgSize[this.get('size')]
-      }`;
+      )}`;
     },
     getAvatarColour(name) {
       return window.Hasgeek.Utils.getAvatarColour(name);

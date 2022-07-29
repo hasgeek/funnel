@@ -81,7 +81,7 @@ const Form = {
     }
   },
   handleDelete(elementClass, onSucessFn) {
-    $('body').on('click', elementClass, function (event) {
+    $('body').on('click', elementClass, (event) => {
       event.preventDefault();
       const url = $(this).attr('href');
       const confirmationText = window.gettext(
@@ -146,7 +146,7 @@ const Form = {
     );
   },
   openSubmissionToggle(checkboxId, cfpStatusDiv) {
-    const onSuccess = function () {
+    const onSuccess = () => {
       $(cfpStatusDiv).toggleClass('mui--hide');
     };
     Form.activateToggleSwitch(onSuccess);
