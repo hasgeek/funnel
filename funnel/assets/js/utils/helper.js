@@ -273,6 +273,14 @@ const Utils = {
       $('.project-links').hide();
       $('.hg-link-btn').removeClass('mui--hide');
 
+      const mobileShare = function (title, url, text) {
+        navigator.share({
+          title,
+          url,
+          text,
+        });
+      };
+
       $('body').on('click', '.hg-link-btn', function clickWebShare(event) {
         event.preventDefault();
         let url =
@@ -280,37 +288,48 @@ const Utils = {
           (document.querySelector('link[rel=canonical]') &&
             document.querySelector('link[rel=canonical]').href) ||
           window.location.href;
-        utils
-          .fetchShortUrl(url)
-          .then((shortlink) => {
-            url = shortlink;
-          })
-          .finally(() => {
-            navigator.share({
-              title: $(this).data('title') || document.title,
-              url,
-              text: $(this).data('text') || '',
+        const title = $(this).data('title') || document.title;
+        const text = $(this).data('text') || '';
+        if ($(this).attr('data-shortlink')) {
+          mobileShare(title, url, text);
+        } else {
+          utils
+            .fetchShortUrl(url)
+            .then((shortlink) => {
+              url = shortlink;
+            })
+            .finally(() => {
+              mobileShare(title, url, text);
             });
-          });
+        }
       });
     } else {
       $('body').on('click', '.js-copy-link', function clickCopyLink(event) {
         event.preventDefault();
-        const selection = window.getSelection();
-        const range = document.createRange();
-        utils
-          .fetchShortUrl($(this).find('.js-copy-url').first().html())
-          .then((shortlink) => {
-            $(this).find('.js-copy-url').html(shortlink);
-          })
-          .finally(() => {
-            selection.removeAllRanges();
-            range.selectNode($(this).find('.js-copy-url')[0]);
-            selection.addRange(range);
-            document.execCommand('copy');
-            window.toastr.success(gettext('Link copied'));
-            selection.removeAllRanges();
-          });
+        const linkElem = this;
+
+        const copyLink = function () {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          selection.removeAllRanges();
+          range.selectNode($(linkElem).find('.js-copy-url')[0]);
+          selection.addRange(range);
+          document.execCommand('copy');
+          window.toastr.success(gettext('Link copied'));
+          selection.removeAllRanges();
+        };
+        if ($(linkElem).attr('data-shortlink')) {
+          copyLink();
+        } else {
+          utils
+            .fetchShortUrl($(linkElem).find('.js-copy-url').first().html())
+            .then((shortlink) => {
+              $(linkElem).find('.js-copy-url').html(shortlink);
+            })
+            .finally(() => {
+              copyLink();
+            });
+        }
       });
     }
   },
