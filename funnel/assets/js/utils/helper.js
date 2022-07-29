@@ -348,8 +348,8 @@ const Utils = {
       },
       body: `url=${url}`,
     });
-    const jsonResponse = await response.json();
-    return jsonResponse.shortlink;
+    const json = await response.json();
+    return json.shortlink;
   },
 };
 
