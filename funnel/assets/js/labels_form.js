@@ -14,7 +14,7 @@ $(() => {
         update() {
           $(this)
             .children()
-            .each((index) => {
+            .each(function updateSeq(index) {
               $(this)
                 .children('input[name$="seq"]')
                 .val(index + 1);
@@ -31,10 +31,14 @@ $(() => {
       $('.js-required-field input').prop('checked', true);
       $('#child-form').each(applySortable);
     });
-    $('#child-form').on('click', '.js-remove-sublabel-form', (e) => {
-      e.preventDefault();
-      $(this).parent().remove();
-    });
+    $('#child-form').on(
+      'click',
+      '.js-remove-sublabel-form',
+      function removeSubForm(e) {
+        e.preventDefault();
+        $(this).parent().remove();
+      }
+    );
     initEmojiPicker();
     $('#child-form').each(applySortable);
 

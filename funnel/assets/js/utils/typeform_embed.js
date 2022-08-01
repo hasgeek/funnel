@@ -27,7 +27,7 @@ const TypeformEmbed = {
     const self = this;
     $(containerDiv)
       .find('a')
-      .each(() => {
+      .each(function isTypeformUrl() {
         const txt = $(this).attr('href');
         let urlSplit;
         let typeformId;

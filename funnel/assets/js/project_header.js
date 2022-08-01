@@ -228,7 +228,7 @@ $(() => {
     const currentnavItem = $('.sub-navbar__item--active').attr('id');
     Spa.init(projectTitle, currentnavItem, hightlightNavItem);
 
-    $('body').on('click', '.js-spa-navigate', (event) => {
+    $('body').on('click', '.js-spa-navigate', function pageRefresh(event) {
       event.preventDefault();
       const url = $(this).attr('href');
       Spa.fetchPage(url, $(this).attr('id'), true);
