@@ -5,7 +5,9 @@ from types import MethodType, SimpleNamespace
 from typing import List, NamedTuple, Optional
 import re
 
-from sqlalchemy import event
+from sqlalchemy import event, inspect
+from sqlalchemy.orm import Session as DatabaseSessionClass
+from sqlalchemy.orm import close_all_sessions
 
 from flask.testing import FlaskClient
 from flask.wrappers import Response
@@ -159,6 +161,114 @@ class ResponseWithForms(Response):
 
 
 @pytest.fixture(scope='session')
+def _database_events():
+    """
+    Fixture to report session events for debugging a test.
+
+    If a test is exhibiting unusual behaviour, add this fixture to trace db events::
+
+        @pytest.mark.usefixtures('_database_events')
+        def test_whatever():
+            ...
+    """
+
+    @event.listens_for(db.Model, 'init', propagate=True)
+    def event_init(obj, args, kwargs):
+        rargs = ', '.join(repr(_a) for _a in args)
+        rkwargs = ', '.join(f'{_k}={_v!r}' for _k, _v in kwargs.items())
+        rparams = f'{rargs, rkwargs}' if rargs else rkwargs
+        print(f"obj: new: {obj.__class__.__qualname__}({rparams})")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'transient_to_pending')
+    def event_transient_to_pending(_session, obj):
+        print(f"obj: transient to pending: {obj!r}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'pending_to_transient')
+    def event_pending_to_transient(_session, obj):
+        print(f"obj: pending to transient: {obj!r}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
+    def event_pending_to_persistent(_session, obj):
+        print(f"obj: pending to persistent: {obj!r}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
+    def event_loaded_as_persistent(_session, obj):
+        print(f"obj: loaded as persistent {obj!r}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
+    def event_persistent_to_transient(_session, obj):
+        print(f"obj: persistent to transient: {obj!r}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
+    def event_persistent_to_deleted(_session, obj):
+        print(f"obj: persistent to deleted {obj!r}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
+    def event_deleted_to_detached(_session, obj):
+        i = inspect(obj)
+        print(  # noqa: T201
+            f"obj: deleted to detached: {obj.__class__.__qualname__}/{i.identity}"
+        )
+
+    @event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
+    def event_persistent_to_detached(_session, obj):
+        i = inspect(obj)
+        print(  # noqa: T201
+            f"obj: persistent to detached: {obj.__class__.__qualname__}/{i.identity}"
+        )
+
+    @event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
+    def event_detached_to_persistent(_session, obj):
+        print(f"obj: detached to persistent: {obj!r}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
+    def event_deleted_to_persistent(session, obj):
+        print(f"obj: deleted to persistent: {obj!r}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'do_orm_execute')
+    def event_do_orm_execute(orm_execute_state):
+        state_is = []
+        if orm_execute_state.is_column_load:
+            state_is.append("is_column_load")
+        if orm_execute_state.is_delete:
+            state_is.append("is_delete")
+        if orm_execute_state.is_insert:
+            state_is.append("is_insert")
+        if orm_execute_state.is_orm_statement:
+            state_is.append("is_orm_statement")
+        if orm_execute_state.is_relationship_load:
+            state_is.append("is_relationship_load")
+        if orm_execute_state.is_select:
+            state_is.append("is_select")
+        if orm_execute_state.is_update:
+            state_is.append("is_update")
+        print(  # noqa: T201
+            f"exec: {orm_execute_state.bind_mapper.class_.__qualname__}:"
+            f" {', '.join(state_is)}"
+        )
+
+    @event.listens_for(DatabaseSessionClass, 'after_begin')
+    def event_after_begin(_session, _transaction, _connection):
+        print("session: BEGIN")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'after_commit')
+    def event_after_commit(_session):
+        print("session: COMMIT")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'after_flush')
+    def event_after_flush(_session, _flush_context):
+        print("session: FLUSH")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'after_rollback')
+    def event_after_rollback(_session):
+        print("session: ROLLBACK")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
+    def event_after_soft_rollback(_session, _previous_transaction):
+        print("session: SOFT ROLLBACK")  # noqa: T201
+
+
+@pytest.fixture(scope='session')
 def database(request):
     """Provide a database structure."""
     with app.app_context():
@@ -173,6 +283,32 @@ def database(request):
     return db
 
 
+@pytest.fixture()
+def db_session(database):
+    """Empty the database after each use of the fixture."""
+    yield database.session
+    close_all_sessions()
+
+    for bind in [None] + list(app.config.get('SQLALCHEMY_BINDS') or ()):
+        engine = database.get_engine(app=app, bind=bind)
+        with engine.begin() as connection:
+            connection.execute(
+                '''
+                DO $$
+                DECLARE tablenames text;
+                BEGIN
+                    tablenames := string_agg(
+                        quote_ident(schemaname) || '.' || quote_ident(tablename),
+                        ', ')
+                        FROM pg_tables WHERE schemaname = 'public';
+                    EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
+                END; $$
+            '''
+            )
+
+    redis_store.flushdb()
+
+
 @pytest.fixture(scope='session')
 def db_connection(database):
     """Return a database connection."""
@@ -183,7 +319,7 @@ def db_connection(database):
 # https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/46
 # #issuecomment-829694672
 @pytest.fixture()
-def db_session(database, db_connection):
+def db_session_savepoint(database, db_connection):
     """Create a nested transaction for the test and roll it back after."""
     original_session = database.session
     transaction = db_connection.begin()

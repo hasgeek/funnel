@@ -606,7 +606,7 @@ def db_has_uncommitted_changes():
     return (
         any(db.session.new)
         or any(db.session.deleted)
-        or any(x for x in db.session.dirty if db.session.is_modified(x))
+        or any(db.session.dirty)
         or db.session.info.get('flushed', False)
     )
 
