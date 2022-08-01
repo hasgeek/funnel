@@ -309,46 +309,6 @@ def db_session(database):
     redis_store.flushdb()
 
 
-@pytest.fixture(scope='session')
-def db_connection(database):
-    """Return a database connection."""
-    return database.engine.connect()
-
-
-# This fixture borrowed from
-# https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/46
-# #issuecomment-829694672
-@pytest.fixture()
-def db_session_savepoint(database, db_connection):
-    """Create a nested transaction for the test and roll it back after."""
-    original_session = database.session
-    transaction = db_connection.begin()
-    database.session = database.create_scoped_session(
-        options={'bind': db_connection, 'binds': {}}
-    )
-    database.session.begin_nested()
-
-    # for handling tests that actually call `session.rollback()`
-    # https://docs.sqlalchemy.org/en/13/orm/session_transaction.html#joining-a-session-into-an-external-transaction-such-as-for-test-suites
-    @event.listens_for(database.session, 'after_transaction_end')
-    def restart_savepoint(session, transaction_in):
-        if (
-            transaction_in.nested
-            and not transaction_in._parent.nested  # pylint: disable=protected-access
-        ):
-            session.expire_all()
-            session.begin_nested()
-
-    yield database.session
-
-    database.session.close()
-    transaction.rollback()
-    database.session = original_session
-
-    with app.app_context():
-        redis_store.flushdb()
-
-
 # Enable autouse to guard against tests that have implicit database access, or assume
 # app context without a fixture
 @pytest.fixture(autouse=True)
