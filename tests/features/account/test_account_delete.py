@@ -1,23 +1,4 @@
 from pytest_bdd import given, scenario, then, when
-from pytest_splinter.webdriver_patches import patch_webdriver
-import pytest
-
-
-@pytest.fixture(scope="session")
-def browser_patches():  # noqa : PT004
-    patch_webdriver()
-
-
-@pytest.fixture(scope='session')
-def splinter_webdriver():
-    """Override splinter webdriver name."""
-    return 'chrome'
-
-
-def test_some_browser_stuff(browser):
-    url = "http://hasgeek.com"
-    browser.visit(url)
-    assert browser.is_text_present('Explore communities')
 
 
 @scenario("account_delete.feature", "User Rincewind visits the delete endpoint")

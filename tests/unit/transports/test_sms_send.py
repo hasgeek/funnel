@@ -1,3 +1,5 @@
+"""Tests for sending SMS."""
+
 from unittest.mock import patch
 
 from flask import Response
@@ -45,6 +47,7 @@ def test_twilio_callback(client) -> None:
     assert sid
 
 
+@pytest.mark.usefixtures('app')
 def test_twilio_failures() -> None:
     """Test if message sending is a failure."""
     # Invalid Target
