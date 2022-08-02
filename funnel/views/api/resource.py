@@ -132,6 +132,8 @@ def api_result(status, _jsonp=False, **params) -> Response:
     if status in (200, 201):
         status_code = status
         status = 'ok'
+    elif status == 'error':
+        status_code = 422
     params['status'] = status
     if _jsonp:
         response = jsonp(params)

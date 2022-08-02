@@ -1,11 +1,11 @@
 {% extends "layout.html.jinja2" %}
 
-{% block title %}{% trans %}Application list{% endtrans %}{% endblock %}
+{% block title %}{% trans %}Application list{% endtrans %}{% endblock title %}
 
 {% block top_title %}
   <h1 class="mui--text-headline">{% trans %}Application list{% endtrans %}</h1>
   <p class="mui--text-subhead"><a class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" href="{{ url_for('authclient_new') }}">{% trans %}New application{% endtrans %}</a></p>
-{% endblock %}
+{% endblock top_title %}
 
 {% block content %}
   <table class="mui-table mui-table--bordered mui-table--responsive">
@@ -33,4 +33,4 @@
       {% endfor %}
     </tbody>
   </table>
-{% endblock %}
+{% endblock content %}

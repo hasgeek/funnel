@@ -81,7 +81,7 @@ const Form = {
     }
   },
   handleDelete(elementClass, onSucessFn) {
-    $('body').on('click', elementClass, function (event) {
+    $('body').on('click', elementClass, function remove(event) {
       event.preventDefault();
       const url = $(this).attr('href');
       const confirmationText = window.gettext(
@@ -89,6 +89,7 @@ const Form = {
         [$(this).attr('title')]
       );
 
+      /* eslint-disable no-alert */
       if (window.confirm(confirmationText)) {
         $.ajax({
           type: 'POST',
@@ -146,7 +147,7 @@ const Form = {
     );
   },
   openSubmissionToggle(checkboxId, cfpStatusDiv) {
-    const onSuccess = function () {
+    const onSuccess = () => {
       $(cfpStatusDiv).toggleClass('mui--hide');
     };
     Form.activateToggleSwitch(onSuccess);

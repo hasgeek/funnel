@@ -55,7 +55,6 @@ SQLAlchemy-Utils
 tweepy
 twilio
 typing-extensions
-url-normalize
 user-agents
 Werkzeug>=2.0.2  # https://github.com/pallets/werkzeug/pull/2237
 whitenoise

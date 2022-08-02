@@ -314,7 +314,7 @@ def test_register_email_otp() -> None:
     [
         ('+919845012345', '+919845012345'),
         ('9845012345', '+919845012345'),
-        ('2345678900', '+12345678900'),
+        ('+12345678900', '+12345678900'),
     ],
 )
 def test_register_phone_otp(phone_number, full_phone_number) -> None:

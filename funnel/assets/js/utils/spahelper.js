@@ -78,7 +78,7 @@ const Spa = {
         xhtmljson: 'application/x.html+json',
       },
       converters: {
-        'text xhtmljson': function (result) {
+        'text xhtmljson': (result) => {
           return JSON.parse(result);
         },
       },

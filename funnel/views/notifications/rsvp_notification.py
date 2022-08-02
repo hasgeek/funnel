@@ -98,7 +98,10 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
                     next_at, self.datetime_format_sms, locale=get_locale()
                 ),
             ),
-            url=shortlink(project.url_for(_external=True, **self.tracking_tags('sms'))),
+            url=shortlink(
+                project.url_for(_external=True, **self.tracking_tags('sms')),
+                shorter=True,
+            ),
         )
 
 

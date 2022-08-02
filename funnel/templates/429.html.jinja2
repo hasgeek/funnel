@@ -1,13 +1,13 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}429 Too Many Requests{% endblock %}
+{% block title %}{% trans %}429 Too Many Requests{% endtrans %}{% endblock title %}
 
 {% block top_title %}
   <div class="mui--text-center">
-    <img src="{{ url_for('static', filename='img/error-429.svg') }}" class="emoticon"/>
+    <img src="{{ url_for('static', filename='img/error-429.svg') }}" class="emoticon" alt="{% trans %}Slow down!{% endtrans %}"/>
     <h1 class="mui--text-light mui--text-display1">{% trans %}Slow down!{% endtrans %}</h1>
   </div>
-{% endblock %}
+{% endblock top_title %}
 
 {% block content %}
   <p class="mui--text-subhead mui--text-center">{% trans %}This is unusually high activity. Try again later{% endtrans %}</p>
-{% endblock %}
+{% endblock content %}

@@ -4,7 +4,7 @@
   <div class="sortable collaborator" data-drag-placeholder="collaborator-placeholder" draggable="true" id="{{ member.uuid_b58 }}">
     <div class="flex-wrapper flex-wrapper flex-wrapper--center flex-wrapper--space-between">
       <div class="flex-wrapper flex-wrapper--center">
-        {{ faicon(icon='grip-vertical', baseline=false, css_class='drag-handle margin-right') }}
+        {{ faicon(icon='grip-vertical', baseline=false, css_class="drag-handle margin-right") }}
         <div class="user">
           <div class="user__box">
             {{ useravatar(member.user, add_profile_link=false) }}
@@ -18,9 +18,9 @@
       <div class="flex-wrapper flex-wrapper modal-form__new-separator">
         <span class="mui--d-inlineblock left-padding margin-right">
           {%- if not member.is_uncredited %}
-            {{ faicon(icon='eye', icon_size='caption', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Visible{% endtrans %}
+            {{ faicon(icon='eye', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Visible{% endtrans %}
           {% else %}
-            {{ faicon(icon='eye-slash', icon_size='caption', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Hidden{% endtrans %}
+            {{ faicon(icon='eye-slash', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Hidden{% endtrans %}
           {% endif %}
         </span>
         <div class="margin-left mui-dropdown mui--d-inlineblock">

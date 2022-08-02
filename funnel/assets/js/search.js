@@ -42,21 +42,25 @@ const Search = {
       },
       updateTabContent(searchType) {
         if (this.get(`results.${searchType}`)) {
-          const url = `${this.get('pagePath')}?q=${this.get(
-            'queryString'
-          )}&type=${searchType}`;
+          const url = `${encodeURIComponent(
+            this.get('pagePath')
+          )}?q=${encodeURIComponent(
+            this.get('queryString')
+          )}&type=${encodeURIComponent(searchType)}`;
           this.activateTab(searchType, '', url);
         } else {
           this.fetchResult(searchType);
         }
       },
       fetchResult(searchType, page = 1) {
-        const url = `${this.get('pagePath')}?q=${this.get(
-          'queryString'
-        )}&type=${searchType}`;
+        const url = `${encodeURIComponent(
+          this.get('pagePath')
+        )}?q=${encodeURIComponent(
+          this.get('queryString')
+        )}&type=${encodeURIComponent(searchType)}`;
         $.ajax({
           type: 'GET',
-          url: `${url}&page=${page}`,
+          url: `${url}&page=${encodeURIComponent(page)}`,
           timeout: window.Hasgeek.Config.ajaxTimeout,
           dataType: 'json',
           success(data) {

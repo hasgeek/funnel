@@ -1,4 +1,5 @@
 import Form from './utils/formhelper';
+import TypeformEmbed from './utils/typeform_embed';
 
 export const Submission = {
   init() {
@@ -114,4 +115,5 @@ export const LabelsWidget = {
 $(() => {
   window.Hasgeek.SubmissionInit = Submission.init.bind(Submission);
   window.Hasgeek.LabelsWidget = LabelsWidget.init.bind(LabelsWidget);
+  TypeformEmbed.init('#submission .markdown');
 });

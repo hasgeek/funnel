@@ -3,6 +3,7 @@ import Video from './utils/embedvideo';
 import Analytics from './utils/analytics';
 import Spa from './utils/spahelper';
 import Form from './utils/formhelper';
+import TypeformEmbed from './utils/typeform_embed';
 
 const Ticketing = {
   init(tickets) {
@@ -205,7 +206,7 @@ $(() => {
 
     Form.openSubmissionToggle('#open-sub', '.js-cfp-status');
 
-    const hightlightNavItem = function (navElem) {
+    const hightlightNavItem = (navElem) => {
       const navHightlightClass = 'sub-navbar__item--active';
       $('.sub-navbar__item').removeClass(navHightlightClass);
       $(`#${navElem}`).addClass(navHightlightClass);
@@ -227,10 +228,13 @@ $(() => {
     const currentnavItem = $('.sub-navbar__item--active').attr('id');
     Spa.init(projectTitle, currentnavItem, hightlightNavItem);
 
-    $('body').on('click', '.js-spa-navigate', function (event) {
+    $('body').on('click', '.js-spa-navigate', function pageRefresh(event) {
       event.preventDefault();
       const url = $(this).attr('href');
       Spa.fetchPage(url, $(this).attr('id'), true);
     });
+
+    // Include parent container
+    TypeformEmbed.init('#about .markdown');
   };
 });

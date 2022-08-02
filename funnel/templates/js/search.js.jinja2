@@ -57,7 +57,7 @@
                           </div>
                         {{/if}}
                         <div class="card__body__title js-truncate {{#if !obj.calendar_weeks_full.weeks.length }} card__body__title--smaller {{/if}}" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}:</span> <span class="mui--text-light">{{ obj.tagline }}</span></div>
-                        <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' baseline=false></faicon> {{{ snippet_html }}}</p>
+                        <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class="search-icon" baseline=false></faicon> {{{ snippet_html }}}</p>
                         {{#if obj.location }}
                           <p class="mui--text-subhead card__body__location">
                           <faicon icon='map-marker-alt' icon_size='caption' baseline=false></faicon> {{ obj.location }}
@@ -79,7 +79,7 @@
                       </div>
                       <div class="card__body">
                         <div class="card__body__title js-truncate card__body__title--smaller" data-truncate-lines="3"><span class="mui--text-bold">{{{ title_html }}}</span> <span class="mui--text-light">{{{ obj.description.html }}}</span></div>
-                        <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' baseline=false></faicon> {{{ snippet_html }}}</p>
+                        <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class="search-icon" baseline=false></faicon> {{{ snippet_html }}}</p>
                       </div>
                     </a>
                   {{elseif result == 'session'}}
@@ -93,7 +93,7 @@
                           </h3>
                         </div>
                       </div>
-                      <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' baseline=false></faicon> {{{ snippet_html }}}</p>
+                      <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class="search-icon" baseline=false></faicon> {{{ snippet_html }}}</p>
                     </div>
                   {{elseif result == 'submission'}}
                     <div>
@@ -109,7 +109,7 @@
                           </h3>
                         </div>
                       </div>
-                      <p class="mui--text-body2 mui--text-light snippets"><faicon icon='search' css_class='search-icon' baseline=false></faicon> {{{ snippet_html }}}</p>
+                      <p class="mui--text-body2 mui--text-light snippets"><faicon icon='search' css_class="search-icon" baseline=false></faicon> {{{ snippet_html }}}</p>
                     </div>
                   {{elseif result == 'update'}}
                     <div>
@@ -122,7 +122,7 @@
                           </h3>
                         </div>
                       </div>
-                      <p class="mui--text-body2 mui--text-light snippets"><faicon icon='search' css_class='search-icon' baseline=false></faicon> {{{ snippet_html }}}</p>
+                      <p class="mui--text-body2 mui--text-light snippets"><faicon icon='search' css_class="search-icon" baseline=false></faicon> {{{ snippet_html }}}</p>
                     </div>
                   {{elseif result == 'comment'}}
                     <div>
@@ -133,7 +133,7 @@
                           <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ formatDate(obj.created_at) }} {{#if obj.edited_at}}({{ gettext('edited %s', formatDate(obj.edited_at)) }}) {{/if}}</p>
                         </div>
                       </div>
-                      <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class='search-icon' baseline=false></faicon> {{{ snippet_html }}}</p>
+                      <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class="search-icon" baseline=false></faicon> {{{ snippet_html }}}</p>
                     </div>
                   {{/if}}
                 </div>

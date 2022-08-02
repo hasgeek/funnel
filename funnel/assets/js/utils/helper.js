@@ -89,7 +89,7 @@ const Utils = {
     const fetchMenu = (pageNo = 1) => {
       $.ajax({
         type: 'GET',
-        url: `${url}?page=${pageNo}`,
+        url: `${url}?page=${encodeURIComponent(pageNo)}`,
         timeout: window.Hasgeek.Config.ajaxTimeout,
         success(responseData) {
           if (observer) {
@@ -268,33 +268,81 @@ const Utils = {
     });
   },
   addWebShare() {
+    const utils = this;
     if (navigator.share) {
       $('.project-links').hide();
       $('.hg-link-btn').removeClass('mui--hide');
 
+      const mobileShare = (title, url, text) => {
+        navigator.share({
+          title,
+          url,
+          text,
+        });
+      };
+
       $('body').on('click', '.hg-link-btn', function clickWebShare(event) {
         event.preventDefault();
-        navigator.share({
-          title: $(this).data('title') || document.title,
-          url:
-            $(this).data('url') ||
-            (document.querySelector('link[rel=canonical]') &&
-              document.querySelector('link[rel=canonical]').href) ||
-            window.location.href,
-          text: $(this).data('text') || '',
-        });
+        const linkElem = this;
+        let url =
+          $(linkElem).data('url') ||
+          (document.querySelector('link[rel=canonical]') &&
+            document.querySelector('link[rel=canonical]').href) ||
+          window.location.href;
+        const title = $(this).data('title') || document.title;
+        const text = $(this).data('text') || '';
+        if ($(linkElem).attr('data-shortlink')) {
+          mobileShare(title, url, text);
+        } else {
+          utils
+            .fetchShortUrl(url)
+            .then((shortlink) => {
+              url = shortlink;
+              $(linkElem).attr('data-shortlink', true);
+            })
+            .finally(() => {
+              mobileShare(title, url, text);
+            });
+        }
       });
     } else {
       $('body').on('click', '.js-copy-link', function clickCopyLink(event) {
         event.preventDefault();
-        const selection = window.getSelection();
-        const range = document.createRange();
-        range.selectNodeContents($(this).find('.js-copy-url')[0]);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        document.execCommand('copy');
-        window.toastr.success(gettext('Link copied'));
-        selection.removeAllRanges();
+        const linkElem = this;
+        const copyLink = () => {
+          const url = $(linkElem).find('.js-copy-url').first().text();
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(
+              () => window.toastr.success(gettext('Link copied')),
+              () => window.toastr.success(gettext('Could not copy link'))
+            );
+          } else {
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents($(linkElem).find('.js-copy-url')[0]);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            if (document.execCommand('copy')) {
+              window.toastr.success(gettext('Link copied'));
+            } else {
+              window.toastr.success(gettext('Could not copy link'));
+            }
+            selection.removeAllRanges();
+          }
+        };
+        if ($(linkElem).attr('data-shortlink')) {
+          copyLink();
+        } else {
+          utils
+            .fetchShortUrl($(linkElem).find('.js-copy-url').first().html())
+            .then((shortlink) => {
+              $(linkElem).find('.js-copy-url').text(shortlink);
+              $(linkElem).attr('data-shortlink', true);
+            })
+            .finally(() => {
+              copyLink();
+            });
+        }
       });
     }
   },
@@ -303,6 +351,22 @@ const Utils = {
       $('.project-links').hide();
       $('.hg-link-btn').removeClass('mui--hide');
     }
+  },
+  async fetchShortUrl(url) {
+    const response = await fetch(window.Hasgeek.Config.shorturlApi, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `url=${encodeURIComponent(url)}`,
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return json.shortlink;
+    }
+    // Call failed, return the original URL
+    return url;
   },
 };
 

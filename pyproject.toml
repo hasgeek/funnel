@@ -26,9 +26,9 @@ exclude = '''
 
 [tool.djlint]
 profile='jinja'
-extension='.jinja2'
+extension='.html.jinja2'
 indent=2
-ignore="T028,H006"
+ignore="T028,H006,H016,H020,H023,H030,H031"
 
 [tool.curlylint]
 # Curlylint is not used, but the configuration is preserved here for future use

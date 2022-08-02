@@ -49,7 +49,9 @@ const badgeScan = {
         $('#status-msg').modal('show');
         const puk = qrcode.substring(0, 8);
         const key = qrcode.substring(8);
-        const formValues = `puk=${puk}&key=${key}`;
+        const formValues = `puk=${encodeURIComponent(
+          puk
+        )}&key=${encodeURIComponent(key)}`;
         $.ajax({
           type: 'POST',
           url: getContactApiUrl,

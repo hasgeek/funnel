@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{{ profile.title }}{% endblock %}
+{% block title %}{{ profile.title }}{% endblock title %}
 {%- from "macros.html.jinja2" import faicon, profile_header, video_thumbnail, projectcard, proposal_list, profile_admin_buttons %}
 
 {%- block pageheaders %}
@@ -29,16 +29,16 @@
       "url" : {{ profile.url_for(_external=true)|tojson }}
     }
   </script>
-{%- endblock %}
+{%- endblock pageheaders %}
 
-{% block bodyattrs %}class="mui--bg-primary mobile-header"{% endblock %}
+{% block bodyattrs %}class="mui--bg-primary mobile-header"{% endblock bodyattrs %}
 
 {% block contenthead %}
-{% endblock %}
+{% endblock contenthead %}
 
 {% block baseheadline %}
   {{ profile_header(profile) }}
-{% endblock %}
+{% endblock baseheadline %}
 
 {% block basecontent %}
   <div class="mui--bg-accent top-padding">
@@ -57,8 +57,8 @@
               </div>
             {% endfor %}
           </div>
-        {% endblock %}
+        {% endblock contentwrapper %}
       </div>
     </div>
   </div>
-{% endblock %}
+{% endblock basecontent %}

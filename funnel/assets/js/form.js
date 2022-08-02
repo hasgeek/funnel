@@ -1,5 +1,4 @@
 window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
-  const { hash } = window.location;
   let lastSavedData = $(formId).find('[type!="hidden"]').serialize();
   let typingTimer;
   const typingWaitInterval = 1000; // wait till user stops typing for one second to send form data
@@ -59,16 +58,6 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
         },
       });
     }
-  }
-
-  if (hash) {
-    $('html,body').animate(
-      {
-        scrollTop:
-          $(window.location.hash).offset().top - $('.header').outerHeight(),
-      },
-      500
-    );
   }
 
   $(window).bind('beforeunload', () => {

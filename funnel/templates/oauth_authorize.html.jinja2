@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 
-{% block title %}{% trans %}Authorization Required{% endtrans %}{% endblock %}
+{% block title %}{% trans %}Authorization Required{% endtrans %}{% endblock title %}
 
 {% block content %}
 <p class="mui--text-subhead">{% trans %}An application is requesting access to your data{% endtrans %}</p>
@@ -35,7 +35,7 @@
   </tbody>
 </table>
 <p class="mui--text-subhead">{% trans %}You should authorize this only if you initiated the request and trust the application with your data{% endtrans %}</p>
-<form id="authorize" method="POST" class="mui-form mui-form--margins" accept-charset="UTF-8">
+<form id="authorize" method="post" class="mui-form mui-form--margins" accept-charset="UTF-8">
   <input type="hidden" name="form.id" value="authorize"/>
   {{ form.hidden_tag() }}
   <p>
@@ -47,4 +47,4 @@
     <p class="mui-form--error">{% trans -%}This form has timed out. Please submit again to confirm{%- endtrans %}</p>
   {%- endif %}
 </form>
-{% endblock %}
+{% endblock content %}

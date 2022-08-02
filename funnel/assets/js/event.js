@@ -226,7 +226,9 @@ const ParticipantTable = {
       checkin = 't';
     }
     const content = $("meta[name='csrf-token']").attr('content');
-    const formValues = `${ticketParticipants}&checkin=${checkin}&csrf_token=${content}`;
+    const formValues = `${ticketParticipants}&checkin=${encodeURIComponent(
+      checkin
+    )}&csrf_token=${encodeURIComponent(content)}`;
     $.ajax({
       type: 'POST',
       url: list.get('checkinUrl'),

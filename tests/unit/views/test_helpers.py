@@ -6,7 +6,7 @@ from typing import Any
 from unittest.mock import patch
 from urllib.parse import urlsplit
 
-from flask import Flask
+from flask import Flask, request
 from werkzeug.routing import BuildError
 
 from furl import furl
@@ -22,6 +22,7 @@ from funnel.views.helpers import (
     delete_cached_token,
     make_cached_token,
     retrieve_cached_token,
+    validate_is_app_url,
 )
 
 
@@ -84,6 +85,26 @@ def test_app_url_for(testapp) -> None:
         change_password_url2 = app_url_for(app, 'change_password')
         assert change_password_url2 is not None
         assert change_password_url2 == change_password_url
+
+
+def test_validate_is_app_url() -> None:
+    """Local URL validator compares a URL against the URL map."""
+    with app.test_request_context():
+        assert validate_is_app_url('/full/url/required') is False
+        assert validate_is_app_url('https://example.com/') is False
+        assert validate_is_app_url(f'//{request.host}/') is False
+        assert validate_is_app_url(f'http://{request.host}/') is True
+        assert (
+            validate_is_app_url(f'http://{request.host}/this/does/not/exist/so/404')
+            is False
+        )
+        assert validate_is_app_url(f'http://{request.host}/profile/project') is True
+        assert validate_is_app_url(f'http://{request.host}/profile/project/') is True
+
+    # TODO: This needs additional tests for an app with:
+    # 1. No SERVER_NAME in config
+    # 2. subdomain_matching enabled
+    # 3. host_matching enabled
 
 
 def test_urlclean_filter() -> None:
