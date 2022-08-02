@@ -10,7 +10,7 @@ from funnel.models import SiteMembership
 
 
 @pytest.fixture()
-def create_shortlink(client):
+def create_shortlink():
     """URL for creating a shortlink."""
     return url_for('create_shortlink')
 
