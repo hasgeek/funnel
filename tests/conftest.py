@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from types import MethodType, SimpleNamespace
-from typing import List, NamedTuple, Optional, Union
+from typing import List, NamedTuple, Optional
 import logging
 import re
 
@@ -162,18 +162,8 @@ class ResponseWithForms(Response):
 
 
 @pytest.fixture(scope='session')
-def logger(request):
-    loglevel: Optional[Union[int, str]] = request.config.getoption('--log-cli-level')
-    if loglevel:
-        if loglevel.isdigit():
-            loglevel = int(loglevel)
-        else:
-            loglevel = loglevel.upper()
-    else:
-        loglevel = None
+def logger():
     py_logger = logging.getLogger(__name__)
-    if loglevel:
-        py_logger.setLevel(loglevel)
     return py_logger
 
 
