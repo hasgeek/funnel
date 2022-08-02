@@ -41,7 +41,7 @@ before_script:
   - psql -c 'create database geoname_testing;' -U postgres
   - 'flask dbconfig | sudo -u postgres psql geoname_testing'
 script:
-  - './runtests.sh'
+  - 'pytest'
   # - './runfrontendtests.sh'
 after_success:
   - coveralls

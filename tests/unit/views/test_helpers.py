@@ -13,7 +13,6 @@ from furl import furl
 from pytz import utc
 import pytest
 
-from funnel import app
 from funnel.views.helpers import (
     app_url_for,
     cleanurl_filter,
@@ -52,7 +51,7 @@ class MockUrandom:
         return value
 
 
-def test_app_url_for(testapp) -> None:
+def test_app_url_for(app, testapp) -> None:
     """Test that app_url_for works cross-app and in-app."""
     # App context is not necessary to use app_url_for
     url = app_url_for(app, 'index')
@@ -87,7 +86,7 @@ def test_app_url_for(testapp) -> None:
         assert change_password_url2 == change_password_url
 
 
-def test_validate_is_app_url() -> None:
+def test_validate_is_app_url(app) -> None:
     """Local URL validator compares a URL against the URL map."""
     with app.test_request_context():
         assert validate_is_app_url('/full/url/required') is False

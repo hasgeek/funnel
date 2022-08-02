@@ -25,6 +25,7 @@ pylint
 pylint-flask-sqlalchemy
 pylint-pytest
 pyupgrade
+reformat-gherkin
 sqlalchemy-stubs
 toml
 types-certifi

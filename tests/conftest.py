@@ -17,7 +17,8 @@ from lxml.html import FormElement, HtmlElement, fromstring  # nosec  # noqa: S41
 from pytz import utc
 import pytest
 
-from funnel import app, redis_store
+from funnel import app as funnel_app
+from funnel import redis_store
 from funnel.models import (
     AuthClient,
     AuthClientCredential,
@@ -158,13 +159,52 @@ class ResponseWithForms(Response):
         return MetaRefreshContent(int(match['timeout']), match['url'] or None)
 
 
+# --- Pytest config --------------------------------------------------------------------
+
+
+def pytest_addoption(parser):
+    """Allow db_session to be configured in the command line."""
+    parser.addoption(
+        '--dbsession',
+        action='store',
+        default='rollback',
+        choices=('rollback', 'truncate'),
+        help="Use db_session with 'rollback' (default) or 'truncate'"
+        " (slower but more production-like)",
+    )
+
+
+def pytest_collection_modifyitems(items) -> None:
+    """Sort tests to run lower level before higher level."""
+    test_order = (
+        'tests/unit/models',
+        'tests/unit/forms',
+        'tests/unit/proxies',
+        'tests/unit/transports',
+        'tests/unit/views',
+        'tests/unit',
+        'tests/integration/views',
+        'tests/integration',
+        'tests/features',
+    )
+
+    def sort_key(item):
+        module_file = item.module.__file__
+        for counter, path in enumerate(test_order):
+            if path in module_file:
+                return (counter, module_file)
+        return (-1, module_file)
+
+    items.sort(key=sort_key)
+
+
 # --- Fixtures -------------------------------------------------------------------------
 
 
 @pytest.fixture(scope='session')
-def logger():
-    py_logger = logging.getLogger(__name__)
-    return py_logger
+def app():
+    """App as a fixture to avoid imports in tests."""
+    return funnel_app
 
 
 @pytest.fixture(scope='session')
@@ -183,7 +223,7 @@ def _database_events(logger):
     def safe_repr(entity):
         try:
             return repr(entity)
-        except:  # noqa: B001, E722  # pylint: disable=bare-except
+        except Exception:  # noqa: B902  # pylint: disable=broad-except
             if hasattr(entity, '__class__'):
                 return f'{entity.__class__.__qualname__}(class-repr-error)'
             if hasattr(entity, '__name__'):
@@ -195,53 +235,53 @@ def _database_events(logger):
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
         rparams = f'{rargs, rkwargs}' if rargs else rkwargs
-        logger.info("obj: new: %s(%s)", obj.__class__.__qualname__, rparams)
+        logging.info("obj: new: %s(%s)", obj.__class__.__qualname__, rparams)
 
     @event.listens_for(DatabaseSessionClass, 'transient_to_pending')
     def event_transient_to_pending(_session, obj):
-        logger.info("obj: transient to pending: %s", safe_repr(obj))
+        logging.info("obj: transient to pending: %s", safe_repr(obj))
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_transient')
     def event_pending_to_transient(_session, obj):
-        logger.info("obj: pending to transient: %s", safe_repr(obj))
+        logging.info("obj: pending to transient: %s", safe_repr(obj))
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
     def event_pending_to_persistent(_session, obj):
-        logger.info("obj: pending to persistent: %s", safe_repr(obj))
+        logging.info("obj: pending to persistent: %s", safe_repr(obj))
 
     @event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
     def event_loaded_as_persistent(_session, obj):
-        logger.info("obj: loaded as persistent %s", safe_repr(obj))
+        logging.info("obj: loaded as persistent %s", safe_repr(obj))
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
     def event_persistent_to_transient(_session, obj):
-        logger.info("obj: persistent to transient: %s", safe_repr(obj))
+        logging.info("obj: persistent to transient: %s", safe_repr(obj))
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
     def event_persistent_to_deleted(_session, obj):
-        logger.info("obj: persistent to deleted %s", safe_repr(obj))
+        logging.info("obj: persistent to deleted %s", safe_repr(obj))
 
     @event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
     def event_deleted_to_detached(_session, obj):
         i = inspect(obj)
-        logger.info(
+        logging.info(
             "obj: deleted to detached: %s/%s", obj.__class__.__qualname__, i.identity
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
     def event_persistent_to_detached(_session, obj):
         i = inspect(obj)
-        logger.info(
+        logging.info(
             "obj: persistent to detached: %s/%s", obj.__class__.__qualname__, i.identity
         )
 
     @event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
     def event_detached_to_persistent(_session, obj):
-        logger.info("obj: detached to persistent: %s", safe_repr(obj))
+        logging.info("obj: detached to persistent: %s", safe_repr(obj))
 
     @event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
     def event_deleted_to_persistent(session, obj):
-        logger.info("obj: deleted to persistent: %s", safe_repr(obj))
+        logging.info("obj: deleted to persistent: %s", safe_repr(obj))
 
     @event.listens_for(DatabaseSessionClass, 'do_orm_execute')
     def event_do_orm_execute(orm_execute_state):
@@ -260,7 +300,7 @@ def _database_events(logger):
             state_is.append("is_select")
         if orm_execute_state.is_update:
             state_is.append("is_update")
-        logger.info(
+        logging.info(
             "exec: %s: %s",
             orm_execute_state.bind_mapper.class_.__qualname__
             if orm_execute_state.bind_mapper
@@ -270,27 +310,27 @@ def _database_events(logger):
 
     @event.listens_for(DatabaseSessionClass, 'after_begin')
     def event_after_begin(_session, _transaction, _connection):
-        logger.info("session: BEGIN")
+        logging.info("session: BEGIN")
 
     @event.listens_for(DatabaseSessionClass, 'after_commit')
     def event_after_commit(_session):
-        logger.info("session: COMMIT")
+        logging.info("session: COMMIT")
 
     @event.listens_for(DatabaseSessionClass, 'after_flush')
     def event_after_flush(_session, _flush_context):
-        logger.info("session: FLUSH")
+        logging.info("session: FLUSH")
 
     @event.listens_for(DatabaseSessionClass, 'after_rollback')
     def event_after_rollback(_session):
-        logger.info("session: ROLLBACK")
+        logging.info("session: ROLLBACK")
 
     @event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
     def event_after_soft_rollback(_session, _previous_transaction):
-        logger.info("session: SOFT ROLLBACK")
+        logging.info("session: SOFT ROLLBACK")
 
 
 @pytest.fixture(scope='session')
-def database(request):
+def database(request, app):
     """Provide a database structure."""
     with app.app_context():
         db.create_all()
@@ -312,7 +352,7 @@ def _db(database):  # noqa: PT005
 
 
 @pytest.fixture()
-def db_session_truncate(database):
+def db_session_truncate(app, database):
     """Empty the database after each use of the fixture."""
     yield database.session
     close_all_sessions()
@@ -396,18 +436,6 @@ def db_session_rollback(database):
     redis_store.flushdb()
 
 
-def pytest_addoption(parser):
-    """Allow db_session to be configured in the command line."""
-    parser.addoption(
-        '--dbsession',
-        action='store',
-        default='rollback',
-        choices=('rollback', 'truncate'),
-        help="Use db_session with 'rollback' (default) or 'truncate'"
-        " (slower but more production-like)",
-    )
-
-
 @pytest.fixture()
 def db_session(request):
     """
@@ -435,11 +463,21 @@ def db_session(request):
 # Enable autouse to guard against tests that have implicit database access, or assume
 # app context without a fixture
 @pytest.fixture(autouse=True)
-def client(request, db_session):
+def _push_request_context(request):
+    if 'app' not in request.fixturenames and 'db_session' not in request.fixturenames:
+        yield
+    else:
+        app_fixture = request.getfixturevalue('app')
+
+        with app_fixture.test_request_context():
+            yield
+
+
+@pytest.fixture()
+def client(request, app, db_session):
     """Provide a test client."""
-    with app.app_context():  # Not required for test_client, but required for autouse
-        with FlaskClient(app, ResponseWithForms, use_cookies=True) as test_client:
-            yield test_client
+    with FlaskClient(app, ResponseWithForms, use_cookies=True) as test_client:
+        yield test_client
 
 
 @pytest.fixture()
@@ -449,7 +487,7 @@ def csrf_token(client):
 
 
 @pytest.fixture()
-def login(client):
+def login(app, client):
     """Provide a login fixture."""
 
     def as_(user):

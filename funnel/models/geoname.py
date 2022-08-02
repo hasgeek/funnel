@@ -103,7 +103,7 @@ class GeoAdmin1Code(BaseMixin, db.Model):
 
 
 class GeoAdmin2Code(BaseMixin, db.Model):
-    """Geoname record for 2nd level administrative division (disrict, county)."""
+    """Geoname record for 2nd level administrative division (district, county)."""
 
     __tablename__ = 'geo_admin2_code'
     __bind_key__ = 'geoname'
