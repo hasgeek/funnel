@@ -158,6 +158,45 @@ class ResponseWithForms(Response):
         return MetaRefreshContent(int(match['timeout']), match['url'] or None)
 
 
+# --- Pytest config --------------------------------------------------------------------
+
+
+def pytest_addoption(parser):
+    """Allow db_session to be configured in the command line."""
+    parser.addoption(
+        '--dbsession',
+        action='store',
+        default='rollback',
+        choices=('rollback', 'truncate'),
+        help="Use db_session with 'rollback' (default) or 'truncate'"
+        " (slower but more production-like)",
+    )
+
+
+def pytest_collection_modifyitems(items) -> None:
+    """Sort tests to run lower level before higher level."""
+    test_order = (
+        'tests/unit/models',
+        'tests/unit/forms',
+        'tests/unit/proxies',
+        'tests/unit/transports',
+        'tests/unit/views',
+        'tests/unit',
+        'tests/integration/views',
+        'tests/integration',
+        'tests/features',
+    )
+
+    def sort_key(item):
+        module_file = item.module.__file__
+        for counter, path in enumerate(test_order):
+            if path in module_file:
+                return (counter, module_file)
+        return (-1, module_file)
+
+    items.sort(key=sort_key)
+
+
 # --- Fixtures -------------------------------------------------------------------------
 
 
@@ -394,18 +433,6 @@ def db_session_rollback(database):
 
     # Clear Redis db too
     redis_store.flushdb()
-
-
-def pytest_addoption(parser):
-    """Allow db_session to be configured in the command line."""
-    parser.addoption(
-        '--dbsession',
-        action='store',
-        default='rollback',
-        choices=('rollback', 'truncate'),
-        help="Use db_session with 'rollback' (default) or 'truncate'"
-        " (slower but more production-like)",
-    )
 
 
 @pytest.fixture()
