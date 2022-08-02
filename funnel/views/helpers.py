@@ -11,9 +11,6 @@ from urllib.parse import unquote, urljoin, urlsplit
 import gzip
 import zlib
 
-from sqlalchemy import event
-from sqlalchemy.orm import Session
-
 from flask import (
     Flask,
     Response,
@@ -46,7 +43,7 @@ from ..forms import supported_locales
 from ..models import Shortlink, User, db, profanity
 from ..proxies import request_wants
 from ..signals import emailaddress_refcount_dropping
-from ..typing import ReturnResponse, ReturnView
+from ..typing import ResponseType, ReturnResponse, ReturnView
 from .jobs import forget_email
 
 valid_timezones = set(common_timezones)
@@ -462,7 +459,7 @@ def decompress(data: bytes, algorithm: str) -> bytes:
     raise ValueError("Unknown compression algorithm")
 
 
-def compress_response(response: ReturnResponse) -> None:
+def compress_response(response: ResponseType) -> None:
     """
     Conditionally compress a response based on request parameters.
 
@@ -574,6 +571,7 @@ def shortlink(url: str, actor: Optional[User] = None, shorter: bool = True) -> s
     """
     sl = Shortlink.new(url, reuse=True, shorter=shorter, actor=actor)
     db.session.add(sl)
+    g.require_db_commit = True
     return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
 
 
@@ -583,50 +581,22 @@ def template_context() -> Dict[str, Any]:
     return {'built_asset': lambda assetname: built_assets[assetname]}
 
 
-# --- Database autocommit --------------------------------------------------------------
-
-
-# This code adapted from https://stackoverflow.com/a/50512788/78903
-@event.listens_for(Session, 'after_flush')
-def log_flush(db_session, _flush_context):
-    """Make a note that a database flush occurred."""
-    db_session.info['flushed'] = True
-
-
-@event.listens_for(Session, 'after_commit')
-@event.listens_for(Session, 'after_rollback')
-def reset_flushed(db_session):
-    """Remove note of database flush after database commit."""
-    if 'flushed' in db_session.info:
-        del db_session.info['flushed']
-
-
-def db_has_uncommitted_changes():
-    """Check for any changes to database that are pending commit."""
-    return (
-        any(db.session.new)
-        or any(db.session.deleted)
-        or any(x for x in db.session.dirty if db.session.is_modified(x))
-        or db.session.info.get('flushed', False)
-    )
-
-
-@app.after_request
-def commit_db_session(response):
-    """Commit database session at the end of a request."""
-    # This handler is primarily required for the `|shortlink` template filter, which
-    # may make a database entry in a view's ``return render_template(...)`` call and
-    # is therefore too late for a commit within the view
-    if db_has_uncommitted_changes():
-        db.session.commit()
-    return response
-
-
 # --- Request/response handlers --------------------------------------------------------
 
 
 @app.after_request
-def track_temporary_session_vars(response):
+def commit_db_session(response: ResponseType) -> ResponseType:
+    """Commit database session at the end of a request if asked to."""
+    # This handler is primarily required for the `|shortlink` template filter, which
+    # may make a database entry in a view's ``return render_template(...)`` call and
+    # is therefore too late for a commit within the view
+    if getattr(g, 'require_db_commit', False):
+        db.session.commit()
+    return response
+
+
+@app.after_request
+def track_temporary_session_vars(response: ResponseType) -> ResponseType:
     """Add timestamps to timed values in session, and remove expired values."""
     # Process timestamps only if there is at least one match. Most requests will
     # have no match.
@@ -649,7 +619,7 @@ def track_temporary_session_vars(response):
 
 
 @app.after_request
-def cache_expiry_headers(response):
+def cache_expiry_headers(response: ResponseType) -> ResponseType:
     if response.expires is None:
         response.expires = nocache_expires
     if not response.cache_control.max_age:
@@ -669,7 +639,7 @@ def cache_expiry_headers(response):
 
 
 @emailaddress_refcount_dropping.connect
-def forget_email_in_request_teardown(sender):
+def forget_email_in_request_teardown(sender) -> None:
     if g:  # Only do this if we have an app context
         if not hasattr(g, 'forget_email_hashes'):
             g.forget_email_hashes = set()
@@ -677,7 +647,7 @@ def forget_email_in_request_teardown(sender):
 
 
 @app.after_request
-def forget_email_in_background_job(response):
+def forget_email_in_background_job(response: ResponseType) -> ResponseType:
     if hasattr(g, 'forget_email_hashes'):
         for email_hash in g.forget_email_hashes:
             forget_email.queue(email_hash)

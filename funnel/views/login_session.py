@@ -48,7 +48,7 @@ from ..models import (
 from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
-from ..typing import ReturnDecorator, WrappedFunc
+from ..typing import ResponseType, ReturnDecorator, WrappedFunc
 from ..utils import abort_null
 from .helpers import (
     app_url_for,
@@ -294,7 +294,7 @@ def session_mark_accessed(
 
 # Also add future hasjob app here
 @app.after_request
-def clear_old_session(response):
+def clear_old_session(response: ResponseType) -> ResponseType:
     """Delete cookies that _may_ accidentally be present (and conflicting)."""
     for cookie_name, domains in app.config.get('DELETE_COOKIES', {}).items():
         if cookie_name in request.cookies:
@@ -307,7 +307,7 @@ def clear_old_session(response):
 
 # Also add future hasjob app here
 @app.after_request
-def set_lastuser_cookie(response):
+def set_lastuser_cookie(response: ResponseType) -> ResponseType:
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
     if (
         request_has_auth()
@@ -317,7 +317,7 @@ def set_lastuser_cookie(response):
             and getattr(current_auth, 'suppress_empty_cookie', False)
         )
     ):
-        response.vary.add('Cookie')
+        response.vary.add('Cookie')  # type: ignore[union-attr]
         expires = utcnow() + current_app.config['PERMANENT_SESSION_LIFETIME']
         response.set_cookie(
             'lastuser',
@@ -363,7 +363,7 @@ def set_lastuser_cookie(response):
 
 # Also add future hasjob app here
 @app.after_request
-def update_user_session_timestamp(response):
+def update_user_session_timestamp(response: ResponseType) -> ResponseType:
     """Mark a user session as accessed at the end of every request."""
     if request_has_auth() and current_auth.session:
         # Setup a callback to update the session after the request has returned a
