@@ -425,9 +425,10 @@ def db_session(request):
     base fixture.
     """
     return request.getfixturevalue(
-        {'rollback': 'db_session_rollback', 'truncate': 'db_session_truncate'}[
-            request.config.getoption('--dbsession')
-        ]
+        {
+            'rollback': 'db_session_rollback',
+            'truncate': 'db_session_truncate',
+        }[request.config.getoption('--dbsession')]
     )
 
 
