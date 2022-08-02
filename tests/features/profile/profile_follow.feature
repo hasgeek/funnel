@@ -1,9 +1,8 @@
-
 #BIGGER GOAL
 Feature: Profile Follow
     As a user,
     I want to follow the activities of an organization,
-    So I start receiving notifications of the orgs activities and can participate in the activities
+    So I can participate in the activities of the organization
 
 
     #SMALLER AND SPECIFIC (SUB-FEATURES)
