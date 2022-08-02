@@ -283,12 +283,20 @@ def database(request):
     return db
 
 
+@pytest.fixture(scope='session')
+def _db(database):  # noqa: PT005
+    """Database fixture required by pytest-flask-sqlalchemy (unused)."""
+    # Also see pyproject.toml for mock configuration
+    return database
+
+
 @pytest.fixture()
-def db_session(database):
+def db_session_truncate(database):
     """Empty the database after each use of the fixture."""
     yield database.session
     close_all_sessions()
 
+    # Iterate through all database engines and empty their tables
     for bind in [None] + list(app.config.get('SQLALCHEMY_BINDS') or ()):
         engine = database.get_engine(app=app, bind=bind)
         with engine.begin() as connection:
@@ -306,7 +314,100 @@ def db_session(database):
             '''
             )
 
+    # Clear Redis db too
     redis_store.flushdb()
+
+
+@pytest.fixture()
+def db_session_rollback(database):
+    """Create a nested transaction for the test and rollback after."""
+    db_connection = database.engine.connect()
+    original_session = database.session
+    transaction = db_connection.begin()
+    database.session = database.create_scoped_session(
+        options={'bind': db_connection, 'binds': {}}
+    )
+
+    # For handling tests that actually call `session.rollback()`, we use a SQL savepoint
+    # and add an event handler that restarts the savepoint. SQLAlchemy 1.4 deprecated
+    # session.commit() being used to commit a savepoint, and 2.0 will remove it,
+    # potentially breaking this fixture. It will need revision then.
+    #
+    # References:
+    #
+    # * 1.3: https://docs.sqlalchemy.org/en/13/orm/session_transaction.html
+    #   #joining-a-session-into-an-external-transaction-such-as-for-test-suites
+    # * 1.4: https://docs.sqlalchemy.org/en/14/orm/session_transaction.html
+    #   #joining-a-session-into-an-external-transaction-such-as-for-test-suites
+
+    savepoint = database.session.begin_nested()
+    database.session.force_commit = database.session.commit
+    database.session.force_rollback = database.session.rollback
+    database.session.force_close = database.session.close
+
+    # This is breaking in the new app context created in
+    # `funnel.views.login_session.update_user_session_timestamp` in internal function
+    # `mark_session_accessed_after_response` when it does a commit
+
+    # database.session.commit = savepoint.commit
+    # database.session.rollback = savepoint.rollback
+    # database.session.close = savepoint.rollback
+
+    @event.listens_for(database.session, 'after_transaction_end')
+    def restart_savepoint(session, transaction_in):
+        nonlocal savepoint
+        if transaction_in.nested and not transaction_in.parent.nested:
+            # This is a top-level savepoint, so restart it
+            session.expire_all()
+            savepoint = session.begin_nested()
+            # database.session.commit = savepoint.commit
+            # database.session.rollback = savepoint.rollback
+            # database.session.close = savepoint.rollback
+
+    yield database.session
+
+    database.session.force_close()
+    transaction.rollback()
+    db_connection.close()
+    database.session = original_session
+
+    # Clear Redis db too
+    redis_store.flushdb()
+
+
+def pytest_addoption(parser):
+    """Allow db_session to be configured in the command line."""
+    parser.addoption(
+        '--dbsession',
+        action='store',
+        default='rollback',
+        choices=('rollback', 'truncate'),
+        help="Use db_session with 'rollback' (default) or 'truncate'"
+        " (slower but more production-like)",
+    )
+
+
+@pytest.fixture()
+def db_session(request):
+    """
+    Database session fixture.
+
+    This fixture may be overridden in another conftest.py to return one of the two
+    available session fixtures:
+
+    * ``db_session_truncate``: Which allows unmediated database access but empties table
+      contents after each use
+    * ``db_session_savepoint``: Which nests the session in a SAVEPOINT and rolls back
+      after each use
+
+    This version of the fixture uses the --dbsession command-line option to choose the
+    base fixture.
+    """
+    return request.getfixturevalue(
+        {'rollback': 'db_session_rollback', 'truncate': 'db_session_truncate'}[
+            request.config.getoption('--dbsession')
+        ]
+    )
 
 
 # Enable autouse to guard against tests that have implicit database access, or assume

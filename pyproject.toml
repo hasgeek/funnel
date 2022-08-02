@@ -103,7 +103,7 @@ sections = ['FUTURE', 'STDLIB', 'SQLALCHEMY', 'FLASK', 'THIRDPARTY', 'FIRSTPARTY
 [tool.pytest.ini_options]
 addopts = ['--cov-report=term-missing']
 filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
-mocked-sessions = 'coaster.db.db.session'
+mocked-sessions = 'coaster.db.db.session'  # For pytest-flask-sqlalchemy (unused)
 env_files = ['.env', '.env.testing']
 
 [tool.pyright]

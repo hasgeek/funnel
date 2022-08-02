@@ -10,6 +10,7 @@ import os.path
 
 from flask import Flask
 from flask_babel import get_locale
+from flask_executor import Executor
 from flask_flatpages import FlatPages
 from flask_mailman import Mail
 from flask_migrate import Migrate
@@ -24,7 +25,6 @@ from baseframe.blueprint import THEME_FILES
 import coaster.app
 
 from ._version import __version__
-from .executor import ExecutorWrapper
 
 #: Main app for hasgeek.com
 app = Flask(__name__, instance_relative_config=True)
@@ -36,7 +36,7 @@ pages = FlatPages()
 
 redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
-executor = ExecutorWrapper()
+executor = Executor()
 
 # --- Assets ---------------------------------------------------------------------------
 
@@ -127,6 +127,7 @@ redis_store.init_app(app)
 rq.init_app(app)
 
 app.config['EXECUTOR_PROPAGATE_EXCEPTIONS'] = True
+app.config['EXECUTOR_PUSH_APP_CONTEXT'] = True
 executor.init_app(app)
 
 baseframe.init_app(
