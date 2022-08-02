@@ -20,6 +20,7 @@ __all__ = [
     'ReturnView',
     'WrappedFunc',
     'ReturnDecorator',
+    'ResponseType',
     'T',
     'P',
 ]
@@ -91,3 +92,6 @@ ReturnRenderWith = Union[
 
 #: Return type for Response objects
 ReturnResponse = Response
+
+#: Response typevar
+ResponseType = TypeVar('ResponseType', bound=Response)

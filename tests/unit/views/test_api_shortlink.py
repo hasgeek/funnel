@@ -12,8 +12,7 @@ from funnel.models import SiteMembership
 @pytest.fixture()
 def create_shortlink():
     """URL for creating a shortlink."""
-    with app.app_context():
-        return url_for('create_shortlink')
+    return url_for('create_shortlink')
 
 
 @pytest.fixture()
@@ -22,7 +21,7 @@ def user_rincewind_site_editor(db_session, user_rincewind):
         user=user_rincewind, granted_by=user_rincewind, is_site_editor=True
     )
     db_session.add(sm)
-    db_session.flush()
+    db_session.commit()
     return sm
 
 

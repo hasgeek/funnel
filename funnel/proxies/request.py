@@ -13,7 +13,7 @@ from flask import (  # type: ignore[attr-defined]
 from werkzeug.local import LocalProxy
 from werkzeug.utils import cached_property
 
-from ..typing import ReturnDecorator, ReturnResponse
+from ..typing import ResponseType, ReturnDecorator
 
 __all__ = ['request_wants']
 
@@ -131,7 +131,7 @@ def _get_request_wants() -> RequestWants:
 request_wants = LocalProxy(_get_request_wants)
 
 
-def response_varies(response: ReturnResponse) -> ReturnResponse:
+def response_varies(response: ResponseType) -> ResponseType:
     """App ``after_request`` handler to set response ``Vary`` header."""
     response.vary.update(request_wants.response_vary)  # type: ignore[union-attr]
     return response
