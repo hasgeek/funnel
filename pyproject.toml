@@ -101,6 +101,14 @@ default_section = 'THIRDPARTY'
 sections = ['FUTURE', 'STDLIB', 'SQLALCHEMY', 'FLASK', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER']
 
 [tool.pytest.ini_options]
+required_plugins = [
+  'pytest-bdd',
+  'pytest-cov',
+  'pytest-dotenv',
+  'pytest-env',
+  'pytest-splinter',
+  'requests-mock',
+]
 addopts = [
   '--cov-report=term-missing',
   '--splinter-screenshot-dir=tests/screenshots',
