@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Tuple
 import atexit
-import logging
 import multiprocessing
 import os
 import platform
@@ -27,6 +26,7 @@ __all__ = ['AppByHostWsgi', 'BackgroundWorker', 'devtest_app']
 # https://github.com/pytest-dev/pytest-flask/pull/138
 # https://github.com/pytest-dev/pytest-flask/issues/139
 if platform.system() == 'Darwin':
+    os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
     multiprocessing = multiprocessing.get_context('fork')  # type: ignore[assignment]
 
 # --- Development and testing app multiplexer ------------------------------------------
@@ -131,7 +131,7 @@ class BackgroundWorker:
         args: Optional[Iterable] = None,
         kwargs: Optional[dict] = None,
         probe_at: Optional[Tuple[str, int]] = None,
-        timeout: int = 30,
+        timeout: int = 10,
         clean_stop=True,
         daemon=True,
     ) -> None:
@@ -176,6 +176,7 @@ class BackgroundWorker:
                     keep_trying = False
 
     def _is_ready(self) -> bool:
+        """Probe for readyness with a socket connection."""
         if not self.probe_at:
             return False
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -206,7 +207,7 @@ class BackgroundWorker:
             self._process.close()
             self._process = None
 
-    def _stop_cleanly(self, timeout: int = 5) -> bool:
+    def _stop_cleanly(self) -> bool:
         """
         Attempt to stop the server cleanly.
 
@@ -214,15 +215,17 @@ class BackgroundWorker:
 
         :return: True if the server was cleanly stopped, False otherwise.
         """
-        if not self._process or not self._process.pid:
+        if (
+            self._process is None
+            or not self._process.pid
+            or not self._process.is_alive()
+        ):
+            # Process is not running
             return True
-        try:
-            os.kill(self._process.pid, signal.SIGINT)
-            self._process.join(timeout)
-            return True
-        except Exception:  # noqa: B902  # pylint: disable=broad-except
-            logging.exception("Failed to join the live server process.")
-            return False
+        os.kill(self._process.pid, signal.SIGINT)
+        self._process.join(self.timeout)
+        # Exitcode will be None if process has not terminated
+        return self._process.exitcode is not None
 
     def __repr__(self) -> str:
         if self.probe_at:
