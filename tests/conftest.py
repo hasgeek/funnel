@@ -307,14 +307,14 @@ def _database_events():
         print(f"exec: {class_name}: {', '.join(state_is)}")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'after_begin')
-    def event_after_begin(session, transaction, _connection):
+    def event_after_begin(_session, transaction, _connection):
         if transaction.nested:
             if transaction.parent.nested:
-                print(f"session: BEGIN (app; {session.info!r})")  # noqa: T201
+                print("session: BEGIN (savepoint)")  # noqa: T201
             else:
-                print(f"session: BEGIN (fixture; {session.info!r})")  # noqa: T201
+                print("session: BEGIN (fixture)")  # noqa: T201
         else:
-            print(f"session: BEGIN (db; {session.info!r})")  # noqa: T201
+            print("session: BEGIN (db)")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'after_commit')
     def event_after_commit(session):
@@ -331,6 +331,26 @@ def _database_events():
     @event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
     def event_after_soft_rollback(session, _previous_transaction):
         print(f"session: SOFT ROLLBACK ({session.info})")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'after_transaction_create')
+    def event_after_transaction_create(_session, transaction):
+        if transaction.nested:
+            if transaction.parent.nested:
+                print("transaction: CREATE (savepoint)")  # noqa: T201
+            else:
+                print("transaction: CREATE (fixture)")  # noqa: T201
+        else:
+            print("transaction: CREATE (db)")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'after_transaction_end')
+    def event_after_transaction_end(_session, transaction):
+        if transaction.nested:
+            if transaction.parent.nested:
+                print("transaction: END (savepoint)")  # noqa: T201
+            else:
+                print("transaction: END (fixture)")  # noqa: T201
+        else:
+            print("transaction: END (db)")  # noqa: T201
 
     yield
 
@@ -369,6 +389,12 @@ def _database_events():
     event.remove(DatabaseSessionClass, 'after_flush', event_after_flush)
     event.remove(DatabaseSessionClass, 'after_rollback', event_after_rollback)
     event.remove(DatabaseSessionClass, 'after_soft_rollback', event_after_soft_rollback)
+    event.remove(
+        DatabaseSessionClass, 'after_transaction_create', event_after_transaction_create
+    )
+    event.remove(
+        DatabaseSessionClass, 'after_transaction_end', event_after_transaction_end
+    )
 
 
 @pytest.fixture(scope='session')
@@ -471,6 +497,7 @@ def db_session_rollback(database):
 
     yield database.session
 
+    event.remove(database.session, 'after_transaction_end', restart_savepoint)
     database.session.force_close()
     transaction.rollback()
     db_connection.close()
