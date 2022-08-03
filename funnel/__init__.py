@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import List, Tuple, cast
+from typing import cast
 import json
 import logging
 import os.path
@@ -320,40 +320,6 @@ app.wsgi_app = WhiteNoise(  # type: ignore[assignment]
 app.wsgi_app.add_files(  # type: ignore[attr-defined]
     baseframe.static_folder, prefix=baseframe.static_url_path
 )
-
-# --- Development and testing app multiplexer ------------------------------------------
-
-
-class AppByHostWsgi:
-    """Invoke an app by matching host (WSGI protocol)."""
-
-    def __init__(self, *apps: Flask) -> None:
-        # If we have apps where one serves a subdomain of another, sort them so that
-        # the subdomain is first.
-        self.apps_by_host: List[Tuple[str, Flask]] = sorted(
-            ((_a.config['SERVER_NAME'].split(':', 1)[0], _a) for _a in apps),
-            key=lambda host_and_app: host_and_app[0].split('.')[::-1],
-            reverse=True,
-        )
-
-    def get_app(self, host: str) -> Flask:
-        """Get app matching a host."""
-        if ':' in host:
-            host = host.split(':', 1)[0]
-        for app_host, app_for_host in self.apps_by_host:
-            if host == app_host or host.endswith('.' + app_host):  # For subdomains
-                return app_for_host
-
-        # Default to the main app
-        return app
-
-    def __call__(self, environ, start_response):
-        use_app = self.get_app(environ['HTTP_HOST'])
-        return use_app(environ, start_response)
-
-
-devtest_app = AppByHostWsgi(app, shortlinkapp)
-
 
 # --- Init SQLAlchemy mappers ----------------------------------------------------------
 
