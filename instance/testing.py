@@ -20,6 +20,8 @@ UPLOAD_FOLDER = '/tmp'  # nosec  # noqa: S108
 TIMEZONE = 'Asia/Kolkata'
 GOOGLE_MAPS_API_KEY = environ.get('GOOGLE_MAPS_API_KEY')
 BOXOFFICE_SERVER = 'https://boxoffice.hasgeek.com/api/1/'
+# Run RQ jobs inline in tests
+RQ_ASYNC = False
 # Use Redis db 9 for tests
 REDIS_URL = RQ_REDIS_URL = CACHE_REDIS_URL = 'redis://localhost:6379/9'
 

@@ -104,9 +104,9 @@ repos:
             '--ignore-paths=tests,migrations',
           ]
         additional_dependencies:
-          - toml
-          - pylint-pytest
           - pylint-flask-sqlalchemy
+          - pylint-pytest
+          - toml
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.4
     hooks:
