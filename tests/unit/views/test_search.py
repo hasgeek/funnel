@@ -12,7 +12,6 @@ from flask import url_for
 
 import pytest
 
-from funnel import app
 from funnel.views.search import (
     Query,
     SearchInProfileProvider,
@@ -95,17 +94,16 @@ def test_search_project_returns_query(stype, project_expo2010, all_fixtures) -> 
 
 def test_search_counts(org_ankhmorpork, project_expo2010, all_fixtures) -> None:
     """Test that search_counts returns a list of dicts."""
-    with app.test_request_context():
-        r1 = search_counts("test")
-        r2 = search_counts("test", profile=org_ankhmorpork.profile)
-        r3 = search_counts("test", project=project_expo2010)
+    r1 = search_counts("test")
+    r2 = search_counts("test", profile=org_ankhmorpork.profile)
+    r3 = search_counts("test", project=project_expo2010)
 
-        for resultset in (r1, r2, r3):
-            assert isinstance(resultset, list)
-            for typeset in resultset:
-                assert 'type' in typeset
-                assert 'label' in typeset
-                assert 'count' in typeset
+    for resultset in (r1, r2, r3):
+        assert isinstance(resultset, list)
+        for typeset in resultset:
+            assert 'type' in typeset
+            assert 'label' in typeset
+            assert 'count' in typeset
 
 
 # --- Test views -----------------------------------------------------------------------

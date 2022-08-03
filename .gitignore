@@ -30,12 +30,14 @@ baseframe-packed.*
 # Download files
 geoname_data
 
-# Log files
+# Log and test files
 error.log
 error.log.*
 ghostdriver.log
+geckodriver.log
+tests/screenshots
 
-# Instance Files that should not be checked-in.
+# Instance files that should not be checked-in
 instance/development.py
 instance/hasgeekapp.py
 instance/production.py

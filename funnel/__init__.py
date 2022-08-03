@@ -36,6 +36,8 @@ pages = FlatPages()
 
 redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
+rq.job_class = 'rq.job.Job'
+rq.queues = ['funnel']  # Queues used in this app
 executor = Executor()
 
 # --- Assets ---------------------------------------------------------------------------
@@ -84,6 +86,7 @@ from . import (  # isort:skip  # noqa: F401  # pylint: disable=wrong-import-posi
 from .models import db  # isort:skip  # pylint: disable=wrong-import-position
 
 # --- Configuration---------------------------------------------------------------------
+
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)
 coaster.app.init_app(app, ['py', 'toml'])
 coaster.app.init_app(shortlinkapp, ['py', 'toml'], init_logging=False)

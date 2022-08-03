@@ -104,39 +104,23 @@ def test_vimeo(db_session, new_proposal) -> None:
     assert check_video['thumbnail'].startswith('https://i.vimeocdn.com/video/783856813')
 
 
-def test_vimeo_request_exception(
-    caplog,
-    requests_mock,
-    db_session,
-    user_vetinari,
-    org_ankhmorpork,
-    project_expo2010,
-    new_proposal,
-):
+def test_vimeo_request_exception(caplog, requests_mock, new_proposal):
     caplog.set_level(logging.WARNING)
     requests_mock.get(
         'https://api.vimeo.com/videos/336892869',
         exc=requests.exceptions.RequestException,
     )
     new_proposal.video_url = 'https://vimeo.com/336892869'
-    new_proposal.views.video
+    assert new_proposal.views.video is not None
     assert "Vimeo API request error: RequestException()" in caplog.text
 
 
-def test_youtube_request_exception(
-    caplog,
-    requests_mock,
-    db_session,
-    user_vetinari,
-    org_ankhmorpork,
-    project_expo2010,
-    new_proposal,
-):
+def test_youtube_request_exception(caplog, requests_mock, new_proposal):
     caplog.set_level(logging.WARNING)
     requests_mock.get(
         'https://www.googleapis.com/youtube/v3/videos',
         exc=requests.exceptions.RequestException,
     )
     new_proposal.video_url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-    new_proposal.views.video
+    assert new_proposal.views.video is not None
     assert "YouTube API request error: RequestException()" in caplog.text

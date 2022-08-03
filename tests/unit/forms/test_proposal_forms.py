@@ -1,11 +1,11 @@
 """Tests for Proposal forms."""
 
-from funnel import app
 from funnel.forms import ProposalLabelsAdminForm, ProposalLabelsForm
 from funnel.models import Proposal
 
 
 def test_proposal_label_admin_form(
+    app,
     new_main_label,
     new_main_label_unrestricted,
     new_label,
@@ -39,6 +39,7 @@ def test_proposal_label_admin_form(
 
 
 def test_proposal_label_form(
+    app,
     new_main_label,
     new_main_label_unrestricted,
     new_label,

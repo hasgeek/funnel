@@ -51,6 +51,7 @@ from ..signals import user_login, user_registered
 from ..typing import ResponseType, ReturnDecorator, WrappedFunc
 from ..utils import abort_null
 from .helpers import (
+    app_context,
     app_url_for,
     autoset_timezone_and_locale,
     get_scheme_netloc,
@@ -376,7 +377,7 @@ def update_user_session_timestamp(response: ResponseType) -> ResponseType:
         @response.call_on_close
         def mark_session_accessed_after_response():
             # App context is needed for the call to statsd in mark_accessed()
-            with app.app_context():
+            with app_context():
                 # 1. Add object back to the current database session as it's not
                 # known here. We are NOT using session.merge as we don't need to
                 # refresh data from the db. SQLAlchemy will automatically load
