@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from base64 import urlsafe_b64encode
+from contextlib import nullcontext
 from datetime import datetime, timedelta
 from hashlib import blake2b
 from os import urandom
@@ -42,9 +43,7 @@ from .. import app, built_assets, shortlinkapp
 from ..forms import supported_locales
 from ..models import Shortlink, User, db, profanity
 from ..proxies import request_wants
-from ..signals import emailaddress_refcount_dropping
 from ..typing import ResponseType, ReturnResponse, ReturnView
-from .jobs import forget_email
 
 valid_timezones = set(common_timezones)
 
@@ -92,6 +91,13 @@ class SessionTimeouts(Dict[str, timedelta]):
 session_timeouts = SessionTimeouts()
 
 # --- Utilities ------------------------------------------------------------------------
+
+
+def app_context():
+    """Return an app context if one is not active."""
+    if current_app:
+        return nullcontext()
+    return app.app_context()
 
 
 def str_pw_set_at(user: User) -> str:
@@ -624,31 +630,4 @@ def cache_expiry_headers(response: ResponseType) -> ResponseType:
         response.expires = nocache_expires
     if not response.cache_control.max_age:
         response.cache_control.max_age = 0
-    return response
-
-
-# If an email address had a reference count drop during the request, make a note of
-# its email_hash, and at the end of the request, queue a background job. The job will
-# call .refcount() and if it still has zero references, it will be marked as forgotten
-# by having the email column set to None.
-
-# It is possible for an email address to have its refcount drop and rise again within
-# the request, so it's imperative to wait until the end of the request before attempting
-# to forget it. Ideally, this job should wait even longer, for several minutes or even
-# up to a day.
-
-
-@emailaddress_refcount_dropping.connect
-def forget_email_in_request_teardown(sender) -> None:
-    if g:  # Only do this if we have an app context
-        if not hasattr(g, 'forget_email_hashes'):
-            g.forget_email_hashes = set()
-        g.forget_email_hashes.add(sender.email_hash)
-
-
-@app.after_request
-def forget_email_in_background_job(response: ResponseType) -> ResponseType:
-    if hasattr(g, 'forget_email_hashes'):
-        for email_hash in g.forget_email_hashes:
-            forget_email.queue(email_hash)
     return response

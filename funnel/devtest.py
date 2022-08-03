@@ -174,6 +174,10 @@ class BackgroundWorker:
                     )
                 if self._is_ready():
                     keep_trying = False
+            # If another process is running at the same port, the connection will
+            # succeed but our process may have exited. Check for that
+            if not self._process.is_alive():
+                raise RuntimeError(f"Server exited with code {self._process.exitcode}")
 
     def _is_ready(self) -> bool:
         """Probe for readyness with a socket connection."""

@@ -3,7 +3,6 @@
 from datetime import datetime
 from types import MethodType, SimpleNamespace
 from typing import List, NamedTuple, Optional
-import logging
 import re
 
 from sqlalchemy import event, inspect
@@ -208,13 +207,12 @@ def app():
     return funnel_app
 
 
-@pytest.fixture(scope='session')
-def _database_events(logger):
+@pytest.fixture()
+def _database_events():
     """
     Fixture to report database session events for debugging a test.
 
-    If a test is exhibiting unusual behaviour, add this fixture to trace db events, and
-    call the test with cli option ``--log-cli-level=INFO`` (or lower)::
+    If a test is exhibiting unusual behaviour, add this fixture to trace db events::
 
         @pytest.mark.usefixtures('_database_events')
         def test_whatever():
@@ -236,53 +234,53 @@ def _database_events(logger):
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
         rparams = f'{rargs, rkwargs}' if rargs else rkwargs
-        logging.info("obj: new: %s(%s)", obj.__class__.__qualname__, rparams)
+        print(f"obj: new: {obj.__class__.__qualname__}({rparams})")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'transient_to_pending')
     def event_transient_to_pending(_session, obj):
-        logging.info("obj: transient to pending: %s", safe_repr(obj))
+        print(f"obj: transient to pending: {safe_repr(obj)}")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_transient')
     def event_pending_to_transient(_session, obj):
-        logging.info("obj: pending to transient: %s", safe_repr(obj))
+        print(f"obj: pending to transient: {safe_repr(obj)}")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
     def event_pending_to_persistent(_session, obj):
-        logging.info("obj: pending to persistent: %s", safe_repr(obj))
+        print(f"obj: pending to persistent: {safe_repr(obj)}")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
     def event_loaded_as_persistent(_session, obj):
-        logging.info("obj: loaded as persistent %s", safe_repr(obj))
+        print(f"obj: loaded as persistent {safe_repr(obj)}")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
     def event_persistent_to_transient(_session, obj):
-        logging.info("obj: persistent to transient: %s", safe_repr(obj))
+        print(f"obj: persistent to transient: {safe_repr(obj)}")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
     def event_persistent_to_deleted(_session, obj):
-        logging.info("obj: persistent to deleted %s", safe_repr(obj))
+        print(f"obj: persistent to deleted {safe_repr(obj)}")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
     def event_deleted_to_detached(_session, obj):
         i = inspect(obj)
-        logging.info(
-            "obj: deleted to detached: %s/%s", obj.__class__.__qualname__, i.identity
+        print(  # noqa: T201
+            f"obj: deleted to detached: {obj.__class__.__qualname__}/{i.identity}"
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
     def event_persistent_to_detached(_session, obj):
         i = inspect(obj)
-        logging.info(
-            "obj: persistent to detached: %s/%s", obj.__class__.__qualname__, i.identity
+        print(  # noqa: T201
+            f"obj: persistent to detached: {obj.__class__.__qualname__}/{i.identity}"
         )
 
     @event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
     def event_detached_to_persistent(_session, obj):
-        logging.info("obj: detached to persistent: %s", safe_repr(obj))
+        print(f"obj: detached to persistent: {safe_repr(obj)}")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
     def event_deleted_to_persistent(session, obj):
-        logging.info("obj: deleted to persistent: %s", safe_repr(obj))
+        print(f"obj: deleted to persistent: {safe_repr(obj)}")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'do_orm_execute')
     def event_do_orm_execute(orm_execute_state):
@@ -301,33 +299,76 @@ def _database_events(logger):
             state_is.append("is_select")
         if orm_execute_state.is_update:
             state_is.append("is_update")
-        logging.info(
-            "exec: %s: %s",
+        class_name = (
             orm_execute_state.bind_mapper.class_.__qualname__
             if orm_execute_state.bind_mapper
-            else None,
-            ', '.join(state_is),
+            else None
         )
+        print(f"exec: {class_name}: {', '.join(state_is)}")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'after_begin')
-    def event_after_begin(_session, _transaction, _connection):
-        logging.info("session: BEGIN")
+    def event_after_begin(session, transaction, _connection):
+        if transaction.nested:
+            if transaction.parent.nested:
+                print(f"session: BEGIN (app; {session.info!r})")  # noqa: T201
+            else:
+                print(f"session: BEGIN (fixture; {session.info!r})")  # noqa: T201
+        else:
+            print(f"session: BEGIN (db; {session.info!r})")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'after_commit')
-    def event_after_commit(_session):
-        logging.info("session: COMMIT")
+    def event_after_commit(session):
+        print(f"session: COMMIT ({session.info!r})")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'after_flush')
-    def event_after_flush(_session, _flush_context):
-        logging.info("session: FLUSH")
+    def event_after_flush(session, _flush_context):
+        print(f"session: FLUSH ({session.info})")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'after_rollback')
-    def event_after_rollback(_session):
-        logging.info("session: ROLLBACK")
+    def event_after_rollback(session):
+        print(f"session: ROLLBACK ({session.info})")  # noqa: T201
 
     @event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
-    def event_after_soft_rollback(_session, _previous_transaction):
-        logging.info("session: SOFT ROLLBACK")
+    def event_after_soft_rollback(session, _previous_transaction):
+        print(f"session: SOFT ROLLBACK ({session.info})")  # noqa: T201
+
+    yield
+
+    event.remove(db.Model, 'init', event_init)
+    event.remove(
+        DatabaseSessionClass, 'transient_to_pending', event_transient_to_pending
+    )
+    event.remove(
+        DatabaseSessionClass, 'pending_to_transient', event_pending_to_transient
+    )
+    event.remove(
+        DatabaseSessionClass, 'pending_to_persistent', event_pending_to_persistent
+    )
+    event.remove(
+        DatabaseSessionClass, 'loaded_as_persistent', event_loaded_as_persistent
+    )
+    event.remove(
+        DatabaseSessionClass, 'persistent_to_transient', event_persistent_to_transient
+    )
+    event.remove(
+        DatabaseSessionClass, 'persistent_to_deleted', event_persistent_to_deleted
+    )
+    event.remove(DatabaseSessionClass, 'deleted_to_detached', event_deleted_to_detached)
+    event.remove(
+        DatabaseSessionClass, 'persistent_to_detached', event_persistent_to_detached
+    )
+    event.remove(
+        DatabaseSessionClass, 'detached_to_persistent', event_detached_to_persistent
+    )
+    event.remove(
+        DatabaseSessionClass, 'deleted_to_persistent', event_deleted_to_persistent
+    )
+    event.remove(DatabaseSessionClass, 'do_orm_execute', event_do_orm_execute)
+    event.remove(DatabaseSessionClass, 'after_begin', event_after_begin)
+    event.remove(DatabaseSessionClass, 'after_commit', event_after_commit)
+    event.remove(DatabaseSessionClass, 'after_flush', event_after_flush)
+    event.remove(DatabaseSessionClass, 'after_rollback', event_after_rollback)
+    event.remove(DatabaseSessionClass, 'after_soft_rollback', event_after_soft_rollback)
 
 
 @pytest.fixture(scope='session')
@@ -389,6 +430,7 @@ def db_session_rollback(database):
     database.session = database.create_scoped_session(
         options={'bind': db_connection, 'binds': {}}
     )
+    database.session.info['fixture'] = True
 
     # For handling tests that actually call `session.rollback()`, we use a SQL savepoint
     # and add an event handler that restarts the savepoint. SQLAlchemy 1.4 deprecated
