@@ -36,6 +36,7 @@ pages = FlatPages()
 
 redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
+rq.job_class = 'rq.job.Job'
 rq.queues = ['funnel']  # Queues used in this app
 executor = Executor()
 

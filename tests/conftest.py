@@ -459,6 +459,7 @@ def db_session_rollback(database):
 
     @event.listens_for(database.session, 'after_transaction_end')
     def restart_savepoint(session, transaction_in):
+        """If the savepoint terminates due to commit or rollback, restart it."""
         nonlocal savepoint
         if transaction_in.nested and not transaction_in.parent.nested:
             # This is a top-level savepoint, so restart it
