@@ -9,7 +9,7 @@ if [ -f secrets.test ]; then
         source ./secrets.test
 fi
 python -m tests.cypress.frontend_tests_initdb
-nohup ./testserver.py 2>&1 1>/tmp/funnel-server.log & echo $! > /tmp/funnel-server.pid
+nohup flask run 2>&1 1>/tmp/funnel-server.log & echo $! > /tmp/funnel-server.pid
 cd funnel/assets
 npx cypress run --browser chrome
 kill `cat /tmp/funnel-server.pid`

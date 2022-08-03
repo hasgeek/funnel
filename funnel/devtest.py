@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Optional, Tuple
+from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Tuple
 import atexit
 import logging
 import multiprocessing
@@ -39,8 +39,8 @@ info_app = Flask(__name__)
 def info_index(_ignore_path: str = ''):
     """Info app provides a guide to access the server."""
     info = "Add the following entries to /etc/hosts to access:\n\n"
-    max_host_len = max(len(host) for host, app in devtest_app.apps_by_host)
-    for host, app in devtest_app.apps_by_host:
+    max_host_len = max(len(host) for host in devtest_app.apps_by_host.keys())
+    for host, app in devtest_app.apps_by_host.items():
         space_padding = ' ' * (max_host_len - len(host) + 2)
         info += (
             f"127.0.0.1\t{host}{space_padding}"
@@ -58,32 +58,26 @@ class AppByHostWsgi:
     """
 
     def __init__(self, *apps: Flask) -> None:
-        # If we have apps where one serves a subdomain of another, sort them so that
-        # the subdomain is first.
         if not apps:
-            raise ValueError("One app is required")
+            raise ValueError("An app is required")
         for app in apps:
             if not app.config.get('SERVER_NAME'):
                 raise ValueError(f"App does not have SERVER_NAME set: {app!r}")
-
-        self.apps_by_host: List[Tuple[str, Flask]] = sorted(
-            (
-                (app.config['SERVER_NAME'].split(':', 1)[0], app)
-                for app in apps
-                if app.config.get('SERVER_NAME')
-            ),
-            key=lambda host_and_app: host_and_app[0].split('.')[::-1],
-            reverse=True,
-        )
+        self.apps_by_host = {
+            app.config['SERVER_NAME'].split(':', 1)[0]: app for app in apps
+        }
 
     def get_app(self, host: str) -> Flask:
         """Get app matching a host."""
         if ':' in host:
             host = host.split(':', 1)[0]
-        for app_host, app_for_host in self.apps_by_host:
-            if host == app_host or host.endswith('.' + app_host):  # For subdomains
-                return app_for_host
-
+        # Serve app that is a direct match for the host
+        if host in self.apps_by_host:
+            return self.apps_by_host[host]
+        # Serve app that the host is a subdomain of
+        for app_host, app in self.apps_by_host.items():
+            if host.endswith('.' + app_host):
+                return app
         # If no host matched, use the info app
         return info_app
 

@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 from werkzeug import run_simple
 
 from pytest_splinter.webdriver_patches import patch_webdriver
 from selenium import webdriver
 import pytest
 
-from funnel import rq
 from funnel.devtest import BackgroundWorker, devtest_app
 
 
@@ -34,11 +35,31 @@ def splinter_driver_kwargs(splinter_webdriver):
 @pytest.fixture(scope='package')
 def live_server(request, database, app):
     """Run application in a separate process."""
-    port = int(app.config['SERVER_NAME'].split(':', 1)[-1])
-    for _m_host, m_app in devtest_app.apps_by_host:
-        m_app.config['PREFERRED_URL_SCHEME'] = 'https'
-    rq_server = BackgroundWorker(rq.get_worker().work)
-    app_server = BackgroundWorker(
+    # Use HTTPS for live server (set to False if required)
+    use_https = True
+    scheme = 'https' if use_https else 'http'
+    # Use app's port from SERVER_NAME as basis for the port to run the live server on
+    port_str = app.config['SERVER_NAME'].partition(':')[-1]
+    if not port_str or not port_str.isdigit():
+        pytest.fail(
+            f"App does not have SERVER_NAME specified as host:port in config:"
+            f" {app.config['SERVER_NAME']}"
+        )
+    port = int(port_str)
+
+    # Save app config before modifying it to match live server environment
+    original_app_config = {}
+    for m_app in devtest_app.apps_by_host.values():
+        original_app_config[m_app] = {
+            'PREFERRED_URL_SCHEME': m_app.config['PREFERRED_URL_SCHEME'],
+            'SERVER_NAME': m_app.config['SERVER_NAME'],
+        }
+        m_app.config['PREFERRED_URL_SCHEME'] = scheme
+        m_host = m_app.config['SERVER_NAME'].split(':', 1)[0]
+        m_app.config['SERVER_NAME'] = f'{m_host}:{port}'
+
+    # Start background worker and wait until it's receiving connections
+    server = BackgroundWorker(
         run_simple,
         args=('127.0.0.1', port, devtest_app),
         kwargs={
@@ -46,18 +67,35 @@ def live_server(request, database, app):
             'use_debugger': True,
             'use_evalex': False,
             'threaded': True,
-            'ssl_context': 'adhoc',
+            'ssl_context': 'adhoc' if use_https else None,
         },
         probe_at=('127.0.0.1', port),
     )
     try:
-        rq_server.start()
-        app_server.start()
+        server.start()
     except RuntimeError as exc:
+        # Server did not respond to probe until timeout; mark test as failed
+        server.stop()
         pytest.fail(str(exc))
-    yield app_server
-    app_server.stop()
-    rq_server.stop()
+
+    with app.app_context():
+        # Return live server config within an app context so that the test function
+        # can use url_for without creating a context. However, secondary apps will
+        # need context specifically established for url_for on them
+        yield SimpleNamespace(
+            url=f'{scheme}://{app.config["SERVER_NAME"]}/',
+            urls=[
+                f'{scheme}://{m_app.config["SERVER_NAME"]}/'
+                for m_app in devtest_app.apps_by_host.values()
+            ],
+        )
+
+    # Stop server after use
+    server.stop()
+
+    # Restore original app config
+    for m_app, config in original_app_config.items():
+        m_app.config.update(config)
 
 
 @pytest.fixture()
