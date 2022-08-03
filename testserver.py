@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Test server with multi-app switching, only for use from within tests."""
+"""Test server with multi-app switching, only for use from within Cypress tests."""
 
 import os
 import sys
@@ -10,7 +10,11 @@ if __name__ == '__main__':
     sys.path.insert(0, os.path.dirname(__file__))
     os.environ['FLASK_ENV'] = 'testing'
 
-    from funnel import devtest_app
+    from funnel import rq
+    from funnel.devtest import BackgroundWorker, devtest_app
+
+    background_rq = BackgroundWorker(rq.get_worker().work)
+    background_rq.start()
 
     run_simple(
         os.environ.get('FLASK_RUN_HOST', '127.0.0.1'),
@@ -21,3 +25,5 @@ if __name__ == '__main__':
         use_evalex=False,
         threaded=True,
     )
+
+    background_rq.stop()

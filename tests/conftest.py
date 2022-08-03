@@ -186,6 +186,7 @@ def pytest_collection_modifyitems(items) -> None:
         'tests/integration/views',
         'tests/integration',
         'tests/features',
+        'tests/e2e',
     )
 
     def sort_key(item):

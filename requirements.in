@@ -50,7 +50,7 @@ PyVimeo
 qrcode
 requests
 rq
-SQLAlchemy
+SQLAlchemy>=1.4.33
 SQLAlchemy-Utils
 tweepy
 twilio
