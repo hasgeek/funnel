@@ -6,7 +6,7 @@ from typing import Optional
 
 from flask import Markup, url_for
 
-from baseframe import _, __, forms
+from baseframe import _, __, current_auth, forms
 
 from ..models import Organization, Profile, Team, User
 
@@ -69,7 +69,10 @@ class OrganizationForm(forms.Form):
             # from existing name, or has only changed case. This is a validation pass.
             return
         if reason == 'user':
-            if self.user.username and field.data.lower() == self.user.username.lower():
+            if (
+                current_auth.user.username
+                and field.data.lower() == current_auth.user.username.lower()
+            ):
                 raise forms.validators.ValidationError(
                     Markup(
                         _(
