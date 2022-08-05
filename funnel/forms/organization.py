@@ -69,10 +69,7 @@ class OrganizationForm(forms.Form):
             # from existing name, or has only changed case. This is a validation pass.
             return
         if reason == 'user':
-            if (
-                current_auth.user.username
-                and field.data.lower() == current_auth.user.username.lower()
-            ):
+            if self.user.username and field.data.lower() == self.user.username.lower():
                 raise forms.validators.ValidationError(
                     Markup(
                         _(
