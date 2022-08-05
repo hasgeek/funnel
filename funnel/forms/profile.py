@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from baseframe import __, forms
 
-from ..models import Profile
+from ..models import Profile, User
 from .helpers import image_url_validator, nullable_strip_filters
 from .organization import OrganizationForm
 
@@ -24,8 +24,9 @@ class ProfileForm(OrganizationForm):
     A `profile` keyword argument is necessary for the ImgeeField.
     """
 
-    __expects__ = ('profile',)
+    __expects__ = ('profile', 'user')
     profile: Profile
+    user: User
 
     tagline = forms.StringField(
         __("Bio"),
