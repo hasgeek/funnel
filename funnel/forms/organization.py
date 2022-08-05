@@ -6,7 +6,7 @@ from typing import Optional
 
 from flask import Markup, url_for
 
-from baseframe import _, __, current_auth, forms
+from baseframe import _, __, forms
 
 from ..models import Organization, Profile, Team, User
 
