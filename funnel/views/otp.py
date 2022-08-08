@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 from typing import Dict, Generic, Optional, Type, TypeVar, Union
 
-from flask import current_app, flash, render_template, session, url_for
+from flask import current_app, flash, render_template, request, session, url_for
 from werkzeug.exceptions import Forbidden, RequestTimeout, TooManyRequests
 from werkzeug.utils import cached_property
 
@@ -277,6 +277,10 @@ class OtpSession(Generic[OptionalUserType]):
 
     def send(self, flash_success: bool = True, flash_failure: bool = True) -> bool:
         """Send an OTP via SMS or email."""
+        # Allow 10 OTP sends per 10 minutes per IP address
+        validate_rate_limit(
+            'otp-send', 'ipaddr/' + (request.remote_addr or ''), 10, 600
+        )
         # Allow 3 OTP sends per hour per anchor
         if self.phone is not None:
             try:
