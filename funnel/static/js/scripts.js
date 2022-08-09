@@ -272,6 +272,12 @@ window.Hasgeek.Forms = {
       }
     });
   },
+  preventDoubleSubmit: function(formId) {
+    var form  = $('#' + formId);
+    form.find('input[type="submit"]').prop('disabled', true).addClass('submit-disabled');
+    form.find('button[type="submit"]').prop('disabled', true).addClass('submit-disabled');
+    form.find('.loading').removeClass('mui--hide');
+  },
   lastuserAutocomplete: function (options) {
     var assembleUsers = function (users) {
       return users.map(function (user) {
@@ -373,6 +379,46 @@ window.Hasgeek.Forms = {
       }
     });
   },
+  showFormError: function(formid, error, alertBoxHtml) {
+    var form = $("#"  + formid);
+    form.find('input[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
+    form.find('button[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
+    form.find('.loading').addClass('mui--hide');
+    $('.alert').remove();
+    form.append(alertBoxHtml);
+    if (error.readyState === 4) {
+      if (error.status === 500) {
+        $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.serverError);
+      } else if(error.status === 429) {
+        $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.rateLimitError);
+      } else if(error.responseJSON && error.responseJSON.error_description) {
+        $(form).find('.alert__text').text(error.responseJSON.error_description);
+      } else {
+        $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.error);
+      }
+    } else {
+      $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.networkError);
+    }
+  },
+  ajaxFormSubmit: function(formId, url, onSuccess, onError, config) {
+    console.log('ajaxFormSubmit', formId, url, $('#' + formId).serialize());
+    $.ajax({
+      url: url,
+      type: 'POST',
+      data: $('#' + formId).serialize(),
+      dataType: config.dataType ? config.dataType : 'json',
+      beforeSend: function() {
+        window.Hasgeek.Forms.preventDoubleSubmit(formId);
+        if (config.beforeSend) config.beforeSend();
+      },
+      success: function(responseData) {
+        onSuccess(responseData)
+      },
+      error: function(xhr, status, errMsg) {
+        onError(xhr);
+      },
+    });
+  },
   /* Takes formId, url, onSuccess, onError, config
    'formId' - Form id selector to query the DOM for the form
    'url' - The url to which the post request is sent
@@ -389,31 +435,9 @@ window.Hasgeek.Forms = {
       .find('button[type="submit"]')
       .click(function (event) {
         event.preventDefault();
+        window.Hasgeek.Forms.ajaxFormSubmit(formId, url, onSuccess, onError, config);
 
-        $.ajax({
-          url: url,
-          type: 'POST',
-          data: $('#' + formId).serialize(),
-          dataType: config.dataType ? config.dataType : 'json',
-          beforeSend: function () {
-            // Disable submit button to prevent double submit
-            $('#' + formId)
-              .find('button[type="submit"]')
-              .prop('disabled', true);
-            // Baseframe form has a loading indication which is hidden by default. Show the loading indicator
-            $('#' + formId)
-              .find('.loading')
-              .removeClass('mui--hide');
-            if (config.beforeSend) config.beforeSend();
-          },
-        })
-          .done(function (remoteData) {
-            onSuccess(remoteData);
-          })
-          .fail(function (response) {
-            onError(response);
-          });
-      });
+    });
   },
 };
 
