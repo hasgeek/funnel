@@ -74,7 +74,7 @@ RECAPTCHA_USE_SSL = True  # nosec
 RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''
 RECAPTCHA_OPTIONS = ''
-RECAPTCHA_SITE_KEY= ''
+RECAPTCHA_SITE_KEY = ''
 
 #: SMS gateways
 #: SMSGupShup support is deprecated
