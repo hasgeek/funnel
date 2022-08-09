@@ -86,12 +86,18 @@ const Utils = {
       page += 1;
     };
 
-    const fetchMenu = (pageNo = 1) => {
-      $.ajax({
-        type: 'GET',
-        url: `${url}?page=${encodeURIComponent(pageNo)}`,
-        timeout: window.Hasgeek.Config.ajaxTimeout,
-        success(responseData) {
+    const fetchMenu = async (pageNo = 1) => {
+      const menuUrl = `${url}?${new URLSearchParams({
+        page: pageNo,
+      }).toString()}`;
+      const response = await fetch(menuUrl, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+      if (response && response.ok) {
+        const responseData = await response.text();
+        if (responseData) {
           if (observer) {
             observer.unobserve(lazyLoader);
             $('.js-load-comments').remove();
@@ -115,8 +121,8 @@ const Utils = {
             );
             observer.observe(lazyLoader);
           }
-        },
-      });
+        }
+      }
     };
 
     // If user logged in, preload menu
@@ -256,16 +262,17 @@ const Utils = {
       );
     }
   },
-  updateNotificationStatus() {
-    $.ajax({
-      type: 'GET',
-      url: window.Hasgeek.Config.notificationCount,
-      dataType: 'json',
-      timeout: window.Hasgeek.Config.ajaxTimeout,
-      success(responseData) {
-        Utils.setNotifyIcon(responseData.unread);
+  async updateNotificationStatus() {
+    const response = await fetch(window.Hasgeek.Config.notificationCount, {
+      headers: {
+        Accept: 'application/x.html+json',
+        'X-Requested-With': 'XMLHttpRequest',
       },
     });
+    if (response && response.ok) {
+      const responseData = await response.json();
+      Utils.setNotifyIcon(responseData.unread);
+    }
   },
   addWebShare() {
     const utils = this;
