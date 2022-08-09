@@ -224,8 +224,8 @@
     var forWrapperId = "{{ forWrapperId }}";
     window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
       console.log('recaptcha_response', recaptcha_response);
-      $('#g-recaptcha-response').attr('name', 'recaptcha');
-      $('#g-recaptcha-response').val(recaptcha_response);
+      $('.g-recaptcha-response').attr('name', 'recaptcha');
+      $('.g-recaptcha-response').val(recaptcha_response);
       var postUrl = $('#' + formId).attr('action');
       var onSuccess = function(responseData) {
         $('#' + forWrapperId).html(responseData);
