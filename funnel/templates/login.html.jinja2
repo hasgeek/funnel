@@ -21,6 +21,8 @@
     {%- if loginform and loginform.recaptcha is defined %}
       <script type="text/javascript">
         window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
+          $('#g-recaptcha-response').attr('name', 'recaptcha');
+          $('#g-recaptcha-response').val(recaptcha_response);
           document.getElementById("{{ ref_id }}").submit();
         };
         document.getElementById("{{ ref_id }}").onsubmit = function (event) {
