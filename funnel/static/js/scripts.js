@@ -272,10 +272,16 @@ window.Hasgeek.Forms = {
       }
     });
   },
-  preventDoubleSubmit: function(formId) {
-    var form  = $('#' + formId);
-    form.find('input[type="submit"]').prop('disabled', true).addClass('submit-disabled');
-    form.find('button[type="submit"]').prop('disabled', true).addClass('submit-disabled');
+  preventDoubleSubmit: function (formId) {
+    var form = $('#' + formId);
+    form
+      .find('input[type="submit"]')
+      .prop('disabled', true)
+      .addClass('submit-disabled');
+    form
+      .find('button[type="submit"]')
+      .prop('disabled', true)
+      .addClass('submit-disabled');
     form.find('.loading').removeClass('mui--hide');
   },
   lastuserAutocomplete: function (options) {
@@ -379,42 +385,54 @@ window.Hasgeek.Forms = {
       }
     });
   },
-  showFormError: function(formid, error, alertBoxHtml) {
-    var form = $("#"  + formid);
-    form.find('input[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
-    form.find('button[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
+  showFormError: function (formid, error, alertBoxHtml) {
+    var form = $('#' + formid);
+    form
+      .find('input[type="submit"]')
+      .prop('disabled', false)
+      .removeClass('submit-disabled');
+    form
+      .find('button[type="submit"]')
+      .prop('disabled', false)
+      .removeClass('submit-disabled');
     form.find('.loading').addClass('mui--hide');
     $('.alert').remove();
     form.append(alertBoxHtml);
     if (error.readyState === 4) {
       if (error.status === 500) {
-        $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.serverError);
-      } else if(error.status === 429) {
-        $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.rateLimitError);
-      } else if(error.responseJSON && error.responseJSON.error_description) {
+        $(form)
+          .find('.alert__text')
+          .text(window.Hasgeek.Config.errorMsg.serverError);
+      } else if (error.status === 429) {
+        $(form)
+          .find('.alert__text')
+          .text(window.Hasgeek.Config.errorMsg.rateLimitError);
+      } else if (error.responseJSON && error.responseJSON.error_description) {
         $(form).find('.alert__text').text(error.responseJSON.error_description);
       } else {
         $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.error);
       }
     } else {
-      $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.networkError);
+      $(form)
+        .find('.alert__text')
+        .text(window.Hasgeek.Config.errorMsg.networkError);
     }
   },
-  ajaxFormSubmit: function(formId, url, onSuccess, onError, config) {
+  ajaxFormSubmit: function (formId, url, onSuccess, onError, config) {
     console.log('ajaxFormSubmit', formId, url, $('#' + formId).serialize());
     $.ajax({
       url: url,
       type: 'POST',
       data: $('#' + formId).serialize(),
       dataType: config.dataType ? config.dataType : 'json',
-      beforeSend: function() {
+      beforeSend: function () {
         window.Hasgeek.Forms.preventDoubleSubmit(formId);
         if (config.beforeSend) config.beforeSend();
       },
-      success: function(responseData) {
-        onSuccess(responseData)
+      success: function (responseData) {
+        onSuccess(responseData);
       },
-      error: function(xhr, status, errMsg) {
+      error: function (xhr, status, errMsg) {
         onError(xhr);
       },
     });
@@ -435,9 +453,14 @@ window.Hasgeek.Forms = {
       .find('button[type="submit"]')
       .click(function (event) {
         event.preventDefault();
-        window.Hasgeek.Forms.ajaxFormSubmit(formId, url, onSuccess, onError, config);
-
-    });
+        window.Hasgeek.Forms.ajaxFormSubmit(
+          formId,
+          url,
+          onSuccess,
+          onError,
+          config
+        );
+      });
   },
 };
 
