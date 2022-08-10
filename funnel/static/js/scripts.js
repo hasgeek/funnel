@@ -419,7 +419,6 @@ window.Hasgeek.Forms = {
     }
   },
   ajaxFormSubmit: function (formId, url, onSuccess, onError, config) {
-    console.log('ajaxFormSubmit', formId, url, $('#' + formId).serialize());
     $.ajax({
       url: url,
       type: 'POST',

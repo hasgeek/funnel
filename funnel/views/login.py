@@ -108,7 +108,7 @@ def render_otp_form(
             action=url_for('login'),
             submit=_("Confirm"),
             cancel_url=cancel_url,
-            with_chrome=False,  # with_chrome is a legacy name
+            with_chrome=request_wants.html_fragment,  # with_chrome is a legacy name
         ),
         200,
         block_iframe,
@@ -123,7 +123,7 @@ def render_login_form(form: LoginForm) -> ReturnView:
             form=form,
             formid='passwordlogin',
             ref_id='form-passwordlogin',
-            with_chrome=False,  # with_chrome is a legacy name
+            with_chrome=request_wants.html_fragment,  # with_chrome is a legacy name
         ),
         200,
         block_iframe,
@@ -164,7 +164,6 @@ def login() -> ReturnView:
                 10,
                 3600,
             )
-            print(loginform.data, success, loginform.errors)
             if success:
                 user = loginform.user
                 if TYPE_CHECKING:
