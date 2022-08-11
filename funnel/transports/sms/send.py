@@ -35,6 +35,8 @@ __all__ = [
 
 @dataclass
 class SmsSender:
+    """An SMS sender by number prefix."""
+
     prefix: str
     requires_config: set
     func: Callable
