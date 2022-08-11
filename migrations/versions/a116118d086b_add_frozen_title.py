@@ -70,13 +70,13 @@ def upgrade_() -> None:
     op.rename_table('sponsor_membership', 'project_sponsor_membership')
     for old, new in renamed_constraints:
         op.execute(
-            sa.DDL(
+            sa.text(
                 f'ALTER TABLE project_sponsor_membership RENAME CONSTRAINT'
                 f' "{old}" TO "{new}"'
             )
         )
     for old, new in renamed_indexes:
-        op.execute(sa.DDL(f'ALTER INDEX "{old}" RENAME TO "{new}"'))
+        op.execute(sa.text(f'ALTER INDEX "{old}" RENAME TO "{new}"'))
 
     op.add_column(
         'proposal_membership', sa.Column('title', sa.Unicode(), nullable=True)
@@ -116,10 +116,10 @@ def downgrade_() -> None:
     op.drop_column('proposal_membership', 'title')
 
     for old, new in renamed_indexes:
-        op.execute(sa.DDL(f'ALTER INDEX "{new}" RENAME TO "{old}"'))
+        op.execute(sa.text(f'ALTER INDEX "{new}" RENAME TO "{old}"'))
     for old, new in renamed_constraints:
         op.execute(
-            sa.DDL(
+            sa.text(
                 f'ALTER TABLE project_sponsor_membership RENAME CONSTRAINT'
                 f' "{new}" TO "{old}"'
             )

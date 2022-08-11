@@ -35,18 +35,26 @@ MESSAGE = OneLineTemplate(
 )
 
 
+@pytest.mark.remote_data()
+@pytest.mark.requires_config('twilio')
+@pytest.mark.usefixtures('app')
 def test_twilio_success() -> None:
     """Test if message sending is a success."""
     sid = send(TWILIO_CLEAN_TARGET, MESSAGE, callback=False)
     assert sid
 
 
+@pytest.mark.remote_data()
+@pytest.mark.requires_config('twilio')
+@pytest.mark.usefixtures('app')
 def test_twilio_callback(client) -> None:
     """Test if message sending is a success when a callback is requested."""
     sid = send(TWILIO_CLEAN_TARGET, MESSAGE, callback=True)
     assert sid
 
 
+@pytest.mark.remote_data()
+@pytest.mark.requires_config('twilio')
 @pytest.mark.usefixtures('app')
 def test_twilio_failures() -> None:
     """Test if message sending is a failure."""
@@ -63,6 +71,7 @@ def test_twilio_failures() -> None:
         send(TWILIO_NO_SMS_SERVICE, MESSAGE, callback=False)
 
 
+@pytest.mark.usefixtures('app')
 def test_exotel_nonce(client) -> None:
     """Test if the exotel nonce works as expected."""
     # Make a token
@@ -84,6 +93,7 @@ def test_exotel_nonce(client) -> None:
     assert data['status'] == 'ok'
 
 
+@pytest.mark.usefixtures('app')
 def test_exotel_send_error(client) -> None:
     """Only tests if url_for works and usually fails otherwise, which is OK."""
     # Check False Path via monkey patching the requests object

@@ -4,6 +4,7 @@ from datetime import datetime
 import logging
 
 from pytz import utc
+import pytest
 import requests
 
 from funnel.models import Proposal, parse_video_url
@@ -39,6 +40,8 @@ def test_youtube_video_delete(db_session, new_proposal) -> None:
     assert new_proposal.video_id is None
 
 
+@pytest.mark.remote_data()
+@pytest.mark.requires_config('youtube')
 def test_youtube(db_session, new_proposal) -> None:
     assert new_proposal.title == "Test Proposal"
 
@@ -81,6 +84,8 @@ def test_vimeo_video_delete(db_session, new_proposal) -> None:
     assert new_proposal.video_id is None
 
 
+@pytest.mark.remote_data()
+@pytest.mark.requires_config('vimeo')
 def test_vimeo(db_session, new_proposal) -> None:
     assert new_proposal.title == "Test Proposal"
 

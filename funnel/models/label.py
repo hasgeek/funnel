@@ -2,69 +2,69 @@
 
 from __future__ import annotations
 
-from typing import Union
+from typing import Optional, Union
 
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.sql import case, exists
 
 from coaster.sqlalchemy import with_roles
 
-from . import BaseScopedNameMixin, TSVectorType, db, hybrid_property
+from . import BaseScopedNameMixin, TSVectorType, db, hybrid_property, sa
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
 
-proposal_label = db.Table(
+proposal_label = sa.Table(
     'proposal_label',
     db.Model.metadata,
     db.Column(
         'proposal_id',
         None,
-        db.ForeignKey('proposal.id', ondelete='CASCADE'),
+        sa.ForeignKey('proposal.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
     ),
     db.Column(
         'label_id',
         None,
-        db.ForeignKey('label.id', ondelete='CASCADE'),
+        sa.ForeignKey('label.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
         index=True,
     ),
-    db.Column('created_at', db.TIMESTAMP(timezone=True), default=db.func.utcnow()),
+    db.Column('created_at', sa.TIMESTAMP(timezone=True), default=sa.func.utcnow()),
 )
 
 
 class Label(BaseScopedNameMixin, db.Model):
     __tablename__ = 'label'
 
-    project_id = db.Column(
-        None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
+    project_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     # Backref from project is defined in the Project model with an ordering list
-    project = with_roles(
-        db.relationship(Project), grants_via={None: project_child_role_map}
+    project: sa.orm.relationship[Project] = with_roles(
+        sa.orm.relationship(Project), grants_via={None: project_child_role_map}
     )
     # `parent` is required for
     # :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
-    parent = db.synonym('project')
+    parent = sa.orm.synonym('project')
 
     #: Parent label's id. Do not write to this column directly, as we don't have the
     #: ability to : validate the value within the app. Always use the :attr:`main_label`
     #: relationship.
-    main_label_id = db.Column(
+    main_label_id: sa.Column[Optional[int]] = db.Column(
         'main_label_id',
         None,
-        db.ForeignKey('label.id', ondelete='CASCADE'),
+        sa.ForeignKey('label.id', ondelete='CASCADE'),
         index=True,
         nullable=True,
     )
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
-    options = db.relationship(
+    options = sa.orm.relationship(
         'Label',
-        backref=db.backref('main_label', remote_side='Label.id'),
+        backref=sa.orm.backref('main_label', remote_side='Label.id'),
         order_by='Label.seq',
         passive_deletes=True,
         collection_class=ordering_list('seq', count_from=1),
@@ -75,39 +75,39 @@ class Label(BaseScopedNameMixin, db.Model):
     # add_primary_relationship)
 
     #: Sequence number for this label, used in UI for ordering
-    seq = db.Column(db.Integer, nullable=False)
+    seq = sa.Column(sa.Integer, nullable=False)
 
     # A single-line description of this label, shown when picking labels (optional)
-    description = db.Column(db.UnicodeText, nullable=False, default="")
+    description = sa.Column(sa.UnicodeText, nullable=False, default="")
 
     #: Icon for displaying in space-constrained UI. Contains one emoji symbol.
     #: Since emoji can be composed from multiple symbols, there is no length
     #: limit imposed here
-    icon_emoji = db.Column(db.UnicodeText, nullable=True)
+    icon_emoji = sa.Column(sa.UnicodeText, nullable=True)
 
     #: Restricted mode specifies that this label may only be applied by someone with
     #: an editorial role (TODO: name the role). If this label is a parent, it applies
     #: to all its children
-    _restricted = db.Column('restricted', db.Boolean, nullable=False, default=False)
+    _restricted = sa.Column('restricted', sa.Boolean, nullable=False, default=False)
 
     #: Required mode signals to UI that if this label is a parent, one of its
     #: children must be mandatorily applied to the proposal. The value of this
     #: field must be ignored if the label is not a parent
-    _required = db.Column('required', db.Boolean, nullable=False, default=False)
+    _required = sa.Column('required', sa.Boolean, nullable=False, default=False)
 
     #: Archived mode specifies that the label is no longer available for use
     #: although all the previous records will stay in database.
-    _archived = db.Column('archived', db.Boolean, nullable=False, default=False)
+    _archived = sa.Column('archived', sa.Boolean, nullable=False, default=False)
 
-    search_vector = db.deferred(
-        db.Column(
+    search_vector = sa.orm.deferred(
+        sa.Column(
             TSVectorType(
                 'name',
                 'title',
                 'description',
                 weights={'name': 'A', 'title': 'A', 'description': 'B'},
                 regconfig='english',
-                hltext=lambda: db.func.concat_ws(
+                hltext=lambda: sa.func.concat_ws(
                     visual_field_delimiter, Label.title, Label.description
                 ),
             ),
@@ -116,13 +116,13 @@ class Label(BaseScopedNameMixin, db.Model):
     )
 
     #: Proposals that this label is attached to
-    proposals = db.relationship(
+    proposals = sa.orm.relationship(
         Proposal, secondary=proposal_label, back_populates='labels'
     )
 
     __table_args__ = (
-        db.UniqueConstraint('project_id', 'name'),
-        db.Index('ix_label_search_vector', 'search_vector', postgresql_using='gin'),
+        sa.UniqueConstraint('project_id', 'name'),
+        sa.Index('ix_label_search_vector', 'search_vector', postgresql_using='gin'),
     )
 
     __roles__ = {
@@ -192,7 +192,7 @@ class Label(BaseScopedNameMixin, db.Model):
             [
                 (
                     cls.main_label_id.isnot(None),
-                    db.select([Label._restricted])
+                    sa.select([Label._restricted])
                     .where(Label.id == cls.main_label_id)
                     .as_scalar(),
                 )
@@ -219,7 +219,7 @@ class Label(BaseScopedNameMixin, db.Model):
                 (cls._archived.is_(True), cls._archived),
                 (
                     cls.main_label_id.isnot(None),
-                    db.select([Label._archived])
+                    sa.select([Label._archived])
                     .where(Label.id == cls.main_label_id)
                     .as_scalar(),
                 ),
@@ -379,9 +379,9 @@ class ProposalLabelProxy:
 
 @reopen(Project)
 class __Project:
-    labels = db.relationship(
+    labels = sa.orm.relationship(
         Label,
-        primaryjoin=db.and_(
+        primaryjoin=sa.and_(
             Label.project_id == Project.id,
             Label.main_label_id.is_(None),
             Label._archived.is_(False),  # pylint: disable=protected-access
@@ -389,7 +389,7 @@ class __Project:
         order_by=Label.seq,
         viewonly=True,
     )
-    all_labels = db.relationship(
+    all_labels = sa.orm.relationship(
         Label,
         collection_class=ordering_list('seq', count_from=1),
         back_populates='project',
@@ -402,6 +402,8 @@ class __Proposal:
     formlabels = ProposalLabelProxy()
 
     labels = with_roles(
-        db.relationship(Label, secondary=proposal_label, back_populates='proposals'),
+        sa.orm.relationship(
+            Label, secondary=proposal_label, back_populates='proposals'
+        ),
         read={'all'},
     )

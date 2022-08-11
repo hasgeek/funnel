@@ -4,11 +4,10 @@ from __future__ import annotations
 
 from typing import Set
 
-from sqlalchemy.ext.declarative import declared_attr
-
 from werkzeug.utils import cached_property
 
-from . import User, db
+from ..typing import Mapped
+from . import User, db, declared_attr, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 
@@ -42,19 +41,23 @@ class SiteMembership(ImmutableUserMembershipMixin, db.Model):
     # Site admin roles (at least one must be True):
 
     #: Comment moderators can delete comments
-    is_comment_moderator = db.Column(db.Boolean, nullable=False, default=False)
+    is_comment_moderator: Mapped[bool] = sa.Column(
+        sa.Boolean, nullable=False, default=False
+    )
     #: User moderators can suspend users
-    is_user_moderator = db.Column(db.Boolean, nullable=False, default=False)
+    is_user_moderator: Mapped[bool] = sa.Column(
+        sa.Boolean, nullable=False, default=False
+    )
     #: Site editors can feature or reject projects
-    is_site_editor = db.Column(db.Boolean, nullable=False, default=False)
+    is_site_editor: Mapped[bool] = sa.Column(sa.Boolean, nullable=False, default=False)
 
     @declared_attr
-    def __table_args__(cls):  # pylint: disable=no-self-argument
+    def __table_args__(cls) -> Mapped[tuple]:  # pylint: disable=no-self-argument
         """Table arguments."""
         args = list(super().__table_args__)
         args.append(
-            db.CheckConstraint(
-                db.or_(
+            sa.CheckConstraint(
+                sa.or_(  # type: ignore[arg-type]
                     cls.is_comment_moderator.is_(True),
                     cls.is_user_moderator.is_(True),
                     cls.is_site_editor.is_(True),
@@ -94,12 +97,12 @@ class SiteMembership(ImmutableUserMembershipMixin, db.Model):
 @reopen(User)
 class __User:
     # Singular, as only one can be active
-    active_site_membership = db.relationship(
+    active_site_membership = sa.orm.relationship(
         SiteMembership,
         lazy='select',
-        primaryjoin=db.and_(
-            SiteMembership.user_id == User.id,
-            SiteMembership.is_active,
+        primaryjoin=sa.and_(
+            SiteMembership.user_id == User.id,  # type: ignore[has-type]
+            SiteMembership.is_active,  # type: ignore[arg-type]
         ),
         viewonly=True,
         uselist=False,

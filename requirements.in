@@ -2,11 +2,13 @@ alembic
 argon2-cffi
 Babel
 base58
+git+https://github.com/hasgeek/baseframe.git#egg=baseframe
 bcrypt
 better_profanity!=0.7.0  # https://github.com/snguyenthanh/better_profanity/issues/19
 blinker
 Brotli
 click
+git+https://github.com/hasgeek/coaster.git#egg=coaster
 cryptography
 dataclasses-json
 fabric3
@@ -23,8 +25,6 @@ Flask-SQLAlchemy
 Flask-WTF
 furl
 geoip2
-git+https://github.com/hasgeek/baseframe.git#egg=baseframe
-git+https://github.com/hasgeek/coaster.git#egg=coaster
 html2text
 icalendar
 idna>=2.5
@@ -56,6 +56,6 @@ tweepy
 twilio
 typing-extensions
 user-agents
-Werkzeug>=2.0.2  # https://github.com/pallets/werkzeug/pull/2237
+werkzeug>=2.0.2  # https://github.com/pallets/werkzeug/pull/2237
 whitenoise
 zxcvbn

@@ -48,6 +48,7 @@ from ..models import (
     db,
     getextid,
     merge_users,
+    sa,
 )
 from ..proxies import request_wants
 from ..registry import (
@@ -495,7 +496,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
             if userdata.oauth_expires_in
             else None,
         )
-        extid.last_used_at = db.func.utcnow()
+        extid.last_used_at = sa.func.utcnow()
     else:
         # New external id. Register it.
         extid = UserExternalId(
@@ -508,11 +509,11 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
             oauth_token_type=userdata.oauth_token_type,
             oauth_refresh_token=userdata.oauth_refresh_token,
             oauth_expires_in=userdata.oauth_expires_in,
-            oauth_expires_at=db.func.utcnow()
+            oauth_expires_at=sa.func.utcnow()
             + timedelta(seconds=userdata.oauth_expires_in)
             if userdata.oauth_expires_in
             else None,
-            last_used_at=db.func.utcnow(),
+            last_used_at=sa.func.utcnow(),
         )
     if user is None:
         if current_auth:

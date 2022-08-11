@@ -13,8 +13,8 @@ from funnel.models import (
     OrganizationAdminMembershipNotification,
     User,
     UserNotification,
-    db,
     merge_users,
+    sa,
 )
 
 
@@ -37,7 +37,7 @@ def fixtures(db_session):
     user1 = User(
         username='user1',
         fullname="User 1",
-        created_at=db.func.utcnow() - timedelta(days=1),
+        created_at=sa.func.utcnow() - timedelta(days=1),
     )
     user2 = User(
         username='user2',
