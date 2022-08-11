@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import Callable, Optional
+
 from flask import current_app, url_for
 import itsdangerous
 
@@ -26,7 +29,16 @@ __all__ = [
     'send_via_exotel',
     'send_via_twilio',
     'send',
+    'init',
 ]
+
+
+@dataclass
+class SmsSender:
+    prefix: str
+    requires_config: set
+    func: Callable
+    init: Optional[Callable] = None
 
 
 def make_exotel_token(to: str) -> str:
@@ -176,7 +188,33 @@ def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> 
         ) from exc
 
 
-senders_by_prefix = [('+91', send_via_exotel), ('+', send_via_twilio)]
+#: Supported senders (ordered by priority)
+sender_registry = [
+    SmsSender(
+        '+91',
+        {'SMS_EXOTEL_SID', 'SMS_EXOTEL_TOKEN', 'SMS_DLT_ENTITY_ID'},
+        send_via_exotel,
+        lambda: SmsTemplate.init_app(app),
+    ),
+    SmsSender(
+        '+',
+        {'SMS_TWILIO_SID', 'SMS_TWILIO_TOKEN', 'SMS_TWILIO_FROM'},
+        send_via_twilio,
+    ),
+]
+
+#: Available senders as per config
+senders_by_prefix = []
+
+
+def init() -> bool:
+    """Process available senders."""
+    for provider in sender_registry:
+        if all(app.config.get(var) for var in provider.requires_config):
+            senders_by_prefix.append((provider.prefix, provider.func))
+            if provider.init:
+                provider.init()
+    return bool(senders_by_prefix)
 
 
 def send(phone: str, message: SmsTemplate, callback: bool = True) -> str:
