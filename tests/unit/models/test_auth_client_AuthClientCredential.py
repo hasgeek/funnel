@@ -33,13 +33,12 @@ class TestClientCredential(TestDatabaseFixture):
 
     def test_clientcredential_upgrade_hash(self) -> None:
         """Test for transparent upgrade of client credential hash type."""
-        secret = 'D2axSjtbbWDkRFmSDXGpNSB9ypfqE1ekYD3YP37J85yJ'  # nosec  # noqa: S105
+        secret = 'D2axSjtbbWDkRFmSDXGpNSB9ypfqE1ekYD3YP37J85yJ'  # nosec
         secret_sha256 = (  # nosec
-            'sha256$'  # noqa: S105
-            '45c879362ed45b3f92a7ea3c1e53ecab0dd79c61cb357e6eb0de6d64408ea25c'
+            'sha256$' '45c879362ed45b3f92a7ea3c1e53ecab0dd79c61cb357e6eb0de6d64408ea25c'
         )
         secret_blake2b = (  # nosec
-            'blake2b$32$'  # noqa: S105
+            'blake2b$32$'
             'e7b49edf2b7c3945631d229dae3db30517f75047ce547a97ae27e9b46f69723a'
         )
         cred = models.AuthClientCredential(
