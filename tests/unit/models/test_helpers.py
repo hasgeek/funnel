@@ -9,7 +9,7 @@ from flask_babel import lazy_gettext
 
 import pytest
 
-from funnel.models import ImgeeType, db
+from funnel.models import ImgeeType, db, sa
 from funnel.models.helpers import (
     MessageComposite,
     add_to_class,
@@ -168,8 +168,8 @@ def test_add_to_class() -> None:
 def image_models(database):
     class MyImageModel(db.Model):
         __tablename__ = 'my_image_model'
-        id = db.Column(db.Integer, primary_key=True)  # noqa: A003
-        image_url = db.Column(ImgeeType)
+        id = sa.Column(sa.Integer, primary_key=True)  # noqa: A003
+        image_url = sa.Column(ImgeeType)
 
     database.create_all()
     return SimpleNamespace(**locals())

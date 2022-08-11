@@ -29,7 +29,7 @@ from coaster.utils import (
 )
 
 from ..typing import T
-from . import UrlType, db
+from . import UrlType, db, sa
 
 __all__ = [
     'RESERVED_NAMES',
@@ -367,7 +367,7 @@ def quote_autocomplete_like(query):
 
     For case-insensitive queries, add an index on LOWER(column) and use::
 
-        db.func.lower(column).like(db.func.lower(quote_autocomplete_like(query)))
+        sa.func.lower(column).like(sa.func.lower(quote_autocomplete_like(query)))
     """
     # Escape the '%' and '_' wildcards in SQL LIKE clauses.
     # Some SQL dialects respond to '[' and ']', so remove them.
@@ -382,7 +382,7 @@ def quote_autocomplete_tsquery(query: str) -> str:
     """Return a PostgreSQL tsquery suitable for autocomplete-type matches."""
     with db.session.no_autoflush:
         return db.session.query(
-            db.func.cast(db.func.phraseto_tsquery(query or ''), Text) + ':*'
+            sa.func.cast(sa.func.phraseto_tsquery(query or ''), Text) + ':*'
         ).scalar()
 
 
@@ -394,7 +394,7 @@ def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
 
         class MyModel(db.Model):
             ...
-            search_vector = db.deferred(db.Column(
+            search_vector = sa.orm.deferred(sa.Column(
                 TSVectorType(
                     'name', 'title', *indexed_columns,
                     weights={'name': 'A', 'title': 'B'},
@@ -404,7 +404,7 @@ def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
             ))
 
             __table_args__ = (
-                db.Index(
+                sa.Index(
                     'ix_mymodel_search_vector',
                     'search_vector',
                     postgresql_using='gin'

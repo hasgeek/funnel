@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from funnel.models import Organization, Team, User, db, merge_users
+from funnel.models import Organization, Team, User, merge_users, sa
 
 
 @pytest.fixture()
@@ -13,7 +13,7 @@ def team_merge_data(db_session):
     user1 = User(
         username='user1',
         fullname="User 1",
-        created_at=db.func.utcnow() - timedelta(days=1),
+        created_at=sa.func.utcnow() - timedelta(days=1),
     )
     user2 = User(username='user2', fullname="User 2")
     org = Organization(name='test-org-team-merge', title="Organization", owner=user1)

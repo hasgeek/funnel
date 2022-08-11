@@ -39,6 +39,7 @@ from ..models import (
     ProposalSubmittedNotification,
     ProposalSuuidRedirect,
     db,
+    sa,
 )
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
@@ -115,12 +116,12 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
         if Form().validate_on_submit():
             proposal: Proposal = (
                 Proposal.query.filter_by(uuid_b58=target)
-                .options(db.load_only(Proposal.id, Proposal.seq))
+                .options(sa.orm.load_only(Proposal.id, Proposal.seq))
                 .one_or_404()
             )
             other_proposal: Proposal = (
                 Proposal.query.filter_by(uuid_b58=other)
-                .options(db.load_only(Proposal.id, Proposal.seq))
+                .options(sa.orm.load_only(Proposal.id, Proposal.seq))
                 .one_or_404()
             )
             proposal.current_access().reorder_item(other_proposal, before)
@@ -228,7 +229,7 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                 form.populate_obj(self.obj)
             self.obj.name = make_name(self.obj.title)
             self.obj.update_description()
-            self.obj.edited_at = db.func.utcnow()
+            self.obj.edited_at = sa.func.utcnow()
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for())

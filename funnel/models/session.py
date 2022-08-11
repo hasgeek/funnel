@@ -18,11 +18,13 @@ from coaster.utils import utcnow
 
 from . import (
     BaseScopedIdNameMixin,
+    Mapped,
     MarkdownColumn,
     TSVectorType,
     UuidMixin,
     db,
     hybrid_property,
+    sa,
 )
 from .helpers import (
     ImgeeType,
@@ -44,37 +46,43 @@ __all__ = ['Session']
 class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     __tablename__ = 'session'
 
-    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = with_roles(
-        db.relationship(
-            Project, backref=db.backref('sessions', cascade='all', lazy='dynamic')
+    project_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('project.id'), nullable=False
+    )
+    project: sa.orm.relationship[Project] = with_roles(
+        sa.orm.relationship(
+            Project, backref=sa.orm.backref('sessions', cascade='all', lazy='dynamic')
         ),
         grants_via={None: project_child_role_map},
     )
-    parent = db.synonym('project')
+    parent = sa.orm.synonym('project')
     description = MarkdownColumn(
         'description', default='', nullable=False, options=markdown_content_options
     )
-    proposal_id = db.Column(
-        None, db.ForeignKey('proposal.id'), nullable=True, unique=True
+    proposal_id: sa.Column[Optional[int]] = db.Column(
+        None, sa.ForeignKey('proposal.id'), nullable=True, unique=True
     )
-    proposal = db.relationship(
-        Proposal, backref=db.backref('session', uselist=False, cascade='all')
+    proposal: Mapped[Optional[Proposal]] = sa.orm.relationship(
+        Proposal, backref=sa.orm.backref('session', uselist=False, cascade='all')
     )
-    speaker = db.Column(db.Unicode(200), default=None, nullable=True)
-    start_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
-    end_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
-    venue_room_id = db.Column(None, db.ForeignKey('venue_room.id'), nullable=True)
-    venue_room = db.relationship(VenueRoom, backref=db.backref('sessions'))
-    is_break = db.Column(db.Boolean, default=False, nullable=False)
-    featured = db.Column(db.Boolean, default=False, nullable=False)
-    banner_image_url = db.Column(ImgeeType, nullable=True)
+    speaker = sa.Column(sa.Unicode(200), default=None, nullable=True)
+    start_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
+    end_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
+    venue_room_id: sa.Column[Optional[int]] = db.Column(
+        None, sa.ForeignKey('venue_room.id'), nullable=True
+    )
+    venue_room: Mapped[Optional[VenueRoom]] = sa.orm.relationship(
+        VenueRoom, backref=sa.orm.backref('sessions')
+    )
+    is_break = sa.Column(sa.Boolean, default=False, nullable=False)
+    featured = sa.Column(sa.Boolean, default=False, nullable=False)
+    banner_image_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
 
     #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
-    versionid = with_roles(db.Column(db.Integer, nullable=False), read={'all'})
+    versionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
 
-    search_vector = db.deferred(
-        db.Column(
+    search_vector = sa.orm.deferred(
+        sa.Column(
             TSVectorType(
                 'title',
                 'description_text',
@@ -85,7 +93,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
                     'speaker': 'A',
                 },
                 regconfig='english',
-                hltext=lambda: db.func.concat_ws(
+                hltext=lambda: sa.func.concat_ws(
                     visual_field_delimiter,
                     Session.title,
                     Session.speaker,
@@ -97,20 +105,20 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     )
 
     __table_args__ = (
-        db.UniqueConstraint('project_id', 'url_id'),
-        db.CheckConstraint(
-            db.or_(
-                db.and_(start_at.is_(None), end_at.is_(None)),
-                db.and_(
+        sa.UniqueConstraint('project_id', 'url_id'),
+        sa.CheckConstraint(
+            sa.or_(  # type: ignore[arg-type]
+                sa.and_(start_at.is_(None), end_at.is_(None)),
+                sa.and_(
                     start_at.isnot(None),
                     end_at.isnot(None),
                     end_at > start_at,
-                    end_at <= start_at + db.text("INTERVAL '1 day'"),
+                    end_at <= start_at + sa.text("INTERVAL '1 day'"),
                 ),
             ),
             'session_start_at_end_at_check',
         ),
-        db.Index('ix_session_search_vector', 'search_vector', postgresql_using='gin'),
+        sa.Index('ix_session_search_vector', 'search_vector', postgresql_using='gin'),
     )
 
     __mapper_args__ = {'version_id_col': versionid}
@@ -192,7 +200,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     def user(self) -> Optional[User]:
         if self.proposal is not None:
             return self.proposal.first_user
-        return None
+        return None  # type: ignore[unreachable]
 
     @hybrid_property
     def scheduled(self):
@@ -264,9 +272,12 @@ add_search_trigger(Session, 'search_vector')
 
 @reopen(VenueRoom)
 class __VenueRoom:
-    scheduled_sessions = db.relationship(
+    scheduled_sessions = sa.orm.relationship(
         Session,
-        primaryjoin=db.and_(Session.venue_room_id == VenueRoom.id, Session.scheduled),
+        primaryjoin=sa.and_(
+            Session.venue_room_id == VenueRoom.id,
+            Session.scheduled,  # type: ignore[arg-type]
+        ),
         viewonly=True,
     )
 
@@ -276,8 +287,8 @@ class __Project:
     # Project schedule column expressions. Guide:
     # https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
     schedule_start_at = with_roles(
-        db.column_property(
-            db.select([db.func.min(Session.start_at)])
+        sa.orm.column_property(
+            db.select([sa.func.min(Session.start_at)])
             .where(Session.start_at.isnot(None))
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
@@ -288,10 +299,10 @@ class __Project:
     )
 
     next_session_at = with_roles(
-        db.column_property(
-            db.select([db.func.min(Session.start_at)])
+        sa.orm.column_property(
+            db.select([sa.func.min(Session.start_at)])
             .where(Session.start_at.isnot(None))
-            .where(Session.start_at >= db.func.utcnow())
+            .where(Session.start_at >= sa.func.utcnow())
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
             .scalar_subquery()
@@ -300,8 +311,8 @@ class __Project:
     )
 
     schedule_end_at = with_roles(
-        db.column_property(
-            db.select([db.func.max(Session.end_at)])
+        sa.orm.column_property(
+            db.select([sa.func.max(Session.end_at)])
             .where(Session.end_at.isnot(None))
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
@@ -335,10 +346,10 @@ class __Project:
         return self.sessions.filter(Session.start_at.isnot(None)).count()
 
     featured_sessions = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             Session,
             order_by=Session.start_at.asc(),
-            primaryjoin=db.and_(
+            primaryjoin=sa.and_(
                 Session.project_id == Project.id, Session.featured.is_(True)
             ),
             viewonly=True,
@@ -346,19 +357,22 @@ class __Project:
         read={'all'},
     )
     scheduled_sessions = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             Session,
             order_by=Session.start_at.asc(),
-            primaryjoin=db.and_(Session.project_id == Project.id, Session.scheduled),
+            primaryjoin=sa.and_(
+                Session.project_id == Project.id,
+                Session.scheduled,  # type: ignore[arg-type]
+            ),
             viewonly=True,
         ),
         read={'all'},
     )
     unscheduled_sessions = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             Session,
             order_by=Session.start_at.asc(),
-            primaryjoin=db.and_(
+            primaryjoin=sa.and_(
                 Session.project_id == Project.id,
                 Session.scheduled.isnot(True),  # type: ignore[attr-defined]
             ),
@@ -368,10 +382,10 @@ class __Project:
     )
 
     sessions_with_video = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             Session,
             lazy='dynamic',
-            primaryjoin=db.and_(
+            primaryjoin=sa.and_(
                 Project.id == Session.project_id,
                 Session.video_id.isnot(None),
                 Session.video_source.isnot(None),
@@ -415,7 +429,7 @@ class __Project:
                 return self.start_at
             # In the past? Then look for a session and return that timestamp, if any
             return (
-                db.session.query(db.func.min(Session.start_at))
+                db.session.query(sa.func.min(Session.start_at))
                 .filter(
                     Session.start_at.isnot(None),
                     Session.start_at >= timestamp,
@@ -450,21 +464,21 @@ class __Project:
         return (
             cls.query.filter(
                 cls.id.in_(
-                    db.session.query(db.func.distinct(Session.project_id)).filter(
+                    db.session.query(sa.func.distinct(Session.project_id)).filter(
                         Session.start_at.isnot(None),
                         Session.start_at >= timestamp,
                         Session.start_at < timestamp + within,
                         Session.project_id.notin_(
                             db.session.query(
-                                db.func.distinct(Session.project_id)
+                                sa.func.distinct(Session.project_id)
                             ).filter(
                                 Session.start_at.isnot(None),
-                                db.or_(
-                                    db.and_(
+                                sa.or_(
+                                    sa.and_(
                                         Session.start_at >= timestamp - gap,
                                         Session.start_at < timestamp,
                                     ),
-                                    db.and_(
+                                    sa.and_(
                                         Session.end_at > timestamp - gap,
                                         Session.end_at <= timestamp,
                                     ),
@@ -492,8 +506,8 @@ class __Project:
 
         current_sessions = (
             self.sessions.outerjoin(VenueRoom)
-            .filter(Session.start_at <= db.func.utcnow() + timedelta(minutes=30))
-            .filter(Session.end_at > db.func.utcnow())
+            .filter(Session.start_at <= sa.func.utcnow() + timedelta(minutes=30))
+            .filter(Session.end_at > sa.func.utcnow())
             .order_by(Session.start_at.asc(), VenueRoom.seq.asc())
         )
 
@@ -514,12 +528,12 @@ class __Project:
         if self.schedule_start_at:
             session_dates = list(
                 db.session.query(
-                    db.func.date_trunc(
-                        'day', db.func.timezone(self.timezone.zone, Session.start_at)
+                    sa.func.date_trunc(
+                        'day', sa.func.timezone(self.timezone.zone, Session.start_at)
                     ).label('date'),
-                    db.func.min(Session.start_at).label('day_start_at'),
-                    db.func.max(Session.end_at).label('day_end_at'),
-                    db.func.count().label('count'),
+                    sa.func.min(Session.start_at).label('day_start_at'),
+                    sa.func.max(Session.end_at).label('day_end_at'),
+                    sa.func.count().label('count'),
                 )
                 .select_from(Session)
                 .filter(
@@ -568,17 +582,17 @@ class __Project:
         # FIXME: This doesn't work. This code needs to be tested in isolation
         # session_dates = (
         #     db.session.query(
-        #         db.cast(
-        #             db.func.date_trunc(
-        #                 'day', db.func.timezone(self.timezone.zone, Session.start_at)
+        #         sa.cast(
+        #             sa.func.date_trunc(
+        #                 'day', sa.func.timezone(self.timezone.zone, Session.start_at)
         #             ),
-        #             db.Date,
+        #             sa.Date,
         #         ).label('date'),
-        #         db.func.count().label('count'),
+        #         sa.func.count().label('count'),
         #     )
         #     .filter(Session.project == self, Session.scheduled)
-        #     .group_by(db.text('date'))
-        #     .order_by(db.text('date'))
+        #     .group_by(sa.text('date'))
+        #     .order_by(sa.text('date'))
         # )
 
         # if the project's week is within next 2 weeks, send current week as well

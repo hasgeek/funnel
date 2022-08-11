@@ -13,7 +13,7 @@ from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, pages
 from ..forms import SavedProjectForm
-from ..models import Profile, Project, db
+from ..models import Profile, Project, sa
 from ..typing import ReturnRenderWith, ReturnView
 
 
@@ -49,10 +49,10 @@ class IndexView(ClassView):
         all_projects = (
             projects.filter(
                 Project.state.PUBLISHED,
-                db.or_(
+                sa.or_(
                     Project.state.LIVE,
                     Project.state.UPCOMING,
-                    db.and_(
+                    sa.and_(
                         Project.start_at.is_(None),
                         Project.published_at.isnot(None),
                         Project.site_featured.is_(True),
@@ -67,10 +67,10 @@ class IndexView(ClassView):
         featured_project = (
             projects.filter(
                 Project.state.PUBLISHED,
-                db.or_(
+                sa.or_(
                     Project.state.LIVE,
                     Project.state.UPCOMING,
-                    db.and_(
+                    sa.and_(
                         Project.start_at.is_(None), Project.published_at.isnot(None)
                     ),
                 ),
@@ -119,7 +119,7 @@ class IndexView(ClassView):
                     Profile.is_verified.is_(True),
                     Profile.organization_id.isnot(None),
                 )
-                .order_by(db.func.random())
+                .order_by(sa.func.random())
                 .limit(6)
             ],
         }

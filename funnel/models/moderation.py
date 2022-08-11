@@ -6,7 +6,7 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import BaseMixin, Comment, SiteMembership, User, UuidMixin, db
+from . import BaseMixin, Comment, SiteMembership, User, UuidMixin, db, sa
 from .helpers import reopen
 
 __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
@@ -21,30 +21,32 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'comment_moderator_report'
     __uuid_primary_key__ = True
 
-    comment_id = db.Column(
-        None, db.ForeignKey('comment.id'), nullable=False, index=True
+    comment_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('comment.id'), nullable=False, index=True
     )
-    comment = db.relationship(
+    comment = sa.orm.relationship(
         Comment,
         primaryjoin=comment_id == Comment.id,
-        backref=db.backref('moderator_reports', cascade='all', lazy='dynamic'),
+        backref=sa.orm.backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
-    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False, index=True)
-    user = db.relationship(
+    user_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('user.id'), nullable=False, index=True
+    )
+    user = sa.orm.relationship(
         User,
         primaryjoin=user_id == User.id,
-        backref=db.backref('moderator_reports', cascade='all', lazy='dynamic'),
+        backref=sa.orm.backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
-    report_type = db.Column(
-        db.SmallInteger,
+    report_type = sa.Column(
+        sa.SmallInteger,
         StateManager.check_constraint('report_type', MODERATOR_REPORT_TYPE),
         nullable=False,
         default=MODERATOR_REPORT_TYPE.SPAM,
     )
-    reported_at = db.Column(
-        db.TIMESTAMP(timezone=True), default=db.func.utcnow(), nullable=False
+    reported_at = sa.Column(
+        sa.TIMESTAMP(timezone=True), default=sa.func.utcnow(), nullable=False
     )
-    resolved_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
+    resolved_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
 
     __datasets__ = {
         'primary': {
@@ -60,7 +62,7 @@ class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
     @classmethod
     def get_one(cls, exclude_user=None):
         reports = cls.get_all(exclude_user)
-        return reports.order_by(db.func.random()).first()
+        return reports.order_by(sa.func.random()).first()
 
     @classmethod
     def get_all(cls, exclude_user=None):

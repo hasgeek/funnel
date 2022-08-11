@@ -7,7 +7,7 @@ from uuid import UUID
 
 from coaster.sqlalchemy import Query
 
-from . import db
+from . import Mapped, db, declarative_mixin, sa
 
 __all__ = ['ReorderMixin']
 
@@ -17,18 +17,19 @@ __all__ = ['ReorderMixin']
 Reorderable = TypeVar('Reorderable', bound='ReorderMixin')
 
 
+@declarative_mixin
 class ReorderMixin:
     """Adds support for re-ordering sequences within a parent container."""
 
     #: Subclasses must have a created_at column
-    created_at: db.Column
+    created_at: Mapped[sa.TIMESTAMP]
     #: Subclass must have a primary key that is int or uuid
-    id: db.Column  # noqa: A003
+    id: Mapped[sa.Integer]  # noqa: A003
     #: Subclass must declare a parent_id synonym to the parent model fkey column
-    parent_id: Union[int, UUID]
+    parent_id: Mapped[Union[int, UUID]]
     #: Subclass must declare a seq column or synonym, holding a sequence id. It need not
     #: be unique, but reordering is meaningless when both items have the same number
-    seq: db.Column
+    seq: Mapped[int]
 
     #: Subclass must offer a SQLAlchemy query (this is standard from base classes)
     query: Query
@@ -78,7 +79,7 @@ class ReorderMixin:
                 cls.seq >= min(self.seq, other.seq),
                 cls.seq <= max(self.seq, other.seq),
             )
-            .options(db.load_only(cls.id, cls.seq))
+            .options(sa.orm.load_only(cls.id, cls.seq))
             .order_by(*order_columns)
             .all()
         )
@@ -97,7 +98,7 @@ class ReorderMixin:
         new_seq_number = self.seq
         # Temporarily give self an out-of-bounds number
         self.seq = (
-            db.select([db.func.coalesce(db.func.max(cls.seq) + 1, 1)])
+            db.select([sa.func.coalesce(sa.func.max(cls.seq) + 1, 1)])
             .where(self.parent_scoped_reorder_query_filter)
             .scalar_subquery()
         )

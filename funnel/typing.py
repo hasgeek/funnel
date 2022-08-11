@@ -2,7 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    TypeVar,
+    Union,
+)
 from uuid import UUID
 
 from werkzeug.wrappers import Response  # Base class for Flask Response
@@ -12,8 +23,11 @@ from typing_extensions import ParamSpec, Protocol
 from coaster.sqlalchemy import Query
 
 __all__ = [
+    'T',
+    'P',
     'ModelType',
     'UuidModelType',
+    'Mapped',
     'OptionalMigratedTables',
     'ReturnRenderWith',
     'ReturnResponse',
@@ -21,23 +35,45 @@ __all__ = [
     'WrappedFunc',
     'ReturnDecorator',
     'ResponseType',
-    'T',
-    'P',
 ]
+
+#: Type used to indicate type continuity within a block of code
+T = TypeVar('T')
+#: Type used to indicate parameter continuity within a block of code
+P = ParamSpec('P')
+
+
+try:
+    from sqlalchemy.orm import Mapped  # type: ignore[attr-defined]
+except ImportError:
+    # sqlalchemy-stubs (by Dropbox) doesn't define Mapped
+    # sqlalchemy2-stubs (by SQLAlchemy) does. Redefine if not known here:
+    from sqlalchemy.orm.attributes import QueryableAttribute
+
+    class Mapped(QueryableAttribute, Generic[T]):  # type: ignore[no-redef]
+        """Replacement for sqlalchemy's Mapped type, for when not using the plugin."""
+
+        def __get__(self, instance, owner):
+            raise NotImplementedError()
+
+        def __set__(self, instance, value):
+            raise NotImplementedError()
+
+        def __delete__(self, instance):
+            raise NotImplementedError()
 
 
 class ModelType(Protocol):
     """Protocol class for models."""
 
     __tablename__: str
-    __table_args__: tuple
     query: Query
 
 
 class UuidModelType(ModelType):
     """Protocol class for models with UUID column."""
 
-    uuid: UUID
+    uuid: Mapped[UUID]
 
 
 #: Flask response headers can be a dict or list of key-value pairs
@@ -62,11 +98,6 @@ ReturnView = Union[
         ResponseTypes, ResponseStatusCode, ResponseHeaders
     ],  # Response + status code + headers
 ]
-
-#: Type used to indicate type continuity within a block of code
-T = TypeVar('T')
-#: Type used to indicate parameter continuity within a block of code
-P = ParamSpec('P')
 
 #: Type used for functions and methods wrapped in a decorator
 WrappedFunc = TypeVar('WrappedFunc', bound=Callable)

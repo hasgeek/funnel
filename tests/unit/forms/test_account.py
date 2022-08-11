@@ -72,6 +72,7 @@ def test_okay_password(form) -> None:
     assert form.suggestions == []
 
 
+@pytest.mark.remote_data()
 def test_pwned_password_validator() -> None:
     """Test the pwned password validator."""
     # Validation success = no return value, no exception
