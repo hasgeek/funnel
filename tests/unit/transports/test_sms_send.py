@@ -93,6 +93,7 @@ def test_exotel_nonce(client) -> None:
     assert data['status'] == 'ok'
 
 
+@pytest.mark.requires_config('exotel')
 @pytest.mark.usefixtures('app')
 def test_exotel_send_error(client) -> None:
     """Only tests if url_for works and usually fails otherwise, which is OK."""
