@@ -22,7 +22,7 @@ from .proposal import Proposal
 __all__ = ['ProjectSponsorMembership', 'ProposalSponsorMembership']
 
 
-class ProjectSponsorMembership(
+class ProjectSponsorMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
     ImmutableProfileMembershipMixin,
@@ -151,7 +151,7 @@ class __Project:
     sponsors = DynamicAssociationProxy('sponsor_memberships', 'profile')
 
 
-class ProposalSponsorMembership(
+class ProposalSponsorMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
     ImmutableProfileMembershipMixin,

@@ -10,9 +10,7 @@ from funnel.models import User
 @pytest.fixture()
 def user(db_session):
     """User fixture."""
-    new_user = User(  # nosec  # noqa: S106
-        username='user', fullname="User", password='test_password'
-    )
+    new_user = User(username='user', fullname="User", password='test_password')  # nosec
     db_session.add(new_user)
     db_session.commit()
     return new_user
@@ -21,7 +19,7 @@ def user(db_session):
 @pytest.fixture()
 def user_nameless(db_session):
     """User fixture without a username."""
-    new_user = User(  # nosec  # noqa: S106
+    new_user = User(  # nosec
         fullname="Nameless User", password='test_password_nameless'
     )
     db_session.add(new_user)
@@ -33,7 +31,7 @@ def user_nameless(db_session):
 @pytest.fixture()
 def user_named(db_session):
     """User fixture with a username."""
-    new_user = User(  # nosec  # noqa: S106
+    new_user = User(  # nosec
         username='user-named', fullname="Named User", password='test_password_named'
     )
     db_session.add(new_user)

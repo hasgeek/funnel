@@ -140,7 +140,7 @@ def run_migrations_online():
             # introduced.
             rec = list(engines.values())[0]
             # Bandit thinks '_upgrades' is a password, so `# nosec` is required
-            context.configure(  # nosec  # noqa: S106
+            context.configure(  # nosec
                 connection=rec['connection'],
                 upgrade_token='_upgrades',
                 downgrade_token='_downgrades',

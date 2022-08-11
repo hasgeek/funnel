@@ -12,10 +12,8 @@ class TestUserExternalId(TestDatabaseFixture):
         """Test for creating an instance of UserExternalId."""
         crusoe = self.fixtures.crusoe
         service = 'google'
-        oauth_token = (
-            '196461869-pPh2cPTnlqGHcJBcyQ4CR407d1j5LY4OdbhNQuvX'  # nosec  # noqa: S105
-        )
-        oauth_token_type = 'Bearer'  # nosec  # noqa: S105
+        oauth_token = '196461869-pPh2cPTnlqGHcJBcyQ4CR407d1j5LY4OdbhNQuvX'  # nosec
+        oauth_token_type = 'Bearer'  # nosec
         result = models.UserExternalId(
             service=service,
             user=crusoe,
@@ -37,8 +35,8 @@ class TestUserExternalId(TestDatabaseFixture):
             models.UserExternalId.get(service)  # type: ignore[call-overload]
 
         crusoe = self.fixtures.crusoe
-        oauth_token = 'this-is-a-sample-token'  # nosec  # noqa: S105
-        oauth_token_type = 'Bearer'  # nosec  # noqa: S105
+        oauth_token = 'this-is-a-sample-token'  # nosec
+        oauth_token_type = 'Bearer'  # nosec
         externalid = models.UserExternalId(
             service=service,
             user=crusoe,

@@ -82,7 +82,7 @@ class TestEventModels(unittest.TestCase):
         self.project.make_name()
         self.db_session.commit()
 
-        self.ticket_client = TicketClient(  # nosec # noqa: S106
+        self.ticket_client = TicketClient(  # nosec
             name="test client",
             client_eventid='123',
             clientid='123',
