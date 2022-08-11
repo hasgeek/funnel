@@ -11,7 +11,7 @@ from sqlalchemy.orm import joinedload
 from coaster.sqlalchemy import Query
 from coaster.utils import make_name
 
-from . import BaseMixin, BaseNameMixin, db
+from . import BaseMixin, BaseNameMixin, Mapped, db, sa
 from .helpers import quote_autocomplete_like
 
 __all__ = ['GeoName', 'GeoCountryInfo', 'GeoAdmin1Code', 'GeoAdmin2Code', 'GeoAltName']
@@ -37,35 +37,35 @@ class GeoCountryInfo(BaseNameMixin, db.Model):
     __tablename__ = 'geo_country_info'
     __bind_key__ = 'geoname'
 
-    geonameid = db.synonym('id')
-    geoname = db.relationship(
+    geonameid = sa.orm.synonym('id')
+    geoname = sa.orm.relationship(
         'GeoName',
         uselist=False,
         primaryjoin='GeoCountryInfo.id == foreign(GeoName.id)',
         backref='has_country',
     )
-    iso_alpha2 = db.Column(db.CHAR(2), unique=True)
-    iso_alpha3 = db.Column(db.CHAR(3), unique=True)
-    iso_numeric = db.Column(db.Integer)
-    fips_code = db.Column(db.Unicode(3))
-    capital = db.Column(db.Unicode)
-    area_in_sqkm = db.Column(db.Numeric)
-    population = db.Column(db.BigInteger)
-    continent = db.Column(db.CHAR(2))
-    tld = db.Column(db.Unicode(3))
-    currency_code = db.Column(db.CHAR(3))
-    currency_name = db.Column(db.Unicode)
-    phone = db.Column(db.Unicode(16))
-    postal_code_format = db.Column(db.Unicode)
-    postal_code_regex = db.Column(db.Unicode)
-    languages = db.Column(ARRAY(db.Unicode, dimensions=1))
-    neighbours = db.Column(ARRAY(db.CHAR(2), dimensions=1))
-    equivalent_fips_code = db.Column(db.Unicode(3))
+    iso_alpha2 = sa.Column(sa.CHAR(2), unique=True)
+    iso_alpha3 = sa.Column(sa.CHAR(3), unique=True)
+    iso_numeric = sa.Column(sa.Integer)
+    fips_code = sa.Column(sa.Unicode(3))
+    capital = sa.Column(sa.Unicode)
+    area_in_sqkm = sa.Column(sa.Numeric)
+    population = sa.Column(sa.BigInteger)
+    continent = sa.Column(sa.CHAR(2))
+    tld = sa.Column(sa.Unicode(3))
+    currency_code = sa.Column(sa.CHAR(3))
+    currency_name = sa.Column(sa.Unicode)
+    phone = sa.Column(sa.Unicode(16))
+    postal_code_format = sa.Column(sa.Unicode)
+    postal_code_regex = sa.Column(sa.Unicode)
+    languages = sa.Column(ARRAY(sa.Unicode, dimensions=1))
+    neighbours = sa.Column(ARRAY(sa.CHAR(2), dimensions=1))
+    equivalent_fips_code = sa.Column(sa.Unicode(3))
 
     __table_args__ = (
-        db.Index(
+        sa.Index(
             'ix_geo_country_info_title',
-            db.func.lower('title').label('title_lower'),
+            sa.func.lower('title').label('title_lower'),
             postgresql_ops={'title_lower': 'varchar_pattern_ops'},
         ),
     )
@@ -81,21 +81,21 @@ class GeoAdmin1Code(BaseMixin, db.Model):
     __tablename__ = 'geo_admin1_code'
     __bind_key__ = 'geoname'
 
-    geonameid = db.synonym('id')
-    geoname = db.relationship(
+    geonameid = sa.orm.synonym('id')
+    geoname = sa.orm.relationship(
         'GeoName',
         uselist=False,
         primaryjoin='GeoAdmin1Code.id == foreign(GeoName.id)',
         backref='has_admin1code',
         viewonly=True,
     )
-    title = db.Column(db.Unicode)
-    ascii_title = db.Column(db.Unicode)
-    country_id = db.Column(
-        'country', db.CHAR(2), db.ForeignKey('geo_country_info.iso_alpha2')
+    title = sa.Column(sa.Unicode)
+    ascii_title = sa.Column(sa.Unicode)
+    country_id = sa.Column(
+        'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
     )
-    country = db.relationship('GeoCountryInfo')
-    admin1_code = db.Column(db.Unicode)
+    country = sa.orm.relationship('GeoCountryInfo')
+    admin1_code = sa.Column(sa.Unicode)
 
     def __repr__(self) -> str:
         """Return representation."""
@@ -108,22 +108,22 @@ class GeoAdmin2Code(BaseMixin, db.Model):
     __tablename__ = 'geo_admin2_code'
     __bind_key__ = 'geoname'
 
-    geonameid = db.synonym('id')
-    geoname = db.relationship(
+    geonameid = sa.orm.synonym('id')
+    geoname = sa.orm.relationship(
         'GeoName',
         uselist=False,
         primaryjoin='GeoAdmin2Code.id == foreign(GeoName.id)',
         backref='has_admin2code',
         viewonly=True,
     )
-    title = db.Column(db.Unicode)
-    ascii_title = db.Column(db.Unicode)
-    country_id = db.Column(
-        'country', db.CHAR(2), db.ForeignKey('geo_country_info.iso_alpha2')
+    title = sa.Column(sa.Unicode)
+    ascii_title = sa.Column(sa.Unicode)
+    country_id = sa.Column(
+        'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
     )
-    country = db.relationship('GeoCountryInfo')
-    admin1_code = db.Column(db.Unicode)
-    admin2_code = db.Column(db.Unicode)
+    country = sa.orm.relationship('GeoCountryInfo')
+    admin1_code = sa.Column(sa.Unicode)
+    admin2_code = sa.Column(sa.Unicode)
 
     def __repr__(self) -> str:
         """Return representation."""
@@ -136,32 +136,34 @@ class GeoName(BaseNameMixin, db.Model):
     __tablename__ = 'geo_name'
     __bind_key__ = 'geoname'
 
-    geonameid = db.synonym('id')
-    ascii_title = db.Column(db.Unicode)
-    latitude = db.Column(db.Numeric)
-    longitude = db.Column(db.Numeric)
-    fclass = db.Column(db.CHAR(1))
-    fcode = db.Column(db.Unicode)
-    country_id = db.Column(
-        'country', db.CHAR(2), db.ForeignKey('geo_country_info.iso_alpha2')
+    geonameid = sa.orm.synonym('id')
+    ascii_title = sa.Column(sa.Unicode)
+    latitude = sa.Column(sa.Numeric)
+    longitude = sa.Column(sa.Numeric)
+    fclass = sa.Column(sa.CHAR(1))
+    fcode = sa.Column(sa.Unicode)
+    country_id = sa.Column(
+        'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
     )
-    country = db.relationship('GeoCountryInfo')
-    cc2 = db.Column(db.Unicode)
-    admin1 = db.Column(db.Unicode)
-    admin1_ref = db.relationship(
+    country = sa.orm.relationship('GeoCountryInfo')
+    cc2 = sa.Column(sa.Unicode)
+    admin1 = sa.Column(sa.Unicode)
+    admin1_ref = sa.orm.relationship(
         'GeoAdmin1Code',
         uselist=False,
         primaryjoin='and_(GeoName.country_id == foreign(GeoAdmin1Code.country_id), '
         'GeoName.admin1 == foreign(GeoAdmin1Code.admin1_code))',
         viewonly=True,
     )
-    admin1_id = db.Column(None, db.ForeignKey('geo_admin1_code.id'), nullable=True)
-    admin1code = db.relationship(
+    admin1_id: sa.Column[Optional[int]] = db.Column(
+        None, sa.ForeignKey('geo_admin1_code.id'), nullable=True
+    )
+    admin1code: Mapped[Optional[GeoAdmin1Code]] = sa.orm.relationship(
         'GeoAdmin1Code', uselist=False, foreign_keys=[admin1_id]
     )
 
-    admin2 = db.Column(db.Unicode)
-    admin2_ref = db.relationship(
+    admin2 = sa.Column(sa.Unicode)
+    admin2_ref = sa.orm.relationship(
         'GeoAdmin2Code',
         uselist=False,
         primaryjoin='and_(GeoName.country_id == foreign(GeoAdmin2Code.country_id), '
@@ -169,28 +171,30 @@ class GeoName(BaseNameMixin, db.Model):
         'GeoName.admin2 == foreign(GeoAdmin2Code.admin2_code))',
         viewonly=True,
     )
-    admin2_id = db.Column(None, db.ForeignKey('geo_admin2_code.id'), nullable=True)
-    admin2code = db.relationship(
+    admin2_id: sa.Column[Optional[int]] = db.Column(
+        None, sa.ForeignKey('geo_admin2_code.id'), nullable=True
+    )
+    admin2code: Mapped[Optional[GeoAdmin2Code]] = sa.orm.relationship(
         'GeoAdmin2Code', uselist=False, foreign_keys=[admin2_id]
     )
 
-    admin4 = db.Column(db.Unicode)
-    admin3 = db.Column(db.Unicode)
-    population = db.Column(db.BigInteger)
-    elevation = db.Column(db.Integer)
-    dem = db.Column(db.Integer)  # Digital Elevation Model
-    timezone = db.Column(db.Unicode)
-    moddate = db.Column(db.Date)
+    admin4 = sa.Column(sa.Unicode)
+    admin3 = sa.Column(sa.Unicode)
+    population = sa.Column(sa.BigInteger)
+    elevation = sa.Column(sa.Integer)
+    dem = sa.Column(sa.Integer)  # Digital Elevation Model
+    timezone = sa.Column(sa.Unicode)
+    moddate = sa.Column(sa.Date)
 
     __table_args__ = (
-        db.Index(
+        sa.Index(
             'ix_geo_name_title',
-            db.func.lower('title').label('title_lower'),
+            sa.func.lower('title').label('title_lower'),
             postgresql_ops={'title_lower': 'varchar_pattern_ops'},
         ),
-        db.Index(
+        sa.Index(
             'ix_geo_name_ascii_title',
-            db.func.lower(ascii_title).label('ascii_title_lower'),
+            sa.func.lower(ascii_title).label('ascii_title_lower'),
             postgresql_ops={'ascii_title_lower': 'varchar_pattern_ops'},
         ),
     )
@@ -201,9 +205,13 @@ class GeoName(BaseNameMixin, db.Model):
         if self.has_country:
             return self.has_country.title
         if self.has_admin1code:
-            return self.admin1code.title if self.admin1code else self.admin1_ref.title
+            return (
+                self.admin1code.title if self.admin1code else self.admin1_ref.title
+            ) or ''
         if self.has_admin2code:
-            return self.admin2code.title if self.admin2code else self.admin2_ref.title
+            return (
+                self.admin2code.title if self.admin2code else self.admin2_ref.title
+            ) or ''
         return self.ascii_title or self.title
 
     @property
@@ -255,8 +263,8 @@ class GeoName(BaseNameMixin, db.Model):
     @property
     def use_title(self) -> str:
         """Return a recommended usable title."""
-        usetitle = self.ascii_title
-        if self.fclass == 'A' and self.fcode.startswith('PCL'):
+        usetitle = self.ascii_title or ''
+        if self.fclass == 'A' and self.fcode and self.fcode.startswith('PCL'):
             if 'of the' in usetitle:
                 usetitle = usetitle.split('of the')[-1].strip()
             elif 'of The' in usetitle:
@@ -312,7 +320,11 @@ class GeoName(BaseNameMixin, db.Model):
             related['admin1'] = self.admin1code.geoname
         if self.country and self.country.geonameid != self.geonameid:
             related['country'] = self.country.geoname
-        if (self.fclass, self.fcode) != ('L', 'CONT') and self.country:
+        if (
+            (self.fclass, self.fcode) != ('L', 'CONT')
+            and self.country
+            and self.country.continent
+        ):
             related['continent'] = GeoName.query.get(
                 continent_codes[self.country.continent]
             )
@@ -381,7 +393,7 @@ class GeoName(BaseNameMixin, db.Model):
                     [
                         r.geoname
                         for r in GeoAltName.query.filter(
-                            db.func.lower(GeoAltName.title) == title.lower(),
+                            sa.func.lower(GeoAltName.title) == title.lower(),
                             GeoAltName.lang == lang,
                         ).all()
                         if r.geoname
@@ -392,14 +404,14 @@ class GeoName(BaseNameMixin, db.Model):
                     [
                         r.geoname
                         for r in GeoAltName.query.filter(
-                            db.func.lower(GeoAltName.title) == title.lower()
+                            sa.func.lower(GeoAltName.title) == title.lower()
                         ).all()
                         if r.geoname
                     ]
                 )
         return sorted(
             results,
-            key=lambda g: ({'A': 1, 'P': 2}.get(g.fclass, 0), g.population),
+            key=lambda g: ({'A': 1, 'P': 2}.get(g.fclass or '', 0), g.population),
             reverse=True,
         )
 
@@ -440,10 +452,10 @@ class GeoName(BaseNameMixin, db.Model):
                 if lang:
                     matches = (
                         GeoAltName.query.filter(
-                            db.func.lower(GeoAltName.title).like(ltoken)
+                            sa.func.lower(GeoAltName.title).like(ltoken)
                         )
                         .filter(
-                            db.or_(GeoAltName.lang == lang, GeoAltName.lang.is_(None))
+                            sa.or_(GeoAltName.lang == lang, GeoAltName.lang.is_(None))
                         )
                         .options(
                             joinedload('geoname').joinedload('country'),
@@ -455,7 +467,7 @@ class GeoName(BaseNameMixin, db.Model):
                 else:
                     matches = (
                         GeoAltName.query.filter(
-                            db.func.lower(GeoAltName.title).like(
+                            sa.func.lower(GeoAltName.title).like(
                                 quote_autocomplete_like(ltoken)
                             )
                         )
@@ -526,13 +538,13 @@ class GeoName(BaseNameMixin, db.Model):
         query = (
             cls.query.join(cls.alternate_titles)
             .filter(
-                db.func.lower(GeoAltName.title).like(quote_autocomplete_like(q.lower()))
+                sa.func.lower(GeoAltName.title).like(quote_autocomplete_like(q.lower()))
             )
-            .order_by(db.desc(cls.population))
+            .order_by(sa.desc(cls.population))
         )
         if lang:
             query = query.filter(
-                db.or_(GeoAltName.lang.is_(None), GeoAltName.lang == lang)
+                sa.or_(GeoAltName.lang.is_(None), GeoAltName.lang == lang)
             )
         return query
 
@@ -543,21 +555,24 @@ class GeoAltName(BaseMixin, db.Model):
     __tablename__ = 'geo_alt_name'
     __bind_key__ = 'geoname'
 
-    geonameid = db.Column(None, db.ForeignKey('geo_name.id'), nullable=False)
-    geoname = db.relationship(
-        GeoName, backref=db.backref('alternate_titles', cascade='all, delete-orphan')
+    geonameid: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('geo_name.id'), nullable=False
     )
-    lang = db.Column(db.Unicode, nullable=True, index=True)
-    title = db.Column(db.Unicode, nullable=False)
-    is_preferred_name = db.Column(db.Boolean, nullable=False)
-    is_short_name = db.Column(db.Boolean, nullable=False)
-    is_colloquial = db.Column(db.Boolean, nullable=False)
-    is_historic = db.Column(db.Boolean, nullable=False)
+    geoname = sa.orm.relationship(
+        GeoName,
+        backref=sa.orm.backref('alternate_titles', cascade='all, delete-orphan'),
+    )
+    lang = sa.Column(sa.Unicode, nullable=True, index=True)
+    title = sa.Column(sa.Unicode, nullable=False)
+    is_preferred_name = sa.Column(sa.Boolean, nullable=False)
+    is_short_name = sa.Column(sa.Boolean, nullable=False)
+    is_colloquial = sa.Column(sa.Boolean, nullable=False)
+    is_historic = sa.Column(sa.Boolean, nullable=False)
 
     __table_args__ = (
-        db.Index(
+        sa.Index(
             'ix_geo_alt_name_title',
-            db.func.lower('title').label('title_lower'),
+            sa.func.lower('title').label('title_lower'),
             postgresql_ops={'title_lower': 'varchar_pattern_ops'},
         ),
     )

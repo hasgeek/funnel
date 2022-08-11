@@ -14,7 +14,7 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
-from . import NoIdMixin, UuidMixin, db
+from . import NoIdMixin, UuidMixin, db, sa
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
@@ -36,30 +36,30 @@ class RSVP_STATUS(LabeledEnum):  # noqa: N801
 
 class Rsvp(UuidMixin, NoIdMixin, db.Model):
     __tablename__ = 'rsvp'
-    project_id = db.Column(
-        None, db.ForeignKey('project.id'), nullable=False, primary_key=True
+    project_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('project.id'), nullable=False, primary_key=True
     )
     project = with_roles(
-        db.relationship(
-            Project, backref=db.backref('rsvps', cascade='all', lazy='dynamic')
+        sa.orm.relationship(
+            Project, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
         ),
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
     )
-    user_id = db.Column(
-        None, db.ForeignKey('user.id'), nullable=False, primary_key=True
+    user_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('user.id'), nullable=False, primary_key=True
     )
     user = with_roles(
-        db.relationship(
-            User, backref=db.backref('rsvps', cascade='all', lazy='dynamic')
+        sa.orm.relationship(
+            User, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
         ),
         read={'owner', 'project_promoter'},
         grants={'owner'},
     )
 
-    _state = db.Column(
+    _state = sa.Column(
         'state',
-        db.CHAR(1),
+        sa.CHAR(1),
         StateManager.check_constraint('state', RSVP_STATUS),
         default=RSVP_STATUS.AWAITING,
         nullable=False,
@@ -227,7 +227,7 @@ class __Project:
         return dict(
             db.session.query(
                 Rsvp._state,  # pylint: disable=protected-access
-                db.func.count(Rsvp._state),  # pylint: disable=protected-access
+                sa.func.count(Rsvp._state),  # pylint: disable=protected-access
             )
             .join(User)
             .filter(User.state.ACTIVE, Rsvp.project == self)

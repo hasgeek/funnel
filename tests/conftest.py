@@ -1,18 +1,22 @@
 """Test configuration and fixtures."""
 
+from __future__ import annotations
+
 from datetime import datetime
 from types import MethodType, SimpleNamespace
-from typing import List, NamedTuple, Optional
+from typing import Any, Dict, Iterator, List, NamedTuple, Optional, Set, Tuple
 import re
 
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event, inspect
 from sqlalchemy.orm import Session as DatabaseSessionClass
 from sqlalchemy.orm import close_all_sessions
 
+from flask import Flask
 from flask.testing import FlaskClient
 from flask.wrappers import Response
 
-from lxml.html import FormElement, HtmlElement, fromstring  # nosec  # noqa: S410
+from lxml.html import FormElement, HtmlElement, fromstring  # nosec
 from pytz import utc
 import pytest
 
@@ -161,7 +165,7 @@ class ResponseWithForms(Response):
 # --- Pytest config --------------------------------------------------------------------
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser) -> None:
     """Allow db_session to be configured in the command line."""
     parser.addoption(
         '--dbsession',
@@ -188,7 +192,7 @@ def pytest_collection_modifyitems(items) -> None:
         'tests/e2e',
     )
 
-    def sort_key(item):
+    def sort_key(item) -> Tuple[int, str]:
         module_file = item.module.__file__
         for counter, path in enumerate(test_order):
             if path in module_file:
@@ -202,13 +206,62 @@ def pytest_collection_modifyitems(items) -> None:
 
 
 @pytest.fixture(scope='session')
-def app():
+def app() -> Flask:
     """App as a fixture to avoid imports in tests."""
     return funnel_app
 
 
+# Enable autouse to guard against tests that have implicit database access, or assume
+# app context without a fixture
+@pytest.fixture(autouse=True)
+def _push_request_context(request) -> Iterator:
+    if 'app' not in request.fixturenames and 'db_session' not in request.fixturenames:
+        yield
+    else:
+        app_fixture = request.getfixturevalue('app')
+
+        with app_fixture.test_request_context():
+            yield
+
+
+config_test_keys: Dict[str, Set[str]] = {
+    'recaptcha': {'RECAPTCHA_PUBLIC_KEY', 'RECAPTCHA_PRIVATE_KEY'},
+    'twilio': {'SMS_TWILIO_SID', 'SMS_TWILIO_TOKEN'},
+    'exotel': {'SMS_EXOTEL_SID', 'SMS_EXOTEL_TOKEN'},
+    'gmaps': {'GOOGLE_MAPS_API_KEY'},
+    'youtube': {'YOUTUBE_API_KEY'},
+    'vimeo': {'VIMEO_CLIENT_ID', 'VIMEO_CLIENT_SECRET', 'VIMEO_ACCESS_TOKEN'},
+    'oauth-twitter': {'OAUTH_TWITTER_KEY', 'OAUTH_TWITTER_SECRET'},
+    'oauth-google': {'OAUTH_GOOGLE_KEY', 'OAUTH_GOOGLE_SECRET'},
+    'oauth-github': {'OAUTH_GITHUB_KEY', 'OAUTH_GITHUB_SECRET'},
+    'oauth-linkedin': {'OAUTH_LINKEDIN_KEY', 'OAUTH_LINKEDIN_SECRET'},
+    'oauth-zoom': {'OAUTH_ZOOM_KEY', 'OAUTH_ZOOM_SECRET'},
+    'geoip-data': {'GEOIP_DB_CITY', 'GEOIP_DB_ASN'},
+    'telegram-notify': {'TELEGRAM_NOTIFY_APIKEY'},
+    'telegram-stats': {'TELEGRAM_STATS_APIKEY', 'TELEGRAM_STATS_CHATID'},
+    'telegram-error': {'TELEGRAM_ERROR_APIKEY', 'TELEGRAM_ERROR_CHATID'},
+}
+
+
+@pytest.fixture(autouse=True)
+def _requires_config(request) -> None:
+    """Skip test if app is missing config (using ``requires_config`` mark)."""
+    if request.node.get_closest_marker('requires_config'):
+        app = request.getfixturevalue('app')
+        for mark in request.node.iter_markers('requires_config'):
+            for config in mark.args:
+                if config not in config_test_keys:
+                    pytest.fail(f"Unknown required config {config}")
+                for setting_key in config_test_keys[config]:
+                    if not app.config.get(setting_key):
+                        pytest.skip(
+                            f"Skipped due to missing config for {config} in app.config:"
+                            f" {setting_key}"
+                        )
+
+
 @pytest.fixture()
-def _database_events():
+def _database_events() -> Iterator:
     """
     Fixture to report database session events for debugging a test.
 
@@ -398,7 +451,7 @@ def _database_events():
 
 
 @pytest.fixture(scope='session')
-def database(request, app):
+def database(request, app) -> SQLAlchemy:
     """Provide a database structure."""
     with app.app_context():
         db.create_all()
@@ -420,7 +473,7 @@ def _db(database):  # noqa: PT005
 
 
 @pytest.fixture()
-def db_session_truncate(app, database):
+def db_session_truncate(app, database) -> Iterator[DatabaseSessionClass]:
     """Empty the database after each use of the fixture."""
     yield database.session
     close_all_sessions()
@@ -448,7 +501,7 @@ def db_session_truncate(app, database):
 
 
 @pytest.fixture()
-def db_session_rollback(database):
+def db_session_rollback(database) -> Iterator[DatabaseSessionClass]:
     """Create a nested transaction for the test and rollback after."""
     db_connection = database.engine.connect()
     original_session = database.session
@@ -508,7 +561,7 @@ def db_session_rollback(database):
 
 
 @pytest.fixture()
-def db_session(request):
+def db_session(request) -> DatabaseSessionClass:
     """
     Database session fixture.
 
@@ -531,21 +584,8 @@ def db_session(request):
     )
 
 
-# Enable autouse to guard against tests that have implicit database access, or assume
-# app context without a fixture
-@pytest.fixture(autouse=True)
-def _push_request_context(request):
-    if 'app' not in request.fixturenames and 'db_session' not in request.fixturenames:
-        yield
-    else:
-        app_fixture = request.getfixturevalue('app')
-
-        with app_fixture.test_request_context():
-            yield
-
-
 @pytest.fixture()
-def client(request, app, db_session):
+def client(request, app, db_session) -> Iterator[FlaskClient]:
     """Provide a test client."""
     with FlaskClient(app, ResponseWithForms, use_cookies=True) as test_client:
         yield test_client
@@ -558,7 +598,7 @@ def csrf_token(client):
 
 
 @pytest.fixture()
-def login(app, client):
+def login(app, client) -> SimpleNamespace:
     """Provide a login fixture."""
 
     def as_(user):
@@ -580,7 +620,7 @@ def login(app, client):
 
 
 @pytest.fixture()
-def varfixture(request):
+def varfixture(request) -> Any:
     """
     Return a variable fixture.
 
@@ -610,7 +650,7 @@ def varfixture(request):
 
 
 @pytest.fixture()
-def user_twoflower(db_session):
+def user_twoflower(db_session) -> User:
     """
     Twoflower is a tourist from the Agatean Empire who goes on adventures.
 
@@ -624,7 +664,7 @@ def user_twoflower(db_session):
 
 
 @pytest.fixture()
-def user_rincewind(db_session):
+def user_rincewind(db_session) -> User:
     """
     Rincewind is a wizard and a former member of Unseen University.
 
@@ -637,7 +677,7 @@ def user_rincewind(db_session):
 
 
 @pytest.fixture()
-def user_death(db_session):
+def user_death(db_session) -> User:
     """
     Death is the epoch user, present at the beginning and always having the last word.
 
@@ -655,7 +695,7 @@ def user_death(db_session):
 
 
 @pytest.fixture()
-def user_mort(db_session):
+def user_mort(db_session) -> User:
     """
     Mort is Death's apprentice, and a site admin in tests.
 
@@ -669,7 +709,7 @@ def user_mort(db_session):
 
 
 @pytest.fixture()
-def user_susan(db_session):
+def user_susan(db_session) -> User:
     """
     Susan Sto Helit (also written Sto-Helit) is Death's grand daughter.
 
@@ -681,7 +721,7 @@ def user_susan(db_session):
 
 
 @pytest.fixture()
-def user_lutze(db_session):
+def user_lutze(db_session) -> User:
     """
     Lu-Tze is a history monk and sweeper at the Monastery of Oi-Dong.
 
@@ -693,7 +733,7 @@ def user_lutze(db_session):
 
 
 @pytest.fixture()
-def user_ridcully(db_session):
+def user_ridcully(db_session) -> User:
     """
     Mustrum Ridcully, archchancellor of Unseen University.
 
@@ -705,7 +745,7 @@ def user_ridcully(db_session):
 
 
 @pytest.fixture()
-def user_librarian(db_session):
+def user_librarian(db_session) -> User:
     """
     Librarian of Unseen University, currently an orangutan.
 
@@ -717,7 +757,7 @@ def user_librarian(db_session):
 
 
 @pytest.fixture()
-def user_ponder_stibbons(db_session):
+def user_ponder_stibbons(db_session) -> User:
     """
     Ponder Stibbons, maintainer of Hex, the computer powered by an Anthill Inside.
 
@@ -729,7 +769,7 @@ def user_ponder_stibbons(db_session):
 
 
 @pytest.fixture()
-def user_vetinari(db_session):
+def user_vetinari(db_session) -> User:
     """
     Havelock Vetinari, patrician (aka dictator) of Ankh-Morpork.
 
@@ -741,7 +781,7 @@ def user_vetinari(db_session):
 
 
 @pytest.fixture()
-def user_vimes(db_session):
+def user_vimes(db_session) -> User:
     """
     Samuel Vimes, commander of the Ankh-Morpork City Watch.
 
@@ -753,7 +793,7 @@ def user_vimes(db_session):
 
 
 @pytest.fixture()
-def user_carrot(db_session):
+def user_carrot(db_session) -> User:
     """
     Carrot Ironfoundersson, captain of the Ankh-Morpork City Watch.
 
@@ -765,7 +805,7 @@ def user_carrot(db_session):
 
 
 @pytest.fixture()
-def user_angua(db_session):
+def user_angua(db_session) -> User:
     """
     Delphine Angua von Überwald, member of the Ankh-Morpork City Watch, and foreigner.
 
@@ -783,7 +823,7 @@ def user_angua(db_session):
 
 
 @pytest.fixture()
-def user_dibbler(db_session):
+def user_dibbler(db_session) -> User:
     """
     Cut Me Own Throat (or C.M.O.T) Dibbler, huckster who exploits small opportunities.
 
@@ -795,7 +835,7 @@ def user_dibbler(db_session):
 
 
 @pytest.fixture()
-def user_wolfgang(db_session):
+def user_wolfgang(db_session) -> User:
     """
     Wolfgang von Überwald, brother of Angua, violent shapeshifter.
 
@@ -808,7 +848,7 @@ def user_wolfgang(db_session):
 
 
 @pytest.fixture()
-def user_om(db_session):
+def user_om(db_session) -> User:
     """
     Great God Om of the theocracy of Omnia, who has lost his believers.
 
@@ -824,7 +864,7 @@ def user_om(db_session):
 
 
 @pytest.fixture()
-def org_ankhmorpork(db_session, user_vetinari):
+def org_ankhmorpork(db_session, user_vetinari) -> Organization:
     """
     City of Ankh-Morpork, here representing the government rather than location.
 
@@ -837,7 +877,9 @@ def org_ankhmorpork(db_session, user_vetinari):
 
 
 @pytest.fixture()
-def org_uu(db_session, user_ridcully, user_librarian, user_ponder_stibbons):
+def org_uu(
+    db_session, user_ridcully, user_librarian, user_ponder_stibbons
+) -> Organization:
     """
     Unseen University is located in Ankh-Morpork.
 
@@ -870,7 +912,7 @@ def org_uu(db_session, user_ridcully, user_librarian, user_ponder_stibbons):
 
 
 @pytest.fixture()
-def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot):
+def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot) -> Organization:
     """
     City Watch of Ankh-Morpork (a sub-organization).
 
@@ -902,7 +944,7 @@ def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot):
 
 
 @pytest.fixture()
-def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
+def project_expo2010(db_session, org_ankhmorpork, user_vetinari) -> Project:
     """Ankh-Morpork hosts its 2010 expo."""
     db_session.flush()
 
@@ -918,7 +960,7 @@ def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
 
 
 @pytest.fixture()
-def project_expo2011(db_session, org_ankhmorpork, user_vetinari):
+def project_expo2011(db_session, org_ankhmorpork, user_vetinari) -> Project:
     """Ankh-Morpork hosts its 2011 expo."""
     db_session.flush()
 
@@ -934,7 +976,7 @@ def project_expo2011(db_session, org_ankhmorpork, user_vetinari):
 
 
 @pytest.fixture()
-def project_ai1(db_session, org_uu, user_ponder_stibbons):
+def project_ai1(db_session, org_uu, user_ponder_stibbons) -> Project:
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
 
@@ -959,7 +1001,7 @@ def project_ai1(db_session, org_uu, user_ponder_stibbons):
 
 
 @pytest.fixture()
-def project_ai2(db_session, org_uu, user_ponder_stibbons):
+def project_ai2(db_session, org_uu, user_ponder_stibbons) -> Project:
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
 
@@ -983,7 +1025,7 @@ def project_ai2(db_session, org_uu, user_ponder_stibbons):
 
 
 @pytest.fixture()
-def client_hex(db_session, org_uu):
+def client_hex(db_session, org_uu) -> Project:
     """
     Hex, supercomputer at Unseen University, powered by an Anthill Inside.
 
@@ -1002,7 +1044,7 @@ def client_hex(db_session, org_uu):
 
 
 @pytest.fixture()
-def client_hex_credential(db_session, client_hex):
+def client_hex_credential(db_session, client_hex) -> SimpleNamespace:
     cred, secret = AuthClientCredential.new(client_hex)
     db_session.add(cred)
     return SimpleNamespace(cred=cred, secret=secret)
@@ -1035,7 +1077,7 @@ def all_fixtures(  # pylint: disable=too-many-arguments,too-many-locals
     project_ai1,
     project_ai2,
     client_hex,
-):
+) -> SimpleNamespace:
     """Return All Discworld fixtures at once."""
     db_session.commit()
     return SimpleNamespace(**locals())

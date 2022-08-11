@@ -15,7 +15,7 @@ from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58
 
 from ..typing import OptionalMigratedTables
-from . import RoleMixin, TimestampMixin, db
+from . import RoleMixin, TimestampMixin, db, sa
 from .project import Project
 from .sync_ticket import TicketParticipant
 from .user import User
@@ -49,12 +49,12 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
 
     __tablename__ = 'contact_exchange'
     #: User who scanned this contact
-    user_id = db.Column(
-        None, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True
+    user_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True
     )
-    user = db.relationship(
+    user = sa.orm.relationship(
         User,
-        backref=db.backref(
+        backref=sa.orm.backref(
             'scanned_contacts',
             lazy='dynamic',
             order_by='ContactExchange.scanned_at.desc()',
@@ -62,23 +62,24 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         ),
     )
     #: Participant whose contact was scanned
-    ticket_participant_id = db.Column(
+    ticket_participant_id: sa.Column[int] = db.Column(
         None,
-        db.ForeignKey('ticket_participant.id', ondelete='CASCADE'),
+        sa.ForeignKey('ticket_participant.id', ondelete='CASCADE'),
         primary_key=True,
         index=True,
     )
-    ticket_participant = db.relationship(
-        TicketParticipant, backref=db.backref('scanned_contacts', passive_deletes=True)
+    ticket_participant = sa.orm.relationship(
+        TicketParticipant,
+        backref=sa.orm.backref('scanned_contacts', passive_deletes=True),
     )
     #: Datetime at which the scan happened
-    scanned_at = db.Column(
-        db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
+    scanned_at = sa.Column(
+        sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: Note recorded by the user (plain text)
-    description = db.Column(db.UnicodeText, nullable=False, default='')
+    description = sa.Column(sa.UnicodeText, nullable=False, default='')
     #: Archived flag
-    archived = db.Column(db.Boolean, nullable=False, default=False)
+    archived = sa.Column(sa.Boolean, nullable=False, default=False)
 
     __roles__ = {
         'owner': {
@@ -144,22 +145,22 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
                 Project.uuid.label('uuid'),
                 Project.title.label('title'),
                 Project.timezone.label('timezone'),
-                db.cast(
-                    db.func.date_trunc(
-                        'day', db.func.timezone(Project.timezone, cls.scanned_at)
+                sa.cast(
+                    sa.func.date_trunc(
+                        'day', sa.func.timezone(Project.timezone, cls.scanned_at)
                     ),
-                    db.Date,
+                    sa.Date,
                 ).label('date'),
-                db.func.count().label('count'),
+                sa.func.count().label('count'),
             )
             .group_by(
-                db.text('id'),
-                db.text('uuid'),
-                db.text('title'),
-                db.text('timezone'),
-                db.text('date'),
+                sa.text('id'),
+                sa.text('uuid'),
+                sa.text('title'),
+                sa.text('timezone'),
+                sa.text('date'),
             )
-            .order_by(db.text('date DESC'))
+            .order_by(sa.text('date DESC'))
         )
 
         # Issued SQL:
@@ -243,11 +244,11 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
             # are using `id` here because `project` may be an instance of ProjectId
             # returned by `grouped_counts_for`
             TicketParticipant.project_id == project.id,
-            db.cast(
-                db.func.date_trunc(
-                    'day', db.func.timezone(project.timezone.zone, cls.scanned_at)
+            sa.cast(
+                sa.func.date_trunc(
+                    'day', sa.func.timezone(project.timezone.zone, cls.scanned_at)
                 ),
-                db.Date,
+                sa.Date,
             )
             == date,
         )

@@ -19,6 +19,7 @@ from coaster.utils import LabeledEnum
 from . import (
     BaseScopedIdNameMixin,
     Commentset,
+    Mapped,
     MarkdownColumn,
     Project,
     TimestampMixin,
@@ -26,6 +27,7 @@ from . import (
     User,
     UuidMixin,
     db,
+    sa,
 )
 from .comment import SET_TYPE
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
@@ -47,9 +49,9 @@ class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
 class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     __tablename__ = 'update'
 
-    _visibility_state = db.Column(
+    _visibility_state = sa.Column(
         'visibility_state',
-        db.SmallInteger,
+        sa.SmallInteger,
         StateManager.check_constraint('visibility_state', VISIBILITY_STATE),
         default=VISIBILITY_STATE.PUBLIC,
         nullable=False,
@@ -59,9 +61,9 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         '_visibility_state', VISIBILITY_STATE, doc="Visibility state"
     )
 
-    _state = db.Column(
+    _state = sa.Column(
         'state',
-        db.SmallInteger,
+        sa.SmallInteger,
         StateManager.check_constraint('state', UPDATE_STATE),
         default=UPDATE_STATE.DRAFT,
         nullable=False,
@@ -69,20 +71,24 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     )
     state = StateManager('_state', UPDATE_STATE, doc="Update state")
 
-    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False, index=True)
+    user_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('user.id'), nullable=False, index=True
+    )
     user = with_roles(
-        db.relationship(
-            User, backref=db.backref('updates', lazy='dynamic'), foreign_keys=[user_id]
+        sa.orm.relationship(
+            User,
+            backref=sa.orm.backref('updates', lazy='dynamic'),
+            foreign_keys=[user_id],
         ),
         read={'all'},
         grants={'creator'},
     )
 
-    project_id = db.Column(
-        None, db.ForeignKey('project.id'), nullable=False, index=True
+    project_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('project.id'), nullable=False, index=True
     )
-    project = with_roles(
-        db.relationship(Project, backref=db.backref('updates', lazy='dynamic')),
+    project: sa.orm.relationship[Project] = with_roles(
+        sa.orm.relationship(Project, backref=sa.orm.backref('updates', lazy='dynamic')),
         read={'all'},
         datasets={'primary'},
         grants_via={
@@ -93,75 +99,79 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             }
         },
     )
-    parent = db.synonym('project')
+    parent = sa.orm.synonym('project')
 
     body = MarkdownColumn('body', nullable=False)
 
     #: Update number, for Project updates, assigned when the update is published
     number = with_roles(
-        db.Column(db.Integer, nullable=True, default=None), read={'all'}
+        sa.Column(sa.Integer, nullable=True, default=None), read={'all'}
     )
 
     #: Like pinned tweets. You can keep posting updates,
     #: but might want to pin an update from a week ago.
     is_pinned = with_roles(
-        db.Column(db.Boolean, default=False, nullable=False), read={'all'}
+        sa.Column(sa.Boolean, default=False, nullable=False), read={'all'}
     )
 
-    published_by_id = db.Column(
-        None, db.ForeignKey('user.id'), nullable=True, index=True
+    published_by_id: sa.Column[Optional[int]] = db.Column(
+        None, sa.ForeignKey('user.id'), nullable=True, index=True
     )
-    published_by = with_roles(
-        db.relationship(
+    published_by: Mapped[Optional[User]] = with_roles(
+        sa.orm.relationship(
             User,
-            backref=db.backref('published_updates', lazy='dynamic'),
+            backref=sa.orm.backref('published_updates', lazy='dynamic'),
             foreign_keys=[published_by_id],
         ),
         read={'all'},
     )
     published_at = with_roles(
-        db.Column(db.TIMESTAMP(timezone=True), nullable=True), read={'all'}
+        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    deleted_by_id = db.Column(None, db.ForeignKey('user.id'), nullable=True, index=True)
-    deleted_by = with_roles(
-        db.relationship(
+    deleted_by_id: sa.Column[Optional[int]] = db.Column(
+        None, sa.ForeignKey('user.id'), nullable=True, index=True
+    )
+    deleted_by: Mapped[Optional[User]] = with_roles(
+        sa.orm.relationship(
             User,
-            backref=db.backref('deleted_updates', lazy='dynamic'),
+            backref=sa.orm.backref('deleted_updates', lazy='dynamic'),
             foreign_keys=[deleted_by_id],
         ),
         read={'reader'},
     )
     deleted_at = with_roles(
-        db.Column(db.TIMESTAMP(timezone=True), nullable=True), read={'reader'}
+        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'reader'}
     )
 
     edited_at = with_roles(
-        db.Column(db.TIMESTAMP(timezone=True), nullable=True), read={'all'}
+        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
+    commentset_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('commentset.id'), nullable=False
+    )
     commentset = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             Commentset,
             uselist=False,
             lazy='joined',
             cascade='all',
             single_parent=True,
-            backref=db.backref('update', uselist=False),
+            backref=sa.orm.backref('update', uselist=False),
         ),
         read={'all'},
     )
 
-    search_vector = db.deferred(
-        db.Column(
+    search_vector = sa.orm.deferred(
+        sa.Column(
             TSVectorType(
                 'name',
                 'title',
                 'body_text',
                 weights={'name': 'A', 'title': 'A', 'body_text': 'B'},
                 regconfig='english',
-                hltext=lambda: db.func.concat_ws(
+                hltext=lambda: sa.func.concat_ws(
                     visual_field_delimiter, Update.title, Update.body_html
                 ),
             ),
@@ -260,10 +270,10 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         self.published_by = actor
         if self.published_at is None:
             first_publishing = True
-            self.published_at = db.func.utcnow()
+            self.published_at = sa.func.utcnow()
         if self.number is None:
             self.number = (
-                db.select([db.func.coalesce(db.func.max(Update.number), 0) + 1])
+                db.select([sa.func.coalesce(sa.func.max(Update.number), 0) + 1])
                 .where(Update.project == self.project)
                 .scalar_subquery()
             )
@@ -283,7 +293,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         else:
             # If not, then soft delete
             self.deleted_by = actor
-            self.deleted_at = db.func.utcnow()
+            self.deleted_at = sa.func.utcnow()
 
     @with_roles(call={'editor'})
     @state.transition(state.DELETED, state.DRAFT)

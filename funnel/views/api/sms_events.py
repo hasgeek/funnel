@@ -9,7 +9,7 @@ from twilio.request_validator import RequestValidator
 from baseframe import statsd
 
 from ... import app
-from ...models import SMS_STATUS, SMSMessage, db
+from ...models import SMS_STATUS, SMSMessage, db, sa
 from ...transports.sms import validate_exotel_token
 from ...typing import ReturnView
 from ...utils import abort_null
@@ -63,7 +63,7 @@ def process_twilio_event() -> ReturnView:
         )
         db.session.add(sms_message)
 
-    sms_message.status_at = db.func.utcnow()
+    sms_message.status_at = sa.func.utcnow()
 
     if request.form['MessageStatus'] == 'queued':
         sms_message.status = SMS_STATUS.QUEUED
@@ -140,7 +140,7 @@ def process_exotel_event(secret_token: str) -> ReturnView:
         )
         db.session.add(sms_message)
 
-    sms_message.status_at = db.func.utcnow()
+    sms_message.status_at = sa.func.utcnow()
 
     if request.form['Status'] == 'queued':
         sms_message.status = SMS_STATUS.QUEUED

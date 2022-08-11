@@ -11,7 +11,7 @@ from ...models import (
     Proposal,
     ProposalReceivedNotification,
     ProposalSubmittedNotification,
-    db,
+    sa,
 )
 from ...transports.sms import TwoLineTemplate
 from ..helpers import shortlink
@@ -30,7 +30,9 @@ class RenderProposalReceivedNotification(RenderNotification):
 
     fragments_order_by = [Proposal.datetime.desc()]
     fragments_query_options = [
-        db.load_only(Proposal.name, Proposal.title, Proposal.project_id, Proposal.uuid)
+        sa.orm.load_only(
+            Proposal.name, Proposal.title, Proposal.project_id, Proposal.uuid
+        )
     ]
 
     def web(self):

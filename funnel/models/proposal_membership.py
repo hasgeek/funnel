@@ -8,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import db
+from . import db, sa
 from .helpers import reopen
 from .membership_mixin import (
     FrozenAttributionMixin,
@@ -22,7 +22,7 @@ from .user import User
 __all__ = ['ProposalMembership']
 
 
-class ProposalMembership(
+class ProposalMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
     ImmutableUserMembershipMixin,
@@ -79,19 +79,19 @@ class ProposalMembership(
 
     revoke_on_subject_delete = False
 
-    proposal_id = immutable(
+    proposal_id: sa.Column[int] = immutable(
         with_roles(
             db.Column(
-                None, db.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
+                None, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
             ),
             read={'subject', 'editor'},
         ),
     )
-    proposal = immutable(
+    proposal: sa.orm.relationship[Proposal] = immutable(
         with_roles(
-            db.relationship(
+            sa.orm.relationship(
                 Proposal,
-                backref=db.backref(
+                backref=sa.orm.backref(
                     'all_memberships',
                     lazy='dynamic',
                     cascade='all',
@@ -102,20 +102,20 @@ class ProposalMembership(
             grants_via={None: {'editor'}},
         ),
     )
-    parent = db.synonym('proposal')
-    parent_id = db.synonym('proposal_id')
+    parent = sa.orm.synonym('proposal')
+    parent_id = sa.orm.synonym('proposal_id')
 
     #: Uncredited members are not listed in the main display, but can edit and may be
     #: listed in a details section. Uncredited memberships are for support roles such
     #: as copy editors.
-    is_uncredited = db.Column(db.Boolean, nullable=False, default=False)
+    is_uncredited = sa.Column(sa.Boolean, nullable=False, default=False)
 
     #: Optional label, indicating the member's role on the proposal
     label = immutable(
-        db.Column(
-            db.Unicode,
-            db.CheckConstraint(
-                db.column('label') != '', name='proposal_membership_label_check'
+        sa.Column(
+            sa.Unicode,
+            sa.CheckConstraint(
+                sa.column('label') != '', name='proposal_membership_label_check'
             ),
             nullable=True,
         )
@@ -136,11 +136,11 @@ class __Proposal:
     # This relationship does not use `lazy='dynamic'` because it is expected to contain
     # <2 records on average, and won't exceed 50 in the most extreme cases
     memberships = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             ProposalMembership,
-            primaryjoin=db.and_(
+            primaryjoin=sa.and_(
                 ProposalMembership.proposal_id == Proposal.id,
-                ProposalMembership.is_active,
+                ProposalMembership.is_active,  # type: ignore[arg-type]
             ),
             order_by=ProposalMembership.seq,
             viewonly=True,
@@ -163,29 +163,29 @@ class __Proposal:
 class __User:
     # pylint: disable=invalid-unary-operand-type
 
-    all_proposal_memberships = db.relationship(
+    all_proposal_memberships = sa.orm.relationship(
         ProposalMembership,
         lazy='dynamic',
         foreign_keys=[ProposalMembership.user_id],
         viewonly=True,
     )
 
-    noninvite_proposal_memberships = db.relationship(
+    noninvite_proposal_memberships = sa.orm.relationship(
         ProposalMembership,
         lazy='dynamic',
-        primaryjoin=db.and_(
+        primaryjoin=sa.and_(
             ProposalMembership.user_id == User.id,
             ~ProposalMembership.is_invite,  # type: ignore[operator]
         ),
         viewonly=True,
     )
 
-    proposal_memberships = db.relationship(
+    proposal_memberships = sa.orm.relationship(
         ProposalMembership,
         lazy='dynamic',
-        primaryjoin=db.and_(
+        primaryjoin=sa.and_(
             ProposalMembership.user_id == User.id,
-            ProposalMembership.is_active,
+            ProposalMembership.is_active,  # type: ignore[arg-type]
         ),
         viewonly=True,
     )

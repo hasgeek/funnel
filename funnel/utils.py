@@ -102,7 +102,7 @@ def abort_null(text: Optional[str]) -> Optional[str]:
 
 
 def make_redirect_url(
-    url: str, use_fragment: bool = False, **params: Optional[str]
+    url: str, use_fragment: bool = False, **params: Optional[Union[str, int]]
 ) -> str:
     """
     Make an OAuth2 redirect URL.
@@ -120,7 +120,7 @@ def make_redirect_url(
     queryparts = urllib.parse.parse_qsl(
         urlparts[4] if use_fragment else urlparts[3], keep_blank_values=True
     )
-    queryparts.extend([(k, v) for k, v in params.items() if v is not None])
+    queryparts.extend([(k, str(v)) for k, v in params.items() if v is not None])
     if use_fragment:
         urlparts[4] = urllib.parse.urlencode(queryparts)
     else:

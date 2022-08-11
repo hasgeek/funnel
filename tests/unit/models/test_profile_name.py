@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 import pytest
 
 from funnel import models
-from funnel.models import db
+from funnel.models import sa
 
 
 def test_is_available_name(db_session, user_rincewind) -> None:
@@ -50,7 +50,7 @@ def test_reserved_name(db_session) -> None:
     db_session.commit()
     # Use a model query since Profile.get() only works for public profiles
     retrieved_name = models.Profile.query.filter(
-        db.func.lower(models.Profile.name) == db.func.lower('reserved-name')
+        sa.func.lower(models.Profile.name) == sa.func.lower('reserved-name')
     ).first()
     assert retrieved_name is reserved_name
     assert reserved_name.user is None
@@ -61,7 +61,7 @@ def test_reserved_name(db_session) -> None:
     reserved_name.name = 'Reserved-Name'
     db_session.commit()
     retrieved_name = models.Profile.query.filter(
-        db.func.lower(models.Profile.name) == db.func.lower('Reserved-Name')
+        sa.func.lower(models.Profile.name) == sa.func.lower('Reserved-Name')
     ).first()
     assert retrieved_name is reserved_name
 

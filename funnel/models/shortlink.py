@@ -16,7 +16,7 @@ from typing_extensions import Literal
 
 from coaster.sqlalchemy import immutable, with_roles
 
-from . import NoIdMixin, UrlType, db, hybrid_property
+from . import Mapped, NoIdMixin, UrlType, db, hybrid_property, sa
 from .helpers import profanity
 from .user import User
 
@@ -191,23 +191,23 @@ class Shortlink(NoIdMixin, db.Model):
     id = with_roles(  # noqa: A003
         # id cannot use the `immutable` wrapper because :meth:`new` changes the id when
         # handling collisions. This needs an "immutable after commit" handler
-        db.Column(db.BigInteger, autoincrement=False, nullable=False, primary_key=True),
+        sa.Column(sa.BigInteger, autoincrement=False, nullable=False, primary_key=True),
         read={'all'},
     )
     #: URL target of this shortlink
     url = with_roles(
-        immutable(db.Column(UrlType, nullable=False, index=True)),
+        immutable(sa.Column(UrlType, nullable=False, index=True)),
         read={'all'},
     )
     #: Id of user who created this shortlink (optional)
-    user_id = db.Column(
-        None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
+    user_id: sa.Column[Optional[int]] = db.Column(
+        None, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
     )
     #: User who created this shortlink (optional)
-    user = db.relationship(User)
+    user: Mapped[Optional[User]] = sa.orm.relationship(User)
 
     #: Is this link enabled? If not, render 410 Gone
-    enabled = db.Column(db.Boolean, nullable=False, default=True)
+    enabled = sa.Column(sa.Boolean, nullable=False, default=True)
 
     @hybrid_property
     def name(self) -> str:
@@ -228,13 +228,13 @@ class Shortlink(NoIdMixin, db.Model):
 
     # --- Validators
 
-    @db.validates('id')
+    @sa.orm.validates('id')
     def _validate_id_not_zero(self, key, value: int) -> int:  # skipcq: PYL-R0201
         if value == 0:
             raise ValueError("Id cannot be zero")
         return value
 
-    @db.validates('url')
+    @sa.orm.validates('url')
     def _validate_url(self, key, value) -> str:  # skipcq: PYL-R0201
         value = str(normalize_url(value))
         # If URL hashes are added to the model, the value must be set here using
@@ -355,7 +355,7 @@ class Shortlink(NoIdMixin, db.Model):
         try:
             existing = db.session.query(
                 cls.query.filter(cls.name == name)
-                .options(db.load_only(cls.id))
+                .options(sa.orm.load_only(cls.id))
                 .exists()
             ).scalar()
             return not existing
@@ -377,7 +377,7 @@ class Shortlink(NoIdMixin, db.Model):
         except (ValueError, TypeError):
             return None
         obj = db.session.get(
-            cls, idv, options=[db.load_only(cls.id, cls.url, cls.enabled)]
+            cls, idv, options=[sa.orm.load_only(cls.id, cls.url, cls.enabled)]
         )
         if obj is not None and (ignore_enabled or obj.enabled):
             return obj

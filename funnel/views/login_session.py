@@ -44,6 +44,7 @@ from ..models import (
     UserSessionRevokedError,
     auth_client_user_session,
     db,
+    sa,
 )
 from ..proxies import request_wants
 from ..serializers import lastuser_serializer
@@ -73,7 +74,7 @@ GET_AND_POST = frozenset({'GET', 'POST'})
 #: Form id for sudo OTP form
 FORMID_SUDO_OTP = 'sudo-otp'
 #: Form id for sudo password form
-FORMID_SUDO_PASSWORD = 'sudo-password'  # noqa: S105  # nosec
+FORMID_SUDO_PASSWORD = 'sudo-password'  # nosec
 
 # --- Registry entries -----------------------------------------------------------------
 
@@ -235,7 +236,7 @@ def session_mark_accessed(
     # `accessed_at` will be different from the automatic `updated_at` in one
     # crucial context: when the session was revoked from a different session.
     # `accessed_at` won't be updated at that time.
-    obj.accessed_at = db.func.utcnow()
+    obj.accessed_at = sa.func.utcnow()
     with db.session.no_autoflush:
         if auth_client is not None:
             if (
@@ -249,7 +250,7 @@ def session_mark_accessed(
                     auth_client_user_session.update()
                     .where(auth_client_user_session.c.user_session_id == obj.id)
                     .where(auth_client_user_session.c.auth_client_id == auth_client.id)
-                    .values(accessed_at=db.func.utcnow())
+                    .values(accessed_at=sa.func.utcnow())
                 )
         else:
             ipaddr = (request.remote_addr or '') if ipaddr is None else ipaddr
@@ -722,7 +723,7 @@ def _client_login_inner():
             {'WWW-Authenticate': 'Basic realm="Client credentials"'},
         )
     if credential is not None:
-        credential.accessed_at = db.func.utcnow()
+        credential.accessed_at = sa.func.utcnow()
         db.session.commit()
     add_auth_attribute('auth_client', credential.auth_client, actor=True)
     return None

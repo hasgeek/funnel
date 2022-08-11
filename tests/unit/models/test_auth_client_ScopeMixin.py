@@ -135,10 +135,10 @@ def test_authclient_scope_null(db_session, user_rincewind) -> None:
     assert auth_client.scope == ('another', 'scope')
     assert auth_client._scope == 'another scope'
     # Scope can be reset to None in models that allow it (only AuthClient)
-    auth_client.scope = None  # type: ignore[assignment]
+    auth_client.scope = None
     assert auth_client.scope == ()
     assert auth_client._scope is None
-    auth_client.scope = ''  # type: ignore[unreachable]
+    auth_client.scope = ''
     assert auth_client.scope == ()
     assert auth_client._scope is None
     auth_client.scope = ()

@@ -7,7 +7,7 @@ from typing import Iterable, Optional
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
 from ..typing import OptionalMigratedTables
-from . import NoIdMixin, db
+from . import NoIdMixin, db, sa
 from .helpers import reopen
 from .project import Project
 from .session import Session
@@ -16,32 +16,34 @@ from .user import User
 
 class SavedProject(NoIdMixin, db.Model):
     #: User who saved this project
-    user_id = db.Column(
+    user_id: sa.Column[int] = db.Column(
         None,
-        db.ForeignKey('user.id', ondelete='CASCADE'),
+        sa.ForeignKey('user.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
     )
-    user = db.relationship(
-        User, backref=db.backref('saved_projects', lazy='dynamic', passive_deletes=True)
+    user = sa.orm.relationship(
+        User,
+        backref=sa.orm.backref('saved_projects', lazy='dynamic', passive_deletes=True),
     )
     #: Project that was saved
-    project_id = db.Column(
+    project_id: sa.Column[int] = db.Column(
         None,
-        db.ForeignKey('project.id', ondelete='CASCADE'),
+        sa.ForeignKey('project.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
         index=True,
     )
-    project = db.relationship(
-        Project, backref=db.backref('saved_by', lazy='dynamic', passive_deletes=True)
+    project = sa.orm.relationship(
+        Project,
+        backref=sa.orm.backref('saved_by', lazy='dynamic', passive_deletes=True),
     )
     #: Timestamp when the save happened
-    saved_at = db.Column(
-        db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
+    saved_at = sa.Column(
+        sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: User's plaintext note to self on why they saved this (optional)
-    description = db.Column(db.UnicodeText, nullable=True)
+    description = sa.Column(sa.UnicodeText, nullable=True)
 
     def roles_for(
         self, actor: Optional[User] = None, anchors: Iterable = ()
@@ -66,32 +68,34 @@ class SavedProject(NoIdMixin, db.Model):
 
 class SavedSession(NoIdMixin, db.Model):
     #: User who saved this session
-    user_id = db.Column(
+    user_id: sa.Column[int] = db.Column(
         None,
-        db.ForeignKey('user.id', ondelete='CASCADE'),
+        sa.ForeignKey('user.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
     )
-    user = db.relationship(
-        User, backref=db.backref('saved_sessions', lazy='dynamic', passive_deletes=True)
+    user = sa.orm.relationship(
+        User,
+        backref=sa.orm.backref('saved_sessions', lazy='dynamic', passive_deletes=True),
     )
     #: Session that was saved
-    session_id = db.Column(
+    session_id: sa.Column[int] = db.Column(
         None,
-        db.ForeignKey('session.id', ondelete='CASCADE'),
+        sa.ForeignKey('session.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
         index=True,
     )
-    session = db.relationship(
-        Session, backref=db.backref('saved_by', lazy='dynamic', passive_deletes=True)
+    session = sa.orm.relationship(
+        Session,
+        backref=sa.orm.backref('saved_by', lazy='dynamic', passive_deletes=True),
     )
     #: Timestamp when the save happened
-    saved_at = db.Column(
-        db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
+    saved_at = sa.Column(
+        sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
     #: User's plaintext note to self on why they saved this (optional)
-    description = db.Column(db.UnicodeText, nullable=True)
+    description = sa.Column(sa.UnicodeText, nullable=True)
 
     def roles_for(
         self, actor: Optional[User] = None, anchors: Iterable = ()

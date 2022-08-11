@@ -106,16 +106,20 @@ required_plugins = [
   'pytest-cov',
   'pytest-dotenv',
   'pytest-env',
+  'pytest-remotedata',
+  'pytest-rerunfailures',
   'pytest-splinter',
   'requests-mock',
 ]
 addopts = [
   '--cov-report=term-missing',
   '--splinter-screenshot-dir=tests/screenshots',
+  '--remote-data=any',
   # '--splinter-headless'
 ]
 filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
-mocked-sessions = 'coaster.db.db.session'  # For pytest-flask-sqlalchemy (unused)
+mocked-sessions = 'funnel.db.db.session'  # For pytest-flask-sqlalchemy (unused)
+remote_data_strict = true
 env = [
   'FLASK_ENV=testing',
   # For macOS: https://stackoverflow.com/a/52230415/78903
@@ -136,6 +140,7 @@ pythonVersion = '3.7'
 [tool.mypy]
 files = '**/*.py'
 exclude = 'node_modules'
+# plugins = ['sqlalchemy.ext.mypy.plugin']
 plugins = ['sqlmypy']
 ignore_missing_imports = true
 show_error_codes = true
