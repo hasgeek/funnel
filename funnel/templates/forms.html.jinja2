@@ -436,14 +436,10 @@
       });
     {%- elif field.type == 'RecaptchaField' and ref_id != '' and not force %}
       window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
-        form = '#' + {{ ref_id|tojson }};
-        console.log('recaptcha_response', recaptcha_response);
-        console.log($(form).serialize());
-        // document.getElementById("{{ ref_id }}").submit();
+        document.getElementById("{{ ref_id }}").submit();
       };
       $('#{{ ref_id }}').submit(function (event) {
         event.preventDefault();
-        console.log('stopped')
         if (typeof grecaptcha !== "undefined" && grecaptcha.getResponse() === '') {
           grecaptcha.execute();
         } else {
