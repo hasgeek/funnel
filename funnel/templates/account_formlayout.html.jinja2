@@ -50,7 +50,7 @@
   {{ widget_ext_scripts(form) }}
   <script type="text/javascript">
     $(function() {
-      {{ widgetscripts(form, script=false, ref_id=ref_id) }}
+      {{ widgetscripts(form, script=false, ref_id=ref_id, force=ajax) }}
     });
   </script>
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>

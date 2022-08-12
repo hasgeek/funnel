@@ -347,7 +347,7 @@
   {%- endwith %}
 {% endmacro %}
 
-{% macro widgetscripts(form, script=true, ref_id="") -%}
+{% macro widgetscripts(form, script=true, ref_id="", force=false) -%}
   {%- if script %}
   <script type="text/javascript">
     $(function() {
@@ -434,7 +434,7 @@
         autocomplete_endpoint: {{ field.autocomplete_endpoint|tojson }},
         key: {{ field.results_key|tojson }}
       });
-    {%- elif field.type == 'RecaptchaField' and ref_id != '' %}
+    {%- elif field.type == 'RecaptchaField' and ref_id != '' and not force %}
       window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
         form = '#' + {{ ref_id|tojson }};
         console.log('recaptcha_response', recaptcha_response);
