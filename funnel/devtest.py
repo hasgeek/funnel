@@ -63,9 +63,19 @@ class AppByHostWsgi:
         for app in apps:
             if not app.config.get('SERVER_NAME'):
                 raise ValueError(f"App does not have SERVER_NAME set: {app!r}")
-        self.apps_by_host = {
+        self.apps_by_host: Dict[str, Flask] = {
             app.config['SERVER_NAME'].split(':', 1)[0]: app for app in apps
         }
+
+    @property
+    def debug(self) -> bool:
+        """Control debug flag on apps."""
+        return any(app.debug for app in self.apps_by_host.values())
+
+    @debug.setter
+    def debug(self, value: bool) -> None:
+        for app in self.apps_by_host.values():
+            app.debug = value
 
     def get_app(self, host: str) -> Flask:
         """Get app matching a host."""

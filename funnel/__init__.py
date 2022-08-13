@@ -152,6 +152,7 @@ baseframe.init_app(
     ],
     theme='funnel',
     asset_modules=('baseframe_private_assets',),
+    error_handlers=False,
 )
 
 loginproviders.init_app(app)
