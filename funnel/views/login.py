@@ -121,7 +121,7 @@ def render_login_form(form: LoginForm) -> ReturnView:
     return (
         render_template(
             'loginform.html.jinja2',
-            loginform=form,
+            form=form,
             formid='passwordlogin',
             ref_id='form-passwordlogin',
             with_chrome=request_wants.html_fragment,  # with_chrome is a legacy name
@@ -310,7 +310,7 @@ def login() -> ReturnView:
     return (
         render_template(
             'login.html.jinja2',
-            loginform=loginform,
+            form=loginform,
             lastused=loginmethod,
             login_registry=login_registry,
             formid='passwordlogin',

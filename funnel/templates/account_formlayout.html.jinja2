@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{% from "forms.html.jinja2" import renderform, renderform_inner, renderfield, rendersubmit, ajaxform, widget_ext_scripts, widgetscripts %}
+{% from "forms.html.jinja2" import renderform, renderform_inner, renderfield, rendersubmit, ajaxform, widget_ext_scripts, widgetscripts, recaptcha %}
 
 {% block title %}{{ title }}{% endblock title %}
 
@@ -50,7 +50,7 @@
   {{ widget_ext_scripts(form) }}
   <script type="text/javascript">
     $(function() {
-      {{ widgetscripts(form, script=false, ref_id=ref_id) }}
+      {{ widgetscripts(form, script=false, ref_id=ref_id, force=ajax) }}
     });
   </script>
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>

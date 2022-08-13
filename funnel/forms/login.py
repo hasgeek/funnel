@@ -88,7 +88,7 @@ class PasswordlessLoginIntercept:
 
 
 @User.forms('login')
-class LoginForm(forms.Form):
+class LoginForm(forms.RecaptchaForm):
     """
     Form for login and registration.
 
