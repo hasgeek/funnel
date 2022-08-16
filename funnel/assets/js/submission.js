@@ -21,9 +21,7 @@ export const Submission = {
         'X-Requested-With': 'XMLHttpRequest',
       },
       body: formData,
-    }).catch((error) => {
-      Form.getFetchError(error);
-    });
+    }).catch(Form.handleFetchNetworkError);
     if (response && response.ok) {
       const responseData = await response.json();
       if (responseData) {

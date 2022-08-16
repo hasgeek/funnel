@@ -15,20 +15,44 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
     return false;
   }
 
-  function enableAutoSave() {
+  function handleError(response) {
+    let errorMsg = '';
+    waitingForResponse = false;
+    if (response.readyState === 4) {
+      if (response.status === 500) {
+        errorMsg = window.Hasgeek.Config.errorMsg.serverError;
+      } else {
+        // There is a version mismatch, notify user to reload the page.
+        waitingForResponse = true;
+        errorMsg = JSON.parse(response.responseText).error_description;
+      }
+    } else {
+      errorMsg = window.Hasgeek.Config.errorMsg.networkError;
+    }
+    $(msgElemId).text(errorMsg);
+    window.toastr.error(errorMsg);
+  }
+
+  async function enableAutoSave() {
     if (!waitingForResponse && haveDirtyFields()) {
-      $.ajax({
-        type: 'POST',
-        url: `${url}form.autosave=true`,
-        data: $(formId).serialize(),
-        dataType: 'json',
-        timeout: 15000,
-        beforeSend() {
-          $(msgElemId).text(window.gettext('Saving'));
-          lastSavedData = $(formId).find('[type!="hidden"]').serialize();
-          waitingForResponse = true;
+      $(msgElemId).text(window.gettext('Saving'));
+      lastSavedData = $(formId).find('[type!="hidden"]').serialize();
+      waitingForResponse = true;
+      const form = $(formId)[0];
+      const response = await fetch(`${url}form.autosave=true`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Requested-With': 'XMLHttpRequest',
         },
-        success(remoteData) {
+        body: new URLSearchParams(new FormData(form)).toString(),
+      }).catch(
+        window.toastr.error(window.Hasgeek.Config.errorMsg.networkError)
+      );
+      if (response && response.ok) {
+        const remoteData = await response.json();
+        if (remoteData) {
           // Todo: Update window.history.pushState for new form
           $(msgElemId).text(window.gettext('Changes saved but not published'));
           if (remoteData.revision) {
@@ -38,25 +62,10 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
             $('input[name="form_nonce"]').val(remoteData.form_nonce);
           }
           waitingForResponse = false;
-        },
-        error(response) {
-          let errorMsg = '';
-          waitingForResponse = false;
-          if (response.readyState === 4) {
-            if (response.status === 500) {
-              errorMsg = window.Hasgeek.Config.errorMsg.serverError;
-            } else {
-              // There is a version mismatch, notify user to reload the page.
-              waitingForResponse = true;
-              errorMsg = JSON.parse(response.responseText).error_description;
-            }
-          } else {
-            errorMsg = window.Hasgeek.Config.errorMsg.networkError;
-          }
-          $(msgElemId).text(errorMsg);
-          window.toastr.error(errorMsg);
-        },
-      });
+        }
+      } else {
+        handleError(response);
+      }
     }
   }
 

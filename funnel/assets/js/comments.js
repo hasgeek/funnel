@@ -224,8 +224,8 @@ const Comments = {
               message: commentContent,
               csrf_token: csrfToken,
             }).toString(),
-          }).catch((error) => {
-            parentApp.errorMsg = Form.formErrorHandler(formId, error);
+          }).catch(() => {
+            parentApp.errorMsg = Form.handleFetchNetworkError();
           });
           if (response && response.ok) {
             const responseData = await response.json();

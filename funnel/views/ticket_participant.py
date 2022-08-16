@@ -321,7 +321,7 @@ class TicketEventParticipantCheckinView(ClassView):
 
     @route('checkin', methods=['POST'])
     def checkin_puk(
-        self, profile: str, project: str, ticket_event: str, puk: str
+        self, profile: str, project: str, event: str, puk: str
     ) -> ReturnView:
         abort(403)
 
@@ -333,7 +333,7 @@ class TicketEventParticipantCheckinView(ClassView):
             .filter(
                 db.func.lower(Profile.name) == db.func.lower(profile),
                 Project.name == project,
-                TicketEvent.name == ticket_event,
+                TicketEvent.name == event,
             )
             .first_or_404()
         )

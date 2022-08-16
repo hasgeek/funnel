@@ -80,7 +80,7 @@ const Spa = {
         Accept: 'application/x.html+json',
         'X-Requested-With': 'XMLHttpRequest',
       },
-    }).catch(Spa.handleError);
+    }).catch(Form.handleFetchNetworkError);
     if (response && response.ok) {
       const responseData = await response.json().catch(Spa.handleError);
       if (responseData) {

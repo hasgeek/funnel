@@ -54,6 +54,11 @@ const Form = {
     $(`#${formId}`).find('.loading').addClass('mui--hide');
     return Form.handleAjaxError(errorResponse);
   },
+  handleFetchNetworkError() {
+    const errorMsg = window.Hasgeek.Config.errorMsg.networkError;
+    window.toastr.error(errorMsg);
+    return errorMsg;
+  },
   getActionUrl(formId) {
     return $(`#${formId}`).attr('action');
   },
@@ -95,7 +100,7 @@ const Form = {
     }
   },
   handleDelete(elementClass, onSucessFn) {
-    $('body').on('click', elementClass, function remove(event) {
+    $('body').on('click', elementClass, async function remove(event) {
       event.preventDefault();
       const url = $(this).attr('href');
       const confirmationText = window.gettext(
@@ -105,20 +110,24 @@ const Form = {
 
       /* eslint-disable no-alert */
       if (window.confirm(confirmationText)) {
-        $.ajax({
-          type: 'POST',
-          url,
-          data: {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          body: new URLSearchParams({
             csrf_token: $('meta[name="csrf-token"]').attr('content'),
-          },
-          success(responseData) {
+          }).toString(),
+        }).catch(Form.handleFetchNetworkError);
+        if (response && response.ok) {
+          const responseData = await response.text();
+          if (responseData) {
             onSucessFn(responseData);
-          },
-          error(response) {
-            const errorMsg = Form.getResponseError(response);
-            window.toastr.error(errorMsg);
-          },
-        });
+          }
+        } else {
+          Form.handleAjaxError(response);
+        }
       }
     });
   },

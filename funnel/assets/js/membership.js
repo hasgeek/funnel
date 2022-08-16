@@ -66,7 +66,7 @@ const Membership = {
                 Accept: 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
               },
-            }).catch(Form.getResponseError);
+            }).catch(Form.handleFetchNetworkError);
             if (response && response.ok) {
               const data = await response.json();
               if (data) {

@@ -129,7 +129,7 @@ const Schedule = {
                 Accept: 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
               },
-            }).catch(this.handleFetchError);
+            }).catch(Form.handleFetchNetworkError);
             if (response && response.ok) {
               const responseData = await response.json().catch(Spa.handleError);
               if (responseData) {
