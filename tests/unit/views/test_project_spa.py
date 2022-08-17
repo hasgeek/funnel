@@ -18,7 +18,7 @@ login_sessions = [None, '_promoter_login']
 
 
 @pytest.fixture()
-def project_url(client, project_expo2010):
+def project_url(app_context, project_expo2010):
     """Relative URL for a project."""
     return urlsplit(project_expo2010.url_for()).path
 

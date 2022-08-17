@@ -211,16 +211,33 @@ def app() -> Flask:
     return funnel_app
 
 
+@pytest.fixture()
+def app_context(app) -> Iterator:
+    """Create an app context for the test."""
+    with app.app_context() as ctx:
+        yield ctx
+
+
+@pytest.fixture()
+def request_context(app) -> Iterator:
+    """Create a request context with default values for the test."""
+    with app.test_request_context() as ctx:
+        yield ctx
+
+
 # Enable autouse to guard against tests that have implicit database access, or assume
 # app context without a fixture
-@pytest.fixture(autouse=True)
-def _push_request_context(request) -> Iterator:
-    if 'app' not in request.fixturenames and 'db_session' not in request.fixturenames:
+@pytest.fixture(autouse=False)
+def _push_app_context(request) -> Iterator:
+    """Push an app context if app or db_session fixtures are used."""
+    if 'client' in request.fixturenames or (
+        'app' not in request.fixturenames and 'db_session' not in request.fixturenames
+    ):
         yield
     else:
         app_fixture = request.getfixturevalue('app')
 
-        with app_fixture.test_request_context():
+        with app_fixture.app_context():
             yield
 
 
