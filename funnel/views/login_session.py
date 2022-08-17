@@ -313,10 +313,10 @@ def set_lastuser_cookie(response: ResponseType) -> ResponseType:
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
     if (
         request_has_auth()
-        and hasattr(current_auth, 'cookie')
+        and 'cookie' in current_auth
         and not (
             current_auth.cookie == {}
-            and getattr(current_auth, 'suppress_empty_cookie', False)
+            and current_auth.get('suppress_empty_cookie', False)
         )
     ):
         response.vary.add('Cookie')  # type: ignore[union-attr]
@@ -367,7 +367,7 @@ def set_lastuser_cookie(response: ResponseType) -> ResponseType:
 @app.after_request
 def update_user_session_timestamp(response: ResponseType) -> ResponseType:
     """Mark a user session as accessed at the end of every request."""
-    if request_has_auth() and current_auth.session:
+    if request_has_auth() and 'session' in current_auth:
         # Setup a callback to update the session after the request has returned a
         # response to the user-agent. There will be no request or app context in this
         # callback, so we create a closure containing the necessary data in local vars
