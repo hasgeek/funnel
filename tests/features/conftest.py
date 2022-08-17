@@ -33,7 +33,7 @@ def splinter_driver_kwargs(splinter_webdriver):
 
 
 @pytest.fixture(scope='package')
-def live_server(request, database, app):
+def live_server(database, app):
     """Run application in a separate process."""
     # Use HTTPS for live server (set to False if required)
     use_https = True

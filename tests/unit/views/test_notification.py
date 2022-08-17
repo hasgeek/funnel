@@ -107,12 +107,11 @@ def test_unsubscribe_sms_view(
     app, client, unsubscribe_sms_short_url, user_vetinari
 ) -> None:
     """Confirm the unsubscribe URL renders a form."""
-    with app.app_context():
-        unsub_url = url_for(
-            'notification_unsubscribe_short',
-            token=urlsplit(unsubscribe_sms_short_url).path[1:],
-            _external=True,
-        )
+    unsub_url = url_for(
+        'notification_unsubscribe_short',
+        token=urlsplit(unsubscribe_sms_short_url).path[1:],
+        _external=True,
+    )
 
     # Get the unsubscribe URL. This should cause a cookie to be set, with a
     # redirect to the same URL and `?cookietest=1` appended

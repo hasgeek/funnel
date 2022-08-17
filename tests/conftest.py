@@ -227,12 +227,15 @@ def request_context(app) -> Iterator:
 
 # Enable autouse to guard against tests that have implicit database access, or assume
 # app context without a fixture
-@pytest.fixture(autouse=False)
-def _push_app_context(request) -> Iterator:
+@pytest.fixture(autouse=True)
+def _auto_app_context(request) -> Iterator:
     """Push an app context if app or db_session fixtures are used."""
-    if 'client' in request.fixturenames or (
-        'app' not in request.fixturenames and 'db_session' not in request.fixturenames
-    ):
+    # Do not create an app context if:
+    # 1. Another fixture that creates an app context is in use, or
+    # 2. Neither app nor db_session fixtures are being used
+    if {'app_context', 'request_context', 'live_server'}.intersection(
+        request.fixturenames
+    ) or not {'app', 'client', 'db_session'}.intersection(request.fixturenames):
         yield
     else:
         app_fixture = request.getfixturevalue('app')
@@ -602,7 +605,7 @@ def db_session(request) -> DatabaseSessionClass:
 
 
 @pytest.fixture()
-def client(request, app, db_session) -> Iterator[FlaskClient]:
+def client(app, db_session) -> Iterator[FlaskClient]:
     """Provide a test client."""
     with FlaskClient(app, ResponseWithForms, use_cookies=True) as test_client:
         yield test_client
