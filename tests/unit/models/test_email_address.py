@@ -445,6 +445,8 @@ def email_models(database):
         bind=database.engine, tables=[model.__table__ for model in models]
     )
 
+    db.create_all()
+
 
 def test_email_address_mixin(  # pylint: disable=too-many-locals,too-many-statements
     email_models, db_session
