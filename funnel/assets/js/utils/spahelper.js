@@ -82,7 +82,7 @@ const Spa = {
       },
     }).catch(Form.handleFetchNetworkError);
     if (response && response.ok) {
-      const responseData = await response.json().catch(Spa.handleError);
+      const responseData = await response.json();
       if (responseData) {
         const pageDetails = {};
         pageDetails.url = url;

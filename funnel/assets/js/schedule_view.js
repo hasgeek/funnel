@@ -126,19 +126,13 @@ const Schedule = {
           if (activeSession.modal_url) {
             const response = await fetch(activeSession.modal_url, {
               headers: {
-                Accept: 'application/json',
+                Accept: 'application/x.html+json',
                 'X-Requested-With': 'XMLHttpRequest',
               },
             }).catch(Form.handleFetchNetworkError);
             if (response && response.ok) {
-              const responseData = await response.json().catch(Spa.handleError);
-              if (responseData) {
-                this.openModal(
-                  responseData.sessionHtml,
-                  currentPage,
-                  pageDetails
-                );
-              }
+              const responseData = await response.text();
+              this.openModal(responseData, currentPage, pageDetails);
             } else {
               this.handleFetchError(response);
             }
