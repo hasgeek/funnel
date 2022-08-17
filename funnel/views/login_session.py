@@ -824,6 +824,8 @@ def login_internal(user, user_session=None, login_service=None):
         user_session = UserSession(user=user, login_service=login_service)
     user_session.views.mark_accessed()
     add_auth_attribute('session', user_session)
+    if 'cookie' not in current_auth:
+        add_auth_attribute('cookie', {})
     current_auth.cookie['sessionid'] = user_session.buid
     current_auth.cookie['userid'] = user.buid
     session.permanent = True
@@ -834,7 +836,7 @@ def login_internal(user, user_session=None, login_service=None):
 def logout_internal():
     """Logout current user (helper function)."""
     add_auth_attribute('user', None)
-    if current_auth.session:
+    if 'session' in current_auth:
         current_auth.session.revoke()
         add_auth_attribute('session', None)
     session.pop('sessionid', None)
@@ -844,8 +846,9 @@ def logout_internal():
     session.pop('userid_external', None)
     session.pop('avatar_url', None)
     session.pop('login_nonce', None)  # Used by funnelapp (future: hasjob)
-    current_auth.cookie.pop('sessionid', None)
-    current_auth.cookie.pop('userid', None)
+    if 'cookie' in current_auth:
+        current_auth.cookie.pop('sessionid', None)
+        current_auth.cookie.pop('userid', None)
     session.permanent = False
 
 
