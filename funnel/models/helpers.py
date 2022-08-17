@@ -14,7 +14,7 @@ from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
 
-from flask import Markup, current_app
+from flask import Markup
 from flask import escape as html_escape
 
 from better_profanity import profanity
@@ -28,6 +28,7 @@ from coaster.utils import (
     make_name,
 )
 
+from .. import app
 from ..typing import T
 from . import UrlType, db, sa
 
@@ -563,8 +564,8 @@ class ImgeeType(UrlType):  # pylint: disable=abstract-method
     def process_bind_param(self, value, dialect):
         value = super().process_bind_param(value, dialect)
         if value:
-            allowed_domains = current_app.config.get('IMAGE_URL_DOMAINS', [])
-            allowed_schemes = current_app.config.get('IMAGE_URL_SCHEMES', [])
+            allowed_domains = app.config.get('IMAGE_URL_DOMAINS', [])
+            allowed_schemes = app.config.get('IMAGE_URL_SCHEMES', [])
             parsed = self.url_parser(value)
             if allowed_domains and parsed.host not in allowed_domains:
                 raise ValueError(

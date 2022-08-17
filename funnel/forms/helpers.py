@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import current_app, flash
+from flask import flash
 
 from baseframe import _, __, forms
 from coaster.auth import current_auth
 
+from .. import app
 from ..models import EmailAddress, Profile, UserEmailClaim, parse_video_url
 
 
@@ -114,12 +115,10 @@ class EmailAddressAvailable:
                 _(
                     "This email address is no longer valid. If you believe this to be"
                     " incorrect, email {support} asking for the address to be activated"
-                ).format(support=current_app.config['SITE_SUPPORT_EMAIL'])
+                ).format(support=app.config['SITE_SUPPORT_EMAIL'])
             )
         if is_valid is not True:
-            current_app.logger.error(
-                "Unknown email address validation code: %r", is_valid
-            )
+            app.logger.error("Unknown email address validation code: %r", is_valid)
 
         if is_valid and self.purpose == 'register':
             # One last check: is there an existing claim? If so, stop the user from
@@ -137,8 +136,8 @@ class EmailAddressAvailable:
 def image_url_validator():
     """Customise ValidUrl for hosted image URL validation."""
     return forms.validators.ValidUrl(
-        allowed_schemes=lambda: current_app.config.get('IMAGE_URL_SCHEMES', ('https',)),
-        allowed_domains=lambda: current_app.config.get('IMAGE_URL_DOMAINS'),
+        allowed_schemes=lambda: app.config.get('IMAGE_URL_SCHEMES', ('https',)),
+        allowed_domains=lambda: app.config.get('IMAGE_URL_DOMAINS'),
         message_schemes=__("A https:// URL is required"),
         message_domains=__("Images must be hosted at images.hasgeek.com"),
     )
