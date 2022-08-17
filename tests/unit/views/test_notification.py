@@ -129,7 +129,7 @@ def test_unsubscribe_sms_view(
     # Earlier versions of Werkzeug defaulted to RFC 2616 behaviour for an absolute URL:
     # https://datatracker.ietf.org/doc/html/rfc2616#section-14.30
     # This test will fail on Werkzeug < 2.1
-    assert rv.location == url_for('notification_unsubscribe_do')
+    assert rv.location == url_for('notification_unsubscribe_do', _external=False)
 
     # This time we'll get the unsubscribe form.
     rv = client.get(rv.location)
