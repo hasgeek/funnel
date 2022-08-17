@@ -11,10 +11,12 @@ from coaster.utils import LabeledEnum
 from . import (
     BaseMixin,
     BaseScopedIdNameMixin,
+    Mapped,
     MarkdownColumn,
     TSVectorType,
     UuidMixin,
     db,
+    sa,
 )
 from .comment import SET_TYPE, Commentset
 from .helpers import (
@@ -116,28 +118,30 @@ class Proposal(  # type: ignore[misc]
 ):
     __tablename__ = 'proposal'
 
-    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
+    user_id: sa.Column[int] = db.Column(None, sa.ForeignKey('user.id'), nullable=False)
     user = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             User,
             primaryjoin=user_id == User.id,
-            backref=db.backref('created_proposals', cascade='all', lazy='dynamic'),
+            backref=sa.orm.backref('created_proposals', cascade='all', lazy='dynamic'),
         ),
         grants={'creator', 'participant'},
     )
-    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = with_roles(
-        db.relationship(
+    project_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('project.id'), nullable=False
+    )
+    project: sa.orm.relationship[Project] = with_roles(
+        sa.orm.relationship(
             Project,
             primaryjoin=project_id == Project.id,
-            backref=db.backref(
+            backref=sa.orm.backref(
                 'proposals', cascade='all', lazy='dynamic', order_by='Proposal.url_id'
             ),
         ),
         grants_via={None: project_child_role_map},
     )
-    parent_id = db.synonym('project_id')
-    parent = db.synonym('project')
+    parent_id = sa.orm.synonym('project_id')
+    parent = sa.orm.synonym('project')
 
     #: Reuse the `url_id` column from BaseScopedIdNameMixin as a sorting order column.
     #: `url_id` was a public number on talkfunnel.com, but is private on hasgeek.com.
@@ -147,22 +151,24 @@ class Proposal(  # type: ignore[misc]
     #: to all proposals, including drafts. A user-facing sequence will have gaps.
     #: Should numbering be required in the product, see `Update.number` for a better
     #: implementation.
-    seq = db.synonym('url_id')
+    seq: Mapped[int] = sa.orm.synonym('url_id')
 
     # TODO: Stand-in for `submitted_at` until proposals have a workflow-driven datetime
-    datetime = db.synonym('created_at')
+    datetime = sa.orm.synonym('created_at')
 
-    _state = db.Column(
+    _state = sa.Column(
         'state',
-        db.Integer,
+        sa.Integer,
         StateManager.check_constraint('state', PROPOSAL_STATE),
         default=PROPOSAL_STATE.SUBMITTED,
         nullable=False,
     )
     state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
 
-    commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
-    commentset = db.relationship(
+    commentset_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('commentset.id'), nullable=False
+    )
+    commentset = sa.orm.relationship(
         Commentset,
         uselist=False,
         lazy='joined',
@@ -174,15 +180,15 @@ class Proposal(  # type: ignore[misc]
     body = MarkdownColumn(
         'body', nullable=False, default='', options=markdown_content_options
     )
-    description = db.Column(db.Unicode, nullable=False, default='')
-    custom_description = db.Column(db.Boolean, nullable=False, default=False)
-    template = db.Column(db.Boolean, nullable=False, default=False)
-    featured = db.Column(db.Boolean, nullable=False, default=False)
+    description = sa.Column(sa.Unicode, nullable=False, default='')
+    custom_description = sa.Column(sa.Boolean, nullable=False, default=False)
+    template = sa.Column(sa.Boolean, nullable=False, default=False)
+    featured = sa.Column(sa.Boolean, nullable=False, default=False)
 
-    edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    edited_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
 
-    search_vector = db.deferred(
-        db.Column(
+    search_vector = sa.orm.deferred(
+        sa.Column(
             TSVectorType(
                 'title',
                 'description',
@@ -193,7 +199,7 @@ class Proposal(  # type: ignore[misc]
                     'body_text': 'B',
                 },
                 regconfig='english',
-                hltext=lambda: db.func.concat_ws(
+                hltext=lambda: sa.func.concat_ws(
                     visual_field_delimiter,
                     Proposal.title,
                     Proposal.body_html,
@@ -204,10 +210,10 @@ class Proposal(  # type: ignore[misc]
     )
 
     __table_args__ = (
-        db.UniqueConstraint(
+        sa.UniqueConstraint(
             'project_id', 'url_id', name='proposal_project_id_url_id_key'
         ),
-        db.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
+        sa.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
     )
 
     __roles__ = {
@@ -482,16 +488,16 @@ class ProposalSuuidRedirect(BaseMixin, db.Model):
 
     __tablename__ = 'proposal_suuid_redirect'
 
-    suuid = db.Column(db.Unicode(22), nullable=False, index=True)
-    proposal_id = db.Column(
-        None, db.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
+    suuid = sa.Column(sa.Unicode(22), nullable=False, index=True)
+    proposal_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
-    proposal = db.relationship(Proposal)
+    proposal = sa.orm.relationship(Proposal)
 
 
 @reopen(Commentset)
 class __Commentset:
-    proposal = db.relationship(Proposal, uselist=False, back_populates='commentset')
+    proposal = sa.orm.relationship(Proposal, uselist=False, back_populates='commentset')
 
 
 @reopen(Project)
@@ -515,7 +521,7 @@ class __Project:
         return Proposal.state.group(
             basequery.filter(
                 ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
-            ).order_by(db.desc('created_at'))
+            ).order_by(sa.desc('created_at'))
         )
 
     @property
@@ -528,20 +534,20 @@ class __Project:
             basequery = Proposal.query.filter_by(project=self)
         return {
             'confirmed': basequery.filter(Proposal.state.CONFIRMED)
-            .order_by(db.desc('created_at'))
+            .order_by(sa.desc('created_at'))
             .all(),
             'unconfirmed': basequery.filter(
                 ~(Proposal.state.CONFIRMED),
                 ~(Proposal.state.DRAFT),
                 ~(Proposal.state.DELETED),
             )
-            .order_by(db.desc('created_at'))
+            .order_by(sa.desc('created_at'))
             .all(),
         }
 
     # Whether the project has any featured proposals. Returns `None` instead of
     # a boolean if the project does not have any proposal.
-    _has_featured_proposals = db.column_property(
+    _has_featured_proposals = sa.orm.column_property(
         db.exists()
         .where(Proposal.project_id == Project.id)
         .where(Proposal.featured.is_(True))

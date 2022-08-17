@@ -3,7 +3,6 @@ black
 djlint
 flake8
 flake8-assertive
-flake8-bandit
 flake8-blind-except
 flake8-bugbear
 flake8-builtins
@@ -25,6 +24,7 @@ pylint
 pylint-flask-sqlalchemy
 pylint-pytest
 pyupgrade
+reformat-gherkin
 sqlalchemy-stubs
 toml
 types-certifi

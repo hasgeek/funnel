@@ -192,32 +192,13 @@
           target: '#{{ ref_id }}',
           replaceTarget: true,
           beforeSubmit: function(formdata, form, options) {
-            form.find('input[type="submit"]').prop('disabled', true).addClass('submit-disabled');
-            form.find('button[type="submit"]').prop('disabled', true).addClass('submit-disabled');
-            form.find('.loading').removeClass('mui--hide');
+            window.Hasgeek.Forms.preventDoubleSubmit('{{ ref_id }}');
             return true;
           },
-          error: function(xhr, status, errMsg) {
-            var form = $("#{{ ref_id }}");
-            form.find('input[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
-            form.find('button[type="submit"]').prop('disabled', false).removeClass('submit-disabled');
-            form.find('.loading').addClass('mui--hide');
-            $('.alert').remove();
+          error: function(xhr) {
+            var formId = '{{ ref_id }}'
             var alertBoxHtml = {{ alertbox('error', '') | tojson }};
-            form.append(alertBoxHtml);
-            if (xhr.readyState === 4) {
-              if (xhr.status === 500) {
-                $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.serverError);
-              } else if(xhr.status === 429) {
-                $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.rateLimitError);
-              } else if(xhr.responseJSON && xhr.responseJSON.error_description) {
-                $(form).find('.alert__text').text(xhr.responseJSON.error_description);
-              } else {
-                $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.error);
-              }
-            } else {
-              $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.networkError);
-            }
+            window.Hasgeek.Forms.showFormError(formId,  xhr, alertBoxHtml);
           }
         });
       });
@@ -236,6 +217,36 @@
       });
     </script>
   {%- endif %}
+{%- endmacro %}
+{%- macro recaptcha(formId, forWrapperId) %}
+  <script type="text/javascript">
+    var formId = "{{ formId }}";
+    var forWrapperId = "{{ forWrapperId }}";
+    window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
+      var postUrl = $('#' + formId).attr('action');
+      var onSuccess = function(responseData) {
+        $('#' + forWrapperId).html(responseData);
+      };
+      var onError = function(response) {
+        var alertBoxHtml = {{ alertbox('error', '') | tojson }};
+        window.Hasgeek.Forms.showFormError(formId, response, alertBoxHtml);
+      };
+      window.Hasgeek.Forms.ajaxFormSubmit(
+        formId,
+        postUrl,
+        onSuccess,
+        onError,
+        {
+          dataType: 'html'
+        }
+      );
+    };
+    document.getElementById(formId).onsubmit = function (event) {
+      event.preventDefault();
+      grecaptcha.execute();
+    };
+  </script>
+  <script type="text/javascript" src="https://www.google.com/recaptcha/api.js" async defer></script>
 {%- endmacro %}
 
 {% macro tinymce3_editor(field, script=true) -%}
@@ -336,7 +347,7 @@
   {%- endwith %}
 {% endmacro %}
 
-{% macro widgetscripts(form, script=true, ref_id="") -%}
+{% macro widgetscripts(form, script=true, ref_id="", force=false) -%}
   {%- if script %}
   <script type="text/javascript">
     $(function() {
@@ -423,13 +434,13 @@
         autocomplete_endpoint: {{ field.autocomplete_endpoint|tojson }},
         key: {{ field.results_key|tojson }}
       });
-    {%- elif field.type == 'RecaptchaField' and ref_id != '' %}
+    {%- elif field.type == 'RecaptchaField' and ref_id != '' and not force %}
       window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
         document.getElementById("{{ ref_id }}").submit();
       };
       $('#{{ ref_id }}').submit(function (event) {
         event.preventDefault();
-        if (typeof grecaptcha !== "undefiend" && grecaptcha.getResponse() === '') {
+        if (typeof grecaptcha !== "undefined" && grecaptcha.getResponse() === '') {
           grecaptcha.execute();
         } else {
           document.getElementById("{{ ref_id }}").submit();

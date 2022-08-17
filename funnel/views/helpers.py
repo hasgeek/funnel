@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from base64 import urlsafe_b64encode
+from contextlib import nullcontext
 from datetime import datetime, timedelta
 from hashlib import blake2b
 from os import urandom
@@ -10,9 +11,6 @@ from typing import Any, Callable, Dict, Optional, Tuple, Union
 from urllib.parse import unquote, urljoin, urlsplit
 import gzip
 import zlib
-
-from sqlalchemy import event
-from sqlalchemy.orm import Session
 
 from flask import (
     Flask,
@@ -45,9 +43,7 @@ from .. import app, built_assets, shortlinkapp
 from ..forms import supported_locales
 from ..models import Shortlink, User, db, profanity
 from ..proxies import request_wants
-from ..signals import emailaddress_refcount_dropping
-from ..typing import ReturnResponse, ReturnView
-from .jobs import forget_email
+from ..typing import ResponseType, ReturnResponse, ReturnView
 
 valid_timezones = set(common_timezones)
 
@@ -95,6 +91,13 @@ class SessionTimeouts(Dict[str, timedelta]):
 session_timeouts = SessionTimeouts()
 
 # --- Utilities ------------------------------------------------------------------------
+
+
+def app_context():
+    """Return an app context if one is not active."""
+    if current_app:
+        return nullcontext()
+    return app.app_context()
 
 
 def str_pw_set_at(user: User) -> str:
@@ -388,7 +391,7 @@ def validate_rate_limit(  # pylint: disable=too-many-arguments
 # This number can be increased to 4 as volumes grow, but will result in a 6 char token
 TOKEN_BYTES_LEN = 3
 # Changing this prefix will break existing tokens. Do not change
-TEXT_TOKEN_PREFIX = 'temp_token/v1/'  # nosec  # noqa: S105
+TEXT_TOKEN_PREFIX = 'temp_token/v1/'  # nosec
 
 
 def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
@@ -462,7 +465,7 @@ def decompress(data: bytes, algorithm: str) -> bytes:
     raise ValueError("Unknown compression algorithm")
 
 
-def compress_response(response: ReturnResponse) -> None:
+def compress_response(response: ResponseType) -> None:
     """
     Conditionally compress a response based on request parameters.
 
@@ -574,6 +577,7 @@ def shortlink(url: str, actor: Optional[User] = None, shorter: bool = True) -> s
     """
     sl = Shortlink.new(url, reuse=True, shorter=shorter, actor=actor)
     db.session.add(sl)
+    g.require_db_commit = True
     return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
 
 
@@ -583,50 +587,22 @@ def template_context() -> Dict[str, Any]:
     return {'built_asset': lambda assetname: built_assets[assetname]}
 
 
-# --- Database autocommit --------------------------------------------------------------
-
-
-# This code adapted from https://stackoverflow.com/a/50512788/78903
-@event.listens_for(Session, 'after_flush')
-def log_flush(db_session, _flush_context):
-    """Make a note that a database flush occurred."""
-    db_session.info['flushed'] = True
-
-
-@event.listens_for(Session, 'after_commit')
-@event.listens_for(Session, 'after_rollback')
-def reset_flushed(db_session):
-    """Remove note of database flush after database commit."""
-    if 'flushed' in db_session.info:
-        del db_session.info['flushed']
-
-
-def db_has_uncommitted_changes():
-    """Check for any changes to database that are pending commit."""
-    return (
-        any(db.session.new)
-        or any(db.session.deleted)
-        or any(x for x in db.session.dirty if db.session.is_modified(x))
-        or db.session.info.get('flushed', False)
-    )
-
-
-@app.after_request
-def commit_db_session(response):
-    """Commit database session at the end of a request."""
-    # This handler is primarily required for the `|shortlink` template filter, which
-    # may make a database entry in a view's ``return render_template(...)`` call and
-    # is therefore too late for a commit within the view
-    if db_has_uncommitted_changes():
-        db.session.commit()
-    return response
-
-
 # --- Request/response handlers --------------------------------------------------------
 
 
 @app.after_request
-def track_temporary_session_vars(response):
+def commit_db_session(response: ResponseType) -> ResponseType:
+    """Commit database session at the end of a request if asked to."""
+    # This handler is primarily required for the `|shortlink` template filter, which
+    # may make a database entry in a view's ``return render_template(...)`` call and
+    # is therefore too late for a commit within the view
+    if getattr(g, 'require_db_commit', False):
+        db.session.commit()
+    return response
+
+
+@app.after_request
+def track_temporary_session_vars(response: ResponseType) -> ResponseType:
     """Add timestamps to timed values in session, and remove expired values."""
     # Process timestamps only if there is at least one match. Most requests will
     # have no match.
@@ -649,36 +625,9 @@ def track_temporary_session_vars(response):
 
 
 @app.after_request
-def cache_expiry_headers(response):
+def cache_expiry_headers(response: ResponseType) -> ResponseType:
     if response.expires is None:
         response.expires = nocache_expires
     if not response.cache_control.max_age:
         response.cache_control.max_age = 0
-    return response
-
-
-# If an email address had a reference count drop during the request, make a note of
-# its email_hash, and at the end of the request, queue a background job. The job will
-# call .refcount() and if it still has zero references, it will be marked as forgotten
-# by having the email column set to None.
-
-# It is possible for an email address to have its refcount drop and rise again within
-# the request, so it's imperative to wait until the end of the request before attempting
-# to forget it. Ideally, this job should wait even longer, for several minutes or even
-# up to a day.
-
-
-@emailaddress_refcount_dropping.connect
-def forget_email_in_request_teardown(sender):
-    if g:  # Only do this if we have an app context
-        if not hasattr(g, 'forget_email_hashes'):
-            g.forget_email_hashes = set()
-        g.forget_email_hashes.add(sender.email_hash)
-
-
-@app.after_request
-def forget_email_in_background_job(response):
-    if hasattr(g, 'forget_email_hashes'):
-        for email_hash in g.forget_email_hashes:
-            forget_email.queue(email_hash)
     return response

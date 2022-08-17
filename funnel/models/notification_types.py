@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from baseframe import __
 
-from . import db
+from ..typing import Mapped, UuidModelType
 from .comment import Comment, Commentset
 from .moderation import CommentModeratorReport
 from .notification import Notification, notification_categories
@@ -33,13 +33,25 @@ __all__ = [
     'OrganizationAdminMembershipRevokedNotification',
 ]
 
-# --- Mixin classes --------------------------------------------------------------------
+# --- Protocol and Mixin classes -------------------------------------------------------
+
+
+class ProfileSubtype(UuidModelType):
+    """Model that links to a profile."""
+
+    profile: Mapped[Profile]
+
+
+class ProjectSubtype(UuidModelType):
+    """Model that links to a project."""
+
+    project: Mapped[Project]
 
 
 class DocumentHasProject:
     """Mixin class for documents linked to a project."""
 
-    document: db.Model
+    document: ProjectSubtype
 
     @property
     def preference_context(self) -> Profile:
@@ -50,7 +62,7 @@ class DocumentHasProject:
 class DocumentHasProfile:
     """Mixin class for documents linked to a profile."""
 
-    document: db.Model
+    document: ProfileSubtype
 
     @property
     def preference_context(self) -> Profile:

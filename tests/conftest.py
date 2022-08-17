@@ -1,20 +1,27 @@
 """Test configuration and fixtures."""
 
+from __future__ import annotations
+
 from datetime import datetime
 from types import MethodType, SimpleNamespace
-from typing import List, NamedTuple, Optional
+from typing import Any, Dict, Iterator, List, NamedTuple, Optional, Set, Tuple
 import re
 
-from sqlalchemy import event
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import event, inspect
+from sqlalchemy.orm import Session as DatabaseSessionClass
+from sqlalchemy.orm import close_all_sessions
 
+from flask import Flask
 from flask.testing import FlaskClient
 from flask.wrappers import Response
 
-from lxml.html import FormElement, HtmlElement, fromstring  # nosec  # noqa: S410
+from lxml.html import FormElement, HtmlElement, fromstring  # nosec
 from pytz import utc
 import pytest
 
-from funnel import app, redis_store
+from funnel import app as funnel_app
+from funnel import redis_store
 from funnel.models import (
     AuthClient,
     AuthClientCredential,
@@ -69,7 +76,7 @@ class ResponseWithForms(Response):
             next_response = form.submit(client)
     """
 
-    _parsed_html = None
+    _parsed_html: Optional[HtmlElement] = None
 
     @property
     def html(self) -> HtmlElement:
@@ -155,11 +162,296 @@ class ResponseWithForms(Response):
         return MetaRefreshContent(int(match['timeout']), match['url'] or None)
 
 
-# --- New fixtures, to replace the legacy tests below as tests are updated
+# --- Pytest config --------------------------------------------------------------------
+
+
+def pytest_addoption(parser) -> None:
+    """Allow db_session to be configured in the command line."""
+    parser.addoption(
+        '--dbsession',
+        action='store',
+        default='rollback',
+        choices=('rollback', 'truncate'),
+        help="Use db_session with 'rollback' (default) or 'truncate'"
+        " (slower but more production-like)",
+    )
+
+
+def pytest_collection_modifyitems(items) -> None:
+    """Sort tests to run lower level before higher level."""
+    test_order = (
+        'tests/unit/models',
+        'tests/unit/forms',
+        'tests/unit/proxies',
+        'tests/unit/transports',
+        'tests/unit/views',
+        'tests/unit',
+        'tests/integration/views',
+        'tests/integration',
+        'tests/features',
+        'tests/e2e',
+    )
+
+    def sort_key(item) -> Tuple[int, str]:
+        module_file = item.module.__file__
+        for counter, path in enumerate(test_order):
+            if path in module_file:
+                return (counter, module_file)
+        return (-1, module_file)
+
+    items.sort(key=sort_key)
+
+
+# --- Fixtures -------------------------------------------------------------------------
 
 
 @pytest.fixture(scope='session')
-def database(request):
+def app() -> Flask:
+    """App as a fixture to avoid imports in tests."""
+    return funnel_app
+
+
+# Enable autouse to guard against tests that have implicit database access, or assume
+# app context without a fixture
+@pytest.fixture(autouse=True)
+def _push_request_context(request) -> Iterator:
+    if 'app' not in request.fixturenames and 'db_session' not in request.fixturenames:
+        yield
+    else:
+        app_fixture = request.getfixturevalue('app')
+
+        with app_fixture.test_request_context():
+            yield
+
+
+config_test_keys: Dict[str, Set[str]] = {
+    'recaptcha': {'RECAPTCHA_PUBLIC_KEY', 'RECAPTCHA_PRIVATE_KEY'},
+    'twilio': {'SMS_TWILIO_SID', 'SMS_TWILIO_TOKEN'},
+    'exotel': {'SMS_EXOTEL_SID', 'SMS_EXOTEL_TOKEN'},
+    'gmaps': {'GOOGLE_MAPS_API_KEY'},
+    'youtube': {'YOUTUBE_API_KEY'},
+    'vimeo': {'VIMEO_CLIENT_ID', 'VIMEO_CLIENT_SECRET', 'VIMEO_ACCESS_TOKEN'},
+    'oauth-twitter': {'OAUTH_TWITTER_KEY', 'OAUTH_TWITTER_SECRET'},
+    'oauth-google': {'OAUTH_GOOGLE_KEY', 'OAUTH_GOOGLE_SECRET'},
+    'oauth-github': {'OAUTH_GITHUB_KEY', 'OAUTH_GITHUB_SECRET'},
+    'oauth-linkedin': {'OAUTH_LINKEDIN_KEY', 'OAUTH_LINKEDIN_SECRET'},
+    'oauth-zoom': {'OAUTH_ZOOM_KEY', 'OAUTH_ZOOM_SECRET'},
+    'geoip-data': {'GEOIP_DB_CITY', 'GEOIP_DB_ASN'},
+    'telegram-notify': {'TELEGRAM_NOTIFY_APIKEY'},
+    'telegram-stats': {'TELEGRAM_STATS_APIKEY', 'TELEGRAM_STATS_CHATID'},
+    'telegram-error': {'TELEGRAM_ERROR_APIKEY', 'TELEGRAM_ERROR_CHATID'},
+}
+
+
+@pytest.fixture(autouse=True)
+def _requires_config(request) -> None:
+    """Skip test if app is missing config (using ``requires_config`` mark)."""
+    if request.node.get_closest_marker('requires_config'):
+        app = request.getfixturevalue('app')
+        for mark in request.node.iter_markers('requires_config'):
+            for config in mark.args:
+                if config not in config_test_keys:
+                    pytest.fail(f"Unknown required config {config}")
+                for setting_key in config_test_keys[config]:
+                    if not app.config.get(setting_key):
+                        pytest.skip(
+                            f"Skipped due to missing config for {config} in app.config:"
+                            f" {setting_key}"
+                        )
+
+
+@pytest.fixture()
+def _database_events() -> Iterator:
+    """
+    Fixture to report database session events for debugging a test.
+
+    If a test is exhibiting unusual behaviour, add this fixture to trace db events::
+
+        @pytest.mark.usefixtures('_database_events')
+        def test_whatever():
+            ...
+    """
+
+    def safe_repr(entity):
+        try:
+            return repr(entity)
+        except Exception:  # noqa: B902  # pylint: disable=broad-except
+            if hasattr(entity, '__class__'):
+                return f'{entity.__class__.__qualname__}(class-repr-error)'
+            if hasattr(entity, '__name__'):
+                return f'{entity.__name__}(repr-error)'
+            return 'repr-error'
+
+    @event.listens_for(db.Model, 'init', propagate=True)
+    def event_init(obj, args, kwargs):
+        rargs = ', '.join(safe_repr(_a) for _a in args)
+        rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
+        rparams = f'{rargs, rkwargs}' if rargs else rkwargs
+        print(f"obj: new: {obj.__class__.__qualname__}({rparams})")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'transient_to_pending')
+    def event_transient_to_pending(_session, obj):
+        print(f"obj: transient to pending: {safe_repr(obj)}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'pending_to_transient')
+    def event_pending_to_transient(_session, obj):
+        print(f"obj: pending to transient: {safe_repr(obj)}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
+    def event_pending_to_persistent(_session, obj):
+        print(f"obj: pending to persistent: {safe_repr(obj)}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
+    def event_loaded_as_persistent(_session, obj):
+        print(f"obj: loaded as persistent {safe_repr(obj)}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
+    def event_persistent_to_transient(_session, obj):
+        print(f"obj: persistent to transient: {safe_repr(obj)}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
+    def event_persistent_to_deleted(_session, obj):
+        print(f"obj: persistent to deleted {safe_repr(obj)}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
+    def event_deleted_to_detached(_session, obj):
+        i = inspect(obj)
+        print(  # noqa: T201
+            f"obj: deleted to detached: {obj.__class__.__qualname__}/{i.identity}"
+        )
+
+    @event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
+    def event_persistent_to_detached(_session, obj):
+        i = inspect(obj)
+        print(  # noqa: T201
+            f"obj: persistent to detached: {obj.__class__.__qualname__}/{i.identity}"
+        )
+
+    @event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
+    def event_detached_to_persistent(_session, obj):
+        print(f"obj: detached to persistent: {safe_repr(obj)}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
+    def event_deleted_to_persistent(session, obj):
+        print(f"obj: deleted to persistent: {safe_repr(obj)}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'do_orm_execute')
+    def event_do_orm_execute(orm_execute_state):
+        state_is = []
+        if orm_execute_state.is_column_load:
+            state_is.append("is_column_load")
+        if orm_execute_state.is_delete:
+            state_is.append("is_delete")
+        if orm_execute_state.is_insert:
+            state_is.append("is_insert")
+        if orm_execute_state.is_orm_statement:
+            state_is.append("is_orm_statement")
+        if orm_execute_state.is_relationship_load:
+            state_is.append("is_relationship_load")
+        if orm_execute_state.is_select:
+            state_is.append("is_select")
+        if orm_execute_state.is_update:
+            state_is.append("is_update")
+        class_name = (
+            orm_execute_state.bind_mapper.class_.__qualname__
+            if orm_execute_state.bind_mapper
+            else None
+        )
+        print(f"exec: {class_name}: {', '.join(state_is)}")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'after_begin')
+    def event_after_begin(_session, transaction, _connection):
+        if transaction.nested:
+            if transaction.parent.nested:
+                print("session: BEGIN (savepoint)")  # noqa: T201
+            else:
+                print("session: BEGIN (fixture)")  # noqa: T201
+        else:
+            print("session: BEGIN (db)")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'after_commit')
+    def event_after_commit(session):
+        print(f"session: COMMIT ({session.info!r})")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'after_flush')
+    def event_after_flush(session, _flush_context):
+        print(f"session: FLUSH ({session.info})")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'after_rollback')
+    def event_after_rollback(session):
+        print(f"session: ROLLBACK ({session.info})")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
+    def event_after_soft_rollback(session, _previous_transaction):
+        print(f"session: SOFT ROLLBACK ({session.info})")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'after_transaction_create')
+    def event_after_transaction_create(_session, transaction):
+        if transaction.nested:
+            if transaction.parent.nested:
+                print("transaction: CREATE (savepoint)")  # noqa: T201
+            else:
+                print("transaction: CREATE (fixture)")  # noqa: T201
+        else:
+            print("transaction: CREATE (db)")  # noqa: T201
+
+    @event.listens_for(DatabaseSessionClass, 'after_transaction_end')
+    def event_after_transaction_end(_session, transaction):
+        if transaction.nested:
+            if transaction.parent.nested:
+                print("transaction: END (savepoint)")  # noqa: T201
+            else:
+                print("transaction: END (fixture)")  # noqa: T201
+        else:
+            print("transaction: END (db)")  # noqa: T201
+
+    yield
+
+    event.remove(db.Model, 'init', event_init)
+    event.remove(
+        DatabaseSessionClass, 'transient_to_pending', event_transient_to_pending
+    )
+    event.remove(
+        DatabaseSessionClass, 'pending_to_transient', event_pending_to_transient
+    )
+    event.remove(
+        DatabaseSessionClass, 'pending_to_persistent', event_pending_to_persistent
+    )
+    event.remove(
+        DatabaseSessionClass, 'loaded_as_persistent', event_loaded_as_persistent
+    )
+    event.remove(
+        DatabaseSessionClass, 'persistent_to_transient', event_persistent_to_transient
+    )
+    event.remove(
+        DatabaseSessionClass, 'persistent_to_deleted', event_persistent_to_deleted
+    )
+    event.remove(DatabaseSessionClass, 'deleted_to_detached', event_deleted_to_detached)
+    event.remove(
+        DatabaseSessionClass, 'persistent_to_detached', event_persistent_to_detached
+    )
+    event.remove(
+        DatabaseSessionClass, 'detached_to_persistent', event_detached_to_persistent
+    )
+    event.remove(
+        DatabaseSessionClass, 'deleted_to_persistent', event_deleted_to_persistent
+    )
+    event.remove(DatabaseSessionClass, 'do_orm_execute', event_do_orm_execute)
+    event.remove(DatabaseSessionClass, 'after_begin', event_after_begin)
+    event.remove(DatabaseSessionClass, 'after_commit', event_after_commit)
+    event.remove(DatabaseSessionClass, 'after_flush', event_after_flush)
+    event.remove(DatabaseSessionClass, 'after_rollback', event_after_rollback)
+    event.remove(DatabaseSessionClass, 'after_soft_rollback', event_after_soft_rollback)
+    event.remove(
+        DatabaseSessionClass, 'after_transaction_create', event_after_transaction_create
+    )
+    event.remove(
+        DatabaseSessionClass, 'after_transaction_end', event_after_transaction_end
+    )
+
+
+@pytest.fixture(scope='session')
+def database(request, app) -> SQLAlchemy:
     """Provide a database structure."""
     with app.app_context():
         db.create_all()
@@ -174,53 +466,129 @@ def database(request):
 
 
 @pytest.fixture(scope='session')
-def db_connection(database):
-    """Return a database connection."""
-    return database.engine.connect()
+def _db(database):  # noqa: PT005
+    """Database fixture required by pytest-flask-sqlalchemy (unused)."""
+    # Also see pyproject.toml for mock configuration
+    return database
 
 
-# This fixture borrowed from
-# https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/46
-# #issuecomment-829694672
 @pytest.fixture()
-def db_session(database, db_connection):
-    """Create a nested transaction for the test and roll it back after."""
+def db_session_truncate(app, database) -> Iterator[DatabaseSessionClass]:
+    """Empty the database after each use of the fixture."""
+    yield database.session
+    close_all_sessions()
+
+    # Iterate through all database engines and empty their tables
+    for bind in [None] + list(app.config.get('SQLALCHEMY_BINDS') or ()):
+        engine = database.get_engine(app=app, bind=bind)
+        with engine.begin() as connection:
+            connection.execute(
+                '''
+                DO $$
+                DECLARE tablenames text;
+                BEGIN
+                    tablenames := string_agg(
+                        quote_ident(schemaname) || '.' || quote_ident(tablename),
+                        ', ')
+                        FROM pg_tables WHERE schemaname = 'public';
+                    EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
+                END; $$
+            '''
+            )
+
+    # Clear Redis db too
+    redis_store.flushdb()
+
+
+@pytest.fixture()
+def db_session_rollback(database) -> Iterator[DatabaseSessionClass]:
+    """Create a nested transaction for the test and rollback after."""
+    db_connection = database.engine.connect()
     original_session = database.session
     transaction = db_connection.begin()
     database.session = database.create_scoped_session(
         options={'bind': db_connection, 'binds': {}}
     )
-    database.session.begin_nested()
+    database.session.info['fixture'] = True
 
-    # for handling tests that actually call `session.rollback()`
-    # https://docs.sqlalchemy.org/en/13/orm/session_transaction.html#joining-a-session-into-an-external-transaction-such-as-for-test-suites
+    # For handling tests that actually call `session.rollback()`, we use a SQL savepoint
+    # and add an event handler that restarts the savepoint. SQLAlchemy 1.4 deprecated
+    # session.commit() being used to commit a savepoint, and 2.0 will remove it,
+    # potentially breaking this fixture. It will need revision then.
+    #
+    # References:
+    #
+    # * 1.3: https://docs.sqlalchemy.org/en/13/orm/session_transaction.html
+    #   #joining-a-session-into-an-external-transaction-such-as-for-test-suites
+    # * 1.4: https://docs.sqlalchemy.org/en/14/orm/session_transaction.html
+    #   #joining-a-session-into-an-external-transaction-such-as-for-test-suites
+
+    savepoint = database.session.begin_nested()
+    database.session.force_commit = database.session.commit
+    database.session.force_rollback = database.session.rollback
+    database.session.force_close = database.session.close
+
+    # This is breaking in the new app context created in
+    # `funnel.views.login_session.update_user_session_timestamp` in internal function
+    # `mark_session_accessed_after_response` when it does a commit
+
+    # database.session.commit = savepoint.commit
+    # database.session.rollback = savepoint.rollback
+    # database.session.close = savepoint.rollback
+
     @event.listens_for(database.session, 'after_transaction_end')
     def restart_savepoint(session, transaction_in):
-        if (
-            transaction_in.nested
-            and not transaction_in._parent.nested  # pylint: disable=protected-access
-        ):
+        """If the savepoint terminates due to commit or rollback, restart it."""
+        nonlocal savepoint
+        if transaction_in.nested and not transaction_in.parent.nested:
+            # This is a top-level savepoint, so restart it
             session.expire_all()
-            session.begin_nested()
+            savepoint = session.begin_nested()
+            # database.session.commit = savepoint.commit
+            # database.session.rollback = savepoint.rollback
+            # database.session.close = savepoint.rollback
 
     yield database.session
 
-    database.session.close()
+    event.remove(database.session, 'after_transaction_end', restart_savepoint)
+    database.session.force_close()
     transaction.rollback()
+    db_connection.close()
     database.session = original_session
 
-    with app.app_context():
-        redis_store.flushdb()
+    # Clear Redis db too
+    redis_store.flushdb()
 
 
-# Enable autouse to guard against tests that have implicit database access, or assume
-# app context without a fixture
-@pytest.fixture(autouse=True)
-def client(request, db_session):
+@pytest.fixture()
+def db_session(request) -> DatabaseSessionClass:
+    """
+    Database session fixture.
+
+    This fixture may be overridden in another conftest.py to return one of the two
+    available session fixtures:
+
+    * ``db_session_truncate``: Which allows unmediated database access but empties table
+      contents after each use
+    * ``db_session_savepoint``: Which nests the session in a SAVEPOINT and rolls back
+      after each use
+
+    This version of the fixture uses the --dbsession command-line option to choose the
+    base fixture.
+    """
+    return request.getfixturevalue(
+        {
+            'rollback': 'db_session_rollback',
+            'truncate': 'db_session_truncate',
+        }[request.config.getoption('--dbsession')]
+    )
+
+
+@pytest.fixture()
+def client(request, app, db_session) -> Iterator[FlaskClient]:
     """Provide a test client."""
-    with app.app_context():  # Not required for test_client, but required for autouse
-        with FlaskClient(app, ResponseWithForms, use_cookies=True) as test_client:
-            yield test_client
+    with FlaskClient(app, ResponseWithForms, use_cookies=True) as test_client:
+        yield test_client
 
 
 @pytest.fixture()
@@ -230,7 +598,7 @@ def csrf_token(client):
 
 
 @pytest.fixture()
-def login(client):
+def login(app, client) -> SimpleNamespace:
     """Provide a login fixture."""
 
     def as_(user):
@@ -252,7 +620,7 @@ def login(client):
 
 
 @pytest.fixture()
-def varfixture(request):
+def varfixture(request) -> Any:
     """
     Return a variable fixture.
 
@@ -282,7 +650,7 @@ def varfixture(request):
 
 
 @pytest.fixture()
-def user_twoflower(db_session):
+def user_twoflower(db_session) -> User:
     """
     Twoflower is a tourist from the Agatean Empire who goes on adventures.
 
@@ -296,7 +664,7 @@ def user_twoflower(db_session):
 
 
 @pytest.fixture()
-def user_rincewind(db_session):
+def user_rincewind(db_session) -> User:
     """
     Rincewind is a wizard and a former member of Unseen University.
 
@@ -309,7 +677,7 @@ def user_rincewind(db_session):
 
 
 @pytest.fixture()
-def user_death(db_session):
+def user_death(db_session) -> User:
     """
     Death is the epoch user, present at the beginning and always having the last word.
 
@@ -327,7 +695,7 @@ def user_death(db_session):
 
 
 @pytest.fixture()
-def user_mort(db_session):
+def user_mort(db_session) -> User:
     """
     Mort is Death's apprentice, and a site admin in tests.
 
@@ -341,7 +709,7 @@ def user_mort(db_session):
 
 
 @pytest.fixture()
-def user_susan(db_session):
+def user_susan(db_session) -> User:
     """
     Susan Sto Helit (also written Sto-Helit) is Death's grand daughter.
 
@@ -353,7 +721,7 @@ def user_susan(db_session):
 
 
 @pytest.fixture()
-def user_lutze(db_session):
+def user_lutze(db_session) -> User:
     """
     Lu-Tze is a history monk and sweeper at the Monastery of Oi-Dong.
 
@@ -365,7 +733,7 @@ def user_lutze(db_session):
 
 
 @pytest.fixture()
-def user_ridcully(db_session):
+def user_ridcully(db_session) -> User:
     """
     Mustrum Ridcully, archchancellor of Unseen University.
 
@@ -377,7 +745,7 @@ def user_ridcully(db_session):
 
 
 @pytest.fixture()
-def user_librarian(db_session):
+def user_librarian(db_session) -> User:
     """
     Librarian of Unseen University, currently an orangutan.
 
@@ -389,7 +757,7 @@ def user_librarian(db_session):
 
 
 @pytest.fixture()
-def user_ponder_stibbons(db_session):
+def user_ponder_stibbons(db_session) -> User:
     """
     Ponder Stibbons, maintainer of Hex, the computer powered by an Anthill Inside.
 
@@ -401,7 +769,7 @@ def user_ponder_stibbons(db_session):
 
 
 @pytest.fixture()
-def user_vetinari(db_session):
+def user_vetinari(db_session) -> User:
     """
     Havelock Vetinari, patrician (aka dictator) of Ankh-Morpork.
 
@@ -413,7 +781,7 @@ def user_vetinari(db_session):
 
 
 @pytest.fixture()
-def user_vimes(db_session):
+def user_vimes(db_session) -> User:
     """
     Samuel Vimes, commander of the Ankh-Morpork City Watch.
 
@@ -425,7 +793,7 @@ def user_vimes(db_session):
 
 
 @pytest.fixture()
-def user_carrot(db_session):
+def user_carrot(db_session) -> User:
     """
     Carrot Ironfoundersson, captain of the Ankh-Morpork City Watch.
 
@@ -437,7 +805,7 @@ def user_carrot(db_session):
 
 
 @pytest.fixture()
-def user_angua(db_session):
+def user_angua(db_session) -> User:
     """
     Delphine Angua von Überwald, member of the Ankh-Morpork City Watch, and foreigner.
 
@@ -455,7 +823,7 @@ def user_angua(db_session):
 
 
 @pytest.fixture()
-def user_dibbler(db_session):
+def user_dibbler(db_session) -> User:
     """
     Cut Me Own Throat (or C.M.O.T) Dibbler, huckster who exploits small opportunities.
 
@@ -467,7 +835,7 @@ def user_dibbler(db_session):
 
 
 @pytest.fixture()
-def user_wolfgang(db_session):
+def user_wolfgang(db_session) -> User:
     """
     Wolfgang von Überwald, brother of Angua, violent shapeshifter.
 
@@ -480,7 +848,7 @@ def user_wolfgang(db_session):
 
 
 @pytest.fixture()
-def user_om(db_session):
+def user_om(db_session) -> User:
     """
     Great God Om of the theocracy of Omnia, who has lost his believers.
 
@@ -496,7 +864,7 @@ def user_om(db_session):
 
 
 @pytest.fixture()
-def org_ankhmorpork(db_session, user_vetinari):
+def org_ankhmorpork(db_session, user_vetinari) -> Organization:
     """
     City of Ankh-Morpork, here representing the government rather than location.
 
@@ -509,7 +877,9 @@ def org_ankhmorpork(db_session, user_vetinari):
 
 
 @pytest.fixture()
-def org_uu(db_session, user_ridcully, user_librarian, user_ponder_stibbons):
+def org_uu(
+    db_session, user_ridcully, user_librarian, user_ponder_stibbons
+) -> Organization:
     """
     Unseen University is located in Ankh-Morpork.
 
@@ -542,7 +912,7 @@ def org_uu(db_session, user_ridcully, user_librarian, user_ponder_stibbons):
 
 
 @pytest.fixture()
-def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot):
+def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot) -> Organization:
     """
     City Watch of Ankh-Morpork (a sub-organization).
 
@@ -574,7 +944,7 @@ def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot):
 
 
 @pytest.fixture()
-def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
+def project_expo2010(db_session, org_ankhmorpork, user_vetinari) -> Project:
     """Ankh-Morpork hosts its 2010 expo."""
     db_session.flush()
 
@@ -590,7 +960,7 @@ def project_expo2010(db_session, org_ankhmorpork, user_vetinari):
 
 
 @pytest.fixture()
-def project_expo2011(db_session, org_ankhmorpork, user_vetinari):
+def project_expo2011(db_session, org_ankhmorpork, user_vetinari) -> Project:
     """Ankh-Morpork hosts its 2011 expo."""
     db_session.flush()
 
@@ -606,7 +976,7 @@ def project_expo2011(db_session, org_ankhmorpork, user_vetinari):
 
 
 @pytest.fixture()
-def project_ai1(db_session, org_uu, user_ponder_stibbons):
+def project_ai1(db_session, org_uu, user_ponder_stibbons) -> Project:
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
 
@@ -631,7 +1001,7 @@ def project_ai1(db_session, org_uu, user_ponder_stibbons):
 
 
 @pytest.fixture()
-def project_ai2(db_session, org_uu, user_ponder_stibbons):
+def project_ai2(db_session, org_uu, user_ponder_stibbons) -> Project:
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
 
@@ -655,7 +1025,7 @@ def project_ai2(db_session, org_uu, user_ponder_stibbons):
 
 
 @pytest.fixture()
-def client_hex(db_session, org_uu):
+def client_hex(db_session, org_uu) -> Project:
     """
     Hex, supercomputer at Unseen University, powered by an Anthill Inside.
 
@@ -674,7 +1044,7 @@ def client_hex(db_session, org_uu):
 
 
 @pytest.fixture()
-def client_hex_credential(db_session, client_hex):
+def client_hex_credential(db_session, client_hex) -> SimpleNamespace:
     cred, secret = AuthClientCredential.new(client_hex)
     db_session.add(cred)
     return SimpleNamespace(cred=cred, secret=secret)
@@ -707,7 +1077,7 @@ def all_fixtures(  # pylint: disable=too-many-arguments,too-many-locals
     project_ai1,
     project_ai2,
     client_hex,
-):
+) -> SimpleNamespace:
     """Return All Discworld fixtures at once."""
     db_session.commit()
     return SimpleNamespace(**locals())

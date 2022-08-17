@@ -44,13 +44,15 @@ from ..models import (
     UserSessionRevokedError,
     auth_client_user_session,
     db,
+    sa,
 )
 from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
-from ..typing import ReturnDecorator, WrappedFunc
+from ..typing import ResponseType, ReturnDecorator, WrappedFunc
 from ..utils import abort_null
 from .helpers import (
+    app_context,
     app_url_for,
     autoset_timezone_and_locale,
     get_scheme_netloc,
@@ -72,7 +74,7 @@ GET_AND_POST = frozenset({'GET', 'POST'})
 #: Form id for sudo OTP form
 FORMID_SUDO_OTP = 'sudo-otp'
 #: Form id for sudo password form
-FORMID_SUDO_PASSWORD = 'sudo-password'  # noqa: S105  # nosec
+FORMID_SUDO_PASSWORD = 'sudo-password'  # nosec
 
 # --- Registry entries -----------------------------------------------------------------
 
@@ -234,7 +236,7 @@ def session_mark_accessed(
     # `accessed_at` will be different from the automatic `updated_at` in one
     # crucial context: when the session was revoked from a different session.
     # `accessed_at` won't be updated at that time.
-    obj.accessed_at = db.func.utcnow()
+    obj.accessed_at = sa.func.utcnow()
     with db.session.no_autoflush:
         if auth_client is not None:
             if (
@@ -248,7 +250,7 @@ def session_mark_accessed(
                     auth_client_user_session.update()
                     .where(auth_client_user_session.c.user_session_id == obj.id)
                     .where(auth_client_user_session.c.auth_client_id == auth_client.id)
-                    .values(accessed_at=db.func.utcnow())
+                    .values(accessed_at=sa.func.utcnow())
                 )
         else:
             ipaddr = (request.remote_addr or '') if ipaddr is None else ipaddr
@@ -294,7 +296,7 @@ def session_mark_accessed(
 
 # Also add future hasjob app here
 @app.after_request
-def clear_old_session(response):
+def clear_old_session(response: ResponseType) -> ResponseType:
     """Delete cookies that _may_ accidentally be present (and conflicting)."""
     for cookie_name, domains in app.config.get('DELETE_COOKIES', {}).items():
         if cookie_name in request.cookies:
@@ -307,7 +309,7 @@ def clear_old_session(response):
 
 # Also add future hasjob app here
 @app.after_request
-def set_lastuser_cookie(response):
+def set_lastuser_cookie(response: ResponseType) -> ResponseType:
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
     if (
         request_has_auth()
@@ -317,7 +319,7 @@ def set_lastuser_cookie(response):
             and getattr(current_auth, 'suppress_empty_cookie', False)
         )
     ):
-        response.vary.add('Cookie')
+        response.vary.add('Cookie')  # type: ignore[union-attr]
         expires = utcnow() + current_app.config['PERMANENT_SESSION_LIFETIME']
         response.set_cookie(
             'lastuser',
@@ -363,7 +365,7 @@ def set_lastuser_cookie(response):
 
 # Also add future hasjob app here
 @app.after_request
-def update_user_session_timestamp(response):
+def update_user_session_timestamp(response: ResponseType) -> ResponseType:
     """Mark a user session as accessed at the end of every request."""
     if request_has_auth() and current_auth.session:
         # Setup a callback to update the session after the request has returned a
@@ -376,7 +378,7 @@ def update_user_session_timestamp(response):
         @response.call_on_close
         def mark_session_accessed_after_response():
             # App context is needed for the call to statsd in mark_accessed()
-            with app.app_context():
+            with app_context():
                 # 1. Add object back to the current database session as it's not
                 # known here. We are NOT using session.merge as we don't need to
                 # refresh data from the db. SQLAlchemy will automatically load
@@ -721,7 +723,7 @@ def _client_login_inner():
             {'WWW-Authenticate': 'Basic realm="Client credentials"'},
         )
     if credential is not None:
-        credential.accessed_at = db.func.utcnow()
+        credential.accessed_at = sa.func.utcnow()
         db.session.commit()
     add_auth_attribute('auth_client', credential.auth_client, actor=True)
     return None

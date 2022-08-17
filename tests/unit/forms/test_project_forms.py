@@ -2,11 +2,13 @@
 
 from werkzeug.datastructures import MultiDict
 
+import pytest
 import requests_mock
 
 from funnel.forms import ProjectLivestreamForm
 
 
+@pytest.mark.usefixtures('app')
 def test_livestream_form_valid() -> None:
     with requests_mock.Mocker() as m:
         valid_urls = [
@@ -34,6 +36,7 @@ def test_livestream_form_valid() -> None:
         assert form2.validate()
 
 
+@pytest.mark.usefixtures('app')
 def test_livestream_form_invalid() -> None:
     with requests_mock.Mocker() as m:
         m.get("https://www.vimeo.com/336892869", text='resp')

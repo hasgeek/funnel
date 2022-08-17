@@ -6,12 +6,11 @@ from types import SimpleNamespace
 import pytest
 
 from baseframe.forms.validators import StopValidation
-from funnel import app
 from funnel.forms import PasswordPolicyForm, pwned_password_validator
 
 
 @pytest.fixture(autouse=True)
-def _policy_form_app_context(request):
+def _policy_form_app_context(request, app):
     """Create a POST request context with form data."""
     data = {}
     for mark in request.node.iter_markers('formdata'):
@@ -73,6 +72,7 @@ def test_okay_password(form) -> None:
     assert form.suggestions == []
 
 
+@pytest.mark.remote_data()
 def test_pwned_password_validator() -> None:
     """Test the pwned password validator."""
     # Validation success = no return value, no exception

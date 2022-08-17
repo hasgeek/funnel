@@ -5,15 +5,14 @@ from flask import url_for
 from furl import furl
 import pytest
 
-from funnel import app, shortlinkapp
+from funnel import shortlinkapp
 from funnel.models import SiteMembership
 
 
 @pytest.fixture()
 def create_shortlink():
     """URL for creating a shortlink."""
-    with app.app_context():
-        return url_for('create_shortlink')
+    return url_for('create_shortlink')
 
 
 @pytest.fixture()
@@ -22,11 +21,11 @@ def user_rincewind_site_editor(db_session, user_rincewind):
         user=user_rincewind, granted_by=user_rincewind, is_site_editor=True
     )
     db_session.add(sm)
-    db_session.flush()
+    db_session.commit()
     return sm
 
 
-def test_create_invalid_shortlink(client, user_rincewind, create_shortlink):
+def test_create_invalid_shortlink(app, client, user_rincewind, create_shortlink):
     """Creating a shortlink via API with invalid data will fail."""
     # A GET request will fail
     rv = client.get(create_shortlink)
@@ -53,7 +52,7 @@ def test_create_invalid_shortlink(client, user_rincewind, create_shortlink):
     assert rv.json['error'] == 'url_invalid'
 
 
-def test_create_shortlink(client, user_rincewind, create_shortlink):
+def test_create_shortlink(app, client, user_rincewind, create_shortlink):
     """Creating a shortlink via API with valid data will pass."""
     # A valid URL to an app path will be accepted
     rv = client.post(
@@ -91,7 +90,7 @@ def test_create_shortlink(client, user_rincewind, create_shortlink):
     )
 
 
-def test_create_shortlink_longer(client, user_rincewind, create_shortlink):
+def test_create_shortlink_longer(app, client, user_rincewind, create_shortlink):
     rv = client.post(
         create_shortlink,
         data={'url': user_rincewind.profile.url_for(_external=True), 'shorter': '0'},

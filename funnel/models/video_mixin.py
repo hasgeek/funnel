@@ -7,7 +7,7 @@ import urllib.parse
 
 from baseframe import _
 
-from . import db
+from . import declarative_mixin, sa
 
 __all__ = ['VideoMixin', 'VideoError', 'parse_video_url']
 
@@ -103,9 +103,10 @@ def make_video_url(video_source: str, video_id: str) -> str:
     raise ValueError("Unknown video source")
 
 
+@declarative_mixin
 class VideoMixin:
-    video_id: db.Column = db.Column(db.UnicodeText, nullable=True)
-    video_source: db.Column = db.Column(db.UnicodeText, nullable=True)
+    video_id: sa.Column = sa.Column(sa.UnicodeText, nullable=True)
+    video_source: sa.Column = sa.Column(sa.UnicodeText, nullable=True)
 
     @property
     def video_url(self) -> Optional[str]:

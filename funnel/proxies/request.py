@@ -5,15 +5,11 @@ from __future__ import annotations
 from functools import wraps
 from typing import Any, Callable, Optional, Set, TypeVar, cast
 
-from flask import (  # type: ignore[attr-defined]
-    _request_ctx_stack,
-    has_request_context,
-    request,
-)
+from flask import has_request_context, request
 from werkzeug.local import LocalProxy
 from werkzeug.utils import cached_property
 
-from ..typing import ReturnDecorator, ReturnResponse
+from ..typing import ResponseType, ReturnDecorator
 
 __all__ = ['request_wants']
 
@@ -119,10 +115,16 @@ class RequestWants:
 
 
 def _get_request_wants() -> RequestWants:
+    """Get request_wants from the request."""
+    # Flask 2.0 deprecated use of _request_ctx_stack.top and recommends using `g`.
+    # However, `g` is not suitable for us as we must cache results for a request only.
+    # Therefore we stick it in the request object itself.
     if has_request_context():
-        wants = getattr(_request_ctx_stack.top, 'request_wants', None)
+        # pylint: disable=protected-access
+        wants = getattr(request, '_request_wants', None)
         if wants is None:
-            wants = _request_ctx_stack.top.request_wants = RequestWants()
+            wants = RequestWants()
+            request._request_wants = wants  # type: ignore[attr-defined]
         return wants
     # Return an empty handler
     return RequestWants()
@@ -131,7 +133,7 @@ def _get_request_wants() -> RequestWants:
 request_wants = LocalProxy(_get_request_wants)
 
 
-def response_varies(response: ReturnResponse) -> ReturnResponse:
+def response_varies(response: ResponseType) -> ResponseType:
     """App ``after_request`` handler to set response ``Vary`` header."""
     response.vary.update(request_wants.response_vary)  # type: ignore[union-attr]
     return response

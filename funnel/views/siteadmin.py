@@ -31,6 +31,7 @@ from ..models import (
     UserSession,
     auth_client_user_session,
     db,
+    sa,
 )
 from ..typing import ReturnRenderWith, ReturnResponse, ReturnView, WrappedFunc
 from ..utils import abort_null
@@ -104,12 +105,12 @@ class SiteadminView(ClassView):
         """Render siteadmin dashboard landing page."""
         user_count = User.active_user_count()
         mau = (
-            db.session.query(db.func.count(db.func.distinct(UserSession.user_id)))
+            db.session.query(sa.func.count(sa.func.distinct(UserSession.user_id)))
             .select_from(UserSession)
             .join(User, UserSession.user)
             .filter(
                 User.state.ACTIVE,
-                UserSession.accessed_at > db.func.utcnow() - timedelta(days=30),
+                UserSession.accessed_at > sa.func.utcnow() - timedelta(days=30),
             )
             .scalar()
         )
@@ -124,8 +125,8 @@ class SiteadminView(ClassView):
         """Render CSV of registered users by month."""
         users_by_month = (
             db.session.query(
-                db.func.date_trunc('month', User.created_at).label('month'),
-                db.func.count().label('count'),
+                sa.func.date_trunc('month', User.created_at).label('month'),
+                sa.func.count().label('count'),
             )
             .select_from(User)
             .filter(User.state.ACTIVE)
@@ -166,7 +167,7 @@ class SiteadminView(ClassView):
                     auth_client_user_session.c.user_session_id == UserSession.id,
                     User.state.ACTIVE,
                     auth_client_user_session.c.accessed_at
-                    >= db.func.utcnow() - db.func.cast(interval, INTERVAL),
+                    >= sa.func.utcnow() - sa.func.cast(interval, INTERVAL),
                 )
                 .group_by(
                     auth_client_user_session.c.auth_client_id, UserSession.user_id
@@ -177,7 +178,7 @@ class SiteadminView(ClassView):
             clients = (
                 db.session.query(
                     query_client_users.c.auth_client_id.label('auth_client_id'),
-                    db.func.count().label('count'),
+                    sa.func.count().label('count'),
                     AuthClient.title.label('title'),
                     AuthClient.website.label('website'),
                 )
@@ -188,7 +189,7 @@ class SiteadminView(ClassView):
                     AuthClient.title,
                     AuthClient.website,
                 )
-                .order_by(db.text('count DESC'))
+                .order_by(sa.text('count DESC'))
                 .all()
             )
             for row in clients:
@@ -242,7 +243,7 @@ class SiteadminView(ClassView):
         )
         if query:
             comments = comments.join(User).filter(
-                db.or_(
+                sa.or_(
                     Comment.search_vector.match(for_tsquery(query or '')),
                     User.search_vector.match(for_tsquery(query or '')),
                 )
@@ -274,9 +275,7 @@ class SiteadminView(ClassView):
         # Avoid request.form.getlist('comment_id') here
         if comment_spam_form.validate_on_submit():
             comments = Comment.query.filter(
-                Comment.uuid_b58.in_(  # type: ignore[attr-defined]
-                    request.form.getlist('comment_id')
-                )
+                Comment.uuid_b58.in_(request.form.getlist('comment_id'))
             )
             for comment in comments:
                 CommentModeratorReport.submit(actor=current_auth.user, comment=comment)
@@ -335,7 +334,7 @@ class SiteadminView(ClassView):
             flash(_("This comment has already been marked as spam"), 'error')
             CommentModeratorReport.query.filter_by(
                 comment=comment_report.comment
-            ).update({'resolved_at': db.func.utcnow()}, synchronize_session='fetch')
+            ).update({'resolved_at': sa.func.utcnow()}, synchronize_session='fetch')
             db.session.commit()
             # Redirect to a new report
             return render_redirect(url_for('siteadmin_review_comments_random'))
@@ -372,7 +371,7 @@ class SiteadminView(ClassView):
                     CommentModeratorReport.query.filter_by(
                         comment=comment_report.comment
                     ).update(
-                        {'resolved_at': db.func.utcnow()}, synchronize_session='fetch'
+                        {'resolved_at': sa.func.utcnow()}, synchronize_session='fetch'
                     )
             else:
                 # current report is different from existing report and

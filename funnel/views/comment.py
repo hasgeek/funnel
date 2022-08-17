@@ -33,6 +33,7 @@ from ..models import (
     Proposal,
     User,
     db,
+    sa,
 )
 from ..proxies import request_wants
 from ..signals import project_role_change, proposal_role_change
@@ -359,7 +360,7 @@ class CommentView(UrlForView, ModelView):
         commentform = CommentForm(obj=self.obj)
         if commentform.validate_on_submit():
             self.obj.message = commentform.message.data
-            self.obj.edited_at = db.func.utcnow()
+            self.obj.edited_at = sa.func.utcnow()
             db.session.commit()
             return {
                 'status': 'ok',

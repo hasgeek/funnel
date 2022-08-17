@@ -29,11 +29,11 @@ RINCEWIND_EMAIL = 'rincewind@example.com'
 LOGIN_USERNAMES = [RINCEWIND_USERNAME, RINCEWIND_EMAIL, RINCEWIND_PHONE]
 
 # Test credentials
-COMPLEX_TEST_PASSWORD = 'f7kN{$a58p^AmL@$'  # nosec  # noqa: S105
-WRONG_PASSWORD = 'wrong-password'  # nosec  # noqa: S105
-BLANK_PASSWORD = ''  # nosec  # noqa: S105
-WEAK_TEST_PASSWORD = 'password'  # nosec  # noqa: S105
-TEST_OAUTH_TOKEN = 'test_oauth_token'  # nosec  # noqa: S105
+COMPLEX_TEST_PASSWORD = 'f7kN{$a58p^AmL@$'  # nosec
+WRONG_PASSWORD = 'wrong-password'  # nosec
+BLANK_PASSWORD = ''  # nosec
+WEAK_TEST_PASSWORD = 'password'  # nosec
+TEST_OAUTH_TOKEN = 'test_oauth_token'  # nosec
 
 # Functions to patch to capture OTPs
 PATCH_SMS_SEND = 'funnel.transports.sms.send'
@@ -51,7 +51,7 @@ PATCH_LOGINHUB_CALLBACK = 'funnel.loginproviders.github.GitHubProvider.callback'
 @pytest.fixture(scope='session')
 def loginhub():
     """Fake login provider for tests."""
-    login_registry['loginhub'] = GitHubProvider(  # noqa: S106  # nosec
+    login_registry['loginhub'] = GitHubProvider(  # nosec
         'loginhub',
         "Login Hub",
         at_login=True,

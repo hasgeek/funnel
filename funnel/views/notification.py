@@ -19,12 +19,13 @@ from typing_extensions import Literal
 from baseframe import __, statsd
 from coaster.auth import current_auth
 
-from .. import app, rq
+from .. import app
 from ..models import Notification, UserNotification, db
 from ..serializers import token_serializer
 from ..transports import TransportError, email, platform_transports, sms
 from ..transports.sms import SmsTemplate
 from .helpers import make_cached_token
+from .jobs import rqjob
 
 __all__ = ['RenderNotification', 'dispatch_notification']
 
@@ -372,33 +373,31 @@ def transport_worker_wrapper(func):
     @wraps(func)
     def inner(user_notification_ids):
         """Convert a notification id into an object for worker to process."""
-        with app.app_context():
-            queue = [
-                UserNotification.query.get(identity)
-                for identity in user_notification_ids
-            ]
-            for user_notification in queue:
-                # The notification may be revoked by the time this worker processes it.
-                # If so, skip it.
-                if not user_notification.is_revoked:
-                    with force_locale(user_notification.user.locale or 'en'):
-                        view = Notification.renderers[
-                            user_notification.notification.type
-                        ](user_notification)
-                        try:
-                            func(user_notification, view)
-                            db.session.commit()
-                        except TransportError:
-                            if user_notification.notification.ignore_transport_errors:
-                                pass
-                            else:
-                                # TODO: Implement transport error handling code here
-                                raise
+        queue = [
+            UserNotification.query.get(identity) for identity in user_notification_ids
+        ]
+        for user_notification in queue:
+            # The notification may be revoked by the time this worker processes it.
+            # If so, skip it.
+            if not user_notification.is_revoked:
+                with force_locale(user_notification.user.locale or 'en'):
+                    view = Notification.renderers[user_notification.notification.type](
+                        user_notification
+                    )
+                    try:
+                        func(user_notification, view)
+                        db.session.commit()
+                    except TransportError:
+                        if user_notification.notification.ignore_transport_errors:
+                            pass
+                        else:
+                            # TODO: Implement transport error handling code here
+                            raise
 
     return inner
 
 
-@rq.job('funnel')
+@rqjob()
 @transport_worker_wrapper
 def dispatch_transport_email(
     user_notification: UserNotification, view: RenderNotification
@@ -447,7 +446,7 @@ def dispatch_transport_email(
     )
 
 
-@rq.job('funnel')
+@rqjob()
 @transport_worker_wrapper
 def dispatch_transport_sms(user_notification, view):
     """Deliver a user notification over SMS."""
@@ -476,70 +475,64 @@ transport_workers = {'email': dispatch_transport_email, 'sms': dispatch_transpor
 DISPATCH_BATCH_SIZE = 10
 
 
-@rq.job('funnel')
+@rqjob()
 def dispatch_notification_job(eventid, notification_ids):
     """Process :class:`Notification` into batches of :class:`UserNotification`."""
-    with app.app_context():
-        notifications = [
-            Notification.query.get((eventid, nid)) for nid in notification_ids
-        ]
+    notifications = [Notification.query.get((eventid, nid)) for nid in notification_ids]
 
-        # Dispatch, creating batches of DISPATCH_BATCH_SIZE each
-        for notification in notifications:
-            for batch in (
-                filterfalse(lambda x: x is None, unfiltered_batch)
-                for unfiltered_batch in zip_longest(
-                    *[notification.dispatch()] * DISPATCH_BATCH_SIZE, fillvalue=None
-                )
-            ):
-                db.session.commit()
-                notification_ids = [
-                    user_notification.identity for user_notification in batch
-                ]
-                dispatch_user_notifications_job.queue(notification_ids)
-                statsd.incr(
-                    'notification.recipient',
-                    count=len(notification_ids),
-                    tags={'notification_type': notification.type},
-                )
-
-        # How does this batching work? There is a confusing recipe in the itertools
-        # module documentation. Here is what happens:
-        #
-        # `notification.dispatch()` returns a generator. We make a list of the
-        # desired batch size containing repeated references to the same generator.
-        # This works because Python lists can contain the same item multiple times,
-        # and ``[item] * 2 == [item, item]`` (also: ``[1, 2] * 2 = [1, 2, 1, 2]``).
-        # These copies are fed as positional parameters to `zip_longest`, which
-        # returns a batch containing one item from each of its parameters. For each
-        # batch (size 10 from the constant defined above), we commit to database
-        # and then queue a background job to deliver to them. When `zip_longest`
-        # runs out of items, it returns a batch padded with the `fillvalue` None.
-        # We use `filterfalse` to discard these None values. This difference
-        # distinguishes `zip_longest` from `zip`, which truncates the source data
-        # when it is short of a full batch.
-        #
-        # Discussion of approaches at https://stackoverflow.com/q/8290397/78903
-
-
-@rq.job('funnel')
-def dispatch_user_notifications_job(user_notification_ids):
-    with app.app_context():
-        queue = [
-            UserNotification.query.get(identity) for identity in user_notification_ids
-        ]
-        transport_batch = defaultdict(list)
-
-        for user_notification in queue:
-            user_notification.rollup_previous()
-            for transport in transport_workers:
-                if platform_transports[transport] and user_notification.has_transport(
-                    transport
-                ):
-                    transport_batch[transport].append(user_notification.identity)
+    # Dispatch, creating batches of DISPATCH_BATCH_SIZE each
+    for notification in notifications:
+        for batch in (
+            filterfalse(lambda x: x is None, unfiltered_batch)
+            for unfiltered_batch in zip_longest(
+                *[notification.dispatch()] * DISPATCH_BATCH_SIZE, fillvalue=None
+            )
+        ):
             db.session.commit()
-        for transport, batch in transport_batch.items():
-            # Based on user preferences, a transport may have no recipients at all.
-            # Only queue a background job when there is work to do.
-            if batch:
-                transport_workers[transport].queue(batch)
+            notification_ids = [
+                user_notification.identity for user_notification in batch
+            ]
+            dispatch_user_notifications_job.queue(notification_ids)
+            statsd.incr(
+                'notification.recipient',
+                count=len(notification_ids),
+                tags={'notification_type': notification.type},
+            )
+
+    # How does this batching work? There is a confusing recipe in the itertools module
+    # documentation. Here is what happens:
+    #
+    # `notification.dispatch()` returns a generator. We make a list of the desired batch
+    # size containing repeated references to the same generator. This works because
+    # Python lists can contain the same item multiple times, and ``[item] * 2 == [item,
+    # item]`` (also: ``[1, 2] * 2 = [1, 2, 1, 2]``). These copies are fed as positional
+    # parameters to `zip_longest`, which returns a batch containing one item from each
+    # of its parameters. For each batch (size 10 from the constant defined above), we
+    # commit to database and then queue a background job to deliver to them. When
+    # `zip_longest` runs out of items, it returns a batch padded with the `fillvalue`
+    # None. We use `filterfalse` to discard these None values. This difference
+    # distinguishes `zip_longest` from `zip`, which truncates the source data when it is
+    # short of a full batch.
+    #
+    # Discussion of approaches at https://stackoverflow.com/q/8290397/78903
+
+
+@rqjob()
+def dispatch_user_notifications_job(user_notification_ids):
+    """Process notifications for users and enqueue transport delivery."""
+    queue = [UserNotification.query.get(identity) for identity in user_notification_ids]
+    transport_batch = defaultdict(list)
+
+    for user_notification in queue:
+        user_notification.rollup_previous()
+        for transport in transport_workers:
+            if platform_transports[transport] and user_notification.has_transport(
+                transport
+            ):
+                transport_batch[transport].append(user_notification.identity)
+        db.session.commit()
+    for transport, batch in transport_batch.items():
+        # Based on user preferences, a transport may have no recipients at all.
+        # Only queue a background job when there is work to do.
+        if batch:
+            transport_workers[transport].queue(batch)
