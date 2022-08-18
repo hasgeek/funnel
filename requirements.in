@@ -31,7 +31,9 @@ idna>=2.5
 itsdangerous<2.1.0  # https://github.com/pallets/itsdangerous/pull/273
 js2py
 jsmin>=3.0.0
+linkify-it-py
 Markdown
+markdown-it-py
 oauth2
 oauth2client
 passlib
