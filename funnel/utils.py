@@ -9,6 +9,7 @@ import urllib.parse
 
 from flask import abort
 
+from markdown_it import MarkdownIt
 from typing_extensions import Literal
 import phonenumbers
 import qrcode
@@ -216,3 +217,7 @@ def make_qrcode(data: str) -> str:
     qrcode_svg = stream.getvalue()
     stream.close()
     return qrcode_svg.decode('utf-8')
+
+
+def markdown():
+    MarkdownIt('gfm-like')
