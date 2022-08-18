@@ -588,6 +588,7 @@ form.mui--bg-accent .CodeMirror {
     z-index: 999;
     background: $mui-bg-color-primary;
     padding-top: $mui-grid-padding;
+    font-size: $mui-input-font-size;
   }
 }
 
@@ -628,7 +629,7 @@ form.mui--bg-accent .CodeMirror {
     }
     .proposal-preview {
       position: static;
-      padding-top: 19px;
+      padding-top: 133px;
       height: auto;
     }
   }
