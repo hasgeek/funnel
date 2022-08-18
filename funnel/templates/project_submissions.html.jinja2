@@ -13,7 +13,9 @@
 
 {% block left_col %}
   {{ open_submission(project) }}
-  <div class="page-card  page-card--nomargin">
+
+  {%- if project.instructions and project.instructions != "None" or project.view_for('cfp').is_available() %}
+  <div class="page-card page-card--nomargin">
     <div class="project-section">
       <div class="about__details" id="call-for-proposal">
         {%- if project.view_for('cfp').is_available() %}
@@ -35,6 +37,7 @@
       </div>
     </div>
   </div>
+  {%- endif %}
 
   <div class="page-card">
     {% if project.cfp_state.HAS_PROPOSALS -%}
