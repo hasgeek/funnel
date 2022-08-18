@@ -34,6 +34,7 @@ jsmin>=3.0.0
 linkify-it-py
 Markdown
 markdown-it-py
+mdit-py-plugins
 oauth2
 oauth2client
 passlib

@@ -230,7 +230,9 @@ markdown==3.4.1
     #   flask-flatpages
     #   pymdown-extensions
 markdown-it-py==2.1.0
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   mdit-py-plugins
 markupsafe==2.1.1
     # via
     #   baseframe
@@ -247,6 +249,8 @@ marshmallow-enum==1.5.1
     # via dataclasses-json
 maxminddb==2.2.0
     # via geoip2
+mdit-py-plugins==0.3.0
+    # via -r requirements.in
 mdurl==0.1.2
     # via markdown-it-py
 mkdocs-material-extensions==1.0.3
