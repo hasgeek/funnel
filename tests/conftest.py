@@ -1,27 +1,15 @@
 """Test configuration and fixtures."""
+# pylint: disable=import-outside-toplevel, redefined-outer-name
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from types import MethodType, SimpleNamespace
-from typing import Any, Dict, Iterator, List, NamedTuple, Optional, Set, Tuple
 import re
+import typing as t
 
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import event, inspect
-from sqlalchemy.orm import Session as DatabaseSessionClass
-from sqlalchemy.orm import close_all_sessions
-
-from flask import Flask
-from flask.testing import FlaskClient
-from flask.wrappers import Response
-
-from lxml.html import FormElement, HtmlElement, fromstring  # nosec
-from pytz import utc
 import pytest
 
-from funnel import app as funnel_app
-from funnel import redis_store
 from funnel.models import (
     AuthClient,
     AuthClientCredential,
@@ -35,131 +23,12 @@ from funnel.models import (
     db,
 )
 
-# --- ResponseWithForms, to make form submission in the test client testing easier
-# --- Adapted from the abandoned Flask-Fillin package
+if t.TYPE_CHECKING:
+    from flask_sqlalchemy import SQLAlchemy
+    from sqlalchemy.orm import Session as DatabaseSessionClass
 
-
-_meta_refresh_content_re = re.compile(
-    r"""
-    \s*
-    (?P<timeout>\d+)      # Timeout
-    \s*
-    ;?                    # ; separator for optional URL
-    \s*
-    (?:URL\s*=\s*["']?)?  # Optional 'URL=' or 'URL="' prefix
-    (?P<url>.*?)          # Optional URL
-    (?:["']?\s*)          # Optional closing quote for URL
-    """,
-    re.ASCII | re.IGNORECASE | re.VERBOSE,
-)
-
-
-class MetaRefreshContent(NamedTuple):
-    """Timeout and optional URL in a Meta Refresh tag."""
-
-    timeout: int
-    url: Optional[str] = None
-
-
-class ResponseWithForms(Response):
-    """
-    Wrapper for the test client response that makes form submission easier.
-
-    Usage::
-
-        def test_mytest(client) -> None:
-            response = client.get('/page_with_forms')
-            form = response.form('login')
-            form.fields['username'] = 'my username'
-            form.fields['password'] = 'secret'
-            form.fields['remember'] = True
-            next_response = form.submit(client)
-    """
-
-    _parsed_html: Optional[HtmlElement] = None
-
-    @property
-    def html(self) -> HtmlElement:
-        """Return the parsed HTML tree."""
-        if self._parsed_html is None:
-            self._parsed_html = fromstring(self.data)
-
-            # add click method to all links
-            def _click(self, client, **kwargs):  # pylint: disable=redefined-outer-name
-                # `self` is the `a` element here
-                path = self.attrib['href']
-                return client.get(path, **kwargs)
-
-            for link in self._parsed_html.iter('a'):
-                link.click = MethodType(_click, link)  # type: ignore[attr-defined]
-
-            # add submit method to all forms
-            def _submit(
-                self, client, path=None, **kwargs
-            ):  # pylint: disable=redefined-outer-name
-                # `self` is the `form` element here
-                data = dict(self.form_values())
-                if 'data' in kwargs:
-                    data.update(kwargs['data'])
-                    del kwargs['data']
-                if path is None:
-                    path = self.action
-                if 'method' not in kwargs:
-                    kwargs['method'] = self.method
-                return client.open(path, data=data, **kwargs)
-
-            for form in self._parsed_html.forms:  # type: ignore[attr-defined]
-                form.submit = MethodType(_submit, form)
-        return self._parsed_html
-
-    @property
-    def forms(self) -> List[FormElement]:
-        """
-        Return list of all forms in the document.
-
-        Contains the LXML form type as documented at http://lxml.de/lxmlhtml.html#forms
-        with an additional `.submit(client)` method to submit the form.
-        """
-        return self.html.forms
-
-    def form(
-        self, id_: Optional[str] = None, name: Optional[str] = None
-    ) -> Optional[FormElement]:
-        """Return the first form matching given id or name in the document."""
-        if id_:
-            forms = self.html.cssselect(f'form#{id_}')
-        elif name:
-            forms = self.html.cssselect(f'form[name={name}]')
-        else:
-            forms = self.forms
-        if forms:
-            return forms[0]
-        return None
-
-    def links(self, selector: str = 'a') -> List[HtmlElement]:
-        """Get all the links matching the given CSS selector."""
-        return self.html.cssselect(selector)
-
-    def link(self, selector: str = 'a') -> Optional[HtmlElement]:
-        """Get first link matching the given CSS selector."""
-        links = self.links(selector)
-        if links:
-            return links[0]
-        return None
-
-    @property
-    def metarefresh(self) -> Optional[MetaRefreshContent]:
-        """Return content of Meta Refresh tag if present."""
-        meta_elements = self.html.cssselect('meta[http-equiv="refresh"]')
-        if not meta_elements:
-            return None
-        content = meta_elements[0].attrib.get('content')
-        if content is None:
-            return None
-        match = _meta_refresh_content_re.fullmatch(content)
-        if match is None:
-            return None
-        return MetaRefreshContent(int(match['timeout']), match['url'] or None)
+    from flask import Flask
+    from flask.testing import FlaskClient
 
 
 # --- Pytest config --------------------------------------------------------------------
@@ -192,7 +61,7 @@ def pytest_collection_modifyitems(items) -> None:
         'tests/e2e',
     )
 
-    def sort_key(item) -> Tuple[int, str]:
+    def sort_key(item) -> t.Tuple[int, str]:
         module_file = item.module.__file__
         for counter, path in enumerate(test_order):
             if path in module_file:
@@ -206,20 +75,208 @@ def pytest_collection_modifyitems(items) -> None:
 
 
 @pytest.fixture(scope='session')
+def response_with_forms():
+    from flask.wrappers import Response
+
+    from lxml.html import FormElement, HtmlElement, fromstring  # nosec
+
+    # --- ResponseWithForms, to make form submission in the test client testing easier
+    # --- Adapted from the abandoned Flask-Fillin package
+
+    _meta_refresh_content_re = re.compile(
+        r"""
+        \s*
+        (?P<timeout>\d+)      # Timeout
+        \s*
+        ;?                    # ; separator for optional URL
+        \s*
+        (?:URL\s*=\s*["']?)?  # Optional 'URL=' or 'URL="' prefix
+        (?P<url>.*?)          # Optional URL
+        (?:["']?\s*)          # Optional closing quote for URL
+        """,
+        re.ASCII | re.IGNORECASE | re.VERBOSE,
+    )
+
+    class MetaRefreshContent(t.NamedTuple):
+        """Timeout and optional URL in a Meta Refresh tag."""
+
+        timeout: int
+        url: t.Optional[str] = None
+
+    class ResponseWithForms(Response):
+        """
+        Wrapper for the test client response that makes form submission easier.
+
+        Usage::
+
+            def test_mytest(client) -> None:
+                response = client.get('/page_with_forms')
+                form = response.form('login')
+                form.fields['username'] = 'my username'
+                form.fields['password'] = 'secret'
+                form.fields['remember'] = True
+                next_response = form.submit(client)
+        """
+
+        _parsed_html: t.Optional[HtmlElement] = None
+
+        @property
+        def html(self) -> HtmlElement:
+            """Return the parsed HTML tree."""
+            if self._parsed_html is None:
+                self._parsed_html = fromstring(self.data)
+
+                # add click method to all links
+                def _click(
+                    self, client, **kwargs
+                ):  # pylint: disable=redefined-outer-name
+                    # `self` is the `a` element here
+                    path = self.attrib['href']
+                    return client.get(path, **kwargs)
+
+                for link in self._parsed_html.iter('a'):
+                    link.click = MethodType(_click, link)  # type: ignore[attr-defined]
+
+                # add submit method to all forms
+                def _submit(
+                    self, client, path=None, **kwargs
+                ):  # pylint: disable=redefined-outer-name
+                    # `self` is the `form` element here
+                    data = dict(self.form_values())
+                    if 'data' in kwargs:
+                        data.update(kwargs['data'])
+                        del kwargs['data']
+                    if path is None:
+                        path = self.action
+                    if 'method' not in kwargs:
+                        kwargs['method'] = self.method
+                    return client.open(path, data=data, **kwargs)
+
+                for form in self._parsed_html.forms:  # type: ignore[attr-defined]
+                    form.submit = MethodType(_submit, form)
+            return self._parsed_html
+
+        @property
+        def forms(self) -> t.List[FormElement]:
+            """
+            Return list of all forms in the document.
+
+            Contains the LXML form type as documented at http://lxml.de/lxmlhtml.html#forms
+            with an additional `.submit(client)` method to submit the form.
+            """
+            return self.html.forms
+
+        def form(
+            self, id_: t.Optional[str] = None, name: t.Optional[str] = None
+        ) -> t.Optional[FormElement]:
+            """Return the first form matching given id or name in the document."""
+            if id_:
+                forms = self.html.cssselect(f'form#{id_}')
+            elif name:
+                forms = self.html.cssselect(f'form[name={name}]')
+            else:
+                forms = self.forms
+            if forms:
+                return forms[0]
+            return None
+
+        def links(self, selector: str = 'a') -> t.List[HtmlElement]:
+            """Get all the links matching the given CSS selector."""
+            return self.html.cssselect(selector)
+
+        def link(self, selector: str = 'a') -> t.Optional[HtmlElement]:
+            """Get first link matching the given CSS selector."""
+            links = self.links(selector)
+            if links:
+                return links[0]
+            return None
+
+        @property
+        def metarefresh(self) -> t.Optional[MetaRefreshContent]:
+            """Return content of Meta Refresh tag if present."""
+            meta_elements = self.html.cssselect('meta[http-equiv="refresh"]')
+            if not meta_elements:
+                return None
+            content = meta_elements[0].attrib.get('content')
+            if content is None:
+                return None
+            match = _meta_refresh_content_re.fullmatch(content)
+            if match is None:
+                return None
+            return MetaRefreshContent(int(match['timeout']), match['url'] or None)
+
+    return ResponseWithForms
+
+
+@pytest.fixture(scope='session')
+def colorama() -> t.Iterator[SimpleNamespace]:
+    """Provide the colorama print colorizer."""
+    from colorama import Back, Fore, Style, deinit, init
+
+    init()
+    yield SimpleNamespace(Fore=Fore, Back=Back, Style=Style)
+    deinit()
+
+
+@pytest.fixture(scope='session')
+def print_stack(pytestconfig, colorama) -> t.Callable[[int], None]:
+    """Print a stack trace up to an outbound call from within this repository."""
+    from inspect import stack as inspect_stack
+    import os.path
+
+    boundary_path = str(pytestconfig.rootpath)
+    if not boundary_path.endswith('/'):
+        boundary_path += '/'
+
+    def func(skip: int = 0) -> None:
+        stack = inspect_stack()
+        left_boundary = False
+        returned_to_boundary = False
+        line_color = colorama.Fore.RED
+        lines = []
+        for frame in stack[2 + skip :]:
+            if frame.filename.startswith(boundary_path):
+                if left_boundary:
+                    returned_to_boundary = True
+                    line_color = colorama.Fore.RED
+            else:
+                if returned_to_boundary:
+                    break
+                left_boundary = True
+                line_color = colorama.Fore.GREEN
+            code_line = (
+                frame.code_context[frame.index or 0].strip()
+                if frame.code_context
+                else ''
+            )
+            lines.append(
+                f'{line_color}'
+                f'{os.path.relpath(frame.filename)}:{frame.lineno}::{frame.function}'
+                f'\t{code_line}'
+                f'{colorama.Style.RESET_ALL}'
+            )
+        print(*lines[::-1], sep='\n')  # noqa: T201
+
+    return func
+
+
+@pytest.fixture(scope='session')
 def app() -> Flask:
     """App as a fixture to avoid imports in tests."""
-    return funnel_app
+    from funnel import app
+
+    return app
 
 
 @pytest.fixture()
-def app_context(app) -> Iterator:
+def app_context(app) -> t.Iterator:
     """Create an app context for the test."""
     with app.app_context() as ctx:
         yield ctx
 
 
 @pytest.fixture()
-def request_context(app) -> Iterator:
+def request_context(app) -> t.Iterator:
     """Create a request context with default values for the test."""
     with app.test_request_context() as ctx:
         yield ctx
@@ -228,7 +285,7 @@ def request_context(app) -> Iterator:
 # Enable autouse to guard against tests that have implicit database access, or assume
 # app context without a fixture
 @pytest.fixture(autouse=True)
-def _auto_app_context(request) -> Iterator:
+def _auto_app_context(request) -> t.Iterator:
     """Push an app context if app or db_session fixtures are used."""
     # Do not create an app context if:
     # 1. Another fixture that creates an app context is in use, or
@@ -244,7 +301,7 @@ def _auto_app_context(request) -> Iterator:
             yield
 
 
-config_test_keys: Dict[str, Set[str]] = {
+config_test_keys: t.Dict[str, t.Set[str]] = {
     'recaptcha': {'RECAPTCHA_PUBLIC_KEY', 'RECAPTCHA_PRIVATE_KEY'},
     'twilio': {'SMS_TWILIO_SID', 'SMS_TWILIO_TOKEN'},
     'exotel': {'SMS_EXOTEL_SID', 'SMS_EXOTEL_TOKEN'},
@@ -280,8 +337,46 @@ def _requires_config(request) -> None:
                         )
 
 
+@pytest.fixture(scope='session')
+def _app_events(colorama, print_stack, app) -> t.Iterator:
+    """Fixture to report Flask signals with a stack trace when debugging a test."""
+    from functools import partial
+
+    import flask
+
+    def signal_handler(signal_name, *args, **kwargs):
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}Signal:{colorama.Style.NORMAL}"
+            f" {colorama.Fore.YELLOW}{signal_name}{colorama.Style.RESET_ALL}"
+        )
+        print_stack(2)  # Skip two stack frames from Blinker
+
+    request_started = partial(signal_handler, 'request_started')
+    request_finished = partial(signal_handler, 'request_finished')
+    request_tearing_down = partial(signal_handler, 'request_tearing_down')
+    appcontext_tearing_down = partial(signal_handler, 'appcontext_tearing_down')
+    appcontext_pushed = partial(signal_handler, 'appcontext_pushed')
+    appcontext_popped = partial(signal_handler, 'appcontext_popped')
+
+    flask.request_started.connect(request_started, app)
+    flask.request_finished.connect(request_finished, app)
+    flask.request_tearing_down.connect(request_tearing_down, app)
+    flask.appcontext_tearing_down.connect(appcontext_tearing_down, app)
+    flask.appcontext_pushed.connect(appcontext_pushed, app)
+    flask.appcontext_popped.connect(appcontext_popped, app)
+
+    yield
+
+    flask.request_started.disconnect(request_started, app)
+    flask.request_finished.disconnect(request_finished, app)
+    flask.request_tearing_down.disconnect(request_tearing_down, app)
+    flask.appcontext_tearing_down.disconnect(appcontext_tearing_down, app)
+    flask.appcontext_pushed.disconnect(appcontext_pushed, app)
+    flask.appcontext_popped.disconnect(appcontext_popped, app)
+
+
 @pytest.fixture()
-def _database_events() -> Iterator:
+def _database_events(colorama, print_stack) -> t.Iterator:
     """
     Fixture to report database session events for debugging a test.
 
@@ -291,6 +386,7 @@ def _database_events() -> Iterator:
         def test_whatever():
             ...
     """
+    from sqlalchemy import event, inspect
 
     def safe_repr(entity):
         try:
@@ -307,53 +403,82 @@ def _database_events() -> Iterator:
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
         rparams = f'{rargs, rkwargs}' if rargs else rkwargs
-        print(f"obj: new: {obj.__class__.__qualname__}({rparams})")  # noqa: T201
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}obj: new:{colorama.Style.NORMAL}"
+            f" {obj.__class__.__qualname__}({rparams})"
+        )
 
     @event.listens_for(DatabaseSessionClass, 'transient_to_pending')
     def event_transient_to_pending(_session, obj):
-        print(f"obj: transient to pending: {safe_repr(obj)}")  # noqa: T201
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}obj: transient to pending:{colorama.Style.NORMAL}"
+            f" {safe_repr(obj)}"
+        )
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_transient')
     def event_pending_to_transient(_session, obj):
-        print(f"obj: pending to transient: {safe_repr(obj)}")  # noqa: T201
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}obj: pending to transient:{colorama.Style.NORMAL}"
+            f" {safe_repr(obj)}"
+        )
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
     def event_pending_to_persistent(_session, obj):
-        print(f"obj: pending to persistent: {safe_repr(obj)}")  # noqa: T201
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}obj: pending to persistent:{colorama.Style.NORMAL}"
+            f" {safe_repr(obj)}"
+        )
 
     @event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
     def event_loaded_as_persistent(_session, obj):
-        print(f"obj: loaded as persistent {safe_repr(obj)}")  # noqa: T201
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}obj: loaded as persistent:{colorama.Style.NORMAL}"
+            f" {safe_repr(obj)}"
+        )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
     def event_persistent_to_transient(_session, obj):
-        print(f"obj: persistent to transient: {safe_repr(obj)}")  # noqa: T201
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}obj: persistent to transient:"
+            f"{colorama.Style.NORMAL} {safe_repr(obj)}"
+        )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
     def event_persistent_to_deleted(_session, obj):
-        print(f"obj: persistent to deleted {safe_repr(obj)}")  # noqa: T201
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}obj: persistent to deleted:{colorama.Style.NORMAL}"
+            f" {safe_repr(obj)}"
+        )
 
     @event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
     def event_deleted_to_detached(_session, obj):
         i = inspect(obj)
         print(  # noqa: T201
-            f"obj: deleted to detached: {obj.__class__.__qualname__}/{i.identity}"
+            f"{colorama.Style.BRIGHT}obj: deleted to detached:{colorama.Style.NORMAL}"
+            f" {obj.__class__.__qualname__}/{i.identity}"
         )
 
     @event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
     def event_persistent_to_detached(_session, obj):
         i = inspect(obj)
         print(  # noqa: T201
-            f"obj: persistent to detached: {obj.__class__.__qualname__}/{i.identity}"
+            f"{colorama.Style.BRIGHT}obj: persistent to detached:"
+            f"{colorama.Style.NORMAL} {obj.__class__.__qualname__}/{i.identity}"
         )
 
     @event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
     def event_detached_to_persistent(_session, obj):
-        print(f"obj: detached to persistent: {safe_repr(obj)}")  # noqa: T201
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}obj: detached to persistent:"
+            f"{colorama.Style.NORMAL} {safe_repr(obj)}"
+        )
 
     @event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
     def event_deleted_to_persistent(session, obj):
-        print(f"obj: deleted to persistent: {safe_repr(obj)}")  # noqa: T201
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}obj: deleted to persistent:{colorama.Style.NORMAL}"
+            f" {safe_repr(obj)}"
+        )
 
     @event.listens_for(DatabaseSessionClass, 'do_orm_execute')
     def event_do_orm_execute(orm_execute_state):
@@ -377,53 +502,93 @@ def _database_events() -> Iterator:
             if orm_execute_state.bind_mapper
             else None
         )
-        print(f"exec: {class_name}: {', '.join(state_is)}")  # noqa: T201
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}exec:{colorama.Style.NORMAL} {class_name}:"
+            f" {', '.join(state_is)}"
+        )
 
     @event.listens_for(DatabaseSessionClass, 'after_begin')
     def event_after_begin(_session, transaction, _connection):
         if transaction.nested:
             if transaction.parent.nested:
-                print("session: BEGIN (savepoint)")  # noqa: T201
+                print(  # noqa: T201
+                    f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL}"
+                    f" BEGIN (savepoint)"
+                )
             else:
-                print("session: BEGIN (fixture)")  # noqa: T201
+                print(  # noqa: T201
+                    f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL}"
+                    f" BEGIN (fixture)"
+                )
         else:
-            print("session: BEGIN (db)")  # noqa: T201
+            print(  # noqa: T201
+                f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} BEGIN (db)"
+            )
 
     @event.listens_for(DatabaseSessionClass, 'after_commit')
     def event_after_commit(session):
-        print(f"session: COMMIT ({session.info!r})")  # noqa: T201
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} COMMIT"
+            f" ({session.info!r})"
+        )
 
     @event.listens_for(DatabaseSessionClass, 'after_flush')
     def event_after_flush(session, _flush_context):
-        print(f"session: FLUSH ({session.info})")  # noqa: T201
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} FLUSH"
+            f" ({session.info})"
+        )
 
     @event.listens_for(DatabaseSessionClass, 'after_rollback')
     def event_after_rollback(session):
-        print(f"session: ROLLBACK ({session.info})")  # noqa: T201
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} ROLLBACK"
+            f" ({session.info})"
+        )
 
     @event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
     def event_after_soft_rollback(session, _previous_transaction):
-        print(f"session: SOFT ROLLBACK ({session.info})")  # noqa: T201
+        print(  # noqa: T201
+            f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} SOFT ROLLBACK"
+            f" ({session.info})"
+        )
 
     @event.listens_for(DatabaseSessionClass, 'after_transaction_create')
     def event_after_transaction_create(_session, transaction):
         if transaction.nested:
             if transaction.parent.nested:
-                print("transaction: CREATE (savepoint)")  # noqa: T201
+                print(  # noqa: T201
+                    f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL}"
+                    f" CREATE (savepoint)"
+                )
             else:
-                print("transaction: CREATE (fixture)")  # noqa: T201
+                print(  # noqa: T201
+                    f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL}"
+                    f" CREATE (fixture)"
+                )
         else:
-            print("transaction: CREATE (db)")  # noqa: T201
+            print(  # noqa: T201
+                f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL}"
+                f" CREATE (db)"
+            )
 
     @event.listens_for(DatabaseSessionClass, 'after_transaction_end')
     def event_after_transaction_end(_session, transaction):
         if transaction.nested:
             if transaction.parent.nested:
-                print("transaction: END (savepoint)")  # noqa: T201
+                print(  # noqa: T201
+                    f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END"
+                    f" (savepoint)"
+                )
             else:
-                print("transaction: END (fixture)")  # noqa: T201
+                print(  # noqa: T201
+                    f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END"
+                    f" (fixture)"
+                )
         else:
-            print("transaction: END (db)")  # noqa: T201
+            print(  # noqa: T201
+                f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END (db)"
+            )
 
     yield
 
@@ -473,6 +638,8 @@ def _database_events() -> Iterator:
 @pytest.fixture(scope='session')
 def database(request, app) -> SQLAlchemy:
     """Provide a database structure."""
+    from funnel import redis_store
+
     with app.app_context():
         db.create_all()
         redis_store.flushdb()
@@ -493,8 +660,12 @@ def _db(database):  # noqa: PT005
 
 
 @pytest.fixture()
-def db_session_truncate(app, database) -> Iterator[DatabaseSessionClass]:
+def db_session_truncate(app, database) -> t.Iterator[DatabaseSessionClass]:
     """Empty the database after each use of the fixture."""
+    from sqlalchemy.orm import close_all_sessions
+
+    from funnel import redis_store
+
     yield database.session
     close_all_sessions()
 
@@ -521,8 +692,12 @@ def db_session_truncate(app, database) -> Iterator[DatabaseSessionClass]:
 
 
 @pytest.fixture()
-def db_session_rollback(database) -> Iterator[DatabaseSessionClass]:
+def db_session_rollback(database) -> t.Iterator[DatabaseSessionClass]:
     """Create a nested transaction for the test and rollback after."""
+    from sqlalchemy import event
+
+    from funnel import redis_store
+
     db_connection = database.engine.connect()
     original_session = database.session
     transaction = db_connection.begin()
@@ -605,10 +780,104 @@ def db_session(request) -> DatabaseSessionClass:
 
 
 @pytest.fixture()
-def client(app, db_session) -> Iterator[FlaskClient]:
+def client(response_with_forms, app, db_session) -> FlaskClient:
     """Provide a test client."""
-    with FlaskClient(app, ResponseWithForms, use_cookies=True) as test_client:
-        yield test_client
+    from flask.testing import FlaskClient
+
+    return FlaskClient(app, response_with_forms, use_cookies=True)
+
+
+@pytest.fixture(scope='session')
+def browser_patches():  # noqa : PT004
+    """Patch webdriver for pytest-splinter."""
+    from pytest_splinter.webdriver_patches import patch_webdriver
+
+    # Required due to https://github.com/pytest-dev/pytest-splinter/issues/158
+    patch_webdriver()
+
+
+@pytest.fixture(scope='session')
+def splinter_driver_kwargs(splinter_webdriver):
+    """Disable certification verification for webdriver."""
+    from selenium import webdriver
+
+    if splinter_webdriver == 'chrome':
+        options = webdriver.ChromeOptions()
+        options.add_argument('--ignore-ssl-errors=yes')
+        options.add_argument('--ignore-certificate-errors')
+
+        return {'options': options}
+    return {}
+
+
+@pytest.fixture(scope='package')
+def live_server(database, app):
+    """Run application in a separate process."""
+    from werkzeug import run_simple
+
+    from funnel.devtest import BackgroundWorker, devtest_app
+
+    # Use HTTPS for live server (set to False if required)
+    use_https = True
+    scheme = 'https' if use_https else 'http'
+    # Use app's port from SERVER_NAME as basis for the port to run the live server on
+    port_str = app.config['SERVER_NAME'].partition(':')[-1]
+    if not port_str or not port_str.isdigit():
+        pytest.fail(
+            f"App does not have SERVER_NAME specified as host:port in config:"
+            f" {app.config['SERVER_NAME']}"
+        )
+    port = int(port_str)
+
+    # Save app config before modifying it to match live server environment
+    original_app_config = {}
+    for m_app in devtest_app.apps_by_host.values():
+        original_app_config[m_app] = {
+            'PREFERRED_URL_SCHEME': m_app.config['PREFERRED_URL_SCHEME'],
+            'SERVER_NAME': m_app.config['SERVER_NAME'],
+        }
+        m_app.config['PREFERRED_URL_SCHEME'] = scheme
+        m_host = m_app.config['SERVER_NAME'].split(':', 1)[0]
+        m_app.config['SERVER_NAME'] = f'{m_host}:{port}'
+
+    # Start background worker and wait until it's receiving connections
+    server = BackgroundWorker(
+        run_simple,
+        args=('127.0.0.1', port, devtest_app),
+        kwargs={
+            'use_reloader': False,
+            'use_debugger': True,
+            'use_evalex': False,
+            'threaded': True,
+            'ssl_context': 'adhoc' if use_https else None,
+        },
+        probe_at=('127.0.0.1', port),
+    )
+    try:
+        server.start()
+    except RuntimeError as exc:
+        # Server did not respond to probe until timeout; mark test as failed
+        server.stop()
+        pytest.fail(str(exc))
+
+    with app.app_context():
+        # Return live server config within an app context so that the test function
+        # can use url_for without creating a context. However, secondary apps will
+        # need context specifically established for url_for on them
+        yield SimpleNamespace(
+            url=f'{scheme}://{app.config["SERVER_NAME"]}/',
+            urls=[
+                f'{scheme}://{m_app.config["SERVER_NAME"]}/'
+                for m_app in devtest_app.apps_by_host.values()
+            ],
+        )
+
+    # Stop server after use
+    server.stop()
+
+    # Restore original app config
+    for m_app, config in original_app_config.items():
+        m_app.config.update(config)
 
 
 @pytest.fixture()
@@ -637,26 +906,6 @@ def login(app, client) -> SimpleNamespace:
         )
 
     return SimpleNamespace(as_=as_, logout=logout)
-
-
-@pytest.fixture()
-def varfixture(request) -> Any:
-    """
-    Return a variable fixture.
-
-    Usage::
-
-        @pytest.mark.parametrize('varfixture', ['fixture1', 'fixture2'], indirect=True)
-        def test_me(varfixture) -> None:
-            ...
-
-    This fixture can also be ignored, and a test can access a variable fixture directly:
-
-    1. Don't use `indirect=True`
-    2. Accept `request` as a parameter
-    3. Get the actual fixture with `request.getfixturevalue(varfixture)`
-    """
-    return request.getfixturevalue(request.param)
 
 
 # --- Sample data: users, organizations, projects, etc ---------------------------------
@@ -708,7 +957,7 @@ def user_death(db_session) -> User:
     user = User(
         username='death',
         fullname="Death",
-        created_at=utc.localize(datetime(1970, 1, 1)),
+        created_at=datetime(1970, 1, 1, tzinfo=timezone.utc),
     )
     db_session.add(user)
     return user
@@ -723,7 +972,7 @@ def user_mort(db_session) -> User:
     priority when merging user accounts. Unlike Death, Mort does not have a username or
     profile, so Mort will acquire it from a merged user.
     """
-    user = User(fullname="Mort", created_at=utc.localize(datetime(1987, 11, 12)))
+    user = User(fullname="Mort", created_at=datetime(1987, 11, 12, tzinfo=timezone.utc))
     db_session.add(user)
     return user
 
