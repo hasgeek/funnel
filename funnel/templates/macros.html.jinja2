@@ -610,9 +610,9 @@
     {%- set imgsize = 48 %}
   {% endif %}
   {% if user.profile_url and add_profile_link %}<a href="{{ user.profile_url }}" class="nounderline">{% endif %}
-  {% if user and user.avatar %}
+  {% if user.avatar %}
     <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar.resize(imgsize) }}" alt="{{ user.title }}"/>
-  {%- elif user %}
+  {%- elif user.title %}
     <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}" role="img" aria-label="{{ user.title }}" data-avatar-colour="{{ user.views and user.views.avatar_color_code or '' }}">{{ user.title|initials }}</div>
   {% endif %}
   {% if user.profile_url and add_profile_link %}</a>{% endif %}
