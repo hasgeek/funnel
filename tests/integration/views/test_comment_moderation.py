@@ -13,6 +13,7 @@ from funnel.models import (
 
 
 def test_comment_report_same(
+    app_context,
     client,
     db_session,
     login,
@@ -84,6 +85,7 @@ def test_comment_report_same(
 
 
 def test_comment_report_opposing(
+    app_context,
     client,
     db_session,
     login,
@@ -157,6 +159,7 @@ def test_comment_report_opposing(
 
 
 def test_comment_report_majority_spam(
+    app_context,
     client,
     db_session,
     login,
@@ -237,6 +240,7 @@ def test_comment_report_majority_spam(
 
 
 def test_comment_report_majority_ok(
+    app_context,
     client,
     db_session,
     login,

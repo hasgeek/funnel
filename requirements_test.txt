@@ -21,6 +21,8 @@ cffi==1.15.1
     # via cryptography
 charset-normalizer==2.1.0
     # via requests
+colorama==0.4.5
+    # via -r requirements_test.in
 coverage[toml]==6.4.3
     # via
     #   -r requirements_test.in

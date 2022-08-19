@@ -101,6 +101,7 @@ default_section = 'THIRDPARTY'
 sections = ['FUTURE', 'STDLIB', 'SQLALCHEMY', 'FLASK', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER']
 
 [tool.pytest.ini_options]
+minversion = "6.1"  # For config.rootpath
 required_plugins = [
   'pytest-bdd',
   'pytest-cov',

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from flask import current_app, url_for
+from flask import url_for
 import itsdangerous
 
 from twilio.base.exceptions import TwilioRestException
@@ -59,16 +59,16 @@ def validate_exotel_token(token: str, to: str) -> bool:
         payload = token_serializer().loads(token, max_age=86400 * 7)
     except itsdangerous.SignatureExpired:
         # Token has expired
-        current_app.logger.warning("Received expired Exotel token: %s", token)
+        app.logger.warning("Received expired Exotel token: %s", token)
         return False
     except itsdangerous.BadData:
         # Token is invalid
-        current_app.logger.debug("Received invalid Exotel token: %s", token)
+        app.logger.debug("Received invalid Exotel token: %s", token)
         return False
 
     phone = payload['to']
     if phone != to:
-        current_app.logger.warning(
+        app.logger.warning(
             "Received Exotel callback token for a mismatched phone number"
         )
         return False
@@ -163,7 +163,7 @@ def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> 
         if exc.code == 21211:
             raise TransportRecipientError(_("This phone number is invalid")) from exc
         if exc.code == 21408:
-            current_app.logger.error("Twilio unsupported country (21408) for %s", phone)
+            app.logger.error("Twilio unsupported country (21408) for %s", phone)
             raise TransportRecipientError(
                 _(
                     "Hasgeek cannot send messages to phone numbers in this country."
@@ -176,7 +176,7 @@ def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> 
                 _("This phone number has been blocked")
             ) from exc
         if exc.code == 21612:
-            current_app.logger.error("Twilio unsupported carrier (21612) for %s", phone)
+            app.logger.error("Twilio unsupported carrier (21612) for %s", phone)
             raise TransportRecipientError(
                 _("This phone number is unsupported at this time")
             ) from exc
@@ -184,7 +184,7 @@ def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> 
             raise TransportRecipientError(
                 _("This phone number cannot receive SMS messages")
             ) from exc
-        current_app.logger.error("Unhandled Twilio error %d: %s", exc.code, exc.msg)
+        app.logger.error("Unhandled Twilio error %d: %s", exc.code, exc.msg)
         raise TransportTransactionError(
             _("Hasgeek was unable to send a message to this phone number")
         ) from exc

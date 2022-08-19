@@ -197,6 +197,7 @@ class LoginManager:
             if current_auth.is_authenticated:
                 add_auth_attribute('session', UserSession(user=current_auth.user))
                 current_auth.session.views.mark_accessed()
+                db.session.commit()
 
         if current_auth.session:
             lastuser_cookie['sessionid'] = current_auth.session.buid
@@ -313,10 +314,10 @@ def set_lastuser_cookie(response: ResponseType) -> ResponseType:
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
     if (
         request_has_auth()
-        and hasattr(current_auth, 'cookie')
+        and 'cookie' in current_auth
         and not (
             current_auth.cookie == {}
-            and getattr(current_auth, 'suppress_empty_cookie', False)
+            and current_auth.get('suppress_empty_cookie', False)
         )
     ):
         response.vary.add('Cookie')  # type: ignore[union-attr]
@@ -367,7 +368,7 @@ def set_lastuser_cookie(response: ResponseType) -> ResponseType:
 @app.after_request
 def update_user_session_timestamp(response: ResponseType) -> ResponseType:
     """Mark a user session as accessed at the end of every request."""
-    if request_has_auth() and current_auth.session:
+    if request_has_auth() and current_auth.get('session'):
         # Setup a callback to update the session after the request has returned a
         # response to the user-agent. There will be no request or app context in this
         # callback, so we create a closure containing the necessary data in local vars
@@ -558,7 +559,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
             return render_redirect(url_for('login', next=get_current_url()))
-        if current_auth.session.has_sudo:
+        if current_auth.get('session') and current_auth.session.has_sudo:
             # This user authenticated recently, so no intervention is required
             del_sudo_preference_context()
             return f(*args, **kwargs)
@@ -824,6 +825,8 @@ def login_internal(user, user_session=None, login_service=None):
         user_session = UserSession(user=user, login_service=login_service)
     user_session.views.mark_accessed()
     add_auth_attribute('session', user_session)
+    if 'cookie' not in current_auth:
+        add_auth_attribute('cookie', {})
     current_auth.cookie['sessionid'] = user_session.buid
     current_auth.cookie['userid'] = user.buid
     session.permanent = True
@@ -834,8 +837,9 @@ def login_internal(user, user_session=None, login_service=None):
 def logout_internal():
     """Logout current user (helper function)."""
     add_auth_attribute('user', None)
-    if current_auth.session:
-        current_auth.session.revoke()
+    user_session = current_auth.get('session')
+    if user_session:
+        user_session.revoke()
         add_auth_attribute('session', None)
     session.pop('sessionid', None)
     session.pop('userid', None)
@@ -844,8 +848,9 @@ def logout_internal():
     session.pop('userid_external', None)
     session.pop('avatar_url', None)
     session.pop('login_nonce', None)  # Used by funnelapp (future: hasjob)
-    current_auth.cookie.pop('sessionid', None)
-    current_auth.cookie.pop('userid', None)
+    if 'cookie' in current_auth:
+        current_auth.cookie.pop('sessionid', None)
+        current_auth.cookie.pop('userid', None)
     session.permanent = False
 
 
