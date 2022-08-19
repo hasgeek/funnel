@@ -559,7 +559,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
             return render_redirect(url_for('login', next=get_current_url()))
-        if current_auth.session.has_sudo:
+        if current_auth.get('session') and current_auth.session.has_sudo:
             # This user authenticated recently, so no intervention is required
             del_sudo_preference_context()
             return f(*args, **kwargs)

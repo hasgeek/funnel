@@ -110,8 +110,8 @@ def test_search_counts(org_ankhmorpork, project_expo2010) -> None:
 # --- Test views -----------------------------------------------------------------------
 
 
-@pytest.mark.usefixtures('all_fixtures')
-def test_view_search_counts(client, org_ankhmorpork, project_expo2010) -> None:
+@pytest.mark.usefixtures('app_context', 'all_fixtures')
+def test_view_search_counts(app, client, org_ankhmorpork, project_expo2010) -> None:
     """Search views return counts as a list of dicts."""
     org_ankhmorpork.profile.make_public()
     r1 = client.get(
@@ -139,7 +139,7 @@ def test_view_search_counts(client, org_ankhmorpork, project_expo2010) -> None:
             assert 'count' in countset
 
 
-@pytest.mark.usefixtures('all_fixtures')
+@pytest.mark.usefixtures('app_context', 'all_fixtures')
 @pytest.mark.parametrize('stype', search_all_types)
 def test_view_search_results_all(client, stype) -> None:
     """Global search view returns results for each type."""
@@ -157,7 +157,7 @@ def test_view_search_results_all(client, stype) -> None:
     assert 'results' in resultset
 
 
-@pytest.mark.usefixtures('all_fixtures')
+@pytest.mark.usefixtures('app_context', 'all_fixtures')
 @pytest.mark.parametrize('stype', search_profile_types)
 def test_view_search_results_profile(client, org_ankhmorpork, stype) -> None:
     """Profile search view returns results for each type."""
@@ -176,7 +176,7 @@ def test_view_search_results_profile(client, org_ankhmorpork, stype) -> None:
     assert 'results' in resultset
 
 
-@pytest.mark.usefixtures('all_fixtures')
+@pytest.mark.usefixtures('app_context', 'all_fixtures')
 @pytest.mark.parametrize('stype', search_project_types)
 def test_view_search_results_project(client, project_expo2010, stype) -> None:
     """Project search view returns results for each type."""

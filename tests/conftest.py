@@ -6,6 +6,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from types import MethodType, SimpleNamespace
 import re
+import threading
 import typing as t
 
 import pytest
@@ -220,7 +221,7 @@ def colorama() -> t.Iterator[SimpleNamespace]:
 
 
 @pytest.fixture(scope='session')
-def print_stack(pytestconfig, colorama) -> t.Callable[[int], None]:
+def print_stack(pytestconfig, colorama) -> t.Callable[[int, int], None]:
     """Print a stack trace up to an outbound call from within this repository."""
     from inspect import stack as inspect_stack
     import os.path
@@ -229,9 +230,10 @@ def print_stack(pytestconfig, colorama) -> t.Callable[[int], None]:
     if not boundary_path.endswith('/'):
         boundary_path += '/'
 
-    def func(skip: int = 0) -> None:
+    def func(skip: int = 0, indent: int = 2) -> None:
         # Retrieve call stack, removing ourselves and as many frames as the caller wants
         # to skip
+        prefix = ' ' * indent
         stack = inspect_stack()[2 + skip :]
 
         try:
@@ -259,7 +261,7 @@ def print_stack(pytestconfig, colorama) -> t.Callable[[int], None]:
                     fi.code_context[fi.index or 0].strip() if fi.code_context else ''
                 )
                 lines.append(
-                    f'{line_color}'
+                    f'{prefix}{line_color}'
                     f'{os.path.relpath(fi.filename)}:{fi.lineno}::{fi.function}'
                     f'\t{code_line}'
                     f'{colorama.Style.RESET_ALL}'
@@ -293,25 +295,6 @@ def request_context(app) -> t.Iterator:
     """Create a request context with default values for the test."""
     with app.test_request_context() as ctx:
         yield ctx
-
-
-# Enable autouse to guard against tests that have implicit database access, or assume
-# app context without a fixture
-@pytest.fixture(autouse=True)
-def _auto_app_context(request) -> t.Iterator:
-    """Push an app context if app or db_session fixtures are used."""
-    # Do not create an app context if:
-    # 1. Another fixture that creates an app context is in use, or
-    # 2. Neither app nor db_session fixtures are being used
-    if {'app_context', 'request_context', 'live_server', 'client'}.intersection(
-        request.fixturenames
-    ) or not {'app', 'db_session'}.intersection(request.fixturenames):
-        yield
-    else:
-        app = request.getfixturevalue('app')
-
-        with app.app_context():
-            yield
 
 
 config_test_keys: t.Dict[str, t.Set[str]] = {
@@ -686,11 +669,20 @@ class RemoveIsRollback:
         self.session = session
         self.original_remove = session.remove
         self.rollback_provider = rollback_provider
+        self.owning_thread = threading.current_thread()
 
     def __enter__(self):
         # pylint: disable=unnecessary-lambda
-        self.session.remove = lambda *args, **kwargs: self.rollback_provider()(
-            *args, **kwargs
+
+        # If called in the owning thread (which is typical), deflect
+        # ``session.remove()`` to ``session.rollback()``. If called in a sub-thread
+        # (Flask-Executor), do nothing because there is no session to rollback, but
+        # letting it be removed will close the main thread's session (!). This may be a
+        # bug. # TODO
+        self.session.remove = lambda *args, **kwargs: (
+            self.rollback_provider()(*args, **kwargs)
+            if threading.current_thread() == self.owning_thread
+            else None
         )
 
     def __exit__(self, exc_type, exc_value, traceback):
