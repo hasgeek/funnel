@@ -236,41 +236,38 @@ def print_stack(pytestconfig, colorama) -> t.Callable[[int, int], None]:
         prefix = ' ' * indent
         stack = inspect_stack()[2 + skip :]
 
-        try:
-            lines = []
-            # Reverse list to order from outermost to innermost, and remove outer frames
-            # that are outside our code
-            stack.reverse()
-            while stack and not stack[0].filename.startswith(boundary_path):
-                stack.pop(0)
+        lines = []
+        # Reverse list to order from outermost to innermost, and remove outer frames
+        # that are outside our code
+        stack.reverse()
+        while stack and not stack[0].filename.startswith(boundary_path):
+            stack.pop(0)
 
-            # Find the first exit from our code and keep only that line and later to
-            # remove unneccesary context
-            for index, fi in enumerate(stack):
-                if not fi.filename.startswith(boundary_path):
-                    stack = stack[index - 1 :]
-                    break
+        # Find the first exit from our code and keep only that line and later to
+        # remove unneccesary context
+        for index, fi in enumerate(stack):
+            if not fi.filename.startswith(boundary_path):
+                stack = stack[index - 1 :]
+                break
 
-            for fi in stack:
-                line_color = (
-                    colorama.Fore.RED
-                    if fi.filename.startswith(boundary_path)
-                    else colorama.Fore.GREEN
-                )
-                code_line = (
-                    fi.code_context[fi.index or 0].strip() if fi.code_context else ''
-                )
-                lines.append(
-                    f'{prefix}{line_color}'
-                    f'{os.path.relpath(fi.filename)}:{fi.lineno}::{fi.function}'
-                    f'\t{code_line}'
-                    f'{colorama.Style.RESET_ALL}'
-                )
-            # Now print the lines
-            print(*lines, sep='\n')  # noqa: T201
-        finally:
-            del stack
-            del lines
+        for fi in stack:
+            line_color = (
+                colorama.Fore.RED
+                if fi.filename.startswith(boundary_path)
+                else colorama.Fore.GREEN
+            )
+            code_line = (
+                fi.code_context[fi.index or 0].strip() if fi.code_context else ''
+            )
+            lines.append(
+                f'{prefix}{line_color}'
+                f'{os.path.relpath(fi.filename)}:{fi.lineno}::{fi.function}'
+                f'\t{code_line}'
+                f'{colorama.Style.RESET_ALL}'
+            )
+        del stack
+        # Now print the lines
+        print(*lines, sep='\n')  # noqa: T201
 
     return func
 
@@ -751,17 +748,8 @@ def db_session_rollback(database) -> t.Iterator[DatabaseSessionClass]:
 
     savepoint = database.session.begin_nested()
 
-    # database.session.force_commit = database.session.commit
-    # database.session.force_rollback = database.session.rollback
-    # database.session.force_close = database.session.close
-
-    # This is breaking in the new app context created in
-    # `funnel.views.login_session.update_user_session_timestamp` in internal function
-    # `mark_session_accessed_after_response` when it does a commit
-
-    # database.session.commit = savepoint.commit
-    # database.session.rollback = savepoint.rollback
-    # database.session.close = savepoint.rollback
+    # XXX: SQLAlchemy 2.0 will need commit and rollback on the savepoint instead of the
+    # session. This fixture is likely to break under 2.0 and will need revision
 
     @event.listens_for(database.session, 'after_transaction_end')
     def restart_savepoint(session, transaction_in):
@@ -771,9 +759,6 @@ def db_session_rollback(database) -> t.Iterator[DatabaseSessionClass]:
             # This is a top-level savepoint, so restart it
             session.expire_all()
             savepoint = session.begin_nested()
-            # database.session.commit = savepoint.commit
-            # database.session.rollback = savepoint.rollback
-            # database.session.close = savepoint.rollback
 
     with RemoveIsRollback(database.session, lambda: savepoint.rollback):
         yield database.session
