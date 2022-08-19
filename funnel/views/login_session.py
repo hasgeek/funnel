@@ -197,6 +197,7 @@ class LoginManager:
             if current_auth.is_authenticated:
                 add_auth_attribute('session', UserSession(user=current_auth.user))
                 current_auth.session.views.mark_accessed()
+                db.session.commit()
 
         if current_auth.session:
             lastuser_cookie['sessionid'] = current_auth.session.buid
@@ -836,8 +837,9 @@ def login_internal(user, user_session=None, login_service=None):
 def logout_internal():
     """Logout current user (helper function)."""
     add_auth_attribute('user', None)
-    if 'session' in current_auth:
-        current_auth.session.revoke()
+    user_session = current_auth.get('session')
+    if user_session:
+        user_session.revoke()
         add_auth_attribute('session', None)
     session.pop('sessionid', None)
     session.pop('userid', None)

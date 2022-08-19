@@ -161,8 +161,9 @@ def response_with_forms():
             """
             Return list of all forms in the document.
 
-            Contains the LXML form type as documented at http://lxml.de/lxmlhtml.html#forms
-            with an additional `.submit(client)` method to submit the form.
+            Contains the LXML form type as documented at
+            http://lxml.de/lxmlhtml.html#forms with an additional `.submit(client)`
+            method to submit the form.
             """
             return self.html.forms
 
@@ -229,33 +230,45 @@ def print_stack(pytestconfig, colorama) -> t.Callable[[int], None]:
         boundary_path += '/'
 
     def func(skip: int = 0) -> None:
-        stack = inspect_stack()
-        left_boundary = False
-        returned_to_boundary = False
-        line_color = colorama.Fore.RED
-        lines = []
-        for frame in stack[2 + skip :]:
-            if frame.filename.startswith(boundary_path):
-                if left_boundary:
-                    returned_to_boundary = True
-                    line_color = colorama.Fore.RED
-            else:
-                if returned_to_boundary:
+        # Retrieve call stack, removing ourselves and as many frames as the caller wants
+        # to skip
+        stack = inspect_stack()[2 + skip :]
+
+        try:
+            lines = []
+            # Reverse list to order from outermost to innermost, and remove outer frames
+            # that are outside our code
+            stack.reverse()
+            while stack and not stack[0].filename.startswith(boundary_path):
+                stack.pop(0)
+
+            # Find the first exit from our code and keep only that line and later to
+            # remove unneccesary context
+            for index, fi in enumerate(stack):
+                if not fi.filename.startswith(boundary_path):
+                    stack = stack[index - 1 :]
                     break
-                left_boundary = True
-                line_color = colorama.Fore.GREEN
-            code_line = (
-                frame.code_context[frame.index or 0].strip()
-                if frame.code_context
-                else ''
-            )
-            lines.append(
-                f'{line_color}'
-                f'{os.path.relpath(frame.filename)}:{frame.lineno}::{frame.function}'
-                f'\t{code_line}'
-                f'{colorama.Style.RESET_ALL}'
-            )
-        print(*lines[::-1], sep='\n')  # noqa: T201
+
+            for fi in stack:
+                line_color = (
+                    colorama.Fore.RED
+                    if fi.filename.startswith(boundary_path)
+                    else colorama.Fore.GREEN
+                )
+                code_line = (
+                    fi.code_context[fi.index or 0].strip() if fi.code_context else ''
+                )
+                lines.append(
+                    f'{line_color}'
+                    f'{os.path.relpath(fi.filename)}:{fi.lineno}::{fi.function}'
+                    f'\t{code_line}'
+                    f'{colorama.Style.RESET_ALL}'
+                )
+            # Now print the lines
+            print(*lines, sep='\n')  # noqa: T201
+        finally:
+            del stack
+            del lines
 
     return func
 
@@ -290,14 +303,14 @@ def _auto_app_context(request) -> t.Iterator:
     # Do not create an app context if:
     # 1. Another fixture that creates an app context is in use, or
     # 2. Neither app nor db_session fixtures are being used
-    if {'app_context', 'request_context', 'live_server'}.intersection(
+    if {'app_context', 'request_context', 'live_server', 'client'}.intersection(
         request.fixturenames
-    ) or not {'app', 'client', 'db_session'}.intersection(request.fixturenames):
+    ) or not {'app', 'db_session'}.intersection(request.fixturenames):
         yield
     else:
-        app_fixture = request.getfixturevalue('app')
+        app = request.getfixturevalue('app')
 
-        with app_fixture.app_context():
+        with app.app_context():
             yield
 
 
@@ -387,6 +400,7 @@ def _database_events(colorama, print_stack) -> t.Iterator:
             ...
     """
     from sqlalchemy import event, inspect
+    from sqlalchemy.orm import Session as DatabaseSessionClass
 
     def safe_repr(entity):
         try:
@@ -513,17 +527,18 @@ def _database_events(colorama, print_stack) -> t.Iterator:
             if transaction.parent.nested:
                 print(  # noqa: T201
                     f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL}"
-                    f" BEGIN (savepoint)"
+                    f" BEGIN (double nested)"
                 )
             else:
                 print(  # noqa: T201
                     f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL}"
-                    f" BEGIN (fixture)"
+                    f" BEGIN (nested)"
                 )
         else:
             print(  # noqa: T201
-                f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} BEGIN (db)"
+                f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} BEGIN (outer)"
             )
+        print_stack()
 
     @event.listens_for(DatabaseSessionClass, 'after_commit')
     def event_after_commit(session):
@@ -545,6 +560,7 @@ def _database_events(colorama, print_stack) -> t.Iterator:
             f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} ROLLBACK"
             f" ({session.info})"
         )
+        print_stack()
 
     @event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
     def event_after_soft_rollback(session, _previous_transaction):
@@ -552,6 +568,7 @@ def _database_events(colorama, print_stack) -> t.Iterator:
             f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} SOFT ROLLBACK"
             f" ({session.info})"
         )
+        print_stack()
 
     @event.listens_for(DatabaseSessionClass, 'after_transaction_create')
     def event_after_transaction_create(_session, transaction):
@@ -571,6 +588,7 @@ def _database_events(colorama, print_stack) -> t.Iterator:
                 f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL}"
                 f" CREATE (db)"
             )
+        print_stack()
 
     @event.listens_for(DatabaseSessionClass, 'after_transaction_end')
     def event_after_transaction_end(_session, transaction):
@@ -578,17 +596,19 @@ def _database_events(colorama, print_stack) -> t.Iterator:
             if transaction.parent.nested:
                 print(  # noqa: T201
                     f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END"
-                    f" (savepoint)"
+                    f" (double nested)"
                 )
             else:
                 print(  # noqa: T201
                     f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END"
-                    f" (fixture)"
+                    f" (nested)"
                 )
         else:
             print(  # noqa: T201
-                f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END (db)"
+                f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END"
+                f" (outer)"
             )
+        print_stack()
 
     yield
 
@@ -659,6 +679,24 @@ def _db(database):  # noqa: PT005
     return database
 
 
+class RemoveIsRollback:
+    """Change session.remove() to session.rollback()."""
+
+    def __init__(self, session, rollback_provider):
+        self.session = session
+        self.original_remove = session.remove
+        self.rollback_provider = rollback_provider
+
+    def __enter__(self):
+        # pylint: disable=unnecessary-lambda
+        self.session.remove = lambda *args, **kwargs: self.rollback_provider()(
+            *args, **kwargs
+        )
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.session.remove = self.original_remove
+
+
 @pytest.fixture()
 def db_session_truncate(app, database) -> t.Iterator[DatabaseSessionClass]:
     """Empty the database after each use of the fixture."""
@@ -666,7 +704,8 @@ def db_session_truncate(app, database) -> t.Iterator[DatabaseSessionClass]:
 
     from funnel import redis_store
 
-    yield database.session
+    with RemoveIsRollback(database.session, lambda: database.session.rollback):
+        yield database.session
     close_all_sessions()
 
     # Iterate through all database engines and empty their tables
@@ -719,9 +758,10 @@ def db_session_rollback(database) -> t.Iterator[DatabaseSessionClass]:
     #   #joining-a-session-into-an-external-transaction-such-as-for-test-suites
 
     savepoint = database.session.begin_nested()
-    database.session.force_commit = database.session.commit
-    database.session.force_rollback = database.session.rollback
-    database.session.force_close = database.session.close
+
+    # database.session.force_commit = database.session.commit
+    # database.session.force_rollback = database.session.rollback
+    # database.session.force_close = database.session.close
 
     # This is breaking in the new app context created in
     # `funnel.views.login_session.update_user_session_timestamp` in internal function
@@ -743,10 +783,11 @@ def db_session_rollback(database) -> t.Iterator[DatabaseSessionClass]:
             # database.session.rollback = savepoint.rollback
             # database.session.close = savepoint.rollback
 
-    yield database.session
+    with RemoveIsRollback(database.session, lambda: savepoint.rollback):
+        yield database.session
 
     event.remove(database.session, 'after_transaction_end', restart_savepoint)
-    database.session.force_close()
+    database.session.close()
     transaction.rollback()
     db_connection.close()
     database.session = original_session
@@ -781,10 +822,18 @@ def db_session(request) -> DatabaseSessionClass:
 
 @pytest.fixture()
 def client(response_with_forms, app, db_session) -> FlaskClient:
-    """Provide a test client."""
+    """Provide a test client that commits the db session before any action."""
     from flask.testing import FlaskClient
 
-    return FlaskClient(app, response_with_forms, use_cookies=True)
+    client: FlaskClient = FlaskClient(app, response_with_forms, use_cookies=True)
+    client_open = client.open
+
+    def commit_before_open(*args, **kwargs):
+        db_session.commit()
+        return client_open(*args, **kwargs)
+
+    client.open = commit_before_open  # type: ignore[assignment]
+    return client
 
 
 @pytest.fixture(scope='session')
@@ -887,10 +936,11 @@ def csrf_token(client):
 
 
 @pytest.fixture()
-def login(app, client) -> SimpleNamespace:
+def login(app, client, db_session) -> SimpleNamespace:
     """Provide a login fixture."""
 
     def as_(user):
+        db_session.commit()
         with client.session_transaction() as session:
             # TODO: This depends on obsolete code in views/login_session that replaces
             # cookie session authentication with db-backed authentication. It's long
