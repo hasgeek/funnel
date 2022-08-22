@@ -334,7 +334,7 @@
         {% endif %}
         <ul class="mui-list--unstyled grid upcoming" role="list">
           {% for project in upcoming_projects %}
-          <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4 grid__col-lg-3" role="listitem">
+          <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4" role="listitem">
             {{ projectcard(project, save_form_id_prefix='upcoming_spf_') }}
           </li>
           {%- endfor -%}
@@ -357,7 +357,7 @@
         {% endif %}
         <ul class="grid projects" role="list">
           {% for project in open_cfp_projects %}
-            <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4 grid__col-lg-3 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}"
+            <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4 js-cfp-projects {% if loop.index > 4 %}mui--hide{% endif %}"
               role="listitem">
               {{ projectcard(project, include_calendar=false, save_form_id_prefix='open_spf_') }}
             </li>

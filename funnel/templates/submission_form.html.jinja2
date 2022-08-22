@@ -12,8 +12,8 @@
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
     <div class="mobile-nav mui--z1">
-      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon js-switch-panel" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline mobile-nav__headline--lesswidth js-switch-panel">{{ title }}</span>
-      <a aria-label="{% trans %}Back to edit proposal{% endtrans %}" class="mui--text-dark mobile-nav__icon js-switch-panel mui--hide" data-ga="Back to the edit proposal">{{ faicon(icon='times', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline mobile-nav__headline--lesswidth js-switch-panel mui--hide">{% trans %}Edit{% endtrans %}</span>
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="mui--text-dark mobile-nav__icon js-toggle-panel" data-ga="Back to the project page">{{ faicon(icon='times', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline mobile-nav__headline--lesswidth js-toggle-panel">{{ title }}</span>
+      <a aria-label="{% trans %}Back to edit proposal{% endtrans %}" class="mui--text-dark mobile-nav__icon js-switch-panel js-toggle-panel mui--hide" data-ga="Back to the edit proposal">{{ faicon(icon='times', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline mobile-nav__headline--lesswidth js-toggle-panel mui--hide">{% trans %}Edit{% endtrans %}</span>
     </div>
   </div>
 {% endblock baseheadline %}
@@ -40,8 +40,8 @@
             <div class="grid__col-sm-6">
               <div class="flex-wrapper submission-header__submit">
                 <div class="mui--visible-xs-block mui--visible-sm-block submission-header__submit__btn">
-                  <a class="mui-btn js-switch-panel link" data-cy="preview">{% trans %}Preview{% endtrans %}</a>
-                  <a class="mui-btn js-switch-panel mui--hide link" data-cy="edit">{% trans %}Edit{% endtrans %}</a>
+                  <a class="mui-btn js-switch-panel js-toggle-panel link" data-cy="preview">{% trans %}Preview{% endtrans %}</a>
+                  <a class="mui-btn js-switch-panel js-toggle-panel mui--hide link" data-cy="edit">{% trans %}Edit{% endtrans %}</a>
                   <button type="submit" name="submit" class="mui-btn" data-cy="submit">{% trans %}Submit{% endtrans %}</button>
                 </div>
                 <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Preview{% endtrans %}</p>
