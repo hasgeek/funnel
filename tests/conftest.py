@@ -839,7 +839,12 @@ def splinter_webdriver(request) -> str:
 
     driver = request.config.option.splinter_webdriver
     if driver:
+        if driver == 'remote':
+            # For remote driver, assume necessary config is in CLI options
+            return driver
         if driver not in driver_executables:
+            # pytest-splinter already validates the possible strings in pytest options.
+            # Our list is narrowed down to allow JS-capable browsers only
             pytest.fail(f"Webdriver '{driver}' does not support JavaScript")
         executable = driver_executables[driver]
         if shutil.which(executable):
