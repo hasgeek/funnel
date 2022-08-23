@@ -60,9 +60,7 @@ $(function () {
             $(this)
               .children()
               .each(function (index) {
-                $(this)
-                  .children('input[name$="seq"]')
-                  .val(++index);
+                $(this).children('input[name$="seq"]').val(++index);
               });
           },
         });
