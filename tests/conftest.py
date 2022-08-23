@@ -6,6 +6,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from types import MethodType, SimpleNamespace
 import re
+import shutil
 import threading
 import typing as t
 
@@ -24,6 +25,14 @@ from funnel.models import (
     db,
 )
 
+WEBDRIVERS = {
+    'chrome': 'chromedriver',
+    'edge': 'msedgedriver',
+    'firefox': 'geckodriver',
+    'safari': 'safaridriver',
+}
+
+
 if t.TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
     from sqlalchemy.orm import Session as DatabaseSessionClass
@@ -33,6 +42,13 @@ if t.TYPE_CHECKING:
 
 
 # --- Pytest config --------------------------------------------------------------------
+
+
+def check_webdrivers():
+    for driver in WEBDRIVERS.values():
+        if shutil.which(driver):
+            return True
+    return False
 
 
 def pytest_addoption(parser) -> None:
@@ -826,6 +842,9 @@ def browser_patches():  # noqa : PT004
 def splinter_driver_kwargs(splinter_webdriver):
     """Disable certification verification for webdriver."""
     from selenium import webdriver
+
+    if not check_webdrivers():
+        pytest.skip('webdriver not found')
 
     if splinter_webdriver == 'chrome':
         options = webdriver.ChromeOptions()
