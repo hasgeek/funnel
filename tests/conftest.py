@@ -6,6 +6,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from types import MethodType, SimpleNamespace
 import re
+import shutil
 import threading
 import typing as t
 
@@ -823,8 +824,44 @@ def browser_patches():  # noqa : PT004
 
 
 @pytest.fixture(scope='session')
-def splinter_driver_kwargs(splinter_webdriver):
-    """Disable certification verification for webdriver."""
+def splinter_webdriver(request) -> str:
+    """
+    Return an available webdriver, or requested one from CLI options.
+
+    Skips dependent tests if no webdriver is available, but fails if there was an
+    explicit request for a webdriver and it's not found.
+    """
+    driver_executables = {
+        'firefox': 'geckodriver',
+        'chrome': 'chromedriver',
+        'edge': 'msedgedriver',
+    }
+
+    driver = request.config.option.splinter_webdriver
+    if driver:
+        if driver == 'remote':
+            # For remote driver, assume necessary config is in CLI options
+            return driver
+        if driver not in driver_executables:
+            # pytest-splinter already validates the possible strings in pytest options.
+            # Our list is narrowed down to allow JS-capable browsers only
+            pytest.fail(f"Webdriver '{driver}' does not support JavaScript")
+        executable = driver_executables[driver]
+        if shutil.which(executable):
+            return driver
+        pytest.fail(
+            f"Requested webdriver '{driver}' needs executable '{executable}' in $PATH"
+        )
+    for driver, executable in driver_executables.items():
+        if shutil.which(executable):
+            return driver
+    pytest.skip("No webdriver found")
+    return ''  # For pylint and mypy since they don't know pytest.fail is NoReturn
+
+
+@pytest.fixture(scope='session')
+def splinter_driver_kwargs(splinter_webdriver) -> dict:
+    """Disable certification verification when using Chrome webdriver."""
     from selenium import webdriver
 
     if splinter_webdriver == 'chrome':
