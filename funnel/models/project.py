@@ -6,7 +6,6 @@ from typing import Iterable, List, Optional
 
 from sqlalchemy.orm.collections import attribute_mapped_collection
 
-from flask import current_app
 from werkzeug.utils import cached_property
 
 from pytz import utc
@@ -15,6 +14,7 @@ from baseframe import __, localize_timezone
 from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
 
+from .. import app
 from ..typing import OptionalMigratedTables
 from . import (
     BaseScopedNameMixin,
@@ -701,7 +701,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         names = {project.name for project in new_profile.projects}
         for project in old_profile.projects:
             if project.name in names:
-                current_app.logger.warning(
+                app.logger.warning(
                     "Project %r had a conflicting name in profile migration,"
                     " so renaming by adding adding random value to name",
                     project,

@@ -334,56 +334,11 @@
         {% endif %}
         <ul class="mui-list--unstyled grid upcoming" role="list">
           {% for project in upcoming_projects %}
-          <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4 grid__col-lg-3" role="listitem">
+          <li class="grid__col-xs-12 grid__col-sm-6 grid__col-md-4" role="listitem">
             {{ projectcard(project, save_form_id_prefix='upcoming_spf_') }}
           </li>
           {%- endfor -%}
         </ul>
-      </div>
-    </div>
-  {% endif %}
-{% endmacro %}
-
-{% macro featured_profiles_section(profiles) %}
-  {% if profiles %}
-    <div class="projects-wrapper">
-      <div class="mui-container">
-        <div class="grid">
-          <div class="grid__col-12">
-            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Explore communities{% endtrans %}</h2>
-          </div>
-        </div>
-      </div>
-      <div class="featured-profiles">
-        <div class="mui-container">
-          <ul class="grid projects flex-wrapper flex-wrapper--nowrap" role="list">
-            {% for profile in profiles %}
-              <li class="grid__col-12" role="listitem">
-                <div class="card profile-card">
-                  <div class="card__body">
-                    <div>
-                      <span class="profile-avatar profile-avatar--bigger margin-auto">
-                        {%- if profile.logo_url.url %}
-                          <img src="{{ profile.logo_url }}"
-                               alt="{{ profile.title }}"/>
-                        {% else %}
-                          <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
-                               alt="{{ profile.title }}"/>
-                        {% endif %}
-                      </span>
-                    </div>
-                    <h3 class="mui--text-subhead mui--text-bold top-padding margin-bottom mui--text-center">{{ profile.title }}</h3>
-                    <div class="markdown js-truncate mui--text-center mui--text-caption mui--text-light bottom-padding" data-truncate-lines="3">{{ profile.tagline or profile.description }}</div>
-                    <div class="profile-card__btn-wrapper">
-                      <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans count=profile.published_project_count %}One project{% pluralize %}{{ count }} projects{% endtrans %}</p>
-                      <a class="mui-btn mui-btn--primary mui-btn--raised full-width-btn" href="{{ profile.url_for() }} ">{% trans %}Explore{% endtrans %}</a>
-                    </div>
-                  </div>
-                </div>
-              </li>
-            {%- endfor -%}
-          </ul>
-        </div>
       </div>
     </div>
   {% endif %}
@@ -655,9 +610,9 @@
     {%- set imgsize = 48 %}
   {% endif %}
   {% if user.profile_url and add_profile_link %}<a href="{{ user.profile_url }}" class="nounderline">{% endif %}
-  {% if user and user.avatar %}
+  {% if user.avatar %}
     <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar.resize(imgsize) }}" alt="{{ user.title }}"/>
-  {%- elif user %}
+  {%- elif user.title %}
     <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}" role="img" aria-label="{{ user.title }}" data-avatar-colour="{{ user.views and user.views.avatar_color_code or '' }}">{{ user.title|initials }}</div>
   {% endif %}
   {% if user.profile_url and add_profile_link %}</a>{% endif %}
@@ -806,12 +761,14 @@
         <span data-toggle="tooltip" data-placement="top" title="{% trans %}Toggle to enable/disable submissions{% endtrans %}" aria-label="{% trans %}Open to receive submissions{% endtrans %}">{{ faicon(icon='info-circle', baseline=true) }}</span>
       </div>
     {%- endif %}
-  </div>
+</div>
 {%- endmacro %}
 
 {%- macro add_submission_btn(project) %}
-  <div class="project-details__box__content--lesspadding propose js-cfp-status {% if not project.cfp_state.OPEN -%} mui--hide {%- endif %}">
-    <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
-    {% if project.cfp_end_at_localized -%}<p class="mui--text-body2 mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>{% endif %}
-  </div>
+  {%- if project.state.PUBLISHED %}
+    <div class="project-details__box__content--lesspadding propose js-cfp-status {% if not project.cfp_state.OPEN -%} mui--hide {%- endif %}">
+      <a class="mui-btn mui-btn--accent mui-btn--raised mui--d-block" href="{{ project.url_for('new_proposal') }}" data-cy="propose-a-session">{% trans %}Make a submission{% endtrans %}</a>
+      {% if project.cfp_end_at_localized -%}<p class="mui--text-body2 mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>{% endif %}
+    </div>
+  {%- endif %}
 {%- endmacro %}

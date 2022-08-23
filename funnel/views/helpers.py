@@ -596,7 +596,7 @@ def commit_db_session(response: ResponseType) -> ResponseType:
     # This handler is primarily required for the `|shortlink` template filter, which
     # may make a database entry in a view's ``return render_template(...)`` call and
     # is therefore too late for a commit within the view
-    if getattr(g, 'require_db_commit', False):
+    if g.get('require_db_commit', False):
         db.session.commit()
     return response
 

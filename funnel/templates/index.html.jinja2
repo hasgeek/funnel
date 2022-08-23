@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{{ config['SITE_TITLE'] }}{% endblock title %}
-{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, featured_section, upcoming_section, open_cfp_section, all_projects_section, featured_profiles_section %}
+{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, featured_section, upcoming_section, open_cfp_section, all_projects_section %}
 {%- from "js/past_projects.js.jinja2" import past_projects_section %}
 
 {%- block pageheaders %}
@@ -59,7 +59,50 @@
   <a href="{{ url_for('about') }}" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}</a>
   {{ featured_section(featured_project, heading=false) }}
   {{ upcoming_section(upcoming_projects) }}
-  {{ featured_profiles_section(featured_profiles) }}
+
+  {% if featured_profiles %}
+    <div class="projects-wrapper">
+      <div class="mui-container">
+        <div class="grid">
+          <div class="grid__col-12">
+            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Explore communities{% endtrans %}</h2>
+          </div>
+        </div>
+      </div>
+      <div class="featured-profiles">
+        <div class="mui-container">
+          <ul class="grid projects flex-wrapper flex-wrapper--nowrap" role="list">
+            {% for profile in featured_profiles %}
+              <li class="grid__col-12 grid-no-right-padding" role="listitem">
+                <div class="card profile-card">
+                  <div class="card__body">
+                    <div>
+                      <span class="profile-avatar profile-avatar--bigger margin-auto">
+                        {%- if profile.logo_url.url %}
+                          <img src="{{ profile.logo_url }}"
+                               alt="{{ profile.title }}"/>
+                        {% else %}
+                          <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
+                               alt="{{ profile.title }}"/>
+                        {% endif %}
+                      </span>
+                    </div>
+                    <h3 class="mui--text-subhead mui--text-bold top-padding margin-bottom mui--text-center">{{ profile.title }}</h3>
+                    <div class="markdown js-truncate mui--text-center mui--text-caption mui--text-light bottom-padding" data-truncate-lines="3">{{ profile.tagline or profile.description }}</div>
+                    <div class="profile-card__btn-wrapper">
+                      <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans count=profile.published_project_count %}One project{% pluralize %}{{ count }} projects{% endtrans %}</p>
+                      <a class="mui-btn mui-btn--primary mui-btn--raised full-width-btn" href="{{ profile.url_for() }} ">{% trans %}Explore{% endtrans %}</a>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
   {{ open_cfp_section(open_cfp_projects) }}
   {{ all_projects_section(all_projects) }}
   {{ past_projects_section() }}

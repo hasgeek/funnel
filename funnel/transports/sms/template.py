@@ -6,7 +6,7 @@ from string import Formatter
 from typing import Any, Dict, Optional, Pattern, cast
 import re
 
-from flask import Flask, current_app
+from flask import Flask
 
 __all__ = [
     'SmsTemplate',
@@ -338,7 +338,7 @@ class SmsTemplate:
                 # No template id provided. If class already has a templateid from
                 # parent class, let this pass. If not, raise a warning.
                 if not cls.registered_templateid:
-                    current_app.logger.warning(
+                    app.logger.warning(
                         "App config is missing SMS_DLT_TEMPLATE_IDS['%s']"
                         " for template %s",
                         subcls_config_name,

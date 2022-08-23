@@ -1,6 +1,9 @@
 """Test organization admin and project crew membership views."""
 
+import pytest
 
+
+@pytest.mark.usefixtures('app_context')
 def test_create_new_member(client, login, new_user_owner, new_project) -> None:
     login.as_(new_user_owner)
     # GET request should return a form

@@ -38,7 +38,7 @@ $(() => {
 
     function closePreviewPanel() {
       const panel = $('.js-proposal-preview');
-      const elems = $('.js-switch-panel');
+      const elems = $('.js-toggle-panel');
       if (panel.hasClass('close')) {
         panel.animate({ top: '52' });
       } else {

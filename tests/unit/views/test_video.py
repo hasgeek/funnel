@@ -42,6 +42,7 @@ def test_youtube_video_delete(db_session, new_proposal) -> None:
 
 @pytest.mark.remote_data()
 @pytest.mark.requires_config('youtube')
+@pytest.mark.usefixtures('app_context')
 def test_youtube(db_session, new_proposal) -> None:
     assert new_proposal.title == "Test Proposal"
 
@@ -86,6 +87,7 @@ def test_vimeo_video_delete(db_session, new_proposal) -> None:
 
 @pytest.mark.remote_data()
 @pytest.mark.requires_config('vimeo')
+@pytest.mark.usefixtures('app_context')
 def test_vimeo(db_session, new_proposal) -> None:
     assert new_proposal.title == "Test Proposal"
 
@@ -109,6 +111,8 @@ def test_vimeo(db_session, new_proposal) -> None:
     assert check_video['thumbnail'].startswith('https://i.vimeocdn.com/video/783856813')
 
 
+@pytest.mark.requires_config('vimeo')
+@pytest.mark.usefixtures('app_context')
 def test_vimeo_request_exception(caplog, requests_mock, new_proposal):
     caplog.set_level(logging.WARNING)
     requests_mock.get(
@@ -120,6 +124,7 @@ def test_vimeo_request_exception(caplog, requests_mock, new_proposal):
     assert "Vimeo API request error: RequestException()" in caplog.text
 
 
+@pytest.mark.usefixtures('app_context')
 def test_youtube_request_exception(caplog, requests_mock, new_proposal):
     caplog.set_level(logging.WARNING)
     requests_mock.get(
