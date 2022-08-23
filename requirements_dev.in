@@ -3,7 +3,6 @@ black
 djlint
 flake8
 flake8-assertive
-flake8-bandit
 flake8-blind-except
 flake8-bugbear
 flake8-builtins

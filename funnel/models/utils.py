@@ -6,11 +6,10 @@ from typing import NamedTuple, Optional, Set, Union, overload
 
 from sqlalchemy import PrimaryKeyConstraint, UniqueConstraint
 
-from flask import current_app
-
 from typing_extensions import Literal
 import phonenumbers
 
+from .. import app
 from ..typing import OptionalMigratedTables
 from ..utils import PHONE_LOOKUP_REGIONS
 from .user import Anchor, User, UserEmail, UserEmailClaim, UserExternalId, UserPhone, db
@@ -126,7 +125,7 @@ def getextid(service: str, userid: str) -> Optional[UserExternalId]:
 
 def merge_users(user1: User, user2: User) -> Optional[User]:
     """Merge two user accounts and return the new user account."""
-    current_app.logger.info("Preparing to merge users %s and %s", user1, user2)
+    app.logger.info("Preparing to merge users %s and %s", user1, user2)
     # Always keep the older account and merge from the newer account
     if user1.created_at < user2.created_at:
         keep_user, merge_user = user1, user2
@@ -143,10 +142,10 @@ def merge_users(user1: User, user2: User) -> Optional[User]:
         db.session.commit()
 
         # 4. Return keep_user.
-        current_app.logger.info("User merge complete, keeping user %s", keep_user)
+        app.logger.info("User merge complete, keeping user %s", keep_user)
         return keep_user
 
-    current_app.logger.error("User merge failed, aborting transaction")
+    app.logger.error("User merge failed, aborting transaction")
     db.session.rollback()
     return None
 
@@ -195,7 +194,7 @@ def do_migrate_instances(
                 # here. This is why model.helper_method below (migrate_user or
                 # migrate_profile) returns a list of table names it has
                 # processed.
-                current_app.logger.error(
+                app.logger.error(
                     "do_migrate_table interrupted because column is unique: {column}",
                     extra={'column': column},
                 )
@@ -208,7 +207,7 @@ def do_migrate_instances(
                     if column in target_columns:
                         # The target column (typically user_id) is part of a unique
                         # or primary key constraint. We can't migrate automatically.
-                        current_app.logger.error(
+                        app.logger.error(
                             "do_migrate_table interrupted because column is part of a"
                             " unique constraint: %s",
                             column,
@@ -226,7 +225,7 @@ def do_migrate_instances(
         # lose the transaction. We need to confirm this.
 
         # if table.info.get('bind_key'):
-        #     current_app.logger.error(
+        #     app.logger.error(
         #         "do_migrate_table interrupted because table has bind_key: %s",
         #         table.name,
         #     )
@@ -257,7 +256,7 @@ def do_migrate_instances(
                     migrated_tables.add(model.__table__.name)
                 except IncompleteUserMigrationError:
                     safe_to_remove_instance = False
-                    current_app.logger.error(
+                    app.logger.error(
                         "_do_merge_into interrupted because"
                         "  IncompleteUserMigrationError raised by %s",
                         model,

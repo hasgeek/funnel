@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 
 import pytest
 
-from funnel.models import BaseMixin, db
+from funnel.models import BaseMixin, sa
 from funnel.models.email_address import (
     EmailAddress,
     EmailAddressBlockedError,
@@ -282,6 +282,7 @@ def test_email_address_get(db_session) -> None:
 
     # Get works on blocked addresses
     email_to_block = ea3.email
+    assert email_to_block is not None
     EmailAddress.mark_blocked(email_to_block)
     assert ea3.is_blocked is True
     assert EmailAddress.get(email_to_block) == ea3
@@ -348,6 +349,7 @@ def test_email_address_blocked(db_session) -> None:
     ea2 = EmailAddress.add('example+extra@example.com')
     ea3 = EmailAddress.add('other@example.com')
 
+    assert ea2.email is not None
     EmailAddress.mark_blocked(ea2.email)
 
     assert ea1.is_blocked is True
@@ -358,7 +360,7 @@ def test_email_address_blocked(db_session) -> None:
         EmailAddress.add('Example@example.com')
 
 
-def test_email_address_delivery_state(db_session) -> None:
+def test_email_address_delivery_state(database, db_session) -> None:
     """An email address can have the last known delivery state set on it."""
     ea = EmailAddress.add('example@example.com')
     assert ea.delivery_state.UNKNOWN
@@ -367,7 +369,7 @@ def test_email_address_delivery_state(db_session) -> None:
     ea.mark_sent()
     # An email was sent. Nothing more is known
     assert ea.delivery_state.SENT
-    assert str(ea.delivery_state_at) == str(db.func.utcnow())
+    assert str(ea.delivery_state_at) == str(sa.func.utcnow())
 
     # mark_sent() can be called each time an email is sent
     ea.mark_sent()
@@ -377,28 +379,34 @@ def test_email_address_delivery_state(db_session) -> None:
     assert ea.active_at is None
     ea.mark_active()
     assert ea.delivery_state.SENT
-    assert str(ea.active_at) == str(db.func.utcnow())
+    assert str(ea.active_at) == str(sa.func.utcnow())
 
     # This can be "downgraded" to SENT, as we only record the latest status
     ea.mark_sent()
     assert ea.delivery_state.SENT
-    assert str(ea.delivery_state_at) == str(db.func.utcnow())
+    assert str(ea.delivery_state_at) == str(sa.func.utcnow())
 
     # Email address is soft bouncing (typically mailbox full)
     ea.mark_soft_fail()
     assert ea.delivery_state.SOFT_FAIL
-    assert str(ea.delivery_state_at) == str(db.func.utcnow())
+    assert str(ea.delivery_state_at) == str(sa.func.utcnow())
 
     # Email address is hard bouncing (typically mailbox invalid)
     ea.mark_hard_fail()
     assert ea.delivery_state.HARD_FAIL
-    assert str(ea.delivery_state_at) == str(db.func.utcnow())
+    assert str(ea.delivery_state_at) == str(sa.func.utcnow())
 
 
 # This fixture must be session scope as it cannot be called twice in the same process.
-# SQLAlchemy models must only be defined once.
+# SQLAlchemy models must only be defined once. A model can theoretically be removed,
+# but there is no formal API. Removal has at least three parts:
+# 1. Remove class from mapper registry using ``db.Model.registry._dispose_cls(cls)``
+# 2. Remove table from metadata using db.metadata.remove(cls.__table__)
+# 3. Remove all relationships to other classes (unsolved)
 @pytest.fixture(scope='session')
 def email_models(database):
+    db = database
+
     class EmailUser(BaseMixin, db.Model):
         """Test model representing a user account."""
 
@@ -412,8 +420,8 @@ def email_models(database):
         __email_for__ = 'emailuser'
         __email_is_exclusive__ = True
 
-        emailuser_id = db.Column(db.ForeignKey('emailuser.id'), nullable=False)
-        emailuser = db.relationship(EmailUser)
+        emailuser_id = sa.Column(sa.ForeignKey('emailuser.id'), nullable=False)
+        emailuser = sa.orm.relationship(EmailUser)
 
     class EmailDocument(EmailAddressMixin, BaseMixin, db.Model):
         """Test model unaffiliated to a user that has an email address attached."""
@@ -423,11 +431,21 @@ def email_models(database):
 
         __email_for__ = 'emailuser'
 
-        emailuser_id = db.Column(db.ForeignKey('emailuser.id'), nullable=True)
-        emailuser = db.relationship(EmailUser)
+        emailuser_id = sa.Column(sa.ForeignKey('emailuser.id'), nullable=True)
+        emailuser = sa.orm.relationship(EmailUser)
 
-    database.create_all()  # This will only create models not already in the database
-    return SimpleNamespace(**locals())
+    models = [EmailUser, EmailLink, EmailDocument, EmailLinkedDocument]
+
+    # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
+    database.metadata.create_all(
+        bind=database.engine, tables=[model.__table__ for model in models]
+    )
+    yield SimpleNamespace(**{model.__name__: model for model in models})
+    database.metadata.drop_all(
+        bind=database.engine, tables=[model.__table__ for model in models]
+    )
+
+    db.create_all()
 
 
 def test_email_address_mixin(  # pylint: disable=too-many-locals,too-many-statements

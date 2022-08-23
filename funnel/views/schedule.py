@@ -27,7 +27,7 @@ from coaster.views import (
 )
 
 from .. import app
-from ..models import Project, Proposal, Rsvp, Session, VenueRoom, db
+from ..models import Project, Proposal, Rsvp, Session, VenueRoom, db, sa
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, localize_date
 from .login_session import requires_login
@@ -44,12 +44,12 @@ def session_data(
         'title': session.title,
         'start_at': (
             localize_timezone(session.start_at, tz=session.project.timezone)
-            if session.scheduled
+            if session.start_at
             else None
         ),
         'end_at': (
             localize_timezone(session.end_at, tz=session.project.timezone)
-            if session.scheduled
+            if session.end_at
             else None
         ),
         'timezone': session.project.timezone.zone,
@@ -192,8 +192,10 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
     # Using localized timestamps will require a `VTIMEZONE` entry in the ics file
     # Using `session.start_at` without `astimezone` causes it to be localized to
     # local timezone. We need `astimezone(utc)` to ensure actual UTC timestamps.
-    event.add('dtstart', session.start_at.astimezone(utc))
-    event.add('dtend', session.end_at.astimezone(utc))
+    if session.start_at:
+        event.add('dtstart', session.start_at.astimezone(utc))
+    if session.end_at:
+        event.add('dtend', session.end_at.astimezone(utc))
     event.add('dtstamp', utcnow())
     # Strangely, these two don't need localization with `astimezone`
     event.add('created', session.created_at)
@@ -394,12 +396,12 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             Session.start_at <= now,
             Session.end_at >= now,
             Session.project == self.obj.venue.project,
-            db.or_(Session.venue_room == self.obj, Session.is_break.is_(True)),
+            sa.or_(Session.venue_room == self.obj, Session.is_break.is_(True)),
         ).first()
         next_session = (
             Session.query.filter(
                 Session.start_at > now,
-                db.or_(Session.venue_room == self.obj, Session.is_break.is_(True)),
+                sa.or_(Session.venue_room == self.obj, Session.is_break.is_(True)),
                 Session.project == self.obj.venue.project,
             )
             .order_by(Session.start_at)

@@ -6,7 +6,6 @@ from typing import Iterable, List, Optional
 
 from sqlalchemy.orm.collections import attribute_mapped_collection
 
-from flask import current_app
 from werkzeug.utils import cached_property
 
 from pytz import utc
@@ -15,10 +14,12 @@ from baseframe import __, localize_timezone
 from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
 
+from .. import app
 from ..typing import OptionalMigratedTables
 from . import (
     BaseScopedNameMixin,
     JsonDict,
+    Mapped,
     MarkdownColumn,
     TimestampMixin,
     TimezoneType,
@@ -26,6 +27,7 @@ from . import (
     UrlType,
     UuidMixin,
     db,
+    sa,
 )
 from .comment import SET_TYPE, Commentset
 from .helpers import (
@@ -69,16 +71,18 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     __tablename__ = 'project'
     reserved_names = RESERVED_NAMES
 
-    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship(
+    user_id: sa.Column[int] = db.Column(None, sa.ForeignKey('user.id'), nullable=False)
+    user = sa.orm.relationship(
         User,
         primaryjoin=user_id == User.id,
-        backref=db.backref('projects', cascade='all'),
+        backref=sa.orm.backref('projects', cascade='all'),
     )
-    profile_id = db.Column(None, db.ForeignKey('profile.id'), nullable=False)
-    profile = with_roles(
-        db.relationship(
-            'Profile', backref=db.backref('projects', cascade='all', lazy='dynamic')
+    profile_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('profile.id'), nullable=False
+    )
+    profile: sa.orm.relationship[Profile] = with_roles(
+        sa.orm.relationship(
+            Profile, backref=sa.orm.backref('projects', cascade='all', lazy='dynamic')
         ),
         read={'all'},
         # If profile grants an 'admin' role, make it 'profile_admin' here
@@ -87,9 +91,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         # 'related' or 'without_parent' as it is the parent
         datasets={'primary'},
     )
-    parent = db.synonym('profile')
-    tagline = with_roles(
-        db.Column(db.Unicode(250), nullable=False),
+    parent = sa.orm.synonym('profile')
+    tagline: sa.Column[str] = with_roles(
+        sa.Column(sa.Unicode(250), nullable=False),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
@@ -107,26 +111,26 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     )
 
     location = with_roles(
-        db.Column(db.Unicode(50), default='', nullable=True),
+        sa.Column(sa.Unicode(50), default='', nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    parsed_location = db.Column(JsonDict, nullable=False, server_default='{}')
+    parsed_location = sa.Column(JsonDict, nullable=False, server_default='{}')
 
     website = with_roles(
-        db.Column(UrlType, nullable=True),
+        sa.Column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
     timezone = with_roles(
-        db.Column(TimezoneType(backend='pytz'), nullable=False, default=utc),
+        sa.Column(TimezoneType(backend='pytz'), nullable=False, default=utc),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    _state = db.Column(
+    _state = sa.Column(
         'state',
-        db.Integer,
+        sa.Integer,
         StateManager.check_constraint('state', PROJECT_STATE),
         default=PROJECT_STATE.DRAFT,
         nullable=False,
@@ -135,9 +139,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     state = with_roles(
         StateManager('_state', PROJECT_STATE, doc="Project state"), call={'all'}
     )
-    _cfp_state = db.Column(
+    _cfp_state = sa.Column(
         'cfp_state',
-        db.Integer,
+        sa.Integer,
         StateManager.check_constraint('cfp_state', CFP_STATE),
         default=CFP_STATE.NONE,
         nullable=False,
@@ -148,47 +152,47 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     )
 
     #: Audit timestamp to detect re-publishing to re-surface a project
-    first_published_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    first_published_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
     #: Timestamp of when this project was most recently published
     published_at = with_roles(
-        db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True),
+        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'all'},
         write={'promoter'},
         datasets={'primary', 'without_parent', 'related'},
     )
     #: Optional start time for schedule, cached from column property schedule_start_at
     start_at = with_roles(
-        db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True),
+        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'all'},
         write={'editor'},
         datasets={'primary', 'without_parent', 'related'},
     )
     #: Optional end time for schedule, cached from column property schedule_end_at
     end_at = with_roles(
-        db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True),
+        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'all'},
         write={'editor'},
         datasets={'primary', 'without_parent', 'related'},
     )
 
-    cfp_start_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
-    cfp_end_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
+    cfp_start_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
+    cfp_end_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
 
     bg_image = with_roles(
-        db.Column(ImgeeType, nullable=True),
+        sa.Column(ImgeeType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    allow_rsvp = db.Column(db.Boolean, default=False, nullable=False)
-    buy_tickets_url = db.Column(UrlType, nullable=True)
+    allow_rsvp = sa.Column(sa.Boolean, default=False, nullable=False)
+    buy_tickets_url = sa.Column(UrlType, nullable=True)
 
     banner_video_url = with_roles(
-        db.Column(UrlType, nullable=True),
+        sa.Column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
     boxoffice_data = with_roles(
-        db.Column(JsonDict, nullable=False, server_default='{}'),
+        sa.Column(JsonDict, nullable=False, server_default='{}'),
         # This is an attribute, but we deliberately use `call` instead of `read` to
         # block this from dictionary enumeration. FIXME: Break up this dictionary into
         # individual columns with `all` access for ticket embed id and `promoter`
@@ -196,11 +200,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         call={'all'},
     )
 
-    hasjob_embed_url = with_roles(db.Column(UrlType, nullable=True), read={'all'})
-    hasjob_embed_limit = with_roles(db.Column(db.Integer, default=8), read={'all'})
+    hasjob_embed_url = with_roles(sa.Column(UrlType, nullable=True), read={'all'})
+    hasjob_embed_limit = with_roles(sa.Column(sa.Integer, default=8), read={'all'})
 
-    commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
-    commentset = db.relationship(
+    commentset_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('commentset.id'), nullable=False
+    )
+    commentset = sa.orm.relationship(
         Commentset,
         uselist=False,
         cascade='all',
@@ -208,27 +214,27 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         back_populates='project',
     )
 
-    parent_id = db.Column(
-        None, db.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
+    parent_id: sa.Column[Optional[int]] = db.Column(
+        None, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
-    parent_project = db.relationship(
+    parent_project: Mapped[Optional[Project]] = sa.orm.relationship(
         'Project', remote_side='Project.id', backref='subprojects'
     )
 
     #: Featured project flag. This can only be set by website editors, not
     #: project editors or profile admins.
     site_featured = with_roles(
-        db.Column(db.Boolean, default=False, nullable=False),
+        sa.Column(sa.Boolean, default=False, nullable=False),
         read={'all'},
         write={'site_editor'},
         datasets={'primary', 'without_parent'},
     )
 
     #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
-    versionid = with_roles(db.Column(db.Integer, nullable=False), read={'all'})
+    versionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
 
-    search_vector = db.deferred(
-        db.Column(
+    search_vector = sa.orm.deferred(
+        sa.Column(
             TSVectorType(
                 'name',
                 'title',
@@ -243,7 +249,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
                     'location': 'C',
                 },
                 regconfig='english',
-                hltext=lambda: db.func.concat_ws(
+                hltext=lambda: sa.func.concat_ws(
                     visual_field_delimiter,
                     Project.title,
                     Project.location,
@@ -256,26 +262,26 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     )
 
     livestream_urls = with_roles(
-        db.Column(db.ARRAY(db.UnicodeText, dimensions=1), server_default='{}'),
+        sa.Column(sa.ARRAY(sa.UnicodeText, dimensions=1), server_default='{}'),
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
 
     __table_args__ = (
-        db.UniqueConstraint('profile_id', 'name'),
-        db.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
-        db.CheckConstraint(
-            db.or_(
-                db.and_(start_at.is_(None), end_at.is_(None)),
-                db.and_(start_at.isnot(None), end_at.isnot(None), end_at > start_at),
+        sa.UniqueConstraint('profile_id', 'name'),
+        sa.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
+        sa.CheckConstraint(
+            sa.or_(  # type: ignore[arg-type]
+                sa.and_(start_at.is_(None), end_at.is_(None)),
+                sa.and_(start_at.isnot(None), end_at.isnot(None), end_at > start_at),
             ),
             'project_start_at_end_at_check',
         ),
-        db.CheckConstraint(
-            db.or_(
-                db.and_(cfp_start_at.is_(None), cfp_end_at.is_(None)),
-                db.and_(cfp_start_at.isnot(None), cfp_end_at.is_(None)),
-                db.and_(
+        sa.CheckConstraint(
+            sa.or_(  # type: ignore[arg-type]
+                sa.and_(cfp_start_at.is_(None), cfp_end_at.is_(None)),
+                sa.and_(cfp_start_at.isnot(None), cfp_end_at.is_(None)),
+                sa.and_(
                     cfp_start_at.isnot(None),
                     cfp_end_at.isnot(None),
                     cfp_end_at > cfp_start_at,
@@ -331,7 +337,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'PAST',
         state.PUBLISHED,
         lambda project: project.end_at is not None and utcnow() >= project.end_at,
-        lambda project: db.func.utcnow() >= project.end_at,
+        lambda project: sa.func.utcnow() >= project.end_at,
         label=('past', __("Past")),
     )
     state.add_conditional_state(
@@ -341,9 +347,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             project.start_at is not None
             and project.start_at <= utcnow() < project.end_at
         ),
-        lambda project: db.and_(
-            project.start_at <= db.func.utcnow(),
-            db.func.utcnow() < project.end_at,
+        lambda project: sa.and_(
+            project.start_at <= sa.func.utcnow(),
+            sa.func.utcnow() < project.end_at,
         ),
         label=('live', __("Live")),
     )
@@ -351,7 +357,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'UPCOMING',
         state.PUBLISHED,
         lambda project: project.start_at is not None and utcnow() < project.start_at,
-        lambda project: db.func.utcnow() < project.start_at,
+        lambda project: sa.func.utcnow() < project.start_at,
         label=('upcoming', __("Upcoming")),
     )
     state.add_conditional_state(
@@ -378,7 +384,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'DRAFT',
         cfp_state.NONE,
         lambda project: project.instructions_html != '',
-        lambda project: db.and_(
+        lambda project: sa.and_(
             project.instructions_html.isnot(None), project.instructions_html != ''
         ),
         label=('draft', __("Draft")),
@@ -387,8 +393,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         'OPEN',
         cfp_state.PUBLIC,
         lambda project: project.cfp_end_at is None or (utcnow() < project.cfp_end_at),
-        lambda project: db.or_(
-            project.cfp_end_at.is_(None), db.func.utcnow() < project.cfp_end_at
+        lambda project: sa.or_(
+            project.cfp_end_at.is_(None), sa.func.utcnow() < project.cfp_end_at
         ),
         label=('open', __("Open")),
     )
@@ -397,8 +403,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         cfp_state.PUBLIC,
         lambda project: project.cfp_end_at is not None
         and utcnow() >= project.cfp_end_at,
-        lambda project: db.and_(
-            project.cfp_end_at.isnot(None), db.func.utcnow() >= project.cfp_end_at
+        lambda project: sa.and_(
+            project.cfp_end_at.isnot(None), sa.func.utcnow() >= project.cfp_end_at
         ),
         label=('expired', __("Expired")),
     )
@@ -446,7 +452,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
             self.cfp_end_at = None
         # If opening date is not set, set it
         if self.cfp_start_at is None:
-            self.cfp_start_at = db.func.utcnow()
+            self.cfp_start_at = sa.func.utcnow()
 
     @with_roles(call={'editor'})  # skipcq: PTC-W0049
     @cfp_state.transition(
@@ -471,9 +477,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         """Publish a project and return a flag if this is the first publishing."""
         first_published = False
         if not self.first_published_at:
-            self.first_published_at = db.func.utcnow()
+            self.first_published_at = sa.func.utcnow()
             first_published = True
-        self.published_at = db.func.utcnow()
+        self.published_at = sa.func.utcnow()
         return first_published
 
     @with_roles(call={'editor'})  # skipcq: PTC-W0049
@@ -582,7 +588,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     # def delete(self):
     #     pass
 
-    @db.validates('name', 'profile')
+    @sa.orm.validates('name', 'profile')
     def _validate_and_create_redirect(self, key, value):
         # TODO: When labels, venues and other resources are relocated from project to
         # profile, this validator can no longer watch profile change. We'll need a more
@@ -655,7 +661,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
         param bool desc: Use descending order (default True)
         """
-        clause = db.case(
+        clause = sa.case(
             [(cls.start_at.isnot(None), cls.start_at)],
             else_=cls.published_at,
         )
@@ -695,7 +701,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         names = {project.name for project in new_profile.projects}
         for project in old_profile.projects:
             if project.name in names:
-                current_app.logger.warning(
+                app.logger.warning(
                     "Project %r had a conflicting name in profile migration,"
                     " so renaming by adding adding random value to name",
                     project,
@@ -709,28 +715,28 @@ add_search_trigger(Project, 'search_vector')
 
 @reopen(Profile)
 class __Profile:
-    id: db.Column  # noqa: A003
+    id: sa.Column  # noqa: A003
 
-    listed_projects = db.relationship(
+    listed_projects = sa.orm.relationship(
         Project,
         lazy='dynamic',
-        primaryjoin=db.and_(
+        primaryjoin=sa.and_(
             Profile.id == Project.profile_id,
             Project.state.PUBLISHED,
         ),
         viewonly=True,
     )
-    draft_projects = db.relationship(
+    draft_projects = sa.orm.relationship(
         Project,
         lazy='dynamic',
-        primaryjoin=db.and_(
+        primaryjoin=sa.and_(
             Profile.id == Project.profile_id,
-            db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
+            sa.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
         ),
         viewonly=True,
     )
     projects_by_name = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             Project, collection_class=attribute_mapped_collection('name'), viewonly=True
         ),
         read={'all'},
@@ -746,7 +752,7 @@ class __Profile:
                     # Project is attached to this profile
                     Project.profile_id == self.id,
                     # Project is in draft state OR has a draft call for proposals
-                    db.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
+                    sa.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
                 )
             ]
         return []
@@ -761,7 +767,7 @@ class __Profile:
                     # Project is attached to this profile
                     Project.profile_id == self.id,
                     # Project is in draft state OR has a draft call for proposals
-                    db.or_(Project.state.PUBLISHED_WITHOUT_SESSIONS),
+                    sa.or_(Project.state.PUBLISHED_WITHOUT_SESSIONS),
                 )
             ]
         return []
@@ -777,19 +783,19 @@ class __Profile:
 class ProjectRedirect(TimestampMixin, db.Model):
     __tablename__ = 'project_redirect'
 
-    profile_id = db.Column(
-        None, db.ForeignKey('profile.id'), nullable=False, primary_key=True
+    profile_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('profile.id'), nullable=False, primary_key=True
     )
-    profile = db.relationship(
-        'Profile', backref=db.backref('project_redirects', cascade='all')
+    profile = sa.orm.relationship(
+        Profile, backref=sa.orm.backref('project_redirects', cascade='all')
     )
-    parent = db.synonym('profile')
-    name = db.Column(db.Unicode(250), nullable=False, primary_key=True)
+    parent = sa.orm.synonym('profile')
+    name = sa.Column(sa.Unicode(250), nullable=False, primary_key=True)
 
-    project_id = db.Column(
-        None, db.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
+    project_id: sa.Column[Optional[int]] = db.Column(
+        None, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
-    project = db.relationship(Project, backref='redirects')
+    project = sa.orm.relationship(Project, backref='redirects')
 
     def __repr__(self) -> str:
         """Represent :class:`ProjectRedirect` as a string."""
@@ -853,13 +859,15 @@ class ProjectRedirect(TimestampMixin, db.Model):
 class ProjectLocation(TimestampMixin, db.Model):
     __tablename__ = 'project_location'
     #: Project we are tagging
-    project_id = db.Column(
-        None, db.ForeignKey('project.id'), primary_key=True, nullable=False
+    project_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('project.id'), primary_key=True, nullable=False
     )
-    project = db.relationship(Project, backref=db.backref('locations', cascade='all'))
+    project = sa.orm.relationship(
+        Project, backref=sa.orm.backref('locations', cascade='all')
+    )
     #: Geonameid for this project
-    geonameid = db.Column(db.Integer, primary_key=True, nullable=False, index=True)
-    primary = db.Column(db.Boolean, default=True, nullable=False)
+    geonameid = sa.Column(sa.Integer, primary_key=True, nullable=False, index=True)
+    primary = sa.Column(sa.Boolean, default=True, nullable=False)
 
     def __repr__(self) -> str:
         """Represent :class:`ProjectLocation` as a string."""
@@ -872,7 +880,7 @@ class ProjectLocation(TimestampMixin, db.Model):
 @reopen(Commentset)
 class __Commentset:
     project = with_roles(
-        db.relationship(Project, uselist=False, back_populates='commentset'),
+        sa.orm.relationship(Project, uselist=False, back_populates='commentset'),
         grants_via={None: {'editor': 'document_subscriber'}},
     )
 

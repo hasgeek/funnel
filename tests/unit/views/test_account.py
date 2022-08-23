@@ -1,5 +1,7 @@
 """Test account views."""
 
+import pytest
+
 
 def test_username_available(db_session, client, user_rincewind, csrf_token) -> None:
     """Test the username availability endpoint."""
@@ -51,9 +53,10 @@ def test_username_available(db_session, client, user_rincewind, csrf_token) -> N
 
 # Sample password that will pass zxcvbn's complexity validation, but will be flagged
 # by the pwned password validator
-PWNED_PASSWORD = "thisisone1"  # noqa: S105 #nosec
+PWNED_PASSWORD = "thisisone1"  # nosec
 
 
+@pytest.mark.remote_data()
 def test_pwned_password(client, csrf_token, login, user_rincewind) -> None:
     """Pwned password validator will block attempt to use a compromised password."""
     login.as_(user_rincewind)

@@ -13,12 +13,14 @@ from coaster.utils import LabeledEnum
 from ..typing import OptionalMigratedTables
 from . import (
     BaseMixin,
+    Mapped,
     MarkdownColumn,
     TSVectorType,
     UrlType,
     UuidMixin,
     db,
     hybrid_property,
+    sa,
 )
 from .helpers import (
     RESERVED_NAMES,
@@ -64,83 +66,85 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
 
     #: The "username" assigned to a user or organization.
     #: Length limit 63 to fit DNS label limit
-    name = db.Column(
-        db.Unicode(__name_length__),
-        db.CheckConstraint("name <> ''"),
+    name = sa.Column(
+        sa.Unicode(__name_length__),
+        sa.CheckConstraint("name <> ''"),
         nullable=False,
         unique=True,
     )
     # Only one of the following three may be set:
     #: User that owns this name (limit one per user)
-    user_id = db.Column(
-        None, db.ForeignKey('user.id', ondelete='SET NULL'), unique=True, nullable=True
+    user_id: sa.Column[Optional[int]] = db.Column(
+        None, sa.ForeignKey('user.id', ondelete='SET NULL'), unique=True, nullable=True
     )
 
     # No `cascade='delete-orphan'` in User and Organization backrefs as profiles cannot
     # be trivially deleted
 
-    user = with_roles(
-        db.relationship(
+    user: Mapped[Optional[User]] = with_roles(
+        sa.orm.relationship(
             'User',
             lazy='joined',
-            backref=db.backref('profile', lazy='joined', uselist=False, cascade='all'),
+            backref=sa.orm.backref(
+                'profile', lazy='joined', uselist=False, cascade='all'
+            ),
         ),
         grants={'owner'},
     )
     #: Organization that owns this name (limit one per organization)
-    organization_id = db.Column(
+    organization_id: sa.Column[Optional[int]] = db.Column(
         None,
-        db.ForeignKey('organization.id', ondelete='SET NULL'),
+        sa.ForeignKey('organization.id', ondelete='SET NULL'),
         unique=True,
         nullable=True,
     )
-    organization = db.relationship(
+    organization: Mapped[Optional[Organization]] = sa.orm.relationship(
         'Organization',
         lazy='joined',
-        backref=db.backref('profile', lazy='joined', uselist=False, cascade='all'),
+        backref=sa.orm.backref('profile', lazy='joined', uselist=False, cascade='all'),
     )
     #: Reserved profile (not assigned to any party)
-    reserved = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    reserved = sa.Column(sa.Boolean, nullable=False, default=False, index=True)
 
-    _state = db.Column(
+    _state = sa.Column(
         'state',
-        db.Integer,
+        sa.Integer,
         StateManager.check_constraint('state', PROFILE_STATE),
         nullable=False,
         default=PROFILE_STATE.AUTO,
     )
     state = StateManager('_state', PROFILE_STATE, doc="Current state of the profile")
 
-    tagline = db.Column(db.Unicode, nullable=True)
+    tagline = sa.Column(sa.Unicode, nullable=True)
     description = MarkdownColumn(
         'description', default='', nullable=False, options=markdown_content_options
     )
-    website = db.Column(UrlType, nullable=True)
-    logo_url = db.Column(ImgeeType, nullable=True)
-    banner_image_url = db.Column(ImgeeType, nullable=True)
+    website = sa.Column(UrlType, nullable=True)
+    logo_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
+    banner_image_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
 
     # These two flags are read-only. There is no provision for writing to them within
     # the app:
 
     #: Protected profiles cannot be deleted
     is_protected = with_roles(
-        immutable(db.Column(db.Boolean, default=False, nullable=False)),
+        immutable(sa.Column(sa.Boolean, default=False, nullable=False)),
         read={'owner', 'admin'},
     )
     #: Verified profiles get a public badge
     is_verified = with_roles(
-        immutable(db.Column(db.Boolean, default=False, nullable=False, index=True)),
+        immutable(sa.Column(sa.Boolean, default=False, nullable=False, index=True)),
         read={'all'},
     )
 
-    search_vector = db.deferred(
-        db.Column(
+    search_vector = sa.orm.deferred(
+        sa.Column(
             TSVectorType(
                 'name',
                 'description_text',
                 weights={'name': 'A', 'description_text': 'B'},
                 regconfig='english',
-                hltext=lambda: db.func.concat_ws(
+                hltext=lambda: sa.func.concat_ws(
                     visual_field_delimiter, Profile.name, Profile.description_html
                 ),
             ),
@@ -149,8 +153,8 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
     )
 
     is_active = with_roles(
-        db.column_property(
-            db.case(
+        sa.orm.column_property(
+            sa.case(
                 [
                     (
                         user_id.isnot(None),  # ← when, ↙ then
@@ -175,20 +179,20 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
     )
 
     __table_args__ = (
-        db.CheckConstraint(
-            db.case([(user_id.isnot(None), 1)], else_=0)
-            + db.case([(organization_id.isnot(None), 1)], else_=0)
-            + db.case([(reserved.is_(True), 1)], else_=0)
+        sa.CheckConstraint(
+            sa.case([(user_id.isnot(None), 1)], else_=0)
+            + sa.case([(organization_id.isnot(None), 1)], else_=0)
+            + sa.case([(reserved.is_(True), 1)], else_=0)
             == 1,
             name='profile_owner_check',
         ),
-        db.Index(
+        sa.Index(
             'ix_profile_name_lower',
-            db.func.lower(name).label('name_lower'),
+            sa.func.lower(name).label('name_lower'),
             unique=True,
             postgresql_ops={'name_lower': 'varchar_pattern_ops'},
         ),
-        db.Index('ix_profile_search_vector', 'search_vector', postgresql_using='gin'),
+        sa.Index('ix_profile_search_vector', 'search_vector', postgresql_using='gin'),
     )
 
     __roles__ = {
@@ -308,13 +312,13 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
 
     @title.expression
     def title(cls):  # noqa: N805  # pylint: disable=no-self-argument
-        return db.case(
+        return sa.case(
             [
                 (
                     # if...
                     cls.user_id.isnot(None),
                     # then...
-                    db.select([User.fullname])
+                    sa.select([User.fullname])
                     .where(cls.user_id == User.id)
                     .as_scalar(),
                 ),
@@ -322,7 +326,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
                     # elif...
                     cls.organization_id.isnot(None),
                     # then...
-                    db.select([Organization.title])
+                    sa.select([Organization.title])
                     .where(cls.organization_id == Organization.id)
                     .as_scalar(),
                 ),
@@ -352,7 +356,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
     @classmethod
     def get(cls, name: str) -> Optional[Profile]:
         return cls.query.filter(
-            db.func.lower(Profile.name) == db.func.lower(name)
+            sa.func.lower(Profile.name) == sa.func.lower(name)
         ).one_or_none()
 
     @classmethod
@@ -382,9 +386,9 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
         if len(name) > cls.__name_length__:
             return 'long'
         existing = (
-            cls.query.filter(db.func.lower(cls.name) == db.func.lower(name))
+            cls.query.filter(sa.func.lower(cls.name) == sa.func.lower(name))
             .options(
-                db.load_only(
+                sa.orm.load_only(
                     cls.id, cls.uuid, cls.user_id, cls.organization_id, cls.reserved
                 )
             )
@@ -403,7 +407,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
     def is_available_name(cls, name: str) -> bool:
         return cls.validate_name_candidate(name) is None
 
-    @db.validates('name')
+    @sa.orm.validates('name')
     def validate_name(self, key: str, value: str):
         if value.lower() in self.reserved_names or not valid_username(value):
             raise ValueError("Invalid account name: " + value)

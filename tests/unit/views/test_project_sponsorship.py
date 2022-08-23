@@ -44,10 +44,11 @@ def user_twoflower_not_site_editor(db_session, user_twoflower):
     [('user_vetinari_site_editor', 200), ('user_twoflower_not_site_editor', 403)],
 )
 def test_check_site_editor_edit_sponsorship(  # pylint: disable=too-many-arguments
-    request, client, login, org_uu_sponsorship, user_site_membership, status_code
+    request, app, client, login, org_uu_sponsorship, user_site_membership, status_code
 ):
     login.as_(request.getfixturevalue(user_site_membership).user)
-    endpoint = org_uu_sponsorship.url_for('edit')
+    with app.app_context():
+        endpoint = org_uu_sponsorship.url_for('edit')
     rv = client.get(endpoint)
     assert rv.status_code == status_code
 
@@ -62,6 +63,7 @@ def test_check_site_editor_edit_sponsorship(  # pylint: disable=too-many-argumen
     ],
 )
 def test_sponsorship_add(  # pylint: disable=too-many-arguments
+    app,
     client,
     login,
     user_vetinari_site_editor,
@@ -72,7 +74,8 @@ def test_sponsorship_add(  # pylint: disable=too-many-arguments
     csrf_token,
 ):
     login.as_(user_vetinari_site_editor.user)
-    endpoint = project_expo2010.url_for('add_sponsor')
+    with app.app_context():
+        endpoint = project_expo2010.url_for('add_sponsor')
     data = {
         'profile': org_uu.name,
         'label': label,
@@ -97,11 +100,12 @@ def test_sponsorship_add(  # pylint: disable=too-many-arguments
 
 
 def test_sponsorship_edit(
-    client, login, org_uu_sponsorship, user_vetinari_site_editor, csrf_token
+    app, client, login, org_uu_sponsorship, user_vetinari_site_editor, csrf_token
 ):
     assert org_uu_sponsorship.is_promoted is True
     login.as_(user_vetinari_site_editor.user)
-    endpoint = org_uu_sponsorship.url_for('edit')
+    with app.app_context():
+        endpoint = org_uu_sponsorship.url_for('edit')
     data = {
         'label': "Edited",
         'csrf_token': csrf_token,
@@ -120,6 +124,7 @@ def test_sponsorship_edit(
 
 
 def test_sponsorship_remove(  # pylint: disable=too-many-arguments
+    app,
     client,
     login,
     org_uu_sponsorship,
@@ -129,7 +134,8 @@ def test_sponsorship_remove(  # pylint: disable=too-many-arguments
 ):
     db.session.add(user_vetinari_site_editor)
     db.session.commit()
-    endpoint = org_uu_sponsorship.url_for('remove')
+    with app.app_context():
+        endpoint = org_uu_sponsorship.url_for('remove')
     login.as_(user_vetinari)
     data = {
         'csrf_token': csrf_token,

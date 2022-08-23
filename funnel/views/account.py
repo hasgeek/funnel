@@ -55,6 +55,7 @@ from ..models import (
     UserPhone,
     UserSession,
     db,
+    sa,
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
@@ -126,7 +127,7 @@ def organizations_as_admin(
     if order_by_grant:
         orgmems = orgmems.order_by(OrganizationMembership.granted_at.desc())
     else:
-        orgmems = orgmems.order_by(db.func.lower(Organization.title))
+        orgmems = orgmems.order_by(sa.func.lower(Organization.title))
 
     if limit is not None:
         orgmems = orgmems.limit(limit)

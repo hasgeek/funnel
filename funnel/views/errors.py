@@ -12,13 +12,13 @@ from ..proxies import request_wants
 from ..typing import ReturnView
 
 templates = {
-    403: '403.html.jinja2',
-    404: '404.html.jinja2',
-    405: '405.html.jinja2',
-    410: '410.html.jinja2',
-    429: '429.html.jinja2',
-    500: '500.html.jinja2',
-    503: '503.html.jinja2',
+    403: 'errors/403.html.jinja2',
+    404: 'errors/404.html.jinja2',
+    405: 'errors/405.html.jinja2',
+    410: 'errors/410.html.jinja2',
+    429: 'errors/429.html.jinja2',
+    500: 'errors/500.html.jinja2',
+    503: 'errors/503.html.jinja2',
 }
 
 

@@ -1,3 +1,4 @@
+colorama
 coverage
 coveralls
 lxml
@@ -6,5 +7,7 @@ pytest-bdd
 pytest-cov
 pytest-dotenv
 pytest-env
+pytest-remotedata
+pytest-rerunfailures
 pytest-splinter
 requests-mock

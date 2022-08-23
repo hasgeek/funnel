@@ -23,6 +23,7 @@ from ..models import (
     Venue,
     VenueRoom,
     db,
+    sa,
 )
 from ..typing import ReturnRenderWith, ReturnView, UuidModelType
 from .helpers import render_redirect
@@ -50,7 +51,7 @@ class ProfileCheckMixin:
 
 
 class ProjectViewMixin(ProfileCheckMixin):
-    model = Project
+    model: Type[Project] = Project
     route_model_map = {'profile': 'profile.name', 'project': 'name'}
     obj: Project
     SavedProjectForm = SavedProjectForm
@@ -61,7 +62,7 @@ class ProjectViewMixin(ProfileCheckMixin):
             Project.query.join(Profile, Project.profile_id == Profile.id)
             .filter(
                 Project.name == project,
-                db.func.lower(Profile.name) == db.func.lower(profile),
+                sa.func.lower(Profile.name) == sa.func.lower(profile),
             )
             .first()
         )
@@ -72,7 +73,7 @@ class ProjectViewMixin(ProfileCheckMixin):
                 )
                 .filter(
                     ProjectRedirect.name == project,
-                    db.func.lower(Profile.name) == db.func.lower(profile),
+                    sa.func.lower(Profile.name) == sa.func.lower(profile),
                 )
                 .first_or_404()
             )
@@ -155,7 +156,7 @@ class VenueViewMixin(ProfileCheckMixin):
         return (
             Venue.query.join(Project, Profile)
             .filter(
-                db.func.lower(Profile.name) == db.func.lower(profile),
+                sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,
                 Venue.name == venue,
             )
@@ -181,7 +182,7 @@ class VenueRoomViewMixin(ProfileCheckMixin):
         return (
             VenueRoom.query.join(Venue, Project, Profile)
             .filter(
-                db.func.lower(Profile.name) == db.func.lower(profile),
+                sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,
                 Venue.name == venue,
                 VenueRoom.name == room,
@@ -207,7 +208,7 @@ class TicketEventViewMixin(ProfileCheckMixin):
         return (
             TicketEvent.query.join(Project, Profile)
             .filter(
-                db.func.lower(Profile.name) == db.func.lower(profile),
+                sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,
                 TicketEvent.name == name,
             )

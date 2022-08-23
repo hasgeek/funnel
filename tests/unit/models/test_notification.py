@@ -25,7 +25,7 @@ from funnel.models import (
 
 
 @pytest.fixture(scope='session')
-def notification_types():
+def notification_types(database):
     class ProjectIsParent:
         document: db.Model
 
@@ -56,6 +56,7 @@ def notification_types():
         fragment: Proposal
         roles = ['project_editor']
 
+    database.configure_mappers()
     return SimpleNamespace(**locals())
 
 

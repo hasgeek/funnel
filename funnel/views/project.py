@@ -42,6 +42,7 @@ from ..models import (
     Rsvp,
     SavedProject,
     db,
+    sa,
 )
 from ..signals import project_role_change
 from ..typing import ReturnRenderWith, ReturnView
@@ -492,7 +493,7 @@ class ProjectView(  # type: ignore[misc]
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             if self.obj.cfp_end_at and not self.obj.cfp_start_at:
-                self.obj.cfp_start_at = db.func.utcnow()
+                self.obj.cfp_start_at = sa.func.utcnow()
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for('view_proposals'))

@@ -26,7 +26,7 @@ from ..forms import (
     ProfileLogoForm,
     ProfileTransitionForm,
 )
-from ..models import Profile, Project, db
+from ..models import Profile, Project, db, sa
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
@@ -105,10 +105,10 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             projects = self.obj.listed_projects.order_by(None)
             all_projects = (
                 projects.filter(
-                    db.or_(
+                    sa.or_(
                         Project.state.LIVE,
                         Project.state.UPCOMING,
-                        db.and_(
+                        sa.and_(
                             Project.start_at.is_(None), Project.published_at.isnot(None)
                         ),
                     ),
@@ -121,10 +121,10 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             all_projects = all_projects[3:]
             featured_project = (
                 projects.filter(
-                    db.or_(
+                    sa.or_(
                         Project.state.LIVE,
                         Project.state.UPCOMING,
-                        db.and_(
+                        sa.and_(
                             Project.start_at.is_(None), Project.published_at.isnot(None)
                         ),
                     ),

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Iterable, Optional
 
 from flask import Markup, url_for
 
@@ -17,7 +17,7 @@ __all__ = ['OrganizationForm', 'TeamForm']
 class OrganizationForm(forms.Form):
     """Form for an organization's name and title."""
 
-    __expects__ = ('user',)
+    __expects__: Iterable[str] = ('user',)
     user: User
     edit_obj: Optional[Organization]
 

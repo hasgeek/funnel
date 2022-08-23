@@ -1,9 +1,12 @@
 """Test project views."""
 
+import pytest
+
 from funnel.forms import LabelForm
 from funnel.models import Label
 
 
+@pytest.mark.usefixtures('app_context')
 def test_new_label_get(client, login, new_user, new_project) -> None:
     login.as_(new_user)
     resp = client.get(new_project.url_for('new_label'))

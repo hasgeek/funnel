@@ -16,7 +16,7 @@ SHORTLINK_DOMAIN = 'f.test:3002'
 DEFAULT_DOMAIN = 'funnel.test'
 STATIC_SUBDOMAIN = 'static'
 LASTUSER_COOKIE_DOMAIN = '.funnel.test:3002'
-UPLOAD_FOLDER = '/tmp'  # nosec  # noqa: S108
+UPLOAD_FOLDER = '/tmp'  # nosec
 TIMEZONE = 'Asia/Kolkata'
 GOOGLE_MAPS_API_KEY = environ.get('GOOGLE_MAPS_API_KEY')
 BOXOFFICE_SERVER = 'https://boxoffice.hasgeek.com/api/1/'
@@ -28,8 +28,10 @@ REDIS_URL = RQ_REDIS_URL = CACHE_REDIS_URL = 'redis://localhost:6379/9'
 UNSUBSCRIBE_DOMAIN = 'bye.test'
 #: Recaptcha for the registration form
 RECAPTCHA_USE_SSL = True
-RECAPTCHA_PUBLIC_KEY = environ.get('RECAPTCHA_PUBLIC_KEY')
-RECAPTCHA_PRIVATE_KEY = environ.get('RECAPTCHA_PRIVATE_KEY')
+# Recaptcha keys from https://developers.google.com/recaptcha/docs/faq
+# #id-like-to-run-automated-tests-with-recaptcha.-what-should-i-do
+RECAPTCHA_PUBLIC_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+RECAPTCHA_PRIVATE_KEY = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
 RECAPTCHA_OPTIONS = ''
 WTF_CSRF_ENABLED = True
 

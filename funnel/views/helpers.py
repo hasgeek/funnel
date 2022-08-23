@@ -391,7 +391,7 @@ def validate_rate_limit(  # pylint: disable=too-many-arguments
 # This number can be increased to 4 as volumes grow, but will result in a 6 char token
 TOKEN_BYTES_LEN = 3
 # Changing this prefix will break existing tokens. Do not change
-TEXT_TOKEN_PREFIX = 'temp_token/v1/'  # nosec  # noqa: S105
+TEXT_TOKEN_PREFIX = 'temp_token/v1/'  # nosec
 
 
 def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
@@ -596,7 +596,7 @@ def commit_db_session(response: ResponseType) -> ResponseType:
     # This handler is primarily required for the `|shortlink` template filter, which
     # may make a database entry in a view's ``return render_template(...)`` call and
     # is therefore too late for a commit within the view
-    if getattr(g, 'require_db_commit', False):
+    if g.get('require_db_commit', False):
         db.session.commit()
     return response
 

@@ -33,6 +33,7 @@ from ..models import (
     Project,
     ProjectCrewMembership,
     db,
+    sa,
 )
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
@@ -423,7 +424,7 @@ class ProjectCrewMembershipMixin(ProfileCheckMixin):
         return (
             ProjectCrewMembership.query.join(Project, Profile)
             .filter(
-                db.func.lower(Profile.name) == db.func.lower(profile),
+                sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,
                 ProjectCrewMembership.uuid_b58 == membership,
             )
