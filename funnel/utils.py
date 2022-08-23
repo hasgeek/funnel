@@ -228,10 +228,6 @@ def make_qrcode(data: str) -> str:
 
 
 # --- Standard extensions --------------------------------------------------------------
-
-# FIXME: Disable support for custom css classes as described here:
-# https://facelessuser.github.io/pymdown-extensions/extensions/superfences/#injecting-classes-ids-and-attributes
-
 # FOR CUT 2
 # TODO: caret, tilde:
 #       ^^ins^^, ^sup^ dont work OOTB. ~~del~~ uses <s/>, not <del/>.
