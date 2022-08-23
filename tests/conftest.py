@@ -25,14 +25,6 @@ from funnel.models import (
     db,
 )
 
-WEBDRIVERS = {
-    'chrome': 'chromedriver',
-    'edge': 'msedgedriver',
-    'firefox': 'geckodriver',
-    'safari': 'safaridriver',
-}
-
-
 if t.TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
     from sqlalchemy.orm import Session as DatabaseSessionClass
@@ -42,13 +34,6 @@ if t.TYPE_CHECKING:
 
 
 # --- Pytest config --------------------------------------------------------------------
-
-
-def check_webdrivers():
-    for driver in WEBDRIVERS.values():
-        if shutil.which(driver):
-            return True
-    return False
 
 
 def pytest_addoption(parser) -> None:
@@ -839,12 +824,40 @@ def browser_patches():  # noqa : PT004
 
 
 @pytest.fixture(scope='session')
-def splinter_driver_kwargs(splinter_webdriver):
-    """Disable certification verification for webdriver."""
-    from selenium import webdriver
+def splinter_webdriver(request) -> str:
+    """
+    Return an available webdriver, or requested one from CLI options.
 
-    if not check_webdrivers():
-        pytest.skip('webdriver not found')
+    Skips dependent tests if no webdriver is available, but fails if there was an
+    explicit request for a webdriver and it's not found.
+    """
+    driver_executables = {
+        'firefox': 'geckodriver',
+        'chrome': 'chromedriver',
+        'edge': 'msedgedriver',
+    }
+
+    driver = request.config.option.splinter_webdriver
+    if driver:
+        if driver not in driver_executables:
+            pytest.fail(f"Webdriver '{driver}' does not support JavaScript")
+        executable = driver_executables[driver]
+        if shutil.which(executable):
+            return driver
+        pytest.fail(
+            f"Requested webdriver '{driver}' needs executable '{executable}' in $PATH"
+        )
+    for driver, executable in driver_executables.items():
+        if shutil.which(executable):
+            return driver
+    pytest.skip("No webdriver found")
+    return ''  # For pylint and mypy since they don't know pytest.fail is NoReturn
+
+
+@pytest.fixture(scope='session')
+def splinter_driver_kwargs(splinter_webdriver) -> dict:
+    """Disable certification verification when using Chrome webdriver."""
+    from selenium import webdriver
 
     if splinter_webdriver == 'chrome':
         options = webdriver.ChromeOptions()
