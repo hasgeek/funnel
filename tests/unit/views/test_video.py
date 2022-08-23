@@ -111,6 +111,7 @@ def test_vimeo(db_session, new_proposal) -> None:
     assert check_video['thumbnail'].startswith('https://i.vimeocdn.com/video/783856813')
 
 
+@pytest.mark.requires_config('vimeo')
 @pytest.mark.usefixtures('app_context')
 def test_vimeo_request_exception(caplog, requests_mock, new_proposal):
     caplog.set_level(logging.WARNING)
