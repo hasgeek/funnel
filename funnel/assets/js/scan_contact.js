@@ -49,9 +49,9 @@ const badgeScan = {
         $('#status-msg').modal('show');
         const puk = qrcode.substring(0, 8);
         const key = qrcode.substring(8);
-        const formValues = `puk=${encodeURIComponent(
-          puk
-        )}&key=${encodeURIComponent(key)}`;
+        const formValues = `puk=${encodeURIComponent(puk)}&key=${encodeURIComponent(
+          key
+        )}`;
         $.ajax({
           type: 'POST',
           url: getContactApiUrl,
@@ -102,9 +102,7 @@ const badgeScan = {
       },
 
       startRenderFrameLoop() {
-        const timerId = window.requestAnimationFrame(
-          badgeScanComponent.renderFrame
-        );
+        const timerId = window.requestAnimationFrame(badgeScanComponent.renderFrame);
         this.set('timerId', timerId);
       },
 
@@ -130,24 +128,14 @@ const badgeScan = {
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
           canvasElement.height = video.videoHeight;
           canvasElement.width = video.videoWidth;
-          canvas.drawImage(
-            video,
-            0,
-            0,
-            canvasElement.width,
-            canvasElement.height
-          );
+          canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
           const imageData = canvas.getImageData(
             0,
             0,
             canvasElement.width,
             canvasElement.height
           );
-          const qrcode = jsQR(
-            imageData.data,
-            imageData.width,
-            imageData.height
-          );
+          const qrcode = jsQR(imageData.data, imageData.width, imageData.height);
           this.verifyQRDecode(qrcode);
         } else {
           this.startRenderFrameLoop();

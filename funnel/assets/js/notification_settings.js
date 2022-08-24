@@ -23,10 +23,7 @@ $(() => {
               'switch-label--disabled'
             );
           } else if (transport) {
-            $(`input[data-transport="preference-${transport}"]`).attr(
-              'disabled',
-              true
-            );
+            $(`input[data-transport="preference-${transport}"]`).attr('disabled', true);
             $(`label[data-transport="preference-${transport}"]`).addClass(
               'switch-label--disabled'
             );

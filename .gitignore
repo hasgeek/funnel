@@ -14,8 +14,8 @@ __pycache__
 .DS_Store
 
 # Assets and static files
-funnel/assets/cypress/screenshots
-funnel/assets/cypress/videos
+tests/cypress/screenshots
+tests/cypress/videos
 funnel/static/build
 funnel/static/gen
 funnel/static/service-worker.js

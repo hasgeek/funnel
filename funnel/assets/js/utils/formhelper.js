@@ -84,10 +84,9 @@ const Form = {
     $('body').on('click', elementClass, function remove(event) {
       event.preventDefault();
       const url = $(this).attr('href');
-      const confirmationText = window.gettext(
-        'Are you sure you want to remove %s?',
-        [$(this).attr('title')]
-      );
+      const confirmationText = window.gettext('Are you sure you want to remove %s?', [
+        $(this).attr('title'),
+      ]);
 
       /* eslint-disable no-alert */
       if (window.confirm(confirmationText)) {
@@ -138,13 +137,9 @@ const Form = {
       });
     });
 
-    $('body').on(
-      'click',
-      '.js-dropdown-toggle',
-      function stopPropagation(event) {
-        event.stopPropagation();
-      }
-    );
+    $('body').on('click', '.js-dropdown-toggle', function stopPropagation(event) {
+      event.stopPropagation();
+    });
   },
   openSubmissionToggle(checkboxId, cfpStatusDiv) {
     const onSuccess = () => {

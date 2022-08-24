@@ -77,9 +77,7 @@ const Utils = {
       }
       menuBtn.removeClass('header__nav-links--active');
       $('body').removeClass('body-scroll-lock');
-      $('.header__nav-links--active').removeClass(
-        'header__nav-links--menuOpen'
-      );
+      $('.header__nav-links--active').removeClass('header__nav-links--menuOpen');
     };
 
     const updatePageNumber = () => {
@@ -177,9 +175,8 @@ const Utils = {
     const singleDay = 24 * 60 * 60 * 1000;
 
     $('body .card__calendar').each(function setupCardCalendar() {
-      const firstActiveWeek = $(this).find(
-        '.calendar__weekdays__dates--upcoming'
-      ).length
+      const firstActiveWeek = $(this).find('.calendar__weekdays__dates--upcoming')
+        .length
         ? $(this).find('.calendar__weekdays__dates--upcoming--first')
         : $(this).find('.calendar__weekdays__dates--latest');
 
@@ -208,9 +205,7 @@ const Utils = {
             .addClass('calendar__weekdays__dates__date--display');
         });
 
-      const todayDate = $(this)
-        .find('.calendar__month__counting')
-        .data('today');
+      const todayDate = $(this).find('.calendar__month__counting').data('today');
       const nextEventElem = $(this)
         .find('.calendar__weekdays__dates--upcoming--first')
         .first()
@@ -247,9 +242,7 @@ const Utils = {
   },
   setNotifyIcon(unread) {
     if (unread) {
-      $('.header__nav-links--updates').addClass(
-        'header__nav-links--updates--unread'
-      );
+      $('.header__nav-links--updates').addClass('header__nav-links--updates--unread');
     } else {
       $('.header__nav-links--updates').removeClass(
         'header__nav-links--updates--unread'

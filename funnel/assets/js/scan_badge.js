@@ -2,13 +2,7 @@ import jsQR from 'jsqr';
 import { RactiveApp } from './utils/ractive_util';
 
 const badgeScan = {
-  init({
-    checkinApiUrl,
-    wrapperId,
-    templateId,
-    projectTitle,
-    ticketEventTitle,
-  }) {
+  init({ checkinApiUrl, wrapperId, templateId, projectTitle, ticketEventTitle }) {
     const badgeScanComponent = new RactiveApp({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
@@ -43,9 +37,7 @@ const badgeScan = {
         $('#status-msg').modal('show');
         const url = checkinApiUrl.replace('puk', qrcode.substring(0, 8));
         const csrfToken = $("meta[name='csrf-token']").attr('content');
-        const formValues = `checkin=t&csrf_token=${encodeURIComponent(
-          csrfToken
-        )}`;
+        const formValues = `checkin=t&csrf_token=${encodeURIComponent(csrfToken)}`;
         $.ajax({
           type: 'POST',
           url,
@@ -106,24 +98,14 @@ const badgeScan = {
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
           canvasElement.height = video.videoHeight;
           canvasElement.width = video.videoWidth;
-          canvas.drawImage(
-            video,
-            0,
-            0,
-            canvasElement.width,
-            canvasElement.height
-          );
+          canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
           const imageData = canvas.getImageData(
             0,
             0,
             canvasElement.width,
             canvasElement.height
           );
-          const qrcode = jsQR(
-            imageData.data,
-            imageData.width,
-            imageData.height
-          );
+          const qrcode = jsQR(imageData.data, imageData.width, imageData.height);
           this.verifyQRDecode(qrcode);
         } else {
           this.startRenderFrameLoop();

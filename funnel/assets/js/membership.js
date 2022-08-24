@@ -91,13 +91,7 @@ const Membership = {
           const onError = (response) => {
             this.errorMsg = Form.formErrorHandler(formId, response);
           };
-          window.Hasgeek.Forms.handleFormSubmit(
-            formId,
-            url,
-            onSuccess,
-            onError,
-            {}
-          );
+          window.Hasgeek.Forms.handleFormSubmit(formId, url, onSuccess, onError, {});
         },
         updateMembersList(membersList) {
           this.members = membersList.length > 0 ? membersList : '';
@@ -131,8 +125,7 @@ const Membership = {
           this.showInfo = !this.showInfo;
         },
         onWindowResize() {
-          this.isMobile =
-            $(window).width() < window.Hasgeek.Config.mobileBreakpoint;
+          this.isMobile = $(window).width() < window.Hasgeek.Config.mobileBreakpoint;
         },
       },
       computed: {

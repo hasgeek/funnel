@@ -106,18 +106,12 @@ const Comments = {
       computed: {
         created_at_age() {
           return this.now && this.comment.created_at
-            ? this.timeago.format(
-                this.comment.created_at,
-                window.Hasgeek.Config.locale
-              )
+            ? this.timeago.format(this.comment.created_at, window.Hasgeek.Config.locale)
             : '';
         },
         edited_at_age() {
           return this.now && this.comment.edited_at
-            ? this.timeago.format(
-                this.comment.edited_at,
-                window.Hasgeek.Config.locale
-              )
+            ? this.timeago.format(this.comment.edited_at, window.Hasgeek.Config.locale)
             : '';
         },
       },
@@ -209,9 +203,7 @@ const Comments = {
           }
         },
         submitCommentForm(formId, postUrl, action, parentApp = app) {
-          const commentContent = $(`#${formId}`)
-            .find('textarea[name="message"]')
-            .val();
+          const commentContent = $(`#${formId}`).find('textarea[name="message"]').val();
           $.ajax({
             url: postUrl,
             type: 'POST',
