@@ -126,7 +126,7 @@ const Schedule = {
           if (activeSession.modal_url) {
             const response = await fetch(activeSession.modal_url, {
               headers: {
-                Accept: 'application/x.html+json',
+                Accept: 'text/x.fragment+html',
                 'X-Requested-With': 'XMLHttpRequest',
               },
             }).catch(Form.handleFetchNetworkError);
