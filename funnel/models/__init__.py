@@ -41,7 +41,6 @@ else:
         # sqlalchemy2-stubs (by SQLAlchemy) requires it
         from sqlalchemy.orm import declarative_mixin  # type: ignore[attr-defined]
     except ImportError:
-        # pylint: disable=function-redefined
         T = TypeVar('T')
 
         def declarative_mixin(cls: T) -> T:

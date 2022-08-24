@@ -139,7 +139,6 @@ class __Organization:
     )
 
     active_invitations = sa.orm.relationship(
-        # pylint: disable=invalid-unary-operand-type
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
