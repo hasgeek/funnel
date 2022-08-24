@@ -2,10 +2,11 @@
 
 from flask import request
 
+from coaster.utils import markdown
+
 from ... import app
 from ...models import markdown_content_options
 from ...typing import ReturnView
-from ...utils import markdown
 
 extra_markdown_types = {'profile', 'project', 'submission', 'session'}
 
