@@ -140,7 +140,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     @declared_attr
     def revoked_by_id(  # pylint: disable=no-self-argument
         cls,
-    ) -> sa.Column[Optional[int]]:  # pylint: disable=no-self-argument
+    ) -> sa.Column[Optional[int]]:
         """Id of user who revoked the membership."""
         return db.Column(
             None, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
