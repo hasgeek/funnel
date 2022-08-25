@@ -1,0 +1,3 @@
+[data]
+md = "**Bold text**"
+html = "<p><strong>Bold text</strong></p>"
