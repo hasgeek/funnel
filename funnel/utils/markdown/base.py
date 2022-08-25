@@ -1,26 +1,14 @@
 """Base files for markdown parser."""
 
-from copy import deepcopy
-from typing import Any, Dict, List, Mapping, Optional, Union, overload
+from typing import Dict, List, Mapping, Optional, Union, cast, overload
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
-from mdit_py_plugins import anchors, footnote, tasklists
-from typing_extensions import Protocol
 
-from coaster.utils import make_name
-from coaster.utils.text import VALID_TAGS, normalize_spaces_multiline, sanitize_html
+from coaster.utils.text import normalize_spaces_multiline, sanitize_html
 
-MARKDOWN_HTML_TAGS = deepcopy(VALID_TAGS)
-
-
-# --- Typing Protocol for markdown-it-py plugins ---------------------------------------
-class MarkdownItPluginProtocol(Protocol):
-    """Protocol for callable that gets a callback to initilize markdown-it-py plugin."""
-
-    def __call__(self, md: MarkdownIt, **options) -> None:
-        ...
-
+from .extmap import EXT_LIST, EXT_MAP
+from .helpers import DEFAULT_MD_EXT, MARKDOWN_HTML_TAGS
 
 # --- Standard extensions --------------------------------------------------------------
 # FOR CUT 2
@@ -36,28 +24,6 @@ class MarkdownItPluginProtocol(Protocol):
 #       https://www.npmjs.com/search?q=highlight%20keywords%3Amarkdown-it-plugin
 
 
-default_markdown_extensions_html: Dict[str, MarkdownItPluginProtocol] = {
-    'footnote': footnote.footnote_plugin,
-}
-
-default_markdown_extensions: Dict[str, MarkdownItPluginProtocol] = {
-    'footnote': footnote.footnote_plugin,
-    'heading_anchors': anchors.anchors_plugin,
-    'tasklists': tasklists.tasklists_plugin,
-}
-
-default_markdown_extension_configs: Dict[str, Dict[str, Any]] = {
-    'footnote': {},
-    'heading_anchors': {
-        'min_level': 1,
-        'max_level': 3,
-        'slug_func': make_name,
-        'permalink': True,
-    },
-    'tasklists': {'enabled': False, 'label': False, 'label_after': False},
-}
-
-
 # --- Markdown processor ---------------------------------------------------------------
 
 # pylint: disable=too-many-arguments
@@ -67,8 +33,9 @@ def markdown(
     html: bool = False,
     linkify: bool = True,
     valid_tags: Optional[Union[List[str], Mapping[str, List]]] = None,
-    extensions: Optional[Dict[str, MarkdownItPluginProtocol]] = None,
-    extension_configs: Optional[Mapping[str, Mapping[str, Any]]] = None,
+    extensions: Union[List[str], None] = None,
+    extension_configs: Optional[Dict[str, str]] = None,
+    # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
 ) -> None:
     ...
 
@@ -79,8 +46,9 @@ def markdown(
     html: bool = False,
     linkify: bool = True,
     valid_tags: Optional[Union[List[str], Mapping[str, List]]] = None,
-    extensions: Optional[Dict[str, MarkdownItPluginProtocol]] = None,
-    extension_configs: Optional[Mapping[str, Mapping[str, Any]]] = None,
+    extensions: Union[List[str], None] = None,
+    extension_configs: Optional[Dict[str, str]] = None,
+    # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
 ) -> Markup:
     ...
 
@@ -90,8 +58,9 @@ def markdown(
     html: bool = False,
     linkify: bool = True,
     valid_tags: Optional[Union[List[str], Mapping[str, List]]] = None,
-    extensions: Optional[Dict[str, MarkdownItPluginProtocol]] = None,
-    extension_configs: Optional[Mapping[str, Mapping[str, Any]]] = None,
+    extensions: Union[List[str], None] = None,
+    extension_configs: Optional[Dict[str, str]] = None,
+    # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
 ) -> Optional[Markup]:
     """
     Markdown parser compliant with Commonmark+GFM.
@@ -108,14 +77,6 @@ def markdown(
     if valid_tags is None:
         valid_tags = MARKDOWN_HTML_TAGS
 
-    # For the first cut release,
-    # ignore extensions and extension configs passed by method caller
-    if html:
-        extensions = default_markdown_extensions_html
-    else:
-        extensions = default_markdown_extensions
-    extension_configs = default_markdown_extension_configs
-
     # Replace invisible characters with spaces
     text = normalize_spaces_multiline(text)
 
@@ -129,8 +90,20 @@ def markdown(
         },
     ).enable(['smartquotes'])
 
-    for (key, ext) in extensions.items():
-        md.use(ext, **extension_configs[key])
+    if extensions is None:
+        extensions = DEFAULT_MD_EXT
+
+    for e in extensions:
+        e = cast(str, e)
+        if e in EXT_LIST and (not html or (html and EXT_MAP[e]['when_html'])):
+            ext_config = EXT_MAP[e]['configs'][EXT_MAP[e]['default_config']]
+            if extension_configs is not None:
+                if (
+                    e in extension_configs
+                    and extension_configs[e] in EXT_MAP[e]['configs']
+                ):
+                    ext_config = EXT_MAP[e]['configs'][extension_configs[e]]
+            md.use(EXT_MAP[e]['ext'], **ext_config)
 
     if html:
         return Markup(sanitize_html(md.render(text), valid_tags=valid_tags))
