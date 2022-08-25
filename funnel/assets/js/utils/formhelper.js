@@ -2,14 +2,15 @@ const Form = {
   getElementId(htmlString) {
     return htmlString.match(/id="(.*?)"/)[1];
   },
-  getFetchError(response) {
+  getErrorMsg(response, errorResponse = '') {
     let errorMsg = '';
     if (response.status === 500) {
       errorMsg = window.Hasgeek.Config.errorMsg.serverError;
-    } else if (
+    }
+    if (
       response.status === 422 &&
-      response.responseJSON &&
-      response.responseJSON.error === 'requires_sudo'
+      errorResponse &&
+      errorResponse.error === 'requires_sudo'
     ) {
       window.location.assign(
         `${window.Hasgeek.Config.accountSudo}?next=${encodeURIComponent(
@@ -18,24 +19,29 @@ const Form = {
       );
     } else if (
       response.status === 422 &&
-      response.responseJSON &&
-      response.responseJSON.error === 'redirect'
+      errorResponse &&
+      errorResponse.error === 'redirect'
     ) {
-      window.location.assign(response.responseJSON.location);
-    } else if (
-      response.responseJSON &&
-      response.responseJSON.error_description
-    ) {
-      errorMsg = response.responseJSON.error_description;
+      window.location.assign(errorResponse.sudo_url);
+    } else if (errorResponse && errorResponse.error_description) {
+      errorMsg = errorResponse.error_description;
     } else {
       errorMsg = response.statusText;
     }
     return errorMsg;
   },
+  getFetchError(response, xhr = true) {
+    if (!xhr) {
+      response.json().then((errorResponse) => {
+        return Form.getErrorMsg(response, errorResponse);
+      });
+    }
+    return this.getErrorMsg(response, response.responseJSON);
+  },
   getResponseError(response) {
     let errorMsg = '';
     if (!Object.prototype.hasOwnProperty.call(response, 'readyState')) {
-      errorMsg = this.getFetchError(response);
+      errorMsg = this.getFetchError(response, false);
     } else if (response.readyState === 4) {
       errorMsg = this.getFetchError(response);
     } else {
