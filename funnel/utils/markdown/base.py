@@ -1,7 +1,7 @@
 """Base files for markdown parser."""
 
 from copy import deepcopy
-from typing import Any, List, Mapping, Optional, Type, Union, overload
+from typing import Any, Dict, List, Mapping, Optional, Union, overload
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
@@ -15,7 +15,7 @@ MARKDOWN_HTML_TAGS = deepcopy(VALID_TAGS)
 
 
 # --- Typing Protocol for markdown-it-py plugins ---------------------------------------
-class MarkdownItPluginProtocol(Protocol):  # pylint: disable=too-few-public-methods
+class MarkdownItPluginProtocol(Protocol):
     """Protocol for callable that gets a callback to initilize markdown-it-py plugin."""
 
     def __call__(self, md: MarkdownIt, **options) -> None:
@@ -36,17 +36,17 @@ class MarkdownItPluginProtocol(Protocol):  # pylint: disable=too-few-public-meth
 #       https://www.npmjs.com/search?q=highlight%20keywords%3Amarkdown-it-plugin
 
 
-default_markdown_extensions_html: Mapping[str, Type[MarkdownItPluginProtocol]] = {
+default_markdown_extensions_html: Dict[str, MarkdownItPluginProtocol] = {
     'footnote': footnote.footnote_plugin,
 }
 
-default_markdown_extensions: Mapping[str, Type[MarkdownItPluginProtocol]] = {
+default_markdown_extensions: Dict[str, MarkdownItPluginProtocol] = {
     'footnote': footnote.footnote_plugin,
     'heading_anchors': anchors.anchors_plugin,
     'tasklists': tasklists.tasklists_plugin,
 }
 
-default_markdown_extension_configs: Mapping[str, Mapping[str, Any]] = {
+default_markdown_extension_configs: Dict[str, Dict[str, Any]] = {
     'footnote': {},
     'heading_anchors': {
         'min_level': 1,
@@ -67,7 +67,7 @@ def markdown(
     html: bool = False,
     linkify: bool = True,
     valid_tags: Optional[Union[List[str], Mapping[str, List]]] = None,
-    extensions: Optional[Mapping[str, Type[MarkdownItPluginProtocol]]] = None,
+    extensions: Optional[Dict[str, MarkdownItPluginProtocol]] = None,
     extension_configs: Optional[Mapping[str, Mapping[str, Any]]] = None,
 ) -> None:
     ...
@@ -79,7 +79,7 @@ def markdown(
     html: bool = False,
     linkify: bool = True,
     valid_tags: Optional[Union[List[str], Mapping[str, List]]] = None,
-    extensions: Optional[Mapping[str, Type[MarkdownItPluginProtocol]]] = None,
+    extensions: Optional[Dict[str, MarkdownItPluginProtocol]] = None,
     extension_configs: Optional[Mapping[str, Mapping[str, Any]]] = None,
 ) -> Markup:
     ...
@@ -90,7 +90,7 @@ def markdown(
     html: bool = False,
     linkify: bool = True,
     valid_tags: Optional[Union[List[str], Mapping[str, List]]] = None,
-    extensions: Optional[Mapping[str, Type[MarkdownItPluginProtocol]]] = None,
+    extensions: Optional[Dict[str, MarkdownItPluginProtocol]] = None,
     extension_configs: Optional[Mapping[str, Mapping[str, Any]]] = None,
 ) -> Optional[Markup]:
     """

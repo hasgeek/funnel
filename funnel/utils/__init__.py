@@ -1,5 +1,5 @@
 """Utility functions."""
 # flake8: noqa
 
-from .markdown import markdown
+from .markdown import *
 from .misc import *
