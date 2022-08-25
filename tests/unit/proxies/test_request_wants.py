@@ -75,9 +75,13 @@ def test_request_wants_json(app, accept_header, result) -> None:
     [
         (True, 'application/json', False),
         (True, 'text/html', True),
+        (True, 'text/x.fragment+html', True),
+        (True, 'application/x.html+json', True),
         (True, '*/*', True),
         (False, 'application/json', False),
         (False, 'text/html', False),
+        (False, 'text/x.fragment+html', True),
+        (False, 'application/x.html+json', True),
         (False, '*/*', False),
     ],
 )
@@ -97,11 +101,15 @@ def test_request_wants_html_fragment_xhr(app, xhr, accept_header, result) -> Non
     [
         (True, 'application/json', False),
         (True, 'text/html', True),
+        (True, 'text/x.fragment+html', True),
+        (True, 'application/x.html+json', True),
         (True, '*/*', True),
         (True, None, True),
         (False, 'application/json', False),
         (False, 'text/html', False),
         (False, '*/*', False),
+        (False, 'text/x.fragment+html', True),
+        (False, 'application/x.html+json', True),
         (False, None, False),
     ],
 )
