@@ -56,25 +56,27 @@ const Membership = {
         };
       },
       methods: {
-        fetchForm(event, url, member = '') {
+        async fetchForm(event, url, member = '') {
           event.preventDefault();
           if (this.isUserProfileAdmin) {
             this.activeMember = member;
             const app = this;
-            $.ajax({
-              type: 'GET',
-              url,
-              timeout: window.Hasgeek.Config.ajaxTimeout,
-              dataType: 'json',
-              success(data) {
+            const response = await fetch(url, {
+              headers: {
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+              },
+            }).catch(Form.handleFetchNetworkError);
+            if (response && response.ok) {
+              const data = await response.json();
+              if (data) {
                 const vueFormHtml = data.form;
                 app.memberForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
                 $('#member-form').modal('show');
-              },
-              error(response) {
-                Form.getResponseError(response);
-              },
-            });
+              }
+            } else {
+              Form.getResponseError(response);
+            }
           }
         },
         activateForm() {

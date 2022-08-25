@@ -14,21 +14,26 @@ $(() => {
       if (updateModal) $('.js-add-collaborator').trigger('click');
     }
 
-    function updatePreview() {
-      $.ajax({
-        type: 'POST',
-        url: window.Hasgeek.Config.markdownPreviewApi,
-        data: {
+    async function updatePreview() {
+      const response = await fetch(window.Hasgeek.Config.markdownPreviewApi, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: new URLSearchParams({
           type: 'submission',
           text: $('#body').val(),
-        },
-        dataType: 'json',
-        timeout: window.Hasgeek.Config.ajaxTimeout,
-        success(responseData) {
+        }).toString(),
+      });
+      if (response && response.ok) {
+        const responseData = await response.json();
+        if (responseData) {
           $('.js-proposal-preview').html(responseData.html);
           addVegaSupport();
-        },
-      });
+        }
+      }
     }
 
     function closePreviewPanel() {
@@ -101,6 +106,7 @@ $(() => {
     $.listen('parsley:field:error', (fieldInstance) => {
       if (fieldInstance.$element.data('parsley-multiple'))
         $('.label-error-icon').removeClass('mui--hide');
+      $('.js-label-heading').addClass('mui--text-danger');
     });
 
     const editor = document.querySelector('.CodeMirror').CodeMirror;

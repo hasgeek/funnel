@@ -2,28 +2,48 @@ const Form = {
   getElementId(htmlString) {
     return htmlString.match(/id="(.*?)"/)[1];
   },
+  getErrorMsg(response, errorResponse = '') {
+    let errorMsg = '';
+    if (response.status === 500) {
+      errorMsg = window.Hasgeek.Config.errorMsg.serverError;
+    }
+    if (
+      response.status === 422 &&
+      errorResponse &&
+      errorResponse.error === 'requires_sudo'
+    ) {
+      window.location.assign(
+        `${window.Hasgeek.Config.accountSudo}?next=${encodeURIComponent(
+          window.location.href
+        )}`
+      );
+    } else if (
+      response.status === 422 &&
+      errorResponse &&
+      errorResponse.error === 'redirect'
+    ) {
+      window.location.assign(errorResponse.sudo_url);
+    } else if (errorResponse && errorResponse.error_description) {
+      errorMsg = errorResponse.error_description;
+    } else {
+      errorMsg = response.statusText;
+    }
+    return errorMsg;
+  },
+  getFetchError(response, xhr = true) {
+    if (!xhr) {
+      response.json().then((errorResponse) => {
+        return Form.getErrorMsg(response, errorResponse);
+      });
+    }
+    return this.getErrorMsg(response, response.responseJSON);
+  },
   getResponseError(response) {
     let errorMsg = '';
-    if (response.readyState === 4) {
-      if (response.status === 500) {
-        errorMsg = window.Hasgeek.Config.errorMsg.serverError;
-      } else if (
-        response.status === 422 &&
-        response.responseJSON.error === 'requires_sudo'
-      ) {
-        window.location.assign(
-          `${window.Hasgeek.Config.accountSudo}?next=${encodeURIComponent(
-            window.location.href
-          )}`
-        );
-      } else if (
-        response.status === 422 &&
-        response.responseJSON.error === 'redirect'
-      ) {
-        window.location.assign(response.responseJSON.location);
-      } else {
-        errorMsg = response.responseJSON.error_description;
-      }
+    if (!Object.prototype.hasOwnProperty.call(response, 'readyState')) {
+      errorMsg = this.getFetchError(response, false);
+    } else if (response.readyState === 4) {
+      errorMsg = this.getFetchError(response);
     } else {
       errorMsg = window.Hasgeek.Config.errorMsg.networkError;
     }
@@ -39,6 +59,11 @@ const Form = {
     $(`#${formId}`).find('button[type="submit"]').attr('disabled', false);
     $(`#${formId}`).find('.loading').addClass('mui--hide');
     return Form.handleAjaxError(errorResponse);
+  },
+  handleFetchNetworkError() {
+    const errorMsg = window.Hasgeek.Config.errorMsg.networkError;
+    window.toastr.error(errorMsg);
+    return errorMsg;
   },
   getActionUrl(formId) {
     return $(`#${formId}`).attr('action');
@@ -81,7 +106,7 @@ const Form = {
     }
   },
   handleDelete(elementClass, onSucessFn) {
-    $('body').on('click', elementClass, function remove(event) {
+    $('body').on('click', elementClass, async function remove(event) {
       event.preventDefault();
       const url = $(this).attr('href');
       const confirmationText = window.gettext(
@@ -91,20 +116,24 @@ const Form = {
 
       /* eslint-disable no-alert */
       if (window.confirm(confirmationText)) {
-        $.ajax({
-          type: 'POST',
-          url,
-          data: {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          body: new URLSearchParams({
             csrf_token: $('meta[name="csrf-token"]').attr('content'),
-          },
-          success(responseData) {
+          }).toString(),
+        }).catch(Form.handleFetchNetworkError);
+        if (response && response.ok) {
+          const responseData = await response.text();
+          if (responseData) {
             onSucessFn(responseData);
-          },
-          error(response) {
-            const errorMsg = Form.getResponseError(response);
-            window.toastr.error(errorMsg);
-          },
-        });
+          }
+        } else {
+          Form.handleAjaxError(response);
+        }
       }
     });
   },
@@ -113,29 +142,32 @@ const Form = {
       const checkbox = $(this);
       const currentState = this.checked;
       const previousState = !currentState;
-      const formData = $(checkbox).parent('form').serializeArray();
+      const formData = new FormData($(checkbox).parent('form')[0]);
       if (!currentState) {
-        formData.push({ name: $(this).attr('name'), value: 'false' });
+        formData.append($(this).attr('name'), false);
       }
-      $.ajax({
-        type: 'POST',
-        url: $(checkbox).parent('form').attr('action'),
-        data: formData,
-        dataType: 'json',
-        timeout: window.Hasgeek.Config.ajaxTimeout,
-        success(responseData) {
+
+      fetch($(checkbox).parent('form').attr('action'), {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: new URLSearchParams(formData).toString(),
+      })
+        .then((responseData) => {
           if (responseData && responseData.message) {
             window.toastr.success(responseData.message);
           }
           if (callbckfn) {
             callbckfn();
           }
-        },
-        error(response) {
-          Form.handleAjaxError(response);
+        })
+        .catch((error) => {
+          Form.handleAjaxError(error);
           $(checkbox).prop('checked', previousState);
-        },
-      });
+        });
     });
 
     $('body').on(

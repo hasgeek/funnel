@@ -62,29 +62,32 @@ class RequestWants:
         """Request wants a JSON response."""
         return request.accept_mimetypes.best == 'application/json'
 
-    @test_uses('X-Requested-With', 'Accept', 'HX-Request')
+    @test_uses('Accept', 'HX-Request', 'X-Requested-With')
     def html_fragment(self) -> bool:
         """Request wants a HTML fragment for embedding (XHR or HTMX)."""
         return request.accept_mimetypes.best in (
-            None,  # No Accept header
-            '*/*',  # Default for jQuery and HTMX requests
-            'text/html',  # HTML mimetype
-            'application/x.html+json',  # Custom mimetype for Funnel
-        ) and (
-            request.environ.get('HTTP_HX_REQUEST', '') == 'true'
-            or request.environ.get('HTTP_X_REQUESTED_WITH', '').lower()
-            == 'xmlhttprequest'
+            'text/x.fragment+html',  # HTML fragment (custom)
+            'application/x.html+json',  # HTML fragment in a JSON wrapper (custom)
+        ) or (
+            request.accept_mimetypes.best
+            in (
+                None,  # No Accept header
+                '*/*',  # Default for jQuery and HTMX requests
+                'text/html',  # HTML mimetype
+                'text/x.embed+html',  # HTML fragment
+                'application/x.html+json',  # Custom mimetype for Funnel
+            )
+            and (
+                request.environ.get('HTTP_HX_REQUEST', '') == 'true'
+                or request.environ.get('HTTP_X_REQUESTED_WITH', '').lower()
+                == 'xmlhttprequest'
+            )
         )
 
     @test_uses('Accept')
     def html_in_json(self) -> bool:
         """Request wants HTML embedded in JSON (custom type for this project)."""
-        return (
-            request.accept_mimetypes.best_match(
-                ('red/herring', 'application/x.html+json')
-            )
-            == 'application/x.html+json'
-        )
+        return request.accept_mimetypes.best == 'application/x.html+json'
 
     @test_uses('HX-Request')
     def htmx(self) -> bool:
