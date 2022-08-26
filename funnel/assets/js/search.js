@@ -52,19 +52,21 @@ const Search = {
           this.fetchResult(searchType);
         }
       },
-      fetchResult(searchType, page = 1) {
+      async fetchResult(searchType, page = 1) {
         const url = `${encodeURIComponent(this.get('pagePath'))}?q=${encodeURIComponent(
           this.get('queryString')
-        )}&type=${encodeURIComponent(searchType)}`;
-        $.ajax({
-          type: 'GET',
-          url: `${url}&page=${encodeURIComponent(page)}`,
-          timeout: window.Hasgeek.Config.ajaxTimeout,
-          dataType: 'json',
-          success(data) {
-            widget.activateTab(searchType, data.results, url, data.counts, page);
+        )}&type=${encodeURIComponent(searchType)}&page=${encodeURIComponent(page)}`;
+
+        const response = await fetch(url, {
+          headers: {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
           },
         });
+        if (response && response.ok) {
+          const data = await response.json();
+          widget.activateTab(searchType, data.results, url, data.counts, page);
+        }
       },
       activateTab(searchType, result = '', url = '', tabs = '', page) {
         if (result) {

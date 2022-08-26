@@ -150,27 +150,28 @@ const ParticipantTable = {
         // Hide the loader icon
         this.set(`${event.keypath}.submitting`, false);
       },
-      updateList() {
-        $.ajax({
-          type: 'GET',
-          url: participantlistUrl,
-          timeout: window.Hasgeek.Config.ajaxTimeout,
-          dataType: 'json',
-          success(data) {
-            count.set({
-              total_participants: data.total_participants,
-              total_checkedin: data.total_checkedin,
-            });
-            list.set('ticket_participants', data.ticket_participants).then(() => {
-              const ticketParticipants = Utils.tohashMap(
-                data.ticket_participants,
-                'puuid_b58'
-              );
-              list.get('checkinQ').updateQueue(ticketParticipants, list);
-              list.get('cancelcheckinQ').updateQueue(ticketParticipants, list);
-            });
+      async updateList() {
+        const response = await fetch(participantlistUrl, {
+          headers: {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
           },
         });
+        if (response && response.ok) {
+          const data = await response.json();
+          count.set({
+            total_participants: data.total_participants,
+            total_checkedin: data.total_checkedin,
+          });
+          list.set('ticket_participants', data.ticket_participants).then(() => {
+            const ticketParticipants = Utils.tohashMap(
+              data.ticket_participants,
+              'puuid_b58'
+            );
+            list.get('checkinQ').updateQueue(ticketParticipants, list);
+            list.get('cancelcheckinQ').updateQueue(ticketParticipants, list);
+          });
+        }
       },
       onrender() {
         this.updateList();
@@ -199,28 +200,38 @@ const ParticipantTable = {
       this.postCheckinStatus(ticketParticipantIds, false, list);
     }
   },
-  postCheckinStatus(ticketParticipantIds, action, list) {
+  async postCheckinStatus(ticketParticipantIds, action, list) {
     let checkin = 'f';
-    const ticketParticipants = $.param(
-      {
-        puuid_b58: ticketParticipantIds,
-      },
-      true
-    );
+
+    let ticketParticipants = '';
+    ticketParticipantIds.forEach((participantId) => {
+      const param = new URLSearchParams({
+        puuid_b58: participantId,
+      });
+      ticketParticipants = ticketParticipants
+        ? `${ticketParticipants}&${param}`
+        : param;
+    });
     if (action) {
       checkin = 't';
     }
-    const content = $("meta[name='csrf-token']").attr('content');
-    const formValues = `${ticketParticipants}&checkin=${encodeURIComponent(
-      checkin
-    )}&csrf_token=${encodeURIComponent(content)}`;
-    $.ajax({
-      type: 'POST',
-      url: list.get('checkinUrl'),
-      data: formValues,
-      timeout: window.Hasgeek.Config.ajaxTimeout,
-      dataType: 'json',
-      success(data) {
+    const csrfToken = $("meta[name='csrf-token']").attr('content');
+
+    const response = await fetch(list.get('checkinUrl'), {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: `${ticketParticipants}&${new URLSearchParams({
+        checkin,
+        csrf_token: csrfToken,
+      }).toString()}`,
+    });
+    if (response && response.ok) {
+      const data = await response.json();
+      if (data) {
         if (data.checked_in) {
           data.ticket_participant_ids.forEach((ticketParticipantId) => {
             list.get('checkinQ').dequeue(ticketParticipantId);
@@ -230,8 +241,8 @@ const ParticipantTable = {
             list.get('cancelcheckinQ').dequeue(ticketParticipantId);
           });
         }
-      },
-    });
+      }
+    }
   },
 };
 

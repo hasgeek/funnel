@@ -8,24 +8,32 @@ export const Submission = {
       event.preventDefault();
       const form = $(this).parents('form');
       const formData = $(form).serializeArray();
-      $.ajax({
-        type: 'POST',
-        url: $(form).attr('action'),
-        data: formData,
-        dataType: 'json',
-        timeout: window.Hasgeek.Config.ajaxTimeout,
-        success(responseData) {
-          if (responseData && responseData.message) {
-            window.toastr.success(responseData.message);
-          }
-          $('.js-subscribed, .js-unsubscribed').toggleClass('mui--hide');
-          Form.updateFormNonce(responseData);
-        },
-        error(response) {
-          Form.handleAjaxError(response);
-        },
-      });
+      const url = $(form).attr('action');
+      Submission.postSubscription(url, formData);
     });
+  },
+  async postSubscription(url, formData) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: formData,
+    }).catch(Form.handleFetchNetworkError);
+    if (response && response.ok) {
+      const responseData = await response.json();
+      if (responseData) {
+        if (responseData.message) {
+          window.toastr.success(responseData.message);
+        }
+        $('.js-subscribed, .js-unsubscribed').toggleClass('mui--hide');
+        Form.updateFormNonce(responseData);
+      }
+    } else {
+      Form.getFetchError(response);
+    }
   },
 };
 

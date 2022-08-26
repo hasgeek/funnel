@@ -1,6 +1,6 @@
 /* eslint-disable global-require */
 describe('Confirm submission comment subscription', () => {
-  const { editor, newuser } = require('../fixtures/user.json');
+  const { editor } = require('../fixtures/user.json');
   const member = require('../fixtures/user.json').user;
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');
@@ -81,10 +81,5 @@ describe('Confirm submission comment subscription', () => {
     cy.visit('/');
     cy.logout();
     cy.wait(1000);
-
-    // cy.login('/', newuser.username, newuser.newpassword);
-    // cy.get('[data-cy="comment-sidebar"]').click();
-    // cy.wait(1000);
-    // cy.get('[data-cy="unread-comment"]').contains(proposal.comment_3);
   });
 });

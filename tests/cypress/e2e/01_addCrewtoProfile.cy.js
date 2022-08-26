@@ -13,7 +13,7 @@ describe('Adding crew to profile', () => {
     cy.route('POST', '**/edit').as('edit-member');
     cy.route('GET', '**/delete').as('delete-form');
     cy.route('POST', '**/delete').as('delete-member');
-    cy.route('**/new').as('member-form');
+    cy.route('GET', '**/new').as('member-form');
     cy.route('POST', '**/new').as('add-member');
 
     cy.login(`/${profile.title}`, owner.username, owner.password);
