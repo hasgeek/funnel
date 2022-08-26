@@ -61,9 +61,7 @@ const badgeScan = {
           body: new URLSearchParams({
             csrf_token: csrfToken,
           }).toString(),
-        }).catch(
-          window.toastr.error(window.Hasgeek.Config.errorMsg.networkError)
-        );
+        }).catch(window.toastr.error(window.Hasgeek.Config.errorMsg.networkError));
         if (response && response.ok) {
           const responseData = await response.json();
           if (responseData) {

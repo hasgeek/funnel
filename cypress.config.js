@@ -5,6 +5,7 @@ module.exports = defineConfig({
   chromeWebSecurity: false,
   pageLoadTimeout: 150000,
   video: false,
+  experimentalFetchPolyfill: true,
   downloadsFolder: 'tests/cypress/downloads',
   fixturesFolder: 'tests/cypress/fixtures',
   screenshotsFolder: 'tests/cypress/screenshots',

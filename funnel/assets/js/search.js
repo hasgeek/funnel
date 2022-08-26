@@ -53,13 +53,9 @@ const Search = {
         }
       },
       async fetchResult(searchType, page = 1) {
-        const url = `${encodeURIComponent(
-          this.get('pagePath')
-        )}?q=${encodeURIComponent(
+        const url = `${encodeURIComponent(this.get('pagePath'))}?q=${encodeURIComponent(
           this.get('queryString')
-        )}&type=${encodeURIComponent(searchType)}&page=${encodeURIComponent(
-          page
-        )}`;
+        )}&type=${encodeURIComponent(searchType)}&page=${encodeURIComponent(page)}`;
 
         const response = await fetch(url, {
           headers: {

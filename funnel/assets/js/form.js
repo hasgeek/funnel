@@ -47,9 +47,7 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
           'X-Requested-With': 'XMLHttpRequest',
         },
         body: new URLSearchParams(new FormData(form)).toString(),
-      }).catch(
-        window.toastr.error(window.Hasgeek.Config.errorMsg.networkError)
-      );
+      }).catch(window.toastr.error(window.Hasgeek.Config.errorMsg.networkError));
       if (response && response.ok) {
         const remoteData = await response.json();
         if (remoteData) {
