@@ -32,3 +32,6 @@ class MDITExtensionType(TypedDict):
 DEFAULT_MD_EXT: List[str] = ['footnote', 'heading_anchors', 'tasklists']
 
 MD_CONFIGS: Dict[str, EXT_CONFIG_TYPE] = {'default': {'extensions': DEFAULT_MD_EXT}}
+
+MD_CONFIGS['default_with_html'] = deepcopy(MD_CONFIGS['default'])
+MD_CONFIGS['default_with_html'].update({'html': True})
