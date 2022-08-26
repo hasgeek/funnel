@@ -46,9 +46,9 @@ with open(os.path.join(DATA_ROOT, 'output.html')) as o:
                             )
                         )
                         if row:
-                            row.find_all('td')[3].append(
-                                BeautifulSoup(result, 'html.parser')
-                            )
+                            output_cell = row.find_all('td')[3]
+                            output_cell.clear()
+                            output_cell.append(BeautifulSoup(result, 'html.parser'))
     with open(os.path.join(DATA_ROOT, 'output.html'), 'w') as op:
         op.write(output.prettify())
 

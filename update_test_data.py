@@ -30,8 +30,15 @@ with open(os.path.join(DATA_ROOT, 'template.html'), encoding='utf-8') as tf:
                         row = copy(row_template)
                         del row['id']
                         cols = row.find_all('td')
-                        cols[0].find('pre').string = data['markdown']
-                        cols[1].find('pre').string = json.dumps(MD_CONFIGS[c], indent=2)
+                        cols[0].find('pre').string = (
+                            'Test file: ' + file + '\n----\n' + data['markdown']
+                        )
+                        cols[1].find('pre').string = (
+                            'Config: '
+                            + c
+                            + '\n----\n'
+                            + json.dumps(MD_CONFIGS[c], indent=2)
+                        )
                         file_data['results'][
                             c
                         ] = markdown(  # pylint: disable=unnecessary-dunder-call
