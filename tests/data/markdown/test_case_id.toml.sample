@@ -1,0 +1,8 @@
+[data]
+markdown = """
+This will be the markdown text to test
+"""
+
+[config]
+# Configurations to test against
+configs = [ "default",]

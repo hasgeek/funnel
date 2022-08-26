@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Markdown Tests: Expected Output compared to Results</title>
+    <style>
+      table,
+      thead,
+      tr {
+        width: 100%;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid black;
+      }
+      pre {
+        white-space: pre-wrap;
+        white-space: -moz-pre-wrap;
+        white-space: -pre-wrap;
+        white-space: -o-pre-wrap;
+        word-wrap: break-word;
+      }
+      #row_template {
+        display: none;
+      }
+      th,
+      td {
+        width: 27%;
+        padding: 3px;
+      }
+      td {
+        vertical-align: top;
+        overflow-y: auto;
+        height: 50vh;
+        max-height: 500px;
+      }
+      th:nth-child(2),
+      td:nth-child(2) {
+        width: 19%;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Markdown Tests: Expected Output compared to Results</h2>
+    <code>Template generated on: <span id="generated"></span></code>
+    <table>
+      <thead>
+        <tr>
+          <th>Markdown</th>
+          <th>Configuration</th>
+          <th>Expected Output</th>
+          <th>Result for <code>markdown()</code></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="row_template">
+          <td><pre></pre></td>
+          <td><pre></pre></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>

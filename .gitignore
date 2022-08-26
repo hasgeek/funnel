@@ -36,6 +36,7 @@ error.log.*
 ghostdriver.log
 geckodriver.log
 tests/screenshots
+tests/data/markdown/output.html
 
 # Instance files that should not be checked-in
 instance/development.py
