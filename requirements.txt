@@ -453,6 +453,7 @@ twilio==7.12.1
 typing-extensions==4.3.0
     # via
     #   -r requirements.in
+    #   baseframe
     #   coaster
     #   typing-inspect
 typing-inspect==0.7.1
@@ -461,7 +462,7 @@ tzdata==2022.1
     # via pytz-deprecation-shim
 tzlocal==4.2
     # via js2py
-ua-parser==0.15.0
+ua-parser==0.16.0
     # via user-agents
 uglipyjs==0.2.5
     # via coaster

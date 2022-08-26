@@ -109,7 +109,11 @@ const Schedule = {
           );
           Spa.updateMetaTags(pageDetails);
         },
-        showSessionModal(activeSession) {
+        handleFetchError(error) {
+          const errorMsg = Form.getFetchError(error);
+          window.toastr.error(errorMsg);
+        },
+        async showSessionModal(activeSession) {
           const currentPage = `${this.pageDetails.url}/${activeSession.url_name_uuid_b58}`;
           const pageDetails = {
             title: `${activeSession.title} — ${this.pageDetails.projectTitle}`,
@@ -120,17 +124,18 @@ const Schedule = {
             url: currentPage,
           };
           if (activeSession.modal_url) {
-            $.ajax({
-              url: activeSession.modal_url,
-              type: 'GET',
-              success: (sessionHtml) => {
-                this.openModal(sessionHtml, currentPage, pageDetails);
+            const response = await fetch(activeSession.modal_url, {
+              headers: {
+                Accept: 'text/x.fragment+html',
+                'X-Requested-With': 'XMLHttpRequest',
               },
-              error(response) {
-                const errorMsg = Form.getResponseError(response);
-                window.toastr.error(errorMsg);
-              },
-            });
+            }).catch(Form.handleFetchNetworkError);
+            if (response && response.ok) {
+              const responseData = await response.text();
+              this.openModal(responseData, currentPage, pageDetails);
+            } else {
+              this.handleFetchError(response);
+            }
           }
         },
         disableScroll(event, id) {

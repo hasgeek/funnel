@@ -760,7 +760,7 @@ class EmailAddressMixin:
 
 
 auto_init_default(EmailAddress._delivery_state)  # pylint: disable=protected-access
-auto_init_default(EmailAddress.delivery_state_at)  # pylint: disable=protected-access
+auto_init_default(EmailAddress.delivery_state_at)
 auto_init_default(EmailAddress._is_blocked)  # pylint: disable=protected-access
 
 
