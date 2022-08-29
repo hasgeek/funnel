@@ -70,12 +70,11 @@ jobs:
           make
       - name: Create PostgreSQL databases
         run: |
-          sudo apt install postgresql-client -y
-          'createuser `whoami`'
-          psql -c 'create database funnel_testing;' -U postgres
-          'flask dbconfig | sudo -u postgres psql funnel_testing'
-          psql -c 'create database geoname_testing;' -U postgres
-          'flask dbconfig | sudo -u postgres psql geoname_testing'
+          sudo apt-get install postgresql-client -y
+          psql -c 'create database funnel_testing;'
+          'flask dbconfig | psql funnel_testing'
+          psql -c 'create database geoname_testing;'
+          'flask dbconfig | psql geoname_testing'
       - name: Test with pytest
         run: |
           pytest
