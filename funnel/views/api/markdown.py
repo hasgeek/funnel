@@ -1,21 +1,14 @@
 """Markdown preview view."""
 
-import os
 
 from flask import request
 
 from ... import app
 from ...typing import ReturnView
+from ...utils.markdown import markdown
+from ...utils.markdown.helpers import MD_CONFIGS
 
-if os.environ['FLASK_ENV'] == 'development' or os.environ['FLASK_ENV'] == 'testing':
-    from ...utils.markdown import markdown
-    from ...utils.markdown.helpers import MD_CONFIGS
-
-    markdown_content_options = MD_CONFIGS['default']
-else:
-    from coaster.utils import markdown  # type: ignore[no-redef]
-
-    from ...models import markdown_content_options
+markdown_content_options = MD_CONFIGS['default']
 
 extra_markdown_types = {'profile', 'project', 'submission', 'session'}
 
