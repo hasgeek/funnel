@@ -56,3 +56,5 @@ MD_CONFIGS: Dict[str, MDConfigType] = {'default': {'extensions': MDExtDefaults}}
 
 MD_CONFIGS['default_with_html'] = deepcopy(MD_CONFIGS['default'])
 MD_CONFIGS['default_with_html'].update({'html': True})
+MD_CONFIGS['default_no_extensions'] = {}
+MD_CONFIGS['default_no_extensions_with_html'] = {'html': True}
