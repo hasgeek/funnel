@@ -6,38 +6,25 @@ from mdit_py_plugins import anchors, footnote, tasklists
 
 from coaster.utils import make_name
 
-from .helpers import MDITExtensionType
+from .helpers import MDExtension
 
-EXT_MAP: Dict[str, MDITExtensionType] = {}
+MDExtMap: Dict[str, MDExtension] = {}
 
-EXT_MAP['footnote'] = {
-    'ext': footnote.footnote_plugin,
-    'configs': {'default': {}},
-    'default_config': 'default',
-    'when_html': True,
-}
+MDExtMap['footnote'] = MDExtension(footnote.footnote_plugin)
 
-EXT_MAP['heading_anchors'] = {
-    'ext': anchors.anchors_plugin,
-    'configs': {
-        'default': {
-            'min_level': 1,
-            'max_level': 3,
-            'slug_func': lambda x, **options: 'h:' + make_name(x, **options),
-            'permalink': True,
-        }
+MDExtMap['heading_anchors'] = MDExtension(anchors.anchors_plugin, use_with_html=False)
+MDExtMap['heading_anchors'].set_config(
+    'default',
+    {
+        'min_level': 1,
+        'max_level': 3,
+        'slug_func': lambda x, **options: 'h:' + make_name(x, **options),
+        'permalink': True,
     },
-    'default_config': 'default',
-    'when_html': False,
-}
+)
 
-EXT_MAP['tasklists'] = {
-    'ext': tasklists.tasklists_plugin,
-    'configs': {
-        'no_tasklist': {'enabled': False, 'label': False, 'label_after': False}
-    },
-    'default_config': 'no_tasklist',
-    'when_html': False,
-}
 
-EXT_LIST = EXT_MAP.keys()
+MDExtMap['tasklists'] = MDExtension(tasklists.tasklists_plugin, use_with_html=False)
+MDExtMap['tasklists'].set_config(
+    'default', {'enabled': False, 'label': False, 'label_after': False}
+)

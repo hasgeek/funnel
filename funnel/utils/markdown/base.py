@@ -1,14 +1,14 @@
 """Base files for markdown parser."""
 
-from typing import Dict, List, Mapping, Optional, Union, cast, overload
+from typing import Dict, List, Mapping, Optional, Union, overload
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
 
 from coaster.utils.text import normalize_spaces_multiline, sanitize_html
 
-from .extmap import EXT_LIST, EXT_MAP
-from .helpers import DEFAULT_MD_EXT, MARKDOWN_HTML_TAGS
+from .extmap import MDExtMap
+from .helpers import MARKDOWN_HTML_TAGS, MDExtDefaults
 
 # --- Standard extensions --------------------------------------------------------------
 # FOR CUT 2
@@ -91,19 +91,15 @@ def markdown(
     ).enable(['smartquotes'])
 
     if extensions is None:
-        extensions = DEFAULT_MD_EXT
+        extensions = MDExtDefaults
 
     for e in extensions:
-        e = cast(str, e)
-        if e in EXT_LIST and (not html or (html and EXT_MAP[e]['when_html'])):
-            ext_config = EXT_MAP[e]['configs'][EXT_MAP[e]['default_config']]
+        if e in MDExtMap and MDExtMap[e].when_html(html):
+            ext_config = MDExtMap[e].default_config
             if extension_configs is not None:
-                if (
-                    e in extension_configs
-                    and extension_configs[e] in EXT_MAP[e]['configs']
-                ):
-                    ext_config = EXT_MAP[e]['configs'][extension_configs[e]]
-            md.use(EXT_MAP[e]['ext'], **ext_config)
+                if e in extension_configs:
+                    ext_config = MDExtMap[e].config(extension_configs[e])
+            md.use(MDExtMap[e].ext, **ext_config)
 
     if html:
         return Markup(sanitize_html(md.render(text), valid_tags=valid_tags))
