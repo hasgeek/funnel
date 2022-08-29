@@ -35,7 +35,9 @@ with open(os.path.join(DATA_ROOT, 'output.html')) as o:
                 results = file_data['results']
                 for c in conf['configs']:
                     if c in MD_CONFIGS and c in results:
-                        row = output.find(id='_'.join(file.split('.')[:-1] + [c]))
+                        output_container = output.find(
+                            id='_'.join(file.split('.')[:-1] + [c])
+                        )
                         result = markdown(data['markdown'], **MD_CONFIGS[c]).__str__()
                         ref_html = results[c].lstrip('\n\r').rstrip(' \n\r')
                         result = result.lstrip('\n\r').rstrip(' \n\r')
@@ -45,8 +47,17 @@ with open(os.path.join(DATA_ROOT, 'output.html')) as o:
                                 result,
                             )
                         )
-                        if row:
-                            output_cell = row.find_all('td')[3]
+                        if output_container:
+                            classes = output_container.get('class', [])
+                            if 'success' in classes:
+                                classes.remove('success')
+                            if 'failed' in classes:
+                                classes.remove('failed')
+                            if ref_html == result:
+                                output_container['class'] = classes + ['success']
+                            else:
+                                output_container['class'] = classes + ['failed']
+                            output_cell = output_container.select('.result .output')[0]
                             output_cell.clear()
                             output_cell.append(BeautifulSoup(result, 'html.parser'))
     with open(os.path.join(DATA_ROOT, 'output.html'), 'w') as op:

@@ -16,8 +16,7 @@ from funnel.utils.markdown.helpers import MD_CONFIGS
 
 with open(os.path.join(DATA_ROOT, 'template.html'), encoding='utf-8') as tf:
     template = BeautifulSoup(tf, 'html.parser')
-    tbody = template.find('table').find('tbody')
-    row_template = tbody.find(id='row_template')
+    output_template = template.find(id='output_template')
     for file in os.listdir(DATA_ROOT):
         if file.endswith('.toml'):
             with open(os.path.join(DATA_ROOT, file), encoding='utf-8') as f:
@@ -27,28 +26,25 @@ with open(os.path.join(DATA_ROOT, 'template.html'), encoding='utf-8') as tf:
                 file_data['results'] = {}
                 for c in config['configs']:
                     if c in MD_CONFIGS:
-                        row = copy(row_template)
-                        del row['id']
-                        cols = row.find_all('td')
-                        cols[0].find('pre').string = (
-                            'Test file: ' + file + '\n----\n' + data['markdown']
+                        op = copy(output_template)
+                        del op['id']
+                        op.select('.filename')[0].string = file
+                        op.select('.configname')[0].string = c
+                        op.select('.config')[0].string = json.dumps(
+                            MD_CONFIGS[c], indent=2
                         )
-                        cols[1].find('pre').string = (
-                            'Config: '
-                            + c
-                            + '\n----\n'
-                            + json.dumps(MD_CONFIGS[c], indent=2)
-                        )
+                        op.select('.markdown .output')[0].append(data['markdown'])
                         file_data['results'][
                             c
                         ] = markdown(  # pylint: disable=unnecessary-dunder-call
                             data['markdown'], **MD_CONFIGS[c]
                         ).__str__()
-                        cols[2].append(
+                        op.select('.expected .output')[0].append(
                             BeautifulSoup(file_data['results'][c], 'html.parser')
                         )
-                        row['id'] = '_'.join(file.split('.')[:-1] + [c])
-                        tbody.append(row)
+
+                        op['id'] = '_'.join(file.split('.')[:-1] + [c])
+                        template.find('body').append(op)
                 f.close()
                 with open(os.path.join(DATA_ROOT, file), 'w', encoding='utf-8') as f2:
                     toml.dump(file_data, f2)
