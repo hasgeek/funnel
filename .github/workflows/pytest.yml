@@ -51,9 +51,12 @@ jobs:
           - 5432:5432
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: browser-actions/setup-firefox@latest
-      - uses: browser-actions/setup-geckodriver@latest
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install Firefox (for browser testing)
+        uses: browser-actions/setup-firefox@latest
+      - name: Install Geckodriver (for browser testing)
+        uses: browser-actions/setup-geckodriver@latest
       - name: Cache NPM dependencies
         uses: actions/cache@v3
         with:
