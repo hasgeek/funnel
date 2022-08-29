@@ -1,7 +1,7 @@
 all: assets
 
 assets:
-	npm install
+	npm ci
 	npm run build
 
 assetsonly:
