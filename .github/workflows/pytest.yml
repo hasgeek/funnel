@@ -93,13 +93,13 @@ jobs:
       - name: Create PostgreSQL databases
         run: |
           sudo apt-get install postgresql-client -y
-          psql -h localhost -u postgres -c "create user $(whoami);"
-          psql -h localhost -u postgres -c "create database funnel_testing;"
-          psql -h localhost -u postgres -c "create database geoname_testing;"
-          flask dbconfig | psql -h localhost -u postgres funnel_testing
-          flask dbconfig | psql -h localhost -u postgres geoname_testing
-          psql -h localhost -u postgres -c "grant all privileges on database funnel_testing to $(whoami);"
-          psql -h localhost -u postgres -c "grant all privileges on database geoname_testing to $(whoami);"
+          psql -h localhost -U postgres -c "create user $(whoami);"
+          psql -h localhost -U postgres -c "create database funnel_testing;"
+          psql -h localhost -U postgres -c "create database geoname_testing;"
+          flask dbconfig | psql -h localhost -U postgres funnel_testing
+          flask dbconfig | psql -h localhost -U postgres geoname_testing
+          psql -h localhost -U postgres -c "grant all privileges on database funnel_testing to $(whoami);"
+          psql -h localhost -U postgres -c "grant all privileges on database geoname_testing to $(whoami);"
       - name: Test with pytest
         run: |
           pytest
