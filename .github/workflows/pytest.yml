@@ -52,6 +52,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - uses: browser-actions/setup-firefox@latest
+      - uses: browser-actions/setup-geckodriver@latest
       - name: Cache NPM dependencies
         uses: actions/cache@v3
         with:
