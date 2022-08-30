@@ -138,7 +138,8 @@ def test_user_register_otp_sms(client, csrf_token) -> None:
                 }
             ),
         )
-        caught_otp = mock.call_args.kwargs['message'].otp
+        message = mock.call_args.kwargs['message']
+        caught_otp = message.otp
     assert rv1.form('form-otp') is not None
     assert rv1.status_code == 200
 
@@ -172,7 +173,8 @@ def test_user_register_otp_email(client, csrf_token) -> None:
                 }
             ),
         )
-        caught_otp = mock.call_args.args[0].otp
+        otp_session = mock.call_args.args[0]
+        caught_otp = otp_session.otp
     assert rv1.form('form-otp') is not None
     assert rv1.status_code == 200
 
@@ -256,7 +258,8 @@ def test_valid_otp_login_sms(
                     }
                 ),
             )
-            caught_otp = mock.call_args.kwargs['message'].otp
+            message = mock.call_args.kwargs['message']
+            caught_otp = message.otp
 
         assert rv1.form('form-otp') is not None
         assert rv1.status_code == 200
@@ -295,7 +298,8 @@ def test_valid_otp_login_email(
                     }
                 ),
             )
-            caught_otp = mock.call_args.args[0].otp
+            otp_session = mock.call_args.args[0]
+            caught_otp = otp_session.otp
 
         assert rv1.form('form-otp') is not None
         assert rv1.status_code == 200
@@ -474,7 +478,8 @@ def test_otp_timeout_error(client, csrf_token) -> None:
                     }
                 ),
             )
-            caught_otp = mock.call_args.args[0].otp
+            otp_session = mock.call_args.args[0]
+            caught_otp = otp_session.otp
 
         OtpSession.delete()
 
@@ -506,7 +511,8 @@ def test_otp_reason_error(client, csrf_token) -> None:
                 }
             ),
         )
-        caught_otp = mock.call_args.args[0].otp
+        otp_session = mock.call_args.args[0]
+        caught_otp = otp_session.otp
 
     rv = client.post(
         '/login',
