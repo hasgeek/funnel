@@ -7,9 +7,9 @@ CACHE_TYPE = 'RedisCache'
 SECRET_KEYS = ['testkey']  # nosec
 LASTUSER_SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
-SQLALCHEMY_DATABASE_URI = 'postgresql:///funnel_testing'
+SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/funnel_testing'
 SQLALCHEMY_BINDS = {
-    'geoname': 'postgresql:///geoname_testing',
+    'geoname': 'postgresql://localhost/geoname_testing',
 }
 SERVER_NAME = 'funnel.test:3002'
 SHORTLINK_DOMAIN = 'f.test:3002'
