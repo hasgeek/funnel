@@ -24,6 +24,8 @@ def test_markdown_blank() -> None:
 
 
 dataset: List[Tuple[str, str]] = []
+
+
 with open(os.path.join(DATA_ROOT, 'output.html')) as o:
     output = BeautifulSoup(o.read(), 'html.parser')
     file: str
