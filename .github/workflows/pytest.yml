@@ -87,9 +87,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt -r requirements_test.txt
-      - name: Build Node dependencies
-        run: |
-          make ci
+      - name: Install Node modules
+        run: npm ci
+      - name: Webpack JS and CSS assets
+        run: npm run build
       - name: Create PostgreSQL databases
         run: |
           sudo apt-get install postgresql-client -y
@@ -103,9 +104,11 @@ jobs:
       - name: Test with pytest
         run: |
           pytest --showlocals --splinter-headless --cov=funnel
+      - name: Prepare coverage report
+        run: |
           mkdir -p coverage
           coverage lcov -o coverage/funnel.lcov
-      - name: Collect coverage report
+      - name: Upload coverage report to Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.github_token }}
@@ -117,7 +120,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - name: Make Coveralls report
+      - name: Publish to Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.github_token }}
