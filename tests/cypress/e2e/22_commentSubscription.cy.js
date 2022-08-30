@@ -1,6 +1,6 @@
 /* eslint-disable global-require */
 describe('Confirm submission comment subscription', () => {
-  const { editor } = require('../fixtures/user.json');
+  const { editor, newuser } = require('../fixtures/user.json');
   const member = require('../fixtures/user.json').user;
   const proposal = require('../fixtures/proposal.json');
   const project = require('../fixtures/project.json');

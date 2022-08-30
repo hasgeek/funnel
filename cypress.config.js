@@ -3,7 +3,7 @@ const { defineConfig } = require('cypress');
 module.exports = defineConfig({
   projectId: '1kvcow',
   chromeWebSecurity: false,
-  pageLoadTimeout: 150000,
+  pageLoadTimeout: 100000,
   video: false,
   experimentalFetchPolyfill: true,
   downloadsFolder: 'tests/cypress/downloads',
