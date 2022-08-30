@@ -57,12 +57,6 @@ jobs:
         uses: browser-actions/setup-firefox@latest
       - name: Install Geckodriver (for browser testing)
         uses: browser-actions/setup-geckodriver@latest
-      - name: Cache NPM dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: npm-
       - name: Install Python
         uses: actions/setup-python@v3
         with:
