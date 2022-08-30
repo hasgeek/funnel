@@ -72,6 +72,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: latest
+          cache: npm
       - name: Setup hostnames
         run: |
           sudo -- sh -c "echo '127.0.0.1  funnel.test' >> /etc/hosts"
