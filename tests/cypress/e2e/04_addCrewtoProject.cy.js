@@ -1,12 +1,6 @@
 /* eslint-disable global-require */
 describe('Adding crew', () => {
-  const {
-    admin,
-    promoter,
-    usher,
-    editor,
-    hguser,
-  } = require('../fixtures/user.json');
+  const { admin, promoter, usher, editor, hguser } = require('../fixtures/user.json');
   const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
 
