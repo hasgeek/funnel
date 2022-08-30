@@ -7,6 +7,10 @@ assets:
 build:
 	npm run build
 
+ci:
+	npm clean-install
+	npm run build
+
 babel: babelpy babeljs
 
 babelpy:

@@ -94,7 +94,7 @@ jobs:
           pip install -r requirements.txt -r requirements_test.txt
       - name: Install and build Node dependencies
         run: |
-          make
+          make ci
       - name: Create PostgreSQL databases
         run: |
           sudo apt-get install postgresql-client -y
