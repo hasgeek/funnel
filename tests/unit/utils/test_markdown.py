@@ -1,5 +1,6 @@
 """Tests for markdown parser."""
 
+from copy import copy, deepcopy
 from typing import List, Tuple
 import os
 
@@ -33,12 +34,19 @@ with open(os.path.join(DATA_ROOT, 'output.html')) as o:
                 data = file_data['data']
                 conf = file_data['config']
                 results = file_data['results']
-                for c in conf['configs']:
-                    if c in MD_CONFIGS and c in results:
+                configs = copy(conf['configs'])
+                md_configs = deepcopy(MD_CONFIGS)
+                if 'extra_configs' in conf:
+                    for c in conf['extra_configs']:
+                        if c not in md_configs:
+                            md_configs[c] = conf['extra_configs'][c]
+                            configs.append(c)
+                for c in configs:
+                    if c in md_configs and c in results:
                         output_container = output.find(
                             id='_'.join(file.split('.')[:-1] + [c])
                         )
-                        result = markdown(data['markdown'], **MD_CONFIGS[c]).__str__()
+                        result = markdown(data['markdown'], **md_configs[c]).__str__()
                         ref_html = results[c].lstrip('\n\r').rstrip(' \n\r')
                         result = result.lstrip('\n\r').rstrip(' \n\r')
                         dataset.append(

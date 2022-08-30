@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Script to update test dataset output for markdown parser tests to current version."""
 
-from copy import copy
+from copy import copy, deepcopy
 from datetime import datetime
 import json
 import os
@@ -22,22 +22,29 @@ with open(os.path.join(DATA_ROOT, 'template.html'), encoding='utf-8') as tf:
             with open(os.path.join(DATA_ROOT, file), encoding='utf-8') as f:
                 file_data = toml.load(f)
                 data = file_data['data']
-                config = file_data['config']
+                conf = file_data['config']
                 file_data['results'] = {}
-                for c in config['configs']:
-                    if c in MD_CONFIGS:
+                configs = copy(conf['configs'])
+                md_configs = deepcopy(MD_CONFIGS)
+                if 'extra_configs' in conf:
+                    for c in conf['extra_configs']:
+                        if c not in md_configs:
+                            md_configs[c] = conf['extra_configs'][c]
+                            configs.append(c)
+                for c in configs:
+                    if c in md_configs:
                         op = copy(output_template)
                         del op['id']
                         op.select('.filename')[0].string = file
                         op.select('.configname')[0].string = c
                         op.select('.config')[0].string = json.dumps(
-                            MD_CONFIGS[c], indent=2
+                            md_configs[c], indent=2
                         )
                         op.select('.markdown .output')[0].append(data['markdown'])
                         file_data['results'][
                             c
                         ] = markdown(  # pylint: disable=unnecessary-dunder-call
-                            data['markdown'], **MD_CONFIGS[c]
+                            data['markdown'], **md_configs[c]
                         ).__str__()
                         op.select('.expected .output')[0].append(
                             BeautifulSoup(file_data['results'][c], 'html.parser')

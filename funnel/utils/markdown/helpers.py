@@ -54,7 +54,7 @@ MDExtDefaults: List[str] = ['footnote', 'heading_anchors', 'tasklists']
 
 MD_CONFIGS: Dict[str, MDConfigType] = {'default': {'extensions': MDExtDefaults}}
 
-MD_CONFIGS['default_with_html'] = deepcopy(MD_CONFIGS['default'])
-MD_CONFIGS['default_with_html'].update({'html': True})
-MD_CONFIGS['default_no_extensions'] = {}
-MD_CONFIGS['default_no_extensions_with_html'] = {'html': True}
+MD_CONFIGS['html'] = deepcopy(MD_CONFIGS['default'])
+MD_CONFIGS['html'].update({'html': True})
+MD_CONFIGS['no_ext'] = {'extensions': []}
+MD_CONFIGS['html_no_ext'] = {'html': True, 'extensions': []}
