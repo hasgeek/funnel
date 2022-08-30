@@ -107,4 +107,4 @@ jobs:
           psql -h localhost -U postgres -c "grant all privileges on database geoname_testing to $(whoami);"
       - name: Test with pytest
         run: |
-          pytest
+          pytest --showlocals --splinter-headless
