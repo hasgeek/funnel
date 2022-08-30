@@ -14,8 +14,6 @@ __pycache__
 .DS_Store
 
 # Assets and static files
-tests/cypress/screenshots
-tests/cypress/videos
 funnel/static/build
 funnel/static/gen
 funnel/static/service-worker.js
@@ -35,7 +33,10 @@ error.log
 error.log.*
 ghostdriver.log
 geckodriver.log
+tests/cypress/screenshots
+tests/cypress/videos
 tests/screenshots
+coverage/
 
 # Instance files that should not be checked-in
 instance/development.py
@@ -51,6 +52,7 @@ newrelic.ini
 .env
 .env.testing
 .env.staging
+.env.development
 .env.production
 
 # Local venvs (Idea creates them)
@@ -59,7 +61,7 @@ env/
 
 # Editors
 .idea/
-.vscode
+.vscode/
 .project
 .pydevproject
 .settings

@@ -103,11 +103,14 @@ jobs:
       - name: Test with pytest
         run: |
           pytest --showlocals --splinter-headless --cov=funnel
+          mkdir -p coverage
+          coverage lcov -o coverage/funnel.lcov
       - name: Collect coverage report
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.github_token }}
-          flag-name: run-${{ matrix.python-version }}
+          path-to-lcov: ./coverage/funnel.lcov
+          flag-name: python-${{ matrix.python-version }}
           parallel: true
 
   finish:
@@ -118,4 +121,5 @@ jobs:
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.github_token }}
+          path-to-lcov: ./coverage/funnel.lcov
           parallel-finished: true
