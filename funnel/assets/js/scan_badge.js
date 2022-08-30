@@ -2,13 +2,7 @@ import jsQR from 'jsqr';
 import { RactiveApp } from './utils/ractive_util';
 
 const badgeScan = {
-  init({
-    checkinApiUrl,
-    wrapperId,
-    templateId,
-    projectTitle,
-    ticketEventTitle,
-  }) {
+  init({ checkinApiUrl, wrapperId, templateId, projectTitle, ticketEventTitle }) {
     const badgeScanComponent = new RactiveApp({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
@@ -67,9 +61,7 @@ const badgeScan = {
           body: new URLSearchParams({
             csrf_token: csrfToken,
           }).toString(),
-        }).catch(
-          window.toastr.error(window.Hasgeek.Config.errorMsg.networkError)
-        );
+        }).catch(window.toastr.error(window.Hasgeek.Config.errorMsg.networkError));
         if (response && response.ok) {
           const responseData = await response.json();
           if (responseData) {
@@ -113,24 +105,14 @@ const badgeScan = {
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
           canvasElement.height = video.videoHeight;
           canvasElement.width = video.videoWidth;
-          canvas.drawImage(
-            video,
-            0,
-            0,
-            canvasElement.width,
-            canvasElement.height
-          );
+          canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
           const imageData = canvas.getImageData(
             0,
             0,
             canvasElement.width,
             canvasElement.height
           );
-          const qrcode = jsQR(
-            imageData.data,
-            imageData.width,
-            imageData.height
-          );
+          const qrcode = jsQR(imageData.data, imageData.width, imageData.height);
           this.verifyQRDecode(qrcode);
         } else {
           this.startRenderFrameLoop();

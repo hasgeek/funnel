@@ -37,9 +37,7 @@ const TypeformEmbed = {
           loadScript = self.loadTypeFormEmbed();
           urlSplit = txt.split('/');
           typeformId = urlSplit.pop();
-          typeformId = typeformId.includes('?')
-            ? typeformId.split('?')[0]
-            : typeformId;
+          typeformId = typeformId.includes('?') ? typeformId.split('?')[0] : typeformId;
           parentDiv = $(this).parents(containerDiv);
           $(this).remove();
           if (typeformId) {

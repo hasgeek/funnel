@@ -5,11 +5,7 @@ describe('Manage project venue', () => {
   const project = require('../fixtures/project.json');
 
   it('Add venue', () => {
-    cy.login(
-      `/${profile.title}/${project.url}`,
-      editor.username,
-      editor.password
-    );
+    cy.login(`/${profile.title}/${project.url}`, editor.username, editor.password);
 
     cy.get('a[data-cy="project-menu"]:visible').click();
     cy.wait(1000);
@@ -40,9 +36,7 @@ describe('Manage project venue', () => {
 
       cy.get(`[data-cy="${venues[1].venue_title}"]`).click();
       cy.get('[data-cy="set-primary-venue"]').click();
-      cy.get(`[data-cy="${venues[1].venue_title}"]`)
-        .find('em')
-        .contains('(primary)');
+      cy.get(`[data-cy="${venues[1].venue_title}"]`).find('em').contains('(primary)');
 
       venues.forEach((venue) => {
         cy.get(`.card[data-cy-venue="${venue.venue_title}"]`)

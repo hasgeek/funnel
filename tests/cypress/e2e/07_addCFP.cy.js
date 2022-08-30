@@ -10,11 +10,7 @@ describe('Add CFP and labels to project', () => {
   it('Add CFP and labels', () => {
     var boxCoords = {};
 
-    cy.login(
-      `/${profile.title}/${project.url}`,
-      editor.username,
-      editor.password
-    );
+    cy.login(`/${profile.title}/${project.url}`, editor.username, editor.password);
 
     cy.get('a[data-cy-navbar="submissions"]').click();
     cy.get('a[data-cy="add-cfp"]').click();
@@ -65,9 +61,7 @@ describe('Add CFP and labels to project', () => {
           // Emoji Relaxed is throwing not a valid emoji error
           cy.get('#child-form > .ui-draggable-box')
             .eq(0)
-            .find(
-              '.emojionearea-category[name="smileys_people"] i[title="Joy"]'
-            )
+            .find('.emojionearea-category[name="smileys_people"] i[title="Joy"]')
             .click();
           cy.get('#child-form > .ui-draggable-box')
             .eq(0)
@@ -92,9 +86,7 @@ describe('Add CFP and labels to project', () => {
             .should('be.visible');
           cy.get('#child-form > .ui-draggable-box')
             .eq(1)
-            .find(
-              '.emojionearea-category[name="smileys_people"] i[title="Smile"]'
-            )
+            .find('.emojionearea-category[name="smileys_people"] i[title="Smile"]')
             .click();
           cy.get('#child-form > .ui-draggable-box')
             .eq(1)

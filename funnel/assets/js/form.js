@@ -47,9 +47,7 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
           'X-Requested-With': 'XMLHttpRequest',
         },
         body: new URLSearchParams(new FormData(form)).toString(),
-      }).catch(
-        window.toastr.error(window.Hasgeek.Config.errorMsg.networkError)
-      );
+      }).catch(window.toastr.error(window.Hasgeek.Config.errorMsg.networkError));
       if (response && response.ok) {
         const remoteData = await response.json();
         if (remoteData) {
@@ -84,9 +82,7 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
 
   if (autosave) {
     if ($('input[name="form.revision"]').val()) {
-      $(msgElemId).text(
-        window.gettext('These changes have not been published yet')
-      );
+      $(msgElemId).text(window.gettext('These changes have not been published yet'));
     }
 
     $(formId).on('change', () => {

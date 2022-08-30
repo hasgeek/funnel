@@ -33,8 +33,7 @@ const ScrollActiveMenu = {
       if (entry.isIntersecting) {
         const activeNavItem = this.navItems.find(
           (navItem) =>
-            navItem.getAttribute('href') ===
-            `#${entry.target.getAttribute('id')}`
+            navItem.getAttribute('href') === `#${entry.target.getAttribute('id')}`
         );
         this.setActiveNavItem(activeNavItem);
       }
