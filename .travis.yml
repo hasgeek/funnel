@@ -28,7 +28,6 @@ before_install:
   - sudo systemctl restart postgresql@13-main
 install:
   - pip install -U pip wheel
-  - pip install git+https://github.com/hasgeek/flask-babelhg.git
   - pip install -r requirements.txt
   - pip install -r requirements_test.txt
   - pip install idna --upgrade

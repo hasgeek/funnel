@@ -77,21 +77,25 @@ const Utils = {
       }
       menuBtn.removeClass('header__nav-links--active');
       $('body').removeClass('body-scroll-lock');
-      $('.header__nav-links--active').removeClass(
-        'header__nav-links--menuOpen'
-      );
+      $('.header__nav-links--active').removeClass('header__nav-links--menuOpen');
     };
 
     const updatePageNumber = () => {
       page += 1;
     };
 
-    const fetchMenu = (pageNo = 1) => {
-      $.ajax({
-        type: 'GET',
-        url: `${url}?page=${encodeURIComponent(pageNo)}`,
-        timeout: window.Hasgeek.Config.ajaxTimeout,
-        success(responseData) {
+    const fetchMenu = async (pageNo = 1) => {
+      const menuUrl = `${url}?${new URLSearchParams({
+        page: pageNo,
+      }).toString()}`;
+      const response = await fetch(menuUrl, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+      if (response && response.ok) {
+        const responseData = await response.text();
+        if (responseData) {
           if (observer) {
             observer.unobserve(lazyLoader);
             $('.js-load-comments').remove();
@@ -115,8 +119,8 @@ const Utils = {
             );
             observer.observe(lazyLoader);
           }
-        },
-      });
+        }
+      }
     };
 
     // If user logged in, preload menu
@@ -177,9 +181,8 @@ const Utils = {
     const singleDay = 24 * 60 * 60 * 1000;
 
     $('body .card__calendar').each(function setupCardCalendar() {
-      const firstActiveWeek = $(this).find(
-        '.calendar__weekdays__dates--upcoming'
-      ).length
+      const firstActiveWeek = $(this).find('.calendar__weekdays__dates--upcoming')
+        .length
         ? $(this).find('.calendar__weekdays__dates--upcoming--first')
         : $(this).find('.calendar__weekdays__dates--latest');
 
@@ -208,9 +211,7 @@ const Utils = {
             .addClass('calendar__weekdays__dates__date--display');
         });
 
-      const todayDate = $(this)
-        .find('.calendar__month__counting')
-        .data('today');
+      const todayDate = $(this).find('.calendar__month__counting').data('today');
       const nextEventElem = $(this)
         .find('.calendar__weekdays__dates--upcoming--first')
         .first()
@@ -247,25 +248,24 @@ const Utils = {
   },
   setNotifyIcon(unread) {
     if (unread) {
-      $('.header__nav-links--updates').addClass(
-        'header__nav-links--updates--unread'
-      );
+      $('.header__nav-links--updates').addClass('header__nav-links--updates--unread');
     } else {
       $('.header__nav-links--updates').removeClass(
         'header__nav-links--updates--unread'
       );
     }
   },
-  updateNotificationStatus() {
-    $.ajax({
-      type: 'GET',
-      url: window.Hasgeek.Config.notificationCount,
-      dataType: 'json',
-      timeout: window.Hasgeek.Config.ajaxTimeout,
-      success(responseData) {
-        Utils.setNotifyIcon(responseData.unread);
+  async updateNotificationStatus() {
+    const response = await fetch(window.Hasgeek.Config.notificationCount, {
+      headers: {
+        Accept: 'application/x.html+json',
+        'X-Requested-With': 'XMLHttpRequest',
       },
     });
+    if (response && response.ok) {
+      const responseData = await response.json();
+      Utils.setNotifyIcon(responseData.unread);
+    }
   },
   addWebShare() {
     const utils = this;

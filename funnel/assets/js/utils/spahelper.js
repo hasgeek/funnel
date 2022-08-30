@@ -27,11 +27,7 @@ const Spa = {
         window.history.state.subPage &&
         window.history.state.refresh
       ) {
-        Spa.fetchPage(
-          window.history.state.prevUrl,
-          window.history.state.navId,
-          false
-        );
+        Spa.fetchPage(window.history.state.prevUrl, window.history.state.navId, false);
       }
     });
   },
@@ -62,28 +58,25 @@ const Spa = {
     $('meta[property="twitter:title"]').attr('content', pageDetails.pageTitle);
     if (pageDetails.description) {
       $('meta[name=description]').attr('content', pageDetails.description);
-      $('meta[property="og:description"]').attr(
-        'content',
-        pageDetails.description
-      );
+      $('meta[property="og:description"]').attr('content', pageDetails.description);
     }
     $('link[rel=canonical]').attr('href', pageDetails.url);
     $('meta[property="og:url"]').attr('content', pageDetails.url);
   },
-  fetchPage(url, currentNavId, updateHistory) {
-    $.ajax({
-      url,
-      type: 'GET',
-      accepts: {
-        xhtmljson: 'application/x.html+json',
+  handleError(error) {
+    const errorMsg = Form.getFetchError(error);
+    window.toastr.error(errorMsg);
+  },
+  async fetchPage(url, currentNavId, updateHistory) {
+    const response = await fetch(url, {
+      headers: {
+        Accept: 'application/x.html+json',
+        'X-Requested-With': 'XMLHttpRequest',
       },
-      converters: {
-        'text xhtmljson': (result) => {
-          return JSON.parse(result);
-        },
-      },
-      dataType: 'xhtmljson',
-      success(responseData) {
+    }).catch(Form.handleFetchNetworkError);
+    if (response && response.ok) {
+      const responseData = await response.json();
+      if (responseData) {
         const pageDetails = {};
         pageDetails.url = url;
         pageDetails.navId = currentNavId;
@@ -93,12 +86,10 @@ const Spa = {
           ? `${window.Hasgeek.subpageTitle} – ${Spa.pageTitle}`
           : Spa.pageTitle;
         if (updateHistory) Spa.updateHistory(pageDetails);
-      },
-      error(response) {
-        const errorMsg = Form.getResponseError(response);
-        window.toastr.error(errorMsg);
-      },
-    });
+      }
+    } else {
+      Spa.handleError(response);
+    }
   },
 };
 

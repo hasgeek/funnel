@@ -22,11 +22,7 @@ $(() => {
     }
 
     if (sort.permission) {
-      SortItem(
-        $('.proposal-list-table tbody'),
-        'proposal-placeholder',
-        sort.url
-      );
+      SortItem($('.proposal-list-table tbody'), 'proposal-placeholder', sort.url);
     }
   };
 });

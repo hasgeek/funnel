@@ -106,18 +106,12 @@ const Comments = {
       computed: {
         created_at_age() {
           return this.now && this.comment.created_at
-            ? this.timeago.format(
-                this.comment.created_at,
-                window.Hasgeek.Config.locale
-              )
+            ? this.timeago.format(this.comment.created_at, window.Hasgeek.Config.locale)
             : '';
         },
         edited_at_age() {
           return this.now && this.comment.edited_at
-            ? this.timeago.format(
-                this.comment.edited_at,
-                window.Hasgeek.Config.locale
-              )
+            ? this.timeago.format(this.comment.edited_at, window.Hasgeek.Config.locale)
             : '';
         },
       },
@@ -208,19 +202,26 @@ const Comments = {
             this.refreshCommentsTimer();
           }
         },
-        submitCommentForm(formId, postUrl, action, parentApp = app) {
-          const commentContent = $(`#${formId}`)
-            .find('textarea[name="message"]')
-            .val();
-          $.ajax({
-            url: postUrl,
-            type: 'POST',
-            data: {
-              message: commentContent,
-              csrf_token: $('meta[name="csrf-token"]').attr('content'),
+        async submitCommentForm(formId, postUrl, action, parentApp = app) {
+          const commentContent = $(`#${formId}`).find('textarea[name="message"]').val();
+          const csrfToken = $('meta[name="csrf-token"]').attr('content');
+          const response = await fetch(postUrl, {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-Requested-With': 'XMLHttpRequest',
             },
-            dataType: 'json',
-            success(responseData) {
+            body: new URLSearchParams({
+              message: commentContent,
+              csrf_token: csrfToken,
+            }).toString(),
+          }).catch(() => {
+            parentApp.errorMsg = Form.handleFetchNetworkError();
+          });
+          if (response && response.ok) {
+            const responseData = await response.json();
+            if (responseData) {
               // New comment submit
               if (action === parentApp.COMMENTACTIONS.NEW) {
                 parentApp.errorMsg = '';
@@ -237,25 +238,27 @@ const Comments = {
                 app.scrollTo = `#c-${responseData.comment.uuid_b58}`;
               }
               app.refreshCommentsTimer();
-            },
-            error(response) {
-              parentApp.errorMsg = Form.formErrorHandler(formId, response);
-            },
-          });
+            }
+          } else {
+            parentApp.errorMsg = Form.formErrorHandler(formId, response);
+          }
         },
         updateCommentsList(commentsList) {
           this.comments = commentsList.length > 0 ? commentsList : '';
         },
-        fetchCommentsList() {
-          $.ajax({
-            url: commentsUrl,
-            type: 'GET',
-            timeout: window.Hasgeek.Config.ajaxTimeout,
-            dataType: 'json',
-            success(data) {
-              app.updateCommentsList(data.comments);
+        async fetchCommentsList() {
+          const response = await fetch(commentsUrl, {
+            headers: {
+              Accept: 'application/json',
+              'X-Requested-With': 'XMLHttpRequest',
             },
           });
+          if (response && response.ok) {
+            const data = await response.json();
+            if (data) {
+              app.updateCommentsList(data.comments);
+            }
+          }
         },
         pauseRefreshComments() {
           clearTimeout(this.refreshTimer);
@@ -299,13 +302,15 @@ const Comments = {
             (entries) => {
               entries.forEach((entry) => {
                 if (entry.isIntersecting) {
-                  $.ajax({
-                    url: lastSeenUrl,
-                    type: 'POST',
-                    data: {
-                      csrf_token: $('meta[name="csrf-token"]').attr('content'),
+                  const csrfToken = $('meta[name="csrf-token"]').attr('content');
+                  fetch(lastSeenUrl, {
+                    method: 'POST',
+                    headers: {
+                      Accept: 'application/json',
+                      'Content-Type': 'application/x-www-form-urlencoded',
+                      'X-Requested-With': 'XMLHttpRequest',
                     },
-                    dataType: 'json',
+                    body: `csrf_token=${encodeURIComponent(csrfToken)}`,
                   });
                   observer.unobserve(commentSection);
                 }

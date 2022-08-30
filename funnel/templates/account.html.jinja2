@@ -4,7 +4,6 @@
 {% block title -%}
   {% trans %}My account{% endtrans %}
 {%- endblock title %}
-
 {%- block pageheaders %}
   <link rel="stylesheet"
         type="text/css"
@@ -13,17 +12,14 @@
         type="text/css"
         href="{{ built_asset('css/account.scss') }}"/>
 {%- endblock pageheaders %}
-
 {% block bodyattrs -%}
   class="mui--bg-primary tabs-navbar"
 {%- endblock bodyattrs %}
-
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
     <div class="mui-container">{{ account_tabs(active_tab='account') }}</div>
   </div>
 {%- endblock headline %}
-
 {% block basecontent -%}
   <div class="mui-container tab-content">
     <div class="grid">
@@ -132,7 +128,14 @@
           <div class="card__body card__body--lgtext mui--text-subhead">
             <div class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between social-login-wrapper">
               {% for provider in login_registry %}
-                <a class="profile-avatar profile-avatar--bigger--padding profile-avatar--nomargin login login-{{ provider }}" href="{{ url_for('login_service', service=provider, next=url_for('account')) }}" data-ga="login using {{ provider }}" aria-label="{% trans title=provider.title %}Login using {{ title }}{% endtrans %}"><img src="{{ url_for('static', filename='img/' + provider + '.svg') }}" alt="{{ provider.title }}" aria-label="hidden"/></a>
+                <a class="profile-avatar profile-avatar--bigger--padding profile-avatar--nomargin login login-{{ provider }}"
+                   href="{{ url_for('login_service', service=provider, next=url_for('account')) }}"
+                   data-ga="login using {{ provider }}"
+                   aria-label="{% trans title=provider.title %}Login using {{ title }}{% endtrans %}">
+                  <img src="{{ url_for('static', filename='img/' + provider + '.svg') }}"
+                       alt="{{ provider.title }}"
+                       aria-label="hidden"/>
+                </a>
               {% endfor %}
             </div>
           </div>
@@ -317,44 +320,45 @@
                             data-toggle="tooltip"
                             data-placement="bottom">
                           <li class="login-session__heading">
-                            {{ ua['browser'] }}
-                            {{ ua['os_device'] }}
-                          </li>
-                        </ul>
-                        <p class="login-session__body mui--text-light">
-                          {%- if login_service %}
-                            {%- trans %}Since {{ since }} via {{ login_service }} – last active {{ last_active }}{% endtrans %}
-                          {%- else %}
-                            {%- trans %}Since {{ since }} – last active {{ last_active }}{% endtrans %}
-                          {%- endif -%}
-                        </p>
-                        <p class="login-session__body mui--text-light">
-                          {% trans ipaddr=user_session.ipaddr %}{{ location }} – estimated from {{ ipaddr }}{% endtrans %}
-                        </p>
-                      </div>
-                      <div>
-                        {%- if user_session == current_auth.session %}
-                          {{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=true, css_class="mui--text-success input-align-icon") }}
-                        {%- else -%}
-                          <button type="submit"
-                                  name="sessionid"
-                                  value="{{ user_session.buid }}"
-                                  title="{% trans %}Logout{% endtrans %}"
-                                  class="mui-btn mui-btn--small mui-btn--flat mui-btn--nostyle">
-                            {{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle mui--text-hyperlink") }}
-                          </button>
+                            {%- trans browser=ua['browser'], device=ua['os_device'] -%}
+                            {{ browser }} on {{ device }}
+                          {%- endtrans -%}
+                        </li>
+                      </ul>
+                      <p class="login-session__body mui--text-light">
+                        {%- if login_service %}
+                          {%- trans %}Since {{ since }} via {{ login_service }} – last active {{ last_active }}{% endtrans %}
+                        {%- else %}
+                          {%- trans %}Since {{ since }} – last active {{ last_active }}{% endtrans %}
                         {%- endif -%}
-                      </div>
-                    </li>
-                  {%- endwith %}
-                {%- endfor %}
-              </ul>
-            </div>
-          </form>
-        </div>
+                      </p>
+                      <p class="login-session__body mui--text-light">
+                        {% trans ipaddr=user_session.ipaddr %}{{ location }} – estimated from {{ ipaddr }}{% endtrans %}
+                      </p>
+                    </div>
+                    <div>
+                      {%- if user_session == current_auth.session %}
+                        {{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=true, css_class="mui--text-success input-align-icon") }}
+                      {%- else -%}
+                        <button type="submit"
+                                name="sessionid"
+                                value="{{ user_session.buid }}"
+                                title="{% trans %}Logout{% endtrans %}"
+                                class="mui-btn mui-btn--small mui-btn--flat mui-btn--nostyle">
+                          {{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle mui--text-hyperlink") }}
+                        </button>
+                      {%- endif -%}
+                    </div>
+                  </li>
+                {%- endwith %}
+              {%- endfor %}
+            </ul>
+          </div>
+        </form>
       </div>
     </div>
-{#  Disabled until feature is ready for public use
+  </div>
+  {#  Disabled until feature is ready for public use
     <div class="grid__col-xs-12">
       <div class="card">
         <div class="card__header">
@@ -367,7 +371,7 @@
       </div>
     </div>
 #}
-  </div>
+</div>
 {%- endblock basecontent %}
 {% block footerscripts -%}
   {{ ajaxform('email-primary-form', request) }}
