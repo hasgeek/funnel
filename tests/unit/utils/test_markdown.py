@@ -6,7 +6,7 @@ from markupsafe import Markup
 import pytest
 
 from funnel.utils.markdown import markdown
-from funnel.utils.markdown.test_helpers import get_md_test_data
+from funnel.utils.markdown.testhelpers import get_md_test_data
 
 
 def test_markdown_none() -> None:
