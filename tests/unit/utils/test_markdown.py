@@ -1,6 +1,7 @@
 """Tests for markdown parser."""
 
 from copy import copy, deepcopy
+from difflib import ndiff
 from typing import List, Tuple
 import os
 
@@ -75,5 +76,11 @@ with open(os.path.join(DATA_ROOT, 'output.html')) as o:
 
 
 @pytest.mark.parametrize(('ref_html', 'result'), dataset)
-def test_dataset(ref_html, result) -> None:
-    assert ref_html == result
+def test_dataset(ref_html: str, result: str) -> None:
+    if ref_html != result:
+        difference = ndiff(ref_html.split('\n'), result.split('\n'))
+        msg = []
+        for line in difference:
+            if line.startswith(' '):
+                msg.append(line)
+        pytest.fail("\n".join(msg), pytrace=False)
