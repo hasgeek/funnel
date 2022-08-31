@@ -98,7 +98,8 @@ proxies.init_app(shortlinkapp)
 # inside the `instance/` directory. Sample config files are
 # provided as example.
 coaster.app.load_config_from_file(app, 'hasgeekapp.py')
-shortlinkapp.config['SERVER_NAME'] = app.config['SHORTLINK_DOMAIN']
+if 'SHORTLINK_DOMAIN' in app.config:
+    shortlinkapp.config['SERVER_NAME'] = app.config['SHORTLINK_DOMAIN']
 
 # Downgrade logging from default WARNING level to INFO
 for _logging_app in (app, shortlinkapp):
