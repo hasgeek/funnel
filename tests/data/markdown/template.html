@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Markdown Tests: Expected Output compared to Results</title>
+    <title>Markdown Tests: Expected Output compared to Output</title>
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Roboto|Roboto:b,i,bi"
@@ -91,7 +91,7 @@
         flex-wrap: nowrap;
         align-items: stretch;
       }
-      .output-container .content .output-content > h3 {
+      .output-container .content .output-content > * > h3 {
         text-align: center;
         border-bottom: 1px solid black;
       }
@@ -110,8 +110,8 @@
     </style>
   </head>
   <body>
-    <h2>Markdown Tests: Expected Output compared to Results</h2>
-    <code>Template generated on: <span id="generated"></span></code>
+    <h2>Markdown Tests: Expected Output compared to Output</h2>
+    <code>Generated: <span id="generated"></span></code>
     <div id="output_template" class="output-container">
       <h3 class="heading" onclick="this.parentNode.classList.toggle('open')">
         <div class="right">
@@ -135,7 +135,7 @@
             <h3>Expected output</h3>
             <div class="output"></div>
           </div>
-          <div class="result">
+          <div class="final_output">
             <h3>Output for <code>markdown()</code></h3>
             <div class="output"></div>
           </div>
