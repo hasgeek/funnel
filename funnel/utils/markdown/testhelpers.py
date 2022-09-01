@@ -60,8 +60,8 @@ def get_md(case: CaseType, config: Dict[str, Any]):
 def update_md_case_results(cases: CasesType) -> None:
     for case_id in cases:
         case = cases[case_id]
-
         configs = get_case_configs(case)
+        case['results'] = {}
         for config_id, config in configs.items():
             case['results'][config_id] = get_md(case, config)
 
@@ -101,6 +101,9 @@ def update_case_output(
     config: Dict[str, Any],
     output: str,
 ) -> None:
+    if 'output' not in case:
+        case['output'] = {}
+    case['output'][config_id] = output
     op = copy(get_case_template())
     del op['id']
     op.select('.filename')[0].string = case_id
@@ -128,14 +131,14 @@ def md_output_exists() -> bool:
     return os.path.exists(os.path.join(DATA_ROOT, 'output.html'))
 
 
-def get_md_test_data():
+@lru_cache()
+def get_md_test_data() -> Tuple[CasesType, List[Tuple[str, str]]]:
     template = get_output_template()
     cases = load_md_cases()
     dataset: List[Tuple[str, str]] = []
     for case_id, case in cases.items():
         configs = get_case_configs(case)
         for config_id, config in configs.items():
-            expected_output = case['results'][config_id]
             test_output = get_md(case, config)
             update_case_output(
                 template,
@@ -145,6 +148,21 @@ def get_md_test_data():
                 config,
                 test_output,
             )
-            dataset.append((expected_output, test_output))
+            dataset.append(
+                (
+                    case_id,
+                    config_id,
+                )
+            )
     dump_md_output(template)
+    return (cases, dataset)
+
+
+def get_md_test_dataset() -> List[Tuple[str, str]]:
+    (cases, dataset) = get_md_test_data()  # pylint: disable=unused-variable
     return dataset
+
+
+def get_md_test_output(case_id: str, config_id: str) -> Tuple[str, str]:
+    (cases, dataset) = get_md_test_data()  # pylint: disable=unused-variable
+    return (cases[case_id]['results'][config_id], cases[case_id]['output'][config_id])
