@@ -34,9 +34,9 @@ $(() => {
         async fetchResult() {
           if (!pastProjectsApp.waitingForResponse) {
             pastProjectsApp.waitingForResponse = true;
-            const url = `${config.past_projects_json_url}?${new URLSearchParams(
-              { page: pastProjectsApp.next_page }
-            ).toString()}`;
+            const url = `${config.past_projects_json_url}?${new URLSearchParams({
+              page: pastProjectsApp.next_page,
+            }).toString()}`;
             const response = await fetch(url, {
               headers: {
                 Accept: 'application/json',

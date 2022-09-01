@@ -80,8 +80,8 @@
     }
     .login-page__box {
       position: relative;
-      padding: ($mui-grid-padding * 2 + $mui-grid-padding/2) $mui-grid-padding *
-        2 $mui-grid-padding * 2;
+      padding: ($mui-grid-padding * 2 + $mui-grid-padding/2) $mui-grid-padding * 2
+        $mui-grid-padding * 2;
       border-radius: 16px;
       margin: 0 auto $mui-grid-padding * 2;
     }

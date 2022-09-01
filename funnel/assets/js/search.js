@@ -44,22 +44,18 @@ const Search = {
         if (this.get(`results.${searchType}`)) {
           const url = `${encodeURIComponent(
             this.get('pagePath')
-          )}?q=${encodeURIComponent(
-            this.get('queryString')
-          )}&type=${encodeURIComponent(searchType)}`;
+          )}?q=${encodeURIComponent(this.get('queryString'))}&type=${encodeURIComponent(
+            searchType
+          )}`;
           this.activateTab(searchType, '', url);
         } else {
           this.fetchResult(searchType);
         }
       },
       async fetchResult(searchType, page = 1) {
-        const url = `${encodeURIComponent(
-          this.get('pagePath')
-        )}?q=${encodeURIComponent(
+        const url = `${encodeURIComponent(this.get('pagePath'))}?q=${encodeURIComponent(
           this.get('queryString')
-        )}&type=${encodeURIComponent(searchType)}&page=${encodeURIComponent(
-          page
-        )}`;
+        )}&type=${encodeURIComponent(searchType)}&page=${encodeURIComponent(page)}`;
 
         const response = await fetch(url, {
           headers: {
@@ -92,8 +88,7 @@ const Search = {
         this.set('activeTab', searchType);
         $('#scrollable-tabs').animate(
           {
-            scrollLeft: document.querySelector('.tabs__item--active')
-              .offsetLeft,
+            scrollLeft: document.querySelector('.tabs__item--active').offsetLeft,
           },
           'slow'
         );
@@ -145,17 +140,12 @@ const Search = {
         });
       },
       getCurrentTabIndex() {
-        return this.get('tabs').findIndex(
-          (tab) => tab.type === this.get('activeTab')
-        );
+        return this.get('tabs').findIndex((tab) => tab.type === this.get('activeTab'));
       },
       swipe(action) {
         const tabs = this.get('tabs');
         const activeTabIndex = this.getCurrentTabIndex();
-        if (
-          activeTabIndex + action >= 0 &&
-          activeTabIndex + action < tabs.length
-        ) {
+        if (activeTabIndex + action >= 0 && activeTabIndex + action < tabs.length) {
           this.updateTabContent(tabs[activeTabIndex + action].type);
         }
       },
@@ -184,10 +174,7 @@ const Search = {
         );
         $('.js-search-form').submit((event) => {
           event.preventDefault();
-          this.set(
-            'queryString',
-            document.querySelector('.js-search-field').value
-          );
+          this.set('queryString', document.querySelector('.js-search-field').value);
           // Clear results for the new query
           this.set('results', '');
           this.fetchResult(this.getQueryString('type'));

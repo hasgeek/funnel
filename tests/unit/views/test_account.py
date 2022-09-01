@@ -63,7 +63,6 @@ PWNED_PASSWORD = "thisisone1"  # nosec
 def test_pwned_password(client, csrf_token, login, user_rincewind) -> None:
     """Pwned password validator will block attempt to use a compromised password."""
     login.as_(user_rincewind)
-    client.get('/')
     rv = client.post(
         'account/password',
         data={
@@ -74,6 +73,7 @@ def test_pwned_password(client, csrf_token, login, user_rincewind) -> None:
             'csrf_token': csrf_token,
         },
     )
+    assert rv.status_code == 200
     assert "This password was found in breached password lists" in rv.data.decode()
 
 
@@ -83,7 +83,6 @@ def test_pwned_password_mock_endpoint_down(
     """If the pwned password API is not available, the password is allowed."""
     requests_mock.get('https://api.pwnedpasswords.com/range/1F074', status_code=404)
     login.as_(user_rincewind)
-    client.get('/')
 
     rv = client.post(
         'account/password',

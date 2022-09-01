@@ -33,9 +33,7 @@ describe('Confirm submission', () => {
     cy.get('#label-dropdown label').contains(labels[1].title).click();
     cy.get('#label-dropdown label').contains(labels[3].title).click();
     cy.get('#label-select').click();
-    cy.get('form.add-label-form')
-      .find('button[data-cy="form-submit-btn"]')
-      .click();
+    cy.get('form.add-label-form').find('button[data-cy="form-submit-btn"]').click();
     cy.fixture('labels').then((flabels) => {
       flabels.forEach((label) => {
         if (label.label1) {
@@ -66,9 +64,7 @@ describe('Confirm submission', () => {
     cy.wait(1000);
     cy.get('a[data-cy="editor-panel"]:visible').click();
     cy.wait('@fetch-admin-panel');
-    cy.get('[data-cy="proposal-status"]')
-      .find('button[value="confirm"]')
-      .click();
+    cy.get('[data-cy="proposal-status"]').find('button[value="confirm"]').click();
     cy.get('a[data-cy="proposal-menu"]:visible').click();
     cy.wait(1000);
     cy.get('input#featured-proposal-desktop').click({ force: true });
