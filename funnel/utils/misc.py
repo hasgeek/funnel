@@ -190,6 +190,7 @@ def extract_twitter_handle(handle: str) -> Optional[str]:
 
 
 def format_twitter_handle(handle: str) -> str:
+    """Format twitter handle as an @ mention."""
     return f"@{handle}" if handle else ""
 
 

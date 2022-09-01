@@ -63,7 +63,7 @@ def markdown(
     # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
 ) -> Optional[Markup]:
     """
-    Markdown parser compliant with Commonmark+GFM.
+    Markdown parser compliant with Commonmark+GFM using markdown-it-py.
 
     :param bool html: Allow known-safe HTML tags in text
         (this disables code syntax highlighting and task lists)
@@ -96,9 +96,8 @@ def markdown(
     for e in extensions:
         if e in MDExtMap and MDExtMap[e].when_html(html):
             ext_config = MDExtMap[e].default_config
-            if extension_configs is not None:
-                if e in extension_configs:
-                    ext_config = MDExtMap[e].config(extension_configs[e])
+            if extension_configs is not None and e in extension_configs:
+                ext_config = MDExtMap[e].config(extension_configs[e])
             md.use(MDExtMap[e].ext, **ext_config)
 
     if html:
