@@ -21,7 +21,9 @@ CasesType = Dict[str, CaseType]
 
 def load_md_cases() -> CasesType:
     cases: CasesType = {}
-    for file in os.listdir(DATA_ROOT):
+    files = os.listdir(DATA_ROOT)
+    files.sort()
+    for file in files:
         if file.endswith('.toml'):
             with open(os.path.join(DATA_ROOT, file), encoding='utf-8') as f:
                 cases[file] = toml.load(f)

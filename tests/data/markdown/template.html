@@ -14,14 +14,6 @@
       body {
         font-family: 'Roboto', serif;
       }
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6 {
-        margin: 0;
-      }
       .right {
         float: right;
       }
@@ -55,6 +47,8 @@
         background-color: burlywood;
         color: chocolate;
         cursor: pointer;
+        margin: 0px;
+        border-bottom: 1px solid black;
       }
       .output-container.success .heading {
         background-color: darkseagreen;
@@ -63,6 +57,10 @@
       .output-container.failed .heading {
         background-color: lightpink;
         color: red;
+      }
+      .output-container .heading code {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: inherit;
       }
       .output-container .success-show,
       .output-container .success-hide {
@@ -93,9 +91,13 @@
         flex-wrap: nowrap;
         align-items: stretch;
       }
-      .output-container .content .output-content > * > h3 {
+      .output-container .content .output-content > * > h5 {
         text-align: center;
         border-bottom: 1px solid black;
+        margin: 0px;
+      }
+      .output-container .content .output-content > * > h5 code {
+        padding: 0px;
       }
       .output-container .content .output-content .output {
         margin: 5px;
@@ -115,30 +117,33 @@
     <h2>Markdown Tests: Expected Output compared to Output</h2>
     <code>Generated: <span id="generated"></span></code>
     <div id="output_template" class="output-container">
-      <h3 class="heading" onclick="this.parentNode.classList.toggle('open')">
+      <h5
+        class="heading"
+        onclick="(()=>{this.parentNode.classList.toggle('open');h=document.getElementsByClassName('heading');for(i=0;i<h.length;i++)if(this !== h[i])h[i].parentNode.classList.remove('open');})();"
+      >
         <div class="right">
           <code class="success-show">Passed</code>
           <code class="success-hide">Failed</code>
           <span class="open-hide">&#9654;</span>
           <span class="open-show">&#9660;</span>
         </div>
-        Test file: <span class="filename"></span>, Config key:
-        <span class="configname"></span>
-      </h3>
+        Test file: <code class="filename"></code>, Config key:
+        <code class="configname"></code>
+      </h5>
       <div class="content open-show block">
-        <h3>Configuration:</h3>
+        <h5>Configuration:</h5>
         <code class="config"></code>
         <div class="output-content">
           <div class="markdown">
-            <h3>Markdown Test Case</h3>
+            <h5>Markdown Test Case</h5>
             <pre class="output"></pre>
           </div>
           <div class="expected">
-            <h3>Expected output</h3>
+            <h5>Expected output</h5>
             <div class="output"></div>
           </div>
           <div class="final_output">
-            <h3>Output for <code>markdown()</code></h3>
+            <h5>Output for <code>markdown()</code></h5>
             <div class="output"></div>
           </div>
         </div>
@@ -147,4 +152,12 @@
   </body>
   <script src="https://unpkg.com/prismjs/components/prism-core.min.js"></script>
   <script src="https://unpkg.com/prismjs/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script>
+    let tables = document.getElementsByTagName('table');
+    for (t = 0; t < tables.length; t++) {
+      tables[t].classList.add('table');
+      tables[t].classList.add('table-striped');
+      tables[t].classList.add('table-hover');
+    }
+  </script>
 </html>
