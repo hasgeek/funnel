@@ -5,10 +5,9 @@ This will be the markdown text to test
 
 [config]
 # Configurations to test against
-configs = [ "default", "html", "no_ext", "html_no_ext"]
+configs = [ "default", "no_ext"]
 
 # This is how we can add a custom test case with configuration key your_args
 [config.extra_configs.your_args]
 linkify = false # default: true
-html = true # default: false
 # extensions = [] # Set extensions list to override default extensions

@@ -1,14 +1,14 @@
 """Base files for markdown parser."""
 
-from typing import Dict, List, Mapping, Optional, Union, overload
+from typing import Dict, List, Optional, Union, overload
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
 
-from coaster.utils.text import normalize_spaces_multiline, sanitize_html
+from coaster.utils.text import normalize_spaces_multiline
 
 from .extmap import markdown_extensions
-from .helpers import MARKDOWN_HTML_TAGS, MDExtDefaults
+from .helpers import MDExtDefaults
 
 # --- Standard extensions --------------------------------------------------------------
 # FOR CUT 2
@@ -30,9 +30,7 @@ from .helpers import MARKDOWN_HTML_TAGS, MDExtDefaults
 @overload
 def markdown(
     text: None,
-    html: bool = False,
     linkify: bool = True,
-    valid_tags: Optional[Union[List[str], Mapping[str, List]]] = None,
     extensions: Union[List[str], None] = None,
     extension_configs: Optional[Dict[str, str]] = None,
     # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
@@ -43,9 +41,7 @@ def markdown(
 @overload
 def markdown(
     text: str,
-    html: bool = False,
     linkify: bool = True,
-    valid_tags: Optional[Union[List[str], Mapping[str, List]]] = None,
     extensions: Union[List[str], None] = None,
     extension_configs: Optional[Dict[str, str]] = None,
     # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
@@ -55,9 +51,7 @@ def markdown(
 
 def markdown(
     text: Optional[str],
-    html: bool = False,
     linkify: bool = True,
-    valid_tags: Optional[Union[List[str], Mapping[str, List]]] = None,
     extensions: Union[List[str], None] = None,
     extension_configs: Optional[Dict[str, str]] = None,
     # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
@@ -65,17 +59,12 @@ def markdown(
     """
     Markdown parser compliant with Commonmark+GFM using markdown-it-py.
 
-    :param bool html: Allow known-safe HTML tags in text
-        (this disables code syntax highlighting and task lists)
     :param bool linkify: Whether to convert naked URLs into links
-    :param dict valid_tags: Valid tags and attributes if HTML is allowed
     :param list extensions: List of Markdown extensions to be enabled
     :param dict extension_configs: Config for Markdown extensions
     """
     if text is None:
         return None
-    if valid_tags is None:
-        valid_tags = MARKDOWN_HTML_TAGS
 
     # Replace invisible characters with spaces
     text = normalize_spaces_multiline(text)
@@ -84,7 +73,6 @@ def markdown(
         'gfm-like',
         {
             'breaks': True,
-            'html': html,
             'linkify': linkify,
             'typographer': True,
         },
@@ -94,12 +82,10 @@ def markdown(
         extensions = MDExtDefaults
 
     for e in extensions:
-        if e in markdown_extensions and markdown_extensions[e].when_html(html):
+        if e in markdown_extensions:
             ext_config = markdown_extensions[e].default_config
             if extension_configs is not None and e in extension_configs:
                 ext_config = markdown_extensions[e].config(extension_configs[e])
             md.use(markdown_extensions[e].ext, **ext_config)
 
-    if html:
-        return Markup(sanitize_html(md.render(text), valid_tags=valid_tags))
     return Markup(md.render(text))
