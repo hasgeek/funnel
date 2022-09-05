@@ -7,7 +7,7 @@ from markupsafe import Markup
 
 from coaster.utils.text import normalize_spaces_multiline, sanitize_html
 
-from .extmap import MDExtMap
+from .extmap import markdown_extensions
 from .helpers import MARKDOWN_HTML_TAGS, MDExtDefaults
 
 # --- Standard extensions --------------------------------------------------------------
@@ -94,11 +94,11 @@ def markdown(
         extensions = MDExtDefaults
 
     for e in extensions:
-        if e in MDExtMap and MDExtMap[e].when_html(html):
-            ext_config = MDExtMap[e].default_config
+        if e in markdown_extensions and markdown_extensions[e].when_html(html):
+            ext_config = markdown_extensions[e].default_config
             if extension_configs is not None and e in extension_configs:
-                ext_config = MDExtMap[e].config(extension_configs[e])
-            md.use(MDExtMap[e].ext, **ext_config)
+                ext_config = markdown_extensions[e].config(extension_configs[e])
+            md.use(markdown_extensions[e].ext, **ext_config)
 
     if html:
         return Markup(sanitize_html(md.render(text), valid_tags=valid_tags))
