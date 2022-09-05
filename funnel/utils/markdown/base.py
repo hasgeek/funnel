@@ -30,7 +30,6 @@ from .helpers import MDExtDefaults
 @overload
 def markdown(
     text: None,
-    linkify: bool = True,
     extensions: Union[List[str], None] = None,
     extension_configs: Optional[Dict[str, str]] = None,
     # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
@@ -41,7 +40,6 @@ def markdown(
 @overload
 def markdown(
     text: str,
-    linkify: bool = True,
     extensions: Union[List[str], None] = None,
     extension_configs: Optional[Dict[str, str]] = None,
     # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
@@ -51,7 +49,6 @@ def markdown(
 
 def markdown(
     text: Optional[str],
-    linkify: bool = True,
     extensions: Union[List[str], None] = None,
     extension_configs: Optional[Dict[str, str]] = None,
     # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
@@ -73,7 +70,7 @@ def markdown(
         'gfm-like',
         {
             'breaks': True,
-            'linkify': linkify,
+            'linkify': True,
             'typographer': True,
         },
     ).enable(['smartquotes'])
