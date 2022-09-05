@@ -78,6 +78,8 @@ def markdown(
         },
     ).enable(['smartquotes'])
 
+    md.linkify.set({'fuzzy_link': False, 'fuzzy_email': False})
+
     if extensions is None:
         extensions = MDExtDefaults
 
