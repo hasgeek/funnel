@@ -9,7 +9,7 @@ python -m tests.cypress.frontend_tests_initdb
 flask run -p 3002 --no-reload --debugger 2>&1 1>/tmp/funnel-server.log & echo $! > /tmp/funnel-server.pid
 function killserver() {
     kill $(cat /tmp/funnel-server.pid)
-    python -m tests.cypress.frontend_tests_dropdb
+    python -m frontend_tests_dropdb
     rm /tmp/funnel-server.pid
 }
 trap killserver INT

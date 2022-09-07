@@ -11,7 +11,6 @@ describe('Add sponsor to project', () => {
     cy.route('GET', '**/sponsors/**/edit').as('edit-sponsor-form');
     cy.route('POST', '**/sponsors/**/edit').as('edit-sponsor');
     cy.route('GET', '**/sponsors/**/remove').as('remove-sponsor-form');
-    cy.route('POST', '**/sponsors/**/remove').as('remove-sponsor');
 
     cy.login('/', owner.username, owner.password);
     cy.get('.upcoming')
@@ -31,21 +30,18 @@ describe('Add sponsor to project', () => {
     cy.get('.select2-results__option').contains(sponsor.name).click();
     cy.get('.select2-results__options', { timeout: 10000 }).should('not.exist');
     cy.get('button[data-cy="form-submit-btn"]').click();
-    cy.wait('@add-sponsor');
     cy.get('[data-cy="profile-link"]').contains(sponsor.title);
 
     cy.get('a[data-cy="edit-sponsor"]:visible').click();
     cy.wait('@edit-sponsor-form');
     cy.get('#is_promoted').click();
     cy.get('button[data-cy="form-submit-btn"]').click();
-    cy.wait('@edit-sponsor');
 
     cy.get('[data-cy="sponsor-card"]').find('[data-cy="promoted"]').should('exist');
 
     cy.get('a[data-cy="remove-sponsor"]:visible').click();
     cy.wait('@remove-sponsor-form');
     cy.get('input[value="Remove"]').click();
-    cy.wait('@remove-sponsor');
     cy.get('[data-cy="sponsor-card"]').should('not.exist');
   });
 });
