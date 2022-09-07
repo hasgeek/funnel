@@ -242,81 +242,6 @@
   <script type="text/javascript" src="https://www.google.com/recaptcha/api.js" async defer></script>
 {%- endmacro %}
 
-{% macro tinymce3_editor(field, script=true) -%}
-  //Incase textarea uses tinymce, include `jquery.tinymce` in ext_requires in __init__.py
-  {%- if script %}
-  <script type="text/javascript">
-    $(function() {
-  {%- endif %}
-      if (typeof(tinyMCE) != 'undefined') {
-        tinymce.remove('textarea#{{ field.id }}');
-      }
-      $('textarea#{{ field.id }}').removeClass('richtext').tinymce({
-        // Location of TinyMCE script
-        script_url: {{ url_for("baseframe.static", filename="js/tinymce3/tiny_mce.js")|tojson }},
-
-        {%- for k, v in field.tinymce_options.items() %}
-        {{ k|tojson }}: {{ v|tojson }},
-        {%- endfor %}
-        // Content CSS
-        content_css: {{ (field.content_css or url_for('baseframe.editorcss'))|tojson }},
-        // Focus/blur indicators
-        setup: function(ed) {
-          ed.onInit.add(function(ed) {
-            var container = $('#'+ed.id+'_tbl');
-            tinymce.dom.Event.add(ed.getWin(), "blur", function() {
-              container.removeClass('focus');
-            });
-            tinymce.dom.Event.add(ed.getWin(), "focus", function() {
-              container.addClass('focus');
-            });
-          });
-          ed.on('change', function(e) {
-            ed.save();
-          });
-        } // No comma or semicolon here
-      });
-  {%- if script %}
-    });
-  </script>
-  {%- endif %}
-{% endmacro %}
-
-{% macro tinymce4_editor(field, script=true) -%}
-  //Incase textarea uses tinymce, include `jquery.tinymce` in ext_requires in __init__.py
-  {%- if script %}
-  <script type="text/javascript">
-    $(function() {
-  {%- endif %}
-      if (typeof(tinyMCE) != 'undefined') {
-        tinymce.remove('textarea#{{ field.id }}');
-      }
-      $('textarea#{{ field.id }}').removeClass('richtext').tinymce({
-        script_url: {{ url_for("baseframe.static", filename="js/tinymce4/tinymce.min.js")|tojson }},
-        {%- for k, v in field.tinymce_options.items() %}
-        {{ k|tojson }}: {{ v|tojson }},
-        {%- endfor %}
-        // Content CSS
-        content_css: {{ (field.content_css or url_for('baseframe.editorcss'))|tojson }},
-        // Focus/blur indicators
-        setup: function(ed) {
-          ed.on('focus', function(e) {
-            $(ed.editorContainer).addClass('active');
-          });
-          ed.on('blur', function(e) {
-            $(ed.editorContainer).removeClass('active');
-          });
-          ed.on('change', function(e) {
-            ed.save();
-          });
-        } // End of setup keyval
-      });
-  {%- if script %}
-    });
-  </script>
-  {%- endif %}
-{% endmacro %}
-
 {%- macro map_marker_script(field) %}
   new window.Hasgeek.MapMarker({
     location_id: "{{ field.id }}_search",
@@ -417,10 +342,6 @@
   {%- for field in form -%}
     {%- if field.type == 'FormField' %}
       {{ widgetscripts(field.form, script=false) }}
-    {%- elif field.widget.input_type == 'tinymce3' -%}
-      {{ tinymce3_editor(field, script=false) }}
-    {%- elif field.widget.input_type == 'tinymce4' -%}
-      {{ tinymce4_editor(field, script=false) }}
     {%- elif field.type in ['AutocompleteField', 'AutocompleteMultipleField', 'ProfileSelectField'] %}
       Hasgeek.Forms.textAutocomplete({
         id: {{ field.id|tojson }},

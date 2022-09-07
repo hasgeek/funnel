@@ -30,13 +30,12 @@ window.Hasgeek.Accountform = ({
         method: 'POST',
         headers: {
           Accept: 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams({
+        body: JSON.stringify({
           username: $(field).val(),
           csrf_token: $('meta[name="csrf-token"]').attr('content'),
-        }).toString(),
+        }),
       }).catch(() => {
         window.toastr.error(window.Hasgeek.Config.errorMsg.networkError);
       });
@@ -70,20 +69,18 @@ window.Hasgeek.Accountform = ({
   }
 
   async function checkPasswordStrength(field) {
-    // FIXME: This function is getting called multiple times for same candidate
     if (!waitingForResponse && $(field).val()) {
       waitingForResponse = true;
       const response = await fetch(passwordCheckUrl, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams({
+        body: JSON.stringify({
           password: $(field).val(),
           csrf_token: $('meta[name="csrf-token"]').attr('content'),
-        }).toString(),
+        }),
       }).catch(() => {
         window.toastr.error(window.Hasgeek.Config.errorMsg.networkError);
       });
