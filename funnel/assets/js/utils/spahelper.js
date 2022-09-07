@@ -71,7 +71,6 @@ const Spa = {
     const response = await fetch(url, {
       headers: {
         Accept: 'application/x.html+json',
-        'X-Requested-With': 'XMLHttpRequest',
       },
     }).catch(Form.handleFetchNetworkError);
     if (response && response.ok) {

@@ -56,7 +56,6 @@ const badgeScan = {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Requested-With': 'XMLHttpRequest',
           },
           body: new URLSearchParams({
             csrf_token: csrfToken,

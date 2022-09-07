@@ -29,7 +29,6 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded',
-          'X-Requested-With': 'XMLHttpRequest',
         },
         body: new URLSearchParams(new FormData(form)).toString(),
       }).catch(() => {
