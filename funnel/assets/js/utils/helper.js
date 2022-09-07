@@ -89,7 +89,9 @@ const Utils = {
         page: pageNo,
       }).toString()}`;
       const response = await fetch(menuUrl, {
-        headers: {},
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+        },
       });
       if (response && response.ok) {
         const responseData = await response.text();
@@ -257,6 +259,7 @@ const Utils = {
     const response = await fetch(window.Hasgeek.Config.notificationCount, {
       headers: {
         Accept: 'application/x.html+json',
+        'X-Requested-With': 'XMLHttpRequest',
       },
     });
     if (response && response.ok) {
