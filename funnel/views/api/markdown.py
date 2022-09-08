@@ -6,9 +6,6 @@ from flask import request
 from ... import app
 from ...typing import ReturnView
 from ...utils.markdown import markdown
-from ...utils.markdown.helpers import MD_CONFIGS
-
-markdown_content_options = MD_CONFIGS['default']
 
 extra_markdown_types = {'profile', 'project', 'submission', 'session'}
 
@@ -18,12 +15,8 @@ def markdown_preview() -> ReturnView:
     """Render Markdown in the backend, with custom options based on use case."""
     mtype = request.form.get('type')
     text = request.form.get('text')
-    if mtype in extra_markdown_types:
-        markdown_options = markdown_content_options
-    else:
-        markdown_options = {}
 
-    html = markdown(text, **markdown_options)
+    html = markdown(text)
 
     return {
         'status': 'ok',

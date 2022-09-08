@@ -54,6 +54,6 @@ class MDExtension:
 
 MDExtDefaults: List[str] = ['footnote', 'heading_anchors', 'tasklists']
 
-MD_CONFIGS: Dict[str, MDConfigType] = {'default': {'extensions': MDExtDefaults}}
+MD_CONFIGS: Dict[str, MDConfigType] = {'default': {}}
 
 MD_CONFIGS['no_ext'] = {'extensions': []}
