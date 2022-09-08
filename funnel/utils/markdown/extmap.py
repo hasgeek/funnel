@@ -5,7 +5,6 @@ from typing import Dict
 from mdit_py_plugins import anchors, footnote, tasklists
 
 from coaster.utils import make_name
-from funnel.utils.markdown import mdit_plugins
 
 from .helpers import MDExtension
 
@@ -30,4 +29,7 @@ markdown_extensions['tasklists'].set_config(
     'default', {'enabled': False, 'label': False, 'label_after': False}
 )
 
-markdown_extensions['ins'] = MDExtension(mdit_plugins.ins_plugin)  # type: ignore
+# TODO: These plugins will be integrated later with more robust edge-case testing
+# markdown_extensions['ins'] = MDExtension(mdit_plugins.ins_plugin)  # type: ignore
+# markdown_extensions['del'] = MDExtension(mdit_plugins.del_sub_plugin)
+# markdown_extensions['sup'] = MDExtension(mdit_plugins.sup_plugin)

@@ -1,4 +1,4 @@
-"""Markdown-it-py plugin to introduce <ins> markup using ++inserted++."""
+"""Markdown-it-py plugin to introduce <sup> markup using ^superscript^."""
 
 from typing import Any, List
 
@@ -7,38 +7,38 @@ from markdown_it.rules_inline import StateInline
 from markdown_it.rules_inline.state_inline import Delimiter
 
 
-def ins_plugin(md: MarkdownIt):
+def sup_plugin(md: MarkdownIt):
     def tokenize(state: StateInline, silent: bool):
         start = state.pos
         marker = state.srcCharCode[start]
         ch = chr(marker)
 
-        if silent or marker != 0x2B:
+        if silent:
+            return False
+
+        if marker != 0x5E:
             return False
 
         scanned = state.scanDelims(state.pos, True)
 
         length = scanned.length
 
-        if length < 2:
-            return False
-
         i = 0
         while i < length:
             token = state.push('text', '', 0)
-            token.content = ch + ch
+            token.content = ch
             state.delimiters.append(
                 Delimiter(
                     marker=marker,
                     length=0,
-                    jump=i // 2,
+                    jump=i,
                     token=len(state.tokens) - 1,
                     end=-1,
                     open=scanned.can_open,
                     close=scanned.can_close,
                 )
             )
-            i += 2
+            i += 1
 
         state.pos += scanned.length
         return True
@@ -47,37 +47,36 @@ def ins_plugin(md: MarkdownIt):
         lone_markers = []
         max_ = len(delimiters)
 
-        i = len(delimiters) - 1
         for i in range(0, max_):
             start_delim = delimiters[i]
-            if start_delim.marker != 0x2B or start_delim.end == -1:
+            if start_delim.marker != 0x5E or start_delim.end == -1:
                 continue
             end_delim = delimiters[start_delim.end]
 
             token = state.tokens[start_delim.token]
-            token.type = 'ins_open'
-            token.tag = 'ins'
+            token.type = 'sup_open'
+            token.tag = 'sup'
             token.nesting = 1
-            token.markup = '++'
+            token.markup = '^'
             token.content = ''
 
             token = state.tokens[end_delim.token]
-            token.type = 'ins_close'
-            token.tag = 'ins'
+            token.type = 'sup_close'
+            token.tag = 'sup'
             token.nesting = -1
-            token.markup = '++'
+            token.markup = '^'
             token.content = ''
 
             end_token = state.tokens[end_delim.token - 1]
 
-            if end_token.type == 'text' and end_token == chr(0x2B):
+            if end_token.type == 'text' and end_token == chr(0x5E):
                 lone_markers.append(end_delim.token - 1)
 
         while len(lone_markers) > 0:
             i = lone_markers.pop()
             j = i + 1
 
-            while j < len(state.tokens) and state.tokens[j].type == 'ins_close':
+            while j < len(state.tokens) and state.tokens[j].type == 'sup_close':
                 j += 1
 
             j -= 1
@@ -85,7 +84,7 @@ def ins_plugin(md: MarkdownIt):
             if i != j:
                 (state.tokens[i], state.tokens[j]) = (state.tokens[j], state.tokens[i])
 
-    md.inline.ruler.before('emphasis', 'ins', tokenize)
+    md.inline.ruler.before('emphasis', 'sup', tokenize)
 
     def post_process(state: StateInline):
         tokens_meta = state.tokens_meta
@@ -95,13 +94,13 @@ def ins_plugin(md: MarkdownIt):
             if tokens_meta[current] and tokens_meta[current]['delimiters']:
                 _post_process(state, tokens_meta[current]['delimiters'])
 
-    md.inline.ruler2.before('emphasis', 'ins', post_process)
+    md.inline.ruler2.before('emphasis', 'sup', post_process)
 
-    def ins_open(self, tokens, idx, options, env):
-        return '<ins>'
+    def sup_open(self, tokens, idx, options, env):
+        return '<sup>'
 
-    def ins_close(self, tokens, idx, options, env):
-        return '</ins>'
+    def sup_close(self, tokens, idx, options, env):
+        return '</sup>'
 
-    md.add_render_rule('ins_open', ins_open)
-    md.add_render_rule('ins_close', ins_close)
+    md.add_render_rule('sup_open', sup_open)
+    md.add_render_rule('sup_close', sup_close)
