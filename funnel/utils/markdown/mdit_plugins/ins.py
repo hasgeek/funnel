@@ -1,4 +1,4 @@
-"""Markdown-it-py plugin to introduce <ins> markup."""
+"""Markdown-it-py plugin to introduce <ins> markup using ++inserted++."""
 
 from typing import Any, List
 
@@ -10,36 +10,40 @@ from markdown_it.rules_inline.state_inline import Delimiter
 def ins_plugin(md: MarkdownIt):
     def tokenize(state: StateInline, silent: bool):
         start = state.pos
-
         marker = state.srcCharCode[start]
+        ch = chr(marker)
 
         if silent or marker != 0x2B:
             return False
 
-        scanned = state.scanDelims(state.pos, marker == 0x2B)
-        len(scanned)
-        ch = chr(marker)
+        scanned = state.scanDelims(state.pos, True)
 
-        for i in range(scanned.length):
+        length = scanned.length
+
+        if length < 2:
+            return False
+
+        i = 0
+        while i < length:
             token = state.push('text', '', 0)
-            token.content = ch
-
+            token.content = ch + ch
             state.delimiters.append(
                 Delimiter(
                     marker=marker,
                     length=0,
-                    jump=i,
+                    jump=i // 2,
                     token=len(state.tokens) - 1,
                     end=-1,
                     open=scanned.can_open,
                     close=scanned.can_close,
                 )
             )
+            i += 2
 
         state.pos += scanned.length
         return True
 
-    def post_process(state: StateInline, delimiters: List[Any]):
+    def _post_process(state: StateInline, delimiters: List[Any]):
         lone_markers = []
         max_ = len(delimiters)
 
@@ -69,12 +73,6 @@ def ins_plugin(md: MarkdownIt):
             if end_token.type == 'text' and end_token == chr(0x2B):
                 lone_markers.append(end_delim.token - 1)
 
-        # If a marker sequence has an odd number of characters, it's splitted
-        # like this: `~~~~~` -> `~` + `~~` + `~~`, leaving one marker at the
-        # start of the sequence.
-        #
-        # So, we have to move all those markers after subsequent s_close tags.
-
         while len(lone_markers) > 0:
             i = lone_markers.pop()
             j = i + 1
@@ -88,18 +86,16 @@ def ins_plugin(md: MarkdownIt):
                 (state.tokens[i], state.tokens[j]) = (state.tokens[j], state.tokens[i])
 
     md.inline.ruler.before('emphasis', 'ins', tokenize)
-    md.inline.ruler.after('emphasis', 'ins', tokenize)
 
-    def r2b(state: StateInline):
+    def post_process(state: StateInline):
         tokens_meta = state.tokens_meta
         max_ = len(state.tokens_meta)
-        post_process(state, state.delimiters)
+        _post_process(state, state.delimiters)
         for current in range(0, max_):
             if tokens_meta[current] and tokens_meta[current]['delimiters']:
-                post_process(state, tokens_meta[current]['delimiters'])
+                _post_process(state, tokens_meta[current]['delimiters'])
 
-    md.inline.ruler2.before('emphasis', 'ins', r2b)
-    md.inline.ruler2.after('emphasis', 'ins', r2b)
+    md.inline.ruler2.before('emphasis', 'ins', post_process)
 
     def ins_open(self, tokens, idx, options, env):
         return '<ins>'
