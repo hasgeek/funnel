@@ -13,6 +13,7 @@ from pytz import utc
 from baseframe import __, localize_timezone
 from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
+from funnel.utils import markdown
 
 from .. import app
 from ..typing import OptionalMigratedTables
@@ -34,7 +35,6 @@ from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
     add_search_trigger,
-    markdown_content_options,
     reopen,
     valid_name,
     visual_field_delimiter,
@@ -98,15 +98,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         datasets={'primary', 'without_parent', 'related'},
     )
     description = with_roles(
-        MarkdownColumn(
-            'description', default='', nullable=False, options=markdown_content_options
-        ),
+        MarkdownColumn('description', default='', nullable=False, markdown=markdown),
         read={'all'},
     )
     instructions = with_roles(
-        MarkdownColumn(
-            'instructions', default='', nullable=True, options=markdown_content_options
-        ),
+        MarkdownColumn('instructions', default='', nullable=True, markdown=markdown),
         read={'all'},
     )
 

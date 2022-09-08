@@ -9,7 +9,7 @@ import os
 from bs4 import BeautifulSoup
 import toml
 
-from funnel.utils.markdown.base import markdown
+from funnel.utils import markdown
 from funnel.utils.markdown.helpers import MD_CONFIGS
 
 DATA_ROOT = os.path.abspath(os.path.join('tests', 'data', 'markdown'))

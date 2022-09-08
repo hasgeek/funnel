@@ -9,6 +9,7 @@ from sqlalchemy.sql import expression
 from baseframe import __
 from coaster.sqlalchemy import LazyRoleSet, Query, StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
+from funnel.utils import markdown
 
 from ..typing import OptionalMigratedTables
 from . import (
@@ -26,7 +27,6 @@ from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
     add_search_trigger,
-    markdown_content_options,
     quote_autocomplete_tsquery,
     valid_username,
     visual_field_delimiter,
@@ -117,7 +117,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
 
     tagline = sa.Column(sa.Unicode, nullable=True)
     description = MarkdownColumn(
-        'description', default='', nullable=False, options=markdown_content_options
+        'description', default='', nullable=False, markdown=markdown
     )
     website = sa.Column(UrlType, nullable=True)
     logo_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)

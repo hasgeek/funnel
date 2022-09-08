@@ -7,6 +7,7 @@ from typing import Iterable, Optional
 from baseframe import __
 from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum
+from funnel.utils import markdown
 
 from . import (
     BaseMixin,
@@ -19,12 +20,7 @@ from . import (
     sa,
 )
 from .comment import SET_TYPE, Commentset
-from .helpers import (
-    add_search_trigger,
-    markdown_content_options,
-    reopen,
-    visual_field_delimiter,
-)
+from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .reorder_mixin import ReorderMixin
@@ -177,9 +173,7 @@ class Proposal(  # type: ignore[misc]
         back_populates='proposal',
     )
 
-    body = MarkdownColumn(
-        'body', nullable=False, default='', options=markdown_content_options
-    )
+    body = MarkdownColumn('body', nullable=False, default='', markdown=markdown)
     description = sa.Column(sa.Unicode, nullable=False, default='')
     custom_description = sa.Column(sa.Boolean, nullable=False, default=False)
     template = sa.Column(sa.Boolean, nullable=False, default=False)

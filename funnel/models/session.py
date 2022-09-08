@@ -15,6 +15,7 @@ from isoweek import Week
 from baseframe import localize_timezone
 from coaster.sqlalchemy import with_roles
 from coaster.utils import utcnow
+from funnel.utils import markdown
 
 from . import (
     BaseScopedIdNameMixin,
@@ -26,13 +27,7 @@ from . import (
     hybrid_property,
     sa,
 )
-from .helpers import (
-    ImgeeType,
-    add_search_trigger,
-    markdown_content_options,
-    reopen,
-    visual_field_delimiter,
-)
+from .helpers import ImgeeType, add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
@@ -57,7 +52,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     )
     parent = sa.orm.synonym('project')
     description = MarkdownColumn(
-        'description', default='', nullable=False, options=markdown_content_options
+        'description', default='', nullable=False, markdown=markdown
     )
     proposal_id: sa.Column[Optional[int]] = db.Column(
         None, sa.ForeignKey('proposal.id'), nullable=True, unique=True

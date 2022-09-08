@@ -5,6 +5,7 @@ from __future__ import annotations
 from sqlalchemy.ext.orderinglist import ordering_list
 
 from coaster.sqlalchemy import add_primary_relationship, with_roles
+from funnel.utils import markdown
 
 from . import BaseScopedNameMixin, CoordinatesMixin, MarkdownColumn, UuidMixin, db, sa
 from .helpers import reopen
@@ -25,7 +26,9 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
         grants_via={None: project_child_role_map},
     )
     parent = sa.orm.synonym('project')
-    description = MarkdownColumn('description', default='', nullable=False)
+    description = MarkdownColumn(
+        'description', default='', nullable=False, markdown=markdown
+    )
     address1 = sa.Column(sa.Unicode(160), default='', nullable=False)
     address2 = sa.Column(sa.Unicode(160), default='', nullable=False)
     city = sa.Column(sa.Unicode(30), default='', nullable=False)
@@ -104,7 +107,9 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
         grants_via={None: set(project_child_role_map.values())},
     )
     parent = sa.orm.synonym('venue')
-    description = MarkdownColumn('description', default='', nullable=False)
+    description = MarkdownColumn(
+        'description', default='', nullable=False, markdown=markdown
+    )
     bgcolor = sa.Column(sa.Unicode(6), nullable=False, default='229922')
 
     seq = sa.Column(sa.Integer, nullable=False)
