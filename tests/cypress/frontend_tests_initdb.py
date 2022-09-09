@@ -45,6 +45,9 @@ def init_models():
         user2 = User(username='hg-user', fullname='hg-user')
         user2.password = 'hg-user5_HE'  # nosec
 
+        user3 = User(username='new-user', fullname='new-user')
+        user3.password = 'new-user11_EveryOne'  # nosec
+
         sm = SiteMembership(
             user=profile_owner, is_site_editor=True, granted_by=profile_owner
         )
@@ -69,6 +72,7 @@ def init_models():
                 editor,
                 editor_email,
                 user2,
+                user3,
                 sm,
                 org,
             ]
