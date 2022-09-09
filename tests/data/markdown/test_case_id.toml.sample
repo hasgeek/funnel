@@ -9,5 +9,4 @@ configs = [ "default", "no_ext"]
 
 # This is how we can add a custom test case with configuration key your_args
 [config.extra_configs.your_args]
-linkify = false # default: true
 # extensions = [] # Set extensions list to override default extensions
