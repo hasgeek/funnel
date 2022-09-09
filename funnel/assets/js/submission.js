@@ -18,7 +18,6 @@ export const Submission = {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
-        'X-Requested-With': 'XMLHttpRequest',
       },
       body: formData,
     }).catch(Form.handleFetchNetworkError);

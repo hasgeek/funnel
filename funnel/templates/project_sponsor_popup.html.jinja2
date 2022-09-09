@@ -12,7 +12,7 @@
       {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action) }}
     {%- else %}
       <p class="mui--text-title">{{ message }}</p>
-      <form id="{{ ref_id }}" method="post" class="mui-form" action="{{ action }}">
+      <form id="{{ ref_id }}" method="post" class="mui-form" action="{{ action }}" {%- if request_wants.html_fragment %} hx-post="{{ request.url }}" {%- endif %}>
         <input type="hidden" name="form.id" value="delete"/>
         {{ form.hidden_tag() }}
         {% if form.csrf_token and form.csrf_token.errors %}

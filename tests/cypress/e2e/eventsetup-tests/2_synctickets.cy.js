@@ -1,11 +1,11 @@
 /* eslint-disable global-require */
 describe('Sync tickets from Boxoffice', () => {
-  const { promoter } = require('../fixtures/user.json');
-  const { user } = require('../fixtures/user.json');
-  const project = require('../fixtures/project.json');
-  const ticketEvents = require('../fixtures/ticket_events.json');
+  const { promoter } = require('../../fixtures/user.json');
+  const { user } = require('../../fixtures/user.json');
+  const project = require('../../fixtures/project.json');
+  const ticketEvents = require('../../fixtures/ticket_events.json');
   // eslint-disable-next-line camelcase
-  const { ticket_client } = require('../fixtures/boxoffice.js');
+  const { ticket_client } = require('../../fixtures/boxoffice.js');
 
   it('Sync tickets from Boxoffice', () => {
     cy.login('/', promoter.username, promoter.password);

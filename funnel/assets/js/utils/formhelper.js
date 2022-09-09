@@ -119,7 +119,6 @@ const Form = {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Requested-With': 'XMLHttpRequest',
           },
           body: new URLSearchParams({
             csrf_token: $('meta[name="csrf-token"]').attr('content'),
@@ -151,7 +150,6 @@ const Form = {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded',
-          'X-Requested-With': 'XMLHttpRequest',
         },
         body: new URLSearchParams(formData).toString(),
       })
