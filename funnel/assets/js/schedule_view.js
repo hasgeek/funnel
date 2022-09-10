@@ -4,6 +4,7 @@ import { faSvg } from './utils/vue_util';
 import addVegaSupport from './utils/vegaembed';
 import Form from './utils/formhelper';
 import Spa from './utils/spahelper';
+import Utils from './utils/helper';
 
 const Schedule = {
   renderScheduleTable() {
@@ -105,6 +106,7 @@ const Schedule = {
             currentPage
           );
           Spa.updateMetaTags(pageDetails);
+          Utils.enableWebShare();
         },
         handleFetchError(error) {
           const errorMsg = Form.getFetchError(error);
@@ -223,6 +225,7 @@ const Schedule = {
         $('#session-modal').on($.modal.OPEN, () => {
           addVegaSupport();
           window.activateZoomPopup();
+          Utils.enableWebShare();
         });
       },
     });
