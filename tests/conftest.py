@@ -278,6 +278,7 @@ def app() -> Flask:
     """App as a fixture to avoid imports in tests."""
     from funnel import app
 
+    app.config['TESTING'] = True
     return app
 
 
