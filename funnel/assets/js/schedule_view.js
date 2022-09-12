@@ -98,6 +98,7 @@ const Schedule = {
         openModal(sessionHtml, currentPage, pageDetails) {
           this.modalHtml = sessionHtml;
           $('#session-modal').modal('show');
+          this.handleModalShown();
           window.history.pushState(
             {
               openModal: true,
@@ -106,7 +107,6 @@ const Schedule = {
             currentPage
           );
           Spa.updateMetaTags(pageDetails);
-          Utils.enableWebShare();
         },
         handleFetchError(error) {
           const errorMsg = Form.getFetchError(error);
@@ -136,6 +136,22 @@ const Schedule = {
               this.handleFetchError(response);
             }
           }
+        },
+        handleModalShown() {
+          const targetNode = document.getElementById('session-modal');
+          const config = { attributes: true, childList: true, subtree: true };
+          const callback = (mutationList, observer) => {
+            mutationList.forEach((mutation) => {
+              if (mutation.type === 'childList') {
+                addVegaSupport();
+                window.activateZoomPopup();
+                Utils.enableWebShare();
+                observer.disconnect();
+              }
+            });
+          };
+          const observer = new MutationObserver(callback);
+          observer.observe(targetNode, config);
         },
         disableScroll(event, id) {
           event.preventDefault();
@@ -222,11 +238,6 @@ const Schedule = {
         this.animateWindowScrollWithHeader();
         this.handleBrowserResize();
         this.handleBrowserHistory();
-        $('#session-modal').on($.modal.OPEN, () => {
-          addVegaSupport();
-          window.activateZoomPopup();
-          Utils.enableWebShare();
-        });
       },
     });
 
