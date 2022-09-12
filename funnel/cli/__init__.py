@@ -3,4 +3,4 @@
 
 from __future__ import annotations
 
-from . import geodata, misc, periodic, update_test_data
+from . import geodata, misc, periodic
