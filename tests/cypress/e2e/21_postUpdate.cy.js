@@ -50,18 +50,18 @@ describe('Test updates feature', () => {
     cy.get('[data-cy="notification-box"]').contains(project.update_title);
     cy.logout();
 
-    // cy.login('/', newuser.username, newuser.newpassword);
-    // cy.get('.upcoming')
-    //   .find('.card--upcoming')
-    //   .contains(project.title)
-    //   .click({ force: true });
-    // cy.get('.pinned__update')
-    //   .find('.pinned__update__heading')
-    //   .contains(project.update_title);
-    // cy.get('a[data-cy-navbar="updates"]').click();
-    // cy.get('.update__content')
-    //   .contains(project.restricted_update_body)
-    //   .should('not.exist');
-    // cy.logout();
+    cy.login('/', newuser.username, newuser.newpassword);
+    cy.get('.upcoming')
+      .find('.card--upcoming')
+      .contains(project.title)
+      .click({ force: true });
+    cy.get('.pinned__update')
+      .find('.pinned__update__heading')
+      .contains(project.update_title);
+    cy.get('a[data-cy-navbar="updates"]').click();
+    cy.get('.update__content')
+      .contains(project.restricted_update_body)
+      .should('not.exist');
+    cy.logout();
   });
 });

@@ -1,3 +1,6 @@
+import 'htmx.org';
+import Form from './utils/formhelper';
+
 window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
   let lastSavedData = $(formId).find('[type!="hidden"]').serialize();
   let typingTimer;
@@ -15,24 +18,6 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
     return false;
   }
 
-  function handleError(response) {
-    let errorMsg = '';
-    waitingForResponse = false;
-    if (response.readyState === 4) {
-      if (response.status === 500) {
-        errorMsg = window.Hasgeek.Config.errorMsg.serverError;
-      } else {
-        // There is a version mismatch, notify user to reload the page.
-        waitingForResponse = true;
-        errorMsg = JSON.parse(response.responseText).error_description;
-      }
-    } else {
-      errorMsg = window.Hasgeek.Config.errorMsg.networkError;
-    }
-    $(msgElemId).text(errorMsg);
-    window.toastr.error(errorMsg);
-  }
-
   async function enableAutoSave() {
     if (!waitingForResponse && haveDirtyFields()) {
       $(msgElemId).text(window.gettext('Saving'));
@@ -44,10 +29,11 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded',
-          'X-Requested-With': 'XMLHttpRequest',
         },
         body: new URLSearchParams(new FormData(form)).toString(),
-      }).catch(window.toastr.error(window.Hasgeek.Config.errorMsg.networkError));
+      }).catch(() => {
+        Form.handleFetchNetworkError();
+      });
       if (response && response.ok) {
         const remoteData = await response.json();
         if (remoteData) {
@@ -62,7 +48,7 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
           waitingForResponse = false;
         }
       } else {
-        handleError(response);
+        Form.formErrorHandler(formId, response);
       }
     }
   }

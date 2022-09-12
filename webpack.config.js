@@ -42,6 +42,7 @@ module.exports = {
     ),
     account_saved: path.resolve(__dirname, 'funnel/assets/js/account_saved.js'),
     form: path.resolve(__dirname, 'funnel/assets/js/form.js'),
+    account_form: path.resolve(__dirname, 'funnel/assets/js/account_form.js'),
     submission_form: path.resolve(__dirname, 'funnel/assets/js/submission_form.js'),
     labels_form: path.resolve(__dirname, 'funnel/assets/js/labels_form.js'),
     cfp_form: path.resolve(__dirname, 'funnel/assets/js/cfp_form.js'),

@@ -1,6 +1,6 @@
 /* eslint-disable global-require */
 describe('Test search feature', () => {
-  const profile = require('../fixtures/project.json');
+  const profile = require('../fixtures/profile.json');
   const project = require('../fixtures/project.json');
   const proposal = require('../fixtures/proposal.json');
   const session = require('../fixtures/session.json');
