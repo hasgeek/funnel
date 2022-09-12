@@ -2,13 +2,11 @@
 
 import pytest
 
-from funnel import models
-
 from .test_db import TestDatabaseFixture
 
 
 class TestTeam(TestDatabaseFixture):
-    def test_team_get(self) -> None:
+    def test_team_get(self, models) -> None:
         """Test for retrieving a Team with matching buid."""
         dachshunds = self.fixtures.dachshunds
         dachshunds_buid = dachshunds.buid

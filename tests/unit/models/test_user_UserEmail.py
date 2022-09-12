@@ -3,24 +3,21 @@
 import base58
 import pytest
 
-from funnel import models
-from funnel.models.email_address import email_blake2b160_hash
-
 from .test_db import TestDatabaseFixture
 
 
 class TestUserEmail(TestDatabaseFixture):
-    def test_useremail(self) -> None:
+    def test_useremail(self, models) -> None:
         """Test for verifying creation of UserEmail object."""
         oakley = self.fixtures.oakley
         oakley_new_email = models.user.UserEmail(user=oakley, email='oakley@batdog.ca')
         assert isinstance(oakley_new_email, models.user.UserEmail)
 
-    def test_useremail_get(self) -> None:
+    def test_useremail_get(self, models) -> None:
         """Test for `UserEmail.get` against email, blake2b160 digest and hex hash."""
         crusoe = self.fixtures.crusoe
         email = crusoe.email.email
-        blake2b160 = email_blake2b160_hash(email)
+        blake2b160 = models.email_address.email_blake2b160_hash(email)
         email_hash = base58.b58encode(blake2b160).decode()
 
         # scenario 1: when no parameters are passed
@@ -47,7 +44,7 @@ class TestUserEmail(TestDatabaseFixture):
         crusoe = self.fixtures.crusoe
         assert crusoe.email.email == str(crusoe.email)
 
-    def test_useremail_email(self) -> None:
+    def test_useremail_email(self, models) -> None:
         """Test for verifying UserEmail instance's email property."""
         oakley = self.fixtures.oakley
         email = 'oakley@batdogs.ca'

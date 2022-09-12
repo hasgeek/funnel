@@ -3,10 +3,9 @@
 from contextlib import nullcontext as does_not_raise
 from types import SimpleNamespace
 
-import pytest
+from wtforms.validators import StopValidation
 
-from baseframe.forms.validators import StopValidation
-from funnel.forms import PasswordPolicyForm, pwned_password_validator
+import pytest
 
 
 @pytest.fixture(autouse=True)
@@ -21,7 +20,7 @@ def _policy_form_app_context(request, app):
 
 
 @pytest.fixture()
-def form(request):
+def form(request, forms):
     """Form fixture."""
     user = None
     for mark in request.node.iter_markers('formuser'):
@@ -29,7 +28,7 @@ def form(request):
             if user is not None:
                 pytest.fail("Only one formuser can be mentioned in marks.")
             user = request.getfixturevalue(mark.args[0])
-    return PasswordPolicyForm(meta={'csrf': False}, edit_user=user)
+    return forms.PasswordPolicyForm(meta={'csrf': False}, edit_user=user)
 
 
 @pytest.mark.formdata()
@@ -73,18 +72,18 @@ def test_okay_password(form) -> None:
 
 
 @pytest.mark.remote_data()
-def test_pwned_password_validator() -> None:
+def test_pwned_password_validator(forms) -> None:
     """Test the pwned password validator."""
     # Validation success = no return value, no exception
-    pwned_password_validator(
+    forms.pwned_password_validator(
         None, SimpleNamespace(data='this is unlikely to be in the breach list')
     )
 
     with pytest.raises(StopValidation, match='times and is not safe'):
-        pwned_password_validator(None, SimpleNamespace(data='123456'))
+        forms.pwned_password_validator(None, SimpleNamespace(data='123456'))
 
     with pytest.raises(StopValidation, match='times and is not safe'):
-        pwned_password_validator(
+        forms.pwned_password_validator(
             None, SimpleNamespace(data='correct horse battery staple')
         )
 
@@ -142,9 +141,9 @@ D10B1F9D5901978256CE5B2AD832F292D5A:e'''
     ],
 )
 def test_mangled_response_pwned_password_validator(
-    requests_mock, text, expectation
+    requests_mock, forms, text, expectation
 ) -> None:
     """Test that the validator successfully parses mangled output in the API."""
     requests_mock.get('https://api.pwnedpasswords.com/range/7C4A8', text=text)
     with expectation:
-        pwned_password_validator(None, SimpleNamespace(data='123456'))
+        forms.pwned_password_validator(None, SimpleNamespace(data='123456'))

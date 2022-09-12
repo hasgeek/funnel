@@ -7,7 +7,6 @@ from flask import Response
 import pytest
 import requests
 
-from funnel.transports import TransportConnectionError, TransportRecipientError
 from funnel.transports.sms import (
     OneLineTemplate,
     make_exotel_token,
@@ -53,18 +52,18 @@ def test_twilio_callback(client) -> None:
 
 @pytest.mark.remote_data()
 @pytest.mark.requires_config('twilio')
-def test_twilio_failures() -> None:
+def test_twilio_failures(funnel) -> None:
     """Test if message sending is a failure."""
     # Invalid Target
-    with pytest.raises(TransportRecipientError):
+    with pytest.raises(funnel.transports.TransportRecipientError):
         send(TWILIO_INVALID_TARGET, MESSAGE, callback=False)
 
     # Can't route
-    with pytest.raises(TransportRecipientError):
+    with pytest.raises(funnel.transports.TransportRecipientError):
         send(TWILIO_CANT_ROUTE, MESSAGE, callback=False)
 
     # No SMS Service
-    with pytest.raises(TransportRecipientError):
+    with pytest.raises(funnel.transports.TransportRecipientError):
         send(TWILIO_NO_SMS_SERVICE, MESSAGE, callback=False)
 
 
@@ -90,10 +89,10 @@ def test_exotel_nonce(client) -> None:
 
 
 @pytest.mark.requires_config('exotel')
-def test_exotel_send_error(client) -> None:
+def test_exotel_send_error(funnel, client) -> None:
     """Only tests if url_for works and usually fails otherwise, which is OK."""
     # Check False Path via monkey patching the requests object
     with patch.object(requests, 'post') as mock_method:
         mock_method.side_effect = requests.ConnectionError
-        with pytest.raises(TransportConnectionError):
+        with pytest.raises(funnel.transports.TransportConnectionError):
             send(EXOTEL_TO, MESSAGE, callback=True)

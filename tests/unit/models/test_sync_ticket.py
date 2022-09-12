@@ -1,23 +1,7 @@
 """Test for project ticket sync models."""
 # pylint: disable=attribute-defined-outside-init
 
-import unittest
-
 import pytest
-
-from coaster.utils import uuid_b58
-from funnel import app
-from funnel.models import (
-    EmailAddress,
-    Organization,
-    Project,
-    SyncTicket,
-    TicketClient,
-    TicketEvent,
-    TicketParticipant,
-    TicketType,
-    User,
-)
 
 from .event_models_fixtures import (
     event_ticket_types,
@@ -27,16 +11,16 @@ from .event_models_fixtures import (
 )
 
 
-def bulk_upsert(project, ticket_event_list):
+def bulk_upsert(models, project, ticket_event_list):
     for ticket_event_dict in ticket_event_list:
-        ticket_event = TicketEvent.upsert(
+        ticket_event = models.TicketEvent.upsert(
             project,
             current_title=ticket_event_dict.get('title'),
             title=ticket_event_dict.get('title'),
             project=project,
         )
         for ticket_type_title in ticket_event_dict.get('ticket_types'):
-            ticket_type = TicketType.upsert(
+            ticket_type = models.TicketType.upsert(
                 project,
                 current_name=None,
                 current_title=ticket_type_title,
@@ -47,17 +31,15 @@ def bulk_upsert(project, ticket_event_list):
 
 
 @pytest.mark.usefixtures('db_session')
-class TestEventModels(unittest.TestCase):
-    app = app
-
+class TestEventModels:
     @pytest.fixture(autouse=True)
-    def _fixture_setup(self, request, db_session):
+    def _fixture_setup(self, models, coaster, request, db_session, app):
         self.db_session = db_session
-        self.ctx = self.app.test_request_context()
+        self.ctx = app.test_request_context()
         self.ctx.push()
         # Initial Setup
-        random_user_id = uuid_b58()
-        self.user = User(
+        random_user_id = coaster.utils.uuid_b58()
+        self.user = models.User(
             username=f'lukes{random_user_id.lower()}',
             fullname="Luke Skywalker",
         )
@@ -65,14 +47,14 @@ class TestEventModels(unittest.TestCase):
         self.db_session.add(self.user)
         self.db_session.commit()
 
-        self.organization = Organization(
+        self.organization = models.Organization(
             name='spacecon', title="SpaceCon", owner=self.user
         )
         self.db_session.add(self.organization)
         self.db_session.commit()
         self.profile = self.organization.profile
 
-        self.project = Project(
+        self.project = models.Project(
             title="20000 AD",
             tagline="In a galaxy far far away...",
             profile=self.profile,
@@ -82,7 +64,7 @@ class TestEventModels(unittest.TestCase):
         self.project.make_name()
         self.db_session.commit()
 
-        self.ticket_client = TicketClient(  # nosec
+        self.ticket_client = models.TicketClient(  # nosec
             name="test client",
             client_eventid='123',
             clientid='123',
@@ -93,7 +75,7 @@ class TestEventModels(unittest.TestCase):
         self.db_session.add(self.ticket_client)
         self.db_session.commit()
 
-        bulk_upsert(self.project, event_ticket_types)
+        bulk_upsert(models, self.project, event_ticket_types)
         self.db_session.commit()
 
         self.session = self.db_session
@@ -102,23 +84,23 @@ class TestEventModels(unittest.TestCase):
         def tearDown():
             self.ctx.pop()
 
-    def test_import_from_list(self) -> None:
+    def test_import_from_list(self, models) -> None:
         # test bookings
         self.ticket_client.import_from_list(ticket_list)
-        p1 = TicketParticipant.query.filter_by(
-            email_address=EmailAddress.get('participant1@gmail.com'),
+        p1 = models.TicketParticipant.query.filter_by(
+            email_address=models.EmailAddress.get('participant1@gmail.com'),
             project=self.project,
         ).one_or_none()
-        p2 = TicketParticipant.query.filter_by(
-            email_address=EmailAddress.get('participant2@gmail.com'),
+        p2 = models.TicketParticipant.query.filter_by(
+            email_address=models.EmailAddress.get('participant2@gmail.com'),
             project=self.project,
         ).one_or_none()
-        p3 = TicketParticipant.query.filter_by(
-            email_address=EmailAddress.get('participant3@gmail.com'),
+        p3 = models.TicketParticipant.query.filter_by(
+            email_address=models.EmailAddress.get('participant3@gmail.com'),
             project=self.project,
         ).one_or_none()
-        assert SyncTicket.query.count() == 3
-        assert TicketParticipant.query.count() == 3
+        assert models.SyncTicket.query.count() == 3
+        assert models.TicketParticipant.query.count() == 3
         assert len(p1.ticket_events) == 2
         assert len(p2.ticket_events) == 1
         assert len(p3.ticket_events) == 1
@@ -131,8 +113,8 @@ class TestEventModels(unittest.TestCase):
 
         # test_transfers
         self.ticket_client.import_from_list(ticket_list3)
-        p4 = TicketParticipant.query.filter_by(
-            email_address=EmailAddress.get('participant4@gmail.com'),
+        p4 = models.TicketParticipant.query.filter_by(
+            email_address=models.EmailAddress.get('participant4@gmail.com'),
             project=self.project,
         ).one_or_none()
         assert len(p1.ticket_events) == 2

@@ -410,8 +410,11 @@ class User(
     ) -> UserEmail:
         """Add an email address (assumed to be verified)."""
         useremail = UserEmail(user=self, email=email, type=type, private=private)
-        useremail = failsafe_add(
-            db.session, useremail, user=self, email_address=useremail.email_address
+        useremail = cast(
+            UserEmail,
+            failsafe_add(
+                db.session, useremail, user=self, email_address=useremail.email_address
+            ),
         )
         if primary:
             self.primary_email = useremail
@@ -462,8 +465,9 @@ class User(
     ) -> UserPhone:
         """Add a phone number (assumed to be verified)."""
         userphone = UserPhone(user=self, phone=phone, type=type, private=private)
-        userphone = failsafe_add(
-            db.session, userphone, user=self, phone=userphone.phone
+        userphone = cast(
+            UserPhone,
+            failsafe_add(db.session, userphone, user=self, phone=userphone.phone),
         )
         if primary:
             self.primary_phone = userphone
@@ -783,7 +787,7 @@ class User(
             # Use .outerjoin(Profile) or users without usernames will be excluded
             query = cls.query.outerjoin(Profile).filter(
                 sa.or_(
-                    cls.buid.in_(buids),
+                    cls.buid.in_(buids),  # type: ignore[attr-defined]
                     sa.func.lower(Profile.name).in_(
                         [username.lower() for username in usernames]
                     ),

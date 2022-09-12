@@ -1,4 +1,5 @@
 """Tests for the login, logout and register views."""
+# pylint: disable=import-outside-toplevel
 
 from datetime import timedelta
 from types import SimpleNamespace
@@ -8,19 +9,6 @@ from flask import redirect, request, session
 from werkzeug.datastructures import MultiDict
 
 import pytest
-
-from coaster.auth import current_auth
-from coaster.utils import utcnow
-from funnel.forms.login import LoginPasswordWeakException
-from funnel.loginproviders.github import GitHubProvider
-from funnel.registry import (
-    LoginCallbackError,
-    LoginInitError,
-    LoginProviderData,
-    login_registry,
-)
-from funnel.transports import TransportConnectionError, TransportRecipientError
-from funnel.views.otp import OtpSession
 
 # User fixture's details
 RINCEWIND_USERNAME = 'rincewind'
@@ -49,9 +37,11 @@ PATCH_LOGINHUB_CALLBACK = 'funnel.loginproviders.github.GitHubProvider.callback'
 
 # This fixture needs session scope as login_registry doesn't take kindly to lost items
 @pytest.fixture(scope='session')
-def loginhub():
+def loginhub(funnel):
     """Fake login provider for tests."""
-    login_registry['loginhub'] = GitHubProvider(  # nosec
+    funnel.registry.login_registry[
+        'loginhub'
+    ] = funnel.loginproviders.github.GitHubProvider(  # nosec
         'loginhub',
         "Login Hub",
         at_login=True,
@@ -60,8 +50,8 @@ def loginhub():
         key='no-key',
         secret='no-secret',
     )
-    yield login_registry['loginhub']
-    del login_registry['loginhub']
+    yield funnel.registry.login_registry['loginhub']
+    del funnel.registry.login_registry['loginhub']
 
 
 @pytest.fixture()
@@ -105,11 +95,11 @@ def mock_loginhub_do(loginhub):
 
 
 @pytest.fixture()
-def mock_loginhub_callback(loginhub):
+def mock_loginhub_callback(funnel, loginhub):
     """Mock LoginHub login provider's callback method."""
     with patch(
         PATCH_LOGINHUB_CALLBACK,
-        return_value=LoginProviderData(
+        return_value=funnel.registry.LoginProviderData(
             email=RINCEWIND_EMAIL,
             userid='rincewind-loginhub',
             fullname='Rincewind',
@@ -124,7 +114,7 @@ def test_user_rincewind_has_username(user_rincewind) -> None:
     assert user_rincewind.username == RINCEWIND_USERNAME
 
 
-def test_user_register_otp_sms(client, csrf_token) -> None:
+def test_user_register_otp_sms(current_auth, client, csrf_token) -> None:
     """Providing an unknown phone number sends an OTP and registers an account."""
     with patch(PATCH_SMS_SEND, return_value=None) as mock:
         rv1 = client.post(
@@ -159,7 +149,7 @@ def test_user_register_otp_sms(client, csrf_token) -> None:
         assert current_auth.user.fullname == "Rincewind"
 
 
-def test_user_register_otp_email(client, csrf_token) -> None:
+def test_user_register_otp_email(current_auth, client, csrf_token) -> None:
     """Providing an unknown email address sends an OTP and registers an account."""
     with patch(PATCH_EMAIL_OTP_LOGIN, autospec=True) as mock:
         rv1 = client.post(
@@ -195,7 +185,7 @@ def test_user_register_otp_email(client, csrf_token) -> None:
         assert str(current_auth.user.email) == RINCEWIND_EMAIL
 
 
-def test_user_logout(client, csrf_token, login, user_rincewind) -> None:
+def test_user_logout(current_auth, client, csrf_token, login, user_rincewind) -> None:
     """Logout works as a POST request."""
     with client:
         login.as_(user_rincewind)
@@ -219,7 +209,7 @@ def test_user_logout(client, csrf_token, login, user_rincewind) -> None:
     ],
 )
 def test_login_usernames(
-    client, csrf_token, login_username, password_status_auth
+    current_auth, client, csrf_token, login_username, password_status_auth
 ) -> None:
     """Test how the login view responds to correct, incorrect and missing password."""
     with client:
@@ -242,7 +232,7 @@ def test_login_usernames(
 @pytest.mark.usefixtures('user_rincewind_phone')
 @pytest.mark.parametrize('login_username', [RINCEWIND_USERNAME, RINCEWIND_PHONE])
 def test_valid_otp_login_sms(
-    client, csrf_token, user_rincewind, login_username
+    current_auth, client, csrf_token, user_rincewind, login_username
 ) -> None:
     """Test OTP login using username or phone number."""
     with client:
@@ -282,7 +272,7 @@ def test_valid_otp_login_sms(
 @pytest.mark.usefixtures('user_rincewind_email')
 @pytest.mark.parametrize('login_username', [RINCEWIND_USERNAME, RINCEWIND_EMAIL])
 def test_valid_otp_login_email(
-    client, csrf_token, user_rincewind, login_username
+    current_auth, client, csrf_token, user_rincewind, login_username
 ) -> None:
     """Test OTP login using username or email address."""
     with client:
@@ -321,7 +311,7 @@ def test_valid_otp_login_email(
 
 @pytest.mark.usefixtures('user_rincewind_phone', 'user_rincewind_email')
 @pytest.mark.parametrize('login_username', LOGIN_USERNAMES)
-def test_invalid_otp_login(client, csrf_token, login_username) -> None:
+def test_invalid_otp_login(current_auth, client, csrf_token, login_username) -> None:
     """Using an incorrect OTP causes a login failure."""
     with client:
         with patch(PATCH_SMS_OTP_LOGIN, return_value=None, autospec=True), patch(
@@ -363,7 +353,9 @@ def test_user_has_sudo(client, login, user_rincewind) -> None:
     assert rv.status_code == 303
 
 
-def test_user_password_sudo_prompt(client, login, user_rincewind_with_password) -> None:
+def test_user_password_sudo_prompt(
+    current_auth, client, login, user_rincewind_with_password
+) -> None:
     """User with a password gets a sudo password prompt."""
     with client:
         login.as_(user_rincewind_with_password)
@@ -374,7 +366,7 @@ def test_user_password_sudo_prompt(client, login, user_rincewind_with_password) 
 
 
 @pytest.mark.usefixtures('user_rincewind_phone')
-def test_user_otp_sudo_timedout(client, login, user_rincewind) -> None:
+def test_user_otp_sudo_timedout(current_auth, client, login, user_rincewind) -> None:
     """User without a password gets a sudo OTP prompt."""
     with client:
         login.as_(user_rincewind)
@@ -404,7 +396,9 @@ def test_weak_password(client, csrf_token) -> None:
 
 
 @pytest.mark.usefixtures('user_rincewind_email')
-def test_expired_password(client, csrf_token, user_rincewind_with_password) -> None:
+def test_expired_password(
+    utcnow, client, csrf_token, user_rincewind_with_password
+) -> None:
     """User attempting to login with an expired password is asked to change it."""
     user_rincewind_with_password.pw_expires_at = utcnow()
     rv = client.post(
@@ -443,9 +437,13 @@ def test_login_password_exception(client, csrf_token) -> None:
 
 
 @pytest.mark.usefixtures('user_rincewind_phone')
-def test_sms_otp_not_sent(client, csrf_token) -> None:
+def test_sms_otp_not_sent(funnel, client, csrf_token) -> None:
     """When an OTP could not be sent, user is prompted to use a password."""
-    with patch(PATCH_SMS_SEND, side_effect=TransportConnectionError, autospec=True):
+    with patch(
+        PATCH_SMS_SEND,
+        side_effect=funnel.transports.TransportConnectionError,
+        autospec=True,
+    ):
         rv1 = client.post(
             '/login',
             data=MultiDict(
@@ -463,7 +461,7 @@ def test_sms_otp_not_sent(client, csrf_token) -> None:
 
 
 @pytest.mark.usefixtures('user_rincewind_phone')
-def test_otp_timeout_error(client, csrf_token) -> None:
+def test_otp_timeout_error(views, current_auth, client, csrf_token) -> None:
     """When an OTP has expired, the user is prompted to try again."""
     with client:
         with patch(PATCH_SMS_OTP_LOGIN, return_value=None, autospec=True) as mock:
@@ -481,7 +479,7 @@ def test_otp_timeout_error(client, csrf_token) -> None:
             otp_session = mock.call_args[0][0]
             caught_otp = otp_session.otp
 
-        OtpSession.delete()
+        views.otp.OtpSession.delete()
 
         rv2 = client.post(
             '/login',
@@ -528,7 +526,7 @@ def test_otp_reason_error(client, csrf_token) -> None:
 
 
 @pytest.mark.usefixtures('mock_loginhub_do', 'mock_loginhub_callback')
-def test_login_external(client) -> None:
+def test_login_external(current_auth, client) -> None:
     """External login flow works under mocked conditions."""
     rv = client.get('/login/loginhub')
     assert rv.status_code == 302
@@ -584,10 +582,14 @@ def test_already_logged_in(client, login, user_rincewind) -> None:
     ],
 )
 def test_phone_otp_not_supported(
-    client, csrf_token, phone_number, message_fragment
+    funnel, client, csrf_token, phone_number, message_fragment
 ) -> None:
     """If phone number is an unsupported recipient, they are asked to try email."""
-    with patch(PATCH_SMS_SEND, side_effect=TransportRecipientError, autospec=True):
+    with patch(
+        PATCH_SMS_SEND,
+        side_effect=funnel.transports.TransportRecipientError,
+        autospec=True,
+    ):
         rv1 = client.post(
             '/login',
             data=MultiDict(
@@ -613,9 +615,15 @@ def test_phone_otp_not_supported(
         ('+919845012345', 'Use an email address to register, or try again later'),
     ],
 )
-def test_phone_otp_not_sent(client, csrf_token, phone_number, message_fragment) -> None:
+def test_phone_otp_not_sent(
+    funnel, client, csrf_token, phone_number, message_fragment
+) -> None:
     """If OTP cannot be sent to phone, they are asked to try password/email."""
-    with patch(PATCH_SMS_SEND, side_effect=TransportConnectionError, autospec=True):
+    with patch(
+        PATCH_SMS_SEND,
+        side_effect=funnel.transports.TransportConnectionError,
+        autospec=True,
+    ):
         rv1 = client.post(
             '/login',
             data=MultiDict(
@@ -634,12 +642,12 @@ def test_phone_otp_not_sent(client, csrf_token, phone_number, message_fragment) 
 
 
 @pytest.mark.usefixtures('user_rincewind_email', 'user_rincewind_with_weak_password')
-def test_weak_password_exception(client, csrf_token) -> None:
+def test_weak_password_exception(forms, client, csrf_token) -> None:
     """If login form blocks weak password, login view will force user to reset it."""
     with client:
         with patch(
             'funnel.forms.login.LoginForm.validate_password',
-            side_effect=LoginPasswordWeakException,
+            side_effect=forms.LoginPasswordWeakException,
             autospec=True,
         ):
 
@@ -693,7 +701,9 @@ def test_logout_redirect_index(client) -> None:
     assert rv.location == '/'
 
 
-def test_account_logout_user_session(client, csrf_token, login, user_rincewind) -> None:
+def test_account_logout_user_session(
+    current_auth, client, csrf_token, login, user_rincewind
+) -> None:
     """POST to logout with a session id removes that session in the background."""
     with client:
         login.as_(user_rincewind)
@@ -706,7 +716,7 @@ def test_account_logout_user_session(client, csrf_token, login, user_rincewind) 
 
 
 def test_account_logout_user_session_json(
-    client, csrf_token, login, user_rincewind
+    current_auth, client, csrf_token, login, user_rincewind
 ) -> None:
     """POST to logout can return a JSON confirmation."""
     with client:
@@ -745,12 +755,12 @@ def test_account_logout_csrf_validation_html(client, login, user_rincewind) -> N
         assert 'The CSRF token is missing.' in str(session['_flashes'])
 
 
-def test_login_service_init_error(client) -> None:
+def test_login_service_init_error(funnel, client) -> None:
     """If a login service raises an init error, the login attempt is aborted."""
     with client:
         with patch(
             PATCH_LOGINHUB_DO,
-            side_effect=LoginInitError,
+            side_effect=funnel.registry.LoginInitError,
         ):
             rv = client.get('/login/loginhub')
         assert 'danger' in str(session['_flashes'])
@@ -758,11 +768,11 @@ def test_login_service_init_error(client) -> None:
         assert rv.location == '/'
 
 
-def test_login_service_callback_error(client) -> None:
+def test_login_service_callback_error(funnel, client) -> None:
     """If a login service raises a callback error, the login attempt is aborted."""
     with patch(
         PATCH_LOGINHUB_CALLBACK,
-        side_effect=LoginCallbackError,
+        side_effect=funnel.registry.LoginCallbackError,
     ):
         rv = client.get('/login/loginhub/callback', follow_redirects=True)
         if rv.metarefresh is not None:
@@ -770,13 +780,15 @@ def test_login_service_callback_error(client) -> None:
     assert 'Login Hub login failed' in rv.data.decode()
 
 
-def test_login_service_callback_is_authenticated(client, login, user_rincewind) -> None:
+def test_login_service_callback_is_authenticated(
+    funnel, client, login, user_rincewind
+) -> None:
     """A callback error when logged in is handled."""
     login.as_(user_rincewind)
 
     with patch(
         PATCH_LOGINHUB_CALLBACK,
-        side_effect=LoginCallbackError,
+        side_effect=funnel.registry.LoginCallbackError,
     ):
         rv = client.get('/login/loginhub/callback', follow_redirects=True)
         if rv.metarefresh is not None:
@@ -787,7 +799,7 @@ def test_login_service_callback_is_authenticated(client, login, user_rincewind) 
 @pytest.mark.usefixtures(
     'user_rincewind', 'user_rincewind_email', 'mock_loginhub_callback'
 )
-def test_account_merge(client, csrf_token, login, user_twoflower) -> None:
+def test_account_merge(current_auth, client, csrf_token, login, user_twoflower) -> None:
     """An external login service can trigger an account merger."""
     login.as_(user_twoflower)
 

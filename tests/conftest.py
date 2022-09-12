@@ -12,25 +12,14 @@ import typing as t
 
 import pytest
 
-from funnel.models import (
-    AuthClient,
-    AuthClientCredential,
-    Label,
-    Organization,
-    OrganizationMembership,
-    Project,
-    Proposal,
-    Team,
-    User,
-    db,
-)
-
 if t.TYPE_CHECKING:
     from flask_sqlalchemy import SQLAlchemy
     from sqlalchemy.orm import Session as DatabaseSessionClass
 
     from flask import Flask
     from flask.testing import FlaskClient
+
+    import funnel.models as funnel_models
 
 
 # --- Pytest config --------------------------------------------------------------------
@@ -71,6 +60,81 @@ def pytest_collection_modifyitems(items) -> None:
         return (-1, module_file)
 
     items.sort(key=sort_key)
+
+
+# --- Import fixtures ------------------------------------------------------------------
+
+
+@pytest.fixture(scope='session')
+def funnel():
+    """Funnel package."""
+    return pytest.importorskip('funnel')
+
+
+@pytest.fixture(scope='session')
+def models(funnel):
+    """Funnel models package."""
+    return pytest.importorskip('funnel.models')
+
+
+@pytest.fixture(scope='session')
+def forms(funnel):
+    """Funnel forms package."""
+    return pytest.importorskip('funnel.forms')
+
+
+@pytest.fixture(scope='session')
+def views(funnel):
+    """Funnel views package."""
+    return pytest.importorskip('funnel.views')
+
+
+@pytest.fixture(scope='session')
+def request_wants(funnel):
+    """Return request_wants as a fixture."""
+    return funnel.proxies.request_wants
+
+
+@pytest.fixture(scope='session')
+def funnel_devtest(funnel):
+    """Return devtest module as a fixture."""
+    return pytest.importorskip('funnel.devtest')
+
+
+@pytest.fixture(scope='session')
+def coaster():
+    """Coaster package."""
+    return pytest.importorskip('coaster')
+
+
+@pytest.fixture(scope='session')
+def baseframe():
+    """Baseframe package."""
+    return pytest.importorskip('baseframe')
+
+
+@pytest.fixture(scope='session')
+def baseframe_forms(baseframe):
+    """Baseframe forms package."""
+    return pytest.importorskip('baseframe.forms')
+
+
+@pytest.fixture(scope='session')
+def current_auth(coaster):
+    """Return current auth fixture."""
+    return coaster.auth.current_auth
+
+
+@pytest.fixture(scope='session')
+def utcnow(coaster) -> t.Callable:
+    """Return UTC timestamp function."""
+    return coaster.utils.utcnow
+
+
+@pytest.fixture(scope='session')
+def buid(coaster) -> t.Callable:
+    """Return BUID function."""
+    return coaster.utils.buid
 
 
 # --- Fixtures -------------------------------------------------------------------------
@@ -274,12 +338,17 @@ def print_stack(pytestconfig, colorama) -> t.Callable[[int, int], None]:
 
 
 @pytest.fixture(scope='session')
-def app() -> Flask:
-    """App as a fixture to avoid imports in tests."""
-    from funnel import app as f_app
+def app(funnel) -> Flask:
+    """App fixture with testing flag set."""
+    funnel.app.config['TESTING'] = True
+    return funnel.app
 
-    f_app.config['TESTING'] = True
-    return f_app
+
+@pytest.fixture(scope='session')
+def shortlinkapp(funnel) -> Flask:
+    """Shortlink app with testing flag set."""
+    funnel.shortlinkapp.config['TESTING'] = True
+    return funnel.shortlinkapp
 
 
 @pytest.fixture()
@@ -371,7 +440,7 @@ def _app_events(colorama, print_stack, app) -> t.Iterator:
 
 
 @pytest.fixture()
-def _database_events(colorama, print_stack) -> t.Iterator:
+def _database_events(models, colorama, print_stack) -> t.Iterator:
     """
     Fixture to report database session events for debugging a test.
 
@@ -394,7 +463,7 @@ def _database_events(colorama, print_stack) -> t.Iterator:
                 return f'{entity.__name__}(repr-error)'
             return 'repr-error'
 
-    @event.listens_for(db.Model, 'init', propagate=True)
+    @event.listens_for(models.db.Model, 'init', propagate=True)
     def event_init(obj, args, kwargs):
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
@@ -594,7 +663,7 @@ def _database_events(colorama, print_stack) -> t.Iterator:
 
     yield
 
-    event.remove(db.Model, 'init', event_init)
+    event.remove(models.db.Model, 'init', event_init)
     event.remove(
         DatabaseSessionClass, 'transient_to_pending', event_transient_to_pending
     )
@@ -638,20 +707,18 @@ def _database_events(colorama, print_stack) -> t.Iterator:
 
 
 @pytest.fixture(scope='session')
-def database(request, app) -> SQLAlchemy:
+def database(funnel, models, request, app) -> SQLAlchemy:
     """Provide a database structure."""
-    from funnel import redis_store
-
     with app.app_context():
-        db.create_all()
-        redis_store.flushdb()
+        models.db.create_all()
+        funnel.redis_store.flushdb()
 
     @request.addfinalizer
     def drop_tables():
         with app.app_context():
-            db.drop_all()
+            models.db.drop_all()
 
-    return db
+    return models.db
 
 
 @pytest.fixture(scope='session')
@@ -689,11 +756,9 @@ class RemoveIsRollback:
 
 
 @pytest.fixture()
-def db_session_truncate(app, database) -> t.Iterator[DatabaseSessionClass]:
+def db_session_truncate(funnel, app, database) -> t.Iterator[DatabaseSessionClass]:
     """Empty the database after each use of the fixture."""
     from sqlalchemy.orm import close_all_sessions
-
-    from funnel import redis_store
 
     with RemoveIsRollback(database.session, lambda: database.session.rollback):
         yield database.session
@@ -718,15 +783,13 @@ def db_session_truncate(app, database) -> t.Iterator[DatabaseSessionClass]:
             )
 
     # Clear Redis db too
-    redis_store.flushdb()
+    funnel.redis_store.flushdb()
 
 
 @pytest.fixture()
-def db_session_rollback(database) -> t.Iterator[DatabaseSessionClass]:
+def db_session_rollback(funnel, database) -> t.Iterator[DatabaseSessionClass]:
     """Create a nested transaction for the test and rollback after."""
     from sqlalchemy import event
-
-    from funnel import redis_store
 
     db_connection = database.engine.connect()
     original_session = database.session
@@ -772,7 +835,7 @@ def db_session_rollback(database) -> t.Iterator[DatabaseSessionClass]:
     database.session = original_session
 
     # Clear Redis db too
-    redis_store.flushdb()
+    funnel.redis_store.flushdb()
 
 
 @pytest.fixture()
@@ -857,7 +920,8 @@ def splinter_webdriver(request) -> str:
         if shutil.which(executable):
             return driver
     pytest.skip("No webdriver found")
-    return ''  # For pylint and mypy since they don't know pytest.fail is NoReturn
+    # For pylint and mypy since they don't know that pytest.fail is NoReturn
+    return ''  # type: ignore[unreachable]
 
 
 @pytest.fixture(scope='session')
@@ -875,11 +939,9 @@ def splinter_driver_kwargs(splinter_webdriver) -> dict:
 
 
 @pytest.fixture(scope='package')
-def live_server(database, app):
+def live_server(funnel_devtest, database, app):
     """Run application in a separate process."""
     from werkzeug import run_simple
-
-    from funnel.devtest import BackgroundWorker, devtest_app
 
     # Use HTTPS for live server (set to False if required)
     use_https = True
@@ -895,7 +957,7 @@ def live_server(database, app):
 
     # Save app config before modifying it to match live server environment
     original_app_config = {}
-    for m_app in devtest_app.apps_by_host.values():
+    for m_app in funnel_devtest.devtest_app.apps_by_host.values():
         original_app_config[m_app] = {
             'PREFERRED_URL_SCHEME': m_app.config['PREFERRED_URL_SCHEME'],
             'SERVER_NAME': m_app.config['SERVER_NAME'],
@@ -905,9 +967,9 @@ def live_server(database, app):
         m_app.config['SERVER_NAME'] = f'{m_host}:{port}'
 
     # Start background worker and wait until it's receiving connections
-    server = BackgroundWorker(
+    server = funnel_devtest.BackgroundWorker(
         run_simple,
-        args=('127.0.0.1', port, devtest_app),
+        args=('127.0.0.1', port, funnel_devtest.devtest_app),
         kwargs={
             'use_reloader': False,
             'use_debugger': True,
@@ -932,7 +994,7 @@ def live_server(database, app):
             url=f'{scheme}://{app.config["SERVER_NAME"]}/',
             urls=[
                 f'{scheme}://{m_app.config["SERVER_NAME"]}/'
-                for m_app in devtest_app.apps_by_host.values()
+                for m_app in funnel_devtest.devtest_app.apps_by_host.values()
             ],
         )
 
@@ -984,7 +1046,7 @@ def login(app, client, db_session) -> SimpleNamespace:
 
 
 @pytest.fixture()
-def user_twoflower(db_session) -> User:
+def user_twoflower(models, db_session) -> funnel_models.User:
     """
     Twoflower is a tourist from the Agatean Empire who goes on adventures.
 
@@ -992,26 +1054,26 @@ def user_twoflower(db_session) -> User:
     having only made a user account but not having picked a username or made any other
     affiliations.
     """
-    user = User(fullname="Twoflower")
+    user = models.User(fullname="Twoflower")
     db_session.add(user)
     return user
 
 
 @pytest.fixture()
-def user_rincewind(db_session) -> User:
+def user_rincewind(models, db_session) -> funnel_models.User:
     """
     Rincewind is a wizard and a former member of Unseen University.
 
     Rincewind is Twoflower's guide in the first two books, and represents our fully
     initiated user in tests.
     """
-    user = User(username='rincewind', fullname="Rincewind")
+    user = models.User(username='rincewind', fullname="Rincewind")
     db_session.add(user)
     return user
 
 
 @pytest.fixture()
-def user_death(db_session) -> User:
+def user_death(models, db_session) -> funnel_models.User:
     """
     Death is the epoch user, present at the beginning and always having the last word.
 
@@ -1019,7 +1081,7 @@ def user_death(db_session) -> User:
     `migrate_user` always transfers assets to Death. The fixture has created_at set to
     the epoch to represent this. Death is also a site admin.
     """
-    user = User(
+    user = models.User(
         username='death',
         fullname="Death",
         created_at=datetime(1970, 1, 1, tzinfo=timezone.utc),
@@ -1029,7 +1091,7 @@ def user_death(db_session) -> User:
 
 
 @pytest.fixture()
-def user_mort(db_session) -> User:
+def user_mort(models, db_session) -> funnel_models.User:
     """
     Mort is Death's apprentice, and a site admin in tests.
 
@@ -1037,109 +1099,111 @@ def user_mort(db_session) -> User:
     priority when merging user accounts. Unlike Death, Mort does not have a username or
     profile, so Mort will acquire it from a merged user.
     """
-    user = User(fullname="Mort", created_at=datetime(1987, 11, 12, tzinfo=timezone.utc))
+    user = models.User(
+        fullname="Mort", created_at=datetime(1987, 11, 12, tzinfo=timezone.utc)
+    )
     db_session.add(user)
     return user
 
 
 @pytest.fixture()
-def user_susan(db_session) -> User:
+def user_susan(models, db_session) -> funnel_models.User:
     """
     Susan Sto Helit (also written Sto-Helit) is Death's grand daughter.
 
     Susan inherits Death's role as a site admin and plays a correspondent with Mort.
     """
-    user = User(username='susan', fullname="Susan Sto Helit")
+    user = models.User(username='susan', fullname="Susan Sto Helit")
     db_session.add(user)
     return user
 
 
 @pytest.fixture()
-def user_lutze(db_session) -> User:
+def user_lutze(models, db_session) -> funnel_models.User:
     """
     Lu-Tze is a history monk and sweeper at the Monastery of Oi-Dong.
 
     Lu-Tze plays the role of a site editor, cleaning up after messy users.
     """
-    user = User(username='lu-tze', fullname="Lu-Tze")
+    user = models.User(username='lu-tze', fullname="Lu-Tze")
     db_session.add(user)
     return user
 
 
 @pytest.fixture()
-def user_ridcully(db_session) -> User:
+def user_ridcully(models, db_session) -> funnel_models.User:
     """
     Mustrum Ridcully, archchancellor of Unseen University.
 
     Ridcully serves as an owner of the Unseen University organization in tests.
     """
-    user = User(username='ridcully', fullname="Mustrum Ridcully")
+    user = models.User(username='ridcully', fullname="Mustrum Ridcully")
     db_session.add(user)
     return user
 
 
 @pytest.fixture()
-def user_librarian(db_session) -> User:
+def user_librarian(models, db_session) -> funnel_models.User:
     """
     Librarian of Unseen University, currently an orangutan.
 
     The Librarian serves as an admin of the Unseen University organization in tests.
     """
-    user = User(username='librarian', fullname="The Librarian")
+    user = models.User(username='librarian', fullname="The Librarian")
     db_session.add(user)
     return user
 
 
 @pytest.fixture()
-def user_ponder_stibbons(db_session) -> User:
+def user_ponder_stibbons(models, db_session) -> funnel_models.User:
     """
     Ponder Stibbons, maintainer of Hex, the computer powered by an Anthill Inside.
 
     Admin of UU org.
     """
-    user = User(username='ponder-stibbons', fullname="Ponder Stibbons")
+    user = models.User(username='ponder-stibbons', fullname="Ponder Stibbons")
     db_session.add(user)
     return user
 
 
 @pytest.fixture()
-def user_vetinari(db_session) -> User:
+def user_vetinari(models, db_session) -> funnel_models.User:
     """
     Havelock Vetinari, patrician (aka dictator) of Ankh-Morpork.
 
     Co-owner of the City Watch organization in our tests.
     """
-    user = User(username='vetinari', fullname="Havelock Vetinari")
+    user = models.User(username='vetinari', fullname="Havelock Vetinari")
     db_session.add(user)
     return user
 
 
 @pytest.fixture()
-def user_vimes(db_session) -> User:
+def user_vimes(models, db_session) -> funnel_models.User:
     """
     Samuel Vimes, commander of the Ankh-Morpork City Watch.
 
     Co-owner of the City Watch organization in our tests.
     """
-    user = User(username='vimes', fullname="Sam Vimes")
+    user = models.User(username='vimes', fullname="Sam Vimes")
     db_session.add(user)
     return user
 
 
 @pytest.fixture()
-def user_carrot(db_session) -> User:
+def user_carrot(models, db_session) -> funnel_models.User:
     """
     Carrot Ironfoundersson, captain of the Ankh-Morpork City Watch.
 
     Admin of the organization in our tests.
     """
-    user = User(username='carrot', fullname="Carrot Ironfoundersson")
+    user = models.User(username='carrot', fullname="Carrot Ironfoundersson")
     db_session.add(user)
     return user
 
 
 @pytest.fixture()
-def user_angua(db_session) -> User:
+def user_angua(models, db_session) -> funnel_models.User:
     """
     Delphine Angua von Überwald, member of the Ankh-Morpork City Watch, and foreigner.
 
@@ -1151,45 +1215,45 @@ def user_angua(db_session) -> User:
     # of Transylvania, which is located in Romania. Interlingue is the work of an
     # Eastern European, and has since been supplanted by Interlingua, with ISO 639-1
     # code 'ia'. It is therefore reasonably safe to assume Interlingue is dead.
-    user = User(fullname="Angua von Überwald", locale='ie', auto_locale=False)
+    user = models.User(fullname="Angua von Überwald", locale='ie', auto_locale=False)
     db_session.add(user)
     return user
 
 
 @pytest.fixture()
-def user_dibbler(db_session) -> User:
+def user_dibbler(models, db_session) -> funnel_models.User:
     """
     Cut Me Own Throat (or C.M.O.T) Dibbler, huckster who exploits small opportunities.
 
     Represents the spammer in our tests, from spam comments to spam projects.
     """
-    user = User(username='dibbler', fullname="CMOT Dibbler")
+    user = models.User(username='dibbler', fullname="CMOT Dibbler")
     db_session.add(user)
     return user
 
 
 @pytest.fixture()
-def user_wolfgang(db_session) -> User:
+def user_wolfgang(models, db_session) -> funnel_models.User:
     """
     Wolfgang von Überwald, brother of Angua, violent shapeshifter.
 
     Represents an attacker who changes appearance by changing identifiers or making
     sockpuppet user accounts.
     """
-    user = User(username='wolfgang', fullname="Wolfgang von Überwald")
+    user = models.User(username='wolfgang', fullname="Wolfgang von Überwald")
     db_session.add(user)
     return user
 
 
 @pytest.fixture()
-def user_om(db_session) -> User:
+def user_om(models, db_session) -> funnel_models.User:
     """
     Great God Om of the theocracy of Omnia, who has lost his believers.
 
     Moves between having a user account and an org account in tests, creating a new user
     account for Brutha, the last believer.
     """
-    user = User(username='omnia', fullname="Om")
+    user = models.User(username='omnia', fullname="Om")
     db_session.add(user)
     return user
 
@@ -1198,22 +1262,24 @@ def user_om(db_session) -> User:
 
 
 @pytest.fixture()
-def org_ankhmorpork(db_session, user_vetinari) -> Organization:
+def org_ankhmorpork(models, db_session, user_vetinari) -> funnel_models.Organization:
     """
     City of Ankh-Morpork, here representing the government rather than location.
 
     Havelock Vetinari is the Patrician (aka dictator), and sponsors various projects to
     develop the city.
     """
-    org = Organization(name='ankh-morpork', title="Ankh-Morpork", owner=user_vetinari)
+    org = models.Organization(
+        name='ankh-morpork', title="Ankh-Morpork", owner=user_vetinari
+    )
     db_session.add(org)
     return org
 
 
 @pytest.fixture()
 def org_uu(
-    db_session, user_ridcully, user_librarian, user_ponder_stibbons
-) -> Organization:
+    models, db_session, user_ridcully, user_librarian, user_ponder_stibbons
+) -> funnel_models.Organization:
     """
     Unseen University is located in Ankh-Morpork.
 
@@ -1224,10 +1290,10 @@ def org_uu(
     * The Librarian, head of the library (admin)
     * Ponder Stibbons, Head of Inadvisably Applied Magic (admin)
     """
-    org = Organization(name='UU', title="Unseen University", owner=user_ridcully)
+    org = models.Organization(name='UU', title="Unseen University", owner=user_ridcully)
     db_session.add(org)
     db_session.add(
-        OrganizationMembership(
+        models.OrganizationMembership(
             organization=org,
             user=user_librarian,
             is_owner=False,
@@ -1235,7 +1301,7 @@ def org_uu(
         )
     )
     db_session.add(
-        OrganizationMembership(
+        models.OrganizationMembership(
             organization=org,
             user=user_ponder_stibbons,
             is_owner=False,
@@ -1246,7 +1312,9 @@ def org_uu(
 
 
 @pytest.fixture()
-def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot) -> Organization:
+def org_citywatch(
+    models, db_session, user_vetinari, user_vimes, user_carrot
+) -> funnel_models.Organization:
     """
     City Watch of Ankh-Morpork (a sub-organization).
 
@@ -1257,15 +1325,17 @@ def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot) -> Organiz
     * Carrot Ironfoundersson, captain (admin)
     * Angua von Uberwald, corporal (unlisted, as there is no member role)
     """
-    org = Organization(name='city-watch', title="City Watch", owner=user_vetinari)
+    org = models.Organization(
+        name='city-watch', title="City Watch", owner=user_vetinari
+    )
     db_session.add(org)
     db_session.add(
-        OrganizationMembership(
+        models.OrganizationMembership(
             organization=org, user=user_vimes, is_owner=True, granted_by=user_vetinari
         )
     )
     db_session.add(
-        OrganizationMembership(
+        models.OrganizationMembership(
             organization=org, user=user_carrot, is_owner=False, granted_by=user_vimes
         )
     )
@@ -1278,11 +1348,13 @@ def org_citywatch(db_session, user_vetinari, user_vimes, user_carrot) -> Organiz
 
 
 @pytest.fixture()
-def project_expo2010(db_session, org_ankhmorpork, user_vetinari) -> Project:
+def project_expo2010(
+    models, db_session, org_ankhmorpork, user_vetinari
+) -> funnel_models.Project:
     """Ankh-Morpork hosts its 2010 expo."""
     db_session.flush()
 
-    project = Project(
+    project = models.Project(
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
         title="Ankh-Morpork 2010",
@@ -1294,11 +1366,13 @@ def project_expo2010(db_session, org_ankhmorpork, user_vetinari) -> Project:
 
 
 @pytest.fixture()
-def project_expo2011(db_session, org_ankhmorpork, user_vetinari) -> Project:
+def project_expo2011(
+    models, db_session, org_ankhmorpork, user_vetinari
+) -> funnel_models.Project:
     """Ankh-Morpork hosts its 2011 expo."""
     db_session.flush()
 
-    project = Project(
+    project = models.Project(
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
         title="Ankh-Morpork 2011",
@@ -1310,7 +1384,9 @@ def project_expo2011(db_session, org_ankhmorpork, user_vetinari) -> Project:
 
 
 @pytest.fixture()
-def project_ai1(db_session, org_uu, user_ponder_stibbons) -> Project:
+def project_ai1(
+    models, db_session, org_uu, user_ponder_stibbons
+) -> funnel_models.Project:
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
 
@@ -1318,7 +1394,7 @@ def project_ai1(db_session, org_uu, user_ponder_stibbons) -> Project:
     """
     db_session.flush()
 
-    project = Project(
+    project = models.Project(
         profile=org_uu.profile,
         user=user_ponder_stibbons,
         title="Soul Music",
@@ -1335,7 +1411,9 @@ def project_ai1(db_session, org_uu, user_ponder_stibbons) -> Project:
 
 
 @pytest.fixture()
-def project_ai2(db_session, org_uu, user_ponder_stibbons) -> Project:
+def project_ai2(
+    models, db_session, org_uu, user_ponder_stibbons
+) -> funnel_models.Project:
     """
     Anthill Inside conference, hosted by Unseen University (an inspired event).
 
@@ -1343,7 +1421,7 @@ def project_ai2(db_session, org_uu, user_ponder_stibbons) -> Project:
     """
     db_session.flush()
 
-    project = Project(
+    project = models.Project(
         profile=org_uu.profile,
         user=user_ponder_stibbons,
         title="Interesting Times",
@@ -1359,14 +1437,14 @@ def project_ai2(db_session, org_uu, user_ponder_stibbons) -> Project:
 
 
 @pytest.fixture()
-def client_hex(db_session, org_uu) -> Project:
+def client_hex(models, db_session, org_uu) -> funnel_models.Project:
     """
     Hex, supercomputer at Unseen University, powered by an Anthill Inside.
 
     Owned by UU (owner) and administered by Ponder Stibbons (no corresponding role).
     """
     # TODO: AuthClient needs to move to profile as parent
-    auth_client = AuthClient(
+    auth_client = models.AuthClient(
         title="Hex",
         organization=org_uu,
         confidential=True,
@@ -1378,8 +1456,8 @@ def client_hex(db_session, org_uu) -> Project:
 
 
 @pytest.fixture()
-def client_hex_credential(db_session, client_hex) -> SimpleNamespace:
-    cred, secret = AuthClientCredential.new(client_hex)
+def client_hex_credential(models, db_session, client_hex) -> SimpleNamespace:
+    cred, secret = models.AuthClientCredential.new(client_hex)
     db_session.add(cred)
     return SimpleNamespace(cred=cred, secret=secret)
 
@@ -1444,43 +1522,43 @@ TEST_DATA = {
 
 
 @pytest.fixture()
-def new_user(db_session):
-    user = User(**TEST_DATA['users']['testuser'])
+def new_user(models, db_session):
+    user = models.User(**TEST_DATA['users']['testuser'])
     db_session.add(user)
     db_session.commit()
     return user
 
 
 @pytest.fixture()
-def new_user2(db_session):
-    user = User(**TEST_DATA['users']['testuser2'])
+def new_user2(models, db_session):
+    user = models.User(**TEST_DATA['users']['testuser2'])
     db_session.add(user)
     db_session.commit()
     return user
 
 
 @pytest.fixture()
-def new_user_owner(db_session):
-    user = User(**TEST_DATA['users']['test-org-owner'])
+def new_user_owner(models, db_session):
+    user = models.User(**TEST_DATA['users']['test-org-owner'])
     db_session.add(user)
     db_session.commit()
     return user
 
 
 @pytest.fixture()
-def new_user_admin(db_session):
-    user = User(**TEST_DATA['users']['test-org-admin'])
+def new_user_admin(models, db_session):
+    user = models.User(**TEST_DATA['users']['test-org-admin'])
     db_session.add(user)
     db_session.commit()
     return user
 
 
 @pytest.fixture()
-def new_organization(db_session, new_user_owner, new_user_admin):
-    org = Organization(owner=new_user_owner, title="Test org", name='test-org')
+def new_organization(models, db_session, new_user_owner, new_user_admin):
+    org = models.Organization(owner=new_user_owner, title="Test org", name='test-org')
     db_session.add(org)
 
-    admin_membership = OrganizationMembership(
+    admin_membership = models.OrganizationMembership(
         organization=org, user=new_user_admin, is_owner=False, granted_by=new_user_owner
     )
     db_session.add(admin_membership)
@@ -1489,8 +1567,8 @@ def new_organization(db_session, new_user_owner, new_user_admin):
 
 
 @pytest.fixture()
-def new_team(db_session, new_user, new_organization):
-    team = Team(title="Owners", organization=new_organization)
+def new_team(models, db_session, new_user, new_organization):
+    team = models.Team(title="Owners", organization=new_organization)
     db_session.add(team)
     team.users.append(new_user)
     db_session.commit()
@@ -1498,8 +1576,8 @@ def new_team(db_session, new_user, new_organization):
 
 
 @pytest.fixture()
-def new_project(db_session, new_organization, new_user):
-    project = Project(
+def new_project(models, db_session, new_organization, new_user):
+    project = models.Project(
         profile=new_organization.profile,
         user=new_user,
         title="Test Project",
@@ -1513,8 +1591,8 @@ def new_project(db_session, new_organization, new_user):
 
 
 @pytest.fixture()
-def new_project2(db_session, new_organization, new_user_owner):
-    project = Project(
+def new_project2(models, db_session, new_organization, new_user_owner):
+    project = models.Project(
         profile=new_organization.profile,
         user=new_user_owner,
         title="Test Project",
@@ -1528,13 +1606,13 @@ def new_project2(db_session, new_organization, new_user_owner):
 
 
 @pytest.fixture()
-def new_main_label(db_session, new_project):
-    main_label_a = Label(
+def new_main_label(models, db_session, new_project):
+    main_label_a = models.Label(
         title="Parent Label A", project=new_project, description="A test parent label"
     )
     new_project.all_labels.append(main_label_a)
-    label_a1 = Label(title="Label A1", icon_emoji="👍", project=new_project)
-    label_a2 = Label(title="Label A2", project=new_project)
+    label_a1 = models.Label(title="Label A1", icon_emoji="👍", project=new_project)
+    label_a2 = models.Label(title="Label A2", project=new_project)
 
     main_label_a.options.append(label_a1)
     main_label_a.options.append(label_a2)
@@ -1546,13 +1624,13 @@ def new_main_label(db_session, new_project):
 
 
 @pytest.fixture()
-def new_main_label_unrestricted(db_session, new_project):
-    main_label_b = Label(
+def new_main_label_unrestricted(models, db_session, new_project):
+    main_label_b = models.Label(
         title="Parent Label B", project=new_project, description="A test parent label"
     )
     new_project.all_labels.append(main_label_b)
-    label_b1 = Label(title="Label B1", icon_emoji="👍", project=new_project)
-    label_b2 = Label(title="Label B2", project=new_project)
+    label_b1 = models.Label(title="Label B1", icon_emoji="👍", project=new_project)
+    label_b2 = models.Label(title="Label B2", project=new_project)
 
     main_label_b.options.append(label_b1)
     main_label_b.options.append(label_b2)
@@ -1564,8 +1642,8 @@ def new_main_label_unrestricted(db_session, new_project):
 
 
 @pytest.fixture()
-def new_label(db_session, new_project):
-    label_b = Label(title="Label B", icon_emoji="🔟", project=new_project)
+def new_label(models, db_session, new_project):
+    label_b = models.Label(title="Label B", icon_emoji="🔟", project=new_project)
     new_project.all_labels.append(label_b)
     db_session.add(label_b)
     db_session.commit()
@@ -1573,8 +1651,8 @@ def new_label(db_session, new_project):
 
 
 @pytest.fixture()
-def new_proposal(db_session, new_user, new_project):
-    proposal = Proposal(
+def new_proposal(models, db_session, new_user, new_project):
+    proposal = models.Proposal(
         user=new_user,
         project=new_project,
         title="Test Proposal",

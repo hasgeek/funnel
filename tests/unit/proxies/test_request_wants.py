@@ -5,15 +5,12 @@ from flask import Flask
 
 import pytest
 
-from funnel import proxies
-from funnel.proxies import request_wants
-
 
 @pytest.fixture()
-def fixture_app() -> Flask:
+def fixture_app(funnel, request_wants) -> Flask:
     """Test app for testing Vary header in responses."""
     tapp = Flask(__name__)
-    proxies.init_app(tapp)
+    funnel.proxies.init_app(tapp)
 
     @tapp.route('/no-vary')
     def no_vary():
@@ -34,14 +31,16 @@ def fixture_app() -> Flask:
     return tapp
 
 
-def test_request_wants_is_an_instance(request) -> None:
+def test_request_wants_is_an_instance(request, funnel, request_wants) -> None:
     """request_wants proxy is an instance of RequestWants class."""
     # pylint: disable=protected-access
-    assert isinstance(request_wants._get_current_object(), proxies.request.RequestWants)
+    assert isinstance(
+        request_wants._get_current_object(), funnel.proxies.request.RequestWants
+    )
     app = request.getfixturevalue('app')
     with app.test_request_context():
         assert isinstance(
-            request_wants._get_current_object(), proxies.request.RequestWants
+            request_wants._get_current_object(), funnel.proxies.request.RequestWants
         )
     # pylint: enable=protected-access
 
@@ -62,7 +61,7 @@ def test_request_wants_is_an_instance(request) -> None:
         ('*/*', False),
     ],
 )
-def test_request_wants_json(app, accept_header, result) -> None:
+def test_request_wants_json(request_wants, app, accept_header, result) -> None:
     """Request wants a JSON response."""
     with app.test_request_context(headers={'Accept': accept_header}):
         assert request_wants.json is result
@@ -85,7 +84,9 @@ def test_request_wants_json(app, accept_header, result) -> None:
         (False, '*/*', False),
     ],
 )
-def test_request_wants_html_fragment_xhr(app, xhr, accept_header, result) -> None:
+def test_request_wants_html_fragment_xhr(
+    request_wants, app, xhr, accept_header, result
+) -> None:
     """Request wants a HTML fragment (XmlHttpRequest version)."""
     headers = {'Accept': accept_header}
     if xhr:
@@ -114,7 +115,7 @@ def test_request_wants_html_fragment_xhr(app, xhr, accept_header, result) -> Non
     ],
 )
 def test_request_wants_html_fragment_htmx(
-    app, hx_request, accept_header, result
+    request_wants, app, hx_request, accept_header, result
 ) -> None:
     """Request wants a HTML fragment (HTMX version)."""
     # The Accept header is not a factor in HTMX calls.
@@ -137,7 +138,7 @@ def test_request_wants_html_fragment_htmx(
         ('*/*', False),
     ],
 )
-def test_request_wants_html_in_json(app, accept_header, result) -> None:
+def test_request_wants_html_in_json(request_wants, app, accept_header, result) -> None:
     """Request wants a HTML fragment embedded in a JSON response."""
     with app.test_request_context(headers={'Accept': accept_header}):
         assert request_wants.html_in_json is result
@@ -145,7 +146,7 @@ def test_request_wants_html_in_json(app, accept_header, result) -> None:
     assert request_wants.html_in_json is False
 
 
-def test_request_wants_htmx(app) -> None:
+def test_request_wants_htmx(request_wants, app) -> None:
     """Request wants a HTMX-compatible response."""
     with app.test_request_context():
         assert request_wants.htmx is False

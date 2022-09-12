@@ -2,14 +2,11 @@
 
 import pytest
 
-from coaster.utils import utcnow
-from funnel import models
-
 from .test_db import TestDatabaseFixture
 
 
 class TestClient(TestDatabaseFixture):
-    def test_client_secret_is(self) -> None:
+    def test_client_secret_is(self, models) -> None:
         """Test for checking if Client's secret is a ClientCredential."""
         auth_client = self.fixtures.auth_client
         cred, secret = models.AuthClientCredential.new(auth_client)
@@ -22,7 +19,7 @@ class TestClient(TestDatabaseFixture):
         referrer = "http://hasjob.dev:5000/logout"
         assert auth_client.host_matches(referrer)
 
-    def test_client_owner(self) -> None:
+    def test_client_owner(self, models) -> None:
         """Test if client's owner is said Organization."""
         owner = self.fixtures.auth_client.owner
         batdog = self.fixtures.batdog
@@ -36,7 +33,7 @@ class TestClient(TestDatabaseFixture):
         assert auth_client.owner_is(crusoe)
         assert not auth_client.owner_is(None)
 
-    def test_client_authtoken_for(self) -> None:
+    def test_client_authtoken_for(self, models, utcnow) -> None:
         """Test for retrieving authtoken for confidential auth clients."""
         # scenario 1: for a client that has confidential=True
         auth_client = self.fixtures.auth_client
@@ -82,7 +79,7 @@ class TestClient(TestDatabaseFixture):
         assert isinstance(result, models.AuthToken)
         assert "Lord Varys" == result.user.fullname
 
-    def test_client_get(self) -> None:
+    def test_client_get(self, models) -> None:
         """Test for verifying AuthClient's get method."""
         auth_client = self.fixtures.auth_client
         batdog = self.fixtures.batdog

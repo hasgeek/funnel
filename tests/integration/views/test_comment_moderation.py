@@ -4,16 +4,12 @@
 from flask import url_for
 from werkzeug.datastructures import MultiDict
 
-from funnel.models import (
-    MODERATOR_REPORT_TYPE,
-    Comment,
-    CommentModeratorReport,
-    SiteMembership,
-)
+import pytest
 
 
+@pytest.mark.usefixtures('app_context')
 def test_comment_report_same(
-    app_context,
+    models,
     client,
     db_session,
     login,
@@ -24,12 +20,15 @@ def test_comment_report_same(
     new_project,
     csrf_token,
 ):
+
     # Let's give new_user site_editor role
-    sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
-    sm2 = SiteMembership(
+    sm = models.SiteMembership(
+        user=new_user, is_comment_moderator=True, granted_by=new_user
+    )
+    sm2 = models.SiteMembership(
         user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
     )
-    sm3 = SiteMembership(
+    sm3 = models.SiteMembership(
         user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
     )
     db_session.add_all([sm, sm2, sm3])
@@ -40,7 +39,7 @@ def test_comment_report_same(
     assert new_user_owner.is_comment_moderator is True
 
     # Let's make a comment
-    comment = Comment(
+    comment = models.Comment(
         user=new_user2,
         commentset=new_project.commentset,
         message="Test comment message",
@@ -51,7 +50,7 @@ def test_comment_report_same(
     assert bool(comment.state.PUBLIC) is True
 
     # report the comment as new_user_admin
-    report1, created = CommentModeratorReport.submit(
+    report1, created = models.CommentModeratorReport.submit(
         actor=new_user_admin, comment=comment
     )
     if created:
@@ -67,7 +66,7 @@ def test_comment_report_same(
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report1.uuid_b58),
         data=MultiDict(
-            {'csrf_token': csrf_token, 'report_type': MODERATOR_REPORT_TYPE.SPAM}
+            {'csrf_token': csrf_token, 'report_type': models.MODERATOR_REPORT_TYPE.SPAM}
         ),
         follow_redirects=True,
     )
@@ -75,17 +74,20 @@ def test_comment_report_same(
         "There are no comment reports to review at this time"
         in resp_post.data.decode('utf-8')
     )
-    comment_refetched = Comment.query.filter_by(id=comment_id).one()
+    comment_refetched = models.Comment.query.filter_by(id=comment_id).one()
     assert bool(comment_refetched.state.SPAM) is True
     # report will be deleted
     assert (
-        CommentModeratorReport.query.filter_by(id=report1_id, resolved_at=None).first()
+        models.CommentModeratorReport.query.filter_by(
+            id=report1_id, resolved_at=None
+        ).first()
         is None
     )
 
 
+@pytest.mark.usefixtures('app_context')
 def test_comment_report_opposing(
-    app_context,
+    models,
     client,
     db_session,
     login,
@@ -96,12 +98,15 @@ def test_comment_report_opposing(
     new_project,
     csrf_token,
 ):
+
     # Let's give new_user site_editor role
-    sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
-    sm2 = SiteMembership(
+    sm = models.SiteMembership(
+        user=new_user, is_comment_moderator=True, granted_by=new_user
+    )
+    sm2 = models.SiteMembership(
         user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
     )
-    sm3 = SiteMembership(
+    sm3 = models.SiteMembership(
         user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
     )
     db_session.add_all([sm, sm2, sm3])
@@ -112,7 +117,7 @@ def test_comment_report_opposing(
     assert new_user_owner.is_comment_moderator is True
 
     # Let's make another comment
-    comment2 = Comment(
+    comment2 = models.Comment(
         user=new_user2,
         commentset=new_project.commentset,
         message="Test second comment message",
@@ -123,7 +128,7 @@ def test_comment_report_opposing(
     assert bool(comment2.state.PUBLIC) is True
 
     # report the comment as new_user_admin
-    report2, created = CommentModeratorReport.submit(
+    report2, created = models.CommentModeratorReport.submit(
         actor=new_user_admin, comment=comment2
     )
     if created:
@@ -135,7 +140,7 @@ def test_comment_report_opposing(
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report2.uuid_b58),
         data=MultiDict(
-            {'csrf_token': csrf_token, 'report_type': MODERATOR_REPORT_TYPE.OK}
+            {'csrf_token': csrf_token, 'report_type': models.MODERATOR_REPORT_TYPE.OK}
         ),
         follow_redirects=True,
     )
@@ -143,23 +148,24 @@ def test_comment_report_opposing(
         "There are no comment reports to review at this time"
         in resp_post.data.decode('utf-8')
     )
-    comment2_refetched = Comment.query.filter_by(id=comment2_id).one()
+    comment2_refetched = models.Comment.query.filter_by(id=comment2_id).one()
     assert bool(comment2_refetched.state.SPAM) is False
     assert bool(comment2_refetched.state.PUBLIC) is True
     # a new report will be created
     assert comment2_refetched.is_reviewed_by(new_user)
     assert (
-        CommentModeratorReport.query.filter_by(
+        models.CommentModeratorReport.query.filter_by(
             comment=comment2_refetched,
             user=new_user,
-            report_type=MODERATOR_REPORT_TYPE.OK,
+            report_type=models.MODERATOR_REPORT_TYPE.OK,
         ).one()
         is not None
     )
 
 
+@pytest.mark.usefixtures('app_context')
 def test_comment_report_majority_spam(
-    app_context,
+    models,
     client,
     db_session,
     login,
@@ -171,11 +177,13 @@ def test_comment_report_majority_spam(
     csrf_token,
 ):
     # Let's give new_user site_editor role
-    sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
-    sm2 = SiteMembership(
+    sm = models.SiteMembership(
+        user=new_user, is_comment_moderator=True, granted_by=new_user
+    )
+    sm2 = models.SiteMembership(
         user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
     )
-    sm3 = SiteMembership(
+    sm3 = models.SiteMembership(
         user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
     )
     db_session.add_all([sm, sm2, sm3])
@@ -186,7 +194,7 @@ def test_comment_report_majority_spam(
     assert new_user_owner.is_comment_moderator is True
 
     # Let's make another comment
-    comment3 = Comment(
+    comment3 = models.Comment(
         user=new_user2,
         commentset=new_project.commentset,
         message="Test second comment message",
@@ -197,7 +205,7 @@ def test_comment_report_majority_spam(
     assert bool(comment3.state.PUBLIC) is True
 
     # report the comment as spam as new_user_admin
-    report3, created = CommentModeratorReport.submit(
+    report3, created = models.CommentModeratorReport.submit(
         actor=new_user_admin, comment=comment3
     )
     if created:
@@ -205,8 +213,10 @@ def test_comment_report_majority_spam(
     report3_id = report3.id
 
     # report the comment as not spam as new_user_owner
-    report4 = CommentModeratorReport(
-        user=new_user_owner, comment=comment3, report_type=MODERATOR_REPORT_TYPE.OK
+    report4 = models.CommentModeratorReport(
+        user=new_user_owner,
+        comment=comment3,
+        report_type=models.MODERATOR_REPORT_TYPE.OK,
     )
     db_session.add(report4)
     db_session.commit()
@@ -218,7 +228,7 @@ def test_comment_report_majority_spam(
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report3.uuid_b58),
         data=MultiDict(
-            {'csrf_token': csrf_token, 'report_type': MODERATOR_REPORT_TYPE.SPAM}
+            {'csrf_token': csrf_token, 'report_type': models.MODERATOR_REPORT_TYPE.SPAM}
         ),
         follow_redirects=True,
     )
@@ -226,21 +236,26 @@ def test_comment_report_majority_spam(
         "There are no comment reports to review at this time"
         in resp_post.data.decode('utf-8')
     )
-    comment3_refetched = Comment.query.filter_by(id=comment3_id).one()
+    comment3_refetched = models.Comment.query.filter_by(id=comment3_id).one()
     assert bool(comment3_refetched.state.SPAM) is True
     # the reports will be deleted
     assert (
-        CommentModeratorReport.query.filter_by(id=report3_id, resolved_at=None).first()
+        models.CommentModeratorReport.query.filter_by(
+            id=report3_id, resolved_at=None
+        ).first()
         is None
     )
     assert (
-        CommentModeratorReport.query.filter_by(id=report4_id, resolved_at=None).first()
+        models.CommentModeratorReport.query.filter_by(
+            id=report4_id, resolved_at=None
+        ).first()
         is None
     )
 
 
+@pytest.mark.usefixtures('app_context')
 def test_comment_report_majority_ok(
-    app_context,
+    models,
     client,
     db_session,
     login,
@@ -252,11 +267,13 @@ def test_comment_report_majority_ok(
     csrf_token,
 ):
     # Let's give new_user site_editor role
-    sm = SiteMembership(user=new_user, is_comment_moderator=True, granted_by=new_user)
-    sm2 = SiteMembership(
+    sm = models.SiteMembership(
+        user=new_user, is_comment_moderator=True, granted_by=new_user
+    )
+    sm2 = models.SiteMembership(
         user=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
     )
-    sm3 = SiteMembership(
+    sm3 = models.SiteMembership(
         user=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
     )
     db_session.add_all([sm, sm2, sm3])
@@ -267,7 +284,7 @@ def test_comment_report_majority_ok(
     assert new_user_owner.is_comment_moderator is True
 
     # Let's make another comment
-    comment4 = Comment(
+    comment4 = models.Comment(
         user=new_user2,
         commentset=new_project.commentset,
         message="Test second comment message",
@@ -278,7 +295,7 @@ def test_comment_report_majority_ok(
     assert bool(comment4.state.PUBLIC) is True
 
     # report the comment as spam as new_user_admin
-    report5, created = CommentModeratorReport.submit(
+    report5, created = models.CommentModeratorReport.submit(
         actor=new_user_admin, comment=comment4
     )
     if created:
@@ -286,8 +303,10 @@ def test_comment_report_majority_ok(
     report5_id = report5.id
 
     # report the comment as not spam as new_user_owner
-    report6 = CommentModeratorReport(
-        user=new_user_owner, comment=comment4, report_type=MODERATOR_REPORT_TYPE.OK
+    report6 = models.CommentModeratorReport(
+        user=new_user_owner,
+        comment=comment4,
+        report_type=models.MODERATOR_REPORT_TYPE.OK,
     )
     db_session.add(report6)
     db_session.commit()
@@ -300,7 +319,7 @@ def test_comment_report_majority_ok(
     resp_post = client.post(
         url_for('siteadmin_review_comment', report=report5.uuid_b58),
         data=MultiDict(
-            {'csrf_token': csrf_token, 'report_type': MODERATOR_REPORT_TYPE.OK}
+            {'csrf_token': csrf_token, 'report_type': models.MODERATOR_REPORT_TYPE.OK}
         ),
         follow_redirects=True,
     )
@@ -308,14 +327,18 @@ def test_comment_report_majority_ok(
         "There are no comment reports to review at this time"
         in resp_post.data.decode('utf-8')
     )
-    comment4_refetched = Comment.query.filter_by(id=comment4_id).one()
+    comment4_refetched = models.Comment.query.filter_by(id=comment4_id).one()
     assert bool(comment4_refetched.state.PUBLIC) is True
     # the reports will be deleted
     assert (
-        CommentModeratorReport.query.filter_by(id=report5_id, resolved_at=None).first()
+        models.CommentModeratorReport.query.filter_by(
+            id=report5_id, resolved_at=None
+        ).first()
         is None
     )
     assert (
-        CommentModeratorReport.query.filter_by(id=report6_id, resolved_at=None).first()
+        models.CommentModeratorReport.query.filter_by(
+            id=report6_id, resolved_at=None
+        ).first()
         is None
     )

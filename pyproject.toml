@@ -102,6 +102,8 @@ sections = ['FUTURE', 'STDLIB', 'SQLALCHEMY', 'FLASK', 'THIRDPARTY', 'FIRSTPARTY
 
 [tool.pytest.ini_options]
 minversion = "6.1"  # For config.rootpath
+# These plugins must also be specified as additional dependencies for pylint in
+# .pre-commit-config.yaml
 required_plugins = [
   'pytest-bdd',
   'pytest-cov',

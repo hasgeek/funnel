@@ -1,16 +1,13 @@
 """Tests for Profile model."""
+# pylint: disable=import-outside-toplevel
 
-from sqlalchemy.exc import StatementError
-
-from furl import furl
 import pytest
 
-from coaster.sqlalchemy import StateTransitionError
-from funnel.models import ImgeeFurl, Profile
 
+def test_profile_urltype_valid(models, db_session, new_organization) -> None:
+    from furl import furl
 
-def test_profile_urltype_valid(db_session, new_organization) -> None:
-    profile = Profile.query.filter_by(id=new_organization.profile.id).first()
+    profile = models.Profile.query.filter_by(id=new_organization.profile.id).first()
     assert profile.name == 'test-org'
     profile.logo_url = "https://images.example.com/"
     db_session.add(profile)
@@ -19,8 +16,10 @@ def test_profile_urltype_valid(db_session, new_organization) -> None:
     assert profile.logo_url.url == "https://images.example.com/"
 
 
-def test_profile_urltype_invalid(db_session, new_organization) -> None:
-    profile = Profile.query.filter_by(id=new_organization.profile.id).first()
+def test_profile_urltype_invalid(models, db_session, new_organization) -> None:
+    from sqlalchemy.exc import StatementError
+
+    profile = models.Profile.query.filter_by(id=new_organization.profile.id).first()
     profile.logo_url = "noturl"
     db_session.add(profile)
     with pytest.raises(StatementError):
@@ -28,11 +27,13 @@ def test_profile_urltype_invalid(db_session, new_organization) -> None:
     db_session.rollback()
 
 
-def test_validate_name(db_session, new_organization) -> None:
-    assert Profile.validate_name_candidate(new_organization.profile.name) == 'org'
+def test_validate_name(models, new_organization) -> None:
+    assert (
+        models.Profile.validate_name_candidate(new_organization.profile.name) == 'org'
+    )
 
 
-def test_user_avatar(db_session, user_twoflower, user_rincewind) -> None:
+def test_user_avatar(models, db_session, user_twoflower, user_rincewind) -> None:
     """User.avatar returns a coherent value despite content variations."""
     # Test fixture has what we need
     assert user_twoflower.profile is None
@@ -52,16 +53,16 @@ def test_user_avatar(db_session, user_twoflower, user_rincewind) -> None:
     user_rincewind.profile.logo_url = 'https://images.example.com/p.jpg'
     db_session.commit()
     assert str(user_rincewind.profile.logo_url) == 'https://images.example.com/p.jpg'
-    assert user_rincewind.avatar == ImgeeFurl('https://images.example.com/p.jpg')
+    assert user_rincewind.avatar == models.ImgeeFurl('https://images.example.com/p.jpg')
 
 
-def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
+def test_suspended_user_private_profile(coaster, db_session, user_wolfgang) -> None:
     """Suspending a user will mark their profile as private."""
     # Ensure column defaults are set (Profile.state)
     db_session.commit()
 
     # Profile cannot be public until the user has a verified phone number
-    with pytest.raises(StateTransitionError):
+    with pytest.raises(coaster.sqlalchemy.StateTransitionError):
         user_wolfgang.profile.make_public()
 
     # Add a phone number to meet the criteria for having verified contact info
@@ -82,16 +83,19 @@ def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
     assert user_wolfgang.profile.state.PRIVATE
 
     # A suspended user's profile cannot be made public
-    with pytest.raises(StateTransitionError):
+    with pytest.raises(coaster.sqlalchemy.StateTransitionError):
         user_wolfgang.profile.make_public()
 
 
 def test_profile_autocomplete(
-    db_session, user_rincewind, org_uu, user_lutze, user_librarian
-):
-    assert Profile.autocomplete('') == []
-    assert Profile.autocomplete(' ') == []
-    assert Profile.autocomplete('rin') == [user_rincewind.profile]
-    assert Profile.autocomplete('u') == [org_uu.profile]
-    assert Profile.autocomplete('unknown') == []
-    assert Profile.autocomplete('l') == [user_librarian.profile, user_lutze.profile]
+    models, user_rincewind, org_uu, user_lutze, user_librarian
+) -> None:
+    assert models.Profile.autocomplete('') == []
+    assert models.Profile.autocomplete(' ') == []
+    assert models.Profile.autocomplete('rin') == [user_rincewind.profile]
+    assert models.Profile.autocomplete('u') == [org_uu.profile]
+    assert models.Profile.autocomplete('unknown') == []
+    assert models.Profile.autocomplete('l') == [
+        user_librarian.profile,
+        user_lutze.profile,
+    ]
