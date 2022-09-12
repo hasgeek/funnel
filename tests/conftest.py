@@ -276,9 +276,10 @@ def print_stack(pytestconfig, colorama) -> t.Callable[[int, int], None]:
 @pytest.fixture(scope='session')
 def app() -> Flask:
     """App as a fixture to avoid imports in tests."""
-    from funnel import app
+    from funnel import app as f_app
 
-    return app
+    f_app.config['TESTING'] = True
+    return f_app
 
 
 @pytest.fixture()
