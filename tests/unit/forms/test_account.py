@@ -3,9 +3,10 @@
 from contextlib import nullcontext as does_not_raise
 from types import SimpleNamespace
 
-from wtforms.validators import StopValidation
-
 import pytest
+
+from baseframe.forms.validators import StopValidation
+from funnel import forms
 
 
 @pytest.fixture(autouse=True)
@@ -20,7 +21,7 @@ def _policy_form_app_context(request, app):
 
 
 @pytest.fixture()
-def form(request, forms):
+def form(request):
     """Form fixture."""
     user = None
     for mark in request.node.iter_markers('formuser'):
@@ -72,7 +73,7 @@ def test_okay_password(form) -> None:
 
 
 @pytest.mark.remote_data()
-def test_pwned_password_validator(forms) -> None:
+def test_pwned_password_validator() -> None:
     """Test the pwned password validator."""
     # Validation success = no return value, no exception
     forms.pwned_password_validator(
@@ -141,7 +142,7 @@ D10B1F9D5901978256CE5B2AD832F292D5A:e'''
     ],
 )
 def test_mangled_response_pwned_password_validator(
-    requests_mock, forms, text, expectation
+    requests_mock, text, expectation
 ) -> None:
     """Test that the validator successfully parses mangled output in the API."""
     requests_mock.get('https://api.pwnedpasswords.com/range/7C4A8', text=text)

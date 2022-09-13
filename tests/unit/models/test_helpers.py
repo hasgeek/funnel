@@ -1,17 +1,20 @@
 """Tests for model helpers."""
-# pylint: disable=possibly-unused-variable,import-outside-toplevel
+# pylint: disable=possibly-unused-variable
 
 from types import SimpleNamespace
 
+from sqlalchemy.exc import StatementError
+import sqlalchemy as sa
+
+from flask_babel import lazy_gettext
+
 import pytest
 
-
-@pytest.fixture(scope='session')
-def mhelpers(models):
-    return models.helpers
+from funnel import models
+import funnel.models.helpers as mhelpers
 
 
-def test_valid_name(mhelpers) -> None:
+def test_valid_name() -> None:
     """Names are lowercase and contain letters, numbers and non-terminal hyphens."""
     assert mhelpers.valid_name('example person') is False
     assert mhelpers.valid_name('example_person') is False
@@ -39,7 +42,7 @@ def test_valid_name(mhelpers) -> None:
     assert mhelpers.valid_name('-Ab') is False
 
 
-def test_valid_username(mhelpers) -> None:
+def test_valid_username() -> None:
     """Usernames contain letters, numbers and non-terminal hyphens."""
     assert mhelpers.valid_username('example person') is False
     assert mhelpers.valid_username('example_person') is False
@@ -67,7 +70,7 @@ def test_valid_username(mhelpers) -> None:
     assert mhelpers.valid_username('-Ab') is False
 
 
-def test_reopen(mhelpers) -> None:
+def test_reopen() -> None:
     """Test mhelpers.reopening a class to add more to it."""
 
     class UnrelatedMixin:
@@ -116,7 +119,7 @@ def test_reopen(mhelpers) -> None:
             __slots__ = ['spam', 'eggs']
 
 
-def test_add_to_class(mhelpers) -> None:
+def test_add_to_class() -> None:
     """Add to class adds new attributes to a class."""
 
     class ReferenceClass:
@@ -156,9 +159,7 @@ def test_add_to_class(mhelpers) -> None:
 
 
 @pytest.fixture(scope='session')
-def image_models(models, database):
-    import sqlalchemy as sa
-
+def image_models(database):
     db = database
 
     class MyImageModel(db.Model):
@@ -171,8 +172,6 @@ def image_models(models, database):
 
 
 def test_imgeetype(db_session, image_models) -> None:
-    from sqlalchemy.exc import StatementError
-
     valid_url = "https://images.example.com/embed/file/randomimagehash"
     valid_url_with_resize = (
         "https://images.example.com/embed/file/randomimagehash?size=120x100"
@@ -219,17 +218,15 @@ def test_imgeetype(db_session, image_models) -> None:
     assert m2.image_url.resize(120).args['size'] == '120'  # type: ignore[attr-defined]
 
 
-def test_quote_autocomplete_tsquery(mhelpers) -> None:
+def test_quote_autocomplete_tsquery() -> None:
     # Single word autocomplete
     assert mhelpers.quote_autocomplete_tsquery('word') == "'word':*"
     # Multi-word autocomplete with stemming
     assert mhelpers.quote_autocomplete_tsquery('two words') == "'two' <-> 'word':*"
 
 
-def test_message_composite(mhelpers) -> None:
+def test_message_composite() -> None:
     """Test mhelpers.MessageComposite has similar properties to MarkdownComposite."""
-    from flask_babel import lazy_gettext
-
     text1 = mhelpers.MessageComposite("Text1")
     assert text1.text == "Text1"
     assert text1.html == "<p>Text1</p>"

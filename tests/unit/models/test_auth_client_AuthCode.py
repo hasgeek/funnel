@@ -1,10 +1,12 @@
 """Tests for AuthCode model."""
 
+from funnel import models
+
 from .test_db import TestDatabaseFixture
 
 
 class TestAuthCode(TestDatabaseFixture):
-    def test_authcode_init(self, models) -> None:
+    def test_authcode_init(self) -> None:
         """Test to verify creation of AuthCode instance."""
         crusoe = self.fixtures.crusoe
         auth_client = self.fixtures.auth_client
@@ -22,7 +24,7 @@ class TestAuthCode(TestDatabaseFixture):
         assert result.auth_client == auth_client
         assert result.user == crusoe
 
-    def test_authcode_is_valid(self, models) -> None:
+    def test_authcode_is_valid(self) -> None:
         """Test to verify if a AuthCode instance is valid."""
         oakley = self.fixtures.oakley
         auth_client = self.fixtures.auth_client

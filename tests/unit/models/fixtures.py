@@ -1,9 +1,11 @@
 """Fixtures for legacy tests."""
 # pylint: disable=attribute-defined-outside-init
 
+from funnel import models
+
 
 class Fixtures:
-    def make_fixtures(self, models, db_session):  # pylint: disable=too-many-locals
+    def make_fixtures(self, db_session):  # pylint: disable=too-many-locals
         """
         Create fixtures.
 

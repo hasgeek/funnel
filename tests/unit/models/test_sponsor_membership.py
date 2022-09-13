@@ -1,11 +1,12 @@
 """Test ProjectSponsorMembership."""
 import pytest
 
+from coaster.sqlalchemy import ImmutableColumnError
+from funnel import models
+
 
 @pytest.fixture()
-def citywatch_sponsor(
-    models, db_session, project_expo2010, org_citywatch, user_vetinari
-):
+def citywatch_sponsor(db_session, project_expo2010, org_citywatch, user_vetinari):
     """Add City Watch as a sponsor of Expo 2010."""
     sponsor = models.ProjectSponsorMembership(
         project=project_expo2010,
@@ -19,7 +20,7 @@ def citywatch_sponsor(
 
 
 @pytest.fixture()
-def uu_sponsor(models, db_session, project_expo2010, org_uu, user_vetinari):
+def uu_sponsor(db_session, project_expo2010, org_uu, user_vetinari):
     """Add Unseen University as a sponsor of Expo 2010."""
     sponsor = models.ProjectSponsorMembership(
         project=project_expo2010,
@@ -33,7 +34,7 @@ def uu_sponsor(models, db_session, project_expo2010, org_uu, user_vetinari):
 
 
 @pytest.fixture()
-def dibbler_sponsor(models, db_session, project_expo2010, user_dibbler, user_vetinari):
+def dibbler_sponsor(db_session, project_expo2010, user_dibbler, user_vetinari):
     """Add CMOT Dibbler as a promoted sponsor of Expo 2010."""
     sponsor = models.ProjectSponsorMembership(
         project=project_expo2010,
@@ -48,7 +49,6 @@ def dibbler_sponsor(models, db_session, project_expo2010, user_dibbler, user_vet
 
 
 def test_auto_seq(  # pylint: disable=too-many-arguments
-    models,
     db_session,
     project_expo2010,
     org_citywatch,
@@ -130,7 +130,6 @@ def test_expo_sponsor_reorder(
 
 
 def test_expo_sponsor_seq_reissue(  # pylint: disable=too-many-arguments
-    models,
     db_session,
     project_expo2010,
     citywatch_sponsor,
@@ -175,9 +174,7 @@ def test_expo_sponsor_seq_reissue(  # pylint: disable=too-many-arguments
     ]
 
 
-def test_change_promoted_flag(
-    coaster, db_session, project_expo2010, citywatch_sponsor
-) -> None:
+def test_change_promoted_flag(db_session, project_expo2010, citywatch_sponsor) -> None:
     """Change sponsor is_promoted flag."""
     assert citywatch_sponsor.is_promoted is False
     # Flag can be changed with a revision
@@ -190,11 +187,11 @@ def test_change_promoted_flag(
     noop_record = new_record.replace(actor=new_record.granted_by, is_promoted=True)
     assert noop_record == new_record
 
-    with pytest.raises(coaster.sqlalchemy.ImmutableColumnError):
+    with pytest.raises(ImmutableColumnError):
         new_record.is_promoted = False
 
 
-def test_change_label(coaster, db_session, project_expo2010, citywatch_sponsor) -> None:
+def test_change_label(db_session, project_expo2010, citywatch_sponsor) -> None:
     """Change sponsor label."""
     assert citywatch_sponsor.label is None
     # Flag can be changed with a revision
@@ -209,7 +206,7 @@ def test_change_label(coaster, db_session, project_expo2010, citywatch_sponsor) 
     )
     assert noop_record == new_record
 
-    with pytest.raises(coaster.sqlalchemy.ImmutableColumnError):
+    with pytest.raises(ImmutableColumnError):
         new_record.label = None
 
 

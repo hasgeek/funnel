@@ -5,6 +5,8 @@ from secrets import token_urlsafe
 from typing import Dict
 from urllib.parse import parse_qs, urlsplit
 
+from funnel import models
+
 
 def test_authcode_requires_login(client) -> None:
     """The authcode endpoint requires a login."""
@@ -46,7 +48,7 @@ def test_authcode_wellformed(
 
 
 def test_auth_untrusted_confidential(  # pylint: disable=too-many-arguments
-    models, client, login, user_rincewind, client_hex, client_hex_credential, csrf_token
+    client, login, user_rincewind, client_hex, client_hex_credential, csrf_token
 ):
     """Test auth on an untrusted confidential auth client."""
     login.as_(user_rincewind)

@@ -5,11 +5,14 @@ from datetime import timedelta
 
 import pytest
 
+from coaster.utils import buid, utcnow
+from funnel import models
+
 from .test_db import TestDatabaseFixture
 
 
 class TestAuthToken(TestDatabaseFixture):
-    def test_authtoken_init(self, models) -> None:
+    def test_authtoken_init(self) -> None:
         """Test for verifying creation of AuthToken instance."""
         auth_client = self.fixtures.auth_client
         crusoe = self.fixtures.crusoe
@@ -20,7 +23,7 @@ class TestAuthToken(TestDatabaseFixture):
         assert result.user == crusoe
         assert result.auth_client == auth_client
 
-    def test_authtoken_refresh(self, models) -> None:
+    def test_authtoken_refresh(self) -> None:
         """Test to verify creation of new token while retaining the refresh token."""
         auth_client = self.fixtures.auth_client
         hagrid = models.User(username='hagrid', fullname='Rubeus Hagrid')
@@ -33,7 +36,7 @@ class TestAuthToken(TestDatabaseFixture):
         assert existing_token != auth_token.token
         assert existing_secret != auth_token.secret
 
-    def test_authtoken_is_valid(self, models, utcnow) -> None:
+    def test_authtoken_is_valid(self) -> None:
         """Test for verifying if AuthToken's token is valid."""
         auth_client = self.fixtures.auth_client
         # scenario 1: when validity is unlimited (0)
@@ -72,7 +75,7 @@ class TestAuthToken(TestDatabaseFixture):
         )
         assert not cedric_token.is_valid()
 
-    def test_authtoken_get(self, models) -> None:
+    def test_authtoken_get(self) -> None:
         """Test for retreiving a AuthToken instance given a token."""
         specialdachs = self.fixtures.specialdachs
         oakley = self.fixtures.oakley
@@ -90,7 +93,7 @@ class TestAuthToken(TestDatabaseFixture):
         assert isinstance(result, models.AuthToken)
         assert result.auth_client == dachsadv
 
-    def test_authtoken_all(self, models) -> None:  # pylint: disable=too-many-locals
+    def test_authtoken_all(self) -> None:  # pylint: disable=too-many-locals
         """Test for retreiving all AuthToken instances for given users."""
         auth_client = self.fixtures.auth_client
 
@@ -160,7 +163,7 @@ class TestAuthToken(TestDatabaseFixture):
         result5 = models.AuthToken.all(users)
         assert result5 == []
 
-    def test_authtoken_user(self, models, utcnow, buid) -> None:
+    def test_authtoken_user(self) -> None:
         """Test for checking AuthToken's user property."""
         crusoe = self.fixtures.crusoe
         oakley = self.fixtures.oakley
@@ -184,7 +187,7 @@ class TestAuthToken(TestDatabaseFixture):
         assert isinstance(auth_token_without_user_session._user, models.User)
         assert auth_token_without_user_session._user == oakley
 
-    def test_authtoken_algorithm(self, models) -> None:
+    def test_authtoken_algorithm(self) -> None:
         """Test for checking AuthToken's algorithm property."""
         auth_client = self.fixtures.auth_client
         snape = models.User(username='snape', fullname='Professor Severus Snape')
@@ -200,7 +203,7 @@ class TestAuthToken(TestDatabaseFixture):
 
 
 def test_authtoken_migrate_user_move(
-    models, db_session, user_twoflower, user_rincewind, client_hex
+    db_session, user_twoflower, user_rincewind, client_hex
 ):
     """Auth token is moved from old user to new user."""
     token = models.AuthToken(auth_client=client_hex, user=user_twoflower, scope='')
@@ -213,7 +216,7 @@ def test_authtoken_migrate_user_move(
 
 
 def test_authtoken_migrate_user_retain(
-    models, db_session, user_twoflower, user_rincewind, client_hex
+    db_session, user_twoflower, user_rincewind, client_hex
 ):
     """Auth token is retained on new user when migrating from old user."""
     token = models.AuthToken(auth_client=client_hex, user=user_rincewind, scope='')
@@ -226,7 +229,7 @@ def test_authtoken_migrate_user_retain(
 
 
 def test_authtoken_migrate_user_merge(
-    models, db_session, user_twoflower, user_rincewind, client_hex
+    db_session, user_twoflower, user_rincewind, client_hex
 ):
     """Merging two auth token will merge their scope."""
     token1 = models.AuthToken(auth_client=client_hex, user=user_twoflower, scope='a b')

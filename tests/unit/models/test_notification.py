@@ -1,22 +1,24 @@
 """Tests for Notification and UserNotification models."""
 # pylint: disable=possibly-unused-variable
 
+from __future__ import annotations
+
 from types import SimpleNamespace
-from typing import TYPE_CHECKING
+
+from sqlalchemy.exc import IntegrityError
 
 import pytest
 
-if TYPE_CHECKING:
-    import funnel.models as funnel_models
+from funnel import models
 
 
 @pytest.fixture(scope='session')
-def notification_types(models, database):
+def notification_types(database):
     class ProjectIsParent:
         document: models.db.Model
 
         @property
-        def preference_context(self) -> 'funnel_models.Profile':
+        def preference_context(self) -> models.Profile:
             return self.document.project.profile
 
     class TestNewUpdateNotification(ProjectIsParent, models.Notification):
@@ -47,7 +49,7 @@ def notification_types(models, database):
 
 
 @pytest.fixture()
-def project_fixtures(models, db_session):  # pylint: disable=too-many-locals
+def project_fixtures(db_session):  # pylint: disable=too-many-locals
     """Provide users, one org and one project, for tests on them."""
     user_owner = models.User(username='user-owner', fullname="User Owner")
     user_owner.add_email('owner@example.com')
@@ -155,7 +157,7 @@ def test_project_roles(project_fixtures) -> None:
 
 
 @pytest.fixture()
-def update(models, project_fixtures, db_session):
+def update(project_fixtures, db_session):
     """Publish an update as a fixture."""
     new_update = models.Update(
         project=project_fixtures.project,
@@ -201,7 +203,7 @@ def test_update_roles(project_fixtures, update) -> None:
 
 
 def test_update_notification_structure(
-    models, notification_types, project_fixtures, update, db_session
+    notification_types, project_fixtures, update, db_session
 ):
     """Test whether a NewUpdateNotification has the appropriate structure."""
     project_fixtures.refresh()
@@ -254,10 +256,8 @@ def test_update_notification_structure(
     assert project_fixtures.user_bystander not in all_recipients
 
 
-def test_user_notification_preferences(models, notification_types, db_session) -> None:
+def test_user_notification_preferences(notification_types, db_session) -> None:
     """Test that users have a notification_preferences dict."""
-    from sqlalchemy.exc import IntegrityError
-
     nt = notification_types  # Short var for keeping lines within 88 columns below
     user = models.User(fullname="User")
     db_session.add(user)

@@ -90,51 +90,9 @@ def views(funnel):
 
 
 @pytest.fixture(scope='session')
-def request_wants(funnel):
-    """Return request_wants as a fixture."""
-    return funnel.proxies.request_wants
-
-
-@pytest.fixture(scope='session')
 def funnel_devtest(funnel):
     """Return devtest module as a fixture."""
     return pytest.importorskip('funnel.devtest')
-
-
-@pytest.fixture(scope='session')
-def coaster():
-    """Coaster package."""
-    return pytest.importorskip('coaster')
-
-
-@pytest.fixture(scope='session')
-def baseframe():
-    """Baseframe package."""
-    return pytest.importorskip('baseframe')
-
-
-@pytest.fixture(scope='session')
-def baseframe_forms(baseframe):
-    """Baseframe forms package."""
-    return pytest.importorskip('baseframe.forms')
-
-
-@pytest.fixture(scope='session')
-def current_auth(coaster):
-    """Return current auth fixture."""
-    return coaster.auth.current_auth
-
-
-@pytest.fixture(scope='session')
-def utcnow(coaster) -> t.Callable:
-    """Return UTC timestamp function."""
-    return coaster.utils.utcnow
-
-
-@pytest.fixture(scope='session')
-def buid(coaster) -> t.Callable:
-    """Return BUID function."""
-    return coaster.utils.buid
 
 
 # --- Fixtures -------------------------------------------------------------------------

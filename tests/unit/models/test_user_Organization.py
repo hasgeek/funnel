@@ -4,8 +4,11 @@ from typing import cast
 
 import pytest
 
+from coaster.sqlalchemy import StateTransitionError
+from funnel import models
 
-def test_organization_init(models, user_twoflower) -> None:
+
+def test_organization_init(user_twoflower) -> None:
     """Test for initializing a Organization instance."""
     name = 'inn-sewer-ants'
     title = 'Inn-sewer-ants-polly-sea'
@@ -15,7 +18,7 @@ def test_organization_init(models, user_twoflower) -> None:
     assert org.name == name
 
 
-def test_organization_get(models, db_session, user_twoflower) -> None:
+def test_organization_get(db_session, user_twoflower) -> None:
     """Test for retrieving an organization."""
     name = 'inn-sewer-ants'
     title = 'Inn-sewer-ants-polly-sea'
@@ -37,9 +40,7 @@ def test_organization_get(models, db_session, user_twoflower) -> None:
     assert get_by_name_with_defercols == org
 
 
-def test_organization_all(
-    models, db_session, org_ankhmorpork, org_citywatch, org_uu
-) -> None:
+def test_organization_all(db_session, org_ankhmorpork, org_citywatch, org_uu) -> None:
     """Test for getting all organizations (takes buid or name optionally)."""
     db_session.commit()
     # scenario 1: when neither buids nor names are given
@@ -81,7 +82,7 @@ def test_organization_name(org_ankhmorpork) -> None:
     assert org_ankhmorpork.name == 'AnkhMorpork'
 
 
-def test_organization_suspend_restore(coaster, db_session, org_citywatch) -> None:
+def test_organization_suspend_restore(db_session, org_citywatch) -> None:
     """Test for an organization being suspended and restored."""
     db_session.commit()
     assert org_citywatch.state.ACTIVE
@@ -100,9 +101,9 @@ def test_organization_suspend_restore(coaster, db_session, org_citywatch) -> Non
     assert not org_citywatch.state.SUSPENDED
     assert org_citywatch.profile.is_active
 
-    with pytest.raises(coaster.sqlalchemy.StateTransitionError):
+    with pytest.raises(StateTransitionError):
         org_citywatch.mark_active()
 
     org_citywatch.mark_suspended()
-    with pytest.raises(coaster.sqlalchemy.StateTransitionError):
+    with pytest.raises(StateTransitionError):
         org_citywatch.mark_suspended()

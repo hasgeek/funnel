@@ -1,15 +1,16 @@
 """Tests for ProjectCrewMembership membership model."""
-# pylint: disable=import-outside-toplevel
+
+from sqlalchemy.exc import IntegrityError
 
 import pytest
 
+from funnel import models
+
 
 def test_project_crew_membership(
-    models, db_session, new_user, new_user_owner, new_project
+    db_session, new_user, new_user_owner, new_project
 ) -> None:
     """Test that project crew members get their roles from ProjectCrewMembership."""
-    from sqlalchemy.exc import IntegrityError
-
     # new_user is profile admin
     assert 'admin' in new_project.profile.roles_for(new_user_owner)
     # but it has no role in the project yet

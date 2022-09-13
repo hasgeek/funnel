@@ -2,10 +2,14 @@
 
 # pylint: disable=protected-access
 
+from sqlalchemy.exc import IntegrityError
+
 import pytest
 
+from funnel import models
 
-def test_scopemixin_scope(models, db_session, client_hex, user_rincewind) -> None:
+
+def test_scopemixin_scope(db_session, client_hex, user_rincewind) -> None:
     """Retrieve scope on an ScopeMixin inherited class instance via `scope`."""
     scope = 'tricks'
     token = models.AuthToken(
@@ -16,7 +20,7 @@ def test_scopemixin_scope(models, db_session, client_hex, user_rincewind) -> Non
     assert token.scope == (scope,)
 
 
-def test_scopemixin_add_scope(models, db_session, client_hex, user_rincewind) -> None:
+def test_scopemixin_add_scope(db_session, client_hex, user_rincewind) -> None:
     """Test for adding scope to a ScopeMixin inherited class instance."""
     scope1 = 'spells'
     scope2 = 'charms'
@@ -28,10 +32,8 @@ def test_scopemixin_add_scope(models, db_session, client_hex, user_rincewind) ->
     assert token.scope == (scope2, scope1)
 
 
-def test_authcode_scope_null(models, db_session, client_hex, user_rincewind) -> None:
+def test_authcode_scope_null(db_session, client_hex, user_rincewind) -> None:
     """`AuthCode` can't have null scope but can have empty scope."""
-    from sqlalchemy.exc import IntegrityError
-
     # Scope can't be None or empty
     with pytest.raises(ValueError, match='Scope cannot be None'):
         models.AuthCode(
@@ -70,10 +72,8 @@ def test_authcode_scope_null(models, db_session, client_hex, user_rincewind) -> 
         db_session.commit()
 
 
-def test_authtoken_scope_null(models, db_session, client_hex, user_rincewind) -> None:
+def test_authtoken_scope_null(db_session, client_hex, user_rincewind) -> None:
     """`AuthToken` can't have null scope but can have empty scope."""
-    from sqlalchemy.exc import IntegrityError
-
     # Scope can't be None or empty
     with pytest.raises(ValueError, match='Scope cannot be None'):
         models.AuthToken(
@@ -108,7 +108,7 @@ def test_authtoken_scope_null(models, db_session, client_hex, user_rincewind) ->
         db_session.commit()
 
 
-def test_authclient_scope_null(models, db_session, user_rincewind) -> None:
+def test_authclient_scope_null(db_session, user_rincewind) -> None:
     """`AuthClient` can have empty scope."""
     auth_client = models.AuthClient(
         user=user_rincewind,

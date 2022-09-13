@@ -7,6 +7,7 @@ from flask import Response
 import pytest
 import requests
 
+from funnel.transports import TransportConnectionError
 from funnel.transports.sms import (
     OneLineTemplate,
     make_exotel_token,
@@ -89,10 +90,10 @@ def test_exotel_nonce(client) -> None:
 
 
 @pytest.mark.requires_config('exotel')
-def test_exotel_send_error(funnel, client) -> None:
+def test_exotel_send_error(client) -> None:
     """Only tests if url_for works and usually fails otherwise, which is OK."""
     # Check False Path via monkey patching the requests object
     with patch.object(requests, 'post') as mock_method:
         mock_method.side_effect = requests.ConnectionError
-        with pytest.raises(funnel.transports.TransportConnectionError):
+        with pytest.raises(TransportConnectionError):
             send(EXOTEL_TO, MESSAGE, callback=True)

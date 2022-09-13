@@ -2,32 +2,24 @@
 
 from datetime import datetime, timedelta
 
+from werkzeug.exceptions import NotFound
+
+from dateutil.relativedelta import relativedelta
+from pytz import utc
 import pytest
 
-
-@pytest.fixture(scope='session')
-def relativedelta():
-    """Return relativedelta function as a fixture."""
-    module = pytest.importorskip('dateutil.relativedelta')
-    return module.relativedelta
+from coaster.utils import utcnow
+from funnel.views import sitemap
 
 
-@pytest.fixture(scope='session')
-def sitemap(views):
-    """Return sitemap views."""
-    return views.sitemap
-
-
-def test_string_changefreq(sitemap) -> None:
+def test_string_changefreq() -> None:
     """The ChangeFreq enum can be cast to and compared with str."""
     assert sitemap.ChangeFreq.daily == 'daily'
     assert str(sitemap.ChangeFreq.daily) == 'daily'
 
 
-def test_dates_have_timezone(utcnow, sitemap) -> None:
+def test_dates_have_timezone() -> None:
     """Sitemap month and date functions require UTC timestamps."""
-    from pytz import utc
-
     aware_now = utcnow()
     naive_now = aware_now.replace(tzinfo=None)
 
@@ -47,12 +39,8 @@ def test_dates_have_timezone(utcnow, sitemap) -> None:
         sitemap.all_sitemap_days(naive_now)
 
 
-def test_all_sitemap_months_days(  # pylint: disable=too-many-statements
-    sitemap,
-) -> None:
+def test_all_sitemap_months_days() -> None:  # pylint: disable=too-many-statements
     """The sitemap months and days ranges are contiguous."""
-    from pytz import utc
-
     # Test dates 14, 15, 16 & 17, at midnight and noon, to see month/day rollover
 
     until = utc.localize(datetime(2020, 10, 14))
@@ -120,12 +108,8 @@ def test_all_sitemap_months_days(  # pylint: disable=too-many-statements
     assert months[-1] == sitemap.earliest_date
 
 
-def test_validate_daterange(utcnow, relativedelta, sitemap) -> None:
+def test_validate_daterange() -> None:
     """Test the values that validate_dayrange accepts."""
-    from werkzeug.exceptions import NotFound
-
-    from pytz import utc
-
     # String dates are accepted
     assert sitemap.validate_daterange('2015', '11', '05') == (
         utc.localize(datetime(2015, 11, 5)),
@@ -209,7 +193,7 @@ def test_validate_daterange(utcnow, relativedelta, sitemap) -> None:
         sitemap.validate_daterange('2015', '11', 'invalid')
 
 
-def test_changefreq_for_age(sitemap) -> None:
+def test_changefreq_for_age() -> None:
     """Test that changefreq is age-appropriate."""
     # Less than a day
     assert sitemap.changefreq_for_age(timedelta(hours=1)) == sitemap.ChangeFreq.hourly

@@ -3,6 +3,9 @@
 
 import pytest
 
+from coaster.utils import uuid_b58
+from funnel import models
+
 from .event_models_fixtures import (
     event_ticket_types,
     ticket_list,
@@ -11,7 +14,7 @@ from .event_models_fixtures import (
 )
 
 
-def bulk_upsert(models, project, ticket_event_list):
+def bulk_upsert(project, ticket_event_list):
     for ticket_event_dict in ticket_event_list:
         ticket_event = models.TicketEvent.upsert(
             project,
@@ -33,12 +36,12 @@ def bulk_upsert(models, project, ticket_event_list):
 @pytest.mark.usefixtures('db_session')
 class TestEventModels:
     @pytest.fixture(autouse=True)
-    def _fixture_setup(self, models, coaster, request, db_session, app):
+    def _fixture_setup(self, request, db_session, app):
         self.db_session = db_session
         self.ctx = app.test_request_context()
         self.ctx.push()
         # Initial Setup
-        random_user_id = coaster.utils.uuid_b58()
+        random_user_id = uuid_b58()
         self.user = models.User(
             username=f'lukes{random_user_id.lower()}',
             fullname="Luke Skywalker",
@@ -75,7 +78,7 @@ class TestEventModels:
         self.db_session.add(self.ticket_client)
         self.db_session.commit()
 
-        bulk_upsert(models, self.project, event_ticket_types)
+        bulk_upsert(self.project, event_ticket_types)
         self.db_session.commit()
 
         self.session = self.db_session
@@ -84,7 +87,7 @@ class TestEventModels:
         def tearDown():
             self.ctx.pop()
 
-    def test_import_from_list(self, models) -> None:
+    def test_import_from_list(self) -> None:
         # test bookings
         self.ticket_client.import_from_list(ticket_list)
         p1 = models.TicketParticipant.query.filter_by(

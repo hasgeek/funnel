@@ -4,8 +4,11 @@ from datetime import timedelta
 
 import pytest
 
+from coaster.utils import utcnow
+from funnel import models
 
-def test_user(models, db_session) -> None:
+
+def test_user(db_session) -> None:
     """Test for creation of user object from User model."""
     user = models.User(username='hrun', fullname="Hrun the Barbarian")
     db_session.add(user)
@@ -24,9 +27,7 @@ def test_user_pickername(user_twoflower, user_rincewind) -> None:
     assert user_rincewind.pickername == "Rincewind (@rincewind)"
 
 
-def test_user_is_profile_complete(
-    models, db_session, user_twoflower, user_rincewind
-) -> None:
+def test_user_is_profile_complete(db_session, user_twoflower, user_rincewind) -> None:
     """
     Test to check if user profile is complete.
 
@@ -61,7 +62,7 @@ def test_user_organization_owned(user_ridcully, org_uu) -> None:
     assert list(user_ridcully.organizations_as_owner) == [org_uu]
 
 
-def test_user_email(models, db_session, user_twoflower) -> None:
+def test_user_email(db_session, user_twoflower) -> None:
     """Add and retrieve an email address."""
     assert user_twoflower.email == ''
     useremail = user_twoflower.add_email('twoflower@example.org')
@@ -135,7 +136,7 @@ def test_user_del_email(db_session, user_twoflower) -> None:
     assert user_twoflower.email == ''
 
 
-def test_user_phone(models, db_session, user_twoflower) -> None:
+def test_user_phone(db_session, user_twoflower) -> None:
     """Test to retrieve UserPhone property phone."""
     assert user_twoflower.phone == ''
     userphone = user_twoflower.add_phone('+12345678900')
@@ -210,7 +211,7 @@ def test_user_del_phone(db_session, user_twoflower) -> None:
 
 
 def test_user_autocomplete(
-    models, db_session, user_twoflower, user_rincewind, user_dibbler, user_librarian
+    db_session, user_twoflower, user_rincewind, user_dibbler, user_librarian
 ):
     """
     Test for User autocomplete method.
@@ -250,7 +251,6 @@ def test_user_autocomplete(
 
 @pytest.mark.parametrize('defercols', [False, True])
 def test_user_all(  # pylint: disable=too-many-arguments
-    models,
     db_session,
     user_twoflower,
     user_rincewind,
@@ -360,7 +360,7 @@ def test_user_password(user_twoflower) -> None:
     assert user_twoflower.password_is('wrong-password') is False
 
 
-def test_user_password_has_expired(utcnow, db_session, user_twoflower) -> None:
+def test_user_password_has_expired(db_session, user_twoflower) -> None:
     """Test to check if password for a user has expired."""
     assert user_twoflower.pw_hash is None
     user_twoflower.password = 'test-password'  # nosec
@@ -400,7 +400,7 @@ def test_password_not_truncated(user_twoflower) -> None:
     assert not user_twoflower.password_is('1' * 999 + 'b')
 
 
-def test_user_merged_user(models, db_session, user_death, user_rincewind) -> None:
+def test_user_merged_user(db_session, user_death, user_rincewind) -> None:
     """Test for checking if user had a old id."""
     db_session.commit()
     assert user_death.state.ACTIVE
@@ -411,9 +411,7 @@ def test_user_merged_user(models, db_session, user_death, user_rincewind) -> Non
     assert {o.uuid for o in user_death.oldids} == {user_rincewind.uuid}
 
 
-def test_user_get(
-    models, db_session, user_twoflower, user_rincewind, user_death
-) -> None:
+def test_user_get(db_session, user_twoflower, user_rincewind, user_death) -> None:
     """Test for User's get method."""
     # scenario 1: if both username and buid not passed
     db_session.commit()

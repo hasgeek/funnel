@@ -1,5 +1,4 @@
 """Tests for view helpers."""
-# pylint: disable=import-outside-toplevel
 
 from base64 import urlsafe_b64decode
 from datetime import datetime, timezone
@@ -10,12 +9,10 @@ from urllib.parse import urlsplit
 from flask import Flask, request
 from werkzeug.routing import BuildError
 
+from furl import furl
 import pytest
 
-
-@pytest.fixture(scope='session')
-def vhelpers(views):
-    return views.helpers
+import funnel.views.helpers as vhelpers
 
 
 @pytest.fixture()
@@ -44,7 +41,7 @@ class MockUrandom:
         return value
 
 
-def test_app_url_for(app, testapp, vhelpers) -> None:
+def test_app_url_for(app, testapp) -> None:
     """Test that app_url_for works cross-app and in-app."""
     # App context is not necessary to use app_url_for
     url = vhelpers.app_url_for(app, 'index')
@@ -79,7 +76,7 @@ def test_app_url_for(app, testapp, vhelpers) -> None:
         assert change_password_url2 == change_password_url
 
 
-def test_validate_is_app_url(app, vhelpers) -> None:
+def test_validate_is_app_url(app) -> None:
     """Local URL validator compares a URL against the URL map."""
     with app.test_request_context():
         assert vhelpers.validate_is_app_url('/full/url/required') is False
@@ -107,10 +104,8 @@ def test_validate_is_app_url(app, vhelpers) -> None:
     # 3. host_matching enabled
 
 
-def test_urlclean_filter(vhelpers) -> None:
+def test_urlclean_filter() -> None:
     """The cleanurl filter produces compact browser-like URLs."""
-    from furl import furl
-
     assert (
         vhelpers.cleanurl_filter(furl("https://example.com/some/path/?query=value"))
         == "example.com/some/path"
@@ -150,7 +145,7 @@ def test_urlclean_filter(vhelpers) -> None:
     assert vhelpers.cleanurl_filter("") == ""
 
 
-def test_cached_token(vhelpers) -> None:
+def test_cached_token() -> None:
     """Test simplistic use of cached tokens (for SMS unsubscribe)."""
     test_payload = {
         'hello': 'world',
@@ -166,7 +161,7 @@ def test_cached_token(vhelpers) -> None:
     assert vhelpers.retrieve_cached_token(token) is None
 
 
-def test_cached_token_profanity_reuse(vhelpers) -> None:
+def test_cached_token_profanity_reuse() -> None:
     """Test with a mock for the profanity filter and reuse filter in cached tokens."""
     mockids = MockUrandom(
         [
@@ -194,7 +189,7 @@ def test_cached_token_profanity_reuse(vhelpers) -> None:
         mockid.reset_mock()
 
 
-def test_compress_decompress(vhelpers) -> None:
+def test_compress_decompress() -> None:
     """Test compress and decompress function on sample data."""
     # Compression is only effective on larger inputs, so the outputs here may be
     # larger than inputs.

@@ -3,17 +3,19 @@
 import base58
 import pytest
 
+from funnel import models
+
 from .test_db import TestDatabaseFixture
 
 
 class TestUserEmail(TestDatabaseFixture):
-    def test_useremail(self, models) -> None:
+    def test_useremail(self) -> None:
         """Test for verifying creation of UserEmail object."""
         oakley = self.fixtures.oakley
         oakley_new_email = models.user.UserEmail(user=oakley, email='oakley@batdog.ca')
         assert isinstance(oakley_new_email, models.user.UserEmail)
 
-    def test_useremail_get(self, models) -> None:
+    def test_useremail_get(self) -> None:
         """Test for `UserEmail.get` against email, blake2b160 digest and hex hash."""
         crusoe = self.fixtures.crusoe
         email = crusoe.email.email
@@ -44,7 +46,7 @@ class TestUserEmail(TestDatabaseFixture):
         crusoe = self.fixtures.crusoe
         assert crusoe.email.email == str(crusoe.email)
 
-    def test_useremail_email(self, models) -> None:
+    def test_useremail_email(self) -> None:
         """Test for verifying UserEmail instance's email property."""
         oakley = self.fixtures.oakley
         email = 'oakley@batdogs.ca'

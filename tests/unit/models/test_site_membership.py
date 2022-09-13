@@ -1,7 +1,10 @@
 """Tests for SiteMembership model."""
-# pylint: disable=import-outside-toplevel
+
+from sqlalchemy.exc import IntegrityError
 
 import pytest
+
+from funnel import models
 
 
 def invalidate_cache(user):
@@ -19,10 +22,8 @@ def invalidate_cache(user):
             pass
 
 
-def test_siteadmin_roles(models, db_session, user_mort, user_death) -> None:
+def test_siteadmin_roles(db_session, user_mort, user_death) -> None:
     """`SiteMembership` grants siteadmin roles."""
-    from sqlalchemy.exc import IntegrityError
-
     assert user_mort.active_site_membership is None
     assert user_mort.is_site_admin is False
     assert user_mort.is_comment_moderator is False
@@ -87,7 +88,7 @@ def test_siteadmin_roles(models, db_session, user_mort, user_death) -> None:
 
 
 def test_site_membership_migrate_user_transfer(
-    models, db_session, user_death, user_mort
+    db_session, user_death, user_mort
 ) -> None:
     """Test for transfer of a site membership when merging users."""
     assert user_mort.active_site_membership is None
@@ -122,9 +123,7 @@ def test_site_membership_migrate_user_transfer(
     assert user_death.active_site_membership is not None
 
 
-def test_site_membership_migrate_user_retain(
-    models, db_session, user_death, user_mort
-) -> None:
+def test_site_membership_migrate_user_retain(db_session, user_death, user_mort) -> None:
     """Test for retaining a site membership when merging users."""
     assert user_mort.active_site_membership is None
     assert user_death.active_site_membership is None
@@ -177,9 +176,7 @@ def test_site_membership_migrate_user_retain(
     assert user_death.active_site_membership is not None
 
 
-def test_site_membership_migrate_user_merge(
-    models, db_session, user_death, user_mort
-) -> None:
+def test_site_membership_migrate_user_merge(db_session, user_death, user_mort) -> None:
     """Test for merging site memberships when merging users."""
     assert user_mort.active_site_membership is None
     assert user_death.active_site_membership is None
@@ -234,7 +231,7 @@ def test_site_membership_migrate_user_merge(
     assert membership.is_site_editor is False  # This was not granted to either user
 
 
-def test_amend_siteadmin(models, db_session, user_vetinari, user_vimes) -> None:
+def test_amend_siteadmin(db_session, user_vetinari, user_vimes) -> None:
     """Amend a membership record."""
     membership = models.SiteMembership(
         user=user_vimes,

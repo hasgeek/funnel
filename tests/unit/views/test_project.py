@@ -1,14 +1,9 @@
 """Test Project views."""
 
-import pytest
+from funnel.views.project import get_registration_text
 
 
-@pytest.fixture()
-def get_registration_text(views):
-    return views.project.get_registration_text
-
-
-def test_registration_text(get_registration_text) -> None:
+def test_registration_text() -> None:
     assert get_registration_text(count=0, registered=False).startswith("Be the first")
     assert get_registration_text(count=1, registered=True).startswith("You have")
     assert get_registration_text(count=1, registered=False).startswith("One")

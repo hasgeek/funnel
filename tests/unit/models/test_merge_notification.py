@@ -1,14 +1,17 @@
 """Tests for merging notifications with user account merger."""
-# pylint: disable=possibly-unused-variable,import-outside-toplevel
 
 from datetime import timedelta
 from types import SimpleNamespace
 
+import sqlalchemy as sa
+
 import pytest
+
+from funnel import models
 
 
 @pytest.fixture(scope='session')
-def fixture_notification_type(models, database):
+def fixture_notification_type(database):
     class MergeTestNotification(models.Notification):
         """Test notification."""
 
@@ -19,9 +22,8 @@ def fixture_notification_type(models, database):
 
 
 @pytest.fixture()
-def fixtures(models, db_session):
-    import sqlalchemy as sa
-
+def fixtures(db_session):
+    # pylint: disable=possibly-unused-variable
     owner = models.User(
         username='owner',
         fullname="Org Owner",
@@ -47,7 +49,7 @@ def fixtures(models, db_session):
 
 
 @pytest.fixture()
-def notification(models, db_session, fixtures):
+def notification(db_session, fixtures):
     new_notification = models.OrganizationAdminMembershipNotification(
         document=fixtures.org, fragment=fixtures.membership
     )
@@ -57,7 +59,7 @@ def notification(models, db_session, fixtures):
 
 
 @pytest.fixture()
-def user1_notification(models, db_session, fixtures, notification):
+def user1_notification(db_session, fixtures, notification):
     un = models.UserNotification(
         eventid=notification.eventid,
         user_id=fixtures.user1.id,
@@ -70,7 +72,7 @@ def user1_notification(models, db_session, fixtures, notification):
 
 
 @pytest.fixture()
-def user2_notification(models, db_session, fixtures, notification):
+def user2_notification(db_session, fixtures, notification):
     un = models.UserNotification(
         eventid=notification.eventid,
         user_id=fixtures.user2.id,
@@ -83,7 +85,7 @@ def user2_notification(models, db_session, fixtures, notification):
 
 
 @pytest.fixture()
-def user1_main_preferences(models, db_session, fixtures):
+def user1_main_preferences(db_session, fixtures):
     prefs = models.NotificationPreferences(user=fixtures.user1, notification_type='')
     db_session.add(prefs)
     db_session.commit()
@@ -91,7 +93,7 @@ def user1_main_preferences(models, db_session, fixtures):
 
 
 @pytest.fixture()
-def user1_test_preferences(models, db_session, fixtures, fixture_notification_type):
+def user1_test_preferences(db_session, fixtures, fixture_notification_type):
     prefs = models.NotificationPreferences(
         user=fixtures.user1, notification_type='merge_test'
     )
@@ -101,7 +103,7 @@ def user1_test_preferences(models, db_session, fixtures, fixture_notification_ty
 
 
 @pytest.fixture()
-def user2_main_preferences(models, db_session, fixtures):
+def user2_main_preferences(db_session, fixtures):
     prefs = models.NotificationPreferences(user=fixtures.user2, notification_type='')
     db_session.add(prefs)
     db_session.commit()
@@ -109,7 +111,7 @@ def user2_main_preferences(models, db_session, fixtures):
 
 
 @pytest.fixture()
-def user2_test_preferences(models, db_session, fixtures, fixture_notification_type):
+def user2_test_preferences(db_session, fixtures, fixture_notification_type):
     prefs = models.NotificationPreferences(
         user=fixtures.user2, notification_type='merge_test'
     )
@@ -121,7 +123,7 @@ def user2_test_preferences(models, db_session, fixtures, fixture_notification_ty
 # --- Tests for UserNotification -------------------------------------------------------
 
 
-def test_merge_without_notifications(models, db_session, fixtures) -> None:
+def test_merge_without_notifications(db_session, fixtures) -> None:
     """Merge without any notifications works."""
     assert models.Notification.query.count() == 0
     assert models.UserNotification.query.count() == 0
@@ -133,7 +135,7 @@ def test_merge_without_notifications(models, db_session, fixtures) -> None:
 
 
 def test_merge_with_user1_notifications(
-    models, db_session, fixtures, user1_notification
+    db_session, fixtures, user1_notification
 ) -> None:
     """Merge without only user1 notifications works."""
     assert models.Notification.query.count() == 1
@@ -147,7 +149,7 @@ def test_merge_with_user1_notifications(
 
 
 def test_merge_with_user2_notifications(
-    models, db_session, fixtures, user2_notification
+    db_session, fixtures, user2_notification
 ) -> None:
     """Merge without only user2 notifications gets it transferred to user1."""
     assert models.Notification.query.count() == 1
@@ -167,7 +169,7 @@ def test_merge_with_user2_notifications(
 
 
 def test_merge_with_dupe_notifications(
-    models, db_session, fixtures, user1_notification, user2_notification
+    db_session, fixtures, user1_notification, user2_notification
 ):
     """Merge without dupe notifications gets one deleted."""
     assert models.Notification.query.count() == 1
@@ -185,7 +187,7 @@ def test_merge_with_dupe_notifications(
 
 
 def test_merge_with_user1_preferences(
-    models, db_session, fixtures, user1_main_preferences, user1_test_preferences
+    db_session, fixtures, user1_main_preferences, user1_test_preferences
 ):
     """When preferences are only on the older user's account, nothing changes."""
     assert models.NotificationPreferences.query.count() == 2
@@ -198,7 +200,7 @@ def test_merge_with_user1_preferences(
 
 
 def test_merge_with_user2_preferences(
-    models, db_session, fixtures, user2_main_preferences, user2_test_preferences
+    db_session, fixtures, user2_main_preferences, user2_test_preferences
 ):
     """When preferences are only on the newer user's account, they are transferred."""
     assert models.NotificationPreferences.query.count() == 2
@@ -211,7 +213,6 @@ def test_merge_with_user2_preferences(
 
 
 def test_merge_with_both_preferences(  # pylint: disable=too-many-arguments
-    models,
     db_session,
     fixtures,
     user1_main_preferences,
@@ -232,7 +233,6 @@ def test_merge_with_both_preferences(  # pylint: disable=too-many-arguments
 
 
 def test_merge_with_mixed_preferences(
-    models,
     db_session,
     fixtures,
     user1_main_preferences,

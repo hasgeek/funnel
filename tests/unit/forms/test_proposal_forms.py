@@ -1,9 +1,10 @@
 """Tests for Proposal forms."""
 # pylint: disable=too-many-arguments
 
+from funnel import models
+
 
 def test_proposal_label_admin_form(
-    models,
     forms,
     app,
     new_main_label,
@@ -39,7 +40,6 @@ def test_proposal_label_admin_form(
 
 
 def test_proposal_label_form(
-    models,
     forms,
     app,
     new_main_label,

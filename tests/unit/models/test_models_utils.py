@@ -1,9 +1,9 @@
 """Tests for model processing utilities."""
 
+from funnel import models
 
-def test_merge_users_older_newer(
-    models, db_session, user_death, user_rincewind
-) -> None:
+
+def test_merge_users_older_newer(db_session, user_death, user_rincewind) -> None:
     """Test to verify merger of user accounts and return new user (older first)."""
     # Scenario 1: if first user's created_at date is older than second user's
     # created_at
@@ -16,9 +16,7 @@ def test_merge_users_older_newer(
     assert user_rincewind.state.MERGED
 
 
-def test_merge_users_newer_older(
-    models, db_session, user_death, user_rincewind
-) -> None:
+def test_merge_users_newer_older(db_session, user_death, user_rincewind) -> None:
     """Test to verify merger of user accounts and return new user (newer first)."""
     # Scenario 2: if second user's created_at date is older than first user's
     # created_at
@@ -32,7 +30,7 @@ def test_merge_users_newer_older(
 
 
 def test_getuser(  # pylint: disable=too-many-statements
-    models, db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
+    db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
 ):
     """Test for retrieving a user from a username, email address or phone number."""
     # Confirm fixtures are as we need them to be
@@ -128,7 +126,7 @@ def test_getuser(  # pylint: disable=too-many-statements
 
 
 def test_getuser_anchor(
-    models, db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
+    db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
 ):
     """Test for retrieving a user from a username, email address or phone number."""
     # Confirm fixtures are as we need them to be
@@ -220,7 +218,7 @@ def test_getuser_anchor(
     assert models.getuser('+912345678901', True) == (None, None)
 
 
-def test_getextid(models, db_session, user_rincewind) -> None:
+def test_getextid(db_session, user_rincewind) -> None:
     """Retrieve user given service and userid."""
     service = 'sample-service'
     userid = 'rincewind@sample-service'

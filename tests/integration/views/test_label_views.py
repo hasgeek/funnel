@@ -1,6 +1,8 @@
 """Test Label views."""
 # pylint: disable=too-many-arguments
 
+from funnel import models
+
 
 def test_manage_labels_view(
     app, client, login, new_project, new_user, new_label, new_main_label
@@ -27,7 +29,7 @@ def test_edit_option_label_view(app, client, login, new_user, new_main_label) ->
 # tests in those classes.
 
 
-def test_main_label_delete(models, app, client, login, new_user, new_label) -> None:
+def test_main_label_delete(app, client, login, new_user, new_label) -> None:
     login.as_(new_user)
     with app.app_context():
         resp = client.post(new_label.url_for('delete'), follow_redirects=True)
@@ -37,9 +39,7 @@ def test_main_label_delete(models, app, client, login, new_user, new_label) -> N
     assert label is None
 
 
-def test_optioned_label_delete(
-    models, app, client, login, new_user, new_main_label
-) -> None:
+def test_optioned_label_delete(app, client, login, new_user, new_main_label) -> None:
     login.as_(new_user)
     label_a1 = new_main_label.options[0]
     label_a2 = new_main_label.options[1]

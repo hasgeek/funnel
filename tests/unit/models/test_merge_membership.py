@@ -2,9 +2,11 @@
 
 import pytest
 
+from funnel import models
+
 
 @pytest.fixture()
-def death_membership(models, db_session, org_ankhmorpork, user_death):
+def death_membership(db_session, org_ankhmorpork, user_death):
     membership = models.OrganizationMembership(
         organization=org_ankhmorpork, user=user_death
     )
@@ -14,7 +16,7 @@ def death_membership(models, db_session, org_ankhmorpork, user_death):
 
 
 @pytest.fixture()
-def death_owner_membership(models, db_session, org_ankhmorpork, user_death):
+def death_owner_membership(db_session, org_ankhmorpork, user_death):
     membership = models.OrganizationMembership(
         organization=org_ankhmorpork, user=user_death, is_owner=True
     )
@@ -24,7 +26,7 @@ def death_owner_membership(models, db_session, org_ankhmorpork, user_death):
 
 
 @pytest.fixture()
-def rincewind_membership(models, db_session, org_ankhmorpork, user_rincewind):
+def rincewind_membership(db_session, org_ankhmorpork, user_rincewind):
     membership = models.OrganizationMembership(
         organization=org_ankhmorpork, user=user_rincewind
     )
@@ -34,7 +36,7 @@ def rincewind_membership(models, db_session, org_ankhmorpork, user_rincewind):
 
 
 @pytest.fixture()
-def rincewind_owner_membership(models, db_session, org_ankhmorpork, user_rincewind):
+def rincewind_owner_membership(db_session, org_ankhmorpork, user_rincewind):
     membership = models.OrganizationMembership(
         organization=org_ankhmorpork, user=user_rincewind, is_owner=True
     )
@@ -47,7 +49,7 @@ def rincewind_owner_membership(models, db_session, org_ankhmorpork, user_rincewi
 
 
 def test_merge_without_membership(
-    models, db_session, org_ankhmorpork, user_death, user_vetinari, user_rincewind
+    db_session, org_ankhmorpork, user_death, user_vetinari, user_rincewind
 ) -> None:
     """Merge without any memberships works."""
     assert org_ankhmorpork.active_admin_memberships.count() == 1
@@ -61,7 +63,6 @@ def test_merge_without_membership(
 
 
 def test_merge_with_death_membership(  # pylint: disable=too-many-arguments
-    models,
     db_session,
     org_ankhmorpork,
     user_death,
@@ -83,7 +84,6 @@ def test_merge_with_death_membership(  # pylint: disable=too-many-arguments
 
 
 def test_merge_with_rincewind_membership(  # pylint: disable=too-many-arguments
-    models,
     db_session,
     org_ankhmorpork,
     user_death,
@@ -105,7 +105,6 @@ def test_merge_with_rincewind_membership(  # pylint: disable=too-many-arguments
 
 
 def test_merge_with_admin_membership(  # pylint: disable=too-many-arguments
-    models,
     db_session,
     org_ankhmorpork,
     user_death,
@@ -134,7 +133,6 @@ def test_merge_with_admin_membership(  # pylint: disable=too-many-arguments
 
 
 def test_merge_with_death_owner_membership(  # pylint: disable=too-many-arguments
-    models,
     db_session,
     org_ankhmorpork,
     user_death,
@@ -163,7 +161,6 @@ def test_merge_with_death_owner_membership(  # pylint: disable=too-many-argument
 
 
 def test_merge_with_rincewind_owner_membership(  # pylint: disable=too-many-arguments
-    models,
     db_session,
     org_ankhmorpork,
     user_death,
@@ -192,7 +189,6 @@ def test_merge_with_rincewind_owner_membership(  # pylint: disable=too-many-argu
 
 
 def test_merge_with_owner_membership(  # pylint: disable=too-many-arguments
-    models,
     db_session,
     org_ankhmorpork,
     user_death,
@@ -225,7 +221,6 @@ def test_merge_with_owner_membership(  # pylint: disable=too-many-arguments
 
 
 def test_merge_multiple_memberships(  # pylint: disable=too-many-arguments
-    models,
     db_session,
     org_ankhmorpork,
     org_uu,

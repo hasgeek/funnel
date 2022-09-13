@@ -1,10 +1,12 @@
 """Tests for AuthClientTeamPermissions model."""
 
+from funnel import models
+
 from .test_db import TestDatabaseFixture
 
 
 class TestTeamClientPermissions(TestDatabaseFixture):
-    def test_teamclientpermissions(self, models) -> None:
+    def test_teamclientpermissions(self) -> None:
         """Test for verifying creation of TeamClientPermissions' instance."""
         result = models.AuthClientTeamPermissions()
         assert isinstance(result, models.AuthClientTeamPermissions)

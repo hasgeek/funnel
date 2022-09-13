@@ -6,10 +6,11 @@ from werkzeug.datastructures import MultiDict
 
 import pytest
 
+from funnel import models
+
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_same(
-    models,
     client,
     db_session,
     login,
@@ -87,7 +88,6 @@ def test_comment_report_same(
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_opposing(
-    models,
     client,
     db_session,
     login,
@@ -165,7 +165,6 @@ def test_comment_report_opposing(
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_majority_spam(
-    models,
     client,
     db_session,
     login,
@@ -255,7 +254,6 @@ def test_comment_report_majority_spam(
 
 @pytest.mark.usefixtures('app_context')
 def test_comment_report_majority_ok(
-    models,
     client,
     db_session,
     login,

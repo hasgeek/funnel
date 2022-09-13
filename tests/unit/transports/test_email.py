@@ -1,5 +1,8 @@
 """Test email transport functions."""
-# pylint: disable=import-outside-toplevel
+
+from flask_mailman.message import sanitize_address
+
+from funnel.transports.email import process_recipient
 
 
 def test_process_recipient() -> None:
@@ -11,10 +14,6 @@ def test_process_recipient() -> None:
     before returning it. It will always work in a given Python version, but this test
     can't assert the exact output. FIXME: Needs a consistent implementation and test.
     """
-    from flask_mailman.message import sanitize_address
-
-    from funnel.transports.email import process_recipient
-
     assert bool(
         sanitize_address(
             process_recipient(

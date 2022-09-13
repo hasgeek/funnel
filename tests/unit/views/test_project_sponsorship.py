@@ -3,9 +3,11 @@
 
 import pytest
 
+from funnel import models
+
 
 @pytest.fixture()
-def org_uu_sponsorship(models, db_session, user_vetinari, org_uu, project_expo2010):
+def org_uu_sponsorship(db_session, user_vetinari, org_uu, project_expo2010):
     sponsorship = models.ProjectSponsorMembership(
         granted_by=user_vetinari,
         profile=org_uu.profile,
@@ -19,7 +21,7 @@ def org_uu_sponsorship(models, db_session, user_vetinari, org_uu, project_expo20
 
 
 @pytest.fixture()
-def user_vetinari_site_editor(models, db_session, user_vetinari):
+def user_vetinari_site_editor(db_session, user_vetinari):
     site_editor = models.SiteMembership(
         user=user_vetinari, granted_by=user_vetinari, is_site_editor=True
     )
@@ -29,7 +31,7 @@ def user_vetinari_site_editor(models, db_session, user_vetinari):
 
 
 @pytest.fixture()
-def user_twoflower_not_site_editor(models, db_session, user_twoflower):
+def user_twoflower_not_site_editor(db_session, user_twoflower):
     not_site_editor = models.SiteMembership(
         user=user_twoflower, granted_by=user_twoflower, is_comment_moderator=True
     )
@@ -62,7 +64,6 @@ def test_check_site_editor_edit_sponsorship(  # pylint: disable=too-many-argumen
     ],
 )
 def test_sponsorship_add(  # pylint: disable=too-many-arguments
-    models,
     app,
     client,
     login,
@@ -100,7 +101,6 @@ def test_sponsorship_add(  # pylint: disable=too-many-arguments
 
 
 def test_sponsorship_edit(
-    models,
     app,
     client,
     login,
@@ -130,7 +130,6 @@ def test_sponsorship_edit(
 
 
 def test_sponsorship_remove(  # pylint: disable=too-many-arguments
-    models,
     db_session,
     app,
     client,

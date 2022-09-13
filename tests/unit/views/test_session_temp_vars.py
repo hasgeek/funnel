@@ -5,11 +5,15 @@ import time
 
 import pytest
 
+from coaster.utils import utcnow
+
 test_timeout_seconds = 1
 
+from funnel.views.helpers import SessionTimeouts, session_timeouts
 
-def test_session_timeouts_dict(views) -> None:
-    st = views.helpers.SessionTimeouts()
+
+def test_session_timeouts_dict() -> None:
+    st = SessionTimeouts()
     assert isinstance(st.keys_at, set)
     assert st == {}  # pylint: disable=use-implicit-booleaness-not-comparison
     assert st.keys_at == set()
@@ -36,8 +40,8 @@ def test_session_timeouts_dict(views) -> None:
     assert st.keys_at == {'test_at'}
 
 
-def test_session_intersection(views) -> None:
-    st = views.helpers.SessionTimeouts()
+def test_session_intersection() -> None:
+    st = SessionTimeouts()
     st['test'] = timedelta(seconds=1)
     fake_session_intersection = {'test': 'value', 'other': 'other_value'}
     fake_session_disjoint = {'other': 'other_value', 'yet_other': 'yet_other_value'}
@@ -47,16 +51,14 @@ def test_session_intersection(views) -> None:
 
 
 @pytest.fixture()
-def _timeout_var(views):
-    views.helpers.session_timeouts['test_timeout'] = timedelta(
-        seconds=test_timeout_seconds
-    )
+def _timeout_var():
+    session_timeouts['test_timeout'] = timedelta(seconds=test_timeout_seconds)
     yield
-    views.helpers.session_timeouts.pop('test_timeout')
+    session_timeouts.pop('test_timeout')
 
 
 @pytest.mark.usefixtures('_timeout_var')
-def test_session_temp_vars(utcnow, client) -> None:
+def test_session_temp_vars(client) -> None:
     with client.session_transaction() as session:
         assert 'test_timeout' not in session
         assert 'test_timeout_at' not in session

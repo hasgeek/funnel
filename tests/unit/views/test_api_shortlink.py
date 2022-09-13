@@ -1,9 +1,11 @@
 """Test shortlink API views."""
-# pylint: disable=import-outside-toplevel
 
 from flask import url_for
 
+from furl import furl
 import pytest
+
+from funnel import models
 
 
 @pytest.fixture()
@@ -13,7 +15,7 @@ def create_shortlink(app_context):
 
 
 @pytest.fixture()
-def user_rincewind_site_editor(models, db_session, user_rincewind):
+def user_rincewind_site_editor(db_session, user_rincewind):
     sm = models.SiteMembership(
         user=user_rincewind, granted_by=user_rincewind, is_site_editor=True
     )
@@ -51,8 +53,6 @@ def test_create_invalid_shortlink(app, client, user_rincewind, create_shortlink)
 
 def test_create_shortlink(app, client, user_rincewind, create_shortlink):
     """Creating a shortlink via API with valid data will pass."""
-    from furl import furl
-
     # A valid URL to an app path will be accepted
     rv = client.post(
         create_shortlink, data={'url': user_rincewind.profile.url_for(_external=True)}
@@ -90,8 +90,6 @@ def test_create_shortlink(app, client, user_rincewind, create_shortlink):
 
 
 def test_create_shortlink_longer(app, client, user_rincewind, create_shortlink):
-    from furl import furl
-
     rv = client.post(
         create_shortlink,
         data={'url': user_rincewind.profile.url_for(_external=True), 'shorter': '0'},
@@ -116,7 +114,7 @@ def test_create_shortlink_name_unauthorized(client, user_rincewind, create_short
 
 
 @pytest.mark.usefixtures('user_rincewind_site_editor')
-def test_create_shortlink_name_authorized(
+def test_create_shortlink_name_authorized(  # pylint: disable=too-many-arguments
     shortlinkapp, client, login, user_rincewind, user_wolfgang, create_shortlink
 ):
     """Asking for a custom name will work for site editors."""

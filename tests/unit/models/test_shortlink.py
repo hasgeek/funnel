@@ -1,5 +1,4 @@
 """Test Shortlink model."""
-# pylint: disable=import-outside-toplevel
 
 # The example URLs used here are as per RFC 2606 and RFC 6761
 # https://datatracker.ietf.org/doc/html/rfc2606#section-3
@@ -8,7 +7,10 @@
 from typing import Any
 from unittest.mock import patch
 
+from furl import furl
 import pytest
+
+from funnel import models
 
 
 class MockRandomBigint:
@@ -24,7 +26,7 @@ class MockRandomBigint:
         return value
 
 
-def test_random_bigint(models) -> None:
+def test_random_bigint() -> None:
     """Random numbers are within expected range (this test depends on luck)."""
     randset = set()
     for _loop in range(1000):
@@ -37,7 +39,7 @@ def test_random_bigint(models) -> None:
     assert 998 <= len(randset) <= 1000
 
 
-def test_smaller_random_int(models) -> None:
+def test_smaller_random_int() -> None:
     """Smaller random numbers are within expected range (this test depends on luck)."""
     randset = set()
     for _loop in range(1000):
@@ -50,7 +52,7 @@ def test_smaller_random_int(models) -> None:
     assert 998 <= len(randset) <= 1000
 
 
-def test_mock_random_bigint(models) -> None:
+def test_mock_random_bigint() -> None:
     """Test that MockRandomBigint works as expected."""
     prng_values = [43, 123, 5345, 123, 5435]
     mockfunc = MockRandomBigint(prng_values)
@@ -74,10 +76,8 @@ def test_mock_random_bigint(models) -> None:
         ('https://example.com/', 'https://example.com'),
     ],
 )
-def test_url_hash_is_normalized(models, lhs, rhs) -> None:
+def test_url_hash_is_normalized(lhs, rhs) -> None:
     """URL hash is normalized and handles furl objects."""
-    from furl import furl
-
     assert models.shortlink.url_blake2b160_hash(
         lhs
     ) == models.shortlink.url_blake2b160_hash(rhs)
@@ -89,10 +89,8 @@ def test_url_hash_is_normalized(models, lhs, rhs) -> None:
     ) == models.shortlink.url_blake2b160_hash(furl(rhs))
 
 
-def test_url_hash_is_constant(models) -> None:
+def test_url_hash_is_constant() -> None:
     """URL hashes are a guaranteed identical output (including in the future)."""
-    from furl import furl
-
     # These values should never need revision.
     example_com = 'https://example.com/'
     example_com_hash = (
@@ -126,7 +124,7 @@ uni_name_bigint_mappings = [
 
 
 @pytest.mark.parametrize(('name', 'bigint'), name_bigint_mappings)
-def test_bigint_to_name(models, name, bigint) -> None:
+def test_bigint_to_name(name, bigint) -> None:
     """Bigints can be mapped to names."""
     assert models.shortlink.bigint_to_name(bigint) == name
 
@@ -134,7 +132,7 @@ def test_bigint_to_name(models, name, bigint) -> None:
 @pytest.mark.parametrize(
     ('name', 'bigint'), name_bigint_mappings + uni_name_bigint_mappings
 )
-def test_name_to_bigint(models, name, bigint) -> None:
+def test_name_to_bigint(name, bigint) -> None:
     """Names can be mapped to bigints."""
     # Works with `str`
     assert models.shortlink.name_to_bigint(name) == bigint
@@ -142,7 +140,7 @@ def test_name_to_bigint(models, name, bigint) -> None:
     assert models.shortlink.name_to_bigint(name.encode()) == bigint
 
 
-def test_name_to_bigint_data_type(models) -> None:
+def test_name_to_bigint_data_type() -> None:
     """name_to_bigint is fussy about data type."""
     # Calling with something not str or bytes will raise an error
     with pytest.raises(TypeError):
@@ -166,42 +164,42 @@ def test_name_to_bigint_data_type(models) -> None:
 
 
 @pytest.mark.usefixtures('db_session')
-def test_shortlink_id_equals_zero(models) -> None:
+def test_shortlink_id_equals_zero() -> None:
     """Shortlink cannot have an id of 0."""
     with pytest.raises(ValueError, match='Id cannot be zero'):
         models.shortlink.Shortlink(id=0)
 
 
 @pytest.mark.usefixtures('db_session')
-def test_shortlink_url_is_normalized(models) -> None:
+def test_shortlink_url_is_normalized() -> None:
     """Shortlink URLs are normalized."""
     sl = models.shortlink.Shortlink(url='https://example.com')
     assert sl.url == 'https://example.com/'
 
 
 @pytest.mark.usefixtures('db_session')
-def test_shortlink_without_id_has_empty_name(models) -> None:
+def test_shortlink_without_id_has_empty_name() -> None:
     """Shortlink without an id has empty name."""
     sl = models.shortlink.Shortlink()
     assert sl.name == ''
 
 
 @pytest.mark.usefixtures('db_session')
-def test_shortlink_with_small_id_has_short_name(models) -> None:
+def test_shortlink_with_small_id_has_short_name() -> None:
     """Shortlink with small id has a short name."""
     sl = models.shortlink.Shortlink(id=1)
     assert sl.name == 'AQ'
 
 
 @pytest.mark.usefixtures('db_session')
-def test_shortlink_gets_id_from_name(models) -> None:
+def test_shortlink_gets_id_from_name() -> None:
     """Shortlink with a name will get an id from the name."""
     sl = models.shortlink.Shortlink(name='AQ')
     assert sl.id == 1
 
 
 @pytest.mark.usefixtures('db_session')
-def test_constructor_reuse_with_name(models) -> None:
+def test_constructor_reuse_with_name() -> None:
     """Shortlink constructor with both `reuse` and `name` will fail."""
     with pytest.raises(TypeError):
         models.shortlink.Shortlink.new(  # type: ignore[call-overload]
@@ -210,7 +208,7 @@ def test_constructor_reuse_with_name(models) -> None:
 
 
 @pytest.mark.usefixtures('db_session')
-def test_shortlink_constructor_with_reuse(models) -> None:
+def test_shortlink_constructor_with_reuse() -> None:
     """Shortlink constructor will return existing when asked to reuse."""
     sl1 = models.shortlink.Shortlink.new('https://example.com', reuse=True)
     sl2 = models.shortlink.Shortlink.new('https://example.org', reuse=True)
@@ -229,7 +227,7 @@ def test_shortlink_constructor_with_reuse(models) -> None:
 @pytest.mark.parametrize(
     ('longid', 'match'), [(146727516324, False), (-1, False), (4235324, True)]
 )
-def test_shortlink_reuse_with_shorter(models, db_session, longid, match) -> None:
+def test_shortlink_reuse_with_shorter(db_session, longid, match) -> None:
     """Shortlink reuse with shorter will avoid longer ids."""
     sl1 = models.shortlink.Shortlink(id=longid, url='https://example.com')
     db_session.add(sl1)
@@ -241,7 +239,7 @@ def test_shortlink_reuse_with_shorter(models, db_session, longid, match) -> None
 
 @pytest.mark.usefixtures('db_session')
 @pytest.mark.filterwarnings('ignore:New instance')
-def test_shortlink_constructor_with_name(models) -> None:
+def test_shortlink_constructor_with_name() -> None:
     """Shortlink constructor will accept a name."""
     sl1 = models.shortlink.Shortlink.new('https://example.com', name='example')
     assert sl1.name == 'example'
@@ -263,7 +261,7 @@ def test_shortlink_constructor_with_name(models) -> None:
 
 
 @pytest.mark.filterwarnings('ignore:New instance')
-def test_shortlink_constructor_handle_collisions(models, db_session) -> None:
+def test_shortlink_constructor_handle_collisions(db_session) -> None:
     """Shortlink constructor will handle random id collisions gracefully."""
     prngids = MockRandomBigint([42, 42, 128, 128, 128, 384])
     with patch(
@@ -314,7 +312,7 @@ def test_shortlink_constructor_handle_collisions(models, db_session) -> None:
 
 
 @pytest.mark.usefixtures('db_session')
-def test_shortlink_new_profanity_filter(models) -> None:
+def test_shortlink_new_profanity_filter() -> None:
     """Generated shortlink ids are tested against a profanity filter."""
     prngids = MockRandomBigint(
         [
@@ -340,7 +338,7 @@ def test_shortlink_new_profanity_filter(models) -> None:
 
 
 @pytest.mark.usefixtures('db_session')
-def test_shortlink_name_available(models) -> None:
+def test_shortlink_name_available() -> None:
     """Shortlink has a `name_available` classmethod to test for availability."""
     assert models.shortlink.Shortlink.name_available('example') is True
     models.shortlink.Shortlink.new('https://example.org', name='example')
@@ -350,7 +348,7 @@ def test_shortlink_name_available(models) -> None:
 
 
 @pytest.mark.usefixtures('db_session')
-def test_shortlink_get(models) -> None:
+def test_shortlink_get() -> None:
     """Shortlink has a `get` classmethod."""
     assert models.shortlink.Shortlink.get('example') is None
     models.shortlink.Shortlink.new('https://example.org', name='example')
@@ -365,7 +363,7 @@ def test_shortlink_get(models) -> None:
     assert models.shortlink.Shortlink.get('example', True) == sl
 
 
-def test_shortlink_comparator(models) -> None:
+def test_shortlink_comparator() -> None:
     """Shortlink lookup by name generates SQLAlchemy expressions."""
     # Equality and container expressions work
     expr = models.shortlink.Shortlink.name == 'example'
@@ -379,7 +377,7 @@ def test_shortlink_comparator(models) -> None:
         _expr = models.shortlink.Shortlink.name != 'example'  # noqa: F841
 
 
-def test_shortlink_lookup_multiple(models) -> None:
+def test_shortlink_lookup_multiple() -> None:
     """Shortlink allows lookup by name."""
     sl1 = models.shortlink.Shortlink.new('https://example.org', name='example')
     sl2 = models.shortlink.Shortlink.new('https://example.com', name='example_com')

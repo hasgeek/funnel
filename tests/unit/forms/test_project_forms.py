@@ -1,14 +1,15 @@
 """Tests for Project forms."""
-# pylint: disable=import-outside-toplevel
 
 from werkzeug.datastructures import MultiDict
 
 import pytest
 import requests_mock
 
+from funnel import forms
+
 
 @pytest.mark.usefixtures('app_context')
-def test_livestream_form_valid(forms) -> None:
+def test_livestream_form_valid() -> None:
     with requests_mock.Mocker() as m:
         valid_urls = [
             "https://y2u.be/dQw4w9WgXcQ",
@@ -36,7 +37,7 @@ def test_livestream_form_valid(forms) -> None:
 
 
 @pytest.mark.usefixtures('app_context')
-def test_livestream_form_invalid(forms) -> None:
+def test_livestream_form_invalid() -> None:
     with requests_mock.Mocker() as m:
         m.get("https://www.vimeo.com/336892869", text='resp')
         form = forms.ProjectLivestreamForm(

@@ -1,17 +1,21 @@
 """Test sessions."""
-# pylint: disable=possibly-unused-variable,import-outside-toplevel
+# pylint: disable=possibly-unused-variable
 
 from datetime import datetime, timedelta
 from types import SimpleNamespace
 
+from sqlalchemy.exc import IntegrityError
+
+from pytz import utc
 import pytest
+
+from funnel import models
 
 # TODO: Create a second parallel project and confirm they don't clash
 
 
 @pytest.fixture()
-def block_of_sessions(models, db_session, new_project):
-    from pytz import utc
+def block_of_sessions(db_session, new_project):
 
     # DocType HTML5's schedule, but using UTC to simplify testing
     # https://hasgeek.com/doctypehtml5/bangalore/schedule
@@ -99,7 +103,7 @@ def block_of_sessions(models, db_session, new_project):
     return SimpleNamespace(**locals())
 
 
-def find_projects(models, starting_times, within, gap):
+def find_projects(starting_times, within, gap):
     # Keep the timestamps at which projects were found, plus the project. Criteria:
     # starts at `timestamp` + up to `within` period, with `gap` from prior sessions
     return {
@@ -112,8 +116,7 @@ def find_projects(models, starting_times, within, gap):
     }
 
 
-def test_project_starting_at(models, db_session, block_of_sessions) -> None:
-    from pytz import utc
+def test_project_starting_at(db_session, block_of_sessions) -> None:
 
     block_of_sessions.refresh()
 
@@ -125,16 +128,13 @@ def test_project_starting_at(models, db_session, block_of_sessions) -> None:
 
     # At first nothing will match because the project is not published
     assert (
-        find_projects(
-            models, starting_times, timedelta(minutes=5), timedelta(minutes=60)
-        )
-        == {}
+        find_projects(starting_times, timedelta(minutes=5), timedelta(minutes=60)) == {}
     )
 
     # Publishing the project makes it work
     block_of_sessions.new_project.publish()
     found_projects = find_projects(
-        models, starting_times, timedelta(minutes=5), timedelta(minutes=60)
+        starting_times, timedelta(minutes=5), timedelta(minutes=60)
     )
 
     # Confirm we found two starting times at 9 AM and 2:30 PM
@@ -156,7 +156,7 @@ def test_project_starting_at(models, db_session, block_of_sessions) -> None:
     # Repeat search with 120 minute gap requirement instead of 60. Now we find a single
     # match
     found_projects = find_projects(
-        models, starting_times, timedelta(minutes=5), timedelta(minutes=120)
+        starting_times, timedelta(minutes=5), timedelta(minutes=120)
     )
 
     # Confirm we found a single starting time at 9 AM
@@ -172,7 +172,7 @@ def test_project_starting_at(models, db_session, block_of_sessions) -> None:
     ]
 
     found_projects = find_projects(
-        models, starting_times, timedelta(minutes=5), timedelta(minutes=60)
+        starting_times, timedelta(minutes=5), timedelta(minutes=60)
     )
 
     # Confirm:
@@ -183,12 +183,8 @@ def test_project_starting_at(models, db_session, block_of_sessions) -> None:
     }
 
 
-def test_long_session_fail(models, db_session, new_project) -> None:
+def test_long_session_fail(db_session, new_project) -> None:
     """Sessions cannot exceed 24 hours."""
-    from sqlalchemy.exc import IntegrityError
-
-    from pytz import utc
-
     # Less than 24 hours is fine:
     db_session.add(
         models.Session(

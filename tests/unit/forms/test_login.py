@@ -2,9 +2,11 @@
 
 import pytest
 
+from funnel import forms, models
+
 
 @pytest.fixture()
-def user(models, db_session):
+def user(db_session):
     """User fixture."""
     new_user = models.User(  # nosec
         username='user', fullname="User", password='test_password'
@@ -15,7 +17,7 @@ def user(models, db_session):
 
 
 @pytest.fixture()
-def user_nameless(models, db_session):
+def user_nameless(db_session):
     """User fixture without a username."""
     new_user = models.User(  # nosec
         fullname="Nameless User", password='test_password_nameless'
@@ -27,7 +29,7 @@ def user_nameless(models, db_session):
 
 
 @pytest.fixture()
-def user_named(models, db_session):
+def user_named(db_session):
     """User fixture with a username."""
     new_user = models.User(  # nosec
         username='user-named', fullname="Named User", password='test_password_named'
@@ -54,7 +56,7 @@ def user_phone(db_session, user):
     return retval
 
 
-def test_form_has_user(forms, app, user, user_nameless, user_named) -> None:
+def test_form_has_user(app, user, user_nameless, user_named) -> None:
     """Login form identifies user correctly."""
     with app.test_request_context(method='POST', data={'username': 'user'}):
         form = forms.LoginForm(meta={'csrf': False})
@@ -62,7 +64,7 @@ def test_form_has_user(forms, app, user, user_nameless, user_named) -> None:
         assert form.user == user
 
 
-def test_form_has_user_nameless(forms, app, user, user_nameless, user_named) -> None:
+def test_form_has_user_nameless(app, user, user_nameless, user_named) -> None:
     """Login form identifies user correctly."""
     with app.test_request_context(
         method='POST', data={'username': 'nameless@example.com'}
@@ -73,7 +75,7 @@ def test_form_has_user_nameless(forms, app, user, user_nameless, user_named) -> 
         assert form.user == user_nameless
 
 
-def test_form_has_user_named(forms, app, user, user_nameless, user_named) -> None:
+def test_form_has_user_named(app, user, user_nameless, user_named) -> None:
     """Login form identifies user correctly."""
     with app.test_request_context(method='POST', data={'username': 'user-named'}):
         form = forms.LoginForm(meta={'csrf': False})
@@ -82,9 +84,7 @@ def test_form_has_user_named(forms, app, user, user_nameless, user_named) -> Non
         assert form.user == user_named
 
 
-def test_form_has_user_named_by_email(
-    forms, app, user, user_nameless, user_named
-) -> None:
+def test_form_has_user_named_by_email(app, user, user_nameless, user_named) -> None:
     """Login form identifies user correctly."""
     with app.test_request_context(
         method='POST', data={'username': 'named@example.com'}
@@ -95,7 +95,7 @@ def test_form_has_user_named_by_email(
         assert form.user == user_named
 
 
-def test_login_no_data(forms, app, user) -> None:
+def test_login_no_data(app, user) -> None:
     """Login form fails if username and password are not provided."""
     with app.test_request_context(method='POST'):
         form = forms.LoginForm(meta={'csrf': False})
@@ -105,7 +105,7 @@ def test_login_no_data(forms, app, user) -> None:
         assert form.password.errors == [form.password.validators[0].message]
 
 
-def test_login_no_password(forms, app, user) -> None:
+def test_login_no_password(app, user) -> None:
     """Login fails if password is not provided and user has no email/phone."""
     with app.test_request_context(method='POST', data={'username': 'user'}):
         form = forms.LoginForm(meta={'csrf': False})
@@ -115,7 +115,7 @@ def test_login_no_password(forms, app, user) -> None:
         assert form.password.errors == [form.password.validators[0].message]
 
 
-def test_login_no_password_with_email(forms, app, user, user_email) -> None:
+def test_login_no_password_with_email(app, user, user_email) -> None:
     """Passwordless login if password is not provided but user has email."""
     with app.test_request_context(method='POST', data={'username': 'user'}):
         form = forms.LoginForm(meta={'csrf': False})
@@ -126,7 +126,7 @@ def test_login_no_password_with_email(forms, app, user, user_email) -> None:
 
 
 def test_login_no_password_with_phone_and_email(
-    forms, app, user, user_email, user_phone
+    app, user, user_email, user_phone
 ) -> None:
     """Passwordless login if password is not provided but user has phone or email."""
     with app.test_request_context(method='POST', data={'username': 'user'}):
@@ -138,7 +138,7 @@ def test_login_no_password_with_phone_and_email(
 
 
 def test_login_no_password_with_email_and_phone(
-    forms, app, user, user_email, user_phone
+    app, user, user_email, user_phone
 ) -> None:
     """Passwordless login if password is not provided but user used email."""
     with app.test_request_context(method='POST', data={'username': 'user@example.com'}):
@@ -149,7 +149,7 @@ def test_login_no_password_with_email_and_phone(
         assert form.anchor == user_email  # The anchor used in username takes priority
 
 
-def test_login_no_username(forms, app, user) -> None:
+def test_login_no_username(app, user) -> None:
     """Login fails if username is not provided."""
     with app.test_request_context(method='POST', data={'password': 'test_password'}):
         form = forms.LoginForm(meta={'csrf': False})
@@ -159,7 +159,7 @@ def test_login_no_username(forms, app, user) -> None:
         assert form.password.errors == []
 
 
-def test_login_blank_username(forms, app, user) -> None:
+def test_login_blank_username(app, user) -> None:
     """Login fails if username is blank."""
     with app.test_request_context(
         method='POST', data={'username': '', 'password': 'test_password'}
@@ -171,7 +171,7 @@ def test_login_blank_username(forms, app, user) -> None:
         assert form.password.errors == []
 
 
-def test_login_blank_password(forms, app, user) -> None:
+def test_login_blank_password(app, user) -> None:
     """Login fails if password is blank."""
     with app.test_request_context(
         method='POST', data={'username': 'user', 'password': ''}
@@ -183,7 +183,7 @@ def test_login_blank_password(forms, app, user) -> None:
         assert form.password.errors == [form.password.validators[0].message]
 
 
-def test_login_wrong_username(forms, app, user) -> None:
+def test_login_wrong_username(app, user) -> None:
     """Login fails if username cannot identify a user."""
     with app.test_request_context(
         method='POST', data={'username': 'no_user', 'password': 'test_password'}
@@ -195,7 +195,7 @@ def test_login_wrong_username(forms, app, user) -> None:
         assert form.password.errors == []
 
 
-def test_login_wrong_password(forms, app, user) -> None:
+def test_login_wrong_password(app, user) -> None:
     """Login fails if password is incorrect."""
     with app.test_request_context(
         method='POST', data={'username': 'user', 'password': 'wrong_password'}
@@ -207,7 +207,7 @@ def test_login_wrong_password(forms, app, user) -> None:
         assert form.password.errors == [forms.login.MSG_INCORRECT_PASSWORD]
 
 
-def test_login_long_password(forms, app, user) -> None:
+def test_login_long_password(app, user) -> None:
     """Login fails if password candidate is too long."""
     with app.test_request_context(
         method='POST', data={'username': 'user', 'password': 'a' * 101}
@@ -222,7 +222,7 @@ def test_login_long_password(forms, app, user) -> None:
 
 
 @pytest.mark.parametrize('username', ['unknown@example.com', '+919845012345'])
-def test_login_no_probing(forms, app, username) -> None:
+def test_login_no_probing(app, username) -> None:
     """Login fails if email/phone is not present, but as an incorrect password."""
     with app.test_request_context(
         method='POST', data={'username': username, 'password': 'wrong_password'}
@@ -233,7 +233,7 @@ def test_login_no_probing(forms, app, username) -> None:
         assert form.password.errors == [forms.login.MSG_INCORRECT_PASSWORD]
 
 
-def test_login_pass(forms, app, user) -> None:
+def test_login_pass(app, user) -> None:
     """Login succeeds if both username and password match."""
     with app.test_request_context(
         method='POST', data={'username': 'user', 'password': 'test_password'}
@@ -245,7 +245,7 @@ def test_login_pass(forms, app, user) -> None:
         assert form.password.errors == []
 
 
-def test_login_email_pass(forms, app, user, user_email) -> None:
+def test_login_email_pass(app, user, user_email) -> None:
     """Login succeeds if email and password match."""
     with app.test_request_context(
         method='POST', data={'username': str(user_email), 'password': 'test_password'}
@@ -257,7 +257,7 @@ def test_login_email_pass(forms, app, user, user_email) -> None:
         assert form.password.errors == []
 
 
-def test_login_phone_pass(forms, app, user, user_phone) -> None:
+def test_login_phone_pass(app, user, user_phone) -> None:
     """Login succeeds if phone number and password match."""
     with app.test_request_context(
         method='POST', data={'username': str(user_phone), 'password': 'test_password'}
@@ -269,7 +269,7 @@ def test_login_phone_pass(forms, app, user, user_phone) -> None:
         assert form.password.errors == []
 
 
-def test_login_partial_phone_pass(forms, app, user, user_phone) -> None:
+def test_login_partial_phone_pass(app, user, user_phone) -> None:
     """Login succeeds if unprefixed phone number and password match."""
     with app.test_request_context(
         method='POST',
@@ -282,7 +282,7 @@ def test_login_partial_phone_pass(forms, app, user, user_phone) -> None:
         assert form.password.errors == []
 
 
-def test_login_user_suspended(forms, app, user) -> None:
+def test_login_user_suspended(app, user) -> None:
     """Login fails if the user account has been suspended."""
     user.mark_suspended()
     with app.test_request_context(
@@ -296,7 +296,7 @@ def test_login_user_suspended(forms, app, user) -> None:
         assert form.password.errors == []
 
 
-def test_register_email_otp(forms, app) -> None:
+def test_register_email_otp(app) -> None:
     """Login with non-existent account and valid email signals a registration."""
     with app.test_request_context(
         method='POST', data={'username': 'example@example.com', 'password': ''}
@@ -318,7 +318,7 @@ def test_register_email_otp(forms, app) -> None:
         ('+12345678900', '+12345678900'),
     ],
 )
-def test_register_phone_otp(forms, app, phone_number, full_phone_number) -> None:
+def test_register_phone_otp(app, phone_number, full_phone_number) -> None:
     """Login with non-existent account and valid phone signals a registration."""
     with app.test_request_context(
         method='POST', data={'username': phone_number, 'password': ''}

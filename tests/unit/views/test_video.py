@@ -3,11 +3,14 @@
 from datetime import datetime
 import logging
 
+from pytz import utc
 import pytest
 import requests
 
+from funnel import models
 
-def test_parse_video_url(models) -> None:
+
+def test_parse_video_url() -> None:
     assert models.parse_video_url('https://www.youtube.com/watch?v=dQw4w9WgXcQ') == (
         'youtube',
         'dQw4w9WgXcQ',
@@ -43,9 +46,7 @@ def test_youtube_video_delete(db_session, new_proposal) -> None:
 @pytest.mark.remote_data()
 @pytest.mark.requires_config('youtube')
 @pytest.mark.usefixtures('app_context')
-def test_youtube(models, db_session, new_proposal) -> None:
-    from pytz import utc
-
+def test_youtube(db_session, new_proposal) -> None:
     assert new_proposal.title == "Test Proposal"
 
     new_proposal.video_url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
@@ -90,9 +91,7 @@ def test_vimeo_video_delete(db_session, new_proposal) -> None:
 @pytest.mark.remote_data()
 @pytest.mark.requires_config('vimeo')
 @pytest.mark.usefixtures('app_context')
-def test_vimeo(models, db_session, new_proposal) -> None:
-    from pytz import utc
-
+def test_vimeo(db_session, new_proposal) -> None:
     assert new_proposal.title == "Test Proposal"
 
     new_proposal.video_url = 'https://vimeo.com/336892869'

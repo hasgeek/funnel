@@ -1,10 +1,14 @@
 """Tests for Profile name."""
-# pylint: disable=import-outside-toplevel
+
+from sqlalchemy.exc import IntegrityError
+import sqlalchemy as sa
 
 import pytest
 
+from funnel import models
 
-def test_is_available_name(models, db_session, user_rincewind) -> None:
+
+def test_is_available_name(db_session, user_rincewind) -> None:
     """Names are only available if valid and unused."""
     db_session.commit()  # Required for profile.state to be set
     assert models.Profile.is_available_name('invalid_name') is False
@@ -17,7 +21,7 @@ def test_is_available_name(models, db_session, user_rincewind) -> None:
 
 
 @pytest.mark.usefixtures('user_rincewind', 'org_uu')
-def test_validate_name_candidate(models, db_session) -> None:
+def test_validate_name_candidate(db_session) -> None:
     """The name validator returns error codes as expected."""
     assert (
         models.Profile.validate_name_candidate(None)  # type: ignore[arg-type]
@@ -39,10 +43,8 @@ def test_validate_name_candidate(models, db_session) -> None:
     assert models.Profile.validate_name_candidate('UU') == 'org'
 
 
-def test_reserved_name(models, db_session) -> None:
+def test_reserved_name(db_session) -> None:
     """Names can be reserved, with no user or organization."""
-    import sqlalchemy as sa
-
     reserved_name = models.Profile(name='reserved-name', reserved=True)
     db_session.add(reserved_name)
     db_session.commit()
@@ -64,20 +66,16 @@ def test_reserved_name(models, db_session) -> None:
     assert retrieved_name is reserved_name
 
 
-def test_unassigned_name(models, db_session) -> None:
+def test_unassigned_name(db_session) -> None:
     """Names must be assigned to a user or organization if not reserved."""
-    from sqlalchemy.exc import IntegrityError
-
     unassigned_name = models.Profile(name='unassigned')
     db_session.add(unassigned_name)
     with pytest.raises(IntegrityError):
         db_session.commit()
 
 
-def test_double_assigned_name(models, db_session, user_rincewind) -> None:
+def test_double_assigned_name(db_session, user_rincewind) -> None:
     """Names cannot be assigned to a user and an organization simultaneously."""
-    from sqlalchemy.exc import IntegrityError
-
     user = models.User(username="double-assigned", fullname="User")
     org = models.Organization(
         name="double-assigned", title="Organization", owner=user_rincewind
@@ -87,20 +85,16 @@ def test_double_assigned_name(models, db_session, user_rincewind) -> None:
         db_session.commit()
 
 
-def test_user_two_names(models, db_session, user_rincewind) -> None:
+def test_user_two_names(db_session, user_rincewind) -> None:
     """A user cannot have two names."""
-    from sqlalchemy.exc import IntegrityError
-
     wizzard = models.Profile(name='wizzard', user=user_rincewind)
     db_session.add(wizzard)
     with pytest.raises(IntegrityError):
         db_session.commit()
 
 
-def test_org_two_names(models, db_session, org_uu) -> None:
+def test_org_two_names(db_session, org_uu) -> None:
     """An organization cannot have two names."""
-    from sqlalchemy.exc import IntegrityError
-
     assert org_uu.profile.name == 'UU'
     unseen = models.Profile(name='unseen', organization=org_uu)
     db_session.add(unseen)
@@ -108,7 +102,7 @@ def test_org_two_names(models, db_session, org_uu) -> None:
         db_session.commit()
 
 
-def test_cant_remove_username(models, db_session, user_twoflower) -> None:
+def test_cant_remove_username(db_session, user_twoflower) -> None:
     """A user's username can be set or renamed but not removed."""
     db_session.commit()
     assert user_twoflower.username is None
@@ -157,7 +151,7 @@ def test_cant_remove_orgname(db_session, org_uu) -> None:
         org_uu.name = None
 
 
-def test_name_transfer(models, db_session, user_mort, user_rincewind) -> None:
+def test_name_transfer(db_session, user_mort, user_rincewind) -> None:
     """Merging user accounts will transfer the name."""
     db_session.commit()
     assert user_mort.username is None

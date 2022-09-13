@@ -4,6 +4,9 @@ from datetime import datetime, timedelta
 
 import pytest
 
+from coaster.utils import utcnow
+from funnel import models
+
 
 def invalidate_cache(project):
     for attr in (
@@ -20,7 +23,7 @@ def invalidate_cache(project):
             pass
 
 
-def test_cfp_state_draft(utcnow, db_session, new_organization, new_project) -> None:
+def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
     assert new_project.cfp_start_at is None
     assert new_project.state.DRAFT
     assert new_project.cfp_state.NONE
@@ -54,7 +57,7 @@ def test_cfp_state_draft(utcnow, db_session, new_organization, new_project) -> N
 
 
 def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
-    models, db_session, new_project
+    db_session, new_project
 ):
     # without any session the project will have no start and end dates
     assert new_project.sessions.count() == 0
@@ -209,7 +212,7 @@ def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
 
 
 @pytest.fixture()
-def second_organization(models, db_session, new_user2):
+def second_organization(db_session, new_user2):
     org2 = models.Organization(
         owner=new_user2, title="Second test org", name='test-org-2'
     )
@@ -219,7 +222,7 @@ def second_organization(models, db_session, new_user2):
 
 
 def test_project_rename(
-    models, db_session, new_organization, second_organization, new_project, new_project2
+    db_session, new_organization, second_organization, new_project, new_project2
 ):
     # The project has a default name from the fixture, and there is no redirect
     assert new_project.name == 'test-project'
@@ -282,7 +285,7 @@ def test_project_rename(
 
 
 def test_project_featured_proposal(
-    models, db_session, user_twoflower, project_expo2010
+    db_session, user_twoflower, project_expo2010
 ) -> None:
     # `has_featured_proposals` returns None if the project has no proposals
     assert project_expo2010.has_featured_proposals is False

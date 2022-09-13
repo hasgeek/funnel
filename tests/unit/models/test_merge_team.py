@@ -1,16 +1,17 @@
 """Tests for Team member merger when merging user accounts."""
-# pylint: disable=import-outside-toplevel
 
 from datetime import timedelta
 from types import SimpleNamespace
 
+import sqlalchemy as sa
+
 import pytest
+
+from funnel import models
 
 
 @pytest.fixture()
-def team_merge_data(models, db_session):
-    import sqlalchemy as sa
-
+def team_merge_data(db_session):
     user1 = models.User(
         username='user1',
         fullname="User 1",
@@ -27,7 +28,7 @@ def team_merge_data(models, db_session):
     return SimpleNamespace(**locals())
 
 
-def test_team_migrate_user1(models, team_merge_data) -> None:
+def test_team_migrate_user1(team_merge_data) -> None:
     """
     Test to verify teams are transferred when merging users.
 
@@ -46,7 +47,7 @@ def test_team_migrate_user1(models, team_merge_data) -> None:
     assert team_merge_data.user2.teams == []
 
 
-def test_team_migrate_user2(models, team_merge_data) -> None:
+def test_team_migrate_user2(team_merge_data) -> None:
     """
     Test to verify teams are transferred when merging users.
 
@@ -65,7 +66,7 @@ def test_team_migrate_user2(models, team_merge_data) -> None:
     assert team_merge_data.user2.teams == []
 
 
-def test_team_migrate_user3(models, team_merge_data) -> None:
+def test_team_migrate_user3(team_merge_data) -> None:
     """
     Test to verify teams are transferred when merging users.
 

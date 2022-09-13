@@ -1,10 +1,12 @@
 """Tests for AuthClientUserPermissions model."""
 
+from funnel import models
+
 from .test_db import TestDatabaseFixture
 
 
 class TestUserClientPermissions(TestDatabaseFixture):
-    def test_userclientpermissions(self, models) -> None:
+    def test_userclientpermissions(self) -> None:
         """Test for verifying creation of UserClientPermissions instance."""
         gustav = models.User(username='gustav')
         auth_client = self.fixtures.auth_client
@@ -16,7 +18,7 @@ class TestUserClientPermissions(TestDatabaseFixture):
         self.db_session.commit()
         assert isinstance(result, models.AuthClientUserPermissions)
 
-    def test_userclientpermissions_pickername(self, models) -> None:
+    def test_userclientpermissions_pickername(self) -> None:
         """Test for UserClientPermissions' pickername."""
         finnick = models.User(username='finnick', fullname="Finnick Odair")
         district4 = models.AuthClient(title="District 4")
@@ -28,7 +30,7 @@ class TestUserClientPermissions(TestDatabaseFixture):
 
 
 def test_userclientpermissions_migrate_user_move(
-    models, db_session, user_twoflower, user_rincewind, client_hex
+    db_session, user_twoflower, user_rincewind, client_hex
 ):
     """Migrating client permissions from old user to new user."""
     # Scenario 1: Twoflower has a permission and it is transferred to Rincewind
@@ -45,7 +47,7 @@ def test_userclientpermissions_migrate_user_move(
 
 
 def test_userclientpermissions_migrate_user_retain(
-    models, db_session, user_twoflower, user_rincewind, client_hex
+    db_session, user_twoflower, user_rincewind, client_hex
 ):
     """Retaining new user's client permissions when migrating assets from old user."""
     # Scenario 2: Rincewind has a permission, and keeps it after merging Twoflower
@@ -62,7 +64,7 @@ def test_userclientpermissions_migrate_user_retain(
 
 
 def test_userclientpermissions_migrate_user_merge(
-    models, db_session, user_twoflower, user_rincewind, client_hex
+    db_session, user_twoflower, user_rincewind, client_hex
 ):
     """Merging permissions granted to two users when migrating from one to other."""
     # Scenario 3: Twoflower and Rincewind each have permissions, and they get merged

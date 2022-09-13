@@ -1,13 +1,14 @@
 """Test Label forms."""
-# pylint: disable=import-outside-toplevel
 
 from werkzeug.datastructures import MultiDict
 
 import pytest
 
+from funnel import forms
+
 
 @pytest.mark.usefixtures('app_context')
-def test_label_form(forms) -> None:
+def test_label_form() -> None:
     form = forms.LabelForm(
         MultiDict(
             {
@@ -23,7 +24,7 @@ def test_label_form(forms) -> None:
 
 
 @pytest.mark.usefixtures('app_context')
-def test_label_form_invalid(forms) -> None:
+def test_label_form_invalid() -> None:
     form = forms.LabelForm(
         MultiDict({'icon_emoji': "🔟", 'required': False, 'restricted': False}),
         meta={'csrf': False},

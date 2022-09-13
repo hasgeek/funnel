@@ -2,11 +2,13 @@
 
 import pytest
 
+from funnel import models
+
 from .test_db import TestDatabaseFixture
 
 
 class TestUserExternalId(TestDatabaseFixture):
-    def test_userexternalid(self, models) -> None:
+    def test_userexternalid(self) -> None:
         """Test for creating an instance of UserExternalId."""
         crusoe = self.fixtures.crusoe
         service = 'google'
@@ -25,7 +27,7 @@ class TestUserExternalId(TestDatabaseFixture):
             result
         )
 
-    def test_userexternalid_get(self, models) -> None:
+    def test_userexternalid_get(self) -> None:
         """Retrieve a UserExternalId given a service and userid or username."""
         service = 'twitter'
         # scenario 1: when neither userid nor username is passed

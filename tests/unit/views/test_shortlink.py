@@ -4,6 +4,8 @@ from urllib.parse import urlsplit
 
 import pytest
 
+from funnel import models
+
 
 @pytest.fixture()
 def shortlink_client(db_session, shortlinkapp):
@@ -23,7 +25,7 @@ def test_shortlink_404(shortlink_client) -> None:
     assert rv.status_code == 404
 
 
-def test_shortlink_301(models, db_session, shortlink_client) -> None:
+def test_shortlink_301(db_session, shortlink_client) -> None:
     db_session.add(models.Shortlink.new('https://example.com/', name='example'))
     db_session.commit()
     rv = shortlink_client.get('/example')
@@ -33,7 +35,7 @@ def test_shortlink_301(models, db_session, shortlink_client) -> None:
     assert rv.headers['Referrer-Policy'] == 'unsafe-url'
 
 
-def test_shortlink_410(models, db_session, shortlink_client) -> None:
+def test_shortlink_410(db_session, shortlink_client) -> None:
     sl = models.Shortlink.new('https://example.com/', name='example')
     sl.enabled = False
     db_session.add(sl)

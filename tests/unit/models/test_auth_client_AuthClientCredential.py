@@ -1,10 +1,12 @@
 """Tests for AuthClientCredential model."""
 
+from funnel import models
+
 from .test_db import TestDatabaseFixture
 
 
 class TestClientCredential(TestDatabaseFixture):
-    def test_clientcredential_new(self, models) -> None:
+    def test_clientcredential_new(self) -> None:
         """Test for ClientCredential model's new()."""
         auth_client = self.fixtures.auth_client
         cred, _secret = models.AuthClientCredential.new(auth_client)
@@ -13,7 +15,7 @@ class TestClientCredential(TestDatabaseFixture):
         client_secret = cred.secret_hash
         assert client_secret.startswith('blake2b$32$')
 
-    def test_clientcredential_get(self, models) -> None:
+    def test_clientcredential_get(self) -> None:
         """Test for ClientCredential model's get()."""
         auth_client = self.fixtures.auth_client
         cred, _secret = models.AuthClientCredential.new(auth_client)
@@ -22,18 +24,18 @@ class TestClientCredential(TestDatabaseFixture):
         assert isinstance(get_credentials, models.AuthClientCredential)
         assert cred == get_credentials
 
-    def test_clientcredential_secret_is(self, models) -> None:
+    def test_clientcredential_secret_is(self) -> None:
         """Test for checking if clientcredential's secret is valid."""
         auth_client = self.fixtures.auth_client
         cred, secret = models.AuthClientCredential.new(auth_client)
         assert cred.secret_is(secret)
         assert len(secret) in (43, 44)
 
-    def test_clientcredential_upgrade_hash(self, models) -> None:
+    def test_clientcredential_upgrade_hash(self) -> None:
         """Test for transparent upgrade of client credential hash type."""
         secret = 'D2axSjtbbWDkRFmSDXGpNSB9ypfqE1ekYD3YP37J85yJ'  # nosec
         secret_sha256 = (  # nosec
-            'sha256$' '45c879362ed45b3f92a7ea3c1e53ecab0dd79c61cb357e6eb0de6d64408ea25c'
+            'sha256$45c879362ed45b3f92a7ea3c1e53ecab0dd79c61cb357e6eb0de6d64408ea25c'
         )
         secret_blake2b = (  # nosec
             'blake2b$32$'

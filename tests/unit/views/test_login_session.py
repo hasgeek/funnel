@@ -5,6 +5,8 @@ from flask import session
 
 import pytest
 
+from funnel.views.login_session import save_session_next_url
+
 
 @pytest.mark.parametrize(
     ('method', 'existing', 'nextarg', 'saved', 'result'),
@@ -19,9 +21,7 @@ import pytest
         ('POST', '/existing_next', '/new_next', False, '/existing_next'),  # Use saved
     ],
 )
-def test_save_session_next_url(
-    views, app, existing, method, nextarg, saved, result
-) -> None:
+def test_save_session_next_url(app, existing, method, nextarg, saved, result) -> None:
     """Test if save_session_next_url() behaves appropriately."""
     if nextarg:
         test_url = f'/test_url?next={nextarg}'
@@ -33,5 +33,5 @@ def test_save_session_next_url(
         else:
             session.pop('next', None)
 
-        assert views.login_session.save_session_next_url() is saved
+        assert save_session_next_url() is saved
         assert session['next'] == result

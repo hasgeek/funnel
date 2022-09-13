@@ -6,6 +6,8 @@ from flask import url_for
 
 import pytest
 
+from funnel import models
+
 
 @pytest.fixture()
 def phone_vetinari(db_session, user_vetinari):
@@ -17,7 +19,7 @@ def phone_vetinari(db_session, user_vetinari):
 
 
 @pytest.fixture()
-def notification_prefs_vetinari(models, db_session, user_vetinari):
+def notification_prefs_vetinari(db_session, user_vetinari):
     """Add main notification preferences for user_vetinari."""
     prefs = models.NotificationPreferences(
         user=user_vetinari,
@@ -34,7 +36,7 @@ def notification_prefs_vetinari(models, db_session, user_vetinari):
 
 
 @pytest.fixture()
-def project_update(models, db_session, user_vetinari, project_expo2010):
+def project_update(db_session, user_vetinari, project_expo2010):
     """Create an update to add a notification for."""
     db_session.commit()
     update = models.Update(
@@ -51,7 +53,7 @@ def project_update(models, db_session, user_vetinari, project_expo2010):
 
 
 @pytest.fixture()
-def update_user_notification(models, db_session, user_vetinari, project_update):
+def update_user_notification(db_session, user_vetinari, project_update):
     """Get a user notification for the update fixture."""
     notification = models.NewUpdateNotification(project_update)
     db_session.add(notification)
@@ -72,7 +74,7 @@ def test_user_notification_is_for_user_vetinari(
 
 
 @pytest.fixture()
-def notification_view(models, update_user_notification):
+def notification_view(update_user_notification):
     """Get the notification view renderer."""
     return models.Notification.renderers[update_user_notification.notification.type](
         update_user_notification
