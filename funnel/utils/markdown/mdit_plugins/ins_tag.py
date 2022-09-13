@@ -6,6 +6,8 @@ from markdown_it import MarkdownIt
 from markdown_it.rules_inline import StateInline
 from markdown_it.rules_inline.state_inline import Delimiter
 
+__all__ = ['ins_plugin']
+
 
 def ins_plugin(md: MarkdownIt):
     def tokenize(state: StateInline, silent: bool):

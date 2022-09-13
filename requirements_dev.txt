@@ -14,8 +14,6 @@ attrs==22.1.0
     #   reformat-gherkin
 bandit==1.7.4
     # via -r requirements_dev.in
-beautifulsoup4==4.11.1
-    # via -r requirements_dev.in
 black==22.6.0
     # via -r requirements_dev.in
 build==0.8.0
@@ -212,8 +210,6 @@ smmap==5.0.0
     # via gitdb
 snowballstemmer==2.2.0
     # via pydocstyle
-soupsieve==2.3.2.post1
-    # via beautifulsoup4
 sqlalchemy==1.4.40
     # via flask-sqlalchemy
 sqlalchemy-stubs==0.4
