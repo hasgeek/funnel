@@ -1,5 +1,7 @@
 """Tests for model processing utilities."""
 
+import pytest
+
 from funnel import models
 
 
@@ -29,6 +31,7 @@ def test_merge_users_newer_older(db_session, user_death, user_rincewind) -> None
     assert user_rincewind.state.MERGED
 
 
+@pytest.mark.filterwarnings("ignore:Object of type <UserEmail> not in session")
 def test_getuser(  # pylint: disable=too-many-statements
     db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
 ):
@@ -125,6 +128,7 @@ def test_getuser(  # pylint: disable=too-many-statements
     assert models.getuser('+912345678901') is None
 
 
+@pytest.mark.filterwarnings("ignore:Object of type <UserEmail> not in session")
 def test_getuser_anchor(
     db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
 ):

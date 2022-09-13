@@ -113,6 +113,7 @@ def test_create_shortlink_name_unauthorized(client, user_rincewind, create_short
     assert rv.json['error'] == 'unauthorized'
 
 
+@pytest.mark.filterwarnings("ignore:New instance.*conflicts with persistent instance")
 @pytest.mark.usefixtures('user_rincewind_site_editor')
 def test_create_shortlink_name_authorized(  # pylint: disable=too-many-arguments
     shortlinkapp, client, login, user_rincewind, user_wolfgang, create_shortlink

@@ -15,6 +15,11 @@ from funnel.registry import LoginCallbackError, LoginInitError, LoginProviderDat
 from funnel.transports import TransportConnectionError, TransportRecipientError
 from funnel.views.otp import OtpSession
 
+pytestmark = pytest.mark.filterwarnings(
+    "ignore:Object of type <UserPhone> not in session",
+    "ignore:Object of type <UserEmail> not in session",
+)
+
 # User fixture's details
 RINCEWIND_USERNAME = 'rincewind'
 RINCEWIND_PHONE = '+917676332020'

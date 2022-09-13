@@ -5,17 +5,13 @@ import os
 
 import pytest
 
-
-@pytest.fixture(scope='session')
-def aws_ses(funnel):
-    return funnel.transports.email.aws_ses
-
+from funnel.transports.email import aws_ses
 
 # Data Directory which contains JSON Files
 data_dir = os.path.join(os.path.dirname(__file__), 'data')
 
 
-def test_delivery(aws_ses) -> None:
+def test_delivery() -> None:
     """Check if the delivery JSON is parsed correctly."""
     with open(os.path.join(data_dir, 'delivery.json'), encoding='utf-8') as file:
         data = file.read()
@@ -37,7 +33,7 @@ def test_delivery(aws_ses) -> None:
     assert obj.delivery.processing_time
 
 
-def test_delivery_without_subject(aws_ses) -> None:
+def test_delivery_without_subject() -> None:
     """Check if the delivery JSON is parsed correctly when missing a subject."""
     with open(
         os.path.join(data_dir, 'delivery-without-subject.json'),
@@ -62,7 +58,7 @@ def test_delivery_without_subject(aws_ses) -> None:
     assert obj.delivery.processing_time
 
 
-def test_bounce(aws_ses) -> None:
+def test_bounce() -> None:
     """Check if Data classes for bounce is parsed correctly."""
     with open(os.path.join(data_dir, 'bounce.json'), encoding='utf-8') as file:
         data = file.read()
@@ -76,7 +72,7 @@ def test_bounce(aws_ses) -> None:
     assert obj.bounce.reporting_mta
 
 
-def test_complaint(aws_ses) -> None:
+def test_complaint() -> None:
     """Check if Data classes for complaint is parsed correctly."""
     with open(os.path.join(data_dir, 'complaint.json'), encoding='utf-8') as file:
         data = file.read()
@@ -91,7 +87,7 @@ def test_complaint(aws_ses) -> None:
 
 
 @pytest.mark.skip(reason="Certificate has expired")
-def test_signature_good_message(aws_ses) -> None:
+def test_signature_good_message() -> None:
     """Check if Signature Verification works."""
     with open(os.path.join(data_dir, 'full-message.json'), encoding='utf-8') as file:
         data = file.read()
@@ -110,7 +106,7 @@ def test_signature_good_message(aws_ses) -> None:
 
 
 @pytest.mark.skip(reason="Certificate has expired")
-def test_signature_bad_message(aws_ses) -> None:
+def test_signature_bad_message() -> None:
     """Check if Signature Verification works."""
     with open(os.path.join(data_dir, 'bad-message.json'), encoding='utf-8') as file:
         data = file.read()

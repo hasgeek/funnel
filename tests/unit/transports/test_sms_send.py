@@ -7,7 +7,7 @@ from flask import Response
 import pytest
 import requests
 
-from funnel.transports import TransportConnectionError
+from funnel.transports import TransportConnectionError, TransportRecipientError
 from funnel.transports.sms import (
     OneLineTemplate,
     make_exotel_token,
@@ -53,18 +53,18 @@ def test_twilio_callback(client) -> None:
 
 @pytest.mark.remote_data()
 @pytest.mark.requires_config('twilio')
-def test_twilio_failures(funnel) -> None:
+def test_twilio_failures() -> None:
     """Test if message sending is a failure."""
     # Invalid Target
-    with pytest.raises(funnel.transports.TransportRecipientError):
+    with pytest.raises(TransportRecipientError):
         send(TWILIO_INVALID_TARGET, MESSAGE, callback=False)
 
     # Can't route
-    with pytest.raises(funnel.transports.TransportRecipientError):
+    with pytest.raises(TransportRecipientError):
         send(TWILIO_CANT_ROUTE, MESSAGE, callback=False)
 
     # No SMS Service
-    with pytest.raises(funnel.transports.TransportRecipientError):
+    with pytest.raises(TransportRecipientError):
         send(TWILIO_NO_SMS_SERVICE, MESSAGE, callback=False)
 
 

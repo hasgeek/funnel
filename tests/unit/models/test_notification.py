@@ -11,6 +11,10 @@ import pytest
 
 from funnel import models
 
+pytestmark = pytest.mark.filterwarnings(
+    "ignore:Object of type <UserEmail> not in session"
+)
+
 
 @pytest.fixture(scope='session')
 def notification_types(database):

@@ -10,7 +10,6 @@ from funnel import models
 
 
 def test_profile_urltype_valid(db_session, new_organization) -> None:
-
     profile = models.Profile.query.filter_by(id=new_organization.profile.id).first()
     assert profile.name == 'test-org'
     profile.logo_url = "https://images.example.com/"
@@ -21,7 +20,6 @@ def test_profile_urltype_valid(db_session, new_organization) -> None:
 
 
 def test_profile_urltype_invalid(db_session, new_organization) -> None:
-
     profile = models.Profile.query.filter_by(id=new_organization.profile.id).first()
     profile.logo_url = "noturl"
     db_session.add(profile)
@@ -59,6 +57,7 @@ def test_user_avatar(db_session, user_twoflower, user_rincewind) -> None:
     assert user_rincewind.avatar == models.ImgeeFurl('https://images.example.com/p.jpg')
 
 
+@pytest.mark.filterwarnings("ignore:Object of type <UserPhone> not in session")
 def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
     """Suspending a user will mark their profile as private."""
     # Ensure column defaults are set (Profile.state)

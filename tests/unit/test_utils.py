@@ -4,13 +4,10 @@ from werkzeug.exceptions import BadRequest
 
 import pytest
 
-
-@pytest.fixture(scope='session')
-def utils(funnel):
-    return funnel.utils
+from funnel import utils
 
 
-def test_make_redirect_url(utils) -> None:
+def test_make_redirect_url() -> None:
     """Test OAuth2 redirect URL constructor."""
     # scenario 1: straight forward splitting
     result = utils.make_redirect_url('http://example.com/?foo=bar', foo='baz')
@@ -25,20 +22,20 @@ def test_make_redirect_url(utils) -> None:
     assert result == expected_result
 
 
-def test_mask_email(utils) -> None:
+def test_mask_email() -> None:
     """Test for masking email to offer a hint of what it is, without revealing much."""
     assert utils.mask_email('foobar@example.com') == 'f••••@e••••'
     assert utils.mask_email('not-email') == 'n••••'
     assert utils.mask_email('also@not@email') == 'a••••@n••••'
 
 
-def test_mask_phone(utils) -> None:
+def test_mask_phone() -> None:
     """Test for masking a phone number to only reveal CC and last two digits."""
     assert utils.mask_phone('+18001234567') == '+1 •••-•••-••67'
     assert utils.mask_phone('+919845012345') == '+91 ••••• •••45'
 
 
-def test_extract_twitter_handle(utils) -> None:
+def test_extract_twitter_handle() -> None:
     """Test for extracing a Twitter handle from a URL or username."""
     expected = 'shreyas_satish'
     assert (
@@ -55,17 +52,17 @@ def test_extract_twitter_handle(utils) -> None:
     assert utils.extract_twitter_handle('') is None
 
 
-def test_split_name(utils) -> None:
+def test_split_name() -> None:
     """Test for splitting a name to extract first name (for name badges)."""
     assert utils.split_name("ABC DEF EFG") == ["ABC", "DEF EFG"]
 
 
-def test_format_twitter_handle(utils) -> None:
+def test_format_twitter_handle() -> None:
     """Test for formatting a Twitter handle into an @handle."""
     assert utils.format_twitter_handle("testusername") == "@testusername"
 
 
-def test_abort_null(utils) -> None:
+def test_abort_null() -> None:
     """Test that abort_null raises an exception if the input has a null byte."""
     assert utils.abort_null('all okay') == 'all okay'
     with pytest.raises(BadRequest):
@@ -84,6 +81,6 @@ def test_abort_null(utils) -> None:
         ('junk', False, None),
     ],
 )
-def test_normalize_phone_number(utils, candidate, expected, sms) -> None:
+def test_normalize_phone_number(candidate, expected, sms) -> None:
     """Test that normalize_phone_number is able to parse a number."""
     assert utils.normalize_phone_number(candidate, sms) == expected
