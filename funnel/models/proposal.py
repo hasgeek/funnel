@@ -7,8 +7,8 @@ from typing import Iterable, Optional
 from baseframe import __
 from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum
-from funnel.utils import markdown
 
+from ..utils import markdown
 from . import (
     BaseMixin,
     BaseScopedIdNameMixin,

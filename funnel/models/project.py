@@ -13,10 +13,10 @@ from pytz import utc
 from baseframe import __, localize_timezone
 from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
-from funnel.utils import markdown
 
 from .. import app
 from ..typing import OptionalMigratedTables
+from ..utils import markdown
 from . import (
     BaseScopedNameMixin,
     JsonDict,

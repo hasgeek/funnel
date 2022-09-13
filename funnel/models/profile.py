@@ -9,9 +9,9 @@ from sqlalchemy.sql import expression
 from baseframe import __
 from coaster.sqlalchemy import LazyRoleSet, Query, StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
-from funnel.utils import markdown
 
 from ..typing import OptionalMigratedTables
+from ..utils import markdown
 from . import (
     BaseMixin,
     Mapped,

@@ -8,6 +8,8 @@ from coaster.utils import make_name
 
 from .helpers import MDExtension
 
+__all__ = ['markdown_extensions']
+
 markdown_extensions: Dict[str, MDExtension] = {}
 
 markdown_extensions['footnote'] = MDExtension(footnote.footnote_plugin)

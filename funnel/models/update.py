@@ -15,8 +15,8 @@ from coaster.sqlalchemy import (
     with_roles,
 )
 from coaster.utils import LabeledEnum
-from funnel.utils import markdown
 
+from ..utils import markdown
 from . import (
     BaseScopedIdNameMixin,
     Commentset,

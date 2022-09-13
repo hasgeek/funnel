@@ -12,8 +12,8 @@ from werkzeug.utils import cached_property
 from baseframe import _, __
 from coaster.sqlalchemy import LazyRoleSet, RoleAccessProxy, StateManager, with_roles
 from coaster.utils import LabeledEnum
-from funnel.utils.markdown.base import markdown
 
+from ..utils import markdown
 from . import (
     BaseMixin,
     Mapped,

@@ -5,8 +5,8 @@ from __future__ import annotations
 from sqlalchemy.ext.orderinglist import ordering_list
 
 from coaster.sqlalchemy import add_primary_relationship, with_roles
-from funnel.utils import markdown
 
+from ..utils import markdown
 from . import BaseScopedNameMixin, CoordinatesMixin, MarkdownColumn, UuidMixin, db, sa
 from .helpers import reopen
 from .project import Project

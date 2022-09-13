@@ -1,4 +1,5 @@
 """Base files for markdown parser."""
+# pylint: disable=too-many-arguments
 
 from typing import Dict, List, Optional, Union, overload
 
@@ -9,6 +10,8 @@ from coaster.utils.text import normalize_spaces_multiline
 
 from .extmap import markdown_extensions
 from .helpers import MDExtDefaults
+
+__all__ = ['markdown']
 
 # --- Standard extensions --------------------------------------------------------------
 # FOR CUT 2
@@ -26,7 +29,7 @@ from .helpers import MDExtDefaults
 
 # --- Markdown processor ---------------------------------------------------------------
 
-# pylint: disable=too-many-arguments
+
 @overload
 def markdown(
     text: None,

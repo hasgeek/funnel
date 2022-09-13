@@ -15,8 +15,8 @@ from isoweek import Week
 from baseframe import localize_timezone
 from coaster.sqlalchemy import with_roles
 from coaster.utils import utcnow
-from funnel.utils import markdown
 
+from ..utils import markdown
 from . import (
     BaseScopedIdNameMixin,
     Mapped,
