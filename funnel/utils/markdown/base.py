@@ -90,4 +90,4 @@ def markdown(
                 ext_config = markdown_extensions[e].config(extension_configs[e])
             md.use(markdown_extensions[e].ext, **ext_config)
 
-    return Markup(md.render(text))
+    return Markup(md.render(text))  # type: ignore[arg-type]

@@ -16,7 +16,7 @@ markdown_extensions['footnote'] = MDExtension(footnote.footnote_plugin)
 
 markdown_extensions['heading_anchors'] = MDExtension(anchors.anchors_plugin)
 markdown_extensions['heading_anchors'].set_config(
-    'default',
+    None,
     {
         'min_level': 1,
         'max_level': 3,
@@ -28,7 +28,7 @@ markdown_extensions['heading_anchors'].set_config(
 
 markdown_extensions['tasklists'] = MDExtension(tasklists.tasklists_plugin)
 markdown_extensions['tasklists'].set_config(
-    'default', {'enabled': False, 'label': False, 'label_after': False}
+    None, {'enabled': False, 'label': False, 'label_after': False}
 )
 
 # TODO: These plugins will be integrated later with more robust edge-case testing

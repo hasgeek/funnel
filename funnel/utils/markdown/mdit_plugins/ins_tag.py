@@ -96,8 +96,13 @@ def ins_plugin(md: MarkdownIt):
         max_ = len(state.tokens_meta)
         _post_process(state, state.delimiters)
         for current in range(0, max_):
-            if tokens_meta[current] and tokens_meta[current]['delimiters']:
-                _post_process(state, tokens_meta[current]['delimiters'])
+            if (
+                tokens_meta[current] is not None
+                and tokens_meta[current]['delimiters']  # type: ignore[index]
+            ):
+                _post_process(
+                    state, tokens_meta[current]['delimiters']  # type: ignore[index]
+                )
 
     md.inline.ruler2.before('emphasis', 'ins', post_process)
 

@@ -1,17 +1,6 @@
 """Helper for markdown parser."""
 
-from typing import Any, Dict, List
-
-from markdown_it import MarkdownIt
-from typing_extensions import Protocol
-
-
-class MDITPluginType(Protocol):
-    """Typing protocol for callable to initilize markdown-it-py plugin."""
-
-    def __call__(self, md: MarkdownIt, **options) -> None:
-        ...
-
+from typing import Any, Callable, Dict, List, Optional
 
 MDConfigType = Dict[str, Any]
 
@@ -26,34 +15,28 @@ class MDExtension:
     HTML
     """
 
-    ext: MDITPluginType
-    configs: Dict[str, MDConfigType]
-    _default_config: str = 'default'
-
-    def __init__(self, ext: MDITPluginType):
+    def __init__(self, ext: Callable[..., None]):
         self.ext = ext
-        self.configs = {'default': {}}
+        self.configs: Dict[Optional[str], MDConfigType] = {None: {}}
 
-    def set_config(self, k: str, v: MDConfigType) -> None:
+    def set_config(self, k: Optional[str], v: MDConfigType) -> None:
         """Add/update a configuration for the extension."""
         self.configs[k] = v
 
-    def config(self, k: str) -> MDConfigType:
+    def config(self, k: Optional[str] = None) -> MDConfigType:
         """Get a configuration by key. If key does not exist, return default config."""
-        return self.configs[k] if k in self.configs else self.default_config
-
-    def set_default_config(self, default: str) -> None:
-        """Set the default configuration for the extension."""
-        if default in self.configs:
-            self._default_config = default
+        return self.configs[k]
 
     @property
     def default_config(self) -> MDConfigType:
-        return self.configs[self._default_config]
+        return self.configs[None]
 
 
+# TODO: Rename
 MDExtDefaults: List[str] = ['footnote', 'heading_anchors', 'tasklists']
 
-MD_CONFIGS: Dict[str, MDConfigType] = {'default': {}}
+# TODO: What is this?
+MD_CONFIGS: Dict[str, MDConfigType] = {'None': {}}
 
+# TODO: Move into base
 MD_CONFIGS['no_ext'] = {'extensions': []}
