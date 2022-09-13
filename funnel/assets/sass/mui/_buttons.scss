@@ -10,16 +10,14 @@
   @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
     box-shadow: 0 -1px 2px rgba(mui-color('black'), 0.12),
       -1px 0px 2px rgba(mui-color('black'), 0.12),
-      0 0px 2px rgba(mui-color('black'), 0.12),
-      0 2px 2px rgba(mui-color('black'), 0.2);
+      0 0px 2px rgba(mui-color('black'), 0.12), 0 2px 2px rgba(mui-color('black'), 0.2);
   }
 
   // Edge
   @supports (-ms-ime-align: auto) {
     box-shadow: 0 -1px 2px rgba(mui-color('black'), 0.12),
       -1px 0px 2px rgba(mui-color('black'), 0.12),
-      0 0px 2px rgba(mui-color('black'), 0.12),
-      0 2px 2px rgba(mui-color('black'), 0.2);
+      0 0px 2px rgba(mui-color('black'), 0.12), 0 2px 2px rgba(mui-color('black'), 0.2);
   }
 }
 
@@ -51,10 +49,7 @@
 .mui-btn {
   @include mui-text('button');
 
-  @include button-variant(
-    $mui-btn-default-font-color,
-    $mui-btn-default-bg-color
-  );
+  @include button-variant($mui-btn-default-font-color, $mui-btn-default-bg-color);
 
   @include button-flat-variant(
     $mui-btn-default-font-color,
@@ -174,38 +169,23 @@
 // ============================================================================
 
 .mui-btn--primary {
-  @include button-variant(
-    $mui-btn-primary-font-color,
-    $mui-btn-primary-bg-color
-  );
-  @include button-flat-variant(
-    $mui-btn-primary-bg-color,
-    $mui-btn-flat-bg-color-hover
-  );
+  @include button-variant($mui-btn-primary-font-color, $mui-btn-primary-bg-color);
+  @include button-flat-variant($mui-btn-primary-bg-color, $mui-btn-flat-bg-color-hover);
 }
 
 .mui-btn--dark {
   @include button-variant($mui-btn-dark-font-color, $mui-btn-dark-bg-color);
-  @include button-flat-variant(
-    $mui-btn-dark-bg-color,
-    $mui-btn-flat-bg-color-hover
-  );
+  @include button-flat-variant($mui-btn-dark-bg-color, $mui-btn-flat-bg-color-hover);
 }
 
 .mui-btn--danger {
   @include button-variant($mui-btn-danger-font-color, $mui-btn-danger-bg-color);
-  @include button-flat-variant(
-    $mui-btn-danger-bg-color,
-    $mui-btn-flat-bg-color-hover
-  );
+  @include button-flat-variant($mui-btn-danger-bg-color, $mui-btn-flat-bg-color-hover);
 }
 
 .mui-btn--accent {
   @include button-variant($mui-btn-accent-font-color, $mui-btn-accent-bg-color);
-  @include button-flat-variant(
-    $mui-btn-accent-bg-color,
-    $mui-btn-flat-bg-color-hover
-  );
+  @include button-flat-variant($mui-btn-accent-bg-color, $mui-btn-flat-bg-color-hover);
 }
 
 // ============================================================================

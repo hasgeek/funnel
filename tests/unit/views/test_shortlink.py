@@ -4,12 +4,11 @@ from urllib.parse import urlsplit
 
 import pytest
 
-from funnel import shortlinkapp
-from funnel.models import Shortlink
+from funnel import models
 
 
 @pytest.fixture()
-def shortlink_client(db_session):
+def shortlink_client(db_session, shortlinkapp):
     """Provide a test client for shortlinkapp."""
     with shortlinkapp.test_client() as test_client:
         yield test_client
@@ -27,7 +26,7 @@ def test_shortlink_404(shortlink_client) -> None:
 
 
 def test_shortlink_301(db_session, shortlink_client) -> None:
-    db_session.add(Shortlink.new('https://example.com/', name='example'))
+    db_session.add(models.Shortlink.new('https://example.com/', name='example'))
     db_session.commit()
     rv = shortlink_client.get('/example')
     assert rv.status_code == 301
@@ -37,7 +36,7 @@ def test_shortlink_301(db_session, shortlink_client) -> None:
 
 
 def test_shortlink_410(db_session, shortlink_client) -> None:
-    sl = Shortlink.new('https://example.com/', name='example')
+    sl = models.Shortlink.new('https://example.com/', name='example')
     sl.enabled = False
     db_session.add(sl)
     db_session.commit()

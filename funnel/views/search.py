@@ -39,6 +39,7 @@ from ..models import (
     Update,
     User,
     db,
+    sa,
     visual_field_delimiter,
 )
 from ..typing import ReturnRenderWith
@@ -96,41 +97,41 @@ class SearchProvider:
             if callable(model_hltext):
                 return model_hltext()
             return model_hltext
-        return db.func.concat_ws(
+        return sa.func.concat_ws(
             visual_field_delimiter,
             *(getattr(self.model, c) for c in self.model.search_vector.type.columns),
         )
 
     def hltitle_column(self, squery: str) -> ColumnElement:
         """Return a column expression for title with search terms highlighted."""
-        return db.func.ts_headline(
+        return sa.func.ts_headline(
             self.regconfig,
             self.title_column,
-            db.func.to_tsquery(squery),
+            sa.func.to_tsquery(squery),
             f'HighlightAll=TRUE, StartSel="{pg_startsel}", StopSel="{pg_stopsel}"',
-            type_=db.UnicodeText,
+            type_=sa.UnicodeText,
         )
 
     def hlsnippet_column(self, squery: str) -> ColumnElement:
         """Return a column expression for a snippet of text with highlights."""
-        return db.func.ts_headline(
+        return sa.func.ts_headline(
             self.regconfig,
             self.hltext,
-            db.func.to_tsquery(squery),
+            sa.func.to_tsquery(squery),
             f'MaxFragments=2, FragmentDelimiter="{pg_delimiter}",'
             f' MinWords=5, MaxWords=20,'
             f' StartSel="{pg_startsel}", StopSel="{pg_stopsel}"',
-            type_=db.UnicodeText,
+            type_=sa.UnicodeText,
         )
 
     def matched_text_column(self, squery: str) -> ColumnElement:
         """Return a column expression for matching text, without highlighting."""
-        return db.func.ts_headline(
+        return sa.func.ts_headline(
             self.regconfig,
             self.hltext,
-            db.func.to_tsquery(squery),
+            sa.func.to_tsquery(squery),
             'MaxFragments=0, MaxWords=100, StartSel="", StopSel=""',
-            type_=db.UnicodeText,
+            type_=sa.UnicodeText,
         )
 
     # --- Query methods
@@ -138,7 +139,7 @@ class SearchProvider:
     def add_order_by(self, squery: str, query: Query) -> Query:
         """Add an order_by condition to the query."""
         return query.order_by(
-            db.desc(db.func.ts_rank_cd(self.model.search_vector, squery)),
+            sa.desc(sa.func.ts_rank_cd(self.model.search_vector, squery)),
             self.model.created_at.desc(),
         )
 
@@ -148,7 +149,7 @@ class SearchProvider:
 
     def all_count(self, squery: str) -> int:
         """Return count of results for :meth:`all_query`."""
-        return self.all_query(squery).options(db.load_only(self.model.id)).count()
+        return self.all_query(squery).options(sa.orm.load_only(self.model.id)).count()
 
 
 class SearchInProfileProvider(SearchProvider):
@@ -162,7 +163,7 @@ class SearchInProfileProvider(SearchProvider):
         """Return count of results for :meth:`profile_query`."""
         return (
             self.profile_query(squery, profile)
-            .options(db.load_only(self.model.id))
+            .options(sa.orm.load_only(self.model.id))
             .count()
         )
 
@@ -178,7 +179,7 @@ class SearchInProjectProvider(SearchInProfileProvider):
         """Return count of results for :meth:`project_query`."""
         return (
             self.project_query(squery, project)
-            .options(db.load_only(self.model.id))
+            .options(sa.orm.load_only(self.model.id))
             .count()
         )
 
@@ -201,7 +202,7 @@ class ProjectSearch(SearchInProfileProvider):
             .filter(
                 Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
-                db.or_(
+                sa.or_(
                     # Search conditions. Any of:
                     # 1. Project has search terms
                     Project.search_vector.match(squery),
@@ -211,23 +212,23 @@ class ProjectSearch(SearchInProfileProvider):
                     User.search_vector.match(squery),
                 ),
             )
-            .options(db.joinedload(Project.profile))
+            .options(sa.orm.joinedload(Project.profile))
             # TODO: Replace `start_at` in distance with a new `nearest_session_at`.
             # The existing `next_session_at` is not suitable as it is future-only.
             .order_by(
                 # Order by:
                 # 1. Projects with start_at/published_at (ts is None == False)
                 # 2. Projects without those (ts is None == True)
-                db.case(
+                sa.case(
                     [(Project.start_at.is_(None), Project.published_at)],
                     else_=Project.start_at,
                 ).is_(None),
                 # Second, order by distance from present
-                db.func.abs(
-                    db.func.extract(
+                sa.func.abs(
+                    sa.func.extract(
                         'epoch',
-                        db.func.utcnow()
-                        - db.case(
+                        sa.func.utcnow()
+                        - sa.case(
                             [
                                 (Project.start_at.isnot(None), Project.start_at),
                                 (
@@ -240,14 +241,14 @@ class ProjectSearch(SearchInProfileProvider):
                     )
                 ),
                 # Third, order by relevance of search results
-                db.desc(db.func.ts_rank_cd(Project.search_vector, squery)),
+                sa.desc(sa.func.ts_rank_cd(Project.search_vector, squery)),
             )
         )
 
     def all_count(self, squery: str) -> int:
         """Return count of matching projects across the entire site."""
         return (
-            db.session.query(db.func.count('*'))
+            db.session.query(sa.func.count('*'))
             .select_from(Project)
             .join(Profile, Project.profile_id == Profile.id)
             .outerjoin(User, Profile.user_id == User.id)
@@ -255,7 +256,7 @@ class ProjectSearch(SearchInProfileProvider):
             .filter(
                 Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
-                db.or_(
+                sa.or_(
                     Project.search_vector.match(squery),
                     Organization.search_vector.match(squery),
                     User.search_vector.match(squery),
@@ -272,23 +273,24 @@ class ProjectSearch(SearchInProfileProvider):
                 Project.state.PUBLISHED,
                 Project.search_vector.match(squery),
             )
-            # .options(db.joinedload(Profile))  # Disabled because it breaks add_columns
+            # Disabled because it breaks add_columns
+            # .options(sa.orm.joinedload(Profile))
             .order_by(
                 # Order by:
                 # 1. Projects with start_at/published_at (ts is None == False)
                 # 2. Projects without those (ts is None == True)
-                db.case(
+                sa.case(
                     [(Project.start_at.is_(None), Project.published_at)],
                     else_=Project.start_at,
                 ).is_(None),
                 # Second, order by distance from present
                 # TODO: Replace `start_at` in distance with a new `nearest_session_at`.
                 # The existing `next_session_at` is not suitable as it is future-only.
-                db.func.abs(
-                    db.func.extract(
+                sa.func.abs(
+                    sa.func.extract(
                         'epoch',
-                        db.func.utcnow()
-                        - db.case(
+                        sa.func.utcnow()
+                        - sa.case(
                             [
                                 (Project.start_at.isnot(None), Project.start_at),
                                 (
@@ -301,7 +303,7 @@ class ProjectSearch(SearchInProfileProvider):
                     )
                 ),
                 # Third, order by relevance of search results
-                db.desc(db.func.ts_rank_cd(Project.search_vector, squery)),
+                sa.desc(sa.func.ts_rank_cd(Project.search_vector, squery)),
             )
         )
 
@@ -315,7 +317,7 @@ class ProfileSearch(SearchProvider):
     @property
     def title_column(self) -> ColumnElement:
         """Return title from user or organization that the profile is attached to."""
-        return db.case(
+        return sa.case(
             [
                 (Profile.user_id.isnot(None), User.fullname),
                 (Profile.organization_id.isnot(None), Organization.title),
@@ -326,7 +328,7 @@ class ProfileSearch(SearchProvider):
     @property
     def hltext(self) -> ColumnElement:
         """Return text from which matches will be highlighted."""
-        return db.func.concat_ws(
+        return sa.func.concat_ws(
             visual_field_delimiter, self.title_column, Profile.description_html
         )
 
@@ -338,7 +340,7 @@ class ProfileSearch(SearchProvider):
             .outerjoin(Organization)
             .filter(
                 Profile.state.ACTIVE_AND_PUBLIC,
-                db.or_(
+                sa.or_(
                     Profile.search_vector.match(squery),
                     User.search_vector.match(squery),
                     Organization.search_vector.match(squery),
@@ -356,8 +358,8 @@ class SessionSearch(SearchInProjectProvider):
     def add_order_by(self, squery: str, query: Query) -> Query:
         """Add an order_by condition to the query."""
         return query.order_by(
-            db.desc(db.func.ts_rank_cd(Session.search_vector, squery)),
-            db.case(
+            sa.desc(sa.func.ts_rank_cd(Session.search_vector, squery)),
+            sa.case(
                 [(Session.start_at.isnot(None), Session.start_at)],
                 else_=Session.created_at,
             ).desc(),
@@ -413,7 +415,7 @@ class ProposalSearch(SearchInProjectProvider):
     def add_order_by(self, squery: str, query: Query) -> Query:
         """Add an order_by condition to the query."""
         return query.order_by(
-            db.desc(db.func.ts_rank_cd(Proposal.search_vector, squery)),
+            sa.desc(sa.func.ts_rank_cd(Proposal.search_vector, squery)),
             Proposal.created_at.desc(),
         )
 
@@ -427,7 +429,7 @@ class ProposalSearch(SearchInProjectProvider):
                 Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Proposal.state.PUBLIC,
-                db.or_(
+                sa.or_(
                     Proposal.search_vector.match(squery),
                     ProposalMembership.query.join(User, ProposalMembership.user)
                     .filter(
@@ -451,7 +453,7 @@ class ProposalSearch(SearchInProjectProvider):
                 Project.state.PUBLISHED,
                 Project.profile == profile,
                 Proposal.state.PUBLIC,
-                db.or_(
+                sa.or_(
                     Proposal.search_vector.match(squery),
                     ProposalMembership.query.join(User, ProposalMembership.user)
                     .filter(
@@ -474,7 +476,7 @@ class ProposalSearch(SearchInProjectProvider):
             Proposal.query.filter(
                 Proposal.project == project,
                 Proposal.state.PUBLIC,
-                db.or_(
+                sa.or_(
                     Proposal.search_vector.match(squery),
                     ProposalMembership.query.join(User, ProposalMembership.user)
                     .filter(
@@ -500,8 +502,8 @@ class UpdateSearch(SearchInProjectProvider):
     def add_order_by(self, squery: str, query: Query) -> Query:
         """Add an order_by condition to the query."""
         return query.order_by(
-            db.desc(db.func.ts_rank_cd(Update.search_vector, squery)),
-            db.case(
+            sa.desc(sa.func.ts_rank_cd(Update.search_vector, squery)),
+            sa.case(
                 [(Update.published_at.isnot(None), Update.published_at)],
                 else_=Update.created_at,
             ).desc(),
@@ -567,14 +569,14 @@ class CommentSearch(SearchInProjectProvider):
                 Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Comment.state.PUBLIC,
-                db.or_(
+                sa.or_(
                     Comment.search_vector.match(squery),
                     User.search_vector.match(squery),
                 ),
             )
             .order_by(
-                db.desc(db.func.ts_rank_cd(Comment.search_vector, squery)),
-                db.desc(Comment.created_at),
+                sa.desc(sa.func.ts_rank_cd(Comment.search_vector, squery)),
+                sa.desc(Comment.created_at),
             )
             .union_all(
                 Comment.query.join(User, Comment.user_id == User.id)
@@ -585,14 +587,14 @@ class CommentSearch(SearchInProjectProvider):
                     Profile.state.ACTIVE_AND_PUBLIC,
                     Project.state.PUBLISHED,
                     Comment.state.PUBLIC,
-                    db.or_(
+                    sa.or_(
                         Comment.search_vector.match(squery),
                         User.search_vector.match(squery),
                     ),
                 )
                 .order_by(
-                    db.desc(db.func.ts_rank_cd(Comment.search_vector, squery)),
-                    db.desc(Comment.created_at),
+                    sa.desc(sa.func.ts_rank_cd(Comment.search_vector, squery)),
+                    sa.desc(Comment.created_at),
                 ),
                 # Add query on future comment-supporting models here
             )
@@ -607,14 +609,14 @@ class CommentSearch(SearchInProjectProvider):
                 Project.profile == profile,
                 Project.state.PUBLISHED,
                 Comment.state.PUBLIC,
-                db.or_(
+                sa.or_(
                     Comment.search_vector.match(squery),
                     User.search_vector.match(squery),
                 ),
             )
             .order_by(
-                db.desc(db.func.ts_rank_cd(Comment.search_vector, squery)),
-                db.desc(Comment.created_at),
+                sa.desc(sa.func.ts_rank_cd(Comment.search_vector, squery)),
+                sa.desc(Comment.created_at),
             )
             .union_all(
                 Comment.query.join(User, Comment.user_id == User.id)
@@ -624,14 +626,14 @@ class CommentSearch(SearchInProjectProvider):
                     Project.profile == profile,
                     Project.state.PUBLISHED,
                     Comment.state.PUBLIC,
-                    db.or_(
+                    sa.or_(
                         Comment.search_vector.match(squery),
                         User.search_vector.match(squery),
                     ),
                 )
                 .order_by(
-                    db.desc(db.func.ts_rank_cd(Comment.search_vector, squery)),
-                    db.desc(Comment.created_at),
+                    sa.desc(sa.func.ts_rank_cd(Comment.search_vector, squery)),
+                    sa.desc(Comment.created_at),
                 ),
                 # Add query on future comment-supporting models here
             )
@@ -645,34 +647,34 @@ class CommentSearch(SearchInProjectProvider):
             .filter(
                 Commentset.id == project.commentset_id,
                 Comment.state.PUBLIC,
-                db.or_(
+                sa.or_(
                     Comment.search_vector.match(squery),
                     User.search_vector.match(squery),
                 ),
             )
             .order_by(
-                db.desc(db.func.ts_rank_cd(Comment.search_vector, squery)),
-                db.desc(Comment.created_at),
+                sa.desc(sa.func.ts_rank_cd(Comment.search_vector, squery)),
+                sa.desc(Comment.created_at),
             )
             .union_all(
                 Comment.query.join(User, Comment.user_id == User.id)
                 .join(
                     Proposal,
-                    db.and_(
+                    sa.and_(
                         Proposal.commentset_id == Comment.commentset_id,
                         Proposal.project_id == project.id,
                     ),
                 )
                 .filter(
                     Comment.state.PUBLIC,
-                    db.or_(
+                    sa.or_(
                         Comment.search_vector.match(squery),
                         User.search_vector.match(squery),
                     ),
                 )
                 .order_by(
-                    db.desc(db.func.ts_rank_cd(Comment.search_vector, squery)),
-                    db.desc(Comment.created_at),
+                    sa.desc(sa.func.ts_rank_cd(Comment.search_vector, squery)),
+                    sa.desc(Comment.created_at),
                 ),
                 # Add query on future comment-supporting models here
             )
@@ -713,7 +715,7 @@ def get_squery(text: Optional[str]) -> str:
     This function requires ``websearch_to_tsquery`` from PostgreSQL >= 12.
     """
     with db.session.no_autoflush:
-        return db.session.query(db.func.websearch_to_tsquery(text or '')).scalar()
+        return db.session.query(sa.func.websearch_to_tsquery(text or '')).scalar()
 
 
 def clean_matched_text(text: str) -> str:

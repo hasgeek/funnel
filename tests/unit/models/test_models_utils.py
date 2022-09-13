@@ -1,5 +1,7 @@
 """Tests for model processing utilities."""
 
+import pytest
+
 from funnel import models
 
 
@@ -29,6 +31,7 @@ def test_merge_users_newer_older(db_session, user_death, user_rincewind) -> None
     assert user_rincewind.state.MERGED
 
 
+@pytest.mark.filterwarnings("ignore:Object of type <UserEmail> not in session")
 def test_getuser(  # pylint: disable=too-many-statements
     db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
 ):
@@ -88,15 +91,15 @@ def test_getuser(  # pylint: disable=too-many-statements
     # Retrieval by unprefixed phone number works for Indian and US phone numbers
     assert models.getuser('9999999999') is user_twoflower
     assert models.getuser('2345678901') is user_rincewind
-    assert models.getuser('12345678901') is user_mort  # 1 prefix to distinguish
+    assert models.getuser('+12345678901') is user_mort  # +1 prefix to distinguish
     assert models.getuser('99999 99999') is user_twoflower
     assert models.getuser('23456 78901') is user_rincewind
-    assert models.getuser('1 234 567 8901') is user_mort
+    assert models.getuser('+1 234 567 8901') is user_mort
     assert models.getuser('99999-99999') is user_twoflower
     assert models.getuser('23456-78901') is user_rincewind
     assert models.getuser('99999.99999') is user_twoflower
     assert models.getuser('23456.78901') is user_rincewind
-    assert models.getuser('1 (234) 567 8901') is user_mort
+    assert models.getuser('+1 (234) 567 8901') is user_mort
 
     # Retrieval by prefixed phone number works for all phone numbers
     assert models.getuser('+919999999999') is user_twoflower
@@ -121,10 +124,11 @@ def test_getuser(  # pylint: disable=too-many-statements
     assert models.getuser('@rincewind') is None
     assert models.getuser('~rincewind') is None
     assert models.getuser('rincewind@example.com') is None
-    assert models.getuser('2345678901') is user_mort  # Same unprefixed number for both
+    assert models.getuser('+12345678901') is user_mort
     assert models.getuser('+912345678901') is None
 
 
+@pytest.mark.filterwarnings("ignore:Object of type <UserEmail> not in session")
 def test_getuser_anchor(
     db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
 ):
@@ -193,10 +197,10 @@ def test_getuser_anchor(
     # Using an unknown email address retrieves nothing
     assert models.getuser('unknown@example.org', True) == (None, None)
 
-    # Retrieval by unprefixed phone number works for Indian and US phone numbers
+    # Retrieval by unprefixed phone number works for Indian phone numbers
     assert models.getuser('9999999999', True) == (user_twoflower, user_twoflower.phone)
     assert models.getuser('2345678901', True) == (user_rincewind, user_rincewind.phone)
-    assert models.getuser('12345678901', True) == (user_mort, user_mort.phone)
+    assert models.getuser('+12345678901', True) == (user_mort, user_mort.phone)
 
     # Retrieval by prefixed phone number works for all phone numbers
     assert models.getuser('+919999999999', True) == (
@@ -215,10 +219,6 @@ def test_getuser_anchor(
     assert models.getuser('@rincewind', True) == (None, None)
     assert models.getuser('~rincewind', True) == (None, None)
     assert models.getuser('rincewind@example.com', True) == (None, None)
-    # Rincewind and Mort have the same number before adding a prefix. Rincewind's has
-    # higher priority as a +91 number, but since the account is suspended, Mort's
-    # account is retrieved
-    assert models.getuser('2345678901', True) == (user_mort, user_mort.phone)
     assert models.getuser('+912345678901', True) == (None, None)
 
 
@@ -227,7 +227,7 @@ def test_getextid(db_session, user_rincewind) -> None:
     service = 'sample-service'
     userid = 'rincewind@sample-service'
 
-    externalid = models.UserExternalId(  # nosec # noqa: S106
+    externalid = models.UserExternalId(  # nosec
         service=service,
         user=user_rincewind,
         userid=userid,

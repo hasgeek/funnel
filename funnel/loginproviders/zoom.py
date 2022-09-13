@@ -20,9 +20,7 @@ __all__ = ['ZoomProvider']
 class ZoomProvider(LoginProvider):
     at_username = False
     auth_url = 'https://zoom.us/oauth/authorize?response_type=code'  # nosec
-    token_url = (
-        'https://zoom.us/oauth/token?grant_type=authorization_code'  # nosec  # noqa
-    )
+    token_url = 'https://zoom.us/oauth/token?grant_type=authorization_code'  # nosec
     user_info_url = 'https://api.zoom.us/v2/users/me'  # nosec
 
     def do(self, callback_url):

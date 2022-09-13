@@ -80,8 +80,8 @@
     }
     .login-page__box {
       position: relative;
-      padding: ($mui-grid-padding * 2 + $mui-grid-padding/2) $mui-grid-padding *
-        2 $mui-grid-padding * 2;
+      padding: ($mui-grid-padding * 2 + $mui-grid-padding/2) $mui-grid-padding * 2
+        $mui-grid-padding * 2;
       border-radius: 16px;
       margin: 0 auto $mui-grid-padding * 2;
     }
@@ -129,4 +129,40 @@ a.loginbutton.hidden,
       }
     }
   }
+}
+
+.social-login-wrapper {
+  max-width: 80%;
+  margin: auto;
+}
+
+.login-twitter,
+.login-twitter:hover,
+.login-twitter:active {
+  background-color: #08a0e9 !important;
+}
+
+.login-google,
+.login-google:hover,
+.login-google:active {
+  color: #757575;
+  background: $mui-bg-color-primary !important;
+}
+
+.login-linkedin,
+.login-linkedin:hover,
+.login-linkedin:active {
+  background-color: #0074b2 !important;
+}
+
+.login-github,
+.login-github:hover,
+.login-github:active {
+  background-color: #444444 !important;
+}
+
+.login-zoom,
+.login-zoom:hover,
+.login-zoom:active {
+  background-color: $mui-bg-color-primary !important;
 }

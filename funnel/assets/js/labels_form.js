@@ -14,7 +14,7 @@ $(() => {
         update() {
           $(this)
             .children()
-            .each(function (index) {
+            .each(function updateSeq(index) {
               $(this)
                 .children('input[name$="seq"]')
                 .val(index + 1);
@@ -31,7 +31,7 @@ $(() => {
       $('.js-required-field input').prop('checked', true);
       $('#child-form').each(applySortable);
     });
-    $('#child-form').on('click', '.js-remove-sublabel-form', function (e) {
+    $('#child-form').on('click', '.js-remove-sublabel-form', function removeSubForm(e) {
       e.preventDefault();
       $(this).parent().remove();
     });

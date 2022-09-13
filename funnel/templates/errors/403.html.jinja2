@@ -1,0 +1,13 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}{% trans %}403 Forbidden{% endtrans %}{% endblock title %}
+
+{% block top_title %}
+  <div class="mui--text-center">
+    <img src="{{ url_for('static', filename='img/error-403.svg') }}" class="emoticon" alt="{% trans %}Unavailable{% endtrans %}"/>
+    <h1 class="mui--text-light mui--text-display1">{% trans %}Unavailable{% endtrans %}</h1>
+  </div>
+{% endblock top_title %}
+
+{% block content %}
+  <p class="mui--text-subhead mui--text-center">{% trans %}This page is not currently available{% endtrans %}</p>
+{% endblock content %}

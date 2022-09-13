@@ -31,25 +31,27 @@ $(() => {
         };
       },
       methods: {
-        fetchResult() {
+        async fetchResult() {
           if (!pastProjectsApp.waitingForResponse) {
             pastProjectsApp.waitingForResponse = true;
-            $.ajax({
-              type: 'GET',
-              url: config.past_projects_json_url,
-              data: {
-                page: pastProjectsApp.next_page,
+            const url = `${config.past_projects_json_url}?${new URLSearchParams({
+              page: pastProjectsApp.next_page,
+            }).toString()}`;
+            const response = await fetch(url, {
+              headers: {
+                Accept: 'application/json',
               },
-              timeout: window.Hasgeek.Config.ajaxTimeout,
-              dataType: 'json',
-              success(data) {
+            });
+            if (response && response.ok) {
+              const data = await response.json();
+              if (data) {
                 if (config.show_heading) pastProjectsApp.title = data.title;
                 pastProjectsApp.headings = data.headings;
                 pastProjectsApp.pastprojects.push(...data.past_projects);
                 pastProjectsApp.next_page = data.next_page;
                 pastProjectsApp.waitingForResponse = false;
-              },
-            });
+              }
+            }
           }
         },
         lazyoad() {

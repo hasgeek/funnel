@@ -2,7 +2,7 @@
 
 import pytest
 
-from funnel.models import Label
+from funnel import models
 
 
 def test_main_label_from_fixture(new_main_label) -> None:
@@ -54,8 +54,8 @@ def test_proposal_assignment_radio(new_main_label, new_proposal) -> None:
 
 
 def test_label_flags(new_main_label, new_label) -> None:
-    restricted_labels = Label.query.filter(
-        Label.restricted.is_(True)  # type: ignore[attr-defined]
+    restricted_labels = models.Label.query.filter(
+        models.Label.restricted.is_(True)  # type: ignore[attr-defined]
     ).all()
     assert new_main_label in restricted_labels
     assert new_label not in restricted_labels

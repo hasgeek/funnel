@@ -110,7 +110,7 @@ class PasswordStrengthValidator:
 def pwned_password_validator(_form, field) -> None:
     """Validate password against the pwned password API."""
     # Add usedforsecurity=False when migrating to Python 3.9+
-    phash = sha1(field.data.encode()).hexdigest().upper()  # noqa: S324  # nosec
+    phash = sha1(field.data.encode()).hexdigest().upper()  # nosec
     prefix, suffix = phash[:5], phash[5:]
 
     try:
@@ -509,7 +509,7 @@ def validate_emailclaim(form, field):
 
 
 @User.forms('email_add')
-class NewEmailAddressForm(forms.Form):
+class NewEmailAddressForm(forms.RecaptchaForm):
     """Form to add a new email address to a user account."""
 
     __expects__ = ('edit_user',)
@@ -558,7 +558,7 @@ class EmailPrimaryForm(forms.Form):
 
 
 @User.forms('phone_add')
-class NewPhoneForm(forms.Form):
+class NewPhoneForm(forms.RecaptchaForm):
     """Form to add a new mobile number (SMS-capable) to a user account."""
 
     __expects__ = ('edit_user',)

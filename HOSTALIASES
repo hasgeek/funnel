@@ -1,0 +1,4 @@
+# Copy these entries into your /etc/hosts
+
+127.0.0.1   funnel.test
+127.0.0.1   f.test

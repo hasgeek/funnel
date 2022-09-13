@@ -1,6 +1,10 @@
 {% extends "ajaxform.html.jinja2" %}
+{% from "forms.html.jinja2" import recaptcha %}
 {% from "password_login_form.html.jinja2" import passwordlogin, sociallogin %}
-{% block title %}{% endblock %}
+{% block title %}{% endblock title %}
 {% block form %}
-  {{ passwordlogin(loginform, formid, ref_id) }}
-{% endblock %}
+  {{ passwordlogin(form, formid, ref_id) }}
+  {%- if form and form.recaptcha is defined %}
+    {{ recaptcha(ref_id,  'loginformwrapper') }}
+  {%- endif %}
+{% endblock form %}

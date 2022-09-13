@@ -588,6 +588,7 @@ form.mui--bg-accent .CodeMirror {
     z-index: 999;
     background: $mui-bg-color-primary;
     padding-top: $mui-grid-padding;
+    font-size: $mui-input-font-size;
   }
 }
 
@@ -628,7 +629,8 @@ form.mui--bg-accent .CodeMirror {
     }
     .proposal-preview {
       position: static;
-      padding-top: 19px;
+      padding-top: 133px;
+      height: auto;
     }
   }
 }
@@ -664,36 +666,6 @@ form.mui--bg-accent .CodeMirror {
   .mui-select > select:focus ~ label {
     color: rgba(0, 0, 0, 0.54);
   }
-}
-
-.social-login-wrapper {
-  max-width: 80%;
-  margin: auto;
-}
-
-.login-twitter,
-.login-twitter:hover,
-.login-twitter:active {
-  background-color: #08a0e9;
-}
-
-.login-google,
-.login-google:hover,
-.login-google:active {
-  color: #757575;
-  background: $mui-bg-color-primary;
-}
-
-.login-linkedin,
-.login-linkedin:hover,
-.login-linkedin:active {
-  background-color: #0074b2;
-}
-
-.login-github,
-.login-github:hover,
-.login-github:active {
-  background-color: #444444;
 }
 
 .keyboard-switch {

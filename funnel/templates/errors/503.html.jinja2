@@ -1,0 +1,13 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}{% trans %}Website down for maintenance{% endtrans %}{% endblock title %}
+
+{% block top_title %}
+  <div class="mui--text-center">
+    <img src="{{ url_for('static', filename='img/error-503.svg') }}" class="emoticon" alt="{% trans %}Website down for maintenance{% endtrans %}"/>
+    <h1 class="mui--text-light mui--text-display1">{% trans %}Website down for maintenance{% endtrans %}</h1>
+  </div>
+{% endblock top_title %}
+
+{% block content %}
+  <p class="mui--text-subhead mui--text-center">{% trans support_email=config['SITE_SUPPORT_EMAIL'] %}We should be back in a few seconds. If it is taking longer, write to us at <a href="mailto:{{ support_email }}">{{ support_email }}</a> for updates{% endtrans %}</p>
+{% endblock content %}

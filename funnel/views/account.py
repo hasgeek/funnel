@@ -55,6 +55,7 @@ from ..models import (
     UserPhone,
     UserSession,
     db,
+    sa,
 )
 from ..registry import login_registry
 from ..signals import user_data_changed
@@ -126,7 +127,7 @@ def organizations_as_admin(
     if order_by_grant:
         orgmems = orgmems.order_by(OrganizationMembership.granted_at.desc())
     else:
-        orgmems = orgmems.order_by(db.func.lower(Organization.title))
+        orgmems = orgmems.order_by(sa.func.lower(Organization.title))
 
     if limit is not None:
         orgmems = orgmems.limit(limit)
@@ -194,19 +195,38 @@ def user_not_likely_throwaway(obj: User) -> bool:
 def user_agent_details(obj: UserSession) -> Dict[str, str]:
     """Return a friendly identifier for the user's browser (HTTP user agent)."""
     ua = user_agents.parse(obj.user_agent)
-    return {
-        'browser': (ua.browser.family + ' ' + ua.browser.version_string)
-        if ua.browser.family
-        else _("Unknown browser"),
-        'os_device': (
-            (_("PC") + ' ')
-            if ua.is_pc
-            else str(ua.device.brand or '') + ' ' + str(ua.device.model or '') + ' '
-        )
-        + ' ('
-        + (str(ua.os.family) + ' ' + str(ua.os.version_string)).strip()
-        + ')',
-    }
+    if ua.browser.family:
+        browser = f"{ua.browser.family or ''} {ua.browser.version_string or ''}".strip()
+    else:
+        browser = _("Unknown browser")
+    if ua.is_pc or ua.device.brand == "Generic":
+        device = ''
+    elif (
+        ua.device.model
+        and ua.device.brand
+        and ua.device.model.startswith(ua.device.brand)
+    ):
+        device = ua.device.model
+    else:
+        device = f"{ua.device.brand or ''} {ua.device.model or ''}".strip()
+
+    if ua.os.family == "Mac OS X":
+        if ua.os.version_string.startswith('10.15.'):
+            # Safari, Firefox and Chrome report outdated version 10.15.7
+            os = "macOS"
+        else:
+            # Microsoft Edge appears to report the correct version number
+            os = f"macOS {ua.os.version_string}"
+    else:
+        os = f"{ ua.os.family or ''} {ua.os.version_string or ''}".strip()
+
+    if device:
+        os_device = f'{device} ({os})'
+    elif os:
+        os_device = os
+    else:
+        os_device = _("Unknown device")
+    return {'browser': browser, 'os_device': os_device}
 
 
 @UserSession.views('location')

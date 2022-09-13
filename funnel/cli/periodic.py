@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Any
+from typing import Any, Dict
 import sys
 
 from flask.cli import AppGroup
@@ -16,7 +16,7 @@ import requests
 from coaster.utils import midnight_to_utc, utcnow
 
 from .. import app, models
-from ..models import db
+from ..models import db, sa
 from ..views.notification import dispatch_notification
 
 # --- Data sources ---------------------------------------------------------------------
@@ -30,7 +30,7 @@ class DataSource:
     datecolumn: Any
 
 
-def data_sources():
+def data_sources() -> Dict[str, DataSource]:
     """Return sources for daily growth report."""
     return {
         # `user_sessions`, `app_user_sessions` and `returning_users` (added below) are
@@ -40,7 +40,7 @@ def data_sources():
             models.UserSession.accessed_at,
         ),
         'app_user_sessions': DataSource(
-            db.session.query(db.func.distinct(models.UserSession.user_id))
+            db.session.query(sa.func.distinct(models.UserSession.user_id))
             .select_from(models.auth_client_user_session, models.UserSession)
             .filter(
                 models.auth_client_user_session.c.user_session_id
@@ -78,8 +78,8 @@ def project_starting_alert():
     # Rollback to the most recent 5 minute interval, to account for startup delay
     # for periodic job processes.
     use_now = db.session.query(
-        db.func.date_trunc('hour', db.func.utcnow())
-        + db.cast(db.func.date_part('minute', db.func.utcnow()), db.Integer)
+        sa.func.date_trunc('hour', sa.func.utcnow())
+        + sa.cast(sa.func.date_part('minute', sa.func.utcnow()), sa.Integer)
         / 5
         * timedelta(minutes=5)
     ).scalar()
@@ -89,7 +89,7 @@ def project_starting_alert():
     # the prior hour.
 
     # Any eager-loading columns and relationships should be deferred with
-    # db.defer(column) and db.noload(relationship). There are none as of this
+    # sa.orm.defer(column) and sa.orm.noload(relationship). There are none as of this
     # commit.
     for project in (
         models.Project.starting_at(
@@ -97,7 +97,7 @@ def project_starting_alert():
             timedelta(minutes=5),
             timedelta(minutes=60),
         )
-        .options(db.load_only(models.Project.uuid))
+        .options(sa.orm.load_only(models.Project.uuid))
         .all()
     ):
         dispatch_notification(
@@ -111,11 +111,11 @@ def project_starting_alert():
 @periodic.command('growthstats')
 def growthstats():
     """Publish growth statistics to Telegram (midnight)."""
-    if not app.config.get('TELEGRAM_STATS_BOT_TOKEN') or not app.config.get(
-        'TELEGRAM_STATS_CHAT_ID'
+    if not app.config.get('TELEGRAM_STATS_APIKEY') or not app.config.get(
+        'TELEGRAM_STATS_CHATID'
     ):
         print(  # noqa: T201
-            "Configure TELEGRAM_STATS_BOT_TOKEN and TELEGRAM_STATS_CHAT_ID in settings",
+            "Configure TELEGRAM_STATS_APIKEY and TELEGRAM_STATS_CHATID in settings",
             file=sys.stderr,
         )
         return
@@ -247,10 +247,10 @@ def growthstats():
             )
 
     requests.post(
-        f'https://api.telegram.org/bot{app.config["TELEGRAM_STATS_BOT_TOKEN"]}'
+        f'https://api.telegram.org/bot{app.config["TELEGRAM_STATS_APIKEY"]}'
         f'/sendMessage',
         data={
-            'chat_id': app.config['TELEGRAM_STATS_CHAT_ID'],
+            'chat_id': app.config['TELEGRAM_STATS_CHATID'],
             'parse_mode': 'markdown',
             'text': message,
         },

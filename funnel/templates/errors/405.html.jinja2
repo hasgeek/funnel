@@ -1,0 +1,13 @@
+{% extends "layout.html.jinja2" %}
+{% block title %}{% trans %}405 Method Not Allowed{% endtrans %}{% endblock title %}
+
+{% block top_title %}
+  <div class="mui--text-center">
+    <img src="{{ url_for('static', filename='img/error-405.svg') }}" class="emoticon" alt="{% trans %}Method not allowed{% endtrans %}"/>
+    <h1 class="mui--text-light mui--text-display1">{% trans %}Method not allowed{% endtrans %}</h1>
+  </div>
+{% endblock top_title %}
+
+{% block content %}
+  <p class="mui--text-subhead mui--text-center">{% trans %}Are you sure this is the page you are looking for?{% endtrans %}</p>
+{% endblock content %}

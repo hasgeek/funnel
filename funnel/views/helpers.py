@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from base64 import urlsafe_b64encode
+from contextlib import nullcontext
 from datetime import datetime, timedelta
 from hashlib import blake2b
 from os import urandom
@@ -24,7 +25,8 @@ from flask import (
     session,
     url_for,
 )
-from werkzeug.routing import BuildError
+from werkzeug.exceptions import MethodNotAllowed, NotFound
+from werkzeug.routing import BuildError, RequestRedirect
 from werkzeug.urls import url_quote
 
 from furl import furl
@@ -41,9 +43,7 @@ from .. import app, built_assets, shortlinkapp
 from ..forms import supported_locales
 from ..models import Shortlink, User, db, profanity
 from ..proxies import request_wants
-from ..signals import emailaddress_refcount_dropping
-from ..typing import ReturnResponse, ReturnView
-from .jobs import forget_email
+from ..typing import ResponseType, ReturnResponse, ReturnView
 
 valid_timezones = set(common_timezones)
 
@@ -91,6 +91,13 @@ class SessionTimeouts(Dict[str, timedelta]):
 session_timeouts = SessionTimeouts()
 
 # --- Utilities ------------------------------------------------------------------------
+
+
+def app_context():
+    """Return an app context if one is not active."""
+    if current_app:
+        return nullcontext()
+    return app.app_context()
 
 
 def str_pw_set_at(user: User) -> str:
@@ -151,6 +158,64 @@ def app_url_for(
     if _anchor:
         result += f'#{url_quote(_anchor)}'
     return result
+
+
+def validate_is_app_url(url: Union[str, furl], method: str = 'GET') -> bool:
+    """Confirm if an external URL is served by the current app (runtime-only)."""
+    # Parse or copy URL and remove username and password before further analysis
+    parsed_url = furl(url).remove(username=True, password=True)
+    if not parsed_url.host or not parsed_url.scheme:
+        return False  # This validator requires a full URL
+
+    if current_app.url_map.host_matching:
+        # This URL adapter matches explicit hosts, so we just give it the URL as its
+        # server_name
+        server_name = parsed_url.netloc
+        subdomain = None
+    else:
+        # Next, validate whether the URL's host/netloc is valid for this app's config
+        # or for the hostname indicated by the current request
+        subdomain = None
+
+        # If config specifies a SERVER_NAME and app has subdomains, test against it
+        server_name = current_app.config['SERVER_NAME']
+        if server_name:
+            if not (
+                parsed_url.netloc == server_name
+                or (
+                    current_app.subdomain_matching
+                    and parsed_url.netloc.endswith(f'.{server_name}')
+                )
+            ):
+                return False
+            subdomain = (
+                (current_app.url_map.default_subdomain or None)
+                if current_app.subdomain_matching
+                else None
+            )
+
+        # If config does not specify a SERVER_NAME, match against request.host
+        if not server_name:
+            # Compare request.host with parsed_url.host since there's no port here
+            if parsed_url.host != request.host:
+                return False
+            server_name = request.host
+
+        # Host is validated, now make an adapter to match the path
+        adapter = current_app.url_map.bind(
+            server_name,
+            subdomain=subdomain,
+            script_name=current_app.config['APPLICATION_ROOT'],
+            url_scheme=current_app.config['PREFERRED_URL_SCHEME'],
+        )
+
+    while True:  # Keep looping on redirects
+        try:
+            return bool(adapter.match(parsed_url.path, method=method))
+        except RequestRedirect as exc:
+            parsed_url = furl(exc.new_url)
+        except (MethodNotAllowed, NotFound):
+            return False
 
 
 def localize_micro_timestamp(timestamp, from_tz=utc, to_tz=utc):
@@ -326,7 +391,7 @@ def validate_rate_limit(  # pylint: disable=too-many-arguments
 # This number can be increased to 4 as volumes grow, but will result in a 6 char token
 TOKEN_BYTES_LEN = 3
 # Changing this prefix will break existing tokens. Do not change
-TEXT_TOKEN_PREFIX = 'temp_token/v1/'  # nosec  # noqa: S105
+TEXT_TOKEN_PREFIX = 'temp_token/v1/'  # nosec
 
 
 def make_cached_token(payload: dict, timeout: int = 24 * 60 * 60) -> str:
@@ -400,7 +465,7 @@ def decompress(data: bytes, algorithm: str) -> bytes:
     raise ValueError("Unknown compression algorithm")
 
 
-def compress_response(response: ReturnResponse) -> None:
+def compress_response(response: ResponseType) -> None:
     """
     Conditionally compress a response based on request parameters.
 
@@ -502,14 +567,17 @@ def cleanurl_filter(url):
 
 
 @app.template_filter('shortlink')
-def shortlink(url, actor=None):
+def shortlink(url: str, actor: Optional[User] = None, shorter: bool = True) -> str:
     """
-    Return a short link suitable for SMS, in a template filter.
+    Return a short link suitable for sharing, in a template filter.
 
     Caller must perform a database commit.
+
+    :param shorter: Use a shorter shortlink, ideal for SMS or a small database
     """
-    sl = Shortlink.new(url, reuse=True, shorter=True, actor=actor)
+    sl = Shortlink.new(url, reuse=True, shorter=shorter, actor=actor)
     db.session.add(sl)
+    g.require_db_commit = True
     return app_url_for(shortlinkapp, 'link', name=sl.name, _external=True)
 
 
@@ -523,7 +591,18 @@ def template_context() -> Dict[str, Any]:
 
 
 @app.after_request
-def track_temporary_session_vars(response):
+def commit_db_session(response: ResponseType) -> ResponseType:
+    """Commit database session at the end of a request if asked to."""
+    # This handler is primarily required for the `|shortlink` template filter, which
+    # may make a database entry in a view's ``return render_template(...)`` call and
+    # is therefore too late for a commit within the view
+    if g.get('require_db_commit', False):
+        db.session.commit()
+    return response
+
+
+@app.after_request
+def track_temporary_session_vars(response: ResponseType) -> ResponseType:
     """Add timestamps to timed values in session, and remove expired values."""
     # Process timestamps only if there is at least one match. Most requests will
     # have no match.
@@ -546,36 +625,9 @@ def track_temporary_session_vars(response):
 
 
 @app.after_request
-def cache_expiry_headers(response):
+def cache_expiry_headers(response: ResponseType) -> ResponseType:
     if response.expires is None:
         response.expires = nocache_expires
     if not response.cache_control.max_age:
         response.cache_control.max_age = 0
-    return response
-
-
-# If an email address had a reference count drop during the request, make a note of
-# its email_hash, and at the end of the request, queue a background job. The job will
-# call .refcount() and if it still has zero references, it will be marked as forgotten
-# by having the email column set to None.
-
-# It is possible for an email address to have its refcount drop and rise again within
-# the request, so it's imperative to wait until the end of the request before attempting
-# to forget it. Ideally, this job should wait even longer, for several minutes or even
-# up to a day.
-
-
-@emailaddress_refcount_dropping.connect
-def forget_email_in_request_teardown(sender):
-    if g:  # Only do this if we have an app context
-        if not hasattr(g, 'forget_email_hashes'):
-            g.forget_email_hashes = set()
-        g.forget_email_hashes.add(sender.email_hash)
-
-
-@app.after_request
-def forget_email_in_background_job(response):
-    if hasattr(g, 'forget_email_hashes'):
-        for email_hash in g.forget_email_hashes:
-            forget_email.queue(email_hash)
     return response

@@ -44,13 +44,15 @@ from ..models import (
     UserSessionRevokedError,
     auth_client_user_session,
     db,
+    sa,
 )
 from ..proxies import request_wants
 from ..serializers import lastuser_serializer
 from ..signals import user_login, user_registered
-from ..typing import ReturnDecorator, WrappedFunc
+from ..typing import ResponseType, ReturnDecorator, WrappedFunc
 from ..utils import abort_null
 from .helpers import (
+    app_context,
     app_url_for,
     autoset_timezone_and_locale,
     get_scheme_netloc,
@@ -72,7 +74,7 @@ GET_AND_POST = frozenset({'GET', 'POST'})
 #: Form id for sudo OTP form
 FORMID_SUDO_OTP = 'sudo-otp'
 #: Form id for sudo password form
-FORMID_SUDO_PASSWORD = 'sudo-password'  # noqa: S105  # nosec
+FORMID_SUDO_PASSWORD = 'sudo-password'  # nosec
 
 # --- Registry entries -----------------------------------------------------------------
 
@@ -195,6 +197,7 @@ class LoginManager:
             if current_auth.is_authenticated:
                 add_auth_attribute('session', UserSession(user=current_auth.user))
                 current_auth.session.views.mark_accessed()
+                db.session.commit()
 
         if current_auth.session:
             lastuser_cookie['sessionid'] = current_auth.session.buid
@@ -234,7 +237,7 @@ def session_mark_accessed(
     # `accessed_at` will be different from the automatic `updated_at` in one
     # crucial context: when the session was revoked from a different session.
     # `accessed_at` won't be updated at that time.
-    obj.accessed_at = db.func.utcnow()
+    obj.accessed_at = sa.func.utcnow()
     with db.session.no_autoflush:
         if auth_client is not None:
             if (
@@ -248,7 +251,7 @@ def session_mark_accessed(
                     auth_client_user_session.update()
                     .where(auth_client_user_session.c.user_session_id == obj.id)
                     .where(auth_client_user_session.c.auth_client_id == auth_client.id)
-                    .values(accessed_at=db.func.utcnow())
+                    .values(accessed_at=sa.func.utcnow())
                 )
         else:
             ipaddr = (request.remote_addr or '') if ipaddr is None else ipaddr
@@ -294,7 +297,7 @@ def session_mark_accessed(
 
 # Also add future hasjob app here
 @app.after_request
-def clear_old_session(response):
+def clear_old_session(response: ResponseType) -> ResponseType:
     """Delete cookies that _may_ accidentally be present (and conflicting)."""
     for cookie_name, domains in app.config.get('DELETE_COOKIES', {}).items():
         if cookie_name in request.cookies:
@@ -307,17 +310,17 @@ def clear_old_session(response):
 
 # Also add future hasjob app here
 @app.after_request
-def set_lastuser_cookie(response):
+def set_lastuser_cookie(response: ResponseType) -> ResponseType:
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
     if (
         request_has_auth()
-        and hasattr(current_auth, 'cookie')
+        and 'cookie' in current_auth
         and not (
             current_auth.cookie == {}
-            and getattr(current_auth, 'suppress_empty_cookie', False)
+            and current_auth.get('suppress_empty_cookie', False)
         )
     ):
-        response.vary.add('Cookie')
+        response.vary.add('Cookie')  # type: ignore[union-attr]
         expires = utcnow() + current_app.config['PERMANENT_SESSION_LIFETIME']
         response.set_cookie(
             'lastuser',
@@ -363,9 +366,9 @@ def set_lastuser_cookie(response):
 
 # Also add future hasjob app here
 @app.after_request
-def update_user_session_timestamp(response):
+def update_user_session_timestamp(response: ResponseType) -> ResponseType:
     """Mark a user session as accessed at the end of every request."""
-    if request_has_auth() and current_auth.session:
+    if request_has_auth() and current_auth.get('session'):
         # Setup a callback to update the session after the request has returned a
         # response to the user-agent. There will be no request or app context in this
         # callback, so we create a closure containing the necessary data in local vars
@@ -376,7 +379,7 @@ def update_user_session_timestamp(response):
         @response.call_on_close
         def mark_session_accessed_after_response():
             # App context is needed for the call to statsd in mark_accessed()
-            with app.app_context():
+            with app_context():
                 # 1. Add object back to the current database session as it's not
                 # known here. We are NOT using session.merge as we don't need to
                 # refresh data from the db. SQLAlchemy will automatically load
@@ -556,7 +559,7 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
         if not current_auth.is_authenticated:
             flash(_("You need to be logged in for that page"), 'info')
             return render_redirect(url_for('login', next=get_current_url()))
-        if current_auth.session.has_sudo:
+        if current_auth.get('session') and current_auth.session.has_sudo:
             # This user authenticated recently, so no intervention is required
             del_sudo_preference_context()
             return f(*args, **kwargs)
@@ -721,7 +724,7 @@ def _client_login_inner():
             {'WWW-Authenticate': 'Basic realm="Client credentials"'},
         )
     if credential is not None:
-        credential.accessed_at = db.func.utcnow()
+        credential.accessed_at = sa.func.utcnow()
         db.session.commit()
     add_auth_attribute('auth_client', credential.auth_client, actor=True)
     return None
@@ -822,6 +825,8 @@ def login_internal(user, user_session=None, login_service=None):
         user_session = UserSession(user=user, login_service=login_service)
     user_session.views.mark_accessed()
     add_auth_attribute('session', user_session)
+    if 'cookie' not in current_auth:
+        add_auth_attribute('cookie', {})
     current_auth.cookie['sessionid'] = user_session.buid
     current_auth.cookie['userid'] = user.buid
     session.permanent = True
@@ -832,8 +837,9 @@ def login_internal(user, user_session=None, login_service=None):
 def logout_internal():
     """Logout current user (helper function)."""
     add_auth_attribute('user', None)
-    if current_auth.session:
-        current_auth.session.revoke()
+    user_session = current_auth.get('session')
+    if user_session:
+        user_session.revoke()
         add_auth_attribute('session', None)
     session.pop('sessionid', None)
     session.pop('userid', None)
@@ -842,8 +848,9 @@ def logout_internal():
     session.pop('userid_external', None)
     session.pop('avatar_url', None)
     session.pop('login_nonce', None)  # Used by funnelapp (future: hasjob)
-    current_auth.cookie.pop('sessionid', None)
-    current_auth.cookie.pop('userid', None)
+    if 'cookie' in current_auth:
+        current_auth.cookie.pop('sessionid', None)
+        current_auth.cookie.pop('userid', None)
     session.permanent = False
 
 

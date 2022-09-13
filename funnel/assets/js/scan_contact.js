@@ -1,5 +1,6 @@
 import jsQR from 'jsqr';
 import vCardsJS from 'vcards-js';
+import Form from './utils/formhelper';
 import { RactiveApp } from './utils/ractive_util';
 
 const badgeScan = {
@@ -40,8 +41,7 @@ const badgeScan = {
         );
         event.node.setAttribute('download', `${vCard.firstName}.vcf`);
       },
-
-      getContact(qrcode) {
+      async getContact(qrcode) {
         this.set({
           scanning: true,
           showModal: true,
@@ -49,19 +49,34 @@ const badgeScan = {
         $('#status-msg').modal('show');
         const puk = qrcode.substring(0, 8);
         const key = qrcode.substring(8);
-        const formValues = `puk=${puk}&key=${key}`;
-        $.ajax({
-          type: 'POST',
-          url: getContactApiUrl,
-          data: formValues,
-          timeout: window.Hasgeek.Config.ajaxTimeout,
-          dataType: 'json',
+        const formValues = `puk=${encodeURIComponent(puk)}&key=${encodeURIComponent(
+          key
+        )}`;
 
-          success(response) {
+        function handleError(error) {
+          const errorMsg = Form.getFetchError(error);
+          badgeScanComponent.set({
+            scanning: false,
+            contactFound: false,
+            errorMsg,
+          });
+        }
+
+        const response = await fetch(getContactApiUrl, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: formValues,
+        }).catch(Form.handleFetchNetworkError);
+        if (response && response.ok) {
+          const responseData = await response.json();
+          if (responseData) {
             badgeScanComponent.set({
               scanning: false,
               contactFound: true,
-              contact: response.contact,
+              contact: responseData.contact,
             });
 
             if (
@@ -69,48 +84,27 @@ const badgeScan = {
                 .get('contacts')
                 .some(
                   (contact) =>
-                    contact.fullname === response.contact.fullname &&
-                    contact.email === response.contact.email
+                    contact.fullname === responseData.contact.fullname &&
+                    contact.email === responseData.contact.email
                 )
             ) {
-              badgeScanComponent.push('contacts', response.contact);
+              badgeScanComponent.push('contacts', responseData.contact);
             }
-          },
-
-          error(response) {
-            let errorMsg;
-
-            if (response.readyState === 4) {
-              if (response.status === 500) {
-                errorMsg = window.Hasgeek.Config.errorMsg.serverError;
-              } else {
-                errorMsg = JSON.parse(response.responseText).message;
-              }
-            } else {
-              errorMsg = window.Hasgeek.Config.errorMsg.networkError;
-            }
-
-            badgeScanComponent.set({
-              scanning: false,
-              contactFound: false,
-              errorMsg,
-            });
-          },
-        });
+          } else {
+            handleError();
+          }
+        } else {
+          handleError();
+        }
       },
-
       startRenderFrameLoop() {
-        const timerId = window.requestAnimationFrame(
-          badgeScanComponent.renderFrame
-        );
+        const timerId = window.requestAnimationFrame(badgeScanComponent.renderFrame);
         this.set('timerId', timerId);
       },
-
       stopRenderFrameLoop() {
         window.cancelAnimationFrame(badgeScanComponent.get('timerId'));
         this.set('timerId', '');
       },
-
       verifyQRDecode(qrcode) {
         if (qrcode && qrcode.data.length === 16 && !this.get('showModal')) {
           this.stopRenderFrameLoop();
@@ -119,7 +113,6 @@ const badgeScan = {
           this.startRenderFrameLoop();
         }
       },
-
       renderFrame() {
         const canvasElement = this.get('canvasElement');
         const canvas = this.get('canvas');
@@ -128,30 +121,19 @@ const badgeScan = {
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
           canvasElement.height = video.videoHeight;
           canvasElement.width = video.videoWidth;
-          canvas.drawImage(
-            video,
-            0,
-            0,
-            canvasElement.width,
-            canvasElement.height
-          );
+          canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
           const imageData = canvas.getImageData(
             0,
             0,
             canvasElement.width,
             canvasElement.height
           );
-          const qrcode = jsQR(
-            imageData.data,
-            imageData.width,
-            imageData.height
-          );
+          const qrcode = jsQR(imageData.data, imageData.width, imageData.height);
           this.verifyQRDecode(qrcode);
         } else {
           this.startRenderFrameLoop();
         }
       },
-
       setupVideo(event) {
         if (event) {
           event.original.preventDefault();
@@ -182,7 +164,6 @@ const badgeScan = {
           );
         }
       },
-
       oncomplete() {
         this.setupVideo('');
         this.renderFrame = this.renderFrame.bind(this);

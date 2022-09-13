@@ -1,6 +1,6 @@
 {% extends "layout.html.jinja2" %}
 
-{% block title %}{% trans %}Merge accounts{% endtrans %}{% endblock %}
+{% block title %}{% trans %}Merge accounts{% endtrans %}{% endblock title %}
 
 {% macro accountinfo(user) %}
   <ul class="mui-list--aligned mui--text-subhead">
@@ -39,7 +39,7 @@
       <div class="mui--text-subhead">{{ accountinfo(other_user) }}</div>
     </div>
   </div>
-  <form class="cookies-required mui-form mui-form--margins" id="form-mergeaccounts" method="POST" accept-charset="UTF-8">
+  <form class="cookies-required mui-form mui-form--margins" id="form-mergeaccounts" method="post" accept-charset="UTF-8">
     <input type="hidden" name="form.id" value="authorize"/>
     {{ form.hidden_tag() }}
     {% if form.csrf_token.errors %}
@@ -51,4 +51,4 @@
       <span class="loading mui--hide"></span>
     </div>
   </form>
-{% endblock %}
+{% endblock contentwrapper %}

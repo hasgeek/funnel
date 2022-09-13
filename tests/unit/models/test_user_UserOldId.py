@@ -1,11 +1,14 @@
 """Tests for UserOldId model."""
 
+import pytest
+
 from funnel import models
 
 from .test_db import TestDatabaseFixture
 
 
 class TestUserOldId(TestDatabaseFixture):
+    @pytest.mark.usefixtures('app_context')  # merge_users tries to log debug statements
     def test_useroldid_get(self) -> None:
         """Test for verifying creation and retrieval of UserOldId instance."""
         crusoe = self.fixtures.crusoe

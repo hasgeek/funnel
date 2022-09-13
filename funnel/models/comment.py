@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Iterable, List, Optional, Set, Union
 
 from sqlalchemy.orm import CompositeProperty
@@ -12,7 +13,16 @@ from baseframe import _, __
 from coaster.sqlalchemy import LazyRoleSet, RoleAccessProxy, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import BaseMixin, MarkdownColumn, TSVectorType, UuidMixin, db, hybrid_property
+from . import (
+    BaseMixin,
+    Mapped,
+    MarkdownColumn,
+    TSVectorType,
+    UuidMixin,
+    db,
+    hybrid_property,
+    sa,
+)
 from .helpers import MessageComposite, add_search_trigger, reopen
 from .user import DuckTypeUser, User, deleted_user, removed_user
 
@@ -66,9 +76,9 @@ message_removed = MessageComposite(__("[removed]"), 'del')
 class Commentset(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'commentset'
     #: Commentset state code
-    _state = db.Column(
+    _state = sa.Column(
         'state',
-        db.SmallInteger,
+        sa.SmallInteger,
         StateManager.check_constraint('state', COMMENTSET_STATE),
         nullable=False,
         default=COMMENTSET_STATE.OPEN,
@@ -76,18 +86,18 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     #: Commentset state manager
     state = StateManager('_state', COMMENTSET_STATE, doc="Commentset state")
     #: Type of parent object
-    settype = with_roles(
-        db.Column('type', db.Integer, nullable=True), read={'all'}, datasets={'primary'}
+    settype: sa.Column[Optional[int]] = with_roles(
+        sa.Column('type', sa.Integer, nullable=True), read={'all'}, datasets={'primary'}
     )
     #: Count of comments, stored to avoid count(*) queries
     count = with_roles(
-        db.Column(db.Integer, default=0, nullable=False),
+        sa.Column(sa.Integer, default=0, nullable=False),
         read={'all'},
         datasets={'primary'},
     )
     #: Timestamp of last comment, for ordering.
-    last_comment_at = with_roles(
-        db.Column(db.TIMESTAMP(timezone=True), nullable=True),
+    last_comment_at: sa.Column[Optional[datetime]] = with_roles(
+        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'all'},
         datasets={'primary'},
     )
@@ -183,31 +193,38 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
 class Comment(UuidMixin, BaseMixin, db.Model):
     __tablename__ = 'comment'
 
-    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=True)
-    _user = with_roles(
-        db.relationship(
-            User, backref=db.backref('comments', lazy='dynamic', cascade='all')
+    user_id: sa.Column[Optional[int]] = db.Column(
+        None, sa.ForeignKey('user.id'), nullable=True
+    )
+    _user: Mapped[Optional[User]] = with_roles(
+        sa.orm.relationship(
+            User, backref=sa.orm.backref('comments', lazy='dynamic', cascade='all')
         ),
         grants={'author'},
     )
-    commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
+    commentset_id: sa.Column[int] = db.Column(
+        None, sa.ForeignKey('commentset.id'), nullable=False
+    )
     commentset = with_roles(
-        db.relationship(
-            Commentset, backref=db.backref('comments', lazy='dynamic', cascade='all')
+        sa.orm.relationship(
+            Commentset,
+            backref=sa.orm.backref('comments', lazy='dynamic', cascade='all'),
         ),
         grants_via={None: {'document_subscriber'}},
     )
 
-    in_reply_to_id = db.Column(None, db.ForeignKey('comment.id'), nullable=True)
-    replies = db.relationship(
-        'Comment', backref=db.backref('in_reply_to', remote_side='Comment.id')
+    in_reply_to_id: sa.Column[Optional[int]] = db.Column(
+        None, sa.ForeignKey('comment.id'), nullable=True
+    )
+    replies = sa.orm.relationship(
+        'Comment', backref=sa.orm.backref('in_reply_to', remote_side='Comment.id')
     )
 
     _message = MarkdownColumn('message', nullable=False)
 
-    _state = db.Column(
+    _state = sa.Column(
         'state',
-        db.Integer,
+        sa.Integer,
         StateManager.check_constraint('state', COMMENT_STATE),
         default=COMMENT_STATE.SUBMITTED,
         nullable=False,
@@ -215,7 +232,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     state = StateManager('_state', COMMENT_STATE, doc="Current state of the comment")
 
     edited_at = with_roles(
-        db.Column(db.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'all'},
         datasets={'primary', 'related', 'json'},
     )
@@ -235,8 +252,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         'minimal': {'created_at', 'uuid_b58'},
     }
 
-    search_vector = db.deferred(
-        db.Column(
+    search_vector = sa.orm.deferred(
+        sa.Column(
             TSVectorType(
                 'message_text',
                 weights={'message_text': 'A'},
@@ -248,12 +265,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     )
 
     __table_args__ = (
-        db.Index('ix_comment_search_vector', 'search_vector', postgresql_using='gin'),
+        sa.Index('ix_comment_search_vector', 'search_vector', postgresql_using='gin'),
     )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.commentset.last_comment_at = db.func.utcnow()
+        self.commentset.last_comment_at = sa.func.utcnow()
 
     @cached_property
     def has_replies(self):
@@ -392,10 +409,10 @@ add_search_trigger(Comment, 'search_vector')
 
 @reopen(Commentset)
 class __Commentset:
-    toplevel_comments = db.relationship(
+    toplevel_comments = sa.orm.relationship(
         Comment,
         lazy='dynamic',
-        primaryjoin=db.and_(
+        primaryjoin=sa.and_(
             Comment.commentset_id == Commentset.id, Comment.in_reply_to_id.is_(None)
         ),
         viewonly=True,

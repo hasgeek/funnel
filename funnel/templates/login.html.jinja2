@@ -6,10 +6,10 @@
 {% from "forms.html.jinja2" import ajaxform %}
 {% from "password_login_form.html.jinja2" import passwordlogin, sociallogin %}
 
-{% block bodyattrs %}class="login-page login-page--artwork no-sticky-header"{% endblock %}
+{% block bodyattrs %}class="login-page login-page--artwork no-sticky-header"{% endblock bodyattrs %}
 
 {% block beforeformcontent %}
-{% endblock %}
+{% endblock beforeformcontent %}
 
 {% block form %}
   <div id="passwordform">
@@ -17,12 +17,12 @@
       <p class="mui--text-body2 mui--text-light mui--text-bold mui--text-left">{% trans %}Hello!{% endtrans %}</p>
       <p class="mui--text-body2 mui--text-light mui--text-bold mui--text-left">{% trans %}Tell us where you’d like to get updates. We’ll send an OTP to confirm.{% endtrans %}</p>
     {% endif %}
-    {{ passwordlogin(loginform, formid, ref_id) }}
+    <div id="loginformwrapper">{{ passwordlogin(form, formid, ref_id) }}</div>
   </div>
   <p class="mui--text-body2 mui--text-light mui--text-bold mui--text-center top-padding">{% trans %}Or, use your existing account, no OTP required{% endtrans %}</p>
   {{ sociallogin(login_registry) }}
-{% endblock %}
+{% endblock form %}
 
 {% block afterloginbox %}
-  <img class="login-page-artwork img-responsive" src="{{  url_for('static', filename='img/conversation.svg') }}"/>
-{% endblock %}
+  <img class="login-page-artwork img-responsive" src="{{ url_for('static', filename='img/conversation.svg') }}" alt="{% trans %}Login{% endtrans %}"/>
+{% endblock afterloginbox %}

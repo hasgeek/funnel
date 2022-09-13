@@ -10,6 +10,7 @@ import os.path
 
 from flask import Flask
 from flask_babel import get_locale
+from flask_executor import Executor
 from flask_flatpages import FlatPages
 from flask_mailman import Mail
 from flask_migrate import Migrate
@@ -24,7 +25,6 @@ from baseframe.blueprint import THEME_FILES
 import coaster.app
 
 from ._version import __version__
-from .executor import ExecutorWrapper
 
 #: Main app for hasgeek.com
 app = Flask(__name__, instance_relative_config=True)
@@ -36,7 +36,9 @@ pages = FlatPages()
 
 redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
-executor = ExecutorWrapper()
+rq.job_class = 'rq.job.Job'
+rq.queues = ['funnel']  # Queues used in this app
+executor = Executor()
 
 # --- Assets ---------------------------------------------------------------------------
 
@@ -84,7 +86,9 @@ from . import (  # isort:skip  # noqa: F401  # pylint: disable=wrong-import-posi
 from .models import db  # isort:skip  # pylint: disable=wrong-import-position
 
 # --- Configuration---------------------------------------------------------------------
+
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)
+app.config['SESSION_REFRESH_EACH_REQUEST'] = False
 coaster.app.init_app(app, ['py', 'toml'])
 coaster.app.init_app(shortlinkapp, ['py', 'toml'], init_logging=False)
 proxies.init_app(app)
@@ -127,6 +131,7 @@ redis_store.init_app(app)
 rq.init_app(app)
 
 app.config['EXECUTOR_PROPAGATE_EXCEPTIONS'] = True
+app.config['EXECUTOR_PUSH_APP_CONTEXT'] = True
 executor.init_app(app)
 
 baseframe.init_app(
@@ -139,15 +144,14 @@ baseframe.init_app(
         'timezone',
         'pace',
         'jquery-modal',
-        'jquery.form',
         'select2-material',
         'getdevicepixelratio',
-        'jquery.tinymce.js>=4.0.0',
         'jquery.truncate8',
         'funnel-mui',
     ],
     theme='funnel',
     asset_modules=('baseframe_private_assets',),
+    error_handlers=False,
 )
 
 loginproviders.init_app(app)

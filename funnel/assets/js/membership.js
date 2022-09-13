@@ -56,25 +56,26 @@ const Membership = {
         };
       },
       methods: {
-        fetchForm(event, url, member = '') {
+        async fetchForm(event, url, member = '') {
           event.preventDefault();
           if (this.isUserProfileAdmin) {
             this.activeMember = member;
             const app = this;
-            $.ajax({
-              type: 'GET',
-              url,
-              timeout: window.Hasgeek.Config.ajaxTimeout,
-              dataType: 'json',
-              success(data) {
+            const response = await fetch(url, {
+              headers: {
+                Accept: 'application/json',
+              },
+            }).catch(Form.handleFetchNetworkError);
+            if (response && response.ok) {
+              const data = await response.json();
+              if (data) {
                 const vueFormHtml = data.form;
                 app.memberForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
                 $('#member-form').modal('show');
-              },
-              error(response) {
-                Form.getResponseError(response);
-              },
-            });
+              }
+            } else {
+              Form.getResponseError(response);
+            }
           }
         },
         activateForm() {
@@ -91,13 +92,7 @@ const Membership = {
           const onError = (response) => {
             this.errorMsg = Form.formErrorHandler(formId, response);
           };
-          window.Hasgeek.Forms.handleFormSubmit(
-            formId,
-            url,
-            onSuccess,
-            onError,
-            {}
-          );
+          window.Hasgeek.Forms.handleFormSubmit(formId, url, onSuccess, onError, {});
         },
         updateMembersList(membersList) {
           this.members = membersList.length > 0 ? membersList : '';
@@ -131,8 +126,7 @@ const Membership = {
           this.showInfo = !this.showInfo;
         },
         onWindowResize() {
-          this.isMobile =
-            $(window).width() < window.Hasgeek.Config.mobileBreakpoint;
+          this.isMobile = $(window).width() < window.Hasgeek.Config.mobileBreakpoint;
         },
       },
       computed: {

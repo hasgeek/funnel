@@ -1,0 +1,128 @@
+# This workflow will install Python dependencies and run tests with Python
+# For more information see:
+# https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Pytest
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+  workflow_call:
+    inputs:
+      requirements:
+        description: Updated requirements.txt
+        type: string
+      requirements_dev:
+        description: Updated requirements_dev.txt
+        type: string
+      requirements_test:
+        description: Updated requirements_test.txt
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.7', '3.10']
+
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: --entrypoint redis-server
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install Firefox (for browser testing)
+        uses: browser-actions/setup-firefox@latest
+      - name: Install Geckodriver (for browser testing)
+        uses: browser-actions/setup-geckodriver@latest
+      - name: Install Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: latest
+          cache: npm
+      - name: Setup hostnames
+        run: |
+          sudo -- sh -c "echo '127.0.0.1  funnel.test' >> /etc/hosts"
+          sudo -- sh -c "echo '127.0.0.1  f.test' >> /etc/hosts"
+      - name: Optionally replace requirements.txt
+        if: ${{ inputs.requirements }}
+        run: |
+          echo ${{ inputs.requirements }} > requirements.txt
+      - name: Optionally replace requirements_dev.txt
+        if: ${{ inputs.requirements_dev }}
+        run: |
+          echo ${{ inputs.requirements_dev }} > requirements_dev.txt
+      - name: Optionally replace requirements_test.txt
+        if: ${{ inputs.requirements_test }}
+        run: |
+          echo ${{ inputs.requirements_test }} > requirements_test.txt
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements_test.txt
+      - name: Install Node modules
+        run: npm ci
+      - name: Webpack JS and CSS assets
+        run: npm run build
+      - name: Create PostgreSQL databases
+        run: |
+          sudo apt-get install postgresql-client -y
+          psql -h localhost -U postgres -c "create user $(whoami);"
+          psql -h localhost -U postgres -c "create database funnel_testing;"
+          psql -h localhost -U postgres -c "create database geoname_testing;"
+          FLASK_ENV=testing flask dbconfig | psql -h localhost -U postgres funnel_testing
+          FLASK_ENV=testing flask dbconfig | psql -h localhost -U postgres geoname_testing
+          psql -h localhost -U postgres -c "grant all privileges on database funnel_testing to $(whoami);"
+          psql -h localhost -U postgres -c "grant all privileges on database geoname_testing to $(whoami);"
+      - name: Test with pytest
+        run: |
+          pytest --showlocals --splinter-headless --cov=funnel
+      - name: Prepare coverage report
+        run: |
+          mkdir -p coverage
+          coverage lcov -o coverage/funnel.lcov
+      - name: Upload coverage report to Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: ./coverage/funnel.lcov
+          flag-name: python-${{ matrix.python-version }}
+          parallel: true
+
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish to Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: ./coverage/funnel.lcov
+          parallel-finished: true

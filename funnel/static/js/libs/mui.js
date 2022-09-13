@@ -26,11 +26,7 @@
     }
     return i[s].exports;
   }
-  for (
-    var r = 'function' == typeof require && require, s = 0;
-    s < n.length;
-    s++
-  )
+  for (var r = 'function' == typeof require && require, s = 0; s < n.length; s++)
     o(n[s]);
   return o;
 })(
@@ -96,19 +92,13 @@
                 ['[data-mui-toggle="tab"]', 'mui-tab-inserted'],
                 ['.mui-textfield > input', 'mui-textfield-inserted'],
                 ['.mui-textfield > textarea', 'mui-textfield-inserted'],
-                [
-                  '.mui-textfield > input:-webkit-autofill',
-                  'mui-textfield-autofill',
-                ],
+                ['.mui-textfield > input:-webkit-autofill', 'mui-textfield-autofill'],
                 [
                   '.mui-textfield > textarea:-webkit-autofill',
                   'mui-textfield-autofill',
                 ],
                 ['.mui-select > select', 'mui-select-inserted'],
-                [
-                  '.mui-select > select ~ .mui-event-trigger',
-                  'mui-node-inserted',
-                ],
+                ['.mui-select > select ~ .mui-event-trigger', 'mui-node-inserted'],
                 [
                   '.mui-select > select:disabled ~ .mui-event-trigger',
                   'mui-node-disabled',
@@ -123,8 +113,7 @@
             (i += '@keyframes ' + (t = e[n])[1]),
               (i += '{from{transform:none;}to{transform:none;}}'),
               (i += t[0]),
-              (i +=
-                '{animation-duration:0.0001s;animation-name:' + t[1] + ';}');
+              (i += '{animation-duration:0.0001s;animation-name:' + t[1] + ';}');
           s.loadStyle(i);
         }
         var r = t('./jqLite'),
@@ -230,9 +219,7 @@
           t === i ? i.scrollTo(s(i), e) : (t.scrollTop = e);
         }
         function l(t) {
-          return (
-            ' ' + (t.getAttribute('class') || '').replace(/[\n\t]/g, '') + ' '
-          );
+          return ' ' + (t.getAttribute('class') || '').replace(/[\n\t]/g, '') + ' ';
         }
         function u(t) {
           return t
@@ -256,8 +243,7 @@
           addClass: function (t, e) {
             if (e && t.setAttribute) {
               for (var i, n = l(t), o = e.split(' '), r = 0; r < o.length; r++)
-                (i = o[r].trim()),
-                  -1 === n.indexOf(' ' + i + ' ') && (n += i + ' ');
+                (i = o[r].trim()), -1 === n.indexOf(' ' + i + ' ') && (n += i + ' ');
               t.setAttribute('class', n.trim());
             }
           },
@@ -269,8 +255,7 @@
                 'string' === o && void 0 !== i && (t.style[u(e)] = i);
                 var r = getComputedStyle(t);
                 if ('array' !== n(e)) return c(t, e, r);
-                for (var s = {}, a = 0; a < e.length; a++)
-                  s[(l = e[a])] = c(t, l, r);
+                for (var s = {}, a = 0; a < e.length; a++) s[(l = e[a])] = c(t, l, r);
                 return s;
               }
               for (var l in e) t.style[u(l)] = e[l];
@@ -559,9 +544,7 @@
           var i = document,
             n = i.body,
             o = i.getElementById(p);
-          if (
-            (i.activeElement && (d = i.activeElement), m.enableScrollLock(), o)
-          ) {
+          if ((i.activeElement && (d = i.activeElement), m.enableScrollLock(), o)) {
             for (; o.firstChild; ) o.removeChild(o.firstChild);
             e && o.appendChild(e);
           } else
@@ -620,8 +603,7 @@
             void 0 === (r = r || {}).keyboard && (r.keyboard = !0),
               void 0 === r.static && (r.static = !1),
               (e = n(r, s));
-          } else
-            'off' === t ? (e = o()) : m.raiseError("Expecting 'on' or 'off'");
+          } else 'off' === t ? (e = o()) : m.raiseError("Expecting 'on' or 'off'");
           return e;
         };
       },
@@ -651,9 +633,7 @@
                 l,
                 u = s.offset(e),
                 c = 'touchstart' === t.type ? t.touches[0] : t;
-              (l =
-                2 * (o = Math.sqrt(u.height * u.height + u.width * u.width)) +
-                'px'),
+              (l = 2 * (o = Math.sqrt(u.height * u.height + u.width * u.width)) + 'px'),
                 s.css(i, {
                   width: l,
                   height: l,
@@ -739,8 +719,7 @@
               i = this._menu;
             if (i) {
               if (9 === e) return i.destroy();
-              (27 !== e && 40 !== e && 38 !== e && 13 !== e) ||
-                t.preventDefault(),
+              (27 !== e && 40 !== e && 38 !== e && 13 !== e) || t.preventDefault(),
                 27 === e
                   ? i.destroy()
                   : 40 === e
@@ -748,9 +727,7 @@
                   : 38 === e
                   ? i.decrement()
                   : 13 === e && (i.selectCurrent(), i.destroy());
-            } else
-              (32 !== e && 38 !== e && 40 !== e) ||
-                (t.preventDefault(), u(this));
+            } else (32 !== e && 38 !== e && 40 !== e) || (t.preventDefault(), u(this));
           }
         }
         function a(t) {
@@ -825,11 +802,7 @@
             g = 0,
             y = 0,
             C = document.createDocumentFragment();
-          for (
-            c.className = 'mui-select__menu', s = 0, a = m.length;
-            s < a;
-            s++
-          )
+          for (c.className = 'mui-select__menu', s = 0, a = m.length; s < a; s++)
             for (
               'OPTGROUP' === (i = m[s]).tagName
                 ? (((n = v.createElement('div')).textContent = i.label),
@@ -850,8 +823,7 @@
                   ? d.addClass(n, 'mui--is-disabled')
                   : ((n._muiIndex = i.index),
                     (n._muiPos = b),
-                    i.selected &&
-                      (d.addClass(n, h), (y = c.children.length), (g = b)),
+                    i.selected && (d.addClass(n, h), (y = c.children.length), (g = b)),
                     f.push(n),
                     (b += 1)),
                 C.appendChild(n);
@@ -863,9 +835,7 @@
             t.stopPropagation();
             var e = t.target;
             void 0 !== e._muiIndex &&
-              ((this.currentPos = e._muiPos),
-              this.selectCurrent(),
-              this.destroy());
+              ((this.currentPos = e._muiPos), this.selectCurrent(), this.destroy());
           }),
           (c.prototype.increment = function () {
             this.currentPos !== this.itemArray.length - 1 &&
@@ -901,8 +871,7 @@
           (e.exports = {
             initListeners: function () {
               for (
-                var t = v.querySelectorAll('.mui-select > select'),
-                  e = t.length;
+                var t = v.querySelectorAll('.mui-select > select'), e = t.length;
                 e--;
 
               )
@@ -967,11 +936,7 @@
             }, 0));
         }
         function s(t) {
-          for (
-            var e, i = t.parentNode.children, n = i.length, o = null;
-            n-- && !o;
-
-          )
+          for (var e, i = t.parentNode.children, n = i.length, o = null; n-- && !o; )
             (e = i[n]) !== t && a.hasClass(e, d) && (o = e);
           return o;
         }
@@ -1001,8 +966,7 @@
             activate: function (t) {
               var e = '[' + c + '=' + t + ']',
                 i = document.querySelectorAll(e);
-              i.length ||
-                l.raiseError('Tab control for pane "' + t + '" not found'),
+              i.length || l.raiseError('Tab control for pane "' + t + '" not found'),
                 r(i[0]);
             },
           },

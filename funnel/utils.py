@@ -17,7 +17,7 @@ import qrcode.image.svg
 # Unprefixed phone numbers are assumed to be a local number in India (+91) or US (+1).
 # Both IN and US numbers are 10 digits before prefixes. We try IN first as it's the
 # higher priority home region.
-PHONE_LOOKUP_REGIONS = ['IN', 'US']
+PHONE_LOOKUP_REGIONS = ['IN']
 
 MASK_DIGITS = str.maketrans('0123456789', '•' * 10)
 
@@ -102,7 +102,7 @@ def abort_null(text: Optional[str]) -> Optional[str]:
 
 
 def make_redirect_url(
-    url: str, use_fragment: bool = False, **params: Optional[str]
+    url: str, use_fragment: bool = False, **params: Optional[Union[str, int]]
 ) -> str:
     """
     Make an OAuth2 redirect URL.
@@ -120,7 +120,7 @@ def make_redirect_url(
     queryparts = urllib.parse.parse_qsl(
         urlparts[4] if use_fragment else urlparts[3], keep_blank_values=True
     )
-    queryparts.extend([(k, v) for k, v in params.items() if v is not None])
+    queryparts.extend([(k, str(v)) for k, v in params.items() if v is not None])
     if use_fragment:
         urlparts[4] = urllib.parse.urlencode(queryparts)
     else:

@@ -23,10 +23,7 @@ function componentToHex(c) {
 
 function rgbToHex(color) {
   return (
-    '#' +
-    componentToHex(color.r) +
-    componentToHex(color.g) +
-    componentToHex(color.b)
+    '#' + componentToHex(color.r) + componentToHex(color.g) + componentToHex(color.b)
   );
 }
 
@@ -60,9 +57,7 @@ $(function () {
             $(this)
               .children()
               .each(function (index) {
-                $(this)
-                  .children('input[name$="seq"]')
-                  .val(++index);
+                $(this).children('input[name$="seq"]').val(++index);
               });
           },
         });
@@ -84,8 +79,7 @@ $(function () {
           });
           this.color_form.find('input[type=reset]').click(function () {
             settings.color_form.find('input[type=text]').each(function () {
-              ROOMS[$(this).attr('data-room-id')].bgcolor =
-                $(this).attr('data-color');
+              ROOMS[$(this).attr('data-room-id')].bgcolor = $(this).attr('data-color');
               $(this).spectrum('set', $(this).attr('data-color'));
             });
             calendar.render();
@@ -96,15 +90,10 @@ $(function () {
             $('input[name="uuid"]').each(function (index, element) {
               var venue = $(element).val();
               json[venue] = {
-                seq: $(
-                  'input[name="venue-seq"][data-venue="' + venue + '"]'
-                ).val(),
+                seq: $('input[name="venue-seq"][data-venue="' + venue + '"]').val(),
                 rooms: [],
               };
-              $('input[data-venue="' + venue + '"]').each(function (
-                index,
-                element
-              ) {
+              $('input[data-venue="' + venue + '"]').each(function (index, element) {
                 if ($(element).attr('name') === 'room-uuidb58') {
                   var roomUuidB58 = $(element).val();
                   var room = {
@@ -244,17 +233,13 @@ $(function () {
         success: function (result) {
           popup.title().text(events.current.title);
           if (settings.editable) {
-            if (events.current.obj_data.id)
-              popup.title().text(gettext('Edit session'));
+            if (events.current.obj_data.id) popup.title().text(gettext('Edit session'));
             else popup.title().text(gettext('Schedule session'));
           } else {
             popup
               .title()
               .text(
-                $.fullCalendar.formatDate(
-                  events.current.start,
-                  'd MMMM, yyyy H:mm'
-                ) +
+                $.fullCalendar.formatDate(events.current.start, 'd MMMM, yyyy H:mm') +
                   ' - ' +
                   $.fullCalendar.formatDate(events.current.end, 'H:mm')
               );
@@ -266,9 +251,7 @@ $(function () {
           if (type == 'error' || type == 'timeout') {
             popup.close();
             toastr.error(
-              gettext(
-                'The server could not be reached. Check connection and try again'
-              )
+              gettext('The server could not be reached. Check connection and try again')
             );
           }
         },
@@ -347,10 +330,7 @@ $(function () {
             config.month = parseInt(fromdate[1], 10) - 1;
             config.date = parseInt(fromdate[2], 10);
             if (to_date != null) {
-              config.hiddenDays = calendar.helpers.inactive_days(
-                from_date,
-                to_date
-              );
+              config.hiddenDays = calendar.helpers.inactive_days(from_date, to_date);
               config.firstDay = getDaydate(from_date);
             }
           }
@@ -464,11 +444,7 @@ $(function () {
           '<a class="fc-event-delete" href="javascript:void(0)">&times;</div>'
         );
         custom.find('.fc-event-delete').click(function (e) {
-          if (
-            confirm(
-              gettext('Remove %s from the schedule?', event.obj_data.title)
-            )
-          ) {
+          if (confirm(gettext('Remove %s from the schedule?', event.obj_data.title))) {
             $.ajax({
               url: event.delete_url,
               type: 'POST',
@@ -574,9 +550,7 @@ $(function () {
             '</button></div>'
         );
       $(
-        '.js-fc-zoom[data-slotinterval=' +
-          calendar.options.config.slotMinutes +
-          ']'
+        '.js-fc-zoom[data-slotinterval=' + calendar.options.config.slotMinutes + ']'
       ).addClass('tabs__item--active');
       $('.js-fc-zoom').on('click', function () {
         var zoom = $(this).data('slotinterval');
@@ -654,8 +628,7 @@ $(function () {
           this.current.color = BREAK_EVENTS_COLOR;
           this.current.textColor = invert(this.current.color);
         } else if (this.current.obj_data.room_scoped_name) {
-          this.current.color =
-            ROOMS[this.current.obj_data.room_scoped_name].bgcolor;
+          this.current.color = ROOMS[this.current.obj_data.room_scoped_name].bgcolor;
           if (this.current.color.charAt(0) != '#')
             this.current.color = '#' + this.current.color;
           this.current.textColor = invert(this.current.color);
@@ -674,9 +647,7 @@ $(function () {
             .parseZone()
             .format('YYYY-MM-DDTHH:mm:ss');
           // Change to project timezone
-          this.current.obj_data.end_at = moment
-            .tz(stripTimeZoneEnd, TIMEZONE)
-            .format();
+          this.current.obj_data.end_at = moment.tz(stripTimeZoneEnd, TIMEZONE).format();
           this.current.obj_data.start_at = moment
             .tz(stripTimeZoneStart, TIMEZONE)
             .format();
@@ -837,8 +808,7 @@ $(function () {
   (function () {
     settings.init();
     if (from_date) {
-      document.getElementById('select-date').value =
-        getDateProjectTZ(from_date);
+      document.getElementById('select-date').value = getDateProjectTZ(from_date);
       $('#select-date').trigger('change');
     }
   })();

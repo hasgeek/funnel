@@ -1,12 +1,12 @@
 {% set current_page = 'participants' %}
 {% extends "project_layout.html.jinja2" %}
-{% block title %}{% trans %}View participants{% endtrans %}{% endblock %}
+{% block title %}{% trans %}View participants{% endtrans %}{% endblock title %}
 
 {% block pageheaders %}
   {% assets "css_footable" -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets -%}
-{% endblock %}
+{% endblock pageheaders %}
 
 {% block left_col %}
   <div class="page-card page-card--nomargin">
@@ -22,7 +22,7 @@
         <tbody>
           {%- for rsvp in going_rsvps %}
             <tr>
-              <td data-cy="user">{{rsvp.user.fullname}}</td>
+              <td data-cy="user">{{ rsvp.user.fullname }}</td>
               <td>
                 {% with contact, contact_type = rsvp.best_contact() %}
                   {{ contact }}
@@ -40,11 +40,11 @@
       </table>
     </div>
   </div>
-{% endblock %}
+{% endblock left_col %}
 
 {% block footerinnerscripts %}
   {% assets "js_footable" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
   <script src="{{ built_asset('rsvp_list.js') }}" type="text/javascript"></script>
-{% endblock %}
+{% endblock footerinnerscripts %}

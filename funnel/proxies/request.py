@@ -5,15 +5,11 @@ from __future__ import annotations
 from functools import wraps
 from typing import Any, Callable, Optional, Set, TypeVar, cast
 
-from flask import (  # type: ignore[attr-defined]
-    _request_ctx_stack,
-    has_request_context,
-    request,
-)
+from flask import has_request_context, request
 from werkzeug.local import LocalProxy
 from werkzeug.utils import cached_property
 
-from ..typing import ReturnDecorator, ReturnResponse
+from ..typing import ResponseType, ReturnDecorator
 
 __all__ = ['request_wants']
 
@@ -66,29 +62,32 @@ class RequestWants:
         """Request wants a JSON response."""
         return request.accept_mimetypes.best == 'application/json'
 
-    @test_uses('X-Requested-With', 'Accept', 'HX-Request')
+    @test_uses('Accept', 'HX-Request', 'X-Requested-With')
     def html_fragment(self) -> bool:
         """Request wants a HTML fragment for embedding (XHR or HTMX)."""
         return request.accept_mimetypes.best in (
-            None,  # No Accept header
-            '*/*',  # Default for jQuery and HTMX requests
-            'text/html',  # HTML mimetype
-            'application/x.html+json',  # Custom mimetype for Funnel
-        ) and (
-            request.environ.get('HTTP_HX_REQUEST', '') == 'true'
-            or request.environ.get('HTTP_X_REQUESTED_WITH', '').lower()
-            == 'xmlhttprequest'
+            'text/x.fragment+html',  # HTML fragment (custom)
+            'application/x.html+json',  # HTML fragment in a JSON wrapper (custom)
+        ) or (
+            request.accept_mimetypes.best
+            in (
+                None,  # No Accept header
+                '*/*',  # Default for jQuery and HTMX requests
+                'text/html',  # HTML mimetype
+                'text/x.embed+html',  # HTML fragment
+                'application/x.html+json',  # Custom mimetype for Funnel
+            )
+            and (
+                request.environ.get('HTTP_HX_REQUEST', '') == 'true'
+                or request.environ.get('HTTP_X_REQUESTED_WITH', '').lower()
+                == 'xmlhttprequest'
+            )
         )
 
     @test_uses('Accept')
     def html_in_json(self) -> bool:
         """Request wants HTML embedded in JSON (custom type for this project)."""
-        return (
-            request.accept_mimetypes.best_match(
-                ('red/herring', 'application/x.html+json')
-            )
-            == 'application/x.html+json'
-        )
+        return request.accept_mimetypes.best == 'application/x.html+json'
 
     @test_uses('HX-Request')
     def htmx(self) -> bool:
@@ -119,10 +118,16 @@ class RequestWants:
 
 
 def _get_request_wants() -> RequestWants:
+    """Get request_wants from the request."""
+    # Flask 2.0 deprecated use of _request_ctx_stack.top and recommends using `g`.
+    # However, `g` is not suitable for us as we must cache results for a request only.
+    # Therefore we stick it in the request object itself.
     if has_request_context():
-        wants = getattr(_request_ctx_stack.top, 'request_wants', None)
+        # pylint: disable=protected-access
+        wants = getattr(request, '_request_wants', None)
         if wants is None:
-            wants = _request_ctx_stack.top.request_wants = RequestWants()
+            wants = RequestWants()
+            request._request_wants = wants  # type: ignore[attr-defined]
         return wants
     # Return an empty handler
     return RequestWants()
@@ -131,7 +136,7 @@ def _get_request_wants() -> RequestWants:
 request_wants = LocalProxy(_get_request_wants)
 
 
-def response_varies(response: ReturnResponse) -> ReturnResponse:
+def response_varies(response: ResponseType) -> ResponseType:
     """App ``after_request`` handler to set response ``Vary`` header."""
     response.vary.update(request_wants.response_vary)  # type: ignore[union-attr]
     return response

@@ -33,7 +33,6 @@ class TestClient(TestDatabaseFixture):
         """Test if client's owner is a user."""
         auth_client = self.fixtures.auth_client
         crusoe = self.fixtures.crusoe
-        assert not auth_client.owner_is(self.fixtures.batdog)
         assert auth_client.owner_is(crusoe)
         assert not auth_client.owner_is(None)
 

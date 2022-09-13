@@ -9,6 +9,7 @@ from typing_extensions import Protocol
 
 from baseframe import __
 
+from ..typing import Mapped, UuidModelType
 from . import db
 from .comment import Comment, Commentset
 from .moderation import CommentModeratorReport
@@ -51,7 +52,19 @@ role_project_promoter = Role('project_promoter', __("Project promoter"))
 role_document_subscriber = Role('document_subscriber', __("Document subscriber"))
 
 
-# --- Mixin classes --------------------------------------------------------------------
+# --- Protocol and Mixin classes -------------------------------------------------------
+
+
+class ProfileSubtype(UuidModelType):
+    """Model that links to a profile."""
+
+    profile: Mapped[Profile]
+
+
+class ProjectSubtype(UuidModelType):
+    """Model that links to a project."""
+
+    project: Mapped[Project]
 
 
 class NotificationDocumentProtocol(Protocol):
@@ -64,6 +77,8 @@ class NotificationDocumentProtocol(Protocol):
 
 class DocumentHasProject:
     """Mixin class for documents linked to a project."""
+
+    document: ProjectSubtype
 
     @property
     def preference_context(self: NotificationDocumentProtocol) -> Profile:
@@ -83,7 +98,7 @@ class DocumentHasProject:
 class DocumentHasProfile:
     """Mixin class for documents linked to a profile."""
 
-    document: db.Model
+    document: ProfileSubtype
 
     @property
     def preference_context(self: NotificationDocumentProtocol) -> Profile:

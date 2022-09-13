@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{% trans %}Authorization error{% endtrans %}{% endblock %}
+{% block title %}{% trans %}Authorization error{% endtrans %}{% endblock title %}
 {% block content %}
   <p class="mui--text-subhead">
     {% trans %}An error occured when logging you in{% endtrans %}
@@ -16,4 +16,4 @@
       <dd>{{ error_uri }}</dd>
     {% endif %}
   </dl>
-{% endblock %}
+{% endblock content %}

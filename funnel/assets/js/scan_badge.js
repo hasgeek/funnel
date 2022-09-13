@@ -2,13 +2,7 @@ import jsQR from 'jsqr';
 import { RactiveApp } from './utils/ractive_util';
 
 const badgeScan = {
-  init({
-    checkinApiUrl,
-    wrapperId,
-    templateId,
-    projectTitle,
-    ticketEventTitle,
-  }) {
+  init({ checkinApiUrl, wrapperId, templateId, projectTitle, ticketEventTitle }) {
     const badgeScanComponent = new RactiveApp({
       el: `#${wrapperId}`,
       template: `#${templateId}`,
@@ -34,59 +28,66 @@ const badgeScan = {
         this.set('showModal', false);
         this.startRenderFrameLoop();
       },
-
-      checkinAttendee(qrcode) {
+      async checkinAttendee(qrcode) {
         this.set({
           scanning: true,
           showModal: true,
         });
         $('#status-msg').modal('show');
-        const url = checkinApiUrl.replace('puk', qrcode.substring(0, 8));
+        const url = `${checkinApiUrl.replace('puk', qrcode.substring(0, 8))}?t`;
         const csrfToken = $("meta[name='csrf-token']").attr('content');
-        const formValues = `checkin=t&csrf_token=${csrfToken}`;
-        $.ajax({
-          type: 'POST',
-          url,
-          data: formValues,
-          timeout: window.Hasgeek.Config.ajaxTimeout,
-          dataType: 'json',
 
-          success(response) {
+        const closeModal = () => {
+          window.setTimeout(() => {
+            badgeScanComponent.closeModal();
+          }, window.Hasgeek.Config.closeModalTimeout);
+        };
+
+        const handleError = () => {
+          badgeScanComponent.set({
+            scanning: false,
+            attendeeFound: false,
+          });
+          closeModal();
+        };
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            csrf_token: csrfToken,
+          }).toString(),
+        }).catch(window.toastr.error(window.Hasgeek.Config.errorMsg.networkError));
+        if (response && response.ok) {
+          const responseData = await response.json();
+          if (responseData) {
             badgeScanComponent.set({
               scanning: false,
               attendeeFound: true,
-              attendeeName: response.attendee.fullname,
+              attendeeName: responseData.attendee.fullname,
             });
-          },
-
-          error() {
-            badgeScanComponent.set({
-              scanning: false,
-              attendeeFound: false,
-            });
-          },
-
-          complete() {
-            window.setTimeout(() => {
-              badgeScanComponent.closeModal();
-            }, window.Hasgeek.Config.closeModalTimeout);
-          },
-        });
+            closeModal();
+          } else {
+            handleError();
+          }
+        } else {
+          handleError();
+        }
       },
-
       startRenderFrameLoop(event) {
         if (event) event.original.preventDefault();
         const timerId = window.requestAnimationFrame(this.renderFrame);
         this.set('timerId', timerId);
       },
-
       stopRenderFrameLoop(event) {
         if (event) event.original.preventDefault();
         const timerId = this.get('timerId');
         if (timerId) window.cancelAnimationFrame(timerId);
         this.set('timerId', '');
       },
-
       verifyQRDecode(qrcode) {
         if (qrcode && qrcode.data.length === 16 && !this.get('showModal')) {
           this.stopRenderFrameLoop();
@@ -95,7 +96,6 @@ const badgeScan = {
           this.startRenderFrameLoop();
         }
       },
-
       renderFrame() {
         const canvasElement = this.get('canvasElement');
         const canvas = this.get('canvas');
@@ -104,30 +104,19 @@ const badgeScan = {
         if (video.readyState === video.HAVE_ENOUGH_DATA) {
           canvasElement.height = video.videoHeight;
           canvasElement.width = video.videoWidth;
-          canvas.drawImage(
-            video,
-            0,
-            0,
-            canvasElement.width,
-            canvasElement.height
-          );
+          canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
           const imageData = canvas.getImageData(
             0,
             0,
             canvasElement.width,
             canvasElement.height
           );
-          const qrcode = jsQR(
-            imageData.data,
-            imageData.width,
-            imageData.height
-          );
+          const qrcode = jsQR(imageData.data, imageData.width, imageData.height);
           this.verifyQRDecode(qrcode);
         } else {
           this.startRenderFrameLoop();
         }
       },
-
       stopVideo() {
         const stream = this.get('video').srcObject;
 
@@ -137,7 +126,6 @@ const badgeScan = {
           });
         }
       },
-
       setupVideo() {
         const video = document.getElementById('qrreader');
         const canvasElement = document.createElement('canvas');
@@ -178,14 +166,12 @@ const badgeScan = {
           );
         }
       },
-
       switchCamera(event) {
         event.original.preventDefault();
         this.stopRenderFrameLoop();
         this.stopVideo();
         this.setupVideo();
       },
-
       getDeviceCameras(mediaDevices) {
         const count = 0;
         mediaDevices.forEach((mediaDevice) => {
@@ -197,7 +183,6 @@ const badgeScan = {
           }
         });
       },
-
       oncomplete() {
         this.setupVideo();
         this.renderFrame = this.renderFrame.bind(this);

@@ -77,21 +77,25 @@ const Utils = {
       }
       menuBtn.removeClass('header__nav-links--active');
       $('body').removeClass('body-scroll-lock');
-      $('.header__nav-links--active').removeClass(
-        'header__nav-links--menuOpen'
-      );
+      $('.header__nav-links--active').removeClass('header__nav-links--menuOpen');
     };
 
     const updatePageNumber = () => {
       page += 1;
     };
 
-    const fetchMenu = (pageNo = 1) => {
-      $.ajax({
-        type: 'GET',
-        url: `${url}?page=${pageNo}`,
-        timeout: window.Hasgeek.Config.ajaxTimeout,
-        success(responseData) {
+    const fetchMenu = async (pageNo = 1) => {
+      const menuUrl = `${url}?${new URLSearchParams({
+        page: pageNo,
+      }).toString()}`;
+      const response = await fetch(menuUrl, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+      if (response && response.ok) {
+        const responseData = await response.text();
+        if (responseData) {
           if (observer) {
             observer.unobserve(lazyLoader);
             $('.js-load-comments').remove();
@@ -115,8 +119,8 @@ const Utils = {
             );
             observer.observe(lazyLoader);
           }
-        },
-      });
+        }
+      }
     };
 
     // If user logged in, preload menu
@@ -177,9 +181,8 @@ const Utils = {
     const singleDay = 24 * 60 * 60 * 1000;
 
     $('body .card__calendar').each(function setupCardCalendar() {
-      const firstActiveWeek = $(this).find(
-        '.calendar__weekdays__dates--upcoming'
-      ).length
+      const firstActiveWeek = $(this).find('.calendar__weekdays__dates--upcoming')
+        .length
         ? $(this).find('.calendar__weekdays__dates--upcoming--first')
         : $(this).find('.calendar__weekdays__dates--latest');
 
@@ -208,9 +211,7 @@ const Utils = {
             .addClass('calendar__weekdays__dates__date--display');
         });
 
-      const todayDate = $(this)
-        .find('.calendar__month__counting')
-        .data('today');
+      const todayDate = $(this).find('.calendar__month__counting').data('today');
       const nextEventElem = $(this)
         .find('.calendar__weekdays__dates--upcoming--first')
         .first()
@@ -247,54 +248,101 @@ const Utils = {
   },
   setNotifyIcon(unread) {
     if (unread) {
-      $('.header__nav-links--updates').addClass(
-        'header__nav-links--updates--unread'
-      );
+      $('.header__nav-links--updates').addClass('header__nav-links--updates--unread');
     } else {
       $('.header__nav-links--updates').removeClass(
         'header__nav-links--updates--unread'
       );
     }
   },
-  updateNotificationStatus() {
-    $.ajax({
-      type: 'GET',
-      url: window.Hasgeek.Config.notificationCount,
-      dataType: 'json',
-      timeout: window.Hasgeek.Config.ajaxTimeout,
-      success(responseData) {
-        Utils.setNotifyIcon(responseData.unread);
+  async updateNotificationStatus() {
+    const response = await fetch(window.Hasgeek.Config.notificationCount, {
+      headers: {
+        Accept: 'application/x.html+json',
+        'X-Requested-With': 'XMLHttpRequest',
       },
     });
+    if (response && response.ok) {
+      const responseData = await response.json();
+      Utils.setNotifyIcon(responseData.unread);
+    }
   },
   addWebShare() {
+    const utils = this;
     if (navigator.share) {
       $('.project-links').hide();
       $('.hg-link-btn').removeClass('mui--hide');
 
+      const mobileShare = (title, url, text) => {
+        navigator.share({
+          title,
+          url,
+          text,
+        });
+      };
+
       $('body').on('click', '.hg-link-btn', function clickWebShare(event) {
         event.preventDefault();
-        navigator.share({
-          title: $(this).data('title') || document.title,
-          url:
-            $(this).data('url') ||
-            (document.querySelector('link[rel=canonical]') &&
-              document.querySelector('link[rel=canonical]').href) ||
-            window.location.href,
-          text: $(this).data('text') || '',
-        });
+        const linkElem = this;
+        let url =
+          $(linkElem).data('url') ||
+          (document.querySelector('link[rel=canonical]') &&
+            document.querySelector('link[rel=canonical]').href) ||
+          window.location.href;
+        const title = $(this).data('title') || document.title;
+        const text = $(this).data('text') || '';
+        if ($(linkElem).attr('data-shortlink')) {
+          mobileShare(title, url, text);
+        } else {
+          utils
+            .fetchShortUrl(url)
+            .then((shortlink) => {
+              url = shortlink;
+              $(linkElem).attr('data-shortlink', true);
+            })
+            .finally(() => {
+              mobileShare(title, url, text);
+            });
+        }
       });
     } else {
       $('body').on('click', '.js-copy-link', function clickCopyLink(event) {
         event.preventDefault();
-        const selection = window.getSelection();
-        const range = document.createRange();
-        range.selectNodeContents($(this).find('.js-copy-url')[0]);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        document.execCommand('copy');
-        window.toastr.success(gettext('Link copied'));
-        selection.removeAllRanges();
+        const linkElem = this;
+        const copyLink = () => {
+          const url = $(linkElem).find('.js-copy-url').first().text();
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(
+              () => window.toastr.success(gettext('Link copied')),
+              () => window.toastr.success(gettext('Could not copy link'))
+            );
+          } else {
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents($(linkElem).find('.js-copy-url')[0]);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            if (document.execCommand('copy')) {
+              window.toastr.success(gettext('Link copied'));
+            } else {
+              window.toastr.success(gettext('Could not copy link'));
+            }
+            selection.removeAllRanges();
+          }
+        };
+        if ($(linkElem).attr('data-shortlink')) {
+          copyLink();
+        } else {
+          utils
+            .fetchShortUrl($(linkElem).find('.js-copy-url').first().html())
+            .then((shortlink) => {
+              $(linkElem).find('.js-copy-url').text(shortlink);
+              $(linkElem).attr('data-shortlink', true);
+            })
+            .finally(() => {
+              copyLink();
+            });
+        }
       });
     }
   },
@@ -303,6 +351,22 @@ const Utils = {
       $('.project-links').hide();
       $('.hg-link-btn').removeClass('mui--hide');
     }
+  },
+  async fetchShortUrl(url) {
+    const response = await fetch(window.Hasgeek.Config.shorturlApi, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `url=${encodeURIComponent(url)}`,
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return json.shortlink;
+    }
+    // Call failed, return the original URL
+    return url;
   },
 };
 

@@ -18,7 +18,7 @@ login_sessions = [None, '_promoter_login']
 
 
 @pytest.fixture()
-def project_url(client, project_expo2010):
+def project_url(app_context, project_expo2010):
     """Relative URL for a project."""
     return urlsplit(project_expo2010.url_for()).path
 
@@ -110,7 +110,7 @@ def test_htmljson_response(  # pylint: disable=too-many-arguments
     page: str,
     xhr: Optional[dict],
 ):
-    """Asking for HTML in JSON returns that as full HTML or a fragment."""
+    """Asking for HTML in JSON returns that as a HTML fragment."""
     if use_login:
         request.getfixturevalue(use_login)
     headers = {}
@@ -123,4 +123,4 @@ def test_htmljson_response(  # pylint: disable=too-many-arguments
     assert 'status' in rv.json
     assert rv.json['status'] == 'ok'
     assert 'html' in rv.json
-    assert bool(xhr) ^ rv.json['html'].startswith('<!DOCTYPE html>')
+    assert not rv.json['html'].startswith('<!DOCTYPE html>')

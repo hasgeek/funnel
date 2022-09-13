@@ -24,7 +24,7 @@ export const userAvatarUI = Vue.component('useravatar', {
       return window.Hasgeek.Config.userAvatarImgSize[this.size];
     },
     imgurl() {
-      return `${this.user.avatar}?size=${this.imgsize}`;
+      return `${this.user.avatar}?size=${encodeURIComponent(this.imgsize)}`;
     },
   },
 });
@@ -73,16 +73,24 @@ export const shareDropdown = Vue.component('sharedropdown', {
   },
   computed: {
     twitterUrl() {
-      return `//twitter.com/share?url=${this.url}&amp;via=Hasgeek&amp;text=${this.title}&amp;utm_campaign=share-twitter`;
+      return `https://twitter.com/share?url=${encodeURIComponent(
+        this.url
+      )}&amp;text=${encodeURIComponent(this.title)}+(via+@hasgeek)`;
     },
     facebookUrl() {
-      return `//www.facebook.com/sharer.php?u=${this.url}&amp;t=${this.title}&amp;utm_campaign=share-facebook`;
+      return `https://www.facebook.com/sharer.php?u=${encodeURIComponent(
+        this.url
+      )}&amp;t=${encodeURIComponent(this.title)}`;
     },
     emailUrl() {
-      return `mailto:?subject=${this.title}&amp;body=${this.url}&amp;utm_campaign=share-email`;
+      return `mailto:?subject=${encodeURIComponent(
+        this.title
+      )}&amp;body=${encodeURIComponent(this.url)}`;
     },
     linkedinUrl() {
-      return `https://www.linkedin.com/shareArticle?mini=true&url=${this.url}&title=${this.title}&amp;utm_campaign=share-linkedin`;
+      return `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(
+        this.url
+      )}&title=${encodeURIComponent(this.title)}`;
     },
   },
   mounted() {

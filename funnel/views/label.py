@@ -12,7 +12,7 @@ from coaster.views import ModelView, UrlForView, render_with, requires_roles, ro
 
 from .. import app
 from ..forms import LabelForm, LabelOptionForm
-from ..models import Label, Profile, Project, db
+from ..models import Label, Profile, Project, db, sa
 from ..typing import ReturnRenderWith, ReturnView
 from ..utils import abort_null
 from .helpers import render_redirect
@@ -117,7 +117,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
             Label.query.join(Project, Label.project_id == Project.id)
             .join(Profile, Project.profile_id == Profile.id)
             .filter(
-                db.func.lower(Profile.name) == db.func.lower(profile),
+                sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,
                 Label.name == label,
             )

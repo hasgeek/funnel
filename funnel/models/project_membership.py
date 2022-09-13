@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import Dict, Iterable, Optional, Set
 
-from sqlalchemy.ext.declarative import declared_attr
-
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import (
@@ -15,7 +13,8 @@ from coaster.sqlalchemy import (
     with_roles,
 )
 
-from . import db
+from ..typing import Mapped
+from . import db, declared_attr, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .project import Project
@@ -80,42 +79,42 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, db.Model):
         },
     }
 
-    project_id = immutable(
-        db.Column(None, db.ForeignKey('project.id', ondelete='CASCADE'), nullable=False)
+    project_id: sa.Column[int] = immutable(
+        db.Column(None, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False)
     )
-    project = immutable(
-        db.relationship(
+    project: sa.orm.relationship[Project] = immutable(
+        sa.orm.relationship(
             Project,
-            backref=db.backref(
+            backref=sa.orm.backref(
                 'crew_memberships', lazy='dynamic', cascade='all', passive_deletes=True
             ),
         )
     )
-    parent = db.synonym('project')
-    parent_id = db.synonym('project_id')
+    parent = sa.orm.synonym('project')
+    parent_id = sa.orm.synonym('project_id')
 
     # Project crew roles (at least one must be True):
 
     #: Editors can edit all common and editorial details of an event
-    is_editor = db.Column(db.Boolean, nullable=False, default=False)
+    is_editor: Mapped[bool] = sa.Column(sa.Boolean, nullable=False, default=False)
     #: Promoters are responsible for promotion and have write access
     #: to common details plus read access to everything else. Unlike
     #: editors, they cannot edit the schedule
-    is_promoter = db.Column(db.Boolean, nullable=False, default=False)
+    is_promoter: Mapped[bool] = sa.Column(sa.Boolean, nullable=False, default=False)
     #: Ushers help participants find their way around an event and have
     #: the ability to scan badges at the door
-    is_usher = db.Column(db.Boolean, nullable=False, default=False)
+    is_usher: Mapped[bool] = sa.Column(sa.Boolean, nullable=False, default=False)
 
     @declared_attr
     def __table_args__(  # type: ignore[override]  # pylint: disable=no-self-argument
         cls,
-    ) -> tuple:
+    ) -> Mapped[tuple]:
         """Table arguments."""
         args = list(super().__table_args__)
         kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None
         args.append(
-            db.CheckConstraint(
-                db.or_(
+            sa.CheckConstraint(
+                sa.or_(  # type: ignore[arg-type]
                     cls.is_editor.is_(True),
                     cls.is_promoter.is_(True),
                     cls.is_usher.is_(True),
@@ -154,46 +153,46 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, db.Model):
 @reopen(Project)
 class __Project:
     active_crew_memberships = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             ProjectCrewMembership,
             lazy='dynamic',
-            primaryjoin=db.and_(
+            primaryjoin=sa.and_(
                 ProjectCrewMembership.project_id == Project.id,
-                ProjectCrewMembership.is_active,
+                ProjectCrewMembership.is_active,  # type: ignore[arg-type]
             ),
             viewonly=True,
         ),
         grants_via={'user': {'editor', 'promoter', 'usher', 'participant', 'crew'}},
     )
 
-    active_editor_memberships = db.relationship(
+    active_editor_memberships = sa.orm.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
-        primaryjoin=db.and_(
+        primaryjoin=sa.and_(
             ProjectCrewMembership.project_id == Project.id,
-            ProjectCrewMembership.is_active,
+            ProjectCrewMembership.is_active,  # type: ignore[arg-type]
             ProjectCrewMembership.is_editor.is_(True),
         ),
         viewonly=True,
     )
 
-    active_promoter_memberships = db.relationship(
+    active_promoter_memberships = sa.orm.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
-        primaryjoin=db.and_(
+        primaryjoin=sa.and_(
             ProjectCrewMembership.project_id == Project.id,
-            ProjectCrewMembership.is_active,
+            ProjectCrewMembership.is_active,  # type: ignore[arg-type]
             ProjectCrewMembership.is_promoter.is_(True),
         ),
         viewonly=True,
     )
 
-    active_usher_memberships = db.relationship(
+    active_usher_memberships = sa.orm.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
-        primaryjoin=db.and_(
+        primaryjoin=sa.and_(
             ProjectCrewMembership.project_id == Project.id,
-            ProjectCrewMembership.is_active,
+            ProjectCrewMembership.is_active,  # type: ignore[arg-type]
             ProjectCrewMembership.is_usher.is_(True),
         ),
         viewonly=True,
@@ -212,7 +211,7 @@ class __User:
 
     # This relationship is only useful to check if the user has ever been a crew member.
     # Most operations will want to use one of the active membership relationships.
-    projects_as_crew_memberships = db.relationship(
+    projects_as_crew_memberships = sa.orm.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         foreign_keys=[ProjectCrewMembership.user_id],
@@ -220,20 +219,21 @@ class __User:
     )
 
     # This is used to determine if it is safe to purge the subject's database record
-    projects_as_crew_noninvite_memberships = db.relationship(
+    projects_as_crew_noninvite_memberships = sa.orm.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
-        primaryjoin=db.and_(
+        primaryjoin=sa.and_(
             ProjectCrewMembership.user_id == User.id,
             ~ProjectCrewMembership.is_invite,  # type: ignore[operator]
         ),
         viewonly=True,
     )
-    projects_as_crew_active_memberships = db.relationship(
+    projects_as_crew_active_memberships = sa.orm.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
-        primaryjoin=db.and_(
-            ProjectCrewMembership.user_id == User.id, ProjectCrewMembership.is_active
+        primaryjoin=sa.and_(
+            ProjectCrewMembership.user_id == User.id,
+            ProjectCrewMembership.is_active,  # type: ignore[arg-type]
         ),
         viewonly=True,
     )
@@ -242,12 +242,12 @@ class __User:
         'projects_as_crew_active_memberships', 'project'
     )
 
-    projects_as_editor_active_memberships = db.relationship(
+    projects_as_editor_active_memberships = sa.orm.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
-        primaryjoin=db.and_(
+        primaryjoin=sa.and_(
             ProjectCrewMembership.user_id == User.id,
-            ProjectCrewMembership.is_active,
+            ProjectCrewMembership.is_active,  # type: ignore[arg-type]
             ProjectCrewMembership.is_editor.is_(True),
         ),
         viewonly=True,

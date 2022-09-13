@@ -27,9 +27,7 @@ registerRoute(new RegExp('/(.*)'), new NetworkOnly(), 'GET');
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches
-      .open('offline')
-      .then((cache) => cache.addAll(['/api/1/template/offline']))
+    caches.open('offline').then((cache) => cache.addAll(['/api/1/template/offline']))
   );
 });
 
