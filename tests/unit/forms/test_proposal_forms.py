@@ -1,10 +1,11 @@
 """Tests for Proposal forms."""
+# pylint: disable=too-many-arguments
 
-from funnel.forms import ProposalLabelsAdminForm, ProposalLabelsForm
-from funnel.models import Proposal
+from funnel import models
 
 
 def test_proposal_label_admin_form(
+    forms,
     app,
     new_main_label,
     new_main_label_unrestricted,
@@ -17,8 +18,8 @@ def test_proposal_label_admin_form(
     assert not new_label.has_options
 
     with app.test_request_context():
-        label_admin_form = ProposalLabelsAdminForm(
-            obj=new_proposal, model=Proposal, parent=new_proposal.project
+        label_admin_form = forms.ProposalLabelsAdminForm(
+            obj=new_proposal, model=models.Proposal, parent=new_proposal.project
         )
     # Label form in admin panel shows restricted and optioned labels
     assert hasattr(label_admin_form.formlabels, new_main_label.name)
@@ -39,6 +40,7 @@ def test_proposal_label_admin_form(
 
 
 def test_proposal_label_form(
+    forms,
     app,
     new_main_label,
     new_main_label_unrestricted,
@@ -51,8 +53,8 @@ def test_proposal_label_form(
     assert not new_label.has_options
 
     with app.test_request_context():
-        label_form = ProposalLabelsForm(
-            obj=new_proposal, model=Proposal, parent=new_proposal.project
+        label_form = forms.ProposalLabelsForm(
+            obj=new_proposal, model=models.Proposal, parent=new_proposal.project
         )
     # Label form in edit page doesn't show restricted labels
     assert not hasattr(label_form.formlabels, new_main_label.name)

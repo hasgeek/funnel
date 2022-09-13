@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 
 import pytest
 
-from funnel.models import MEMBERSHIP_RECORD_TYPE, ProjectCrewMembership
+from funnel import models
 
 
 def test_project_crew_membership(
@@ -24,13 +24,15 @@ def test_project_crew_membership(
     assert 'usher' not in new_project.roles_for(new_user_owner)
 
     previous_membership = (
-        ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
+        models.ProjectCrewMembership.query.filter(
+            models.ProjectCrewMembership.is_active
+        )
         .filter_by(project=new_project, user=new_user_owner)
         .first()
     )
     assert previous_membership is None
 
-    new_membership = ProjectCrewMembership(
+    new_membership = models.ProjectCrewMembership(
         parent=new_project, user=new_user_owner, is_editor=True
     )
     db_session.add(new_membership)
@@ -39,12 +41,12 @@ def test_project_crew_membership(
     assert 'editor' in new_project.roles_for(new_user_owner)
     assert new_membership.is_active
     assert new_membership in new_project.active_crew_memberships
-    assert new_membership.record_type == MEMBERSHIP_RECORD_TYPE.DIRECT_ADD
+    assert new_membership.record_type == models.MEMBERSHIP_RECORD_TYPE.DIRECT_ADD
 
     # only one membership can be active for a user at a time.
     # so adding a new membership without revoking the previous one
     # will raise IntegrityError in database.
-    new_membership_without_revoke = ProjectCrewMembership(
+    new_membership_without_revoke = models.ProjectCrewMembership(
         parent=new_project, user=new_user, is_promoter=True
     )
     db_session.add(new_membership_without_revoke)
@@ -54,7 +56,9 @@ def test_project_crew_membership(
 
     # let's revoke previous membership
     previous_membership2 = (
-        ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
+        models.ProjectCrewMembership.query.filter(
+            models.ProjectCrewMembership.is_active
+        )
         .filter_by(project=new_project, user=new_user)
         .first()
     )
@@ -68,7 +72,7 @@ def test_project_crew_membership(
     assert 'usher' not in new_project.roles_for(new_user)
 
     # let's add back few more roles
-    new_membership2 = ProjectCrewMembership(
+    new_membership2 = models.ProjectCrewMembership(
         parent=new_project, user=new_user, is_promoter=True, is_usher=True
     )
     db_session.add(new_membership2)
@@ -86,7 +90,7 @@ def test_project_crew_membership(
     assert 'editor' in new_project.roles_for(new_user)
     assert 'promoter' not in new_project.roles_for(new_user)
     assert 'usher' not in new_project.roles_for(new_user)
-    assert new_membership3.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
+    assert new_membership3.record_type == models.MEMBERSHIP_RECORD_TYPE.AMEND
 
     # replace() can replace a single role as well, rest stays as they were
     new_membership4 = new_membership3.replace(actor=new_user_owner, is_usher=True)
@@ -101,7 +105,7 @@ def test_project_crew_membership(
         'editor',
         'usher',
     }
-    assert new_membership4.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
+    assert new_membership4.record_type == models.MEMBERSHIP_RECORD_TYPE.AMEND
 
     # can't replace with an unknown role
     with pytest.raises(AttributeError):

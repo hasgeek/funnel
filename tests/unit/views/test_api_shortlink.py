@@ -5,8 +5,7 @@ from flask import url_for
 from furl import furl
 import pytest
 
-from funnel import shortlinkapp
-from funnel.models import SiteMembership
+from funnel import models
 
 
 @pytest.fixture()
@@ -17,7 +16,7 @@ def create_shortlink(app_context):
 
 @pytest.fixture()
 def user_rincewind_site_editor(db_session, user_rincewind):
-    sm = SiteMembership(
+    sm = models.SiteMembership(
         user=user_rincewind, granted_by=user_rincewind, is_site_editor=True
     )
     db_session.add(sm)
@@ -114,9 +113,10 @@ def test_create_shortlink_name_unauthorized(client, user_rincewind, create_short
     assert rv.json['error'] == 'unauthorized'
 
 
+@pytest.mark.filterwarnings("ignore:New instance.*conflicts with persistent instance")
 @pytest.mark.usefixtures('user_rincewind_site_editor')
-def test_create_shortlink_name_authorized(
-    client, login, user_rincewind, user_wolfgang, create_shortlink
+def test_create_shortlink_name_authorized(  # pylint: disable=too-many-arguments
+    shortlinkapp, client, login, user_rincewind, user_wolfgang, create_shortlink
 ):
     """Asking for a custom name will work for site editors."""
     login.as_(user_rincewind)

@@ -1,3 +1,5 @@
+"""Test email transport functions."""
+
 from flask_mailman.message import sanitize_address
 
 from funnel.transports.email import process_recipient
@@ -16,7 +18,8 @@ def test_process_recipient() -> None:
         sanitize_address(
             process_recipient(
                 (
-                    "Neque porro quisquam est qui dolorem ipsum quia dolor sit amets consectetur",
+                    "Neque porro quisquam est qui dolorem ipsum quia dolor sit amets"
+                    " consectetur",
                     "example@example.com",
                 )
             ),
@@ -28,7 +31,8 @@ def test_process_recipient() -> None:
         sanitize_address(
             process_recipient(
                 (
-                    "Neque porro quisquam est qui dolorem ipsum (quia dolor sit amets consectetur",
+                    "Neque porro quisquam est qui dolorem ipsum (quia dolor sit amets"
+                    " consectetur",
                     "example@example.com",
                 )
             ),
@@ -38,7 +42,8 @@ def test_process_recipient() -> None:
     # some regular cases
     assert bool(
         sanitize_address(
-            process_recipient(("Neque porro quisquam", "example@example.com")), 'utf-8'
+            process_recipient(("Neque porro quisquam", "example@example.com")),
+            'utf-8',
         )
     )
     assert process_recipient(("", "example@example.com")) == 'example@example.com'

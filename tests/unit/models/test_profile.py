@@ -6,11 +6,11 @@ from furl import furl
 import pytest
 
 from coaster.sqlalchemy import StateTransitionError
-from funnel.models import ImgeeFurl, Profile
+from funnel import models
 
 
 def test_profile_urltype_valid(db_session, new_organization) -> None:
-    profile = Profile.query.filter_by(id=new_organization.profile.id).first()
+    profile = models.Profile.query.filter_by(id=new_organization.profile.id).first()
     assert profile.name == 'test-org'
     profile.logo_url = "https://images.example.com/"
     db_session.add(profile)
@@ -20,7 +20,7 @@ def test_profile_urltype_valid(db_session, new_organization) -> None:
 
 
 def test_profile_urltype_invalid(db_session, new_organization) -> None:
-    profile = Profile.query.filter_by(id=new_organization.profile.id).first()
+    profile = models.Profile.query.filter_by(id=new_organization.profile.id).first()
     profile.logo_url = "noturl"
     db_session.add(profile)
     with pytest.raises(StatementError):
@@ -28,8 +28,10 @@ def test_profile_urltype_invalid(db_session, new_organization) -> None:
     db_session.rollback()
 
 
-def test_validate_name(db_session, new_organization) -> None:
-    assert Profile.validate_name_candidate(new_organization.profile.name) == 'org'
+def test_validate_name(new_organization) -> None:
+    assert (
+        models.Profile.validate_name_candidate(new_organization.profile.name) == 'org'
+    )
 
 
 def test_user_avatar(db_session, user_twoflower, user_rincewind) -> None:
@@ -52,9 +54,10 @@ def test_user_avatar(db_session, user_twoflower, user_rincewind) -> None:
     user_rincewind.profile.logo_url = 'https://images.example.com/p.jpg'
     db_session.commit()
     assert str(user_rincewind.profile.logo_url) == 'https://images.example.com/p.jpg'
-    assert user_rincewind.avatar == ImgeeFurl('https://images.example.com/p.jpg')
+    assert user_rincewind.avatar == models.ImgeeFurl('https://images.example.com/p.jpg')
 
 
+@pytest.mark.filterwarnings("ignore:Object of type <UserPhone> not in session")
 def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
     """Suspending a user will mark their profile as private."""
     # Ensure column defaults are set (Profile.state)
@@ -87,11 +90,14 @@ def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
 
 
 def test_profile_autocomplete(
-    db_session, user_rincewind, org_uu, user_lutze, user_librarian
-):
-    assert Profile.autocomplete('') == []
-    assert Profile.autocomplete(' ') == []
-    assert Profile.autocomplete('rin') == [user_rincewind.profile]
-    assert Profile.autocomplete('u') == [org_uu.profile]
-    assert Profile.autocomplete('unknown') == []
-    assert Profile.autocomplete('l') == [user_librarian.profile, user_lutze.profile]
+    user_rincewind, org_uu, user_lutze, user_librarian
+) -> None:
+    assert models.Profile.autocomplete('') == []
+    assert models.Profile.autocomplete(' ') == []
+    assert models.Profile.autocomplete('rin') == [user_rincewind.profile]
+    assert models.Profile.autocomplete('u') == [org_uu.profile]
+    assert models.Profile.autocomplete('unknown') == []
+    assert models.Profile.autocomplete('l') == [
+        user_librarian.profile,
+        user_lutze.profile,
+    ]

@@ -3,21 +3,25 @@
 from datetime import timedelta
 from types import SimpleNamespace
 
+import sqlalchemy as sa
+
 import pytest
 
-from funnel.models import Organization, Team, User, merge_users, sa
+from funnel import models
 
 
 @pytest.fixture()
 def team_merge_data(db_session):
-    user1 = User(
+    user1 = models.User(
         username='user1',
         fullname="User 1",
         created_at=sa.func.utcnow() - timedelta(days=1),
     )
-    user2 = User(username='user2', fullname="User 2")
-    org = Organization(name='test-org-team-merge', title="Organization", owner=user1)
-    team = Team(title="Team", organization=org)
+    user2 = models.User(username='user2', fullname="User 2")
+    org = models.Organization(
+        name='test-org-team-merge', title="Organization", owner=user1
+    )
+    team = models.Team(title="Team", organization=org)
     db_session.add_all([user1, user2, org, team])
     db_session.commit()
 
@@ -36,7 +40,7 @@ def test_team_migrate_user1(team_merge_data) -> None:
     assert team_merge_data.user1.teams == [team_merge_data.team]
     assert team_merge_data.user2.teams == []
 
-    merged = merge_users(team_merge_data.user1, team_merge_data.user2)
+    merged = models.merge_users(team_merge_data.user1, team_merge_data.user2)
     assert merged == team_merge_data.user1
     assert merged.teams == [team_merge_data.team]
     assert team_merge_data.user1.teams == [team_merge_data.team]
@@ -55,7 +59,7 @@ def test_team_migrate_user2(team_merge_data) -> None:
     assert team_merge_data.user1.teams == []
     assert team_merge_data.user2.teams == [team_merge_data.team]
 
-    merged = merge_users(team_merge_data.user1, team_merge_data.user2)
+    merged = models.merge_users(team_merge_data.user1, team_merge_data.user2)
     assert merged == team_merge_data.user1
     assert merged.teams == [team_merge_data.team]
     assert team_merge_data.user1.teams == [team_merge_data.team]
@@ -78,7 +82,7 @@ def test_team_migrate_user3(team_merge_data) -> None:
     assert team_merge_data.user1.teams == [team_merge_data.team]
     assert team_merge_data.user2.teams == [team_merge_data.team]
 
-    merged = merge_users(team_merge_data.user1, team_merge_data.user2)
+    merged = models.merge_users(team_merge_data.user1, team_merge_data.user2)
     assert merged == team_merge_data.user1
     assert merged.teams == [team_merge_data.team]
     assert team_merge_data.user1.teams == [team_merge_data.team]

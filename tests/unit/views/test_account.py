@@ -1,9 +1,10 @@
 """Test account views."""
-# pylint: disable=import-outside-toplevel
 
 from types import SimpleNamespace
 
 import pytest
+
+from funnel.views.account import user_agent_details
 
 
 def test_username_available(db_session, client, user_rincewind, csrf_token) -> None:
@@ -188,6 +189,4 @@ def test_pwned_password_mock_endpoint_down(
     ],
 )
 def test_user_agent_details(user_agent, output):
-    from funnel.views.account import user_agent_details
-
     assert user_agent_details(SimpleNamespace(user_agent=user_agent)) == output
