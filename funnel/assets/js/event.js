@@ -154,7 +154,6 @@ const ParticipantTable = {
         const response = await fetch(participantlistUrl, {
           headers: {
             Accept: 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
           },
         });
         if (response && response.ok) {
@@ -222,7 +221,6 @@ const ParticipantTable = {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
-        'X-Requested-With': 'XMLHttpRequest',
       },
       body: `${ticketParticipants}&${new URLSearchParams({
         checkin,

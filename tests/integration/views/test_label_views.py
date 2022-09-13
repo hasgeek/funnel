@@ -1,9 +1,10 @@
 """Test Label views."""
+# pylint: disable=too-many-arguments
 
-from funnel.models import Label
+from funnel import models
 
 
-def test_manage_labels_view(  # pylint: disable=too-many-arguments
+def test_manage_labels_view(
     app, client, login, new_project, new_user, new_label, new_main_label
 ) -> None:
     login.as_(new_user)
@@ -34,7 +35,7 @@ def test_main_label_delete(app, client, login, new_user, new_label) -> None:
         resp = client.post(new_label.url_for('delete'), follow_redirects=True)
     assert "Manage labels" in resp.data.decode('utf-8')
     assert "The label has been deleted" in resp.data.decode('utf-8')
-    label = Label.query.get(new_label.id)
+    label = models.Label.query.get(new_label.id)
     assert label is None
 
 
@@ -48,9 +49,9 @@ def test_optioned_label_delete(app, client, login, new_user, new_main_label) -> 
         resp = client.post(new_main_label.url_for('delete'), follow_redirects=True)
     assert "Manage labels" in resp.data.decode('utf-8')
     assert "The label has been deleted" in resp.data.decode('utf-8')
-    mlabel = Label.query.get(new_main_label.id)
+    mlabel = models.Label.query.get(new_main_label.id)
     assert mlabel is None
 
     # so the option labels should have been deleted as well
     for olabel in [label_a1, label_a2]:
-        assert Label.query.get(olabel.id) is None
+        assert models.Label.query.get(olabel.id) is None

@@ -1,9 +1,11 @@
 import Form from './utils/formhelper';
+import Utils from './utils/helper';
 import TypeformEmbed from './utils/typeform_embed';
 
 export const Submission = {
   init() {
     Form.activateToggleSwitch();
+    Utils.enableWebShare();
     $('.js-subscribe-btn').on('click', function subscribeComments(event) {
       event.preventDefault();
       const form = $(this).parents('form');
@@ -18,7 +20,6 @@ export const Submission = {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
-        'X-Requested-With': 'XMLHttpRequest',
       },
       body: formData,
     }).catch(Form.handleFetchNetworkError);

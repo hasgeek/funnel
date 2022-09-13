@@ -28,10 +28,7 @@
     "password": "hg-user5_HE"
   },
   "newuser": {
-    "fullname": "New User",
-    "username": "new-user",
-    "password": "new-user11_EveryOne",
-    "email": "newuser@mailinator.com",
-    "newpassword": "newuser123_Sep1988"
+    "fullname": "new-user",
+    "password": "new-user11_EveryOne"
   }
 }

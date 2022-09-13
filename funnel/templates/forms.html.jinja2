@@ -178,7 +178,7 @@
 {%- endmacro %}
 
 {# djlint: off #}{%- macro renderform(form, formid, submit, ref_id="form", message='', action=none, cancel_url='', multipart=false, style="", autosave=false, draft_revision=none) %}{# djlint: on #}
-<form data-parsley-validate="true" id="{{ ref_id }}" method="post" {%- if action %} action="{{ action }}" {%- endif %}{%- if multipart %} enctype="multipart/form-data" {%- endif %} accept-charset="UTF-8" class="mui-form mui-form--margins hg-form {%- if style == 'horiz' %} mui-form--inline{% endif %}">
+<form data-parsley-validate="true" id="{{ ref_id }}" method="post" {%- if action %} action="{{ action }}" {%- endif %}{%- if multipart %} enctype="multipart/form-data" {%- endif %} accept-charset="UTF-8" class="mui-form mui-form--margins hg-form {%- if style == 'horiz' %} mui-form--inline{% endif %}" {%- if request_wants.html_fragment and action %} hx-post="{{ action }}" {%- endif %}>
   {{ renderform_inner(form, formid or none, style=style, autosave=autosave, draft_revision=draft_revision) }}
   {{ rendersubmit([(none, submit or _("Submit"), 'mui-btn--primary')], cancel_url=cancel_url, style=style, csrf_error=form.csrf_token.errors if form.csrf_token else "") }}
 </form>
@@ -187,20 +187,13 @@
 {%- macro ajaxform(ref_id, request, force=false) %}
   {%- if force or request_wants.html_fragment %}
     <script type="text/javascript">
-      $(function() {
-        $("#{{ ref_id }}").ajaxForm({
-          target: '#{{ ref_id }}',
-          replaceTarget: true,
-          beforeSubmit: function(formdata, form, options) {
-            window.Hasgeek.Forms.preventDoubleSubmit('{{ ref_id }}');
-            return true;
-          },
-          error: function(xhr) {
-            var formId = '{{ ref_id }}'
-            var alertBoxHtml = {{ alertbox('error', '') | tojson }};
-            window.Hasgeek.Forms.showFormError(formId,  xhr, alertBoxHtml);
-          }
-        });
+      document.body.addEventListener('htmx:beforeSend', function(event) {
+        window.Hasgeek.Forms.preventDoubleSubmit('{{ ref_id }}');
+      });
+      document.body.addEventListener('htmx:responseError', function(event) {
+        var formId = '{{ ref_id }}'
+        var alertBoxHtml = {{ alertbox('error', '') | tojson }};
+        window.Hasgeek.Forms.showFormError(formId, event.detail.xhr, alertBoxHtml);
       });
     </script>
   {%- else %}
@@ -248,79 +241,6 @@
   </script>
   <script type="text/javascript" src="https://www.google.com/recaptcha/api.js" async defer></script>
 {%- endmacro %}
-
-{% macro tinymce3_editor(field, script=true) -%}
-  {%- if script %}
-  <script type="text/javascript">
-    $(function() {
-  {%- endif %}
-      if (typeof(tinyMCE) != 'undefined') {
-        tinymce.remove('textarea#{{ field.id }}');
-      }
-      $('textarea#{{ field.id }}').removeClass('richtext').tinymce({
-        // Location of TinyMCE script
-        script_url: {{ url_for("baseframe.static", filename="js/tinymce3/tiny_mce.js")|tojson }},
-
-        {%- for k, v in field.tinymce_options.items() %}
-        {{ k|tojson }}: {{ v|tojson }},
-        {%- endfor %}
-        // Content CSS
-        content_css: {{ (field.content_css or url_for('baseframe.editorcss'))|tojson }},
-        // Focus/blur indicators
-        setup: function(ed) {
-          ed.onInit.add(function(ed) {
-            var container = $('#'+ed.id+'_tbl');
-            tinymce.dom.Event.add(ed.getWin(), "blur", function() {
-              container.removeClass('focus');
-            });
-            tinymce.dom.Event.add(ed.getWin(), "focus", function() {
-              container.addClass('focus');
-            });
-          });
-          ed.on('change', function(e) {
-            ed.save();
-          });
-        } // No comma or semicolon here
-      });
-  {%- if script %}
-    });
-  </script>
-  {%- endif %}
-{% endmacro %}
-
-{% macro tinymce4_editor(field, script=true) -%}
-  {%- if script %}
-  <script type="text/javascript">
-    $(function() {
-  {%- endif %}
-      if (typeof(tinyMCE) != 'undefined') {
-        tinymce.remove('textarea#{{ field.id }}');
-      }
-      $('textarea#{{ field.id }}').removeClass('richtext').tinymce({
-        script_url: {{ url_for("baseframe.static", filename="js/tinymce4/tinymce.min.js")|tojson }},
-        {%- for k, v in field.tinymce_options.items() %}
-        {{ k|tojson }}: {{ v|tojson }},
-        {%- endfor %}
-        // Content CSS
-        content_css: {{ (field.content_css or url_for('baseframe.editorcss'))|tojson }},
-        // Focus/blur indicators
-        setup: function(ed) {
-          ed.on('focus', function(e) {
-            $(ed.editorContainer).addClass('active');
-          });
-          ed.on('blur', function(e) {
-            $(ed.editorContainer).removeClass('active');
-          });
-          ed.on('change', function(e) {
-            ed.save();
-          });
-        } // End of setup keyval
-      });
-  {%- if script %}
-    });
-  </script>
-  {%- endif %}
-{% endmacro %}
 
 {%- macro map_marker_script(field) %}
   new window.Hasgeek.MapMarker({
@@ -422,10 +342,6 @@
   {%- for field in form -%}
     {%- if field.type == 'FormField' %}
       {{ widgetscripts(field.form, script=false) }}
-    {%- elif field.widget.input_type == 'tinymce3' -%}
-      {{ tinymce3_editor(field, script=false) }}
-    {%- elif field.widget.input_type == 'tinymce4' -%}
-      {{ tinymce4_editor(field, script=false) }}
     {%- elif field.type in ['AutocompleteField', 'AutocompleteMultipleField', 'ProfileSelectField'] %}
       Hasgeek.Forms.textAutocomplete({
         id: {{ field.id|tojson }},

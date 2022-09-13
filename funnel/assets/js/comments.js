@@ -210,7 +210,6 @@ const Comments = {
             headers: {
               Accept: 'application/json',
               'Content-Type': 'application/x-www-form-urlencoded',
-              'X-Requested-With': 'XMLHttpRequest',
             },
             body: new URLSearchParams({
               message: commentContent,
@@ -250,7 +249,6 @@ const Comments = {
           const response = await fetch(commentsUrl, {
             headers: {
               Accept: 'application/json',
-              'X-Requested-With': 'XMLHttpRequest',
             },
           });
           if (response && response.ok) {
@@ -308,7 +306,6 @@ const Comments = {
                     headers: {
                       Accept: 'application/json',
                       'Content-Type': 'application/x-www-form-urlencoded',
-                      'X-Requested-With': 'XMLHttpRequest',
                     },
                     body: `csrf_token=${encodeURIComponent(csrfToken)}`,
                   });

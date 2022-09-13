@@ -30,7 +30,6 @@ const Notification = {
             const response = await fetch(url, {
               headers: {
                 Accept: 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
               },
             });
             if (response && response.ok) {
@@ -95,7 +94,6 @@ const Notification = {
               headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest',
               },
               body: new URLSearchParams({
                 csrf_token: $('meta[name="csrf-token"]').attr('content'),

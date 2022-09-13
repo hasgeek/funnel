@@ -1,8 +1,8 @@
 /* eslint-disable global-require */
 describe('View and update print status of badge', () => {
-  const { admin } = require('../fixtures/user.json');
-  const project = require('../fixtures/project.json');
-  const ticketEvents = require('../fixtures/ticket_events.json');
+  const { admin } = require('../../fixtures/user.json');
+  const project = require('../../fixtures/project.json');
+  const ticketEvents = require('../../fixtures/ticket_events.json');
 
   it('View badges to be printed', () => {
     cy.server();

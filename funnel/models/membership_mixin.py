@@ -383,7 +383,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
         if cls.parent_id is not None:
             return (
                 sa.Index(
-                    'ix_' + cls.__tablename__ + '_active',
+                    'ix_' + cls.__tablename__ + '_active',  # type: ignore[attr-defined]
                     cls.parent_id.name,
                     'user_id',
                     unique=True,
@@ -392,7 +392,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
             )
         return (
             sa.Index(
-                'ix_' + cls.__tablename__ + '_active',
+                'ix_' + cls.__tablename__ + '_active',  # type: ignore[attr-defined]
                 'user_id',
                 unique=True,
                 postgresql_where=sa.column('revoked_at').is_(None),
@@ -414,7 +414,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     with_roles(is_self_revoked, read={'subject', 'editor'})
 
     def copy_template(self: MembershipType, **kwargs) -> MembershipType:
-        return type(self)(user=self.user, **kwargs)
+        return type(self)(user=self.user, **kwargs)  # type: ignore
 
     @classmethod
     def migrate_user(  # type: ignore[return]
@@ -508,7 +508,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
         if cls.parent_id is not None:
             return (
                 sa.Index(
-                    'ix_' + cls.__tablename__ + '_active',
+                    'ix_' + cls.__tablename__ + '_active',  # type: ignore[attr-defined]
                     cls.parent_id.name,
                     'profile_id',
                     unique=True,
@@ -517,7 +517,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
             )
         return (
             sa.Index(
-                'ix_' + cls.__tablename__ + '_active',
+                'ix_' + cls.__tablename__ + '_active',  # type: ignore[attr-defined]
                 'profile_id',
                 unique=True,
                 postgresql_where=sa.column('revoked_at').is_(None),
@@ -539,7 +539,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
     with_roles(is_self_revoked, read={'subject', 'editor'})
 
     def copy_template(self: MembershipType, **kwargs) -> MembershipType:
-        return type(self)(profile=self.profile, **kwargs)
+        return type(self)(profile=self.profile, **kwargs)  # type: ignore
 
     @classmethod
     def migrate_profile(  # type: ignore[return]

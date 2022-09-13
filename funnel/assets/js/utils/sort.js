@@ -39,7 +39,6 @@ function SortItem(wrapperJqueryElem, placeholderClass, sortUrl) {
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded',
-          'X-Requested-With': 'XMLHttpRequest',
         },
         body: new URLSearchParams({
           csrf_token: $('meta[name="csrf-token"]').attr('content'),

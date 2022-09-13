@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from coaster.utils import utcnow
-from funnel.models import Organization, ProjectRedirect, Proposal, Session
+from funnel import models
 
 
 def invalidate_cache(project):
@@ -70,7 +70,7 @@ def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
         new_project.timezone.localize(datetime(2019, 6, 12, 12, 15, 0))
     )
     end_time_a = start_time_a + timedelta(hours=3)
-    new_session_a = Session(
+    new_session_a = models.Session(
         name="test-session-a",
         title="Test Session A",
         project=new_project,
@@ -82,7 +82,7 @@ def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
     )
     start_time_b = start_time_a + timedelta(days=2)
     end_time_b = end_time_a + timedelta(days=2)
-    new_session_b = Session(
+    new_session_b = models.Session(
         name="test-session-b",
         title="Test Session B",
         project=new_project,
@@ -213,7 +213,9 @@ def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
 
 @pytest.fixture()
 def second_organization(db_session, new_user2):
-    org2 = Organization(owner=new_user2, title="Second test org", name='test-org-2')
+    org2 = models.Organization(
+        owner=new_user2, title="Second test org", name='test-org-2'
+    )
     db_session.add(org2)
     db_session.commit()
     return org2
@@ -225,7 +227,7 @@ def test_project_rename(
     # The project has a default name from the fixture, and there is no redirect
     assert new_project.name == 'test-project'
     assert new_project.profile == new_organization.profile
-    redirect = ProjectRedirect.query.filter_by(
+    redirect = models.ProjectRedirect.query.filter_by(
         profile=new_organization.profile, name='test-project'
     ).one_or_none()
     assert redirect is None
@@ -234,7 +236,7 @@ def test_project_rename(
     new_project.title = "Renamed project"
     new_project.make_name()
     assert new_project.name == 'renamed-project'
-    redirect = ProjectRedirect.query.filter_by(
+    redirect = models.ProjectRedirect.query.filter_by(
         profile=new_organization.profile, name='test-project'
     ).one_or_none()
     assert redirect is not None
@@ -248,13 +250,13 @@ def test_project_rename(
         new_project.name = 'this is invalid'
 
     # Changing project also creates a redirect from the old project
-    redirect2 = ProjectRedirect.query.filter_by(
+    redirect2 = models.ProjectRedirect.query.filter_by(
         profile=new_organization.profile, name='renamed-project'
     ).one_or_none()
     assert redirect2 is None
 
     new_project.profile = second_organization.profile
-    redirect2 = ProjectRedirect.query.filter_by(
+    redirect2 = models.ProjectRedirect.query.filter_by(
         profile=new_organization.profile, name='renamed-project'
     ).one_or_none()
     assert redirect2 is not None
@@ -265,7 +267,7 @@ def test_project_rename(
     # now point to the new project
     new_project2.name = 'test-project'
     # The existing redirect is not touched by this, as the project takes priority
-    new_redirect = ProjectRedirect.query.filter_by(
+    new_redirect = models.ProjectRedirect.query.filter_by(
         profile=new_organization.profile, name='test-project'
     ).one_or_none()
     assert new_redirect is not None
@@ -274,7 +276,7 @@ def test_project_rename(
 
     # But renaming out will reuse the existing redirect to point to the new project
     new_project2.name = 'renamed-away'
-    new_redirect = ProjectRedirect.query.filter_by(
+    new_redirect = models.ProjectRedirect.query.filter_by(
         profile=new_organization.profile, name='test-project'
     ).one_or_none()
     assert new_redirect is not None
@@ -289,7 +291,7 @@ def test_project_featured_proposal(
     assert project_expo2010.has_featured_proposals is False
 
     # A proposal is created, default state is `Submitted`
-    proposal = Proposal(
+    proposal = models.Proposal(
         project=project_expo2010,
         user=user_twoflower,
         title="Test Proposal",

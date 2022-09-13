@@ -11,16 +11,14 @@ import pytest
 
 from coaster.auth import current_auth
 from coaster.utils import utcnow
-from funnel.forms.login import LoginPasswordWeakException
-from funnel.loginproviders.github import GitHubProvider
-from funnel.registry import (
-    LoginCallbackError,
-    LoginInitError,
-    LoginProviderData,
-    login_registry,
-)
+from funnel.registry import LoginCallbackError, LoginInitError, LoginProviderData
 from funnel.transports import TransportConnectionError, TransportRecipientError
 from funnel.views.otp import OtpSession
+
+pytestmark = pytest.mark.filterwarnings(
+    "ignore:Object of type <UserPhone> not in session",
+    "ignore:Object of type <UserEmail> not in session",
+)
 
 # User fixture's details
 RINCEWIND_USERNAME = 'rincewind'
@@ -49,9 +47,11 @@ PATCH_LOGINHUB_CALLBACK = 'funnel.loginproviders.github.GitHubProvider.callback'
 
 # This fixture needs session scope as login_registry doesn't take kindly to lost items
 @pytest.fixture(scope='session')
-def loginhub():
+def loginhub(funnel):
     """Fake login provider for tests."""
-    login_registry['loginhub'] = GitHubProvider(  # nosec
+    funnel.registry.login_registry[
+        'loginhub'
+    ] = funnel.loginproviders.github.GitHubProvider(  # nosec
         'loginhub',
         "Login Hub",
         at_login=True,
@@ -60,8 +60,8 @@ def loginhub():
         key='no-key',
         secret='no-secret',
     )
-    yield login_registry['loginhub']
-    del login_registry['loginhub']
+    yield funnel.registry.login_registry['loginhub']
+    del funnel.registry.login_registry['loginhub']
 
 
 @pytest.fixture()
@@ -445,7 +445,11 @@ def test_login_password_exception(client, csrf_token) -> None:
 @pytest.mark.usefixtures('user_rincewind_phone')
 def test_sms_otp_not_sent(client, csrf_token) -> None:
     """When an OTP could not be sent, user is prompted to use a password."""
-    with patch(PATCH_SMS_SEND, side_effect=TransportConnectionError, autospec=True):
+    with patch(
+        PATCH_SMS_SEND,
+        side_effect=TransportConnectionError,
+        autospec=True,
+    ):
         rv1 = client.post(
             '/login',
             data=MultiDict(
@@ -587,7 +591,11 @@ def test_phone_otp_not_supported(
     client, csrf_token, phone_number, message_fragment
 ) -> None:
     """If phone number is an unsupported recipient, they are asked to try email."""
-    with patch(PATCH_SMS_SEND, side_effect=TransportRecipientError, autospec=True):
+    with patch(
+        PATCH_SMS_SEND,
+        side_effect=TransportRecipientError,
+        autospec=True,
+    ):
         rv1 = client.post(
             '/login',
             data=MultiDict(
@@ -615,7 +623,11 @@ def test_phone_otp_not_supported(
 )
 def test_phone_otp_not_sent(client, csrf_token, phone_number, message_fragment) -> None:
     """If OTP cannot be sent to phone, they are asked to try password/email."""
-    with patch(PATCH_SMS_SEND, side_effect=TransportConnectionError, autospec=True):
+    with patch(
+        PATCH_SMS_SEND,
+        side_effect=TransportConnectionError,
+        autospec=True,
+    ):
         rv1 = client.post(
             '/login',
             data=MultiDict(
@@ -634,12 +646,12 @@ def test_phone_otp_not_sent(client, csrf_token, phone_number, message_fragment) 
 
 
 @pytest.mark.usefixtures('user_rincewind_email', 'user_rincewind_with_weak_password')
-def test_weak_password_exception(client, csrf_token) -> None:
+def test_weak_password_exception(forms, client, csrf_token) -> None:
     """If login form blocks weak password, login view will force user to reset it."""
     with client:
         with patch(
             'funnel.forms.login.LoginForm.validate_password',
-            side_effect=LoginPasswordWeakException,
+            side_effect=forms.LoginPasswordWeakException,
             autospec=True,
         ):
 

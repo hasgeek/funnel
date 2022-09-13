@@ -1,6 +1,6 @@
 describe('Setup ticketed event for checkin', () => {
-  const { promoter } = require('../fixtures/user.json');
-  const project = require('../fixtures/project.json');
+  const { promoter } = require('../../fixtures/user.json');
+  const project = require('../../fixtures/project.json');
 
   it('Setup ticketed event for checkin', () => {
     cy.login('/', promoter.username, promoter.password);

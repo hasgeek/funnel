@@ -64,7 +64,6 @@ const Membership = {
             const response = await fetch(url, {
               headers: {
                 Accept: 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
               },
             }).catch(Form.handleFetchNetworkError);
             if (response && response.ok) {

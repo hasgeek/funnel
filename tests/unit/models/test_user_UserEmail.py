@@ -4,7 +4,6 @@ import base58
 import pytest
 
 from funnel import models
-from funnel.models.email_address import email_blake2b160_hash
 
 from .test_db import TestDatabaseFixture
 
@@ -20,7 +19,7 @@ class TestUserEmail(TestDatabaseFixture):
         """Test for `UserEmail.get` against email, blake2b160 digest and hex hash."""
         crusoe = self.fixtures.crusoe
         email = crusoe.email.email
-        blake2b160 = email_blake2b160_hash(email)
+        blake2b160 = models.email_address.email_blake2b160_hash(email)
         email_hash = base58.b58encode(blake2b160).decode()
 
         # scenario 1: when no parameters are passed

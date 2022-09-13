@@ -13,7 +13,7 @@ sample_user_agent = (
 )
 
 
-def test_usersession_init(db_session) -> None:
+def test_usersession_init() -> None:
     """Test to verify the creation of UserSession instance."""
     result = models.UserSession()
     assert isinstance(result, models.UserSession)
@@ -33,7 +33,7 @@ def test_usersession_has_sudo(db_session, user_twoflower) -> None:
     assert another_user_session.has_sudo is True
 
 
-def test_usersession_revoke(db_session, user_twoflower) -> None:
+def test_usersession_revoke(user_twoflower) -> None:
     """Test to revoke on UserSession instance."""
     yet_another_usersession = models.UserSession(
         user=user_twoflower,
@@ -46,7 +46,7 @@ def test_usersession_revoke(db_session, user_twoflower) -> None:
     assert result.revoked_at is not None
 
 
-def test_usersession_get(db_session, user_twoflower) -> None:
+def test_usersession_get(user_twoflower) -> None:
     """Test for verifying UserSession's get method."""
     twoflower_buid = buid()
     twoflower_session = models.UserSession(
@@ -61,7 +61,7 @@ def test_usersession_get(db_session, user_twoflower) -> None:
     assert result.user_id == user_twoflower.id
 
 
-def test_usersession_active_sessions(db_session, user_twoflower) -> None:
+def test_usersession_active_sessions(user_twoflower) -> None:
     """Test for verifying UserSession's active_sessions."""
     twoflower_session = models.UserSession(
         user=user_twoflower,

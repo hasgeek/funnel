@@ -71,7 +71,7 @@ repos:
         additional_dependencies:
           - toml
   - repo: https://github.com/psf/black
-    rev: 22.6.0
+    rev: 22.8.0
     hooks:
       - id: black
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -93,7 +93,7 @@ repos:
       - id: flake8
         additional_dependencies: *flake8deps
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.15.0
+    rev: v2.15.2
     hooks:
       - id: pylint
         args: [
@@ -153,7 +153,7 @@ repos:
         args: ['--single-quote', '--trailing-comma', 'es5']
         exclude: funnel/templates/js/
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.12.0
+    rev: v1.14.0
     hooks:
       - id: djlint-jinja
         files: \.html\.(jinja2|j2)$
