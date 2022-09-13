@@ -323,7 +323,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
     @message.setter
     def message(self, value: str) -> None:
         """Edit the message of a comment."""
-        self._message = value
+        self._message = value  # type: ignore[assignment]
 
     @message.expression
     def message(cls):  # noqa: N805  # pylint: disable=no-self-argument

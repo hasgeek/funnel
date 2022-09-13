@@ -1,10 +1,10 @@
 """Tests for Proposal model."""
 
-from funnel.models import Proposal
+from funnel import models
 
 
 def test_reorder(db_session, user_twoflower, project_expo2010) -> None:
-    proposal1 = Proposal(
+    proposal1 = models.Proposal(
         user=user_twoflower,
         project=project_expo2010,
         title="Test Proposal 1",
@@ -12,7 +12,7 @@ def test_reorder(db_session, user_twoflower, project_expo2010) -> None:
         description="Test proposal 1 description",
     )
     db_session.add(proposal1)
-    proposal2 = Proposal(
+    proposal2 = models.Proposal(
         user=user_twoflower,
         project=project_expo2010,
         title="Test Proposal 2",
@@ -20,7 +20,7 @@ def test_reorder(db_session, user_twoflower, project_expo2010) -> None:
         description="Test proposal 2 description",
     )
     db_session.add(proposal2)
-    proposal3 = Proposal(
+    proposal3 = models.Proposal(
         user=user_twoflower,
         project=project_expo2010,
         title="Test Proposal 3",

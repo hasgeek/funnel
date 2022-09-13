@@ -370,7 +370,10 @@ def oauth_make_token(
             token = AuthToken(  # nosec
                 user=user, auth_client=auth_client, scope=scope, token_type='bearer'
             )
-            token = failsafe_add(db.session, token, user=user, auth_client=auth_client)
+            token = cast(
+                AuthToken,
+                failsafe_add(db.session, token, user=user, auth_client=auth_client),
+            )
         elif user_session is not None:
             token = AuthToken(  # nosec
                 user_session=user_session,
@@ -378,8 +381,14 @@ def oauth_make_token(
                 scope=scope,
                 token_type='bearer',
             )
-            token = failsafe_add(
-                db.session, token, user_session=user_session, auth_client=auth_client
+            token = cast(
+                AuthToken,
+                failsafe_add(
+                    db.session,
+                    token,
+                    user_session=user_session,
+                    auth_client=auth_client,
+                ),
             )
         else:
             raise ValueError("user_session not provided")

@@ -1,11 +1,11 @@
 """Tests for Profile name."""
 
 from sqlalchemy.exc import IntegrityError
+import sqlalchemy as sa
 
 import pytest
 
 from funnel import models
-from funnel.models import sa
 
 
 def test_is_available_name(db_session, user_rincewind) -> None:

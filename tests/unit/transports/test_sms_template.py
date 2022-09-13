@@ -1,30 +1,32 @@
 """Test SMS templates."""
+# pylint: disable=possibly-unused-variable
+
+from types import SimpleNamespace
 
 from flask import Flask
 
 import pytest
 
-from funnel.transports.sms import (
-    MessageTemplate,
-    OneLineTemplate,
-    SmsTemplate,
-    TwoLineTemplate,
-    WebOtpTemplate,
-)
+from funnel.transports import sms
 
 
 @pytest.fixture()
 def app():
     test_app = Flask(__name__)
+    test_app.config['TESTING'] = True
     test_app.config['SMS_DLT_ENTITY_ID'] = 'dlt_entity_id'
     test_app.config['SMS_DLT_TEMPLATE_IDS'] = {}
     return test_app
 
 
-class MyMessage(SmsTemplate):
-    registered_template = "Insert {#var#} here"
-    template = "Insert {var} here"
-    plaintext_template = "{var} here"
+@pytest.fixture(scope='session')
+def msgt():
+    class MyMessage(sms.SmsTemplate):
+        registered_template = "Insert {#var#} here"
+        template = "Insert {var} here"
+        plaintext_template = "{var} here"
+
+    return SimpleNamespace(**locals())
 
 
 def test_validate_registered_template() -> None:
@@ -35,14 +37,14 @@ def test_validate_registered_template() -> None:
         match='Registered template must be within 2000 chars',
     ):
 
-        class TemplateTooLong(SmsTemplate):
+        class TemplateTooLong(sms.SmsTemplate):
             registered_template = template = 'a' * 2001
 
     with pytest.raises(
         ValueError, match='Registered template must use {#var#}, not {# var #}'
     ):
 
-        class TemplateVarSpaceWrong(SmsTemplate):
+        class TemplateVarSpaceWrong(sms.SmsTemplate):
             registered_template = '{# var #}'
             template = '{var}'
 
@@ -50,7 +52,7 @@ def test_validate_registered_template() -> None:
         ValueError, match='Registered template must use {#var#}, not {#VAR#}'
     ):
 
-        class TemplateVarCaseWrong(SmsTemplate):
+        class TemplateVarCaseWrong(sms.SmsTemplate):
             registered_template = '{#VAR#}'
             template = '{var}'
 
@@ -58,19 +60,19 @@ def test_validate_registered_template() -> None:
 def test_template_lengths() -> None:
     """Static and variable character lengths are calculated automatically."""
 
-    class OneVarTemplate(SmsTemplate):
+    class OneVarTemplate(sms.SmsTemplate):
         registered_template = "This has one {#var#}"
         template = "This has one {var}"
 
-    class TwoVarTemplate(SmsTemplate):
+    class TwoVarTemplate(sms.SmsTemplate):
         registered_template = "This has two {#var#}{#var#}"
         template = "This has two {var}"
 
-    class ThreeVarTemplate(SmsTemplate):
+    class ThreeVarTemplate(sms.SmsTemplate):
         registered_template = "{#var#} this has three {#var#}{#var#}"
         template = "{var} this has three {var}"
 
-    class MismatchTemplate(SmsTemplate):
+    class MismatchTemplate(sms.SmsTemplate):
         registered_template = "This has two {#var#}{#var#}"
         template = "This has two  {var}"  # Extra space here
 
@@ -137,7 +139,7 @@ def test_validate_template() -> None:
         ValueError, match='Python template does not match registered template'
     ):
 
-        class TemplatSpaceMismatch(SmsTemplate):
+        class TemplatSpaceMismatch(sms.SmsTemplate):
             registered_template = '{#var#} '  # extra space
             template = '{var}'  # no space
 
@@ -145,7 +147,7 @@ def test_validate_template() -> None:
         ValueError, match='Python template does not match registered template'
     ):
 
-        class TemplateCaseMismatch(SmsTemplate):
+        class TemplateCaseMismatch(sms.SmsTemplate):
             registered_template = 'I{#var#} '  # uppercase
             template = 'i{var}'  # lowercase
 
@@ -153,13 +155,13 @@ def test_validate_template() -> None:
         ValueError, match="Template field 'text' in TemplateVarReserved is reserved"
     ):
 
-        class TemplateVarReserved(SmsTemplate):
+        class TemplateVarReserved(sms.SmsTemplate):
             registered_template = "{#var#}"
             template = "{text}"
 
     with pytest.raises(ValueError, match='Templates cannot have positional fields'):
 
-        class TemplateVarPositional(SmsTemplate):
+        class TemplateVarPositional(sms.SmsTemplate):
             registered_template = "{#var#}"
             template = "{}"
 
@@ -169,52 +171,52 @@ def test_validate_no_entity_template_id() -> None:
     # pylint: disable=unused-variable
     with pytest.raises(TypeError):
 
-        class TemplateHasEntityid(SmsTemplate):
+        class TemplateHasEntityid(sms.SmsTemplate):
             registered_entityid = '12345'
 
     with pytest.raises(TypeError):
 
-        class TemplateHasTemplateid(SmsTemplate):
+        class TemplateHasTemplateid(sms.SmsTemplate):
             registered_templateid = '12345'
 
 
-def test_subclass_config(app) -> None:
-    class MySubMessage(MyMessage):
+def test_subclass_config(app, msgt) -> None:
+    class MySubMessage(msgt.MyMessage):  # type: ignore[name-defined]
         pass
 
-    assert SmsTemplate.registered_templateid is None
-    assert MyMessage.registered_templateid is None
+    assert sms.SmsTemplate.registered_templateid is None
+    assert msgt.MyMessage.registered_templateid is None
     assert MySubMessage.registered_templateid is None
-    SmsTemplate.init_subclass_config(app, {'my_message': '12345'})
-    assert SmsTemplate.registered_templateid is None
-    assert MyMessage.registered_templateid == '12345'
+    sms.SmsTemplate.init_subclass_config(app, {'my_message': '12345'})
+    assert sms.SmsTemplate.registered_templateid is None
+    assert msgt.MyMessage.registered_templateid == '12345'
     assert MySubMessage.registered_templateid == '12345'
 
-    SmsTemplate.init_subclass_config(
+    sms.SmsTemplate.init_subclass_config(
         app, {'my_message': '67890', 'my_sub_message': 'qwerty'}
     )
-    assert SmsTemplate.registered_templateid is None
-    assert MyMessage.registered_templateid == '67890'
+    assert sms.SmsTemplate.registered_templateid is None
+    assert msgt.MyMessage.registered_templateid == '67890'
     assert MySubMessage.registered_templateid == 'qwerty'
 
 
-def test_init_app(app) -> None:
-    assert SmsTemplate.registered_entityid is None
-    assert MyMessage.registered_entityid is None
-    SmsTemplate.init_app(app)
-    assert SmsTemplate.registered_entityid == 'dlt_entity_id'
-    assert MyMessage.registered_entityid == 'dlt_entity_id'
+def test_init_app(app, msgt) -> None:
+    assert sms.SmsTemplate.registered_entityid is None
+    assert msgt.MyMessage.registered_entityid is None
+    sms.SmsTemplate.init_app(app)
+    assert sms.SmsTemplate.registered_entityid == 'dlt_entity_id'
+    assert msgt.MyMessage.registered_entityid == 'dlt_entity_id'
 
 
-def test_inline_use() -> None:
-    assert str(MyMessage(var="sample1")) == "Insert sample1 here"
-    assert MyMessage(var="sample2").text == "Insert sample2 here"
-    assert MyMessage(var="sample3").plaintext == "sample3 here"
+def test_inline_use(msgt) -> None:
+    assert str(msgt.MyMessage(var="sample1")) == "Insert sample1 here"
+    assert msgt.MyMessage(var="sample2").text == "Insert sample2 here"
+    assert msgt.MyMessage(var="sample3").plaintext == "sample3 here"
 
 
-def test_object_use() -> None:
+def test_object_use(msgt) -> None:
     # pylint: disable=attribute-defined-outside-init
-    msg = MyMessage()
+    msg = msgt.MyMessage()
     msg.var = "sample1"
     assert msg.var == "sample1"
     assert str(msg) == "Insert sample1 here"
@@ -230,7 +232,7 @@ def test_object_use() -> None:
 
 
 def test_web_otp_template() -> None:
-    t = WebOtpTemplate(otp='1234', helpline_text="call 12345", domain='example.com')
+    t = sms.WebOtpTemplate(otp='1234', helpline_text="call 12345", domain='example.com')
     assert str(t) == (
         'OTP is 1234 for Hasgeek.\n\n'
         'Not you? Block misuse: call 12345\n\n'
@@ -240,7 +242,7 @@ def test_web_otp_template() -> None:
 
 def test_one_line_template() -> None:
     # Regular use
-    t = OneLineTemplate(
+    t = sms.OneLineTemplate(
         text1='123456789_' * 2,
         url='https://example.com/',
         unsubscribe_url='https://unsubscribe.example/',
@@ -252,7 +254,7 @@ def test_one_line_template() -> None:
         'https://unsubscribe.example/ to stop - Hasgeek'
     )
     # Truncated for length
-    msg = OneLineTemplate(
+    msg = sms.OneLineTemplate(
         text1='123456789_' * 20,
         url='https://example.com/',
         unsubscribe_url='https://unsubscribe.example/',
@@ -267,7 +269,7 @@ def test_one_line_template() -> None:
 
 def test_two_line_template() -> None:
     # Regular use
-    t = TwoLineTemplate(
+    t = sms.TwoLineTemplate(
         text1='123456789_' * 2,
         text2='abcdefghi_' * 2,
         url='https://example.com/',
@@ -281,7 +283,7 @@ def test_two_line_template() -> None:
         'https://unsubscribe.example/ to stop - Hasgeek'
     )
     # Truncated for length
-    msg = TwoLineTemplate(
+    msg = sms.TwoLineTemplate(
         text1='123456789_' * 20,
         text2='abcdefghi_' * 20,
         url='https://example.com/',
@@ -299,7 +301,7 @@ def test_two_line_template() -> None:
 
 def test_message_template() -> None:
     # Regular use
-    t = MessageTemplate(
+    t = sms.MessageTemplate(
         message='123456789_' * 2,
         unsubscribe_url='https://unsubscribe.example/',
     )
@@ -309,7 +311,7 @@ def test_message_template() -> None:
         '123456789_123456789_\n\n\nhttps://unsubscribe.example/ to stop - Hasgeek'
     )
     # Truncated for length
-    msg = MessageTemplate(
+    msg = sms.MessageTemplate(
         message='123456789_' * 20,
         unsubscribe_url='https://unsubscribe.example/',
     )

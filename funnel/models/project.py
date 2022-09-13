@@ -180,7 +180,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         datasets={'primary', 'without_parent', 'related'},
     )
     allow_rsvp = sa.Column(sa.Boolean, default=False, nullable=False)
-    buy_tickets_url = sa.Column(UrlType, nullable=True)
+    buy_tickets_url: sa.Column[Optional[str]] = sa.Column(UrlType, nullable=True)
 
     banner_video_url = with_roles(
         sa.Column(UrlType, nullable=True),

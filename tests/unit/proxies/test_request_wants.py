@@ -5,15 +5,15 @@ from flask import Flask
 
 import pytest
 
-from funnel import proxies
-from funnel.proxies import request_wants
+from funnel.proxies import init_app, request_wants
+from funnel.proxies.request import RequestWants
 
 
 @pytest.fixture()
 def fixture_app() -> Flask:
     """Test app for testing Vary header in responses."""
     tapp = Flask(__name__)
-    proxies.init_app(tapp)
+    init_app(tapp)
 
     @tapp.route('/no-vary')
     def no_vary():
@@ -34,15 +34,15 @@ def fixture_app() -> Flask:
     return tapp
 
 
-def test_request_wants_is_an_instance(request) -> None:
+def test_request_wants_is_an_instance(
+    request,
+) -> None:
     """request_wants proxy is an instance of RequestWants class."""
     # pylint: disable=protected-access
-    assert isinstance(request_wants._get_current_object(), proxies.request.RequestWants)
+    assert isinstance(request_wants._get_current_object(), RequestWants)
     app = request.getfixturevalue('app')
     with app.test_request_context():
-        assert isinstance(
-            request_wants._get_current_object(), proxies.request.RequestWants
-        )
+        assert isinstance(request_wants._get_current_object(), RequestWants)
     # pylint: enable=protected-access
 
     # Falsy when there is no request context

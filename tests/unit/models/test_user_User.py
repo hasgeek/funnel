@@ -7,6 +7,11 @@ import pytest
 from coaster.utils import utcnow
 from funnel import models
 
+pytestmark = pytest.mark.filterwarnings(
+    "ignore:Object of type <UserEmail> not in session",
+    "ignore:Object of type <UserPhone> not in session",
+)
+
 
 def test_user(db_session) -> None:
     """Test for creation of user object from User model."""
