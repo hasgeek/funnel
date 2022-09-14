@@ -1,14 +1,14 @@
 {% for project in past_projects %}
   <tr>
-    <td data-th="Date">
+    <td data-th="{% trans %}Date{% endtrans %}">
       <p class="mui--text-subhead zero-bottom-margin">{{ project.datetime }}</p>
     </td>
-    <td data-th="Event name" class="past-events-table__title">
+    <td data-th="{% trans %}Project{% endtrans %}" class="past-events-table__title">
       <p class="mui--text-subhead zero-bottom-margin">
         <a href="{{ project.url }}">{{ project.title }}</a>
       </p>
     </td>
-    <td data-th="Location">
+    <td data-th="{% trans %}Location{% endtrans %}">
       <p class="mui--text-subhead zero-bottom-margin">{{ project.venue }}</p>
     </td>
   </tr>

@@ -239,7 +239,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ],
         }
 
-    @route('past')
+    @route('past_projects')
     @requestargs(('page', int), ('per_page', int))
     @render_with('past_projects_section.html.jinja2')
     def past_projects(self, page: int = 1, per_page: int = 10) -> ReturnView:
@@ -249,6 +249,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         )
         pagination = past_projects.paginate(page=page, per_page=per_page)
         return {
+            'status': 'ok',
             'profile': self.obj,
             'next_page': (
                 pagination.page + 1 if pagination.page < pagination.pages else ''
