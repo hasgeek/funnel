@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import pytest
 
 from baseframe.forms.validators import StopValidation
-from funnel.forms import PasswordPolicyForm, pwned_password_validator
+from funnel import forms
 
 
 @pytest.fixture(autouse=True)
@@ -29,7 +29,7 @@ def form(request):
             if user is not None:
                 pytest.fail("Only one formuser can be mentioned in marks.")
             user = request.getfixturevalue(mark.args[0])
-    return PasswordPolicyForm(meta={'csrf': False}, edit_user=user)
+    return forms.PasswordPolicyForm(meta={'csrf': False}, edit_user=user)
 
 
 @pytest.mark.formdata()
@@ -76,15 +76,15 @@ def test_okay_password(form) -> None:
 def test_pwned_password_validator() -> None:
     """Test the pwned password validator."""
     # Validation success = no return value, no exception
-    pwned_password_validator(
+    forms.pwned_password_validator(
         None, SimpleNamespace(data='this is unlikely to be in the breach list')
     )
 
     with pytest.raises(StopValidation, match='times and is not safe'):
-        pwned_password_validator(None, SimpleNamespace(data='123456'))
+        forms.pwned_password_validator(None, SimpleNamespace(data='123456'))
 
     with pytest.raises(StopValidation, match='times and is not safe'):
-        pwned_password_validator(
+        forms.pwned_password_validator(
             None, SimpleNamespace(data='correct horse battery staple')
         )
 
@@ -147,4 +147,4 @@ def test_mangled_response_pwned_password_validator(
     """Test that the validator successfully parses mangled output in the API."""
     requests_mock.get('https://api.pwnedpasswords.com/range/7C4A8', text=text)
     with expectation:
-        pwned_password_validator(None, SimpleNamespace(data='123456'))
+        forms.pwned_password_validator(None, SimpleNamespace(data='123456'))

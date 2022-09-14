@@ -5,12 +5,7 @@ import os
 
 import pytest
 
-from funnel.transports.email.aws_ses import (
-    SesEvent,
-    SnsValidator,
-    SnsValidatorChecks,
-    SnsValidatorError,
-)
+from funnel.transports.email import aws_ses
 
 # Data Directory which contains JSON Files
 data_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -20,7 +15,7 @@ def test_delivery() -> None:
     """Check if the delivery JSON is parsed correctly."""
     with open(os.path.join(data_dir, 'delivery.json'), encoding='utf-8') as file:
         data = file.read()
-    obj: SesEvent = SesEvent.from_json(data)
+    obj = aws_ses.SesEvent.from_json(data)
     assert obj.event_type == 'Delivery'
     assert obj.mail.tags
     assert obj.mail.timestamp
@@ -45,7 +40,7 @@ def test_delivery_without_subject() -> None:
         encoding='utf-8',
     ) as file:
         data = file.read()
-    obj: SesEvent = SesEvent.from_json(data)
+    obj = aws_ses.SesEvent.from_json(data)
     assert obj.event_type == 'Delivery'
     assert obj.mail.tags
     assert obj.mail.timestamp
@@ -67,7 +62,7 @@ def test_bounce() -> None:
     """Check if Data classes for bounce is parsed correctly."""
     with open(os.path.join(data_dir, 'bounce.json'), encoding='utf-8') as file:
         data = file.read()
-    obj: SesEvent = SesEvent.from_json(data)
+    obj = aws_ses.SesEvent.from_json(data)
     assert obj.bounce
     assert obj.bounce.is_hard_bounce is True
     assert len(obj.bounce.bounced_recipients) == 1
@@ -81,7 +76,7 @@ def test_complaint() -> None:
     """Check if Data classes for complaint is parsed correctly."""
     with open(os.path.join(data_dir, 'complaint.json'), encoding='utf-8') as file:
         data = file.read()
-    obj: SesEvent = SesEvent.from_json(data)
+    obj = aws_ses.SesEvent.from_json(data)
     assert obj.complaint
     assert obj.complaint.feedbackid
     assert obj.complaint.complaint_sub_type is None
@@ -99,15 +94,15 @@ def test_signature_good_message() -> None:
 
     # Decode the JSON
     message = json.loads(data)
-    validator = SnsValidator(
+    validator = aws_ses.SnsValidator(
         ['arn:aws:sns:ap-south-1:817922165072:ses-events-for-hasgeek_dot_com']
     )
 
     # Checks
-    validator.check(message, SnsValidatorChecks.SIGNATURE)
-    validator.check(message, SnsValidatorChecks.SIGNATURE_VERSION)
-    validator.check(message, SnsValidatorChecks.CERTIFICATE_URL)
-    validator.check(message, SnsValidatorChecks.TOPIC)
+    validator.check(message, aws_ses.SnsValidatorChecks.SIGNATURE)
+    validator.check(message, aws_ses.SnsValidatorChecks.SIGNATURE_VERSION)
+    validator.check(message, aws_ses.SnsValidatorChecks.CERTIFICATE_URL)
+    validator.check(message, aws_ses.SnsValidatorChecks.TOPIC)
 
 
 @pytest.mark.skip(reason="Certificate has expired")
@@ -118,13 +113,13 @@ def test_signature_bad_message() -> None:
 
     # Decode the JSON
     message = json.loads(data)
-    validator = SnsValidator(
+    validator = aws_ses.SnsValidator(
         ['arn:aws:sns:ap-south-1:817922165072:ses-events-for-hasgeek_dot_com']
     )
 
     # Checks
-    validator.check(message, SnsValidatorChecks.SIGNATURE_VERSION)
-    validator.check(message, SnsValidatorChecks.CERTIFICATE_URL)
-    validator.check(message, SnsValidatorChecks.TOPIC)
-    with pytest.raises(SnsValidatorError):
-        validator.check(message, SnsValidatorChecks.SIGNATURE)
+    validator.check(message, aws_ses.SnsValidatorChecks.SIGNATURE_VERSION)
+    validator.check(message, aws_ses.SnsValidatorChecks.CERTIFICATE_URL)
+    validator.check(message, aws_ses.SnsValidatorChecks.TOPIC)
+    with pytest.raises(aws_ses.SnsValidatorError):
+        validator.check(message, aws_ses.SnsValidatorChecks.SIGNATURE)

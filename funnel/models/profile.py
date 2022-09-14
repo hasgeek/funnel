@@ -119,7 +119,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
     description = MarkdownColumn(
         'description', default='', nullable=False, options=markdown_content_options
     )
-    website = sa.Column(UrlType, nullable=True)
+    website: sa.Column[Optional[str]] = sa.Column(UrlType, nullable=True)
     logo_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
     banner_image_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
 

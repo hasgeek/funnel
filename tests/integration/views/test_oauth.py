@@ -5,7 +5,9 @@ from secrets import token_urlsafe
 from typing import Dict
 from urllib.parse import parse_qs, urlsplit
 
-from funnel.models import AuthToken
+import pytest
+
+from funnel import models
 
 
 def test_authcode_requires_login(client) -> None:
@@ -47,6 +49,7 @@ def test_authcode_wellformed(
     # TODO: Add redirect_uri, response_type, state, scope
 
 
+@pytest.mark.filterwarnings("ignore:Object of type <AuthToken> not in session")
 def test_auth_untrusted_confidential(  # pylint: disable=too-many-arguments
     client, login, user_rincewind, client_hex, client_hex_credential, csrf_token
 ):
@@ -70,7 +73,7 @@ def test_auth_untrusted_confidential(  # pylint: disable=too-many-arguments
     assert rv.status_code == 200
 
     # There is no existing AuthToken for this client and user
-    assert AuthToken.get_for(client_hex, user=user_rincewind) is None
+    assert models.AuthToken.get_for(client_hex, user=user_rincewind) is None
 
     # Submit form with `accept` and CSRF token
     rv = client.post(
@@ -114,7 +117,7 @@ def test_auth_untrusted_confidential(  # pylint: disable=too-many-arguments
     assert data['access_token'] is not None
     assert data['scope'] == authtoken_params['scope']
 
-    authtoken = AuthToken.get_for(client_hex, user=user_rincewind)
+    authtoken = models.AuthToken.get_for(client_hex, user=user_rincewind)
     assert authtoken.token == data['access_token']
     assert authtoken.token_type == data['token_type']
 

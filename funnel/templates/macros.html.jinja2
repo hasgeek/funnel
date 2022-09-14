@@ -179,32 +179,34 @@
         <p class="card__image__tagline mui--text-body2">{{ project.title }}</p>
       {% endif %}
     </div>
-    <div class="card__body">
-      {%- if include_calendar %}
-        {% if calendarwidget_compact and project.start_at and project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
-          <div aria-label="{{ project.datelocation }}">
-            {{ calendarwidget(project.calendar_weeks_compact) }}
-          </div>
-        {% elif project.start_at and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
-          <div aria-label="{{ project.datelocation }}">
-            {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
-          </div>
+    {%- if include_calendar and (project.start_at is not none and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0) or include_details %}
+      <div class="card__body">
+        {%- if include_calendar %}
+          {% if calendarwidget_compact and project.start_at and project.calendar_weeks_compact.weeks and project.calendar_weeks_compact.weeks|length > 0 %}
+            <div aria-label="{{ project.datelocation }}">
+              {{ calendarwidget(project.calendar_weeks_compact) }}
+            </div>
+          {% elif project.start_at and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
+            <div aria-label="{{ project.datelocation }}">
+              {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
+            </div>
+          {% endif %}
+          {%- if include_details %}
+            <h3 class="card__body__title mui--text-subhead {% if not project.start_at %} card__body__subtitle {% endif %}"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
+          {% endif %}
+        {% elif include_details %}
+          <h3 class="card__body__subtitle mui--text-subhead mui--text-bold">{{ project.title }}</h3>
+          <p class="mui--text-caption mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</p>
+          {% if project.cfp_state.OPEN and project.cfp_end_at_localized %}
+            <hr class="separator" />
+            <p class="mui--text-caption zero-bottom-margin secondary-color-txt">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>
+          {% endif %}
         {% endif %}
         {%- if include_details %}
-          <h3 class="card__body__title mui--text-subhead {% if not project.start_at %} card__body__subtitle {% endif %}"><span class="mui--text-bold">{{ project.title_inline }}</span> <span class="mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</span></h3>
+          <div class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</div>
         {% endif %}
-      {% elif include_details %}
-        <h3 class="card__body__subtitle mui--text-subhead mui--text-bold">{{ project.title }}</h3>
-        <p class="mui--text-caption mui--text-light js-truncate" data-truncate-lines="2">{{ project.tagline }}</p>
-        {% if project.cfp_state.OPEN and project.cfp_end_at_localized %}
-          <hr class="separator" />
-          <p class="mui--text-caption zero-bottom-margin secondary-color-txt">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>
-        {% endif %}
-      {% endif %}
-      {%- if include_details %}
-        <div class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</div>
-      {% endif %}
-    </div>
+      </div>
+    {% endif %}
   </a>
 {% endmacro %}
 

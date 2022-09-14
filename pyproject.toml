@@ -116,7 +116,13 @@ addopts = [
   '--cov-report=term-missing',
   '--splinter-screenshot-dir=tests/screenshots',
   '--remote-data=any',
-  # '--splinter-headless'
+  '--strict-markers',
+  '--splinter-headless'
+]
+markers = [
+  'requires_config("feature"): Run test only if specified app config is available',
+  'formdata(dict): HTTP form data for form fixture',
+  'formuser("user"): User fixture for editing a form'
 ]
 filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
 mocked-sessions = 'funnel.db.db.session'  # For pytest-flask-sqlalchemy (unused)
