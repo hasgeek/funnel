@@ -7,7 +7,7 @@ import os.path
 
 from flask import Response, g, render_template
 
-from baseframe import _, __
+from baseframe import __
 from baseframe.filters import date_filter
 from coaster.views import ClassView, render_with, requestargs, route
 
