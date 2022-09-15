@@ -9,9 +9,10 @@ from markupsafe import Markup
 from coaster.utils.text import normalize_spaces_multiline
 
 from .extmap import markdown_extensions
-from .helpers import MDExtDefaults
 
 __all__ = ['markdown']
+
+default_markdown_extensions: List[str] = ['footnote', 'heading_anchors', 'tasklists']
 
 # --- Standard extensions --------------------------------------------------------------
 # FOR CUT 2
@@ -81,7 +82,7 @@ def markdown(
     md.linkify.set({'fuzzy_link': False, 'fuzzy_email': False})
 
     if extensions is None:
-        extensions = MDExtDefaults
+        extensions = default_markdown_extensions
 
     for e in extensions:
         if e in markdown_extensions:

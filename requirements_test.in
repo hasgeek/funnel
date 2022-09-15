@@ -12,3 +12,4 @@ pytest-remotedata
 pytest-rerunfailures
 pytest-splinter
 requests-mock
+tomlkit

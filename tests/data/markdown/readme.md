@@ -17,7 +17,7 @@ Running `make tests-data-md` cycles through each `.toml` file and does the follo
 
 1.  Loads the data (`[data.markdown]`) and the different configurations to run the test case with.
 1.  Configurations could be amongst the predefined ones (`[config.configs]`) or custom defined within the `.toml` file (`[config.extra_configs]`).
-1.  Generates the current output of `markdown()` for each configuration and stores them in (`[results]`).
+1.  Generates the current output of `markdown()` for each configuration and stores them in (`[expected_output]`).
 1.  Dumps this data back to the `.toml` file.
 
 # Precautions

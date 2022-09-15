@@ -10,11 +10,12 @@ from .helpers import MDExtension
 
 __all__ = ['markdown_extensions']
 
-markdown_extensions: Dict[str, MDExtension] = {}
+markdown_extensions: Dict[str, MDExtension] = {
+    'footnote': MDExtension(footnote.footnote_plugin),
+    'heading_anchors': MDExtension(anchors.anchors_plugin),
+    'tasklists': MDExtension(tasklists.tasklists_plugin),
+}
 
-markdown_extensions['footnote'] = MDExtension(footnote.footnote_plugin)
-
-markdown_extensions['heading_anchors'] = MDExtension(anchors.anchors_plugin)
 markdown_extensions['heading_anchors'].set_config(
     None,
     {
@@ -26,7 +27,6 @@ markdown_extensions['heading_anchors'].set_config(
 )
 
 
-markdown_extensions['tasklists'] = MDExtension(tasklists.tasklists_plugin)
 markdown_extensions['tasklists'].set_config(
     None, {'enabled': False, 'label': False, 'label_after': False}
 )

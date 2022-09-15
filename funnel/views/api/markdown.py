@@ -7,7 +7,7 @@ from ... import app
 from ...typing import ReturnView
 from ...utils import markdown
 
-extra_markdown_types = {'profile', 'project', 'submission', 'session'}
+# extra_markdown_types = {'profile', 'project', 'submission', 'session'}
 
 
 @app.route('/api/1/preview/markdown', methods=['POST'])

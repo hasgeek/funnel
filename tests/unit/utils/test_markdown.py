@@ -4,14 +4,14 @@ from copy import copy, deepcopy
 from datetime import datetime
 from difflib import context_diff
 from functools import lru_cache
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 import json
 import os
 
 from bs4 import BeautifulSoup
 from markupsafe import Markup
 import pytest
-import toml
+import tomlkit
 
 from funnel.utils import markdown
 from funnel.utils.markdown.helpers import MD_CONFIGS
@@ -30,9 +30,19 @@ def load_md_cases() -> CasesType:
     for file in files:
         if file.endswith('.toml'):
             with open(os.path.join(DATA_ROOT, file), encoding='utf-8') as f:
-                cases[file] = toml.load(f)
+                cases[file] = tomlkit.load(f)
                 f.close()
     return cases
+
+
+def blank_to_none(_id: str):
+    """Replace blank string with None."""
+    return None if _id == "" else _id
+
+
+def none_to_blank(_id: Optional[str]):
+    """Replace None with a blank string."""
+    return "" if _id is None else str(_id)
 
 
 def get_case_configs(case: CaseType) -> Dict[str, Any]:
@@ -47,6 +57,7 @@ def get_case_configs(case: CaseType) -> Dict[str, Any]:
             if c not in configs:
                 configs.append(c)
     for c in configs:
+        c = blank_to_none(c)
         if c in md_configs:
             case_configs[c] = md_configs[c]
     return case_configs
@@ -69,16 +80,16 @@ def update_md_case_results(cases: CasesType) -> None:
     for case_id in cases:
         case = cases[case_id]
         configs = get_case_configs(case)
-        case['results'] = {}
+        case['expected_output'] = {}
         for config_id, config in configs.items():
-            case['results'][config_id] = get_md(case, config)
+            case['expected_output'][none_to_blank(config_id)] = get_md(case, config)
 
 
 def dump_md_cases(cases: CasesType) -> None:
     """Save test cases for the markdown parser to .toml files."""
     for (file, file_data) in cases.items():
         with open(os.path.join(DATA_ROOT, file), 'w', encoding='utf-8') as f:
-            toml.dump(file_data, f)
+            tomlkit.dump(file_data, f)
             f.close()
 
 
@@ -116,15 +127,15 @@ def update_case_output(
     """Update & return case template with output for provided case-configuration."""
     if 'output' not in case:
         case['output'] = {}
-    case['output'][config_id] = output
+    case['output'][none_to_blank(config_id)] = output
     op = copy(get_case_template())
     del op['id']
     op.select('.filename')[0].string = case_id
-    op.select('.configname')[0].string = config_id
+    op.select('.configname')[0].string = str(config_id)
     op.select('.config')[0].string = json.dumps(config, indent=2)
     op.select('.markdown .output')[0].append(case['data']['markdown'])
     try:
-        expected_output = case['results'][config_id]
+        expected_output = case['expected_output'][none_to_blank(config_id)]
     except KeyError as e:
         expected_output = markdown(
             f'Expected output for `{case_id}` config `{str(e)}` '
@@ -176,7 +187,7 @@ def get_md_test_data() -> CasesType:
 def get_md_test_dataset() -> List[Tuple[str, str]]:
     """Return testcase datasets."""
     return [
-        (case_id, config_id)
+        (case_id, none_to_blank(config_id))
         for (case_id, case) in load_md_cases().items()
         for config_id in get_case_configs(case).keys()
     ]
@@ -187,8 +198,8 @@ def get_md_test_output(case_id: str, config_id: str) -> Tuple[str, str]:
     cases = get_md_test_data()
     try:
         return (
-            cases[case_id]['results'][config_id],
-            cases[case_id]['output'][config_id],
+            cases[case_id]['expected_output'][none_to_blank(config_id)],
+            cases[case_id]['output'][none_to_blank(config_id)],
         )
     except KeyError as e:
         return (
@@ -201,9 +212,9 @@ def get_md_test_output(case_id: str, config_id: str) -> Tuple[str, str]:
             'For detailed instructions check "tests/data/markdown/readme.md".'
             '\n'.join(
                 [
-                    cases[case_id]['output'][config_id][:80],
+                    cases[case_id]['output'][none_to_blank(config_id)][:80],
                     '...',
-                    cases[case_id]['output'][config_id][-80:],
+                    cases[case_id]['output'][none_to_blank(config_id)][-80:],
                 ]
             ),
         )

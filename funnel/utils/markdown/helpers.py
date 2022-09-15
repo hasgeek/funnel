@@ -1,6 +1,6 @@
 """Helper for markdown parser."""
 
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, Optional
 
 MDConfigType = Dict[str, Any]
 
@@ -32,11 +32,4 @@ class MDExtension:
         return self.configs[None]
 
 
-# TODO: Rename
-MDExtDefaults: List[str] = ['footnote', 'heading_anchors', 'tasklists']
-
-# TODO: What is this?
-MD_CONFIGS: Dict[str, MDConfigType] = {'None': {}}
-
-# TODO: Move into base
-MD_CONFIGS['no_ext'] = {'extensions': []}
+MD_CONFIGS: Dict[Optional[str], MDConfigType] = {None: {}, 'no_ext': {'extensions': []}}
