@@ -860,6 +860,19 @@
   cursor: pointer;
 }
 
+.language-placeholder {
+  display: none;
+}
+
+.language-placeholder.embed-added {
+  display: block;
+  canvas,
+  svg {
+    width: 100% !important;
+    min-height: 150px;
+  }
+}
+
 .language-placeholder.language-vega-lite.vega-embed {
   display: block;
   canvas,
