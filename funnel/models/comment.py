@@ -13,7 +13,6 @@ from baseframe import _, __
 from coaster.sqlalchemy import LazyRoleSet, RoleAccessProxy, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from ..utils import markdown
 from . import (
     BaseMixin,
     Mapped,
@@ -221,7 +220,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         'Comment', backref=sa.orm.backref('in_reply_to', remote_side='Comment.id')
     )
 
-    _message = MarkdownColumn('message', nullable=False, markdown=markdown)
+    _message = MarkdownColumn('message', nullable=False)
 
     _state = sa.Column(
         'state',

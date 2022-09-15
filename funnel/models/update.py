@@ -16,7 +16,6 @@ from coaster.sqlalchemy import (
 )
 from coaster.utils import LabeledEnum
 
-from ..utils import markdown
 from . import (
     BaseScopedIdNameMixin,
     Commentset,
@@ -102,7 +101,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     )
     parent = sa.orm.synonym('project')
 
-    body = MarkdownColumn('body', nullable=False, markdown=markdown)
+    body = MarkdownColumn('body', nullable=False)
 
     #: Update number, for Project updates, assigned when the update is published
     number = with_roles(

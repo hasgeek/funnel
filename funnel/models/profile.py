@@ -11,7 +11,6 @@ from coaster.sqlalchemy import LazyRoleSet, Query, StateManager, immutable, with
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
-from ..utils import markdown
 from . import (
     BaseMixin,
     Mapped,
@@ -116,9 +115,7 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
     state = StateManager('_state', PROFILE_STATE, doc="Current state of the profile")
 
     tagline = sa.Column(sa.Unicode, nullable=True)
-    description = MarkdownColumn(
-        'description', default='', nullable=False, markdown=markdown
-    )
+    description = MarkdownColumn('description', default='', nullable=False)
     website: sa.Column[Optional[str]] = sa.Column(UrlType, nullable=True)
     logo_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
     banner_image_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
