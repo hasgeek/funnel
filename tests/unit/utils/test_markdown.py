@@ -189,7 +189,7 @@ def get_md_test_dataset() -> List[Tuple[str, str]]:
     return [
         (case_id, none_to_blank(config_id))
         for (case_id, case) in load_md_cases().items()
-        for config_id in get_case_configs(case).keys()
+        for config_id in get_case_configs(case)
     ]
 
 
