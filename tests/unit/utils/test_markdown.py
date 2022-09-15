@@ -22,6 +22,7 @@ CaseType = Dict[str, Any]
 CasesType = Dict[str, CaseType]
 
 
+@lru_cache()
 def load_md_cases() -> CasesType:
     """Load test cases for the markdown parser from .toml files."""
     cases: CasesType = {}
@@ -47,7 +48,7 @@ def none_to_blank(_id: Optional[str]):
 
 def get_case_configs(case: CaseType) -> Dict[str, Any]:
     """Return dict with key-value of configs for the provided test case."""
-    case_configs = {}
+    case_configs: Dict[str, Any] = {}
     configs = copy(case['config']['configs'])
     md_configs = deepcopy(MD_CONFIGS)
     if 'extra_configs' in case['config']:
@@ -60,11 +61,15 @@ def get_case_configs(case: CaseType) -> Dict[str, Any]:
         c = blank_to_none(c)
         if c in md_configs:
             case_configs[c] = md_configs[c]
+        else:
+            case_configs[c] = None
     return case_configs
 
 
-def get_md(case: CaseType, config: Dict[str, Any]):
+def get_md(case: CaseType, config: Optional[Dict[str, Any]]):
     """Parse a markdown test case for given configuration."""
+    if config is None:
+        return markdown("This configuration does not exist in `MD_CONFIG`.").__str__()
     return (
         markdown(  # pylint: disable=unnecessary-dunder-call
             case['data']['markdown'], **config
@@ -136,9 +141,9 @@ def update_case_output(
     op.select('.markdown .output')[0].append(case['data']['markdown'])
     try:
         expected_output = case['expected_output'][none_to_blank(config_id)]
-    except KeyError as e:
+    except KeyError:
         expected_output = markdown(
-            f'Expected output for `{case_id}` config `{str(e)}` '
+            f'Expected output for `{case_id}` config `{config_id}` '
             'has not been generated. Please run `make tests-data-md`'
             '**after evaluating other failures**.\n'
             '`make tests-data-md` should only be run for this after '
@@ -151,7 +156,7 @@ def update_case_output(
     )
     op.select('.final_output .output')[0].append(BeautifulSoup(output, 'html.parser'))
     op['class'] = op.get('class', []) + [
-        'success' if expected_output == output else 'failed'
+        'success' if expected_output == output and config is not None else 'failed'
     ]
     template.find('body').append(op)
 
@@ -201,21 +206,25 @@ def get_md_test_output(case_id: str, config_id: str) -> Tuple[str, str]:
             cases[case_id]['expected_output'][none_to_blank(config_id)],
             cases[case_id]['output'][none_to_blank(config_id)],
         )
-    except KeyError as e:
+    except KeyError:
         return (
-            f'Expected output for {case_id} config {str(e)} has not been generated. '
+            f'Expected output for "{case_id}" config "{config_id}" has not been generated. '
             'Please run "make tests-data-md" '
             'after evaluating other failures.\n'
             '"make tests-data-md" should only be run for this after '
             'ensuring there are no unexpected mismatches/failures '
             'in the output of all cases.\n',
-            'For detailed instructions check "tests/data/markdown/readme.md".'
-            '\n'.join(
-                [
-                    cases[case_id]['output'][none_to_blank(config_id)][:80],
-                    '...',
-                    cases[case_id]['output'][none_to_blank(config_id)][-80:],
-                ]
+            'For detailed instructions check "tests/data/markdown/readme.md". \n'
+            + (
+                cases[case_id]['output'][none_to_blank(config_id)]
+                if len(cases[case_id]['output'][none_to_blank(config_id)]) <= 160
+                else '\n'.join(
+                    [
+                        cases[case_id]['output'][none_to_blank(config_id)][:80],
+                        '...',
+                        cases[case_id]['output'][none_to_blank(config_id)][-80:],
+                    ]
+                )
             ),
         )
 
@@ -245,16 +254,21 @@ def test_markdown_update_output(pytestconfig):
 )
 def test_markdown_dataset(case_id: str, config_id: str) -> None:
     (expected_output, output) = get_md_test_output(case_id, config_id)
-    if expected_output != output:
-        difference = context_diff(expected_output.split('\n'), output.split('\n'))
-        msg = []
-        for line in difference:
-            if not line.startswith(' '):
-                msg.append(line)
+    cases = load_md_cases()
+    configs = get_case_configs(cases[case_id])
+    if configs[blank_to_none(config_id)] is None or expected_output != output:
+        if configs[blank_to_none(config_id)] is None:
+            msg = [output]
+        else:
+            difference = context_diff(expected_output.split('\n'), output.split('\n'))
+            msg = []
+            for line in difference:
+                if not line.startswith(' '):
+                    msg.append(line)
         pytest.fail(
             '\n'.join(
                 [
-                    f'Markdown output failed. File: {case_id}.toml, Config key: {config_id}.',
+                    f'Markdown output failed. File: {case_id}, Config key: {config_id}.',
                     'Please check tests/data/markdown/output.html for detailed output comparision',
                 ]
                 + msg
