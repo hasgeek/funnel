@@ -24,7 +24,17 @@ const MarkmapEmbed = {
           asset += 1;
           if (window.markmap) {
             window.markmap = {
-              autoLoader: { manual: true },
+              autoLoader: {
+                manual: true,
+                onReady: () => {
+                  window.markmap.Markmap.defaultOptions = {
+                    ...window.markmap.Markmap.defaultOptions,
+                    autoFit: true,
+                    pan: false,
+                    fitRatio: 0.85,
+                  };
+                },
+              },
             };
           }
           loadMarkmapScript();
