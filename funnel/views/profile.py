@@ -239,9 +239,10 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ],
         }
 
-    @route('past.json')
+    @route('past_projects')
     @requestargs(('page', int), ('per_page', int))
-    def past_projects_json(self, page: int = 1, per_page: int = 10) -> ReturnView:
+    @render_with('past_projects_section.html.jinja2')
+    def past_projects(self, page: int = 1, per_page: int = 10) -> ReturnView:
         projects = self.obj.listed_projects.order_by(None)
         past_projects = projects.filter(Project.state.PAST).order_by(
             Project.start_at.desc()
@@ -249,8 +250,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
         pagination = past_projects.paginate(page=page, per_page=per_page)
         return {
             'status': 'ok',
-            'title': _('Past sessions'),
-            'headings': [_('Date'), _('Project'), _('Location')],
+            'profile': self.obj,
             'next_page': (
                 pagination.page + 1 if pagination.page < pagination.pages else ''
             ),
