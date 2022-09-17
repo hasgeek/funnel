@@ -866,10 +866,30 @@
 
 .language-placeholder.embed-added {
   display: block;
+  &.language-markmap {
+    margin-bottom: 0px;
+  }
   canvas,
   svg {
     width: 100% !important;
+    height: 80vh;
+    border: 1px solid black;
+    background: linear-gradient(45deg, #bbb, #eee);
+  }
+  canvas {
     min-height: 150px;
+  }
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .language-placeholder.embed-added svg {
+    height: 40vh;
+  }
+}
+
+@media (max-aspect-ratio: 1/2) {
+  .language-placeholder.embed-added svg {
+    height: 30vh;
   }
 }
 
