@@ -866,6 +866,9 @@
 
 .language-placeholder.embed-added {
   display: block;
+  &.language-markmap {
+    margin-bottom: 0px;
+  }
   canvas,
   svg {
     width: 100% !important;
@@ -875,6 +878,9 @@
   }
   canvas {
     min-height: 150px;
+  }
+  + .embed-caption {
+    text-align: center;
   }
 }
 

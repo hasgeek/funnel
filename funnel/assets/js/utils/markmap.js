@@ -3,6 +3,11 @@ const MarkmapEmbed = {
     $('.language-markmap').each(function embedMarkmap() {
       $(this).addClass('embed-added');
       $(this).find('code').addClass('markmap');
+      $(this).after(
+        $(
+          '<div>Click the empty white connectors <strong>&#9675;</strong> to close/collapse a node &amp; the filled coloured connectors <strong>&#9679;</strong> to open/expand a node.</div>'
+        ).addClass('embed-caption')
+      );
     });
     window.markmap.autoLoader.renderAll();
   },
@@ -32,6 +37,7 @@ const MarkmapEmbed = {
                     autoFit: true,
                     pan: false,
                     fitRatio: 0.85,
+                    initialExpandLevel: 1,
                   };
                 },
               },
