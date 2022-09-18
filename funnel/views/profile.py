@@ -239,7 +239,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             ],
         }
 
-    @route('past_projects')
+    @route('past.projects')
     @requestargs(('page', int), ('per_page', int))
     @render_with('past_projects_section.html.jinja2')
     def past_projects(self, page: int = 1, per_page: int = 10) -> ReturnView:
