@@ -56,6 +56,7 @@ def _timeout_var():
     session_timeouts.pop('test_timeout')
 
 
+@pytest.mark.flaky(reruns=1)  # Rerun in case assert with timedelta fails
 @pytest.mark.usefixtures('_timeout_var')
 def test_session_temp_vars(client) -> None:
     with client.session_transaction() as session:
