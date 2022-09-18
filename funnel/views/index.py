@@ -128,16 +128,17 @@ class IndexView(ClassView):
 IndexView.init_app(app)
 
 
-@app.route('/past_projects')
+@app.route('/past.projects', endpoint='past_projects')
 @requestargs(('page', int), ('per_page', int))
 @render_with('past_projects_section.html.jinja2')
 def past_projects(page: int = 1, per_page: int = 10) -> ReturnView:
     g.profile = None
     projects = Project.all_unsorted()
-    past_projects = projects.filter(Project.state.PAST).order_by(
-        Project.start_at.desc()
+    pagination = (
+        projects.filter(Project.state.PAST)
+        .order_by(Project.start_at.desc())
+        .paginate(page=page, per_page=per_page)
     )
-    pagination = past_projects.paginate(page=page, per_page=per_page)
     return {
         'status': 'ok',
         'next_page': pagination.page + 1 if pagination.page < pagination.pages else '',
