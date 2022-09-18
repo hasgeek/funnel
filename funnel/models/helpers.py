@@ -222,8 +222,23 @@ markdown_content_options['extension_configs'].setdefault('pymdownx.superfences',
     'custom_fences'
 ] = [
     {
+        'name': 'flow',
+        'class': 'language-placeholder language-flow',
+        'format': pymdownx.superfences.fence_code_format,
+    },
+    {
+        'name': 'markmap',
+        'class': 'language-placeholder language-markmap',
+        'format': pymdownx.superfences.fence_code_format,
+    },
+    {
         'name': 'mermaid',
         'class': 'language-placeholder language-mermaid',
+        'format': pymdownx.superfences.fence_code_format,
+    },
+    {
+        'name': 'sequence',
+        'class': 'language-placeholder language-sequence',
         'format': pymdownx.superfences.fence_code_format,
     },
     {
