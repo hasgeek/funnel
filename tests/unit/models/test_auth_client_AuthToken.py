@@ -36,6 +36,7 @@ class TestAuthToken(TestDatabaseFixture):
         assert existing_token != auth_token.token
         assert existing_secret != auth_token.secret
 
+    @pytest.mark.flaky(reruns=1)  # Rerun in case assert based on the timedelta fails
     def test_authtoken_is_valid(self) -> None:
         """Test for verifying if AuthToken's token is valid."""
         auth_client = self.fixtures.auth_client
