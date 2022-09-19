@@ -6,6 +6,7 @@ import Form from './utils/formhelper';
 import Spa from './utils/spahelper';
 import Utils from './utils/helper';
 import MarkmapEmbed from './utils/markmap';
+import MermaidEmbed from './utils/mermaid';
 
 const Schedule = {
   renderScheduleTable() {
@@ -148,6 +149,7 @@ const Schedule = {
                 window.activateZoomPopup();
                 Utils.enableWebShare();
                 MarkmapEmbed.init();
+                MermaidEmbed.init();
                 observer.disconnect();
               }
             });

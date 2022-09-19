@@ -1,6 +1,7 @@
 import L from 'leaflet';
 import TypeformEmbed from './utils/typeform_embed';
 import MarkmapEmbed from './utils/markmap';
+import MermaidEmbed from './utils/mermaid';
 
 const EmbedMap = {
   init({ mapId, latitude, longitude }) {
@@ -53,5 +54,6 @@ $(() => {
     // Include parent container
     TypeformEmbed.init('#about .markdown');
     MarkmapEmbed.init();
+    MermaidEmbed.init();
   };
 });
