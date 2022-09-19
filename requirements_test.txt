@@ -13,6 +13,8 @@ attrs==22.1.0
     #   outcome
     #   pytest
     #   trio
+beautifulsoup4==4.11.1
+    # via -r requirements_test.in
 certifi==2022.9.14
     # via
     #   requests
@@ -110,12 +112,16 @@ sniffio==1.3.0
     # via trio
 sortedcontainers==2.4.0
     # via trio
+soupsieve==2.3.2.post1
+    # via beautifulsoup4
 splinter==0.18.1
     # via pytest-splinter
 tomli==2.0.1
     # via
     #   coverage
     #   pytest
+tomlkit==0.11.4
+    # via -r requirements_test.in
 trio==0.21.0
     # via
     #   selenium

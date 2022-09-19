@@ -36,6 +36,7 @@ geckodriver.log
 tests/cypress/screenshots
 tests/cypress/videos
 tests/screenshots
+tests/data/markdown/output.html
 coverage/
 
 # Instance files that should not be checked-in
