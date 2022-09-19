@@ -1,14 +1,14 @@
 """Base files for markdown parser."""
 # pylint: disable=too-many-arguments
 
-from typing import Dict, List, Optional, Union, overload
+from typing import List, Optional, overload
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
 
 from coaster.utils.text import normalize_spaces_multiline
 
-from .extmap import markdown_extensions
+from .profiles import plugin_configs, plugins, profiles
 
 __all__ = ['markdown']
 
@@ -32,37 +32,20 @@ default_markdown_extensions: List[str] = ['footnote', 'heading_anchors', 'taskli
 
 
 @overload
-def markdown(
-    text: None,
-    extensions: Union[List[str], None] = None,
-    extension_configs: Optional[Dict[str, str]] = None,
-    # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
-) -> None:
+def markdown(text: None, profile: str = 'proposal') -> None:
     ...
 
 
 @overload
-def markdown(
-    text: str,
-    extensions: Union[List[str], None] = None,
-    extension_configs: Optional[Dict[str, str]] = None,
-    # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
-) -> Markup:
+def markdown(text: str, profile: str = 'proposal') -> Markup:
     ...
 
 
-def markdown(
-    text: Optional[str],
-    extensions: Union[List[str], None] = None,
-    extension_configs: Optional[Dict[str, str]] = None,
-    # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
-) -> Optional[Markup]:
+def markdown(text: Optional[str], profile: str = 'proposal') -> Optional[Markup]:
     """
     Markdown parser compliant with Commonmark+GFM using markdown-it-py.
 
-    :param bool linkify: Whether to convert naked URLs into links
-    :param list extensions: List of Markdown extensions to be enabled
-    :param dict extension_configs: Config for Markdown extensions
+    :param bool profile: Config profile to use
     """
     if text is None:
         return None
@@ -70,25 +53,29 @@ def markdown(
     # Replace invisible characters with spaces
     text = normalize_spaces_multiline(text)
 
-    md = MarkdownIt(
-        'gfm-like',
-        {
-            'breaks': True,
-            'linkify': True,
-            'typographer': True,
-        },
-    ).enable(['smartquotes'])
+    if profile not in profiles:
+        raise KeyError(f'Wrong markdown config profile "{profile}". Check name.')
 
-    md.linkify.set({'fuzzy_link': False, 'fuzzy_email': False})
+    args = profiles[profile].get('args', ())
 
-    if extensions is None:
-        extensions = default_markdown_extensions
+    md = MarkdownIt(*args)
 
-    for e in extensions:
-        if e in markdown_extensions:
-            ext_config = markdown_extensions[e].default_config
-            if extension_configs is not None and e in extension_configs:
-                ext_config = markdown_extensions[e].config(extension_configs[e])
-            md.use(markdown_extensions[e].ext, **ext_config)
+    funnel_config = profiles[profile].get('funnel_config', {})
+
+    if md.linkify is not None:
+        md.linkify.set({'fuzzy_link': False, 'fuzzy_email': False})
+
+    for action in ['enable', 'disable']:
+        if action in funnel_config:
+            md.enable(funnel_config[action])
+
+    for e in profiles[profile].get('plugins', []):
+        try:
+            ext = plugins[e]
+        except KeyError as exc:
+            raise KeyError(
+                f'Wrong markdown-it-py plugin key "{e}". Check name.'
+            ) from exc
+        md.use(ext, **plugin_configs.get(e, {}))
 
     return Markup(md.render(text))  # type: ignore[arg-type]
