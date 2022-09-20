@@ -184,7 +184,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         datasets={'primary', 'without_parent', 'related'},
     )
     allow_rsvp = sa.Column(sa.Boolean, default=False, nullable=False)
-    buy_tickets_url: sa.Column[Optional[str]] = with_roles(sa.Column(UrlType, nullable=True),
+    buy_tickets_url: sa.Column[Optional[str]] = with_roles(
+        sa.Column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent'},
     )

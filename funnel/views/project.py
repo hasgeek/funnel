@@ -180,6 +180,7 @@ def feature_project_tickets(obj: Project) -> bool:
         and not obj.state.PAST
     )
 
+
 @Project.features('external_buy_tickets')
 def feature_project_external_ticket(obj: Project) -> bool:
     return (
