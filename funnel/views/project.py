@@ -180,19 +180,6 @@ def feature_project_tickets(obj: Project) -> bool:
         and not obj.state.PAST
     )
 
-@Project.features('external_buy_tickets')
-def feature_project_external_ticket(obj: Project) -> bool:
-    return (
-        obj.state.PUBLISHED
-        and (
-            obj.boxoffice_data is None
-            or 'item_collection_id' not in obj.boxoffice_data
-            or not obj.boxoffice_data['item_collection_id']
-        )
-        and obj.allow_rsvp is False
-        and (obj.start_at is None or not obj.state.PAST)
-    )
-
 
 @Project.features('tickets_or_rsvp')
 def feature_project_tickets_or_rsvp(obj: Project) -> bool:
