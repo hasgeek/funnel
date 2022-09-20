@@ -180,7 +180,6 @@ def feature_project_tickets(obj: Project) -> bool:
         and not obj.state.PAST
     )
 
-
 @Project.features('tickets_or_rsvp')
 def feature_project_tickets_or_rsvp(obj: Project) -> bool:
     return obj.features.tickets() or obj.features.rsvp()
