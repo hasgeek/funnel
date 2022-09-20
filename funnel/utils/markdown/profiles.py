@@ -31,7 +31,7 @@ default_funnel_options = {
     'breaks': True,
 }
 default_funnel_args = ('gfm-like', default_funnel_options)
-default_funnel_config = {'enable': ['smartquotes']}
+default_funnel_config: Dict = {}
 default_plugins = [
     'footnote',
     'heading_anchors',
@@ -82,12 +82,12 @@ profiles: Dict[str, Dict[str, Any]] = {
     'update': {
         'args': ('commonmark', default_funnel_options),
         'funnel_config': default_funnel_config,
-        'plugins': default_plugins,
+        'plugins': [],
     },
     'venue': {
         'args': ('commonmark', default_funnel_options),
         'funnel_config': default_funnel_config,
-        'plugins': default_plugins,
+        'plugins': [],
     },
     'single-line': {
         'args': ('zero', {}),
