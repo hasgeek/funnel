@@ -1,0 +1,28 @@
+{% for project in past_projects %}
+  <tr>
+    <td data-th="{% trans %}Date{% endtrans %}">
+      <p class="mui--text-subhead zero-bottom-margin">{{ project.datetime }}</p>
+    </td>
+    <td data-th="{% trans %}Project{% endtrans %}"
+        class="past-events-table__title">
+      <p class="mui--text-subhead zero-bottom-margin">
+        <a href="{{ project.url }}">{{ project.title }}</a>
+      </p>
+    </td>
+    <td data-th="{% trans %}Location{% endtrans %}">
+      <p class="mui--text-subhead zero-bottom-margin">{{ project.venue }}</p>
+    </td>
+  </tr>
+{%- else -%}
+  <p class="mui--text-subhead margin-top">{% trans %}No past projects{% endtrans %}</p>
+{%- endfor -%}
+{% if next_page %}
+  <tr {% if profile %}
+      hx-get="{{ profile.url_for('past_projects', page=next_page) }}"
+      {% else -%}
+      hx-get="{{ url_for('past_projects', page=next_page) }}"
+      {%- endif %}
+      hx-trigger="revealed"
+      hx-swap="afterend">
+  </tr>
+{% endif %}

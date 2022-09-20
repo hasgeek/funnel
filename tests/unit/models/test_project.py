@@ -23,6 +23,7 @@ def invalidate_cache(project):
             pass
 
 
+@pytest.mark.flaky(reruns=1)  # Rerun in case assert with timedelta fails
 def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
     assert new_project.cfp_start_at is None
     assert new_project.state.DRAFT

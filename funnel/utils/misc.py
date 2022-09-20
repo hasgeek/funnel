@@ -1,4 +1,4 @@
-"""Utility functions."""
+"""Miscellaneous utility functions."""
 
 from __future__ import annotations
 
@@ -190,6 +190,7 @@ def extract_twitter_handle(handle: str) -> Optional[str]:
 
 
 def format_twitter_handle(handle: str) -> str:
+    """Format twitter handle as an @ mention."""
     return f"@{handle}" if handle else ""
 
 

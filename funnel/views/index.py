@@ -7,7 +7,7 @@ import os.path
 
 from flask import Response, g, render_template
 
-from baseframe import _, __
+from baseframe import __
 from baseframe.filters import date_filter
 from coaster.views import ClassView, render_with, requestargs, route
 
@@ -128,19 +128,19 @@ class IndexView(ClassView):
 IndexView.init_app(app)
 
 
-@app.route('/past.json')
+@app.route('/past.projects', endpoint='past_projects')
 @requestargs(('page', int), ('per_page', int))
-def past_projects_json(page: int = 1, per_page: int = 10) -> ReturnView:
+@render_with('past_projects_section.html.jinja2')
+def past_projects(page: int = 1, per_page: int = 10) -> ReturnView:
     g.profile = None
     projects = Project.all_unsorted()
-    past_projects = projects.filter(Project.state.PAST).order_by(
-        Project.start_at.desc()
+    pagination = (
+        projects.filter(Project.state.PAST)
+        .order_by(Project.start_at.desc())
+        .paginate(page=page, per_page=per_page)
     )
-    pagination = past_projects.paginate(page=page, per_page=per_page)
     return {
         'status': 'ok',
-        'title': _('Past sessions'),
-        'headings': [_('Date'), _('Project'), _('Location')],
         'next_page': pagination.page + 1 if pagination.page < pagination.pages else '',
         'total_pages': pagination.pages,
         'past_projects': [
