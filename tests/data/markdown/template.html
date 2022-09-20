@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Markdown Tests: Expected Output compared to Output</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto:=300,300italic,700,700italic"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism.css" />
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css" />
+    <style>
+      body {
+        font-family: 'Roboto', serif;
+      }
+      .right {
+        float: right;
+      }
+      #output_template {
+        display: none;
+      }
+      .output-container {
+        margin: 2px 0px;
+        border: 1px solid black;
+      }
+      .output-container .open-show {
+        display: none;
+      }
+      .output-container.open .open-show {
+        display: inline;
+      }
+      .output-container .open-hide {
+        display: inline;
+      }
+      .output-container.open .block.open-show {
+        display: block;
+      }
+      .output-container .block.open-hide {
+        display: block;
+      }
+      .output-container.open .open-hide {
+        display: none;
+      }
+      .output-container .heading {
+        padding: 3px 10px;
+        background-color: burlywood;
+        color: chocolate;
+        cursor: pointer;
+        margin: 0px;
+        border-bottom: 1px solid black;
+      }
+      .output-container.success .heading {
+        background-color: darkseagreen;
+        color: darkgreen;
+      }
+      .output-container.failed .heading {
+        background-color: lightpink;
+        color: red;
+      }
+      .output-container .heading code {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: inherit;
+      }
+      .output-container .success-show,
+      .output-container .success-hide {
+        display: none;
+      }
+      .output-container.success .success-show,
+      .output-container.failed .success-hide {
+        display: inline;
+      }
+      .output-container .content {
+        padding: 15px 25px;
+      }
+      .output-container .content .output-content {
+        padding: 10px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: space-evenly;
+        align-items: stretch;
+        max-height: 50vh;
+      }
+      .output-container .content .output-content > * {
+        flex-grow: 1;
+        flex-basis: 30%;
+        border: 1px solid black;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        max-width: 34%;
+      }
+      .output-container .content .output-content > * > h5 {
+        text-align: center;
+        border-bottom: 1px solid black;
+        margin: 0px;
+      }
+      .output-container .content .output-content > * > h5 code {
+        padding: 0px;
+      }
+      .output-container .content .output-content .output {
+        margin: 5px;
+        padding: 10px;
+        overflow: auto;
+        overflow-wrap: anywhere !important;
+      }
+      .output-container .content .output-content pre.output {
+        white-space: pre-wrap;
+        white-space: -moz-pre-wrap;
+        white-space: -pre-wrap;
+        white-space: -o-pre-wrap;
+        word-wrap: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Markdown Tests: Expected Output compared to Output</h2>
+    <code>Generated: <span id="generated"></span></code>
+    <div id="output_template" class="output-container">
+      <h5
+        class="heading"
+        onclick="(()=>{this.parentNode.classList.toggle('open');h=document.getElementsByClassName('heading');for(i=0;i<h.length;i++)if(this !== h[i])h[i].parentNode.classList.remove('open');})();"
+      >
+        <div class="right">
+          <code class="success-show">Passed</code>
+          <code class="success-hide">Failed</code>
+          <span class="open-hide">&#9654;</span>
+          <span class="open-show">&#9660;</span>
+        </div>
+        Test file: <code class="filename"></code>, Config key:
+        <code class="configname"></code>
+      </h5>
+      <div class="content open-show block">
+        <h5>Configuration:</h5>
+        <code class="config"></code>
+        <div class="output-content">
+          <div class="markdown">
+            <h5>Markdown Test Case</h5>
+            <pre class="output"></pre>
+          </div>
+          <div class="expected">
+            <h5>Expected output</h5>
+            <div class="output"></div>
+          </div>
+          <div class="final_output">
+            <h5>Output for <code>markdown()</code></h5>
+            <div class="output"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="https://unpkg.com/prismjs/components/prism-core.min.js"></script>
+  <script src="https://unpkg.com/prismjs/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script>
+    let tables = document.getElementsByTagName('table');
+    for (t = 0; t < tables.length; t++) {
+      tables[t].classList.add('table');
+      tables[t].classList.add('table-striped');
+      tables[t].classList.add('table-hover');
+    }
+  </script>
+</html>

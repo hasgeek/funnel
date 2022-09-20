@@ -5,6 +5,7 @@ import addVegaSupport from './utils/vegaembed';
 import Form from './utils/formhelper';
 import Spa from './utils/spahelper';
 import Utils from './utils/helper';
+import MarkmapEmbed from './utils/markmap';
 
 const Schedule = {
   renderScheduleTable() {
@@ -146,6 +147,7 @@ const Schedule = {
                 addVegaSupport();
                 window.activateZoomPopup();
                 Utils.enableWebShare();
+                MarkmapEmbed.init();
                 observer.disconnect();
               }
             });

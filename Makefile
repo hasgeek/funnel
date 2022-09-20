@@ -35,3 +35,8 @@ deps-dev:
 
 deps-test:
 	pip-compile --upgrade requirements_test.in
+
+tests-data: tests-data-md
+
+tests-data-md:
+	pytest -m update_markdown_data

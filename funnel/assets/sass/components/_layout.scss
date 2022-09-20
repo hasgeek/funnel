@@ -242,10 +242,6 @@ blockquote {
   padding: 0 0 0 $mui-grid-padding/2;
 }
 
-.language-placeholder {
-  display: none;
-}
-
 .footnote-ref {
   @extend .mui--text-caption;
   color: $mui-text-light;

@@ -1,7 +1,6 @@
 {% extends "layout.html.jinja2" %}
 {% block title %}{{ profile.title }}{% endblock title %}
-{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, projectcard, featured_section, upcoming_section, open_cfp_section, all_projects_section, profile_header, useravatar, proposal_card %}
-{%- from "js/past_projects.js.jinja2" import past_projects_section %}
+{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, projectcard, featured_section, upcoming_section, open_cfp_section, all_projects_section, profile_header, useravatar, proposal_card, past_projects_section %}
 
 {%- block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/index.scss') }}" />
@@ -191,7 +190,7 @@
     {{ upcoming_section(upcoming_projects) }}
     {{ open_cfp_section(open_cfp_projects) }}
     {{ all_projects_section(all_projects) }}
-    {{ past_projects_section() }}
+    {{ past_projects_section(profile) }}
   </div>
 {% endblock basecontent %}
 
@@ -199,10 +198,7 @@
   <script src="{{ built_asset('index.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      var homeConfig = {
-        past_projects_json_url: "{{ profile.url_for('past_projects_json') }}"
-      }
-      window.Hasgeek.homeInit(homeConfig);
+      window.Hasgeek.homeInit();
     });
   </script>
 {% endblock footerscripts %}
