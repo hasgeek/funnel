@@ -190,6 +190,8 @@
           {% endif %}
         </div>
       {%- endif %}
+    {% elif project.features.external_buy_tickets() -%}
+      <a class="register-block__btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin" href="{{ project.buy_tickets_url }}" data-action="Buy Tickets url" target="_blank">{% trans %}Tickets{% endtrans %}</a>
     {% endif %}
   </div>
 {% endmacro %}
@@ -478,7 +480,7 @@
                       </div>
                     </div>
                   {% endif %}
-                  {% if project.features.tickets() or project.features.rsvp() %}
+                  {% if project.features.tickets() or project.features.rsvp() or project.features.external_buy_tickets() %}
                     <div class="project-footer {% if current_page == 'project' %}project-footer--main{%- endif %} project-details__box__content">
                       {{ registerblock(project)}}
                     </div>

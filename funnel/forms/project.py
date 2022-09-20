@@ -110,6 +110,17 @@ class ProjectForm(forms.Form):
         validators=[forms.validators.DataRequired()],
         description=__("Landing page contents"),
     )
+    allow_rsvp = forms.BooleanField(__("Allow site visitors to RSVP (login required)"))
+    buy_tickets_url = forms.URLField(
+        __("URL to buy tickets"),
+        description=__("Eg: Explara, Instamojo"),
+        validators=[
+            forms.validators.Optional(),
+            forms.validators.URL(),
+            forms.validators.ValidUrl(),
+            forms.validators.Length(max=2000),
+        ],
+    )
 
     def validate_location(self, field) -> None:
         """Validate location field to not have quotes (from copy paste of hint)."""
