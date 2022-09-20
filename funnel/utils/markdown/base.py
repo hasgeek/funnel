@@ -2,6 +2,7 @@
 # pylint: disable=too-many-arguments
 
 from typing import List, Optional, overload
+import json
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
@@ -32,16 +33,16 @@ default_markdown_extensions: List[str] = ['footnote', 'heading_anchors', 'taskli
 
 
 @overload
-def markdown(text: None, profile: str = 'proposal') -> None:
+def markdown(text: None, profile: str) -> None:
     ...
 
 
 @overload
-def markdown(text: str, profile: str = 'proposal') -> Markup:
+def markdown(text: str, profile: str) -> Markup:
     ...
 
 
-def markdown(text: Optional[str], profile: str = 'proposal') -> Optional[Markup]:
+def markdown(text: Optional[str], profile: str) -> Optional[Markup]:
     """
     Markdown parser compliant with Commonmark+GFM using markdown-it-py.
 
@@ -65,9 +66,9 @@ def markdown(text: Optional[str], profile: str = 'proposal') -> Optional[Markup]
     if md.linkify is not None:
         md.linkify.set({'fuzzy_link': False, 'fuzzy_email': False})
 
-    for action in ['enable', 'disable']:
+    for action in ['enableOnly', 'enable', 'disable']:
         if action in funnel_config:
-            md.enable(funnel_config[action])
+            getattr(md, action)(funnel_config[action])
 
     for e in profiles[profile].get('plugins', []):
         try:
@@ -78,4 +79,31 @@ def markdown(text: Optional[str], profile: str = 'proposal') -> Optional[Markup]
             ) from exc
         md.use(ext, **plugin_configs.get(e, {}))
 
-    return Markup(md.render(text))  # type: ignore[arg-type]
+    # type: ignore[arg-type]
+    return Markup(getattr(md, funnel_config.get('render_with', 'render'))(text))
+
+
+def _print_rules(md: MarkdownIt, active: str = None):
+    """Debug function to be removed before merge."""
+    rules = {'all_rules': md.get_all_rules(), 'active_rules': {}}
+    for p, pr in profiles.items():
+        m = MarkdownIt(*pr.get('args', ()))
+        fc = pr.get('funnel_config', {})
+        if m.linkify is not None:
+            m.linkify.set({'fuzzy_link': False, 'fuzzy_email': False})
+        for action in ['enableOnly', 'enable', 'disable']:
+            if action in fc:
+                getattr(m, action)(fc[action])
+        for e in pr.get('plugins', []):
+            try:
+                ext = plugins[e]
+            except KeyError as exc:
+                raise KeyError(
+                    f'Wrong markdown-it-py plugin key "{e}". Check name.'
+                ) from exc
+            m.use(ext, **plugin_configs.get(e, {}))
+        rules['active_rules'][p] = m.get_active_rules()
+    if active is not None:
+        print(json.dumps(rules['active_rules'][active], indent=2))  # noqa: T201
+    else:
+        print(json.dumps(rules, indent=2))  # noqa: T201

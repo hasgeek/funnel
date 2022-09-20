@@ -17,7 +17,7 @@ def markdown_preview() -> ReturnView:
     # mtype = request.form.get('type')
     text = request.form.get('text')
 
-    html = markdown(text)
+    html = markdown(text, 'document')
 
     return {
         'status': 'ok',

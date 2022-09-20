@@ -30,67 +30,42 @@ default_funnel_options = {
     'typographer': True,
     'breaks': True,
 }
-default_funnel_args = ('gfm-like', default_funnel_options)
-default_funnel_config: Dict = {}
-default_plugins = [
-    'footnote',
-    'heading_anchors',
-    'tasklists',
-]
+
+
+# Config profiles.
+#
+# Format: {
+#     'args': (
+#         config:str | preset.make(),
+#         options_update: Mapping | None
+#     ),
+#     'funnel_config' : { # Optional
+#         'enable': List = [],
+#         'disable': List = [],
+#         'enableOnly': List = [],
+#         'render_with': str = 'render'
+#     }
+# }
 
 profiles: Dict[str, Dict[str, Any]] = {
-    """
-    Config profiles.
-
-    Format: {
-        'args': (
-            config: str | preset.make(),
-            options_update: Mapping | None
-        ),
-        'funnel_config' : { # Optional
-            'enable': [],
-            'disable': [],
-            'renderInline': False
-        }
-    }
-    """
-    'comment': {
-        'args': ('commonmark', default_funnel_options),
-        'funnel_config': default_funnel_config,
-        'plugins': ['footnote'],
-    },
-    'profile': {
-        'args': default_funnel_args,
-        'funnel_config': default_funnel_config,
-        'plugins': default_plugins,
-    },
-    'project': {
-        'args': default_funnel_args,
-        'funnel_config': default_funnel_config,
-        'plugins': default_plugins,
-    },
-    'proposal': {
-        'args': default_funnel_args,
-        'funnel_config': default_funnel_config,
-        'plugins': default_plugins,
-    },
-    'session': {
-        'args': default_funnel_args,
-        'funnel_config': default_funnel_config,
-        'plugins': default_plugins,
-    },
-    'update': {
-        'args': ('commonmark', default_funnel_options),
-        'funnel_config': default_funnel_config,
+    'basic': {
+        'args': ('gfm-like', default_funnel_options),
         'plugins': [],
+        'funnel_config': {'disable': ['table']},
     },
-    'venue': {
-        'args': ('commonmark', default_funnel_options),
-        'funnel_config': default_funnel_config,
-        'plugins': [],
+    'document': {
+        'args': ('gfm-like', default_funnel_options),
+        'plugins': [
+            'footnote',
+            'heading_anchors',
+            'tasklists',
+        ],
     },
-    'single-line': {
-        'args': ('zero', {}),
-        'funnel_config': {'enable': ['emphasize', 'backticks'], 'renderInline': True},
+    'text-field': {
+        'args': ('zero', {'breaks': False}),
+        'funnel_config': {
+            'enable': ['emphasis', 'backticks'],
+            'render_with': 'renderInline',
+        },
     },
 }
