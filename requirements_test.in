@@ -8,6 +8,7 @@ pytest-bdd
 pytest-cov
 pytest-dotenv
 pytest-env
+pytest-icdiff
 pytest-remotedata
 pytest-rerunfailures
 pytest-splinter
