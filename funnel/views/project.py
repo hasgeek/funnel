@@ -159,7 +159,8 @@ def get_registration_text(count: int, registered=False, follow_mode=False) -> st
 @Project.features('rsvp')
 def feature_project_rsvp(obj: Project) -> bool:
     return (
-        obj.state.PUBLISHED
+        obj.state.PUBLISHED  # type: ignore[unreachable]
+        and obj.allow_rsvp is True
         and (
             obj.boxoffice_data is None
             or 'item_collection_id' not in obj.boxoffice_data
