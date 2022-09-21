@@ -52,6 +52,7 @@ pytz
 PyVimeo
 qrcode
 requests
+rich
 rq
 SQLAlchemy>=1.4.33
 SQLAlchemy-Utils

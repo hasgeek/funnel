@@ -42,7 +42,6 @@ __all__ = [
     'add_to_class',
     'add_search_trigger',
     'visual_field_delimiter',
-    'add_search_trigger',
     'valid_name',
     'valid_username',
     'quote_autocomplete_like',
