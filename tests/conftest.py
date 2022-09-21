@@ -234,6 +234,14 @@ def response_with_forms():
 
 
 @pytest.fixture(scope='session')
+def rich_console():
+    """Provide a rich console for color output."""
+    from rich.console import Console
+
+    return Console()
+
+
+@pytest.fixture(scope='session')
 def colorama() -> t.Iterator[SimpleNamespace]:
     """Provide the colorama print colorizer."""
     from colorama import Back, Fore, Style, deinit, init
@@ -244,7 +252,46 @@ def colorama() -> t.Iterator[SimpleNamespace]:
 
 
 @pytest.fixture(scope='session')
-def print_stack(pytestconfig, colorama) -> t.Callable[[int, int], None]:
+def colorize_code(rich_console) -> t.Callable[[str, t.Optional[str]], str]:
+    """Return colorized output for a string of code, for current terminal's colors."""
+
+    def no_colorize(code_string: str, lang: t.Optional[str] = 'python') -> str:
+        # Pygments is not available or terminal does not support colour output
+        return code_string
+
+    try:
+        from pygments import highlight
+        from pygments.formatters import (
+            Terminal256Formatter,
+            TerminalFormatter,
+            TerminalTrueColorFormatter,
+        )
+        from pygments.lexers import get_lexer_by_name, guess_lexer
+    except ImportError:
+        return no_colorize
+
+    if rich_console.color_system == 'truecolor':
+        formatter = TerminalTrueColorFormatter()
+    elif rich_console.color_system == '256':
+        formatter = Terminal256Formatter()
+    elif rich_console.color_system == 'standard':
+        formatter = TerminalFormatter()
+    else:
+        # color_system is `None` or `'windows'` or something unrecognised. No colours.
+        return no_colorize
+
+    def colorize(code_string: str, lang: t.Optional[str] = 'python') -> str:
+        if lang in (None, 'auto'):
+            lexer = guess_lexer(code_string)
+        else:
+            lexer = get_lexer_by_name(lang)
+        return highlight(code_string, lexer, formatter).rstrip()
+
+    return colorize
+
+
+@pytest.fixture(scope='session')
+def print_stack(pytestconfig, colorama, colorize_code) -> t.Callable[[int, int], None]:
     """Print a stack trace up to an outbound call from within this repository."""
     from inspect import stack as inspect_stack
     import os.path
@@ -279,13 +326,11 @@ def print_stack(pytestconfig, colorama) -> t.Callable[[int, int], None]:
                 if fi.filename.startswith(boundary_path)
                 else colorama.Fore.GREEN
             )
-            code_line = (
-                fi.code_context[fi.index or 0].strip() if fi.code_context else ''
-            )
+            code_line = '\n'.join(fi.code_context or []).strip()
             lines.append(
                 f'{prefix}{line_color}'
                 f'{os.path.relpath(fi.filename)}:{fi.lineno}::{fi.function}'
-                f'\t{code_line}'
+                f'\t{colorize_code(code_line)}'
                 f'{colorama.Style.RESET_ALL}'
             )
         del stack
@@ -398,7 +443,7 @@ def _app_events(colorama, print_stack, app) -> t.Iterator:
 
 
 @pytest.fixture()
-def _database_events(models, colorama, print_stack) -> t.Iterator:
+def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator:
     """
     Fixture to report database session events for debugging a test.
 
@@ -408,12 +453,14 @@ def _database_events(models, colorama, print_stack) -> t.Iterator:
         def test_whatever():
             ...
     """
+    from pprint import saferepr
+
     from sqlalchemy import event, inspect
     from sqlalchemy.orm import Session as DatabaseSessionClass
 
     def safe_repr(entity):
         try:
-            return repr(entity)
+            return saferepr(entity)
         except Exception:  # noqa: B902  # pylint: disable=broad-except
             if hasattr(entity, '__class__'):
                 return f'{entity.__class__.__qualname__}(class-repr-error)'
@@ -426,30 +473,30 @@ def _database_events(models, colorama, print_stack) -> t.Iterator:
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
         rparams = f'{rargs, rkwargs}' if rargs else rkwargs
+        code = colorize_code(f"{obj.__class__.__qualname__}({rparams})")
         print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: new:{colorama.Style.NORMAL}"
-            f" {obj.__class__.__qualname__}({rparams})"
+            f"{colorama.Style.BRIGHT}obj: new:{colorama.Style.NORMAL}" f" {code}"
         )
 
     @event.listens_for(DatabaseSessionClass, 'transient_to_pending')
     def event_transient_to_pending(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: transient to pending:{colorama.Style.NORMAL}"
-            f" {safe_repr(obj)}"
+            f" {colorize_code(safe_repr(obj))}"
         )
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_transient')
     def event_pending_to_transient(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: pending to transient:{colorama.Style.NORMAL}"
-            f" {safe_repr(obj)}"
+            f" {colorize_code(safe_repr(obj))}"
         )
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
     def event_pending_to_persistent(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: pending to persistent:{colorama.Style.NORMAL}"
-            f" {safe_repr(obj)}"
+            f" {colorize_code(safe_repr(obj))}"
         )
 
     @event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
