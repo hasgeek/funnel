@@ -3,6 +3,7 @@ import Utils from './utils/helper';
 import addVegaSupport from './utils/vegaembed';
 import TypeformEmbed from './utils/typeform_embed';
 import MarkmapEmbed from './utils/markmap';
+import MermaidEmbed from './utils/mermaid';
 
 export const Submission = {
   init() {
@@ -127,4 +128,5 @@ $(() => {
   addVegaSupport();
   TypeformEmbed.init('#submission .markdown');
   MarkmapEmbed.init();
+  MermaidEmbed.init();
 });
