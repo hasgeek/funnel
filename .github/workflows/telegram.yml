@@ -23,7 +23,7 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
-          format: markdown
+          format: html
           disable_web_page_preview: true
           message: |
-            *${{ github.event_name }}* by ${{ github.actor }} in https://github.com/${{ github.repository }}
+            <b>${{ github.event_name }}</b> by ${{ github.actor }} in https://github.com/${{ github.repository }}
