@@ -99,7 +99,7 @@ jobs:
           message: |
             <b>${{ github.event_name }}/${{ github.event.action }} (${{ github.event.review.state }})</b> by ${{ github.actor }} in ${{ github.event.pull_request.title }} ${{ github.event.pull_request.html_url }}:
 
-            ${{ github.event.review.body }} ${{ github.event.pull_request_review.html_url }}
+            ${{ github.event.review.body }} ${{ github.event.review.html_url }}
 
   event_push:
     if: ${{ github.event_name == 'push' }}
