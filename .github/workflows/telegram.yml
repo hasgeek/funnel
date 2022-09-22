@@ -45,7 +45,7 @@ jobs:
               "miteshashar": {"tguser": "@miteshashar"},
               "sankarshanmukhopadhyay": {"tguser": "@sankarshan"},
               "StephanieBr": {"tguser": "@stephaniebrne"},
-              "vidya-ram": {"tguser": "@vidya_ramki"}
+              "vidya-ram": {"tguser": "@vidya_ramki"},
               "zainabbawa": {"tguser": "@Saaweoh"},
               ".*": {"tguser": "Unknown"}
             }
