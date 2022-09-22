@@ -5,8 +5,25 @@ on:
   issue_comment:
     types: [created]
   push:
-    branches: [main]
   pull_request:
+    types:
+      # Exclude 'synchronize' as that is duplicated in the 'push' event
+      [
+        assigned,
+        closed,
+        converted_to_draft,
+        edited,
+        labeled,
+        locked,
+        opened,
+        ready_for_review,
+        reopened,
+        review_request_removed,
+        review_requested,
+        unassigned,
+        unlabeled,
+        unlocked,
+      ]
   pull_request_review:
   project:
   project_card:
