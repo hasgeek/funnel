@@ -4,14 +4,14 @@ on:
     types: [opened, edited, closed, reopened, milestoned, demilestoned]
   - issue_comment:
     types: [created]
-  - push
-  - pull_request
-  - pull_request_review
-  - project
+  - push:
+  - pull_request:
+  - pull_request_review:
+  - project:
   - project_card:
     types: [created, closed, reopened, deleted]
-  - release
-  - watch
+  - release:
+  - watch:
 jobs:
   notify:
     runs-on: ubuntu-latest
