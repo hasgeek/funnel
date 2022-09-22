@@ -83,4 +83,4 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           format: html
           disable_web_page_preview: true
-          message: ${{ env.message }}
+          message: '${{ env.message }}'
