@@ -16,7 +16,7 @@ from coaster.utils import LabeledEnum
 from . import (
     BaseMixin,
     Mapped,
-    MarkdownColumn,
+    MarkdownColumnNative,
     TSVectorType,
     UuidMixin,
     db,
@@ -220,7 +220,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         'Comment', backref=sa.orm.backref('in_reply_to', remote_side='Comment.id')
     )
 
-    _message = MarkdownColumn('message', nullable=False)
+    _message = MarkdownColumnNative('message', profile='basic', nullable=False)
 
     _state = sa.Column(
         'state',

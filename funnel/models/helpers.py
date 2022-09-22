@@ -13,6 +13,8 @@ from sqlalchemy import DDL, Text, event
 from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
+from sqlalchemy.ext.mutable import MutableComposite
+from sqlalchemy.orm import composite
 
 from flask import Markup
 from flask import escape as html_escape
@@ -30,6 +32,7 @@ from coaster.utils import (
 
 from .. import app
 from ..typing import T
+from ..utils import markdown
 from . import UrlType, db, sa
 
 __all__ = [
@@ -47,6 +50,7 @@ __all__ = [
     'quote_autocomplete_like',
     'ImgeeFurl',
     'ImgeeType',
+    'MarkdownColumnNative',
 ]
 
 RESERVED_NAMES: Set[str] = {
@@ -588,3 +592,127 @@ class ImgeeType(UrlType):  # pylint: disable=abstract-method
             if allowed_schemes and parsed.scheme not in allowed_schemes:
                 raise ValueError("Invalid scheme for the URL")
         return value
+
+
+class MarkdownCompositeNative(MutableComposite):
+    """Represents Markdown text and rendered HTML as a composite column."""
+
+    profile: str
+
+    def __init__(self, text, html=None):
+        """Create a composite."""
+        if html is None:
+            self.text = text  # This will regenerate HTML
+        else:
+            self._text = text
+            self._html = html
+
+    # Return column values for SQLAlchemy to insert into the database
+    def __composite_values__(self):
+        """Return composite values."""
+        return (self._text, self._html)
+
+    # Return a string representation of the text (see class decorator)
+    def __str__(self):
+        """Return string representation."""
+        return self.text or ''
+
+    # Return a HTML representation of the text
+    def __html__(self):
+        """Return HTML representation."""
+        return self._html or ''
+
+    # Return a Markup string of the HTML
+    @property
+    def html(self):
+        """Return HTML as a property."""
+        return Markup(self._html) if self._html is not None else None
+
+    @property
+    def text(self):
+        """Return text as a property."""
+        return self._text
+
+    @text.setter
+    def text(self, value):
+        """Set the text value."""
+        self._text = None if value is None else str(value)
+        self._html = markdown(self._text, self.profile)
+        self.changed()
+
+    def __json__(self) -> Dict[str, Optional[str]]:
+        """Return JSON-compatible rendering of composite."""
+        return {'text': self._text, 'html': self._html}
+
+    # Compare text value
+    def __eq__(self, other):
+        """Compare for equality."""
+        return isinstance(other, MarkdownCompositeNative) and (
+            self.__composite_values__() == other.__composite_values__()
+        )
+
+    def __ne__(self, other):
+        """Compare for inequality."""
+        return not self.__eq__(other)
+
+    # Pickle support methods implemented as per SQLAlchemy documentation, but not
+    # tested here as we don't use them.
+    # https://docs.sqlalchemy.org/en/13/orm/extensions/mutable.html#id1
+
+    def __getstate__(self):
+        """Get state for pickling."""
+        # Return state for pickling
+        return (self._text, self._html)
+
+    def __setstate__(self, state):
+        """Set state from pickle."""
+        # Set state from pickle
+        self._text, self._html = state
+        self.changed()
+
+    def __bool__(self):
+        """Return boolean value."""
+        return bool(self._text)
+
+    @classmethod
+    def coerce(cls, key, value):
+        """Allow a composite column to be assigned a string value."""
+        return cls(value)
+
+
+def markdown_column_native(
+    name: str,
+    deferred: bool = False,
+    group: Optional[str] = None,
+    profile: str = 'basic',
+    **kwargs,
+) -> composite:
+    """
+    Create a composite column that autogenerates HTML from Markdown text.
+
+    Creates two db columns named with ``_html`` and ``_text`` suffixes.
+
+    :param str name: Column name base
+    :param str profile: Config profile for the Markdown processor
+    :param bool deferred: Whether the columns should be deferred by default
+    :param str group: Defer column group
+    :param kwargs: Additional column options, passed to SQLAlchemy's column constructor
+    """
+    # Construct a custom subclass of MarkdownComposite and set the markdown processor
+    # and processor options on it. We'll pass this class to SQLAlchemy's composite
+    # constructor.
+    class CustomMarkdownComposite(MarkdownCompositeNative):
+        pass
+
+    CustomMarkdownComposite.profile = profile
+
+    return composite(
+        CustomMarkdownComposite,
+        sa.Column(name + '_text', sa.UnicodeText, **kwargs),
+        sa.Column(name + '_html', sa.UnicodeText, **kwargs),
+        deferred=deferred,
+        group=group or name,
+    )
+
+
+MarkdownColumnNative = markdown_column_native
