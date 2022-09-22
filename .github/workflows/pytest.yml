@@ -9,6 +9,10 @@ on:
     branches: ['main']
   pull_request:
     branches: ['main']
+    paths:
+      - '**.py'
+      - '**.js'
+      - '**.jinja2'
   workflow_call:
     inputs:
       requirements:
