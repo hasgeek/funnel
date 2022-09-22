@@ -13,6 +13,7 @@ on:
     types: [created, closed, reopened, deleted]
   release:
   watch:
+
 jobs:
   notify:
     runs-on: ubuntu-latest
@@ -22,3 +23,5 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            **${{ github.event_name }}** by ${{ github.actor }} in https://github.com/${{ github.repository }}
