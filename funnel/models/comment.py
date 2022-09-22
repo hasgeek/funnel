@@ -220,7 +220,9 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         'Comment', backref=sa.orm.backref('in_reply_to', remote_side='Comment.id')
     )
 
-    _message = MarkdownColumnNative('message', profile='basic', nullable=False)
+    _message = MarkdownColumnNative(  # type: ignore[has-type]
+        'message', profile='basic', nullable=False
+    )
 
     _state = sa.Column(
         'state',
