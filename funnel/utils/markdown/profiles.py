@@ -6,7 +6,7 @@ from mdit_py_plugins import anchors, footnote, tasklists
 
 from coaster.utils import make_name
 
-__all__ = ['profiles', 'plugins', 'plugin_configs']
+__all__ = ['profiles', 'plugins', 'plugin_configs', 'default_markdown_options']
 
 plugins: Dict[str, Callable] = {
     'footnote': footnote.footnote_plugin,
@@ -24,7 +24,7 @@ plugin_configs: Dict[str, Dict[str, Any]] = {
     'tasklists': {'enabled': True, 'label': True, 'label_after': False},
 }
 
-default_funnel_options = {
+default_markdown_options = {
     'html': False,
     'linkify': True,
     'typographer': True,
@@ -49,12 +49,12 @@ default_funnel_options = {
 
 profiles: Dict[str, Dict[str, Any]] = {
     'basic': {
-        'args': ('gfm-like', default_funnel_options),
+        'args': ('gfm-like', default_markdown_options),
         'plugins': [],
         'funnel_config': {'disable': ['table']},
     },
     'document': {
-        'args': ('gfm-like', default_funnel_options),
+        'args': ('gfm-like', default_markdown_options),
         'plugins': [
             'footnote',
             'heading_anchors',

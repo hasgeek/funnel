@@ -81,7 +81,7 @@ end_
 """
 
 [config]
-configs = [ "", "no_ext",]
+profiles = [ "basic", "document",]
 
 [config.extra_configs.ins]
 extensions = [ "ins",]

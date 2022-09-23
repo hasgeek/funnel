@@ -1,7 +1,7 @@
 """Base files for markdown parser."""
 # pylint: disable=too-many-arguments
 
-from typing import List, Optional, overload
+from typing import Any, Dict, List, Optional, Union, overload
 import json
 
 from markdown_it import MarkdownIt
@@ -33,20 +33,22 @@ default_markdown_extensions: List[str] = ['footnote', 'heading_anchors', 'taskli
 
 
 @overload
-def markdown(text: None, profile: str) -> None:
+def markdown(text: None, profile: Union[str, Dict[str, Any]]) -> None:
     ...
 
 
 @overload
-def markdown(text: str, profile: str) -> Markup:
+def markdown(text: str, profile: Union[str, Dict[str, Any]]) -> Markup:
     ...
 
 
-def markdown(text: Optional[str], profile: str) -> Optional[Markup]:
+def markdown(
+    text: Optional[str], profile: Union[str, Dict[str, Any]]
+) -> Optional[Markup]:
     """
     Markdown parser compliant with Commonmark+GFM using markdown-it-py.
 
-    :param bool profile: Config profile to use
+    :param str|dict profile: Config profile to use
     """
     if text is None:
         return None
@@ -54,14 +56,23 @@ def markdown(text: Optional[str], profile: str) -> Optional[Markup]:
     # Replace invisible characters with spaces
     text = normalize_spaces_multiline(text)
 
-    if profile not in profiles:
-        raise KeyError(f'Wrong markdown config profile "{profile}". Check name.')
+    if isinstance(profile, str):
+        try:
+            _profile = profiles[profile]
+        except KeyError as exc:
+            raise KeyError(
+                f'Wrong markdown config profile "{profile}". Check name.'
+            ) from exc
+    elif isinstance(profile, dict):
+        _profile = profile
+    else:
+        raise TypeError('Wrong type - profile has to be either str or dict')
 
-    args = profiles[profile].get('args', ())
+    args = _profile.get('args', ())
 
     md = MarkdownIt(*args)
 
-    funnel_config = profiles[profile].get('funnel_config', {})
+    funnel_config = _profile.get('funnel_config', {})
 
     if md.linkify is not None:
         md.linkify.set({'fuzzy_link': False, 'fuzzy_email': False})
@@ -70,7 +81,7 @@ def markdown(text: Optional[str], profile: str) -> Optional[Markup]:
         if action in funnel_config:
             getattr(md, action)(funnel_config[action])
 
-    for e in profiles[profile].get('plugins', []):
+    for e in _profile.get('plugins', []):
         try:
             ext = plugins[e]
         except KeyError as exc:

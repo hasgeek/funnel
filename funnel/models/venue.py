@@ -32,7 +32,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
         grants_via={None: project_child_role_map},
     )
     parent = sa.orm.synonym('project')
-    description = MarkdownColumnNative(
+    description = MarkdownColumnNative(  # type: ignore[has-type]
         'description', profile='basic', default='', nullable=False
     )
     address1 = sa.Column(sa.Unicode(160), default='', nullable=False)

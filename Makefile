@@ -39,4 +39,4 @@ deps-test:
 tests-data: tests-data-md
 
 tests-data-md:
-	pytest -m update_markdown_data
+	pytest -v -m update_markdown_data
