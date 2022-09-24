@@ -32,6 +32,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ['3.7', '3.10']
 
@@ -109,7 +110,7 @@ jobs:
           psql -h localhost -U postgres -c "grant all privileges on database geoname_testing to $(whoami);"
       - name: Test with pytest
         run: |
-          pytest --showlocals --splinter-headless --cov=funnel
+          pytest -vv --showlocals --splinter-headless --cov=funnel
       - name: Prepare coverage report
         run: |
           mkdir -p coverage
