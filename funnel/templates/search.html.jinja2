@@ -1,5 +1,9 @@
-{% extends "layout.html.jinja2" %}
-{%- from "js/search.js.jinja2" import search_results_template %}
+{%- if not request_wants.html_fragment -%}
+  {% extends "layout.html.jinja2" %}
+{%- else -%}
+  {% extends "partial_layout.html.jinja2" %}
+{% endif %}
+{%- from "macros.html.jinja2" import tabcontent %}
 {% block title %}{% trans %}Search{% endtrans %}{% endblock title %}
 {% block description %}{% trans %}Search{% endtrans %}{% endblock description %}
 
@@ -9,8 +13,23 @@
 {%- endblock headline %}
 
 {% block basecontent %}
-  <div class="js-lazyload-results">
-    {{ search_results_template() }}
+  <div>
+    <div class="tabs-wrapper tabs-wrapper--sticky">
+      <div class="mui-container">
+        <div class="tabs" id="scrollable-tabs">
+          {% for count in counts %}
+            <p class="tabs__item tabs__item--badge mui--text-body2 {%- if type == count.type %} tabs__item--active {% endif %}" hx-get="{{ url_for('SearchView_search') }}?q={{ query }}&type={{ count.type }}&page=1" hx-target="#tab-content" hx-swap="innerHTML">{{ count.label }} <span class="mui--text-caption badge badge--tab">{{ count.count }}</span></p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="mui-container">
+      <div class="tab-content grid" id="tab-content">
+        {% block tabcontent %}
+          {{ tabcontent(results, type, query) }}
+        {% endblock tabcontent %}
+      </div>
+    </div>
   </div>
 {% endblock basecontent %}
 
@@ -20,8 +39,9 @@
     $(function() {
       var searchConfig = {
         counts: {{ counts|tojson }},
-        results: {{results|default("")|tojson}},
-        defaultImage: "{{url_for('static', filename='img/default-banner.png')}}",
+        tabWrapperElem: '#scrollable-tabs',
+        tabElem: '.tabs__item',
+        activetabClassName: 'tabs__item--active',
       };
       Hasgeek.searchInit(searchConfig);
     });
