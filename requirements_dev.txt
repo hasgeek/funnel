@@ -37,7 +37,7 @@ dill==0.3.5.1
     # via pylint
 distlib==0.3.6
     # via virtualenv
-djlint==1.15.0
+djlint==1.17.2
     # via -r requirements_dev.in
 editorconfig==0.12.3
     # via
@@ -177,7 +177,7 @@ pydocstyle==6.1.1
     # via flake8-docstrings
 pyflakes==2.5.0
     # via flake8
-pylint==2.15.2
+pylint==2.15.3
     # via
     #   -r requirements_dev.in
     #   pylint-flask-sqlalchemy
@@ -261,7 +261,7 @@ types-python-dateutil==2.8.19
     # via -r requirements_dev.in
 types-pytz==2022.2.1.0
     # via -r requirements_dev.in
-types-requests==2.28.10
+types-requests==2.28.11
     # via -r requirements_dev.in
 types-setuptools==65.3.0
     # via -r requirements_dev.in

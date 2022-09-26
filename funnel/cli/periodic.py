@@ -254,6 +254,7 @@ def growthstats():
             'parse_mode': 'markdown',
             'text': message,
         },
+        timeout=30,
     )
 
 
