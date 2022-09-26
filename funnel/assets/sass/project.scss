@@ -86,6 +86,9 @@
     .register-block__btn {
       width: auto;
     }
+    .register-block__btn.full-width-btn {
+      width: 100%;
+    }
   }
 }
 
