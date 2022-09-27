@@ -7,8 +7,8 @@ const Search = {
     const q = Utils.getQueryString('q');
     const type = Utils.getQueryString('type');
     const count = this.count[type];
-    const title = `Search results: ${q}`;
-    const description = `${count} results found for "${q}"`;
+    const title = window.gettext('Search results: %s', q);
+    const description = window.gettext('%u results found for %s', count, q);
 
     $('title').html(title);
     $('meta[name=DC\\.title]').attr('content', title);
@@ -23,20 +23,24 @@ const Search = {
   updateBrowserHistory(url) {
     window.history.replaceState('', '', url);
   },
-  afterFetch(activeTab, url) {
-    $(this.config.tabElem).removeClass(this.config.activetabClassName);
-    $(activeTab).addClass(this.config.activetabClassName);
-    $(this.config.tabWrapperElem).animate(
-      {
-        scrollLeft: document.querySelector(`.${this.config.activetabClassName}`)
-          .offsetLeft,
-      },
-      'slow'
-    );
+  afterFetch(activeTab = '', url) {
+    if ($(activeTab).is(this.config.tabElem)) {
+      $(this.config.tabElem).removeClass(this.config.activetabClassName);
+      $(activeTab).addClass(this.config.activetabClassName);
+      $(this.config.tabWrapperElem).animate(
+        {
+          scrollLeft: document.querySelector(`.${this.config.activetabClassName}`)
+            .offsetLeft,
+        },
+        'slow'
+      );
+    }
     Utils.truncate();
     LazyloadImg.init('js-lazyload-img');
     this.updateBrowserHistory(url);
-    this.updateMetaTags();
+    if ($(activeTab).is(this.config.tabElem)) {
+      this.updateMetaTags();
+    }
   },
   init(config) {
     this.config = config;

@@ -68,7 +68,7 @@
     </div>
   {% endfor %}
   {% if results['has_next'] %}
-    <div lass="tab-content__results user grid__col-sm-12 {%- if type == 'project' or type == 'profile' %} grid__col-sm-6 grid__col-lg-4{% endif %}" hx-get="{{ url_for('SearchView_search') }}?q={{ query }}&type={{ type }}&page={{ results['next_num'] }}"
+    <div lass="tab-content__results user grid__col-sm-12 {%- if type == 'project' or type == 'profile' %} grid__col-sm-6 grid__col-lg-4{% endif %}" hx-get="{{ url_for('SearchView_search', q=query, type=type, page=results['next_num']) }}"
         hx-trigger="revealed"
         hx-swap="outerHTML">
       <span class="loading"></span>
@@ -82,7 +82,7 @@
       <div class="mui-container">
         <div class="tabs" id="scrollable-tabs">
           {% for count in counts %}
-            <p class="tabs__item tabs__item--badge mui--text-body2 {%- if type == count.type %} tabs__item--active {% endif %}" hx-get="{{ url_for('SearchView_search') }}?q={{ query }}&type={{ count.type }}&page=1" hx-target="#tab-content" hx-swap="innerHTML">{{ count.label }} <span class="mui--text-caption badge badge--tab">{{ count.count }}</span></p>
+            <p class="tabs__item tabs__item--badge mui--text-body2 {%- if type == count.type %} tabs__item--active {% endif %}" hx-get="{{ url_for('SearchView_search', q=query, type=count.type, page=1) }}" hx-target="#tab-content" hx-swap="innerHTML">{{ count.label }} <span class="mui--text-caption badge badge--tab">{{ count.count }}</span></p>
           {% endfor %}
         </div>
       </div>
