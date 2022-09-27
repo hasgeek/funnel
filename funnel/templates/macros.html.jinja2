@@ -888,7 +888,8 @@
   {% if results['has_next'] %}
     <div lass="tab-content__results user grid__col-sm-12 {%- if type == 'project' or type == 'profile' %} grid__col-sm-6 grid__col-lg-4{% endif %}" hx-get="{{ url_for('SearchView_search') }}?q={{ query }}&type={{ type }}&page={{ results['next_num'] }}"
         hx-trigger="revealed"
-        hx-swap="afterend">
+        hx-swap="outerHTML">
+      <span class="loading"></span>
     </div>
   {% endif %}
 {%- endmacro %}
