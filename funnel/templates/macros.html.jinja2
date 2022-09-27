@@ -148,7 +148,7 @@
   </div>
 {% endmacro %}
 
-{% macro projectcard(project, include_calendar=true, calendarwidget_compact=true, include_profile=true, include_details=true, save_form_id_prefix='spf_', add_bookmark=true) %}
+{% macro projectcard(project, include_calendar=true, calendarwidget_compact=true, include_profile=true, include_details=true, save_form_id_prefix='spf_', add_bookmark=true, snippet_html=none) %}
   <a class="card card--upcoming clickable-card" href="{{ project.url_for() }}" aria-label="{{ project.title }}" data-cy-title="{{ project.title }}" data-ga="View project">
     {%- if include_profile %}
     <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left">
@@ -201,6 +201,9 @@
             <hr class="separator" />
             <p class="mui--text-caption zero-bottom-margin secondary-color-txt">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Accepting submissions till {{ date }}{% endtrans %}</p>
           {% endif %}
+        {% endif %}
+        {%- if snippet_html %}
+          <p class="mui--text-body2 mui--text-light zero-top-margin snippets">{{ faicon (icon='search', css_class="search-icon", baseline=false) }} {{ snippet_html }}</p>
         {% endif %}
         {%- if include_details %}
           <div class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</div>
@@ -795,6 +798,33 @@
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro profilecard(profile, snippet_html) %}
+  <div class="card profile-card">
+    <div class="card__body">
+      <div>
+        <span class="profile-avatar profile-avatar--bigger margin-auto">
+          {%- if profile.logo_url.url %}
+            <img src="{{ profile.logo_url }}"
+                 alt="{{ profile.title }}"/>
+          {% else %}
+            <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
+                 alt="{{ profile.title }}"/>
+          {% endif %}
+        </span>
+      </div>
+      <h3 class="mui--text-subhead mui--text-bold top-padding margin-bottom mui--text-center">{{ profile.title }}</h3>
+      <div class="markdown js-truncate mui--text-center mui--text-caption mui--text-light bottom-padding" data-truncate-lines="3">{{ profile.tagline or profile.description }}</div>
+      {%- if snippet_html %}
+        <p class="mui--text-body2 mui--text-light zero-top-margin snippets">{{ faicon (icon='search', css_class="search-icon", baseline=false) }} {{ snippet_html }}</p>
+      {% endif %}
+      <div class="profile-card__btn-wrapper">
+        <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans count=profile.published_project_count %}One project{% pluralize %}{{ count }} projects{% endtrans %}</p>
+        <a class="mui-btn mui-btn--primary mui-btn--raised full-width-btn" href="{{ profile.url_for() }} ">{% trans %}Explore{% endtrans %}</a>
       </div>
     </div>
   </div>
