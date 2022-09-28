@@ -3,7 +3,7 @@
 {%- else -%}
   {% extends "partial_layout.html.jinja2" %}
 {% endif %}
-{%- from "macros.html.jinja2" import useravatar, projectcard, profilecard %}
+{%- from "macros.html.jinja2" import useravatar, faicon, projectcard, profilecard %}
 {% block title %}{% trans %}Search{% endtrans %}{% endblock title %}
 {% block description %}{% trans %}Search{% endtrans %}{% endblock description %}
 
@@ -29,7 +29,7 @@
             </h3>
           </div>
         </div>
-        <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class="search-icon" baseline=false></faicon> {{ item.snippet_html }}</p>
+        <p class="mui--text-body2 mui--text-light zero-top-margin snippets">{{ faicon(icon='search', baseline=false, css_class="search-icon") }} {{ item.snippet_html }}</p>
       {%- elif type == 'submission' %}
         <div class="user__box">
           {{ useravatar(item.obj.user) }}
@@ -43,7 +43,7 @@
             </h3>
           </div>
         </div>
-        <p class="mui--text-body2 mui--text-light snippets"><faicon icon='search' css_class="search-icon" baseline=false></faicon> {{ item.snippet_html }}</p>
+        <p class="mui--text-body2 mui--text-light snippets">{{ faicon(icon='search', baseline=false, css_class="search-icon") }} {{ item.snippet_html }}</p>
       {%- elif type == 'update' %}
         <div class="user__box">
           {{ useravatar(item.obj.user) }}
@@ -54,7 +54,7 @@
             </h3>
           </div>
         </div>
-        <p class="mui--text-body2 mui--text-light snippets"><faicon icon='search' css_class="search-icon" baseline=false></faicon> {{ item.snippet_html }}</p>
+        <p class="mui--text-body2 mui--text-light snippets">{{ faicon(icon='search', baseline=false, css_class="search-icon") }} {{ item.snippet_html }}</p>
       {%- elif type == 'comment' %}
         <div class="user__box">
           {{ useravatar(item.obj.user) }}
@@ -63,7 +63,7 @@
             <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ item.obj.created_at|date }} {%- if item.obj.edited_at %} {% trans date=item.obj.edited_at|date %}edited {{ date }}{% endtrans %}{% endif %}</p>
           </div>
         </div>
-        <p class="mui--text-body2 mui--text-light zero-top-margin snippets"><faicon icon='search' css_class="search-icon" baseline=false></faicon> {{ item.snippet_html }}</p>
+        <p class="mui--text-body2 mui--text-light zero-top-margin snippets">{{ faicon(icon='search', baseline=false, css_class="search-icon") }} {{ item.snippet_html }}</p>
       {% endif %}
     </div>
   {% endfor %}
