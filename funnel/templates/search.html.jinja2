@@ -1,5 +1,9 @@
-{% extends "layout.html.jinja2" %}
-{%- from "js/search.js.jinja2" import search_results_template %}
+{%- if not request_wants.html_fragment -%}
+  {% extends "layout.html.jinja2" %}
+{%- else -%}
+  {% extends "partial_layout.html.jinja2" %}
+{% endif %}
+{%- from "macros.html.jinja2" import useravatar, faicon, projectcard, profilecard %}
 {% block title %}{% trans %}Search{% endtrans %}{% endblock title %}
 {% block description %}{% trans %}Search{% endtrans %}{% endblock description %}
 
@@ -8,9 +12,88 @@
 {% block headline -%}
 {%- endblock headline %}
 
+{%- macro search_content(results, type, query) %}
+  {% for item in results['items'] %}
+    <div class="tab-content__results user grid__col-sm-12 {%- if type == 'project' or type == 'profile' %} grid__col-sm-6 grid__col-lg-4{% endif %}">
+      {%- if type == 'project' %}
+        {{ projectcard(item.obj, save_form_id_prefix='search_', add_bookmark=false, snippet_html=item.snippet_html) }}
+      {%- elif type == 'profile' %}
+        {{ profilecard(item.obj, item.snippet_html) }}
+      {%- elif type == 'session' %}
+        <div class="user__box">
+          {{ useravatar(item.obj.user) }}
+          <div class="user__box__header comment__header__details__user">
+            <h4 class="mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
+            <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
+              {%- if item.obj.speaker %}{{ item.obj.speaker }} <span class="mui--text-light">in</span>{% endif %} {{ item.obj.project.title }} <span class="mui--text-light">at</span> {{ item.obj.start_at_localized|time }}–{{ item.obj.end_at_localized|date }} <span class="mui--text-light">on</span> {{ item.obj.start_at_localized|date }}
+            </h3>
+          </div>
+        </div>
+        <p class="mui--text-body2 mui--text-light zero-top-margin snippets">{{ faicon(icon='search', baseline=false, css_class="search-icon") }} {{ item.snippet_html }}</p>
+      {%- elif type == 'submission' %}
+        <div class="user__box">
+          {{ useravatar(item.obj.user) }}
+          <div class="user__box__header comment__header__details__user">
+            <h4 class="mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
+            <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
+              {%- if item.obj.first_user.fullname %}<span>{{ item.obj.first_user.fullname }}</span> <span class="mui--text-light">in</span>{% endif %} <span>{{ item.obj.project.full_title }} </span>
+              {%- if item.obj.session and item.obj.session.start_at %}
+                <span><span class="mui--text-light">at</span> {{ item.obj.session.start_at_localized|time }}–{{ item.obj.session.end_at_localized|time }} <span class="mui--text-light">on</span> {{ item.obj.session.start_at_localized|date }}</span>
+              {% endif %}
+            </h3>
+          </div>
+        </div>
+        <p class="mui--text-body2 mui--text-light snippets">{{ faicon(icon='search', baseline=false, css_class="search-icon") }} {{ item.snippet_html }}</p>
+      {%- elif type == 'update' %}
+        <div class="user__box">
+          {{ useravatar(item.obj.user) }}
+          <div class="user__box__header comment__header__details__user">
+            <h4 class="mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
+            <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
+              {%- if item.obj.user.fullname %}<span>{{ item.obj.user.fullname }}</span> <span class="mui--text-light">in</span>{% endif %} <span>{{ item.obj.project.full_title }} </span>
+            </h3>
+          </div>
+        </div>
+        <p class="mui--text-body2 mui--text-light snippets">{{ faicon(icon='search', baseline=false, css_class="search-icon") }} {{ item.snippet_html }}</p>
+      {%- elif type == 'comment' %}
+        <div class="user__box">
+          {{ useravatar(item.obj.user) }}
+          <div class="user__box__header comment__header__details__user">
+            <h4 class="mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.obj.title }}</a></h4>
+            <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ item.obj.created_at|date }} {%- if item.obj.edited_at %} {% trans date=item.obj.edited_at|date %}edited {{ date }}{% endtrans %}{% endif %}</p>
+          </div>
+        </div>
+        <p class="mui--text-body2 mui--text-light zero-top-margin snippets">{{ faicon(icon='search', baseline=false, css_class="search-icon") }} {{ item.snippet_html }}</p>
+      {% endif %}
+    </div>
+  {% endfor %}
+  {% if results['has_next'] %}
+    <div lass="tab-content__results user grid__col-sm-12 {%- if type == 'project' or type == 'profile' %} grid__col-sm-6 grid__col-lg-4{% endif %}" hx-get="{{ url_for('SearchView_search', q=query, type=type, page=results['next_num']) }}"
+        hx-trigger="revealed"
+        hx-swap="outerHTML">
+      <span class="loading"></span>
+    </div>
+  {% endif %}
+{%- endmacro %}
+
 {% block basecontent %}
-  <div class="js-lazyload-results">
-    {{ search_results_template() }}
+  <div>
+    <div class="tabs-wrapper tabs-wrapper--sticky">
+      <div class="mui-container">
+        <div class="tabs" id="scrollable-tabs">
+          {% for count in counts %}
+            <p class="tabs__item tabs__item--badge mui--text-body2 {%- if type == count.type %} tabs__item--active {% endif %}" hx-get="{{ url_for('SearchView_search', q=query, type=count.type, page=1) }}" hx-target="#tab-content" hx-swap="innerHTML">{{ count.label }} <span class="mui--text-caption badge badge--tab">{{ count.count }}</span></p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="mui-container">
+      <div class="tab-content grid" id="tab-content">
+        {% block tabcontent %}
+          {{ search_content(results, type, query) }}
+        {% endblock tabcontent %}
+      </div>
+    </div>
   </div>
 {% endblock basecontent %}
 
@@ -20,8 +103,9 @@
     $(function() {
       var searchConfig = {
         counts: {{ counts|tojson }},
-        results: {{results|default("")|tojson}},
-        defaultImage: "{{url_for('static', filename='img/default-banner.png')}}",
+        tabWrapperElem: '#scrollable-tabs',
+        tabElem: '.tabs__item',
+        activetabClassName: 'tabs__item--active',
       };
       Hasgeek.searchInit(searchConfig);
     });

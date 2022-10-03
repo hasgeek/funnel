@@ -178,6 +178,7 @@
   background: $mui-bg-color-primary;
 }
 
+.tabs__item--active .badge--tab,
 .badge--primary {
   border: 1px solid transparent;
   background: transparentize($mui-primary-color, 0.85);

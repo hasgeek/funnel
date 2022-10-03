@@ -368,6 +368,13 @@ const Utils = {
     // Call failed, return the original URL
     return url;
   },
+  getQueryString(paramName) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has(paramName)) {
+      return urlParams.get(paramName);
+    }
+    return false;
+  },
 };
 
 export default Utils;
