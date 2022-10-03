@@ -863,6 +863,7 @@ class SearchView(ClassView):
         return {
             'status': 'ok',
             'type': stype,
+            'query': q,
             'counts': search_counts(squery),
             'results': search_results(squery, stype, page=page, per_page=per_page),
         }
