@@ -39,7 +39,7 @@ repos:
             '--remove-duplicate-keys',
           ]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.38.0
+    rev: v2.38.2
     hooks:
       - id: pyupgrade
         args:
@@ -75,7 +75,7 @@ repos:
     hooks:
       - id: black
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.971
+    rev: v0.981
     hooks:
       - id: mypy
         # warn-unused-ignores is unsafe with pre-commit, see
@@ -153,7 +153,7 @@ repos:
         args: ['--single-quote', '--trailing-comma', 'es5']
         exclude: funnel/templates/js/
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.16.0
+    rev: v1.18.0
     hooks:
       - id: djlint-jinja
         files: \.html\.(jinja2|j2)$
