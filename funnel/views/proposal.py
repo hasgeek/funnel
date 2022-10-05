@@ -457,8 +457,10 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
         )
         del collaborator_form.user
         if collaborator_form.validate_on_submit():
-            with db.session.no_autoflush, membership.amend_by(current_auth.user) as amendment:
-                    collaborator_form.populate_obj(amendment)
+            with db.session.no_autoflush, membership.amend_by(
+                current_auth.user
+            ) as amendment:
+                collaborator_form.populate_obj(amendment)
             db.session.commit()
             return {
                 'status': 'ok',
