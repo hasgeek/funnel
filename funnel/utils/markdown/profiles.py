@@ -6,7 +6,7 @@ from mdit_py_plugins import anchors, footnote, tasklists
 
 from coaster.utils import make_name
 
-from .mdit_plugins import ins_plugin
+from .mdit_plugins import ins_plugin, sub_del_plugin
 
 __all__ = ['profiles', 'plugins', 'plugin_configs', 'default_markdown_options']
 
@@ -15,6 +15,7 @@ plugins: Dict[str, Callable] = {
     'heading_anchors': anchors.anchors_plugin,
     'tasklists': tasklists.tasklists_plugin,
     'ins': ins_plugin,
+    'sub_del': sub_del_plugin,
 }
 
 plugin_configs: Dict[str, Dict[str, Any]] = {
@@ -63,6 +64,7 @@ profiles: Dict[str, Dict[str, Any]] = {
             'heading_anchors',
             'tasklists',
             'ins',
+            'sub_del',
         ],
     },
     'text-field': {

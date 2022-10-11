@@ -6,10 +6,14 @@ from markdown_it import MarkdownIt
 from markdown_it.rules_inline import StateInline
 from markdown_it.rules_inline.state_inline import Delimiter
 
-__all__ = ['del_sub_plugin']
+__all__ = ['sub_del_plugin']
 
 
-def del_sub_plugin(md: MarkdownIt):
+def sub_del_plugin(md: MarkdownIt):
+
+    md.inline.ruler.disable('strikethrough')
+    md.inline.ruler2.disable('strikethrough')
+
     def tokenize(state: StateInline, silent: bool):
         start = state.pos
         marker = state.srcCharCode[start]
@@ -18,7 +22,7 @@ def del_sub_plugin(md: MarkdownIt):
         if silent:
             return False
 
-        if marker != 0x7E:
+        if marker != 0x7E:  # /* ~ */
             return False
 
         scanned = state.scanDelims(state.pos, True)
@@ -58,6 +62,11 @@ def del_sub_plugin(md: MarkdownIt):
 
             end_delim = delimiters[start_delim.end]
 
+            # If the previous delimiter has the same marker and is adjacent to this one,
+            # merge those into one del delimiter.
+            #
+            # `<sub><sub>whatever</sub></sub>` -> `<del>whatever</del>`
+            #
             is_del = (
                 i > 0
                 and delimiters[i - 1].end == start_delim.end + 1
@@ -89,8 +98,7 @@ def del_sub_plugin(md: MarkdownIt):
 
             i -= 1
 
-    md.inline.ruler.disable('strikethrough')
-    md.inline.ruler.before('emphasis', 'sub_del', tokenize)
+    md.inline.ruler.before('strikethrough', 'sub_del', tokenize)
 
     def post_process(state: StateInline):
         _post_process(state, state.delimiters)
@@ -99,8 +107,7 @@ def del_sub_plugin(md: MarkdownIt):
             if token and "delimiters" in token:
                 _post_process(state, token["delimiters"])
 
-    md.inline.ruler2.disable('strikethrough')
-    md.inline.ruler2.before('emphasis', 'del', post_process)
+    md.inline.ruler2.before('strikethrough', 'del', post_process)
 
     def del_open(self, tokens, idx, options, env):
         return '<del>'
