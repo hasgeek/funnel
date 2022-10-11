@@ -82,7 +82,7 @@
       <div class="mui-container">
         <div class="tabs" id="scrollable-tabs">
           {% for count in counts %}
-            <p class="tabs__item tabs__item--badge mui--text-body2 {%- if type == count.type or (not results and loop.index == 1) %} tabs__item--active {% endif %}" hx-get="{{ url_for('SearchView_search', q=query, type=count.type, page=1) }}" hx-target="#tab-content" hx-swap="innerHTML" hx-push-url="true">{{ count.label }} <span class="mui--text-caption badge badge--tab">{{ count.count }}</span></p>
+            <p class="tabs__item tabs__item--badge mui--text-body2 {%- if (not type and loop.first) or type == count.type %} tabs__item--active {% endif %}" hx-get="{{ url_for('SearchView_search', q=query, type=count.type, page=1) }}" hx-target="#tab-content" hx-swap="innerHTML" hx-push-url="true">{{ count.label }} <span class="mui--text-caption badge badge--tab">{{ count.count }}</span></p>
           {% endfor %}
         </div>
       </div>
