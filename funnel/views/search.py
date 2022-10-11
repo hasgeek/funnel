@@ -859,7 +859,12 @@ class SearchView(ClassView):
         if not squery:
             return render_redirect(url_for('index'), 302)
         if stype is None or stype not in search_providers:
-            return {'status': 'ok', 'query': q, 'type': None, 'counts': search_counts(squery)}
+            return {
+                'status': 'ok',
+                'query': q,
+                'type': None,
+                'counts': search_counts(squery),
+            }
         return {
             'status': 'ok',
             'type': stype,
