@@ -20,10 +20,7 @@ const Search = {
       $('meta[property=og\\:url]').attr('content', url);
     }
   },
-  updateBrowserHistory(url) {
-    window.history.replaceState('', '', url);
-  },
-  afterFetch(activeTab = '', url) {
+  afterFetch(activeTab = '') {
     if ($(activeTab).is(this.config.tabElem)) {
       $(this.config.tabElem).removeClass(this.config.activetabClassName);
       $(activeTab).addClass(this.config.activetabClassName);
@@ -37,7 +34,6 @@ const Search = {
     }
     Utils.truncate();
     LazyloadImg.init('js-lazyload-img');
-    this.updateBrowserHistory(url);
     if ($(activeTab).is(this.config.tabElem)) {
       this.updateMetaTags();
     }
@@ -50,7 +46,7 @@ const Search = {
     });
     this.count = countHash;
     document.body.addEventListener('htmx:afterOnLoad', (event) => {
-      this.afterFetch(event.detail.elt, event.detail.pathInfo.requestPath);
+      this.afterFetch(event.detail.elt);
     });
   },
 };
