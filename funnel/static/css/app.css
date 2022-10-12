@@ -2733,7 +2733,9 @@ h6 {
   ~ label,
 .mui-textfield--float-label > textarea:not(:focus).mui--is-not-empty ~ label,
 .mui-textfield--float-label
-  > textarea:not(:focus)[value]:not([value='']):not(.mui--is-empty):not(.mui--is-not-empty)
+  > textarea:not(:focus)[value]:not([value='']):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  )
   ~ label,
 .mui-textfield--float-label
   > textarea:not(:focus):not(:empty):not(.mui--is-empty):not(.mui--is-not-empty)
@@ -2823,32 +2825,48 @@ h6 {
 .mui-textfield > input:invalid:not(:focus):required.mui--is-not-empty,
 .mui-textfield > input:invalid:not(:focus):required.mui--is-empty.mui--is-touched,
 .mui-textfield
-  > input:invalid:not(:focus):required[value]:not([value='']):not(.mui--is-empty):not(.mui--is-not-empty),
+  > input:invalid:not(:focus):required[value]:not([value='']):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  ),
 .mui-textfield
-  > input:invalid:not(:focus):required:not(:empty):not(.mui--is-empty):not(.mui--is-not-empty),
+  > input:invalid:not(:focus):required:not(:empty):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  ),
 .mui-textfield > textarea:invalid:not(:focus):not(:required),
 .mui-textfield > textarea:invalid:not(:focus):required.mui--is-not-empty,
 .mui-textfield > textarea:invalid:not(:focus):required.mui--is-empty.mui--is-touched,
 .mui-textfield
-  > textarea:invalid:not(:focus):required[value]:not([value='']):not(.mui--is-empty):not(.mui--is-not-empty),
+  > textarea:invalid:not(:focus):required[value]:not([value='']):not(
+    .mui--is-empty
+  ):not(.mui--is-not-empty),
 .mui-textfield
-  > textarea:invalid:not(:focus):required:not(:empty):not(.mui--is-empty):not(.mui--is-not-empty),
+  > textarea:invalid:not(:focus):required:not(:empty):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  ),
 .mui-textfield > input:not(:focus).mui--is-invalid:not(:required),
 .mui-textfield > input:not(:focus).mui--is-invalid:required.mui--is-not-empty,
 .mui-textfield
   > input:not(:focus).mui--is-invalid:required.mui--is-empty.mui--is-touched,
 .mui-textfield
-  > input:not(:focus).mui--is-invalid:required[value]:not([value='']):not(.mui--is-empty):not(.mui--is-not-empty),
+  > input:not(:focus).mui--is-invalid:required[value]:not([value='']):not(
+    .mui--is-empty
+  ):not(.mui--is-not-empty),
 .mui-textfield
-  > input:not(:focus).mui--is-invalid:required:not(:empty):not(.mui--is-empty):not(.mui--is-not-empty),
+  > input:not(:focus).mui--is-invalid:required:not(:empty):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  ),
 .mui-textfield > textarea:not(:focus).mui--is-invalid:not(:required),
 .mui-textfield > textarea:not(:focus).mui--is-invalid:required.mui--is-not-empty,
 .mui-textfield
   > textarea:not(:focus).mui--is-invalid:required.mui--is-empty.mui--is-touched,
 .mui-textfield
-  > textarea:not(:focus).mui--is-invalid:required[value]:not([value='']):not(.mui--is-empty):not(.mui--is-not-empty),
+  > textarea:not(:focus).mui--is-invalid:required[value]:not([value='']):not(
+    .mui--is-empty
+  ):not(.mui--is-not-empty),
 .mui-textfield
-  > textarea:not(:focus).mui--is-invalid:required:not(:empty):not(.mui--is-empty):not(.mui--is-not-empty) {
+  > textarea:not(:focus).mui--is-invalid:required:not(:empty):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  ) {
   border-color: #fcdcda;
   border-width: 2px;
 }
@@ -2857,17 +2875,25 @@ h6 {
 .mui-textfield > input:invalid:not(:focus):required.mui--is-not-empty,
 .mui-textfield > input:invalid:not(:focus):required.mui--is-empty.mui--is-touched,
 .mui-textfield
-  > input:invalid:not(:focus):required[value]:not([value='']):not(.mui--is-empty):not(.mui--is-not-empty),
+  > input:invalid:not(:focus):required[value]:not([value='']):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  ),
 .mui-textfield
-  > input:invalid:not(:focus):required:not(:empty):not(.mui--is-empty):not(.mui--is-not-empty),
+  > input:invalid:not(:focus):required:not(:empty):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  ),
 .mui-textfield > input:not(:focus).mui--is-invalid:not(:required),
 .mui-textfield > input:not(:focus).mui--is-invalid:required.mui--is-not-empty,
 .mui-textfield
   > input:not(:focus).mui--is-invalid:required.mui--is-empty.mui--is-touched,
 .mui-textfield
-  > input:not(:focus).mui--is-invalid:required[value]:not([value='']):not(.mui--is-empty):not(.mui--is-not-empty),
+  > input:not(:focus).mui--is-invalid:required[value]:not([value='']):not(
+    .mui--is-empty
+  ):not(.mui--is-not-empty),
 .mui-textfield
-  > input:not(:focus).mui--is-invalid:required:not(:empty):not(.mui--is-empty):not(.mui--is-not-empty) {
+  > input:not(:focus).mui--is-invalid:required:not(:empty):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  ) {
   height: 33px;
   margin-bottom: -1px;
 }
@@ -2879,10 +2905,14 @@ h6 {
   > input:invalid:not(:focus):required.mui--is-not-empty
   ~ label,
 .mui-textfield.mui-textfield--float-label
-  > input:invalid:not(:focus):required[value]:not([value='']):not(.mui--is-empty):not(.mui--is-not-empty)
+  > input:invalid:not(:focus):required[value]:not([value='']):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  )
   ~ label,
 .mui-textfield.mui-textfield--float-label
-  > input:invalid:not(:focus):required:not(:empty):not(.mui--is-empty):not(.mui--is-not-empty)
+  > input:invalid:not(:focus):required:not(:empty):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  )
   ~ label,
 .mui-textfield.mui-textfield--float-label
   > textarea:invalid:not(:focus):not(:required)
@@ -2891,10 +2921,14 @@ h6 {
   > textarea:invalid:not(:focus):required.mui--is-not-empty
   ~ label,
 .mui-textfield.mui-textfield--float-label
-  > textarea:invalid:not(:focus):required[value]:not([value='']):not(.mui--is-empty):not(.mui--is-not-empty)
+  > textarea:invalid:not(:focus):required[value]:not([value='']):not(
+    .mui--is-empty
+  ):not(.mui--is-not-empty)
   ~ label,
 .mui-textfield.mui-textfield--float-label
-  > textarea:invalid:not(:focus):required:not(:empty):not(.mui--is-empty):not(.mui--is-not-empty)
+  > textarea:invalid:not(:focus):required:not(:empty):not(.mui--is-empty):not(
+    .mui--is-not-empty
+  )
   ~ label {
   color: #fcdcda;
 }
