@@ -1,0 +1,13 @@
+@import "node_modules/footable/css/footable.core";
+
+.footable {
+  border: none;
+}
+
+.footable > thead > tr > th,
+.footable > thead > tr > td,
+.footable > tbody > tr > td {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid rgba(132, 146, 166, 0.3);
+}

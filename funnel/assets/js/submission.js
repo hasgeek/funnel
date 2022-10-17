@@ -1,3 +1,6 @@
+import 'jquery-ui';
+import 'jquery-ui-sortable-npm';
+import 'jquery-ui-touch-punch';
 import Form from './utils/formhelper';
 import Utils from './utils/helper';
 import addVegaSupport from './utils/vegaembed';

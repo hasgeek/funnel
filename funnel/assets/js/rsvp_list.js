@@ -1,3 +1,5 @@
+import 'footable';
+
 $(() => {
   $('.participants').footable({
     sorting: {
