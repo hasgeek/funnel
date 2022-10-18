@@ -105,11 +105,11 @@ module.exports = {
             loader: 'file-loader',
             options: {
               name: '[name].[ext]',
-              outputPath: 'fonts/'
-            }
-          }
-        ]
-      }
+              outputPath: 'fonts/',
+            },
+          },
+        ],
+      },
     ],
   },
   plugins: [
@@ -118,10 +118,11 @@ module.exports = {
     }),
     new CopyWebpackPlugin({
       patterns: [
-      {
-        from: 'node_modules/footable/css/fonts',
-        to: 'css/fonts',
-      }]
+        {
+          from: 'node_modules/footable/css/fonts',
+          to: 'css/fonts',
+        },
+      ],
     }),
     new webpack.DefinePlugin({
       'process.env': { NODE_ENV: JSON.stringify(nodeEnv) },
