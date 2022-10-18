@@ -431,3 +431,95 @@ body > .proposal-box.ui-draggable {
 .schedule-settings {
   margin-top: 10px;
 }
+
+@media print {
+  .header,
+  .project-banner,
+  .sub-navbar-container,
+  .mobile-nav,
+  .admin_panel,
+  .tabs-wrapper,
+  .footer {
+    display: none;
+  }
+  .page-content,
+  .content-wrapper {
+    padding: 0 !important;
+  }
+  .mui-container {
+    max-width: 100% !important;
+  }
+  .schedule {
+    margin: 5pt 10pt !important;
+  }
+  .schedule__date {
+    font-size: 6pt !important;
+    margin: 0 !important;
+    text-align: left;
+    line-height: 1;
+    padding-left: 0 !important;
+  }
+  .schedule__table {
+    margin: 5pt 0;
+    background-color: #fff !important;
+    page-break-after: always;
+  }
+  .schedule__row--sticky {
+    position: relative !important;
+    top: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  .schedule__row {
+    border-bottom: 1pt solid rgba(132, 146, 166, 0.3) !important;
+  }
+  .schedule__row.schedule__row--hide {
+    border-bottom: none !important;
+  }
+  .schedule__row__column--header {
+    min-height: auto !important;
+    padding: 0 !important;
+    font-size: 6pt !important;
+    border: none !important;
+    outline: none !important;
+  }
+  .schedule__row__column {
+    display: flex !important;
+  }
+  .schedule__row__column--talks {
+    max-height: 10%;
+  }
+  .schedule__row__column__content {
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+  }
+  .schedule__row__column__content__title {
+    width: 100% !important;
+  }
+  .schedule__row__column__content__title__duration {
+    position: relative !important;
+    top: 0 !important;
+    background-color: transparent !important;
+    font-size: 5pt !important;
+    float: none !important;
+    padding: 0 !important;
+    margin: 0 0 0.2pt !important;
+    line-height: 1 !important;
+  }
+  .schedule__row__column__content__title__heading,
+  .schedule__row__column__content__title__speaker {
+    font-size: 6pt !important;
+    font-weight: normal !important;
+    line-height: 1.1 !important;
+    margin: 0 0 0.2pt;
+  }
+  .schedule__row__column__content__description {
+    display: none !important;
+  }
+}
+@page {
+  margin: 0;
+  padding: 0;
+}
+

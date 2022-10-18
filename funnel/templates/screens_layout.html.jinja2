@@ -2,9 +2,7 @@
 {% block headerbox %}{% endblock headerbox %}
 
 {% block pageheaders %}
-  {% assets 'css_screens' -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/screens.scss') }}" />
   {% block screens_pageheaders %}
   {% endblock screens_pageheaders %}
 {% endblock pageheaders %}
