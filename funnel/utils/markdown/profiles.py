@@ -6,12 +6,15 @@ from mdit_py_plugins import anchors, footnote, tasklists
 
 from coaster.utils import make_name
 
+from .mdit_plugins import embeds_plugin
+
 __all__ = ['profiles', 'plugins', 'plugin_configs', 'default_markdown_options']
 
 plugins: Dict[str, Callable] = {
     'footnote': footnote.footnote_plugin,
     'heading_anchors': anchors.anchors_plugin,
     'tasklists': tasklists.tasklists_plugin,
+    'markmap': embeds_plugin,
 }
 
 plugin_configs: Dict[str, Dict[str, Any]] = {
@@ -22,6 +25,7 @@ plugin_configs: Dict[str, Dict[str, Any]] = {
         'permalink': True,
     },
     'tasklists': {'enabled': True, 'label': True, 'label_after': False},
+    'markmap': {'name': 'markmap'},
 }
 
 default_markdown_options = {
@@ -59,6 +63,7 @@ profiles: Dict[str, Dict[str, Any]] = {
             'footnote',
             'heading_anchors',
             'tasklists',
+            'markmap',
         ],
     },
     'text-field': {
