@@ -31,7 +31,7 @@ def embeds_plugin(
             + (f' class="md-embed-{name}" ')
             + '><div class="embed-content">'
             + content
-            + '</div>\n'
+            + '</div></div>\n'
         )
 
     min_markers = 3
