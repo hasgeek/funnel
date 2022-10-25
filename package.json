@@ -36,6 +36,13 @@
     "workbox-webpack-plugin": "^6.1.5"
   },
   "dependencies": {
+    "@codemirror/closebrackets": "^0.19.2",
+    "@codemirror/commands": "^6.1.2",
+    "@codemirror/lang-html": "^6.1.2",
+    "@codemirror/lang-markdown": "^6.0.2",
+    "@codemirror/language": "^6.2.1",
+    "@codemirror/state": "^6.1.2",
+    "@codemirror/view": "^6.4.0",
     "eslint-plugin-cypress": "^2.11.3",
     "eslint-webpack-plugin": "^2.5.4",
     "hammerjs": "^2.0.8",

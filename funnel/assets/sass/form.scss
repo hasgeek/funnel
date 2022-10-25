@@ -144,8 +144,10 @@
       transform: none;
       top: -$mui-grid-padding/4;
     }
-    .mui-textfield > .CodeMirror {
+    .mui-textfield > .CodeMirror,
+    .mui-textfield > .cm-editor {
       border-bottom: none;
+      outline: none;
     }
   }
 }
@@ -534,7 +536,8 @@
   width: 70%;
 }
 
-form.mui--bg-accent .CodeMirror {
+form.mui--bg-accent .CodeMirror,
+form.mui--bg-accent .cm-editor {
   background: $mui-bg-color-accent;
 }
 
@@ -576,7 +579,7 @@ form.mui--bg-accent .CodeMirror {
     height: auto;
     resize: none !important;
   }
-  #field-body .CodeMirror {
+  #field-body .cm-editor {
     min-height: calc(100vh - 110px);
   }
   .proposal-preview {
@@ -589,6 +592,12 @@ form.mui--bg-accent .CodeMirror {
     background: $mui-bg-color-primary;
     padding-top: $mui-grid-padding;
     font-size: $mui-input-font-size;
+  }
+  textarea.markdown {
+    display: none;
+  }
+  .cm-editor div {
+    background: $mui-bg-color-primary;
   }
 }
 
@@ -686,4 +695,8 @@ form.mui--bg-accent .CodeMirror {
 
 input#username:focus ~ .keyboard-switch {
   display: flex;
+}
+
+#markdown textarea#markdown {
+  display: none;
 }

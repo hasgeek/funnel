@@ -1,3 +1,7 @@
+import { EditorView, keymap } from '@codemirror/view';
+import { markdown, markdownKeymap } from '@codemirror/lang-markdown';
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
+import { defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import addVegaSupport from './utils/vegaembed';
 import Form from './utils/formhelper';
 import SortItem from './utils/sort';
@@ -14,7 +18,7 @@ $(() => {
       if (updateModal) $('.js-add-collaborator').trigger('click');
     }
 
-    async function updatePreview() {
+    async function updatePreview(view) {
       const response = await fetch(window.Hasgeek.Config.markdownPreviewApi, {
         method: 'POST',
         headers: {
@@ -23,13 +27,14 @@ $(() => {
         },
         body: new URLSearchParams({
           type: 'submission',
-          text: $('#body').val(),
+          text: view.state.doc.toString(),
         }).toString(),
       });
       if (response && response.ok) {
         const responseData = await response.json();
         if (responseData) {
-          $('.js-proposal-preview').html(responseData.html);
+          const escapeScript = responseData.html.replace('<script>', '</script>');
+          $('.js-proposal-preview').html(escapeScript);
           addVegaSupport();
         }
       }
@@ -102,14 +107,25 @@ $(() => {
       $('.js-label-heading').addClass('mui--text-danger');
     });
 
-    const editor = document.querySelector('.CodeMirror').CodeMirror;
+    const extensions = [
+      markdown(),
+      history(),
+      syntaxHighlighting(defaultHighlightStyle),
+      keymap.of([defaultKeymap, markdownKeymap, historyKeymap]),
+    ];
 
-    editor.on('change', () => {
-      if (textareaWaitTimer) clearTimeout(textareaWaitTimer);
-      textareaWaitTimer = setTimeout(() => {
-        updatePreview();
-      }, debounceInterval);
+    const view = new EditorView({
+      extensions,
+      dispatch: (tr) => {
+        view.update([tr]);
+        if (textareaWaitTimer) clearTimeout(textareaWaitTimer);
+        textareaWaitTimer = setTimeout(() => {
+          updatePreview(view);
+        }, debounceInterval);
+      },
     });
+
+    document.querySelector('#body').parentNode.append(view.dom);
 
     $('#title')
       .keypress((event) => {

@@ -4,6 +4,10 @@
 {% from "project_layout.html.jinja2" import project_header with context %}
 {% block title %}{{ title }}{% endblock title %}
 
+{% block layoutheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
+{% endblock layoutheaders %}
+
 {% block contenthead %}
 {% endblock contenthead %}
 
@@ -109,6 +113,9 @@
     </div>
   </div>
 {% endblock basecontent %}
+
+{% block pagescripts %}
+{% endblock pagescripts %}
 
 {% block innerscripts %}
   {% assets "js_sortable" -%}

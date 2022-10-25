@@ -72,6 +72,14 @@ function activate_widgets() {
   });
 }
 
+function activate_select2() {
+  /* Upgrade to jquery 3.6 select2 autofocus isn't working. This is to fix that problem.
+    select2/select2#5993  */
+  $(document).on('select2:open', function () {
+    document.querySelector('.select2-search__field').focus();
+  });
+}
+
 function radioHighlight(radioName, highlightClass) {
   var selector = "input[name='" + radioName + "']";
   $(selector + ':checked')
@@ -215,7 +223,7 @@ function trapFocusWithinModal(modal) {
 
 $(function () {
   // activate all widgets
-  activate_widgets();
+  activate_select2();
 
   var matchtab = function () {
     var url = document.location.toString(),
