@@ -2,6 +2,8 @@
 @import 'components/subnavbar';
 @import 'components/proposal-card';
 @import 'components/switch';
+@import 'components/footable';
+@import 'leaflet';
 
 @media (min-width: 768px) {
   .project-page__content {
@@ -424,7 +426,7 @@
     display: inline-block;
     width: 100%;
     padding: $mui-grid-padding/2 0;
-    border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+    border-bottom: 1px solid $mui-divider-color;
   }
   .pinned__update__heading {
     padding: 0 $mui-grid-padding;

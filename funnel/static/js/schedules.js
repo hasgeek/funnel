@@ -65,8 +65,6 @@ $(function () {
       },
       init: function () {
         if (this.editable) {
-          $('#proposals-tab').easytabs();
-
           $('.sortable').each(settings.applySortable);
 
           this.color_form.find('input[type=text]').each(function () {

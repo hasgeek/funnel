@@ -57,9 +57,6 @@
 {% endblock left_col %}
 
 {% block footerinnerscripts %}
-  {% assets "js_sortable" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
   <script src="{{ built_asset('submissions.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     window.Hasgeek.subpageTitle = {{ self.title()|tojson }};
