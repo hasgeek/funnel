@@ -1,10 +1,12 @@
 const MarkmapEmbed = {
   addMarkmap() {
-    $('.language-markmap').each(function embedMarkmap() {
-      $(this).addClass('embed-added');
-      $(this).find('code').addClass('markmap');
+    $('.md-embed-markmap').each(function embedMarkmap() {
+      $(this).find('.embed-content').addClass('markmap');
     });
     window.markmap.autoLoader.renderAll();
+    $('.md-embed-markmap').each(function embedMarkmap() {
+      $(this).addClass('activated');
+    });
   },
   loadMarkmap() {
     const self = this;
@@ -52,7 +54,7 @@ const MarkmapEmbed = {
   },
   init(containerDiv) {
     this.containerDiv = containerDiv;
-    if ($('.language-markmap').length > 0) {
+    if ($('.md-embed-markmap:not(.activated)').length > 0) {
       this.loadMarkmap();
     }
   },

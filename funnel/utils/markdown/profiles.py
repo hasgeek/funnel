@@ -15,6 +15,8 @@ plugins: Dict[str, Callable] = {
     'heading_anchors': anchors.anchors_plugin,
     'tasklists': tasklists.tasklists_plugin,
     'markmap': embeds_plugin,
+    'vega-lite': embeds_plugin,
+    'mermaid': embeds_plugin,
 }
 
 plugin_configs: Dict[str, Dict[str, Any]] = {
@@ -26,6 +28,8 @@ plugin_configs: Dict[str, Dict[str, Any]] = {
     },
     'tasklists': {'enabled': True, 'label': True, 'label_after': False},
     'markmap': {'name': 'markmap'},
+    'vega-lite': {'name': 'vega-lite'},
+    'mermaid': {'name': 'mermaid'},
 }
 
 default_markdown_options = {
@@ -64,6 +68,8 @@ profiles: Dict[str, Dict[str, Any]] = {
             'heading_anchors',
             'tasklists',
             'markmap',
+            'vega-lite',
+            'mermaid',
         ],
     },
     'text-field': {

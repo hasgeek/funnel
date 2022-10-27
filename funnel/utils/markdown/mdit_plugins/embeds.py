@@ -28,7 +28,7 @@ def embeds_plugin(
 
         return (
             '<div'
-            + (f' class="md-embed-{name}" ')
+            + (f' class="md-embed md-embed-{name}" ')
             + '><div class="embed-content">'
             + content
             + '</div></div>\n'
