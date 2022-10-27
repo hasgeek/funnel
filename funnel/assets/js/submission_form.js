@@ -1,5 +1,7 @@
 import { EditorView, keymap } from '@codemirror/view';
-import { markdown, markdownKeymap } from '@codemirror/lang-markdown';
+import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
+import { html } from '@codemirror/lang-html';
+import { closeBrackets } from '@codemirror/autocomplete';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import addVegaSupport from './utils/vegaembed';
@@ -108,10 +110,12 @@ $(() => {
     });
 
     const extensions = [
-      markdown(),
+      closeBrackets(),
       history(),
       syntaxHighlighting(defaultHighlightStyle),
       keymap.of([defaultKeymap, markdownKeymap, historyKeymap]),
+      markdown({ base: markdownLanguage }),
+      html(),
     ];
 
     const view = new EditorView({

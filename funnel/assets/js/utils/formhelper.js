@@ -177,6 +177,11 @@ const Form = {
     };
     Form.activateToggleSwitch(onSuccess);
   },
+  handleCodemirrorFormSubmit(formId, view) {
+    $(`#${formId}`).on('submit', () => {
+      $(`#${formId}`).find('textarea').val(view.state.doc.toString());
+    });
+  },
 };
 
 export default Form;
