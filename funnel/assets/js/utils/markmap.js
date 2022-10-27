@@ -8,6 +8,18 @@ const MarkmapEmbed = {
       $(this).addClass('activated');
     });
   },
+  resizeTimer: null,
+  resizeMarkmapContainers() {
+    if (this.resizeTimer) clearTimeout(this.resizeTimer);
+    this.resizeTimer = setTimeout(() => {
+      $('.md-embed-markmap.activated svg').each(function mmresized() {
+        const circles = $(this).find('circle');
+        const firstNode = circles[circles.length - 1];
+        firstNode.dispatchEvent(new Event('click'));
+        firstNode.dispatchEvent(new Event('click'));
+      });
+    }, 500);
+  },
   loadMarkmap() {
     const self = this;
     const CDN = [
@@ -43,6 +55,7 @@ const MarkmapEmbed = {
           loadMarkmapScript();
         } else {
           self.addMarkmap();
+          window.addEventListener('resize', this.resizeMarkmapContainers);
         }
       });
     };
