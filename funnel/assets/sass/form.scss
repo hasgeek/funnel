@@ -582,6 +582,19 @@ form.mui--bg-accent .cm-editor {
   #field-body .cm-editor {
     min-height: calc(100vh - 110px);
   }
+  textarea.markdown {
+    display: none;
+  }
+  .cm-editor div {
+    background: $mui-bg-color-primary;
+  }
+  .markdown-field {
+    position: relative;
+    .mui-form__error {
+      position: absolute;
+      top: 100px;
+    }
+  }
   .proposal-preview {
     position: fixed;
     top: 100vh;
@@ -592,12 +605,6 @@ form.mui--bg-accent .cm-editor {
     background: $mui-bg-color-primary;
     padding-top: $mui-grid-padding;
     font-size: $mui-input-font-size;
-  }
-  textarea.markdown {
-    display: none;
-  }
-  .cm-editor div {
-    background: $mui-bg-color-primary;
   }
 }
 
