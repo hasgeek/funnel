@@ -177,9 +177,9 @@ const Form = {
     };
     Form.activateToggleSwitch(onSuccess);
   },
-  handleCodemirrorFormSubmit(formId, view) {
+  fromCodemirrorToTextArea(markdownId, formId, view) {
     $(`#${formId}`).on('submit', () => {
-      $(`#${formId}`).find('textarea').val(view.state.doc.toString());
+      $(`#${markdownId}`).val(view.state.doc.toString());
     });
   },
 };

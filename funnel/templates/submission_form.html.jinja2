@@ -100,7 +100,7 @@
                 </div>
               {%- endif %}
             </div>
-            {{ renderfield(form.body, css_class="mui-form__fields--noborder", nolabel=true, placeholder="Content") }}
+            {{ renderfield(form.body, css_class="mui-form__fields--noborder markdown-field", nolabel=true, placeholder="Content") }}
           </div>
           <div class="grid__col-sm-6 proposal-preview js-proposal-preview close markdown" id="preview">
             {{ proposal.body }}
@@ -130,9 +130,10 @@
     $(function() {
       var sortUrl;
       {%- if proposal %}
-        sortUrl = '{{ proposal.url_for("reorder_collaborators") }}'
+        var sortUrl = '{{ proposal.url_for("reorder_collaborators") }}'
       {%- endif %}
-      window.Hasgeek.submissionFormInit(sortUrl);
+      var formId = "{{ ref_id }}";
+      window.Hasgeek.submissionFormInit(sortUrl, formId);
     });
   </script>
 {% endblock innerscripts %}

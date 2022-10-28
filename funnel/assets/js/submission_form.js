@@ -9,7 +9,7 @@ import Form from './utils/formhelper';
 import SortItem from './utils/sort';
 
 $(() => {
-  window.Hasgeek.submissionFormInit = function formInit(sortUrl) {
+  window.Hasgeek.submissionFormInit = function formInit(sortUrl, formId) {
     let textareaWaitTimer;
     const debounceInterval = 1000;
 
@@ -81,15 +81,15 @@ $(() => {
     $('body').on($.modal.OPEN, '.modal', (event) => {
       event.preventDefault();
       $('select.select2').select2('open').trigger('select2:open');
-      const formId = $('.modal').find('form').attr('id');
-      const url = Form.getActionUrl(formId);
+      const modalFormId = $('.modal').find('form').attr('id');
+      const url = Form.getActionUrl(modalFormId);
       const onSuccess = (responseData) => {
         updateCollaboratorsList(responseData);
       };
       const onError = (response) => {
-        Form.formErrorHandler(formId, response);
+        Form.formErrorHandler(modalFormId, response);
       };
-      window.Hasgeek.Forms.handleFormSubmit(formId, url, onSuccess, onError, {});
+      window.Hasgeek.Forms.handleFormSubmit(modalFormId, url, onSuccess, onError, {});
     });
 
     $('.js-switch-panel').on('click', (event) => {
@@ -109,6 +109,7 @@ $(() => {
       $('.js-label-heading').addClass('mui--text-danger');
     });
 
+    const markdownId = $(`#${formId}`).find('textarea.markdown').attr('id');
     const extensions = [
       closeBrackets(),
       history(),
@@ -117,8 +118,8 @@ $(() => {
       markdown({ base: markdownLanguage }),
       html(),
     ];
-
     const view = new EditorView({
+      doc: $(`#${markdownId}`).val(),
       extensions,
       dispatch: (tr) => {
         view.update([tr]);
@@ -128,8 +129,8 @@ $(() => {
         }, debounceInterval);
       },
     });
-
-    document.querySelector('#body').parentNode.append(view.dom);
+    document.querySelector(`#${markdownId}`).parentNode.append(view.dom);
+    Form.fromCodemirrorToTextArea(markdownId, formId, view);
 
     $('#title')
       .keypress((event) => {
