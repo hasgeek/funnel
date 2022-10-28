@@ -126,7 +126,8 @@
   .project-footer {
     .register-block {
       display: block;
-      .register-block__content, .register-block__content--margin {
+      .register-block__content,
+      .register-block__content--margin {
         width: 100%;
         margin-right: 0;
       }
