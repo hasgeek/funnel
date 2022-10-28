@@ -161,11 +161,6 @@ def feature_project_rsvp(obj: Project) -> bool:
     return (
         obj.state.PUBLISHED  # type: ignore[unreachable]
         and obj.allow_rsvp is True
-        and (
-            obj.boxoffice_data is None
-            or 'item_collection_id' not in obj.boxoffice_data
-            or not obj.boxoffice_data['item_collection_id']
-        )
         and (obj.start_at is None or not obj.state.PAST)
     )
 

@@ -55,6 +55,15 @@
   justify-content: space-between;
   width: 100%;
   flex-wrap: wrap;
+  .register-block__content {
+    width: 45%;
+    align-self: end;
+  }
+  .register-block__content--margin {
+    width: calc(55% - #{$mui-grid-padding});
+    margin-right: $mui-grid-padding;
+    align-self: center;
+  }
   .register-block__txt {
     font-size: 12px;
     margin: 0 0 $mui-grid-padding;
@@ -74,6 +83,7 @@
   }
   .register-block__rsvp--width {
     width: auto;
+    display: inline-flex;
   }
 }
 
@@ -98,12 +108,16 @@
   .register-block {
     .register-block__txt {
       font-size: 14px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
     .register-block__txt--short {
       max-width: calc(100% - 170px);
     }
     .register-block__txt--longer {
       max-width: calc(100% - 20px);
+      display: inline-flex;
+      align-items: center;
     }
   }
 }
@@ -111,16 +125,26 @@
 @media (min-width: 768px) {
   .project-footer {
     .register-block {
+      display: block;
+      .register-block__content, .register-block__content--margin {
+        width: 100%;
+        margin-right: 0;
+      }
+      .register-block__content--padding {
+        margin: $mui-grid-padding 0 0;
+      }
       .register-block__txt {
         margin: 0 0 $mui-grid-padding;
         max-width: 100%;
+        display: inline-flex;
+        align-items: center;
       }
       .register-block__btn {
         width: 100%;
       }
       .register-block__rsvp {
         width: 100%;
-        display: flex;
+        display: inline-flex;
         align-items: center;
       }
       .register-block__rsvp--width {
