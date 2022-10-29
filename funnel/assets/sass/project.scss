@@ -64,6 +64,13 @@
     margin-right: $mui-grid-padding;
     align-self: center;
   }
+  .register-block__content--flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+  }
   .register-block__txt {
     font-size: 12px;
     margin: 0 0 $mui-grid-padding;
@@ -95,7 +102,7 @@
     .register-block__rsvp {
       width: auto;
     }
-    .register-block__btn {
+    .register-block__content--flex .register-block__btn {
       width: auto;
     }
     .register-block__btn.full-width-btn {
