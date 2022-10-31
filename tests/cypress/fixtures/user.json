@@ -28,7 +28,7 @@
     "password": "hg-user5_HE"
   },
   "newuser": {
-    "fullname": "new-user",
+    "username": "new-user",
     "password": "new-user11_EveryOne"
   }
 }
