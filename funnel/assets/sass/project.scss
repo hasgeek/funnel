@@ -64,13 +64,6 @@
     margin-right: $mui-grid-padding;
     align-self: center;
   }
-  .register-block__content--flex {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    flex-wrap: wrap;
-  }
   .register-block__txt {
     font-size: 12px;
     margin: 0 0 $mui-grid-padding;
@@ -85,10 +78,10 @@
   .register-block__right__menu {
     margin-left: $mui-grid-padding/2;
   }
-  .register-block__rsvp {
+  .register-block__btnwrapper {
     width: 100%;
   }
-  .register-block__rsvp--width {
+  .register-block__btnwrapper--width {
     width: auto;
     display: inline-flex;
   }
@@ -96,13 +89,17 @@
 
 .project-footer {
   .register-block {
+    .register-block__content--flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      flex-wrap: wrap;
+    }
     .register-block__txt {
       margin: 0;
     }
-    .register-block__rsvp {
-      width: auto;
-    }
-    .register-block__content--flex .register-block__btn {
+    .register-block__btnwrapper {
       width: auto;
     }
     .register-block__btn.full-width-btn {
@@ -133,6 +130,9 @@
   .project-footer {
     .register-block {
       display: block;
+      .register-block__content--flex {
+        display: block;
+      }
       .register-block__content,
       .register-block__content--margin {
         width: 100%;
@@ -148,12 +148,12 @@
       .register-block__btn {
         width: 100%;
       }
-      .register-block__rsvp {
+      .register-block__btnwrapper {
         width: 100%;
         display: inline-flex;
         align-items: center;
       }
-      .register-block__rsvp--width {
+      .register-block__btnwrapper--width {
         width: auto;
       }
     }
