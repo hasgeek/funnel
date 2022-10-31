@@ -1,7 +1,7 @@
 """Base files for markdown parser."""
 # pylint: disable=too-many-arguments
 
-from typing import Any, Dict, List, Optional, Union, overload
+from typing import List, Optional, overload
 import json
 
 from markdown_it import MarkdownIt
@@ -33,18 +33,16 @@ default_markdown_extensions: List[str] = ['footnote', 'heading_anchors', 'taskli
 
 
 @overload
-def markdown(text: None, profile: Union[str, Dict[str, Any]]) -> None:
+def markdown(text: None, profile: Optional[str]) -> None:
     ...
 
 
 @overload
-def markdown(text: str, profile: Union[str, Dict[str, Any]]) -> Markup:
+def markdown(text: str, profile: Optional[str]) -> Markup:
     ...
 
 
-def markdown(
-    text: Optional[str], profile: Union[str, Dict[str, Any]]
-) -> Optional[Markup]:
+def markdown(text: Optional[str], profile: Optional[str]) -> Optional[Markup]:
     """
     Markdown parser compliant with Commonmark+GFM using markdown-it-py.
 
@@ -56,32 +54,25 @@ def markdown(
     # Replace invisible characters with spaces
     text = normalize_spaces_multiline(text)
 
-    if isinstance(profile, str):
-        try:
-            _profile = profiles[profile]
-        except KeyError as exc:
-            raise KeyError(
-                f'Wrong markdown config profile "{profile}". Check name.'
-            ) from exc
-    elif isinstance(profile, dict):
-        _profile = profile
-    else:
-        raise TypeError('Wrong type - profile has to be either str or dict')
+    try:
+        _profile = profiles[profile]
+    except KeyError as exc:
+        raise KeyError(
+            f'Wrong markdown config profile "{profile}". Check name.'
+        ) from exc
 
-    args = _profile.get('args', ())
-
-    md = MarkdownIt(*args)
-
-    funnel_config = _profile.get('funnel_config', {})
+    md = MarkdownIt(*_profile.args)
 
     if md.linkify is not None:
         md.linkify.set({'fuzzy_link': False, 'fuzzy_email': False})
 
     for action in ['enableOnly', 'enable', 'disable']:
-        if action in funnel_config:
-            getattr(md, action)(funnel_config[action])
+        if action in _profile.post_config:
+            getattr(md, action)(
+                _profile.post_config[action]  # type: ignore[literal-required]
+            )
 
-    for e in _profile.get('plugins', []):
+    for e in _profile.plugins:
         try:
             ext = plugins[e]
         except KeyError as exc:
@@ -91,21 +82,22 @@ def markdown(
         md.use(ext, **plugin_configs.get(e, {}))
 
     # type: ignore[arg-type]
-    return Markup(getattr(md, funnel_config.get('render_with', 'render'))(text))
+    return Markup(getattr(md, _profile.render_with)(text))
 
 
 def _print_rules(md: MarkdownIt, active: str = None):
     """Debug function to be removed before merge."""
     rules = {'all_rules': md.get_all_rules(), 'active_rules': {}}
     for p, pr in profiles.items():
-        m = MarkdownIt(*pr.get('args', ()))
-        fc = pr.get('funnel_config', {})
+        m = MarkdownIt(*pr.args)
         if m.linkify is not None:
             m.linkify.set({'fuzzy_link': False, 'fuzzy_email': False})
         for action in ['enableOnly', 'enable', 'disable']:
-            if action in fc:
-                getattr(m, action)(fc[action])
-        for e in pr.get('plugins', []):
+            if action in pr.post_config:
+                getattr(m, action)(
+                    pr.post_config[action]  # type: ignore[literal-required]
+                )
+        for e in pr.plugins:
             try:
                 ext = plugins[e]
             except KeyError as exc:

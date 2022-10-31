@@ -148,7 +148,11 @@ class SmsTemplate:
             'template_static_len',
             # vformat only needs __getitem__, so ignore mypy's warning about arg type.
             # The expected type is Mapping[str, Any]
-            len(Formatter().vformat(self.template, (), self)),  # type: ignore[arg-type]
+            len(
+                Formatter().vformat(  # type: ignore[arg-type, call-overload]
+                    self.template, (), self
+                )
+            ),
         )
         # Now set the length available for variables by comparing with the registered
         # template. The Python template may have static text where the registered
@@ -183,8 +187,8 @@ class SmsTemplate:
             '_plaintext',
             # vformat only needs __getitem__, so ignore mypy's warning about arg type.
             # The expected type is Mapping[str, Any]
-            Formatter().vformat(
-                self.plaintext_template, (), self  # type: ignore[arg-type]
+            Formatter().vformat(  # type: ignore[arg-type, call-overload]
+                self.plaintext_template, (), self
             )
             if self.plaintext_template
             else '',
@@ -195,7 +199,9 @@ class SmsTemplate:
             '_text',
             # vformat only needs __getitem__, so ignore mypy's warning about arg type.
             # The expected type is Mapping[str, Any]
-            Formatter().vformat(self.template, (), self),  # type: ignore[arg-type]
+            Formatter().vformat(  # type: ignore[arg-type, call-overload]
+                self.template, (), self
+            ),
         )
 
     @property

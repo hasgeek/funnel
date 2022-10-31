@@ -1,27 +1,28 @@
 """Markdown preview view."""
 
 
+from typing import Optional
+
 from flask import request
 
 from ... import app
 from ...typing import ReturnView
 from ...utils import markdown
-
-# extra_markdown_types = {'profile', 'project', 'submission', 'session'}
+from ...utils.markdown.profiles import profiles
 
 
 @app.route('/api/1/preview/markdown', methods=['POST'])
 def markdown_preview() -> ReturnView:
     """Render Markdown in the backend, with custom options based on use case."""
-    # The `type` differentiator is temporarily not supported with new markdown
-    # mtype = request.form.get('type')
+    profile: Optional[str] = request.form.get('profile')
+    if profile not in profiles:
+        profile = None
     text = request.form.get('text')
 
-    html = markdown(text, 'document')
+    html = markdown(text, profile)
 
     return {
         'status': 'ok',
-        # 'type': mtype if mtype in extra_markdown_types else None,
-        'type': None,
+        'profile': profile,
         'html': html,
     }

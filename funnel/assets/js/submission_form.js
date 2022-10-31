@@ -22,7 +22,7 @@ $(() => {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          type: 'submission',
+          type: 'document',
           text: $('#body').val(),
         }).toString(),
       });
