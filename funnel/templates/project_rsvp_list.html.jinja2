@@ -2,12 +2,6 @@
 {% extends "project_layout.html.jinja2" %}
 {% block title %}{% trans %}View participants{% endtrans %}{% endblock title %}
 
-{% block pageheaders %}
-  {% assets "css_footable" -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets -%}
-{% endblock pageheaders %}
-
 {% block left_col %}
   <div class="page-card page-card--nomargin">
     <div class="project-section mui-table--responsive-wrapper">
@@ -42,9 +36,6 @@
   </div>
 {% endblock left_col %}
 
-{% block footerinnerscripts %}
-  {% assets "js_footable" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
+{% block footerinnerscripts %}x
   <script src="{{ built_asset('rsvp_list.js') }}" type="text/javascript"></script>
 {% endblock footerinnerscripts %}

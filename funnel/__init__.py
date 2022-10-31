@@ -56,9 +56,7 @@ version = Version(__version__)
 assets['funnel.js'][version] = 'js/scripts.js'
 assets['spectrum.js'][version] = 'js/libs/spectrum.js'
 assets['spectrum.css'][version] = 'css/spectrum.css'
-assets['screens.css'][version] = 'css/screens.css'
 assets['schedules.js'][version] = 'js/schedules.js'
-assets['schedule-print.css'][version] = 'css/schedule-print.css'
 assets['funnel-mui.js'][version] = 'js/libs/mui.js'
 
 try:
@@ -222,92 +220,6 @@ app.assets.register(
     Bundle(
         assets.require('codemirror-markdown-material.css'),
         output='css/codemirror-markdown.packed.css',
-        filters='cssmin',
-    ),
-)
-app.assets.register(
-    'css_screens',
-    Bundle(
-        assets.require('screens.css'), output='css/screens.packed.css', filters='cssmin'
-    ),
-)
-app.assets.register(
-    'js_jqueryeasytabs',
-    Bundle(
-        assets.require('!jquery.js', 'jquery-easytabs.js'),
-        output='js/jqueryeasytabs.packed.js',
-        filters='uglipyjs',
-    ),
-)
-app.assets.register(
-    'js_leaflet',
-    Bundle(
-        assets.require('leaflet.js', 'leaflet-search.js'),
-        output='js/leaflet.packed.js',
-        filters='uglipyjs',
-    ),
-)
-app.assets.register(
-    'css_leaflet',
-    Bundle(
-        assets.require('leaflet.css', 'leaflet-search.css'),
-        output='css/leaflet.packed.css',
-        filters='cssmin',
-    ),
-)
-app.assets.register(
-    'js_emojionearea',
-    Bundle(
-        assets.require('!jquery.js', 'emojionearea-material.js'),
-        output='js/emojionearea.packed.js',
-        filters='uglipyjs',
-    ),
-)
-app.assets.register(
-    'css_emojionearea',
-    Bundle(
-        assets.require('emojionearea-material.css'),
-        output='css/emojionearea.packed.css',
-        filters='cssmin',
-    ),
-)
-app.assets.register(
-    'js_sortable',
-    Bundle(
-        assets.require('!jquery.js', 'jquery.ui.js', 'jquery.ui.sortable.touch.js'),
-        output='js/sortable.packed.js',
-        filters='uglipyjs',
-    ),
-)
-app.assets.register(
-    'css_schedule_print',
-    Bundle(
-        assets.require('schedule-print.css'),
-        output='css/schedule-print.packed.css',
-        filters='cssmin',
-    ),
-)
-app.assets.register(
-    'js_footable',
-    Bundle(
-        assets.require('!jquery.js', 'baseframe-footable.js'),
-        output='js/footable.packed.js',
-        filters='uglipyjs',
-    ),
-)
-app.assets.register(
-    'js_footable_paginate',
-    Bundle(
-        assets.require('!jquery.js', 'footable-paginate.js'),
-        output='js/footable_paginate.packed.js',
-        filters='uglipyjs',
-    ),
-)
-app.assets.register(
-    'css_footable',
-    Bundle(
-        assets.require('baseframe-footable-mui.css'),
-        output='css/footable.packed.css',
         filters='cssmin',
     ),
 )
