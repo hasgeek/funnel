@@ -1,7 +1,7 @@
 """Base files for markdown parser."""
 # pylint: disable=too-many-arguments
 
-from typing import List, Optional, overload
+from typing import List, Optional, Type, Union, overload
 import json
 
 from markdown_it import MarkdownIt
@@ -9,7 +9,7 @@ from markupsafe import Markup
 
 from coaster.utils.text import normalize_spaces_multiline
 
-from .profiles import plugin_configs, plugins, profiles
+from .profiles import MarkdownProfile, plugin_configs, plugins, profiles
 
 __all__ = ['markdown']
 
@@ -33,16 +33,18 @@ default_markdown_extensions: List[str] = ['footnote', 'heading_anchors', 'taskli
 
 
 @overload
-def markdown(text: None, profile: Optional[str]) -> None:
+def markdown(text: None, profile: Optional[Union[str, Type[MarkdownProfile]]]) -> None:
     ...
 
 
 @overload
-def markdown(text: str, profile: Optional[str]) -> Markup:
+def markdown(text: str, profile: Optional[Union[str, Type[MarkdownProfile]]]) -> Markup:
     ...
 
 
-def markdown(text: Optional[str], profile: Optional[str]) -> Optional[Markup]:
+def markdown(
+    text: Optional[str], profile: Optional[Union[str, Type[MarkdownProfile]]]
+) -> Optional[Markup]:
     """
     Markdown parser compliant with Commonmark+GFM using markdown-it-py.
 
@@ -54,12 +56,19 @@ def markdown(text: Optional[str], profile: Optional[str]) -> Optional[Markup]:
     # Replace invisible characters with spaces
     text = normalize_spaces_multiline(text)
 
-    try:
-        _profile = profiles[profile]
-    except KeyError as exc:
-        raise KeyError(
-            f'Wrong markdown config profile "{profile}". Check name.'
-        ) from exc
+    if profile is None or isinstance(profile, str):
+        try:
+            _profile = profiles[profile]
+        except KeyError as exc:
+            raise KeyError(
+                f'Wrong markdown config profile "{profile}". Check name.'
+            ) from exc
+    elif issubclass(profile, MarkdownProfile):
+        _profile = profile
+    else:
+        raise TypeError(
+            'Wrong type - profile has to be either str or a subclass of MarkdownProfile'
+        )
 
     md = MarkdownIt(*_profile.args)
 
