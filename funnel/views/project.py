@@ -161,7 +161,7 @@ def feature_project_rsvp(obj: Project) -> bool:
     return (
         obj.state.PUBLISHED  # type: ignore[unreachable]
         and obj.allow_rsvp is True
-        and (obj.start_at is None or not obj.state.PAST)
+        and (obj.start_at is None or not obj.state.PAST)  # type: ignore[unreachable]
     )
 
 
@@ -507,7 +507,7 @@ class ProjectView(  # type: ignore[misc]
             obj=SimpleNamespace(
                 org=boxoffice_data.get('org', ''),
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
-                allow_rsvp = self.obj.allow_rsvp
+                allow_rsvp=self.obj.allow_rsvp,
             ),
             model=Project,
         )
