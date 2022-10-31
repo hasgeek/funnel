@@ -50,7 +50,7 @@ describe('Test updates feature', () => {
     cy.get('[data-cy="notification-box"]').contains(project.update_title);
     cy.logout();
 
-    cy.login('/', newuser.username, newuser.newpassword);
+    cy.login('/', newuser.username, newuser.password);
     cy.get('.upcoming')
       .find('.card--upcoming')
       .contains(project.title)
