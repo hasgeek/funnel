@@ -177,11 +177,6 @@ const Form = {
     };
     Form.activateToggleSwitch(onSuccess);
   },
-  fromCodemirrorToTextArea(markdownId, formId, view) {
-    $(`#${formId}`).on('submit', () => {
-      $(`#${markdownId}`).val(view.state.doc.toString());
-    });
-  },
 };
 
 export default Form;

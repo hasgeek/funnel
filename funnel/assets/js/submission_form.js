@@ -109,6 +109,7 @@ $(() => {
       $('.js-label-heading').addClass('mui--text-danger');
     });
 
+    // Move this functionality to formhelper.js during to full migration to codemirror 6
     const markdownId = $(`#${formId}`).find('textarea.markdown').attr('id');
     const extensions = [
       closeBrackets(),
@@ -123,6 +124,7 @@ $(() => {
       extensions,
       dispatch: (tr) => {
         view.update([tr]);
+        $(`#${markdownId}`).val(view.state.doc.toString());
         if (textareaWaitTimer) clearTimeout(textareaWaitTimer);
         textareaWaitTimer = setTimeout(() => {
           updatePreview(view);
@@ -130,7 +132,6 @@ $(() => {
       },
     });
     document.querySelector(`#${markdownId}`).parentNode.append(view.dom);
-    Form.fromCodemirrorToTextArea(markdownId, formId, view);
 
     $('#title')
       .keypress((event) => {
