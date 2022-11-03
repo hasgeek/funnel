@@ -33,17 +33,17 @@ default_markdown_extensions: List[str] = ['footnote', 'heading_anchors', 'taskli
 
 
 @overload
-def markdown(text: None, profile: Optional[Union[str, Type[MarkdownProfile]]]) -> None:
+def markdown(text: None, profile: Union[str, Type[MarkdownProfile]]) -> None:
     ...
 
 
 @overload
-def markdown(text: str, profile: Optional[Union[str, Type[MarkdownProfile]]]) -> Markup:
+def markdown(text: str, profile: Union[str, Type[MarkdownProfile]]) -> Markup:
     ...
 
 
 def markdown(
-    text: Optional[str], profile: Optional[Union[str, Type[MarkdownProfile]]]
+    text: Optional[str], profile: Union[str, Type[MarkdownProfile]]
 ) -> Optional[Markup]:
     """
     Markdown parser compliant with Commonmark+GFM using markdown-it-py.
@@ -56,7 +56,7 @@ def markdown(
     # Replace invisible characters with spaces
     text = normalize_spaces_multiline(text)
 
-    if profile is None or isinstance(profile, str):
+    if isinstance(profile, str):
         try:
             _profile = profiles[profile]
         except KeyError as exc:
@@ -70,6 +70,7 @@ def markdown(
             'Wrong type - profile has to be either str or a subclass of MarkdownProfile'
         )
 
+    # TODO: Move MarkdownIt instance generation to profile class method
     md = MarkdownIt(*_profile.args)
 
     if md.linkify is not None:

@@ -1,9 +1,13 @@
 """Tests for markdown parser."""
 
+from copy import copy
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Type, Union
 import warnings
 
+from bs4 import BeautifulSoup
+from markupsafe import Markup
 import pytest
 import tomlkit
 
@@ -11,7 +15,6 @@ from funnel.utils.markdown import markdown
 from funnel.utils.markdown.profiles import MarkdownProfile, profiles
 
 DATAROOT: Path = Path('tests/data/markdown')
-DEBUG = False
 
 
 class MarkdownCase:
@@ -121,7 +124,7 @@ class MarkdownTestRegistry:
                 (DATAROOT / test_id).write_text(tomlkit.dumps(data))
 
     @classmethod
-    def dataset(cls) -> List[MarkdownCase]:
+    def test_cases(cls) -> List[MarkdownCase]:
         cls.load()
         return (
             [case for tests in cls.test_map.values() for case in tests.values()]
@@ -130,24 +133,71 @@ class MarkdownTestRegistry:
         )
 
     @classmethod
-    def update_output(cls) -> None:
+    def update_expected_output(cls) -> None:
         cls.load()
         cls.dump()
+
+    @classmethod
+    def update_debug_output(cls) -> None:
+        cls.load()
+        template = BeautifulSoup(
+            (DATAROOT / 'template.html').read_text(), 'html.parser'
+        )
+        case_template = template.find(id='output_template')
+        for case in cls.test_cases():
+            op = copy(case_template)
+            del op['id']
+            op.select('.filename')[0].string = case.test_id
+            op.select('.profile')[0].string = str(case.profile_id)
+            op.select('.config')[0].string = ''
+            op.select('.markdown .output')[0].append(case.markdown)
+            op.select('.expected .output')[0].append(
+                BeautifulSoup(case.expected_output, 'html.parser')
+                if case.expected_output is not None
+                else 'Not generated'
+            )
+            op.select('.final_output .output')[0].append(
+                BeautifulSoup(case.output, 'html.parser')
+            )
+            op['class'] = op.get('class', []) + [
+                'success' if case.expected_output == case.output else 'failed'
+            ]
+            template.find('body').append(op)
+        template.find(id='generated').string = datetime.now().strftime(
+            '%d %B, %Y %H:%M:%S'
+        )
+        (DATAROOT / 'output.html').write_text(template.prettify())
+
+
+def test_markdown_none() -> None:
+    assert markdown(None, 'basic') is None
+    assert markdown(None, 'document') is None
+    assert markdown(None, 'text-field') is None
+    assert markdown(None, MarkdownProfile) is None
+
+
+def test_markdown_blank() -> None:
+    blank_response = Markup('')
+    assert markdown('', 'basic') == blank_response
+    assert markdown('', 'document') == blank_response
+    assert markdown('', 'text-field') == blank_response
+    assert markdown('', MarkdownProfile) == blank_response
 
 
 @pytest.mark.parametrize(
     'case',
-    MarkdownTestRegistry.dataset(),
+    MarkdownTestRegistry.test_cases(),
 )
-def test_markdown_cases(case: MarkdownCase, unified_diff_output) -> None:
+# def test_markdown_cases(case: MarkdownCase, unified_diff_output) -> None:
+def test_markdown_cases(case: MarkdownCase) -> None:
     if case.expected_output is None:
         warnings.warn(f'Expected output not generated for {case}')
         pytest.skip(f'Expected output not generated for {case}')
 
-    if DEBUG:
-        unified_diff_output(case.expected_output, case.output)
-    else:
-        assert case.expected_output == case.output
+    assert case.expected_output == case.output
+
+    # Debug function
+    # unified_diff_output(case.expected_output, case.output)
 
 
 @pytest.mark.update_markdown_data()
@@ -155,5 +205,12 @@ def test_markdown_update_output(pytestconfig):
     has_mark = pytestconfig.getoption('-m', default=None) == 'update_markdown_data'
     if not has_mark:
         pytest.skip('Skipping update of expected output of markdown test cases')
-    # update_markdown_tests_data(debug=False)
-    MarkdownTestRegistry.update_output()
+    MarkdownTestRegistry.update_expected_output()
+
+
+@pytest.mark.debug_markdown_output()
+def test_markdown_debug_output(pytestconfig):
+    has_mark = pytestconfig.getoption('-m', default=None) == 'debug_markdown_output'
+    if not has_mark:
+        pytest.skip('Skipping update of debug output file for markdown test cases')
+    MarkdownTestRegistry.update_debug_output()
