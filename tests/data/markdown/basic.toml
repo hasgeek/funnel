@@ -1,4 +1,3 @@
-[data]
 markdown = """
 ## Basic markup
 This is a sample paragraph that has **asterisk bold**, *asterisk emphasized*, __underscore bold__ and _underscore italic_ strings.

@@ -1,4 +1,3 @@
-[data]
 markdown = """
 ## Footnotes
 Here is some random text!
@@ -27,13 +26,8 @@ profiles = [ "basic", "document",]
 
 [config.custom_profiles.footnotes]
 args_config = "default"
+args_options = {html = false, linkify = true, typographer = true, breaks = true}
 plugins = ["footnote"]
-args = ["default", {html = false, linkify = true, typographer = true, breaks = true}]
-[config.custom_profiles.footnotes.args_options_update]
-html = false
-linkify = true
-typographer = true
-breaks = true
 
 [expected_output]
 basic = "<h2>Footnotes</h2>\n<p>Here is some random text!</p>\n<p>Footnote 1 link[^first].</p>\n<p>Footnote 2 link[^second].</p>\n<p>Inline footnote^[Text of inline footnote] definition.</p>\n<p>Duplicated footnote reference[^second].</p>\n<p>[^first]: Footnote <strong>can have markup</strong></p>\n<pre><code>and multiple paragraphs.\n</code></pre>\n<p>[^second]: Footnote text.</p>\n<hr />\n<p>This is some more random text to test whether the footnotes are placed after this text.</p>"
