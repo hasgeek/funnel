@@ -36,5 +36,105 @@ Start numbering with offset:
 profiles = [ "basic", "document",]
 
 [expected_output]
-basic = "<h2>Lists</h2>\n<h3>Unordered</h3>\n<ul>\n<li>Create a list by starting a line with <code>+</code>, <code>-</code>, or <code>*</code></li>\n<li>Sub-lists are made by indenting 2 spaces:\n<ul>\n<li>Marker character change forces new list start:\n<ul>\n<li>Ac tristique libero volutpat at</li>\n</ul>\n<ul>\n<li>Facilisis in pretium nisl aliquet</li>\n</ul>\n<ul>\n<li>Nulla volutpat aliquam velit</li>\n</ul>\n</li>\n</ul>\n</li>\n<li>Very easy!</li>\n</ul>\n<h3>Ordered</h3>\n<ol>\n<li>\n<p>Lorem ipsum dolor sit amet</p>\n</li>\n<li>\n<p>Consectetur adipiscing elit</p>\n</li>\n<li>\n<p>Integer molestie lorem at massa</p>\n</li>\n<li>\n<p>You can use sequential numbers...</p>\n</li>\n<li>\n<p>...or keep all the numbers as <code>1.</code></p>\n</li>\n</ol>\n<ol>\n<li>You can start a new list by switching between <code>)</code> and <code>.</code></li>\n<li>Skipping numbers does not have any effect.</li>\n</ol>\n<p>Start numbering with offset:</p>\n<ol start=\"57\">\n<li>foo</li>\n<li>bar</li>\n</ol>\n<hr />\n<p>2022. If you do not want to render a list, use <code>\\</code> to escape the <code>.</code></p>"
-document = "<h2 id=\"h:lists\">Lists <a class=\"header-anchor\" href=\"#h:lists\">¶</a></h2>\n<h3 id=\"h:unordered\">Unordered <a class=\"header-anchor\" href=\"#h:unordered\">¶</a></h3>\n<ul>\n<li>Create a list by starting a line with <code>+</code>, <code>-</code>, or <code>*</code></li>\n<li>Sub-lists are made by indenting 2 spaces:\n<ul>\n<li>Marker character change forces new list start:\n<ul>\n<li>Ac tristique libero volutpat at</li>\n</ul>\n<ul>\n<li>Facilisis in pretium nisl aliquet</li>\n</ul>\n<ul>\n<li>Nulla volutpat aliquam velit</li>\n</ul>\n</li>\n</ul>\n</li>\n<li>Very easy!</li>\n</ul>\n<h3 id=\"h:ordered\">Ordered <a class=\"header-anchor\" href=\"#h:ordered\">¶</a></h3>\n<ol>\n<li>\n<p>Lorem ipsum dolor sit amet</p>\n</li>\n<li>\n<p>Consectetur adipiscing elit</p>\n</li>\n<li>\n<p>Integer molestie lorem at massa</p>\n</li>\n<li>\n<p>You can use sequential numbers...</p>\n</li>\n<li>\n<p>...or keep all the numbers as <code>1.</code></p>\n</li>\n</ol>\n<ol>\n<li>You can start a new list by switching between <code>)</code> and <code>.</code></li>\n<li>Skipping numbers does not have any effect.</li>\n</ol>\n<p>Start numbering with offset:</p>\n<ol start=\"57\">\n<li>foo</li>\n<li>bar</li>\n</ol>\n<hr />\n<p>2022. If you do not want to render a list, use <code>\\</code> to escape the <code>.</code></p>"
+basic = """<h2>Lists</h2>
+<h3>Unordered</h3>
+<ul>
+<li>Create a list by starting a line with <code>+</code>, <code>-</code>, or <code>*</code></li>
+<li>Sub-lists are made by indenting 2 spaces:
+<ul>
+<li>Marker character change forces new list start:
+<ul>
+<li>Ac tristique libero volutpat at</li>
+</ul>
+<ul>
+<li>Facilisis in pretium nisl aliquet</li>
+</ul>
+<ul>
+<li>Nulla volutpat aliquam velit</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Very easy!</li>
+</ul>
+<h3>Ordered</h3>
+<ol>
+<li>
+<p>Lorem ipsum dolor sit amet</p>
+</li>
+<li>
+<p>Consectetur adipiscing elit</p>
+</li>
+<li>
+<p>Integer molestie lorem at massa</p>
+</li>
+<li>
+<p>You can use sequential numbers...</p>
+</li>
+<li>
+<p>...or keep all the numbers as <code>1.</code></p>
+</li>
+</ol>
+<ol>
+<li>You can start a new list by switching between <code>)</code> and <code>.</code></li>
+<li>Skipping numbers does not have any effect.</li>
+</ol>
+<p>Start numbering with offset:</p>
+<ol start="57">
+<li>foo</li>
+<li>bar</li>
+</ol>
+<hr />
+<p>2022. If you do not want to render a list, use <code>\\</code> to escape the <code>.</code></p>
+"""
+document = """<h2 id="h:lists">Lists <a class="header-anchor" href="#h:lists">¶</a></h2>
+<h3 id="h:unordered">Unordered <a class="header-anchor" href="#h:unordered">¶</a></h3>
+<ul>
+<li>Create a list by starting a line with <code>+</code>, <code>-</code>, or <code>*</code></li>
+<li>Sub-lists are made by indenting 2 spaces:
+<ul>
+<li>Marker character change forces new list start:
+<ul>
+<li>Ac tristique libero volutpat at</li>
+</ul>
+<ul>
+<li>Facilisis in pretium nisl aliquet</li>
+</ul>
+<ul>
+<li>Nulla volutpat aliquam velit</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Very easy!</li>
+</ul>
+<h3 id="h:ordered">Ordered <a class="header-anchor" href="#h:ordered">¶</a></h3>
+<ol>
+<li>
+<p>Lorem ipsum dolor sit amet</p>
+</li>
+<li>
+<p>Consectetur adipiscing elit</p>
+</li>
+<li>
+<p>Integer molestie lorem at massa</p>
+</li>
+<li>
+<p>You can use sequential numbers...</p>
+</li>
+<li>
+<p>...or keep all the numbers as <code>1.</code></p>
+</li>
+</ol>
+<ol>
+<li>You can start a new list by switching between <code>)</code> and <code>.</code></li>
+<li>Skipping numbers does not have any effect.</li>
+</ol>
+<p>Start numbering with offset:</p>
+<ol start="57">
+<li>foo</li>
+<li>bar</li>
+</ol>
+<hr />
+<p>2022. If you do not want to render a list, use <code>\\</code> to escape the <code>.</code></p>
+"""

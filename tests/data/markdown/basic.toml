@@ -78,5 +78,123 @@ ___
 profiles = [ "basic", "document",]
 
 [expected_output]
-basic = "<h2>Basic markup</h2>\n<p>This is a sample paragraph that has <strong>asterisk bold</strong>, <em>asterisk emphasized</em>, <strong>underscore bold</strong> and <em>underscore italic</em> strings.</p>\n<p>This is a <s>final</s>sample paragraph that has an <em><strong>asterisk bold italic</strong></em> string and an <em><strong>underscore bold italic</strong></em> string.<br />\nIt also has a newline break here!!!</p>\n<p>Here are examples of bold and emphasized text depending on the placement of underscores/asterisks:</p>\n<p>__Bold without closure does not work<br />\n**Bold without closure does not work<br />\n_Emphasis without closure does not work<br />\n*Emphasis without closure does not work</p>\n<p><strong>Bold without closure<br />\non the same line<br />\ncarries forward to<br />\n<s>this is text that should strike off</s><br />\nmultiple consecutive lines</strong></p>\n<p><strong>Bold without closure<br />\non the same line<br />\ncarries forward to<br />\nmultiple consecutive lines</strong></p>\n<p><em>Emphasis without closure<br />\non the same line<br />\ncarries forward to<br />\nmultiple consecutive lines</em></p>\n<p><em>Emphasis without closure<br />\non the same line<br />\ncarries forward to<br />\nmultiple consecutive lines</em></p>\n<h3>Horizontal Rules</h3>\n<hr />\n<p>Above is a horizontal rule using hyphens.<br />\n<s>This is text that should strike off</s></p>\n<hr />\n<p>Above is a horizontal rule using asterisks.<br />\nBelow is a horizontal rule using underscores.</p>\n<hr />\n<h2>Links</h2>\n<p>Here is a link to <a href=\"https://hasgeek.com\">hasgeek</a></p>\n<p><a href=\"https://github.com/hasgeek/funnel/\" title=\"Hasgeek\">Link to funnel with the title 'Hasgeek'</a></p>\n<p>Autoconverted link <a href=\"https://github.com/hasgeek\">https://github.com/hasgeek</a> (will autoconvert if linkify is on)</p>\n<hr />\n<h2>Markdown-it typography</h2>\n<p>The results of the below depend on the typographer options enabled by us in the <code>markdown-it-py</code> parser, if <code>typographer=True</code> has been passed to it.</p>\n<p><strong>The below should convert if <code>replacements</code> has been enabled.</strong></p>\n<p>(c) (C) (r) (R) (tm) (TM) (p) (P) +-<br />\ntest.. test... test..... test?..... test!....<br />\n!!!!!! ???? ,,  -- ---</p>\n<p><strong>The below should convert the quotes if <code>smartquotes</code> has been enabled.</strong></p>\n<p>&quot;Smartypants, double quotes&quot; and 'single quotes'</p>\n<hr />\n<h2>Blockquotes</h2>\n<blockquote>\n<p>Blockquotes can also be nested...</p>\n<blockquote>\n<p>...by using additional greater-than signs right next to each other...</p>\n<blockquote>\n<p>...or with spaces between arrows.</p>\n</blockquote>\n</blockquote>\n</blockquote>\n<hr />"
-document = "<h2 id=\"h:basic-markup\">Basic markup <a class=\"header-anchor\" href=\"#h:basic-markup\">¶</a></h2>\n<p>This is a sample paragraph that has <strong>asterisk bold</strong>, <em>asterisk emphasized</em>, <strong>underscore bold</strong> and <em>underscore italic</em> strings.</p>\n<p>This is a <s>final</s>sample paragraph that has an <em><strong>asterisk bold italic</strong></em> string and an <em><strong>underscore bold italic</strong></em> string.<br />\nIt also has a newline break here!!!</p>\n<p>Here are examples of bold and emphasized text depending on the placement of underscores/asterisks:</p>\n<p>__Bold without closure does not work<br />\n**Bold without closure does not work<br />\n_Emphasis without closure does not work<br />\n*Emphasis without closure does not work</p>\n<p><strong>Bold without closure<br />\non the same line<br />\ncarries forward to<br />\n<s>this is text that should strike off</s><br />\nmultiple consecutive lines</strong></p>\n<p><strong>Bold without closure<br />\non the same line<br />\ncarries forward to<br />\nmultiple consecutive lines</strong></p>\n<p><em>Emphasis without closure<br />\non the same line<br />\ncarries forward to<br />\nmultiple consecutive lines</em></p>\n<p><em>Emphasis without closure<br />\non the same line<br />\ncarries forward to<br />\nmultiple consecutive lines</em></p>\n<h3 id=\"h:horizontal-rules\">Horizontal Rules <a class=\"header-anchor\" href=\"#h:horizontal-rules\">¶</a></h3>\n<hr />\n<p>Above is a horizontal rule using hyphens.<br />\n<s>This is text that should strike off</s></p>\n<hr />\n<p>Above is a horizontal rule using asterisks.<br />\nBelow is a horizontal rule using underscores.</p>\n<hr />\n<h2 id=\"h:links\">Links <a class=\"header-anchor\" href=\"#h:links\">¶</a></h2>\n<p>Here is a link to <a href=\"https://hasgeek.com\">hasgeek</a></p>\n<p><a href=\"https://github.com/hasgeek/funnel/\" title=\"Hasgeek\">Link to funnel with the title 'Hasgeek'</a></p>\n<p>Autoconverted link <a href=\"https://github.com/hasgeek\">https://github.com/hasgeek</a> (will autoconvert if linkify is on)</p>\n<hr />\n<h2 id=\"h:markdown-it-typography\">Markdown-it typography <a class=\"header-anchor\" href=\"#h:markdown-it-typography\">¶</a></h2>\n<p>The results of the below depend on the typographer options enabled by us in the <code>markdown-it-py</code> parser, if <code>typographer=True</code> has been passed to it.</p>\n<p><strong>The below should convert if <code>replacements</code> has been enabled.</strong></p>\n<p>(c) (C) (r) (R) (tm) (TM) (p) (P) +-<br />\ntest.. test... test..... test?..... test!....<br />\n!!!!!! ???? ,,  -- ---</p>\n<p><strong>The below should convert the quotes if <code>smartquotes</code> has been enabled.</strong></p>\n<p>&quot;Smartypants, double quotes&quot; and 'single quotes'</p>\n<hr />\n<h2 id=\"h:blockquotes\">Blockquotes <a class=\"header-anchor\" href=\"#h:blockquotes\">¶</a></h2>\n<blockquote>\n<p>Blockquotes can also be nested...</p>\n<blockquote>\n<p>...by using additional greater-than signs right next to each other...</p>\n<blockquote>\n<p>...or with spaces between arrows.</p>\n</blockquote>\n</blockquote>\n</blockquote>\n<hr />"
+basic = """<h2>Basic markup</h2>
+<p>This is a sample paragraph that has <strong>asterisk bold</strong>, <em>asterisk emphasized</em>, <strong>underscore bold</strong> and <em>underscore italic</em> strings.</p>
+<p>This is a <s>final</s>sample paragraph that has an <em><strong>asterisk bold italic</strong></em> string and an <em><strong>underscore bold italic</strong></em> string.<br />
+It also has a newline break here!!!</p>
+<p>Here are examples of bold and emphasized text depending on the placement of underscores/asterisks:</p>
+<p>__Bold without closure does not work<br />
+**Bold without closure does not work<br />
+_Emphasis without closure does not work<br />
+*Emphasis without closure does not work</p>
+<p><strong>Bold without closure<br />
+on the same line<br />
+carries forward to<br />
+<s>this is text that should strike off</s><br />
+multiple consecutive lines</strong></p>
+<p><strong>Bold without closure<br />
+on the same line<br />
+carries forward to<br />
+multiple consecutive lines</strong></p>
+<p><em>Emphasis without closure<br />
+on the same line<br />
+carries forward to<br />
+multiple consecutive lines</em></p>
+<p><em>Emphasis without closure<br />
+on the same line<br />
+carries forward to<br />
+multiple consecutive lines</em></p>
+<h3>Horizontal Rules</h3>
+<hr />
+<p>Above is a horizontal rule using hyphens.<br />
+<s>This is text that should strike off</s></p>
+<hr />
+<p>Above is a horizontal rule using asterisks.<br />
+Below is a horizontal rule using underscores.</p>
+<hr />
+<h2>Links</h2>
+<p>Here is a link to <a href="https://hasgeek.com">hasgeek</a></p>
+<p><a href="https://github.com/hasgeek/funnel/" title="Hasgeek">Link to funnel with the title 'Hasgeek'</a></p>
+<p>Autoconverted link <a href="https://github.com/hasgeek">https://github.com/hasgeek</a> (will autoconvert if linkify is on)</p>
+<hr />
+<h2>Markdown-it typography</h2>
+<p>The results of the below depend on the typographer options enabled by us in the <code>markdown-it-py</code> parser, if <code>typographer=True</code> has been passed to it.</p>
+<p><strong>The below should convert if <code>replacements</code> has been enabled.</strong></p>
+<p>(c) (C) (r) (R) (tm) (TM) (p) (P) +-<br />
+test.. test... test..... test?..... test!....<br />
+!!!!!! ???? ,,  -- ---</p>
+<p><strong>The below should convert the quotes if <code>smartquotes</code> has been enabled.</strong></p>
+<p>&quot;Smartypants, double quotes&quot; and 'single quotes'</p>
+<hr />
+<h2>Blockquotes</h2>
+<blockquote>
+<p>Blockquotes can also be nested...</p>
+<blockquote>
+<p>...by using additional greater-than signs right next to each other...</p>
+<blockquote>
+<p>...or with spaces between arrows.</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<hr />
+"""
+document = """<h2 id="h:basic-markup">Basic markup <a class="header-anchor" href="#h:basic-markup">¶</a></h2>
+<p>This is a sample paragraph that has <strong>asterisk bold</strong>, <em>asterisk emphasized</em>, <strong>underscore bold</strong> and <em>underscore italic</em> strings.</p>
+<p>This is a <s>final</s>sample paragraph that has an <em><strong>asterisk bold italic</strong></em> string and an <em><strong>underscore bold italic</strong></em> string.<br />
+It also has a newline break here!!!</p>
+<p>Here are examples of bold and emphasized text depending on the placement of underscores/asterisks:</p>
+<p>__Bold without closure does not work<br />
+**Bold without closure does not work<br />
+_Emphasis without closure does not work<br />
+*Emphasis without closure does not work</p>
+<p><strong>Bold without closure<br />
+on the same line<br />
+carries forward to<br />
+<s>this is text that should strike off</s><br />
+multiple consecutive lines</strong></p>
+<p><strong>Bold without closure<br />
+on the same line<br />
+carries forward to<br />
+multiple consecutive lines</strong></p>
+<p><em>Emphasis without closure<br />
+on the same line<br />
+carries forward to<br />
+multiple consecutive lines</em></p>
+<p><em>Emphasis without closure<br />
+on the same line<br />
+carries forward to<br />
+multiple consecutive lines</em></p>
+<h3 id="h:horizontal-rules">Horizontal Rules <a class="header-anchor" href="#h:horizontal-rules">¶</a></h3>
+<hr />
+<p>Above is a horizontal rule using hyphens.<br />
+<s>This is text that should strike off</s></p>
+<hr />
+<p>Above is a horizontal rule using asterisks.<br />
+Below is a horizontal rule using underscores.</p>
+<hr />
+<h2 id="h:links">Links <a class="header-anchor" href="#h:links">¶</a></h2>
+<p>Here is a link to <a href="https://hasgeek.com">hasgeek</a></p>
+<p><a href="https://github.com/hasgeek/funnel/" title="Hasgeek">Link to funnel with the title 'Hasgeek'</a></p>
+<p>Autoconverted link <a href="https://github.com/hasgeek">https://github.com/hasgeek</a> (will autoconvert if linkify is on)</p>
+<hr />
+<h2 id="h:markdown-it-typography">Markdown-it typography <a class="header-anchor" href="#h:markdown-it-typography">¶</a></h2>
+<p>The results of the below depend on the typographer options enabled by us in the <code>markdown-it-py</code> parser, if <code>typographer=True</code> has been passed to it.</p>
+<p><strong>The below should convert if <code>replacements</code> has been enabled.</strong></p>
+<p>(c) (C) (r) (R) (tm) (TM) (p) (P) +-<br />
+test.. test... test..... test?..... test!....<br />
+!!!!!! ???? ,,  -- ---</p>
+<p><strong>The below should convert the quotes if <code>smartquotes</code> has been enabled.</strong></p>
+<p>&quot;Smartypants, double quotes&quot; and 'single quotes'</p>
+<hr />
+<h2 id="h:blockquotes">Blockquotes <a class="header-anchor" href="#h:blockquotes">¶</a></h2>
+<blockquote>
+<p>Blockquotes can also be nested...</p>
+<blockquote>
+<p>...by using additional greater-than signs right next to each other...</p>
+<blockquote>
+<p>...or with spaces between arrows.</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<hr />
+"""

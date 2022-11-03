@@ -24,5 +24,23 @@ With a reference later in the document defining the URL location.
 profiles = [ "basic", "document",]
 
 [expected_output]
-basic = "<h2>Images</h2>\n<p><img src=\"https://hasgeek.com/static/img/hg-logo.svg\" alt=\"Logo\" /><br />\n<img src=\"https://hasgeek.com/static/img/hg-logo.svg\" alt=\"Logo\" /> Images stay inline within the same block after a new line</p>\n<p><img src=\"https://images.hasgeek.com/embed/file/c36a88cf749040a186efc481d19e48ef?size=700\" alt=\"The past as a compass for the future\" title=\"Privacy Mode\" /></p>\n<p>Like links, images also have a footnote style syntax</p>\n<p><img src=\"https://hasgeek.com/static/img/peers.svg\" alt=\"Alt: Find your peers\" title=\"Title: Find your peers\" /><br />\n<img src=\"https://hasgeek.com/static/img/community.svg\" alt=\"Alt: Discover your community\" title=\"Title: Find your peers\" /><br />\n<img src=\"https://hasgeek.com/static/img/conversation.svg\" alt=\"Alt: Sustain the conversations\" title=\"Title: Sustain the conversations\" /></p>\n<p>With a reference later in the document defining the URL location.</p>"
-document = "<h2 id=\"h:images\">Images <a class=\"header-anchor\" href=\"#h:images\">¶</a></h2>\n<p><img src=\"https://hasgeek.com/static/img/hg-logo.svg\" alt=\"Logo\" /><br />\n<img src=\"https://hasgeek.com/static/img/hg-logo.svg\" alt=\"Logo\" /> Images stay inline within the same block after a new line</p>\n<p><img src=\"https://images.hasgeek.com/embed/file/c36a88cf749040a186efc481d19e48ef?size=700\" alt=\"The past as a compass for the future\" title=\"Privacy Mode\" /></p>\n<p>Like links, images also have a footnote style syntax</p>\n<p><img src=\"https://hasgeek.com/static/img/peers.svg\" alt=\"Alt: Find your peers\" title=\"Title: Find your peers\" /><br />\n<img src=\"https://hasgeek.com/static/img/community.svg\" alt=\"Alt: Discover your community\" title=\"Title: Find your peers\" /><br />\n<img src=\"https://hasgeek.com/static/img/conversation.svg\" alt=\"Alt: Sustain the conversations\" title=\"Title: Sustain the conversations\" /></p>\n<p>With a reference later in the document defining the URL location.</p>"
+basic = """<h2>Images</h2>
+<p><img src="https://hasgeek.com/static/img/hg-logo.svg" alt="Logo" /><br />
+<img src="https://hasgeek.com/static/img/hg-logo.svg" alt="Logo" /> Images stay inline within the same block after a new line</p>
+<p><img src="https://images.hasgeek.com/embed/file/c36a88cf749040a186efc481d19e48ef?size=700" alt="The past as a compass for the future" title="Privacy Mode" /></p>
+<p>Like links, images also have a footnote style syntax</p>
+<p><img src="https://hasgeek.com/static/img/peers.svg" alt="Alt: Find your peers" title="Title: Find your peers" /><br />
+<img src="https://hasgeek.com/static/img/community.svg" alt="Alt: Discover your community" title="Title: Find your peers" /><br />
+<img src="https://hasgeek.com/static/img/conversation.svg" alt="Alt: Sustain the conversations" title="Title: Sustain the conversations" /></p>
+<p>With a reference later in the document defining the URL location.</p>
+"""
+document = """<h2 id="h:images">Images <a class="header-anchor" href="#h:images">¶</a></h2>
+<p><img src="https://hasgeek.com/static/img/hg-logo.svg" alt="Logo" /><br />
+<img src="https://hasgeek.com/static/img/hg-logo.svg" alt="Logo" /> Images stay inline within the same block after a new line</p>
+<p><img src="https://images.hasgeek.com/embed/file/c36a88cf749040a186efc481d19e48ef?size=700" alt="The past as a compass for the future" title="Privacy Mode" /></p>
+<p>Like links, images also have a footnote style syntax</p>
+<p><img src="https://hasgeek.com/static/img/peers.svg" alt="Alt: Find your peers" title="Title: Find your peers" /><br />
+<img src="https://hasgeek.com/static/img/community.svg" alt="Alt: Discover your community" title="Title: Find your peers" /><br />
+<img src="https://hasgeek.com/static/img/conversation.svg" alt="Alt: Sustain the conversations" title="Title: Sustain the conversations" /></p>
+<p>With a reference later in the document defining the URL location.</p>
+"""

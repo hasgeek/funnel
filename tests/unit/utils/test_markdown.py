@@ -1,7 +1,7 @@
 """Tests for markdown parser."""
 
 from pathlib import Path
-from typing import Dict, List, Optional, Type
+from typing import Dict, List, Optional, Type, Union
 import warnings
 
 import pytest
@@ -11,7 +11,7 @@ from funnel.utils.markdown import markdown
 from funnel.utils.markdown.profiles import MarkdownProfile, profiles
 
 DATAROOT: Path = Path('tests/data/markdown')
-DEBUG = True
+DEBUG = False
 
 
 class MarkdownCase:
@@ -69,38 +69,37 @@ class MarkdownCase:
         return f'{self.test_id}-{self.profile_id}'
 
     @property
-    def markdown_profile(self):
+    def markdown_profile(self) -> Union[str, Type[MarkdownProfile]]:
         return self.profile if self.profile is not None else self.profile_id
 
     @property
-    def output(self):
-        return (
-            markdown(self.markdown, self.markdown_profile)
-            .__str__()
-            .lstrip('\n\r')
-            .rstrip(' \n\r')
-        )
+    def output(self) -> str:
+        return markdown(self.markdown, self.markdown_profile)
+
+    def update_expected_output(self) -> None:
+        self.expected_output = self.output
 
 
 class MarkdownTestRegistry:
     test_map: Optional[Dict[str, Dict[str, MarkdownCase]]] = None
+    test_files: Dict[str, tomlkit.TOMLDocument]
 
     @classmethod
-    def load(cls):
+    def load(cls) -> None:
         if cls.test_map is None:
             cls.test_map = {}
-            tests = {
+            cls.test_files = {
                 file.name: tomlkit.loads(file.read_text())
                 for file in DATAROOT.iterdir()
                 if file.suffix == '.toml'
             }
-            for test_id, test in tests.items():
-                config = test['config']
-                exp = test.get('expected_output', {})
+            for test_id, test_data in cls.test_files.items():
+                config = test_data['config']
+                exp = test_data.get('expected_output', {})
                 cls.test_map[test_id] = {
                     profile_id: MarkdownCase(
                         test_id,
-                        test['markdown'],
+                        test_data['markdown'],
                         profile_id,
                         profile=profile,
                         expected_output=exp.get(profile_id, None),
@@ -112,6 +111,16 @@ class MarkdownTestRegistry:
                 }
 
     @classmethod
+    def dump(cls) -> None:
+        if cls.test_map is not None:
+            for test_id, data in cls.test_files.items():
+                data['expected_output'] = {
+                    profile_id: tomlkit.api.string(case.output, multiline=True)
+                    for profile_id, case in cls.test_map[test_id].items()
+                }
+                (DATAROOT / test_id).write_text(tomlkit.dumps(data))
+
+    @classmethod
     def dataset(cls) -> List[MarkdownCase]:
         cls.load()
         return (
@@ -119,6 +128,11 @@ class MarkdownTestRegistry:
             if cls.test_map is not None
             else []
         )
+
+    @classmethod
+    def update_output(cls) -> None:
+        cls.load()
+        cls.dump()
 
 
 @pytest.mark.parametrize(
@@ -134,3 +148,12 @@ def test_markdown_cases(case: MarkdownCase, unified_diff_output) -> None:
         unified_diff_output(case.expected_output, case.output)
     else:
         assert case.expected_output == case.output
+
+
+@pytest.mark.update_markdown_data()
+def test_markdown_update_output(pytestconfig):
+    has_mark = pytestconfig.getoption('-m', default=None) == 'update_markdown_data'
+    if not has_mark:
+        pytest.skip('Skipping update of expected output of markdown test cases')
+    # update_markdown_tests_data(debug=False)
+    MarkdownTestRegistry.update_output()

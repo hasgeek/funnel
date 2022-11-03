@@ -26,10 +26,61 @@ profiles = [ "basic", "document",]
 
 [config.custom_profiles.footnotes]
 args_config = "default"
-args_options = {html = false, linkify = true, typographer = true, breaks = true}
 plugins = ["footnote"]
 
 [expected_output]
-basic = "<h2>Footnotes</h2>\n<p>Here is some random text!</p>\n<p>Footnote 1 link[^first].</p>\n<p>Footnote 2 link[^second].</p>\n<p>Inline footnote^[Text of inline footnote] definition.</p>\n<p>Duplicated footnote reference[^second].</p>\n<p>[^first]: Footnote <strong>can have markup</strong></p>\n<pre><code>and multiple paragraphs.\n</code></pre>\n<p>[^second]: Footnote text.</p>\n<hr />\n<p>This is some more random text to test whether the footnotes are placed after this text.</p>"
-document = "<h2 id=\"h:footnotes\">Footnotes <a class=\"header-anchor\" href=\"#h:footnotes\">¶</a></h2>\n<p>Here is some random text!</p>\n<p>Footnote 1 link<sup class=\"footnote-ref\"><a href=\"#fn1\" id=\"fnref1\">[1]</a></sup>.</p>\n<p>Footnote 2 link<sup class=\"footnote-ref\"><a href=\"#fn2\" id=\"fnref2\">[2]</a></sup>.</p>\n<p>Inline footnote<sup class=\"footnote-ref\"><a href=\"#fn3\" id=\"fnref3\">[3]</a></sup> definition.</p>\n<p>Duplicated footnote reference<sup class=\"footnote-ref\"><a href=\"#fn2\" id=\"fnref2:1\">[2:1]</a></sup>.</p>\n<hr />\n<p>This is some more random text to test whether the footnotes are placed after this text.</p>\n<hr class=\"footnotes-sep\" />\n<section class=\"footnotes\">\n<ol class=\"footnotes-list\">\n<li id=\"fn1\" class=\"footnote-item\"><p>Footnote <strong>can have markup</strong></p>\n<p>and multiple paragraphs. <a href=\"#fnref1\" class=\"footnote-backref\">↩︎</a></p>\n</li>\n<li id=\"fn2\" class=\"footnote-item\"><p>Footnote text. <a href=\"#fnref2\" class=\"footnote-backref\">↩︎</a> <a href=\"#fnref2:1\" class=\"footnote-backref\">↩︎</a></p>\n</li>\n<li id=\"fn3\" class=\"footnote-item\"><p>Text of inline footnote <a href=\"#fnref3\" class=\"footnote-backref\">↩︎</a></p>\n</li>\n</ol>\n</section>"
-footnotes = "<h2>Footnotes</h2>\n<p>Here is some random text!</p>\n<p>Footnote 1 link<sup class=\"footnote-ref\"><a href=\"#fn1\" id=\"fnref1\">[1]</a></sup>.</p>\n<p>Footnote 2 link<sup class=\"footnote-ref\"><a href=\"#fn2\" id=\"fnref2\">[2]</a></sup>.</p>\n<p>Inline footnote<sup class=\"footnote-ref\"><a href=\"#fn3\" id=\"fnref3\">[3]</a></sup> definition.</p>\n<p>Duplicated footnote reference<sup class=\"footnote-ref\"><a href=\"#fn2\" id=\"fnref2:1\">[2:1]</a></sup>.</p>\n<hr>\n<p>This is some more random text to test whether the footnotes are placed after this text.</p>\n<hr class=\"footnotes-sep\">\n<section class=\"footnotes\">\n<ol class=\"footnotes-list\">\n<li id=\"fn1\" class=\"footnote-item\"><p>Footnote <strong>can have markup</strong></p>\n<p>and multiple paragraphs. <a href=\"#fnref1\" class=\"footnote-backref\">↩︎</a></p>\n</li>\n<li id=\"fn2\" class=\"footnote-item\"><p>Footnote text. <a href=\"#fnref2\" class=\"footnote-backref\">↩︎</a> <a href=\"#fnref2:1\" class=\"footnote-backref\">↩︎</a></p>\n</li>\n<li id=\"fn3\" class=\"footnote-item\"><p>Text of inline footnote <a href=\"#fnref3\" class=\"footnote-backref\">↩︎</a></p>\n</li>\n</ol>\n</section>"
+basic = """<h2>Footnotes</h2>
+<p>Here is some random text!</p>
+<p>Footnote 1 link[^first].</p>
+<p>Footnote 2 link[^second].</p>
+<p>Inline footnote^[Text of inline footnote] definition.</p>
+<p>Duplicated footnote reference[^second].</p>
+<p>[^first]: Footnote <strong>can have markup</strong></p>
+<pre><code>and multiple paragraphs.
+</code></pre>
+<p>[^second]: Footnote text.</p>
+<hr />
+<p>This is some more random text to test whether the footnotes are placed after this text.</p>
+"""
+document = """<h2 id="h:footnotes">Footnotes <a class="header-anchor" href="#h:footnotes">¶</a></h2>
+<p>Here is some random text!</p>
+<p>Footnote 1 link<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>.</p>
+<p>Footnote 2 link<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>.</p>
+<p>Inline footnote<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> definition.</p>
+<p>Duplicated footnote reference<sup class="footnote-ref"><a href="#fn2" id="fnref2:1">[2:1]</a></sup>.</p>
+<hr />
+<p>This is some more random text to test whether the footnotes are placed after this text.</p>
+<hr class="footnotes-sep" />
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>Footnote <strong>can have markup</strong></p>
+<p>and multiple paragraphs. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p>Footnote text. <a href="#fnref2" class="footnote-backref">↩︎</a> <a href="#fnref2:1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p>Text of inline footnote <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+"""
+footnotes = """<h2>Footnotes</h2>
+<p>Here is some random text!</p>
+<p>Footnote 1 link<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>.</p>
+<p>Footnote 2 link<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>.</p>
+<p>Inline footnote<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> definition.</p>
+<p>Duplicated footnote reference<sup class="footnote-ref"><a href="#fn2" id="fnref2:1">[2:1]</a></sup>.</p>
+<hr>
+<p>This is some more random text to test whether the footnotes are placed after this text.</p>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>Footnote <strong>can have markup</strong></p>
+<p>and multiple paragraphs. <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p>Footnote text. <a href="#fnref2" class="footnote-backref">↩︎</a> <a href="#fnref2:1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p>Text of inline footnote <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+"""
