@@ -36,19 +36,13 @@
       <div class="submission-header">
         <div class="mui-container">
           <div class="grid flex-wrapper--center">
-            <div class="grid__col-sm-6 submission-header__column">
-              <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between">
-                <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Markdown{% endtrans %}</p>
-              </div>
-            </div>
-            <div class="grid__col-sm-6">
+            <div class="grid__col-sm-12">
               <div class="flex-wrapper submission-header__submit">
                 <div class="mui--visible-xs-block mui--visible-sm-block submission-header__submit__btn">
                   <a class="mui-btn js-switch-panel js-toggle-panel link" data-cy="preview">{% trans %}Preview{% endtrans %}</a>
                   <a class="mui-btn js-switch-panel js-toggle-panel mui--hide link" data-cy="edit">{% trans %}Edit{% endtrans %}</a>
                   <button type="submit" name="submit" class="mui-btn" data-cy="submit">{% trans %}Submit{% endtrans %}</button>
                 </div>
-                <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Preview{% endtrans %}</p>
                 <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin mui--hidden-xs mui--hidden-sm" data-cy="form-submit-btn">{% trans %}Submit{% endtrans %}</button>
                 <span class="loading mui--hide"></span>
               </div>
@@ -58,18 +52,19 @@
       </div>
       <div class="mui-container">
         <div class="grid">
-          <div class="grid__col-sm-6 proposal-markdown" id="markdown">
+          <div class="grid__col-sm-12">
             {{ renderfield(form.title, css_class="mui-form__fields--noborder", nolabel=true, placeholder="Title") }}
             <div class="submission-header__edit-icons">
-              <div class="bottom-padding">
+              <div class="bottom-padding submission-label">
                 {%- if form.formlabels %}
-                  <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add labels to submission{% endtrans %}" data-ga="Add label to submission video" data-cy="add-label">{{ faicon(icon='tag-solid', icon_size='body2', baseline=false, css_class="mui--text-light fa-icon--right-margin") }}<span class="mui--text-bold js-label-heading">{% trans %}Labels{% endtrans %}</span><span class="mui--pull-right">{% trans %}Select a relevant label{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--left-margin") }}</span>{%- if form.formlabels.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class="label-error-icon mui--text-danger fa-icon--left-margin") }}{%- else %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class="label-error-icon mui--text-danger fa-icon--left-margin mui--hide") }}{%- endif %}</a>
+                  <a class="js-open-modal mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add labels to submission{% endtrans %}" data-ga="Add label to submission video" data-cy="add-label">{{ faicon(icon='tag-solid', icon_size='body2', baseline=false, css_class="mui--text-light fa-icon--right-margin") }}<span class="mui--text-bold js-label-heading">{% trans %}Labels{% endtrans %}</span><span class="mui--pull-right">{% trans %}Select a relevant label{% endtrans %}{{ faicon(icon='pen', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--left-margin") }}</span></a>
                   <div class="js-modal-field mui--hide">
                     <div class="js-field top-padding">
                       {{ renderfield(form.formlabels, css_class="label-select-fields top-padding active") }}
-                      <a href="#close" class="mui-btn mui-btn--raised mui-btn--primary" rel="modal:close" data-cy="save">Done</a>
+                      <a href="#close" class="mui-btn mui-btn--raised mui-btn--primary" rel="modal:close" data-cy="save">{% trans %}Done{% endtrans %}</a>
                     </div>
                   </div>
+                  <p class="mui-form__error mui-form__error--left label-error js-error-label {%- if not form.formlabels.errors %} mui--hide{%- endif %}">{% trans %}This value is required{% endtrans %}</p>
                 {%- endif %}
               </div>
               <div class="bottom-padding">
@@ -100,10 +95,14 @@
                 </div>
               {%- endif %}
             </div>
+          </div>
+          <div class="grid__col-sm-6 proposal-markdown" id="markdown">
+            <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Markdown{% endtrans %}</p>
             {{ renderfield(form.body, css_class="mui-form__fields--noborder markdown-field", nolabel=true, placeholder="Content") }}
           </div>
-          <div class="grid__col-sm-6 proposal-preview js-proposal-preview close markdown" id="preview">
-            {{ proposal.body }}
+          <div class="grid__col-sm-6">
+            <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Preview{% endtrans %}</p>
+            <div class="proposal-preview js-proposal-preview close markdown" id="preview">{{ proposal.body }}</div>
           </div>
         </div>
       </div>

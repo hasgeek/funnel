@@ -62,7 +62,7 @@ $(() => {
       const field = $(this).next('.js-modal-field');
       $(this).addClass('active-form-field');
       event.preventDefault();
-      $('body').append('<div class="js-modal"></div>');
+      $('body').append('<div class="js-modal mui-form"></div>');
       $('.modal-form').append($(field).find('.js-field').detach());
       $('.js-modal').append($('.modal-form').detach());
       $('.js-modal').modal();
@@ -104,14 +104,33 @@ $(() => {
     });
 
     $.listen('parsley:field:error', (fieldInstance) => {
-      if (fieldInstance.$element.data('parsley-multiple'))
-        $('.label-error-icon').removeClass('mui--hide');
-      $('.js-label-heading').addClass('mui--text-danger');
+      if (
+        fieldInstance.$element
+          .parents('.mui-form__fields')
+          .hasClass('label-select-fields')
+      ) {
+        fieldInstance.$element.parents('.mui-form__fields').addClass('has-error');
+        $('.js-error-label').removeClass('mui--hide');
+        $('.js-label-heading').addClass('mui--text-danger');
+      }
+    });
+
+    $.listen('parsley:field:success', (fieldInstance) => {
+      if (
+        fieldInstance.$element
+          .parents('.mui-form__fields')
+          .hasClass('label-select-fields') &&
+        fieldInstance.$element.parents('.mui-form__fields').hasClass('has-error')
+      ) {
+        $('.js-error-label').addClass('mui--hide');
+        $('.js-label-heading').removeClass('mui--text-danger');
+      }
     });
 
     // Move this functionality to formhelper.js during to full migration to codemirror 6
     const markdownId = $(`#${formId}`).find('textarea.markdown').attr('id');
     const extensions = [
+      EditorView.lineWrapping,
       closeBrackets(),
       history(),
       syntaxHighlighting(defaultHighlightStyle),

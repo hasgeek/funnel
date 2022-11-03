@@ -213,31 +213,9 @@
     {% if project.state.PUBLISHED %}
       <a class="add-calendar left-padding" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-ga="Add to calendar" data-cy="add-to-calendar" role="button" aria-haspopup="true">{{ faicon(icon='calendar-plus', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
     {% endif %}
-    {%- if project.current_roles.crew -%}
-      <div class="mui-dropdown left-padding">
-        <a href="#" onclick="return false;" data-mui-toggle="dropdown" data-ga="Project menu" data-cy="project-menu" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Menu{% endtrans %}">{{ faicon(icon='ellipsis-v', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
-        <ul class="mui-dropdown__menu mui-dropdown__menu--right dropdown-menu">
-          {%- if project.current_roles.crew -%}
-            {% if project.view_for('edit_slug').is_available() %}
-              <li><a class="mui--text-subhead" href="{{ project.url_for('edit_slug') }}">{{ faicon(icon='link', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Edit URL{% endtrans %}</span></a></li>
-            {% endif %}
-            {% if project.view_for('edit').is_available() %}
-              <li><a class="mui--text-subhead" href="{{ project.url_for('edit') }}" data-cy-admin="edit">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Edit description{% endtrans %}</span></a></li>
-            {% endif %}
-            <li><a class="mui--text-subhead" href="{{ project.url_for('settings') }}" data-cy-navbar="settings">{{ faicon(icon='cog', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Settings{% endtrans %}</span></a></li>
-            {% if project.view_for('labels').is_available() %}
-              <li><a class="mui--text-subhead" href="{{ project.url_for('labels') }}" data-cy-navbar="labels">{{ faicon(icon='tag', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Manage labels{% endtrans %}</span></a></li>
-            {% endif %}
-            {% if project.view_for('venues').is_available() %}
-              <li><a class="mui--text-subhead" href="{{ project.url_for('venues') }}" data-cy-navbar="edit-venue">{{ faicon(icon='map-marker-alt', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Update venue{% endtrans %}</span></a></li>
-            {% endif %}
-          {%- endif %}
-        </ul>
-      </div>
-    {% endif %}
     {% if current_auth.user.is_site_editor %}
       <div class="mui-dropdown left-padding">
-        <a href="#" onclick="return false;" data-mui-toggle="dropdown" data-ga="Site editor menu" data-cy="site-editor-menu" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Site editor menu{% endtrans %}">{{ faicon(icon='toolbox', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
+        <a href="#" onclick="return false;" data-mui-toggle="dropdown" data-ga="Site editor menu" data-cy="site-editor-menu" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Site editor menu{% endtrans %}">{{ faicon(icon='user-gear-duotone', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
         <ul class="mui-dropdown__menu mui-dropdown__menu--right dropdown-menu">
           <li class="js-dropdown-toggle">
             <div class="mui--text-body2 mui--clearfix">
@@ -261,6 +239,28 @@
         </ul>
       </div>
     {%- endif %}
+    {%- if project.current_roles.crew -%}
+      <div class="mui-dropdown left-padding">
+        <a href="#" onclick="return false;" data-mui-toggle="dropdown" data-ga="Project menu" data-cy="project-menu" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Menu{% endtrans %}">{{ faicon(icon='ellipsis-v', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
+        <ul class="mui-dropdown__menu mui-dropdown__menu--right dropdown-menu">
+          {%- if project.current_roles.crew -%}
+            {% if project.view_for('edit_slug').is_available() %}
+              <li><a class="mui--text-subhead" href="{{ project.url_for('edit_slug') }}">{{ faicon(icon='link', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Edit URL{% endtrans %}</span></a></li>
+            {% endif %}
+            {% if project.view_for('edit').is_available() %}
+              <li><a class="mui--text-subhead" href="{{ project.url_for('edit') }}" data-cy-admin="edit">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Edit description{% endtrans %}</span></a></li>
+            {% endif %}
+            <li><a class="mui--text-subhead" href="{{ project.url_for('settings') }}" data-cy-navbar="settings">{{ faicon(icon='cog', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Settings{% endtrans %}</span></a></li>
+            {% if project.view_for('labels').is_available() %}
+              <li><a class="mui--text-subhead" href="{{ project.url_for('labels') }}" data-cy-navbar="labels">{{ faicon(icon='tag', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Manage labels{% endtrans %}</span></a></li>
+            {% endif %}
+            {% if project.view_for('venues').is_available() %}
+              <li><a class="mui--text-subhead" href="{{ project.url_for('venues') }}" data-cy-navbar="edit-venue">{{ faicon(icon='map-marker-alt', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Update venue{% endtrans %}</span></a></li>
+            {% endif %}
+          {%- endif %}
+        </ul>
+      </div>
+    {% endif %}
   </div>
 {% endmacro %}
 

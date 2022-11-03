@@ -116,6 +116,13 @@
     left: 20px;
   }
 
+  .mui-form__error.mui-form__error--left:before {
+    border-right: 6px solid $mui-text-danger;
+      border-bottom: 6px solid transparent;
+    top: 10px;
+    left: -13px;
+  }
+
   .has-error .mui-textfield > input,
   .has-error .mui-textfield > textarea {
     border-bottom: 1px solid $mui-text-danger;
@@ -579,6 +586,14 @@ form.mui--bg-accent .cm-editor {
     height: auto;
     resize: none !important;
   }
+  .submission-label {
+    position: relative;
+    .label-error {
+      position: absolute;
+      left: 80px;
+      top: -15px;
+    }
+  }
   #field-body .cm-editor {
     min-height: calc(100vh - 110px);
   }
@@ -598,7 +613,8 @@ form.mui--bg-accent .cm-editor {
   .proposal-preview {
     position: fixed;
     top: 100vh;
-    right: 0;
+    left: $mui-grid-padding;
+    right: $mui-grid-padding;
     height: 100vh;
     left: auto;
     z-index: 999;
@@ -645,7 +661,6 @@ form.mui--bg-accent .cm-editor {
     }
     .proposal-preview {
       position: static;
-      padding-top: 133px;
       height: auto;
     }
   }
