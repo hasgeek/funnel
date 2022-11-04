@@ -71,7 +71,6 @@ class MarkdownProfileTextField(MarkdownProfile):
 
 
 profiles: Dict[Optional[str], Type[MarkdownProfile]] = {
-    None: MarkdownProfileDocument,
     'basic': MarkdownProfileBasic,
     'document': MarkdownProfileDocument,
     'text-field': MarkdownProfileTextField,
