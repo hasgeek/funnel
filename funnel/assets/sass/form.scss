@@ -569,7 +569,7 @@ form.mui--bg-accent .cm-editor {
       top: 2px;
       right: $mui-grid-padding;
       z-index: 1001;
-      .submission-header__submit__btn .mui-btn {
+      .submission-header__submit__btnwrapper .mui-btn {
         padding: 0 8px;
         background: none;
         color: $mui-text-hyperlink;
@@ -589,9 +589,10 @@ form.mui--bg-accent .cm-editor {
   .submission-label {
     position: relative;
     .label-error {
+      width: 155px;
       position: absolute;
       left: 80px;
-      top: -15px;
+      top: -14px;
     }
   }
   #field-body .cm-editor {
@@ -645,8 +646,9 @@ form.mui--bg-accent .cm-editor {
       z-index: 1000;
       .submission-header__submit {
         position: static;
-        align-items: center;
-        justify-content: space-between;
+        .submission-header__submit__btn {
+          margin-left: auto;
+        }
       }
       .submission-header__column {
         border-right: 1px solid $mui-divider-color;
@@ -654,6 +656,10 @@ form.mui--bg-accent .cm-editor {
     }
     #title {
       font-size: 20px;
+    }
+    .submission-header__edit-icons {
+      display: flex;
+      justify-content: space-between;
     }
     .proposal-markdown {
       border-right: 1px solid $mui-divider-color;
