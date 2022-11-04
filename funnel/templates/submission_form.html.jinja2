@@ -97,11 +97,11 @@
             </div>
           </div>
           <div class="grid__col-sm-6 proposal-markdown" id="markdown">
-            <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Markdown{% endtrans %}</p>
+            <p class="mui--text-body2 mui--text-light mui--text-uppercase top-padding zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Markdown{% endtrans %}</p>
             {{ renderfield(form.body, css_class="mui-form__fields--noborder markdown-field", nolabel=true, placeholder="Content") }}
           </div>
           <div class="grid__col-sm-6">
-            <p class="mui--text-body2 mui--text-light mui--text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Preview{% endtrans %}</p>
+            <p class="mui--text-body2 mui--text-light mui--text-uppercase top-padding zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Preview{% endtrans %}</p>
             <div class="proposal-preview js-proposal-preview close markdown" id="preview">{{ proposal.body }}</div>
           </div>
         </div>
