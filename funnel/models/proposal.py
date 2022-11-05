@@ -550,10 +550,10 @@ class __Project:
     # Whether the project has any featured proposals. Returns `None` instead of
     # a boolean if the project does not have any proposal.
     _has_featured_proposals = sa.orm.column_property(
-        db.exists()
+        sa.exists()
         .where(Proposal.project_id == Project.id)
         .where(Proposal.featured.is_(True))
-        .correlate_except(Proposal),
+        .correlate_except(Proposal),  # type: ignore[arg-type]
         deferred=True,
     )
 

@@ -377,13 +377,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     cfp_state.add_conditional_state(
         'HAS_PROPOSALS',
         cfp_state.ANY,
-        lambda project: db.session.query(project.proposals.exists()).scalar(),
+        lambda project: db.session.query(  # type: ignore[has-type]
+            project.proposals.exists()
+        ).scalar(),
         label=('has_proposals', __("Has submissions")),
     )
     cfp_state.add_conditional_state(
         'HAS_SESSIONS',
         cfp_state.ANY,
-        lambda project: db.session.query(project.sessions.exists()).scalar(),
+        lambda project: db.session.query(  # type: ignore[has-type]
+            project.sessions.exists()
+        ).scalar(),
         label=('has_sessions', __("Has sessions")),
     )
     cfp_state.add_conditional_state(

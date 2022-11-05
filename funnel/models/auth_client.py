@@ -487,7 +487,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __roles__ = {
         'owner': {
             'read': {'created_at', 'user'},
-            'granted_by': {'user'},
+            'granted_by': ['user'],
         }
     }
 

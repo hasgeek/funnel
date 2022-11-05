@@ -289,7 +289,7 @@ class __Project:
     # https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
     schedule_start_at = with_roles(
         sa.orm.column_property(
-            db.select([sa.func.min(Session.start_at)])
+            db.select([sa.func.min(Session.start_at)])  # type: ignore[has-type]
             .where(Session.start_at.isnot(None))
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
@@ -301,7 +301,7 @@ class __Project:
 
     next_session_at = with_roles(
         sa.orm.column_property(
-            db.select([sa.func.min(Session.start_at)])
+            db.select([sa.func.min(Session.start_at)])  # type: ignore[has-type]
             .where(Session.start_at.isnot(None))
             .where(Session.start_at >= sa.func.utcnow())
             .where(Session.project_id == Project.id)
@@ -313,7 +313,7 @@ class __Project:
 
     schedule_end_at = with_roles(
         sa.orm.column_property(
-            db.select([sa.func.max(Session.end_at)])
+            db.select([sa.func.max(Session.end_at)])  # type: ignore[has-type]
             .where(Session.end_at.isnot(None))
             .where(Session.project_id == Project.id)
             .correlate_except(Session)
