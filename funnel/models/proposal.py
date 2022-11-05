@@ -114,11 +114,15 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
 
 
 class Proposal(  # type: ignore[misc]
-    UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Model
+    UuidMixin,
+    BaseScopedIdNameMixin,
+    VideoMixin,
+    ReorderMixin,
+    db.Model,  # type: ignore[name-defined]
 ):
     __tablename__ = 'proposal'
 
-    user_id: sa.Column[int] = db.Column(None, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user = with_roles(
         sa.orm.relationship(
             User,
@@ -127,9 +131,7 @@ class Proposal(  # type: ignore[misc]
         ),
         grants={'creator', 'participant'},
     )
-    project_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('project.id'), nullable=False
-    )
+    project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
     project: sa.orm.relationship[Project] = with_roles(
         sa.orm.relationship(
             Project,
@@ -165,8 +167,8 @@ class Proposal(  # type: ignore[misc]
     )
     state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
 
-    commentset_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('commentset.id'), nullable=False
+    commentset_id = sa.Column(
+        sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset = sa.orm.relationship(
         Commentset,
@@ -483,14 +485,14 @@ class Proposal(  # type: ignore[misc]
 add_search_trigger(Proposal, 'search_vector')
 
 
-class ProposalSuuidRedirect(BaseMixin, db.Model):
+class ProposalSuuidRedirect(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Holds Proposal SUUIDs from before when they were deprecated."""
 
     __tablename__ = 'proposal_suuid_redirect'
 
     suuid = sa.Column(sa.Unicode(22), nullable=False, index=True)
-    proposal_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
+    proposal_id = sa.Column(
+        sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
     proposal = sa.orm.relationship(Proposal)
 

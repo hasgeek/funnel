@@ -120,9 +120,10 @@ addopts = [
   '--splinter-headless'
 ]
 markers = [
-  'requires_config("feature"): Run test only if specified app config is available',
+  'dbcommit: Test requires true database commits',
   'formdata(dict): HTTP form data for form fixture',
   'formuser("user"): User fixture for editing a form',
+  'requires_config("feature"): Run test only if specified app config is available',
   'update_markdown_data: Regenerate markdown test output (dev use only)'
 ]
 filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']

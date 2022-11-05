@@ -15,15 +15,15 @@ attrs==22.1.0
     #   trio
 beautifulsoup4==4.11.1
     # via -r requirements_test.in
-certifi==2022.9.14
+certifi==2022.9.24
     # via
     #   requests
     #   selenium
 charset-normalizer==2.1.1
     # via requests
-colorama==0.4.5
+colorama==0.4.6
     # via -r requirements_test.in
-coverage[toml]==6.4.4
+coverage[toml]==6.5.0
     # via
     #   -r requirements_test.in
     #   coveralls
@@ -32,9 +32,13 @@ coveralls==3.3.1
     # via -r requirements_test.in
 docopt==0.6.2
     # via coveralls
+exceptiongroup==1.0.0
+    # via
+    #   pytest
+    #   trio
 glob2==0.7
     # via pytest-bdd
-h11==0.13.0
+h11==0.14.0
     # via wsproto
 idna==3.4
     # via
@@ -44,7 +48,7 @@ iniconfig==1.1.1
     # via pytest
 lxml==4.9.1
     # via -r requirements_test.in
-mako==1.2.2
+mako==1.2.3
     # via pytest-bdd
 markupsafe==2.1.1
     # via mako
@@ -63,14 +67,12 @@ parse-type==0.6.0
 pluggy==1.0.0
     # via pytest
 py==1.11.0
-    # via
-    #   pytest
-    #   pytest-bdd
+    # via pytest-bdd
 pyparsing==3.0.9
     # via packaging
 pysocks==1.7.1
     # via urllib3
-pytest==7.1.3
+pytest==7.2.0
     # via
     #   -r requirements_test.in
     #   pytest-bdd
@@ -82,11 +84,11 @@ pytest==7.1.3
     #   pytest-splinter
 pytest-bdd==6.0.1
     # via -r requirements_test.in
-pytest-cov==3.0.0
+pytest-cov==4.0.0
     # via -r requirements_test.in
 pytest-dotenv==0.5.2
     # via -r requirements_test.in
-pytest-env==0.6.2
+pytest-env==0.8.1
     # via -r requirements_test.in
 pytest-remotedata==0.3.3
     # via -r requirements_test.in
@@ -102,7 +104,7 @@ requests==2.28.1
     #   requests-mock
 requests-mock==1.10.0
     # via -r requirements_test.in
-selenium==4.4.3
+selenium==4.5.0
     # via pytest-splinter
 six==1.16.0
     # via
@@ -120,9 +122,9 @@ tomli==2.0.1
     # via
     #   coverage
     #   pytest
-tomlkit==0.11.4
+tomlkit==0.11.6
     # via -r requirements_test.in
-trio==0.21.0
+trio==0.22.0
     # via
     #   selenium
     #   trio-websocket

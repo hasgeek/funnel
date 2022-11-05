@@ -173,7 +173,11 @@ class EnumerateMembershipsMixin:
 
 
 class User(
-    SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model
+    SharedProfileMixin,
+    EnumerateMembershipsMixin,
+    UuidMixin,
+    BaseMixin,
+    db.Model,  # type: ignore[name-defined]
 ):
     """User model."""
 
@@ -587,7 +591,7 @@ class User(
 
     @with_roles(call={'owner'})
     def transport_for(
-        self, transport: str, context: db.Model
+        self, transport: str, context: db.Model  # type: ignore[name-defined]
     ) -> Optional[Union[UserEmail, UserPhone]]:
         """
         Get transport address for a given transport and context.
@@ -617,7 +621,7 @@ class User(
         return None
 
     @property
-    def _self_is_owner_and_admin_of_self(self):
+    def _self_is_owner_and_admin_of_self(self) -> User:
         """
         Return self.
 
@@ -928,7 +932,7 @@ auto_init_default(User._state)  # pylint: disable=protected-access
 add_search_trigger(User, 'search_vector')
 
 
-class UserOldId(UuidMixin, BaseMixin, db.Model):
+class UserOldId(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     """Record of an older UUID for a user, after account merger."""
 
     __tablename__ = 'user_oldid'
@@ -941,7 +945,7 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):
         backref=sa.orm.backref('oldid', uselist=False),
     )
     #: User id of new user
-    user_id: sa.Column[int] = db.Column(None, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     #: New user account
     user = sa.orm.relationship(
         User, foreign_keys=[user_id], backref=sa.orm.backref('oldids', cascade='all')
@@ -1029,14 +1033,22 @@ removed_user = DuckTypeUser(__("[removed]"))
 
 team_membership = sa.Table(
     'team_membership',
-    db.Model.metadata,
-    db.Column(
-        'user_id', None, sa.ForeignKey('user.id'), nullable=False, primary_key=True
+    db.Model.metadata,  # type: ignore[has-type]
+    sa.Column(
+        'user_id',
+        sa.Integer,
+        sa.ForeignKey('user.id'),
+        nullable=False,
+        primary_key=True,
     ),
-    db.Column(
-        'team_id', None, sa.ForeignKey('team.id'), nullable=False, primary_key=True
+    sa.Column(
+        'team_id',
+        sa.Integer,
+        sa.ForeignKey('team.id'),
+        nullable=False,
+        primary_key=True,
     ),
-    db.Column(
+    sa.Column(
         'created_at',
         sa.TIMESTAMP(timezone=True),
         nullable=False,
@@ -1046,7 +1058,11 @@ team_membership = sa.Table(
 
 
 class Organization(
-    SharedProfileMixin, EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model
+    SharedProfileMixin,
+    EnumerateMembershipsMixin,
+    UuidMixin,
+    BaseMixin,
+    db.Model,  # type: ignore[name-defined]
 ):
     """An organization of one or more users with distinct roles."""
 
@@ -1264,7 +1280,7 @@ class Organization(
 add_search_trigger(Organization, 'search_vector')
 
 
-class Team(UuidMixin, BaseMixin, db.Model):
+class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     """A team of users within an organization."""
 
     __tablename__ = 'team'
@@ -1272,8 +1288,8 @@ class Team(UuidMixin, BaseMixin, db.Model):
     #: Displayed name
     title = sa.Column(sa.Unicode(__title_length__), nullable=False)
     #: Organization
-    organization_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('organization.id'), nullable=False
+    organization_id = sa.Column(
+        sa.Integer, sa.ForeignKey('organization.id'), nullable=False
     )
     organization = with_roles(
         sa.orm.relationship(
@@ -1331,7 +1347,7 @@ class Team(UuidMixin, BaseMixin, db.Model):
 # --- User email/phone and misc
 
 
-class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
+class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     """An email address linked to a user account."""
 
     __tablename__ = 'user_email'
@@ -1344,7 +1360,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
     email_address: Mapped[EmailAddress]
     email: Mapped[str]
 
-    user_id: sa.Column[int] = db.Column(None, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user = sa.orm.relationship(User, backref=sa.orm.backref('emails', cascade='all'))
 
     private = sa.Column(sa.Boolean, nullable=False, default=False)
@@ -1366,7 +1382,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
         """Represent :class:`UserEmail` as a string."""
         return f'<UserEmail {self.email} of {self.user!r}>'
 
-    def __str__(self) -> str:
+    def __str__(self) -> str:  # pylint: disable=invalid-str-returned
         """Email address as a string."""
         return self.email
 
@@ -1505,7 +1521,11 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):
         return [cls.__table__.name, user_email_primary_table.name]
 
 
-class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
+class UserEmailClaim(
+    EmailAddressMixin,
+    BaseMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     """Claimed but unverified email address for a user."""
 
     __tablename__ = 'user_email_claim'
@@ -1518,7 +1538,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
     email_address: Mapped[EmailAddress]
     email: Mapped[str]
 
-    user_id: sa.Column[int] = db.Column(None, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user = sa.orm.relationship(
         User, backref=sa.orm.backref('emailclaims', cascade='all')
     )
@@ -1548,7 +1568,7 @@ class UserEmailClaim(EmailAddressMixin, BaseMixin, db.Model):
         """Represent :class:`UserEmailClaim` as a string."""
         return f'<UserEmailClaim {self.email} of {self.user!r}>'
 
-    def __str__(self):
+    def __str__(self):  # pylint: disable=invalid-str-returned
         """Return email as a string."""
         return self.email
 
@@ -1705,11 +1725,11 @@ class PhoneHashMixin:
         return base58.b58encode(self.blake2b160).decode()
 
 
-class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
+class UserPhone(PhoneHashMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     """A phone number linked to a user account."""
 
     __tablename__ = 'user_phone'
-    user_id: sa.Column[int] = db.Column(None, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user = sa.orm.relationship(User, backref=sa.orm.backref('phones', cascade='all'))
     _phone = sa.Column('phone', sa.UnicodeText, unique=True, nullable=False)
     gets_text = sa.Column(sa.Boolean, nullable=False, default=True)
@@ -1798,13 +1818,13 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):
         return [cls.__table__.name, user_phone_primary_table.name]
 
 
-class UserExternalId(BaseMixin, db.Model):
+class UserExternalId(BaseMixin, db.Model):  # type: ignore[name-defined]
     """An external connected account for a user."""
 
     __tablename__ = 'user_externalid'
     __at_username_services__: List[str] = []
     #: Foreign key to user table
-    user_id: sa.Column[int] = db.Column(None, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     #: User that this connected account belongs to
     user = sa.orm.relationship(
         User, backref=sa.orm.backref('externalids', cascade='all')

@@ -67,19 +67,17 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
 # --- Models ------------------------------------------------------------------
 
 
-class Project(UuidMixin, BaseScopedNameMixin, db.Model):
+class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'project'
     reserved_names = RESERVED_NAMES
 
-    user_id: sa.Column[int] = db.Column(None, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user = sa.orm.relationship(
         User,
         primaryjoin=user_id == User.id,
         backref=sa.orm.backref('projects', cascade='all'),
     )
-    profile_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('profile.id'), nullable=False
-    )
+    profile_id = sa.Column(sa.Integer, sa.ForeignKey('profile.id'), nullable=False)
     profile: sa.orm.relationship[Profile] = with_roles(
         sa.orm.relationship(
             Profile, backref=sa.orm.backref('projects', cascade='all', lazy='dynamic')
@@ -211,8 +209,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     hasjob_embed_url = with_roles(sa.Column(UrlType, nullable=True), read={'all'})
     hasjob_embed_limit = with_roles(sa.Column(sa.Integer, default=8), read={'all'})
 
-    commentset_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('commentset.id'), nullable=False
+    commentset_id = sa.Column(
+        sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset = sa.orm.relationship(
         Commentset,
@@ -222,8 +220,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         back_populates='project',
     )
 
-    parent_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
+    parent_id = sa.Column(
+        sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
     parent_project: Mapped[Optional[Project]] = sa.orm.relationship(
         'Project', remote_side='Project.id', backref='subprojects'
@@ -788,11 +786,11 @@ class __Profile:
         )
 
 
-class ProjectRedirect(TimestampMixin, db.Model):
+class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'project_redirect'
 
-    profile_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('profile.id'), nullable=False, primary_key=True
+    profile_id = sa.Column(
+        sa.Integer, sa.ForeignKey('profile.id'), nullable=False, primary_key=True
     )
     profile = sa.orm.relationship(
         Profile, backref=sa.orm.backref('project_redirects', cascade='all')
@@ -800,8 +798,8 @@ class ProjectRedirect(TimestampMixin, db.Model):
     parent = sa.orm.synonym('profile')
     name = sa.Column(sa.Unicode(250), nullable=False, primary_key=True)
 
-    project_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
+    project_id = sa.Column(
+        sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
     project = sa.orm.relationship(Project, backref='redirects')
 
@@ -864,11 +862,11 @@ class ProjectRedirect(TimestampMixin, db.Model):
                 db.session.delete(pr)
 
 
-class ProjectLocation(TimestampMixin, db.Model):
+class ProjectLocation(TimestampMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'project_location'
     #: Project we are tagging
-    project_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('project.id'), primary_key=True, nullable=False
+    project_id = sa.Column(
+        sa.Integer, sa.ForeignKey('project.id'), primary_key=True, nullable=False
     )
     project = sa.orm.relationship(
         Project, backref=sa.orm.backref('locations', cascade='all')

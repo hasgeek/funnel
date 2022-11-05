@@ -39,7 +39,7 @@ repos:
             '--remove-duplicate-keys',
           ]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.1.0
+    rev: v3.2.0
     hooks:
       - id: pyupgrade
         args:
@@ -86,6 +86,7 @@ repos:
           - sqlalchemy-stubs
           - toml
           - types-all
+          - flask-sqlalchemy
           - typing-extensions
   - repo: https://github.com/PyCQA/flake8
     rev: 5.0.4
@@ -147,13 +148,13 @@ repos:
       - id: trailing-whitespace
         args: ['--markdown-linebreak-ext=md']
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.3
+    rev: v3.0.0-alpha.4
     hooks:
       - id: prettier
         args: ['--single-quote', '--trailing-comma', 'es5']
         exclude: funnel/templates/js/
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.19.2
+    rev: v1.19.3
     hooks:
       - id: djlint-jinja
         files: \.html\.(jinja2|j2)$

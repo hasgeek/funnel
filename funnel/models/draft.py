@@ -9,7 +9,7 @@ from . import JsonDict, NoIdMixin, UUIDType, db, sa
 __all__ = ['Draft']
 
 
-class Draft(NoIdMixin, db.Model):
+class Draft(NoIdMixin, db.Model):  # type: ignore[name-defined]
     """Store for autosaved, unvalidated drafts on behalf of other models."""
 
     __tablename__ = 'draft'

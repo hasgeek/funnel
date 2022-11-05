@@ -1,9 +1,12 @@
 """Test Label views."""
 # pylint: disable=too-many-arguments
 
+import pytest
+
 from funnel import models
 
 
+@pytest.mark.dbcommit()
 def test_manage_labels_view(
     app, client, login, new_project, new_user, new_label, new_main_label
 ) -> None:
@@ -15,6 +18,7 @@ def test_manage_labels_view(
     assert new_main_label.title in resp.data.decode('utf-8')
 
 
+@pytest.mark.dbcommit()
 def test_edit_option_label_view(app, client, login, new_user, new_main_label) -> None:
     login.as_(new_user)
     opt_label = new_main_label.options[0]
@@ -29,6 +33,7 @@ def test_edit_option_label_view(app, client, login, new_user, new_main_label) ->
 # tests in those classes.
 
 
+@pytest.mark.dbcommit()
 def test_main_label_delete(app, client, login, new_user, new_label) -> None:
     login.as_(new_user)
     with app.app_context():
@@ -39,6 +44,7 @@ def test_main_label_delete(app, client, login, new_user, new_label) -> None:
     assert label is None
 
 
+@pytest.mark.dbcommit()
 def test_optioned_label_delete(app, client, login, new_user, new_main_label) -> None:
     login.as_(new_user)
     label_a1 = new_main_label.options[0]

@@ -113,7 +113,6 @@ app.login_manager = views.login_session.LoginManager()
 
 db.init_app(app)
 db.init_app(shortlinkapp)
-db.app = app
 
 migrate = Migrate(app, db)
 
