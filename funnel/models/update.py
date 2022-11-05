@@ -278,9 +278,11 @@ class Update(
             self.published_at = sa.func.utcnow()
         if self.number is None:
             self.number = (
-                db.select([sa.func.coalesce(sa.func.max(Update.number), 0) + 1])
+                sa.select(  # type: ignore[attr-defined]
+                    [sa.func.coalesce(sa.func.max(Update.number), 0) + 1]
+                )
                 .where(Update.project == self.project)
-                .scalar_subquery()
+                .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
             )
         return first_publishing
 

@@ -166,17 +166,21 @@ class Profile(
                 [
                     (
                         user_id.isnot(None),  # ← when, ↙ then
-                        db.select(User.state.ACTIVE)  # type: ignore[has-type]
+                        sa.select(  # type: ignore[attr-defined]
+                            User.state.ACTIVE  # type: ignore[has-type]
+                        )
                         .where(User.id == user_id)
-                        .correlate_except(User)
-                        .scalar_subquery(),
+                        .correlate_except(User)  # type: ignore[arg-type]
+                        .scalar_subquery(),  # sqlalchemy-stubs doesn't know of this
                     ),
                     (
                         organization_id.isnot(None),  # ← when, ↙ then
-                        db.select(Organization.state.ACTIVE)  # type: ignore[has-type]
+                        sa.select(  # type: ignore[attr-defined]
+                            Organization.state.ACTIVE  # type: ignore[has-type]
+                        )
                         .where(Organization.id == organization_id)
-                        .correlate_except(Organization)
-                        .scalar_subquery(),
+                        .correlate_except(Organization)  # type: ignore[arg-type]
+                        .scalar_subquery(),  # sqlalchemy-stubs doesn't know of this
                     ),
                 ],
                 else_=expression.false(),

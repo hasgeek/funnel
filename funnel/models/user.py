@@ -9,7 +9,6 @@ import hashlib
 import itertools
 
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.sql.expression import Select
 
 from werkzeug.utils import cached_property
 
@@ -1163,12 +1162,14 @@ class Organization(
             )
 
     @name.expression
-    def name(cls) -> Select:  # noqa: N805  # pylint: disable=no-self-argument
+    def name(  # pylint: disable=no-self-argument
+        cls,  # noqa: N805
+    ) -> sa.sql.expression.Select:
         """Return @name from linked profile as a SQL expression."""
-        return (
-            db.select([Profile.name])
+        return (  # type: ignore[return-value]
+            sa.select([Profile.name])
             .where(Profile.organization_id == cls.id)
-            .label('name')
+            .label('name'),
         )
 
     with_roles(name, read={'all'})

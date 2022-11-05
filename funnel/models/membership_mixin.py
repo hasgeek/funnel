@@ -625,9 +625,11 @@ class ReorderMembershipMixin(ReorderMixin):
         # Assign a default value to `seq`
         if self.seq is None:
             self.seq = (
-                db.select([sa.func.coalesce(sa.func.max(self.__class__.seq) + 1, 1)])
+                sa.select(  # type: ignore[attr-defined]
+                    [sa.func.coalesce(sa.func.max(self.__class__.seq) + 1, 1)]
+                )
                 .where(self.parent_scoped_reorder_query_filter)
-                .scalar_subquery()
+                .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
             )
 
     @property
