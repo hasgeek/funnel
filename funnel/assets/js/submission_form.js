@@ -1,4 +1,4 @@
-import { EditorView, keymap } from '@codemirror/view';
+import { EditorView, placeholder, keymap } from '@codemirror/view';
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
 import { html } from '@codemirror/lang-html';
 import { closeBrackets } from '@codemirror/autocomplete';
@@ -131,6 +131,7 @@ $(() => {
     const markdownId = $(`#${formId}`).find('textarea.markdown').attr('id');
     const extensions = [
       EditorView.lineWrapping,
+      placeholder('Content'),
       closeBrackets(),
       history(),
       syntaxHighlighting(defaultHighlightStyle),

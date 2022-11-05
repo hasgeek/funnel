@@ -136,6 +136,12 @@
   .alert {
     margin-bottom: $mui-grid-padding;
   }
+
+  .cm-editor .cm-placeholder {
+    color: $mui-text-accent;
+    @include mui-text('subhead');
+    font-family: $mui-base-font-family;
+  }
 }
 
 .mui-form {
