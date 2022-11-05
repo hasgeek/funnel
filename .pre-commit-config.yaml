@@ -86,7 +86,6 @@ repos:
           - sqlalchemy-stubs
           - toml
           - types-all
-          - flask-sqlalchemy
           - typing-extensions
   - repo: https://github.com/PyCQA/flake8
     rev: 5.0.4

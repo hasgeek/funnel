@@ -164,6 +164,10 @@ module = ['tests']
 check_untyped_defs = true
 warn_unreachable = false
 
+[[tool.mypy.overrides]]
+module = ['flask_sqlalchemy']
+follow_imports = 'skip'
+
 [tool.pylint.master]
 load-plugins = ['pylint_pytest', 'pylint_flask_sqlalchemy']
 max-parents = 10
