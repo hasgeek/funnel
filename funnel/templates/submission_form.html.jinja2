@@ -22,32 +22,6 @@
   </div>
 {% endblock baseheadline %}
 
-{%- macro collaborators(proposal) %}
-  <a class="js-open-modal js-add-collaborator mui--text-light mui--text-body2 nounderline link mui--visible-xs-block mui--visible-sm-block" role="button" aria-haspopup="true" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Add collaborator" data-cy="add-collaborator-modal">
-    {{ faicon(icon='user-circle-solid', icon_size='body2', baseline=true, css_class="mui--text-light link fa-icon--right-margin") }}
-    <span class="mui--text-bold">{% trans %}Collaborators{% endtrans %}</span>
-    {{ faicon(icon='plus', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--left-margin") }}
-    {%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class="mui--text-danger fa-icon--left-margin") }}{%- endif %}
-  </a>
-  <a class="js-open-modal js-add-collaborator profile-avatar profile-avatar--bigger--padding margin-left mui--text-light link mui--hidden-xs mui--hidden-sm" role="button" aria-haspopup="true" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Add collaborator" data-cy="add-collaborator-modal" title="{% trans %}Add collaborators{% endtrans %}">
-    {{ faicon(icon='user-plus', icon_size='subhead', baseline=false) }}
-    {%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class="mui--text-danger fa-icon--left-margin") }}{%- endif %}
-  </a>
-  <div class="js-modal-field mui--hide">
-    <div class="js-field top-padding">
-      <p class="modal-form__title mui--text-title mui--text-bold">{% trans %}Manage collaborators{% endtrans %}</p>
-      <div class="top-padding">
-        <div class="js-collaborator-list">
-          {% with collaborators=proposal.memberships %}
-            {% include "collaborator_list.html.jinja2" %}
-          {% endwith %}
-        </div>
-        <a href="{{ proposal.url_for('add_collaborator') }}" class="mui-btn mui-btn--small mui-btn--primary nounderline" rel="modal:open" aria-label="Add collaborator" data-ga="Add collaborator" data-cy="add-collaborator" role="button" aria-haspopup="true">{% trans %}Add new collaborator{% endtrans %}</a>
-      </div>
-    </div>
-  </div>
-{%- endmacro %}
-
 {% block basecontent %}
   <div class="js-modal-container">
     <form class="mui-form submission-form" id="{{ ref_id }}" method="post" action="{{ request.url }}" accept-charset="UTF-8" data-parsley-validate="true">
@@ -67,11 +41,6 @@
                 </div>
                 <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin mui--hidden-xs mui--hidden-sm submission-header__submit__btn" data-cy="form-submit-btn">{%- if not proposal %}{% trans %}Add submission{% endtrans %}{% else %}{% trans %}Edit submission{% endtrans %}{%- endif %}</button>
                 <span class="loading mui--hide"></span>
-                {%- if proposal %}
-                  <div class="mui--hidden-xs mui--hidden-sm">
-                    {{ collaborators(proposal) }}
-                  </div>
-                {%- endif %}
               </div>
             </div>
           </div>
@@ -112,8 +81,26 @@
                 </div>
               </div>
               {%- if proposal %}
-                <div class="mui--visible-xs-block mui--visible-sm-block">
-                  {{ collaborators(proposal) }}
+                <div>
+                  <a class="js-open-modal js-add-collaborator mui--text-light mui--text-body2 nounderline link" role="button" aria-haspopup="true" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Add collaborator" data-cy="add-collaborator-modal">
+                    {{ faicon(icon='user-circle-solid', icon_size='body2', baseline=true, css_class="mui--text-light link fa-icon--right-margin") }}
+                    <span class="mui--text-bold">{% trans %}Collaborators{% endtrans %}</span>
+                    {{ faicon(icon='plus', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--left-margin") }}
+                    {%- if form.video_url.errors %}{{ faicon(icon='exclamation-circle', icon_size='caption', css_class="mui--text-danger fa-icon--left-margin") }}{%- endif %}
+                  </a>
+                  <div class="js-modal-field mui--hide">
+                    <div class="js-field top-padding">
+                      <p class="modal-form__title mui--text-title mui--text-bold">{% trans %}Manage collaborators{% endtrans %}</p>
+                      <div class="top-padding">
+                        <div class="js-collaborator-list">
+                          {% with collaborators=proposal.memberships %}
+                            {% include "collaborator_list.html.jinja2" %}
+                          {% endwith %}
+                        </div>
+                        <a href="{{ proposal.url_for('add_collaborator') }}" class="mui-btn mui-btn--small mui-btn--primary nounderline" rel="modal:open" aria-label="Add collaborator" data-ga="Add collaborator" data-cy="add-collaborator" role="button" aria-haspopup="true">{% trans %}Add new collaborator{% endtrans %}</a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               {%- endif %}
             </div>
