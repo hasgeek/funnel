@@ -1,0 +1,324 @@
+markdown = """
+## Testing markdown-it-py plugins for ins/del/sup/sub/mark
+
+This is ++inserted text++~~and deleted text~~.
+
+This is ^superscript^, this is ~subscript~ and this is ==marked text==.
+
+This is not +inserted text+, nor is this ~deleted text~.
+
+^Super script^ and ~sub script~, do not support whitespaces.
+
+++This is a
+multiline insert++ ~~and a
+ multiline delete~~
+
+~~~html
+<pre>
+    <code>
+        This should not render as deleted text, rather it should be a fenced block.
+    </code>
+</pre>
+~~~
+
+This is a paragraph.
+++This line has been inserted in it.++
+This is the middle of the paragraph.
+++These lines have
+also been inserted in it.++
+~~While this line has been deleted.~~
+The paragraph ends here.
+
+This is +++an insert\\++ed text+++
+This is ++++also an insert\\++ed text++++
+
+This text has ++an inserted text ++with another inserted text++++
+
+This text has ++an inserted text ++with another inserted text++ ++with another inserted text++++
+
++Hello World! I cannot assert myself as an inserted text.+
+++`foobar()`++
+
+This is ~~~a delet\\~~ed text.~~~
+This is ~~~~also a delet\\~~ed text~~~~
+
+This text has ~~a deleted text ~~with another deleted text~~~~
+
+This text has ~~a deleted text ~~with another deleted text~~ ~~with another inserted text~~~~
+
+~Hello World! I cannot assert myself as an inserted text nor a subscript.~
+~~`foobar()`~~
+
+Now, we will list out some ~~fruits~~++grocery++:
+- ++Fruits++
+  + Apples
+  + ++Grapes++
+  + Pears
+- ++Vegetables++
+  + ++Potato++
+  + ++Tomato++
+
+**bold++insert++**
+**bold ++_insert emphasized_++**
+**bold _++emphasized insert++_**
+**bold++_insert emphasized_++**
+**bold_++emphasized insert++_**
+
+__bold~~delete~~__
+__bold ~~*delete emphasized*~~__
+__bold *~~emphasized delete~~*__
+__bold~~*delete emphasized*~~__
+__bold*~~emphasized delete~~*__
+
+__bold^super^__
+__bold ^*super-emphasized*^__
+__bold *^emphasized-super^*__
+__bold^*super-emphasized*^__
+__bold*^emphasized-super^*__
+
+__bold~sub~__
+__bold ~*sub-emphasized*~__
+__bold *~emphasized-sub~*__
+__bold~*sub-emphasized*~__
+__bold*~emphasized-sub~*__
+
+__bold==mark==__
+__bold ==*mark emphasized*==__
+__bold *==emphasized mark==*__
+__bold==*mark emphasized*==__
+__bold*==emphasized mark==*__
+"""
+
+[config]
+profiles = [ "basic", "document",]
+
+[config.custom_profiles.basic_plugins]
+args_config = "default"
+plugins = [ "ins","del","sup","sub","mark"]
+
+[expected_output]
+basic = """<h2>Testing markdown-it-py plugins for ins/del/sup/sub/mark</h2>
+<p>This is ++inserted text++<s>and deleted text</s>.</p>
+<p>This is ^superscript^, this is ~subscript~ and this is ==marked text==.</p>
+<p>This is not +inserted text+, nor is this ~deleted text~.</p>
+<p>^Super script^ and ~sub script~, do not support whitespaces.</p>
+<p>++This is a<br />
+multiline insert++ <s>and a<br />
+multiline delete</s></p>
+<pre><code class="language-html">&lt;pre&gt;
+    &lt;code&gt;
+        This should not render as deleted text, rather it should be a fenced block.
+    &lt;/code&gt;
+&lt;/pre&gt;
+</code></pre>
+<p>This is a paragraph.<br />
+++This line has been inserted in it.++<br />
+This is the middle of the paragraph.<br />
+++These lines have<br />
+also been inserted in it.++<br />
+<s>While this line has been deleted.</s><br />
+The paragraph ends here.</p>
+<p>This is +++an insert++ed text+++<br />
+This is ++++also an insert++ed text++++</p>
+<p>This text has ++an inserted text ++with another inserted text++++</p>
+<p>This text has ++an inserted text ++with another inserted text++ ++with another inserted text++++</p>
+<p>+Hello World! I cannot assert myself as an inserted text.+<br />
+++<code>foobar()</code>++</p>
+<p>This is ~<s>a delet~~ed text.</s>~<br />
+This is <s><s>also a delet~~ed text</s></s></p>
+<p>This text has <s>a deleted text <s>with another deleted text</s></s></p>
+<p>This text has <s>a deleted text <s>with another deleted text</s> <s>with another inserted text</s></s></p>
+<p>~Hello World! I cannot assert myself as an inserted text nor a subscript.~<br />
+<s><code>foobar()</code></s></p>
+<p>Now, we will list out some <s>fruits</s>++grocery++:</p>
+<ul>
+<li>++Fruits++
+<ul>
+<li>Apples</li>
+<li>++Grapes++</li>
+<li>Pears</li>
+</ul>
+</li>
+<li>++Vegetables++
+<ul>
+<li>++Potato++</li>
+<li>++Tomato++</li>
+</ul>
+</li>
+</ul>
+<p><strong>bold++insert++</strong><br />
+<strong>bold ++<em>insert emphasized</em>++</strong><br />
+<strong>bold <em>++emphasized insert++</em></strong><br />
+<strong>bold++<em>insert emphasized</em>++</strong><br />
+<strong>bold_++emphasized insert++_</strong></p>
+<p><strong>bold<s>delete</s></strong><br />
+<strong>bold <s><em>delete emphasized</em></s></strong><br />
+<strong>bold <em><s>emphasized delete</s></em></strong><br />
+<strong>bold~~<em>delete emphasized</em>~~</strong><br />
+<strong>bold*<s>emphasized delete</s>*</strong></p>
+<p><strong>bold^super^</strong><br />
+<strong>bold ^<em>super-emphasized</em>^</strong><br />
+<strong>bold <em>^emphasized-super^</em></strong><br />
+<strong>bold^<em>super-emphasized</em>^</strong><br />
+<strong>bold*^emphasized-super^*</strong></p>
+<p><strong>bold~sub~</strong><br />
+<strong>bold ~<em>sub-emphasized</em>~</strong><br />
+<strong>bold <em>~emphasized-sub~</em></strong><br />
+<strong>bold~<em>sub-emphasized</em>~</strong><br />
+<strong>bold*~emphasized-sub~*</strong></p>
+<p><strong>bold==mark==</strong><br />
+<strong>bold ==<em>mark emphasized</em>==</strong><br />
+<strong>bold <em>==emphasized mark==</em></strong><br />
+<strong>bold==<em>mark emphasized</em>==</strong><br />
+<strong>bold*==emphasized mark==*</strong></p>
+"""
+document = """<h2 id="h:testing-markdown-it-py-plugins-for-ins-del-sup-sub">Testing markdown-it-py plugins for ins/del/sup/sub/mark <a class="header-anchor" href="#h:testing-markdown-it-py-plugins-for-ins-del-sup-sub">¶</a></h2>
+<p>This is <ins>inserted text</ins><del>and deleted text</del>.</p>
+<p>This is <sup>superscript</sup>, this is <sub>subscript</sub> and this is <mark>marked text</mark>.</p>
+<p>This is not +inserted text+, nor is this ~deleted text~.</p>
+<p>^Super script^ and ~sub script~, do not support whitespaces.</p>
+<p><ins>This is a<br />
+multiline insert</ins> <del>and a<br />
+multiline delete</del></p>
+<pre><code class="language-html">&lt;pre&gt;
+    &lt;code&gt;
+        This should not render as deleted text, rather it should be a fenced block.
+    &lt;/code&gt;
+&lt;/pre&gt;
+</code></pre>
+<p>This is a paragraph.<br />
+<ins>This line has been inserted in it.</ins><br />
+This is the middle of the paragraph.<br />
+<ins>These lines have<br />
+also been inserted in it.</ins><br />
+<del>While this line has been deleted.</del><br />
+The paragraph ends here.</p>
+<p>This is +<ins>an insert++ed text+</ins><br />
+This is <ins><ins>also an insert++ed text</ins></ins></p>
+<p>This text has <ins>an inserted text <ins>with another inserted text</ins></ins></p>
+<p>This text has <ins>an inserted text <ins>with another inserted text</ins> <ins>with another inserted text</ins></ins></p>
+<p>+Hello World! I cannot assert myself as an inserted text.+<br />
+<ins><code>foobar()</code></ins></p>
+<p>This is ~<del>a delet~~ed text.</del>~<br />
+This is <del><del>also a delet~~ed text</del></del></p>
+<p>This text has <del>a deleted text <del>with another deleted text</del></del></p>
+<p>This text has <del>a deleted text <del>with another deleted text</del> <del>with another inserted text</del></del></p>
+<p>~Hello World! I cannot assert myself as an inserted text nor a subscript.~<br />
+<del><code>foobar()</code></del></p>
+<p>Now, we will list out some <del>fruits</del><ins>grocery</ins>:</p>
+<ul>
+<li><ins>Fruits</ins>
+<ul>
+<li>Apples</li>
+<li><ins>Grapes</ins></li>
+<li>Pears</li>
+</ul>
+</li>
+<li><ins>Vegetables</ins>
+<ul>
+<li><ins>Potato</ins></li>
+<li><ins>Tomato</ins></li>
+</ul>
+</li>
+</ul>
+<p><strong>bold<ins>insert</ins></strong><br />
+<strong>bold <ins><em>insert emphasized</em></ins></strong><br />
+<strong>bold <em><ins>emphasized insert</ins></em></strong><br />
+<strong>bold++<em>insert emphasized</em>++</strong><br />
+<strong>bold_<ins>emphasized insert</ins>_</strong></p>
+<p><strong>bold<del>delete</del></strong><br />
+<strong>bold <del><em>delete emphasized</em></del></strong><br />
+<strong>bold <em><del>emphasized delete</del></em></strong><br />
+<strong>bold~~<em>delete emphasized</em>~~</strong><br />
+<strong>bold*<del>emphasized delete</del>*</strong></p>
+<p><strong>bold<sup>super</sup></strong><br />
+<strong>bold <sup>*super-emphasized*</sup></strong><br />
+<strong>bold <em><sup>emphasized-super</sup></em></strong><br />
+<strong>bold<sup>*super-emphasized*</sup></strong><br />
+<strong>bold*<sup>emphasized-super</sup>*</strong></p>
+<p><strong>bold<sub>sub</sub></strong><br />
+<strong>bold <sub>*sub-emphasized*</sub></strong><br />
+<strong>bold <em><sub>emphasized-sub</sub></em></strong><br />
+<strong>bold<sub>*sub-emphasized*</sub></strong><br />
+<strong>bold*<sub>emphasized-sub</sub>*</strong></p>
+<p><strong>bold<mark>mark</mark></strong><br />
+<strong>bold <mark><em>mark emphasized</em></mark></strong><br />
+<strong>bold <em><mark>emphasized mark</mark></em></strong><br />
+<strong>bold==<em>mark emphasized</em>==</strong><br />
+<strong>bold*<mark>emphasized mark</mark>*</strong></p>
+"""
+basic_plugins = """<h2>Testing markdown-it-py plugins for ins/del/sup/sub/mark</h2>
+<p>This is <ins>inserted text</ins><del>and deleted text</del>.</p>
+<p>This is <sup>superscript</sup>, this is <sub>subscript</sub> and this is <mark>marked text</mark>.</p>
+<p>This is not +inserted text+, nor is this ~deleted text~.</p>
+<p>^Super script^ and ~sub script~, do not support whitespaces.</p>
+<p><ins>This is a<br>
+multiline insert</ins> <del>and a<br>
+multiline delete</del></p>
+<pre><code class="language-html">&lt;pre&gt;
+    &lt;code&gt;
+        This should not render as deleted text, rather it should be a fenced block.
+    &lt;/code&gt;
+&lt;/pre&gt;
+</code></pre>
+<p>This is a paragraph.<br>
+<ins>This line has been inserted in it.</ins><br>
+This is the middle of the paragraph.<br>
+<ins>These lines have<br>
+also been inserted in it.</ins><br>
+<del>While this line has been deleted.</del><br>
+The paragraph ends here.</p>
+<p>This is +<ins>an insert++ed text+</ins><br>
+This is <ins><ins>also an insert++ed text</ins></ins></p>
+<p>This text has <ins>an inserted text <ins>with another inserted text</ins></ins></p>
+<p>This text has <ins>an inserted text <ins>with another inserted text</ins> <ins>with another inserted text</ins></ins></p>
+<p>+Hello World! I cannot assert myself as an inserted text.+<br>
+<ins><code>foobar()</code></ins></p>
+<p>This is ~<del>a delet~~ed text.</del>~<br>
+This is <del><del>also a delet~~ed text</del></del></p>
+<p>This text has <del>a deleted text <del>with another deleted text</del></del></p>
+<p>This text has <del>a deleted text <del>with another deleted text</del> <del>with another inserted text</del></del></p>
+<p>~Hello World! I cannot assert myself as an inserted text nor a subscript.~<br>
+<del><code>foobar()</code></del></p>
+<p>Now, we will list out some <del>fruits</del><ins>grocery</ins>:</p>
+<ul>
+<li><ins>Fruits</ins>
+<ul>
+<li>Apples</li>
+<li><ins>Grapes</ins></li>
+<li>Pears</li>
+</ul>
+</li>
+<li><ins>Vegetables</ins>
+<ul>
+<li><ins>Potato</ins></li>
+<li><ins>Tomato</ins></li>
+</ul>
+</li>
+</ul>
+<p><strong>bold<ins>insert</ins></strong><br>
+<strong>bold <ins><em>insert emphasized</em></ins></strong><br>
+<strong>bold <em><ins>emphasized insert</ins></em></strong><br>
+<strong>bold++<em>insert emphasized</em>++</strong><br>
+<strong>bold_<ins>emphasized insert</ins>_</strong></p>
+<p><strong>bold<del>delete</del></strong><br>
+<strong>bold <del><em>delete emphasized</em></del></strong><br>
+<strong>bold <em><del>emphasized delete</del></em></strong><br>
+<strong>bold~~<em>delete emphasized</em>~~</strong><br>
+<strong>bold*<del>emphasized delete</del>*</strong></p>
+<p><strong>bold<sup>super</sup></strong><br>
+<strong>bold <sup>*super-emphasized*</sup></strong><br>
+<strong>bold <em><sup>emphasized-super</sup></em></strong><br>
+<strong>bold<sup>*super-emphasized*</sup></strong><br>
+<strong>bold*<sup>emphasized-super</sup>*</strong></p>
+<p><strong>bold<sub>sub</sub></strong><br>
+<strong>bold <sub>*sub-emphasized*</sub></strong><br>
+<strong>bold <em><sub>emphasized-sub</sub></em></strong><br>
+<strong>bold<sub>*sub-emphasized*</sub></strong><br>
+<strong>bold*<sub>emphasized-sub</sub>*</strong></p>
+<p><strong>bold<mark>mark</mark></strong><br>
+<strong>bold <mark><em>mark emphasized</em></mark></strong><br>
+<strong>bold <em><mark>emphasized mark</mark></em></strong><br>
+<strong>bold==<em>mark emphasized</em>==</strong><br>
+<strong>bold*<mark>emphasized mark</mark>*</strong></p>
+"""
