@@ -20,13 +20,13 @@ from . import (
     BaseScopedIdNameMixin,
     Commentset,
     Mapped,
-    MarkdownColumnNative,
     Project,
     TimestampMixin,
     TSVectorType,
     User,
     UuidMixin,
     db,
+    markdown_cached_column,
     sa,
 )
 from .comment import SET_TYPE
@@ -101,7 +101,7 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     )
     parent = sa.orm.synonym('project')
 
-    body = MarkdownColumnNative(  # type: ignore[has-type]
+    body = markdown_cached_column(  # type: ignore[has-type]
         'body', profile='basic', nullable=False
     )
 

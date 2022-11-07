@@ -1,3 +1,8 @@
+import 'jquery-ui';
+import 'jquery-ui-sortable-npm';
+import 'jquery-ui-touch-punch';
+import 'emojionearea';
+
 $(() => {
   window.Hasgeek.LabelsFormInit = function LabelsFormInit(formHtml) {
     function initEmojiPicker() {

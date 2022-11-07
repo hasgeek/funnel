@@ -16,11 +16,11 @@ from coaster.utils import LabeledEnum
 from . import (
     BaseMixin,
     Mapped,
-    MarkdownColumnNative,
     TSVectorType,
     UuidMixin,
     db,
     hybrid_property,
+    markdown_cached_column,
     sa,
 )
 from .helpers import MessageComposite, add_search_trigger, reopen
@@ -220,7 +220,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         'Comment', backref=sa.orm.backref('in_reply_to', remote_side='Comment.id')
     )
 
-    _message = MarkdownColumnNative(  # type: ignore[has-type]
+    _message = markdown_cached_column(  # type: ignore[has-type]
         'message', profile='basic', nullable=False
     )
 

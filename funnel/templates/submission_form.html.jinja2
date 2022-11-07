@@ -111,9 +111,6 @@
 {% endblock basecontent %}
 
 {% block innerscripts %}
-  {% assets "js_sortable" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
   <script type="text/javascript">
     window.Hasgeek.Config.markdownPreviewApi = {{ url_for('markdown_preview')|tojson }};
   </script>
