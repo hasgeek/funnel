@@ -37,9 +37,9 @@
                 <div class="mui--visible-xs-block mui--visible-sm-block submission-header__submit__btnwrapper">
                   <a class="mui-btn js-switch-panel js-toggle-panel link" data-cy="preview">{% trans %}Preview{% endtrans %}</a>
                   <a class="mui-btn js-switch-panel js-toggle-panel mui--hide link" data-cy="edit">{% trans %}Edit{% endtrans %}</a>
-                  <button type="submit" name="submit" class="mui-btn" data-cy="submit">{% trans %}Submit{% endtrans %}</button>
+                  <button type="submit" name="submit" class="mui-btn" data-cy="submit">{%- if not proposal %}{% trans %}Submit{% endtrans %}{% else %}{% trans %}Save{% endtrans %}{%- endif %}</button>
                 </div>
-                <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin mui--hidden-xs mui--hidden-sm submission-header__submit__btn" data-cy="form-submit-btn">{%- if not proposal %}{% trans %}Add submission{% endtrans %}{% else %}{% trans %}Edit submission{% endtrans %}{%- endif %}</button>
+                <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary zero-top-margin zero-bottom-margin mui--hidden-xs mui--hidden-sm submission-header__submit__btn" data-cy="form-submit-btn">{%- if not proposal %}{% trans %}Submit{% endtrans %}{% else %}{% trans %}Save{% endtrans %}{%- endif %}</button>
                 <span class="loading mui--hide"></span>
               </div>
             </div>
