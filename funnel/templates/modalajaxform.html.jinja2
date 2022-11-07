@@ -1,0 +1,13 @@
+{% extends "ajaxform.html.jinja2" %}
+{% from "macros.html.jinja2" import faicon %}
+
+{% block pageheaders %}
+  <a class="modal__close mui--text-dark" data-target="close modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size="title") }}</a>
+{% endblock pageheaders %}
+
+{% block innerscripts %}
+<script type="text/javascript">
+  {{ widgetscripts(form, script=false, ref_id=ref_id) }}
+</script>
+{% endblock innerscripts %}
+

@@ -274,6 +274,7 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             submit='Add collaborator',
             ajax=True,
             with_chrome=True,
+            template='modalajaxform.html.jinja2',
         )
 
     @route('collaborator/reorder', methods=['POST'])
@@ -480,6 +481,7 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
             submit='Save',
             ajax=True,
             with_chrome=True,
+            template='modalajaxform.html.jinja2',
         )
 
     @route('remove', methods=['POST'])
