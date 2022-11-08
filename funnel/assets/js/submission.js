@@ -11,20 +11,19 @@ export const Submission = {
     Utils.enableWebShare();
     $('.js-subscribe-btn').on('click', function subscribeComments(event) {
       event.preventDefault();
-      const form = $(this).parents('form');
-      const formData = $(form).serializeArray();
+      const form = $(this).parents('form')[0];
       const url = $(form).attr('action');
-      Submission.postSubscription(url, formData);
+      Submission.postSubscription(url, form);
     });
   },
-  async postSubscription(url, formData) {
+  async postSubscription(url, form) {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: formData,
+      body: new URLSearchParams(new FormData(form)).toString(),
     }).catch(Form.handleFetchNetworkError);
     if (response && response.ok) {
       const responseData = await response.json();
