@@ -9,9 +9,9 @@ from coaster.sqlalchemy import add_primary_relationship, with_roles
 from . import (
     BaseScopedNameMixin,
     CoordinatesMixin,
-    MarkdownColumnNative,
     UuidMixin,
     db,
+    markdown_cached_column,
     sa,
 )
 from .helpers import reopen
@@ -32,7 +32,7 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
         grants_via={None: project_child_role_map},
     )
     parent = sa.orm.synonym('project')
-    description = MarkdownColumnNative(  # type: ignore[has-type]
+    description = markdown_cached_column(  # type: ignore[has-type]
         'description', profile='basic', default='', nullable=False
     )
     address1 = sa.Column(sa.Unicode(160), default='', nullable=False)
@@ -113,7 +113,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
         grants_via={None: set(project_child_role_map.values())},
     )
     parent = sa.orm.synonym('venue')
-    description = MarkdownColumnNative(  # type: ignore[has-type]
+    description = markdown_cached_column(  # type: ignore[has-type]
         'description', profile='basic', default='', nullable=False
     )
     bgcolor = sa.Column(sa.Unicode(6), nullable=False, default='229922')

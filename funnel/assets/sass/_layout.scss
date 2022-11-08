@@ -139,7 +139,7 @@
 .content-head--top-padding {
   padding-top: $mui-grid-padding;
   padding-bottom: $mui-grid-padding;
-  border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+  border-bottom: 1px solid $mui-divider-color;
   margin-bottom: $mui-grid-padding/2;
 }
 
@@ -919,7 +919,7 @@
 .snippets {
   margin-top: 8px;
   padding: 8px 8px 8px 28px;
-  border: 1px solid rgba(132, 146, 166, 0.3);
+  border: 1px solid $mui-divider-color;
   position: relative;
 }
 
@@ -983,7 +983,7 @@
   width: 100%;
   margin: 0 0 10px;
   padding: 0 10px;
-  border: 1px solid rgba(132, 146, 166, 0.3);
+  border: 1px solid $mui-divider-color;
   border-radius: 2px;
   position: relative;
   color: $mui-text-light;

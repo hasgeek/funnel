@@ -1,8 +1,9 @@
 """Config profiles for markdown parser."""
 
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Type, TypedDict
 
 from mdit_py_plugins import anchors, footnote, tasklists
+from typing_extensions import NotRequired
 
 from coaster.utils import make_name
 
@@ -32,6 +33,7 @@ plugin_configs: Dict[str, Dict[str, Any]] = {
     'mermaid': {'name': 'mermaid'},
 }
 
+
 default_markdown_options = {
     'html': False,
     'linkify': True,
@@ -40,43 +42,47 @@ default_markdown_options = {
 }
 
 
-# Config profiles.
-#
-# Format: {
-#     'args': (
-#         config:str | preset.make(),
-#         options_update: Mapping | None
-#     ),
-#     'funnel_config' : { # Optional
-#         'enable': List = [],
-#         'disable': List = [],
-#         'enableOnly': List = [],
-#         'render_with': str = 'render'
-#     }
-# }
+class PostConfig(TypedDict):
+    disable: NotRequired[List[str]]
+    enable: NotRequired[List[str]]
+    enableOnly: NotRequired[List[str]]  # noqa: N815
 
-profiles: Dict[str, Dict[str, Any]] = {
-    'basic': {
-        'args': ('gfm-like', default_markdown_options),
-        'plugins': [],
-        'funnel_config': {'disable': ['table']},
-    },
-    'document': {
-        'args': ('gfm-like', default_markdown_options),
-        'plugins': [
-            'footnote',
-            'heading_anchors',
-            'tasklists',
-            'markmap',
-            'vega-lite',
-            'mermaid',
+
+class MarkdownProfile:
+    args: Tuple[str, Mapping] = ('gfm-like', default_markdown_options)
+    plugins: List[str] = []
+    post_config: PostConfig = {}
+    render_with: str = 'render'
+
+
+class MarkdownProfileBasic(MarkdownProfile):
+    post_config: PostConfig = {'disable': ['table']}
+
+
+class MarkdownProfileDocument(MarkdownProfile):
+    plugins: List[str] = [
+        'footnote',
+        'heading_anchors',
+        'tasklists',
+        'markmap',
+        'vega-lite',
+        'mermaid',
+    ]
+
+
+class MarkdownProfileTextField(MarkdownProfile):
+    args: Tuple[str, Mapping] = ('zero', default_markdown_options)
+    post_config: PostConfig = {
+        'enable': [
+            'emphasis',
+            'backticks',
         ],
-    },
-    'text-field': {
-        'args': ('zero', {'breaks': False}),
-        'funnel_config': {
-            'enable': ['emphasis', 'backticks'],
-            'render_with': 'renderInline',
-        },
-    },
+    }
+    render_with: str = 'renderInline'
+
+
+profiles: Dict[Optional[str], Type[MarkdownProfile]] = {
+    'basic': MarkdownProfileBasic,
+    'document': MarkdownProfileDocument,
+    'text-field': MarkdownProfileTextField,
 }

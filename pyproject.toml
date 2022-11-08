@@ -123,7 +123,8 @@ markers = [
   'requires_config("feature"): Run test only if specified app config is available',
   'formdata(dict): HTTP form data for form fixture',
   'formuser("user"): User fixture for editing a form',
-  'update_markdown_data: Regenerate markdown test output (dev use only)'
+  'update_markdown_data: Regenerate markdown test output (dev use only)',
+  'debug_markdown_output: Generate markdown debug file tests/data/markdown/output.html (dev use only)'
 ]
 filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
 mocked-sessions = 'funnel.db.db.session'  # For pytest-flask-sqlalchemy (unused)

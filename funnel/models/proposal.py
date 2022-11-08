@@ -12,10 +12,10 @@ from . import (
     BaseMixin,
     BaseScopedIdNameMixin,
     Mapped,
-    MarkdownColumnNative,
     TSVectorType,
     UuidMixin,
     db,
+    markdown_cached_column,
     sa,
 )
 from .comment import SET_TYPE, Commentset
@@ -172,7 +172,9 @@ class Proposal(  # type: ignore[misc]
         back_populates='proposal',
     )
 
-    body = MarkdownColumnNative('body', profile='document', nullable=False, default='')
+    body = markdown_cached_column(
+        'body', profile='document', nullable=False, default=''
+    )
     description = sa.Column(sa.Unicode, nullable=False, default='')
     custom_description = sa.Column(sa.Boolean, nullable=False, default=False)
     template = sa.Column(sa.Boolean, nullable=False, default=False)

@@ -50,7 +50,7 @@ __all__ = [
     'quote_autocomplete_like',
     'ImgeeFurl',
     'ImgeeType',
-    'MarkdownColumnNative',
+    'markdown_cached_column',
 ]
 
 RESERVED_NAMES: Set[str] = {
@@ -594,7 +594,7 @@ class ImgeeType(UrlType):  # pylint: disable=abstract-method
         return value
 
 
-class MarkdownCompositeNative(MutableComposite):
+class MarkdownCachedComposite(MutableComposite):
     """Represents Markdown text and rendered HTML as a composite column."""
 
     profile: str
@@ -647,7 +647,7 @@ class MarkdownCompositeNative(MutableComposite):
     # Compare text value
     def __eq__(self, other):
         """Compare for equality."""
-        return isinstance(other, MarkdownCompositeNative) and (
+        return isinstance(other, MarkdownCachedComposite) and (
             self.__composite_values__() == other.__composite_values__()
         )
 
@@ -680,7 +680,7 @@ class MarkdownCompositeNative(MutableComposite):
         return cls(value)
 
 
-def markdown_column_native(
+def markdown_cached_column(
     name: str,
     deferred: bool = False,
     group: Optional[str] = None,
@@ -701,7 +701,7 @@ def markdown_column_native(
     # Construct a custom subclass of MarkdownComposite and set the markdown processor
     # and processor options on it. We'll pass this class to SQLAlchemy's composite
     # constructor.
-    class CustomMarkdownComposite(MarkdownCompositeNative):
+    class CustomMarkdownComposite(MarkdownCachedComposite):
         pass
 
     CustomMarkdownComposite.profile = profile
@@ -713,6 +713,3 @@ def markdown_column_native(
         deferred=deferred,
         group=group or name,
     )
-
-
-MarkdownColumnNative = markdown_column_native
