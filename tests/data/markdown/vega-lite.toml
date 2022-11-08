@@ -354,7 +354,7 @@ markdown = """
 [config]
 profiles = [ "basic", "document",]
 
-[config.custom_profiles.markmap]
+[config.custom_profiles.vega-lite]
 args_config = "default"
 plugins = [ "vega-lite",]
 
@@ -1031,7 +1031,7 @@ document = """<h1 id="h:vega-lite-tests">vega-lite tests <a class="header-anchor
 
 </div></div>
 """
-markmap = """<h1>vega-lite tests</h1>
+vega-lite = """<h1>vega-lite tests</h1>
 <h2>Interactive Scatter Plot Matrix</h2>
 <div class="md-embed md-embed-vega-lite" ><div class="embed-content">{
 &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
