@@ -621,7 +621,7 @@ class __Project:
         for project_date, _day_start_at, _day_end_at, session_count in session_dates:
             weekobj = Week.withdate(project_date)
             weekid = weekobj.isoformat()
-            if weekobj.week not in weeks:
+            if weekid not in weeks:
                 weeks[weekid]['year'] = weekobj.year
                 # Order is important, and we need dict to count easily
                 weeks[weekid]['dates'] = OrderedDict()
@@ -636,7 +636,6 @@ class __Project:
                         weeks[weekid]['month'] = format_date(
                             wdate, 'MMM', locale=get_locale()
                         )
-
         # Extract sorted weeks as a list
         weeks_list = [v for k, v in sorted(weeks.items())]
 
@@ -666,7 +665,6 @@ class __Project:
                 }
                 for date, count in week['dates'].items()
             ]
-
         return {
             'locale': get_locale(),
             'weeks': weeks_list,
