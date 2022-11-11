@@ -67,7 +67,6 @@
   .register-block__txt {
     font-size: 12px;
     margin: 0 0 $mui-grid-padding;
-    max-width: calc(100% - 125px);
   }
   .register-block__btn {
     width: 100%;
@@ -112,16 +111,11 @@
   .register-block {
     .register-block__txt {
       font-size: 14px;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-    .register-block__txt--short {
-      max-width: calc(100% - 170px);
+      white-space: normal;
     }
     .register-block__txt--longer {
-      max-width: calc(100% - 20px);
-      display: inline-flex;
-      align-items: center;
+      max-width: calc(100% - 30px);
+      display: inline-block;
     }
   }
 }
