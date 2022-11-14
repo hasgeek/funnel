@@ -14,10 +14,10 @@ from .session import Session
 from .user import User
 
 
-class SavedProject(NoIdMixin, db.Model):
+class SavedProject(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: User who saved this project
-    user_id: sa.Column[int] = db.Column(
-        None,
+    user_id = sa.Column(
+        sa.Integer,
         sa.ForeignKey('user.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
@@ -27,8 +27,8 @@ class SavedProject(NoIdMixin, db.Model):
         backref=sa.orm.backref('saved_projects', lazy='dynamic', passive_deletes=True),
     )
     #: Project that was saved
-    project_id: sa.Column[int] = db.Column(
-        None,
+    project_id = sa.Column(
+        sa.Integer,
         sa.ForeignKey('project.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
@@ -66,10 +66,10 @@ class SavedProject(NoIdMixin, db.Model):
                 db.session.delete(sp)
 
 
-class SavedSession(NoIdMixin, db.Model):
+class SavedSession(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: User who saved this session
-    user_id: sa.Column[int] = db.Column(
-        None,
+    user_id = sa.Column(
+        sa.Integer,
         sa.ForeignKey('user.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
@@ -79,8 +79,8 @@ class SavedSession(NoIdMixin, db.Model):
         backref=sa.orm.backref('saved_sessions', lazy='dynamic', passive_deletes=True),
     )
     #: Session that was saved
-    session_id: sa.Column[int] = db.Column(
-        None,
+    session_id = sa.Column(
+        sa.Integer,
         sa.ForeignKey('session.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,

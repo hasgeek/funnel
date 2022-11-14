@@ -155,15 +155,17 @@ notification_categories: SimpleNamespace = SimpleNamespace(
         __("Projects I am participating in"),
         # Criteria: User has registered or proposed
         lambda user: (
-            db.session.query(user.rsvps.exists()).scalar()
-            or db.session.query(user.proposal_memberships.exists()).scalar()
+            db.session.query(user.rsvps.exists()).scalar()  # type: ignore[has-type]
+            or db.session.query(  # type: ignore[has-type]
+                user.proposal_memberships.exists()
+            ).scalar()
         ),
     ),
     project_crew=NotificationCategory(
         4,
         __("Projects I am a crew member in"),
         # Criteria: user has ever been a project crew member
-        lambda user: db.session.query(
+        lambda user: db.session.query(  # type: ignore[has-type]
             user.projects_as_crew_memberships.exists()
         ).scalar(),
     ),
@@ -171,7 +173,7 @@ notification_categories: SimpleNamespace = SimpleNamespace(
         5,
         __("Organizations I manage"),
         # Criteria: user has ever been an organization admin
-        lambda user: db.session.query(
+        lambda user: db.session.query(  # type: ignore[has-type]
             user.organization_admin_memberships.exists()
         ).scalar(),
     ),
@@ -200,7 +202,7 @@ class SMS_STATUS(LabeledEnum):  # noqa: N801
 # --- Legacy models --------------------------------------------------------------------
 
 
-class SMSMessage(BaseMixin, db.Model):
+class SMSMessage(BaseMixin, db.Model):  # type: ignore[name-defined]
     """An outbound SMS message."""
 
     __tablename__ = 'sms_message'
@@ -218,7 +220,7 @@ class SMSMessage(BaseMixin, db.Model):
 # --- Notification models --------------------------------------------------------------
 
 
-class Notification(NoIdMixin, db.Model):
+class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     """
     Holds a single notification for an activity on a document object.
 
@@ -283,14 +285,16 @@ class Notification(NoIdMixin, db.Model):
 
     #: The preference context this notification is being served under. Users may have
     #: customized preferences per profile or project
-    preference_context: db.Model = None
+    preference_context: db.Model = None  # type: ignore[name-defined]
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
     type_: sa.Column[str] = immutable(sa.Column('type', sa.Unicode, nullable=False))
 
     #: Id of user that triggered this notification
     user_id: sa.Column[Optional[int]] = immutable(
-        db.Column(None, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
+        sa.Column(
+            sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
+        )
     )
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
@@ -585,14 +589,14 @@ class UserNotificationMixin:
     with_roles(notification_type, read={'owner'})
 
     @property
-    def document(self) -> Optional[db.Model]:
+    def document(self) -> Optional[db.Model]:  # type: ignore[name-defined]
         """Document that this notification is for."""
         return self.notification.document
 
     with_roles(document, read={'owner'})
 
     @property
-    def fragment(self) -> Optional[db.Model]:
+    def fragment(self) -> Optional[db.Model]:  # type: ignore[name-defined]
         """Fragment within this document that this notification is for."""
         return self.notification.fragment
 
@@ -626,7 +630,11 @@ class UserNotificationMixin:
         return False
 
 
-class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
+class UserNotification(
+    UserNotificationMixin,
+    NoIdMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     """
     The recipient of a notification.
 
@@ -639,8 +647,8 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     #: Id of user being notified
     user_id: sa.Column[int] = immutable(
-        db.Column(
-            None,
+        sa.Column(
+            sa.Integer,
             sa.ForeignKey('user.id', ondelete='CASCADE'),
             primary_key=True,
             nullable=False,
@@ -660,7 +668,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     #: Id of notification that this user received
     notification_id: sa.Column[UUID] = immutable(
-        db.Column(None, nullable=False)
+        sa.Column(UUIDType(binary=False), nullable=False)
     )  # fkey in __table_args__ below
     #: Notification that this user received
     notification = with_roles(
@@ -1058,15 +1066,15 @@ class NotificationFor(UserNotificationMixin):
 # --- Notification preferences ---------------------------------------------------------
 
 
-class NotificationPreferences(BaseMixin, db.Model):
+class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Holds a user's preferences for a particular :class:`Notification` type."""
 
     __tablename__ = 'notification_preferences'
 
     #: Id of user whose preferences are represented here
-    user_id: sa.Column[int] = immutable(
-        db.Column(
-            None,
+    user_id = immutable(
+        sa.Column(
+            sa.Integer,
             sa.ForeignKey('user.id', ondelete='CASCADE'),
             nullable=False,
             index=True,

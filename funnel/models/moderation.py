@@ -17,20 +17,24 @@ class MODERATOR_REPORT_TYPE(LabeledEnum):  # noqa: N801
     SPAM = (2, 'spam', __("Spam"))
 
 
-class CommentModeratorReport(UuidMixin, BaseMixin, db.Model):
+class CommentModeratorReport(
+    UuidMixin,
+    BaseMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     __tablename__ = 'comment_moderator_report'
     __uuid_primary_key__ = True
 
-    comment_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('comment.id'), nullable=False, index=True
+    comment_id = sa.Column(
+        sa.Integer, sa.ForeignKey('comment.id'), nullable=False, index=True
     )
     comment = sa.orm.relationship(
         Comment,
         primaryjoin=comment_id == Comment.id,
         backref=sa.orm.backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
-    user_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('user.id'), nullable=False, index=True
+    user_id = sa.Column(
+        sa.Integer, sa.ForeignKey('user.id'), nullable=False, index=True
     )
     user = sa.orm.relationship(
         User,

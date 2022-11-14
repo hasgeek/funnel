@@ -21,12 +21,15 @@ from .project_membership import project_child_role_map
 __all__ = ['Venue', 'VenueRoom']
 
 
-class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
+class Venue(
+    UuidMixin,
+    BaseScopedNameMixin,
+    CoordinatesMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     __tablename__ = 'venue'
 
-    project_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('project.id'), nullable=False
-    )
+    project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
     project: sa.orm.relationship[Project] = with_roles(
         sa.orm.relationship(Project, back_populates='venues'),
         grants_via={None: project_child_role_map},
@@ -101,12 +104,10 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
     }
 
 
-class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
+class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'venue_room'
 
-    venue_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('venue.id'), nullable=False
-    )
+    venue_id = sa.Column(sa.Integer, sa.ForeignKey('venue.id'), nullable=False)
     venue: sa.orm.relationship[Venue] = with_roles(
         sa.orm.relationship(Venue, back_populates='rooms'),
         # Since Venue already remaps Project roles, we just want the remapped role names

@@ -25,6 +25,7 @@ def test_shortlink_404(shortlink_client) -> None:
     assert rv.status_code == 404
 
 
+@pytest.mark.dbcommit()
 def test_shortlink_301(db_session, shortlink_client) -> None:
     db_session.add(models.Shortlink.new('https://example.com/', name='example'))
     db_session.commit()
@@ -35,6 +36,7 @@ def test_shortlink_301(db_session, shortlink_client) -> None:
     assert rv.headers['Referrer-Policy'] == 'unsafe-url'
 
 
+@pytest.mark.dbcommit()
 def test_shortlink_410(db_session, shortlink_client) -> None:
     sl = models.Shortlink.new('https://example.com/', name='example')
     sl.enabled = False
