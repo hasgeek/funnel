@@ -37,13 +37,13 @@ dill==0.3.6
     # via pylint
 distlib==0.3.6
     # via virtualenv
-djlint==1.19.3
+djlint==1.19.7
     # via -r requirements_dev.in
 editorconfig==0.12.3
     # via
     #   cssbeautifier
     #   jsbeautifier
-exceptiongroup==1.0.0
+exceptiongroup==1.0.2
     # via
     #   cattrs
     #   pytest
@@ -134,7 +134,7 @@ mccabe==0.7.0
     # via
     #   flake8
     #   pylint
-mypy==0.982
+mypy==0.990
     # via
     #   -r requirements_dev.in
     #   sqlalchemy-stubs
@@ -148,7 +148,7 @@ packaging==21.3
     # via
     #   build
     #   pytest
-pathspec==0.10.1
+pathspec==0.10.2
     # via
     #   black
     #   djlint
@@ -160,7 +160,7 @@ pep8-naming==0.13.2
     # via -r requirements_dev.in
 pip-tools==6.9.0
     # via -r requirements_dev.in
-platformdirs==2.5.2
+platformdirs==2.5.4
     # via
     #   black
     #   pylint
@@ -190,7 +190,7 @@ pyparsing==3.0.9
     # via packaging
 pytest==7.2.0
     # via pylint-pytest
-pyupgrade==3.2.0
+pyupgrade==3.2.2
     # via -r requirements_dev.in
 pyyaml==6.0
     # via
@@ -210,11 +210,11 @@ smmap==5.0.0
     # via gitdb
 snowballstemmer==2.2.0
     # via pydocstyle
-sqlalchemy==1.4.42
+sqlalchemy==1.4.44
     # via flask-sqlalchemy
 sqlalchemy-stubs==0.4
     # via -r requirements_dev.in
-stevedore==4.1.0
+stevedore==4.1.1
     # via bandit
 tokenize-rt==5.0.0
     # via pyupgrade
@@ -239,7 +239,7 @@ types-certifi==2021.10.8.3
     # via -r requirements_dev.in
 types-click==7.1.8
     # via types-flask
-types-cryptography==3.3.23.1
+types-cryptography==3.3.23.2
     # via -r requirements_dev.in
 types-flask==1.1.6
     # via -r requirements_dev.in
@@ -257,19 +257,19 @@ types-maxminddb==1.5.0
     # via
     #   -r requirements_dev.in
     #   types-geoip2
-types-python-dateutil==2.8.19.2
+types-python-dateutil==2.8.19.3
     # via -r requirements_dev.in
 types-pytz==2022.6.0.1
     # via -r requirements_dev.in
-types-requests==2.28.11.2
+types-requests==2.28.11.4
     # via -r requirements_dev.in
-types-setuptools==65.5.0.2
+types-setuptools==65.5.0.3
     # via -r requirements_dev.in
-types-six==1.16.21
+types-six==1.16.21.3
     # via -r requirements_dev.in
-types-toml==0.10.8
+types-toml==0.10.8.1
     # via -r requirements_dev.in
-types-urllib3==1.26.25.1
+types-urllib3==1.26.25.3
     # via types-requests
 types-werkzeug==1.0.9
     # via
@@ -282,7 +282,7 @@ typing-extensions==4.4.0
     #   mypy
     #   pylint
     #   sqlalchemy-stubs
-virtualenv==20.16.6
+virtualenv==20.16.7
     # via pre-commit
 watchdog==2.1.9
     # via -r requirements_dev.in
@@ -290,7 +290,7 @@ wcwidth==0.2.5
     # via reformat-gherkin
 werkzeug==2.2.2
     # via flask
-wheel==0.37.1
+wheel==0.38.4
     # via pip-tools
 wrapt==1.14.1
     # via astroid

@@ -253,7 +253,7 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
         cls,
         url: Union[str, furl],
         *,
-        name: str = None,
+        name: Optional[str] = None,
         shorter: bool = False,
         reuse: Literal[False] = False,
         actor: Optional[User] = None,

@@ -774,8 +774,8 @@ class User(
     @classmethod
     def all(  # noqa: A003
         cls,
-        buids: Iterable[str] = None,
-        usernames: Iterable[str] = None,
+        buids: Optional[Iterable[str]] = None,
+        usernames: Optional[Iterable[str]] = None,
         defercols: bool = False,
     ) -> List[User]:
         """
@@ -1257,8 +1257,8 @@ class Organization(
     @classmethod
     def all(  # noqa: A003
         cls,
-        buids: Iterable[str] = None,
-        names: Iterable[str] = None,
+        buids: Optional[Iterable[str]] = None,
+        names: Optional[Iterable[str]] = None,
         defercols: bool = False,
     ) -> List[Organization]:
         """Get all organizations with matching `buids` and `names`."""
