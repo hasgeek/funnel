@@ -153,7 +153,7 @@ repos:
         args: ['--single-quote', '--trailing-comma', 'es5']
         exclude: funnel/templates/js/
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.19.3
+    rev: v1.19.5
     hooks:
       - id: djlint-jinja
         files: \.html\.(jinja2|j2)$

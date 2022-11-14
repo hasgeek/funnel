@@ -110,6 +110,10 @@ module.exports = {
           from: 'node_modules/footable/css/fonts',
           to: 'css/fonts',
         },
+        {
+          from: 'node_modules/leaflet/dist/images',
+          to: 'css/images',
+        },
       ],
     }),
     new webpack.DefinePlugin({
