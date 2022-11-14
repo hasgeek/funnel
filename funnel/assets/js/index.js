@@ -2,6 +2,7 @@ import SaveProject from './utils/bookmark';
 import 'htmx.org';
 import MarkmapEmbed from './utils/markmap';
 import MermaidEmbed from './utils/mermaid';
+import PrismEmbed from './utils/prism';
 
 $(() => {
   window.Hasgeek.homeInit = function homeInit() {
@@ -23,4 +24,5 @@ $(() => {
   };
   MarkmapEmbed.init();
   MermaidEmbed.init();
+  PrismEmbed.init();
 });

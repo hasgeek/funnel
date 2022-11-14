@@ -4,6 +4,7 @@ import addVegaSupport from './utils/vegaembed';
 import TypeformEmbed from './utils/typeform_embed';
 import MarkmapEmbed from './utils/markmap';
 import MermaidEmbed from './utils/mermaid';
+import PrismEmbed from './utils/prism';
 
 export const Submission = {
   init() {
@@ -129,4 +130,5 @@ $(() => {
   TypeformEmbed.init('#submission .markdown');
   MarkmapEmbed.init();
   MermaidEmbed.init();
+  PrismEmbed.init();
 });
