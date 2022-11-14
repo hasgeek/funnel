@@ -8,6 +8,7 @@ from flask import flash, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
+from baseframe.forms import render_form
 from coaster.views import ModelView, UrlForView, render_with, requires_roles, route
 
 from .. import app
@@ -205,7 +206,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
         }
 
     @route('archive', methods=['POST'])
-    @requires_login
+    @requires_sudo
     @requires_roles({'project_editor'})
     def archive(self) -> ReturnView:
         form = forms.Form()
@@ -213,31 +214,51 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
             self.obj.archived = True
             db.session.commit()
             flash(_("The label has been archived"), category='success')
-        else:
-            flash(_("CSRF token is missing"), category='error')
-        return render_redirect(self.obj.project.url_for('labels'))
+        return render_form(
+            form=form,
+            title=_("Confirm archive of label"),
+            message=_(
+                "Archive this label? This operation is permanent and cannot be"
+                " undone"
+            ),
+            submit=_("Delete"),
+            cancel_url=self.obj.project.url_for('labels'),
+        )
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
     @requires_roles({'project_editor'})
     def delete(self) -> ReturnView:
-        if self.obj.has_proposals:
-            flash(
-                _("Labels that have been assigned to submissions cannot be deleted"),
-                category='error',
-            )
-        else:
-            if self.obj.has_options:
-                for olabel in self.obj.options:
-                    db.session.delete(olabel)
-            db.session.delete(self.obj)
-            db.session.commit()
+        form = forms.Form()
 
-            if self.obj.main_label:
-                self.obj.main_label.options.reorder()
+        if form.validate_on_submit():
+            if self.obj.has_proposals:
+                flash(
+                    _("Labels that have been assigned to submissions cannot be deleted"),
+                    category='error',
+                )
+            else:
+                if self.obj.has_options:
+                    for olabel in self.obj.options:
+                        db.session.delete(olabel)
+                db.session.delete(self.obj)
                 db.session.commit()
-            flash(_("The label has been deleted"), category='success')
-        return render_redirect(self.obj.project.url_for('labels'))
+
+                if self.obj.main_label:
+                    self.obj.main_label.options.reorder()
+                    db.session.commit()
+                flash(_("The label has been deleted"), category='success')
+            return render_redirect(self.obj.project.url_for('labels'))
+        return render_form(
+            form=form,
+            title=_("Confirm delete"),
+            message=_(
+                "Delete this label? This operation is permanent and cannot be"
+                " undone"
+            ),
+            submit=_("Delete"),
+            cancel_url=self.obj.project.url_for('labels'),
+        )
 
 
 LabelView.init_app(app)
