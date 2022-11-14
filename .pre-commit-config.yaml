@@ -12,7 +12,7 @@ repos:
     hooks:
       - id: check-pre-commit-ci-config
   - repo: https://github.com/jazzband/pip-tools
-    rev: 6.9.0
+    rev: 6.10.0
     hooks:
       - id: pip-compile
         name: pip-compile requirements.in
