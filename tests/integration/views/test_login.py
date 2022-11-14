@@ -363,6 +363,7 @@ def test_user_has_sudo(client, login, user_rincewind) -> None:
     assert rv.status_code == 303
 
 
+@pytest.mark.dbcommit()
 def test_user_password_sudo_prompt(client, login, user_rincewind_with_password) -> None:
     """User with a password gets a sudo password prompt."""
     with client:
@@ -373,6 +374,7 @@ def test_user_password_sudo_prompt(client, login, user_rincewind_with_password) 
         assert rv.form('form-sudo-password') is not None
 
 
+@pytest.mark.dbcommit()
 @pytest.mark.usefixtures('user_rincewind_phone')
 def test_user_otp_sudo_timedout(client, login, user_rincewind) -> None:
     """User without a password gets a sudo OTP prompt."""

@@ -16,7 +16,10 @@ from .user import Organization, User
 __all__ = ['OrganizationMembership']
 
 
-class OrganizationMembership(ImmutableUserMembershipMixin, db.Model):
+class OrganizationMembership(
+    ImmutableUserMembershipMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     """
     A user can be an administrator of an organization and optionally an owner.
 
@@ -78,8 +81,10 @@ class OrganizationMembership(ImmutableUserMembershipMixin, db.Model):
 
     #: Organization that this membership is being granted on
     organization_id: sa.Column[int] = immutable(
-        db.Column(
-            None, sa.ForeignKey('organization.id', ondelete='CASCADE'), nullable=False
+        sa.Column(
+            sa.Integer,
+            sa.ForeignKey('organization.id', ondelete='CASCADE'),
+            nullable=False,
         )
     )
     organization: sa.orm.relationship[Organization] = immutable(
