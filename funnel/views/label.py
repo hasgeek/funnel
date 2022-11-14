@@ -234,7 +234,9 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
         if form.validate_on_submit():
             if self.obj.has_proposals:
                 flash(
-                    _("Labels that have been assigned to submissions cannot be deleted"),
+                    _(
+                        "Labels that have been assigned to submissions cannot be deleted"
+                    ),
                     category='error',
                 )
             else:
@@ -253,8 +255,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
             form=form,
             title=_("Confirm delete"),
             message=_(
-                "Delete this label? This operation is permanent and cannot be"
-                " undone"
+                "Delete this label? This operation is permanent and cannot be" " undone"
             ),
             submit=_("Delete"),
             cancel_url=self.obj.project.url_for('labels'),
