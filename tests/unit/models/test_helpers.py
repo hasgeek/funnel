@@ -159,15 +159,16 @@ def test_add_to_class() -> None:
 
 
 @pytest.fixture(scope='session')
-def image_models(database):
+def image_models(database, app):
     db = database
 
-    class MyImageModel(db.Model):
+    class MyImageModel(db.Model):  # type: ignore[name-defined]
         __tablename__ = 'my_image_model'
         id = sa.Column(sa.Integer, primary_key=True)  # noqa: A003
         image_url = sa.Column(models.ImgeeType)
 
-    db.create_all()
+    with app.app_context():
+        db.create_all()
     return SimpleNamespace(**locals())
 
 
@@ -218,6 +219,7 @@ def test_imgeetype(db_session, image_models) -> None:
     assert m2.image_url.resize(120).args['size'] == '120'  # type: ignore[attr-defined]
 
 
+@pytest.mark.usefixtures('app_context')
 def test_quote_autocomplete_tsquery() -> None:
     # Single word autocomplete
     assert mhelpers.quote_autocomplete_tsquery('word') == "'word':*"

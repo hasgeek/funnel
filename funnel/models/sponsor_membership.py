@@ -26,7 +26,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
     ImmutableProfileMembershipMixin,
-    db.Model,
+    db.Model,  # type: ignore[name-defined]
 ):
     """Sponsor of a project."""
 
@@ -85,7 +85,9 @@ class ProjectSponsorMembership(  # type: ignore[misc]
     revoke_on_subject_delete = False
 
     project_id: sa.Column[int] = immutable(
-        db.Column(None, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False)
+        sa.Column(
+            sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
+        )
     )
     project: sa.orm.relationship[Project] = immutable(
         sa.orm.relationship(
@@ -155,7 +157,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
     ImmutableProfileMembershipMixin,
-    db.Model,
+    db.Model,  # type: ignore[name-defined]
 ):
     """Sponsor of a proposal."""
 
@@ -214,8 +216,8 @@ class ProposalSponsorMembership(  # type: ignore[misc]
     revoke_on_subject_delete = False
 
     proposal_id: sa.Column[int] = immutable(
-        db.Column(
-            None, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
+        sa.Column(
+            sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
         )
     )
     proposal: sa.orm.relationship[Proposal] = immutable(

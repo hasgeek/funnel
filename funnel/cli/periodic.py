@@ -249,12 +249,12 @@ def growthstats():
     requests.post(
         f'https://api.telegram.org/bot{app.config["TELEGRAM_STATS_APIKEY"]}'
         f'/sendMessage',
+        timeout=30,
         data={
             'chat_id': app.config['TELEGRAM_STATS_CHATID'],
             'parse_mode': 'markdown',
             'text': message,
         },
-        timeout=30,
     )
 
 

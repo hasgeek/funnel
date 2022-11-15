@@ -43,12 +43,15 @@ from .video_mixin import VideoMixin
 __all__ = ['Session']
 
 
-class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
+class Session(
+    UuidMixin,
+    BaseScopedIdNameMixin,
+    VideoMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     __tablename__ = 'session'
 
-    project_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('project.id'), nullable=False
-    )
+    project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
     project: sa.orm.relationship[Project] = with_roles(
         sa.orm.relationship(
             Project, backref=sa.orm.backref('sessions', cascade='all', lazy='dynamic')
@@ -59,8 +62,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     description = MarkdownColumn(
         'description', default='', nullable=False, options=markdown_content_options
     )
-    proposal_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('proposal.id'), nullable=True, unique=True
+    proposal_id = sa.Column(
+        sa.Integer, sa.ForeignKey('proposal.id'), nullable=True, unique=True
     )
     proposal: Mapped[Optional[Proposal]] = sa.orm.relationship(
         Proposal, backref=sa.orm.backref('session', uselist=False, cascade='all')
@@ -68,9 +71,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     speaker = sa.Column(sa.Unicode(200), default=None, nullable=True)
     start_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
     end_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
-    venue_room_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('venue_room.id'), nullable=True
-    )
+    venue_room_id = sa.Column(sa.Integer, sa.ForeignKey('venue_room.id'), nullable=True)
     venue_room: Mapped[Optional[VenueRoom]] = sa.orm.relationship(
         VenueRoom, backref=sa.orm.backref('sessions')
     )
@@ -288,11 +289,11 @@ class __Project:
     # https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
     schedule_start_at = with_roles(
         sa.orm.column_property(
-            db.select([sa.func.min(Session.start_at)])
+            sa.select([sa.func.min(Session.start_at)])  # type: ignore[attr-defined]
             .where(Session.start_at.isnot(None))
             .where(Session.project_id == Project.id)
-            .correlate_except(Session)
-            .scalar_subquery()
+            .correlate_except(Session)  # type: ignore[arg-type]
+            .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},
@@ -300,23 +301,23 @@ class __Project:
 
     next_session_at = with_roles(
         sa.orm.column_property(
-            db.select([sa.func.min(Session.start_at)])
+            sa.select([sa.func.min(Session.start_at)])  # type: ignore[attr-defined]
             .where(Session.start_at.isnot(None))
             .where(Session.start_at >= sa.func.utcnow())
             .where(Session.project_id == Project.id)
-            .correlate_except(Session)
-            .scalar_subquery()
+            .correlate_except(Session)  # type: ignore[arg-type]
+            .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
         ),
         read={'all'},
     )
 
     schedule_end_at = with_roles(
         sa.orm.column_property(
-            db.select([sa.func.max(Session.end_at)])
+            sa.select([sa.func.max(Session.end_at)])  # type: ignore[attr-defined]
             .where(Session.end_at.isnot(None))
             .where(Session.project_id == Project.id)
-            .correlate_except(Session)
-            .scalar_subquery()
+            .correlate_except(Session)  # type: ignore[arg-type]
+            .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},
