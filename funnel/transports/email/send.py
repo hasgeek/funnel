@@ -114,9 +114,9 @@ def send_email(  # pylint: disable=too-many-arguments
     subject: str,
     to: List[EmailRecipient],
     content: str,
-    attachments: List[EmailAttachment] = None,
-    from_email: EmailRecipient = None,
-    headers: dict = None,
+    attachments: Optional[List[EmailAttachment]] = None,
+    from_email: Optional[EmailRecipient] = None,
+    headers: Optional[dict] = None,
 ) -> str:
     """
     Send an email.

@@ -142,8 +142,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         cls,
     ) -> sa.Column[Optional[int]]:
         """Id of user who revoked the membership."""
-        return db.Column(
-            None, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
+        return sa.Column(
+            sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
         )
 
     @with_roles(read={'subject', 'editor'}, grants={'editor'})
@@ -162,8 +162,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         This is nullable only for historical data. New records always require a value
         for granted_by.
         """
-        return db.Column(
-            None,
+        return sa.Column(
+            sa.Integer,
             sa.ForeignKey('user.id', ondelete='SET NULL'),
             nullable=cls.__null_granted_by__,
         )
@@ -357,8 +357,8 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @declared_attr  # type: ignore[no-redef]
     def user_id(cls) -> sa.Column[int]:  # pylint: disable=no-self-argument
         """Foreign key column to user table."""
-        return db.Column(
-            None,
+        return sa.Column(
+            sa.Integer,
             sa.ForeignKey('user.id', ondelete='CASCADE'),
             nullable=False,
             index=True,
@@ -479,8 +479,8 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
     @declared_attr  # type: ignore[no-redef]
     def profile_id(cls) -> sa.Column[int]:  # pylint: disable=no-self-argument
         """Foreign key column to profile table."""
-        return db.Column(
-            None,
+        return sa.Column(
+            sa.Integer,
             sa.ForeignKey('profile.id', ondelete='CASCADE'),
             nullable=False,
             index=True,
@@ -625,9 +625,11 @@ class ReorderMembershipMixin(ReorderMixin):
         # Assign a default value to `seq`
         if self.seq is None:
             self.seq = (
-                db.select([sa.func.coalesce(sa.func.max(self.__class__.seq) + 1, 1)])
+                sa.select(  # type: ignore[attr-defined]
+                    [sa.func.coalesce(sa.func.max(self.__class__.seq) + 1, 1)]
+                )
                 .where(self.parent_scoped_reorder_query_filter)
-                .scalar_subquery()
+                .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
             )
 
     @property

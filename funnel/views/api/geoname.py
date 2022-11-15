@@ -71,9 +71,9 @@ def geo_get_by_title(title: List[str], lang: Optional[str] = None) -> ReturnRend
 @requestargs('q', 'special[]', 'lang', 'bias[]', ('alternate_titles', getbool))
 def geo_parse_location(
     q: str,
-    special: List[str] = None,
-    lang: str = None,
-    bias: List[str] = None,
+    special: Optional[List[str]] = None,
+    lang: Optional[str] = None,
+    bias: Optional[List[str]] = None,
     alternate_titles: bool = False,
 ) -> ReturnRenderWith:
     """Parse locations from a string of locations."""

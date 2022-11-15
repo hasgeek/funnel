@@ -743,25 +743,25 @@ class RemoveIsRollback:
         self.owning_thread = threading.current_thread()
 
     def __enter__(self):
+        pass
         # pylint: disable=unnecessary-lambda
-
         # If called in the owning thread (which is typical), deflect
         # ``session.remove()`` to ``session.rollback()``. If called in a sub-thread
-        # (Flask-Executor), do nothing because there is no session to rollback, but
-        # letting it be removed will close the main thread's session (!). This may be a
-        # bug. # TODO
-        self.session.remove = lambda *args, **kwargs: (
-            self.rollback_provider()(*args, **kwargs)
-            if threading.current_thread() == self.owning_thread
-            else None
-        )
+        # (Flask-Executor), remove the session.
+        # self.session.remove = lambda *args, **kwargs: (
+        #     self.rollback_provider()(*args, **kwargs)
+        #     if threading.current_thread() == self.owning_thread
+        #     else self.original_remove(*args, **kwargs)
+        # )
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.session.remove = self.original_remove
 
 
 @pytest.fixture()
-def db_session_truncate(funnel, app, database) -> t.Iterator[DatabaseSessionClass]:
+def db_session_truncate(
+    funnel, app, database, app_context
+) -> t.Iterator[DatabaseSessionClass]:
     """Empty the database after each use of the fixture."""
     from sqlalchemy.orm import close_all_sessions
 
@@ -770,38 +770,38 @@ def db_session_truncate(funnel, app, database) -> t.Iterator[DatabaseSessionClas
     close_all_sessions()
 
     # Iterate through all database engines and empty their tables
-    for bind in [None] + list(app.config.get('SQLALCHEMY_BINDS') or ()):
-        engine = database.get_engine(app=app, bind=bind)
-        with engine.begin() as connection:
-            connection.execute(
+    with app.app_context():
+        for bind in [None] + list(app.config.get('SQLALCHEMY_BINDS') or ()):
+            engine = database.engines[bind]
+            with engine.begin() as connection:
+                connection.execute(
+                    '''
+                    DO $$
+                    DECLARE tablenames text;
+                    BEGIN
+                        tablenames := string_agg(
+                            quote_ident(schemaname) || '.' || quote_ident(tablename),
+                            ', ')
+                            FROM pg_tables WHERE schemaname = 'public';
+                        EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
+                    END; $$
                 '''
-                DO $$
-                DECLARE tablenames text;
-                BEGIN
-                    tablenames := string_agg(
-                        quote_ident(schemaname) || '.' || quote_ident(tablename),
-                        ', ')
-                        FROM pg_tables WHERE schemaname = 'public';
-                    EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
-                END; $$
-            '''
-            )
+                )
 
     # Clear Redis db too
     funnel.redis_store.flushdb()
 
 
 @pytest.fixture()
-def db_session_rollback(funnel, database) -> t.Iterator[DatabaseSessionClass]:
+def db_session_rollback(
+    funnel, database, app_context
+) -> t.Iterator[DatabaseSessionClass]:
     """Create a nested transaction for the test and rollback after."""
     from sqlalchemy import event
 
     db_connection = database.engine.connect()
     original_session = database.session
     transaction = db_connection.begin()
-    database.session = database.create_scoped_session(
-        options={'bind': db_connection, 'binds': {}}
-    )
     database.session.info['fixture'] = True
 
     # For handling tests that actually call `session.rollback()`, we use a SQL savepoint
@@ -834,6 +834,7 @@ def db_session_rollback(funnel, database) -> t.Iterator[DatabaseSessionClass]:
         yield database.session
 
     event.remove(database.session, 'after_transaction_end', restart_savepoint)
+    database.session.info.pop('fixture', None)
     database.session.close()
     transaction.rollback()
     db_connection.close()
@@ -841,6 +842,12 @@ def db_session_rollback(funnel, database) -> t.Iterator[DatabaseSessionClass]:
 
     # Clear Redis db too
     funnel.redis_store.flushdb()
+
+
+db_session_implementations = {
+    'rollback': 'db_session_rollback',
+    'truncate': 'db_session_truncate',
+}
 
 
 @pytest.fixture()
@@ -853,17 +860,26 @@ def db_session(request) -> DatabaseSessionClass:
 
     * ``db_session_truncate``: Which allows unmediated database access but empties table
       contents after each use
-    * ``db_session_savepoint``: Which nests the session in a SAVEPOINT and rolls back
+    * ``db_session_rollback``: Which nests the session in a SAVEPOINT and rolls back
       after each use
 
-    This version of the fixture uses the --dbsession command-line option to choose the
-    base fixture.
+    The rollback approach is significantly faster, but not compatible with tests that
+    span multiple app contexts or require special session behaviour. The ``db_session``
+    fixture will default to the rollback approach, but can be told to use truncate
+    instead:
+
+    * The ``--dbsession`` command-line option defaults to ``rollback`` but can be set to
+      ``truncate``, changing it for the entire pytest session
+    * An individual test can be decorated with ``@pytest.mark.dbcommit()``
+    * A test module or package can override the ``db_session`` fixture to return one of
+      the underlying fixtures, thereby overriding both of the above behaviours
     """
     return request.getfixturevalue(
-        {
-            'rollback': 'db_session_rollback',
-            'truncate': 'db_session_truncate',
-        }[request.config.getoption('--dbsession')]
+        db_session_implementations[
+            'truncate'
+            if request.node.get_closest_marker('dbcommit')
+            else request.config.getoption('--dbsession')
+        ]
     )
 
 

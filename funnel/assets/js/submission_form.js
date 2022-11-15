@@ -164,10 +164,7 @@ $(() => {
         );
       });
 
-    const onSuccessFn = (responseData) => {
-      updateCollaboratorsList(responseData, false);
-    };
-    Form.handleDelete('.js-remove-collaborator', onSuccessFn);
+    Form.handleDelete('.js-remove-collaborator', updateCollaboratorsList);
 
     SortItem($('.js-collaborator-list'), 'collaborator-placeholder', sortUrl);
   };

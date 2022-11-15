@@ -50,7 +50,12 @@ class PROFILE_STATE(LabeledEnum):  # noqa: N801
 
 # This model does not use BaseNameMixin because it has no title column. The title comes
 # from the linked User or Organization
-class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
+class Profile(
+    EnumerateMembershipsMixin,
+    UuidMixin,
+    BaseMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     """
     Public-facing profiles for :class:`User` and :class:`Organization` models.
 
@@ -74,8 +79,11 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
     )
     # Only one of the following three may be set:
     #: User that owns this name (limit one per user)
-    user_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('user.id', ondelete='SET NULL'), unique=True, nullable=True
+    user_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey('user.id', ondelete='SET NULL'),
+        unique=True,
+        nullable=True,
     )
 
     # No `cascade='delete-orphan'` in User and Organization backrefs as profiles cannot
@@ -92,8 +100,8 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
         grants={'owner'},
     )
     #: Organization that owns this name (limit one per organization)
-    organization_id: sa.Column[Optional[int]] = db.Column(
-        None,
+    organization_id = sa.Column(
+        sa.Integer,
         sa.ForeignKey('organization.id', ondelete='SET NULL'),
         unique=True,
         nullable=True,
@@ -158,17 +166,21 @@ class Profile(EnumerateMembershipsMixin, UuidMixin, BaseMixin, db.Model):
                 [
                     (
                         user_id.isnot(None),  # ← when, ↙ then
-                        db.select(User.state.ACTIVE)  # type: ignore[has-type]
+                        sa.select(  # type: ignore[attr-defined]
+                            User.state.ACTIVE  # type: ignore[has-type]
+                        )
                         .where(User.id == user_id)
-                        .correlate_except(User)
-                        .scalar_subquery(),
+                        .correlate_except(User)  # type: ignore[arg-type]
+                        .scalar_subquery(),  # sqlalchemy-stubs doesn't know of this
                     ),
                     (
                         organization_id.isnot(None),  # ← when, ↙ then
-                        db.select(Organization.state.ACTIVE)  # type: ignore[has-type]
+                        sa.select(  # type: ignore[attr-defined]
+                            Organization.state.ACTIVE  # type: ignore[has-type]
+                        )
                         .where(Organization.id == organization_id)
-                        .correlate_except(Organization)
-                        .scalar_subquery(),
+                        .correlate_except(Organization)  # type: ignore[arg-type]
+                        .scalar_subquery(),  # sqlalchemy-stubs doesn't know of this
                     ),
                 ],
                 else_=expression.false(),
