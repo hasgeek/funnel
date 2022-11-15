@@ -27,7 +27,7 @@
     {# Project title is not an extension of account title, so display account title too -#}
     {{ project.profile.title }} › {{ project.title }}
   {%- else -%}
-    {# Project title derives from profile title, so profile is not needed. -#}
+    {# Project title derives from account title, so account is not needed. -#}
     {{ project.title }}
   {%- endif %}
 {%- endmacro %}

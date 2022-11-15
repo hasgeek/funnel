@@ -142,7 +142,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 .all()
             )
 
-            # If the user is an admin of this profile, show all draft projects.
+            # If the user is an admin of this account, show all draft projects.
             # Else, only show the drafts they have a crew role in
             if self.obj.current_roles.admin:
                 draft_projects = self.obj.draft_projects
@@ -198,7 +198,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
                 ],
             }
         else:
-            abort(404)  # Reserved profile
+            abort(404)  # Reserved account
 
         return ctx
 

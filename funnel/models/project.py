@@ -83,7 +83,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
             Profile, backref=sa.orm.backref('projects', cascade='all', lazy='dynamic')
         ),
         read={'all'},
-        # If profile grants an 'admin' role, make it 'profile_admin' here
+        # If account grants an 'admin' role, make it 'profile_admin' here
         grants_via={None: {'admin': 'profile_admin'}},
         # `profile` only appears in the 'primary' dataset. It must not be included in
         # 'related' or 'without_parent' as it is the parent
@@ -228,7 +228,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     )
 
     #: Featured project flag. This can only be set by website editors, not
-    #: project editors or profile admins.
+    #: project editors or account admins.
     site_featured = with_roles(
         sa.Column(sa.Boolean, default=False, nullable=False),
         read={'all'},
@@ -530,9 +530,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     def joined_title(self, sep: str = '›') -> str:
         """Return the project's title joined with the account's title, if divergent."""
         if self.short_title == self.title:
-            # Project title does not derive from profile title, so use both
+            # Project title does not derive from account title, so use both
             return f"{self.profile.title} {sep} {self.title}"
-        # Project title extends profile title, so profile title is not needed
+        # Project title extends account title, so account title is not needed
         return self.title
 
     @property
@@ -601,9 +601,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     @sa.orm.validates('name', 'profile')
     def _validate_and_create_redirect(self, key, value):
         # TODO: When labels, venues and other resources are relocated from project to
-        # profile, this validator can no longer watch profile change. We'll need a more
-        # elaborate transfer mechanism that remaps resources to equivalent ones in the
-        # new profile.
+        # account, this validator can no longer watch for `profile` change. We'll need a
+        # more elaborate transfer mechanism that remaps resources to equivalent ones in
+        # the new `profile`.
         if key == 'name':
             value = value.strip() if value is not None else None
         if not value or (key == 'name' and not valid_name(value)):
@@ -759,7 +759,7 @@ class __Profile:
                 for membership in user.projects_as_crew_active_memberships.join(
                     Project, Profile
                 ).filter(
-                    # Project is attached to this profile
+                    # Project is attached to this account
                     Project.profile_id == self.id,
                     # Project is in draft state OR has a draft call for proposals
                     sa.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
@@ -774,7 +774,7 @@ class __Profile:
                 for membership in user.projects_as_crew_active_memberships.join(
                     Project, Profile
                 ).filter(
-                    # Project is attached to this profile
+                    # Project is attached to this account
                     Project.profile_id == self.id,
                     # Project is in draft state OR has a draft call for proposals
                     sa.or_(Project.state.PUBLISHED_WITHOUT_SESSIONS),
@@ -862,7 +862,7 @@ class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
                 pr.profile = new_profile
             else:
                 # Discard project redirect since the name is already taken by another
-                # redirect in the new profile
+                # redirect in the new account
                 db.session.delete(pr)
 
 

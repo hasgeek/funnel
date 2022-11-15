@@ -72,7 +72,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             org = Organization(owner=current_auth.user)
             form.populate_obj(org)
             db.session.add(org)
-            db.session.flush()  # Required to auto-create profile
+            db.session.flush()  # Required to auto-create `Profile` instance
             org.profile.make_public()
             db.session.commit()
             org_data_changed.send(org, changes=['new'], user=current_auth.user)

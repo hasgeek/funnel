@@ -31,7 +31,7 @@ class ProfileSelectField(forms.AutocompleteField):
         """Process incoming form data."""
         if valuelist:
             self.data = Profile.query.filter(
-                # Limit to non-suspended (active) profiles. Do not require profile to
+                # Limit to non-suspended (active) accounts. Do not require account to
                 # be public as well
                 Profile.name == valuelist[0],
                 Profile.is_active,

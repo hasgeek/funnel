@@ -12,9 +12,10 @@ def test_is_available_name(db_session, user_rincewind) -> None:
     """Names are only available if valid and unused."""
     db_session.commit()  # Required for profile.state to be set
     assert models.Profile.is_available_name('invalid_name') is False
-    # Rincewind has a profile in default 'auto' status (not public, not private even)
+    # Rincewind has an account (nee profile) in default 'auto' status (not public, not
+    # private even)
     assert user_rincewind.profile.state.AUTO
-    # even though profile is not public, username is still unavailable
+    # even though account is not public, username is still unavailable
     assert models.Profile.is_available_name('rincewind') is False
     # any other random usernames are available
     assert models.Profile.is_available_name('wizzard') is True
@@ -48,7 +49,7 @@ def test_reserved_name(db_session) -> None:
     reserved_name = models.Profile(name='reserved-name', reserved=True)
     db_session.add(reserved_name)
     db_session.commit()
-    # Use a model query since Profile.get() only works for public profiles
+    # Use a model query since Profile.get() only works for public accounts
     retrieved_name = models.Profile.query.filter(
         sa.func.lower(models.Profile.name) == sa.func.lower('reserved-name')
     ).first()

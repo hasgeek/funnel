@@ -771,7 +771,7 @@ def search_counts(
             if isinstance(sp, SearchInProfileProvider)
         ]
     else:
-        # Not scoped to profile or project:
+        # Not scoped to `profile` or `project`:
         results = [
             {
                 'type': stype,

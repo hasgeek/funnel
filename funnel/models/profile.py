@@ -57,10 +57,10 @@ class Profile(
     db.Model,  # type: ignore[name-defined]
 ):
     """
-    Public-facing profiles for :class:`User` and :class:`Organization` models.
+    Consolidated account for :class:`User` and :class:`Organization` models.
 
-    Profiles hold the account name in a shared namespace between these models (aka
-    "username"), and also host projects and other future document types.
+    Accounts (nee Profiles) hold the account name in a shared namespace between these
+    models (aka "username"), and also host projects and other future document types.
     """
 
     __tablename__ = 'profile'
@@ -86,7 +86,7 @@ class Profile(
         nullable=True,
     )
 
-    # No `cascade='delete-orphan'` in User and Organization backrefs as profiles cannot
+    # No `cascade='delete-orphan'` in User and Organization backrefs as accounts cannot
     # be trivially deleted
 
     user: Mapped[Optional[User]] = with_roles(
@@ -111,7 +111,7 @@ class Profile(
         lazy='joined',
         backref=sa.orm.backref('profile', lazy='joined', uselist=False, cascade='all'),
     )
-    #: Reserved profile (not assigned to any party)
+    #: Reserved account (not assigned to any party)
     reserved = sa.Column(sa.Boolean, nullable=False, default=False, index=True)
 
     _state = sa.Column(
@@ -136,12 +136,13 @@ class Profile(
     # These two flags are read-only. There is no provision for writing to them within
     # the app:
 
-    #: Protected profiles cannot be deleted
+    #: Protected accounts cannot be deleted
     is_protected = with_roles(
         immutable(sa.Column(sa.Boolean, default=False, nullable=False)),
         read={'owner', 'admin'},
     )
-    #: Verified profiles get a public badge
+    #: Verified accounts get listed on the home page and are not considered throwaway
+    #: accounts for spam control. There are no other privileges at this time
     is_verified = with_roles(
         immutable(sa.Column(sa.Boolean, default=False, nullable=False, index=True)),
         read={'all'},
@@ -437,10 +438,10 @@ class Profile(
     ) -> OptionalMigratedTables:
         """Migrate one user account to another when merging user accounts."""
         if old_user.profile is not None and new_user.profile is None:
-            # New user doesn't have a profile. Simply transfer ownership.
+            # New user doesn't have an account (nee profile). Simply transfer ownership
             new_user.profile = old_user.profile
         elif old_user.profile is not None and new_user.profile is not None:
-            # Both have profiles. Move everything that refers to old profile
+            # Both have accounts. Move everything that refers to old account
             done = do_migrate_instances(
                 old_user.profile, new_user.profile, 'migrate_profile'
             )

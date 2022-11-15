@@ -48,7 +48,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
     def after_loader(self) -> Optional[ReturnView]:  # type: ignore[return]
         """Don't render member views for user accounts."""
         if not self.obj.organization:
-            # User profiles don't have memberships
+            # User accounts (nee profiles) don't have memberships
             abort(404)
 
     @route('', methods=['GET', 'POST'])

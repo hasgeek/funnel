@@ -545,7 +545,7 @@ class User(
     @with_roles(call={'owner'})
     def transport_for_email(self, context) -> Optional[UserEmail]:
         """Return user's preferred email address within a context."""
-        # TODO: Per-profile/project customization is a future option
+        # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE:
             return self.email or None
         return None
@@ -553,7 +553,7 @@ class User(
     @with_roles(call={'owner'})
     def transport_for_sms(self, context) -> Optional[UserPhone]:
         """Return user's preferred phone number within a context."""
-        # TODO: Per-profile/project customization is a future option
+        # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE:
             return self.phone or None
         return None
@@ -691,8 +691,8 @@ class User(
         for user_session in self.active_user_sessions:
             user_session.revoke()
 
-        # 6. Delete profile and release username, unless it is implicated in membership
-        #    records (including revoked records).
+        # 6. Delete account (nee profile) and release username, unless it is implicated
+        #    in membership records (including revoked records).
         if (
             self.profile
             and self.profile.do_delete(self)  # This call removes data and confirms it

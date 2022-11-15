@@ -172,7 +172,7 @@ class ProjectLivestreamForm(forms.Form):
 class ProjectNameForm(forms.Form):
     """Form to change the URL name of a project."""
 
-    # TODO: Add validators for profile and unique name here instead of delegating to
+    # TODO: Add validators for `profile` and unique name here instead of delegating to
     # the view. Also add `set_queries` method to change ``name.prefix``
 
     name = forms.AnnotatedTextField(

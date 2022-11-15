@@ -319,9 +319,7 @@ class ProjectView(  # type: ignore[misc]
         """Edit project's URL slug."""
         form = ProjectNameForm(obj=self.obj)
         form.name.prefix = self.obj.profile.url_for(_external=True)
-        # Hasgeek profile URLs currently do not have a trailing slash, but this form
-        # should not depend on this being guaranteed. Add a trailing slash if one is
-        # required.
+        # Add a ``/`` separator if required
         if not form.name.prefix.endswith('/'):
             form.name.prefix += '/'
         if form.validate_on_submit():
