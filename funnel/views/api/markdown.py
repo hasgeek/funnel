@@ -3,10 +3,11 @@
 
 from flask import request
 
-from ... import app
-from ...typing import ReturnView
 from coaster.utils import markdown
+
+from ... import app
 from ...models import markdown_content_options
+from ...typing import ReturnView
 
 extra_markdown_types = {'profile', 'project', 'submission', 'session'}
 
@@ -17,12 +18,12 @@ def markdown_preview() -> ReturnView:
     # The `type` differentiator is temporarily not supported with new markdown
     mtype = request.form.get('type')
     text = request.form.get('text')
-    
+
     if mtype in extra_markdown_types:
         markdown_options = markdown_content_options
     else:
         markdown_options = {}
- 
+
     html = markdown(text, **markdown_options)
 
     return {
