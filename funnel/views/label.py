@@ -205,7 +205,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
             'project': self.obj.project,
         }
 
-    @route('archive', methods=['POST'])
+    @route('archive', methods=['GET', 'POST'])
     @requires_sudo
     @requires_roles({'project_editor'})
     def archive(self) -> ReturnView:
@@ -214,14 +214,14 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
             self.obj.archived = True
             db.session.commit()
             flash(_("The label has been archived"), category='success')
+            return render_redirect(self.obj.project.url_for('labels'))
         return render_form(
             form=form,
             title=_("Confirm archive of label"),
             message=_(
-                "Archive this label? This operation is permanent and cannot be"
-                " undone"
+                "Archive this label?"
             ),
-            submit=_("Delete"),
+            submit=_("Archive"),
             cancel_url=self.obj.project.url_for('labels'),
         )
 
@@ -255,7 +255,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
             form=form,
             title=_("Confirm delete"),
             message=_(
-                "Delete this label? This operation is permanent and cannot be" " undone"
+                "Delete this label? This operation is permanent and cannot be undone"
             ),
             submit=_("Delete"),
             cancel_url=self.obj.project.url_for('labels'),
