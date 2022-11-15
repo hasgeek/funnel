@@ -218,9 +218,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
         return render_form(
             form=form,
             title=_("Confirm archive of label"),
-            message=_(
-                "Archive this label?"
-            ),
+            message=_("Archive this label?"),
             submit=_("Archive"),
             cancel_url=self.obj.project.url_for('labels'),
         )
