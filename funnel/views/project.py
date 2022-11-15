@@ -232,7 +232,7 @@ def project_register_button_text(obj: Project) -> str:
 @Profile.views('project_new')
 @route('/<profile>')
 class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
-    """Project views inside the profile (new project view only)."""
+    """Project views inside the account (new project view only)."""
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
@@ -319,9 +319,7 @@ class ProjectView(  # type: ignore[misc]
         """Edit project's URL slug."""
         form = ProjectNameForm(obj=self.obj)
         form.name.prefix = self.obj.profile.url_for(_external=True)
-        # Hasgeek profile URLs currently do not have a trailing slash, but this form
-        # should not depend on this being guaranteed. Add a trailing slash if one is
-        # required.
+        # Add a ``/`` separator if required
         if not form.name.prefix.endswith('/'):
             form.name.prefix += '/'
         if form.validate_on_submit():

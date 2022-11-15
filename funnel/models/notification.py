@@ -284,7 +284,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     for_private_recipient = False
 
     #: The preference context this notification is being served under. Users may have
-    #: customized preferences per profile or project
+    #: customized preferences per account (nee profile) or project
     preference_context: db.Model = None  # type: ignore[name-defined]
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)

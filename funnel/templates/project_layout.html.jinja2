@@ -93,7 +93,7 @@
         {%- elif project.bg_image.url %}
           <img class="project-banner__box__image" src="{{ project.bg_image.resize(header_banner) }}" alt="{{ project.title }}" data-cy="bg_image"/>
         {%- else %}
-          <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}"  alt="{{ project.title }}"/>
+          <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ project.title }}"/>
         {% endif %}
       </div>
     </div>
@@ -307,7 +307,7 @@
 {% macro project_details(project) %}
   <div>
     {% if project.view_for('edit_schedule').is_available() and not project.start_at %}
-      <p class="project-details__box__content--lesspadding propose"><a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
+      <p class="project-details__box__content--lesspadding propose"><a class="mui-btn mui-btn--raised mui-btn--dark mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
     {%- endif %}
     {{ add_submission_btn(project) }}
     {%- if project.primary_venue %}

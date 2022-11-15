@@ -39,7 +39,7 @@
               {% if current_auth.user.profile %}
                 <a href="{{ current_auth.user.profile.url_for() }}"
                    data-cy="my-profile"
-                   class="nounderline">{% trans %}Go to profile{% endtrans %} <span class="circle-icon">{{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</span></a>
+                   class="nounderline">{% trans %}Go to account{% endtrans %} <span class="circle-icon">{{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</span></a>
               {%- endif %}
             </div>
           </div>
@@ -312,7 +312,7 @@
             <div class="card__body">
               <ul class="mui-list--aligned mui-list--unstyled grid-no-left-padding mui-list--border zero-bottom-margin">
                 {%- for user_session in current_auth.user.active_user_sessions %}
-                  {%- with ua=user_session.views.user_agent_details(),  login_service=user_session.views.login_service(), location=user_session.views.location(), user_agent=user_session.user_agent, since=user_session.created_at|age, last_active=user_session.accessed_at|age %}
+                  {%- with ua=user_session.views.user_agent_details(), login_service=user_session.views.login_service(), location=user_session.views.location(), user_agent=user_session.user_agent, since=user_session.created_at|age, last_active=user_session.accessed_at|age %}
                     <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between login-session">
                       <div>
                         <ul class="bullet-separated-list"
@@ -358,7 +358,7 @@
       </div>
     </div>
   </div>
-  {#  Disabled until feature is ready for public use
+  {# Disabled until feature is ready for public use
     <div class="grid__col-xs-12">
       <div class="card">
         <div class="card__header">

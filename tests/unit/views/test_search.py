@@ -160,7 +160,7 @@ def test_view_search_results_all(client, stype) -> None:
 @pytest.mark.usefixtures('app_context', 'all_fixtures')
 @pytest.mark.parametrize('stype', search_profile_types)
 def test_view_search_results_profile(client, org_ankhmorpork, stype) -> None:
-    """Profile search view returns results for each type."""
+    """Account search view returns results for each type."""
     org_ankhmorpork.profile.make_public()
     resultset = client.get(
         org_ankhmorpork.profile.url_for('search'),

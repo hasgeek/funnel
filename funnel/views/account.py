@@ -337,7 +337,7 @@ class AccountView(ClassView):
 
             db.session.commit()
             user_data_changed.send(current_auth.user, changes=['profile'])
-            flash(_("Your profile has been updated"), category='success')
+            flash(_("Your account has been updated"), category='success')
 
             return render_redirect(get_next_url(default=url_for('account')))
         return render_form(
