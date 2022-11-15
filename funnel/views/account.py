@@ -158,7 +158,7 @@ def recent_organization_memberships(
         recent=orgs[:recent],
         overflow=orgs[recent : recent + overflow],
         extra_count=max(
-            0, obj.active_organization_admin_memberships.count() - recent - overflow
+            0, obj.active_organization_admin_memberships.count() - recent
         ),
     )
 
