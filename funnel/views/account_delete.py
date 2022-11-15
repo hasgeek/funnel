@@ -26,7 +26,9 @@ class DeleteValidator:
 account_delete_validators: List[DeleteValidator] = []
 
 
-def delete_validator(title: str, message: str, name: str = None) -> ReturnDecorator:
+def delete_validator(
+    title: str, message: str, name: Optional[str] = None
+) -> ReturnDecorator:
     """Register an account delete validator."""
 
     def decorator(func: WrappedFunc) -> WrappedFunc:

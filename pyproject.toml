@@ -120,11 +120,12 @@ addopts = [
   '--splinter-headless'
 ]
 markers = [
-  'requires_config("feature"): Run test only if specified app config is available',
+  'dbcommit: Test requires true database commits',
   'formdata(dict): HTTP form data for form fixture',
   'formuser("user"): User fixture for editing a form',
   'update_markdown_data: Regenerate markdown test output (dev use only)',
-  'debug_markdown_output: Generate markdown debug file tests/data/markdown/output.html (dev use only)'
+  'debug_markdown_output: Generate markdown debug file tests/data/markdown/output.html (dev use only)',
+  'requires_config("feature"): Run test only if specified app config is available'
 ]
 filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
 mocked-sessions = 'funnel.db.db.session'  # For pytest-flask-sqlalchemy (unused)
@@ -163,6 +164,10 @@ check_untyped_defs = false
 module = ['tests']
 check_untyped_defs = true
 warn_unreachable = false
+
+[[tool.mypy.overrides]]
+module = ['flask_sqlalchemy']
+follow_imports = 'skip'
 
 [tool.pylint.master]
 load-plugins = ['pylint_pytest', 'pylint_flask_sqlalchemy']

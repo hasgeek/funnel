@@ -49,6 +49,7 @@ class GitHubProvider(LoginProvider):
         try:
             response = requests.post(
                 self.token_url,
+                timeout=30,
                 headers={'Accept': 'application/json'},
                 params={
                     'client_id': self.key,

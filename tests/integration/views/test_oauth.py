@@ -49,6 +49,7 @@ def test_authcode_wellformed(
     # TODO: Add redirect_uri, response_type, state, scope
 
 
+@pytest.mark.dbcommit()
 @pytest.mark.filterwarnings("ignore:Object of type <AuthToken> not in session")
 def test_auth_untrusted_confidential(  # pylint: disable=too-many-arguments
     client, login, user_rincewind, client_hex, client_hex_credential, csrf_token

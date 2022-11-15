@@ -39,14 +39,17 @@ def make_private_key():
 
 ticket_event_ticket_type = sa.Table(
     'ticket_event_ticket_type',
-    db.Model.metadata,
-    db.Column(
-        'ticket_event_id', None, sa.ForeignKey('ticket_event.id'), primary_key=True
+    db.Model.metadata,  # type: ignore[has-type]
+    sa.Column(
+        'ticket_event_id',
+        sa.Integer,
+        sa.ForeignKey('ticket_event.id'),
+        primary_key=True,
     ),
-    db.Column(
-        'ticket_type_id', None, sa.ForeignKey('ticket_type.id'), primary_key=True
+    sa.Column(
+        'ticket_type_id', sa.Integer, sa.ForeignKey('ticket_type.id'), primary_key=True
     ),
-    db.Column(
+    sa.Column(
         'created_at',
         sa.TIMESTAMP(timezone=True),
         default=sa.func.utcnow(),
@@ -78,7 +81,7 @@ class GetTitleMixin(BaseScopedNameMixin):
         return instance
 
 
-class TicketEvent(GetTitleMixin, db.Model):
+class TicketEvent(GetTitleMixin, db.Model):  # type: ignore[name-defined]
     """
     A discrete event under a project that a ticket grants access to.
 
@@ -91,9 +94,7 @@ class TicketEvent(GetTitleMixin, db.Model):
 
     __tablename__ = 'ticket_event'
 
-    project_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('project.id'), nullable=False
-    )
+    project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
     project: sa.orm.relationship[Project] = with_roles(
         sa.orm.relationship(
             Project, backref=sa.orm.backref('ticket_events', cascade='all')
@@ -139,7 +140,7 @@ class TicketEvent(GetTitleMixin, db.Model):
     }
 
 
-class TicketType(GetTitleMixin, db.Model):
+class TicketType(GetTitleMixin, db.Model):  # type: ignore[name-defined]
     """
     A ticket type that can grant access to multiple events within a project.
 
@@ -148,9 +149,7 @@ class TicketType(GetTitleMixin, db.Model):
 
     __tablename__ = 'ticket_type'
 
-    project_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('project.id'), nullable=False
-    )
+    project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
     project: sa.orm.relationship[Project] = with_roles(
         sa.orm.relationship(
             Project, backref=sa.orm.backref('ticket_types', cascade='all')
@@ -184,7 +183,12 @@ class TicketType(GetTitleMixin, db.Model):
     }
 
 
-class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
+class TicketParticipant(
+    EmailAddressMixin,
+    UuidMixin,
+    BaseMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     """A participant in one or more events, synced from an external ticket source."""
 
     __tablename__ = 'ticket_participant'
@@ -228,15 +232,11 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
         sa.Unicode(44), nullable=False, default=make_private_key, unique=True
     )
     badge_printed = sa.Column(sa.Boolean, default=False, nullable=False)
-    user_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('user.id'), nullable=True
-    )
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
     user: Mapped[Optional[User]] = sa.orm.relationship(
         User, backref=sa.orm.backref('ticket_participants', cascade='all')
     )
-    project_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('project.id'), nullable=False
-    )
+    project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
     project: sa.orm.relationship[Project] = with_roles(
         sa.orm.relationship(Project, back_populates='ticket_participants'),
         read={'promoter', 'subject', 'scanner'},
@@ -364,13 +364,13 @@ class TicketParticipant(EmailAddressMixin, UuidMixin, BaseMixin, db.Model):
         return query.all()
 
 
-class TicketEventParticipant(BaseMixin, db.Model):
+class TicketEventParticipant(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Join model between :class:`TicketParticipant` and :class:`TicketEvent`."""
 
     __tablename__ = 'ticket_event_participant'
 
-    ticket_participant_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('ticket_participant.id'), nullable=False
+    ticket_participant_id = sa.Column(
+        sa.Integer, sa.ForeignKey('ticket_participant.id'), nullable=False
     )
     ticket_participant = sa.orm.relationship(  # type: ignore[call-arg]
         TicketParticipant,
@@ -381,8 +381,8 @@ class TicketEventParticipant(BaseMixin, db.Model):
         ),
         overlaps='ticket_events,ticket_participants',
     )
-    ticket_event_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('ticket_event.id'), nullable=False
+    ticket_event_id = sa.Column(
+        sa.Integer, sa.ForeignKey('ticket_event.id'), nullable=False
     )
     ticket_event = sa.orm.relationship(  # type: ignore[call-arg]
         TicketEvent,
@@ -417,7 +417,7 @@ class TicketEventParticipant(BaseMixin, db.Model):
         )
 
 
-class TicketClient(BaseMixin, db.Model):
+class TicketClient(BaseMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'ticket_client'
     name = with_roles(
         sa.Column(sa.Unicode(80), nullable=False), rw={'project_promoter'}
@@ -434,9 +434,7 @@ class TicketClient(BaseMixin, db.Model):
     client_access_token = with_roles(
         sa.Column(sa.Unicode(80), nullable=False), rw={'project_promoter'}
     )
-    project_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('project.id'), nullable=False
-    )
+    project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
     project = with_roles(
         sa.orm.relationship(
             Project, backref=sa.orm.backref('ticket_clients', cascade='all')
@@ -488,28 +486,28 @@ class TicketClient(BaseMixin, db.Model):
                 ticket.ticket_participant.add_events(ticket_type.ticket_events)
 
 
-class SyncTicket(BaseMixin, db.Model):
+class SyncTicket(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Model for a ticket that was bought elsewhere, like Boxoffice or Explara."""
 
     __tablename__ = 'sync_ticket'
 
     ticket_no = sa.Column(sa.Unicode(80), nullable=False)
     order_no = sa.Column(sa.Unicode(80), nullable=False)
-    ticket_type_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('ticket_type.id'), nullable=False
+    ticket_type_id = sa.Column(
+        sa.Integer, sa.ForeignKey('ticket_type.id'), nullable=False
     )
     ticket_type = sa.orm.relationship(
         TicketType, backref=sa.orm.backref('sync_tickets', cascade='all')
     )
-    ticket_participant_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('ticket_participant.id'), nullable=False
+    ticket_participant_id = sa.Column(
+        sa.Integer, sa.ForeignKey('ticket_participant.id'), nullable=False
     )
     ticket_participant = sa.orm.relationship(
         TicketParticipant,
         backref=sa.orm.backref('sync_tickets', cascade='all'),
     )
-    ticket_client_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('ticket_client.id'), nullable=False
+    ticket_client_id = sa.Column(
+        sa.Integer, sa.ForeignKey('ticket_client.id'), nullable=False
     )
     ticket_client = sa.orm.relationship(
         TicketClient, backref=sa.orm.backref('sync_tickets', cascade='all')

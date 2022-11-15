@@ -26,7 +26,7 @@ class ProposalMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
     ImmutableUserMembershipMixin,
-    db.Model,
+    db.Model,  # type: ignore[name-defined]
 ):
     """Users can be presenters or reviewers on proposals."""
 
@@ -81,8 +81,10 @@ class ProposalMembership(  # type: ignore[misc]
 
     proposal_id: sa.Column[int] = immutable(
         with_roles(
-            db.Column(
-                None, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
+            sa.Column(
+                sa.Integer,
+                sa.ForeignKey('proposal.id', ondelete='CASCADE'),
+                nullable=False,
             ),
             read={'subject', 'editor'},
         ),
