@@ -14,7 +14,10 @@ from .membership_mixin import ImmutableUserMembershipMixin
 __all__ = ['SiteMembership']
 
 
-class SiteMembership(ImmutableUserMembershipMixin, db.Model):
+class SiteMembership(
+    ImmutableUserMembershipMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     """Membership roles for users who are site administrators."""
 
     __tablename__ = 'site_membership'

@@ -147,7 +147,7 @@ class EmailAddressInUseError(EmailAddressError):
     """Email address is in use by another owner."""
 
 
-class EmailAddress(BaseMixin, db.Model):
+class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
     """
     Represents an email address as a standalone entity, with associated metadata.
 
@@ -680,8 +680,8 @@ class EmailAddressMixin:
         cls,
     ) -> sa.Column[int]:
         """Foreign key to email_address table."""
-        return db.Column(
-            None,
+        return sa.Column(
+            sa.Integer,
             sa.ForeignKey('email_address.id', ondelete='SET NULL'),
             nullable=cls.__email_optional__,
             unique=cls.__email_unique__,
@@ -841,6 +841,9 @@ def _email_address_mixin_set_validator(
 
 
 @event.listens_for(EmailAddressMixin, 'mapper_configured', propagate=True)
-def _email_address_mixin_configure_events(mapper_, cls: db.Model):
+def _email_address_mixin_configure_events(
+    mapper_,
+    cls: db.Model,  # type: ignore[name-defined]
+):
     event.listen(cls.email_address, 'set', _email_address_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)
