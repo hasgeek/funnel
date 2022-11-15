@@ -6,22 +6,28 @@ from flask import request
 from ... import app
 from ...typing import ReturnView
 from coaster.utils import markdown
+from ...models import markdown_content_options
 
-# extra_markdown_types = {'profile', 'project', 'submission', 'session'}
+extra_markdown_types = {'profile', 'project', 'submission', 'session'}
 
 
 @app.route('/api/1/preview/markdown', methods=['POST'])
 def markdown_preview() -> ReturnView:
     """Render Markdown in the backend, with custom options based on use case."""
     # The `type` differentiator is temporarily not supported with new markdown
-    # mtype = request.form.get('type')
+    mtype = request.form.get('type')
     text = request.form.get('text')
-
-    html = markdown(text)
+    
+    if mtype in extra_markdown_types:
+        markdown_options = markdown_content_options
+    else:
+        markdown_options = {}
+ 
+    html = markdown(text, **markdown_options)
 
     return {
         'status': 'ok',
-        # 'type': mtype if mtype in extra_markdown_types else None,
-        'type': None,
+        'type': mtype if mtype in extra_markdown_types else None,
+        # 'type': None,
         'html': html,
     }
