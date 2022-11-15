@@ -157,9 +157,7 @@ def recent_organization_memberships(
     return SimpleNamespace(
         recent=orgs[:recent],
         overflow=orgs[recent : recent + overflow],
-        extra_count=max(
-            0, obj.active_organization_admin_memberships.count() - recent
-        ),
+        extra_count=max(0, obj.active_organization_admin_memberships.count() - recent),
     )
 
 
