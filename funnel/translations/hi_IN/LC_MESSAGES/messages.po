@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2022-11-15 18:18+0530\n"
+"POT-Creation-Date: 2022-11-15 18:44+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -1788,11 +1788,11 @@ msgstr "सार्वजनिक"
 msgid "Private"
 msgstr "निजी"
 
-#: funnel/models/profile.py:461 funnel/templates/macros.html.jinja2:490
+#: funnel/models/profile.py:462 funnel/templates/macros.html.jinja2:490
 msgid "Make public"
 msgstr "सार्वजनिक बनाएं"
 
-#: funnel/models/profile.py:472 funnel/templates/macros.html.jinja2:427
+#: funnel/models/profile.py:473 funnel/templates/macros.html.jinja2:427
 msgid "Make private"
 msgstr "निजी बनाएं"
 
@@ -2107,7 +2107,7 @@ msgstr ""
 #: funnel/static/js/schedules.js:500 funnel/static/js/schedules.js:669
 #: funnel/static/js/schedules.js:689 funnel/static/js/schedules.packed.js:1
 #: funnel/templates/schedule_edit.html.jinja2:90
-#: funnel/views/organization.py:189 funnel/views/project.py:331
+#: funnel/views/organization.py:189 funnel/views/project.py:329
 #: funnel/views/update.py:158 funnel/views/venue.py:121
 #: funnel/views/venue.py:184
 msgid "Save"
@@ -4544,9 +4544,9 @@ msgstr "खाता संपादित करें"
 
 #: funnel/views/account.py:349 funnel/views/auth_client.py:162
 #: funnel/views/auth_client.py:397 funnel/views/auth_client.py:472
-#: funnel/views/profile.py:286 funnel/views/project.py:344
-#: funnel/views/project.py:372 funnel/views/project.py:396
-#: funnel/views/project.py:525 funnel/views/proposal.py:404
+#: funnel/views/profile.py:286 funnel/views/project.py:342
+#: funnel/views/project.py:370 funnel/views/project.py:394
+#: funnel/views/project.py:523 funnel/views/proposal.py:404
 #: funnel/views/ticket_event.py:191 funnel/views/ticket_event.py:278
 #: funnel/views/ticket_event.py:339 funnel/views/ticket_participant.py:211
 msgid "Save changes"
@@ -4877,7 +4877,7 @@ msgstr "ऐप्लिकेशन संपादित करें"
 #: funnel/views/auth_client.py:173 funnel/views/auth_client.py:332
 #: funnel/views/auth_client.py:408 funnel/views/auth_client.py:483
 #: funnel/views/label.py:254 funnel/views/organization.py:115
-#: funnel/views/organization.py:204 funnel/views/project.py:417
+#: funnel/views/organization.py:204 funnel/views/project.py:415
 #: funnel/views/proposal.py:306 funnel/views/ticket_event.py:200
 #: funnel/views/ticket_event.py:288 funnel/views/ticket_event.py:349
 #: funnel/views/update.py:176
@@ -5017,7 +5017,7 @@ msgstr ""
 msgid "Request expired. Reload and try again"
 msgstr ""
 
-#: funnel/views/comment.py:265 funnel/views/project.py:700
+#: funnel/views/comment.py:265 funnel/views/project.py:698
 msgid "This page timed out. Reload and try again"
 msgstr ""
 "इस पेज को लोड होने का समय समाप्त हो चुका है. पेज को रिलोड करने के बाद फिर"
@@ -5109,9 +5109,9 @@ msgstr "आचार संहिता"
 
 #: funnel/views/label.py:40 funnel/views/profile.py:281
 #: funnel/views/profile.py:313 funnel/views/profile.py:360
-#: funnel/views/profile.py:398 funnel/views/project.py:382
-#: funnel/views/project.py:453 funnel/views/project.py:494
-#: funnel/views/project.py:519 funnel/views/proposal.py:234
+#: funnel/views/profile.py:398 funnel/views/project.py:380
+#: funnel/views/project.py:451 funnel/views/project.py:492
+#: funnel/views/project.py:517 funnel/views/proposal.py:234
 #: funnel/views/ticket_event.py:189 funnel/views/ticket_event.py:275
 #: funnel/views/ticket_event.py:336 funnel/views/ticket_participant.py:208
 msgid "Your changes have been saved"
@@ -5564,11 +5564,11 @@ msgid "Were you trying to remove the logo? Try again to confirm"
 msgstr ""
 
 #: funnel/views/profile.py:362 funnel/views/profile.py:366
-#: funnel/views/project.py:455 funnel/views/project.py:459
+#: funnel/views/project.py:453 funnel/views/project.py:457
 msgid "Save banner"
 msgstr "बैनर सेव करें"
 
-#: funnel/views/profile.py:384 funnel/views/project.py:478
+#: funnel/views/profile.py:384 funnel/views/project.py:476
 msgid "Were you trying to remove the banner? Try again to confirm"
 msgstr ""
 
@@ -5774,29 +5774,29 @@ msgstr "आपका नया प्रोजेक्ट बना दिय�
 msgid "Create project"
 msgstr "प्रोजेक्ट बनाएं"
 
-#: funnel/views/project.py:331
+#: funnel/views/project.py:329
 msgid "Customize the URL"
 msgstr "URL कस्टमाइज़ करें"
 
-#: funnel/views/project.py:344
+#: funnel/views/project.py:342
 msgid "Add or edit livestream URLs"
 msgstr "लाइवस्ट्रीम URLs जोड़ें या संपादित करें"
 
-#: funnel/views/project.py:371 funnel/views/project.py:395
+#: funnel/views/project.py:369 funnel/views/project.py:393
 msgid "Edit project"
 msgstr "प्रोजेक्ट संपादित करें"
 
-#: funnel/views/project.py:408
+#: funnel/views/project.py:406
 msgid "This project has submissions"
 msgstr ""
 
-#: funnel/views/project.py:409
+#: funnel/views/project.py:407
 msgid ""
 "Submissions must be deleted or transferred before the project can be "
 "deleted"
 msgstr ""
 
-#: funnel/views/project.py:418
+#: funnel/views/project.py:416
 msgid ""
 "Delete project ‘{title}’? This will delete everything in the project. "
 "This operation is permanent and cannot be undone"
@@ -5804,47 +5804,47 @@ msgstr ""
 "‘{title}’ प्रोजेक्ट मिटाएं? यह प्रोजेक्ट में सब कुछ मिटा देगा. ऐसा करना "
 "इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता"
 
-#: funnel/views/project.py:422
+#: funnel/views/project.py:420
 msgid "You have deleted project ‘{title}’ and all its associated content"
 msgstr "आपने ‘{title}’ प्रोजेक्ट और उससे जुड़ी सारी सामग्री हटा दी है"
 
-#: funnel/views/project.py:524
+#: funnel/views/project.py:522
 msgid "Edit ticket client details"
 msgstr "टिकट क्लाइंट विवरण संपादित करें"
 
-#: funnel/views/project.py:544
+#: funnel/views/project.py:542
 msgid "Invalid transition for this project"
 msgstr "इस प्रोजेक्ट के लिए अमान्य परिवर्तन"
 
-#: funnel/views/project.py:560
+#: funnel/views/project.py:558
 msgid "This project can now receive submissions"
 msgstr ""
 
-#: funnel/views/project.py:564
+#: funnel/views/project.py:562
 msgid "This project will no longer accept submissions"
 msgstr ""
 
-#: funnel/views/project.py:569
+#: funnel/views/project.py:567
 msgid "Invalid form submission"
 msgstr ""
 
-#: funnel/views/project.py:590
+#: funnel/views/project.py:588
 msgid "Were you trying to register? Try again to confirm"
 msgstr ""
 
-#: funnel/views/project.py:612
+#: funnel/views/project.py:610
 msgid "Were you trying to cancel your registration? Try again to confirm"
 msgstr ""
 
-#: funnel/views/project.py:722 funnel/views/ticket_event.py:150
+#: funnel/views/project.py:720 funnel/views/ticket_event.py:150
 msgid "Importing tickets from vendors… Reload the page in about 30 seconds…"
 msgstr "विक्रेताओं से टिकट आयात हो रहा है… पेज को लगभग 30 सेकंड में रिलोड करें…"
 
-#: funnel/views/project.py:780
+#: funnel/views/project.py:778
 msgid "This project has been featured"
 msgstr ""
 
-#: funnel/views/project.py:783
+#: funnel/views/project.py:781
 msgid "This project is no longer featured"
 msgstr ""
 
