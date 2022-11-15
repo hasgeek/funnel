@@ -104,6 +104,7 @@ def send_via_exotel(phone: str, message: SmsTemplate, callback: bool = True) -> 
     try:
         r = requests.post(
             f'https://twilix.exotel.in/v1/Accounts/{sid}/Sms/send.json',
+            timeout=30,
             auth=(sid, token),
             data=payload,
         )

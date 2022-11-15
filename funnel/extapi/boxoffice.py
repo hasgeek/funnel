@@ -28,7 +28,7 @@ class Boxoffice:
             self.base_url,
             f'ic/{ic}/orders?access_token={self.access_token}',
         )
-        return requests.get(url).json().get('orders')
+        return requests.get(url, timeout=30).json().get('orders')
 
     def get_tickets(self, ic):
         tickets = []
