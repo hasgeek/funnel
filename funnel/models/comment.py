@@ -73,7 +73,7 @@ message_removed = MessageComposite(__("[removed]"), 'del')
 # --- Models ---------------------------------------------------------------------------
 
 
-class Commentset(UuidMixin, BaseMixin, db.Model):
+class Commentset(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'commentset'
     #: Commentset state code
     _state = sa.Column(
@@ -119,7 +119,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
         self.count = 0
 
     @cached_property
-    def parent(self) -> db.Model:
+    def parent(self) -> BaseMixin:
         # FIXME: Move this to a CommentMixin that uses a registry, like EmailAddress
         if self.project is not None:
             return self.project
@@ -190,20 +190,18 @@ class Commentset(UuidMixin, BaseMixin, db.Model):
     # Transitions for the other two states are pending on the TODO notes in post_comment
 
 
-class Comment(UuidMixin, BaseMixin, db.Model):
+class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'comment'
 
-    user_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('user.id'), nullable=True
-    )
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
     _user: Mapped[Optional[User]] = with_roles(
         sa.orm.relationship(
             User, backref=sa.orm.backref('comments', lazy='dynamic', cascade='all')
         ),
         grants={'author'},
     )
-    commentset_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('commentset.id'), nullable=False
+    commentset_id = sa.Column(
+        sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset = with_roles(
         sa.orm.relationship(
@@ -213,9 +211,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):
         grants_via={None: {'document_subscriber'}},
     )
 
-    in_reply_to_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('comment.id'), nullable=True
-    )
+    in_reply_to_id = sa.Column(sa.Integer, sa.ForeignKey('comment.id'), nullable=True)
     replies = sa.orm.relationship(
         'Comment', backref=sa.orm.backref('in_reply_to', remote_side='Comment.id')
     )

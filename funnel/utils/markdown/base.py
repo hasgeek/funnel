@@ -95,7 +95,7 @@ def markdown(
     return Markup(getattr(md, _profile.render_with)(text))
 
 
-def _print_rules(md: MarkdownIt, active: str = None):
+def _print_rules(md: MarkdownIt, active: Optional[str] = None):
     """Debug function to be removed before merge."""
     rules = {'all_rules': md.get_all_rules(), 'active_rules': {}}
     for p, pr in profiles.items():

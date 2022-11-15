@@ -377,6 +377,7 @@ def test_shortlink_comparator() -> None:
         _expr = models.shortlink.Shortlink.name != 'example'  # noqa: F841
 
 
+@pytest.mark.usefixtures('app_context')
 def test_shortlink_lookup_multiple() -> None:
     """Shortlink allows lookup by name."""
     sl1 = models.shortlink.Shortlink.new('https://example.org', name='example')

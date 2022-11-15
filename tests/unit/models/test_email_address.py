@@ -216,7 +216,7 @@ def test_email_address_md5() -> None:
     assert ea.md5() is None
 
 
-def test_email_address_is_blocked_flag() -> None:
+def test_email_address_is_blocked_flag(db_session) -> None:
     """`EmailAddress` has a read-only is_blocked flag that is normally False."""
     ea = models.EmailAddress('example@example.com')
     assert ea.is_blocked is False
@@ -400,15 +400,15 @@ def test_email_address_delivery_state() -> None:
 # 2. Remove table from metadata using db.metadata.remove(cls.__table__)
 # 3. Remove all relationships to other classes (unsolved)
 @pytest.fixture(scope='session')
-def email_models(database):
+def email_models(database, app):
     db = database
 
-    class EmailUser(models.BaseMixin, db.Model):
+    class EmailUser(models.BaseMixin, db.Model):  # type: ignore[name-defined]
         """Test model representing a user account."""
 
         __tablename__ = 'emailuser'
 
-    class EmailLink(models.EmailAddressMixin, models.BaseMixin, db.Model):
+    class EmailLink(models.EmailAddressMixin, models.BaseMixin, db.Model):  # type: ignore[name-defined]
         """Test model connecting EmailUser to EmailAddress."""
 
         __email_optional__ = False
@@ -419,10 +419,10 @@ def email_models(database):
         emailuser_id = sa.Column(sa.ForeignKey('emailuser.id'), nullable=False)
         emailuser = sa.orm.relationship(EmailUser)
 
-    class EmailDocument(models.EmailAddressMixin, models.BaseMixin, db.Model):
+    class EmailDocument(models.EmailAddressMixin, models.BaseMixin, db.Model):  # type: ignore[name-defined]
         """Test model unaffiliated to a user that has an email address attached."""
 
-    class EmailLinkedDocument(models.EmailAddressMixin, models.BaseMixin, db.Model):
+    class EmailLinkedDocument(models.EmailAddressMixin, models.BaseMixin, db.Model):  # type: ignore[name-defined]
         """Test model that accepts an optional user and an optional email."""
 
         __email_for__ = 'emailuser'
@@ -433,15 +433,15 @@ def email_models(database):
     new_models = [EmailUser, EmailLink, EmailDocument, EmailLinkedDocument]
 
     # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
-    database.metadata.create_all(
-        bind=database.engine, tables=[model.__table__ for model in new_models]
-    )
+    with app.app_context():
+        database.metadata.create_all(
+            bind=database.engine, tables=[model.__table__ for model in new_models]
+        )
     yield SimpleNamespace(**{model.__name__: model for model in new_models})
-    database.metadata.drop_all(
-        bind=database.engine, tables=[model.__table__ for model in new_models]
-    )
-
-    db.create_all()
+    with app.app_context():
+        database.metadata.drop_all(
+            bind=database.engine, tables=[model.__table__ for model in new_models]
+        )
 
 
 def test_email_address_mixin(  # pylint: disable=too-many-locals,too-many-statements

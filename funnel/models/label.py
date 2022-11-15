@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import Union
 
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.sql import case, exists
@@ -17,31 +17,34 @@ from .proposal import Proposal
 
 proposal_label = sa.Table(
     'proposal_label',
-    db.Model.metadata,
-    db.Column(
+    db.Model.metadata,  # type: ignore[has-type]
+    sa.Column(
         'proposal_id',
-        None,
+        sa.Integer,
         sa.ForeignKey('proposal.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
     ),
-    db.Column(
+    sa.Column(
         'label_id',
-        None,
+        sa.Integer,
         sa.ForeignKey('label.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
         index=True,
     ),
-    db.Column('created_at', sa.TIMESTAMP(timezone=True), default=sa.func.utcnow()),
+    sa.Column('created_at', sa.TIMESTAMP(timezone=True), default=sa.func.utcnow()),
 )
 
 
-class Label(BaseScopedNameMixin, db.Model):
+class Label(
+    BaseScopedNameMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     __tablename__ = 'label'
 
-    project_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
+    project_id = sa.Column(
+        sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     # Backref from project is defined in the Project model with an ordering list
     project: sa.orm.relationship[Project] = with_roles(
@@ -54,9 +57,8 @@ class Label(BaseScopedNameMixin, db.Model):
     #: Parent label's id. Do not write to this column directly, as we don't have the
     #: ability to : validate the value within the app. Always use the :attr:`main_label`
     #: relationship.
-    main_label_id: sa.Column[Optional[int]] = db.Column(
-        'main_label_id',
-        None,
+    main_label_id = sa.Column(
+        sa.Integer,
         sa.ForeignKey('label.id', ondelete='CASCADE'),
         index=True,
         nullable=True,
@@ -370,7 +372,9 @@ class ProposalLabelProxyWrapper:
 
 
 class ProposalLabelProxy:
-    def __get__(self, obj, cls=None):
+    def __get__(
+        self, obj, cls=None
+    ) -> Union[ProposalLabelProxyWrapper, ProposalLabelProxy]:
         """Get proposal label proxy."""
         if obj is not None:
             return ProposalLabelProxyWrapper(obj)

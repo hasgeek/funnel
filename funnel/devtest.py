@@ -159,12 +159,12 @@ class BackgroundWorker:
         if self._process is not None:
             return
 
-        engines = {
-            db.get_engine(app, bind)
-            # TODO: Add hasjobapp here
-            for app in (main_app, shortlinkapp)
-            for bind in ([None] + list(app.config.get('SQLALCHEMY_BINDS') or ()))
-        }
+        engines = set()
+        for app in main_app, shortlinkapp:  # TODO: Add hasjobapp here
+            with app.app_context():
+                engines.add(db.engines[None])
+                for bind in app.config.get('SQLALCHEMY_BINDS') or ():
+                    engines.add(db.engines[bind])
         self._process = multiprocessing.Process(
             target=_dispose_engines_in_child_process,
             args=(engines, self.worker, self.worker_args, self.worker_kwargs),

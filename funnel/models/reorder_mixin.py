@@ -98,9 +98,11 @@ class ReorderMixin:
         new_seq_number = self.seq
         # Temporarily give self an out-of-bounds number
         self.seq = (
-            db.select([sa.func.coalesce(sa.func.max(cls.seq) + 1, 1)])
+            sa.select(  # type: ignore[attr-defined]
+                [sa.func.coalesce(sa.func.max(cls.seq) + 1, 1)]
+            )
             .where(self.parent_scoped_reorder_query_filter)
-            .scalar_subquery()
+            .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
         )
         # Flush it so the db doesn't complain when there's a unique constraint
         db.session.flush()

@@ -44,13 +44,17 @@ class DateCountContacts:
     contacts: Collection[ContactExchange]
 
 
-class ContactExchange(TimestampMixin, RoleMixin, db.Model):
+class ContactExchange(
+    TimestampMixin,
+    RoleMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     """Model to track who scanned whose badge, in which project."""
 
     __tablename__ = 'contact_exchange'
     #: User who scanned this contact
-    user_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True
+    user_id = sa.Column(
+        sa.Integer, sa.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True
     )
     user = sa.orm.relationship(
         User,
@@ -62,8 +66,8 @@ class ContactExchange(TimestampMixin, RoleMixin, db.Model):
         ),
     )
     #: Participant whose contact was scanned
-    ticket_participant_id: sa.Column[int] = db.Column(
-        None,
+    ticket_participant_id = sa.Column(
+        sa.Integer,
         sa.ForeignKey('ticket_participant.id', ondelete='CASCADE'),
         primary_key=True,
         index=True,

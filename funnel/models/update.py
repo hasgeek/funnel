@@ -46,7 +46,12 @@ class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
     RESTRICTED = (2, 'restricted', __("Restricted"))
 
 
-class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
+class Update(
+    UuidMixin,
+    BaseScopedIdNameMixin,
+    TimestampMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     __tablename__ = 'update'
 
     _visibility_state = sa.Column(
@@ -71,8 +76,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
     )
     state = StateManager('_state', UPDATE_STATE, doc="Update state")
 
-    user_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('user.id'), nullable=False, index=True
+    user_id = sa.Column(
+        sa.Integer, sa.ForeignKey('user.id'), nullable=False, index=True
     )
     user = with_roles(
         sa.orm.relationship(
@@ -84,8 +89,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         grants={'creator'},
     )
 
-    project_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('project.id'), nullable=False, index=True
+    project_id = sa.Column(
+        sa.Integer, sa.ForeignKey('project.id'), nullable=False, index=True
     )
     project: sa.orm.relationship[Project] = with_roles(
         sa.orm.relationship(Project, backref=sa.orm.backref('updates', lazy='dynamic')),
@@ -116,8 +121,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         sa.Column(sa.Boolean, default=False, nullable=False), read={'all'}
     )
 
-    published_by_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('user.id'), nullable=True, index=True
+    published_by_id = sa.Column(
+        sa.Integer, sa.ForeignKey('user.id'), nullable=True, index=True
     )
     published_by: Mapped[Optional[User]] = with_roles(
         sa.orm.relationship(
@@ -131,8 +136,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    deleted_by_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('user.id'), nullable=True, index=True
+    deleted_by_id = sa.Column(
+        sa.Integer, sa.ForeignKey('user.id'), nullable=True, index=True
     )
     deleted_by: Mapped[Optional[User]] = with_roles(
         sa.orm.relationship(
@@ -150,8 +155,8 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
         sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    commentset_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('commentset.id'), nullable=False
+    commentset_id = sa.Column(
+        sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset = with_roles(
         sa.orm.relationship(
@@ -275,9 +280,11 @@ class Update(UuidMixin, BaseScopedIdNameMixin, TimestampMixin, db.Model):
             self.published_at = sa.func.utcnow()
         if self.number is None:
             self.number = (
-                db.select([sa.func.coalesce(sa.func.max(Update.number), 0) + 1])
+                sa.select(  # type: ignore[attr-defined]
+                    [sa.func.coalesce(sa.func.max(Update.number), 0) + 1]
+                )
                 .where(Update.project == self.project)
-                .scalar_subquery()
+                .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
             )
         return first_publishing
 
