@@ -85,7 +85,7 @@ class SharedProfileMixin:
 
     @property
     def has_public_profile(self) -> bool:
-        """Return the visibility state of a profile."""
+        """Return the visibility state of an account."""
         profile = self.profile
         return profile is not None and bool(profile.state.PUBLIC)
 
@@ -105,7 +105,7 @@ class SharedProfileMixin:
 
     @property
     def profile_url(self) -> Optional[str]:
-        """Return optional URL to profile page."""
+        """Return optional URL to account page."""
         profile = self.profile
         return profile.url_for() if profile is not None else None
 
@@ -302,7 +302,7 @@ class User(
 
     @hybrid_property
     def name(self) -> Optional[str]:
-        """Return @name (username) from linked profile."""  # noqa: D402
+        """Return @name (username) from linked account."""  # noqa: D402
         if self.profile:
             return self.profile.name
         return None
@@ -321,7 +321,7 @@ class User(
 
     @name.expression
     def name(cls):  # noqa: N805  # pylint: disable=no-self-argument
-        """Return @name from linked profile as a SQL expression."""
+        """Return @name from linked account as a SQL expression."""
         return sa.select([Profile.name]).where(Profile.user_id == cls.id).label('name')
 
     with_roles(name, read={'all'})
@@ -1145,7 +1145,7 @@ class Organization(
 
     @hybrid_property
     def name(self) -> str:
-        """Return username from linked profile."""
+        """Return username from linked account."""
         return self.profile.name
 
     @name.setter

@@ -14,7 +14,7 @@ from ..models import EmailAddress, Profile, UserEmailClaim, parse_video_url
 
 
 class ProfileSelectField(forms.AutocompleteField):
-    """Render an autocomplete field for selecting a profile."""
+    """Render an autocomplete field for selecting an account."""
 
     data: Optional[Profile]
     widget = forms.Select2Widget()

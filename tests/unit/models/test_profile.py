@@ -1,4 +1,4 @@
-"""Tests for Profile model."""
+"""Tests for Account (nee Profile) model."""
 
 from sqlalchemy.exc import StatementError
 
@@ -59,7 +59,7 @@ def test_user_avatar(db_session, user_twoflower, user_rincewind) -> None:
 
 @pytest.mark.filterwarnings("ignore:Object of type <UserPhone> not in session")
 def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
-    """Suspending a user will mark their profile as private."""
+    """Suspending a user will mark their account page as private."""
     # Ensure column defaults are set (Profile.state)
     db_session.commit()
 

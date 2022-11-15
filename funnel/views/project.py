@@ -232,7 +232,7 @@ def project_register_button_text(obj: Project) -> str:
 @Profile.views('project_new')
 @route('/<profile>')
 class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
-    """Project views inside the profile (new project view only)."""
+    """Project views inside the account (new project view only)."""
 
     @route('new', methods=['GET', 'POST'])
     @requires_login

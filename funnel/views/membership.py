@@ -46,7 +46,7 @@ from .notification import dispatch_notification
 @route('/<profile>/members')
 class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
     def after_loader(self) -> Optional[ReturnView]:  # type: ignore[return]
-        """Don't render member views for user profiles."""
+        """Don't render member views for user accounts."""
         if not self.obj.organization:
             # User profiles don't have memberships
             abort(404)
@@ -290,8 +290,8 @@ class OrganizationMembershipView(
         form_html = render_form(
             form=form,
             title=_("Confirm removal"),
-            message=_("Remove {member} as an admin from {profile}?").format(
-                member=self.obj.user.fullname, profile=self.obj.organization.title
+            message=_("Remove {member} as an admin from {account}?").format(
+                member=self.obj.user.fullname, account=self.obj.organization.title
             ),
             submit=_("Remove"),
             ajax=False,

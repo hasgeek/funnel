@@ -1,4 +1,4 @@
-"""Forms for user and organization profiles."""
+"""Forms for user and organization accounts."""
 
 from __future__ import annotations
 
@@ -37,10 +37,10 @@ class ProfileForm(OrganizationForm):
     description = forms.MarkdownField(
         __("Welcome message"),
         validators=[forms.validators.Optional()],
-        description=__("Optional – This message will be shown on the profile page"),
+        description=__("Optional – This message will be shown on the account’s page"),
     )
     logo_url = forms.ImgeeField(
-        label=__("Profile image"),
+        label=__("Account image"),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),
@@ -64,7 +64,7 @@ class ProfileForm(OrganizationForm):
         self.logo_url.profile = self.profile.name
 
     def make_for_user(self):
-        """Customise form for a user profile."""
+        """Customise form for a user account."""
         self.title.label.text = __("Your name")
         self.title.description = __(
             "Your full name, in the form others can recognise you by"
@@ -72,24 +72,24 @@ class ProfileForm(OrganizationForm):
         self.tagline.description = __("A brief statement about yourself")
         self.name.description = __(
             "A short name for mentioning you with @username, and the URL to your"
-            " profile page. Single word containing letters, numbers and dashes only."
+            " account’s page. Single word containing letters, numbers and dashes only."
             " Pick something permanent: changing it will break existing links from"
             " around the web"
         )
         self.description.label.text = __("More about you")
         self.description.description = __(
-            "Optional – This message will be shown on the profile page"
+            "Optional – This message will be shown on the account’s page"
         )
 
 
 @Profile.forms('transition')
 class ProfileTransitionForm(forms.Form):
-    """Form to transition a profile between public and private state."""
+    """Form to transition an account between public and private state."""
 
     edit_obj: Profile
 
     transition = forms.SelectField(
-        __("Profile visibility"), validators=[forms.validators.DataRequired()]
+        __("Account visibility"), validators=[forms.validators.DataRequired()]
     )
 
     def set_queries(self) -> None:
@@ -109,7 +109,7 @@ class ProfileLogoForm(forms.Form):
     profile: Profile
 
     logo_url = forms.ImgeeField(
-        __("Profile image"),
+        __("Account image"),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),

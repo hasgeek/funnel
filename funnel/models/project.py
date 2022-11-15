@@ -528,7 +528,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
 
     @with_roles(call={'all'})
     def joined_title(self, sep: str = '›') -> str:
-        """Return the project's title joined with the profile's title, if divergent."""
+        """Return the project's title joined with the account's title, if divergent."""
         if self.short_title == self.title:
             # Project title does not derive from profile title, so use both
             return f"{self.profile.title} {sep} {self.title}"
@@ -707,12 +707,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     def migrate_profile(  # type: ignore[return]
         cls, old_profile: Profile, new_profile: Profile
     ) -> OptionalMigratedTables:
-        """Migrate from one profile to another when merging user accounts."""
+        """Migrate from one account to another when merging users."""
         names = {project.name for project in new_profile.projects}
         for project in old_profile.projects:
             if project.name in names:
                 app.logger.warning(
-                    "Project %r had a conflicting name in profile migration,"
+                    "Project %r had a conflicting name in account migration,"
                     " so renaming by adding adding random value to name",
                     project,
                 )

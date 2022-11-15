@@ -2188,8 +2188,8 @@ msgstr ""
 "अवसर को हाथ से जाने न दें."
 
 #: funnel/templates/account.html.jinja2:42
-msgid "Go to profile"
-msgstr "प्रोफ़ाइल पर जाएँ"
+msgid "Go to account"
+msgstr "अकाउंट पर जाएँ"
 
 #: funnel/templates/account.html.jinja2:63
 #: funnel/templates/account_merge.html.jinja2:8
@@ -5304,8 +5304,8 @@ msgid "The member has been removed"
 msgstr "सदस्य को हटा दिया गया है"
 
 #: funnel/views/membership.py:293
-msgid "Remove {member} as an admin from {profile}?"
-msgstr "{profile} से एडमिन के रूप में {member} को हटाना चाहते हैं?"
+msgid "Remove {member} as an admin from {account}?"
+msgstr "{account} से एडमिन के रूप में {member} को हटाना चाहते हैं?"
 
 #: funnel/views/membership.py:357
 msgid "This person is already a member"

@@ -45,7 +45,7 @@
 
 {% block basecontent %}
   <div class="mui--bg-accent">
-    {%- if profile.organization %}
+    {%- if profile.is_organization_profile %}
       {%- with people = profile.organization.views.people_and_teams() %}
         {%- if people %}
           <div class="mui-container">

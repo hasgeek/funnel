@@ -1,4 +1,4 @@
-"""Tests for Profile name."""
+"""Tests for Account (nee Profile) name."""
 
 from sqlalchemy.exc import IntegrityError
 import sqlalchemy as sa

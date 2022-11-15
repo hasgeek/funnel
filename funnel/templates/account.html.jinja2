@@ -39,7 +39,7 @@
               {% if current_auth.user.profile %}
                 <a href="{{ current_auth.user.profile.url_for() }}"
                    data-cy="my-profile"
-                   class="nounderline">{% trans %}Go to profile{% endtrans %} <span class="circle-icon">{{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</span></a>
+                   class="nounderline">{% trans %}Go to account{% endtrans %} <span class="circle-icon">{{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</span></a>
               {%- endif %}
             </div>
           </div>

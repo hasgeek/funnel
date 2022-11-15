@@ -1,4 +1,4 @@
-"""Views for a user or organization profile."""
+"""Views for a user or organization account."""
 
 from __future__ import annotations
 
@@ -282,7 +282,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             return render_redirect(self.obj.url_for())
         return render_form(
             form=form,
-            title=_("Edit profile details"),
+            title=_("Edit account details"),
             submit=_("Save changes"),
             cancel_url=self.obj.url_for(),
             ajax=False,
@@ -331,7 +331,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             db.session.commit()
             return render_redirect(self.obj.url_for())
         current_app.logger.error(
-            "CSRF form validation error when removing profile logo"
+            "CSRF form validation error when removing account logo"
         )
         flash(_("Were you trying to remove the logo? Try again to confirm"), 'error')
         return render_redirect(self.obj.url_for())
@@ -378,7 +378,7 @@ class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
             db.session.commit()
             return render_redirect(self.obj.url_for())
         current_app.logger.error(
-            "CSRF form validation error when removing profile banner"
+            "CSRF form validation error when removing account banner"
         )
         flash(
             _("Were you trying to remove the banner? Try again to confirm"),

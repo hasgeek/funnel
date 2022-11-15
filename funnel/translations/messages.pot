@@ -2124,7 +2124,7 @@ msgid ""
 msgstr ""
 
 #: funnel/templates/account.html.jinja2:42
-msgid "Go to profile"
+msgid "Go to account"
 msgstr ""
 
 #: funnel/templates/account.html.jinja2:63
@@ -5149,7 +5149,7 @@ msgid "The member has been removed"
 msgstr ""
 
 #: funnel/views/membership.py:293
-msgid "Remove {member} as an admin from {profile}?"
+msgid "Remove {member} as an admin from {account}?"
 msgstr ""
 
 #: funnel/views/membership.py:357

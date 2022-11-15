@@ -92,9 +92,9 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
         """Delete organization if safe to do so."""
         if self.obj.profile.is_protected:
             return render_message(
-                title=_("Protected profile"),
+                title=_("Protected account"),
                 message=_(
-                    "This organization has a protected profile and cannot be deleted"
+                    "This organization is marked as protected and cannot be deleted"
                 ),
             )
         if not self.obj.profile.is_safe_to_delete():

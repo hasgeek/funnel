@@ -187,14 +187,14 @@ class ProjectNameForm(forms.Form):
             forms.validators.Length(max=Project.__name_length__),
             forms.validators.ValidName(
                 __(
-                    "This URL contains unsupported characters. It can contain"
-                    " lowercase letters, numbers and hyphens only"
+                    "This URL contains unsupported characters. It can contain letters,"
+                    " numbers and hyphens only"
                 )
             ),
             AvailableName(),
         ],
         filters=[forms.filters.strip()],
-        prefix="https://hasgeek.com/<profile>/",
+        prefix="https://hasgeek.com/<account>/",
         render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
     )
 
@@ -296,7 +296,7 @@ class ProjectSponsorForm(forms.Form):
     """Form to add or edit a sponsor on a project."""
 
     profile = ProfileSelectField(
-        __("Profile"),
+        __("Account"),
         autocomplete_endpoint='/api/1/profile/autocomplete',
         results_key='profile',
         description=__("Choose a sponsor"),
