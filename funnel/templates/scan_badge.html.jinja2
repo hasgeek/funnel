@@ -24,7 +24,7 @@
         checkinApiUrl: {{ url_for('TicketEventParticipantCheckinView_checkin_puk', profile=project.profile.name, project=project.name, event=ticket_event.name, puk='puk')|tojson }},
         wrapperId: 'scan-badge-wrapper',
         templateId: 'scan-badge-template',
-        projectTitle:  {{ project.title|tojson }},
+        projectTitle: {{ project.title|tojson }},
         ticketEventTitle: {{ ticket_event.title|tojson }},
       };
       window.Hasgeek.badgeScanInit(ticketEventConfig);

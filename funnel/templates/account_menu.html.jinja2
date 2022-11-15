@@ -99,7 +99,7 @@
   {%- endwith %}
   <li>
     <a href="{{ url_for('saved') }}"
-       class="header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light nounderline"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='bookmark',  icon_size='subhead', baseline=false,  css_class="mui--text-light") }}</span>{% trans %}Saved projects{% endtrans %}</a>
+       class="header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light nounderline"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='bookmark', icon_size='subhead', baseline=false, css_class="mui--text-light") }}</span>{% trans %}Saved projects{% endtrans %}</a>
   </li>
   <li>
     <form action="{{ url_for('account_logout') }}"

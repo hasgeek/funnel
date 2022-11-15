@@ -19,7 +19,7 @@
 {% block basecontent %}
   <div class="page-content">
     <div class="grid">
-      <div class="grid__col-xs-12  grid__col-sm-9 calendar-wrapper">
+      <div class="grid__col-xs-12 grid__col-sm-9 calendar-wrapper">
         <div class="mui-form__controls datepicker-wrapper">
           <div class="mui-textfield mui--pull-left">
             <label>{% trans %}Select date{% endtrans %}</label>
@@ -31,9 +31,9 @@
           <p class="calendar-wrapper__heading mui--text-title">{% trans %}Select a date to add sessions{% endtrans %}</p>
         </div>
       </div>
-      <div id="proposals-tab" class="grid__col-xs-12  grid__col-sm-3">
+      <div id="proposals-tab" class="grid__col-xs-12 grid__col-sm-3">
         <ul class="mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps">
-          <li class="mui--text-subhead mui--is-active" role="presentation"><a href="#" onclick="return false;"  data-mui-toggle="tab" data-mui-controls="list" data-cy-tab="proposals">{% trans %}Unscheduled submissions{% endtrans %}</a></li>
+          <li class="mui--text-subhead mui--is-active" role="presentation"><a href="#" onclick="return false;" data-mui-toggle="tab" data-mui-controls="list" data-cy-tab="proposals">{% trans %}Unscheduled submissions{% endtrans %}</a></li>
           <li class="mui--text-subhead" role="presentation"><a href="#" onclick="return false;" data-mui-toggle="tab" data-mui-controls="settings" data-cy-tab="settings">{% trans %}Settings{% endtrans %}</a></li>
         </ul>
         <div id="list" class="mui-tabs__pane mui--is-active schedule-settings">
@@ -96,7 +96,7 @@
     </div>
     <div id="popup" class="modal modal-form session-modal" role="dialog" aria-modal="true" tabindex="-1">
       <div class="modal__header">
-        <a class="modal__close mui--text-dark" href="#" onclick="return false;"  data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+        <a class="modal__close mui--text-dark" href="#" onclick="return false;" data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
         <h3 class="js-modal-title mui--text-headline session-modal__title">{{ session.title }}</h3>
       </div>
       <hr class="mui-divider mui-divider--custom" />
