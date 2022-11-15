@@ -29,7 +29,7 @@ class ResourceRegistry(OrderedDict):
         name: str,
         description: Optional[str] = None,
         trusted: bool = False,
-        scope: str = None,
+        scope: Optional[str] = None,
     ):
         """
         Decorate a resource function.

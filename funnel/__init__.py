@@ -111,11 +111,10 @@ app.jinja_env.globals['get_locale'] = get_locale
 # API it borrows from the Flask-Login extension
 app.login_manager = views.login_session.LoginManager()
 
-db.init_app(app)
-db.init_app(shortlinkapp)
-db.app = app
+db.init_app(app)  # type: ignore[has-type]
+db.init_app(shortlinkapp)  # type: ignore[has-type]
 
-migrate = Migrate(app, db)
+migrate = Migrate(app, db)  # type: ignore[has-type]
 
 mail.init_app(app)
 mail.init_app(shortlinkapp)  # Required for email error reports
@@ -237,4 +236,4 @@ app.wsgi_app.add_files(  # type: ignore[attr-defined]
 
 # Database model loading (from Funnel or extensions) is complete.
 # Configure database mappers now, before the process is forked for workers.
-db.configure_mappers()
+db.configure_mappers()  # type: ignore[has-type]

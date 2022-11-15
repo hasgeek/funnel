@@ -170,12 +170,14 @@ class RenderShared:
     membership: OrganizationMembership
     emoji_prefix = "🔑 "
 
-    def activity_template(self, membership: OrganizationMembership = None) -> str:
+    def activity_template(
+        self, membership: Optional[OrganizationMembership] = None
+    ) -> str:
         """Return a Python string template with an appropriate message."""
         raise NotImplementedError("Subclasses must implement `activity_template`")
 
     def membership_actor(
-        self, membership: OrganizationMembership = None
+        self, membership: Optional[OrganizationMembership] = None
     ) -> Optional[User]:
         """Actor who granted or revoked, for the template."""
         raise NotImplementedError("Subclasses must implement `membership_actor`")
@@ -191,7 +193,7 @@ class RenderShared:
         # There are four record types: invite, accept, direct_add, amend
         return MEMBERSHIP_RECORD_TYPE[self.membership.record_type].name
 
-    def activity_html(self, membership: OrganizationMembership = None) -> str:
+    def activity_html(self, membership: Optional[OrganizationMembership] = None) -> str:
         """Return HTML rendering of :meth:`activity_template`."""
         if membership is None:
             membership = self.membership
@@ -250,12 +252,14 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
     fragments_order_by = [OrganizationMembership.granted_at.desc()]
 
     def membership_actor(
-        self, membership: OrganizationMembership = None
+        self, membership: Optional[OrganizationMembership] = None
     ) -> Optional[User]:
         """Actual actor who granted (or edited) the membership, for the template."""
         return (membership or self.membership).granted_by
 
-    def activity_template(self, membership: OrganizationMembership = None) -> str:
+    def activity_template(
+        self, membership: Optional[OrganizationMembership] = None
+    ) -> str:
         """
         Return a Python string template with an appropriate message.
 
@@ -298,12 +302,14 @@ class RenderOrganizationAdminMembershipRevokedNotification(
     fragments_order_by = [OrganizationMembership.revoked_at.desc()]
 
     def membership_actor(
-        self, membership: OrganizationMembership = None
+        self, membership: Optional[OrganizationMembership] = None
     ) -> Optional[User]:
         """Actual actor who revoked the membership, for the template."""
         return (membership or self.membership).revoked_by
 
-    def activity_template(self, membership: OrganizationMembership = None) -> str:
+    def activity_template(
+        self, membership: Optional[OrganizationMembership] = None
+    ) -> str:
         """Return a single line summary of changes."""
         if membership is None:
             membership = self.membership

@@ -108,7 +108,7 @@ const Form = {
   handleDelete(elementClass, onSucessFn) {
     $('body').on('click', elementClass, async function remove(event) {
       event.preventDefault();
-      const url = $(this).attr('href');
+      const url = $(this).attr('data-href');
       const confirmationText = window.gettext('Are you sure you want to remove %s?', [
         $(this).attr('title'),
       ]);
@@ -125,7 +125,7 @@ const Form = {
           }).toString(),
         }).catch(Form.handleFetchNetworkError);
         if (response && response.ok) {
-          const responseData = await response.text();
+          const responseData = await response.json();
           if (responseData) {
             onSucessFn(responseData);
           }
@@ -136,35 +136,50 @@ const Form = {
     });
   },
   activateToggleSwitch(callbckfn = '') {
-    $('body').on('change', '.js-toggle', function submitToggleSwitch() {
-      const checkbox = $(this);
-      const currentState = this.checked;
-      const previousState = !currentState;
-      const formData = new FormData($(checkbox).parent('form')[0]);
-      if (!currentState) {
-        formData.append($(this).attr('name'), false);
-      }
+    function postForm() {
+      let submitting = false;
+      return (checkboxElem) => {
+        if (!submitting) {
+          submitting = true;
+          const checkbox = $(checkboxElem);
+          const currentState = checkboxElem.checked;
+          const previousState = !currentState;
+          const formData = new FormData(checkbox.parent('form')[0]);
+          if (!currentState) {
+            formData.append(checkbox.attr('name'), false);
+          }
 
-      fetch($(checkbox).parent('form').attr('action'), {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams(formData).toString(),
-      })
-        .then((responseData) => {
-          if (responseData && responseData.message) {
-            window.toastr.success(responseData.message);
-          }
-          if (callbckfn) {
-            callbckfn();
-          }
-        })
-        .catch((error) => {
-          Form.handleAjaxError(error);
-          $(checkbox).prop('checked', previousState);
-        });
+          fetch(checkbox.parent('form').attr('action'), {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(formData).toString(),
+          })
+            .then((responseData) => {
+              if (responseData && responseData.message) {
+                window.toastr.success(responseData.message);
+              }
+              if (callbckfn) {
+                callbckfn();
+              }
+              submitting = false;
+            })
+            .catch((error) => {
+              console.log(error);
+              Form.handleAjaxError(error);
+              checkbox.prop('checked', previousState);
+              submitting = false;
+            });
+        }
+      };
+    }
+
+    const throttleSubmit = postForm();
+
+    $('body').on('change', '.js-toggle', function submitToggleSwitch() {
+      throttleSubmit(this);
     });
 
     $('body').on('click', '.js-dropdown-toggle', function stopPropagation(event) {

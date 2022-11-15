@@ -255,7 +255,7 @@
 {% macro widget_ext_scripts(form) %}
   {%- with scripts = {} %}
     {%- for field in form %}
-      {%- if field.type == 'CoordinatesField' %}
+      {%- if field.type == 'CoordinatesField' and config['GOOGLE_MAPS_API_KEY'] %}
         {#- We're using setdefault instead of a simple = because the do extension doesn't support assignment #}
         {%- do scripts.setdefault('gmap', ('https://maps.googleapis.com/maps/api/js?key=' + config['GOOGLE_MAPS_API_KEY'] + '&libraries=places')) %}
         {%- do scripts.setdefault('locationpicker', 'jquery.locationpicker.js'|ext_asset_url) %}
