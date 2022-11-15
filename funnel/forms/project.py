@@ -187,8 +187,8 @@ class ProjectNameForm(forms.Form):
             forms.validators.Length(max=Project.__name_length__),
             forms.validators.ValidName(
                 __(
-                    "This URL contains unsupported characters. It can contain letters,"
-                    " numbers and hyphens only"
+                    "This URL contains unsupported characters. It can contain lowercase"
+                    " letters, numbers and hyphens only"
                 )
             ),
             AvailableName(),
