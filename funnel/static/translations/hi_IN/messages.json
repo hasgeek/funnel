@@ -251,7 +251,7 @@
       ],
       "Promoter": [""],
       "Can manage participants and see contact info": [
-        "प्रतिभागियों तथा उनके संपर्क की जानकारी  को प्रबंधित कर सकते हैं"
+        "प्रतिभागियों तथा उनके संपर्क की जानकारी को प्रबंधित कर सकते हैं"
       ],
       "Usher": ["मार्गदर्शक"],
       "Can check-in a participant using their badge at a physical event": [
@@ -562,7 +562,7 @@
       "Verified": ["सत्यापित"],
       "[deleted]": ["[मिटाया हुआ]"],
       "[removed]": ["[हटाए हुए]"],
-      "{user} commented on {obj}": ["{user} ने  {obj} पर कमेंट किया"],
+      "{user} commented on {obj}": ["{user} ने {obj} पर कमेंट किया"],
       "{user} commented": ["{user} ने कमेंट किया"],
       "Submitter": [""],
       "Editor & Promoter": [""],
@@ -739,7 +739,7 @@
       ],
       "Find your peers": ["अपने साथियों को ढूंढें"],
       "Ideas need voices. Voices need a place to interact with other voices. Find peers around you who recognize your value. Create projects that spark a conversation.": [
-        "सोच को साकार करने वालों की ज़रूरत पड़ती है. साकार करने वालों दूसरे लोगों से जुड़ने के लिए  एक जगह की ज़रूरत पड़ती है. अपने आस-पास ऐसे साथियों को ढूंढें जो आपके कौशल को पहचाने. ऐसे प्रोजेक्ट्स बनाएं जिनके खूब चर्चे हों."
+        "सोच को साकार करने वालों की ज़रूरत पड़ती है. साकार करने वालों दूसरे लोगों से जुड़ने के लिए एक जगह की ज़रूरत पड़ती है. अपने आस-पास ऐसे साथियों को ढूंढें जो आपके कौशल को पहचाने. ऐसे प्रोजेक्ट्स बनाएं जिनके खूब चर्चे हों."
       ],
       "Discover your community": ["अपने लिए कोई समुदाय ढूंढें"],
       "Conversations build community. Bring the conversations to your community by collaborating with others who share your passion.": [
@@ -1304,7 +1304,7 @@
         "%(actor1)s, %(actor2)s और एक और व्यक्ति ने कमेंट किया है"
       ],
       "%(actor1)s, %(actor2)s and %(count)s others left comments": [
-        "%(actor1)s, %(actor2)s और  %(count)s अन्य लोगों ने कमेंट किया है"
+        "%(actor1)s, %(actor2)s और %(count)s अन्य लोगों ने कमेंट किया है"
       ],
       "See all comments": ["सभी कमेंट देखें"],
       "A comment has been reported as spam": [
@@ -1585,7 +1585,7 @@
         "आपने {pname} यूजर के लिए अनुमतियां रद्द कर दी है"
       ],
       "Permissions have been updated for team {title}": [
-        "{title} टीम  के लिए अनुमतियां अपडेट कर दी गई हैं"
+        "{title} टीम के लिए अनुमतियां अपडेट कर दी गई हैं"
       ],
       "All permissions have been revoked for team {title}": [
         "{title} टीम के लिए सभी अनुमतियां रद्द कर दी गई हैं"

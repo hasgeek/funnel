@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2022-11-15 17:18+0530\n"
+"POT-Creation-Date: 2022-11-15 18:18+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -698,7 +698,7 @@ msgstr ""
 
 #: funnel/forms/membership.py:59
 msgid "Can manage participants and see contact info"
-msgstr "प्रतिभागियों तथा उनके संपर्क की जानकारी  को प्रबंधित कर सकते हैं"
+msgstr "प्रतिभागियों तथा उनके संपर्क की जानकारी को प्रबंधित कर सकते हैं"
 
 #: funnel/forms/membership.py:62 funnel/templates/js/membership.js.jinja2:121
 msgid "Usher"
@@ -1599,7 +1599,7 @@ msgstr "[हटाए हुए]"
 
 #: funnel/models/comment.py:342
 msgid "{user} commented on {obj}"
-msgstr "{user} ने  {obj} पर कमेंट किया"
+msgstr "{user} ने {obj} पर कमेंट किया"
 
 #: funnel/models/comment.py:345
 msgid "{user} commented"
@@ -2180,7 +2180,7 @@ msgid ""
 "spark a conversation."
 msgstr ""
 "सोच को साकार करने वालों की ज़रूरत पड़ती है. साकार करने वालों दूसरे लोगों "
-"से जुड़ने के लिए  एक जगह की ज़रूरत पड़ती है. अपने आस-पास ऐसे साथियों को "
+"से जुड़ने के लिए एक जगह की ज़रूरत पड़ती है. अपने आस-पास ऐसे साथियों को "
 "ढूंढें जो आपके कौशल को पहचाने. ऐसे प्रोजेक्ट्स बनाएं जिनके खूब चर्चे हों."
 
 #: funnel/templates/about.html.jinja2:35 funnel/templates/about.html.jinja2:37
@@ -4269,7 +4269,7 @@ msgstr "%(actor1)s, %(actor2)s और एक और व्यक्ति ने
 #: funnel/templates/notifications/comment_received_web.html.jinja2:28
 #, python-format
 msgid "%(actor1)s, %(actor2)s and %(count)s others left comments"
-msgstr "%(actor1)s, %(actor2)s और  %(count)s अन्य लोगों ने कमेंट किया है"
+msgstr "%(actor1)s, %(actor2)s और %(count)s अन्य लोगों ने कमेंट किया है"
 
 #: funnel/templates/notifications/comment_received_web.html.jinja2:32
 msgid "See all comments"
@@ -4977,7 +4977,7 @@ msgstr "आपने {pname} यूजर के लिए अनुमतिय
 
 #: funnel/views/auth_client.py:455
 msgid "Permissions have been updated for team {title}"
-msgstr "{title} टीम  के लिए अनुमतियां अपडेट कर दी गई हैं"
+msgstr "{title} टीम के लिए अनुमतियां अपडेट कर दी गई हैं"
 
 #: funnel/views/auth_client.py:462
 msgid "All permissions have been revoked for team {title}"
@@ -6856,11 +6856,11 @@ msgstr ""
 #~ "अपने प्रीव्यू वीडियो का लिंक बनाएं. "
 #~ "समुदाय के सदस्यों का रुझान पाने, "
 #~ "उन्हें अपने सेशन और उसमें वो शामिल"
-#~ " क्यों हों  इस बारे में अच्छे "
-#~ "से बताने के लिए कोई वीडियो डालें."
-#~ " अगर आप YouTube/Vimeo का लिंक देते"
-#~ " हैं, तो हम उसे इस पेज पर "
-#~ "डाल देंगे"
+#~ " क्यों हों इस बारे में अच्छे से"
+#~ " बताने के लिए कोई वीडियो डालें. "
+#~ "अगर आप YouTube/Vimeo का लिंक देते "
+#~ "हैं, तो हम उसे इस पेज पर डाल"
+#~ " देंगे"
 
 #~ msgid "Links"
 #~ msgstr "लिंक्स"
