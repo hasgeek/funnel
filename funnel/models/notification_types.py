@@ -24,6 +24,7 @@ __all__ = [
     'CommentReportReceivedNotification',
     'CommentReplyNotification',
     'NewCommentNotification',
+    'ProjectCrewMembershipNotification',
     'ProposalReceivedNotification',
     'ProposalSubmittedNotification',
     'RegistrationCancellationNotification',
@@ -209,7 +210,6 @@ class ProjectCrewMembershipNotification(DocumentHasProject, Notification):
     """Notification of being granted crew membership (including role changes)."""
 
     __mapper_args__ = {'polymorphic_identity': 'project_crew_membership_granted'}
-    active = False
 
     category = notification_categories.project_crew
     title = __("When a project crew member is added, or roles change")
