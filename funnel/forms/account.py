@@ -412,7 +412,7 @@ class AccountForm(forms.Form):
         __("Username"),
         description=__(
             "Single word that can contain letters, numbers and dashes."
-            " You need a username to have a public profile"
+            " You need a username to have a public account page"
         ),
         validators=[
             forms.validators.DataRequired(),

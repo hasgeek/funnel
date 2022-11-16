@@ -11,7 +11,7 @@
   {%- if subform %}
     <div class="ui-draggable-box" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
       {{ lform.hidden_tag() }}
-      {{ faicon(icon='grip-vertical', css_class="mui--text-light  mui--align-middle") }}
+      {{ faicon(icon='grip-vertical', css_class="mui--text-light mui--align-middle") }}
       {{ renderfield(lform.seq, css_class="seq-input") }}
   {%- endif %}
   {{ renderfield(lform.icon_emoji, css_class="emojipicker") }}
@@ -20,7 +20,7 @@
   {%- else -%}
     {{ renderfield(lform.title, autofocus=true, css_class="label-form__title-field label-form__title-field--close") }}
   {%- endif %}
-  {%- if empty %}<button class="mui-btn mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, css_class="mui--text-light  mui--align-middle") }}</button>
+  {%- if empty %}<button class="mui-btn mui-btn--nostyle js-remove-sublabel-form label-form__subform__close-btn" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, css_class="mui--text-light mui--align-middle") }}</button>
   {%- endif %}
   <!-- Add archive button for existing sublabels -->
   {%- if subform %}
@@ -31,7 +31,7 @@
 {% block content %}
   {%- if form.errors %}
     <div class="alert alert--error alert--dismissable">
-      <a class="alert__close" href="#" onclick="return false;"  data-target="close flash message" aria-label="close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+      <a class="alert__close" href="#" onclick="return false;" data-target="close flash message" aria-label="close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
       <p class="alert__text">{{ faicon(icon='exclamation-circle') }} {% trans %}Please review the indicated issues{% endtrans %}</p>
     </div>
   {%- endif %}

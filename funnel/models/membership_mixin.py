@@ -472,13 +472,13 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
 
 @declarative_mixin
 class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
-    """Support class for immutable memberships for profiles."""
+    """Support class for immutable memberships for accounts."""
 
     profile_id: sa.Column[int]
 
     @declared_attr  # type: ignore[no-redef]
     def profile_id(cls) -> sa.Column[int]:  # pylint: disable=no-self-argument
-        """Foreign key column to profile table."""
+        """Foreign key column to account (nee profile) table."""
         return sa.Column(
             sa.Integer,
             sa.ForeignKey('profile.id', ondelete='CASCADE'),
@@ -491,7 +491,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
     def profile(  # pylint: disable=no-self-argument
         cls,
     ) -> sa.orm.relationship[Profile]:
-        """Profile that is the subject of this membership record."""
+        """Account that is the subject of this membership record."""
         return immutable(sa.orm.relationship(Profile, foreign_keys=[cls.profile_id]))
 
     subject: Mapped[Profile]
@@ -546,18 +546,18 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
         cls, old_profile: Profile, new_profile: Profile
     ) -> OptionalMigratedTables:
         """
-        Migrate memberhip records from one profile to another.
+        Migrate memberhip records from one account (nee profile) to another.
 
-        If both profiles have active records, they are merged into a new record in the
-        new profile's favour. All revoked records for the old profile are transferred to
-        the new profile.
+        If both accounts have active records, they are merged into a new record in the
+        new account's favour. All revoked records for the old account are transferred to
+        the new account.
         """
         # Look up all active membership records of the subclass's type for the old
-        # profile. `cls` here represents the subclass.
+        # account. `cls` here represents the subclass.
         old_profile_records = cls.query.filter(
             cls.profile == old_profile, cls.revoked_at.is_(None)
         ).all()
-        # Look up all conflicting memberships for the new profile. Limit lookups by
+        # Look up all conflicting memberships for the new account. Limit lookups by
         # parent except when the membership type doesn't have a parent.
         if cls.parent_id is not None:
             new_profile_records = cls.query.filter(

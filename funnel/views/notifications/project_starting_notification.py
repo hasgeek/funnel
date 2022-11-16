@@ -30,7 +30,7 @@ class RenderProjectStartingNotification(RenderNotification):
 
     def email_subject(self):
         return self.emoji_prefix + _("{project} starts at {time}").format(
-            project=self.project.joined_title(),
+            project=self.project.joined_title,
             time=time_filter(self.session.start_at_localized),
         )
 
@@ -42,7 +42,7 @@ class RenderProjectStartingNotification(RenderNotification):
     def sms(self) -> OneLineTemplate:
         return OneLineTemplate(
             text1=_("{project} starts at {time}.").format(
-                project=self.project.joined_title('>'),
+                project=self.project.joined_title,
                 time=time_filter(self.session.start_at_localized),
             ),
             url=shortlink(

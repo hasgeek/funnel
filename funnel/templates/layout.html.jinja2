@@ -217,7 +217,7 @@
   {%- endfor %}
 
   {#- This block is to include JS assets of the app that are not required on all the pages but has to be included before baseframe bundle(assets "js_all").
-  For instance codemirror-markdown-js.js is only required in the formlayout pages. CodeMirror functions are called from baseframe.js, hence it has to be included before  baseframe.js #}
+  For instance codemirror-markdown-js.js is only required in the formlayout pages. CodeMirror functions are called from baseframe.js, hence it has to be included before baseframe.js #}
   {% block pagescripts %}{% endblock pagescripts %}
   {% assets "js_all" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
