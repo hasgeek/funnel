@@ -527,13 +527,29 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     with_roles(title_suffix, read={'all'})
 
     @property
-    def joined_title(self) -> str:
-        """Return the project's title joined with the account's title, if divergent."""
+    def title_parts(self) -> List[str]:
+        """
+        Return the hierarchy of titles of this project.
+
+        If the project's title is an extension of the account's title, only the
+        project's title is returned as a single list item. If they are distinct, both
+        are returned.
+
+        This list is used by :prop:`joined_title` to produce a slash-separated title,
+        but can be used directly when another rendering is required.
+        """
         if self.short_title == self.title:
             # Project title does not derive from account title, so use both
-            return f"{self.profile.title} / {self.title}"
+            return [self.profile.title, self.title]
         # Project title extends account title, so account title is not needed
-        return self.title
+        return [self.title]
+
+    with_roles(title_parts, read={'all'})
+
+    @property
+    def joined_title(self) -> str:
+        """Return the project's title joined with the account's title, if divergent."""
+        return ' / '.join(self.title_parts)
 
     with_roles(
         joined_title, read={'all'}, datasets={'primary', 'without_parent', 'related'}
