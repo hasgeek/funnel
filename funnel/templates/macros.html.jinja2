@@ -22,16 +22,6 @@
 <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
 {%- endmacro %}
 
-{% macro project_title(project) %}
-  {%- if project.short_title == project.title -%}
-    {# Project title is not an extension of account title, so display account title too -#}
-    {{ project.profile.title }} › {{ project.title }}
-  {%- else -%}
-    {# Project title derives from account title, so account is not needed. -#}
-    {{ project.title }}
-  {%- endif %}
-{%- endmacro %}
-
 {% macro calendarwidget(calendar, compact=true) %}
   <div class="card__calendar {% if compact %} card__calendar--compact {% endif %}" aria-hidden="true">
     <div class="calendar">

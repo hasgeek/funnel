@@ -1,9 +1,8 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
-{%- from "macros.html.jinja2" import project_title -%}
 {%- block content -%}
 
   {%- if view.notification.document_type == 'project' -%}
-    <h2><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{{ project_title(view.document) }}</a></h2>
+    <h2><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{{ view.document.joined_title }}</a></h2>
   {%- elif view.notification.document_type == 'proposal' -%}
     <h2><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{{ view.document.title }}</a></h2>
   {%- elif view.notification.document_type == 'comment' -%}
