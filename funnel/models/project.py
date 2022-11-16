@@ -526,22 +526,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
 
     with_roles(title_suffix, read={'all'})
 
-    @with_roles(call={'all'})
-    def joined_title(self, sep: str = '›') -> str:
+    @property
+    def joined_title(self) -> str:
         """Return the project's title joined with the account's title, if divergent."""
         if self.short_title == self.title:
             # Project title does not derive from account title, so use both
-            return f"{self.profile.title} {sep} {self.title}"
+            return f"{self.profile.title} / {self.title}"
         # Project title extends account title, so account title is not needed
         return self.title
 
-    @property
-    def full_title(self) -> str:
-        """Return :meth:`joined_title` as a property."""
-        return self.joined_title()
-
     with_roles(
-        full_title, read={'all'}, datasets={'primary', 'without_parent', 'related'}
+        joined_title, read={'all'}, datasets={'primary', 'without_parent', 'related'}
     )
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})
