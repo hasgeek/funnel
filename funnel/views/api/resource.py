@@ -368,7 +368,7 @@ def user_autocomplete(q: str = '') -> ReturnView:
 @requires_client_id_or_user_or_client_login
 @requestargs(('q', abort_null))
 def profile_autocomplete(q: str = '') -> ReturnView:
-    """Return profiles matching the search term."""
+    """Return accounts matching the search term."""
     if not q:
         return api_result('error', error='no_query_provided')
 
@@ -464,7 +464,7 @@ def login_beacon_json(client_id: str) -> ReturnView:
 
 
 @app.route('/api/1/id')
-@resource_registry.resource('id', __("Read your name and basic profile data"))
+@resource_registry.resource('id', __("Read your name and basic account data"))
 def resource_id(authtoken: AuthToken, args: dict, files=None) -> ReturnResource:
     """Return user's basic identity."""
     if 'all' in args and getbool(args['all']):

@@ -185,7 +185,7 @@ class SnsValidator:
         """
         Check Signature by comparing the message with the Signature.
 
-        :param message:  Message
+        :param message: Message
         :return: None if Signature matches, throws if Mismatch
         """
         public_key = self._get_public_key(message)
@@ -210,7 +210,7 @@ class SnsValidator:
         Check the given message against specified checks.
 
         :param message: Given Message
-        :param checks:  List of Checks to apply
+        :param checks: List of Checks to apply
         :return: None if checks pass or else throws exceptions
         """
         if SnsValidatorChecks.TOPIC in checks:

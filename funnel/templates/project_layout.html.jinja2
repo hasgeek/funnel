@@ -93,7 +93,7 @@
         {%- elif project.bg_image.url %}
           <img class="project-banner__box__image" src="{{ project.bg_image.resize(header_banner) }}" alt="{{ project.title }}" data-cy="bg_image"/>
         {%- else %}
-          <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}"  alt="{{ project.title }}"/>
+          <img class="project-banner__box__image" src="{{ url_for('static', filename='img/default-banner.png') }}" alt="{{ project.title }}"/>
         {% endif %}
       </div>
     </div>
@@ -118,14 +118,8 @@
   <div class="register-block">
     {% if project.features.rsvp() %}
       <div class="register-block__content {% if project.features.tickets() %} register-block__content--margin {%- else %} register-block__content--flex {% endif %}">
-        {%- if current_auth.is_anonymous %}
-          <div class="register-block__txt">
-            <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% if project.features.follow_mode() %}{% trans %}Free updates{% endtrans %}{% else %}{% trans %}Free{% endtrans %}{% endif %}</p>
-            <p class="mui--text-light zero-bottom-margin">{{ project.views.registration_text() }}</p>
-          </div>
-        {% elif project.features.rsvp_unregistered() -%}
+        {% if project.features.rsvp_unregistered() -%}
           <div class="register-block__txt {% if project.view_for('rsvp_list').is_available() %}register-block__txt--short{%- endif %}">
-            <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% if project.features.follow_mode() %}{% trans %}Free updates{% endtrans %}{% else %}{% trans %}Free{% endtrans %}{% endif %}</p>
             <p class="mui--text-light zero-bottom-margin" data-cy="unregistered">{{ project.views.registration_text() }}</p>
           </div>
         {%- elif project.features.rsvp_registered() %}
@@ -189,13 +183,12 @@
       <div class="register-block__content {% if project.features.rsvp() %} register-block__content--padding {%- else %} register-block__content--flex {% endif %}">
         <div class="register-block__txt js-tickets-available">
           <p class="js-ticket-price mui--text-subhead mui--text-bold zero-bottom-margin"></p>
-          <p class="mui--text-light zero-bottom-margin">{% trans %}Tickets available{% endtrans %}</p>
         </div>
         <div class="register-block__txt js-tickets-not-available mui--hide">
           <p class="mui--text-subhead mui--text-bold zero-bottom-margin">{% trans %}Sales closed{% endtrans %}</p>
         </div>
         <div class="register-block__btnwrapper">
-          <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin">{% if project.features.rsvp() %}{% trans %}More options{% endtrans %}{%- else %}{% trans %}Get tickets{% endtrans %}{% endif %}</button>
+          <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin">{% if project.boxoffice_data.ticket_title %}{{ project.boxoffice_data.ticket_title }}{%- else %}{% trans %}Get tickets{% endtrans %}{% endif %}</button>
         </div>
       </div>
     {%- endif %}
@@ -307,7 +300,7 @@
 {% macro project_details(project) %}
   <div>
     {% if project.view_for('edit_schedule').is_available() and not project.start_at %}
-      <p class="project-details__box__content--lesspadding propose"><a class="mui-btn mui-btn--raised mui-btn--dark  mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
+      <p class="project-details__box__content--lesspadding propose"><a class="mui-btn mui-btn--raised mui-btn--dark mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
     {%- endif %}
     {{ add_submission_btn(project) }}
     {%- if project.primary_venue %}

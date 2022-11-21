@@ -114,7 +114,7 @@ def pwned_password_validator(_form, field) -> None:
     prefix, suffix = phash[:5], phash[5:]
 
     try:
-        rv = requests.get(f'https://api.pwnedpasswords.com/range/{prefix}')
+        rv = requests.get(f'https://api.pwnedpasswords.com/range/{prefix}', timeout=10)
         if rv.status_code != 200:
             # API call had an error and we can't proceed with validation.
             return
@@ -412,7 +412,7 @@ class AccountForm(forms.Form):
         __("Username"),
         description=__(
             "Single word that can contain letters, numbers and dashes."
-            " You need a username to have a public profile"
+            " You need a username to have a public account page"
         ),
         validators=[
             forms.validators.DataRequired(),

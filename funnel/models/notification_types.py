@@ -37,7 +37,7 @@ __all__ = [
 
 
 class ProfileSubtype(UuidModelType):
-    """Model that links to a profile."""
+    """Model that links to an account (nee profile)."""
 
     profile: Mapped[Profile]
 
@@ -55,18 +55,18 @@ class DocumentHasProject:
 
     @property
     def preference_context(self) -> Profile:
-        """Return document's project's profile as preference context."""
+        """Return document's project's account as preference context."""
         return self.document.project.profile
 
 
 class DocumentHasProfile:
-    """Mixin class for documents linked to a profile."""
+    """Mixin class for documents linked to an account (nee profile)."""
 
     document: ProfileSubtype
 
     @property
     def preference_context(self) -> Profile:
-        """Return document's profile as preference context."""
+        """Return document's account as preference context."""
         return self.document.profile
 
 

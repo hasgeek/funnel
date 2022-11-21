@@ -41,6 +41,8 @@
       "Unable to access video stream. Please make sure you have camera enabled or try a different browser": [
         ""
       ],
+      "Search results: %s": [""],
+      "%u results found for %s": [""],
       "Project added to Account > Saved projects": [""],
       "Are you sure you want to remove %s?": [""],
       "Today": [""],
@@ -78,8 +80,8 @@
       "Full name": ["शुभ नाम"],
       "This is your name, not of your organization": [""],
       "Username": ["यूजरनेम"],
-      "Single word that can contain letters, numbers and dashes. You need a username to have a public profile": [
-        "एक ही शब्द जिसमें कि अक्षर, नंबर और डैश हों. आपको पब्लिक प्रोफाइल बनाने के लिए यूजरनेम की आवश्यकता है"
+      "Single word that can contain letters, numbers and dashes. You need a username to have a public account page": [
+        "एक ही शब्द जिसमें कि अक्षर, नंबर और डैश हों. आपको पब्लिक अकाउंट बनाने के लिए यूजरनेम की आवश्यकता है"
       ],
       "Timezone": ["समय क्षेत्र"],
       "Where in the world are you? Dates and times will be shown in your local timezone": [
@@ -249,7 +251,7 @@
       ],
       "Promoter": [""],
       "Can manage participants and see contact info": [
-        "प्रतिभागियों तथा उनके संपर्क की जानकारी  को प्रबंधित कर सकते हैं"
+        "प्रतिभागियों तथा उनके संपर्क की जानकारी को प्रबंधित कर सकते हैं"
       ],
       "Usher": ["मार्गदर्शक"],
       "Can check-in a participant using their badge at a physical event": [
@@ -357,8 +359,8 @@
       "Your organization’s given name, without legal suffixes such as Pvt Ltd": [
         "आपके संगठन का नाम, बगैर किसी प्रकार के जैसे कि Pvt Ltd (प्र. लि.)"
       ],
-      "A short name for your organization’s profile page. Single word containing letters, numbers and dashes only. Pick something permanent: changing it will break existing links from around the web": [
-        "आपके संगठन के प्रोफाइल पेज के लिए एक संक्षिप्त नाम. एक शब्द जिसमें केवल अक्षर, नंबर और डैश ही शामिल हों. कुछ स्थाई सा नाम रखें: इसे बदलने से वेब पर मौजूद पुराने लिंक काम नहीं करेंगे"
+      "A short name for your organization’s account page. Single word containing letters, numbers and dashes only. Pick something permanent: changing it will break existing links from around the web": [
+        "आपके संगठन के अकाउंट पेज के लिए एक संक्षिप्त नाम. एक शब्द जिसमें केवल अक्षर, नंबर और डैश ही शामिल हों. कुछ स्थाई सा नाम रखें: इसे बदलने से वेब पर मौजूद पुराने लिंक काम नहीं करेंगे"
       ],
       "Names can only have letters, numbers and dashes (except at the ends)": [
         "नाम में केवल अक्षर, नंबर और डैश (अंत में छोड़कर) हो सकते हैं"
@@ -376,24 +378,24 @@
       "Team name": ["टीम का नाम"],
       "Users": ["यूजर्स"],
       "Make this team public": ["इस टीम को सार्वजनिक बनाएं"],
-      "Team members will be listed on the organization’s profile page": [
-        "टीम के सदस्य संगठन के प्रोफाइल पेज पर दिखाए जाएंगे"
+      "Team members will be listed on the organization’s account page": [
+        "टीम के सदस्य संगठन के अकाउंट पेज पर दिखाए जाएंगे"
       ],
       "Bio": [""],
       "A brief statement about your organization": [""],
       "Welcome message": ["स्वागत संदेश"],
-      "Optional – This message will be shown on the profile page": [""],
-      "Profile image": ["प्रोफाइल चित्र"],
+      "Optional – This message will be shown on the account’s page": [""],
+      "Account image": ["अकाउंट चित्र"],
       "Website URL": ["वेबसाइट URL"],
       "Your full name, in the form others can recognise you by": [
         "आपका पूरा नाम, जिससे कि दूसरे व्यक्ति आपको जान सकें"
       ],
       "A brief statement about yourself": [""],
-      "A short name for mentioning you with @username, and the URL to your profile page. Single word containing letters, numbers and dashes only. Pick something permanent: changing it will break existing links from around the web": [
-        "@username और आपके प्रोफाइल पेज की URL के साथ लगाने के लिए एक उपनाम. एक शब्द जिसमें केवल अक्षर, नंबर और डैश मौजूद हों. कुछ स्थाई सा नाम रखें: इसे बदलने से वेब पर मौजूद पुराने लिंक काम नहीं करेंगे"
+      "A short name for mentioning you with @username, and the URL to your account’s page. Single word containing letters, numbers and dashes only. Pick something permanent: changing it will break existing links from around the web": [
+        "@username और आपके अकाउंट पेज की URL के साथ लगाने के लिए एक उपनाम. एक शब्द जिसमें केवल अक्षर, नंबर और डैश मौजूद हों. कुछ स्थाई सा नाम रखें: इसे बदलने से वेब पर मौजूद पुराने लिंक काम नहीं करेंगे"
       ],
       "More about you": [""],
-      "Profile visibility": [""],
+      "Account visibility": [""],
       "Banner image": ["बैनर का चित्र"],
       "Title": ["शीर्षक"],
       "Tagline": ["टैगलाइन"],
@@ -442,7 +444,7 @@
       "Closing date must be in the future": [""],
       "Status": ["स्थिति"],
       "Open submissions": ["सबमिशन को खोलें"],
-      "Profile": [""],
+      "Account": ["अकाउंट"],
       "Choose a sponsor": [""],
       "Optional – Label for sponsor": [""],
       "Mark this sponsor as promoted": [""],
@@ -478,6 +480,8 @@
       ],
       "Save this session?": ["इस सेशन को सेव करें?"],
       "Item collection id": [""],
+      "Allow rsvp": [""],
+      "If checked, both free and buy tickets will shown on project": [""],
       "Badge template URL": ["बैच टेम्पलेट URL"],
       "Name": ["नाम"],
       "Client id": ["क्लाइंट आईडी"],
@@ -558,7 +562,7 @@
       "Verified": ["सत्यापित"],
       "[deleted]": ["[मिटाया हुआ]"],
       "[removed]": ["[हटाए हुए]"],
-      "{user} commented on {obj}": ["{user} ने  {obj} पर कमेंट किया"],
+      "{user} commented on {obj}": ["{user} ने {obj} पर कमेंट किया"],
       "{user} commented": ["{user} ने कमेंट किया"],
       "Submitter": [""],
       "Editor & Promoter": [""],
@@ -735,7 +739,7 @@
       ],
       "Find your peers": ["अपने साथियों को ढूंढें"],
       "Ideas need voices. Voices need a place to interact with other voices. Find peers around you who recognize your value. Create projects that spark a conversation.": [
-        "सोच को साकार करने वालों की ज़रूरत पड़ती है. साकार करने वालों दूसरे लोगों से जुड़ने के लिए  एक जगह की ज़रूरत पड़ती है. अपने आस-पास ऐसे साथियों को ढूंढें जो आपके कौशल को पहचाने. ऐसे प्रोजेक्ट्स बनाएं जिनके खूब चर्चे हों."
+        "सोच को साकार करने वालों की ज़रूरत पड़ती है. साकार करने वालों दूसरे लोगों से जुड़ने के लिए एक जगह की ज़रूरत पड़ती है. अपने आस-पास ऐसे साथियों को ढूंढें जो आपके कौशल को पहचाने. ऐसे प्रोजेक्ट्स बनाएं जिनके खूब चर्चे हों."
       ],
       "Discover your community": ["अपने लिए कोई समुदाय ढूंढें"],
       "Conversations build community. Bring the conversations to your community by collaborating with others who share your passion.": [
@@ -745,7 +749,7 @@
       "Subscribe to your favourite communities and make sure you never miss a conversation or an opportunity to collaborate.": [
         "अपने पसंदीदा समुदायों की सदस्यता लें और किसी भी संवाद या संग काम करने के अवसर को हाथ से जाने न दें."
       ],
-      "Go to profile": ["प्रोफ़ाइल पर जाएँ"],
+      "Go to account": ["अकाउंट पर जाएँ"],
       "(none)": ["(कोई भी नहीं)"],
       "From device": ["इस डिवाइस से"],
       "Edit": ["संपादित करें"],
@@ -857,7 +861,9 @@
       "Error URI": ["त्रुटी URI"],
       "Visible": [""],
       "Collaborator menu": [""],
+      "Add collaborator": [""],
       "Change role": [""],
+      "Remove collaborator": [""],
       "My contacts": ["मेरे कॉन्टैक्ट"],
       "Dropdown menu": ["ड्रॉपडाउन मेन्यू"],
       "Download CSV": ["CSV डाउनलोड करें"],
@@ -902,8 +908,6 @@
       "Spotlight:": ["सुर्खियां:"],
       "What’s this about?": [""],
       "Explore communities": [""],
-      "One project": [""],
-      "Explore": [""],
       "Manage labels": ["लेबल संपादित करें"],
       "Create new label": ["नया लेबल बनाएं"],
       "(No labels)": ["(कोई लेबल नहीं है)"],
@@ -919,7 +923,6 @@
       "Updates": ["अपडेट"],
       "Comments": ["कमेंट"],
       "Account menu": [""],
-      "Account": ["अकाउंट"],
       "Login": ["लॉगिन"],
       "Tell us where you’d like to get updates. We’ll send an OTP to confirm.": [""],
       "Or, use your existing account, no OTP required": [""],
@@ -948,35 +951,34 @@
       "Accepting submissions": ["सब्मिशन स्वीकार कर रहे हैं"],
       "Show more": ["और दिखाएं"],
       "All projects": ["सभी प्रोजेक्ट"],
-      "Profile menu": [""],
       "Manage admins": ["एडमिंस को प्रबंधित करें"],
       "View admins": ["एडमिंस को देखें"],
-      "Edit this profile": ["इस प्रोफाइल को संपादित करें"],
-      "Make profile private": ["प्रोफाइल को निजी बनाएं"],
-      "Make this profile private?": ["वाकई इस प्रोफाइल को निजी बनाना चाहते हैं?"],
-      "Your profile will not be visible to anyone other than you": [
-        "आपका प्रोफाइल आपके अलावा किसी और को नहीं दिखाई देगा"
+      "Edit this account": ["इस अकाउंट को संपादित करें"],
+      "Make account private": ["अकाउंट को निजी बनाएं"],
+      "Make this account private?": ["वाकई इस अकाउंट को निजी बनाना चाहते हैं?"],
+      "Your account will not be visible to anyone other than you": [
+        "आपका अकाउंट आपके अलावा किसी और को नहीं दिखाई देगा"
       ],
       "It will not be listed in search results": [
         "यह खोज परिणामों में भी दिखाई नहीं देगा"
       ],
-      "You cannot host projects from this profile": [
-        "आप इस प्रोफाइल से प्रोजेक्ट होस्ट नहीं कर सकते"
+      "You cannot host projects from this account": [
+        "आप इस अकाउंट से प्रोजेक्ट होस्ट नहीं कर सकते"
       ],
-      "Any existing projects will become inaccessible until the profile is public again": [
-        "जब तक कि इस प्रोफाइल को दोबारा से सार्वजनिक नहीं बनाया जाता तब तक कोई भी मौजूदा प्रोजेक्ट इसके द्वारा एक्सेस नहीं किया जा सकता"
+      "Any existing projects will become inaccessible until the account is public again": [
+        "जब तक कि इस अकाउंट को दोबारा से सार्वजनिक नहीं बनाया जाता तब तक कोई भी मौजूदा प्रोजेक्ट इसके द्वारा एक्सेस नहीं किया जा सकता"
       ],
-      "Back to the profile": ["प्रोफाइल में वापस जाएं"],
+      "Back to the account": ["अकाउंट में वापस जाएं"],
       "Add cover photo url": ["कवर फोटो का URL जोड़ें"],
       "Add cover photo": ["कवर फोटो जोड़ें"],
       "New project": ["नया प्रोजेक्ट"],
-      "Make profile public": ["प्रोफाइल को सार्वजनिक बनाएं"],
-      "Make this profile public?": ["इस प्रोफाइल को सार्वजनिक बनाएं?"],
-      "Your profile will be visible to anyone visiting the page": [
-        "आपका प्रोफाइल इस पेज पर आने वाले सभी व्यक्तियों को दिखाई देगा"
+      "Make account public": ["अकाउंट को सार्वजनिक बनाएं"],
+      "Make this account public?": ["इस अकाउंट को सार्वजनिक बनाएं?"],
+      "Your account will be visible to anyone visiting the page": [
+        "आपका अकाउंट इस पेज पर आने वाले सभी व्यक्तियों को दिखाई देगा"
       ],
-      "Your profile will be listed in search results": [
-        "आपका प्रोफाइल खोज प्राणिमों में दिखाई देगा"
+      "Your account will be listed in search results": [
+        "आपका अकाउंट खोज प्राणिमों में दिखाई देगा"
       ],
       "Joined %(date)s": ["%(date)s को जुड़े"],
       "Admins": ["एडमिन"],
@@ -997,6 +999,11 @@
       "Toggle to enable/disable submissions": [""],
       "Open to receive submissions": [""],
       "Make a submission": ["एक सबमिशन भेजें"],
+      "Past sessions": [""],
+      "Date": ["डेट"],
+      "Project": ["प्रोजेक्ट"],
+      "One project": [""],
+      "Explore": [""],
       "Manage membership": ["सदस्यता प्रबंधित करें"],
       "You have been invited to %(project)s": [
         "आपको %(project)s में आमंत्रित किया गया है"
@@ -1041,6 +1048,7 @@
       "By signing in, you agree to Hasgeek’s <a href=\"%(terms_url)s\" target=\"_blank\" rel=\"noopener\">terms of service</a> and <a href=\"%(privacy_path)s\" target=\"_blank\" rel=\"noopener\">privacy policy</a>": [
         ""
       ],
+      "No past projects": [""],
       "People": ["सदस्य"],
       "Supported projects": [""],
       "Supported submissions": [""],
@@ -1080,9 +1088,6 @@
       ],
       "Update livestream URLs": ["लाइवस्ट्रीम URLs को बदलें"],
       "Update banner image": ["बैनर इमेज को बदलें"],
-      "Tickets available": [""],
-      "Sales closed": [""],
-      "Get tickets": ["टिकट पाएं"],
       "Free updates": [""],
       "Free": [""],
       "Register": ["रजिस्टर करें"],
@@ -1096,6 +1101,11 @@
       "Can’t make it?": ["आप मदद नहीं कर सकते?"],
       "Confirm cancellation": ["रद्द करने की पुष्टि करें"],
       "View participants": ["प्रतिभागियों को देखें"],
+      "Get Tickets": [""],
+      "Tickets available": [""],
+      "Sales closed": [""],
+      "More options": [""],
+      "Get tickets": ["टिकट पाएं"],
       "Share this project": [""],
       "Menu": [""],
       "Edit URL": [""],
@@ -1154,6 +1164,7 @@
       "Subscribe to the schedule": ["कार्यक्रम को सूचीपत्र में जोड़ें"],
       "Download": ["डाउनलोड करें"],
       "Add to Google Calendar": ["Google Calendar में जोड़ें"],
+      "edited %(date)s": [""],
       "This session has not been scheduled yet": [
         "इस सेशन की समय-सूची अभी नहीं बनाई गई है"
       ],
@@ -1198,7 +1209,6 @@
       "Select a relevant label": [""],
       "Add video url": [""],
       "Link a video": [""],
-      "Add collaborator": [""],
       "Collaborators": [""],
       "Manage collaborators": [""],
       "Add new collaborator": [""],
@@ -1294,7 +1304,7 @@
         "%(actor1)s, %(actor2)s और एक और व्यक्ति ने कमेंट किया है"
       ],
       "%(actor1)s, %(actor2)s and %(count)s others left comments": [
-        "%(actor1)s, %(actor2)s और  %(count)s अन्य लोगों ने कमेंट किया है"
+        "%(actor1)s, %(actor2)s और %(count)s अन्य लोगों ने कमेंट किया है"
       ],
       "See all comments": ["सभी कमेंट देखें"],
       "A comment has been reported as spam": [
@@ -1391,7 +1401,7 @@
       "Unknown device": [""],
       "Unknown location": ["अज्ञात स्थान"],
       "Unknown ISP": ["अज्ञात ISP"],
-      "Your profile has been updated": ["आपकी प्रोफाइल अपडेट कर दी गई है"],
+      "Your account has been updated": ["आपकी अकाउंट अपडेट कर दी गई है"],
       "Edit account": ["खाता संपादित करें"],
       "Save changes": ["परिवर्तनों को सेव करें"],
       "Email address already claimed": ["ईमेल पता पहले ही इस्तेमाल किया जा चुका है"],
@@ -1575,7 +1585,7 @@
         "आपने {pname} यूजर के लिए अनुमतियां रद्द कर दी है"
       ],
       "Permissions have been updated for team {title}": [
-        "{title} टीम  के लिए अनुमतियां अपडेट कर दी गई हैं"
+        "{title} टीम के लिए अनुमतियां अपडेट कर दी गई हैं"
       ],
       "All permissions have been revoked for team {title}": [
         "{title} टीम के लिए सभी अनुमतियां रद्द कर दी गई हैं"
@@ -1624,9 +1634,6 @@
       "Cancellation &amp; refund policy": ["रद्दीकरण और घन वापसी नीति"],
       "Community guidelines": ["कम्यूनिटी दिशा-निर्देश"],
       "Code of conduct": ["आचार संहिता"],
-      "Past sessions": [""],
-      "Date": ["डेट"],
-      "Project": ["प्रोजेक्ट"],
       "Your changes have been saved": ["आपके परिवर्तनों को सेव किया गया है"],
       "Error with a label option: {}": ["लेबल विकल्प में त्रुटि: {}"],
       "Add label": [""],
@@ -1634,9 +1641,11 @@
       "Edit label": [""],
       "Label has been edited": ["लेबल संपादित कर दिया गया है"],
       "The label has been archived": ["लेबल को पुरालेख कर दिया गया है"],
-      "CSRF token is missing": ["CSRF टोकन नामौजूद है"],
+      "Confirm archive of label": [""],
+      "Archive this label?": [""],
       "Labels that have been assigned to submissions cannot be deleted": [""],
       "The label has been deleted": ["लेबल मिटा दिया गया है"],
+      "Delete this label? This operation is permanent and cannot be undone": [""],
       "Are you trying to logout? Try again to confirm": [""],
       "You have a weak password. To ensure the safety of your account, please choose a stronger password": [
         "आपका पासवर्ड कमज़ोर है. अपने खाते की सुरक्षा सुनिश्चित करने के लिए, कृपया एक मज़बूत पासवर्ड चुनें"
@@ -1709,8 +1718,8 @@
         "आप अपनी स्वयं की सदस्यता रद्द नहीं कर सकते"
       ],
       "The member has been removed": ["सदस्य को हटा दिया गया है"],
-      "Remove {member} as an admin from {profile}?": [
-        "{profile} से एडमिन के रूप में {member} को हटाना चाहते हैं?"
+      "Remove {member} as an admin from {account}?": [
+        "{account} से एडमिन के रूप में {member} को हटाना चाहते हैं?"
       ],
       "This person is already a member": ["यह व्यक्ति पहले से ही एक सदस्य है"],
       "The user has been added as a member": [
@@ -1760,9 +1769,9 @@
       "Notification preferences": ["नोटिफिकेशन प्राथमिकताएं"],
       "Save preferences": ["प्राथमिकताएं सेव करें"],
       "Create a new organization": ["एक नया संगठन बनाएं"],
-      "Protected profile": ["संरक्षित प्रोफाइल"],
-      "This organization has a protected profile and cannot be deleted": [
-        "इस संगठन की एक संरक्षित प्रोफाइल है और इसे हटाया नहीं जा सकता है"
+      "Protected account": ["संरक्षित अकाउंट"],
+      "This organization is marked as protected and cannot be deleted": [
+        "इस संगठन की एक संरक्षित निशान है और इसे हटाया नहीं जा सकता है"
       ],
       "This organization has projects": ["इस संगठन के पास कुछ प्रोजेक्ट है"],
       "Projects must be deleted or transferred before the organization can be deleted": [
@@ -1797,7 +1806,7 @@
       "Login OTP {otp}": [""],
       "An OTP has been sent to your email address {email}": [""],
       "Confirmation OTP {otp}": [""],
-      "Edit profile details": ["प्रोफाइल विवरण संपादित करें"],
+      "Edit account details": ["अकाउंट विवरण संपादित करें"],
       "Save logo": ["लोगो सेव करें"],
       "Were you trying to remove the logo? Try again to confirm": [""],
       "Save banner": ["बैनर सेव करें"],
@@ -1932,7 +1941,7 @@
       "{user} is no longer a collaborator": [""],
       "{session} in {venue} in 5 minutes": ["5 मिनट में {venue} में {session}"],
       "{session} in 5 minutes": ["5 मिनट में {session}"],
-      "Profiles": ["प्रोफाइल"],
+      "Accounts": ["अकाउंट"],
       "Select Room": ["रूम का चयन करें"],
       "This project will not be listed as it has no sessions in the schedule": [""],
       "Something went wrong, please reload and try again": [
@@ -2060,7 +2069,7 @@
       "No such user": ["ऐसा कोई यूजर नहीं है"],
       "Password mismatch": ["पासवर्ड मेल नहीं खाया"],
       "Discussion spaces for geeks": ["लोगों के लिए चर्चा की जगह"],
-      "Read your name and basic profile data": ["अपना नाम और मूल प्रोफाइल डेटा पढ़ें"],
+      "Read your name and basic account data": ["अपना नाम और मूल अकाउंट डेटा पढ़ें"],
       "Verify user session": ["यूजर सेशन वेरिफाई करें"],
       "Read your email address": ["अपना ईमेल पता पढ़ें"],
       "Read your phone number": ["अपना फोन नंबर पढ़ें"],

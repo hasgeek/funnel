@@ -31,7 +31,7 @@
   {{ open_submission(project, showEditBtn=false) }}
   {%- if form.errors %}
     <div class="alert alert--error alert--dismissable">
-      <a class="alert__close" href="#" onclick="return false;"  data-target="close flash message" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='subhead') }}</a>
+      <a class="alert__close" href="#" onclick="return false;" data-target="close flash message" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='subhead') }}</a>
       <p class="alert__text">{{ faicon(icon='exclamation-circle') }} {% trans %}Please review the indicated issues{% endtrans %}</p>
     </div>
   {%- endif %}

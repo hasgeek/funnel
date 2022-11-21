@@ -211,9 +211,8 @@ class LoginProvider:
     :param name: Name of the service (stored in the database)
     :param title: Title (shown to user)
     :param at_login: (default True). Is this service available to the user for login? If
-        false, it will only be available to be added in the user's profile page. Use
-        this for multiple instances of the same external service with differing access
-        permissions (for example, with Twitter).
+        `False`, it can only be added from the user's account settings. Use this for
+        add-on services (for example, Zoom).
     :param bool priority: (default False). Is this service high priority? If False,
         it'll be hidden behind a show more link.
     :param str icon: URL to icon for login provider.

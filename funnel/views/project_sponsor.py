@@ -21,7 +21,7 @@ from .mixins import ProjectViewMixin
 
 
 def edit_sponsor_form(obj):
-    """Customise ProjectSponsorForm to remove profile field."""
+    """Customise ProjectSponsorForm to remove account field."""
     form = ProjectSponsorForm(obj=obj)
     del form.profile
     return form
