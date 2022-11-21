@@ -38,41 +38,35 @@ window.Hasgeek.Config = {
 };
 
 function activate_widgets() {
-  // Activate codemirror on all textareas with class='markdown'
-  $('textarea.markdown:not([style*="display: none"]').each(function () {
-    var editor = CodeMirror.fromTextArea(
-      this,
-      window.Hasgeek.Config.cm_markdown_config
-    );
-    var delay;
-    editor.on('change', function (instance) {
-      clearTimeout(delay);
-      delay = setTimeout(function () {
-        editor.save();
-      }, 300);
+  if(window.CodeMirror) {
+    // Activate codemirror on all textareas with class='markdown'
+    $('textarea.markdown:not([style*="display: none"]').each(function () {
+      var editor = CodeMirror.fromTextArea(
+        this,
+        window.Hasgeek.Config.cm_markdown_config
+      );
+      var delay;
+      editor.on('change', function (instance) {
+        clearTimeout(delay);
+        delay = setTimeout(function () {
+          editor.save();
+        }, 300);
+      });
     });
-  });
 
-  // Activate codemirror on all textareas with class='stylesheet'
-  $('textarea.stylesheet:not([style*="display: none"]').each(function () {
-    var editor = CodeMirror.fromTextArea(this, window.Hasgeek.Config.cm_css_config);
-    var delay;
-    editor.on('change', function (instance) {
-      clearTimeout(delay);
-      delay = setTimeout(function () {
-        editor.save();
-      }, 300);
+    // Activate codemirror on all textareas with class='stylesheet'
+    $('textarea.stylesheet:not([style*="display: none"]').each(function () {
+      var editor = CodeMirror.fromTextArea(this, window.Hasgeek.Config.cm_css_config);
+      var delay;
+      editor.on('change', function (instance) {
+        clearTimeout(delay);
+        delay = setTimeout(function () {
+          editor.save();
+        }, 300);
+      });
     });
-  });
+  }
 
-  /* Upgrade to jquery 3.6 select2 autofocus isn't working. This is to fix that problem.
-    select2/select2#5993  */
-  $(document).on('select2:open', function () {
-    document.querySelector('.select2-search__field').focus();
-  });
-}
-
-function activate_select2() {
   /* Upgrade to jquery 3.6 select2 autofocus isn't working. This is to fix that problem.
     select2/select2#5993  */
   $(document).on('select2:open', function () {
@@ -223,7 +217,7 @@ function trapFocusWithinModal(modal) {
 
 $(function () {
   // activate all widgets
-  activate_select2();
+  activate_widgets();
 
   var matchtab = function () {
     var url = document.location.toString(),
