@@ -38,7 +38,7 @@ window.Hasgeek.Config = {
 };
 
 function activate_widgets() {
-  if(window.CodeMirror) {
+  if (window.CodeMirror) {
     // Activate codemirror on all textareas with class='markdown'
     $('textarea.markdown:not([style*="display: none"]').each(function () {
       var editor = CodeMirror.fromTextArea(
