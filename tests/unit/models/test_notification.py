@@ -17,18 +17,18 @@ pytestmark = pytest.mark.filterwarnings(
 
 
 @pytest.fixture(scope='session')
-def notification_types(database):
+def notification_types(database) -> SimpleNamespace:
     class ProjectIsParent:
-        document: models.db.Model
+        document: models.db.Model  # type: ignore[name-defined]
 
         @property
         def preference_context(self) -> models.Profile:
             return self.document.project.profile
 
-    class TestNewUpdateNotification(ProjectIsParent, models.Notification):
+    class TestNewUpdateNotification(
+        ProjectIsParent, models.Notification, type='update_new_test'
+    ):
         """Notifications of new updates (test edition)."""
-
-        __mapper_args__ = {'polymorphic_identity': 'update_new_test'}
 
         category = models.notification_categories.participant
         description = "When a project posts an update"
@@ -36,10 +36,10 @@ def notification_types(database):
         document: models.Update
         roles = ['project_crew', 'project_participant']
 
-    class TestProposalReceivedNotification(ProjectIsParent, models.Notification):
+    class TestProposalReceivedNotification(
+        ProjectIsParent, models.Notification, type='proposal_received_test'
+    ):
         """Notifications of new proposals (test edition)."""
-
-        __mapper_args__ = {'polymorphic_identity': 'proposal_received_test'}
 
         category = models.notification_categories.project_crew
         description = "When my project receives a new proposal"
@@ -269,7 +269,7 @@ def test_user_notification_preferences(notification_types, db_session) -> None:
     assert user.notification_preferences == {}
     np = models.NotificationPreferences(
         user=user,
-        notification_type=nt.TestNewUpdateNotification.cls_type(),
+        notification_type=nt.TestNewUpdateNotification.pref_type,
     )
     db_session.add(np)
     db_session.commit()
@@ -285,7 +285,7 @@ def test_user_notification_preferences(notification_types, db_session) -> None:
     db_session.add(
         models.NotificationPreferences(
             user=user,
-            notification_type=nt.TestNewUpdateNotification.cls_type(),
+            notification_type=nt.TestNewUpdateNotification.pref_type,
         )
     )
     with pytest.raises(IntegrityError):
@@ -300,7 +300,7 @@ def test_user_notification_preferences(notification_types, db_session) -> None:
     # Preferences can be set for other notification types though
     np2 = models.NotificationPreferences(
         user=user,
-        notification_type=nt.TestProposalReceivedNotification.cls_type(),
+        notification_type=nt.TestProposalReceivedNotification.pref_type,
     )
     db_session.add(np2)
     db_session.commit()

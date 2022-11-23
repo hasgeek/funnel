@@ -12,10 +12,8 @@ from funnel import models
 
 @pytest.fixture(scope='session')
 def fixture_notification_type(database):
-    class MergeTestNotification(models.Notification):
+    class MergeTestNotification(models.Notification, type='merge_test'):
         """Test notification."""
-
-        __mapper_args__ = {'polymorphic_identity': 'merge_test'}
 
     database.configure_mappers()
     return MergeTestNotification
