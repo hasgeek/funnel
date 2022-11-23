@@ -212,23 +212,8 @@ class ProjectCrewMembershipNotification(DocumentHasProject, Notification):
     __mapper_args__ = {'polymorphic_identity': 'project_crew_membership_granted'}
 
     category = notification_categories.project_crew
-    title = __("When a project crew member is added, or roles change")
-    description = __("Crew members have access to the project’s controls")
-
-    document: Project
-    fragment: ProjectCrewMembership
-    roles = ['subject', 'project_crew']
-    exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
-
-
-class ProjectCrewMembershipRevokedNotification(DocumentHasProject, Notification):
-    """Notification of being granted crew membership (including role changes)."""
-
-    __mapper_args__ = {'polymorphic_identity': 'project_crew_membership_revoked'}
-    active = False
-
-    category = notification_categories.project_crew
-    title = __("When a project crew member is removed, including me")
+    title = __("When a project crew member is added or removed")
+    description = __("Crew members have access to the project’s settings and data")
 
     document: Project
     fragment: ProjectCrewMembership
