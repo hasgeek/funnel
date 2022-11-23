@@ -247,33 +247,44 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'editor'})
     def add_collaborator(self) -> ReturnView:
         collaborator_form = ProposalMemberForm(proposal=self.obj)
-        if collaborator_form.validate_on_submit():
-            with db.session.no_autoflush:
-                membership = ProposalMembership(
-                    proposal=self.obj, granted_by=current_auth.user
-                )
-                collaborator_form.populate_obj(membership)
-                db.session.add(membership)
-            db.session.commit()
-            return {
-                'status': 'ok',
-                'message': _("{user} has been added as an collaborator").format(
-                    user=membership.user.pickername
-                ),
-                'html': render_template(
-                    'collaborator_list.html.jinja2',
-                    collaborators=[
-                        _m.current_access(datasets=['primary', 'related'])
-                        for _m in self.obj.memberships
-                    ],
-                ),
-            }, 201
+        if request.method == 'POST':
+            if collaborator_form.validate_on_submit():
+                with db.session.no_autoflush:
+                    membership = ProposalMembership(
+                        proposal=self.obj, granted_by=current_auth.user
+                    )
+                    collaborator_form.populate_obj(membership)
+                    db.session.add(membership)
+                db.session.commit()
+                return {
+                    'status': 'ok',
+                    'message': _("{user} has been added as an collaborator").format(
+                        user=membership.user.pickername
+                    ),
+                    'html': render_template(
+                        'collaborator_list.html.jinja2',
+                        collaborators=[
+                            _m.current_access(datasets=['primary', 'related'])
+                            for _m in self.obj.memberships
+                        ],
+                    ),
+                }, 201
+            return (
+                {
+                    'status': 'error',
+                    'error_description': _("Pick a user to be added"),
+                    'errors': collaborator_form.errors,
+                    'form_nonce': collaborator_form.form_nonce.data,
+                },
+                400,
+            )
         return render_form(
             form=collaborator_form,
             title='',
             submit='Add collaborator',
             ajax=True,
             with_chrome=True,
+            template='modalajaxform.html.jinja2',
         )
 
     @route('collaborator/reorder', methods=['POST'])
@@ -480,6 +491,7 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
             submit='Save',
             ajax=True,
             with_chrome=True,
+            template='modalajaxform.html.jinja2',
         )
 
     @route('remove', methods=['POST'])
