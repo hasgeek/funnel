@@ -200,6 +200,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     with_roles(is_invite, read={'subject', 'editor'})
 
+    @hybrid_property
+    def is_amendment(self) -> bool:
+        """Test if membership record is an amendment."""
+        return self.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
+
+    with_roles(is_amendment, read={'subject', 'editor'})
+
     def __repr__(self) -> str:
         return (
             f'<{self.__class__.__name__} {self.subject!r} in {self.parent!r} '
