@@ -135,7 +135,8 @@ def schedule_ical(project: Project, rsvp: Optional[Rsvp] = None):
     cal.add('refresh-interval;value=duration', 'PT12H')
     cal.add('x-published-ttl', 'PT12H')
     for session in project.scheduled_sessions:
-        cal.add_component(session_ical(session, rsvp))
+        if session.start_at > utcnow():
+            cal.add_component(session_ical(session, rsvp))
     if not project.scheduled_sessions and project.start_at:
         cal.add_component(
             # project_as_session does NOT return a Session instance, but since we are
