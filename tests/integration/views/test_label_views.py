@@ -26,13 +26,8 @@ def test_edit_option_label_view(app, client, login, new_user, new_main_label) ->
     assert "Only main labels can be edited" in resp.data.decode('utf-8')
 
 
-# Separate class because the ``new_label`` fixture has a class scope.
-# If we delete it in any other test classes, it'll mess with other
-# tests in those classes.
-
-
 @pytest.mark.dbcommit()
-def test_main_label_delete(app, client, login, new_user, new_label) -> None:
+def test_main_label_delete(client, login, new_user, new_label) -> None:
     login.as_(new_user)
     resp = client.post(new_label.url_for('delete'), follow_redirects=True)
     assert "Manage labels" in resp.data.decode('utf-8')
@@ -42,7 +37,7 @@ def test_main_label_delete(app, client, login, new_user, new_label) -> None:
 
 
 @pytest.mark.dbcommit()
-def test_optioned_label_delete(app, client, login, new_user, new_main_label) -> None:
+def test_optioned_label_delete(client, login, new_user, new_main_label) -> None:
     login.as_(new_user)
     label_a1 = new_main_label.options[0]
     label_a2 = new_main_label.options[1]

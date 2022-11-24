@@ -11,7 +11,7 @@ def test_proposal_label_admin_form(
     new_main_label_unrestricted,
     new_label,
     new_proposal,
-):
+) -> None:
     assert new_main_label.restricted
     assert not new_main_label_unrestricted.restricted
     assert not new_label.restricted
@@ -46,7 +46,7 @@ def test_proposal_label_form(
     new_main_label_unrestricted,
     new_label,
     new_proposal,
-):
+) -> None:
     assert new_main_label.restricted
     assert not new_main_label_unrestricted.restricted
     assert not new_label.restricted

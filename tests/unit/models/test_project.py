@@ -59,7 +59,7 @@ def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
 
 def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
     db_session, new_project
-):
+) -> None:
     # without any session the project will have no start and end dates
     assert new_project.sessions.count() == 0
     assert new_project.schedule_start_at is None
@@ -67,7 +67,7 @@ def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
     assert new_project.datelocation == "Test Location"
 
     # let's add some sessions
-    start_time_a = new_project.timezone.normalize(
+    start_time_a: datetime = new_project.timezone.normalize(
         new_project.timezone.localize(datetime(2019, 6, 12, 12, 15, 0))
     )
     end_time_a = start_time_a + timedelta(hours=3)
@@ -100,6 +100,10 @@ def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
 
     # now project.schedule_start_at will be the first session's start date
     # and project.schedule_end_at will be the last session's end date
+    assert new_project.schedule_start_at is not None
+    assert new_project.schedule_end_at is not None  # type: ignore[unreachable]
+    assert new_session_a.start_at is not None
+    assert new_session_b.end_at is not None
     assert new_project.sessions.count() == 2
     assert new_project.schedule_start_at.date() == new_session_a.start_at.date()
     assert new_project.schedule_end_at.date() == new_session_b.end_at.date()
@@ -224,7 +228,7 @@ def second_organization(db_session, new_user2):
 
 def test_project_rename(
     db_session, new_organization, second_organization, new_project, new_project2
-):
+) -> None:
     # The project has a default name from the fixture, and there is no redirect
     assert new_project.name == 'test-project'
     assert new_project.profile == new_organization.profile

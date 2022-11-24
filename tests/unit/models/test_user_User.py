@@ -217,7 +217,7 @@ def test_user_del_phone(db_session, user_twoflower) -> None:
 
 def test_user_autocomplete(
     db_session, user_twoflower, user_rincewind, user_dibbler, user_librarian
-):
+) -> None:
     """
     Test for User autocomplete method.
 
@@ -264,7 +264,7 @@ def test_user_all(  # pylint: disable=too-many-arguments
     user_death,
     user_mort,
     defercols,
-):
+) -> None:
     """Retrieve all users matching specified criteria."""
     # Some fixtures are not used in the tests because the test determines that they
     # won't show up in the query unless specifically asked for

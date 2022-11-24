@@ -24,7 +24,9 @@ def user_rincewind_site_editor(db_session, user_rincewind):
     return sm
 
 
-def test_create_invalid_shortlink(app, client, user_rincewind, create_shortlink):
+def test_create_invalid_shortlink(
+    app, client, user_rincewind, create_shortlink
+) -> None:
     """Creating a shortlink via API with invalid data will fail."""
     # A GET request will fail
     rv = client.get(create_shortlink)
@@ -51,7 +53,7 @@ def test_create_invalid_shortlink(app, client, user_rincewind, create_shortlink)
     assert rv.json['error'] == 'url_invalid'
 
 
-def test_create_shortlink(app, client, user_rincewind, create_shortlink):
+def test_create_shortlink(app, client, user_rincewind, create_shortlink) -> None:
     """Creating a shortlink via API with valid data will pass."""
     # A valid URL to an app path will be accepted
     rv = client.post(
@@ -89,7 +91,7 @@ def test_create_shortlink(app, client, user_rincewind, create_shortlink):
     )
 
 
-def test_create_shortlink_longer(app, client, user_rincewind, create_shortlink):
+def test_create_shortlink_longer(app, client, user_rincewind, create_shortlink) -> None:
     rv = client.post(
         create_shortlink,
         data={'url': user_rincewind.profile.url_for(_external=True), 'shorter': '0'},
@@ -100,7 +102,9 @@ def test_create_shortlink_longer(app, client, user_rincewind, create_shortlink):
     assert len(str(sl1.path)) > 5  # The shortlink is no longer limited to 4 chars
 
 
-def test_create_shortlink_name_unauthorized(client, user_rincewind, create_shortlink):
+def test_create_shortlink_name_unauthorized(
+    client, user_rincewind, create_shortlink
+) -> None:
     """Asking for a custom name will fail if the user is not a site editor."""
     rv = client.post(
         create_shortlink,
@@ -117,7 +121,7 @@ def test_create_shortlink_name_unauthorized(client, user_rincewind, create_short
 @pytest.mark.usefixtures('user_rincewind_site_editor')
 def test_create_shortlink_name_authorized(  # pylint: disable=too-many-arguments
     shortlinkapp, client, login, user_rincewind, user_wolfgang, create_shortlink
-):
+) -> None:
     """Asking for a custom name will work for site editors."""
     login.as_(user_rincewind)
     rv = client.post(

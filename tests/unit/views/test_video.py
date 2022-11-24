@@ -116,7 +116,7 @@ def test_vimeo(db_session, new_proposal) -> None:
 
 @pytest.mark.requires_config('vimeo')
 @pytest.mark.usefixtures('app_context')
-def test_vimeo_request_exception(caplog, requests_mock, new_proposal):
+def test_vimeo_request_exception(caplog, requests_mock, new_proposal) -> None:
     caplog.set_level(logging.WARNING)
     requests_mock.get(
         'https://api.vimeo.com/videos/336892869',
@@ -128,7 +128,7 @@ def test_vimeo_request_exception(caplog, requests_mock, new_proposal):
 
 
 @pytest.mark.usefixtures('app_context')
-def test_youtube_request_exception(caplog, requests_mock, new_proposal):
+def test_youtube_request_exception(caplog, requests_mock, new_proposal) -> None:
     caplog.set_level(logging.WARNING)
     requests_mock.get(
         'https://www.googleapis.com/youtube/v3/videos',
