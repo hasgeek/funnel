@@ -18,6 +18,7 @@ from flask import Flask
 from . import app as main_app
 from . import shortlinkapp
 from .models import db
+from .typing import ReturnView
 
 __all__ = ['AppByHostWsgi', 'BackgroundWorker', 'devtest_app']
 
@@ -36,7 +37,7 @@ info_app = Flask(__name__)
 
 @info_app.route('/', endpoint='index')
 @info_app.route('/<path:_ignore_path>')
-def info_index(_ignore_path: str = ''):
+def info_index(_ignore_path: str = '') -> ReturnView:
     """Info app provides a guide to access the server."""
     info = "Add the following entries to /etc/hosts to access:\n\n"
     max_host_len = max(len(host) for host in devtest_app.apps_by_host.keys())
@@ -91,7 +92,7 @@ class AppByHostWsgi:
         # If no host matched, use the info app
         return info_app
 
-    def __call__(self, environ, start_response):
+    def __call__(self, environ, start_response) -> Iterable[bytes]:
         use_app = self.get_app(environ['HTTP_HOST'])
         return use_app(environ, start_response)
 

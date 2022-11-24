@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from dataclasses import dataclass
 from functools import wraps
-from typing import Callable, Collection, List, Optional, Tuple, cast
+from typing import Callable, Collection, List, NoReturn, Optional, Tuple, cast
 import re
 
 from flask import Response, abort, jsonify, request
@@ -14,7 +14,7 @@ from baseframe import _
 from baseframe.signals import exception_catchall
 
 from .models import AuthToken, UserExternalId
-from .typing import ReturnResponse, WrappedFunc
+from .typing import ReturnDecorator, ReturnResponse, WrappedFunc
 
 # Bearer token, as per
 # http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-15#section-2.1
@@ -30,7 +30,7 @@ class ResourceRegistry(OrderedDict):
         description: Optional[str] = None,
         trusted: bool = False,
         scope: Optional[str] = None,
-    ):
+    ) -> ReturnDecorator:
         """
         Decorate a resource function.
 
@@ -45,7 +45,7 @@ class ResourceRegistry(OrderedDict):
             # Don't allow resources to be declared with '*' or ' ' in the name
             raise ValueError(usescope)
 
-        def resource_auth_error(message: str):
+        def resource_auth_error(message: str) -> Response:
             return Response(
                 message,
                 401,
@@ -241,7 +241,7 @@ class LoginProvider:
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def do(self, callback_url: str):
+    def do(self, callback_url: str) -> NoReturn:
         """Initiate a login with this login provider."""
         raise NotImplementedError
 

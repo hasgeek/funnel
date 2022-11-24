@@ -114,7 +114,7 @@ def test_project_crew_membership(
 
 def test_project_roles_lazy_eval(
     db_session, new_user, new_user_owner, new_organization, new_project2
-):
+) -> None:
     """Test that the lazy roles evaluator picks up membership-based roles."""
     assert 'admin' in new_organization.profile.roles_for(new_user_owner)
     assert 'admin' not in new_organization.profile.roles_for(new_user)

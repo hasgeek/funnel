@@ -110,7 +110,7 @@ class GeoAltNameRecord:
     is_historic: str
 
 
-def downloadfile(basepath: str, filename: str, folder: Optional[str] = None):
+def downloadfile(basepath: str, filename: str, folder: Optional[str] = None) -> None:
     """Download a geoname record file."""
     if not folder:
         folder_file = filename
@@ -150,7 +150,7 @@ def downloadfile(basepath: str, filename: str, folder: Optional[str] = None):
                 zipf.extractall(folder)
 
 
-def load_country_info(filename):
+def load_country_info(filename: str) -> None:
     """Load country geonames from the given file descriptor."""
     with rich.progress.open(
         filename, newline='', encoding='utf-8', description="Loading country info..."
@@ -195,7 +195,7 @@ def load_country_info(filename):
         db.session.commit()
 
 
-def load_geonames(filename):
+def load_geonames(filename: str) -> None:
     """Load geonames matching fixed criteria from the given file descriptor."""
     geonames = []
 
@@ -310,7 +310,7 @@ def load_geonames(filename):
     db.session.commit()
 
 
-def load_alt_names(filename):
+def load_alt_names(filename: str) -> None:
     """Load alternative names for geonames from the given file descriptor."""
     print("Retrieving all geoname records...")  # noqa: T201
     geonameids = {r[0] for r in db.session.query(GeoName.id).all()}
@@ -342,7 +342,7 @@ def load_alt_names(filename):
     db.session.commit()
 
 
-def load_admin1_codes(filename):
+def load_admin1_codes(filename: str) -> None:
     """Load admin1 codes from the given file descriptor."""
     with rich.progress.open(
         filename, newline='', encoding='utf-8', description="Loading admin1 codes..."
@@ -367,7 +367,7 @@ def load_admin1_codes(filename):
     db.session.commit()
 
 
-def load_admin2_codes(filename):
+def load_admin2_codes(filename: str) -> None:
     """Load admin2 codes from the given file descriptor."""
     with rich.progress.open(
         filename, newline='', encoding='utf-8', description="Loading admin2 codes..."
@@ -393,7 +393,7 @@ def load_admin2_codes(filename):
 
 
 @geo.command('download')
-def download():
+def download() -> None:
     """Download geoname data."""
     os.makedirs('geoname_data', exist_ok=True)
     for filename in (
@@ -410,7 +410,7 @@ def download():
 
 
 @geo.command('process')
-def process():
+def process() -> None:
     """Process downloaded geonames data."""
     load_country_info('geoname_data/countryInfo.txt')
     load_admin1_codes('geoname_data/admin1CodesASCII.txt')

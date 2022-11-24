@@ -263,13 +263,12 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     #: Document model is auto-populated from the document type
     document_model: Type[UuidModelType]
-    #: Document type is auto-populated from the document model
+    #: SQL table name for document type, auto-populated from the document model
     document_type: str
 
     #: Fragment model is auto-populated from the fragment type
     fragment_model: Optional[Type[UuidModelType]]
-
-    #: Fragment type is auto-populated from the fragment model
+    #: SQL table name for fragment type, auto-populated from the fragment model
     fragment_type: Optional[str]
 
     #: Roles to send notifications to. Roles must be in order of priority for situations
@@ -1264,7 +1263,13 @@ def _register_notification_types(mapper_, cls) -> None:
 
         # Populate cls with helper attributes
 
-        type_hints = get_type_hints(cls, localns=vars(models))
+        # When using future annotations, the type hints in a notification will be stored
+        # as strings. We provide the models namespace to resolve the strings back to
+        # models as we have no access to the actual namespace within which the class was
+        # defined. Since tests uses ``models.*`` references, we have to include 'models'
+        # in the namespace here. While ``inspect.getmodule`` exists, it cannot retrieve
+        # local namespace when the notification class is defined inside a function
+        type_hints = get_type_hints(cls, localns={'models': models} | vars(models))
         cls.document_model = (
             type_hints['document']
             if 'document' in type_hints
@@ -1272,6 +1277,10 @@ def _register_notification_types(mapper_, cls) -> None:
             and issubclass(type_hints['document'], db.Model)
             else None
         )
+        if cls.document_model is None:
+            raise TypeError(
+                f"Notification subclass {cls!r} must specify document class"
+            )
         cls.document_type = (
             cls.document_model.__tablename__  # type: ignore[attr-defined]
             if cls.document_model
