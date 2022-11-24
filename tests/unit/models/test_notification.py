@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
+from typing import Dict, List, Set
 
 from sqlalchemy.exc import IntegrityError
 
@@ -17,9 +18,9 @@ pytestmark = pytest.mark.filterwarnings(
 
 
 @pytest.fixture(scope='session')
-def notification_types(database):
+def notification_types(database) -> SimpleNamespace:
     class ProjectIsParent:
-        document: models.db.Model
+        document: models.db.Model  # type: ignore[name-defined]
 
         @property
         def preference_context(self) -> models.Profile:
@@ -208,7 +209,7 @@ def test_update_roles(project_fixtures, update) -> None:
 
 def test_update_notification_structure(
     notification_types, project_fixtures, update, db_session
-):
+) -> None:
     """Test whether a NewUpdateNotification has the appropriate structure."""
     project_fixtures.refresh()
     notification = notification_types.TestNewUpdateNotification(update)
@@ -237,7 +238,7 @@ def test_update_notification_structure(
     assert not list(notification.dispatch())
 
     # Notifications are issued strictly in the order specified in cls.roles
-    role_order = []
+    role_order: List[str] = []
     for un in user_notifications:
         if un.role in role_order:
             assert role_order[-1] == un.role
@@ -247,7 +248,7 @@ def test_update_notification_structure(
     assert role_order == ['project_crew', 'project_participant']
 
     # Notifications are correctly assigned by priority of role
-    role_users = {}
+    role_users: Dict[str, Set[models.User]] = {}
     for un in user_notifications:
         role_users.setdefault(un.role, set()).add(un.user)
 
@@ -312,7 +313,7 @@ def test_user_notification_preferences(notification_types, db_session) -> None:
 
 def test_notification_preferences(
     notification_types, project_fixtures, update, db_session
-):
+) -> None:
     """Test whether user preferences are correctly accessed."""
     # Rather than dispatching, we'll hardcode UserNotification for each test user
     notification = notification_types.TestNewUpdateNotification(update)

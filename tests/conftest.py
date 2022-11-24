@@ -99,7 +99,7 @@ def funnel_devtest(funnel):
 
 
 @pytest.fixture(scope='session')
-def response_with_forms():
+def response_with_forms() -> t.Any:  # Since the actual return type is defined within
     from flask.wrappers import Response
 
     from lxml.html import FormElement, HtmlElement, fromstring  # nosec
@@ -153,7 +153,7 @@ def response_with_forms():
                 # add click method to all links
                 def _click(
                     self, client, **kwargs
-                ):  # pylint: disable=redefined-outer-name
+                ) -> None:  # pylint: disable=redefined-outer-name
                     # `self` is the `a` element here
                     path = self.attrib['href']
                     return client.get(path, **kwargs)
@@ -164,7 +164,7 @@ def response_with_forms():
                 # add submit method to all forms
                 def _submit(
                     self, client, path=None, **kwargs
-                ):  # pylint: disable=redefined-outer-name
+                ) -> None:  # pylint: disable=redefined-outer-name
                     # `self` is the `form` element here
                     data = dict(self.form_values())
                     if 'data' in kwargs:
@@ -450,7 +450,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
     If a test is exhibiting unusual behaviour, add this fixture to trace db events::
 
         @pytest.mark.usefixtures('_database_events')
-        def test_whatever():
+        def test_whatever() -> None:
             ...
     """
     from pprint import saferepr
@@ -1028,7 +1028,7 @@ def live_server(funnel_devtest, database, app):
 
 
 @pytest.fixture()
-def csrf_token(client):
+def csrf_token(client) -> str:
     """Supply a CSRF token for use in form submissions."""
     return client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
 
@@ -1037,7 +1037,7 @@ def csrf_token(client):
 def login(app, client, db_session) -> SimpleNamespace:
     """Provide a login fixture."""
 
-    def as_(user):
+    def as_(user) -> None:
         db_session.commit()
         with client.session_transaction() as session:
             # TODO: This depends on obsolete code in views/login_session that replaces
@@ -1047,7 +1047,7 @@ def login(app, client, db_session) -> SimpleNamespace:
         # Perform a request to convert the session userid into a UserSession
         client.get('/api/1/user/get')
 
-    def logout():
+    def logout() -> None:
         # TODO: Test this
         client.delete_cookie(
             client.server_name, 'lastuser', domain=app.config['LASTUSER_COOKIE_DOMAIN']
@@ -1543,7 +1543,7 @@ TEST_DATA = {
 
 
 @pytest.fixture()
-def new_user(models, db_session):
+def new_user(models, db_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['testuser'])
     db_session.add(user)
     db_session.commit()
@@ -1551,7 +1551,7 @@ def new_user(models, db_session):
 
 
 @pytest.fixture()
-def new_user2(models, db_session):
+def new_user2(models, db_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['testuser2'])
     db_session.add(user)
     db_session.commit()
@@ -1559,7 +1559,7 @@ def new_user2(models, db_session):
 
 
 @pytest.fixture()
-def new_user_owner(models, db_session):
+def new_user_owner(models, db_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['test-org-owner'])
     db_session.add(user)
     db_session.commit()
@@ -1567,7 +1567,7 @@ def new_user_owner(models, db_session):
 
 
 @pytest.fixture()
-def new_user_admin(models, db_session):
+def new_user_admin(models, db_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['test-org-admin'])
     db_session.add(user)
     db_session.commit()
@@ -1575,7 +1575,9 @@ def new_user_admin(models, db_session):
 
 
 @pytest.fixture()
-def new_organization(models, db_session, new_user_owner, new_user_admin):
+def new_organization(
+    models, db_session, new_user_owner, new_user_admin
+) -> funnel_models.Organization:
     org = models.Organization(owner=new_user_owner, title="Test org", name='test-org')
     db_session.add(org)
 
@@ -1588,7 +1590,7 @@ def new_organization(models, db_session, new_user_owner, new_user_admin):
 
 
 @pytest.fixture()
-def new_team(models, db_session, new_user, new_organization):
+def new_team(models, db_session, new_user, new_organization) -> funnel_models.Team:
     team = models.Team(title="Owners", organization=new_organization)
     db_session.add(team)
     team.users.append(new_user)
@@ -1597,7 +1599,9 @@ def new_team(models, db_session, new_user, new_organization):
 
 
 @pytest.fixture()
-def new_project(models, db_session, new_organization, new_user):
+def new_project(
+    models, db_session, new_organization, new_user
+) -> funnel_models.Project:
     project = models.Project(
         profile=new_organization.profile,
         user=new_user,
@@ -1612,7 +1616,9 @@ def new_project(models, db_session, new_organization, new_user):
 
 
 @pytest.fixture()
-def new_project2(models, db_session, new_organization, new_user_owner):
+def new_project2(
+    models, db_session, new_organization, new_user_owner
+) -> funnel_models.Project:
     project = models.Project(
         profile=new_organization.profile,
         user=new_user_owner,
@@ -1627,7 +1633,7 @@ def new_project2(models, db_session, new_organization, new_user_owner):
 
 
 @pytest.fixture()
-def new_main_label(models, db_session, new_project):
+def new_main_label(models, db_session, new_project) -> funnel_models.Label:
     main_label_a = models.Label(
         title="Parent Label A", project=new_project, description="A test parent label"
     )
@@ -1645,7 +1651,7 @@ def new_main_label(models, db_session, new_project):
 
 
 @pytest.fixture()
-def new_main_label_unrestricted(models, db_session, new_project):
+def new_main_label_unrestricted(models, db_session, new_project) -> funnel_models.Label:
     main_label_b = models.Label(
         title="Parent Label B", project=new_project, description="A test parent label"
     )
@@ -1663,7 +1669,7 @@ def new_main_label_unrestricted(models, db_session, new_project):
 
 
 @pytest.fixture()
-def new_label(models, db_session, new_project):
+def new_label(models, db_session, new_project) -> funnel_models.Label:
     label_b = models.Label(title="Label B", icon_emoji="🔟", project=new_project)
     new_project.all_labels.append(label_b)
     db_session.add(label_b)
@@ -1672,7 +1678,7 @@ def new_label(models, db_session, new_project):
 
 
 @pytest.fixture()
-def new_proposal(models, db_session, new_user, new_project):
+def new_proposal(models, db_session, new_user, new_project) -> funnel_models.Proposal:
     proposal = models.Proposal(
         user=new_user,
         project=new_project,

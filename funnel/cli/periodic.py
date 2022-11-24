@@ -73,7 +73,7 @@ periodic = AppGroup(
 
 
 @periodic.command('project_starting_alert')
-def project_starting_alert():
+def project_starting_alert() -> None:
     """Send notifications for projects that are about to start schedule (5m)."""
     # Rollback to the most recent 5 minute interval, to account for startup delay
     # for periodic job processes.
@@ -109,7 +109,7 @@ def project_starting_alert():
 
 
 @periodic.command('growthstats')
-def growthstats():
+def growthstats() -> None:
     """Publish growth statistics to Telegram (midnight)."""
     if not app.config.get('TELEGRAM_STATS_APIKEY') or not app.config.get(
         'TELEGRAM_STATS_CHATID'
@@ -197,7 +197,7 @@ def growthstats():
         }
     )
 
-    def trend_symbol(current, previous):
+    def trend_symbol(current: int, previous: int) -> str:
         """Return a trend symbol based on difference between current and previous."""
         if current > previous * 1.5:
             return '⏫'
