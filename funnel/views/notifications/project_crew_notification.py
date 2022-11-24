@@ -6,7 +6,7 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import Project, ProjectCrewMembershipNotification
+from ...models import Project, ProjectCrewMembershipNotification, Proposal
 from ...transports.sms import TwoLineTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
@@ -15,6 +15,7 @@ from ..notification import RenderNotification
 @ProjectCrewMembershipNotification.renderer
 class RenderProjectCrewMembershipNotification(RenderNotification):
     project: Project
+    proposal: Proposal
     aliases = {'document': 'project'}
     emoji_prefix = "📥 "
     reason = __(
@@ -23,29 +24,29 @@ class RenderProjectCrewMembershipNotification(RenderNotification):
 
     def web(self):
         return render_template(
-            'notifications/proposal_received_web.html.jinja2',
+            'notifications/project_crew_membership_added.html.jinja2',
+            actor=self.actor,
             view=self,
-            proposal=self.proposal,
             project=self.project,
         )
 
     def email_subject(self):
         return self.emoji_prefix + _(
             "You have been added to {project} as a crew member"
-        ).format(project=self.joined_title())
+        ).format(project=self.project.joined_title)
 
     def email_content(self):
         return render_template(
-            'email_project_crew_membership_add_notification.html.jinja2',
-            actor='',  # TODO
-            project=self.obj,
-            membership='',  # TODO
+            'notifications/project_crew_membership_added.html.jinja2',
+            actor=self.actor,
+            view=self,
+            project=self.project,
         )
 
     def sms(self) -> TwoLineTemplate:
         return TwoLineTemplate(
             text1=_("You have been added to {project} as a crew member:").format(
-                project=self.project.joined_title('>')
+                project=self.project.joined_title
             ),
             text2=self.project.title,
             url=shortlink(

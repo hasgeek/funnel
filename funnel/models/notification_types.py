@@ -206,7 +206,7 @@ class CommentReplyNotification(Notification):
 # --- Project crew notifications -------------------------------------------------------
 
 
-class ProjectCrewMembershipNotification(DocumentHasProject, Notification):
+class ProjectCrewMembershipNotification(DocumentHasProfile, Notification):
     """Notification of being granted crew membership (including role changes)."""
 
     __mapper_args__ = {'polymorphic_identity': 'project_crew_membership_granted'}
@@ -218,7 +218,7 @@ class ProjectCrewMembershipNotification(DocumentHasProject, Notification):
     document: Project
     fragment: ProjectCrewMembership
     roles = ['subject', 'project_crew']
-    exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
+    exclude_actor = False  # Alerts other users of actor's actions; too noisy for actor
 
 
 class ProposalReceivedNotification(DocumentHasProfile, Notification):
