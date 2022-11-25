@@ -12,19 +12,14 @@ from . import (
     BaseMixin,
     BaseScopedIdNameMixin,
     Mapped,
-    MarkdownColumn,
     TSVectorType,
     UuidMixin,
     db,
+    markdown_cached_column,
     sa,
 )
 from .comment import SET_TYPE, Commentset
-from .helpers import (
-    add_search_trigger,
-    markdown_content_options,
-    reopen,
-    visual_field_delimiter,
-)
+from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .reorder_mixin import ReorderMixin
@@ -179,8 +174,8 @@ class Proposal(  # type: ignore[misc]
         back_populates='proposal',
     )
 
-    body = MarkdownColumn(
-        'body', nullable=False, default='', options=markdown_content_options
+    body = markdown_cached_column(
+        'body', profile='document', nullable=False, default=''
     )
     description = sa.Column(sa.Unicode, nullable=False, default='')
     custom_description = sa.Column(sa.Boolean, nullable=False, default=False)

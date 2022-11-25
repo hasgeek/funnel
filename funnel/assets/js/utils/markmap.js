@@ -1,10 +1,24 @@
 const MarkmapEmbed = {
   addMarkmap() {
-    $('.language-markmap').each(function embedMarkmap() {
-      $(this).addClass('embed-added');
-      $(this).find('code').addClass('markmap');
+    $('.md-embed-markmap').each(function embedMarkmap() {
+      $(this).find('.embed-content').addClass('markmap');
     });
     window.markmap.autoLoader.renderAll();
+    $('.md-embed-markmap').each(function embedMarkmap() {
+      $(this).addClass('activated');
+    });
+  },
+  resizeTimer: null,
+  resizeMarkmapContainers() {
+    if (this.resizeTimer) clearTimeout(this.resizeTimer);
+    this.resizeTimer = setTimeout(() => {
+      $('.md-embed-markmap.activated svg').each(function mmresized() {
+        const circles = $(this).find('circle');
+        const firstNode = circles[circles.length - 1];
+        firstNode.dispatchEvent(new Event('click'));
+        firstNode.dispatchEvent(new Event('click'));
+      });
+    }, 500);
   },
   loadMarkmap() {
     const self = this;
@@ -41,6 +55,7 @@ const MarkmapEmbed = {
           loadMarkmapScript();
         } else {
           self.addMarkmap();
+          window.addEventListener('resize', this.resizeMarkmapContainers);
         }
       });
     };
@@ -52,7 +67,7 @@ const MarkmapEmbed = {
   },
   init(containerDiv) {
     this.containerDiv = containerDiv;
-    if ($('.language-markmap').length > 0) {
+    if ($('.md-embed-markmap:not(.activated)').length > 0) {
       this.loadMarkmap();
     }
   },

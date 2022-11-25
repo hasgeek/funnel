@@ -7,7 +7,14 @@ from typing_extensions import NotRequired
 
 from coaster.utils import make_name
 
-from .mdit_plugins import del_plugin, ins_plugin, mark_plugin, sub_plugin, sup_plugin
+from .mdit_plugins import (
+    del_plugin,
+    embeds_plugin,
+    ins_plugin,
+    mark_plugin,
+    sub_plugin,
+    sup_plugin,
+)
 
 __all__ = ['profiles', 'plugins', 'plugin_configs', 'default_markdown_options']
 
@@ -20,6 +27,9 @@ plugins: Dict[str, Callable] = {
     'sub': sub_plugin,
     'sup': sup_plugin,
     'mark': mark_plugin,
+    'markmap': embeds_plugin,
+    'vega-lite': embeds_plugin,
+    'mermaid': embeds_plugin,
 }
 
 plugin_configs: Dict[str, Dict[str, Any]] = {
@@ -30,6 +40,9 @@ plugin_configs: Dict[str, Dict[str, Any]] = {
         'permalink': True,
     },
     'tasklists': {'enabled': True, 'label': True, 'label_after': False},
+    'markmap': {'name': 'markmap'},
+    'vega-lite': {'name': 'vega-lite'},
+    'mermaid': {'name': 'mermaid'},
 }
 
 
@@ -68,6 +81,9 @@ class MarkdownProfileDocument(MarkdownProfile):
         'sub',
         'sup',
         'mark',
+        'markmap',
+        'vega-lite',
+        'mermaid',
     ]
 
 

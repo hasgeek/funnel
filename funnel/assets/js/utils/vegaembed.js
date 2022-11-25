@@ -1,20 +1,28 @@
 /* global vegaEmbed */
 
 function addVegaChart() {
-  $('.language-vega-lite').each(function embedVegaChart() {
-    vegaEmbed(this, JSON.parse($(this).find('code').text()), {
-      renderer: 'svg',
-      actions: {
-        source: false,
-        editor: false,
-        compiled: false,
-      },
+  $('.md-embed-vega-lite:not(.activated)').each(async function embedVegaChart() {
+    const root = $(this);
+    const embedded = await vegaEmbed(
+      this,
+      JSON.parse($(this).find('.embed-content').text()),
+      {
+        renderer: 'svg',
+        actions: {
+          source: false,
+          editor: false,
+          compiled: false,
+        },
+      }
+    );
+    embedded.view.runAfter(() => {
+      root.addClass('activated');
     });
   });
 }
 
 function addVegaSupport() {
-  if ($('.language-vega-lite').length > 0) {
+  if ($('.md-embed-vega-lite:not(.activated)').length > 0) {
     const vegaliteCDN = [
       'https://cdn.jsdelivr.net/npm/vega@5',
       'https://cdn.jsdelivr.net/npm/vega-lite@5',
@@ -32,7 +40,7 @@ function addVegaSupport() {
             vegaliteUrl += 1;
             loadVegaScript();
           }
-          // Once all vega js is loaded, initialize vega visualization on all pre tags with class 'language-vega-lite'
+          // Once all vega js is loaded, initialize vega visualization on all pre tags with class 'md-embed-vega-lite'
           if (vegaliteUrl === vegaliteCDN.length) {
             addVegaChart();
           }

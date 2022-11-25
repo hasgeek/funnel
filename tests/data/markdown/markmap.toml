@@ -1,0 +1,403 @@
+markdown = """
+### Markmap
+
+```{markmap}
+
+# Digital Identifiers and Rights
+
+## Community and Outreach
+
+- Experts
+- Grant organizations
+- IT ministries
+- Journalism schools
+- Journalists and reporters
+- Partnerships
+  - Patrons
+  - Sponsors
+- Policymakers
+- Rights activists
+- Startups
+- Thinktanks
+- Venture capital
+- Volunteers
+
+## Domains
+
+- Border controls
+- Citizenship
+- Digital data trusts
+- FinTech
+- Government
+- Health services delivery
+- Hospitality
+- Law enforcement
+- Online retail and commerce
+- Smart automation
+- Social media
+- Travel and tourism
+
+## Location
+
+- International
+- Local or domestic
+- Transit
+
+## Output and Outcomes
+
+- Best practices guide for product/service development
+- Conference
+- Conversations (eg. Twitter Spaces)
+- Masterclass webinars
+- Proceedings (talk playlist)
+- Reports
+- Review of Policies
+
+## Themes
+
+### Digital Identity
+
+- Anonymity
+- Architecture of digital trust
+- Control and ownership
+- Identity and identifier models
+- Inclusion and exclusion
+- Portability
+- Principles
+- Regulations
+- Reputation
+- Rights and agency
+- Trust framework
+- Verifiability
+- Vulnerable communities
+
+### Digital Rights
+
+- Current state across region
+- Harms
+- Emerging regulatory requirements
+- Web 3.0 and decentralization
+- Naturalization
+
+## Streams
+
+- Banking and finance
+- Data exchange and interoperability
+- Data governance models
+- Data markets
+- Digital identifiers and identity systems
+- Digital public goods
+- Digital public services
+- Humanitarian activity and aid
+- Identity ecosystems
+- Innovation incubation incentives
+  - Public investment
+  - Private capital
+- Local regulations and laws
+- National policies
+- Public health services
+- Records (birth, death, land etc)
+```
+"""
+
+[config]
+profiles = [ "basic", "document",]
+
+[config.custom_profiles.markmap]
+args_config = "default"
+plugins = [ "markmap",]
+[expected_output]
+basic = """<h3>Markmap</h3>
+<pre><code class="language-{markmap}">
+# Digital Identifiers and Rights
+
+## Community and Outreach
+
+- Experts
+- Grant organizations
+- IT ministries
+- Journalism schools
+- Journalists and reporters
+- Partnerships
+  - Patrons
+  - Sponsors
+- Policymakers
+- Rights activists
+- Startups
+- Thinktanks
+- Venture capital
+- Volunteers
+
+## Domains
+
+- Border controls
+- Citizenship
+- Digital data trusts
+- FinTech
+- Government
+- Health services delivery
+- Hospitality
+- Law enforcement
+- Online retail and commerce
+- Smart automation
+- Social media
+- Travel and tourism
+
+## Location
+
+- International
+- Local or domestic
+- Transit
+
+## Output and Outcomes
+
+- Best practices guide for product/service development
+- Conference
+- Conversations (eg. Twitter Spaces)
+- Masterclass webinars
+- Proceedings (talk playlist)
+- Reports
+- Review of Policies
+
+## Themes
+
+### Digital Identity
+
+- Anonymity
+- Architecture of digital trust
+- Control and ownership
+- Identity and identifier models
+- Inclusion and exclusion
+- Portability
+- Principles
+- Regulations
+- Reputation
+- Rights and agency
+- Trust framework
+- Verifiability
+- Vulnerable communities
+
+### Digital Rights
+
+- Current state across region
+- Harms
+- Emerging regulatory requirements
+- Web 3.0 and decentralization
+- Naturalization
+
+## Streams
+
+- Banking and finance
+- Data exchange and interoperability
+- Data governance models
+- Data markets
+- Digital identifiers and identity systems
+- Digital public goods
+- Digital public services
+- Humanitarian activity and aid
+- Identity ecosystems
+- Innovation incubation incentives
+  - Public investment
+  - Private capital
+- Local regulations and laws
+- National policies
+- Public health services
+- Records (birth, death, land etc)
+</code></pre>
+"""
+document = """<h3 id="h:markmap">Markmap <a class="header-anchor" href="#h:markmap">¶</a></h3>
+<div class="md-embed md-embed-markmap" ><div class="embed-content">
+# Digital Identifiers and Rights
+
+## Community and Outreach
+
+- Experts
+- Grant organizations
+- IT ministries
+- Journalism schools
+- Journalists and reporters
+- Partnerships
+- Patrons
+- Sponsors
+- Policymakers
+- Rights activists
+- Startups
+- Thinktanks
+- Venture capital
+- Volunteers
+
+## Domains
+
+- Border controls
+- Citizenship
+- Digital data trusts
+- FinTech
+- Government
+- Health services delivery
+- Hospitality
+- Law enforcement
+- Online retail and commerce
+- Smart automation
+- Social media
+- Travel and tourism
+
+## Location
+
+- International
+- Local or domestic
+- Transit
+
+## Output and Outcomes
+
+- Best practices guide for product/service development
+- Conference
+- Conversations (eg. Twitter Spaces)
+- Masterclass webinars
+- Proceedings (talk playlist)
+- Reports
+- Review of Policies
+
+## Themes
+
+### Digital Identity
+
+- Anonymity
+- Architecture of digital trust
+- Control and ownership
+- Identity and identifier models
+- Inclusion and exclusion
+- Portability
+- Principles
+- Regulations
+- Reputation
+- Rights and agency
+- Trust framework
+- Verifiability
+- Vulnerable communities
+
+### Digital Rights
+
+- Current state across region
+- Harms
+- Emerging regulatory requirements
+- Web 3.0 and decentralization
+- Naturalization
+
+## Streams
+
+- Banking and finance
+- Data exchange and interoperability
+- Data governance models
+- Data markets
+- Digital identifiers and identity systems
+- Digital public goods
+- Digital public services
+- Humanitarian activity and aid
+- Identity ecosystems
+- Innovation incubation incentives
+- Public investment
+- Private capital
+- Local regulations and laws
+- National policies
+- Public health services
+- Records (birth, death, land etc)
+</div></div>
+"""
+markmap = """<h3>Markmap</h3>
+<div class="md-embed md-embed-markmap" ><div class="embed-content">
+# Digital Identifiers and Rights
+
+## Community and Outreach
+
+- Experts
+- Grant organizations
+- IT ministries
+- Journalism schools
+- Journalists and reporters
+- Partnerships
+- Patrons
+- Sponsors
+- Policymakers
+- Rights activists
+- Startups
+- Thinktanks
+- Venture capital
+- Volunteers
+
+## Domains
+
+- Border controls
+- Citizenship
+- Digital data trusts
+- FinTech
+- Government
+- Health services delivery
+- Hospitality
+- Law enforcement
+- Online retail and commerce
+- Smart automation
+- Social media
+- Travel and tourism
+
+## Location
+
+- International
+- Local or domestic
+- Transit
+
+## Output and Outcomes
+
+- Best practices guide for product/service development
+- Conference
+- Conversations (eg. Twitter Spaces)
+- Masterclass webinars
+- Proceedings (talk playlist)
+- Reports
+- Review of Policies
+
+## Themes
+
+### Digital Identity
+
+- Anonymity
+- Architecture of digital trust
+- Control and ownership
+- Identity and identifier models
+- Inclusion and exclusion
+- Portability
+- Principles
+- Regulations
+- Reputation
+- Rights and agency
+- Trust framework
+- Verifiability
+- Vulnerable communities
+
+### Digital Rights
+
+- Current state across region
+- Harms
+- Emerging regulatory requirements
+- Web 3.0 and decentralization
+- Naturalization
+
+## Streams
+
+- Banking and finance
+- Data exchange and interoperability
+- Data governance models
+- Data markets
+- Digital identifiers and identity systems
+- Digital public goods
+- Digital public services
+- Humanitarian activity and aid
+- Identity ecosystems
+- Innovation incubation incentives
+- Public investment
+- Private capital
+- Local regulations and laws
+- National policies
+- Public health services
+- Records (birth, death, land etc)
+</div></div>
+"""
