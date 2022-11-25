@@ -6,7 +6,7 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import Project, ProjectCrewMembershipNotification, Proposal
+from ...models import Project, ProjectCrewMembershipNotification
 from ...transports.sms import TwoLineTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
@@ -15,7 +15,6 @@ from ..notification import RenderNotification
 @ProjectCrewMembershipNotification.renderer
 class RenderProjectCrewMembershipNotification(RenderNotification):
     project: Project
-    proposal: Proposal
     aliases = {'document': 'project'}
     emoji_prefix = "📥 "
     reason = __(
@@ -24,7 +23,7 @@ class RenderProjectCrewMembershipNotification(RenderNotification):
 
     def web(self):
         return render_template(
-            'notifications/project_crew_membership_added.html.jinja2',
+            'notifications/project_crew_membership_added_web.html.jinja2',
             actor=self.actor,
             view=self,
             project=self.project,
@@ -37,7 +36,7 @@ class RenderProjectCrewMembershipNotification(RenderNotification):
 
     def email_content(self):
         return render_template(
-            'notifications/project_crew_membership_added.html.jinja2',
+            'notifications/project_crew_membership_added_email.html.jinja2',
             actor=self.actor,
             view=self,
             project=self.project,
