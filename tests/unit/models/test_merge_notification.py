@@ -2,6 +2,7 @@
 
 from datetime import timedelta
 from types import SimpleNamespace
+from typing import Any
 
 import sqlalchemy as sa
 
@@ -11,11 +12,10 @@ from funnel import models
 
 
 @pytest.fixture(scope='session')
-def fixture_notification_type(database):
-    class MergeTestNotification(models.Notification):
+def fixture_notification_type(database) -> Any:
+    class MergeTestNotification(models.Notification, type='merge_test'):
         """Test notification."""
 
-        __mapper_args__ = {'polymorphic_identity': 'merge_test'}
         document: models.User
 
     database.configure_mappers()
