@@ -15,8 +15,12 @@ from ...utils.markdown.profiles import profiles
 def markdown_preview() -> ReturnView:
     """Render Markdown in the backend, with custom options based on use case."""
     profile: Optional[str] = request.form.get('profile')
-    if profile not in profiles:
-        profile = None
+    if profile is None or profile not in profiles:
+        return {
+            'status': 'error',
+            'error': 'not_implemented',
+            'error_description': f'Markdown profile {profile} is not supported',
+        }, 501
     text = request.form.get('text')
 
     html = markdown(text, profile)
