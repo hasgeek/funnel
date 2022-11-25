@@ -1,8 +1,8 @@
 """
-Markdown-it-py plugin to introduce <sup> markup using ^superscript^.
+Markdown-it-py plugin to introduce <sub> markup using ~subscript~.
 
 Ported from
-https://github.com/markdown-it/markdown-it-sup/blob/master/dist/markdown-it-sup.js
+https://github.com/markdown-it/markdown-it-sub/blob/master/dist/markdown-it-sub.js
 """
 
 import re
@@ -10,10 +10,10 @@ import re
 from markdown_it import MarkdownIt
 from markdown_it.rules_inline import StateInline
 
-__all__ = ['sup_plugin']
+__all__ = ['sub_plugin']
 
 
-def sup_plugin(md: MarkdownIt):
+def sub_plugin(md: MarkdownIt):
     def tokenize(state: StateInline, silent: bool):
         start = state.pos
         marker = state.srcCharCode[start]
@@ -23,7 +23,7 @@ def sup_plugin(md: MarkdownIt):
         if silent:
             return False
 
-        if marker != 0x5E:
+        if marker != 0x7E:
             return False
 
         # Don't run any pairs in validation mode
@@ -33,7 +33,7 @@ def sup_plugin(md: MarkdownIt):
         state.pos = start + 1
 
         while state.pos < maximum:
-            if state.srcCharCode[state.pos] == 0x5E:
+            if state.srcCharCode[state.pos] == 0x7E:
                 found = True
                 break
             state.md.inline.skipToken(state)
@@ -53,28 +53,28 @@ def sup_plugin(md: MarkdownIt):
         state.pos = start + 1
 
         # Earlier we checked "not silent", but this implementation does not need it
-        token = state.push('sup_open', 'sup', 1)
-        token.markup = '^'
+        token = state.push('sub_open', 'sub', 1)
+        token.markup = '~'
 
         token = state.push('text', '', 0)
         token.content = content.replace(
             r'\\([ \\!"#$%&\'()*+,.\/:;<=>?@[\]^_`{|}~-])', '$1'
         )
 
-        token = state.push('sup_close', 'sup', -1)
-        token.markup = '^'
+        token = state.push('sub_close', 'sub', -1)
+        token.markup = '~'
 
         state.pos = state.posMax + 1
         state.posMax = maximum
         return True
 
-    md.inline.ruler.after('emphasis', 'sup', tokenize)
+    md.inline.ruler.after('emphasis', 'sub', tokenize)
 
-    def sup_open(self, tokens, idx, options, env):
-        return '<sup>'
+    def sub_open(self, tokens, idx, options, env):
+        return '<sub>'
 
-    def sup_close(self, tokens, idx, options, env):
-        return '</sup>'
+    def sub_close(self, tokens, idx, options, env):
+        return '</sub>'
 
-    md.add_render_rule('sup_open', sup_open)
-    md.add_render_rule('sup_close', sup_close)
+    md.add_render_rule('sub_open', sub_open)
+    md.add_render_rule('sub_close', sub_close)

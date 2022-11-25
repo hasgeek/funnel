@@ -7,12 +7,19 @@ from typing_extensions import NotRequired
 
 from coaster.utils import make_name
 
+from .mdit_plugins import del_plugin, ins_plugin, mark_plugin, sub_plugin, sup_plugin
+
 __all__ = ['profiles', 'plugins', 'plugin_configs', 'default_markdown_options']
 
 plugins: Dict[str, Callable] = {
     'footnote': footnote.footnote_plugin,
     'heading_anchors': anchors.anchors_plugin,
     'tasklists': tasklists.tasklists_plugin,
+    'ins': ins_plugin,
+    'del': del_plugin,
+    'sub': sub_plugin,
+    'sup': sup_plugin,
+    'mark': mark_plugin,
 }
 
 plugin_configs: Dict[str, Dict[str, Any]] = {
@@ -56,6 +63,11 @@ class MarkdownProfileDocument(MarkdownProfile):
         'footnote',
         'heading_anchors',
         'tasklists',
+        'ins',
+        'del',
+        'sub',
+        'sup',
+        'mark',
     ]
 
 

@@ -140,7 +140,7 @@ test.. test... test..... test?..... test!....<br />
 """
 document = """<h2 id="h:basic-markup">Basic markup <a class="header-anchor" href="#h:basic-markup">¶</a></h2>
 <p>This is a sample paragraph that has <strong>asterisk bold</strong>, <em>asterisk emphasized</em>, <strong>underscore bold</strong> and <em>underscore italic</em> strings.</p>
-<p>This is a <s>final</s>sample paragraph that has an <em><strong>asterisk bold italic</strong></em> string and an <em><strong>underscore bold italic</strong></em> string.<br />
+<p>This is a <del>final</del>sample paragraph that has an <em><strong>asterisk bold italic</strong></em> string and an <em><strong>underscore bold italic</strong></em> string.<br />
 It also has a newline break here!!!</p>
 <p>Here are examples of bold and emphasized text depending on the placement of underscores/asterisks:</p>
 <p>__Bold without closure does not work<br />
@@ -150,7 +150,7 @@ _Emphasis without closure does not work<br />
 <p><strong>Bold without closure<br />
 on the same line<br />
 carries forward to<br />
-<s>this is text that should strike off</s><br />
+<del>this is text that should strike off</del><br />
 multiple consecutive lines</strong></p>
 <p><strong>Bold without closure<br />
 on the same line<br />
@@ -167,7 +167,7 @@ multiple consecutive lines</em></p>
 <h3 id="h:horizontal-rules">Horizontal Rules <a class="header-anchor" href="#h:horizontal-rules">¶</a></h3>
 <hr />
 <p>Above is a horizontal rule using hyphens.<br />
-<s>This is text that should strike off</s></p>
+<del>This is text that should strike off</del></p>
 <hr />
 <p>Above is a horizontal rule using asterisks.<br />
 Below is a horizontal rule using underscores.</p>
