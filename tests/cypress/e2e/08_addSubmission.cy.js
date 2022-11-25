@@ -11,6 +11,7 @@ describe('Add a new submission', () => {
     cy.route('GET', '**/updates?*').as('fetch-updates');
     cy.route('POST', '**/new').as('post-comment');
     cy.route('GET', '**/collaborator/*').as('get-collaborator-form');
+    cy.route('POST', '**/collaborator/new').as('add-collaborator');
 
     cy.login('/', user.username, user.password);
 
@@ -21,7 +22,7 @@ describe('Add a new submission', () => {
     cy.location('pathname').should('contain', 'new');
     cy.get('#title').type(proposal.title);
     cy.get('#field-body')
-      .find('.CodeMirror textarea')
+      .find('.cm-editor .cm-line')
       .type(proposal.content, { force: true });
     cy.get('a[data-cy="add-video"]').click();
     cy.wait(1000);
@@ -53,6 +54,7 @@ describe('Add a new submission', () => {
     cy.get('.select2-results__options', { timeout: 10000 }).should('not.exist');
     cy.get('#field-label').type('Editor');
     cy.get('.modal').find('button[data-cy="form-submit-btn"]:visible').click();
+    cy.wait('@add-collaborator');
     cy.get('a.modal__close').click();
     cy.wait(6000); // Wait for toastr notice to fade out
     cy.get('button[data-cy="form-submit-btn"]').click();

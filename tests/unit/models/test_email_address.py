@@ -216,7 +216,8 @@ def test_email_address_md5() -> None:
     assert ea.md5() is None
 
 
-def test_email_address_is_blocked_flag(db_session) -> None:
+@pytest.mark.usefixtures('db_session')
+def test_email_address_is_blocked_flag() -> None:
     """`EmailAddress` has a read-only is_blocked flag that is normally False."""
     ea = models.EmailAddress('example@example.com')
     assert ea.is_blocked is False
@@ -408,7 +409,11 @@ def email_models(database, app):
 
         __tablename__ = 'emailuser'
 
-    class EmailLink(models.EmailAddressMixin, models.BaseMixin, db.Model):  # type: ignore[name-defined]
+    class EmailLink(
+        models.EmailAddressMixin,
+        models.BaseMixin,
+        db.Model,  # type: ignore[name-defined]
+    ):
         """Test model connecting EmailUser to EmailAddress."""
 
         __email_optional__ = False
@@ -419,10 +424,18 @@ def email_models(database, app):
         emailuser_id = sa.Column(sa.ForeignKey('emailuser.id'), nullable=False)
         emailuser = sa.orm.relationship(EmailUser)
 
-    class EmailDocument(models.EmailAddressMixin, models.BaseMixin, db.Model):  # type: ignore[name-defined]
+    class EmailDocument(
+        models.EmailAddressMixin,
+        models.BaseMixin,
+        db.Model,  # type: ignore[name-defined]
+    ):
         """Test model unaffiliated to a user that has an email address attached."""
 
-    class EmailLinkedDocument(models.EmailAddressMixin, models.BaseMixin, db.Model):  # type: ignore[name-defined]
+    class EmailLinkedDocument(
+        models.EmailAddressMixin,
+        models.BaseMixin,
+        db.Model,  # type: ignore[name-defined]
+    ):
         """Test model that accepts an optional user and an optional email."""
 
         __email_for__ = 'emailuser'
@@ -446,7 +459,7 @@ def email_models(database, app):
 
 def test_email_address_mixin(  # pylint: disable=too-many-locals,too-many-statements
     email_models, db_session
-):
+) -> None:
     """The EmailAddressMixin class adds safety checks for using an email address."""
     blocked_email = models.EmailAddress('blocked@example.com')
 

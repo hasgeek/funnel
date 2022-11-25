@@ -68,7 +68,7 @@ def update_user_notification(db_session, user_vetinari, project_update):
 
 def test_user_notification_is_for_user_vetinari(
     update_user_notification, user_vetinari
-):
+) -> None:
     """Confirm the test notification is for the test user fixture."""
     assert update_user_notification.user == user_vetinari
 

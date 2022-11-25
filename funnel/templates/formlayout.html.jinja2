@@ -22,6 +22,11 @@
 {% block pagescripts %}
   {% assets "js_codemirrormarkdown" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    <script type="text/javascript">
+      $(function () {
+        activate_widgets();
+      });
+    </script>
   {%- endassets -%}
 {% endblock pagescripts %}
 
