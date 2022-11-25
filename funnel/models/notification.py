@@ -419,12 +419,17 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
         # For notification type identification and preference management
         cls.cls_type = type
         if shadows is not None:
-            cls.pref_type = shadows.cls_type
             if {'category', 'title', 'description'} & cls.__dict__.keys():
                 raise TypeError(
                     "Shadow notification types cannot have category, title or"
-                    " description"
+                    " description as they are not shown in UI"
                 )
+            if shadows.cls_type != shadows.pref_type:
+                raise TypeError(
+                    f"{cls!r} cannot shadow {shadows!r} as it shadows yet another"
+                    " notification type"
+                )
+            cls.pref_type = shadows.pref_type
         else:
             cls.pref_type = type
 
