@@ -55,7 +55,7 @@ class MarkdownProfile:
 
 
 class MarkdownProfileBasic(MarkdownProfile):
-    post_config: PostConfig = {'disable': ['table']}
+    post_config: PostConfig = {'disable': ['table', 'strikethrough']}
 
 
 class MarkdownProfileDocument(MarkdownProfile):
