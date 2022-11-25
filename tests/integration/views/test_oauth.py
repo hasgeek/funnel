@@ -53,7 +53,7 @@ def test_authcode_wellformed(
 @pytest.mark.filterwarnings("ignore:Object of type <AuthToken> not in session")
 def test_auth_untrusted_confidential(  # pylint: disable=too-many-arguments
     client, login, user_rincewind, client_hex, client_hex_credential, csrf_token
-):
+) -> None:
     """Test auth on an untrusted confidential auth client."""
     login.as_(user_rincewind)
 
@@ -119,6 +119,7 @@ def test_auth_untrusted_confidential(  # pylint: disable=too-many-arguments
     assert data['scope'] == authtoken_params['scope']
 
     authtoken = models.AuthToken.get_for(client_hex, user=user_rincewind)
+    assert authtoken is not None
     assert authtoken.token == data['access_token']
     assert authtoken.token_type == data['token_type']
 

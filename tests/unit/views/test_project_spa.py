@@ -47,7 +47,7 @@ def test_default_is_html(  # pylint: disable=too-many-arguments
     project_url: str,
     page: str,
     xhr: Optional[dict],
-):
+) -> None:
     """Pages render as full HTML by default."""
     if use_login:
         request.getfixturevalue(use_login)
@@ -70,7 +70,7 @@ def test_html_response(  # pylint: disable=too-many-arguments
     project_url: str,
     page: str,
     xhr: Optional[dict],
-):
+) -> None:
     """Asking for a HTML page or a fragment (via XHR) returns a page or a fragment."""
     if use_login:
         request.getfixturevalue(use_login)
@@ -87,7 +87,7 @@ def test_html_response(  # pylint: disable=too-many-arguments
 @pytest.mark.parametrize('use_login', login_sessions)
 def test_json_response(
     request, client, use_login: Optional[str], project_url: str, page: str
-):
+) -> None:
     """Asking for JSON returns a JSON response."""
     if use_login:
         request.getfixturevalue(use_login)
@@ -109,7 +109,7 @@ def test_htmljson_response(  # pylint: disable=too-many-arguments
     project_url: str,
     page: str,
     xhr: Optional[dict],
-):
+) -> None:
     """Asking for HTML in JSON returns that as a HTML fragment."""
     if use_login:
         request.getfixturevalue(use_login)
