@@ -16,7 +16,7 @@ from .mdit_plugins import (
     sup_plugin,
 )
 
-__all__ = ['profiles', 'plugins', 'plugin_configs', 'default_markdown_options']
+__all__ = ['profiles', 'plugins', 'plugin_configs']
 
 plugins: Dict[str, Callable] = {
     'footnote': footnote.footnote_plugin,
@@ -46,14 +46,6 @@ plugin_configs: Dict[str, Dict[str, Any]] = {
 }
 
 
-default_markdown_options = {
-    'html': False,
-    'linkify': True,
-    'typographer': True,
-    'breaks': True,
-}
-
-
 class PostConfig(TypedDict):
     disable: NotRequired[List[str]]
     enable: NotRequired[List[str]]
@@ -61,17 +53,32 @@ class PostConfig(TypedDict):
 
 
 class MarkdownProfile:
-    args: Tuple[str, Mapping] = ('gfm-like', default_markdown_options)
+    args: Tuple[str, Mapping] = (
+        'commonmark',
+        {
+            'html': False,
+            'breaks': True,
+        },
+    )
     plugins: List[str] = []
     post_config: PostConfig = {}
     render_with: str = 'render'
 
 
 class MarkdownProfileBasic(MarkdownProfile):
-    post_config: PostConfig = {'disable': ['table', 'strikethrough']}
+    pass
 
 
 class MarkdownProfileDocument(MarkdownProfile):
+    args: Tuple[str, Mapping] = (
+        'gfm-like',
+        {
+            'html': False,
+            'linkify': True,
+            'typographer': True,
+            'breaks': True,
+        },
+    )
     plugins: List[str] = [
         'footnote',
         'heading_anchors',
@@ -85,10 +92,16 @@ class MarkdownProfileDocument(MarkdownProfile):
         'vega-lite',
         'mermaid',
     ]
+    post_config: PostConfig = {'enable': ['smartquotes']}
 
 
 class MarkdownProfileTextField(MarkdownProfile):
-    args: Tuple[str, Mapping] = ('zero', default_markdown_options)
+    args: Tuple[str, Mapping] = (
+        'zero',
+        {
+            'html': False,
+        },
+    )
     post_config: PostConfig = {
         'enable': [
             'emphasis',
