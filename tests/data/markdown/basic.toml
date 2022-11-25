@@ -80,7 +80,7 @@ profiles = [ "basic", "document",]
 [expected_output]
 basic = """<h2>Basic markup</h2>
 <p>This is a sample paragraph that has <strong>asterisk bold</strong>, <em>asterisk emphasized</em>, <strong>underscore bold</strong> and <em>underscore italic</em> strings.</p>
-<p>This is a <s>final</s>sample paragraph that has an <em><strong>asterisk bold italic</strong></em> string and an <em><strong>underscore bold italic</strong></em> string.<br />
+<p>This is a ~~final~~sample paragraph that has an <em><strong>asterisk bold italic</strong></em> string and an <em><strong>underscore bold italic</strong></em> string.<br />
 It also has a newline break here!!!</p>
 <p>Here are examples of bold and emphasized text depending on the placement of underscores/asterisks:</p>
 <p>__Bold without closure does not work<br />
@@ -90,7 +90,7 @@ _Emphasis without closure does not work<br />
 <p><strong>Bold without closure<br />
 on the same line<br />
 carries forward to<br />
-<s>this is text that should strike off</s><br />
+~~this is text that should strike off~~<br />
 multiple consecutive lines</strong></p>
 <p><strong>Bold without closure<br />
 on the same line<br />
@@ -107,7 +107,7 @@ multiple consecutive lines</em></p>
 <h3>Horizontal Rules</h3>
 <hr />
 <p>Above is a horizontal rule using hyphens.<br />
-<s>This is text that should strike off</s></p>
+~~This is text that should strike off~~</p>
 <hr />
 <p>Above is a horizontal rule using asterisks.<br />
 Below is a horizontal rule using underscores.</p>
@@ -115,7 +115,7 @@ Below is a horizontal rule using underscores.</p>
 <h2>Links</h2>
 <p>Here is a link to <a href="https://hasgeek.com">hasgeek</a></p>
 <p><a href="https://github.com/hasgeek/funnel/" title="Hasgeek">Link to funnel with the title 'Hasgeek'</a></p>
-<p>Autoconverted link <a href="https://github.com/hasgeek">https://github.com/hasgeek</a> (will autoconvert if linkify is on)</p>
+<p>Autoconverted link https://github.com/hasgeek (will autoconvert if linkify is on)</p>
 <hr />
 <h2>Markdown-it typography</h2>
 <p>The results of the below depend on the typographer options enabled by us in the <code>markdown-it-py</code> parser, if <code>typographer=True</code> has been passed to it.</p>
@@ -174,7 +174,7 @@ Below is a horizontal rule using underscores.</p>
 <hr />
 <h2 id="h:links">Links <a class="header-anchor" href="#h:links">¶</a></h2>
 <p>Here is a link to <a href="https://hasgeek.com">hasgeek</a></p>
-<p><a href="https://github.com/hasgeek/funnel/" title="Hasgeek">Link to funnel with the title 'Hasgeek'</a></p>
+<p><a href="https://github.com/hasgeek/funnel/" title="Hasgeek">Link to funnel with the title ‘Hasgeek’</a></p>
 <p>Autoconverted link <a href="https://github.com/hasgeek">https://github.com/hasgeek</a> (will autoconvert if linkify is on)</p>
 <hr />
 <h2 id="h:markdown-it-typography">Markdown-it typography <a class="header-anchor" href="#h:markdown-it-typography">¶</a></h2>
@@ -184,7 +184,7 @@ Below is a horizontal rule using underscores.</p>
 test.. test... test..... test?..... test!....<br />
 !!!!!! ???? ,,  -- ---</p>
 <p><strong>The below should convert the quotes if <code>smartquotes</code> has been enabled.</strong></p>
-<p>&quot;Smartypants, double quotes&quot; and 'single quotes'</p>
+<p>“Smartypants, double quotes” and ‘single quotes’</p>
 <hr />
 <h2 id="h:blockquotes">Blockquotes <a class="header-anchor" href="#h:blockquotes">¶</a></h2>
 <blockquote>

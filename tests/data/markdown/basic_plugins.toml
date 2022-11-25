@@ -98,13 +98,13 @@ plugins = [ "ins","del","sup","sub","mark"]
 
 [expected_output]
 basic = """<h2>Testing markdown-it-py plugins for ins/del/sup/sub/mark</h2>
-<p>This is ++inserted text++<s>and deleted text</s>.</p>
+<p>This is ++inserted text++~~and deleted text~~.</p>
 <p>This is ^superscript^, this is ~subscript~ and this is ==marked text==.</p>
 <p>This is not +inserted text+, nor is this ~deleted text~.</p>
 <p>^Super script^ and ~sub script~, do not support whitespaces.</p>
 <p>++This is a<br />
-multiline insert++ <s>and a<br />
-multiline delete</s></p>
+multiline insert++ ~~and a<br />
+multiline delete~~</p>
 <pre><code class="language-html">&lt;pre&gt;
     &lt;code&gt;
         This should not render as deleted text, rather it should be a fenced block.
@@ -116,7 +116,7 @@ multiline delete</s></p>
 This is the middle of the paragraph.<br />
 ++These lines have<br />
 also been inserted in it.++<br />
-<s>While this line has been deleted.</s><br />
+~~While this line has been deleted.~~<br />
 The paragraph ends here.</p>
 <p>This is +++an insert++ed text+++<br />
 This is ++++also an insert++ed text++++</p>
@@ -124,13 +124,13 @@ This is ++++also an insert++ed text++++</p>
 <p>This text has ++an inserted text ++with another inserted text++ ++with another inserted text++++</p>
 <p>+Hello World! I cannot assert myself as an inserted text.+<br />
 ++<code>foobar()</code>++</p>
-<p>This is ~<s>a delet~~ed text.</s>~<br />
-This is <s><s>also a delet~~ed text</s></s></p>
-<p>This text has <s>a deleted text <s>with another deleted text</s></s></p>
-<p>This text has <s>a deleted text <s>with another deleted text</s> <s>with another inserted text</s></s></p>
+<p>This is ~~~a delet~~ed text.~~~<br />
+This is ~~~~also a delet~~ed text~~~~</p>
+<p>This text has ~~a deleted text ~~with another deleted text~~~~</p>
+<p>This text has ~~a deleted text ~~with another deleted text~~ ~~with another inserted text~~~~</p>
 <p>~Hello World! I cannot assert myself as an inserted text nor a subscript.~<br />
-<s><code>foobar()</code></s></p>
-<p>Now, we will list out some <s>fruits</s>++grocery++:</p>
+~~<code>foobar()</code>~~</p>
+<p>Now, we will list out some ~~fruits~~++grocery++:</p>
 <ul>
 <li>++Fruits++
 <ul>
@@ -151,11 +151,11 @@ This is <s><s>also a delet~~ed text</s></s></p>
 <strong>bold <em>++emphasized insert++</em></strong><br />
 <strong>bold++<em>insert emphasized</em>++</strong><br />
 <strong>bold_++emphasized insert++_</strong></p>
-<p><strong>bold<s>delete</s></strong><br />
-<strong>bold <s><em>delete emphasized</em></s></strong><br />
-<strong>bold <em><s>emphasized delete</s></em></strong><br />
+<p><strong>bold~~delete~~</strong><br />
+<strong>bold ~~<em>delete emphasized</em>~~</strong><br />
+<strong>bold <em>~~emphasized delete~~</em></strong><br />
 <strong>bold~~<em>delete emphasized</em>~~</strong><br />
-<strong>bold*<s>emphasized delete</s>*</strong></p>
+<strong>bold*~~emphasized delete~~*</strong></p>
 <p><strong>bold^super^</strong><br />
 <strong>bold ^<em>super-emphasized</em>^</strong><br />
 <strong>bold <em>^emphasized-super^</em></strong><br />

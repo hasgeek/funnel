@@ -119,7 +119,7 @@ line 1 of code
 line 2 of code
 line 3 of code
 </code></pre>
-<h3 id="h:block-code-fences">Block code &quot;fences&quot; <a class="header-anchor" href="#h:block-code-fences">¶</a></h3>
+<h3 id="h:block-code-fences">Block code “fences” <a class="header-anchor" href="#h:block-code-fences">¶</a></h3>
 <pre><code>Sample text here...
 It is a sample text that has multiple lines
 </code></pre>
