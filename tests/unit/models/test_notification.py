@@ -37,6 +37,17 @@ def notification_types(database) -> SimpleNamespace:
         document: models.Update
         roles = ['project_crew', 'project_participant']
 
+    class TestEditedUpdateNotification(
+        ProjectIsParent,
+        models.Notification,
+        type='update_edit_test',
+        shadows=TestNewUpdateNotification,
+    ):
+        """Notifications of edited updates (test edition)."""
+
+        document: models.Update
+        roles = ['project_crew', 'project_participant']
+
     class TestProposalReceivedNotification(
         ProjectIsParent, models.Notification, type='proposal_received_test'
     ):
@@ -54,7 +65,7 @@ def notification_types(database) -> SimpleNamespace:
 
 
 @pytest.fixture()
-def project_fixtures(db_session):  # pylint: disable=too-many-locals
+def project_fixtures(db_session) -> SimpleNamespace:  # pylint: disable=too-many-locals
     """Provide users, one org and one project, for tests on them."""
     user_owner = models.User(username='user-owner', fullname="User Owner")
     user_owner.add_email('owner@example.com')
@@ -162,7 +173,7 @@ def test_project_roles(project_fixtures) -> None:
 
 
 @pytest.fixture()
-def update(project_fixtures, db_session):
+def update(project_fixtures, db_session) -> models.Update:
     """Publish an update as a fixture."""
     new_update = models.Update(
         project=project_fixtures.project,
@@ -309,6 +320,23 @@ def test_user_notification_preferences(notification_types, db_session) -> None:
         'update_new_test',
         'proposal_received_test',
     }
+
+
+def test_notification_metadata(notification_types) -> None:
+    """Test that notification classes have appropriate cls_type and pref_type values."""
+    assert notification_types.TestNewUpdateNotification.cls_type == 'update_new_test'
+    assert notification_types.TestNewUpdateNotification.pref_type == 'update_new_test'
+    assert (
+        notification_types.TestEditedUpdateNotification.cls_type == 'update_edit_test'
+    )
+    # Shadow notification type has preference type of main class
+    assert (
+        notification_types.TestEditedUpdateNotification.pref_type == 'update_new_test'
+    )
+
+
+# TODO: Add test for dispatch notification using Notification.pref_type to determine
+# whether to send the notification
 
 
 def test_notification_preferences(
