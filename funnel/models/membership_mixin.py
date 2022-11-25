@@ -60,10 +60,16 @@ class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # noqa: N801
 
     # TODO: Convert into IntEnum
 
+    #: An invite represents a potential future membership, but not a current membership
     INVITE = (1, 'invite', __("Invite"))
+    #: An accept recognises a conversion from an invite into a current membership
     ACCEPT = (2, 'accept', __("Accept"))
+    #: A direct add recognises a current membership without proof of consent
     DIRECT_ADD = (3, 'direct_add', __("Direct add"))
+    #: An amendment is when data in the record has been changed
     AMEND = (4, 'amend', __("Amend"))
+    #: A migrate record says this used to be some other form of membership and has been
+    #: created due to a technical change in the product
     # Forthcoming: MIGRATE = (5, 'migrate', __("Migrate"))
 
 
