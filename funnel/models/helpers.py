@@ -682,6 +682,25 @@ class MarkdownCachedComposite(MutableComposite):
         return cls(value)
 
 
+class MarkdownCompositeBasic(MarkdownCachedComposite):
+    profile: str = 'basic'
+
+
+class MarkdownCompositeDocument(MarkdownCachedComposite):
+    profile: str = 'document'
+
+
+class MarkdownCompositeTextField(MarkdownCachedComposite):
+    profile: str = 'text-field'
+
+
+markdown_composites: Dict[str, Type[MarkdownCachedComposite]] = {
+    'basic': MarkdownCompositeBasic,
+    'document': MarkdownCompositeDocument,
+    'text-field': MarkdownCompositeTextField,
+}
+
+
 def markdown_cached_column(
     name: str,
     deferred: bool = False,
@@ -700,16 +719,8 @@ def markdown_cached_column(
     :param str group: Defer column group
     :param kwargs: Additional column options, passed to SQLAlchemy's column constructor
     """
-    # Construct a custom subclass of MarkdownComposite and set the markdown processor
-    # and processor options on it. We'll pass this class to SQLAlchemy's composite
-    # constructor.
-    class CustomMarkdownComposite(MarkdownCachedComposite):
-        pass
-
-    CustomMarkdownComposite.profile = profile
-
     return composite(
-        CustomMarkdownComposite,
+        markdown_composites[profile],
         sa.Column(name + '_text', sa.UnicodeText, **kwargs),
         sa.Column(name + '_html', sa.UnicodeText, **kwargs),
         deferred=deferred,
