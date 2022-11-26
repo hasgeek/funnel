@@ -15,22 +15,6 @@ __all__ = ['markdown']
 
 default_markdown_extensions: List[str] = ['footnote', 'heading_anchors', 'tasklists']
 
-# --- Standard extensions --------------------------------------------------------------
-# FOR CUT 2
-# TODO: caret, tilde:
-#       ^^ins^^, ^sup^ dont work OOTB. ~~del~~ uses <s/>, not <del/>.
-#       Can port 1st 2 from markdown-it-[sup|ins] and implement del separately.
-#       Port from https://github.com/markdown-it/markdown-it-sup
-#       Port from https://github.com/markdown-it/markdown-it-ins
-# TODO: emoji, (mark => highlight, inlinehilite)
-#       Port from https://github.com/markdown-it/markdown-it-emoji
-#       Port from https://github.com/markdown-it/markdown-it-mark
-#       Evaluate:
-#       https://www.npmjs.com/search?q=highlight%20keywords%3Amarkdown-it-plugin
-
-
-# --- Markdown processor ---------------------------------------------------------------
-
 
 @overload
 def markdown(text: None, profile: Union[str, Type[MarkdownProfile]]) -> None:
@@ -48,7 +32,7 @@ def markdown(
     """
     Markdown parser compliant with Commonmark+GFM using markdown-it-py.
 
-    :param str|dict profile: Config profile to use
+    :param str|type[MarkdownProfile] profile: Config profile to use
     """
     if text is None:
         return None
