@@ -20,13 +20,13 @@ from . import (
     BaseScopedNameMixin,
     JsonDict,
     Mapped,
-    MarkdownColumn,
     TimestampMixin,
     TimezoneType,
     TSVectorType,
     UrlType,
     UuidMixin,
     db,
+    markdown_cached_column,
     sa,
 )
 from .comment import SET_TYPE, Commentset
@@ -34,7 +34,6 @@ from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
     add_search_trigger,
-    markdown_content_options,
     reopen,
     valid_name,
     visual_field_delimiter,
@@ -96,14 +95,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         datasets={'primary', 'without_parent', 'related'},
     )
     description = with_roles(
-        MarkdownColumn(
-            'description', default='', nullable=False, options=markdown_content_options
+        markdown_cached_column(
+            'description', profile='document', default='', nullable=False
         ),
         read={'all'},
     )
     instructions = with_roles(
-        MarkdownColumn(
-            'instructions', default='', nullable=True, options=markdown_content_options
+        markdown_cached_column(
+            'instructions', profile='document', default='', nullable=True
         ),
         read={'all'},
     )

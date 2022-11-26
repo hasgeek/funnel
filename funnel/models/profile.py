@@ -14,19 +14,18 @@ from ..typing import OptionalMigratedTables
 from . import (
     BaseMixin,
     Mapped,
-    MarkdownColumn,
     TSVectorType,
     UrlType,
     UuidMixin,
     db,
     hybrid_property,
+    markdown_cached_column,
     sa,
 )
 from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
     add_search_trigger,
-    markdown_content_options,
     quote_autocomplete_tsquery,
     valid_username,
     visual_field_delimiter,
@@ -126,8 +125,8 @@ class Profile(
     )
 
     tagline = sa.Column(sa.Unicode, nullable=True)
-    description = MarkdownColumn(
-        'description', default='', nullable=False, options=markdown_content_options
+    description = markdown_cached_column(
+        'description', profile='document', default='', nullable=False
     )
     website: sa.Column[Optional[str]] = sa.Column(UrlType, nullable=True)
     logo_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
