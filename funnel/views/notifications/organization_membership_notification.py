@@ -26,14 +26,18 @@ class DecisionFactor:
 
     template: str
     is_subject: bool = False
+    for_actor: bool = False
     rtypes: Collection[str] = ()
     is_owner: Optional[bool] = None
     is_actor: Optional[bool] = None
 
-    def match(self, is_subject: bool, membership: OrganizationMembership) -> bool:
+    def match(
+        self, is_subject: bool, for_actor: bool, membership: OrganizationMembership
+    ) -> bool:
         """Test if this :class:`DecisionFactor` is a match."""
         return (
             (self.is_subject is is_subject)
+            and (self.for_actor is None or self.for_actor is for_actor)
             and (not self.rtypes or membership.record_type_label.name in self.rtypes)
             and (self.is_owner is None or self.is_owner is membership.is_owner)
             and (self.is_actor is None or (self.is_actor is membership.is_self_granted))
@@ -72,6 +76,7 @@ decision_factors = [
     DecisionFactor(  # This should never happen
         template=__("You have changed your role to owner of {organization}"),
         is_subject=True,
+        for_actor=True,
         rtypes=['amend'],
         is_owner=True,
         is_actor=True,
@@ -79,6 +84,7 @@ decision_factors = [
     DecisionFactor(  # Subject demoted themselves
         template=__("You have changed your role to an admin of {organization}"),
         is_subject=True,
+        for_actor=True,
         rtypes=['amend'],
         is_owner=False,
         is_actor=True,
@@ -112,7 +118,7 @@ decision_factors = [
         is_owner=False,
         is_actor=False,
     ),
-    # --- Notifications to other admins of organization (except actor) -----------------
+    # --- Notifications to other admins of organization (except subject) ---------------
     # --- User was invited
     DecisionFactor(
         template=__("{user} was invited to be an owner of {organization} by {actor}"),
@@ -258,10 +264,14 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
         """
         if membership is None:
             membership = self.membership
+        membership_user_uuid = membership.user.uuid
+        membership_actor = self.membership_actor(membership)
+        membership_actor_uuid = membership_actor.uuid if membership_actor else None
         for df in decision_factors:
             if df.match(
                 # LHS = user object, RHS = role proxy, so compare uuid
-                self.user_notification.user.uuid == membership.user.uuid,
+                self.user_notification.user.uuid == membership_user_uuid,
+                self.user_notification.user.uuid == membership_actor_uuid,
                 membership,
             ):
                 return df.template
