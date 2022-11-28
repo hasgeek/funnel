@@ -42,7 +42,9 @@ class RegistrationBase:
             session_count = self.rsvp.project.session_count
             return [
                 email.EmailAttachment(
-                    content=schedule_ical(self.rsvp.project, self.rsvp),
+                    content=schedule_ical(
+                        self.rsvp.project, self.rsvp, future_only=True
+                    ),
                     filename='event.ics',
                     mimetype=(
                         'text/calendar'

@@ -1309,7 +1309,7 @@ def _register_notification_types(mapper_, cls) -> None:
         # defined. Since tests uses ``models.*`` references, we have to include 'models'
         # in the namespace here. While ``inspect.getmodule`` exists, it cannot retrieve
         # local namespace when the notification class is defined inside a function
-        type_hints = get_type_hints(cls, localns={'models': models} | vars(models))
+        type_hints = get_type_hints(cls, localns=dict(vars(models), models=models))
         cls.document_model = (
             type_hints['document']
             if 'document' in type_hints
