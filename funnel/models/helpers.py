@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
 from dataclasses import dataclass
 from textwrap import dedent
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Type, TypeVar
@@ -22,13 +21,6 @@ from flask import escape as html_escape
 from better_profanity import profanity
 from furl import furl
 from zxcvbn import zxcvbn
-import pymdownx.superfences
-
-from coaster.utils import (
-    default_markdown_extension_configs,
-    default_markdown_extensions,
-    make_name,
-)
 
 from .. import app
 from ..typing import T
@@ -41,7 +33,6 @@ __all__ = [
     'PASSWORD_MAX_LENGTH',
     'check_password_strength',
     'profanity',
-    'markdown_content_options',
     'add_to_class',
     'add_search_trigger',
     'visual_field_delimiter',
@@ -205,51 +196,6 @@ with open(
 
 
 visual_field_delimiter = ' ¦ '
-
-markdown_content_options: dict = {
-    'extensions': deepcopy(default_markdown_extensions),
-    'extension_configs': deepcopy(default_markdown_extension_configs),
-}
-
-markdown_content_options['extensions'].append('toc')  # Allow a table of contents
-markdown_content_options['extension_configs']['toc'] = {
-    # Make headings link to themselves, for easier sharing
-    'anchorlink': True,
-    # Add a `h:` prefix to the heading id, to avoid conflict with template identifiers
-    'slugify': lambda value, separator: ('h:' + make_name(value, delim=separator)),
-}
-
-# Custom fences must use <pre><code> blocks and not <div> blocks, as linkify will mess
-# with links inside <div> blocks
-markdown_content_options['extension_configs'].setdefault('pymdownx.superfences', {})[
-    'custom_fences'
-] = [
-    {
-        'name': 'flow',
-        'class': 'language-placeholder language-flow',
-        'format': pymdownx.superfences.fence_code_format,
-    },
-    {
-        'name': 'markmap',
-        'class': 'language-placeholder language-markmap',
-        'format': pymdownx.superfences.fence_code_format,
-    },
-    {
-        'name': 'mermaid',
-        'class': 'language-placeholder language-mermaid',
-        'format': pymdownx.superfences.fence_code_format,
-    },
-    {
-        'name': 'sequence',
-        'class': 'language-placeholder language-sequence',
-        'format': pymdownx.superfences.fence_code_format,
-    },
-    {
-        'name': 'vega-lite',
-        'class': 'language-placeholder language-vega-lite',
-        'format': pymdownx.superfences.fence_code_format,
-    },
-]
 
 
 def add_to_class(cls: Type, name: Optional[str] = None) -> Callable[[T], T]:
