@@ -6,7 +6,7 @@ from flask import render_template
 
 from baseframe import _, __
 
-from ...models import Project, ProjectCrewMembershipNotification
+from ...models import Project, ProjectCrewMembership, ProjectCrewMembershipNotification
 from ...transports.sms import TwoLineTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
@@ -15,11 +15,11 @@ from ..notification import RenderNotification
 @ProjectCrewMembershipNotification.renderer
 class RenderProjectCrewMembershipNotification(RenderNotification):
     project: Project
-    aliases = {'document': 'project'}
-    emoji_prefix = "📥 "
-    reason = __(
-        "You are receiving this because you are added as a crew member of this project"
-    )
+    membership: ProjectCrewMembership
+    aliases = {'document': 'project', 'fragment': 'membership'}
+    emoji_prefix = "🔑 "
+    reason = __("You are receiving this because you are a crew member of a project")
+    fragments_order_by = [ProjectCrewMembership.granted_at.desc()]
 
     def web(self):
         return render_template(
