@@ -10,7 +10,6 @@ from flask import Markup, escape, render_template
 from baseframe import _, __
 
 from ...models import (
-    MEMBERSHIP_RECORD_TYPE,
     Organization,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
@@ -31,13 +30,11 @@ class DecisionFactor:
     is_owner: Optional[bool] = None
     is_actor: Optional[bool] = None
 
-    def match(
-        self, is_subject: bool, record_type: str, membership: OrganizationMembership
-    ) -> bool:
+    def match(self, is_subject: bool, membership: OrganizationMembership) -> bool:
         """Test if this :class:`DecisionFactor` is a match."""
         return (
             (self.is_subject is is_subject)
-            and (not self.rtypes or record_type in self.rtypes)
+            and (not self.rtypes or membership.record_type_label.name in self.rtypes)
             and (self.is_owner is None or self.is_owner is membership.is_owner)
             and (self.is_actor is None or (self.is_actor is membership.is_self_granted))
         )
@@ -187,12 +184,6 @@ class RenderShared:
         """We're interested in who has the membership, not who granted/revoked it."""
         return self.membership.user
 
-    @property
-    def record_type(self):
-        """Membership record type as a string, for templates."""
-        # There are four record types: invite, accept, direct_add, amend
-        return MEMBERSHIP_RECORD_TYPE[self.membership.record_type].name
-
     def activity_html(self, membership: Optional[OrganizationMembership] = None) -> str:
         """Return HTML rendering of :meth:`activity_template`."""
         if membership is None:
@@ -271,7 +262,6 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
             if df.match(
                 # LHS = user object, RHS = role proxy, so compare uuid
                 self.user_notification.user.uuid == membership.user.uuid,
-                self.record_type,
                 membership,
             ):
                 return df.template

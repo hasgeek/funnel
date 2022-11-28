@@ -143,6 +143,10 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         )
     )
 
+    @cached_property
+    def record_type_label(self):
+        return MEMBERSHIP_RECORD_TYPE[self.record_type]
+
     @declared_attr
     def revoked_by_id(  # pylint: disable=no-self-argument
         cls,
