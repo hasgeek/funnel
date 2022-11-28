@@ -1,9 +1,6 @@
 import Form from './utils/formhelper';
 import Utils from './utils/helper';
-import addVegaSupport from './utils/vegaembed';
-import TypeformEmbed from './utils/typeform_embed';
-import MarkmapEmbed from './utils/markmap';
-import MermaidEmbed from './utils/mermaid';
+import initEmbed from './utils/initembed';
 
 export const Submission = {
   init() {
@@ -124,8 +121,5 @@ export const LabelsWidget = {
 $(() => {
   window.Hasgeek.SubmissionInit = Submission.init.bind(Submission);
   window.Hasgeek.LabelsWidget = LabelsWidget.init.bind(LabelsWidget);
-  addVegaSupport();
-  TypeformEmbed.init('#submission .markdown');
-  MarkmapEmbed.init();
-  MermaidEmbed.init();
+  initEmbed('#submission .markdown');
 });
