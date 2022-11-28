@@ -4,12 +4,16 @@ import { html } from '@codemirror/lang-html';
 import { closeBrackets } from '@codemirror/autocomplete';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
-import addVegaSupport from './utils/vegaembed';
+import initEmbed from './utils/initembed';
 import Form from './utils/formhelper';
 import SortItem from './utils/sort';
 
 $(() => {
-  window.Hasgeek.submissionFormInit = function formInit(sortUrl, formId) {
+  window.Hasgeek.submissionFormInit = function formInit(
+    sortUrl,
+    formId,
+    markdownPreviewElem
+  ) {
     let textareaWaitTimer;
     const debounceInterval = 1000;
 
@@ -37,7 +41,7 @@ $(() => {
         if (responseData) {
           const escapeScript = responseData.html.replace('<script>', '</script>');
           $('.js-proposal-preview').html(escapeScript);
-          addVegaSupport();
+          initEmbed(markdownPreviewElem);
         }
       }
     }

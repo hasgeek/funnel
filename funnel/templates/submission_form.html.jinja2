@@ -138,7 +138,8 @@
         var sortUrl = '{{ proposal.url_for("reorder_collaborators") }}'
       {%- endif %}
       var formId = "{{ ref_id }}";
-      window.Hasgeek.submissionFormInit(sortUrl, formId);
+      var markdownPreviewElem = '#preview';
+      window.Hasgeek.submissionFormInit(sortUrl, formId, markdownPreviewElem);
     });
   </script>
 {% endblock innerscripts %}

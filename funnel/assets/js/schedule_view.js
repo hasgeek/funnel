@@ -1,12 +1,10 @@
 import Vue from 'vue/dist/vue.min';
 import ScrollHelper from './utils/scrollhelper';
 import { faSvg } from './utils/vue_util';
-import addVegaSupport from './utils/vegaembed';
 import Form from './utils/formhelper';
 import Spa from './utils/spahelper';
 import Utils from './utils/helper';
-import MarkmapEmbed from './utils/markmap';
-import MermaidEmbed from './utils/mermaid';
+import initEmbed from './utils/initembed';
 
 const Schedule = {
   renderScheduleTable() {
@@ -145,11 +143,9 @@ const Schedule = {
           const callback = (mutationList, observer) => {
             mutationList.forEach((mutation) => {
               if (mutation.type === 'childList') {
-                addVegaSupport();
                 window.activateZoomPopup();
                 Utils.enableWebShare();
-                MarkmapEmbed.init();
-                MermaidEmbed.init();
+                initEmbed(`#session-modal .markdown`);
                 observer.disconnect();
               }
             });
