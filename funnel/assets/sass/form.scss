@@ -604,12 +604,6 @@ form.mui--bg-accent .cm-editor {
   #field-body .cm-editor {
     min-height: calc(100vh - 110px);
   }
-  textarea.markdown {
-    display: none;
-  }
-  .cm-editor div {
-    background: $mui-bg-color-primary;
-  }
   .markdown-field {
     position: relative;
     .mui-form__error {
@@ -728,4 +722,66 @@ form.mui--bg-accent .cm-editor {
 
 input#username:focus ~ .keyboard-switch {
   display: flex;
+}
+
+// Codemirror
+textarea.markdown {
+  display: none;
+}
+.cm-editor div {
+  background: $mui-bg-color-primary;
+}
+
+.cm-editor {
+  border: none;
+  border-bottom: 1px solid $mui-text-accent;
+  box-shadow: none;
+  border-radius: 0;
+  height: auto;
+  outline: none;
+
+  .cm-scroller {
+    font-size: $mui-input-font-size;
+    font-family: inherit;
+    line-height: inherit;
+    color: inherit;
+    min-height: 6em !important;
+    .ͼo {
+      @extend .mui--text-headline;
+    }
+    .ͼp {
+      @extend .mui--text-heading;
+    }
+    .ͼq {
+      @extend .mui--text-title;
+    }
+    .ͼr {
+      @extend .mui--text-subhead;
+    }
+    .ͼs {
+      @extend .mui--text-body2;
+    }
+    .ͼt {
+      color: $mui-avatar-color0;
+    }
+    .ͼu {
+      color: $mui-text-hyperlink;
+    }
+    .ͼz {
+      color: $mui-accent-color;
+    }
+    .ͼv {
+      color: $mui-avatar-color1;
+    }
+    .ͼ10 {
+      text-decoration: line-through;
+    }
+    .ͼy {
+      font-weight: bold;
+    }
+  }
+
+  &.cm-focused {
+    border-color: $mui-primary-color;
+  }
 }

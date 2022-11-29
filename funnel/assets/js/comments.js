@@ -1,6 +1,7 @@
 import Vue from 'vue/dist/vue.min';
 import ScrollHelper from './utils/scrollhelper';
 import Form from './utils/formhelper';
+import codemirrorHelper from './utils/codemirror';
 import getTimeago from './utils/getTimeago';
 import { userAvatarUI, faSvg, shareDropdown } from './utils/vue_util';
 
@@ -171,24 +172,19 @@ const Comments = {
         },
         activateForm(action, textareaId, parentApp = app) {
           if (textareaId) {
+            const copyTextAreaContent = function (view) {
+              if (action === parentApp.COMMENTACTIONS.REPLY) {
+                parentApp.reply = view.state.doc.toString();
+              } else {
+                parentApp.textarea = view.state.doc.toString();
+              }
+            };
             this.$nextTick(() => {
-              const editor = window.CodeMirror.fromTextArea(
-                document.getElementById(textareaId),
-                window.Hasgeek.Config.cm_markdown_config
+              codemirrorHelper(
+                textareaId,
+                copyTextAreaContent,
+                window.Hasgeek.Config.saveEditorContentTimeout
               );
-              let delay;
-              editor.on('change', () => {
-                clearTimeout(delay);
-                delay = setTimeout(() => {
-                  editor.save();
-                  if (action === parentApp.COMMENTACTIONS.REPLY) {
-                    parentApp.reply = editor.getValue();
-                  } else {
-                    parentApp.textarea = editor.getValue();
-                  }
-                }, window.Hasgeek.Config.saveEditorContentTimeout);
-              });
-              editor.focus();
             });
           }
           this.pauseRefreshComments();

@@ -1,0 +1,41 @@
+.cm-editor {
+  font-size: 16px;
+  font-family: inherit;
+  line-height: inherit;
+  color: inherit;
+  border: none;
+  border-bottom: 1px solid #c0ccda;
+  box-shadow: none;
+  border-radius: 0;
+  height: auto;
+}
+
+.cm-scroller {
+  min-height: 6em !important;
+}
+
+.cm-focused {
+  border-color: #4a90e2;
+}
+
+.CodeMirror-wrap pre.CodeMirror-line,
+.CodeMirror-wrap pre.CodeMirror-line-like {
+  padding: 0;
+}
+
+.CodeMirror-focused .CodeMirror-selected {
+  background: Highlight;
+}
+.CodeMirror-line::selection,
+.CodeMirror-line > span::selection,
+.CodeMirror-line > span > span::selection {
+  background: Highlight;
+}
+.CodeMirror-line::-moz-selection,
+.CodeMirror-line > span::-moz-selection,
+.CodeMirror-line > span > span::-moz-selection {
+  background: Highlight;
+}
+.CodeMirror.CodeMirror-empty pre.CodeMirror-placeholder {
+  color: rgba(0, 0, 0, 0.26);
+}
