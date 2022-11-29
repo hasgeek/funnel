@@ -25,9 +25,9 @@
         </span>
         <div class="margin-left mui-dropdown mui--d-inlineblock">
           <button class="mui-btn mui-btn--nostyle mui--align-middle" data-mui-toggle="dropdown" data-cy="collaborator-menu" aria-label="{% trans %}Collaborator menu{% endtrans %}" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</button>
-          <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="submission-collaborator-menu">
-            <li><a href="{{ member.url_for('edit') }}" rel="modal:open" aria-label="Add collaborator" data-ga="Edit collaborator" data-cy="edit-collaborator" role="button" aria-haspopup="true">{% trans %}Change role{% endtrans %}</a></li>
-            <li><a class="js-remove-collaborator" href="{{ member.url_for('remove') }}" rel="modal:open" aria-label="Remove collaborator" data-ga="Remove collaborator" data-cy="remove-collaborator" role="button" aria-haspopup="true" title="{{ member.user.pickername }}">{% trans %}Remove{% endtrans %}</a></li>
+          <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu">
+            <li><a href="{{ member.url_for('edit') }}" rel="modal:open" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Edit collaborator" data-cy="edit-collaborator" role="button" aria-haspopup="true">{% trans %}Change role{% endtrans %}</a></li>
+            <li><a class="js-remove-collaborator" data-href="{{ member.url_for('remove') }}" href="#" onclick="return false;" aria-label="{% trans %}Remove collaborator{% endtrans %}" data-ga="Remove collaborator" data-cy="remove-collaborator" role="button" aria-haspopup="true" title="{{ member.user.pickername }}">{% trans %}Remove{% endtrans %}</a></li>
           </ul>
         </div>
       </div>

@@ -65,6 +65,7 @@ class LinkedInProvider(LoginProvider):
         try:
             response = requests.post(
                 self.token_url,
+                timeout=30,
                 headers={'Accept': 'application/json'},
                 params={
                     'grant_type': 'authorization_code',

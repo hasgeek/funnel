@@ -36,7 +36,7 @@ class OrganizationForm(forms.Form):
     name = forms.AnnotatedTextField(
         __("Username"),
         description=__(
-            "A short name for your organization’s profile page."
+            "A short name for your organization’s account page."
             " Single word containing letters, numbers and dashes only."
             " Pick something permanent: changing it will break existing links from"
             " around the web"
@@ -87,7 +87,7 @@ class OrganizationForm(forms.Form):
                 _("This name has been taken by another organization")
             )
         # We're not supposed to get an unknown reason. Flag error to developers.
-        raise ValueError(f"Unknown profile name validation failure reason: {reason}")
+        raise ValueError(f"Unknown account name validation failure reason: {reason}")
 
 
 @Team.forms('main')
@@ -110,7 +110,7 @@ class TeamForm(forms.Form):
     is_public = forms.BooleanField(
         __("Make this team public"),
         description=__(
-            "Team members will be listed on the organization’s profile page"
+            "Team members will be listed on the organization’s account page"
         ),
         default=True,
     )

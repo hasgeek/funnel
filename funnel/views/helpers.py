@@ -117,8 +117,8 @@ def app_url_for(
     endpoint: str,
     _external: bool = True,
     _method: str = 'GET',
-    _anchor: str = None,
-    _scheme: str = None,
+    _anchor: Optional[str] = None,
+    _scheme: Optional[str] = None,
     **values: str,
 ) -> str:
     """
@@ -301,7 +301,7 @@ def validate_rate_limit(  # pylint: disable=too-many-arguments
     attempts: int,
     timeout: int,
     token: Optional[str] = None,
-    validator: Callable[[str, Optional[str]], Tuple[bool, bool]] = None,
+    validator: Optional[Callable[[str, Optional[str]], Tuple[bool, bool]]] = None,
 ):
     """
     Validate a rate limit on API-endpoint resources.

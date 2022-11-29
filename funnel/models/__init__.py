@@ -5,11 +5,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Callable, TypeVar
 
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType, UUIDType
 import sqlalchemy as sa  # noqa
 import sqlalchemy.orm  # Required to make sa.orm work  # noqa
 
-from coaster.db import db
 from coaster.sqlalchemy import (
     BaseIdNameMixin,
     BaseMixin,
@@ -47,6 +47,7 @@ else:
             return cls
 
 
+db = SQLAlchemy()
 # This must be set _before_ any of the models are imported
 TimestampMixin.__with_timezone__ = True
 

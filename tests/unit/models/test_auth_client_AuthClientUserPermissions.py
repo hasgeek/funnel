@@ -31,7 +31,7 @@ class TestUserClientPermissions(TestDatabaseFixture):
 
 def test_userclientpermissions_migrate_user_move(
     db_session, user_twoflower, user_rincewind, client_hex
-):
+) -> None:
     """Migrating client permissions from old user to new user."""
     # Scenario 1: Twoflower has a permission and it is transferred to Rincewind
     userperms = models.AuthClientUserPermissions(
@@ -48,7 +48,7 @@ def test_userclientpermissions_migrate_user_move(
 
 def test_userclientpermissions_migrate_user_retain(
     db_session, user_twoflower, user_rincewind, client_hex
-):
+) -> None:
     """Retaining new user's client permissions when migrating assets from old user."""
     # Scenario 2: Rincewind has a permission, and keeps it after merging Twoflower
     userperms = models.AuthClientUserPermissions(
@@ -65,7 +65,7 @@ def test_userclientpermissions_migrate_user_retain(
 
 def test_userclientpermissions_migrate_user_merge(
     db_session, user_twoflower, user_rincewind, client_hex
-):
+) -> None:
     """Merging permissions granted to two users when migrating from one to other."""
     # Scenario 3: Twoflower and Rincewind each have permissions, and they get merged
     userperms1 = models.AuthClientUserPermissions(

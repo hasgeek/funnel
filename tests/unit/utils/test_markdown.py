@@ -238,7 +238,7 @@ def test_markdown_blank() -> None:
 
 
 @pytest.mark.update_markdown_data()
-def test_markdown_update_output(pytestconfig):
+def test_markdown_update_output(pytestconfig) -> None:
     has_mark = pytestconfig.getoption('-m', default=None) == 'update_markdown_data'
     if not has_mark:
         pytest.skip('Skipping update of expected output of markdown test cases')

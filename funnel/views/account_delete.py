@@ -26,7 +26,9 @@ class DeleteValidator:
 account_delete_validators: List[DeleteValidator] = []
 
 
-def delete_validator(title: str, message: str, name: str = None) -> ReturnDecorator:
+def delete_validator(
+    title: str, message: str, name: Optional[str] = None
+) -> ReturnDecorator:
     """Register an account delete validator."""
 
     def decorator(func: WrappedFunc) -> WrappedFunc:
@@ -47,7 +49,7 @@ def delete_validator(title: str, message: str, name: str = None) -> ReturnDecora
     message=__("Protected accounts cannot be deleted"),
 )
 def profile_is_protected(user: User) -> bool:
-    """Block deletion if the user has a protected profile."""
+    """Block deletion if the user has a protected account."""
     if user.profile is not None and user.profile.is_protected:
         return False
     return True
@@ -74,7 +76,7 @@ def single_owner_organization(user: User) -> bool:
     ),
 )
 def profile_has_projects(user: User) -> bool:
-    """Fail if user has projects in their profile."""
+    """Fail if user has projects in their account."""
     if user.profile is not None:
         # TODO: Break down `is_safe_to_delete()` into individual components
         # and apply to org delete as well

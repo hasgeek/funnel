@@ -67,25 +67,23 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
 # --- Models ------------------------------------------------------------------
 
 
-class Project(UuidMixin, BaseScopedNameMixin, db.Model):
+class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'project'
     reserved_names = RESERVED_NAMES
 
-    user_id: sa.Column[int] = db.Column(None, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user = sa.orm.relationship(
         User,
         primaryjoin=user_id == User.id,
         backref=sa.orm.backref('projects', cascade='all'),
     )
-    profile_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('profile.id'), nullable=False
-    )
+    profile_id = sa.Column(sa.Integer, sa.ForeignKey('profile.id'), nullable=False)
     profile: sa.orm.relationship[Profile] = with_roles(
         sa.orm.relationship(
             Profile, backref=sa.orm.backref('projects', cascade='all', lazy='dynamic')
         ),
         read={'all'},
-        # If profile grants an 'admin' role, make it 'profile_admin' here
+        # If account grants an 'admin' role, make it 'profile_admin' here
         grants_via={None: {'admin': 'profile_admin'}},
         # `profile` only appears in the 'primary' dataset. It must not be included in
         # 'related' or 'without_parent' as it is the parent
@@ -183,8 +181,16 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    allow_rsvp = sa.Column(sa.Boolean, default=False, nullable=False)
-    buy_tickets_url: sa.Column[Optional[str]] = sa.Column(UrlType, nullable=True)
+    allow_rsvp: sa.Column[sa.Boolean] = with_roles(
+        sa.Column(sa.Boolean, default=True, nullable=False),
+        read={'all'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
+    buy_tickets_url: sa.Column[Optional[str]] = with_roles(
+        sa.Column(UrlType, nullable=True),
+        read={'all'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
 
     banner_video_url = with_roles(
         sa.Column(UrlType, nullable=True),
@@ -203,8 +209,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     hasjob_embed_url = with_roles(sa.Column(UrlType, nullable=True), read={'all'})
     hasjob_embed_limit = with_roles(sa.Column(sa.Integer, default=8), read={'all'})
 
-    commentset_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('commentset.id'), nullable=False
+    commentset_id = sa.Column(
+        sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
     commentset = sa.orm.relationship(
         Commentset,
@@ -214,15 +220,15 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
         back_populates='project',
     )
 
-    parent_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
+    parent_id = sa.Column(
+        sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
     parent_project: Mapped[Optional[Project]] = sa.orm.relationship(
         'Project', remote_side='Project.id', backref='subprojects'
     )
 
     #: Featured project flag. This can only be set by website editors, not
-    #: project editors or profile admins.
+    #: project editors or account admins.
     site_featured = with_roles(
         sa.Column(sa.Boolean, default=False, nullable=False),
         read={'all'},
@@ -371,13 +377,17 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     cfp_state.add_conditional_state(
         'HAS_PROPOSALS',
         cfp_state.ANY,
-        lambda project: db.session.query(project.proposals.exists()).scalar(),
+        lambda project: db.session.query(  # type: ignore[has-type]
+            project.proposals.exists()
+        ).scalar(),
         label=('has_proposals', __("Has submissions")),
     )
     cfp_state.add_conditional_state(
         'HAS_SESSIONS',
         cfp_state.ANY,
-        lambda project: db.session.query(project.sessions.exists()).scalar(),
+        lambda project: db.session.query(  # type: ignore[has-type]
+            project.sessions.exists()
+        ).scalar(),
         label=('has_sessions', __("Has sessions")),
     )
     cfp_state.add_conditional_state(
@@ -516,22 +526,33 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
 
     with_roles(title_suffix, read={'all'})
 
-    @with_roles(call={'all'})
-    def joined_title(self, sep: str = '›') -> str:
-        """Return the project's title joined with the profile's title, if divergent."""
+    @property
+    def title_parts(self) -> List[str]:
+        """
+        Return the hierarchy of titles of this project.
+
+        If the project's title is an extension of the account's title, only the
+        project's title is returned as a single list item. If they are distinct, both
+        are returned.
+
+        This list is used by :prop:`joined_title` to produce a slash-separated title,
+        but can be used directly when another rendering is required.
+        """
         if self.short_title == self.title:
-            # Project title does not derive from profile title, so use both
-            return f"{self.profile.title} {sep} {self.title}"
-        # Project title extends profile title, so profile title is not needed
-        return self.title
+            # Project title does not derive from account title, so use both
+            return [self.profile.title, self.title]
+        # Project title extends account title, so account title is not needed
+        return [self.title]
+
+    with_roles(title_parts, read={'all'})
 
     @property
-    def full_title(self) -> str:
-        """Return :meth:`joined_title` as a property."""
-        return self.joined_title()
+    def joined_title(self) -> str:
+        """Return the project's title joined with the account's title, if divergent."""
+        return ' / '.join(self.title_parts)
 
     with_roles(
-        full_title, read={'all'}, datasets={'primary', 'without_parent', 'related'}
+        joined_title, read={'all'}, datasets={'primary', 'without_parent', 'related'}
     )
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent', 'related'})
@@ -591,9 +612,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     @sa.orm.validates('name', 'profile')
     def _validate_and_create_redirect(self, key, value):
         # TODO: When labels, venues and other resources are relocated from project to
-        # profile, this validator can no longer watch profile change. We'll need a more
-        # elaborate transfer mechanism that remaps resources to equivalent ones in the
-        # new profile.
+        # account, this validator can no longer watch for `profile` change. We'll need a
+        # more elaborate transfer mechanism that remaps resources to equivalent ones in
+        # the new `profile`.
         if key == 'name':
             value = value.strip() if value is not None else None
         if not value or (key == 'name' and not valid_name(value)):
@@ -697,12 +718,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):
     def migrate_profile(  # type: ignore[return]
         cls, old_profile: Profile, new_profile: Profile
     ) -> OptionalMigratedTables:
-        """Migrate from one profile to another when merging user accounts."""
+        """Migrate from one account to another when merging users."""
         names = {project.name for project in new_profile.projects}
         for project in old_profile.projects:
             if project.name in names:
                 app.logger.warning(
-                    "Project %r had a conflicting name in profile migration,"
+                    "Project %r had a conflicting name in account migration,"
                     " so renaming by adding adding random value to name",
                     project,
                 )
@@ -749,7 +770,7 @@ class __Profile:
                 for membership in user.projects_as_crew_active_memberships.join(
                     Project, Profile
                 ).filter(
-                    # Project is attached to this profile
+                    # Project is attached to this account
                     Project.profile_id == self.id,
                     # Project is in draft state OR has a draft call for proposals
                     sa.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
@@ -764,7 +785,7 @@ class __Profile:
                 for membership in user.projects_as_crew_active_memberships.join(
                     Project, Profile
                 ).filter(
-                    # Project is attached to this profile
+                    # Project is attached to this account
                     Project.profile_id == self.id,
                     # Project is in draft state OR has a draft call for proposals
                     sa.or_(Project.state.PUBLISHED_WITHOUT_SESSIONS),
@@ -780,11 +801,11 @@ class __Profile:
         )
 
 
-class ProjectRedirect(TimestampMixin, db.Model):
+class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'project_redirect'
 
-    profile_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('profile.id'), nullable=False, primary_key=True
+    profile_id = sa.Column(
+        sa.Integer, sa.ForeignKey('profile.id'), nullable=False, primary_key=True
     )
     profile = sa.orm.relationship(
         Profile, backref=sa.orm.backref('project_redirects', cascade='all')
@@ -792,8 +813,8 @@ class ProjectRedirect(TimestampMixin, db.Model):
     parent = sa.orm.synonym('profile')
     name = sa.Column(sa.Unicode(250), nullable=False, primary_key=True)
 
-    project_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
+    project_id = sa.Column(
+        sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
     project = sa.orm.relationship(Project, backref='redirects')
 
@@ -852,15 +873,15 @@ class ProjectRedirect(TimestampMixin, db.Model):
                 pr.profile = new_profile
             else:
                 # Discard project redirect since the name is already taken by another
-                # redirect in the new profile
+                # redirect in the new account
                 db.session.delete(pr)
 
 
-class ProjectLocation(TimestampMixin, db.Model):
+class ProjectLocation(TimestampMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'project_location'
     #: Project we are tagging
-    project_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('project.id'), primary_key=True, nullable=False
+    project_id = sa.Column(
+        sa.Integer, sa.ForeignKey('project.id'), primary_key=True, nullable=False
     )
     project = sa.orm.relationship(
         Project, backref=sa.orm.backref('locations', cascade='all')

@@ -80,7 +80,7 @@
               {%- endif %}
               <div class="tabs keyboard-switch">
                 <a href="#" onclick="return false;" class="tabs__item tabs__item--active mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="email">Use email address</a>
-                <a href="#" onclick="return false;" class="tabs__item  mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="tel">Use phone number</a>
+                <a href="#" onclick="return false;" class="tabs__item mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="tel">Use phone number</a>
               </div>
             </div>
           {%- elif field.type == 'ImgeeField' %}
@@ -142,7 +142,7 @@
     {% for name, value, widget_class in buttons -%}
       <button type="submit"
         {%- if name %} name="{{ name|e }}"{% else %} {% endif -%}
-        class="mui-btn mui-btn--raised {% if widget_class %}  {{ widget_class|e }}{% else %} mui-btn--primary{% endif -%}"
+        class="mui-btn mui-btn--raised {% if widget_class %} {{ widget_class|e }}{% else %} mui-btn--primary{% endif -%}"
         {%- if tabindex %} tabindex="{{ tabindex }}" {% endif -%}
         data-cy="form-submit-btn"
         >{{ value|e }}</button>
@@ -201,7 +201,7 @@
       $(function() {
         // Disable submit button when clicked. Prevent double click.
         $('#{{ ref_id }}').submit(function() {
-          if(!$(this).data('parsley-validate') ||  $(this).data('parsley-validate') && $(this).hasClass('parsley-valid')) {
+          if(!$(this).data('parsley-validate') || $(this).data('parsley-validate') && $(this).hasClass('parsley-valid')) {
             $(this).find('button[type="submit"]').prop('disabled', true);
             $(this).find('input[type="submit"]').prop('disabled', true);
             $(this).find(".loading").removeClass('mui--hide');
@@ -255,7 +255,7 @@
 {% macro widget_ext_scripts(form) %}
   {%- with scripts = {} %}
     {%- for field in form %}
-      {%- if field.type == 'CoordinatesField' %}
+      {%- if field.type == 'CoordinatesField' and config['GOOGLE_MAPS_API_KEY'] %}
         {#- We're using setdefault instead of a simple = because the do extension doesn't support assignment #}
         {%- do scripts.setdefault('gmap', ('https://maps.googleapis.com/maps/api/js?key=' + config['GOOGLE_MAPS_API_KEY'] + '&libraries=places')) %}
         {%- do scripts.setdefault('locationpicker', 'jquery.locationpicker.js'|ext_asset_url) %}

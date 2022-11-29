@@ -30,7 +30,7 @@ from .helpers import render_redirect
 
 
 class ProfileCheckMixin:
-    """Base class checks for suspended profiles."""
+    """Base class checks for suspended accounts."""
 
     profile: Optional[Profile] = None
 

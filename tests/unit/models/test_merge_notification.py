@@ -2,6 +2,7 @@
 
 from datetime import timedelta
 from types import SimpleNamespace
+from typing import Any
 
 import sqlalchemy as sa
 
@@ -11,11 +12,11 @@ from funnel import models
 
 
 @pytest.fixture(scope='session')
-def fixture_notification_type(database):
-    class MergeTestNotification(models.Notification):
+def fixture_notification_type(database) -> Any:
+    class MergeTestNotification(models.Notification, type='merge_test'):
         """Test notification."""
 
-        __mapper_args__ = {'polymorphic_identity': 'merge_test'}
+        document: models.User
 
     database.configure_mappers()
     return MergeTestNotification
@@ -170,7 +171,7 @@ def test_merge_with_user2_notifications(
 
 def test_merge_with_dupe_notifications(
     db_session, fixtures, user1_notification, user2_notification
-):
+) -> None:
     """Merge without dupe notifications gets one deleted."""
     assert models.Notification.query.count() == 1
     assert models.UserNotification.query.count() == 2
@@ -188,7 +189,7 @@ def test_merge_with_dupe_notifications(
 
 def test_merge_with_user1_preferences(
     db_session, fixtures, user1_main_preferences, user1_test_preferences
-):
+) -> None:
     """When preferences are only on the older user's account, nothing changes."""
     assert models.NotificationPreferences.query.count() == 2
     merged = models.merge_users(fixtures.user1, fixtures.user2)
@@ -201,7 +202,7 @@ def test_merge_with_user1_preferences(
 
 def test_merge_with_user2_preferences(
     db_session, fixtures, user2_main_preferences, user2_test_preferences
-):
+) -> None:
     """When preferences are only on the newer user's account, they are transferred."""
     assert models.NotificationPreferences.query.count() == 2
     merged = models.merge_users(fixtures.user1, fixtures.user2)
@@ -219,7 +220,7 @@ def test_merge_with_both_preferences(  # pylint: disable=too-many-arguments
     user1_test_preferences,
     user2_main_preferences,
     user2_test_preferences,
-):
+) -> None:
     """When preferences are for both users, the newer user's are deleted."""
     assert models.NotificationPreferences.query.count() == 4
     merged = models.merge_users(fixtures.user1, fixtures.user2)
@@ -238,7 +239,7 @@ def test_merge_with_mixed_preferences(
     user1_main_preferences,
     user2_main_preferences,
     user2_test_preferences,
-):
+) -> None:
     """A mix of transfers and deletions can happen."""
     assert models.NotificationPreferences.query.count() == 3
     merged = models.merge_users(fixtures.user1, fixtures.user2)

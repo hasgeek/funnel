@@ -53,6 +53,7 @@ class ZoomProvider(LoginProvider):
         try:
             response = requests.post(
                 self.token_url,
+                timeout=30,
                 headers={
                     'Accept': 'application/x-www-form-urlencoded',
                     'Authorization': 'Basic '

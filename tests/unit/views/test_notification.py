@@ -68,7 +68,7 @@ def update_user_notification(db_session, user_vetinari, project_update):
 
 def test_user_notification_is_for_user_vetinari(
     update_user_notification, user_vetinari
-):
+) -> None:
     """Confirm the test notification is for the test user fixture."""
     assert update_user_notification.user == user_vetinari
 
@@ -102,12 +102,11 @@ def test_unsubscribe_sms_view(
     app, client, unsubscribe_sms_short_url, user_vetinari
 ) -> None:
     """Confirm the unsubscribe URL renders a form."""
-    with app.app_context():
-        unsub_url = url_for(
-            'notification_unsubscribe_short',
-            token=urlsplit(unsubscribe_sms_short_url).path[1:],
-            _external=True,
-        )
+    unsub_url = url_for(
+        'notification_unsubscribe_short',
+        token=urlsplit(unsubscribe_sms_short_url).path[1:],
+        _external=True,
+    )
 
     # Get the unsubscribe URL. This should cause a cookie to be set, with a
     # redirect to the same URL and `?cookietest=1` appended
@@ -125,8 +124,7 @@ def test_unsubscribe_sms_view(
     # Earlier versions of Werkzeug defaulted to RFC 2616 behaviour for an absolute URL:
     # https://datatracker.ietf.org/doc/html/rfc2616#section-14.30
     # This test will fail on Werkzeug < 2.1
-    with app.app_context():
-        assert rv.location == url_for('notification_unsubscribe_do', _external=False)
+    assert rv.location == url_for('notification_unsubscribe_do', _external=False)
 
     # This time we'll get the unsubscribe form.
     rv = client.get(rv.location)

@@ -25,6 +25,7 @@ Flask-SQLAlchemy
 Flask-WTF
 furl
 geoip2
+greenlet
 html2text
 icalendar
 idna>=2.5
@@ -52,6 +53,7 @@ pytz
 PyVimeo
 qrcode
 requests
+rich
 rq
 SQLAlchemy>=1.4.33
 SQLAlchemy-Utils

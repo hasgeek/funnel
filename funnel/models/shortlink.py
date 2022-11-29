@@ -178,7 +178,7 @@ class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-metho
 # --- Models ---------------------------------------------------------------------------
 
 
-class Shortlink(NoIdMixin, db.Model):
+class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
     """A short link to a full-size link, for use over SMS."""
 
     __tablename__ = 'shortlink'
@@ -200,8 +200,8 @@ class Shortlink(NoIdMixin, db.Model):
         read={'all'},
     )
     #: Id of user who created this shortlink (optional)
-    user_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
+    user_id = sa.Column(
+        sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
     )
     #: User who created this shortlink (optional)
     user: Mapped[Optional[User]] = sa.orm.relationship(User)
@@ -253,7 +253,7 @@ class Shortlink(NoIdMixin, db.Model):
         cls,
         url: Union[str, furl],
         *,
-        name: str = None,
+        name: Optional[str] = None,
         shorter: bool = False,
         reuse: Literal[False] = False,
         actor: Optional[User] = None,
@@ -376,7 +376,7 @@ class Shortlink(NoIdMixin, db.Model):
             idv = name_to_bigint(name)
         except (ValueError, TypeError):
             return None
-        obj = db.session.get(
+        obj = db.session.get(  # type: ignore[attr-defined]
             cls, idv, options=[sa.orm.load_only(cls.id, cls.url, cls.enabled)]
         )
         if obj is not None and (ignore_enabled or obj.enabled):

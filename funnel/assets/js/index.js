@@ -1,6 +1,6 @@
 import SaveProject from './utils/bookmark';
 import 'htmx.org';
-import MarkmapEmbed from './utils/markmap';
+import initEmbed from './utils/initembed';
 
 $(() => {
   window.Hasgeek.homeInit = function homeInit() {
@@ -20,5 +20,5 @@ $(() => {
       SaveProject(projectSaveConfig);
     });
   };
-  MarkmapEmbed.init();
+  initEmbed();
 });

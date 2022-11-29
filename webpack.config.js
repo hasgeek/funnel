@@ -6,6 +6,7 @@ const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { InjectManifest } = require('workbox-webpack-plugin');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const nodeEnv = process.env.NODE_ENV || 'production';
 
@@ -17,6 +18,9 @@ module.exports = {
     },
   },
   devtool: 'source-map',
+  externals: {
+    jquery: 'jQuery',
+  },
   entry: {
     app: path.resolve(__dirname, 'funnel/assets/js/app.js'),
     index: path.resolve(__dirname, 'funnel/assets/js/index.js'),
@@ -64,6 +68,8 @@ module.exports = {
     account_css: path.resolve(__dirname, 'funnel/assets/sass/account.scss'),
     update_css: path.resolve(__dirname, 'funnel/assets/sass/update.scss'),
     imgeemodal_css: path.resolve(__dirname, 'funnel/assets/sass/imgee-modal.scss'),
+    label_form_css: path.resolve(__dirname, 'funnel/assets/sass/label_form.scss'),
+    screens_css: path.resolve(__dirname, 'funnel/assets/sass/screens.scss'),
   },
   output: {
     path: path.resolve(__dirname, 'funnel/static/build'),
@@ -97,6 +103,18 @@ module.exports = {
   plugins: [
     new ESLintPlugin({
       fix: true,
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'node_modules/footable/css/fonts',
+          to: 'css/fonts',
+        },
+        {
+          from: 'node_modules/leaflet/dist/images',
+          to: 'css/images',
+        },
+      ],
     }),
     new webpack.DefinePlugin({
       'process.env': { NODE_ENV: JSON.stringify(nodeEnv) },

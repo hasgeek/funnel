@@ -150,16 +150,26 @@ def organizations_as_owner(
 def recent_organization_memberships(
     obj: User, recent: int = 3, overflow: int = 4
 ) -> SimpleNamespace:
-    """Return recent organizations for the user (by recently edited membership)."""
+    """
+    Return recent organizations for the user (by recently edited membership).
+
+    :param recent: Desired count of recent organizations to be listed
+    :param overflow: Desired count of recent organizations to be returned as overflow
+
+    :returns: Namespace of ``recent`` (list), ``overflow`` (list) and ``extra_count``
+        (int) with the lists containing :class:`OrganizationMembership`` in role access
+        proxies
+
+    The items returned under overflow are also included in ``recent_count``, so the
+    total count is ``len(recent) + extra_count``.
+    """
     orgs = obj.views.organizations_as_admin(
         limit=recent + overflow, order_by_grant=True
     )
     return SimpleNamespace(
         recent=orgs[:recent],
         overflow=orgs[recent : recent + overflow],
-        extra_count=max(
-            0, obj.active_organization_admin_memberships.count() - recent - overflow
-        ),
+        extra_count=max(0, obj.active_organization_admin_memberships.count() - recent),
     )
 
 
@@ -337,7 +347,7 @@ class AccountView(ClassView):
 
             db.session.commit()
             user_data_changed.send(current_auth.user, changes=['profile'])
-            flash(_("Your profile has been updated"), category='success')
+            flash(_("Your account has been updated"), category='success')
 
             return render_redirect(get_next_url(default=url_for('account')))
         return render_form(

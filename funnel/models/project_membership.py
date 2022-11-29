@@ -33,7 +33,10 @@ project_child_role_map: Dict[str, str] = {
 }
 
 
-class ProjectCrewMembership(ImmutableUserMembershipMixin, db.Model):
+class ProjectCrewMembership(
+    ImmutableUserMembershipMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     """Users can be crew members of projects, with specified access rights."""
 
     __tablename__ = 'project_crew_membership'
@@ -80,7 +83,9 @@ class ProjectCrewMembership(ImmutableUserMembershipMixin, db.Model):
     }
 
     project_id: sa.Column[int] = immutable(
-        db.Column(None, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False)
+        sa.Column(
+            sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
+        )
     )
     project: sa.orm.relationship[Project] = immutable(
         sa.orm.relationship(

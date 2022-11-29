@@ -3,7 +3,6 @@
 import Utils from './utils/helper';
 import ScrollHelper from './utils/scrollhelper';
 import loadLangTranslations from './utils/translations';
-import addVegaSupport from './utils/vegaembed';
 import LazyloadImg from './utils/lazyloadimage';
 import Form from './utils/formhelper';
 import Analytics from './utils/analytics';
@@ -68,7 +67,6 @@ $(() => {
       window.Hasgeek.Config.unreadCommentUrl
     );
   }
-  addVegaSupport();
 
   const intersectionObserverComponents = function intersectionObserverComponents() {
     LazyloadImg.init('js-lazyload-img');

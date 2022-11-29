@@ -55,7 +55,7 @@ def test_auto_seq(  # pylint: disable=too-many-arguments
     org_uu,
     user_dibbler,
     user_vetinari,
-):
+) -> None:
     """Sequence numbers are auto-issued in commit order."""
     sponsor1 = models.ProjectSponsorMembership(
         project=project_expo2010,
@@ -100,7 +100,7 @@ def test_expo_has_sponsors(  # pylint: disable=too-many-arguments
     org_citywatch,
     org_uu,
     user_dibbler,
-):
+) -> None:
     """Project Expo 2010 has sponsors in a specific order."""
     db_session.commit()
     assert list(project_expo2010.sponsors) == [
@@ -112,7 +112,7 @@ def test_expo_has_sponsors(  # pylint: disable=too-many-arguments
 
 def test_expo_sponsor_reorder(
     db_session, project_expo2010, citywatch_sponsor, uu_sponsor, dibbler_sponsor
-):
+) -> None:
     """Sponsors can be re-ordered."""
     db_session.commit()
 
@@ -137,7 +137,7 @@ def test_expo_sponsor_seq_reissue(  # pylint: disable=too-many-arguments
     dibbler_sponsor,
     user_dibbler,
     user_wolfgang,
-):
+) -> None:
     """If the the last sponsor is dropped, the next sponsor gets their spot."""
     db_session.commit()
 
@@ -217,7 +217,7 @@ def test_sponsor_offered_roles(db_session, project_expo2010, citywatch_sponsor) 
 
 def test_sponsor_subject_role(
     db_session, citywatch_sponsor, user_vimes, user_rincewind
-):
-    """Sponsor profile admins get subject role on the membership."""
+) -> None:
+    """Sponsor account admins get subject role on the membership."""
     assert 'subject' in citywatch_sponsor.roles_for(user_vimes)
     assert 'subject' not in citywatch_sponsor.roles_for(user_rincewind)

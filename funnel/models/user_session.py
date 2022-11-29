@@ -44,28 +44,28 @@ USER_SESSION_VALIDITY_PERIOD = timedelta(days=365)
 #: the client app in this table
 auth_client_user_session: sa.Table = sa.Table(
     'auth_client_user_session',
-    db.Model.metadata,
-    db.Column(
+    db.Model.metadata,  # type: ignore[has-type]
+    sa.Column(
         'auth_client_id',
-        None,
+        sa.Integer,
         sa.ForeignKey('auth_client.id'),
         nullable=False,
         primary_key=True,
     ),
-    db.Column(
+    sa.Column(
         'user_session_id',
-        None,
+        sa.Integer,
         sa.ForeignKey('user_session.id'),
         nullable=False,
         primary_key=True,
     ),
-    db.Column(
+    sa.Column(
         'created_at',
         sa.TIMESTAMP(timezone=True),
         nullable=False,
         default=sa.func.utcnow(),
     ),
-    db.Column(
+    sa.Column(
         'accessed_at',
         sa.TIMESTAMP(timezone=True),
         nullable=False,
@@ -74,10 +74,10 @@ auth_client_user_session: sa.Table = sa.Table(
 )
 
 
-class UserSession(UuidMixin, BaseMixin, db.Model):
+class UserSession(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'user_session'
 
-    user_id: sa.Column[int] = db.Column(None, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user = sa.orm.relationship(
         User, backref=sa.orm.backref('all_user_sessions', cascade='all', lazy='dynamic')
     )

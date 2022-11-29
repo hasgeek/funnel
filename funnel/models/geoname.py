@@ -31,7 +31,7 @@ continent_codes = {
 }
 
 
-class GeoCountryInfo(BaseNameMixin, db.Model):
+class GeoCountryInfo(BaseNameMixin, db.Model):  # type: ignore[name-defined]
     """Geoname record for a country."""
 
     __tablename__ = 'geo_country_info'
@@ -75,7 +75,7 @@ class GeoCountryInfo(BaseNameMixin, db.Model):
         return f'<GeoCountryInfo {self.geonameid} "{self.title}">'
 
 
-class GeoAdmin1Code(BaseMixin, db.Model):
+class GeoAdmin1Code(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Geoname record for 1st level administrative division (state, province)."""
 
     __tablename__ = 'geo_admin1_code'
@@ -102,7 +102,7 @@ class GeoAdmin1Code(BaseMixin, db.Model):
         return f'<GeoAdmin1Code {self.geonameid} "self.ascii_title">'
 
 
-class GeoAdmin2Code(BaseMixin, db.Model):
+class GeoAdmin2Code(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Geoname record for 2nd level administrative division (district, county)."""
 
     __tablename__ = 'geo_admin2_code'
@@ -130,7 +130,7 @@ class GeoAdmin2Code(BaseMixin, db.Model):
         return f'<GeoAdmin2Code {self.geonameid} "self.ascii_title">'
 
 
-class GeoName(BaseNameMixin, db.Model):
+class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
     """Geographical name record."""
 
     __tablename__ = 'geo_name'
@@ -155,8 +155,8 @@ class GeoName(BaseNameMixin, db.Model):
         'GeoName.admin1 == foreign(GeoAdmin1Code.admin1_code))',
         viewonly=True,
     )
-    admin1_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('geo_admin1_code.id'), nullable=True
+    admin1_id = sa.Column(
+        sa.Integer, sa.ForeignKey('geo_admin1_code.id'), nullable=True
     )
     admin1code: Mapped[Optional[GeoAdmin1Code]] = sa.orm.relationship(
         'GeoAdmin1Code', uselist=False, foreign_keys=[admin1_id]
@@ -171,8 +171,8 @@ class GeoName(BaseNameMixin, db.Model):
         'GeoName.admin2 == foreign(GeoAdmin2Code.admin2_code))',
         viewonly=True,
     )
-    admin2_id: sa.Column[Optional[int]] = db.Column(
-        None, sa.ForeignKey('geo_admin2_code.id'), nullable=True
+    admin2_id = sa.Column(
+        sa.Integer, sa.ForeignKey('geo_admin2_code.id'), nullable=True
     )
     admin2code: Mapped[Optional[GeoAdmin2Code]] = sa.orm.relationship(
         'GeoAdmin2Code', uselist=False, foreign_keys=[admin2_id]
@@ -549,15 +549,13 @@ class GeoName(BaseNameMixin, db.Model):
         return query
 
 
-class GeoAltName(BaseMixin, db.Model):
+class GeoAltName(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Additional names for any :class:`GeoName`."""
 
     __tablename__ = 'geo_alt_name'
     __bind_key__ = 'geoname'
 
-    geonameid: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('geo_name.id'), nullable=False
-    )
+    geonameid = sa.Column(sa.Integer, sa.ForeignKey('geo_name.id'), nullable=False)
     geoname = sa.orm.relationship(
         GeoName,
         backref=sa.orm.backref('alternate_titles', cascade='all, delete-orphan'),
