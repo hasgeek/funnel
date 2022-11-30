@@ -43,8 +43,8 @@ __all__ = [
 # --- Role definitions -----------------------------------------------------------------
 
 
-role_profile_owner = Role('profile_owner', __("Organization owner"))
-role_profile_admin = Role('profile_admin', __("Organization administrator"))
+role_profile_owner = Role('profile_owner', __("Account owner"))
+role_profile_admin = Role('profile_admin', __("Account administrator"))
 role_project_participant = Role('project_participant', __("Project participant"))
 role_project_crew = Role('project_crew', __("All project crew"))
 role_project_editor = Role('project_editor', __("Project editor"))

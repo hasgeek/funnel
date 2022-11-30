@@ -4,9 +4,9 @@ Notification primitives.
 Notification models and support classes for implementing notifications, best understood
 using examples:
 
-Scenario: Project P's editor E posts an update U
-Where: User A is a participant on the project
-Result: User A receives a notification about a new update on the project
+* Scenario: Project P's editor E posts an update U
+* Where: User A is a participant on the project
+* Result: User A receives a notification about a new update on the project
 
 How it works:
 
@@ -61,16 +61,19 @@ How it works:
 
 It is possible to have two separate notifications for the same event. For example, a
 comment replying to another comment will trigger a CommentReplyNotification to the user
-being replied to, and a ProjectCommentNotification or ProposalCommentNotification for
-the project or proposal. The same user may be a recipient of both notifications. To
-de-duplicate this, a random "eventid" is shared across both notifications, and is
-required to be unique per user, so that the second notification will be skipped. This
-is supported using an unusual primary and foreign key structure the in
-:class:`Notification` and :class:`UserNotification`:
+being replied to, and a NewCommentNotification for the document on which the comment has
+been made. The same user may be a recipient of both notifications. To de-duplicate this,
+a random "eventid" is shared across both notifications, and is required to be unique per
+user, so that the second notification will be skipped. This is supported using an
+unusual primary and foreign key structure the in :class:`Notification` and
+:class:`UserNotification`:
 
 1. Notification has pkey ``(eventid, id)``, where `id` is local to the instance
 2. UserNotification has pkey ``(eventid, user_id)`` combined with a fkey to Notification
     using ``(eventid, notification_id)``.
+
+Notifications can also be delivered to a group chat via a hook mechanism. This is
+documented in :class:`NotificationHook`.
 """
 from __future__ import annotations
 
@@ -148,9 +151,9 @@ class NotificationCategory:
 
 @dataclass
 class Role:
-    """User-facing name and description for a role."""
+    """User-facing name and description for a role within a specific context."""
 
-    #: Role name
+    #: Role identifier
     name: str
     #: Role title
     title: str
@@ -1160,8 +1163,8 @@ class NotificationHook(BaseMixin, UuidMixin, db.Model):  # type: ignore[name-def
     has three trigger conditions, all of which must be satisfied:
 
     1. A context where the hook is defined, from where it applies to everything within
-        that context. For example, a hook defined on a Profile will apply to all
-        Projects contained within that Profile.
+        that context. For example, a hook defined on an Account will apply to all
+        Projects contained within that Account.
 
     2. Notification types and target roles that the hook is configured for.
 
