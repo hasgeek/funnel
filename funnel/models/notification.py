@@ -934,9 +934,10 @@ class UserNotification(
             # We've already been revoked or rolled up. Nothing to do.
             return
 
-        # For rollup: find most recent unread that has a rollupid. Reuse that id so that
-        # the current notification becomes the latest in that batch of rolled up
-        # notifications. If none, this is the start of a new batch, so make a new id.
+        # For rollup: find most recent unread -- or read but created in the last day --
+        # that has a rollupid. Reuse that id so that the current notification becomes
+        # the latest in that batch of rolled up notifications. If none, this is the
+        # start of a new batch, so make a new id.
         rollupid = (
             db.session.query(UserNotification.rollupid)
             .join(Notification)
@@ -949,8 +950,13 @@ class UserNotification(
                 Notification.document_uuid == self.notification.document_uuid,
                 # Same reason for receiving notification as earlier instance (same role)
                 UserNotification.role == self.role,
-                # Earlier instance is unread
-                UserNotification.read_at.is_(None),
+                # Earlier instance is unread or within 24 hours
+                sa.or_(
+                    UserNotification.read_at.is_(None),
+                    # TODO: Hardcodes for PostgreSQL, turn this into a SQL func
+                    # expression like func.utcnow()
+                    UserNotification.created_at >= sa.text("NOW() - INTERVAL '1 DAY'"),
+                ),
                 # Earlier instance is not revoked
                 UserNotification.revoked_at.is_(None),
                 # Earlier instance has a rollupid
@@ -962,7 +968,7 @@ class UserNotification(
         )
         if not rollupid:
             # No previous rollupid? Then we're the first. The next notification
-            # will use our rollupid as long as we're unread
+            # will use our rollupid as long as we're unread or within a day
             self.rollupid = uuid4()
         else:
             # Use the existing id, find all using it and revoke them
