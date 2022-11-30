@@ -30,10 +30,10 @@ from .jobs import rqjob
 __all__ = ['RenderNotification', 'dispatch_notification']
 
 
-@UserNotification.views('render')
+@UserNotification.views('render', cached_property=True)
 def render_user_notification(obj):
     """Render web notifications for the user."""
-    return Notification.renderers[obj.notification.type](obj).web()
+    return Notification.renderers[obj.notification.type](obj)
 
 
 class RenderNotification:
@@ -381,9 +381,7 @@ def transport_worker_wrapper(func):
             # If so, skip it.
             if not user_notification.is_revoked:
                 with force_locale(user_notification.user.locale or 'en'):
-                    view = Notification.renderers[user_notification.notification.type](
-                        user_notification
-                    )
+                    view = user_notification.views.render
                     try:
                         func(user_notification, view)
                         db.session.commit()

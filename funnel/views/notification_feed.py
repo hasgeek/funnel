@@ -33,7 +33,7 @@ class AllNotificationsView(ClassView):
             'notifications': [
                 {
                     'notification': un.current_access(datasets=('primary', 'related')),
-                    'html': un.views.render(),
+                    'html': un.views.render.web(),
                     'document_type': un.notification.document_type,
                     'document': un.document.current_access(
                         datasets=('primary', 'related')
