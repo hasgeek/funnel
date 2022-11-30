@@ -202,7 +202,7 @@ class CommentReplyNotification(Notification, type='comment_reply'):
 
 
 class ProjectCrewMembershipNotification(
-    DocumentHasProject, Notification, type='project_crew_membership_granted'
+    DocumentHasProfile, Notification, type='project_crew_membership_granted'
 ):
     """Notification of being granted crew membership (including role changes)."""
 
@@ -217,7 +217,7 @@ class ProjectCrewMembershipNotification(
 
 
 class ProjectCrewMembershipRevokedNotification(
-    DocumentHasProject,
+    DocumentHasProfile,
     Notification,
     type='project_crew_membership_revoked',
     shadows=ProjectCrewMembershipNotification,
