@@ -46,10 +46,9 @@ def user_twoflower_not_site_editor(db_session, user_twoflower):
 )
 def test_check_site_editor_edit_sponsorship(  # pylint: disable=too-many-arguments
     request, app, client, login, org_uu_sponsorship, user_site_membership, status_code
-):
+) -> None:
     login.as_(request.getfixturevalue(user_site_membership).user)
-    with app.app_context():
-        endpoint = org_uu_sponsorship.url_for('edit')
+    endpoint = org_uu_sponsorship.url_for('edit')
     rv = client.get(endpoint)
     assert rv.status_code == status_code
 
@@ -73,10 +72,9 @@ def test_sponsorship_add(  # pylint: disable=too-many-arguments
     label,
     is_promoted,
     csrf_token,
-):
+) -> None:
     login.as_(user_vetinari_site_editor.user)
-    with app.app_context():
-        endpoint = project_expo2010.url_for('add_sponsor')
+    endpoint = project_expo2010.url_for('add_sponsor')
     data = {
         'profile': org_uu.name,
         'label': label,
@@ -107,11 +105,10 @@ def test_sponsorship_edit(
     org_uu_sponsorship,
     user_vetinari_site_editor,
     csrf_token,
-):
+) -> None:
     assert org_uu_sponsorship.is_promoted is True
     login.as_(user_vetinari_site_editor.user)
-    with app.app_context():
-        endpoint = org_uu_sponsorship.url_for('edit')
+    endpoint = org_uu_sponsorship.url_for('edit')
     data = {
         'label': "Edited",
         'csrf_token': csrf_token,
@@ -138,11 +135,10 @@ def test_sponsorship_remove(  # pylint: disable=too-many-arguments
     user_vetinari,
     user_vetinari_site_editor,
     csrf_token,
-):
+) -> None:
     db_session.add(user_vetinari_site_editor)
     db_session.commit()
-    with app.app_context():
-        endpoint = org_uu_sponsorship.url_for('remove')
+    endpoint = org_uu_sponsorship.url_for('remove')
     login.as_(user_vetinari)
     data = {
         'csrf_token': csrf_token,

@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from dataclasses import dataclass
 from functools import wraps
-from typing import Callable, Collection, List, Optional, Tuple, cast
+from typing import Callable, Collection, List, NoReturn, Optional, Tuple, cast
 import re
 
 from flask import Response, abort, jsonify, request
@@ -14,7 +14,7 @@ from baseframe import _
 from baseframe.signals import exception_catchall
 
 from .models import AuthToken, UserExternalId
-from .typing import ReturnResponse, WrappedFunc
+from .typing import ReturnDecorator, ReturnResponse, WrappedFunc
 
 # Bearer token, as per
 # http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-15#section-2.1
@@ -29,8 +29,8 @@ class ResourceRegistry(OrderedDict):
         name: str,
         description: Optional[str] = None,
         trusted: bool = False,
-        scope: str = None,
-    ):
+        scope: Optional[str] = None,
+    ) -> ReturnDecorator:
         """
         Decorate a resource function.
 
@@ -45,7 +45,7 @@ class ResourceRegistry(OrderedDict):
             # Don't allow resources to be declared with '*' or ' ' in the name
             raise ValueError(usescope)
 
-        def resource_auth_error(message: str):
+        def resource_auth_error(message: str) -> Response:
             return Response(
                 message,
                 401,
@@ -211,9 +211,8 @@ class LoginProvider:
     :param name: Name of the service (stored in the database)
     :param title: Title (shown to user)
     :param at_login: (default True). Is this service available to the user for login? If
-        false, it will only be available to be added in the user's profile page. Use
-        this for multiple instances of the same external service with differing access
-        permissions (for example, with Twitter).
+        `False`, it can only be added from the user's account settings. Use this for
+        add-on services (for example, Zoom).
     :param bool priority: (default False). Is this service high priority? If False,
         it'll be hidden behind a show more link.
     :param str icon: URL to icon for login provider.
@@ -242,7 +241,7 @@ class LoginProvider:
         for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def do(self, callback_url: str):
+    def do(self, callback_url: str) -> NoReturn:
         """Initiate a login with this login provider."""
         raise NotImplementedError
 

@@ -79,7 +79,7 @@
           </div></li>
         {%- endif %}
         {% if proposal.state.SCHEDULED %}
-          <li><a class="mui--text-subhead"  href="{{ proposal.session.url_for('edit') }}" data-cy="edit-session" aria-label="{% trans %}Edit session{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Edit session{% endtrans %}</span></a></li>
+          <li><a class="mui--text-subhead" href="{{ proposal.session.url_for('edit') }}" data-cy="edit-session" aria-label="{% trans %}Edit session{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Edit session{% endtrans %}</span></a></li>
           <li><a class="mui--text-subhead" href="{{ proposal.session.url_for('edit') }}#field-video_url" data-cy="edit-session-video" aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">
             {%- if proposal.session.views.video %}
               {% trans %}Replace session video{% endtrans %}

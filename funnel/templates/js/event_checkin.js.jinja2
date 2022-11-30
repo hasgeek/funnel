@@ -36,7 +36,7 @@
                 </div>
                 <input type="hidden" name="puuid_b58" value="{{ puuid_b58 }}">
                 {{#if checked_in}}
-                  <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} aria-label="{{ gettext('Cancel check-in') }}" data-cy="cancel-checkin">{{ gettext('Cancel Check-in') }}  {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
+                  <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" on-click="handleCheckIn(event, 0)" {{#submitting}}disabled{{/submitting}} aria-label="{{ gettext('Cancel check-in') }}" data-cy="cancel-checkin">{{ gettext('Cancel Check-in') }} {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
                 {{else}}
                   <button class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" on-click="handleCheckIn(event, 1)" {{#submitting}}disabled{{/submitting}} aria-label="{{ gettext('Check-in') }}" data-cy="checkin">{{ gettext('Check-in') }} {{#submitting}}<span class="loading"></span>{{/submitting}}</button>
                 {{/if}}

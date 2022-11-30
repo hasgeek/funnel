@@ -1,4 +1,4 @@
-"""Tests for Profile model."""
+"""Tests for Account (nee Profile) model."""
 
 from sqlalchemy.exc import StatementError
 
@@ -59,22 +59,22 @@ def test_user_avatar(db_session, user_twoflower, user_rincewind) -> None:
 
 @pytest.mark.filterwarnings("ignore:Object of type <UserPhone> not in session")
 def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
-    """Suspending a user will mark their profile as private."""
+    """Suspending a user will mark their account page as private."""
     # Ensure column defaults are set (Profile.state)
     db_session.commit()
 
-    # Profile cannot be public until the user has a verified phone number
+    # Account cannot be public until the user has a verified phone number
     with pytest.raises(StateTransitionError):
         user_wolfgang.profile.make_public()
 
     # Add a phone number to meet the criteria for having verified contact info
     user_wolfgang.add_phone('+12345678900')
 
-    # Make profile public and confirm
+    # Make account public and confirm
     user_wolfgang.profile.make_public()
     assert user_wolfgang.profile.state.PUBLIC
 
-    # Suspend the user. Profile can now be made private, but cannot be made public
+    # Suspend the user. Account can now be made private, but cannot be made public
     user_wolfgang.mark_suspended()
     # Commit to refresh profile.is_active column property
     db_session.commit()
@@ -84,7 +84,7 @@ def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
     assert not user_wolfgang.profile.state.PUBLIC
     assert user_wolfgang.profile.state.PRIVATE
 
-    # A suspended user's profile cannot be made public
+    # A suspended user's account cannot be made public
     with pytest.raises(StateTransitionError):
         user_wolfgang.profile.make_public()
 

@@ -34,7 +34,7 @@ def test_merge_users_newer_older(db_session, user_death, user_rincewind) -> None
 @pytest.mark.filterwarnings("ignore:Object of type <UserEmail> not in session")
 def test_getuser(  # pylint: disable=too-many-statements
     db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
-):
+) -> None:
     """Test for retrieving a user from a username, email address or phone number."""
     # Confirm fixtures are as we need them to be
     assert user_twoflower.username is None
@@ -131,7 +131,7 @@ def test_getuser(  # pylint: disable=too-many-statements
 @pytest.mark.filterwarnings("ignore:Object of type <UserEmail> not in session")
 def test_getuser_anchor(
     db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
-):
+) -> None:
     """Test for retrieving a user from a username, email address or phone number."""
     # Confirm fixtures are as we need them to be
     assert user_twoflower.username is None

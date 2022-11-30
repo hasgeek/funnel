@@ -19,7 +19,7 @@
   <div class="grid__col-xs-12">
     <div class="clickable-card card label-box label-box--new mui--z2" data-href="{{ project.url_for('new_label') }}">
       <div class="card__body mui--text-center">
-        <a class="mui--text-light" href="{{ project.url_for('new_label') }}" aria-label="{% trans %}Create new label{% endtrans %}" data-cy="add-labels" data-ga="Create new label">{{ faicon(icon='plus', icon_size='title') }}  <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span></a>
+        <a class="mui--text-light" href="{{ project.url_for('new_label') }}" aria-label="{% trans %}Create new label{% endtrans %}" data-cy="add-labels" data-ga="Create new label">{{ faicon(icon='plus', icon_size='title') }} <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span></a>
       </div>
     </div>
   </div>
@@ -47,9 +47,9 @@
           <div class="drag-box__action">
             <a class="drag-box__action-btn" href="{{ label.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='title') }}</a>
             {% if label.has_proposals %}
-              <a class="label-box__action-btn js-delete-btn" href="{{ label.url_for('archive') }}" aria-label="{% trans %}Archive{% endtrans %}" title="{{ label.title }}">{{ faicon(icon='archive', icon_size='title') }}</a>
+              <a class="label-box__action-btn" href="{{ label.url_for('archive') }}" aria-label="{% trans %}Archive{% endtrans %}" title="{{ label.title }}">{{ faicon(icon='archive', icon_size='title') }}</a>
             {% else %}
-              <a class="js-delete-btn" href="{{ label.url_for('delete') }}" aria-label="{% trans %}Delete{% endtrans %}" title="{{ label.title }}">{{ faicon(icon='trash-alt', icon_size='title') }}</a>
+              <a href="{{ label.url_for('delete') }}" aria-label="{% trans %}Delete{% endtrans %}" title="{{ label.title }}">{{ faicon(icon='trash-alt', icon_size='title') }}</a>
             {% endif %}
           </div>
         </div>
@@ -66,8 +66,5 @@
 {% endblock contentwrapper %}
 
 {% block footerscripts %}
-  {% assets "js_sortable" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
   <script src="{{ built_asset('labels.js') }}" type="text/javascript"></script>
 {% endblock footerscripts %}

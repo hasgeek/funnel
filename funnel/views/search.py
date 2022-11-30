@@ -1,4 +1,4 @@
-"""Views for site, profile and project search."""
+"""Views for site, account and project search."""
 
 from __future__ import annotations
 
@@ -75,7 +75,7 @@ class SearchProvider:
     #: Label to use in UI
     label: str
     #: Model to query against
-    model: db.Model
+    model: db.Model  # type: ignore[name-defined]
     #: Does this model have a title column?
     has_title: bool = True
 
@@ -153,10 +153,10 @@ class SearchProvider:
 
 
 class SearchInProfileProvider(SearchProvider):
-    """Base class for search providers that support searching in a profile."""
+    """Base class for search providers that support searching in an account."""
 
     def profile_query(self, squery: str, profile: Profile) -> Query:
-        """Search in a profile."""
+        """Search in an account."""
         raise NotImplementedError("Subclasses must implement profile_query")
 
     def profile_count(self, squery: str, profile: Profile) -> int:
@@ -169,7 +169,7 @@ class SearchInProfileProvider(SearchProvider):
 
 
 class SearchInProjectProvider(SearchInProfileProvider):
-    """Base class for search providers that support searching in a profile."""
+    """Base class for search providers that support searching in a project."""
 
     def project_query(self, squery: str, project: Project) -> Query:
         """Search in a project."""
@@ -206,9 +206,9 @@ class ProjectSearch(SearchInProfileProvider):
                     # Search conditions. Any of:
                     # 1. Project has search terms
                     Project.search_vector.match(squery),
-                    # 2. Project's profile (for org) has a match in the org title
+                    # 2. Project's account (for org) has a match in the org title
                     Organization.search_vector.match(squery),
-                    # 3. Project's profile (for user) has a match in the user's name
+                    # 3. Project's account (for user) has a match in the user's name
                     User.search_vector.match(squery),
                 ),
             )
@@ -266,7 +266,7 @@ class ProjectSearch(SearchInProfileProvider):
         )
 
     def profile_query(self, squery: str, profile: Profile) -> Query:
-        """Search within a profile for projects."""
+        """Search within an account for projects."""
         return (
             Project.query.filter(
                 Project.profile == profile,
@@ -309,14 +309,14 @@ class ProjectSearch(SearchInProfileProvider):
 
 
 class ProfileSearch(SearchProvider):
-    """Search for profiles."""
+    """Search for accounts."""
 
-    label = __("Profiles")
+    label = __("Accounts")
     model = Profile
 
     @property
     def title_column(self) -> ColumnElement:
-        """Return title from user or organization that the profile is attached to."""
+        """Return title from user or organization that the account is attached to."""
         return sa.case(
             [
                 (Profile.user_id.isnot(None), User.fullname),
@@ -333,7 +333,7 @@ class ProfileSearch(SearchProvider):
         )
 
     def all_query(self, squery: str) -> Query:
-        """Search for profiles."""
+        """Search for accounts."""
         return self.add_order_by(
             squery,
             Profile.query.outerjoin(User)
@@ -381,7 +381,7 @@ class SessionSearch(SearchInProjectProvider):
         )
 
     def profile_query(self, squery: str, profile: Profile) -> Query:
-        """Search for sessions within a profile."""
+        """Search for sessions within an account."""
         return self.add_order_by(
             squery,
             Session.query.join(Project, Session.project)
@@ -446,7 +446,7 @@ class ProposalSearch(SearchInProjectProvider):
         )
 
     def profile_query(self, squery: str, profile: Profile) -> Query:
-        """Search for proposals within a profile."""
+        """Search for proposals within an account."""
         return self.add_order_by(
             squery,
             Proposal.query.join(Project, Proposal.project).filter(
@@ -525,7 +525,7 @@ class UpdateSearch(SearchInProjectProvider):
         )
 
     def profile_query(self, squery: str, profile: Profile) -> Query:
-        """Search for updates within a profile."""
+        """Search for updates within an account."""
         return self.add_order_by(
             squery,
             Update.query.join(Project, Update.project).filter(
@@ -601,7 +601,7 @@ class CommentSearch(SearchInProjectProvider):
         )
 
     def profile_query(self, squery: str, profile: Profile) -> Query:
-        """Search for comments within a profile."""
+        """Search for comments within an account."""
         return (
             Comment.query.join(User, Comment.user_id == User.id)
             .join(Project, Project.commentset_id == Comment.commentset_id)
@@ -771,7 +771,7 @@ def search_counts(
             if isinstance(sp, SearchInProfileProvider)
         ]
     else:
-        # Not scoped to profile or project:
+        # Not scoped to `profile` or `project`:
         results = [
             {
                 'type': stype,
@@ -806,7 +806,7 @@ def search_results(  # pylint: disable=too-many-arguments
         query = sp.project_query(squery, project)
     elif profile is not None:
         if not isinstance(sp, SearchInProfileProvider):
-            raise TypeError(f"No profile search for {sp.label}")
+            raise TypeError(f"No account search for {sp.label}")
         query = sp.profile_query(squery, profile)
     else:
         query = sp.all_query(squery)
@@ -859,10 +859,16 @@ class SearchView(ClassView):
         if not squery:
             return render_redirect(url_for('index'), 302)
         if stype is None or stype not in search_providers:
-            return {'status': 'ok', 'type': None, 'counts': search_counts(squery)}
+            return {
+                'status': 'ok',
+                'query': q,
+                'type': None,
+                'counts': search_counts(squery),
+            }
         return {
             'status': 'ok',
             'type': stype,
+            'query': q,
             'counts': search_counts(squery),
             'results': search_results(squery, stype, page=page, per_page=per_page),
         }
@@ -879,7 +885,7 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
     @requires_roles({'reader', 'admin'})
     @requestargs(('q', abort_null), ('page', int), ('per_page', int))
     def search(self, q=None, page=1, per_page=20) -> ReturnRenderWith:
-        """Perform search within a profile."""
+        """Perform search within an account."""
         squery = get_squery(q)
         stype: Optional[str] = abort_null(
             request.args.get('type')

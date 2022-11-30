@@ -2,6 +2,8 @@
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
   {% from "forms.html.jinja2" import renderform, ajaxform, widget_ext_scripts, widgetscripts %}
   {%- from "macros.html.jinja2" import alertbox -%}
+  {% block pageheaders %}
+  {% endblock pageheaders %}
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       {% for category, message in messages %}
@@ -24,8 +26,10 @@
 
   {{ widget_ext_scripts(form) }}
 
+  {% block innerscripts %}
   <script type="text/javascript">
     activate_widgets();
     {{ widgetscripts(form, script=false, ref_id=ref_id) }}
   </script>
+  {% endblock innerscripts %}
 </div>

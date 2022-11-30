@@ -47,7 +47,10 @@ class ExplaraAPI:
                 'toRecord': to_record,
             }
             attendee_response = requests.post(
-                self.url_for('attendee-list'), headers=self.headers, data=payload
+                self.url_for('attendee-list'),
+                timeout=30,
+                headers=self.headers,
+                data=payload,
             ).json()
             if not attendee_response.get('attendee'):
                 completed = True

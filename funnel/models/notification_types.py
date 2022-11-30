@@ -56,7 +56,7 @@ role_document_subscriber = Role('document_subscriber', __("Document subscriber")
 
 
 class ProfileSubtype(UuidModelType):
-    """Model that links to a profile."""
+    """Model that links to an account (nee profile)."""
 
     profile: Mapped[Profile]
 
@@ -71,7 +71,7 @@ class NotificationDocumentProtocol(Protocol):
     """Protocol class for notifications with a linked document."""
 
     document_type: ClassVar[str]
-    document: db.Model
+    document: db.Model  # type: ignore[name-defined]
     document_uuid: UUID
 
 
@@ -82,7 +82,7 @@ class DocumentHasProject:
 
     @property
     def preference_context(self: NotificationDocumentProtocol) -> Profile:
-        """Return document's project's profile as preference context."""
+        """Return document's project's account as preference context."""
         return self.document.project.profile
 
     def hook_context_uuids(self: NotificationDocumentProtocol) -> Dict[str, UUID]:
@@ -96,13 +96,13 @@ class DocumentHasProject:
 
 
 class DocumentHasProfile:
-    """Mixin class for documents linked to a profile."""
+    """Mixin class for documents linked to an account (nee profile)."""
 
     document: ProfileSubtype
 
     @property
     def preference_context(self: NotificationDocumentProtocol) -> Profile:
-        """Return document's profile as preference context."""
+        """Return document's account as preference context."""
         return self.document.profile
 
     def hook_context_uuids(self: NotificationDocumentProtocol) -> Dict[str, UUID]:
@@ -116,10 +116,9 @@ class DocumentHasProfile:
 # --- Account notifications ------------------------------------------------------------
 
 
-class AccountPasswordNotification(Notification):
+class AccountPasswordNotification(Notification, type='user_password_set'):
     """Notification when the user's password changes."""
 
-    __mapper_args__ = {'polymorphic_identity': 'user_password_set'}
     category = notification_categories.account
     title = __("When my account password changes")
     description = __("For your safety, in case this was not authorized")
@@ -133,10 +132,11 @@ class AccountPasswordNotification(Notification):
 # --- Project participant notifications ------------------------------------------------
 
 
-class RegistrationConfirmationNotification(DocumentHasProject, Notification):
+class RegistrationConfirmationNotification(
+    DocumentHasProject, Notification, type='rsvp_yes'
+):
     """Notification confirming registration to a project."""
 
-    __mapper_args__ = {'polymorphic_identity': 'rsvp_yes'}
     category = notification_categories.participant
     title = __("When I register for a project")
     description = __("This will prompt a calendar entry in Gmail and other apps")
@@ -147,13 +147,13 @@ class RegistrationConfirmationNotification(DocumentHasProject, Notification):
     for_private_recipient = True
 
 
-class RegistrationCancellationNotification(DocumentHasProject, Notification):
+class RegistrationCancellationNotification(
+    DocumentHasProject,
+    Notification,
+    type='rsvp_no',
+    shadows=RegistrationConfirmationNotification,
+):
     """Notification confirming cancelling registration to a project."""
-
-    __mapper_args__ = {'polymorphic_identity': 'rsvp_no'}
-    category = notification_categories.participant
-    title = __("When I cancel my registration")
-    description = __("Confirmation for your records")
 
     document: Rsvp
     roles = ['owner']
@@ -162,10 +162,8 @@ class RegistrationCancellationNotification(DocumentHasProject, Notification):
     allow_web = False
 
 
-class NewUpdateNotification(DocumentHasProject, Notification):
+class NewUpdateNotification(DocumentHasProject, Notification, type='update_new'):
     """Notifications of new updates."""
-
-    __mapper_args__ = {'polymorphic_identity': 'update_new'}
 
     category = notification_categories.participant
     title = __("When a project posts an update")
@@ -182,10 +180,10 @@ class NewUpdateNotification(DocumentHasProject, Notification):
     exclude_actor = False  # Send to everyone including the actor
 
 
-class ProposalSubmittedNotification(DocumentHasProject, Notification):
-    """Notification to the proposer on a successful submission."""
-
-    __mapper_args__ = {'polymorphic_identity': 'proposal_submitted'}
+class ProposalSubmittedNotification(
+    DocumentHasProject, Notification, type='proposal_submitted'
+):
+    """Notification to the proposer on a successful proposal submission."""
 
     category = notification_categories.participant
     title = __("When I make a submission")
@@ -203,10 +201,10 @@ class ProposalSubmittedNotification(DocumentHasProject, Notification):
     default_whatsapp = False
 
 
-class ProjectStartingNotification(DocumentHasProfile, Notification):
+class ProjectStartingNotification(
+    DocumentHasProfile, Notification, type='project_starting'
+):
     """Notification of a session about to start."""
-
-    __mapper_args__ = {'polymorphic_identity': 'project_starting'}
 
     category = notification_categories.participant
     title = __("When a project I’ve registered for is about to start")
@@ -225,13 +223,11 @@ class ProjectStartingNotification(DocumentHasProfile, Notification):
 # --- Comment notifications ------------------------------------------------------------
 
 
-class NewCommentNotification(Notification):
+class NewCommentNotification(Notification, type='comment_new'):
     """Notification of new comment."""
 
-    __mapper_args__ = {'polymorphic_identity': 'comment_new'}
-
     category = notification_categories.participant
-    title = __("When there is a new comment on a project or proposal I’m in")
+    title = __("When there is a new comment on something I’m involved in")
     exclude_actor = True
 
     document: Commentset
@@ -240,13 +236,11 @@ class NewCommentNotification(Notification):
     shared_roles = {'document_subscriber': role_document_subscriber}
 
 
-class CommentReplyNotification(Notification):
-    """Notification of comment replies."""
-
-    __mapper_args__ = {'polymorphic_identity': 'comment_reply'}
+class CommentReplyNotification(Notification, type='comment_reply'):
+    """Notification of comment replies and mentions."""
 
     category = notification_categories.participant
-    title = __("When someone replies to my comment")
+    title = __("When someone replies to my comment or mentions me")
     exclude_actor = True
 
     document: Comment  # Parent comment (being replied to)
@@ -257,10 +251,11 @@ class CommentReplyNotification(Notification):
 # --- Project crew notifications -------------------------------------------------------
 
 
-class ProjectCrewMembershipNotification(DocumentHasProject, Notification):
+class ProjectCrewMembershipNotification(
+    DocumentHasProject, Notification, type='project_crew_membership_granted'
+):
     """Notification of being granted crew membership (including role changes)."""
 
-    __mapper_args__ = {'polymorphic_identity': 'project_crew_membership_granted'}
     active = False
 
     category = notification_categories.project_crew
@@ -274,14 +269,15 @@ class ProjectCrewMembershipNotification(DocumentHasProject, Notification):
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
-class ProjectCrewMembershipRevokedNotification(DocumentHasProject, Notification):
+class ProjectCrewMembershipRevokedNotification(
+    DocumentHasProject,
+    Notification,
+    type='project_crew_membership_revoked',
+    shadows=ProjectCrewMembershipNotification,
+):
     """Notification of being granted crew membership (including role changes)."""
 
-    __mapper_args__ = {'polymorphic_identity': 'project_crew_membership_revoked'}
     active = False
-
-    category = notification_categories.project_crew
-    title = __("When a project crew member is removed, including me")
 
     document: Project
     fragment: ProjectCrewMembership
@@ -290,10 +286,10 @@ class ProjectCrewMembershipRevokedNotification(DocumentHasProject, Notification)
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
-class ProposalReceivedNotification(DocumentHasProfile, Notification):
+class ProposalReceivedNotification(
+    DocumentHasProfile, Notification, type='proposal_received'
+):
     """Notification to editors of new proposals."""
-
-    __mapper_args__ = {'polymorphic_identity': 'proposal_received'}
 
     category = notification_categories.project_crew
     title = __("When my project receives a new proposal")
@@ -305,10 +301,11 @@ class ProposalReceivedNotification(DocumentHasProfile, Notification):
     exclude_actor = True  # Don't notify editor of proposal they submitted
 
 
-class RegistrationReceivedNotification(DocumentHasProfile, Notification):
+class RegistrationReceivedNotification(
+    DocumentHasProfile, Notification, type='rsvp_received'
+):
     """Notification to promoters of new registrations."""
 
-    __mapper_args__ = {'polymorphic_identity': 'rsvp_received'}
     active = False
 
     category = notification_categories.project_crew
@@ -324,14 +321,14 @@ class RegistrationReceivedNotification(DocumentHasProfile, Notification):
 # --- Organization admin notifications -------------------------------------------------
 
 
-class OrganizationAdminMembershipNotification(DocumentHasProfile, Notification):
+class OrganizationAdminMembershipNotification(
+    DocumentHasProfile, Notification, type='organization_membership_granted'
+):
     """Notification of being granted admin membership (including role changes)."""
 
-    __mapper_args__ = {'polymorphic_identity': 'organization_membership_granted'}
-
-    category = notification_categories.organization_admin
-    title = __("When organization admins change")
-    description = __("Organization admins control all projects under the organization")
+    category = notification_categories.account_admin
+    title = __("When account admins change")
+    description = __("Account admins control all projects under the account")
 
     document: Organization
     fragment: OrganizationMembership
@@ -340,13 +337,13 @@ class OrganizationAdminMembershipNotification(DocumentHasProfile, Notification):
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
-class OrganizationAdminMembershipRevokedNotification(DocumentHasProfile, Notification):
+class OrganizationAdminMembershipRevokedNotification(
+    DocumentHasProfile,
+    Notification,
+    type='organization_membership_revoked',
+    shadows=OrganizationAdminMembershipNotification,
+):
     """Notification of being granted admin membership (including role changes)."""
-
-    __mapper_args__ = {'polymorphic_identity': 'organization_membership_revoked'}
-
-    category = notification_categories.organization_admin
-    title = __("When an organization admin is removed, including me")
 
     document: Organization
     fragment: OrganizationMembership
@@ -358,10 +355,8 @@ class OrganizationAdminMembershipRevokedNotification(DocumentHasProfile, Notific
 # --- Site administrator notifications -------------------------------------------------
 
 
-class CommentReportReceivedNotification(Notification):
+class CommentReportReceivedNotification(Notification, type='comment_report_received'):
     """Notification for comment moderators when a comment is reported as spam."""
-
-    __mapper_args__ = {'polymorphic_identity': 'comment_report_received'}
 
     category = notification_categories.site_admin
     title = __("When a comment is reported as spam")

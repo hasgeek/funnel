@@ -42,7 +42,6 @@ __all__ = [
     'add_to_class',
     'add_search_trigger',
     'visual_field_delimiter',
-    'add_search_trigger',
     'valid_name',
     'valid_username',
     'quote_autocomplete_like',
@@ -402,13 +401,15 @@ def quote_autocomplete_tsquery(query: str) -> str:
         ).scalar()
 
 
-def add_search_trigger(model: db.Model, column_name: str) -> Dict[str, str]:
+def add_search_trigger(
+    model: db.Model, column_name: str  # type: ignore[name-defined]
+) -> Dict[str, str]:
     """
     Add a search trigger and returns SQL for use in migrations.
 
     Typical use::
 
-        class MyModel(db.Model):
+        class MyModel(db.Model):  # type: ignore[name-defined]
             ...
             search_vector = sa.orm.deferred(sa.Column(
                 TSVectorType(

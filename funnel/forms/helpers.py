@@ -14,7 +14,7 @@ from ..models import EmailAddress, Profile, UserEmailClaim, parse_video_url
 
 
 class ProfileSelectField(forms.AutocompleteField):
-    """Render an autocomplete field for selecting a profile."""
+    """Render an autocomplete field for selecting an account."""
 
     data: Optional[Profile]
     widget = forms.Select2Widget()
@@ -31,7 +31,7 @@ class ProfileSelectField(forms.AutocompleteField):
         """Process incoming form data."""
         if valuelist:
             self.data = Profile.query.filter(
-                # Limit to non-suspended (active) profiles. Do not require profile to
+                # Limit to non-suspended (active) accounts. Do not require account to
                 # be public as well
                 Profile.name == valuelist[0],
                 Profile.is_active,

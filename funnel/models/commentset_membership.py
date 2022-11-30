@@ -19,7 +19,10 @@ from .update import Update
 __all__ = ['CommentsetMembership']
 
 
-class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
+class CommentsetMembership(
+    ImmutableUserMembershipMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     """Membership roles for users who are commentset users and subscribers."""
 
     __tablename__ = 'commentset_membership'
@@ -39,9 +42,11 @@ class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
         }
     }
 
-    commentset_id: sa.Column[int] = immutable(
-        db.Column(
-            None, sa.ForeignKey('commentset.id', ondelete='CASCADE'), nullable=False
+    commentset_id: sa.Column[sa.Integer] = immutable(
+        sa.Column(
+            sa.Integer,
+            sa.ForeignKey('commentset.id', ondelete='CASCADE'),
+            nullable=False,
         )
     )
     commentset: sa.orm.relationship[Commentset] = immutable(
@@ -68,7 +73,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
 
     new_comment_count = sa.orm.column_property(
         sa.select(sa.func.count(Comment.id))  # type: ignore[attr-defined]
-        .where(Comment.commentset_id == commentset_id)
+        .where(Comment.commentset_id == commentset_id)  # type: ignore[has-type]
         .where(Comment.state.PUBLIC)  # type: ignore[has-type]
         .where(Comment.created_at > last_seen_at)
         .correlate_except(Comment)  # type: ignore[arg-type]

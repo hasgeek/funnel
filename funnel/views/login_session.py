@@ -530,7 +530,7 @@ def get_sudo_preference_context() -> Optional[Profile]:
         return profile
     sudo_context = session.get('sudo_context', {})
     if sudo_context.get('type') != 'profile':
-        # Only Profile context is supported at this time
+        # Only account (nee profile) context is supported at this time
         return None
     return Profile.query.filter_by(uuid_b64=sudo_context['uuid_b64']).one_or_none()
 

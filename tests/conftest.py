@@ -99,7 +99,7 @@ def funnel_devtest(funnel):
 
 
 @pytest.fixture(scope='session')
-def response_with_forms():
+def response_with_forms() -> t.Any:  # Since the actual return type is defined within
     from flask.wrappers import Response
 
     from lxml.html import FormElement, HtmlElement, fromstring  # nosec
@@ -153,7 +153,7 @@ def response_with_forms():
                 # add click method to all links
                 def _click(
                     self, client, **kwargs
-                ):  # pylint: disable=redefined-outer-name
+                ) -> None:  # pylint: disable=redefined-outer-name
                     # `self` is the `a` element here
                     path = self.attrib['href']
                     return client.get(path, **kwargs)
@@ -164,7 +164,7 @@ def response_with_forms():
                 # add submit method to all forms
                 def _submit(
                     self, client, path=None, **kwargs
-                ):  # pylint: disable=redefined-outer-name
+                ) -> None:  # pylint: disable=redefined-outer-name
                     # `self` is the `form` element here
                     data = dict(self.form_values())
                     if 'data' in kwargs:
@@ -234,6 +234,14 @@ def response_with_forms():
 
 
 @pytest.fixture(scope='session')
+def rich_console():
+    """Provide a rich console for color output."""
+    from rich.console import Console
+
+    return Console()
+
+
+@pytest.fixture(scope='session')
 def colorama() -> t.Iterator[SimpleNamespace]:
     """Provide the colorama print colorizer."""
     from colorama import Back, Fore, Style, deinit, init
@@ -244,7 +252,46 @@ def colorama() -> t.Iterator[SimpleNamespace]:
 
 
 @pytest.fixture(scope='session')
-def print_stack(pytestconfig, colorama) -> t.Callable[[int, int], None]:
+def colorize_code(rich_console) -> t.Callable[[str, t.Optional[str]], str]:
+    """Return colorized output for a string of code, for current terminal's colors."""
+
+    def no_colorize(code_string: str, lang: t.Optional[str] = 'python') -> str:
+        # Pygments is not available or terminal does not support colour output
+        return code_string
+
+    try:
+        from pygments import highlight
+        from pygments.formatters import (
+            Terminal256Formatter,
+            TerminalFormatter,
+            TerminalTrueColorFormatter,
+        )
+        from pygments.lexers import get_lexer_by_name, guess_lexer
+    except ImportError:
+        return no_colorize
+
+    if rich_console.color_system == 'truecolor':
+        formatter = TerminalTrueColorFormatter()
+    elif rich_console.color_system == '256':
+        formatter = Terminal256Formatter()
+    elif rich_console.color_system == 'standard':
+        formatter = TerminalFormatter()
+    else:
+        # color_system is `None` or `'windows'` or something unrecognised. No colours.
+        return no_colorize
+
+    def colorize(code_string: str, lang: t.Optional[str] = 'python') -> str:
+        if lang in (None, 'auto'):
+            lexer = guess_lexer(code_string)
+        else:
+            lexer = get_lexer_by_name(lang)
+        return highlight(code_string, lexer, formatter).rstrip()
+
+    return colorize
+
+
+@pytest.fixture(scope='session')
+def print_stack(pytestconfig, colorama, colorize_code) -> t.Callable[[int, int], None]:
     """Print a stack trace up to an outbound call from within this repository."""
     from inspect import stack as inspect_stack
     import os.path
@@ -279,13 +326,11 @@ def print_stack(pytestconfig, colorama) -> t.Callable[[int, int], None]:
                 if fi.filename.startswith(boundary_path)
                 else colorama.Fore.GREEN
             )
-            code_line = (
-                fi.code_context[fi.index or 0].strip() if fi.code_context else ''
-            )
+            code_line = '\n'.join(fi.code_context or []).strip()
             lines.append(
                 f'{prefix}{line_color}'
                 f'{os.path.relpath(fi.filename)}:{fi.lineno}::{fi.function}'
-                f'\t{code_line}'
+                f'\t{colorize_code(code_line)}'
                 f'{colorama.Style.RESET_ALL}'
             )
         del stack
@@ -398,22 +443,24 @@ def _app_events(colorama, print_stack, app) -> t.Iterator:
 
 
 @pytest.fixture()
-def _database_events(models, colorama, print_stack) -> t.Iterator:
+def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator:
     """
     Fixture to report database session events for debugging a test.
 
     If a test is exhibiting unusual behaviour, add this fixture to trace db events::
 
         @pytest.mark.usefixtures('_database_events')
-        def test_whatever():
+        def test_whatever() -> None:
             ...
     """
+    from pprint import saferepr
+
     from sqlalchemy import event, inspect
     from sqlalchemy.orm import Session as DatabaseSessionClass
 
     def safe_repr(entity):
         try:
-            return repr(entity)
+            return saferepr(entity)
         except Exception:  # noqa: B902  # pylint: disable=broad-except
             if hasattr(entity, '__class__'):
                 return f'{entity.__class__.__qualname__}(class-repr-error)'
@@ -426,30 +473,30 @@ def _database_events(models, colorama, print_stack) -> t.Iterator:
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
         rparams = f'{rargs, rkwargs}' if rargs else rkwargs
+        code = colorize_code(f"{obj.__class__.__qualname__}({rparams})")
         print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: new:{colorama.Style.NORMAL}"
-            f" {obj.__class__.__qualname__}({rparams})"
+            f"{colorama.Style.BRIGHT}obj: new:{colorama.Style.NORMAL}" f" {code}"
         )
 
     @event.listens_for(DatabaseSessionClass, 'transient_to_pending')
     def event_transient_to_pending(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: transient to pending:{colorama.Style.NORMAL}"
-            f" {safe_repr(obj)}"
+            f" {colorize_code(safe_repr(obj))}"
         )
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_transient')
     def event_pending_to_transient(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: pending to transient:{colorama.Style.NORMAL}"
-            f" {safe_repr(obj)}"
+            f" {colorize_code(safe_repr(obj))}"
         )
 
     @event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
     def event_pending_to_persistent(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: pending to persistent:{colorama.Style.NORMAL}"
-            f" {safe_repr(obj)}"
+            f" {colorize_code(safe_repr(obj))}"
         )
 
     @event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
@@ -696,25 +743,25 @@ class RemoveIsRollback:
         self.owning_thread = threading.current_thread()
 
     def __enter__(self):
+        pass
         # pylint: disable=unnecessary-lambda
-
         # If called in the owning thread (which is typical), deflect
         # ``session.remove()`` to ``session.rollback()``. If called in a sub-thread
-        # (Flask-Executor), do nothing because there is no session to rollback, but
-        # letting it be removed will close the main thread's session (!). This may be a
-        # bug. # TODO
-        self.session.remove = lambda *args, **kwargs: (
-            self.rollback_provider()(*args, **kwargs)
-            if threading.current_thread() == self.owning_thread
-            else None
-        )
+        # (Flask-Executor), remove the session.
+        # self.session.remove = lambda *args, **kwargs: (
+        #     self.rollback_provider()(*args, **kwargs)
+        #     if threading.current_thread() == self.owning_thread
+        #     else self.original_remove(*args, **kwargs)
+        # )
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.session.remove = self.original_remove
 
 
 @pytest.fixture()
-def db_session_truncate(funnel, app, database) -> t.Iterator[DatabaseSessionClass]:
+def db_session_truncate(
+    funnel, app, database, app_context
+) -> t.Iterator[DatabaseSessionClass]:
     """Empty the database after each use of the fixture."""
     from sqlalchemy.orm import close_all_sessions
 
@@ -723,38 +770,38 @@ def db_session_truncate(funnel, app, database) -> t.Iterator[DatabaseSessionClas
     close_all_sessions()
 
     # Iterate through all database engines and empty their tables
-    for bind in [None] + list(app.config.get('SQLALCHEMY_BINDS') or ()):
-        engine = database.get_engine(app=app, bind=bind)
-        with engine.begin() as connection:
-            connection.execute(
+    with app.app_context():
+        for bind in [None] + list(app.config.get('SQLALCHEMY_BINDS') or ()):
+            engine = database.engines[bind]
+            with engine.begin() as connection:
+                connection.execute(
+                    '''
+                    DO $$
+                    DECLARE tablenames text;
+                    BEGIN
+                        tablenames := string_agg(
+                            quote_ident(schemaname) || '.' || quote_ident(tablename),
+                            ', ')
+                            FROM pg_tables WHERE schemaname = 'public';
+                        EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
+                    END; $$
                 '''
-                DO $$
-                DECLARE tablenames text;
-                BEGIN
-                    tablenames := string_agg(
-                        quote_ident(schemaname) || '.' || quote_ident(tablename),
-                        ', ')
-                        FROM pg_tables WHERE schemaname = 'public';
-                    EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
-                END; $$
-            '''
-            )
+                )
 
     # Clear Redis db too
     funnel.redis_store.flushdb()
 
 
 @pytest.fixture()
-def db_session_rollback(funnel, database) -> t.Iterator[DatabaseSessionClass]:
+def db_session_rollback(
+    funnel, database, app_context
+) -> t.Iterator[DatabaseSessionClass]:
     """Create a nested transaction for the test and rollback after."""
     from sqlalchemy import event
 
     db_connection = database.engine.connect()
     original_session = database.session
     transaction = db_connection.begin()
-    database.session = database.create_scoped_session(
-        options={'bind': db_connection, 'binds': {}}
-    )
     database.session.info['fixture'] = True
 
     # For handling tests that actually call `session.rollback()`, we use a SQL savepoint
@@ -787,6 +834,7 @@ def db_session_rollback(funnel, database) -> t.Iterator[DatabaseSessionClass]:
         yield database.session
 
     event.remove(database.session, 'after_transaction_end', restart_savepoint)
+    database.session.info.pop('fixture', None)
     database.session.close()
     transaction.rollback()
     db_connection.close()
@@ -794,6 +842,12 @@ def db_session_rollback(funnel, database) -> t.Iterator[DatabaseSessionClass]:
 
     # Clear Redis db too
     funnel.redis_store.flushdb()
+
+
+db_session_implementations = {
+    'rollback': 'db_session_rollback',
+    'truncate': 'db_session_truncate',
+}
 
 
 @pytest.fixture()
@@ -806,17 +860,26 @@ def db_session(request) -> DatabaseSessionClass:
 
     * ``db_session_truncate``: Which allows unmediated database access but empties table
       contents after each use
-    * ``db_session_savepoint``: Which nests the session in a SAVEPOINT and rolls back
+    * ``db_session_rollback``: Which nests the session in a SAVEPOINT and rolls back
       after each use
 
-    This version of the fixture uses the --dbsession command-line option to choose the
-    base fixture.
+    The rollback approach is significantly faster, but not compatible with tests that
+    span multiple app contexts or require special session behaviour. The ``db_session``
+    fixture will default to the rollback approach, but can be told to use truncate
+    instead:
+
+    * The ``--dbsession`` command-line option defaults to ``rollback`` but can be set to
+      ``truncate``, changing it for the entire pytest session
+    * An individual test can be decorated with ``@pytest.mark.dbcommit()``
+    * A test module or package can override the ``db_session`` fixture to return one of
+      the underlying fixtures, thereby overriding both of the above behaviours
     """
     return request.getfixturevalue(
-        {
-            'rollback': 'db_session_rollback',
-            'truncate': 'db_session_truncate',
-        }[request.config.getoption('--dbsession')]
+        db_session_implementations[
+            'truncate'
+            if request.node.get_closest_marker('dbcommit')
+            else request.config.getoption('--dbsession')
+        ]
     )
 
 
@@ -965,7 +1028,7 @@ def live_server(funnel_devtest, database, app):
 
 
 @pytest.fixture()
-def csrf_token(client):
+def csrf_token(client) -> str:
     """Supply a CSRF token for use in form submissions."""
     return client.get('/api/baseframe/1/csrf/refresh').get_data(as_text=True)
 
@@ -974,7 +1037,7 @@ def csrf_token(client):
 def login(app, client, db_session) -> SimpleNamespace:
     """Provide a login fixture."""
 
-    def as_(user):
+    def as_(user) -> None:
         db_session.commit()
         with client.session_transaction() as session:
             # TODO: This depends on obsolete code in views/login_session that replaces
@@ -984,7 +1047,7 @@ def login(app, client, db_session) -> SimpleNamespace:
         # Perform a request to convert the session userid into a UserSession
         client.get('/api/1/user/get')
 
-    def logout():
+    def logout() -> None:
         # TODO: Test this
         client.delete_cookie(
             client.server_name, 'lastuser', domain=app.config['LASTUSER_COOKIE_DOMAIN']
@@ -1401,7 +1464,7 @@ def client_hex(models, db_session, org_uu) -> funnel_models.Project:
 
     Owned by UU (owner) and administered by Ponder Stibbons (no corresponding role).
     """
-    # TODO: AuthClient needs to move to profile as parent
+    # TODO: AuthClient needs to move to account (nee profile) as the parent model
     auth_client = models.AuthClient(
         title="Hex",
         organization=org_uu,
@@ -1480,7 +1543,7 @@ TEST_DATA = {
 
 
 @pytest.fixture()
-def new_user(models, db_session):
+def new_user(models, db_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['testuser'])
     db_session.add(user)
     db_session.commit()
@@ -1488,7 +1551,7 @@ def new_user(models, db_session):
 
 
 @pytest.fixture()
-def new_user2(models, db_session):
+def new_user2(models, db_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['testuser2'])
     db_session.add(user)
     db_session.commit()
@@ -1496,7 +1559,7 @@ def new_user2(models, db_session):
 
 
 @pytest.fixture()
-def new_user_owner(models, db_session):
+def new_user_owner(models, db_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['test-org-owner'])
     db_session.add(user)
     db_session.commit()
@@ -1504,7 +1567,7 @@ def new_user_owner(models, db_session):
 
 
 @pytest.fixture()
-def new_user_admin(models, db_session):
+def new_user_admin(models, db_session) -> funnel_models.User:
     user = models.User(**TEST_DATA['users']['test-org-admin'])
     db_session.add(user)
     db_session.commit()
@@ -1512,7 +1575,9 @@ def new_user_admin(models, db_session):
 
 
 @pytest.fixture()
-def new_organization(models, db_session, new_user_owner, new_user_admin):
+def new_organization(
+    models, db_session, new_user_owner, new_user_admin
+) -> funnel_models.Organization:
     org = models.Organization(owner=new_user_owner, title="Test org", name='test-org')
     db_session.add(org)
 
@@ -1525,7 +1590,7 @@ def new_organization(models, db_session, new_user_owner, new_user_admin):
 
 
 @pytest.fixture()
-def new_team(models, db_session, new_user, new_organization):
+def new_team(models, db_session, new_user, new_organization) -> funnel_models.Team:
     team = models.Team(title="Owners", organization=new_organization)
     db_session.add(team)
     team.users.append(new_user)
@@ -1534,7 +1599,9 @@ def new_team(models, db_session, new_user, new_organization):
 
 
 @pytest.fixture()
-def new_project(models, db_session, new_organization, new_user):
+def new_project(
+    models, db_session, new_organization, new_user
+) -> funnel_models.Project:
     project = models.Project(
         profile=new_organization.profile,
         user=new_user,
@@ -1549,7 +1616,9 @@ def new_project(models, db_session, new_organization, new_user):
 
 
 @pytest.fixture()
-def new_project2(models, db_session, new_organization, new_user_owner):
+def new_project2(
+    models, db_session, new_organization, new_user_owner
+) -> funnel_models.Project:
     project = models.Project(
         profile=new_organization.profile,
         user=new_user_owner,
@@ -1564,7 +1633,7 @@ def new_project2(models, db_session, new_organization, new_user_owner):
 
 
 @pytest.fixture()
-def new_main_label(models, db_session, new_project):
+def new_main_label(models, db_session, new_project) -> funnel_models.Label:
     main_label_a = models.Label(
         title="Parent Label A", project=new_project, description="A test parent label"
     )
@@ -1582,7 +1651,7 @@ def new_main_label(models, db_session, new_project):
 
 
 @pytest.fixture()
-def new_main_label_unrestricted(models, db_session, new_project):
+def new_main_label_unrestricted(models, db_session, new_project) -> funnel_models.Label:
     main_label_b = models.Label(
         title="Parent Label B", project=new_project, description="A test parent label"
     )
@@ -1600,7 +1669,7 @@ def new_main_label_unrestricted(models, db_session, new_project):
 
 
 @pytest.fixture()
-def new_label(models, db_session, new_project):
+def new_label(models, db_session, new_project) -> funnel_models.Label:
     label_b = models.Label(title="Label B", icon_emoji="🔟", project=new_project)
     new_project.all_labels.append(label_b)
     db_session.add(label_b)
@@ -1609,7 +1678,7 @@ def new_label(models, db_session, new_project):
 
 
 @pytest.fixture()
-def new_proposal(models, db_session, new_user, new_project):
+def new_proposal(models, db_session, new_user, new_project) -> funnel_models.Proposal:
     proposal = models.Proposal(
         user=new_user,
         project=new_project,

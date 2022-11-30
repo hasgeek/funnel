@@ -41,6 +41,15 @@ class ProjectBoxofficeForm(forms.Form):
         validators=[forms.validators.AllowedIf('org')],
         filters=[forms.filters.strip()],
     )
+    ticket_title = forms.StringField(
+        __("Ticket widget title"),
+        filters=[forms.filters.strip()],
+    )
+    allow_rsvp = forms.BooleanField(
+        __("Allow rsvp"),
+        default=False,
+        description=__("If checked, both free and buy tickets will shown on project"),
+    )
 
 
 @TicketEvent.forms('main')

@@ -20,7 +20,7 @@ def test_comment_report_same(
     new_user_owner,
     new_project,
     csrf_token,
-):
+) -> None:
 
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
@@ -97,7 +97,7 @@ def test_comment_report_opposing(
     new_user_owner,
     new_project,
     csrf_token,
-):
+) -> None:
 
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
@@ -174,7 +174,7 @@ def test_comment_report_majority_spam(
     new_user_owner,
     new_project,
     csrf_token,
-):
+) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
         user=new_user, is_comment_moderator=True, granted_by=new_user
@@ -263,7 +263,7 @@ def test_comment_report_majority_ok(
     new_user_owner,
     new_project,
     csrf_token,
-):
+) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
         user=new_user, is_comment_moderator=True, granted_by=new_user

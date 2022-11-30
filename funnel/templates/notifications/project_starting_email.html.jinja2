@@ -1,10 +1,9 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
-{%- from "macros.html.jinja2" import project_title -%}
 {%- from "notifications/macros_email.html.jinja2" import pinned_update -%}
 {%- block content -%}
 
 <p>
-  {%- trans project=project_title(view.project), start_time=view.session.start_at_localized|time -%}
+  {%- trans project=view.project.joined_title, start_time=view.session.start_at_localized|time -%}
     <b>{{ project }}</b> starts at {{ start_time }}
   {%- endtrans -%}
 </p>

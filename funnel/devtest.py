@@ -18,6 +18,7 @@ from flask import Flask
 from . import app as main_app
 from . import shortlinkapp
 from .models import db
+from .typing import ReturnView
 
 __all__ = ['AppByHostWsgi', 'BackgroundWorker', 'devtest_app']
 
@@ -36,7 +37,7 @@ info_app = Flask(__name__)
 
 @info_app.route('/', endpoint='index')
 @info_app.route('/<path:_ignore_path>')
-def info_index(_ignore_path: str = ''):
+def info_index(_ignore_path: str = '') -> ReturnView:
     """Info app provides a guide to access the server."""
     info = "Add the following entries to /etc/hosts to access:\n\n"
     max_host_len = max(len(host) for host in devtest_app.apps_by_host.keys())
@@ -91,7 +92,7 @@ class AppByHostWsgi:
         # If no host matched, use the info app
         return info_app
 
-    def __call__(self, environ, start_response):
+    def __call__(self, environ, start_response) -> Iterable[bytes]:
         use_app = self.get_app(environ['HTTP_HOST'])
         return use_app(environ, start_response)
 
@@ -159,12 +160,12 @@ class BackgroundWorker:
         if self._process is not None:
             return
 
-        engines = {
-            db.get_engine(app, bind)
-            # TODO: Add hasjobapp here
-            for app in (main_app, shortlinkapp)
-            for bind in ([None] + list(app.config.get('SQLALCHEMY_BINDS') or ()))
-        }
+        engines = set()
+        for app in main_app, shortlinkapp:  # TODO: Add hasjobapp here
+            with app.app_context():
+                engines.add(db.engines[None])
+                for bind in app.config.get('SQLALCHEMY_BINDS') or ():
+                    engines.add(db.engines[bind])
         self._process = multiprocessing.Process(
             target=_dispose_engines_in_child_process,
             args=(engines, self.worker, self.worker_args, self.worker_kwargs),

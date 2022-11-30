@@ -34,10 +34,10 @@ class RSVP_STATUS(LabeledEnum):  # noqa: N801
     # USER_CHOICES = {YES, NO, MAYBE}
 
 
-class Rsvp(UuidMixin, NoIdMixin, db.Model):
+class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'rsvp'
-    project_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('project.id'), nullable=False, primary_key=True
+    project_id = sa.Column(
+        sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
     )
     project = with_roles(
         sa.orm.relationship(
@@ -46,8 +46,8 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
     )
-    user_id: sa.Column[int] = db.Column(
-        None, sa.ForeignKey('user.id'), nullable=False, primary_key=True
+    user_id = sa.Column(
+        sa.Integer, sa.ForeignKey('user.id'), nullable=False, primary_key=True
     )
     user = with_roles(
         sa.orm.relationship(
