@@ -2,27 +2,30 @@ import { EditorView, placeholder, keymap } from '@codemirror/view';
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
 import { html } from '@codemirror/lang-html';
 import { closeBrackets } from '@codemirror/autocomplete';
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
-import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
+import {
+  defaultKeymap,
+  history,
+  historyKeymap,
+  foldKeymap,
+} from '@codemirror/commands';
+import { syntaxHighlighting, HighlightStyle, foldGutter } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
 
 function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 1000) {
   let textareaWaitTimer;
 
   const markdownHighlighting = HighlightStyle.define([
-    { tag: tags.heading1, fontWeight: 'bold' },
-    { tag: tags.heading2, fontWeight: 'bold' },
-    { tag: tags.heading3, fontWeight: 'bold' },
-    { tag: tags.heading4, fontWeight: 'bold' },
-    { tag: tags.heading5, fontWeight: 'bold' },
-    { tag: tags.list },
-    { tag: tags.link },
-    { tag: tags.quote },
-    { tag: tags.comment },
-    { tag: tags.emphasis },
-    { tag: tags.strong },
-    { tag: tags.monospace },
-    { tag: tags.strikethrough },
+    { tag: tags.heading1, fontWeight: 'bold', class: 'cm-heading1' },
+    { tag: tags.heading2, fontWeight: 'bold', class: 'cm-heading2' },
+    { tag: tags.heading3, fontWeight: 'bold', class: 'cm-heading3' },
+    { tag: tags.heading4, fontWeight: 'bold', class: 'cm-heading4' },
+    { tag: tags.heading5, fontWeight: 'bold', class: 'cm-heading5' },
+    { tag: tags.list, class: 'cm-list' },
+    { tag: tags.link, class: 'cm-link' },
+    { tag: tags.monospace, class: 'cm-code' },
+    { tag: tags.emphasis, fontWeight: 'bold', class: 'cm-emphasis' },
+    { tag: tags.strong, fontWeight: 'bold', class: 'cm-strong' },
+    { tag: tags.strikethrough, class: 'cm-strikethrough' },
   ]);
 
   const extensions = [
@@ -30,8 +33,9 @@ function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 
     placeholder('Content'),
     closeBrackets(),
     history(),
+    foldGutter(),
     syntaxHighlighting(markdownHighlighting),
-    keymap.of([defaultKeymap, markdownKeymap, historyKeymap]),
+    keymap.of([defaultKeymap, markdownKeymap, historyKeymap, foldKeymap]),
     markdown({ base: markdownLanguage }),
     html(),
   ];
