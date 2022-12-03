@@ -7,6 +7,7 @@ import Spa from './utils/spahelper';
 import Utils from './utils/helper';
 import MarkmapEmbed from './utils/markmap';
 import MermaidEmbed from './utils/mermaid';
+import PrismEmbed from './utils/prism';
 
 const Schedule = {
   renderScheduleTable() {
@@ -150,6 +151,7 @@ const Schedule = {
                 Utils.enableWebShare();
                 MarkmapEmbed.init();
                 MermaidEmbed.init();
+                PrismEmbed.init();
                 observer.disconnect();
               }
             });
