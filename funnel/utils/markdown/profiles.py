@@ -7,7 +7,7 @@ from typing_extensions import NotRequired
 
 from coaster.utils import make_name
 
-from .mdit_plugins import (
+from .mdit_plugins import (  # toc_plugin,
     del_plugin,
     embeds_plugin,
     ins_plugin,
@@ -30,6 +30,7 @@ plugins: Dict[str, Callable] = {
     'markmap': embeds_plugin,
     'vega-lite': embeds_plugin,
     'mermaid': embeds_plugin,
+    # 'toc': toc_plugin,
 }
 
 plugin_configs: Dict[str, Dict[str, Any]] = {
@@ -91,6 +92,7 @@ class MarkdownProfileDocument(MarkdownProfile):
         'markmap',
         'vega-lite',
         'mermaid',
+        # 'toc',
     ]
     post_config: PostConfig = {'enable': ['smartquotes']}
 
