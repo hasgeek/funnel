@@ -14,7 +14,7 @@ describe('Profile', () => {
     cy.get('#name').type(sponsor.name);
     cy.get('button[data-cy="form-submit-btn"]').click();
     cy.get('#field-description')
-      .find('.CodeMirror textarea')
+      .find('.cm-editor .cm-line')
       .type('sponsor profile', { force: true });
     cy.get('button[data-cy="form-submit-btn"]').click();
 

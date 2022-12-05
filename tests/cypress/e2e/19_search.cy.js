@@ -14,7 +14,7 @@ describe('Test search feature', () => {
     cy.get('.tab-content__results').find('.card').contains(project.title);
 
     cy.get('input[name="q"]').clear().type(profile.title).type('{enter}');
-    cy.get('.tabs__item').contains('Profiles').click();
+    cy.get('.tabs__item').contains('Accounts').click();
     cy.wait('@search');
     cy.get('.tab-content__results').find('.card').contains(profile.title);
 
