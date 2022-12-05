@@ -82,7 +82,7 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
     });
   }
 
-  $('textarea.markdown:not([style*="display: none"]').each(function () {
+  $('textarea.markdown:not([style*="display: none"]').each(function enableCodemirror() {
     const markdownId = $(this).attr('id');
     codemirrorHelper(markdownId);
   });

@@ -1,0 +1,97 @@
+.mui-form {
+  .cm-editor {
+    border: none;
+    border-bottom: 1px solid $mui-text-accent;
+    box-shadow: none;
+    border-radius: 0;
+    height: auto;
+    outline: none;
+
+    .cm-scroller {
+      font-size: $mui-input-font-size;
+      font-family: inherit;
+      line-height: inherit;
+      color: inherit;
+      min-height: 6em;
+      background: $mui-bg-color-primary;
+      .cm-placeholder {
+        color: $mui-text-accent;
+        @extend .mui--text-subhead;
+        font-family: inherit;
+      }
+      .cm-gutters {
+        background: inherit;
+        border: none;
+      }
+      .cm-heading1 {
+        @extend .mui--text-headline;
+      }
+      .cm-heading2 {
+        @extend .mui--text-heading;
+      }
+      .cm-heading3 {
+        @extend .mui--text-title;
+      }
+      .cm-heading4 {
+        @extend .mui--text-subhead;
+      }
+      .cm-heading5 {
+        @extend .mui--text-body2;
+      }
+      .cm-heading1, .cm-heading2,
+      .cm-heading3, .cm-heading4,
+      .cm-heading5 {
+        margin-top: 8px;
+        margin-bottom: 14px;
+        font-weight: 700;
+        display: inline-block;
+      }
+      .cm-list {
+        padding-left: $mui-grid-padding;
+      }
+      .cm-link {
+        color: $mui-text-hyperlink;
+      }
+      .cm-strikethrough {
+        text-decoration: line-through;
+      }
+      .cm-emphasis, .cm-strong {
+        font-weight: 700;
+      }
+      .cm-code {
+        font-family: monospace, monospace;
+        font-size: $mui-base-font-size;
+        line-height: $mui-base-line-height;
+      }
+    }
+  }
+  .cm-editor.cm-focused {
+    border-color: $mui-primary-color;
+    outline: none !important;
+  }
+  .mui-textfield > .cm-editor {
+    border-bottom: none;
+    outline: none;
+  }
+}
+
+form.mui--bg-accent .cm-editor {
+  background: $mui-bg-color-accent;
+}
+
+@media(min-width: 768px) {
+  .mui-form {
+    .cm-editor {
+      .cm-scroller {
+        margin-left: - $mui-grid-padding;
+      }
+    }
+  }
+  .modal .mui-form {
+    .cm-editor {
+      .cm-scroller {
+        margin-left: 0;
+      }
+    }
+  }
+}

@@ -340,12 +340,6 @@ const Comments = {
 
 $(() => {
   window.Hasgeek.Comments = function initComments(config) {
-    $.ajax({
-      url: config.codemirrorUrl,
-      dataType: 'script',
-      cache: true,
-    }).done(() => {
-      Comments.init(config);
-    });
+    Comments.init(config);
   };
 });
