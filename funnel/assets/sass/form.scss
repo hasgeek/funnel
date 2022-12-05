@@ -160,8 +160,12 @@
       font-family: inherit;
       line-height: inherit;
       color: inherit;
-      min-height: 6em !important;
+      min-height: 6em;
       background: $mui-bg-color-primary;
+      .cm-gutters {
+        background: inherit;
+        border: none;
+      }
       .cm-heading1 {
         @extend .mui--text-headline;
       }
@@ -203,12 +207,22 @@
         line-height: $mui-base-line-height;
       }
     }
-
-    &.cm-focused {
-      border-color: $mui-primary-color;
-    }
+  }
+  .cm-editor.cm-focused {
+    border-color: $mui-primary-color;
+    outline: none !important;
   }
 
+}
+
+@media(min-width: 789px) {
+  .mui-form {
+    .cm-editor {
+      .cm-scroller {
+        margin-left: - $mui-grid-padding;
+      }
+    }
+  }
 }
 
 .mui-form {

@@ -2,12 +2,7 @@ import { EditorView, placeholder, keymap } from '@codemirror/view';
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
 import { html } from '@codemirror/lang-html';
 import { closeBrackets } from '@codemirror/autocomplete';
-import {
-  defaultKeymap,
-  history,
-  historyKeymap,
-  foldKeymap,
-} from '@codemirror/commands';
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { syntaxHighlighting, HighlightStyle, foldGutter } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
 
@@ -35,7 +30,7 @@ function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 
     history(),
     foldGutter(),
     syntaxHighlighting(markdownHighlighting),
-    keymap.of([defaultKeymap, markdownKeymap, historyKeymap, foldKeymap]),
+    keymap.of([defaultKeymap, markdownKeymap, historyKeymap]),
     markdown({ base: markdownLanguage }),
     html(),
   ];
@@ -55,6 +50,7 @@ function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 
     },
   });
   document.querySelector(`#${markdownId}`).parentNode.append(view.dom);
+  return view;
 }
 
 export default codemirrorHelper;

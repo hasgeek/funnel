@@ -180,11 +180,12 @@ const Comments = {
               }
             };
             this.$nextTick(() => {
-              codemirrorHelper(
+              const editorView = codemirrorHelper(
                 textareaId,
                 copyTextAreaContent,
                 window.Hasgeek.Config.saveEditorContentTimeout
               );
+              editorView.focus();
             });
           }
           this.pauseRefreshComments();
