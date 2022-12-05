@@ -121,7 +121,9 @@ def schedule_data(
     return schedule
 
 
-def schedule_ical(project: Project, rsvp: Optional[Rsvp] = None):
+def schedule_ical(
+    project: Project, rsvp: Optional[Rsvp] = None, future_only: bool = False
+):
     cal = Calendar()
     cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
     cal.add('version', '2.0')
@@ -134,8 +136,10 @@ def schedule_ical(project: Project, rsvp: Optional[Rsvp] = None):
     cal.add('x-wr-timezone', project.timezone.zone)
     cal.add('refresh-interval;value=duration', 'PT12H')
     cal.add('x-published-ttl', 'PT12H')
+    now = utcnow()
     for session in project.scheduled_sessions:
-        cal.add_component(session_ical(session, rsvp))
+        if not future_only or session.end_at > now:
+            cal.add_component(session_ical(session, rsvp))
     if not project.scheduled_sessions and project.start_at:
         cal.add_component(
             # project_as_session does NOT return a Session instance, but since we are

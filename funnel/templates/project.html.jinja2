@@ -193,6 +193,7 @@
           longitude: {{ project.primary_venue.longitude|tojson }}
         };
       {%- endif %}
+      projectConfig.markdownElem = '#about .markdown';
 
       window.Hasgeek.projectInit(projectConfig);
     });

@@ -1,8 +1,5 @@
 import L from 'leaflet';
-import TypeformEmbed from './utils/typeform_embed';
-import MarkmapEmbed from './utils/markmap';
-import MermaidEmbed from './utils/mermaid';
-import PrismEmbed from './utils/prism';
+import initEmbed from './utils/initembed';
 
 const EmbedMap = {
   init({ mapId, latitude, longitude }) {
@@ -48,14 +45,11 @@ const EmbedMap = {
   },
 };
 $(() => {
-  window.Hasgeek.projectInit = ({ venue = '' }) => {
+  window.Hasgeek.projectInit = ({ venue = '', markdownElem = '' }) => {
     if (venue) {
       EmbedMap.init(venue);
     }
     // Include parent container
-    TypeformEmbed.init('#about .markdown');
-    MarkmapEmbed.init();
-    MermaidEmbed.init();
-    PrismEmbed.init();
+    initEmbed(markdownElem);
   };
 });
