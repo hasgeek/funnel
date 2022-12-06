@@ -3,7 +3,12 @@ import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-mar
 import { html } from '@codemirror/lang-html';
 import { closeBrackets } from '@codemirror/autocomplete';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
-import { syntaxHighlighting, HighlightStyle, foldGutter } from '@codemirror/language';
+import {
+  syntaxHighlighting,
+  defaultHighlightStyle,
+  HighlightStyle,
+  foldGutter,
+} from '@codemirror/language';
 import { tags } from '@lezer/highlight';
 
 function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 1000) {
@@ -30,6 +35,7 @@ function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 
     history(),
     foldGutter(),
     syntaxHighlighting(markdownHighlighting),
+    syntaxHighlighting(defaultHighlightStyle),
     keymap.of([defaultKeymap, markdownKeymap, historyKeymap]),
     markdown({ base: markdownLanguage }),
     html(),

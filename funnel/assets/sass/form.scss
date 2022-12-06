@@ -590,14 +590,14 @@
       top: -14px;
     }
   }
-  #field-body .cm-editor .cm-scroller {
-    min-height: calc(100vh - 110px) !important;
-  }
-  #field-body .cm-editor .cm-scroller .cm-gutters {
-    height: calc(100vh - 110px);
-  }
   .markdown-field {
     position: relative;
+    .cm-editor {
+      border-bottom: none !important;
+      .cm-scroller {
+        min-height: calc(100vh - 110px) !important;
+      }
+    }
     .mui-form__error {
       position: absolute;
       top: 100px;
