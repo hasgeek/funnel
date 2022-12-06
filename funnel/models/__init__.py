@@ -21,6 +21,7 @@ from coaster.sqlalchemy import (
     JsonDict,
     MarkdownColumn,
     NoIdMixin,
+    RegistryMixin,
     RoleMixin,
     TimestampMixin,
     UrlType,

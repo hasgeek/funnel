@@ -31,6 +31,7 @@ __all__ = ['RenderNotification', 'dispatch_notification']
 
 
 @UserNotification.views('render', cached_property=True)
+# @NotificationFor.views('render', cached_property=True)
 def render_user_notification(obj):
     """Render web notifications for the user."""
     return Notification.renderers[obj.notification.type](obj)

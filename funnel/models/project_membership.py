@@ -50,7 +50,11 @@ class ProjectCrewMembership(
     __roles__ = {
         'all': {
             'read': {'urls', 'user', 'is_editor', 'is_promoter', 'is_usher', 'project'}
-        }
+        },
+        'project_editor': {'read': {'record_type_label', 'granted_by'}},
+        'project_promoter': {'read': {'record_type_label', 'granted_by'}},
+        'project_usher': {'read': {'record_type_label', 'granted_by'}},
+        'project_crew': {'read': {'record_type_label', 'granted_by'}},
     }
     __datasets__ = {
         'primary': {
