@@ -226,7 +226,7 @@
     bottom: 0;
     left: 0;
     box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);
-    background-color: $mui-bg-color-accent;
+    background-color: $mui-bg-color-primary;
     z-index: 1001;
     margin: 0;
     max-height: 100%;
@@ -235,7 +235,7 @@
       .mui-form__fields .cm-editor {
         border: none;
         border-radius: 0;
-        background: $mui-bg-color-accent;
+        background: $mui-bg-color-primary;
       }
     }
     .mui-btn--raised.icon-btn {
