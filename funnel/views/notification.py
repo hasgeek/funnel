@@ -20,7 +20,7 @@ from baseframe import __, statsd
 from coaster.auth import current_auth
 
 from .. import app
-from ..models import Notification, UserNotification, db
+from ..models import Notification, NotificationFor, UserNotification, db
 from ..serializers import token_serializer
 from ..transports import TransportError, email, platform_transports, sms
 from ..transports.sms import SmsTemplate
@@ -31,7 +31,7 @@ __all__ = ['RenderNotification', 'dispatch_notification']
 
 
 @UserNotification.views('render', cached_property=True)
-# @NotificationFor.views('render', cached_property=True)
+@NotificationFor.views('render', cached_property=True)
 def render_user_notification(obj):
     """Render web notifications for the user."""
     return Notification.renderers[obj.notification.type](obj)

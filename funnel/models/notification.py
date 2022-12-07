@@ -100,6 +100,7 @@ from werkzeug.utils import cached_property
 from baseframe import __
 from coaster.sqlalchemy import (
     Query,
+    Registry,
     SqlUuidB58Comparator,
     auto_init_default,
     immutable,
@@ -595,6 +596,7 @@ class PreviewNotification:
     ) -> None:
         self.eventid = self.eventid_b58 = self.id = 'preview'  # May need to be a UUID
         self.cls = cls
+        self.type = cls.cls_type
         self.document = document
         self.document_uuid = document.uuid
         self.fragment = fragment
@@ -1080,6 +1082,8 @@ class NotificationFor(UserNotificationMixin):
     revoked_at: Any = None
     is_revoked: bool = False
     is_read: bool = False
+
+    views = Registry()
 
     def __init__(self, notification, user) -> None:
         self.notification = notification

@@ -75,10 +75,8 @@ def twoflower_notification(
         document=add_twoflower_editor.project,
         fragment=add_twoflower_editor,
     )
-    notification = models.NotificationFor(preview, user_dict[user].user)
-    view = models.Notification.renderers[
-        models.ProjectCrewMembershipNotification.cls_type
-    ](notification)
+    user_notification = models.NotificationFor(preview, user_dict[user].user)
+    view = user_notification.views.render
     assert (
         view.activity_template().format(
             actor=add_twoflower_editor.granted_by.fullname,
