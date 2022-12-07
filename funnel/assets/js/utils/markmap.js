@@ -4,6 +4,7 @@ const MarkmapEmbed = {
     self.container
       .find('.md-embed-markmap:not(.activating):not(.activated)')
       .each(function embedMarkmap() {
+        $(this).find('.embed-loading').html('Loading mindmap&mldr;');
         $(this).addClass('activating');
         const current = $(this).find('.embed-container');
         current

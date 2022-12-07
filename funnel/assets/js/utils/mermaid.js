@@ -6,8 +6,9 @@ const MermaidEmbed = {
     const instances = self.container.find(
       '.md-embed-mermaid:not(.activating):not(.activated)'
     );
-    instances.each(function embedMarkmap() {
+    instances.each(function embedMermaid() {
       const root = $(this);
+      $(this).find('.embed-loading').html('Loading visualisation&mldr;');
       root.addClass('activating');
       const contentElem = root.find('.embed-content');
       const containerElem = root.find('.embed-container');

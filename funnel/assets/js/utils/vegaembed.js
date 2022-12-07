@@ -5,6 +5,7 @@ function addVegaChart(parentElement) {
     .find('.md-embed-vega-lite:not(.activating):not(.activated)')
     .each(async function embedVegaChart() {
       const root = $(this);
+      root.find('.embed-loading').html('Loading visualisation&mldr;');
       root.addClass('activating');
       const embedded = await vegaEmbed(
         root.find('.embed-container')[0],

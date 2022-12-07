@@ -863,6 +863,7 @@
 .md-embed {
   border: 1px solid black;
   background: linear-gradient(45deg, #bbb, #eee);
+  position: relative;
   .embed-content {
     display: none;
   }
@@ -873,7 +874,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    align-content: center;
+    place-content: center;
   }
   .embed-container {
     display: none;
@@ -884,9 +885,15 @@
       background-color: transparent !important;
     }
   }
-  &.activating .embed-container {
-    visibility: hidden;
-    display: block;
+  &.activating {
+    .embed-container {
+      visibility: hidden;
+      display: block;
+    }
+    .embed-loading {
+      position: absolute;
+      height: 100%;
+    }
   }
   &.activated {
     .embed-loading {
