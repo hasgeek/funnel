@@ -1,3 +1,6 @@
+"""Test template strings in project crew membership notifications."""
+# pylint: disable=too-many-arguments
+
 from pytest_bdd import given, parsers, scenarios, then, when
 
 from funnel import models
@@ -7,7 +10,7 @@ scenarios("project_crew_notification.feature")
 
 @given(
     "Rincewind and Twoflower are project crew in the project Expo 2010",
-    target_fixture="add_and_check_project_crew_members",
+    target_fixture='rincewind_editor',
 )
 def add_and_check_project_crew_members(
     db_session,
@@ -17,7 +20,7 @@ def add_and_check_project_crew_members(
     user_rincewind,
     user_twoflower,
     project_expo2010,
-):
+) -> models.ProjectCrewMembership:
     rincewind_editor = models.ProjectCrewMembership(
         parent=project_expo2010,
         user=user_rincewind,
@@ -33,7 +36,7 @@ def add_and_check_project_crew_members(
 
 @when(
     "Vetinari adds twoflower as an editor",
-    target_fixture="add_twoflower_editor",
+    target_fixture='twoflower_editor',
 )
 def add_twoflower_editor(
     db_session,
@@ -43,7 +46,7 @@ def add_twoflower_editor(
     user_twoflower,
     project_expo2010,
     user_vetinari,
-):
+) -> models.ProjectCrewMembership:
     twoflower_editor = models.ProjectCrewMembership(
         parent=project_expo2010,
         user=user_twoflower,
@@ -59,29 +62,29 @@ def add_twoflower_editor(
 @then(parsers.parse("{user} gets notified {notification_string}."))
 def twoflower_notification(
     user,
-    add_twoflower_editor,
-    db_session,
     notification_string,
     user_rincewind,
-    add_and_check_project_crew_members,
+    user_twoflower,
     project_expo2010,
-):
+    rincewind_editor,
+    twoflower_editor,
+) -> None:
     user_dict = {
-        'Twoflower': add_twoflower_editor,
-        'Rincewind': add_and_check_project_crew_members,
+        "Twoflower": user_twoflower,
+        "Rincewind": user_rincewind,
     }
     preview = models.PreviewNotification(
         models.ProjectCrewMembershipNotification,
-        document=add_twoflower_editor.project,
-        fragment=add_twoflower_editor,
+        document=twoflower_editor.project,
+        fragment=twoflower_editor,
     )
-    user_notification = models.NotificationFor(preview, user_dict[user].user)
+    user_notification = models.NotificationFor(preview, user_dict[user])
     view = user_notification.views.render
     assert (
         view.activity_template().format(
-            actor=add_twoflower_editor.granted_by.fullname,
-            project=add_twoflower_editor.project.joined_title,
-            user=add_twoflower_editor.user.fullname,
+            actor=twoflower_editor.granted_by.fullname,
+            project=twoflower_editor.project.joined_title,
+            user=twoflower_editor.user.fullname,
         )
         == notification_string
     )

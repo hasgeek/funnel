@@ -590,7 +590,7 @@ class PreviewNotification:
 
     def __init__(
         self,
-        cls: Notification,
+        cls: Type[Notification],
         document: UuidModelType,
         fragment: Optional[UuidModelType] = None,
     ) -> None:
@@ -610,7 +610,7 @@ class PreviewNotification:
 class UserNotificationMixin:
     """Shared mixin for :class:`UserNotification` and :class:`NotificationFor`."""
 
-    notification: Notification
+    notification: Union[Notification, PreviewNotification]
 
     @cached_property
     def notification_type(self) -> str:
@@ -1085,7 +1085,9 @@ class NotificationFor(UserNotificationMixin):
 
     views = Registry()
 
-    def __init__(self, notification, user) -> None:
+    def __init__(
+        self, notification: Union[Notification, PreviewNotification], user: User
+    ) -> None:
         self.notification = notification
         self.eventid = notification.eventid
         self.notification_id = notification.id
