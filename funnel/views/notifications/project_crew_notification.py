@@ -26,10 +26,9 @@ class DecisionFactor:
     """Evaluation criteria for the content of notification (for grants/edits only)."""
 
     template: str
-    is_subject: bool = False
-    for_actor: bool = False
+    is_subject: Optional[bool] = None
+    for_actor: Optional[bool] = None
     rtypes: Collection[str] = ()
-
     is_editor: Optional[bool] = None
     is_promoter: Optional[bool] = None
     is_usher: Optional[bool] = None
@@ -40,7 +39,7 @@ class DecisionFactor:
     ) -> bool:
         """Test if this :class:`DecisionFactor` is a match."""
         return (
-            (self.is_subject is is_subject)
+            (self.is_subject is None or self.is_subject is is_subject)
             and (self.for_actor is None or self.for_actor is for_actor)
             and (not self.rtypes or membership.record_type_label.name in self.rtypes)
             and (self.is_editor is None or self.is_editor is membership.is_editor)

@@ -65,6 +65,7 @@ def twoflower_notification(
     notification_string,
     user_rincewind,
     user_twoflower,
+    user_vetinari,
     project_expo2010,
     rincewind_editor,
     twoflower_editor,
@@ -72,6 +73,7 @@ def twoflower_notification(
     user_dict = {
         "Twoflower": user_twoflower,
         "Rincewind": user_rincewind,
+        "Vetinari": user_vetinari,
     }
     preview = models.PreviewNotification(
         models.ProjectCrewMembershipNotification,

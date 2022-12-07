@@ -11,3 +11,4 @@ Feature: Project Crew Notification
       | user      | notification_string                                             |
       | Twoflower | Havelock Vetinari made you an editor of Ankh-Morpork 2010       |
       | Rincewind | Havelock Vetinari made Twoflower an editor of Ankh-Morpork 2010 |
+      | Vetinari  | Havelock Vetinari made Twoflower an editor of Ankh-Morpork 2010 |
