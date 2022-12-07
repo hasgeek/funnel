@@ -1,4 +1,4 @@
-import { EditorView, placeholder, keymap } from '@codemirror/view';
+import { EditorView, keymap } from '@codemirror/view';
 import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
 import { html } from '@codemirror/lang-html';
 import { closeBrackets } from '@codemirror/autocomplete';
@@ -30,7 +30,6 @@ function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 
 
   const extensions = [
     EditorView.lineWrapping,
-    placeholder('Content'),
     closeBrackets(),
     history(),
     foldGutter(),
