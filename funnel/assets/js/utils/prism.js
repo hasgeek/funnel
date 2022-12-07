@@ -1,19 +1,12 @@
 const PrismEmbed = {
   activatePrism() {
-    const activator = window.Prism.hooks.all.complete[0] || null;
-    if (activator) {
-      $('code[class*=language-]:not(.activated)').each(function activate() {
-        const languages = this.className
-          .split(' ')
-          .filter((cls) => cls.startsWith('language-'));
-        const language = languages[0].replace('language-', '') || null;
-        if (language) {
-          activator({ element: this, language });
-          this.classList.add('activated');
-        }
-      });
-    }
+    $('code[class*=language-]:not(.activated):not(.activating)').each(
+      function activate() {
+        window.Prism.highlightElement(this);
+      }
+    );
   },
+  hooked: false,
   loadPrism() {
     const CDN_CSS = 'https://unpkg.com/prismjs/themes/prism.min.css';
     const CDN = [
@@ -33,17 +26,29 @@ const PrismEmbed = {
         if (asset < CDN.length - 1) {
           asset += 1;
           loadPrismScript();
-        } else this.activatePrism();
+        } else {
+          if (!this.hooked) {
+            window.Prism.hooks.add('before-sanity-check', (env) => {
+              if (env.element) $(env.element).addClass('activating');
+            });
+            window.Prism.hooks.add('complete', (env) => {
+              if (env.element)
+                $(env.element).addClass('activated').removeClass('activating');
+            });
+            this.hooked = true;
+          }
+          this.activatePrism();
+        }
       });
     };
     if (!window.Prism) {
       loadPrismStyle();
       loadPrismScript();
-    }
+    } else this.activatePrism();
   },
   init(containerDiv) {
     this.containerDiv = containerDiv;
-    if ($('code[class*=language-]:not(.activated)').length > 0) {
+    if ($('code[class*=language-]:not(.activated):not(.activating)').length > 0) {
       this.loadPrism();
     }
   },
