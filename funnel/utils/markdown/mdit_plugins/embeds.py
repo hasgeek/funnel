@@ -12,6 +12,12 @@ from markdown_it import MarkdownIt
 from markdown_it.common.utils import charCodeAt
 from markdown_it.rules_block import StateBlock
 
+LOADING_TEXT = {
+    'markmap': 'mindmap',
+    'mermaid': 'visualization',
+    'vega-lite': 'visualization',
+}
+
 
 def embeds_plugin(
     md: MarkdownIt,
@@ -25,13 +31,13 @@ def embeds_plugin(
     def render(self, tokens, idx, _options, env):
         token = tokens[idx]
         content = md.utils.escapeHtml(token.content)
-
+        loading = LOADING_TEXT.get(name, '')
         return (
-            '<div'
-            + (f' class="md-embed md-embed-{name}" ')
-            + '><div class="embed-content">'
+            f'<div class="md-embed md-embed-{name}">'
+            + '<div class="embed-loading">'
+            + f'Loading {loading}…</div><div class="embed-content">'
             + content
-            + '</div></div>\n'
+            + '</div><div class="embed-container"></div></div>\n'
         )
 
     min_markers = 3

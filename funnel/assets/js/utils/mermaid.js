@@ -1,14 +1,18 @@
 const MermaidEmbed = {
   addMermaid() {
-    const instances = $('.md-embed-mermaid:not(.activating):not(.activated)');
+    const self = this;
     let idCount = $('.md-embed-mermaid.activating, .md-embed-mermaid.activated').length;
     const idMarker = 'mermaid_elem_';
+    const instances = self.container.find(
+      '.md-embed-mermaid:not(.activating):not(.activated)'
+    );
     instances.each(function embedMarkmap() {
       const root = $(this);
       root.addClass('activating');
-      const elem = root.find('.embed-content');
-      const definition = elem.text();
-      let elemId = elem.attr('id');
+      const contentElem = root.find('.embed-content');
+      const containerElem = root.find('.embed-container');
+      const definition = contentElem.text();
+      let elemId = containerElem.attr('id');
       if (!elemId) {
         elemId = `${idMarker}${idCount}`;
         do {
@@ -16,9 +20,8 @@ const MermaidEmbed = {
         } while ($(`#${idMarker}${idCount}`).length > 0);
       }
       window.mermaid.render(elemId, definition, (svg) => {
-        elem.html(svg);
-        root.addClass('activated');
-        root.removeClass('activating');
+        containerElem.html(svg);
+        root.addClass('activated').removeClass('activating');
       });
     });
   },
@@ -37,8 +40,12 @@ const MermaidEmbed = {
       self.addMermaid();
     }
   },
-  init() {
-    if ($('.md-embed-mermaid:not(.activated)').length > 0) {
+  init(container) {
+    this.container = $(container || 'body');
+    if (
+      this.container.find('.md-embed-mermaid:not(.activating):not(.activated)').length >
+      0
+    ) {
       this.loadMermaid();
     }
   },
