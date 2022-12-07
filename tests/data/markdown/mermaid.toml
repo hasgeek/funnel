@@ -244,22 +244,22 @@ basic = """<h1>mermaid tests</h1>
 """
 document = """<h1 id="h:mermaid-tests">mermaid tests <a class="header-anchor" href="#h:mermaid-tests">¶</a></h1>
 <h2 id="h:flowchart">Flowchart <a class="header-anchor" href="#h:flowchart">¶</a></h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content">graph TD
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">graph TD
  A[Christmas] --&gt;|Get money| B(Go shopping)
  B --&gt; C{Let me think}
  C --&gt;|One| D[Laptop]
  C --&gt;|Two| E[iPhone]
  C --&gt;|Three| F[fa:fa-car Car]
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2 id="h:sequence-diagrams">Sequence Diagrams <a class="header-anchor" href="#h:sequence-diagrams">¶</a></h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content">sequenceDiagram
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">sequenceDiagram
  Alice-&gt;&gt;+John: Hello John, how are you?
  Alice-&gt;&gt;+John: John, can you hear me?
  John--&gt;&gt;-Alice: Hi Alice, I can hear you!
  John--&gt;&gt;-Alice: I feel great!
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2 id="h:class-diagram">Class Diagram <a class="header-anchor" href="#h:class-diagram">¶</a></h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content">classDiagram
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">classDiagram
  Animal &lt;|-- Duck
  Animal &lt;|-- Fish
  Animal &lt;|-- Zebra
@@ -280,18 +280,18 @@ document = """<h1 id="h:mermaid-tests">mermaid tests <a class="header-anchor" hr
    +bool is_wild
    +run()
  }
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2 id="h:state-diagram">State Diagram <a class="header-anchor" href="#h:state-diagram">¶</a></h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content">stateDiagram-v2
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">stateDiagram-v2
  [*] --&gt; Still
  Still --&gt; [*]
  Still --&gt; Moving
  Moving --&gt; Still
  Moving --&gt; Crash
  Crash --&gt; [*]
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2 id="h:gantt-chart">Gantt Chart <a class="header-anchor" href="#h:gantt-chart">¶</a></h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content"> title A Gantt Diagram
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content"> title A Gantt Diagram
  dateFormat  YYYY-MM-DD
  section Section
  A task :a1, 2014-01-01, 30d
@@ -299,16 +299,16 @@ document = """<h1 id="h:mermaid-tests">mermaid tests <a class="header-anchor" hr
  section Another
  Task in sec :2014-01-12  , 12d
  another task : 24d
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2 id="h:pie-chart">Pie Chart <a class="header-anchor" href="#h:pie-chart">¶</a></h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content">pie title Pets adopted by volunteers
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">pie title Pets adopted by volunteers
  &quot;Dogs&quot; : 386
  &quot;Cats&quot; : 85
  &quot;Rats&quot; : 15
 
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2 id="h:er-diagram">ER Diagram <a class="header-anchor" href="#h:er-diagram">¶</a></h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content">erDiagram
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">erDiagram
        CUSTOMER }|..|{ DELIVERY-ADDRESS : has
        CUSTOMER ||--o{ ORDER : places
        CUSTOMER ||--o{ INVOICE : &quot;liable for&quot;
@@ -317,9 +317,9 @@ document = """<h1 id="h:mermaid-tests">mermaid tests <a class="header-anchor" hr
        ORDER ||--|{ ORDER-ITEM : includes
        PRODUCT-CATEGORY ||--|{ PRODUCT : contains
        PRODUCT ||--o{ ORDER-ITEM : &quot;ordered in&quot;
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2 id="h:user-journey">User Journey <a class="header-anchor" href="#h:user-journey">¶</a></h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content">journey
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">journey
  title My working day
  section Go to work
    Make tea: 5: Me
@@ -329,9 +329,9 @@ document = """<h1 id="h:mermaid-tests">mermaid tests <a class="header-anchor" hr
    Go downstairs: 5: Me
    Sit down: 3: Me
 
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2 id="h:git-graph">Git Graph <a class="header-anchor" href="#h:git-graph">¶</a></h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content"> gitGraph
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content"> gitGraph
    commit
    commit
    branch develop
@@ -343,26 +343,26 @@ document = """<h1 id="h:mermaid-tests">mermaid tests <a class="header-anchor" hr
    commit
    commit
 
-</div></div>
+</pre><div class="embed-container"></div></div>
 """
 mermaid = """<h1>mermaid tests</h1>
 <h2>Flowchart</h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content">graph TD
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">graph TD
  A[Christmas] --&gt;|Get money| B(Go shopping)
  B --&gt; C{Let me think}
  C --&gt;|One| D[Laptop]
  C --&gt;|Two| E[iPhone]
  C --&gt;|Three| F[fa:fa-car Car]
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2>Sequence Diagrams</h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content">sequenceDiagram
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">sequenceDiagram
  Alice-&gt;&gt;+John: Hello John, how are you?
  Alice-&gt;&gt;+John: John, can you hear me?
  John--&gt;&gt;-Alice: Hi Alice, I can hear you!
  John--&gt;&gt;-Alice: I feel great!
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2>Class Diagram</h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content">classDiagram
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">classDiagram
  Animal &lt;|-- Duck
  Animal &lt;|-- Fish
  Animal &lt;|-- Zebra
@@ -383,18 +383,18 @@ mermaid = """<h1>mermaid tests</h1>
    +bool is_wild
    +run()
  }
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2>State Diagram</h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content">stateDiagram-v2
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">stateDiagram-v2
  [*] --&gt; Still
  Still --&gt; [*]
  Still --&gt; Moving
  Moving --&gt; Still
  Moving --&gt; Crash
  Crash --&gt; [*]
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2>Gantt Chart</h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content"> title A Gantt Diagram
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content"> title A Gantt Diagram
  dateFormat  YYYY-MM-DD
  section Section
  A task :a1, 2014-01-01, 30d
@@ -402,16 +402,16 @@ mermaid = """<h1>mermaid tests</h1>
  section Another
  Task in sec :2014-01-12  , 12d
  another task : 24d
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2>Pie Chart</h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content">pie title Pets adopted by volunteers
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">pie title Pets adopted by volunteers
  &quot;Dogs&quot; : 386
  &quot;Cats&quot; : 85
  &quot;Rats&quot; : 15
 
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2>ER Diagram</h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content">erDiagram
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">erDiagram
        CUSTOMER }|..|{ DELIVERY-ADDRESS : has
        CUSTOMER ||--o{ ORDER : places
        CUSTOMER ||--o{ INVOICE : &quot;liable for&quot;
@@ -420,9 +420,9 @@ mermaid = """<h1>mermaid tests</h1>
        ORDER ||--|{ ORDER-ITEM : includes
        PRODUCT-CATEGORY ||--|{ PRODUCT : contains
        PRODUCT ||--o{ ORDER-ITEM : &quot;ordered in&quot;
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2>User Journey</h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content">journey
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">journey
  title My working day
  section Go to work
    Make tea: 5: Me
@@ -432,9 +432,9 @@ mermaid = """<h1>mermaid tests</h1>
    Go downstairs: 5: Me
    Sit down: 3: Me
 
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2>Git Graph</h2>
-<div class="md-embed md-embed-mermaid" ><div class="embed-content"> gitGraph
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content"> gitGraph
    commit
    commit
    branch develop
@@ -446,5 +446,5 @@ mermaid = """<h1>mermaid tests</h1>
    commit
    commit
 
-</div></div>
+</pre><div class="embed-container"></div></div>
 """

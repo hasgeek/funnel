@@ -697,7 +697,7 @@ basic = """<h1>vega-lite tests</h1>
 """
 document = """<h1 id="h:vega-lite-tests">vega-lite tests <a class="header-anchor" href="#h:vega-lite-tests">¶</a></h1>
 <h2 id="h:interactive-scatter-plot-matrix">Interactive Scatter Plot Matrix <a class="header-anchor" href="#h:interactive-scatter-plot-matrix">¶</a></h2>
-<div class="md-embed md-embed-vega-lite" ><div class="embed-content">{
+<div class="md-embed md-embed-vega-lite"><div class="embed-loading">Visualization</div><pre class="embed-content">{
 &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
 &quot;repeat&quot;: {
  &quot;row&quot;: [&quot;Horsepower&quot;, &quot;Acceleration&quot;, &quot;Miles_per_Gallon&quot;],
@@ -746,9 +746,9 @@ document = """<h1 id="h:vega-lite-tests">vega-lite tests <a class="header-anchor
  }
 }
 }
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2 id="h:population-pyramid">Population Pyramid <a class="header-anchor" href="#h:population-pyramid">¶</a></h2>
-<div class="md-embed md-embed-vega-lite" ><div class="embed-content">{
+<div class="md-embed md-embed-vega-lite"><div class="embed-loading">Visualization</div><pre class="embed-content">{
 &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
 &quot;description&quot;: &quot;A population pyramid for the US in 2000.&quot;,
 &quot;data&quot;: { &quot;url&quot;: &quot;https://vega.github.io/vega-lite/examples/data/population.json&quot;},
@@ -818,9 +818,9 @@ document = """<h1 id="h:vega-lite-tests">vega-lite tests <a class="header-anchor
 }
 }
 
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2 id="h:discretizing-scales">Discretizing scales <a class="header-anchor" href="#h:discretizing-scales">¶</a></h2>
-<div class="md-embed md-embed-vega-lite" ><div class="embed-content">{
+<div class="md-embed md-embed-vega-lite"><div class="embed-loading">Visualization</div><pre class="embed-content">{
 &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
 &quot;description&quot;: &quot;Horizontally concatenated charts that show different types of discretizing scales.&quot;,
 &quot;data&quot;: {
@@ -949,9 +949,9 @@ document = """<h1 id="h:vega-lite-tests">vega-lite tests <a class="header-anchor
  }
 }
 }
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2 id="h:marginal-histograms">Marginal Histograms <a class="header-anchor" href="#h:marginal-histograms">¶</a></h2>
-<div class="md-embed md-embed-vega-lite" ><div class="embed-content">{
+<div class="md-embed md-embed-vega-lite"><div class="embed-loading">Visualization</div><pre class="embed-content">{
 &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
 &quot;data&quot;: {&quot;url&quot;: &quot;https://vega.github.io/vega-lite/examples/data/movies.json&quot;},
 &quot;spacing&quot;: 15,
@@ -1006,9 +1006,9 @@ document = """<h1 id="h:vega-lite-tests">vega-lite tests <a class="header-anchor
  }
 }
 }
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2 id="h:radial-plot">Radial Plot <a class="header-anchor" href="#h:radial-plot">¶</a></h2>
-<div class="md-embed md-embed-vega-lite" ><div class="embed-content">{
+<div class="md-embed md-embed-vega-lite"><div class="embed-loading">Visualization</div><pre class="embed-content">{
 &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
 &quot;description&quot;: &quot;A simple radial chart with embedded data.&quot;,
 &quot;data&quot;: {
@@ -1029,11 +1029,11 @@ document = """<h1 id="h:vega-lite-tests">vega-lite tests <a class="header-anchor
 }
 }
 
-</div></div>
+</pre><div class="embed-container"></div></div>
 """
 vega-lite = """<h1>vega-lite tests</h1>
 <h2>Interactive Scatter Plot Matrix</h2>
-<div class="md-embed md-embed-vega-lite" ><div class="embed-content">{
+<div class="md-embed md-embed-vega-lite"><div class="embed-loading">Visualization</div><pre class="embed-content">{
 &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
 &quot;repeat&quot;: {
  &quot;row&quot;: [&quot;Horsepower&quot;, &quot;Acceleration&quot;, &quot;Miles_per_Gallon&quot;],
@@ -1082,9 +1082,9 @@ vega-lite = """<h1>vega-lite tests</h1>
  }
 }
 }
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2>Population Pyramid</h2>
-<div class="md-embed md-embed-vega-lite" ><div class="embed-content">{
+<div class="md-embed md-embed-vega-lite"><div class="embed-loading">Visualization</div><pre class="embed-content">{
 &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
 &quot;description&quot;: &quot;A population pyramid for the US in 2000.&quot;,
 &quot;data&quot;: { &quot;url&quot;: &quot;https://vega.github.io/vega-lite/examples/data/population.json&quot;},
@@ -1154,9 +1154,9 @@ vega-lite = """<h1>vega-lite tests</h1>
 }
 }
 
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2>Discretizing scales</h2>
-<div class="md-embed md-embed-vega-lite" ><div class="embed-content">{
+<div class="md-embed md-embed-vega-lite"><div class="embed-loading">Visualization</div><pre class="embed-content">{
 &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
 &quot;description&quot;: &quot;Horizontally concatenated charts that show different types of discretizing scales.&quot;,
 &quot;data&quot;: {
@@ -1285,9 +1285,9 @@ vega-lite = """<h1>vega-lite tests</h1>
  }
 }
 }
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2>Marginal Histograms</h2>
-<div class="md-embed md-embed-vega-lite" ><div class="embed-content">{
+<div class="md-embed md-embed-vega-lite"><div class="embed-loading">Visualization</div><pre class="embed-content">{
 &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
 &quot;data&quot;: {&quot;url&quot;: &quot;https://vega.github.io/vega-lite/examples/data/movies.json&quot;},
 &quot;spacing&quot;: 15,
@@ -1342,9 +1342,9 @@ vega-lite = """<h1>vega-lite tests</h1>
  }
 }
 }
-</div></div>
+</pre><div class="embed-container"></div></div>
 <h2>Radial Plot</h2>
-<div class="md-embed md-embed-vega-lite" ><div class="embed-content">{
+<div class="md-embed md-embed-vega-lite"><div class="embed-loading">Visualization</div><pre class="embed-content">{
 &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
 &quot;description&quot;: &quot;A simple radial chart with embedded data.&quot;,
 &quot;data&quot;: {
@@ -1365,5 +1365,5 @@ vega-lite = """<h1>vega-lite tests</h1>
 }
 }
 
-</div></div>
+</pre><div class="embed-container"></div></div>
 """

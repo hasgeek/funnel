@@ -206,7 +206,7 @@ basic = """<h3>Markmap</h3>
 </code></pre>
 """
 document = """<h3 id="h:markmap">Markmap <a class="header-anchor" href="#h:markmap">¶</a></h3>
-<div class="md-embed md-embed-markmap" ><div class="embed-content">
+<div class="md-embed md-embed-markmap"><div class="embed-loading">Mindmap</div><pre class="embed-content">
 # Digital Identifiers and Rights
 
 ## Community and Outreach
@@ -301,10 +301,10 @@ document = """<h3 id="h:markmap">Markmap <a class="header-anchor" href="#h:markm
 - National policies
 - Public health services
 - Records (birth, death, land etc)
-</div></div>
+</pre><div class="embed-container"></div></div>
 """
 markmap = """<h3>Markmap</h3>
-<div class="md-embed md-embed-markmap" ><div class="embed-content">
+<div class="md-embed md-embed-markmap"><div class="embed-loading">Mindmap</div><pre class="embed-content">
 # Digital Identifiers and Rights
 
 ## Community and Outreach
@@ -399,5 +399,5 @@ markmap = """<h3>Markmap</h3>
 - National policies
 - Public health services
 - Records (birth, death, land etc)
-</div></div>
+</pre><div class="embed-container"></div></div>
 """
