@@ -12,7 +12,7 @@ import pytest
 import tomlkit
 
 from funnel.utils.markdown import markdown
-from funnel.utils.markdown.profiles import MarkdownProfile, profiles
+from funnel.utils.markdown.profiles import MarkdownProfile
 
 DATAROOT: Path = Path('tests/data/markdown')
 
@@ -30,21 +30,16 @@ class MarkdownCase:
         self.markdown: str = markdown
         self.profile_id: str = profile_id
         self.profile: Optional[Type[MarkdownProfile]] = MarkdownCase.make_profile(
-            profile
+            profile, profile_id
         )
         self.expected_output: Optional[str] = expected_output
 
-        if self.is_custom() and self.profile_id in profiles:
-            raise Exception(
-                f'Case {self.case_id}: Custom profiles cannot use a key that is pre-defined in profiles'
-            )
-
     @staticmethod
-    def make_profile(profile: Optional[Dict]):
+    def make_profile(profile: Optional[Dict], profile_id: str):
         if profile is None:
             return None
 
-        class MarkdownProfileCustom(MarkdownProfile):
+        class MarkdownProfileCustom(MarkdownProfile, name=profile_id):
             pass
 
         l: List = list(MarkdownProfileCustom.args)
@@ -63,9 +58,6 @@ class MarkdownCase:
 
     def __repr__(self) -> str:
         return self.case_id
-
-    def is_custom(self):
-        return self.profile is not None
 
     @property
     def case_id(self) -> str:
@@ -172,7 +164,7 @@ class MarkdownTestRegistry:
 def test_markdown_none() -> None:
     assert markdown(None, 'basic') is None
     assert markdown(None, 'document') is None
-    assert markdown(None, 'text-field') is None
+    assert markdown(None, 'inline') is None
     assert markdown(None, MarkdownProfile) is None
 
 
@@ -180,7 +172,7 @@ def test_markdown_blank() -> None:
     blank_response = Markup('')
     assert markdown('', 'basic') == blank_response
     assert markdown('', 'document') == blank_response
-    assert markdown('', 'text-field') == blank_response
+    assert markdown('', 'inline') == blank_response
     assert markdown('', MarkdownProfile) == blank_response
 
 

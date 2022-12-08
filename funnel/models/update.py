@@ -20,13 +20,13 @@ from . import (
     BaseScopedIdNameMixin,
     Commentset,
     Mapped,
+    MarkdownCompositeBasic,
     Project,
     TimestampMixin,
     TSVectorType,
     User,
     UuidMixin,
     db,
-    markdown_cached_column,
     sa,
 )
 from .comment import SET_TYPE
@@ -106,8 +106,8 @@ class Update(
     )
     parent = sa.orm.synonym('project')
 
-    body = markdown_cached_column(  # type: ignore[has-type]
-        'body', profile='basic', nullable=False
+    body = MarkdownCompositeBasic.composite_columns(  # type: ignore[has-type]
+        'body', nullable=False
     )
 
     #: Update number, for Project updates, assigned when the update is published

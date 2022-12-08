@@ -5,22 +5,25 @@ from typing import Optional
 
 from flask import request
 
+from baseframe import _
+
 from ... import app
 from ...typing import ReturnView
-from ...utils import markdown
-from ...utils.markdown.profiles import profiles
+from ...utils import MarkdownProfile, markdown
 
 
 @app.route('/api/1/preview/markdown', methods=['POST'])
 def markdown_preview() -> ReturnView:
     """Render Markdown in the backend, with custom options based on use case."""
     profile: Optional[str] = request.form.get('profile')
-    if profile is None or profile not in profiles:
+    if profile is None or profile not in MarkdownProfile.registry:
         return {
             'status': 'error',
             'error': 'not_implemented',
-            'error_description': f'Markdown profile {profile} is not supported',
-        }, 501
+            'error_description': _("Unknown Markdown profile: {profile}").format(
+                profile=profile
+            ),
+        }, 422
     text = request.form.get('text')
 
     html = markdown(text, profile)

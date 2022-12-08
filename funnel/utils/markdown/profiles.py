@@ -1,6 +1,8 @@
 """Config profiles for markdown parser."""
 
-from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Type, TypedDict
+from __future__ import annotations
+
+from typing import Any, Callable, Dict, List, Mapping, Tuple, Type, TypedDict
 
 from mdit_py_plugins import anchors, footnote, tasklists
 from typing_extensions import NotRequired
@@ -16,7 +18,7 @@ from .mdit_plugins import (  # toc_plugin,
     sup_plugin,
 )
 
-__all__ = ['profiles', 'plugins', 'plugin_configs']
+__all__ = ['plugins', 'plugin_configs', 'MarkdownProfile']
 
 plugins: Dict[str, Callable] = {
     'footnote': footnote.footnote_plugin,
@@ -54,6 +56,7 @@ class PostConfig(TypedDict):
 
 
 class MarkdownProfile:
+    registry: Dict[str, Type[MarkdownProfile]] = {}
     args: Tuple[str, Mapping] = (
         'commonmark',
         {
@@ -65,12 +68,18 @@ class MarkdownProfile:
     post_config: PostConfig = {}
     render_with: str = 'render'
 
+    def __init_subclass__(cls, name: str) -> None:
+        if name in MarkdownProfile.registry:
+            raise TypeError(f"MarkdownProfile '{name}' already exists")
+        MarkdownProfile.registry[name] = cls
+        super().__init_subclass__()
 
-class MarkdownProfileBasic(MarkdownProfile):
+
+class MarkdownProfileBasic(MarkdownProfile, name='basic'):
     pass
 
 
-class MarkdownProfileDocument(MarkdownProfile):
+class MarkdownProfileDocument(MarkdownProfile, name='document'):
     args: Tuple[str, Mapping] = (
         'gfm-like',
         {
@@ -97,7 +106,7 @@ class MarkdownProfileDocument(MarkdownProfile):
     post_config: PostConfig = {'enable': ['smartquotes']}
 
 
-class MarkdownProfileTextField(MarkdownProfile):
+class MarkdownProfileInline(MarkdownProfile, name='inline'):
     args: Tuple[str, Mapping] = (
         'zero',
         {
@@ -111,10 +120,3 @@ class MarkdownProfileTextField(MarkdownProfile):
         ],
     }
     render_with: str = 'renderInline'
-
-
-profiles: Dict[Optional[str], Type[MarkdownProfile]] = {
-    'basic': MarkdownProfileBasic,
-    'document': MarkdownProfileDocument,
-    'text-field': MarkdownProfileTextField,
-}

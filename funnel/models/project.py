@@ -20,13 +20,13 @@ from . import (
     BaseScopedNameMixin,
     JsonDict,
     Mapped,
+    MarkdownCompositeDocument,
     TimestampMixin,
     TimezoneType,
     TSVectorType,
     UrlType,
     UuidMixin,
     db,
-    markdown_cached_column,
     sa,
 )
 from .comment import SET_TYPE, Commentset
@@ -95,14 +95,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         datasets={'primary', 'without_parent', 'related'},
     )
     description = with_roles(
-        markdown_cached_column(
-            'description', profile='document', default='', nullable=False
+        MarkdownCompositeDocument.composite_columns(
+            'description', default='', nullable=False
         ),
         read={'all'},
     )
     instructions = with_roles(
-        markdown_cached_column(
-            'instructions', profile='document', default='', nullable=True
+        MarkdownCompositeDocument.composite_columns(
+            'instructions', default='', nullable=True
         ),
         read={'all'},
     )

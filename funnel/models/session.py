@@ -19,11 +19,11 @@ from coaster.utils import utcnow
 from . import (
     BaseScopedIdNameMixin,
     Mapped,
+    MarkdownCompositeDocument,
     TSVectorType,
     UuidMixin,
     db,
     hybrid_property,
-    markdown_cached_column,
     sa,
 )
 from .helpers import ImgeeType, add_search_trigger, reopen, visual_field_delimiter
@@ -53,8 +53,8 @@ class Session(
         grants_via={None: project_child_role_map},
     )
     parent = sa.orm.synonym('project')
-    description = markdown_cached_column(
-        'description', profile='document', default='', nullable=False
+    description = MarkdownCompositeDocument.composite_columns(
+        'description', default='', nullable=False
     )
     proposal_id = sa.Column(
         sa.Integer, sa.ForeignKey('proposal.id'), nullable=True, unique=True

@@ -4,7 +4,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Type, TypeVar
+from typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Set,
+    Type,
+    TypeVar,
+)
 import os.path
 import re
 
@@ -24,7 +35,7 @@ from zxcvbn import zxcvbn
 
 from .. import app
 from ..typing import T
-from ..utils import markdown
+from ..utils import MarkdownProfile, markdown
 from . import UrlType, db, sa
 
 __all__ = [
@@ -41,7 +52,10 @@ __all__ = [
     'quote_autocomplete_like',
     'ImgeeFurl',
     'ImgeeType',
-    'markdown_cached_column',
+    'MarkdownCompositeBase',
+    'MarkdownCompositeBasic',
+    'MarkdownCompositeDocument',
+    'MarkdownCompositeInline',
 ]
 
 RESERVED_NAMES: Set[str] = {
@@ -542,10 +556,10 @@ class ImgeeType(UrlType):  # pylint: disable=abstract-method
         return value
 
 
-class MarkdownCachedComposite(MutableComposite):
+class MarkdownCompositeBase(MutableComposite):
     """Represents Markdown text and rendered HTML as a composite column."""
 
-    profile: str
+    profile: ClassVar[Type[MarkdownProfile]]
 
     def __init__(self, text, html=None):
         """Create a composite."""
@@ -595,7 +609,7 @@ class MarkdownCachedComposite(MutableComposite):
     # Compare text value
     def __eq__(self, other):
         """Compare for equality."""
-        return isinstance(other, MarkdownCachedComposite) and (
+        return isinstance(other, self.__class__) and (
             self.__composite_values__() == other.__composite_values__()
         )
 
@@ -627,48 +641,33 @@ class MarkdownCachedComposite(MutableComposite):
         """Allow a composite column to be assigned a string value."""
         return cls(value)
 
-
-class MarkdownCompositeBasic(MarkdownCachedComposite):
-    profile: str = 'basic'
-
-
-class MarkdownCompositeDocument(MarkdownCachedComposite):
-    profile: str = 'document'
-
-
-class MarkdownCompositeTextField(MarkdownCachedComposite):
-    profile: str = 'text-field'
-
-
-markdown_composites: Dict[str, Type[MarkdownCachedComposite]] = {
-    'basic': MarkdownCompositeBasic,
-    'document': MarkdownCompositeDocument,
-    'text-field': MarkdownCompositeTextField,
-}
+    @classmethod
+    def composite_columns(
+        cls, name, deferred: bool = False, group: Optional[str] = None, **kwargs
+    ) -> composite:
+        """Create a composite column and backing individual columns."""
+        return composite(
+            cls,
+            sa.Column(name + '_text', sa.UnicodeText, **kwargs),
+            sa.Column(name + '_html', sa.UnicodeText, **kwargs),
+            deferred=deferred,
+            group=group or name,
+        )
 
 
-def markdown_cached_column(
-    name: str,
-    deferred: bool = False,
-    group: Optional[str] = None,
-    profile: str = 'basic',
-    **kwargs,
-) -> composite:
-    """
-    Create a composite column that autogenerates HTML from Markdown text.
+class MarkdownCompositeBasic(MarkdownCompositeBase):
+    """Markdown composite columns with support for basic CommonMark."""
 
-    Creates two db columns named with ``_html`` and ``_text`` suffixes.
+    profile = MarkdownProfile.registry['basic']
 
-    :param str name: Column name base
-    :param str profile: Config profile for the Markdown processor
-    :param bool deferred: Whether the columns should be deferred by default
-    :param str group: Defer column group
-    :param kwargs: Additional column options, passed to SQLAlchemy's column constructor
-    """
-    return composite(
-        markdown_composites[profile],
-        sa.Column(name + '_text', sa.UnicodeText, **kwargs),
-        sa.Column(name + '_html', sa.UnicodeText, **kwargs),
-        deferred=deferred,
-        group=group or name,
-    )
+
+class MarkdownCompositeDocument(MarkdownCompositeBase):
+    """Markdown composite columns with support for all features."""
+
+    profile = MarkdownProfile.registry['document']
+
+
+class MarkdownCompositeInline(MarkdownCompositeBase):
+    """Markdown composite columns with support for inline markup only."""
+
+    profile = MarkdownProfile.registry['inline']

@@ -9,7 +9,7 @@ from markupsafe import Markup
 
 from coaster.utils.text import normalize_spaces_multiline
 
-from .profiles import MarkdownProfile, plugin_configs, plugins, profiles
+from .profiles import MarkdownProfile, plugin_configs, plugins
 
 __all__ = ['markdown']
 
@@ -42,7 +42,7 @@ def markdown(
 
     if isinstance(profile, str):
         try:
-            _profile = profiles[profile]
+            _profile = MarkdownProfile.registry[profile]
         except KeyError as exc:
             raise KeyError(
                 f'Wrong markdown config profile "{profile}". Check name.'
@@ -82,7 +82,7 @@ def markdown(
 def _print_rules(md: MarkdownIt, active: Optional[str] = None):
     """Debug function to be removed before merge."""
     rules = {'all_rules': md.get_all_rules(), 'active_rules': {}}
-    for p, pr in profiles.items():
+    for p, pr in MarkdownProfile.registry.items():
         m = MarkdownIt(*pr.args)
         if m.linkify is not None:
             m.linkify.set({'fuzzy_link': False, 'fuzzy_email': False})
