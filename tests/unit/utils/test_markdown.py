@@ -3,7 +3,7 @@
 from copy import copy
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Type, Union
+from typing import Dict, List, Optional, Tuple, Type, Union
 import warnings
 
 from bs4 import BeautifulSoup
@@ -17,6 +17,8 @@ DATAROOT: Path = Path('tests/data/markdown')
 
 
 class MarkdownCase:
+    """Class for markdown test case for a content-profile combination."""
+
     def __init__(
         self,
         test_id: str,
@@ -27,7 +29,13 @@ class MarkdownCase:
     ) -> None:
         self.test_id: str = test_id
         self.markdown: str = markdown
+
+        # self.profile_id is used to identify a MarkdownProfile class
+        # stored in it's registry.
         self.profile_id: str = profile_id
+
+        # self.profile will contain a custom class inherited from MarkdownProfile,
+        # in the case of custom profiles specified in test cases, else None.
         self.profile: Optional[Type[MarkdownProfile]] = MarkdownCase.make_profile(
             profile, profile_id
         )
@@ -41,12 +49,15 @@ class MarkdownCase:
         class MarkdownProfileCustom(MarkdownProfile, name=profile_id):
             pass
 
+        # Update self.args for the custom profile
         l: List = list(MarkdownProfileCustom.args)
         if 'args_config' in profile:
             l[0] = profile['args_config']
         if 'args_options' in profile:
             l[1].update(profile['args_options'])
         MarkdownProfileCustom.args = (l[0], l[1])
+
+        # Update other keys, if present
         if 'plugins' in profile:
             MarkdownProfileCustom.plugins = profile['plugins']
         if 'post_config' in profile:
@@ -64,6 +75,12 @@ class MarkdownCase:
 
     @property
     def markdown_profile(self) -> Union[str, Type[MarkdownProfile]]:
+        """
+        Return the markdown profile for the test case.
+
+        Output is str if the profile is pre-defined,
+        else a custom class inherited from MarkdownProfile.
+        """
         return self.profile if self.profile is not None else self.profile_id
 
     @property
@@ -80,6 +97,7 @@ class MarkdownTestRegistry:
 
     @classmethod
     def load(cls) -> None:
+        """Load test cases from .toml files and create a 2D map."""
         if cls.test_map is None:
             cls.test_map = {}
             cls.test_files = {
@@ -90,6 +108,8 @@ class MarkdownTestRegistry:
             for test_id, test_data in cls.test_files.items():
                 config = test_data['config']
                 exp = test_data.get('expected_output', {})
+                # Combine pre-defined profiles with custom profiles
+                # and store each test case in test_map[test_id][profile_id]
                 cls.test_map[test_id] = {
                     profile_id: MarkdownCase(
                         test_id,
@@ -115,13 +135,21 @@ class MarkdownTestRegistry:
                 (DATAROOT / test_id).write_text(tomlkit.dumps(data))
 
     @classmethod
-    def test_cases(cls) -> List[MarkdownCase]:
+    def test_cases(cls) -> List[Tuple[str, str]]:
         cls.load()
         return (
-            [case for tests in cls.test_map.values() for case in tests.values()]
+            [
+                (test_id, profile_id)
+                for test_id, test in cls.test_map.items()
+                for profile_id in test.keys()
+            ]
             if cls.test_map is not None
             else []
         )
+
+    @classmethod
+    def test_case(cls, test_id: str, profile_id: str) -> MarkdownCase:
+        return cls.test_map[test_id][profile_id]  # type: ignore[index]
 
     @classmethod
     def update_expected_output(cls) -> None:
@@ -130,12 +158,14 @@ class MarkdownTestRegistry:
 
     @classmethod
     def update_debug_output(cls) -> None:
+        """Save test output in file output.html for visual debugging."""
         cls.load()
         template = BeautifulSoup(
             (DATAROOT / 'template.html').read_text(), 'html.parser'
         )
         case_template = template.find(id='output_template')
-        for case in cls.test_cases():
+        for test_id, profile_id in cls.test_cases():
+            case: MarkdownCase = cls.test_case(test_id, profile_id)
             op = copy(case_template)
             del op['id']
             op.select('.filename')[0].string = case.test_id
@@ -176,11 +206,12 @@ def test_markdown_blank() -> None:
 
 
 @pytest.mark.parametrize(
-    'case',
+    ('test_id', 'profile_id'),
     MarkdownTestRegistry.test_cases(),
 )
-# def test_markdown_cases(case: MarkdownCase, unified_diff_output) -> None:
-def test_markdown_cases(case: MarkdownCase) -> None:
+# def test_markdown_cases(test_id: str, profile_id: str, unified_diff_output) -> None:
+def test_markdown_cases(test_id: str, profile_id: str) -> None:
+    case: MarkdownCase = MarkdownTestRegistry.test_case(test_id, profile_id)
     if case.expected_output is None:
         warnings.warn(f'Expected output not generated for {case}')
         pytest.skip(f'Expected output not generated for {case}')
@@ -193,6 +224,7 @@ def test_markdown_cases(case: MarkdownCase) -> None:
 
 @pytest.mark.update_markdown_data()
 def test_markdown_update_output(pytestconfig):
+    """Update the expected output in all .toml files."""
     has_mark = pytestconfig.getoption('-m', default=None) == 'update_markdown_data'
     if not has_mark:
         pytest.skip('Skipping update of expected output of markdown test cases')
