@@ -11,8 +11,7 @@ from markupsafe import Markup
 import pytest
 import tomlkit
 
-from funnel.utils.markdown import markdown
-from funnel.utils.markdown.profiles import MarkdownProfile
+from funnel.utils.markdown import MarkdownProfile, markdown
 
 DATAROOT: Path = Path('tests/data/markdown')
 
