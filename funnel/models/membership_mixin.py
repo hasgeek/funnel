@@ -147,7 +147,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     def record_type_label(self):
         return MEMBERSHIP_RECORD_TYPE[self.record_type]
 
-    with_roles('record_type_label', read={'subject', 'editor'})
+    with_roles(record_type_label, read={'subject', 'editor'})
 
     @declared_attr
     def revoked_by_id(  # pylint: disable=no-self-argument

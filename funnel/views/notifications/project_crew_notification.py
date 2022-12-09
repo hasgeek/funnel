@@ -108,12 +108,6 @@ decision_factors = [
         is_subject=True,
         rtypes=['accept'],
     ),
-    # --- Subject has amended their own roles (this should NOT trigger a notification)
-    DecisionFactor(
-        template=__("You have changed your roles in {project}"),
-        is_subject=True,
-        rtypes=['amend'],
-    ),
     # --- Someone has accepted invite
     DecisionFactor(
         template=__(
@@ -182,7 +176,6 @@ decision_factors = [
     DecisionFactor(
         template=__("{actor} added {user} to the crew of {project}"),
         rtypes=['direct_add'],
-        is_promoter=True,
     ),
     # --- Subject's roles have changed
     DecisionFactor(
@@ -207,6 +200,7 @@ decision_factors = [
     DecisionFactor(
         template=__("You have changed your role to be a crew of {project}"),
         rtypes=['amend'],
+        is_subject=True,
     ),
     # --- Someone's roles have changed
     DecisionFactor(
