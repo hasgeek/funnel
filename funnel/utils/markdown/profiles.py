@@ -68,6 +68,9 @@ class MarkdownProfile:
     post_config: PostConfig = {}
     render_with: str = 'render'
 
+    linkify_fuzzy_link: bool = False
+    linkify_fuzzy_email: bool = False
+
     def __init_subclass__(cls, name: str) -> None:
         if name in MarkdownProfile.registry:
             raise TypeError(f"MarkdownProfile '{name}' already exists")

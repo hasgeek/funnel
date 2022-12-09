@@ -32,7 +32,7 @@ def markdown(
     """
     Markdown parser compliant with Commonmark+GFM using markdown-it-py.
 
-    :param str|type[MarkdownProfile] profile: Config profile to use
+    :param profile: Config profile to use
     """
     if text is None:
         return None
@@ -42,31 +42,28 @@ def markdown(
 
     if isinstance(profile, str):
         try:
-            _profile = MarkdownProfile.registry[profile]
+            profile = MarkdownProfile.registry[profile]
         except KeyError as exc:
-            raise KeyError(
-                f'Wrong markdown config profile "{profile}". Check name.'
-            ) from exc
-    elif issubclass(profile, MarkdownProfile):
-        _profile = profile
-    else:
-        raise TypeError(
-            'Wrong type - profile has to be either str or a subclass of MarkdownProfile'
-        )
+            raise KeyError(f"Unknown Markdown config profile '{profile}'") from exc
 
     # TODO: Move MarkdownIt instance generation to profile class method
-    md = MarkdownIt(*_profile.args)
+    md = MarkdownIt(*profile.args)
 
     if md.linkify is not None:
-        md.linkify.set({'fuzzy_link': False, 'fuzzy_email': False})
+        md.linkify.set(
+            {
+                'fuzzy_link': profile.linkify_fuzzy_link,
+                'fuzzy_email': profile.linkify_fuzzy_email,
+            }
+        )
 
     for action in ['enableOnly', 'enable', 'disable']:
-        if action in _profile.post_config:
+        if action in profile.post_config:
             getattr(md, action)(
-                _profile.post_config[action]  # type: ignore[literal-required]
+                profile.post_config[action]  # type: ignore[literal-required]
             )
 
-    for e in _profile.plugins:
+    for e in profile.plugins:
         try:
             ext = plugins[e]
         except KeyError as exc:
@@ -76,7 +73,7 @@ def markdown(
         md.use(ext, **plugin_configs.get(e, {}))
 
     # type: ignore[arg-type]
-    return Markup(getattr(md, _profile.render_with)(text))
+    return Markup(getattr(md, profile.render_with)(text))
 
 
 def _print_rules(md: MarkdownIt, active: Optional[str] = None):
