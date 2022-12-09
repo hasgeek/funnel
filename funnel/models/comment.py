@@ -216,9 +216,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         'Comment', backref=sa.orm.backref('in_reply_to', remote_side='Comment.id')
     )
 
-    _message = MarkdownCompositeBasic.composite_columns(  # type: ignore[has-type]
-        'message', nullable=False
-    )
+    _message = MarkdownCompositeBasic.create('message', nullable=False)
 
     _state = sa.Column(
         'state',

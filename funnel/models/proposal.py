@@ -174,9 +174,7 @@ class Proposal(  # type: ignore[misc]
         back_populates='proposal',
     )
 
-    body = MarkdownCompositeDocument.composite_columns(
-        'body', nullable=False, default=''
-    )
+    body = MarkdownCompositeDocument.create('body', nullable=False, default='')
     description = sa.Column(sa.Unicode, nullable=False, default='')
     custom_description = sa.Column(sa.Boolean, nullable=False, default=False)
     template = sa.Column(sa.Boolean, nullable=False, default=False)

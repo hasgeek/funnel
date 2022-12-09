@@ -95,15 +95,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         datasets={'primary', 'without_parent', 'related'},
     )
     description = with_roles(
-        MarkdownCompositeDocument.composite_columns(
-            'description', default='', nullable=False
-        ),
+        MarkdownCompositeDocument.create('description', default='', nullable=False),
         read={'all'},
     )
     instructions = with_roles(
-        MarkdownCompositeDocument.composite_columns(
-            'instructions', default='', nullable=True
-        ),
+        MarkdownCompositeDocument.create('instructions', default='', nullable=True),
         read={'all'},
     )
 

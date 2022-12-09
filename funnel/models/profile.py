@@ -125,7 +125,7 @@ class Profile(
     )
 
     tagline = sa.Column(sa.Unicode, nullable=True)
-    description = MarkdownCompositeDocument.composite_columns(
+    description = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
     website: sa.Column[Optional[str]] = sa.Column(UrlType, nullable=True)

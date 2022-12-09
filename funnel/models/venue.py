@@ -35,7 +35,7 @@ class Venue(
         grants_via={None: project_child_role_map},
     )
     parent = sa.orm.synonym('project')
-    description = MarkdownCompositeBasic.composite_columns(  # type: ignore[has-type]
+    description = MarkdownCompositeBasic.create(
         'description', default='', nullable=False
     )
     address1 = sa.Column(sa.Unicode(160), default='', nullable=False)
@@ -114,7 +114,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-
         grants_via={None: set(project_child_role_map.values())},
     )
     parent = sa.orm.synonym('venue')
-    description = MarkdownCompositeBasic.composite_columns(  # type: ignore[has-type]
+    description = MarkdownCompositeBasic.create(
         'description', default='', nullable=False
     )
     bgcolor = sa.Column(sa.Unicode(6), nullable=False, default='229922')

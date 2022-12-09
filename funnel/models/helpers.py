@@ -587,7 +587,7 @@ class MarkdownCompositeBase(MutableComposite):
     # Return a Markup string of the HTML
     @property
     def html(self):
-        """Return HTML as a property."""
+        """Return HTML as a read-only property."""
         return Markup(self._html) if self._html is not None else None
 
     @property
@@ -642,8 +642,8 @@ class MarkdownCompositeBase(MutableComposite):
         return cls(value)
 
     @classmethod
-    def composite_columns(
-        cls, name, deferred: bool = False, group: Optional[str] = None, **kwargs
+    def create(
+        cls, name: str, deferred: bool = False, group: Optional[str] = None, **kwargs
     ) -> composite:
         """Create a composite column and backing individual columns."""
         return composite(

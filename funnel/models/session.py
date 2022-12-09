@@ -53,7 +53,7 @@ class Session(
         grants_via={None: project_child_role_map},
     )
     parent = sa.orm.synonym('project')
-    description = MarkdownCompositeDocument.composite_columns(
+    description = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
     proposal_id = sa.Column(
