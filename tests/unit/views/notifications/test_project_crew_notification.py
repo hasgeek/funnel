@@ -4,6 +4,7 @@
 from pytest_bdd import given, parsers, scenarios, then, when
 
 from funnel import models
+from funnel.models.membership_mixin import MEMBERSHIP_RECORD_TYPE
 
 scenarios("project_crew_notification.feature")
 
@@ -35,10 +36,11 @@ def add_and_check_project_crew_members(
 
 
 @when(
-    "Vetinari adds twoflower as an editor",
-    target_fixture='twoflower_editor',
+    parsers.parse("Vetinari adds twoflower with role {role}"),
+    target_fixture='twoflower_member',
 )
-def add_twoflower_editor(
+def add_twoflower_member(
+    role,
     db_session,
     client,
     login,
@@ -47,20 +49,28 @@ def add_twoflower_editor(
     project_expo2010,
     user_vetinari,
 ) -> models.ProjectCrewMembership:
-    twoflower_editor = models.ProjectCrewMembership(
+    roles = [_r.strip() for _r in role.split(',')]
+    is_editor = 'editor' in roles
+    is_promoter = 'promoter' in roles
+    is_usher = 'crew' in roles
+    twoflower_member = models.ProjectCrewMembership(
         parent=project_expo2010,
         user=user_twoflower,
-        is_editor=True,
+        is_editor=is_editor,
+        is_promoter=is_promoter,
+        is_usher=is_usher,
         granted_by=user_vetinari,
     )
-    db_session.add(twoflower_editor)
+    db_session.add(twoflower_member)
     db_session.commit()
-    assert 'editor' in project_expo2010.roles_for(user_twoflower)
-    return twoflower_editor
+    return twoflower_member
 
 
-@then(parsers.parse("{user} gets notified {notification_string}."))
-def twoflower_notification(
+@then(parsers.parse("{user} gets notified {notification_string} about addition."))
+@then(parsers.parse("{user} gets notified {notification_string} about invitation."))
+@then(parsers.parse("{user} gets notified {notification_string} about acceptance."))
+@then(parsers.parse("{user} gets notified {notification_string} about amendment."))
+def user_notification_addition(
     user,
     notification_string,
     user_rincewind,
@@ -68,7 +78,7 @@ def twoflower_notification(
     user_vetinari,
     project_expo2010,
     rincewind_editor,
-    twoflower_editor,
+    twoflower_member,
 ) -> None:
     user_dict = {
         "Twoflower": user_twoflower,
@@ -77,16 +87,114 @@ def twoflower_notification(
     }
     preview = models.PreviewNotification(
         models.ProjectCrewMembershipNotification,
-        document=twoflower_editor.project,
-        fragment=twoflower_editor,
+        document=twoflower_member.project,
+        fragment=twoflower_member,
     )
     user_notification = models.NotificationFor(preview, user_dict[user])
     view = user_notification.views.render
     assert (
         view.activity_template().format(
-            actor=twoflower_editor.granted_by.fullname,
-            project=twoflower_editor.project.joined_title,
-            user=twoflower_editor.user.fullname,
+            actor=twoflower_member.granted_by.fullname,
+            project=twoflower_member.project.joined_title,
+            user=twoflower_member.user.fullname,
         )
         == notification_string
     )
+
+
+@when(
+    parsers.parse("Vetinari invites Twoflower to the project with a role {role}"),
+    target_fixture='twoflower_member',
+)
+def invite_twoflower_member(
+    role,
+    db_session,
+    client,
+    login,
+    user_rincewind,
+    user_twoflower,
+    project_expo2010,
+    user_vetinari,
+) -> models.ProjectCrewMembership:
+    roles = [_r.strip() for _r in role.split(',')]
+    is_editor = 'editor' in roles
+    is_promoter = 'promoter' in roles
+    is_usher = 'crew' in roles
+    twoflower_member = models.ProjectCrewMembership(
+        parent=project_expo2010,
+        user=user_twoflower,
+        is_editor=is_editor,
+        is_promoter=is_promoter,
+        is_usher=is_usher,
+        granted_by=user_vetinari,
+    )
+    twoflower_member.record_type = MEMBERSHIP_RECORD_TYPE.INVITE
+    db_session.add(twoflower_member)
+    db_session.commit()
+    return twoflower_member
+
+
+@when(
+    parsers.parse(
+        "Twoflower accepts the invitation to be an editor of project Expo 2010 with a role {role}"
+    ),
+    target_fixture='twoflower_member',
+)
+def accept_twoflower_member(
+    role,
+    db_session,
+    client,
+    login,
+    user_rincewind,
+    user_twoflower,
+    project_expo2010,
+    user_vetinari,
+) -> models.ProjectCrewMembership:
+    roles = [_r.strip() for _r in role.split(',')]
+    is_editor = 'editor' in roles
+    is_promoter = 'promoter' in roles
+    is_usher = 'crew' in roles
+    twoflower_member = models.ProjectCrewMembership(
+        parent=project_expo2010,
+        user=user_twoflower,
+        is_editor=is_editor,
+        is_promoter=is_promoter,
+        is_usher=is_usher,
+        granted_by=user_vetinari,
+    )
+    twoflower_member.record_type = MEMBERSHIP_RECORD_TYPE.ACCEPT
+    db_session.add(twoflower_member)
+    db_session.commit()
+    return twoflower_member
+
+
+@when(
+    parsers.parse("Twoflower's role changes to {role}"),
+    target_fixture='twoflower_member',
+)
+def amend_twoflower_member(
+    role,
+    db_session,
+    client,
+    login,
+    user_rincewind,
+    user_twoflower,
+    project_expo2010,
+    user_vetinari,
+) -> models.ProjectCrewMembership:
+    roles = [_r.strip() for _r in role.split(',')]
+    is_editor = 'editor' in roles
+    is_promoter = 'promoter' in roles
+    is_usher = 'crew' in roles
+    twoflower_member = models.ProjectCrewMembership(
+        parent=project_expo2010,
+        user=user_twoflower,
+        is_editor=is_editor,
+        is_promoter=is_promoter,
+        is_usher=is_usher,
+        granted_by=user_vetinari,
+    )
+    twoflower_member.record_type = MEMBERSHIP_RECORD_TYPE.AMEND
+    db_session.add(twoflower_member)
+    db_session.commit()
+    return twoflower_member

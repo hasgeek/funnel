@@ -186,7 +186,7 @@ decision_factors = [
         is_editor=True,
     ),
     DecisionFactor(
-        template=__("You are now an editor of {project}"),
+        template=__("You have changed your role to an editor of {project}"),
         rtypes=['amend'],
         is_subject=True,
         is_editor=True,
