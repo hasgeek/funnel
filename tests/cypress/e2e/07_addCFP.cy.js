@@ -16,7 +16,7 @@ describe('Add CFP and labels to project', () => {
     cy.get('a[data-cy="add-cfp"]').click();
     cy.location('pathname').should('contain', '/cfp');
     cy.get('#field-instructions')
-      .find('.CodeMirror textarea')
+      .find('.cm-editor .cm-line')
       .type(cfp.instructions, { force: true });
     cy.get('button[data-cy="add-cfp"]').click();
     cy.get('label.switch-label').click();

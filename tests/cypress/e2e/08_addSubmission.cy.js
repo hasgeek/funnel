@@ -68,7 +68,7 @@ describe('Add a new submission', () => {
 
     cy.get('[data-cy="post-comment"]').click();
     cy.get('[data-cy="new-form"]')
-      .find('.CodeMirror textarea')
+      .find('.cm-editor .cm-line')
       .type(proposal.proposer_note, { force: true });
     cy.wait(1000);
     cy.get('[data-cy="new-form"]').find('[data-cy="submit-comment"]').click();
