@@ -35,7 +35,7 @@ from zxcvbn import zxcvbn
 
 from .. import app
 from ..typing import T
-from ..utils import MarkdownProfile, markdown
+from ..utils import MarkdownConfig, markdown
 from . import UrlType, db, sa
 
 __all__ = [
@@ -559,7 +559,7 @@ class ImgeeType(UrlType):  # pylint: disable=abstract-method
 class MarkdownCompositeBase(MutableComposite):
     """Represents Markdown text and rendered HTML as a composite column."""
 
-    profile: ClassVar[Type[MarkdownProfile]]
+    config: ClassVar[MarkdownConfig]
 
     def __init__(self, text, html=None):
         """Create a composite."""
@@ -599,7 +599,7 @@ class MarkdownCompositeBase(MutableComposite):
     def text(self, value):
         """Set the text value."""
         self._text = None if value is None else str(value)
-        self._html = markdown(self._text, self.profile)
+        self._html = markdown(self._text, self.config)
         self.changed()
 
     def __json__(self) -> Dict[str, Optional[str]]:
@@ -658,16 +658,16 @@ class MarkdownCompositeBase(MutableComposite):
 class MarkdownCompositeBasic(MarkdownCompositeBase):
     """Markdown composite columns with support for basic CommonMark."""
 
-    profile = MarkdownProfile.registry['basic']
+    config = MarkdownConfig.registry['basic']
 
 
 class MarkdownCompositeDocument(MarkdownCompositeBase):
     """Markdown composite columns with support for all features."""
 
-    profile = MarkdownProfile.registry['document']
+    config = MarkdownConfig.registry['document']
 
 
 class MarkdownCompositeInline(MarkdownCompositeBase):
     """Markdown composite columns with support for inline markup only."""
 
-    profile = MarkdownProfile.registry['inline']
+    config = MarkdownConfig.registry['inline']

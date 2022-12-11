@@ -3,25 +3,24 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import (
     Any,
     Callable,
+    ClassVar,
     Dict,
+    Iterable,
     List,
-    Mapping,
     Optional,
-    Tuple,
-    Type,
-    TypedDict,
+    Set,
     Union,
     overload,
 )
-import json
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
 from mdit_py_plugins import anchors, footnote, tasklists
-from typing_extensions import NotRequired
+from typing_extensions import Literal
 
 from coaster.utils import make_name
 from coaster.utils.text import normalize_spaces_multiline
@@ -35,7 +34,7 @@ from .mdit_plugins import (  # toc_plugin,
     sup_plugin,
 )
 
-__all__ = ['markdown', 'markdown_plugins', 'markdown_plugin_config', 'MarkdownProfile']
+__all__ = ['markdown', 'markdown_plugins', 'markdown_plugin_config', 'MarkdownConfig']
 
 default_markdown_extensions: List[str] = ['footnote', 'heading_anchors', 'tasklists']
 
@@ -67,61 +66,61 @@ markdown_plugin_config: Dict[str, Dict[str, Any]] = {
     'mermaid': {'name': 'mermaid'},
 }
 
-
-class PostConfig(TypedDict):
-    disable: NotRequired[List[str]]
-    enable: NotRequired[List[str]]
-    enableOnly: NotRequired[List[str]]  # noqa: N815
+OptionStrings = Literal['html', 'breaks', 'linkify', 'typographer']
 
 
-class MarkdownProfile:
+@dataclass
+class MarkdownConfig:
     """Markdown config metadata in a non-callable class structure."""
 
-    # Registry of named sub-classes
-    registry: Dict[str, Type[MarkdownProfile]] = {}
+    #: Registry of named sub-classes
+    registry: ClassVar[Dict[str, MarkdownConfig]] = {}
 
-    args: Tuple[str, Mapping] = (
-        'commonmark',
-        {
-            'html': False,
-            'breaks': True,
-        },
+    #: Optional name for this config, for adding to the registry
+    name: Optional[str] = None
+
+    #: Markdown-it preset configuration
+    preset: Literal['zero', 'commonmark', 'js-default', 'gfm-like'] = 'commonmark'
+    #: Updated options against the preset
+    options_update: Dict[OptionStrings, bool] = field(
+        default_factory=lambda: {'breaks': True}
     )
-    plugins: List[str] = []
-    post_config: PostConfig = {}
-    render_with: str = 'render'
+    #: Allow only inline rules (skips all block rules)?
+    inline: bool = False
 
+    #: Use these plugins
+    plugins: Iterable[str] = ()
+    #: Enable these rules (provided by plugins)
+    enable_rules: Optional[Set[str]] = None
+    #: Disable these rules
+    disable_rules: Optional[Set[str]] = None
+
+    #: If linkify is enabled, apply to fuzzy links too?
     linkify_fuzzy_link: bool = False
+    #: If linkify is enabled, make email links too?
     linkify_fuzzy_email: bool = False
 
-    def __new__(cls):
-        raise RuntimeError("Markdown profiles cannot be instantiated")
+    def __post_init__(self):
+        for ext in self.plugins:
+            if ext not in markdown_plugins:
+                raise TypeError(f"Unknown Markdown plugin {ext}")
 
-    def __init_subclass__(cls, name: str) -> None:
-        if name in MarkdownProfile.registry:
-            raise TypeError(f"MarkdownProfile '{name}' already exists")
-        MarkdownProfile.registry[name] = cls
-        super().__init_subclass__()
-
-    # @classmethod
-    # def markdown(cls, *args, **kwargs)
+        # If this configuration has a name, add it to the registry
+        if self.name is not None:
+            self.registry[self.name] = self
 
 
-class MarkdownProfileBasic(MarkdownProfile, name='basic'):
-    pass
-
-
-class MarkdownProfileDocument(MarkdownProfile, name='document'):
-    args: Tuple[str, Mapping] = (
-        'gfm-like',
-        {
-            'html': False,
-            'linkify': True,
-            'typographer': True,
-            'breaks': True,
-        },
-    )
-    plugins: List[str] = [
+MarkdownConfig(name='basic', options_update={'html': False, 'breaks': True})
+MarkdownConfig(
+    name='document',
+    preset='gfm-like',
+    options_update={
+        'html': False,
+        'linkify': True,
+        'typographer': True,
+        'breaks': True,
+    },
+    plugins={
         'footnote',
         'heading_anchors',
         'tasklists',
@@ -134,38 +133,30 @@ class MarkdownProfileDocument(MarkdownProfile, name='document'):
         'vega-lite',
         'mermaid',
         # 'toc',
-    ]
-    post_config: PostConfig = {'enable': ['smartquotes']}
-
-
-class MarkdownProfileInline(MarkdownProfile, name='inline'):
-    args: Tuple[str, Mapping] = (
-        'zero',
-        {
-            'html': False,
-        },
-    )
-    post_config: PostConfig = {
-        'enable': [
-            'emphasis',
-            'backticks',
-        ],
-    }
-    render_with: str = 'renderInline'
+    },
+    enable_rules={'smartquotes'},
+)
+MarkdownConfig(
+    name='inline',
+    preset='zero',
+    options_update={'html': False, 'breaks': False},
+    inline=True,
+    enable_rules={'emphasis', 'backticks'},
+)
 
 
 @overload
-def markdown(text: None, profile: Union[str, Type[MarkdownProfile]]) -> None:
+def markdown(text: None, profile: Union[str, MarkdownConfig]) -> None:
     ...
 
 
 @overload
-def markdown(text: str, profile: Union[str, Type[MarkdownProfile]]) -> Markup:
+def markdown(text: str, profile: Union[str, MarkdownConfig]) -> Markup:
     ...
 
 
 def markdown(
-    text: Optional[str], profile: Union[str, Type[MarkdownProfile]]
+    text: Optional[str], profile: Union[str, MarkdownConfig]
 ) -> Optional[Markup]:
     """
     Markdown parser compliant with Commonmark+GFM using markdown-it-py.
@@ -180,12 +171,12 @@ def markdown(
 
     if isinstance(profile, str):
         try:
-            profile = MarkdownProfile.registry[profile]
+            profile = MarkdownConfig.registry[profile]
         except KeyError as exc:
             raise KeyError(f"Unknown Markdown config profile '{profile}'") from exc
 
     # TODO: Move MarkdownIt instance generation to profile class method
-    md = MarkdownIt(*profile.args)
+    md = MarkdownIt(profile.preset, profile.options_update)
 
     if md.linkify is not None:
         md.linkify.set(
@@ -195,47 +186,15 @@ def markdown(
             }
         )
 
-    for action in ['enableOnly', 'enable', 'disable']:
-        if action in profile.post_config:
-            getattr(md, action)(
-                profile.post_config[action]  # type: ignore[literal-required]
-            )
+    if profile.enable_rules:
+        md.enable(profile.enable_rules)
+    if profile.disable_rules:
+        md.disable(profile.disable_rules)
 
     for e in profile.plugins:
-        try:
-            ext = markdown_plugins[e]
-        except KeyError as exc:
-            raise KeyError(
-                f'Wrong markdown-it-py plugin key "{e}". Check name.'
-            ) from exc
+        ext = markdown_plugins[e]
         md.use(ext, **markdown_plugin_config.get(e, {}))
 
-    # type: ignore[arg-type]
-    return Markup(getattr(md, profile.render_with)(text))
-
-
-def _print_rules(md: MarkdownIt, active: Optional[str] = None):
-    """Debug function to be removed before merge."""
-    rules = {'all_rules': md.get_all_rules(), 'active_rules': {}}
-    for p, pr in MarkdownProfile.registry.items():
-        m = MarkdownIt(*pr.args)
-        if m.linkify is not None:
-            m.linkify.set({'fuzzy_link': False, 'fuzzy_email': False})
-        for action in ['enableOnly', 'enable', 'disable']:
-            if action in pr.post_config:
-                getattr(m, action)(
-                    pr.post_config[action]  # type: ignore[literal-required]
-                )
-        for e in pr.plugins:
-            try:
-                ext = markdown_plugins[e]
-            except KeyError as exc:
-                raise KeyError(
-                    f'Wrong markdown-it-py plugin key "{e}". Check name.'
-                ) from exc
-            m.use(ext, **markdown_plugin_config.get(e, {}))
-        rules['active_rules'][p] = m.get_active_rules()
-    if active is not None:
-        print(json.dumps(rules['active_rules'][active], indent=2))  # noqa: T201
-    else:
-        print(json.dumps(rules, indent=2))  # noqa: T201
+    if profile.inline:
+        return Markup(md.renderInline(text or ''))
+    return Markup(md.render(text or ''))

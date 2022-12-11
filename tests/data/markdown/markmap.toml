@@ -104,7 +104,7 @@ markdown = """
 profiles = [ "basic", "document",]
 
 [config.custom_profiles.markmap]
-args_config = "default"
+preset = "default"
 plugins = [ "markmap",]
 [expected_output]
 basic = """<h3>Markmap</h3>

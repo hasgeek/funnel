@@ -25,7 +25,7 @@ This is some more random text to test whether the footnotes are placed after thi
 profiles = [ "basic", "document",]
 
 [config.custom_profiles.footnotes]
-args_config = "default"
+preset = "default"
 plugins = ["footnote"]
 
 [expected_output]

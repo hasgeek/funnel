@@ -9,14 +9,14 @@ from baseframe import _
 
 from ... import app
 from ...typing import ReturnView
-from ...utils import MarkdownProfile, markdown
+from ...utils import MarkdownConfig, markdown
 
 
 @app.route('/api/1/preview/markdown', methods=['POST'])
 def markdown_preview() -> ReturnView:
     """Render Markdown in the backend, with custom options based on use case."""
     profile: Optional[str] = request.form.get('profile')
-    if profile is None or profile not in MarkdownProfile.registry:
+    if profile is None or profile not in MarkdownConfig.registry:
         return {
             'status': 'error',
             'error': 'not_implemented',

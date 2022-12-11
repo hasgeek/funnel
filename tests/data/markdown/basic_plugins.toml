@@ -93,7 +93,7 @@ __bold*==emphasized mark==*__
 profiles = [ "basic", "document",]
 
 [config.custom_profiles.basic_plugins]
-args_config = "default"
+preset = "default"
 plugins = [ "ins","del","sup","sub","mark"]
 
 [expected_output]

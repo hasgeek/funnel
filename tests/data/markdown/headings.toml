@@ -27,7 +27,7 @@ Text with 2 or more hyphens below it converts to H2
 profiles = [ "basic", "document",]
 
 [config.custom_profiles.heading_anchors]
-args_config = "default"
+preset = "default"
 plugins = [ "heading_anchors",]
 
 [expected_output]

@@ -1,9 +1,10 @@
 """Tests for markdown parser."""
+# pylint: disable=too-many-arguments
 
 from copy import copy
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Type, Union
+from typing import Dict, List, Optional, Tuple, Union
 import warnings
 
 from bs4 import BeautifulSoup
@@ -11,7 +12,7 @@ from markupsafe import Markup
 import pytest
 import tomlkit
 
-from funnel.utils.markdown import MarkdownProfile, markdown
+from funnel.utils.markdown import MarkdownConfig, markdown
 
 DATAROOT: Path = Path('tests/data/markdown')
 
@@ -22,70 +23,37 @@ class MarkdownCase:
     def __init__(
         self,
         test_id: str,
-        markdown: str,
-        profile_id: str,
-        profile: Optional[Dict] = None,
+        mdtext: str,
+        configname: str,
+        config: Optional[Dict] = None,
         expected_output: Optional[str] = None,
     ) -> None:
-        self.test_id: str = test_id
-        self.markdown: str = markdown
-
-        # self.profile_id is used to identify a MarkdownProfile class
-        # stored in it's registry.
-        self.profile_id: str = profile_id
-
-        # self.profile will contain a custom class inherited from MarkdownProfile,
-        # in the case of custom profiles specified in test cases, else None.
-        self.profile: Optional[Type[MarkdownProfile]] = MarkdownCase.make_profile(
-            profile, profile_id
-        )
-        self.expected_output: Optional[str] = expected_output
-
-    @staticmethod
-    def make_profile(profile: Optional[Dict], profile_id: str):
-        if profile is None:
-            return None
-
-        class MarkdownProfileCustom(MarkdownProfile, name=profile_id):
-            pass
-
-        # Update self.args for the custom profile
-        l: List = list(MarkdownProfileCustom.args)
-        if 'args_config' in profile:
-            l[0] = profile['args_config']
-        if 'args_options' in profile:
-            l[1].update(profile['args_options'])
-        MarkdownProfileCustom.args = (l[0], l[1])
-
-        # Update other keys, if present
-        if 'plugins' in profile:
-            MarkdownProfileCustom.plugins = profile['plugins']
-        if 'post_config' in profile:
-            MarkdownProfileCustom.post_config = profile['post_config']
-        if 'render_with' in profile:
-            MarkdownProfileCustom.render_with = profile['render_with']
-        return MarkdownProfileCustom
+        self.test_id = test_id
+        self.mdtext = mdtext
+        self.configname = configname
+        self.config = MarkdownConfig(**config) if config else None
+        self.expected_output = expected_output
 
     def __repr__(self) -> str:
-        return self.case_id
+        return self.caseid
 
     @property
-    def case_id(self) -> str:
-        return f'{self.test_id}-{self.profile_id}'
+    def caseid(self) -> str:
+        return f'{self.test_id}-{self.configname}'
 
     @property
-    def markdown_profile(self) -> Union[str, Type[MarkdownProfile]]:
+    def markdown_config(self) -> Union[str, MarkdownConfig]:
         """
-        Return the markdown profile for the test case.
+        Return the markdown config for the test case.
 
-        Output is str if the profile is pre-defined,
-        else a custom class inherited from MarkdownProfile.
+        Output is str if the config is pre-defined,
+        else a custom class inherited from MarkdownConfig.
         """
-        return self.profile if self.profile is not None else self.profile_id
+        return self.config if self.config is not None else self.configname
 
     @property
     def output(self) -> str:
-        return markdown(self.markdown, self.markdown_profile)
+        return markdown(self.mdtext, self.config or self.configname)
 
     def update_expected_output(self) -> None:
         self.expected_output = self.output
@@ -109,16 +77,16 @@ class MarkdownTestRegistry:
                 config = test_data['config']
                 exp = test_data.get('expected_output', {})
                 # Combine pre-defined profiles with custom profiles
-                # and store each test case in test_map[test_id][profile_id]
+                # and store each test case in test_map[test_id][configname]
                 cls.test_map[test_id] = {
-                    profile_id: MarkdownCase(
-                        test_id,
-                        test_data['markdown'],
-                        profile_id,
-                        profile=profile,
-                        expected_output=exp.get(profile_id, None),
+                    configname: MarkdownCase(
+                        test_id=test_id,
+                        mdtext=test_data['markdown'],
+                        configname=configname,
+                        config=config,
+                        expected_output=Markup(exp.get(configname, None)),
                     )
-                    for profile_id, profile in {
+                    for configname, config in {
                         **{p: None for p in config.get('profiles', [])},
                         **config.get('custom_profiles', {}),
                     }.items()
@@ -129,8 +97,8 @@ class MarkdownTestRegistry:
         if cls.test_map is not None:
             for test_id, data in cls.test_files.items():
                 data['expected_output'] = {
-                    profile_id: tomlkit.api.string(case.output, multiline=True)
-                    for profile_id, case in cls.test_map[test_id].items()
+                    configname: tomlkit.api.string(case.output, multiline=True)
+                    for configname, case in cls.test_map[test_id].items()
                 }
                 (DATAROOT / test_id).write_text(tomlkit.dumps(data))
 
@@ -139,17 +107,17 @@ class MarkdownTestRegistry:
         cls.load()
         return (
             [
-                (test_id, profile_id)
+                (test_id, configname)
                 for test_id, test in cls.test_map.items()
-                for profile_id in test.keys()
+                for configname in test.keys()
             ]
             if cls.test_map is not None
             else []
         )
 
     @classmethod
-    def test_case(cls, test_id: str, profile_id: str) -> MarkdownCase:
-        return cls.test_map[test_id][profile_id]  # type: ignore[index]
+    def test_case(cls, test_id: str, configname: str) -> MarkdownCase:
+        return cls.test_map[test_id][configname]  # type: ignore[index]
 
     @classmethod
     def update_expected_output(cls) -> None:
@@ -164,14 +132,14 @@ class MarkdownTestRegistry:
             (DATAROOT / 'template.html').read_text(), 'html.parser'
         )
         case_template = template.find(id='output_template')
-        for test_id, profile_id in cls.test_cases():
-            case: MarkdownCase = cls.test_case(test_id, profile_id)
+        for test_id, configname in cls.test_cases():
+            case: MarkdownCase = cls.test_case(test_id, configname)
             op = copy(case_template)
             del op['id']
             op.select('.filename')[0].string = case.test_id
-            op.select('.profile')[0].string = str(case.profile_id)
+            op.select('.profile')[0].string = str(case.configname)
             op.select('.config')[0].string = ''
-            op.select('.markdown .output')[0].append(case.markdown)
+            op.select('.markdown .output')[0].append(case.mdtext)
             op.select('.expected .output')[0].append(
                 BeautifulSoup(case.expected_output, 'html.parser')
                 if case.expected_output is not None
@@ -194,7 +162,7 @@ def test_markdown_none() -> None:
     assert markdown(None, 'basic') is None
     assert markdown(None, 'document') is None
     assert markdown(None, 'inline') is None
-    assert markdown(None, MarkdownProfile) is None
+    assert markdown(None, MarkdownConfig()) is None
 
 
 def test_markdown_blank() -> None:
@@ -202,16 +170,16 @@ def test_markdown_blank() -> None:
     assert markdown('', 'basic') == blank_response
     assert markdown('', 'document') == blank_response
     assert markdown('', 'inline') == blank_response
-    assert markdown('', MarkdownProfile) == blank_response
+    assert markdown('', MarkdownConfig()) == blank_response
 
 
 @pytest.mark.parametrize(
-    ('test_id', 'profile_id'),
+    ('test_id', 'configname'),
     MarkdownTestRegistry.test_cases(),
 )
-# def test_markdown_cases(test_id: str, profile_id: str, unified_diff_output) -> None:
-def test_markdown_cases(test_id: str, profile_id: str) -> None:
-    case: MarkdownCase = MarkdownTestRegistry.test_case(test_id, profile_id)
+# def test_markdown_cases(test_id: str, configname: str, unified_diff_output) -> None:
+def test_markdown_cases(test_id: str, configname: str) -> None:
+    case: MarkdownCase = MarkdownTestRegistry.test_case(test_id, configname)
     if case.expected_output is None:
         warnings.warn(f'Expected output not generated for {case}')
         pytest.skip(f'Expected output not generated for {case}')

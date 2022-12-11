@@ -134,9 +134,8 @@ erDiagram
 profiles = [ "basic", "document",]
 
 [config.custom_profiles.mermaid]
-args_config = "default"
+preset = "default"
 plugins = [ "mermaid",]
-
 
 [expected_output]
 basic = """<h1>mermaid tests</h1>

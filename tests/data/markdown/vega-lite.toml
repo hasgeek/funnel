@@ -355,7 +355,7 @@ markdown = """
 profiles = [ "basic", "document",]
 
 [config.custom_profiles.vega-lite]
-args_config = "default"
+preset = "default"
 plugins = [ "vega-lite",]
 
 [expected_output]
