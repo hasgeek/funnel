@@ -406,3 +406,14 @@ class RenderProjectCrewMembershipRevokedNotification(RenderShared, RenderNotific
         return render_template(
             'notifications/project_crew_membership_revoked_email.html.jinja2', view=self
         )
+
+    def sms(self) -> MessageTemplate:
+        return MessageTemplate(
+            message=_("You have been removed from {project}:").format(
+                project=self.project.joined_title
+            ),
+            url=shortlink(
+                self.project.url_for(_external=True, **self.tracking_tags('sms')),
+                shorter=True,
+            ),
+        )

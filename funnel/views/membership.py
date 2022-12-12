@@ -33,6 +33,7 @@ from ..models import (
     Project,
     ProjectCrewMembership,
     ProjectCrewMembershipNotification,
+    ProjectCrewMembershipRevokedNotification,
     db,
     sa,
 )
@@ -530,7 +531,7 @@ class ProjectCrewMembershipView(
                         self.obj.project, actor=current_auth.user, user=self.obj.user
                     )
                     dispatch_notification(
-                        ProjectCrewMembershipNotification(
+                        ProjectCrewMembershipRevokedNotification(
                             document=previous_membership.project,
                             fragment=previous_membership,
                         )

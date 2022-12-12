@@ -1,14 +1,13 @@
 {% extends "notifications/layout_email.html.jinja2" %}
 {% block content -%}
 
-<p>{% trans project=project.title, actor=actor.pickername %}
-    {{ actor }} has added you to ‘{{ project }}’ as a crew member.
-    {% endtrans %}</p>
+<p>{{ view.activity_html() }}</p>
 
 <p class="btn-bar">
     <a class="btn"
-        href="{{ project.url_for('crew', _external=true, utm_medium='email', utm_campaign='notification') }}">{% trans
-        %}See all crew members{% endtrans %}</a>
+        href="{{ project.url_for('crew', _external=true, utm_medium='email', utm_campaign='notification') }}">
+        {% trans %}See all crew members{% endtrans %}
+    </a>
 </p>
 
 {%- endblock %}
