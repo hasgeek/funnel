@@ -25,7 +25,7 @@ describe('Test comments feature', () => {
     cy.wait(2000);
     cy.get('[data-cy="post-comment"]').click();
     cy.get('[data-cy="new-form"]')
-      .find('.CodeMirror textarea')
+      .find('.cm-editor .cm-line')
       .type(project.comment, { force: true });
     cy.wait(1000);
     cy.get('[data-cy="new-form"]').find('[data-cy="submit-comment"]').click();
@@ -39,7 +39,7 @@ describe('Test comments feature', () => {
     cy.wait(1000);
     cy.get('a[data-cy="edit"]').click();
     cy.get('[data-cy="edit-form"]')
-      .find('.CodeMirror textarea')
+      .find('.cm-editor .cm-line')
       .type(project.edit_comment, { force: true });
     cy.wait(1000);
     cy.get('[data-cy="edit-form"]').find('[data-cy="edit-comment"]').click();
@@ -48,7 +48,7 @@ describe('Test comments feature', () => {
 
     cy.get('a[data-cy="reply"]').click();
     cy.get('[data-cy="reply-form"]')
-      .find('.CodeMirror textarea')
+      .find('.cm-editor .cm-line')
       .type(project.reply_comment, { force: true });
     cy.wait(1000);
     cy.get('[data-cy="reply-form"]').find('[data-cy="reply-comment"]').click();

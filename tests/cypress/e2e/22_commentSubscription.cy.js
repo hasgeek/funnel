@@ -19,7 +19,7 @@ describe('Confirm submission comment subscription', () => {
     cy.get(`a[data-cy-proposal="${proposal.title}"]`).click();
     cy.get('[data-cy="post-comment"]').click();
     cy.get('[data-cy="new-form"]')
-      .find('.CodeMirror textarea')
+      .find('.cm-editor .cm-line')
       .type(proposal.comment_2, { force: true });
     cy.wait(1000);
     cy.get('[data-cy="new-form"]').find('[data-cy="submit-comment"]').click();
@@ -73,7 +73,7 @@ describe('Confirm submission comment subscription', () => {
     cy.get(`a[data-cy-proposal="${proposal.title}"]`).click();
     cy.get('[data-cy="post-comment"]').click();
     cy.get('[data-cy="new-form"]')
-      .find('.CodeMirror textarea')
+      .find('.cm-editor .cm-line')
       .type(proposal.comment_3, { force: true });
     cy.wait(1000);
     cy.get('[data-cy="new-form"]').find('[data-cy="submit-comment"]').click();

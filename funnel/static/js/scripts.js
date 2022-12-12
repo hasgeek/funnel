@@ -3,70 +3,9 @@ window.Hasgeek = {};
 window.Hasgeek.Config = {
   defaultLatitude: '12.961443',
   defaultLongitude: '77.64435000000003',
-  cm_markdown_config: {
-    mode: 'gfm',
-    lineNumbers: false,
-    theme: 'default',
-    lineWrapping: true,
-    autoCloseBrackets: true,
-    viewportMargin: Infinity,
-    extraKeys: {
-      Enter: 'newlineAndIndentContinueMarkdownList',
-      Tab: false,
-      'Shift-Tab': false,
-      Home: 'goLineLeft',
-      End: 'goLineRight',
-      'Cmd-Left': 'goLineLeft',
-      'Cmd-Right': 'goLineRight',
-    },
-  },
-  cm_css_config: 'css',
-  lineNumbers: false,
-  theme: 'default',
-  lineWrapping: true,
-  autoCloseBrackets: true,
-  matchBrackets: true,
-  viewportMargin: Infinity,
-  extraKeys: {
-    Tab: false,
-    'Shift-Tab': false,
-    Home: 'goLineLeft',
-    End: 'goLineRight',
-    'Cmd-Left': 'goLineLeft',
-    'Cmd-Right': 'goLineRight',
-  },
 };
 
 function activate_widgets() {
-  if (window.CodeMirror) {
-    // Activate codemirror on all textareas with class='markdown'
-    $('textarea.markdown:not([style*="display: none"]').each(function () {
-      var editor = CodeMirror.fromTextArea(
-        this,
-        window.Hasgeek.Config.cm_markdown_config
-      );
-      var delay;
-      editor.on('change', function (instance) {
-        clearTimeout(delay);
-        delay = setTimeout(function () {
-          editor.save();
-        }, 300);
-      });
-    });
-
-    // Activate codemirror on all textareas with class='stylesheet'
-    $('textarea.stylesheet:not([style*="display: none"]').each(function () {
-      var editor = CodeMirror.fromTextArea(this, window.Hasgeek.Config.cm_css_config);
-      var delay;
-      editor.on('change', function (instance) {
-        clearTimeout(delay);
-        delay = setTimeout(function () {
-          editor.save();
-        }, 300);
-      });
-    });
-  }
-
   /* Upgrade to jquery 3.6 select2 autofocus isn't working. This is to fix that problem.
     select2/select2#5993  */
   $(document).on('select2:open', function () {

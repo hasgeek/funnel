@@ -20,7 +20,7 @@ describe('Manage project venue', () => {
         cy.location('pathname').should('contain', '/new');
         cy.get('#title').type(venue.venue_title);
         cy.get('#field-description')
-          .find('.CodeMirror textarea')
+          .find('.cm-editor .cm-line')
           .type(venue.venue_description, { force: true });
         cy.get('#address1').type(venue.venue_address1);
         cy.get('#address2').type(venue.venue_address2);
@@ -45,7 +45,7 @@ describe('Manage project venue', () => {
         cy.location('pathname').should('contain', '/new');
         cy.get('#title').type(venue.room.title);
         cy.get('#field-description')
-          .find('.CodeMirror textarea')
+          .find('.cm-editor .cm-line')
           .type(venue.room.description, { force: true });
         cy.get('#bgcolor').clear().type(venue.room.bgcolor);
         cy.get('button[data-cy="form-submit-btn"]').click();

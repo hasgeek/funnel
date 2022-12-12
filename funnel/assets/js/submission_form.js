@@ -1,9 +1,4 @@
-import { EditorView, placeholder, keymap } from '@codemirror/view';
-import { markdown, markdownLanguage, markdownKeymap } from '@codemirror/lang-markdown';
-import { html } from '@codemirror/lang-html';
-import { closeBrackets } from '@codemirror/autocomplete';
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
-import { defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
+import codemirrorHelper from './utils/codemirror';
 import initEmbed from './utils/initembed';
 import Form from './utils/formhelper';
 import SortItem from './utils/sort';
@@ -14,9 +9,6 @@ $(() => {
     formId,
     markdownPreviewElem
   ) {
-    let textareaWaitTimer;
-    const debounceInterval = 1000;
-
     function updateCollaboratorsList(responseData, updateModal = true) {
       if (updateModal) $.modal.close();
       if (responseData.message) window.toastr.success(responseData.message);
@@ -131,31 +123,11 @@ $(() => {
       }
     });
 
-    // Move this functionality to formhelper.js during to full migration to codemirror 6
     const markdownId = $(`#${formId}`).find('textarea.markdown').attr('id');
-    const extensions = [
-      EditorView.lineWrapping,
-      placeholder('Content'),
-      closeBrackets(),
-      history(),
-      syntaxHighlighting(defaultHighlightStyle),
-      keymap.of([defaultKeymap, markdownKeymap, historyKeymap]),
-      markdown({ base: markdownLanguage }),
-      html(),
-    ];
-    const view = new EditorView({
-      doc: $(`#${markdownId}`).val(),
-      extensions,
-      dispatch: (tr) => {
-        view.update([tr]);
-        $(`#${markdownId}`).val(view.state.doc.toString());
-        if (textareaWaitTimer) clearTimeout(textareaWaitTimer);
-        textareaWaitTimer = setTimeout(() => {
-          updatePreview(view);
-        }, debounceInterval);
-      },
-    });
-    document.querySelector(`#${markdownId}`).parentNode.append(view.dom);
+    if ($(`#${markdownId}`).next().hasClass('cm-editor')) {
+      $(`#${markdownId}`).next().remove();
+    }
+    codemirrorHelper(markdownId, updatePreview);
 
     $('#title')
       .keypress((event) => {
