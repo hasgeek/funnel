@@ -9,9 +9,10 @@ from baseframe import _
 
 from ... import app
 from ...typing import ReturnView
-from ...utils import MarkdownConfig, markdown
+from ...utils import MarkdownConfig
 
 
+# TODO: Require login and add rate limit (but how?)
 @app.route('/api/1/preview/markdown', methods=['POST'])
 def markdown_preview() -> ReturnView:
     """Render Markdown in the backend, with custom options based on use case."""
@@ -26,7 +27,7 @@ def markdown_preview() -> ReturnView:
         }, 422
     text = request.form.get('text')
 
-    html = markdown(text, profile)
+    html = MarkdownConfig.registry[profile].render(text)
 
     return {
         'status': 'ok',

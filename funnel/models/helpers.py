@@ -35,7 +35,7 @@ from zxcvbn import zxcvbn
 
 from .. import app
 from ..typing import T
-from ..utils import MarkdownConfig, markdown
+from ..utils import MarkdownConfig
 from . import UrlType, db, sa
 
 __all__ = [
@@ -599,7 +599,7 @@ class MarkdownCompositeBase(MutableComposite):
     def text(self, value):
         """Set the text value."""
         self._text = None if value is None else str(value)
-        self._html = markdown(self._text, self.config)
+        self._html = self.config.render(self._text)
         self.changed()
 
     def __json__(self) -> Dict[str, Optional[str]]:

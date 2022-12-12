@@ -13,7 +13,6 @@ from typing import (
     List,
     Optional,
     Set,
-    Union,
     overload,
 )
 
@@ -34,7 +33,7 @@ from .mdit_plugins import (  # toc_plugin,
     sup_plugin,
 )
 
-__all__ = ['markdown', 'markdown_plugins', 'markdown_plugin_config', 'MarkdownConfig']
+__all__ = ['markdown_plugins', 'markdown_plugin_config', 'MarkdownConfig']
 
 default_markdown_extensions: List[str] = ['footnote', 'heading_anchors', 'tasklists']
 
@@ -109,6 +108,45 @@ class MarkdownConfig:
         if self.name is not None:
             self.registry[self.name] = self
 
+    @overload
+    def render(self, text: None) -> None:
+        ...
+
+    @overload
+    def render(self, text: str) -> Markup:
+        ...
+
+    def render(self, text: Optional[str]) -> Optional[Markup]:
+        """Parse and render Markdown using markdown-it-py with the selected config."""
+        if text is None:
+            return None
+
+        # Replace invisible characters with spaces
+        text = normalize_spaces_multiline(text)
+
+        md = MarkdownIt(self.preset, self.options_update or {})
+
+        if md.linkify is not None:
+            md.linkify.set(
+                {
+                    'fuzzy_link': self.linkify_fuzzy_link,
+                    'fuzzy_email': self.linkify_fuzzy_email,
+                }
+            )
+
+        if self.enable_rules:
+            md.enable(self.enable_rules)
+        if self.disable_rules:
+            md.disable(self.disable_rules)
+
+        for e in self.plugins:
+            ext = markdown_plugins[e]
+            md.use(ext, **markdown_plugin_config.get(e, {}))
+
+        if self.inline:
+            return Markup(md.renderInline(text or ''))
+        return Markup(md.render(text or ''))
+
 
 MarkdownConfig(name='basic', options_update={'html': False, 'breaks': True})
 MarkdownConfig(
@@ -143,58 +181,3 @@ MarkdownConfig(
     inline=True,
     enable_rules={'emphasis', 'backticks'},
 )
-
-
-@overload
-def markdown(text: None, profile: Union[str, MarkdownConfig]) -> None:
-    ...
-
-
-@overload
-def markdown(text: str, profile: Union[str, MarkdownConfig]) -> Markup:
-    ...
-
-
-def markdown(
-    text: Optional[str], profile: Union[str, MarkdownConfig]
-) -> Optional[Markup]:
-    """
-    Markdown parser compliant with Commonmark+GFM using markdown-it-py.
-
-    :param profile: Config profile to use
-    """
-    if text is None:
-        return None
-
-    # Replace invisible characters with spaces
-    text = normalize_spaces_multiline(text)
-
-    if isinstance(profile, str):
-        try:
-            profile = MarkdownConfig.registry[profile]
-        except KeyError as exc:
-            raise KeyError(f"Unknown Markdown config profile '{profile}'") from exc
-
-    # TODO: Move MarkdownIt instance generation to profile class method
-    md = MarkdownIt(profile.preset, profile.options_update or {})
-
-    if md.linkify is not None:
-        md.linkify.set(
-            {
-                'fuzzy_link': profile.linkify_fuzzy_link,
-                'fuzzy_email': profile.linkify_fuzzy_email,
-            }
-        )
-
-    if profile.enable_rules:
-        md.enable(profile.enable_rules)
-    if profile.disable_rules:
-        md.disable(profile.disable_rules)
-
-    for e in profile.plugins:
-        ext = markdown_plugins[e]
-        md.use(ext, **markdown_plugin_config.get(e, {}))
-
-    if profile.inline:
-        return Markup(md.renderInline(text or ''))
-    return Markup(md.render(text or ''))

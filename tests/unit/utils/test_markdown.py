@@ -12,7 +12,7 @@ from markupsafe import Markup
 import pytest
 import tomlkit
 
-from funnel.utils.markdown import MarkdownConfig, markdown
+from funnel.utils.markdown import MarkdownConfig
 
 DATAROOT: Path = Path('tests/data/markdown')
 
@@ -31,7 +31,9 @@ class MarkdownCase:
         self.test_id = test_id
         self.mdtext = mdtext
         self.configname = configname
-        self.config = MarkdownConfig(**config) if config else None
+        self.config = (
+            MarkdownConfig(**config) if config else MarkdownConfig.registry[configname]
+        )
         self.expected_output = expected_output
 
     def __repr__(self) -> str:
@@ -53,7 +55,7 @@ class MarkdownCase:
 
     @property
     def output(self) -> str:
-        return markdown(self.mdtext, self.config or self.configname)
+        return self.config.render(self.mdtext)
 
     def update_expected_output(self) -> None:
         self.expected_output = self.output
@@ -159,18 +161,18 @@ class MarkdownTestRegistry:
 
 
 def test_markdown_none() -> None:
-    assert markdown(None, 'basic') is None
-    assert markdown(None, 'document') is None
-    assert markdown(None, 'inline') is None
-    assert markdown(None, MarkdownConfig()) is None
+    assert MarkdownConfig.registry['basic'].render(None) is None
+    assert MarkdownConfig.registry['document'].render(None) is None
+    assert MarkdownConfig.registry['inline'].render(None) is None
+    assert MarkdownConfig().render(None) is None
 
 
 def test_markdown_blank() -> None:
     blank_response = Markup('')
-    assert markdown('', 'basic') == blank_response
-    assert markdown('', 'document') == blank_response
-    assert markdown('', 'inline') == blank_response
-    assert markdown('', MarkdownConfig()) == blank_response
+    assert MarkdownConfig.registry['basic'].render('') == blank_response
+    assert MarkdownConfig.registry['document'].render('') == blank_response
+    assert MarkdownConfig.registry['inline'].render('') == blank_response
+    assert MarkdownConfig().render('') == blank_response
 
 
 @pytest.mark.parametrize(
