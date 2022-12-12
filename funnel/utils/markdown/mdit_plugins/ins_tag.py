@@ -15,7 +15,7 @@ __all__ = ['ins_plugin']
 PLUS_CHAR = 0x2B  # ASCII value for `+`
 
 
-def ins_plugin(md: MarkdownIt):
+def ins_plugin(md: MarkdownIt) -> None:
     def tokenize(state: StateInline, silent: bool):
         """Insert each marker as a separate text token, and add it to delimiter list."""
         start = state.pos

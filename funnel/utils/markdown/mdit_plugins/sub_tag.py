@@ -15,7 +15,7 @@ __all__ = ['sub_plugin']
 TILDE_CHAR = 0x7E  # ASCII value for `~`
 
 
-def sub_plugin(md: MarkdownIt):
+def sub_plugin(md: MarkdownIt) -> None:
     def tokenize(state: StateInline, silent: bool):
         start = state.pos
         marker = state.srcCharCode[start]

@@ -15,7 +15,7 @@ __all__ = ['mark_plugin']
 EQUALS_CHAR = 0x3D  # ASCII value for `=`
 
 
-def mark_plugin(md: MarkdownIt):
+def mark_plugin(md: MarkdownIt) -> None:
     def tokenize(state: StateInline, silent: bool):
         """Insert each marker as a separate text token, and add it to delimiter list."""
         start = state.pos

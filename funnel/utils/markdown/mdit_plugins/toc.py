@@ -165,7 +165,7 @@ def toc_item_to_html(item: Dict, options: Dict, md: MarkdownIt) -> str:
     return html
 
 
-def toc_plugin(md: MarkdownIt, **opts):
+def toc_plugin(md: MarkdownIt, **opts) -> None:
     opts = {
         **defaults,
         **opts,

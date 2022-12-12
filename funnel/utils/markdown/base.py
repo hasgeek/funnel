@@ -10,9 +10,9 @@ from typing import (
     ClassVar,
     Dict,
     Iterable,
-    List,
     Optional,
     Set,
+    Union,
     overload,
 )
 
@@ -33,39 +33,30 @@ from .mdit_plugins import (  # toc_plugin,
     sup_plugin,
 )
 
-__all__ = ['markdown_plugins', 'markdown_plugin_config', 'MarkdownConfig']
+__all__ = ['MarkdownPlugin', 'MarkdownConfig']
 
-default_markdown_extensions: List[str] = ['footnote', 'heading_anchors', 'tasklists']
-
-markdown_plugins: Dict[str, Callable] = {
-    'footnote': footnote.footnote_plugin,
-    'heading_anchors': anchors.anchors_plugin,
-    'tasklists': tasklists.tasklists_plugin,
-    'ins': ins_plugin,
-    'del': del_plugin,
-    'sub': sub_plugin,
-    'sup': sup_plugin,
-    'mark': mark_plugin,
-    'markmap': embeds_plugin,
-    'vega-lite': embeds_plugin,
-    'mermaid': embeds_plugin,
-    # 'toc': toc_plugin,
-}
-
-markdown_plugin_config: Dict[str, Dict[str, Any]] = {
-    'heading_anchors': {
-        'min_level': 1,
-        'max_level': 3,
-        'slug_func': lambda x, **options: 'h:' + make_name(x, **options),
-        'permalink': True,
-    },
-    'tasklists': {'enabled': True, 'label': True, 'label_after': False},
-    'markmap': {'name': 'markmap'},
-    'vega-lite': {'name': 'vega-lite'},
-    'mermaid': {'name': 'mermaid'},
-}
 
 OptionStrings = Literal['html', 'breaks', 'linkify', 'typographer']
+
+
+@dataclass
+class MarkdownPlugin:
+    """Markdown plugin registry with configuration."""
+
+    #: Registry of named sub-classes
+    registry: ClassVar[Dict[str, MarkdownConfig]] = {}
+
+    #: Optional name for this config, for adding to the registry
+    name: str
+    func: Callable
+    config: Optional[Dict[str, Any]] = None
+
+    def __post_init__(self):
+        # If this plugin+configuration has a name, add it to the registry
+        if self.name is not None:
+            if self.name in self.registry:
+                raise NameError(f"Plugin {self.name} has already been registered")
+            self.registry[self.name] = self
 
 
 @dataclass
@@ -88,7 +79,7 @@ class MarkdownConfig:
     inline: bool = False
 
     #: Use these plugins
-    plugins: Iterable[str] = ()
+    plugins: Iterable[Union[str, MarkdownPlugin]] = ()
     #: Enable these rules (provided by plugins)
     enable_rules: Optional[Set[str]] = None
     #: Disable these rules
@@ -100,12 +91,18 @@ class MarkdownConfig:
     linkify_fuzzy_email: bool = False
 
     def __post_init__(self):
-        for ext in self.plugins:
-            if ext not in markdown_plugins:
-                raise TypeError(f"Unknown Markdown plugin {ext}")
+        try:
+            self.plugins = [
+                MarkdownPlugin.registry[plugin] if isinstance(plugin, str) else plugin
+                for plugin in self.plugins
+            ]
+        except KeyError as exc:
+            raise TypeError(f"Unknown Markdown plugin {exc.args[0]}") from None
 
-        # If this configuration has a name, add it to the registry
+        # If this plugin+configuration has a name, add it to the registry
         if self.name is not None:
+            if self.name in self.registry:
+                raise NameError(f"Config {self.name} has already been registered")
             self.registry[self.name] = self
 
     @overload
@@ -139,14 +136,43 @@ class MarkdownConfig:
         if self.disable_rules:
             md.disable(self.disable_rules)
 
-        for e in self.plugins:
-            ext = markdown_plugins[e]
-            md.use(ext, **markdown_plugin_config.get(e, {}))
+        for plugin in self.plugins:
+            md.use(plugin.func, **(plugin.config or {}))  # type: ignore[union-attr]
 
         if self.inline:
             return Markup(md.renderInline(text or ''))
         return Markup(md.render(text or ''))
 
+
+# --- Markdown plugins -----------------------------------------------------------------
+
+MarkdownPlugin('footnote', footnote.footnote_plugin)
+MarkdownPlugin(
+    'heading_anchors',
+    anchors.anchors_plugin,
+    {
+        'min_level': 1,
+        'max_level': 3,
+        'slug_func': lambda x: 'h:' + make_name(x),
+        'permalink': True,
+    },
+)
+MarkdownPlugin(
+    'tasklists',
+    tasklists.tasklists_plugin,
+    {'enabled': True, 'label': True, 'label_after': False},
+)
+MarkdownPlugin('ins', ins_plugin)
+MarkdownPlugin('del', del_plugin)
+MarkdownPlugin('sub', sub_plugin)
+MarkdownPlugin('sup', sup_plugin)
+MarkdownPlugin('mark', mark_plugin)
+MarkdownPlugin('markmap', embeds_plugin, {'name': 'markmap'})
+MarkdownPlugin('vega-lite', embeds_plugin, {'name': 'vega-lite'})
+MarkdownPlugin('mermaid', embeds_plugin, {'name': 'mermaid'})
+# MarkdownPlugin('toc', toc_plugin)
+
+# --- Markdown configurations ----------------------------------------------------------
 
 MarkdownConfig(name='basic', options_update={'html': False, 'breaks': True})
 MarkdownConfig(

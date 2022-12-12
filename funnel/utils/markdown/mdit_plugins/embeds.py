@@ -23,7 +23,7 @@ def embeds_plugin(
     md: MarkdownIt,
     name: str,
     marker: str = '`',
-):
+) -> None:
     def validate(params: str, *args):
         results = re.findall(r'^{\s*([a-zA-Z0-9_\-]+)\s*}.*$', params.strip())
         return len(results) != 0 and results[0] == name

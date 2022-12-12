@@ -5,7 +5,7 @@ from markdown_it import MarkdownIt
 __all__ = ['del_plugin']
 
 
-def del_plugin(md: MarkdownIt):
+def del_plugin(md: MarkdownIt) -> None:
     def del_open(self, tokens, idx, options, env):
         return '<del>'
 

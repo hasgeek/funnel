@@ -15,7 +15,7 @@ __all__ = ['sup_plugin']
 CARET_CHAR = 0x5E  # ASCII value for `^`
 
 
-def sup_plugin(md: MarkdownIt):
+def sup_plugin(md: MarkdownIt) -> None:
     def tokenize(state: StateInline, silent: bool):
         start = state.pos
         marker = state.srcCharCode[start]
