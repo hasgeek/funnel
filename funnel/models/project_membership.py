@@ -2,16 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Dict, Iterable, Optional, Set
+from typing import Dict, Set
 
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import (
-    DynamicAssociationProxy,
-    LazyRoleSet,
-    immutable,
-    with_roles,
-)
+from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from ..typing import Mapped
 from . import db, declared_attr, sa
@@ -22,7 +17,7 @@ from .user import User
 
 __all__ = ['ProjectCrewMembership', 'project_child_role_map']
 
-# Roles in a project and their remapped names in objects attached to a project
+#: Roles in a project and their remapped names in objects attached to a project
 project_child_role_map: Dict[str, str] = {
     'editor': 'project_editor',
     'promoter': 'project_promoter',
@@ -31,6 +26,11 @@ project_child_role_map: Dict[str, str] = {
     'participant': 'project_participant',
     'reader': 'reader',
 }
+
+#: ProjectCrewMembership maps project's `profile_admin` role to membership's `editor`
+#: role in addition to the recurring role grant map
+project_membership_role_map = {'profile_admin': 'editor'}
+project_membership_role_map.update(project_child_role_map)
 
 
 class ProjectCrewMembership(
@@ -51,9 +51,6 @@ class ProjectCrewMembership(
         'all': {
             'read': {'urls', 'user', 'is_editor', 'is_promoter', 'is_usher', 'project'}
         },
-        'project_editor': {'read': {'record_type_label', 'granted_by'}},
-        'project_promoter': {'read': {'record_type_label', 'granted_by'}},
-        'project_usher': {'read': {'record_type_label', 'granted_by'}},
         'project_crew': {'read': {'record_type_label', 'granted_by'}},
     }
     __datasets__ = {
@@ -92,11 +89,17 @@ class ProjectCrewMembership(
         )
     )
     project: sa.orm.relationship[Project] = immutable(
-        sa.orm.relationship(
-            Project,
-            backref=sa.orm.backref(
-                'crew_memberships', lazy='dynamic', cascade='all', passive_deletes=True
+        with_roles(
+            sa.orm.relationship(
+                Project,
+                backref=sa.orm.backref(
+                    'crew_memberships',
+                    lazy='dynamic',
+                    cascade='all',
+                    passive_deletes=True,
+                ),
             ),
+            grants_via={None: project_membership_role_map},
         )
     )
     parent = sa.orm.synonym('project')
@@ -145,16 +148,6 @@ class ProjectCrewMembership(
             roles.add('promoter')
         if self.is_usher:
             roles.add('usher')
-        return roles
-
-    def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
-    ) -> LazyRoleSet:
-        roles = super().roles_for(actor, anchors)
-        if 'editor' in self.project.roles_for(actor, anchors):
-            roles.add('project_editor')
-        if 'admin' in self.project.profile.roles_for(actor, anchors):
-            roles.add('profile_admin')
         return roles
 
 
