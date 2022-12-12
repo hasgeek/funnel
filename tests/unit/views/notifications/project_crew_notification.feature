@@ -96,8 +96,8 @@ Feature: Project Crew Notification
     Given Vimes is a promoter of Ankh-Morpork 2010
     Given Ridcully is a crew member of the project
     When Ridcully is removed from the project by Vimes
-    Then Ridcully gets a notification 'You were removed as crew member of Ankh-Morpork 2010 by Havelock Vetinari'
-    Then Crew members get a notification 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Havelock Vetinari'
+    Then Ridcully gets a notification 'You were removed as crew member of Ankh-Morpork 2010 by Sam Vimes'
+    Then Crew members get a notification 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Sam Vimes'
 
   Scenario Outline: Ridcully removes himself
     Given Vetinari is an owner of the Ankh-Morpork organization
@@ -106,4 +106,4 @@ Feature: Project Crew Notification
     Given Ridcully is a crew member of the project
     When Ridcully removes himself from the project
     Then Ridcully gets a notification 'You removed yourself as a crew member of Ankh-Morpork 2010'
-    Then Crew members get a notification 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Havelock Vetinari'
+    Then Crew members get a notification 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Mustrum Ridcully'

@@ -259,7 +259,7 @@ def when_ridcully_removed(
 
 
 @then(
-    "Ridcully gets a notification 'You were removed as crew member of Ankh-Morpork 2010 by Havelock Vetinari'"
+    "Ridcully gets a notification 'You were removed as crew member of Ankh-Morpork 2010 by Sam Vimes'"
 )
 def then_ridcully_notification(ridcully_member, user_ridcully):
     preview = models.PreviewNotification(
@@ -271,16 +271,16 @@ def then_ridcully_notification(ridcully_member, user_ridcully):
     view = user_notification.views.render
     assert (
         view.activity_template().format(
-            actor=ridcully_member.granted_by.fullname,
+            actor=ridcully_member.revoked_by.fullname,
             project=ridcully_member.project.joined_title,
             user=ridcully_member.user.fullname,
         )
-        == 'You were removed as crew member of Ankh-Morpork 2010 by Havelock Vetinari'
+        == 'You were removed as crew member of Ankh-Morpork 2010 by Sam Vimes'
     )
 
 
 @then(
-    "Crew members get a notification 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Havelock Vetinari'"
+    "Crew members get a notification 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Sam Vimes'"
 )
 def then_crew_notification(ridcully_member, user_ridcully, user_vetinari):
     preview = models.PreviewNotification(
@@ -292,11 +292,11 @@ def then_crew_notification(ridcully_member, user_ridcully, user_vetinari):
     view = user_notification.views.render
     assert (
         view.activity_template().format(
-            actor=ridcully_member.granted_by.fullname,
+            actor=ridcully_member.revoked_by.fullname,
             project=ridcully_member.project.joined_title,
             user=ridcully_member.user.fullname,
         )
-        == 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Havelock Vetinari'
+        == 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Sam Vimes'
     )
 
 
@@ -330,4 +330,27 @@ def then_ridcully_self_removal_notification(ridcully_member, user_ridcully):
             project=ridcully_member.project.joined_title,
         )
         == 'You removed yourself as a crew member of Ankh-Morpork 2010'
+    )
+
+
+@then(
+    "Crew members get a notification 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Mustrum Ridcully'"
+)
+def then_crew_ridcully_self_removal_notification(
+    ridcully_member, user_ridcully, user_vetinari
+):
+    preview = models.PreviewNotification(
+        models.ProjectCrewMembershipRevokedNotification,
+        document=ridcully_member.project,
+        fragment=ridcully_member,
+    )
+    user_notification = models.NotificationFor(preview, user_vetinari)
+    view = user_notification.views.render
+    assert (
+        view.activity_template().format(
+            project=ridcully_member.project.joined_title,
+            user=ridcully_member.user.fullname,
+            actor=ridcully_member.revoked_by.fullname,
+        )
+        == 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Mustrum Ridcully'
     )
