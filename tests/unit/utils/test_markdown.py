@@ -32,7 +32,9 @@ class MarkdownCase:
         self.mdtext = mdtext
         self.configname = configname
         self.config = (
-            MarkdownConfig(**config) if config else MarkdownConfig.registry[configname]
+            MarkdownConfig(**config)
+            if config is not None
+            else MarkdownConfig.registry[configname]
         )
         self.expected_output = expected_output
 
