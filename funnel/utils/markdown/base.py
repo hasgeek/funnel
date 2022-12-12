@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import (
     Any,
     Callable,
@@ -82,9 +82,7 @@ class MarkdownConfig:
     #: Markdown-it preset configuration
     preset: Literal['zero', 'commonmark', 'js-default', 'gfm-like'] = 'commonmark'
     #: Updated options against the preset
-    options_update: Dict[OptionStrings, bool] = field(
-        default_factory=lambda: {'breaks': True}
-    )
+    options_update: Optional[Dict[OptionStrings, bool]] = None
     #: Allow only inline rules (skips all block rules)?
     inline: bool = False
 
@@ -176,7 +174,7 @@ def markdown(
             raise KeyError(f"Unknown Markdown config profile '{profile}'") from exc
 
     # TODO: Move MarkdownIt instance generation to profile class method
-    md = MarkdownIt(profile.preset, profile.options_update)
+    md = MarkdownIt(profile.preset, profile.options_update or {})
 
     if md.linkify is not None:
         md.linkify.set(

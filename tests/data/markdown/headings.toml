@@ -28,6 +28,7 @@ profiles = [ "basic", "document",]
 
 [config.custom_profiles.heading_anchors]
 preset = "default"
+options_update = {"breaks" = true}
 plugins = [ "heading_anchors",]
 
 [expected_output]

@@ -94,6 +94,7 @@ profiles = [ "basic", "document",]
 
 [config.custom_profiles.basic_plugins]
 preset = "default"
+options_update = {"breaks" = true}
 plugins = [ "ins","del","sup","sub","mark"]
 
 [expected_output]
