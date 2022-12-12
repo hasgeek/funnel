@@ -80,7 +80,9 @@ class MarkdownConfig:
     name: Optional[str] = None
 
     #: Markdown-it preset configuration
-    preset: Literal['zero', 'commonmark', 'js-default', 'gfm-like'] = 'commonmark'
+    preset: Literal[
+        'default', 'zero', 'commonmark', 'js-default', 'gfm-like'
+    ] = 'commonmark'
     #: Updated options against the preset
     options_update: Optional[Dict[OptionStrings, bool]] = None
     #: Allow only inline rules (skips all block rules)?
