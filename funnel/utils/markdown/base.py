@@ -61,7 +61,7 @@ class MarkdownPlugin:
 
 @dataclass
 class MarkdownConfig:
-    """Markdown config metadata in a non-callable class structure."""
+    """Markdown processor with custom configuration, with a registry."""
 
     #: Registry of named sub-classes
     registry: ClassVar[Dict[str, MarkdownConfig]] = {}
