@@ -1,4 +1,5 @@
 """Test configuration for markdown tests."""
+# pylint: disable=too-many-arguments
 
 from copy import copy
 from datetime import datetime
@@ -12,7 +13,7 @@ import tomlkit
 from funnel.utils.markdown import MarkdownConfig
 
 
-def pytest_generate_tests(metafunc):
+def pytest_generate_tests(metafunc) -> None:
     md_tests_data_root: Path = Path('tests/unit/utils/markdown/data')
 
     class MarkdownCase:
@@ -159,12 +160,12 @@ def pytest_generate_tests(metafunc):
             (md_tests_data_root / 'output.html').write_text(template.prettify())
 
     if (
-        "md_testname" in metafunc.fixturenames
-        and "md_configname" in metafunc.fixturenames
+        'md_testname' in metafunc.fixturenames
+        and 'md_configname' in metafunc.fixturenames
     ):
         metafunc.parametrize(
             ('md_testname', 'md_configname'), MarkdownTestRegistry.test_cases()
         )
 
-    if "markdown_test_registry" in metafunc.fixturenames:
+    if 'markdown_test_registry' in metafunc.fixturenames:
         metafunc.parametrize('markdown_test_registry', [MarkdownTestRegistry])
