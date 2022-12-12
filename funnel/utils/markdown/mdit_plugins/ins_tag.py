@@ -129,7 +129,7 @@ def ins_plugin(md: MarkdownIt):
             except IndexError:
                 pass
             else:
-                if curr_meta and "delimiters" in curr_meta:
+                if curr_meta and 'delimiters' in curr_meta:
                     _post_process(state, curr_meta["delimiters"])
             curr += 1
 

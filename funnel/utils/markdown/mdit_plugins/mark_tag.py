@@ -12,6 +12,8 @@ from markdown_it.rules_inline.state_inline import Delimiter
 
 __all__ = ['mark_plugin']
 
+EQUALS_CHAR = 0x3D  # ASCII value for `=`
+
 
 def mark_plugin(md: MarkdownIt):
     def tokenize(state: StateInline, silent: bool):
@@ -23,7 +25,7 @@ def mark_plugin(md: MarkdownIt):
         if silent:
             return False
 
-        if marker != 0x3D:
+        if marker != EQUALS_CHAR:
             return False
 
         scanned = state.scanDelims(state.pos, True)
@@ -34,7 +36,7 @@ def mark_plugin(md: MarkdownIt):
             return False
 
         if length % 2:
-            token = state.push("text", "", 0)
+            token = state.push('text', '', 0)
             token.content = ch
             length -= 1
 
@@ -64,7 +66,7 @@ def mark_plugin(md: MarkdownIt):
 
         for i in range(0, maximum):
             start_delim = delimiters[i]
-            if start_delim.marker != 0x3D:
+            if start_delim.marker != EQUALS_CHAR:
                 i += 1
                 continue
 
@@ -90,7 +92,7 @@ def mark_plugin(md: MarkdownIt):
 
             end_token = state.tokens[end_delim.token - 1]
 
-            if end_token.type == 'text' and end_token == chr(0x3D):
+            if end_token.type == 'text' and end_token == '=':  # nosec
                 lone_markers.append(end_delim.token - 1)
 
         # If a marker sequence has an odd number of characters, it's split
@@ -127,7 +129,7 @@ def mark_plugin(md: MarkdownIt):
             except IndexError:
                 pass
             else:
-                if curr_meta and "delimiters" in curr_meta:
+                if curr_meta and 'delimiters' in curr_meta:
                     _post_process(state, curr_meta["delimiters"])
             curr += 1
 

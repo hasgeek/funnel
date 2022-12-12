@@ -12,6 +12,8 @@ from markdown_it.rules_inline import StateInline
 
 __all__ = ['sup_plugin']
 
+CARET_CHAR = 0x5E  # ASCII value for `^`
+
 
 def sup_plugin(md: MarkdownIt):
     def tokenize(state: StateInline, silent: bool):
@@ -23,7 +25,7 @@ def sup_plugin(md: MarkdownIt):
         if silent:
             return False
 
-        if marker != 0x5E:
+        if marker != CARET_CHAR:
             return False
 
         # Don't run any pairs in validation mode
@@ -33,7 +35,7 @@ def sup_plugin(md: MarkdownIt):
         state.pos = start + 1
 
         while state.pos < maximum:
-            if state.srcCharCode[state.pos] == 0x5E:
+            if state.srcCharCode[state.pos] == CARET_CHAR:
                 found = True
                 break
             state.md.inline.skipToken(state)

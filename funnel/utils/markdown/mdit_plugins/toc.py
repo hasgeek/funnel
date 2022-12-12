@@ -22,6 +22,8 @@ from coaster.utils import make_name
 
 __all__ = ['toc_plugin']
 
+SQUARE_BRACKET_OPEN_CHAR = 0x5B  # ASCII value for `[`
+
 defaults: Dict = {
     'include_level': [1, 2, 3, 4, 5, 6],
     'container_class': 'table-of-contents',
@@ -47,21 +49,17 @@ def find_elements(levels: List[int], tokens: List[Token], options: Dict) -> List
             if level in levels:
                 current_heading = {'level': level, 'text': None, 'anchor': heading_id}
         elif current_heading is not None and token.type == 'inline':
+            # pylint: disable=unsubscriptable-object,unsupported-assignment-operation
             text_content = reduce(
                 lambda acc, t: acc + t.content,
-                [tok for tok in token.children if tok.type in ('text', 'code_inline')],
+                [tok for tok in token.children if tok.type in ('text', 'code_inline')]
+                if token.children
+                else [],
                 '',
             )
-            current_heading[  # pylint: disable=[unsupported-assignment-operation]
-                'text'
-            ] = text_content
-            if (
-                current_heading['anchor']  # pylint: disable=[unsubscriptable-object]
-                is not None
-            ):
-                current_heading[  # pylint: disable=[unsupported-assignment-operation]
-                    'anchor'
-                ] = options['slugify'](text_content)
+            current_heading['text'] = text_content
+            if current_heading['anchor'] is not None:
+                current_heading['anchor'] = options['slugify'](text_content)
         elif token.type == 'heading_close':
             if current_heading is not None:
                 headings.append(current_heading)
@@ -73,12 +71,12 @@ def find_existing_id_attr(token: Token) -> Optional[str]:
     """
     Find an existing id attr on a token.
 
-    Should be a heading_open token, but could be anything really
-    provided by markdown-it-anchor or markdown-it-attrs
+    Should be a heading_open token, but could be anything really provided by
+    markdown-it-anchor or markdown-it-attrs.
     """
     for key, val in token.attrs.items():
         if key == 'id':
-            return val
+            return str(val)
     return None
 
 
@@ -176,7 +174,7 @@ def toc_plugin(md: MarkdownIt, **opts):
 
     def toc(state: StateInline, silent: bool):
         # Reject if the token does not start with [
-        if state.srcCharCode[state.pos] != 0x5B:
+        if state.srcCharCode[state.pos] != SQUARE_BRACKET_OPEN_CHAR:
             return False
         if silent:
             return False
@@ -197,7 +195,7 @@ def toc_plugin(md: MarkdownIt, **opts):
         return True
 
     def toc_open(self, tokens, idx, options, env):
-        open_html = f"<div class=\"{opts['container_class']}\">"
+        open_html = f'<div class="{opts["container_class"]}">'
         if opts['container_header_html'] is not None:
             open_html = open_html + opts['container_header_html']
         return open_html
