@@ -167,7 +167,6 @@ const Form = {
               submitting = false;
             })
             .catch((error) => {
-              console.log(error);
               Form.handleAjaxError(error);
               checkbox.prop('checked', previousState);
               submitting = false;

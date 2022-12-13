@@ -172,7 +172,7 @@ const Comments = {
         },
         activateForm(action, textareaId, parentApp = app) {
           if (textareaId) {
-            const copyTextAreaContent = function (view) {
+            const copyTextAreaContent = (view) => {
               if (action === parentApp.COMMENTACTIONS.REPLY) {
                 parentApp.reply = view.state.doc.toString();
               } else {

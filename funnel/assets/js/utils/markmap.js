@@ -20,6 +20,7 @@ const MarkmapEmbed = {
   },
   resizeTimer: null,
   resizeMarkmapContainers() {
+    const debounceInterval = 500;
     if (this.resizeTimer) clearTimeout(this.resizeTimer);
     this.resizeTimer = setTimeout(() => {
       $('.md-embed-markmap.activated svg').each(function mmresized() {
@@ -28,7 +29,7 @@ const MarkmapEmbed = {
         firstNode.dispatchEvent(new Event('click'));
         firstNode.dispatchEvent(new Event('click'));
       });
-    }, 500);
+    }, debounceInterval);
   },
   loadMarkmap() {
     const self = this;
