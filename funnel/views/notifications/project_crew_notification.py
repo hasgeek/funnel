@@ -17,7 +17,6 @@ from ...models import (
     User,
 )
 from ...transports.sms import MessageTemplate
-from ..helpers import shortlink
 from ..notification import RenderNotification
 
 
@@ -339,34 +338,12 @@ class RenderProjectCrewMembershipNotification(RenderShared, RenderNotification):
 
     def web(self):
         return render_template(
-            'notifications/project_crew_membership_granted_web.html.jinja2',
-            actor=self.actor,
-            view=self,
-            project=self.project,
+            'notifications/project_crew_membership_granted_web.html.jinja2', view=self
         )
-
-    def email_subject(self):
-        return self.emoji_prefix + _(
-            "You have been added to {project} as a crew member"
-        ).format(project=self.project.joined_title)
 
     def email_content(self):
         return render_template(
-            'notifications/project_crew_membership_granted_email.html.jinja2',
-            actor=self.actor,
-            view=self,
-            project=self.project,
-        )
-
-    def sms(self) -> MessageTemplate:
-        return MessageTemplate(
-            message=_("You have been added to {project} as a crew member:").format(
-                project=self.project.joined_title
-            ),
-            url=shortlink(
-                self.project.url_for(_external=True, **self.tracking_tags('sms')),
-                shorter=True,
-            ),
+            'notifications/project_crew_membership_granted_email.html.jinja2', view=self
         )
 
 
@@ -405,15 +382,4 @@ class RenderProjectCrewMembershipRevokedNotification(RenderShared, RenderNotific
         """Render email content."""
         return render_template(
             'notifications/project_crew_membership_revoked_email.html.jinja2', view=self
-        )
-
-    def sms(self) -> MessageTemplate:
-        return MessageTemplate(
-            message=_("You have been removed from {project}:").format(
-                project=self.project.joined_title
-            ),
-            url=shortlink(
-                self.project.url_for(_external=True, **self.tracking_tags('sms')),
-                shorter=True,
-            ),
         )

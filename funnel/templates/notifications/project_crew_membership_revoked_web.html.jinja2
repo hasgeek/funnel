@@ -1,23 +1,21 @@
 {%- extends "notifications/layout_web.html.jinja2" -%}
-
 {%- block content -%}
-{%- if view.is_rollup -%}
-<ol class="mui-list--aligned">
-  {%- for membership in view.fragments -%}
-  <li>{{ view.activity_html(membership) }} <span class="mui--text-body2">{{ membership.revoked_at|age }}</span></li>
-  {%- endfor %}
-</ol>
-{%- else %}
-<p>
-  {{ view.activity_html() }}
-</p>
-{%- endif %}
+  {%- if view.is_rollup -%}
+    <ol class="mui-list--aligned">
+      {%- for membership in view.fragments -%}
+        <li>
+          {{ view.activity_html(membership) }} <span class="mui--text-body2">{{ membership.revoked_at|age }}</span>
+        </li>
+      {%- endfor %}
+    </ol>
+  {%- else %}
+    <p>{{ view.activity_html() }}</p>
+  {%- endif %}
 {%- endblock content -%}
-
 {%- block avatar %}
-{%- if view.is_rollup %}
-{{ useravatar(view.membership.project.profile) }}
-{%- else %}
-{{ useravatar(view.actor) }}
-{%- endif %}
+  {%- if view.is_rollup %}
+    {{ useravatar(view.membership.project.profile) }}
+  {%- else %}
+    {{ useravatar(view.actor) }}
+  {%- endif %}
 {%- endblock avatar %}

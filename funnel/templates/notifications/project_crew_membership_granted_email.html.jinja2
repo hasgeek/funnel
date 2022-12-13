@@ -1,13 +1,10 @@
-{% extends "notifications/layout_email.html.jinja2" %}
-{% block content -%}
-
-<p>{{ view.activity_html() }}</p>
-
-<p class="btn-bar">
+{%- extends "notifications/layout_email.html.jinja2" -%}
+{%- block content -%}
+  <p>{{ view.activity_html() }}</p>
+  <p class="btn-bar">
     <a class="btn"
-        href="{{ project.url_for('crew', _external=true, utm_medium='email', utm_campaign='notification') }}">
-        {% trans %}See all crew members{% endtrans %}
+       href="{{ view.project.url_for('crew', _external=true, **view.tracking_tags()) }}">
+      {% trans %}See all crew members{% endtrans %}
     </a>
-</p>
-
-{%- endblock %}
+  </p>
+{%- endblock content -%}

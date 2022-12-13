@@ -1,11 +1,9 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
 {%- block content -%}
-
-<p>{{ view.activity_html() }}</p>
-
-<p class="btn-bar">
-  <a class="btn" href="{{ view.project.profile.url_for('members', _external=true, **view.tracking_tags()) }}">{%
+  <p>{{ view.activity_html() }}</p>
+  <p class="btn-bar">
+    <a class="btn"
+       href="{{ view.project.profile.url_for('members', _external=true, **view.tracking_tags()) }}">{%
     trans %}See all admins{% endtrans %}</a>
-</p>
-
+  </p>
 {%- endblock content -%}

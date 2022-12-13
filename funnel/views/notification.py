@@ -113,13 +113,16 @@ class RenderNotification:
             transport, self.notification.preference_context
         )
 
-    def tracking_tags(self, transport=None, campaign=None):
-        tags = {
-            # Tracking notifications unless it's unsubscribe or other specialized link
-            'utm_campaign': campaign or 'notification',
-            # Tracking is mostly an email thing
-            'utm_medium': transport or 'email',
-        }
+    def tracking_tags(self, transport: str = 'email', campaign: str = 'notification'):
+        """
+        Provide tracking tags for URL parameters. Subclasses may override if required.
+
+        :param transport: Transport (or medium) over which this link is being delivered
+            (default 'email' as that's the most common use case for tracked links)
+        :param campaign: Reason for this link being sent (default 'notification' but
+            unsubscribe links and other specialized links will want to specify another)
+        """
+        tags = {'utm_campaign': campaign, 'utm_medium': transport}
         if not self.notification.for_private_recipient:
             tags['utm_source'] = self.notification.eventid_b58
         return tags
