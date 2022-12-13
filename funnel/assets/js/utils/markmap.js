@@ -66,7 +66,7 @@ const MarkmapEmbed = {
           loadMarkmapScript();
         } else {
           self.addMarkmap();
-          window.addEventListener('resize', this.resizeMarkmapContainers);
+          window.addEventListener('resize', this.resizeMarkmapContainers.bind(this));
         }
       });
     };
