@@ -1,0 +1,24 @@
+{%- from "macros.html.jinja2" import faicon, csrf_tag, calendarwidget, saveprojectform, share_dropdown, useravatar %}
+
+<div class="mui--hide">
+  {% block title %}
+  {% endblock title %}
+</div>
+
+{% block pageheaders %}
+{% endblock pageheaders %}
+
+{% block baseheadline %}
+  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
+    <div class="mobile-nav mui--z1">
+      <a href="{{ project.url_for() }}" aria-label="{% trans %}Back to the project{% endtrans %}" class="js-spa-navigate mui--text-dark mobile-nav__icon" data-ga="Back to the project page">{{ faicon(icon='arrow-left', icon_size='title') }}</a><span class="mui--text-dark mobile-nav__headline">{% block mobile_header_title %}{{ self.title() }}{% endblock mobile_header_title %}</span>
+      {% block mobile_header %}{% endblock mobile_header %}
+    </div>
+  </div>
+{% endblock baseheadline %}
+
+{% block left_col %}
+{% endblock left_col %}
+
+{% block footerinnerscripts %}
+{% endblock footerinnerscripts %}

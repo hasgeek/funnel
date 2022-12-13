@@ -1,27 +1,38 @@
+"""Tests for ProjectCrewMembership membership model."""
+
 from sqlalchemy.exc import IntegrityError
 
 import pytest
 
-from funnel.models import MEMBERSHIP_RECORD_TYPE, ProjectCrewMembership
+from funnel import models
 
 
-def test_project_crew_membership(db_session, new_user, new_user_owner, new_project):
+def test_project_crew_membership(
+    db_session, new_user, new_user_owner, new_project
+) -> None:
     """Test that project crew members get their roles from ProjectCrewMembership."""
-    # new_user is profile admin
+    # new_user is account admin
     assert 'admin' in new_project.profile.roles_for(new_user_owner)
     # but it has no role in the project yet
-    assert 'editor' not in new_project.roles_for(new_user_owner)._contents()
+    assert (
+        'editor'
+        not in new_project.roles_for(  # pylint: disable=protected-access
+            new_user_owner
+        )._contents()
+    )
     assert 'promoter' not in new_project.roles_for(new_user_owner)
     assert 'usher' not in new_project.roles_for(new_user_owner)
 
     previous_membership = (
-        ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
+        models.ProjectCrewMembership.query.filter(
+            models.ProjectCrewMembership.is_active
+        )
         .filter_by(project=new_project, user=new_user_owner)
         .first()
     )
     assert previous_membership is None
 
-    new_membership = ProjectCrewMembership(
+    new_membership = models.ProjectCrewMembership(
         parent=new_project, user=new_user_owner, is_editor=True
     )
     db_session.add(new_membership)
@@ -30,12 +41,12 @@ def test_project_crew_membership(db_session, new_user, new_user_owner, new_proje
     assert 'editor' in new_project.roles_for(new_user_owner)
     assert new_membership.is_active
     assert new_membership in new_project.active_crew_memberships
-    assert new_membership.record_type == MEMBERSHIP_RECORD_TYPE.DIRECT_ADD
+    assert new_membership.record_type == models.MEMBERSHIP_RECORD_TYPE.DIRECT_ADD
 
     # only one membership can be active for a user at a time.
     # so adding a new membership without revoking the previous one
     # will raise IntegrityError in database.
-    new_membership_without_revoke = ProjectCrewMembership(
+    new_membership_without_revoke = models.ProjectCrewMembership(
         parent=new_project, user=new_user, is_promoter=True
     )
     db_session.add(new_membership_without_revoke)
@@ -45,7 +56,9 @@ def test_project_crew_membership(db_session, new_user, new_user_owner, new_proje
 
     # let's revoke previous membership
     previous_membership2 = (
-        ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
+        models.ProjectCrewMembership.query.filter(
+            models.ProjectCrewMembership.is_active
+        )
         .filter_by(project=new_project, user=new_user)
         .first()
     )
@@ -59,7 +72,7 @@ def test_project_crew_membership(db_session, new_user, new_user_owner, new_proje
     assert 'usher' not in new_project.roles_for(new_user)
 
     # let's add back few more roles
-    new_membership2 = ProjectCrewMembership(
+    new_membership2 = models.ProjectCrewMembership(
         parent=new_project, user=new_user, is_promoter=True, is_usher=True
     )
     db_session.add(new_membership2)
@@ -77,7 +90,7 @@ def test_project_crew_membership(db_session, new_user, new_user_owner, new_proje
     assert 'editor' in new_project.roles_for(new_user)
     assert 'promoter' not in new_project.roles_for(new_user)
     assert 'usher' not in new_project.roles_for(new_user)
-    assert new_membership3.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
+    assert new_membership3.record_type == models.MEMBERSHIP_RECORD_TYPE.AMEND
 
     # replace() can replace a single role as well, rest stays as they were
     new_membership4 = new_membership3.replace(actor=new_user_owner, is_usher=True)
@@ -92,7 +105,7 @@ def test_project_crew_membership(db_session, new_user, new_user_owner, new_proje
         'editor',
         'usher',
     }
-    assert new_membership4.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
+    assert new_membership4.record_type == models.MEMBERSHIP_RECORD_TYPE.AMEND
 
     # can't replace with an unknown role
     with pytest.raises(AttributeError):
@@ -101,7 +114,7 @@ def test_project_crew_membership(db_session, new_user, new_user_owner, new_proje
 
 def test_project_roles_lazy_eval(
     db_session, new_user, new_user_owner, new_organization, new_project2
-):
+) -> None:
     """Test that the lazy roles evaluator picks up membership-based roles."""
     assert 'admin' in new_organization.profile.roles_for(new_user_owner)
     assert 'admin' not in new_organization.profile.roles_for(new_user)

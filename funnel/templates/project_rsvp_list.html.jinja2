@@ -1,54 +1,41 @@
-{% extends "layout.html.jinja2" %}
-{% set title_suffix = project.title %}
-{% block title %}{% trans %}View participants{% endtrans %}{% endblock %}
+{% set current_page = 'participants' %}
+{% extends "project_layout.html.jinja2" %}
+{% block title %}{% trans %}View participants{% endtrans %}{% endblock title %}
 
-{% block pageheaders %}
-  {% assets "css_footable" -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets -%}
-{% endblock %}
-
-{% block top_title %}
-  <h1 class="mui--text-headline"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
-  <p class="mui--text-subhead">
-    {% trans %}Participants{% endtrans %} ({{ going_rsvps.count() }})
-  </p>
-{% endblock %}
-
-{% block content %}
-    <table class="mui-table mui-table--bordered participants">
-      <thead>
-        <tr>
-          <th data-sorted="true">Name</th>
-          <th data-sorted="true">Email</th>
-          <th data-sorted="true" data-type="numeric">Responded at</th>
-        </tr>
-      </thead>
-      <tbody>
-        {%- for rsvp in going_rsvps %}
+{% block left_col %}
+  <div class="page-card page-card--nomargin">
+    <div class="project-section mui-table--responsive-wrapper">
+      <table class="mui-table mui-table--bordered mui-table--responsive participants">
+        <thead>
           <tr>
-            <td data-cy="user">{{rsvp.user.fullname}}</td>
-            <td>
-              {%- if rsvp.user.email %}
-                {{ rsvp.user.email }}
-              {%- elif rsvp.user.emailclaims %}
-                {{ rsvp.user.emailclaims[0] }} <em>(unverified)</em>
-              {%- elif rsvp.user.phone %}
-                {{ rsvp.user.phone }}
-              {%- endif %}
-            </td>
-            <td data-cy="user" data-value="{{ rsvp.updated_at|timestamp }}">{{ rsvp.updated_at|datetime }}</td>
+            <th data-sorted="true">Name</th>
+            <th data-sorted="true">Email/Phone</th>
+            <th data-sorted="true" data-type="numeric">Responded at</th>
           </tr>
-        {%- else %}
-          <tr><td colspan="2"><em>No users</em></td></tr>
-        {%- endfor %}
-      </tbody>
-    </table>
-{% endblock %}
+        </thead>
+        <tbody>
+          {%- for rsvp in going_rsvps %}
+            <tr>
+              <td data-cy="user">{{ rsvp.user.fullname }}</td>
+              <td>
+                {% with contact, contact_type = rsvp.best_contact() %}
+                  {{ contact }}
+                  {% if contact_type in ('ec', 'pc') %}
+                    <em>{% trans %}(Unverified){% endtrans %}</em>
+                  {% endif %}
+                {%- endwith %}
+              </td>
+              <td data-cy="user" data-value="{{ rsvp.updated_at|timestamp }}">{{ rsvp.updated_at|datetime }}</td>
+            </tr>
+          {%- else %}
+            <tr><td colspan="2"><em>No users</em></td></tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock left_col %}
 
-{% block footerscripts %}
-  {% assets "js_footable" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
+{% block footerinnerscripts %}x
   <script src="{{ built_asset('rsvp_list.js') }}" type="text/javascript"></script>
-{% endblock %}
+{% endblock footerinnerscripts %}

@@ -1,8 +1,15 @@
+beautifulsoup4
+colorama
 coverage
 coveralls
-fakeredis
 lxml
 pytest
 pytest-bdd
 pytest-cov
+pytest-dotenv
+pytest-env
+pytest-remotedata
+pytest-rerunfailures
+pytest-splinter
 requests-mock
+tomlkit

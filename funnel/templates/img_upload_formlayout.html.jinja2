@@ -7,7 +7,7 @@
 <div class="modal__inner img-upload-modal">
   {% block content %}
     <div class="modal__header">
-      <a class="modal__close mui--text-dark" href="javascript:void(0);" data-target="close modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+      <a class="modal__close mui--text-dark" href="#" onclick="return false;" data-target="close modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
       {%- if title -%}
         <p class="mui--text-title mui--text-bold mui--text-dark">{{ title }}</p>
       {%- endif -%}
@@ -18,15 +18,15 @@
     <div class="modal__body modal__body--form">
       {% block modalform %}
         {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action) }}
-      {% endblock %}
+      {% endblock modalform %}
     </div>
     {{ ajaxform(ref_id=ref_id, request=request, force=true) }}
-  {% endblock %}
+  {% endblock content %}
 
   {{ widget_ext_scripts(form) }}
 
   <script type="text/javascript">
     activate_widgets();
-    {{ widgetscripts(form, script=false) }}
+    {{ widgetscripts(form, script=false, ref_id=ref_id) }}
   </script>
 </div>

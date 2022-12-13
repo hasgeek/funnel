@@ -1,15 +1,13 @@
 {% extends "screens_layout.html.jinja2" %}
-{% block bodyattrs %}class="room_updates"{% endblock %}
+{% block bodyattrs %}class="room_updates"{% endblock bodyattrs %}
 
 {% block screens_pageheaders %}
-<meta http-equiv="refresh" content="60">
-{% endblock %}
+ <meta http-equiv="refresh" content="60" />
+{% endblock screens_pageheaders %}
 
 {% block basecontent %}
 <div id="room_updates">
-	<div id="room"
-		{% if room.bgcolor %} style="border-bottom-color: #{{ room.bgcolor }}"{% endif %}
-		>
+	{# djlint:off #}<div id="room" {% if room.bgcolor %} style="border-bottom-color: #{{ room.bgcolor }}"{% endif %}>{# djlint:on #}
 		{{ room.title }}
 	</div>
 	{% if current %}
@@ -42,8 +40,8 @@
 		</div>
 	{% endif %}
 </div>
-{% endblock %}
+{% endblock basecontent %}
 
 {% block footerscripts %}
 	{{ super() }}
-{% endblock %}
+{% endblock footerscripts %}

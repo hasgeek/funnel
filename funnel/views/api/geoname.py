@@ -1,9 +1,11 @@
+"""API views for geoname data."""
+
 from __future__ import annotations
 
 from typing import List, Optional
 
 from coaster.utils import getbool
-from coaster.views import render_with, requestargs
+from coaster.views import requestargs
 
 from ... import app
 from ...models import GeoName
@@ -11,7 +13,6 @@ from ...typing import ReturnRenderWith
 
 
 @app.route('/api/1/geo/get_by_name')
-@render_with(json=True)
 @requestargs('name', ('related', getbool), ('alternate_titles', getbool))
 def geo_get_by_name(
     name: str, related: bool = False, alternate_titles: bool = False
@@ -34,7 +35,6 @@ def geo_get_by_name(
 
 
 @app.route('/api/1/geo/get_by_names')
-@render_with(json=True)
 @requestargs('name[]', ('related', getbool), ('alternate_titles', getbool))
 def geo_get_by_names(
     name: List[str], related: bool = False, alternate_titles: bool = False
@@ -58,7 +58,6 @@ def geo_get_by_names(
 
 
 @app.route('/api/1/geo/get_by_title')
-@render_with(json=True)
 @requestargs('title[]', 'lang')
 def geo_get_by_title(title: List[str], lang: Optional[str] = None) -> ReturnRenderWith:
     """Get locations matching given titles."""
@@ -69,13 +68,12 @@ def geo_get_by_title(title: List[str], lang: Optional[str] = None) -> ReturnRend
 
 
 @app.route('/api/1/geo/parse_locations')
-@render_with(json=True)
 @requestargs('q', 'special[]', 'lang', 'bias[]', ('alternate_titles', getbool))
 def geo_parse_location(
     q: str,
-    special: List[str] = None,
-    lang: str = None,
-    bias: List[str] = None,
+    special: Optional[List[str]] = None,
+    lang: Optional[str] = None,
+    bias: Optional[List[str]] = None,
     alternate_titles: bool = False,
 ) -> ReturnRenderWith:
     """Parse locations from a string of locations."""
@@ -87,7 +85,6 @@ def geo_parse_location(
 
 
 @app.route('/api/1/geo/autocomplete')
-@render_with(json=True)
 @requestargs('q', 'lang', ('limit', int))
 def geo_autocomplete(
     q: str, lang: Optional[str] = None, limit: int = 100

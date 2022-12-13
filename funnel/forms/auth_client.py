@@ -1,16 +1,21 @@
+"""Forms for OAuth2 clients."""
+
 from __future__ import annotations
 
+from typing import Optional
 from urllib.parse import urlparse
 
-from baseframe import _, __
+from baseframe import _, __, forms
 from coaster.utils import getbool
-import baseframe.forms as forms
 
 from ..models import (
     AuthClient,
     AuthClientCredential,
     AuthClientTeamPermissions,
     AuthClientUserPermissions,
+    Organization,
+    Team,
+    User,
     valid_name,
 )
 from .helpers import strip_filters
@@ -27,6 +32,10 @@ __all__ = [
 @AuthClient.forms('main')
 class AuthClientForm(forms.Form):
     """Register a new OAuth client application."""
+
+    __returns__ = ('user', 'organization')
+    user: Optional[User] = None
+    organization: Optional[Organization] = None
 
     title = forms.StringField(
         __("Application title"),
@@ -55,13 +64,15 @@ class AuthClientForm(forms.Form):
             (
                 True,
                 __(
-                    "Confidential (server-hosted app, capable of storing secret key securely)"
+                    "Confidential (server-hosted app, capable of storing secret key"
+                    " securely)"
                 ),
             ),
             (
                 False,
                 __(
-                    "Public (native or in-browser app, not capable of storing secret key securely)"
+                    "Public (native or in-browser app, not capable of storing secret"
+                    " key securely)"
                 ),
             ),
         ],
@@ -76,7 +87,7 @@ class AuthClientForm(forms.Form):
         __("Redirect URLs"),
         validators=[
             forms.validators.OptionalIf('confidential'),
-            forms.ForEach([forms.URL()]),
+            forms.validators.ForEach([forms.validators.URL()]),
         ],
         filters=[forms.filters.strip_each()],
         description=__(
@@ -94,7 +105,8 @@ class AuthClientForm(forms.Form):
         ),
     )
 
-    def validate_client_owner(self, field):
+    def validate_client_owner(self, field) -> None:
+        """Validate client's owner to be the current user or an org owned by them."""
         if field.data == self.edit_user.buid:
             self.user = self.edit_user
             self.organization = None
@@ -105,11 +117,12 @@ class AuthClientForm(forms.Form):
                 if org.buid == field.data
             ]
             if len(orgs) != 1:
-                raise forms.ValidationError(_("Invalid owner"))
+                raise forms.validators.ValidationError(_("Invalid owner"))
             self.user = None
             self.organization = orgs[0]
 
-    def _urls_match(self, url1, url2):
+    def _urls_match(self, url1: str, url2: str) -> bool:
+        """Validate two URLs have the same base component (minus path)."""
         p1 = urlparse(url1)
         p2 = urlparse(url2)
         return (
@@ -119,11 +132,12 @@ class AuthClientForm(forms.Form):
             and (p1.password == p2.password)
         )
 
-    def validate_redirect_uri(self, field):
+    def validate_redirect_uri(self, field) -> None:
+        """Validate redirect URI points to the website for confidential clients."""
         if self.confidential.data and not self._urls_match(
             self.website.data, field.data
         ):
-            raise forms.ValidationError(
+            raise forms.validators.ValidationError(
                 _("The scheme, domain and port must match that of the website URL")
             )
 
@@ -142,11 +156,12 @@ class AuthClientCredentialForm(forms.Form):
     )
 
 
-def permission_validator(form, field):
+def permission_validator(form, field) -> None:
+    """Validate permission strings to be appropriately named."""
     permlist = field.data.split()
     for perm in permlist:
         if not valid_name(perm):
-            raise forms.ValidationError(
+            raise forms.validators.ValidationError(
                 _("Permission ‘{perm}’ is malformed").format(perm=perm)
             )
     permlist.sort()
@@ -174,6 +189,9 @@ class UserPermissionAssignForm(forms.Form):
 class TeamPermissionAssignForm(forms.Form):
     """Assign permissions to a team."""
 
+    __returns__ = ('team',)
+    team: Optional[Team] = None
+
     team_id = forms.RadioField(
         __("Team"),
         validators=[forms.validators.DataRequired()],
@@ -184,10 +202,12 @@ class TeamPermissionAssignForm(forms.Form):
         validators=[forms.validators.DataRequired(), permission_validator],
     )
 
-    def validate_team_id(self, field):
+    def validate_team_id(self, field) -> None:
+        """Validate selected team to belong to this organization."""
+        # FIXME: Replace with QuerySelectField using RadioWidget.
         teams = [team for team in self.organization.teams if team.buid == field.data]
         if len(teams) != 1:
-            raise forms.ValidationError(_("Unknown team"))
+            raise forms.validators.ValidationError(_("Unknown team"))
         self.team = teams[0]
 
 

@@ -1,11 +1,15 @@
+"""Tests for Project forms."""
+
 from werkzeug.datastructures import MultiDict
 
+import pytest
 import requests_mock
 
-from funnel.forms import ProjectLivestreamForm
+from funnel import forms
 
 
-def test_livestream_form_valid():
+@pytest.mark.usefixtures('app_context')
+def test_livestream_form_valid() -> None:
     with requests_mock.Mocker() as m:
         valid_urls = [
             "https://y2u.be/dQw4w9WgXcQ",
@@ -19,23 +23,24 @@ def test_livestream_form_valid():
             m.get(url, text='resp')
 
         # Single url
-        form = ProjectLivestreamForm(
+        form = forms.ProjectLivestreamForm(
             MultiDict({'livestream_urls': valid_urls[0]}), meta={'csrf': False}
         )
         assert form.validate()
 
         # Multiple urls in multiple lines
-        form2 = ProjectLivestreamForm(
+        form2 = forms.ProjectLivestreamForm(
             MultiDict({'livestream_urls': '\n'.join(valid_urls)}),
             meta={'csrf': False},
         )
         assert form2.validate()
 
 
-def test_livestream_form_invalid():
+@pytest.mark.usefixtures('app_context')
+def test_livestream_form_invalid() -> None:
     with requests_mock.Mocker() as m:
         m.get("https://www.vimeo.com/336892869", text='resp')
-        form = ProjectLivestreamForm(
+        form = forms.ProjectLivestreamForm(
             MultiDict(
                 {
                     'livestream_urls': """

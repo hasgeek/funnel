@@ -1,10 +1,12 @@
+"""Session with timestamps within a project."""
+
 from __future__ import annotations
 
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta
-from typing import Optional, Type, cast
+from typing import Any, Dict, Optional, Type
 
-from flask_babelhg import get_locale
+from flask_babel import get_locale
 from werkzeug.utils import cached_property
 
 from babel.dates import format_date
@@ -16,59 +18,66 @@ from coaster.utils import utcnow
 
 from . import (
     BaseScopedIdNameMixin,
-    MarkdownColumn,
+    Mapped,
+    MarkdownCompositeDocument,
     TSVectorType,
     UuidMixin,
     db,
     hybrid_property,
+    sa,
 )
-from .helpers import (
-    ImgeeType,
-    add_search_trigger,
-    markdown_content_options,
-    reopen,
-    visual_field_delimiter,
-)
+from .helpers import ImgeeType, add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
+from .user import User
 from .venue import VenueRoom
 from .video_mixin import VideoMixin
 
 __all__ = ['Session']
 
 
-class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
+class Session(
+    UuidMixin,
+    BaseScopedIdNameMixin,
+    VideoMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     __tablename__ = 'session'
 
-    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = with_roles(
-        db.relationship(
-            Project, backref=db.backref('sessions', cascade='all', lazy='dynamic')
+    project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
+    project: sa.orm.relationship[Project] = with_roles(
+        sa.orm.relationship(
+            Project, backref=sa.orm.backref('sessions', cascade='all', lazy='dynamic')
         ),
         grants_via={None: project_child_role_map},
     )
-    parent = db.synonym('project')
-    description = MarkdownColumn(
-        'description', default='', nullable=False, options=markdown_content_options
+    parent = sa.orm.synonym('project')
+    description = MarkdownCompositeDocument.create(
+        'description', default='', nullable=False
     )
-    proposal_id = db.Column(
-        None, db.ForeignKey('proposal.id'), nullable=True, unique=True
+    proposal_id = sa.Column(
+        sa.Integer, sa.ForeignKey('proposal.id'), nullable=True, unique=True
     )
-    proposal = db.relationship(
-        Proposal, backref=db.backref('session', uselist=False, cascade='all')
+    proposal: Mapped[Optional[Proposal]] = sa.orm.relationship(
+        Proposal, backref=sa.orm.backref('session', uselist=False, cascade='all')
     )
-    speaker = db.Column(db.Unicode(200), default=None, nullable=True)
-    start_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
-    end_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True)
-    venue_room_id = db.Column(None, db.ForeignKey('venue_room.id'), nullable=True)
-    venue_room = db.relationship(VenueRoom, backref=db.backref('sessions'))
-    is_break = db.Column(db.Boolean, default=False, nullable=False)
-    featured = db.Column(db.Boolean, default=False, nullable=False)
-    banner_image_url = db.Column(ImgeeType, nullable=True)
+    speaker = sa.Column(sa.Unicode(200), default=None, nullable=True)
+    start_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
+    end_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True)
+    venue_room_id = sa.Column(sa.Integer, sa.ForeignKey('venue_room.id'), nullable=True)
+    venue_room: Mapped[Optional[VenueRoom]] = sa.orm.relationship(
+        VenueRoom, backref=sa.orm.backref('sessions')
+    )
+    is_break = sa.Column(sa.Boolean, default=False, nullable=False)
+    featured = sa.Column(sa.Boolean, default=False, nullable=False)
+    banner_image_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
 
-    search_vector = db.deferred(
-        db.Column(
+    #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
+    versionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+
+    search_vector = sa.orm.deferred(
+        sa.Column(
             TSVectorType(
                 'title',
                 'description_text',
@@ -79,7 +88,7 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
                     'speaker': 'A',
                 },
                 regconfig='english',
-                hltext=lambda: db.func.concat_ws(
+                hltext=lambda: sa.func.concat_ws(
                     visual_field_delimiter,
                     Session.title,
                     Session.speaker,
@@ -91,21 +100,23 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     )
 
     __table_args__ = (
-        db.UniqueConstraint('project_id', 'url_id'),
-        db.CheckConstraint(
-            db.or_(
-                db.and_(start_at.is_(None), end_at.is_(None)),
-                db.and_(
+        sa.UniqueConstraint('project_id', 'url_id'),
+        sa.CheckConstraint(
+            sa.or_(  # type: ignore[arg-type]
+                sa.and_(start_at.is_(None), end_at.is_(None)),
+                sa.and_(
                     start_at.isnot(None),
                     end_at.isnot(None),
                     end_at > start_at,
-                    end_at <= start_at + db.text("INTERVAL '1 day'"),
+                    end_at <= start_at + sa.text("INTERVAL '1 day'"),
                 ),
             ),
             'session_start_at_end_at_check',
         ),
-        db.Index('ix_session_search_vector', 'search_vector', postgresql_using='gin'),
+        sa.Index('ix_session_search_vector', 'search_vector', postgresql_using='gin'),
     )
+
+    __mapper_args__ = {'version_id_col': versionid}
 
     __roles__ = {
         'all': {
@@ -181,9 +192,10 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
     }
 
     @hybrid_property
-    def user(self):
-        if self.proposal:
+    def user(self) -> Optional[User]:
+        if self.proposal is not None:
             return self.proposal.first_user
+        return None  # type: ignore[unreachable]
 
     @hybrid_property
     def scheduled(self):
@@ -191,8 +203,8 @@ class Session(UuidMixin, BaseScopedIdNameMixin, VideoMixin, db.Model):
         return self.start_at is not None and self.end_at is not None
 
     @scheduled.expression
-    def scheduled(self):
-        return (self.start_at.isnot(None)) & (self.end_at.isnot(None))
+    def scheduled(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        return (cls.start_at.isnot(None)) & (cls.end_at.isnot(None))
 
     @cached_property
     def start_at_localized(self):
@@ -255,52 +267,51 @@ add_search_trigger(Session, 'search_vector')
 
 @reopen(VenueRoom)
 class __VenueRoom:
-    scheduled_sessions = db.relationship(
+    scheduled_sessions = sa.orm.relationship(
         Session,
-        primaryjoin=db.and_(Session.venue_room_id == VenueRoom.id, Session.scheduled),
+        primaryjoin=sa.and_(
+            Session.venue_room_id == VenueRoom.id,
+            Session.scheduled,  # type: ignore[arg-type]
+        ),
         viewonly=True,
     )
 
 
-# For casting in classmethod
-TypeProject = Type[Project]
-
-
 @reopen(Project)
 class __Project:
-    # Project schedule column expressions
-    # Guide: https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
+    # Project schedule column expressions. Guide:
+    # https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
     schedule_start_at = with_roles(
-        db.column_property(
-            db.select([db.func.min(Session.start_at)])
+        sa.orm.column_property(
+            sa.select([sa.func.min(Session.start_at)])  # type: ignore[attr-defined]
             .where(Session.start_at.isnot(None))
             .where(Session.project_id == Project.id)
-            .correlate_except(Session)
-            .scalar_subquery()
+            .correlate_except(Session)  # type: ignore[arg-type]
+            .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},
     )
 
     next_session_at = with_roles(
-        db.column_property(
-            db.select([db.func.min(Session.start_at)])
+        sa.orm.column_property(
+            sa.select([sa.func.min(Session.start_at)])  # type: ignore[attr-defined]
             .where(Session.start_at.isnot(None))
-            .where(Session.start_at >= db.func.utcnow())
+            .where(Session.start_at >= sa.func.utcnow())
             .where(Session.project_id == Project.id)
-            .correlate_except(Session)
-            .scalar_subquery()
+            .correlate_except(Session)  # type: ignore[arg-type]
+            .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
         ),
         read={'all'},
     )
 
     schedule_end_at = with_roles(
-        db.column_property(
-            db.select([db.func.max(Session.end_at)])
+        sa.orm.column_property(
+            sa.select([sa.func.max(Session.end_at)])  # type: ignore[attr-defined]
             .where(Session.end_at.isnot(None))
             .where(Session.project_id == Project.id)
-            .correlate_except(Session)
-            .scalar_subquery()
+            .correlate_except(Session)  # type: ignore[arg-type]
+            .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},
@@ -330,10 +341,10 @@ class __Project:
         return self.sessions.filter(Session.start_at.isnot(None)).count()
 
     featured_sessions = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             Session,
             order_by=Session.start_at.asc(),
-            primaryjoin=db.and_(
+            primaryjoin=sa.and_(
                 Session.project_id == Project.id, Session.featured.is_(True)
             ),
             viewonly=True,
@@ -341,19 +352,22 @@ class __Project:
         read={'all'},
     )
     scheduled_sessions = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             Session,
             order_by=Session.start_at.asc(),
-            primaryjoin=db.and_(Session.project_id == Project.id, Session.scheduled),
+            primaryjoin=sa.and_(
+                Session.project_id == Project.id,
+                Session.scheduled,  # type: ignore[arg-type]
+            ),
             viewonly=True,
         ),
         read={'all'},
     )
     unscheduled_sessions = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             Session,
             order_by=Session.start_at.asc(),
-            primaryjoin=db.and_(
+            primaryjoin=sa.and_(
                 Session.project_id == Project.id,
                 Session.scheduled.isnot(True),  # type: ignore[attr-defined]
             ),
@@ -363,10 +377,10 @@ class __Project:
     )
 
     sessions_with_video = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             Session,
             lazy='dynamic',
-            primaryjoin=db.and_(
+            primaryjoin=sa.and_(
                 Project.id == Session.project_id,
                 Session.video_id.isnot(None),
                 Session.video_source.isnot(None),
@@ -392,15 +406,14 @@ class __Project:
         )
 
     @with_roles(call={'all'})
-    def next_starting_at(
-        self, timestamp: Optional[datetime] = None
+    def next_starting_at(  # type: ignore[misc]
+        self: Project, timestamp: Optional[datetime] = None
     ) -> Optional[datetime]:
         """
         Return timestamp of next session from given timestamp.
 
         Supplements :attr:`next_session_at` to also consider projects without sessions.
         """
-        self = cast(Project, self)
         # If there's no `self.start_at`, there is no session either
         if self.start_at is not None:
             if timestamp is None:
@@ -411,7 +424,7 @@ class __Project:
                 return self.start_at
             # In the past? Then look for a session and return that timestamp, if any
             return (
-                db.session.query(db.func.min(Session.start_at))
+                db.session.query(sa.func.min(Session.start_at))
                 .filter(
                     Session.start_at.isnot(None),
                     Session.start_at >= timestamp,
@@ -423,7 +436,9 @@ class __Project:
         return None
 
     @classmethod
-    def starting_at(cls, timestamp: datetime, within: timedelta, gap: timedelta):
+    def starting_at(  # type: ignore[misc]
+        cls: Type[Project], timestamp: datetime, within: timedelta, gap: timedelta
+    ):
         """
         Return projects that are about to start, for sending notifications.
 
@@ -441,25 +456,24 @@ class __Project:
 
         # Check project starting time before looking for individual sessions, as some
         # projects will have no sessions
-        cls = cast(TypeProject, cls)
         return (
             cls.query.filter(
                 cls.id.in_(
-                    db.session.query(db.func.distinct(Session.project_id)).filter(
+                    db.session.query(sa.func.distinct(Session.project_id)).filter(
                         Session.start_at.isnot(None),
                         Session.start_at >= timestamp,
                         Session.start_at < timestamp + within,
                         Session.project_id.notin_(
                             db.session.query(
-                                db.func.distinct(Session.project_id)
+                                sa.func.distinct(Session.project_id)
                             ).filter(
                                 Session.start_at.isnot(None),
-                                db.or_(
-                                    db.and_(
+                                sa.or_(
+                                    sa.and_(
                                         Session.start_at >= timestamp - gap,
                                         Session.start_at < timestamp,
                                     ),
-                                    db.and_(
+                                    sa.and_(
                                         Session.end_at > timestamp - gap,
                                         Session.end_at <= timestamp,
                                     ),
@@ -481,14 +495,14 @@ class __Project:
         )
 
     @with_roles(call={'all'})
-    def current_sessions(self):
+    def current_sessions(self: Project) -> Optional[dict]:  # type: ignore[misc]
         if self.start_at is None or (self.start_at > utcnow() + timedelta(minutes=30)):
-            return
+            return None
 
         current_sessions = (
             self.sessions.outerjoin(VenueRoom)
-            .filter(Session.start_at <= db.func.utcnow() + timedelta(minutes=30))
-            .filter(Session.end_at > db.func.utcnow())
+            .filter(Session.start_at <= sa.func.utcnow() + timedelta(minutes=30))
+            .filter(Session.end_at > sa.func.utcnow())
             .order_by(Session.start_at.asc(), VenueRoom.seq.asc())
         )
 
@@ -503,18 +517,18 @@ class __Project:
             ],
         }
 
-    def calendar_weeks(self, leading_weeks=True):
+    def calendar_weeks(self: Project, leading_weeks=True):  # type: ignore[misc]
         # session_dates is a list of tuples in this format -
         # (date, day_start_at, day_end_at, event_count)
         if self.schedule_start_at:
             session_dates = list(
                 db.session.query(
-                    db.func.date_trunc(
-                        'day', db.func.timezone(self.timezone.zone, Session.start_at)
+                    sa.func.date_trunc(
+                        'day', sa.func.timezone(self.timezone.zone, Session.start_at)
                     ).label('date'),
-                    db.func.min(Session.start_at).label('day_start_at'),
-                    db.func.max(Session.end_at).label('day_end_at'),
-                    db.func.count().label('count'),
+                    sa.func.min(Session.start_at).label('day_start_at'),
+                    sa.func.max(Session.end_at).label('day_end_at'),
+                    sa.func.count().label('count'),
                 )
                 .select_from(Session)
                 .filter(
@@ -561,15 +575,20 @@ class __Project:
         }
 
         # FIXME: This doesn't work. This code needs to be tested in isolation
-        # session_dates = db.session.query(
-        #     db.cast(
-        #         db.func.date_trunc('day', db.func.timezone(self.timezone.zone, Session.start_at)),
-        #         db.Date).label('date'),
-        #     db.func.count().label('count')
-        #     ).filter(
-        #         Session.project == self,
-        #         Session.scheduled
-        #         ).group_by(db.text('date')).order_by(db.text('date'))
+        # session_dates = (
+        #     db.session.query(
+        #         sa.cast(
+        #             sa.func.date_trunc(
+        #                 'day', sa.func.timezone(self.timezone.zone, Session.start_at)
+        #             ),
+        #             sa.Date,
+        #         ).label('date'),
+        #         sa.func.count().label('count'),
+        #     )
+        #     .filter(Session.project == self, Session.scheduled)
+        #     .group_by(sa.text('date'))
+        #     .order_by(sa.text('date'))
+        # )
 
         # if the project's week is within next 2 weeks, send current week as well
         now = utcnow().astimezone(self.timezone)
@@ -592,32 +611,33 @@ class __Project:
                     session_dates.insert(0, (now + timedelta(days=7), None, None, 0))
                 session_dates.insert(0, (now, None, None, 0))
 
-        weeks = defaultdict(dict)
+        weeks: Dict[str, Dict[str, Any]] = defaultdict(dict)
         today = now.date()
         for project_date, _day_start_at, _day_end_at, session_count in session_dates:
             weekobj = Week.withdate(project_date)
-            if weekobj.week not in weeks:
-                weeks[weekobj.week]['year'] = weekobj.year
+            weekid = weekobj.isoformat()
+            if weekid not in weeks:
+                weeks[weekid]['year'] = weekobj.year
                 # Order is important, and we need dict to count easily
-                weeks[weekobj.week]['dates'] = OrderedDict()
+                weeks[weekid]['dates'] = OrderedDict()
             for wdate in weekobj.days():
-                weeks[weekobj.week]['dates'].setdefault(wdate, 0)
+                weeks[weekid]['dates'].setdefault(wdate, 0)
                 if project_date.date() == wdate:
                     # If the event is over don't set upcoming for current week
                     if wdate >= today and weekobj >= current_week and session_count > 0:
-                        weeks[weekobj.week]['upcoming'] = True
-                    weeks[weekobj.week]['dates'][wdate] += session_count
-                    if 'month' not in weeks[weekobj.week]:
-                        weeks[weekobj.week]['month'] = format_date(
+                        weeks[weekid]['upcoming'] = True
+                    weeks[weekid]['dates'][wdate] += session_count
+                    if 'month' not in weeks[weekid]:
+                        weeks[weekid]['month'] = format_date(
                             wdate, 'MMM', locale=get_locale()
                         )
-
         # Extract sorted weeks as a list
         weeks_list = [v for k, v in sorted(weeks.items())]
 
         for week in weeks_list:
-            # Convering to JSON messes up dictionary key order even though we used OrderedDict.
-            # This turns the OrderedDict into a list of tuples and JSON preserves that order.
+            # Convering to JSON messes up dictionary key order even though we used
+            # OrderedDict. This turns the OrderedDict into a list of tuples and JSON
+            # preserves that order.
             week['dates'] = [
                 {
                     'isoformat': date.isoformat(),
@@ -640,7 +660,6 @@ class __Project:
                 }
                 for date, count in week['dates'].items()
             ]
-
         return {
             'locale': get_locale(),
             'weeks': weeks_list,

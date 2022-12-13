@@ -105,7 +105,8 @@
     outline: none;
   }
 
-  .tabs__item--active {
+  .tabs__item--active,
+  .mui--is-active .tabs__item {
     background: transparentize($mui-primary-color, 0.85);
     border: 1px solid transparentize($mui-primary-color, 0.8);
   }
@@ -177,6 +178,7 @@
   background: $mui-bg-color-primary;
 }
 
+.tabs__item--active .badge--tab,
 .badge--primary {
   border: 1px solid transparent;
   background: transparentize($mui-primary-color, 0.85);

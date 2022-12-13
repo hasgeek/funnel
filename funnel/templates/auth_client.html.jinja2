@@ -1,184 +1,183 @@
 {% extends "layout.html.jinja2" %}
 
-{% block title %}{% trans %}Client application information{% endtrans %}{% endblock %}
+{% block title %}{% trans %}Client application information{% endtrans %}{% endblock title %}
 
 {% block contentwrapper %}
-<div class="grid">
-  {%- if auth_client.owner_is(current_auth.user) %}
-    <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
-      <div class="sticky-admin-panel">
-        <div class="card">
-          <div class="card__header">
-            <h3 class="mui--text-title"><strong>{% trans %}Admin panel{% endtrans %}</strong></h3>
-          </div>
-          <div class="card__body card--text mui--text-subhead">
-            <ol class="mui-list--aligned">
-              <li><a href="{{ auth_client.url_for('edit') }}">{% trans %}Edit this application{% endtrans %}</a></li>
-              <li><a href="{{ auth_client.url_for('delete') }}">{% trans %}Delete{% endtrans %}</a></li>
-              <li><a href="{{ auth_client.url_for('cred_new') }}">{% trans %}New access key{% endtrans %}</a></li>
-              <li><a href="{{ auth_client.url_for('permission_user_new') }}">
-                {%- if auth_client.user -%}
-                  {% trans %}Assign permissions to a user{% endtrans %}
-                {%- else -%}
-                  {% trans %}Assign permissions to a team{% endtrans %}
-                {%- endif -%}
-              </a></li>
-            </ol>
+  <div class="grid">
+    {%- if auth_client.owner_is(current_auth.user) %}
+      <div class="grid__col-xs-12 grid__col-md-5 grid__col-lg-4">
+        <div class="sticky-admin-panel">
+          <div class="card">
+            <div class="card__header">
+              <h3 class="mui--text-title"><strong>{% trans %}Admin panel{% endtrans %}</strong></h3>
+            </div>
+            <div class="card__body card--text mui--text-subhead">
+              <ol class="mui-list--aligned">
+                <li><a href="{{ auth_client.url_for('edit') }}">{% trans %}Edit this application{% endtrans %}</a></li>
+                <li><a href="{{ auth_client.url_for('delete') }}">{% trans %}Delete{% endtrans %}</a></li>
+                <li><a href="{{ auth_client.url_for('cred_new') }}">{% trans %}New access key{% endtrans %}</a></li>
+                <li><a href="{{ auth_client.url_for('permission_user_new') }}">
+                  {%- if auth_client.user -%}
+                    {% trans %}Assign permissions to a user{% endtrans %}
+                  {%- else -%}
+                    {% trans %}Assign permissions to a team{% endtrans %}
+                  {%- endif -%}
+                </a></li>
+              </ol>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  {% endif %}
+    {% endif %}
 
-  <div class="grid__col-xs-12 grid__col--bleed {%- if auth_client.owner_is(current_auth.user) or auth_client.owner_is(current_auth.user) %} grid__col-md-7 grid__col-lg-8{% endif %}">
-    <div class="grid__col--bleed-y">
-    <div class="mui-panel">
-      <dl class="infobox">
-        <dt class="mui--text-subhead">{% trans %}Application title{% endtrans %}</dt>
-        <dd class="mui--text-subhead"><strong>{{ auth_client.title }}</strong></dd>
-        <dt class="mui--text-subhead">{% trans %}Description{% endtrans %}</dt>
-        <dd class="mui--text-subhead">{{ auth_client.description }}</dd>
-        <dt class="mui--text-subhead">{% trans %}Owner{% endtrans %}</dt>
-        <dd class="mui--text-subhead">{{ auth_client.owner.pickername }}</dd>
-        <dt class="mui--text-subhead">{% trans %}OAuth2 Type{% endtrans %}</dt>
-        <dd class="mui--text-subhead">{% if auth_client.confidential %}{% trans %}Confidential{% endtrans %}{% else %}{% trans %}Public{% endtrans %}{% endif %}</dd>
-        <dt class="mui--text-subhead">{% trans %}Website{% endtrans %}</dt>
-        <dd class="mui--text-subhead"><a rel="nofollow" href="{{ auth_client.website }}">{{ auth_client.website }}</a></d>
-        {%- if auth_client.owner_is(current_auth.user) %}
-          <dt class="mui--text-subhead">{% trans %}Redirect URLs{% endtrans %}</dt>
-          <dd class="mui--text-subhead">
-            {%- for r in auth_client.redirect_uris -%}
-              {{ r }}{% if not loop.last %}<br>{% endif %}
-            {%- endfor -%}
-          </dd class="mui--text-subhead">
-          {%- if auth_client.notification_uri %}
-            <dt class="mui--text-subhead">{% trans %}Notification URL (deprecated){% endtrans %}</dt>
-            <dd class="mui--text-subhead">{{ auth_client.notification_uri }}</dd>
-          {%- endif %}
-        {%- endif %}
-        <dt class="mui--text-subhead">{% trans %}Active?{% endtrans %}</dt>
-        <dd class="mui--text-subhead">{{ auth_client.active }}</dd>
-        <dt class="mui--text-subhead">{% trans %}Allow anyone to login?{% endtrans %}</dt>
-        <dd class="mui--text-subhead">{{ auth_client.allow_any_login }}</dd>
-        <dt class="mui--text-subhead">{% trans %}Registered date{% endtrans %}</dt>
-        <dd class="mui--text-subhead">{{ auth_client.created_at|datetime }}</dd>
-        {%- if auth_client.owner_is(current_auth.user) %}
-          <dt class="mui--text-subhead">{% trans %}Users{% endtrans %}</dt>
-          <dd class="mui--text-subhead">{{ auth_client.authtokens.count() }}</dd>
-        {%- endif %}
-      </dl>
-    </div>
+    <div class="grid__col-xs-12 grid__col--bleed {%- if auth_client.owner_is(current_auth.user) or auth_client.owner_is(current_auth.user) %} grid__col-md-7 grid__col-lg-8{% endif %}">
+      <div class="grid__col--bleed-y">
+        <div class="mui-panel">
+          <dl class="infobox">
+            <dt class="mui--text-subhead">{% trans %}Application title{% endtrans %}</dt>
+            <dd class="mui--text-subhead"><strong>{{ auth_client.title }}</strong></dd>
+            <dt class="mui--text-subhead">{% trans %}Description{% endtrans %}</dt>
+            <dd class="mui--text-subhead">{{ auth_client.description }}</dd>
+            <dt class="mui--text-subhead">{% trans %}Owner{% endtrans %}</dt>
+            <dd class="mui--text-subhead">{{ auth_client.owner.pickername }}</dd>
+            <dt class="mui--text-subhead">{% trans %}OAuth2 Type{% endtrans %}</dt>
+            <dd class="mui--text-subhead">{% if auth_client.confidential %}{% trans %}Confidential{% endtrans %}{% else %}{% trans %}Public{% endtrans %}{% endif %}</dd>
+            <dt class="mui--text-subhead">{% trans %}Website{% endtrans %}</dt>
+            <dd class="mui--text-subhead"><a rel="nofollow" href="{{ auth_client.website }}">{{ auth_client.website }}</a></dd>
+            {%- if auth_client.owner_is(current_auth.user) %}
+              <dt class="mui--text-subhead">{% trans %}Redirect URLs{% endtrans %}</dt>
+              <dd class="mui--text-subhead">
+                {%- for r in auth_client.redirect_uris -%}
+                  {{ r }}{% if not loop.last %}<br/>{% endif %}
+                {%- endfor -%}
+              </dd>
+              {%- if auth_client.notification_uri %}
+                <dt class="mui--text-subhead">{% trans %}Notification URL (deprecated){% endtrans %}</dt>
+                <dd class="mui--text-subhead">{{ auth_client.notification_uri }}</dd>
+              {%- endif %}
+            {%- endif %}
+            <dt class="mui--text-subhead">{% trans %}Active?{% endtrans %}</dt>
+            <dd class="mui--text-subhead">{{ auth_client.active }}</dd>
+            <dt class="mui--text-subhead">{% trans %}Allow anyone to login?{% endtrans %}</dt>
+            <dd class="mui--text-subhead">{{ auth_client.allow_any_login }}</dd>
+            <dt class="mui--text-subhead">{% trans %}Registered date{% endtrans %}</dt>
+            <dd class="mui--text-subhead">{{ auth_client.created_at|datetime }}</dd>
+            {%- if auth_client.owner_is(current_auth.user) %}
+              <dt class="mui--text-subhead">{% trans %}Users{% endtrans %}</dt>
+              <dd class="mui--text-subhead">{{ auth_client.authtokens.count() }}</dd>
+            {%- endif %}
+          </dl>
+        </div>
+      </div>
     </div>
 
-    {%- if current_auth.is_authenticated %}
-      {%- with auth_token=auth_client.authtoken_for(current_auth.user) %}
-        {%- if auth_token %}
-          <div class="grid grid--align-baseline">
-            <div class="grid__col-auto">
-              <div class="card card--limited">
-                <div class="card__header">
-                  <h3 class="mui--text-title">{% trans %}Your access token{% endtrans %}</h3>
-                </div>
-                <div class="card__body">
-                  <dl class="infobox">
-                    <dt class="mui--text-subhead">{% trans %}Created{% endtrans %}</dt>
-                    <dd class="mui--text-subhead">{{ auth_token.created_at|datetime }}</dd>
-                    <dt class="mui--text-subhead">{% trans %}Last used{% endtrans %}</dt>
-                    <dd class="mui--text-subhead">
-                      {%- if auth_token.last_used -%}
-                        {{ auth_token.last_used|datetime }}
-                      {%- else -%}
-                        {% trans %}Unknown{% endtrans %}
-                      {%- endif -%}
-                    </dd>
-                  </dl>
-                </div>
-                <div class="mui-divider"></div>
-                <div class="card__footer">
-                  <a href="{{ auth_client.url_for('disconnect') }}"" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}Disconnect{% endtrans %}</a>
+      {%- if current_auth.is_authenticated %}
+        {%- with auth_token=auth_client.authtoken_for(current_auth.user) %}
+          {%- if auth_token %}
+            <div class="grid grid--align-baseline">
+              <div class="grid__col-auto">
+                <div class="card card--limited">
+                  <div class="card__header">
+                    <h3 class="mui--text-title">{% trans %}Your access token{% endtrans %}</h3>
+                  </div>
+                  <div class="card__body">
+                    <dl class="infobox">
+                      <dt class="mui--text-subhead">{% trans %}Created{% endtrans %}</dt>
+                      <dd class="mui--text-subhead">{{ auth_token.created_at|datetime }}</dd>
+                      <dt class="mui--text-subhead">{% trans %}Last used{% endtrans %}</dt>
+                      <dd class="mui--text-subhead">
+                        {%- if auth_token.last_used -%}
+                          {{ auth_token.last_used|datetime }}
+                        {%- else -%}
+                          {% trans %}Unknown{% endtrans %}
+                        {%- endif -%}
+                      </dd>
+                    </dl>
+                  </div>
+                  <div class="mui-divider"></div>
+                  <div class="card__footer">
+                    <a href="{{ auth_client.url_for('disconnect') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}Disconnect{% endtrans %}</a>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        {%- endif %}
-      {%- endwith %}
-    {%- endif %}
+          {%- endif %}
+        {%- endwith %}
+      {%- endif %}
 
-    {%- if auth_client.owner_is(current_auth.user) %}
-      <div class="grid__col--bleed-y">
-        <h2>{% trans %}Access keys{% endtrans %}</h2>
-      </div>
-      <div class="grid grid--align-baseline">
-      {% for cred in auth_client.credentials.values() %}
-        <div class="grid__col-auto">
-          <div class="card card--limited">
-            <div class="card__header">
-              <h3 class="mui--text-title">{{ cred.title }}</h3>
-            </div>
-            <div class="card__body">
-              <dl class="infobox">
-                <dt class="mui--text-subhead">{% trans %}Purpose{% endtrans %}</dt>
-                <dd class="mui--text-subhead">{{cred.title}}</dd>
-                <dt class="mui--text-subhead">{% trans %}Key{% endtrans %}</dt>
-                <dd class="mui--text-subhead">{{cred.name}}</dd>
-                <dt class="mui--text-subhead">{% trans  %}Created{% endtrans %}</dt>
-                <dd class="mui--text-subhead">{{ cred.created_at|datetime }}</dd>
-                <dt class="mui--text-subhead">{% trans %}Last used{% endtrans %}</dt>
-                {% if cred.accessed_at %}
-                  <dd class="mui--text-subhead">{{ cred.accessed_at|age }}</dd>
-                {% else %}
-                  <dd class="mui--text-subhead">{% trans %}never{% endtrans %}</dd>
-                {% endif %}
-              </dl>
-            </div>
-            <div class="mui-divider"></div>
-            <div class="card__footer">
-              <a href="{{ cred.url_for('delete') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}Revoke{% endtrans %}</a>
-            </div>
-          </div>
+      {%- if auth_client.owner_is(current_auth.user) %}
+        <div class="grid__col--bleed-y">
+          <h2>{% trans %}Access keys{% endtrans %}</h2>
         </div>
-      {%- else %}
-        <div class="grid__col-auto">
-          <p class="mui--text-subhead"><em>{% trans %}This application does not have any access keys{% endtrans %}</em></p>
-        </div>
-      {% endfor %}
-      </div>
-    {%- endif %}
-
-    {% if auth_client.owner_is(current_auth.user) %}
-      <div class="grid__col--bleed-y">
-        <h2>{% trans %}Permissions{% endtrans %}</h2>
-        {% if auth_client.user %}
-          <p>{% trans %}The following users have permissions to this app{% endtrans %}</p>
-        {% else %}
-          <p>{% trans %}The following teams have permissions to this app{% endtrans %}</p>
-        {% endif %}
-      </div>
-      <div class="grid grid--align-baseline">
-        {%- for pa in permassignments %}
+        <div class="grid grid--align-baseline">
+        {% for cred in auth_client.credentials.values() %}
           <div class="grid__col-auto">
             <div class="card card--limited">
               <div class="card__header">
-                <h3 class="mui--text-title">{{ pa.pickername }}</h3>
+                <h3 class="mui--text-title">{{ cred.title }}</h3>
               </div>
-              <div class="card__body card--text mui--text-subhead">
-                <p>{% trans access=pa.access_permissions %}Permissions: {{ access }}{% endtrans %}</p>
+              <div class="card__body">
+                <dl class="infobox">
+                  <dt class="mui--text-subhead">{% trans %}Purpose{% endtrans %}</dt>
+                  <dd class="mui--text-subhead">{{ cred.title }}</dd>
+                  <dt class="mui--text-subhead">{% trans %}Key{% endtrans %}</dt>
+                  <dd class="mui--text-subhead">{{ cred.name }}</dd>
+                  <dt class="mui--text-subhead">{% trans %}Created{% endtrans %}</dt>
+                  <dd class="mui--text-subhead">{{ cred.created_at|datetime }}</dd>
+                  <dt class="mui--text-subhead">{% trans %}Last used{% endtrans %}</dt>
+                  {% if cred.accessed_at %}
+                    <dd class="mui--text-subhead">{{ cred.accessed_at|age }}</dd>
+                  {% else %}
+                    <dd class="mui--text-subhead">{% trans %}never{% endtrans %}</dd>
+                  {% endif %}
+                </dl>
               </div>
               <div class="mui-divider"></div>
               <div class="card__footer">
-                <a href="{{ pa.url_for('edit') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}Edit{% endtrans %}</a>
-                <a href="{{ pa.url_for('delete') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}Delete{% endtrans %}</a>
+                <a href="{{ cred.url_for('delete') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}Revoke{% endtrans %}</a>
               </div>
             </div>
           </div>
-        {% else %}
+        {%- else %}
           <div class="grid__col-auto">
-            <p class="mui--text-subhead"><em>{% trans %}No permissions assigned{% endtrans %}</em></p>
+            <p class="mui--text-subhead"><em>{% trans %}This application does not have any access keys{% endtrans %}</em></p>
           </div>
         {% endfor %}
-      </div>
-    {%- endif %}
+      {%- endif %}
 
+      {% if auth_client.owner_is(current_auth.user) %}
+        <div class="grid__col--bleed-y">
+          <h2>{% trans %}Permissions{% endtrans %}</h2>
+          {% if auth_client.user %}
+            <p>{% trans %}The following users have permissions to this app{% endtrans %}</p>
+          {% else %}
+            <p>{% trans %}The following teams have permissions to this app{% endtrans %}</p>
+          {% endif %}
+        </div>
+        <div class="grid grid--align-baseline">
+          {%- for pa in permassignments %}
+            <div class="grid__col-auto">
+              <div class="card card--limited">
+                <div class="card__header">
+                  <h3 class="mui--text-title">{{ pa.pickername }}</h3>
+                </div>
+                <div class="card__body card--text mui--text-subhead">
+                  <p>{% trans access=pa.access_permissions %}Permissions: {{ access }}{% endtrans %}</p>
+                </div>
+                <div class="mui-divider"></div>
+                <div class="card__footer">
+                  <a href="{{ pa.url_for('edit') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}Edit{% endtrans %}</a>
+                  <a href="{{ pa.url_for('delete') }}" class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary">{% trans %}Delete{% endtrans %}</a>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="grid__col-auto">
+              <p class="mui--text-subhead"><em>{% trans %}No permissions assigned{% endtrans %}</em></p>
+            </div>
+          {% endfor %}
+        </div>
+      {%- endif %}
+    </div>
   </div>
-<div>
-{% endblock %}
+{% endblock contentwrapper %}

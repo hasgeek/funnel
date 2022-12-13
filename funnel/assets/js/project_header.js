@@ -1,6 +1,9 @@
 import SaveProject from './utils/bookmark';
 import Video from './utils/embedvideo';
 import Analytics from './utils/analytics';
+import Spa from './utils/spahelper';
+import Form from './utils/formhelper';
+import initEmbed from './utils/initembed';
 
 const Ticketing = {
   init(tickets) {
@@ -52,9 +55,7 @@ const Ticketing = {
         } else if (response.readyState === 0) {
           if (ajaxLoad.retries < 0) {
             if (!navigator.onLine) {
-              errorMsg = window.gettext(
-                'This device has no internet connection'
-              );
+              errorMsg = window.gettext('This device has no internet connection');
             } else {
               errorMsg = window.gettext(
                 'Unable to connect. If this device is behind a firewall or using any script blocking extension (like Privacy Badger), please ensure your browser can load boxoffice.hasgeek.com, api.razorpay.com and checkout.razorpay.com'
@@ -81,12 +82,9 @@ const Ticketing = {
       },
       false
     );
-    $(document).on(
-      'boxofficeTicketingEvents',
-      (event, userAction, label, value) => {
-        Analytics.sendToGA('ticketing', userAction, label, value);
-      }
-    );
+    $(document).on('boxofficeTicketingEvents', (event, userAction, label, value) => {
+      Analytics.sendToGA('ticketing', userAction, label, value);
+    });
     $(document).on(
       'boxofficeShowPriceEvent',
       (event, prices, currency, quantityAvailable) => {
@@ -100,7 +98,9 @@ const Ticketing = {
         if (!isTicketAvailable || minPrice < 0) {
           $('.js-tickets-available').addClass('mui--hide');
           $('.js-tickets-not-available').removeClass('mui--hide');
-          $('.js-open-ticket-widget').addClass('register-block__txt--strike');
+          $('.js-open-ticket-widget')
+            .addClass('mui--is-disabled')
+            .prop('disabled', true);
         } else {
           price = `${currency}${minPrice}`;
           if (prices.length > 1) {
@@ -160,15 +160,20 @@ const Ticketing = {
 };
 
 $(() => {
-  window.Hasgeek.projectHeaderInit = (saveProjectConfig = '', tickets = '') => {
+  window.Hasgeek.projectHeaderInit = (
+    projectTitle,
+    saveProjectConfig = '',
+    tickets = ''
+  ) => {
     if (saveProjectConfig) {
       SaveProject(saveProjectConfig);
     }
 
-    $('.js-htmltruncate-expand').click(function expandTruncation(event) {
+    $('body').on('click', '.js-htmltruncate-expand', function expandTruncation(event) {
       event.preventDefault();
       $(this).addClass('mui--hide');
       $(this).next('.js-htmltruncate-full').removeClass('mui--hide');
+      initEmbed($(this).next('.js-htmltruncate-full'));
     });
 
     // Adding the embed video player
@@ -190,5 +195,36 @@ $(() => {
     if (tickets) {
       Ticketing.init(tickets);
     }
+
+    Form.openSubmissionToggle('#open-sub', '.js-cfp-status');
+
+    const hightlightNavItem = (navElem) => {
+      const navHightlightClass = 'sub-navbar__item--active';
+      $('.sub-navbar__item').removeClass(navHightlightClass);
+      $(`#${navElem}`).addClass(navHightlightClass);
+
+      if (window.Hasgeek.subpageTitle) {
+        $('body').addClass('subproject-page');
+        if (window.Hasgeek.subpageHasVideo) {
+          $('body').addClass('mobile-hide-livestream');
+        } else {
+          $('body').removeClass('mobile-hide-livestream');
+        }
+      } else {
+        $('body').removeClass('subproject-page').removeClass('mobile-hide-livestream');
+      }
+    };
+
+    const currentnavItem = $('.sub-navbar__item--active').attr('id');
+    Spa.init(projectTitle, currentnavItem, hightlightNavItem);
+
+    $('body').on('click', '.js-spa-navigate', function pageRefresh(event) {
+      event.preventDefault();
+      const url = $(this).attr('href');
+      Spa.fetchPage(url, $(this).attr('id'), true);
+    });
+
+    // Include parent container
+    initEmbed('#about .markdown');
   };
 });

@@ -12,7 +12,7 @@
       {{ view.activity_html() }}
     </p>
   {%- endif %}
-{%- endblock -%}
+{%- endblock content -%}
 
 {%- block avatar %}
   {%- if view.is_rollup %}
@@ -20,4 +20,4 @@
   {%- else %}
     {{ useravatar(view.actor) }}
   {%- endif %}
-{%- endblock %}
+{%- endblock avatar %}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="39px" height="39px" viewBox="0 0 39 39" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>zoom</title>
+    <defs>
+        <circle id="path-1" cx="19.375818" cy="19.375818" r="19.375818"></circle>
+        <circle id="path-3" cx="18.9959" cy="18.9959" r="18.9959"></circle>
+        <circle id="path-5" cx="17.476228" cy="17.476228" r="17.476228"></circle>
+        <path d="M16.716392,3.81483418 L21.655326,0.205613182 C22.0865329,-0.145810968 22.415162,-0.0641285976 22.415162,0.585531182 L22.415162,11.5917556 C22.415162,12.3211982 22.0048506,12.2376162 21.655326,11.9716736 L16.716392,8.36245264 L16.716392,3.81483418 Z M0,0.612125442 L0,8.81835424 C0.00941933311,10.6735026 1.5204182,12.1700463 3.37557143,12.1616679 L15.3429884,12.1616679 C15.6800658,12.162686 15.954464,11.8908364 15.956556,11.5537638 L15.956556,3.34753504 C15.9471367,1.49238664 14.4361378,-0.00415696985 12.5809846,0.00422133949 L0.61356757,0.00422133949 C0.276490161,0.00320332116 0.00209201298,0.27505288 0,0.612125442 Z" id="path-7"></path>
+    </defs>
+    <g id="Profile-improvements-with-follow" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="zoom">
+            <g id="Clipped">
+                <mask id="mask-2" fill="white">
+                    <use xlink:href="#path-1"></use>
+                </mask>
+                <g id="Oval"></g>
+                <polygon id="Path" fill="#E5E5E4" fill-rule="nonzero" mask="url(#mask-2)" points="-0.949795 -0.949795 39.701431 -0.949795 39.701431 39.701431 -0.949795 39.701431"></polygon>
+            </g>
+            <g id="Clipped" transform="translate(0.379918, 0.379918)">
+                <mask id="mask-4" fill="white">
+                    <use xlink:href="#path-3"></use>
+                </mask>
+                <g id="Oval"></g>
+                <polygon id="Path" fill="#FFFFFF" fill-rule="nonzero" mask="url(#mask-4)" points="-0.949795 -0.949795 38.941595 -0.949795 38.941595 38.941595 -0.949795 38.941595"></polygon>
+            </g>
+            <g id="Clipped" transform="translate(1.899590, 1.899590)">
+                <mask id="mask-6" fill="white">
+                    <use xlink:href="#path-5"></use>
+                </mask>
+                <g id="Oval"></g>
+                <polygon id="Path" fill="#4A8CFF" fill-rule="nonzero" mask="url(#mask-6)" points="-0.949795 -0.949795 35.902251 -0.949795 35.902251 35.902251 -0.949795 35.902251"></polygon>
+            </g>
+            <g id="Clipped" transform="translate(7.978278, 13.292873)">
+                <mask id="mask-8" fill="white">
+                    <use xlink:href="#path-7"></use>
+                </mask>
+                <g id="Shape"></g>
+                <polygon id="Path" fill="#FFFFFF" fill-rule="nonzero" mask="url(#mask-8)" points="-0.949795 -0.945538358 23.364957 -0.945538358 23.364957 13.1114276 -0.949795 13.1114276"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

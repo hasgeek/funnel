@@ -1,12 +1,14 @@
 {% set current_page = 'project' %}
-{% extends "project_layout.html.jinja2" %}
-{% block titleblock %}{{ project.title }}{%- endblock %}
+{%- if not request_wants.html_fragment -%}
+  {% extends "project_layout.html.jinja2" %}
+{%- else -%}
+  {% extends "project_spa_layout.html.jinja2" %}
+  {%- from "project_layout.html.jinja2" import pinned_update, project_about with context %}
+{% endif %}
+{% block titleblock %}{{ project.title }}{%- endblock titleblock %}
 {%- from "macros.html.jinja2" import proposal_card, video_thumbnail %}
 
 {%- block pageheaders %}
-  {% assets "css_leaflet" -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets -%}
   {%- if project.start_at %}
     <script type="application/ld+json">
     {
@@ -52,7 +54,7 @@
     }
     </script>
   {%- endif -%}
-{% endblock %}
+{% endblock pageheaders %}
 
 {% block baseheadline %}
   <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl mobile-nav-wrapper">
@@ -60,36 +62,7 @@
       <a href="{{ url_for('index') }}" aria-label="{% trans %}Back to the home{% endtrans %}" class="mui--text-dark mobile-nav__icon" data-ga="Back to the project home">{{ faicon(icon='arrow-left', icon_size='title') }}</a>
     </div>
   </div>
-{% endblock %}
-
-{% block project_banner_inner %}
-  <div class="mui--hidden-md mui--hidden-lg mui--hidden-xl project-details-header">
-    <div class="project-details__box">
-      {% if project.start_at and project.calendar_weeks_full.weeks and project.calendar_weeks_full.weeks|length > 0 %}
-        <div class="project-details__box__content">
-          <div aria-label="{{ project.datelocation }}">
-            {{ calendarwidget(project.calendar_weeks_full, compact=false) }}
-          </div>
-        </div>
-      {% endif %}
-      {{ project_details(project) }}
-    </div>
-  </div>
-{% endblock %}
-
-{% block before_navbar %}
-  <div class="mui-container">
-    <div class="grid">
-      <div class="grid__col-sm-12 mui--hidden-md mui--hidden-lg mui--hidden-xl">
-        {{ pinned_update(project) }}
-        {{ project_about(project) }}
-        <div class="top-padding">
-          {{ project_host_sponsor(project) }}
-        </div>
-      </div>
-    </div>
-  </div>
-{%- endblock %}
+{% endblock baseheadline %}
 
 {% block left_col %}
   <div class="mui--hidden-xs mui--hidden-sm">
@@ -100,21 +73,21 @@
     <div class="page-card">
       <div class="project-section" id="submissions">
         <div class="project-section__headline">
-          <h2 class="project-section__headline mui--text-left zero-top-margin">{% trans %}Submissions{% endtrans %}</h2>
+          <h2 class="project-section__headline mui--text-left zero-top-margin">{% trans %}Featured submissions{% endtrans %}</h2>
           <a class="mui-btn mui-btn--raised zero-top-margin" href="{{ project.url_for('view_proposals') }}">{% trans %}See all{% endtrans %}</a>
         </div>
       </div>
       <ul class="mui-list--unstyled">
         {% for proposal in featured_proposals %}
           <li>
-            {{ proposal_card(proposal, full_width=true, css_class='page-card__card', project=project) }}
+            {{ proposal_card(proposal, full_width=true, css_class="page-card__card", project=project, spa=true) }}
           </li>
         {%- endfor -%}
       </ul>
     </div>
   {%- endif %}
 
-  {% if project.featured_sessions  %}
+  {% if project.featured_sessions %}
     <div class="page-card">
       <div class="project-section" id="sessions">
         <div class="project-section__headline">
@@ -133,7 +106,7 @@
                       {% if session.banner_image_url.url %}
                         <div class="proposal-card__body__inner__details">
                           <div class="proposal-card__body__inner__details__video">
-                            <div  class="proposal-card__body__inner__details__video__thumbnail"><img src="{{ session.banner_image_url }}"/></div>
+                            <div class="proposal-card__body__inner__details__video__thumbnail"><img src="{{ session.banner_image_url }}" alt="{{ session.title }}"/></div>
                           </div>
                         </div>
                       {%- endif %}
@@ -141,7 +114,7 @@
                         <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
                         <p class="mui--text-body2">{{ session.speaker }}</p>
                         {% if session.description.html %}
-                          <div class="mui--text-light margin-bottom">{{ session.description.html|preview(min=100, max=200) }}<span class="chip">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class='mui--align-middle') }}</span></div>
+                          <div class="mui--text-light margin-bottom">{{ session.description.html|preview(min=100, max=200) }}<span class="chip">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class="mui--align-middle") }}</span></div>
                         {%- endif %}
                         <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ session.start_at|datetime(format='dd MMM YYYY, h:mm a') }}</p>
                       </div>
@@ -192,7 +165,7 @@
           <p class="zero-bottom-margin">{{ project.primary_venue.title }}</p>
           <p class="zero-bottom-margin">{{ project.primary_venue.address1 }}</p>
           <p class="zero-bottom-margin">{{ project.primary_venue.address2 }}</p>
-          <p class="zero-bottom-margin">{{ project.primary_venue.city }}{% if project.primary_venue.city and  project.primary_venue.postcode %} - {{ project.primary_venue.postcode }}{%- endif %}</p>
+          <p class="zero-bottom-margin">{{ project.primary_venue.city }}{% if project.primary_venue.city and project.primary_venue.postcode %} - {{ project.primary_venue.postcode }}{%- endif %}</p>
           {%- if project.primary_venue.state and project.primary_venue.country -%}
             <p>{{ project.primary_venue.state }}, {{ project.primary_venue.country }}</p>
           {%- endif %}
@@ -203,23 +176,26 @@
       </div>
     </div>
   {%- endif %}
-{% endblock %}
+{% endblock left_col %}
 
 {% block footerinnerscripts %}
-  {%- if project.primary_venue.has_coordinates -%}
-    <script src="{{ built_asset('project.js') }}" type="text/javascript"></script>
-    <script type="text/javascript">
-      $(function() {
-        var projectConfig = {};
+  <script type="text/javascript">
+    window.Hasgeek.subpageTitle = '';
+  </script>
+  <script src="{{ built_asset('project.js') }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      var projectConfig = {};
+      {%- if project.primary_venue.has_coordinates -%}
+        projectConfig.venue = {
+          mapId: "venue-map",
+          latitude: {{ project.primary_venue.latitude|tojson }},
+          longitude: {{ project.primary_venue.longitude|tojson }}
+        };
+      {%- endif %}
+      projectConfig.markdownElem = '#about .markdown';
 
-          projectConfig.venue = {
-            mapId: "venue-map",
-            latitude: {{ project.primary_venue.latitude|tojson }},
-            longitude: {{ project.primary_venue.longitude|tojson }}
-          };
-
-        window.Hasgeek.projectInit(projectConfig);
-      });
-    </script>
-  {%- endif %}
-{% endblock %}
+      window.Hasgeek.projectInit(projectConfig);
+    });
+  </script>
+{% endblock footerinnerscripts %}

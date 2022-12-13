@@ -1,3 +1,5 @@
+"""Mixin class for models that support a single embedded video."""
+
 from __future__ import annotations
 
 from typing import Optional, Tuple
@@ -5,7 +7,7 @@ import urllib.parse
 
 from baseframe import _
 
-from . import db
+from . import declarative_mixin, sa
 
 __all__ = ['VideoMixin', 'VideoError', 'parse_video_url']
 
@@ -92,18 +94,19 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
 def make_video_url(video_source: str, video_id: str) -> str:
     if video_source == 'youtube':
         return f'https://www.youtube.com/watch?v={video_id}'
-    elif video_source == 'vimeo':
+    if video_source == 'vimeo':
         return f'https://vimeo.com/{video_id}'
-    elif video_source == 'googledrive':
+    if video_source == 'googledrive':
         return f'https://drive.google.com/file/d/{video_id}/view'
-    elif video_source == 'raw':
+    if video_source == 'raw':
         return video_id
     raise ValueError("Unknown video source")
 
 
+@declarative_mixin
 class VideoMixin:
-    video_id: db.Column = db.Column(db.UnicodeText, nullable=True)
-    video_source: db.Column = db.Column(db.UnicodeText, nullable=True)
+    video_id: sa.Column = sa.Column(sa.UnicodeText, nullable=True)
+    video_source: sa.Column = sa.Column(sa.UnicodeText, nullable=True)
 
     @property
     def video_url(self) -> Optional[str]:
@@ -122,11 +125,18 @@ class VideoMixin:
     def embeddable_video_url(self) -> Optional[str]:
         if self.video_source:
             if self.video_source == 'youtube':
-                return f'https://videoken.com/embed/?videoID={self.video_id}&wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=1&enablejsapi=1&version=3'
-            elif self.video_source == 'vimeo':
-                return f'https://player.vimeo.com/video/{self.video_id}?api=1&player_id=vimeoplayer'
-            elif self.video_source == 'googledrive':
+                return (
+                    f'https://videoken.com/embed/?videoID={self.video_id}'
+                    f'&wmode=transparent&showinfo=0&rel=0&autohide=0&autoplay=1'
+                    f'&enablejsapi=1&version=3'
+                )
+            if self.video_source == 'vimeo':
+                return (
+                    f'https://player.vimeo.com/video/{self.video_id}'
+                    f'?api=1&player_id=vimeoplayer'
+                )
+            if self.video_source == 'googledrive':
                 return f'https://drive.google.com/file/d/{self.video_id}/preview'
-            elif self.video_source == 'raw':
+            if self.video_source == 'raw':
                 return self.video_id
         return None

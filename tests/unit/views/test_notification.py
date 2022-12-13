@@ -1,18 +1,15 @@
+"""Test Notification views."""
+
 from urllib.parse import urlsplit
 
 from flask import url_for
 
 import pytest
 
-from funnel.models import (
-    NewUpdateNotification,
-    Notification,
-    NotificationPreferences,
-    Update,
-)
+from funnel import models
 
 
-@pytest.fixture
+@pytest.fixture()
 def phone_vetinari(db_session, user_vetinari):
     """Add a phone number to user_vetinari."""
     userphone = user_vetinari.add_phone('+12345678900')
@@ -21,10 +18,10 @@ def phone_vetinari(db_session, user_vetinari):
     return userphone
 
 
-@pytest.fixture
+@pytest.fixture()
 def notification_prefs_vetinari(db_session, user_vetinari):
     """Add main notification preferences for user_vetinari."""
-    prefs = NotificationPreferences(
+    prefs = models.NotificationPreferences(
         user=user_vetinari,
         notification_type='',
         by_email=True,
@@ -38,11 +35,11 @@ def notification_prefs_vetinari(db_session, user_vetinari):
     return prefs
 
 
-@pytest.fixture
+@pytest.fixture()
 def project_update(db_session, user_vetinari, project_expo2010):
     """Create an update to add a notification for."""
     db_session.commit()
-    update = Update(
+    update = models.Update(
         project=project_expo2010,
         user=user_vetinari,
         title="New update",
@@ -55,10 +52,10 @@ def project_update(db_session, user_vetinari, project_expo2010):
     return update
 
 
-@pytest.fixture
+@pytest.fixture()
 def update_user_notification(db_session, user_vetinari, project_update):
     """Get a user notification for the update fixture."""
-    notification = NewUpdateNotification(project_update)
+    notification = models.NewUpdateNotification(project_update)
     db_session.add(notification)
     db_session.commit()
 
@@ -71,20 +68,20 @@ def update_user_notification(db_session, user_vetinari, project_update):
 
 def test_user_notification_is_for_user_vetinari(
     update_user_notification, user_vetinari
-):
+) -> None:
     """Confirm the test notification is for the test user fixture."""
     assert update_user_notification.user == user_vetinari
 
 
-@pytest.fixture
+@pytest.fixture()
 def notification_view(update_user_notification):
     """Get the notification view renderer."""
-    return Notification.renderers[update_user_notification.notification.type](
+    return models.Notification.renderers[update_user_notification.notification.type](
         update_user_notification
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def unsubscribe_sms_short_url(
     notification_view, phone_vetinari, notification_prefs_vetinari
 ):
@@ -92,14 +89,18 @@ def unsubscribe_sms_short_url(
     return notification_view.unsubscribe_short_url('sms')
 
 
-def test_unsubscribe_view_is_well_formatted(unsubscribe_sms_short_url, user_vetinari):
+def test_unsubscribe_view_is_well_formatted(
+    unsubscribe_sms_short_url, user_vetinari
+) -> None:
     """Confirm the SMS unsubscribe URL is well formatted."""
     prefix = 'https://bye.test/'
     assert unsubscribe_sms_short_url.startswith(prefix)
     assert len(unsubscribe_sms_short_url) == len(prefix) + 4  # 4 char random value
 
 
-def test_unsubscribe_sms_view(client, unsubscribe_sms_short_url, user_vetinari):
+def test_unsubscribe_sms_view(
+    app, client, unsubscribe_sms_short_url, user_vetinari
+) -> None:
     """Confirm the unsubscribe URL renders a form."""
     unsub_url = url_for(
         'notification_unsubscribe_short',
@@ -117,7 +118,13 @@ def test_unsubscribe_sms_view(client, unsubscribe_sms_short_url, user_vetinari):
     # Follow the redirect. This will cause yet another redirect
     rv = client.get(rv.location)
     assert rv.status_code == 302
-    assert rv.location == url_for('notification_unsubscribe_do', _external=True)
+    # Werkzeug 2.1 defaults to relative URLs in redirects as per the change in RFC 7231:
+    # https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.2
+    # https://github.com/pallets/werkzeug/issues/2352
+    # Earlier versions of Werkzeug defaulted to RFC 2616 behaviour for an absolute URL:
+    # https://datatracker.ietf.org/doc/html/rfc2616#section-14.30
+    # This test will fail on Werkzeug < 2.1
+    assert rv.location == url_for('notification_unsubscribe_do', _external=False)
 
     # This time we'll get the unsubscribe form.
     rv = client.get(rv.location)

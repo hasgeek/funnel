@@ -28,7 +28,6 @@ before_install:
   - sudo systemctl restart postgresql@13-main
 install:
   - pip install -U pip wheel
-  - pip install git+https://github.com/hasgeek/flask-babelhg.git
   - pip install -r requirements.txt
   - pip install -r requirements_test.txt
   - pip install idna --upgrade
@@ -41,7 +40,7 @@ before_script:
   - psql -c 'create database geoname_testing;' -U postgres
   - 'flask dbconfig | sudo -u postgres psql geoname_testing'
 script:
-  - './runtests.sh'
+  - 'pytest'
   # - './runfrontendtests.sh'
 after_success:
   - coveralls

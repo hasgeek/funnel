@@ -17,21 +17,24 @@ const Notification = {
         };
       },
       methods: {
-        fetchResult(page, refresh = false) {
+        async fetchResult(page, refresh = false) {
           if (!refresh) {
             // Stop observing the lazy loader element
             notificationApp.observer.unobserve(notificationApp.lazyLoader);
           }
           if (!notificationApp.waitingForResponse) {
             notificationApp.waitingForResponse = true;
-            $.ajax({
-              type: 'GET',
-              data: {
-                page,
+            const url = `${window.location.href}?${new URLSearchParams({
+              page,
+            }).toString()}`;
+            const response = await fetch(url, {
+              headers: {
+                Accept: 'application/json',
               },
-              timeout: window.Hasgeek.Config.ajaxTimeout,
-              dataType: 'json',
-              success(data) {
+            });
+            if (response && response.ok) {
+              const data = await response.json();
+              if (data) {
                 notificationApp.addNotifications(data.notifications, refresh);
                 if (!refresh) {
                   if (data.next_num) {
@@ -43,17 +46,13 @@ const Notification = {
                   notificationApp.lazyoad();
                 }
                 notificationApp.waitingForResponse = false;
-              },
-            });
+              }
+            }
           }
         },
         addNotifications(notifications, refresh) {
           notifications.forEach((notice) => {
-            if (
-              !notificationApp.eventids.includes(
-                notice.notification.eventid_b58
-              )
-            ) {
+            if (!notificationApp.eventids.includes(notice.notification.eventid_b58)) {
               if (refresh) {
                 notificationApp.notifications.unshift(notice);
               } else {
@@ -82,7 +81,7 @@ const Notification = {
             }
           });
         },
-        updateReadStatus(notification) {
+        async updateReadStatus(notification) {
           if ($(notification).attr('data-visible-time')) {
             const notificationItem =
               this.notifications[$(notification).attr('data-index')];
@@ -90,20 +89,24 @@ const Notification = {
               'eventid_b58',
               notificationItem.notification.eventid_b58
             );
-            $.ajax({
-              type: 'POST',
-              url,
-              data: {
-                csrf_token: $('meta[name="csrf-token"]').attr('content'),
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
               },
-              dataType: 'json',
-              timeout: window.Hasgeek.Config.ajaxTimeout,
-              success(responseData) {
+              body: new URLSearchParams({
+                csrf_token: $('meta[name="csrf-token"]').attr('content'),
+              }).toString(),
+            });
+            if (response && response.ok) {
+              const responseData = await response.json();
+              if (responseData) {
                 notificationItem.notification.is_read = true;
                 notificationItem.observer.unobserve(notification);
                 Utils.setNotifyIcon(responseData.unread);
-              },
-            });
+              }
+            }
           }
         },
         notificationInViewport(entries) {
@@ -139,8 +142,7 @@ const Notification = {
             }
           );
           notificationObserver.observe(elem);
-          const notificationItem =
-            app.notifications[$(elem).attr('data-index')];
+          const notificationItem = app.notifications[$(elem).attr('data-index')];
           notificationItem.observer = notificationObserver;
         });
       },

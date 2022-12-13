@@ -1,10 +1,15 @@
+"""Test Label forms."""
+
 from werkzeug.datastructures import MultiDict
 
-from funnel.forms import LabelForm
+import pytest
+
+from funnel import forms
 
 
-def test_label_form():
-    form = LabelForm(
+@pytest.mark.usefixtures('app_context')
+def test_label_form() -> None:
+    form = forms.LabelForm(
         MultiDict(
             {
                 'title': "Test label title",
@@ -18,8 +23,9 @@ def test_label_form():
     assert form.validate()
 
 
-def test_label_form_invalid():
-    form = LabelForm(
+@pytest.mark.usefixtures('app_context')
+def test_label_form_invalid() -> None:
+    form = forms.LabelForm(
         MultiDict({'icon_emoji': "🔟", 'required': False, 'restricted': False}),
         meta={'csrf': False},
     )

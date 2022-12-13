@@ -1,23 +1,30 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 default_stages: [commit]
+# Enable this to enforce a common Python version:
+# default_language_version:
+#   python: python3.9
 ci:
-  skip: ['pip-compile', 'no-commit-to-branch']
+  skip: ['pip-compile', 'yesqa', 'no-commit-to-branch']
 repos:
+  - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
+    rev: v1.5.1
+    hooks:
+      - id: check-pre-commit-ci-config
   - repo: https://github.com/jazzband/pip-tools
-    rev: 6.4.0
+    rev: 6.11.0
     hooks:
       - id: pip-compile
-        name: pip-compile --upgrade --generate-hashes requirements.in
-        args: [requirements.in]
+        name: pip-compile --generate-hashes requirements.in
+        args: ['requirements.in']
         files: ^requirements\.(in|txt)$
       - id: pip-compile
-        name: pip-compile --upgrade --generate-hashes requirements_dev.in
-        args: [requirements_dev.in]
+        name: pip-compile --generate-hashes requirements_dev.in
+        args: ['requirements_dev.in']
         files: ^requirements_dev\.(in|txt)$
       - id: pip-compile
-        name: pip-compile --upgrade --generate-hashes requirements_test.in
-        args: [requirements_test.in]
+        name: pip-compile --generate-hashes requirements_test.in
+        args: ['requirements_test.in']
         files: ^requirements_test\.(in|txt)$
   - repo: https://github.com/lucasmbrown/mirrors-autoflake
     rev: v1.3
@@ -32,29 +39,32 @@ repos:
             '--remove-duplicate-keys',
           ]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.29.1
+    rev: v3.3.1
     hooks:
       - id: pyupgrade
         args:
           ['--keep-runtime-typing', '--py3-plus', '--py36-plus', '--py37-plus']
   - repo: https://github.com/asottile/yesqa
-    rev: v1.3.0
+    rev: v1.4.0
     hooks:
       - id: yesqa
         additional_dependencies: &flake8deps
-          - flake8-assertive==1.3.0
-          - flake8-bandit==2.1.2
-          - flake8-blind-except==0.2.0
-          - flake8-bugbear==21.9.2
-          - flake8-builtins==1.5.3
-          - flake8-comprehensions==3.7.0
+          - bandit==1.7.4
+          - flake8-assertive==2.1.0
+          - flake8-blind-except==0.2.1
+          - flake8-bugbear==22.10.27
+          - flake8-builtins==2.0.1
+          - flake8-comprehensions==3.10.1
           - flake8-docstrings==1.6.0
-          - flake8-isort==4.1.1
-          - flake8-logging-format==0.6.0
+          - flake8-isort==5.0.3
+          - flake8-logging-format==0.9.0
           - flake8-mutable==1.2.0
-          - flake8-print==4.0.0
-          - pep8-naming==0.12.1
+          - flake8-plugin-utils==1.3.2
+          - flake8-print==5.0.0
+          - flake8-pytest-style==1.6.0
+          - pep8-naming==0.13.2
           - toml==0.10.2
+          - tomli==2.0.1
   - repo: https://github.com/PyCQA/isort
     rev: 5.10.1
     hooks:
@@ -62,44 +72,51 @@ repos:
         additional_dependencies:
           - toml
   - repo: https://github.com/psf/black
-    rev: 21.12b0
+    rev: 22.12.0
     hooks:
       - id: black
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.910-1
+    rev: v0.991
     hooks:
       - id: mypy
+        # warn-unused-ignores is unsafe with pre-commit, see
+        # https://github.com/python/mypy/issues/2960
+        args: ['--no-warn-unused-ignores', '--ignore-missing-imports']
         additional_dependencies:
-          - lxml-stubs==0.2.0
-          - sqlalchemy-stubs==0.4
-          - types-certifi==2020.4.0
-          - types-cryptography==3.3.5
-          - types-Flask==1.1.3
-          - types-geoip2==0.1.2
-          - types-itsdangerous==1.1.3
-          - types-maxminddb==1.5.0
-          - types-python-dateutil==2.8.0
-          - types-pytz==2021.1.2
-          - types-requests==2.25.9
-          - types-setuptools==57.4.0
-          - types-simplejson==3.17.0
-          - types-six==1.16.1
-          - types-toml==0.10.0
-          - types-Werkzeug==1.0.5
-          - types-boto
+          - lxml-stubs
+          - sqlalchemy-stubs
+          - toml
+          - types-all
+          - typing-extensions
   - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 6.0.0
     hooks:
       - id: flake8
         additional_dependencies: *flake8deps
+  - repo: https://github.com/PyCQA/pylint
+    rev: v2.15.8
+    hooks:
+      - id: pylint
+        args: [
+            '--disable=import-error',
+            '-rn', # Disable full report
+            '-sn', # Disable evaluation score
+            '--ignore-paths=tests,migrations',
+          ]
+        additional_dependencies:
+          - pylint-flask-sqlalchemy
+          - pylint-pytest
+          - toml
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.1
+    rev: 1.7.4
     hooks:
       - id: bandit
         language_version: python3
-        exclude: ^tests
+        args: ['-c', 'pyproject.toml']
+        additional_dependencies:
+          - toml
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.4.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -126,16 +143,25 @@ repos:
       - id: forbid-new-submodules
       - id: mixed-line-ending
       - id: no-commit-to-branch
+      - id: requirements-txt-fixer
+        files: requirements(_.*)?\.in
       - id: trailing-whitespace
         args: ['--markdown-linebreak-ext=md']
-  # Enable after auditing existing templates
-  # - repo: https://github.com/thibaudcolas/curlylint
-  #   rev: v0.13.0
-  #   hooks:
-  #     - id: curlylint
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.5.1
+    rev: v3.0.0-alpha.4
     hooks:
       - id: prettier
         args: ['--single-quote', '--trailing-comma', 'es5']
         exclude: funnel/templates/js/
+  - repo: https://github.com/Riverside-Healthcare/djLint
+    rev: v1.19.7
+    hooks:
+      - id: djlint-jinja
+        files: \.html\.(jinja2|j2)$
+      - id: djlint-handlebars
+        files: \.html\.(mustache|hb)$
+  - repo: https://github.com/ducminh-phan/reformat-gherkin
+    rev: v3.0.1
+    hooks:
+      - id: reformat-gherkin
+        files: \.feature$

@@ -1,14 +1,14 @@
 {% extends "layout.html.jinja2" %}
-{% block title %}{{ page.title }}{% endblock %}
+{% block title %}{{ page.title }}{% endblock title %}
 {%- from "macros.html.jinja2" import page_footer %}
 
 {% block top_title %}
   <h1 class="mui--text-headline"><strong>{{ self.title() }}</strong></h1>
-{% endblock %}
+{% endblock top_title %}
 
 {% block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/about.scss') }}" />
-{% endblock %}
+{% endblock pageheaders %}
 
 {% block contentwrapper -%}
   <div class="grid">
@@ -21,8 +21,8 @@
           <div class="card__body">
             <ul class="mui-list--aligned mui-list--unstyled">
               {%- for page in index %}
-                <li><p><a href="/about/{{ page.path }}">{{ page.title }}</a></p></li>
-              {%- endfor%}
+                <li><p><a href="{{ url_for('policy', path=page.path) }}">{{ page.title }}</a></p></li>
+              {%- endfor %}
             </ul>
           </div>
         </div>
@@ -33,11 +33,11 @@
       {{ page.html | safe }}
     </div>
   </div>
-{%- endblock %}
+{%- endblock contentwrapper %}
 
 {% block basefooter %}
   {{ page_footer() }}
-{% endblock %}
+{% endblock basefooter %}
 
 {% block footerscripts %}
-{% endblock %}
+{% endblock footerscripts %}

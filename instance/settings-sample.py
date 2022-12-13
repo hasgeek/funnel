@@ -1,11 +1,17 @@
+"""Sample configuration."""
+
 #: The title of this site
 SITE_TITLE = 'Hasgeek Funnel'
 #: Support contact email
 SITE_SUPPORT_EMAIL = 'test@example.com'
+#: Support contact phone
+SITE_SUPPORT_PHONE = '+1 234 567 8901'
 #: Google Analytics code UA-XXXXXX-X
 GA_CODE = ''
 #: Server name (required to generate URLs)
 SERVER_NAME = 'funnel.test:3000'
+#: Default domain (server name without port number)
+DEFAULT_DOMAIN = 'funnel.test'
 #: Database backend
 SQLALCHEMY_DATABASE_URI = 'postgresql://host/database'
 SQLALCHEMY_BINDS = {
@@ -34,10 +40,7 @@ TWITTER_ID = "hasgeek"
 #: DEFAULT_MAIL_SENDER : default None
 MAIL_FAIL_SILENTLY = False
 MAIL_SERVER = 'localhost'
-DEFAULT_MAIL_SENDER = ('Bill Gate', 'test@example.com')
-
-# Required for Flask-Mail to work.
-MAIL_DEFAULT_SENDER = DEFAULT_MAIL_SENDER
+MAIL_DEFAULT_SENDER = 'Sender <sender@domain.tld>'
 #: Logging: recipients of error emails
 ADMINS = []  # type: ignore[var-annotated]  # Remove this comment when editing
 #: Log file
@@ -50,21 +53,21 @@ DEBUG = True
 
 #: Twitter integration
 OAUTH_TWITTER_KEY = ''  # nosec
-OAUTH_TWITTER_SECRET = ''  # nosec  # noqa: S105
+OAUTH_TWITTER_SECRET = ''  # nosec
 
 #: GitHub integration
 OAUTH_GITHUB_KEY = ''  # nosec
-OAUTH_GITHUB_SECRET = ''  # nosec  # noqa: S105
+OAUTH_GITHUB_SECRET = ''  # nosec
 
 #: Google integration. Get an app here: https://console.developers.google.com/
 OAUTH_GOOGLE_KEY = ''  # nosec
-OAUTH_GOOGLE_SECRET = ''  # nosec  # noqa: S105
+OAUTH_GOOGLE_SECRET = ''  # nosec
 #: Default is ['email', 'profile']
 OAUTH_GOOGLE_SCOPE = ['email', 'profile']  # nosec
 
 #: LinkedIn integration
 OAUTH_LINKEDIN_KEY = ''  # nosec
-OAUTH_LINKEDIN_SECRET = ''  # nosec  # noqa: S105
+OAUTH_LINKEDIN_SECRET = ''  # nosec
 
 #: Recaptcha for the registration form
 RECAPTCHA_USE_SSL = True  # nosec
@@ -76,10 +79,10 @@ RECAPTCHA_OPTIONS = ''
 #: SMSGupShup support is deprecated
 SMS_SMSGUPSHUP_MASK = ''
 SMS_SMSGUPSHUP_USER = ''  # nosec
-SMS_SMSGUPSHUP_PASS = ''  # nosec  # noqa: S105
+SMS_SMSGUPSHUP_PASS = ''  # nosec
 #: Exotel support is active
 SMS_EXOTEL_SID = ''  # nosec
-SMS_EXOTEL_TOKEN = ''  # nosec  # noqa: S105
+SMS_EXOTEL_TOKEN = ''  # nosec
 SMS_EXOTEL_FROM = ''  # nosec
 
 #: DLT registered entity id and template ids
@@ -92,7 +95,7 @@ SMS_DLT_TEMPLATE_IDS = {
 
 #: Twilio support for non-indian numbers
 SMS_TWILIO_SID = ''  # nosec
-SMS_TWILIO_TOKEN = ''  # nosec  # noqa: S105
+SMS_TWILIO_TOKEN = ''  # nosec
 SMS_TWILIO_FROM = ''  # nosec
 
 #: Unsubscribe token domain

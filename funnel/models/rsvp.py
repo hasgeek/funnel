@@ -1,6 +1,8 @@
+"""Legacy project registration model, storing RSVP states (Y/N/M/A)."""
+
 from __future__ import annotations
 
-from typing import Dict, Optional, cast, overload
+from typing import Dict, Optional, Tuple, Union, cast, overload
 
 from flask import current_app
 from werkzeug.utils import cached_property
@@ -12,17 +14,18 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
-from . import NoIdMixin, UuidMixin, db
+from . import NoIdMixin, UuidMixin, db, sa
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
-from .user import User, UserEmail
+from .user import User, UserEmail, UserEmailClaim, UserPhone
 
 __all__ = ['Rsvp', 'RSVP_STATUS']
 
 
 class RSVP_STATUS(LabeledEnum):  # noqa: N801
-    # If you add any new state, you need to add a migration to modify the check constraint
+    # If you add any new state, you need to add a migration to modify the check
+    # constraint
     YES = ('Y', 'yes', __("Going"))
     NO = ('N', 'no', __("Not going"))
     MAYBE = ('M', 'maybe', __("Maybe"))
@@ -31,32 +34,32 @@ class RSVP_STATUS(LabeledEnum):  # noqa: N801
     # USER_CHOICES = {YES, NO, MAYBE}
 
 
-class Rsvp(UuidMixin, NoIdMixin, db.Model):
+class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'rsvp'
-    project_id = db.Column(
-        None, db.ForeignKey('project.id'), nullable=False, primary_key=True
+    project_id = sa.Column(
+        sa.Integer, sa.ForeignKey('project.id'), nullable=False, primary_key=True
     )
     project = with_roles(
-        db.relationship(
-            Project, backref=db.backref('rsvps', cascade='all', lazy='dynamic')
+        sa.orm.relationship(
+            Project, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
         ),
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
     )
-    user_id = db.Column(
-        None, db.ForeignKey('user.id'), nullable=False, primary_key=True
+    user_id = sa.Column(
+        sa.Integer, sa.ForeignKey('user.id'), nullable=False, primary_key=True
     )
     user = with_roles(
-        db.relationship(
-            User, backref=db.backref('rsvps', cascade='all', lazy='dynamic')
+        sa.orm.relationship(
+            User, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
         ),
         read={'owner', 'project_promoter'},
         grants={'owner'},
     )
 
-    _state = db.Column(
+    _state = sa.Column(
         'state',
-        db.CHAR(1),
+        sa.CHAR(1),
         StateManager.check_constraint('state', RSVP_STATUS),
         default=RSVP_STATUS.AWAITING,
         nullable=False,
@@ -66,7 +69,16 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         call={'owner', 'project_promoter'},
     )
 
-    __datasets__ = {'primary': {'project', 'user', 'response'}, 'related': {'response'}}
+    __roles__ = {
+        'owner': {'read': {'created_at', 'updated_at'}},
+        'project_promoter': {'read': {'created_at', 'updated_at'}},
+    }
+
+    __datasets__ = {
+        'primary': {'project', 'user', 'response'},
+        'without_parent': {'user', 'response'},
+        'related': {'response'},
+    }
 
     @property
     def response(self):
@@ -113,8 +125,30 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
         """User's preferred email address for this registration."""
         return self.user.transport_for_email(self.project.profile)
 
+    @with_roles(call={'owner', 'project_promoter'})
+    def user_phone(self) -> Optional[UserEmail]:
+        """User's preferred phone number for this registration."""
+        return self.user.transport_for_sms(self.project.profile)
+
+    @with_roles(call={'owner', 'project_promoter'})
+    def best_contact(
+        self,
+    ) -> Tuple[Union[UserEmail, UserEmailClaim, UserPhone, None], str]:
+        email = self.user_email()
+        if email:
+            return email, 'e'
+        phone = self.user_phone()
+        if phone:
+            return phone, 'p'
+        if self.user.emailclaims:
+            return self.user.emailclaims[0], 'ec'
+        return None, ''
+
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         project_ids = {rsvp.project_id for rsvp in new_user.rsvps}
         for rsvp in old_user.rsvps:
             if rsvp.project_id not in project_ids:
@@ -122,12 +156,11 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):
             else:
                 current_app.logger.warning(
                     "Discarding conflicting RSVP (%s) from %r on %r",
-                    rsvp._state,
+                    rsvp._state,  # pylint: disable=protected-access
                     old_user,
                     rsvp.project,
                 )
                 db.session.delete(rsvp)
-        return None
 
     @overload
     @classmethod
@@ -184,15 +217,21 @@ class __Project:
         return (
             cast(Project, self)
             .rsvps.join(User)
-            .filter(User.state.ACTIVE, Rsvp._state == status)  # skipcq: PYL-W0212
+            .filter(
+                User.state.ACTIVE,
+                Rsvp._state == status,  # pylint: disable=protected-access
+            )
         )
 
     def rsvp_counts(self) -> Dict[str, int]:
         return dict(
-            db.session.query(Rsvp._state, db.func.count(Rsvp._state))
+            db.session.query(
+                Rsvp._state,  # pylint: disable=protected-access
+                sa.func.count(Rsvp._state),  # pylint: disable=protected-access
+            )
             .join(User)
             .filter(User.state.ACTIVE, Rsvp.project == self)
-            .group_by(Rsvp._state)
+            .group_by(Rsvp._state)  # pylint: disable=protected-access
             .all()
         )
 

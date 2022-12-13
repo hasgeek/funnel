@@ -1,12 +1,43 @@
+"""Helpers for forms."""
+
 from __future__ import annotations
 
-from flask import current_app, flash
+from typing import Optional
 
-from baseframe import _, __
+from flask import flash
+
+from baseframe import _, __, forms
 from coaster.auth import current_auth
-import baseframe.forms as forms
 
-from ..models import EmailAddress, UserEmailClaim, parse_video_url
+from .. import app
+from ..models import EmailAddress, Profile, UserEmailClaim, parse_video_url
+
+
+class ProfileSelectField(forms.AutocompleteField):
+    """Render an autocomplete field for selecting an account."""
+
+    data: Optional[Profile]
+    widget = forms.Select2Widget()
+    multiple = False
+    widget_autocomplete = True
+
+    def _value(self):
+        """Return value for HTML rendering."""
+        if self.data:
+            return self.data.name
+        return ''
+
+    def process_formdata(self, valuelist) -> None:
+        """Process incoming form data."""
+        if valuelist:
+            self.data = Profile.query.filter(
+                # Limit to non-suspended (active) accounts. Do not require account to
+                # be public as well
+                Profile.name == valuelist[0],
+                Profile.is_active,
+            ).one_or_none()
+        else:
+            self.data = None
 
 
 class EmailAddressAvailable:
@@ -26,7 +57,7 @@ class EmailAddressAvailable:
             raise ValueError("Invalid purpose")
         self.purpose = purpose
 
-    def __call__(self, form, field):
+    def __call__(self, form, field) -> None:
         # Get actor (from existing obj, or current_auth.actor)
         actor = None
         if hasattr(form, 'edit_obj'):
@@ -53,11 +84,11 @@ class EmailAddressAvailable:
                     " logging in or resetting your password"
                 )
             )
-        elif is_valid == 'invalid':
+        if is_valid == 'invalid':
             raise forms.validators.StopValidation(
                 _("This does not appear to be a valid email address")
             )
-        elif is_valid == 'nomx':
+        if is_valid == 'nomx':
             raise forms.validators.StopValidation(
                 _(
                     "The domain name of this email address is missing a DNS MX record."
@@ -65,11 +96,11 @@ class EmailAddressAvailable:
                     " spam. Please ask your tech person to add MX to DNS"
                 )
             )
-        elif is_valid == 'not_new':
+        if is_valid == 'not_new':
             raise forms.validators.StopValidation(
                 _("You have already registered this email address")
             )
-        elif is_valid == 'soft_fail':
+        if is_valid == 'soft_fail':
             # XXX: In the absence of support for warnings in WTForms, we can only use
             # flash messages to communicate
             flash(
@@ -84,12 +115,10 @@ class EmailAddressAvailable:
                 _(
                     "This email address is no longer valid. If you believe this to be"
                     " incorrect, email {support} asking for the address to be activated"
-                ).format(support=current_app.config['SITE_SUPPORT_EMAIL'])
+                ).format(support=app.config['SITE_SUPPORT_EMAIL'])
             )
-        elif is_valid is not True:
-            current_app.logger.error(
-                "Unknown email address validation code: %r", is_valid
-            )
+        if is_valid is not True:
+            app.logger.error("Unknown email address validation code: %r", is_valid)
 
         if is_valid and self.purpose == 'register':
             # One last check: is there an existing claim? If so, stop the user from
@@ -105,16 +134,17 @@ class EmailAddressAvailable:
 
 
 def image_url_validator():
+    """Customise ValidUrl for hosted image URL validation."""
     return forms.validators.ValidUrl(
-        allowed_schemes=lambda: current_app.config.get('IMAGE_URL_SCHEMES', ('https',)),
-        allowed_domains=lambda: current_app.config.get('IMAGE_URL_DOMAINS'),
+        allowed_schemes=lambda: app.config.get('IMAGE_URL_SCHEMES', ('https',)),
+        allowed_domains=lambda: app.config.get('IMAGE_URL_DOMAINS'),
         message_schemes=__("A https:// URL is required"),
         message_domains=__("Images must be hosted at images.hasgeek.com"),
     )
 
 
 def video_url_validator(form, field):
-    """Validate that video URL is acceptable."""
+    """Validate the video URL to be acceptable."""
     try:
         parse_video_url(field.data)
     except ValueError as exc:

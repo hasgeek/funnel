@@ -1,9 +1,10 @@
+"""Forms for user and organization accounts."""
+
 from __future__ import annotations
 
-from baseframe import _, __
-import baseframe.forms as forms
+from baseframe import __, forms
 
-from ..models import Profile
+from ..models import Profile, User
 from .helpers import image_url_validator, nullable_strip_filters
 from .organization import OrganizationForm
 
@@ -23,19 +24,23 @@ class ProfileForm(OrganizationForm):
     A `profile` keyword argument is necessary for the ImgeeField.
     """
 
-    __expects__ = ('profile',)
+    __expects__ = ('profile', 'user')
+    profile: Profile
+    user: User
 
+    tagline = forms.StringField(
+        __("Bio"),
+        validators=[forms.validators.Optional(), forms.validators.Length(max=160)],
+        filters=nullable_strip_filters,
+        description=__("A brief statement about your organization"),
+    )
     description = forms.MarkdownField(
         __("Welcome message"),
-        validators=[
-            forms.validators.DataRequired(
-                _("Please write a message for the profile page")
-            )
-        ],
-        description=__("This message will be shown on the profile page"),
+        validators=[forms.validators.Optional()],
+        description=__("Optional – This message will be shown on the account’s page"),
     )
     logo_url = forms.ImgeeField(
-        label=__("Profile image"),
+        label=__("Account image"),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),
@@ -54,33 +59,41 @@ class ProfileForm(OrganizationForm):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.logo_url.profile = self.profile.name
 
     def make_for_user(self):
+        """Customise form for a user account."""
         self.title.label.text = __("Your name")
         self.title.description = __(
             "Your full name, in the form others can recognise you by"
         )
+        self.tagline.description = __("A brief statement about yourself")
         self.name.description = __(
             "A short name for mentioning you with @username, and the URL to your"
-            " profile page. Single word containing letters, numbers and dashes only."
+            " account’s page. Single word containing letters, numbers and dashes only."
             " Pick something permanent: changing it will break existing links from"
             " around the web"
         )
-        self.description.label.text = __("About you")
+        self.description.label.text = __("More about you")
         self.description.description = __(
-            "This message will be shown on the profile page"
+            "Optional – This message will be shown on the account’s page"
         )
 
 
 @Profile.forms('transition')
 class ProfileTransitionForm(forms.Form):
+    """Form to transition an account between public and private state."""
+
+    edit_obj: Profile
+
     transition = forms.SelectField(
-        __("Project status"), validators=[forms.validators.DataRequired()]
+        __("Account visibility"), validators=[forms.validators.DataRequired()]
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.transition.choices = list(self.edit_obj.state.transitions().items())
 
 
@@ -93,9 +106,10 @@ class ProfileLogoForm(forms.Form):
     """
 
     __expects__ = ('profile',)
+    profile: Profile
 
     logo_url = forms.ImgeeField(
-        __("Profile image"),
+        __("Account image"),
         validators=[
             forms.validators.Optional(),
             forms.validators.Length(max=2000),
@@ -104,7 +118,8 @@ class ProfileLogoForm(forms.Form):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.logo_url.widget_type = 'modal'
         self.logo_url.profile = self.profile.name
 
@@ -118,6 +133,7 @@ class ProfileBannerForm(forms.Form):
     """
 
     __expects__ = ('profile',)
+    profile: Profile
 
     banner_image_url = forms.ImgeeField(
         __("Banner image"),
@@ -129,6 +145,7 @@ class ProfileBannerForm(forms.Form):
         filters=nullable_strip_filters,
     )
 
-    def set_queries(self):
+    def set_queries(self) -> None:
+        """Prepare form for use."""
         self.banner_image_url.widget_type = 'modal'
         self.banner_image_url.profile = self.profile.name

@@ -1,8 +1,10 @@
+"""Views for proposals (submissions)."""
+
 from __future__ import annotations
 
 from typing import Optional, Union
 
-from flask import abort, flash, jsonify, redirect, request
+from flask import abort, flash, request
 
 from baseframe import _, __
 from baseframe.forms import Form, render_delete_sqla, render_form, render_template
@@ -20,6 +22,7 @@ from coaster.views import (
 
 from .. import app
 from ..forms import (
+    ProposalFeaturedForm,
     ProposalForm,
     ProposalLabelsAdminForm,
     ProposalMemberForm,
@@ -36,9 +39,11 @@ from ..models import (
     ProposalSubmittedNotification,
     ProposalSuuidRedirect,
     db,
+    sa,
 )
-from ..typing import ReturnView
-from .login_session import requires_login, requires_sudo
+from ..typing import ReturnRenderWith, ReturnView
+from .helpers import html_in_json, render_redirect
+from .login_session import requires_login, requires_sudo, requires_user_not_spammy
 from .mixins import ProfileCheckMixin, ProjectViewMixin
 from .notification import dispatch_notification
 from .session import session_edit
@@ -70,16 +75,15 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @requires_login
     @render_with('submission_form.html.jinja2')
     @requires_roles({'reader'})
-    def new_proposal(self):
+    @requires_user_not_spammy()
+    def new_proposal(self) -> ReturnRenderWith:
         # This along with the `reader` role makes it possible for
         # anyone to submit a proposal if the CFP is open.
         if not self.obj.cfp_state.OPEN and not self.obj.current_roles.editor:
             flash(_("This project is not accepting submissions"), 'error')
-            return redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
 
         form = ProposalForm(model=Proposal, parent=self.obj)
-        proposal: Proposal = None
-
         if form.validate_on_submit():
             proposal = Proposal(user=current_auth.user, project=self.obj)
             db.session.add(proposal)
@@ -94,13 +98,13 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                     document=proposal.project, fragment=proposal
                 ),
             )
-            return redirect(proposal.url_for(), code=303)
+            return render_redirect(proposal.url_for())
 
         return {
             'title': _("New submission"),
             'form': form,
             'project': self.obj,
-            'proposal': proposal,
+            'proposal': None,
             'ref_id': 'form-submission',
         }
 
@@ -108,16 +112,16 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @requires_login
     @requires_roles({'editor'})
     @requestform('target', 'other', ('before', getbool))
-    def reorder_proposals(self, target: str, other: str, before: bool):
+    def reorder_proposals(self, target: str, other: str, before: bool) -> ReturnView:
         if Form().validate_on_submit():
             proposal: Proposal = (
                 Proposal.query.filter_by(uuid_b58=target)
-                .options(db.load_only(Proposal.id, Proposal.seq))
+                .options(sa.orm.load_only(Proposal.id, Proposal.seq))
                 .one_or_404()
             )
             other_proposal: Proposal = (
                 Proposal.query.filter_by(uuid_b58=other)
-                .options(db.load_only(Proposal.id, Proposal.seq))
+                .options(sa.orm.load_only(Proposal.id, Proposal.seq))
                 .one_or_404()
             )
             proposal.current_access().reorder_item(other_proposal, before)
@@ -174,16 +178,18 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         if isinstance(self.obj, ProposalSuuidRedirect):
             if self.obj.proposal:
                 self.profile = self.obj.proposal.project.profile
-                return redirect(self.obj.proposal.url_for())
-            else:
-                abort(410)
+                return render_redirect(
+                    self.obj.proposal.url_for(),
+                    302 if request.method == 'GET' else 303,
+                )
+            abort(410)
         self.profile = self.obj.project.profile
         return super().after_loader()
 
     @route('')
-    @render_with('submission.html.jinja2')
+    @render_with(html_in_json('submission.html.jinja2'))
     @requires_roles({'reader'})
-    def view(self):
+    def view(self) -> ReturnRenderWith:
         return {
             'project': self.obj.project,
             'proposal': self.obj,
@@ -193,12 +199,12 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('admin')
     @render_with('submission_admin_panel.html.jinja2')
     @requires_roles({'project_editor'})
-    def admin(self):
+    def admin(self) -> ReturnRenderWith:
         transition_form = ProposalTransitionForm(obj=self.obj)
 
         proposal_move_form = None
         if 'move_to' in self.obj.current_access():
-            proposal_move_form = ProposalMoveForm()
+            proposal_move_form = ProposalMoveForm(user=current_auth.user)
 
         proposal_label_admin_form = ProposalLabelsAdminForm(
             model=Proposal, obj=self.obj, parent=self.obj.project
@@ -216,17 +222,17 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_login
     @requires_roles({'editor'})
     @render_with('submission_form.html.jinja2')
-    def edit(self):
+    def edit(self) -> ReturnRenderWith:
         form = ProposalForm(obj=self.obj, model=Proposal, parent=self.obj.project)
         if form.validate_on_submit():
             with db.session.no_autoflush:
                 form.populate_obj(self.obj)
             self.obj.name = make_name(self.obj.title)
             self.obj.update_description()
-            self.obj.edited_at = db.func.utcnow()
+            self.obj.edited_at = sa.func.utcnow()
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
-            return redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
         return {
             'title': _("Edit submission"),
             'form': form,
@@ -239,18 +245,18 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('collaborator/new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
-    def add_collaborator(self):
+    def add_collaborator(self) -> ReturnView:
         collaborator_form = ProposalMemberForm(proposal=self.obj)
-        if collaborator_form.validate_on_submit():
-            with db.session.no_autoflush:
-                membership = ProposalMembership(
-                    proposal=self.obj, granted_by=current_auth.user
-                )
-                collaborator_form.populate_obj(membership)
-                db.session.add(membership)
-            db.session.commit()
-            return jsonify(
-                {
+        if request.method == 'POST':
+            if collaborator_form.validate_on_submit():
+                with db.session.no_autoflush:
+                    membership = ProposalMembership(
+                        proposal=self.obj, granted_by=current_auth.user
+                    )
+                    collaborator_form.populate_obj(membership)
+                    db.session.add(membership)
+                db.session.commit()
+                return {
                     'status': 'ok',
                     'message': _("{user} has been added as an collaborator").format(
                         user=membership.user.pickername
@@ -262,7 +268,15 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                             for _m in self.obj.memberships
                         ],
                     ),
-                }
+                }, 201
+            return (
+                {
+                    'status': 'error',
+                    'error_description': _("Pick a user to be added"),
+                    'errors': collaborator_form.errors,
+                    'form_nonce': collaborator_form.form_nonce.data,
+                },
+                400,
             )
         return render_form(
             form=collaborator_form,
@@ -270,14 +284,16 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             submit='Add collaborator',
             ajax=True,
             with_chrome=True,
+            template='modalajaxform.html.jinja2',
         )
 
     @route('collaborator/reorder', methods=['POST'])
     @requires_login
     @requires_roles({'editor'})
-    @render_with(json=True)
     @requestform('target', 'other', ('before', getbool))
-    def reorder_collaborators(self, target: str, other: str, before: bool):
+    def reorder_collaborators(
+        self, target: str, other: str, before: bool
+    ) -> ReturnView:
         if Form().validate_on_submit():
             target_membership = ProposalMembership.query.filter_by(
                 uuid_b58=target, proposal=self.obj
@@ -293,7 +309,7 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
     @requires_roles({'editor', 'project_editor'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         # FIXME: Prevent deletion of confirmed proposals
         return render_delete_sqla(
             self.obj,
@@ -311,11 +327,10 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('transition', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'project_editor'})
-    def transition(self):
+    def transition(self) -> ReturnView:
         transition_form = ProposalTransitionForm(obj=self.obj)
-        if (
-            transition_form.validate_on_submit()
-        ):  # check if the provided transition is valid
+        # check if the provided transition is valid
+        if transition_form.validate_on_submit():
             transition = getattr(
                 self.obj.current_access(), transition_form.transition.data
             )
@@ -325,27 +340,25 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
 
             if transition_form.transition.data == 'delete':
                 # if the proposal is deleted, don't redirect to proposal page
-                return redirect(self.obj.project.url_for('view_proposals'))
+                return render_redirect(self.obj.project.url_for('view_proposals'))
         else:
             flash(_("Invalid transition for this submission"), 'error')
             abort(403)
-        return redirect(self.obj.url_for())
+        return render_redirect(self.obj.url_for())
 
     @route('move', methods=['POST'])
     @requires_login
     @requires_roles({'project_editor'})
-    def moveto(self):
-        proposal_move_form = ProposalMoveForm()
+    def moveto(self) -> ReturnView:
+        proposal_move_form = ProposalMoveForm(user=current_auth.user)
         if proposal_move_form.validate_on_submit():
             target_project = proposal_move_form.target.data
             if target_project != self.obj.project:
                 self.obj.current_access().move_to(target_project)
                 db.session.commit()
             flash(
-                _(
-                    "This submission has been moved to {project}".format(
-                        project=target_project.title
-                    )
+                _("This submission has been moved to {project}").format(
+                    project=target_project.title
                 ),
                 'success',
             )
@@ -354,41 +367,40 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                 _("Please choose the project you want to move this submission to"),
                 'error',
             )
-        return redirect(self.obj.url_for(), 303)
+        return render_redirect(self.obj.url_for())
 
     @route('update_featured', methods=['POST'])
     @requires_login
     @requires_roles({'project_editor'})
-    def update_featured(self):
-        featured_form = self.obj.forms.featured()
+    def update_featured(self) -> ReturnView:
+        featured_form = ProposalFeaturedForm(obj=self.obj)
         if featured_form.validate_on_submit():
             featured_form.populate_obj(self.obj)
             db.session.commit()
             if self.obj.featured:
-                return {'status': 'ok', 'message': 'This submission has been featured'}
-            else:
                 return {
                     'status': 'ok',
-                    'message': 'This submission is no longer featured',
+                    'message': _("This submission has been featured"),
                 }
+            return {
+                'status': 'ok',
+                'message': _("This submission is no longer featured"),
+            }
         return (
-            {
-                'status': 'error',
-                'error_description': featured_form.errors,
-            },
+            {'status': 'error', 'error': 'validation', 'errors': featured_form.errors},
             422,
         )
 
     @route('schedule', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'project_editor'})
-    def schedule(self):
+    def schedule(self) -> ReturnView:
         return session_edit(self.obj.project, proposal=self.obj)
 
     @route('labels', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'project_editor'})
-    def edit_labels(self):
+    def edit_labels(self) -> ReturnView:
         form = ProposalLabelsAdminForm(
             model=Proposal, obj=self.obj, parent=self.obj.project
         )
@@ -396,14 +408,13 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("Labels have been saved for this submission"), 'info')
-            return redirect(self.obj.url_for(), 303)
-        else:
-            flash(_("Labels could not be saved for this submission"), 'error')
-            return render_form(
-                form,
-                submit=_("Save changes"),
-                title=_("Edit labels for '{}'").format(self.obj.title),
-            )
+            return render_redirect(self.obj.url_for())
+        flash(_("Labels could not be saved for this submission"), 'error')
+        return render_form(
+            form,
+            submit=_("Save changes"),
+            title=_("Edit labels for '{}'").format(self.obj.title),
+        )
 
 
 ProposalView.init_app(app)
@@ -450,44 +461,43 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
     @route('edit', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
-    def edit(self):
+    def edit(self) -> ReturnView:
         membership = self.obj.current_access()
         collaborator_form = ProposalMemberForm(
             proposal=self.obj.proposal, obj=membership
         )
         del collaborator_form.user
         if collaborator_form.validate_on_submit():
-            with db.session.no_autoflush:
-                with membership.amend_by(current_auth.user) as amendment:
-                    collaborator_form.populate_obj(amendment)
+            with db.session.no_autoflush, membership.amend_by(
+                current_auth.user
+            ) as amendment:
+                collaborator_form.populate_obj(amendment)
             db.session.commit()
-            return jsonify(
-                {
-                    'status': 'ok',
-                    'message': _("{user}’s role has been updated").format(
-                        user=membership.user.pickername
-                    )
-                    if amendment.membership is not self.obj
-                    else None,
-                    'html': render_template(
-                        'collaborator_list.html.jinja2',
-                        collaborators=self.collaborators(),
-                    ),
-                }
-            )
+            return {
+                'status': 'ok',
+                'message': _("{user}’s role has been updated").format(
+                    user=membership.user.pickername
+                )
+                if amendment.membership is not self.obj
+                else None,
+                'html': render_template(
+                    'collaborator_list.html.jinja2',
+                    collaborators=self.collaborators(),
+                ),
+            }
         return render_form(
             form=collaborator_form,
             title='',
             submit='Save',
             ajax=True,
             with_chrome=True,
+            template='modalajaxform.html.jinja2',
         )
 
     @route('remove', methods=['POST'])
     @requires_login
     @requires_roles({'editor'})
-    @render_with(json=True)
-    def remove(self):
+    def remove(self) -> ReturnView:
         membership = self.obj.current_access()
         if Form().validate_on_submit():
             if len(self.obj.proposal.memberships) == 1:

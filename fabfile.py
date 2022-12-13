@@ -1,3 +1,4 @@
+"""Fabric deploy script."""
 from fabric.api import env, run
 from fabric.context_managers import cd
 import boto3

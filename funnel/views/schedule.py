@@ -1,3 +1,5 @@
+"""Views for managing a project's schedule."""
+
 from __future__ import annotations
 
 from collections import defaultdict
@@ -7,7 +9,7 @@ from typing import Any, Dict, List, Optional, cast
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from flask import Response, current_app, json, jsonify
+from flask import Response, current_app, json
 
 from icalendar import Alarm, Calendar, Event, vCalAddress, vText
 from pytz import utc
@@ -25,9 +27,9 @@ from coaster.views import (
 )
 
 from .. import app
-from ..models import Project, Proposal, Rsvp, Session, VenueRoom, db
+from ..models import Project, Proposal, Rsvp, Session, VenueRoom, db, sa
 from ..typing import ReturnRenderWith, ReturnView
-from .helpers import localize_date
+from .helpers import html_in_json, localize_date
 from .login_session import requires_login
 from .mixins import ProjectViewMixin, VenueRoomViewMixin
 
@@ -42,12 +44,12 @@ def session_data(
         'title': session.title,
         'start_at': (
             localize_timezone(session.start_at, tz=session.project.timezone)
-            if session.scheduled
+            if session.start_at
             else None
         ),
         'end_at': (
             localize_timezone(session.end_at, tz=session.project.timezone)
-            if session.scheduled
+            if session.end_at
             else None
         ),
         'timezone': session.project.timezone.zone,
@@ -119,7 +121,9 @@ def schedule_data(
     return schedule
 
 
-def schedule_ical(project: Project, rsvp: Optional[Rsvp] = None):
+def schedule_ical(
+    project: Project, rsvp: Optional[Rsvp] = None, future_only: bool = False
+):
     cal = Calendar()
     cal.add('prodid', "-//HasGeek//NONSGML Funnel//EN")
     cal.add('version', '2.0')
@@ -132,8 +136,10 @@ def schedule_ical(project: Project, rsvp: Optional[Rsvp] = None):
     cal.add('x-wr-timezone', project.timezone.zone)
     cal.add('refresh-interval;value=duration', 'PT12H')
     cal.add('x-published-ttl', 'PT12H')
+    now = utcnow()
     for session in project.scheduled_sessions:
-        cal.add_component(session_ical(session, rsvp))
+        if not future_only or session.end_at > now:
+            cal.add_component(session_ical(session, rsvp))
     if not project.scheduled_sessions and project.start_at:
         cal.add_component(
             # project_as_session does NOT return a Session instance, but since we are
@@ -159,6 +165,7 @@ def project_as_session(project: Project) -> SimpleNamespace:
         end_at_localized=project.end_at_localized,
         location=f'{project.location} - {project.url_for(_external=True)}',
         venue_room=None,
+        versionid=project.versionid,
         proposal=SimpleNamespace(labels=()),  # Proposal is used to get a permalink
         url_for=project.url_for,
     )
@@ -189,8 +196,10 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
     # Using localized timestamps will require a `VTIMEZONE` entry in the ics file
     # Using `session.start_at` without `astimezone` causes it to be localized to
     # local timezone. We need `astimezone(utc)` to ensure actual UTC timestamps.
-    event.add('dtstart', session.start_at.astimezone(utc))
-    event.add('dtend', session.end_at.astimezone(utc))
+    if session.start_at:
+        event.add('dtstart', session.start_at.astimezone(utc))
+    if session.end_at:
+        event.add('dtend', session.end_at.astimezone(utc))
     event.add('dtstamp', utcnow())
     # Strangely, these two don't need localization with `astimezone`
     event.add('created', session.created_at)
@@ -216,6 +225,7 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
         desc = _("{session} in 5 minutes").format(session=session.title)
     alarm.add('description', desc)
     event.add_component(alarm)
+    event.add('sequence', session.versionid - 1)  # vCal starts at 0, SQLAlchemy at 1
     return event
 
 
@@ -223,22 +233,25 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
 @route('/<profile>/<project>/schedule')
 class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
-    @render_with('project_schedule.html.jinja2')
+    @render_with(html_in_json('project_schedule.html.jinja2'))
     @requires_roles({'reader'})
     def schedule(self) -> ReturnRenderWith:
         scheduled_sessions_list = session_list_data(
             self.obj.scheduled_sessions, with_modal_url='view_popup'
         )
+        project = self.obj.current_access(datasets=('primary', 'related'))
+        venues = [
+            venue.current_access(datasets=('without_parent', 'related'))
+            for venue in self.obj.venues
+        ]
+        schedule = schedule_data(
+            self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
+        )
         return {
-            'project': self.obj.current_access(datasets=('primary', 'related')),
-            'venues': [
-                venue.current_access(datasets=('without_parent', 'related'))
-                for venue in self.obj.venues
-            ],
+            'project': project,
+            'venues': venues,
             'sessions': scheduled_sessions_list,
-            'schedule': schedule_data(
-                self.obj, with_slots=False, scheduled_sessions=scheduled_sessions_list
-            ),
+            'schedule': schedule,
         }
 
     @route('subscribe')
@@ -307,7 +320,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @requires_login
     @requires_roles({'editor'})
     @requestargs(('sessions', json.loads))
-    def update_schedule(self, sessions) -> ReturnView:
+    def update_schedule(self, sessions) -> ReturnRenderWith:
         for session in sessions:
             try:
                 s = Session.query.filter_by(
@@ -318,13 +331,14 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
                 db.session.commit()
             except NoResultFound:
                 current_app.logger.error(
-                    '%s schedule update error: session = %s',
-                    project=self.obj.name,
-                    session=session,
+                    '%s/%s schedule update error: no existing session matching %s',
+                    self.obj.profile.name,
+                    self.obj.name,
+                    repr(session),
                 )
         self.obj.update_schedule_timestamps()
         db.session.commit()
-        return jsonify(status=True)
+        return {'status': 'ok'}
 
 
 ProjectScheduleView.init_app(app)
@@ -337,8 +351,8 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @requires_roles({'reader'})
     def schedule_room_ical(self) -> Response:
         cal = Calendar()
-        cal.add('prodid', "-//Hasgeek//NONSGML Funnel//EN"),
-        cal.add('version', "2.0")
+        cal.add('prodid', '-//Hasgeek//NONSGML Funnel//EN')
+        cal.add('version', '2.0')
         cal.add(
             'name',
             f"{self.obj.venue.project.title} @"
@@ -386,12 +400,12 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             Session.start_at <= now,
             Session.end_at >= now,
             Session.project == self.obj.venue.project,
-            db.or_(Session.venue_room == self.obj, Session.is_break.is_(True)),
+            sa.or_(Session.venue_room == self.obj, Session.is_break.is_(True)),
         ).first()
         next_session = (
             Session.query.filter(
                 Session.start_at > now,
-                db.or_(Session.venue_room == self.obj, Session.is_break.is_(True)),
+                sa.or_(Session.venue_room == self.obj, Session.is_break.is_(True)),
                 Session.project == self.obj.venue.project,
             )
             .order_by(Session.start_at)

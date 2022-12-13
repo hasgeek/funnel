@@ -1,18 +1,16 @@
 {% extends "layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import faicon, account_tabs, useravatar %}
-
-{% block title %}{% trans %}Organizations{% endtrans %}{% endblock %}
-
-{% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock %}
-
+{%- from "macros.html.jinja2" import faicon, account_tabs %}
+{% block title %}
+  {% trans %}Organizations{% endtrans %}
+{% endblock title %}
+{% block bodyattrs %}
+  class="mui--bg-primary tabs-navbar"
+{% endblock bodyattrs %}
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
-    <div class="mui-container">
-      {{ account_tabs(active_tab='organizations') }}
-    </div>
+    <div class="mui-container">{{ account_tabs(active_tab='organizations') }}</div>
   </div>
-{%- endblock %}
-
+{%- endblock headline %}
 {% block basecontent %}
   <div class="mui-container page-content">
     <div class="grid">
@@ -20,7 +18,9 @@
         <div class="page-card zero-top-margin">
           <ul class="mui-list--unstyled mui-list--aligned top-padding right-padding left-paddin margin-bottom">
             <li class="bottom-padding">
-              <a href="/new" class="flex-wrapper flex-wrapper flex-wrapper--center nounderline" data-cy="new">
+              <a href="{{ url_for('new_organization') }}"
+                 class="flex-wrapper flex-wrapper flex-wrapper--center nounderline"
+                 data-cy="new">
                 <span class="profile-avatar profile-avatar--bigger profile-avatar--new margin-right">
                   {{ faicon(icon='plus', icon_size='title', baseline=false) }}
                 </span>
@@ -29,16 +29,24 @@
             </li>
             {% for orgmem in current_auth.user.views.organizations_as_admin() %}
               <li class="bottom-padding">
-                <a href="{{ orgmem.organization.profile.url_for() }}" class="flex-wrapper flex-wrapper flex-wrapper--center nounderline">
+                <a href="{{ orgmem.organization.profile.url_for() }}"
+                   class="flex-wrapper flex-wrapper flex-wrapper--center nounderline">
                   <span class="profile-avatar profile-avatar--bigger margin-right">
                     {%- if orgmem.organization.profile.logo_url.url %}
-                      <img src="{{ orgmem.organization.profile.logo_url }}" alt="{{ orgmem.organization.title }}"/>
+                      <img src="{{ orgmem.organization.profile.logo_url }}"
+                           alt="{{ orgmem.organization.title }}"/>
                     {% else %}
-                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ orgmem.organization.title }}"/>
+                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
+                           alt="{{ orgmem.organization.title }}"/>
                     {% endif %}
                   </span>
                   <div>
-                    <p class="profile-avatar-title mui--text-dark mui--text-subhead mui--text-bold">{{ orgmem.organization.profile.title }}{% if not orgmem.organization.profile.state.PUBLIC %} {{ faicon(icon='lock-alt', icon_size='caption', baseline=false, css_class='margin-left') }}{% endif %}</p>
+                    <p class="profile-avatar-title mui--text-dark mui--text-subhead mui--text-bold">
+                      {{ orgmem.organization.profile.title }}
+                      {% if not orgmem.organization.profile.state.PUBLIC %}
+                        {{ faicon(icon='lock-alt', icon_size='caption', baseline=false, css_class="margin-left") }}
+                      {% endif %}
+                    </p>
                     <p class="mui--text-light mui--text-caption zero-bottom-margin">
                       {% if orgmem.is_owner %}
                         {% trans %}Owner{% endtrans %}
@@ -50,9 +58,9 @@
                 </a>
                 <div class="profile-members">
                   <p class="mui--text-light zero-bottom-margin">
-                  {%- for user in orgmem.organization.admin_users %}
-                    {{ user.pickername }} {%- if not loop.last %},{% endif %}
-                  {%- endfor %}
+                    {%- for user in orgmem.organization.admin_users %}
+                      {{ user.pickername }} {%- if not loop.last %},{% endif %}
+                    {%- endfor %}
                   </p>
                 </div>
               </li>
@@ -62,7 +70,6 @@
       </div>
     </div>
   </div>
-{% endblock %}
-
+{% endblock basecontent %}
 {% block footerscripts %}
-{% endblock %}
+{% endblock footerscripts %}

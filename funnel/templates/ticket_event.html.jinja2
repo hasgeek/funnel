@@ -3,18 +3,18 @@
 {%- from "js/event_checkin.js.jinja2" import checkin_count, participant_list %}
 {% from "forms.html.jinja2" import renderfield %}
 {% from "macros.html.jinja2" import faicon, csrf_tag %}
-{% block title %}{% trans %}Setup events{% endtrans %}{% endblock %}
+{% block title %}{% trans %}Setup events{% endtrans %}{% endblock title %}
 
 {% block top_title %}
   <h1 class="mui--text-headline"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
   <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" data-cy="back-to-setup">{{ faicon(icon='arrow-left', icon_size='subhead') }} {% trans %}Back to setup events{% endtrans %}</a></p>
-{% endblock %}
+{% endblock top_title %}
 
 {% block contentwrapper %}
   <div class="grid">
     <div class="grid__col-xs-12">
       <div>
-        <form method="POST" id="csrf_form" enctype="multipart/form-data" class="mui-form mui--pull-right">
+        <form method="post" id="csrf_form" enctype="multipart/form-data" class="mui-form mui--pull-right">
           <div class="form-group">
             {{ csrf_tag() }}
             <input type="hidden" name="form.id" value="csrf_form"/>
@@ -29,25 +29,24 @@
     <div class="grid__col-xs-6 grid__col-sm-8 grid__col-md-6 grid__col-lg-9">
       {{ checkin_count() }}
     </div>
-    <div class="grid__col-xs-12 grid__col-md-3">
-      <form class="search-participant mui-form mui-form--margins">
-        <div class="mui-textfield mui-textfield--float-label">
-          <input class="field-title search-query" id="search" type="text" name="key" value=""/>
-          <label>{{ faicon(icon='search',  baseline=false) }} Search</label>
+    <div class="grid__col-xs-12 grid__col-md-4">
+      <form class="mui--d-inlineblock search search--small search--icon mui--z1">
+        <div class="mui-textfield">
+          <input class="search-query" id="search" type="text" name="key" value="" placeholder="Search"/>{{ faicon(icon='search', css_class="search-form__icon")}}
         </div>
       </form>
     </div>
-    <div class="grid__col-xs-12 grid__col-md-9">
+    <div class="grid__col-xs-12 grid__col-md-8">
       <ul class="mui-list--inline">
         <li><a href="{{ ticket_event.url_for('badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="badges-to-printed">Badges to be printed</a></li>
          <li><a href="{{ ticket_event.url_for('label_badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="label-badges-to-printed">Label badges to be printed</a></li>
         <li><a href="{{ ticket_event.url_for('badges') }}?badge_printed=t" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-cy="badges-printed">Badges printed</a></li>
         <li class="badge-print-status-btn">
-          <form method="POST" id="badge_form" class="mui-form">
+          <form method="post" id="badge_form" class="mui-form">
               {{ badge_form.hidden_tag() }}
               <input type="hidden" name="form.id" value="badge_form"/>
               {{ renderfield(badge_form.badge_printed, css_class="select2-inline", nolabel=true) }}
-            <input id="badge-form-submit"  class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" type="submit" value="Update badges"/>
+            <input id="badge-form-submit" class="mui-btn mui-btn--small mui-btn--raised mui-btn--danger" type="submit" value="Update badges"/>
           </form>
         </li>
       </ul>
@@ -55,7 +54,7 @@
   </div>
   <div class="grid">
     <div class="grid__col-xs-12 mui-table--responsive-wrapper">
-      <table class="mui-table mui-table--bordered mui-table--responsive attendee-table" id='ticket-participants-table'>
+      <table class="mui-table mui-table--bordered mui-table--responsive attendee-table" id="ticket-participants-table">
         <thead>
           <tr class="active">
             <th>Name</th>
@@ -69,7 +68,7 @@
       </table>
     </div>
   </div>
-{% endblock %}
+{% endblock contentwrapper %}
 
 {% block footerscripts %}
 <script src="{{ built_asset('event.js') }}" type="text/javascript"></script>
@@ -116,4 +115,4 @@
     });
   });
 </script>
-{% endblock %}
+{% endblock footerscripts %}

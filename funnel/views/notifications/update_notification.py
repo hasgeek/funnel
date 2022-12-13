@@ -1,3 +1,5 @@
+"""Project update notifications."""
+
 from __future__ import annotations
 
 from flask import render_template
@@ -35,7 +37,7 @@ class RenderNewUpdateNotification(RenderNotification):
 
     def email_subject(self):
         return self.emoji_prefix + _("{update} ({project})").format(
-            update=self.update.title, project=self.update.project.joined_title()
+            update=self.update.title, project=self.update.project.joined_title
         )
 
     def email_content(self):
@@ -44,10 +46,11 @@ class RenderNewUpdateNotification(RenderNotification):
     def sms(self) -> TwoLineTemplate:
         return TwoLineTemplate(
             text1=_("Update in {project}:").format(
-                project=self.update.project.joined_title('>')
+                project=self.update.project.joined_title
             ),
             text2=self.update.title,
             url=shortlink(
-                self.update.url_for(_external=True, **self.tracking_tags('sms'))
+                self.update.url_for(_external=True, **self.tracking_tags('sms')),
+                shorter=True,
             ),
         )

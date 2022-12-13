@@ -74,12 +74,13 @@ is supported using an unusual primary and foreign key structure the in
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 from types import SimpleNamespace
 from typing import (
+    Any,
     Callable,
     Dict,
     Generator,
-    NamedTuple,
     Optional,
     Sequence,
     Set,
@@ -107,8 +108,8 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
 from .. import models  # For locals() namespace, to discover models from type defn
-from ..typing import OptionalMigratedTables, T
-from . import BaseMixin, NoIdMixin, UuidMixin, UUIDType, db, hybrid_property
+from ..typing import OptionalMigratedTables, T, UuidModelType
+from . import BaseMixin, Mapped, NoIdMixin, UUIDType, db, hybrid_property, sa
 from .helpers import reopen
 from .user import User, UserEmail, UserPhone
 
@@ -127,13 +128,17 @@ __all__ = [
 
 # --- Registries -----------------------------------------------------------------------
 
-#: Registry of Notification subclasses, automatically populated
+#: Registry of Notification subclasses for user preferences, automatically populated.
+#: Inactive types and types that shadow other types are excluded from this registry
 notification_type_registry: Dict[str, Notification] = {}
 #: Registry of notification types that allow web renders
 notification_web_types: Set[Notification] = set()
 
 
-class NotificationCategory(NamedTuple):
+@dataclass
+class NotificationCategory:
+    """Category for a notification."""
+
     priority_id: int
     title: str
     available_for: Callable[[User], bool]
@@ -151,23 +156,25 @@ notification_categories: SimpleNamespace = SimpleNamespace(
         __("Projects I am participating in"),
         # Criteria: User has registered or proposed
         lambda user: (
-            db.session.query(user.rsvps.exists()).scalar()
-            or db.session.query(user.proposal_memberships.exists()).scalar()
+            db.session.query(user.rsvps.exists()).scalar()  # type: ignore[has-type]
+            or db.session.query(  # type: ignore[has-type]
+                user.proposal_memberships.exists()
+            ).scalar()
         ),
     ),
     project_crew=NotificationCategory(
         4,
         __("Projects I am a crew member in"),
         # Criteria: user has ever been a project crew member
-        lambda user: db.session.query(
+        lambda user: db.session.query(  # type: ignore[has-type]
             user.projects_as_crew_memberships.exists()
         ).scalar(),
     ),
-    organization_admin=NotificationCategory(
+    account_admin=NotificationCategory(
         5,
-        __("Organizations I manage"),
+        __("Accounts I manage"),
         # Criteria: user has ever been an organization admin
-        lambda user: db.session.query(
+        lambda user: db.session.query(  # type: ignore[has-type]
             user.organization_admin_memberships.exists()
         ).scalar(),
     ),
@@ -184,33 +191,37 @@ notification_categories: SimpleNamespace = SimpleNamespace(
 
 
 class SMS_STATUS(LabeledEnum):  # noqa: N801
-    QUEUED = (0, __("Queued"))
-    PENDING = (1, __("Pending"))
-    DELIVERED = (2, __("Delivered"))
-    FAILED = (3, __("Failed"))
-    UNKNOWN = (4, __("Unknown"))
+    """SMS delivery status."""
+
+    QUEUED = (1, __("Queued"))
+    PENDING = (2, __("Pending"))
+    DELIVERED = (3, __("Delivered"))
+    FAILED = (4, __("Failed"))
+    UNKNOWN = (5, __("Unknown"))
 
 
 # --- Legacy models --------------------------------------------------------------------
 
 
-class SMSMessage(BaseMixin, db.Model):
+class SMSMessage(BaseMixin, db.Model):  # type: ignore[name-defined]
+    """An outbound SMS message."""
+
     __tablename__ = 'sms_message'
     # Phone number that the message was sent to
-    phone_number = immutable(db.Column(db.String(15), nullable=False))
-    transactionid = immutable(db.Column(db.UnicodeText, unique=True, nullable=True))
+    phone_number = immutable(sa.Column(sa.String(15), nullable=False))
+    transactionid = immutable(sa.Column(sa.UnicodeText, unique=True, nullable=True))
     # The message itself
-    message = immutable(db.Column(db.UnicodeText, nullable=False))
+    message = immutable(sa.Column(sa.UnicodeText, nullable=False))
     # Flags
-    status = db.Column(db.Integer, default=SMS_STATUS.QUEUED, nullable=False)
-    status_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
-    fail_reason = db.Column(db.UnicodeText, nullable=True)
+    status = sa.Column(sa.Integer, default=SMS_STATUS.QUEUED, nullable=False)
+    status_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    fail_reason = sa.Column(sa.UnicodeText, nullable=True)
 
 
-# -- Notification models ---------------------------------------------------------------
+# --- Notification models --------------------------------------------------------------
 
 
-class Notification(NoIdMixin, db.Model):
+class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     """
     Holds a single notification for an activity on a document object.
 
@@ -232,14 +243,14 @@ class Notification(NoIdMixin, db.Model):
     #: be shared across notifications, and will be used to enforce a limit of one
     #: instance of a UserNotification per-event rather than per-notification
     eventid = immutable(
-        db.Column(
+        sa.Column(
             UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
         )
     )
 
     #: Notification id
     id = immutable(  # noqa: A003
-        db.Column(
+        sa.Column(
             UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
         )
     )
@@ -247,25 +258,23 @@ class Notification(NoIdMixin, db.Model):
     #: Default category of notification. Subclasses MUST override
     category: NotificationCategory = notification_categories.none
     #: Default description for notification. Subclasses MUST override
-    title = __("Unspecified notification type")
+    title: str = __("Unspecified notification type")
     #: Default description for notification. Subclasses MUST override
-    description = ''
-
-    #: Subclasses must set document type to aid loading of :attr:`document`
-    document: UuidMixin
-
-    #: Subclasses must set fragment type to aid loading of :attr:`fragment`
-    fragment: Optional[UuidMixin]
+    description: str = ''
+    #: Type of Notification subclass (auto-populated from subclass's `type=` parameter)
+    cls_type: str = ''
+    #: Type for user preferences, in case a notification type is a shadow of
+    #: another type (auto-populated from subclass's `shadow=` parameter)
+    pref_type: str = ''
 
     #: Document model is auto-populated from the document type
-    document_model: UuidMixin
-    #: Document type is auto-populated from the document model
+    document_model: Type[UuidModelType]
+    #: SQL table name for document type, auto-populated from the document model
     document_type: str
 
     #: Fragment model is auto-populated from the fragment type
-    fragment_model: Optional[UuidMixin]
-
-    #: Fragment type is auto-populated from the fragment model
+    fragment_model: Optional[Type[UuidModelType]]
+    #: SQL table name for fragment type, auto-populated from the fragment model
     fragment_type: Optional[str]
 
     #: Roles to send notifications to. Roles must be in order of priority for situations
@@ -280,30 +289,34 @@ class Notification(NoIdMixin, db.Model):
     for_private_recipient = False
 
     #: The preference context this notification is being served under. Users may have
-    #: customized preferences per profile or project
-    preference_context: db.Model = None
+    #: customized preferences per account (nee profile) or project
+    preference_context: db.Model = None  # type: ignore[name-defined]
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
-    type_ = immutable(db.Column('type', db.Unicode, nullable=False))
+    type_: sa.Column[str] = immutable(sa.Column('type', sa.Unicode, nullable=False))
 
     #: Id of user that triggered this notification
-    user_id = immutable(
-        db.Column(None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
+    user_id: sa.Column[Optional[int]] = immutable(
+        sa.Column(
+            sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
+        )
     )
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
     #: notifications of their own activity
-    user = immutable(db.relationship(User))
+    user: Mapped[Optional[User]] = immutable(sa.orm.relationship(User))
 
     #: UUID of document that the notification refers to
-    document_uuid = immutable(
-        db.Column(UUIDType(binary=False), nullable=False, index=True)
+    document_uuid: sa.Column[UUID] = immutable(
+        sa.Column(UUIDType(binary=False), nullable=False, index=True)
     )
 
     #: Optional fragment within document that the notification refers to. This may be
     #: the document itself, or something within it, such as a comment. Notifications for
     #: multiple fragments are collapsed into a single notification
-    fragment_uuid = immutable(db.Column(UUIDType(binary=False), nullable=True))
+    fragment_uuid: sa.Column[Optional[UUID]] = immutable(
+        sa.Column(UUIDType(binary=False), nullable=True)
+    )
 
     __table_args__ = (
         # This could have been achieved with a UniqueConstraint on all three columns.
@@ -311,7 +324,7 @@ class Notification(NoIdMixin, db.Model):
         # PostgreSQL-specific where clause. We use the clause here to make clear our
         # intent of only enforcing a one-notification limit when the fragment is
         # present. Hence the naming convention of `_key` suffix rather than `ix_` prefix
-        db.Index(
+        sa.Index(
             'notification_type_document_uuid_fragment_uuid_key',
             type_,
             document_uuid,
@@ -390,8 +403,37 @@ class Notification(NoIdMixin, db.Model):
     #: an error report will be logged for the user or site administrator. TODO
     ignore_transport_errors = False
 
-    #: Registry of per-class renderers ``{cls_type(): CustomNotificationView}``
+    #: Registry of per-class renderers ``{cls_type: CustomNotificationView}``
     renderers: Dict[str, Type] = {}  # Can't import RenderNotification from views here
+
+    def __init_subclass__(
+        cls,
+        type: str,  # noqa: A002  # pylint: disable=redefined-builtin
+        shadows: Optional[Type[Notification]] = None,
+    ) -> None:
+        # For SQLAlchemy's polymorphic support
+        if '__mapper_args__' not in cls.__dict__:
+            cls.__mapper_args__ = {}
+        cls.__mapper_args__['polymorphic_identity'] = type
+
+        # For notification type identification and preference management
+        cls.cls_type = type
+        if shadows is not None:
+            if {'category', 'title', 'description'} & cls.__dict__.keys():
+                raise TypeError(
+                    "Shadow notification types cannot have category, title or"
+                    " description as they are not shown in UI"
+                )
+            if shadows.cls_type != shadows.pref_type:
+                raise TypeError(
+                    f"{cls!r} cannot shadow {shadows!r} as it shadows yet another"
+                    " notification type"
+                )
+            cls.pref_type = shadows.pref_type
+        else:
+            cls.pref_type = type
+
+        return super().__init_subclass__()
 
     def __init__(self, document=None, fragment=None, **kwargs) -> None:
         if document is not None:
@@ -405,10 +447,6 @@ class Notification(NoIdMixin, db.Model):
                 raise TypeError(f"{fragment!r} is not of type {self.fragment_model!r}")
             kwargs['fragment_uuid'] = fragment.uuid
         super().__init__(**kwargs)
-
-    @classmethod
-    def cls_type(cls) -> str:
-        return cls.__mapper_args__['polymorphic_identity']
 
     @property
     def identity(self) -> Tuple[UUID, UUID]:
@@ -425,11 +463,12 @@ class Notification(NoIdMixin, db.Model):
         self.eventid = uuid_from_base58(value)
 
     @eventid_b58.comparator
-    def eventid_b58(cls):  # noqa: N805
+    def eventid_b58(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        """Return SQL comparator for Base58 rendering."""
         return SqlUuidB58Comparator(cls.eventid)
 
-    @cached_property  # type: ignore[no-redef]
-    def document(self):
+    @cached_property
+    def document(self) -> Optional[UuidModelType]:
         """
         Retrieve the document referenced by this Notification, if any.
 
@@ -441,8 +480,8 @@ class Notification(NoIdMixin, db.Model):
             return self.document_model.query.filter_by(uuid=self.document_uuid).one()
         return None
 
-    @cached_property  # type: ignore[no-redef]
-    def fragment(self):
+    @cached_property
+    def fragment(self) -> Optional[UuidModelType]:
         """
         Retrieve the fragment within a document referenced by this Notification, if any.
 
@@ -467,11 +506,11 @@ class Notification(NoIdMixin, db.Model):
             class MyNotificationView(NotificationView):
                 ...
         """
-        if cls.cls_type() in cls.renderers:
+        if cls.cls_type in cls.renderers:
             raise TypeError(
-                f"A renderer has already been registered for {cls.cls_type()}"
+                f"A renderer has already been registered for {cls.cls_type}"
             )
-        cls.renderers[cls.cls_type()] = view
+        cls.renderers[cls.cls_type] = view
         return view
 
     @classmethod
@@ -536,7 +575,7 @@ class Notification(NoIdMixin, db.Model):
     # Make :attr:`type_` available under the name `type`, but declare this at the very
     # end of the class to avoid conflicts with the Python `type` global that is
     # used for type-hinting
-    type = db.synonym('type_')  # noqa: A003
+    type: Mapped[str] = sa.orm.synonym('type_')  # noqa: A003
 
 
 class PreviewNotification:
@@ -548,15 +587,20 @@ class PreviewNotification:
         NotificationFor(PreviewNotification(NotificationType), user)
     """
 
-    def __init__(self, cls, document, fragment=None) -> None:
+    def __init__(
+        self,
+        cls: Notification,
+        document: UuidModelType,
+        fragment: Optional[UuidModelType] = None,
+    ) -> None:
         self.eventid = self.eventid_b58 = self.id = 'preview'  # May need to be a UUID
         self.cls = cls
         self.document = document
         self.document_uuid = document.uuid
         self.fragment = fragment
-        self.fragment_uuid = fragment.uuid
+        self.fragment_uuid = fragment.uuid if fragment is not None else None
 
-    def __getattr__(self, attr: str):
+    def __getattr__(self, attr: str) -> Any:
         """Get an attribute."""
         return getattr(self.cls, attr)
 
@@ -566,21 +610,32 @@ class UserNotificationMixin:
 
     notification: Notification
 
-    @property
+    @cached_property
     def notification_type(self) -> str:
+        """Return the notification type identifier."""
         return self.notification.type
 
     with_roles(notification_type, read={'owner'})
 
-    @property
-    def document(self) -> Optional[db.Model]:
+    @cached_property
+    def notification_pref_type(self) -> str:
+        """Return the notification preference type identifier."""
+        # This is dependent on SQLAlchemy using the appropriate subclass of
+        # :class:`Notification` so that :attr:`~Notification.pref_type` has the correct
+        # value
+        return self.notification.pref_type
+
+    with_roles(notification_pref_type, read={'owner'})
+
+    @cached_property
+    def document(self) -> Optional[db.Model]:  # type: ignore[name-defined]
         """Document that this notification is for."""
         return self.notification.document
 
     with_roles(document, read={'owner'})
 
-    @property
-    def fragment(self) -> Optional[db.Model]:
+    @cached_property
+    def fragment(self) -> Optional[db.Model]:  # type: ignore[name-defined]
         """Fragment within this document that this notification is for."""
         return self.notification.fragment
 
@@ -590,6 +645,7 @@ class UserNotificationMixin:
     # https://github.com/python/mypy/issues/4125
     @property
     def is_revoked(self) -> bool:
+        """Test if notification has been revoked."""
         raise NotImplementedError("Subclass must provide this property")
 
     @is_revoked.setter
@@ -613,7 +669,11 @@ class UserNotificationMixin:
         return False
 
 
-class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
+class UserNotification(
+    UserNotificationMixin,
+    NoIdMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     """
     The recipient of a notification.
 
@@ -625,10 +685,10 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     # Primary key is a compound of (user_id, eventid).
 
     #: Id of user being notified
-    user_id = immutable(
-        db.Column(
-            None,
-            db.ForeignKey('user.id', ondelete='CASCADE'),
+    user_id: sa.Column[int] = immutable(
+        sa.Column(
+            sa.Integer,
+            sa.ForeignKey('user.id', ondelete='CASCADE'),
             primary_key=True,
             nullable=False,
         )
@@ -636,24 +696,24 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     #: User being notified (backref defined below, outside the model)
     user = with_roles(
-        immutable(db.relationship(User)), read={'owner'}, grants={'owner'}
+        immutable(sa.orm.relationship(User)), read={'owner'}, grants={'owner'}
     )
 
     #: Random eventid, shared with the Notification instance
     eventid = with_roles(
-        immutable(db.Column(UUIDType(binary=False), primary_key=True, nullable=False)),
+        immutable(sa.Column(UUIDType(binary=False), primary_key=True, nullable=False)),
         read={'owner'},
     )
 
     #: Id of notification that this user received
-    notification_id = immutable(
-        db.Column(None, nullable=False)
+    notification_id: sa.Column[UUID] = immutable(
+        sa.Column(UUIDType(binary=False), nullable=False)
     )  # fkey in __table_args__ below
     #: Notification that this user received
     notification = with_roles(
         immutable(
-            db.relationship(
-                Notification, backref=db.backref('recipients', lazy='dynamic')
+            sa.orm.relationship(
+                Notification, backref=sa.orm.backref('recipients', lazy='dynamic')
             )
         ),
         read={'owner'},
@@ -665,11 +725,11 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     #: Note: This column represents the first instance of a role shifting from being an
     #: entirely in-app symbol (i.e., code refactorable) to being data in the database
     #: (i.e., requiring a data migration alongside a code refactor)
-    role = with_roles(immutable(db.Column(db.Unicode, nullable=False)), read={'owner'})
+    role = with_roles(immutable(sa.Column(sa.Unicode, nullable=False)), read={'owner'})
 
     #: Timestamp for when this notification was marked as read
     read_at = with_roles(
-        db.Column(db.TIMESTAMP(timezone=True), default=None, nullable=True),
+        sa.Column(sa.TIMESTAMP(timezone=True), default=None, nullable=True),
         read={'owner'},
     )
 
@@ -679,29 +739,29 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     #:    a recipient of the new notification
     #: 3. The underlying document or fragment has been deleted
     revoked_at = with_roles(
-        db.Column(db.TIMESTAMP(timezone=True), nullable=True, index=True),
+        sa.Column(sa.TIMESTAMP(timezone=True), nullable=True, index=True),
         read={'owner'},
     )
 
     #: When a roll-up is performed, record an identifier for the items rolled up
     rollupid = with_roles(
-        db.Column(UUIDType(binary=False), nullable=True, index=True), read={'owner'}
+        sa.Column(UUIDType(binary=False), nullable=True, index=True), read={'owner'}
     )
 
     #: Message id for email delivery
-    messageid_email = db.Column(db.Unicode, nullable=True)
+    messageid_email = sa.Column(sa.Unicode, nullable=True)
     #: Message id for SMS delivery
-    messageid_sms = db.Column(db.Unicode, nullable=True)
+    messageid_sms = sa.Column(sa.Unicode, nullable=True)
     #: Message id for web push delivery
-    messageid_webpush = db.Column(db.Unicode, nullable=True)
+    messageid_webpush = sa.Column(sa.Unicode, nullable=True)
     #: Message id for Telegram delivery
-    messageid_telegram = db.Column(db.Unicode, nullable=True)
+    messageid_telegram = sa.Column(sa.Unicode, nullable=True)
     #: Message id for WhatsApp delivery
-    messageid_whatsapp = db.Column(db.Unicode, nullable=True)
+    messageid_whatsapp = sa.Column(sa.Unicode, nullable=True)
 
     __table_args__ = (
-        db.ForeignKeyConstraint(
-            [eventid, notification_id],
+        sa.ForeignKeyConstraint(
+            [eventid, notification_id],  # type: ignore[list-item]
             [Notification.eventid, Notification.id],
             ondelete='CASCADE',
             name='user_notification_eventid_notification_id_fkey',
@@ -751,7 +811,8 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         self.eventid = uuid_from_base58(value)
 
     @eventid_b58.comparator
-    def eventid_b58(cls):  # noqa: N805
+    def eventid_b58(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        """Return SQL comparator for Base58 representation."""
         return SqlUuidB58Comparator(cls.eventid)
 
     with_roles(eventid_b58, read={'owner'})
@@ -765,12 +826,13 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     def is_read(self, value: bool) -> None:
         if value:
             if not self.read_at:
-                self.read_at = db.func.utcnow()
+                self.read_at = sa.func.utcnow()
         else:
             self.read_at = None
 
     @is_read.expression
-    def is_read(cls):  # noqa: N805
+    def is_read(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        """Test if notification has been marked as read, as a SQL expression."""
         return cls.read_at.isnot(None)
 
     with_roles(is_read, rw={'owner'})
@@ -784,13 +846,17 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
     def is_revoked(self, value: bool) -> None:
         if value:
             if not self.revoked_at:
-                self.revoked_at = db.func.utcnow()
+                self.revoked_at = sa.func.utcnow()
         else:
             self.revoked_at = None
 
+    # PyLint complains because the hybrid property doesn't resemble the mixin's property
+    # pylint: disable=no-self-argument,arguments-renamed,invalid-overridden-method
     @is_revoked.expression
     def is_revoked(cls):  # noqa: N805
         return cls.revoked_at.isnot(None)
+
+    # pylint: enable=no-self-argument,arguments-renamed,invalid-overridden-method
 
     with_roles(is_revoked, rw={'owner'})
 
@@ -798,13 +864,13 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     def user_preferences(self) -> NotificationPreferences:
         """Return the user's notification preferences for this notification type."""
-        prefs = self.user.notification_preferences.get(self.notification_type)
+        prefs = self.user.notification_preferences.get(self.notification_pref_type)
         if prefs is None:
             prefs = NotificationPreferences(
-                user=self.user, notification_type=self.notification_type
+                user=self.user, notification_type=self.notification_pref_type
             )
             db.session.add(prefs)
-            self.user.notification_preferences[self.notification_type] = prefs
+            self.user.notification_preferences[self.notification_pref_type] = prefs
         return prefs
 
     def has_transport(self, transport: str) -> bool:
@@ -923,7 +989,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
                     UserNotification.rollupid == self.rollupid,
                 )
                 .options(
-                    db.load_only(
+                    sa.orm.load_only(
                         UserNotification.user_id,
                         UserNotification.eventid,
                         UserNotification.revoked_at,
@@ -959,6 +1025,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     @classmethod
     def web_notifications_for(cls, user: User, unread_only: bool = False) -> Query:
+        """Return web notifications for a user, optionally returning unread-only."""
         query = UserNotification.query.join(Notification).filter(
             Notification.type.in_(notification_web_types),
             UserNotification.user == user,
@@ -970,6 +1037,7 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
 
     @classmethod
     def unread_count_for(cls, user: User) -> int:
+        """Return unread notification count for a user."""
         return (
             UserNotification.query.join(Notification)
             .filter(
@@ -982,7 +1050,10 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         )
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         for user_notification in cls.query.filter_by(user_id=old_user.id).all():
             existing = cls.query.get((new_user.id, user_notification.eventid))
             # TODO: Instead of dropping old_user's dupe notifications, check which of
@@ -993,14 +1064,16 @@ class UserNotification(UserNotificationMixin, NoIdMixin, db.Model):
         cls.query.filter_by(user_id=old_user.id).update(
             {'user_id': new_user.id}, synchronize_session=False
         )
-        return None
 
 
 class NotificationFor(UserNotificationMixin):
     """View-only wrapper to mimic :class:`UserNotification`."""
 
-    identity = read_at = revoked_at = None
-    is_revoked = is_read = False
+    identity: Any = None
+    read_at: Any = None
+    revoked_at: Any = None
+    is_revoked: bool = False
+    is_read: bool = False
 
     def __init__(self, notification, user) -> None:
         self.notification = notification
@@ -1032,38 +1105,38 @@ class NotificationFor(UserNotificationMixin):
 # --- Notification preferences ---------------------------------------------------------
 
 
-class NotificationPreferences(BaseMixin, db.Model):
+class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Holds a user's preferences for a particular :class:`Notification` type."""
 
     __tablename__ = 'notification_preferences'
 
     #: Id of user whose preferences are represented here
     user_id = immutable(
-        db.Column(
-            None,
-            db.ForeignKey('user.id', ondelete='CASCADE'),
+        sa.Column(
+            sa.Integer,
+            sa.ForeignKey('user.id', ondelete='CASCADE'),
             nullable=False,
             index=True,
         )
     )
     #: User whose preferences are represented here
     user = with_roles(
-        immutable(db.relationship(User, back_populates='notification_preferences')),
+        immutable(sa.orm.relationship(User, back_populates='notification_preferences')),
         read={'owner'},
         grants={'owner'},
     )
 
     # Notification type, corresponding to Notification.type (a class attribute there)
     # notification_type = '' holds the veto switch to disable a transport entirely
-    notification_type = immutable(db.Column(db.Unicode, nullable=False))
+    notification_type = immutable(sa.Column(sa.Unicode, nullable=False))
 
-    by_email = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})
-    by_sms = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})
-    by_webpush = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})
-    by_telegram = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})
-    by_whatsapp = with_roles(db.Column(db.Boolean, nullable=False), rw={'owner'})
+    by_email = with_roles(sa.Column(sa.Boolean, nullable=False), rw={'owner'})
+    by_sms = with_roles(sa.Column(sa.Boolean, nullable=False), rw={'owner'})
+    by_webpush = with_roles(sa.Column(sa.Boolean, nullable=False), rw={'owner'})
+    by_telegram = with_roles(sa.Column(sa.Boolean, nullable=False), rw={'owner'})
+    by_whatsapp = with_roles(sa.Column(sa.Boolean, nullable=False), rw={'owner'})
 
-    __table_args__ = (db.UniqueConstraint('user_id', 'notification_type'),)
+    __table_args__ = (sa.UniqueConstraint('user_id', 'notification_type'),)
 
     __datasets__ = {
         'preferences': {
@@ -1146,28 +1219,30 @@ class NotificationPreferences(BaseMixin, db.Model):
         return notification_type_registry.get(self.notification_type)
 
     @classmethod
-    def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
+        """Migrate one user account to another when merging user accounts."""
         for ntype, prefs in list(old_user.notification_preferences.items()):
             if ntype in new_user.notification_preferences:
                 db.session.delete(prefs)
         NotificationPreferences.query.filter_by(user_id=old_user.id).update(
             {'user_id': new_user.id}, synchronize_session=False
         )
-        return None
 
-    @db.validates('notification_type')
+    @sa.orm.validates('notification_type')
     def _valid_notification_type(self, key: str, value: Optional[str]) -> str:
         if value == '':  # Special-cased name for main preferences
             return value
         if value is None or value not in notification_type_registry:
-            raise ValueError("Invalid notification_type: %s" % value)
+            raise ValueError(f"Invalid notification_type: {value}")
         return value
 
 
 @reopen(User)
 class __User:
     all_notifications = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             UserNotification,
             lazy='dynamic',
             order_by=UserNotification.created_at.desc(),
@@ -1176,7 +1251,7 @@ class __User:
         read={'owner'},
     )
 
-    notification_preferences = db.relationship(
+    notification_preferences = sa.orm.relationship(
         NotificationPreferences,
         collection_class=column_mapped_collection(
             NotificationPreferences.notification_type
@@ -1185,9 +1260,9 @@ class __User:
     )
 
     # This relationship is wrapped in a property that creates it on first access
-    _main_notification_preferences = db.relationship(
+    _main_notification_preferences = sa.orm.relationship(
         NotificationPreferences,
-        primaryjoin=db.and_(
+        primaryjoin=sa.and_(
             NotificationPreferences.user_id == User.id,
             NotificationPreferences.notification_type == '',
         ),
@@ -1197,12 +1272,13 @@ class __User:
 
     @cached_property
     def main_notification_preferences(self) -> NotificationPreferences:
+        """Return user's main notification preferences, toggling transports on/off."""
         if not self._main_notification_preferences:
             main = NotificationPreferences(
                 user=self,
                 notification_type='',
                 by_email=True,
-                by_sms=False,
+                by_sms=True,
                 by_webpush=False,
                 by_telegram=False,
                 by_whatsapp=False,
@@ -1227,13 +1303,24 @@ def _register_notification_types(mapper_, cls) -> None:
 
         # Populate cls with helper attributes
 
-        type_hints = get_type_hints(cls, localns=vars(models))
+        # When using future annotations, the type hints in a notification will be stored
+        # as strings. We provide the models namespace to resolve the strings back to
+        # models as we have no access to the actual namespace within which the class was
+        # defined. Since tests uses ``models.*`` references, we have to include 'models'
+        # in the namespace here. While ``inspect.getmodule`` exists, it cannot retrieve
+        # local namespace when the notification class is defined inside a function
+        type_hints = get_type_hints(cls, localns=dict(vars(models), models=models))
         cls.document_model = (
             type_hints['document']
-            if isinstance(type_hints['document'], type)
+            if 'document' in type_hints
+            and isinstance(type_hints['document'], type)
             and issubclass(type_hints['document'], db.Model)
             else None
         )
+        if cls.document_model is None:
+            raise TypeError(
+                f"Notification subclass {cls!r} must specify document class"
+            )
         cls.document_type = (
             cls.document_model.__tablename__  # type: ignore[attr-defined]
             if cls.document_model
@@ -1241,7 +1328,8 @@ def _register_notification_types(mapper_, cls) -> None:
         )
         cls.fragment_model = (
             type_hints['fragment']
-            if isinstance(type_hints['fragment'], type)
+            if 'fragment' in type_hints
+            and isinstance(type_hints['fragment'], type)
             and issubclass(type_hints['fragment'], db.Model)
             else None
         )
@@ -1253,11 +1341,9 @@ def _register_notification_types(mapper_, cls) -> None:
 
         # Exclude inactive notifications in the registry. It is used to populate the
         # user's notification preferences screen.
-        if cls.active:
-            notification_type_registry[
-                cls.__mapper_args__['polymorphic_identity']
-            ] = cls
+        if cls.active and cls.cls_type == cls.pref_type:
+            notification_type_registry[cls.cls_type] = cls
         # Include inactive notifications in the web types, as this is used for the web
         # feed of past notifications, including deprecated (therefore inactive) types
         if cls.allow_web:
-            notification_web_types.add(cls.__mapper_args__['polymorphic_identity'])
+            notification_web_types.add(cls.cls_type)

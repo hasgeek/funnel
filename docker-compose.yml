@@ -2,13 +2,13 @@ version: '3'
 
 services:
   web:
-    image: vivekdurai/funnel
+    image: hasgeek/funnel
     container_name: web
     ports:
       - 3000:3000
     depends_on:
       - redis
-    command: sh ./runserver.production.sh
+    command: sh ./devserver.py
     volumes:
       - .:/app
       - $HOME/.aws/credentials:/app/.aws/credentials:ro

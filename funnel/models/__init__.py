@@ -1,12 +1,15 @@
+"""Provide configuration for models and import all into a common `models` namespace."""
 # flake8: noqa
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, TypeVar
 
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType, UUIDType
+import sqlalchemy as sa  # noqa
+import sqlalchemy.orm  # Required to make sa.orm work  # noqa
 
-from coaster.db import db
 from coaster.sqlalchemy import (
     BaseIdNameMixin,
     BaseMixin,
@@ -15,7 +18,6 @@ from coaster.sqlalchemy import (
     BaseScopedNameMixin,
     CoordinatesMixin,
     JsonDict,
-    MarkdownColumn,
     NoIdMixin,
     RoleMixin,
     TimestampMixin,
@@ -24,17 +26,34 @@ from coaster.sqlalchemy import (
     with_roles,
 )
 
-if TYPE_CHECKING:
-    hybrid_property = property
-else:
-    from sqlalchemy.ext.hybrid import hybrid_property
+from ..typing import Mapped
 
+if not TYPE_CHECKING:
+    from sqlalchemy.ext.hybrid import hybrid_property
+    from sqlalchemy.orm import declarative_mixin, declared_attr
+else:
+    from sqlalchemy.ext.declarative import declared_attr
+
+    hybrid_property = property
+    try:
+        # sqlalchemy-stubs (by Dropbox) can't find declarative_mixin, but
+        # sqlalchemy2-stubs (by SQLAlchemy) requires it
+        from sqlalchemy.orm import declarative_mixin  # type: ignore[attr-defined]
+    except ImportError:
+        T = TypeVar('T')
+
+        def declarative_mixin(cls: T) -> T:
+            return cls
+
+
+db = SQLAlchemy()
 # This must be set _before_ any of the models are imported
 TimestampMixin.__with_timezone__ = True
 
 # Some of these imports are order sensitive due to circular dependencies
 # All of them have to be imported after TimestampMixin is patched
 
+# pylint: disable=wrong-import-position
 from .helpers import *  # isort:skip
 from .user import *  # isort:skip
 from .user_signals import *  # isort:skip

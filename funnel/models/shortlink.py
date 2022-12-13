@@ -13,11 +13,10 @@ from sqlalchemy.ext.hybrid import Comparator
 
 from furl import furl
 from typing_extensions import Literal
-from url_normalize import url_normalize
 
 from coaster.sqlalchemy import immutable, with_roles
 
-from . import NoIdMixin, UrlType, db, hybrid_property
+from . import Mapped, NoIdMixin, UrlType, db, hybrid_property, sa
 from .helpers import profanity
 from .user import User
 
@@ -48,6 +47,16 @@ _valid_name_re = re.compile('^[A-Za-z0-9_-]*$')
 
 
 # --- Helpers --------------------------------------------------------------------------
+
+
+def normalize_url(url: Union[str, furl], default_scheme: str = 'https') -> furl:
+    """Normalize a URL with a default scheme and path."""
+    url = furl(url)
+    if not url.scheme:
+        url.scheme = default_scheme
+    if not url.path:
+        url.path = '/'
+    return url
 
 
 def random_bigint(smaller: bool = False) -> int:
@@ -132,11 +141,11 @@ def bigint_to_name(value: int) -> str:
     )
 
 
-def url_blake2b160_hash(value: Union[str, furl], normalize=True) -> bytes:
+def url_blake2b160_hash(value: Union[str, furl]) -> bytes:
     """
     Hash a URL, for duplicate URL lookup.
 
-    This function is currently not used, as its utility is uncertain:
+    This function is currently not used as its utility is uncertain:
 
     1. Since hashes are shorter than full URLs, a URL lookup by hash may have better
        performance.
@@ -146,14 +155,11 @@ def url_blake2b160_hash(value: Union[str, furl], normalize=True) -> bytes:
     3. Hash index performance may be better if it uses 128 bits and is indexed as a UUID
        integer rather than a string/binary, but this is speculative and needs homework.
     """
-    if normalize:
-        value = url_normalize(str(value))
-    else:
-        value = str(value)
+    value = str(normalize_url(value))
     return hashlib.blake2b(value.encode('utf-8'), digest_size=20).digest()
 
 
-class ShortLinkToBigIntComparator(Comparator):
+class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-method
     """
     Comparator to allow lookup by shortlink name instead of numeric id.
 
@@ -172,32 +178,36 @@ class ShortLinkToBigIntComparator(Comparator):
 # --- Models ---------------------------------------------------------------------------
 
 
-class Shortlink(NoIdMixin, db.Model):
+class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
     """A short link to a full-size link, for use over SMS."""
 
     __tablename__ = 'shortlink'
+
+    #: Non-persistent attribute for Shortlink.new to flag if this is a new shortlink.
+    #: Any future instance cache system must NOT cache this value
+    is_new = False
 
     # id of this shortlink, saved as a bigint (8 bytes)
     id = with_roles(  # noqa: A003
         # id cannot use the `immutable` wrapper because :meth:`new` changes the id when
         # handling collisions. This needs an "immutable after commit" handler
-        db.Column(db.BigInteger, autoincrement=False, nullable=False, primary_key=True),
+        sa.Column(sa.BigInteger, autoincrement=False, nullable=False, primary_key=True),
         read={'all'},
     )
     #: URL target of this shortlink
     url = with_roles(
-        immutable(db.Column(UrlType, nullable=False, index=True)),
+        immutable(sa.Column(UrlType, nullable=False, index=True)),
         read={'all'},
     )
     #: Id of user who created this shortlink (optional)
-    user_id = db.Column(
-        None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
+    user_id = sa.Column(
+        sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
     )
     #: User who created this shortlink (optional)
-    user = db.relationship(User)
+    user: Mapped[Optional[User]] = sa.orm.relationship(User)
 
     #: Is this link enabled? If not, render 410 Gone
-    enabled = db.Column(db.Boolean, nullable=False, default=True)
+    enabled = sa.Column(sa.Boolean, nullable=False, default=True)
 
     @hybrid_property
     def name(self) -> str:
@@ -208,30 +218,32 @@ class Shortlink(NoIdMixin, db.Model):
 
     @name.setter
     def name(self, value: Union[str, bytes]):
+        """Set a name."""
         self.id = name_to_bigint(value)
 
     @name.comparator
-    def name(cls):  # noqa: N805
+    def name(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        """Compare name to id in a SQL expression."""
         return ShortLinkToBigIntComparator(cls.id)
 
     # --- Validators
 
-    @db.validates('id')
+    @sa.orm.validates('id')
     def _validate_id_not_zero(self, key, value: int) -> int:  # skipcq: PYL-R0201
         if value == 0:
             raise ValueError("Id cannot be zero")
         return value
 
-    @db.validates('url')
+    @sa.orm.validates('url')
     def _validate_url(self, key, value) -> str:  # skipcq: PYL-R0201
-        value = url_normalize(str(value))
+        value = str(normalize_url(value))
         # If URL hashes are added to the model, the value must be set here using
-        # `url_blake2b160_hash(value, normalize=False)`
+        # `url_blake2b160_hash(value)`
         return value
 
     # --- Methods
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return string representation of self."""
         return f'Shortlink(name={self.name!r}, url={self.url!r})'
 
@@ -241,7 +253,7 @@ class Shortlink(NoIdMixin, db.Model):
         cls,
         url: Union[str, furl],
         *,
-        name: str = None,
+        name: Optional[str] = None,
         shorter: bool = False,
         reuse: Literal[False] = False,
         actor: Optional[User] = None,
@@ -280,7 +292,7 @@ class Shortlink(NoIdMixin, db.Model):
         # This method is not named __new__ because SQLAlchemy depends on the default
         # implementation of __new__ when loading instances from the database.
         # https://docs.sqlalchemy.org/en/14/orm/constructors.html
-        url = url_normalize(str(url))
+        url = normalize_url(url)
         if reuse:
             if name:
                 # The overload definitions are meant to ensure that mypy will flag any
@@ -306,21 +318,23 @@ class Shortlink(NoIdMixin, db.Model):
             # User wants a custom name? Try using it, but no guarantee this will work
             try:
                 shortlink = cls(name=name, url=url, user=actor)
+                shortlink.is_new = True
                 # 1. Emit `BEGIN SAVEPOINT`
                 savepoint = db.session.begin_nested()
                 # 2. Tell SQLAlchemy to prepare to commit this record within savepoint
                 db.session.add(shortlink)
                 # 3. Emit `RELEASE SAVEPOINT`
                 savepoint.commit()
-            except IntegrityError:
+            except IntegrityError as exc:
                 # 4. Emit `ROLLBACK TO SAVEPOINT`
                 savepoint.rollback()
                 # Name not available. Re-raise as a ValueError
-                raise ValueError(f"Shortlink name is not available: {name}")
+                raise ValueError(f"Shortlink name is not available: {name}") from exc
             return shortlink
 
         # Not a custom name. Keep trying ids until one succeeds
         shortlink = cls(id=random_bigint(shorter), url=url, user=actor)
+        shortlink.is_new = True
         while True:
             if profanity.contains_profanity(shortlink.name):
                 shortlink.id = random_bigint(shorter)
@@ -341,7 +355,7 @@ class Shortlink(NoIdMixin, db.Model):
         try:
             existing = db.session.query(
                 cls.query.filter(cls.name == name)
-                .options(db.load_only(cls.id))
+                .options(sa.orm.load_only(cls.id))
                 .exists()
             ).scalar()
             return not existing
@@ -362,8 +376,8 @@ class Shortlink(NoIdMixin, db.Model):
             idv = name_to_bigint(name)
         except (ValueError, TypeError):
             return None
-        obj = db.session.get(
-            cls, idv, options=[db.load_only(cls.id, cls.url, cls.enabled)]
+        obj = db.session.get(  # type: ignore[attr-defined]
+            cls, idv, options=[sa.orm.load_only(cls.id, cls.url, cls.enabled)]
         )
         if obj is not None and (ignore_enabled or obj.enabled):
             return obj

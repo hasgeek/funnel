@@ -1,10 +1,10 @@
 {% extends "notifications/layout_web.html.jinja2" %}
-{%- from "macros.html.jinja2" import faicon, project_title %}
+{%- from "macros.html.jinja2" import faicon %}
 
 {% block content %}
   {%- if view.is_rollup %}
     <p>
-      {%- trans project=project_title(project), project_url=project.url_for(), count=view.fragments|length %}
+      {%- trans project=project.joined_title, project_url=project.url_for(), count=view.fragments|length %}
         Your project <a href="{{ project_url }}">{{ project }}</a> has received {{ count }} new submissions:
       {%- endtrans %}
     </p>
@@ -18,12 +18,12 @@
     </ol>
   {%- else %}
     <p>
-      {% trans project=project_title(project), project_url=project.url_for(), proposal=proposal.title, proposal_url=proposal.url_for(), actor=view.actor.pickername -%}
+      {% trans project=project.joined_title, project_url=project.url_for(), proposal=proposal.title, proposal_url=proposal.url_for(), actor=view.actor.pickername -%}
         Your project <a href="{{ project_url }}">{{ project }}</a> has received a new submission: <a href="{{ proposal_url }}">{{ proposal }}</a> from {{ actor }}
       {%- endtrans %}
     </p>
   {%- endif %}
-{%- endblock %}
+{%- endblock content %}
 
 {%- block avatar %}
   {%- if view.is_rollup %}
@@ -31,4 +31,4 @@
   {%- else %}
     {%- if view.actor %}{{ useravatar(view.actor) }}{% endif %}
   {%- endif %}
-{%- endblock %}
+{%- endblock avatar %}

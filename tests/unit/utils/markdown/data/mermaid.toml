@@ -1,0 +1,449 @@
+markdown = """
+# mermaid tests
+
+## Flowchart
+
+```{mermaid}
+graph TD
+    A[Christmas] -->|Get money| B(Go shopping)
+    B --> C{Let me think}
+    C -->|One| D[Laptop]
+    C -->|Two| E[iPhone]
+    C -->|Three| F[fa:fa-car Car]
+```
+
+## Sequence Diagrams
+
+``` {mermaid}
+sequenceDiagram
+    Alice->>+John: Hello John, how are you?
+    Alice->>+John: John, can you hear me?
+    John-->>-Alice: Hi Alice, I can hear you!
+    John-->>-Alice: I feel great!
+```
+
+## Class Diagram
+
+``` {mermaid}
+classDiagram
+    Animal <|-- Duck
+    Animal <|-- Fish
+    Animal <|-- Zebra
+    Animal : +int age
+    Animal : +String gender
+    Animal: +isMammal()
+    Animal: +mate()
+    class Duck{
+      +String beakColor
+      +swim()
+      +quack()
+    }
+    class Fish{
+      -int sizeInFeet
+      -canEat()
+    }
+    class Zebra{
+      +bool is_wild
+      +run()
+    }
+```
+
+## State Diagram
+
+``` {mermaid}
+stateDiagram-v2
+    [*] --> Still
+    Still --> [*]
+    Still --> Moving
+    Moving --> Still
+    Moving --> Crash
+    Crash --> [*]
+```
+
+## Gantt Chart
+
+``` {mermaid}
+    title A Gantt Diagram
+    dateFormat  YYYY-MM-DD
+    section Section
+    A task :a1, 2014-01-01, 30d
+    Another task :after a1  , 20d
+    section Another
+    Task in sec :2014-01-12  , 12d
+    another task : 24d
+```
+
+## Pie Chart
+
+``` {mermaid}
+pie title Pets adopted by volunteers
+    "Dogs" : 386
+    "Cats" : 85
+    "Rats" : 15
+
+```
+
+## ER Diagram
+
+```{mermaid}
+erDiagram
+          CUSTOMER }|..|{ DELIVERY-ADDRESS : has
+          CUSTOMER ||--o{ ORDER : places
+          CUSTOMER ||--o{ INVOICE : "liable for"
+          DELIVERY-ADDRESS ||--o{ ORDER : receives
+          INVOICE ||--|{ ORDER : covers
+          ORDER ||--|{ ORDER-ITEM : includes
+          PRODUCT-CATEGORY ||--|{ PRODUCT : contains
+          PRODUCT ||--o{ ORDER-ITEM : "ordered in"
+```
+
+## User Journey
+
+``` {mermaid}
+  journey
+    title My working day
+    section Go to work
+      Make tea: 5: Me
+      Go upstairs: 3: Me
+      Do work: 1: Me, Cat
+    section Go home
+      Go downstairs: 5: Me
+      Sit down: 3: Me
+
+```
+
+## Git Graph
+
+``` {mermaid}
+    gitGraph
+      commit
+      commit
+      branch develop
+      checkout develop
+      commit
+      commit
+      checkout main
+      merge develop
+      commit
+      commit
+
+```
+"""
+
+[config]
+profiles = [ "basic", "document",]
+
+[config.custom_profiles.mermaid]
+preset = "default"
+plugins = [ "mermaid",]
+
+[expected_output]
+basic = """<h1>mermaid tests</h1>
+<h2>Flowchart</h2>
+<pre><code class="language-{mermaid}">graph TD
+    A[Christmas] --&gt;|Get money| B(Go shopping)
+    B --&gt; C{Let me think}
+    C --&gt;|One| D[Laptop]
+    C --&gt;|Two| E[iPhone]
+    C --&gt;|Three| F[fa:fa-car Car]
+</code></pre>
+<h2>Sequence Diagrams</h2>
+<pre><code class="language-{mermaid}">sequenceDiagram
+    Alice-&gt;&gt;+John: Hello John, how are you?
+    Alice-&gt;&gt;+John: John, can you hear me?
+    John--&gt;&gt;-Alice: Hi Alice, I can hear you!
+    John--&gt;&gt;-Alice: I feel great!
+</code></pre>
+<h2>Class Diagram</h2>
+<pre><code class="language-{mermaid}">classDiagram
+    Animal &lt;|-- Duck
+    Animal &lt;|-- Fish
+    Animal &lt;|-- Zebra
+    Animal : +int age
+    Animal : +String gender
+    Animal: +isMammal()
+    Animal: +mate()
+    class Duck{
+      +String beakColor
+      +swim()
+      +quack()
+    }
+    class Fish{
+      -int sizeInFeet
+      -canEat()
+    }
+    class Zebra{
+      +bool is_wild
+      +run()
+    }
+</code></pre>
+<h2>State Diagram</h2>
+<pre><code class="language-{mermaid}">stateDiagram-v2
+    [*] --&gt; Still
+    Still --&gt; [*]
+    Still --&gt; Moving
+    Moving --&gt; Still
+    Moving --&gt; Crash
+    Crash --&gt; [*]
+</code></pre>
+<h2>Gantt Chart</h2>
+<pre><code class="language-{mermaid}">    title A Gantt Diagram
+    dateFormat  YYYY-MM-DD
+    section Section
+    A task :a1, 2014-01-01, 30d
+    Another task :after a1  , 20d
+    section Another
+    Task in sec :2014-01-12  , 12d
+    another task : 24d
+</code></pre>
+<h2>Pie Chart</h2>
+<pre><code class="language-{mermaid}">pie title Pets adopted by volunteers
+    &quot;Dogs&quot; : 386
+    &quot;Cats&quot; : 85
+    &quot;Rats&quot; : 15
+
+</code></pre>
+<h2>ER Diagram</h2>
+<pre><code class="language-{mermaid}">erDiagram
+          CUSTOMER }|..|{ DELIVERY-ADDRESS : has
+          CUSTOMER ||--o{ ORDER : places
+          CUSTOMER ||--o{ INVOICE : &quot;liable for&quot;
+          DELIVERY-ADDRESS ||--o{ ORDER : receives
+          INVOICE ||--|{ ORDER : covers
+          ORDER ||--|{ ORDER-ITEM : includes
+          PRODUCT-CATEGORY ||--|{ PRODUCT : contains
+          PRODUCT ||--o{ ORDER-ITEM : &quot;ordered in&quot;
+</code></pre>
+<h2>User Journey</h2>
+<pre><code class="language-{mermaid}">  journey
+    title My working day
+    section Go to work
+      Make tea: 5: Me
+      Go upstairs: 3: Me
+      Do work: 1: Me, Cat
+    section Go home
+      Go downstairs: 5: Me
+      Sit down: 3: Me
+
+</code></pre>
+<h2>Git Graph</h2>
+<pre><code class="language-{mermaid}">    gitGraph
+      commit
+      commit
+      branch develop
+      checkout develop
+      commit
+      commit
+      checkout main
+      merge develop
+      commit
+      commit
+
+</code></pre>
+"""
+document = """<h1 id="h:mermaid-tests">mermaid tests <a class="header-anchor" href="#h:mermaid-tests">¶</a></h1>
+<h2 id="h:flowchart">Flowchart <a class="header-anchor" href="#h:flowchart">¶</a></h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">graph TD
+ A[Christmas] --&gt;|Get money| B(Go shopping)
+ B --&gt; C{Let me think}
+ C --&gt;|One| D[Laptop]
+ C --&gt;|Two| E[iPhone]
+ C --&gt;|Three| F[fa:fa-car Car]
+</pre><div class="embed-container"></div></div>
+<h2 id="h:sequence-diagrams">Sequence Diagrams <a class="header-anchor" href="#h:sequence-diagrams">¶</a></h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">sequenceDiagram
+ Alice-&gt;&gt;+John: Hello John, how are you?
+ Alice-&gt;&gt;+John: John, can you hear me?
+ John--&gt;&gt;-Alice: Hi Alice, I can hear you!
+ John--&gt;&gt;-Alice: I feel great!
+</pre><div class="embed-container"></div></div>
+<h2 id="h:class-diagram">Class Diagram <a class="header-anchor" href="#h:class-diagram">¶</a></h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">classDiagram
+ Animal &lt;|-- Duck
+ Animal &lt;|-- Fish
+ Animal &lt;|-- Zebra
+ Animal : +int age
+ Animal : +String gender
+ Animal: +isMammal()
+ Animal: +mate()
+ class Duck{
+   +String beakColor
+   +swim()
+   +quack()
+ }
+ class Fish{
+   -int sizeInFeet
+   -canEat()
+ }
+ class Zebra{
+   +bool is_wild
+   +run()
+ }
+</pre><div class="embed-container"></div></div>
+<h2 id="h:state-diagram">State Diagram <a class="header-anchor" href="#h:state-diagram">¶</a></h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">stateDiagram-v2
+ [*] --&gt; Still
+ Still --&gt; [*]
+ Still --&gt; Moving
+ Moving --&gt; Still
+ Moving --&gt; Crash
+ Crash --&gt; [*]
+</pre><div class="embed-container"></div></div>
+<h2 id="h:gantt-chart">Gantt Chart <a class="header-anchor" href="#h:gantt-chart">¶</a></h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content"> title A Gantt Diagram
+ dateFormat  YYYY-MM-DD
+ section Section
+ A task :a1, 2014-01-01, 30d
+ Another task :after a1  , 20d
+ section Another
+ Task in sec :2014-01-12  , 12d
+ another task : 24d
+</pre><div class="embed-container"></div></div>
+<h2 id="h:pie-chart">Pie Chart <a class="header-anchor" href="#h:pie-chart">¶</a></h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">pie title Pets adopted by volunteers
+ &quot;Dogs&quot; : 386
+ &quot;Cats&quot; : 85
+ &quot;Rats&quot; : 15
+
+</pre><div class="embed-container"></div></div>
+<h2 id="h:er-diagram">ER Diagram <a class="header-anchor" href="#h:er-diagram">¶</a></h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">erDiagram
+       CUSTOMER }|..|{ DELIVERY-ADDRESS : has
+       CUSTOMER ||--o{ ORDER : places
+       CUSTOMER ||--o{ INVOICE : &quot;liable for&quot;
+       DELIVERY-ADDRESS ||--o{ ORDER : receives
+       INVOICE ||--|{ ORDER : covers
+       ORDER ||--|{ ORDER-ITEM : includes
+       PRODUCT-CATEGORY ||--|{ PRODUCT : contains
+       PRODUCT ||--o{ ORDER-ITEM : &quot;ordered in&quot;
+</pre><div class="embed-container"></div></div>
+<h2 id="h:user-journey">User Journey <a class="header-anchor" href="#h:user-journey">¶</a></h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">journey
+ title My working day
+ section Go to work
+   Make tea: 5: Me
+   Go upstairs: 3: Me
+   Do work: 1: Me, Cat
+ section Go home
+   Go downstairs: 5: Me
+   Sit down: 3: Me
+
+</pre><div class="embed-container"></div></div>
+<h2 id="h:git-graph">Git Graph <a class="header-anchor" href="#h:git-graph">¶</a></h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content"> gitGraph
+   commit
+   commit
+   branch develop
+   checkout develop
+   commit
+   commit
+   checkout main
+   merge develop
+   commit
+   commit
+
+</pre><div class="embed-container"></div></div>
+"""
+mermaid = """<h1>mermaid tests</h1>
+<h2>Flowchart</h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">graph TD
+ A[Christmas] --&gt;|Get money| B(Go shopping)
+ B --&gt; C{Let me think}
+ C --&gt;|One| D[Laptop]
+ C --&gt;|Two| E[iPhone]
+ C --&gt;|Three| F[fa:fa-car Car]
+</pre><div class="embed-container"></div></div>
+<h2>Sequence Diagrams</h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">sequenceDiagram
+ Alice-&gt;&gt;+John: Hello John, how are you?
+ Alice-&gt;&gt;+John: John, can you hear me?
+ John--&gt;&gt;-Alice: Hi Alice, I can hear you!
+ John--&gt;&gt;-Alice: I feel great!
+</pre><div class="embed-container"></div></div>
+<h2>Class Diagram</h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">classDiagram
+ Animal &lt;|-- Duck
+ Animal &lt;|-- Fish
+ Animal &lt;|-- Zebra
+ Animal : +int age
+ Animal : +String gender
+ Animal: +isMammal()
+ Animal: +mate()
+ class Duck{
+   +String beakColor
+   +swim()
+   +quack()
+ }
+ class Fish{
+   -int sizeInFeet
+   -canEat()
+ }
+ class Zebra{
+   +bool is_wild
+   +run()
+ }
+</pre><div class="embed-container"></div></div>
+<h2>State Diagram</h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">stateDiagram-v2
+ [*] --&gt; Still
+ Still --&gt; [*]
+ Still --&gt; Moving
+ Moving --&gt; Still
+ Moving --&gt; Crash
+ Crash --&gt; [*]
+</pre><div class="embed-container"></div></div>
+<h2>Gantt Chart</h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content"> title A Gantt Diagram
+ dateFormat  YYYY-MM-DD
+ section Section
+ A task :a1, 2014-01-01, 30d
+ Another task :after a1  , 20d
+ section Another
+ Task in sec :2014-01-12  , 12d
+ another task : 24d
+</pre><div class="embed-container"></div></div>
+<h2>Pie Chart</h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">pie title Pets adopted by volunteers
+ &quot;Dogs&quot; : 386
+ &quot;Cats&quot; : 85
+ &quot;Rats&quot; : 15
+
+</pre><div class="embed-container"></div></div>
+<h2>ER Diagram</h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">erDiagram
+       CUSTOMER }|..|{ DELIVERY-ADDRESS : has
+       CUSTOMER ||--o{ ORDER : places
+       CUSTOMER ||--o{ INVOICE : &quot;liable for&quot;
+       DELIVERY-ADDRESS ||--o{ ORDER : receives
+       INVOICE ||--|{ ORDER : covers
+       ORDER ||--|{ ORDER-ITEM : includes
+       PRODUCT-CATEGORY ||--|{ PRODUCT : contains
+       PRODUCT ||--o{ ORDER-ITEM : &quot;ordered in&quot;
+</pre><div class="embed-container"></div></div>
+<h2>User Journey</h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">journey
+ title My working day
+ section Go to work
+   Make tea: 5: Me
+   Go upstairs: 3: Me
+   Do work: 1: Me, Cat
+ section Go home
+   Go downstairs: 5: Me
+   Sit down: 3: Me
+
+</pre><div class="embed-container"></div></div>
+<h2>Git Graph</h2>
+<div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content"> gitGraph
+   commit
+   commit
+   branch develop
+   checkout develop
+   commit
+   commit
+   checkout main
+   merge develop
+   commit
+   commit
+
+</pre><div class="embed-container"></div></div>
+"""

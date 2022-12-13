@@ -1,29 +1,39 @@
 import Form from './utils/formhelper';
+import Utils from './utils/helper';
+import initEmbed from './utils/initembed';
 
 export const Submission = {
   init() {
+    Form.activateToggleSwitch();
+    Utils.enableWebShare();
     $('.js-subscribe-btn').on('click', function subscribeComments(event) {
       event.preventDefault();
-      const form = $(this).parents('form');
-      const formData = $(form).serializeArray();
-      $.ajax({
-        type: 'POST',
-        url: $(form).attr('action'),
-        data: formData,
-        dataType: 'json',
-        timeout: window.Hasgeek.Config.ajaxTimeout,
-        success(responseData) {
-          if (responseData && responseData.message) {
-            window.toastr.success(responseData.message);
-          }
-          $('.js-subscribed, .js-unsubscribed').toggleClass('mui--hide');
-          Form.updateFormNonce(responseData);
-        },
-        error(response) {
-          Form.handleAjaxError(response);
-        },
-      });
+      const form = $(this).parents('form')[0];
+      const url = $(form).attr('action');
+      Submission.postSubscription(url, form);
     });
+  },
+  async postSubscription(url, form) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(new FormData(form)).toString(),
+    }).catch(Form.handleFetchNetworkError);
+    if (response && response.ok) {
+      const responseData = await response.json();
+      if (responseData) {
+        if (responseData.message) {
+          window.toastr.success(responseData.message);
+        }
+        $('.js-subscribed, .js-unsubscribed').toggleClass('mui--hide');
+        Form.updateFormNonce(responseData);
+      }
+    } else {
+      Form.getFetchError(response);
+    }
   },
 };
 
@@ -54,19 +64,17 @@ export const LabelsWidget = {
     $('.listwidget input[type="radio"]').change(function addCheckMarkToLabel() {
       const label = $(this).parent().parent().prev('.mui-form__label');
       label.addClass('checked');
-      const labelTxt = `${Widget.getLabelTxt(
-        label.text()
-      )}: ${Widget.getLabelTxt($(this).parent().find('label').text())}`;
+      const labelTxt = `${Widget.getLabelTxt(label.text())}: ${Widget.getLabelTxt(
+        $(this).parent().find('label').text()
+      )}`;
       const attr = Widget.getLabelTxt(label.text());
       Widget.updateLabels(labelTxt, attr, this.checked);
     });
 
-    $('.mui-checkbox input[type="checkbox"]').change(
-      function clickLabelCheckbox() {
-        const labelTxt = Widget.getLabelTxt($(this).parent('label').text());
-        Widget.updateLabels(labelTxt, labelTxt, this.checked);
-      }
-    );
+    $('.mui-checkbox input[type="checkbox"]').change(function clickLabelCheckbox() {
+      const labelTxt = Widget.getLabelTxt($(this).parent('label').text());
+      Widget.updateLabels(labelTxt, labelTxt, this.checked);
+    });
 
     // Open and close dropdown
     $('#label-select').on('click', () => {
@@ -113,4 +121,5 @@ export const LabelsWidget = {
 $(() => {
   window.Hasgeek.SubmissionInit = Submission.init.bind(Submission);
   window.Hasgeek.LabelsWidget = LabelsWidget.init.bind(LabelsWidget);
+  initEmbed('#submission .markdown');
 });

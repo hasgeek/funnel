@@ -1,9 +1,8 @@
 {% extends "notifications/layout_email.html.jinja2" -%}
-{%- from "macros.html.jinja2" import project_title -%}
 {%- from "notifications/macros_email.html.jinja2" import pinned_update -%}
 {%- block content -%}
 
-<p>{% trans project=project_title(view.rsvp.project) %}You have registered for <b>{{ project }}</b>{% endtrans %}</p>
+<p>{% trans project=view.rsvp.project.joined_title %}You have registered for <b>{{ project }}</b>{% endtrans %}</p>
 
 {% with next_session_at=view.rsvp.project.next_session_at %}{% if next_session_at -%}
   <p>{% trans date_and_time=next_session_at|datetime(view.datetime_format) %}The next session in the schedule starts {{ date_and_time }}{% endtrans %}</p>
@@ -13,4 +12,4 @@
 
 {{ pinned_update(view, view.rsvp.project) }}
 
-{%- endblock -%}
+{%- endblock content -%}

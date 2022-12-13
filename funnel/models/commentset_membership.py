@@ -1,3 +1,5 @@
+"""Model for membership to a commentset for new comment notifications."""
+
 from __future__ import annotations
 
 from typing import Set
@@ -6,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, Query, immutable, with_roles
 
-from . import User, db
+from . import User, db, sa
 from .comment import Comment, Commentset
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
@@ -17,7 +19,10 @@ from .update import Update
 __all__ = ['CommentsetMembership']
 
 
-class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
+class CommentsetMembership(
+    ImmutableUserMembershipMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     """Membership roles for users who are commentset users and subscribers."""
 
     __tablename__ = 'commentset_membership'
@@ -37,15 +42,17 @@ class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
         }
     }
 
-    commentset_id = immutable(
-        db.Column(
-            None, db.ForeignKey('commentset.id', ondelete='CASCADE'), nullable=False
+    commentset_id: sa.Column[sa.Integer] = immutable(
+        sa.Column(
+            sa.Integer,
+            sa.ForeignKey('commentset.id', ondelete='CASCADE'),
+            nullable=False,
         )
     )
-    commentset = immutable(
-        db.relationship(
-            'Commentset',
-            backref=db.backref(
+    commentset: sa.orm.relationship[Commentset] = immutable(
+        sa.orm.relationship(
+            Commentset,
+            backref=sa.orm.backref(
                 'subscriber_memberships',
                 lazy='dynamic',
                 cascade='all',
@@ -54,23 +61,23 @@ class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
         )
     )
 
-    parent = db.synonym('commentset')
-    parent_id = db.synonym('commentset_id')
+    parent = sa.orm.synonym('commentset')
+    parent_id = sa.orm.synonym('commentset_id')
 
     #: Flag to indicate notifications are muted
-    is_muted = db.Column(db.Boolean, nullable=False, default=False)
+    is_muted = sa.Column(sa.Boolean, nullable=False, default=False)
     #: When the user visited this commentset last
-    last_seen_at = db.Column(
-        db.TIMESTAMP(timezone=True), nullable=False, default=db.func.utcnow()
+    last_seen_at = sa.Column(
+        sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
 
-    new_comment_count = db.column_property(
-        db.select(db.func.count(Comment.id))
+    new_comment_count = sa.orm.column_property(
+        sa.select(sa.func.count(Comment.id))  # type: ignore[attr-defined]
         .where(Comment.commentset_id == commentset_id)  # type: ignore[has-type]
         .where(Comment.state.PUBLIC)  # type: ignore[has-type]
         .where(Comment.created_at > last_seen_at)
-        .correlate_except(Comment)
-        .scalar_subquery()
+        .correlate_except(Comment)  # type: ignore[arg-type]
+        .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
     )
 
     @cached_property
@@ -84,7 +91,7 @@ class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
 
     def update_last_seen_at(self) -> None:
         """Mark the subject user as having last seen this commentset just now."""
-        self.last_seen_at = db.func.utcnow()
+        self.last_seen_at = sa.func.utcnow()
 
     @classmethod
     def for_user(cls, user: User) -> Query:
@@ -116,12 +123,12 @@ class CommentsetMembership(ImmutableUserMembershipMixin, db.Model):
 
 @reopen(User)
 class __User:
-    active_commentset_memberships = db.relationship(
+    active_commentset_memberships = sa.orm.relationship(
         CommentsetMembership,
         lazy='dynamic',
-        primaryjoin=db.and_(
-            CommentsetMembership.user_id == User.id,
-            CommentsetMembership.is_active,
+        primaryjoin=sa.and_(
+            CommentsetMembership.user_id == User.id,  # type: ignore[has-type]
+            CommentsetMembership.is_active,  # type: ignore[arg-type]
         ),
         viewonly=True,
     )
@@ -133,24 +140,24 @@ class __User:
 
 @reopen(Commentset)
 class __Commentset:
-    active_memberships = db.relationship(
+    active_memberships = sa.orm.relationship(
         CommentsetMembership,
         lazy='dynamic',
-        primaryjoin=db.and_(
+        primaryjoin=sa.and_(
             CommentsetMembership.commentset_id == Commentset.id,
-            CommentsetMembership.is_active,
+            CommentsetMembership.is_active,  # type: ignore[arg-type]
         ),
         viewonly=True,
     )
 
     # Send notifications only to subscribers who haven't muted
     active_memberships_unmuted = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             CommentsetMembership,
             lazy='dynamic',
-            primaryjoin=db.and_(
+            primaryjoin=sa.and_(
                 CommentsetMembership.commentset_id == Commentset.id,
-                CommentsetMembership.is_active,
+                CommentsetMembership.is_active,  # type: ignore[arg-type]
                 CommentsetMembership.is_muted.is_(False),
             ),
             viewonly=True,
@@ -167,6 +174,7 @@ class __Commentset:
 
     def add_subscriber(self, actor: User, user: User) -> bool:
         """Return True is subscriber is added or unmuted, False if already exists."""
+        changed = False
         subscription = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()
@@ -176,12 +184,13 @@ class __Commentset:
                 user=user,
                 granted_by=actor,
             )
-            subscription.update_last_seen_at()
             db.session.add(subscription)
-            return True
-        else:
-            subscription.update_last_seen_at()
-        return False
+            changed = True
+        elif subscription.is_muted:
+            subscription = subscription.replace(actor=actor, is_muted=False)
+            changed = True
+        subscription.update_last_seen_at()
+        return changed
 
     def mute_subscriber(self, actor: User, user: User) -> bool:
         """Return True if subscriber was muted, False if already muted or missing."""

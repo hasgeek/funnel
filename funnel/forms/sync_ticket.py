@@ -1,16 +1,17 @@
+"""Synchronize tickets from an external service (Boxoffice, previously Explara)."""
+
 from __future__ import annotations
 
-from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
-from wtforms.widgets import CheckboxInput, ListWidget
+from typing import Optional
 
-from baseframe import __
-import baseframe.forms as forms
+from baseframe import __, forms
 
 from ..models import (
     Project,
     TicketClient,
     TicketEvent,
     TicketParticipant,
+    User,
     UserEmail,
     db,
 )
@@ -29,6 +30,8 @@ BOXOFFICE_DETAILS_PLACEHOLDER = {'org': 'hasgeek', 'item_collection_id': ''}
 
 @Project.forms('boxoffice')
 class ProjectBoxofficeForm(forms.Form):
+    """Link a Boxoffice ticket collection to a project."""
+
     org = forms.StringField(
         __("Organization name"),
         filters=[forms.filters.strip()],
@@ -38,10 +41,21 @@ class ProjectBoxofficeForm(forms.Form):
         validators=[forms.validators.AllowedIf('org')],
         filters=[forms.filters.strip()],
     )
+    ticket_title = forms.StringField(
+        __("Ticket widget title"),
+        filters=[forms.filters.strip()],
+    )
+    allow_rsvp = forms.BooleanField(
+        __("Allow rsvp"),
+        default=False,
+        description=__("If checked, both free and buy tickets will shown on project"),
+    )
 
 
 @TicketEvent.forms('main')
 class TicketEventForm(forms.Form):
+    """Form for a ticketed event (a project may have multiple events)."""
+
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
@@ -56,6 +70,8 @@ class TicketEventForm(forms.Form):
 
 @TicketClient.forms('main')
 class TicketClientForm(forms.Form):
+    """Form for a Boxoffice client access token."""
+
     name = forms.StringField(
         __("Name"),
         validators=[forms.validators.DataRequired()],
@@ -77,15 +93,17 @@ class TicketClientForm(forms.Form):
 
 @TicketEvent.forms('ticket_type')
 class TicketTypeForm(forms.Form):
+    """Form for a type of ticket."""
+
     title = forms.StringField(
         __("Title"),
         validators=[forms.validators.DataRequired()],
         filters=[forms.filters.strip()],
     )
-    ticket_events = QuerySelectMultipleField(
+    ticket_events = forms.QuerySelectMultipleField(
         __("Events"),
-        widget=ListWidget(),
-        option_widget=CheckboxInput(),
+        widget=forms.ListWidget(),
+        option_widget=forms.CheckboxInput(),
         allow_blank=True,
         get_label='title',
         query_factory=lambda: [],
@@ -94,7 +112,11 @@ class TicketTypeForm(forms.Form):
 
 @TicketParticipant.forms('main')
 class TicketParticipantForm(forms.Form):
+    """Form for a participant in a ticket."""
+
     __returns__ = ('user',)
+    user: Optional[User] = None
+    edit_parent: Project
 
     fullname = forms.StringField(
         __("Fullname"),
@@ -132,20 +154,21 @@ class TicketParticipantForm(forms.Form):
         filters=[forms.filters.strip()],
     )
     badge_printed = forms.BooleanField(__("Badge is printed"))
-    ticket_events = QuerySelectMultipleField(
+    ticket_events = forms.QuerySelectMultipleField(
         __("Events"),
-        widget=ListWidget(),
-        option_widget=CheckboxInput(),
+        widget=forms.ListWidget(),
+        option_widget=forms.CheckboxInput(),
         get_label='title',
         validators=[forms.validators.DataRequired("Select at least one event")],
     )
 
-    def set_queries(self):
-        if self.edit_parent is not None:
-            self.ticket_events.query = self.edit_parent.ticket_events
+    def set_queries(self) -> None:
+        """Prepare form for use."""
+        self.ticket_events.query = self.edit_parent.ticket_events
 
-    def validate(self):
-        result = super().validate()
+    def validate(self, *args, **kwargs) -> bool:
+        """Validate form."""
+        result = super().validate(*args, **kwargs)
         with db.session.no_autoflush:
             useremail = UserEmail.get(email=self.email.data)
             if useremail is not None:
@@ -157,6 +180,8 @@ class TicketParticipantForm(forms.Form):
 
 @TicketParticipant.forms('badge')
 class TicketParticipantBadgeForm(forms.Form):
+    """Form for participant badge status."""
+
     choices = [('', "Badge printing status"), ('t', "Printed"), ('f', "Not printed")]
     badge_printed = forms.SelectField(
         "", choices=[(val_title[0], val_title[1]) for val_title in choices]

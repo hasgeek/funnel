@@ -1,3 +1,5 @@
+"""Account notifications."""
+
 from __future__ import annotations
 
 from flask import render_template, url_for
@@ -47,6 +49,7 @@ class RenderAccountPasswordNotification(RenderNotification):
                 " your password or contact support at {email}."
             ).format(email=app.config['SITE_SUPPORT_EMAIL']),
             url=shortlink(
-                url_for('reset', _external=True, **self.tracking_tags('sms'))
+                url_for('reset', _external=True, **self.tracking_tags('sms')),
+                shorter=True,
             ),
         )

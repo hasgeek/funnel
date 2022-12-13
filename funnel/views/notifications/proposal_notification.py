@@ -1,3 +1,5 @@
+"""Proposal (submission) notifications."""
+
 from __future__ import annotations
 
 from flask import render_template
@@ -9,7 +11,7 @@ from ...models import (
     Proposal,
     ProposalReceivedNotification,
     ProposalSubmittedNotification,
-    db,
+    sa,
 )
 from ...transports.sms import TwoLineTemplate
 from ..helpers import shortlink
@@ -28,7 +30,9 @@ class RenderProposalReceivedNotification(RenderNotification):
 
     fragments_order_by = [Proposal.datetime.desc()]
     fragments_query_options = [
-        db.load_only(Proposal.name, Proposal.title, Proposal.project_id, Proposal.uuid)
+        sa.orm.load_only(
+            Proposal.name, Proposal.title, Proposal.project_id, Proposal.uuid
+        )
     ]
 
     def web(self):
@@ -41,7 +45,7 @@ class RenderProposalReceivedNotification(RenderNotification):
 
     def email_subject(self):
         return self.emoji_prefix + _("New submission in {project}: {proposal}").format(
-            proposal=self.proposal.title, project=self.project.joined_title()
+            proposal=self.proposal.title, project=self.project.joined_title
         )
 
     def email_content(self):
@@ -55,11 +59,12 @@ class RenderProposalReceivedNotification(RenderNotification):
     def sms(self) -> TwoLineTemplate:
         return TwoLineTemplate(
             text1=_("New submission in {project}:").format(
-                project=self.project.joined_title('>')
+                project=self.project.joined_title
             ),
             text2=self.proposal.title,
             url=shortlink(
-                self.proposal.url_for(_external=True, **self.tracking_tags('sms'))
+                self.proposal.url_for(_external=True, **self.tracking_tags('sms')),
+                shorter=True,
             ),
         )
 
@@ -83,7 +88,7 @@ class RenderProposalSubmittedNotification(RenderNotification):
 
     def email_subject(self):
         return self.emoji_prefix + _("Submission made to {project}: {proposal}").format(
-            project=self.proposal.project.joined_title(), proposal=self.proposal.title
+            project=self.proposal.project.joined_title, proposal=self.proposal.title
         )
 
     def email_content(self):
@@ -97,10 +102,11 @@ class RenderProposalSubmittedNotification(RenderNotification):
     def sms(self) -> TwoLineTemplate:
         return TwoLineTemplate(
             text1=_("Your submission has been received in {project}:").format(
-                project=self.proposal.project.joined_title('>')
+                project=self.proposal.project.joined_title
             ),
             text2=self.proposal.title,
             url=shortlink(
-                self.proposal.url_for(_external=True, **self.tracking_tags('sms'))
+                self.proposal.url_for(_external=True, **self.tracking_tags('sms')),
+                shorter=True,
             ),
         )

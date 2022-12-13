@@ -1,29 +1,30 @@
+"""Tests for UserEmail model."""
+
 import base58
 import pytest
 
-from funnel.models.email_address import email_blake2b160_hash
-import funnel.models as models
+from funnel import models
 
 from .test_db import TestDatabaseFixture
 
 
 class TestUserEmail(TestDatabaseFixture):
-    def test_useremail(self):
+    def test_useremail(self) -> None:
         """Test for verifying creation of UserEmail object."""
         oakley = self.fixtures.oakley
         oakley_new_email = models.user.UserEmail(user=oakley, email='oakley@batdog.ca')
         assert isinstance(oakley_new_email, models.user.UserEmail)
 
-    def test_useremail_get(self):
+    def test_useremail_get(self) -> None:
         """Test for `UserEmail.get` against email, blake2b160 digest and hex hash."""
         crusoe = self.fixtures.crusoe
         email = crusoe.email.email
-        blake2b160 = email_blake2b160_hash(email)
-        email_hash = base58.b58encode(blake2b160)
+        blake2b160 = models.email_address.email_blake2b160_hash(email)
+        email_hash = base58.b58encode(blake2b160).decode()
 
         # scenario 1: when no parameters are passed
         with pytest.raises(TypeError):
-            models.UserEmail.get()
+            models.UserEmail.get()  # type: ignore[call-overload]
 
         # scenario 2: when email is passed
         get_by_email = models.UserEmail.get(email=email)
@@ -40,12 +41,12 @@ class TestUserEmail(TestDatabaseFixture):
         assert isinstance(get_by_email_hash, models.UserEmail)
         assert get_by_email_hash.user == crusoe
 
-    def test_useremail_str(self):
+    def test_useremail_str(self) -> None:
         """Test for verifying email is returned in unicode format."""
         crusoe = self.fixtures.crusoe
         assert crusoe.email.email == str(crusoe.email)
 
-    def test_useremail_email(self):
+    def test_useremail_email(self) -> None:
         """Test for verifying UserEmail instance's email property."""
         oakley = self.fixtures.oakley
         email = 'oakley@batdogs.ca'

@@ -164,7 +164,6 @@ samp {
 
 .img-responsive {
   width: 100%;
-  height: 100%;
 }
 
 .overlay {
@@ -243,10 +242,6 @@ blockquote {
   padding: 0 0 0 $mui-grid-padding/2;
 }
 
-.language-placeholder {
-  display: none;
-}
-
 .footnote-ref {
   @extend .mui--text-caption;
   color: $mui-text-light;
@@ -308,7 +303,7 @@ blockquote {
 
   ul,
   ol {
-    padding-left: 30px;
+    padding-left: $mui-grid-padding;
   }
 
   img {

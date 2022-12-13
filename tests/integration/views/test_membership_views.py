@@ -1,6 +1,11 @@
-def test_create_new_member(client, new_user_owner, new_project):
-    with client.session_transaction() as session:
-        session['userid'] = new_user_owner.userid
+"""Test organization admin and project crew membership views."""
+
+import pytest
+
+
+@pytest.mark.usefixtures('app_context')
+def test_create_new_member(client, login, new_user_owner, new_project) -> None:
+    login.as_(new_user_owner)
     # GET request should return a form
     resp = client.get(new_project.url_for('new_member'))
     assert resp.status_code == 200

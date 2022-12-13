@@ -1,8 +1,10 @@
+"""Views for updates in a project."""
+
 from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, flash, redirect
+from flask import abort, flash
 
 from baseframe import _, forms
 from baseframe.forms import render_form
@@ -20,7 +22,8 @@ from coaster.views import (
 from .. import app
 from ..forms import SavedProjectForm, UpdateForm
 from ..models import NewUpdateNotification, Profile, Project, Update, db
-from ..typing import ReturnView
+from ..typing import ReturnRenderWith, ReturnView
+from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
 from .mixins import ProfileCheckMixin
 from .notification import dispatch_notification
@@ -31,30 +34,34 @@ from .project import ProjectViewMixin
 @route('/<profile>/<project>/updates')
 class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', methods=['GET'])
-    @render_with('project_updates.html.jinja2', json=True)
+    @render_with(html_in_json('project_updates.html.jinja2'))
     @requires_roles({'reader'})
-    def updates(self):
+    def updates(self) -> ReturnRenderWith:
+        project = self.obj.current_access(datasets=('primary', 'related'))
+        draft_updates = (
+            [
+                update.current_access(datasets=('without_parent', 'related'))
+                for update in self.obj.draft_updates
+            ]
+            if self.obj.features.post_update()
+            else []
+        )
+        published_updates = [
+            update.current_access(datasets=('without_parent', 'related'))
+            for update in self.obj.published_updates
+        ]
+        new_update = self.obj.url_for('new_update')
         return {
-            'project': self.obj.current_access(datasets=('primary', 'related')),
-            'draft_updates': (
-                [
-                    update.current_access(datasets=('primary', 'related'))
-                    for update in self.obj.draft_updates
-                ]
-                if self.obj.features.post_update()
-                else []
-            ),
-            'published_updates': [
-                update.current_access(datasets=('primary', 'related'))
-                for update in self.obj.published_updates
-            ],
-            'new_update': self.obj.url_for('new_update'),
+            'project': project,
+            'draft_updates': draft_updates,
+            'published_updates': published_updates,
+            'new_update': new_update,
         }
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
     @requires_roles({'editor'})
-    def new_update(self):
+    def new_update(self) -> ReturnView:
         form = UpdateForm()
 
         if form.validate_on_submit():
@@ -63,7 +70,7 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
             update.name = make_name(update.title)
             db.session.add(update)
             db.session.commit()
-            return redirect(update.url_for(), code=303)
+            return render_redirect(update.url_for())
 
         return render_form(
             form=form,
@@ -107,7 +114,7 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('', methods=['GET'])
     @render_with('update_details.html.jinja2')
-    def view(self):
+    def view(self) -> ReturnRenderWith:
         if not self.obj.current_roles.reader and self.obj.state.WITHDRAWN:
             abort(410)
         return {
@@ -118,9 +125,9 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
 
     @route('publish', methods=['POST'])
     @requires_roles({'editor'})
-    def publish(self):
+    def publish(self) -> ReturnView:
         if not self.obj.state.DRAFT:
-            return redirect(self.obj.url_for())
+            return render_redirect(self.obj.url_for())
         form = forms.Form()
         if form.validate_on_submit():
             first_publishing = self.obj.publish(actor=current_auth.user)
@@ -133,18 +140,17 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                 _("There was an error publishing this update. Reload and try again"),
                 'error',
             )
-        return redirect(self.obj.project.url_for('updates'))
+        return render_redirect(self.obj.project.url_for('updates'))
 
     @route('edit', methods=['GET', 'POST'])
-    @render_with(json=True)
     @requires_roles({'editor'})
-    def edit(self):
+    def edit(self) -> ReturnView:
         form = UpdateForm(obj=self.obj)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
             flash(_("The update has been edited"), 'success')
-            return redirect(self.obj.url_for(), code=303)
+            return render_redirect(self.obj.url_for())
 
         return render_form(
             form=form,
@@ -154,17 +160,16 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         )
 
     @route('delete', methods=['GET', 'POST'])
-    @render_with(json=True)
     @requires_sudo
     @requires_roles({'editor'})
-    def delete(self):
+    def delete(self) -> ReturnView:
         form = forms.Form()
 
         if form.validate_on_submit():
             self.obj.delete(actor=current_auth.user)
             db.session.commit()
             flash(_("The update has been deleted"), 'success')
-            return redirect(self.obj.project.url_for('updates'))
+            return render_redirect(self.obj.project.url_for('updates'))
 
         return render_form(
             form=form,

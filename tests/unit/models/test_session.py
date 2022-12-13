@@ -1,94 +1,98 @@
 """Test sessions."""
+# pylint: disable=possibly-unused-variable
+
 from datetime import datetime, timedelta
 from types import SimpleNamespace
 
-import sqlalchemy.exc
+from sqlalchemy.exc import IntegrityError
 
 from pytz import utc
 import pytest
 
-from funnel.models import Project, Session, db
+from funnel import models
 
 # TODO: Create a second parallel project and confirm they don't clash
 
 
-@pytest.fixture
+@pytest.fixture()
 def block_of_sessions(db_session, new_project):
 
     # DocType HTML5's schedule, but using UTC to simplify testing
     # https://hasgeek.com/doctypehtml5/bangalore/schedule
-    session1 = Session(
+    session1 = models.Session(
         project=new_project,
         start_at=utc.localize(datetime(2010, 10, 9, 9, 0)),
         end_at=utc.localize(datetime(2010, 10, 9, 10, 0)),
         title="Registration",
         is_break=True,
     )
-    session2 = Session(
+    session2 = models.Session(
         project=new_project,
         start_at=utc.localize(datetime(2010, 10, 9, 10, 0)),
         end_at=utc.localize(datetime(2010, 10, 9, 10, 15)),
         title="Introduction",
     )
-    session3 = Session(
+    session3 = models.Session(
         project=new_project,
         start_at=utc.localize(datetime(2010, 10, 9, 10, 15)),
         end_at=utc.localize(datetime(2010, 10, 9, 11, 15)),
         title="Business Case for HTML5",
     )
-    session4 = Session(
+    session4 = models.Session(
         project=new_project,
         start_at=utc.localize(datetime(2010, 10, 9, 11, 15)),
         end_at=utc.localize(datetime(2010, 10, 9, 12, 15)),
         title="New Ideas in HTML5",
     )
-    session5 = Session(
+    session5 = models.Session(
         project=new_project,
         start_at=utc.localize(datetime(2010, 10, 9, 12, 15)),
         end_at=utc.localize(datetime(2010, 10, 9, 12, 30)),
         title="Tea & Coffee Break",
         is_break=True,
     )
-    session6 = Session(
+    session6 = models.Session(
         project=new_project,
         start_at=utc.localize(datetime(2010, 10, 9, 12, 30)),
         end_at=utc.localize(datetime(2010, 10, 9, 13, 30)),
         title="CSS3 and Presentation",
     )
     # Deliberately leave out lunch break at session 7 to break the block
-    session8 = Session(
+    session8 = models.Session(
         project=new_project,
         start_at=utc.localize(datetime(2010, 10, 9, 14, 30)),
         end_at=utc.localize(datetime(2010, 10, 9, 14, 45)),
         title="Quiz",
     )
-    session9 = Session(
+    session9 = models.Session(
         project=new_project,
         start_at=utc.localize(datetime(2010, 10, 9, 14, 45)),
         end_at=utc.localize(datetime(2010, 10, 9, 15, 45)),
         title="Multimedia Kit",
     )
-    session10 = Session(
+    session10 = models.Session(
         project=new_project,
         start_at=utc.localize(datetime(2010, 10, 9, 15, 45)),
         end_at=utc.localize(datetime(2010, 10, 9, 16, 0)),
         title="Tea & Coffee Break",
         is_break=True,
     )
-    session11 = Session(
+    session11 = models.Session(
         project=new_project,
         start_at=utc.localize(datetime(2010, 10, 9, 16, 0)),
         end_at=utc.localize(datetime(2010, 10, 9, 17, 0)),
         title="Location, Offline and Mobile",
     )
-    session12 = Session(
+    session12 = models.Session(
         project=new_project,
         start_at=utc.localize(datetime(2010, 10, 9, 17, 0)),
         end_at=utc.localize(datetime(2010, 10, 9, 17, 15)),
         title="Closing Remarks",
     )
 
-    refresh_attrs = [attr for attr in locals().values() if isinstance(attr, db.Model)]
+    refresh_attrs = [
+        attr for attr in locals().values() if isinstance(attr, models.db.Model)
+    ]
     db_session.add_all(refresh_attrs)
     db_session.commit()
 
@@ -105,14 +109,15 @@ def find_projects(starting_times, within, gap):
     return {
         timestamp: found
         for timestamp, found in {
-            timestamp: Project.starting_at(timestamp, within, gap).all()
+            timestamp: models.Project.starting_at(timestamp, within, gap).all()
             for timestamp in starting_times
         }.items()
         if found
     }
 
 
-def test_project_starting_at(db_session, block_of_sessions):
+def test_project_starting_at(db_session, block_of_sessions) -> None:
+
     block_of_sessions.refresh()
 
     # Loop through the day at 5 min intervals from 8 AM, looking for start time
@@ -178,11 +183,11 @@ def test_project_starting_at(db_session, block_of_sessions):
     }
 
 
-def test_long_session_fail(db_session, new_project):
+def test_long_session_fail(db_session, new_project) -> None:
     """Sessions cannot exceed 24 hours."""
     # Less than 24 hours is fine:
     db_session.add(
-        Session(
+        models.Session(
             project=new_project,
             start_at=utc.localize(datetime(2010, 10, 9, 9, 0)),
             end_at=utc.localize(datetime(2010, 10, 10, 8, 59, 59)),
@@ -193,7 +198,7 @@ def test_long_session_fail(db_session, new_project):
 
     # Exactly 24 hours is fine:
     db_session.add(
-        Session(
+        models.Session(
             project=new_project,
             start_at=utc.localize(datetime(2010, 10, 9, 9, 0)),
             end_at=utc.localize(datetime(2010, 10, 10, 9, 0)),
@@ -204,12 +209,12 @@ def test_long_session_fail(db_session, new_project):
 
     # Anything above 24 hours will fail:
     db_session.add(
-        Session(
+        models.Session(
             project=new_project,
             start_at=utc.localize(datetime(2010, 10, 9, 9, 0)),
             end_at=utc.localize(datetime(2010, 10, 10, 9, 0, 1)),
             title="Longer than 24 hours by 1 second",
         )
     )
-    with pytest.raises(sqlalchemy.exc.IntegrityError):
+    with pytest.raises(IntegrityError):
         db_session.commit()

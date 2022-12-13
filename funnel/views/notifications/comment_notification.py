@@ -1,6 +1,8 @@
+"""̌Comment noficiations."""
+
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from flask import Markup, escape, render_template, url_for
 from werkzeug.utils import cached_property
@@ -12,6 +14,7 @@ from ...models import (
     CommentModeratorReport,
     CommentReplyNotification,
     CommentReportReceivedNotification,
+    DuckTypeUser,
     NewCommentNotification,
     User,
 )
@@ -52,7 +55,8 @@ class RenderCommentReportReceivedNotification(RenderNotification):
                     report=self.report.uuid_b58,
                     _external=True,
                     **self.tracking_tags('sms'),
-                )
+                ),
+                shorter=True,
             ),
         )
 
@@ -67,7 +71,7 @@ class CommentNotification(RenderNotification):
     emoji_prefix = "💬 "
 
     @property
-    def actor(self) -> User:
+    def actor(self) -> Union[User, DuckTypeUser]:
         """Actor who commented."""
         return self.comment.user
 
@@ -86,6 +90,7 @@ class CommentNotification(RenderNotification):
 
     @property
     def document_type(self) -> str:
+        """Return type of document this comment is on ('comment' for replies)."""
         if self.notification.document_type == 'comment':
             return 'comment'
         return self.document.parent_type
@@ -130,10 +135,8 @@ class CommentNotification(RenderNotification):
             comment = self.comment
         return Markup(self.activity_template_inline(comment)).format(
             actor=Markup(
-                '<a href="{url}">{name}</a>'.format(
-                    url=escape(self.actor.profile_url),
-                    name=escape(self.actor.pickername),
-                )
+                f'<a href="{escape(self.actor.profile_url)}">'
+                f'{escape(self.actor.pickername)}</a>'
             )
             if self.actor.profile_url
             else escape(self.actor.pickername),
@@ -160,6 +163,7 @@ class CommentNotification(RenderNotification):
         return OneLineTemplate(
             text1=self.activity_template_inline().format(actor=self.actor.pickername),
             url=shortlink(
-                self.comment.url_for(_external=True, **self.tracking_tags('sms'))
+                self.comment.url_for(_external=True, **self.tracking_tags('sms')),
+                shorter=True,
             ),
         )

@@ -1,7 +1,11 @@
+"""Project registration (RSVP) notifications."""
+
 from __future__ import annotations
 
+from typing import List, Optional
+
 from flask import render_template
-from flask_babelhg import get_locale
+from flask_babel import get_locale
 
 from baseframe import _, __
 from baseframe.filters import datetime_filter
@@ -19,9 +23,13 @@ from ..schedule import schedule_ical
 
 
 class RegistrationBase:
+    """Base class for project registration notifications."""
+
+    rsvp: Rsvp
     emoji_prefix = "🎟️ "
 
-    def email_attachments(self):
+    def email_attachments(self) -> Optional[List[email.EmailAttachment]]:
+        """Provide a calendar attachment."""
         # Attach a vCalendar of schedule, but only if there are sessions.
         # This will include the user as an attendee with RSVP=TRUE/FALSE.
         # The mimetype apparently changes how Gmail interprets the file. text/calendar
@@ -34,7 +42,9 @@ class RegistrationBase:
             session_count = self.rsvp.project.session_count
             return [
                 email.EmailAttachment(
-                    content=schedule_ical(self.rsvp.project, self.rsvp),
+                    content=schedule_ical(
+                        self.rsvp.project, self.rsvp, future_only=True
+                    ),
                     filename='event.ics',
                     mimetype=(
                         'text/calendar'
@@ -50,7 +60,6 @@ class RegistrationBase:
 class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotification):
     """Notify the participant when they register."""
 
-    rsvp: Rsvp
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you have registered for this project")
@@ -63,7 +72,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
 
     def email_subject(self):
         return self.emoji_prefix + _("Registration confirmation for {project}").format(
-            project=self.rsvp.project.joined_title()
+            project=self.rsvp.project.joined_title
         )
 
     def email_content(self):
@@ -71,7 +80,7 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
             'notifications/rsvp_yes_email.html.jinja2',
             view=self,
             jsonld=email.jsonld_view_action(
-                self.rsvp.project.joined_title(),
+                self.rsvp.project.joined_title,
                 self.rsvp.project.url_for(_external=True),
                 _("View project"),
             ),
@@ -86,12 +95,15 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
             template = _("You have registered for {project}")
         return OneLineTemplate(
             text1=template.format(
-                project=project.joined_title('>'),
+                project=project.joined_title,
                 datetime=datetime_filter(
                     next_at, self.datetime_format_sms, locale=get_locale()
                 ),
             ),
-            url=shortlink(project.url_for(_external=True, **self.tracking_tags('sms'))),
+            url=shortlink(
+                project.url_for(_external=True, **self.tracking_tags('sms')),
+                shorter=True,
+            ),
         )
 
 
@@ -99,7 +111,6 @@ class RenderRegistrationConfirmationNotification(RegistrationBase, RenderNotific
 class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotification):
     """Notify the participant when they cancel registration."""
 
-    rsvp: Rsvp
     aliases = {'document': 'rsvp'}
 
     reason = __("You are receiving this because you had registered for this project")
@@ -109,7 +120,7 @@ class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotific
 
     def email_subject(self):
         return self.emoji_prefix + _("Registration cancelled for {project}").format(
-            project=self.rsvp.project.joined_title()
+            project=self.rsvp.project.joined_title
         )
 
     def email_content(self):
@@ -117,7 +128,7 @@ class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotific
             'notifications/rsvp_no_email.html.jinja2',
             view=self,
             jsonld=email.jsonld_view_action(
-                self.rsvp.project.joined_title(),
+                self.rsvp.project.joined_title,
                 self.rsvp.project.url_for(_external=True),
                 _("View project"),
             ),
@@ -126,6 +137,6 @@ class RenderRegistrationCancellationNotification(RegistrationBase, RenderNotific
     def sms(self) -> MessageTemplate:
         return MessageTemplate(
             message=_("You have cancelled your registration for {project}").format(
-                project=self.rsvp.project.joined_title('>'),
+                project=self.rsvp.project.joined_title,
             ),
         )

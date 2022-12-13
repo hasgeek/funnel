@@ -1,26 +1,25 @@
+"""Proposal (submission) model, the primary content type within a project."""
+
 from __future__ import annotations
 
-from typing import Iterable, Optional, Set
+from typing import Iterable, Optional
 
 from baseframe import __
-from coaster.sqlalchemy import StateManager, with_roles
+from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from . import (
     BaseMixin,
     BaseScopedIdNameMixin,
-    MarkdownColumn,
+    Mapped,
+    MarkdownCompositeDocument,
     TSVectorType,
     UuidMixin,
     db,
+    sa,
 )
 from .comment import SET_TYPE, Commentset
-from .helpers import (
-    add_search_trigger,
-    markdown_content_options,
-    reopen,
-    visual_field_delimiter,
-)
+from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .reorder_mixin import ReorderMixin
@@ -36,26 +35,27 @@ _marker = object()
 
 
 class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
-    # Draft-state for future use, so people can save their proposals and submit only when ready
-    # If you add any new state, you need to add a migration to modify the check constraint
-    DRAFT = (0, 'draft', __("Draft"))
-    SUBMITTED = (1, 'submitted', __("Submitted"))
-    CONFIRMED = (2, 'confirmed', __("Confirmed"))
-    WAITLISTED = (3, 'waitlisted', __("Waitlisted"))
-    REJECTED = (5, 'rejected', __("Rejected"))
-    CANCELLED = (6, 'cancelled', __("Cancelled"))
-    AWAITING_DETAILS = (7, 'awaiting_details', __("Awaiting details"))
-    UNDER_EVALUATION = (8, 'under_evaluation', __("Under evaluation"))
-    DELETED = (11, 'deleted', __("Deleted"))
+    # Draft-state for future use, so people can save their proposals and submit only
+    # when ready. If you add any new state, you need to add a migration to modify the
+    # check constraint
+    DRAFT = (1, 'draft', __("Draft"))
+    SUBMITTED = (2, 'submitted', __("Submitted"))
+    CONFIRMED = (3, 'confirmed', __("Confirmed"))
+    WAITLISTED = (4, 'waitlisted', __("Waitlisted"))
+    REJECTED = (6, 'rejected', __("Rejected"))
+    CANCELLED = (7, 'cancelled', __("Cancelled"))
+    AWAITING_DETAILS = (8, 'awaiting_details', __("Awaiting details"))
+    UNDER_EVALUATION = (9, 'under_evaluation', __("Under evaluation"))
+    DELETED = (12, 'deleted', __("Deleted"))
 
     # These 3 are not in the editorial workflow anymore - Feb 23 2018
-    SHORTLISTED = (4, 'shortlisted', __("Shortlisted"))
+    SHORTLISTED = (5, 'shortlisted', __("Shortlisted"))
     SHORTLISTED_FOR_REHEARSAL = (
-        9,
+        10,
         'shortlisted_for_rehearsal',
         __("Shortlisted for rehearsal"),
     )
-    REHEARSAL = (10, 'rehearsal', __("Rehearsal ongoing"))
+    REHEARSAL = (11, 'rehearsal', __("Rehearsal ongoing"))
 
     # Groups
     PUBLIC = {  # States visible to the public
@@ -108,31 +108,37 @@ class PROPOSAL_STATE(LabeledEnum):  # noqa: N801
 # --- Models ------------------------------------------------------------------
 
 
-class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Model):
+class Proposal(  # type: ignore[misc]
+    UuidMixin,
+    BaseScopedIdNameMixin,
+    VideoMixin,
+    ReorderMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     __tablename__ = 'proposal'
 
-    user_id = db.Column(None, db.ForeignKey('user.id'), nullable=False)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             User,
             primaryjoin=user_id == User.id,
-            backref=db.backref('created_proposals', cascade='all', lazy='dynamic'),
+            backref=sa.orm.backref('created_proposals', cascade='all', lazy='dynamic'),
         ),
         grants={'creator', 'participant'},
     )
-    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = with_roles(
-        db.relationship(
+    project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
+    project: sa.orm.relationship[Project] = with_roles(
+        sa.orm.relationship(
             Project,
             primaryjoin=project_id == Project.id,
-            backref=db.backref(
+            backref=sa.orm.backref(
                 'proposals', cascade='all', lazy='dynamic', order_by='Proposal.url_id'
             ),
         ),
         grants_via={None: project_child_role_map},
     )
-    parent_id = db.synonym('project_id')
-    parent = db.synonym('project')
+    parent_id = sa.orm.synonym('project_id')
+    parent = sa.orm.synonym('project')
 
     #: Reuse the `url_id` column from BaseScopedIdNameMixin as a sorting order column.
     #: `url_id` was a public number on talkfunnel.com, but is private on hasgeek.com.
@@ -142,22 +148,24 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     #: to all proposals, including drafts. A user-facing sequence will have gaps.
     #: Should numbering be required in the product, see `Update.number` for a better
     #: implementation.
-    seq = db.synonym('url_id')
+    seq: Mapped[int] = sa.orm.synonym('url_id')
 
     # TODO: Stand-in for `submitted_at` until proposals have a workflow-driven datetime
-    datetime = db.synonym('created_at')
+    datetime = sa.orm.synonym('created_at')
 
-    _state = db.Column(
+    _state = sa.Column(
         'state',
-        db.Integer,
+        sa.Integer,
         StateManager.check_constraint('state', PROPOSAL_STATE),
         default=PROPOSAL_STATE.SUBMITTED,
         nullable=False,
     )
     state = StateManager('_state', PROPOSAL_STATE, doc="Current state of the proposal")
 
-    commentset_id = db.Column(None, db.ForeignKey('commentset.id'), nullable=False)
-    commentset = db.relationship(
+    commentset_id = sa.Column(
+        sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
+    )
+    commentset = sa.orm.relationship(
         Commentset,
         uselist=False,
         lazy='joined',
@@ -166,18 +174,16 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         back_populates='proposal',
     )
 
-    body = MarkdownColumn(
-        'body', nullable=False, default='', options=markdown_content_options
-    )
-    description = db.Column(db.Unicode, nullable=False, default='')
-    custom_description = db.Column(db.Boolean, nullable=False, default=False)
-    template = db.Column(db.Boolean, nullable=False, default=False)
-    featured = db.Column(db.Boolean, nullable=False, default=False)
+    body = MarkdownCompositeDocument.create('body', nullable=False, default='')
+    description = sa.Column(sa.Unicode, nullable=False, default='')
+    custom_description = sa.Column(sa.Boolean, nullable=False, default=False)
+    template = sa.Column(sa.Boolean, nullable=False, default=False)
+    featured = sa.Column(sa.Boolean, nullable=False, default=False)
 
-    edited_at = db.Column(db.TIMESTAMP(timezone=True), nullable=True)
+    edited_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
 
-    search_vector = db.deferred(
-        db.Column(
+    search_vector = sa.orm.deferred(
+        sa.Column(
             TSVectorType(
                 'title',
                 'description',
@@ -188,7 +194,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
                     'body_text': 'B',
                 },
                 regconfig='english',
-                hltext=lambda: db.func.concat_ws(
+                hltext=lambda: sa.func.concat_ws(
                     visual_field_delimiter,
                     Proposal.title,
                     Proposal.body_html,
@@ -199,10 +205,10 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     )
 
     __table_args__ = (
-        db.UniqueConstraint(
+        sa.UniqueConstraint(
             'project_id', 'url_id', name='proposal_project_id_url_id_key'
         ),
-        db.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
+        sa.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
     )
 
     __roles__ = {
@@ -219,7 +225,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
                 'project',
                 'datetime',
             },
-            'call': {'url_for', 'state', 'commentset', 'views'},
+            'call': {'url_for', 'state', 'commentset', 'views', 'getprev', 'getnext'},
         },
         'project_editor': {
             'call': {'reorder_item', 'reorder_before', 'reorder_after'},
@@ -259,10 +265,11 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             ProposalMembership(proposal=self, user=self.user, granted_by=self.user)
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Represent :class:`Proposal` as a string."""
-        return '<Proposal "{proposal}" in project "{project}" by "{user}">'.format(
-            proposal=self.title, project=self.project.title, user=self.user.fullname
+        return (
+            f'<Proposal "{self.title}" in project "{self.project.title}"'
+            f' by "{self.user.fullname}">'
         )
 
     # State transitions
@@ -273,7 +280,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         label=('scheduled', __("Confirmed &amp; scheduled")),
     )
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.AWAITING_DETAILS,
         state.DRAFT,
@@ -284,7 +291,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def withdraw(self):
         pass
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.DRAFT,
         state.SUBMITTED,
@@ -297,7 +304,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
 
     # TODO: remove project_editor once ProposalMembership UI
     # has been implemented
-    @with_roles(call={'project_editor'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.UNDO_TO_SUBMITTED,
         state.SUBMITTED,
@@ -308,7 +315,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def undo_to_submitted(self):
         pass
 
-    @with_roles(call={'project_editor'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.CONFIRMABLE,
         state.CONFIRMED,
@@ -319,7 +326,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def confirm(self):
         pass
 
-    @with_roles(call={'project_editor'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.CONFIRMED,
         state.SUBMITTED,
@@ -330,7 +337,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def unconfirm(self):
         pass
 
-    @with_roles(call={'project_editor'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.WAITLISTABLE,
         state.WAITLISTED,
@@ -341,7 +348,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def waitlist(self):
         pass
 
-    @with_roles(call={'project_editor'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.REJECTABLE,
         state.REJECTED,
@@ -352,7 +359,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def reject(self):
         pass
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.CANCELLABLE,
         state.CANCELLED,
@@ -363,7 +370,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def cancel(self):
         pass
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.CANCELLED,
         state.SUBMITTED,
@@ -374,7 +381,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def undo_cancel(self):
         pass
 
-    @with_roles(call={'project_editor'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.SUBMITTED,
         state.AWAITING_DETAILS,
@@ -385,7 +392,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def awaiting_details(self):
         pass
 
-    @with_roles(call={'project_editor'})
+    @with_roles(call={'project_editor'})  # skipcq: PTC-W0049
     @state.transition(
         state.EVALUATEABLE,
         state.UNDER_EVALUATION,
@@ -396,7 +403,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def under_evaluation(self):
         pass
 
-    @with_roles(call={'creator'})
+    @with_roles(call={'creator'})  # skipcq: PTC-W0049
     @state.transition(
         state.DELETABLE,
         state.DELETED,
@@ -411,7 +418,7 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
     def move_to(self, project):
         """Move to a new project and reset :attr:`url_id`."""
         self.project = project
-        self.url_id = None
+        self.url_id = None  # pylint: disable=attribute-defined-outside-init
         self.make_id()
 
     def update_description(self) -> None:
@@ -442,7 +449,9 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
             .first()
         )
 
-    def roles_for(self, actor: Optional[User], anchors: Iterable = ()) -> Set:
+    def roles_for(
+        self, actor: Optional[User] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if self.state.DRAFT:
             if 'reader' in roles:
@@ -461,28 +470,29 @@ class Proposal(UuidMixin, BaseScopedIdNameMixin, VideoMixin, ReorderMixin, db.Mo
         return cls.query.join(Project).filter(Project.state.PUBLISHED, cls.state.PUBLIC)
 
     @classmethod
-    def get(cls, uuid_b58):
+    def get(cls, uuid_b58):  # pylint: disable=arguments-differ
+        """Get a proposal by its public Base58 id."""
         return cls.query.filter_by(uuid_b58=uuid_b58).one_or_none()
 
 
 add_search_trigger(Proposal, 'search_vector')
 
 
-class ProposalSuuidRedirect(BaseMixin, db.Model):
+class ProposalSuuidRedirect(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Holds Proposal SUUIDs from before when they were deprecated."""
 
     __tablename__ = 'proposal_suuid_redirect'
 
-    suuid = db.Column(db.Unicode(22), nullable=False, index=True)
-    proposal_id = db.Column(
-        None, db.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
+    suuid = sa.Column(sa.Unicode(22), nullable=False, index=True)
+    proposal_id = sa.Column(
+        sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
-    proposal = db.relationship(Proposal)
+    proposal = sa.orm.relationship(Proposal)
 
 
 @reopen(Commentset)
 class __Commentset:
-    proposal = db.relationship(Proposal, uselist=False, back_populates='commentset')
+    proposal = sa.orm.relationship(Proposal, uselist=False, back_populates='commentset')
 
 
 @reopen(Project)
@@ -493,8 +503,7 @@ class __Project:
             return Proposal.query.filter(
                 Proposal.project_id.in_([self.id] + [s.id for s in self.subprojects])
             )
-        else:
-            return self.proposals
+        return self.proposals
 
     @property
     def proposals_by_state(self):
@@ -507,7 +516,7 @@ class __Project:
         return Proposal.state.group(
             basequery.filter(
                 ~(Proposal.state.DRAFT), ~(Proposal.state.DELETED)
-            ).order_by(db.desc('created_at'))
+            ).order_by(sa.desc('created_at'))
         )
 
     @property
@@ -520,24 +529,24 @@ class __Project:
             basequery = Proposal.query.filter_by(project=self)
         return {
             'confirmed': basequery.filter(Proposal.state.CONFIRMED)
-            .order_by(db.desc('created_at'))
+            .order_by(sa.desc('created_at'))
             .all(),
             'unconfirmed': basequery.filter(
                 ~(Proposal.state.CONFIRMED),
                 ~(Proposal.state.DRAFT),
                 ~(Proposal.state.DELETED),
             )
-            .order_by(db.desc('created_at'))
+            .order_by(sa.desc('created_at'))
             .all(),
         }
 
     # Whether the project has any featured proposals. Returns `None` instead of
     # a boolean if the project does not have any proposal.
-    _has_featured_proposals = db.column_property(
-        db.exists()
+    _has_featured_proposals = sa.orm.column_property(
+        sa.exists()
         .where(Proposal.project_id == Project.id)
         .where(Proposal.featured.is_(True))
-        .correlate_except(Proposal),
+        .correlate_except(Proposal),  # type: ignore[arg-type]
         deferred=True,
     )
 
@@ -549,4 +558,5 @@ class __Project:
 
 
 # Tail imports
+# pylint: disable=wrong-import-position
 from .proposal_membership import ProposalMembership  # isort:skip

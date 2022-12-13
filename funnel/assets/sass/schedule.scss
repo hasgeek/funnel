@@ -25,7 +25,7 @@
           background-color: $mui-bg-color-primary;
           width: 100%;
           padding: $mui-grid-padding 0;
-          border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+          border-bottom: 1px solid $mui-divider-color;
           word-break: break-word;
 
           .schedule__row__column__content__title {
@@ -104,7 +104,7 @@
       border: none;
       display: flex;
       background: $mui-bg-color-primary;
-      border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+      border-bottom: 1px solid $mui-divider-color;
 
       .schedule__row__column--header {
         display: flex !important;
@@ -114,7 +114,7 @@
         justify-content: center;
         background-color: $mui-bg-color-primary;
         background-image: none !important;
-        border-bottom: 2px solid rgba(132, 146, 166, 0.3);
+        border-bottom: 2px solid $mui-divider-color;
         min-height: 50px;
         min-width: 100px;
         width: 100% !important;
@@ -164,16 +164,13 @@
   .schedule-grid {
     .schedule {
       margin: $mui-grid-padding-double 0;
-      .schedule__date {
-        padding-left: 0;
-      }
       .schedule__table {
         overflow: auto;
         .schedule__row {
           overflow: auto;
           .schedule__row__column {
             position: relative;
-            background-image: image-url('schedule-box-background.png');
+            background-image: url('../../img/schedule-box-background.png');
             background-size: 20px 10px;
             min-width: 200px;
 
@@ -185,11 +182,12 @@
               height: 100%;
               overflow: scroll;
               border: 0;
-              border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+              border-bottom: 1px solid $mui-divider-color;
             }
             .schedule__row__column__content {
               width: calc(100% - 1px);
               height: 100%;
+              padding: $mui-grid-padding $mui-grid-padding/2;
               .schedule__row__column__content__title__duration {
                 top: 205px;
               }
@@ -221,7 +219,7 @@
           overflow: auto;
 
           .schedule__row__column--header {
-            outline: 1px solid rgba(132, 146, 166, 0.3);
+            outline: 1px solid $mui-divider-color;
             border: none !important;
           }
           .schedule__row__column--time--header {
@@ -230,7 +228,7 @@
           }
         }
         .schedule__row--calendar {
-          border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+          border-bottom: 1px solid $mui-divider-color;
           overflow: visible;
           .schedule__row__column {
             .schedule__row__column__content {
@@ -271,15 +269,20 @@
 .jquery-modal.blocker.current .session-modal.session-modal--nopadding {
   padding: 0;
   width: 100%;
+  min-height: 100%;
 
   .modal__header {
     padding: 0 $mui-grid-padding $mui-grid-padding/4;
-    border-bottom: 1px solid rgba(132, 146, 166, 0.3);
+    border-bottom: 1px solid $mui-divider-color;
 
     .session-modal__title {
       max-width: calc(100% - 20px);
       margin: $mui-grid-padding/2 0 $mui-grid-padding/2;
       position: static;
+    }
+
+    .modal__header__heading {
+      max-width: calc(100% - 40px);
     }
 
     .modal__header__title {
@@ -427,4 +430,95 @@ body > .proposal-box.ui-draggable {
 
 .schedule-settings {
   margin-top: 10px;
+}
+
+@media print {
+  .header,
+  .project-banner,
+  .sub-navbar-container,
+  .mobile-nav,
+  .admin_panel,
+  .tabs-wrapper,
+  .footer {
+    display: none;
+  }
+  .page-content,
+  .content-wrapper {
+    padding: 0 !important;
+  }
+  .mui-container {
+    max-width: 100% !important;
+  }
+  .schedule {
+    margin: 5pt 10pt !important;
+  }
+  .schedule__date {
+    font-size: 6pt !important;
+    margin: 0 !important;
+    text-align: left;
+    line-height: 1;
+    padding-left: 0 !important;
+  }
+  .schedule__table {
+    margin: 5pt 0;
+    background-color: #fff !important;
+    page-break-after: always;
+  }
+  .schedule__row--sticky {
+    position: relative !important;
+    top: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  .schedule__row {
+    border-bottom: 1pt solid $mui-divider-color !important;
+  }
+  .schedule__row.schedule__row--hide {
+    border-bottom: none !important;
+  }
+  .schedule__row__column--header {
+    min-height: auto !important;
+    padding: 0 !important;
+    font-size: 6pt !important;
+    border: none !important;
+    outline: none !important;
+  }
+  .schedule__row__column {
+    display: flex !important;
+  }
+  .schedule__row__column--talks {
+    max-height: 10%;
+  }
+  .schedule__row__column__content {
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+  }
+  .schedule__row__column__content__title {
+    width: 100% !important;
+  }
+  .schedule__row__column__content__title__duration {
+    position: relative !important;
+    top: 0 !important;
+    background-color: transparent !important;
+    font-size: 5pt !important;
+    float: none !important;
+    padding: 0 !important;
+    margin: 0 0 0.2pt !important;
+    line-height: 1 !important;
+  }
+  .schedule__row__column__content__title__heading,
+  .schedule__row__column__content__title__speaker {
+    font-size: 6pt !important;
+    font-weight: normal !important;
+    line-height: 1.1 !important;
+    margin: 0 0 0.2pt;
+  }
+  .schedule__row__column__content__description {
+    display: none !important;
+  }
+}
+@page {
+  margin: 0;
+  padding: 0;
 }

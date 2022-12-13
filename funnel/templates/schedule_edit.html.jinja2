@@ -1,29 +1,26 @@
 {% extends "layout.html.jinja2" %}
 {% set title_suffix = project.title %}
-{% block title %}{% trans %}Schedule{% endtrans %}{% endblock %}
+{% block title %}{% trans %}Schedule{% endtrans %}{% endblock title %}
 
 {% block pageheaders %}
-  {% assets "css_codemirrormarkdown" -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets -%}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/schedule.scss') }}" />
   {% assets 'css_fullcalendar' -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
   {%- endassets %}
-{% endblock %}
+{% endblock pageheaders %}
 
 {% block top_title %}
   <h1 class="mui--text-headline"><a href="{{ project.url_for() }}" data-cy="project-page">{{ project.title }}</a></h1>
-{% endblock %}
+{% endblock top_title %}
 
 {% block basecontent %}
   <div class="page-content">
     <div class="grid">
-      <div class="grid__col-xs-12  grid__col-sm-9 calendar-wrapper">
+      <div class="grid__col-xs-12 grid__col-sm-9 calendar-wrapper">
         <div class="mui-form__controls datepicker-wrapper">
           <div class="mui-textfield mui--pull-left">
             <label>{% trans %}Select date{% endtrans %}</label>
-            <input type="date" class="datetime-date" id="select-date" placeholder="yyyy-mm-dd" value="">
+            <input type="date" class="datetime-date" id="select-date" placeholder="yyyy-mm-dd" value="" />
           </div>
           <p class="mui--text-subhead mui--pull-left datepicker-wrapper__tz">{{ timezone }}</p>
         </div>
@@ -31,12 +28,12 @@
           <p class="calendar-wrapper__heading mui--text-title">{% trans %}Select a date to add sessions{% endtrans %}</p>
         </div>
       </div>
-      <div id="proposals-tab" class="grid__col-xs-12  grid__col-sm-3">
-        <ul class="tab-container">
-          <li class="tab-container__tab mui--text-subhead"><a href="#list" data-toggle="tab" data-cy-tab="proposals">{% trans %}Unscheduled submissions{% endtrans %}</a></li>
-          <li class="tab-container__tab mui--text-subhead"><a href="#settings" data-toggle="tab" data-cy-tab="settings">{% trans %}Settings{% endtrans %}</a></li>
+      <div id="proposals-tab" class="grid__col-xs-12 grid__col-sm-3">
+        <ul class="mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps">
+          <li class="mui--text-subhead mui--is-active" role="presentation"><a href="#" onclick="return false;" data-mui-toggle="tab" data-mui-controls="list" data-cy-tab="proposals">{% trans %}Unscheduled submissions{% endtrans %}</a></li>
+          <li class="mui--text-subhead" role="presentation"><a href="#" onclick="return false;" data-mui-toggle="tab" data-mui-controls="settings" data-cy-tab="settings">{% trans %}Settings{% endtrans %}</a></li>
         </ul>
-        <div id="list" class="schedule-settings">
+        <div id="list" class="mui-tabs__pane mui--is-active schedule-settings">
           {%- for proposal in proposals['unscheduled'] %}
             <div class="js-unscheduled proposal-box" data-modal-url="{{ proposal.modal_url }}">
               {%- for member in proposal.memberships %}{% if not member.is_uncredited %}
@@ -56,28 +53,28 @@
             </div>
           {%- endfor %}
         </div>
-        <div id="settings" class="schedule-settings">
-          <form id="room_colors" action="javascript:void(0)" method="POST" accept-charset="UTF-8">
+        <div id="settings" class="mui-tabs__pane schedule-settings">
+          <form id="room_colors" action="{{ project.url_for('update_venue_settings') }}" method="post" accept-charset="UTF-8">
             <div id="venue_sortable" class="sortable" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
             {% for venue in venues %}
               <div class="ui-draggable-box ui-draggable-box--header">
-                <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input" data-venue="{{ venue.uuid_b58 }}">
+                <input name="venue-seq" value="{{ venue.seq }}" readonly class="seq-input" data-venue="{{ venue.uuid_b58 }}" />
                 <div class="collapsible">
                   <div class="collapsible__header" data-cy-collapsible="open">
-                    <input type="hidden" name="uuid" value="{{ venue.uuid_b58 }}">
-                    {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class='mui--text-light drag-icon drag-handle') }}
+                    <input type="hidden" name="uuid" value="{{ venue.uuid_b58 }}" />
+                    {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class="mui--text-light drag-icon drag-handle") }}
                     <span class="mui--text-subhead">{{ venue.title }}</span>
-                    {{ faicon(icon='angle-down', icon_size='caption', css_class='mui--text-light collapsible__icon collapsible__icon--disable') }}
-                    {{ faicon(icon='angle-up', icon_size='caption', css_class='mui--text-light collapsible__icon collapsible__icon--disable mui--hide') }}
+                    {{ faicon(icon='angle-down', icon_size='caption', css_class="mui--text-light collapsible__icon collapsible__icon--disable") }}
+                    {{ faicon(icon='angle-up', icon_size='caption', css_class="mui--text-light collapsible__icon collapsible__icon--disable mui--hide") }}
                   </div>
                   <div id="rooms_sortable" class="sortable collapsible__body collapsible__body--disable" data-drag-placeholder='ui-box-placeholder'>
                     {% for room in venue.rooms %}
                       <p class="ui-draggable-box" draggable="true">
-                        {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class='mui--text-light drag-icon') }}
-                        <input name="room-seq" value="{{ room.seq }}" readonly class="seq-input" data-room="{{ room.uuid_b58 }}">
+                        {{ faicon(icon='grip-vertical', icon_size='caption', baseline=false, css_class="mui--text-light drag-icon") }}
+                        <input name="room-seq" value="{{ room.seq }}" readonly class="seq-input" data-room="{{ room.uuid_b58 }}" />
                         <label for="room-color-input-{{ room.uuid_b58 }}" class="h5">
-                          <input type="hidden" name="room-uuidb58" value="{{ room.uuid_b58 }}" data-venue="{{ venue.uuid_b58 }}">
-                          {{ room.title }} <input type="text" name="color" id="room-color-input-{{ room.uuid_b58 }}" value="{{ room.bgcolor }}" data-room-id="{{ room.scoped_name }}" data-color="{{ room.bgcolor }}" data-room="{{ room.uuid_b58 }}">
+                          <input type="hidden" name="room-uuidb58" value="{{ room.uuid_b58 }}" data-venue="{{ venue.uuid_b58 }}" />
+                          {{ room.title }} <input type="text" name="color" id="room-color-input-{{ room.uuid_b58 }}" value="{{ room.bgcolor }}" data-room-id="{{ room.scoped_name }}" data-color="{{ room.bgcolor }}" data-room="{{ room.uuid_b58 }}" />
                         </label>
                       </p>
                     {% endfor %}
@@ -87,8 +84,8 @@
             {% endfor %}
             </div>
             {% if venues -%}
-              <input type="submit" value="{% trans %}Save{% endtrans %}" class="mui-btn mui-btn--small mui-btn--primary">
-              <input type="reset" value="{% trans %}Revert{% endtrans %}" class="mui-btn mui-btn--small mui-btn--accent">
+              <input type="submit" value="{% trans %}Save{% endtrans %}" class="mui-btn mui-btn--small mui-btn--primary" />
+              <input type="reset" value="{% trans %}Revert{% endtrans %}" class="mui-btn mui-btn--small mui-btn--accent" />
             {%- endif %}
           </form>
         </div>
@@ -96,28 +93,23 @@
     </div>
     <div id="popup" class="modal modal-form session-modal" role="dialog" aria-modal="true" tabindex="-1">
       <div class="modal__header">
-        <a class="modal__close mui--text-dark" href="javascript:void(0);"  data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+        <a class="modal__close mui--text-dark" href="#" onclick="return false;" data-target="close edit session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
         <h3 class="js-modal-title mui--text-headline session-modal__title">{{ session.title }}</h3>
       </div>
-      <hr class="mui-divider mui-divider--custom">
+      <hr class="mui-divider mui-divider--custom" />
       <div class="js-modal-inner"></div>
       <div class="modal__footer">
         <button type="button" class="mui-btn mui-btn--small mui-btn--primary save" id="session-save">{% trans %}Save session{% endtrans %}</button><span class="loading mui--hide"></span>
       </div>
     </div>
   </div>
-{% endblock %}
+{% endblock basecontent %}
 
 {% block pagescripts %}
-  {% assets "js_codemirrormarkdown" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
-{% endblock %}
+{% endblock pagescripts %}
+
 {% block footerscripts %}
   {% assets "js_fullcalendar" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
-  {% assets "js_jqueryeasytabs" -%}
     <script type="text/javascript" src="{{ ASSET_URL }}"></script>
   {%- endassets -%}
   {% assets "js_schedules" -%}
@@ -136,4 +128,4 @@
       var CALENDAR_SLOT_MINUTES = 5;
     </script>
   {%- endassets -%}
-{% endblock %}
+{% endblock footerscripts %}

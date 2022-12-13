@@ -1,10 +1,12 @@
-import funnel.models as models
+"""Tests for AuthClientUserPermissions model."""
+
+from funnel import models
 
 from .test_db import TestDatabaseFixture
 
 
 class TestUserClientPermissions(TestDatabaseFixture):
-    def test_userclientpermissions(self):
+    def test_userclientpermissions(self) -> None:
         """Test for verifying creation of UserClientPermissions instance."""
         gustav = models.User(username='gustav')
         auth_client = self.fixtures.auth_client
@@ -16,7 +18,7 @@ class TestUserClientPermissions(TestDatabaseFixture):
         self.db_session.commit()
         assert isinstance(result, models.AuthClientUserPermissions)
 
-    def test_userclientpermissions_pickername(self):
+    def test_userclientpermissions_pickername(self) -> None:
         """Test for UserClientPermissions' pickername."""
         finnick = models.User(username='finnick', fullname="Finnick Odair")
         district4 = models.AuthClient(title="District 4")
@@ -26,20 +28,10 @@ class TestUserClientPermissions(TestDatabaseFixture):
         )
         assert result.pickername == finnick.pickername
 
-    def test_userclientpermissions_buid(self):
-        """Test for UserClientPermissions' buid."""
-        beetee = models.User(username='beetee', fullname="Beetee")
-        district3 = models.AuthClient(title='District 3')
-        access_permissions = 'siteadmin'
-        result = models.AuthClientUserPermissions(
-            user=beetee, auth_client=district3, access_permissions=access_permissions
-        )
-        assert result.buid == beetee.buid
-
 
 def test_userclientpermissions_migrate_user_move(
     db_session, user_twoflower, user_rincewind, client_hex
-):
+) -> None:
     """Migrating client permissions from old user to new user."""
     # Scenario 1: Twoflower has a permission and it is transferred to Rincewind
     userperms = models.AuthClientUserPermissions(
@@ -56,7 +48,7 @@ def test_userclientpermissions_migrate_user_move(
 
 def test_userclientpermissions_migrate_user_retain(
     db_session, user_twoflower, user_rincewind, client_hex
-):
+) -> None:
     """Retaining new user's client permissions when migrating assets from old user."""
     # Scenario 2: Rincewind has a permission, and keeps it after merging Twoflower
     userperms = models.AuthClientUserPermissions(
@@ -73,7 +65,7 @@ def test_userclientpermissions_migrate_user_retain(
 
 def test_userclientpermissions_migrate_user_merge(
     db_session, user_twoflower, user_rincewind, client_hex
-):
+) -> None:
     """Merging permissions granted to two users when migrating from one to other."""
     # Scenario 3: Twoflower and Rincewind each have permissions, and they get merged
     userperms1 = models.AuthClientUserPermissions(

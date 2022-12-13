@@ -4,7 +4,7 @@
   <div class="sortable collaborator" data-drag-placeholder="collaborator-placeholder" draggable="true" id="{{ member.uuid_b58 }}">
     <div class="flex-wrapper flex-wrapper flex-wrapper--center flex-wrapper--space-between">
       <div class="flex-wrapper flex-wrapper--center">
-        {{ faicon(icon='grip-vertical', baseline=false, css_class='drag-handle margin-right') }}
+        {{ faicon(icon='grip-vertical', baseline=false, css_class="drag-handle margin-right") }}
         <div class="user">
           <div class="user__box">
             {{ useravatar(member.user, add_profile_link=false) }}
@@ -18,16 +18,16 @@
       <div class="flex-wrapper flex-wrapper modal-form__new-separator">
         <span class="mui--d-inlineblock left-padding margin-right">
           {%- if not member.is_uncredited %}
-            {{ faicon(icon='eye', icon_size='caption', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Visible{% endtrans %}
+            {{ faicon(icon='eye', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Visible{% endtrans %}
           {% else %}
-            {{ faicon(icon='eye-slash', icon_size='caption', baseline=true, css_class='mui--text-light fa-icon--right-margin') }}{% trans %}Hidden{% endtrans %}
+            {{ faicon(icon='eye-slash', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Hidden{% endtrans %}
           {% endif %}
         </span>
         <div class="margin-left mui-dropdown mui--d-inlineblock">
           <button class="mui-btn mui-btn--nostyle mui--align-middle" data-mui-toggle="dropdown" data-cy="collaborator-menu" aria-label="{% trans %}Collaborator menu{% endtrans %}" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</button>
-          <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="submission-collaborator-menu">
-            <li><a href="{{ member.url_for('edit') }}" rel="modal:open" aria-label="Add collaborator" data-ga="Edit collaborator" data-cy="edit-collaborator" role="button" aria-haspopup="true">{% trans %}Change role{% endtrans %}</a></li>
-            <li><a class="js-remove-collaborator" href="{{ member.url_for('remove') }}" rel="modal:open" aria-label="Remove collaborator" data-ga="Remove collaborator" data-cy="remove-collaborator" role="button" aria-haspopup="true" title="{{ member.user.pickername }}">{% trans %}Remove{% endtrans %}</a></li>
+          <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu">
+            <li><a href="{{ member.url_for('edit') }}" rel="modal:open" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Edit collaborator" data-cy="edit-collaborator" role="button" aria-haspopup="true">{% trans %}Change role{% endtrans %}</a></li>
+            <li><a class="js-remove-collaborator" data-href="{{ member.url_for('remove') }}" href="#" onclick="return false;" aria-label="{% trans %}Remove collaborator{% endtrans %}" data-ga="Remove collaborator" data-cy="remove-collaborator" role="button" aria-haspopup="true" title="{{ member.user.pickername }}">{% trans %}Remove{% endtrans %}</a></li>
           </ul>
         </div>
       </div>

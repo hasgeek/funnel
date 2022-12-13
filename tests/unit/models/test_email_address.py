@@ -1,45 +1,42 @@
+"""Tests for EmailAddress model."""
+# pylint: disable=possibly-unused-variable
+
 from types import SimpleNamespace
 
 from sqlalchemy.exc import IntegrityError
+import sqlalchemy as sa
 
 import pytest
 
-from funnel.models import BaseMixin, db
-from funnel.models.email_address import (
-    EmailAddress,
-    EmailAddressBlockedError,
-    EmailAddressInUseError,
-    EmailAddressMixin,
-    canonical_email_representation,
-    email_blake2b160_hash,
-    email_normalized,
-)
-from funnel.signals import emailaddress_refcount_dropping
+from funnel import models
 
 # Fixture used across tests.
 hash_map = {
-    'example@example.com': b'X5Q\xc1<\xceE<\x05\x9c\xa7\x0f\xee{\xcd\xc2\xe5\xbd\x82\xa1',
-    'example+extra@example.com': b'\xcfi\xf2\xdfph\xc0\x81\xfb\xe8\\\xa6\xa5\xf1\xfb:\xbb\xe4\x88\xde',
+    'example@example.com': b'X5Q\xc1<\xceE<\x05\x9c\xa7\x0f\xee'
+    b'{\xcd\xc2\xe5\xbd\x82\xa1',
+    'example+extra@example.com': b'\xcfi\xf2\xdfph\xc0\x81\xfb\xe8'
+    b'\\\xa6\xa5\xf1\xfb:\xbb\xe4\x88\xde',
     'example@gmail.com': b"\tC*\xd2\x9a\xcb\xdfR\xcb\xbf=>2D'(\xa8V\x13\xa7",
     'example@googlemail.com': b'x\xd6#Ue\xa8-_\xeclJ+o8\xfe\x1f\xa1\x0b:9',
     'eg@räksmörgås.org': b'g\xc4B`\x9ej\x05\xf8\xa6\x9b\\"l\x0c$\xd4\xa8\xe42j',
 }
 
 
-@pytest.fixture(scope='function')
-def refcount_data():
+@pytest.fixture()
+def refcount_data(funnel):
     refcount_signal_fired = set()
 
     def refcount_signal_receiver(sender):
         refcount_signal_fired.add(sender)
 
-    emailaddress_refcount_dropping.connect(refcount_signal_receiver)
+    funnel.signals.emailaddress_refcount_dropping.connect(refcount_signal_receiver)
     yield refcount_signal_fired
-    emailaddress_refcount_dropping.disconnect(refcount_signal_receiver)
+    funnel.signals.emailaddress_refcount_dropping.disconnect(refcount_signal_receiver)
 
 
-def test_email_normalized():
+def test_email_normalized() -> None:
     """Normalized email addresses are lowercase, with IDN encoded into punycode."""
+    email_normalized = models.email_address.email_normalized
     assert email_normalized('example@example.com') == 'example@example.com'
     assert email_normalized('Example@Example.com') == 'example@example.com'
     assert email_normalized('Example+Extra@Example.com') == 'example+extra@example.com'
@@ -52,9 +49,9 @@ def test_email_normalized():
     )
 
 
-def test_email_hash_stability():
+def test_email_hash_stability() -> None:
     """Safety test to ensure email_blakeb160_hash doesn't change spec."""
-    ehash = email_blake2b160_hash
+    ehash = models.email_address.email_blake2b160_hash
     assert ehash('example@example.com') == hash_map['example@example.com']
     # email_hash explicitly uses the normalized form (but not the canonical form)
     assert ehash('EXAMPLE@EXAMPLE.COM') == hash_map['example@example.com']
@@ -63,9 +60,9 @@ def test_email_hash_stability():
     assert ehash('eg@räksmörgås.org') == hash_map['eg@räksmörgås.org']
 
 
-def test_canonical_email_representation():
+def test_canonical_email_representation() -> None:
     """Test canonical email representation."""
-    cemail = canonical_email_representation
+    cemail = models.email_address.canonical_email_representation
     assert cemail('example@example.com') == ['example@example.com']
     assert cemail('EXAMPLE@EXAMPLE.COM') == ['example@example.com']
     assert cemail('example@googlemail.com') == [
@@ -89,16 +86,16 @@ def test_canonical_email_representation():
         'example@gmail.com',
         'exam.pl.e@googlemail.com',
     ]
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Not an email address'):
         cemail('')
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Not an email address'):
         cemail('invalid')
 
 
-def test_email_address_init():
+def test_email_address_init() -> None:
     """`EmailAddress` instances can be created using a string email address."""
     # Ordinary use constructor passes without incident
-    ea1 = EmailAddress('example@example.com')
+    ea1 = models.EmailAddress('example@example.com')
     assert ea1.email == 'example@example.com'
     assert ea1.email_normalized == 'example@example.com'
     assert ea1.domain == 'example.com'
@@ -113,7 +110,7 @@ def test_email_address_init():
     assert ea1.transport_hash == '2EGz72jxcsYjvXxF7r5rqfAgikor'
 
     # Case is preserved but disregarded for hashes
-    ea2 = EmailAddress('Example@Example.com')
+    ea2 = models.EmailAddress('Example@Example.com')
     assert ea2.email == 'Example@Example.com'
     assert ea2.email_normalized == 'example@example.com'
     assert ea2.domain == 'example.com'
@@ -124,7 +121,7 @@ def test_email_address_init():
     assert repr(ea2) == "EmailAddress('Example@Example.com')"
 
     # Canonical representation's hash can be distinct from regular hash
-    ea3 = EmailAddress('Example+Extra@example.com')
+    ea3 = models.EmailAddress('Example+Extra@example.com')
     assert ea3.email == 'Example+Extra@example.com'
     assert ea3.email_normalized == 'example+extra@example.com'
     assert ea3.domain == 'example.com'
@@ -142,25 +139,27 @@ def test_email_address_init():
     # is used.
 
 
-def test_email_address_init_error():
+def test_email_address_init_error() -> None:
     """`EmailAddress` constructor will reject various forms of bad input."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='A string email address is required'):
         # Must be a string
-        EmailAddress(None)
-    with pytest.raises(ValueError):
+        models.EmailAddress(None)  # type: ignore[arg-type]
+    # FIXME: Wrong cause of error
+    with pytest.raises(ValueError, match='not enough values to unpack'):
         # Must not be blank
-        EmailAddress('')
-    with pytest.raises(ValueError):
+        models.EmailAddress('')
+    # FIXME: Wrong cause of error
+    with pytest.raises(ValueError, match='not enough values to unpack'):
         # Must be syntactically valid
-        EmailAddress('invalid')
-    with pytest.raises(ValueError):
+        models.EmailAddress('invalid')
+    with pytest.raises(ValueError, match='Value is not an email address'):
         # Must be syntactically valid (caught elsewhere internally)
-        EmailAddress('@invalid')
+        models.EmailAddress('@invalid')
 
 
-def test_email_address_mutability():
+def test_email_address_mutability() -> None:
     """`EmailAddress` can be mutated to change casing or delete the address only."""
-    ea = EmailAddress('example@example.com')
+    ea = models.EmailAddress('example@example.com')
     assert ea.email == 'example@example.com'
     assert ea.domain == 'example.com'
     assert ea.blake2b160 == hash_map['example@example.com']
@@ -181,7 +180,7 @@ def test_email_address_mutability():
     ea.email = None
     assert ea.email is None
     assert ea.domain is None
-    assert ea.blake2b160 == hash_map['example@example.com']
+    assert ea.blake2b160 == hash_map['example@example.com']  # type: ignore[unreachable]
 
     # Restoring allowed (case insensitive)
     ea.email = 'exAmple@exAmple.com'
@@ -190,12 +189,14 @@ def test_email_address_mutability():
     assert ea.blake2b160 == hash_map['example@example.com']
 
     # But changing to another email address is not allowed
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Email address cannot be changed'):
         ea.email = 'other@example.com'
 
     # Change is also not allowed by blanking and then setting to another
     ea.email = None
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError, match='Email address does not match existing blake2b160 hash'
+    ):
         ea.email = 'other@example.com'
 
     # Changing the domain is also not allowed
@@ -203,101 +204,111 @@ def test_email_address_mutability():
         ea.domain = 'gmail.com'
 
     # Setting to an invalid value is not allowed
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='An email address is required'):
         ea.email = ''
 
 
-def test_email_address_md5():
+def test_email_address_md5() -> None:
     """`EmailAddress` has an MD5 method for legacy applications."""
-    ea = EmailAddress('example@example.com')
+    ea = models.EmailAddress('example@example.com')
     assert ea.md5() == '23463b99b62a72f26ed677cc556c44e8'
     ea.email = None
     assert ea.md5() is None
 
 
-def test_email_address_is_blocked_flag():
+@pytest.mark.usefixtures('db_session')
+def test_email_address_is_blocked_flag() -> None:
     """`EmailAddress` has a read-only is_blocked flag that is normally False."""
-    ea = EmailAddress('example@example.com')
+    ea = models.EmailAddress('example@example.com')
     assert ea.is_blocked is False
     with pytest.raises(AttributeError):
-        ea.is_blocked = True
+        ea.is_blocked = True  # type: ignore[misc]
 
 
-def test_email_address_can_commit(db_session):
+def test_email_address_can_commit(db_session) -> None:
     """An EmailAddress can be committed to db."""
-    ea = EmailAddress('example@example.com')
+    ea = models.EmailAddress('example@example.com')
     db_session.add(ea)
     db_session.commit()
 
 
-def test_email_address_conflict_integrity_error(db_session):
+def test_email_address_conflict_integrity_error(db_session) -> None:
     """A conflicting EmailAddress cannot be committed to db."""
-    ea1 = EmailAddress('example@example.com')
+    ea1 = models.EmailAddress('example@example.com')
     db_session.add(ea1)
     db_session.commit()
-    ea2 = EmailAddress('example+extra@example.com')
+    ea2 = models.EmailAddress('example+extra@example.com')
     db_session.add(ea2)
     db_session.commit()
-    ea3 = EmailAddress('Other@example.com')
+    ea3 = models.EmailAddress('Other@example.com')
     db_session.add(ea3)
     db_session.commit()
     # Conflicts with ea1 as email addresses are case preserving but not sensitive
-    ea4 = EmailAddress('Example@example.com')
+    ea4 = models.EmailAddress('Example@example.com')
     db_session.add(ea4)
     with pytest.raises(IntegrityError):
         db_session.commit()
 
 
-def test_email_address_get(db_session):
+def test_email_address_get(db_session) -> None:
     """Email addresses can be loaded using EmailAddress.get."""
-    ea1 = EmailAddress('example@example.com')
-    ea2 = EmailAddress('example+extra@example.com')
-    ea3 = EmailAddress('other@example.com')
+    ea1 = models.EmailAddress('example@example.com')
+    ea2 = models.EmailAddress('example+extra@example.com')
+    ea3 = models.EmailAddress('other@example.com')
     db_session.add_all([ea1, ea2, ea3])
     db_session.commit()
 
-    get1 = EmailAddress.get('Example@example.com')
+    get1 = models.EmailAddress.get('Example@example.com')
     assert get1 == ea1
-    get2 = EmailAddress.get('example+Extra@example.com')
+    get2 = models.EmailAddress.get('example+Extra@example.com')
     assert get2 == ea2
     # Can also get by hash
-    get3 = EmailAddress.get(blake2b160=hash_map['example@example.com'])
+    get3 = models.EmailAddress.get(blake2b160=hash_map['example@example.com'])
     assert get3 == ea1
     # Or by Base58 representation of hash
-    get4 = EmailAddress.get(email_hash='2EGz72jxcsYjvXxF7r5rqfAgikor')
+    get4 = models.EmailAddress.get(email_hash='2EGz72jxcsYjvXxF7r5rqfAgikor')
     assert get4 == ea1
 
     # Will return nothing if given garbage input, or a non-existent email address
-    assert EmailAddress.get('invalid') is None
-    assert EmailAddress.get('unknown@example.com') is None
+    assert models.EmailAddress.get('invalid') is None
+    assert models.EmailAddress.get('unknown@example.com') is None
+
+    # Get works on blocked addresses
+    email_to_block = ea3.email
+    assert email_to_block is not None
+    models.EmailAddress.mark_blocked(email_to_block)
+    assert ea3.is_blocked is True
+    assert models.EmailAddress.get(email_to_block) == ea3
 
 
-def test_email_address_invalid_hash_raises_error(db_session):
+@pytest.mark.usefixtures('db_session')
+def test_email_address_invalid_hash_raises_error() -> None:
     """Retrieving an email address with an invalid hash will raise ValueError."""
-    with pytest.raises(ValueError):
-        EmailAddress.get(email_hash='invalid')
+    with pytest.raises(ValueError, match='Invalid character'):
+        models.EmailAddress.get(email_hash='invalid')
 
 
-def test_email_address_get_canonical(db_session):
+def test_email_address_get_canonical(db_session) -> None:
     """EmailAddress.get_canonical returns all matching records."""
-    ea1 = EmailAddress('example@example.com')
-    ea2 = EmailAddress('example+extra@example.com')
-    ea3 = EmailAddress('other@example.com')
+    ea1 = models.EmailAddress('example@example.com')
+    ea2 = models.EmailAddress('example+extra@example.com')
+    ea3 = models.EmailAddress('other@example.com')
     db_session.add_all([ea1, ea2, ea3])
     db_session.commit()
 
-    assert set(EmailAddress.get_canonical('Example@example.com')) == {ea1, ea2}
+    assert set(models.EmailAddress.get_canonical('Example@example.com')) == {ea1, ea2}
 
 
-def test_email_address_add(db_session):
+@pytest.mark.usefixtures('db_session')
+def test_email_address_add() -> None:
     """Using EmailAddress.add will auto-add to session and return existing instances."""
-    ea1 = EmailAddress.add('example@example.com')
-    assert isinstance(ea1, EmailAddress)
+    ea1 = models.EmailAddress.add('example@example.com')
+    assert isinstance(ea1, models.EmailAddress)
     assert ea1.email == 'example@example.com'
 
-    ea2 = EmailAddress.add('example+extra@example.com')
-    ea3 = EmailAddress.add('other@example.com')
-    ea4 = EmailAddress.add('Example@example.com')
+    ea2 = models.EmailAddress.add('example+extra@example.com')
+    ea3 = models.EmailAddress.add('other@example.com')
+    ea4 = models.EmailAddress.add('Example@example.com')
 
     assert ea2 is not None
     assert ea3 is not None
@@ -314,44 +325,48 @@ def test_email_address_add(db_session):
     # Since it was forgotten, email casing will also be amended (we don't have a choice)
     ea3.email = None
     assert ea3.email is None
-    ea5 = EmailAddress.add('Other@example.com')
+    ea5 = models.EmailAddress.add('Other@example.com')
     assert ea5 == ea3
     assert ea5.email == ea3.email == 'Other@example.com'
 
     # Adding an invalid email address will raise an error
-    with pytest.raises(ValueError):
-        EmailAddress.add('invalid')
+    # FIXME: Wrong cause of error
+    with pytest.raises(ValueError, match='not enough values to unpack'):
+        models.EmailAddress.add('invalid')
 
-    with pytest.raises(ValueError):
-        EmailAddress.add(None)
+    with pytest.raises(ValueError, match='A string email address is required'):
+        models.EmailAddress.add(None)  # type: ignore[arg-type]
 
 
-def test_email_address_blocked(db_session):
+@pytest.mark.usefixtures('db_session')
+def test_email_address_blocked() -> None:
     """A blocked email address cannot be used via EmailAddress.add."""
-    ea1 = EmailAddress.add('example@example.com')
-    ea2 = EmailAddress.add('example+extra@example.com')
-    ea3 = EmailAddress.add('other@example.com')
+    ea1 = models.EmailAddress.add('example@example.com')
+    ea2 = models.EmailAddress.add('example+extra@example.com')
+    ea3 = models.EmailAddress.add('other@example.com')
 
-    EmailAddress.mark_blocked(ea2.email)
+    assert ea2.email is not None
+    models.EmailAddress.mark_blocked(ea2.email)
 
     assert ea1.is_blocked is True
     assert ea2.is_blocked is True
     assert ea3.is_blocked is False
 
-    with pytest.raises(EmailAddressBlockedError):
-        EmailAddress.add('Example@example.com')
+    with pytest.raises(models.EmailAddressBlockedError):
+        models.EmailAddress.add('Example@example.com')
 
 
-def test_email_address_delivery_state(db_session):
+@pytest.mark.usefixtures('db_session')
+def test_email_address_delivery_state() -> None:
     """An email address can have the last known delivery state set on it."""
-    ea = EmailAddress.add('example@example.com')
+    ea = models.EmailAddress.add('example@example.com')
     assert ea.delivery_state.UNKNOWN
 
     # Calling a transition will change state and set timestamp to update on commit
     ea.mark_sent()
     # An email was sent. Nothing more is known
     assert ea.delivery_state.SENT
-    assert str(ea.delivery_state_at) == str(db.func.utcnow())
+    assert str(ea.delivery_state_at) == str(sa.func.utcnow())
 
     # mark_sent() can be called each time an email is sent
     ea.mark_sent()
@@ -361,34 +376,44 @@ def test_email_address_delivery_state(db_session):
     assert ea.active_at is None
     ea.mark_active()
     assert ea.delivery_state.SENT
-    assert str(ea.active_at) == str(db.func.utcnow())
+    assert str(ea.active_at) == str(sa.func.utcnow())
 
     # This can be "downgraded" to SENT, as we only record the latest status
     ea.mark_sent()
     assert ea.delivery_state.SENT
-    assert str(ea.delivery_state_at) == str(db.func.utcnow())
+    assert str(ea.delivery_state_at) == str(sa.func.utcnow())
 
     # Email address is soft bouncing (typically mailbox full)
     ea.mark_soft_fail()
     assert ea.delivery_state.SOFT_FAIL
-    assert str(ea.delivery_state_at) == str(db.func.utcnow())
+    assert str(ea.delivery_state_at) == str(sa.func.utcnow())
 
     # Email address is hard bouncing (typically mailbox invalid)
     ea.mark_hard_fail()
     assert ea.delivery_state.HARD_FAIL
-    assert str(ea.delivery_state_at) == str(db.func.utcnow())
+    assert str(ea.delivery_state_at) == str(sa.func.utcnow())
 
 
 # This fixture must be session scope as it cannot be called twice in the same process.
-# SQLAlchemy models must only be defined once.
+# SQLAlchemy models must only be defined once. A model can theoretically be removed,
+# but there is no formal API. Removal has at least three parts:
+# 1. Remove class from mapper registry using ``db.Model.registry._dispose_cls(cls)``
+# 2. Remove table from metadata using db.metadata.remove(cls.__table__)
+# 3. Remove all relationships to other classes (unsolved)
 @pytest.fixture(scope='session')
-def email_models(database):
-    class EmailUser(BaseMixin, db.Model):
+def email_models(database, app):
+    db = database
+
+    class EmailUser(models.BaseMixin, db.Model):  # type: ignore[name-defined]
         """Test model representing a user account."""
 
         __tablename__ = 'emailuser'
 
-    class EmailLink(EmailAddressMixin, BaseMixin, db.Model):
+    class EmailLink(
+        models.EmailAddressMixin,
+        models.BaseMixin,
+        db.Model,  # type: ignore[name-defined]
+    ):
         """Test model connecting EmailUser to EmailAddress."""
 
         __email_optional__ = False
@@ -396,54 +421,72 @@ def email_models(database):
         __email_for__ = 'emailuser'
         __email_is_exclusive__ = True
 
-        emailuser_id = db.Column(db.ForeignKey('emailuser.id'), nullable=False)
-        emailuser = db.relationship(EmailUser)
+        emailuser_id = sa.Column(sa.ForeignKey('emailuser.id'), nullable=False)
+        emailuser = sa.orm.relationship(EmailUser)
 
-    class EmailDocument(EmailAddressMixin, BaseMixin, db.Model):
+    class EmailDocument(
+        models.EmailAddressMixin,
+        models.BaseMixin,
+        db.Model,  # type: ignore[name-defined]
+    ):
         """Test model unaffiliated to a user that has an email address attached."""
 
-    class EmailLinkedDocument(EmailAddressMixin, BaseMixin, db.Model):
+    class EmailLinkedDocument(
+        models.EmailAddressMixin,
+        models.BaseMixin,
+        db.Model,  # type: ignore[name-defined]
+    ):
         """Test model that accepts an optional user and an optional email."""
 
         __email_for__ = 'emailuser'
 
-        emailuser_id = db.Column(db.ForeignKey('emailuser.id'), nullable=True)
-        emailuser = db.relationship(EmailUser)
+        emailuser_id = sa.Column(sa.ForeignKey('emailuser.id'), nullable=True)
+        emailuser = sa.orm.relationship(EmailUser)
 
-    database.create_all()  # This will only create models not already in the database
-    return SimpleNamespace(**locals())
+    new_models = [EmailUser, EmailLink, EmailDocument, EmailLinkedDocument]
+
+    # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
+    with app.app_context():
+        database.metadata.create_all(
+            bind=database.engine, tables=[model.__table__ for model in new_models]
+        )
+    yield SimpleNamespace(**{model.__name__: model for model in new_models})
+    with app.app_context():
+        database.metadata.drop_all(
+            bind=database.engine, tables=[model.__table__ for model in new_models]
+        )
 
 
-def test_email_address_mixin(email_models, db_session):
+def test_email_address_mixin(  # pylint: disable=too-many-locals,too-many-statements
+    email_models, db_session
+) -> None:
     """The EmailAddressMixin class adds safety checks for using an email address."""
-    models = email_models
+    blocked_email = models.EmailAddress('blocked@example.com')
 
-    blocked_email = EmailAddress('blocked@example.com')
+    user1 = email_models.EmailUser()
+    user2 = email_models.EmailUser()
 
-    user1 = models.EmailUser()
-    user2 = models.EmailUser()
-
-    doc1 = models.EmailDocument()
-    doc2 = models.EmailDocument()
+    doc1 = email_models.EmailDocument()
+    doc2 = email_models.EmailDocument()
 
     db_session.add_all([user1, user2, doc1, doc2, blocked_email])
 
-    EmailAddress.mark_blocked('blocked@example.com')
+    models.EmailAddress.mark_blocked('blocked@example.com')
 
     # Mixin-based classes can simply specify an email parameter to link to an
     # EmailAddress instance
-    link1 = models.EmailLink(emailuser=user1, email='example@example.com')
+    link1 = email_models.EmailLink(emailuser=user1, email='example@example.com')
     db_session.add(link1)
-    ea1 = EmailAddress.get('example@example.com')
+    ea1 = models.EmailAddress.get('example@example.com')
     assert link1.email == 'example@example.com'
     assert link1.email_address == ea1
     assert link1.transport_hash == ea1.transport_hash
     assert bool(link1.transport_hash)
 
     # Link an unrelated email address to another user to demonstrate that it works
-    link2 = models.EmailLink(emailuser=user2, email='other@example.com')
+    link2 = email_models.EmailLink(emailuser=user2, email='other@example.com')
     db_session.add(link2)
-    ea2 = EmailAddress.get('other@example.com')
+    ea2 = models.EmailAddress.get('other@example.com')
     assert link2.email == 'other@example.com'
     assert link2.email_address == ea2
     assert link2.transport_hash == ea2.transport_hash
@@ -453,27 +496,27 @@ def test_email_address_mixin(email_models, db_session):
 
     # 'other@example.com' is now exclusive to user2. Attempting it to assign it to
     # user1 will raise an exception, even if the case is changed.
-    with pytest.raises(EmailAddressInUseError):
-        models.EmailLink(emailuser=user1, email='Other@example.com')
+    with pytest.raises(models.EmailAddressInUseError):
+        email_models.EmailLink(emailuser=user1, email='Other@example.com')
 
     # This safety catch works even if the email_address column is used:
-    with pytest.raises(EmailAddressInUseError):
-        models.EmailLink(emailuser=user1, email_address=ea2)
+    with pytest.raises(models.EmailAddressInUseError):
+        email_models.EmailLink(emailuser=user1, email_address=ea2)
 
     db_session.rollback()
 
     # Blocked addresses cannot be used either
-    with pytest.raises(EmailAddressBlockedError):
-        models.EmailLink(emailuser=user1, email='blocked@example.com')
+    with pytest.raises(models.EmailAddressBlockedError):
+        email_models.EmailLink(emailuser=user1, email='blocked@example.com')
 
-    with pytest.raises(EmailAddressBlockedError):
-        models.EmailLink(emailuser=user1, email_address=blocked_email)
+    with pytest.raises(models.EmailAddressBlockedError):
+        email_models.EmailLink(emailuser=user1, email_address=blocked_email)
 
     db_session.rollback()
 
     # Attempting to assign 'other@example.com' to user2 a second time will cause a
     # SQL integrity error because EmailLink.__email_unique__ is True.
-    link3 = models.EmailLink(emailuser=user2, email='Other@example.com')
+    link3 = email_models.EmailLink(emailuser=user2, email='Other@example.com')
     db_session.add(link3)
     with pytest.raises(IntegrityError):
         db_session.commit()
@@ -513,27 +556,31 @@ def test_email_address_mixin(email_models, db_session):
     # EmailLinkedDocument takes the complexity up a notch
 
     # A document linked to a user can use any email linked to that user
-    ldoc1 = models.EmailLinkedDocument(emailuser=user1, email='example@example.com')
+    ldoc1 = email_models.EmailLinkedDocument(
+        emailuser=user1, email='example@example.com'
+    )
     db_session.add(ldoc1)
     assert ldoc1.emailuser == user1
     assert ldoc1.email_address == ea1
 
     # But another user can't use this email address
-    with pytest.raises(EmailAddressInUseError):
-        models.EmailLinkedDocument(emailuser=user2, email='example@example.com')
+    with pytest.raises(models.EmailAddressInUseError):
+        email_models.EmailLinkedDocument(emailuser=user2, email='example@example.com')
 
     # This restriction also applies when user is not specified. Here, this email is
     # claimed by user2 above
-    with pytest.raises(EmailAddressInUseError):
-        models.EmailLinkedDocument(emailuser=None, email='other@example.com')
+    with pytest.raises(models.EmailAddressInUseError):
+        email_models.EmailLinkedDocument(emailuser=None, email='other@example.com')
 
     # But it works with an unaffiliated email address
-    ldoc2 = models.EmailLinkedDocument(email='yetanother@example.com')
+    ldoc2 = email_models.EmailLinkedDocument(email='yetanother@example.com')
     db_session.add(ldoc2)
     assert ldoc2.emailuser is None
     assert ldoc2.email == 'yetanother@example.com'
 
-    ldoc3 = models.EmailLinkedDocument(emailuser=user2, email='onemore@example.com')
+    ldoc3 = email_models.EmailLinkedDocument(
+        emailuser=user2, email='onemore@example.com'
+    )
     db_session.add(ldoc3)
     assert ldoc3.emailuser is user2
     assert ldoc3.email == 'onemore@example.com'
@@ -548,10 +595,8 @@ def test_email_address_mixin(email_models, db_session):
     assert ea1.email == 'example@example.com'
 
 
-def test_email_address_refcount_drop(email_models, db_session, refcount_data):
+def test_email_address_refcount_drop(email_models, db_session, refcount_data) -> None:
     """Test that EmailAddress.refcount drop events are fired."""
-    models = email_models
-
     # The refcount changing signal handler will have received events for every email
     # address in this test. A request teardown processor can use this to determine
     # which email addresses need to be forgotten (preferably in a background job)
@@ -560,12 +605,12 @@ def test_email_address_refcount_drop(email_models, db_session, refcount_data):
     assert isinstance(refcount_data, set)
     assert refcount_data == set()
 
-    ea = EmailAddress.add('example@example.com')
+    ea = models.EmailAddress.add('example@example.com')
     assert refcount_data == set()
 
-    user = models.EmailUser()
-    doc = models.EmailDocument()
-    link = models.EmailLink(emailuser=user, email_address=ea)
+    user = email_models.EmailUser()
+    doc = email_models.EmailDocument()
+    link = email_models.EmailLink(emailuser=user, email_address=ea)
     db_session.add_all([ea, user, doc, link])
 
     assert refcount_data == set()
@@ -587,35 +632,38 @@ def test_email_address_refcount_drop(email_models, db_session, refcount_data):
     assert ea.refcount() == 0
 
 
-def test_email_address_validate_for(email_models, db_session):
+def test_email_address_validate_for(email_models, db_session) -> None:
     """EmailAddress.validate_for can be used to determine availability."""
-    models = email_models
-
-    user1 = models.EmailUser()
-    user2 = models.EmailUser()
+    user1 = email_models.EmailUser()
+    user2 = email_models.EmailUser()
     anon_user = None
     db_session.add_all([user1, user2])
 
     # A new email address is available to all
-    assert EmailAddress.validate_for(user1, 'example@example.com') is True
-    assert EmailAddress.validate_for(user2, 'example@example.com') is True
-    assert EmailAddress.validate_for(anon_user, 'example@example.com') is True
+    assert models.EmailAddress.validate_for(user1, 'example@example.com') is True
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') is True
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is True
 
     # Once it's assigned to a user, availability changes
-    link = models.EmailLink(emailuser=user1, email='example@example.com')
+    link = email_models.EmailLink(emailuser=user1, email='example@example.com')
     db_session.add(link)
 
-    assert EmailAddress.validate_for(user1, 'example@example.com') is True
-    assert EmailAddress.validate_for(user2, 'example@example.com') is False
-    assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(user1, 'example@example.com') is True
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is False
 
     # An address in use is not available to claim as new
     assert (
-        EmailAddress.validate_for(user1, 'example@example.com', new=True) == 'not_new'
+        models.EmailAddress.validate_for(user1, 'example@example.com', new=True)
+        == 'not_new'
     )
-    assert EmailAddress.validate_for(user2, 'example@example.com', new=True) is False
     assert (
-        EmailAddress.validate_for(anon_user, 'example@example.com', new=True) is False
+        models.EmailAddress.validate_for(user2, 'example@example.com', new=True)
+        is False
+    )
+    assert (
+        models.EmailAddress.validate_for(anon_user, 'example@example.com', new=True)
+        is False
     )
 
     # When delivery state changes, validate_for's result changes too
@@ -624,53 +672,55 @@ def test_email_address_validate_for(email_models, db_session):
 
     ea.mark_sent()
     assert ea.delivery_state.SENT
-    assert EmailAddress.validate_for(user1, 'example@example.com') is True
-    assert EmailAddress.validate_for(user2, 'example@example.com') is False
-    assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(user1, 'example@example.com') is True
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is False
 
     ea.mark_soft_fail()
     assert ea.delivery_state.SOFT_FAIL
-    assert EmailAddress.validate_for(user1, 'example@example.com') == 'soft_fail'
-    assert EmailAddress.validate_for(user2, 'example@example.com') is False
-    assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(user1, 'example@example.com') == 'soft_fail'
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is False
 
     ea.mark_hard_fail()
     assert ea.delivery_state.HARD_FAIL
-    assert EmailAddress.validate_for(user1, 'example@example.com') == 'hard_fail'
-    assert EmailAddress.validate_for(user2, 'example@example.com') is False
-    assert EmailAddress.validate_for(anon_user, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(user1, 'example@example.com') == 'hard_fail'
+    assert models.EmailAddress.validate_for(user2, 'example@example.com') is False
+    assert models.EmailAddress.validate_for(anon_user, 'example@example.com') is False
 
     # A blocked address is available to no one
-    db_session.add(EmailAddress('blocked@example.com'))
-    EmailAddress.mark_blocked('blocked@example.com')
-    assert EmailAddress.validate_for(user1, 'blocked@example.com') is False
-    assert EmailAddress.validate_for(user2, 'blocked@example.com') is False
-    assert EmailAddress.validate_for(anon_user, 'blocked@example.com') is False
+    db_session.add(models.EmailAddress('blocked@example.com'))
+    models.EmailAddress.mark_blocked('blocked@example.com')
+    assert models.EmailAddress.validate_for(user1, 'blocked@example.com') is False
+    assert models.EmailAddress.validate_for(user2, 'blocked@example.com') is False
+    assert models.EmailAddress.validate_for(anon_user, 'blocked@example.com') is False
 
     # An invalid address is available to no one
-    assert EmailAddress.validate_for(user1, 'invalid') == 'invalid'
-    assert EmailAddress.validate_for(user2, 'invalid') == 'invalid'
-    assert EmailAddress.validate_for(anon_user, 'invalid') == 'invalid'
+    assert models.EmailAddress.validate_for(user1, 'invalid') == 'invalid'
+    assert models.EmailAddress.validate_for(user2, 'invalid') == 'invalid'
+    assert models.EmailAddress.validate_for(anon_user, 'invalid') == 'invalid'
 
 
-def test_email_address_existing_but_unused_validate_for(email_models, db_session):
+def test_email_address_existing_but_unused_validate_for(
+    email_models, db_session
+) -> None:
     """An unused but existing email address should be available to claim."""
-    models = email_models
-    user = models.EmailUser()
-    email_address = EmailAddress.add('unclaimed@example.com')
+    user = email_models.EmailUser()
+    email_address = models.EmailAddress.add('unclaimed@example.com')
     db_session.add_all([user, email_address])
     db_session.commit()
 
-    assert EmailAddress.validate_for(user, 'unclaimed@example.com', new=True) is True
-    assert EmailAddress.validate_for(user, 'unclaimed@example.com') is True
+    assert (
+        models.EmailAddress.validate_for(user, 'unclaimed@example.com', new=True)
+        is True
+    )
+    assert models.EmailAddress.validate_for(user, 'unclaimed@example.com') is True
 
 
-def test_email_address_validate_for_check_dns(email_models, db_session):
+def test_email_address_validate_for_check_dns(email_models, db_session) -> None:
     """Validate_for with check_dns=True. Separate test as DNS lookup may fail."""
-    models = email_models
-
-    user1 = models.EmailUser()
-    user2 = models.EmailUser()
+    user1 = email_models.EmailUser()
+    user2 = email_models.EmailUser()
     anon_user = None
     db_session.add_all([user1, user2])
 
@@ -678,9 +728,15 @@ def test_email_address_validate_for_check_dns(email_models, db_session):
     # This uses hsgk.in, a known domain without MX.
     # example.* use null MX as per RFC 7505, but the underlying validator in pyIsEmail
     # does not support this.
-    assert EmailAddress.validate_for(user1, 'example@hsgk.in', check_dns=True) == 'nomx'
-    assert EmailAddress.validate_for(user2, 'example@hsgk.in', check_dns=True) == 'nomx'
     assert (
-        EmailAddress.validate_for(anon_user, 'example@hsgk.in', check_dns=True)
+        models.EmailAddress.validate_for(user1, 'example@hsgk.in', check_dns=True)
+        == 'nomx'
+    )
+    assert (
+        models.EmailAddress.validate_for(user2, 'example@hsgk.in', check_dns=True)
+        == 'nomx'
+    )
+    assert (
+        models.EmailAddress.validate_for(anon_user, 'example@hsgk.in', check_dns=True)
         == 'nomx'
     )

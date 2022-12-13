@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ get_locale() }}">
   <head>
-    <title>Lastuser login beacon</title>
+    <title>Login beacon</title>
   </head>
   <body>
     <script type="text/javascript">
@@ -10,7 +10,7 @@
         // Send user back to the page they came from. document.referrer is our saviour!
         // Tip from http://www.nczonline.net/blog/2013/04/16/getting-the-url-of-an-iframes-parent/
       {%- if auth_client.trusted %}
-        window.top.location.href = {{ login_url|tojson }} + '?next=' + encodeURIComponent(document.referrer) + '&metarefresh=1';
+        window.top.location.assign({{ login_url|tojson }} + '?next=' + encodeURIComponent(document.referrer));
       {%- else %}
         // getJSON code from https://mathiasbynens.be/notes/xhr-responsetype-json
         var getJSON = function(url, successHandler, errorHandler) {
@@ -37,7 +37,7 @@
 
         getJSON({{ url_for('login_beacon_json', client_id=auth_client.buid)|tojson }}, function(data) {
           if (data.hastoken) {
-            window.top.location.href = {{ login_url|tojson }} + '?next=' + encodeURIComponent(document.referrer);
+            window.top.location.assign({{ login_url|tojson }} + '?next=' + encodeURIComponent(document.referrer));
           } // Else: no user, don't do anything
         }, function(status) {
           console.log("Login status check failed: " + status);

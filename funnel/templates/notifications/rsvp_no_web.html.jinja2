@@ -1,9 +1,8 @@
 {% extends "notifications/layout_web.html.jinja2" %}
-{%- from "macros.html.jinja2" import project_title %}
 {% block content %}
 <p>
-  {% trans project=project_title(view.rsvp.project), url=view.rsvp.project.url_for() -%}
+  {% trans project=view.rsvp.project.joined_title, url=view.rsvp.project.url_for() -%}
     You cancelled your registration for <a href="{{ url }}">{{ project }}</a>
   {%- endtrans %}
 </p>
-{% endblock %}
+{% endblock content %}

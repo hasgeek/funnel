@@ -1,12 +1,16 @@
+"""Hasgeek website app bootstrap."""
+
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import cast
 import json
 import logging
 import os.path
 
 from flask import Flask
-from flask_babelhg import get_locale
+from flask_babel import get_locale
+from flask_executor import Executor
 from flask_flatpages import FlatPages
 from flask_mailman import Mail
 from flask_migrate import Migrate
@@ -21,7 +25,6 @@ from baseframe.blueprint import THEME_FILES
 import coaster.app
 
 from ._version import __version__
-from .executor import ExecutorWrapper
 
 #: Main app for hasgeek.com
 app = Flask(__name__, instance_relative_config=True)
@@ -33,7 +36,9 @@ pages = FlatPages()
 
 redis_store = FlaskRedis(decode_responses=True)
 rq = RQ()
-executor = ExecutorWrapper()
+rq.job_class = 'rq.job.Job'
+rq.queues = ['funnel']  # Queues used in this app
+executor = Executor()
 
 # --- Assets ---------------------------------------------------------------------------
 
@@ -51,14 +56,13 @@ version = Version(__version__)
 assets['funnel.js'][version] = 'js/scripts.js'
 assets['spectrum.js'][version] = 'js/libs/spectrum.js'
 assets['spectrum.css'][version] = 'css/spectrum.css'
-assets['screens.css'][version] = 'css/screens.css'
 assets['schedules.js'][version] = 'js/schedules.js'
-assets['schedule-print.css'][version] = 'css/schedule-print.css'
 assets['funnel-mui.js'][version] = 'js/libs/mui.js'
 
 try:
     with open(
-        os.path.join(cast(str, app.static_folder), 'build/manifest.json')
+        os.path.join(cast(str, app.static_folder), 'build/manifest.json'),
+        encoding='utf-8',
     ) as built_manifest:
         built_assets = json.load(built_manifest)
 except OSError:
@@ -67,7 +71,7 @@ except OSError:
 
 # --- Import rest of the app -----------------------------------------------------------
 
-from . import (  # isort:skip  # noqa: F401
+from . import (  # isort:skip  # noqa: F401  # pylint: disable=wrong-import-position
     models,
     signals,
     forms,
@@ -75,12 +79,18 @@ from . import (  # isort:skip  # noqa: F401
     transports,
     views,
     cli,
+    proxies,
 )
-from .models import db  # isort:skip
+from .models import db  # isort:skip  # pylint: disable=wrong-import-position
 
 # --- Configuration---------------------------------------------------------------------
+
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)
+app.config['SESSION_REFRESH_EACH_REQUEST'] = False
 coaster.app.init_app(app, ['py', 'toml'])
 coaster.app.init_app(shortlinkapp, ['py', 'toml'], init_logging=False)
+proxies.init_app(app)
+proxies.init_app(shortlinkapp)
 
 # These are app specific confguration files that must exist
 # inside the `instance/` directory. Sample config files are
@@ -101,11 +111,10 @@ app.jinja_env.globals['get_locale'] = get_locale
 # API it borrows from the Flask-Login extension
 app.login_manager = views.login_session.LoginManager()
 
-db.init_app(app)
-db.init_app(shortlinkapp)
-db.app = app
+db.init_app(app)  # type: ignore[has-type]
+db.init_app(shortlinkapp)  # type: ignore[has-type]
 
-migrate = Migrate(app, db)
+migrate = Migrate(app, db)  # type: ignore[has-type]
 
 mail.init_app(app)
 mail.init_app(shortlinkapp)  # Required for email error reports
@@ -119,6 +128,7 @@ redis_store.init_app(app)
 rq.init_app(app)
 
 app.config['EXECUTOR_PROPAGATE_EXCEPTIONS'] = True
+app.config['EXECUTOR_PUSH_APP_CONTEXT'] = True
 executor.init_app(app)
 
 baseframe.init_app(
@@ -131,15 +141,14 @@ baseframe.init_app(
         'timezone',
         'pace',
         'jquery-modal',
-        'jquery.form',
         'select2-material',
         'getdevicepixelratio',
-        'jquery.tinymce.js>=4.0.0',
         'jquery.truncate8',
         'funnel-mui',
     ],
     theme='funnel',
     asset_modules=('baseframe_private_assets',),
+    error_handlers=False,
 )
 
 loginproviders.init_app(app)
@@ -198,107 +207,6 @@ app.assets.register(
         filters='uglipyjs',
     ),
 )
-app.assets.register(
-    'js_codemirrormarkdown',
-    Bundle(
-        assets.require('codemirror-markdown.js'),
-        output='js/codemirror-markdown.packed.js',
-    ),
-)
-app.assets.register(
-    'css_codemirrormarkdown',
-    Bundle(
-        assets.require('codemirror-markdown-material.css'),
-        output='css/codemirror-markdown.packed.css',
-        filters='cssmin',
-    ),
-)
-app.assets.register(
-    'css_screens',
-    Bundle(
-        assets.require('screens.css'), output='css/screens.packed.css', filters='cssmin'
-    ),
-)
-app.assets.register(
-    'js_jqueryeasytabs',
-    Bundle(
-        assets.require('!jquery.js', 'jquery-easytabs.js'),
-        output='js/jqueryeasytabs.packed.js',
-        filters='uglipyjs',
-    ),
-)
-app.assets.register(
-    'js_leaflet',
-    Bundle(
-        assets.require('leaflet.js', 'leaflet-search.js'),
-        output='js/leaflet.packed.js',
-        filters='uglipyjs',
-    ),
-)
-app.assets.register(
-    'css_leaflet',
-    Bundle(
-        assets.require('leaflet.css', 'leaflet-search.css'),
-        output='css/leaflet.packed.css',
-        filters='cssmin',
-    ),
-)
-app.assets.register(
-    'js_emojionearea',
-    Bundle(
-        assets.require('!jquery.js', 'emojionearea-material.js'),
-        output='js/emojionearea.packed.js',
-        filters='uglipyjs',
-    ),
-)
-app.assets.register(
-    'css_emojionearea',
-    Bundle(
-        assets.require('emojionearea-material.css'),
-        output='css/emojionearea.packed.css',
-        filters='cssmin',
-    ),
-)
-app.assets.register(
-    'js_sortable',
-    Bundle(
-        assets.require('!jquery.js', 'jquery.ui.js', 'jquery.ui.sortable.touch.js'),
-        output='js/sortable.packed.js',
-        filters='uglipyjs',
-    ),
-)
-app.assets.register(
-    'css_schedule_print',
-    Bundle(
-        assets.require('schedule-print.css'),
-        output='css/schedule-print.packed.css',
-        filters='cssmin',
-    ),
-)
-app.assets.register(
-    'js_footable',
-    Bundle(
-        assets.require('!jquery.js', 'baseframe-footable.js'),
-        output='js/footable.packed.js',
-        filters='uglipyjs',
-    ),
-)
-app.assets.register(
-    'js_footable_paginate',
-    Bundle(
-        assets.require('!jquery.js', 'footable-paginate.js'),
-        output='js/footable_paginate.packed.js',
-        filters='uglipyjs',
-    ),
-)
-app.assets.register(
-    'css_footable',
-    Bundle(
-        assets.require('baseframe-footable-mui.css'),
-        output='css/footable.packed.css',
-        filters='cssmin',
-    ),
-)
 
 # --- Serve static files with Whitenoise -----------------------------------------------
 
@@ -313,4 +221,4 @@ app.wsgi_app.add_files(  # type: ignore[attr-defined]
 
 # Database model loading (from Funnel or extensions) is complete.
 # Configure database mappers now, before the process is forked for workers.
-db.configure_mappers()
+db.configure_mappers()  # type: ignore[has-type]

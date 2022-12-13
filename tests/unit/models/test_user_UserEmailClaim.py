@@ -1,10 +1,12 @@
-import funnel.models as models
+"""Tests for UserEmailClaim model."""
+
+from funnel import models
 
 from .test_db import TestDatabaseFixture
 
 
 class TestUserEmailClaim(TestDatabaseFixture):
-    def test_useremailclaim(self):
+    def test_useremailclaim(self) -> None:
         crusoe = self.fixtures.crusoe
         new_email = 'crusoe@batdogs.ca'
         result = models.UserEmailClaim(user=crusoe, email=new_email)
@@ -12,11 +14,9 @@ class TestUserEmailClaim(TestDatabaseFixture):
         self.db_session.commit()
         assert isinstance(result, models.UserEmailClaim)
         assert crusoe == result.user
-        assert '<UserEmailClaim {email} of {user}>'.format(
-            email=new_email, user=repr(crusoe)[1:-1]
-        ) in (repr(result))
+        assert f'<UserEmailClaim {new_email} of {crusoe!r}>' in (repr(result))
 
-    def test_useremailclaim_get(self):
+    def test_useremailclaim_get(self) -> None:
         """Test for retrieving a UserEmailClaim instance given a user."""
         katnis = models.User(username='katnis', fullname='Katnis Everdeen')
         email = 'katnis@hungergames.org'
@@ -28,7 +28,7 @@ class TestUserEmailClaim(TestDatabaseFixture):
         assert result.email == email
         assert result.user == katnis
 
-    def test_useremailclaim_all(self):
+    def test_useremailclaim_all(self) -> None:
         """Test for retrieving all UserEmailClaim instances given an email address."""
         gail = models.User(username='gail', fullname='Gail Hawthorne')
         peeta = models.User(username='peeta', fullname='Peeta Mallark')
@@ -41,7 +41,7 @@ class TestUserEmailClaim(TestDatabaseFixture):
         result = models.UserEmailClaim.all(email)
         assert set(result) == {claim_by_gail, claim_by_peeta}
 
-    def test_useremailclaim_email(self):
+    def test_useremailclaim_email(self) -> None:
         """Test for verifying UserEmailClaim email property."""
         effie = models.User(username='effie', fullname='Miss. Effie Trinket')
         email = 'effie@hungergames.org'

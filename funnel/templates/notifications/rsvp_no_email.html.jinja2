@@ -1,9 +1,8 @@
 {% extends "notifications/layout_email.html.jinja2" %}
-{%- from "macros.html.jinja2" import project_title %}
 {% block content -%}
 
-<p>{% trans project=project_title(view.rsvp.project) %}You have cancelled your registration for <b>{{ project }}</b>. If this was accidental, you can register again.{% endtrans %}</p>
+<p>{% trans project=view.rsvp.project.joined_title %}You have cancelled your registration for <b>{{ project }}</b>. If this was accidental, you can register again.{% endtrans %}</p>
 
 <p class="btn-bar"><a class="btn" href="{{ view.rsvp.project.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Project page{% endtrans %}</a></p>
 
-{%- endblock %}
+{%- endblock content %}

@@ -1,32 +1,23 @@
+"""Views for organizations."""
+
 from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, flash, redirect, render_template, request, url_for
+from flask import abort, render_template, request, url_for
 
 from baseframe import _
-from baseframe.forms import (
-    render_delete_sqla,
-    render_form,
-    render_message,
-    render_redirect,
-)
+from baseframe.forms import render_delete_sqla, render_form, render_message
 from coaster.auth import current_auth
-from coaster.views import (
-    ModelView,
-    UrlChangeCheck,
-    UrlForView,
-    get_next_url,
-    requires_roles,
-    route,
-)
+from coaster.views import ModelView, UrlChangeCheck, UrlForView, requires_roles, route
 
 from .. import app
 from ..forms import OrganizationForm, TeamForm
 from ..models import Organization, Team, db
 from ..signals import org_data_changed, team_data_changed
 from ..typing import ReturnView
-from .login_session import requires_login, requires_sudo
+from .helpers import render_redirect
+from .login_session import requires_login, requires_sudo, requires_user_not_spammy
 
 # --- Routes: Organizations ---------------------------------------------------
 
@@ -72,29 +63,20 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
         return None
 
     # The /new root URL is intentional
-    @route('/new', methods=['GET', 'POST'])
+    @route('/new', methods=['GET', 'POST'], endpoint='new_organization')
+    @requires_user_not_spammy()
     def new(self) -> ReturnView:
         """Create a new organization."""
-        if not current_auth.user.has_verified_contact_info:
-            flash(
-                _(
-                    "You need to have a verified email address"
-                    " or phone number to create an organization"
-                ),
-                'error',
-            )
-            return redirect(get_next_url(referrer=True), code=303)
-
-        form = OrganizationForm()
+        form = OrganizationForm(user=current_auth.user)
         if form.validate_on_submit():
             org = Organization(owner=current_auth.user)
             form.populate_obj(org)
             db.session.add(org)
-            db.session.flush()  # Required to auto-create profile
+            db.session.flush()  # Required to auto-create `Profile` instance
             org.profile.make_public()
             db.session.commit()
             org_data_changed.send(org, changes=['new'], user=current_auth.user)
-            return render_redirect(org.profile.url_for('edit'), code=303)
+            return render_redirect(org.profile.url_for('edit'))
         return render_form(
             form=form,
             title=_("Create a new organization"),
@@ -110,9 +92,9 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
         """Delete organization if safe to do so."""
         if self.obj.profile.is_protected:
             return render_message(
-                title=_("Protected profile"),
+                title=_("Protected account"),
                 message=_(
-                    "This organization has a protected profile and cannot be deleted"
+                    "This organization is marked as protected and cannot be deleted"
                 ),
             )
         if not self.obj.profile.is_safe_to_delete():
@@ -160,7 +142,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             form.populate_obj(team)
             db.session.commit()
             team_data_changed.send(team, changes=['new'], user=current_auth.user)
-            return render_redirect(self.obj.url_for('teams'), code=303)
+            return render_redirect(self.obj.url_for('teams'))
         return render_form(
             form=form, title=_("Create new team"), formid='new_team', submit=_("Create")
         )
@@ -199,7 +181,7 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             team_data_changed.send(self.obj, changes=['edit'], user=current_auth.user)
-            return render_redirect(self.obj.organization.url_for('teams'), code=303)
+            return render_redirect(self.obj.organization.url_for('teams'))
         return render_form(
             form=form,
             title=_("Edit team: {title}").format(title=self.obj.title),

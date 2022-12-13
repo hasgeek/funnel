@@ -14,8 +14,6 @@ __pycache__
 .DS_Store
 
 # Assets and static files
-funnel/assets/cypress/screenshots
-funnel/assets/cypress/videos
 funnel/static/build
 funnel/static/gen
 funnel/static/service-worker.js
@@ -30,12 +28,18 @@ baseframe-packed.*
 # Download files
 geoname_data
 
-# Log files
+# Log and test files
 error.log
 error.log.*
 ghostdriver.log
+geckodriver.log
+tests/cypress/screenshots
+tests/cypress/videos
+tests/screenshots
+tests/unit/utils/markdown/data/output.html
+coverage/
 
-# Instance Files that should not be checked-in.
+# Instance files that should not be checked-in
 instance/development.py
 instance/hasgeekapp.py
 instance/production.py
@@ -46,6 +50,11 @@ instance/container_env
 secrets.dev
 secrets.test
 newrelic.ini
+.env
+.env.testing
+.env.staging
+.env.development
+.env.production
 
 # Local venvs (Idea creates them)
 venv/
@@ -53,12 +62,13 @@ env/
 
 # Editors
 .idea/
-.vscode
+.vscode/
 .project
 .pydevproject
 .settings
 *.wpr
 .vscode
+*.sublime-workspace
 
 # Local DBs
 dump.rdb

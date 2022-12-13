@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import Callable, Optional
+
 from flask import url_for
 import itsdangerous
 
@@ -26,7 +29,18 @@ __all__ = [
     'send_via_exotel',
     'send_via_twilio',
     'send',
+    'init',
 ]
+
+
+@dataclass
+class SmsSender:
+    """An SMS sender by number prefix."""
+
+    prefix: str
+    requires_config: set
+    func: Callable
+    init: Optional[Callable] = None
 
 
 def make_exotel_token(to: str) -> str:
@@ -90,6 +104,7 @@ def send_via_exotel(phone: str, message: SmsTemplate, callback: bool = True) -> 
     try:
         r = requests.post(
             f'https://twilix.exotel.in/v1/Accounts/{sid}/Sms/send.json',
+            timeout=30,
             auth=(sid, token),
             data=payload,
         )
@@ -106,8 +121,8 @@ def send_via_exotel(phone: str, message: SmsTemplate, callback: bool = True) -> 
                 )
             return transactionid
         raise TransportTransactionError(_("Exotel API error"), r.status_code, r.text)
-    except requests.ConnectionError:
-        raise TransportConnectionError(_("Exotel not reachable"))
+    except requests.ConnectionError as exc:
+        raise TransportConnectionError(_("Exotel not reachable")) from exc
 
 
 def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> str:
@@ -147,30 +162,62 @@ def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> 
         # https://support.twilio.com/hc/en-us/articles/223181868-Troubleshooting-Undelivered-Twilio-SMS-Messages
         # https://www.twilio.com/docs/api/errors#2-anchor
         if exc.code == 21211:
-            raise TransportRecipientError(_("This phone number is invalid"))
+            raise TransportRecipientError(_("This phone number is invalid")) from exc
         if exc.code == 21408:
             app.logger.error("Twilio unsupported country (21408) for %s", phone)
             raise TransportRecipientError(
-                _("Hasgeek cannot send messages to phone numbers in this country")
-            )
+                _(
+                    "Hasgeek cannot send messages to phone numbers in this country."
+                    "Please contact support via email at {email} if this affects your"
+                    "use of the site"
+                ).format(email=app.config['SITE_SUPPORT_EMAIL'])
+            ) from exc
         if exc.code == 21610:
-            raise TransportRecipientError(_("This phone number has been blocked"))
+            raise TransportRecipientError(
+                _("This phone number has been blocked")
+            ) from exc
         if exc.code == 21612:
             app.logger.error("Twilio unsupported carrier (21612) for %s", phone)
             raise TransportRecipientError(
                 _("This phone number is unsupported at this time")
-            )
+            ) from exc
         if exc.code == 21614:
             raise TransportRecipientError(
                 _("This phone number cannot receive SMS messages")
-            )
+            ) from exc
         app.logger.error("Unhandled Twilio error %d: %s", exc.code, exc.msg)
         raise TransportTransactionError(
             _("Hasgeek was unable to send a message to this phone number")
-        )
+        ) from exc
 
 
-senders_by_prefix = [('+91', send_via_exotel), ('+', send_via_twilio)]
+#: Supported senders (ordered by priority)
+sender_registry = [
+    SmsSender(
+        '+91',
+        {'SMS_EXOTEL_SID', 'SMS_EXOTEL_TOKEN', 'SMS_DLT_ENTITY_ID'},
+        send_via_exotel,
+        lambda: SmsTemplate.init_app(app),
+    ),
+    SmsSender(
+        '+',
+        {'SMS_TWILIO_SID', 'SMS_TWILIO_TOKEN', 'SMS_TWILIO_FROM'},
+        send_via_twilio,
+    ),
+]
+
+#: Available senders as per config
+senders_by_prefix = []
+
+
+def init() -> bool:
+    """Process available senders."""
+    for provider in sender_registry:
+        if all(app.config.get(var) for var in provider.requires_config):
+            senders_by_prefix.append((provider.prefix, provider.func))
+            if provider.init:
+                provider.init()
+    return bool(senders_by_prefix)
 
 
 def send(phone: str, message: SmsTemplate, callback: bool = True) -> str:

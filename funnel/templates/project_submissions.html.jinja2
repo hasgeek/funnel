@@ -1,57 +1,42 @@
 {% set current_page = 'submissions' %}
-{% extends "project_layout.html.jinja2" %}
-{%- from "macros.html.jinja2" import proposal_list %}
-{% block title %}{% trans %}Submissions{% endtrans %}{% endblock %}
+{%- if not request_wants.html_fragment -%}
+  {% extends "project_layout.html.jinja2" %}
+{%- else -%}
+  {% extends "project_spa_layout.html.jinja2" %}
+{% endif %}
+{%- from "macros.html.jinja2" import proposal_list, open_submission, add_submission_btn %}
+{% block title %}{% trans %}Submissions{% endtrans %}{% endblock title %}
 
 {% block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/submissions.scss') }}" />
-{% endblock %}
+{% endblock pageheaders %}
 
 {% block left_col %}
-  <div class="page-card  page-card--nomargin">
+  {{ open_submission(project) }}
+  {%- if project.instructions and project.instructions != "None" or project.view_for('cfp').is_available() or project.cfp_state.OPEN %}
+  <div class="page-card page-card--nomargin">
     <div class="project-section">
-     {% if project.current_roles.editor or project.current_roles.reviewer or not project.cfp_state.NONE -%}
       <div class="about__details" id="call-for-proposal">
+        {%- if project.view_for('cfp').is_available() %}
+          <p class="margin-bottom"><a href="{{ project.url_for('cfp') }}" class="mui--text-subhead mui--text-dark mui--text-bold nounderline" data-cy="add-cfp">{% trans %}Edit guidelines and timing{% endtrans %}{{ faicon(icon='pencil', icon_size='caption', baseline=false, css_class="mui--text-dark margin-left") }}</a></p>
+        {%- endif %}
         {%- if project.instructions and project.instructions != "None" %}
-          <div class="about__details__description bottom-padding">
-            {% if project.view_for('cfp').is_available() -%}
-              <p>
-                <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark">
-                  {% if project.cfp_state.DRAFT or project.cfp_state.PRIVATE_DRAFT or project.cfp_state.UNAVAILABLE -%}
-                    {% trans %}Open submissions{% endtrans %}
-                  {%- else %}
-                    <span class="mui--hidden-xs">{% trans %}Modify guidelines and timing{% endtrans %}</span><span class="mui--visible-xs-inline ">{% trans %}Modify guidelines{% endtrans %}</span>
-                  {%- endif %}
-                </a>
-              </p>
-            {%- endif %}
+          <div class="about__details__description margin-bottom">
             {% if project.instructions.html and project.instructions.html|length > 300 %}
-              <div class="js-htmltruncate-expand text-expand">{{ project.instructions.html|preview(min=200, max=300) }} <span class="chip">{% trans %}expand{% endtrans %} {{ faicon(icon='caret-down-solid', baseline=false, css_class='mui--align-middle') }}</span></div>
+              <div class="js-htmltruncate-expand text-expand">{{ project.instructions.html|preview(min=200, max=300) }} <span class="chip">{% trans %}expand{% endtrans %} {{ faicon(icon='caret-down-solid', baseline=false, css_class="mui--align-middle") }}</span></div>
               <div class="js-htmltruncate-full mui--hide markdown">{{ project.instructions.html }}</div>
             {%- else %}
               <div class="markdown">{{ project.instructions.html }}</div>
             {% endif %}
           </div>
-        {%- elif project.view_for('cfp').is_available() %}
-          <div class="bottom-padding">
-            <a href="{{ project.url_for('cfp') }}" class="mui-btn mui-btn--raised mui-btn--dark">{% trans %}Add guidelines and timing{% endtrans %}</a>
-          </div>
         {%- endif %}
-        {% if project.cfp_state.OPEN -%}
-          <div class="bottom-padding">
-            <a class="mui-btn mui-btn--raised mui-btn--accent" href="{{ project.url_for('new_proposal') }}">{% trans %}Make a submission{% endtrans %}</a>
-            {% if project.cfp_end_at_localized -%}<p>{{ faicon(icon='info-circle', css_class='secondary-color-txt') }} <em class="mui--text-body2 mui--text-light">{% trans date=project.cfp_end_at_localized|datetime(format='dd MMM YYYY, hh:mm a') %}Submissions close {{ date }}{% endtrans %}</em></p>{% endif %}
-          </div>
-        {%- elif project.cfp_state.UNAVAILABLE %}
-          <div class="bottom-padding">
-            <a class="mui-btn mui-btn--raised mui-btn--accent mui-btn--strike">{% trans %}Make a submission{% endtrans %}</a>
-            <p class="mui--text-light mui--text-caption">{% trans %}Submissions are closed for this project{% endtrans %}</p>
-          </div>
-        {%- endif %}
+        <div class="bottom-padding">
+          {{ add_submission_btn(project) }}
+        </div>
       </div>
-    {%- endif %}
     </div>
   </div>
+  {%- endif %}
 
   <div class="page-card">
     {% if project.cfp_state.HAS_PROPOSALS -%}
@@ -66,17 +51,16 @@
           </div>
         {%- endif %}
       </div>
-      {{ proposal_list(project.proposals, project, css_class='page-card__card') }}
+      {{ proposal_list(submissions, project, css_class="page-card__card", spa=true) }}
     {%- endif %}
   </div>
-{% endblock %}
+{% endblock left_col %}
 
 {% block footerinnerscripts %}
-  {% assets "js_sortable" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
   <script src="{{ built_asset('submissions.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
+    window.Hasgeek.subpageTitle = {{ self.title()|tojson }};
+    window.Hasgeek.subpageHasVideo = false;
     $(function() {
       var config = {
         search: {
@@ -91,4 +75,4 @@
       window.Hasgeek.submissionsInit(config);
     });
   </script>
-{% endblock %}
+{% endblock footerinnerscripts %}

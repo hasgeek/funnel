@@ -1,7 +1,10 @@
 import Vue from 'vue/dist/vue.min';
 import ScrollHelper from './utils/scrollhelper';
 import { faSvg } from './utils/vue_util';
-import addVegaSupport from './utils/vegaembed';
+import Form from './utils/formhelper';
+import Spa from './utils/spahelper';
+import Utils from './utils/helper';
+import initEmbed from './utils/initembed';
 
 const Schedule = {
   renderScheduleTable() {
@@ -49,10 +52,7 @@ const Schedule = {
             minute: '2-digit',
             timeZone: this.timeZone,
           };
-          return new Date(parseInt(time, 10)).toLocaleTimeString(
-            'en-GB',
-            options
-          );
+          return new Date(parseInt(time, 10)).toLocaleTimeString('en-GB', options);
         },
         getColumnWidth(columnType) {
           if (
@@ -80,83 +80,86 @@ const Schedule = {
             .substring(0, 400)
             .concat('..');
         },
-        updateMetaTags(pageDetails) {
-          $('title').html(pageDetails.title);
-          $('meta[name="DC.title"]').attr('content', pageDetails.pageTitle);
-          $('meta[property="og:title"]').attr('content', pageDetails.pageTitle);
-          $('meta[name=description]').attr('content', pageDetails.description);
-          $('meta[property="og:description"]').attr(
-            'content',
-            pageDetails.description
-          );
-          $('link[rel=canonical]').attr('href', pageDetails.url);
-          $('meta[property="og:url"]').attr('content', pageDetails.url);
-        },
         handleBrowserHistory() {
           // On closing modal, update browser history
           $('#session-modal').on($.modal.CLOSE, () => {
             this.modalHtml = '';
-            this.updateMetaTags(this.pageDetails);
+            Spa.updateMetaTags(this.pageDetails);
             if (window.history.state.openModal) {
               window.history.back();
             }
           });
-          // Event listener for back key press since opening modal update browser history
           $(window).on('popstate', () => {
             if (this.modalHtml) {
               $.modal.close();
             }
           });
         },
-        openModal(sessionHtml, backPage, pageDetails) {
+        openModal(sessionHtml, currentPage, pageDetails) {
           this.modalHtml = sessionHtml;
           $('#session-modal').modal('show');
+          this.handleModalShown();
           window.history.pushState(
             {
               openModal: true,
             },
             '',
-            backPage
+            currentPage
           );
-          this.updateMetaTags(pageDetails);
+          Spa.updateMetaTags(pageDetails);
         },
-        showSessionModal(activeSession) {
-          const backPage = `${this.pageDetails.url}/${activeSession.url_name_uuid_b58}`;
+        handleFetchError(error) {
+          const errorMsg = Form.getFetchError(error);
+          window.toastr.error(errorMsg);
+        },
+        async showSessionModal(activeSession) {
+          const currentPage = `${this.pageDetails.url}/${activeSession.url_name_uuid_b58}`;
           const pageDetails = {
             title: `${activeSession.title} — ${this.pageDetails.projectTitle}`,
             pageTitle: activeSession.title,
             description: activeSession.speaker
               ? `${activeSession.title} by ${activeSession.speaker}`
               : `${activeSession.title}, ${this.pageDetails.projectTitle}`,
-            url: backPage,
+            url: currentPage,
           };
           if (activeSession.modal_url) {
-            $.ajax({
-              url: activeSession.modal_url,
-              type: 'GET',
-              success: (sessionHtml) => {
-                this.openModal(sessionHtml, backPage, pageDetails);
+            const response = await fetch(activeSession.modal_url, {
+              headers: {
+                Accept: 'text/x.fragment+html',
+                'X-Requested-With': 'XMLHttpRequest',
               },
-              error() {
-                window.toastr.error(
-                  window.gettext(
-                    'There was a problem in contacting the server. Please try again later'
-                  )
-                );
-              },
-            });
+            }).catch(Form.handleFetchNetworkError);
+            if (response && response.ok) {
+              const responseData = await response.text();
+              this.openModal(responseData, currentPage, pageDetails);
+            } else {
+              this.handleFetchError(response);
+            }
           }
+        },
+        handleModalShown() {
+          const targetNode = document.getElementById('session-modal');
+          const config = { attributes: true, childList: true, subtree: true };
+          const callback = (mutationList, observer) => {
+            mutationList.forEach((mutation) => {
+              if (mutation.type === 'childList') {
+                window.activateZoomPopup();
+                Utils.enableWebShare();
+                initEmbed(`#session-modal .markdown`);
+                observer.disconnect();
+              }
+            });
+          };
+          const observer = new MutationObserver(callback);
+          observer.observe(targetNode, config);
         },
         disableScroll(event, id) {
           event.preventDefault();
-          ScrollHelper.animateScrollTo(
-            $(`#${id}`).offset().top - this.headerHeight
-          );
+          ScrollHelper.animateScrollTo($(`#${id}`).offset().top - this.headerHeight);
         },
         getHeight() {
           this.headerHeight =
-            ScrollHelper.getPageHeaderHeight() +
-            $('.schedule__row--sticky').height();
+            ScrollHelper.getPageHeaderHeight() + $('.schedule__row--sticky').height();
         },
         handleBrowserResize() {
           $(window).resize(() => {
@@ -172,9 +175,7 @@ const Schedule = {
         animateWindowScrollWithHeader() {
           this.getHeight();
           this.pathName = window.location.pathname;
-          const scrollPos = JSON.parse(
-            window.sessionStorage.getItem('scrollPos')
-          );
+          const scrollPos = JSON.parse(window.sessionStorage.getItem('scrollPos'));
           const activeSession = schedule.config.active_session;
           if (activeSession) {
             // Open session modal
@@ -184,8 +185,7 @@ const Schedule = {
             this.showSessionModal(activeSession);
             // Scroll page to session
             ScrollHelper.animateScrollTo(
-              $(`#${activeSession.url_name_uuid_b58}`).offset().top -
-                this.headerHeight
+              $(`#${activeSession.url_name_uuid_b58}`).offset().top - this.headerHeight
             );
           } else if (
             window.location.pathname === this.pathName &&
@@ -193,14 +193,9 @@ const Schedule = {
           ) {
             const hash =
               window.location.hash.indexOf('/') !== -1
-                ? window.location.hash.substring(
-                    0,
-                    window.location.hash.indexOf('/')
-                  )
+                ? window.location.hash.substring(0, window.location.hash.indexOf('/'))
                 : window.location.hash;
-            ScrollHelper.animateScrollTo(
-              $(hash).offset().top - this.headerHeight
-            );
+            ScrollHelper.animateScrollTo($(hash).offset().top - this.headerHeight);
           } else if (
             scrollPos &&
             scrollPos.pageTitle === this.pageDetails.projectTitle
@@ -210,18 +205,24 @@ const Schedule = {
           } else if ($('.schedule__date--upcoming').length) {
             // Scroll to the upcoming schedule
             ScrollHelper.animateScrollTo(
-              $('.schedule__date--upcoming').first().offset().top -
-                this.headerHeight
+              $('.schedule__date--upcoming').first().offset().top - this.headerHeight
             );
           } else {
             // Scroll to the last schedule
             ScrollHelper.animateScrollTo(
-              $(schedule.config.parentContainer)
-                .find('.schedule__date')
-                .last()
-                .offset().top - this.headerHeight
+              $('.schedule__date').last().offset().top - this.headerHeight
             );
           }
+          window.history.replaceState(
+            {
+              subPage: true,
+              prevUrl: this.pageDetails.url,
+              navId: window.history.state.navId,
+              refresh: false,
+            },
+            '',
+            this.pageDetails.url
+          );
 
           // On exiting the page, save page scroll position in session storage
           $(window).bind('beforeunload', () => {
@@ -229,10 +230,7 @@ const Schedule = {
               pageTitle: this.pageDetails.projectTitle,
               scrollPosY: window.scrollY,
             };
-            window.sessionStorage.setItem(
-              'scrollPos',
-              JSON.stringify(scrollDetails)
-            );
+            window.sessionStorage.setItem('scrollPos', JSON.stringify(scrollDetails));
           });
         },
       },
@@ -240,10 +238,6 @@ const Schedule = {
         this.animateWindowScrollWithHeader();
         this.handleBrowserResize();
         this.handleBrowserHistory();
-        $('#session-modal').on($.modal.OPEN, () => {
-          addVegaSupport();
-          window.activateZoomPopup();
-        });
       },
     });
 
@@ -275,9 +269,9 @@ const Schedule = {
         this.config.schedule[session.eventDay].sessions[
           session.startTime
         ].showLabel = true;
-        this.config.schedule[session.eventDay].sessions[
-          session.startTime
-        ].rooms[session.room_scoped_name].talk = session;
+        this.config.schedule[session.eventDay].sessions[session.startTime].rooms[
+          session.room_scoped_name
+        ].talk = session;
       }
     });
   },

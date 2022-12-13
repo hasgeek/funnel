@@ -1,4 +1,5 @@
 import L from 'leaflet';
+import initEmbed from './utils/initembed';
 
 const EmbedMap = {
   init({ mapId, latitude, longitude }) {
@@ -44,9 +45,11 @@ const EmbedMap = {
   },
 };
 $(() => {
-  window.Hasgeek.projectInit = ({ venue = '' }) => {
+  window.Hasgeek.projectInit = ({ venue = '', markdownElem = '' }) => {
     if (venue) {
       EmbedMap.init(venue);
     }
+    // Include parent container
+    initEmbed(markdownElem);
   };
 });

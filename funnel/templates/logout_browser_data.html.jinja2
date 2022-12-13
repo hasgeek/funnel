@@ -1,11 +1,31 @@
-{% extends "layout.html.jinja2" %}
-{% block title %}{% trans %}Logging out…{% endtrans %}{% endblock %}
-
-{%- block messages %}{% endblock %}
-
-{% block footerscripts %}
-  <script type="text/javascript">
-    {%- if current_auth.is_anonymous %}
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% trans %}Logging out…{% endtrans %}</title>
+    <style type="text/css">
+      .loading {
+        margin: 0;
+        padding: 0;
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        font-family: sans-serif;
+        font-size: 14px;
+      }
+      .loading span {
+        padding: 10px;
+        border-radius: 10px;
+        background-color: #eee;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <p class="loading"><span>{% trans %}Logging out…{% endtrans %}</span></p>
+    <script type="text/javascript">
       if ('serviceWorker' in navigator) {
         caches.keys().then(function(cacheNames) {
           cacheNames.forEach(function(cacheName) {
@@ -13,7 +33,7 @@
           });
         });
       }
-    {%- endif %}
-    window.location.href = {{ next|tojson }};
-  </script>
-{% endblock %}
+      window.location.replace({{ next|tojson }});
+    </script>
+  </body>
+</html>

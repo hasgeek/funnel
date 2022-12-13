@@ -1,3 +1,5 @@
+"""AWS SNS notification types and validators for AWS SES notifications."""
+
 from __future__ import annotations
 
 from enum import Enum, IntFlag
@@ -176,14 +178,14 @@ class SnsValidator:
                 public_key = cast(RSAPublicKey, cert.public_key())
                 self.public_keys[url] = public_key
             except requests.exceptions.RequestException as exc:
-                raise SnsSignatureFailureError(exc)
+                raise SnsSignatureFailureError(exc) from exc
         return public_key
 
     def _check_signature(self, message: Dict[str, str]) -> None:
         """
         Check Signature by comparing the message with the Signature.
 
-        :param message:  Message
+        :param message: Message
         :return: None if Signature matches, throws if Mismatch
         """
         public_key = self._get_public_key(message)
@@ -194,10 +196,10 @@ class SnsValidator:
                 signature,
                 plaintext,
                 PKCS1v15(),
-                SHA1(),  # noqa: S303  # skipcq: PTC-W1003
+                SHA1(),  # skipcq: PTC-W1003
             )
-        except InvalidSignature:
-            raise SnsSignatureFailureError("Signature mismatch")
+        except InvalidSignature as exc:
+            raise SnsSignatureFailureError("Signature mismatch") from exc
 
     def check(
         self,
@@ -208,7 +210,7 @@ class SnsValidator:
         Check the given message against specified checks.
 
         :param message: Given Message
-        :param checks:  List of Checks to apply
+        :param checks: List of Checks to apply
         :return: None if checks pass or else throws exceptions
         """
         if SnsValidatorChecks.TOPIC in checks:

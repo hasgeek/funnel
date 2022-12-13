@@ -1,18 +1,26 @@
+"""Forms for organizations and teams."""
+
 from __future__ import annotations
+
+from typing import Iterable, Optional
 
 from flask import Markup, url_for
 
-from baseframe import _, __
-from coaster.auth import current_auth
-import baseframe.forms as forms
+from baseframe import _, __, forms
 
-from ..models import Organization, Profile, Team
+from ..models import Organization, Profile, Team, User
 
 __all__ = ['OrganizationForm', 'TeamForm']
 
 
 @Organization.forms('main')
 class OrganizationForm(forms.Form):
+    """Form for an organization's name and title."""
+
+    __expects__: Iterable[str] = ('user',)
+    user: User
+    edit_obj: Optional[Organization]
+
     title = forms.StringField(
         __("Organization name"),
         description=__(
@@ -23,11 +31,12 @@ class OrganizationForm(forms.Form):
             forms.validators.Length(max=Organization.__title_length__),
         ],
         filters=[forms.filters.strip()],
+        render_kw={'autocomplete': 'organization'},
     )
     name = forms.AnnotatedTextField(
         __("Username"),
         description=__(
-            "A short name for your organization’s profile page."
+            "A short name for your organization’s account page."
             " Single word containing letters, numbers and dashes only."
             " Pick something permanent: changing it will break existing links from"
             " around the web"
@@ -38,32 +47,30 @@ class OrganizationForm(forms.Form):
         ],
         filters=[forms.filters.strip()],
         prefix="https://hasgeek.com/",
-        widget_attrs={'autocorrect': 'none', 'autocapitalize': 'none'},
+        render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
     )
 
-    def validate_name(self, field):
+    def validate_name(self, field) -> None:
+        """Validate name is valid and available for this organization."""
         reason = Profile.validate_name_candidate(field.data)
         if not reason:
             return  # name is available
         if reason == 'invalid':
-            raise forms.ValidationError(
+            raise forms.validators.ValidationError(
                 _(
                     "Names can only have letters, numbers and dashes (except at the"
                     " ends)"
                 )
             )
         if reason == 'reserved':
-            raise forms.ValidationError(_("This name is reserved"))
+            raise forms.validators.ValidationError(_("This name is reserved"))
         if self.edit_obj and field.data.lower() == self.edit_obj.name.lower():
             # Name is not reserved or invalid under current rules. It's also not changed
             # from existing name, or has only changed case. This is a validation pass.
             return
         if reason == 'user':
-            if (
-                current_auth.user.username
-                and field.data.lower() == current_auth.user.username.lower()
-            ):
-                raise forms.ValidationError(
+            if self.user.username and field.data.lower() == self.user.username.lower():
+                raise forms.validators.ValidationError(
                     Markup(
                         _(
                             "This is <em>your</em> current username."
@@ -72,17 +79,21 @@ class OrganizationForm(forms.Form):
                         ).format(account=url_for('account'))
                     )
                 )
-            raise forms.ValidationError(_("This name has been taken by another user"))
+            raise forms.validators.ValidationError(
+                _("This name has been taken by another user")
+            )
         if reason == 'org':
-            raise forms.ValidationError(
+            raise forms.validators.ValidationError(
                 _("This name has been taken by another organization")
             )
         # We're not supposed to get an unknown reason. Flag error to developers.
-        raise ValueError(f"Unknown profile name validation failure reason: {reason}")
+        raise ValueError(f"Unknown account name validation failure reason: {reason}")
 
 
 @Team.forms('main')
 class TeamForm(forms.Form):
+    """Form for a team in an organization."""
+
     title = forms.StringField(
         __("Team name"),
         validators=[
@@ -99,7 +110,7 @@ class TeamForm(forms.Form):
     is_public = forms.BooleanField(
         __("Make this team public"),
         description=__(
-            "Team members will be listed on the organization’s profile page"
+            "Team members will be listed on the organization’s account page"
         ),
         default=True,
     )

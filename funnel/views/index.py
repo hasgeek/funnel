@@ -1,21 +1,26 @@
+"""Home page and static pages."""
+
 from __future__ import annotations
 
-from typing import NamedTuple
+from dataclasses import dataclass
 import os.path
 
-from flask import Response, g, jsonify, render_template, url_for
+from flask import Response, g, render_template
 
-from baseframe import _, __
+from baseframe import __
 from baseframe.filters import date_filter
-from coaster.auth import current_auth
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app, pages
 from ..forms import SavedProjectForm
-from ..models import Project, db
+from ..models import Profile, Project, sa
+from ..typing import ReturnRenderWith, ReturnView
 
 
-class PolicyPage(NamedTuple):
+@dataclass
+class PolicyPage:
+    """Policy page."""
+
     path: str
     title: str
 
@@ -37,17 +42,17 @@ class IndexView(ClassView):
 
     @route('', endpoint='index')
     @render_with('index.html.jinja2')
-    def home(self):
+    def home(self) -> ReturnRenderWith:
         g.profile = None
         projects = Project.all_unsorted()
         # TODO: Move these queries into the Project class
         all_projects = (
             projects.filter(
                 Project.state.PUBLISHED,
-                db.or_(
+                sa.or_(
                     Project.state.LIVE,
                     Project.state.UPCOMING,
-                    db.and_(
+                    sa.and_(
                         Project.start_at.is_(None),
                         Project.published_at.isnot(None),
                         Project.site_featured.is_(True),
@@ -62,10 +67,10 @@ class IndexView(ClassView):
         featured_project = (
             projects.filter(
                 Project.state.PUBLISHED,
-                db.or_(
+                sa.or_(
                     Project.state.LIVE,
                     Project.state.UPCOMING,
-                    db.and_(
+                    sa.and_(
                         Project.start_at.is_(None), Project.published_at.isnot(None)
                     ),
                 ),
@@ -108,33 +113,34 @@ class IndexView(ClassView):
                 if featured_project
                 else None
             ),
+            'featured_profiles': [
+                p.current_access(datasets=('primary', 'related'))
+                for p in Profile.query.filter(
+                    Profile.is_verified.is_(True),
+                    Profile.organization_id.isnot(None),
+                )
+                .order_by(sa.func.random())
+                .limit(6)
+            ],
         }
 
 
 IndexView.init_app(app)
 
 
-@app.route('/api/whoami')
-def whoami():
-    if current_auth.user:
-        return jsonify(message=f"Hey {current_auth.user.fullname}!", code=200)
-    else:
-        return jsonify(message="Hmm, so who _are_ you?", code=401)
-
-
-@app.route('/past.json')
+@app.route('/past.projects', endpoint='past_projects')
 @requestargs(('page', int), ('per_page', int))
-def past_projects_json(page=1, per_page=10):
+@render_with('past_projects_section.html.jinja2')
+def past_projects(page: int = 1, per_page: int = 10) -> ReturnView:
     g.profile = None
     projects = Project.all_unsorted()
-    past_projects = projects.filter(Project.state.PAST).order_by(
-        Project.start_at.desc()
+    pagination = (
+        projects.filter(Project.state.PAST)
+        .order_by(Project.start_at.desc())
+        .paginate(page=page, per_page=per_page)
     )
-    pagination = past_projects.paginate(page=page, per_page=per_page)
     return {
         'status': 'ok',
-        'title': _('Past sessions'),
-        'headings': [_('Date'), _('Project'), _('Location')],
         'next_page': pagination.page + 1 if pagination.page < pagination.pages else '',
         'total_pages': pagination.pages,
         'past_projects': [
@@ -150,23 +156,21 @@ def past_projects_json(page=1, per_page=10):
 
 
 @app.route('/about')
-def about():
+def about() -> ReturnView:
     return render_template('about.html.jinja2')
 
 
-@app.route('/about/contact', defaults={'path': 'contact'})
-def contact(path):
+@app.route('/about/contact')
+def contact() -> ReturnView:
     return render_template(
-        'contact.html.jinja2',
-        path=path,
-        page=pages.get_or_404(os.path.join('about', path)),
+        'contact.html.jinja2', page=pages.get_or_404('about/contact')
     )
 
 
 # Trailing slash in `/about/policy/` is required for relative links in `index.md`
 @app.route('/about/policy/', defaults={'path': 'policy/index'})
 @app.route('/about/<path:path>')
-def policy(path):
+def policy(path: str) -> ReturnView:
     return render_template(
         'policy.html.jinja2',
         index=policy_pages,
@@ -174,44 +178,8 @@ def policy(path):
     )
 
 
-@app.route('/manifest.json')
-@app.route('/manifest.webmanifest')
-def manifest():
-    return jsonify(
-        {
-            "name": app.config['SITE_TITLE'],
-            "short_name": app.config['SITE_TITLE'],
-            "description": _("Discussion spaces for geeks"),
-            "scope": "/",
-            "theme_color": "#e3e1e1",
-            "background_color": "#ffffff",
-            "display": "standalone",
-            "orientation": "portrait",
-            "start_url": "/?utm_source=WebApp",
-            "icons": [
-                {
-                    "src": url_for(
-                        'static', filename='img/android-chrome-192x192.png', v=2
-                    ),
-                    "sizes": "192x192",
-                    "type": "image/png",
-                    "purpose": "any",
-                },
-                {
-                    "src": url_for(
-                        'static', filename='img/android-chrome-512x512.png', v=2
-                    ),
-                    "sizes": "512x512",
-                    "type": "image/png",
-                    "purpose": "any",
-                },
-            ],
-        }
-    )
-
-
 @app.route('/opensearch.xml')
-def opensearch():
+def opensearch() -> ReturnView:
     return Response(
         render_template('opensearch.xml.jinja2'),
         mimetype='application/opensearchdescription+xml',
@@ -219,5 +187,5 @@ def opensearch():
 
 
 @app.route('/robots.txt')
-def robotstxt():
+def robotstxt() -> ReturnView:
     return Response(render_template('robots.txt.jinja2'), mimetype='text/plain')

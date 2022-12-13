@@ -1,7 +1,8 @@
+"""Forms for comments."""
+
 from __future__ import annotations
 
-from baseframe import __
-import baseframe.forms as forms
+from baseframe import __, forms
 
 from ..models import Comment, Commentset
 
@@ -24,7 +25,7 @@ class CommentsetSubscribeForm(forms.Form):
     """Subscribe to comments."""
 
     subscribe = forms.BooleanField(
-        '',
+        "",
         description=__("Get notifications"),
         validators=[forms.validators.InputRequired()],
     )

@@ -1,9 +1,12 @@
+"""Mixins for model views."""
+# TODO: Move each mixin into the main file for each view, or into <model>_mixin.py
+
 from __future__ import annotations
 
 from typing import Optional, Tuple, Type, Union
 from uuid import uuid4
 
-from flask import abort, g, redirect, request
+from flask import abort, g, request
 from werkzeug.datastructures import MultiDict
 
 from baseframe import _, forms
@@ -17,24 +20,26 @@ from ..models import (
     ProjectRedirect,
     Session,
     TicketEvent,
-    UuidMixin,
     Venue,
     VenueRoom,
     db,
+    sa,
 )
-from ..typing import ReturnRenderWith, ReturnView
+from ..typing import ReturnRenderWith, ReturnView, UuidModelType
+from .helpers import render_redirect
 
 
 class ProfileCheckMixin:
-    """Base class checks for suspended profiles."""
+    """Base class checks for suspended accounts."""
 
     profile: Optional[Profile] = None
 
     def after_loader(self) -> Optional[ReturnView]:
+        """Post-process loader."""
         profile = self.profile
         if profile is None:
             raise ValueError("Subclass must set self.profile")
-        g.profile = profile  # type: ignore[unreachable]
+        g.profile = profile
         if not profile.is_active:
             abort(410)
 
@@ -46,9 +51,9 @@ class ProfileCheckMixin:
 
 
 class ProjectViewMixin(ProfileCheckMixin):
-    model = Project
+    model: Type[Project] = Project
     route_model_map = {'profile': 'profile.name', 'project': 'name'}
-    obj: Union[Project, ProjectRedirect]
+    obj: Project
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
@@ -57,7 +62,7 @@ class ProjectViewMixin(ProfileCheckMixin):
             Project.query.join(Profile, Project.profile_id == Profile.id)
             .filter(
                 Project.name == project,
-                db.func.lower(Profile.name) == db.func.lower(profile),
+                sa.func.lower(Profile.name) == sa.func.lower(profile),
             )
             .first()
         )
@@ -68,7 +73,7 @@ class ProjectViewMixin(ProfileCheckMixin):
                 )
                 .filter(
                     ProjectRedirect.name == project,
-                    db.func.lower(Profile.name) == db.func.lower(profile),
+                    sa.func.lower(Profile.name) == sa.func.lower(profile),
                 )
                 .first_or_404()
             )
@@ -81,9 +86,11 @@ class ProjectViewMixin(ProfileCheckMixin):
         if isinstance(self.obj, ProjectRedirect):
             if self.obj.project:
                 self.profile = self.obj.project.profile
-                return redirect(self.obj.project.url_for())
-            else:
-                abort(410)
+                return render_redirect(
+                    self.obj.project.url_for(),
+                    302 if request.method == 'GET' else 303,
+                )
+            abort(410)  # Project has been deleted
         self.profile = self.obj.profile
         return super().after_loader()
 
@@ -149,7 +156,7 @@ class VenueViewMixin(ProfileCheckMixin):
         return (
             Venue.query.join(Project, Profile)
             .filter(
-                db.func.lower(Profile.name) == db.func.lower(profile),
+                sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,
                 Venue.name == venue,
             )
@@ -175,7 +182,7 @@ class VenueRoomViewMixin(ProfileCheckMixin):
         return (
             VenueRoom.query.join(Venue, Project, Profile)
             .filter(
-                db.func.lower(Profile.name) == db.func.lower(profile),
+                sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,
                 Venue.name == venue,
                 VenueRoom.name == room,
@@ -201,7 +208,7 @@ class TicketEventViewMixin(ProfileCheckMixin):
         return (
             TicketEvent.query.join(Project, Profile)
             .filter(
-                db.func.lower(Profile.name) == db.func.lower(profile),
+                sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,
                 TicketEvent.name == name,
             )
@@ -214,10 +221,10 @@ class TicketEventViewMixin(ProfileCheckMixin):
 
 
 class DraftViewMixin:
-    obj: UuidMixin
-    model: Type[UuidMixin]
+    obj: UuidModelType
+    model: Type[UuidModelType]
 
-    def get_draft(self, obj: Optional[UuidMixin] = None) -> Optional[Draft]:
+    def get_draft(self, obj: Optional[UuidModelType] = None) -> Optional[Draft]:
         """
         Return the draft object for `obj`. Defaults to `self.obj`.
 
@@ -235,7 +242,7 @@ class DraftViewMixin:
             raise ValueError(_("There is no draft for the given object"))
 
     def get_draft_data(
-        self, obj: Optional[UuidMixin] = None
+        self, obj: Optional[UuidModelType] = None
     ) -> Union[Tuple[None, None], Tuple[int, dict]]:
         """
         Return a tuple of draft data.
@@ -245,14 +252,14 @@ class DraftViewMixin:
         draft = self.get_draft(obj)
         if draft is not None:
             return draft.revision, draft.formdata
-        else:
-            return None, None
+        return None, None
 
-    def autosave_post(self, obj: Optional[UuidMixin] = None) -> ReturnRenderWith:
+    def autosave_post(self, obj: Optional[UuidModelType] = None) -> ReturnRenderWith:
         """Handle autosave POST requests."""
         obj = obj if obj is not None else self.obj
         if 'form.revision' not in request.form:
-            # as form.autosave is true, the form should have `form.revision` field even if it's empty
+            # as form.autosave is true, the form should have `form.revision` field even
+            # if it's empty
             return (
                 {
                     'status': 'error',
@@ -273,6 +280,20 @@ class DraftViewMixin:
             # find the last draft
             draft = self.get_draft(obj)
 
+            if draft is None and client_revision:
+                # The form contains a revision ID but no draft exists.
+                # Somebody is making autosave requests with an invalid draft ID.
+                return (
+                    {
+                        'status': 'error',
+                        'error': 'invalid_or_expired_revision',
+                        'error_description': _(
+                            "Invalid revision ID or the existing changes have been"
+                            " submitted already. Please reload"
+                        ),
+                    },
+                    400,
+                )
             if draft is not None:
                 if client_revision is None or (
                     client_revision is not None
@@ -291,31 +312,20 @@ class DraftViewMixin:
                         },
                         400,
                     )
-                elif (
+                if (
                     client_revision is not None
                     and str(draft.revision) == client_revision
                 ):
-                    # revision ID sent my client matches, save updated draft data and update revision ID
+                    # revision ID sent by client matches, save updated draft data and
+                    # update revision ID. Since `formdata` is a `MultiDict`, we cannot
+                    # use `formdata.update`. The behaviour is different
+                    draft.formdata.update(incoming_data)
                     existing = draft.formdata
-                    for key in incoming_data.keys():
-                        if existing[key] != incoming_data[key]:
-                            existing[key] = incoming_data[key]
+                    for key, value in incoming_data.items():
+                        if existing[key] != value:
+                            existing[key] = value
                     draft.formdata = existing
                     draft.revision = uuid4()
-            elif client_revision:  # Implicit: draft is None
-                # The form contains a revision ID but no draft exists.
-                # Somebody is making autosave requests with an invalid draft ID.
-                return (
-                    {
-                        'status': 'error',
-                        'error': 'invalid_or_expired_revision',
-                        'error_description': _(
-                            "Invalid revision ID or the existing changes have been"
-                            " submitted already. Please reload"
-                        ),
-                    },
-                    400,
-                )
             else:
                 # no draft exists and no client revision, so create a draft
                 draft = Draft(
@@ -326,13 +336,16 @@ class DraftViewMixin:
                 )
             db.session.add(draft)
             db.session.commit()
-            return {'revision': draft.revision, 'form_nonce': form.form_nonce.default()}
-        else:
-            return (
-                {
-                    'status': 'error',
-                    'error': 'invalid_csrf',
-                    'error_description': _("Invalid CSRF token"),
-                },
-                400,
-            )
+            return {
+                'status': 'ok',
+                'revision': draft.revision,
+                'form_nonce': form.form_nonce.default(),
+            }
+        return (
+            {
+                'status': 'error',
+                'error': 'invalid_csrf',
+                'error_description': _("Invalid CSRF token"),
+            },
+            400,
+        )

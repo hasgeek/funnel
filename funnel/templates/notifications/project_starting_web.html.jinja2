@@ -1,14 +1,14 @@
 {% extends "notifications/layout_web.html.jinja2" %}
-{%- from "macros.html.jinja2" import project_title, useravatar %}
+{%- from "macros.html.jinja2" import useravatar %}
 
 {%- block avatar %}
   {{ useravatar(view.project.profile.owner) }}
-{%- endblock -%}
+{%- endblock avatar -%}
 
 {%- block content -%}
   <p>
-    {% trans project=project_title(view.project), url=view.project.url_for(), start_time=view.session.start_at_localized|time -%}
+    {% trans project=view.project.joined_title, url=view.project.url_for(), start_time=view.session.start_at_localized|time -%}
       <a href="{{ url }}">{{ project }}</a> starts at {{ start_time }}
     {%- endtrans %}
   </p>
-{%- endblock -%}
+{%- endblock content -%}

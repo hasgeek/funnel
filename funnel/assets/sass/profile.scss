@@ -101,10 +101,11 @@
 
 .profile-create-btn {
   margin-right: 8px;
+  margin-top: 0;
 }
 
 .profile-create-btn--mobile {
-  width: calc(100% - 65px);
+  width: 100%;
   .mui-btn {
     width: 100%;
   }
@@ -112,7 +113,7 @@
 
 .profile-dropdown-btn {
   background-color: $mui-bg-color-primary-dark;
-  padding: 6px 16px;
+  padding: $mui-grid-padding/2 $mui-grid-padding;
   text-align: center;
 }
 
@@ -122,16 +123,16 @@
   background-color: $mui-bg-color-primary-dark;
 }
 
-.floating-menu-btns {
-  position: absolute;
-  right: $mui-grid-padding;
-  top: -52px;
+.mobile-nav__menu .profile-dropdown-btn {
+  background-color: transparent;
+  margin-right: -$mui-grid-padding;
 }
 
 @media (min-width: 768px) {
   .profile {
     position: relative;
     margin-top: $mui-grid-padding;
+    padding: 0 $mui-grid-padding;
     .profile__background {
       display: block;
       position: absolute;
@@ -186,5 +187,57 @@
   }
   .profile-details {
     padding: 2 * $mui-grid-padding 0 0;
+  }
+}
+
+.profile-subheader {
+  margin-top: $mui-grid-padding;
+  .profile-subheader__details {
+    flex-direction: row;
+    justify-content: left;
+    .profile-subheader__details__title {
+      font-size: 20px;
+      margin-bottom: $mui-grid-padding;
+      display: inline-block;
+      margin-right: $mui-grid-padding/2;
+    }
+  }
+  .profile-subheader__description {
+    margin-top: $mui-grid-padding;
+  }
+  .profile-subheader__sponsors {
+    margin-top: $mui-grid-padding;
+  }
+  .profile-subheader__spon-logo {
+    margin: $mui-grid-padding 0;
+    padding: $mui-grid-padding 0 0;
+    img {
+      margin-bottom: $mui-grid-padding * 3;
+      max-width: 200px;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .profile-subheader {
+    margin-top: $mui-grid-padding * 2;
+    .profile-subheader__details {
+      flex-direction: column;
+      justify-content: center;
+      .profile-subheader__details__title {
+        font-size: 40px;
+      }
+    }
+    .profile-subheader__description {
+      margin-top: $mui-grid-padding * 2;
+    }
+    .profile-subheader__sponsors {
+      margin-top: $mui-grid-padding * 2;
+    }
+    .profile-subheader__spon-logo {
+      img {
+        margin-bottom: $mui-grid-padding;
+      }
+    }
   }
 }

@@ -1,16 +1,18 @@
+"""Siteadmin views."""
+
 from __future__ import annotations
 
-from collections import Counter, namedtuple
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import timedelta
 from functools import wraps
 from io import StringIO
-from typing import Dict, Optional
+from typing import Any, Dict, Optional, cast
 import csv
 
 from sqlalchemy.dialects.postgresql import INTERVAL
 
-from flask import abort, flash, redirect, render_template, request, url_for
+from flask import abort, current_app, flash, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import Form
@@ -29,9 +31,11 @@ from ..models import (
     UserSession,
     auth_client_user_session,
     db,
+    sa,
 )
-from ..typing import ReturnRenderWith, ReturnResponse, ReturnView
+from ..typing import ReturnRenderWith, ReturnResponse, ReturnView, WrappedFunc
 from ..utils import abort_null
+from .helpers import render_redirect
 from .login_session import requires_login
 
 # XXX: Replace with TypedDict when upgrading to Python 3.8+
@@ -56,28 +60,36 @@ class AuthClientUserReport:
     counts: Dict[str, int] = field(default_factory=counts_template.copy)
 
 
-def requires_siteadmin(f):
+@dataclass
+class ReportCounter:
+    """Data structure for counting report types against frequency of reports."""
+
+    report_type: int
+    frequency: int
+
+
+def requires_siteadmin(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require siteadmin privilege."""
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         if not current_auth.user or not current_auth.user.is_site_admin:
             abort(403)
         return f(*args, **kwargs)
 
-    return decorated_function
+    return cast(WrappedFunc, wrapper)
 
 
-def requires_comment_moderator(f):
+def requires_comment_moderator(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require comment moderator privilege."""
 
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         if not current_auth.user or not current_auth.user.is_comment_moderator:
             abort(403)
         return f(*args, **kwargs)
 
-    return decorated_function
+    return cast(WrappedFunc, wrapper)
 
 
 @route('/siteadmin')
@@ -93,12 +105,12 @@ class SiteadminView(ClassView):
         """Render siteadmin dashboard landing page."""
         user_count = User.active_user_count()
         mau = (
-            db.session.query(db.func.count(db.func.distinct(UserSession.user_id)))
+            db.session.query(sa.func.count(sa.func.distinct(UserSession.user_id)))
             .select_from(UserSession)
             .join(User, UserSession.user)
             .filter(
                 User.state.ACTIVE,
-                UserSession.accessed_at > db.func.utcnow() - timedelta(days=30),
+                UserSession.accessed_at > sa.func.utcnow() - timedelta(days=30),
             )
             .scalar()
         )
@@ -113,8 +125,8 @@ class SiteadminView(ClassView):
         """Render CSV of registered users by month."""
         users_by_month = (
             db.session.query(
-                db.func.date_trunc('month', User.created_at).label('month'),
-                db.func.count().label('count'),
+                sa.func.date_trunc('month', User.created_at).label('month'),
+                sa.func.count().label('count'),
             )
             .select_from(User)
             .filter(User.state.ACTIVE)
@@ -155,7 +167,7 @@ class SiteadminView(ClassView):
                     auth_client_user_session.c.user_session_id == UserSession.id,
                     User.state.ACTIVE,
                     auth_client_user_session.c.accessed_at
-                    >= db.func.utcnow() - db.func.cast(interval, INTERVAL),
+                    >= sa.func.utcnow() - sa.func.cast(interval, INTERVAL),
                 )
                 .group_by(
                     auth_client_user_session.c.auth_client_id, UserSession.user_id
@@ -166,7 +178,7 @@ class SiteadminView(ClassView):
             clients = (
                 db.session.query(
                     query_client_users.c.auth_client_id.label('auth_client_id'),
-                    db.func.count().label('count'),
+                    sa.func.count().label('count'),
                     AuthClient.title.label('title'),
                     AuthClient.website.label('website'),
                 )
@@ -177,7 +189,7 @@ class SiteadminView(ClassView):
                     AuthClient.title,
                     AuthClient.website,
                 )
-                .order_by(db.text('count DESC'))
+                .order_by(sa.text('count DESC'))
                 .all()
             )
             for row in clients:
@@ -231,7 +243,7 @@ class SiteadminView(ClassView):
         )
         if query:
             comments = comments.join(User).filter(
-                db.or_(
+                sa.or_(
                     Comment.search_vector.match(for_tsquery(query or '')),
                     User.search_vector.match(for_tsquery(query or '')),
                 )
@@ -263,7 +275,9 @@ class SiteadminView(ClassView):
         # Avoid request.form.getlist('comment_id') here
         if comment_spam_form.validate_on_submit():
             comments = Comment.query.filter(
-                Comment.uuid_b58.in_(request.form.getlist('comment_id'))
+                Comment.uuid_b58.in_(  # type: ignore[attr-defined]
+                    request.form.getlist('comment_id')
+                )
             )
             for comment in comments:
                 CommentModeratorReport.submit(actor=current_auth.user, comment=comment)
@@ -271,11 +285,11 @@ class SiteadminView(ClassView):
             flash(_("Comment(s) successfully reported as spam"), category='info')
         else:
             flash(
-                _("There was a problem marking the comments as spam. Please try again"),
+                _("There was a problem marking the comments as spam. Try again?"),
                 category='error',
             )
 
-        return redirect(url_for('siteadmin_comments'))
+        return render_redirect(url_for('siteadmin_comments'))
 
     @route('comments/review', endpoint='siteadmin_review_comments_random')
     @requires_comment_moderator
@@ -283,11 +297,11 @@ class SiteadminView(ClassView):
         """Evaluate an existing comment spam report, selected at random."""
         random_report = CommentModeratorReport.get_one(exclude_user=current_auth.user)
         if random_report is not None:
-            return redirect(
+            return render_redirect(
                 url_for('siteadmin_review_comment', report=random_report.uuid_b58)
             )
         flash(_("There are no comment reports to review at this time"), 'error')
-        return redirect(url_for('siteadmin_comments'))
+        return render_redirect(url_for('siteadmin_comments'))
 
     @route(
         'comments/review/<report>',
@@ -304,11 +318,11 @@ class SiteadminView(ClassView):
 
         if comment_report.comment.is_reviewed_by(current_auth.user):
             flash(_("You cannot review same comment twice"), 'error')
-            return redirect(url_for('siteadmin_review_comments_random'))
+            return render_redirect(url_for('siteadmin_review_comments_random'))
 
         if comment_report.user == current_auth.user:
             flash(_("You cannot review your own report"), 'error')
-            return redirect(url_for('siteadmin_review_comments_random'))
+            return render_redirect(url_for('siteadmin_review_comments_random'))
 
         # get all existing reports for the same comment
         existing_reports = CommentModeratorReport.get_all(
@@ -322,10 +336,10 @@ class SiteadminView(ClassView):
             flash(_("This comment has already been marked as spam"), 'error')
             CommentModeratorReport.query.filter_by(
                 comment=comment_report.comment
-            ).update({'resolved_at': db.func.utcnow()}, synchronize_session='fetch')
+            ).update({'resolved_at': sa.func.utcnow()}, synchronize_session='fetch')
             db.session.commit()
             # Redirect to a new report
-            return redirect(url_for('siteadmin_review_comments_random'))
+            return render_redirect(url_for('siteadmin_review_comments_random'))
 
         report_form = ModeratorReportForm()
         report_form.form_nonce.data = report_form.form_nonce.default()
@@ -339,8 +353,6 @@ class SiteadminView(ClassView):
                 + [report_form.report_type.data]
             )
             # if there is already a report for this comment
-            ReportCounter = namedtuple('ReportCounter', ['report_type', 'frequency'])
-
             most_common_two = [
                 ReportCounter(report_type, frequency)
                 for report_type, frequency in report_counter.most_common(2)
@@ -361,7 +373,7 @@ class SiteadminView(ClassView):
                     CommentModeratorReport.query.filter_by(
                         comment=comment_report.comment
                     ).update(
-                        {'resolved_at': db.func.utcnow()}, synchronize_session='fetch'
+                        {'resolved_at': sa.func.utcnow()}, synchronize_session='fetch'
                     )
             else:
                 # current report is different from existing report and
@@ -377,9 +389,9 @@ class SiteadminView(ClassView):
             db.session.commit()
 
             # Redirect to a new report
-            return redirect(url_for('siteadmin_review_comments_random'))
+            return render_redirect(url_for('siteadmin_review_comments_random'))
 
-        app.logger.debug(report_form.errors)
+        current_app.logger.debug(report_form.errors)
 
         return {
             'report': comment_report,

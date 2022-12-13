@@ -1,3 +1,5 @@
+"""Views for scanned contacts, available under account settings."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -7,14 +9,7 @@ import csv
 
 from sqlalchemy.exc import IntegrityError
 
-from flask import (
-    Response,
-    current_app,
-    jsonify,
-    make_response,
-    render_template,
-    request,
-)
+from flask import Response, current_app, render_template, request
 
 from baseframe import _
 from coaster.auth import current_auth
@@ -22,7 +17,8 @@ from coaster.utils import getbool, make_name, midnight_to_utc, utcnow
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
-from ..models import ContactExchange, Project, TicketParticipant, db
+from ..models import ContactExchange, Project, TicketParticipant, db, sa
+from ..typing import ReturnRenderWith, ReturnView
 from ..utils import abort_null, format_twitter_handle
 from .login_session import requires_login
 
@@ -44,14 +40,14 @@ class ContactView(ClassView):
     def get_project(self, uuid_b58):
         return (
             Project.query.filter_by(uuid_b58=uuid_b58)
-            .options(db.load_only(Project.id, Project.uuid, Project.title))
+            .options(sa.orm.load_only(Project.id, Project.uuid, Project.title))
             .one_or_404()
         )
 
     @route('', endpoint='contacts')
     @requires_login
     @render_with('contacts.html.jinja2')
-    def contacts(self):
+    def contacts(self) -> ReturnRenderWith:
         """Return contacts grouped by project and date."""
         archived = getbool(request.args.get('archived'))
         return {
@@ -108,7 +104,7 @@ class ContactView(ClassView):
 
     @route('<uuid_b58>/<datestr>.csv', endpoint='contacts_project_date_csv')
     @requires_login
-    def project_date_csv(self, uuid_b58, datestr):
+    def project_date_csv(self, uuid_b58: str, datestr: str) -> ReturnView:
         """Return contacts for a given project and date in CSV format."""
         archived = getbool(request.args.get('archived'))
         project = self.get_project(uuid_b58)
@@ -120,14 +116,12 @@ class ContactView(ClassView):
         return self.contacts_to_csv(
             contacts,
             timezone=project.timezone,
-            filename='contacts-{project}-{date}'.format(
-                project=make_name(project.title), date=date.strftime('%Y%m%d')
-            ),
+            filename=f'contacts-{make_name(project.title)}-{date.strftime("%Y%m%d")}',
         )
 
     @route('<uuid_b58>.csv', endpoint='contacts_project_csv')
     @requires_login
-    def project_csv(self, uuid_b58):
+    def project_csv(self, uuid_b58: str) -> ReturnView:
         """Return contacts for a given project in CSV format."""
         archived = getbool(request.args.get('archived'))
         project = self.get_project(uuid_b58)
@@ -143,30 +137,36 @@ class ContactView(ClassView):
 
     @route('scan', endpoint='scan_contact')
     @requires_login
-    def scan(self):
+    def scan(self) -> ReturnView:
         """Scan a badge."""
         return render_template('scan_contact.html.jinja2')
 
     @route('scan/connect', endpoint='scan_connect', methods=['POST'])
     @requires_login
     @requestargs(('puk', abort_null), ('key', abort_null))
-    def connect(self, puk, key):
+    def connect(self, puk: str, key: str) -> ReturnView:
         """Verify a badge scan and create a contact."""
         ticket_participant = TicketParticipant.query.filter_by(puk=puk, key=key).first()
         if ticket_participant is None:
-            return make_response(
-                jsonify(status='error', message="Attendee details not found"), 404
-            )
+            # FIXME: when status='error', message should be in `error_description`
+            return {
+                'status': 'error',
+                'error': '404',
+                'message': _("Attendee details not found"),
+            }, 404
+
         project = ticket_participant.project
         if project.end_at:
             if (
                 midnight_to_utc(project.end_at + timedelta(days=1), project.timezone)
                 < utcnow()
             ):
-                return make_response(
-                    jsonify(status='error', message=_("This project has concluded")),
-                    403,
-                )
+                # FIXME: when status='error', message should be in `error_description`
+                return {
+                    'status': 'error',
+                    'error': '410',
+                    'message': _("This project has concluded"),
+                }, 410
 
             try:
                 contact_exchange = ContactExchange(
@@ -177,12 +177,13 @@ class ContactView(ClassView):
             except IntegrityError:
                 current_app.logger.warning("Contact already scanned")
                 db.session.rollback()
-            return jsonify(contact=contact_details(ticket_participant))
-        else:
-            # FIXME: when status='error', the message should be in `error_description`.
-            return make_response(
-                jsonify(status='error', message=_("Unauthorized contact exchange")), 403
-            )
+            return {'status': 'ok', 'contact': contact_details(ticket_participant)}
+        # FIXME: when status='error', message should be in `error_description`
+        return {
+            'status': 'error',
+            'error': '403',
+            'message': _("Unauthorized contact exchange"),
+        }, 403
 
 
 ContactView.init_app(app)

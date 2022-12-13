@@ -3,71 +3,9 @@ window.Hasgeek = {};
 window.Hasgeek.Config = {
   defaultLatitude: '12.961443',
   defaultLongitude: '77.64435000000003',
-  cm_markdown_config: {
-    mode: 'gfm',
-    lineNumbers: false,
-    theme: 'default',
-    lineWrapping: true,
-    autoCloseBrackets: true,
-    viewportMargin: Infinity,
-    extraKeys: {
-      Enter: 'newlineAndIndentContinueMarkdownList',
-      Tab: false,
-      'Shift-Tab': false,
-      Home: 'goLineLeft',
-      End: 'goLineRight',
-      'Cmd-Left': 'goLineLeft',
-      'Cmd-Right': 'goLineRight',
-    },
-  },
-  cm_css_config: 'css',
-  lineNumbers: false,
-  theme: 'default',
-  lineWrapping: true,
-  autoCloseBrackets: true,
-  matchBrackets: true,
-  viewportMargin: Infinity,
-  extraKeys: {
-    Tab: false,
-    'Shift-Tab': false,
-    Home: 'goLineLeft',
-    End: 'goLineRight',
-    'Cmd-Left': 'goLineLeft',
-    'Cmd-Right': 'goLineRight',
-  },
 };
 
 function activate_widgets() {
-  // Activate codemirror on all textareas with class='markdown'
-  $('textarea.markdown:not([style*="display: none"]').each(function () {
-    var editor = CodeMirror.fromTextArea(
-      this,
-      window.Hasgeek.Config.cm_markdown_config
-    );
-    var delay;
-    editor.on('change', function (instance) {
-      clearTimeout(delay);
-      delay = setTimeout(function () {
-        editor.save();
-      }, 300);
-    });
-  });
-
-  // Activate codemirror on all textareas with class='stylesheet'
-  $('textarea.stylesheet:not([style*="display: none"]').each(function () {
-    var editor = CodeMirror.fromTextArea(
-      this,
-      window.Hasgeek.Config.cm_css_config
-    );
-    var delay;
-    editor.on('change', function (instance) {
-      clearTimeout(delay);
-      delay = setTimeout(function () {
-        editor.save();
-      }, 300);
-    });
-  });
-
   /* Upgrade to jquery 3.6 select2 autofocus isn't working. This is to fix that problem.
     select2/select2#5993  */
   $(document).on('select2:open', function () {
@@ -224,13 +162,9 @@ $(function () {
     var url = document.location.toString(),
       tabmatch = null;
     if (url.match('#/')) {
-      tabmatch = $(
-        '.nav-tabs.nav-tabs-auto a[href="#' + url.split('#/')[1] + '"]'
-      );
+      tabmatch = $('.nav-tabs.nav-tabs-auto a[href="#' + url.split('#/')[1] + '"]');
     } else if (url.match('#')) {
-      tabmatch = $(
-        '.nav-tabs.nav-tabs-auto a[href="#' + url.split('#')[1] + '"]'
-      );
+      tabmatch = $('.nav-tabs.nav-tabs-auto a[href="#' + url.split('#')[1] + '"]');
     }
     if (tabmatch !== null && tabmatch.length !== 0) {
       $(tabmatch[0]).tab('show');
@@ -271,6 +205,18 @@ window.Hasgeek.Forms = {
         return false;
       }
     });
+  },
+  preventDoubleSubmit: function (formId) {
+    var form = $('#' + formId);
+    form
+      .find('input[type="submit"]')
+      .prop('disabled', true)
+      .addClass('submit-disabled');
+    form
+      .find('button[type="submit"]')
+      .prop('disabled', true)
+      .addClass('submit-disabled');
+    form.find('.loading').removeClass('mui--hide');
   },
   lastuserAutocomplete: function (options) {
     var assembleUsers = function (users) {
@@ -373,6 +319,53 @@ window.Hasgeek.Forms = {
       }
     });
   },
+  showFormError: function (formid, error, alertBoxHtml) {
+    var form = $('#' + formid);
+    form
+      .find('input[type="submit"]')
+      .prop('disabled', false)
+      .removeClass('submit-disabled');
+    form
+      .find('button[type="submit"]')
+      .prop('disabled', false)
+      .removeClass('submit-disabled');
+    form.find('.loading').addClass('mui--hide');
+    $('.alert').remove();
+    form.append(alertBoxHtml);
+    if (error.readyState === 4) {
+      if (error.status === 500) {
+        $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.serverError);
+      } else if (error.status === 429) {
+        $(form)
+          .find('.alert__text')
+          .text(window.Hasgeek.Config.errorMsg.rateLimitError);
+      } else if (error.responseJSON && error.responseJSON.error_description) {
+        $(form).find('.alert__text').text(error.responseJSON.error_description);
+      } else {
+        $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.error);
+      }
+    } else {
+      $(form).find('.alert__text').text(window.Hasgeek.Config.errorMsg.networkError);
+    }
+  },
+  ajaxFormSubmit: function (formId, url, onSuccess, onError, config) {
+    $.ajax({
+      url: url,
+      type: 'POST',
+      data: $('#' + formId).serialize(),
+      dataType: config.dataType ? config.dataType : 'json',
+      beforeSend: function () {
+        window.Hasgeek.Forms.preventDoubleSubmit(formId);
+        if (config.beforeSend) config.beforeSend();
+      },
+      success: function (responseData) {
+        onSuccess(responseData);
+      },
+      error: function (xhr, status, errMsg) {
+        onError(xhr);
+      },
+    });
+  },
   /* Takes formId, url, onSuccess, onError, config
    'formId' - Form id selector to query the DOM for the form
    'url' - The url to which the post request is sent
@@ -389,30 +382,7 @@ window.Hasgeek.Forms = {
       .find('button[type="submit"]')
       .click(function (event) {
         event.preventDefault();
-
-        $.ajax({
-          url: url,
-          type: 'POST',
-          data: $('#' + formId).serialize(),
-          dataType: config.dataType ? config.dataType : 'json',
-          beforeSend: function () {
-            // Disable submit button to prevent double submit
-            $('#' + formId)
-              .find('button[type="submit"]')
-              .prop('disabled', true);
-            // Baseframe form has a loading indication which is hidden by default. Show the loading indicator
-            $('#' + formId)
-              .find('.loading')
-              .removeClass('mui--hide');
-            if (config.beforeSend) config.beforeSend();
-          },
-        })
-          .done(function (remoteData) {
-            onSuccess(remoteData);
-          })
-          .fail(function (response) {
-            onError(response);
-          });
+        window.Hasgeek.Forms.ajaxFormSubmit(formId, url, onSuccess, onError, config);
       });
   },
 };
@@ -479,14 +449,25 @@ window.Hasgeek.Utils = {
       var len = parts.length;
       if (len > 1) {
         return (
-          (parts[0] ? parts[0][0] : '') +
-          (parts[len - 1] ? parts[len - 1][0] : '')
+          (parts[0] ? parts[0][0] : '') + (parts[len - 1] ? parts[len - 1][0] : '')
         );
       } else if (parts) {
         return parts[0] ? parts[0][0] : '';
       }
     }
     return '';
+  },
+  getAvatarColour: function (name) {
+    var avatarColorCount = 6;
+    var initials = this.getInitials(name);
+    var stringTotal = 0;
+    if (initials.length) {
+      stringTotal = initials.charCodeAt(0);
+      if (initials.length > 1) {
+        stringTotal += initials.charCodeAt(1);
+      }
+    }
+    return stringTotal % avatarColorCount;
   },
 };
 

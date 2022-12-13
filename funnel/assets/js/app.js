@@ -3,7 +3,6 @@
 import Utils from './utils/helper';
 import ScrollHelper from './utils/scrollhelper';
 import loadLangTranslations from './utils/translations';
-import addVegaSupport from './utils/vegaembed';
 import LazyloadImg from './utils/lazyloadimage';
 import Form from './utils/formhelper';
 import Analytics from './utils/analytics';
@@ -32,8 +31,10 @@ $(() => {
       'An internal server error occurred. Our support team has been notified and will investigate'
     ),
     networkError: window.gettext(
-      'Unable to connect. Check connection and tap to reload'
+      'Unable to connect. Check connection and refresh the page'
     ),
+    rateLimitError: window.gettext('This is unusually high activity. Try again later'),
+    error: window.gettext('An error occured when submitting the form'),
   };
 
   Utils.collapse();
@@ -58,7 +59,6 @@ $(() => {
     );
   }
   Utils.addWebShare();
-  Utils.activateToggleSwitch();
   if (window.Hasgeek.Config.commentSidebarElem) {
     Utils.headerMenuDropdown(
       '.js-comments-btn',
@@ -67,12 +67,10 @@ $(() => {
       window.Hasgeek.Config.unreadCommentUrl
     );
   }
-  addVegaSupport();
 
-  const intersectionObserverComponents =
-    function intersectionObserverComponents() {
-      LazyloadImg.init('js-lazyload-img');
-    };
+  const intersectionObserverComponents = function intersectionObserverComponents() {
+    LazyloadImg.init('js-lazyload-img');
+  };
 
   if (
     document.querySelector('.js-lazyload-img') ||
@@ -112,8 +110,7 @@ $(() => {
 
   // Send click events to Google analytics
   $('.mui-btn, a').click(function gaHandler() {
-    const action =
-      $(this).attr('data-ga') || $(this).attr('title') || $(this).html();
+    const action = $(this).attr('data-ga') || $(this).attr('title') || $(this).html();
     const target = $(this).attr('data-target') || $(this).attr('href') || '';
     Analytics.sendToGA('click', action, target);
   });

@@ -7,13 +7,16 @@ $(() => {
       const transport = $(this).attr('id');
       const currentState = this.checked;
       const previousState = !currentState;
-      $.ajax({
-        type: 'POST',
-        url: config.url,
-        data: $(this).parents('.js-autosubmit-form').serializeArray(),
-        dataType: 'json',
-        timeout: window.Hasgeek.Config.ajaxTimeout,
-        success() {
+      const form = $(this).parents('.js-autosubmit-form')[0];
+      fetch(config.url, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(new FormData(form)).toString(),
+      })
+        .then(() => {
           if (currentState && transport) {
             $(`input[data-transport="preference-${transport}"]`).attr(
               'disabled',
@@ -23,20 +26,16 @@ $(() => {
               'switch-label--disabled'
             );
           } else if (transport) {
-            $(`input[data-transport="preference-${transport}"]`).attr(
-              'disabled',
-              true
-            );
+            $(`input[data-transport="preference-${transport}"]`).attr('disabled', true);
             $(`label[data-transport="preference-${transport}"]`).addClass(
               'switch-label--disabled'
             );
           }
-        },
-        error(response) {
-          Form.handleAjaxError(response);
+        })
+        .catch((error) => {
+          Form.handleAjaxError(error);
           $(checkbox).prop('checked', previousState);
-        },
-      });
+        });
     });
   };
 });

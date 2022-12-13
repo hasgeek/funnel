@@ -1,10 +1,19 @@
+"""Model for project venue and rooms within a venue (legacy, pending global venues)."""
+
 from __future__ import annotations
 
 from sqlalchemy.ext.orderinglist import ordering_list
 
 from coaster.sqlalchemy import add_primary_relationship, with_roles
 
-from . import BaseScopedNameMixin, CoordinatesMixin, MarkdownColumn, UuidMixin, db
+from . import (
+    BaseScopedNameMixin,
+    CoordinatesMixin,
+    MarkdownCompositeBasic,
+    UuidMixin,
+    db,
+    sa,
+)
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
@@ -12,24 +21,31 @@ from .project_membership import project_child_role_map
 __all__ = ['Venue', 'VenueRoom']
 
 
-class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
+class Venue(
+    UuidMixin,
+    BaseScopedNameMixin,
+    CoordinatesMixin,
+    db.Model,  # type: ignore[name-defined]
+):
     __tablename__ = 'venue'
 
-    project_id = db.Column(None, db.ForeignKey('project.id'), nullable=False)
-    project = with_roles(
-        db.relationship(Project, back_populates='venues'),
+    project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
+    project: sa.orm.relationship[Project] = with_roles(
+        sa.orm.relationship(Project, back_populates='venues'),
         grants_via={None: project_child_role_map},
     )
-    parent = db.synonym('project')
-    description = MarkdownColumn('description', default='', nullable=False)
-    address1 = db.Column(db.Unicode(160), default='', nullable=False)
-    address2 = db.Column(db.Unicode(160), default='', nullable=False)
-    city = db.Column(db.Unicode(30), default='', nullable=False)
-    state = db.Column(db.Unicode(30), default='', nullable=False)
-    postcode = db.Column(db.Unicode(20), default='', nullable=False)
-    country = db.Column(db.Unicode(2), default='', nullable=False)
+    parent = sa.orm.synonym('project')
+    description = MarkdownCompositeBasic.create(
+        'description', default='', nullable=False
+    )
+    address1 = sa.Column(sa.Unicode(160), default='', nullable=False)
+    address2 = sa.Column(sa.Unicode(160), default='', nullable=False)
+    city = sa.Column(sa.Unicode(30), default='', nullable=False)
+    state = sa.Column(sa.Unicode(30), default='', nullable=False)
+    postcode = sa.Column(sa.Unicode(20), default='', nullable=False)
+    country = sa.Column(sa.Unicode(2), default='', nullable=False)
 
-    rooms = db.relationship(
+    rooms = sa.orm.relationship(
         'VenueRoom',
         cascade='all',
         order_by='VenueRoom.seq',
@@ -37,9 +53,9 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
         back_populates='venue',
     )
 
-    seq = db.Column(db.Integer, nullable=False)
+    seq = sa.Column(sa.Integer, nullable=False)
 
-    __table_args__ = (db.UniqueConstraint('project_id', 'name'),)
+    __table_args__ = (sa.UniqueConstraint('project_id', 'name'),)
 
     __roles__ = {
         'all': {
@@ -88,27 +104,30 @@ class Venue(UuidMixin, BaseScopedNameMixin, CoordinatesMixin, db.Model):
     }
 
 
-class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):
+class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'venue_room'
 
-    venue_id = db.Column(None, db.ForeignKey('venue.id'), nullable=False)
-    venue = with_roles(
-        db.relationship(Venue, back_populates='rooms'),
+    venue_id = sa.Column(sa.Integer, sa.ForeignKey('venue.id'), nullable=False)
+    venue: sa.orm.relationship[Venue] = with_roles(
+        sa.orm.relationship(Venue, back_populates='rooms'),
         # Since Venue already remaps Project roles, we just want the remapped role names
         grants_via={None: set(project_child_role_map.values())},
     )
-    parent = db.synonym('venue')
-    description = MarkdownColumn('description', default='', nullable=False)
-    bgcolor = db.Column(db.Unicode(6), nullable=False, default='229922')
+    parent = sa.orm.synonym('venue')
+    description = MarkdownCompositeBasic.create(
+        'description', default='', nullable=False
+    )
+    bgcolor = sa.Column(sa.Unicode(6), nullable=False, default='229922')
 
-    seq = db.Column(db.Integer, nullable=False)
+    seq = sa.Column(sa.Integer, nullable=False)
 
-    __table_args__ = (db.UniqueConstraint('venue_id', 'name'),)
+    __table_args__ = (sa.UniqueConstraint('venue_id', 'name'),)
 
     __roles__ = {
         'all': {
             'read': {
-                'id',  # TODO: Used in SessionForm.venue_room_id; needs to be .venue_room
+                # TODO: id is used in SessionForm.venue_room_id; needs to be .venue_room
+                'id',
                 'name',
                 'title',
                 'description',
@@ -156,7 +175,7 @@ with_roles(Project.primary_venue, read={'all'}, datasets={'primary', 'without_pa
 @reopen(Project)
 class __Project:
     venues = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             Venue,
             cascade='all',
             order_by='Venue.seq',

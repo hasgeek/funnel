@@ -1,3 +1,5 @@
+"""Membership model for collaborators on a proposal (submission)."""
+
 from __future__ import annotations
 
 from typing import Set
@@ -6,9 +8,13 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import db
+from . import db, sa
 from .helpers import reopen
-from .membership_mixin import ImmutableUserMembershipMixin, ReorderMembershipMixin
+from .membership_mixin import (
+    FrozenAttributionMixin,
+    ImmutableUserMembershipMixin,
+    ReorderMembershipMixin,
+)
 from .project import Project
 from .proposal import Proposal
 from .user import User
@@ -16,19 +22,22 @@ from .user import User
 __all__ = ['ProposalMembership']
 
 
-class ProposalMembership(
-    ReorderMembershipMixin, ImmutableUserMembershipMixin, db.Model
+class ProposalMembership(  # type: ignore[misc]
+    FrozenAttributionMixin,
+    ReorderMembershipMixin,
+    ImmutableUserMembershipMixin,
+    db.Model,  # type: ignore[name-defined]
 ):
     """Users can be presenters or reviewers on proposals."""
 
     __tablename__ = 'proposal_membership'
 
-    # List of is_role columns in this model
-    __data_columns__ = ('seq', 'is_uncredited', 'label')
+    # List of data columns in this model
+    __data_columns__ = ('seq', 'is_uncredited', 'label', 'title')
 
     __roles__ = {
         'all': {
-            'read': {'urls', 'user', 'seq', 'is_uncredited', 'label'},
+            'read': {'is_uncredited', 'label', 'seq', 'title', 'urls', 'user'},
             'call': {'url_for'},
         },
         'editor': {
@@ -37,47 +46,54 @@ class ProposalMembership(
     }
     __datasets__ = {
         'primary': {
-            'urls',
-            'uuid_b58',
-            'offered_roles',
-            'seq',
             'is_uncredited',
             'label',
-            'user',
+            'offered_roles',
             'proposal',
+            'seq',
+            'title',
+            'urls',
+            'user',
+            'uuid_b58',
         },
         'without_parent': {
-            'urls',
-            'uuid_b58',
-            'offered_roles',
-            'seq',
             'is_uncredited',
             'label',
+            'offered_roles',
+            'seq',
+            'title',
+            'urls',
             'user',
+            'uuid_b58',
         },
         'related': {
-            'urls',
-            'uuid_b58',
-            'offered_roles',
-            'seq',
             'is_uncredited',
             'label',
+            'offered_roles',
+            'seq',
+            'title',
+            'urls',
+            'uuid_b58',
         },
     }
 
-    proposal_id = immutable(
+    revoke_on_subject_delete = False
+
+    proposal_id: sa.Column[int] = immutable(
         with_roles(
-            db.Column(
-                None, db.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
+            sa.Column(
+                sa.Integer,
+                sa.ForeignKey('proposal.id', ondelete='CASCADE'),
+                nullable=False,
             ),
             read={'subject', 'editor'},
         ),
     )
-    proposal = immutable(
+    proposal: sa.orm.relationship[Proposal] = immutable(
         with_roles(
-            db.relationship(
+            sa.orm.relationship(
                 Proposal,
-                backref=db.backref(
+                backref=sa.orm.backref(
                     'all_memberships',
                     lazy='dynamic',
                     cascade='all',
@@ -88,20 +104,20 @@ class ProposalMembership(
             grants_via={None: {'editor'}},
         ),
     )
-    parent = db.synonym('proposal')
-    parent_id = db.synonym('proposal_id')
+    parent = sa.orm.synonym('proposal')
+    parent_id = sa.orm.synonym('proposal_id')
 
     #: Uncredited members are not listed in the main display, but can edit and may be
     #: listed in a details section. Uncredited memberships are for support roles such
     #: as copy editors.
-    is_uncredited = db.Column(db.Boolean, nullable=False, default=False)
+    is_uncredited = sa.Column(sa.Boolean, nullable=False, default=False)
 
     #: Optional label, indicating the member's role on the proposal
     label = immutable(
-        db.Column(
-            db.Unicode,
-            db.CheckConstraint(
-                db.column('label') != '', name='proposal_membership_label_check'
+        sa.Column(
+            sa.Unicode,
+            sa.CheckConstraint(
+                sa.column('label') != '', name='proposal_membership_label_check'
             ),
             nullable=True,
         )
@@ -122,11 +138,11 @@ class __Proposal:
     # This relationship does not use `lazy='dynamic'` because it is expected to contain
     # <2 records on average, and won't exceed 50 in the most extreme cases
     memberships = with_roles(
-        db.relationship(
+        sa.orm.relationship(
             ProposalMembership,
-            primaryjoin=db.and_(
+            primaryjoin=sa.and_(
                 ProposalMembership.proposal_id == Proposal.id,
-                ProposalMembership.is_active,
+                ProposalMembership.is_active,  # type: ignore[arg-type]
             ),
             order_by=ProposalMembership.seq,
             viewonly=True,
@@ -147,19 +163,31 @@ class __Proposal:
 
 @reopen(User)
 class __User:
-    all_proposal_memberships = db.relationship(
+    # pylint: disable=invalid-unary-operand-type
+
+    all_proposal_memberships = sa.orm.relationship(
         ProposalMembership,
         lazy='dynamic',
         foreign_keys=[ProposalMembership.user_id],
         viewonly=True,
     )
 
-    proposal_memberships = db.relationship(
+    noninvite_proposal_memberships = sa.orm.relationship(
         ProposalMembership,
         lazy='dynamic',
-        primaryjoin=db.and_(
+        primaryjoin=sa.and_(
             ProposalMembership.user_id == User.id,
-            ProposalMembership.is_active,
+            ~ProposalMembership.is_invite,  # type: ignore[operator]
+        ),
+        viewonly=True,
+    )
+
+    proposal_memberships = sa.orm.relationship(
+        ProposalMembership,
+        lazy='dynamic',
+        primaryjoin=sa.and_(
+            ProposalMembership.user_id == User.id,
+            ProposalMembership.is_active,  # type: ignore[arg-type]
         ),
         viewonly=True,
     )
@@ -172,9 +200,16 @@ class __User:
         return (
             self.proposal_memberships.join(Proposal, ProposalMembership.proposal)
             .join(Project, Proposal.project)
-            .filter()
+            .filter(
+                ProposalMembership.is_uncredited.is_(False),
+                # TODO: Include proposal state filter (pending proposal workflow fix)
+            )
         )
 
     public_proposals = DynamicAssociationProxy(
         'public_proposal_memberships', 'proposal'
     )
+
+
+User.__active_membership_attrs__.add('proposal_memberships')
+User.__noninvite_membership_attrs__.add('noninvite_proposal_memberships')
