@@ -15,7 +15,8 @@ const PrismEmbed = {
     ];
     let asset = 0;
     const loadPrismStyle = () => {
-      $('head').append($(`<link href="${CDN_CSS}" rel="stylesheet"></link>`));
+      if (!$(`link[href*="${CDN_CSS}"]`).length)
+        $('head').append($(`<link href="${CDN_CSS}" rel="stylesheet"></link>`));
     };
     const loadPrismScript = () => {
       $.ajax({
@@ -41,8 +42,8 @@ const PrismEmbed = {
         }
       });
     };
+    loadPrismStyle();
     if (!window.Prism) {
-      loadPrismStyle();
       loadPrismScript();
     } else this.activatePrism();
   },
