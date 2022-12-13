@@ -20,7 +20,7 @@ from . import (
     BaseScopedIdNameMixin,
     Commentset,
     Mapped,
-    MarkdownColumn,
+    MarkdownCompositeDocument,
     Project,
     TimestampMixin,
     TSVectorType,
@@ -106,7 +106,7 @@ class Update(
     )
     parent = sa.orm.synonym('project')
 
-    body = MarkdownColumn('body', nullable=False)
+    body = MarkdownCompositeDocument.create('body', nullable=False)
 
     #: Update number, for Project updates, assigned when the update is published
     number = with_roles(

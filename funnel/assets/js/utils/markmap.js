@@ -1,10 +1,35 @@
 const MarkmapEmbed = {
   addMarkmap() {
-    $('.language-markmap').each(function embedMarkmap() {
-      $(this).addClass('embed-added');
-      $(this).find('code').addClass('markmap');
-    });
-    window.markmap.autoLoader.renderAll();
+    const self = this;
+    self.container
+      .find('.md-embed-markmap:not(.activating):not(.activated)')
+      .each(function embedMarkmap() {
+        $(this).find('.embed-loading').html('Loading mindmap&mldr;');
+        $(this).addClass('activating');
+        const current = $(this).find('.embed-container');
+        current
+          .addClass('markmap')
+          .append(
+            `<script type="text/template">${$(this)
+              .find('.embed-content')
+              .text()}</script>`
+          );
+        window.markmap.autoLoader.renderAllUnder(this);
+        $(this).addClass('activated').removeClass('activating');
+      });
+  },
+  resizeTimer: null,
+  resizeMarkmapContainers() {
+    const debounceInterval = 500;
+    if (this.resizeTimer) clearTimeout(this.resizeTimer);
+    this.resizeTimer = setTimeout(() => {
+      $('.md-embed-markmap.activated svg').each(function mmresized() {
+        const circles = $(this).find('circle');
+        const firstNode = circles[circles.length - 1];
+        firstNode.dispatchEvent(new Event('click'));
+        firstNode.dispatchEvent(new Event('click'));
+      });
+    }, debounceInterval);
   },
   loadMarkmap() {
     const self = this;
@@ -41,6 +66,7 @@ const MarkmapEmbed = {
           loadMarkmapScript();
         } else {
           self.addMarkmap();
+          window.addEventListener('resize', this.resizeMarkmapContainers.bind(this));
         }
       });
     };
@@ -50,9 +76,12 @@ const MarkmapEmbed = {
       self.addMarkmap();
     }
   },
-  init(containerDiv) {
-    this.containerDiv = containerDiv;
-    if ($('.language-markmap').length > 0) {
+  init(container) {
+    this.container = $(container || 'body');
+    if (
+      this.container.find('.md-embed-markmap:not(.activated):not(.activated)').length >
+      0
+    ) {
       this.loadMarkmap();
     }
   },

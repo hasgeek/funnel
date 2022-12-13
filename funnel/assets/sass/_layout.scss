@@ -860,45 +860,92 @@
   cursor: pointer;
 }
 
-.language-placeholder {
-  display: none;
-}
-
-.language-placeholder.embed-added {
-  display: block;
-  &.language-markmap {
+.md-embed {
+  border: 1px solid black;
+  background: linear-gradient(45deg, #bbb, #eee);
+  position: relative;
+  .embed-content {
+    display: none;
+  }
+  .embed-loading {
+    padding: 5px 2.5%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    place-content: center;
+  }
+  .embed-container {
+    display: none;
+    canvas,
+    svg {
+      width: 100% !important;
+      max-width: 100% !important;
+      background-color: transparent !important;
+    }
+  }
+  &.activating {
+    .embed-container {
+      visibility: hidden;
+      display: block;
+    }
+    .embed-loading {
+      position: absolute;
+      height: 100%;
+    }
+  }
+  &.activated {
+    .embed-loading {
+      display: none;
+    }
+    .embed-container {
+      visibility: visible;
+      display: block;
+    }
+  }
+  &.md-embed-markmap {
     margin-bottom: 0px;
+    .embed-container {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      svg {
+        height: 100%;
+      }
+    }
   }
-  canvas,
-  svg {
-    width: 100% !important;
-    height: 80vh;
-    border: 1px solid black;
-    background: linear-gradient(45deg, #bbb, #eee);
+  &.md-embed-vega-lite .vega-embed {
+    padding: 2.5%;
+    display: block !important;
+    svg.marks {
+      height: auto;
+    }
+    summary {
+      top: 2px;
+      right: 15px;
+    }
+    .vega-actions {
+      right: 6px;
+      top: 37px;
+    }
+    &.has-actions {
+      padding-top: 40px;
+    }
   }
-  canvas {
-    min-height: 150px;
+  &.md-embed-mermaid {
+    text-align: left;
+    &.activated {
+      text-align: center;
+    }
+  }
+  &.md-embed-vega-lite.vega-embed,
+  &.md-embed-mermaid {
+    padding: 2.5%;
   }
 }
 
-@media (max-aspect-ratio: 1/1) {
-  .language-placeholder.embed-added svg {
-    height: 40vh;
-  }
-}
-
-@media (max-aspect-ratio: 1/2) {
-  .language-placeholder.embed-added svg {
-    height: 30vh;
-  }
-}
-
-.language-placeholder.language-vega-lite.vega-embed {
-  display: block;
-  canvas,
-  svg {
-    max-width: 100% !important;
-  }
+.tf-v1-widget iframe {
+  height: 99% !important;
 }
 
 .snippets {
