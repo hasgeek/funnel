@@ -339,7 +339,7 @@ class RenderProjectCrewMembershipNotification(RenderShared, RenderNotification):
 
     def web(self):
         return render_template(
-            'notifications/project_crew_membership_added_web.html.jinja2',
+            'notifications/project_crew_membership_granted_web.html.jinja2',
             actor=self.actor,
             view=self,
             project=self.project,
@@ -352,7 +352,7 @@ class RenderProjectCrewMembershipNotification(RenderShared, RenderNotification):
 
     def email_content(self):
         return render_template(
-            'notifications/project_crew_membership_added_email.html.jinja2',
+            'notifications/project_crew_membership_granted_email.html.jinja2',
             actor=self.actor,
             view=self,
             project=self.project,
