@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Set
+from typing import Dict, Set, Union
 
 from werkzeug.utils import cached_property
 
@@ -29,7 +29,9 @@ project_child_role_map: Dict[str, str] = {
 
 #: ProjectCrewMembership maps project's `profile_admin` role to membership's `editor`
 #: role in addition to the recurring role grant map
-project_membership_role_map = {'profile_admin': 'editor'}
+project_membership_role_map: Dict[str, Union[str, Set[str]]] = {
+    'profile_admin': {'profile_admin', 'editor'}
+}
 project_membership_role_map.update(project_child_role_map)
 
 
