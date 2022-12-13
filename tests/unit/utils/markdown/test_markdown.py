@@ -25,7 +25,7 @@ def test_markdown_blank() -> None:
 
 
 # def test_markdown_cases(
-#    md_testname: str, md_configname: str,markdown_test_registry, unified_diff_output) -> None:
+#    md_testname: str, md_configname: str,markdown_test_registry, fail_with_diff
 # ) -> None:
 def test_markdown_cases(
     md_testname: str, md_configname: str, markdown_test_registry
@@ -38,7 +38,7 @@ def test_markdown_cases(
     assert case.expected_output == case.output
 
     # Debug function
-    # unified_diff_output(case.expected_output, case.output)
+    # fail_with_diff(case.expected_output, case.output)
 
 
 @pytest.mark.update_markdown_data()

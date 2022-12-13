@@ -1692,7 +1692,7 @@ def new_proposal(models, db_session, new_user, new_project) -> funnel_models.Pro
 
 
 @pytest.fixture()
-def unified_diff_output():
+def fail_with_diff():
     def func(left, right):
         if left != right:
             difference = unified_diff(left.split('\n'), right.split('\n'))
