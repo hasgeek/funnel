@@ -16,10 +16,11 @@ const TypeformEmbed = {
     }
     return false;
   },
-  addTypeformEmbed(typeformId, parentElem, loadScript) {
-    if (!$(parentElem).find(`#typeform-${typeformId}`).length) {
+  addTypeformEmbed(typeformId, anchorTag, parentDiv, loadScript) {
+    if (!$(parentDiv).find(`#typeform-${typeformId}`).length) {
       const typeformDiv = `<div class="typeform-wrapper" id="typeform-${typeformId}" data-tf-widget="${typeformId}" data-tf-inline-on-mobile data-tf-medium="snippet" ></div>`;
-      parentElem.append(typeformDiv);
+      $(anchorTag).after(typeformDiv);
+      $(anchorTag).remove();
       if (!loadScript) window.tf.load();
     }
   },
@@ -28,7 +29,8 @@ const TypeformEmbed = {
     $(containerDiv)
       .find('a')
       .each(function isTypeformUrl() {
-        const txt = $(this).attr('href');
+        const anchorTag = this;
+        const txt = $(anchorTag).attr('href');
         let urlSplit;
         let typeformId;
         let parentDiv;
@@ -38,10 +40,9 @@ const TypeformEmbed = {
           urlSplit = txt.split('/');
           typeformId = urlSplit.pop();
           typeformId = typeformId.includes('?') ? typeformId.split('?')[0] : typeformId;
-          parentDiv = $(this).parents(containerDiv);
-          $(this).remove();
+          parentDiv = $(anchorTag).parents(containerDiv);
           if (typeformId) {
-            self.addTypeformEmbed(typeformId, parentDiv, loadScript);
+            self.addTypeformEmbed(typeformId, anchorTag, parentDiv, loadScript);
           }
         }
       });

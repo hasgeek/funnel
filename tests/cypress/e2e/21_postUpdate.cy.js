@@ -18,7 +18,7 @@ describe('Test updates feature', () => {
     cy.get('a[data-cy-btn="add-update"]').click();
     cy.get('#title').type(project.update_title);
     cy.get('#field-body')
-      .find('.CodeMirror textarea')
+      .find('.cm-editor .cm-line')
       .type(project.update_body, { force: true });
     cy.get('#is_pinned').click();
     cy.get('button[data-cy="form-submit-btn"]').click();
@@ -28,7 +28,7 @@ describe('Test updates feature', () => {
     cy.get('a[data-cy-btn="add-update"]').click();
     cy.get('#title').type(project.restricted_update_title);
     cy.get('#field-body')
-      .find('.CodeMirror textarea')
+      .find('.cm-editor .cm-line')
       .type(project.restricted_update_body, { force: true });
     cy.get('#is_restricted').click();
     cy.get('button[data-cy="form-submit-btn"]').click();

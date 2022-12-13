@@ -1,0 +1,161 @@
+markdown = """
+## Code
+
+### Inline `code`
+
+### Indented code
+
+    // Some comments
+    line 1 of code
+    line 2 of code
+    line 3 of code
+
+
+### Block code "fences"
+
+```
+Sample text here...
+It is a sample text that has multiple lines
+```
+
+### Syntax highlighting
+
+#### Javascript
+```js
+var foo = function (bar) {
+  return bar++;
+};
+
+console.log(foo(5));
+console.log('`This should be printed`');
+```
+> Javascript can be highlighted by using either of the two keywords `js` and `javascript`
+
+#### Python
+```python
+import os
+from funnel.utils.markdown import DATAROOT, markdown
+
+if os.file.path.exists(
+    os.file.path.join(
+        DATAROOT,
+        'file',
+        'path'
+    )
+):
+    markdown('# I can output ``` also with a \\!')
+```
+
+#### Markdown
+```markdown
+*I can also type markdown code blocks.*
+Isn't that **fantastic**!
+
+- This is a list
+  - Just testing
+  - this out
+
+[hasgeek](https://hasgeek.com)
+```
+"""
+
+[config]
+profiles = [ "basic", "document",]
+
+[expected_output]
+basic = """<h2>Code</h2>
+<h3>Inline <code>code</code></h3>
+<h3>Indented code</h3>
+<pre><code>// Some comments
+line 1 of code
+line 2 of code
+line 3 of code
+</code></pre>
+<h3>Block code &quot;fences&quot;</h3>
+<pre><code class="language-none">Sample text here...
+It is a sample text that has multiple lines
+</code></pre>
+<h3>Syntax highlighting</h3>
+<h4>Javascript</h4>
+<pre><code class="language-js">var foo = function (bar) {
+  return bar++;
+};
+
+console.log(foo(5));
+console.log('`This should be printed`');
+</code></pre>
+<blockquote>
+<p>Javascript can be highlighted by using either of the two keywords <code>js</code> and <code>javascript</code></p>
+</blockquote>
+<h4>Python</h4>
+<pre><code class="language-python">import os
+from funnel.utils.markdown import DATAROOT, markdown
+
+if os.file.path.exists(
+    os.file.path.join(
+        DATAROOT,
+        'file',
+        'path'
+    )
+):
+    markdown('# I can output ``` also with a \\!')
+</code></pre>
+<h4>Markdown</h4>
+<pre><code class="language-markdown">*I can also type markdown code blocks.*
+Isn't that **fantastic**!
+
+- This is a list
+  - Just testing
+  - this out
+
+[hasgeek](https://hasgeek.com)
+</code></pre>
+"""
+document = """<h2 id="h:code">Code <a class="header-anchor" href="#h:code">¶</a></h2>
+<h3 id="h:inline-code">Inline <code>code</code> <a class="header-anchor" href="#h:inline-code">¶</a></h3>
+<h3 id="h:indented-code">Indented code <a class="header-anchor" href="#h:indented-code">¶</a></h3>
+<pre><code>// Some comments
+line 1 of code
+line 2 of code
+line 3 of code
+</code></pre>
+<h3 id="h:block-code-fences">Block code “fences” <a class="header-anchor" href="#h:block-code-fences">¶</a></h3>
+<pre><code class="language-none">Sample text here...
+It is a sample text that has multiple lines
+</code></pre>
+<h3 id="h:syntax-highlighting">Syntax highlighting <a class="header-anchor" href="#h:syntax-highlighting">¶</a></h3>
+<h4>Javascript</h4>
+<pre><code class="language-js">var foo = function (bar) {
+  return bar++;
+};
+
+console.log(foo(5));
+console.log('`This should be printed`');
+</code></pre>
+<blockquote>
+<p>Javascript can be highlighted by using either of the two keywords <code>js</code> and <code>javascript</code></p>
+</blockquote>
+<h4>Python</h4>
+<pre><code class="language-python">import os
+from funnel.utils.markdown import DATAROOT, markdown
+
+if os.file.path.exists(
+    os.file.path.join(
+        DATAROOT,
+        'file',
+        'path'
+    )
+):
+    markdown('# I can output ``` also with a \\!')
+</code></pre>
+<h4>Markdown</h4>
+<pre><code class="language-markdown">*I can also type markdown code blocks.*
+Isn't that **fantastic**!
+
+- This is a list
+  - Just testing
+  - this out
+
+[hasgeek](https://hasgeek.com)
+</code></pre>
+"""

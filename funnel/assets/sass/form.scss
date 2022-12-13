@@ -3,6 +3,7 @@
 @import 'mui/checkbox-and-radio', 'mui/form', 'mui/select', 'mui/textfield';
 @import 'components/draggablebox';
 @import 'components/switch';
+@import 'components/codemirror';
 
 .form-message {
   @extend .mui--text-title;
@@ -81,6 +82,10 @@
     height: 6em;
   }
 
+  textarea.markdown {
+    display: none;
+  }
+
   .mui-form__label {
     position: static;
     margin: 0 0 $mui-grid-padding/2;
@@ -136,12 +141,6 @@
   .alert {
     margin-bottom: $mui-grid-padding;
   }
-
-  .cm-editor .cm-placeholder {
-    color: $mui-text-accent;
-    @include mui-text('subhead');
-    font-family: $mui-base-font-family;
-  }
 }
 
 .mui-form {
@@ -156,11 +155,6 @@
       @include mui-text('body2');
       transform: none;
       top: -$mui-grid-padding/4;
-    }
-    .mui-textfield > .CodeMirror,
-    .mui-textfield > .cm-editor {
-      border-bottom: none;
-      outline: none;
     }
   }
 }
@@ -549,11 +543,6 @@
   width: 70%;
 }
 
-form.mui--bg-accent .CodeMirror,
-form.mui--bg-accent .cm-editor {
-  background: $mui-bg-color-accent;
-}
-
 .modal-form {
   display: none;
 }
@@ -601,17 +590,14 @@ form.mui--bg-accent .cm-editor {
       top: -14px;
     }
   }
-  #field-body .cm-editor {
-    min-height: calc(100vh - 110px);
-  }
-  textarea.markdown {
-    display: none;
-  }
-  .cm-editor div {
-    background: $mui-bg-color-primary;
-  }
   .markdown-field {
     position: relative;
+    .cm-editor {
+      border-bottom: none !important;
+      .cm-scroller {
+        min-height: calc(100vh - 110px) !important;
+      }
+    }
     .mui-form__error {
       position: absolute;
       top: 100px;

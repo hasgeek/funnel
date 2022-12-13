@@ -3,9 +3,6 @@
 {% block title %}{% trans %}Schedule{% endtrans %}{% endblock title %}
 
 {% block pageheaders %}
-  {% assets "css_codemirrormarkdown" -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets -%}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/schedule.scss') }}" />
   {% assets 'css_fullcalendar' -%}
     <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
@@ -109,9 +106,6 @@
 {% endblock basecontent %}
 
 {% block pagescripts %}
-  {% assets "js_codemirrormarkdown" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-  {%- endassets -%}
 {% endblock pagescripts %}
 
 {% block footerscripts %}

@@ -3,7 +3,7 @@ import Video from './utils/embedvideo';
 import Analytics from './utils/analytics';
 import Spa from './utils/spahelper';
 import Form from './utils/formhelper';
-import TypeformEmbed from './utils/typeform_embed';
+import initEmbed from './utils/initembed';
 
 const Ticketing = {
   init(tickets) {
@@ -173,6 +173,7 @@ $(() => {
       event.preventDefault();
       $(this).addClass('mui--hide');
       $(this).next('.js-htmltruncate-full').removeClass('mui--hide');
+      initEmbed($(this).next('.js-htmltruncate-full'));
     });
 
     // Adding the embed video player
@@ -224,6 +225,6 @@ $(() => {
     });
 
     // Include parent container
-    TypeformEmbed.init('#about .markdown');
+    initEmbed('#about .markdown');
   };
 });

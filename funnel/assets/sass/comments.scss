@@ -1,4 +1,6 @@
 @import 'components/variable';
+@import 'components/typography';
+@import 'components/codemirror';
 
 @media (max-width: 767px) {
   .post-form-block {
@@ -176,20 +178,23 @@
       width: calc(100% - 48px);
       margin: 0;
       padding: 0;
-      .CodeMirror {
+      textarea.field-comment_message {
+        display: none;
+      }
+      .cm-editor {
         border: 1px solid $mui-primary-color;
         border-radius: 16px 16px 0 16px;
         min-height: 56px;
         padding: $mui-grid-padding;
         height: auto;
-        .CodeMirror-sizer {
-          min-height: 29px !important;
+        .cm-scroller {
+          min-height: 29px;
         }
       }
-      .CodeMirror ~ .CodeMirror {
-        display: none;
+      .cm-editor ~ .cm-editor {
+        display: none !important;
       }
-      .CodeMirror-focused {
+      .cm-editor.cm-focused {
         border: 1px solid #4a90e2;
       }
     }
@@ -221,20 +226,23 @@
     bottom: 0;
     left: 0;
     box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);
-    background-color: $mui-bg-color-accent;
+    background-color: $mui-bg-color-primary;
     z-index: 1001;
     margin: 0;
+    max-height: 100%;
+    overflow-y: scroll;
     .mui-form {
-      .mui-form__fields .CodeMirror {
+      .mui-form__fields .cm-editor {
         border: none;
         border-radius: 0;
-        background: $mui-bg-color-accent;
+        background: $mui-bg-color-primary;
       }
     }
     .mui-btn--raised.icon-btn {
       border-radius: 0;
       box-shadow: none;
       padding-bottom: 16px;
+      background: inherit;
     }
     .user {
       padding-bottom: $mui-grid-padding/2;

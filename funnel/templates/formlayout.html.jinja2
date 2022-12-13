@@ -2,9 +2,6 @@
 {% block title %}{{ title }}{% endblock title %}
 
 {% block layoutheaders %}
-  {% assets "css_codemirrormarkdown" -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets -%}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
 {% endblock layoutheaders %}
 
@@ -18,17 +15,6 @@
   </div>
 </div>
 {% endblock contentwrapper %}
-
-{% block pagescripts %}
-  {% assets "js_codemirrormarkdown" -%}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    <script type="text/javascript">
-      $(function () {
-        activate_widgets();
-      });
-    </script>
-  {%- endassets -%}
-{% endblock pagescripts %}
 
 {% block serviceworker %}
 {% endblock serviceworker %}

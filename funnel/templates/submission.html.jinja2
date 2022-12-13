@@ -10,9 +10,6 @@
 {% block description %}{{ proposal.description }}{% endblock description %}
 
 {%- block pageheaders %}
-  {% assets "css_codemirrormarkdown" -%}
-    <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
-  {%- endassets -%}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/submission.scss') }}" />
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/comments.scss') }}" />
 {% endblock pageheaders %}
@@ -271,7 +268,6 @@
         user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
         loginUrl: "{{ url_for('login') }}",
         lastSeenUrl: {% if proposal.commentset.current_roles.document_subscriber %}{{ proposal.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
-        codemirrorUrl: {% assets "js_codemirrormarkdown" -%}{{ ASSET_URL|tojson }}{%- endassets -%}
       };
       window.Hasgeek.SubmissionInit();
       window.Hasgeek.Comments(commentsConfig);

@@ -1,4 +1,8 @@
-"""Markdown-it-py plugin to introduce <ins> markup using ++inserted++."""
+"""
+Markdown-it-py plugin to introduce <ins> markup using ++inserted++.
+
+Ported from markdown_it.rules_inline.strikethrough.
+"""
 
 from typing import Any, List
 
@@ -8,9 +12,12 @@ from markdown_it.rules_inline.state_inline import Delimiter
 
 __all__ = ['ins_plugin']
 
+PLUS_CHAR = 0x2B  # ASCII value for `+`
 
-def ins_plugin(md: MarkdownIt):
+
+def ins_plugin(md: MarkdownIt) -> None:
     def tokenize(state: StateInline, silent: bool):
+        """Insert each marker as a separate text token, and add it to delimiter list."""
         start = state.pos
         marker = state.srcCharCode[start]
         ch = chr(marker)
@@ -18,7 +25,7 @@ def ins_plugin(md: MarkdownIt):
         if silent:
             return False
 
-        if marker != 0x2B:
+        if marker != PLUS_CHAR:
             return False
 
         scanned = state.scanDelims(state.pos, True)
@@ -28,6 +35,11 @@ def ins_plugin(md: MarkdownIt):
         if length < 2:
             return False
 
+        if length % 2:
+            token = state.push('text', '', 0)
+            token.content = ch
+            length -= 1
+
         i = 0
         while i < length:
             token = state.push('text', '', 0)
@@ -35,8 +47,8 @@ def ins_plugin(md: MarkdownIt):
             state.delimiters.append(
                 Delimiter(
                     marker=marker,
-                    length=0,
-                    jump=i // 2,
+                    length=0,  # disable "rule of 3" length checks meant for emphasis
+                    jump=i // 2,  # for `++` 1 marker = 2 characters
                     token=len(state.tokens) - 1,
                     end=-1,
                     open=scanned.can_open,
@@ -50,12 +62,18 @@ def ins_plugin(md: MarkdownIt):
 
     def _post_process(state: StateInline, delimiters: List[Any]):
         lone_markers = []
-        max_ = len(delimiters)
+        maximum = len(delimiters)
 
-        for i in range(0, max_):
+        for i in range(0, maximum):
             start_delim = delimiters[i]
-            if start_delim.marker != 0x2B or start_delim.end == -1:
+            if start_delim.marker != PLUS_CHAR:
+                i += 1
                 continue
+
+            if start_delim.end == -1:
+                i += 1
+                continue
+
             end_delim = delimiters[start_delim.end]
 
             token = state.tokens[start_delim.token]
@@ -74,10 +92,16 @@ def ins_plugin(md: MarkdownIt):
 
             end_token = state.tokens[end_delim.token - 1]
 
-            if end_token.type == 'text' and end_token == chr(0x2B):
+            if end_token.type == 'text' and end_token == '+':  # nosec
                 lone_markers.append(end_delim.token - 1)
 
-        while len(lone_markers) > 0:
+        # If a marker sequence has an odd number of characters, it's split
+        # like this: `+++++` -> `+` + `++` + `++`, leaving one marker at the
+        # start of the sequence.
+        #
+        # So, we have to move all those markers after subsequent ins_close tags.
+        #
+        while lone_markers:
             i = lone_markers.pop()
             j = i + 1
 
@@ -87,24 +111,29 @@ def ins_plugin(md: MarkdownIt):
             j -= 1
 
             if i != j:
-                (state.tokens[i], state.tokens[j]) = (state.tokens[j], state.tokens[i])
+                token = state.tokens[j]
+                state.tokens[j] = state.tokens[i]
+                state.tokens[i] = token
 
-    md.inline.ruler.before('emphasis', 'ins', tokenize)
+    md.inline.ruler.before('strikethrough', 'ins', tokenize)
 
     def post_process(state: StateInline):
+        """Walk through delimiter list and replace text tokens with tags."""
         tokens_meta = state.tokens_meta
-        max_ = len(state.tokens_meta)
+        maximum = len(state.tokens_meta)
         _post_process(state, state.delimiters)
-        for current in range(0, max_):
-            if (
-                tokens_meta[current] is not None
-                and tokens_meta[current]['delimiters']  # type: ignore[index]
-            ):
-                _post_process(
-                    state, tokens_meta[current]['delimiters']  # type: ignore[index]
-                )
+        curr = 0
+        while curr < maximum:
+            try:
+                curr_meta = tokens_meta[curr]
+            except IndexError:
+                pass
+            else:
+                if curr_meta and 'delimiters' in curr_meta:
+                    _post_process(state, curr_meta["delimiters"])
+            curr += 1
 
-    md.inline.ruler2.before('emphasis', 'ins', post_process)
+    md.inline.ruler2.before('strikethrough', 'ins', post_process)
 
     def ins_open(self, tokens, idx, options, env):
         return '<ins>'
