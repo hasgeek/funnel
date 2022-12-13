@@ -505,6 +505,7 @@ class ProjectView(  # type: ignore[misc]
             obj=SimpleNamespace(
                 org=boxoffice_data.get('org', ''),
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
+                ticket_title=boxoffice_data.get('ticket_title', ''),
                 allow_rsvp=self.obj.allow_rsvp,
             ),
             model=Project,

@@ -14,7 +14,7 @@ describe('Project', () => {
     cy.get('#location').type(project.location);
     cy.get('#tagline').type(project.tagline);
     cy.get('#field-description')
-      .find('.CodeMirror textarea')
+      .find('.cm-editor .cm-line')
       .type(project.description, { force: true });
     cy.get('button[data-cy="form-submit-btn"]').click();
 

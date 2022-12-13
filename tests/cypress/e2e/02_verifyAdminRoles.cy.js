@@ -13,7 +13,7 @@ describe('Profile admin roles', () => {
     cy.wait(1000);
     cy.get('a[data-cy-btn="edit-details"]:visible').click();
     cy.get('#field-description')
-      .find('.CodeMirror textarea')
+      .find('.cm-editor .cm-line')
       .type(profile.description, { force: true });
     cy.get('button[data-cy="form-submit-btn"]').click();
     // TODO: After imgee merger, add tests to upload and select image

@@ -15,7 +15,7 @@ attrs==22.1.0
     #   trio
 beautifulsoup4==4.11.1
     # via -r requirements_test.in
-certifi==2022.9.24
+certifi==2022.12.7
     # via
     #   requests
     #   selenium
@@ -32,10 +32,6 @@ coveralls==3.3.1
     # via -r requirements_test.in
 docopt==0.6.2
     # via coveralls
-exceptiongroup==1.0.4
-    # via
-    #   pytest
-    #   trio
 h11==0.14.0
     # via wsproto
 idna==3.4
@@ -115,10 +111,6 @@ soupsieve==2.3.2.post1
     # via beautifulsoup4
 splinter==0.18.1
     # via pytest-splinter
-tomli==2.0.1
-    # via
-    #   coverage
-    #   pytest
 tomlkit==0.11.6
     # via -r requirements_test.in
 trio==0.22.0

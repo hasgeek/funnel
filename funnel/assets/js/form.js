@@ -1,5 +1,6 @@
 import 'htmx.org';
 import Form from './utils/formhelper';
+import codemirrorHelper from './utils/codemirror';
 
 window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
   let lastSavedData = $(formId).find('[type!="hidden"]').serialize();
@@ -80,4 +81,9 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
       typingTimer = setTimeout(enableAutoSave, typingWaitInterval);
     });
   }
+
+  $('textarea.markdown:not([style*="display: none"]').each(function enableCodemirror() {
+    const markdownId = $(this).attr('id');
+    codemirrorHelper(markdownId);
+  });
 };
