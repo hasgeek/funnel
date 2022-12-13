@@ -32,7 +32,10 @@ def given_vetinari_editor_promoter_project(
     assert 'editor' in project_expo2010.roles_for(user_vetinari)
 
 
-@given("Vimes is a promoter of Ankh-Morpork 2010", target_fixture='vimes_promoter')
+@given(
+    "Vimes is a promoter of the Ankh-Morpork 2010 project",
+    target_fixture='vimes_promoter',
+)
 def given_vimes_promoter_project(
     db_session,
     client,
@@ -56,7 +59,7 @@ def given_vimes_promoter_project(
 
 @when(
     parsers.parse(
-        "Vetinari adds Ridcully with role {role} to Ankh-Morpork 2010 project"
+        "Vetinari adds Ridcully with role {role} to the Ankh-Morpork 2010 project"
     ),
     target_fixture='ridcully_member',
 )
@@ -88,13 +91,13 @@ def when_add_ridcully_member(
     return ridcully_member
 
 
-@then(parsers.parse("{user} gets notified {notification_string} about addition."))
-@then(parsers.parse("{user} gets notified {notification_string} about invitation."))
-@then(parsers.parse("{user} gets notified {notification_string} about acceptance."))
-@then(parsers.parse("{user} gets notified {notification_string} about amendment."))
+@then(
+    parsers.parse("{user} gets notified with {notification_string} about the {change}.")
+)
 def then_user_notification_addition(
     user,
     notification_string,
+    change,
     user_vimes,
     user_ridcully,
     user_vetinari,
@@ -126,7 +129,7 @@ def then_user_notification_addition(
 
 @when(
     parsers.parse(
-        "Vetinari invites Ridcully with a role {role} to Ankh-Morpork 2010 project"
+        "Vetinari invites Ridcully with role {role} to the Ankh-Morpork 2010 project"
     ),
     target_fixture='ridcully_member',
 )
@@ -160,7 +163,8 @@ def when_invite_ridcully_member(
 
 @when(
     parsers.parse(
-        "Ridcully accepts the invitation to be a member of Ankh-Morpork 2010 project with a role {role}"
+        "Ridcully accepts the invitation to be a crew member of the Ankh-Morpork 2010"
+        " project with role {role}"
     ),
     target_fixture='ridcully_member',
 )
