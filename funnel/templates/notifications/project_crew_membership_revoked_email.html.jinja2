@@ -3,7 +3,8 @@
   <p>{{ view.activity_html() }}</p>
   <p class="btn-bar">
     <a class="btn"
-       href="{{ view.project.profile.url_for('members', _external=true, **view.tracking_tags()) }}">{%
-    trans %}See all admins{% endtrans %}</a>
+       href="{{ view.project.profile.url_for('members', _external=true, **view.tracking_tags()) }}">
+      {%- trans %}See all admins{% endtrans -%}
+    </a>
   </p>
 {%- endblock content -%}
