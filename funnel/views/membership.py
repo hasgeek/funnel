@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, request
+from flask import abort, flash, render_template, request
 
 from baseframe import _
 from baseframe.forms import Form, render_form
@@ -37,6 +37,7 @@ from ..models import (
     db,
     sa,
 )
+from ..proxies import request_wants
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
@@ -427,24 +428,39 @@ class ProjectCrewMembershipInviteView(
         return obj
 
     @route('', methods=['GET'])
-    @render_with('membership_invite_actions.html.jinja2')
     @requires_login
-    def invite(self) -> ReturnRenderWith:
-        return {
-            'membership': self.obj.current_access(datasets=('primary', 'related')),
-            'form': Form(),
-        }
-
-    @route('action', methods=['POST'])
-    @requires_login
-    def invite_action(self) -> ReturnView:
+    @requires_roles({'subject'})
+    def invite(self) -> ReturnView:
+        if request.method == 'GET':
+            return render_template(
+                'membership_invite_actions.html.jinja2',
+                membership=self.obj.current_access(datasets=('primary', 'related')),
+                form=Form(),
+            )
         membership_invite_form = ProjectCrewMembershipInviteForm()
         if membership_invite_form.validate_on_submit():
             if membership_invite_form.action.data == 'accept':
                 self.obj.accept(actor=current_auth.user)
+                status_code = 201
             elif membership_invite_form.action.data == 'decline':
                 self.obj.revoke(actor=current_auth.user)
+                status_code = 200
+            else:
+                error_description = _("This is not a valid response")
+                if request_wants.json:
+                    return {
+                        'status': 'error',
+                        'error': 'invalid_action',
+                        'error_description': error_description,
+                    }, 422
+                flash(error_description, 'error')
+                abort(422)
             db.session.commit()
+        if request_wants.json:
+            return {
+                'status': 'ok',
+                'action': membership_invite_form.action.data,
+            }, status_code
         return render_redirect(self.obj.project.url_for())
 
 
