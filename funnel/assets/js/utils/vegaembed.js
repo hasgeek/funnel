@@ -1,20 +1,36 @@
 /* global vegaEmbed */
 
-function addVegaChart() {
-  $('.language-vega-lite').each(function embedVegaChart() {
-    vegaEmbed(this, JSON.parse($(this).find('code').text()), {
-      renderer: 'svg',
-      actions: {
-        source: false,
-        editor: false,
-        compiled: false,
-      },
+function addVegaChart(parentElement) {
+  parentElement
+    .find('.md-embed-vega-lite:not(.activating):not(.activated)')
+    .each(async function embedVegaChart() {
+      const root = $(this);
+      root.find('.embed-loading').html('Loading visualisation&mldr;');
+      root.addClass('activating');
+      const embedded = await vegaEmbed(
+        root.find('.embed-container')[0],
+        JSON.parse(root.find('.embed-content').text()),
+        {
+          renderer: 'svg',
+          actions: {
+            source: false,
+            editor: false,
+            compiled: false,
+          },
+        }
+      );
+      embedded.view.runAfter(() => {
+        root.addClass('activated').removeClass('activating');
+      });
     });
-  });
 }
 
-function addVegaSupport() {
-  if ($('.language-vega-lite').length > 0) {
+function addVegaSupport(container) {
+  const parentElement = $(container || 'body');
+  if (
+    parentElement.find('.md-embed-vega-lite:not(.activating):not(.activated)').length >
+    0
+  ) {
     const vegaliteCDN = [
       'https://cdn.jsdelivr.net/npm/vega@5',
       'https://cdn.jsdelivr.net/npm/vega-lite@5',
@@ -32,15 +48,15 @@ function addVegaSupport() {
             vegaliteUrl += 1;
             loadVegaScript();
           }
-          // Once all vega js is loaded, initialize vega visualization on all pre tags with class 'language-vega-lite'
+          // Once all vega js is loaded, initialize vega visualization on all pre tags with class 'md-embed-vega-lite'
           if (vegaliteUrl === vegaliteCDN.length) {
-            addVegaChart();
+            addVegaChart(parentElement);
           }
         });
       };
       loadVegaScript();
     } else {
-      addVegaChart();
+      addVegaChart(parentElement);
     }
   }
 }

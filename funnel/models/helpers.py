@@ -2,10 +2,20 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Type, TypeVar
+from typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Set,
+    Type,
+    TypeVar,
+)
 import os.path
 import re
 
@@ -13,6 +23,8 @@ from sqlalchemy import DDL, Text, event
 from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
+from sqlalchemy.ext.mutable import MutableComposite
+from sqlalchemy.orm import composite
 
 from flask import Markup
 from flask import escape as html_escape
@@ -20,16 +32,10 @@ from flask import escape as html_escape
 from better_profanity import profanity
 from furl import furl
 from zxcvbn import zxcvbn
-import pymdownx.superfences
-
-from coaster.utils import (
-    default_markdown_extension_configs,
-    default_markdown_extensions,
-    make_name,
-)
 
 from .. import app
 from ..typing import T
+from ..utils import MarkdownConfig
 from . import UrlType, db, sa
 
 __all__ = [
@@ -38,7 +44,6 @@ __all__ = [
     'PASSWORD_MAX_LENGTH',
     'check_password_strength',
     'profanity',
-    'markdown_content_options',
     'add_to_class',
     'add_search_trigger',
     'visual_field_delimiter',
@@ -47,6 +52,10 @@ __all__ = [
     'quote_autocomplete_like',
     'ImgeeFurl',
     'ImgeeType',
+    'MarkdownCompositeBase',
+    'MarkdownCompositeBasic',
+    'MarkdownCompositeDocument',
+    'MarkdownCompositeInline',
 ]
 
 RESERVED_NAMES: Set[str] = {
@@ -201,51 +210,6 @@ with open(
 
 
 visual_field_delimiter = ' ¦ '
-
-markdown_content_options: dict = {
-    'extensions': deepcopy(default_markdown_extensions),
-    'extension_configs': deepcopy(default_markdown_extension_configs),
-}
-
-markdown_content_options['extensions'].append('toc')  # Allow a table of contents
-markdown_content_options['extension_configs']['toc'] = {
-    # Make headings link to themselves, for easier sharing
-    'anchorlink': True,
-    # Add a `h:` prefix to the heading id, to avoid conflict with template identifiers
-    'slugify': lambda value, separator: ('h:' + make_name(value, delim=separator)),
-}
-
-# Custom fences must use <pre><code> blocks and not <div> blocks, as linkify will mess
-# with links inside <div> blocks
-markdown_content_options['extension_configs'].setdefault('pymdownx.superfences', {})[
-    'custom_fences'
-] = [
-    {
-        'name': 'flow',
-        'class': 'language-placeholder language-flow',
-        'format': pymdownx.superfences.fence_code_format,
-    },
-    {
-        'name': 'markmap',
-        'class': 'language-placeholder language-markmap',
-        'format': pymdownx.superfences.fence_code_format,
-    },
-    {
-        'name': 'mermaid',
-        'class': 'language-placeholder language-mermaid',
-        'format': pymdownx.superfences.fence_code_format,
-    },
-    {
-        'name': 'sequence',
-        'class': 'language-placeholder language-sequence',
-        'format': pymdownx.superfences.fence_code_format,
-    },
-    {
-        'name': 'vega-lite',
-        'class': 'language-placeholder language-vega-lite',
-        'format': pymdownx.superfences.fence_code_format,
-    },
-]
 
 
 def add_to_class(cls: Type, name: Optional[str] = None) -> Callable[[T], T]:
@@ -590,3 +554,120 @@ class ImgeeType(UrlType):  # pylint: disable=abstract-method
             if allowed_schemes and parsed.scheme not in allowed_schemes:
                 raise ValueError("Invalid scheme for the URL")
         return value
+
+
+class MarkdownCompositeBase(MutableComposite):
+    """Represents Markdown text and rendered HTML as a composite column."""
+
+    config: ClassVar[MarkdownConfig]
+
+    def __init__(self, text, html=None):
+        """Create a composite."""
+        if html is None:
+            self.text = text  # This will regenerate HTML
+        else:
+            self._text = text
+            self._html = html
+
+    # Return column values for SQLAlchemy to insert into the database
+    def __composite_values__(self):
+        """Return composite values."""
+        return (self._text, self._html)
+
+    # Return a string representation of the text (see class decorator)
+    def __str__(self):
+        """Return string representation."""
+        return self.text or ''
+
+    # Return a HTML representation of the text
+    def __html__(self):
+        """Return HTML representation."""
+        return self._html or ''
+
+    # Return a Markup string of the HTML
+    @property
+    def html(self):
+        """Return HTML as a read-only property."""
+        return Markup(self._html) if self._html is not None else None
+
+    @property
+    def text(self):
+        """Return text as a property."""
+        return self._text
+
+    @text.setter
+    def text(self, value):
+        """Set the text value."""
+        self._text = None if value is None else str(value)
+        self._html = self.config.render(self._text)
+        self.changed()
+
+    def __json__(self) -> Dict[str, Optional[str]]:
+        """Return JSON-compatible rendering of composite."""
+        return {'text': self._text, 'html': self._html}
+
+    # Compare text value
+    def __eq__(self, other):
+        """Compare for equality."""
+        return isinstance(other, self.__class__) and (
+            self.__composite_values__() == other.__composite_values__()
+        )
+
+    def __ne__(self, other):
+        """Compare for inequality."""
+        return not self.__eq__(other)
+
+    # Pickle support methods implemented as per SQLAlchemy documentation, but not
+    # tested here as we don't use them.
+    # https://docs.sqlalchemy.org/en/13/orm/extensions/mutable.html#id1
+
+    def __getstate__(self):
+        """Get state for pickling."""
+        # Return state for pickling
+        return (self._text, self._html)
+
+    def __setstate__(self, state):
+        """Set state from pickle."""
+        # Set state from pickle
+        self._text, self._html = state
+        self.changed()
+
+    def __bool__(self):
+        """Return boolean value."""
+        return bool(self._text)
+
+    @classmethod
+    def coerce(cls, key, value):
+        """Allow a composite column to be assigned a string value."""
+        return cls(value)
+
+    @classmethod
+    def create(
+        cls, name: str, deferred: bool = False, group: Optional[str] = None, **kwargs
+    ) -> composite:
+        """Create a composite column and backing individual columns."""
+        return composite(
+            cls,
+            sa.Column(name + '_text', sa.UnicodeText, **kwargs),
+            sa.Column(name + '_html', sa.UnicodeText, **kwargs),
+            deferred=deferred,
+            group=group or name,
+        )
+
+
+class MarkdownCompositeBasic(MarkdownCompositeBase):
+    """Markdown composite columns with support for basic CommonMark."""
+
+    config = MarkdownConfig.registry['basic']
+
+
+class MarkdownCompositeDocument(MarkdownCompositeBase):
+    """Markdown composite columns with support for all features."""
+
+    config = MarkdownConfig.registry['document']
+
+
+class MarkdownCompositeInline(MarkdownCompositeBase):
+    """Markdown composite columns with support for inline markup only."""
+
+    config = MarkdownConfig.registry['inline']

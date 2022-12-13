@@ -24,7 +24,7 @@ $(() => {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          type: 'submission',
+          profile: 'document',
           text: view.state.doc.toString(),
         }).toString(),
       });

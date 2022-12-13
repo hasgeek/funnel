@@ -19,7 +19,6 @@ from coaster.sqlalchemy import (
     BaseScopedNameMixin,
     CoordinatesMixin,
     JsonDict,
-    MarkdownColumn,
     NoIdMixin,
     RegistryMixin,
     RoleMixin,

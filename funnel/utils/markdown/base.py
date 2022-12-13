@@ -1,94 +1,214 @@
-"""Base files for markdown parser."""
+"""Markdown parser and config profiles."""
 # pylint: disable=too-many-arguments
 
-from typing import Dict, List, Optional, Union, overload
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Dict,
+    Iterable,
+    Optional,
+    Set,
+    Union,
+    overload,
+)
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
+from mdit_py_plugins import anchors, footnote, tasklists
+from typing_extensions import Literal
 
+from coaster.utils import make_name
 from coaster.utils.text import normalize_spaces_multiline
 
-from .extmap import markdown_extensions
+from .mdit_plugins import (  # toc_plugin,
+    del_plugin,
+    embeds_plugin,
+    fence_extend_plugin,
+    ins_plugin,
+    mark_plugin,
+    sub_plugin,
+    sup_plugin,
+)
 
-__all__ = ['markdown']
-
-default_markdown_extensions: List[str] = ['footnote', 'heading_anchors', 'tasklists']
-
-# --- Standard extensions --------------------------------------------------------------
-# FOR CUT 2
-# TODO: caret, tilde:
-#       ^^ins^^, ^sup^ dont work OOTB. ~~del~~ uses <s/>, not <del/>.
-#       Can port 1st 2 from markdown-it-[sup|ins] and implement del separately.
-#       Port from https://github.com/markdown-it/markdown-it-sup
-#       Port from https://github.com/markdown-it/markdown-it-ins
-# TODO: emoji, (mark => highlight, inlinehilite)
-#       Port from https://github.com/markdown-it/markdown-it-emoji
-#       Port from https://github.com/markdown-it/markdown-it-mark
-#       Evaluate:
-#       https://www.npmjs.com/search?q=highlight%20keywords%3Amarkdown-it-plugin
+__all__ = ['MarkdownPlugin', 'MarkdownConfig']
 
 
-# --- Markdown processor ---------------------------------------------------------------
+OptionStrings = Literal['html', 'breaks', 'linkify', 'typographer']
 
 
-@overload
-def markdown(
-    text: None,
-    extensions: Union[List[str], None] = None,
-    extension_configs: Optional[Dict[str, str]] = None,
-    # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
-) -> None:
-    ...
+@dataclass
+class MarkdownPlugin:
+    """Markdown plugin registry with configuration."""
+
+    #: Registry of named sub-classes
+    registry: ClassVar[Dict[str, MarkdownConfig]] = {}
+
+    #: Optional name for this config, for adding to the registry
+    name: str
+    func: Callable
+    config: Optional[Dict[str, Any]] = None
+
+    def __post_init__(self):
+        # If this plugin+configuration has a name, add it to the registry
+        if self.name is not None:
+            if self.name in self.registry:
+                raise NameError(f"Plugin {self.name} has already been registered")
+            self.registry[self.name] = self
 
 
-@overload
-def markdown(
-    text: str,
-    extensions: Union[List[str], None] = None,
-    extension_configs: Optional[Dict[str, str]] = None,
-    # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
-) -> Markup:
-    ...
+@dataclass
+class MarkdownConfig:
+    """Markdown processor with custom configuration, with a registry."""
+
+    #: Registry of named sub-classes
+    registry: ClassVar[Dict[str, MarkdownConfig]] = {}
+
+    #: Optional name for this config, for adding to the registry
+    name: Optional[str] = None
+
+    #: Markdown-it preset configuration
+    preset: Literal[
+        'default', 'zero', 'commonmark', 'js-default', 'gfm-like'
+    ] = 'commonmark'
+    #: Updated options against the preset
+    options_update: Optional[Dict[OptionStrings, bool]] = None
+    #: Allow only inline rules (skips all block rules)?
+    inline: bool = False
+
+    #: Use these plugins
+    plugins: Iterable[Union[str, MarkdownPlugin]] = ()
+    #: Enable these rules (provided by plugins)
+    enable_rules: Optional[Set[str]] = None
+    #: Disable these rules
+    disable_rules: Optional[Set[str]] = None
+
+    #: If linkify is enabled, apply to fuzzy links too?
+    linkify_fuzzy_link: bool = False
+    #: If linkify is enabled, make email links too?
+    linkify_fuzzy_email: bool = False
+
+    def __post_init__(self):
+        try:
+            self.plugins = [
+                MarkdownPlugin.registry[plugin] if isinstance(plugin, str) else plugin
+                for plugin in self.plugins
+            ]
+        except KeyError as exc:
+            raise TypeError(f"Unknown Markdown plugin {exc.args[0]}") from None
+
+        # If this plugin+configuration has a name, add it to the registry
+        if self.name is not None:
+            if self.name in self.registry:
+                raise NameError(f"Config {self.name} has already been registered")
+            self.registry[self.name] = self
+
+    @overload
+    def render(self, text: None) -> None:
+        ...
+
+    @overload
+    def render(self, text: str) -> Markup:
+        ...
+
+    def render(self, text: Optional[str]) -> Optional[Markup]:
+        """Parse and render Markdown using markdown-it-py with the selected config."""
+        if text is None:
+            return None
+
+        # Replace invisible characters with spaces
+        text = normalize_spaces_multiline(text)
+
+        md = MarkdownIt(self.preset, self.options_update or {})
+
+        if md.linkify is not None:
+            md.linkify.set(
+                {
+                    'fuzzy_link': self.linkify_fuzzy_link,
+                    'fuzzy_email': self.linkify_fuzzy_email,
+                }
+            )
+
+        if self.enable_rules:
+            md.enable(self.enable_rules)
+        if self.disable_rules:
+            md.disable(self.disable_rules)
+
+        for plugin in self.plugins:
+            md.use(plugin.func, **(plugin.config or {}))  # type: ignore[union-attr]
+
+        if self.inline:
+            return Markup(md.renderInline(text or ''))
+        return Markup(md.render(text or ''))
 
 
-def markdown(
-    text: Optional[str],
-    extensions: Union[List[str], None] = None,
-    extension_configs: Optional[Dict[str, str]] = None,
-    # TODO: Extend to accept helpers.EXT_CONFIG_TYPE (Dict)
-) -> Optional[Markup]:
-    """
-    Markdown parser compliant with Commonmark+GFM using markdown-it-py.
+# --- Markdown plugins -----------------------------------------------------------------
 
-    :param bool linkify: Whether to convert naked URLs into links
-    :param list extensions: List of Markdown extensions to be enabled
-    :param dict extension_configs: Config for Markdown extensions
-    """
-    if text is None:
-        return None
+MarkdownPlugin('footnote', footnote.footnote_plugin)
+MarkdownPlugin(
+    'heading_anchors',
+    anchors.anchors_plugin,
+    {
+        'min_level': 1,
+        'max_level': 3,
+        'slug_func': lambda x: 'h:' + make_name(x),
+        'permalink': True,
+    },
+)
+MarkdownPlugin(
+    'tasklists',
+    tasklists.tasklists_plugin,
+    {'enabled': True, 'label': True, 'label_after': False},
+)
+MarkdownPlugin('ins', ins_plugin)
+MarkdownPlugin('del', del_plugin)
+MarkdownPlugin('sub', sub_plugin)
+MarkdownPlugin('sup', sup_plugin)
+MarkdownPlugin('mark', mark_plugin)
+MarkdownPlugin('markmap', embeds_plugin, {'name': 'markmap'})
+MarkdownPlugin('vega-lite', embeds_plugin, {'name': 'vega-lite'})
+MarkdownPlugin('mermaid', embeds_plugin, {'name': 'mermaid'})
+MarkdownPlugin('fence_ext', fence_extend_plugin)
+# MarkdownPlugin('toc', toc_plugin)
 
-    # Replace invisible characters with spaces
-    text = normalize_spaces_multiline(text)
+# --- Markdown configurations ----------------------------------------------------------
 
-    md = MarkdownIt(
-        'gfm-like',
-        {
-            'breaks': True,
-            'linkify': True,
-            'typographer': True,
-        },
-    ).enable(['smartquotes'])
-
-    md.linkify.set({'fuzzy_link': False, 'fuzzy_email': False})
-
-    if extensions is None:
-        extensions = default_markdown_extensions
-
-    for e in extensions:
-        if e in markdown_extensions:
-            ext_config = markdown_extensions[e].default_config
-            if extension_configs is not None and e in extension_configs:
-                ext_config = markdown_extensions[e].config(extension_configs[e])
-            md.use(markdown_extensions[e].ext, **ext_config)
-
-    return Markup(md.render(text))  # type: ignore[arg-type]
+MarkdownConfig(
+    name='basic', options_update={'html': False, 'breaks': True}, plugins={'fence_ext'}
+)
+MarkdownConfig(
+    name='document',
+    preset='gfm-like',
+    options_update={
+        'html': False,
+        'linkify': True,
+        'typographer': True,
+        'breaks': True,
+    },
+    plugins={
+        'footnote',
+        'heading_anchors',
+        'tasklists',
+        'ins',
+        'del',
+        'sub',
+        'sup',
+        'mark',
+        'markmap',
+        'vega-lite',
+        'mermaid',
+        'fence_ext',
+        # 'toc',
+    },
+    enable_rules={'smartquotes'},
+)
+MarkdownConfig(
+    name='inline',
+    preset='zero',
+    options_update={'html': False, 'breaks': False},
+    inline=True,
+    enable_rules={'emphasis', 'backticks'},
+)
