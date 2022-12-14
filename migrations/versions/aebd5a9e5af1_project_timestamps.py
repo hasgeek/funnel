@@ -6,6 +6,8 @@ Create Date: 2021-04-27 00:52:53.622787
 
 """
 
+from typing import Optional, Tuple, Union
+
 from alembic import op
 from sqlalchemy.sql import column, table
 import sqlalchemy as sa
@@ -16,8 +18,8 @@ import progressbar.widgets
 # revision identifiers, used by Alembic.
 revision = 'aebd5a9e5af1'
 down_revision = 'd0097ec29880'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
 project = table(

@@ -5,7 +5,9 @@ Revises: daeb6753652a
 Create Date: 2020-12-08 13:58:56.331436
 
 """
+
 from textwrap import dedent
+from typing import Optional, Tuple, Union
 
 from alembic import op
 from sqlalchemy.sql import column, table
@@ -19,8 +21,8 @@ from coaster.utils import markdown
 # revision identifiers, used by Alembic.
 revision = 'ad5013552ec6'
 down_revision = 'daeb6753652a'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
 proposal = table(

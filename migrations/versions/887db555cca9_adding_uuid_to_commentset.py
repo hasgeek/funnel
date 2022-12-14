@@ -6,6 +6,7 @@ Create Date: 2020-05-08 19:16:15.324555
 
 """
 
+from typing import Optional, Tuple, Union
 from uuid import uuid4
 
 from alembic import op
@@ -19,8 +20,8 @@ import progressbar.widgets
 # revision identifiers, used by Alembic.
 revision = '887db555cca9'
 down_revision = '222b78a8508d'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
 commentset = table(

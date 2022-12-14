@@ -6,6 +6,7 @@ Create Date: 2020-04-21 02:01:52.012077
 
 """
 
+from typing import Optional, Tuple, Union
 from uuid import uuid4
 
 from alembic import op
@@ -16,8 +17,8 @@ import sqlalchemy as sa
 # revision identifiers, used by Alembic.
 revision = '71fcac85957c'
 down_revision = '8829241430b6'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
 class MEMBERSHIP_RECORD_TYPE:  # noqa: N801

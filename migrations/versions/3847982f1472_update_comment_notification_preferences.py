@@ -6,14 +6,16 @@ Create Date: 2020-09-18 03:27:44.871342
 
 """
 
+from typing import Optional, Tuple, Union
+
 from alembic import op
 from sqlalchemy.sql import column, table
 
 # revision identifiers, used by Alembic.
 revision = '3847982f1472'
 down_revision = '1bd91b02ced3'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 notification_preferences = table(
     'notification_preferences',

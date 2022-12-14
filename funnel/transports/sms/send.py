@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Optional
+from typing import Callable, List, Optional, Tuple
 
 from flask import url_for
 import itsdangerous
@@ -207,7 +207,7 @@ sender_registry = [
 ]
 
 #: Available senders as per config
-senders_by_prefix = []
+senders_by_prefix: List[Tuple[str, Callable[[str, SmsTemplate, bool], str]]] = []
 
 
 def init() -> bool:

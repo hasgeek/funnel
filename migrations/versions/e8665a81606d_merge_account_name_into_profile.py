@@ -6,7 +6,9 @@ Revises: d50c3d8e3f33
 Create Date: 2020-04-15 02:24:49.259869
 
 """
+
 from textwrap import dedent
+from typing import Optional, Tuple, Union
 
 from alembic import op
 from sqlalchemy.dialects import postgresql
@@ -17,8 +19,8 @@ import sqlalchemy as sa
 # revision identifiers, used by Alembic.
 revision = 'e8665a81606d'
 down_revision = 'd50c3d8e3f33'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
 class PROFILE_STATE:  # noqa: N801
