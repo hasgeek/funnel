@@ -92,12 +92,22 @@ def when_add_ridcully_member(
 
 
 @then(
-    parsers.parse("{user} gets notified with {notification_string} about the {change}.")
+    parsers.parse(
+        "{user} gets notified with {notification_string} about the invitation"
+    )
 )
+@then(
+    parsers.parse("{user} gets notified with {notification_string} about the addition")
+)
+@then(
+    parsers.parse(
+        "{user} gets notified with {notification_string} about the acceptance"
+    )
+)
+@then(parsers.parse("{user} gets notified with {notification_string} about the change"))
 def then_user_notification_addition(
     user,
     notification_string,
-    change,
     user_vimes,
     user_ridcully,
     user_vetinari,
@@ -127,6 +137,12 @@ def then_user_notification_addition(
     )
 
 
+@given(
+    parsers.parse(
+        "Vetinari invited Ridcully with role {role} to the Ankh-Morpork 2010 project"
+    ),
+    target_fixture='ridcully_member',
+)
 @when(
     parsers.parse(
         "Vetinari invites Ridcully with role {role} to the Ankh-Morpork 2010 project"
@@ -162,42 +178,52 @@ def when_invite_ridcully_member(
 
 
 @when(
-    parsers.parse(
-        "Ridcully accepts the invitation to be a crew member of the Ankh-Morpork 2010"
-        " project with role {role}"
-    ),
+    "Ridcully accepts the invitation to be a crew member of the Ankh-Morpork 2010 project",
     target_fixture='ridcully_member',
 )
 def when_accept_ridcully_member(
-    role,
     db_session,
     client,
     login,
+    ridcully_member,
     user_vimes,
     user_ridcully,
     project_expo2010,
     user_vetinari,
 ) -> models.ProjectCrewMembership:
-    roles = [_r.strip() for _r in role.split(',')]
-    is_editor = 'editor' in roles
-    is_promoter = 'promoter' in roles
-    is_usher = 'usher' in roles
+    ridcully_member_accept = ridcully_member.accept(actor=user_ridcully)
+    db_session.add(ridcully_member_accept)
+    db_session.commit()
+    return ridcully_member_accept
+
+
+@given(
+    "Ridcully is an existing crew member of the Ankh-Morpork 2010 project",
+    target_fixture='ridcully_member',
+)
+def given_ridcully_crew(
+    db_session,
+    user_vetinari,
+    user_vimes,
+    user_ridcully,
+    project_expo2010,
+) -> models.ProjectCrewMembership:
     ridcully_member = models.ProjectCrewMembership(
         parent=project_expo2010,
         user=user_ridcully,
-        is_editor=is_editor,
-        is_promoter=is_promoter,
-        is_usher=is_usher,
+        is_usher=True,
         granted_by=user_vetinari,
     )
-    ridcully_member.record_type = MEMBERSHIP_RECORD_TYPE.ACCEPT
     db_session.add(ridcully_member)
     db_session.commit()
+    assert 'promoter' in project_expo2010.roles_for(user_vimes)
     return ridcully_member
 
 
 @when(
-    parsers.parse("Ridcully's role changes to {role} in Ankh-Morpork 2010 project"),
+    parsers.parse(
+        "Vetinari changes Ridcully's role to {role} in the Ankh-Morpork 2010 project"
+    ),
     target_fixture='ridcully_member',
 )
 def when_amend_ridcully_member(
@@ -209,43 +235,21 @@ def when_amend_ridcully_member(
     user_ridcully,
     project_expo2010,
     user_vetinari,
+    ridcully_member,
 ) -> models.ProjectCrewMembership:
     roles = [_r.strip() for _r in role.split(',')]
     is_editor = 'editor' in roles
     is_promoter = 'promoter' in roles
     is_usher = 'usher' in roles
-    ridcully_member = models.ProjectCrewMembership(
-        parent=project_expo2010,
-        user=user_ridcully,
+    ridcully_member_amend = ridcully_member.replace(
+        actor=user_vetinari,
         is_editor=is_editor,
         is_promoter=is_promoter,
         is_usher=is_usher,
-        granted_by=user_vetinari,
     )
-    ridcully_member.record_type = MEMBERSHIP_RECORD_TYPE.AMEND
-    db_session.add(ridcully_member)
+    db_session.add(ridcully_member_amend)
     db_session.commit()
-    return ridcully_member
-
-
-@given("Ridcully is a crew member of the project", target_fixture='ridcully_member')
-def given_ridcully_crew(
-    db_session,
-    user_vetinari,
-    user_vimes,
-    user_ridcully,
-    project_expo2010,
-) -> models.ProjectCrewMembership:
-    vimes_promoter = models.ProjectCrewMembership(
-        parent=project_expo2010,
-        user=user_ridcully,
-        is_promoter=True,
-        granted_by=user_vetinari,
-    )
-    db_session.add(vimes_promoter)
-    db_session.commit()
-    assert 'promoter' in project_expo2010.roles_for(user_vimes)
-    return vimes_promoter
+    return ridcully_member_amend
 
 
 @when("Ridcully is removed from the project by Vimes")
@@ -304,7 +308,7 @@ def then_crew_notification(ridcully_member, user_ridcully, user_vetinari):
     )
 
 
-@when("Ridcully removes himself from the project")
+@when("Ridcully resigns from the Ankh-Morpork 2010 project crew")
 def when_ridcully_self_removed(
     db_session,
     user_vetinari,
@@ -318,9 +322,7 @@ def when_ridcully_self_removed(
     db_session.commit()
 
 
-@then(
-    "Ridcully gets a notification 'You removed yourself as a crew member of Ankh-Morpork 2010'"
-)
+@then("{user} is notified of the removal with {notification_string}")
 def then_ridcully_self_removal_notification(ridcully_member, user_ridcully):
     preview = models.PreviewNotification(
         models.ProjectCrewMembershipRevokedNotification,
@@ -337,9 +339,7 @@ def then_ridcully_self_removal_notification(ridcully_member, user_ridcully):
     )
 
 
-@then(
-    "Crew members get a notification 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Mustrum Ridcully'"
-)
+@then("{user} is notified of the removal with {notification_string}")
 def then_crew_ridcully_self_removal_notification(
     ridcully_member, user_ridcully, user_vetinari
 ):

@@ -52,82 +52,118 @@ class DecisionFactor:
 decision_factors = [
     # --- Subject has been invited by someone (self invite is not possible)
     DecisionFactor(
-        template=__(
-            "You have been invited to be an editor and promoter of {project} by {actor}"
-        ),
+        template=__("{actor} invited you to be an editor and promoter of {project}"),
         is_subject=True,
         rtypes=['invite'],
         is_editor=True,
         is_promoter=True,
     ),
     DecisionFactor(
-        template=__("You have been invited to be an editor of {project} by {actor}"),
+        template=__("{actor} invited you to be an editor of {project}"),
         is_subject=True,
         rtypes=['invite'],
         is_editor=True,
     ),
     DecisionFactor(
-        template=__("You have been invited to be a promoter of {project} by {actor}"),
+        template=__("{actor} invited you to be a promoter of {project}"),
         is_subject=True,
         rtypes=['invite'],
         is_promoter=True,
     ),
     DecisionFactor(
-        template=__("You have been invited to join the crew of {project} by {actor}"),
+        template=__("{actor} invited you to join the crew of {project}"),
         is_subject=True,
         rtypes=['invite'],
     ),
     # --- New person has been invited
     DecisionFactor(
-        template=__(
-            "{user} has been invited to be an editor and promoter of {project} by"
-            " {actor}"
-        ),
+        template=__("You invited {user} to be an editor and promoter of {project}"),
+        rtypes=['invite'],
+        is_editor=True,
+        is_promoter=True,
+        for_actor=True,
+    ),
+    DecisionFactor(
+        template=__("{actor} invited {user} to be an editor and promoter of {project}"),
         rtypes=['invite'],
         is_editor=True,
         is_promoter=True,
     ),
     DecisionFactor(
-        template=__("{user} has been invited to be an editor of {project} by {actor}"),
+        template=__("You invited {user} to be an editor of {project}"),
+        rtypes=['invite'],
+        is_editor=True,
+        for_actor=True,
+    ),
+    DecisionFactor(
+        template=__("{actor} invited {user} to be an editor of {project}"),
         rtypes=['invite'],
         is_editor=True,
     ),
     DecisionFactor(
-        template=__("{user} has been invited to be a promoter of {project} by {actor}"),
+        template=__("You invited {user} to be a promoter of {project}"),
+        rtypes=['invite'],
+        is_promoter=True,
+        for_actor=True,
+    ),
+    DecisionFactor(
+        template=__("{actor} invited {user} to be a promoter of {project}"),
         rtypes=['invite'],
         is_promoter=True,
     ),
     DecisionFactor(
-        template=__("{user} has been invited to join the crew of {project} by {actor}"),
+        template=__("You invited {user} to join the crew of {project}"),
+        rtypes=['invite'],
+        for_actor=True,
+    ),
+    DecisionFactor(
+        template=__("{actor} invited {user} to join the crew of {project}"),
         rtypes=['invite'],
     ),
     # --- Subject has accepted an invite (this should NOT trigger a notification)
     DecisionFactor(
-        template=__("You have accepted an invite to join the crew of {project}"),
+        template=__("You accepted an invite to be editor and promoter of {project}"),
+        is_subject=True,
+        is_editor=True,
+        is_promoter=True,
+        rtypes=['accept'],
+    ),
+    DecisionFactor(
+        template=__("You accepted an invite to be promoter of {project}"),
+        is_subject=True,
+        is_promoter=True,
+        rtypes=['accept'],
+    ),
+    DecisionFactor(
+        template=__("You accepted an invite to be editor of {project}"),
+        is_subject=True,
+        is_editor=True,
+        rtypes=['accept'],
+    ),
+    DecisionFactor(
+        template=__("You accepted an invite to join the crew of {project}"),
         is_subject=True,
         rtypes=['accept'],
     ),
     # --- Someone has accepted invite
     DecisionFactor(
-        template=__(
-            "{user} has accepted an invite to be editor and promoter of {project}"
-        ),
+        template=__("{user} accepted an invite to be editor and promoter of {project}"),
         rtypes=['accept'],
         is_editor=True,
         is_promoter=True,
     ),
     DecisionFactor(
-        template=__("{user} has accepted an invite to be editor of {project}"),
+        template=__("{user} accepted an invite to be editor of {project}"),
         rtypes=['accept'],
         is_editor=True,
     ),
     DecisionFactor(
-        template=__("{user} has accepted an invite to be promoter of {project}"),
+        template=__("{user} accepted an invite to be promoter of {project}"),
         rtypes=['accept'],
         is_promoter=True,
     ),
     DecisionFactor(
-        template=__("{user} has accepted an invite to join the crew of {project}"),
+        template=__("{user} accepted an invite to join the crew of {project}"),
         rtypes=['accept'],
     ),
     # --- Subject has been added to the project
@@ -157,10 +193,23 @@ decision_factors = [
     ),
     # --- Someone has been added to the project
     DecisionFactor(
+        template=__("You made {user} an editor and promoter of {project}"),
+        rtypes=['direct_add'],
+        is_editor=True,
+        is_promoter=True,
+        for_actor=True,
+    ),
+    DecisionFactor(
         template=__("{actor} made {user} an editor and promoter of {project}"),
         rtypes=['direct_add'],
         is_editor=True,
         is_promoter=True,
+    ),
+    DecisionFactor(
+        template=__("You made {user} an editor of {project}"),
+        rtypes=['direct_add'],
+        is_editor=True,
+        for_actor=True,
     ),
     DecisionFactor(
         template=__("{actor} made {user} an editor of {project}"),
@@ -168,15 +217,95 @@ decision_factors = [
         is_editor=True,
     ),
     DecisionFactor(
+        template=__("You made {user} a promoter of {project}"),
+        rtypes=['direct_add'],
+        is_promoter=True,
+        for_actor=True,
+    ),
+    DecisionFactor(
         template=__("{actor} made {user} a promoter of {project}"),
         rtypes=['direct_add'],
         is_promoter=True,
     ),
     DecisionFactor(
+        template=__("You added {user} to the crew of {project}"),
+        rtypes=['direct_add'],
+        for_actor=True,
+    ),
+    DecisionFactor(
         template=__("{actor} added {user} to the crew of {project}"),
         rtypes=['direct_add'],
     ),
-    # --- Subject's roles have changed
+    # --- Someone has changed subject's role
+    DecisionFactor(
+        template=__("You changed {user}'s role to editor and promoter of {project}"),
+        rtypes=['amend'],
+        is_editor=True,
+        is_promoter=True,
+        for_actor=True,
+    ),
+    DecisionFactor(
+        template=__("You changed {user}'s role to editor of {project}"),
+        rtypes=['amend'],
+        is_editor=True,
+        for_actor=True,
+    ),
+    DecisionFactor(
+        template=__("You changed {user}'s role to promoter of {project}"),
+        rtypes=['amend'],
+        is_promoter=True,
+        for_actor=True,
+    ),
+    DecisionFactor(
+        template=__("You changed {user}'s role to crew member of {project}"),
+        rtypes=['amend'],
+        for_actor=True,
+    ),
+    DecisionFactor(
+        template=__("{actor} changed your role to editor and promoter of {project}"),
+        rtypes=['amend'],
+        is_editor=True,
+        is_promoter=True,
+    ),
+    DecisionFactor(
+        template=__("{actor} changed your role to editor of {project}"),
+        rtypes=['amend'],
+        is_editor=True,
+        is_subject=True,
+        is_actor=False,
+    ),
+    DecisionFactor(
+        template=__("{actor} changed your role to promoter of {project}"),
+        rtypes=['amend'],
+        is_promoter=True,
+    ),
+    DecisionFactor(
+        template=__("{actor} changed your role to crew member of {project}"),
+        rtypes=['amend'],
+    ),
+    DecisionFactor(
+        template=__(
+            "{actor} changed {user}'s role to editor and promoter of {project}"
+        ),
+        rtypes=['amend'],
+        is_editor=True,
+        is_promoter=True,
+    ),
+    DecisionFactor(
+        template=__("{actor} changed {user}'s role to editor of {project}"),
+        rtypes=['amend'],
+        is_editor=True,
+    ),
+    DecisionFactor(
+        template=__("{actor} changed {user}'s role to promoter of {project}"),
+        rtypes=['amend'],
+        is_promoter=True,
+    ),
+    DecisionFactor(
+        template=__("{actor} changed {user}'s role to crew member of {project}"),
+        rtypes=['amend'],
+    ),
+    # --- Subject has changed their role
     DecisionFactor(
         template=__("You are now an editor and promoter of {project}"),
         rtypes=['amend'],
@@ -201,7 +330,7 @@ decision_factors = [
         rtypes=['amend'],
         is_subject=True,
     ),
-    # --- Someone's roles have changed
+    # --- Subject's roles have changed
     DecisionFactor(
         template=__(
             "{user} has changed their role to an editor and promoter of {project}"
