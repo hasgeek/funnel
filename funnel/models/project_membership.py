@@ -51,7 +51,15 @@ class ProjectCrewMembership(
 
     __roles__ = {
         'all': {
-            'read': {'urls', 'user', 'is_editor', 'is_promoter', 'is_usher', 'project'}
+            'read': {
+                'urls',
+                'user',
+                'is_editor',
+                'is_promoter',
+                'is_usher',
+                'project',
+                'is_self_granted',
+            }
         },
         'project_crew': {'read': {'record_type_label', 'granted_by'}},
     }
