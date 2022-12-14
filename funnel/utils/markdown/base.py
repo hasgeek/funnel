@@ -153,7 +153,7 @@ MarkdownPlugin(
     anchors.anchors_plugin,
     {
         'min_level': 1,
-        'max_level': 3,
+        'max_level': 6,
         'slug_func': lambda x: 'h:' + make_name(x),
         'permalink': True,
     },
