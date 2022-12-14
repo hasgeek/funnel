@@ -80,22 +80,30 @@ def pytest_generate_tests(metafunc) -> None:
                     exp = test_data.get('expected_output', {})
                     # Combine pre-defined profiles with custom profiles
                     # and store each test case in test_map[md_testname][md_configname]
-                    cls.test_map[md_testname] = {
+                    cls.test_map[md_testname] = {  # pylint: disable=E1137
                         md_configname: MarkdownCase(
                             md_testname=md_testname,
-                            mdtext=test_data['markdown'],
+                            mdtext=test_data['markdown'],  # type: ignore[arg-type]
                             md_configname=md_configname,
                             config=config,
                             expected_output=Markup(exp.get(md_configname, None)),
                         )
                         for md_configname, config in {
-                            **{p: None for p in config.get('profiles', [])},
-                            **config.get('custom_profiles', {}),
+                            **{
+                                p: None
+                                for p in config.get(  # type: ignore[union-attr]
+                                    'profiles', []
+                                )
+                            },
+                            **config.get(  # type: ignore[union-attr]
+                                'custom_profiles', {}
+                            ),
                         }.items()
                     }
 
         @classmethod
         def dump(cls) -> None:
+            # pylint: disable=unsubscriptable-object
             if cls.test_map is not None:
                 for md_testname, data in cls.test_files.items():
                     data['expected_output'] = {
@@ -119,6 +127,7 @@ def pytest_generate_tests(metafunc) -> None:
 
         @classmethod
         def test_case(cls, md_testname: str, md_configname: str) -> MarkdownCase:
+            # pylint: disable=unsubscriptable-object
             return cls.test_map[md_testname][md_configname]  # type: ignore[index]
 
         @classmethod

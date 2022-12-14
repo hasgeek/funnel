@@ -6,14 +6,16 @@ Create Date: 2020-11-05 11:01:13.504106
 
 """
 
+from typing import Optional, Tuple, Union
+
 from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '8b46a8a8ca17'
 down_revision = '5f1ab3e04f73'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 USER_STATES = {
     0: "Active",

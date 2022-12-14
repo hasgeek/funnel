@@ -5,7 +5,9 @@ Revises: 851473d61beb
 Create Date: 2020-08-08 08:40:19.751509
 
 """
+
 from textwrap import dedent
+from typing import Optional, Tuple, Union
 
 from alembic import op
 import sqlalchemy as sa
@@ -13,8 +15,8 @@ import sqlalchemy as sa
 # revision identifiers, used by Alembic.
 revision = 'ea1ea3b0ff95'
 down_revision = '851473d61beb'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 # (old, new)
 renamed_constraints = [

@@ -7,6 +7,7 @@ Create Date: 2020-04-15 10:36:15.558161
 """
 
 from textwrap import dedent
+from typing import Optional, Tuple, Union
 import csv
 import re
 import urllib.parse
@@ -18,8 +19,8 @@ import sqlalchemy as sa
 # revision identifiers, used by Alembic.
 revision = '41b3af7e4449'
 down_revision = '530c22761e27'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 # --- Tables ---------------------------------------------------------------------------
 proposal = table(

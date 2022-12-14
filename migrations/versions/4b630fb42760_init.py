@@ -6,9 +6,11 @@ Create Date: 2013-08-26 18:05:24.589828
 
 """
 
+from typing import Optional
+
 # revision identifiers, used by Alembic.
 revision = '4b630fb42760'
-down_revision = None
+down_revision: Optional[str] = None
 
 from alembic import op
 import sqlalchemy as sa

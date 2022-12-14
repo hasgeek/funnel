@@ -6,6 +6,7 @@ Create Date: 2020-10-07 10:24:32.491617
 
 """
 
+from typing import Optional, Tuple, Union
 import hashlib
 
 from alembic import op
@@ -19,8 +20,8 @@ import progressbar.widgets
 # revision identifiers, used by Alembic.
 revision = '5f1ab3e04f73'
 down_revision = '3847982f1472'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 user_email_claim = table(
     'user_email_claim',
