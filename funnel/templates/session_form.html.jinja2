@@ -18,3 +18,18 @@
     {{ ajaxform(ref_id=ref_id, request=request, force=false) }}
   {%- endif %}
 {% endblock content %}
+
+
+{%- if request_wants.html_fragment %}
+  <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      var config = {
+        autosave: false,
+        formId: '#{{ ref_id }}',
+        msgElemId: '#autosave-msg'
+      }
+      window.Hasgeek.form(config);
+    });
+  </script>
+{%- endif %}

@@ -207,21 +207,6 @@ app.assets.register(
         filters='uglipyjs',
     ),
 )
-app.assets.register(
-    'js_codemirrormarkdown',
-    Bundle(
-        assets.require('codemirror-markdown.js'),
-        output='js/codemirror-markdown.packed.js',
-    ),
-)
-app.assets.register(
-    'css_codemirrormarkdown',
-    Bundle(
-        assets.require('codemirror-markdown-material.css'),
-        output='css/codemirror-markdown.packed.css',
-        filters='cssmin',
-    ),
-)
 
 # --- Serve static files with Whitenoise -----------------------------------------------
 

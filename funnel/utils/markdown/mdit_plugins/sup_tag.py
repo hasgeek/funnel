@@ -1,107 +1,76 @@
-"""Markdown-it-py plugin to introduce <sup> markup using ^superscript^."""
+"""
+Markdown-it-py plugin to introduce <sup> markup using ^superscript^.
 
-from typing import Any, List
+Ported from
+https://github.com/markdown-it/markdown-it-sup/blob/master/dist/markdown-it-sup.js
+"""
+
+import re
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_inline import StateInline
-from markdown_it.rules_inline.state_inline import Delimiter
 
 __all__ = ['sup_plugin']
 
+CARET_CHAR = 0x5E  # ASCII value for `^`
 
-def sup_plugin(md: MarkdownIt):
+
+def sup_plugin(md: MarkdownIt) -> None:
     def tokenize(state: StateInline, silent: bool):
         start = state.pos
         marker = state.srcCharCode[start]
-        ch = chr(marker)
+        maximum = state.posMax
+        found = False
 
         if silent:
             return False
 
-        if marker != 0x5E:
+        if marker != CARET_CHAR:
             return False
 
-        scanned = state.scanDelims(state.pos, True)
+        # Don't run any pairs in validation mode
+        if start + 2 >= maximum:
+            return False
 
-        length = scanned.length
+        state.pos = start + 1
 
-        i = 0
-        while i < length:
-            token = state.push('text', '', 0)
-            token.content = ch
-            state.delimiters.append(
-                Delimiter(
-                    marker=marker,
-                    length=0,
-                    jump=i,
-                    token=len(state.tokens) - 1,
-                    end=-1,
-                    open=scanned.can_open,
-                    close=scanned.can_close,
-                )
-            )
-            i += 1
+        while state.pos < maximum:
+            if state.srcCharCode[state.pos] == CARET_CHAR:
+                found = True
+                break
+            state.md.inline.skipToken(state)
 
-        state.pos += scanned.length
+        if not found or start + 1 == state.pos:
+            state.pos = start
+            return False
+
+        content = state.src[start + 1 : state.pos]
+
+        # Don't allow unescaped spaces/newlines inside
+        if re.search(r'(^|[^\\])(\\\\)*\s', content) is not None:
+            state.pos = start
+            return False
+
+        state.posMax = state.pos
+        state.pos = start + 1
+
+        # Earlier we checked "not silent", but this implementation does not need it
+        token = state.push('sup_open', 'sup', 1)
+        token.markup = '^'
+
+        token = state.push('text', '', 0)
+        token.content = content.replace(
+            r'\\([ \\!"#$%&\'()*+,.\/:;<=>?@[\]^_`{|}~-])', '$1'
+        )
+
+        token = state.push('sup_close', 'sup', -1)
+        token.markup = '^'
+
+        state.pos = state.posMax + 1
+        state.posMax = maximum
         return True
 
-    def _post_process(state: StateInline, delimiters: List[Any]):
-        lone_markers = []
-        max_ = len(delimiters)
-
-        for i in range(0, max_):
-            start_delim = delimiters[i]
-            if start_delim.marker != 0x5E or start_delim.end == -1:
-                continue
-            end_delim = delimiters[start_delim.end]
-
-            token = state.tokens[start_delim.token]
-            token.type = 'sup_open'
-            token.tag = 'sup'
-            token.nesting = 1
-            token.markup = '^'
-            token.content = ''
-
-            token = state.tokens[end_delim.token]
-            token.type = 'sup_close'
-            token.tag = 'sup'
-            token.nesting = -1
-            token.markup = '^'
-            token.content = ''
-
-            end_token = state.tokens[end_delim.token - 1]
-
-            if end_token.type == 'text' and end_token == chr(0x5E):
-                lone_markers.append(end_delim.token - 1)
-
-        while len(lone_markers) > 0:
-            i = lone_markers.pop()
-            j = i + 1
-
-            while j < len(state.tokens) and state.tokens[j].type == 'sup_close':
-                j += 1
-
-            j -= 1
-
-            if i != j:
-                (state.tokens[i], state.tokens[j]) = (state.tokens[j], state.tokens[i])
-
-    md.inline.ruler.before('emphasis', 'sup', tokenize)
-
-    def post_process(state: StateInline):
-        tokens_meta = state.tokens_meta
-        max_ = len(state.tokens_meta)
-        _post_process(state, state.delimiters)
-        for current in range(0, max_):
-            if (
-                tokens_meta[current] is not None
-                and tokens_meta[current]['delimiters']  # type: ignore[index]
-            ):
-                _post_process(
-                    state, tokens_meta[current]['delimiters']  # type: ignore[index]
-                )
-
-    md.inline.ruler2.before('emphasis', 'sup', post_process)
+    md.inline.ruler.after('emphasis', 'sup', tokenize)
 
     def sup_open(self, tokens, idx, options, env):
         return '<sup>'

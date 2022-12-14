@@ -1753,7 +1753,7 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):  # type: ignore[name-defin
         """Return raw phone number."""
         return self._phone
 
-    phone: Mapped[str] = sa.orm.synonym(  # type: ignore[no-redef]  # noqa: F811
+    phone: Mapped[str] = sa.orm.synonym(  # type: ignore[no-redef]
         '_phone', descriptor=phone
     )
 

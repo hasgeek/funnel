@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from difflib import unified_diff
 from types import MethodType, SimpleNamespace
 import re
 import shutil
@@ -1688,3 +1689,17 @@ def new_proposal(models, db_session, new_user, new_project) -> funnel_models.Pro
     db_session.add(proposal)
     db_session.commit()
     return proposal
+
+
+@pytest.fixture()
+def fail_with_diff():
+    def func(left, right):
+        if left != right:
+            difference = unified_diff(left.split('\n'), right.split('\n'))
+            msg = []
+            for line in difference:
+                if not line.startswith(' '):
+                    msg.append(line)
+            pytest.fail('\n'.join(msg), pytrace=False)
+
+    return func

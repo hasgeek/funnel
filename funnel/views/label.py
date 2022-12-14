@@ -233,8 +233,8 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
             if self.obj.has_proposals:
                 flash(
                     _(
-                        """Labels that have been assigned to submissions cannot be
-                         deleted"""
+                        "Labels that have been assigned to submissions cannot be"
+                        " deleted"
                     ),
                     category='error',
                 )

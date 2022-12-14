@@ -20,7 +20,7 @@ from . import (
     BaseScopedNameMixin,
     JsonDict,
     Mapped,
-    MarkdownColumn,
+    MarkdownCompositeDocument,
     TimestampMixin,
     TimezoneType,
     TSVectorType,
@@ -34,7 +34,6 @@ from .helpers import (
     RESERVED_NAMES,
     ImgeeType,
     add_search_trigger,
-    markdown_content_options,
     reopen,
     valid_name,
     visual_field_delimiter,
@@ -96,15 +95,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         datasets={'primary', 'without_parent', 'related'},
     )
     description = with_roles(
-        MarkdownColumn(
-            'description', default='', nullable=False, options=markdown_content_options
-        ),
+        MarkdownCompositeDocument.create('description', default='', nullable=False),
         read={'all'},
     )
     instructions = with_roles(
-        MarkdownColumn(
-            'instructions', default='', nullable=True, options=markdown_content_options
-        ),
+        MarkdownCompositeDocument.create('instructions', default='', nullable=True),
         read={'all'},
     )
 
