@@ -10,6 +10,8 @@ Feature: Project Crew Notification
   Scenario Outline: Ridcully is added to a project
     When Vetinari adds Ridcully with role <role> to the Ankh-Morpork 2010 project
     Then <user> gets notified with <notification_string> about the addition
+
+    Examples:
       | user     | role            | notification_string                                                                 |
       | Vetinari | editor          | You made Mustrum Ridcully an editor of Ankh-Morpork 2010                            |
       | Ridcully | editor          | Havelock Vetinari made you an editor of Ankh-Morpork 2010                           |
@@ -27,6 +29,8 @@ Feature: Project Crew Notification
   Scenario Outline: Vetinari invites Ridcully
     When Vetinari invites Ridcully with role <role> to the Ankh-Morpork 2010 project
     Then <user> gets notified with <notification_string> about the invitation
+
+    Examples:
       | user     | role            | notification_string                                                                          |
       | Vetinari | editor          | You invited Mustrum Ridcully to be an editor of Ankh-Morpork 2010                            |
       | Ridcully | editor          | Havelock Vetinari invited you to be an editor of Ankh-Morpork 2010                           |
@@ -45,6 +49,8 @@ Feature: Project Crew Notification
     Given Vetinari invited Ridcully with role <role> to the Ankh-Morpork 2010 project
     When Ridcully accepts the invitation to be a crew member of the Ankh-Morpork 2010 project
     Then <user> gets notified with <notification_string> about the acceptance
+
+    Examples:
       | user     | role            | notification_string                                                                |
       | Ridcully | editor          | You accepted an invite to be editor of Ankh-Morpork 2010                           |
       | Vetinari | editor          | Mustrum Ridcully accepted an invite to be editor of Ankh-Morpork 2010              |
@@ -63,6 +69,8 @@ Feature: Project Crew Notification
     Given Ridcully is an existing crew member of the Ankh-Morpork 2010 project
     When Vetinari changes Ridcully's role to <role> in the Ankh-Morpork 2010 project
     Then <user> gets notified with <notification_string> about the change
+
+    Examples:
       | user     | role            | notification_string                                                                           |
       | Vetinari | editor          | You changed Mustrum Ridcully role to editor of Ankh-Morpork 2010                              |
       | Ridcully | editor          | Havelock Vetinari changed your role to editor of Ankh-Morpork 2010                            |
@@ -82,6 +90,8 @@ Feature: Project Crew Notification
     And Ridcully is an existing crew member of the Ankh-Morpork 2010 project
     When Ridcully changes their role to <role> in the Ankh-Morpork 2010 project
     Then <user> gets notified with <notification_string> about the change
+
+    Examples:
       | user     | role            | notification_string                                                             |
       | Ridcully | editor          | You changed your role to editor of Ankh-Morpork 2010                            |
       | Vimes    | editor          | Mustrum Ridcully changed their role to editor of Ankh-Morpork 2010              |
@@ -100,6 +110,8 @@ Feature: Project Crew Notification
     Given Ridcully is an existing crew member of the Ankh-Morpork 2010 project with role <role>
     When Vetinari removes Ridcully from the Ankh-Morpork 2010 project crew
     Then <user> is notified of the removal with <notification_string>
+
+    Examples:
       | user     | role            | notification_string                                                                      |
       | Vetinari | editor          | You removed Mustrum Ridcully from editor of Ankh-Morpork 2010                            |
       | Ridcully | editor          | Havelock Vetinari removed you from editor of Ankh-Morpork 2010                           |
@@ -118,6 +130,8 @@ Feature: Project Crew Notification
     Given Ridcully is an existing crew member of the Ankh-Morpork 2010 project with role <role>
     When Ridcully resigns from the Ankh-Morpork 2010 project crew
     Then <user> is notified of the removal with <notification_string>
+
+    Examples:
       | user     | role            | notification_string                                                    |
       | Ridcully | editor          | You resigned as editor of Ankh-Morpork 2010                            |
       | Vetinari | editor          | Mustrum Ridcully resigned as editor of Ankh-Morpork 2010               |
