@@ -6,6 +6,8 @@ Create Date: 2020-04-20 03:31:29.101725
 
 """
 
+from typing import Optional, Tuple, Union
+
 from alembic import op
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
@@ -17,8 +19,8 @@ import progressbar.widgets
 # revision identifiers, used by Alembic.
 revision = 'e2b28adfa135'
 down_revision = '41a4531be082'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 proposal = table(
     'proposal',

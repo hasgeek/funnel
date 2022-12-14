@@ -6,6 +6,7 @@ Create Date: 2021-04-30 04:07:47.387372
 
 """
 
+from typing import Optional, Tuple, Union
 from uuid import uuid4
 
 from alembic import op
@@ -19,8 +20,8 @@ import progressbar.widgets
 # revision identifiers, used by Alembic.
 revision = 'fa05ebecbc0f'
 down_revision = '82303877b746'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 #: Label for proposers who were asking for someone else to speak (legacy use, English)
 PROPOSING_LABEL = "Proposing"

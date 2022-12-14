@@ -6,6 +6,8 @@ Create Date: 2020-09-18 02:44:20.827703
 
 """
 
+from typing import Optional, Tuple, Union
+
 from alembic import op
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
@@ -14,8 +16,8 @@ import sqlalchemy as sa
 # revision identifiers, used by Alembic.
 revision = '1bd91b02ced3'
 down_revision = '4845fd12dbfd'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
 notification = table(
