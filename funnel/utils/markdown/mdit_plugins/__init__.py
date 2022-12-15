@@ -4,6 +4,7 @@
 from .del_tag import *
 from .embeds import *
 from .fence_ext import *
+from .footnote_ext import *
 from .ins_tag import *
 from .mark_tag import *
 from .sub_tag import *
