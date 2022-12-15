@@ -917,6 +917,7 @@
     display: block !important;
     svg.marks {
       height: auto;
+      overflow: visible;
     }
     summary {
       top: 2px;
