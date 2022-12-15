@@ -264,6 +264,7 @@
       window.Hasgeek.Config.unreadCommentUrl = {{ url_for('comments')|tojson }};
     {% endif %}
     window.Hasgeek.Config.shorturlApi = {{ url_for('create_shortlink')|tojson }};
+    window.Hasgeek.Config.markReadUrl = {{ url_for('notification_mark_read', eventid_b58='eventid_b58')|tojson }};
   </script>
   <script src="{{ built_asset('app.js') }}" type="text/javascript"></script>
 
