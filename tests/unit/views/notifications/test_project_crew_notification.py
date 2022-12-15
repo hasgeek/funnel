@@ -105,7 +105,7 @@ def when_add_ridcully_member(
     )
 )
 @then(parsers.parse("{user} gets notified with {notification_string} about the change"))
-def then_user_notification_addition(
+def then_user_notification(
     user,
     notification_string,
     user_vimes,
@@ -252,7 +252,89 @@ def when_amend_ridcully_member(
     return ridcully_member_amend
 
 
-@when("Ridcully is removed from the project by Vimes")
+@given("Vetinari made Ridcully an admin of Ankh-Morpork")
+def given_vetinari_made_ridcully_admin_org(
+    db_session,
+    user_vimes,
+    user_ridcully,
+    project_expo2010,
+    org_ankhmorpork,
+    user_vetinari,
+):
+    ridcully_admin = models.OrganizationMembership(
+        user=user_ridcully, organization=org_ankhmorpork, granted_by=user_vetinari
+    )
+    db_session.add(ridcully_admin)
+    db_session.commit()
+
+
+@when(
+    parsers.parse(
+        "Ridcully changes their role to {role} in the Ankh-Morpork 2010 project"
+    ),
+    target_fixture='ridcully_member',
+)
+def when_ridcully_change_roles(
+    role,
+    db_session,
+    user_vimes,
+    user_ridcully,
+    project_expo2010,
+    user_vetinari,
+    ridcully_member,
+) -> models.ProjectCrewMembership:
+    roles = [_r.strip() for _r in role.split(',')]
+    is_editor = 'editor' in roles
+    is_promoter = 'promoter' in roles
+    is_usher = 'usher' in roles
+    ridcully_member_amend = ridcully_member.replace(
+        actor=user_ridcully,
+        is_editor=is_editor,
+        is_promoter=is_promoter,
+        is_usher=is_usher,
+    )
+    db_session.add(ridcully_member_amend)
+    db_session.commit()
+    return ridcully_member_amend
+
+
+@given(
+    parsers.parse(
+        "Ridcully is an existing crew member of the Ankh-Morpork 2010 project with role {role}"
+    ),
+    target_fixture='ridcully_member',
+)
+def given_ridcully_existing_member(
+    role,
+    db_session,
+    client,
+    login,
+    user_vimes,
+    user_ridcully,
+    project_expo2010,
+    user_vetinari,
+):
+    roles = [_r.strip() for _r in role.split(',')]
+    is_editor = 'editor' in roles
+    is_promoter = 'promoter' in roles
+    is_usher = 'usher' in roles
+    existing_ridcully_member = models.ProjectCrewMembership(
+        parent=project_expo2010,
+        user=user_ridcully,
+        is_editor=is_editor,
+        is_promoter=is_promoter,
+        is_usher=is_usher,
+        granted_by=user_vetinari,
+    )
+    db_session.add(existing_ridcully_member)
+    db_session.commit()
+    return existing_ridcully_member
+
+
+@when(
+    "Vetinari removes Ridcully from the Ankh-Morpork 2010 project crew",
+    target_fixture='ridcully_member',
+)
 def when_ridcully_removed(
     db_session,
     user_vetinari,
@@ -261,94 +343,34 @@ def when_ridcully_removed(
     project_expo2010,
     ridcully_member,
 ):
-    ridcully_member.revoked_by = user_vimes
+    ridcully_member.revoke(actor=user_vetinari)
     db_session.add(ridcully_member)
     db_session.commit()
+    return ridcully_member
 
 
-@then(
-    "Ridcully gets a notification 'You were removed as crew member of Ankh-Morpork 2010 by Sam Vimes'"
-)
-def then_ridcully_notification(ridcully_member, user_ridcully):
-    preview = models.PreviewNotification(
-        models.ProjectCrewMembershipRevokedNotification,
-        document=ridcully_member.project,
-        fragment=ridcully_member,
-    )
-    user_notification = models.NotificationFor(preview, user_ridcully)
-    view = user_notification.views.render
-    assert (
-        view.activity_template().format(
-            actor=ridcully_member.revoked_by.fullname,
-            project=ridcully_member.project.joined_title,
-            user=ridcully_member.user.fullname,
-        )
-        == 'You were removed as crew member of Ankh-Morpork 2010 by Sam Vimes'
-    )
-
-
-@then(
-    "Crew members get a notification 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Sam Vimes'"
-)
-def then_crew_notification(ridcully_member, user_ridcully, user_vetinari):
-    preview = models.PreviewNotification(
-        models.ProjectCrewMembershipRevokedNotification,
-        document=ridcully_member.project,
-        fragment=ridcully_member,
-    )
-    user_notification = models.NotificationFor(preview, user_vetinari)
-    view = user_notification.views.render
-    assert (
-        view.activity_template().format(
-            actor=ridcully_member.revoked_by.fullname,
-            project=ridcully_member.project.joined_title,
-            user=ridcully_member.user.fullname,
-        )
-        == 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Sam Vimes'
-    )
-
-
-@when("Ridcully resigns from the Ankh-Morpork 2010 project crew")
-def when_ridcully_self_removed(
-    db_session,
-    user_vetinari,
+@then(parsers.parse("{user} is notified of the removal with {notification_string}"))
+def then_user_notification_removal(
+    user,
+    notification_string,
     user_vimes,
     user_ridcully,
+    user_vetinari,
     project_expo2010,
+    vimes_promoter,
     ridcully_member,
 ):
-    ridcully_member.revoked_by = user_ridcully
-    db_session.add(ridcully_member)
-    db_session.commit()
-
-
-@then("{user} is notified of the removal with {notification_string}")
-def then_ridcully_self_removal_notification(ridcully_member, user_ridcully):
+    user_dict = {
+        "Ridcully": user_ridcully,
+        "Vimes": user_vimes,
+        "Vetinari": user_vetinari,
+    }
     preview = models.PreviewNotification(
         models.ProjectCrewMembershipRevokedNotification,
         document=ridcully_member.project,
         fragment=ridcully_member,
     )
-    user_notification = models.NotificationFor(preview, user_ridcully)
-    view = user_notification.views.render
-    assert (
-        view.activity_template(ridcully_member).format(
-            project=ridcully_member.project.joined_title,
-        )
-        == 'You removed yourself as a crew member of Ankh-Morpork 2010'
-    )
-
-
-@then("{user} is notified of the removal with {notification_string}")
-def then_crew_ridcully_self_removal_notification(
-    ridcully_member, user_ridcully, user_vetinari
-):
-    preview = models.PreviewNotification(
-        models.ProjectCrewMembershipRevokedNotification,
-        document=ridcully_member.project,
-        fragment=ridcully_member,
-    )
-    user_notification = models.NotificationFor(preview, user_vetinari)
+    user_notification = models.NotificationFor(preview, user_dict[user])
     view = user_notification.views.render
     assert (
         view.activity_template().format(
@@ -358,3 +380,20 @@ def then_crew_ridcully_self_removal_notification(
         )
         == 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Mustrum Ridcully'
     )
+
+
+@when(
+    "Ridcully resigns from the Ankh-Morpork 2010 project crew",
+)
+def when_ridcully_resigns(
+    db_session,
+    user_vetinari,
+    user_vimes,
+    user_ridcully,
+    project_expo2010,
+    ridcully_member,
+):
+    ridcully_member.revoke(user_ridcully)
+    db_session.add(ridcully_member)
+    db_session.commit()
+    return ridcully_member
