@@ -862,6 +862,7 @@
 
 .md-embed {
   position: relative;
+  margin: 0 0 14px;
   .embed-content {
     display: none;
   }
@@ -940,6 +941,12 @@
   &.md-embed-vega-lite.vega-embed,
   &.md-embed-mermaid {
     padding: 2.5%;
+  }
+}
+
+@media (min-width: 1200px) {
+  .md-embed {
+    margin-bottom: 16px;
   }
 }
 
