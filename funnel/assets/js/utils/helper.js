@@ -267,6 +267,33 @@ const Utils = {
       Utils.setNotifyIcon(responseData.unread);
     }
   },
+  async sendNotificationReadStatus() {
+    const notificationID = this.getQueryString('utm_source');
+    const Base58regex = /[\d\w]{21,22}/;
+
+    if (notificationID && Base58regex.test(notificationID)) {
+      const url = window.Hasgeek.Config.markReadUrl.replace(
+        'eventid_b58',
+        notificationID
+      );
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          csrf_token: $('meta[name="csrf-token"]').attr('content'),
+        }).toString(),
+      });
+      if (response && response.ok) {
+        const responseData = await response.json();
+        if (responseData) {
+          Utils.setNotifyIcon(responseData.unread);
+        }
+      }
+    }
+  },
   addWebShare() {
     const utils = this;
     if (navigator.share) {
