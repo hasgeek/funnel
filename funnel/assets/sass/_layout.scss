@@ -913,23 +913,26 @@
       }
     }
   }
-  &.md-embed-vega-lite .vega-embed {
-    padding: 2.5%;
-    display: block !important;
-    svg.marks {
-      height: auto;
-      overflow: visible;
-    }
-    summary {
-      top: 2px;
-      right: 15px;
-    }
-    .vega-actions {
-      right: 6px;
-      top: 37px;
-    }
-    &.has-actions {
-      padding-top: 40px;
+  &.md-embed-vega-lite {
+    z-index: 2;
+    .vega-embed {
+      padding: 2.5%;
+      display: block !important;
+      svg.marks {
+        height: auto;
+        overflow: visible;
+      }
+      summary {
+        top: 2px;
+        right: 15px;
+      }
+      .vega-actions {
+        right: 6px;
+        top: 37px;
+      }
+      &.has-actions {
+        padding-top: 40px;
+      }
     }
   }
   &.md-embed-mermaid {

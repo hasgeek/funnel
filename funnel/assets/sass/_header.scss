@@ -170,7 +170,7 @@
     overflow: auto;
     box-shadow: none;
     border-bottom: 1px solid $mui-divider-color;
-    z-index: 9999; // Less than fixed bottom header
+    z-index: 999; // Less than fixed bottom header
     display: block;
     padding: 0;
     list-style: none;
@@ -606,7 +606,7 @@
     left: 0;
     width: 100%;
     background-color: $mui-bg-color-primary;
-    z-index: 10000;
+    z-index: 1000;
 
     .mobile-nav__icon {
       display: inline-block;
@@ -649,7 +649,7 @@
   position: sticky;
   order: 1;
   top: 0;
-  z-index: 9998;
+  z-index: 998;
   width: 100%;
   left: 0;
 }
