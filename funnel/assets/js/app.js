@@ -67,6 +67,7 @@ $(() => {
       window.Hasgeek.Config.unreadCommentUrl
     );
   }
+  Utils.sendNotificationReadStatus();
 
   const intersectionObserverComponents = function intersectionObserverComponents() {
     LazyloadImg.init('js-lazyload-img');

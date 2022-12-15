@@ -153,7 +153,11 @@ def downloadfile(basepath: str, filename: str, folder: Optional[str] = None) -> 
 def load_country_info(filename: str) -> None:
     """Load country geonames from the given file descriptor."""
     with rich.progress.open(
-        filename, newline='', encoding='utf-8', description="Loading country info..."
+        filename,
+        mode='rt',
+        newline='',
+        encoding='utf-8',
+        description="Loading country info...",
     ) as fd:
         countryinfo = [
             CountryInfoRecord(*row)
@@ -228,6 +232,7 @@ def load_geonames(filename: str) -> None:
 
     with rich.progress.open(
         filename,
+        mode='rt',
         newline='',
         encoding='utf-8',
         description=f"Loading geonames from {filename}...",
@@ -315,7 +320,11 @@ def load_alt_names(filename: str) -> None:
     print("Retrieving all geoname records...")  # noqa: T201
     geonameids = {r[0] for r in db.session.query(GeoName.id).all()}
     with rich.progress.open(
-        filename, newline='', encoding='utf-8', description="Loading alternate names..."
+        filename,
+        mode='rt',
+        newline='',
+        encoding='utf-8',
+        description="Loading alternate names...",
     ) as fd:
         altnames = [
             GeoAltNameRecord(*row)
@@ -345,7 +354,11 @@ def load_alt_names(filename: str) -> None:
 def load_admin1_codes(filename: str) -> None:
     """Load admin1 codes from the given file descriptor."""
     with rich.progress.open(
-        filename, newline='', encoding='utf-8', description="Loading admin1 codes..."
+        filename,
+        mode='rt',
+        newline='',
+        encoding='utf-8',
+        description="Loading admin1 codes...",
     ) as fd:
         admincodes = [
             GeoAdminRecord(*row)
@@ -370,7 +383,11 @@ def load_admin1_codes(filename: str) -> None:
 def load_admin2_codes(filename: str) -> None:
     """Load admin2 codes from the given file descriptor."""
     with rich.progress.open(
-        filename, newline='', encoding='utf-8', description="Loading admin2 codes..."
+        filename,
+        mode='rt',
+        newline='',
+        encoding='utf-8',
+        description="Loading admin2 codes...",
     ) as fd:
         admincodes = [
             GeoAdminRecord(*row)

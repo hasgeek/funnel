@@ -6,6 +6,8 @@ Create Date: 2020-06-09 15:42:27.791372
 
 """
 
+from typing import Optional, Tuple, Union
+
 from alembic import op
 from sqlalchemy_utils import UUIDType
 import sqlalchemy as sa
@@ -13,8 +15,8 @@ import sqlalchemy as sa
 # revision identifiers, used by Alembic.
 revision = '79719ee38228'
 down_revision = '047ebdac558b'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
 def upgrade():
