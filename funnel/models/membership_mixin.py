@@ -249,7 +249,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(call={'editor'})
     def replace(
-        self: MembershipType, actor: User, accept: bool = False, **data: Any
+        self: MembershipType, actor: User, _accept: bool = False, **data: Any
     ) -> MembershipType:
         """Replace this membership record with changes to role columns."""
         if self.revoked_at is not None:
@@ -261,7 +261,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
         # Perform sanity check. If nothing changed, just return self
         has_changes = False
-        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE and accept:
+        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE and _accept:
             # If the existing record is an INVITE and this is an ACCEPT, we have
             # a record change even if no data changed
             has_changes = True
@@ -288,7 +288,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         # if existing record type is INVITE, then ACCEPT or amend as new INVITE
         # else replace it with AMEND
         if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE:
-            if accept:
+            if _accept:
                 new.record_type = MEMBERSHIP_RECORD_TYPE.ACCEPT
             else:
                 new.record_type = MEMBERSHIP_RECORD_TYPE.INVITE
@@ -354,7 +354,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             raise MembershipRecordTypeError("This membership record is not an invite")
         if 'subject' not in self.roles_for(actor):
             raise ValueError("Invite must be accepted by the invited user")
-        return self.replace(actor, accept=True)
+        return self.replace(actor, _accept=True)
 
     @with_roles(call={'owner', 'subject'})
     def freeze_subject_attribution(self: MembershipType, actor: User) -> MembershipType:
