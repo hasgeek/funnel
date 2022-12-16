@@ -32,6 +32,8 @@ class DecisionFactorFields:
     is_promoter: Optional[bool] = None
     is_usher: Optional[bool] = None
     is_actor: Optional[bool] = None
+    is_self_revoked: Optional[bool] = None
+    is_self_granted: Optional[bool] = None
 
     def is_match(
         self, membership: ProjectCrewMembership, is_subject: bool, for_actor: bool
@@ -44,6 +46,15 @@ class DecisionFactorFields:
             and (self.is_editor is None or self.is_editor is membership.is_editor)
             and (self.is_promoter is None or self.is_promoter is membership.is_promoter)
             and (self.is_usher is None or self.is_usher is membership.is_usher)
+            and (self.is_actor is None or (self.is_actor is membership.is_self_granted))
+            and (
+                self.is_self_granted is None
+                or (self.is_self_granted is membership.is_self_granted)
+            )
+            and (
+                self.is_self_revoked is None
+                or (self.is_self_revoked is membership.is_self_revoked)
+            )
         )
 
 
@@ -289,22 +300,26 @@ grant_amend_templates = DecisionBranch(
             rtypes=['amend'],
             is_editor=True,
             is_promoter=True,
+            is_subject=True,
         ),
         DecisionFactor(
             template=__("{actor} changed your role to editor of {project}"),
             rtypes=['amend'],
             is_editor=True,
             is_subject=True,
-            is_actor=False,
+            is_self_granted=False,
         ),
         DecisionFactor(
             template=__("{actor} changed your role to promoter of {project}"),
             rtypes=['amend'],
             is_promoter=True,
+            is_subject=True,
         ),
         DecisionFactor(
             template=__("{actor} changed your role to crew member of {project}"),
             rtypes=['amend'],
+            is_subject=True,
+            is_self_granted=False,
         ),
         DecisionFactor(
             template=__(
@@ -318,6 +333,7 @@ grant_amend_templates = DecisionBranch(
             template=__("{actor} changed {user}'s role to editor of {project}"),
             rtypes=['amend'],
             is_editor=True,
+            is_subject=False,
         ),
         DecisionFactor(
             template=__("{actor} changed {user}'s role to promoter of {project}"),
@@ -337,26 +353,29 @@ grant_amend_templates = DecisionBranch(
             is_editor=True,
         ),
         DecisionFactor(
-            template=__("You have changed your role to an editor of {project}"),
+            template=__("You changed your role to editor of {project}"),
             rtypes=['amend'],
             is_subject=True,
             is_editor=True,
+            is_self_granted=True,
         ),
         DecisionFactor(
-            template=__("You have changed your role to a promoter of {project}"),
+            template=__("You changed your role to promoter of {project}"),
             rtypes=['amend'],
             is_subject=True,
             is_promoter=True,
+            is_self_granted=True,
         ),
         DecisionFactor(
-            template=__("You have changed your role to be a crew of {project}"),
+            template=__("You changed your role to crew of {project}"),
             rtypes=['amend'],
             is_subject=True,
+            is_self_granted=True,
         ),
         # --- Subject's roles have changed
         DecisionFactor(
             template=__(
-                "{user} has changed their role to an editor and promoter of {project}"
+                "{user} has changed their role to editor and promoter of {project}"
             ),
             rtypes=['amend'],
             is_editor=True,
@@ -378,7 +397,112 @@ grant_amend_templates = DecisionBranch(
         ),
     ]
 )
-revoke_templates = DecisionBranch(factors=[])
+revoke_templates = DecisionBranch(
+    factors=[
+        # Subject resigned
+        DecisionFactor(
+            template=__("You resigned as editor and promoter of {project}"),
+            is_editor=True,
+            is_promoter=True,
+            for_actor=True,
+            is_self_revoked=True,
+        ),
+        DecisionFactor(
+            template=__("You resigned as editor of {project}"),
+            is_editor=True,
+            is_self_revoked=True,
+            for_actor=True,
+        ),
+        DecisionFactor(
+            template=__("You resigned as promoter of {project}"),
+            is_promoter=True,
+            for_actor=True,
+            is_self_revoked=True,
+        ),
+        DecisionFactor(
+            template=__("You resigned from the crew of {project}"),
+            for_actor=True,
+            is_self_revoked=True,
+        ),
+        DecisionFactor(
+            template=__("{user} resigned as editor and promoter of {project}"),
+            is_editor=True,
+            is_promoter=True,
+            is_self_revoked=True,
+        ),
+        DecisionFactor(
+            template=__("{user} resigned as editor of {project}"),
+            is_editor=True,
+            is_self_revoked=True,
+        ),
+        DecisionFactor(
+            template=__("{user} resigned as promoter of {project}"),
+            is_promoter=True,
+            is_self_revoked=True,
+        ),
+        DecisionFactor(
+            template=__("{user} resigned from the crew of {project}"),
+            is_self_revoked=True,
+        ),
+        # Someone removed subject
+        DecisionFactor(
+            template=__("You removed {user} from editor and promoter of {project}"),
+            is_editor=True,
+            is_promoter=True,
+            for_actor=True,
+        ),
+        DecisionFactor(
+            template=__("You removed {user} from editor of {project}"),
+            is_editor=True,
+            for_actor=True,
+        ),
+        DecisionFactor(
+            template=__("You removed {user} from promoter of {project}"),
+            is_promoter=True,
+            for_actor=True,
+        ),
+        DecisionFactor(
+            template=__("You removed {user} from the crew of {project}"),
+            for_actor=True,
+        ),
+        DecisionFactor(
+            template=__("{actor} removed you from editor and promoter of {project}"),
+            is_promoter=True,
+            is_editor=True,
+            is_subject=True,
+        ),
+        DecisionFactor(
+            template=__("{actor} removed you from editor of {project}"),
+            is_editor=True,
+            is_subject=True,
+        ),
+        DecisionFactor(
+            template=__("{actor} removed you from promoter of {project}"),
+            is_promoter=True,
+            is_subject=True,
+        ),
+        DecisionFactor(
+            template=__("{actor} removed you from the crew of {project}"),
+            is_subject=True,
+        ),
+        DecisionFactor(
+            template=__("{actor} removed {user} from editor and promoter of {project}"),
+            is_promoter=True,
+            is_editor=True,
+        ),
+        DecisionFactor(
+            template=__("{actor} removed {user} from editor of {project}"),
+            is_editor=True,
+        ),
+        DecisionFactor(
+            template=__("{actor} removed {user} from promoter of {project}"),
+            is_promoter=True,
+        ),
+        DecisionFactor(
+            template=__("{actor} removed {user} from the crew of {project}"),
+        ),
+    ]
+)
 # pylint: enable=unexpected-keyword-arg
 
 

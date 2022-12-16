@@ -198,7 +198,7 @@ def when_accept_ridcully_member(
 
 
 @given(
-    "Ridcully is an existing crew member of the Ankh-Morpork 2010 project",
+    "Ridcully is an existing crew member with roles editor, promoter and usher of the Ankh-Morpork 2010 project",
     target_fixture='ridcully_member',
 )
 def given_ridcully_crew(
@@ -212,11 +212,12 @@ def given_ridcully_crew(
         parent=project_expo2010,
         user=user_ridcully,
         is_usher=True,
+        is_promoter=True,
+        is_editor=True,
         granted_by=user_vetinari,
     )
     db_session.add(ridcully_member)
     db_session.commit()
-    assert 'promoter' in project_expo2010.roles_for(user_vimes)
     return ridcully_member
 
 
@@ -252,22 +253,6 @@ def when_amend_ridcully_member(
     return ridcully_member_amend
 
 
-@given("Vetinari made Ridcully an admin of Ankh-Morpork")
-def given_vetinari_made_ridcully_admin_org(
-    db_session,
-    user_vimes,
-    user_ridcully,
-    project_expo2010,
-    org_ankhmorpork,
-    user_vetinari,
-):
-    ridcully_admin = models.OrganizationMembership(
-        user=user_ridcully, organization=org_ankhmorpork, granted_by=user_vetinari
-    )
-    db_session.add(ridcully_admin)
-    db_session.commit()
-
-
 @when(
     parsers.parse(
         "Ridcully changes their role to {role} in the Ankh-Morpork 2010 project"
@@ -296,6 +281,25 @@ def when_ridcully_change_roles(
     db_session.add(ridcully_member_amend)
     db_session.commit()
     return ridcully_member_amend
+
+
+@given(
+    "Vetinari made Ridcully an admin of Ankh-Morpork", target_fixture='user_ridcully'
+)
+def given_vetinari_made_ridcully_admin_org(
+    db_session,
+    user_vimes,
+    user_ridcully,
+    project_expo2010,
+    org_ankhmorpork,
+    user_vetinari,
+):
+    ridcully_admin = models.OrganizationMembership(
+        user=user_ridcully, organization=org_ankhmorpork, granted_by=user_vetinari
+    )
+    db_session.add(ridcully_admin)
+    db_session.commit()
+    return user_ridcully
 
 
 @given(
@@ -378,7 +382,7 @@ def then_user_notification_removal(
             user=ridcully_member.user.fullname,
             actor=ridcully_member.revoked_by.fullname,
         )
-        == 'Mustrum Ridcully was removed as a crew member of Ankh-Morpork 2010 by Mustrum Ridcully'
+        == notification_string
     )
 
 

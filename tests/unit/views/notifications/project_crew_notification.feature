@@ -38,7 +38,7 @@ Feature: Project Crew Notification
       | Vetinari | promoter        | You invited Mustrum Ridcully to be a promoter of Ankh-Morpork 2010                           |
       | Ridcully | promoter        | Havelock Vetinari invited you to be a promoter of Ankh-Morpork 2010                          |
       | Vimes    | promoter        | Havelock Vetinari invited Mustrum Ridcully to be a promoter of Ankh-Morpork 2010             |
-      | Vetinari | editor,promoter | You invited Mustrum Ridcully be an editor and promoter of Ankh-Morpork 2010                  |
+      | Vetinari | editor,promoter | You invited Mustrum Ridcully to be an editor and promoter of Ankh-Morpork 2010               |
       | Ridcully | editor,promoter | Havelock Vetinari invited you to be an editor and promoter of Ankh-Morpork 2010              |
       | Vimes    | editor,promoter | Havelock Vetinari invited Mustrum Ridcully to be an editor and promoter of Ankh-Morpork 2010 |
       | Vetinari | usher           | You invited Mustrum Ridcully to join the crew of Ankh-Morpork 2010                           |
@@ -66,7 +66,7 @@ Feature: Project Crew Notification
       | Vimes    | usher           | Mustrum Ridcully accepted an invite to join the crew of Ankh-Morpork 2010          |
 
   Scenario Outline: Vetinari changes Ridcully's role
-    Given Ridcully is an existing crew member of the Ankh-Morpork 2010 project
+    Given Ridcully is an existing crew member with roles editor, promoter and usher of the Ankh-Morpork 2010 project
     When Vetinari changes Ridcully's role to <role> in the Ankh-Morpork 2010 project
     Then <user> gets notified with <notification_string> about the change
 
@@ -87,7 +87,7 @@ Feature: Project Crew Notification
 
   Scenario Outline: Ridcully changed their own role
     Given Vetinari made Ridcully an admin of Ankh-Morpork
-    And Ridcully is an existing crew member of the Ankh-Morpork 2010 project
+    And Ridcully is an existing crew member with roles editor, promoter and usher of the Ankh-Morpork 2010 project
     When Ridcully changes their role to <role> in the Ankh-Morpork 2010 project
     Then <user> gets notified with <notification_string> about the change
 
@@ -132,16 +132,16 @@ Feature: Project Crew Notification
     Then <user> is notified of the removal with <notification_string>
 
     Examples:
-      | user     | role            | notification_string                                                    |
-      | Ridcully | editor          | You resigned as editor of Ankh-Morpork 2010                            |
-      | Vetinari | editor          | Mustrum Ridcully resigned as editor of Ankh-Morpork 2010               |
-      | Vimes    | editor          | Mustrum Ridcully resigned as editor of Ankh-Morpork 2010               |
-      | Ridcully | promoter        | You resigned as promoter of Ankh-Morpork 2010                          |
-      | Vetinari | promoter        | Mustrum Ridcully resigned as promoter of Ankh-Morpork 2010             |
-      | Vimes    | promoter        | Mustrum Ridcully resigned as promoter of Ankh-Morpork 2010             |
-      | Ridcully | editor,promoter | You resigned as editor and promoter of Ankh-Morpork 2010               |
-      | Vetinari | editor,promoter | Mustrum Ridcully resigned as editor and promoter of Ankh-Morpork 2010  |
-      | Vimes    | editor,promoter | Mustrum Ridcully resigned as editor and promoter of  Ankh-Morpork 2010 |
-      | Ridcully | usher           | You resigned from the crew of Ankh-Morpork 2010                        |
-      | Vetinari | usher           | Mustrum Ridcully resigned from the crew of Ankh-Morpork 2010           |
-      | Vimes    | usher           | Mustrum Ridcully resigned from the crew of Ankh-Morpork 2010           |
+      | user     | role            | notification_string                                                   |
+      | Ridcully | editor          | You resigned as editor of Ankh-Morpork 2010                           |
+      | Vetinari | editor          | Mustrum Ridcully resigned as editor of Ankh-Morpork 2010              |
+      | Vimes    | editor          | Mustrum Ridcully resigned as editor of Ankh-Morpork 2010              |
+      | Ridcully | promoter        | You resigned as promoter of Ankh-Morpork 2010                         |
+      | Vetinari | promoter        | Mustrum Ridcully resigned as promoter of Ankh-Morpork 2010            |
+      | Vimes    | promoter        | Mustrum Ridcully resigned as promoter of Ankh-Morpork 2010            |
+      | Ridcully | editor,promoter | You resigned as editor and promoter of Ankh-Morpork 2010              |
+      | Vetinari | editor,promoter | Mustrum Ridcully resigned as editor and promoter of Ankh-Morpork 2010 |
+      | Vimes    | editor,promoter | Mustrum Ridcully resigned as editor and promoter of Ankh-Morpork 2010 |
+      | Ridcully | usher           | You resigned from the crew of Ankh-Morpork 2010                       |
+      | Vetinari | usher           | Mustrum Ridcully resigned from the crew of Ankh-Morpork 2010          |
+      | Vimes    | usher           | Mustrum Ridcully resigned from the crew of Ankh-Morpork 2010          |

@@ -59,6 +59,9 @@ class ProjectCrewMembership(
                 'is_usher',
                 'project',
                 'is_self_granted',
+                'revoked_by',
+                'is_self_revoked',
+                'granted_by',
             }
         },
         'project_crew': {'read': {'record_type_label', 'granted_by'}},
