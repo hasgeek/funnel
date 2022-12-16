@@ -272,7 +272,7 @@ const Utils = {
     const Base58regex = /[\d\w]{21,22}/;
 
     if (notificationID && Base58regex.test(notificationID)) {
-      const url = window.Hasgeek.Config.markReadUrl.replace(
+      const url = window.Hasgeek.Config.markNotificationReadUrl.replace(
         'eventid_b58',
         notificationID
       );
