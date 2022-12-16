@@ -28,6 +28,7 @@ from .mdit_plugins import (  # toc_plugin,
     del_plugin,
     embeds_plugin,
     fence_extend_plugin,
+    footnote_extend_plugin,
     ins_plugin,
     mark_plugin,
     sub_plugin,
@@ -153,7 +154,7 @@ MarkdownPlugin(
     anchors.anchors_plugin,
     {
         'min_level': 1,
-        'max_level': 3,
+        'max_level': 6,
         'slug_func': lambda x: 'h:' + make_name(x),
         'permalink': True,
     },
@@ -172,6 +173,7 @@ MarkdownPlugin('markmap', embeds_plugin, {'name': 'markmap'})
 MarkdownPlugin('vega-lite', embeds_plugin, {'name': 'vega-lite'})
 MarkdownPlugin('mermaid', embeds_plugin, {'name': 'mermaid'})
 MarkdownPlugin('fence_ext', fence_extend_plugin)
+MarkdownPlugin('footnote_ext', footnote_extend_plugin)
 # MarkdownPlugin('toc', toc_plugin)
 
 # --- Markdown configurations ----------------------------------------------------------
@@ -201,6 +203,7 @@ MarkdownConfig(
         'vega-lite',
         'mermaid',
         'fence_ext',
+        'footnote_ext'
         # 'toc',
     },
     enable_rules={'smartquotes'},
