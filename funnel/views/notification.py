@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from dataclasses import dataclass
 from datetime import datetime
 from email.utils import formataddr
 from functools import wraps
 from itertools import filterfalse, zip_longest
-from typing import Dict, List, Optional
+from typing import Any, Callable, ClassVar, Dict, List, Optional, Union
 from uuid import uuid4
 
 from flask import url_for
@@ -27,7 +28,12 @@ from ..transports.sms import SmsTemplate
 from .helpers import make_cached_token
 from .jobs import rqjob
 
-__all__ = ['RenderNotification', 'dispatch_notification']
+__all__ = [
+    'DecisionFactorBase',
+    'DecisionBranchBase',
+    'RenderNotification',
+    'dispatch_notification',
+]
 
 
 @UserNotification.views('render', cached_property=True)
@@ -35,6 +41,53 @@ __all__ = ['RenderNotification', 'dispatch_notification']
 def render_user_notification(obj):
     """Render web notifications for the user."""
     return Notification.renderers[obj.notification.type](obj)
+
+
+@dataclass
+class DecisionFactorBase:
+    """
+    Base class for a decision factor in picking from one of many templates.
+
+    Subclasses must implemnt :meth:`is_match`.
+    """
+
+    #: Subclasses must implement an is_match method
+    is_match: ClassVar[Callable[..., bool]]
+
+    #: Template string to use for notifications
+    template: str
+    #: Optional second template string in present tense for current notifications
+    template_present: Optional[str] = None
+
+    # Additional criteria must be defined in subclasses
+
+    def match(self, obj: Any, **kwargs) -> Optional[DecisionFactorBase]:
+        """If the parameters matche the defined criteria, return self."""
+        return self if self.is_match(obj, **kwargs) else None
+
+
+@dataclass
+class DecisionBranchBase:
+    """
+    Base class for a group of decision factors with a common matching criteria.
+
+    To be used alongside :class:`DecisionFactorBase` to make a pair of subclasses. See
+    :mod:`~funnel.views.notification.project_crew_notification` for an example of use.
+    """
+
+    #: Subclasses must implement an is_match method
+    is_match: ClassVar[Callable[..., bool]]
+
+    #: A list of decision factors and branches
+    factors: List[Union[DecisionFactorBase, DecisionBranchBase]]
+
+    def match(self, obj: Any, **kwargs) -> Optional[DecisionFactorBase]:
+        """Find a matching decision factor, recursing through other branches."""
+        for factor in self.factors:
+            found = factor.match(obj, **kwargs)
+            if found is not None:
+                return found
+        return None
 
 
 class RenderNotification:
