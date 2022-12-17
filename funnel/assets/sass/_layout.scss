@@ -957,6 +957,50 @@
   height: 99% !important;
 }
 
+.code-toolbar {
+  pre[class*='language-'] {
+    padding-top: 30px;
+    margin-top: 0px;
+  }
+  .toolbar {
+    opacity: initial !important;
+    top: 0 !important;
+    left: 0.5em;
+    right: 0.5em !important;
+    border-bottom: 1px solid #999;
+    text-align: right;
+    z-index: 2 !important;
+    .toolbar-item {
+      margin: 0.1em 0.2em;
+      a,
+      button,
+      span {
+        box-shadow: unset !important;
+        border-radius: unset !important;
+        font-size: $mui-base-font-size !important;
+      }
+      a,
+      button {
+        transition: 0.1s ease-in-out;
+        &.copy-to-clipboard-button span::before {
+          content: '\274F  ';
+          font-size: 120%;
+        }
+      }
+      &:first-child {
+        float: left;
+        span {
+          border: 0px;
+          &::before {
+            content: '\2261  ';
+            font-size: 120%;
+          }
+        }
+      }
+    }
+  }
+}
+
 .snippets {
   margin-top: 8px;
   padding: 8px 8px 8px 28px;
