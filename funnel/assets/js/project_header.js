@@ -3,7 +3,6 @@ import Video from './utils/embedvideo';
 import Analytics from './utils/analytics';
 import Spa from './utils/spahelper';
 import Form from './utils/formhelper';
-import initEmbed from './utils/initembed';
 
 const Ticketing = {
   init(tickets) {
@@ -223,8 +222,5 @@ $(() => {
       const url = $(this).attr('href');
       Spa.fetchPage(url, $(this).attr('id'), true);
     });
-
-    // Include parent container
-    initEmbed('#about .markdown');
   };
 });
