@@ -12,7 +12,7 @@ scenarios('project_crew_notification.feature')
 @given(
     "Vetinari is an owner of the Ankh-Morpork organization",
 )
-def given_vetinari_owner_org(user_vetinari, project_expo2010, org_ankhmorpork):
+def given_vetinari_owner_org(user_vetinari, org_ankhmorpork) -> None:
     assert 'owner' in org_ankhmorpork.roles_for(user_vetinari)
 
 
@@ -23,7 +23,7 @@ def given_vetinari_owner_org(user_vetinari, project_expo2010, org_ankhmorpork):
 def given_vetinari_editor_promoter_project(
     user_vetinari,
     project_expo2010,
-):
+) -> models.ProjectCrewMembership:
     assert 'promoter' in project_expo2010.roles_for(user_vetinari)
     assert 'editor' in project_expo2010.roles_for(user_vetinari)
     vetinari_member = project_expo2010.crew_memberships[0]
@@ -157,8 +157,8 @@ def when_invite_ridcully_member(
         is_promoter=is_promoter,
         is_usher=is_usher,
         granted_by=user_vetinari,
+        record_type=MEMBERSHIP_RECORD_TYPE.INVITE,
     )
-    ridcully_member.record_type = MEMBERSHIP_RECORD_TYPE.INVITE
     db_session.add(ridcully_member)
     db_session.commit()
     return ridcully_member
@@ -174,8 +174,8 @@ def when_accept_ridcully_member(
     ridcully_member,
     user_ridcully,
 ) -> models.ProjectCrewMembership:
+    assert ridcully_member.record_type_label.name == 'invite'
     ridcully_member_accept = ridcully_member.accept(actor=user_ridcully)
-    db_session.add(ridcully_member_accept)
     db_session.commit()
     return ridcully_member_accept
 
@@ -252,26 +252,25 @@ def when_ridcully_change_roles(
         is_promoter=is_promoter,
         is_usher=is_usher,
     )
-    db_session.add(ridcully_member_amend)
     db_session.commit()
     return ridcully_member_amend
 
 
 @given(
-    "Vetinari made Ridcully an admin of Ankh-Morpork", target_fixture='user_ridcully'
+    "Vetinari made Ridcully an admin of Ankh-Morpork", target_fixture='ridcully_admin'
 )
 def given_vetinari_made_ridcully_admin_org(
     db_session,
     user_ridcully,
     org_ankhmorpork,
     user_vetinari,
-):
+) -> models.OrganizationMembership:
     ridcully_admin = models.OrganizationMembership(
         user=user_ridcully, organization=org_ankhmorpork, granted_by=user_vetinari
     )
     db_session.add(ridcully_admin)
     db_session.commit()
-    return user_ridcully
+    return ridcully_admin
 
 
 @given(
@@ -287,7 +286,7 @@ def given_ridcully_existing_member(
     user_ridcully,
     project_expo2010,
     user_vetinari,
-):
+) -> models.ProjectCrewMembership:
     roles = [_r.strip() for _r in role.split(',')]
     is_editor = 'editor' in roles
     is_promoter = 'promoter' in roles
@@ -313,7 +312,7 @@ def when_ridcully_removed(
     db_session,
     user_vetinari,
     ridcully_member,
-):
+) -> models.ProjectCrewMembership:
     ridcully_member.revoke(actor=user_vetinari)
     db_session.commit()
     return ridcully_member
@@ -323,13 +322,10 @@ def when_ridcully_removed(
 def then_user_notification_removal(
     user,
     notification_string,
-    user_vimes,
-    user_ridcully,
-    user_vetinari,
     ridcully_member,
     vetinari_member,
     vimes_member,
-):
+) -> None:
     user_dict = {
         "Ridcully": ridcully_member.user,
         "Vimes": vimes_member.user,
@@ -359,8 +355,7 @@ def when_ridcully_resigns(
     db_session,
     user_ridcully,
     ridcully_member,
-):
+) -> None:
     ridcully_member.revoke(user_ridcully)
-    db_session.add(ridcully_member)
     db_session.commit()
     return ridcully_member
