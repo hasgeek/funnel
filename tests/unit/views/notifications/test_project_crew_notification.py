@@ -16,42 +16,40 @@ def given_vetinari_owner_org(user_vetinari, project_expo2010, org_ankhmorpork):
     assert 'owner' in org_ankhmorpork.roles_for(user_vetinari)
 
 
-@given("Vetinari is an editor and promoter of the Ankh-Morpork 2010 project")
+@given(
+    "Vetinari is an editor and promoter of the Ankh-Morpork 2010 project",
+    target_fixture='vetinari_member',
+)
 def given_vetinari_editor_promoter_project(
-    db_session,
     user_vetinari,
     project_expo2010,
 ):
-    user_vetinari.is_promoter = True
-    db_session.add(user_vetinari)
-    db_session.commit()
     assert 'promoter' in project_expo2010.roles_for(user_vetinari)
     assert 'editor' in project_expo2010.roles_for(user_vetinari)
+    vetinari_member = project_expo2010.crew_memberships[0]
+    return vetinari_member
 
 
 @given(
     "Vimes is a promoter of the Ankh-Morpork 2010 project",
-    target_fixture='vimes_promoter',
+    target_fixture='vimes_member',
 )
 def given_vimes_promoter_project(
     db_session,
-    client,
-    login,
     user_vetinari,
     user_vimes,
-    user_ridcully,
     project_expo2010,
 ) -> models.ProjectCrewMembership:
-    vimes_promoter = models.ProjectCrewMembership(
+    vimes_member = models.ProjectCrewMembership(
         parent=project_expo2010,
         user=user_vimes,
         is_promoter=True,
         granted_by=user_vetinari,
     )
-    db_session.add(vimes_promoter)
+    db_session.add(vimes_member)
     db_session.commit()
     assert 'promoter' in project_expo2010.roles_for(user_vimes)
-    return vimes_promoter
+    return vimes_member
 
 
 @when(
@@ -63,11 +61,7 @@ def given_vimes_promoter_project(
 def when_add_ridcully_member(
     role,
     db_session,
-    client,
-    login,
-    user_vimes,
     user_ridcully,
-    vimes_promoter,
     project_expo2010,
     user_vetinari,
 ) -> models.ProjectCrewMembership:
@@ -108,8 +102,6 @@ def then_user_notification(
     user_vimes,
     user_ridcully,
     user_vetinari,
-    project_expo2010,
-    vimes_promoter,
     ridcully_member,
 ) -> None:
     user_dict = {
@@ -149,9 +141,6 @@ def then_user_notification(
 def when_invite_ridcully_member(
     role,
     db_session,
-    client,
-    login,
-    user_vimes,
     user_ridcully,
     project_expo2010,
     user_vetinari,
@@ -175,18 +164,14 @@ def when_invite_ridcully_member(
 
 
 @when(
-    "Ridcully accepts the invitation to be a crew member of the Ankh-Morpork 2010 project",
+    "Ridcully accepts the invitation to be a crew member of the Ankh-Morpork 2010"
+    " project",
     target_fixture='ridcully_member',
 )
 def when_accept_ridcully_member(
     db_session,
-    client,
-    login,
     ridcully_member,
-    user_vimes,
     user_ridcully,
-    project_expo2010,
-    user_vetinari,
 ) -> models.ProjectCrewMembership:
     ridcully_member_accept = ridcully_member.accept(actor=user_ridcully)
     db_session.add(ridcully_member_accept)
@@ -195,13 +180,13 @@ def when_accept_ridcully_member(
 
 
 @given(
-    "Ridcully is an existing crew member with roles editor, promoter and usher of the Ankh-Morpork 2010 project",
+    "Ridcully is an existing crew member with roles editor, promoter and usher of the"
+    " Ankh-Morpork 2010 project",
     target_fixture='ridcully_member',
 )
 def given_ridcully_crew(
     db_session,
     user_vetinari,
-    user_vimes,
     user_ridcully,
     project_expo2010,
 ) -> models.ProjectCrewMembership:
@@ -227,11 +212,6 @@ def given_ridcully_crew(
 def when_amend_ridcully_member(
     role,
     db_session,
-    client,
-    login,
-    user_vimes,
-    user_ridcully,
-    project_expo2010,
     user_vetinari,
     ridcully_member,
 ) -> models.ProjectCrewMembership:
@@ -245,7 +225,6 @@ def when_amend_ridcully_member(
         is_promoter=is_promoter,
         is_usher=is_usher,
     )
-    db_session.add(ridcully_member_amend)
     db_session.commit()
     return ridcully_member_amend
 
@@ -259,10 +238,7 @@ def when_amend_ridcully_member(
 def when_ridcully_change_roles(
     role,
     db_session,
-    user_vimes,
     user_ridcully,
-    project_expo2010,
-    user_vetinari,
     ridcully_member,
 ) -> models.ProjectCrewMembership:
     roles = [_r.strip() for _r in role.split(',')]
@@ -285,9 +261,7 @@ def when_ridcully_change_roles(
 )
 def given_vetinari_made_ridcully_admin_org(
     db_session,
-    user_vimes,
     user_ridcully,
-    project_expo2010,
     org_ankhmorpork,
     user_vetinari,
 ):
@@ -301,16 +275,14 @@ def given_vetinari_made_ridcully_admin_org(
 
 @given(
     parsers.parse(
-        "Ridcully is an existing crew member of the Ankh-Morpork 2010 project with role {role}"
+        "Ridcully is an existing crew member of the Ankh-Morpork 2010 project with role"
+        " {role}"
     ),
     target_fixture='ridcully_member',
 )
 def given_ridcully_existing_member(
     role,
     db_session,
-    client,
-    login,
-    user_vimes,
     user_ridcully,
     project_expo2010,
     user_vetinari,
@@ -339,13 +311,9 @@ def given_ridcully_existing_member(
 def when_ridcully_removed(
     db_session,
     user_vetinari,
-    user_vimes,
-    user_ridcully,
-    project_expo2010,
     ridcully_member,
 ):
     ridcully_member.revoke(actor=user_vetinari)
-    db_session.add(ridcully_member)
     db_session.commit()
     return ridcully_member
 
@@ -357,14 +325,14 @@ def then_user_notification_removal(
     user_vimes,
     user_ridcully,
     user_vetinari,
-    project_expo2010,
-    vimes_promoter,
     ridcully_member,
+    vetinari_member,
+    vimes_member,
 ):
     user_dict = {
-        "Ridcully": user_ridcully,
-        "Vimes": user_vimes,
-        "Vetinari": user_vetinari,
+        "Ridcully": ridcully_member.user,
+        "Vimes": vimes_member.user,
+        "Vetinari": vetinari_member.user,
     }
     preview = models.PreviewNotification(
         models.ProjectCrewMembershipRevokedNotification,
@@ -388,10 +356,7 @@ def then_user_notification_removal(
 )
 def when_ridcully_resigns(
     db_session,
-    user_vetinari,
-    user_vimes,
     user_ridcully,
-    project_expo2010,
     ridcully_member,
 ):
     ridcully_member.revoke(user_ridcully)
