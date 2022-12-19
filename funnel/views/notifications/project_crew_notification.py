@@ -67,15 +67,19 @@ class DecisionFactor(DecisionFactorFields, DecisionFactorBase):
 class DecisionBranch(DecisionFactorFields, DecisionBranchBase):
     def __post_init__(self):
         """Validate decision factors to have matching criteria."""
+        unspecified_values = (None, (), [], {}, set())
         check_fields = {
             f.name: getattr(self, f.name)
             for f in fields(DecisionFactorFields)
-            if getattr(self, f.name) not in (None, ())
+            if getattr(self, f.name) not in unspecified_values
         }
         for factor in self.factors:
             for field, expected_value in check_fields.items():
                 factor_value = getattr(factor, field)
-                if factor_value is not None and factor_value is not expected_value:
+                if (
+                    factor_value not in unspecified_values
+                    and factor_value is not expected_value
+                ):
                     raise TypeError(
                         f"DecisionFactor has conflicting criteria for {field}: "
                         f"expected {expected_value}, got {factor_value} in {factor}"
