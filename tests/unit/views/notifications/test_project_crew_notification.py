@@ -59,7 +59,7 @@ def given_vimes_promoter_project(
     ),
     target_fixture='ridcully_member',
 )
-def when_add_ridcully_member(
+def when_vetinari_adds_ridcully(
     role,
     db_session,
     user_ridcully,
@@ -97,7 +97,7 @@ def when_add_ridcully_member(
     )
 )
 @then(parsers.parse("{user} gets notified with {notification_string} about the change"))
-def then_user_notification(
+def then_user_gets_notification(
     user,
     notification_string,
     user_vimes,
@@ -139,7 +139,7 @@ def then_user_notification(
     ),
     target_fixture='ridcully_member',
 )
-def when_invite_ridcully_member(
+def when_vetinari_invites_ridcully(
     role,
     db_session,
     user_ridcully,
@@ -169,12 +169,13 @@ def when_invite_ridcully_member(
     " project",
     target_fixture='ridcully_member',
 )
-def when_accept_ridcully_member(
+def when_ridcully_accepts_invite(
     db_session,
     ridcully_member,
     user_ridcully,
 ) -> models.ProjectCrewMembership:
-    assert ridcully_member.record_type_label.name == 'invite'
+    assert ridcully_member.record_type == MEMBERSHIP_RECORD_TYPE.INVITE
+    assert ridcully_member.user == user_ridcully
     ridcully_member_accept = ridcully_member.accept(actor=user_ridcully)
     db_session.commit()
     return ridcully_member_accept
@@ -185,7 +186,7 @@ def when_accept_ridcully_member(
     " Ankh-Morpork 2010 project",
     target_fixture='ridcully_member',
 )
-def given_ridcully_crew(
+def given_ridcully_is_existing_crew(
     db_session,
     user_vetinari,
     user_ridcully,
@@ -210,7 +211,7 @@ def given_ridcully_crew(
     ),
     target_fixture='ridcully_member',
 )
-def when_amend_ridcully_member(
+def when_vetinari_amends_ridcully_role(
     role,
     db_session,
     user_vetinari,
@@ -236,7 +237,7 @@ def when_amend_ridcully_member(
     ),
     target_fixture='ridcully_member',
 )
-def when_ridcully_change_roles(
+def when_ridcully_changes_role(
     role,
     db_session,
     user_ridcully,
@@ -259,7 +260,7 @@ def when_ridcully_change_roles(
 @given(
     "Vetinari made Ridcully an admin of Ankh-Morpork", target_fixture='ridcully_admin'
 )
-def given_vetinari_made_ridcully_admin_org(
+def given_vetinari_made_ridcully_admin_of_org(
     db_session,
     user_ridcully,
     org_ankhmorpork,
@@ -280,7 +281,7 @@ def given_vetinari_made_ridcully_admin_org(
     ),
     target_fixture='ridcully_member',
 )
-def given_ridcully_existing_member(
+def given_ridcully_is_existing_member(
     role,
     db_session,
     user_ridcully,
@@ -308,12 +309,26 @@ def given_ridcully_existing_member(
     "Vetinari removes Ridcully from the Ankh-Morpork 2010 project crew",
     target_fixture='ridcully_member',
 )
-def when_ridcully_removed(
+def when_vetinari_removes_ridcully(
     db_session,
     user_vetinari,
     ridcully_member,
 ) -> models.ProjectCrewMembership:
     ridcully_member.revoke(actor=user_vetinari)
+    db_session.commit()
+    return ridcully_member
+
+
+@when(
+    "Ridcully resigns from the Ankh-Morpork 2010 project crew",
+    target_fixture='ridcully_member',
+)
+def when_ridcully_resigns(
+    db_session,
+    user_ridcully,
+    ridcully_member,
+) -> models.ProjectCrewMembership:
+    ridcully_member.revoke(user_ridcully)
     db_session.commit()
     return ridcully_member
 
@@ -346,16 +361,3 @@ def then_user_notification_removal(
         )
         == notification_string
     )
-
-
-@when(
-    "Ridcully resigns from the Ankh-Morpork 2010 project crew",
-)
-def when_ridcully_resigns(
-    db_session,
-    user_ridcully,
-    ridcully_member,
-) -> None:
-    ridcully_member.revoke(user_ridcully)
-    db_session.commit()
-    return ridcully_member
