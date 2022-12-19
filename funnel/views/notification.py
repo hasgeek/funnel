@@ -167,7 +167,9 @@ class RenderNotification:
             transport, self.notification.preference_context
         )
 
-    def tracking_tags(self, transport: str = 'email', campaign: str = 'notification'):
+    def tracking_tags(
+        self, transport: str = 'email', campaign: str = 'notification'
+    ) -> Dict[str, str]:
         """
         Provide tracking tags for URL parameters. Subclasses may override if required.
 

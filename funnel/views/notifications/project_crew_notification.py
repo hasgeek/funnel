@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields
-from typing import Collection, Optional
+from typing import Callable, ClassVar, Collection, Dict, Optional
 
 from flask import Markup, escape, render_template
 
@@ -17,7 +17,8 @@ from ...models import (
     User,
     UserNotification,
 )
-from ...transports.sms import MessageTemplate
+from ...transports.sms import OneLineTemplate
+from ..helpers import shortlink
 from ..notification import DecisionBranchBase, DecisionFactorBase, RenderNotification
 
 
@@ -32,14 +33,14 @@ class DecisionFactorFields:
     is_promoter: Optional[bool] = None
     is_usher: Optional[bool] = None
     is_actor: Optional[bool] = None
-    is_self_revoked: Optional[bool] = None
     is_self_granted: Optional[bool] = None
+    is_self_revoked: Optional[bool] = None
 
     def is_match(
         self, membership: ProjectCrewMembership, is_subject: bool, for_actor: bool
     ) -> bool:
         """Test if this :class:`DecisionFactor` is a match."""
-        matches = (
+        return (
             (self.is_subject is None or self.is_subject is is_subject)
             and (self.for_actor is None or self.for_actor is for_actor)
             and (not self.rtypes or membership.record_type_label.name in self.rtypes)
@@ -56,16 +57,17 @@ class DecisionFactorFields:
                 or (self.is_self_revoked is membership.is_self_revoked)
             )
         )
-        return matches
 
 
 @dataclass
 class DecisionFactor(DecisionFactorFields, DecisionFactorBase):
-    pass
+    """Decision factor for content of a project crew notification."""
 
 
 @dataclass
 class DecisionBranch(DecisionFactorFields, DecisionBranchBase):
+    """Grouped decision factors for content of a project crew notification."""
+
     def __post_init__(self):
         """Validate decision factors to have matching criteria."""
         unspecified_values = (None, (), [], {}, set())
@@ -632,6 +634,8 @@ class RenderShared:
     #: Subclasses must specify a base template picker
     template_picker: DecisionBranch
 
+    tracking_tags: ClassVar[Callable[..., Dict[str, str]]]
+
     def activity_template(
         self, membership: Optional[ProjectCrewMembership] = None
     ) -> str:
@@ -702,15 +706,21 @@ class RenderShared:
             actor=(actor.pickername if actor is not None else _("(unknown)")),
         )
 
-    def sms(self) -> MessageTemplate:
+    def sms(self) -> OneLineTemplate:
         """SMS notification."""
         actor = self.membership_actor()
-        return MessageTemplate(
-            message=self.activity_template().format(
+        return OneLineTemplate(
+            text1=self.activity_template().format(
                 user=self.membership.user.pickername,
                 project=self.project.joined_title,
                 actor=(actor.pickername if actor is not None else _("(unknown)")),
-            )
+            ),
+            url=shortlink(
+                self.project.url_for(
+                    'crew', _external=True, **self.tracking_tags('sms')
+                ),
+                shorter=True,
+            ),
         )
 
 
