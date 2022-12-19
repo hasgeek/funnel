@@ -123,14 +123,13 @@ def test_project_roles_lazy_eval(
     assert 'profile_admin' not in new_project2.roles_for(new_user)
 
 
-def test_project_amend(
+def test_membership_amend(
     db_session, user_vetinari, user_ridcully, project_expo2010, org_ankhmorpork
 ):
     ridcully_admin = models.OrganizationMembership(
         user=user_ridcully, organization=org_ankhmorpork, granted_by=user_vetinari
     )
     db_session.add(ridcully_admin)
-    db_session.commit()
     ridcully_member = models.ProjectCrewMembership(
         parent=project_expo2010,
         user=user_ridcully,
@@ -138,7 +137,6 @@ def test_project_amend(
         granted_by=user_vetinari,
     )
     db_session.add(ridcully_member)
-    db_session.commit()
     assert 'editor' in project_expo2010.roles_for(user_ridcully)
 
     amend_ridcully_member = ridcully_member.replace(
@@ -146,4 +144,6 @@ def test_project_amend(
         is_promoter=True,
     )
     db_session.add(amend_ridcully_member)
-    db_session.commit()
+    assert ridcully_member != amend_ridcully_member
+    assert ridcully_member.revoked_by == user_ridcully
+    assert amend_ridcully_member.granted_by == user_ridcully
