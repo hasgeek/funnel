@@ -10,7 +10,6 @@ from flask import Markup, escape, render_template
 from baseframe import _, __
 
 from ...models import (
-    MEMBERSHIP_RECORD_TYPE,
     Organization,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
@@ -26,18 +25,20 @@ class DecisionFactor:
     """Evaluation criteria for the content of notification (for grants/edits only)."""
 
     template: str
-    is_subject: bool = False
+    is_subject: Optional[bool] = None
+    for_actor: Optional[bool] = None
     rtypes: Collection[str] = ()
     is_owner: Optional[bool] = None
     is_actor: Optional[bool] = None
 
     def match(
-        self, is_subject: bool, record_type: str, membership: OrganizationMembership
+        self, is_subject: bool, for_actor: bool, membership: OrganizationMembership
     ) -> bool:
         """Test if this :class:`DecisionFactor` is a match."""
         return (
-            (self.is_subject is is_subject)
-            and (not self.rtypes or record_type in self.rtypes)
+            (self.is_subject is None or self.is_subject is is_subject)
+            and (self.for_actor is None or self.for_actor is for_actor)
+            and (not self.rtypes or membership.record_type_label.name in self.rtypes)
             and (self.is_owner is None or self.is_owner is membership.is_owner)
             and (self.is_actor is None or (self.is_actor is membership.is_self_granted))
         )
@@ -75,6 +76,7 @@ decision_factors = [
     DecisionFactor(  # This should never happen
         template=__("You have changed your role to owner of {organization}"),
         is_subject=True,
+        for_actor=True,
         rtypes=['amend'],
         is_owner=True,
         is_actor=True,
@@ -82,6 +84,7 @@ decision_factors = [
     DecisionFactor(  # Subject demoted themselves
         template=__("You have changed your role to an admin of {organization}"),
         is_subject=True,
+        for_actor=True,
         rtypes=['amend'],
         is_owner=False,
         is_actor=True,
@@ -115,7 +118,7 @@ decision_factors = [
         is_owner=False,
         is_actor=False,
     ),
-    # --- Notifications to other admins of organization (except actor) -----------------
+    # --- Notifications to other admins of organization (except subject) ---------------
     # --- User was invited
     DecisionFactor(
         template=__("{user} was invited to be an owner of {organization} by {actor}"),
@@ -186,12 +189,6 @@ class RenderShared:
     def actor(self) -> User:
         """We're interested in who has the membership, not who granted/revoked it."""
         return self.membership.user
-
-    @property
-    def record_type(self):
-        """Membership record type as a string, for templates."""
-        # There are four record types: invite, accept, direct_add, amend
-        return MEMBERSHIP_RECORD_TYPE[self.membership.record_type].name
 
     def activity_html(self, membership: Optional[OrganizationMembership] = None) -> str:
         """Return HTML rendering of :meth:`activity_template`."""
@@ -267,11 +264,14 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
         """
         if membership is None:
             membership = self.membership
+        membership_user_uuid = membership.user.uuid
+        membership_actor = self.membership_actor(membership)
+        membership_actor_uuid = membership_actor.uuid if membership_actor else None
         for df in decision_factors:
             if df.match(
                 # LHS = user object, RHS = role proxy, so compare uuid
-                self.user_notification.user.uuid == membership.user.uuid,
-                self.record_type,
+                self.user_notification.user.uuid == membership_user_uuid,
+                self.user_notification.user.uuid == membership_actor_uuid,
                 membership,
             ):
                 return df.template

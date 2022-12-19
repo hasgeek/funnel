@@ -51,11 +51,6 @@ org_data_changed = app_signals.signal('org-data-changed')
 team_data_changed = app_signals.signal('team-data-changed')
 session_revoked = app_signals.signal('session-revoked')
 
-# Membership signals
-project_crew_membership_added = app_signals.signal('project_crew_membership_added')
-project_crew_membership_invited = app_signals.signal('project_crew_membership_invited')
-project_crew_membership_revoked = app_signals.signal('project_crew_membership_revoked')
-
 # Commentset role change signals (sends user, document)
 project_role_change = app_signals.signal('project_role_change')
 proposal_role_change = app_signals.signal('proposal_role_change')

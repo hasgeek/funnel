@@ -6,6 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable, TypeVar
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects import postgresql
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType, UUIDType
 import sqlalchemy as sa  # noqa
 import sqlalchemy.orm  # Required to make sa.orm work  # noqa
@@ -19,6 +20,7 @@ from coaster.sqlalchemy import (
     CoordinatesMixin,
     JsonDict,
     NoIdMixin,
+    RegistryMixin,
     RoleMixin,
     TimestampMixin,
     UrlType,
@@ -29,6 +31,7 @@ from coaster.sqlalchemy import (
 from ..typing import Mapped
 
 if not TYPE_CHECKING:
+    # pylint: disable=ungrouped-imports
     from sqlalchemy.ext.hybrid import hybrid_property
     from sqlalchemy.orm import declarative_mixin, declared_attr
 else:

@@ -6,7 +6,6 @@ from flask import render_template, url_for
 
 from baseframe import _
 
-from .. import signals
 from ..models import User, UserEmail
 from ..transports.email import jsonld_confirm_action, jsonld_view_action, send_email
 
@@ -51,57 +50,3 @@ def send_password_reset_link(email: str, user: User, otp: str, token: str) -> st
         otp=otp,
     )
     return send_email(subject, [(user.fullname, email)], content)
-
-
-@signals.project_crew_membership_added.connect
-def send_email_for_project_crew_membership_added(
-    sender, project, membership, actor, user
-):
-    send_email(
-        subject=_("You have been added to {project} as a crew member").format(
-            project=project.title
-        ),
-        to=[user],
-        content=render_template(
-            'email_project_crew_membership_add_notification.html.jinja2',
-            actor=actor,
-            project=project,
-            membership=membership,
-        ),
-    )
-
-
-@signals.project_crew_membership_invited.connect
-def send_email_for_project_crew_membership_invited(
-    sender, project, membership, actor, user
-):
-    send_email(
-        subject=_("You have been invited to {project} as a crew member").format(
-            project=project.title
-        ),
-        to=[user],
-        content=render_template(
-            'email_project_crew_membership_invite_notification.html.jinja2',
-            actor=actor,
-            project=project,
-            membership=membership,
-        ),
-    )
-
-
-@signals.project_crew_membership_revoked.connect
-def send_email_for_project_crew_membership_revoked(
-    sender, project, membership, actor, user
-):
-    send_email(
-        subject=_("You have been removed from {project} as a crew member").format(
-            project=project.title
-        ),
-        to=[user],
-        content=render_template(
-            'email_project_crew_membership_revoke_notification.html.jinja2',
-            actor=actor,
-            project=project,
-            membership=membership,
-        ),
-    )

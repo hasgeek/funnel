@@ -293,12 +293,25 @@ blockquote {
     font-weight: 700;
   }
 
-  h1 a,
-  h2 a,
-  h3 a,
-  h4 a,
-  h5 a {
-    color: inherit;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    a {
+      color: $mui-text-dark;
+      display: none;
+    }
+    &:hover a {
+      display: inline;
+    }
+    @media (any-pointer: coarse) {
+      a {
+        display: inline;
+        color: $mui-text-accent;
+      }
+    }
   }
 
   ul,
