@@ -27,6 +27,7 @@ def given_vetinari_editor_promoter_project(
     assert 'promoter' in project_expo2010.roles_for(user_vetinari)
     assert 'editor' in project_expo2010.roles_for(user_vetinari)
     vetinari_member = project_expo2010.crew_memberships[0]
+    assert vetinari_member.user == user_vetinari
     return vetinari_member
 
 
