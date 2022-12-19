@@ -54,17 +54,21 @@ class ProjectCrewMembership(
             'read': {
                 'urls',
                 'user',
+                'project',
                 'is_editor',
                 'is_promoter',
                 'is_usher',
-                'project',
-                'is_self_granted',
-                'revoked_by',
-                'is_self_revoked',
-                'granted_by',
             }
         },
-        'project_crew': {'read': {'record_type_label', 'granted_by'}},
+        'project_crew': {
+            'read': {
+                'record_type_label',
+                'granted_by',
+                'revoked_by',
+                'is_self_granted',
+                'is_self_revoked',
+            }
+        },
     }
     __datasets__ = {
         'primary': {
