@@ -269,9 +269,9 @@ def when_ridcully_change_roles(
     ridcully_member,
 ) -> models.ProjectCrewMembership:
     roles = [_r.strip() for _r in role.split(',')]
-    is_editor = 'editor' in roles
-    is_promoter = 'promoter' in roles
-    is_usher = 'usher' in roles
+    is_editor = True if 'editor' in roles else False
+    is_promoter = True if 'promoter' in roles else False
+    is_usher = True if 'usher' in roles else False
     ridcully_member_amend = ridcully_member.replace(
         actor=user_ridcully,
         is_editor=is_editor,

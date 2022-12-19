@@ -266,7 +266,67 @@ grant_amend_templates = DecisionBranch(
             template=__("{actor} added {user} to the crew of {project}"),
             rtypes=['direct_add'],
         ),
-        # --- Someone has changed subject's role
+        # --- Subject has changed their role
+        DecisionFactor(
+            template=__("You are now editor and promoter of {project}"),
+            rtypes=['amend'],
+            is_subject=True,
+            is_promoter=True,
+            is_editor=True,
+            for_actor=True,
+            is_self_granted=True,
+        ),
+        DecisionFactor(
+            template=__("You changed your role to editor of {project}"),
+            rtypes=['amend'],
+            is_editor=True,
+            is_self_granted=True,
+            is_subject=True,
+            for_actor=True,
+        ),
+        DecisionFactor(
+            template=__("You changed your role to promoter of {project}"),
+            rtypes=['amend'],
+            is_subject=True,
+            is_promoter=True,
+            is_self_granted=True,
+            for_actor=True,
+        ),
+        DecisionFactor(
+            template=__("You changed your role to crew member of {project}"),
+            rtypes=['amend'],
+            is_subject=True,
+            is_self_granted=True,
+            for_actor=True,
+        ),
+        # --- Subject's roles have changed
+        DecisionFactor(
+            template=__(
+                "{user} changed their role to editor and promoter of {project}"
+            ),
+            rtypes=['amend'],
+            is_editor=True,
+            is_promoter=True,
+            is_self_granted=True,
+        ),
+        DecisionFactor(
+            template=__("{user} changed their role to editor of {project}"),
+            rtypes=['amend'],
+            is_editor=True,
+            is_self_granted=True,
+        ),
+        DecisionFactor(
+            template=__("{user} changed their role to promoter of {project}"),
+            rtypes=['amend'],
+            is_promoter=True,
+            is_self_granted=True,
+        ),
+        DecisionFactor(
+            template=__("{user} changed their role to crew member of {project}"),
+            rtypes=['amend'],
+            is_self_granted=True,
+        ),
+        # # --- Someone has changed subject's role
         DecisionFactor(
             template=__(
                 "You changed {user}'s role to editor and promoter of {project}"
@@ -307,7 +367,6 @@ grant_amend_templates = DecisionBranch(
             rtypes=['amend'],
             is_editor=True,
             is_subject=True,
-            is_self_granted=False,
         ),
         DecisionFactor(
             template=__("{actor} changed your role to promoter of {project}"),
@@ -319,7 +378,6 @@ grant_amend_templates = DecisionBranch(
             template=__("{actor} changed your role to crew member of {project}"),
             rtypes=['amend'],
             is_subject=True,
-            is_self_granted=False,
         ),
         DecisionFactor(
             template=__(
@@ -334,6 +392,7 @@ grant_amend_templates = DecisionBranch(
             rtypes=['amend'],
             is_editor=True,
             is_subject=False,
+            is_self_granted=False,
         ),
         DecisionFactor(
             template=__("{actor} changed {user}'s role to promoter of {project}"),
@@ -343,57 +402,7 @@ grant_amend_templates = DecisionBranch(
         DecisionFactor(
             template=__("{actor} changed {user}'s role to crew member of {project}"),
             rtypes=['amend'],
-        ),
-        # --- Subject has changed their role
-        DecisionFactor(
-            template=__("You are now an editor and promoter of {project}"),
-            rtypes=['amend'],
-            is_subject=True,
-            is_promoter=True,
-            is_editor=True,
-        ),
-        DecisionFactor(
-            template=__("You changed your role to editor of {project}"),
-            rtypes=['amend'],
-            is_subject=True,
-            is_editor=True,
-            is_self_granted=True,
-        ),
-        DecisionFactor(
-            template=__("You changed your role to promoter of {project}"),
-            rtypes=['amend'],
-            is_subject=True,
-            is_promoter=True,
-            is_self_granted=True,
-        ),
-        DecisionFactor(
-            template=__("You changed your role to crew of {project}"),
-            rtypes=['amend'],
-            is_subject=True,
-            is_self_granted=True,
-        ),
-        # --- Subject's roles have changed
-        DecisionFactor(
-            template=__(
-                "{user} has changed their role to editor and promoter of {project}"
-            ),
-            rtypes=['amend'],
-            is_editor=True,
-            is_promoter=True,
-        ),
-        DecisionFactor(
-            template=__("{user} has changed their role to an editor of {project}"),
-            rtypes=['amend'],
-            is_editor=True,
-        ),
-        DecisionFactor(
-            template=__("{user} has changed their role to a promoter of {project}"),
-            rtypes=['amend'],
-            is_promoter=True,
-        ),
-        DecisionFactor(
-            template=__("{user} has changed their role to be a crew of {project}"),
-            rtypes=['amend'],
+            is_self_granted=False,
         ),
     ]
 )
