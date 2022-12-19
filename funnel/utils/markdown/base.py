@@ -157,6 +157,7 @@ MarkdownPlugin(
         'max_level': 6,
         'slug_func': lambda x: 'h:' + make_name(x),
         'permalink': True,
+        'permalinkSymbol': '#',
     },
 )
 MarkdownPlugin(
