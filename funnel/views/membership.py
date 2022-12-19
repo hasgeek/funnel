@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from flask import abort, request
+from flask import abort, flash, render_template, request
 
 from baseframe import _
 from baseframe.forms import Form, render_form
@@ -32,9 +32,12 @@ from ..models import (
     Profile,
     Project,
     ProjectCrewMembership,
+    ProjectCrewMembershipNotification,
+    ProjectCrewMembershipRevokedNotification,
     db,
     sa,
 )
+from ..proxies import request_wants
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
@@ -86,7 +89,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                             'errors': membership_form.errors,
                             'form_nonce': membership_form.form_nonce.data,
                         },
-                        400,
+                        422,
                     )
 
                 previous_membership = (
@@ -107,7 +110,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                             'errors': membership_form.errors,
                             'form_nonce': membership_form.form_nonce.data,
                         },
-                        400,
+                        422,
                     )
                 new_membership = OrganizationMembership(
                     organization=self.obj.organization, granted_by=current_auth.user
@@ -138,7 +141,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
                     'errors': membership_form.errors,
                     'form_nonce': membership_form.form_nonce.data,
                 },
-                400,
+                422,
             )
 
         membership_form_html = render_form(
@@ -186,24 +189,21 @@ class OrganizationMembershipView(
                         'status': 'error',
                         'error_description': _("You can’t edit your own role"),
                         'form_nonce': membership_form.form_nonce.data,
-                    }
+                    }, 422
 
                 try:
                     new_membership = previous_membership.replace(
                         actor=current_auth.user, is_owner=membership_form.is_owner.data
                     )
                 except MembershipRevokedError:
-                    return (
-                        {
-                            'status': 'error',
-                            'error_description': _(
-                                "This member’s record was edited elsewhere."
-                                " Reload the page"
-                            ),
-                            'form_nonce': membership_form.form_nonce.data,
-                        },
-                        400,
-                    )
+                    return {
+                        'status': 'error',
+                        'error_description': _(
+                            "This member’s record was edited elsewhere."
+                            " Reload the page"
+                        ),
+                        'form_nonce': membership_form.form_nonce.data,
+                    }, 422
                 if new_membership != previous_membership:
                     db.session.commit()
                     dispatch_notification(
@@ -226,15 +226,12 @@ class OrganizationMembershipView(
                         for membership in self.obj.organization.active_admin_memberships
                     ],
                 }
-            return (
-                {
-                    'status': 'error',
-                    'error_description': _("Please pick one or more roles"),
-                    'errors': membership_form.errors,
-                    'form_nonce': membership_form.form_nonce.data,
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'error_description': _("Please pick one or more roles"),
+                'errors': membership_form.errors,
+                'form_nonce': membership_form.form_nonce.data,
+            }, 422
 
         membership_form_html = render_form(
             form=membership_form,
@@ -258,7 +255,7 @@ class OrganizationMembershipView(
                         'status': 'error',
                         'error_description': _("You can’t revoke your own membership"),
                         'form_nonce': form.form_nonce.data,
-                    }
+                    }, 422
                 if previous_membership.is_active:
                     previous_membership.revoke(actor=current_auth.user)
                     db.session.commit()
@@ -278,14 +275,11 @@ class OrganizationMembershipView(
                         for membership in self.obj.organization.active_admin_memberships
                     ],
                 }
-            return (
-                {
-                    'status': 'error',
-                    'errors': form.errors,
-                    'form_nonce': form.form_nonce.data,
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'errors': form.errors,
+                'form_nonce': form.form_nonce.data,
+            }, 422
 
         form_html = render_form(
             form=form,
@@ -331,53 +325,42 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
             if membership_form.validate_on_submit():
                 if not membership_form.user.data.has_verified_contact_info:
                     # users without verified contact information cannot be members
-                    return (
-                        {
-                            'status': 'error',
-                            'error_description': _(
-                                "This user does not have any verified contact"
-                                " information. If you are able to contact them, please"
-                                " ask them to verify their email address or phone"
-                                " number"
-                            ),
-                            'errors': membership_form.errors,
-                            'form_nonce': membership_form.form_nonce.data,
-                        },
-                        400,
-                    )
+                    return {
+                        'status': 'error',
+                        'error_description': _(
+                            "This user does not have any verified contact information."
+                            " If you are able to contact them, please ask them to"
+                            " verify their email address or phone number"
+                        ),
+                        'errors': membership_form.errors,
+                        'form_nonce': membership_form.form_nonce.data,
+                    }, 422
                 previous_membership = (
                     ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
                     .filter_by(project=self.obj, user_id=membership_form.user.data.id)
                     .one_or_none()
                 )
                 if previous_membership is not None:
-                    return (
-                        {
-                            'status': 'error',
-                            'error_description': _("This person is already a member"),
-                            'errors': membership_form.errors,
-                            'form_nonce': membership_form.form_nonce.data,
-                        },
-                        400,
-                    )
+                    return {
+                        'status': 'error',
+                        'error_description': _("This person is already a member"),
+                        'errors': membership_form.errors,
+                        'form_nonce': membership_form.form_nonce.data,
+                    }, 422
                 new_membership = ProjectCrewMembership(
                     project=self.obj, granted_by=current_auth.user
                 )
                 membership_form.populate_obj(new_membership)
                 db.session.add(new_membership)
-                # TODO: Once invite is introduced, send invite email here
                 db.session.commit()
                 signals.project_role_change.send(
                     self.obj, actor=current_auth.user, user=new_membership.user
                 )
-                signals.project_crew_membership_added.send(
-                    self.obj,
-                    project=self.obj,
-                    membership=new_membership,
-                    actor=current_auth.user,
-                    user=new_membership.user,
+                dispatch_notification(
+                    ProjectCrewMembershipNotification(
+                        document=self.obj, fragment=new_membership
+                    )
                 )
-                db.session.commit()
                 return {
                     'status': 'ok',
                     'message': _("The user has been added as a member"),
@@ -387,16 +370,13 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
                         )
                         for membership in self.obj.active_crew_memberships
                     ],
-                }
-            return (
-                {
-                    'status': 'error',
-                    'error_description': _("Please pick one or more roles"),
-                    'errors': membership_form.errors,
-                    'form_nonce': membership_form.form_nonce.data,
-                },
-                400,
-            )
+                }, 201
+            return {
+                'status': 'error',
+                'error_description': _("Please pick one or more roles"),
+                'errors': membership_form.errors,
+                'form_nonce': membership_form.form_nonce.data,
+            }, 422
 
         membership_form_html = render_form(
             form=membership_form,
@@ -448,24 +428,39 @@ class ProjectCrewMembershipInviteView(
         return obj
 
     @route('', methods=['GET'])
-    @render_with('membership_invite_actions.html.jinja2')
     @requires_login
-    def invite(self) -> ReturnRenderWith:
-        return {
-            'membership': self.obj.current_access(datasets=('primary', 'related')),
-            'form': Form(),
-        }
-
-    @route('action', methods=['POST'])
-    @requires_login
-    def invite_action(self) -> ReturnView:
+    @requires_roles({'subject'})
+    def invite(self) -> ReturnView:
+        if request.method == 'GET':
+            return render_template(
+                'membership_invite_actions.html.jinja2',
+                membership=self.obj.current_access(datasets=('primary', 'related')),
+                form=Form(),
+            )
         membership_invite_form = ProjectCrewMembershipInviteForm()
         if membership_invite_form.validate_on_submit():
             if membership_invite_form.action.data == 'accept':
                 self.obj.accept(actor=current_auth.user)
+                status_code = 201
             elif membership_invite_form.action.data == 'decline':
                 self.obj.revoke(actor=current_auth.user)
+                status_code = 200
+            else:
+                error_description = _("This is not a valid response")
+                if request_wants.json:
+                    return {
+                        'status': 'error',
+                        'error': 'invalid_action',
+                        'error_description': error_description,
+                    }, 422
+                flash(error_description, 'error')
+                abort(422)
             db.session.commit()
+        if request_wants.json:
+            return {
+                'status': 'ok',
+                'action': membership_invite_form.action.data,
+            }, status_code
         return render_redirect(self.obj.project.url_for())
 
 
@@ -487,29 +482,30 @@ class ProjectCrewMembershipView(
         if form.is_submitted():
             if form.validate():
                 try:
-                    previous_membership.replace(
+                    new_membership = previous_membership.replace(
                         actor=current_auth.user,
                         is_editor=form.is_editor.data,
                         is_promoter=form.is_promoter.data,
                         is_usher=form.is_usher.data,
                     )
                 except MembershipRevokedError:
-                    return (
-                        {
-                            'status': 'error',
-                            'error_description': _(
-                                "The member’s record was edited elsewhere."
-                                " Reload the page"
-                            ),
-                            'form_nonce': form.form_nonce.data,
-                        },
-                        400,
-                    )
+                    return {
+                        'status': 'error',
+                        'error_description': _(
+                            "The member’s record was edited elsewhere."
+                            " Reload the page"
+                        ),
+                        'form_nonce': form.form_nonce.data,
+                    }, 422
                 db.session.commit()
                 signals.project_role_change.send(
                     self.obj.project, actor=current_auth.user, user=self.obj.user
                 )
-                db.session.commit()
+                dispatch_notification(
+                    ProjectCrewMembershipNotification(
+                        document=self.obj.project, fragment=new_membership
+                    )
+                )
                 return {
                     'status': 'ok',
                     'message': _("The member’s roles have been updated"),
@@ -520,15 +516,12 @@ class ProjectCrewMembershipView(
                         for membership in self.obj.project.active_crew_memberships
                     ],
                 }
-            return (
-                {
-                    'status': 'error',
-                    'error_description': _("Please pick one or more roles"),
-                    'errors': form.errors,
-                    'form_nonce': form.form_nonce.data,
-                },
-                400,
-            )
+            return {
+                'status': 'error',
+                'error_description': _("Please pick one or more roles"),
+                'errors': form.errors,
+                'form_nonce': form.form_nonce.data,
+            }, 422
 
         membership_form_html = render_form(
             form=form,
@@ -545,22 +538,20 @@ class ProjectCrewMembershipView(
     def delete(self) -> ReturnView:
         form = Form()
         if request.method == 'POST':
-            if form.validate_on_submit():
+            if form.validate():
                 previous_membership = self.obj
                 if previous_membership.is_active:
                     previous_membership.revoke(actor=current_auth.user)
-                    signals.project_crew_membership_revoked.send(
-                        self.obj.project,
-                        project=self.obj.project,
-                        membership=previous_membership,
-                        actor=current_auth.user,
-                        user=previous_membership.user,
-                    )
                     db.session.commit()
                     signals.project_role_change.send(
                         self.obj.project, actor=current_auth.user, user=self.obj.user
                     )
-                    db.session.commit()
+                    dispatch_notification(
+                        ProjectCrewMembershipRevokedNotification(
+                            document=previous_membership.project,
+                            fragment=previous_membership,
+                        )
+                    )
                 return {
                     'status': 'ok',
                     'message': _("The member has been removed"),
@@ -571,7 +562,7 @@ class ProjectCrewMembershipView(
                         for membership in self.obj.project.active_crew_memberships
                     ],
                 }
-            return ({'status': 'error', 'errors': form.errors}, 400)
+            return {'status': 'error', 'errors': form.errors}, 422
 
         form_html = render_form(
             form=form,

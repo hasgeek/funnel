@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from dataclasses import dataclass
 from datetime import datetime
 from email.utils import formataddr
 from functools import wraps
 from itertools import filterfalse, zip_longest
-from typing import Dict, List, Optional
+from typing import Any, Callable, ClassVar, Dict, List, Optional, Union
 from uuid import uuid4
 
 from flask import url_for
@@ -20,20 +21,74 @@ from baseframe import __, statsd
 from coaster.auth import current_auth
 
 from .. import app
-from ..models import Notification, UserNotification, db
+from ..models import Notification, NotificationFor, UserNotification, db
 from ..serializers import token_serializer
 from ..transports import TransportError, email, platform_transports, sms
 from ..transports.sms import SmsTemplate
 from .helpers import make_cached_token
 from .jobs import rqjob
 
-__all__ = ['RenderNotification', 'dispatch_notification']
+__all__ = [
+    'DecisionFactorBase',
+    'DecisionBranchBase',
+    'RenderNotification',
+    'dispatch_notification',
+]
 
 
-@UserNotification.views('render')
+@UserNotification.views('render', cached_property=True)
+@NotificationFor.views('render', cached_property=True)
 def render_user_notification(obj):
     """Render web notifications for the user."""
-    return Notification.renderers[obj.notification.type](obj).web()
+    return Notification.renderers[obj.notification.type](obj)
+
+
+@dataclass
+class DecisionFactorBase:
+    """
+    Base class for a decision factor in picking from one of many templates.
+
+    Subclasses must implemnt :meth:`is_match`.
+    """
+
+    #: Subclasses must implement an is_match method
+    is_match: ClassVar[Callable[..., bool]]
+
+    #: Template string to use for notifications
+    template: str
+    #: Optional second template string in present tense for current notifications
+    template_present: Optional[str] = None
+
+    # Additional criteria must be defined in subclasses
+
+    def match(self, obj: Any, **kwargs) -> Optional[DecisionFactorBase]:
+        """If the parameters matche the defined criteria, return self."""
+        return self if self.is_match(obj, **kwargs) else None
+
+
+@dataclass
+class DecisionBranchBase:
+    """
+    Base class for a group of decision factors with a common matching criteria.
+
+    To be used alongside :class:`DecisionFactorBase` to make a pair of subclasses. See
+    :mod:`~funnel.views.notification.project_crew_notification` for an example of use.
+    """
+
+    #: Subclasses must implement an is_match method
+    is_match: ClassVar[Callable[..., bool]]
+
+    #: A list of decision factors and branches
+    factors: List[Union[DecisionFactorBase, DecisionBranchBase]]
+
+    def match(self, obj: Any, **kwargs) -> Optional[DecisionFactorBase]:
+        """Find a matching decision factor, recursing through other branches."""
+        if self.is_match(obj, **kwargs):
+            for factor in self.factors:
+                found = factor.match(obj, **kwargs)
+                if found is not None:
+                    return found
+        return None
 
 
 class RenderNotification:
@@ -112,13 +167,18 @@ class RenderNotification:
             transport, self.notification.preference_context
         )
 
-    def tracking_tags(self, transport=None, campaign=None):
-        tags = {
-            # Tracking notifications unless it's unsubscribe or other specialized link
-            'utm_campaign': campaign or 'notification',
-            # Tracking is mostly an email thing
-            'utm_medium': transport or 'email',
-        }
+    def tracking_tags(
+        self, transport: str = 'email', campaign: str = 'notification'
+    ) -> Dict[str, str]:
+        """
+        Provide tracking tags for URL parameters. Subclasses may override if required.
+
+        :param transport: Transport (or medium) over which this link is being delivered
+            (default 'email' as that's the most common use case for tracked links)
+        :param campaign: Reason for this link being sent (default 'notification' but
+            unsubscribe links and other specialized links will want to specify another)
+        """
+        tags = {'utm_campaign': campaign, 'utm_medium': transport}
         if not self.notification.for_private_recipient:
             tags['utm_source'] = self.notification.eventid_b58
         return tags
@@ -381,9 +441,7 @@ def transport_worker_wrapper(func):
             # If so, skip it.
             if not user_notification.is_revoked:
                 with force_locale(user_notification.user.locale or 'en'):
-                    view = Notification.renderers[user_notification.notification.type](
-                        user_notification
-                    )
+                    view = user_notification.views.render
                     try:
                         func(user_notification, view)
                         db.session.commit()

@@ -74,24 +74,14 @@ def test_user_notification_is_for_user_vetinari(
 
 
 @pytest.fixture()
-def notification_view(update_user_notification):
-    """Get the notification view renderer."""
-    return models.Notification.renderers[update_user_notification.notification.type](
-        update_user_notification
-    )
-
-
-@pytest.fixture()
 def unsubscribe_sms_short_url(
-    notification_view, phone_vetinari, notification_prefs_vetinari
+    update_user_notification, phone_vetinari, notification_prefs_vetinari
 ):
     """Get an unsubscribe URL for the SMS notification."""
-    return notification_view.unsubscribe_short_url('sms')
+    return update_user_notification.views.render.unsubscribe_short_url('sms')
 
 
-def test_unsubscribe_view_is_well_formatted(
-    unsubscribe_sms_short_url, user_vetinari
-) -> None:
+def test_unsubscribe_view_is_well_formatted(unsubscribe_sms_short_url) -> None:
     """Confirm the SMS unsubscribe URL is well formatted."""
     prefix = 'https://bye.test/'
     assert unsubscribe_sms_short_url.startswith(prefix)

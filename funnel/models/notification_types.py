@@ -24,6 +24,8 @@ __all__ = [
     'CommentReportReceivedNotification',
     'CommentReplyNotification',
     'NewCommentNotification',
+    'ProjectCrewMembershipNotification',
+    'ProjectCrewMembershipRevokedNotification',
     'ProposalReceivedNotification',
     'ProposalSubmittedNotification',
     'RegistrationCancellationNotification',
@@ -200,15 +202,13 @@ class CommentReplyNotification(Notification, type='comment_reply'):
 
 
 class ProjectCrewMembershipNotification(
-    DocumentHasProject, Notification, type='project_crew_membership_granted'
+    DocumentHasProfile, Notification, type='project_crew_membership_granted'
 ):
     """Notification of being granted crew membership (including role changes)."""
 
-    active = False
-
     category = notification_categories.project_crew
-    title = __("When a project crew member is added, or roles change")
-    description = __("Crew members have access to the project’s controls")
+    title = __("When a project crew member is added or removed")
+    description = __("Crew members have access to the project’s settings and data")
 
     document: Project
     fragment: ProjectCrewMembership
@@ -217,14 +217,12 @@ class ProjectCrewMembershipNotification(
 
 
 class ProjectCrewMembershipRevokedNotification(
-    DocumentHasProject,
+    DocumentHasProfile,
     Notification,
     type='project_crew_membership_revoked',
     shadows=ProjectCrewMembershipNotification,
 ):
-    """Notification of being granted crew membership (including role changes)."""
-
-    active = False
+    """Notification of being removed from crew membership (including role changes)."""
 
     document: Project
     fragment: ProjectCrewMembership
