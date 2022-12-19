@@ -282,7 +282,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         self.revoked_at = sa.func.utcnow()
         self.revoked_by = actor
         self._local_data_only = True
-        new = self.copy_template(parent_id=self.parent_id, granted_by=self.granted_by)
+        new = self.copy_template(parent_id=self.parent_id, granted_by=actor)
         del self._local_data_only
 
         # if existing record type is INVITE, then ACCEPT or amend as new INVITE
