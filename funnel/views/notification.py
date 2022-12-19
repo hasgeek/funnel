@@ -83,10 +83,11 @@ class DecisionBranchBase:
 
     def match(self, obj: Any, **kwargs) -> Optional[DecisionFactorBase]:
         """Find a matching decision factor, recursing through other branches."""
-        for factor in self.factors:
-            found = factor.match(obj, **kwargs)
-            if found is not None:
-                return found
+        if self.is_match(obj, **kwargs):
+            for factor in self.factors:
+                found = factor.match(obj, **kwargs)
+                if found is not None:
+                    return found
         return None
 
 
