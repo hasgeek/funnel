@@ -36,7 +36,7 @@ basic = """<h2>Footnotes</h2>
 <p>Inline footnote^[Text of inline footnote] definition.</p>
 <p>Duplicated footnote reference[^second].</p>
 <p>[^first]: Footnote <strong>can have markup</strong></p>
-<pre><code>and multiple paragraphs.
+<pre><code class="language-none">and multiple paragraphs.
 </code></pre>
 <p>[^second]: Footnote text.</p>
 <hr />
