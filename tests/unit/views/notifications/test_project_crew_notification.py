@@ -361,3 +361,33 @@ def then_user_notification_removal(
         )
         == notification_string
     )
+
+
+@when(
+    parsers.parse(
+        "Ridcully adds themself with role {role} to the Ankh-Morpork 2010 project"
+    ),
+    target_fixture='ridcully_member',
+)
+def when_ridcully_adds_themself(
+    role,
+    db_session,
+    user_ridcully,
+    project_expo2010,
+    user_vetinari,
+) -> models.ProjectCrewMembership:
+    roles = [_r.strip() for _r in role.split(',')]
+    is_editor = 'editor' in roles
+    is_promoter = 'promoter' in roles
+    is_usher = 'usher' in roles
+    ridcully_member = models.ProjectCrewMembership(
+        parent=project_expo2010,
+        user=user_ridcully,
+        is_editor=is_editor,
+        is_promoter=is_promoter,
+        is_usher=is_usher,
+        granted_by=user_ridcully,
+    )
+    db_session.add(ridcully_member)
+    db_session.commit()
+    return ridcully_member
