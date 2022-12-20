@@ -26,6 +26,26 @@ Feature: Project Crew Notification
       | Ridcully | usher           | Havelock Vetinari added you to the crew of Ankh-Morpork 2010                        |
       | Vimes    | usher           | Havelock Vetinari added Mustrum Ridcully to the crew of Ankh-Morpork 2010           |
 
+  Scenario Outline: Ridcully adds themself
+    Given Vetinari made Ridcully an admin of Ankh-Morpork
+    When Ridcully adds themself with role <role> to the Ankh-Morpork 2010 project
+    Then <user> gets notified with <notification_string> about the addition
+
+    Examples:
+      | user     | role            | notification_string                                              |
+      | Ridcully | editor          | You added yourself as editor of Ankh-Morpork 2010                |
+      | Vetinari | editor          | Mustrum Ridcully joined Ankh-Morpork 2010 as editor              |
+      | Vimes    | editor          | Mustrum Ridcully joined Ankh-Morpork 2010 as editor              |
+      | Ridcully | promoter        | You added yourself as promoter of Ankh-Morpork 2010              |
+      | Vetinari | promoter        | Mustrum Ridcully joined Ankh-Morpork 2010 as promoter            |
+      | Vimes    | promoter        | Mustrum Ridcully joined Ankh-Morpork 2010 as promoter            |
+      | Ridcully | editor,promoter | You added yourself as editor and promoter of Ankh-Morpork 2010   |
+      | Vetinari | editor,promoter | Mustrum Ridcully joined Ankh-Morpork 2010 as editor and promoter |
+      | Vimes    | editor,promoter | Mustrum Ridcully joined Ankh-Morpork 2010 as editor and promoter |
+      | Ridcully | usher           | You added yourself to the crew of Ankh-Morpork 2010              |
+      | Vetinari | usher           | Mustrum Ridcully joined the crew of Ankh-Morpork 2010            |
+      | Vimes    | usher           | Mustrum Ridcully joined the crew of Ankh-Morpork 2010            |
+
   Scenario Outline: Vetinari invites Ridcully
     When Vetinari invites Ridcully with role <role> to the Ankh-Morpork 2010 project
     Then <user> gets notified with <notification_string> about the invitation
@@ -145,23 +165,3 @@ Feature: Project Crew Notification
       | Ridcully | usher           | You resigned from the crew of Ankh-Morpork 2010                       |
       | Vetinari | usher           | Mustrum Ridcully resigned from the crew of Ankh-Morpork 2010          |
       | Vimes    | usher           | Mustrum Ridcully resigned from the crew of Ankh-Morpork 2010          |
-
-  Scenario Outline: Ridcully adds themself
-    Given Vetinari made Ridcully an admin of Ankh-Morpork
-    When Ridcully adds themself with role <role> to the Ankh-Morpork 2010 project
-    Then <user> gets notified with <notification_string> about the addition
-
-    Examples:
-      | user     | role            | notification_string                                                         |
-      | Ridcully | editor          | You added yourself as editor of Ankh-Morpork 2010                           |
-      | Vetinari | editor          | Mustrum Ridcully added themself as editor of Ankh-Morpork 2010              |
-      | Vimes    | editor          | Mustrum Ridcully added themself as editor of Ankh-Morpork 2010              |
-      | Ridcully | promoter        | You added yourself as promoter of Ankh-Morpork 2010                         |
-      | Vetinari | promoter        | Mustrum Ridcully added themself as promoter of Ankh-Morpork 2010            |
-      | Vimes    | promoter        | Mustrum Ridcully added themself as promoter of Ankh-Morpork 2010            |
-      | Ridcully | editor,promoter | You added yourself as editor and promoter of Ankh-Morpork 2010              |
-      | Vetinari | editor,promoter | Mustrum Ridcully added themself as editor and promoter of Ankh-Morpork 2010 |
-      | Vimes    | editor,promoter | Mustrum Ridcully added themself as editor and promoter of Ankh-Morpork 2010 |
-      | Ridcully | usher           | You added yourself to the crew of Ankh-Morpork 2010                         |
-      | Vetinari | usher           | Mustrum Ridcully added themself to the crew of Ankh-Morpork 2010            |
-      | Vimes    | usher           | Mustrum Ridcully added themself to the crew of Ankh-Morpork 2010            |

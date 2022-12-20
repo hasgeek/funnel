@@ -272,31 +272,24 @@ grant_amend_templates = DecisionBranch(
                     factors=[
                         DecisionFactor(
                             template=__(
-                                "{actor} added themself as editor and promoter of"
-                                " {project}"
+                                "{actor} joined {project} as editor and promoter"
                             ),
                             is_editor=True,
                             is_promoter=True,
                             is_self_granted=True,
                         ),
                         DecisionFactor(
-                            template=__(
-                                "{actor} added themself as editor of {project}"
-                            ),
+                            template=__("{actor} joined {project} as editor"),
                             is_editor=True,
                             is_self_granted=True,
                         ),
                         DecisionFactor(
-                            template=__(
-                                "{actor} added themself as promoter of {project}"
-                            ),
+                            template=__("{actor} joined {project} as promoter"),
                             is_promoter=True,
                             is_self_granted=True,
                         ),
                         DecisionFactor(
-                            template=__(
-                                "{actor} added themself to the crew of {project}"
-                            ),
+                            template=__("{actor} joined the crew of {project}"),
                             is_self_granted=True,
                         ),
                         DecisionFactor(
