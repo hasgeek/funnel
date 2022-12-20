@@ -10,17 +10,16 @@ const PrismEmbed = {
   loadPrism() {
     const CDN_CSS = [
       'https://unpkg.com/prismjs/themes/prism.min.css',
-      'https://unpkg.com/prismjs/plugins/line-numbers/prism-line-numbers.min.css',
+      // 'https://unpkg.com/prismjs/plugins/line-numbers/prism-line-numbers.min.css',
       'https://unpkg.com/prismjs/plugins/match-braces/prism-match-braces.min.css',
-      'https://unpkg.com/prismjs/plugins/toolbar/prism-toolbar.min.css',
     ];
     const CDN = [
       'https://unpkg.com/prismjs/components/prism-core.min.js',
       'https://unpkg.com/prismjs/plugins/autoloader/prism-autoloader.min.js',
       'https://unpkg.com/prismjs/plugins/match-braces/prism-match-braces.min.js',
-      'https://unpkg.com/prismjs/plugins/line-numbers/prism-line-numbers.min.js',
+      // 'https://unpkg.com/prismjs/plugins/line-numbers/prism-line-numbers.min.js',
       'https://unpkg.com/prismjs/plugins/toolbar/prism-toolbar.min.js',
-      'https://unpkg.com/prismjs/plugins/show-language/prism-show-language.min.js',
+      // 'https://unpkg.com/prismjs/plugins/show-language/prism-show-language.min.js',
       'https://unpkg.com/prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js',
     ];
     let asset = 0;
@@ -48,9 +47,15 @@ const PrismEmbed = {
             window.Prism.hooks.add('complete', (env) => {
               if (env.element)
                 $(env.element).addClass('activated').removeClass('activating');
+              $(env.element)
+                .parent()
+                .parent()
+                .find('.toolbar-item')
+                .find('a, button')
+                .addClass('mui-btn mui-btn--accent mui-btn--raised mui-btn--small');
             });
             $('body')
-              .addClass('line-numbers')
+              // .addClass('line-numbers')
               .addClass('match-braces')
               .addClass('rainbow-braces');
           }

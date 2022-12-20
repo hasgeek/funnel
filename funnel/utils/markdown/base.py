@@ -25,9 +25,9 @@ from coaster.utils import make_name
 from coaster.utils.text import normalize_spaces_multiline
 
 from .mdit_plugins import (  # toc_plugin,
+    block_code_extend_plugin,
     del_plugin,
     embeds_plugin,
-    fence_extend_plugin,
     footnote_extend_plugin,
     ins_plugin,
     mark_plugin,
@@ -173,14 +173,16 @@ MarkdownPlugin('mark', mark_plugin)
 MarkdownPlugin('markmap', embeds_plugin, {'name': 'markmap'})
 MarkdownPlugin('vega-lite', embeds_plugin, {'name': 'vega-lite'})
 MarkdownPlugin('mermaid', embeds_plugin, {'name': 'mermaid'})
-MarkdownPlugin('fence_ext', fence_extend_plugin)
+MarkdownPlugin('block_code_ext', block_code_extend_plugin)
 MarkdownPlugin('footnote_ext', footnote_extend_plugin)
 # MarkdownPlugin('toc', toc_plugin)
 
 # --- Markdown configurations ----------------------------------------------------------
 
 MarkdownConfig(
-    name='basic', options_update={'html': False, 'breaks': True}, plugins={'fence_ext'}
+    name='basic',
+    options_update={'html': False, 'breaks': True},
+    plugins={'block_code_ext'},
 )
 MarkdownConfig(
     name='document',
@@ -203,7 +205,7 @@ MarkdownConfig(
         'markmap',
         'vega-lite',
         'mermaid',
-        'fence_ext',
+        'block_code_ext',
         'footnote_ext'
         # 'toc',
     },

@@ -957,47 +957,35 @@
   height: 99% !important;
 }
 
+:not(pre) > code,
+pre {
+  background: unset !important;
+  margin-top: 0px !important;
+  padding: 0 !important;
+  margin-bottom: 14px !important;
+}
 .code-toolbar {
-  pre[class*='language-'] {
-    padding-top: 30px;
-    margin-top: 0px;
-  }
+  position: relative;
   .toolbar {
-    opacity: initial !important;
+    position: absolute;
     top: 0 !important;
-    left: 0.5em;
-    right: 0.5em !important;
-    border-bottom: 1px solid #999;
-    text-align: right;
+    right: 0 !important;
     z-index: 2 !important;
+    display: none;
     .toolbar-item {
-      margin: 0.1em 0.2em;
-      a,
-      button,
-      span {
-        box-shadow: unset !important;
-        border-radius: unset !important;
-        font-size: $mui-base-font-size !important;
-      }
+      margin: 0 0.2em 0 0;
       a,
       button {
-        transition: 0.1s ease-in-out;
-        &.copy-to-clipboard-button span::before {
+        cursor: pointer;
+        &.copy-to-clipboard-button span:first-child::before {
           content: '\274F  ';
           font-size: 120%;
         }
       }
-      &:first-child {
-        float: left;
-        span {
-          border: 0px;
-          &::before {
-            content: '\2261  ';
-            font-size: 120%;
-          }
-        }
-      }
     }
+  }
+  &:hover .toolbar {
+    display: block;
   }
 }
 
