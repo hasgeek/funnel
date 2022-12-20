@@ -6,7 +6,7 @@ from typing import Iterable, Optional
 
 from baseframe import __
 from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
-from coaster.utils import LabeledEnum
+from coaster.utils import LabeledEnum, text_blocks
 
 from . import (
     BaseMixin,
@@ -423,11 +423,8 @@ class Proposal(  # type: ignore[misc]
 
     def update_description(self) -> None:
         if not self.custom_description:
-            body = self.body_text.strip()
-            if body:
-                self.description = body.splitlines()[0]
-            else:
-                self.description = ''
+            blocks = text_blocks(self.body_html or '')
+            self.description = blocks[0].strip() if blocks else ''
 
     def getnext(self):
         return (
