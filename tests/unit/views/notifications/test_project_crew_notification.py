@@ -9,6 +9,14 @@ from funnel.models.membership_mixin import MEMBERSHIP_RECORD_TYPE
 scenarios('project_crew_notification.feature')
 
 
+def role_columns(role):
+    roles = [_r.strip() for _r in role.split(',')]
+    is_editor = 'editor' in roles
+    is_promoter = 'promoter' in roles
+    is_usher = 'usher' in roles
+    return {'is_editor': is_editor, 'is_promoter': is_promoter, 'is_usher': is_usher}
+
+
 @given(
     "Vetinari is an owner of the Ankh-Morpork organization",
 )
@@ -66,17 +74,11 @@ def when_vetinari_adds_ridcully(
     project_expo2010,
     user_vetinari,
 ) -> models.ProjectCrewMembership:
-    roles = [_r.strip() for _r in role.split(',')]
-    is_editor = 'editor' in roles
-    is_promoter = 'promoter' in roles
-    is_usher = 'usher' in roles
     ridcully_member = models.ProjectCrewMembership(
         parent=project_expo2010,
         user=user_ridcully,
-        is_editor=is_editor,
-        is_promoter=is_promoter,
-        is_usher=is_usher,
         granted_by=user_vetinari,
+        **role_columns(role),
     )
     db_session.add(ridcully_member)
     db_session.commit()
@@ -146,18 +148,12 @@ def when_vetinari_invites_ridcully(
     project_expo2010,
     user_vetinari,
 ) -> models.ProjectCrewMembership:
-    roles = [_r.strip() for _r in role.split(',')]
-    is_editor = 'editor' in roles
-    is_promoter = 'promoter' in roles
-    is_usher = 'usher' in roles
     ridcully_member = models.ProjectCrewMembership(
         parent=project_expo2010,
         user=user_ridcully,
-        is_editor=is_editor,
-        is_promoter=is_promoter,
-        is_usher=is_usher,
         granted_by=user_vetinari,
         record_type=MEMBERSHIP_RECORD_TYPE.INVITE,
+        **role_columns(role),
     )
     db_session.add(ridcully_member)
     db_session.commit()
@@ -217,15 +213,9 @@ def when_vetinari_amends_ridcully_role(
     user_vetinari,
     ridcully_member,
 ) -> models.ProjectCrewMembership:
-    roles = [_r.strip() for _r in role.split(',')]
-    is_editor = 'editor' in roles
-    is_promoter = 'promoter' in roles
-    is_usher = 'usher' in roles
     ridcully_member_amend = ridcully_member.replace(
         actor=user_vetinari,
-        is_editor=is_editor,
-        is_promoter=is_promoter,
-        is_usher=is_usher,
+        **role_columns(role),
     )
     db_session.commit()
     return ridcully_member_amend
@@ -243,15 +233,9 @@ def when_ridcully_changes_role(
     user_ridcully,
     ridcully_member,
 ) -> models.ProjectCrewMembership:
-    roles = [_r.strip() for _r in role.split(',')]
-    is_editor = 'editor' in roles
-    is_promoter = 'promoter' in roles
-    is_usher = 'usher' in roles
     ridcully_member_amend = ridcully_member.replace(
         actor=user_ridcully,
-        is_editor=is_editor,
-        is_promoter=is_promoter,
-        is_usher=is_usher,
+        **role_columns(role),
     )
     db_session.commit()
     return ridcully_member_amend
@@ -288,17 +272,11 @@ def given_ridcully_is_existing_member(
     project_expo2010,
     user_vetinari,
 ) -> models.ProjectCrewMembership:
-    roles = [_r.strip() for _r in role.split(',')]
-    is_editor = 'editor' in roles
-    is_promoter = 'promoter' in roles
-    is_usher = 'usher' in roles
     existing_ridcully_member = models.ProjectCrewMembership(
         parent=project_expo2010,
         user=user_ridcully,
-        is_editor=is_editor,
-        is_promoter=is_promoter,
-        is_usher=is_usher,
         granted_by=user_vetinari,
+        **role_columns(role),
     )
     db_session.add(existing_ridcully_member)
     db_session.commit()
@@ -376,17 +354,11 @@ def when_ridcully_adds_themself(
     project_expo2010,
     user_vetinari,
 ) -> models.ProjectCrewMembership:
-    roles = [_r.strip() for _r in role.split(',')]
-    is_editor = 'editor' in roles
-    is_promoter = 'promoter' in roles
-    is_usher = 'usher' in roles
     ridcully_member = models.ProjectCrewMembership(
         parent=project_expo2010,
         user=user_ridcully,
-        is_editor=is_editor,
-        is_promoter=is_promoter,
-        is_usher=is_usher,
         granted_by=user_ridcully,
+        **role_columns(role),
     )
     db_session.add(ridcully_member)
     db_session.commit()

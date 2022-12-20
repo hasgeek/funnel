@@ -33,16 +33,16 @@ Feature: Project Crew Notification
 
     Examples:
       | user     | role            | notification_string                                              |
-      | Ridcully | editor          | You added yourself as editor of Ankh-Morpork 2010                |
+      | Ridcully | editor          | You joined Ankh-Morpork 2010 as editor                           |
       | Vetinari | editor          | Mustrum Ridcully joined Ankh-Morpork 2010 as editor              |
       | Vimes    | editor          | Mustrum Ridcully joined Ankh-Morpork 2010 as editor              |
-      | Ridcully | promoter        | You added yourself as promoter of Ankh-Morpork 2010              |
+      | Ridcully | promoter        | You joined Ankh-Morpork 2010 as promoter                         |
       | Vetinari | promoter        | Mustrum Ridcully joined Ankh-Morpork 2010 as promoter            |
       | Vimes    | promoter        | Mustrum Ridcully joined Ankh-Morpork 2010 as promoter            |
-      | Ridcully | editor,promoter | You added yourself as editor and promoter of Ankh-Morpork 2010   |
+      | Ridcully | editor,promoter | You joined Ankh-Morpork 2010 as editor and promoter              |
       | Vetinari | editor,promoter | Mustrum Ridcully joined Ankh-Morpork 2010 as editor and promoter |
       | Vimes    | editor,promoter | Mustrum Ridcully joined Ankh-Morpork 2010 as editor and promoter |
-      | Ridcully | usher           | You added yourself to the crew of Ankh-Morpork 2010              |
+      | Ridcully | usher           | You joined the crew of Ankh-Morpork 2010                         |
       | Vetinari | usher           | Mustrum Ridcully joined the crew of Ankh-Morpork 2010            |
       | Vimes    | usher           | Mustrum Ridcully joined the crew of Ankh-Morpork 2010            |
 
