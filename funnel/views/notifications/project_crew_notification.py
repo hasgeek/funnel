@@ -272,6 +272,35 @@ grant_amend_templates = DecisionBranch(
                     factors=[
                         DecisionFactor(
                             template=__(
+                                "{actor} added themself as editor and promoter of"
+                                " {project}"
+                            ),
+                            is_editor=True,
+                            is_promoter=True,
+                            is_self_granted=True,
+                        ),
+                        DecisionFactor(
+                            template=__(
+                                "{actor} added themself as editor of {project}"
+                            ),
+                            is_editor=True,
+                            is_self_granted=True,
+                        ),
+                        DecisionFactor(
+                            template=__(
+                                "{actor} added themself as promoter of {project}"
+                            ),
+                            is_promoter=True,
+                            is_self_granted=True,
+                        ),
+                        DecisionFactor(
+                            template=__(
+                                "{actor} added themself to the crew of {project}"
+                            ),
+                            is_self_granted=True,
+                        ),
+                        DecisionFactor(
+                            template=__(
                                 "{actor} made {user} an editor and promoter of"
                                 " {project}"
                             ),
@@ -339,6 +368,30 @@ grant_amend_templates = DecisionBranch(
                         ),
                         DecisionFactor(
                             template=__("You added {user} to the crew of {project}"),
+                        ),
+                    ],
+                ),
+                DecisionBranch(
+                    for_actor=True,
+                    is_subject=True,
+                    factors=[
+                        DecisionFactor(
+                            template=__(
+                                "You added yourself as editor and promoter of {project}"
+                            ),
+                            is_editor=True,
+                            is_promoter=True,
+                        ),
+                        DecisionFactor(
+                            template=__("You added yourself as editor of {project}"),
+                            is_editor=True,
+                        ),
+                        DecisionFactor(
+                            template=__("You added yourself as promoter of {project}"),
+                            is_promoter=True,
+                        ),
+                        DecisionFactor(
+                            template=__("You added yourself to the crew of {project}"),
                         ),
                     ],
                 ),
