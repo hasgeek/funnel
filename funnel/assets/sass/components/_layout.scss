@@ -300,18 +300,21 @@ blockquote {
   h5,
   h6 {
     a {
-      color: $mui-text-dark;
-      display: none;
+      color: inherit;
     }
-    &:hover a {
-      display: inline;
-    }
-    @media (any-pointer: coarse) {
-      a {
-        display: inline;
-        color: $mui-text-accent;
-      }
-    }
+    // a {
+    //   color: $mui-text-dark;
+    //   display: none;
+    // }
+    // &:hover a {
+    //   display: inline;
+    // }
+    // @media (any-pointer: coarse) {
+    //   a {
+    //     display: inline;
+    //     color: $mui-text-accent;
+    //   }
+    // }
   }
 
   ul,
