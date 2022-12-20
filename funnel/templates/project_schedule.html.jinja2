@@ -5,25 +5,26 @@
   {% extends "project_spa_layout.html.jinja2" %}
 {% endif %}
 {%- from "js/schedule.js.jinja2" import schedule_template %}
-
-{% block title %}{%- if active_session -%}{{ active_session.title }}{%- else -%}{% trans %}Schedule{% endtrans %}{%- endif -%}{% endblock title %}
-
-{% block description %}
-  {%- if active_session -%}
-    {%- if active_session.speaker -%}
-      {% trans title=active_session.title, speaker=active_session.speaker, project=project.title %}{{ title }} by {{ speaker }}, {{ project }}{% endtrans %}
+{% block title %}
+  {%- if active_session -%}{{ active_session.title }}{%- else -%}{% trans %}Schedule{% endtrans %}{%- endif -%}
+  {% endblock title %}
+  {% block description %}
+    {%- if active_session -%}
+      {%- if active_session.speaker -%}
+        {% trans title=active_session.title, speaker=active_session.speaker, project=project.joined_title %}{{ title }} by {{ speaker }}, {{ project }}{% endtrans %}
+      {%- else -%}
+        {{ active_session.title }}, {{ project.title }}
+      {%- endif -%}
     {%- else -%}
-      {{ active_session.title }}, {{ project.title }}
+      {% if project.tagline %}{{ project.tagline }}{% endif %}
     {%- endif -%}
-  {%- else -%}
-    {% if project.tagline %}{{ project.tagline }}{% endif %}
-  {%- endif -%}
-{% endblock description %}
-
-{%- block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/schedule.scss') }}" />
-  {%- if project.start_at %}
-    <script type="application/ld+json">
+  {% endblock description %}
+  {%- block pageheaders %}
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ built_asset('css/schedule.scss') }}"/>
+    {%- if project.start_at %}
+      <script type="application/ld+json">
     {
       "@context": "http://schema.org",
       "@type": "Event",
@@ -65,31 +66,35 @@
         "url": {{ project.profile.url_for(_external=true)|tojson }}
       }
     }
-    </script>
-  {%- endif -%}
-{% endblock pageheaders %}
-
-{% block mobile_header_title %}{% trans %}Schedule{% endtrans %}{% endblock mobile_header_title %}
-
-{% block left_col %}
-  <div class="page-card page-card--nomargin">
-    <div class="project-section" id="schedule">
-      {% if project.view_for('edit_schedule').is_available() %}
-        <div><p class="mui--text-right"><a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ project.urls['edit_schedule'] }}">{% trans %}Edit schedule{% endtrans %}</a></p></div>
-      {% endif %}
-      <div class="schedule-grid">
-        <div class="schedule-table-container" id="project-schedule-table">
-          <schedule></schedule>
-        </div>
+      </script>
+    {%- endif -%}
+  {% endblock pageheaders %}
+  {% block mobile_header_title %}
+    {% trans %}Schedule{% endtrans %}
+  {% endblock mobile_header_title %}
+  {% block left_col %}
+    <div class="page-card page-card--nomargin">
+      <div class="project-section" id="schedule">
+        {% if project.view_for('edit_schedule').is_available() %}
+          <div>
+            <p class="mui--text-right">
+              <a class="mui-btn mui-btn--raised mui-btn--dark"
+                 href="{{ project.urls['edit_schedule'] }}">{% trans %}Edit schedule{% endtrans %}</a>
+            </p>
+          </div>
+        {% endif %}
+        <div class="schedule-grid">
+          <div class="schedule-table-container" id="project-schedule-table">
+            <schedule></schedule>
+          </div>
           {{ schedule_template() }}
+        </div>
       </div>
     </div>
-  </div>
-{% endblock left_col %}
-
-{% block footerinnerscripts %}
-  <script src="{{ built_asset('schedule_view.js') }}" type="text/javascript"></script>
-  <script type="text/javascript">
+  {% endblock left_col %}
+  {% block footerinnerscripts %}
+    <script src="{{ built_asset('schedule_view.js') }}" type="text/javascript"></script>
+    <script type="text/javascript">
     window.Hasgeek.subpageTitle = {{ self.title()|tojson }};
     window.Hasgeek.subpageHasVideo = false;
     $(function() {
@@ -108,11 +113,9 @@
         projectTitle: {{ project.title|e|tojson }},  // HTML escaped for use in HTML tags via JS
         pageDescription: {{ g.profile.description|striptags|tojson }}, // HTML escaped for use in HTML tags via JS
       };
-      {%- if active_session -%}
-        scheduleConfig['active_session'] = {{ active_session|tojson }};
-      {%- endif %}
+      {%- if active_session -%}        scheduleConfig['active_session'] = {{ active_session|tojson }};{%- endif %}
 
       window.Hasgeek.ScheduleInit(scheduleConfig);
     });
-  </script>
-{% endblock footerinnerscripts %}
+    </script>
+  {% endblock footerinnerscripts %}
