@@ -120,71 +120,70 @@
               {%- endif -%}
             </span></a>
           </li>
-        </hr>
-        <li>
-          <a class="mui--text-subhead"
-             href="{{ proposal.url_for('delete') }}"
-             class="mui--text-danger"
-             data-cy-admin="delete">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--text-danger fa-icon--right-margin mui--align-middle") }}<span class="mui--text-danger mui--text-body2">{% trans %}Delete{% endtrans %}</span></a>
-        </li>
-      {%- endif %}
-      {%- if proposal.current_roles.project_editor %}
-        <li>
-          <a href="{{ proposal.url_for('admin') }}"
-             class="mui--text-subhead"
-             rel="modal:open"
-             aria-label="{% trans %}Editor panel{% endtrans %}"
-             data-cy="editor-panel">{{ faicon(icon='cog', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Editor panel{% endtrans %}</span></a>
-        </li>
-        <li>
-          <div class="mui--text-body2 mui--clearfix js-dropdown-toggle">
-            {{ faicon(icon='stars', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--pull-left mui--align-middle") }}
-            <span class="mui--pull-right dropdown-menu__form">
-              <span class="mui--d-inlineblock dropdown-menu__form__label">
-                <span class="mui--d-block">{% trans %}Feature this submission{% endtrans %}</span>
-                <span class="mui--d-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured submissions appear in the overview{% endtrans %}</span>
+          <li>
+            <a class="mui--text-subhead"
+               href="{{ proposal.url_for('delete') }}"
+               class="mui--text-danger"
+               data-cy-admin="delete">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--text-danger fa-icon--right-margin mui--align-middle") }}<span class="mui--text-danger mui--text-body2">{% trans %}Delete{% endtrans %}</span></a>
+          </li>
+        {%- endif %}
+        {%- if proposal.current_roles.project_editor %}
+          <li>
+            <a href="{{ proposal.url_for('admin') }}"
+               class="mui--text-subhead"
+               rel="modal:open"
+               aria-label="{% trans %}Editor panel{% endtrans %}"
+               data-cy="editor-panel">{{ faicon(icon='cog', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Editor panel{% endtrans %}</span></a>
+          </li>
+          <li>
+            <div class="mui--text-body2 mui--clearfix js-dropdown-toggle">
+              {{ faicon(icon='stars', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--pull-left mui--align-middle") }}
+              <span class="mui--pull-right dropdown-menu__form">
+                <span class="mui--d-inlineblock dropdown-menu__form__label">
+                  <span class="mui--d-block">{% trans %}Feature this submission{% endtrans %}</span>
+                  <span class="mui--d-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured submissions appear in the overview{% endtrans %}</span>
+                </span>
+                <form action="{{ proposal.url_for('update_featured') }}"
+                      method="post"
+                      class="mui--d-inlineblock mui--align-top">
+                  {{ csrf_tag() }}
+                  <input type="checkbox"
+                         name="featured"
+                         id="featured-proposal-{{ formid }}"
+                         class="switch-input js-toggle"
+                         {%- if proposal.featured %}
+                         checked
+                         {%- endif %}/>
+                  <label class="switch-label mui--pull-right"
+                         for="featured-proposal-{{ formid }}"></label>
+                </form>
               </span>
-              <form action="{{ proposal.url_for('update_featured') }}"
-                    method="post"
-                    class="mui--d-inlineblock mui--align-top">
-                {{ csrf_tag() }}
-                <input type="checkbox"
-                       name="featured"
-                       id="featured-proposal-{{ formid }}"
-                       class="switch-input js-toggle"
-                       {%- if proposal.featured %}
-                       checked
-                       {%- endif %}/>
-                <label class="switch-label mui--pull-right"
-                       for="featured-proposal-{{ formid }}"></label>
-              </form>
-            </span>
-          </div>
-        </li>
-      {%- endif %}
-      {% if proposal.state.SCHEDULED %}
-        <li>
-          <a class="mui--text-subhead"
-             href="{{ proposal.session.url_for('edit') }}"
-             data-cy="edit-session"
-             aria-label="{% trans %}Edit session{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Edit session{% endtrans %}</span></a>
-        </li>
-        <li>
-          <a class="mui--text-subhead"
-             href="{{ proposal.session.url_for('edit') }}#field-video_url"
-             data-cy="edit-session-video"
-             aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">
-            {%- if proposal.session.views.video -%}
-              {% trans %}Replace session video{% endtrans %}
-            {%- else -%}
-              {% trans %}Add session video{% endtrans %}
-            {%- endif -%}
-          </span></a>
-        </li>
-      {%- endif %}
-    </ul>
-  </div>
-{%- endif %}
+            </div>
+          </li>
+        {%- endif %}
+        {% if proposal.state.SCHEDULED %}
+          <li>
+            <a class="mui--text-subhead"
+               href="{{ proposal.session.url_for('edit') }}"
+               data-cy="edit-session"
+               aria-label="{% trans %}Edit session{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Edit session{% endtrans %}</span></a>
+          </li>
+          <li>
+            <a class="mui--text-subhead"
+               href="{{ proposal.session.url_for('edit') }}#field-video_url"
+               data-cy="edit-session-video"
+               aria-label="{% trans %}Edit session video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">
+              {%- if proposal.session.views.video -%}
+                {% trans %}Replace session video{% endtrans %}
+              {%- else -%}
+                {% trans %}Add session video{% endtrans %}
+              {%- endif -%}
+            </span></a>
+          </li>
+        {%- endif %}
+      </ul>
+    </div>
+  {%- endif %}
 {% endmacro %}
 {% macro prev_next_btn(proposal, prev_icon="caret-left-solid", next_icon="caret-right-solid") %}
   {% with prev_proposal = proposal.getprev(), next_proposal = proposal.getnext() %}
@@ -337,73 +336,77 @@
                     </p>
                     {%- if member.user.username %}
                       <p class="mui--text-caption user__box__userid">
-                        @{{ member.user.username }} {%- if member.label %} <span class="badge">{{ member.label }}</span>
-                      {% endif -%}
-                    </p>
-                  {%- endif -%}
+                        @{{ member.user.username }}
+                        {% if member.label -%}
+                          <span class="badge">{{ member.label }}</span>
+                        {% endif -%}
+                      </p>
+                    {%- endif -%}
+                  </div>
                 </div>
               </div>
-            </div>
-          {%- endif -%}
-        {% endfor %}
+            {%- endif -%}
+          {% endfor %}
+        </div>
       </div>
-    </div>
-    <div class="mobile-header-right">
-      {{ share_widget(formid="desktop", icon_size='subhead') }}
-    </div>
-    <h2 class="mui--text-bold" data-cy="proposal-title">
-      {{ proposal.title }}
-    </h2>
-    <p class="mui--text-caption mui--text-light">
-      {% trans date=proposal.datetime|date %}Submitted {{ date }} {% endtrans %}
-    </p>
-    <div class="proposal__section__labels">
-      {%- for label in proposal.labels %}
-        {% if not label.restricted %}
-          <span class="label mui--text-bold">
-            {% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %}
-            {% if label.main_label %}{{ label.main_label.title }}:{% endif %}
-          {{ label.title }}</span>
-        {%- endif %}
-      {%- endfor %}
-      {%- if proposal.current_roles.project_editor %}
+      <div class="mobile-header-right">
+        {{ share_widget(formid="desktop", icon_size='subhead') }}
+      </div>
+      <h2 class="mui--text-bold" data-cy="proposal-title">
+        {{ proposal.title }}
+      </h2>
+      <p class="mui--text-caption mui--text-light">
+        {% trans date=proposal.datetime|date %}Submitted {{ date }} {% endtrans %}
+      </p>
+      <div class="proposal__section__labels">
         {%- for label in proposal.labels %}
-          {%- if label.restricted %}
+          {% if not label.restricted %}
             <span class="label mui--text-bold">
               {% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %}
               {% if label.main_label %}{{ label.main_label.title }}:{% endif %}
             {{ label.title }}</span>
           {%- endif %}
         {%- endfor %}
-      {% endif %}
+        {%- if proposal.current_roles.project_editor %}
+          {%- for label in proposal.labels %}
+            {%- if label.restricted %}
+              <span class="label mui--text-bold">
+                {% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %}
+                {% if label.main_label %}{{ label.main_label.title }}:{% endif %}
+              {{ label.title }}</span>
+            {%- endif %}
+          {%- endfor %}
+        {% endif %}
+      </div>
+      <div class="proposal-content markdown top-padding mui--bg-primary">
+        {{ proposal.body }}
+      </div>
+      {%- if proposal.has_sponsors %}{{ list_sponsors(proposal.sponsor_memberships) }}{%- endif %}
+      </section>
     </div>
-    <div class="proposal-content markdown top-padding mui--bg-primary">
-      {{ proposal.body }}
+    <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between nav-btn-wrapper">
+      <a class="mui--text-dark mui--text-body2 nounderline js-spa-navigate"
+         href="{{ project.url_for('view_proposals') }}">{{ faicon(icon='chevron-double-left-solid', icon_size='body2', css_class="mui--align-middle btn-margin-right") }}
+        {%- trans %}All submissions{% endtrans -%}
+      </a>
+      <div>
+        {{ prev_next_btn(proposal) }}
+      </div>
     </div>
-    {%- if proposal.has_sponsors %}{{ list_sponsors(proposal.sponsor_memberships) }}{% endif %}
-    </section>
-  </div>
-  <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between nav-btn-wrapper">
-    <a class="mui--text-dark mui--text-body2 nounderline js-spa-navigate"
-       href="{{ project.url_for('view_proposals') }}">{{ faicon(icon='chevron-double-left-solid', icon_size='body2', css_class="mui--align-middle btn-margin-right") }}{% trans %}All submissions{% endtrans %}</a>
-    <div>
-      {{ prev_next_btn(proposal) }}
+    <div class="page-card page-card--nomargin">
+      <section class="proposal__section">
+        <h3 id="comments" class="mui--text-title mui--text-bold zero-top-margin">
+          {%- trans %}Comments{% endtrans -%}
+        </h3>
+        {{ comments_tree() }}
+        {{ comment_template() }}
+      </section>
     </div>
-  </div>
-  <div class="page-card page-card--nomargin">
-    <section class="proposal__section">
-      <h3 id="comments" class="mui--text-title mui--text-bold zero-top-margin">
-        {% trans %}Comments{% endtrans %}
-      </h3>
-      {{ comments_tree() }}
-      {{ comment_template() }}
-    </section>
-  </div>
-{% endblock left_col %}
-{% block footerinnerscripts %}
-  <script src="{{ built_asset('submission.js') }}" type="text/javascript"></script>
-  <script src="{{ built_asset('comments.js') }}" type="text/javascript"></script>
-  <script type="text/javascript">
+  {% endblock left_col %}
+  {% block footerinnerscripts %}
+    <script src="{{ built_asset('submission.js') }}" type="text/javascript"></script>
+    <script src="{{ built_asset('comments.js') }}" type="text/javascript"></script>
+    <script type="text/javascript">
     window.Hasgeek.subpageTitle = {{ self.title()|tojson }};
     window.Hasgeek.subpageHasVideo = {% if proposal.views.video or proposal.session and proposal.session.views.video %}true{% else %}false{% endif %};
     $(function() {
@@ -420,5 +423,5 @@
       window.Hasgeek.SubmissionInit();
       window.Hasgeek.Comments(commentsConfig);
     });
-  </script>
-{% endblock footerinnerscripts %}
+    </script>
+  {% endblock footerinnerscripts %}
