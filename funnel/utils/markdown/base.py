@@ -182,7 +182,7 @@ MarkdownPlugin('footnote_ext', footnote_extend_plugin)
 MarkdownConfig(
     name='basic',
     options_update={'html': False, 'breaks': True},
-    plugins={'block_code_ext'},
+    plugins=['block_code_ext'],
 )
 MarkdownConfig(
     name='document',
@@ -193,8 +193,10 @@ MarkdownConfig(
         'typographer': True,
         'breaks': True,
     },
-    plugins={
+    plugins=[
+        'block_code_ext',
         'footnote',
+        'footnote_ext',  # Must be after 'footnote' to take effect
         'heading_anchors',
         'tasklists',
         'ins',
@@ -205,10 +207,8 @@ MarkdownConfig(
         'markmap',
         'vega-lite',
         'mermaid',
-        'block_code_ext',
-        'footnote_ext'
         # 'toc',
-    },
+    ],
     enable_rules={'smartquotes'},
 )
 MarkdownConfig(
