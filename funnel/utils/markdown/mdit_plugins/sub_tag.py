@@ -19,6 +19,9 @@ __all__ = ['sub_plugin']
 
 TILDE_CHAR = 0x7E  # ASCII value for `~`
 
+WHITESPACE_RE = re.compile(r'(^|[^\\])(\\\\)*\s')
+UNESCAPE_RE = re.compile(r'\\([ \\!"#$%&\'()*+,.\/:;<=>?@[\]^_`{|}~-])')
+
 
 def tokenize(state: StateInline, silent: bool) -> bool:
     start = state.pos
@@ -51,7 +54,7 @@ def tokenize(state: StateInline, silent: bool) -> bool:
     content = state.src[start + 1 : state.pos]
 
     # Don't allow unescaped spaces/newlines inside
-    if re.search(r'(^|[^\\])(\\\\)*\s', content) is not None:
+    if WHITESPACE_RE.search(content) is not None:
         state.pos = start
         return False
 
@@ -63,10 +66,7 @@ def tokenize(state: StateInline, silent: bool) -> bool:
     token.markup = '~'
 
     token = state.push('text', '', 0)
-    # FIXME: Is this supposed to be a string replace or a regex replace? Needs audit.
-    token.content = content.replace(
-        r'\\([ \\!"#$%&\'()*+,.\/:;<=>?@[\]^_`{|}~-])', '$1'
-    )
+    token.content = UNESCAPE_RE.sub('$1', content)
 
     token = state.push('sub_close', 'sub', -1)
     token.markup = '~'

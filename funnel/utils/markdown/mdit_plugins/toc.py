@@ -193,7 +193,7 @@ def toc_plugin(md: MarkdownIt, **opts) -> None:
         **defaults,
         **opts,
     }
-    toc_regex = opts['marker_pattern']
+    toc_re = re.compile(opts['marker_pattern'])
 
     def toc(state: StateInline, silent: bool) -> bool:
         # Reject if the token does not start with [
@@ -201,7 +201,7 @@ def toc_plugin(md: MarkdownIt, **opts) -> None:
             return False
         if silent:
             return False
-        if re.match(toc_regex, state.src[state.pos :]) is None:
+        if toc_re.match(state.src[state.pos :]) is None:
             return False
         # Build content
         token = state.push('toc_open', 'toc', 1)

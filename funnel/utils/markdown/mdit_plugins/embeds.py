@@ -23,6 +23,8 @@ LOADING_PLACEHOLDER = {
     'vega-lite': 'Visualization',
 }
 
+VALIDATE_RE = re.compile(r'^{\s*([a-zA-Z0-9_\-]+)\s*}.*$')
+
 
 def embeds_plugin(
     md: MarkdownIt,
@@ -30,7 +32,7 @@ def embeds_plugin(
     marker: str = '`',
 ) -> None:
     def validate(params: str, *args) -> bool:
-        results = re.findall(r'^{\s*([a-zA-Z0-9_\-]+)\s*}.*$', params.strip())
+        results = VALIDATE_RE.findall(params.strip())
         return len(results) != 0 and results[0] == name
 
     def render(
