@@ -108,68 +108,72 @@
                 <div class="header__site-title">
                   <div class="header__site-title__title">
                     <a href="{{ url_for('index') }}"
-                       class="header__site-title__title__home mui--hidden-xs mui--hidden-sm"
-                       data-cy="home-desktop"
-                       data-ga="Home"
-                       aria-label="Home">
+                      class="header__site-title__title__home mui--hidden-xs mui--hidden-sm"
+                      data-cy="home-desktop"
+                      data-ga="Home"
+                      aria-label="Home">
                       <img src="{{ url_for('static', filename='img/hg-logo.svg') }}"
-                           class="header__site-title__home__logo"
-                           alt="{% trans %}Home{% endtrans %}"/>
+                          class="header__site-title__home__logo"
+                          alt="{% trans %}Home{% endtrans %}"/>
                     </a>
                     <a href="{{ url_for('about') }}"
-                       class="header__site-title__title__about nounderline"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}</a>
+                      class="header__site-title__title__about nounderline"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}
+                    </a>
                     <a href="{{ url_for('index') }}"
-                       class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if current_view.current_section == 'home' %}header__nav-links--active{% endif %}"
-                       aria-label="Home"
-                       data-cy="home"
-                       data-ga="Home">
+                      class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if current_view.current_section == 'home' %}header__nav-links--active{% endif %}"
+                      aria-label="Home"
+                      data-cy="home"
+                      data-ga="Home">
                       <img src="{{ url_for('static', filename='img/hg-logo.svg') }}"
-                           class="header__site-title__home__logo header__site-title__home__logo--primary"
-                           alt="{% trans %}Home{% endtrans %}"/>
+                          class="header__site-title__home__logo header__site-title__home__logo--primary"
+                          alt="{% trans %}Home{% endtrans %}"/>
                       <img src="{{ url_for('static', filename='img/hg-logo-grey.svg') }}"
-                           class="header__site-title__home__logo header__site-title__home__logo--grey"
-                           alt="{% trans %}Home{% endtrans %}"/>
+                          class="header__site-title__home__logo header__site-title__home__logo--grey"
+                          alt="{% trans %}Home{% endtrans %}"/>
                       <span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
                     </a>
                     <form action="{{ url_for('SearchView_search') }}"
                           class="search-form js-search-form">
                       <input type="text"
-                             name="q"
-                             aria-label="{% trans %}Search the site{% endtrans %}"
-                             placeholder="{% trans %}Search…{% endtrans %}"
-                             class="search-form__field js-search-field"
-                             id="header-search"/>
+                            name="q"
+                            aria-label="{% trans %}Search the site{% endtrans %}"
+                            placeholder="{% trans %}Search…{% endtrans %}"
+                            class="search-form__field js-search-field"
+                            id="header-search"/>
                       {{ faicon(icon='search', baseline=false, css_class="search-form__field__icon") }}
                       <input type="text" name="type" value="project" hidden />
                       <button type="submit" class="search-form__submit"></button>
                     </form>
                     <a href="#"
-                       onclick="return false;"
-                       data-target="search"
-                       class="header__nav-links js-search-show header__nav-links--search {% if current_view.current_section == 'search' %}header__nav-links--active{% endif %}"
-                       aria-label="{% trans %}Search{% endtrans %}"
-                       data-ga="Search">{{ faicon(icon='search-solid', css_class="header__nav-links__icon") }}<span class="header__nav-links__text">{% trans %}Search{% endtrans %}</span></a>
+                      onclick="return false;"
+                      data-target="search"
+                      class="header__nav-links js-search-show header__nav-links--search {% if current_view.current_section == 'search' %}header__nav-links--active{% endif %}"
+                      aria-label="{% trans %}Search{% endtrans %}"
+                      data-ga="Search">{{ faicon(icon='search-solid', css_class="header__nav-links__icon") }}<span class="header__nav-links__text">{% trans %}Search{% endtrans %}</span>
+                    </a>
                     {% if not current_auth.is_anonymous -%}
                       <a href="{{ url_for('notifications') }}"
-                         class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates"
-                         aria-label="{% trans %}Updates{% endtrans %}"
-                         data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class="header__nav-links__icon") }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span></a>
+                        class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if current_view.current_section == 'notifications' %}header__nav-links--active{% endif %} header__nav-links--right header__nav-links--updates"
+                        aria-label="{% trans %}Updates{% endtrans %}"
+                        data-ga="Updates">{{ faicon(icon='bell-solid', baseline=false, css_class="header__nav-links__icon") }}<span class="header__nav-links__text mui--hidden-md mui--hidden-lg mui--hidden-xl">{% trans %}Updates{% endtrans %}</span>
+                      </a>
                       {%- if config['ENABLE_COMMENT_SIDEBAR'] %}
                         <a href="#"
-                           onclick="return false;"
-                           class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links js-comments-btn"
-                           data-ga="Comments"
-                           role="button"
-                           aria-haspopup="true"
-                           aria-expanded="false">{{ faicon(icon='comment-alt-solid', css_class="header__nav-links__icon") }}<span class="header__nav-links__text">{% trans %}Comments{% endtrans %}</span></a>
+                          onclick="return false;"
+                          class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links js-comments-btn"
+                          data-ga="Comments"
+                          role="button"
+                          aria-haspopup="true"
+                          aria-expanded="false">{{ faicon(icon='comment-alt-solid', css_class="header__nav-links__icon") }}<span class="header__nav-links__text">{% trans %}Comments{% endtrans %}</span>
+                        </a>
                       {% endif %}
                       <div class="header__nav-links">
                         <a class="mui--hidden-md mui--hidden-lg mui--hidden-xl header__nav-links user user--standalone js-menu-btn"
-                           data-ga="account dropdown"
-                           aria-label="{% trans %}Account menu{% endtrans %}"
-                           role="button"
-                           aria-haspopup="true"
-                           aria-expanded="false">
+                          data-ga="account dropdown"
+                          aria-label="{% trans %}Account menu{% endtrans %}"
+                          role="button"
+                          aria-haspopup="true"
+                          aria-expanded="false">
                           <div class="user__box">
                             {{ useravatar(current_auth.user, css_class="header__nav-links__icon header__nav-links__icon--user", add_profile_link=false) }}
                           </div>
@@ -178,29 +182,31 @@
                       </div>
                       <div class="header__site-title__title__settings mui--hidden-xs mui--hidden-sm">
                         <a href="{{ url_for('notifications') }}"
-                           class="header__nav-links header__nav-links--right header__nav-links--updates profile-avatar profile-avatar--bigger"
-                           aria-label="{% trans %}Updates{% endtrans %}"
-                           data-cy="my-updates"
-                           data-ga="Updates">{{ faicon(icon='bell', icon_size='title', baseline=false) }}</a>
+                          class="header__nav-links header__nav-links--right header__nav-links--updates profile-avatar profile-avatar--bigger"
+                          aria-label="{% trans %}Updates{% endtrans %}"
+                          data-cy="my-updates"
+                          data-ga="Updates">{{ faicon(icon='bell', icon_size='title', baseline=false) }}
+                        </a>
                         {%- if config['ENABLE_COMMENT_SIDEBAR'] %}
                           <a href="#"
-                             onclick="return false;"
-                             class="header__nav-links header__nav-links--right profile-avatar profile-avatar--bigger js-comments-btn"
-                             aria-label="{% trans %}Comments{% endtrans %}"
-                             data-ga="Comments"
-                             data-cy="comment-sidebar"
-                             role="button"
-                             aria-haspopup="true"
-                             aria-expanded="false">{{ faicon(icon='comment-alt', icon_size='title', baseline=false) }}</a>
+                            onclick="return false;"
+                            class="header__nav-links header__nav-links--right profile-avatar profile-avatar--bigger js-comments-btn"
+                            aria-label="{% trans %}Comments{% endtrans %}"
+                            data-ga="Comments"
+                            data-cy="comment-sidebar"
+                            role="button"
+                            aria-haspopup="true"
+                            aria-expanded="false">{{ faicon(icon='comment-alt', icon_size='title', baseline=false) }}
+                          </a>
                         {% endif %}
                         <div class="header__nav-links--dropdown">
                           <a class="header__nav-links user user--standalone js-menu-btn"
-                             data-cy="my-account"
-                             data-ga="account dropdown"
-                             aria-label="{% trans %}Account menu{% endtrans %}"
-                             role="button"
-                             aria-haspopup="true"
-                             aria-expanded="false">
+                            data-cy="my-account"
+                            data-ga="account dropdown"
+                            aria-label="{% trans %}Account menu{% endtrans %}"
+                            role="button"
+                            aria-haspopup="true"
+                            aria-expanded="false">
                             <div class="user__box">{{ useravatar(current_auth.user, add_profile_link=false) }}</div>
                           </a>
                         </div>
@@ -215,7 +221,7 @@
                       </div>
                     {%- elif request.endpoint != 'login' %}
                       <a href="{{ url_for('login') }}"
-                         class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button">{% trans %}Login{% endtrans %}</a>
+                        class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button">{% trans %}Login{% endtrans %}</a>
                     {%- else %}
                       {# On the login page, remove the login button but occupy the spot -#}
                       <div></div>
