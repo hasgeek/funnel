@@ -1,12 +1,23 @@
 """Markdown-it-py plugin to modify output of the footnote plugin."""
 
+from __future__ import annotations
+
+from collections.abc import MutableMapping, Sequence
+
 from markdown_it import MarkdownIt
+from markdown_it.renderer import OptionsDict, RendererHTML
+from markdown_it.token import Token
 from mdit_py_plugins.footnote.index import render_footnote_caption
 
 
-# FIXME: `self` parameter? Need types
-def caption(self, tokens, idx, options, env) -> str:
-    output = render_footnote_caption(self, tokens, idx, options, env)
+def caption(
+    renderer: RendererHTML,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: MutableMapping,
+) -> str:
+    output = render_footnote_caption(renderer, tokens, idx, options, env)
     return output.replace('[', '').replace(']', '')
 
 

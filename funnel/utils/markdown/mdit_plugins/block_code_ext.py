@@ -1,18 +1,34 @@
 """MDIT plugin to add language-none class to code fence & code block tokens."""
 
+from __future__ import annotations
+
+from collections.abc import MutableMapping, Sequence
+
 from markdown_it import MarkdownIt
-from markdown_it.renderer import RendererHTML
+from markdown_it.renderer import OptionsDict, RendererHTML
+from markdown_it.token import Token
 
 
-# FIXME: `self` parameter? Need types
-def fence(self, tokens, idx, options, env) -> str:
-    output = RendererHTML.fence(self, tokens, idx, options, env)
+def fence(
+    renderer: RendererHTML,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: MutableMapping,
+) -> str:
+    output = RendererHTML.fence(renderer, tokens, idx, options, env)
     output = output.replace('<pre><code>', '<pre><code class="language-none">')
     return output
 
 
-def code_block(self, tokens, idx, options, env) -> str:
-    output = RendererHTML.code_block(self, tokens, idx, options, env)
+def code_block(
+    renderer: RendererHTML,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: MutableMapping,
+) -> str:
+    output = RendererHTML.code_block(renderer, tokens, idx, options, env)
     output = output.replace('<pre><code>', '<pre><code class="language-none">')
     return output
 

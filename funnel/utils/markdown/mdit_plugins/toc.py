@@ -10,13 +10,18 @@ Step 2: Turn the flat array into a nested tree, respecting the correct headline 
 Step 3: Turn the nested tree into HTML code.
 """
 
+from __future__ import annotations
+
+from collections.abc import MutableMapping, Sequence
 from functools import reduce
 from typing import Dict, List, Optional
 import re
 
 from markdown_it import MarkdownIt
+from markdown_it.renderer import OptionsDict, RendererHTML
 from markdown_it.rules_inline import StateInline
 from markdown_it.token import Token
+from typing_extensions import TypedDict
 
 from coaster.utils import make_name
 
@@ -37,17 +42,33 @@ defaults: Dict = {
 }
 
 
-def find_elements(levels: List[int], tokens: List[Token], options: Dict) -> List[Dict]:
+class TocItem(TypedDict):
+    level: int
+    text: Optional[str]
+    anchor: Optional[str]
+    children: List[TocItem]
+    parent: Optional[TocItem]
+
+
+def find_elements(
+    levels: List[int], tokens: List[Token], options: Dict
+) -> List[TocItem]:
     """Find all headline items for the defined levels in a Markdown document."""
     headings = []
-    current_heading: Optional[Dict] = None
+    current_heading: Optional[TocItem] = None
 
     for token in tokens:
         if token.type == 'heading_open':
             heading_id = find_existing_id_attr(token)
             level = int(token.tag.lower().replace('h', ''))
             if level in levels:
-                current_heading = {'level': level, 'text': None, 'anchor': heading_id}
+                current_heading = {
+                    'level': level,
+                    'text': None,
+                    'anchor': heading_id,
+                    'children': [],
+                    'parent': None,
+                }
         elif current_heading is not None and token.type == 'inline':
             # pylint: disable=unsubscriptable-object,unsupported-assignment-operation
             text_content = reduce(
@@ -80,16 +101,16 @@ def find_existing_id_attr(token: Token) -> Optional[str]:
     return None
 
 
-def get_min_level(items: Dict) -> int:
+def get_min_level(items: List[TocItem]) -> int:
     """Get minimum headline level so that the TOC is nested correctly."""
     return min(item['level'] for item in items)
 
 
 def add_list_item(
-    level: int, text: Optional[str], anchor: Optional[str], root_node: Dict
-) -> Dict:
+    level: int, text: Optional[str], anchor: Optional[str], root_node: TocItem
+) -> TocItem:
     """Create a TOCItem."""
-    item: Dict = {
+    item: TocItem = {
         'level': level,
         'text': text,
         'anchor': anchor,
@@ -100,11 +121,11 @@ def add_list_item(
     return item
 
 
-def items_to_tree(items: Dict) -> Dict:
+def items_to_tree(items: List[TocItem]) -> TocItem:
     """Turn list of headline items into a nested tree object representing the TOC."""
     # Create a root node with no text that holds the entire TOC.
     # This won't be rendered, but only its children.
-    toc: Dict = {
+    toc: TocItem = {
         'level': get_min_level(items) - 1,
         'anchor': None,
         'text': None,
@@ -134,14 +155,16 @@ def items_to_tree(items: Dict) -> Dict:
         # if level is smaller, set current list to currentlist.parent
         elif item['level'] < prev_item['level']:
             for _i in range(prev_item['level'] - item['level']):
-                current_root = current_root['parent']
+                # FIXME: `parent` is defined as optional, but we are not checking for
+                # `current_root` being None
+                current_root = current_root['parent']  # type: ignore[assignment]
             prev_item = add_list_item(
                 item['level'], item['text'], item['anchor'], current_root
             )
     return toc
 
 
-def toc_item_to_html(item: Dict, options: Dict, md: MarkdownIt) -> str:
+def toc_item_to_html(item: TocItem, options: Dict, md: MarkdownIt) -> str:
     """Recursively turns a nested tree of tocItems to HTML."""
     html = f"<{options['list_type']}>"
     for child in item['children']:
@@ -172,7 +195,7 @@ def toc_plugin(md: MarkdownIt, **opts) -> None:
     }
     toc_regex = opts['marker_pattern']
 
-    def toc(state: StateInline, silent: bool):
+    def toc(state: StateInline, silent: bool) -> bool:
         # Reject if the token does not start with [
         if state.srcCharCode[state.pos] != SQUARE_BRACKET_OPEN_CHAR:
             return False
@@ -194,19 +217,37 @@ def toc_plugin(md: MarkdownIt, **opts) -> None:
             state.pos = state.pos + state.posMax + 1
         return True
 
-    def toc_open(self, tokens, idx, options, env):
+    def toc_open(
+        renderer: RendererHTML,
+        tokens: Sequence[Token],
+        idx: int,
+        options: OptionsDict,
+        env: MutableMapping,
+    ):
         open_html = f'<div class="{opts["container_class"]}">'
         if opts['container_header_html'] is not None:
             open_html = open_html + opts['container_header_html']
         return open_html
 
-    def toc_close(self, tokens, idx, options, env):
+    def toc_close(
+        renderer: RendererHTML,
+        tokens: Sequence[Token],
+        idx: int,
+        options: OptionsDict,
+        env: MutableMapping,
+    ):
         footer = ''
         if opts['container_footer_html']:
             footer = opts['container_footer_html']
         return footer + '</div>'
 
-    def toc_body(self, tokens, idx, options, env):
+    def toc_body(
+        renderer: RendererHTML,
+        tokens: Sequence[Token],
+        idx: int,
+        options: OptionsDict,
+        env: MutableMapping,
+    ):
         items = find_elements(opts['include_level'], env['gstate'].tokens, opts)
         toc = items_to_tree(items)
         html = toc_item_to_html(toc, opts, md)

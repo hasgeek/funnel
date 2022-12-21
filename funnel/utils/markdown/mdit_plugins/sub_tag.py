@@ -5,10 +5,15 @@ Ported from
 https://github.com/markdown-it/markdown-it-sub/blob/master/dist/markdown-it-sub.js
 """
 
+from __future__ import annotations
+
+from collections.abc import MutableMapping, Sequence
 import re
 
 from markdown_it import MarkdownIt
+from markdown_it.renderer import OptionsDict, RendererHTML
 from markdown_it.rules_inline import StateInline
+from markdown_it.token import Token
 
 __all__ = ['sub_plugin']
 
@@ -71,12 +76,23 @@ def tokenize(state: StateInline, silent: bool) -> bool:
     return True
 
 
-# FIXME: `self` parameter? Need types
-def sub_open(self, tokens, idx, options, env) -> str:
+def sub_open(
+    renderer: RendererHTML,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: MutableMapping,
+) -> str:
     return '<sub>'
 
 
-def sub_close(self, tokens, idx, options, env) -> str:
+def sub_close(
+    renderer: RendererHTML,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: MutableMapping,
+) -> str:
     return '</sub>'
 
 

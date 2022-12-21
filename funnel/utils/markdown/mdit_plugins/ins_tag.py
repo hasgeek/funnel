@@ -4,11 +4,16 @@ Markdown-it-py plugin to introduce <ins> markup using ++inserted++.
 Ported from markdown_it.rules_inline.strikethrough.
 """
 
-from typing import Any, List
+from __future__ import annotations
+
+from collections.abc import MutableMapping, Sequence
+from typing import List
 
 from markdown_it import MarkdownIt
+from markdown_it.renderer import OptionsDict, RendererHTML
 from markdown_it.rules_inline import StateInline
 from markdown_it.rules_inline.state_inline import Delimiter
+from markdown_it.token import Token
 
 __all__ = ['ins_plugin']
 
@@ -60,8 +65,7 @@ def tokenize(state: StateInline, silent: bool) -> bool:
     return True
 
 
-# FIXME: `delimiters` needs a more specific type
-def _post_process(state: StateInline, delimiters: List[Any]) -> None:
+def _post_process(state: StateInline, delimiters: List[Delimiter]) -> None:
     lone_markers = []
     maximum = len(delimiters)
 
@@ -117,12 +121,23 @@ def _post_process(state: StateInline, delimiters: List[Any]) -> None:
             state.tokens[i] = token
 
 
-# FIXME: `self` parameter? Need types
-def ins_open(self, tokens, idx, options, env) -> str:
+def ins_open(
+    renderer: RendererHTML,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: MutableMapping,
+) -> str:
     return '<ins>'
 
 
-def ins_close(self, tokens, idx, options, env) -> str:
+def ins_close(
+    renderer: RendererHTML,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: MutableMapping,
+) -> str:
     return '</ins>'
 
 
