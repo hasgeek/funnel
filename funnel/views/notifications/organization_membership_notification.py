@@ -49,12 +49,12 @@ class DecisionFactorFields:
 
 @dataclass
 class DecisionFactor(DecisionFactorFields, DecisionFactorBase):
-    """Decision factor for content of a project crew notification."""
+    """Decision factor for content of an organization admin notification."""
 
 
 @dataclass
 class DecisionBranch(DecisionFactorFields, DecisionBranchBase):
-    """Grouped decision factors for content of a project crew notification."""
+    """Grouped decision factors for content of an organization admin notification."""
 
     def __post_init__(self):
         """Validate decision factors to have matching criteria."""

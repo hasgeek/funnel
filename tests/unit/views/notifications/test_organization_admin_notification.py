@@ -11,13 +11,19 @@ scenarios('organization_admin_notification.feature')
 
 @given(
     "Vetinari is an owner of the Ankh-Morpork organization",
+    target_fixture='vetinari_admin',
 )
 def given_vetinari_owner_org(user_vetinari, org_ankhmorpork) -> None:
     assert 'owner' in org_ankhmorpork.roles_for(user_vetinari)
+    vetinari_admin = org_ankhmorpork.active_owner_memberships[0]
+    assert vetinari_admin.user == user_vetinari
+    return vetinari_admin
 
 
-@given("Vimes is an admin of the Ankh-Morpork organization")
-def given_vimes_admin(db_session, user_vimes, org_ankhmorpork, user_vetinari) -> None:
+@given(
+    "Vimes is an admin of the Ankh-Morpork organization", target_fixture='vimes_admin'
+)
+def given_vimes_admin(db_session, user_vimes, org_ankhmorpork, user_vetinari):
     vimes_admin = models.OrganizationMembership(
         user=user_vimes,
         organization=org_ankhmorpork,
@@ -26,22 +32,27 @@ def given_vimes_admin(db_session, user_vimes, org_ankhmorpork, user_vetinari) ->
     )
     db_session.add(vimes_admin)
     assert 'admin' in org_ankhmorpork.roles_for(user_vimes)
+    return vimes_admin
 
 
 @when(
-    parsers.parse("Vetinari adds Ridcully with the role {role}"),
+    parsers.parse("Vetinari adds Ridcully as {owner_or_admin}"),
     target_fixture='ridcully_admin',
 )
 @given(
     parsers.parse(
-        "Ridcully is an existing admin with roles {role} of the Ankh-Morpork organization"
+        "Ridcully is currently {owner_or_admin} of the Ankh-Morpork organization"
     ),
     target_fixture='ridcully_admin',
 )
 def when_vetinari_adds_ridcully(
-    db_session, user_vetinari, user_ridcully, org_ankhmorpork, role
+    db_session,
+    user_vetinari,
+    user_ridcully,
+    org_ankhmorpork,
+    owner_or_admin,
 ):
-    is_owner = 'owner' in role
+    is_owner = True if owner_or_admin == 'owner' else False
     ridcully_admin = models.OrganizationMembership(
         user=user_ridcully,
         organization=org_ankhmorpork,
@@ -68,17 +79,12 @@ def when_vetinari_adds_ridcully(
 )
 @then(parsers.parse("{user} gets notified with {notification_string} about the change"))
 def then_user_gets_notification(
-    user,
-    notification_string,
-    user_vimes,
-    user_ridcully,
-    user_vetinari,
-    ridcully_admin,
+    user, notification_string, ridcully_admin, vimes_admin, vetinari_admin
 ) -> None:
     user_dict = {
-        "Ridcully": user_ridcully,
-        "Vimes": user_vimes,
-        "Vetinari": user_vetinari,
+        "Ridcully": ridcully_admin.user,
+        "Vimes": vimes_admin.user,
+        "Vetinari": vetinari_admin.user,
     }
     preview = models.PreviewNotification(
         models.OrganizationAdminMembershipNotification,
@@ -99,20 +105,20 @@ def then_user_gets_notification(
 
 @given(
     parsers.parse(
-        "Vetinari invites Ridcully with role {role} to the Ankh-Morpork organization"
+        "Vetinari invites Ridcully as {owner_or_admin} to the Ankh-Morpork organization"
     ),
     target_fixture='ridcully_admin',
 )
 @when(
     parsers.parse(
-        "Vetinari invites Ridcully with the role {role} to the Ankh-Morpork organization"
+        "Vetinari invites Ridcully as {owner_or_admin} to the Ankh-Morpork organization"
     ),
     target_fixture='ridcully_admin',
 )
 def when_vetinari_invites_ridcully(
-    db_session, user_vetinari, user_ridcully, org_ankhmorpork, role
+    db_session, user_vetinari, user_ridcully, org_ankhmorpork, owner_or_admin
 ):
-    is_owner = 'owner' in role
+    is_owner = True if owner_or_admin == 'owner' else False
     ridcully_admin = models.OrganizationMembership(
         user=user_ridcully,
         organization=org_ankhmorpork,
@@ -143,14 +149,14 @@ def when_ridcully_accepts_invite(
 
 @given(
     parsers.parse(
-        "Ridcully is an existing admin with roles {from_role} of the Ankh-Morpork organization"
+        "Ridcully is currently {owner_or_admin} of the Ankh-Morpork organization"
     ),
     target_fixture='ridcully_admin',
 )
 def given_riduclly_admin(
-    db_session, user_ridcully, org_ankhmorpork, user_vetinari, from_role
+    db_session, user_ridcully, org_ankhmorpork, user_vetinari, owner_or_admin
 ):
-    is_owner = 'owner' in from_role
+    is_owner = True if owner_or_admin == 'owner' else False
     ridcully_admin = models.OrganizationMembership(
         user=user_ridcully,
         organization=org_ankhmorpork,
@@ -164,14 +170,14 @@ def given_riduclly_admin(
 
 @when(
     parsers.parse(
-        "Vetinari changes Ridcully's role to {to_role} in the Ankh-Morpork organization"
+        "Vetinari changes Ridcully to {new_role} in the Ankh-Morpork organization"
     ),
     target_fixture='ridcully_admin',
 )
 def when_vetinari_amends_ridcully_role(
-    db_session, user_vetinari, ridcully_admin, to_role, org_ankhmorpork, user_ridcully
+    db_session, user_vetinari, ridcully_admin, new_role, org_ankhmorpork, user_ridcully
 ) -> models.ProjectCrewMembership:
-    is_owner = 'owner' in to_role
+    is_owner = True if new_role == 'owner' else False
     ridcully_admin_amend = ridcully_admin.replace(
         actor=user_vetinari, is_owner=is_owner
     )
@@ -199,15 +205,14 @@ def when_vetinari_removes_ridcully(
 def then_user_notification_removal(
     user,
     notification_string,
-    user_vimes,
-    user_ridcully,
-    user_vetinari,
+    vimes_admin,
     ridcully_admin,
+    vetinari_admin,
 ) -> None:
     user_dict = {
-        "Ridcully": user_ridcully,
-        "Vimes": user_vimes,
-        "Vetinari": user_vetinari,
+        "Ridcully": ridcully_admin.user,
+        "Vimes": vimes_admin.user,
+        "Vetinari": vetinari_admin.user,
     }
     preview = models.PreviewNotification(
         models.OrganizationAdminMembershipRevokedNotification,
