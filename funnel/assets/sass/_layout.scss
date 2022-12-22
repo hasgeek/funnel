@@ -953,6 +953,38 @@
   height: 99% !important;
 }
 
+:not(pre) > code,
+pre {
+  background: unset !important;
+  margin-top: 0px !important;
+  padding: 0 !important;
+  margin-bottom: 14px !important;
+}
+.code-toolbar {
+  position: relative;
+  .toolbar {
+    position: absolute;
+    top: 0 !important;
+    right: 0 !important;
+    z-index: 2 !important;
+    display: none;
+    .toolbar-item {
+      margin: 0 0.2em 0 0;
+      a,
+      button {
+        cursor: pointer;
+        &.copy-to-clipboard-button span:first-child::before {
+          content: '\274F  ';
+          font-size: 120%;
+        }
+      }
+    }
+  }
+  &:hover .toolbar {
+    display: block;
+  }
+}
+
 .snippets {
   margin-top: 8px;
   padding: 8px 8px 8px 28px;

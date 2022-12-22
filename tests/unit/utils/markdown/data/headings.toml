@@ -54,12 +54,12 @@ Only the specified headings in extension defaults should get linked.</p>
 document = """<p>Using the heading-anchors plugin with it’s default config:</p>
 <p>The below headings should convert and get linked.<br />
 Only the specified headings in extension defaults should get linked.</p>
-<h1 id="h:h1-heading">h1 Heading <a class="header-anchor" href="#h:h1-heading">¶</a></h1>
-<h2 id="h:h2-heading">h2 Heading <a class="header-anchor" href="#h:h2-heading">¶</a></h2>
-<h3 id="h:h3-heading">h3 Heading <a class="header-anchor" href="#h:h3-heading">¶</a></h3>
-<h4>h4 Heading</h4>
-<h5>h5 Heading</h5>
-<h6>h6 Heading</h6>
+<h1 id="h:h1-heading">h1 Heading <a class="header-anchor" href="#h:h1-heading">#</a></h1>
+<h2 id="h:h2-heading">h2 Heading <a class="header-anchor" href="#h:h2-heading">#</a></h2>
+<h3 id="h:h3-heading">h3 Heading <a class="header-anchor" href="#h:h3-heading">#</a></h3>
+<h4 id="h:h4-heading">h4 Heading <a class="header-anchor" href="#h:h4-heading">#</a></h4>
+<h5 id="h:h5-heading">h5 Heading <a class="header-anchor" href="#h:h5-heading">#</a></h5>
+<h6 id="h:h6-heading">h6 Heading <a class="header-anchor" href="#h:h6-heading">#</a></h6>
 <hr />
 <p>The below headings should not convert due to lack of space between markup and text<br />
 #h1 Heading<br />
@@ -68,17 +68,17 @@ Only the specified headings in extension defaults should get linked.</p>
 ####h4 Heading<br />
 #####h5 Heading<br />
 ######h6 Heading</p>
-<h2 id="h:text-with-2-or-more-hyphens-below-it-converts-to-h">Text with 2 or more hyphens below it converts to H2 <a class="header-anchor" href="#h:text-with-2-or-more-hyphens-below-it-converts-to-h">¶</a></h2>
+<h2 id="h:text-with-2-or-more-hyphens-below-it-converts-to-h">Text with 2 or more hyphens below it converts to H2 <a class="header-anchor" href="#h:text-with-2-or-more-hyphens-below-it-converts-to-h">#</a></h2>
 """
 heading_anchors = """<p>Using the heading-anchors plugin with it's default config:</p>
 <p>The below headings should convert and get linked.<br>
 Only the specified headings in extension defaults should get linked.</p>
-<h1 id="h:h1-heading">h1 Heading <a class="header-anchor" href="#h:h1-heading">¶</a></h1>
-<h2 id="h:h2-heading">h2 Heading <a class="header-anchor" href="#h:h2-heading">¶</a></h2>
-<h3 id="h:h3-heading">h3 Heading <a class="header-anchor" href="#h:h3-heading">¶</a></h3>
-<h4>h4 Heading</h4>
-<h5>h5 Heading</h5>
-<h6>h6 Heading</h6>
+<h1 id="h:h1-heading">h1 Heading <a class="header-anchor" href="#h:h1-heading">#</a></h1>
+<h2 id="h:h2-heading">h2 Heading <a class="header-anchor" href="#h:h2-heading">#</a></h2>
+<h3 id="h:h3-heading">h3 Heading <a class="header-anchor" href="#h:h3-heading">#</a></h3>
+<h4 id="h:h4-heading">h4 Heading <a class="header-anchor" href="#h:h4-heading">#</a></h4>
+<h5 id="h:h5-heading">h5 Heading <a class="header-anchor" href="#h:h5-heading">#</a></h5>
+<h6 id="h:h6-heading">h6 Heading <a class="header-anchor" href="#h:h6-heading">#</a></h6>
 <hr>
 <p>The below headings should not convert due to lack of space between markup and text<br>
 #h1 Heading<br>
@@ -87,5 +87,5 @@ Only the specified headings in extension defaults should get linked.</p>
 ####h4 Heading<br>
 #####h5 Heading<br>
 ######h6 Heading</p>
-<h2 id="h:text-with-2-or-more-hyphens-below-it-converts-to-h">Text with 2 or more hyphens below it converts to H2 <a class="header-anchor" href="#h:text-with-2-or-more-hyphens-below-it-converts-to-h">¶</a></h2>
+<h2 id="h:text-with-2-or-more-hyphens-below-it-converts-to-h">Text with 2 or more hyphens below it converts to H2 <a class="header-anchor" href="#h:text-with-2-or-more-hyphens-below-it-converts-to-h">#</a></h2>
 """

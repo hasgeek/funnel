@@ -33,7 +33,7 @@ basic = """<h2>Tables</h2>
 | engine | engine to be used for processing templates. Handlebars is the default. |<br />
 | ext    | extension to be used for dest files. |</p>
 """
-document = """<h2 id="h:tables">Tables <a class="header-anchor" href="#h:tables">¶</a></h2>
+document = """<h2 id="h:tables">Tables <a class="header-anchor" href="#h:tables">#</a></h2>
 <table>
 <thead>
 <tr>
@@ -56,7 +56,7 @@ document = """<h2 id="h:tables">Tables <a class="header-anchor" href="#h:tables"
 </tr>
 </tbody>
 </table>
-<h3 id="h:right-aligned-columns">Right aligned columns <a class="header-anchor" href="#h:right-aligned-columns">¶</a></h3>
+<h3 id="h:right-aligned-columns">Right aligned columns <a class="header-anchor" href="#h:right-aligned-columns">#</a></h3>
 <table>
 <thead>
 <tr>
