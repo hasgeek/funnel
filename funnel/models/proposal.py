@@ -183,6 +183,9 @@ class Proposal(  # type: ignore[misc]
 
     edited_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
 
+    #: Revision number maintained by SQLAlchemy, starting at 1
+    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+
     search_vector = sa.orm.deferred(
         sa.Column(
             TSVectorType(
@@ -211,6 +214,8 @@ class Proposal(  # type: ignore[misc]
         ),
         sa.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
     )
+
+    __mapper_args__ = {'version_id_col': revisionid}
 
     __roles__ = {
         'all': {

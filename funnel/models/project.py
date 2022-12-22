@@ -231,8 +231,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         datasets={'primary', 'without_parent'},
     )
 
-    #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
-    versionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+    #: Revision number maintained by SQLAlchemy, used for vCal files, starting at 1
+    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
 
     search_vector = sa.orm.deferred(
         sa.Column(
@@ -292,7 +292,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         ),
     )
 
-    __mapper_args__ = {'version_id_col': versionid}
+    __mapper_args__ = {'version_id_col': revisionid}
 
     __roles__ = {
         'all': {

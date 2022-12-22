@@ -233,20 +233,8 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         datasets={'primary', 'related', 'json'},
     )
 
-    __roles__ = {
-        'all': {
-            'read': {'created_at', 'urls', 'uuid_b58', 'has_replies'},
-            'call': {'state', 'commentset', 'view_for', 'url_for'},
-        },
-        'replied_to_commenter': {'granted_via': {'in_reply_to': '_user'}},
-    }
-
-    __datasets__ = {
-        'primary': {'created_at', 'urls', 'uuid_b58'},
-        'related': {'created_at', 'urls', 'uuid_b58'},
-        'json': {'created_at', 'urls', 'uuid_b58'},
-        'minimal': {'created_at', 'uuid_b58'},
-    }
+    #: Revision number maintained by SQLAlchemy, starting at 1
+    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
 
     search_vector = sa.orm.deferred(
         sa.Column(
@@ -263,6 +251,23 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __table_args__ = (
         sa.Index('ix_comment_search_vector', 'search_vector', postgresql_using='gin'),
     )
+
+    __mapper_args__ = {'version_id_col': revisionid}
+
+    __roles__ = {
+        'all': {
+            'read': {'created_at', 'urls', 'uuid_b58', 'has_replies'},
+            'call': {'state', 'commentset', 'view_for', 'url_for'},
+        },
+        'replied_to_commenter': {'granted_via': {'in_reply_to': '_user'}},
+    }
+
+    __datasets__ = {
+        'primary': {'created_at', 'urls', 'uuid_b58'},
+        'related': {'created_at', 'urls', 'uuid_b58'},
+        'json': {'created_at', 'urls', 'uuid_b58'},
+        'minimal': {'created_at', 'uuid_b58'},
+    }
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
