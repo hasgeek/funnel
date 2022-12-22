@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from typing import Collection, Optional, cast
 
 from flask import Markup, escape, render_template
@@ -15,24 +15,27 @@ from ...models import (
     OrganizationAdminMembershipRevokedNotification,
     OrganizationMembership,
     User,
+    UserNotification,
 )
 from ...transports.sms import MessageTemplate
-from ..notification import RenderNotification
+from ..notification import DecisionBranchBase, DecisionFactorBase, RenderNotification
 
 
 @dataclass
-class DecisionFactor:
+class DecisionFactorFields:
     """Evaluation criteria for the content of notification (for grants/edits only)."""
 
-    template: str
     is_subject: Optional[bool] = None
     for_actor: Optional[bool] = None
     rtypes: Collection[str] = ()
     is_owner: Optional[bool] = None
     is_actor: Optional[bool] = None
 
-    def match(
-        self, is_subject: bool, for_actor: bool, membership: OrganizationMembership
+    def is_match(
+        self,
+        membership: OrganizationMembership,
+        is_subject: bool,
+        for_actor: bool,
     ) -> bool:
         """Test if this :class:`DecisionFactor` is a match."""
         return (
@@ -44,140 +47,330 @@ class DecisionFactor:
         )
 
 
-# Sequential list of tests, evaluated in order
-decision_factors = [
-    # --- Subject has been invited by someone (self appointment not possible)
-    DecisionFactor(
-        template=__("You have been invited as an owner of {organization} by {actor}"),
-        is_subject=True,
-        rtypes=['invite'],
-        is_owner=True,
-    ),
-    DecisionFactor(
-        template=__("You have been invited as an admin of {organization} by {actor}"),
-        is_subject=True,
-        rtypes=['invite'],
-        is_owner=False,
-    ),
-    # --- Subject has accepted an invite (this should NOT trigger a notification)
-    DecisionFactor(
-        template=__("You are now an owner of {organization}"),
-        is_subject=True,
-        rtypes=['accept'],
-        is_owner=True,
-    ),
-    DecisionFactor(
-        template=__("You are now an admin of {organization}"),
-        is_subject=True,
-        rtypes=['accept'],
-        is_owner=False,
-    ),
-    # --- Subject has amended their own role (this should NOT trigger a notification)
-    DecisionFactor(  # This should never happen
-        template=__("You have changed your role to owner of {organization}"),
-        is_subject=True,
-        for_actor=True,
-        rtypes=['amend'],
-        is_owner=True,
-        is_actor=True,
-    ),
-    DecisionFactor(  # Subject demoted themselves
-        template=__("You have changed your role to an admin of {organization}"),
-        is_subject=True,
-        for_actor=True,
-        rtypes=['amend'],
-        is_owner=False,
-        is_actor=True,
-    ),
-    # --- Subject has been appointed (add or amend) by someone else
-    DecisionFactor(
-        template=__("You were added as an owner of {organization} by {actor}"),
-        is_subject=True,
-        rtypes=['direct_add'],
-        is_owner=True,
-        is_actor=False,
-    ),
-    DecisionFactor(
-        template=__("You were added as an admin of {organization} by {actor}"),
-        is_subject=True,
-        rtypes=['direct_add'],
-        is_owner=False,
-        is_actor=False,
-    ),
-    DecisionFactor(
-        template=__("Your role was changed to owner of {organization} by {actor}"),
-        is_subject=True,
-        rtypes=['amend'],
-        is_owner=True,
-        is_actor=False,
-    ),
-    DecisionFactor(
-        template=__("Your role was changed to admin of {organization} by {actor}"),
-        is_subject=True,
-        rtypes=['amend'],
-        is_owner=False,
-        is_actor=False,
-    ),
-    # --- Notifications to other admins of organization (except subject) ---------------
-    # --- User was invited
-    DecisionFactor(
-        template=__("{user} was invited to be an owner of {organization} by {actor}"),
-        rtypes=['invite'],
-        is_owner=True,
-    ),
-    DecisionFactor(
-        template=__("{user} was invited to be an admin of {organization} by {actor}"),
-        rtypes=['invite'],
-        is_owner=False,
-    ),
-    # --- User accepted
-    DecisionFactor(
-        template=__("{user} is now an owner of {organization}"),
-        rtypes=['accept'],
-        is_owner=True,
-    ),
-    DecisionFactor(
-        template=__("{user} is now an admin of {organization}"),
-        rtypes=['accept'],
-        is_owner=False,
-    ),
-    # --- User changed their own role
-    DecisionFactor(  # This should not happen. User can't upgrade their own role
-        template=__("{user} changed their role to owner of {organization}"),
-        rtypes=['amend'],
-        is_owner=True,
-        is_actor=True,
-    ),
-    DecisionFactor(
-        template=__("{user} changed their role from owner to admin of {organization}"),
-        rtypes=['amend'],
-        is_owner=False,
-        is_actor=True,
-    ),
-    # --- User was added
-    DecisionFactor(
-        template=__("{user} was made an owner of {organization} by {actor}"),
-        rtypes=['direct_add', 'amend'],
-        is_owner=True,
-    ),
-    DecisionFactor(
-        template=__("{user} was made an admin of {organization} by {actor}"),
-        rtypes=['direct_add', 'amend'],
-        is_owner=False,
-    ),
-]
+@dataclass
+class DecisionFactor(DecisionFactorFields, DecisionFactorBase):
+    """Decision factor for content of a project crew notification."""
+
+
+@dataclass
+class DecisionBranch(DecisionFactorFields, DecisionBranchBase):
+    """Grouped decision factors for content of a project crew notification."""
+
+    def __post_init__(self):
+        """Validate decision factors to have matching criteria."""
+        unspecified_values = (None, (), [], {}, set())
+        check_fields = {
+            f.name: getattr(self, f.name)
+            for f in fields(DecisionFactorFields)
+            if getattr(self, f.name) not in unspecified_values
+        }
+        for factor in self.factors:
+            for field, expected_value in check_fields.items():
+                factor_value = getattr(factor, field)
+                if (
+                    factor_value not in unspecified_values
+                    and factor_value is not expected_value
+                ):
+                    raise TypeError(
+                        f"DecisionFactor has conflicting criteria for {field}: "
+                        f"expected {expected_value}, got {factor_value} in {factor}"
+                    )
+
+
+# pylint: disable=unexpected-keyword-arg
+grant_amend_templates = DecisionBranch(
+    factors=[
+        DecisionBranch(
+            rtypes=['invite'],
+            factors=[
+                DecisionBranch(
+                    for_actor=False,
+                    is_subject=False,
+                    factors=[
+                        DecisionFactor(
+                            template=__(
+                                "{actor} invited {user} to be owner of {organization}"
+                            ),
+                            is_owner=True,
+                        ),
+                        DecisionFactor(
+                            template=__(
+                                "{actor} invited {user} to be admin of {organization}"
+                            ),
+                        ),
+                    ],
+                ),
+                DecisionBranch(
+                    for_actor=False,
+                    is_subject=True,
+                    factors=[
+                        DecisionFactor(
+                            template=__(
+                                "{actor} invited you to be owner of {organization}"
+                            ),
+                            is_owner=True,
+                        ),
+                        DecisionFactor(
+                            template=__(
+                                "{actor} invited you to be admin of {organization}"
+                            ),
+                        ),
+                    ],
+                ),
+                DecisionBranch(
+                    for_actor=True,
+                    is_subject=False,
+                    factors=[
+                        DecisionFactor(
+                            template=__(
+                                "You invited {user} to be owner of {organization}"
+                            ),
+                            is_owner=True,
+                        ),
+                        DecisionFactor(
+                            template=__(
+                                "You invited {user} to be admin of {organization}"
+                            ),
+                        ),
+                    ],
+                ),
+            ],
+        ),
+        DecisionBranch(
+            rtypes=['direct_add'],
+            factors=[
+                DecisionBranch(
+                    for_actor=False,
+                    is_subject=False,
+                    factors=[
+                        DecisionFactor(
+                            template=__("{actor} made {user} owner of {organization}"),
+                            is_owner=True,
+                        ),
+                        DecisionFactor(
+                            template=__("{actor} made {user} admin of {organization}"),
+                        ),
+                    ],
+                ),
+                DecisionBranch(
+                    for_actor=False,
+                    is_subject=True,
+                    factors=[
+                        DecisionFactor(
+                            template=__("{actor} made you owner of {organization}"),
+                            is_owner=True,
+                        ),
+                        DecisionFactor(
+                            template=__("{actor} made you admin of {organization}"),
+                        ),
+                    ],
+                ),
+                DecisionBranch(
+                    for_actor=True,
+                    is_subject=False,
+                    factors=[
+                        DecisionFactor(
+                            template=__("You made {user} owner of {organization}"),
+                            is_owner=True,
+                        ),
+                        DecisionFactor(
+                            template=__("You made {user} admin of {organization}"),
+                        ),
+                    ],
+                ),
+            ],
+        ),
+        DecisionBranch(
+            rtypes=['accept'],
+            factors=[
+                DecisionBranch(
+                    for_actor=False,
+                    is_subject=False,
+                    factors=[
+                        DecisionFactor(
+                            template=__(
+                                "{user} accepted an invite to be owner of"
+                                " {organization}"
+                            ),
+                            is_owner=True,
+                        ),
+                        DecisionFactor(
+                            template=__(
+                                "{user} accepted an invite to be admin of"
+                                " {organization}"
+                            ),
+                        ),
+                    ],
+                ),
+                DecisionBranch(
+                    for_actor=False,
+                    is_subject=True,
+                    factors=[
+                        DecisionFactor(
+                            template=__(
+                                "{user} accepted an invite to be owner of"
+                                " {organization}"
+                            ),
+                            is_owner=True,
+                        ),
+                        DecisionFactor(
+                            template=__(
+                                "{user} accepted an invite to be admin of"
+                                " {organization}"
+                            ),
+                        ),
+                    ],
+                ),
+                DecisionBranch(
+                    for_actor=True,
+                    is_subject=True,
+                    factors=[
+                        DecisionFactor(
+                            template=__(
+                                "You accepted an invite to be owner of {organization}"
+                            ),
+                            is_owner=True,
+                        ),
+                        DecisionFactor(
+                            template=__(
+                                "You accepted an invite to be admin of {organization}"
+                            ),
+                        ),
+                    ],
+                ),
+            ],
+        ),
+        DecisionBranch(
+            rtypes=['amend'],
+            factors=[
+                DecisionBranch(
+                    for_actor=False,
+                    is_subject=False,
+                    factors=[
+                        DecisionFactor(
+                            template=__(
+                                "{actor} changed {user}'s role to owner of"
+                                " {organization}"
+                            ),
+                            is_owner=True,
+                        ),
+                        DecisionFactor(
+                            template=__(
+                                "{actor} changed {user}'s role to admin of"
+                                " {organization}"
+                            ),
+                        ),
+                    ],
+                ),
+                DecisionBranch(
+                    for_actor=False,
+                    is_subject=True,
+                    factors=[
+                        DecisionFactor(
+                            template=__(
+                                "{actor} changed your role to owner of {organization}"
+                            ),
+                            is_owner=True,
+                        ),
+                        DecisionFactor(
+                            template=__(
+                                "{actor} changed your role to admin of {organization}"
+                            ),
+                        ),
+                    ],
+                ),
+                DecisionBranch(
+                    for_actor=True,
+                    is_subject=False,
+                    factors=[
+                        DecisionFactor(
+                            template=__(
+                                "You changed {user}'s role to owner of {organization}"
+                            ),
+                            is_owner=True,
+                        ),
+                        DecisionFactor(
+                            template=__(
+                                "You changed {user}'s role to admin of {organization}"
+                            ),
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    ]
+)
+
+
+revoke_templates = DecisionBranch(
+    factors=[
+        DecisionBranch(
+            for_actor=False,
+            is_subject=False,
+            factors=[
+                DecisionFactor(
+                    template=__("{actor} removed {user} from owner of {organization}"),
+                    is_owner=True,
+                ),
+                DecisionFactor(
+                    template=__("{actor} removed {user} from admin of {organization}"),
+                ),
+            ],
+        ),
+        DecisionBranch(
+            for_actor=False,
+            is_subject=True,
+            factors=[
+                DecisionFactor(
+                    template=__("{actor} removed you from owner of {organization}"),
+                    is_owner=True,
+                ),
+                DecisionFactor(
+                    template=__("{actor} removed you from admin of {organization}"),
+                ),
+            ],
+        ),
+        DecisionBranch(
+            for_actor=True,
+            is_subject=False,
+            factors=[
+                DecisionFactor(
+                    template=__("You removed {user} from owner of {organization}"),
+                    is_owner=True,
+                ),
+                DecisionFactor(
+                    template=__("You removed {user} from admin of {organization}"),
+                ),
+            ],
+        ),
+    ]
+)
 
 
 class RenderShared:
     organization: Organization
     membership: OrganizationMembership
     emoji_prefix = "🔑 "
+    user_notification: UserNotification
+    template_picker: DecisionBranch
 
     def activity_template(
         self, membership: Optional[OrganizationMembership] = None
     ) -> str:
         """Return a Python string template with an appropriate message."""
-        raise NotImplementedError("Subclasses must implement `activity_template`")
+        if membership is None:
+            membership = self.membership
+        membership_user_uuid = membership.user.uuid
+        membership_actor = self.membership_actor(membership)
+        membership_actor_uuid = membership_actor.uuid if membership_actor else None
+        match = self.template_picker.match(
+            membership,
+            is_subject=self.user_notification.user.uuid == membership_user_uuid,
+            for_actor=self.user_notification.user.uuid == membership_actor_uuid,
+        )
+        if match is not None:
+            return match.template
+        raise ValueError("No suitable template found for membership record")
 
     def membership_actor(
         self, membership: Optional[OrganizationMembership] = None
@@ -245,6 +438,7 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
 
     aliases = {'document': 'organization', 'fragment': 'membership'}
     reason = __("You are receiving this because you are an admin of this organization")
+    template_picker = grant_amend_templates
 
     fragments_order_by = [OrganizationMembership.granted_at.desc()]
 
@@ -253,29 +447,6 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
     ) -> Optional[User]:
         """Actual actor who granted (or edited) the membership, for the template."""
         return (membership or self.membership).granted_by
-
-    def activity_template(
-        self, membership: Optional[OrganizationMembership] = None
-    ) -> str:
-        """
-        Return a Python string template with an appropriate message.
-
-        Accepts an optional membership object for use in rollups.
-        """
-        if membership is None:
-            membership = self.membership
-        membership_user_uuid = membership.user.uuid
-        membership_actor = self.membership_actor(membership)
-        membership_actor_uuid = membership_actor.uuid if membership_actor else None
-        for df in decision_factors:
-            if df.match(
-                # LHS = user object, RHS = role proxy, so compare uuid
-                self.user_notification.user.uuid == membership_user_uuid,
-                self.user_notification.user.uuid == membership_actor_uuid,
-                membership,
-            ):
-                return df.template
-        raise ValueError("No suitable template found for membership record")
 
     def web(self) -> str:
         """Render for web."""
@@ -298,6 +469,7 @@ class RenderOrganizationAdminMembershipRevokedNotification(
 
     aliases = {'document': 'organization', 'fragment': 'membership'}
     reason = __("You are receiving this because you were an admin of this organization")
+    template_picker = revoke_templates
 
     fragments_order_by = [OrganizationMembership.revoked_at.desc()]
 
@@ -306,19 +478,6 @@ class RenderOrganizationAdminMembershipRevokedNotification(
     ) -> Optional[User]:
         """Actual actor who revoked the membership, for the template."""
         return (membership or self.membership).revoked_by
-
-    def activity_template(
-        self, membership: Optional[OrganizationMembership] = None
-    ) -> str:
-        """Return a single line summary of changes."""
-        if membership is None:
-            membership = self.membership
-        # LHS = user object, RHS = role proxy, so compare uuid
-        if self.user_notification.user.uuid == membership.user.uuid:
-            if membership.user == membership.revoked_by:
-                return _("You removed yourself as an admin of {organization}")
-            return _("You were removed as an admin of {organization} by {actor}")
-        return _("{user} was removed as an admin of {organization} by {actor}")
 
     def web(self) -> str:
         """Render for web."""
