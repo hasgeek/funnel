@@ -20,7 +20,7 @@ Feature: Organization Admin Notification
       | Vimes    | admin          | Havelock Vetinari made Mustrum Ridcully admin of Ankh-Morpork |
 
   Scenario Outline: Vetinari invites Ridcully
-    When Vetinari invites Ridcully as <owner_or_admin> of the Ankh-Morpork organization
+    When Vetinari invites Ridcully as <owner_or_admin>
     Then <user> gets notified with <notification_string> about the invitation
 
     Examples:
@@ -34,7 +34,7 @@ Feature: Organization Admin Notification
 
   Scenario Outline: Ridcully accepts the invite
     Given Vetinari invites Ridcully as <owner_or_admin>
-    When Ridcully accepts the invitation to be admin member of the Ankh-Morpork organization
+    When Ridcully accepts the invitation to be admin of the Ankh-Morpork organization
     Then <user> gets notified with <notification_string> about the acceptance
 
     Examples:

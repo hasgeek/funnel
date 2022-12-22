@@ -97,9 +97,7 @@ def then_user_gets_notification(
     target_fixture='ridcully_admin',
 )
 @when(
-    parsers.parse(
-        "Vetinari invites Ridcully as {owner_or_admin} of the Ankh-Morpork organization"
-    ),
+    parsers.parse("Vetinari invites Ridcully as {owner_or_admin}"),
     target_fixture='ridcully_admin',
 )
 def when_vetinari_invites_ridcully(
@@ -119,7 +117,7 @@ def when_vetinari_invites_ridcully(
 
 
 @when(
-    "Ridcully accepts the invitation to be admin member of the Ankh-Morpork organization",
+    "Ridcully accepts the invitation to be admin of the Ankh-Morpork organization",
     target_fixture='ridcully_admin',
 )
 def when_ridcully_accepts_invite(
