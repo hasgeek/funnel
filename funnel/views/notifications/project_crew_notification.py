@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass
 from typing import Callable, ClassVar, Collection, Dict, Optional
 
 from flask import Markup, escape, render_template
@@ -67,26 +67,6 @@ class DecisionFactor(DecisionFactorFields, DecisionFactorBase):
 @dataclass
 class DecisionBranch(DecisionFactorFields, DecisionBranchBase):
     """Grouped decision factors for content of a project crew notification."""
-
-    def __post_init__(self):
-        """Validate decision factors to have matching criteria."""
-        unspecified_values = (None, (), [], {}, set())
-        check_fields = {
-            f.name: getattr(self, f.name)
-            for f in fields(DecisionFactorFields)
-            if getattr(self, f.name) not in unspecified_values
-        }
-        for factor in self.factors:
-            for field, expected_value in check_fields.items():
-                factor_value = getattr(factor, field)
-                if (
-                    factor_value not in unspecified_values
-                    and factor_value is not expected_value
-                ):
-                    raise TypeError(
-                        f"DecisionFactor has conflicting criteria for {field}: "
-                        f"expected {expected_value}, got {factor_value} in {factor}"
-                    )
 
 
 # Sequential list of tests, evaluated in order
