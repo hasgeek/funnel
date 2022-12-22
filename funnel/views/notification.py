@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from datetime import datetime
 from email.utils import formataddr
 from functools import wraps
@@ -80,6 +80,27 @@ class DecisionBranchBase:
 
     #: A list of decision factors and branches
     factors: List[Union[DecisionFactorBase, DecisionBranchBase]]
+
+    def __post_init__(self):
+        """Validate decision factors to have matching criteria."""
+        unspecified_values = (None, ())
+        check_fields = {
+            f.name: getattr(self, f.name)
+            for f in fields(self)
+            if f.default in unspecified_values
+            and getattr(self, f.name) not in unspecified_values
+        }
+        for factor in self.factors:
+            for field, expected_value in check_fields.items():
+                factor_value = getattr(factor, field)
+                if (
+                    factor_value not in unspecified_values
+                    and factor_value is not expected_value
+                ):
+                    raise TypeError(
+                        f"DecisionFactor has conflicting criteria for {field}: "
+                        f"expected {expected_value}, got {factor_value} in {factor}"
+                    )
 
     def match(self, obj: Any, **kwargs) -> Optional[DecisionFactorBase]:
         """Find a matching decision factor, recursing through other branches."""
