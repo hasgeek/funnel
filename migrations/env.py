@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from logging.config import fileConfig
+from typing import List
 import logging
 
 from alembic import context
@@ -26,14 +27,13 @@ config.set_main_option(
     'sqlalchemy.url',
     str(current_app.extensions['migrate'].db.engines[None].url).replace('%', '%%'),
 )
+bind_names: List[str] = []
 if current_app.config.get('SQLALCHEMY_BINDS') is not None:
     bind_names = list(current_app.config['SQLALCHEMY_BINDS'].keys())
 else:
     get_bind_names = getattr(current_app.extensions['migrate'].db, 'bind_names', None)
     if get_bind_names:
         bind_names = get_bind_names()
-    else:
-        bind_names = []
 for this_bind in bind_names:
     context.config.set_section_option(
         this_bind,
@@ -42,20 +42,22 @@ for this_bind in bind_names:
             '%', '%%'
         ),
     )
-target_metadata = current_app.extensions['migrate'].db.metadata
+target_db = current_app.extensions['migrate'].db
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+# other values from the config, defined by the needs of env.py, can be acquired:
+# my_important_option = config.get_main_option("my_important_option") ... etc.
 
 
 def get_metadata(bind):
     """Return the metadata for a bind."""
     if bind == '':
         bind = None
+    if hasattr(target_db, 'metadatas'):
+        return target_db.metadatas[bind]
+
+    # legacy, less flexible implementation
     m = MetaData()
-    for t in target_metadata.tables.values():
+    for t in target_db.metadata.tables.values():
         if t.info.get('bind_key') == bind:
             t.tometadata(m)
     return m
