@@ -14,7 +14,7 @@ attrs==22.1.0
     #   reformat-gherkin
 bandit==1.7.4
     # via -r requirements_dev.in
-black==22.10.0
+black==22.12.0
     # via -r requirements_dev.in
 build==0.9.0
     # via pip-tools
@@ -37,7 +37,7 @@ dill==0.3.6
     # via pylint
 distlib==0.3.6
     # via virtualenv
-djlint==1.19.7
+djlint==1.19.9
     # via -r requirements_dev.in
 editorconfig==0.12.3
     # via
@@ -47,7 +47,7 @@ exceptiongroup==1.0.4
     # via
     #   cattrs
     #   pytest
-filelock==3.8.1
+filelock==3.8.2
     # via virtualenv
 flake8==6.0.0
     # via
@@ -65,7 +65,7 @@ flake8-assertive==2.1.0
     # via -r requirements_dev.in
 flake8-blind-except==0.2.1
     # via -r requirements_dev.in
-flake8-bugbear==22.10.27
+flake8-bugbear==22.12.6
     # via -r requirements_dev.in
 flake8-builtins==2.0.1
     # via -r requirements_dev.in
@@ -99,15 +99,15 @@ html-tag-names==0.1.2
     # via djlint
 html-void-elements==0.1.0
     # via djlint
-identify==2.5.9
+identify==2.5.11
     # via pre-commit
-importlib-metadata==5.1.0
+importlib-metadata==5.2.0
     # via
     #   djlint
     #   flask
 iniconfig==1.1.1
     # via pytest
-isort==5.10.1
+isort==5.11.3
     # via
     #   -r requirements_dev.in
     #   flake8-isort
@@ -144,11 +144,11 @@ mypy-extensions==0.4.3
     #   mypy
 nodeenv==1.7.0
     # via pre-commit
-packaging==21.3
+packaging==22.0
     # via
     #   build
     #   pytest
-pathspec==0.10.2
+pathspec==0.10.3
     # via
     #   black
     #   djlint
@@ -156,11 +156,11 @@ pbr==5.11.0
     # via stevedore
 pep517==0.13.0
     # via build
-pep8-naming==0.13.2
+pep8-naming==0.13.3
     # via -r requirements_dev.in
-pip-tools==6.11.0
+pip-tools==6.12.1
     # via -r requirements_dev.in
-platformdirs==2.5.4
+platformdirs==2.6.0
     # via
     #   black
     #   pylint
@@ -177,7 +177,7 @@ pydocstyle==6.1.1
     # via flake8-docstrings
 pyflakes==3.0.1
     # via flake8
-pylint==2.15.8
+pylint==2.15.9
     # via
     #   -r requirements_dev.in
     #   pylint-flask-sqlalchemy
@@ -186,11 +186,9 @@ pylint-flask-sqlalchemy==0.2.0
     # via -r requirements_dev.in
 pylint-pytest==1.1.2
     # via -r requirements_dev.in
-pyparsing==3.0.9
-    # via packaging
 pytest==7.2.0
     # via pylint-pytest
-pyupgrade==3.3.0
+pyupgrade==3.3.1
     # via -r requirements_dev.in
 pyyaml==6.0
     # via
@@ -210,7 +208,7 @@ smmap==5.0.0
     # via gitdb
 snowballstemmer==2.2.0
     # via pydocstyle
-sqlalchemy==1.4.44
+sqlalchemy==1.4.45
     # via flask-sqlalchemy
 sqlalchemy-stubs==0.4
     # via -r requirements_dev.in
@@ -257,13 +255,13 @@ types-maxminddb==1.5.0
     # via
     #   -r requirements_dev.in
     #   types-geoip2
-types-python-dateutil==2.8.19.4
+types-python-dateutil==2.8.19.5
     # via -r requirements_dev.in
-types-pytz==2022.6.0.1
+types-pytz==2022.7.0.0
     # via -r requirements_dev.in
 types-requests==2.28.11.5
     # via -r requirements_dev.in
-types-setuptools==65.6.0.1
+types-setuptools==65.6.0.2
     # via -r requirements_dev.in
 types-six==1.16.21.4
     # via -r requirements_dev.in
@@ -282,7 +280,7 @@ typing-extensions==4.4.0
     #   mypy
     #   pylint
     #   sqlalchemy-stubs
-virtualenv==20.17.0
+virtualenv==20.17.1
     # via pre-commit
 watchdog==2.2.0
     # via -r requirements_dev.in
