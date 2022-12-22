@@ -80,7 +80,7 @@ from_first = true
 # add_imports = 'from __future__ import annotations'
 known_future_library = ['__future__', 'six']
 known_first_party = ['baseframe', 'coaster', 'funnel']
-known_sqlalchemy = ['alembic', 'sqlalchemy', 'sqlalchemy_utils', 'flask_sqlalchemy', 'psycopg2']
+known_sqlalchemy = ['alembic', 'sqlalchemy', 'sqlalchemy_utils', 'flask_sqlalchemy', 'psycopg2', 'sqlalchemy_json']
 known_flask = [
   'flask',
   'click',
@@ -141,9 +141,9 @@ env_files = ['.env', '.env.testing']
 
 [tool.pyright]
 venv = 'hasgeek'
-
 reportMissingImports = true
 reportMissingTypeStubs = false
+reportShadowedImports = false
 
 pythonVersion = '3.7'
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from werkzeug.datastructures import MultiDict
 
-from . import JsonDict, NoIdMixin, UUIDType, db, sa
+from . import NoIdMixin, UUIDType, db, json_type, sa
 
 __all__ = ['Draft']
 
@@ -16,7 +16,7 @@ class Draft(NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     table = sa.Column(sa.UnicodeText, primary_key=True)
     table_row_id = sa.Column(UUIDType(binary=False), primary_key=True)
-    body = sa.Column(JsonDict, nullable=False, server_default='{}')
+    body = sa.Column(json_type, nullable=False, server_default='{}')
     revision = sa.Column(UUIDType(binary=False))
 
     @property

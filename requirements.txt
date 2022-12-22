@@ -24,7 +24,7 @@ async-timeout==4.0.2
     # via
     #   aiohttp
     #   redis
-attrs==22.1.0
+attrs==22.2.0
     # via aiohttp
 babel==2.11.0
     # via
@@ -286,7 +286,7 @@ paramiko==2.12.0
     # via fabric3
 passlib==1.7.4
     # via -r requirements.in
-phonenumbers==8.13.2
+phonenumbers==8.13.3
     # via -r requirements.in
 premailer==3.10.0
     # via -r requirements.in
@@ -431,6 +431,7 @@ six==1.16.0
     #   python-dateutil
     #   requests-file
     #   requests-mock
+    #   sqlalchemy-json
     #   tuspy
 sqlalchemy==1.4.45
     # via
@@ -438,8 +439,11 @@ sqlalchemy==1.4.45
     #   alembic
     #   coaster
     #   flask-sqlalchemy
+    #   sqlalchemy-json
     #   sqlalchemy-utils
     #   wtforms-sqlalchemy
+sqlalchemy-json==0.5.0
+    # via -r requirements.in
 sqlalchemy-utils==0.38.3
     # via
     #   -r requirements.in

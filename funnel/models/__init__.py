@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Callable, TypeVar
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects import postgresql
+from sqlalchemy_json import mutable_json_type
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType, UUIDType
 import sqlalchemy as sa  # noqa
 import sqlalchemy.orm  # Required to make sa.orm work  # noqa
@@ -18,7 +19,6 @@ from coaster.sqlalchemy import (
     BaseScopedIdNameMixin,
     BaseScopedNameMixin,
     CoordinatesMixin,
-    JsonDict,
     NoIdMixin,
     RegistryMixin,
     RoleMixin,
@@ -48,6 +48,8 @@ else:
         def declarative_mixin(cls: T) -> T:
             return cls
 
+
+json_type: postgresql.JSONB = mutable_json_type(dbtype=postgresql.JSONB, nested=True)
 
 db = SQLAlchemy()
 # This must be set _before_ any of the models are imported
