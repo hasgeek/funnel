@@ -1,5 +1,5 @@
-Feature: Organization Crew Notification
-  As an Organization crew member, I want to be notified of changes to the crew, with a message
+Feature: Organization Admin Notification
+  As an Organization admin, I want to be notified of changes to the other admins, with a message
   telling me exactly what has changed and who did it
 
   Background:
@@ -20,21 +20,21 @@ Feature: Organization Crew Notification
       | Vimes    | admin | Havelock Vetinari made Mustrum Ridcully admin of Ankh-Morpork |
 
   Scenario Outline: Vetinari invites Ridcully
-    When Vetinari invites Ridcully with the role <role>
+    When Vetinari invites Ridcully with the role <role> to the Ankh-Morpork organization
     Then <user> gets notified with <notification_string> about the invitation
 
     Examples:
-      | user     | role  | notification_string                                                         |
-      | Vetinari | owner | You invited Mustrum Ridcully to be owner of Ankh-Morpork                    |
-      | Ridcully | owner | Havelock Vetinari invited you to be owner of Ankh-Morpork                   |
-      | Vimes    | owner | Havelock Vetinari invited Mustrum Ridcully to be owner of Ankh-Morpork 2010 |
-      | Vetinari | admin | You invited Mustrum Ridcully to be admin of Ankh-Morpork                    |
-      | Ridcully | admin | Havelock Vetinari invited you to be admin of Ankh-Morpork                   |
-      | Vimes    | admin | Havelock Vetinari invited Mustrum Ridcully to be admin of Ankh-Morpork 2010 |
+      | user     | role  | notification_string                                                    |
+      | Vetinari | owner | You invited Mustrum Ridcully to be owner of Ankh-Morpork               |
+      | Ridcully | owner | Havelock Vetinari invited you to be owner of Ankh-Morpork              |
+      | Vimes    | owner | Havelock Vetinari invited Mustrum Ridcully to be owner of Ankh-Morpork |
+      | Vetinari | admin | You invited Mustrum Ridcully to be admin of Ankh-Morpork               |
+      | Ridcully | admin | Havelock Vetinari invited you to be admin of Ankh-Morpork              |
+      | Vimes    | admin | Havelock Vetinari invited Mustrum Ridcully to be admin of Ankh-Morpork |
 
   Scenario Outline: Ridcully accepted the invite
-    Given Vetinari invited Ridcully with role <role> to the Ankh-Morpork organization
-    When Ridcully accepts the invitation to be a crew member of the Ankh-Morpork organization
+    Given Vetinari invites Ridcully with role <role> to the Ankh-Morpork organization
+    When Ridcully accepts the invitation to be an admin member of the Ankh-Morpork organization
     Then <user> gets notified with <notification_string> about the acceptance
 
     Examples:
@@ -47,8 +47,8 @@ Feature: Organization Crew Notification
       | Vimes    | admin | Mustrum Ridcully accepted an invite to be admin of Ankh-Morpork |
 
   Scenario Outline: Vetinari changes Ridcully's role
-    Given Ridcully is an existing crew member with roles editor, promoter and usher of the Ankh-Morpork organization
-    When Vetinari changes Ridcully's role from <from_role> to <to_role> in the Ankh-Morpork organization
+    Given Ridcully is an existing admin with roles <from_role> of the Ankh-Morpork organization
+    When Vetinari changes Ridcully's role to <to_role> in the Ankh-Morpork organization
     Then <user> gets notified with <notification_string> about the change
 
     Examples:
@@ -61,6 +61,7 @@ Feature: Organization Crew Notification
       | Vimes    | admin     | owner   | Havelock Vetinari changed Mustrum Ridcully's role to owner of Ankh-Morpork |
 
   Scenario Outline: Vetinari removes Ridcully
+    Given Ridcully is an existing admin with roles <role> of the Ankh-Morpork organization
     When Vetinari removes Ridcully from the Ankh-Morpork organization
     Then <user> gets notified with <notification_string> about the removal
 
