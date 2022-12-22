@@ -6,18 +6,7 @@ from pytest_bdd import given, parsers, scenarios, then, when
 from funnel import models
 from funnel.models.membership_mixin import MEMBERSHIP_RECORD_TYPE
 
-scenarios('organization_admin_notification.feature')
-
-
-@given(
-    "Vetinari is an owner of the Ankh-Morpork organization",
-    target_fixture='vetinari_admin',
-)
-def given_vetinari_owner_org(user_vetinari, org_ankhmorpork) -> None:
-    assert 'owner' in org_ankhmorpork.roles_for(user_vetinari)
-    vetinari_admin = org_ankhmorpork.active_owner_memberships[0]
-    assert vetinari_admin.user == user_vetinari
-    return vetinari_admin
+scenarios('organization_membership_notification.feature')
 
 
 @given(
@@ -104,14 +93,12 @@ def then_user_gets_notification(
 
 
 @given(
-    parsers.parse(
-        "Vetinari invites Ridcully as {owner_or_admin} to the Ankh-Morpork organization"
-    ),
+    parsers.parse("Vetinari invites Ridcully as {owner_or_admin}"),
     target_fixture='ridcully_admin',
 )
 @when(
     parsers.parse(
-        "Vetinari invites Ridcully as {owner_or_admin} to the Ankh-Morpork organization"
+        "Vetinari invites Ridcully as {owner_or_admin} of the Ankh-Morpork organization"
     ),
     target_fixture='ridcully_admin',
 )
@@ -132,7 +119,7 @@ def when_vetinari_invites_ridcully(
 
 
 @when(
-    "Ridcully accepts the invitation to be an admin member of the Ankh-Morpork organization",
+    "Ridcully accepts the invitation to be admin member of the Ankh-Morpork organization",
     target_fixture='ridcully_admin',
 )
 def when_ridcully_accepts_invite(
