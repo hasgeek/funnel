@@ -34,7 +34,7 @@ Feature: Organization Admin Notification
 
   Scenario Outline: Ridcully accepts the invite
     Given Vetinari invites Ridcully as <owner_or_admin>
-    When Ridcully accepts the invitation to be admin of the Ankh-Morpork organization
+    When Ridcully accepts the invitation to be admin
     Then <user> gets notified with <notification_string> about the acceptance
 
     Examples:
@@ -47,8 +47,8 @@ Feature: Organization Admin Notification
       | Vimes    | admin          | Mustrum Ridcully accepted an invite to be admin of Ankh-Morpork |
 
   Scenario Outline: Vetinari changes Ridcully's role
-    Given Ridcully is currently <owner_or_admin> of the Ankh-Morpork organization
-    When Vetinari changes Ridcully to <new_role> in the Ankh-Morpork organization
+    Given Ridcully is currently <owner_or_admin>
+    When Vetinari changes Ridcully to <new_role>
     Then <user> gets notified with <notification_string> about the change
 
     Examples:
@@ -61,8 +61,8 @@ Feature: Organization Admin Notification
       | Vimes    | admin          | owner    | Havelock Vetinari changed Mustrum Ridcully's role to owner of Ankh-Morpork |
 
   Scenario Outline: Vetinari removes Ridcully
-    Given Ridcully is currently <owner_or_admin> of the Ankh-Morpork organization
-    When Vetinari removes Ridcully from the Ankh-Morpork organization
+    Given Ridcully is currently <owner_or_admin>
+    When Vetinari removes Ridcully
     Then <user> gets notified with <notification_string> about the removal
 
     Examples:

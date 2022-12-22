@@ -10,7 +10,8 @@ scenarios('organization_membership_notification.feature')
 
 
 @given(
-    "Vimes is an admin of the Ankh-Morpork organization", target_fixture='vimes_admin'
+    "Vimes is an admin of the Ankh-Morpork organization",
+    target_fixture='vimes_admin',
 )
 def given_vimes_admin(db_session, user_vimes, org_ankhmorpork, user_vetinari):
     vimes_admin = models.OrganizationMembership(
@@ -29,9 +30,7 @@ def given_vimes_admin(db_session, user_vimes, org_ankhmorpork, user_vetinari):
     target_fixture='ridcully_admin',
 )
 @given(
-    parsers.parse(
-        "Ridcully is currently {owner_or_admin} of the Ankh-Morpork organization"
-    ),
+    parsers.parse("Ridcully is currently {owner_or_admin}"),
     target_fixture='ridcully_admin',
 )
 def when_vetinari_adds_ridcully(
@@ -117,7 +116,7 @@ def when_vetinari_invites_ridcully(
 
 
 @when(
-    "Ridcully accepts the invitation to be admin of the Ankh-Morpork organization",
+    "Ridcully accepts the invitation to be admin",
     target_fixture='ridcully_admin',
 )
 def when_ridcully_accepts_invite(
@@ -133,9 +132,7 @@ def when_ridcully_accepts_invite(
 
 
 @given(
-    parsers.parse(
-        "Ridcully is currently {owner_or_admin} of the Ankh-Morpork organization"
-    ),
+    parsers.parse("Ridcully is currently {owner_or_admin}"),
     target_fixture='ridcully_admin',
 )
 def given_riduclly_admin(
@@ -154,9 +151,7 @@ def given_riduclly_admin(
 
 
 @when(
-    parsers.parse(
-        "Vetinari changes Ridcully to {new_role} in the Ankh-Morpork organization"
-    ),
+    parsers.parse("Vetinari changes Ridcully to {new_role}"),
     target_fixture='ridcully_admin',
 )
 def when_vetinari_amends_ridcully_role(
@@ -171,7 +166,7 @@ def when_vetinari_amends_ridcully_role(
 
 
 @when(
-    "Vetinari removes Ridcully from the Ankh-Morpork organization",
+    "Vetinari removes Ridcully",
     target_fixture='ridcully_admin',
 )
 def when_vetinari_removes_ridcully(
