@@ -223,8 +223,5 @@ $(() => {
       const url = $(this).attr('href');
       Spa.fetchPage(url, $(this).attr('id'), true);
     });
-
-    // Include parent container
-    initEmbed('#about .markdown');
   };
 });

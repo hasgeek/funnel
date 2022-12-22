@@ -36,18 +36,18 @@ basic = """<h2>Footnotes</h2>
 <p>Inline footnote^[Text of inline footnote] definition.</p>
 <p>Duplicated footnote reference[^second].</p>
 <p>[^first]: Footnote <strong>can have markup</strong></p>
-<pre><code>and multiple paragraphs.
+<pre><code class="language-none">and multiple paragraphs.
 </code></pre>
 <p>[^second]: Footnote text.</p>
 <hr />
 <p>This is some more random text to test whether the footnotes are placed after this text.</p>
 """
-document = """<h2 id="h:footnotes">Footnotes <a class="header-anchor" href="#h:footnotes">¶</a></h2>
+document = """<h2 id="h:footnotes">Footnotes <a class="header-anchor" href="#h:footnotes">#</a></h2>
 <p>Here is some random text!</p>
-<p>Footnote 1 link<sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>.</p>
-<p>Footnote 2 link<sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>.</p>
-<p>Inline footnote<sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> definition.</p>
-<p>Duplicated footnote reference<sup class="footnote-ref"><a href="#fn2" id="fnref2:1">[2:1]</a></sup>.</p>
+<p>Footnote 1 link<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup>.</p>
+<p>Footnote 2 link<sup class="footnote-ref"><a href="#fn2" id="fnref2">2</a></sup>.</p>
+<p>Inline footnote<sup class="footnote-ref"><a href="#fn3" id="fnref3">3</a></sup> definition.</p>
+<p>Duplicated footnote reference<sup class="footnote-ref"><a href="#fn2" id="fnref2:1">2:1</a></sup>.</p>
 <hr />
 <p>This is some more random text to test whether the footnotes are placed after this text.</p>
 <hr class="footnotes-sep" />

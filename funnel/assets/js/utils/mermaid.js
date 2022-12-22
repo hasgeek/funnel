@@ -1,14 +1,17 @@
-const MermaidEmbed = {
-  addMermaid() {
-    const self = this;
+async function addMermaidEmbed(container) {
+  const parentElement = $(container || 'body');
+  if (
+    parentElement.find('.md-embed-mermaid:not(.activating):not(.activated)').length > 0
+  ) {
+    const { default: mermaid } = await import('mermaid');
     let idCount = $('.md-embed-mermaid.activating, .md-embed-mermaid.activated').length;
     const idMarker = 'mermaid_elem_';
-    const instances = self.container.find(
+    const instances = parentElement.find(
       '.md-embed-mermaid:not(.activating):not(.activated)'
     );
     instances.each(function embedMermaid() {
       const root = $(this);
-      $(this).find('.embed-loading').html('Loading visualisation&mldr;');
+      $(this).find('.embed-loading').addClass('loading');
       root.addClass('activating');
       const contentElem = root.find('.embed-content');
       const containerElem = root.find('.embed-container');
@@ -20,36 +23,12 @@ const MermaidEmbed = {
           idCount += 1;
         } while ($(`#${idMarker}${idCount}`).length > 0);
       }
-      window.mermaid.render(elemId, definition, (svg) => {
+      mermaid.render(elemId, definition, (svg) => {
         containerElem.html(svg);
         root.addClass('activated').removeClass('activating');
       });
     });
-  },
-  loadMermaid() {
-    const self = this;
-    if (!window.mermaid) {
-      $.ajax({
-        url: 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js',
-        dataType: 'script',
-        cache: true,
-      }).done(() => {
-        window.mermaid.initialize({ startOnLoad: false });
-        self.addMermaid();
-      });
-    } else {
-      self.addMermaid();
-    }
-  },
-  init(container) {
-    this.container = $(container || 'body');
-    if (
-      this.container.find('.md-embed-mermaid:not(.activating):not(.activated)').length >
-      0
-    ) {
-      this.loadMermaid();
-    }
-  },
-};
+  }
+}
 
-export default MermaidEmbed;
+export default addMermaidEmbed;
