@@ -29,6 +29,7 @@ from .mdit_plugins import (  # toc_plugin,
     del_plugin,
     embeds_plugin,
     footnote_extend_plugin,
+    html_extend_plugin,
     ins_plugin,
     mark_plugin,
     sub_plugin,
@@ -93,6 +94,14 @@ class MarkdownConfig:
     linkify_fuzzy_email: bool = False
 
     def __post_init__(self):
+        if (
+            'html' in self.options_update
+            and self.options_update['html']
+            and 'html_ext' not in self.plugins
+        ):
+            raise ValueError(
+                'HTML mode is turned on without adding the html_ext plugin'
+            )
         try:
             self.plugins = [
                 MarkdownPlugin.registry[plugin] if isinstance(plugin, str) else plugin
@@ -175,6 +184,7 @@ MarkdownPlugin('vega-lite', embeds_plugin, {'name': 'vega-lite'})
 MarkdownPlugin('mermaid', embeds_plugin, {'name': 'mermaid'})
 MarkdownPlugin('block_code_ext', block_code_extend_plugin)
 MarkdownPlugin('footnote_ext', footnote_extend_plugin)
+MarkdownPlugin('html_ext', html_extend_plugin)
 # MarkdownPlugin('toc', toc_plugin)
 
 # --- Markdown configurations ----------------------------------------------------------
@@ -188,13 +198,14 @@ MarkdownConfig(
     name='document',
     preset='gfm-like',
     options_update={
-        'html': False,
+        'html': True,
         'linkify': True,
         'typographer': True,
         'breaks': True,
     },
     plugins=[
         'block_code_ext',
+        'html_ext',
         'footnote',
         'footnote_ext',  # Must be after 'footnote' to take effect
         'heading_anchors',
