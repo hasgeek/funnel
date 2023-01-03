@@ -117,7 +117,7 @@ from .user import User, UserEmail, UserPhone
 __all__ = [
     'SMS_STATUS',
     'notification_categories',
-    'SMSMessage',
+    'SmsMessage',
     'Notification',
     'PreviewNotification',
     'NotificationPreferences',
@@ -204,7 +204,7 @@ class SMS_STATUS(LabeledEnum):  # noqa: N801
 # --- Legacy models --------------------------------------------------------------------
 
 
-class SMSMessage(BaseMixin, db.Model):  # type: ignore[name-defined]
+class SmsMessage(BaseMixin, db.Model):  # type: ignore[name-defined]
     """An outbound SMS message."""
 
     __tablename__ = 'sms_message'

@@ -19,7 +19,7 @@ from coaster.utils import newpin, require_one_of
 from .. import app
 from ..models import (
     EmailAddress,
-    SMSMessage,
+    SmsMessage,
     User,
     UserEmail,
     UserEmailClaim,
@@ -233,12 +233,12 @@ class OtpSession(Generic[OptionalUserType]):
 
     def send_sms(
         self, flash_success: bool = True, flash_failure: bool = True
-    ) -> Optional[SMSMessage]:
+    ) -> Optional[SmsMessage]:
         """Send an OTP via SMS to a phone number."""
         if not self.phone:
             return None
         template_message = self.compose_sms()
-        msg = SMSMessage(phone_number=self.phone, message=str(template_message))
+        msg = SmsMessage(phone_number=self.phone, message=str(template_message))
         try:
             # Now send this
             msg.transactionid = sms.send(
@@ -309,12 +309,12 @@ class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
 
     def send_sms(
         self, flash_success: bool = True, flash_failure: bool = True
-    ) -> Optional[SMSMessage]:
+    ) -> Optional[SmsMessage]:
         """Send an OTP via SMS to a phone number."""
         if not self.phone:
             return None
         template_message = self.compose_sms()
-        msg = SMSMessage(phone_number=self.phone, message=str(template_message))
+        msg = SmsMessage(phone_number=self.phone, message=str(template_message))
         try:
             # Now send this
             msg.transactionid = sms.send(

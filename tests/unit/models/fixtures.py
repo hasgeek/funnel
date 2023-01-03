@@ -67,7 +67,7 @@ class Fixtures:
         db_session.add(auth_client_user_permissions)
         self.auth_client_user_permissions = auth_client_user_permissions
 
-        message = models.SMSMessage(
+        message = models.SmsMessage(
             phone_number=crusoe_phone.phone,
             transactionid="Ruff" * 5,
             message="Wuff Wuff",

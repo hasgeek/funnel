@@ -9,7 +9,7 @@ from twilio.request_validator import RequestValidator
 from baseframe import statsd
 
 from ... import app
-from ...models import SMS_STATUS, SMSMessage, db, sa
+from ...models import SMS_STATUS, SmsMessage, db, sa
 from ...transports.sms import validate_exotel_token
 from ...typing import ReturnView
 from ...utils import abort_null
@@ -52,11 +52,11 @@ def process_twilio_event() -> ReturnView:
 
     # This code segment needs to change and re-written once Phone Number model is
     # in place.
-    sms_message = SMSMessage.query.filter_by(
+    sms_message = SmsMessage.query.filter_by(
         transactionid=request.form['MessageSid']
     ).one_or_none()
     if sms_message is None:
-        sms_message = SMSMessage(
+        sms_message = SmsMessage(
             phone_number=request.form['To'],
             transactionid=request.form['MessageSid'],
             message=request.form['Body'],
@@ -129,11 +129,11 @@ def process_exotel_event(secret_token: str) -> ReturnView:
     # SmsSid - The Sid (unique id) of the SMS that you got in response to your request
     # To - Mobile number to which SMS was sent
     # Status - one of: queued, sending, submitted, sent, failed_dnd, failed
-    sms_message = SMSMessage.query.filter_by(
+    sms_message = SmsMessage.query.filter_by(
         transactionid=request.form['SmsSid']
     ).one_or_none()
     if sms_message is None:
-        sms_message = SMSMessage(
+        sms_message = SmsMessage(
             phone_number=request.form['To'],
             transactionid=request.form['SmsSid'],
             message='',
