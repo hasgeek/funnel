@@ -445,7 +445,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         email_hash: Optional[str] = None,
     ) -> Optional[ColumnElement]:
         """
-        Get an filter condition for retriving an EmailAddress.
+        Get an filter condition for retriving an :class:`EmailAddress`.
 
         Accepts an email address or a blake2b160 hash in either bytes or base58 form.
         Internally converts all lookups to a bytes-based hash lookup. Returns an
@@ -592,6 +592,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         3. 'soft_fail': Known to be soft bouncing, requiring a warning message
         4. 'hard_fail': Known to be hard bouncing, usually a validation failure
         5. 'invalid': Available, but failed syntax validation
+        6. 'nullmx': Available, but host explicitly says they will not accept email
 
         :param owner: Proposed owner of this email address (may be None)
         :param str email: Email address to validate
@@ -612,6 +613,8 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
             # get_canonical won't return False when diagnose=True. Tell mypy:
             if cast(BaseDiagnosis, diagnosis).diagnosis_type == 'NO_MX_RECORD':
                 return 'nomx'
+            if cast(BaseDiagnosis, diagnosis).diagnosis_type == 'NULL_MX_RECORD':
+                return 'nullmx'
             return 'invalid'
         # There's an existing? Is it available for this owner?
         if not existing.is_available_for(owner):
@@ -655,7 +658,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
 @declarative_mixin
 class EmailAddressMixin:
     """
-    Mixin class for models that refer to EmailAddress.
+    Mixin class for models that refer to :class:`EmailAddress`.
 
     Subclasses should set configuration using the four ``__email_*__`` attributes and
     should optionally override :meth:`email_address_reference_is_active` if the model

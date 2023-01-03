@@ -84,7 +84,7 @@ class EmailAddressAvailable:
                     " logging in or resetting your password"
                 )
             )
-        if is_valid == 'invalid':
+        if is_valid in ('invalid', 'nullmx'):
             raise forms.validators.StopValidation(
                 _("This does not appear to be a valid email address")
             )
