@@ -61,10 +61,6 @@ ul,
 ol {
   margin-top: 0;
   margin-bottom: 14px;
-  padding-left: 20px;
-}
-
-ol {
   padding-left: 25px;
 }
 
@@ -315,11 +311,6 @@ blockquote {
     //     color: $mui-text-accent;
     //   }
     // }
-  }
-
-  ul,
-  ol {
-    padding-left: $mui-grid-padding;
   }
 
   img {
