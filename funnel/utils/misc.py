@@ -14,14 +14,37 @@ import phonenumbers
 import qrcode
 import qrcode.image.svg
 
-# Unprefixed phone numbers are assumed to be a local number in India (+91) or US (+1).
-# Both IN and US numbers are 10 digits before prefixes. We try IN first as it's the
-# higher priority home region.
+__all__ = [
+    'PHONE_LOOKUP_REGIONS',
+    'normalize_phone_number',
+    'validate_phone_number',
+    'blake2b160_hex',
+    'abort_null',
+    'make_redirect_url',
+    'mask_email',
+    'mask_phone',
+    'extract_twitter_handle',
+    'format_twitter_handle',
+    'split_name',
+    'make_qrcode',
+]
+
+# Unprefixed phone numbers are assumed to be a local number in India (+91). A fallback
+# lookup to US numbers (+1) used to be performed but was removed in #1436 because:
+# 1. Both regions have 10 digit local numbers,
+# 2. Indian numbers have clear separation between SMS-capable and incapable numbers, but
+# 3. US numbers may be mobile or fixed, with unknown SMS capability, and therefore
+# 4. In practice, we received too many random numbers that looked legit but were junk.
 PHONE_LOOKUP_REGIONS = ['IN']
 
 MASK_DIGITS = str.maketrans('0123456789', '•' * 10)
 
 # --- Utilities ------------------------------------------------------------------------
+
+
+@overload
+def normalize_phone_number(candidate: str) -> Optional[str]:
+    ...
 
 
 @overload
@@ -31,7 +54,7 @@ def normalize_phone_number(candidate: str, sms: Literal[False]) -> Optional[str]
 
 @overload
 def normalize_phone_number(
-    candidate: str, sms: Literal[True]
+    candidate: str, sms: Union[bool, Literal[True]]
 ) -> Optional[Union[str, Literal[False]]]:
     ...
 
@@ -73,6 +96,15 @@ def normalize_phone_number(
     if sms_invalid:
         return False
     return None
+
+
+def validate_phone_number(candidate: str) -> bool:
+    """Validate an international phone number for syntax and known number range."""
+    try:
+        parsed_number = phonenumbers.parse(candidate)
+        return phonenumbers.is_valid_number(parsed_number)
+    except phonenumbers.NumberParseException:
+        return False
 
 
 def blake2b160_hex(text: str) -> str:
