@@ -41,6 +41,19 @@ def rooms_list(project):
     return []
 
 
+def get_form_template(form: SessionForm()) -> ReturnView:
+    """Render Session form html."""
+    form.form_nonce.data = form.form_nonce.default()
+    form_template = render_template(
+        'session_form.html.jinja2',
+        form=form,
+        formid='session_new',
+        ref_id='session_form',
+        title=_("Edit session"),
+    )
+    return form_template
+
+
 def session_edit(
     project: Project,
     proposal: Optional[Proposal] = None,
@@ -63,12 +76,9 @@ def session_edit(
     if not form.venue_room_id.choices:
         del form.venue_room_id
     if request.method == 'GET':
-        return render_template(
-            'session_form.html.jinja2',
-            form=form,
-            ref_id='session_form',
-            title=_("Edit session"),
-        )
+        if request_wants.html_in_json:
+            return {'status': True, 'form': get_form_template(form)}
+        return get_form_template(form)
     if form.validate_on_submit():
         new = False
         if session is None:
@@ -92,10 +102,11 @@ def session_edit(
         session = cast(Session, session)  # Tell mypy session is not None
         session.project.update_schedule_timestamps()
         db.session.commit()
-        if request_wants.json:
+        if request_wants.html_in_json:
             data = {
                 'id': session.url_id,
                 'title': session.title,
+                'speaker': session.speaker,
                 'room_scoped_name': (
                     session.venue_room.scoped_name
                     if session.venue_room is not None
@@ -109,16 +120,13 @@ def session_edit(
             # FIXME: Return ``status='ok'`` and ``edited=True``
             return {'status': True, 'data': data}
         return render_redirect(session.url_for('view'))
-    return {
-        # FIXME: Return ``status='ok'`` and ``edited=False``
-        'status': False,
-        'form': render_template(
-            'session_form.html.jinja2',
-            form=form,
-            formid='session_new',
-            title=_("Edit session"),
-        ),
-    }
+    if request_wants.html_in_json:
+        return {
+            # FIXME: Return ``status='ok'`` and ``edited=False``
+            'status': False,
+            'form': get_form_template(form),
+        }
+    return get_form_template(form)
 
 
 @Project.views('session_new')
