@@ -187,7 +187,7 @@ $(function () {
           url: events.current.modal_url,
           type: 'POST',
           headers: {
-            Accept: 'application/x.html+json'
+            Accept: 'application/x.html+json',
           },
           data: data,
           dataType: 'json',
