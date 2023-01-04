@@ -236,6 +236,13 @@ blockquote {
   border-left: 3px solid $mui-text-accent;
   margin: 0;
   padding: 0 0 0 $mui-grid-padding/2;
+  margin-bottom: 14px;
+}
+
+@media (min-width: 1200px) {
+  blockquote {
+    margin-bottom: 16px;
+  }
 }
 
 .footnote-ref {
