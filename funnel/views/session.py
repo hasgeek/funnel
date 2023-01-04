@@ -78,7 +78,7 @@ def session_edit(
     if not form.venue_room_id.choices:
         del form.venue_room_id
     if request.method == 'GET':
-        if request_wants.json:
+        if request_wants.html_in_json:
             return {
                 'status': True,
                 'form': get_form_template(form)
@@ -107,7 +107,7 @@ def session_edit(
         session = cast(Session, session)  # Tell mypy session is not None
         session.project.update_schedule_timestamps()
         db.session.commit()
-        if request_wants.json:
+        if request_wants.html_in_json:
             data = {
                 'id': session.url_id,
                 'title': session.title,
@@ -124,7 +124,7 @@ def session_edit(
             # FIXME: Return ``status='ok'`` and ``edited=True``
             return {'status': True, 'data': data}
         return render_redirect(session.url_for('view'))
-    if request_wants.json:
+    if request_wants.html_in_json:
         return {
             # FIXME: Return ``status='ok'`` and ``edited=False``
             'status': False,

@@ -186,6 +186,10 @@ $(function () {
         $.ajax({
           url: events.current.modal_url,
           type: 'POST',
+          headers: {
+            Accept: 'application/x.html+json',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
           data: data,
           dataType: 'json',
           beforeSend: function() {
@@ -230,6 +234,10 @@ $(function () {
       $.ajax({
         url: events.current.modal_url,
         type: 'GET',
+        headers: {
+          Accept: 'application/x.html+json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
         dataType: 'json',
         success: function (result) {
           popup.title().text(events.current.title);

@@ -1,5 +1,5 @@
 {% from "forms.html.jinja2" import renderform_inner, rendersubmit, ajaxform %}
-{%- if not request_wants.json %}
+{%- if not request_wants.html_in_json %}
   {% extends "formlayout.html.jinja2" %}
   {% block title %}
     {{ title }}
@@ -16,10 +16,10 @@
         class="mui-form"
         action="{{ request.url }}">
     {{ renderform_inner(form, formid or none) }}
-    {%- if not request_wants.json %}{{ rendersubmit([(gettext("Save session"), 'save session', '')]) }}{%- endif %}
+    {%- if not request_wants.html_in_json %}{{ rendersubmit([(gettext("Save session"), 'save session', '')]) }}{%- endif %}
   </form>
 {% endblock content %}
-{%- if request_wants.json %}
+{%- if request_wants.html_in_json %}
   <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
