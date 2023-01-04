@@ -63,7 +63,9 @@ class ProjectCrewMembership(
         'project_crew': {
             'read': {
                 'record_type_label',
+                'granted_at',
                 'granted_by',
+                'revoked_at',
                 'revoked_by',
                 'is_self_granted',
                 'is_self_revoked',
