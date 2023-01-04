@@ -187,8 +187,7 @@ $(function () {
           url: events.current.modal_url,
           type: 'POST',
           headers: {
-            Accept: 'application/x.html+json',
-            'X-Requested-With': 'XMLHttpRequest',
+            Accept: 'application/x.html+json'
           },
           data: data,
           dataType: 'json',
@@ -200,6 +199,7 @@ $(function () {
             if (result.status) {
               events.update_obj_data(result.data);
               events.current.title = result.data.title;
+              events.current.speaker = result.data.speaker;
               events.current.saved = true;
               if (events.current.unscheduled) {
                 events.current.unscheduled.remove();
@@ -236,7 +236,6 @@ $(function () {
         type: 'GET',
         headers: {
           Accept: 'application/x.html+json',
-          'X-Requested-With': 'XMLHttpRequest',
         },
         dataType: 'json',
         success: function (result) {

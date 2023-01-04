@@ -106,6 +106,7 @@ def session_edit(
             data = {
                 'id': session.url_id,
                 'title': session.title,
+                'speaker': session.speaker,
                 'room_scoped_name': (
                     session.venue_room.scoped_name
                     if session.venue_room is not None
