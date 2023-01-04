@@ -188,7 +188,7 @@ $(function () {
           type: 'POST',
           data: data,
           dataType: 'json',
-          beforeSend: function() {
+          beforeSend: function () {
             popup.container.find('.save').prop('disabled', true);
             popup.container.find('.loading').removeClass('mui--hide');
           },
