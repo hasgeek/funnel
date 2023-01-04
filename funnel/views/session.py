@@ -9,14 +9,7 @@ from flask import render_template, request
 from baseframe import _
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
-from coaster.views import (
-    ModelView,
-    UrlChangeCheck,
-    UrlForView,
-    render_with,
-    requires_roles,
-    route,
-)
+from coaster.views import ModelView, UrlChangeCheck, UrlForView, requires_roles, route
 
 from .. import app
 from ..forms import SavedSessionForm, SessionForm
@@ -146,54 +139,51 @@ ProjectSessionView.init_app(app)
 @route('/<profile>/<project>/schedule/<session>')
 class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
-    @render_with('project_schedule.html.jinja2', json=True)
+    @route('viewsession-popup')  # Legacy route, will be auto-redirected to base URL
     # @requires_roles({'reader'})
-    def view(self) -> ReturnRenderWith:
+    def view(self) -> ReturnView:
+        if request_wants.html_fragment:
+            return render_template(
+                'session_view_popup.html.jinja2',
+                session=self.obj.current_access(),
+                timezone=self.obj.project.timezone.zone,
+                localize_date=localize_date,
+            )
         scheduled_sessions_list = session_list_data(
-            self.obj.project.scheduled_sessions, with_modal_url='view_popup'
+            self.obj.project.scheduled_sessions, with_modal_url='view'
         )
-        return {
-            'status': 'ok',
-            'project': self.obj.project.current_access(
+        return render_template(
+            'project_schedule.html.jinja2',
+            project=self.obj.project.current_access(
                 datasets=('without_parent', 'related')
             ),
-            'from_date': (
+            from_date=(
                 self.obj.project.start_at_localized.isoformat()
                 if self.obj.project.start_at
                 else None
             ),
-            'to_date': (
+            to_date=(
                 self.obj.project.end_at_localized.isoformat()
                 if self.obj.project.end_at
                 else None
             ),
-            'active_session': session_data(self.obj, with_modal_url='view_popup'),
-            'sessions': scheduled_sessions_list,
-            'timezone': self.obj.project.timezone.zone,
-            'venues': [
+            active_session=session_data(self.obj, with_modal_url='view'),
+            sessions=scheduled_sessions_list,
+            timezone=self.obj.project.timezone.zone,
+            venues=[
                 venue.current_access(datasets=('without_parent', 'related'))
                 for venue in self.obj.project.venues
             ],
-            'rooms': {
+            rooms={
                 room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}
                 for room in self.obj.project.rooms
             },
-            'schedule': schedule_data(
+            schedule=schedule_data(
                 self.obj.project,
                 with_slots=False,
                 scheduled_sessions=scheduled_sessions_list,
             ),
-        }
-
-    @route('viewsession-popup')
-    @render_with('session_view_popup.html.jinja2')
-    # @requires_roles({'reader'})
-    def view_popup(self):
-        return {
-            'session': self.obj.current_access(),
-            'timezone': self.obj.project.timezone.zone,
-            'localize_date': localize_date,
-        }
+        )
 
     @route('editsession', methods=['GET', 'POST'])
     @requires_login
