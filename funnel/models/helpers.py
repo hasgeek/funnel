@@ -577,7 +577,11 @@ class MarkdownCompositeBase(MutableComposite):
     # Return a string representation of the text (see class decorator)
     def __str__(self):
         """Return string representation."""
-        return self.text or ''
+        return self._text or ''
+
+    def __markdown__(self):
+        """Return source Markdown (for escaper)."""
+        return self._text or ''
 
     # Return a HTML representation of the text
     def __html__(self):

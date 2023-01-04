@@ -15,6 +15,7 @@ from typing import (
     Union,
     overload,
 )
+import re
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
@@ -35,8 +36,72 @@ from .mdit_plugins import (  # toc_plugin,
     sup_plugin,
 )
 
-__all__ = ['MarkdownPlugin', 'MarkdownConfig']
+__all__ = ['MarkdownPlugin', 'MarkdownConfig', 'MarkdownString', 'markdown_escape']
 
+# --- Markdown escaper and string ------------------------------------------------------
+
+#: Based on the ASCII punctuation list in the CommonMark spec at
+#: https://spec.commonmark.org/0.30/#backslash-escapes
+markdown_escape_re = re.compile(r"""([\[\\\]{|}\(\)`~!@#$%^&*=+;:'"<>/,.?_-])""")
+
+
+def markdown_escape(text: str) -> MarkdownString:
+    """
+    Escape all Markdown formatting characters and strip whitespace at ends.
+
+    As per the CommonMark spec, all ASCII punctuation can be escaped with a backslash
+    and compliant parsers will then render the punctuation mark as a literal character.
+    However, escaping any other character will cause the backslash to be rendered. This
+    escaper therefore targets only ASCII punctuation characters listed in the spec.
+
+    Edge whitespace is significant in Markdown and must be stripped when escaping as:
+
+    * Four spaces at the start will initiate a code block
+    * Two spaces at the end will cause a line-break in non-GFM Markdown
+
+    Replacing these spaces with &nbsp; is not suitable because non-breaking spaces
+    affect HTML rendering, specifically the CSS ``white-space: normal`` sequence
+    collapsing behaviour.
+    """
+    if hasattr(text, '__markdown__'):
+        return MarkdownString(text.__markdown__())
+    return MarkdownString(markdown_escape_re.sub(r'\\1', text).strip())
+
+
+class MarkdownString(str):
+    """Markdown string, implements a __markdown__ method."""
+
+    __slots__ = ()
+
+    def __new__(
+        cls, base: Any = '', encoding: Optional[str] = None, errors: str = 'strict'
+    ) -> MarkdownString:
+        if hasattr(base, '__markdown__'):
+            base = base.__markdown__()
+
+        if encoding is None:
+            return super().__new__(cls, base)
+
+        return super().__new__(cls, base, encoding, errors)
+
+    def __markdown__(self) -> MarkdownString:
+        """Return a markdown source string."""
+        return self
+
+    @classmethod
+    def escape(cls, text: str) -> MarkdownString:
+        """Escape a string."""
+        rv = markdown_escape(text)
+
+        if rv.__class__ is not cls:
+            return cls(rv)
+
+        return rv
+
+    # TODO: Implement other methods supported by markupsafe
+
+
+# --- Markdown dataclasses -------------------------------------------------------------
 
 OptionStrings = Literal['html', 'breaks', 'linkify', 'typographer']
 
