@@ -35,7 +35,7 @@ from zxcvbn import zxcvbn
 
 from .. import app
 from ..typing import T
-from ..utils import MarkdownConfig
+from ..utils import MarkdownConfig, markdown_escape
 from . import UrlType, db, sa
 
 __all__ = [
@@ -500,6 +500,10 @@ class MessageComposite:
     def __init__(self, text: str, tag: Optional[str] = None):
         self.text = text
         self.tag = tag
+
+    def __markdown__(self) -> str:
+        """Return Markdown source (for escaper)."""
+        return markdown_escape(self.text)
 
     def __html__(self) -> str:
         """Return HTML version of string."""
