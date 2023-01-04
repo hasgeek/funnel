@@ -41,6 +41,21 @@ def rooms_list(project):
     return []
 
 
+def get_form_template(
+    form: SessionForm()
+) -> ReturnView:
+    """Render Session form html."""
+    form.form_nonce.data = form.form_nonce.default()
+    form_template = render_template(
+        'session_form.html.jinja2',
+        form=form,
+        formid='session_new',
+        ref_id='session_form',
+        title=_("Edit session"),
+    )
+    return form_template
+
+
 def session_edit(
     project: Project,
     proposal: Optional[Proposal] = None,
@@ -63,12 +78,12 @@ def session_edit(
     if not form.venue_room_id.choices:
         del form.venue_room_id
     if request.method == 'GET':
-        return render_template(
-            'session_form.html.jinja2',
-            form=form,
-            ref_id='session_form',
-            title=_("Edit session"),
-        )
+        if request_wants.json:
+            return {
+                'status': True,
+                'form': get_form_template(form)
+            }
+        return get_form_template(form)
     if form.validate_on_submit():
         new = False
         if session is None:
@@ -109,16 +124,13 @@ def session_edit(
             # FIXME: Return ``status='ok'`` and ``edited=True``
             return {'status': True, 'data': data}
         return render_redirect(session.url_for('view'))
-    return {
-        # FIXME: Return ``status='ok'`` and ``edited=False``
-        'status': False,
-        'form': render_template(
-            'session_form.html.jinja2',
-            form=form,
-            formid='session_new',
-            title=_("Edit session"),
-        ),
-    }
+    if request_wants.json:
+        return {
+            # FIXME: Return ``status='ok'`` and ``edited=False``
+            'status': False,
+            'form': get_form_template(form)
+        }
+    return get_form_template(form)
 
 
 @Project.views('session_new')
