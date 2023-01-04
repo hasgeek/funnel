@@ -9,14 +9,7 @@ from flask import render_template, request
 from baseframe import _
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
-from coaster.views import (
-    ModelView,
-    UrlChangeCheck,
-    UrlForView,
-    render_with,
-    requires_roles,
-    route,
-)
+from coaster.views import ModelView, UrlChangeCheck, UrlForView, requires_roles, route
 
 from .. import app
 from ..forms import SavedSessionForm, SessionForm
@@ -138,8 +131,9 @@ ProjectSessionView.init_app(app)
 @route('/<profile>/<project>/schedule/<session>')
 class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
+    @route('viewsession-popup')  # Legacy route, will be auto-redirected to base URL
     # @requires_roles({'reader'})
-    def view(self) -> ReturnRenderWith:
+    def view(self) -> ReturnView:
         if request_wants.html_fragment:
             return render_template(
                 'session_view_popup.html.jinja2',
