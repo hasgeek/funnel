@@ -41,9 +41,7 @@ def rooms_list(project):
     return []
 
 
-def get_form_template(
-    form: SessionForm()
-) -> ReturnView:
+def get_form_template(form: SessionForm()) -> ReturnView:
     """Render Session form html."""
     form.form_nonce.data = form.form_nonce.default()
     form_template = render_template(
@@ -79,10 +77,7 @@ def session_edit(
         del form.venue_room_id
     if request.method == 'GET':
         if request_wants.html_in_json:
-            return {
-                'status': True,
-                'form': get_form_template(form)
-            }
+            return {'status': True, 'form': get_form_template(form)}
         return get_form_template(form)
     if form.validate_on_submit():
         new = False
@@ -128,7 +123,7 @@ def session_edit(
         return {
             # FIXME: Return ``status='ok'`` and ``edited=False``
             'status': False,
-            'form': get_form_template(form)
+            'form': get_form_template(form),
         }
     return get_form_template(form)
 
