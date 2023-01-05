@@ -60,36 +60,31 @@ def reparse_markdown_field(field: Field) -> int:
 
 
 @refresh.command('markdown')
-@click.argument('scope', default='')
-def markdown(scope) -> None:
+@click.argument('profile', type=click.Choice(PROFILES.keys()), required=False)
+@click.option(
+    '--all',
+    'all_profiles',
+    is_flag=True,
+    help='Reparse all markdown content site-wide.',
+)
+@click.option(
+    '--url',
+    help='Reparse markdown content for the given URL.',
+)
+def markdown(profile, all_profiles, url) -> None:
     """Reparse markdown content."""
-    message = f"""
-Command to reparse markdown content.
-
-flask refresh markdown --all:
-    Reparse all markdown content site-wide.
-
-flask refresh markdown <profile>:
-    Reparse all markdown content of a particular markdown content profile site-wide.
-    type = { ' | '.join(PROFILES.keys()) }.
-
-flask refresh --url <url> (TBD):
-    Reparse markdown content for the given URL.
-    url should map to a valid object any of the above types.
-"""
     field_list = {}
-    if scope == '':
-        print(message)  # noqa: T201
-    elif scope == '--all':
+    if profile is None and not all_profiles and url is None:
+        print('Please specify content profile or URL.')  # noqa: T201
+        return
+    if all_profiles:
         field_list = FIELDS
+    elif url is not None:
+        pass
     else:
-        if scope in PROFILES:
-            field_list = {
-                field_name: FIELDS[field_name] for field_name in PROFILES[scope]
-            }
-        else:
-            print(message)  # noqa: T201
-            return
+        field_list = {
+            field_name: FIELDS[field_name] for field_name in PROFILES[profile]
+        }
     count = 0
     for field_name, field in field_list.items():
         c = reparse_markdown_field(field)
