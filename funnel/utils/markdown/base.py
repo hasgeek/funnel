@@ -65,7 +65,7 @@ def markdown_escape(text: str) -> MarkdownString:
     """
     if hasattr(text, '__markdown__'):
         return MarkdownString(text.__markdown__())
-    return MarkdownString(markdown_escape_re.sub(r'\\1', text).strip())
+    return MarkdownString(markdown_escape_re.sub(r'\\\1', text).strip())
 
 
 class MarkdownString(str):
