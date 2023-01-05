@@ -53,7 +53,6 @@ class PhoneDeliveryState(IntEnum):
     SENT = 2
     DELIVERED = 3
     UNREACHABLE = 4
-    BLOCKED = 5
 
 
 def phone_blake2b160_hash(phone: str, pre_normalized: bool = False) -> bytes:

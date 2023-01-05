@@ -87,6 +87,13 @@ def refcount_data(funnel):
     funnel.signals.phonenumber_refcount_dropping.disconnect(refcount_signal_receiver)
 
 
+def test_phone_hash_stability() -> None:
+    """Safety test to ensure phone_blakeb160_hash doesn't change spec."""
+    phash = models.phone_number.phone_blake2b160_hash
+    with pytest.raises(ValueError, match="Invalid phone number"):
+        phash('not-a-valid-number')
+
+
 def test_phone_number_refcount_drop(phone_models, db_session, refcount_data) -> None:
     """Test that PhoneNumber.refcount drop events are fired."""
     # The refcount changing signal handler will have received events for every phone
