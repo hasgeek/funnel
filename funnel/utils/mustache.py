@@ -1,4 +1,4 @@
-"""Mustache templating supoport."""
+"""Mustache templating support."""
 
 from copy import copy
 from typing import Callable
