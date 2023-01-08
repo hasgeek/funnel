@@ -2,6 +2,7 @@
 # pylint: disable=possibly-unused-variable
 
 from types import SimpleNamespace
+from typing import Generator
 
 from sqlalchemy.exc import IntegrityError
 import sqlalchemy as sa
@@ -10,12 +11,14 @@ import pytest
 
 from funnel import models
 
-# Fixture used across tests.
+# This hash map should not be edited -- hashes are permanent
 hash_map = {
-    'example@example.com': b'X5Q\xc1<\xceE<\x05\x9c\xa7\x0f\xee'
-    b'{\xcd\xc2\xe5\xbd\x82\xa1',
-    'example+extra@example.com': b'\xcfi\xf2\xdfph\xc0\x81\xfb\xe8'
-    b'\\\xa6\xa5\xf1\xfb:\xbb\xe4\x88\xde',
+    'example@example.com': (
+        b'X5Q\xc1<\xceE<\x05\x9c\xa7\x0f\xee{\xcd\xc2\xe5\xbd\x82\xa1'
+    ),
+    'example+extra@example.com': (
+        b'\xcfi\xf2\xdfph\xc0\x81\xfb\xe8\\\xa6\xa5\xf1\xfb:\xbb\xe4\x88\xde'
+    ),
     'example@gmail.com': b"\tC*\xd2\x9a\xcb\xdfR\xcb\xbf=>2D'(\xa8V\x13\xa7",
     'example@googlemail.com': b'x\xd6#Ue\xa8-_\xeclJ+o8\xfe\x1f\xa1\x0b:9',
     'eg@räksmörgås.org': b'g\xc4B`\x9ej\x05\xf8\xa6\x9b\\"l\x0c$\xd4\xa8\xe42j',
@@ -23,7 +26,7 @@ hash_map = {
 
 
 @pytest.fixture()
-def refcount_data(funnel):
+def refcount_data(funnel) -> Generator:
     refcount_signal_fired = set()
 
     def refcount_signal_receiver(sender):
@@ -401,7 +404,7 @@ def test_email_address_delivery_state() -> None:
 # 2. Remove table from metadata using db.metadata.remove(cls.__table__)
 # 3. Remove all relationships to other classes (unsolved)
 @pytest.fixture(scope='session')
-def email_models(database, app):
+def email_models(database, app) -> Generator:
     db = database
 
     class EmailUser(models.BaseMixin, db.Model):  # type: ignore[name-defined]
@@ -421,7 +424,9 @@ def email_models(database, app):
         __email_for__ = 'emailuser'
         __email_is_exclusive__ = True
 
-        emailuser_id = sa.Column(sa.ForeignKey('emailuser.id'), nullable=False)
+        emailuser_id = sa.Column(
+            sa.Integer, sa.ForeignKey('emailuser.id'), nullable=False
+        )
         emailuser = sa.orm.relationship(EmailUser)
 
     class EmailDocument(
@@ -440,7 +445,9 @@ def email_models(database, app):
 
         __email_for__ = 'emailuser'
 
-        emailuser_id = sa.Column(sa.ForeignKey('emailuser.id'), nullable=True)
+        emailuser_id = sa.Column(
+            sa.Integer, sa.ForeignKey('emailuser.id'), nullable=True
+        )
         emailuser = sa.orm.relationship(EmailUser)
 
     new_models = [EmailUser, EmailLink, EmailDocument, EmailLinkedDocument]
@@ -448,12 +455,18 @@ def email_models(database, app):
     # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
     with app.app_context():
         database.metadata.create_all(
-            bind=database.engine, tables=[model.__table__ for model in new_models]
+            bind=database.engine,
+            tables=[
+                model.__table__ for model in new_models  # type: ignore[attr-defined]
+            ],
         )
     yield SimpleNamespace(**{model.__name__: model for model in new_models})
     with app.app_context():
         database.metadata.drop_all(
-            bind=database.engine, tables=[model.__table__ for model in new_models]
+            bind=database.engine,
+            tables=[
+                model.__table__ for model in new_models  # type: ignore[attr-defined]
+            ],
         )
 
 

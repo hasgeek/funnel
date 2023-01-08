@@ -1,6 +1,7 @@
 """Tests for PhoneNumber model."""
 
 from types import SimpleNamespace
+from typing import Generator
 
 import sqlalchemy as sa
 
@@ -8,8 +9,14 @@ import pytest
 
 from funnel import models
 
-# Fixture used across tests.
-hash_map = {'+91': b''}
+# This hash map should not be edited -- hashes are permanent
+hash_map = {
+    'not-a-valid-number': (
+        b'\xd6\xac\xd6\x83\x8d\xbcu\xbf\x96ls\x9c\xe2\xda\xa2~?\xcd\x1c\x18'
+    ),
+    '+919845012345': b'\xa0=>k\x12\x0cC\xbf\x08\xf3F8`\xfd<\xeaW\x91\xe0\xfe',
+    '+12345678900': b'\xdc\xc2\x93y\x14)3\xa1C\x94?\x06\xa7\x11\x14\xeaT\x94\xae\xac',
+}
 
 
 # This fixture must be session scope as it cannot be called twice in the same process.
@@ -19,7 +26,7 @@ hash_map = {'+91': b''}
 # 2. Remove table from metadata using db.metadata.remove(cls.__table__)
 # 3. Remove all relationships to other classes (unsolved)
 @pytest.fixture(scope='session')
-def phone_models(database, app):
+def phone_models(database, app) -> Generator:
     db = database
 
     class PhoneUser(models.BaseMixin, db.Model):  # type: ignore[name-defined]
@@ -39,7 +46,9 @@ def phone_models(database, app):
         __phone_for__ = 'phoneuser'
         __phone_is_exclusive__ = True
 
-        phoneuser_id = sa.Column(sa.ForeignKey('phoneuser.id'), nullable=False)
+        phoneuser_id = sa.Column(
+            sa.Integer, sa.ForeignKey('phoneuser.id'), nullable=False
+        )
         phoneuser = sa.orm.relationship(PhoneUser)
 
     class PhoneDocument(
@@ -58,7 +67,9 @@ def phone_models(database, app):
 
         __phone_for__ = 'phoneuser'
 
-        phoneuser_id = sa.Column(sa.ForeignKey('phoneuser.id'), nullable=True)
+        phoneuser_id = sa.Column(
+            sa.Integer, sa.ForeignKey('phoneuser.id'), nullable=True
+        )
         phoneuser = sa.orm.relationship(PhoneUser)
 
     new_models = [PhoneUser, PhoneLink, PhoneDocument, PhoneLinkedDocument]
@@ -66,17 +77,23 @@ def phone_models(database, app):
     # These models do not use __bind_key__ so no bind is provided to create_all/drop_all
     with app.app_context():
         database.metadata.create_all(
-            bind=database.engine, tables=[model.__table__ for model in new_models]
+            bind=database.engine,
+            tables=[
+                model.__table__ for model in new_models  # type: ignore[attr-defined]
+            ],
         )
     yield SimpleNamespace(**{model.__name__: model for model in new_models})
     with app.app_context():
         database.metadata.drop_all(
-            bind=database.engine, tables=[model.__table__ for model in new_models]
+            bind=database.engine,
+            tables=[
+                model.__table__ for model in new_models  # type: ignore[attr-defined]
+            ],
         )
 
 
 @pytest.fixture()
-def refcount_data(funnel):
+def refcount_data(funnel) -> Generator:
     refcount_signal_fired = set()
 
     def refcount_signal_receiver(sender):
@@ -92,6 +109,15 @@ def test_phone_hash_stability() -> None:
     phash = models.phone_number.phone_blake2b160_hash
     with pytest.raises(ValueError, match="Invalid phone number"):
         phash('not-a-valid-number')
+    # However, insisting the number is pre-validated will generate a hash. This is only
+    # useful when the number is actually pre-validated
+    assert phash('not-a-valid-number', True) == hash_map['not-a-valid-number']
+    # Number validation will attempt to find a matching prefix before hashing, and
+    # will normalize formatting
+    assert phash('9845012345') == phash('+91 9845012345') == hash_map['+919845012345']
+    # Hashing for non-Indian numbers requires a full number, but variable formatting is
+    # accepted
+    assert phash('+12345678900') == phash('+1 234 567-8900') == hash_map['+12345678900']
 
 
 def test_phone_number_refcount_drop(phone_models, db_session, refcount_data) -> None:
@@ -104,28 +130,37 @@ def test_phone_number_refcount_drop(phone_models, db_session, refcount_data) -> 
     assert isinstance(refcount_data, set)
     assert refcount_data == set()
 
-    ea = models.PhoneNumber.add('+919845012345')
+    pn = models.PhoneNumber.add('+919845012345')
     assert refcount_data == set()
 
     user = phone_models.PhoneUser()
     doc = phone_models.PhoneDocument()
-    link = phone_models.PhoneLink(phoneuser=user, phone_number=ea)
-    db_session.add_all([ea, user, doc, link])
+    link = phone_models.PhoneLink(phoneuser=user, phone_number=pn)
+    db_session.add_all([pn, user, doc, link])
 
     assert refcount_data == set()
 
-    doc.phone_number = ea
+    doc.phone_number = pn
     assert refcount_data == set()
-    assert ea.refcount() == 2
+    assert pn.refcount() == 2
 
     doc.phone_number = None
-    assert refcount_data == {ea}
-    assert ea.refcount() == 1
+    assert refcount_data == {pn}
+    assert pn.refcount() == 1
 
-    refcount_data.remove(ea)
+    refcount_data.remove(pn)
     assert refcount_data == set()
     db_session.commit()  # Persist before deleting
     db_session.delete(link)
     db_session.commit()
-    assert refcount_data == {ea}
-    assert ea.refcount() == 0
+    assert refcount_data == {pn}
+    assert pn.refcount() == 0
+
+
+def test_phone_number_init() -> None:
+    """`PhoneNumber` instances can be created using a string phone number."""
+    pn1 = models.PhoneNumber('9845012345')
+    assert pn1.phone == '+919845012345'
+    assert pn1.blake2b160 == hash_map['+919845012345']
+    pn2 = models.PhoneNumber('+91 98450 12345')
+    assert pn2.phone == '+919845012345'
