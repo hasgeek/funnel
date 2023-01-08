@@ -5,9 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any, Dict
-import sys
 
 from flask.cli import AppGroup
+import click
 
 from dateutil.relativedelta import relativedelta
 import pytz
@@ -114,11 +114,9 @@ def growthstats() -> None:
     if not app.config.get('TELEGRAM_STATS_APIKEY') or not app.config.get(
         'TELEGRAM_STATS_CHATID'
     ):
-        print(  # noqa: T201
+        raise click.UsageError(
             "Configure TELEGRAM_STATS_APIKEY and TELEGRAM_STATS_CHATID in settings",
-            file=sys.stderr,
         )
-        return
     # Dates in report timezone (for display)
     tz = pytz.timezone('Asia/Kolkata')
     now = utcnow().astimezone(tz)

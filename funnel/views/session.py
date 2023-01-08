@@ -34,7 +34,7 @@ def rooms_list(project):
     return []
 
 
-def get_form_template(form: SessionForm()) -> ReturnView:
+def get_form_template(form: SessionForm) -> ReturnView:
     """Render Session form html."""
     form.form_nonce.data = form.form_nonce.default()
     form_template = render_template(
