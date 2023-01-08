@@ -67,6 +67,15 @@ class MarkdownModel:
             for field in fields:
                 setattr(item, field, getattr(item, field).text)
 
+        # Save after reparsing
+        with rich.progress.Progress(
+            rich.progress.SpinnerColumn(),
+            rich.progress.TextColumn("[progress.description]{task.description}"),
+            transient=True,
+        ) as progress:
+            progress.add_task("saving...")
+            db.session.commit()
+
 
 MarkdownModel.register(models.Comment, {'_message'})
 MarkdownModel.register(models.Profile, {'description'})
@@ -110,17 +119,14 @@ def markdown(
             )
         for mm in MarkdownModel.registry.values():
             mm.reparse()
-            db.session.commit()
     else:
         if url:
             raise click.BadOptionUsage('url', "URL refresh is not supported yet.")
         if content:
             for model in content:
                 MarkdownModel.registry[model].reparse()
-                db.session.commit()
         if config:
             for mm in MarkdownModel.config_registry[config]:
                 mm.reparse(config)
-                db.session.commit()
     if not (allcontent or config or content or url):
         click.echo("Specify content, --config <name>, --url <url>, or --all")
