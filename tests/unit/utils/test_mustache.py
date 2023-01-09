@@ -75,8 +75,9 @@ City: { ESCAPED_DATA['org']['city'] }
 )
 
 
-@pytest.mark.parametrize(('template'), TEMPLATES.keys())
-def test_mustache_md(template):
-    (template, expected_output) = TEMPLATES[template]
+@pytest.mark.parametrize(
+    ('template', 'expected_output'), TEMPLATES.values(), ids=TEMPLATES.keys()
+)
+def test_mustache_md(template, expected_output):
     output = mustache_md(template, DATA)
     assert expected_output == output
