@@ -55,10 +55,12 @@ class PhoneDeliveryState(IntEnum):
     UNREACHABLE = 4
 
 
-def phone_blake2b160_hash(phone: str, *, _pre_validated: bool = False) -> bytes:
+def phone_blake2b160_hash(
+    phone: str, *, _pre_validated_formatted: bool = False
+) -> bytes:
     """BLAKE2b hash of the given phone number using digest size 20 (160 bits)."""
     number: Optional[str]
-    if not _pre_validated:
+    if not _pre_validated_formatted:
         number = validate_format_phone_number(phone)
     else:
         number = phone
@@ -184,15 +186,15 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         """Debugging representation of the phone number."""
         return f'PhoneNumber({self.phone!r})'
 
-    def __init__(self, phone: str, *, _pre_validated: bool = False) -> None:
+    def __init__(self, phone: str, *, _pre_validated_formatted: bool = False) -> None:
         if not isinstance(phone, str):
             raise ValueError("A string phone number is required")
-        if not _pre_validated:
+        if not _pre_validated_formatted:
             number = validate_format_phone_number(phone)
         else:
             number = phone
         # Set the hash first so the phone column validator passes.
-        self.blake2b160 = phone_blake2b160_hash(number, _pre_validated=True)
+        self.blake2b160 = phone_blake2b160_hash(number, _pre_validated_formatted=True)
         self.phone = number
 
     def is_exclusive(self) -> bool:
@@ -349,7 +351,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             if not existing.phone:
                 existing.phone = number
             return existing
-        new_phone = PhoneNumber(number, _pre_validated=True)
+        new_phone = PhoneNumber(number, _pre_validated_formatted=True)
         db.session.add(new_phone)
         return new_phone
 
@@ -373,7 +375,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             # No exclusive lock found? Let it be used then
             existing.phone = number  # In case it was nulled earlier
             return existing
-        new_phone = PhoneNumber(number, _pre_validated=True)
+        new_phone = PhoneNumber(number, _pre_validated_formatted=True)
         db.session.add(new_phone)
         return new_phone
 
@@ -556,7 +558,7 @@ def _validate_phone(target, value: Any, old_value: Any, initiator) -> Any:
     # All clear? Now check against the hash
     if value is not None and isinstance(value, str):
         value = validate_format_phone_number(value)
-        hashed = phone_blake2b160_hash(value, _pre_validated=True)
+        hashed = phone_blake2b160_hash(value, _pre_validated_formatted=True)
         if hashed != target.blake2b160:
             raise ValueError("Phone number does not match existing blake2b160 hash")
         return value

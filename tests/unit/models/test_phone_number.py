@@ -9,13 +9,25 @@ import pytest
 
 from funnel import models
 
+# These numbers were obtained from libphonenumber with region codes `IN` and `US`:
+# >>> phonenumbers.example_number_for_type(region, phonenumbers.PhoneNumberType.MOBILE
+EXAMPLE_NUMBER_IN = '+918123456789'
+EXAMPLE_NUMBER_US = '+12015550123'
+EXAMPLE_NUMBER_IN_UNPREFIXED = '8123456789'
+EXAMPLE_NUMBER_IN_FORMATTED = '+91 81234 56789'
+EXAMPLE_NUMBER_US_FORMATTED = '+1 (201) 555-0123'
+
 # This hash map should not be edited -- hashes are permanent
 hash_map = {
     'not-a-valid-number': (
         b'\xd6\xac\xd6\x83\x8d\xbcu\xbf\x96ls\x9c\xe2\xda\xa2~?\xcd\x1c\x18'
     ),
-    '+919845012345': b'\xa0=>k\x12\x0cC\xbf\x08\xf3F8`\xfd<\xeaW\x91\xe0\xfe',
-    '+12345678900': b'\xdc\xc2\x93y\x14)3\xa1C\x94?\x06\xa7\x11\x14\xeaT\x94\xae\xac',
+    EXAMPLE_NUMBER_IN: (
+        b'\x14\xc5\xed\xfe\xdb\xe3\xe6$\x0b\xd39\xab\x8d\x171\xe9\x83[\x1a\xce'
+    ),
+    EXAMPLE_NUMBER_US: (
+        b'\xa0\x10\xe0w\xec\xa8\xecO\x04\r\xde\xb9\x7f>g\n\xf8\xae\xd0\xb0'
+    ),
 }
 
 
@@ -112,14 +124,20 @@ def test_phone_hash_stability() -> None:
     # However, insisting the number is pre-validated will generate a hash. This is only
     # useful when the number is actually pre-validated
     assert (
-        phash('not-a-valid-number', _pre_validated=True)
+        phash('not-a-valid-number', _pre_validated_formatted=True)
         == hash_map['not-a-valid-number']
     )
-    # Number validation will normalize formatting before hashing
+    # Number formatting will be normalized before hashing
     assert (
-        phash('+919845012345') == phash('+91 9845012345') == hash_map['+919845012345']
+        phash(EXAMPLE_NUMBER_IN)
+        == phash(EXAMPLE_NUMBER_IN_FORMATTED)
+        == hash_map[EXAMPLE_NUMBER_IN]
     )
-    assert phash('+12345678900') == phash('+1 234 567-8900') == hash_map['+12345678900']
+    assert (
+        phash(EXAMPLE_NUMBER_US)
+        == phash(EXAMPLE_NUMBER_US_FORMATTED)
+        == hash_map[EXAMPLE_NUMBER_US]
+    )
 
 
 def test_phone_number_refcount_drop(phone_models, db_session, refcount_data) -> None:
@@ -132,7 +150,7 @@ def test_phone_number_refcount_drop(phone_models, db_session, refcount_data) -> 
     assert isinstance(refcount_data, set)
     assert refcount_data == set()
 
-    pn = models.PhoneNumber.add('+919845012345')
+    pn = models.PhoneNumber.add(EXAMPLE_NUMBER_IN)
     assert refcount_data == set()
 
     user = phone_models.PhoneUser()
@@ -162,17 +180,17 @@ def test_phone_number_refcount_drop(phone_models, db_session, refcount_data) -> 
 def test_phone_number_init() -> None:
     """`PhoneNumber` instances can be created using a string phone number."""
     # A fully specced number is accepted and gets the correct hash
-    pn1 = models.PhoneNumber('+919845012345')
-    assert pn1.phone == '+919845012345'
-    assert pn1.blake2b160 == hash_map['+919845012345']
+    pn1 = models.PhoneNumber(EXAMPLE_NUMBER_IN)
+    assert pn1.phone == EXAMPLE_NUMBER_IN
+    assert pn1.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
     # A visually formatted number also parses correctly and is re-formatted to E164
-    pn2 = models.PhoneNumber('+91 98450 12345')
-    assert pn2.phone == '+919845012345'
-    assert pn1.blake2b160 == hash_map['+919845012345']
+    pn2 = models.PhoneNumber(EXAMPLE_NUMBER_IN_FORMATTED)
+    assert pn2.phone == EXAMPLE_NUMBER_IN
+    assert pn1.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
     # Any worldwide prefix is accepted as long as it's a valid phone number
-    pn3 = models.PhoneNumber('+1 (234) 567-8900')
-    assert pn3.phone == '+12345678900'
-    assert pn3.blake2b160 == hash_map['+12345678900']
+    pn3 = models.PhoneNumber(EXAMPLE_NUMBER_US_FORMATTED)
+    assert pn3.phone == EXAMPLE_NUMBER_US
+    assert pn3.blake2b160 == hash_map[EXAMPLE_NUMBER_US]
 
 
 def test_phone_number_init_error() -> None:
@@ -188,33 +206,46 @@ def test_phone_number_init_error() -> None:
         models.PhoneNumber('garbage')
     with pytest.raises(ValueError, match="Not a valid phone number"):
         # Must be fully specced; no unprefixed numbers
-        models.PhoneNumber('9845012345')
+        models.PhoneNumber(EXAMPLE_NUMBER_IN_UNPREFIXED)
 
 
 def test_phone_number_mutability() -> None:
     """`PhoneNumber` can be mutated to delete or restore the number only."""
-    pn = models.PhoneNumber('+91 98450 12345')
-    assert pn.phone == '+919845012345'
-    assert pn.blake2b160 == hash_map['+919845012345']
+    pn = models.PhoneNumber(EXAMPLE_NUMBER_IN_FORMATTED)
+    assert pn.phone == EXAMPLE_NUMBER_IN
+    assert pn.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
 
     # Setting it to the same value again is allowed
-    pn.phone = '+919845012345'
-    assert pn.blake2b160 == hash_map['+919845012345']
+    pn.phone = EXAMPLE_NUMBER_IN
+    assert pn.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
 
     # Nulling is allowed, and hash remains intact
     pn.phone = None
     assert pn.phone is None
-    assert pn.blake2b160 == hash_map['+919845012345']
+    assert pn.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
 
     # Restoring is allowed (with any formatting)
-    pn.phone = '+91 98450 12345'
-    assert pn.phone == '+919845012345'
-    assert pn.blake2b160 == hash_map['+919845012345']
+    pn.phone = EXAMPLE_NUMBER_IN_FORMATTED
+    assert pn.phone == EXAMPLE_NUMBER_IN
+    assert pn.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
 
-    # Reformatting is not allowed
+    # However, reformatting when not restoring is not allowed
     with pytest.raises(ValueError, match="Phone number cannot be changed"):
-        pn.phone = '+91 98450 12345'
+        pn.phone = EXAMPLE_NUMBER_IN_FORMATTED
 
     # But changing it to another value is not allowed
     with pytest.raises(ValueError, match="Phone number cannot be changed"):
-        pn.phone = '+12345678900'
+        pn.phone = EXAMPLE_NUMBER_US
+
+    # Changing after nulling is not allowed as hash won't match
+    pn.phone = None
+    with pytest.raises(ValueError, match="Phone number does not match"):
+        pn.phone = EXAMPLE_NUMBER_US
+
+
+def test_phone_number_md5() -> None:
+    """`PhoneNumber` has an MD5 method for legacy applications."""
+    pn = models.PhoneNumber(EXAMPLE_NUMBER_IN)
+    assert pn.md5() == '889ccfeb3234c4b90516a3dd4406a0e6'
+    pn.phone = None
+    assert pn.md5() is None
