@@ -6,25 +6,27 @@ import pytest
 from funnel.utils.mustache import mustache_md
 
 DATA = {
-    'name': 'Hasgeek',
-    'md_name': '**Hasgeek** Learning Pvt. Ltd.',
+    'name': 'Unseen',
+    'md_name': '**Unseen** University',
     'org': {
-        'name': '`Hasgeek` Learning Pvt. Ltd.',
-        'city': '~~Bangalore~~Bengaluru',
+        'name': '`Unseen` University',
+        'city': '~~Unknown~~Ankh-Morpork',
         'people': [
-            {'first': 'Zainab', 'last': 'Bawa', 'ceo': False},
-            {'first': 'Kiran', 'last': 'Jonnalagadda', 'ceo': True},
+            {'first': 'Alberto', 'last': 'Malich', 'ceo': False},
+            {'first': 'Mustrum', 'last': 'Ridcully', 'ceo': True},
+            {'first': 'The', 'last': 'Librarian', 'ceo': False},
+            {'first': 'Ponder', 'last': 'Stibbons', 'ceo': False},
         ],
         'vendors': [],
     },
 }
 
 ESCAPED_DATA = {
-    'name': 'Hasgeek',
-    'md_name': '\\*\\*Hasgeek\\*\\* Learning Pvt\\. Ltd\\.',
+    'name': 'Unseen',
+    'md_name': '\\*\\*Unseen\\*\\* University',
     'org': {
-        'name': '\\`Hasgeek\\` Learning Pvt\\. Ltd\\.',
-        'city': '\\~\\~Bangalore\\~\\~Bengaluru',
+        'name': '\\`Unseen\\` University',
+        'city': '\\~\\~Unknown\\~\\~Ankh\\-Morpork',
         'people': DATA['org']['people'],
         'vendors': [],
     },
