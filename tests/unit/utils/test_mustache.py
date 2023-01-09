@@ -5,7 +5,7 @@ import pytest
 
 from funnel.utils.mustache import mustache_md
 
-DATA = {
+test_data = {
     'name': 'Unseen',
     'md_name': '**Unseen** University',
     'org': {
@@ -21,19 +21,19 @@ DATA = {
     },
 }
 
-ESCAPED_DATA = {
+escaped_data = {
     'name': 'Unseen',
     'md_name': '\\*\\*Unseen\\*\\* University',
     'org': {
         'name': '\\`Unseen\\` University',
         'city': '\\~\\~Unknown\\~\\~Ankh\\-Morpork',
-        'people': DATA['org']['people'],
+        'people': test_data['org']['people'],
         'vendors': [],
     },
 }
 
-TEMPLATES = {}
-TEMPLATES['basic'] = (
+templates = {}
+templates['basic'] = (
     """
 Name: {{name}}
 **Bold Name**: {{ md_name }}
@@ -54,19 +54,19 @@ City: {{city}}
 {{/org}}
 """,
     f"""
-Name: {ESCAPED_DATA['name']}
-**Bold Name**: {ESCAPED_DATA['md_name']}
-Organization: { ESCAPED_DATA['org']['name'] }, { ESCAPED_DATA['org']['city'] }
+Name: {escaped_data['name']}
+**Bold Name**: {escaped_data['md_name']}
+Organization: { escaped_data['org']['name'] }, { escaped_data['org']['city'] }
 ## Organization Details
-Name: { ESCAPED_DATA['org']['name'] }
-City: { ESCAPED_DATA['org']['city'] }
+Name: { escaped_data['org']['name'] }
+City: { escaped_data['org']['city'] }
 
 ### People
 """
     + '\n'.join(
         [
             f'- { p["first"] } { p["last"]}{" (CEO)" if p["ceo"] else ""}'
-            for p in ESCAPED_DATA['org']['people']
+            for p in escaped_data['org']['people']
         ]
     )
     + """
@@ -78,8 +78,8 @@ City: { ESCAPED_DATA['org']['city'] }
 
 
 @pytest.mark.parametrize(
-    ('template', 'expected_output'), TEMPLATES.values(), ids=TEMPLATES.keys()
+    ('template', 'expected_output'), templates.values(), ids=templates.keys()
 )
 def test_mustache_md(template, expected_output):
-    output = mustache_md(template, DATA)
+    output = mustache_md(template, test_data)
     assert expected_output == output
