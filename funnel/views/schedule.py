@@ -237,7 +237,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @requires_roles({'reader'})
     def schedule(self) -> ReturnRenderWith:
         scheduled_sessions_list = session_list_data(
-            self.obj.scheduled_sessions, with_modal_url='view_popup'
+            self.obj.scheduled_sessions, with_modal_url='view'
         )
         project = self.obj.current_access(datasets=('primary', 'related'))
         venues = [
