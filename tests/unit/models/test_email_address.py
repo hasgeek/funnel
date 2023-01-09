@@ -730,6 +730,7 @@ def test_email_address_existing_but_unused_validate_for(
     assert models.EmailAddress.validate_for(user, 'unclaimed@example.com') is True
 
 
+@pytest.mark.flaky(reruns=1)  # Re-run in case DNS times out
 def test_email_address_validate_for_check_dns(email_models, db_session) -> None:
     """Validate_for with check_dns=True. Separate test as DNS lookup may fail."""
     user1 = email_models.EmailUser()
