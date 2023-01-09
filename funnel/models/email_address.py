@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Set, Union, cast, overload
+from typing import Any, List, Optional, Set, Union, cast, overload
 import hashlib
 import unicodedata
 
@@ -775,7 +775,7 @@ auto_init_default(EmailAddress._is_blocked)  # pylint: disable=protected-access
 
 
 @event.listens_for(EmailAddress.email, 'set')
-def _validate_email(target, value: object, old_value: object, initiator):
+def _validate_email(target, value: Any, old_value: Any, initiator) -> None:
     # First: check if value is acceptable and email attribute can be set
     if not value and value is not None:
         # Only `None` is an acceptable falsy value

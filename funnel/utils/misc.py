@@ -17,7 +17,7 @@ import qrcode.image.svg
 __all__ = [
     'PHONE_LOOKUP_REGIONS',
     'normalize_phone_number',
-    'validate_phone_number',
+    'validate_format_phone_number',
     'blake2b160_hex',
     'abort_null',
     'make_redirect_url',
@@ -98,13 +98,19 @@ def normalize_phone_number(
     return None
 
 
-def validate_phone_number(candidate: str) -> bool:
-    """Validate an international phone number for syntax and known number range."""
+def validate_format_phone_number(candidate: str) -> str:
+    """
+    Validate an international phone number and return in E164 format.
+
+    :raises: ValueError if format is invalid
+    """
     try:
         parsed_number = phonenumbers.parse(candidate)
-        return phonenumbers.is_valid_number(parsed_number)
+        return phonenumbers.format_number(
+            parsed_number, phonenumbers.PhoneNumberFormat.E164
+        )
     except phonenumbers.NumberParseException:
-        return False
+        raise ValueError(f"Not a valid phone number: {candidate}") from None
 
 
 def blake2b160_hex(text: str) -> str:

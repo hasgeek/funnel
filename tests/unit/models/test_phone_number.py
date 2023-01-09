@@ -107,16 +107,18 @@ def refcount_data(funnel) -> Generator:
 def test_phone_hash_stability() -> None:
     """Safety test to ensure phone_blakeb160_hash doesn't change spec."""
     phash = models.phone_number.phone_blake2b160_hash
-    with pytest.raises(ValueError, match="Invalid phone number"):
+    with pytest.raises(ValueError, match="Not a valid phone number"):
         phash('not-a-valid-number')
     # However, insisting the number is pre-validated will generate a hash. This is only
     # useful when the number is actually pre-validated
-    assert phash('not-a-valid-number', True) == hash_map['not-a-valid-number']
-    # Number validation will attempt to find a matching prefix before hashing, and
-    # will normalize formatting
-    assert phash('9845012345') == phash('+91 9845012345') == hash_map['+919845012345']
-    # Hashing for non-Indian numbers requires a full number, but variable formatting is
-    # accepted
+    assert (
+        phash('not-a-valid-number', _pre_validated=True)
+        == hash_map['not-a-valid-number']
+    )
+    # Number validation will normalize formatting before hashing
+    assert (
+        phash('+919845012345') == phash('+91 9845012345') == hash_map['+919845012345']
+    )
     assert phash('+12345678900') == phash('+1 234 567-8900') == hash_map['+12345678900']
 
 
@@ -159,8 +161,60 @@ def test_phone_number_refcount_drop(phone_models, db_session, refcount_data) -> 
 
 def test_phone_number_init() -> None:
     """`PhoneNumber` instances can be created using a string phone number."""
-    pn1 = models.PhoneNumber('9845012345')
+    # A fully specced number is accepted and gets the correct hash
+    pn1 = models.PhoneNumber('+919845012345')
     assert pn1.phone == '+919845012345'
     assert pn1.blake2b160 == hash_map['+919845012345']
+    # A visually formatted number also parses correctly and is re-formatted to E164
     pn2 = models.PhoneNumber('+91 98450 12345')
     assert pn2.phone == '+919845012345'
+    assert pn1.blake2b160 == hash_map['+919845012345']
+    # Any worldwide prefix is accepted as long as it's a valid phone number
+    pn3 = models.PhoneNumber('+1 (234) 567-8900')
+    assert pn3.phone == '+12345678900'
+    assert pn3.blake2b160 == hash_map['+12345678900']
+
+
+def test_phone_number_init_error() -> None:
+    """`PhoneNumber` instances cannot be created without a valid phone number."""
+    with pytest.raises(ValueError, match="A string phone number is required"):
+        # Must be a string
+        models.PhoneNumber(None)  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="Not a valid phone number"):
+        # Must not be blank
+        models.PhoneNumber('')
+    with pytest.raises(ValueError, match="Not a valid phone number"):
+        # Must not be garbage input
+        models.PhoneNumber('garbage')
+    with pytest.raises(ValueError, match="Not a valid phone number"):
+        # Must be fully specced; no unprefixed numbers
+        models.PhoneNumber('9845012345')
+
+
+def test_phone_number_mutability() -> None:
+    """`PhoneNumber` can be mutated to delete or restore the number only."""
+    pn = models.PhoneNumber('+91 98450 12345')
+    assert pn.phone == '+919845012345'
+    assert pn.blake2b160 == hash_map['+919845012345']
+
+    # Setting it to the same value again is allowed
+    pn.phone = '+919845012345'
+    assert pn.blake2b160 == hash_map['+919845012345']
+
+    # Nulling is allowed, and hash remains intact
+    pn.phone = None
+    assert pn.phone is None
+    assert pn.blake2b160 == hash_map['+919845012345']
+
+    # Restoring is allowed (with any formatting)
+    pn.phone = '+91 98450 12345'
+    assert pn.phone == '+919845012345'
+    assert pn.blake2b160 == hash_map['+919845012345']
+
+    # Reformatting is not allowed
+    with pytest.raises(ValueError, match="Phone number cannot be changed"):
+        pn.phone = '+91 98450 12345'
+
+    # But changing it to another value is not allowed
+    with pytest.raises(ValueError, match="Phone number cannot be changed"):
+        pn.phone = '+12345678900'

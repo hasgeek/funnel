@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import IntEnum
-from typing import Optional, Set, Union, overload
+from typing import Any, Optional, Set, Union, overload
 import hashlib
 
 from sqlalchemy import event, inspect
@@ -20,7 +20,7 @@ from coaster.utils import require_one_of
 
 from ..signals import phonenumber_refcount_dropping
 from ..typing import Mapped
-from ..utils import normalize_phone_number, validate_phone_number
+from ..utils import validate_format_phone_number
 from . import BaseMixin, db, declarative_mixin, declared_attr, hybrid_property, sa
 
 __all__ = [
@@ -55,15 +55,13 @@ class PhoneDeliveryState(IntEnum):
     UNREACHABLE = 4
 
 
-def phone_blake2b160_hash(phone: str, pre_normalized: bool = False) -> bytes:
+def phone_blake2b160_hash(phone: str, *, _pre_validated: bool = False) -> bytes:
     """BLAKE2b hash of the given phone number using digest size 20 (160 bits)."""
     number: Optional[str]
-    if pre_normalized:
-        number = phone
+    if not _pre_validated:
+        number = validate_format_phone_number(phone)
     else:
-        number = normalize_phone_number(phone)
-        if number is None:
-            raise ValueError(f"Invalid phone number: {phone}")
+        number = phone
     return hashlib.blake2b(number.encode('utf-8'), digest_size=20).digest()
 
 
@@ -186,14 +184,15 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         """Debugging representation of the phone number."""
         return f'PhoneNumber({self.phone!r})'
 
-    def __init__(self, phone: str) -> None:
+    def __init__(self, phone: str, *, _pre_validated: bool = False) -> None:
         if not isinstance(phone, str):
             raise ValueError("A string phone number is required")
-        number = normalize_phone_number(phone)
-        if number is None:
-            raise ValueError("This is not a valid phone number")
+        if not _pre_validated:
+            number = validate_format_phone_number(phone)
+        else:
+            number = phone
         # Set the hash first so the phone column validator passes.
-        self.blake2b160 = phone_blake2b160_hash(number, True)
+        self.blake2b160 = phone_blake2b160_hash(number, _pre_validated=True)
         self.phone = number
 
     def is_exclusive(self) -> bool:
@@ -330,22 +329,17 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         return query.one_or_none()
 
     @classmethod
-    def add(cls, phone: str, sms: bool = False) -> PhoneNumber:
+    def add(cls, phone: str) -> PhoneNumber:
         """
         Create a new :class:`PhoneNumber` after normalization and validation.
 
-        Raises an exception if the number is blocked from use, if the phone number
-        is syntactically invalid, or if SMS support is required but not available.
+        Raises an exception if the number is blocked from use, or if the phone number
+        is not valid as per Google's libphonenumber validator.
 
-        :param sms: Validate phone number to support SMS delivery
-        :raises ValueError: If phone number syntax is invalid or SMS is not supported
+        :raises ValueError: If phone number is not valid
         :raises PhoneNumberBlockedError: If phone number is blocked
         """
-        number = normalize_phone_number(phone, sms)
-        if number is None:
-            raise ValueError("Invalid phone number")
-        if number is False:
-            raise ValueError("Phone number does not support SMS delivery")
+        number = validate_format_phone_number(phone)
 
         existing = cls.get(number)
         if existing is not None:
@@ -355,29 +349,22 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             if not existing.phone:
                 existing.phone = number
             return existing
-        new_phone = PhoneNumber(number)
+        new_phone = PhoneNumber(number, _pre_validated=True)
         db.session.add(new_phone)
         return new_phone
 
     @classmethod
-    def add_for(
-        cls, owner: Optional[object], phone: str, sms: bool = False
-    ) -> PhoneNumber:
+    def add_for(cls, owner: Optional[object], phone: str) -> PhoneNumber:
         """
         Create a new :class:`PhoneNumber` after validation.
 
         Unlike :meth:`add`, this one requires the phone number to not be in an
         exclusive relationship with another owner.
 
-        :param sms: Validate phone number to support SMS delivery
-        :raises ValueError: If phone number syntax is invalid or SMS is not supported
+        :raises ValueError: If phone number syntax is invalid
         :raises PhoneNumberBlockedError: If phone number is blocked
         """
-        number = normalize_phone_number(phone, sms)
-        if number is None:
-            raise ValueError("Invalid phone number")
-        if number is False:
-            raise ValueError("Phone number does not support SMS delivery")
+        number = validate_format_phone_number(phone)
 
         existing = cls.get(number)
         if existing is not None:
@@ -386,7 +373,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             # No exclusive lock found? Let it be used then
             existing.phone = number  # In case it was nulled earlier
             return existing
-        new_phone = PhoneNumber(number)
+        new_phone = PhoneNumber(number, _pre_validated=True)
         db.session.add(new_phone)
         return new_phone
 
@@ -410,8 +397,9 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         :param str phone: Phone number to validate
         :param bool new: Fail validation if phone number is already in use
         """
-        number = normalize_phone_number(phone)
-        if number is None:
+        try:
+            phone = validate_format_phone_number(phone)
+        except ValueError:
             return 'invalid'
         existing = cls.get(phone)
         if existing is None:
@@ -543,15 +531,15 @@ auto_init_default(PhoneNumber.delivery_state_at)
 auto_init_default(PhoneNumber._is_blocked)  # pylint: disable=protected-access
 
 
-@event.listens_for(PhoneNumber.phone, 'set')
-def _validate_phone(target, value: object, old_value: object, initiator):
+@event.listens_for(PhoneNumber.phone, 'set', retval=True)
+def _validate_phone(target, value: Any, old_value: Any, initiator) -> Any:
     # First: check if value is acceptable and phone attribute can be set
     if not value and value is not None:
         # Only `None` is an acceptable falsy value
         raise ValueError("A phone number is required")
     if old_value == value:
         # Old value is new value. Do nothing. Return without validating
-        return
+        return value
     if old_value is NO_VALUE and inspect(target).has_identity is False:
         # Old value is unknown and target is a transient object. Continue
         pass
@@ -563,20 +551,19 @@ def _validate_phone(target, value: object, old_value: object, initiator):
         pass
     else:
         # Under any other condition, phone number is immutable
-        raise ValueError("Phone number cannot be changed")
-
-    # Second: If we have a value, does it look like an phone number?
-    if value is not None and not (
-        isinstance(value, str) and validate_phone_number(value)
-    ):
-        raise ValueError("Value is not an phone number")
+        raise ValueError("Phone number cannot be changed or reformatted")
 
     # All clear? Now check against the hash
-    if value is not None:
-        hashed = phone_blake2b160_hash(value)
+    if value is not None and isinstance(value, str):
+        value = validate_format_phone_number(value)
+        hashed = phone_blake2b160_hash(value, _pre_validated=True)
         if hashed != target.blake2b160:
             raise ValueError("Phone number does not match existing blake2b160 hash")
-    # We don't have to set target.phone because SQLAlchemy will do that for us.
+        return value
+    if value is None:
+        # Allow removing phone (we still keep the hash)
+        return value
+    raise ValueError(f"Invalid value for phone number: {value}")
 
 
 def _send_refcount_event_remove(target, value, initiator):
