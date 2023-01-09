@@ -100,7 +100,14 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     #: BLAKE2b 160-bit hash of :attr:`phone`. Kept permanently even if phone is
     #: removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite the name,
     #: we're only storing 20 bytes
-    blake2b160 = immutable(sa.Column(sa.LargeBinary, nullable=False, unique=True))
+    blake2b160 = immutable(
+        sa.Column(
+            sa.LargeBinary,
+            sa.CheckConstraint('length(blake2b160) = 20'),
+            nullable=False,
+            unique=True,
+        )
+    )
 
     #: Does this phone number work? Records last known delivery state
     _delivery_state = sa.Column(

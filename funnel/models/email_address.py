@@ -198,7 +198,14 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
     #: BLAKE2b 160-bit hash of :property:`email_normalized`. Kept permanently even if
     #: email is removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite
     #: the name, we're only storing 20 bytes
-    blake2b160 = immutable(sa.Column(sa.LargeBinary, nullable=False, unique=True))
+    blake2b160 = immutable(
+        sa.Column(
+            sa.LargeBinary,
+            sa.CheckConstraint('length(blake2b160) = 20'),
+            nullable=False,
+            unique=True,
+        )
+    )
 
     #: BLAKE2b 160-bit hash of :property:`email_canonical`. Kept permanently for blocked
     #: email detection. Indexed but does not use a unique constraint because a+b@tld and
