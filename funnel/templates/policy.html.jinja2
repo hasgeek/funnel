@@ -19,7 +19,7 @@
             <h3 class="mui--text-title">{% trans %}Site policies{% endtrans %}</h3>
           </div>
           <div class="card__body">
-            <ul class="mui-list--aligned mui-list--unstyled">
+            <ul class="list--aligned  mui-list--unstyled">
               {%- for page in index %}
                 <li><p><a href="{{ url_for('policy', path=page.path) }}">{{ page.title }}</a></p></li>
               {%- endfor %}

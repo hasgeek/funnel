@@ -7,8 +7,8 @@
             <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" :aria-label="gettext('Add new member')" data-cy-btn="add-member"><faicon :icon="'plus'"></faicon> {{ gettext('Add new member') }}</button>
           </div>
           <div class="membership-wrapper--half" v-if="members">
-            <form class="mui-form mui--d-inlineblock search search--small search--icon mui--z1" v-on:submit.prevent>
-              <div class="mui-textfield">
+            <form class="display-inlineblock search search--small search--icon mui--z1" v-on:submit.prevent>
+              <div class="textfield">
                 <input class="field-search mui--text-light" type="text" name="key" value="" :placeholder="gettext('Search member…')" v-model="search" @input="onChange"/>
                 <faicon :icon="'search'" :baseline=false :css_class="'search-form__icon'"></faicon>
               </div>

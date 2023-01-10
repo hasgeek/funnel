@@ -509,3 +509,44 @@
   z-index: -2;
   width: 95%;
 }
+
+.page-card {
+  padding: 0;
+  margin: $mui-grid-padding 0 0;
+  margin-right: -$mui-grid-padding;
+  margin-left: -$mui-grid-padding;
+  position: relative;
+  background: $mui-bg-color-primary;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+  .page-card__card {
+    margin-bottom: 0;
+    box-shadow: none;
+    border: 0;
+    border-bottom: 1px solid $mui-divider-color;
+    border-radius: 0;
+    background: $mui-bg-color-primary;
+    padding: 0;
+    cursor: auto;
+  }
+  li:last-child .page-card__card {
+    border-bottom: none;
+  }
+  .alert {
+    border: none;
+  }
+}
+
+.page-card--nomargin {
+  margin-top: 0;
+}
+
+.page-card--nooverflow {
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .page-card {
+    margin: 0 0 $mui-grid-padding;
+    border-radius: 16px;
+  }
+}

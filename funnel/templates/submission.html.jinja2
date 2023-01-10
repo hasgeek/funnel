@@ -66,7 +66,7 @@
           data-cy="share-dropdown">
         <form action="{{ proposal.commentset.url_for('subscribe') }}"
               method="post"
-              class="mui--d-inlineblock proposal-subscribe-form"
+              class="display-inlineblock proposal-subscribe-form"
               id="subscribe-form">
           {{ proposal.commentset.forms.subscribe().hidden_tag() }}
           <li class="margin-left margin-top margin-bottom js-subscribed {% if not subscribed %}mui--hide{% endif %}">
@@ -94,7 +94,7 @@
     </div>
   {%- endif %}
   {%- if proposal.current_roles.editor or proposal.current_roles.project_editor %}
-    <div class="mui--d-inlineblock mui-dropdown">
+    <div class="display-inlineblock mui-dropdown">
       <a href="#"
         onclick="return false;"
         class="mui--text-dark"
@@ -142,13 +142,13 @@
             <div class="mui--text-body2 mui--clearfix js-dropdown-toggle">
               {{ faicon(icon='stars', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--pull-left mui--align-middle") }}
               <span class="mui--pull-right dropdown-menu__form">
-                <span class="mui--d-inlineblock dropdown-menu__form__label">
-                  <span class="mui--d-block">{% trans %}Feature this submission{% endtrans %}</span>
-                  <span class="mui--d-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured submissions appear in the overview{% endtrans %}</span>
+                <span class="display-inlineblock dropdown-menu__form__label">
+                  <span class="display-block">{% trans %}Feature this submission{% endtrans %}</span>
+                  <span class="display-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured submissions appear in the overview{% endtrans %}</span>
                 </span>
                 <form action="{{ proposal.url_for('update_featured') }}"
                       method="post"
-                      class="mui--d-inlineblock mui--align-top">
+                      class="display-inlineblock mui--align-top">
                   {{ csrf_tag() }}
                   <input type="checkbox"
                         name="featured"
@@ -280,7 +280,7 @@
                   {%- trans %}Session video{% endtrans -%}
                 </h3>
                 <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
-                  <a class="mui--d-inlineblock"
+                  <a class="display-inlineblock"
                     role="tab"
                     data-mui-toggle="tab"
                     data-mui-controls="pane-justified-{{ seq }}">
@@ -299,7 +299,7 @@
               </h3>
               {% if proposal.views.video %}
                 <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
-                  <a class="mui--d-inlineblock"
+                  <a class="display-inlineblock"
                     role="tab"
                     data-mui-toggle="tab"
                     data-mui-controls="pane-justified-{{ seq }}">
@@ -330,7 +330,7 @@
       {% endif %}
     </div>
     <section class="proposal__section" id="submission">
-      <div class="mui--d-inlineblock proposal__section__members">
+      <div class="display-inlineblock proposal__section__members">
         <div class="flex-wrapper flex-wrapper--center flex-wrapper--wrap">
           {% for member in proposal.memberships %}
             {%- if not member.is_uncredited %}

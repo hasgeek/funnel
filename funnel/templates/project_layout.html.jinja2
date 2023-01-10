@@ -214,11 +214,11 @@
             <div class="mui--text-body2 mui--clearfix">
             {{ faicon(icon='stars', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--pull-left mui--align-middle") }}
             <span class="mui--pull-right dropdown-menu__form">
-              <span class="mui--d-inlineblock dropdown-menu__form__label">
-                <span class="mui--d-block">{% trans %}Feature this project{% endtrans %}</span>
-                <span class="mui--d-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured projects appear under Spotlight on the home page{% endtrans %}</span>
+              <span class="display-inlineblock dropdown-menu__form__label">
+                <span class="display-block">{% trans %}Feature this project{% endtrans %}</span>
+                <span class="display-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured projects appear under Spotlight on the home page{% endtrans %}</span>
               </span>
-              <form action="{{ project.url_for('update_featured') }}" method="post" class="mui--d-inlineblock mui--align-top">
+              <form action="{{ project.url_for('update_featured') }}" method="post" class="display-inlineblock mui--align-top">
                 {{ csrf_tag() }}
                 <input type="checkbox" name="site_featured" id="featured-project" class="switch-input js-toggle" {%- if project.site_featured %}checked{%- endif %}/>
                 <label class="switch-label mui--pull-right" for="featured-project"></label>
@@ -300,7 +300,7 @@
 {% macro project_details(project) %}
   <div>
     {% if project.view_for('edit_schedule').is_available() and not project.start_at %}
-      <p class="project-details__box__content--lesspadding propose"><a class="mui-btn mui-btn--raised mui-btn--dark mui--d-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
+      <p class="project-details__box__content--lesspadding propose"><a class="mui-btn mui-btn--raised mui-btn--dark display-block" href="{{ project.url_for('edit_schedule') }}">{% trans %}Add schedule{% endtrans %}</a></p>
     {%- endif %}
     {{ add_submission_btn(project) }}
     {%- if project.primary_venue %}

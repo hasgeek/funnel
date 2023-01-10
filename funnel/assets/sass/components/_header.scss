@@ -1,4 +1,12 @@
+.header {
+  background: $mui-bg-color-primary;
+  z-index: 1000;
+}
+
 .header--fixed {
+  position: fixed;
+  left: 0;
+  right: 0;
   bottom: 0;
 
   .header__nav {
@@ -65,6 +73,7 @@
 
         .header__nav-links {
           text-decoration: none !important;
+          color: $mui-neutral-color;
           .header__nav-links__text {
             font-size: 12px;
             color: $mui-text-light;

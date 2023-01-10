@@ -1,9 +1,7 @@
-@import 'mui/mixins/forms';
-@import 'app';
-@import 'mui/checkbox-and-radio', 'mui/form', 'mui/select', 'mui/textfield';
-@import 'components/draggablebox';
-@import 'components/switch';
-@import 'components/codemirror';
+@import 'mui/colors_custom', 'mui/custom', 'mui/variables';
+@import 'mui/mixins/util', 'mui/mixins/forms';
+@import 'mui/helpers','mui/checkbox-and-radio', 'mui/select', 'mui/textfield', 'mui/form';
+@import 'components/variable', 'components/typography', 'components/draggablebox', 'components/switch', 'components/codemirror';
 
 .form-message {
   @extend .mui--text-title;
@@ -90,7 +88,7 @@
     position: static;
     margin: 0 0 $mui-grid-padding/2;
     color: $mui-label-font-color;
-    @include mui-text('subhead');
+    @extend .mui--text-subhead;
   }
 
   .mui-form__error {
@@ -152,7 +150,7 @@
     .mui-textfield > label {
       color: $mui-text-light;
       font-weight: 500;
-      @include mui-text('body2');
+      @extend .mui--text-body2;
       transform: none;
       top: -$mui-grid-padding/4;
     }

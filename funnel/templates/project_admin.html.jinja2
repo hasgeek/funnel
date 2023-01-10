@@ -22,7 +22,7 @@
         {%- endif %}
       </div>
       <div class="card__body">
-        <ol class="mui-list--aligned">
+        <ol class="list--aligned ">
           {%- for ticket_event in ticket_events %}
             <li>
               <a href="{{ ticket_event.url_for('view') }}" class="mui--text-subhead" data-cy="{{ ticket_event.title }}" data-ga="View event">{{ ticket_event.title }}</a>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-ga="edit event">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
@@ -49,7 +49,7 @@
         <h3 class="mui--text-title">{% trans %}Tickets{% endtrans %}</h3>
       </div>
       <div class="card__body">
-        <ol class="mui-list--aligned">
+        <ol class="list--aligned ">
           {%- for ticket_type in ticket_types -%}
             <li data-cy-ticket="{{ ticket_type.title }}">
               <a href="{{ ticket_type.url_for() }}" class="mui--text-subhead" data-ga="View ticket type">{{ ticket_type.title }}</a>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ ticket_type.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-cy="ticket-edit" data-ga="edit ticket type">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}
@@ -71,7 +71,7 @@
         <p class="mui--text-caption">{% trans %}Add ticket client to import tickets{% endtrans %}</p>
       </div>
       <div class="card__body">
-        <ol class="mui-list--aligned">
+        <ol class="list--aligned ">
           {%- for client in ticket_clients %}
             <li>
               <span class="mui--text-subhead">{{ client.name }}</span>{%- if project.current_roles.promoter %}&nbsp;<a href="{{ client.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}" data-ga="Edit ticket client">{{ faicon(icon='edit', icon_size='subhead') }}</a>{%- endif %}

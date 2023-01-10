@@ -16,7 +16,7 @@
     <div class="grid">
       <div class="grid__col-xs-12">
         <div class="page-card zero-top-margin">
-          <ul class="mui-list--unstyled mui-list--aligned top-padding right-padding left-paddin margin-bottom">
+          <ul class="mui-list--unstyled list--aligned  top-padding right-padding left-paddin margin-bottom">
             <li class="bottom-padding">
               <a href="{{ url_for('new_organization') }}"
                  class="flex-wrapper flex-wrapper flex-wrapper--center nounderline"
@@ -28,19 +28,24 @@
               </a>
             </li>
             {% for orgmem in current_auth.user.views.organizations_as_admin() %}
-              <li class="bottom-padding">
-                <a href="{{ orgmem.organization.profile.url_for() }}"
-                   class="flex-wrapper flex-wrapper flex-wrapper--center nounderline">
-                  <span class="profile-avatar profile-avatar--bigger margin-right">
-                    {%- if orgmem.organization.profile.logo_url.url %}
-                      <img src="{{ orgmem.organization.profile.logo_url }}"
-                           alt="{{ orgmem.organization.title }}"/>
-                    {% else %}
-                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
-                           alt="{{ orgmem.organization.title }}"/>
-                    {% endif %}
-                  </span>
-                  <div>
+              <li class="flex-wrapper bottom-padding">
+                <div>
+                  <a href="{{ orgmem.organization.profile.url_for() }}"
+                   class="nounderline">
+                    <span class="profile-avatar profile-avatar--bigger margin-right">
+                      {%- if orgmem.organization.profile.logo_url.url %}
+                        <img src="{{ orgmem.organization.profile.logo_url }}"
+                             alt="{{ orgmem.organization.title }}"/>
+                      {% else %}
+                        <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
+                             alt="{{ orgmem.organization.title }}"/>
+                      {% endif %}
+                    </span>
+                  </a>
+                </div>
+                <div>
+                  <a href="{{ orgmem.organization.profile.url_for() }}"
+                   class="nounderline display-block margin-bottom">
                     <p class="profile-avatar-title mui--text-dark mui--text-subhead mui--text-bold">
                       {{ orgmem.organization.profile.title }}
                       {% if not orgmem.organization.profile.state.PUBLIC %}
@@ -54,9 +59,7 @@
                         {% trans %}Admin{% endtrans %}
                       {% endif %}
                     </p>
-                  </div>
-                </a>
-                <div class="profile-members">
+                  </a>
                   <p class="mui--text-light zero-bottom-margin">
                     {%- for user in orgmem.organization.admin_users %}
                       {{ user.pickername }} {%- if not loop.last %},{% endif %}
