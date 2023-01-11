@@ -694,20 +694,17 @@
   }
 }
 
-.keyboard-switch {
+.tabs.keyboard-switch {
   display: none;
   justify-content: space-between;
   position: fixed;
-  bottom: $mui-grid-padding/2;
-  width: calc(100% - #{$mui-grid-padding-double});
+  left: 0;
+  bottom: 0;
+  width: 100%;
   z-index: 2;
-  padding: $mui-grid-padding/2 0;
+  padding: $mui-grid-padding/2;
   margin: 0;
   background: $mui-bg-color-primary;
-
-  .tabs {
-    margin: 0;
-  }
 }
 
 input#username:focus ~ .keyboard-switch {
