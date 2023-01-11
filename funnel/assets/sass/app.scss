@@ -20,10 +20,7 @@
 @import 'mui/helpers', 'mui/overlay', 'mui/ripple';
 
 @import 'components/variable';
-@import 'components/base';
-@import 'components/layout';
 @import 'components/typography';
-@import 'components/utils';
 @import 'components/button';
 @import 'components/menu';
 @import 'components/header';
@@ -40,3 +37,7 @@
 @import 'components/profileavatar';
 @import 'components/useravatar';
 @import 'components/list';
+
+@import 'base';
+@import 'layout';
+@import 'utils';
