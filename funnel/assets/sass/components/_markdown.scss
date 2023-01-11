@@ -133,12 +133,12 @@
   }
 }
 
-.footnotes-ref {
+.footnote-ref {
   @extend .mui--text-caption;
   color: $mui-text-light;
 }
 
-.footnotes {
+.footnote {
   @extend .mui--text-body2;
   p,
   span,

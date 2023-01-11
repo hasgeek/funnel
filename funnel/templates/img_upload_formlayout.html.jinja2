@@ -9,7 +9,7 @@
     <div class="modal__header">
       <a class="modal__close mui--text-dark" href="#" onclick="return false;" data-target="close modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
       {%- if title -%}
-        <p class="mui--text-title mui--text-bold mui--text-dark">{{ title }}</p>
+        <p class="mui--text-title text-bold mui--text-dark">{{ title }}</p>
       {%- endif -%}
     </div>
     {%- if message %}

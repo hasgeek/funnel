@@ -24,7 +24,7 @@
                 <span class="profile-avatar profile-avatar--bigger profile-avatar--new margin-right">
                   {{ faicon(icon='plus', icon_size='title', baseline=false) }}
                 </span>
-                <span class="mui--text-hyperlink mui--text-subhead mui--text-bold">{% trans %}Add new organization{% endtrans %}</span>
+                <span class="mui--text-hyperlink mui--text-subhead text-bold">{% trans %}Add new organization{% endtrans %}</span>
               </a>
             </li>
             {% for orgmem in current_auth.user.views.organizations_as_admin() %}
@@ -46,7 +46,7 @@
                 <div>
                   <a href="{{ orgmem.organization.profile.url_for() }}"
                    class="nounderline display-block margin-bottom">
-                    <p class="profile-avatar-title mui--text-dark mui--text-subhead mui--text-bold">
+                    <p class="profile-avatar-title mui--text-dark mui--text-subhead text-bold">
                       {{ orgmem.organization.profile.title }}
                       {% if not orgmem.organization.profile.state.PUBLIC %}
                         {{ faicon(icon='lock-alt', icon_size='caption', baseline=false, css_class="margin-left") }}

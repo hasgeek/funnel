@@ -48,7 +48,7 @@
               {%- endif %}{% endfor %}
               <p class="mui--text-subhead margin-bottom">{{ proposal.title }}</p>
               {%- for label in proposal.labels %}
-                <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+                <span class="label text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
               {%- endfor %}
             </div>
           {%- endfor %}

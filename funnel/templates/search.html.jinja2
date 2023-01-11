@@ -23,7 +23,7 @@
         <div class="user__box">
           {{ useravatar(item.obj.user) }}
           <div class="user__box__header comment__header__details__user">
-            <h4 class="mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
+            <h4 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
             <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
               {%- if item.obj.speaker %}{{ item.obj.speaker }} <span class="mui--text-light">{% trans %}in{% endtrans %}</span>{% endif %} {{ item.obj.project.title }} <span class="mui--text-light">at</span> {{ item.obj.start_at_localized|time }}–{{ item.obj.end_at_localized|date }} <span class="mui--text-light">{% trans %}on{% endtrans %}</span> {{ item.obj.start_at_localized|date }}
             </h3>
@@ -34,7 +34,7 @@
         <div class="user__box">
           {{ useravatar(item.obj.user) }}
           <div class="user__box__header comment__header__details__user">
-            <h4 class="mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
+            <h4 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
             <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
               {%- if item.obj.first_user.fullname %}<span>{{ item.obj.first_user.fullname }}</span> <span class="mui--text-light">{% trans %}in{% endtrans %}</span>{% endif %} <span>{{ item.obj.project.joined_title }} </span>
               {%- if item.obj.session and item.obj.session.start_at %}
@@ -48,7 +48,7 @@
         <div class="user__box">
           {{ useravatar(item.obj.user) }}
           <div class="user__box__header comment__header__details__user">
-            <h4 class="mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
+            <h4 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
             <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
               {%- if item.obj.user.fullname %}<span>{{ item.obj.user.fullname }}</span> <span class="mui--text-light">{% trans %}in{% endtrans %}</span>{% endif %} <span>{{ item.obj.project.joined_title }} </span>
             </h3>
@@ -59,7 +59,7 @@
         <div class="user__box">
           {{ useravatar(item.obj.user) }}
           <div class="user__box__header comment__header__details__user">
-            <h4 class="mui--text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.obj.title }}</a></h4>
+            <h4 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.obj.title }}</a></h4>
             <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ item.obj.created_at|date }} {%- if item.obj.edited_at %} {% trans date=item.obj.edited_at|date %}edited {{ date }}{% endtrans %}{% endif %}</p>
           </div>
         </div>

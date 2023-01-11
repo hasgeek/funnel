@@ -146,13 +146,13 @@
 // ============================================================================
 
 .mui--bg-primary {
-  background-color: $mui-bg-color-primary;
+  background-color: $mui-bg-color-primary !important;
 }
 .mui--bg-primary-dark {
-  background-color: $mui-bg-color-dark;
+  background-color: $mui-bg-color-dark !important;
 }
 .mui--bg-accent {
-  background-color: $mui-bg-color-accent;
+  background-color: $mui-bg-color-accent !important;
 }
 
 // ============================================================================

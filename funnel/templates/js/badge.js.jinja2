@@ -69,7 +69,7 @@
             {{#if scanning}}
               <h4 class="mui--text-headlin mui--align-middle">{{ gettext('Scanning') }} <faicon icon='times' icon_size='title' baseline=true></faicon></h4>
             {{elseif contactFound}}
-              <h3 class="mui--text-title mui--text-bold"><faicon icon='user' css_class=" icon-img--smaller"></faicon>{{ contact.fullname }}</h3>
+              <h3 class="mui--text-title text-bold"><faicon icon='user' css_class=" icon-img--smaller"></faicon>{{ contact.fullname }}</h3>
               <p class="mui--text-subhead"><faicon icon='envelope' css_class=" icon-img--smaller"></faicon>{{ contact.email }}</p>
               {{#if contact.phone }}
                 <p class="mui--text-subhead"><faicon icon='phone-alt' css_class="icon-img--smaller"></faicon>{{ contact.phone }}</p>
@@ -101,7 +101,7 @@
                 <div>
                   <div class="mui--clearfix">
                     <div class="mui--pull-left contact-card__details">
-                      <h3 class="mui--text-title mui--text-bold"><faicon icon='user' css_class=" icon-img--smaller"></faicon>{{ contacts[i].fullname }}</h3>
+                      <h3 class="mui--text-title text-bold"><faicon icon='user' css_class=" icon-img--smaller"></faicon>{{ contacts[i].fullname }}</h3>
                       <p class="mui--text-subhead"><faicon icon='envelope' css_class="icon-img--smaller"></faicon>{{ contacts[i].email }}</p>
                       {{#if contacts[i].phone }}
                         <p class="mui--text-subhead"><faicon icon='phone-alt' css_class="icon-img--smaller"></faicon>{{ contacts[i].phone }}</p>

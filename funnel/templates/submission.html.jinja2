@@ -276,7 +276,7 @@
           <div class="gallery mui-tabs__bar">
             {% with seq = 1 %}
               {% if proposal.session and proposal.session.views.video and proposal.session.views.video.url %}
-                <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">
+                <h3 class="mui--text-subhead mui--text-accent text-bold gallery__text">
                   {%- trans %}Session video{% endtrans -%}
                 </h3>
                 <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
@@ -294,7 +294,7 @@
                 </div>
                 {% set seq = seq + 1 %}
               {% endif %}
-              <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">
+              <h3 class="mui--text-subhead mui--text-accent text-bold gallery__text">
                 {% trans %}Submission video{% endtrans %}
               </h3>
               {% if proposal.views.video %}
@@ -318,7 +318,7 @@
                   <a role="tab"
                     data-mui-toggle="tab"
                     data-mui-controls="pane-justified-{{ seq }}">
-                    <h3 class="mui--text-subhead mui--text-accent mui--text-bold">
+                    <h3 class="mui--text-subhead mui--text-accent text-bold">
                       No preview video
                     </h3>
                   </a>
@@ -359,7 +359,7 @@
       <div class="mobile-header-right">
         {{ share_widget(formid="desktop", icon_size='subhead') }}
       </div>
-      <h2 class="mui--text-bold" data-cy="proposal-title">
+      <h2 class="text-bold" data-cy="proposal-title">
         {{ proposal.title }}
       </h2>
       <p class="mui--text-caption mui--text-light">
@@ -368,7 +368,7 @@
       <div class="proposal__section__labels">
         {%- for label in proposal.labels %}
           {% if not label.restricted %}
-            <span class="label mui--text-bold">
+            <span class="label text-bold">
               {% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %}
               {% if label.main_label %}{{ label.main_label.title }}:{% endif %}
             {{ label.title }}</span>
@@ -377,7 +377,7 @@
         {%- if proposal.current_roles.project_editor %}
           {%- for label in proposal.labels %}
             {%- if label.restricted %}
-              <span class="label mui--text-bold">
+              <span class="label text-bold">
                 {% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %}
                 {% if label.main_label %}{{ label.main_label.title }}:{% endif %}
               {{ label.title }}</span>
@@ -402,7 +402,7 @@
     </div>
     <div class="page-card page-card--nomargin">
       <section class="proposal__section">
-        <h3 id="comments" class="mui--text-title mui--text-bold zero-top-margin">
+        <h3 id="comments" class="mui--text-title text-bold zero-top-margin">
           {%- trans %}Comments{% endtrans -%}
         </h3>
         {{ comments_tree() }}

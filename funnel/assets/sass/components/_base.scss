@@ -3,11 +3,6 @@ body {
   height: 100%;
 }
 
-[class*='grid__col-'] {
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
 body {
   font-size: $mui-base-font-size;
   line-height: $mui-base-line-height-px;
@@ -138,4 +133,12 @@ blockquote {
   blockquote {
     margin-bottom: 16px;
   }
+}
+
+dt {
+  font-weight: 600;
+}
+
+dd {
+  margin-left: $mui-grid-padding;
 }
