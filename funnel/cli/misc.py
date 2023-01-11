@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
+import click
+
 from baseframe import baseframe_translations
 
 from .. import app, models
@@ -19,7 +21,7 @@ def shell_context() -> Dict[str, Any]:
 @app.cli.command('dbconfig')
 def dbconfig() -> None:
     """Show required database configuration."""
-    print(  # noqa: T201
+    click.echo(
         '''
 -- Pipe this into psql as a super user. Example:
 -- flask dbconfig | sudo -u postgres psql funnel
@@ -42,4 +44,4 @@ def dbcreate() -> None:
 @app.cli.command('baseframe_translations_path')
 def baseframe_translations_path() -> None:
     """Show path to Baseframe translations."""
-    print(list(baseframe_translations.translation_directories)[0])  # noqa: T201
+    click.echo(list(baseframe_translations.translation_directories)[0])

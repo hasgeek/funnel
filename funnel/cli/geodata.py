@@ -14,6 +14,7 @@ import time
 import zipfile
 
 from flask.cli import AppGroup
+import click
 
 from unidecode import unidecode
 import requests
@@ -120,7 +121,7 @@ def downloadfile(basepath: str, filename: str, folder: Optional[str] = None) -> 
         os.path.exists(folder_file)
         and (time.time() - os.path.getmtime(folder_file)) < 86400
     ):
-        print(f"Skipping re-download of recent {filename}")  # noqa: T201
+        click.echo(f"Skipping re-download of recent {filename}")
         return
     with rich.progress.Progress(
         rich.progress.TextColumn('{task.description}'),
@@ -256,7 +257,7 @@ def load_geonames(filename: str) -> None:
                     continue
                 geonames.append(rec)
 
-    print(f"Sorting {len(geonames)} records...")  # noqa: T201
+    click.echo(f"Sorting {len(geonames)} records...")
 
     geonames = [
         row[3]
@@ -317,7 +318,7 @@ def load_geonames(filename: str) -> None:
 
 def load_alt_names(filename: str) -> None:
     """Load alternative names for geonames from the given file descriptor."""
-    print("Retrieving all geoname records...")  # noqa: T201
+    click.echo("Retrieving all geoname records...")
     geonameids = {r[0] for r in db.session.query(GeoName.id).all()}
     with rich.progress.open(
         filename,
