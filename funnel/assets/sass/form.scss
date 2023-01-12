@@ -1,7 +1,9 @@
 @import 'mui/colors_custom', 'mui/custom', 'mui/variables';
 @import 'mui/mixins/util', 'mui/mixins/forms';
-@import 'mui/helpers','mui/checkbox-and-radio', 'mui/select', 'mui/textfield', 'mui/form';
-@import 'variable', 'components/typography', 'components/draggablebox', 'components/switch', 'components/codemirror';
+@import 'mui/helpers', 'mui/checkbox-and-radio', 'mui/select', 'mui/textfield',
+  'mui/form';
+@import 'variable', 'components/typography', 'components/draggablebox',
+  'components/switch', 'components/codemirror';
 
 // ============================================================================
 // Form
@@ -194,7 +196,6 @@
 // Listwidget
 // ============================================================================
 
-
 .listwidget ul,
 .listwidget ol {
   list-style: none;
@@ -224,7 +225,6 @@
 // ============================================================================
 // Imgee popup in Account edit form
 // ============================================================================
-
 
 .imgee {
   position: relative;
@@ -376,7 +376,6 @@
     margin: 0;
   }
 }
-
 
 // ============================================================================
 // Add/Edit crew form

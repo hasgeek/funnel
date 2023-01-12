@@ -69,7 +69,10 @@ module.exports = {
     update_css: path.resolve(__dirname, 'funnel/assets/sass/update.scss'),
     imgeemodal_css: path.resolve(__dirname, 'funnel/assets/sass/imgee_modal.scss'),
     label_form_css: path.resolve(__dirname, 'funnel/assets/sass/label_form.scss'),
-    submission_form_css: path.resolve(__dirname, 'funnel/assets/sass/submission_form.scss'),
+    submission_form_css: path.resolve(
+      __dirname,
+      'funnel/assets/sass/submission_form.scss'
+    ),
     screens_css: path.resolve(__dirname, 'funnel/assets/sass/screens.scss'),
     event_css: path.resolve(__dirname, 'funnel/assets/sass/event.scss'),
   },
