@@ -72,9 +72,15 @@
         }
 
         .header__nav-links {
+          display: inline-block;
+          font-size: 14px;
+          line-height: 1;
+          text-align: center;
+          cursor: pointer;
           text-decoration: none !important;
           color: $mui-neutral-color;
           .header__nav-links__text {
+            display: block;
             font-size: 12px;
             color: $mui-text-light;
             font-weight: 600;

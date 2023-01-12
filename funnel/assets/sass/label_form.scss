@@ -31,53 +31,60 @@
     height: 48px;
     margin-right: 20px;
 
-    label {
-      display: none;
-    }
-
-    .emojionearea-editor {
-      height: 48px;
-      min-height: 20px;
-      overflow: hidden;
-      white-space: nowrap;
-      position: absolute;
-      top: 0;
-      left: 12px;
-      right: 24px;
-      padding: 6px 0;
-    }
-
-    .emojionearea-button {
-      top: 10px;
+    .emojionearea.emojionearea-standalone
+    .emojionearea-picker.emojionearea-picker-position-bottom
+    .emojionearea-wrapper:after,
+    .emojionearea.emojionearea-standalone
+    .emojionearea-picker.emojionearea-picker-position-top
+    .emojionearea-wrapper:after {
+        right: 0;
+        left: 40px;
     }
 
     .emojionearea-editor {
       left: 6px !important;
       padding-right: 45px !important;
+
+      [class*='emojione-'],
+      .emojioneemoji {
+        margin: -0.2ex 1ex 0.2ex -0.5ex;
+      }
+
     }
 
-    .emojionearea-button .emojionearea-button-open,
-    .emojionearea-button .emojionearea-button-close {
-      right: 3px;
+    .emojionearea-button {
+      .emojionearea-button-open,
+      .emojionearea-button-close {
+        right: 3px;
+      }
+      > .emojionearea-button-open {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E") !important;
+        background-position: center;
+      }
+      > .emojionearea-button-close {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E") !important;
+        background-position: center;
+        transform: scale(0.8) rotate(-45deg);
+      }
     }
 
-    .emojionearea .emojionearea-editor [class*='emojione-'],
-    .emojionearea .emojionearea-editor .emojioneemoji {
-      margin: -0.2ex 1ex 0.2ex -0.5ex;
+    .emojionearea-button.active > .emojionearea-button-close {
+      transform: scale(0.8) rotate(0);
     }
-  }
 
-  .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {
-    right: -251px;
-  }
-  .emojionearea.emojionearea-standalone
-    .emojionearea-picker.emojionearea-picker-position-bottom
-    .emojionearea-wrapper:after,
-  .emojionearea.emojionearea-standalone
-    .emojionearea-picker.emojionearea-picker-position-top
-    .emojionearea-wrapper:after {
-    right: 0;
-    left: 40px;
+    .emojionearea-picker.emojionearea-picker-position-bottom {
+      right: -251px;
+    }
+
+    .emojionearea-picker .emojionearea-search > input {
+      border: none;
+      border-bottom: 1px solid #c0ccda;
+    }
+
+
+    label {
+      display: none;
+    }
   }
 }
 
@@ -94,21 +101,4 @@
     right: 0;
     left: 80px;
   }
-}
-
-.emojionearea .emojionearea-button > div.emojionearea-button-open {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E") !important;
-  background-position: center;
-}
-.emojionearea .emojionearea-button > div.emojionearea-button-close {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E") !important;
-  background-position: center;
-  transform: scale(0.8) rotate(-45deg);
-}
-.emojionearea .emojionearea-button.active > div.emojionearea-button-close {
-  transform: scale(0.8) rotate(0);
-}
-.emojionearea .emojionearea-picker .emojionearea-search > input {
-  border: none;
-  border-bottom: 1px solid #c0ccda;
 }
