@@ -8,7 +8,7 @@
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/account.scss') }}" />
 {%- endblock pageheaders %}
 
-{% block bodyattrs %}class="mui--bg-primary tabs-navbar"{% endblock bodyattrs %}
+{% block bodyattrs %}class="bg-primary tabs-navbar"{% endblock bodyattrs %}
 
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
@@ -22,7 +22,7 @@
   <div class="mui-container tab-content">
     <div class="grid">
       <div class="grid__col-xs-12">
-        <ul class="mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps mui--text-capitalize" role="tablist">
+        <ul class="mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps text-capitalize" role="tablist">
           {% for transport in transports %}
             <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
               <a class="mui--text-body2" href="#" onclick="return false;" role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ transport }}">{{ transport_details[transport]['title'] }}</a>

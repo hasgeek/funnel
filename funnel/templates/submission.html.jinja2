@@ -21,7 +21,7 @@
         href="{{ built_asset('css/comments.scss') }}"/>
 {%- endblock pageheaders -%}
 {%- block bodyattrs -%}
-  class="mui--bg-accent no-sticky-header mobile-header proposal-page subproject-page {% if proposal.views.video or proposal.session and proposal.session.views.video %}mobile-hide-livestream{% endif %}"
+  class="bg-accent no-sticky-header mobile-header proposal-page subproject-page {% if proposal.views.video or proposal.session and proposal.session.views.video %}mobile-hide-livestream{% endif %}"
 {%- endblock bodyattrs -%}
 {% macro share_widget(formid="desktop", icon_size='body') %}
   <a href="#"
@@ -194,12 +194,12 @@
   {% with prev_proposal = proposal.getprev(), next_proposal = proposal.getnext() %}
     {%- if prev_proposal -%}
       <a href="{{ prev_proposal.url_for() }}"
-        class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline prev-btn js-spa-navigate">{{ faicon(icon=prev_icon, icon_size='subhead', baseline=false, css_class="mui--align-middle btn-margin-right") }}{% trans %}Previous{% endtrans %}
+        class="mui--text-body2 text-capitalize mui--text-dark nounderline prev-btn js-spa-navigate">{{ faicon(icon=prev_icon, icon_size='subhead', baseline=false, css_class="mui--align-middle btn-margin-right") }}{% trans %}Previous{% endtrans %}
       </a>
     {%- endif -%}
     {%- if next_proposal -%}
       <a href="{{ next_proposal.url_for() }}"
-        class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline js-spa-navigate">
+        class="mui--text-body2 text-capitalize mui--text-dark nounderline js-spa-navigate">
         {%- trans %}Next{% endtrans -%}{{ faicon(icon=next_icon, icon_size='subhead', baseline=false, css_class="mui--align-middle btn-margin-left") }}
       </a>
     {%- endif -%}
@@ -231,7 +231,7 @@
             {% if proposal.session and proposal.session.views.video and proposal.session.views.video.url %}
               <div class="mui-tabs__pane {% if seq==1 %}mui--is-active{%- endif -%}"
                   id="pane-justified-{{ seq }}">
-                <div class="details__box__video mui--bg-primary-dark embed-video-wrapper"
+                <div class="details__box__video bg-primary-dark embed-video-wrapper"
                     data-cy="session-video">
                   {{ embed_video_player(proposal.session.views.video) }}
                 </div>
@@ -244,7 +244,7 @@
             {% if proposal.views.video %}
               <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}"
                   id="pane-justified-{{ seq }}">
-                <div class="details__box__video mui--bg-primary-dark embed-video-wrapper"
+                <div class="details__box__video bg-primary-dark embed-video-wrapper"
                     data-cy="proposal-video">
                   {{ embed_video_player(proposal.views.video) }}
                 </div>
@@ -385,7 +385,7 @@
           {%- endfor %}
         {% endif %}
       </div>
-      <div class="proposal-content markdown top-padding mui--bg-primary">
+      <div class="proposal-content markdown top-padding bg-primary">
         {{ proposal.body }}
       </div>
       {%- if proposal.has_sponsors %}{{ list_sponsors(proposal.sponsor_memberships) }}{%- endif %}

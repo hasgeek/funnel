@@ -34,7 +34,7 @@
   </script>
 {%- endblock pageheaders %}
 
-{% block bodyattrs %}class="mui--bg-primary mobile-header"{% endblock bodyattrs %}
+{% block bodyattrs %}class="bg-primary mobile-header"{% endblock bodyattrs %}
 
 {% block contenthead %}
 {% endblock contenthead %}
@@ -44,7 +44,7 @@
 {% endblock baseheadline %}
 
 {% block basecontent %}
-  <div class="mui--bg-accent">
+  <div class="bg-accent">
     {%- if profile.is_organization_profile %}
       {%- with people = profile.organization.views.people_and_teams() %}
         {%- if people %}
@@ -91,7 +91,7 @@
           </ul>
           {% if sponsored_projects|length > 6 %}
             <div class="mui--text-center">
-              <a href="#" onclick="return false;" data-target="show all supported projects" class="jquery-show-all mui--text-uppercase" data-projects="js-supported-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+              <a href="#" onclick="return false;" data-target="show all supported projects" class="jquery-show-all text-uppercase" data-projects="js-supported-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>
           {% endif %}
         </div>
@@ -113,7 +113,7 @@
           </ul>
           {% if sponsored_submissions|length > 4 %}
             <div class="mui--text-center">
-              <a href="#" onclick="return false;" data-target="show all supported projects" class="jquery-show-all mui--text-uppercase" data-projects="js-supported-submissions" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+              <a href="#" onclick="return false;" data-target="show all supported projects" class="jquery-show-all text-uppercase" data-projects="js-supported-submissions" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>
           {% endif %}
         </div>
@@ -155,7 +155,7 @@
         </ul>
         {% if draft_projects|length > 2 %}
           <div class="mui--text-center">
-            <a href="#" onclick="return false;" data-target="show all draft projects" class="jquery-show-all mui--text-uppercase" data-projects="js-draft-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+            <a href="#" onclick="return false;" data-target="show all draft projects" class="jquery-show-all text-uppercase" data-projects="js-draft-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
           </div>
         {% endif %}
       </div>
@@ -179,7 +179,7 @@
           </ul>
           {% if unscheduled_projects|length > 3 %}
             <div class="mui--text-center">
-              <a href="#" onclick="return false;" data-target="show all unscheduled projects" class="jquery-show-all mui--text-uppercase" data-projects="js-unscheduled-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+              <a href="#" onclick="return false;" data-target="show all unscheduled projects" class="jquery-show-all text-uppercase" data-projects="js-unscheduled-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>
           {% endif %}
         </div>

@@ -205,7 +205,7 @@
 
 {% macro featured_section(featured_project, heading=true) %}
   {% if featured_project %}
-    <div class="mui--bg-primary">
+    <div class="bg-primary">
     {% with current_sessions = featured_project.current_sessions() if
     featured_project is not none else none %}
     {% if current_sessions and current_sessions.sessions|length > 0 %}
@@ -300,7 +300,7 @@
               <h3 class="mui--text-headline text-bold">{{ featured_project.title }}</h3>
               <p class="mui--text-subhead mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</p>
               <div class="bottom-padding mui--text-light">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
-              <a href="{{ featured_project.profile.url_for() }}" class="mui--text-body2 mui--text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
+              <a href="{{ featured_project.profile.url_for() }}" class="mui--text-body2 text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
             </div>
             <div class="grid__col-md-1 grid__col-lg-1">
             </div>
@@ -360,7 +360,7 @@
         </ul>
         {% if open_cfp_projects|length > 4 %}
           <div class="mui--text-center">
-            <a href="#" onclick="return false;" data-target="show all cfp projects" class="jquery-show-all mui--text-uppercase" data-projects="js-cfp-projects" data-ga="Show all cfp projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+            <a href="#" onclick="return false;" data-target="show all cfp projects" class="jquery-show-all text-uppercase" data-projects="js-cfp-projects" data-ga="Show all cfp projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
           </div>
         {% endif %}
       </div>
@@ -518,7 +518,7 @@
       </div>
     </div>
   </div>
-  <div class="sub-navbar-container sub-navbar-container--sticky mui--bg-primary mui--z1 {% if class %}{{ class }}{% endif %}">
+  <div class="sub-navbar-container sub-navbar-container--sticky bg-primary mui--z1 {% if class %}{{ class }}{% endif %}">
     <div class="mui-container">
       <div class="sub-navbar-container__inner">
         <nav class="sub-navbar" id="page-navbar">
@@ -537,7 +537,7 @@
 {% endmacro %}
 
 {% macro page_footer() %}
-  <footer class="sub-navbar-container sub-navbar-container--footer mui--bg-accent">
+  <footer class="sub-navbar-container sub-navbar-container--footer bg-accent">
     <nav class="sub-navbar mui-container" id="page-navbar">
       <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'index' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('about') }}">{% trans %}About Hasgeek{% endtrans %}</a>
       <a class="sub-navbar__item mui--text-subhead mui--text-dark" href="{{ url_for('profile', profile='hasgeek') }}">{% trans %}Team &amp; careers{% endtrans %}</a>
@@ -777,11 +777,11 @@
         </div>
         <div class="grid__col-12 mui-table--responsive-wrapper">
           <table class="mui-table mui-table--bordered mui-table--responsive past-events-table">
-            <thead class="mui--bg-primary-dark">
+            <thead class="bg-primary-dark">
               <tr>
-                <th class="mui--text-subhead mui--text-capitalize">{% trans %}Date{% endtrans %}</th>
-                <th class="mui--text-subhead mui--text-capitalize">{% trans %}Project{% endtrans %}</th>
-                <th class="mui--text-subhead mui--text-capitalize">{% trans %}Location{% endtrans %}</th>
+                <th class="mui--text-subhead text-capitalize">{% trans %}Date{% endtrans %}</th>
+                <th class="mui--text-subhead text-capitalize">{% trans %}Project{% endtrans %}</th>
+                <th class="mui--text-subhead text-capitalize">{% trans %}Location{% endtrans %}</th>
               </tr>
             </thead>
             <tbody {% if profile %} hx-get="{{ profile.url_for('past_projects', page=1) }}" {%- else -%} hx-get="{{ url_for('past_projects', page=1) }}" {%- endif %} hx-trigger="intersect" hx-swap="innerHTML">

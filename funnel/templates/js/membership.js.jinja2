@@ -18,10 +18,10 @@
         <hr class="separator" />
         <div v-if="members">
           <div class="mui--clearfix membership-wrapper__filter">
-            <p class="mui--text-body2 mui--text-light mui--text-uppercase mui--pull-left membership-wrapper__filter--txt">{{ members.length }} <span v-if="members.length > 1">{{ gettext('members') }}</span><span v-else>{{ gettext('member') }}</span></p>
+            <p class="mui--text-body2 mui--text-light text-uppercase mui--pull-left membership-wrapper__filter--txt">{{ members.length }} <span v-if="members.length > 1">{{ gettext('members') }}</span><span v-else>{{ gettext('member') }}</span></p>
             <div class="mui--pull-right">
-              <button class="mui-btn mui-btn--nostyle mui--text-body2" @click="filter($event, 'name')" :class="[view == 'name' ? 'text-bold mui--text-underline' : 'mui--text-light']">{{ gettext('Name') }}</button>
-              <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-body2" @click="filter($event, 'role')" :class="[view == 'role' ? 'text-bold mui--text-underline' : 'mui--text-light']">{{ gettext('Role') }}</button>
+              <button class="mui-btn mui-btn--nostyle mui--text-body2" @click="filter($event, 'name')" :class="[view == 'name' ? 'text-bold underline' : 'mui--text-light']">{{ gettext('Name') }}</button>
+              <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-body2" @click="filter($event, 'role')" :class="[view == 'role' ? 'text-bold underline' : 'mui--text-light']">{{ gettext('Role') }}</button>
             </div>
           </div>
           <div v-if="view == 'role'" class="membership-wrapper__members bottom-padding margin-bottom">
@@ -71,7 +71,7 @@
             <faicon :icon="'times'" :icon_size="'title'"></faicon>
           </a>
           <component :is="Form"></component>
-          <div class="modal--form__action-box mui--bg-accent">
+          <div class="modal--form__action-box bg-accent">
             <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
             <button class="mui-btn mui-btn--nostyle mui--text-light" @click="closeForm($event)">{{ gettext('Cancel') }}</button>
           </div>

@@ -16,10 +16,10 @@
     <div>
       {% with prev_update = update.getprev(), next_update = update.getnext() %}
       {%- if next_update -%}
-        <a href="{{ next_update.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline">{{ faicon(icon='caret-left-solid', icon_size='subhead', baseline=false, css_class="mui--align-middle btn-margin-right") }}{% trans %}Next{% endtrans %}</a>
+        <a href="{{ next_update.url_for() }}" class="mui--text-body2 text-capitalize mui--text-dark nounderline">{{ faicon(icon='caret-left-solid', icon_size='subhead', baseline=false, css_class="mui--align-middle btn-margin-right") }}{% trans %}Next{% endtrans %}</a>
       {%- endif -%}
       {%- if prev_update -%}
-        <a href="{{ prev_update.url_for() }}" class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline next-btn">{% trans %}Previous{% endtrans %}{{ faicon(icon='caret-right-solid', icon_size='subhead', baseline=false, css_class="mui--align-middle btn-margin-left") }}</a>
+        <a href="{{ prev_update.url_for() }}" class="mui--text-body2 text-capitalize mui--text-dark nounderline next-btn">{% trans %}Previous{% endtrans %}{{ faicon(icon='caret-right-solid', icon_size='subhead', baseline=false, css_class="mui--align-middle btn-margin-left") }}</a>
       {%- endif -%}
       {% endwith %}
     </div>

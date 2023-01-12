@@ -5,7 +5,7 @@
 
 <div class="modal__header">
   <a class="modal__close mui--text-dark" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-admin-panel" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-  <h3 class="mui--text-title text-bold mui--text-uppercase" data-cy="admin-panel">{% trans %}Admin panel{% endtrans %}</h3>
+  <h3 class="mui--text-title text-bold text-uppercase" data-cy="admin-panel">{% trans %}Admin panel{% endtrans %}</h3>
 </div>
 <div class="modal__body proposal__admin-panel">
   {%- if proposal.current_roles.project_editor %}

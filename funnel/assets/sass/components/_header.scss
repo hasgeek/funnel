@@ -18,6 +18,7 @@
     .header__site-title {
       padding: 0;
       width: 100%;
+      color: $mui-text-light;
 
       .header__site-title__title {
         display: flex;
@@ -25,6 +26,7 @@
         align-items: center;
         height: $mui-header-height;
         position: relative;
+        white-space: nowrap;
 
         .header__site-title__title__about {
           display: none;
@@ -58,7 +60,7 @@
           }
           .search-form__field__icon {
             position: absolute;
-            bottom: 20px;
+            bottom: 18px;
             left: 22px;
           }
           .search-form__submit {
@@ -450,7 +452,7 @@
               padding: 8px 10px 8px $mui-grid-padding-double;
             }
             .search-form__field__icon {
-              top: 9px;
+              top: 11px;
               left: 13px;
             }
           }
@@ -519,7 +521,6 @@
 @media only screen and (max-width: 767px) and (orientation: landscape) {
   .header--fixed {
     .header__nav {
-      height: 35px;
       .header__site-title {
         .header__site-title__title {
           .header__nav-links {
@@ -537,21 +538,9 @@
             right: 0;
             left: 19px;
           }
-
-          .search-form {
-            bottom: 35px;
-          }
-        }
-        a.header__button {
-          height: 24px;
-          line-height: 24px;
         }
       }
     }
-  }
-  .header_dropdown--mobile {
-    height: auto;
-    padding-bottom: 35px; //Height of header in landscape mode
   }
 }
 

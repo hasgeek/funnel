@@ -144,13 +144,13 @@
 // BACKGROUND COLORS
 // ============================================================================
 
-.mui--bg-primary {
+.bg-primary {
   background-color: $mui-bg-color-primary !important;
 }
-.mui--bg-primary-dark {
+.bg-primary-dark {
   background-color: $mui-bg-color-dark !important;
 }
-.mui--bg-accent {
+.bg-accent {
   background-color: $mui-bg-color-accent !important;
 }
 
@@ -158,11 +158,11 @@
 // Text transform
 // ============================================================================
 
-.mui--text-uppercase {
+.text-uppercase {
   text-transform: uppercase;
 }
 
-.mui--text-capitalize {
+.text-capitalize {
   text-transform: capitalize;
 }
 
@@ -170,7 +170,7 @@
 // Text decoration
 // ============================================================================
 
-.mui--text-underline {
+.underline {
   text-decoration: underline;
 }
 
@@ -182,7 +182,7 @@
 // Font weight
 // ============================================================================
 
-.mui--text-bold {
+.text-bold {
   font-weight: 600;
 }
 

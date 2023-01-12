@@ -11,7 +11,7 @@
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/project.scss') }}" />
 {% endblock layoutheaders %}
 
-{% block bodyattrs %}class="mui--bg-accent no-sticky-header mobile-header project-page {% if current_page != 'project' %}subproject-page{%- endif %}"{% endblock bodyattrs %}
+{% block bodyattrs %}class="bg-accent no-sticky-header mobile-header project-page {% if current_page != 'project' %}subproject-page{%- endif %}"{% endblock bodyattrs %}
 
 {% block contenthead %}
 {% endblock contenthead %}
@@ -267,7 +267,7 @@
   {% endif %}
   <div class="page-card">
     <div class="project-section">
-      <div class="about mui--bg-primary" id="about">
+      <div class="about bg-primary" id="about">
         <div class="markdown">{{ project.description.html }}</div>
         {%- if project.subprojects %}
           <hr class="mui-divider" />
@@ -374,7 +374,7 @@
 
 {% block basecontent %}
   {% block project_banner %}
-    <div class="mui--bg-primary project-header-wrapper">
+    <div class="bg-primary project-header-wrapper">
       <div class="mui-container">
         <div class="grid page-content">
           <div class="grid__col-sm-12">
@@ -432,7 +432,7 @@
   {%- endblock before_navbar %}
 
   {% block project_navbar %}
-    <div class="mui--bg-primary sub-navbar-container sub-navbar-container--sticky mui--z1 {% if current_page != 'project' %}sub-navbar-container--inner{%- endif %} subproject-page__hide">
+    <div class="bg-primary sub-navbar-container sub-navbar-container--sticky mui--z1 {% if current_page != 'project' %}sub-navbar-container--inner{%- endif %} subproject-page__hide">
       <div class="mui-container">
         <div class="sub-navbar-container__inner">
           <nav class="sub-navbar" id="page-navbar">
