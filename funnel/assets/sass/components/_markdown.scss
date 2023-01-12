@@ -10,9 +10,19 @@
   h4,
   h5,
   h6 {
-    a {
-      color: inherit;
-    }
+   a {
+        color: $mui-text-dark;
+        display: none;
+      }
+      &:hover a {
+        display: inline;
+      }
+      @media (any-pointer: coarse) {
+        a {
+          display: inline;
+          color: $mui-text-accent;
+        }
+      }
   }
 
   img {

@@ -1,5 +1,101 @@
 @import 'node_modules/emojionearea/dist/emojionearea';
 
+.label-form {
+  max-width: 500px;
+
+  .label-form__title-field {
+    width: calc(100% - 130px);
+    display: inline-block;
+  }
+
+  .label-form__title-field--close {
+    width: calc(100% - 114px);
+  }
+
+  .label-form__subform__close-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    background: transparent;
+    padding: 10px;
+  }
+
+  .label-form__subform {
+    margin-left: 20px;
+  }
+
+  .emojipicker {
+    float: left;
+    width: 70px;
+    height: 48px;
+    margin-right: 20px;
+
+    label {
+      display: none;
+    }
+
+    .emojionearea-editor {
+      height: 48px;
+      min-height: 20px;
+      overflow: hidden;
+      white-space: nowrap;
+      position: absolute;
+      top: 0;
+      left: 12px;
+      right: 24px;
+      padding: 6px 0;
+    }
+
+    .emojionearea-button {
+      top: 10px;
+    }
+
+    .emojionearea-editor {
+      left: 6px !important;
+      padding-right: 45px !important;
+    }
+
+    .emojionearea-button .emojionearea-button-open,
+    .emojionearea-button .emojionearea-button-close {
+      right: 3px;
+    }
+
+    .emojionearea .emojionearea-editor [class*='emojione-'],
+    .emojionearea .emojionearea-editor .emojioneemoji {
+      margin: -0.2ex 1ex 0.2ex -0.5ex;
+    }
+  }
+
+  .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {
+    right: -251px;
+  }
+  .emojionearea.emojionearea-standalone
+    .emojionearea-picker.emojionearea-picker-position-bottom
+    .emojionearea-wrapper:after,
+  .emojionearea.emojionearea-standalone
+    .emojionearea-picker.emojionearea-picker-position-top
+    .emojionearea-wrapper:after {
+    right: 0;
+    left: 40px;
+  }
+}
+
+.label-form__subform {
+  .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {
+    right: -210px;
+  }
+  .emojionearea.emojionearea-standalone
+    .emojionearea-picker.emojionearea-picker-position-bottom
+    .emojionearea-wrapper:after,
+  .emojionearea.emojionearea-standalone
+    .emojionearea-picker.emojionearea-picker-position-top
+    .emojionearea-wrapper:after {
+    right: 0;
+    left: 80px;
+  }
+}
+
 .emojionearea .emojionearea-button > div.emojionearea-button-open {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E") !important;
   background-position: center;

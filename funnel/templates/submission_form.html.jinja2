@@ -4,6 +4,10 @@
 {% from "project_layout.html.jinja2" import project_header with context %}
 {% block title %}{{ title }}{% endblock title %}
 
+{% block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/submission_form.scss') }}" />
+{% endblock pageheaders %}
+
 {% block contenthead %}
 {% endblock contenthead %}
 

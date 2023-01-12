@@ -1,3 +1,5 @@
+@import 'variable';
+
 .img-upload-modal {
   .imgee {
     .imgee__button,
@@ -28,5 +30,18 @@
         }
       }
     }
+  }
+}
+
+@media (max-width: 767px) {
+  .img-upload-modal.modal__inner {
+    position: fixed;
+    background: $mui-bg-color-primary;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 16px;
+    overflow: auto;
   }
 }

@@ -1,0 +1,116 @@
+@import 'variable';
+
+.submission-form {
+  .submission-header {
+    .submission-header__submit {
+      position: fixed;
+      top: 2px;
+      right: $mui-grid-padding;
+      z-index: 1001;
+      .submission-header__submit__btnwrapper .mui-btn {
+        padding: 0 8px;
+        background: none;
+        color: $mui-text-hyperlink;
+        box-shadow: none;
+      }
+    }
+  }
+  .mui-form__fields {
+    margin-bottom: $mui-grid-padding/4;
+  }
+  #title {
+    font-size: 18px;
+    min-height: auto;
+    height: auto;
+    resize: none !important;
+  }
+  .submission-label {
+    position: relative;
+    .label-error {
+      width: 155px;
+      position: absolute;
+      left: 80px;
+      top: -14px;
+    }
+  }
+  .markdown-field {
+    position: relative;
+    .cm-editor {
+      border-bottom: none !important;
+      .cm-scroller {
+        min-height: calc(100vh - 110px) !important;
+      }
+    }
+    .mui-form__error {
+      position: absolute;
+      top: 100px;
+    }
+  }
+  .proposal-preview {
+    position: fixed;
+    top: 100vh;
+    left: $mui-grid-padding;
+    right: $mui-grid-padding;
+    height: 100vh;
+    z-index: 999;
+    background: $mui-bg-color-primary;
+    padding-top: $mui-grid-padding;
+    font-size: $mui-input-font-size;
+  }
+}
+
+.modal-form.modal-form--submission {
+  .mui-textfield {
+    margin-bottom: 0;
+  }
+  .modal-form__title {
+    position: absolute;
+    top: 10px;
+  }
+}
+
+@media (min-width: 768px) {
+  .submission-form {
+    .submission-header {
+      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+      padding: $mui-grid-padding/2 0;
+      margin-bottom: $mui-grid-padding;
+      position: sticky;
+      top: $mui-header-height;
+      background: $mui-bg-color-primary;
+      z-index: 1000;
+      .submission-header__submit {
+        position: static;
+        .submission-header__submit__btn {
+          margin-left: auto;
+        }
+      }
+      .submission-header__column {
+        border-right: 1px solid $mui-divider-color;
+      }
+    }
+    #title {
+      font-size: 20px;
+    }
+    .submission-header__edit-icons {
+      display: flex;
+      justify-content: space-between;
+    }
+    .proposal-markdown {
+      border-right: 1px solid $mui-divider-color;
+    }
+    .proposal-preview {
+      position: static;
+      height: auto;
+    }
+  }
+}
+
+.collaborator {
+  background: $mui-bg-color-primary;
+}
+
+.collaborator-placeholder {
+  border-bottom: 1px solid $mui-text-accent;
+  background: $mui-bg-color-accent;
+}
