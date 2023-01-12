@@ -32,13 +32,13 @@
     margin-right: 20px;
 
     .emojionearea.emojionearea-standalone
-    .emojionearea-picker.emojionearea-picker-position-bottom
-    .emojionearea-wrapper:after,
+      .emojionearea-picker.emojionearea-picker-position-bottom
+      .emojionearea-wrapper:after,
     .emojionearea.emojionearea-standalone
-    .emojionearea-picker.emojionearea-picker-position-top
-    .emojionearea-wrapper:after {
-        right: 0;
-        left: 40px;
+      .emojionearea-picker.emojionearea-picker-position-top
+      .emojionearea-wrapper:after {
+      right: 0;
+      left: 40px;
     }
 
     .emojionearea-editor {
@@ -49,7 +49,6 @@
       .emojioneemoji {
         margin: -0.2ex 1ex 0.2ex -0.5ex;
       }
-
     }
 
     .emojionearea-button {
@@ -80,7 +79,6 @@
       border: none;
       border-bottom: 1px solid #c0ccda;
     }
-
 
     label {
       display: none;
