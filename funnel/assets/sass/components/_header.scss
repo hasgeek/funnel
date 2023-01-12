@@ -463,6 +463,9 @@
             justify-content: flex-end;
             align-items: center;
           }
+          .header__nav-links {
+            display: flex;
+          }
           .header__nav-links--right {
             margin-left: $mui-grid-padding;
           }
