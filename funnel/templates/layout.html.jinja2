@@ -365,6 +365,10 @@
         });
       });
     }
+    // To calculate height of keyboard to position keyboard switcher above it
+    if ("virtualKeyboard" in navigator) {
+      navigator.virtualKeyboard.overlaysContent = true;
+    }
 </script>
 {% endblock serviceworker %}
 {% block footerscripts %}

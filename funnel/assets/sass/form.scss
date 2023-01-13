@@ -428,6 +428,7 @@
   padding: $mui-grid-padding/2;
   margin: 0;
   background: $mui-bg-color-primary;
+  margin-bottom: calc(env(keyboard-inset-height)); // Position it above the keyboard
 }
 
 input#username:focus ~ .keyboard-switch {
