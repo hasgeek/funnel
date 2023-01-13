@@ -1,10 +1,12 @@
 import TableSearch from './utils/tablesearch';
 import SortItem from './utils/sort';
+import Form from './utils/formhelper';
 
 $(() => {
   window.Hasgeek.submissionsInit = function submissionsInit({
     search = '',
     sort = '',
+    openSubmission = '',
   }) {
     if (search) {
       const tableSearch = new TableSearch(search.tableId);
@@ -24,5 +26,7 @@ $(() => {
     if (sort.permission) {
       SortItem($('.proposal-list-table tbody'), 'proposal-placeholder', sort.url);
     }
+
+    Form.openSubmissionToggle(openSubmission.toggleId, openSubmission.cfpStatusElem);
   };
 });

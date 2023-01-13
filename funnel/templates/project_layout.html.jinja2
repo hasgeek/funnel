@@ -518,8 +518,9 @@
           itemCollectionTitle: {{ project.title|tojson }}
         };
       {%- endif %}
+      var toggleId = '#featured-project'
 
-      window.Hasgeek.projectHeaderInit(projectTitle, saveProjectConfig, tickets);
+      window.Hasgeek.projectHeaderInit(projectTitle, saveProjectConfig, tickets, toggleId);
     });
   </script>
   {% block footerinnerscripts %}{% endblock footerinnerscripts %}

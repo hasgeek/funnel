@@ -59,4 +59,17 @@
 {% block innerscripts %}
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
   <script src="{{ built_asset('cfp_form.js') }}" type="text/javascript"></script>
+    <script type="text/javascript">
+    window.Hasgeek.subpageTitle = {{ self.title()|tojson }};
+    window.Hasgeek.subpageHasVideo = false;
+    $(function() {
+      var config = {
+        openSubmission: {
+          toggleId: '#open-sub',
+          cfpStatusElem: '.js-cfp-status'
+        }
+      };
+      window.Hasgeek.cfpInit(config);
+    });
+  </script>
 {% endblock innerscripts %}

@@ -135,7 +135,7 @@ const Form = {
       }
     });
   },
-  activateToggleSwitch(callbckfn = '') {
+  activateToggleSwitch(checkboxId, callbckfn = '') {
     function postForm() {
       let submitting = false;
       return (checkboxElem) => {
@@ -177,7 +177,7 @@ const Form = {
 
     const throttleSubmit = postForm();
 
-    $('body').on('change', '.js-toggle', function submitToggleSwitch() {
+    $('body').on('change', checkboxId, function submitToggleSwitch() {
       throttleSubmit(this);
     });
 
@@ -189,7 +189,7 @@ const Form = {
     const onSuccess = () => {
       $(cfpStatusDiv).toggleClass('mui--hide');
     };
-    Form.activateToggleSwitch(onSuccess);
+    Form.activateToggleSwitch(checkboxId, onSuccess);
   },
 };
 

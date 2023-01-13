@@ -70,6 +70,10 @@
         sort: {
           url: '{{ project.url_for("reorder_proposals") }}',
           permission: {{ project.current_roles.editor|tojson }},
+        },
+        openSubmission: {
+          toggleId: '#open-sub',
+          cfpStatusElem: '.js-cfp-status'
         }
       };
       window.Hasgeek.submissionsInit(config);
