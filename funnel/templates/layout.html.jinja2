@@ -340,6 +340,11 @@
     {% endif %}
     window.Hasgeek.Config.shorturlApi = {{ url_for('create_shortlink')|tojson }};
     window.Hasgeek.Config.markNotificationReadUrl = {{ url_for('notification_mark_read', eventid_b58='eventid_b58')|tojson }};
+
+    // To calculate height of keyboard to position keyboard switcher above it
+    if ("virtualKeyboard" in navigator) {
+      navigator.virtualKeyboard.overlaysContent = true;
+    }
 </script>
 <script src="{{ built_asset('app.js') }}" type="text/javascript"></script>
 {% block serviceworker %}
@@ -364,10 +369,6 @@
           }
         });
       });
-    }
-    // To calculate height of keyboard to position keyboard switcher above it
-    if ("virtualKeyboard" in navigator) {
-      navigator.virtualKeyboard.overlaysContent = true;
     }
 </script>
 {% endblock serviceworker %}
