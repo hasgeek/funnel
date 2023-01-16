@@ -27,6 +27,8 @@ $(() => {
       SortItem($('.proposal-list-table tbody'), 'proposal-placeholder', sort.url);
     }
 
-    Form.openSubmissionToggle(openSubmission.toggleId, openSubmission.cfpStatusElem);
+    if (openSubmission) {
+      Form.openSubmissionToggle(openSubmission.toggleId, openSubmission.cfpStatusElem);
+    }
   };
 });

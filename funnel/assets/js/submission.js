@@ -4,7 +4,7 @@ import initEmbed from './utils/initembed';
 
 export const Submission = {
   init(toggleId) {
-    Form.activateToggleSwitch(toggleId);
+    if (toggleId) Form.activateToggleSwitch(toggleId);
     Utils.enableWebShare();
     $('.js-subscribe-btn').on('click', function subscribeComments(event) {
       event.preventDefault();
@@ -119,7 +119,7 @@ export const LabelsWidget = {
 };
 
 $(() => {
-  window.Hasgeek.SubmissionInit = function init(toggleId, markdownId) {
+  window.Hasgeek.SubmissionInit = function init(markdownId, toggleId = '') {
     Submission.init(toggleId);
     window.Hasgeek.LabelsWidget = LabelsWidget.init.bind(LabelsWidget);
     initEmbed(markdownId);

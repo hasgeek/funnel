@@ -71,11 +71,13 @@
           url: '{{ project.url_for("reorder_proposals") }}',
           permission: {{ project.current_roles.editor|tojson }},
         },
-        openSubmission: {
+      };
+      {%- if project.view_for('cfp').is_available() %}
+        config.openSubmission = {
           toggleId: '#open-sub',
           cfpStatusElem: '.js-cfp-status'
         }
-      };
+      {%- endif %}
       window.Hasgeek.submissionsInit(config);
     });
   </script>

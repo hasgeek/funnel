@@ -197,7 +197,9 @@ $(() => {
       Ticketing.init(tickets);
     }
 
-    Form.activateToggleSwitch(toggleId);
+    if (toggleId) {
+      Form.activateToggleSwitch(toggleId);
+    }
 
     const hightlightNavItem = (navElem) => {
       const navHightlightClass = 'sub-navbar__item--active';

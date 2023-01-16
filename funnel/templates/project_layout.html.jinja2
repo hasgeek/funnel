@@ -509,6 +509,8 @@
         formId: 'save-form',
       };
       var tickets;
+      var toggleId;
+
       {% if project.features.tickets() -%}
         tickets = {
           boxofficeUrl: {{ config['BOXOFFICE_SERVER']|tojson }},
@@ -518,7 +520,9 @@
           itemCollectionTitle: {{ project.title|tojson }}
         };
       {%- endif %}
-      var toggleId = '#featured-project'
+      {% if current_auth.user.is_site_editor %}
+        toggleId = '#featured-project'
+      {%- endif %}
 
       window.Hasgeek.projectHeaderInit(projectTitle, saveProjectConfig, tickets, toggleId);
     });

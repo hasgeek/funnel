@@ -427,9 +427,12 @@
         loginUrl: "{{ url_for('login') }}",
         lastSeenUrl: {% if proposal.commentset.current_roles.document_subscriber %}{{ proposal.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
       };
-      var toggleId = '#featured-proposal';
-      var markdownId = '#submission .markdown'
-      window.Hasgeek.SubmissionInit(toggleId, markdownId);
+      var markdownId = '#submission .markdown';
+      var toggleId;
+      {%- if proposal.current_roles.project_editor %}
+        toggleId = '#featured-proposal'
+      {%- endif %}
+      window.Hasgeek.SubmissionInit(markdownId, toggleId);
       window.Hasgeek.Comments(commentsConfig);
     });
     </script>
