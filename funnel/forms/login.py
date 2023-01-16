@@ -17,8 +17,8 @@ from ..models import (
     UserSession,
     check_password_strength,
     getuser,
+    parse_phone_number,
 )
-from ..utils import normalize_phone_number
 
 __all__ = [
     'LoginPasswordResetException',
@@ -167,7 +167,7 @@ class LoginForm(forms.RecaptchaForm):
                     raise forms.validators.ValidationError(MSG_EMAIL_BLOCKED) from exc
                 return
             # TODO: Use future PhoneNumber model here, analogous to EmailAddress
-            phone = normalize_phone_number(field.data, sms=True)
+            phone = parse_phone_number(field.data, sms=True)
             if phone is False:
                 raise forms.validators.ValidationError(MSG_PHONE_NO_SMS)
             if phone is not None:

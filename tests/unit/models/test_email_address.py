@@ -229,14 +229,14 @@ def test_email_address_is_blocked_flag() -> None:
 
 
 def test_email_address_can_commit(db_session) -> None:
-    """An EmailAddress can be committed to db."""
+    """An `EmailAddress` can be committed to db."""
     ea = models.EmailAddress('example@example.com')
     db_session.add(ea)
     db_session.commit()
 
 
 def test_email_address_conflict_integrity_error(db_session) -> None:
-    """A conflicting EmailAddress cannot be committed to db."""
+    """A conflicting `EmailAddress` cannot be committed to db."""
     ea1 = models.EmailAddress('example@example.com')
     db_session.add(ea1)
     db_session.commit()

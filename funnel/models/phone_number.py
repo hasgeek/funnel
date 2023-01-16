@@ -13,37 +13,41 @@ from sqlalchemy.sql.expression import ColumnElement
 
 from werkzeug.utils import cached_property
 
+from typing_extensions import Literal
 import base58
+import phonenumbers
 
 from coaster.sqlalchemy import auto_init_default, immutable, with_roles
 from coaster.utils import require_one_of
 
 from ..signals import phonenumber_refcount_dropping
 from ..typing import Mapped
-from ..utils import validate_format_phone_number
 from . import BaseMixin, db, declarative_mixin, declared_attr, hybrid_property, sa
 
 __all__ = [
+    'PhoneDeliveryState',
     'PhoneNumberError',
+    'PhoneNumberInvalidError',
     'PhoneNumberBlockedError',
     'PhoneNumberInUseError',
-    'PhoneDeliveryState',
+    'parse_phone_number',
+    'validate_phone_number',
+    'canonical_phone_number',
     'phone_blake2b160_hash',
     'PhoneNumber',
     'PhoneNumberMixin',
 ]
 
-
-class PhoneNumberError(ValueError):
-    """Base class for PhoneNumber exceptions."""
+# --- Enums and constants --------------------------------------------------------------
 
 
-class PhoneNumberBlockedError(PhoneNumberError):
-    """Phone number is blocked from use."""
-
-
-class PhoneNumberInUseError(PhoneNumberError):
-    """Phone number is in use by another owner."""
+# Unprefixed phone numbers are assumed to be a local number in India (+91). A fallback
+# lookup to US numbers (+1) used to be performed but was removed in #1436 because:
+# 1. Both regions have 10 digit local numbers,
+# 2. Indian numbers have clear separation between SMS-capable and incapable numbers, but
+# 3. US numbers may be mobile or fixed, with unknown SMS capability, and therefore
+# 4. In practice, we received too many random numbers that looked legit but were junk.
+PHONE_LOOKUP_REGIONS = ['IN']
 
 
 class PhoneDeliveryState(IntEnum):
@@ -55,16 +59,150 @@ class PhoneDeliveryState(IntEnum):
     UNREACHABLE = 4
 
 
+# --- Exceptions -----------------------------------------------------------------------
+
+
+class PhoneNumberError(ValueError):
+    """Base class for PhoneNumber exceptions."""
+
+
+class PhoneNumberInvalidError(PhoneNumberError):
+    """Not a phone number."""
+
+
+class PhoneNumberBlockedError(PhoneNumberError):
+    """Phone number is blocked from use."""
+
+
+class PhoneNumberInUseError(PhoneNumberError):
+    """Phone number is in use by another owner."""
+
+
+# --- Utilities ------------------------------------------------------------------------
+
+
+# Three phone number utilities are presented here. All three return a formatted phone
+# number in E164 format.
+#
+# 1. :func:`parse_phone_number` attempts to find a valid phone number in the given input
+#    and optionally validates it for SMS support. SMS validation uses a static database
+#    supplied by Google's libphonenumber, which cannot distinguish between mobile and
+#    fixed line in the US, so an additional live database may be needed there. This
+#    function is meant for parsing phone numbers in UI forms.
+#
+# 2. :func:`validate_phone_number` expects an international phone number and will
+#    validate it to be a real number (as per Google's libphonenumber). This function is
+#    meant for sanity check before making a new database entry. Returns a formatted
+#    number, or raises :exc:`PhoneNumberInvalidError`.
+#
+# 3. :func:`canonical_phone_number` will not attempt validation, only applying E164
+#    formatting. However, if a number cannot be recognised, it will raise
+#    :exc:`PhoneNumberInvalidError`.
+
+
+@overload
+def parse_phone_number(candidate: str) -> Optional[str]:
+    ...
+
+
+@overload
+def parse_phone_number(candidate: str, sms: Literal[False]) -> Optional[str]:
+    ...
+
+
+@overload
+def parse_phone_number(
+    candidate: str, sms: Union[bool, Literal[True]]
+) -> Optional[Union[str, Literal[False]]]:
+    ...
+
+
+def parse_phone_number(
+    candidate: str, sms: bool = False
+) -> Optional[Union[str, Literal[False]]]:
+    """
+    Attempt to parse and validate a phone number and return in E164 format.
+
+    If the number is not in international format, it will be validated for common
+    regions as listed in :attr:`PHONE_LOOKUP_REGIONS` (currently only India).
+
+    :param sms: Validate that the number is from a range that supports SMS delivery,
+        returning `False` if it isn't
+
+    :returns: E164-formatted phone number if found and valid, `None` if not found, or
+        `False` if the number is valid but does not support SMS delivery
+    """
+    # Assume unprefixed numbers to be a local number in one of the supported common
+    # regions. We start with the higher priority home region and return the _first_
+    # candidate that is likely to be a valid number. This behaviour differentiates it
+    # from similar code in :func:`~funnel.models.utils.getuser`, where the loop exits
+    # with the _last_ valid candidate (as it's coupled with a
+    # :class:`~funnel.models.user.UserPhone` lookup)
+    sms_invalid = False
+    try:
+        for region in PHONE_LOOKUP_REGIONS:
+            parsed_number = phonenumbers.parse(candidate, region)
+            if phonenumbers.is_valid_number(parsed_number):
+                if sms:
+                    if phonenumbers.number_type(parsed_number) not in (
+                        phonenumbers.PhoneNumberType.MOBILE,
+                        phonenumbers.PhoneNumberType.FIXED_LINE_OR_MOBILE,
+                    ):
+                        sms_invalid = True
+                        continue  # Not valid for SMS, continue searching regions
+                return phonenumbers.format_number(
+                    parsed_number, phonenumbers.PhoneNumberFormat.E164
+                )
+    except phonenumbers.NumberParseException:
+        pass
+    # We found a number that is valid, but the caller wanted it to be valid for SMS and
+    # it isn't, so return a special flag
+    if sms_invalid:
+        return False
+    return None
+
+
+def validate_phone_number(candidate: str) -> str:
+    """
+    Validate an international phone number and return in E164 format.
+
+    :raises: PhoneNumberInvalidError if format is invalid
+    """
+    try:
+        parsed_number = phonenumbers.parse(candidate)
+        if phonenumbers.is_valid_number(parsed_number):
+            return phonenumbers.format_number(
+                parsed_number, phonenumbers.PhoneNumberFormat.E164
+            )
+    except phonenumbers.NumberParseException:
+        pass
+    raise PhoneNumberInvalidError(f"Not a valid phone number: {candidate}")
+
+
+def canonical_phone_number(candidate: str) -> str:
+    """Normalize an international phone number by rendering into E164 format."""
+    try:
+        parsed_number = phonenumbers.parse(candidate)
+        return phonenumbers.format_number(
+            parsed_number, phonenumbers.PhoneNumberFormat.E164
+        )
+    except phonenumbers.NumberParseException:
+        raise PhoneNumberInvalidError(f"Not a phone number: {candidate}") from None
+
+
 def phone_blake2b160_hash(
     phone: str, *, _pre_validated_formatted: bool = False
 ) -> bytes:
     """BLAKE2b hash of the given phone number using digest size 20 (160 bits)."""
     number: Optional[str]
     if not _pre_validated_formatted:
-        number = validate_format_phone_number(phone)
+        number = validate_phone_number(phone)
     else:
         number = phone
     return hashlib.blake2b(number.encode('utf-8'), digest_size=20).digest()
+
+
+# --- Models ---------------------------------------------------------------------------
 
 
 class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
@@ -190,7 +328,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         if not isinstance(phone, str):
             raise ValueError("A string phone number is required")
         if not _pre_validated_formatted:
-            number = validate_format_phone_number(phone)
+            number = validate_phone_number(phone)
         else:
             number = phone
         # Set the hash first so the phone column validator passes.
@@ -323,9 +461,14 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
         Internally converts an number lookup into a hash-based lookup.
         """
-        query = cls.query.filter(
-            cls.get_filter(phone=phone, blake2b160=blake2b160, phone_hash=phone_hash)
-        )
+        try:
+            query = cls.query.filter(
+                cls.get_filter(
+                    phone=phone, blake2b160=blake2b160, phone_hash=phone_hash
+                )
+            )
+        except ValueError:
+            return None  # phone number was not valid
         if is_blocked is not None:
             query = query.filter_by(_is_blocked=is_blocked)
         return query.one_or_none()
@@ -341,7 +484,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         :raises ValueError: If phone number is not valid
         :raises PhoneNumberBlockedError: If phone number is blocked
         """
-        number = validate_format_phone_number(phone)
+        number = validate_phone_number(phone)
 
         existing = cls.get(number)
         if existing is not None:
@@ -366,7 +509,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         :raises ValueError: If phone number syntax is invalid
         :raises PhoneNumberBlockedError: If phone number is blocked
         """
-        number = validate_format_phone_number(phone)
+        number = validate_phone_number(phone)
 
         existing = cls.get(number)
         if existing is not None:
@@ -400,7 +543,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         :param bool new: Fail validation if phone number is already in use
         """
         try:
-            phone = validate_format_phone_number(phone)
+            phone = validate_phone_number(phone)
         except ValueError:
             return 'invalid'
         existing = cls.get(phone)
@@ -557,7 +700,7 @@ def _validate_phone(target, value: Any, old_value: Any, initiator) -> Any:
 
     # All clear? Now check against the hash
     if value is not None and isinstance(value, str):
-        value = validate_format_phone_number(value)
+        value = validate_phone_number(value)
         hashed = phone_blake2b160_hash(value, _pre_validated_formatted=True)
         if hashed != target.blake2b160:
             raise ValueError("Phone number does not match existing blake2b160 hash")

@@ -9,15 +9,11 @@ import urllib.parse
 
 from flask import abort
 
-from typing_extensions import Literal
 import phonenumbers
 import qrcode
 import qrcode.image.svg
 
 __all__ = [
-    'PHONE_LOOKUP_REGIONS',
-    'normalize_phone_number',
-    'validate_format_phone_number',
     'blake2b160_hex',
     'abort_null',
     'make_redirect_url',
@@ -29,88 +25,9 @@ __all__ = [
     'make_qrcode',
 ]
 
-# Unprefixed phone numbers are assumed to be a local number in India (+91). A fallback
-# lookup to US numbers (+1) used to be performed but was removed in #1436 because:
-# 1. Both regions have 10 digit local numbers,
-# 2. Indian numbers have clear separation between SMS-capable and incapable numbers, but
-# 3. US numbers may be mobile or fixed, with unknown SMS capability, and therefore
-# 4. In practice, we received too many random numbers that looked legit but were junk.
-PHONE_LOOKUP_REGIONS = ['IN']
-
 MASK_DIGITS = str.maketrans('0123456789', '•' * 10)
 
 # --- Utilities ------------------------------------------------------------------------
-
-
-@overload
-def normalize_phone_number(candidate: str) -> Optional[str]:
-    ...
-
-
-@overload
-def normalize_phone_number(candidate: str, sms: Literal[False]) -> Optional[str]:
-    ...
-
-
-@overload
-def normalize_phone_number(
-    candidate: str, sms: Union[bool, Literal[True]]
-) -> Optional[Union[str, Literal[False]]]:
-    ...
-
-
-def normalize_phone_number(
-    candidate: str, sms: bool = False
-) -> Optional[Union[str, Literal[False]]]:
-    """
-    Attempt to parse a phone number from a candidate and return in E164 format.
-
-    :param sms: Validate that the number is from a range that supports SMS delivery,
-        returning `False` if it isn't
-    """
-    # Assume unprefixed numbers to be a local number in one of the supported common
-    # regions. We start with the higher priority home region and return the _first_
-    # candidate that is likely to be a valid number. This behaviour differentiates it
-    # from similar code in :func:`~funnel.models.utils.getuser`, where the loop exits
-    # with the _last_ valid candidate (as it's coupled with a
-    # :class:`~funnel.models.user.UserPhone` lookup)
-    sms_invalid = False
-    try:
-        for region in PHONE_LOOKUP_REGIONS:
-            parsed_number = phonenumbers.parse(candidate, region)
-            if phonenumbers.is_valid_number(parsed_number):
-                if sms:
-                    if phonenumbers.number_type(parsed_number) not in (
-                        phonenumbers.PhoneNumberType.MOBILE,
-                        phonenumbers.PhoneNumberType.FIXED_LINE_OR_MOBILE,
-                    ):
-                        sms_invalid = True
-                        continue  # Not valid for SMS, continue searching regions
-                return phonenumbers.format_number(
-                    parsed_number, phonenumbers.PhoneNumberFormat.E164
-                )
-    except phonenumbers.NumberParseException:
-        pass
-    # We found a number that is valid, but the caller wanted it to be valid for SMS and
-    # it isn't, so return a special flag
-    if sms_invalid:
-        return False
-    return None
-
-
-def validate_format_phone_number(candidate: str) -> str:
-    """
-    Validate an international phone number and return in E164 format.
-
-    :raises: ValueError if format is invalid
-    """
-    try:
-        parsed_number = phonenumbers.parse(candidate)
-        return phonenumbers.format_number(
-            parsed_number, phonenumbers.PhoneNumberFormat.E164
-        )
-    except phonenumbers.NumberParseException:
-        raise ValueError(f"Not a valid phone number: {candidate}") from None
 
 
 def blake2b160_hex(text: str) -> str:

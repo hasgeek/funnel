@@ -23,8 +23,8 @@ from ..models import (
     UserPhone,
     check_password_strength,
     getuser,
+    parse_phone_number,
 )
-from ..utils import normalize_phone_number
 from .helpers import EmailAddressAvailable, nullable_strip_filters, strip_filters
 
 __all__ = [
@@ -584,7 +584,7 @@ class NewPhoneForm(forms.RecaptchaForm):
     def validate_phone(self, field) -> None:
         """Validate a phone number to be a mobile number and to be available."""
         # Step 1: Validate number
-        number = normalize_phone_number(field.data, sms=True)
+        number = parse_phone_number(field.data, sms=True)
         if number is False:
             raise forms.validators.StopValidation(
                 _("This phone number cannot receive SMS messages")

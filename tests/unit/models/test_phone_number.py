@@ -3,14 +3,15 @@
 from types import SimpleNamespace
 from typing import Generator
 
+from sqlalchemy.exc import IntegrityError
 import sqlalchemy as sa
 
 import pytest
 
 from funnel import models
 
-# These numbers were obtained from libphonenumber with region codes `IN` and `US`:
-# >>> phonenumbers.example_number_for_type(region, phonenumbers.PhoneNumberType.MOBILE
+# These numbers were obtained from libphonenumber with region codes 'IN' and 'US':
+# >>> phonenumbers.example_number_for_type(region, phonenumbers.PhoneNumberType.MOBILE)
 EXAMPLE_NUMBER_IN = '+918123456789'
 EXAMPLE_NUMBER_US = '+12015550123'
 EXAMPLE_NUMBER_IN_UNPREFIXED = '8123456789'
@@ -114,6 +115,21 @@ def refcount_data(funnel) -> Generator:
     funnel.signals.phonenumber_refcount_dropping.connect(refcount_signal_receiver)
     yield refcount_signal_fired
     funnel.signals.phonenumber_refcount_dropping.disconnect(refcount_signal_receiver)
+
+
+@pytest.mark.parametrize(
+    ('candidate', 'sms', 'expected'),
+    [
+        ('9845012345', True, '+919845012345'),
+        ('98450-12345', True, '+919845012345'),
+        ('+91 98450 12345', True, '+919845012345'),
+        ('8022223333', False, '+918022223333'),
+        ('junk', False, None),
+    ],
+)
+def test_parse_phone_number(candidate, expected, sms) -> None:
+    """Test that parse_phone_number is able to parse a number."""
+    assert models.parse_phone_number(candidate, sms) == expected
 
 
 def test_phone_hash_stability() -> None:
@@ -249,3 +265,74 @@ def test_phone_number_md5() -> None:
     assert pn.md5() == '889ccfeb3234c4b90516a3dd4406a0e6'
     pn.phone = None
     assert pn.md5() is None
+
+
+@pytest.mark.usefixtures('db_session')
+def test_phone_number_is_blocked_flag() -> None:
+    """`PhoneNumber` has a read-only is_blocked flag that is normally False."""
+    pn = models.PhoneNumber(EXAMPLE_NUMBER_IN)
+    assert pn.is_blocked is False
+    with pytest.raises(AttributeError):
+        pn.is_blocked = True  # type: ignore[misc]
+
+
+def test_phone_number_can_commit(db_session) -> None:
+    """A `PhoneNumber` can be committed to db."""
+    pn = models.PhoneNumber(EXAMPLE_NUMBER_IN)
+    db_session.add(pn)
+    db_session.commit()
+
+
+def test_phone_number_conflict_integrity_error(db_session) -> None:
+    """A conflicting `PhoneNumber` cannot be committed to db."""
+    pn1 = models.PhoneNumber(EXAMPLE_NUMBER_IN)
+    db_session.add(pn1)
+    db_session.commit()
+    # Conflicts with pn1 as phone numbers use normalized formatting in storage
+    pn2 = models.PhoneNumber(EXAMPLE_NUMBER_IN_FORMATTED)
+    db_session.add(pn2)
+    with pytest.raises(IntegrityError):
+        db_session.commit()
+    db_session.rollback()
+
+    pn3 = models.PhoneNumber(EXAMPLE_NUMBER_US)
+    db_session.add(pn3)
+    db_session.commit()
+
+    # Conflicts with pn3 over normalization
+    pn4 = models.PhoneNumber(EXAMPLE_NUMBER_US_FORMATTED)
+    db_session.add(pn4)
+    with pytest.raises(IntegrityError):
+        db_session.commit()
+
+
+def test_phone_number_get(db_session) -> None:
+    """Phone numbers can be loaded using PhoneNumber.get."""
+    pn1 = models.PhoneNumber(EXAMPLE_NUMBER_IN)
+    pn2 = models.PhoneNumber(EXAMPLE_NUMBER_US)
+    db_session.add_all([pn1, pn2])
+    db_session.commit()
+
+    get1 = models.PhoneNumber.get(EXAMPLE_NUMBER_IN)
+    assert get1 == pn1
+    get1a = models.PhoneNumber.get(EXAMPLE_NUMBER_IN_FORMATTED)
+    assert get1a == pn1
+    get2 = models.PhoneNumber.get(EXAMPLE_NUMBER_US)
+    assert get2 == pn2
+    get2a = models.PhoneNumber.get(EXAMPLE_NUMBER_US_FORMATTED)
+    assert get2a == pn2
+    # Can also get by hash
+    get3 = models.PhoneNumber.get(blake2b160=hash_map[EXAMPLE_NUMBER_IN])
+    assert get3 == pn1
+    # Or by Base58 representation of hash
+    get4 = models.PhoneNumber.get(phone_hash='HnZQM2nFuPbxoBgyPoBmP1k6wrd')
+    assert get4 == pn1
+
+    # Will return nothing if given garbage input, or a non-existent phone number
+    assert models.PhoneNumber.get('invalid') is None
+    assert models.PhoneNumber.get('+91984512345') is None
+
+    # Get works on blocked addresses
+    pn1.mark_blocked()
+    assert pn1.is_blocked is True
+    assert models.PhoneNumber.get(EXAMPLE_NUMBER_IN) == pn1
