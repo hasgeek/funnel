@@ -276,10 +276,13 @@ MarkdownConfig(
     ],
     enable_rules={'smartquotes'},
 )
+# TODO: Alternative renderer for inline profile to be utilised for meta tags
+# https://github.com/orgs/hasgeek/projects/9/views/1?pane=issue&itemId=17674352
 MarkdownConfig(
     name='inline',
     preset='zero',
     options_update={'html': False, 'breaks': False},
+    plugins=['sup', 'sub'],
     inline=True,
-    enable_rules={'emphasis', 'backticks'},
+    enable_rules={'emphasis', 'backticks', 'escape'},
 )
