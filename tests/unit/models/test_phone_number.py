@@ -14,6 +14,9 @@ from funnel import models
 # >>> phonenumbers.example_number_for_type(region, phonenumbers.PhoneNumberType.MOBILE)
 EXAMPLE_NUMBER_IN = '+918123456789'
 EXAMPLE_NUMBER_US = '+12015550123'
+EXAMPLE_NUMBER_CA = '+15062345678'
+EXAMPLE_NUMBER_GB = '+447400123456'
+EXAMPLE_NUMBER_DE = '+4915123456789'
 EXAMPLE_NUMBER_IN_UNPREFIXED = '8123456789'
 EXAMPLE_NUMBER_IN_FORMATTED = '+91 81234 56789'
 EXAMPLE_NUMBER_US_FORMATTED = '+1 (201) 555-0123'
@@ -135,7 +138,7 @@ def test_parse_phone_number(candidate, expected, sms) -> None:
 def test_phone_hash_stability() -> None:
     """Safety test to ensure phone_blakeb160_hash doesn't change spec."""
     phash = models.phone_number.phone_blake2b160_hash
-    with pytest.raises(ValueError, match="Not a valid phone number"):
+    with pytest.raises(ValueError, match="Not a phone number"):
         phash('not-a-valid-number')
     # However, insisting the number is pre-validated will generate a hash. This is only
     # useful when the number is actually pre-validated
@@ -154,43 +157,6 @@ def test_phone_hash_stability() -> None:
         == phash(EXAMPLE_NUMBER_US_FORMATTED)
         == hash_map[EXAMPLE_NUMBER_US]
     )
-
-
-def test_phone_number_refcount_drop(phone_models, db_session, refcount_data) -> None:
-    """Test that PhoneNumber.refcount drop events are fired."""
-    # The refcount changing signal handler will have received events for every phone
-    # address in this test. A request teardown processor can use this to determine
-    # which phone numberes need to be forgotten (preferably in a background job)
-
-    # We have an empty set at the start of this test
-    assert isinstance(refcount_data, set)
-    assert refcount_data == set()
-
-    pn = models.PhoneNumber.add(EXAMPLE_NUMBER_IN)
-    assert refcount_data == set()
-
-    user = phone_models.PhoneUser()
-    doc = phone_models.PhoneDocument()
-    link = phone_models.PhoneLink(phoneuser=user, phone_number=pn)
-    db_session.add_all([pn, user, doc, link])
-
-    assert refcount_data == set()
-
-    doc.phone_number = pn
-    assert refcount_data == set()
-    assert pn.refcount() == 2
-
-    doc.phone_number = None
-    assert refcount_data == {pn}
-    assert pn.refcount() == 1
-
-    refcount_data.remove(pn)
-    assert refcount_data == set()
-    db_session.commit()  # Persist before deleting
-    db_session.delete(link)
-    db_session.commit()
-    assert refcount_data == {pn}
-    assert pn.refcount() == 0
 
 
 def test_phone_number_init() -> None:
@@ -336,3 +302,293 @@ def test_phone_number_get(db_session) -> None:
     pn1.mark_blocked()
     assert pn1.is_blocked is True
     assert models.PhoneNumber.get(EXAMPLE_NUMBER_IN) == pn1
+
+
+@pytest.mark.usefixtures('db_session')
+def test_phone_number_invalid_hash_raises_error() -> None:
+    """Retrieving a phone number with an invalid hash will raise ValueError."""
+    with pytest.raises(ValueError, match='Invalid character'):
+        models.PhoneNumber.get(phone_hash='invalid')
+
+
+@pytest.mark.usefixtures('db_session')
+def test_phone_number_add() -> None:
+    """Using PhoneNumber.add will auto-add to session and return existing instances."""
+    pn1 = models.PhoneNumber.add(EXAMPLE_NUMBER_IN)
+    assert isinstance(pn1, models.PhoneNumber)
+    assert pn1.phone == EXAMPLE_NUMBER_IN
+
+    pn2 = models.PhoneNumber.add(EXAMPLE_NUMBER_US)
+    pn3 = models.PhoneNumber.add(EXAMPLE_NUMBER_IN_FORMATTED)
+    pn4 = models.PhoneNumber.add(EXAMPLE_NUMBER_US_FORMATTED)
+
+    assert pn2 is not None
+    assert pn3 is not None
+    assert pn4 is not None
+
+    assert pn2 != pn1
+    assert pn3 == pn1
+    assert pn4 == pn2
+
+    assert pn1.phone == EXAMPLE_NUMBER_IN
+    assert pn2.phone == EXAMPLE_NUMBER_US
+
+    # A forgotten phone number will be restored by calling PhoneNumber.add
+    pn2.phone = None
+    assert pn2.phone is None
+    pn5 = models.PhoneNumber.add(EXAMPLE_NUMBER_US_FORMATTED)
+    assert pn5 == pn2
+    assert pn5.phone == pn2.phone == EXAMPLE_NUMBER_US
+
+    # Adding an invalid phone number will raise an error
+    with pytest.raises(models.PhoneNumberInvalidError):
+        models.PhoneNumber.add('invalid')
+
+    with pytest.raises(models.PhoneNumberInvalidError):
+        models.PhoneNumber.add(None)  # type: ignore[arg-type]
+
+
+@pytest.mark.usefixtures('db_session')
+def test_phone_number_blocked() -> None:
+    """A blocked phone number cannot be used via PhoneNumber.add."""
+    pn1 = models.PhoneNumber.add(EXAMPLE_NUMBER_IN)
+    pn2 = models.PhoneNumber.add(EXAMPLE_NUMBER_US)
+
+    assert pn1.phone is not None
+    assert pn1.phone == EXAMPLE_NUMBER_IN
+    assert pn1.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
+    pn1.mark_blocked()
+
+    assert pn1.phone is None
+    assert pn1.blake2b160 is not None  # type: ignore[unreachable]
+    assert pn1.is_blocked is True
+    assert pn2.is_blocked is False
+
+    with pytest.raises(models.PhoneNumberBlockedError):
+        models.PhoneNumber.add(EXAMPLE_NUMBER_IN)
+
+
+def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-statements
+    phone_models, db_session
+) -> None:
+    """The PhoneNumberMixin class adds safety checks for using a phone number."""
+    blocked_phone = models.PhoneNumber(EXAMPLE_NUMBER_CA)
+    blocked_phone.mark_blocked()
+
+    user1 = phone_models.PhoneUser()
+    user2 = phone_models.PhoneUser()
+
+    doc1 = phone_models.PhoneDocument()
+    doc2 = phone_models.PhoneDocument()
+
+    db_session.add_all([user1, user2, doc1, doc2, blocked_phone])
+
+    # Mixin-based classes can simply specify a 'phone' parameter to link to n
+    # PhoneNumber instance
+    link1 = phone_models.PhoneLink(phoneuser=user1, phone=EXAMPLE_NUMBER_IN)
+    db_session.add(link1)
+    pn1 = models.PhoneNumber.get(EXAMPLE_NUMBER_IN)
+    assert link1.phone == EXAMPLE_NUMBER_IN
+    assert link1.phone_number == pn1
+    assert link1.transport_hash == pn1.transport_hash
+    assert bool(link1.transport_hash)
+
+    # Link an unrelated phone number to another user to demonstrate that it works
+    link2 = phone_models.PhoneLink(phoneuser=user2, phone=EXAMPLE_NUMBER_US)
+    db_session.add(link2)
+    pn2 = models.PhoneNumber.get(EXAMPLE_NUMBER_US)
+    assert link2.phone == EXAMPLE_NUMBER_US
+    assert link2.phone_number == pn2
+    assert link2.transport_hash == pn2.transport_hash
+    assert bool(link1.transport_hash)
+
+    db_session.commit()
+
+    # EXAMPLE_NUMBER_US is now exclusive to user2. Attempting it to assign it to
+    # user1 will raise an exception, even if the case is changed.
+    with pytest.raises(models.PhoneNumberInUseError):
+        phone_models.PhoneLink(phoneuser=user1, phone=EXAMPLE_NUMBER_US)
+
+    # This safety catch works even if the phone_number column is used:
+    with pytest.raises(models.PhoneNumberInUseError):
+        phone_models.PhoneLink(phoneuser=user1, phone_number=pn2)
+
+    db_session.rollback()
+
+    # Blocked addresses cannot be used either
+    with pytest.raises(models.PhoneNumberBlockedError):
+        phone_models.PhoneLink(phoneuser=user1, phone=EXAMPLE_NUMBER_CA)
+
+    with pytest.raises(models.PhoneNumberBlockedError):
+        phone_models.PhoneLink(phoneuser=user1, phone_number=blocked_phone)
+
+    db_session.rollback()
+
+    # Attempting to assign EXAMPLE_NUMBER_US to user2 a second time will cause a
+    # SQL integrity error because PhoneLink.__phone_unique__ is True.
+    link3 = phone_models.PhoneLink(phoneuser=user2, phone=EXAMPLE_NUMBER_US)
+    db_session.add(link3)
+    with pytest.raises(IntegrityError):
+        db_session.commit()
+
+    del link3
+    db_session.rollback()
+
+    # The PhoneDocument model, in contrast, has no requirement of availability to a
+    # specific user, so it won't be blocked here despite being exclusive to user1
+    assert doc1.phone is None
+    assert doc2.phone is None
+    assert doc1.phone_number is None
+    assert doc2.phone_number is None
+
+    doc1.phone = EXAMPLE_NUMBER_IN
+    doc2.phone = EXAMPLE_NUMBER_IN
+
+    assert doc1.phone == EXAMPLE_NUMBER_IN
+    assert doc2.phone == EXAMPLE_NUMBER_IN
+    assert doc1.phone_number == pn1
+    assert doc2.phone_number == pn1
+
+    # pn1 now has three references, while pn2 has 1
+    assert pn1.refcount() == 3
+    assert pn2.refcount() == 1
+
+    # Setting the phone property on PhoneDocument will mutate
+    # PhoneDocument.phone_number and not PhoneDocument.phone_number.phone
+    assert pn1.phone == EXAMPLE_NUMBER_IN
+    doc1.phone = None
+    assert pn1.phone == EXAMPLE_NUMBER_IN
+    assert doc1.phone_number is None
+    doc2.phone = EXAMPLE_NUMBER_US
+    assert pn1.phone == EXAMPLE_NUMBER_IN
+    assert doc2.phone_number == pn2
+
+    # PhoneLinkedDocument takes the complexity up a notch
+
+    # A document linked to a user can use any phone linked to that user
+    ldoc1 = phone_models.PhoneLinkedDocument(phoneuser=user1, phone=EXAMPLE_NUMBER_IN)
+    db_session.add(ldoc1)
+    assert ldoc1.phoneuser == user1
+    assert ldoc1.phone_number == pn1
+
+    # But another user can't use this phone number
+    with pytest.raises(models.PhoneNumberInUseError):
+        phone_models.PhoneLinkedDocument(phoneuser=user2, phone=EXAMPLE_NUMBER_IN)
+
+    # This restriction also applies when user is not specified. Here, this phone is
+    # claimed by user2 above
+    with pytest.raises(models.PhoneNumberInUseError):
+        phone_models.PhoneLinkedDocument(phoneuser=None, phone=EXAMPLE_NUMBER_US)
+
+    # But it works with an unaffiliated phone number
+    ldoc2 = phone_models.PhoneLinkedDocument(phone=EXAMPLE_NUMBER_GB)
+    db_session.add(ldoc2)
+    assert ldoc2.phoneuser is None
+    assert ldoc2.phone == EXAMPLE_NUMBER_GB
+
+    ldoc3 = phone_models.PhoneLinkedDocument(phoneuser=user2, phone=EXAMPLE_NUMBER_DE)
+    db_session.add(ldoc3)
+    assert ldoc3.phoneuser is user2
+    assert ldoc3.phone == EXAMPLE_NUMBER_DE
+
+    # Setting the phone to None on the document removes the link to the PhoneNumber,
+    # but does not blank out the PhoneNumber
+
+    assert ldoc1.phone_number == pn1
+    assert pn1.phone == EXAMPLE_NUMBER_IN
+    ldoc1.phone = None
+    assert ldoc1.phone_number is None
+    assert pn1.phone == EXAMPLE_NUMBER_IN
+
+
+def test_phone_number_refcount_drop(phone_models, db_session, refcount_data) -> None:
+    """Test that PhoneNumber.refcount drop events are fired."""
+    # The refcount changing signal handler will have received events for every phone
+    # address in this test. A request teardown processor can use this to determine
+    # which phone numberes need to be forgotten (preferably in a background job)
+
+    # We have an empty set at the start of this test
+    assert isinstance(refcount_data, set)
+    assert refcount_data == set()
+
+    pn = models.PhoneNumber.add(EXAMPLE_NUMBER_IN)
+    assert refcount_data == set()
+
+    user = phone_models.PhoneUser()
+    doc = phone_models.PhoneDocument()
+    link = phone_models.PhoneLink(phoneuser=user, phone_number=pn)
+    db_session.add_all([pn, user, doc, link])
+
+    assert refcount_data == set()
+
+    doc.phone_number = pn
+    assert refcount_data == set()
+    assert pn.refcount() == 2
+
+    doc.phone_number = None
+    assert refcount_data == {pn}
+    assert pn.refcount() == 1
+
+    refcount_data.remove(pn)
+    assert refcount_data == set()
+    db_session.commit()  # Persist before deleting
+    db_session.delete(link)
+    db_session.commit()
+    assert refcount_data == {pn}
+    assert pn.refcount() == 0
+
+
+def test_phone_number_validate_for(phone_models, db_session) -> None:
+    """PhoneNumber.validate_for can be used to determine availability."""
+    user1 = phone_models.PhoneUser()
+    user2 = phone_models.PhoneUser()
+    anon_user = None
+    db_session.add_all([user1, user2])
+
+    # A new phone number is available to all
+    assert models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_IN) is True
+    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN) is True
+    assert models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN) is True
+
+    # Once it's assigned to a user, availability changes
+    link = phone_models.PhoneLink(phoneuser=user1, phone=EXAMPLE_NUMBER_IN)
+    db_session.add(link)
+
+    assert models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_IN) is True
+    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN) is False
+    assert models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN) is False
+
+    # A number in use is not available to claim as new
+    assert (
+        models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_IN, new=True) == 'not_new'
+    )
+    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_IN, new=True) is False
+    assert (
+        models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN, new=True) is False
+    )
+
+    # A blocked address is available to no one
+    blocked_phone = models.PhoneNumber(EXAMPLE_NUMBER_CA)
+    blocked_phone.mark_blocked()
+    db_session.add(blocked_phone)
+    assert models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_CA) is False
+    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_CA) is False
+    assert models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_CA) is False
+
+    # An invalid number is available to no one
+    assert models.PhoneNumber.validate_for(user1, 'invalid') == 'invalid'
+    assert models.PhoneNumber.validate_for(user2, 'invalid') == 'invalid'
+    assert models.PhoneNumber.validate_for(anon_user, 'invalid') == 'invalid'
+
+
+def test_phone_number_existing_but_unused_validate_for(
+    phone_models, db_session
+) -> None:
+    """An unused but existing phone number should be available to claim."""
+    user = phone_models.PhoneUser()
+    phone_number = models.PhoneNumber.add(EXAMPLE_NUMBER_GB)
+    db_session.add_all([user, phone_number])
+    db_session.commit()
+
+    assert models.PhoneNumber.validate_for(user, EXAMPLE_NUMBER_GB, new=True) is True
+    assert models.PhoneNumber.validate_for(user, EXAMPLE_NUMBER_GB) is True

@@ -486,7 +486,7 @@ def test_email_address_mixin(  # pylint: disable=too-many-locals,too-many-statem
 
     models.EmailAddress.mark_blocked('blocked@example.com')
 
-    # Mixin-based classes can simply specify an email parameter to link to an
+    # Mixin-based classes can simply specify an 'email' parameter to link to an
     # EmailAddress instance
     link1 = email_models.EmailLink(emailuser=user1, email='example@example.com')
     db_session.add(link1)

@@ -196,7 +196,7 @@ def phone_blake2b160_hash(
     """BLAKE2b hash of the given phone number using digest size 20 (160 bits)."""
     number: Optional[str]
     if not _pre_validated_formatted:
-        number = validate_phone_number(phone)
+        number = canonical_phone_number(phone)
     else:
         number = phone
     return hashlib.blake2b(number.encode('utf-8'), digest_size=20).digest()
@@ -467,7 +467,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
                     phone=phone, blake2b160=blake2b160, phone_hash=phone_hash
                 )
             )
-        except ValueError:
+        except PhoneNumberInvalidError:
             return None  # phone number was not valid
         if is_blocked is not None:
             query = query.filter_by(_is_blocked=is_blocked)
@@ -700,7 +700,7 @@ def _validate_phone(target, value: Any, old_value: Any, initiator) -> Any:
 
     # All clear? Now check against the hash
     if value is not None and isinstance(value, str):
-        value = validate_phone_number(value)
+        value = canonical_phone_number(value)
         hashed = phone_blake2b160_hash(value, _pre_validated_formatted=True)
         if hashed != target.blake2b160:
             raise ValueError("Phone number does not match existing blake2b160 hash")
