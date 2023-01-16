@@ -1,7 +1,7 @@
-@import 'variable';
-@import 'components/draggablebox';
-@import 'components/proposal-card';
-@import 'components/switch';
+@import '../base/variable';
+@import '../components/draggablebox';
+@import '../components/proposal-card';
+@import '../components/switch';
 
 .page-card {
   .details {

@@ -1,8 +1,8 @@
-@import 'variable';
-@import 'components/subnavbar';
-@import 'components/proposal-card';
-@import 'components/switch';
-@import 'components/footable';
+@import '../base/variable';
+@import '../components/subnavbar';
+@import '../components/proposal-card';
+@import '../components/switch';
+@import '../components/footable';
 @import 'leaflet';
 
 @media (min-width: 768px) {

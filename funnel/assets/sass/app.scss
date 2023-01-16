@@ -19,8 +19,8 @@
 // Miscellaneous
 @import 'mui/helpers', 'mui/overlay', 'mui/ripple';
 
-@import 'variable';
-@import 'components/typography';
+@import 'base/variable';
+@import 'base/typography';
 @import 'components/button';
 @import 'components/menu';
 @import 'components/search-field';
@@ -38,6 +38,6 @@
 @import 'components/list';
 @import 'components/header';
 
-@import 'base';
-@import 'layout';
-@import 'utils';
+@import 'base/base';
+@import 'base/layout';
+@import 'base/utils';

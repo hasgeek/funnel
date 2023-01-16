@@ -1,6 +1,5 @@
-@import 'variable';
-@import 'components/typography';
-@import 'components/codemirror';
+@import '../base/variable';
+@import '../components/codemirror';
 
 @media (max-width: 767px) {
   .post-form-block {

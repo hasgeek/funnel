@@ -1,6 +1,6 @@
-@import 'variable';
-@import 'components/subnavbar';
-@import 'components/proposal-card';
+@import '../base/variable';
+@import '../components/subnavbar';
+@import '../components/proposal-card';
 
 .profile {
   margin-bottom: 60px;
