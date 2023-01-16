@@ -152,13 +152,13 @@
                   {{ csrf_tag() }}
                   <input type="checkbox"
                         name="featured"
-                        id="featured-proposal-{{ formid }}"
+                        id="featured-proposal"
                         class="switch-input js-toggle"
                         {%- if proposal.featured %}
                           checked
                         {%- endif %}/>
                   <label class="switch-label mui--pull-right"
-                        for="featured-proposal-{{ formid }}"></label>
+                        for="featured-proposal"></label>
                 </form>
               </span>
             </div>
@@ -427,7 +427,12 @@
         loginUrl: "{{ url_for('login') }}",
         lastSeenUrl: {% if proposal.commentset.current_roles.document_subscriber %}{{ proposal.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
       };
-      window.Hasgeek.SubmissionInit();
+      var markdownId = '#submission .markdown';
+      var toggleId;
+      {%- if proposal.current_roles.project_editor %}
+        toggleId = '#featured-proposal'
+      {%- endif %}
+      window.Hasgeek.SubmissionInit(markdownId, toggleId);
       window.Hasgeek.Comments(commentsConfig);
     });
     </script>

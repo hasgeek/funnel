@@ -163,7 +163,8 @@ $(() => {
   window.Hasgeek.projectHeaderInit = (
     projectTitle,
     saveProjectConfig = '',
-    tickets = ''
+    tickets = '',
+    toggleId = ''
   ) => {
     if (saveProjectConfig) {
       SaveProject(saveProjectConfig);
@@ -196,7 +197,9 @@ $(() => {
       Ticketing.init(tickets);
     }
 
-    Form.openSubmissionToggle('#open-sub', '.js-cfp-status');
+    if (toggleId) {
+      Form.activateToggleSwitch(toggleId);
+    }
 
     const hightlightNavItem = (navElem) => {
       const navHightlightClass = 'sub-navbar__item--active';
