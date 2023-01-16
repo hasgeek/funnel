@@ -1,0 +1,932 @@
+markdown = """
+## Tabs using containers plugin
+Let us see if we can use the containers plugin to render tabs.
+
+:::: tab Code
+**The next tab has a blank title.
+Please click the blank space.**
+
+This tab contains code!
+::: tab Javascript
+```js
+let x = 10000;
+sleep(x);
+```
+:::
+::: tab Python
+```python
+def sum(a, b):
+    return a['quantity'] + b['quantity']
+print(sum({'quantity': 5}, {'quantity': 10}))
+```
+:::
+::: tab Markdown
+``` markdown
+**Here is bold markdown.**
+### Heading
+\\::: should render three `:` characters.
+\\``` should render three \\` characters.
+There's a list below:
+- Item 1
+- Item 2
+```
+:::
+::::
+:::: tab
+What to do with tabs without titles? I presume, we should be ignoring them completely.
+::::
+:::: tab Embeds
+::: tab Markmap
+```{markmap}
+
+# Digital Identifiers and Rights
+
+## Community and Outreach
+
+- Experts
+- Grant organizations
+- IT ministries
+- Journalism schools
+- Journalists and reporters
+- Partnerships
+  - Patrons
+  - Sponsors
+- Policymakers
+- Rights activists
+- Startups
+- Thinktanks
+- Venture capital
+- Volunteers
+
+## Domains
+
+- Border controls
+- Citizenship
+- Digital data trusts
+- FinTech
+- Government
+- Health services delivery
+- Hospitality
+- Law enforcement
+- Online retail and commerce
+- Smart automation
+- Social media
+- Travel and tourism
+
+## Location
+
+- International
+- Local or domestic
+- Transit
+
+## Output and Outcomes
+
+- Best practices guide for product/service development
+- Conference
+- Conversations (eg. Twitter Spaces)
+- Masterclass webinars
+- Proceedings (talk playlist)
+- Reports
+- Review of Policies
+
+## Themes
+
+### Digital Identity
+
+- Anonymity
+- Architecture of digital trust
+- Control and ownership
+- Identity and identifier models
+- Inclusion and exclusion
+- Portability
+- Principles
+- Regulations
+- Reputation
+- Rights and agency
+- Trust framework
+- Verifiability
+- Vulnerable communities
+
+### Digital Rights
+
+- Current state across region
+- Harms
+- Emerging regulatory requirements
+- Web 3.0 and decentralization
+- Naturalization
+
+## Streams
+
+- Banking and finance
+- Data exchange and interoperability
+- Data governance models
+- Data markets
+- Digital identifiers and identity systems
+- Digital public goods
+- Digital public services
+- Humanitarian activity and aid
+- Identity ecosystems
+- Innovation incubation incentives
+  - Public investment
+  - Private capital
+- Local regulations and laws
+- National policies
+- Public health services
+- Records (birth, death, land etc)
+```
+:::
+::: tab Vega
+```{vega-lite}
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "A population pyramid for the US in 2000.",
+  "data": { "url": "https://vega.github.io/vega-lite/examples/data/population.json"},
+  "transform": [
+    {"filter": "datum.year == 2000"},
+    {"calculate": "datum.sex == 2 ? 'Female' : 'Male'", "as": "gender"}
+  ],
+  "spacing": 0,
+  "hconcat": [{
+    "transform": [{
+      "filter": {"field": "gender", "equal": "Female"}
+    }],
+    "title": "Female",
+    "mark": "bar",
+    "encoding": {
+      "y": {
+        "field": "age", "axis": null, "sort": "descending"
+      },
+      "x": {
+        "aggregate": "sum", "field": "people",
+        "title": "population",
+        "axis": {"format": "s"},
+        "sort": "descending"
+      },
+      "color": {
+        "field": "gender",
+        "scale": {"range": ["#675193", "#ca8861"]},
+        "legend": null
+      }
+    }
+  }, {
+    "width": 20,
+    "view": {"stroke": null},
+    "mark": {
+      "type": "text",
+      "align": "center"
+    },
+    "encoding": {
+      "y": {"field": "age", "type": "ordinal", "axis": null, "sort": "descending"},
+      "text": {"field": "age", "type": "quantitative"}
+    }
+  }, {
+    "transform": [{
+      "filter": {"field": "gender", "equal": "Male"}
+    }],
+    "title": "Male",
+    "mark": "bar",
+    "encoding": {
+      "y": {
+        "field": "age", "title": null,
+        "axis": null, "sort": "descending"
+      },
+      "x": {
+        "aggregate": "sum", "field": "people",
+        "title": "population",
+        "axis": {"format": "s"}
+      },
+      "color": {
+        "field": "gender",
+        "legend": null
+      }
+    }
+  }],
+  "config": {
+    "view": {"stroke": null},
+    "axis": {"grid": false}
+  }
+}
+
+```
+:::
+::: tab Mermaid
+``` {mermaid}
+sequenceDiagram
+    Alice->>+John: Hello John, how are you?
+    Alice->>+John: John, can you hear me?
+    John-->>-Alice: Hi Alice, I can hear you!
+    John-->>-Alice: I feel great!
+```
+:::
+::::
+:::: tab Table Tab
+This tab is going to have a table!
+| Heading 1 | Heading 2 |
+| --------- | --------- |
+| Content 1 | Content 2 |
+
+> Well if you really want, you can also have some other content! Like a blockquote, maybe?
+
+Perhaps a list?
+
+1. One with some order in it!
+1. With multiple items, that too within the tab!
+    1. Which is also nested ;)
+    2. It could have multiple sub items.
+    3. That are more than 2!
+3. Finally, the list ends at top level.
+::::
+"""
+
+[config]
+profiles = [ "basic", "document",]
+
+[config.custom_profiles.tabs]
+preset = "default"
+plugins = ["tab_container"]
+
+[expected_output]
+basic = """<h2>Tabs using containers plugin</h2>
+<p>Let us see if we can use the containers plugin to render tabs.</p>
+<p>:::: tab Code<br />
+<strong>The next tab has a blank title.<br />
+Please click the blank space.</strong></p>
+<p>This tab contains code!<br />
+::: tab Javascript</p>
+<pre><code class="language-js">let x = 10000;
+sleep(x);
+</code></pre>
+<p>:::<br />
+::: tab Python</p>
+<pre><code class="language-python">def sum(a, b):
+    return a['quantity'] + b['quantity']
+print(sum({'quantity': 5}, {'quantity': 10}))
+</code></pre>
+<p>:::<br />
+::: tab Markdown</p>
+<pre><code class="language-markdown">**Here is bold markdown.**
+### Heading
+\\::: should render three `:` characters.
+\\``` should render three \\` characters.
+There's a list below:
+- Item 1
+- Item 2
+</code></pre>
+<p>:::<br />
+::::<br />
+:::: tab<br />
+What to do with tabs without titles? I presume, we should be ignoring them completely.<br />
+::::<br />
+:::: tab Embeds<br />
+::: tab Markmap</p>
+<pre><code class="language-{markmap}">
+# Digital Identifiers and Rights
+
+## Community and Outreach
+
+- Experts
+- Grant organizations
+- IT ministries
+- Journalism schools
+- Journalists and reporters
+- Partnerships
+  - Patrons
+  - Sponsors
+- Policymakers
+- Rights activists
+- Startups
+- Thinktanks
+- Venture capital
+- Volunteers
+
+## Domains
+
+- Border controls
+- Citizenship
+- Digital data trusts
+- FinTech
+- Government
+- Health services delivery
+- Hospitality
+- Law enforcement
+- Online retail and commerce
+- Smart automation
+- Social media
+- Travel and tourism
+
+## Location
+
+- International
+- Local or domestic
+- Transit
+
+## Output and Outcomes
+
+- Best practices guide for product/service development
+- Conference
+- Conversations (eg. Twitter Spaces)
+- Masterclass webinars
+- Proceedings (talk playlist)
+- Reports
+- Review of Policies
+
+## Themes
+
+### Digital Identity
+
+- Anonymity
+- Architecture of digital trust
+- Control and ownership
+- Identity and identifier models
+- Inclusion and exclusion
+- Portability
+- Principles
+- Regulations
+- Reputation
+- Rights and agency
+- Trust framework
+- Verifiability
+- Vulnerable communities
+
+### Digital Rights
+
+- Current state across region
+- Harms
+- Emerging regulatory requirements
+- Web 3.0 and decentralization
+- Naturalization
+
+## Streams
+
+- Banking and finance
+- Data exchange and interoperability
+- Data governance models
+- Data markets
+- Digital identifiers and identity systems
+- Digital public goods
+- Digital public services
+- Humanitarian activity and aid
+- Identity ecosystems
+- Innovation incubation incentives
+  - Public investment
+  - Private capital
+- Local regulations and laws
+- National policies
+- Public health services
+- Records (birth, death, land etc)
+</code></pre>
+<p>:::<br />
+::: tab Vega</p>
+<pre><code class="language-{vega-lite}">{
+  &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
+  &quot;description&quot;: &quot;A population pyramid for the US in 2000.&quot;,
+  &quot;data&quot;: { &quot;url&quot;: &quot;https://vega.github.io/vega-lite/examples/data/population.json&quot;},
+  &quot;transform&quot;: [
+    {&quot;filter&quot;: &quot;datum.year == 2000&quot;},
+    {&quot;calculate&quot;: &quot;datum.sex == 2 ? 'Female' : 'Male'&quot;, &quot;as&quot;: &quot;gender&quot;}
+  ],
+  &quot;spacing&quot;: 0,
+  &quot;hconcat&quot;: [{
+    &quot;transform&quot;: [{
+      &quot;filter&quot;: {&quot;field&quot;: &quot;gender&quot;, &quot;equal&quot;: &quot;Female&quot;}
+    }],
+    &quot;title&quot;: &quot;Female&quot;,
+    &quot;mark&quot;: &quot;bar&quot;,
+    &quot;encoding&quot;: {
+      &quot;y&quot;: {
+        &quot;field&quot;: &quot;age&quot;, &quot;axis&quot;: null, &quot;sort&quot;: &quot;descending&quot;
+      },
+      &quot;x&quot;: {
+        &quot;aggregate&quot;: &quot;sum&quot;, &quot;field&quot;: &quot;people&quot;,
+        &quot;title&quot;: &quot;population&quot;,
+        &quot;axis&quot;: {&quot;format&quot;: &quot;s&quot;},
+        &quot;sort&quot;: &quot;descending&quot;
+      },
+      &quot;color&quot;: {
+        &quot;field&quot;: &quot;gender&quot;,
+        &quot;scale&quot;: {&quot;range&quot;: [&quot;#675193&quot;, &quot;#ca8861&quot;]},
+        &quot;legend&quot;: null
+      }
+    }
+  }, {
+    &quot;width&quot;: 20,
+    &quot;view&quot;: {&quot;stroke&quot;: null},
+    &quot;mark&quot;: {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;align&quot;: &quot;center&quot;
+    },
+    &quot;encoding&quot;: {
+      &quot;y&quot;: {&quot;field&quot;: &quot;age&quot;, &quot;type&quot;: &quot;ordinal&quot;, &quot;axis&quot;: null, &quot;sort&quot;: &quot;descending&quot;},
+      &quot;text&quot;: {&quot;field&quot;: &quot;age&quot;, &quot;type&quot;: &quot;quantitative&quot;}
+    }
+  }, {
+    &quot;transform&quot;: [{
+      &quot;filter&quot;: {&quot;field&quot;: &quot;gender&quot;, &quot;equal&quot;: &quot;Male&quot;}
+    }],
+    &quot;title&quot;: &quot;Male&quot;,
+    &quot;mark&quot;: &quot;bar&quot;,
+    &quot;encoding&quot;: {
+      &quot;y&quot;: {
+        &quot;field&quot;: &quot;age&quot;, &quot;title&quot;: null,
+        &quot;axis&quot;: null, &quot;sort&quot;: &quot;descending&quot;
+      },
+      &quot;x&quot;: {
+        &quot;aggregate&quot;: &quot;sum&quot;, &quot;field&quot;: &quot;people&quot;,
+        &quot;title&quot;: &quot;population&quot;,
+        &quot;axis&quot;: {&quot;format&quot;: &quot;s&quot;}
+      },
+      &quot;color&quot;: {
+        &quot;field&quot;: &quot;gender&quot;,
+        &quot;legend&quot;: null
+      }
+    }
+  }],
+  &quot;config&quot;: {
+    &quot;view&quot;: {&quot;stroke&quot;: null},
+    &quot;axis&quot;: {&quot;grid&quot;: false}
+  }
+}
+
+</code></pre>
+<p>:::<br />
+::: tab Mermaid</p>
+<pre><code class="language-{mermaid}">sequenceDiagram
+    Alice-&gt;&gt;+John: Hello John, how are you?
+    Alice-&gt;&gt;+John: John, can you hear me?
+    John--&gt;&gt;-Alice: Hi Alice, I can hear you!
+    John--&gt;&gt;-Alice: I feel great!
+</code></pre>
+<p>:::<br />
+::::<br />
+:::: tab Table Tab<br />
+This tab is going to have a table!<br />
+| Heading 1 | Heading 2 |<br />
+| --------- | --------- |<br />
+| Content 1 | Content 2 |</p>
+<blockquote>
+<p>Well if you really want, you can also have some other content! Like a blockquote, maybe?</p>
+</blockquote>
+<p>Perhaps a list?</p>
+<ol>
+<li>One with some order in it!</li>
+<li>With multiple items, that too within the tab!
+<ol>
+<li>Which is also nested ;)</li>
+<li>It could have multiple sub items.</li>
+<li>That are more than 2!</li>
+</ol>
+</li>
+<li>Finally, the list ends at top level.<br />
+::::</li>
+</ol>
+"""
+document = """<h2 id="h:tabs-using-containers-plugin">Tabs using containers plugin <a class="header-anchor" href="#h:tabs-using-containers-plugin">#</a></h2>
+<p>Let us see if we can use the containers plugin to render tabs.</p>
+<div><ul class="mui-tabs__bar"><li  class="mui--is-active"><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-1">Code</a></li><li ><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-2"></a></li><li ><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-3">Embeds</a></li><li ><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-4">Table Tab</a></li></ul><div class="mui-tabs__pane grid mui--is-active" id="md-tab-id-1"><div class="grid__col-sm-12"><p><strong>The next tab has a blank title.<br />
+Please click the blank space.</strong></p>
+<p>This tab contains code!</p>
+<div><ul class="mui-tabs__bar"><li  class="mui--is-active"><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-5">Javascript</a></li><li ><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-6">Python</a></li><li ><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-7">Markdown</a></li></ul><div class="mui-tabs__pane grid mui--is-active" id="md-tab-id-5"><div class="grid__col-sm-12"><pre><code class="language-js">let x = 10000;
+sleep(x);
+</code></pre>
+</div></div><div class="mui-tabs__pane grid " id="md-tab-id-6"><div class="grid__col-sm-12"><pre><code class="language-python">def sum(a, b):
+    return a['quantity'] + b['quantity']
+print(sum({'quantity': 5}, {'quantity': 10}))
+</code></pre>
+</div></div><div class="mui-tabs__pane grid " id="md-tab-id-7"><div class="grid__col-sm-12"><pre><code class="language-markdown">**Here is bold markdown.**
+### Heading
+\\::: should render three `:` characters.
+\\``` should render three \\` characters.
+There's a list below:
+- Item 1
+- Item 2
+</code></pre>
+</div></div></div></div></div><div class="mui-tabs__pane grid " id="md-tab-id-2"><div class="grid__col-sm-12"><p>What to do with tabs without titles? I presume, we should be ignoring them completely.</p>
+</div></div><div class="mui-tabs__pane grid " id="md-tab-id-3"><div class="grid__col-sm-12"><div><ul class="mui-tabs__bar"><li  class="mui--is-active"><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-8">Markmap</a></li><li ><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-9">Vega</a></li><li ><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-10">Mermaid</a></li></ul><div class="mui-tabs__pane grid mui--is-active" id="md-tab-id-8"><div class="grid__col-sm-12"><div class="md-embed md-embed-markmap"><div class="embed-loading">Mindmap</div><pre class="embed-content">
+# Digital Identifiers and Rights
+
+## Community and Outreach
+
+- Experts
+- Grant organizations
+- IT ministries
+- Journalism schools
+- Journalists and reporters
+- Partnerships
+- Patrons
+- Sponsors
+- Policymakers
+- Rights activists
+- Startups
+- Thinktanks
+- Venture capital
+- Volunteers
+
+## Domains
+
+- Border controls
+- Citizenship
+- Digital data trusts
+- FinTech
+- Government
+- Health services delivery
+- Hospitality
+- Law enforcement
+- Online retail and commerce
+- Smart automation
+- Social media
+- Travel and tourism
+
+## Location
+
+- International
+- Local or domestic
+- Transit
+
+## Output and Outcomes
+
+- Best practices guide for product/service development
+- Conference
+- Conversations (eg. Twitter Spaces)
+- Masterclass webinars
+- Proceedings (talk playlist)
+- Reports
+- Review of Policies
+
+## Themes
+
+### Digital Identity
+
+- Anonymity
+- Architecture of digital trust
+- Control and ownership
+- Identity and identifier models
+- Inclusion and exclusion
+- Portability
+- Principles
+- Regulations
+- Reputation
+- Rights and agency
+- Trust framework
+- Verifiability
+- Vulnerable communities
+
+### Digital Rights
+
+- Current state across region
+- Harms
+- Emerging regulatory requirements
+- Web 3.0 and decentralization
+- Naturalization
+
+## Streams
+
+- Banking and finance
+- Data exchange and interoperability
+- Data governance models
+- Data markets
+- Digital identifiers and identity systems
+- Digital public goods
+- Digital public services
+- Humanitarian activity and aid
+- Identity ecosystems
+- Innovation incubation incentives
+- Public investment
+- Private capital
+- Local regulations and laws
+- National policies
+- Public health services
+- Records (birth, death, land etc)
+</pre><div class="embed-container"></div></div>
+</div></div><div class="mui-tabs__pane grid " id="md-tab-id-9"><div class="grid__col-sm-12"><div class="md-embed md-embed-vega-lite"><div class="embed-loading">Visualization</div><pre class="embed-content">{
+&quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
+&quot;description&quot;: &quot;A population pyramid for the US in 2000.&quot;,
+&quot;data&quot;: { &quot;url&quot;: &quot;https://vega.github.io/vega-lite/examples/data/population.json&quot;},
+&quot;transform&quot;: [
+ {&quot;filter&quot;: &quot;datum.year == 2000&quot;},
+ {&quot;calculate&quot;: &quot;datum.sex == 2 ? 'Female' : 'Male'&quot;, &quot;as&quot;: &quot;gender&quot;}
+],
+&quot;spacing&quot;: 0,
+&quot;hconcat&quot;: [{
+ &quot;transform&quot;: [{
+   &quot;filter&quot;: {&quot;field&quot;: &quot;gender&quot;, &quot;equal&quot;: &quot;Female&quot;}
+ }],
+ &quot;title&quot;: &quot;Female&quot;,
+ &quot;mark&quot;: &quot;bar&quot;,
+ &quot;encoding&quot;: {
+   &quot;y&quot;: {
+     &quot;field&quot;: &quot;age&quot;, &quot;axis&quot;: null, &quot;sort&quot;: &quot;descending&quot;
+   },
+   &quot;x&quot;: {
+     &quot;aggregate&quot;: &quot;sum&quot;, &quot;field&quot;: &quot;people&quot;,
+     &quot;title&quot;: &quot;population&quot;,
+     &quot;axis&quot;: {&quot;format&quot;: &quot;s&quot;},
+     &quot;sort&quot;: &quot;descending&quot;
+   },
+   &quot;color&quot;: {
+     &quot;field&quot;: &quot;gender&quot;,
+     &quot;scale&quot;: {&quot;range&quot;: [&quot;#675193&quot;, &quot;#ca8861&quot;]},
+     &quot;legend&quot;: null
+   }
+ }
+}, {
+ &quot;width&quot;: 20,
+ &quot;view&quot;: {&quot;stroke&quot;: null},
+ &quot;mark&quot;: {
+   &quot;type&quot;: &quot;text&quot;,
+   &quot;align&quot;: &quot;center&quot;
+ },
+ &quot;encoding&quot;: {
+   &quot;y&quot;: {&quot;field&quot;: &quot;age&quot;, &quot;type&quot;: &quot;ordinal&quot;, &quot;axis&quot;: null, &quot;sort&quot;: &quot;descending&quot;},
+   &quot;text&quot;: {&quot;field&quot;: &quot;age&quot;, &quot;type&quot;: &quot;quantitative&quot;}
+ }
+}, {
+ &quot;transform&quot;: [{
+   &quot;filter&quot;: {&quot;field&quot;: &quot;gender&quot;, &quot;equal&quot;: &quot;Male&quot;}
+ }],
+ &quot;title&quot;: &quot;Male&quot;,
+ &quot;mark&quot;: &quot;bar&quot;,
+ &quot;encoding&quot;: {
+   &quot;y&quot;: {
+     &quot;field&quot;: &quot;age&quot;, &quot;title&quot;: null,
+     &quot;axis&quot;: null, &quot;sort&quot;: &quot;descending&quot;
+   },
+   &quot;x&quot;: {
+     &quot;aggregate&quot;: &quot;sum&quot;, &quot;field&quot;: &quot;people&quot;,
+     &quot;title&quot;: &quot;population&quot;,
+     &quot;axis&quot;: {&quot;format&quot;: &quot;s&quot;}
+   },
+   &quot;color&quot;: {
+     &quot;field&quot;: &quot;gender&quot;,
+     &quot;legend&quot;: null
+   }
+ }
+}],
+&quot;config&quot;: {
+ &quot;view&quot;: {&quot;stroke&quot;: null},
+ &quot;axis&quot;: {&quot;grid&quot;: false}
+}
+}
+
+</pre><div class="embed-container"></div></div>
+</div></div><div class="mui-tabs__pane grid " id="md-tab-id-10"><div class="grid__col-sm-12"><div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">sequenceDiagram
+ Alice-&gt;&gt;+John: Hello John, how are you?
+ Alice-&gt;&gt;+John: John, can you hear me?
+ John--&gt;&gt;-Alice: Hi Alice, I can hear you!
+ John--&gt;&gt;-Alice: I feel great!
+</pre><div class="embed-container"></div></div>
+</div></div></div></div></div><div class="mui-tabs__pane grid " id="md-tab-id-4"><div class="grid__col-sm-12"><p>This tab is going to have a table!</p>
+<table>
+<thead>
+<tr>
+<th>Heading 1</th>
+<th>Heading 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Content 1</td>
+<td>Content 2</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Well if you really want, you can also have some other content! Like a blockquote, maybe?</p>
+</blockquote>
+<p>Perhaps a list?</p>
+<ol>
+<li>One with some order in it!</li>
+<li>With multiple items, that too within the tab!
+<ol>
+<li>Which is also nested ;)</li>
+<li>It could have multiple sub items.</li>
+<li>That are more than 2!</li>
+</ol>
+</li>
+<li>Finally, the list ends at top level.</li>
+</ol>
+</div></div></div>"""
+tabs = """<h2>Tabs using containers plugin</h2>
+<p>Let us see if we can use the containers plugin to render tabs.</p>
+<div><ul class="mui-tabs__bar"><li  class="mui--is-active"><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-1">Code</a></li><li ><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-2"></a></li><li ><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-3">Embeds</a></li><li ><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-4">Table Tab</a></li></ul><div class="mui-tabs__pane grid mui--is-active" id="md-tab-id-1"><div class="grid__col-sm-12"><p><strong>The next tab has a blank title.
+Please click the blank space.</strong></p>
+<p>This tab contains code!</p>
+<div><ul class="mui-tabs__bar"><li  class="mui--is-active"><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-5">Javascript</a></li><li ><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-6">Python</a></li><li ><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-7">Markdown</a></li></ul><div class="mui-tabs__pane grid mui--is-active" id="md-tab-id-5"><div class="grid__col-sm-12"><pre><code class="language-js">let x = 10000;
+sleep(x);
+</code></pre>
+</div></div><div class="mui-tabs__pane grid " id="md-tab-id-6"><div class="grid__col-sm-12"><pre><code class="language-python">def sum(a, b):
+    return a['quantity'] + b['quantity']
+print(sum({'quantity': 5}, {'quantity': 10}))
+</code></pre>
+</div></div><div class="mui-tabs__pane grid " id="md-tab-id-7"><div class="grid__col-sm-12"><pre><code class="language-markdown">**Here is bold markdown.**
+### Heading
+\\::: should render three `:` characters.
+\\``` should render three \\` characters.
+There's a list below:
+- Item 1
+- Item 2
+</code></pre>
+</div></div></div></div></div><div class="mui-tabs__pane grid " id="md-tab-id-2"><div class="grid__col-sm-12"><p>What to do with tabs without titles? I presume, we should be ignoring them completely.</p>
+</div></div><div class="mui-tabs__pane grid " id="md-tab-id-3"><div class="grid__col-sm-12"><div><ul class="mui-tabs__bar"><li  class="mui--is-active"><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-8">Markmap</a></li><li ><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-9">Vega</a></li><li ><a class="mui--text-body2" href="javascript:void(0)"data-mui-toggle="tab" data-mui-controls="md-tab-id-10">Mermaid</a></li></ul><div class="mui-tabs__pane grid mui--is-active" id="md-tab-id-8"><div class="grid__col-sm-12"><pre><code class="language-{markmap}">
+# Digital Identifiers and Rights
+
+## Community and Outreach
+
+- Experts
+- Grant organizations
+- IT ministries
+- Journalism schools
+- Journalists and reporters
+- Partnerships
+  - Patrons
+  - Sponsors
+- Policymakers
+- Rights activists
+- Startups
+- Thinktanks
+- Venture capital
+- Volunteers
+
+## Domains
+
+- Border controls
+- Citizenship
+- Digital data trusts
+- FinTech
+- Government
+- Health services delivery
+- Hospitality
+- Law enforcement
+- Online retail and commerce
+- Smart automation
+- Social media
+- Travel and tourism
+
+## Location
+
+- International
+- Local or domestic
+- Transit
+
+## Output and Outcomes
+
+- Best practices guide for product/service development
+- Conference
+- Conversations (eg. Twitter Spaces)
+- Masterclass webinars
+- Proceedings (talk playlist)
+- Reports
+- Review of Policies
+
+## Themes
+
+### Digital Identity
+
+- Anonymity
+- Architecture of digital trust
+- Control and ownership
+- Identity and identifier models
+- Inclusion and exclusion
+- Portability
+- Principles
+- Regulations
+- Reputation
+- Rights and agency
+- Trust framework
+- Verifiability
+- Vulnerable communities
+
+### Digital Rights
+
+- Current state across region
+- Harms
+- Emerging regulatory requirements
+- Web 3.0 and decentralization
+- Naturalization
+
+## Streams
+
+- Banking and finance
+- Data exchange and interoperability
+- Data governance models
+- Data markets
+- Digital identifiers and identity systems
+- Digital public goods
+- Digital public services
+- Humanitarian activity and aid
+- Identity ecosystems
+- Innovation incubation incentives
+  - Public investment
+  - Private capital
+- Local regulations and laws
+- National policies
+- Public health services
+- Records (birth, death, land etc)
+</code></pre>
+</div></div><div class="mui-tabs__pane grid " id="md-tab-id-9"><div class="grid__col-sm-12"><pre><code class="language-{vega-lite}">{
+  &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
+  &quot;description&quot;: &quot;A population pyramid for the US in 2000.&quot;,
+  &quot;data&quot;: { &quot;url&quot;: &quot;https://vega.github.io/vega-lite/examples/data/population.json&quot;},
+  &quot;transform&quot;: [
+    {&quot;filter&quot;: &quot;datum.year == 2000&quot;},
+    {&quot;calculate&quot;: &quot;datum.sex == 2 ? 'Female' : 'Male'&quot;, &quot;as&quot;: &quot;gender&quot;}
+  ],
+  &quot;spacing&quot;: 0,
+  &quot;hconcat&quot;: [{
+    &quot;transform&quot;: [{
+      &quot;filter&quot;: {&quot;field&quot;: &quot;gender&quot;, &quot;equal&quot;: &quot;Female&quot;}
+    }],
+    &quot;title&quot;: &quot;Female&quot;,
+    &quot;mark&quot;: &quot;bar&quot;,
+    &quot;encoding&quot;: {
+      &quot;y&quot;: {
+        &quot;field&quot;: &quot;age&quot;, &quot;axis&quot;: null, &quot;sort&quot;: &quot;descending&quot;
+      },
+      &quot;x&quot;: {
+        &quot;aggregate&quot;: &quot;sum&quot;, &quot;field&quot;: &quot;people&quot;,
+        &quot;title&quot;: &quot;population&quot;,
+        &quot;axis&quot;: {&quot;format&quot;: &quot;s&quot;},
+        &quot;sort&quot;: &quot;descending&quot;
+      },
+      &quot;color&quot;: {
+        &quot;field&quot;: &quot;gender&quot;,
+        &quot;scale&quot;: {&quot;range&quot;: [&quot;#675193&quot;, &quot;#ca8861&quot;]},
+        &quot;legend&quot;: null
+      }
+    }
+  }, {
+    &quot;width&quot;: 20,
+    &quot;view&quot;: {&quot;stroke&quot;: null},
+    &quot;mark&quot;: {
+      &quot;type&quot;: &quot;text&quot;,
+      &quot;align&quot;: &quot;center&quot;
+    },
+    &quot;encoding&quot;: {
+      &quot;y&quot;: {&quot;field&quot;: &quot;age&quot;, &quot;type&quot;: &quot;ordinal&quot;, &quot;axis&quot;: null, &quot;sort&quot;: &quot;descending&quot;},
+      &quot;text&quot;: {&quot;field&quot;: &quot;age&quot;, &quot;type&quot;: &quot;quantitative&quot;}
+    }
+  }, {
+    &quot;transform&quot;: [{
+      &quot;filter&quot;: {&quot;field&quot;: &quot;gender&quot;, &quot;equal&quot;: &quot;Male&quot;}
+    }],
+    &quot;title&quot;: &quot;Male&quot;,
+    &quot;mark&quot;: &quot;bar&quot;,
+    &quot;encoding&quot;: {
+      &quot;y&quot;: {
+        &quot;field&quot;: &quot;age&quot;, &quot;title&quot;: null,
+        &quot;axis&quot;: null, &quot;sort&quot;: &quot;descending&quot;
+      },
+      &quot;x&quot;: {
+        &quot;aggregate&quot;: &quot;sum&quot;, &quot;field&quot;: &quot;people&quot;,
+        &quot;title&quot;: &quot;population&quot;,
+        &quot;axis&quot;: {&quot;format&quot;: &quot;s&quot;}
+      },
+      &quot;color&quot;: {
+        &quot;field&quot;: &quot;gender&quot;,
+        &quot;legend&quot;: null
+      }
+    }
+  }],
+  &quot;config&quot;: {
+    &quot;view&quot;: {&quot;stroke&quot;: null},
+    &quot;axis&quot;: {&quot;grid&quot;: false}
+  }
+}
+
+</code></pre>
+</div></div><div class="mui-tabs__pane grid " id="md-tab-id-10"><div class="grid__col-sm-12"><pre><code class="language-{mermaid}">sequenceDiagram
+    Alice-&gt;&gt;+John: Hello John, how are you?
+    Alice-&gt;&gt;+John: John, can you hear me?
+    John--&gt;&gt;-Alice: Hi Alice, I can hear you!
+    John--&gt;&gt;-Alice: I feel great!
+</code></pre>
+</div></div></div></div></div><div class="mui-tabs__pane grid " id="md-tab-id-4"><div class="grid__col-sm-12"><p>This tab is going to have a table!</p>
+<table>
+<thead>
+<tr>
+<th>Heading 1</th>
+<th>Heading 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Content 1</td>
+<td>Content 2</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Well if you really want, you can also have some other content! Like a blockquote, maybe?</p>
+</blockquote>
+<p>Perhaps a list?</p>
+<ol>
+<li>One with some order in it!</li>
+<li>With multiple items, that too within the tab!
+<ol>
+<li>Which is also nested ;)</li>
+<li>It could have multiple sub items.</li>
+<li>That are more than 2!</li>
+</ol>
+</li>
+<li>Finally, the list ends at top level.</li>
+</ol>
+</div></div></div>"""
