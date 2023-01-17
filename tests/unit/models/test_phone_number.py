@@ -19,7 +19,7 @@ EXAMPLE_NUMBER_GB = '+447400123456'
 EXAMPLE_NUMBER_DE = '+4915123456789'
 EXAMPLE_NUMBER_IN_UNPREFIXED = '8123456789'
 EXAMPLE_NUMBER_IN_FORMATTED = '+91 81234 56789'
-EXAMPLE_NUMBER_US_FORMATTED = '+1 (201) 555-0123'
+EXAMPLE_NUMBER_US_FORMATTED = '+1 201-555-0123'
 
 # This hash map should not be edited -- hashes are permanent
 hash_map = {
@@ -127,6 +127,7 @@ def refcount_data(funnel) -> Generator:
         ('98450-12345', True, '+919845012345'),
         ('+91 98450 12345', True, '+919845012345'),
         ('8022223333', False, '+918022223333'),
+        ('+918022223333', True, False),
         ('junk', False, None),
     ],
 )
@@ -165,14 +166,20 @@ def test_phone_number_init() -> None:
     pn1 = models.PhoneNumber(EXAMPLE_NUMBER_IN)
     assert pn1.phone == EXAMPLE_NUMBER_IN
     assert pn1.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
+    assert str(pn1) == EXAMPLE_NUMBER_IN
+    assert pn1.formatted == EXAMPLE_NUMBER_IN_FORMATTED
     # A visually formatted number also parses correctly and is re-formatted to E164
     pn2 = models.PhoneNumber(EXAMPLE_NUMBER_IN_FORMATTED)
     assert pn2.phone == EXAMPLE_NUMBER_IN
-    assert pn1.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
+    assert pn2.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
+    assert str(pn2) == EXAMPLE_NUMBER_IN
+    assert pn2.formatted == EXAMPLE_NUMBER_IN_FORMATTED
     # Any worldwide prefix is accepted as long as it's a valid phone number
     pn3 = models.PhoneNumber(EXAMPLE_NUMBER_US_FORMATTED)
     assert pn3.phone == EXAMPLE_NUMBER_US
     assert pn3.blake2b160 == hash_map[EXAMPLE_NUMBER_US]
+    assert str(pn3) == EXAMPLE_NUMBER_US
+    assert pn3.formatted == EXAMPLE_NUMBER_US_FORMATTED
 
 
 def test_phone_number_init_error() -> None:
@@ -196,33 +203,53 @@ def test_phone_number_mutability() -> None:
     pn = models.PhoneNumber(EXAMPLE_NUMBER_IN_FORMATTED)
     assert pn.phone == EXAMPLE_NUMBER_IN
     assert pn.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
+    assert str(pn) == EXAMPLE_NUMBER_IN
+    assert pn.formatted == EXAMPLE_NUMBER_IN_FORMATTED
 
     # Setting it to the same value again is allowed
     pn.phone = EXAMPLE_NUMBER_IN
     assert pn.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
+    assert str(pn) == EXAMPLE_NUMBER_IN
+    assert pn.formatted == EXAMPLE_NUMBER_IN_FORMATTED
 
     # Nulling is allowed, and hash remains intact
     pn.phone = None
     assert pn.phone is None
     assert pn.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
+    assert str(pn) == ''
+    assert pn.formatted == ''
 
     # Restoring is allowed (with any formatting)
     pn.phone = EXAMPLE_NUMBER_IN_FORMATTED
     assert pn.phone == EXAMPLE_NUMBER_IN
     assert pn.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
+    assert str(pn) == EXAMPLE_NUMBER_IN
+    assert pn.formatted == EXAMPLE_NUMBER_IN_FORMATTED
 
-    # However, reformatting when not restoring is not allowed
+    # Reformatting when not restoring is not allowed
     with pytest.raises(ValueError, match="Phone number cannot be changed"):
         pn.phone = EXAMPLE_NUMBER_IN_FORMATTED
 
-    # But changing it to another value is not allowed
+    # Changing it to another value is not allowed
     with pytest.raises(ValueError, match="Phone number cannot be changed"):
         pn.phone = EXAMPLE_NUMBER_US
+    with pytest.raises(ValueError, match="A phone number is required"):
+        pn.phone = ''
+    with pytest.raises(ValueError, match="A phone number is required"):
+        pn.phone = False  # type: ignore[assignment]
+    with pytest.raises(ValueError, match="Phone number cannot be changed"):
+        pn.phone = [1, 2, 3]  # type: ignore[assignment]
 
     # Changing after nulling is not allowed as hash won't match
     pn.phone = None
     with pytest.raises(ValueError, match="Phone number does not match"):
         pn.phone = EXAMPLE_NUMBER_US
+    with pytest.raises(ValueError, match="A phone number is required"):
+        pn.phone = ''
+    with pytest.raises(ValueError, match="A phone number is required"):
+        pn.phone = False  # type: ignore[assignment]
+    with pytest.raises(ValueError, match="Invalid value for phone number"):
+        pn.phone = [1, 2, 3]  # type: ignore[assignment]
 
 
 def test_phone_number_md5() -> None:
@@ -302,6 +329,12 @@ def test_phone_number_get(db_session) -> None:
     pn1.mark_blocked()
     assert pn1.is_blocked is True
     assert models.PhoneNumber.get(EXAMPLE_NUMBER_IN) == pn1
+
+    # Get can be passed an explicit `is_blocked` parameter
+    assert models.PhoneNumber.get(EXAMPLE_NUMBER_IN, is_blocked=False) is None
+    assert models.PhoneNumber.get(EXAMPLE_NUMBER_IN, is_blocked=True) == pn1
+    assert models.PhoneNumber.get(EXAMPLE_NUMBER_US, is_blocked=False) == pn2
+    assert models.PhoneNumber.get(EXAMPLE_NUMBER_US, is_blocked=True) is None
 
 
 @pytest.mark.usefixtures('db_session')

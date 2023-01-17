@@ -322,7 +322,26 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     def __repr__(self) -> str:
         """Debugging representation of the phone number."""
-        return f'PhoneNumber({self.phone!r})'
+        if self.phone:
+            return f'PhoneNumber({self.phone!r})'
+        return f'PhoneNumber(blake2b160={self.blake2b160!r})'
+
+    @cached_property
+    def parsed(self) -> Optional[phonenumbers.PhoneNumber]:
+        """Return parsed phone number using libphonenumbers."""
+        if self.phone:
+            return phonenumbers.parse(self.phone)
+        return None
+
+    @cached_property
+    def formatted(self) -> str:
+        """Return a phone number formatted for user display."""
+        parsed = self.parsed
+        if parsed is not None:
+            return phonenumbers.format_number(
+                parsed, phonenumbers.PhoneNumberFormat.INTERNATIONAL
+            )
+        return ''
 
     def __init__(self, phone: str, *, _pre_validated_formatted: bool = False) -> None:
         if not isinstance(phone, str):
@@ -676,8 +695,18 @@ auto_init_default(PhoneNumber.delivery_state_at)
 auto_init_default(PhoneNumber._is_blocked)  # pylint: disable=protected-access
 
 
+def _clear_cached_properties(target: PhoneNumber) -> None:
+    """Clear cached properties in :class:`PhoneNumber`."""
+    for attr in ('parsed', 'formatted'):
+        try:
+            delattr(target, attr)
+        except KeyError:
+            # cached_property raises KeyError when there's no existing cached value
+            pass
+
+
 @event.listens_for(PhoneNumber.phone, 'set', retval=True)
-def _validate_phone(target, value: Any, old_value: Any, initiator) -> Any:
+def _validate_phone(target: PhoneNumber, value: Any, old_value: Any, initiator) -> Any:
     # First: check if value is acceptable and phone attribute can be set
     if not value and value is not None:
         # Only `None` is an acceptable falsy value
@@ -704,9 +733,11 @@ def _validate_phone(target, value: Any, old_value: Any, initiator) -> Any:
         hashed = phone_blake2b160_hash(value, _pre_validated_formatted=True)
         if hashed != target.blake2b160:
             raise ValueError("Phone number does not match existing blake2b160 hash")
+        _clear_cached_properties(target)
         return value
     if value is None:
-        # Allow removing phone (we still keep the hash)
+        # Allow removing phone (we still keep the hash), but clear cached properties
+        _clear_cached_properties(target)
         return value
     raise ValueError(f"Invalid value for phone number: {value}")
 
