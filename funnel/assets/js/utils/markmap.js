@@ -22,7 +22,7 @@ const MarkmapEmbed = {
       const transformer = new Transformer();
 
       const observer = new IntersectionObserver(
-        (items, observer) => {
+        (items) => {
           items.forEach((item) => {
             if (item.isIntersecting) $(item.target).data('markmap').fit();
           });
