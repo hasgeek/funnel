@@ -62,6 +62,7 @@ def session_data(
         'url_name': session.url_name,
         'proposal_id': session.proposal_id,
         'description': session.description,
+        'banner_image_url': session.banner_image_url,
         'url': session.url_for(_external=True),
         'proposal_url': (
             session.proposal.url_for(_external=True) if session.proposal else None
