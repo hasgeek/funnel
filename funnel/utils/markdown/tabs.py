@@ -78,17 +78,24 @@ class TabNode:
     _tab_id: str = ''
     children: List[TabsetNode] = field(default_factory=list)
     _opening: ClassVar[str] = (
-        '<div class="mui-tabs__pane grid {active_class}" id="{tab_id}">'
-        + '<div class="grid__col-sm-12">'
+        '<div{class_attr} id="{tab_id}">' + '<div class="grid__col-sm-12">'
     )
     _closing: ClassVar[str] = '</div></div>'
-    _active_class_attr: ClassVar[str] = ' class="mui--is-active"'
-    _active_class: ClassVar[str] = 'mui--is-active'
     _item_html: ClassVar[str] = (
-        '<li {active_class}>'
+        '<li{class_attr}>'
         + '<a class="mui--text-body2" href="javascript:void(0)"'
-        + 'data-mui-toggle="tab" data-mui-controls="{tab_id}">{title}</a></li>'
+        + ' data-mui-toggle="tab" data-mui-controls="{tab_id}">{title}</a></li>'
     )
+
+    def _class_attr(self, classes=None):
+        if classes is None:
+            classes = []
+        classes = classes + self._active_class
+        return f' class="{" ".join(classes)}"' if len(classes) > 0 else ''
+
+    @property
+    def _active_class(self):
+        return ['mui--is-active'] if self.is_first else []
 
     @property
     def title(self):
@@ -113,7 +120,7 @@ class TabNode:
     @property
     def html_open(self) -> str:
         opening = self._opening.format(
-            tab_id=self.tab_id, active_class=self._active_class if self.is_first else ''
+            tab_id=self.tab_id, class_attr=self._class_attr(['md-tabs-panel', 'grid'])
         )
         if self.is_first:
             opening = self.parent.html_open + opening
@@ -126,9 +133,7 @@ class TabNode:
     @property
     def html_tab_item(self):
         return self._item_html.format(
-            active_class=self._active_class_attr if self.is_first else '',
-            tab_id=self.tab_id,
-            title=self.title,
+            tab_id=self.tab_id, title=self.title, class_attr=self._class_attr()
         )
 
 
