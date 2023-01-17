@@ -14,8 +14,16 @@ from baseframe import statsd
 from .. import app, rq
 from ..extapi.boxoffice import Boxoffice
 from ..extapi.explara import ExplaraAPI
-from ..models import EmailAddress, GeoName, Project, ProjectLocation, TicketClient, db
-from ..signals import emailaddress_refcount_dropping
+from ..models import (
+    EmailAddress,
+    GeoName,
+    PhoneNumber,
+    Project,
+    ProjectLocation,
+    TicketClient,
+    db,
+)
+from ..signals import emailaddress_refcount_dropping, phonenumber_refcount_dropping
 from ..typing import ResponseType, ReturnDecorator, WrappedFunc
 from .helpers import app_context
 
@@ -112,7 +120,7 @@ def tag_locations(project_id):
 @rqjob()
 def send_auth_client_notice(url, params=None, data=None, method='POST'):
     """Send notice to AuthClient when some data changes."""
-    requests.request(method, url, params=params, data=data)
+    requests.request(method, url, params=params, data=data, timeout=30)
 
 
 # If an email address had a reference count drop during the request, make a note of
@@ -127,27 +135,49 @@ def send_auth_client_notice(url, params=None, data=None, method='POST'):
 
 
 @emailaddress_refcount_dropping.connect
-def forget_email_in_request_teardown(sender) -> None:
+def forget_email_in_request_teardown(sender: EmailAddress) -> None:
     if g:  # Only do this if we have an app context
         if not hasattr(g, 'forget_email_hashes'):
             g.forget_email_hashes = set()
         g.forget_email_hashes.add(sender.email_hash)
 
 
+@phonenumber_refcount_dropping.connect
+def forget_phone_in_request_teardown(sender: PhoneNumber) -> None:
+    if g:  # Only do this if we have an app context
+        if not hasattr(g, 'forget_phone_hashes'):
+            g.forget_phone_hashes = set()
+        g.forget_phone_hashes.add(sender.phone_hash)
+
+
 @app.after_request
-def forget_email_in_background_job(response: ResponseType) -> ResponseType:
+def forget_email_phone_in_background_job(response: ResponseType) -> ResponseType:
     if hasattr(g, 'forget_email_hashes'):
         for email_hash in g.forget_email_hashes:
             forget_email.queue(email_hash)
+    if hasattr(g, 'forget_phone_hashes'):
+        for phone_hash in g.forget_phone_hashes:
+            forget_phone.queue(phone_hash)
     return response
 
 
 @rqjob()
-def forget_email(email_hash):
+def forget_email(email_hash: str) -> None:
     """Remove an email address if it has no inbound references."""
     email_address = EmailAddress.get(email_hash=email_hash)
-    if email_address.refcount() == 0:
+    if email_address is not None and email_address.refcount() == 0:
         app.logger.info("Forgetting email address with hash %s", email_hash)
         email_address.email = None
         db.session.commit()
         statsd.incr('email_address.forgotten')
+
+
+@rqjob()
+def forget_phone(phone_hash) -> None:
+    """Remove a phone number if it has no inbound references."""
+    phone_number = PhoneNumber.get(phone_hash=phone_hash)
+    if phone_number is not None and phone_number.refcount() == 0:
+        app.logger.info("Forgetting phone number with hash %s", phone_hash)
+        phone_number.phone = None
+        db.session.commit()
+        statsd.incr('phone_number.forgotten')
