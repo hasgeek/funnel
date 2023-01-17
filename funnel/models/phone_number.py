@@ -262,7 +262,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     #: The phone number, centrepiece of this model. Stored normalized in E164 format.
     #: Validated by the :func:`_validate_phone` event handler
-    phone = sa.Column(sa.Unicode, nullable=True, index=True)
+    phone = sa.Column(sa.Unicode, nullable=True, unique=True)
 
     #: BLAKE2b 160-bit hash of :attr:`phone`. Kept permanently even if phone is
     #: removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite the name,
