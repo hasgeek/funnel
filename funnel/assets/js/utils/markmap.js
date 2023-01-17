@@ -43,7 +43,16 @@ const MarkmapEmbed = {
           );
           $(markdownDiv).find('.embed-container').append('<svg></svg>');
           const current = $(markdownDiv).find('svg')[0];
-          const markmap = Markmap.create(current, { initialExpandLevel: 1 }, root);
+          const markmap = Markmap.create(
+            current,
+            {
+              autoFit: true,
+              pan: false,
+              fitRatio: 0.85,
+              initialExpandLevel: 1,
+            },
+            root
+          );
           markmapEmbed.markmaps.push(markmap);
           $(current).data('markmap', markmap);
           observer.observe(current);
