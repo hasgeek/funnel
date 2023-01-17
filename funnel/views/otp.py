@@ -238,7 +238,7 @@ class OtpSession(Generic[OptionalUserType]):
         if not self.phone:
             return None
         template_message = self.compose_sms()
-        msg = SmsMessage(phone_number=self.phone, message=str(template_message))
+        msg = SmsMessage(phone=self.phone, message=str(template_message))
         try:
             # Now send this
             msg.transactionid = sms.send(
@@ -314,7 +314,7 @@ class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
         if not self.phone:
             return None
         template_message = self.compose_sms()
-        msg = SmsMessage(phone_number=self.phone, message=str(template_message))
+        msg = SmsMessage(phone=self.phone, message=str(template_message))
         try:
             # Now send this
             msg.transactionid = sms.send(

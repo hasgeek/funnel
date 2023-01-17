@@ -14,7 +14,6 @@ from werkzeug.utils import cached_property
 
 from passlib.hash import argon2, bcrypt
 from typing_extensions import Literal
-import base58
 import phonenumbers
 
 from baseframe import __
@@ -43,6 +42,7 @@ from . import (
 )
 from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import ImgeeFurl, add_search_trigger, quote_autocomplete_like
+from .phone_number import PhoneNumber, PhoneNumberMixin
 
 __all__ = [
     'USER_STATE',
@@ -470,7 +470,9 @@ class User(
         userphone = UserPhone(user=self, phone=phone, type=type, private=private)
         userphone = cast(
             UserPhone,
-            failsafe_add(db.session, userphone, user=self, phone=userphone.phone),
+            failsafe_add(
+                db.session, userphone, user=self, phone_number=userphone.phone_number
+            ),
         )
         if primary:
             self.primary_phone = userphone
@@ -1354,8 +1356,8 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
     __tablename__ = 'user_email'
     __email_optional__ = False
     __email_unique__ = True
-    __email_for__ = 'user'
     __email_is_exclusive__ = True
+    __email_for__ = 'user'
 
     # Tell mypy that these are not optional
     email_address: Mapped[EmailAddress]
@@ -1438,9 +1440,9 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
         """
         Return a UserEmail with matching email or blake2b160 hash.
 
-        :param str email: Email address to look up
-        :param bytes blake2b160: blake2b of email address to look up
-        :param str email_hash: blake2b hash rendered in Base58
+        :param email: Email address to look up
+        :param blake2b160: 160-bit blake2b of email address to look up
+        :param email_hash: blake2b hash rendered in Base58
         """
         return (
             cls.query.join(EmailAddress)
@@ -1495,9 +1497,9 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
         Return a UserEmail with matching email or hash if it belongs to the given user.
 
         :param User user: User to look up for
-        :param str email: Email address to look up
-        :param bytes blake2b160: 160-bit blake2b of email address
-        :param str email_hash: blake2b hash rendered in Base58
+        :param email: Email address to look up
+        :param blake2b160: 160-bit blake2b of email address
+        :param email_hash: blake2b hash rendered in Base58
         """
         return (
             cls.query.join(EmailAddress)
@@ -1708,32 +1710,17 @@ class UserEmailClaim(
 auto_init_default(UserEmailClaim.verification_code)
 
 
-class PhoneHashMixin:
-    """Temporary mixin until blake2b160 is a stored pre-hashed column."""
-
-    # TODO: Add migration to include blake2b160 column and phone_hash comparator
-
-    phone: Mapped[str]
-
-    @property
-    def blake2b160(self) -> bytes:
-        """Blake2b 160-bit hash of phone number."""
-        return hashlib.blake2b(self.phone.encode('utf-8'), digest_size=20).digest()
-
-    @cached_property
-    def transport_hash(self) -> str:
-        """Hash of phone number for notifications framework."""
-        return base58.b58encode(self.blake2b160).decode()
-
-
-class UserPhone(PhoneHashMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     """A phone number linked to a user account."""
 
     __tablename__ = 'user_phone'
+    __phone_optional__ = False
+    __phone_unique__ = True
+    __phone_is_exclusive__ = True
+    __phone_for__ = 'user'
+
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user = sa.orm.relationship(User, backref=sa.orm.backref('phones', cascade='all'))
-    _phone = sa.Column('phone', sa.UnicodeText, unique=True, nullable=False)
-    gets_text = sa.Column(sa.Boolean, nullable=False, default=True)
 
     private = sa.Column(sa.Boolean, nullable=False, default=False)
     type = sa.Column(sa.Unicode(30), nullable=True)  # noqa: A003
@@ -1744,22 +1731,15 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):  # type: ignore[name-defin
         'related': {'phone', 'private', 'type'},
     }
 
-    def __init__(self, phone: str, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self._phone = phone
-
-    @hybrid_property
-    def phone(self):
-        """Return raw phone number."""
-        return self._phone
-
-    phone: Mapped[str] = sa.orm.synonym(  # type: ignore[no-redef]
-        '_phone', descriptor=phone
-    )
+    def __init__(self, user, **kwargs):
+        phone = kwargs.pop('phone', None)
+        if phone:
+            kwargs['phone_number'] = PhoneNumber.add_for(user, phone)
+        super().__init__(user=user, **kwargs)
 
     def __repr__(self) -> str:
         """Represent :class:`UserPhone` as a string."""
-        return f'<UserPhone {self.phone} of {self.user!r}>'
+        return f'UserPhone(phone={self.phone!r}, user={self.user!r})'
 
     def __str__(self) -> str:
         """Return phone number as a string."""
@@ -1767,13 +1747,11 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):  # type: ignore[name-defin
 
     def parsed(self) -> phonenumbers.PhoneNumber:
         """Return parsed phone number using libphonenumbers."""
-        return phonenumbers.parse(self._phone)
+        return self.phone_number.parsed
 
     def formatted(self) -> str:
         """Return a phone number formatted for user display."""
-        return phonenumbers.format_number(
-            self.parsed(), phonenumbers.PhoneNumberFormat.INTERNATIONAL
-        )
+        return self.phone_number.formatted
 
     @property
     def primary(self) -> bool:
@@ -1788,24 +1766,114 @@ class UserPhone(PhoneHashMixin, BaseMixin, db.Model):  # type: ignore[name-defin
             if self.user.primary_phone == self:
                 self.user.primary_phone = None
 
+    @overload
     @classmethod
-    def get(cls, phone: str) -> Optional[UserPhone]:
+    def get(
+        cls,
+        phone: str,
+    ) -> Optional[UserPhone]:
+        ...
+
+    @overload
+    @classmethod
+    def get(
+        cls,
+        *,
+        blake2b160: bytes,
+    ) -> Optional[UserPhone]:
+        ...
+
+    @overload
+    @classmethod
+    def get(
+        cls,
+        *,
+        phone_hash: str,
+    ) -> Optional[UserPhone]:
+        ...
+
+    @classmethod
+    def get(
+        cls,
+        phone: Optional[str] = None,
+        *,
+        blake2b160: Optional[bytes] = None,
+        phone_hash: Optional[str] = None,
+    ) -> Optional[UserPhone]:
         """
         Return a UserPhone with matching phone number.
 
-        :param str phone: Phone number to lookup (must be an exact match)
+        :param phone: Phone number to lookup
+        :param blake2b160: 160-bit blake2b of phone number to look up
+        :param phone_hash: blake2b hash rendered in Base58
         """
-        return cls.query.filter_by(phone=phone).one_or_none()
+        return (
+            cls.query.join(PhoneNumber)
+            .filter(
+                PhoneNumber.get_filter(
+                    phone=phone, blake2b160=blake2b160, phone_hash=phone_hash
+                )
+            )
+            .one_or_none()
+        )
+
+    @overload
+    @classmethod
+    def get_for(
+        cls,
+        user: User,
+        *,
+        phone: str,
+    ) -> Optional[UserPhone]:
+        ...
+
+    @overload
+    @classmethod
+    def get_for(
+        cls,
+        user: User,
+        *,
+        blake2b160: bytes,
+    ) -> Optional[UserPhone]:
+        ...
+
+    @overload
+    @classmethod
+    def get_for(
+        cls,
+        user: User,
+        *,
+        phone_hash: str,
+    ) -> Optional[UserPhone]:
+        ...
 
     @classmethod
-    def get_for(cls, user: User, phone: str) -> Optional[UserPhone]:
+    def get_for(
+        cls,
+        user: User,
+        *,
+        phone: Optional[str] = None,
+        blake2b160: Optional[bytes] = None,
+        phone_hash: Optional[str] = None,
+    ) -> Optional[UserPhone]:
         """
-        Return a UserPhone with matching phone number if it belongs to the given user.
+        Return a UserPhone with matching phone or hash if it belongs to the given user.
 
-        :param User user: User to check against
-        :param str phone: Phone number to lookup (must be an exact match)
+        :param User user: User to look up for
+        :param phone: Email address to look up
+        :param blake2b160: 160-bit blake2b of phone number
+        :param phone_hash: blake2b hash rendered in Base58
         """
-        return cls.query.filter_by(user=user, phone=phone).one_or_none()
+        return (
+            cls.query.join(PhoneNumber)
+            .filter(
+                cls.user == user,
+                PhoneNumber.get_filter(
+                    phone=phone, blake2b160=blake2b160, phone_hash=phone_hash
+                ),
+            )
+            .one_or_none()
+        )
 
     @classmethod
     def migrate_user(cls, old_user: User, new_user: User) -> OptionalMigratedTables:

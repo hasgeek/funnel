@@ -227,7 +227,7 @@
                         <span title="{% trans %}Primary{% endtrans %}">{{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=false, css_class="mui--text-success input-align-icon") }}</span>
                       {%- endif -%}
                       {% if has_multiple_verified_contacts -%}
-                        <a href="{{ url_for('remove_phone', number=userphone.phone) }}"
+                        <a href="{{ url_for('remove_phone', phone_hash=userphone.phone_number.phone_hash) }}"
                            title="{% trans %}Remove{% endtrans %}"
                            class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}</a>
                       {%- endif %}

@@ -26,7 +26,9 @@ class Fixtures:
         crusoe_email = models.UserEmail(
             email="crusoe@keepballin.ca", user=crusoe, primary=True
         )
-        crusoe_phone = models.UserPhone(phone="+8080808080", user=crusoe, primary=True)
+        crusoe_phone = models.UserPhone(
+            phone='+918123456789', user=crusoe, primary=True
+        )
         oakley_email = models.UserEmail(email="huh@keepballin.ca", user=oakley)
         db_session.add_all([crusoe_email, crusoe_phone, oakley_email])
         self.crusoe_email = crusoe_email
@@ -68,7 +70,7 @@ class Fixtures:
         self.auth_client_user_permissions = auth_client_user_permissions
 
         message = models.SmsMessage(
-            phone_number=crusoe_phone.phone,
+            phone=crusoe_phone.phone,
             transactionid="Ruff" * 5,
             message="Wuff Wuff",
         )

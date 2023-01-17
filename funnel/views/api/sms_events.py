@@ -57,7 +57,7 @@ def process_twilio_event() -> ReturnView:
     ).one_or_none()
     if sms_message is None:
         sms_message = SmsMessage(
-            phone_number=request.form['To'],
+            phone=request.form['To'],
             transactionid=request.form['MessageSid'],
             message=request.form['Body'],
         )
@@ -134,7 +134,7 @@ def process_exotel_event(secret_token: str) -> ReturnView:
     ).one_or_none()
     if sms_message is None:
         sms_message = SmsMessage(
-            phone_number=request.form['To'],
+            phone=exotel_to,
             transactionid=request.form['SmsSid'],
             message='',
         )

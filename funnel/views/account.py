@@ -722,12 +722,13 @@ class AccountView(ClassView):
             template='account_formlayout.html.jinja2',
         )
 
-    @route('phone/<number>/remove', methods=['GET', 'POST'], endpoint='remove_phone')
+    @route(
+        'phone/<phone_hash>/remove', methods=['GET', 'POST'], endpoint='remove_phone'
+    )
     @requires_sudo
-    def remove_phone(self, number: str) -> ReturnView:
+    def remove_phone(self, phone_hash: str) -> ReturnView:
         """Remove a phone number from the user's account."""
-        userphone: Union[None, UserPhone]
-        userphone = UserPhone.get_for(user=current_auth.user, phone=number)
+        userphone = UserPhone.get_for(user=current_auth.user, phone_hash=phone_hash)
         if userphone is None:
             abort(404)
 
