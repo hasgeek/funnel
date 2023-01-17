@@ -209,15 +209,14 @@ def validate_phone_number(candidate: Union[str, phonenumbers.PhoneNumber]) -> st
     raise PhoneNumberInvalidError(f"Not a valid phone number: {candidate}")
 
 
-def canonical_phone_number(candidate: str) -> str:
-    """Normalize an international phone number by rendering into E164 format."""
-    try:
-        parsed_number = phonenumbers.parse(candidate)
-        return phonenumbers.format_number(
-            parsed_number, phonenumbers.PhoneNumberFormat.E164
-        )
-    except phonenumbers.NumberParseException:
-        raise PhoneNumberInvalidError(f"Not a phone number: {candidate}") from None
+def canonical_phone_number(candidate: Union[str, phonenumbers.PhoneNumber]) -> str:
+    """Normalize an international phone number by rendering in E164 format."""
+    if not isinstance(candidate, phonenumbers.PhoneNumber):
+        try:
+            candidate = phonenumbers.parse(candidate)
+        except phonenumbers.NumberParseException as exc:
+            raise PhoneNumberInvalidError(f"Not a phone number: {candidate}") from exc
+    return phonenumbers.format_number(candidate, phonenumbers.PhoneNumberFormat.E164)
 
 
 def phone_blake2b160_hash(

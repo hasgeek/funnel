@@ -189,6 +189,33 @@ def test_validate_phone_number(candidate, expected, raises) -> None:
         assert models.validate_phone_number(candidate) == expected
 
 
+@pytest.mark.parametrize(
+    ('candidate', 'expected', 'raises'),
+    [
+        (
+            EXAMPLE_NUMBER_IN_UNPREFIXED,
+            None,
+            pytest.raises(models.PhoneNumberInvalidError),
+        ),
+        (EXAMPLE_NUMBER_IN, EXAMPLE_NUMBER_IN, does_not_raise()),
+        (EXAMPLE_NUMBER_IN_FORMATTED, EXAMPLE_NUMBER_IN, does_not_raise()),
+        (
+            phonenumbers.PhoneNumber(country_code=91, national_number=123456789),
+            '+91123456789',  # This output differs from validate_phone_number
+            does_not_raise(),
+        ),
+        (
+            phonenumbers.PhoneNumber(country_code=91, national_number=9845012345),
+            '+919845012345',
+            does_not_raise(),
+        ),
+    ],
+)
+def test_canonical_phone_number(candidate, expected, raises) -> None:
+    with raises:
+        assert models.canonical_phone_number(candidate) == expected
+
+
 def test_phone_hash_stability() -> None:
     """Safety test to ensure phone_blakeb160_hash doesn't change spec."""
     phash = models.phone_number.phone_blake2b160_hash
