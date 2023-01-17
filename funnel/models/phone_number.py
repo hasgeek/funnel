@@ -112,14 +112,39 @@ def parse_phone_number(candidate: str, sms: Literal[False]) -> Optional[str]:
 
 @overload
 def parse_phone_number(
+    candidate: str, sms: Literal[False], parsed: Literal[True]
+) -> Optional[phonenumbers.PhoneNumber]:
+    ...
+
+
+@overload
+def parse_phone_number(
     candidate: str, sms: Union[bool, Literal[True]]
 ) -> Optional[Union[str, Literal[False]]]:
     ...
 
 
+@overload
 def parse_phone_number(
-    candidate: str, sms: bool = False
-) -> Optional[Union[str, Literal[False]]]:
+    candidate: str,
+    sms: Union[bool, Literal[True]],
+    parsed: Literal[True],
+) -> Optional[Union[phonenumbers.PhoneNumber, Literal[False]]]:
+    ...
+
+
+@overload
+def parse_phone_number(
+    candidate: str,
+    sms: Union[bool, Literal[True]],
+    parsed: Union[bool, Literal[False]],
+) -> Optional[Union[phonenumbers.PhoneNumber, Literal[False]]]:
+    ...
+
+
+def parse_phone_number(
+    candidate: str, sms: bool = False, parsed: bool = False
+) -> Optional[Union[str, phonenumbers.PhoneNumber, Literal[False]]]:
     """
     Attempt to parse and validate a phone number and return in E164 format.
 
@@ -150,6 +175,8 @@ def parse_phone_number(
                     ):
                         sms_invalid = True
                         continue  # Not valid for SMS, continue searching regions
+                if parsed:
+                    return parsed_number
                 return phonenumbers.format_number(
                     parsed_number, phonenumbers.PhoneNumberFormat.E164
                 )
@@ -162,20 +189,23 @@ def parse_phone_number(
     return None
 
 
-def validate_phone_number(candidate: str) -> str:
+def validate_phone_number(candidate: Union[str, phonenumbers.PhoneNumber]) -> str:
     """
     Validate an international phone number and return in E164 format.
 
     :raises: PhoneNumberInvalidError if format is invalid
     """
-    try:
-        parsed_number = phonenumbers.parse(candidate)
-        if phonenumbers.is_valid_number(parsed_number):
-            return phonenumbers.format_number(
-                parsed_number, phonenumbers.PhoneNumberFormat.E164
-            )
-    except phonenumbers.NumberParseException:
-        pass
+    if not isinstance(candidate, phonenumbers.PhoneNumber):
+        try:
+            parsed_number = phonenumbers.parse(candidate)
+        except phonenumbers.NumberParseException as exc:
+            raise PhoneNumberInvalidError(f"Not a phone number: {candidate}") from exc
+    else:
+        parsed_number = candidate
+    if phonenumbers.is_valid_number(parsed_number):
+        return phonenumbers.format_number(
+            parsed_number, phonenumbers.PhoneNumberFormat.E164
+        )
     raise PhoneNumberInvalidError(f"Not a valid phone number: {candidate}")
 
 
@@ -545,9 +575,9 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     def validate_for(
         cls,
         owner: Optional[object],
-        phone: str,
+        phone: Union[str, phonenumbers.PhoneNumber],
         new: bool = False,
-    ) -> Union[bool, str]:
+    ) -> Union[bool, Literal['invalid', 'not_new']]:
         """
         Validate whether the phone number is available to the given owner.
 
@@ -558,12 +588,12 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         2. 'invalid': Invalid syntax and therefore unusable
 
         :param owner: Proposed owner of this phone number (may be None)
-        :param str phone: Phone number to validate
-        :param bool new: Fail validation if phone number is already in use
+        :param phone: Phone number to validate
+        :param new: Fail validation if phone number is already in use by owner
         """
         try:
             phone = validate_phone_number(phone)
-        except ValueError:
+        except PhoneNumberInvalidError:
             return 'invalid'
         existing = cls.get(phone)
         if existing is None:

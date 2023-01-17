@@ -1,11 +1,13 @@
 """Tests for PhoneNumber model."""
 
+from contextlib import nullcontext as does_not_raise
 from types import SimpleNamespace
 from typing import Generator
 
 from sqlalchemy.exc import IntegrityError
 import sqlalchemy as sa
 
+import phonenumbers
 import pytest
 
 from funnel import models
@@ -121,19 +123,70 @@ def refcount_data(funnel) -> Generator:
 
 
 @pytest.mark.parametrize(
-    ('candidate', 'sms', 'expected'),
+    ('candidate', 'sms', 'parsed', 'expected'),
     [
-        ('9845012345', True, '+919845012345'),
-        ('98450-12345', True, '+919845012345'),
-        ('+91 98450 12345', True, '+919845012345'),
-        ('8022223333', False, '+918022223333'),
-        ('+918022223333', True, False),
-        ('junk', False, None),
+        ('9845012345', True, False, '+919845012345'),
+        ('98450-12345', True, False, '+919845012345'),
+        ('+91 98450 12345', True, False, '+919845012345'),
+        ('8022223333', False, False, '+918022223333'),
+        ('+918022223333', True, False, False),
+        ('junk', False, False, None),
+        (
+            '9845012345',
+            True,
+            True,
+            phonenumbers.PhoneNumber(country_code=91, national_number=9845012345),
+        ),
+        (
+            '98450-12345',
+            True,
+            True,
+            phonenumbers.PhoneNumber(country_code=91, national_number=9845012345),
+        ),
+        (
+            '+91 98450 12345',
+            True,
+            True,
+            phonenumbers.PhoneNumber(country_code=91, national_number=9845012345),
+        ),
+        (
+            '8022223333',
+            False,
+            True,
+            phonenumbers.PhoneNumber(country_code=91, national_number=8022223333),
+        ),
     ],
 )
-def test_parse_phone_number(candidate, expected, sms) -> None:
+def test_parse_phone_number(candidate, sms, parsed, expected) -> None:
     """Test that parse_phone_number is able to parse a number."""
-    assert models.parse_phone_number(candidate, sms) == expected
+    assert models.parse_phone_number(candidate, sms, parsed) == expected
+
+
+@pytest.mark.parametrize(
+    ('candidate', 'expected', 'raises'),
+    [
+        (
+            EXAMPLE_NUMBER_IN_UNPREFIXED,
+            None,
+            pytest.raises(models.PhoneNumberInvalidError),
+        ),
+        (EXAMPLE_NUMBER_IN, EXAMPLE_NUMBER_IN, does_not_raise()),
+        (EXAMPLE_NUMBER_IN_FORMATTED, EXAMPLE_NUMBER_IN, does_not_raise()),
+        (
+            phonenumbers.PhoneNumber(country_code=91, national_number=123456789),
+            None,
+            pytest.raises(models.PhoneNumberInvalidError),
+        ),
+        (
+            phonenumbers.PhoneNumber(country_code=91, national_number=9845012345),
+            '+919845012345',
+            does_not_raise(),
+        ),
+    ],
+)
+def test_validate_phone_number(candidate, expected, raises) -> None:
+    with raises:
+        assert models.validate_phone_number(candidate) == expected
 
 
 def test_phone_hash_stability() -> None:
@@ -187,15 +240,18 @@ def test_phone_number_init_error() -> None:
     with pytest.raises(ValueError, match="A string phone number is required"):
         # Must be a string
         models.PhoneNumber(None)  # type: ignore[arg-type]
-    with pytest.raises(ValueError, match="Not a valid phone number"):
+    with pytest.raises(ValueError, match="Not a phone number"):
         # Must not be blank
         models.PhoneNumber('')
-    with pytest.raises(ValueError, match="Not a valid phone number"):
+    with pytest.raises(ValueError, match="Not a phone number"):
         # Must not be garbage input
         models.PhoneNumber('garbage')
-    with pytest.raises(ValueError, match="Not a valid phone number"):
-        # Must be fully specced; no unprefixed numbers
+    with pytest.raises(ValueError, match="Not a phone number"):
+        # Must be fully specced; no unprefixed numbers (this will not be recognised)
         models.PhoneNumber(EXAMPLE_NUMBER_IN_UNPREFIXED)
+    with pytest.raises(ValueError, match="Not a valid phone number"):
+        # Must be a valid number even if syntax is correct
+        models.PhoneNumber('+910123456789')
 
 
 def test_phone_number_mutability() -> None:

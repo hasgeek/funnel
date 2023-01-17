@@ -15,6 +15,7 @@ from werkzeug.utils import cached_property
 
 from pyisemail import is_email
 from pyisemail.diagnosis import BaseDiagnosis
+from typing_extensions import Literal
 import base58
 import idna
 
@@ -587,7 +588,9 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         email: str,
         check_dns: bool = False,
         new: bool = False,
-    ) -> Union[bool, str]:
+    ) -> Union[
+        bool, Literal['nomx', 'not_new', 'soft_fail', 'hard_fail', 'invalid', 'nullmx']
+    ]:
         """
         Validate whether the email address is available to the given owner.
 
@@ -602,9 +605,9 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         6. 'nullmx': Available, but host explicitly says they will not accept email
 
         :param owner: Proposed owner of this email address (may be None)
-        :param str email: Email address to validate
-        :param bool check_dns: Check for MX records for a new email address
-        :param bool new: Fail validation if email address is already in use
+        :param email: Email address to validate
+        :param check_dns: Check for MX records for a new email address
+        :param new: Fail validation if email address is already in use by owner
         """
         try:
             existing = cls._get_existing(email)
