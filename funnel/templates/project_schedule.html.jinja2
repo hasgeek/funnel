@@ -23,6 +23,15 @@
     {% if project.tagline %}{{ project.tagline }}{% endif %}
   {%- endif -%}
 {%- endblock description -%}
+{% block image_src %}
+    {% if active_session and active_session.banner_image_url %}
+      <link rel="image_src" href="{{ active_session.banner_image_url }}" />
+      <meta property="og:image" content="{{ active_session.banner_image_url }}" />
+      <meta name="twitter:image" content="{{ active_session.banner_image_url }}" />
+    {% else %}
+        {{ super() }}
+    {% endif %}
+{% endblock image_src %}
 {%- block pageheaders -%}
   <link rel="stylesheet"
         type="text/css"
