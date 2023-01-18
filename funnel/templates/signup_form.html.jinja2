@@ -2,6 +2,7 @@
   {% extends "account_formlayout.html.jinja2" %}
 {%- else -%}
   {% extends "ajaxform.html.jinja2" %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/login_form.scss') }}" />
 {% endif %}
 {% from "password_login_form.html.jinja2" import sociallogin %}
 

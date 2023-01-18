@@ -99,7 +99,7 @@
       {% block pageheaders %}
       {% endblock pageheaders %}
     </head>
-    <body {% block bodyattrs %}class="mui--bg-primary"{% endblock bodyattrs %}>
+    <body {% block bodyattrs %}class="bg-primary"{% endblock bodyattrs %}>
       {% block headerbox -%}
         <header class="header header--fixed mui--z1" id="js-header">
           <div class="mui-container">
@@ -239,7 +239,7 @@
           <div class="main-content">
             {% block contenthead %}
               {% block headline -%}
-                <div class="content-head content-head--top-padding mui--bg-accent">
+                <div class="content-head content-head--top-padding bg-accent">
                   <div class="mui-container">
                     <div class="grid">
                       <div class="grid__col-xs-12">
@@ -340,6 +340,11 @@
     {% endif %}
     window.Hasgeek.Config.shorturlApi = {{ url_for('create_shortlink')|tojson }};
     window.Hasgeek.Config.markNotificationReadUrl = {{ url_for('notification_mark_read', eventid_b58='eventid_b58')|tojson }};
+
+    // To calculate height of keyboard to position keyboard switcher above it
+    if ("virtualKeyboard" in navigator) {
+      navigator.virtualKeyboard.overlaysContent = true;
+    }
 </script>
 <script src="{{ built_asset('app.js') }}" type="text/javascript"></script>
 {% block serviceworker %}

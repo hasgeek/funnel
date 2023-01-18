@@ -1,0 +1,220 @@
+.mui-btn.mui-btn--nostyle {
+  padding: 0;
+  border: 0;
+  margin: 0;
+  cursor: pointer;
+  background: none;
+  box-shadow: none;
+  height: auto;
+  border: none;
+  line-height: 1;
+  font-weight: normal;
+}
+
+.mui-btn.mui-btn--nostyle:hover,
+.mui-btn.mui-btn--nostyle:active,
+.mui-btn.mui-btn--nostyle:focus .mui-btn.mui-btn--nostyle:active:hover {
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  background: none;
+  box-shadow: none;
+}
+
+.mui-btn--nostyle + .mui-btn--nostyle {
+  margin-left: 8px;
+}
+
+.btn-group .mui-btn {
+  margin-right: 5px;
+}
+
+.btn-group .mui-btn + .mui-btn {
+  margin-left: 0;
+}
+
+.mui-btn--nomargin {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.mui-btn--nopadding {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.mui-btn--nopadding:hover {
+  background: transparent !important;
+}
+
+.mui-btn:disabled,
+.mui-btn.mui--is-disabled {
+  background-color: $mui-disabled-bg-color;
+  color: $mui-disabled-color;
+  pointer-events: unset;
+  opacity: 1;
+}
+
+.mui-btn.mui--is-disabled:hover,
+.mui-btn.mui--is-disabled:active,
+.mui-btn.mui--is-disabled:focus .mui-btn.mui--is-disabled:active:hover {
+  box-shadow: none;
+  background-color: $mui-disabled-bg-color;
+  color: $mui-disabled-color;
+}
+
+.mui-btn.display-block {
+  width: 100%;
+}
+
+.mui-btn--raised.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin: auto;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: $mui-bg-color-accent;
+  .fa5-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.mui-btn--accent,
+.mui-btn--accent:hover,
+.mui-btn--accent:active,
+.mui-btn--accent:focus {
+  background: $mui-bg-color-primary;
+  color: $mui-primary-color;
+  border: 1px solid $mui-primary-color;
+  box-shadow: none;
+}
+
+.mui-btn--accent.mui-btn--flat {
+  border: none !important;
+}
+
+.animate-btn {
+  display: none;
+  line-height: 1;
+  font-size: inherit;
+  text-transform: inherit;
+
+  .bookmarked {
+    fill: $mui-accent-color;
+  }
+}
+
+.animate-btn--show {
+  display: inline-block;
+}
+
+.animate-btn--animate {
+  -webkit-animation-name: heartBeat;
+  animation-name: heartBeat;
+  -webkit-animation-duration: 1.3s;
+  animation-duration: 1.3s;
+  -webkit-animation-timing-function: ease-in-out;
+  animation-timing-function: ease-in-out;
+}
+
+@-webkit-keyframes heartBeat {
+  0% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+
+  14% {
+    -webkit-transform: scale(1.3);
+    transform: scale(1.3);
+  }
+
+  28% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+
+  42% {
+    -webkit-transform: scale(1.3);
+    transform: scale(1.3);
+  }
+
+  70% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes heartBeat {
+  0% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+
+  14% {
+    -webkit-transform: scale(1.3);
+    transform: scale(1.3);
+  }
+
+  28% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+
+  42% {
+    -webkit-transform: scale(1.3);
+    transform: scale(1.3);
+  }
+
+  70% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+
+.btn-wrapper {
+  margin-bottom: 10px;
+}
+
+.full-width-btn {
+  width: 100%;
+  margin: 0;
+}
+
+.nav-btn-wrapper {
+  padding: $mui-grid-padding 0;
+  .prev-btn {
+    margin-right: $mui-grid-padding;
+  }
+  .next-btn {
+    margin-left: $mui-grid-padding;
+  }
+}
+
+.nav-btn-wrapper,
+.prev-next-btn-wrapper {
+  .btn-margin-right {
+    margin-right: $mui-grid-padding/4;
+  }
+  .btn-margin-left {
+    margin-left: $mui-grid-padding/4;
+  }
+}
+
+.prev-next-btn-wrapper {
+  margin-bottom: 16px;
+  margin-top: 2px;
+}
+
+@media (min-width: 768px) {
+  .nav-btn-wrapper {
+    padding: 0 $mui-grid-padding $mui-grid-padding;
+  }
+  .prev-next-btn-wrapper {
+    padding: 0 $mui-grid-padding;
+  }
+}

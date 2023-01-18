@@ -1,5 +1,5 @@
-@import 'components/variable';
-@import 'components/draggablebox';
+@import '../base/variable';
+@import '../components/draggablebox';
 
 .label-box--new {
   margin: $mui-grid-padding auto $mui-grid-padding-double;
