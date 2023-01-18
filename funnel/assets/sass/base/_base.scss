@@ -1,0 +1,144 @@
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-size: $mui-base-font-size;
+  line-height: $mui-base-line-height-px;
+}
+
+@media (min-width: 1200px) {
+  body {
+    font-size: $mui-base-font-size-desktop;
+    line-height: $mui-base-line-height-px-desktop;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: $mui-grid-padding/2;
+  margin-bottom: 14px;
+}
+
+@media (min-width: 1200px) {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-bottom: 16px;
+  }
+}
+
+// paragraphs
+p {
+  margin: 0 0 14px;
+}
+
+@media (min-width: 1200px) {
+  p {
+    margin-bottom: 16px;
+  }
+}
+
+a:focus {
+  outline: none;
+}
+
+// lists
+ul,
+ol {
+  margin-top: 0;
+  margin-bottom: 14px;
+  padding-left: 25px;
+}
+
+@media (min-width: 1200px) {
+  ul,
+  ol {
+    margin-bottom: 16px;
+  }
+}
+
+ul > ul,
+ul > ol,
+ol > ol,
+ol > ul {
+  margin-bottom: 0;
+}
+
+// Abbreviations
+abbr[title] {
+  cursor: help;
+  position: relative;
+  text-decoration: underline dotted;
+  -webkit-text-decoration: underline;
+  -webkit-text-decoration-style: dotted;
+  border-bottom: none;
+}
+
+@media (hover: none) {
+  abbr[title]:hover::after,
+  abbr[title]:focus::after {
+    content: attr(title);
+    position: absolute;
+    left: 0;
+    bottom: -30px;
+    background-color: $mui-bg-color-dark;
+    color: $mui-text-dark;
+    border-radius: 2px;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.19);
+    font-size: 14px;
+    padding: 4px;
+    z-index: 10000;
+    min-width: 100px;
+  }
+  abbr[title].tooltip-right:hover::after,
+  abbr[title].tooltip-right:focus::after {
+    left: auto;
+    right: 0;
+  }
+}
+
+code,
+kbd,
+samp {
+  font-size: $mui-base-font-size;
+  line-height: $mui-base-line-height-px;
+}
+
+@media (min-width: 1200px) {
+  code,
+  kbd,
+  samp {
+    font-size: $mui-base-font-size-desktop;
+    line-height: $mui-base-line-height-px-desktop;
+  }
+}
+
+blockquote {
+  border-left: 3px solid $mui-text-accent;
+  margin: 0;
+  padding: 0 0 0 $mui-grid-padding/2;
+  margin-bottom: 14px;
+}
+
+@media (min-width: 1200px) {
+  blockquote {
+    margin-bottom: 16px;
+  }
+}
+
+dt {
+  font-weight: 600;
+}
+
+dd {
+  margin-left: $mui-grid-padding;
+}

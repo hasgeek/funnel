@@ -1,0 +1,315 @@
+// ============================================================================
+// Container
+// ============================================================================
+
+.content-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+.mui-container {
+  padding: 0;
+}
+
+@media (min-width: $mui-screen-sm-min) and (max-width: $mui-screen-md-min - 1) {
+  .mui-container {
+    max-width: 100%;
+  }
+}
+
+.main-content {
+  position: relative;
+  margin: 0 auto;
+}
+
+@media (min-width: 1200px) {
+  .main-content--with-sidebar {
+    margin-left: 160px;
+    padding-left: $mui-grid-padding;
+    padding-right: $mui-grid-padding;
+  }
+}
+
+.content-head--top-padding {
+  padding-top: $mui-grid-padding;
+  padding-bottom: $mui-grid-padding;
+  border-bottom: 1px solid $mui-divider-color;
+  margin-bottom: $mui-grid-padding/2;
+}
+
+.page-content--mob-nav {
+  padding-top: 53px;
+}
+
+@media (min-width: 768px) {
+  .page-content {
+    padding-top: 16px;
+  }
+}
+
+// ============================================================================
+// Grid container
+// ============================================================================
+
+[class*='grid__col-'] {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+// ============================================================================
+// Cookies
+// ============================================================================
+
+.cookies-required-alert,
+.no-cookies .cookies-required {
+  display: none;
+}
+
+.cookies-required,
+.no-cookies .cookies-required-alert {
+  display: block;
+}
+
+.no-cookies .cookies-required-alert {
+  margin-top: $mui-grid-padding;
+}
+
+// ============================================================================
+// No js
+// ============================================================================
+
+.js .jshidden,
+.js .no-js-only {
+  display: none;
+  visibility: hidden;
+}
+
+.no-js .no-jshidden,
+.no-js .js-only {
+  display: none;
+  visibility: hidden;
+}
+
+.no-js {
+  .js-lazyload-img,
+  .js-hg-banner,
+  .js-account-dropdown {
+    display: none;
+  }
+}
+
+// ============================================================================
+// User logged in
+// ============================================================================
+
+.userlogin .no-userlogin-only {
+  display: none;
+  visibility: hidden;
+}
+
+.no-userlogin .userlogin-only {
+  display: none;
+  visibility: hidden;
+}
+
+// ============================================================================
+// Pace
+// ============================================================================
+
+.pace {
+  -webkit-pointer-events: none;
+  pointer-events: none;
+
+  -webkit-user-select: none;
+  i-moz-user-select: none;
+  user-select: none;
+}
+
+.pace-inactive {
+  display: none;
+}
+
+.pace .pace-progress {
+  background: $mui-primary-color;
+  position: fixed;
+  z-index: 2000;
+  top: 0;
+  right: 100%;
+  width: 100%;
+  height: 4px;
+}
+
+.pace-hide {
+  display: none !important;
+}
+
+// ============================================================================
+// Links
+// ============================================================================
+
+.read-more,
+.link {
+  cursor: pointer;
+}
+
+.text-expand {
+  cursor: pointer;
+}
+
+// ============================================================================
+// Definition list
+// ============================================================================
+
+.infobox {
+  dt {
+    font-weight: 700;
+    margin: 0;
+    padding: 5px 0;
+  }
+  dd {
+    padding: 5px 0;
+    margin-left: 0;
+    word-break: break-all;
+  }
+}
+
+@media (min-width: 768px) {
+  .infobox {
+    dt {
+      width: 10em;
+      float: left;
+      clear: left;
+      text-align: right;
+      padding: 4px 0 0 0;
+    }
+    dd {
+      position: relative;
+      text-indent: 0;
+      clear: none;
+      margin: 0;
+      margin-left: 11.25em;
+      border-left: 1px solid $mui-divider-color;
+      padding: 4px 0 0 0.75em;
+    }
+    dd:after {
+      content: '';
+      display: table;
+      clear: both;
+    }
+  }
+}
+
+// ============================================================================
+// Text and its small comment
+// ============================================================================
+
+.item {
+  display: inline-block;
+  vertical-align: top;
+  width: calc(100% - 50px);
+  .subitem {
+    display: block;
+  }
+}
+
+@media (min-width: 1200px) {
+  .item {
+    .subitem {
+      margin-left: 8px;
+      display: inline-block;
+    }
+  }
+}
+
+// ============================================================================
+// Icon
+// ============================================================================
+
+.icon-img {
+  height: 18px;
+  margin-right: 16px;
+  vertical-align: text-top;
+}
+
+.icon-img--smaller,
+.fa-icon--right-margin {
+  margin-right: 8px;
+}
+
+.fa-icon--left-margin {
+  margin-left: 8px;
+}
+
+.fa5-icon.mui--align-middle {
+  position: relative;
+  top: -1px;
+}
+
+.circle-icon {
+  display: inline-flex;
+  background: #f9f9f9;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  justify-content: center;
+  align-items: center;
+}
+
+.link-icon {
+  font-size: 12px;
+  font-weight: normal;
+  padding: 0 $mui-grid-padding/2 $mui-grid-padding/2;
+  line-height: 1;
+  text-transform: capitalize;
+  text-decoration: none !important;
+  .fa5-icon {
+    width: 12px;
+    height: 12px;
+    margin-right: 4px;
+  }
+}
+
+@media (min-width: 768px) {
+  .link-icon {
+    font-size: 14px;
+    .fa5-icon {
+      width: 14px;
+      height: 14px;
+      margin-right: 8px;
+    }
+  }
+}
+
+.emoticon {
+  height: 300px;
+}
+
+@media (min-width: 768px) {
+  .emoticon {
+    height: 400px;
+  }
+}
+
+// ============================================================================
+// widget
+// ============================================================================
+
+@media screen and (max-width: 1024px) {
+  .fb_iframe_widget {
+    overflow-y: scroll;
+    width: 100%;
+    display: inline-block !important;
+  }
+}
+
+.tf-v1-widget iframe {
+  height: 99% !important;
+}
+
+// ============================================================================
+// To hide vue template before Vue app is mounted
+// ============================================================================
+
+[v-cloak] {
+  display: none;
+}

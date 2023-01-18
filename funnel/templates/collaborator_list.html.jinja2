@@ -16,14 +16,14 @@
         </div>
       </div>
       <div class="flex-wrapper flex-wrapper modal-form__new-separator">
-        <span class="mui--d-inlineblock left-padding margin-right">
+        <span class="display-inlineblock left-padding margin-right">
           {%- if not member.is_uncredited %}
             {{ faicon(icon='eye', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Visible{% endtrans %}
           {% else %}
             {{ faicon(icon='eye-slash', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Hidden{% endtrans %}
           {% endif %}
         </span>
-        <div class="margin-left mui-dropdown mui--d-inlineblock">
+        <div class="margin-left mui-dropdown display-inlineblock">
           <button class="mui-btn mui-btn--nostyle mui--align-middle" data-mui-toggle="dropdown" data-cy="collaborator-menu" aria-label="{% trans %}Collaborator menu{% endtrans %}" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</button>
           <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu">
             <li><a href="{{ member.url_for('edit') }}" rel="modal:open" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Edit collaborator" data-cy="edit-collaborator" role="button" aria-haspopup="true">{% trans %}Change role{% endtrans %}</a></li>
