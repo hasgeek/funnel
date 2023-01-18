@@ -1,7 +1,7 @@
 {%- extends "notifications/layout_web.html.jinja2" -%}
 {%- block content -%}
   {%- if view.is_rollup -%}
-    <ol class="list--aligned ">
+    <ol class="list--aligned">
       {%- for membership in view.fragments -%}
         <li>
           {{ view.activity_html(membership) }} <span class="mui--text-body2">{{ membership.revoked_at|age }}</span>

@@ -41,7 +41,7 @@
                 </li>
               </ul>
             </div>
-            <div class="collapsible__body list--aligned " id="collapse-{{ project.id }}">
+            <div class="collapsible__body list--aligned" id="collapse-{{ project.id }}">
               {% for daterow in dates %}
                 <div class="collapsible">
                   <div class="collapsible__header collapsible__header--smaller mui--pull-left" role="button" aria-expanded="false" aria-controls="collapse-{{ daterow.date }}">
@@ -62,7 +62,7 @@
                       </li>
                     </ul>
                   </div>
-                  <div class="collapsible__body list--aligned ">
+                  <div class="collapsible__body list--aligned">
                     {% for contact in daterow.contacts.all() %}
                       <div class="mui--clearfix">
                         <div class="user mui--pull-left">

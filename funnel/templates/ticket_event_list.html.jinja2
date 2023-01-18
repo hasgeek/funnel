@@ -16,7 +16,7 @@
           <p class="mui--text-caption">{% trans %}Select an event to check-in attendees{% endtrans %}</p>
         </div>
         <div class="card__body">
-          <ol class="list--aligned ">
+          <ol class="list--aligned">
             {%- for ticket_event in ticket_events %}
               <li class="mui--text-title">
                 <a href="{{ ticket_event.url_for('scan_badge') }}" aria-label=" {% trans title=ticket_event.title %} View {{ title }} attendees{% endtrans %}"><strong>{{ ticket_event.title }}</strong></a>
