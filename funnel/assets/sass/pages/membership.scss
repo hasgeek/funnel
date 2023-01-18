@@ -1,8 +1,11 @@
 @import '../base/variable';
 
-@media (min-width: 768px) {
+@media (min-width: 1200px) {
   .membership-wrapper--half {
     float: left;
+    width: calc(50% - #{$mui-grid-padding/2});
+  }
+  .membership-wrapper--half:first-child {
     margin-right: $mui-grid-padding;
   }
 }
