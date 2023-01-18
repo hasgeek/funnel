@@ -183,3 +183,8 @@
   border: 1px solid transparent;
   background: transparentize($mui-primary-color, 0.85);
 }
+
+.md-tabset .mui-tabs__bar .no-title a[role='tab']::before {
+  content: 'No Title';
+  color: $mui-accent-color;
+}
