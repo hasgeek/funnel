@@ -25,6 +25,7 @@ const MarkdownMUITabs = {
                 else index = 0;
               }
               window.mui.tabs.activate($(tabs.get(index)).data('mui-controls'));
+              event.preventDefault();
             }
           },
         });
