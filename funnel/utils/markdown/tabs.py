@@ -109,6 +109,8 @@ class TabNode:
         if classes is None:
             classes = []
         classes = classes + self._active_class
+        if self.title == '':
+            classes.append('no-title')
         return f' class="{" ".join(classes)}"' if len(classes) > 0 else ''
 
     @property
