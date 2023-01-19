@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from enum import IntEnum
 from typing import Any, Optional, Set, Union, overload
 import hashlib
 
@@ -25,7 +24,6 @@ from ..typing import Mapped
 from . import BaseMixin, db, declarative_mixin, declared_attr, hybrid_property, sa
 
 __all__ = [
-    'PhoneDeliveryState',
     'PhoneNumberError',
     'PhoneNumberInvalidError',
     'PhoneNumberBlockedError',
@@ -48,15 +46,6 @@ __all__ = [
 # 3. US numbers may be mobile or fixed, with unknown SMS capability, and therefore
 # 4. In practice, we received too many random numbers that looked legit but were junk.
 PHONE_LOOKUP_REGIONS = ['IN']
-
-
-class PhoneDeliveryState(IntEnum):
-    """Delivery reports for text messages (SMS) to a phone number."""
-
-    UNKNOWN = 1
-    SENT = 2
-    DELIVERED = 3
-    UNREACHABLE = 4
 
 
 # --- Exceptions -----------------------------------------------------------------------
@@ -276,26 +265,18 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         )
     )
 
-    #: Does this phone number work? Records last known delivery state
-    _delivery_state = sa.Column(
-        'delivery_state',
-        sa.Integer,
-        sa.CheckConstraint(
-            f'delivery_state IN ('
-            f'{", ".join(str(int(_e)) for _e in PhoneDeliveryState)}'
-            f')'
-        ),
-        default=PhoneDeliveryState.UNKNOWN,
-    )
-    # delivery_state = StateManager(
-    #     '_delivery_state',
-    #     PhoneDeliveryState,
-    #     doc="Last known delivery state of this phone number",
-    # )
-    #: Timestamp of last known delivery state
-    delivery_state_at = sa.Column(
-        sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
-    )
+    # Timestamps of messaging activity. Since a delivery failure can happen anywhere in
+    # the chain, from sender-side failure to carrier block to an unreachable device, we
+    # record distinct timestamps for each. When other transports like WhatsApp and
+    # Signal are supported, they will need independent timestamps.
+
+    #: Timestamp of last SMS sent
+    sms_sent_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    #: Timestamp of last SMS delivered
+    sms_delivered_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    #: Timestamp of last SMS delivery failure
+    sms_failed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+
     #: Timestamp of last known recipient activity resulting from sent messages
     active_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
 
@@ -719,8 +700,6 @@ class PhoneNumberMixin:
         )
 
 
-auto_init_default(PhoneNumber._delivery_state)  # pylint: disable=protected-access
-auto_init_default(PhoneNumber.delivery_state_at)
 auto_init_default(PhoneNumber._is_blocked)  # pylint: disable=protected-access
 
 
