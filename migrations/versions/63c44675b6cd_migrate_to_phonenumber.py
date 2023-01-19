@@ -210,6 +210,7 @@ def upgrade_() -> None:
                 [
                     phone_number.c.id,
                     phone_number.c.created_at,
+                    phone_number.c.updated_at,
                     phone_number.c.msg_sms_sent_at,
                     phone_number.c.msg_sms_delivered_at,
                     phone_number.c.msg_sms_failed_at,
@@ -252,6 +253,8 @@ def upgrade_() -> None:
                 # Create an approximate sent_at timestamp based on delivered/failed
                 # timestamp (in reality it will be seconds to hours in the past).
                 timestamps['msg_sms_sent_at'] = item.status_at
+            if item.status_at and existing.updated_at < item.status_at:
+                timestamps['updated_at'] = item.status_at
             if timestamps:
                 conn.execute(
                     phone_number.update()
@@ -266,8 +269,10 @@ def upgrade_() -> None:
             if item.status in (SMS_STATUS_QUEUED, SMS_STATUS_PENDING):
                 timestamps['msg_sms_sent_at'] = item.status_at
             elif item.status == SMS_STATUS_DELIVERED:
+                timestamps['msg_sms_sent_at'] = item.status_at
                 timestamps['msg_sms_delivered_at'] = item.status_at
             elif item.status == SMS_STATUS_FAILED:
+                timestamps['msg_sms_sent_at'] = item.status_at
                 timestamps['msg_sms_failed_at'] = item.status_at
             pn_id = conn.execute(
                 phone_number.insert()
@@ -333,7 +338,7 @@ def downgrade_() -> None:
             sms_message.c.phone_number_id == phone_number.c.id
         )
     )
-    for item in rich.progress.track(items, "user_phone", total=count):
+    for item in rich.progress.track(items, "sms_message", total=count):
         conn.execute(
             sms_message.update()
             .where(sms_message.c.id == item.id)

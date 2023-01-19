@@ -697,9 +697,7 @@ class AccountView(ClassView):
             if UserPhone.get(otp_session.phone) is None:
                 # If there are no existing phone numbers, this will be a primary
                 primary = not current_auth.user.phones
-                userphone = UserPhone(
-                    user=current_auth.user, phone=otp_session.phone, gets_text=True
-                )
+                userphone = UserPhone(user=current_auth.user, phone=otp_session.phone)
                 userphone.primary = primary
                 db.session.add(userphone)
                 db.session.commit()
@@ -737,10 +735,10 @@ class AccountView(ClassView):
             db,
             title=_("Confirm removal"),
             message=_("Remove phone number {phone} from your account?").format(
-                phone=userphone.phone
+                phone=userphone.formatted()
             ),
             success=_("You have removed your number {phone}").format(
-                phone=userphone.phone
+                phone=userphone.formatted()
             ),
             next=url_for('account'),
             delete_text=_("Remove"),
