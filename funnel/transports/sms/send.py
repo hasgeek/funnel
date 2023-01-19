@@ -54,8 +54,10 @@ def get_phone_number(
         phone_number = PhoneNumber.add(phone)
     except PhoneNumberBlockedError as exc:
         raise TransportRecipientError(_("This phone number has been blocked")) from exc
+    if not phone_number.allow_sms:
+        raise TransportRecipientError(_("SMS is disabled for this phone number"))
     if not phone_number.phone:
-        # This should never happen as `.add` will restore the number
+        # This should never happen as :meth:`PhoneNumber.add` will restore the number
         raise TransportRecipientError(_("This phone number is not available"))
     return phone_number
 
