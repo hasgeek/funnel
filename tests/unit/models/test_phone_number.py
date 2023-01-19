@@ -470,15 +470,22 @@ def test_phone_number_blocked() -> None:
     pn1 = models.PhoneNumber.add(EXAMPLE_NUMBER_IN)
     pn2 = models.PhoneNumber.add(EXAMPLE_NUMBER_US)
 
+    assert pn1.is_blocked is False
     assert pn1.phone is not None
     assert pn1.phone == EXAMPLE_NUMBER_IN
     assert pn1.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
+
+    assert models.PhoneNumber.query.filter(models.PhoneNumber.is_blocked).all() == []
+
     pn1.mark_blocked()
 
-    assert pn1.phone is None
-    assert pn1.blake2b160 is not None  # type: ignore[unreachable]
+    assert pn1.is_blocked is True
+    assert pn1.phone is None  # type: ignore[unreachable]
+    assert pn1.blake2b160 is not None
     assert pn1.is_blocked is True
     assert pn2.is_blocked is False
+
+    assert models.PhoneNumber.query.filter(models.PhoneNumber.is_blocked).all() == [pn1]
 
     # A blocked number cannot be added again
     with pytest.raises(models.PhoneNumberBlockedError):
