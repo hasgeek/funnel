@@ -708,6 +708,7 @@ class AccountView(ClassView):
                 userphone = UserPhone(user=current_auth.user, phone=otp_session.phone)
                 userphone.primary = primary
                 db.session.add(userphone)
+                userphone.phone_number.mark_active()
                 db.session.commit()
                 flash(_("Your phone number has been verified"), 'success')
                 user_data_changed.send(current_auth.user, changes=['phone'])

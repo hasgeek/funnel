@@ -212,6 +212,7 @@ class SmsMessage(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-de
     __phone_optional__ = False
     __phone_unique__ = False
     __phone_is_exclusive__ = False
+    phone_number_reference_is_active: bool = False
 
     transactionid = immutable(sa.Column(sa.UnicodeText, unique=True, nullable=True))
     # The message itself

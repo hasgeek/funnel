@@ -269,6 +269,7 @@ def login() -> ReturnView:
                         db.session.add(user.add_email(otp_session.email, primary=True))
                     if otp_session.phone:
                         db.session.add(user.add_phone(otp_session.phone, primary=True))
+                    otp_session.mark_transport_active()
                     login_internal(user, login_service='otp')
                     db.session.commit()
                     current_app.logger.info(

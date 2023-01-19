@@ -19,6 +19,9 @@ from coaster.utils import newpin, require_one_of
 from .. import app
 from ..models import (
     EmailAddress,
+    EmailAddressBlockedError,
+    PhoneNumber,
+    PhoneNumberBlockedError,
     SmsMessage,
     User,
     UserEmail,
@@ -147,7 +150,7 @@ class OtpSession(Generic[OptionalUserType]):
         # to this cache entry in the user's cookie session. The cookie never contains
         # the actual OTP. See :func:`make_cached_token` for additional documentation.
         otp = newpin()
-        if isinstance(anchor, UserPhone):
+        if isinstance(anchor, (UserPhone, PhoneNumber)):
             phone = str(anchor)
         if isinstance(anchor, (UserEmail, UserEmailClaim, EmailAddress)):
             email = str(anchor)
@@ -298,6 +301,24 @@ class OtpSession(Generic[OptionalUserType]):
             )
             return bool(self.send_email(flash_success, flash_failure))
         return False
+
+    def mark_transport_active(self):
+        """Mark email and/or phone as active based on user activity."""
+        # FIXME: Potential future scenario where email AND phone are sent an OTP
+        if self.phone:
+            try:
+                phone_number = PhoneNumber.get(self.phone)
+                if phone_number:
+                    phone_number.mark_active()
+            except PhoneNumberBlockedError:
+                pass
+        elif self.email:
+            try:
+                email_address = EmailAddress.get(self.email)
+                if email_address:
+                    email_address.mark_active()
+            except EmailAddressBlockedError:
+                pass
 
 
 class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
