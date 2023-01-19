@@ -3,22 +3,22 @@
 {% block title %}{% trans %}Merge accounts{% endtrans %}{% endblock title %}
 
 {% macro accountinfo(user) %}
-  <ul class="mui-list--aligned mui--text-subhead">
-    <li><span class="mui--text-bold">{% trans %}Name:{% endtrans %}</span> {{ user.fullname }}</li>
-    <li><span class="mui--text-bold">{% trans %}Username:{% endtrans %}</span> {% if user.username %}{{ user.username }}{% else %}{% trans %}(none){% endtrans %}{% endif %}</li>
+  <ul class="list--aligned mui--text-subhead">
+    <li><span class="text-bold">{% trans %}Name:{% endtrans %}</span> {{ user.fullname }}</li>
+    <li><span class="text-bold">{% trans %}Username:{% endtrans %}</span> {% if user.username %}{{ user.username }}{% else %}{% trans %}(none){% endtrans %}{% endif %}</li>
     <li>
       <ul>
         {%- for useremail in user.emails %}
-          <li><span class="mui--text-bold">{% trans %}Email addresses:{% endtrans %}</span> {{ useremail.email }}</li>
+          <li><span class="text-bold">{% trans %}Email addresses:{% endtrans %}</span> {{ useremail.email }}</li>
         {%- else %}
-          <li><span class="mui--text-bold">{% trans %}Email addresses:{% endtrans %}</span> <em>{% trans %}(none){% endtrans %}</em></li>
+          <li><span class="text-bold">{% trans %}Email addresses:{% endtrans %}</span> <em>{% trans %}(none){% endtrans %}</em></li>
         {%- endfor %}
       </ul>
     </li>
-    <li><span class="mui--text-bold">{% trans %}Connected accounts:{% endtrans %}</span>
+    <li><span class="text-bold">{% trans %}Connected accounts:{% endtrans %}</span>
       <ul>
         {%- for extid in user.externalids %}
-          <li><span class="mui--text-bold">{{ login_registry[extid.service].title }}:</span> {{ extid.username }}</li>
+          <li><span class="text-bold">{{ login_registry[extid.service].title }}:</span> {{ extid.username }}</li>
         {%- else %}
           <li><em>(none)</em></li>
         {%- endfor %}

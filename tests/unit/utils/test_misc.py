@@ -69,18 +69,3 @@ def test_abort_null() -> None:
         utils.abort_null('\x00')
     with pytest.raises(BadRequest):
         utils.abort_null('insert\x00null')
-
-
-@pytest.mark.parametrize(
-    ('candidate', 'sms', 'expected'),
-    [
-        ('9845012345', True, '+919845012345'),
-        ('98450-12345', True, '+919845012345'),
-        ('+91 98450 12345', True, '+919845012345'),
-        ('8022223333', False, '+918022223333'),
-        ('junk', False, None),
-    ],
-)
-def test_normalize_phone_number(candidate, expected, sms) -> None:
-    """Test that normalize_phone_number is able to parse a number."""
-    assert utils.normalize_phone_number(candidate, sms) == expected

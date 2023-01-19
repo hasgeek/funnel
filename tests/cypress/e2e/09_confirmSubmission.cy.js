@@ -67,7 +67,7 @@ describe('Confirm submission', () => {
     cy.get('[data-cy="proposal-status"]').find('button[value="confirm"]').click();
     cy.get('a[data-cy="proposal-menu"]:visible').click();
     cy.wait(1000);
-    cy.get('input#featured-proposal-desktop').click({ force: true });
+    cy.get('input#featured-proposal').click({ force: true });
 
     cy.get('[data-cy="post-comment"]').click();
     cy.get('[data-cy="new-form"]')
@@ -84,7 +84,7 @@ describe('Confirm submission', () => {
     cy.get('[data-cy="proposal-card"]').contains(proposal.title).click();
     cy.get('a[data-cy="proposal-menu"]:visible').click();
     cy.wait(1000);
-    cy.get('input#featured-proposal-desktop').click({ force: true });
+    cy.get('input#featured-proposal').click({ force: true });
     cy.get('a[data-cy="project-page"]').click();
     cy.get('[data-cy="proposal-card"]').should('not.exist');
 

@@ -60,10 +60,16 @@ class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # noqa: N801
 
     # TODO: Convert into IntEnum
 
+    #: An invite represents a potential future membership, but not a current membership
     INVITE = (1, 'invite', __("Invite"))
+    #: An accept recognises a conversion from an invite into a current membership
     ACCEPT = (2, 'accept', __("Accept"))
+    #: A direct add recognises a current membership without proof of consent
     DIRECT_ADD = (3, 'direct_add', __("Direct add"))
+    #: An amendment is when data in the record has been changed
     AMEND = (4, 'amend', __("Amend"))
+    #: A migrate record says this used to be some other form of membership and has been
+    #: created due to a technical change in the product
     # Forthcoming: MIGRATE = (5, 'migrate', __("Migrate"))
 
 
@@ -137,6 +143,12 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         )
     )
 
+    @cached_property
+    def record_type_label(self):
+        return MEMBERSHIP_RECORD_TYPE[self.record_type]
+
+    with_roles(record_type_label, read={'subject', 'editor'})
+
     @declared_attr
     def revoked_by_id(  # pylint: disable=no-self-argument
         cls,
@@ -200,6 +212,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     with_roles(is_invite, read={'subject', 'editor'})
 
+    @hybrid_property
+    def is_amendment(self) -> bool:
+        """Test if membership record is an amendment."""
+        return self.record_type == MEMBERSHIP_RECORD_TYPE.AMEND
+
+    with_roles(is_amendment, read={'subject', 'editor'})
+
     def __repr__(self) -> str:
         return (
             f'<{self.__class__.__name__} {self.subject!r} in {self.parent!r} '
@@ -230,7 +249,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(call={'editor'})
     def replace(
-        self: MembershipType, actor: User, accept: bool = False, **data: Any
+        self: MembershipType, actor: User, _accept: bool = False, **data: Any
     ) -> MembershipType:
         """Replace this membership record with changes to role columns."""
         if self.revoked_at is not None:
@@ -242,7 +261,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
         # Perform sanity check. If nothing changed, just return self
         has_changes = False
-        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE and accept:
+        if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE and _accept:
             # If the existing record is an INVITE and this is an ACCEPT, we have
             # a record change even if no data changed
             has_changes = True
@@ -263,13 +282,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         self.revoked_at = sa.func.utcnow()
         self.revoked_by = actor
         self._local_data_only = True
-        new = self.copy_template(parent_id=self.parent_id, granted_by=self.granted_by)
+        new = self.copy_template(parent_id=self.parent_id, granted_by=actor)
         del self._local_data_only
 
         # if existing record type is INVITE, then ACCEPT or amend as new INVITE
         # else replace it with AMEND
         if self.record_type == MEMBERSHIP_RECORD_TYPE.INVITE:
-            if accept:
+            if _accept:
                 new.record_type = MEMBERSHIP_RECORD_TYPE.ACCEPT
             else:
                 new.record_type = MEMBERSHIP_RECORD_TYPE.INVITE
@@ -335,7 +354,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
             raise MembershipRecordTypeError("This membership record is not an invite")
         if 'subject' not in self.roles_for(actor):
             raise ValueError("Invite must be accepted by the invited user")
-        return self.replace(actor, accept=True)
+        return self.replace(actor, _accept=True)
 
     @with_roles(call={'owner', 'subject'})
     def freeze_subject_attribution(self: MembershipType, actor: User) -> MembershipType:

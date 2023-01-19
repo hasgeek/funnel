@@ -1,0 +1,49 @@
+.profile-avatar {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  background: $mui-bg-color-accent;
+  border-radius: 50%;
+  border: 1px solid $mui-bg-color-primary-dark;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+.profile-avatar-title {
+  margin-bottom: 0;
+}
+
+.profile-avatar + .profile-avatar {
+  margin-left: -20px;
+}
+
+.profile-avatar--nomargin + .profile-avatar--nomargin {
+  margin: 0;
+}
+
+.profile-avatar--bigger {
+  width: 40px;
+  height: 40px;
+}
+
+.profile-avatar--bigger--padding {
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+}
+
+.profile-avatar--rectangle {
+  border-radius: 4px;
+}
+
+.profile-avatar--new {
+  background: $mui-primary-color;
+  color: $mui-text-white;
+}

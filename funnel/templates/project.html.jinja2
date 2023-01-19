@@ -111,7 +111,7 @@
                         </div>
                       {%- endif %}
                       <div class="proposal-card__body__inner__headline">
-                        <h3 class="mui--text-subhead mui--text-bold zero-bottom-margin">{{ session.title }}</h3>
+                        <h3 class="mui--text-subhead text-bold zero-bottom-margin">{{ session.title }}</h3>
                         <p class="mui--text-body2">{{ session.speaker }}</p>
                         {% if session.description.html %}
                           <div class="mui--text-light margin-bottom">{{ session.description.html|preview(min=100, max=200) }}<span class="chip">{% trans %}more{% endtrans %} {{ faicon(icon='caret-right-solid', baseline=false, css_class="mui--align-middle") }}</span></div>

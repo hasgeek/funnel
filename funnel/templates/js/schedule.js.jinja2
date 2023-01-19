@@ -16,7 +16,7 @@
               <faicon :icon="'angle-down'" :icon_size="'subhead'" :css_class="[schedule.upcoming ? 'collapsible__icon' : 'collapsible__icon mui--hide']" ></faicon>
             </span>
           </h3>
-          <div class="mui--bg-accent schedule__table collapsible__body" :id="[schedule.dateStr]" :style="[schedule.upcoming ? {display: 'block'} : '']">
+          <div class="bg-accent schedule__table collapsible__body" :id="[schedule.dateStr]" :style="[schedule.upcoming ? {display: 'block'} : '']">
             <div class="schedule__row schedule__row--sticky">
               <p class="schedule__row__column schedule__row__column--time schedule__row__column--time--header" :style="{ minWidth: timeSlotWidth + 'px'}" v-if="(view == 'calendar')"><faicon :icon="'clock'" :icon_size="'subhead'" :baseline=false></faicon></p>
               <p class="schedule__row__column schedule__row__column--header" :class="[activeTab == roomkey ? 'js-tab-active' : '']" :style="{width: 'calc(100% - ' + getColumnWidth('header') + 'px)'}" @click="toggleTab(roomkey)" v-for="(room, roomkey, roomindex) in schedule.rooms" v-if="room.title">{{ room.title }}</p>

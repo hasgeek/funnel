@@ -1,6 +1,6 @@
 {%- from "macros.html.jinja2" import faicon, embed_video_player, video_action_bar, share_dropdown %}
 
-<div class="modal__header mui--bg-accent">
+<div class="modal__header bg-accent">
   <a class="modal__close mui--text-dark" data-target="close session modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
   <h3 class="js-modal-title mui--text-headline session-modal__title" data-cy-session="title">{{ session.title }}</h3>
   <div class="mui--clearfix">
@@ -32,7 +32,7 @@
   {% if session.views.video and session.views.video.url %}
     <div class="details">
       <div class="details__box details__box--left">
-        <div class="details__box__video mui--bg-primary-dark embed-video-wrapper" data-cy="session-video">
+        <div class="details__box__video bg-primary-dark embed-video-wrapper" data-cy="session-video">
           {{ embed_video_player(session.views.video) }}
         </div>
         <div class="details__box__control">
@@ -43,7 +43,7 @@
   {% else %}
     <div class="details">
       <div class="details__box details__box--left">
-        <div class="details__box__video mui--bg-primary-dark embed-video-wrapper">
+        <div class="details__box__video bg-primary-dark embed-video-wrapper">
           <div class="video_txt">
             <p>{{ faicon(icon='video-slash', icon_size='display1') }}</p>
             <p class="mui--text-light">{% trans %}The session has no attached video{% endtrans %}</p>
@@ -65,8 +65,8 @@
   {% endif %}
   {% if session.description %}
     <div class="modal__body__section">
-      <h3 class="mui--text-headline mui--text-bold"><strong>{% trans %}Description{% endtrans %}</strong></h3>
-      <div class="mui--text-body2 markdown mui--bg-primary">{{ session.description }}</div>
+      <h3 class="mui--text-headline text-bold"><strong>{% trans %}Description{% endtrans %}</strong></h3>
+      <div class="mui--text-body2 markdown bg-primary">{{ session.description }}</div>
     </div>
   {% endif %}
 </div>

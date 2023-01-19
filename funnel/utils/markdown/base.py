@@ -18,16 +18,17 @@ from typing import (
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
-from mdit_py_plugins import anchors, footnote, tasklists
+from mdit_py_plugins import anchors, deflist, footnote, tasklists
 from typing_extensions import Literal
 
 from coaster.utils import make_name
 from coaster.utils.text import normalize_spaces_multiline
 
 from .mdit_plugins import (  # toc_plugin,
+    block_code_extend_plugin,
     del_plugin,
     embeds_plugin,
-    fence_extend_plugin,
+    footnote_extend_plugin,
     ins_plugin,
     mark_plugin,
     sub_plugin,
@@ -147,15 +148,17 @@ class MarkdownConfig:
 
 # --- Markdown plugins -----------------------------------------------------------------
 
+MarkdownPlugin('deflists', deflist.deflist_plugin)
 MarkdownPlugin('footnote', footnote.footnote_plugin)
 MarkdownPlugin(
     'heading_anchors',
     anchors.anchors_plugin,
     {
         'min_level': 1,
-        'max_level': 3,
+        'max_level': 6,
         'slug_func': lambda x: 'h:' + make_name(x),
         'permalink': True,
+        'permalinkSymbol': '#',
     },
 )
 MarkdownPlugin(
@@ -171,13 +174,16 @@ MarkdownPlugin('mark', mark_plugin)
 MarkdownPlugin('markmap', embeds_plugin, {'name': 'markmap'})
 MarkdownPlugin('vega-lite', embeds_plugin, {'name': 'vega-lite'})
 MarkdownPlugin('mermaid', embeds_plugin, {'name': 'mermaid'})
-MarkdownPlugin('fence_ext', fence_extend_plugin)
+MarkdownPlugin('block_code_ext', block_code_extend_plugin)
+MarkdownPlugin('footnote_ext', footnote_extend_plugin)
 # MarkdownPlugin('toc', toc_plugin)
 
 # --- Markdown configurations ----------------------------------------------------------
 
 MarkdownConfig(
-    name='basic', options_update={'html': False, 'breaks': True}, plugins={'fence_ext'}
+    name='basic',
+    options_update={'html': False, 'breaks': True},
+    plugins=['block_code_ext'],
 )
 MarkdownConfig(
     name='document',
@@ -188,8 +194,11 @@ MarkdownConfig(
         'typographer': True,
         'breaks': True,
     },
-    plugins={
+    plugins=[
+        'block_code_ext',
+        'deflists',
         'footnote',
+        'footnote_ext',  # Must be after 'footnote' to take effect
         'heading_anchors',
         'tasklists',
         'ins',
@@ -200,9 +209,8 @@ MarkdownConfig(
         'markmap',
         'vega-lite',
         'mermaid',
-        'fence_ext',
         # 'toc',
-    },
+    ],
     enable_rules={'smartquotes'},
 )
 MarkdownConfig(

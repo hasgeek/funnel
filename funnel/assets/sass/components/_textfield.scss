@@ -1,0 +1,46 @@
+.textfield {
+  display: block;
+  padding-top: $mui-grid-padding;
+  margin-bottom: $mui-grid-padding;
+  position: relative;
+  width: 100%;
+
+  > input {
+    box-sizing: border-box;
+    display: block;
+    background-color: $mui-bg-color-primary;
+    color: $mui-text-dark;
+    border: none;
+    outline: none;
+    width: 100%;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0px;
+    height: 100%;
+
+    // Typography
+    font-size: inherit;
+    font-family: inherit;
+    line-height: inherit;
+
+    // Bugfix for firefox-android
+    background-image: none;
+
+    &:focus {
+      border-color: $mui-primary-color;
+      border-width: 2px;
+    }
+
+    &:disabled,
+    &:read-only {
+      cursor: not-allowed;
+      background-color: transparent;
+      opacity: 1; // iOS fix for unreadable disabled content
+    }
+
+    &::placeholder {
+      color: $mui-text-light;
+      opacity: 1; // Normalize firefox
+    }
+  }
+}

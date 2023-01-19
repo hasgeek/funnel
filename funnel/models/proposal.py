@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Iterable, Optional
 
 from baseframe import __
+from baseframe.filters import preview
 from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum
 
@@ -182,6 +183,9 @@ class Proposal(  # type: ignore[misc]
 
     edited_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
 
+    #: Revision number maintained by SQLAlchemy, starting at 1
+    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+
     search_vector = sa.orm.deferred(
         sa.Column(
             TSVectorType(
@@ -210,6 +214,8 @@ class Proposal(  # type: ignore[misc]
         ),
         sa.Index('ix_proposal_search_vector', 'search_vector', postgresql_using='gin'),
     )
+
+    __mapper_args__ = {'version_id_col': revisionid}
 
     __roles__ = {
         'all': {
@@ -423,11 +429,7 @@ class Proposal(  # type: ignore[misc]
 
     def update_description(self) -> None:
         if not self.custom_description:
-            body = self.body_text.strip()
-            if body:
-                self.description = body.splitlines()[0]
-            else:
-                self.description = ''
+            self.description = preview(self.body_html)
 
     def getnext(self):
         return (

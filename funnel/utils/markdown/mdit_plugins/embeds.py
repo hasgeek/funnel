@@ -5,12 +5,17 @@ Ported from mdit_py_plugins.container
 and mdit_py_plugins.colon_fence.
 """
 
+from __future__ import annotations
+
+from collections.abc import MutableMapping, Sequence
 from math import floor
 import re
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import charCodeAt
+from markdown_it.renderer import OptionsDict, RendererHTML
 from markdown_it.rules_block import StateBlock
+from markdown_it.token import Token
 
 LOADING_PLACEHOLDER = {
     'markmap': 'Mindmap',
@@ -18,17 +23,25 @@ LOADING_PLACEHOLDER = {
     'vega-lite': 'Visualization',
 }
 
+VALIDATE_RE = re.compile(r'^{\s*([a-zA-Z0-9_\-]+)\s*}.*$')
+
 
 def embeds_plugin(
     md: MarkdownIt,
     name: str,
     marker: str = '`',
 ) -> None:
-    def validate(params: str, *args):
-        results = re.findall(r'^{\s*([a-zA-Z0-9_\-]+)\s*}.*$', params.strip())
+    def validate(params: str, *args) -> bool:
+        results = VALIDATE_RE.findall(params.strip())
         return len(results) != 0 and results[0] == name
 
-    def render(self, tokens, idx, _options, env):
+    def render(
+        renderer: RendererHTML,
+        tokens: Sequence[Token],
+        idx: int,
+        options: OptionsDict,
+        env: MutableMapping,
+    ) -> str:
         token = tokens[idx]
         content = md.utils.escapeHtml(token.content)
         placeholder = LOADING_PLACEHOLDER.get(name, '')
@@ -45,7 +58,9 @@ def embeds_plugin(
     marker_char = charCodeAt(marker_str, 0)
     marker_len = len(marker_str)
 
-    def embeds_func(state: StateBlock, start_line: int, end_line: int, silent: bool):
+    def embeds_func(
+        state: StateBlock, start_line: int, end_line: int, silent: bool
+    ) -> bool:
 
         auto_closed = False
         start = state.bMarks[start_line] + state.tShift[start_line]
