@@ -7,8 +7,8 @@
             <button class="mui-btn mui-btn--raised mui-btn--primary full-width-btn" @click="fetchForm($event, newMemberUrl)" :aria-label="gettext('Add new member')" data-cy-btn="add-member"><faicon :icon="'plus'"></faicon> {{ gettext('Add new member') }}</button>
           </div>
           <div class="membership-wrapper--half" v-if="members">
-            <form class="mui-form mui--d-inlineblock search search--small search--icon mui--z1" v-on:submit.prevent>
-              <div class="mui-textfield">
+            <form class="display-inlineblock search search--small search--icon mui--z1" v-on:submit.prevent>
+              <div class="textfield">
                 <input class="field-search mui--text-light" type="text" name="key" value="" :placeholder="gettext('Search member…')" v-model="search" @input="onChange"/>
                 <faicon :icon="'search'" :baseline=false :css_class="'search-form__icon'"></faicon>
               </div>
@@ -18,10 +18,10 @@
         <hr class="separator" />
         <div v-if="members">
           <div class="mui--clearfix membership-wrapper__filter">
-            <p class="mui--text-body2 mui--text-light mui--text-uppercase mui--pull-left membership-wrapper__filter--txt">{{ members.length }} <span v-if="members.length > 1">{{ gettext('members') }}</span><span v-else>{{ gettext('member') }}</span></p>
+            <p class="mui--text-body2 mui--text-light text-uppercase mui--pull-left membership-wrapper__filter--txt">{{ members.length }} <span v-if="members.length > 1">{{ gettext('members') }}</span><span v-else>{{ gettext('member') }}</span></p>
             <div class="mui--pull-right">
-              <button class="mui-btn mui-btn--nostyle mui--text-body2" @click="filter($event, 'name')" :class="[view == 'name' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">{{ gettext('Name') }}</button>
-              <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-body2" @click="filter($event, 'role')" :class="[view == 'role' ? 'mui--text-bold mui--text-underline' : 'mui--text-light']">{{ gettext('Role') }}</button>
+              <button class="mui-btn mui-btn--nostyle mui--text-body2" @click="filter($event, 'name')" :class="[view == 'name' ? 'text-bold underline' : 'mui--text-light']">{{ gettext('Name') }}</button>
+              <button class="mui-btn mui-btn--nostyle mui--text-light mui--text-body2" @click="filter($event, 'role')" :class="[view == 'role' ? 'text-bold underline' : 'mui--text-light']">{{ gettext('Role') }}</button>
             </div>
           </div>
           <div v-if="view == 'role'" class="membership-wrapper__members bottom-padding margin-bottom">
@@ -63,7 +63,7 @@
           <p class="mui--text-center">
             <faicon :icon="'user-friends'" :css_class="'no-member__icon'"></faicon>
           </p>
-          <p class="mui--text-body2 mui--text-bold mui--text-center zero-bottom-margin">{{ gettext('No members found') }}</p>
+          <p class="mui--text-body2 text-bold mui--text-center zero-bottom-margin">{{ gettext('No members found') }}</p>
           <p class="mui--text-caption mui--text-center mui--text-light zero-bottom-margin">{{ gettext('Members you add will appear here…') }}</p>
         </div>
         <div id="member-form" class="modal modal--form" :class="[activeMember ? 'modal--form--edit' : '']" role="dialog" aria-modal="true" tabindex="-1">
@@ -71,12 +71,12 @@
             <faicon :icon="'times'" :icon_size="'title'"></faicon>
           </a>
           <component :is="Form"></component>
-          <div class="modal--form__action-box mui--bg-accent">
+          <div class="modal--form__action-box bg-accent">
             <p class="mui--text-subhead mui--text-danger mui--text-right" v-if="errorMsg">{{ errorMsg }}</p>
             <button class="mui-btn mui-btn--nostyle mui--text-light" @click="closeForm($event)">{{ gettext('Cancel') }}</button>
           </div>
           <div v-if="activeMember" class="modal--form__action-box--revoke mui--text-center">
-            <button @click="fetchForm($event, deleteURL)" class="mui-btn mui-btn--nostyle mui--text-subhead mui--text-light mui--text-bold" data-cy-btn="revoke">{{ gettext('Remove this member') }}</button>
+            <button @click="fetchForm($event, deleteURL)" class="mui-btn mui-btn--nostyle mui--text-subhead mui--text-light text-bold" data-cy-btn="revoke">{{ gettext('Remove this member') }}</button>
           </div>
         </div>
       </div>

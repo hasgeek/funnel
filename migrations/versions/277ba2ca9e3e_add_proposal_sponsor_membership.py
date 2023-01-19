@@ -6,6 +6,8 @@ Create Date: 2022-01-04 16:26:51.717623
 
 """
 
+from typing import Optional, Tuple, Union
+
 from alembic import op
 from sqlalchemy.dialects import postgresql
 import sqlalchemy as sa
@@ -13,8 +15,8 @@ import sqlalchemy as sa
 # revision identifiers, used by Alembic.
 revision = '277ba2ca9e3e'
 down_revision = '99e99507a595'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
 def upgrade(engine_name=''):

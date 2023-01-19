@@ -1,6 +1,6 @@
 {% extends "user_profile.html.jinja2" %}
 
-{% block bodyattrs %}class="mui--bg-primary no-sticky-header mobile-header"{% endblock bodyattrs %}
+{% block bodyattrs %}class="bg-primary no-sticky-header mobile-header"{% endblock bodyattrs %}
 
 {% block baseheadline %}
   {{ profile_header(profile, class="mui--hidden-xs mui--hidden-sm", current_page="submissions", title=gettext("Submissions")) }}
@@ -12,7 +12,7 @@
       {% if submitted_proposals %}
         {{ proposal_list(submitted_proposals) }}
       {% else %}
-        <p class="mui-panel mui--bg-accent">{% trans %}No submissions{% endtrans %}</p>
+        <p class="mui-panel bg-accent">{% trans %}No submissions{% endtrans %}</p>
       {% endif %}
     </div>
   </div>

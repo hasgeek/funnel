@@ -1,3 +1,5 @@
+@import '../base/typography';
+
 .mui-form {
   .cm-editor {
     border: none;
@@ -54,7 +56,6 @@
       .cm-strikethrough {
         text-decoration: line-through;
       }
-      .cm-emphasis,
       .cm-strong {
         font-weight: 700;
       }

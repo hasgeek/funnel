@@ -5,6 +5,8 @@ Revises: 284c10efdbce
 Create Date: 2021-03-22 02:54:30.416806
 """
 
+from typing import Optional, Tuple, Union
+
 from alembic import op
 from sqlalchemy.sql import column, table
 import sqlalchemy as sa
@@ -12,8 +14,8 @@ import sqlalchemy as sa
 # revision identifiers, used by Alembic.
 revision = 'a23e88f06478'
 down_revision = '284c10efdbce'
-branch_labels = None
-depends_on = None
+branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
+depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 commentset = table(
     'commentset',

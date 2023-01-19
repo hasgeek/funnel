@@ -6,7 +6,7 @@ describe('Remove video to session', () => {
 
   it('Add videos to session', () => {
     cy.server();
-    cy.route('**/viewsession-popup').as('view-session');
+    cy.route('**/schedule/*').as('view-session');
 
     cy.login('/', admin.username, admin.password);
 

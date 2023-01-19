@@ -6,6 +6,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable, TypeVar
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects import postgresql
+from sqlalchemy_json import mutable_json_type
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType, UUIDType
 import sqlalchemy as sa  # noqa
 import sqlalchemy.orm  # Required to make sa.orm work  # noqa
@@ -17,8 +19,8 @@ from coaster.sqlalchemy import (
     BaseScopedIdNameMixin,
     BaseScopedNameMixin,
     CoordinatesMixin,
-    JsonDict,
     NoIdMixin,
+    RegistryMixin,
     RoleMixin,
     TimestampMixin,
     UrlType,
@@ -29,6 +31,7 @@ from coaster.sqlalchemy import (
 from ..typing import Mapped
 
 if not TYPE_CHECKING:
+    # pylint: disable=ungrouped-imports
     from sqlalchemy.ext.hybrid import hybrid_property
     from sqlalchemy.orm import declarative_mixin, declared_attr
 else:
@@ -46,6 +49,8 @@ else:
             return cls
 
 
+json_type: postgresql.JSONB = mutable_json_type(dbtype=postgresql.JSONB, nested=True)
+
 db = SQLAlchemy()
 # This must be set _before_ any of the models are imported
 TimestampMixin.__with_timezone__ = True
@@ -59,6 +64,7 @@ from .user import *  # isort:skip
 from .user_signals import *  # isort:skip
 from .user_session import *  # isort:skip
 from .email_address import *  # isort:skip
+from .phone_number import *  # isort:skip
 from .auth_client import *  # isort:skip
 from .notification import *  # isort:skip
 from .utils import *  # isort:skip

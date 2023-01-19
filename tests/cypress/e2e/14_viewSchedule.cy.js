@@ -8,7 +8,7 @@ describe('View schedule of p roject', () => {
 
   it('View schedule', () => {
     cy.server();
-    cy.route('GET', '**/viewsession-popup').as('view-session');
+    cy.route('GET', '**/schedule/*').as('view-session');
 
     cy.visit('/');
     cy.get('.upcoming')

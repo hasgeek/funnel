@@ -147,6 +147,9 @@ class Profile(
         read={'all'},
     )
 
+    #: Revision number maintained by SQLAlchemy, starting at 1
+    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+
     search_vector = sa.orm.deferred(
         sa.Column(
             TSVectorType(
@@ -208,6 +211,8 @@ class Profile(
         ),
         sa.Index('ix_profile_search_vector', 'search_vector', postgresql_using='gin'),
     )
+
+    __mapper_args__ = {'version_id_col': revisionid}
 
     __roles__ = {
         'all': {

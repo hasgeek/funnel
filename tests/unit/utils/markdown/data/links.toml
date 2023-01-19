@@ -129,23 +129,23 @@ http://twitter.com/hasgeek</p>
 [ ](http://a?p=[[/onclick=alert(0) .]])<br />
 [a](javascript:new%20Function`al\\ert`1``;)</p>
 """
-document = """<h2 id="h:links">Links <a class="header-anchor" href="#h:links">¶</a></h2>
+document = """<h2 id="h:links">Links <a class="header-anchor" href="#h:links">#</a></h2>
 <p><a href="https://hasgeek.com">Hasgeek</a><br />
 <a href="http://hasgeek.tv" title="1200 videos, 52 events and counting...">Hasgeek TV</a></p>
-<h3 id="h:autoconverted-links">Autoconverted links <a class="header-anchor" href="#h:autoconverted-links">¶</a></h3>
+<h3 id="h:autoconverted-links">Autoconverted links <a class="header-anchor" href="#h:autoconverted-links">#</a></h3>
 <p><a href="https://github.com/nodeca/pica">https://github.com/nodeca/pica</a><br />
 <a href="http://twitter.com/hasgeek">http://twitter.com/hasgeek</a></p>
-<h3 id="h:footnote-style-syntax">Footnote style syntax <a class="header-anchor" href="#h:footnote-style-syntax">¶</a></h3>
+<h3 id="h:footnote-style-syntax">Footnote style syntax <a class="header-anchor" href="#h:footnote-style-syntax">#</a></h3>
 <p><a href="https://hasgeek.com">Hasgeek</a></p>
 <p>Links can have a footnote style syntax, where the links can be defined later. This is helpful in the case of a repetitive URL that needs to be linked to.</p>
-<h3 id="h:unusual-patterns-conflicting-with-markdown">Unusual patterns conflicting with markdown <a class="header-anchor" href="#h:unusual-patterns-conflicting-with-markdown">¶</a></h3>
-<h4>Linkedin activities</h4>
+<h3 id="h:unusual-patterns-conflicting-with-markdown">Unusual patterns conflicting with markdown <a class="header-anchor" href="#h:unusual-patterns-conflicting-with-markdown">#</a></h3>
+<h4 id="h:linkedin-activities">Linkedin activities <a class="header-anchor" href="#h:linkedin-activities">#</a></h4>
 <ul>
 <li>Just the link: <a href="https://www.linkedin.com/feed/update/urn:li:activity:6993782021227507713/">https://www.linkedin.com/feed/update/urn:li:activity:6993782021227507713/</a></li>
 <li>Link in angle brackets: <a href="https://www.linkedin.com/feed/update/urn:li:activity:6993782021227507713/">https://www.linkedin.com/feed/update/urn:li:activity:6993782021227507713/</a></li>
 <li><a href="https://www.linkedin.com/feed/update/urn:li:activity:6993782021227507713/">Link with title</a></li>
 </ul>
-<h3 id="h:unsafe-links">Unsafe links <a class="header-anchor" href="#h:unsafe-links">¶</a></h3>
+<h3 id="h:unsafe-links">Unsafe links <a class="header-anchor" href="#h:unsafe-links">#</a></h3>
 <p>These are links that should not convert (<a href="https://github.com/cujanovic/Markdown-XSS-Payloads/blob/master/Markdown-XSS-Payloads.txt">source</a>)</p>
 <p>[a](javascript:prompt(document.cookie))<br />
 [a](j    a   v   a   s   c   r   i   p   t:prompt(document.cookie))<br />

@@ -180,20 +180,26 @@ $(function () {
         else return this.form().find('[name=' + input + ']');
       };
       popup.save = function () {
-        popup.container.find('.save').prop('disabled', true);
-        popup.container.find('.loading').removeClass('mui--hide');
         popup.form('start_at').val(events.current.obj_data.start_at);
         popup.form('end_at').val(events.current.obj_data.end_at);
         var data = popup.form().serializeArray();
         $.ajax({
           url: events.current.modal_url,
           type: 'POST',
+          headers: {
+            Accept: 'application/x.html+json',
+          },
           data: data,
           dataType: 'json',
+          beforeSend: function () {
+            popup.container.find('.save').prop('disabled', true);
+            popup.container.find('.loading').removeClass('mui--hide');
+          },
           success: function (result) {
             if (result.status) {
               events.update_obj_data(result.data);
               events.current.title = result.data.title;
+              events.current.speaker = result.data.speaker;
               events.current.saved = true;
               if (events.current.unscheduled) {
                 events.current.unscheduled.remove();
@@ -228,6 +234,10 @@ $(function () {
       $.ajax({
         url: events.current.modal_url,
         type: 'GET',
+        headers: {
+          Accept: 'application/x.html+json',
+        },
+        dataType: 'json',
         success: function (result) {
           popup.title().text(events.current.title);
           if (settings.editable) {
@@ -242,7 +252,7 @@ $(function () {
                   $.fullCalendar.formatDate(events.current.end, 'H:mm')
               );
           }
-          popup.body().html(result);
+          popup.body().html(result.form);
           popup.pop();
         },
         complete: function (xhr, type) {

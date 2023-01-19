@@ -173,7 +173,7 @@ This is ~~~~also a delet~~ed text~~~~</p>
 <strong>bold==<em>mark emphasized</em>==</strong><br />
 <strong>bold*==emphasized mark==*</strong></p>
 """
-document = """<h2 id="h:testing-markdown-it-py-plugins-for-ins-del-sup-sub">Testing markdown-it-py plugins for ins/del/sup/sub/mark <a class="header-anchor" href="#h:testing-markdown-it-py-plugins-for-ins-del-sup-sub">¶</a></h2>
+document = """<h2 id="h:testing-markdown-it-py-plugins-for-ins-del-sup-sub">Testing markdown-it-py plugins for ins/del/sup/sub/mark <a class="header-anchor" href="#h:testing-markdown-it-py-plugins-for-ins-del-sup-sub">#</a></h2>
 <p>This is <ins>inserted text</ins><del>and deleted text</del>.</p>
 <p>This is <sup>superscript</sup>, this is <sub>subscript</sub> and this is <mark>marked text</mark>.</p>
 <p>This is not +inserted text+, nor is this ~deleted text~.</p>

@@ -205,7 +205,7 @@ basic = """<h3>Markmap</h3>
 - Records (birth, death, land etc)
 </code></pre>
 """
-document = """<h3 id="h:markmap">Markmap <a class="header-anchor" href="#h:markmap">¶</a></h3>
+document = """<h3 id="h:markmap">Markmap <a class="header-anchor" href="#h:markmap">#</a></h3>
 <div class="md-embed md-embed-markmap"><div class="embed-loading">Mindmap</div><pre class="embed-content">
 # Digital Identifiers and Rights
 

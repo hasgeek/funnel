@@ -6,11 +6,21 @@ from typing import Optional
 
 from flask import flash
 
+from typing_extensions import Literal
+
 from baseframe import _, __, forms
 from coaster.auth import current_auth
 
 from .. import app
-from ..models import EmailAddress, Profile, UserEmailClaim, parse_video_url
+from ..models import (
+    EmailAddress,
+    PhoneNumber,
+    Profile,
+    UserEmailClaim,
+    canonical_phone_number,
+    parse_phone_number,
+    parse_video_url,
+)
 
 
 class ProfileSelectField(forms.AutocompleteField):
@@ -52,7 +62,7 @@ class EmailAddressAvailable:
     :param purpose: One of 'use', 'claim', 'register'
     """
 
-    def __init__(self, purpose) -> None:
+    def __init__(self, purpose: Literal['use', 'claim', 'register']) -> None:
         if purpose not in ('use', 'claim', 'register'):
             raise ValueError("Invalid purpose")
         self.purpose = purpose
@@ -76,7 +86,7 @@ class EmailAddressAvailable:
         if not is_valid:
             if actor is not None:
                 raise forms.validators.StopValidation(
-                    _("This email address has been claimed by someone else")
+                    _("This email address is linked to another account")
                 )
             raise forms.validators.StopValidation(
                 _(
@@ -84,7 +94,7 @@ class EmailAddressAvailable:
                     " logging in or resetting your password"
                 )
             )
-        if is_valid == 'invalid':
+        if is_valid in ('invalid', 'nullmx'):
             raise forms.validators.StopValidation(
                 _("This does not appear to be a valid email address")
             )
@@ -110,15 +120,22 @@ class EmailAddressAvailable:
                 ),
                 'warning',
             )
-        elif is_valid == 'hard_fail':
+            return
+        if is_valid == 'hard_fail':
             raise forms.validators.StopValidation(
                 _(
                     "This email address is no longer valid. If you believe this to be"
                     " incorrect, email {support} asking for the address to be activated"
                 ).format(support=app.config['SITE_SUPPORT_EMAIL'])
             )
+        if is_valid == 'blocked':
+            raise forms.validators.StopValidation(
+                _("This email address has been blocked from use")
+            )
         if is_valid is not True:
-            app.logger.error("Unknown email address validation code: %r", is_valid)
+            app.logger.error(  # type: ignore[unreachable]
+                "Unknown email address validation code: %r", is_valid
+            )
 
         if is_valid and self.purpose == 'register':
             # One last check: is there an existing claim? If so, stop the user from
@@ -131,6 +148,73 @@ class EmailAddressAvailable:
                         " password?"
                     )
                 )
+
+
+class PhoneNumberAvailable:
+    """
+    Validator for phone number being available to the current user.
+
+    :param purpose: One of 'use', 'claim', 'register'
+    """
+
+    def __init__(self, purpose: Literal['use', 'claim', 'register']) -> None:
+        if purpose not in ('use', 'claim', 'register'):
+            raise ValueError("Invalid purpose")
+        self.purpose = purpose
+
+    def __call__(self, form, field) -> None:
+        # Get actor (from existing obj, or current_auth.actor)
+        actor = None
+        if hasattr(form, 'edit_obj'):
+            obj = form.edit_obj
+            if obj and hasattr(obj, '__phone_for__'):
+                actor = getattr(obj, obj.__phone_for__)
+        if actor is None:
+            actor = current_auth.actor
+
+        parsed_number = parse_phone_number(field.data, sms=True, parsed=True)
+        if parsed_number is False:
+            raise forms.validators.StopValidation(
+                _("This phone number cannot receive SMS messages")
+            )
+        if parsed_number is None:
+            raise forms.validators.StopValidation(
+                _("This does not appear to be a valid phone number")
+            )
+        # Call validator
+        is_valid = PhoneNumber.validate_for(
+            actor, parsed_number, new=self.purpose != 'use'
+        )
+
+        # Interpret code
+        if not is_valid:
+            if actor is not None:
+                raise forms.validators.StopValidation(
+                    _("This phone number is linked to another account")
+                )
+            raise forms.validators.StopValidation(
+                _(
+                    "This phone number is already registered. You may want to try"
+                    " logging in or resetting your password"
+                )
+            )
+        if is_valid == 'invalid':
+            raise forms.validators.StopValidation(
+                _("This does not appear to be a valid phone number")
+            )
+        if is_valid == 'not_new':
+            raise forms.validators.StopValidation(
+                _("You have already registered this phone number")
+            )
+        if is_valid == 'blocked':
+            raise forms.validators.StopValidation(
+                _("This phone number has been blocked from use")
+            )
+        if is_valid is not True:
+            app.logger.error(  # type: ignore[unreachable]
+                "Unknown phone number validation code: %r", is_valid
+            )
+        field.data = canonical_phone_number(parsed_number)
 
 
 def image_url_validator():

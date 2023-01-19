@@ -1,22 +1,33 @@
 const PrismEmbed = {
   activatePrism() {
-    $('code[class*=language-]:not(.activated):not(.activating)').each(
-      function activate() {
+    this.container
+      .find('code[class*=language-]:not(.activated):not(.activating)')
+      .each(function activate() {
         window.Prism.highlightElement(this);
-      }
-    );
+      });
   },
   hooked: false,
   loadPrism() {
-    const CDN_CSS = 'https://unpkg.com/prismjs/themes/prism.min.css';
+    const CDN_CSS = [
+      'https://unpkg.com/prismjs/themes/prism.min.css',
+      // 'https://unpkg.com/prismjs/plugins/line-numbers/prism-line-numbers.min.css',
+      'https://unpkg.com/prismjs/plugins/match-braces/prism-match-braces.min.css',
+    ];
     const CDN = [
       'https://unpkg.com/prismjs/components/prism-core.min.js',
       'https://unpkg.com/prismjs/plugins/autoloader/prism-autoloader.min.js',
+      'https://unpkg.com/prismjs/plugins/match-braces/prism-match-braces.min.js',
+      // 'https://unpkg.com/prismjs/plugins/line-numbers/prism-line-numbers.min.js',
+      'https://unpkg.com/prismjs/plugins/toolbar/prism-toolbar.min.js',
+      // 'https://unpkg.com/prismjs/plugins/show-language/prism-show-language.min.js',
+      'https://unpkg.com/prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js',
     ];
     let asset = 0;
     const loadPrismStyle = () => {
-      if (!$(`link[href*="${CDN_CSS}"]`).length)
-        $('head').append($(`<link href="${CDN_CSS}" rel="stylesheet"></link>`));
+      for (let i = 0; i < CDN_CSS.length; i += 1) {
+        if (!$(`link[href*="${CDN_CSS[i]}"]`).length)
+          $('head').append($(`<link href="${CDN_CSS[i]}" rel="stylesheet"></link>`));
+      }
     };
     const loadPrismScript = () => {
       $.ajax({
@@ -29,14 +40,24 @@ const PrismEmbed = {
           loadPrismScript();
         } else {
           if (!this.hooked) {
+            this.hooked = true;
             window.Prism.hooks.add('before-sanity-check', (env) => {
               if (env.element) $(env.element).addClass('activating');
             });
             window.Prism.hooks.add('complete', (env) => {
               if (env.element)
                 $(env.element).addClass('activated').removeClass('activating');
+              $(env.element)
+                .parent()
+                .parent()
+                .find('.toolbar-item')
+                .find('a, button')
+                .addClass('mui-btn mui-btn--accent mui-btn--raised mui-btn--small');
             });
-            this.hooked = true;
+            $('body')
+              // .addClass('line-numbers')
+              .addClass('match-braces')
+              .addClass('rainbow-braces');
           }
           this.activatePrism();
         }
@@ -47,9 +68,12 @@ const PrismEmbed = {
       loadPrismScript();
     } else this.activatePrism();
   },
-  init(containerDiv) {
-    this.containerDiv = containerDiv;
-    if ($('code[class*=language-]:not(.activated):not(.activating)').length > 0) {
+  init(container) {
+    this.container = $(container || 'body');
+    if (
+      this.container.find('code[class*=language-]:not(.activated):not(.activating)')
+        .length > 0
+    ) {
       this.loadPrism();
     }
   },

@@ -1,6 +1,6 @@
 {% extends "user_profile.html.jinja2" %}
 
-{% block bodyattrs %}class="mui--bg-primary no-sticky-header mobile-header"{% endblock bodyattrs %}
+{% block bodyattrs %}class="bg-primary no-sticky-header mobile-header"{% endblock bodyattrs %}
 
 {% block baseheadline %}
   {{ profile_header(profile, class="mui--hidden-xs mui--hidden-sm", current_page="projects", title=gettext("Projects")) }}
@@ -10,7 +10,7 @@
   <div class="grid projects-wrapper" id="tagged-projects">
     <div class="grid__col-xs-12">
       {% if not participated_projects %}
-        <p class="mui-panel mui--bg-accent">{% trans %}No participation yet{% endtrans %}</p>
+        <p class="mui-panel bg-accent">{% trans %}No participation yet{% endtrans %}</p>
       {% endif %}
     </div>
     <ul class="mui-list--unstyled grid upcoming" role="list">
