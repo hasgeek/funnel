@@ -211,16 +211,12 @@ class OtpSession(Generic[OptionalUserType]):
     @cached_property
     def display_phone(self) -> str:
         """Return a display phone number."""
-        if self.phone is None:
-            return ''
-        return mask_phone(self.phone)
+        return mask_phone(self.phone) if self.phone is not None else ''
 
     @cached_property
     def display_email(self) -> str:
         """Return a display email address."""
-        if self.email is None:
-            return ''
-        return mask_email(self.email)
+        return mask_email(self.email) if self.email is not None else ''
 
     def compose_sms(self) -> sms.WebOtpTemplate:
         """Compose an OTP SMS message."""
@@ -402,12 +398,14 @@ class OtpSessionForSudo(OtpSession[User], reason='sudo'):
     @cached_property
     def display_phone(self) -> str:
         """Reveal phone number when used for sudo."""
-        if self.phone is not None:
-            return phonenumbers.format_number(
+        return (
+            phonenumbers.format_number(
                 phonenumbers.parse(self.phone),
                 phonenumbers.PhoneNumberFormat.INTERNATIONAL,
             )
-        return ''
+            if self.phone is not None
+            else ''
+        )
 
     @cached_property
     def display_email(self) -> str:

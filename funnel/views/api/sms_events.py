@@ -9,7 +9,7 @@ from twilio.request_validator import RequestValidator
 from baseframe import statsd
 
 from ... import app
-from ...models import SMS_STATUS, SmsMessage, db, sa
+from ...models import SMS_STATUS, PhoneNumber, SmsMessage, db, sa
 from ...transports.sms import validate_exotel_token
 from ...typing import ReturnView
 from ...utils import abort_null
@@ -52,12 +52,16 @@ def process_twilio_event() -> ReturnView:
 
     # This code segment needs to change and re-written once Phone Number model is
     # in place.
+
+    # FIXME: This will fail if phone number is blocked. It shouldn't; the event is
+    # still valid
+    phone_number = PhoneNumber.add(request.form['To'])
     sms_message = SmsMessage.query.filter_by(
         transactionid=request.form['MessageSid']
     ).one_or_none()
     if sms_message is None:
         sms_message = SmsMessage(
-            phone=request.form['To'],
+            phone_number=phone_number,
             transactionid=request.form['MessageSid'],
             message=request.form['Body'],
         )
@@ -69,8 +73,10 @@ def process_twilio_event() -> ReturnView:
         sms_message.status = SMS_STATUS.QUEUED
     elif request.form['MessageStatus'] == 'failed':
         sms_message.status = SMS_STATUS.FAILED
+        phone_number.msg_sms_failed_at = sa.func.utcnow()
     elif request.form['MessageStatus'] == 'delivered':
         sms_message.status = SMS_STATUS.DELIVERED
+        phone_number.msg_sms_delivered_at = sa.func.utcnow()
     elif request.form['MessageStatus'] == 'sent':
         sms_message.status = SMS_STATUS.PENDING
     else:
@@ -129,12 +135,13 @@ def process_exotel_event(secret_token: str) -> ReturnView:
     # SmsSid - The Sid (unique id) of the SMS that you got in response to your request
     # To - Mobile number to which SMS was sent
     # Status - one of: queued, sending, submitted, sent, failed_dnd, failed
+    phone_number = PhoneNumber.add(exotel_to)
     sms_message = SmsMessage.query.filter_by(
         transactionid=request.form['SmsSid']
     ).one_or_none()
     if sms_message is None:
         sms_message = SmsMessage(
-            phone=exotel_to,
+            phone_number=phone_number,
             transactionid=request.form['SmsSid'],
             message='',
         )
@@ -146,8 +153,10 @@ def process_exotel_event(secret_token: str) -> ReturnView:
         sms_message.status = SMS_STATUS.QUEUED
     elif request.form['Status'] in ('failed', 'failed_dnd'):
         sms_message.status = SMS_STATUS.FAILED
+        phone_number.msg_sms_failed_at = sa.func.utcnow()
     elif request.form['Status'] == 'sent':
         sms_message.status = SMS_STATUS.DELIVERED
+        phone_number.msg_sms_delivered_at = sa.func.utcnow()
     elif request.form['Status'] in ('sending', 'submitted'):
         sms_message.status = SMS_STATUS.PENDING
     else:

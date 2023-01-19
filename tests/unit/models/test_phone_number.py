@@ -480,8 +480,16 @@ def test_phone_number_blocked() -> None:
     assert pn1.is_blocked is True
     assert pn2.is_blocked is False
 
+    # A blocked number cannot be added again
     with pytest.raises(models.PhoneNumberBlockedError):
         models.PhoneNumber.add(EXAMPLE_NUMBER_IN)
+
+    # Unblocking requires the correct phone number
+    with pytest.raises(ValueError, match="Phone number does not match"):
+        pn1.mark_unblocked(EXAMPLE_NUMBER_US)
+    pn1.mark_unblocked(EXAMPLE_NUMBER_IN_FORMATTED)
+    assert pn1.is_blocked is False
+    assert pn1.phone == EXAMPLE_NUMBER_IN
 
 
 def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-statements

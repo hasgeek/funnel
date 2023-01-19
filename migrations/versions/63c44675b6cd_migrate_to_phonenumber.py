@@ -60,10 +60,12 @@ phone_number = table(
     column('updated_at', sa.TIMESTAMP(timezone=True)),
     column('phone', sa.Unicode),
     column('blake2b160', sa.LargeBinary),
-    column('sms_sent_at', sa.TIMESTAMP(timezone=True)),
-    column('sms_delivered_at', sa.TIMESTAMP(timezone=True)),
-    column('sms_failed_at', sa.TIMESTAMP(timezone=True)),
-    column('is_blocked', sa.Boolean),
+    column('allow_sms', sa.Boolean()),
+    column('allow_whatsapp', sa.Boolean()),
+    column('allow_signal', sa.Boolean()),
+    column('msg_sms_sent_at', sa.TIMESTAMP(timezone=True)),
+    column('msg_sms_delivered_at', sa.TIMESTAMP(timezone=True)),
+    column('msg_sms_failed_at', sa.TIMESTAMP(timezone=True)),
 )
 
 
@@ -145,7 +147,9 @@ def upgrade_() -> None:
                     updated_at=item.updated_at,
                     phone=phone,
                     blake2b160=blake2b160,
-                    is_blocked=False,
+                    allow_sms=True,
+                    allow_whatsapp=False,
+                    allow_signal=False,
                 )
                 .returning(phone_number.c.id)
             ).fetchone()[0]
@@ -206,9 +210,9 @@ def upgrade_() -> None:
                 [
                     phone_number.c.id,
                     phone_number.c.created_at,
-                    phone_number.c.sms_sent_at,
-                    phone_number.c.sms_delivered_at,
-                    phone_number.c.sms_failed_at,
+                    phone_number.c.msg_sms_sent_at,
+                    phone_number.c.msg_sms_delivered_at,
+                    phone_number.c.msg_sms_failed_at,
                 ]
             )
             .where(phone_number.c.blake2b160 == blake2b160)
@@ -220,20 +224,34 @@ def upgrade_() -> None:
             if existing.created_at > item.created_at:
                 timestamps['created_at'] = item.created_at
             if item.status in (SMS_STATUS_QUEUED, SMS_STATUS_PENDING):
-                if not existing.sms_sent_at or item.status_at > existing.sms_sent_at:
-                    timestamps['sms_sent_at'] = item.status_at
+                if item.status_at and (
+                    not existing.msg_sms_sent_at
+                    or item.status_at > existing.msg_sms_sent_at
+                ):
+                    timestamps['msg_sms_sent_at'] = item.status_at
             elif item.status == SMS_STATUS_DELIVERED:
-                if (
-                    not existing.sms_delivered_at
-                    or item.status_at > existing.sms_delivered_at
+                if item.status_at and (
+                    not existing.msg_sms_delivered_at
+                    or item.status_at > existing.msg_sms_delivered_at
                 ):
-                    timestamps['sms_delivered_at'] = item.status_at
+                    timestamps['msg_sms_delivered_at'] = item.status_at
             elif item.status == SMS_STATUS_FAILED:
-                if (
-                    not existing.sms_failed_at
-                    or item.status_at > existing.sms_failed_at
+                if item.status_at and (
+                    not existing.msg_sms_failed_at
+                    or item.status_at > existing.msg_sms_failed_at
                 ):
-                    timestamps['sms_failed_at'] = item.status_at
+                    timestamps['msg_sms_failed_at'] = item.status_at
+            if (
+                item.status in (SMS_STATUS_DELIVERED, SMS_STATUS_FAILED)
+                and item.status_at
+                and (
+                    not existing.msg_sms_sent_at
+                    or existing.msg_sms_sent_at < item.status_at
+                )
+            ):
+                # Create an approximate sent_at timestamp based on delivered/failed
+                # timestamp (in reality it will be seconds to hours in the past).
+                timestamps['msg_sms_sent_at'] = item.status_at
             if timestamps:
                 conn.execute(
                     phone_number.update()
@@ -246,15 +264,20 @@ def upgrade_() -> None:
                 'updated_at': item.updated_at,
             }
             if item.status in (SMS_STATUS_QUEUED, SMS_STATUS_PENDING):
-                timestamps['sms_sent_at'] = item.status_at
+                timestamps['msg_sms_sent_at'] = item.status_at
             elif item.status == SMS_STATUS_DELIVERED:
-                timestamps['sms_delivered_at'] = item.status_at
+                timestamps['msg_sms_delivered_at'] = item.status_at
             elif item.status == SMS_STATUS_FAILED:
-                timestamps['sms_failed_at'] = item.status_at
+                timestamps['msg_sms_failed_at'] = item.status_at
             pn_id = conn.execute(
                 phone_number.insert()
                 .values(
-                    phone=phone, blake2b160=blake2b160, is_blocked=False, **timestamps
+                    phone=phone,
+                    blake2b160=blake2b160,
+                    allow_sms=True,
+                    allow_whatsapp=False,
+                    allow_signal=False,
+                    **timestamps,
                 )
                 .returning(phone_number.c.id)
             ).fetchone()[0]
@@ -264,12 +287,13 @@ def upgrade_() -> None:
             .values(phone_number_id=pn_id)
         )
 
-    # Remove rows where phone number could not be validated
-    print(  # noqa: T201
-        f"Deleting {len(rows_to_delete)} rows from sms_message with invalid phone"
-        f" numbers"
-    )
-    conn.execute(sa.delete(sms_message).where(sms_message.c.id.in_(rows_to_delete)))
+    if rows_to_delete:
+        # Remove rows where phone number could not be validated
+        print(  # noqa: T201
+            f"Deleting {len(rows_to_delete)} rows from sms_message with invalid phone"
+            f" numbers"
+        )
+        conn.execute(sa.delete(sms_message).where(sms_message.c.id.in_(rows_to_delete)))
 
     op.alter_column('sms_message', 'phone_number_id', nullable=False)
     op.create_index(

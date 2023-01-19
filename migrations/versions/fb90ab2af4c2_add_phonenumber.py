@@ -34,19 +34,32 @@ def upgrade_() -> None:
     """Upgrade database bind ''."""
     op.create_table(
         'phone_number',
-        sa.Column('phone', sa.Unicode(), nullable=True),
-        sa.Column('blake2b160', sa.LargeBinary(), nullable=False),
-        sa.Column('sms_sent_at', sa.TIMESTAMP(timezone=True), nullable=True),
-        sa.Column('sms_delivered_at', sa.TIMESTAMP(timezone=True), nullable=True),
-        sa.Column('sms_failed_at', sa.TIMESTAMP(timezone=True), nullable=True),
-        sa.Column('active_at', sa.TIMESTAMP(timezone=True), nullable=True),
-        sa.Column('is_blocked', sa.Boolean(), nullable=False),
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column('phone', sa.Unicode(), nullable=True),
+        sa.Column('blake2b160', sa.LargeBinary(), nullable=False),
+        sa.Column('allow_sms', sa.Boolean(), nullable=False),
+        sa.Column('allow_whatsapp', sa.Boolean(), nullable=False),
+        sa.Column('allow_signal', sa.Boolean(), nullable=False),
+        sa.Column('msg_sms_sent_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column('msg_sms_delivered_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column('msg_sms_failed_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column('msg_whatsapp_sent_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column(
+            'msg_whatsapp_delivered_at', sa.TIMESTAMP(timezone=True), nullable=True
+        ),
+        sa.Column('msg_whatsapp_failed_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column('msg_signal_sent_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column(
+            'msg_signal_delivered_at', sa.TIMESTAMP(timezone=True), nullable=True
+        ),
+        sa.Column('msg_signal_failed_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column('active_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column('blocked_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.CheckConstraint(
-            'is_blocked IS NOT true OR is_blocked IS true AND phone IS NULL',
-            name='phone_number_phone_is_blocked_check',
+            'blocked_at IS NULL OR blocked_at IS NOT NULL AND phone IS NULL',
+            name='phone_number_blocked_at_phone_check',
         ),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('phone'),
