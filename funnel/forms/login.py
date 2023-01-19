@@ -10,6 +10,8 @@ from ..models import (
     PASSWORD_MAX_LENGTH,
     EmailAddress,
     EmailAddressBlockedError,
+    PhoneNumber,
+    PhoneNumberBlockedError,
     User,
     UserEmail,
     UserEmailClaim,
@@ -41,6 +43,7 @@ MSG_NO_ACCOUNT = __(
 MSG_INCORRECT_OTP = __("OTP is incorrect")
 MSG_NO_LOGIN_SESSION = __("That does not appear to be a valid login session")
 MSG_PHONE_NO_SMS = __("This phone number cannot receive SMS messages")
+MSG_PHONE_BLOCKED = __("This phone number has been blocked from use")
 
 # --- Exceptions -----------------------------------------------------------------------
 
@@ -81,6 +84,9 @@ class PasswordlessLoginIntercept:
                 or getattr(form, 'new_phone', None) is not None
             ):
                 raise RegisterWithOtp()
+            if form.username.errors:
+                # Since username field had errors, we don't need to ask for a password
+                raise forms.validators.StopValidation()
             raise forms.validators.StopValidation(self.message)
 
 
@@ -166,12 +172,17 @@ class LoginForm(forms.RecaptchaForm):
                 except EmailAddressBlockedError as exc:
                     raise forms.validators.ValidationError(MSG_EMAIL_BLOCKED) from exc
                 return
-            # TODO: Use future PhoneNumber model here, analogous to EmailAddress
             phone = parse_phone_number(field.data, sms=True)
             if phone is False:
                 raise forms.validators.ValidationError(MSG_PHONE_NO_SMS)
             if phone is not None:
-                self.new_phone = phone
+                try:
+                    # Since we are going to send an OTP, we must add the phone number
+                    # to the database
+                    phone_number = PhoneNumber.add(phone)
+                except PhoneNumberBlockedError as exc:
+                    raise forms.validators.ValidationError(MSG_PHONE_BLOCKED) from exc
+                self.new_phone = str(phone_number)
                 return
             # Not a known user and not a valid email address or phone number -> error
             raise forms.validators.ValidationError(MSG_NO_ACCOUNT)
