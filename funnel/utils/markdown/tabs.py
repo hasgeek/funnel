@@ -132,7 +132,8 @@ class TabNode:
 
     @property
     def title(self):
-        return ' '.join(self.info.strip().split()[1:])
+        tab_title = ' '.join(self.info.strip().split()[1:])
+        return tab_title or 'Tab ' + str(self.parent.children.index(self) + 1)
 
     @property
     def tab_id(self) -> str:
