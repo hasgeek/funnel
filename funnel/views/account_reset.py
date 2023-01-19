@@ -163,7 +163,9 @@ def reset_otp() -> ReturnView:
         validate_rate_limit('account_reset_otp', otp_session.token, 5, 60)
     if form.validate_on_submit():
         # If the OTP is correct, continue with the email reset link flow
+        otp_session.mark_transport_active()
         OtpSession.delete()
+        db.session.commit()
         return render_redirect(
             url_for(
                 'reset_with_token',

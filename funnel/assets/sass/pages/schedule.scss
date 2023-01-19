@@ -1,6 +1,6 @@
-@import 'components/variable';
-@import 'components/draggablebox';
-@import 'components/collapsible';
+@import '../base/variable';
+@import '../components/draggablebox';
+@import '../components/collapsible';
 
 .schedule-grid {
   padding: 0;
@@ -33,7 +33,7 @@
 
             .schedule__row__column__content__title__heading {
               cursor: pointer;
-              font-weight: bold;
+              font-weight: 700;
             }
 
             .schedule__row__column__content__title__heading:hover {
@@ -248,7 +248,7 @@
   position: relative;
 
   .datepicker-wrapper {
-    .mui-textfield {
+    .textfield {
       width: auto;
     }
 
@@ -287,7 +287,7 @@
 
     .modal__header__title {
       margin-bottom: $mui-grid-padding/4;
-      font-weight: bold;
+      font-weight: 700;
     }
 
     .modal__header__text {
@@ -407,7 +407,7 @@
 }
 
 .fc-event .fc-event-custom a {
-  font-weight: bolder;
+  font-weight: 700er;
   color: #c33;
   font-size: 1.2em;
 }

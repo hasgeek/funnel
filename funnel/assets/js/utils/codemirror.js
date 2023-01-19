@@ -23,7 +23,7 @@ function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 
     { tag: tags.list, class: 'cm-list' },
     { tag: tags.link, class: 'cm-link' },
     { tag: tags.monospace, class: 'cm-code' },
-    { tag: tags.emphasis, fontWeight: 'bold', class: 'cm-emphasis' },
+    { tag: tags.emphasis, class: 'cm-emphasis' },
     { tag: tags.strong, fontWeight: 'bold', class: 'cm-strong' },
     { tag: tags.strikethrough, class: 'cm-strikethrough' },
   ]);

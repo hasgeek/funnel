@@ -42,6 +42,10 @@ emailaddress_refcount_dropping = model_signals.signal(
     'emailaddress-refcount-dropping',
     doc="Signal indicating that an EmailAddress's refcount is about to drop",
 )
+phonenumber_refcount_dropping = model_signals.signal(
+    'phonenumber-refcount-dropping',
+    doc="Signal indicating that an PhoneNumber's refcount is about to drop",
+)
 
 # Higher level signals
 user_login = app_signals.signal('user-login')

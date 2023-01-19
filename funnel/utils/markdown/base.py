@@ -19,7 +19,7 @@ import re
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
-from mdit_py_plugins import anchors, footnote, tasklists
+from mdit_py_plugins import anchors, deflist, footnote, tasklists
 from typing_extensions import Literal
 
 from coaster.utils import make_name
@@ -213,6 +213,7 @@ class MarkdownConfig:
 
 # --- Markdown plugins -----------------------------------------------------------------
 
+MarkdownPlugin('deflists', deflist.deflist_plugin)
 MarkdownPlugin('footnote', footnote.footnote_plugin)
 MarkdownPlugin(
     'heading_anchors',
@@ -260,6 +261,7 @@ MarkdownConfig(
     },
     plugins=[
         'block_code_ext',
+        'deflists',
         'footnote',
         'footnote_ext',  # Must be after 'footnote' to take effect
         'heading_anchors',

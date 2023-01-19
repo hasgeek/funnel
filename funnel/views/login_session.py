@@ -665,7 +665,9 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
                 # need to render its own form
                 current_auth.session.set_sudo()
                 continue_url = session.pop('next', request.url)
-                OtpSession.delete()
+                if formid == FORMID_SUDO_OTP:
+                    otp_session.mark_transport_active()
+                    OtpSession.delete()
                 db.session.commit()
                 return render_redirect(continue_url)
         else:

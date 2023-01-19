@@ -1,4 +1,12 @@
+.header {
+  background: $mui-bg-color-primary;
+  z-index: 1000;
+}
+
 .header--fixed {
+  position: fixed;
+  left: 0;
+  right: 0;
   bottom: 0;
 
   .header__nav {
@@ -10,6 +18,7 @@
     .header__site-title {
       padding: 0;
       width: 100%;
+      color: $mui-text-light;
 
       .header__site-title__title {
         display: flex;
@@ -17,6 +26,7 @@
         align-items: center;
         height: $mui-header-height;
         position: relative;
+        white-space: nowrap;
 
         .header__site-title__title__about {
           display: none;
@@ -50,7 +60,7 @@
           }
           .search-form__field__icon {
             position: absolute;
-            bottom: 20px;
+            bottom: 18px;
             left: 22px;
           }
           .search-form__submit {
@@ -64,8 +74,15 @@
         }
 
         .header__nav-links {
+          display: inline-block;
+          font-size: 14px;
+          line-height: 1;
+          text-align: center;
+          cursor: pointer;
           text-decoration: none !important;
+          color: $mui-neutral-color;
           .header__nav-links__text {
+            display: block;
             font-size: 12px;
             color: $mui-text-light;
             font-weight: 600;
@@ -164,7 +181,7 @@
     top: 100vh;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 52px; // height of header at bottom in mobile
     margin: 0;
     border-radius: 0;
     overflow: auto;
@@ -414,6 +431,10 @@
             margin: 0;
           }
 
+          .header__nav-links {
+            display: flex;
+          }
+
           .header__nav-links--search {
             display: none;
           }
@@ -431,7 +452,7 @@
               padding: 8px 10px 8px $mui-grid-padding-double;
             }
             .search-form__field__icon {
-              top: 9px;
+              top: 11px;
               left: 13px;
             }
           }
@@ -448,6 +469,7 @@
             justify-content: flex-end;
             align-items: center;
           }
+
           .header__nav-links--right {
             margin-left: $mui-grid-padding;
           }
@@ -499,7 +521,6 @@
 @media only screen and (max-width: 767px) and (orientation: landscape) {
   .header--fixed {
     .header__nav {
-      height: 35px;
       .header__site-title {
         .header__site-title__title {
           .header__nav-links {
@@ -517,21 +538,9 @@
             right: 0;
             left: 19px;
           }
-
-          .search-form {
-            bottom: 35px;
-          }
-        }
-        a.header__button {
-          height: 24px;
-          line-height: 24px;
         }
       }
     }
-  }
-  .header_dropdown--mobile {
-    height: auto;
-    padding-bottom: 35px; //Height of header in landscape mode
   }
 }
 
