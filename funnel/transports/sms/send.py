@@ -3,18 +3,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Optional
+from typing import Callable, List, Optional, Tuple, Union, cast
 
 from flask import url_for
 import itsdangerous
 
 from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
+import phonenumbers
 import requests
 
 from baseframe import _
 
 from ... import app
+from ...models import PhoneNumber, PhoneNumberBlockedError, sa
 from ...serializers import token_serializer
 from ..exc import (
     TransportConnectionError,
@@ -41,6 +43,25 @@ class SmsSender:
     requires_config: set
     func: Callable
     init: Optional[Callable] = None
+
+
+def get_phone_number(
+    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber]
+) -> PhoneNumber:
+    if isinstance(phone, PhoneNumber):
+        if not phone.number:
+            raise TransportRecipientError(_("This phone number is not available"))
+        return phone
+    try:
+        phone_number = PhoneNumber.add(phone)
+    except PhoneNumberBlockedError as exc:
+        raise TransportRecipientError(_("This phone number has been blocked")) from exc
+    if not phone_number.allow_sms:
+        raise TransportRecipientError(_("SMS is disabled for this phone number"))
+    if not phone_number.number:
+        # This should never happen as :meth:`PhoneNumber.add` will restore the number
+        raise TransportRecipientError(_("This phone number is not available"))
+    return phone_number
 
 
 def make_exotel_token(to: str) -> str:
@@ -75,7 +96,11 @@ def validate_exotel_token(token: str, to: str) -> bool:
     return True
 
 
-def send_via_exotel(phone: str, message: SmsTemplate, callback: bool = True) -> str:
+def send_via_exotel(
+    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber],
+    message: SmsTemplate,
+    callback: bool = True,
+) -> str:
     """
     Send the SMS using Exotel, for Indian phone numbers.
 
@@ -84,11 +109,13 @@ def send_via_exotel(phone: str, message: SmsTemplate, callback: bool = True) -> 
     :param callback: Whether to request a status callback
     :return: Transaction id
     """
+    phone_number = get_phone_number(phone)
+
     sid = app.config['SMS_EXOTEL_SID']
     token = app.config['SMS_EXOTEL_TOKEN']
     payload = {
         'From': app.config['SMS_EXOTEL_FROM'],
-        'To': phone,
+        'To': phone_number.number,
         'Body': str(message),
         'DltEntityId': message.registered_entityid,
     }
@@ -99,7 +126,7 @@ def send_via_exotel(phone: str, message: SmsTemplate, callback: bool = True) -> 
             'process_exotel_event',
             _external=True,
             _method='POST',
-            secret_token=make_exotel_token(phone),
+            secret_token=make_exotel_token(cast(str, phone_number.number)),
         )
     try:
         r = requests.post(
@@ -119,13 +146,18 @@ def send_via_exotel(phone: str, message: SmsTemplate, callback: bool = True) -> 
                 raise TransportTransactionError(
                     _("Unparseable response from Exotel"), r.text
                 )
+            phone_number.msg_sms_sent_at = sa.func.utcnow()
             return transactionid
         raise TransportTransactionError(_("Exotel API error"), r.status_code, r.text)
     except requests.ConnectionError as exc:
         raise TransportConnectionError(_("Exotel not reachable")) from exc
 
 
-def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> str:
+def send_via_twilio(
+    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber],
+    message: SmsTemplate,
+    callback: bool = True,
+) -> str:
     """
     Send the SMS via Twilio, for international phone numbers.
 
@@ -134,6 +166,7 @@ def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> 
     :param callback: Whether to request a status callback
     :return: Transaction id
     """
+    phone_number = get_phone_number(phone)
     # Get SID, Token and From (these are required to make any calls)
     account = app.config['SMS_TWILIO_SID']
     token = app.config['SMS_TWILIO_TOKEN']
@@ -147,7 +180,7 @@ def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> 
     try:
         msg = client.messages.create(
             from_=sender,
-            to=phone,
+            to=phone_number.number,
             body=str(message),
             status_callback=url_for(
                 'process_twilio_event', _external=True, _method='POST'
@@ -155,6 +188,7 @@ def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> 
             if callback
             else None,
         )
+        phone_number.msg_sms_sent_at = sa.func.utcnow()
         return msg.sid
     except TwilioRestException as exc:
         # Error codes from
@@ -164,7 +198,9 @@ def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> 
         if exc.code == 21211:
             raise TransportRecipientError(_("This phone number is invalid")) from exc
         if exc.code == 21408:
-            app.logger.error("Twilio unsupported country (21408) for %s", phone)
+            app.logger.error(
+                "Twilio unsupported country (21408) for %s", phone_number.number
+            )
             raise TransportRecipientError(
                 _(
                     "Hasgeek cannot send messages to phone numbers in this country."
@@ -177,7 +213,9 @@ def send_via_twilio(phone: str, message: SmsTemplate, callback: bool = True) -> 
                 _("This phone number has been blocked")
             ) from exc
         if exc.code == 21612:
-            app.logger.error("Twilio unsupported carrier (21612) for %s", phone)
+            app.logger.error(
+                "Twilio unsupported carrier (21612) for %s", phone_number.number
+            )
             raise TransportRecipientError(
                 _("This phone number is unsupported at this time")
             ) from exc
@@ -197,7 +235,7 @@ sender_registry = [
         '+91',
         {'SMS_EXOTEL_SID', 'SMS_EXOTEL_TOKEN', 'SMS_DLT_ENTITY_ID'},
         send_via_exotel,
-        lambda: SmsTemplate.init_app(app),
+        lambda: SmsTemplate.init_app(app),  # Only init DLT ids if Exotel is configured
     ),
     SmsSender(
         '+',
@@ -207,7 +245,7 @@ sender_registry = [
 ]
 
 #: Available senders as per config
-senders_by_prefix = []
+senders_by_prefix: List[Tuple[str, Callable[[str, SmsTemplate, bool], str]]] = []
 
 
 def init() -> bool:
@@ -220,7 +258,11 @@ def init() -> bool:
     return bool(senders_by_prefix)
 
 
-def send(phone: str, message: SmsTemplate, callback: bool = True) -> str:
+def send(
+    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber],
+    message: SmsTemplate,
+    callback: bool = True,
+) -> str:
     """
     Send an SMS message to a given phone number and return a transaction id.
 
@@ -229,7 +271,9 @@ def send(phone: str, message: SmsTemplate, callback: bool = True) -> str:
     :param callback: Whether to request a status callback
     :return: Transaction id
     """
+    phone_number = get_phone_number(phone)
+    phone = cast(str, phone_number.number)  # Guaranteed not None
     for prefix, sender in senders_by_prefix:
         if phone.startswith(prefix):
-            return sender(phone, message, callback)
+            return sender(phone_number, message, callback)
     raise TransportRecipientError(_("No service provider available for this recipient"))

@@ -505,7 +505,6 @@ class ProjectView(  # type: ignore[misc]
             obj=SimpleNamespace(
                 org=boxoffice_data.get('org', ''),
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
-                ticket_title=boxoffice_data.get('ticket_title', ''),
                 allow_rsvp=self.obj.allow_rsvp,
             ),
             model=Project,
@@ -514,7 +513,6 @@ class ProjectView(  # type: ignore[misc]
             form.populate_obj(self.obj)
             self.obj.boxoffice_data['org'] = form.org.data
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
-            self.obj.boxoffice_data['ticket_title'] = form.ticket_title.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for())

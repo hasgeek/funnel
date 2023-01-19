@@ -42,6 +42,10 @@ emailaddress_refcount_dropping = model_signals.signal(
     'emailaddress-refcount-dropping',
     doc="Signal indicating that an EmailAddress's refcount is about to drop",
 )
+phonenumber_refcount_dropping = model_signals.signal(
+    'phonenumber-refcount-dropping',
+    doc="Signal indicating that an PhoneNumber's refcount is about to drop",
+)
 
 # Higher level signals
 user_login = app_signals.signal('user-login')
@@ -50,11 +54,6 @@ user_data_changed = app_signals.signal('user-data-changed')
 org_data_changed = app_signals.signal('org-data-changed')
 team_data_changed = app_signals.signal('team-data-changed')
 session_revoked = app_signals.signal('session-revoked')
-
-# Membership signals
-project_crew_membership_added = app_signals.signal('project_crew_membership_added')
-project_crew_membership_invited = app_signals.signal('project_crew_membership_invited')
-project_crew_membership_revoked = app_signals.signal('project_crew_membership_revoked')
 
 # Commentset role change signals (sends user, document)
 project_role_change = app_signals.signal('project_role_change')

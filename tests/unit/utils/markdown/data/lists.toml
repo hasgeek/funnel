@@ -87,8 +87,8 @@ basic = """<h2>Lists</h2>
 <hr />
 <p>2022. If you do not want to render a list, use <code>\\</code> to escape the <code>.</code></p>
 """
-document = """<h2 id="h:lists">Lists <a class="header-anchor" href="#h:lists">¶</a></h2>
-<h3 id="h:unordered">Unordered <a class="header-anchor" href="#h:unordered">¶</a></h3>
+document = """<h2 id="h:lists">Lists <a class="header-anchor" href="#h:lists">#</a></h2>
+<h3 id="h:unordered">Unordered <a class="header-anchor" href="#h:unordered">#</a></h3>
 <ul>
 <li>Create a list by starting a line with <code>+</code>, <code>-</code>, or <code>*</code></li>
 <li>Sub-lists are made by indenting 2 spaces:
@@ -108,7 +108,7 @@ document = """<h2 id="h:lists">Lists <a class="header-anchor" href="#h:lists">¶
 </li>
 <li>Very easy!</li>
 </ul>
-<h3 id="h:ordered">Ordered <a class="header-anchor" href="#h:ordered">¶</a></h3>
+<h3 id="h:ordered">Ordered <a class="header-anchor" href="#h:ordered">#</a></h3>
 <ol>
 <li>
 <p>Lorem ipsum dolor sit amet</p>

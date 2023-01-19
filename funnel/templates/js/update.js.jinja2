@@ -18,7 +18,7 @@
           <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between">
             <div class="update__heading">
               <ul class="bullet-separated-list--flex mui--text-light mui--text-body2 update__date" v-if="update.number">
-                <li><a class="mui--text-uppercase mui--text-light nounderline" :href="update.urls.view">{{ gettext('Update') }} #{{ update.number }}</a></li>
+                <li><a class="text-uppercase mui--text-light nounderline" :href="update.urls.view">{{ gettext('Update') }} #{{ update.number }}</a></li>
                 <li v-if="age"><a class="mui--text-light nounderline" :href="update.urls.view">{{ age }}</a></li>
                 <li v-if="update.visibility_label == 'Restricted'">
                   <faicon :icon="'lock-alt'"></faicon>
@@ -27,7 +27,7 @@
                   <faicon :icon="'thumbtack'" :baseline=false :css_class="'mui--align-middle'"></faicon>
                 </li>
               </ul>
-              <p v-else class="mui--text-capitalize mui--text-light zero-bottom-margin">{{ gettext('Draft') }}</p>
+              <p v-else class="text-capitalize mui--text-light zero-bottom-margin">{{ gettext('Draft') }}</p>
             </div>
             <div class="update__action-btn">
               <div class="mui-dropdown">
@@ -44,7 +44,7 @@
               </div>
             </div>
           </div>
-          <h3 class="mui--text-heading mui--text-bold margin-bottom"><a class="mui--text-dark nounderline" :href="update.urls.view">{{ update.title }}</a></h3>
+          <h3 class="mui--text-heading text-bold margin-bottom"><a class="mui--text-dark nounderline" :href="update.urls.view">{{ update.title }}</a></h3>
           <div class="user__box mui--clearfix update__header">
             <useravatar :user='update.user' :addprofilelink=true></useravatar>
             <div class="user__box__header">

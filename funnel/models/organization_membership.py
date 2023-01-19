@@ -54,6 +54,7 @@ class OrganizationMembership(
         'profile_admin': {
             'read': {
                 'record_type',
+                'record_type_label',
                 'granted_at',
                 'granted_by',
                 'revoked_at',

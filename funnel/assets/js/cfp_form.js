@@ -1,5 +1,7 @@
 import Form from './utils/formhelper';
 
 $(() => {
-  Form.openSubmissionToggle('#open-sub', '.js-cfp-status');
+  window.Hasgeek.cfpInit = function submissionsInit({ openSubmission = '' }) {
+    Form.openSubmissionToggle(openSubmission.toggleId, openSubmission.cfpStatusElem);
+  };
 });

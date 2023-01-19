@@ -14,6 +14,7 @@ import time
 import zipfile
 
 from flask.cli import AppGroup
+import click
 
 from unidecode import unidecode
 import requests
@@ -120,7 +121,7 @@ def downloadfile(basepath: str, filename: str, folder: Optional[str] = None) -> 
         os.path.exists(folder_file)
         and (time.time() - os.path.getmtime(folder_file)) < 86400
     ):
-        print(f"Skipping re-download of recent {filename}")  # noqa: T201
+        click.echo(f"Skipping re-download of recent {filename}")
         return
     with rich.progress.Progress(
         rich.progress.TextColumn('{task.description}'),
@@ -153,7 +154,11 @@ def downloadfile(basepath: str, filename: str, folder: Optional[str] = None) -> 
 def load_country_info(filename: str) -> None:
     """Load country geonames from the given file descriptor."""
     with rich.progress.open(
-        filename, newline='', encoding='utf-8', description="Loading country info..."
+        filename,
+        mode='rt',
+        newline='',
+        encoding='utf-8',
+        description="Loading country info...",
     ) as fd:
         countryinfo = [
             CountryInfoRecord(*row)
@@ -228,6 +233,7 @@ def load_geonames(filename: str) -> None:
 
     with rich.progress.open(
         filename,
+        mode='rt',
         newline='',
         encoding='utf-8',
         description=f"Loading geonames from {filename}...",
@@ -251,7 +257,7 @@ def load_geonames(filename: str) -> None:
                     continue
                 geonames.append(rec)
 
-    print(f"Sorting {len(geonames)} records...")  # noqa: T201
+    click.echo(f"Sorting {len(geonames)} records...")
 
     geonames = [
         row[3]
@@ -312,10 +318,14 @@ def load_geonames(filename: str) -> None:
 
 def load_alt_names(filename: str) -> None:
     """Load alternative names for geonames from the given file descriptor."""
-    print("Retrieving all geoname records...")  # noqa: T201
+    click.echo("Retrieving all geoname records...")
     geonameids = {r[0] for r in db.session.query(GeoName.id).all()}
     with rich.progress.open(
-        filename, newline='', encoding='utf-8', description="Loading alternate names..."
+        filename,
+        mode='rt',
+        newline='',
+        encoding='utf-8',
+        description="Loading alternate names...",
     ) as fd:
         altnames = [
             GeoAltNameRecord(*row)
@@ -345,7 +355,11 @@ def load_alt_names(filename: str) -> None:
 def load_admin1_codes(filename: str) -> None:
     """Load admin1 codes from the given file descriptor."""
     with rich.progress.open(
-        filename, newline='', encoding='utf-8', description="Loading admin1 codes..."
+        filename,
+        mode='rt',
+        newline='',
+        encoding='utf-8',
+        description="Loading admin1 codes...",
     ) as fd:
         admincodes = [
             GeoAdminRecord(*row)
@@ -370,7 +384,11 @@ def load_admin1_codes(filename: str) -> None:
 def load_admin2_codes(filename: str) -> None:
     """Load admin2 codes from the given file descriptor."""
     with rich.progress.open(
-        filename, newline='', encoding='utf-8', description="Loading admin2 codes..."
+        filename,
+        mode='rt',
+        newline='',
+        encoding='utf-8',
+        description="Loading admin2 codes...",
     ) as fd:
         admincodes = [
             GeoAdminRecord(*row)

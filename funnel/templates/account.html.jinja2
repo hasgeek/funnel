@@ -7,13 +7,13 @@
 {%- block pageheaders %}
   <link rel="stylesheet"
         type="text/css"
-        href="{{ built_asset('css/loginform.scss') }}"/>
+        href="{{ built_asset('css/login_form.scss') }}"/>
   <link rel="stylesheet"
         type="text/css"
         href="{{ built_asset('css/account.scss') }}"/>
 {%- endblock pageheaders %}
 {% block bodyattrs -%}
-  class="mui--bg-primary tabs-navbar"
+  class="bg-primary tabs-navbar"
 {%- endblock bodyattrs %}
 {% block headline -%}
   <div class="tabs-wrapper tabs-wrapper--sticky">
@@ -48,7 +48,7 @@
       <div class="grid__col-xs-12 grid__col-sm-6">
         <div class="card">
           <div class="card__header">
-            <h3 class="mui--text-title mui--text-bold">Info</h3>
+            <h3 class="mui--text-title text-bold">Info</h3>
           </div>
           <div class="card__body card__body--lgtext">
             <p class="mui--text-subhead">
@@ -109,10 +109,10 @@
       <div class="grid__col-xs-12 grid__col-sm-6">
         <div class="card">
           <div class="card__header">
-            <h3 class="mui--text-title mui--text-bold">{% trans %}Connected accounts{% endtrans %}</h3>
+            <h3 class="mui--text-title text-bold">{% trans %}Connected accounts{% endtrans %}</h3>
           </div>
           <div class="card__body card__body--lgtext mui--text-subhead">
-            <ol class="mui-list--aligned mui-list--border zero-bottom-margin">
+            <ol class="list--aligned list--border zero-bottom-margin">
               {% for extid in current_auth.user.externalids %}
                 <li>
                   {{ faicon(icon=extid.service, icon_size='body2', baseline=false, css_class="mui--text-light icon-img icon-img--smaller") }}
@@ -145,21 +145,22 @@
         <div class="grid__col-xs-12 grid__col-sm-6">
           <div class="card">
             <div class="card__header">
-              <h3 class="mui--text-title mui--text-bold">{% trans %}Email addresses{% endtrans %}</h3>
+              <h3 class="mui--text-title text-bold">{% trans %}Email addresses{% endtrans %}</h3>
             </div>
             <form action="{{ url_for('make_email_primary') }}"
                   method="post"
                   id="email-primary-form">
               <div class="card__body card__body--lgtext mui--text-subhead">
                 {{ primary_email_form.hidden_tag() }}
-                <ol class="mui-list--aligned mui-list--border zero-bottom-margin">
+                <ol class="list--aligned list--border zero-bottom-margin">
                   {% for useremail in current_auth.user.views.emails_sorted() %}
                     <li>
                       <input id="useremail-{{ loop.index }}"
-                             name="email"
-                             value="{{ useremail }}"
+                             name="email_hash"
+                             value="{{ useremail.transport_hash }}"
                              type="radio"
-                             class="margin-right"/>
+                             class="margin-right"
+                             {% if useremail.email_address.is_blocked %}disabled{% endif %}/>
                       <label for="useremail-{{ loop.index }}" class="form-inline-label">
                         {{ useremail }}
                         {% if useremail.primary %}
@@ -176,8 +177,8 @@
                   {% for useremail in current_auth.user.emailclaims %}
                     <li>
                       <input type="radio" disabled="disabled" class="margin-right"/>
-                      <span class="form-inline-label">{{ useremail }} <em><a href="{{ url_for('verify_email', email_hash=useremail.email_address.email_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em></span>
-                      <a href="{{ url_for('remove_email', email_hash=useremail.email_address.email_hash) }}"
+                      <span class="form-inline-label">{{ useremail }} <em><a href="{{ url_for('verify_email', email_hash=useremail.transport_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em></span>
+                      <a href="{{ url_for('remove_email', email_hash=useremail.transport_hash) }}"
                          title="{% trans %}Remove{% endtrans %}"
                          class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}</a>
                     </li>
@@ -205,29 +206,30 @@
         <div class="grid__col-xs-12 grid__col-sm-6">
           <div class="card">
             <div class="card__header">
-              <h3 class="mui--text-title mui--text-bold">{% trans %}Mobile numbers{% endtrans %}</h3>
+              <h3 class="mui--text-title text-bold">{% trans %}Mobile numbers{% endtrans %}</h3>
             </div>
             <form action="{{ url_for('make_phone_primary') }}"
                   method="post"
                   id="phone-primary-form">
               <div class="card__body card__body--lgtext mui--text-subhead">
                 {{ primary_phone_form.hidden_tag() }}
-                <ol class="mui-list--aligned mui-list--border zero-bottom-margin">
+                <ol class="list--aligned list--border zero-bottom-margin">
                   {% for userphone in current_auth.user.views.phones_sorted() %}
                     <li>
                       <input id="userphone-{{ loop.index }}"
-                             name="phone"
-                             value="{{ userphone }}"
-                             type="radio"/>
-                      &nbsp;
+                             name="phone_hash"
+                             value="{{ userphone.transport_hash }}"
+                             type="radio"
+                             class="margin-right"
+                             {% if userphone.phone_number.is_blocked %}disabled{% endif %}/>
                       <label for="userphone-{{ loop.index }}">
-                        {{ userphone.formatted() }}
+                        {{ userphone.formatted }}
                       </label>
                       {% if userphone.primary %}
                         <span title="{% trans %}Primary{% endtrans %}">{{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=false, css_class="mui--text-success input-align-icon") }}</span>
                       {%- endif -%}
                       {% if has_multiple_verified_contacts -%}
-                        <a href="{{ url_for('remove_phone', number=userphone.phone) }}"
+                        <a href="{{ url_for('remove_phone', phone_hash=userphone.transport_hash) }}"
                            title="{% trans %}Remove{% endtrans %}"
                            class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}</a>
                       {%- endif %}
@@ -257,12 +259,12 @@
         <div class="grid__col-xs-12">
           <div class="card">
             <div class="card__header">
-              <h3 class="mui--text-title mui--text-bold">
+              <h3 class="mui--text-title text-bold">
                 {% trans %}Connected apps{% endtrans %}
               </h3>
             </div>
             <div class="card__body">
-              <ul class="mui-list--aligned mui-list--border grid-no-left-padding zero-bottom-margin">
+              <ul class="list--aligned list--border grid-no-left-padding zero-bottom-margin">
                 {% for auth_token in authtokens %}
                   <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between top-padding bottom-padding">
                     <div>
@@ -301,7 +303,7 @@
       <div class="grid__col-xs-12">
         <div class="card">
           <div class="card__header">
-            <h3 class="mui--text-title mui--text-bold">
+            <h3 class="mui--text-title text-bold">
               {% trans %}Login sessions{% endtrans %}
             </h3>
           </div>
@@ -310,7 +312,7 @@
                 id="logout-session-form">
             {{ logout_form.hidden_tag() }}
             <div class="card__body">
-              <ul class="mui-list--aligned mui-list--unstyled grid-no-left-padding mui-list--border zero-bottom-margin">
+              <ul class="list--aligned mui-list--unstyled grid-no-left-padding list--border zero-bottom-margin">
                 {%- for user_session in current_auth.user.active_user_sessions %}
                   {%- with ua=user_session.views.user_agent_details(), login_service=user_session.views.login_service(), location=user_session.views.location(), user_agent=user_session.user_agent, since=user_session.created_at|age, last_active=user_session.accessed_at|age %}
                     <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between login-session">
@@ -362,7 +364,7 @@
     <div class="grid__col-xs-12">
       <div class="card">
         <div class="card__header">
-          <h3 class="mui--text-title mui--text-bold">{% trans %}Delete{% endtrans %}</h3>
+          <h3 class="mui--text-title text-bold">{% trans %}Delete{% endtrans %}</h3>
         </div>
         <div class="card__body">
           <p>{%- trans %}{% endtrans %}</p>

@@ -8,7 +8,7 @@ async-generator==1.10
     # via
     #   trio
     #   trio-websocket
-attrs==22.1.0
+attrs==22.2.0
     # via
     #   outcome
     #   pytest
@@ -32,6 +32,10 @@ coveralls==3.3.1
     # via -r requirements_test.in
 docopt==0.6.2
     # via coveralls
+exceptiongroup==1.0.4
+    # via
+    #   pytest
+    #   trio
 h11==0.14.0
     # via wsproto
 idna==3.4
@@ -40,7 +44,7 @@ idna==3.4
     #   trio
 iniconfig==1.1.1
     # via pytest
-lxml==4.9.1
+lxml==4.9.2
     # via -r requirements_test.in
 mako==1.2.4
     # via pytest-bdd
@@ -48,7 +52,7 @@ markupsafe==2.1.1
     # via mako
 outcome==1.2.0
     # via trio
-packaging==21.3
+packaging==22.0
     # via
     #   pytest
     #   pytest-remotedata
@@ -61,8 +65,6 @@ parse-type==0.6.0
     # via pytest-bdd
 pluggy==1.0.0
     # via pytest
-pyparsing==3.0.9
-    # via packaging
 pysocks==1.7.1
     # via urllib3
 pytest==7.2.0
@@ -83,7 +85,7 @@ pytest-dotenv==0.5.2
     # via -r requirements_test.in
 pytest-env==0.8.1
     # via -r requirements_test.in
-pytest-remotedata==0.3.3
+pytest-remotedata==0.4.0
     # via -r requirements_test.in
 pytest-rerunfailures==10.3
     # via -r requirements_test.in
@@ -111,6 +113,10 @@ soupsieve==2.3.2.post1
     # via beautifulsoup4
 splinter==0.18.1
     # via pytest-splinter
+tomli==2.0.1
+    # via
+    #   coverage
+    #   pytest
 tomlkit==0.11.6
     # via -r requirements_test.in
 trio==0.22.0

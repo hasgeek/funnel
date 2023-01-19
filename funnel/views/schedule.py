@@ -62,6 +62,7 @@ def session_data(
         'url_name': session.url_name,
         'proposal_id': session.proposal_id,
         'description': session.description,
+        'banner_image_url': session.banner_image_url,
         'url': session.url_for(_external=True),
         'proposal_url': (
             session.proposal.url_for(_external=True) if session.proposal else None
@@ -165,7 +166,7 @@ def project_as_session(project: Project) -> SimpleNamespace:
         end_at_localized=project.end_at_localized,
         location=f'{project.location} - {project.url_for(_external=True)}',
         venue_room=None,
-        versionid=project.versionid,
+        revisionid=project.revisionid,
         proposal=SimpleNamespace(labels=()),  # Proposal is used to get a permalink
         url_for=project.url_for,
     )
@@ -225,7 +226,7 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
         desc = _("{session} in 5 minutes").format(session=session.title)
     alarm.add('description', desc)
     event.add_component(alarm)
-    event.add('sequence', session.versionid - 1)  # vCal starts at 0, SQLAlchemy at 1
+    event.add('sequence', session.revisionid - 1)  # vCal starts at 0, SQLAlchemy at 1
     return event
 
 
@@ -237,7 +238,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
     @requires_roles({'reader'})
     def schedule(self) -> ReturnRenderWith:
         scheduled_sessions_list = session_list_data(
-            self.obj.scheduled_sessions, with_modal_url='view_popup'
+            self.obj.scheduled_sessions, with_modal_url='view'
         )
         project = self.obj.current_access(datasets=('primary', 'related'))
         venues = [

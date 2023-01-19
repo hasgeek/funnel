@@ -104,6 +104,7 @@ from baseframe import __
 from coaster.sqlalchemy import (
     DynamicAssociationProxy,
     Query,
+    Registry,
     SqlUuidB58Comparator,
     auto_init_default,
     immutable,
@@ -116,12 +117,13 @@ from ..typing import OptionalMigratedTables, T, UuidModelType
 from . import BaseMixin, Mapped, NoIdMixin, UuidMixin, UUIDType, db, hybrid_property, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
+from .phone_number import PhoneNumber, PhoneNumberMixin
 from .user import User, UserEmail, UserPhone
 
 __all__ = [
     'SMS_STATUS',
     'notification_categories',
-    'SMSMessage',
+    'SmsMessage',
     'Notification',
     'PreviewNotification',
     'NotificationPreferences',
@@ -220,12 +222,15 @@ class SMS_STATUS(LabeledEnum):  # noqa: N801
 # --- Legacy models --------------------------------------------------------------------
 
 
-class SMSMessage(BaseMixin, db.Model):  # type: ignore[name-defined]
+class SmsMessage(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     """An outbound SMS message."""
 
     __tablename__ = 'sms_message'
-    # Phone number that the message was sent to
-    phone_number = immutable(sa.Column(sa.String(15), nullable=False))
+    __phone_optional__ = False
+    __phone_unique__ = False
+    __phone_is_exclusive__ = False
+    phone_number_reference_is_active: bool = False
+
     transactionid = immutable(sa.Column(sa.UnicodeText, unique=True, nullable=True))
     # The message itself
     message = immutable(sa.Column(sa.UnicodeText, nullable=False))
@@ -233,6 +238,12 @@ class SMSMessage(BaseMixin, db.Model):  # type: ignore[name-defined]
     status = sa.Column(sa.Integer, default=SMS_STATUS.QUEUED, nullable=False)
     status_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
     fail_reason = sa.Column(sa.UnicodeText, nullable=True)
+
+    def __init__(self, **kwargs):
+        phone = kwargs.pop('phone', None)
+        if phone:
+            kwargs['phone_number'] = PhoneNumber.add(phone)
+        super().__init__(**kwargs)
 
 
 # --- Notification models --------------------------------------------------------------
@@ -636,12 +647,13 @@ class PreviewNotification:
 
     def __init__(
         self,
-        cls: Notification,
+        cls: Type[Notification],
         document: UuidModelType,
         fragment: Optional[UuidModelType] = None,
     ) -> None:
         self.eventid = self.eventid_b58 = self.id = 'preview'  # May need to be a UUID
         self.cls = cls
+        self.type = cls.cls_type
         self.document = document
         self.document_uuid = document.uuid
         self.fragment = fragment
@@ -655,7 +667,7 @@ class PreviewNotification:
 class UserNotificationMixin:
     """Shared mixin for :class:`UserNotification` and :class:`NotificationFor`."""
 
-    notification: Notification
+    notification: Union[Notification, PreviewNotification]
 
     @cached_property
     def notification_type(self) -> str:
@@ -981,9 +993,10 @@ class UserNotification(
             # We've already been revoked or rolled up. Nothing to do.
             return
 
-        # For rollup: find most recent unread that has a rollupid. Reuse that id so that
-        # the current notification becomes the latest in that batch of rolled up
-        # notifications. If none, this is the start of a new batch, so make a new id.
+        # For rollup: find most recent unread -- or read but created in the last day --
+        # that has a rollupid. Reuse that id so that the current notification becomes
+        # the latest in that batch of rolled up notifications. If none, this is the
+        # start of a new batch, so make a new id.
         rollupid = (
             db.session.query(UserNotification.rollupid)
             .join(Notification)
@@ -996,8 +1009,13 @@ class UserNotification(
                 Notification.document_uuid == self.notification.document_uuid,
                 # Same reason for receiving notification as earlier instance (same role)
                 UserNotification.role == self.role,
-                # Earlier instance is unread
-                UserNotification.read_at.is_(None),
+                # Earlier instance is unread or within 24 hours
+                sa.or_(
+                    UserNotification.read_at.is_(None),
+                    # TODO: Hardcodes for PostgreSQL, turn this into a SQL func
+                    # expression like func.utcnow()
+                    UserNotification.created_at >= sa.text("NOW() - INTERVAL '1 DAY'"),
+                ),
                 # Earlier instance is not revoked
                 UserNotification.revoked_at.is_(None),
                 # Earlier instance has a rollupid
@@ -1009,7 +1027,7 @@ class UserNotification(
         )
         if not rollupid:
             # No previous rollupid? Then we're the first. The next notification
-            # will use our rollupid as long as we're unread
+            # will use our rollupid as long as we're unread or within a day
             self.rollupid = uuid4()
         else:
             # Use the existing id, find all using it and revoke them
@@ -1122,7 +1140,11 @@ class NotificationFor(UserNotificationMixin):
     is_revoked: bool = False
     is_read: bool = False
 
-    def __init__(self, notification, user) -> None:
+    views = Registry()
+
+    def __init__(
+        self, notification: Union[Notification, PreviewNotification], user: User
+    ) -> None:
         self.notification = notification
         self.eventid = notification.eventid
         self.notification_id = notification.id

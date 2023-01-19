@@ -2,69 +2,109 @@
 {% set title_suffix = project.title %}
 {% from "forms.html.jinja2" import renderfield %}
 {% from "macros.html.jinja2" import faicon %}
-{% block title %}{% trans %}Labels{% endtrans %}{% endblock title %}
-{% block description %}{{ project.title }}{% if project.tagline %} &ndash; {{ project.taglines }}{% endif %}{% endblock description %}
-
+{% block title %}
+  {% trans %}Labels{% endtrans %}
+{% endblock title %}
+{%- block description -%}
+  {{ project.title }}
+  {%- if project.tagline %} &ndash; {{ project.tagline }}
+  {%- endif -%}
+{%- endblock description -%}
 {% block top_title %}
-  <h1 class="mui--text-headline"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
+  <h1 class="mui--text-headline">
+    <a href="{{ project.url_for() }}">{{ project.title }}</a>
+  </h1>
   <p class="mui--text-subhead">{% trans %}Manage labels{% endtrans %}</p>
 {% endblock top_title %}
-
 {%- block pageheaders %}
-  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/labels.scss') }}" />
+  <link rel="stylesheet"
+        type="text/css"
+        href="{{ built_asset('css/labels.scss') }}"/>
 {% endblock pageheaders %}
-
 {% block contentwrapper %}
-<div class="grid">
-  <div class="grid__col-xs-12">
-    <div class="clickable-card card label-box label-box--new mui--z2" data-href="{{ project.url_for('new_label') }}">
-      <div class="card__body mui--text-center">
-        <a class="mui--text-light" href="{{ project.url_for('new_label') }}" aria-label="{% trans %}Create new label{% endtrans %}" data-cy="add-labels" data-ga="Create new label">{{ faicon(icon='plus', icon_size='title') }} <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span></a>
+  <div class="grid">
+    <div class="grid__col-xs-12">
+      <div class="clickable-card card label-box label-box--new mui--z2"
+          data-href="{{ project.url_for('new_label') }}">
+        <div class="card__body mui--text-center">
+          <a class="mui--text-light"
+            href="{{ project.url_for('new_label') }}"
+            aria-label="{% trans %}Create new label{% endtrans %}"
+            data-cy="add-labels"
+            data-ga="Create new label">{{ faicon(icon='plus', icon_size='title') }} <span class="mui--text-headline">{% trans %}Create new label{% endtrans %}</span>
+          </a>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="grid__col-xs-12">
-    <form data-parsley-validate="true" id="label-form" method="post" action="{{ request.url }}" accept-charset="UTF-8" class="mui-form">
-      {{ form.hidden_tag() }}
-      {%- for label in labels %}
-        <div class="ui-draggable-box drag-box mui--clearfix" data-drag-placeholder="label-placeholder" draggable="true">
-          <div class="drag-box__header">
-            <input name="name" value="{{ label.name }}" type="hidden" class="id-input" />
-            {% if label.has_options %}
-              <h3 class="mui--text-title mui--text-bold label-box__inner__heading zero-top-margin">{% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %} {{ label.title }}</h3>
-            {% else %}
-              <h3 class="mui--text-title mui--text-bold drag-box__inner__heading zero-top-margin">{{ label.title }}</h3>
-            {% endif %}
-            {{ faicon(icon='grip-vertical', baseline=false, css_class="drag-handle") }}
+    <div class="grid__col-xs-12">
+      <form data-parsley-validate="true"
+            id="label-form"
+            method="post"
+            action="{{ request.url }}"
+            accept-charset="UTF-8"
+            class="mui-form">
+        {{ form.hidden_tag() }}
+        {%- for label in labels %}
+          <div class="ui-draggable-box drag-box mui--clearfix"
+              data-drag-placeholder="label-placeholder"
+              draggable="true">
+            <div class="drag-box__header">
+              <input name="name" value="{{ label.name }}" type="hidden" class="id-input" />
+              {% if label.has_options %}
+                <h3 class="mui--text-title text-bold label-box__inner__heading zero-top-margin">
+                  {% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %}
+                  {{ label.title }}
+                </h3>
+              {% else %}
+                <h3 class="mui--text-title text-bold drag-box__inner__heading zero-top-margin">{{ label.title }}</h3>
+              {% endif %}
+              {{ faicon(icon='grip-vertical', baseline=false, css_class="drag-handle") }}
+            </div>
+            <div class="drag-box__body">
+              {%- for option in label.options %}
+                <span class="mui--text-subhead mui--text-light label-box__body__options">
+                  {% if option.icon_emoji %}{{ option.icon_emoji }}{% endif %}
+                {{ option.title }}</span>
+              {% else %}
+                <span class="mui--text-subhead mui--text-light"><em>{% trans %}(No labels){% endtrans %}</em></span>
+              {%- endfor %}
+            </div>
+            <div class="drag-box__action">
+              <a class="drag-box__action-btn"
+                href="{{ label.url_for('edit') }}"
+                aria-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='title') }}
+              </a>
+              {% if label.has_proposals %}
+                <a class="label-box__action-btn"
+                  href="{{ label.url_for('archive') }}"
+                  aria-label="{% trans %}Archive{% endtrans %}"
+                  title="{{ label.title }}">{{ faicon(icon='archive', icon_size='title') }}
+                </a>
+              {% else %}
+                <a href="{{ label.url_for('delete') }}"
+                  aria-label="{% trans %}Delete{% endtrans %}"
+                  title="{{ label.title }}">{{ faicon(icon='trash-alt', icon_size='title') }}
+                </a>
+              {% endif %}
+            </div>
           </div>
-          <div class="drag-box__body">
-            {%- for option in label.options %}
-              <span class="mui--text-subhead mui--text-light label-box__body__options">{% if option.icon_emoji %}{{ option.icon_emoji }} {% endif %}{{ option.title }}</span>
-            {% else %}
-              <span class="mui--text-subhead mui--text-light"><em>{% trans %}(No labels){% endtrans %}</em></span>
-            {%- endfor %}
-          </div>
-          <div class="drag-box__action">
-            <a class="drag-box__action-btn" href="{{ label.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='title') }}</a>
-            {% if label.has_proposals %}
-              <a class="label-box__action-btn" href="{{ label.url_for('archive') }}" aria-label="{% trans %}Archive{% endtrans %}" title="{{ label.title }}">{{ faicon(icon='archive', icon_size='title') }}</a>
-            {% else %}
-              <a href="{{ label.url_for('delete') }}" aria-label="{% trans %}Delete{% endtrans %}" title="{{ label.title }}">{{ faicon(icon='trash-alt', icon_size='title') }}</a>
-            {% endif %}
+        {%- endfor %}
+        <div class="mui-form form-actions mui--clearfix">
+          <div>
+            <button type="submit"
+                    name="submit"
+                    class="mui-btn mui-btn--raised mui-btn--primary"
+                    value="reject"
+                    data-cy="save-label-seq">
+              {% trans %}Save label sequence{% endtrans %}
+            </button>
+            <span class="loading mui--hide"></span>
           </div>
         </div>
-      {%- endfor %}
-      <div class="mui-form form-actions mui--clearfix">
-        <div>
-          <button type="submit" name="submit" class="mui-btn mui-btn--raised mui-btn--primary" value="reject" data-cy="save-label-seq">{% trans %}Save label sequence{% endtrans %}</button>
-          <span class="loading mui--hide"></span>
-        </div>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
-</div>
 {% endblock contentwrapper %}
-
 {% block footerscripts %}
   <script src="{{ built_asset('labels.js') }}" type="text/javascript"></script>
 {% endblock footerscripts %}

@@ -18,7 +18,6 @@ from .. import app
 from ..typing import OptionalMigratedTables
 from . import (
     BaseScopedNameMixin,
-    JsonDict,
     Mapped,
     MarkdownCompositeDocument,
     TimestampMixin,
@@ -27,6 +26,7 @@ from . import (
     UrlType,
     UuidMixin,
     db,
+    json_type,
     sa,
 )
 from .comment import SET_TYPE, Commentset
@@ -108,7 +108,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    parsed_location = sa.Column(JsonDict, nullable=False, server_default='{}')
+    parsed_location = sa.Column(json_type, nullable=False, server_default='{}')
 
     website = with_roles(
         sa.Column(UrlType, nullable=True),
@@ -193,7 +193,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         datasets={'primary', 'without_parent'},
     )
     boxoffice_data = with_roles(
-        sa.Column(JsonDict, nullable=False, server_default='{}'),
+        sa.Column(json_type, nullable=False, server_default='{}'),
         # This is an attribute, but we deliberately use `call` instead of `read` to
         # block this from dictionary enumeration. FIXME: Break up this dictionary into
         # individual columns with `all` access for ticket embed id and `promoter`
@@ -231,8 +231,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         datasets={'primary', 'without_parent'},
     )
 
-    #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
-    versionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+    #: Revision number maintained by SQLAlchemy, used for vCal files, starting at 1
+    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
 
     search_vector = sa.orm.deferred(
         sa.Column(
@@ -292,7 +292,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         ),
     )
 
-    __mapper_args__ = {'version_id_col': versionid}
+    __mapper_args__ = {'version_id_col': revisionid}
 
     __roles__ = {
         'all': {

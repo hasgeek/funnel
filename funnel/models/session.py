@@ -74,7 +74,7 @@ class Session(
     banner_image_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
 
     #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
-    versionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
+    revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
 
     search_vector = sa.orm.deferred(
         sa.Column(
@@ -116,7 +116,7 @@ class Session(
         sa.Index('ix_session_search_vector', 'search_vector', postgresql_using='gin'),
     )
 
-    __mapper_args__ = {'version_id_col': versionid}
+    __mapper_args__ = {'version_id_col': revisionid}
 
     __roles__ = {
         'all': {
