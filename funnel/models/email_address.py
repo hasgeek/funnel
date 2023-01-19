@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Set, Union, cast, overload
+from typing import Any, List, Optional, Set, Union, cast, overload
 import hashlib
 import unicodedata
 
@@ -15,6 +15,7 @@ from werkzeug.utils import cached_property
 
 from pyisemail import is_email
 from pyisemail.diagnosis import BaseDiagnosis
+from typing_extensions import Literal
 import base58
 import idna
 
@@ -198,7 +199,17 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
     #: BLAKE2b 160-bit hash of :property:`email_normalized`. Kept permanently even if
     #: email is removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite
     #: the name, we're only storing 20 bytes
-    blake2b160 = immutable(sa.Column(sa.LargeBinary, nullable=False, unique=True))
+    blake2b160 = immutable(
+        sa.Column(
+            sa.LargeBinary,
+            sa.CheckConstraint(
+                sa.func.length(sa.sql.column('blake2b160')) == 20,
+                name='email_address_blake2b160_check',
+            ),
+            nullable=False,
+            unique=True,
+        )
+    )
 
     #: BLAKE2b 160-bit hash of :property:`email_canonical`. Kept permanently for blocked
     #: email detection. Indexed but does not use a unique constraint because a+b@tld and
@@ -448,7 +459,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         email_hash: Optional[str] = None,
     ) -> Optional[ColumnElement]:
         """
-        Get an filter condition for retriving an EmailAddress.
+        Get an filter condition for retriving an :class:`EmailAddress`.
 
         Accepts an email address or a blake2b160 hash in either bytes or base58 form.
         Internally converts all lookups to a bytes-based hash lookup. Returns an
@@ -583,7 +594,12 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         email: str,
         check_dns: bool = False,
         new: bool = False,
-    ) -> Union[bool, str]:
+    ) -> Union[
+        bool,
+        Literal[
+            'nomx', 'not_new', 'soft_fail', 'hard_fail', 'invalid', 'nullmx', 'blocked'
+        ],
+    ]:
         """
         Validate whether the email address is available to the given owner.
 
@@ -595,16 +611,18 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         3. 'soft_fail': Known to be soft bouncing, requiring a warning message
         4. 'hard_fail': Known to be hard bouncing, usually a validation failure
         5. 'invalid': Available, but failed syntax validation
+        6. 'nullmx': Available, but host explicitly says they will not accept email
+        7. 'blocked': Email address is blocked from use
 
         :param owner: Proposed owner of this email address (may be None)
-        :param str email: Email address to validate
-        :param bool check_dns: Check for MX records for a new email address
-        :param bool new: Fail validation if email address is already in use
+        :param email: Email address to validate
+        :param check_dns: Check for MX records for a new email address
+        :param new: Fail validation if email address is already in use by owner
         """
         try:
             existing = cls._get_existing(email)
         except EmailAddressBlockedError:
-            return False
+            return 'blocked'
         if existing is None:
             diagnosis = cls.is_valid_email_address(
                 email, check_dns=check_dns, diagnose=True
@@ -615,6 +633,8 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
             # get_canonical won't return False when diagnose=True. Tell mypy:
             if cast(BaseDiagnosis, diagnosis).diagnosis_type == 'NO_MX_RECORD':
                 return 'nomx'
+            if cast(BaseDiagnosis, diagnosis).diagnosis_type == 'NULL_MX_RECORD':
+                return 'nullmx'
             return 'invalid'
         # There's an existing? Is it available for this owner?
         if not existing.is_available_for(owner):
@@ -658,7 +678,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
 @declarative_mixin
 class EmailAddressMixin:
     """
-    Mixin class for models that refer to EmailAddress.
+    Mixin class for models that refer to :class:`EmailAddress`.
 
     Subclasses should set configuration using the four ``__email_*__`` attributes and
     should optionally override :meth:`email_address_reference_is_active` if the model
@@ -768,7 +788,7 @@ auto_init_default(EmailAddress._is_blocked)  # pylint: disable=protected-access
 
 
 @event.listens_for(EmailAddress.email, 'set')
-def _validate_email(target, value: object, old_value: object, initiator):
+def _validate_email(target, value: Any, old_value: Any, initiator) -> None:
     # First: check if value is acceptable and email attribute can be set
     if not value and value is not None:
         # Only `None` is an acceptable falsy value

@@ -9,7 +9,15 @@ from twilio.request_validator import RequestValidator
 from baseframe import statsd
 
 from ... import app
-from ...models import SMS_STATUS, SMSMessage, db, sa
+from ...models import (
+    SMS_STATUS,
+    PhoneNumber,
+    PhoneNumberError,
+    SmsMessage,
+    canonical_phone_number,
+    db,
+    sa,
+)
 from ...transports.sms import validate_exotel_token
 from ...typing import ReturnView
 from ...utils import abort_null
@@ -50,38 +58,46 @@ def process_twilio_event() -> ReturnView:
         )
         return {'status': 'error', 'error': 'invalid_signature'}, 422
 
-    # This code segment needs to change and re-written once Phone Number model is
-    # in place.
-    sms_message = SMSMessage.query.filter_by(
+    try:
+        phone_number = PhoneNumber.add(request.form['To'])
+    except PhoneNumberError:
+        phone_number = None
+    sms_message = SmsMessage.query.filter_by(
         transactionid=request.form['MessageSid']
     ).one_or_none()
-    if sms_message is None:
-        sms_message = SMSMessage(
-            phone_number=request.form['To'],
-            transactionid=request.form['MessageSid'],
-            message=request.form['Body'],
-        )
-        db.session.add(sms_message)
 
-    sms_message.status_at = sa.func.utcnow()
+    if sms_message:
+        sms_message.status_at = sa.func.utcnow()
 
     if request.form['MessageStatus'] == 'queued':
-        sms_message.status = SMS_STATUS.QUEUED
-    elif request.form['MessageStatus'] == 'failed':
-        sms_message.status = SMS_STATUS.FAILED
-    elif request.form['MessageStatus'] == 'delivered':
-        sms_message.status = SMS_STATUS.DELIVERED
+        if sms_message:
+            sms_message.status = SMS_STATUS.QUEUED
     elif request.form['MessageStatus'] == 'sent':
-        sms_message.status = SMS_STATUS.PENDING
+        if phone_number:
+            phone_number.msg_sms_sent_at = sa.func.utcnow()
+        if sms_message:
+            sms_message.status = SMS_STATUS.PENDING
+    elif request.form['MessageStatus'] == 'failed':
+        if phone_number:
+            phone_number.msg_sms_failed_at = sa.func.utcnow()
+        if sms_message:
+            sms_message.status = SMS_STATUS.FAILED
+    elif request.form['MessageStatus'] == 'delivered':
+        if phone_number:
+            phone_number.msg_sms_delivered_at = sa.func.utcnow()
+        if sms_message:
+            sms_message.status = SMS_STATUS.DELIVERED
     else:
-        sms_message.status = SMS_STATUS.UNKNOWN
-    # Done
+        if sms_message:
+            sms_message.status = SMS_STATUS.UNKNOWN
     db.session.commit()
+
     current_app.logger.info(
         "Twilio event for phone: %s %s",
         request.form['To'],
         request.form['MessageStatus'],
     )
+
     statsd.incr(
         'phone_number.event',
         tags={
@@ -101,13 +117,19 @@ def process_exotel_event(secret_token: str) -> ReturnView:
     statsd.incr('phone_number.event', tags={'engine': 'exotel', 'stage': 'received'})
 
     exotel_to = abort_null(request.form.get('To', ''))
+    if not exotel_to:
+        return {'status': 'eror', 'error': 'invalid_phone'}, 422
     # Exotel sends back 0-prefixed phone numbers, not plus-prefixed intl. numbers
     if exotel_to.startswith('00'):
         exotel_to = '+' + exotel_to[2:]
     elif exotel_to.startswith('0'):
         exotel_to = '+91' + exotel_to[1:]
+    try:
+        exotel_to = canonical_phone_number(exotel_to)
+    except PhoneNumberError:
+        return {'status': 'error', 'error': 'invalid_phone'}, 422
 
-    # Verify the token based on the normalized number.
+    # Verify the token based on the canonical number.
     if not validate_exotel_token(secret_token, exotel_to):
         statsd.incr(
             'phone_number.event',
@@ -119,50 +141,55 @@ def process_exotel_event(secret_token: str) -> ReturnView:
         )
         return {'status': 'error', 'error': 'invalid_signature'}, 422
 
-    # This code segment needs to be re-written once PhoneNumber model is
-    # in place. The Message parameter has to be '' because exotel does not send
-    # back the message as per the API model, but the DB model expects it
-    # and we get a exception, otherwise.
-
     # There are only 3 parameters in the callback as per the documentation
     # https://developer.exotel.com/api/#send-sms
     # SmsSid - The Sid (unique id) of the SMS that you got in response to your request
     # To - Mobile number to which SMS was sent
     # Status - one of: queued, sending, submitted, sent, failed_dnd, failed
-    sms_message = SMSMessage.query.filter_by(
+    try:
+        phone_number = PhoneNumber.add(exotel_to)
+    except PhoneNumberError:
+        phone_number = None
+    sms_message = SmsMessage.query.filter_by(
         transactionid=request.form['SmsSid']
     ).one_or_none()
-    if sms_message is None:
-        sms_message = SMSMessage(
-            phone_number=request.form['To'],
-            transactionid=request.form['SmsSid'],
-            message='',
-        )
-        db.session.add(sms_message)
 
-    sms_message.status_at = sa.func.utcnow()
+    if sms_message:
+        sms_message.status_at = sa.func.utcnow()
 
     if request.form['Status'] == 'queued':
-        sms_message.status = SMS_STATUS.QUEUED
-    elif request.form['Status'] in ('failed', 'failed_dnd'):
-        sms_message.status = SMS_STATUS.FAILED
-    elif request.form['Status'] == 'sent':
-        sms_message.status = SMS_STATUS.DELIVERED
+        if sms_message:
+            sms_message.status = SMS_STATUS.QUEUED
     elif request.form['Status'] in ('sending', 'submitted'):
-        sms_message.status = SMS_STATUS.PENDING
+        if phone_number:
+            phone_number.msg_sms_sent_at = sa.func.utcnow()
+        if sms_message:
+            sms_message.status = SMS_STATUS.PENDING
+    elif request.form['Status'] in ('failed', 'failed_dnd'):
+        if phone_number:
+            phone_number.msg_sms_failed_at = sa.func.utcnow()
+        if sms_message:
+            sms_message.status = SMS_STATUS.FAILED
+    elif request.form['Status'] == 'sent':
+        if phone_number:
+            phone_number.msg_sms_delivered_at = sa.func.utcnow()
+        if sms_message:
+            sms_message.status = SMS_STATUS.DELIVERED
     else:
-        sms_message.status = SMS_STATUS.UNKNOWN
-    # Done
+        if sms_message:
+            sms_message.status = SMS_STATUS.UNKNOWN
     db.session.commit()
+
     current_app.logger.info(
         "Exotel event for phone: %s %s",
-        request.form['To'],
+        exotel_to,
         request.form['Status'],
     )
+
     statsd.incr(
         'phone_number.event',
         tags={
-            'engine': 'twilio',
+            'engine': 'exotel',
             'stage': 'processed',
             'event': request.form['Status'],
         },

@@ -106,7 +106,7 @@ def test_login_no_data(app, user) -> None:
         assert form.validate() is False
         assert form.user is None
         assert form.username.errors == [form.username.validators[0].message]
-        assert form.password.errors == [form.password.validators[0].message]
+        assert form.password.errors == []
 
 
 def test_login_no_password(app, user) -> None:

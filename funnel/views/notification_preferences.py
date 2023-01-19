@@ -19,6 +19,7 @@ from ..forms import SetNotificationPreferenceForm, UnsubscribeForm, transport_la
 from ..models import (
     EmailAddress,
     NotificationPreferences,
+    PhoneNumber,
     User,
     db,
     notification_categories,
@@ -406,7 +407,18 @@ class AccountNotificationView(ClassView):
             else:
                 email_address.mark_active()
                 db.session.commit()
-        # TODO: Add active status for phone numbers and check here
+        elif (
+            payload['transport'] in ('sms', 'whatsapp', 'signal') and 'hash' in payload
+        ):
+            phone_number = PhoneNumber.get(phone_hash=payload['hash'])
+            if phone_number is None:
+                current_app.logger.error(
+                    "Unsubscribe view cannot find phone number with hash %s",
+                    payload['hash'],
+                )
+            else:
+                phone_number.mark_active()
+                db.session.commit()
 
         # Step 7. Ask the user to confirm unsubscribe. Do not unsubscribe on a GET
         # request as it may be triggered by link previews (for transports other than
