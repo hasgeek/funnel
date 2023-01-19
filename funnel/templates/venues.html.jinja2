@@ -17,7 +17,7 @@
         <form action="{{ project.url_for('makeprimary_venue') }}" method="post">
           {{ primary_venue_form.hidden_tag() }}
           <div class="card__body card__body--lgtext mui--text-subhead">
-            <ol class="mui-list--aligned mui-list--border">
+            <ol class="list--aligned list--border">
               {%- for venue in primary_venue_form.venue.query %}
                 <li class="mui--text-subhead">
                   {# djlint:off #}<input id="venue-{{ loop.index }}" name="{{ primary_venue_form.venue.name }}" value="{{ venue.uuid_b58 }}" type="radio" {%- if venue == project.primary_venue %}disabled{% endif %} class="margin-right" /><label for="venue-{{ loop.index }}" class="form-inline-label" data-cy="{{ venue.title }}">{{ venue.title }} {%- if venue == project.primary_venue %}<em> {% trans %}(primary){% endtrans %}</em>{% endif %}</label>{# djlint:on #}
@@ -49,10 +49,10 @@
             <div class="mui--text-body2">{{ venue.description }}</div>
           </div>
           <div class="card__body card__body--lgtext mui--text-subhead">
-            <ol class="mui-list--aligned mui-list--border">
+            <ol class="list--aligned list--border">
               {%- for room in venue.rooms %}
                 <li class="mui--text-subhead">
-                  <span class="mui--text-subhead mui--text-bold" data-cy-room="{{ room.title }}">{{ room.title }}</span>
+                  <span class="mui--text-subhead text-bold" data-cy-room="{{ room.title }}">{{ room.title }}</span>
                   <span class="mui--pull-right">
                     <a href="{{ room.url_for('edit') }}" class="mui--text-title">{{ faicon(icon='edit', icon_size='subhead', css_class="fa5--link") }}</a>
                     &nbsp;&nbsp;&nbsp;<a href="{{ room.url_for('delete') }}" class="mui--text-title">{{ faicon(icon='trash-alt', icon_size='subhead', css_class="fa5--link") }}</a>

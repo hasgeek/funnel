@@ -21,7 +21,7 @@
         href="{{ built_asset('css/comments.scss') }}"/>
 {%- endblock pageheaders -%}
 {%- block bodyattrs -%}
-  class="mui--bg-accent no-sticky-header mobile-header proposal-page subproject-page {% if proposal.views.video or proposal.session and proposal.session.views.video %}mobile-hide-livestream{% endif %}"
+  class="bg-accent no-sticky-header mobile-header proposal-page subproject-page {% if proposal.views.video or proposal.session and proposal.session.views.video %}mobile-hide-livestream{% endif %}"
 {%- endblock bodyattrs -%}
 {% macro share_widget(formid="desktop", icon_size='body') %}
   <a href="#"
@@ -66,7 +66,7 @@
           data-cy="share-dropdown">
         <form action="{{ proposal.commentset.url_for('subscribe') }}"
               method="post"
-              class="mui--d-inlineblock proposal-subscribe-form"
+              class="display-inlineblock proposal-subscribe-form"
               id="subscribe-form">
           {{ proposal.commentset.forms.subscribe().hidden_tag() }}
           <li class="margin-left margin-top margin-bottom js-subscribed {% if not subscribed %}mui--hide{% endif %}">
@@ -94,7 +94,7 @@
     </div>
   {%- endif %}
   {%- if proposal.current_roles.editor or proposal.current_roles.project_editor %}
-    <div class="mui--d-inlineblock mui-dropdown">
+    <div class="display-inlineblock mui-dropdown">
       <a href="#"
         onclick="return false;"
         class="mui--text-dark"
@@ -142,13 +142,13 @@
             <div class="mui--text-body2 mui--clearfix js-dropdown-toggle">
               {{ faicon(icon='stars', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--pull-left mui--align-middle") }}
               <span class="mui--pull-right dropdown-menu__form">
-                <span class="mui--d-inlineblock dropdown-menu__form__label">
-                  <span class="mui--d-block">{% trans %}Feature this submission{% endtrans %}</span>
-                  <span class="mui--d-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured submissions appear in the overview{% endtrans %}</span>
+                <span class="display-inlineblock dropdown-menu__form__label">
+                  <span class="display-block">{% trans %}Feature this submission{% endtrans %}</span>
+                  <span class="display-block mui--text-caption mui--text-light dropdown-menu__form__label__helptxt">{% trans %}Featured submissions appear in the overview{% endtrans %}</span>
                 </span>
                 <form action="{{ proposal.url_for('update_featured') }}"
                       method="post"
-                      class="mui--d-inlineblock mui--align-top">
+                      class="display-inlineblock mui--align-top">
                   {{ csrf_tag() }}
                   <input type="checkbox"
                         name="featured"
@@ -194,12 +194,12 @@
   {% with prev_proposal = proposal.getprev(), next_proposal = proposal.getnext() %}
     {%- if prev_proposal -%}
       <a href="{{ prev_proposal.url_for() }}"
-        class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline prev-btn js-spa-navigate">{{ faicon(icon=prev_icon, icon_size='subhead', baseline=false, css_class="mui--align-middle btn-margin-right") }}{% trans %}Previous{% endtrans %}
+        class="mui--text-body2 text-capitalize mui--text-dark nounderline prev-btn js-spa-navigate">{{ faicon(icon=prev_icon, icon_size='subhead', baseline=false, css_class="mui--align-middle btn-margin-right") }}{% trans %}Previous{% endtrans %}
       </a>
     {%- endif -%}
     {%- if next_proposal -%}
       <a href="{{ next_proposal.url_for() }}"
-        class="mui--text-body2 mui--text-capitalize mui--text-dark nounderline js-spa-navigate">
+        class="mui--text-body2 text-capitalize mui--text-dark nounderline js-spa-navigate">
         {%- trans %}Next{% endtrans -%}{{ faicon(icon=next_icon, icon_size='subhead', baseline=false, css_class="mui--align-middle btn-margin-left") }}
       </a>
     {%- endif -%}
@@ -231,7 +231,7 @@
             {% if proposal.session and proposal.session.views.video and proposal.session.views.video.url %}
               <div class="mui-tabs__pane {% if seq==1 %}mui--is-active{%- endif -%}"
                   id="pane-justified-{{ seq }}">
-                <div class="details__box__video mui--bg-primary-dark embed-video-wrapper"
+                <div class="details__box__video bg-primary-dark embed-video-wrapper"
                     data-cy="session-video">
                   {{ embed_video_player(proposal.session.views.video) }}
                 </div>
@@ -244,7 +244,7 @@
             {% if proposal.views.video %}
               <div class="mui-tabs__pane {% if seq == 1 %}mui--is-active{%- endif -%}"
                   id="pane-justified-{{ seq }}">
-                <div class="details__box__video mui--bg-primary-dark embed-video-wrapper"
+                <div class="details__box__video bg-primary-dark embed-video-wrapper"
                     data-cy="proposal-video">
                   {{ embed_video_player(proposal.views.video) }}
                 </div>
@@ -276,11 +276,11 @@
           <div class="gallery mui-tabs__bar">
             {% with seq = 1 %}
               {% if proposal.session and proposal.session.views.video and proposal.session.views.video.url %}
-                <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">
+                <h3 class="mui--text-subhead mui--text-accent text-bold gallery__text">
                   {%- trans %}Session video{% endtrans -%}
                 </h3>
                 <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
-                  <a class="mui--d-inlineblock"
+                  <a class="display-inlineblock"
                     role="tab"
                     data-mui-toggle="tab"
                     data-mui-controls="pane-justified-{{ seq }}">
@@ -294,12 +294,12 @@
                 </div>
                 {% set seq = seq + 1 %}
               {% endif %}
-              <h3 class="mui--text-subhead mui--text-accent mui--text-bold gallery__text">
+              <h3 class="mui--text-subhead mui--text-accent text-bold gallery__text">
                 {% trans %}Submission video{% endtrans %}
               </h3>
               {% if proposal.views.video %}
                 <div class="gallery__thumbnail tabs__item {% if seq == 1 %}mui--is-active{%- endif -%}">
-                  <a class="mui--d-inlineblock"
+                  <a class="display-inlineblock"
                     role="tab"
                     data-mui-toggle="tab"
                     data-mui-controls="pane-justified-{{ seq }}">
@@ -318,7 +318,7 @@
                   <a role="tab"
                     data-mui-toggle="tab"
                     data-mui-controls="pane-justified-{{ seq }}">
-                    <h3 class="mui--text-subhead mui--text-accent mui--text-bold">
+                    <h3 class="mui--text-subhead mui--text-accent text-bold">
                       No preview video
                     </h3>
                   </a>
@@ -330,7 +330,7 @@
       {% endif %}
     </div>
     <section class="proposal__section" id="submission">
-      <div class="mui--d-inlineblock proposal__section__members">
+      <div class="display-inlineblock proposal__section__members">
         <div class="flex-wrapper flex-wrapper--center flex-wrapper--wrap">
           {% for member in proposal.memberships %}
             {%- if not member.is_uncredited %}
@@ -359,7 +359,7 @@
       <div class="mobile-header-right">
         {{ share_widget(formid="desktop", icon_size='subhead') }}
       </div>
-      <h2 class="mui--text-bold" data-cy="proposal-title">
+      <h2 class="text-bold" data-cy="proposal-title">
         {{ proposal.title }}
       </h2>
       <p class="mui--text-caption mui--text-light">
@@ -368,7 +368,7 @@
       <div class="proposal__section__labels">
         {%- for label in proposal.labels %}
           {% if not label.restricted %}
-            <span class="label mui--text-bold">
+            <span class="label text-bold">
               {% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %}
               {% if label.main_label %}{{ label.main_label.title }}:{% endif %}
             {{ label.title }}</span>
@@ -377,7 +377,7 @@
         {%- if proposal.current_roles.project_editor %}
           {%- for label in proposal.labels %}
             {%- if label.restricted %}
-              <span class="label mui--text-bold">
+              <span class="label text-bold">
                 {% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %}
                 {% if label.main_label %}{{ label.main_label.title }}:{% endif %}
               {{ label.title }}</span>
@@ -385,7 +385,7 @@
           {%- endfor %}
         {% endif %}
       </div>
-      <div class="proposal-content markdown top-padding mui--bg-primary">
+      <div class="proposal-content markdown top-padding bg-primary">
         {{ proposal.body }}
       </div>
       {%- if proposal.has_sponsors %}{{ list_sponsors(proposal.sponsor_memberships) }}{%- endif %}
@@ -402,7 +402,7 @@
     </div>
     <div class="page-card page-card--nomargin">
       <section class="proposal__section">
-        <h3 id="comments" class="mui--text-title mui--text-bold zero-top-margin">
+        <h3 id="comments" class="mui--text-title text-bold zero-top-margin">
           {%- trans %}Comments{% endtrans -%}
         </h3>
         {{ comments_tree() }}

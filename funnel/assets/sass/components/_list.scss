@@ -1,0 +1,98 @@
+// ============================================================================
+// Less padding list
+// ============================================================================
+
+.list--aligned {
+  padding-left: $mui-grid-padding;
+}
+
+// ============================================================================
+// List with border
+// ============================================================================
+
+.list--border {
+  li {
+    border-bottom: 1px solid $mui-divider-color;
+    padding: 5px;
+  }
+
+  li:last-child {
+    border-bottom: none;
+  }
+}
+
+.list--border--padding {
+  li {
+    padding: $mui-grid-padding/2 $mui-grid-padding;
+  }
+}
+
+// ============================================================================
+// Right border list
+// ============================================================================
+
+.list-item-rgborder {
+  li {
+    border-right: 1px solid $mui-divider-color;
+    border-radius: 0;
+    padding-right: 10px;
+    line-height: 1;
+  }
+
+  li:last-child,
+  li.no-border {
+    border-right: none;
+    padding-right: 5px;
+  }
+
+  .icon-middle {
+    position: relative;
+    top: 7px;
+  }
+}
+
+// ============================================================================
+// Bullet separated list
+// ============================================================================
+
+.bullet-separated-list {
+  list-style: none;
+  padding: 0;
+  li {
+    padding: 0;
+    border: none;
+  }
+}
+
+.bullet-separated-list--flex {
+  padding-left: 0;
+  display: flex;
+  list-style: inside;
+  margin: 0;
+  li {
+    padding: 0 3px;
+    span.bullet-separated-list__span {
+      position: relative;
+      left: -7px;
+    }
+  }
+  li:first-child {
+    list-style-type: none;
+    padding-left: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .bullet-separated-list {
+    padding-left: 0;
+    display: flex;
+    list-style: inside;
+    li {
+      padding: 0 8px;
+    }
+    li:first-child {
+      list-style-type: none;
+      padding-left: 0;
+    }
+  }
+}

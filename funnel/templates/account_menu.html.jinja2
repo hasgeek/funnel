@@ -1,7 +1,7 @@
 {%- from "macros.html.jinja2" import faicon, useravatar, csrf_tag %}
 {%- if current_auth -%}
   {% if current_auth.user.profile %}
-    <li class="mui--bg-accent">
+    <li class="bg-accent">
       <div class="header__dropdown__item">
         <div class="user">
           <div class="user__box">
@@ -14,7 +14,7 @@
                 <div class="user__box__header">
                 {% endif %}
                 <div class="user__box__header__details">
-                  <p class="mui--text-title mui--text-bold mui--text-dark zero-bottom-margin">{{ current_auth.user.fullname }}</p>
+                  <p class="mui--text-title text-bold mui--text-dark zero-bottom-margin">{{ current_auth.user.fullname }}</p>
                   {% if current_auth.user.username %}
                     <p class="mui--text-caption mui--text-light zero-bottom-margin">@{{ current_auth.user.username }}</p>
                   {% endif %}
@@ -30,7 +30,7 @@
       </div>
     </li>
   {% else %}
-    <li class="mui--bg-accent">
+    <li class="bg-accent">
       <a href="{{ url_for('account_edit') }}"
          class="header__dropdown__item header__dropdown__item--flex mui--text-dark nounderline mui--text-subhead mui--text-light"><span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='plus', icon_size='title', baseline=false, css_class="mui--text-light") }}</span>{% trans %}Add username{% endtrans %}</a>
     </li>
@@ -106,7 +106,7 @@
           method="post"
           id="logout-form">
       {{ csrf_tag() }}
-      <button class="mui-btn mui-btn--nostyle mui--text-capitalize header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light"
+      <button class="mui-btn mui-btn--nostyle text-capitalize header__dropdown__item header__dropdown__item--flex mui--text-subhead mui--text-light"
               type="submit"
               data-cy="Logout">
         <span class="profile-avatar profile-avatar--bigger margin-right">{{ faicon(icon='sign-out', baseline=false) }}</span>{% trans %}Logout{% endtrans %}
