@@ -542,14 +542,14 @@ class User(
         return False
 
     @with_roles(call={'owner'})
-    def has_transport_whatsapp(self) -> bool:  # TODO  # pragma: no cover
+    def has_transport_whatsapp(self) -> bool:
         """User has a WhatsApp transport address."""
         return (
             self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_wa
         )
 
     @with_roles(call={'owner'})
-    def has_transport_signal(self) -> bool:  # TODO  # pragma: no cover
+    def has_transport_signal(self) -> bool:
         """User has a Signal transport address."""
         return (
             self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_sm
@@ -582,7 +582,7 @@ class User(
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_whatsapp(self, context):  # TODO  # pragma: no cover
+    def transport_for_whatsapp(self, context):
         """Return user's preferred WhatsApp transport address within a context."""
         # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_wa:
@@ -590,7 +590,7 @@ class User(
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_signal(self, context):  # TODO  # pragma: no cover
+    def transport_for_signal(self, context):
         """Return user's preferred Signal transport address within a context."""
         # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_sm:
@@ -1409,7 +1409,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
 
     def __str__(self) -> str:  # pylint: disable=invalid-str-returned
         """Email address as a string."""
-        return self.email
+        return self.email or ''
 
     @property
     def primary(self) -> bool:
@@ -1765,7 +1765,7 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
 
     def __str__(self) -> str:
         """Return phone number as a string."""
-        return self.phone
+        return self.phone or ''
 
     @cached_property
     def parsed(self) -> phonenumbers.PhoneNumber:

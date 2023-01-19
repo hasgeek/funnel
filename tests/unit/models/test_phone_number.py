@@ -281,6 +281,7 @@ def test_phone_number_init_error() -> None:
         models.PhoneNumber('+910123456789')
 
 
+@pytest.mark.usefixtures('db_session')
 def test_phone_number_mutability() -> None:
     """`PhoneNumber` can be mutated to delete or restore the number only."""
     pn = models.PhoneNumber(EXAMPLE_NUMBER_IN_FORMATTED)
@@ -300,7 +301,7 @@ def test_phone_number_mutability() -> None:
     assert pn.number is None
     assert pn.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
     assert str(pn) == ''
-    assert pn.formatted == ''
+    assert pn.formatted == '[removed]'
 
     # Restoring is allowed (with any formatting)
     pn.number = EXAMPLE_NUMBER_IN_FORMATTED
@@ -465,6 +466,15 @@ def test_phone_number_add() -> None:
 
 
 @pytest.mark.usefixtures('db_session')
+def test_phone_number_active() -> None:
+    """A phone number can be marked as currently active."""
+    pn = models.PhoneNumber.add(EXAMPLE_NUMBER_IN)
+    assert pn.active_at is None
+    pn.mark_active()
+    assert str(pn.active_at) == str(sa.func.utcnow())
+
+
+@pytest.mark.usefixtures('db_session')
 def test_phone_number_blocked() -> None:
     """A blocked phone number cannot be used via PhoneNumber.add."""
     pn1 = models.PhoneNumber.add(EXAMPLE_NUMBER_IN)
@@ -474,6 +484,8 @@ def test_phone_number_blocked() -> None:
     assert pn1.number is not None
     assert pn1.number == EXAMPLE_NUMBER_IN
     assert pn1.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
+    assert str(pn1) == EXAMPLE_NUMBER_IN
+    assert pn1.formatted == EXAMPLE_NUMBER_IN_FORMATTED
 
     assert models.PhoneNumber.query.filter(models.PhoneNumber.is_blocked).all() == []
 
@@ -484,6 +496,8 @@ def test_phone_number_blocked() -> None:
     assert pn1.blake2b160 is not None
     assert pn1.is_blocked is True
     assert pn2.is_blocked is False
+    assert str(pn1) == ''
+    assert pn1.formatted == '[blocked]'
 
     assert models.PhoneNumber.query.filter(models.PhoneNumber.is_blocked).all() == [pn1]
 
@@ -497,6 +511,9 @@ def test_phone_number_blocked() -> None:
     pn1.mark_unblocked(EXAMPLE_NUMBER_IN_FORMATTED)
     assert pn1.is_blocked is False
     assert pn1.number == EXAMPLE_NUMBER_IN
+    assert pn1.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
+    assert str(pn1) == EXAMPLE_NUMBER_IN
+    assert pn1.formatted == EXAMPLE_NUMBER_IN_FORMATTED
 
 
 def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-statements
@@ -702,9 +719,9 @@ def test_phone_number_validate_for(phone_models, db_session) -> None:
     blocked_phone = models.PhoneNumber(EXAMPLE_NUMBER_CA)
     blocked_phone.mark_blocked()
     db_session.add(blocked_phone)
-    assert models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_CA) is False
-    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_CA) is False
-    assert models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_CA) is False
+    assert models.PhoneNumber.validate_for(user1, EXAMPLE_NUMBER_CA) == 'blocked'
+    assert models.PhoneNumber.validate_for(user2, EXAMPLE_NUMBER_CA) == 'blocked'
+    assert models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_CA) == 'blocked'
 
     # An invalid number is available to no one
     assert models.PhoneNumber.validate_for(user1, 'invalid') == 'invalid'

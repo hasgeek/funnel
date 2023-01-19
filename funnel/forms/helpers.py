@@ -17,6 +17,7 @@ from ..models import (
     PhoneNumber,
     Profile,
     UserEmailClaim,
+    canonical_phone_number,
     parse_phone_number,
     parse_video_url,
 )
@@ -127,6 +128,10 @@ class EmailAddressAvailable:
                     " incorrect, email {support} asking for the address to be activated"
                 ).format(support=app.config['SITE_SUPPORT_EMAIL'])
             )
+        if is_valid == 'blocked':
+            raise forms.validators.StopValidation(
+                _("This email address has been blocked from use")
+            )
         if is_valid is not True:
             app.logger.error(  # type: ignore[unreachable]
                 "Unknown email address validation code: %r", is_valid
@@ -201,10 +206,15 @@ class PhoneNumberAvailable:
             raise forms.validators.StopValidation(
                 _("You have already registered this phone number")
             )
+        if is_valid == 'blocked':
+            raise forms.validators.StopValidation(
+                _("This phone number has been blocked from use")
+            )
         if is_valid is not True:
             app.logger.error(  # type: ignore[unreachable]
                 "Unknown phone number validation code: %r", is_valid
             )
+        field.data = canonical_phone_number(parsed_number)
 
 
 def image_url_validator():

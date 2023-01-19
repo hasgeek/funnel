@@ -707,9 +707,11 @@ def test_email_address_validate_for(email_models, db_session) -> None:
     # A blocked address is available to no one
     db_session.add(models.EmailAddress('blocked@example.com'))
     models.EmailAddress.mark_blocked('blocked@example.com')
-    assert models.EmailAddress.validate_for(user1, 'blocked@example.com') is False
-    assert models.EmailAddress.validate_for(user2, 'blocked@example.com') is False
-    assert models.EmailAddress.validate_for(anon_user, 'blocked@example.com') is False
+    assert models.EmailAddress.validate_for(user1, 'blocked@example.com') == 'blocked'
+    assert models.EmailAddress.validate_for(user2, 'blocked@example.com') == 'blocked'
+    assert (
+        models.EmailAddress.validate_for(anon_user, 'blocked@example.com') == 'blocked'
+    )
 
     # An invalid address is available to no one
     assert models.EmailAddress.validate_for(user1, 'invalid') == 'invalid'
@@ -741,10 +743,9 @@ def test_email_address_validate_for_check_dns(email_models, db_session) -> None:
     anon_user = None
     db_session.add_all([user1, user2])
 
-    # A domain without MX records is invalid if check_dns=True
-    # This uses hsgk.in, a known domain without MX.
-    # example.* use null MX as per RFC 7505, but the underlying validator in pyIsEmail
-    # does not support this.
+    # A domain without MX records is invalid if check_dns=True. This uses hsgk.in, a
+    # known domain without MX. The example.* domains use null MX as per RFC 7505 and
+    # require pyIsEmail >= 2.0.0 for the test to pass.
     assert (
         models.EmailAddress.validate_for(user1, 'example@hsgk.in', check_dns=True)
         == 'nomx'
@@ -756,4 +757,8 @@ def test_email_address_validate_for_check_dns(email_models, db_session) -> None:
     assert (
         models.EmailAddress.validate_for(anon_user, 'example@hsgk.in', check_dns=True)
         == 'nomx'
+    )
+    assert (
+        models.EmailAddress.validate_for(user1, 'example@example.com', check_dns=True)
+        == 'nullmx'
     )

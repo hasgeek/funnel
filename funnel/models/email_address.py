@@ -202,7 +202,9 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
     blake2b160 = immutable(
         sa.Column(
             sa.LargeBinary,
-            sa.CheckConstraint('length(blake2b160) = 20'),
+            sa.CheckConstraint(
+                'length(blake2b160) = 20', name='email_address_blake2b160_check'
+            ),
             nullable=False,
             unique=True,
         )
@@ -592,7 +594,10 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         check_dns: bool = False,
         new: bool = False,
     ) -> Union[
-        bool, Literal['nomx', 'not_new', 'soft_fail', 'hard_fail', 'invalid', 'nullmx']
+        bool,
+        Literal[
+            'nomx', 'not_new', 'soft_fail', 'hard_fail', 'invalid', 'nullmx', 'blocked'
+        ],
     ]:
         """
         Validate whether the email address is available to the given owner.
@@ -606,6 +611,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         4. 'hard_fail': Known to be hard bouncing, usually a validation failure
         5. 'invalid': Available, but failed syntax validation
         6. 'nullmx': Available, but host explicitly says they will not accept email
+        7. 'blocked': Email address is blocked from use
 
         :param owner: Proposed owner of this email address (may be None)
         :param email: Email address to validate
@@ -615,7 +621,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         try:
             existing = cls._get_existing(email)
         except EmailAddressBlockedError:
-            return False
+            return 'blocked'
         if existing is None:
             diagnosis = cls.is_valid_email_address(
                 email, check_dns=check_dns, diagnose=True

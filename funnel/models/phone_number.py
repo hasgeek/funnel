@@ -16,6 +16,7 @@ from typing_extensions import Literal
 import base58
 import phonenumbers
 
+from baseframe import _
 from coaster.sqlalchemy import immutable, with_roles
 from coaster.utils import require_one_of
 
@@ -260,7 +261,9 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     blake2b160 = immutable(
         sa.Column(
             sa.LargeBinary,
-            sa.CheckConstraint('length(blake2b160) = 20'),
+            sa.CheckConstraint(
+                'length(blake2b160) = 20', name='phone_number_blake2b160_check'
+            ),
             nullable=False,
             unique=True,
         )
@@ -389,7 +392,9 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             return phonenumbers.format_number(
                 parsed, phonenumbers.PhoneNumberFormat.INTERNATIONAL
             )
-        return ''
+        if self.is_blocked:
+            return _('[blocked]')
+        return _('[removed]')
 
     def is_exclusive(self) -> bool:
         """Return True if this PhoneNumber is in an exclusive relationship."""
@@ -418,6 +423,10 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             )
             for backref_name in self.__backrefs__
         )
+
+    def mark_active(self) -> None:
+        """Mark phone number as active."""
+        self.active_at = sa.func.utcnow()
 
     def mark_blocked(self) -> None:
         """Mark phone number as blocked."""
@@ -596,7 +605,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         owner: Optional[object],
         phone: Union[str, phonenumbers.PhoneNumber],
         new: bool = False,
-    ) -> Union[bool, Literal['invalid', 'not_new']]:
+    ) -> Union[bool, Literal['invalid', 'not_new', 'blocked']]:
         """
         Validate whether the phone number is available to the given owner.
 
@@ -605,6 +614,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
         1. 'not_new': Phone number is already attached to owner (if `new` is True)
         2. 'invalid': Invalid syntax and therefore unusable
+        3. 'blocked': Phone number has been blocked from use
 
         :param owner: Proposed owner of this phone number (may be None)
         :param phone: Phone number to validate
@@ -619,7 +629,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             return True
         # There's an existing? Is it blocked?
         if existing.is_blocked:
-            return False
+            return 'blocked'
         # Is the existing phone mumber available for this owner?
         if not existing.is_available_for(owner):
             # Not available, so return False

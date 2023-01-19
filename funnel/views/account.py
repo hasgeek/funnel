@@ -84,7 +84,7 @@ from .otp import OtpSession, OtpTimeoutError
 def emails_sorted(obj: User) -> List[UserEmail]:
     """Return sorted list of email addresses for account page UI."""
     primary = obj.primary_email
-    items = sorted(obj.emails, key=lambda i: (i != primary, i.email))
+    items = sorted(obj.emails, key=lambda i: (i != primary, i.email or ''))
     return items
 
 
@@ -92,7 +92,7 @@ def emails_sorted(obj: User) -> List[UserEmail]:
 def phones_sorted(obj: User) -> List[UserPhone]:
     """Return sorted list of phone numbers for account page UI."""
     primary = obj.primary_phone
-    items = sorted(obj.phones, key=lambda i: (i != primary, i.phone))
+    items = sorted(obj.phones, key=lambda i: (i != primary, i.phone or ''))
     return items
 
 
@@ -515,10 +515,14 @@ class AccountView(ClassView):
         """Mark an email address as primary."""
         form = EmailPrimaryForm()
         if form.validate_on_submit():
-            useremail = UserEmail.get_for(user=current_auth.user, email=form.email.data)
+            useremail = UserEmail.get_for(
+                user=current_auth.user, email_hash=form.email_hash.data
+            )
             if useremail is not None:
                 if useremail.primary:
                     flash(_("This is already your primary email address"), 'info')
+                elif useremail.email_address.is_blocked:
+                    flash(_("This email address has been blocked from use"), 'error')
                 else:
                     current_auth.user.primary_email = useremail
                     db.session.commit()
@@ -539,10 +543,14 @@ class AccountView(ClassView):
         """Mark a phone number as primary."""
         form = PhonePrimaryForm()
         if form.validate_on_submit():
-            userphone = UserPhone.get_for(user=current_auth.user, phone=form.phone.data)
+            userphone = UserPhone.get_for(
+                user=current_auth.user, phone_hash=form.phone_hash.data
+            )
             if userphone is not None:
                 if userphone.primary:
                     flash(_("This is already your primary phone number"), 'info')
+                elif userphone.phone_number.is_blocked:
+                    flash(_("This phone number has been blocked from use"), 'error')
                 else:
                     current_auth.user.primary_phone = userphone
                     db.session.commit()

@@ -156,10 +156,11 @@
                   {% for useremail in current_auth.user.views.emails_sorted() %}
                     <li>
                       <input id="useremail-{{ loop.index }}"
-                             name="email"
-                             value="{{ useremail }}"
+                             name="email_hash"
+                             value="{{ useremail.transport_hash }}"
                              type="radio"
-                             class="margin-right"/>
+                             class="margin-right"
+                             {% if useremail.email_address.is_blocked %}disabled{% endif %}/>
                       <label for="useremail-{{ loop.index }}" class="form-inline-label">
                         {{ useremail }}
                         {% if useremail.primary %}
@@ -176,8 +177,8 @@
                   {% for useremail in current_auth.user.emailclaims %}
                     <li>
                       <input type="radio" disabled="disabled" class="margin-right"/>
-                      <span class="form-inline-label">{{ useremail }} <em><a href="{{ url_for('verify_email', email_hash=useremail.email_address.email_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em></span>
-                      <a href="{{ url_for('remove_email', email_hash=useremail.email_address.email_hash) }}"
+                      <span class="form-inline-label">{{ useremail }} <em><a href="{{ url_for('verify_email', email_hash=useremail.transport_hash) }}">{% trans %}(pending verification){% endtrans %}</a></em></span>
+                      <a href="{{ url_for('remove_email', email_hash=useremail.transport_hash) }}"
                          title="{% trans %}Remove{% endtrans %}"
                          class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}</a>
                     </li>
@@ -216,10 +217,11 @@
                   {% for userphone in current_auth.user.views.phones_sorted() %}
                     <li>
                       <input id="userphone-{{ loop.index }}"
-                             name="phone"
-                             value="{{ userphone }}"
-                             type="radio"/>
-                      &nbsp;
+                             name="phone_hash"
+                             value="{{ userphone.transport_hash }}"
+                             type="radio"
+                             class="margin-right"
+                             {% if userphone.phone_number.is_blocked %}disabled{% endif %}/>
                       <label for="userphone-{{ loop.index }}">
                         {{ userphone.formatted }}
                       </label>
@@ -227,7 +229,7 @@
                         <span title="{% trans %}Primary{% endtrans %}">{{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=false, css_class="mui--text-success input-align-icon") }}</span>
                       {%- endif -%}
                       {% if has_multiple_verified_contacts -%}
-                        <a href="{{ url_for('remove_phone', phone_hash=userphone.phone_number.phone_hash) }}"
+                        <a href="{{ url_for('remove_phone', phone_hash=userphone.transport_hash) }}"
                            title="{% trans %}Remove{% endtrans %}"
                            class="mui--pull-right">{{ faicon(icon='trash-alt', icon_size='subhead', baseline=false, css_class="mui--align-middle") }}</a>
                       {%- endif %}
