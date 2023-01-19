@@ -18,7 +18,7 @@ from typing import (
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
-from mdit_py_plugins import anchors, deflist, footnote, tasklists
+from mdit_py_plugins import anchors, deflist, footnote, front_matter, tasklists
 from typing_extensions import Literal
 
 from coaster.utils import make_name
@@ -148,6 +148,7 @@ class MarkdownConfig:
 
 # --- Markdown plugins -----------------------------------------------------------------
 
+MarkdownPlugin('frontmatter', front_matter.front_matter_plugin)
 MarkdownPlugin('deflists', deflist.deflist_plugin)
 MarkdownPlugin('footnote', footnote.footnote_plugin)
 MarkdownPlugin(
@@ -183,7 +184,7 @@ MarkdownPlugin('footnote_ext', footnote_extend_plugin)
 MarkdownConfig(
     name='basic',
     options_update={'html': False, 'breaks': True},
-    plugins=['block_code_ext'],
+    plugins=['frontmatter', 'block_code_ext'],
 )
 MarkdownConfig(
     name='document',
@@ -195,6 +196,7 @@ MarkdownConfig(
         'breaks': True,
     },
     plugins=[
+        'frontmatter',
         'block_code_ext',
         'deflists',
         'footnote',
