@@ -155,6 +155,9 @@ def test_email_address_init_error() -> None:
     with pytest.raises(ValueError, match='Value is not an email address'):
         # Must be syntactically valid (caught elsewhere internally)
         models.EmailAddress('@invalid')
+    with pytest.raises(ValueError, match="Value is not an email address"):
+        # Triggers an IDNA error that's recast as ValueError
+        models.EmailAddress('${@var_dump(md5(186697758))};')
 
 
 def test_email_address_mutability() -> None:

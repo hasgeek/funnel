@@ -344,7 +344,10 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
             raise ValueError("A string email address is required")
         # Set the hash first so the email column validator passes. Both hash columns
         # are immutable once set, so there are no content validators for them.
-        self.blake2b160 = email_blake2b160_hash(email)
+        try:
+            self.blake2b160 = email_blake2b160_hash(email)
+        except idna.InvalidCodepoint as exc:
+            raise ValueError("Value is not an email address") from exc
         self.email = email
         # email_canonical is set by `email`'s validator
         assert self.email_canonical is not None  # nosec
