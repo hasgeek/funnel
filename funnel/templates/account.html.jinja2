@@ -221,7 +221,7 @@
                              type="radio"/>
                       &nbsp;
                       <label for="userphone-{{ loop.index }}">
-                        {{ userphone.formatted() }}
+                        {{ userphone.formatted }}
                       </label>
                       {% if userphone.primary %}
                         <span title="{% trans %}Primary{% endtrans %}">{{ faicon(icon='check-circle-solid', icon_size='subhead', baseline=false, css_class="mui--text-success input-align-icon") }}</span>

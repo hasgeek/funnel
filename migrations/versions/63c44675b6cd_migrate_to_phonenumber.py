@@ -58,7 +58,7 @@ phone_number = table(
     column('id', sa.Integer),
     column('created_at', sa.TIMESTAMP(timezone=True)),
     column('updated_at', sa.TIMESTAMP(timezone=True)),
-    column('phone', sa.Unicode),
+    column('number', sa.Unicode),
     column('blake2b160', sa.LargeBinary),
     column('allow_sms', sa.Boolean()),
     column('allow_wa', sa.Boolean()),
@@ -124,8 +124,8 @@ def upgrade_() -> None:
         ).order_by(user_phone.c.id)
     )
     for item in rich.progress.track(items, "user_phone", total=count):
-        phone = clean_phone_number(item.phone)
-        blake2b160 = phone_blake2b160_hash(phone)
+        number = clean_phone_number(item.phone)
+        blake2b160 = phone_blake2b160_hash(number)
         existing = conn.execute(
             sa.select([phone_number.c.id, phone_number.c.created_at])
             .where(phone_number.c.blake2b160 == blake2b160)
@@ -145,7 +145,7 @@ def upgrade_() -> None:
                 .values(
                     created_at=item.created_at,
                     updated_at=item.updated_at,
-                    phone=phone,
+                    number=number,
                     blake2b160=blake2b160,
                     allow_sms=True,
                     allow_wa=False,
@@ -200,11 +200,11 @@ def upgrade_() -> None:
     )
     for item in rich.progress.track(items, "sms_message", total=count):
         try:
-            phone = clean_phone_number(item.phone_number)
+            number = clean_phone_number(item.phone_number)
         except ValueError:
             rows_to_delete.add(item.id)
             continue
-        blake2b160 = phone_blake2b160_hash(phone)
+        blake2b160 = phone_blake2b160_hash(number)
         existing = conn.execute(
             sa.select(
                 [
@@ -277,7 +277,7 @@ def upgrade_() -> None:
             pn_id = conn.execute(
                 phone_number.insert()
                 .values(
-                    phone=phone,
+                    number=number,
                     blake2b160=blake2b160,
                     allow_sms=True,
                     allow_wa=False,
@@ -334,7 +334,7 @@ def downgrade_() -> None:
     )
     count = conn.scalar(sa.select([sa.func.count('*')]).select_from(sms_message))
     items = conn.execute(
-        sa.select([sms_message.c.id, phone_number.c.phone]).where(
+        sa.select([sms_message.c.id, phone_number.c.number]).where(
             sms_message.c.phone_number_id == phone_number.c.id
         )
     )
@@ -342,7 +342,7 @@ def downgrade_() -> None:
         conn.execute(
             sms_message.update()
             .where(sms_message.c.id == item.id)
-            .values(phone_number=item.phone)
+            .values(phone_number=item.number)
         )
     op.alter_column('sms_message', 'phone_number', nullable=False)
     op.drop_constraint(
@@ -368,7 +368,7 @@ def downgrade_() -> None:
     )
     count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user_phone))
     items = conn.execute(
-        sa.select([user_phone.c.id, phone_number.c.phone]).where(
+        sa.select([user_phone.c.id, phone_number.c.number]).where(
             user_phone.c.phone_number_id == phone_number.c.id
         )
     )
@@ -376,7 +376,7 @@ def downgrade_() -> None:
         conn.execute(
             user_phone.update()
             .where(user_phone.c.id == item.id)
-            .values(phone=item.phone)
+            .values(phone=item.number)
         )
     op.alter_column('user_phone', 'phone', nullable=False)
     op.drop_constraint(

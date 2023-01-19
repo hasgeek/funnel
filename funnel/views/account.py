@@ -735,10 +735,10 @@ class AccountView(ClassView):
             db,
             title=_("Confirm removal"),
             message=_("Remove phone number {phone} from your account?").format(
-                phone=userphone.formatted()
+                phone=userphone.formatted
             ),
             success=_("You have removed your number {phone}").format(
-                phone=userphone.formatted()
+                phone=userphone.formatted
             ),
             next=url_for('account'),
             delete_text=_("Remove"),

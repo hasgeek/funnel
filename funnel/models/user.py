@@ -1767,13 +1767,19 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
         """Return phone number as a string."""
         return self.phone
 
+    @cached_property
     def parsed(self) -> phonenumbers.PhoneNumber:
         """Return parsed phone number using libphonenumbers."""
         return self.phone_number.parsed
 
+    @cached_property
     def formatted(self) -> str:
         """Return a phone number formatted for user display."""
         return self.phone_number.formatted
+
+    @property
+    def number(self) -> Optional[str]:
+        return self.phone_number.number
 
     @property
     def primary(self) -> bool:

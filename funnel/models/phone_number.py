@@ -252,7 +252,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     #: The phone number, centrepiece of this model. Stored normalized in E164 format.
     #: Validated by the :func:`_validate_phone` event handler
-    phone = sa.Column(sa.Unicode, nullable=True, unique=True)
+    number = sa.Column(sa.Unicode, nullable=True, unique=True)
 
     #: BLAKE2b 160-bit hash of :attr:`phone`. Kept permanently even if phone is
     #: removed. SQLAlchemy type LargeBinary maps to PostgreSQL BYTEA. Despite the name,
@@ -311,9 +311,9 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         sa.CheckConstraint(
             sa.or_(  # type: ignore[arg-type]
                 blocked_at.is_(None),  # or...
-                sa.and_(blocked_at.isnot(None), phone.is_(None)),
+                sa.and_(blocked_at.isnot(None), number.is_(None)),
             ),
-            'phone_number_blocked_at_phone_check',
+            'phone_number_blocked_at_number_check',
         ),
     )
 
@@ -326,16 +326,16 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             number = phone
         # Set the hash first so the phone column validator passes.
         self.blake2b160 = phone_blake2b160_hash(number, _pre_validated_formatted=True)
-        self.phone = number
+        self.number = number
 
     def __str__(self) -> str:
         """Cast :class:`PhoneNumber` into a string."""
-        return self.phone or ''
+        return self.number or ''
 
     def __repr__(self) -> str:
         """Debugging representation of :class:`PhoneNumber`."""
-        if self.phone:
-            return f'PhoneNumber({self.phone!r})'
+        if self.number:
+            return f'PhoneNumber({self.number!r})'
         return f'PhoneNumber(blake2b160={self.blake2b160!r})'
 
     @hybrid_property
@@ -368,17 +368,17 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         # TODO: After upgrading to Python 3.9, use usedforsecurity=False
         return (
             hashlib.md5(  # nosec  # skipcq: PTC-W1003
-                self.phone.encode('utf-8')
+                self.number.encode('utf-8')
             ).hexdigest()
-            if self.phone
+            if self.number
             else None
         )
 
     @cached_property
     def parsed(self) -> Optional[phonenumbers.PhoneNumber]:
         """Return parsed phone number using libphonenumbers."""
-        if self.phone:
-            return phonenumbers.parse(self.phone)
+        if self.number:
+            return phonenumbers.parse(self.number)
         return None
 
     @cached_property
@@ -421,12 +421,12 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     def mark_blocked(self) -> None:
         """Mark phone number as blocked."""
-        self.phone = None
+        self.number = None
         self.blocked_at = sa.func.utcnow()
 
     def mark_unblocked(self, phone: str) -> None:
         """Mark phone number as unblocked by providing the phone number."""
-        self.phone = phone  # This will go to the validator to compare against the hash
+        self.number = phone  # This will go to the validator to compare against the hash
         self.blocked_at = None
 
     @overload
@@ -557,8 +557,8 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             if existing.is_blocked:
                 raise PhoneNumberBlockedError("Phone number is blocked")
             # Restore the phone column if it's not present. Do not modify it otherwise
-            if not existing.phone:
-                existing.phone = number
+            if not existing.number:
+                existing.number = number
             return existing
         new_phone = PhoneNumber(number, _pre_validated_formatted=True)
         db.session.add(new_phone)
@@ -584,7 +584,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             if not existing.is_available_for(owner):
                 raise PhoneNumberInUseError("This phone number is in use")
             # No exclusive lock found? Let it be used then
-            existing.phone = number  # In case it was nulled earlier
+            existing.number = number  # In case it was nulled earlier
             return existing
         new_phone = PhoneNumber(number, _pre_validated_formatted=True)
         db.session.add(new_phone)
@@ -681,11 +681,11 @@ class PhoneNumberMixin:
 
     @declared_attr
     def phone(cls) -> Mapped[Optional[str]]:  # pylint: disable=no-self-argument
-        """Shorthand for ``self.phone_number.phone``."""
+        """Shorthand for ``self.phone_number.number``."""
 
         def phone_get(self) -> Optional[str]:
             """
-            Shorthand for ``self.phone_number.phone``.
+            Shorthand for ``self.phone_number.number``.
 
             Setting a value does the equivalent of one of these, depending on whether
             the object requires the phone number to be available to its owner::
@@ -696,7 +696,7 @@ class PhoneNumberMixin:
             Where the owner is found from the attribute named in `cls.__phone_for__`.
             """
             if self.phone_number:
-                return self.phone_number.phone
+                return self.phone_number.number
             return None
 
         if cls.__phone_for__:
@@ -749,8 +749,8 @@ def _clear_cached_properties(target: PhoneNumber) -> None:
             pass
 
 
-@event.listens_for(PhoneNumber.phone, 'set', retval=True)
-def _validate_phone(target: PhoneNumber, value: Any, old_value: Any, initiator) -> Any:
+@event.listens_for(PhoneNumber.number, 'set', retval=True)
+def _validate_number(target: PhoneNumber, value: Any, old_value: Any, initiator) -> Any:
     # First: check if value is acceptable and phone attribute can be set
     if not value and value is not None:
         # Only `None` is an acceptable falsy value

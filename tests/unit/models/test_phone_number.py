@@ -218,7 +218,7 @@ def test_canonical_phone_number(candidate, expected, raises) -> None:
 
 def test_phone_hash_stability() -> None:
     """Safety test to ensure phone_blakeb160_hash doesn't change spec."""
-    phash = models.phone_number.phone_blake2b160_hash
+    phash = models.phone_blake2b160_hash
     with pytest.raises(ValueError, match="Not a phone number"):
         phash('not-a-valid-number')
     # However, insisting the number is pre-validated will generate a hash. This is only
@@ -244,19 +244,19 @@ def test_phone_number_init() -> None:
     """`PhoneNumber` instances can be created using a string phone number."""
     # A fully specced number is accepted and gets the correct hash
     pn1 = models.PhoneNumber(EXAMPLE_NUMBER_IN)
-    assert pn1.phone == EXAMPLE_NUMBER_IN
+    assert pn1.number == EXAMPLE_NUMBER_IN
     assert pn1.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
     assert str(pn1) == EXAMPLE_NUMBER_IN
     assert pn1.formatted == EXAMPLE_NUMBER_IN_FORMATTED
     # A visually formatted number also parses correctly and is re-formatted to E164
     pn2 = models.PhoneNumber(EXAMPLE_NUMBER_IN_FORMATTED)
-    assert pn2.phone == EXAMPLE_NUMBER_IN
+    assert pn2.number == EXAMPLE_NUMBER_IN
     assert pn2.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
     assert str(pn2) == EXAMPLE_NUMBER_IN
     assert pn2.formatted == EXAMPLE_NUMBER_IN_FORMATTED
     # Any worldwide prefix is accepted as long as it's a valid phone number
     pn3 = models.PhoneNumber(EXAMPLE_NUMBER_US_FORMATTED)
-    assert pn3.phone == EXAMPLE_NUMBER_US
+    assert pn3.number == EXAMPLE_NUMBER_US
     assert pn3.blake2b160 == hash_map[EXAMPLE_NUMBER_US]
     assert str(pn3) == EXAMPLE_NUMBER_US
     assert pn3.formatted == EXAMPLE_NUMBER_US_FORMATTED
@@ -284,62 +284,62 @@ def test_phone_number_init_error() -> None:
 def test_phone_number_mutability() -> None:
     """`PhoneNumber` can be mutated to delete or restore the number only."""
     pn = models.PhoneNumber(EXAMPLE_NUMBER_IN_FORMATTED)
-    assert pn.phone == EXAMPLE_NUMBER_IN
+    assert pn.number == EXAMPLE_NUMBER_IN
     assert pn.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
     assert str(pn) == EXAMPLE_NUMBER_IN
     assert pn.formatted == EXAMPLE_NUMBER_IN_FORMATTED
 
     # Setting it to the same value again is allowed
-    pn.phone = EXAMPLE_NUMBER_IN
+    pn.number = EXAMPLE_NUMBER_IN
     assert pn.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
     assert str(pn) == EXAMPLE_NUMBER_IN
     assert pn.formatted == EXAMPLE_NUMBER_IN_FORMATTED
 
     # Nulling is allowed, and hash remains intact
-    pn.phone = None
-    assert pn.phone is None
+    pn.number = None
+    assert pn.number is None
     assert pn.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
     assert str(pn) == ''
     assert pn.formatted == ''
 
     # Restoring is allowed (with any formatting)
-    pn.phone = EXAMPLE_NUMBER_IN_FORMATTED
-    assert pn.phone == EXAMPLE_NUMBER_IN
+    pn.number = EXAMPLE_NUMBER_IN_FORMATTED
+    assert pn.number == EXAMPLE_NUMBER_IN
     assert pn.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
     assert str(pn) == EXAMPLE_NUMBER_IN
     assert pn.formatted == EXAMPLE_NUMBER_IN_FORMATTED
 
     # Reformatting when not restoring is not allowed
     with pytest.raises(ValueError, match="Phone number cannot be changed"):
-        pn.phone = EXAMPLE_NUMBER_IN_FORMATTED
+        pn.number = EXAMPLE_NUMBER_IN_FORMATTED
 
     # Changing it to another value is not allowed
     with pytest.raises(ValueError, match="Phone number cannot be changed"):
-        pn.phone = EXAMPLE_NUMBER_US
+        pn.number = EXAMPLE_NUMBER_US
     with pytest.raises(ValueError, match="A phone number is required"):
-        pn.phone = ''
+        pn.number = ''
     with pytest.raises(ValueError, match="A phone number is required"):
-        pn.phone = False  # type: ignore[assignment]
+        pn.number = False  # type: ignore[assignment]
     with pytest.raises(ValueError, match="Phone number cannot be changed"):
-        pn.phone = [1, 2, 3]  # type: ignore[assignment]
+        pn.number = [1, 2, 3]  # type: ignore[assignment]
 
     # Changing after nulling is not allowed as hash won't match
-    pn.phone = None
+    pn.number = None
     with pytest.raises(ValueError, match="Phone number does not match"):
-        pn.phone = EXAMPLE_NUMBER_US
+        pn.number = EXAMPLE_NUMBER_US
     with pytest.raises(ValueError, match="A phone number is required"):
-        pn.phone = ''
+        pn.number = ''
     with pytest.raises(ValueError, match="A phone number is required"):
-        pn.phone = False  # type: ignore[assignment]
+        pn.number = False  # type: ignore[assignment]
     with pytest.raises(ValueError, match="Invalid value for phone number"):
-        pn.phone = [1, 2, 3]  # type: ignore[assignment]
+        pn.number = [1, 2, 3]  # type: ignore[assignment]
 
 
 def test_phone_number_md5() -> None:
     """`PhoneNumber` has an MD5 method for legacy applications."""
     pn = models.PhoneNumber(EXAMPLE_NUMBER_IN)
     assert pn.md5() == '889ccfeb3234c4b90516a3dd4406a0e6'
-    pn.phone = None
+    pn.number = None
     assert pn.md5() is None
 
 
@@ -432,7 +432,7 @@ def test_phone_number_add() -> None:
     """Using PhoneNumber.add will auto-add to session and return existing instances."""
     pn1 = models.PhoneNumber.add(EXAMPLE_NUMBER_IN)
     assert isinstance(pn1, models.PhoneNumber)
-    assert pn1.phone == EXAMPLE_NUMBER_IN
+    assert pn1.number == EXAMPLE_NUMBER_IN
 
     pn2 = models.PhoneNumber.add(EXAMPLE_NUMBER_US)
     pn3 = models.PhoneNumber.add(EXAMPLE_NUMBER_IN_FORMATTED)
@@ -446,15 +446,15 @@ def test_phone_number_add() -> None:
     assert pn3 == pn1
     assert pn4 == pn2
 
-    assert pn1.phone == EXAMPLE_NUMBER_IN
-    assert pn2.phone == EXAMPLE_NUMBER_US
+    assert pn1.number == EXAMPLE_NUMBER_IN
+    assert pn2.number == EXAMPLE_NUMBER_US
 
     # A forgotten phone number will be restored by calling PhoneNumber.add
-    pn2.phone = None
-    assert pn2.phone is None
+    pn2.number = None
+    assert pn2.number is None
     pn5 = models.PhoneNumber.add(EXAMPLE_NUMBER_US_FORMATTED)
     assert pn5 == pn2
-    assert pn5.phone == pn2.phone == EXAMPLE_NUMBER_US
+    assert pn5.number == pn2.number == EXAMPLE_NUMBER_US
 
     # Adding an invalid phone number will raise an error
     with pytest.raises(models.PhoneNumberInvalidError):
@@ -471,8 +471,8 @@ def test_phone_number_blocked() -> None:
     pn2 = models.PhoneNumber.add(EXAMPLE_NUMBER_US)
 
     assert pn1.is_blocked is False
-    assert pn1.phone is not None
-    assert pn1.phone == EXAMPLE_NUMBER_IN
+    assert pn1.number is not None
+    assert pn1.number == EXAMPLE_NUMBER_IN
     assert pn1.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
 
     assert models.PhoneNumber.query.filter(models.PhoneNumber.is_blocked).all() == []
@@ -480,7 +480,7 @@ def test_phone_number_blocked() -> None:
     pn1.mark_blocked()
 
     assert pn1.is_blocked is True
-    assert pn1.phone is None  # type: ignore[unreachable]
+    assert pn1.number is None  # type: ignore[unreachable]
     assert pn1.blake2b160 is not None
     assert pn1.is_blocked is True
     assert pn2.is_blocked is False
@@ -496,7 +496,7 @@ def test_phone_number_blocked() -> None:
         pn1.mark_unblocked(EXAMPLE_NUMBER_US)
     pn1.mark_unblocked(EXAMPLE_NUMBER_IN_FORMATTED)
     assert pn1.is_blocked is False
-    assert pn1.phone == EXAMPLE_NUMBER_IN
+    assert pn1.number == EXAMPLE_NUMBER_IN
 
 
 def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-statements
@@ -585,13 +585,13 @@ def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-stateme
     assert pn2.refcount() == 1
 
     # Setting the phone property on PhoneDocument will mutate
-    # PhoneDocument.phone_number and not PhoneDocument.phone_number.phone
-    assert pn1.phone == EXAMPLE_NUMBER_IN
+    # PhoneDocument.phone_number and not PhoneDocument.phone_number.number
+    assert pn1.number == EXAMPLE_NUMBER_IN
     doc1.phone = None
-    assert pn1.phone == EXAMPLE_NUMBER_IN
+    assert pn1.number == EXAMPLE_NUMBER_IN
     assert doc1.phone_number is None
     doc2.phone = EXAMPLE_NUMBER_US
-    assert pn1.phone == EXAMPLE_NUMBER_IN
+    assert pn1.number == EXAMPLE_NUMBER_IN
     assert doc2.phone_number == pn2
 
     # PhoneLinkedDocument takes the complexity up a notch
@@ -626,10 +626,10 @@ def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-stateme
     # but does not blank out the PhoneNumber
 
     assert ldoc1.phone_number == pn1
-    assert pn1.phone == EXAMPLE_NUMBER_IN
+    assert pn1.number == EXAMPLE_NUMBER_IN
     ldoc1.phone = None
     assert ldoc1.phone_number is None
-    assert pn1.phone == EXAMPLE_NUMBER_IN
+    assert pn1.number == EXAMPLE_NUMBER_IN
 
 
 def test_phone_number_refcount_drop(phone_models, db_session, refcount_data) -> None:

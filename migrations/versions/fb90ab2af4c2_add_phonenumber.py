@@ -37,7 +37,7 @@ def upgrade_() -> None:
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
-        sa.Column('phone', sa.Unicode(), nullable=True),
+        sa.Column('number', sa.Unicode(), nullable=True),
         sa.Column('blake2b160', sa.LargeBinary(), nullable=False),
         sa.Column('allow_sms', sa.Boolean(), nullable=False),
         sa.Column('allow_wa', sa.Boolean(), nullable=False),
@@ -54,11 +54,11 @@ def upgrade_() -> None:
         sa.Column('active_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column('blocked_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.CheckConstraint(
-            'blocked_at IS NULL OR blocked_at IS NOT NULL AND phone IS NULL',
-            name='phone_number_blocked_at_phone_check',
+            'blocked_at IS NULL OR blocked_at IS NOT NULL AND number IS NULL',
+            name='phone_number_blocked_at_number_check',
         ),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('phone'),
+        sa.UniqueConstraint('number'),
         sa.UniqueConstraint('blake2b160'),
     )
 

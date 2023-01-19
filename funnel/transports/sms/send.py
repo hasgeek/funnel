@@ -56,7 +56,7 @@ def get_phone_number(
         raise TransportRecipientError(_("This phone number has been blocked")) from exc
     if not phone_number.allow_sms:
         raise TransportRecipientError(_("SMS is disabled for this phone number"))
-    if not phone_number.phone:
+    if not phone_number.number:
         # This should never happen as :meth:`PhoneNumber.add` will restore the number
         raise TransportRecipientError(_("This phone number is not available"))
     return phone_number
@@ -113,7 +113,7 @@ def send_via_exotel(
     token = app.config['SMS_EXOTEL_TOKEN']
     payload = {
         'From': app.config['SMS_EXOTEL_FROM'],
-        'To': phone_number.phone,
+        'To': phone_number.number,
         'Body': str(message),
         'DltEntityId': message.registered_entityid,
     }
@@ -124,7 +124,7 @@ def send_via_exotel(
             'process_exotel_event',
             _external=True,
             _method='POST',
-            secret_token=make_exotel_token(cast(str, phone_number.phone)),
+            secret_token=make_exotel_token(cast(str, phone_number.number)),
         )
     try:
         r = requests.post(
@@ -178,7 +178,7 @@ def send_via_twilio(
     try:
         msg = client.messages.create(
             from_=sender,
-            to=phone_number.phone,
+            to=phone_number.number,
             body=str(message),
             status_callback=url_for(
                 'process_twilio_event', _external=True, _method='POST'
@@ -197,7 +197,7 @@ def send_via_twilio(
             raise TransportRecipientError(_("This phone number is invalid")) from exc
         if exc.code == 21408:
             app.logger.error(
-                "Twilio unsupported country (21408) for %s", phone_number.phone
+                "Twilio unsupported country (21408) for %s", phone_number.number
             )
             raise TransportRecipientError(
                 _(
@@ -212,7 +212,7 @@ def send_via_twilio(
             ) from exc
         if exc.code == 21612:
             app.logger.error(
-                "Twilio unsupported carrier (21612) for %s", phone_number.phone
+                "Twilio unsupported carrier (21612) for %s", phone_number.number
             )
             raise TransportRecipientError(
                 _("This phone number is unsupported at this time")
@@ -270,7 +270,7 @@ def send(
     :return: Transaction id
     """
     phone_number = get_phone_number(phone)
-    phone = cast(str, phone_number.phone)  # Guaranteed not None
+    phone = cast(str, phone_number.number)  # Guaranteed not None
     for prefix, sender in senders_by_prefix:
         if phone.startswith(prefix):
             return sender(phone_number, message, callback)
