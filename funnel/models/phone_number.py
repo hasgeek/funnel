@@ -262,7 +262,8 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         sa.Column(
             sa.LargeBinary,
             sa.CheckConstraint(
-                'length(blake2b160) = 20', name='phone_number_blake2b160_check'
+                sa.func.length(sa.sql.column('blake2b160')) == 20,
+                name='phone_number_blake2b160_check',
             ),
             nullable=False,
             unique=True,
