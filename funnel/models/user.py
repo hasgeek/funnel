@@ -527,7 +527,9 @@ class User(
     @with_roles(call={'owner'})
     def has_transport_sms(self) -> bool:
         """User has an SMS transport address."""
-        return self.state.ACTIVE and bool(self.phone)
+        return (
+            self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_sms
+        )
 
     @with_roles(call={'owner'})
     def has_transport_webpush(self) -> bool:  # TODO  # pragma: no cover
@@ -542,7 +544,16 @@ class User(
     @with_roles(call={'owner'})
     def has_transport_whatsapp(self) -> bool:  # TODO  # pragma: no cover
         """User has a WhatsApp transport address."""
-        return False
+        return (
+            self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_wa
+        )
+
+    @with_roles(call={'owner'})
+    def has_transport_signal(self) -> bool:  # TODO  # pragma: no cover
+        """User has a Signal transport address."""
+        return (
+            self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_sm
+        )
 
     @with_roles(call={'owner'})
     def transport_for_email(self, context) -> Optional[UserEmail]:
@@ -556,8 +567,8 @@ class User(
     def transport_for_sms(self, context) -> Optional[UserPhone]:
         """Return user's preferred phone number within a context."""
         # TODO: Per-account/project customization is a future option
-        if self.state.ACTIVE:
-            return self.phone or None
+        if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_sms:
+            return self.phone
         return None
 
     @with_roles(call={'owner'})
@@ -573,6 +584,17 @@ class User(
     @with_roles(call={'owner'})
     def transport_for_whatsapp(self, context):  # TODO  # pragma: no cover
         """Return user's preferred WhatsApp transport address within a context."""
+        # TODO: Per-account/project customization is a future option
+        if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_wa:
+            return self.phone
+        return None
+
+    @with_roles(call={'owner'})
+    def transport_for_signal(self, context):  # TODO  # pragma: no cover
+        """Return user's preferred Signal transport address within a context."""
+        # TODO: Per-account/project customization is a future option
+        if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_sm:
+            return self.phone
         return None
 
     @with_roles(call={'owner'})
