@@ -272,10 +272,10 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     #: Allow messaging this number over SMS
     allow_sms = sa.Column(sa.Boolean, nullable=False, default=True)
-    #: Allow messaging this number over WhatsApp
-    allow_whatsapp = sa.Column(sa.Boolean, nullable=False, default=False)
-    #: Allow messaging this number over Signal
-    allow_signal = sa.Column(sa.Boolean, nullable=False, default=False)
+    #: Allow messaging this number over WA
+    allow_wa = sa.Column(sa.Boolean, nullable=False, default=False)
+    #: Allow messaging this number over SM
+    allow_sm = sa.Column(sa.Boolean, nullable=False, default=False)
 
     #: Timestamp of last SMS sent
     msg_sms_sent_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
@@ -284,21 +284,21 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     #: Timestamp of last SMS delivery failure
     msg_sms_failed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
 
-    #: Timestamp of last WhatsApp message sent
-    msg_whatsapp_sent_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
-    #: Timestamp of last WhatsApp message delivered
-    msg_whatsapp_delivered_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
-    #: Timestamp of last WhatsApp message delivery failure
-    msg_whatsapp_failed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    #: Timestamp of last WA message sent
+    msg_wa_sent_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    #: Timestamp of last WA message delivered
+    msg_wa_delivered_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    #: Timestamp of last WA message delivery failure
+    msg_wa_failed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
 
-    # Signal columns are for potential future use
+    # SM columns are for potential future use
 
-    #: Timestamp of last Signal message sent
-    msg_signal_sent_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
-    #: Timestamp of last Signal message delivered
-    msg_signal_delivered_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
-    #: Timestamp of last Signal message delivery failure
-    msg_signal_failed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    #: Timestamp of last SM message sent
+    msg_sm_sent_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    #: Timestamp of last SM message delivered
+    msg_sm_delivered_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    #: Timestamp of last SM message delivery failure
+    msg_sm_failed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Timestamp of last known recipient activity resulting from sent messages
     active_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)

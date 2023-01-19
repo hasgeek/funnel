@@ -40,21 +40,17 @@ def upgrade_() -> None:
         sa.Column('phone', sa.Unicode(), nullable=True),
         sa.Column('blake2b160', sa.LargeBinary(), nullable=False),
         sa.Column('allow_sms', sa.Boolean(), nullable=False),
-        sa.Column('allow_whatsapp', sa.Boolean(), nullable=False),
-        sa.Column('allow_signal', sa.Boolean(), nullable=False),
+        sa.Column('allow_wa', sa.Boolean(), nullable=False),
+        sa.Column('allow_sm', sa.Boolean(), nullable=False),
         sa.Column('msg_sms_sent_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column('msg_sms_delivered_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column('msg_sms_failed_at', sa.TIMESTAMP(timezone=True), nullable=True),
-        sa.Column('msg_whatsapp_sent_at', sa.TIMESTAMP(timezone=True), nullable=True),
-        sa.Column(
-            'msg_whatsapp_delivered_at', sa.TIMESTAMP(timezone=True), nullable=True
-        ),
-        sa.Column('msg_whatsapp_failed_at', sa.TIMESTAMP(timezone=True), nullable=True),
-        sa.Column('msg_signal_sent_at', sa.TIMESTAMP(timezone=True), nullable=True),
-        sa.Column(
-            'msg_signal_delivered_at', sa.TIMESTAMP(timezone=True), nullable=True
-        ),
-        sa.Column('msg_signal_failed_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column('msg_wa_sent_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column('msg_wa_delivered_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column('msg_wa_failed_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column('msg_sm_sent_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column('msg_sm_delivered_at', sa.TIMESTAMP(timezone=True), nullable=True),
+        sa.Column('msg_sm_failed_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column('active_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column('blocked_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.CheckConstraint(

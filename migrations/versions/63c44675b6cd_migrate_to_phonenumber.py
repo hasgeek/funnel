@@ -61,8 +61,8 @@ phone_number = table(
     column('phone', sa.Unicode),
     column('blake2b160', sa.LargeBinary),
     column('allow_sms', sa.Boolean()),
-    column('allow_whatsapp', sa.Boolean()),
-    column('allow_signal', sa.Boolean()),
+    column('allow_wa', sa.Boolean()),
+    column('allow_sm', sa.Boolean()),
     column('msg_sms_sent_at', sa.TIMESTAMP(timezone=True)),
     column('msg_sms_delivered_at', sa.TIMESTAMP(timezone=True)),
     column('msg_sms_failed_at', sa.TIMESTAMP(timezone=True)),
@@ -148,8 +148,8 @@ def upgrade_() -> None:
                     phone=phone,
                     blake2b160=blake2b160,
                     allow_sms=True,
-                    allow_whatsapp=False,
-                    allow_signal=False,
+                    allow_wa=False,
+                    allow_sm=False,
                 )
                 .returning(phone_number.c.id)
             ).fetchone()[0]
@@ -280,8 +280,8 @@ def upgrade_() -> None:
                     phone=phone,
                     blake2b160=blake2b160,
                     allow_sms=True,
-                    allow_whatsapp=False,
-                    allow_signal=False,
+                    allow_wa=False,
+                    allow_sm=False,
                     **timestamps,
                 )
                 .returning(phone_number.c.id)
