@@ -49,6 +49,8 @@ def get_phone_number(
     phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber]
 ) -> PhoneNumber:
     if isinstance(phone, PhoneNumber):
+        if not phone.number:
+            raise TransportRecipientError(_("This phone number is not available"))
         return phone
     try:
         phone_number = PhoneNumber.add(phone)
