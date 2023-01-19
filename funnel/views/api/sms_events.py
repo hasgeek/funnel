@@ -10,9 +10,10 @@ from baseframe import statsd
 
 from ... import app
 from ...models import (
+    SMS_STATUS,
     PhoneNumber,
-    PhoneNumberBlockedError,
     PhoneNumberError,
+    SmsMessage,
     canonical_phone_number,
     db,
     sa,
@@ -59,25 +60,43 @@ def process_twilio_event() -> ReturnView:
 
     try:
         phone_number = PhoneNumber.add(request.form['To'])
-        if request.form['MessageStatus'] == 'sent':
-            phone_number.msg_sms_sent_at = sa.func.utcnow()
-        elif request.form['MessageStatus'] == 'failed':
-            phone_number.msg_sms_failed_at = sa.func.utcnow()
-        elif request.form['MessageStatus'] == 'delivered':
-            phone_number.msg_sms_delivered_at = sa.func.utcnow()
-        db.session.commit()
+    except PhoneNumberError:
+        phone_number = None
+    sms_message = SmsMessage.query.filter_by(
+        transactionid=request.form['MessageSid']
+    ).one_or_none()
 
-        current_app.logger.info(
-            "Twilio event for phone: %s %s",
-            phone_number.number,
-            request.form['MessageStatus'],
-        )
-    except PhoneNumberBlockedError:
-        current_app.logger.warning(
-            "Twilio event discarded as phone number is blocked: %s %s",
-            request.form['To'],
-            request.form['MessageStatus'],
-        )
+    if sms_message:
+        sms_message.status_at = sa.func.utcnow()
+
+    if request.form['MessageStatus'] == 'queued':
+        if sms_message:
+            sms_message.status = SMS_STATUS.QUEUED
+    elif request.form['MessageStatus'] == 'sent':
+        if phone_number:
+            phone_number.msg_sms_sent_at = sa.func.utcnow()
+        if sms_message:
+            sms_message.status = SMS_STATUS.PENDING
+    elif request.form['MessageStatus'] == 'failed':
+        if phone_number:
+            phone_number.msg_sms_failed_at = sa.func.utcnow()
+        if sms_message:
+            sms_message.status = SMS_STATUS.FAILED
+    elif request.form['MessageStatus'] == 'delivered':
+        if phone_number:
+            phone_number.msg_sms_delivered_at = sa.func.utcnow()
+        if sms_message:
+            sms_message.status = SMS_STATUS.DELIVERED
+    else:
+        if sms_message:
+            sms_message.status = SMS_STATUS.UNKNOWN
+    db.session.commit()
+
+    current_app.logger.info(
+        "Twilio event for phone: %s %s",
+        request.form['To'],
+        request.form['MessageStatus'],
+    )
 
     statsd.incr(
         'phone_number.event',
@@ -129,24 +148,43 @@ def process_exotel_event(secret_token: str) -> ReturnView:
     # Status - one of: queued, sending, submitted, sent, failed_dnd, failed
     try:
         phone_number = PhoneNumber.add(exotel_to)
-        if request.form['Status'] in ('sending', 'submitted'):
+    except PhoneNumberError:
+        phone_number = None
+    sms_message = SmsMessage.query.filter_by(
+        transactionid=request.form['SmsSid']
+    ).one_or_none()
+
+    if sms_message:
+        sms_message.status_at = sa.func.utcnow()
+
+    if request.form['Status'] == 'queued':
+        if sms_message:
+            sms_message.status = SMS_STATUS.QUEUED
+    elif request.form['Status'] in ('sending', 'submitted'):
+        if phone_number:
             phone_number.msg_sms_sent_at = sa.func.utcnow()
-        if request.form['Status'] in ('failed', 'failed_dnd'):
+        if sms_message:
+            sms_message.status = SMS_STATUS.PENDING
+    elif request.form['Status'] in ('failed', 'failed_dnd'):
+        if phone_number:
             phone_number.msg_sms_failed_at = sa.func.utcnow()
-        elif request.form['Status'] == 'sent':
+        if sms_message:
+            sms_message.status = SMS_STATUS.FAILED
+    elif request.form['Status'] == 'sent':
+        if phone_number:
             phone_number.msg_sms_delivered_at = sa.func.utcnow()
-        db.session.commit()
-        current_app.logger.info(
-            "Exotel event for phone: %s %s",
-            exotel_to,
-            request.form['Status'],
-        )
-    except PhoneNumberBlockedError:
-        current_app.logger.warning(
-            "Exotel event discarded as phone number is blocked: %s %s",
-            exotel_to,
-            request.form['MessageStatus'],
-        )
+        if sms_message:
+            sms_message.status = SMS_STATUS.DELIVERED
+    else:
+        if sms_message:
+            sms_message.status = SMS_STATUS.UNKNOWN
+    db.session.commit()
+
+    current_app.logger.info(
+        "Exotel event for phone: %s %s",
+        exotel_to,
+        request.form['Status'],
+    )
 
     statsd.incr(
         'phone_number.event',
