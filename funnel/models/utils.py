@@ -11,7 +11,7 @@ import phonenumbers
 
 from .. import app
 from ..typing import OptionalMigratedTables
-from ..utils import PHONE_LOOKUP_REGIONS
+from .phone_number import PHONE_LOOKUP_REGIONS
 from .user import Anchor, User, UserEmail, UserEmailClaim, UserExternalId, UserPhone, db
 
 __all__ = [
@@ -81,7 +81,10 @@ def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnc
         # If it wasn't an email address or an @username, check if it's a phone number
         try:
             # Assume unprefixed numbers to be a local number in one of our supported
-            # regions, in order of priority
+            # regions, in order of priority. Also see
+            # :func:`~funnel.models.phone_number.parse_phone_number` for similar
+            # functionality, but in which the loop exits after the _first_ valid
+            # candidate
             for region in PHONE_LOOKUP_REGIONS:
                 parsed_number = phonenumbers.parse(name, region)
                 if phonenumbers.is_valid_number(parsed_number):
