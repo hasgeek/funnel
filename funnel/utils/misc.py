@@ -9,70 +9,25 @@ import urllib.parse
 
 from flask import abort
 
-from typing_extensions import Literal
 import phonenumbers
 import qrcode
 import qrcode.image.svg
 
-# Unprefixed phone numbers are assumed to be a local number in India (+91) or US (+1).
-# Both IN and US numbers are 10 digits before prefixes. We try IN first as it's the
-# higher priority home region.
-PHONE_LOOKUP_REGIONS = ['IN']
+__all__ = [
+    'blake2b160_hex',
+    'abort_null',
+    'make_redirect_url',
+    'mask_email',
+    'mask_phone',
+    'extract_twitter_handle',
+    'format_twitter_handle',
+    'split_name',
+    'make_qrcode',
+]
 
 MASK_DIGITS = str.maketrans('0123456789', '•' * 10)
 
 # --- Utilities ------------------------------------------------------------------------
-
-
-@overload
-def normalize_phone_number(candidate: str, sms: Literal[False]) -> Optional[str]:
-    ...
-
-
-@overload
-def normalize_phone_number(
-    candidate: str, sms: Literal[True]
-) -> Optional[Union[str, Literal[False]]]:
-    ...
-
-
-def normalize_phone_number(
-    candidate: str, sms: bool = False
-) -> Optional[Union[str, Literal[False]]]:
-    """
-    Attempt to parse a phone number from a candidate and return in E164 format.
-
-    :param sms: Validate that the number is from a range that supports SMS delivery,
-        returning `False` if it isn't
-    """
-    # Assume unprefixed numbers to be a local number in one of the supported common
-    # regions. We start with the higher priority home region and return the _first_
-    # candidate that is likely to be a valid number. This behaviour differentiates it
-    # from similar code in :func:`~funnel.models.utils.getuser`, where the loop exits
-    # with the _last_ valid candidate (as it's coupled with a
-    # :class:`~funnel.models.user.UserPhone` lookup)
-    sms_invalid = False
-    try:
-        for region in PHONE_LOOKUP_REGIONS:
-            parsed_number = phonenumbers.parse(candidate, region)
-            if phonenumbers.is_valid_number(parsed_number):
-                if sms:
-                    if phonenumbers.number_type(parsed_number) not in (
-                        phonenumbers.PhoneNumberType.MOBILE,
-                        phonenumbers.PhoneNumberType.FIXED_LINE_OR_MOBILE,
-                    ):
-                        sms_invalid = True
-                        continue  # Not valid for SMS, continue searching regions
-                return phonenumbers.format_number(
-                    parsed_number, phonenumbers.PhoneNumberFormat.E164
-                )
-    except phonenumbers.NumberParseException:
-        pass
-    # We found a number that is valid, but the caller wanted it to be valid for SMS and
-    # it isn't, so return a special flag
-    if sms_invalid:
-        return False
-    return None
 
 
 def blake2b160_hex(text: str) -> str:
