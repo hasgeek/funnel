@@ -3,9 +3,22 @@ const MUITabs = {
     const parentElement = $(container || 'body');
 
     parentElement.find('.mui-tabs__bar').each(function tabsetsAccessibility() {
+      // http://web-accessibility.carnegiemuseums.org/code/tabs/
       let index = 0;
       const tabs = $(this).find('[role=tab]');
-      // http://web-accessibility.carnegiemuseums.org/code/tabs/
+      function activateCurrent() {
+        window.mui.tabs.activate($(tabs.get(index)).data('mui-controls'));
+      }
+      function previous() {
+        if (index > 0) index -= 1;
+        else index = tabs.length - 1;
+        activateCurrent();
+      }
+      function next() {
+        if (index < tabs.length - 1) index += 1;
+        else index = 0;
+        activateCurrent();
+      }
       tabs.bind({
         keydown: function onpress(event) {
           const LEFT_ARROW = 37;
@@ -15,14 +28,8 @@ const MUITabs = {
           const k = event.which || event.keyCode;
 
           if (k >= LEFT_ARROW && k <= DOWN_ARROW) {
-            if (k === LEFT_ARROW || k === UP_ARROW) {
-              if (index > 0) index -= 1;
-              else index = tabs.length - 1;
-            } else if (k === RIGHT_ARROW || k === DOWN_ARROW) {
-              if (index < tabs.length - 1) index += 1;
-              else index = 0;
-            }
-            window.mui.tabs.activate($(tabs.get(index)).data('mui-controls'));
+            if (k === LEFT_ARROW || k === UP_ARROW) previous();
+            else if (k === RIGHT_ARROW || k === DOWN_ARROW) next();
             event.preventDefault();
           }
         },
@@ -36,11 +43,6 @@ const MUITabs = {
         });
       });
     });
-    // parentElement.find('[data-mui-controls^="md-tab-"]').each(function attach() {
-    //   this.addEventListener('mui.tabs.showend', function showingTab(ev) {
-    //     console.log(ev);
-    //   });
-    // });
   },
 };
 
