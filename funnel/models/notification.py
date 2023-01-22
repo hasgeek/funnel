@@ -112,12 +112,13 @@ from .. import models  # For locals() namespace, to discover models from type de
 from ..typing import OptionalMigratedTables, T, UuidModelType
 from . import BaseMixin, Mapped, NoIdMixin, UUIDType, db, hybrid_property, sa
 from .helpers import reopen
+from .phone_number import PhoneNumber, PhoneNumberMixin
 from .user import User, UserEmail, UserPhone
 
 __all__ = [
     'SMS_STATUS',
     'notification_categories',
-    'SMSMessage',
+    'SmsMessage',
     'Notification',
     'PreviewNotification',
     'NotificationPreferences',
@@ -204,12 +205,15 @@ class SMS_STATUS(LabeledEnum):  # noqa: N801
 # --- Legacy models --------------------------------------------------------------------
 
 
-class SMSMessage(BaseMixin, db.Model):  # type: ignore[name-defined]
+class SmsMessage(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     """An outbound SMS message."""
 
     __tablename__ = 'sms_message'
-    # Phone number that the message was sent to
-    phone_number = immutable(sa.Column(sa.String(15), nullable=False))
+    __phone_optional__ = False
+    __phone_unique__ = False
+    __phone_is_exclusive__ = False
+    phone_number_reference_is_active: bool = False
+
     transactionid = immutable(sa.Column(sa.UnicodeText, unique=True, nullable=True))
     # The message itself
     message = immutable(sa.Column(sa.UnicodeText, nullable=False))
@@ -217,6 +221,12 @@ class SMSMessage(BaseMixin, db.Model):  # type: ignore[name-defined]
     status = sa.Column(sa.Integer, default=SMS_STATUS.QUEUED, nullable=False)
     status_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
     fail_reason = sa.Column(sa.UnicodeText, nullable=True)
+
+    def __init__(self, **kwargs):
+        phone = kwargs.pop('phone', None)
+        if phone:
+            kwargs['phone_number'] = PhoneNumber.add(phone)
+        super().__init__(**kwargs)
 
 
 # --- Notification models --------------------------------------------------------------
