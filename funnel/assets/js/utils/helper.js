@@ -402,6 +402,94 @@ const Utils = {
     }
     return false;
   },
+  getInitials(name) {
+    if (name) {
+      const parts = name.split(/\s+/);
+      const len = parts.length;
+      if (len > 1) {
+        return (
+          (parts[0] ? parts[0][0] : '') + (parts[len - 1] ? parts[len - 1][0] : '')
+        );
+      }
+      if (parts) {
+        return parts[0] ? parts[0][0] : '';
+      }
+    }
+    return '';
+  },
+  getAvatarColour(name) {
+    const avatarColorCount = 6;
+    const initials = this.getInitials(name);
+    let stringTotal = 0;
+    if (initials.length) {
+      stringTotal = initials.charCodeAt(0);
+      if (initials.length > 1) {
+        stringTotal += initials.charCodeAt(1);
+      }
+    }
+    return stringTotal % avatarColorCount;
+  },
+  activateZoomPopup() {
+    if ($('.markdown').length > 0) {
+      $('abbr').each(function () {
+        if ($(this).offset().left > $(window).width() * 0.7) {
+          $(this).addClass('tooltip-right');
+        }
+      });
+    }
+
+    $('body').on('click', '.markdown table, .markdown img', function (event) {
+      event.preventDefault();
+      $('body').append('<div class="markdown-modal markdown"></div>');
+      $('.markdown-modal').html($(this)[0].outerHTML);
+      $('.markdown-modal').modal();
+    });
+
+    $('body').on('click', '.markdown table a', (event) => {
+      event.stopPropagation();
+    });
+
+    $('body').on($.modal.AFTER_CLOSE, '.markdown-modal', (event) => {
+      event.preventDefault();
+      $('.markdown-modal').remove();
+    });
+  },
+  addFocusOnModalShow() {
+    let focussedElem;
+    $('body').on($.modal.OPEN, '.modal', function () {
+      focussedElem = document.activeElement;
+      Utils.trapFocusWithinModal(this);
+    });
+
+    $('body').on($.modal.CLOSE, '.modal', () => {
+      focussedElem.focus();
+    });
+  },
+  trapFocusWithinModal(modal) {
+    const $this = $(modal);
+    const focusableElems =
+      'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, *[tabindex], *[contenteditable]';
+    const children = $this.find('*');
+    const focusableItems = children.filter(focusableElems).filter(':visible');
+    const numberOfFocusableItems = focusableItems.length;
+    let focusedItem;
+    let focusedItemIndex;
+    $this.find('.modal__close').focus();
+
+    $this.on('keydown', (event) => {
+      if (event.keyCode !== 9) return;
+      focusedItem = $(document.activeElement);
+      focusedItemIndex = focusableItems.index(focusedItem);
+      if (!event.shiftKey && focusedItemIndex === numberOfFocusableItems - 1) {
+        focusableItems.get(0).focus();
+        event.preventDefault();
+      }
+      if (event.shiftKey && focusedItemIndex === 0) {
+        focusableItems.get(numberOfFocusableItems - 1).focus();
+        event.preventDefault();
+      }
+    });
+  },
 };
 
 export default Utils;

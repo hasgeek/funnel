@@ -86,4 +86,62 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
     const markdownId = $(this).attr('id');
     codemirrorHelper(markdownId);
   });
+
+  Form.activate_select2();
+
+  window.Hasgeek.MapMarker = function (field) {
+    this.field = field;
+    this.activate();
+    return this;
+  };
+
+  window.Hasgeek.MapMarker.prototype.activate = function () {
+    const self = this;
+    window.Hasgeek.Forms.preventSubmitOnEnter(this.field.location_id);
+
+    // locationpicker.jquery.js
+    $(`#${this.field.map_id}`).locationpicker({
+      location: self.getDefaultLocation(),
+      radius: 0,
+      zoom: 18,
+      inputBinding: {
+        latitudeInput: $(`#${this.field.latitude_id}`),
+        longitudeInput: $(`#${this.field.longitude_id}`),
+        locationNameInput: $(`#${this.field.location_id}`),
+      },
+      enableAutocomplete: true,
+      onchanged() {
+        if ($(`#${self.field.location_id}`).val()) {
+          $(`#${self.field.map_id}`).removeClass('mui--hide');
+        }
+      },
+      onlocationnotfound() {},
+      oninitialized() {
+        // Locationpicker sets latitude and longitude field value to 0,
+        // this is to empty the fields and hide the map
+        if (!$(`#${self.field.location_id}`).val()) {
+          $(`#${self.field.latitude_id}`).val('');
+          $(`#${self.field.longitude_id}`).val('');
+          $(`#${self.field.map_id}`).addClass('mui--hide');
+        }
+      },
+    });
+
+    // On clicking clear, empty latitude, longitude, location fields and hide map
+    $(`#${this.field.clear_id}`).on('click', (event) => {
+      event.preventDefault();
+      $(`#${self.field.latitude_id}`).val('');
+      $(`#${self.field.longitude_id}`).val('');
+      $(`#${self.field.location_id}`).val('');
+      $(`#${self.field.map_id}`).addClass('mui--hide');
+    });
+  };
+
+  window.Hasgeek.MapMarker.prototype.getDefaultLocation = function () {
+    let latitude;
+    let longitude;
+    latitude = $(`#${this.field.latitude_id}`).val();
+    longitude = $(`#${this.field.longitude_id}`).val();
+    return { latitude, longitude };
+  };
 };

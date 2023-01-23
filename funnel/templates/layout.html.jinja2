@@ -330,6 +330,8 @@
 </script>
 {%- endif -%}
 <script type="text/javascript">
+    window.Hasgeek = {};
+    window.Hasgeek.Config = {};
     window.Hasgeek.Config.svgIconUrl = {% assets "fa5-sprite" %}"{{ ASSET_URL|make_relative_url }}"{% endassets %};
     window.Hasgeek.Config.notificationCount = {{ url_for('notifications_count')|tojson }};
     window.Hasgeek.Config.accountSudo = {{ url_for('account_sudo')|tojson }};
