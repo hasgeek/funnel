@@ -308,6 +308,7 @@ class __Project:
                     sa.select([Project.start_at.label('start_at')])
                     .where(Project.start_at.isnot(None))
                     .where(Project.start_at >= sa.func.utcnow())
+                    .correlate(Project)  # type: ignore[arg-type]
                 )
             )
             .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
