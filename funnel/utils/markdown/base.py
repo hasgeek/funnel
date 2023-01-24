@@ -54,7 +54,7 @@ def markdown_escape(text: str) -> MarkdownString:
     However, escaping any other character will cause the backslash to be rendered. This
     escaper therefore targets only ASCII punctuation characters listed in the spec.
 
-    Edge whitespace is significant in Markdown and must be stripped when escaping as:
+    Edge whitespace is significant in Markdown and must be stripped when escaping:
 
     * Four spaces at the start will initiate a code block
     * Two spaces at the end will cause a line-break in non-GFM Markdown
@@ -62,6 +62,9 @@ def markdown_escape(text: str) -> MarkdownString:
     Replacing these spaces with &nbsp; is not suitable because non-breaking spaces
     affect HTML rendering, specifically the CSS ``white-space: normal`` sequence
     collapsing behaviour.
+
+    :returns: Escaped text as an instance of :class:`MarkdownString`, to avoid
+        double-escaping
     """
     if hasattr(text, '__markdown__'):
         return MarkdownString(text.__markdown__())
@@ -250,6 +253,7 @@ MarkdownConfig(
     options_update={'html': False, 'breaks': True},
     plugins=['block_code_ext'],
 )
+
 MarkdownConfig(
     name='document',
     preset='gfm-like',
@@ -278,13 +282,20 @@ MarkdownConfig(
     ],
     enable_rules={'smartquotes'},
 )
-# TODO: Alternative renderer for inline profile to be utilised for meta tags
-# https://github.com/orgs/hasgeek/projects/9/views/1?pane=issue&itemId=17674352
+
+#: This profile is meant for inline fields (like Title) and allows for only inline
+#: visual markup: emphasis, code, ins/underline, del/strikethrough, superscripts,
+#: subscripts and smart quotes. It does not allow hyperlinks, images or HTML tags.
+#: Text in these fields will also have to be presented raw for embeds and other third
+#: party uses. We have considered using an alternative "plaintext" renderer that uses
+#: Unicode characters for bold/italic/sub/sup, but found this unsuitable as these
+#: character ranges are not comprehensive. Instead, plaintext use will include the
+#: Markdown formatting characters as-is.
 MarkdownConfig(
     name='inline',
     preset='zero',
-    options_update={'html': False, 'breaks': False},
-    plugins=['sup', 'sub'],
+    options_update={'html': False, 'breaks': False, 'typographer': True},
+    plugins=['ins', 'del', 'sup', 'sub'],
     inline=True,
-    enable_rules={'emphasis', 'backticks', 'escape'},
+    enable_rules={'emphasis', 'backticks', 'escape', 'smartquotes'},
 )
