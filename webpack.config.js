@@ -59,9 +59,9 @@ module.exports = {
     labels_css: path.resolve(__dirname, 'funnel/assets/sass/pages/labels.scss'),
     schedule_css: path.resolve(__dirname, 'funnel/assets/sass/pages/schedule.scss'),
     about_css: path.resolve(__dirname, 'funnel/assets/sass/pages/about.scss'),
-    loginform_css: path.resolve(__dirname, 'funnel/assets/sass/pages/login_form.scss'),
+    login_form_css: path.resolve(__dirname, 'funnel/assets/sass/pages/login_form.scss'),
     comments_css: path.resolve(__dirname, 'funnel/assets/sass/pages/comments.scss'),
-    scanbadge_css: path.resolve(__dirname, 'funnel/assets/sass/pages/scan_badge.scss'),
+    scan_badge_css: path.resolve(__dirname, 'funnel/assets/sass/pages/scan_badge.scss'),
     contacts_css: path.resolve(__dirname, 'funnel/assets/sass/pages/contacts.scss'),
     submissions_css: path.resolve(
       __dirname,
@@ -70,7 +70,7 @@ module.exports = {
     membership_css: path.resolve(__dirname, 'funnel/assets/sass/pages/membership.scss'),
     account_css: path.resolve(__dirname, 'funnel/assets/sass/pages/account.scss'),
     update_css: path.resolve(__dirname, 'funnel/assets/sass/pages/update.scss'),
-    imgeemodal_css: path.resolve(
+    imgee_modal_css: path.resolve(
       __dirname,
       'funnel/assets/sass/pages/imgee_modal.scss'
     ),
