@@ -295,11 +295,21 @@ class __Project:
 
     next_session_at = with_roles(
         sa.orm.column_property(
-            sa.select([sa.func.min(Session.start_at)])  # type: ignore[attr-defined]
-            .where(Session.start_at.isnot(None))
-            .where(Session.start_at >= sa.func.utcnow())
-            .where(Session.project_id == Project.id)
-            .correlate_except(Session)  # type: ignore[arg-type]
+            sa.select(  # type: ignore[attr-defined]
+                [sa.func.min(sa.sql.column('start_at'))]
+            )
+            .select_from(
+                sa.select([sa.func.min(Session.start_at).label('start_at')])
+                .where(Session.start_at.isnot(None))
+                .where(Session.start_at >= sa.func.utcnow())
+                .where(Session.project_id == Project.id)
+                .correlate_except(Session)  # type: ignore[arg-type]
+                .union(
+                    sa.select([Project.start_at.label('start_at')])
+                    .where(Project.start_at.isnot(None))
+                    .where(Project.start_at >= sa.func.utcnow())
+                )
+            )
             .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
         ),
         read={'all'},
