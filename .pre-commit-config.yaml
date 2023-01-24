@@ -94,7 +94,7 @@ repos:
       - id: flake8
         additional_dependencies: *flake8deps
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.16.0b0
+    rev: v2.16.0b1
     hooks:
       - id: pylint
         args: [
@@ -154,7 +154,7 @@ repos:
         args: ['--single-quote', '--trailing-comma', 'es5']
         exclude: funnel/templates/js/
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.19.11
+    rev: v1.19.12
     hooks:
       - id: djlint-jinja
         files: \.html\.(jinja2|j2)$
