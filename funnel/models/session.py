@@ -305,9 +305,13 @@ class __Project:
                 .where(Session.project_id == Project.id)
                 .correlate_except(Session)  # type: ignore[arg-type]
                 .union(
-                    sa.select([Project.start_at.label('start_at')])
-                    .where(Project.start_at.isnot(None))
-                    .where(Project.start_at >= sa.func.utcnow())
+                    sa.select(
+                        [Project.start_at.label('start_at')]  # type: ignore[has-type]
+                    )
+                    .where(Project.start_at.isnot(None))  # type: ignore[has-type]
+                    .where(
+                        Project.start_at >= sa.func.utcnow()  # type: ignore[has-type]
+                    )
                     .correlate(Project)  # type: ignore[arg-type]
                 )
             )
