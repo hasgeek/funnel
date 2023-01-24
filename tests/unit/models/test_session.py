@@ -289,7 +289,7 @@ def test_long_session_fail(db_session, new_project) -> None:
         ),
     ],
 )
-def test_next_session_at(
+def test_next_session_at_property(
     db_session,
     project_expo2010,
     project_dates: Optional[Tuple[datetime, datetime]],
@@ -318,3 +318,7 @@ def test_next_session_at(
         assert project_expo2010.next_session_at == project_expo2010.start_at
     else:
         assert project_expo2010.next_session_at == sessions[expected_session].start_at
+
+
+# TODO: Test next_session_at as a SQL expression, as used in in the index view's
+# order_by clause
