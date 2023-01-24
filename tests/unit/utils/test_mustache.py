@@ -1,6 +1,8 @@
 # mypy: disable-error-code=index
 """Tests for the mustache template escaper."""
 
+from typing import Dict, Tuple
+
 import pytest
 
 from funnel.utils.markdown.base import MarkdownConfig
@@ -24,26 +26,11 @@ test_data = {
     'escaped-sequence': '\\→\\A\\a\\ \\3\\φ\\«',
 }
 
-escaped_data = {
-    'name': 'Unseen',
-    'md_name': '\\*\\*Unseen\\*\\* University',
-    'org': {
-        'name': '\\`Unseen\\` University',
-        'city': '\\~\\~Unknown\\~\\~Ankh\\-Morpork',
-        'people': test_data['org']['people'],
-        'vendors': [],
-    },
-    'punctuations': (
-        '\\!\\"\\#\\$\\%\\&\\\'\\(\\)\\*\\+\\,\\-\\.\\/\\:\\;\\<\\=\\>\\?\\@'
-        + '\\[\\\\\\]\\^\\_\\`\\{\\|\\}\\~'
-    ),
-    'escaped-sequence': '\\\\→\\\\A\\\\a\\\\ \\\\3\\\\φ\\\\«',
-}
+#: Dict of {test_name: (template, output)}
+templates_and_output: Dict[str, Tuple[str, str]] = {}
+config_template_output: Dict[str, Tuple[str, str, str]] = {}
 
-templates = {}
-markdown_output = {}
-
-templates['basic'] = (
+templates_and_output['basic'] = (
     """
 Name: {{name}}
 **Bold Name**: {{ md_name }}
@@ -63,13 +50,13 @@ City: {{city}}
 {{/vendors}}
 {{/org}}
 """,
-    f"""
-Name: {escaped_data['name']}
-**Bold Name**: {escaped_data['md_name']}
-Organization: { escaped_data['org']['name'] }, { escaped_data['org']['city'] }
+    """
+Name: Unseen
+**Bold Name**: \\*\\*Unseen\\*\\* University
+Organization: \\`Unseen\\` University, \\~\\~Unknown\\~\\~Ankh\\-Morpork
 ## Organization Details
-Name: { escaped_data['org']['name'] }
-City: { escaped_data['org']['city'] }
+Name: \\`Unseen\\` University
+City: \\~\\~Unknown\\~\\~Ankh\\-Morpork
 
 ### People
 - Alberto Malich
@@ -82,28 +69,31 @@ City: { escaped_data['org']['city'] }
 """,
 )
 
-templates['punctuations'] = (  # type: ignore[assignment]
+templates_and_output['punctuations'] = (
     '{{ punctuations }}',
-    escaped_data['punctuations'],
+    '\\!\\"\\#\\$\\%\\&\\\'\\(\\)\\*\\+\\,\\-\\.\\/\\:\\;\\<\\=\\>\\?\\@'
+    '\\[\\\\\\]\\^\\_\\`\\{\\|\\}\\~',
 )
 
-templates['escaped-sequence'] = (  # type: ignore[assignment]
+templates_and_output['escaped-sequence'] = (
     '{{ escaped-sequence }}',
-    escaped_data['escaped-sequence'],
+    '\\\\→\\\\A\\\\a\\\\ \\\\3\\\\φ\\\\«',
 )
 
 
 @pytest.mark.parametrize(
-    ('template', 'expected_output'), templates.values(), ids=templates.keys()
+    ('template', 'expected_output'),
+    templates_and_output.values(),
+    ids=templates_and_output.keys(),
 )
 def test_mustache_md(template, expected_output):
     output = mustache_md(template, test_data)
     assert expected_output == output
 
 
-markdown_output['basic-basic'] = (
-    templates['basic'][0],
+config_template_output['basic-basic'] = (
     'basic',
+    templates_and_output['basic'][0],
     f"""<p>Name: {test_data['name']}<br />
 <strong>Bold Name</strong>: {test_data['md_name']}<br />
 Organization: { test_data['org']['name'] }, { test_data['org']['city'] }</p>
@@ -123,9 +113,9 @@ City: { test_data['org']['city'] }</p>
 </blockquote>
 """,
 )
-markdown_output['basic-document'] = (
-    templates['basic'][0],
+config_template_output['basic-document'] = (
     'document',
+    templates_and_output['basic'][0],
     f"""<p>Name: {test_data['name']}<br />
 <strong>Bold Name</strong>: {test_data['md_name']}<br />
 Organization: { test_data['org']['name'] }, { test_data['org']['city'] }</p>
@@ -146,44 +136,45 @@ City: { test_data['org']['city'] }</p>
 """,
 )
 
-markdown_output['punctuations-inline'] = (
-    templates['punctuations'][0],
+config_template_output['punctuations-inline'] = (
     'inline',
+    templates_and_output['punctuations'][0],
     '!&quot;#$%&amp;\'()*+,-./:;&lt;=&gt;?@[\\]^_`{|}~',
 )
-markdown_output['punctuations-basic'] = (
-    templates['punctuations'][0],
+config_template_output['punctuations-basic'] = (
     'basic',
+    templates_and_output['punctuations'][0],
     '<p>!&quot;#$%&amp;\'()*+,-./:;&lt;=&gt;?@[\\]^_`{|}~</p>\n',
 )
-markdown_output['punctuations-document'] = (
-    templates['punctuations'][0],
+config_template_output['punctuations-document'] = (
     'document',
+    templates_and_output['punctuations'][0],
     '<p>!&quot;#$%&amp;\'()*+,-./:;&lt;=&gt;?@[\\]^_`{|}~</p>\n',
 )
 
-markdown_output['escaped-sequence-inline'] = (
-    templates['escaped-sequence'][0],
+config_template_output['escaped-sequence-inline'] = (
     'inline',
+    templates_and_output['escaped-sequence'][0],
     '\\→\\A\\a\\ \\3\\φ\\«',
 )
-markdown_output['escaped-sequence-basic'] = (
-    templates['escaped-sequence'][0],
+config_template_output['escaped-sequence-basic'] = (
     'basic',
+    templates_and_output['escaped-sequence'][0],
     '<p>\\→\\A\\a\\ \\3\\φ\\«</p>\n',
 )
-markdown_output['escaped-sequence-document'] = (
-    templates['escaped-sequence'][0],
+config_template_output['escaped-sequence-document'] = (
     'document',
+    templates_and_output['escaped-sequence'][0],
     '<p>\\→\\A\\a\\ \\3\\φ\\«</p>\n',
 )
 
 
 @pytest.mark.parametrize(
-    ('template', 'profile', 'expected_output'),
-    markdown_output.values(),
-    ids=markdown_output.keys(),
+    ('config', 'template', 'expected_output'),
+    config_template_output.values(),
+    ids=config_template_output.keys(),
 )
-def test_mustache_md_markdown(template, profile, expected_output):
-    output = MarkdownConfig.registry[profile].render(mustache_md(template, test_data))
-    assert expected_output == output
+def test_mustache_md_markdown(template, config, expected_output):
+    assert expected_output == MarkdownConfig.registry[config].render(
+        mustache_md(template, test_data)
+    )
