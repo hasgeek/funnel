@@ -509,7 +509,6 @@ def render_redirect(url: str, code: int = 303) -> ReturnResponse:
         return Response(
             render_template('redirect.html.jinja2', url=url),
             status=200,
-            headers={'HX-Redirect': url},
         )
     if request_wants.json:
         response = jsonify({'status': 'error', 'error': 'redirect', 'location': url})
