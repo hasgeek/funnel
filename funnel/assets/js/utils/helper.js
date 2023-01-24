@@ -402,7 +402,7 @@ const Utils = {
     }
     return false;
   },
-  getFaviconHTML(icon, iconSize = 'body', baseline = true, cssClassArray=[]) {
+  getFaviconHTML(icon, iconSize = 'body', baseline = true, cssClassArray = []) {
     const svgElem = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     const useElem = document.createElementNS('http://www.w3.org/2000/svg', 'use');
 
