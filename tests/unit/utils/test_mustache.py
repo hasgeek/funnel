@@ -13,10 +13,10 @@ test_data = {
         'name': '`Unseen` University',
         'city': '~~Unknown~~Ankh-Morpork',
         'people': [
-            {'first': 'Alberto', 'last': 'Malich', 'ceo': False},
-            {'first': 'Mustrum', 'last': 'Ridcully', 'ceo': True},
-            {'first': 'The', 'last': 'Librarian', 'ceo': False},
-            {'first': 'Ponder', 'last': 'Stibbons', 'ceo': False},
+            {'first': 'Alberto', 'last': 'Malich', 'archchancellor': False},
+            {'first': 'Mustrum', 'last': 'Ridcully', 'archchancellor': True},
+            {'first': 'The', 'last': 'Librarian', 'archchancellor': False},
+            {'first': 'Ponder', 'last': 'Stibbons', 'archchancellor': False},
         ],
         'vendors': [],
     },
@@ -55,7 +55,7 @@ City: {{city}}
 
 ### People
 {{#people}}
-- {{first}} {{last}}{{#ceo}} (CEO){{/ceo}}
+- {{first}} {{last}}{{#archchancellor}} (Archchancellor){{/archchancellor}}
 {{/people}}{{! ignore me }}
 ### Vendors
 {{^vendors}}
@@ -72,14 +72,10 @@ Name: { escaped_data['org']['name'] }
 City: { escaped_data['org']['city'] }
 
 ### People
-"""
-    + '\n'.join(
-        [
-            f'- { p["first"] } { p["last"]}{" (CEO)" if p["ceo"] else ""}'
-            for p in escaped_data['org']['people']
-        ]
-    )
-    + """
+- Alberto Malich
+- Mustrum Ridcully (Archchancellor)
+- The Librarian
+- Ponder Stibbons
 
 ### Vendors
 > No vendors
@@ -116,14 +112,10 @@ Organization: { test_data['org']['name'] }, { test_data['org']['city'] }</p>
 City: { test_data['org']['city'] }</p>
 <h3>People</h3>
 <ul>
-"""
-    + '\n'.join(
-        [
-            f'<li>{ p["first"] } { p["last"]}{" (CEO)" if p["ceo"] else ""}</li>'
-            for p in test_data['org']['people']
-        ]
-    )
-    + """
+<li>Alberto Malich</li>
+<li>Mustrum Ridcully (Archchancellor)</li>
+<li>The Librarian</li>
+<li>Ponder Stibbons</li>
 </ul>
 <h3>Vendors</h3>
 <blockquote>
@@ -142,14 +134,10 @@ Organization: { test_data['org']['name'] }, { test_data['org']['city'] }</p>
 City: { test_data['org']['city'] }</p>
 <h3 id="h:people">People <a class="header-anchor" href="#h:people">#</a></h3>
 <ul>
-"""
-    + '\n'.join(
-        [
-            f'<li>{ p["first"] } { p["last"]}{" (CEO)" if p["ceo"] else ""}</li>'
-            for p in test_data['org']['people']
-        ]
-    )
-    + """
+<li>Alberto Malich</li>
+<li>Mustrum Ridcully (Archchancellor)</li>
+<li>The Librarian</li>
+<li>Ponder Stibbons</li>
 </ul>
 <h3 id="h:vendors">Vendors <a class="header-anchor" href="#h:vendors">#</a></h3>
 <blockquote>
