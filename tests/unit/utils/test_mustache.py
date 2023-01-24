@@ -94,12 +94,12 @@ def test_mustache_md(template, expected_output):
 config_template_output['basic-basic'] = (
     'basic',
     templates_and_output['basic'][0],
-    f"""<p>Name: {test_data['name']}<br />
-<strong>Bold Name</strong>: {test_data['md_name']}<br />
-Organization: { test_data['org']['name'] }, { test_data['org']['city'] }</p>
+    """<p>Name: Unseen<br />
+<strong>Bold Name</strong>: **Unseen** University<br />
+Organization: `Unseen` University, ~~Unknown~~Ankh-Morpork</p>
 <h2>Organization Details</h2>
-<p>Name: { test_data['org']['name'] }<br />
-City: { test_data['org']['city'] }</p>
+<p>Name: `Unseen` University<br />
+City: ~~Unknown~~Ankh-Morpork</p>
 <h3>People</h3>
 <ul>
 <li>Alberto Malich</li>
@@ -116,12 +116,12 @@ City: { test_data['org']['city'] }</p>
 config_template_output['basic-document'] = (
     'document',
     templates_and_output['basic'][0],
-    f"""<p>Name: {test_data['name']}<br />
-<strong>Bold Name</strong>: {test_data['md_name']}<br />
-Organization: { test_data['org']['name'] }, { test_data['org']['city'] }</p>
+    """<p>Name: Unseen<br />
+<strong>Bold Name</strong>: **Unseen** University<br />
+Organization: `Unseen` University, ~~Unknown~~Ankh-Morpork</p>
 <h2 id="h:organization-details">Organization Details <a class="header-anchor" href="#h:organization-details">#</a></h2>
-<p>Name: { test_data['org']['name'] }<br />
-City: { test_data['org']['city'] }</p>
+<p>Name: `Unseen` University<br />
+City: ~~Unknown~~Ankh-Morpork</p>
 <h3 id="h:people">People <a class="header-anchor" href="#h:people">#</a></h3>
 <ul>
 <li>Alberto Malich</li>
