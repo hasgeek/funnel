@@ -35,7 +35,7 @@ from zxcvbn import zxcvbn
 
 from .. import app
 from ..typing import T
-from ..utils import MarkdownConfig
+from ..utils import MarkdownConfig, markdown_escape
 from . import UrlType, db, sa
 
 __all__ = [
@@ -501,6 +501,10 @@ class MessageComposite:
         self.text = text
         self.tag = tag
 
+    def __markdown__(self) -> str:
+        """Return Markdown source (for escaper)."""
+        return markdown_escape(self.text)
+
     def __html__(self) -> str:
         """Return HTML version of string."""
         # Localize lazy string on demand
@@ -577,7 +581,11 @@ class MarkdownCompositeBase(MutableComposite):
     # Return a string representation of the text (see class decorator)
     def __str__(self):
         """Return string representation."""
-        return self.text or ''
+        return self._text or ''
+
+    def __markdown__(self):
+        """Return source Markdown (for escaper)."""
+        return self._text or ''
 
     # Return a HTML representation of the text
     def __html__(self):
