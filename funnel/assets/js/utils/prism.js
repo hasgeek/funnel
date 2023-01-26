@@ -1,8 +1,11 @@
 import Prism from 'prismjs';
+import 'prismjs/plugins/autoloader/prism-autoloader';
 import 'prismjs/plugins/match-braces/prism-match-braces';
-import 'prismjs/plugins/show-language/prism-show-language';
 import 'prismjs/plugins/toolbar/prism-toolbar';
+import 'prismjs/plugins/show-language/prism-show-language';
 import 'prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard';
+
+Prism.plugins.autoloader.languages_path = '/static/build/js/prismjs/components/';
 
 const PrismEmbed = {
   activatePrism() {
