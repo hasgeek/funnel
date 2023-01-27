@@ -16,16 +16,29 @@ repos:
     hooks:
       - id: pip-compile
         name: pip-compile requirements.in
-        args: ['requirements.in']
+        args: ['--output-file', 'requirements.txt', 'requirements.in']
         files: ^requirements\.(in|txt)$
       - id: pip-compile
-        name: pip-compile requirements_dev.in
-        args: ['requirements_dev.in']
-        files: ^requirements_dev\.(in|txt)$
-      - id: pip-compile
         name: pip-compile requirements_test.in
-        args: ['requirements_test.in']
-        files: ^requirements_test\.(in|txt)$
+        args:
+          [
+            '--output-file',
+            'requirements_test.txt',
+            'requirements.in',
+            'requirements_test.in',
+          ]
+        files: ^requirements(_test)?\.(in|txt)$
+      - id: pip-compile
+        name: pip-compile requirements_dev.in
+        args:
+          [
+            '--output-file',
+            'requirements_dev.txt',
+            'requirements.in',
+            'requirements_test.in',
+            'requirements_dev.in',
+          ]
+        files: ^requirements(_test|_dev)?\.(in|txt)$
   - repo: https://github.com/lucasmbrown/mirrors-autoflake
     rev: v1.3
     hooks:
