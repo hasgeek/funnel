@@ -3,7 +3,7 @@ import TypeformEmbed from './typeform_embed';
 import MarkmapEmbed from './markmap';
 import addMermaidEmbed from './mermaid';
 import PrismEmbed from './prism';
-import MarkdownMUITabs from './tabs';
+import MUITabs from './tabs';
 
 export default function initEmbed(parentContainer = '.markdown') {
   TypeformEmbed.init(parentContainer);
@@ -11,5 +11,5 @@ export default function initEmbed(parentContainer = '.markdown') {
   MarkmapEmbed.init(parentContainer);
   addMermaidEmbed(parentContainer);
   PrismEmbed.init(parentContainer);
-  MarkdownMUITabs.init(parentContainer);
+  MUITabs.init(parentContainer);
 }
