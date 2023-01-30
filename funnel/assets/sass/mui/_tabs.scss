@@ -2,10 +2,13 @@
  * MUI Tabs module
  */
 
-.mui-tabs__bar {
+ .mui-tabs__bar {
+  display: flex;
+  position: relative;
   list-style: none;
   padding-left: 0;
   margin-bottom: 0;
+  gap: 16px;
   background-color: transparent;
   white-space: nowrap;
   overflow-x: auto;
@@ -14,25 +17,30 @@
     display: inline-block;
 
     > a {
-      display: block;
+      display: flex;
       white-space: nowrap;
-      text-transform: uppercase;
+      // text-transform: uppercase;
       font-weight: 500;
       font-size: 14px;
       color: $mui-tab-font-color;
       cursor: default;
-      height: 48px;
-      line-height: 48px;
-      padding-left: 24px;
-      padding-right: 24px;
+      // height: 48px;
+      // line-height: 48px;
+      line-height: 21px;
+      // padding-left: 24px;
+      // padding-right: 24px;
+      padding: 12px 0;
       user-select: none;
 
       &:hover {
         text-decoration: none;
+        color: $mui-tab-border-color-hover; 
+        border-bottom: 2px solid $mui-tab-font-color-hover;
       }
     }
 
     &.mui--is-active {
+      text-decoration: none;
       border-bottom: 2px solid $mui-tab-border-color-active;
 
       > a {
@@ -40,6 +48,8 @@
           color: $mui-tab-font-color;
         } @else {
           color: $mui-tab-font-color-active;
+          border-bottom: none;
+          text-decoration: none;
         }
       }
     }
@@ -62,10 +72,63 @@
   }
 }
 
+.tabpanel__body__padding {
+  padding: 8px 0 16px 0 !important;
+}
+
 .mui-tabs__pane {
   display: none;
 
   &.mui--is-active {
     display: block;
   }
+}
+
+/*
+ OVERFLOW ARROWS STYLING
+*/
+
+/* hiding scrollbar */
+
+.mui-tabs__bar::-webkit-scrollbar {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+  position: relative;
+}
+.mui-tabs__bar::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}
+
+.tabs__icon-wrapper .overflow-icon{
+  position: absolute;
+  left: 0;
+  width: 6px;
+  height: 14px;
+  display: none;
+  align-items: center;
+  cursor: pointer;
+  color: #4d5763;
+  font-size: 14px;
+  line-height: 21px;
+}
+.overflow-icon:first-child {
+  position: relative;
+  display: flex;
+  left: 4px;
+}
+.overflow-icon:last-child {
+  display: flex;
+  position: relative;
+  right: 4px;
+  justify-content: flex-end;
+}
+.overflow-icon:hover{
+  color: #1f2d3d;
+}
+
+.tabs__icon-wrapper {
+  display: flex;
+  position: relative;
+  max-width: 100%;
+  align-items: center;
 }

@@ -1,3 +1,5 @@
+import Utils from './helper';
+
 const MUITabs = {
   async init(container) {
     const parentElement = $(container || 'body');
@@ -41,8 +43,55 @@ const MUITabs = {
         this.addEventListener('mui.tabs.hideend', function addListenerToHiddenTab(ev) {
           $(ev.srcElement).attr({ tabindex: '-1', 'aria-selected': 'false' });
         });
+
+        // const iconElements = document.querySelectorAll('.overflow-icon');
+
+        // if (iconElements.length > 2) {
+        //   const lastIcon = iconElements[iconElements.length - 1];
+        //   lastIcon.parentNode.removeChild(lastIcon);
+
+        //   const secondlastIcon = iconElements[iconElements.length - 2];
+        //   secondlastIcon.parentNode.removeChildElement(secondlastIcon);
+        // }
+
+        // const wrapperElements = document.querySelectorAll('.tabs__icon-wrapper');
+
+        // if (wrapperElements.length > 1) {
+        //   const lastWrapperElement = wrapperElements[wrapperElements.length - 1];
+        //   lastWrapperElement.parentNode.removeChild(lastWrapperElement);
+        //   console.log(wrapperElements.length);
+        // }
       });
     });
+
+    const tabsBar = document.querySelector('.mui-tabs__bar');
+    console.log(tabsBar.scrollWidth, tabsBar.clientWidth);
+
+    if (tabsBar.scrollWidth - tabsBar.clientWidth > 0) {
+      const iconWrapper = document.createElement('div');
+      const overflowIconLeft = Utils.getFaiconHTML('angle-left', 'body', true, [
+        'overflow-icon',
+      ]);
+      const overflowIconRight = Utils.getFaiconHTML('angle-right', 'body', true, [
+        'overflow-icon',
+      ]);
+
+      const tabsContainer = tabsBar.parentNode;
+
+      iconWrapper.setAttribute('class', 'tabs__icon-wrapper');
+
+      tabsContainer.replaceChild(iconWrapper, tabsBar);
+      iconWrapper.appendChild(tabsBar);
+
+      tabsBar.insertAdjacentElement('beforebegin', overflowIconLeft);
+      tabsBar.insertAdjacentElement('afterend', overflowIconRight);
+    }
+
+    // parentElement.find('[data-mui-controls^="md-tab-"]').each(function attach() {
+    //   this.addEventListener('mui.tabs.showend', function showingTab(ev) {
+    //     console.log(ev);
+    //   });
+    // });
   },
 };
 
