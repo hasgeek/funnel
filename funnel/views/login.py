@@ -96,7 +96,8 @@ def get_otp_form(otp_session: OtpSession) -> Union[OtpForm, RegisterOtpForm]:
 
 
 def render_otp_form(
-    form: Union[OtpForm, RegisterOtpForm], cancel_url: str
+    form: Union[OtpForm, RegisterOtpForm], cancel_url: str,
+    action: str
 ) -> ReturnView:
     """Render OTP form."""
     form.form_nonce.data = form.form_nonce.default()
@@ -106,7 +107,7 @@ def render_otp_form(
             form=form,
             formid='login-otp',
             ref_id='form-otp',
-            action=url_for('login'),
+            action=action,
             submit=_("Confirm"),
             cancel_url=cancel_url,
             with_chrome=request_wants.html_fragment,  # with_chrome is a legacy name
@@ -116,7 +117,7 @@ def render_otp_form(
     )
 
 
-def render_login_form(form: LoginForm) -> ReturnView:
+def render_login_form(form: LoginForm, action: str) -> ReturnView:
     """Render login form."""
     return (
         render_template(
@@ -124,6 +125,7 @@ def render_login_form(form: LoginForm) -> ReturnView:
             form=form,
             formid='passwordlogin',
             ref_id='form-passwordlogin',
+            action=action,
             with_chrome=request_wants.html_fragment,  # with_chrome is a legacy name
         ),
         200,
@@ -141,6 +143,10 @@ def login() -> ReturnView:
     # Remember where the user came from if it wasn't already saved.
     save_session_next_url()
     next_url = session['next']
+    action_url = url_for('login', next=next_url)
+    if 'use' in request.args:
+        next_url = next_url + '#register-modal'
+        action_url = url_for('login', next=next_url, use=request.args['use'])
 
     loginform = LoginForm()
     loginmethod = None
@@ -244,9 +250,11 @@ def login() -> ReturnView:
                 phone=loginform.new_phone,
                 email=loginform.new_email,
             )
+            action_url
             if otp_session.send():
                 return render_otp_form(
-                    get_otp_form(otp_session), url_for('login', next=next_url)
+                    get_otp_form(otp_session), url_for('login', next=next_url),
+                    action_url
                 )
             # If an OTP could not be sent, flash messages from otp_session.send() will
             # be rendered and this view will fallback to the default render of the
@@ -295,17 +303,17 @@ def login() -> ReturnView:
                     render_redirect(get_next_url(session=True)),
                     'otp',
                 )
-            return render_otp_form(otp_form, url_for('login', next=next_url))
+            return render_otp_form(otp_form, url_for('login', next=next_url), action_url)
         except OtpTimeoutError as exc:
             reason = str(exc)
             current_app.logger.info("Login OTP timed out with %s", reason)
             flash(_("The OTP has expired. Try again?"), category='error')
-            return render_login_form(loginform)
+            return render_login_form(loginform, action_url)
     elif request.method == 'POST':
         # This should not happen. We received an incomplete form.
         abort(422)
     if request_wants.html_fragment and formid == 'passwordlogin':
-        return render_login_form(loginform)
+        return render_login_form(loginform, action_url)
 
     # Default action, render the full login page
     return (
@@ -317,6 +325,7 @@ def login() -> ReturnView:
             formid='passwordlogin',
             ref_id='form-passwordlogin',
             title=_("Login"),
+            action=action_url,
             ajax=True,
             with_chrome=request_wants.html_fragment,
         ),
