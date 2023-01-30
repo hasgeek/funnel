@@ -402,6 +402,25 @@ const Utils = {
     }
     return false;
   },
+  getFaiconHTML(icon, iconSize = 'body', baseline = true, cssClassArray = []) {
+    const svgElem = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const useElem = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+
+    svgElem.setAttribute('aria-hidden', true);
+    svgElem.setAttribute('role', 'img');
+    useElem.setAttributeNS(
+      'http://www.w3.org/1999/xlink',
+      'xlink:href',
+      `${window.Hasgeek.Config.svgIconUrl}#${icon}`
+    );
+    svgElem.appendChild(useElem);
+    svgElem.classList.add(`fa5-icon--${iconSize}`);
+    if (baseline) {
+      svgElem.classList.add('fa5--align-baseline');
+    }
+    svgElem.classList.add('fa5-icon', ...cssClassArray);
+    return svgElem;
+  },
 };
 
 export default Utils;
