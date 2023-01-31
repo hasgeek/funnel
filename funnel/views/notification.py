@@ -546,8 +546,34 @@ def dispatch_transport_sms(user_notification, view):
     )
 
 
+@rqjob
+@transport_worker_wrapper
+def dispatch_transport_whatsapp(user_notification, view):
+    if not user_notification.user.main_notification_preferences.by_transport(
+        'whatsapp'
+    ):
+        # Cancel delivery if user's main switch is off. This was already checked, but
+        # the worker may be delayed and the user may have changed their preference.
+        user_notification.messageid_whatsapp = 'cancelled'
+        return
+    user_notification.messageid_whatsapp = sms.send(
+        str(view.transport_for('sms')), view.sms_with_unsubscribe()
+    )
+    statsd.incr(
+        'notification.transport',
+        tags={
+            'notification_type': user_notification.notification_type,
+            'transport': 'whatsapp',
+        },
+    )
+
+
 # Add transport workers here as their worker methods are written
-transport_workers = {'email': dispatch_transport_email, 'sms': dispatch_transport_sms}
+transport_workers = {
+    'email': dispatch_transport_email,
+    'sms': dispatch_transport_sms,
+    'whatsapp': dispatch_transport_whatsapp,
+}
 
 # --- Notification background workers --------------------------------------------------
 

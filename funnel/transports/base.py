@@ -24,5 +24,7 @@ def init():
         platform_transports['email'] = True
     if sms_init():
         platform_transports['sms'] = True
+    if app.config.get('WHATSAPP_TOKEN'):
+        platform_transports['whatsapp'] = True
 
     # Other transports are not supported yet

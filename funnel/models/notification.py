@@ -1303,7 +1303,7 @@ class __User:
                 by_sms=True,
                 by_webpush=False,
                 by_telegram=False,
-                by_whatsapp=False,
+                by_whatsapp=True,
             )
             db.session.add(main)
             return main
