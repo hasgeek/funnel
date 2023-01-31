@@ -35,6 +35,7 @@ types-itsdangerous
 types-maxminddb
 types-python-dateutil
 types-pytz
+types-redis
 types-requests
 types-setuptools
 types-six

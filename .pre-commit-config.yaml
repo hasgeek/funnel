@@ -12,7 +12,7 @@ repos:
     hooks:
       - id: check-pre-commit-ci-config
   - repo: https://github.com/jazzband/pip-tools
-    rev: 6.12.1
+    rev: 6.12.2
     hooks:
       - id: pip-compile
         name: pip-compile requirements.in
@@ -97,7 +97,7 @@ repos:
         args: ['--no-warn-unused-ignores', '--ignore-missing-imports']
         additional_dependencies:
           - lxml-stubs
-          - sqlalchemy-stubs
+          - sqlalchemy
           - toml
           - types-all
           - typing-extensions

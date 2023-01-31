@@ -48,7 +48,7 @@ bcrypt==4.0.1
     # via
     #   -r requirements.in
     #   paramiko
-beautifulsoup4==4.11.1
+beautifulsoup4==4.11.2
     # via -r requirements_test.in
 better-profanity==0.6.1
     # via -r requirements.in
@@ -125,7 +125,7 @@ docopt==0.6.2
     # via coveralls
 emoji==2.2.0
     # via baseframe
-exceptiongroup==1.0.4
+exceptiongroup==1.1.0
     # via
     #   pytest
     #   trio
@@ -155,7 +155,7 @@ flask-assets==2.0
     #   -r requirements.in
     #   baseframe
     #   coaster
-flask-babel==3.0.0
+flask-babel==3.0.1
     # via
     #   -r requirements.in
     #   baseframe
@@ -167,7 +167,7 @@ flask-flatpages==0.8.1
     # via -r requirements.in
 flask-mailman==0.3.0
     # via -r requirements.in
-flask-migrate==4.0.2
+flask-migrate==4.0.3
     # via
     #   -r requirements.in
     #   coaster
@@ -177,7 +177,7 @@ flask-rq2==18.3
     # via -r requirements.in
 flask-script==2.0.6
     # via coaster
-flask-sqlalchemy==3.0.2
+flask-sqlalchemy==3.0.3
     # via
     #   -r requirements.in
     #   coaster
@@ -201,7 +201,7 @@ geoip2==4.6.0
     # via -r requirements.in
 grapheme==0.6.0
     # via baseframe
-greenlet==2.0.1
+greenlet==2.0.2
     # via -r requirements.in
 h11==0.14.0
     # via wsproto
@@ -230,7 +230,7 @@ importlib-metadata==6.0.0
     # via
     #   flask
     #   markdown
-iniconfig==1.1.1
+iniconfig==2.0.0
     # via pytest
 isoweek==1.3.3
     # via coaster
@@ -272,7 +272,7 @@ markdown-it-py==2.1.0
     #   -r requirements.in
     #   mdit-py-plugins
     #   rich
-markupsafe==2.1.1
+markupsafe==2.1.2
     # via
     #   baseframe
     #   coaster
@@ -318,7 +318,7 @@ orderedmultidict==1.0.1
     # via furl
 outcome==1.2.0
     # via trio
-packaging==22.0
+packaging==23.0
     # via
     #   marshmallow
     #   pytest
@@ -334,7 +334,7 @@ parse-type==0.6.0
     # via pytest-bdd
 passlib==1.7.4
     # via -r requirements.in
-phonenumbers==8.13.4
+phonenumbers==8.13.5
     # via -r requirements.in
 pluggy==1.0.0
     # via pytest
@@ -391,7 +391,7 @@ pyparsing==3.0.9
     # via httplib2
 pysocks==1.7.1
     # via urllib3
-pytest==7.2.0
+pytest==7.2.1
     # via
     #   -r requirements_test.in
     #   pytest-bdd
@@ -411,7 +411,7 @@ pytest-env==0.8.1
     # via -r requirements_test.in
 pytest-remotedata==0.4.0
     # via -r requirements_test.in
-pytest-rerunfailures==10.3
+pytest-rerunfailures==11.0
     # via -r requirements_test.in
 pytest-splinter==3.3.2
     # via -r requirements_test.in
@@ -422,7 +422,7 @@ python-dateutil==2.8.2
     #   croniter
     #   icalendar
     #   rq-scheduler
-python-dotenv==0.21.0
+python-dotenv==0.21.1
     # via
     #   -r requirements.in
     #   pytest-dotenv
@@ -455,7 +455,7 @@ redis==4.4.2
     #   rq
 regex==2022.10.31
     # via nltk
-requests==2.28.1
+requests==2.28.2
     # via
     #   -r requirements.in
     #   baseframe
@@ -478,7 +478,7 @@ requests-mock==1.10.0
     #   baseframe
 requests-oauthlib==1.3.1
     # via tweepy
-rich==13.2.0
+rich==13.3.1
     # via -r requirements.in
 rq==1.12.0
     # via
@@ -490,7 +490,7 @@ rq-scheduler==0.11.0
     # via flask-rq2
 rsa==4.9
     # via oauth2client
-selenium==4.7.2
+selenium==4.8.0
     # via pytest-splinter
 semantic-version==2.10.0
     # via
@@ -523,7 +523,7 @@ sortedcontainers==2.4.0
     # via trio
 soupsieve==2.3.2.post1
     # via beautifulsoup4
-splinter==0.18.1
+splinter==0.19.0
     # via pytest-splinter
 sqlalchemy==2.0.0
     # via
@@ -592,13 +592,14 @@ uglipyjs==0.2.5
     # via coaster
 unidecode==1.3.6
     # via coaster
-urllib3[socks]==1.26.13
+urllib3[socks]==1.26.14
     # via
     #   geoip2
     #   pytest-splinter
     #   requests
     #   selenium
     #   sentry-sdk
+    #   splinter
 user-agents==2.2.0
     # via -r requirements.in
 webassets==2.0
@@ -628,7 +629,7 @@ wtforms-sqlalchemy==0.3
     # via baseframe
 yarl==1.8.2
     # via aiohttp
-zipp==3.11.0
+zipp==3.12.0
     # via importlib-metadata
 zxcvbn==4.4.28
     # via -r requirements.in
