@@ -127,7 +127,7 @@
         {%- endif %}
       <div class="register-block__btnwrapper {% if project.features.rsvp_registered() %} register-block__btnwrapper--width {%- endif %}">
         {%- if current_auth.is_anonymous %}
-          <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} zero-top-margin zero-bottom-margin register-block__btn js-login-register-btn" href="{{ url_for('login', next=request.path, use='modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
+          <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} zero-top-margin zero-bottom-margin register-block__btn js-login-register-btn" href="{{ url_for('login', next=request.path, modal='#register-modal', _anchor='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
         {% elif project.features.rsvp_unregistered() -%}
           <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} zero-top-margin zero-bottom-margin register-block__btn js-register-btn {% if project.features.rsvp_registered() or project.view_for('rsvp_list').is_available() %}register-block__btn--small{%- endif %}" href="#register-modal" role="button" aria-haspopup="true">{{ project.views.register_button_text() }}</a>
           <div class="modal" id="register-modal" role="dialog" aria-labelledby="confirm-rsvp" aria-modal="true" tabindex="-1">

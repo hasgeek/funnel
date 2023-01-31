@@ -144,9 +144,9 @@ def login() -> ReturnView:
     save_session_next_url()
     next_url = session['next']
     action_url = url_for('login', next=next_url)
-    if 'use' in request.args:
-        next_url = next_url + '#register-modal'
-        action_url = url_for('login', next=next_url, use=request.args['use'])
+    if 'modal' in request.args:
+        next_url = next_url + request.args['modal']
+        action_url = url_for('login', next=next_url, modal=request.args['modal'], _anchor=request.args['modal'])
 
     loginform = LoginForm()
     loginmethod = None
