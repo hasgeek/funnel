@@ -3,7 +3,17 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Iterable, Iterator, List, Optional, Set, Union, cast, overload
+from typing import (
+    ClassVar,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Set,
+    Union,
+    cast,
+    overload,
+)
 from uuid import UUID
 import hashlib
 import itertools
@@ -28,10 +38,11 @@ from coaster.sqlalchemy import (
 )
 from coaster.utils import LabeledEnum, newsecret, require_one_of, utcnow
 
-from ..typing import Mapped, OptionalMigratedTables
+from ..typing import OptionalMigratedTables
 from . import (
     BaseMixin,
     LocaleType,
+    Mapped,
     TimezoneType,
     TSVectorType,
     UuidMixin,
@@ -184,7 +195,7 @@ class User(
     __title_length__ = 80
 
     #: The user's fullname
-    fullname: sa.Column[str] = with_roles(
+    fullname: Mapped[str] = with_roles(
         sa.Column(sa.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
     )
@@ -219,7 +230,7 @@ class User(
     #: Other user accounts that were merged into this user account
     oldusers = association_proxy('oldids', 'olduser')
 
-    search_vector = sa.orm.deferred(
+    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'fullname',
@@ -239,15 +250,6 @@ class User(
         ),
         sa.Index('ix_user_search_vector', 'search_vector', postgresql_using='gin'),
     )
-
-    _defercols = [
-        sa.orm.defer('created_at'),
-        sa.orm.defer('updated_at'),
-        sa.orm.defer('pw_hash'),
-        sa.orm.defer('pw_set_at'),
-        sa.orm.defer('pw_expires_at'),
-        sa.orm.defer('timezone'),
-    ]
 
     __roles__ = {
         'all': {
@@ -297,8 +299,8 @@ class User(
         },
     }
 
-    primary_email: Optional[UserEmail]
-    primary_phone: Optional[UserPhone]
+    # primary_email: ClassVar[Optional[UserEmail]]
+    # primary_phone: ClassVar[Optional[UserPhone]]
 
     @hybrid_property
     def name(self) -> Optional[str]:
@@ -322,7 +324,7 @@ class User(
     @name.expression
     def name(cls):  # noqa: N805  # pylint: disable=no-self-argument
         """Return @name from linked account as a SQL expression."""
-        return sa.select([Profile.name]).where(Profile.user_id == cls.id).label('name')
+        return sa.select(Profile.name).where(Profile.user_id == cls.id).label('name')
 
     with_roles(name, read={'all'})
     username: Optional[str] = name  # type: ignore[assignment]
@@ -951,6 +953,16 @@ class User(
 # XXX: Deprecated, still here for Baseframe compatibility
 User.userid = User.uuid_b64
 
+User._defercols = [  # pylint: disable=protected-access
+    sa.orm.defer(User.created_at),
+    sa.orm.defer(User.updated_at),
+    sa.orm.defer(User.pw_hash),
+    sa.orm.defer(User.pw_set_at),
+    sa.orm.defer(User.pw_expires_at),
+    sa.orm.defer(User.timezone),
+]
+
+
 auto_init_default(User._state)  # pylint: disable=protected-access
 add_search_trigger(User, 'search_vector')
 
@@ -962,7 +974,7 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __uuid_primary_key__ = True
 
     #: Old user account, if still present
-    olduser = sa.orm.relationship(
+    olduser: Mapped[User] = sa.orm.relationship(
         User,
         primaryjoin='foreign(UserOldId.id) == remote(User.uuid)',
         backref=sa.orm.backref('oldid', uselist=False),
@@ -970,7 +982,7 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     #: User id of new user
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     #: New user account
-    user = sa.orm.relationship(
+    user: Mapped[User] = sa.orm.relationship(
         User, foreign_keys=[user_id], backref=sa.orm.backref('oldids', cascade='all')
     )
 
@@ -1092,7 +1104,7 @@ class Organization(
     __tablename__ = 'organization'
     __title_length__ = 80
 
-    profile: Profile
+    # profile: Mapped[Profile]
 
     title = with_roles(
         sa.Column(sa.Unicode(__title_length__), default='', nullable=False),
@@ -1110,7 +1122,7 @@ class Organization(
     #: Organization state manager
     state = StateManager('_state', ORGANIZATION_STATE, doc="Organization state")
 
-    search_vector = sa.orm.deferred(
+    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'title',
@@ -1157,8 +1169,6 @@ class Organization(
         'related': {'name', 'title', 'pickername', 'created_at'},
     }
 
-    _defercols = [sa.orm.defer('created_at'), sa.orm.defer('updated_at')]
-
     def __init__(self, owner: User, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         db.session.add(
@@ -1188,10 +1198,10 @@ class Organization(
     @name.expression
     def name(  # pylint: disable=no-self-argument
         cls,  # noqa: N805
-    ) -> sa.sql.expression.Select:
+    ) -> sa.Select:
         """Return @name from linked profile as a SQL expression."""
         return (  # type: ignore[return-value]
-            sa.select([Profile.name])
+            sa.select(Profile.name)
             .where(Profile.organization_id == cls.id)
             .label('name'),
         )
@@ -1302,6 +1312,12 @@ class Organization(
         return orgs
 
 
+Organization._defercols = [  # pylint: disable=protected-access
+    sa.orm.defer(Organization.created_at),
+    sa.orm.defer(Organization.updated_at),
+]
+
+
 add_search_trigger(Organization, 'search_vector')
 
 
@@ -1386,7 +1402,9 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
     email: Mapped[str]
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user = sa.orm.relationship(User, backref=sa.orm.backref('emails', cascade='all'))
+    user: Mapped[User] = sa.orm.relationship(
+        User, backref=sa.orm.backref('emails', cascade='all')
+    )
 
     private = sa.Column(sa.Boolean, nullable=False, default=False)
     type = sa.Column(sa.Unicode(30), nullable=True)  # noqa: A003
@@ -1564,7 +1582,7 @@ class UserEmailClaim(
     email: Mapped[str]
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user = sa.orm.relationship(
+    user: Mapped[User] = sa.orm.relationship(
         User, backref=sa.orm.backref('emailclaims', cascade='all')
     )
     verification_code = sa.Column(sa.String(44), nullable=False, default=newsecret)
@@ -1742,7 +1760,9 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
     __phone_for__ = 'user'
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user = sa.orm.relationship(User, backref=sa.orm.backref('phones', cascade='all'))
+    user: Mapped[User] = sa.orm.relationship(
+        User, backref=sa.orm.backref('phones', cascade='all')
+    )
 
     private = sa.Column(sa.Boolean, nullable=False, default=False)
     type = sa.Column(sa.Unicode(30), nullable=True)  # noqa: A003
@@ -1923,7 +1943,7 @@ class UserExternalId(BaseMixin, db.Model):  # type: ignore[name-defined]
     #: Foreign key to user table
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     #: User that this connected account belongs to
-    user = sa.orm.relationship(
+    user: Mapped[User] = sa.orm.relationship(
         User, backref=sa.orm.backref('externalids', cascade='all')
     )
     #: Identity of the external service (in app's login provider registry)

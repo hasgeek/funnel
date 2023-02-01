@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Union
+from typing import List, Union
 
 from sqlalchemy.ext.orderinglist import ordering_list
-from sqlalchemy.sql import case, exists
+from sqlalchemy.sql import exists
 
 from coaster.sqlalchemy import with_roles
 
-from . import BaseScopedNameMixin, TSVectorType, db, hybrid_property, sa
+from . import BaseScopedNameMixin, Mapped, TSVectorType, db, hybrid_property, sa
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
@@ -47,12 +47,12 @@ class Label(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     # Backref from project is defined in the Project model with an ordering list
-    project: sa.orm.relationship[Project] = with_roles(
+    project: Mapped[Project] = with_roles(
         sa.orm.relationship(Project), grants_via={None: project_child_role_map}
     )
     # `parent` is required for
     # :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
-    parent = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa.orm.synonym('project')
 
     #: Parent label's id. Do not write to this column directly, as we don't have the
     #: ability to : validate the value within the app. Always use the :attr:`main_label`
@@ -64,7 +64,7 @@ class Label(
         nullable=True,
     )
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
-    options = sa.orm.relationship(
+    options: Mapped[Label] = sa.orm.relationship(
         'Label',
         backref=sa.orm.backref('main_label', remote_side='Label.id'),
         order_by='Label.seq',
@@ -101,7 +101,7 @@ class Label(
     #: although all the previous records will stay in database.
     _archived = sa.Column('archived', sa.Boolean, nullable=False, default=False)
 
-    search_vector = sa.orm.deferred(
+    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'name',
@@ -118,7 +118,7 @@ class Label(
     )
 
     #: Proposals that this label is attached to
-    proposals = sa.orm.relationship(
+    proposals: Mapped[List[Proposal]] = sa.orm.relationship(
         Proposal, secondary=proposal_label, back_populates='labels'
     )
 
@@ -190,15 +190,13 @@ class Label(
 
     @restricted.expression
     def restricted(cls):  # noqa: N805  # pylint: disable=no-self-argument
-        return case(
-            [
-                (
-                    cls.main_label_id.isnot(None),
-                    sa.select([Label._restricted])
-                    .where(Label.id == cls.main_label_id)
-                    .as_scalar(),
-                )
-            ],
+        return sa.case(
+            (
+                cls.main_label_id.isnot(None),
+                sa.select(Label._restricted)
+                .where(Label.id == cls.main_label_id)
+                .as_scalar(),
+            ),
             else_=cls._restricted,
         )
 
@@ -216,16 +214,14 @@ class Label(
 
     @archived.expression
     def archived(cls):  # noqa: N805  # pylint: disable=no-self-argument
-        return case(
-            [
-                (cls._archived.is_(True), cls._archived),
-                (
-                    cls.main_label_id.isnot(None),
-                    sa.select([Label._archived])
-                    .where(Label.id == cls.main_label_id)
-                    .as_scalar(),
-                ),
-            ],
+        return sa.case(
+            (cls._archived.is_(True), cls._archived),
+            (
+                cls.main_label_id.isnot(None),
+                sa.select(Label._archived)
+                .where(Label.id == cls.main_label_id)
+                .as_scalar(),
+            ),
             else_=cls._archived,
         )
 

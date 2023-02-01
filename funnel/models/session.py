@@ -46,13 +46,13 @@ class Session(
     __tablename__ = 'session'
 
     project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
-    project: sa.orm.relationship[Project] = with_roles(
+    project: Mapped[Project] = with_roles(
         sa.orm.relationship(
             Project, backref=sa.orm.backref('sessions', cascade='all', lazy='dynamic')
         ),
         grants_via={None: project_child_role_map},
     )
-    parent = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa.orm.synonym('project')
     description = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
@@ -71,12 +71,12 @@ class Session(
     )
     is_break = sa.Column(sa.Boolean, default=False, nullable=False)
     featured = sa.Column(sa.Boolean, default=False, nullable=False)
-    banner_image_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
+    banner_image_url: Mapped[Optional[str]] = sa.Column(ImgeeType, nullable=True)
 
     #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
     revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
 
-    search_vector = sa.orm.deferred(
+    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'title',
@@ -283,11 +283,11 @@ class __Project:
     # https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
     schedule_start_at = with_roles(
         sa.orm.column_property(
-            sa.select([sa.func.min(Session.start_at)])  # type: ignore[attr-defined]
+            sa.select(sa.func.min(Session.start_at))
             .where(Session.start_at.isnot(None))
             .where(Session.project_id == Project.id)
             .correlate_except(Session)  # type: ignore[arg-type]
-            .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
+            .scalar_subquery()
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},
@@ -295,11 +295,9 @@ class __Project:
 
     next_session_at = with_roles(
         sa.orm.column_property(
-            sa.select(  # type: ignore[attr-defined]
-                [sa.func.min(sa.sql.column('start_at'))]
-            )
+            sa.select(sa.func.min(sa.column('start_at')))
             .select_from(
-                sa.select([sa.func.min(Session.start_at).label('start_at')])
+                sa.select(sa.func.min(Session.start_at).label('start_at'))
                 .where(Session.start_at.isnot(None))
                 .where(Session.start_at >= sa.func.utcnow())
                 .where(Session.project_id == Project.id)
@@ -315,18 +313,18 @@ class __Project:
                     .correlate(Project)  # type: ignore[arg-type]
                 )
             )
-            .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
+            .scalar_subquery()
         ),
         read={'all'},
     )
 
     schedule_end_at = with_roles(
         sa.orm.column_property(
-            sa.select([sa.func.max(Session.end_at)])  # type: ignore[attr-defined]
+            sa.select(sa.func.max(Session.end_at))
             .where(Session.end_at.isnot(None))
             .where(Session.project_id == Project.id)
             .correlate_except(Session)  # type: ignore[arg-type]
-            .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
+            .scalar_subquery()
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},

@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from baseframe import __
 
-from ..typing import Mapped, UuidModelType
+from ..typing import UuidModelType
+from . import Mapped
 from .comment import Comment, Commentset
 from .moderation import CommentModeratorReport
 from .notification import Notification, notification_categories

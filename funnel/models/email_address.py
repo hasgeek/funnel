@@ -29,8 +29,15 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, require_one_of
 
 from ..signals import emailaddress_refcount_dropping
-from ..typing import Mapped
-from . import BaseMixin, db, declarative_mixin, declared_attr, hybrid_property, sa
+from . import (
+    BaseMixin,
+    Mapped,
+    db,
+    declarative_mixin,
+    declared_attr,
+    hybrid_property,
+    sa,
+)
 
 __all__ = [
     'EMAIL_DELIVERY_STATE',
@@ -203,7 +210,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
         sa.Column(
             sa.LargeBinary,
             sa.CheckConstraint(
-                sa.func.length(sa.sql.column('blake2b160')) == 20,
+                'LENGTH(blake2b160) = 20',
                 name='email_address_blake2b160_check',
             ),
             nullable=False,
@@ -699,9 +706,8 @@ class EmailAddressMixin:
     __email_is_exclusive__: bool = False
 
     @declared_attr
-    def email_address_id(  # pylint: disable=no-self-argument
-        cls,
-    ) -> sa.Column[int]:
+    @classmethod
+    def email_address_id(cls) -> Mapped[int]:
         """Foreign key to email_address table."""
         return sa.Column(
             sa.Integer,
@@ -712,9 +718,8 @@ class EmailAddressMixin:
         )
 
     @declared_attr
-    def email_address(  # pylint: disable=no-self-argument
-        cls,
-    ) -> sa.orm.relationship[EmailAddress]:
+    @classmethod
+    def email_address(cls) -> Mapped[EmailAddress]:
         """Instance of :class:`EmailAddress` as a relationship."""
         backref_name = 'used_in_' + cls.__tablename__
         EmailAddress.__backrefs__.add(backref_name)
@@ -722,8 +727,9 @@ class EmailAddressMixin:
             EmailAddress.__exclusive_backrefs__.add(backref_name)
         return sa.orm.relationship(EmailAddress, backref=backref_name)
 
-    @declared_attr
-    def email(cls) -> Mapped[Optional[str]]:  # pylint: disable=no-self-argument
+    @declared_attr.directive
+    @classmethod
+    def email(cls) -> Optional[str]:
         """Shorthand for ``self.email_address.email``."""
 
         def email_get(self) -> Optional[str]:

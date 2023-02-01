@@ -375,7 +375,7 @@ def add_search_trigger(
 
         class MyModel(db.Model):  # type: ignore[name-defined]
             ...
-            search_vector = sa.orm.deferred(sa.Column(
+            search_vector: Mapped[TSVectorType] = sa.orm.deferred(sa.Column(
                 TSVectorType(
                     'name', 'title', *indexed_columns,
                     weights={'name': 'A', 'title': 'B'},
@@ -464,22 +464,16 @@ def add_search_trigger(
         '''
     )
 
-    # FIXME: `DDL().execute_if` accepts a string dialect, but sqlalchemy-stubs
-    # incorrectly declares the type as `Optional[Dialect]`
-    # https://github.com/dropbox/sqlalchemy-stubs/issues/181
-
     event.listen(
         model.__table__,
         'after_create',
-        DDL(trigger_function).execute_if(
-            dialect='postgresql'  # type: ignore[arg-type]
-        ),
+        DDL(trigger_function).execute_if(dialect='postgresql'),
     )
 
     event.listen(
         model.__table__,
         'before_drop',
-        DDL(drop_statement).execute_if(dialect='postgresql'),  # type: ignore[arg-type]
+        DDL(drop_statement).execute_if(dialect='postgresql'),
     )
 
     return {

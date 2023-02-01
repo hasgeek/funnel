@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING, Callable, TypeVar
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import Mapped, declarative_mixin, declared_attr
 from sqlalchemy_json import mutable_json_type
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType, UUIDType
 import sqlalchemy as sa  # noqa
@@ -27,27 +29,6 @@ from coaster.sqlalchemy import (
     UuidMixin,
     with_roles,
 )
-
-from ..typing import Mapped
-
-if not TYPE_CHECKING:
-    # pylint: disable=ungrouped-imports
-    from sqlalchemy.ext.hybrid import hybrid_property
-    from sqlalchemy.orm import declarative_mixin, declared_attr
-else:
-    from sqlalchemy.ext.declarative import declared_attr
-
-    hybrid_property = property
-    try:
-        # sqlalchemy-stubs (by Dropbox) can't find declarative_mixin, but
-        # sqlalchemy2-stubs (by SQLAlchemy) requires it
-        from sqlalchemy.orm import declarative_mixin  # type: ignore[attr-defined]
-    except ImportError:
-        T = TypeVar('T')
-
-        def declarative_mixin(cls: T) -> T:
-            return cls
-
 
 json_type: postgresql.JSONB = mutable_json_type(dbtype=postgresql.JSONB, nested=True)
 

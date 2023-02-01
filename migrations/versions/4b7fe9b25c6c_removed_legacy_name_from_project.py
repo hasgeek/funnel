@@ -99,7 +99,7 @@ def downgrade():
 
     for data in legacy_data:
         profile_id = conn.execute(
-            sa.select([profile.c.id])
+            sa.select(profile.c.id)
             .where(profile.c.name == data['profile_name'])
             .limit(1)
         ).fetchone()

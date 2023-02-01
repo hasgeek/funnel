@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime as datetime_type
 from typing import Iterable, Optional
 
 from baseframe import __
@@ -128,7 +129,7 @@ class Proposal(  # type: ignore[misc]
         grants={'creator', 'participant'},
     )
     project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
-    project: sa.orm.relationship[Project] = with_roles(
+    project: Mapped[Project] = with_roles(
         sa.orm.relationship(
             Project,
             primaryjoin=project_id == Project.id,
@@ -138,8 +139,9 @@ class Proposal(  # type: ignore[misc]
         ),
         grants_via={None: project_child_role_map},
     )
-    parent_id = sa.orm.synonym('project_id')
-    parent = sa.orm.synonym('project')
+    parent_id: Mapped[int] = sa.orm.synonym('project_id')
+    parent_id_column = 'project_id'
+    parent: Mapped[Project] = sa.orm.synonym('project')
 
     #: Reuse the `url_id` column from BaseScopedIdNameMixin as a sorting order column.
     #: `url_id` was a public number on talkfunnel.com, but is private on hasgeek.com.
@@ -152,7 +154,7 @@ class Proposal(  # type: ignore[misc]
     seq: Mapped[int] = sa.orm.synonym('url_id')
 
     # TODO: Stand-in for `submitted_at` until proposals have a workflow-driven datetime
-    datetime = sa.orm.synonym('created_at')
+    datetime: Mapped[datetime_type] = sa.orm.synonym('created_at')
 
     _state = sa.Column(
         'state',
@@ -166,7 +168,7 @@ class Proposal(  # type: ignore[misc]
     commentset_id = sa.Column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
-    commentset = sa.orm.relationship(
+    commentset: Mapped[Commentset] = sa.orm.relationship(
         Commentset,
         uselist=False,
         lazy='joined',
@@ -186,7 +188,7 @@ class Proposal(  # type: ignore[misc]
     #: Revision number maintained by SQLAlchemy, starting at 1
     revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
 
-    search_vector = sa.orm.deferred(
+    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'title',
@@ -489,7 +491,7 @@ class ProposalSuuidRedirect(BaseMixin, db.Model):  # type: ignore[name-defined]
     proposal_id = sa.Column(
         sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
-    proposal = sa.orm.relationship(Proposal)
+    proposal: Mapped[Proposal] = sa.orm.relationship(Proposal)
 
 
 @reopen(Commentset)

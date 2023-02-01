@@ -7,7 +7,7 @@ from datetime import timedelta
 from coaster.utils import utcnow
 
 from ..signals import session_revoked
-from . import BaseMixin, UuidMixin, db, sa
+from . import BaseMixin, Mapped, UuidMixin, db, sa
 from .helpers import reopen
 from .user import User
 
@@ -78,7 +78,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'user_session'
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user = sa.orm.relationship(
+    user: Mapped[User] = sa.orm.relationship(
         User, backref=sa.orm.backref('all_user_sessions', cascade='all', lazy='dynamic')
     )
 

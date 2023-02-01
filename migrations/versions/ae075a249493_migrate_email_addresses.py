@@ -169,7 +169,7 @@ def upgrade():
         'user_email', sa.Column('email_address_id', sa.Integer(), nullable=True)
     )
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user_email))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email))
     progress = get_progressbar("Emails", count)
     progress.start()
     items = conn.execute(
@@ -185,7 +185,7 @@ def upgrade():
     for counter, item in enumerate(items):
         blake2b160 = email_blake2b160_hash(item.email)
         existing = conn.execute(
-            sa.select([email_address.c.id, email_address.c.created_at])
+            sa.select(email_address.c.id, email_address.c.created_at)
             .where(email_address.c.blake2b160 == blake2b160)
             .limit(1)
         ).fetchone()
@@ -263,7 +263,7 @@ def upgrade():
         ondelete='SET NULL',
     )
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user_email_claim))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email_claim))
     progress = get_progressbar("Email claims", count)
     progress.start()
     items = conn.execute(
@@ -279,7 +279,7 @@ def upgrade():
     for counter, item in enumerate(items):
         blake2b160 = email_blake2b160_hash(item.email)
         existing = conn.execute(
-            sa.select([email_address.c.id, email_address.c.created_at])
+            sa.select(email_address.c.id, email_address.c.created_at)
             .where(email_address.c.blake2b160 == blake2b160)
             .limit(1)
         ).fetchone()
@@ -354,21 +354,21 @@ def upgrade():
     )
 
     count = conn.scalar(
-        sa.select([sa.func.count('*')])
+        sa.select(sa.func.count('*'))
         .select_from(proposal)
         .where(proposal.c.email.isnot(None))
     )
     progress = get_progressbar("Proposals", count)
     progress.start()
     items = conn.execute(
-        sa.select([proposal.c.id, proposal.c.email, proposal.c.created_at])
+        sa.select(proposal.c.id, proposal.c.email, proposal.c.created_at)
         .where(proposal.c.email.isnot(None))
         .order_by(proposal.c.id)
     )
     for counter, item in enumerate(items):
         blake2b160 = email_blake2b160_hash(item.email)
         existing = conn.execute(
-            sa.select([email_address.c.id, email_address.c.created_at])
+            sa.select(email_address.c.id, email_address.c.created_at)
             .where(email_address.c.blake2b160 == blake2b160)
             .limit(1)
         ).fetchone()
@@ -419,14 +419,14 @@ def downgrade():
     )
 
     count = conn.scalar(
-        sa.select([sa.func.count('*')])
+        sa.select(sa.func.count('*'))
         .select_from(proposal)
         .where(proposal.c.email_address_id.isnot(None))
     )
     progress = get_progressbar("Proposals", count)
     progress.start()
     items = conn.execute(
-        sa.select([proposal.c.id, email_address.c.email]).where(
+        sa.select(proposal.c.id, email_address.c.email).where(
             proposal.c.email_address_id == email_address.c.id
         )
     )
@@ -455,11 +455,11 @@ def downgrade():
         sa.Column('email', sa.VARCHAR(length=254), autoincrement=False, nullable=True),
     )
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user_email_claim))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email_claim))
     progress = get_progressbar("Email claims", count)
     progress.start()
     items = conn.execute(
-        sa.select([user_email_claim.c.id, email_address.c.email]).where(
+        sa.select(user_email_claim.c.id, email_address.c.email).where(
             user_email_claim.c.email_address_id == email_address.c.id
         )
     )
@@ -525,11 +525,11 @@ def downgrade():
         sa.Column('blake2b', postgresql.BYTEA(), autoincrement=False, nullable=True),
     )
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user_email))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email))
     progress = get_progressbar("Emails", count)
     progress.start()
     items = conn.execute(
-        sa.select([user_email.c.id, email_address.c.email]).where(
+        sa.select(user_email.c.id, email_address.c.email).where(
             user_email.c.email_address_id == email_address.c.id
         )
     )

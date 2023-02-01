@@ -54,8 +54,9 @@ class SiteMembership(
     #: Site editors can feature or reject projects
     is_site_editor: Mapped[bool] = sa.Column(sa.Boolean, nullable=False, default=False)
 
-    @declared_attr
-    def __table_args__(cls) -> Mapped[tuple]:  # pylint: disable=no-self-argument
+    @declared_attr.directive
+    @classmethod
+    def __table_args__(cls) -> tuple:
         """Table arguments."""
         args = list(super().__table_args__)
         args.append(

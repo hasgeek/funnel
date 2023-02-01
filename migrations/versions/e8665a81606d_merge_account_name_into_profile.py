@@ -224,7 +224,7 @@ def upgrade():
         )
     )
     # Insert additional profiles from account_name
-    existing_profiles = sa.select([profile.c.uuid])
+    existing_profiles = sa.select(profile.c.uuid)
     account_name_data = sa.select(
         [
             account_name.c.id,

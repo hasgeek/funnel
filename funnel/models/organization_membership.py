@@ -8,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import db, sa
+from . import Mapped, db, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .user import Organization, User
@@ -81,14 +81,14 @@ class OrganizationMembership(
     }
 
     #: Organization that this membership is being granted on
-    organization_id: sa.Column[int] = immutable(
+    organization_id = immutable(
         sa.Column(
             sa.Integer,
             sa.ForeignKey('organization.id', ondelete='CASCADE'),
             nullable=False,
         )
     )
-    organization: sa.orm.relationship[Organization] = immutable(
+    organization = immutable(
         with_roles(
             sa.orm.relationship(
                 Organization,
@@ -99,8 +99,9 @@ class OrganizationMembership(
             grants_via={None: {'admin': 'profile_admin', 'owner': 'profile_owner'}},
         )
     )
-    parent = sa.orm.synonym('organization')
-    parent_id = sa.orm.synonym('organization_id')
+    parent_id: Mapped[int] = sa.orm.synonym('organization_id')
+    parent_id_column = 'organization_id'
+    parent: Mapped[Organization] = sa.orm.synonym('organization')
 
     # Organization roles:
     is_owner = immutable(sa.Column(sa.Boolean, nullable=False, default=False))

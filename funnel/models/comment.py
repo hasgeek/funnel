@@ -86,7 +86,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     #: Commentset state manager
     state = StateManager('_state', COMMENTSET_STATE, doc="Commentset state")
     #: Type of parent object
-    settype: sa.Column[Optional[int]] = with_roles(
+    settype: Mapped[Optional[int]] = with_roles(
         sa.Column('type', sa.Integer, nullable=True), read={'all'}, datasets={'primary'}
     )
     #: Count of comments, stored to avoid count(*) queries
@@ -96,7 +96,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         datasets={'primary'},
     )
     #: Timestamp of last comment, for ordering.
-    last_comment_at: sa.Column[Optional[datetime]] = with_roles(
+    last_comment_at: Mapped[Optional[datetime]] = with_roles(
         sa.Column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'all'},
         datasets={'primary'},
@@ -212,7 +212,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     )
 
     in_reply_to_id = sa.Column(sa.Integer, sa.ForeignKey('comment.id'), nullable=True)
-    replies = sa.orm.relationship(
+    replies: Mapped[List[Comment]] = sa.orm.relationship(
         'Comment', backref=sa.orm.backref('in_reply_to', remote_side='Comment.id')
     )
 
@@ -236,7 +236,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     #: Revision number maintained by SQLAlchemy, starting at 1
     revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
 
-    search_vector = sa.orm.deferred(
+    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'message_text',

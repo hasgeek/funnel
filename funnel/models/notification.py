@@ -79,6 +79,7 @@ from types import SimpleNamespace
 from typing import (
     Any,
     Callable,
+    ClassVar,
     Dict,
     Generator,
     Optional,
@@ -92,7 +93,7 @@ from typing import (
 from uuid import UUID, uuid4
 
 from sqlalchemy import event
-from sqlalchemy.orm.collections import column_mapped_collection
+from sqlalchemy.orm import column_keyed_dict
 from sqlalchemy.orm.exc import NoResultFound
 
 from werkzeug.utils import cached_property
@@ -278,15 +279,15 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: another type (auto-populated from subclass's `shadow=` parameter)
     pref_type: str = ''
 
-    #: Document model is auto-populated from the document type
-    document_model: Type[UuidModelType]
+    #: Document model is auto-populated from :attr:`document` type hint in subclasses
+    document_model: ClassVar[Type[UuidModelType]]
     #: SQL table name for document type, auto-populated from the document model
-    document_type: str
+    document_type: ClassVar[str]
 
-    #: Fragment model is auto-populated from the fragment type
-    fragment_model: Optional[Type[UuidModelType]]
+    #: Fragment model is auto-populated from :attr:`fragment` type hint in subclasses
+    fragment_model: ClassVar[Optional[Type[UuidModelType]]]
     #: SQL table name for fragment type, auto-populated from the fragment model
-    fragment_type: Optional[str]
+    fragment_type: ClassVar[Optional[str]]
 
     #: Roles to send notifications to. Roles must be in order of priority for situations
     #: where a user has more than one role on the document.
@@ -301,13 +302,13 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     #: The preference context this notification is being served under. Users may have
     #: customized preferences per account (nee profile) or project
-    preference_context: db.Model = None  # type: ignore[name-defined]
+    preference_context: ClassVar[db.Model] = None  # type: ignore[name-defined]
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
-    type_: sa.Column[str] = immutable(sa.Column('type', sa.Unicode, nullable=False))
+    type_: Mapped[str] = immutable(sa.Column('type', sa.Unicode, nullable=False))
 
     #: Id of user that triggered this notification
-    user_id: sa.Column[Optional[int]] = immutable(
+    user_id: Mapped[Optional[int]] = immutable(
         sa.Column(
             sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
         )
@@ -318,14 +319,14 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     user: Mapped[Optional[User]] = immutable(sa.orm.relationship(User))
 
     #: UUID of document that the notification refers to
-    document_uuid: sa.Column[UUID] = immutable(
+    document_uuid: Mapped[UUID] = immutable(
         sa.Column(UUIDType(binary=False), nullable=False, index=True)
     )
 
     #: Optional fragment within document that the notification refers to. This may be
     #: the document itself, or something within it, such as a comment. Notifications for
     #: multiple fragments are collapsed into a single notification
-    fragment_uuid: sa.Column[Optional[UUID]] = immutable(
+    fragment_uuid: Mapped[Optional[UUID]] = immutable(
         sa.Column(UUIDType(binary=False), nullable=True)
     )
 
@@ -421,6 +422,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
         cls,
         type: str,  # noqa: A002  # pylint: disable=redefined-builtin
         shadows: Optional[Type[Notification]] = None,
+        **kwargs,
     ) -> None:
         # For SQLAlchemy's polymorphic support
         if '__mapper_args__' not in cls.__dict__:
@@ -444,7 +446,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
         else:
             cls.pref_type = type
 
-        return super().__init_subclass__()
+        return super().__init_subclass__(**kwargs)
 
     def __init__(self, document=None, fragment=None, **kwargs) -> None:
         if document is not None:
@@ -697,7 +699,7 @@ class UserNotification(
     # Primary key is a compound of (user_id, eventid).
 
     #: Id of user being notified
-    user_id: sa.Column[int] = immutable(
+    user_id: Mapped[int] = immutable(
         sa.Column(
             sa.Integer,
             sa.ForeignKey('user.id', ondelete='CASCADE'),
@@ -707,18 +709,18 @@ class UserNotification(
     )
 
     #: User being notified (backref defined below, outside the model)
-    user = with_roles(
+    user: Mapped[User] = with_roles(
         immutable(sa.orm.relationship(User)), read={'owner'}, grants={'owner'}
     )
 
     #: Random eventid, shared with the Notification instance
-    eventid = with_roles(
+    eventid: Mapped[UUID] = with_roles(
         immutable(sa.Column(UUIDType(binary=False), primary_key=True, nullable=False)),
         read={'owner'},
     )
 
     #: Id of notification that this user received
-    notification_id: sa.Column[UUID] = immutable(
+    notification_id: Mapped[UUID] = immutable(
         sa.Column(UUIDType(binary=False), nullable=False)
     )  # fkey in __table_args__ below
     #: Notification that this user received
@@ -850,7 +852,7 @@ class UserNotification(
     with_roles(is_read, rw={'owner'})
 
     @hybrid_property
-    def is_revoked(self) -> bool:
+    def is_revoked(self) -> bool:  # pylint: disable=invalid-overridden-method
         """Whether this notification has been marked as revoked."""
         return self.revoked_at is not None
 
@@ -1275,9 +1277,7 @@ class __User:
 
     notification_preferences = sa.orm.relationship(
         NotificationPreferences,
-        collection_class=column_mapped_collection(
-            NotificationPreferences.notification_type
-        ),
+        collection_class=column_keyed_dict(NotificationPreferences.notification_type),
         back_populates='user',
     )
 

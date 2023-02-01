@@ -105,8 +105,8 @@ def make_video_url(video_source: str, video_id: str) -> str:
 
 @declarative_mixin
 class VideoMixin:
-    video_id: sa.Column = sa.Column(sa.UnicodeText, nullable=True)
-    video_source: sa.Column = sa.Column(sa.UnicodeText, nullable=True)
+    video_id = sa.Column(sa.UnicodeText, nullable=True)
+    video_source = sa.Column(sa.UnicodeText, nullable=True)
 
     @property
     def video_url(self) -> Optional[str]:

@@ -128,9 +128,9 @@ class Profile(
     description = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
-    website: sa.Column[Optional[str]] = sa.Column(UrlType, nullable=True)
-    logo_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
-    banner_image_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
+    website: Mapped[Optional[str]] = sa.Column(UrlType, nullable=True)
+    logo_url: Mapped[Optional[str]] = sa.Column(ImgeeType, nullable=True)
+    banner_image_url: Mapped[Optional[str]] = sa.Column(ImgeeType, nullable=True)
 
     # These two flags are read-only. There is no provision for writing to them within
     # the app:
@@ -150,7 +150,7 @@ class Profile(
     #: Revision number maintained by SQLAlchemy, starting at 1
     revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
 
-    search_vector = sa.orm.deferred(
+    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'name',
@@ -168,26 +168,20 @@ class Profile(
     is_active = with_roles(
         sa.orm.column_property(
             sa.case(
-                [
-                    (
-                        user_id.isnot(None),  # ← when, ↙ then
-                        sa.select(  # type: ignore[attr-defined]
-                            User.state.ACTIVE  # type: ignore[has-type]
-                        )
-                        .where(User.id == user_id)
-                        .correlate_except(User)  # type: ignore[arg-type]
-                        .scalar_subquery(),  # sqlalchemy-stubs doesn't know of this
-                    ),
-                    (
-                        organization_id.isnot(None),  # ← when, ↙ then
-                        sa.select(  # type: ignore[attr-defined]
-                            Organization.state.ACTIVE  # type: ignore[has-type]
-                        )
-                        .where(Organization.id == organization_id)
-                        .correlate_except(Organization)  # type: ignore[arg-type]
-                        .scalar_subquery(),  # sqlalchemy-stubs doesn't know of this
-                    ),
-                ],
+                (
+                    user_id.isnot(None),  # ← when, ↙ then
+                    sa.select(User.state.ACTIVE)  # type: ignore[has-type]
+                    .where(User.id == user_id)
+                    .correlate_except(User)  # type: ignore[arg-type]
+                    .scalar_subquery(),
+                ),
+                (
+                    organization_id.isnot(None),  # ← when, ↙ then
+                    sa.select(Organization.state.ACTIVE)  # type: ignore[has-type]
+                    .where(Organization.id == organization_id)
+                    .correlate_except(Organization)  # type: ignore[arg-type]
+                    .scalar_subquery(),
+                ),
                 else_=expression.false(),
             )
         ),
@@ -197,9 +191,9 @@ class Profile(
 
     __table_args__ = (
         sa.CheckConstraint(
-            sa.case([(user_id.isnot(None), 1)], else_=0)
-            + sa.case([(organization_id.isnot(None), 1)], else_=0)
-            + sa.case([(reserved.is_(True), 1)], else_=0)
+            sa.case((user_id.isnot(None), 1), else_=0)
+            + sa.case((organization_id.isnot(None), 1), else_=0)
+            + sa.case((reserved.is_(True), 1), else_=0)
             == 1,
             name='profile_owner_check',
         ),
@@ -332,24 +326,20 @@ class Profile(
     @title.expression
     def title(cls):  # noqa: N805  # pylint: disable=no-self-argument
         return sa.case(
-            [
-                (
-                    # if...
-                    cls.user_id.isnot(None),
-                    # then...
-                    sa.select([User.fullname])
-                    .where(cls.user_id == User.id)
-                    .as_scalar(),
-                ),
-                (
-                    # elif...
-                    cls.organization_id.isnot(None),
-                    # then...
-                    sa.select([Organization.title])
-                    .where(cls.organization_id == Organization.id)
-                    .as_scalar(),
-                ),
-            ],
+            (
+                # if...
+                cls.user_id.isnot(None),
+                # then...
+                sa.select(User.fullname).where(cls.user_id == User.id).as_scalar(),
+            ),
+            (
+                # elif...
+                cls.organization_id.isnot(None),
+                # then...
+                sa.select(Organization.title)
+                .where(cls.organization_id == Organization.id)
+                .as_scalar(),
+            ),
             else_='',
         )
 

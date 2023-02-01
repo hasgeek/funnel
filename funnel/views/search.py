@@ -220,7 +220,7 @@ class ProjectSearch(SearchInProfileProvider):
                 # 1. Projects with start_at/published_at (ts is None == False)
                 # 2. Projects without those (ts is None == True)
                 sa.case(
-                    [(Project.start_at.is_(None), Project.published_at)],
+                    (Project.start_at.is_(None), Project.published_at),
                     else_=Project.start_at,
                 ).is_(None),
                 # Second, order by distance from present
@@ -229,13 +229,11 @@ class ProjectSearch(SearchInProfileProvider):
                         'epoch',
                         sa.func.utcnow()
                         - sa.case(
-                            [
-                                (Project.start_at.isnot(None), Project.start_at),
-                                (
-                                    Project.published_at.isnot(None),
-                                    Project.published_at,
-                                ),
-                            ],
+                            (Project.start_at.isnot(None), Project.start_at),
+                            (
+                                Project.published_at.isnot(None),
+                                Project.published_at,
+                            ),
                             else_=Project.created_at,
                         ),
                     )
@@ -280,7 +278,7 @@ class ProjectSearch(SearchInProfileProvider):
                 # 1. Projects with start_at/published_at (ts is None == False)
                 # 2. Projects without those (ts is None == True)
                 sa.case(
-                    [(Project.start_at.is_(None), Project.published_at)],
+                    (Project.start_at.is_(None), Project.published_at),
                     else_=Project.start_at,
                 ).is_(None),
                 # Second, order by distance from present
@@ -291,13 +289,11 @@ class ProjectSearch(SearchInProfileProvider):
                         'epoch',
                         sa.func.utcnow()
                         - sa.case(
-                            [
-                                (Project.start_at.isnot(None), Project.start_at),
-                                (
-                                    Project.published_at.isnot(None),
-                                    Project.published_at,
-                                ),
-                            ],
+                            (Project.start_at.isnot(None), Project.start_at),
+                            (
+                                Project.published_at.isnot(None),
+                                Project.published_at,
+                            ),
                             else_=Project.created_at,
                         ),
                     )
@@ -318,10 +314,8 @@ class ProfileSearch(SearchProvider):
     def title_column(self) -> ColumnElement:
         """Return title from user or organization that the account is attached to."""
         return sa.case(
-            [
-                (Profile.user_id.isnot(None), User.fullname),
-                (Profile.organization_id.isnot(None), Organization.title),
-            ],
+            (Profile.user_id.isnot(None), User.fullname),
+            (Profile.organization_id.isnot(None), Organization.title),
             else_=Profile.name,
         )
 
@@ -360,7 +354,7 @@ class SessionSearch(SearchInProjectProvider):
         return query.order_by(
             sa.desc(sa.func.ts_rank_cd(Session.search_vector, squery)),
             sa.case(
-                [(Session.start_at.isnot(None), Session.start_at)],
+                (Session.start_at.isnot(None), Session.start_at),
                 else_=Session.created_at,
             ).desc(),
         )
@@ -504,7 +498,7 @@ class UpdateSearch(SearchInProjectProvider):
         return query.order_by(
             sa.desc(sa.func.ts_rank_cd(Update.search_vector, squery)),
             sa.case(
-                [(Update.published_at.isnot(None), Update.published_at)],
+                (Update.published_at.isnot(None), Update.published_at),
                 else_=Update.created_at,
             ).desc(),
         )

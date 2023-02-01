@@ -8,7 +8,7 @@ from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import db, sa
+from . import Mapped, db, sa
 from .helpers import reopen
 from .membership_mixin import (
     FrozenAttributionMixin,
@@ -84,12 +84,12 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
     revoke_on_subject_delete = False
 
-    project_id: sa.Column[int] = immutable(
+    project_id: Mapped[int] = immutable(
         sa.Column(
             sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
         )
     )
-    project: sa.orm.relationship[Project] = immutable(
+    project: Mapped[Project] = immutable(
         sa.orm.relationship(
             Project,
             backref=sa.orm.backref(
@@ -100,8 +100,9 @@ class ProjectSponsorMembership(  # type: ignore[misc]
             ),
         )
     )
-    parent = sa.orm.synonym('project')
-    parent_id = sa.orm.synonym('project_id')
+    parent_id: Mapped[int] = sa.orm.synonym('project_id')
+    parent_id_column = 'project_id'
+    parent: Mapped[Project] = sa.orm.synonym('project')
 
     #: Is this sponsor being promoted for commercial reasons? Projects may have a legal
     #: obligation to reveal this. This column records a declaration from the project.
@@ -215,12 +216,12 @@ class ProposalSponsorMembership(  # type: ignore[misc]
 
     revoke_on_subject_delete = False
 
-    proposal_id: sa.Column[int] = immutable(
+    proposal_id: Mapped[int] = immutable(
         sa.Column(
             sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
         )
     )
-    proposal: sa.orm.relationship[Proposal] = immutable(
+    proposal: Mapped[Proposal] = immutable(
         sa.orm.relationship(
             Proposal,
             backref=sa.orm.backref(
@@ -231,8 +232,9 @@ class ProposalSponsorMembership(  # type: ignore[misc]
             ),
         )
     )
-    parent = sa.orm.synonym('proposal')
-    parent_id = sa.orm.synonym('proposal_id')
+    parent_id: Mapped[int] = sa.orm.synonym('proposal_id')
+    parent_id_column = 'proposal_id'
+    parent: Mapped[Proposal] = sa.orm.synonym('proposal')
 
     #: Is this sponsor being promoted for commercial reasons? Proposals may have a legal
     #: obligation to reveal this. This column records a declaration from the proposal.

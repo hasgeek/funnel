@@ -21,8 +21,15 @@ from coaster.sqlalchemy import immutable, with_roles
 from coaster.utils import require_one_of
 
 from ..signals import phonenumber_refcount_dropping
-from ..typing import Mapped
-from . import BaseMixin, db, declarative_mixin, declared_attr, hybrid_property, sa
+from . import (
+    BaseMixin,
+    Mapped,
+    db,
+    declarative_mixin,
+    declared_attr,
+    hybrid_property,
+    sa,
+)
 
 __all__ = [
     'PhoneNumberError',
@@ -262,7 +269,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         sa.Column(
             sa.LargeBinary,
             sa.CheckConstraint(
-                sa.func.length(sa.sql.column('blake2b160')) == 20,
+                'LENGTH(blake2b160) = 20',
                 name='phone_number_blake2b160_check',
             ),
             nullable=False,
@@ -272,7 +279,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     # Flags and timestamps for messaging activity. Since a delivery failure can happen
     # anywhere in the chain, from sender-side failure to carrier block to an unreachable
-    # device, we record distinct timestamps for each.
+    # device, we record distinct timestamps for last sent, delivery and failure.
 
     #: Allow messaging this number over SMS
     allow_sms = sa.Column(sa.Boolean, nullable=False, default=True)
@@ -667,9 +674,8 @@ class PhoneNumberMixin:
     __phone_is_exclusive__: bool = False
 
     @declared_attr
-    def phone_number_id(  # pylint: disable=no-self-argument
-        cls,
-    ) -> sa.Column[int]:
+    @classmethod
+    def phone_number_id(cls) -> Mapped[int]:
         """Foreign key to phone_number table."""
         return sa.Column(
             sa.Integer,
@@ -682,7 +688,7 @@ class PhoneNumberMixin:
     @declared_attr
     def phone_number(  # pylint: disable=no-self-argument
         cls,
-    ) -> sa.orm.relationship[PhoneNumber]:
+    ) -> Mapped[PhoneNumber]:
         """Instance of :class:`PhoneNumber` as a relationship."""
         backref_name = 'used_in_' + cls.__tablename__
         PhoneNumber.__backrefs__.add(backref_name)
@@ -690,8 +696,9 @@ class PhoneNumberMixin:
             PhoneNumber.__exclusive_backrefs__.add(backref_name)
         return sa.orm.relationship(PhoneNumber, backref=backref_name)
 
-    @declared_attr
-    def phone(cls) -> Mapped[Optional[str]]:  # pylint: disable=no-self-argument
+    @declared_attr.directive
+    @classmethod
+    def phone(cls) -> Optional[str]:
         """Shorthand for ``self.phone_number.number``."""
 
         def phone_get(self) -> Optional[str]:

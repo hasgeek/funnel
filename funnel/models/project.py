@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Iterable, List, Optional
 
-from sqlalchemy.orm.collections import attribute_mapped_collection
+from sqlalchemy.orm import attribute_keyed_dict
 
 from werkzeug.utils import cached_property
 
@@ -71,13 +71,13 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     reserved_names = RESERVED_NAMES
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user = sa.orm.relationship(
+    user: Mapped[User] = sa.orm.relationship(
         User,
-        primaryjoin=user_id == User.id,
+        foreign_keys=[user_id],
         backref=sa.orm.backref('projects', cascade='all'),
     )
     profile_id = sa.Column(sa.Integer, sa.ForeignKey('profile.id'), nullable=False)
-    profile: sa.orm.relationship[Profile] = with_roles(
+    profile: Mapped[Profile] = with_roles(
         sa.orm.relationship(
             Profile, backref=sa.orm.backref('projects', cascade='all', lazy='dynamic')
         ),
@@ -88,8 +88,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         # 'related' or 'without_parent' as it is the parent
         datasets={'primary'},
     )
-    parent = sa.orm.synonym('profile')
-    tagline: sa.Column[str] = with_roles(
+    parent: Mapped[Profile] = sa.orm.synonym('profile')
+    tagline: Mapped[str] = with_roles(
         sa.Column(sa.Unicode(250), nullable=False),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
@@ -176,12 +176,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    allow_rsvp: sa.Column[sa.Boolean] = with_roles(
+    allow_rsvp: Mapped[bool] = with_roles(
         sa.Column(sa.Boolean, default=True, nullable=False),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
     )
-    buy_tickets_url: sa.Column[Optional[str]] = with_roles(
+    buy_tickets_url: Mapped[Optional[str]] = with_roles(
         sa.Column(UrlType, nullable=True),
         read={'all'},
         datasets={'primary', 'without_parent', 'related'},
@@ -207,7 +207,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     commentset_id = sa.Column(
         sa.Integer, sa.ForeignKey('commentset.id'), nullable=False
     )
-    commentset = sa.orm.relationship(
+    commentset: Mapped[Commentset] = sa.orm.relationship(
         Commentset,
         uselist=False,
         cascade='all',
@@ -234,7 +234,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     #: Revision number maintained by SQLAlchemy, used for vCal files, starting at 1
     revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
 
-    search_vector = sa.orm.deferred(
+    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'name',
@@ -678,7 +678,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         param bool desc: Use descending order (default True)
         """
         clause = sa.case(
-            [(cls.start_at.isnot(None), cls.start_at)],
+            (cls.start_at.isnot(None), cls.start_at),
             else_=cls.published_at,
         )
         return clause
@@ -731,7 +731,7 @@ add_search_trigger(Project, 'search_vector')
 
 @reopen(Profile)
 class __Profile:
-    id: sa.Column  # noqa: A003
+    id: Mapped[int]  # noqa: A003
 
     listed_projects = sa.orm.relationship(
         Project,
@@ -753,7 +753,7 @@ class __Profile:
     )
     projects_by_name = with_roles(
         sa.orm.relationship(
-            Project, collection_class=attribute_mapped_collection('name'), viewonly=True
+            Project, collection_class=attribute_keyed_dict('name'), viewonly=True
         ),
         read={'all'},
     )
@@ -802,16 +802,16 @@ class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
     profile_id = sa.Column(
         sa.Integer, sa.ForeignKey('profile.id'), nullable=False, primary_key=True
     )
-    profile = sa.orm.relationship(
+    profile: Mapped[Profile] = sa.orm.relationship(
         Profile, backref=sa.orm.backref('project_redirects', cascade='all')
     )
-    parent = sa.orm.synonym('profile')
+    parent: Mapped[Profile] = sa.orm.synonym('profile')
     name = sa.Column(sa.Unicode(250), nullable=False, primary_key=True)
 
     project_id = sa.Column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
     )
-    project = sa.orm.relationship(Project, backref='redirects')
+    project: Mapped[Project] = sa.orm.relationship(Project, backref='redirects')
 
     def __repr__(self) -> str:
         """Represent :class:`ProjectRedirect` as a string."""
@@ -878,7 +878,7 @@ class ProjectLocation(TimestampMixin, db.Model):  # type: ignore[name-defined]
     project_id = sa.Column(
         sa.Integer, sa.ForeignKey('project.id'), primary_key=True, nullable=False
     )
-    project = sa.orm.relationship(
+    project: Mapped[Project] = sa.orm.relationship(
         Project, backref=sa.orm.backref('locations', cascade='all')
     )
     #: Geonameid for this project

@@ -17,8 +17,7 @@ from typing import (
 )
 import urllib.parse
 
-from sqlalchemy.orm import load_only
-from sqlalchemy.orm.collections import attribute_mapped_collection
+from sqlalchemy.orm import attribute_keyed_dict, load_only
 from sqlalchemy.orm.query import Query as QueryBaseClass
 
 from werkzeug.utils import cached_property
@@ -51,7 +50,8 @@ class ScopeMixin:
     __scope_null_allowed__ = False
 
     @declared_attr
-    def _scope(cls) -> sa.Column[sa.UnicodeText]:  # pylint: disable=no-self-argument
+    # @classmethod
+    def _scope(cls):  # -> Mapped[str]:
         """Database column for storing scopes as a space-separated string."""
         return sa.Column(
             'scope',
@@ -59,33 +59,27 @@ class ScopeMixin:
             nullable=cls.__scope_null_allowed__,
         )
 
-    @declared_attr
-    def scope(  # pylint: disable=no-self-argument
-        cls,
-    ) -> Mapped[Tuple[str, ...]]:
+    @property
+    def scope(self):  # -> Tuple[str, ...]:
         """Represent scope column as a container of strings."""
-        # pylint: disable=protected-access
-        def scope_get(self) -> Tuple[str, ...]:
-            if not self._scope:
-                return ()
-            return tuple(sorted(self._scope.split()))
+        if not self._scope:
+            return ()
+        return tuple(sorted(self._scope.split()))
 
-        def scope_set(self, value: Optional[Union[str, Iterable]]) -> None:
-            if value is None:
-                if self.__scope_null_allowed__:
-                    self._scope = None
-                    return
-                raise ValueError("Scope cannot be None")
-            if isinstance(value, str):
-                value = value.split()
-            self._scope = ' '.join(sorted(t.strip() for t in value if t))
-            if not self._scope and self.__scope_null_allowed__:
+    @scope.setter
+    def scope(self, value):  # : Optional[Union[str, Iterable]]) -> None:
+        if value is None:
+            if self.__scope_null_allowed__:
                 self._scope = None
+                return
+            raise ValueError("Scope cannot be None")
+        if isinstance(value, str):
+            value = value.split()
+        self._scope = ' '.join(sorted(t.strip() for t in value if t))
+        if not self._scope and self.__scope_null_allowed__:
+            self._scope = None
 
-        # pylint: enable=protected-access
-        return sa.orm.synonym('_scope', descriptor=property(scope_get, scope_set))
-
-    def add_scope(self, additional: Union[str, Iterable]) -> None:
+    def add_scope(self, additional):  # : Union[str, Iterable]) -> None:
         """Add additional items to the scope."""
         if isinstance(additional, str):
             additional = [additional]
@@ -152,7 +146,7 @@ class AuthClient(
         'redirect_uri', sa.UnicodeText, nullable=True, default=''
     )
     #: Back-end notification URI (TODO: deprecated, needs better architecture)
-    notification_uri: sa.Column[Optional[str]] = with_roles(
+    notification_uri = with_roles(
         sa.Column(sa.UnicodeText, nullable=True, default=''), rw={'owner'}
     )
     #: Active flag
@@ -182,8 +176,8 @@ class AuthClient(
 
     __table_args__ = (
         sa.CheckConstraint(
-            sa.case([(user_id.isnot(None), 1)], else_=0)
-            + sa.case([(organization_id.isnot(None), 1)], else_=0)
+            sa.case((user_id.isnot(None), 1), else_=0)
+            + sa.case((organization_id.isnot(None), 1), else_=0)
             == 1,
             name='auth_client_owner_check',
         ),
@@ -322,14 +316,13 @@ class AuthClientCredential(BaseMixin, db.Model):  # type: ignore[name-defined]
     auth_client_id = sa.Column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
-    auth_client: AuthClient = with_roles(
+    auth_client: Mapped[AuthClient] = with_roles(
         sa.orm.relationship(
             AuthClient,
-            primaryjoin=auth_client_id == AuthClient.id,
             backref=sa.orm.backref(
                 'credentials',
                 cascade='all',
-                collection_class=attribute_mapped_collection('name'),
+                collection_class=attribute_keyed_dict('name'),
             ),
         ),
         grants_via={None: {'owner'}},
@@ -393,11 +386,11 @@ class AuthCode(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
 
     __tablename__ = 'auth_code'
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user = sa.orm.relationship(User, primaryjoin=user_id == User.id)
+    user: Mapped[User] = sa.orm.relationship(User, primaryjoin=user_id == User.id)
     auth_client_id = sa.Column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
-    auth_client = sa.orm.relationship(
+    auth_client: Mapped[AuthClient] = sa.orm.relationship(
         AuthClient,
         primaryjoin=auth_client_id == AuthClient.id,
         backref=sa.orm.backref('authcodes', cascade='all'),
@@ -436,7 +429,6 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
     _user: Mapped[Optional[User]] = sa.orm.relationship(
         User,
-        primaryjoin=user_id == User.id,
         backref=sa.orm.backref('authtokens', lazy='dynamic', cascade='all'),
     )
     #: The session in which this token was issued, null for confidential clients
@@ -453,10 +445,9 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     auth_client_id = sa.Column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False, index=True
     )
-    auth_client: sa.orm.relationship[AuthClient] = with_roles(
+    auth_client: Mapped[AuthClient] = with_roles(
         sa.orm.relationship(
             AuthClient,
-            primaryjoin=auth_client_id == AuthClient.id,
             backref=sa.orm.backref('authtokens', lazy='dynamic', cascade='all'),
         ),
         read={'owner'},
@@ -604,7 +595,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         :param str token: Token to lookup
         """
         query = cls.query.filter_by(token=token).options(
-            sa.orm.joinedload(cls.auth_client).load_only('id', '_scope')
+            sa.orm.joinedload(cls.auth_client).load_only(cls.id, cls._scope)
         )
         return query.one_or_none()
 
@@ -642,7 +633,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     ) -> List[AuthToken]:
         """Return all AuthToken for the specified users."""
         query = cls.query.options(
-            sa.orm.joinedload(cls.auth_client).load_only('id', '_scope')
+            sa.orm.joinedload(cls.auth_client).load_only(cls.id, cls._scope)
         )
         if isinstance(users, QueryBaseClass):
             count = users.count()
@@ -650,7 +641,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
                 return query.filter_by(user=users.first()).all()
             if count > 1:
                 return query.filter(
-                    AuthToken.user_id.in_(users.options(load_only('id')))
+                    AuthToken.user_id.in_(users.options(load_only(User.id)))
                 ).all()
         else:
             count = len(users)
@@ -687,7 +678,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
     auth_client_id = sa.Column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False, index=True
     )
-    auth_client: AuthClient = with_roles(
+    auth_client: Mapped[AuthClient] = with_roles(
         sa.orm.relationship(
             AuthClient,
             primaryjoin=auth_client_id == AuthClient.id,
@@ -764,7 +755,7 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
     auth_client_id = sa.Column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False, index=True
     )
-    auth_client: AuthClient = with_roles(
+    auth_client: Mapped[AuthClient] = with_roles(
         sa.orm.relationship(
             AuthClient,
             primaryjoin=auth_client_id == AuthClient.id,
