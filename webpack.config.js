@@ -125,6 +125,10 @@ module.exports = {
           from: 'node_modules/leaflet/dist/images',
           to: 'css/images',
         },
+        {
+          from: 'node_modules/prismjs/components/*.min.js',
+          to: 'js/prismjs/components/[name].js',
+        },
       ],
     }),
     new webpack.DefinePlugin({
