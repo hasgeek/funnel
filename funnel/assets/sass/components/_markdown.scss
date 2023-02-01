@@ -1,4 +1,6 @@
 @import 'table';
+@import 'node_modules/prismjs/themes/prism';
+@import 'node_modules/prismjs/plugins/match-braces/prism-match-braces';
 
 .markdown {
   overflow-wrap: break-word;
