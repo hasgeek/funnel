@@ -10,3 +10,4 @@ from .mark_tag import *
 from .sub_tag import *
 from .sup_tag import *
 from .toc import *
+from .multimd_tables import *

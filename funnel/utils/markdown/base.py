@@ -32,6 +32,7 @@ from .mdit_plugins import (  # toc_plugin,
     footnote_extend_plugin,
     ins_plugin,
     mark_plugin,
+    multimd_table_plugin,
     sub_plugin,
     sup_plugin,
 )
@@ -244,6 +245,7 @@ MarkdownPlugin('vega-lite', embeds_plugin, {'name': 'vega-lite'})
 MarkdownPlugin('mermaid', embeds_plugin, {'name': 'mermaid'})
 MarkdownPlugin('block_code_ext', block_code_extend_plugin)
 MarkdownPlugin('footnote_ext', footnote_extend_plugin)
+MarkdownPlugin('multimd_table', multimd_table_plugin, {'multiline': True})
 # MarkdownPlugin('toc', toc_plugin)
 
 # --- Markdown configurations ----------------------------------------------------------
@@ -266,6 +268,7 @@ MarkdownConfig(
     plugins=[
         'block_code_ext',
         'deflists',
+        'multimd_table',
         'footnote',
         'footnote_ext',  # Must be after 'footnote' to take effect
         'heading_anchors',
