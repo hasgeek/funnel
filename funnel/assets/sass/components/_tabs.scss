@@ -1,3 +1,40 @@
+.mui-tabs__bar
+  border-bottom: 1px solid $mui-tab-font-color;
+  scroll-behavior: smooth;
+  > li {
+    > a {
+      text-transform: capitalize;
+      height: auto;
+      line-height: 21px;
+      padding: 12px 0;
+      &:hover {
+        color: $mui-tab-border-color-hover;
+        border-bottom: 2px solid $mui-tab-font-color-hover;
+      }
+    }
+    &.mui--is-active {
+      > a {
+        border-bottom: none;
+        text-decoration: none;
+      }
+    }
+  }
+
+  > li:not(:last-child) {
+    margin-right: 12px;
+  }
+
+  &::-webkit-scrollbar {
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+    position: relative;
+  }
+
+  &::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
+  }
+}
+
 .tab-container {
   display: flex;
   padding: 0;
@@ -183,3 +220,50 @@
   border: 1px solid transparent;
   background: transparentize($mui-primary-color, 0.85);
 }
+
+/*
+ OVERFLOW ARROWS STYLING
+*/
+
+.tabs__icon-wrapper {
+  display: flex;
+  position: relative;
+  margin: 0 -10px;
+  align-items: center;
+
+  > .overflow-icon {
+    position: relative;
+    display: none;
+    width: 14px;
+    height: 14px;
+    align-items: center;
+    cursor: pointer;
+    color: #4d5763;
+
+    &:hover {
+      color: #1f2d3d;
+    }
+
+    &.js-tab-scroll {
+      display: flex;
+    }
+
+    &.js-tab-touch {
+      display: none;
+    }
+
+    &.hidden-overflowIcon {
+      visibility: hidden;
+    }
+
+    @media (max-width: 768px) {
+      &.js-tab-scroll {
+        display: none;
+      }
+      &.js-tab-touch {
+        display: flex;
+      }
+    }
+  }
+}
+

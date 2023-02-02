@@ -1,41 +1,34 @@
-/**
- * MUI Tabs module
- */
-
- .mui-tabs__bar {
-  display: block;
-  position: relative;
+.mui-tabs__bar {
   list-style: none;
   padding-left: 0;
   margin-bottom: 0;
+  background-color: transparent;
   white-space: nowrap;
   overflow-x: auto;
-  border-bottom: 1px solid $mui-tab-font-color;
-  scroll-behavior: smooth;
 
   > li {
     display: inline-block;
 
     > a {
-      display: flex;
+      display: block;
       white-space: nowrap;
+      text-transform: uppercase;
       font-weight: 500;
       font-size: 14px;
       color: $mui-tab-font-color;
       cursor: default;
-      line-height: 21px;
-      padding: 12px 0;
+      height: 48px;
+      line-height: 48px;
+      padding-left: 24px;
+      padding-right: 24px;
       user-select: none;
 
       &:hover {
         text-decoration: none;
-        color: $mui-tab-border-color-hover; 
-        border-bottom: 2px solid $mui-tab-font-color-hover;
       }
     }
 
     &.mui--is-active {
-      text-decoration: none;
       border-bottom: 2px solid $mui-tab-border-color-active;
 
       > a {
@@ -43,15 +36,9 @@
           color: $mui-tab-font-color;
         } @else {
           color: $mui-tab-font-color-active;
-          border-bottom: none;
-          text-decoration: none;
         }
       }
     }
-  }
-
-  > li:not(:last-child) {
-    margin-right: 12px;
   }
 
   &.mui-tabs__bar--justified {
@@ -69,20 +56,6 @@
       }
     }
   }
-
-  &::-webkit-scrollbar {
-    -ms-overflow-style: none;  /* Internet Explorer 10+ */
-    scrollbar-width: none;  /* Firefox */
-    position: relative;
-  }
-
-  &::-webkit-scrollbar { 
-    display: none;  /* Safari and Chrome */
-  }
-}
-
-.tabpanel__body__padding {
-  padding: 8px 0 16px 0 !important;
 }
 
 .mui-tabs__pane {
@@ -92,54 +65,3 @@
     display: block;
   }
 }
-
-/*
- OVERFLOW ARROWS STYLING
-*/
-
-.tabs__icon-wrapper {
-  display: flex;
-  position: relative;
-  margin: 0 -10px;
-  align-items: center;
-
-  > .overflow-icon {
-    position: relative;
-    display: none;
-    width: 14px;
-    height: 14px;
-    align-items: center;
-    cursor: pointer;
-    color: #4d5763;
-
-    &:hover {
-      color: #1f2d3d;
-    }
-
-    &.js-tab-scroll {
-      display: flex;
-    }
-  
-    &.js-tab-touch {
-      display: none;
-    }
-
-    &.hidden-overflowIcon {
-      visibility: hidden;
-    }
-
-    @media (max-width: 768px) {
-      &.js-tab-scroll {
-        display: none;
-      }
-      &.js-tab-touch {
-        display: flex;
-      }
-    }
-  }  
-}
-
-
-
-
-  
