@@ -19,7 +19,7 @@ import re
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
-from mdit_py_plugins import anchors, deflist, footnote, tasklists
+from mdit_py_plugins import anchors, container, deflist, footnote, tasklists
 from typing_extensions import Literal
 
 from coaster.utils import make_name
@@ -35,6 +35,7 @@ from .mdit_plugins import (  # toc_plugin,
     sub_plugin,
     sup_plugin,
 )
+from .tabs import render_tab
 
 __all__ = ['MarkdownPlugin', 'MarkdownConfig', 'MarkdownString', 'markdown_escape']
 
@@ -239,6 +240,12 @@ MarkdownPlugin('del', del_plugin)
 MarkdownPlugin('sub', sub_plugin)
 MarkdownPlugin('sup', sup_plugin)
 MarkdownPlugin('mark', mark_plugin)
+
+MarkdownPlugin(
+    'tab_container',
+    container.container_plugin,
+    {'name': 'tab', 'marker': ':', 'render': render_tab},
+)
 MarkdownPlugin('markmap', embeds_plugin, {'name': 'markmap'})
 MarkdownPlugin('vega-lite', embeds_plugin, {'name': 'vega-lite'})
 MarkdownPlugin('mermaid', embeds_plugin, {'name': 'mermaid'})
@@ -264,6 +271,7 @@ MarkdownConfig(
         'breaks': True,
     },
     plugins=[
+        'tab_container',
         'block_code_ext',
         'deflists',
         'footnote',
