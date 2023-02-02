@@ -16,6 +16,7 @@ class Draft(NoIdMixin, db.Model):  # type: ignore[name-defined]
     """Store for autosaved, unvalidated drafts on behalf of other models."""
 
     __tablename__ = 'draft'
+    __allow_unmapped__ = True
 
     table = sa.Column(sa.UnicodeText, primary_key=True)
     table_row_id: Mapped[UUID] = sa.Column(UUIDType(binary=False), primary_key=True)

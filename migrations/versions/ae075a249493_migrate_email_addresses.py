@@ -174,12 +174,10 @@ def upgrade():
     progress.start()
     items = conn.execute(
         sa.select(
-            [
-                user_email.c.id,
-                user_email.c.email,
-                user_email.c.created_at,
-                user_email.c.updated_at,
-            ]
+            user_email.c.id,
+            user_email.c.email,
+            user_email.c.created_at,
+            user_email.c.updated_at,
         ).order_by(user_email.c.id)
     )
     for counter, item in enumerate(items):
@@ -268,12 +266,10 @@ def upgrade():
     progress.start()
     items = conn.execute(
         sa.select(
-            [
-                user_email_claim.c.id,
-                user_email_claim.c.email,
-                user_email_claim.c.created_at,
-                user_email_claim.c.updated_at,
-            ]
+            user_email_claim.c.id,
+            user_email_claim.c.email,
+            user_email_claim.c.created_at,
+            user_email_claim.c.updated_at,
         ).order_by(user_email_claim.c.id)
     )
     for counter, item in enumerate(items):

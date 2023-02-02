@@ -44,6 +44,7 @@ class Session(
     db.Model,  # type: ignore[name-defined]
 ):
     __tablename__ = 'session'
+    __allow_unmapped__ = True
 
     project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
     project: Mapped[Project] = with_roles(
@@ -304,7 +305,7 @@ class __Project:
                 .correlate_except(Session)  # type: ignore[arg-type]
                 .union(
                     sa.select(
-                        [Project.start_at.label('start_at')]  # type: ignore[has-type]
+                        Project.start_at.label('start_at')  # type: ignore[has-type]
                     )
                     .where(Project.start_at.isnot(None))  # type: ignore[has-type]
                     .where(

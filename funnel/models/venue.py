@@ -31,6 +31,7 @@ class Venue(
     db.Model,  # type: ignore[name-defined]
 ):
     __tablename__ = 'venue'
+    __allow_unmapped__ = True
 
     project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
     project: Mapped[Project] = with_roles(
@@ -109,6 +110,7 @@ class Venue(
 
 class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'venue_room'
+    __allow_unmapped__ = True
 
     venue_id = sa.Column(sa.Integer, sa.ForeignKey('venue.id'), nullable=False)
     venue: Mapped[Venue] = with_roles(

@@ -102,7 +102,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     #: List of columns that will be copied into a new row when a membership is amended
     __data_columns__: ClassVar[Iterable[str]] = ()
     #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
-    parent_id: Mapped[Optional[int]]
+    parent_id: Optional[int]
     #: Name of the parent id column, used in SQL constraints
     parent_id_column: ClassVar[Optional[str]]
     #: Parent object
@@ -400,14 +400,14 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def __table_args__(cls) -> tuple:
         """Table arguments for SQLAlchemy."""
-        if cls.parent_id is not None:
+        if cls.parent_id_column is not None:
             return (
                 sa.Index(
                     'ix_' + cls.__tablename__ + '_active',
                     cls.parent_id_column,
                     'user_id',
                     unique=True,
-                    postgresql_where=sa.column('revoked_at', sa.TIMESTAMP).is_(None),
+                    postgresql_where='revoked_at IS NULL',
                 ),
             )
         return (
@@ -415,7 +415,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
                 'ix_' + cls.__tablename__ + '_active',
                 'user_id',
                 unique=True,
-                postgresql_where=sa.column('revoked_at', sa.TIMESTAMP).is_(None),
+                postgresql_where='revoked_at IS NULL',
             ),
         )
 
@@ -528,7 +528,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
                     cls.parent_id_column,
                     'profile_id',
                     unique=True,
-                    postgresql_where=sa.column('revoked_at').is_(None),
+                    postgresql_where='revoked_at IS NULL',
                 ),
             )
         return (
@@ -536,7 +536,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
                 'ix_' + cls.__tablename__ + '_active',
                 'profile_id',
                 unique=True,
-                postgresql_where=sa.column('revoked_at').is_(None),
+                postgresql_where='revoked_at IS NULL',
             ),
         )
 
@@ -631,7 +631,7 @@ class ReorderMembershipMixin(ReorderMixin):
                 cls.parent_id_column,
                 'seq',
                 unique=True,
-                postgresql_where=sa.column('revoked_at').is_(None),
+                postgresql_where='revoked_at IS NULL',
             ),
         )
         return tuple(args)

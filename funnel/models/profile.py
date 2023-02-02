@@ -63,6 +63,7 @@ class Profile(
     """
 
     __tablename__ = 'profile'
+    __allow_unmapped__ = True
     __uuid_primary_key__ = False
     # length limit 63 to fit DNS label limit
     __name_length__ = 63

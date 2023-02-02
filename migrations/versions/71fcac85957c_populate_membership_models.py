@@ -169,12 +169,10 @@ def upgrade():
     # checkin_team and review_team members of Projects
     projects = conn.execute(
         sa.select(
-            [
-                project.c.id,
-                project.c.checkin_team_id,
-                project.c.review_team_id,
-                project.c.admin_team_id,
-            ]
+            project.c.id,
+            project.c.checkin_team_id,
+            project.c.review_team_id,
+            project.c.admin_team_id,
         )
     )
     for project_id, checkin_team_id, review_team_id, admin_team_id in projects:

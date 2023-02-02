@@ -104,15 +104,13 @@ def downgrade():
                 'reserved',
             ],
             sa.select(
-                [
-                    profile.c.uuid,
-                    profile.c.created_at,
-                    profile.c.updated_at,
-                    profile.c.name,
-                    profile.c.user_id,
-                    profile.c.organization_id,
-                    profile.c.reserved,
-                ]
+                profile.c.uuid,
+                profile.c.created_at,
+                profile.c.updated_at,
+                profile.c.name,
+                profile.c.user_id,
+                profile.c.organization_id,
+                profile.c.reserved,
             ),
         )
     )

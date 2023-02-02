@@ -146,12 +146,10 @@ def upgrade():
     progress.start()
     items = conn.execute(
         sa.select(
-            [
-                participant.c.id,
-                participant.c.project_id,
-                participant.c.email,
-                participant.c.created_at,
-            ]
+            participant.c.id,
+            participant.c.project_id,
+            participant.c.email,
+            participant.c.created_at,
         ).order_by(participant.c.id)
     )
     dupe_counter = {}  # (project_id, blake2b160): counter

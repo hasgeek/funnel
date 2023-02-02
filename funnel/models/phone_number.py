@@ -23,6 +23,7 @@ from coaster.utils import require_one_of
 from ..signals import phonenumber_refcount_dropping
 from . import (
     BaseMixin,
+    DeclarativeBase,
     Mapped,
     db,
     declarative_mixin,
@@ -250,6 +251,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     """
 
     __tablename__ = 'phone_number'
+    __allow_unmapped__ = True
 
     #: Backrefs to this model from other models, populated by :class:`PhoneNumberMixin`
     #: Contains the name of the relationship in the :class:`PhoneNumber` model
@@ -696,46 +698,38 @@ class PhoneNumberMixin:
             PhoneNumber.__exclusive_backrefs__.add(backref_name)
         return sa.orm.relationship(PhoneNumber, backref=backref_name)
 
-    @declared_attr.directive
-    @classmethod
-    def phone(cls) -> Optional[str]:
-        """Shorthand for ``self.phone_number.number``."""
+    @property
+    def phone(self) -> Optional[str]:
+        """
+        Shorthand for ``self.phone_number.number``.
 
-        def phone_get(self) -> Optional[str]:
-            """
-            Shorthand for ``self.phone_number.number``.
+        Setting a value does the equivalent of one of these, depending on whether
+        the object requires the phone number to be available to its owner::
 
-            Setting a value does the equivalent of one of these, depending on whether
-            the object requires the phone number to be available to its owner::
+            self.phone_number = PhoneNumber.add(phone)
+            self.phone_number = PhoneNumber.add_for(owner, phone)
 
-                self.phone_number = PhoneNumber.add(phone)
-                self.phone_number = PhoneNumber.add_for(owner, phone)
+        Where the owner is found from the attribute named in `cls.__phone_for__`.
+        """
+        if self.phone_number:
+            return self.phone_number.number
+        return None
 
-            Where the owner is found from the attribute named in `cls.__phone_for__`.
-            """
-            if self.phone_number:
-                return self.phone_number.number
-            return None
+    @phone.setter
+    def phone(self, value: Optional[str]) -> None:
+        if self.__phone_for__:
 
-        if cls.__phone_for__:
-
-            def phone_set(self, value):
-                if value is not None:
-                    self.phone_number = PhoneNumber.add_for(
-                        getattr(self, cls.__phone_for__), value
-                    )
-                else:
-                    self.phone_number = None
-
+            if value is not None:
+                self.phone_number = PhoneNumber.add_for(
+                    getattr(self, self.__phone_for__), value
+                )
+            else:
+                self.phone_number = None
         else:
-
-            def phone_set(self, value):
-                if value is not None:
-                    self.phone_number = PhoneNumber.add(value)
-                else:
-                    self.phone_number = None
-
-        return property(fget=phone_get, fset=phone_set)
+            if value is not None:
+                self.phone_number = PhoneNumber.add(value)
+            else:
+                self.phone_number = None
 
     @property
     def phone_number_reference_is_active(self) -> bool:
@@ -834,7 +828,7 @@ def _phone_number_mixin_set_validator(
 @event.listens_for(PhoneNumberMixin, 'mapper_configured', propagate=True)
 def _phone_number_mixin_configure_events(
     mapper_,
-    cls: db.Model,  # type: ignore[name-defined]
+    cls: DeclarativeBase,  # type: ignore[name-defined]
 ):
     event.listen(cls.phone_number, 'set', _phone_number_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)

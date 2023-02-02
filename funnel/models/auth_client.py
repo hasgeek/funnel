@@ -50,24 +50,20 @@ class ScopeMixin:
     __scope_null_allowed__ = False
 
     @declared_attr
-    # @classmethod
-    def _scope(cls):  # -> Mapped[str]:
+    @classmethod
+    def _scope(cls) -> Mapped[str]:
         """Database column for storing scopes as a space-separated string."""
-        return sa.Column(
-            'scope',
-            sa.UnicodeText,  # type: ignore[arg-type]
-            nullable=cls.__scope_null_allowed__,
-        )
+        return sa.Column('scope', sa.UnicodeText, nullable=cls.__scope_null_allowed__)
 
     @property
-    def scope(self):  # -> Tuple[str, ...]:
+    def scope(self) -> Tuple[str, ...]:
         """Represent scope column as a container of strings."""
         if not self._scope:
             return ()
         return tuple(sorted(self._scope.split()))
 
     @scope.setter
-    def scope(self, value):  # : Optional[Union[str, Iterable]]) -> None:
+    def scope(self, value: Optional[Union[str, Iterable]]) -> None:
         if value is None:
             if self.__scope_null_allowed__:
                 self._scope = None
@@ -79,7 +75,7 @@ class ScopeMixin:
         if not self._scope and self.__scope_null_allowed__:
             self._scope = None
 
-    def add_scope(self, additional):  # : Union[str, Iterable]) -> None:
+    def add_scope(self, additional: Union[str, Iterable]) -> None:
         """Add additional items to the scope."""
         if isinstance(additional, str):
             additional = [additional]
@@ -87,14 +83,12 @@ class ScopeMixin:
 
 
 class AuthClient(
-    ScopeMixin,
-    UuidMixin,
-    BaseMixin,
-    db.Model,  # type: ignore[name-defined]
+    ScopeMixin, UuidMixin, BaseMixin, db.Model  # type: ignore[name-defined]
 ):
     """OAuth client application."""
 
     __tablename__ = 'auth_client'
+    __allow_unmapped__ = True
     __scope_null_allowed__ = True
     # TODO: merge columns into a profile_id column
     #: User who owns this client
@@ -167,7 +161,7 @@ class AuthClient(
         sa.Column(sa.Boolean, nullable=False, default=False), read={'all'}
     )
 
-    user_sessions = sa.orm.relationship(
+    user_sessions: Mapped[List[UserSession]] = sa.orm.relationship(
         UserSession,
         lazy='dynamic',
         secondary=auth_client_user_session,
@@ -313,6 +307,7 @@ class AuthClientCredential(BaseMixin, db.Model):  # type: ignore[name-defined]
     """
 
     __tablename__ = 'auth_client_credential'
+    __allow_unmapped__ = True
     auth_client_id = sa.Column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
@@ -385,6 +380,7 @@ class AuthCode(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     """Short-lived authorization tokens."""
 
     __tablename__ = 'auth_code'
+    __allow_unmapped__ = True
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user: Mapped[User] = sa.orm.relationship(User, primaryjoin=user_id == User.id)
     auth_client_id = sa.Column(
@@ -424,6 +420,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     """Access tokens for access to data."""
 
     __tablename__ = 'auth_token'
+    __allow_unmapped__ = True
     # User id is null for client-only tokens and public clients as the user is
     # identified via user_session.user there
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
@@ -667,6 +664,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
     """Permissions assigned to a user on a client app."""
 
     __tablename__ = 'auth_client_user_permissions'
+    __allow_unmapped__ = True
     #: User who has these permissions
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user = sa.orm.relationship(
@@ -744,6 +742,7 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
     """Permissions assigned to a team on a client app."""
 
     __tablename__ = 'auth_client_team_permissions'
+    __allow_unmapped__ = True
     #: Team which has these permissions
     team_id = sa.Column(sa.Integer, sa.ForeignKey('team.id'), nullable=False)
     team = sa.orm.relationship(

@@ -53,6 +53,7 @@ class Update(
     db.Model,  # type: ignore[name-defined]
 ):
     __tablename__ = 'update'
+    __allow_unmapped__ = True
 
     _visibility_state = sa.Column(
         'visibility_state',

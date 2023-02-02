@@ -23,6 +23,7 @@ class CommentModeratorReport(
     db.Model,  # type: ignore[name-defined]
 ):
     __tablename__ = 'comment_moderator_report'
+    __allow_unmapped__ = True
     __uuid_primary_key__ = True
 
     comment_id = sa.Column(

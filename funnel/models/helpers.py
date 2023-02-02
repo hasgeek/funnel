@@ -36,7 +36,7 @@ from zxcvbn import zxcvbn
 from .. import app
 from ..typing import T
 from ..utils import MarkdownConfig, markdown_escape
-from . import UrlType, db, sa
+from . import DeclarativeBase, UrlType, db, sa
 
 __all__ = [
     'RESERVED_NAMES',
@@ -249,6 +249,10 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
     """
     Move the contents of the decorated class into an existing class and return it.
 
+    .. deprecated::
+        This function is deprecated and should not be used as it is incompatible with
+        PEP 484 type hinting.
+
     Usage::
 
         @reopen(ExistingClass)
@@ -273,6 +277,7 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
     This decorator is intended to aid legibility of bi-directional relationships in
     SQLAlchemy models, specifically where a basic backref is augmented with methods or
     properties that do more processing.
+
     """
 
     def decorator(temp_cls: TempType) -> ReopenedType:
@@ -366,7 +371,7 @@ def quote_autocomplete_tsquery(query: str) -> str:
 
 
 def add_search_trigger(
-    model: db.Model, column_name: str  # type: ignore[name-defined]
+    model: DeclarativeBase, column_name: str  # type: ignore[name-defined]
 ) -> Dict[str, str]:
     """
     Add a search trigger and returns SQL for use in migrations.

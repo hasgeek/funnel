@@ -31,6 +31,7 @@ class ProposalMembership(  # type: ignore[misc]
     """Users can be presenters or reviewers on proposals."""
 
     __tablename__ = 'proposal_membership'
+    __allow_unmapped__ = True
 
     # List of data columns in this model
     __data_columns__ = ('seq', 'is_uncredited', 'label', 'title')
@@ -117,9 +118,7 @@ class ProposalMembership(  # type: ignore[misc]
     label = immutable(
         sa.Column(
             sa.Unicode,
-            sa.CheckConstraint(
-                sa.column('label') != '', name='proposal_membership_label_check'
-            ),
+            sa.CheckConstraint("label <> ''", name='proposal_membership_label_check'),
             nullable=True,
         )
     )

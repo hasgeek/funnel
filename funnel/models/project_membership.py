@@ -41,6 +41,7 @@ class ProjectCrewMembership(
     """Users can be crew members of projects, with specified access rights."""
 
     __tablename__ = 'project_crew_membership'
+    __allow_unmapped__ = True
 
     #: Legacy data has no granted_by
     __null_granted_by__ = True

@@ -210,6 +210,7 @@ class SmsMessage(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-de
     """An outbound SMS message."""
 
     __tablename__ = 'sms_message'
+    __allow_unmapped__ = True
     __phone_optional__ = False
     __phone_unique__ = False
     __phone_is_exclusive__ = False
@@ -246,6 +247,11 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     """
 
     __tablename__ = 'notification'
+
+    #: Required to support document/fragment type hints in subclasses; we should move
+    #: from dependence on type hints to directly specifying document_model and
+    #: fragment_model
+    __allow_unmapped__ = True
 
     #: Flag indicating this is an active notification type. Can be False for draft
     #: and retired notification types to hide them from preferences UI
@@ -695,6 +701,7 @@ class UserNotification(
     """
 
     __tablename__ = 'user_notification'
+    __allow_unmapped__ = True
 
     # Primary key is a compound of (user_id, eventid).
 
@@ -1133,6 +1140,7 @@ class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined
     """Holds a user's preferences for a particular :class:`Notification` type."""
 
     __tablename__ = 'notification_preferences'
+    __allow_unmapped__ = True
 
     #: Id of user whose preferences are represented here
     user_id = immutable(

@@ -29,6 +29,7 @@ class OrganizationMembership(
     """
 
     __tablename__ = 'organization_membership'
+    __allow_unmapped__ = True
 
     # Legacy data has no granted_by
     __null_granted_by__ = True

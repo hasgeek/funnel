@@ -52,6 +52,7 @@ class ContactExchange(
     """Model to track who scanned whose badge, in which project."""
 
     __tablename__ = 'contact_exchange'
+    __allow_unmapped__ = True
     #: User who scanned this contact
     user_id = sa.Column(
         sa.Integer, sa.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True

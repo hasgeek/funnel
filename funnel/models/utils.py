@@ -11,6 +11,7 @@ import phonenumbers
 
 from .. import app
 from ..typing import OptionalMigratedTables
+from . import DeclarativeBase
 from .phone_number import PHONE_LOOKUP_REGIONS
 from .user import Anchor, User, UserEmail, UserEmailClaim, UserExternalId, UserPhone, db
 
@@ -154,8 +155,8 @@ def merge_users(user1: User, user2: User) -> Optional[User]:
 
 
 def do_migrate_instances(
-    old_instance: db.Model,  # type: ignore[name-defined]
-    new_instance: db.Model,  # type: ignore[name-defined]
+    old_instance: DeclarativeBase,  # type: ignore[name-defined]
+    new_instance: DeclarativeBase,  # type: ignore[name-defined]
     helper_method: Optional[str] = None,
 ) -> bool:
     """

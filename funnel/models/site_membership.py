@@ -21,6 +21,7 @@ class SiteMembership(
     """Membership roles for users who are site administrators."""
 
     __tablename__ = 'site_membership'
+    __allow_unmapped__ = True
 
     # List of is_role columns in this model
     __data_columns__ = {'is_comment_moderator', 'is_user_moderator', 'is_site_editor'}
@@ -39,6 +40,7 @@ class SiteMembership(
 
     #: SiteMembership doesn't have a container limiting its scope
     parent_id = None
+    parent_id_column = None
     parent = None
 
     # Site admin roles (at least one must be True):

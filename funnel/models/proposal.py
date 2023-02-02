@@ -118,6 +118,7 @@ class Proposal(  # type: ignore[misc]
     db.Model,  # type: ignore[name-defined]
 ):
     __tablename__ = 'proposal'
+    __allow_unmapped__ = True
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user = with_roles(
@@ -486,6 +487,7 @@ class ProposalSuuidRedirect(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Holds Proposal SUUIDs from before when they were deprecated."""
 
     __tablename__ = 'proposal_suuid_redirect'
+    __allow_unmapped__ = True
 
     suuid = sa.Column(sa.Unicode(22), nullable=False, index=True)
     proposal_id = sa.Column(

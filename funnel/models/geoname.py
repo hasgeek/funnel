@@ -35,6 +35,7 @@ class GeoCountryInfo(BaseNameMixin, db.Model):  # type: ignore[name-defined]
     """Geoname record for a country."""
 
     __tablename__ = 'geo_country_info'
+    __allow_unmapped__ = True
     __bind_key__ = 'geoname'
 
     geonameid: Mapped[int] = sa.orm.synonym('id')
@@ -79,6 +80,7 @@ class GeoAdmin1Code(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Geoname record for 1st level administrative division (state, province)."""
 
     __tablename__ = 'geo_admin1_code'
+    __allow_unmapped__ = True
     __bind_key__ = 'geoname'
 
     geonameid: Mapped[int] = sa.orm.synonym('id')
@@ -106,6 +108,7 @@ class GeoAdmin2Code(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Geoname record for 2nd level administrative division (district, county)."""
 
     __tablename__ = 'geo_admin2_code'
+    __allow_unmapped__ = True
     __bind_key__ = 'geoname'
 
     geonameid: Mapped[int] = sa.orm.synonym('id')
@@ -134,6 +137,7 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
     """Geographical name record."""
 
     __tablename__ = 'geo_name'
+    __allow_unmapped__ = True
     __bind_key__ = 'geoname'
 
     geonameid: Mapped[int] = sa.orm.synonym('id')
@@ -553,6 +557,7 @@ class GeoAltName(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Additional names for any :class:`GeoName`."""
 
     __tablename__ = 'geo_alt_name'
+    __allow_unmapped__ = True
     __bind_key__ = 'geoname'
 
     geonameid = sa.Column(sa.Integer, sa.ForeignKey('geo_name.id'), nullable=False)

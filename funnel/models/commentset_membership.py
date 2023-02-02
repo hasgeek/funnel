@@ -27,6 +27,7 @@ class CommentsetMembership(
     """Membership roles for users who are commentset users and subscribers."""
 
     __tablename__ = 'commentset_membership'
+    __allow_unmapped__ = True
 
     __data_columns__ = ('last_seen_at', 'is_muted')
 
@@ -62,9 +63,9 @@ class CommentsetMembership(
         )
     )
 
-    parent_id: Mapped[int] = sa.orm.synonym('commentset_id')
+    parent_id: int = sa.orm.synonym('commentset_id')
     parent_id_column = 'commentset_id'
-    parent: Mapped[Commentset] = sa.orm.synonym('commentset')
+    parent: Commentset = sa.orm.synonym('commentset')
 
     #: Flag to indicate notifications are muted
     is_muted = sa.Column(sa.Boolean, nullable=False, default=False)

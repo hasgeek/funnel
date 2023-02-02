@@ -8,7 +8,7 @@ from uuid import UUID
 
 from coaster.sqlalchemy import Query
 
-from . import Mapped, db, declarative_mixin, sa
+from . import db, declarative_mixin, sa
 
 __all__ = ['ReorderMixin']
 
@@ -23,14 +23,14 @@ class ReorderMixin:
     """Adds support for re-ordering sequences within a parent container."""
 
     #: Subclasses must have a created_at column
-    created_at: Mapped[datetime]
+    created_at: datetime
     #: Subclass must have a primary key that is int or uuid
-    id: Mapped[int]  # noqa: A003
+    id: int  # noqa: A003
     #: Subclass must declare a parent_id synonym to the parent model fkey column
-    parent_id: Mapped[Union[int, UUID]]
+    parent_id: Union[int, UUID]
     #: Subclass must declare a seq column or synonym, holding a sequence id. It need not
     #: be unique, but reordering is meaningless when both items have the same number
-    seq: Mapped[int]
+    seq: int
 
     #: Subclass must offer a SQLAlchemy query (this is standard from base classes)
     query: Query

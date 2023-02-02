@@ -40,11 +40,9 @@ def upgrade():
     conn = op.get_bind()
     orgs = conn.execute(
         sa.select(
-            [
-                organization_table.c.id,
-                organization_table.c.title,
-                organization_table.c.description,
-            ]
+            organization_table.c.id,
+            organization_table.c.title,
+            organization_table.c.description,
         ).where(organization_table.c.description != '')
     )
     for org in orgs:

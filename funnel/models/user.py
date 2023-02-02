@@ -3,17 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import (
-    ClassVar,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Set,
-    Union,
-    cast,
-    overload,
-)
+from typing import Iterable, Iterator, List, Optional, Set, Union, cast, overload
 from uuid import UUID
 import hashlib
 import itertools
@@ -41,6 +31,7 @@ from coaster.utils import LabeledEnum, newsecret, require_one_of, utcnow
 from ..typing import OptionalMigratedTables
 from . import (
     BaseMixin,
+    DeclarativeBase,
     LocaleType,
     Mapped,
     TimezoneType,
@@ -84,8 +75,8 @@ class SharedProfileMixin:
     # Doc: https://docs.sqlalchemy.org/en/latest/orm/extensions/hybrid.html
     # #reusing-hybrid-properties-across-subclasses
 
-    name: Mapped[Optional[str]]
-    profile: Mapped[Optional[Profile]]
+    name: Optional[str]
+    profile: Optional[Profile]
 
     def validate_name_candidate(self, name: str) -> Optional[str]:
         """Validate if name is valid for this object, returning an error identifier."""
@@ -192,6 +183,7 @@ class User(
     """User model."""
 
     __tablename__ = 'user'
+    __allow_unmapped__ = True
     __title_length__ = 80
 
     #: The user's fullname
@@ -298,6 +290,19 @@ class User(
             'profile_url',
         },
     }
+
+    @classmethod
+    def _defercols(cls):
+        """Return columns that are typically deferred when loading a user."""
+        defer = sa.orm.defer
+        return [
+            defer(cls.created_at),
+            defer(cls.updated_at),
+            defer(cls.pw_hash),
+            defer(cls.pw_set_at),
+            defer(cls.pw_expires_at),
+            defer(cls.timezone),
+        ]
 
     # primary_email: ClassVar[Optional[UserEmail]]
     # primary_phone: ClassVar[Optional[UserPhone]]
@@ -616,7 +621,7 @@ class User(
 
     @with_roles(call={'owner'})
     def transport_for(
-        self, transport: str, context: db.Model  # type: ignore[name-defined]
+        self, transport: str, context: DeclarativeBase  # type: ignore[name-defined]
     ) -> Optional[Union[UserEmail, UserPhone]]:
         """
         Get transport address for a given transport and context.
@@ -789,7 +794,7 @@ class User(
         else:
             query = cls.query.filter_by(buid=buid)
         if defercols:
-            query = query.options(*cls._defercols)
+            query = query.options(*cls._defercols())
         user = query.one_or_none()
         if user and user.state.MERGED:
             user = user.merged_user()
@@ -834,7 +839,7 @@ class User(
             raise TypeError("A parameter is required")
 
         if defercols:
-            query = query.options(*cls._defercols)
+            query = query.options(*cls._defercols())
         for user in query.all():
             user = user.merged_user()
             if user.state.ACTIVE:
@@ -872,7 +877,7 @@ class User(
                     sa.func.lower(Profile.name).like(sa.func.lower(like_query)),
                 ),
             )
-            .options(*cls._defercols)
+            .options(*cls._defercols())
             .order_by(User.fullname)
             .limit(20)
         )
@@ -891,7 +896,7 @@ class User(
                     cls.state.ACTIVE,
                     sa.func.lower(Profile.name).like(sa.func.lower(like_query[1:])),
                 )
-                .options(*cls._defercols)
+                .options(*cls._defercols())
                 .limit(20)
                 # FIXME: Still broken as of SQLAlchemy 1.4.23 (also see next block)
                 # .union(
@@ -906,14 +911,14 @@ class User(
                 #             sa.func.lower(like_query[1:])
                 #         ),
                 #     )
-                #     .options(*cls._defercols)
+                #     .options(*cls._defercols())
                 #     .limit(20),
                 #     # Query 3: like_query -> User.fullname
                 #     cls.query.filter(
                 #         cls.state.ACTIVE,
                 #         sa.func.lower(cls.fullname).like(sa.func.lower(like_query)),
                 #     )
-                #     .options(*cls._defercols)
+                #     .options(*cls._defercols())
                 #     .limit(20),
                 # )
                 .all()
@@ -929,7 +934,7 @@ class User(
                     EmailAddress.get_filter(email=query),
                     cls.state.ACTIVE,
                 )
-                .options(*cls._defercols)
+                .options(*cls._defercols())
                 .limit(20)
                 # .union(base_users)  # FIXME: Broken in SQLAlchemy 1.4.17
                 .all()
@@ -953,15 +958,6 @@ class User(
 # XXX: Deprecated, still here for Baseframe compatibility
 User.userid = User.uuid_b64
 
-User._defercols = [  # pylint: disable=protected-access
-    sa.orm.defer(User.created_at),
-    sa.orm.defer(User.updated_at),
-    sa.orm.defer(User.pw_hash),
-    sa.orm.defer(User.pw_set_at),
-    sa.orm.defer(User.pw_expires_at),
-    sa.orm.defer(User.timezone),
-]
-
 
 auto_init_default(User._state)  # pylint: disable=protected-access
 add_search_trigger(User, 'search_vector')
@@ -971,6 +967,7 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     """Record of an older UUID for a user, after account merger."""
 
     __tablename__ = 'user_oldid'
+    __allow_unmapped__ = True
     __uuid_primary_key__ = True
 
     #: Old user account, if still present
@@ -1102,6 +1099,7 @@ class Organization(
     """An organization of one or more users with distinct roles."""
 
     __tablename__ = 'organization'
+    __allow_unmapped__ = True
     __title_length__ = 80
 
     # profile: Mapped[Profile]
@@ -1168,6 +1166,15 @@ class Organization(
         },
         'related': {'name', 'title', 'pickername', 'created_at'},
     }
+
+    @classmethod
+    def _defercols(cls):
+        """Return columns that are usually deferred from loading."""
+        defer = sa.orm.defer
+        return [
+            defer(cls.created_at),
+            defer(cls.updated_at),
+        ]
 
     def __init__(self, owner: User, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -1285,7 +1292,7 @@ class Organization(
         else:
             query = cls.query.filter_by(buid=buid)
         if defercols:
-            query = query.options(*cls._defercols)
+            query = query.options(*cls._defercols())
         return query.one_or_none()
 
     @classmethod
@@ -1300,22 +1307,16 @@ class Organization(
         if buids:
             query = cls.query.filter(cls.buid.in_(buids))  # type: ignore[attr-defined]
             if defercols:
-                query = query.options(*cls._defercols)
+                query = query.options(*cls._defercols())
             orgs.extend(query.all())
         if names:
             query = cls.query.join(Profile).filter(
                 sa.func.lower(Profile.name).in_([name.lower() for name in names])
             )
             if defercols:
-                query = query.options(*cls._defercols)
+                query = query.options(*cls._defercols())
             orgs.extend(query.all())
         return orgs
-
-
-Organization._defercols = [  # pylint: disable=protected-access
-    sa.orm.defer(Organization.created_at),
-    sa.orm.defer(Organization.updated_at),
-]
 
 
 add_search_trigger(Organization, 'search_vector')
@@ -1325,6 +1326,7 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     """A team of users within an organization."""
 
     __tablename__ = 'team'
+    __allow_unmapped__ = True
     __title_length__ = 250
     #: Displayed name
     title = sa.Column(sa.Unicode(__title_length__), nullable=False)
@@ -1341,7 +1343,7 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         ),
         grants_via={None: {'owner': 'owner', 'admin': 'admin'}},
     )
-    users = with_roles(
+    users: Mapped[List[User]] = with_roles(
         sa.orm.relationship(
             User, secondary=team_membership, lazy='dynamic', backref='teams'
         ),
@@ -1392,6 +1394,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
     """An email address linked to a user account."""
 
     __tablename__ = 'user_email'
+    __allow_unmapped__ = True
     __email_optional__ = False
     __email_unique__ = True
     __email_is_exclusive__ = True
@@ -1399,7 +1402,6 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
 
     # Tell mypy that these are not optional
     email_address: Mapped[EmailAddress]
-    email: Mapped[str]
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user: Mapped[User] = sa.orm.relationship(
@@ -1572,6 +1574,7 @@ class UserEmailClaim(
     """Claimed but unverified email address for a user."""
 
     __tablename__ = 'user_email_claim'
+    __allow_unmapped__ = True
     __email_optional__ = False
     __email_unique__ = False
     __email_for__ = 'user'
@@ -1579,7 +1582,6 @@ class UserEmailClaim(
 
     # Tell mypy that these are not optional
     email_address: Mapped[EmailAddress]
-    email: Mapped[str]
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user: Mapped[User] = sa.orm.relationship(
@@ -1754,6 +1756,7 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
     """A phone number linked to a user account."""
 
     __tablename__ = 'user_phone'
+    __allow_unmapped__ = True
     __phone_optional__ = False
     __phone_unique__ = True
     __phone_is_exclusive__ = True
@@ -1939,6 +1942,7 @@ class UserExternalId(BaseMixin, db.Model):  # type: ignore[name-defined]
     """An external connected account for a user."""
 
     __tablename__ = 'user_externalid'
+    __allow_unmapped__ = True
     __at_username_services__: List[str] = []
     #: Foreign key to user table
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)

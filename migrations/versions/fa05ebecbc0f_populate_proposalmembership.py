@@ -96,12 +96,10 @@ def upgrade():
     progress.start()
     proposals = conn.execute(
         sa.select(
-            [
-                proposal.c.id,
-                proposal.c.created_at,
-                proposal.c.user_id,
-                proposal.c.speaker_id,
-            ]
+            proposal.c.id,
+            proposal.c.created_at,
+            proposal.c.user_id,
+            proposal.c.speaker_id,
         )
     )
 

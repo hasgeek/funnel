@@ -226,19 +226,17 @@ def upgrade():
     # Insert additional profiles from account_name
     existing_profiles = sa.select(profile.c.uuid)
     account_name_data = sa.select(
-        [
-            account_name.c.id,
-            account_name.c.created_at,
-            account_name.c.updated_at,
-            account_name.c.name,
-            account_name.c.user_id,
-            account_name.c.organization_id,
-            account_name.c.reserved,
-            PROFILE_STATE.AUTO,  # state
-            sa.text("''"),  # description_text
-            sa.text("''"),  # description_html
-            sa.sql.expression.false(),  # legacy
-        ]
+        account_name.c.id,
+        account_name.c.created_at,
+        account_name.c.updated_at,
+        account_name.c.name,
+        account_name.c.user_id,
+        account_name.c.organization_id,
+        account_name.c.reserved,
+        PROFILE_STATE.AUTO,  # state
+        sa.text("''"),  # description_text
+        sa.text("''"),  # description_html
+        sa.sql.expression.false(),  # legacy
     ).where(account_name.c.id.notin_(existing_profiles))
     op.execute(
         profile.insert().from_select(

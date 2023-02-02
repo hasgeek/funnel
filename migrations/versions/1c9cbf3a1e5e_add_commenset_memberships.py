@@ -151,7 +151,7 @@ def upgrade_():
 
         rsvps = conn.execute(
             sa.select(
-                [rsvp.c.project_id, rsvp.c.user_id, rsvp.c.state, rsvp.c.created_at]
+                rsvp.c.project_id, rsvp.c.user_id, rsvp.c.state, rsvp.c.created_at
             )
             .where(rsvp.c.project_id == project_item.id)
             .where(rsvp.c.state == 'Y')
@@ -189,10 +189,8 @@ def upgrade_():
         # Create membership for existing project crew
         crews = conn.execute(
             sa.select(
-                [
-                    project_crew_membership.c.user_id,
-                    project_crew_membership.c.granted_at,
-                ]
+                project_crew_membership.c.user_id,
+                project_crew_membership.c.granted_at,
             )
             .where(project_crew_membership.c.project_id == project_item.id)
             .where(project_crew_membership.c.revoked_at.is_(None))
@@ -236,12 +234,10 @@ def upgrade_():
 
     proposals = conn.execute(
         sa.select(
-            [
-                proposal.c.id,
-                proposal.c.commentset_id,
-                proposal_membership.c.user_id,
-                proposal_membership.c.granted_at,
-            ]
+            proposal.c.id,
+            proposal.c.commentset_id,
+            proposal_membership.c.user_id,
+            proposal_membership.c.granted_at,
         )
         .where(proposal_membership.c.proposal_id == proposal.c.id)
         .where(proposal_membership.c.revoked_at.is_(None))

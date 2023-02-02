@@ -764,6 +764,7 @@ def db_session_truncate(
     funnel, app, database, app_context
 ) -> t.Iterator[DatabaseSessionClass]:
     """Empty the database after each use of the fixture."""
+    from sqlalchemy import text
     from sqlalchemy.orm import close_all_sessions
 
     with RemoveIsRollback(database.session, lambda: database.session.rollback):
@@ -776,17 +777,17 @@ def db_session_truncate(
             engine = database.engines[bind]
             with engine.begin() as connection:
                 connection.execute(
-                    '''
-                    DO $$
-                    DECLARE tablenames text;
-                    BEGIN
-                        tablenames := string_agg(
-                            quote_ident(schemaname) || '.' || quote_ident(tablename),
-                            ', ')
-                            FROM pg_tables WHERE schemaname = 'public';
-                        EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
-                    END; $$
-                '''
+                    text(
+                        '''
+            DO $$
+            DECLARE tablenames text;
+            BEGIN
+                tablenames := string_agg(
+                    quote_ident(schemaname) || '.' || quote_ident(tablename), ', ')
+                    FROM pg_tables WHERE schemaname = 'public';
+                EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
+            END; $$'''
+                    )
                 )
 
     # Clear Redis db too

@@ -42,6 +42,7 @@ class Label(
     db.Model,  # type: ignore[name-defined]
 ):
     __tablename__ = 'label'
+    __allow_unmapped__ = True
 
     project_id = sa.Column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False

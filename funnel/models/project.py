@@ -68,6 +68,7 @@ class CFP_STATE(LabeledEnum):  # noqa: N801
 
 class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'project'
+    __allow_unmapped__ = True
     reserved_names = RESERVED_NAMES
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
@@ -762,9 +763,9 @@ class __Profile:
         if user is not None:
             return [
                 membership.project
-                for membership in user.projects_as_crew_active_memberships.join(
-                    Project, Profile
-                ).filter(
+                for membership in user.projects_as_crew_active_memberships.join(Project)
+                .join(Profile)
+                .filter(
                     # Project is attached to this account
                     Project.profile_id == self.id,
                     # Project is in draft state OR has a draft call for proposals
@@ -777,9 +778,9 @@ class __Profile:
         if user is not None:
             return [
                 membership.project
-                for membership in user.projects_as_crew_active_memberships.join(
-                    Project, Profile
-                ).filter(
+                for membership in user.projects_as_crew_active_memberships.join(Project)
+                .join(Profile)
+                .filter(
                     # Project is attached to this account
                     Project.profile_id == self.id,
                     # Project is in draft state OR has a draft call for proposals
@@ -798,6 +799,7 @@ class __Profile:
 
 class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'project_redirect'
+    __allow_unmapped__ = True
 
     profile_id = sa.Column(
         sa.Integer, sa.ForeignKey('profile.id'), nullable=False, primary_key=True
@@ -874,6 +876,7 @@ class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
 
 class ProjectLocation(TimestampMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'project_location'
+    __allow_unmapped__ = True
     #: Project we are tagging
     project_id = sa.Column(
         sa.Integer, sa.ForeignKey('project.id'), primary_key=True, nullable=False

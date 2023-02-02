@@ -75,6 +75,7 @@ message_removed = MessageComposite(__("[removed]"), 'del')
 
 class Commentset(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'commentset'
+    __allow_unmapped__ = True
     #: Commentset state code
     _state = sa.Column(
         'state',
@@ -192,6 +193,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
 
 class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'comment'
+    __allow_unmapped__ = True
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
     _user: Mapped[Optional[User]] = with_roles(

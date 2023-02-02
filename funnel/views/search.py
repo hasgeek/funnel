@@ -30,6 +30,7 @@ from .. import app, executor
 from ..models import (
     Comment,
     Commentset,
+    DeclarativeBase,
     Organization,
     Profile,
     Project,
@@ -75,7 +76,7 @@ class SearchProvider:
     #: Label to use in UI
     label: str
     #: Model to query against
-    model: db.Model  # type: ignore[name-defined]
+    model: DeclarativeBase  # type: ignore[name-defined]
     #: Does this model have a title column?
     has_title: bool = True
 

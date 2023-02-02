@@ -76,6 +76,7 @@ auth_client_user_session: sa.Table = sa.Table(
 
 class UserSession(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'user_session'
+    __allow_unmapped__ = True
 
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user: Mapped[User] = sa.orm.relationship(
