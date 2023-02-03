@@ -20,7 +20,7 @@ argon2-cffi==21.3.0
     # via -r requirements.in
 argon2-cffi-bindings==21.2.0
     # via argon2-cffi
-astroid==2.13.4
+astroid==2.14.1
     # via pylint
 async-generator==1.10
     # via
@@ -59,7 +59,7 @@ beautifulsoup4==4.11.2
     # via -r requirements_test.in
 better-profanity==0.6.1
     # via -r requirements.in
-black==22.12.0
+black==23.1.0
     # via -r requirements_dev.in
 bleach==6.0.0
     # via
@@ -241,7 +241,7 @@ flask-flatpages==0.8.1
     # via -r requirements.in
 flask-mailman==0.3.0
     # via -r requirements.in
-flask-migrate==4.0.3
+flask-migrate==4.0.4
     # via
     #   -r requirements.in
     #   coaster
@@ -432,6 +432,7 @@ outcome==1.2.0
     # via trio
 packaging==23.0
     # via
+    #   black
     #   build
     #   marshmallow
     #   pytest
@@ -466,7 +467,7 @@ platformdirs==2.6.2
     #   virtualenv
 pluggy==1.0.0
     # via pytest
-pre-commit==3.0.2
+pre-commit==3.0.3
     # via -r requirements_dev.in
 premailer==3.10.0
     # via -r requirements.in
@@ -515,7 +516,7 @@ pyjsparser==2.7.1
     # via js2py
 pyjwt==2.6.0
     # via twilio
-pylint==2.15.10
+pylint==2.16.1
     # via
     #   -r requirements_dev.in
     #   pylint-flask-sqlalchemy
@@ -536,6 +537,8 @@ pyopenssl==23.0.0
     #   ndg-httpsclient
 pyparsing==3.0.9
     # via httplib2
+pypng==0.20220715.0
+    # via qrcode
 pyproject-hooks==1.0.0
     # via build
 pysocks==1.7.1
@@ -601,7 +604,7 @@ pyyaml==6.0
     #   flask-flatpages
     #   pre-commit
     #   reformat-gherkin
-qrcode==7.3.1
+qrcode==7.4
     # via -r requirements.in
 redis==4.4.2
     # via
@@ -691,7 +694,7 @@ soupsieve==2.3.2.post1
     # via beautifulsoup4
 splinter==0.19.0
     # via pytest-splinter
-sqlalchemy==2.0.0
+sqlalchemy==2.0.1
     # via
     #   -r requirements.in
     #   alembic
@@ -782,15 +785,15 @@ types-python-dateutil==2.8.19.6
     # via -r requirements_dev.in
 types-pytz==2022.7.1.0
     # via -r requirements_dev.in
-types-redis==4.4.0.4
+types-redis==4.4.0.5
     # via -r requirements_dev.in
 types-requests==2.28.11.8
     # via -r requirements_dev.in
-types-setuptools==65.7.0.3
+types-setuptools==65.7.0.4
     # via -r requirements_dev.in
 types-six==1.16.21.4
     # via -r requirements_dev.in
-types-toml==0.10.8.1
+types-toml==0.10.8.2
     # via -r requirements_dev.in
 types-urllib3==1.26.25.4
     # via types-requests
@@ -808,6 +811,7 @@ typing-extensions==4.4.0
     #   mypy
     #   pylint
     #   pytest-bdd
+    #   qrcode
     #   sqlalchemy
     #   typing-inspect
 typing-inspect==0.8.0

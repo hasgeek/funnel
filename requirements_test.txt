@@ -167,7 +167,7 @@ flask-flatpages==0.8.1
     # via -r requirements.in
 flask-mailman==0.3.0
     # via -r requirements.in
-flask-migrate==4.0.3
+flask-migrate==4.0.4
     # via
     #   -r requirements.in
     #   coaster
@@ -389,6 +389,8 @@ pyopenssl==23.0.0
     #   ndg-httpsclient
 pyparsing==3.0.9
     # via httplib2
+pypng==0.20220715.0
+    # via qrcode
 pysocks==1.7.1
     # via urllib3
 pytest==7.2.1
@@ -445,7 +447,7 @@ pyyaml==6.0
     # via
     #   coaster
     #   flask-flatpages
-qrcode==7.3.1
+qrcode==7.4
     # via -r requirements.in
 redis==4.4.2
     # via
@@ -525,7 +527,7 @@ soupsieve==2.3.2.post1
     # via beautifulsoup4
 splinter==0.19.0
     # via pytest-splinter
-sqlalchemy==2.0.0
+sqlalchemy==2.0.1
     # via
     #   -r requirements.in
     #   alembic
@@ -576,6 +578,7 @@ typing-extensions==4.4.0
     #   baseframe
     #   coaster
     #   pytest-bdd
+    #   qrcode
     #   sqlalchemy
     #   typing-inspect
 typing-inspect==0.8.0
