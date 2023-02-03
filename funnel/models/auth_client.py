@@ -316,7 +316,7 @@ class AuthClientCredential(BaseMixin, db.Model):  # type: ignore[name-defined]
             AuthClient,
             backref=sa.orm.backref(
                 'credentials',
-                cascade='all',
+                cascade='all, delete-orphan',
                 collection_class=attribute_keyed_dict('name'),
             ),
         ),
@@ -331,6 +331,9 @@ class AuthClientCredential(BaseMixin, db.Model):  # type: ignore[name-defined]
     secret_hash = sa.Column(sa.Unicode, nullable=False)
     #: When was this credential last used for an API call?
     accessed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+
+    def __repr__(self):
+        return f'<AuthClientCredential {self.name} {self.title!r}>'
 
     def secret_is(self, candidate: str, upgrade_hash: bool = False):
         """Test if the candidate secret matches."""
@@ -368,11 +371,15 @@ class AuthClientCredential(BaseMixin, db.Model):  # type: ignore[name-defined]
 
         :param auth_client: The client for which a name/secret pair is being generated
         """
-        cred = cls(auth_client=auth_client, name=make_buid())
         secret = newsecret()
-        cred.secret_hash = (
-            'blake2b$32$' + blake2b(secret.encode(), digest_size=32).hexdigest()
+        cred = cls(
+            name=make_buid(),
+            secret_hash=(
+                'blake2b$32$' + blake2b(secret.encode(), digest_size=32).hexdigest()
+            ),
+            auth_client=auth_client,
         )
+        db.session.add(cred)
         return cred, secret
 
 
@@ -591,10 +598,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
 
         :param str token: Token to lookup
         """
-        query = cls.query.filter_by(token=token).options(
-            sa.orm.joinedload(cls.auth_client).load_only(cls.id, cls._scope)
-        )
-        return query.one_or_none()
+        return cls.query.filter_by(token=token).join(AuthClient).one_or_none()
 
     @overload
     @classmethod
@@ -629,13 +633,11 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         cls, users: Union[QueryBaseClass, Sequence[User]]
     ) -> List[AuthToken]:
         """Return all AuthToken for the specified users."""
-        query = cls.query.options(
-            sa.orm.joinedload(cls.auth_client).load_only(cls.id, cls._scope)
-        )
+        query = cls.query.join(AuthClient)
         if isinstance(users, QueryBaseClass):
             count = users.count()
             if count == 1:
-                return query.filter_by(user=users.first()).all()
+                return query.filter(AuthToken.user == users.first()).all()
             if count > 1:
                 return query.filter(
                     AuthToken.user_id.in_(users.options(load_only(User.id)))
@@ -646,7 +648,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
                 # Cast users into a list/tuple before accessing [0], as the source
                 # may not be an actual list with indexed access. For example,
                 # Organization.owner_users is a DynamicAssociationProxy.
-                return query.filter_by(user=tuple(users)[0]).all()
+                return query.filter(AuthToken.user == tuple(users)[0]).all()
             if count > 1:
                 return query.filter(AuthToken.user_id.in_([u.id for u in users])).all()
 

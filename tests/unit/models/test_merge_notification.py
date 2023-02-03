@@ -87,7 +87,7 @@ def user2_notification(db_session, fixtures, notification):
 
 @pytest.fixture()
 def user1_main_preferences(db_session, fixtures):
-    prefs = models.NotificationPreferences(user=fixtures.user1, notification_type='')
+    prefs = models.NotificationPreferences(notification_type='', user=fixtures.user1)
     db_session.add(prefs)
     db_session.commit()
     return prefs
@@ -96,7 +96,7 @@ def user1_main_preferences(db_session, fixtures):
 @pytest.fixture()
 def user1_test_preferences(db_session, fixtures, fixture_notification_type):
     prefs = models.NotificationPreferences(
-        user=fixtures.user1, notification_type='merge_test'
+        notification_type='merge_test', user=fixtures.user1
     )
     db_session.add(prefs)
     db_session.commit()
@@ -105,7 +105,7 @@ def user1_test_preferences(db_session, fixtures, fixture_notification_type):
 
 @pytest.fixture()
 def user2_main_preferences(db_session, fixtures):
-    prefs = models.NotificationPreferences(user=fixtures.user2, notification_type='')
+    prefs = models.NotificationPreferences(notification_type='', user=fixtures.user2)
     db_session.add(prefs)
     db_session.commit()
     return prefs
@@ -114,7 +114,7 @@ def user2_main_preferences(db_session, fixtures):
 @pytest.fixture()
 def user2_test_preferences(db_session, fixtures, fixture_notification_type):
     prefs = models.NotificationPreferences(
-        user=fixtures.user2, notification_type='merge_test'
+        notification_type='merge_test', user=fixtures.user2
     )
     db_session.add(prefs)
     db_session.commit()

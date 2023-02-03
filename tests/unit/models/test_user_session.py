@@ -33,7 +33,7 @@ def test_usersession_has_sudo(db_session, user_twoflower) -> None:
     assert another_user_session.has_sudo is True
 
 
-def test_usersession_revoke(user_twoflower) -> None:
+def test_usersession_revoke(db_session, user_twoflower) -> None:
     """Test to revoke on UserSession instance."""
     yet_another_usersession = models.UserSession(
         user=user_twoflower,
@@ -41,12 +41,13 @@ def test_usersession_revoke(user_twoflower) -> None:
         user_agent=sample_user_agent,
         accessed_at=utcnow(),
     )
+    db_session.add(yet_another_usersession)
     yet_another_usersession.revoke()
     result = models.UserSession.get(yet_another_usersession.buid)
     assert result.revoked_at is not None
 
 
-def test_usersession_get(user_twoflower) -> None:
+def test_usersession_get(db_session, user_twoflower) -> None:
     """Test for verifying UserSession's get method."""
     twoflower_buid = buid()
     twoflower_session = models.UserSession(
@@ -56,12 +57,13 @@ def test_usersession_get(user_twoflower) -> None:
         user_agent=sample_user_agent,
         accessed_at=utcnow(),
     )
+    db_session.add(twoflower_session)
     result = twoflower_session.get(buid=twoflower_buid)
     assert isinstance(result, models.UserSession)
     assert result.user_id == user_twoflower.id
 
 
-def test_usersession_active_sessions(user_twoflower) -> None:
+def test_usersession_active_sessions(db_session, user_twoflower) -> None:
     """Test for verifying UserSession's active_sessions."""
     twoflower_session = models.UserSession(
         user=user_twoflower,
@@ -70,6 +72,7 @@ def test_usersession_active_sessions(user_twoflower) -> None:
         user_agent=sample_user_agent,
         accessed_at=utcnow(),
     )
+    db_session.add(twoflower_session)
     assert isinstance(user_twoflower.active_user_sessions.all(), list)
     assert user_twoflower.active_user_sessions.all() == [twoflower_session]
 

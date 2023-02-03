@@ -325,6 +325,7 @@ class User(
                 self.profile.name = value
             else:
                 self.profile = Profile(name=value, user=self, uuid=self.uuid)
+                db.session.add(self.profile)
 
     @name.expression
     def name(cls):  # noqa: N805  # pylint: disable=no-self-argument
@@ -396,7 +397,8 @@ class User(
 
     def __repr__(self) -> str:
         """Represent :class:`User` as a string."""
-        return f'<User {self.username or self.buid} "{self.fullname}">'
+        with db.session.no_autoflush:
+            return f'<User {self.username or self.buid} "{self.fullname}">'
 
     def __str__(self) -> str:
         """Return picker name for user."""
@@ -1201,6 +1203,7 @@ class Organization(
             self.profile = Profile(  # type: ignore[unreachable]
                 name=value, organization=self, uuid=self.uuid
             )
+            db.session.add(self.profile)
 
     @name.expression
     def name(  # pylint: disable=no-self-argument
@@ -1217,7 +1220,8 @@ class Organization(
 
     def __repr__(self) -> str:
         """Represent :class:`Organization` as a string."""
-        return f'<Organization {self.name} "{self.title}">'
+        with db.session.no_autoflush:
+            return f'<Organization {self.name} "{self.title}">'
 
     @property
     def pickername(self) -> str:

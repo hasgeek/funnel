@@ -92,10 +92,7 @@ class Profile(
     user: Mapped[Optional[User]] = with_roles(
         sa.orm.relationship(
             'User',
-            lazy='joined',
-            backref=sa.orm.backref(
-                'profile', lazy='joined', uselist=False, cascade='all'
-            ),
+            backref=sa.orm.backref('profile', uselist=False, cascade='all'),
         ),
         grants={'owner'},
     )
@@ -108,8 +105,7 @@ class Profile(
     )
     organization: Mapped[Optional[Organization]] = sa.orm.relationship(
         'Organization',
-        lazy='joined',
-        backref=sa.orm.backref('profile', lazy='joined', uselist=False, cascade='all'),
+        backref=sa.orm.backref('profile', uselist=False, cascade='all'),
     )
     #: Reserved account (not assigned to any party)
     reserved = sa.Column(sa.Boolean, nullable=False, default=False, index=True)

@@ -888,7 +888,7 @@ class UserNotification(
         prefs = self.user.notification_preferences.get(self.notification_pref_type)
         if prefs is None:
             prefs = NotificationPreferences(
-                user=self.user, notification_type=self.notification_pref_type
+                notification_type=self.notification_pref_type, user=self.user
             )
             db.session.add(prefs)
             self.user.notification_preferences[self.notification_pref_type] = prefs
@@ -1305,8 +1305,8 @@ class __User:
         """Return user's main notification preferences, toggling transports on/off."""
         if not self._main_notification_preferences:
             main = NotificationPreferences(
-                user=self,
                 notification_type='',
+                user=self,
                 by_email=True,
                 by_sms=True,
                 by_webpush=False,
