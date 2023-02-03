@@ -402,7 +402,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             return phonenumbers.format_number(
                 parsed, phonenumbers.PhoneNumberFormat.INTERNATIONAL
             )
-        if self.is_blocked:
+        if self.is_blocked:  # pylint: disable=using-constant-test
             return _('[blocked]')
         return _('[removed]')
 
@@ -718,7 +718,6 @@ class PhoneNumberMixin:
     @phone.setter
     def phone(self, value: Optional[str]) -> None:
         if self.__phone_for__:
-
             if value is not None:
                 self.phone_number = PhoneNumber.add_for(
                     getattr(self, self.__phone_for__), value

@@ -75,6 +75,7 @@ class SiteMembership(
 
     def __repr__(self) -> str:
         """Return representation of membership."""
+        # pylint: disable=using-constant-test
         return (
             f'<{self.__class__.__name__} {self.subject!r} '
             + ('active' if self.is_active else 'revoked')

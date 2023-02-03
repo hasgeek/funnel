@@ -304,8 +304,8 @@ class User(
             defer(cls.timezone),
         ]
 
-    # primary_email: ClassVar[Optional[UserEmail]]
-    # primary_phone: ClassVar[Optional[UserPhone]]
+    primary_email: Optional[UserEmail]
+    primary_phone: Optional[UserPhone]
 
     @hybrid_property
     def name(self) -> Optional[str]:
@@ -398,7 +398,9 @@ class User(
     def __repr__(self) -> str:
         """Represent :class:`User` as a string."""
         with db.session.no_autoflush:
-            return f'<User {self.username or self.buid} "{self.fullname}">'
+            if 'profile' in self.__dict__:
+                return f"<User {self.username} {self.fullname!r}>"
+            return f"<User {self.uuid_b64} {self.fullname!r}>"
 
     def __str__(self) -> str:
         """Return picker name for user."""
@@ -790,11 +792,15 @@ class User(
             buid = userid
 
         if username is not None:
-            query = cls.query.join(Profile).filter(
-                sa.func.lower(Profile.name) == sa.func.lower(username)
+            query = (
+                cls.query.join(Profile)
+                .filter(sa.func.lower(Profile.name) == sa.func.lower(username))
+                .options(sa.orm.joinedload(cls.profile))
             )
         else:
-            query = cls.query.filter_by(buid=buid)
+            query = cls.query.filter_by(buid=buid).options(
+                sa.orm.joinedload(cls.profile)
+            )
         if defercols:
             query = query.options(*cls._defercols())
         user = query.one_or_none()
@@ -1221,7 +1227,9 @@ class Organization(
     def __repr__(self) -> str:
         """Represent :class:`Organization` as a string."""
         with db.session.no_autoflush:
-            return f'<Organization {self.name} "{self.title}">'
+            if 'profile' in self.__dict__:
+                return f"<Organization {self.name} {self.title!r}>"
+            return f"<Organization {self.uuid_b64} {self.title!r}>"
 
     @property
     def pickername(self) -> str:
@@ -1290,11 +1298,15 @@ class Organization(
         require_one_of(name=name, buid=buid)
 
         if name is not None:
-            query = cls.query.join(Profile).filter(
-                sa.func.lower(Profile.name) == sa.func.lower(name)
+            query = (
+                cls.query.join(Profile)
+                .filter(sa.func.lower(Profile.name) == sa.func.lower(name))
+                .options(sa.orm.joinedload(cls.profile))
             )
         else:
-            query = cls.query.filter_by(buid=buid)
+            query = cls.query.filter_by(buid=buid).options(
+                sa.orm.joinedload(cls.profile)
+            )
         if defercols:
             query = query.options(*cls._defercols())
         return query.one_or_none()

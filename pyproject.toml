@@ -128,7 +128,6 @@ markers = [
   'requires_config("feature"): Run test only if specified app config is available'
 ]
 filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
-mocked-sessions = 'funnel.db.db.session'  # For pytest-flask-sqlalchemy (unused)
 remote_data_strict = true
 env = [
   'FLASK_ENV=testing',
@@ -169,7 +168,7 @@ module = ['flask_sqlalchemy']
 follow_imports = 'skip'
 
 [tool.pylint.master]
-load-plugins = ['pylint_pytest', 'pylint_flask_sqlalchemy']
+load-plugins = ['pylint_pytest']
 max-parents = 10
 init-hook = """
 import os, astroid.bases, pathlib

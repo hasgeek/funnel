@@ -96,8 +96,7 @@ def get_otp_form(otp_session: OtpSession) -> Union[OtpForm, RegisterOtpForm]:
 
 
 def render_otp_form(
-    form: Union[OtpForm, RegisterOtpForm], cancel_url: str,
-    action: str
+    form: Union[OtpForm, RegisterOtpForm], cancel_url: str, action: str
 ) -> ReturnView:
     """Render OTP form."""
     form.form_nonce.data = form.form_nonce.default()
@@ -250,11 +249,11 @@ def login() -> ReturnView:
                 phone=loginform.new_phone,
                 email=loginform.new_email,
             )
-            action_url
             if otp_session.send():
                 return render_otp_form(
-                    get_otp_form(otp_session), url_for('login', next=next_url),
-                    action_url
+                    get_otp_form(otp_session),
+                    url_for('login', next=next_url),
+                    action_url,
                 )
             # If an OTP could not be sent, flash messages from otp_session.send() will
             # be rendered and this view will fallback to the default render of the
@@ -303,7 +302,9 @@ def login() -> ReturnView:
                     render_redirect(get_next_url(session=True)),
                     'otp',
                 )
-            return render_otp_form(otp_form, url_for('login', next=next_url), action_url)
+            return render_otp_form(
+                otp_form, url_for('login', next=next_url), action_url
+            )
         except OtpTimeoutError as exc:
             reason = str(exc)
             current_app.logger.info("Login OTP timed out with %s", reason)

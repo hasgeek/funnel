@@ -287,7 +287,7 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
         """Create a unique name for this geoname record."""
         if self.ascii_title:
             usetitle = self.use_title
-            if self.id:
+            if self.id:  # pylint: disable=using-constant-test
 
                 def checkused(c):
                     return bool(

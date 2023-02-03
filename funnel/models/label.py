@@ -158,13 +158,13 @@ class Label(
     }
 
     @property
-    def title_for_name(self):
+    def title_for_name(self) -> str:
         if self.main_label:
             return f"{self.main_label.title}/{self.title}"
         return self.title
 
     @property
-    def form_label_text(self):
+    def form_label_text(self) -> str:
         return (
             self.icon_emoji + " " + self.title
             if self.icon_emoji is not None
@@ -172,19 +172,19 @@ class Label(
         )
 
     @property
-    def has_proposals(self):
+    def has_proposals(self) -> bool:
         if not self.has_options:
             return bool(self.proposals)
         return any(bool(option.proposals) for option in self.options)
 
     @hybrid_property
-    def restricted(self):
+    def restricted(self) -> bool:
         return (  # pylint: disable=protected-access
             self.main_label._restricted if self.main_label else self._restricted
         )
 
     @restricted.setter
-    def restricted(self, value):
+    def restricted(self, value: bool) -> None:
         if self.main_label:
             raise ValueError("This flag must be set on the parent")
         self._restricted = value
@@ -202,7 +202,7 @@ class Label(
         )
 
     @hybrid_property
-    def archived(self):
+    def archived(self) -> bool:
         return self._archived or (
             self.main_label._archived  # pylint: disable=protected-access
             if self.main_label
@@ -210,7 +210,7 @@ class Label(
         )
 
     @archived.setter
-    def archived(self, value):
+    def archived(self, value: bool) -> None:
         self._archived = value
 
     @archived.expression
@@ -227,7 +227,7 @@ class Label(
         )
 
     @hybrid_property
-    def has_options(self):
+    def has_options(self) -> bool:
         return bool(self.options)
 
     @has_options.expression
@@ -235,21 +235,22 @@ class Label(
         return exists().where(Label.main_label_id == cls.id)
 
     @property
-    def is_main_label(self):
+    def is_main_label(self) -> bool:
         return not self.main_label
 
     @hybrid_property
-    def required(self):
+    def required(self) -> bool:
+        # pylint: disable=using-constant-test
         return self._required if self.has_options else False
 
     @required.setter
-    def required(self, value):
+    def required(self, value: bool) -> None:
         if value and not self.has_options:
             raise ValueError("Labels without options cannot be mandatory")
         self._required = value
 
     @property
-    def icon(self):
+    def icon(self) -> str:
         """
         Return an icon for displaying the label in space-constrained UI.
 
@@ -270,7 +271,8 @@ class Label(
             return f'<Label {self.main_label.name}/{self.name}>'
         return f'<Label {self.name}>'
 
-    def apply_to(self, proposal):
+    def apply_to(self, proposal: Proposal) -> None:
+        # pylint: disable=using-constant-test
         if self.has_options:
             raise ValueError("This label requires one of its options to be used")
         if self in proposal.labels:
@@ -289,7 +291,8 @@ class Label(
         # we can assign label to proposal
         proposal.labels.append(self)
 
-    def remove_from(self, proposal):
+    def remove_from(self, proposal: Proposal) -> None:
+        # pylint: disable=using-constant-test
         if self.has_options:
             raise ValueError("This label requires one of its options to be removed")
         if self in proposal.labels:

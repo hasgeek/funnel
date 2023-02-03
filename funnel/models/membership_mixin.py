@@ -221,6 +221,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     with_roles(is_amendment, read={'subject', 'editor'})
 
     def __repr__(self) -> str:
+        # pylint: disable=using-constant-test
         return (
             f'<{self.__class__.__name__} {self.subject!r} in {self.parent!r} '
             + ('active' if self.is_active else 'revoked')

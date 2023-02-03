@@ -21,7 +21,6 @@ pep8-naming
 pip-tools
 pre-commit
 pylint
-pylint-flask-sqlalchemy
 pylint-pytest
 pyupgrade
 reformat-gherkin
