@@ -484,25 +484,34 @@ class Profile(
         return False
 
     @classmethod
-    def autocomplete(cls, query: str) -> List[Profile]:
+    def autocomplete(cls, prefix: str) -> List[Profile]:
         """Return accounts beginning with the query, for autocomplete."""
-        query = query.strip()
-        if not query:
+        prefix = prefix.strip()
+        if not prefix:
             return []
-        squery = quote_autocomplete_tsquery(query)
+        squery = quote_autocomplete_tsquery(prefix)
         return (
-            cls.query.outerjoin(User)
-            .outerjoin(Organization)
-            .filter(cls.state.ACTIVE_AND_PUBLIC, cls.search_vector.match(squery))
-            .union(
-                Profile.query.join(User).filter(
-                    User.state.ACTIVE, User.search_vector.match(squery)
-                ),
-                Profile.query.join(Organization).filter(
-                    Organization.state.ACTIVE, Organization.search_vector.match(squery)
+            cls.query.options(sa.orm.defer(cls.is_active))
+            .join(User)
+            .filter(
+                User.state.ACTIVE,
+                sa.or_(
+                    cls.search_vector.bool_op('@@')(squery),
+                    User.search_vector.bool_op('@@')(squery),
                 ),
             )
-            .order_by(Profile.name)
+            .union(
+                cls.query.options(sa.orm.defer(cls.is_active))
+                .join(Organization)
+                .filter(
+                    Organization.state.ACTIVE,
+                    sa.or_(
+                        cls.search_vector.bool_op('@@')(squery),
+                        Organization.search_vector.bool_op('@@')(squery),
+                    ),
+                ),
+            )
+            .order_by(cls.name)
             .all()
         )
 

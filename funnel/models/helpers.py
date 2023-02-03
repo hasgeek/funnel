@@ -19,7 +19,7 @@ from typing import (
 import os.path
 import re
 
-from sqlalchemy import DDL, Text, event
+from sqlalchemy.dialects.postgresql import TSQUERY
 from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
@@ -36,7 +36,7 @@ from zxcvbn import zxcvbn
 from .. import app
 from ..typing import T
 from ..utils import MarkdownConfig, markdown_escape
-from . import DeclarativeBase, UrlType, db, sa
+from . import DeclarativeBase, UrlType, sa
 
 __all__ = [
     'RESERVED_NAMES',
@@ -362,12 +362,11 @@ def quote_autocomplete_like(query):
     )
 
 
-def quote_autocomplete_tsquery(query: str) -> str:
+def quote_autocomplete_tsquery(query: str, execute=False) -> TSQUERY:
     """Return a PostgreSQL tsquery suitable for autocomplete-type matches."""
-    with db.session.no_autoflush:
-        return db.session.query(
-            sa.func.cast(sa.func.phraseto_tsquery(query or ''), Text) + ':*'
-        ).scalar()
+    return sa.func.cast(
+        sa.func.concat(sa.func.phraseto_tsquery(query or ''), ':*'), TSQUERY
+    )
 
 
 def add_search_trigger(
@@ -469,16 +468,16 @@ def add_search_trigger(
         '''
     )
 
-    event.listen(
+    sa.event.listen(
         model.__table__,
         'after_create',
-        DDL(trigger_function).execute_if(dialect='postgresql'),
+        sa.DDL(trigger_function).execute_if(dialect='postgresql'),
     )
 
-    event.listen(
+    sa.event.listen(
         model.__table__,
         'before_drop',
-        DDL(drop_statement).execute_if(dialect='postgresql'),
+        sa.DDL(drop_statement).execute_if(dialect='postgresql'),
     )
 
     return {

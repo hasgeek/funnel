@@ -849,7 +849,7 @@ class User(
         return list(users)
 
     @classmethod
-    def autocomplete(cls, query: str) -> List[User]:
+    def autocomplete(cls, prefix: str) -> List[User]:
         """
         Return users whose names begin with the query, for autocomplete widgets.
 
@@ -859,7 +859,7 @@ class User(
         """
         # Escape the '%' and '_' wildcards in SQL LIKE clauses.
         # Some SQL dialects respond to '[' and ']', so remove them.
-        like_query = quote_autocomplete_like(query)
+        like_query = quote_autocomplete_like(prefix)
 
         # We convert to lowercase and use the LIKE operator since ILIKE isn't standard
         # and doesn't use an index in PostgreSQL. There's a functional index for lower()
@@ -885,8 +885,8 @@ class User(
         )
 
         if (
-            query != '@'
-            and query.startswith('@')
+            prefix != '@'
+            and prefix.startswith('@')
             and UserExternalId.__at_username_services__
         ):
             # @-prefixed, so look for usernames, including other @username-using
@@ -925,15 +925,15 @@ class User(
                 # )
                 .all()
             )
-        elif '@' in query and not query.startswith('@'):
+        elif '@' in prefix and not prefix.startswith('@'):
             # Query has an @ in the middle. Match email address (exact match only).
-            # Use param `query` instead of `like_query` because it's not a LIKE query.
+            # Use param `prefix` instead of `like_query` because it's not a LIKE query.
             # Combine results with regular user search
             users = (
                 cls.query.join(UserEmail)
                 .join(EmailAddress)
                 .filter(
-                    EmailAddress.get_filter(email=query),
+                    EmailAddress.get_filter(email=prefix),
                     cls.state.ACTIVE,
                 )
                 .options(*cls._defercols())

@@ -54,7 +54,7 @@ def test_search_project_count_returns_int(
 ) -> None:
     """Assert that project_count() returns an int."""
     assert isinstance(
-        cast(SearchInProjectProvider, search_providers[stype]).profile_count(
+        cast(SearchInProjectProvider, search_providers[stype]).project_count(
             "test", project_expo2010
         ),
         int,
@@ -115,7 +115,7 @@ def test_view_search_counts(app, client, org_ankhmorpork, project_expo2010) -> N
     """Search views return counts as a list of dicts."""
     org_ankhmorpork.profile.make_public()
     r1 = client.get(
-        url_for('SearchView_search'),
+        url_for('search'),
         query_string={'q': "test"},
         headers={'Accept': 'application/json'},
     ).get_json()
@@ -144,7 +144,7 @@ def test_view_search_counts(app, client, org_ankhmorpork, project_expo2010) -> N
 def test_view_search_results_all(client, stype) -> None:
     """Global search view returns results for each type."""
     resultset = client.get(
-        url_for('SearchView_search'),
+        url_for('search'),
         query_string={'q': "test", 'type': stype},
         headers={'Accept': 'application/json'},
     ).get_json()

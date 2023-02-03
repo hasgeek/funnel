@@ -532,7 +532,7 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
         return results
 
     @classmethod
-    def autocomplete(cls, q: str, lang: Optional[str] = None) -> Query:
+    def autocomplete(cls, prefix: str, lang: Optional[str] = None) -> Query:
         """
         Autocomplete a geoname record.
 
@@ -542,7 +542,9 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
         query = (
             cls.query.join(cls.alternate_titles)
             .filter(
-                sa.func.lower(GeoAltName.title).like(quote_autocomplete_like(q.lower()))
+                sa.func.lower(GeoAltName.title).like(
+                    quote_autocomplete_like(prefix.lower())
+                )
             )
             .order_by(sa.desc(cls.population))
         )

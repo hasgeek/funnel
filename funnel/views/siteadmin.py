@@ -17,7 +17,6 @@ from flask import abort, current_app, flash, render_template, request, url_for
 from baseframe import _
 from baseframe.forms import Form
 from coaster.auth import current_auth
-from coaster.utils import for_tsquery
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
@@ -241,11 +240,12 @@ class SiteadminView(ClassView):
         comments = Comment.query.filter(Comment.state.REPORTABLE).order_by(
             Comment.created_at.desc()
         )
+        squery = sa.func.websearch_to_tsquery(query or '')
         if query:
             comments = comments.join(User).filter(
                 sa.or_(
-                    Comment.search_vector.match(for_tsquery(query or '')),
-                    User.search_vector.match(for_tsquery(query or '')),
+                    Comment.search_vector.bool_op('@@')(squery),
+                    User.search_vector.bool_op('@@')(squery),
                 )
             )
 
