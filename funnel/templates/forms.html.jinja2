@@ -350,6 +350,18 @@
         autocomplete_endpoint: {{ field.autocomplete_endpoint|tojson }},
         key: {{ field.results_key|tojson }}
       });
+    {%- elif field.type == 'RecaptchaField' and ref_id != '' and not force %}
+      window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
+        document.getElementById("{{ ref_id }}").submit();
+      };
+      $('#{{ ref_id }}').submit(function (event) {
+        event.preventDefault();
+        if (typeof grecaptcha !== "undefined" && grecaptcha.getResponse() === '') {
+          grecaptcha.execute();
+        } else {
+          document.getElementById("{{ ref_id }}").submit();
+        }
+      })
     {%- elif field.type == 'ImgeeField' %}
       window.addEventListener("message", function (event) {
         if (event.origin === "{{ config['IMGEE_HOST'] }}") {
