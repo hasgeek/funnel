@@ -2,7 +2,7 @@
 {% from "forms.html.jinja2" import renderform, renderform_inner %}
 
 {% block form %}
-  <form data-parsley-validate="true" id="{{ ref_id }}" method="post" hx-post="{{ action }}" action="{{ action }}" {%- if multipart %} enctype="multipart/form-data" {%- endif %} accept-charset="UTF-8" class="mui-form mui-form--margins hg-form" hx-target="#loginformwrapper">
+  <form data-parsley-validate="true" id="{{ ref_id }}" method="post" hx-post="{{ action }}" {%- if multipart %} enctype="multipart/form-data" {%- endif %} accept-charset="UTF-8" class="mui-form mui-form--margins hg-form" hx-target="#loginformwrapper">
     {{ renderform_inner(form, formid) }}
     <div class="mui-form form-actions mui--clearfix{% if css_class %} {{ css_class }}{% endif %}">
       <div>
