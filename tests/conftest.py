@@ -767,16 +767,15 @@ def db_session_truncate(
     from sqlalchemy import text
     from sqlalchemy.orm import close_all_sessions
 
-    with RemoveIsRollback(database.session, lambda: database.session.rollback):
-        yield database.session
+    yield database.session
     close_all_sessions()
 
     # Iterate through all database engines and empty their tables
     with app.app_context():
         for bind in [None] + list(app.config.get('SQLALCHEMY_BINDS') or ()):
             engine = database.engines[bind]
-            with engine.begin() as connection:
-                connection.execute(
+            with engine.begin() as transaction:
+                transaction.execute(
                     text(
                         '''
             DO $$
