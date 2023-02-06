@@ -24,9 +24,10 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
 
-from ..typing import Mapped, OptionalMigratedTables
+from ..typing import ModelType, OptionalMigratedTables
 from . import (
     BaseMixin,
+    Mapped,
     UuidMixin,
     db,
     declarative_mixin,
@@ -101,9 +102,11 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     #: List of columns that will be copied into a new row when a membership is amended
     __data_columns__: ClassVar[Iterable[str]] = ()
     #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
-    parent_id: Optional[Mapped[int]]
+    parent_id: Optional[int]
+    #: Name of the parent id column, used in SQL constraints
+    parent_id_column: ClassVar[Optional[str]]
     #: Parent object
-    parent: Optional[Mapped[db.Model]]
+    parent: Optional[ModelType]
     #: Subject of this membership (subclasses must define)
     subject: SubjectType
 
@@ -117,7 +120,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
-    granted_at: sa.Column[datetime_type] = immutable(
+    granted_at: Mapped[datetime_type] = immutable(
         with_roles(
             sa.Column(
                 sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
@@ -126,12 +129,12 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         )
     )
     #: End time of membership, ordinarily a mirror of updated_at
-    revoked_at: sa.Column[Optional[datetime_type]] = with_roles(
+    revoked_at: Mapped[Optional[datetime_type]] = with_roles(
         sa.Column(sa.TIMESTAMP(timezone=True), nullable=True),
         read={'subject', 'editor'},
     )
     #: Record type
-    record_type: sa.Column = immutable(
+    record_type: Mapped[int] = immutable(
         with_roles(
             sa.Column(
                 sa.Integer,
@@ -150,9 +153,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     with_roles(record_type_label, read={'subject', 'editor'})
 
     @declared_attr
-    def revoked_by_id(  # pylint: disable=no-self-argument
-        cls,
-    ) -> sa.Column[Optional[int]]:
+    @classmethod
+    def revoked_by_id(cls) -> Mapped[Optional[int]]:
         """Id of user who revoked the membership."""
         return sa.Column(
             sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
@@ -160,14 +162,14 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(read={'subject', 'editor'}, grants={'editor'})
     @declared_attr
-    def revoked_by(  # pylint: disable=no-self-argument
-        cls,
-    ) -> Mapped[Optional[User]]:
+    @classmethod
+    def revoked_by(cls) -> Mapped[Optional[User]]:
         """User who revoked the membership."""
         return sa.orm.relationship(User, foreign_keys=[cls.revoked_by_id])
 
     @declared_attr
-    def granted_by_id(cls) -> sa.Column[int]:  # pylint: disable=no-self-argument
+    @classmethod
+    def granted_by_id(cls) -> Mapped[int]:
         """
         Id of user who assigned the membership.
 
@@ -182,9 +184,8 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(read={'subject', 'editor'}, grants={'editor'})
     @declared_attr
-    def granted_by(  # pylint: disable=no-self-argument
-        cls,
-    ) -> Mapped[Optional[User]]:
+    @classmethod
+    def granted_by(cls) -> Mapped[Optional[User]]:
         """User who assigned the membership."""
         return sa.orm.relationship(User, foreign_keys=[cls.granted_by_id])
 
@@ -220,6 +221,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     with_roles(is_amendment, read={'subject', 'editor'})
 
     def __repr__(self) -> str:
+        # pylint: disable=using-constant-test
         return (
             f'<{self.__class__.__name__} {self.subject!r} in {self.parent!r} '
             + ('active' if self.is_active else 'revoked')
@@ -371,10 +373,9 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     """Support class for immutable memberships for users."""
 
-    user_id: sa.Column[int]
-
-    @declared_attr  # type: ignore[no-redef]
-    def user_id(cls) -> sa.Column[int]:  # pylint: disable=no-self-argument
+    @declared_attr
+    @classmethod
+    def user_id(cls) -> Mapped[int]:
         """Foreign key column to user table."""
         return sa.Column(
             sa.Integer,
@@ -385,36 +386,37 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
 
     @with_roles(read={'subject', 'editor'}, grants={'subject'})
     @declared_attr
-    def user(cls) -> Mapped[User]:  # pylint: disable=no-self-argument
+    @classmethod
+    def user(cls) -> Mapped[User]:
         """User who is the subject of this membership record."""
         return immutable(sa.orm.relationship(User, foreign_keys=[cls.user_id]))
 
-    subject: Mapped[User]
-
-    @declared_attr  # type: ignore[no-redef]
-    def subject(cls) -> Mapped[User]:  # pylint: disable=no-self-argument
+    @declared_attr
+    @classmethod
+    def subject(cls) -> Mapped[User]:
         """Subject of this membership record."""
         return sa.orm.synonym('user')
 
-    @declared_attr
-    def __table_args__(cls) -> Mapped[tuple]:  # pylint: disable=no-self-argument
+    @declared_attr.directive
+    @classmethod
+    def __table_args__(cls) -> tuple:
         """Table arguments for SQLAlchemy."""
-        if cls.parent_id is not None:
+        if cls.parent_id_column is not None:
             return (
                 sa.Index(
-                    'ix_' + cls.__tablename__ + '_active',  # type: ignore[attr-defined]
-                    cls.parent_id.name,
+                    'ix_' + cls.__tablename__ + '_active',
+                    cls.parent_id_column,
                     'user_id',
                     unique=True,
-                    postgresql_where=sa.column('revoked_at').is_(None),
+                    postgresql_where='revoked_at IS NULL',
                 ),
             )
         return (
             sa.Index(
-                'ix_' + cls.__tablename__ + '_active',  # type: ignore[attr-defined]
+                'ix_' + cls.__tablename__ + '_active',
                 'user_id',
                 unique=True,
-                postgresql_where=sa.column('revoked_at').is_(None),
+                postgresql_where='revoked_at IS NULL',
             ),
         )
 
@@ -493,10 +495,9 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
 class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
     """Support class for immutable memberships for accounts."""
 
-    profile_id: sa.Column[int]
-
-    @declared_attr  # type: ignore[no-redef]
-    def profile_id(cls) -> sa.Column[int]:  # pylint: disable=no-self-argument
+    @declared_attr
+    @classmethod
+    def profile_id(cls) -> Mapped[int]:
         """Foreign key column to account (nee profile) table."""
         return sa.Column(
             sa.Integer,
@@ -507,39 +508,36 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
 
     @with_roles(read={'subject', 'editor'}, grants_via={None: {'admin': 'subject'}})
     @declared_attr
-    def profile(  # pylint: disable=no-self-argument
-        cls,
-    ) -> sa.orm.relationship[Profile]:
+    @classmethod
+    def profile(cls) -> Mapped[Profile]:
         """Account that is the subject of this membership record."""
         return immutable(sa.orm.relationship(Profile, foreign_keys=[cls.profile_id]))
 
-    subject: Mapped[Profile]
-
-    @declared_attr  # type: ignore[no-redef]
-    def subject(  # pylint: disable=no-self-argument
-        cls,
-    ) -> Mapped[Profile]:
+    @declared_attr
+    @classmethod
+    def subject(cls) -> Mapped[Profile]:
         """Subject of this membership record."""
         return sa.orm.synonym('profile')
 
-    @declared_attr
-    def __table_args__(cls) -> Mapped[tuple]:  # pylint: disable=no-self-argument
+    @declared_attr.directive
+    @classmethod
+    def __table_args__(cls) -> tuple:
         if cls.parent_id is not None:
             return (
                 sa.Index(
-                    'ix_' + cls.__tablename__ + '_active',  # type: ignore[attr-defined]
-                    cls.parent_id.name,
+                    'ix_' + cls.__tablename__ + '_active',
+                    cls.parent_id_column,
                     'profile_id',
                     unique=True,
-                    postgresql_where=sa.column('revoked_at').is_(None),
+                    postgresql_where='revoked_at IS NULL',
                 ),
             )
         return (
             sa.Index(
-                'ix_' + cls.__tablename__ + '_active',  # type: ignore[attr-defined]
+                'ix_' + cls.__tablename__ + '_active',
                 'profile_id',
                 unique=True,
-                postgresql_where=sa.column('revoked_at').is_(None),
+                postgresql_where='revoked_at IS NULL',
             ),
         )
 
@@ -611,30 +609,30 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
 class ReorderMembershipMixin(ReorderMixin):
     """Customizes ReorderMixin for membership models."""
 
-    seq: Mapped[int]
-
     #: Sequence number. Not immutable, and may be overwritten by ReorderMixin as a
     #: side-effect of reordering other records. This is not considered a revision.
     #: However, it can be argued that relocating a sponsor in the list constitutes a
     #: change that must be recorded as a revision. We may need to change our opinion
     #: on `seq` being mutable in a future iteration.
-    @declared_attr  # type: ignore[no-redef]
-    def seq(cls) -> Mapped[int]:  # pylint: disable=no-self-argument
+    @declared_attr
+    @classmethod
+    def seq(cls) -> Mapped[int]:
         """Ordering sequence number."""
         return sa.Column(sa.Integer, nullable=False)
 
-    @declared_attr
-    def __table_args__(cls) -> Mapped[tuple]:  # pylint: disable=no-self-argument
+    @declared_attr.directive
+    @classmethod
+    def __table_args__(cls) -> tuple:
         """Table arguments."""
         args = list(super().__table_args__)  # type: ignore[misc]
         # Add unique constraint on :attr:`seq` for active records
         args.append(
             sa.Index(
                 'ix_' + cls.__tablename__ + '_seq',  # type: ignore[attr-defined]
-                cls.parent_id.name,
+                cls.parent_id_column,
                 'seq',
                 unique=True,
-                postgresql_where=sa.column('revoked_at').is_(None),
+                postgresql_where='revoked_at IS NULL',
             ),
         )
         return tuple(args)
@@ -644,11 +642,9 @@ class ReorderMembershipMixin(ReorderMixin):
         # Assign a default value to `seq`
         if self.seq is None:
             self.seq = (
-                sa.select(  # type: ignore[attr-defined]
-                    [sa.func.coalesce(sa.func.max(self.__class__.seq) + 1, 1)]
-                )
+                sa.select(sa.func.coalesce(sa.func.max(self.__class__.seq) + 1, 1))
                 .where(self.parent_scoped_reorder_query_filter)
-                .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
+                .scalar_subquery()
             )
 
     @property
@@ -683,7 +679,8 @@ class FrozenAttributionMixin:
     _local_data_only: bool
 
     @declared_attr
-    def _title(cls) -> sa.Column[sa.Unicode]:  # pylint: disable=no-self-argument
+    @classmethod
+    def _title(cls) -> Mapped[Optional[str]]:
         """Create optional attribution title for this membership record."""
         return immutable(
             sa.Column(

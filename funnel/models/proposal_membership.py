@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from typing import Set
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import db, sa
+from . import Mapped, db, sa
 from .helpers import reopen
 from .membership_mixin import (
     FrozenAttributionMixin,
@@ -31,6 +32,7 @@ class ProposalMembership(  # type: ignore[misc]
     """Users can be presenters or reviewers on proposals."""
 
     __tablename__ = 'proposal_membership'
+    __allow_unmapped__ = True
 
     # List of data columns in this model
     __data_columns__ = ('seq', 'is_uncredited', 'label', 'title')
@@ -79,7 +81,7 @@ class ProposalMembership(  # type: ignore[misc]
 
     revoke_on_subject_delete = False
 
-    proposal_id: sa.Column[int] = immutable(
+    proposal_id: Mapped[int] = immutable(
         with_roles(
             sa.Column(
                 sa.Integer,
@@ -89,7 +91,7 @@ class ProposalMembership(  # type: ignore[misc]
             read={'subject', 'editor'},
         ),
     )
-    proposal: sa.orm.relationship[Proposal] = immutable(
+    proposal: Mapped[Proposal] = immutable(
         with_roles(
             sa.orm.relationship(
                 Proposal,
@@ -104,8 +106,9 @@ class ProposalMembership(  # type: ignore[misc]
             grants_via={None: {'editor'}},
         ),
     )
-    parent = sa.orm.synonym('proposal')
-    parent_id = sa.orm.synonym('proposal_id')
+    parent_id: Mapped[int] = sa.orm.synonym('proposal_id')
+    parent_id_column = 'proposal_id'
+    parent: Mapped[Proposal] = sa.orm.synonym('proposal')
 
     #: Uncredited members are not listed in the main display, but can edit and may be
     #: listed in a details section. Uncredited memberships are for support roles such
@@ -116,9 +119,7 @@ class ProposalMembership(  # type: ignore[misc]
     label = immutable(
         sa.Column(
             sa.Unicode,
-            sa.CheckConstraint(
-                sa.column('label') != '', name='proposal_membership_label_check'
-            ),
+            sa.CheckConstraint("label <> ''", name='proposal_membership_label_check'),
             nullable=True,
         )
     )

@@ -15,11 +15,12 @@ from typing import (
     Set,
     Type,
     TypeVar,
+    cast,
 )
 import os.path
 import re
 
-from sqlalchemy import DDL, Text, event
+from sqlalchemy.dialects.postgresql import TSQUERY
 from sqlalchemy.dialects.postgresql.base import (
     RESERVED_WORDS as POSTGRESQL_RESERVED_WORDS,
 )
@@ -36,7 +37,7 @@ from zxcvbn import zxcvbn
 from .. import app
 from ..typing import T
 from ..utils import MarkdownConfig, markdown_escape
-from . import UrlType, db, sa
+from . import UrlType, sa
 
 __all__ = [
     'RESERVED_NAMES',
@@ -249,6 +250,10 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
     """
     Move the contents of the decorated class into an existing class and return it.
 
+    .. deprecated::
+        This function is deprecated and should not be used as it is incompatible with
+        PEP 484 type hinting.
+
     Usage::
 
         @reopen(ExistingClass)
@@ -273,6 +278,7 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
     This decorator is intended to aid legibility of bi-directional relationships in
     SQLAlchemy models, specifically where a basic backref is augmented with methods or
     properties that do more processing.
+
     """
 
     def decorator(temp_cls: TempType) -> ReopenedType:
@@ -357,16 +363,18 @@ def quote_autocomplete_like(query):
     )
 
 
-def quote_autocomplete_tsquery(query: str) -> str:
+def quote_autocomplete_tsquery(query: str) -> TSQUERY:
     """Return a PostgreSQL tsquery suitable for autocomplete-type matches."""
-    with db.session.no_autoflush:
-        return db.session.query(
-            sa.func.cast(sa.func.phraseto_tsquery(query or ''), Text) + ':*'
-        ).scalar()
+    return cast(
+        TSQUERY,
+        sa.func.cast(
+            sa.func.concat(sa.func.phraseto_tsquery(query or ''), ':*'), TSQUERY
+        ),
+    )
 
 
 def add_search_trigger(
-    model: db.Model, column_name: str  # type: ignore[name-defined]
+    model: Any, column_name: str  # type: ignore[name-defined]
 ) -> Dict[str, str]:
     """
     Add a search trigger and returns SQL for use in migrations.
@@ -375,7 +383,7 @@ def add_search_trigger(
 
         class MyModel(db.Model):  # type: ignore[name-defined]
             ...
-            search_vector = sa.orm.deferred(sa.Column(
+            search_vector: Mapped[TSVectorType] = sa.orm.deferred(sa.Column(
                 TSVectorType(
                     'name', 'title', *indexed_columns,
                     weights={'name': 'A', 'title': 'B'},
@@ -464,22 +472,16 @@ def add_search_trigger(
         '''
     )
 
-    # FIXME: `DDL().execute_if` accepts a string dialect, but sqlalchemy-stubs
-    # incorrectly declares the type as `Optional[Dialect]`
-    # https://github.com/dropbox/sqlalchemy-stubs/issues/181
-
-    event.listen(
+    sa.event.listen(
         model.__table__,
         'after_create',
-        DDL(trigger_function).execute_if(
-            dialect='postgresql'  # type: ignore[arg-type]
-        ),
+        sa.DDL(trigger_function).execute_if(dialect='postgresql'),
     )
 
-    event.listen(
+    sa.event.listen(
         model.__table__,
         'before_drop',
-        DDL(drop_statement).execute_if(dialect='postgresql'),  # type: ignore[arg-type]
+        sa.DDL(drop_statement).execute_if(dialect='postgresql'),
     )
 
     return {
@@ -652,7 +654,7 @@ class MarkdownCompositeBase(MutableComposite):
     @classmethod
     def create(
         cls, name: str, deferred: bool = False, group: Optional[str] = None, **kwargs
-    ) -> composite:
+    ):
         """Create a composite column and backing individual columns."""
         return composite(
             cls,

@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 from typing import Union
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from sqlalchemy.ext.orderinglist import ordering_list
-from sqlalchemy.sql import case, exists
+from sqlalchemy.sql import exists
 
 from coaster.sqlalchemy import with_roles
 
-from . import BaseScopedNameMixin, TSVectorType, db, hybrid_property, sa
+from . import BaseScopedNameMixin, Mapped, TSVectorType, db, hybrid_property, sa
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
@@ -42,17 +43,18 @@ class Label(
     db.Model,  # type: ignore[name-defined]
 ):
     __tablename__ = 'label'
+    __allow_unmapped__ = True
 
     project_id = sa.Column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
     # Backref from project is defined in the Project model with an ordering list
-    project: sa.orm.relationship[Project] = with_roles(
+    project: Mapped[Project] = with_roles(
         sa.orm.relationship(Project), grants_via={None: project_child_role_map}
     )
     # `parent` is required for
     # :meth:`~coaster.sqlalchemy.mixins.BaseScopedNameMixin.make_name()`
-    parent = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa.orm.synonym('project')
 
     #: Parent label's id. Do not write to this column directly, as we don't have the
     #: ability to : validate the value within the app. Always use the :attr:`main_label`
@@ -101,7 +103,7 @@ class Label(
     #: although all the previous records will stay in database.
     _archived = sa.Column('archived', sa.Boolean, nullable=False, default=False)
 
-    search_vector = sa.orm.deferred(
+    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'name',
@@ -118,7 +120,7 @@ class Label(
     )
 
     #: Proposals that this label is attached to
-    proposals = sa.orm.relationship(
+    proposals: Mapped[Proposal] = sa.orm.relationship(
         Proposal, secondary=proposal_label, back_populates='labels'
     )
 
@@ -157,13 +159,13 @@ class Label(
     }
 
     @property
-    def title_for_name(self):
+    def title_for_name(self) -> str:
         if self.main_label:
             return f"{self.main_label.title}/{self.title}"
         return self.title
 
     @property
-    def form_label_text(self):
+    def form_label_text(self) -> str:
         return (
             self.icon_emoji + " " + self.title
             if self.icon_emoji is not None
@@ -171,39 +173,37 @@ class Label(
         )
 
     @property
-    def has_proposals(self):
+    def has_proposals(self) -> bool:
         if not self.has_options:
             return bool(self.proposals)
         return any(bool(option.proposals) for option in self.options)
 
     @hybrid_property
-    def restricted(self):
+    def restricted(self) -> bool:
         return (  # pylint: disable=protected-access
             self.main_label._restricted if self.main_label else self._restricted
         )
 
     @restricted.setter
-    def restricted(self, value):
+    def restricted(self, value: bool) -> None:
         if self.main_label:
             raise ValueError("This flag must be set on the parent")
         self._restricted = value
 
     @restricted.expression
     def restricted(cls):  # noqa: N805  # pylint: disable=no-self-argument
-        return case(
-            [
-                (
-                    cls.main_label_id.isnot(None),
-                    sa.select([Label._restricted])
-                    .where(Label.id == cls.main_label_id)
-                    .as_scalar(),
-                )
-            ],
+        return sa.case(
+            (
+                cls.main_label_id.isnot(None),
+                sa.select(Label._restricted)
+                .where(Label.id == cls.main_label_id)
+                .as_scalar(),
+            ),
             else_=cls._restricted,
         )
 
     @hybrid_property
-    def archived(self):
+    def archived(self) -> bool:
         return self._archived or (
             self.main_label._archived  # pylint: disable=protected-access
             if self.main_label
@@ -211,26 +211,24 @@ class Label(
         )
 
     @archived.setter
-    def archived(self, value):
+    def archived(self, value: bool) -> None:
         self._archived = value
 
     @archived.expression
     def archived(cls):  # noqa: N805  # pylint: disable=no-self-argument
-        return case(
-            [
-                (cls._archived.is_(True), cls._archived),
-                (
-                    cls.main_label_id.isnot(None),
-                    sa.select([Label._archived])
-                    .where(Label.id == cls.main_label_id)
-                    .as_scalar(),
-                ),
-            ],
+        return sa.case(
+            (cls._archived.is_(True), cls._archived),
+            (
+                cls.main_label_id.isnot(None),
+                sa.select(Label._archived)
+                .where(Label.id == cls.main_label_id)
+                .as_scalar(),
+            ),
             else_=cls._archived,
         )
 
     @hybrid_property
-    def has_options(self):
+    def has_options(self) -> bool:
         return bool(self.options)
 
     @has_options.expression
@@ -238,21 +236,22 @@ class Label(
         return exists().where(Label.main_label_id == cls.id)
 
     @property
-    def is_main_label(self):
+    def is_main_label(self) -> bool:
         return not self.main_label
 
     @hybrid_property
-    def required(self):
+    def required(self) -> bool:
+        # pylint: disable=using-constant-test
         return self._required if self.has_options else False
 
     @required.setter
-    def required(self, value):
+    def required(self, value: bool) -> None:
         if value and not self.has_options:
             raise ValueError("Labels without options cannot be mandatory")
         self._required = value
 
     @property
-    def icon(self):
+    def icon(self) -> str:
         """
         Return an icon for displaying the label in space-constrained UI.
 
@@ -273,7 +272,8 @@ class Label(
             return f'<Label {self.main_label.name}/{self.name}>'
         return f'<Label {self.name}>'
 
-    def apply_to(self, proposal):
+    def apply_to(self, proposal: Proposal) -> None:
+        # pylint: disable=using-constant-test
         if self.has_options:
             raise ValueError("This label requires one of its options to be used")
         if self in proposal.labels:
@@ -292,7 +292,8 @@ class Label(
         # we can assign label to proposal
         proposal.labels.append(self)
 
-    def remove_from(self, proposal):
+    def remove_from(self, proposal: Proposal) -> None:
+        # pylint: disable=using-constant-test
         if self.has_options:
             raise ValueError("This label requires one of its options to be removed")
         if self in proposal.labels:

@@ -40,16 +40,14 @@ def upgrade():
     conn = op.get_bind()
     orgs = conn.execute(
         sa.select(
-            [
-                organization_table.c.id,
-                organization_table.c.title,
-                organization_table.c.description,
-            ]
+            organization_table.c.id,
+            organization_table.c.title,
+            organization_table.c.description,
         ).where(organization_table.c.description != '')
     )
     for org in orgs:
         blank_profile = conn.execute(
-            sa.select([sa.func.count(profile_table.c.id)]).where(
+            sa.select(sa.func.count(profile_table.c.id)).where(
                 sa.and_(
                     profile_table.c.organization_id == org.id,
                     profile_table.c.description_text == '',

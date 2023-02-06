@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Collection, Dict, List, Optional, Union, cast
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 import re
 
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -35,10 +36,11 @@ class GeoCountryInfo(BaseNameMixin, db.Model):  # type: ignore[name-defined]
     """Geoname record for a country."""
 
     __tablename__ = 'geo_country_info'
+    __allow_unmapped__ = True
     __bind_key__ = 'geoname'
 
-    geonameid = sa.orm.synonym('id')
-    geoname = sa.orm.relationship(
+    geonameid: Mapped[int] = sa.orm.synonym('id')
+    geoname: Mapped[GeoName] = sa.orm.relationship(
         'GeoName',
         uselist=False,
         primaryjoin='GeoCountryInfo.id == foreign(GeoName.id)',
@@ -79,10 +81,11 @@ class GeoAdmin1Code(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Geoname record for 1st level administrative division (state, province)."""
 
     __tablename__ = 'geo_admin1_code'
+    __allow_unmapped__ = True
     __bind_key__ = 'geoname'
 
-    geonameid = sa.orm.synonym('id')
-    geoname = sa.orm.relationship(
+    geonameid: Mapped[int] = sa.orm.synonym('id')
+    geoname: Mapped[GeoName] = sa.orm.relationship(
         'GeoName',
         uselist=False,
         primaryjoin='GeoAdmin1Code.id == foreign(GeoName.id)',
@@ -94,7 +97,7 @@ class GeoAdmin1Code(BaseMixin, db.Model):  # type: ignore[name-defined]
     country_id = sa.Column(
         'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
     )
-    country = sa.orm.relationship('GeoCountryInfo')
+    country: Mapped[GeoCountryInfo] = sa.orm.relationship('GeoCountryInfo')
     admin1_code = sa.Column(sa.Unicode)
 
     def __repr__(self) -> str:
@@ -106,10 +109,11 @@ class GeoAdmin2Code(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Geoname record for 2nd level administrative division (district, county)."""
 
     __tablename__ = 'geo_admin2_code'
+    __allow_unmapped__ = True
     __bind_key__ = 'geoname'
 
-    geonameid = sa.orm.synonym('id')
-    geoname = sa.orm.relationship(
+    geonameid: Mapped[int] = sa.orm.synonym('id')
+    geoname: Mapped[GeoName] = sa.orm.relationship(
         'GeoName',
         uselist=False,
         primaryjoin='GeoAdmin2Code.id == foreign(GeoName.id)',
@@ -121,7 +125,7 @@ class GeoAdmin2Code(BaseMixin, db.Model):  # type: ignore[name-defined]
     country_id = sa.Column(
         'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
     )
-    country = sa.orm.relationship('GeoCountryInfo')
+    country: Mapped[GeoCountryInfo] = sa.orm.relationship('GeoCountryInfo')
     admin1_code = sa.Column(sa.Unicode)
     admin2_code = sa.Column(sa.Unicode)
 
@@ -134,9 +138,10 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
     """Geographical name record."""
 
     __tablename__ = 'geo_name'
+    __allow_unmapped__ = True
     __bind_key__ = 'geoname'
 
-    geonameid = sa.orm.synonym('id')
+    geonameid: Mapped[int] = sa.orm.synonym('id')
     ascii_title = sa.Column(sa.Unicode)
     latitude = sa.Column(sa.Numeric)
     longitude = sa.Column(sa.Numeric)
@@ -145,10 +150,10 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
     country_id = sa.Column(
         'country', sa.CHAR(2), sa.ForeignKey('geo_country_info.iso_alpha2')
     )
-    country = sa.orm.relationship('GeoCountryInfo')
+    country: Mapped[GeoCountryInfo] = sa.orm.relationship('GeoCountryInfo')
     cc2 = sa.Column(sa.Unicode)
     admin1 = sa.Column(sa.Unicode)
-    admin1_ref = sa.orm.relationship(
+    admin1_ref: Mapped[Optional[GeoAdmin1Code]] = sa.orm.relationship(
         'GeoAdmin1Code',
         uselist=False,
         primaryjoin='and_(GeoName.country_id == foreign(GeoAdmin1Code.country_id), '
@@ -163,7 +168,7 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
     )
 
     admin2 = sa.Column(sa.Unicode)
-    admin2_ref = sa.orm.relationship(
+    admin2_ref: Mapped[Optional[GeoAdmin2Code]] = sa.orm.relationship(
         'GeoAdmin2Code',
         uselist=False,
         primaryjoin='and_(GeoName.country_id == foreign(GeoAdmin2Code.country_id), '
@@ -283,7 +288,7 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
         """Create a unique name for this geoname record."""
         if self.ascii_title:
             usetitle = self.use_title
-            if self.id:
+            if self.id:  # pylint: disable=using-constant-test
 
                 def checkused(c):
                     return bool(
@@ -528,7 +533,7 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
         return results
 
     @classmethod
-    def autocomplete(cls, q: str, lang: Optional[str] = None) -> Query:
+    def autocomplete(cls, prefix: str, lang: Optional[str] = None) -> Query:
         """
         Autocomplete a geoname record.
 
@@ -538,7 +543,9 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
         query = (
             cls.query.join(cls.alternate_titles)
             .filter(
-                sa.func.lower(GeoAltName.title).like(quote_autocomplete_like(q.lower()))
+                sa.func.lower(GeoAltName.title).like(
+                    quote_autocomplete_like(prefix.lower())
+                )
             )
             .order_by(sa.desc(cls.population))
         )
@@ -553,10 +560,11 @@ class GeoAltName(BaseMixin, db.Model):  # type: ignore[name-defined]
     """Additional names for any :class:`GeoName`."""
 
     __tablename__ = 'geo_alt_name'
+    __allow_unmapped__ = True
     __bind_key__ = 'geoname'
 
     geonameid = sa.Column(sa.Integer, sa.ForeignKey('geo_name.id'), nullable=False)
-    geoname = sa.orm.relationship(
+    geoname: Mapped[GeoName] = sa.orm.relationship(
         GeoName,
         backref=sa.orm.backref('alternate_titles', cascade='all, delete-orphan'),
     )

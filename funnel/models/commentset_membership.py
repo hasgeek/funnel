@@ -3,18 +3,20 @@
 from __future__ import annotations
 
 from typing import Set
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, Query, immutable, with_roles
 
-from . import User, db, sa
+from . import Mapped, db, sa
 from .comment import Comment, Commentset
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .project import Project
 from .proposal import Proposal
 from .update import Update
+from .user import User
 
 __all__ = ['CommentsetMembership']
 
@@ -26,6 +28,7 @@ class CommentsetMembership(
     """Membership roles for users who are commentset users and subscribers."""
 
     __tablename__ = 'commentset_membership'
+    __allow_unmapped__ = True
 
     __data_columns__ = ('last_seen_at', 'is_muted')
 
@@ -42,14 +45,14 @@ class CommentsetMembership(
         }
     }
 
-    commentset_id: sa.Column[sa.Integer] = immutable(
+    commentset_id: Mapped[int] = immutable(
         sa.Column(
             sa.Integer,
             sa.ForeignKey('commentset.id', ondelete='CASCADE'),
             nullable=False,
         )
     )
-    commentset: sa.orm.relationship[Commentset] = immutable(
+    commentset: Mapped[Commentset] = immutable(
         sa.orm.relationship(
             Commentset,
             backref=sa.orm.backref(
@@ -61,8 +64,9 @@ class CommentsetMembership(
         )
     )
 
-    parent = sa.orm.synonym('commentset')
-    parent_id = sa.orm.synonym('commentset_id')
+    parent_id: int = sa.orm.synonym('commentset_id')
+    parent_id_column = 'commentset_id'
+    parent: Commentset = sa.orm.synonym('commentset')
 
     #: Flag to indicate notifications are muted
     is_muted = sa.Column(sa.Boolean, nullable=False, default=False)
@@ -71,13 +75,13 @@ class CommentsetMembership(
         sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
     )
 
-    new_comment_count = sa.orm.column_property(
-        sa.select(sa.func.count(Comment.id))  # type: ignore[attr-defined]
+    new_comment_count: Mapped[int] = sa.orm.column_property(
+        sa.select(sa.func.count(Comment.id))
         .where(Comment.commentset_id == commentset_id)  # type: ignore[has-type]
         .where(Comment.state.PUBLIC)  # type: ignore[has-type]
         .where(Comment.created_at > last_seen_at)
-        .correlate_except(Comment)  # type: ignore[arg-type]
-        .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
+        .correlate_except(Comment)
+        .scalar_subquery()
     )
 
     @cached_property

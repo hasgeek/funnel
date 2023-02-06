@@ -53,6 +53,7 @@ class Update(
     db.Model,  # type: ignore[name-defined]
 ):
     __tablename__ = 'update'
+    __allow_unmapped__ = True
 
     _visibility_state = sa.Column(
         'visibility_state',
@@ -92,7 +93,7 @@ class Update(
     project_id = sa.Column(
         sa.Integer, sa.ForeignKey('project.id'), nullable=False, index=True
     )
-    project: sa.orm.relationship[Project] = with_roles(
+    project: Mapped[Project] = with_roles(
         sa.orm.relationship(Project, backref=sa.orm.backref('updates', lazy='dynamic')),
         read={'all'},
         datasets={'primary'},
@@ -104,7 +105,7 @@ class Update(
             }
         },
     )
-    parent = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa.orm.synonym('project')
 
     body = MarkdownCompositeDocument.create('body', nullable=False)
 
@@ -168,7 +169,7 @@ class Update(
         read={'all'},
     )
 
-    search_vector = sa.orm.deferred(
+    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'name',
@@ -278,11 +279,9 @@ class Update(
             self.published_at = sa.func.utcnow()
         if self.number is None:
             self.number = (
-                sa.select(  # type: ignore[attr-defined]
-                    [sa.func.coalesce(sa.func.max(Update.number), 0) + 1]
-                )
+                sa.select(sa.func.coalesce(sa.func.max(Update.number), 0) + 1)
                 .where(Update.project == self.project)
-                .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
+                .scalar_subquery()
             )
         return first_publishing
 

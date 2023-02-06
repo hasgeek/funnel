@@ -45,6 +45,7 @@ class TestClient(TestDatabaseFixture):
         client_token = models.AuthToken(
             auth_client=auth_client, user=crusoe, scope='id', validity=0
         )
+        self.db_session.add(client_token)
         result = auth_client.authtoken_for(user=crusoe)
         assert client_token == result
         assert isinstance(result, models.AuthToken)

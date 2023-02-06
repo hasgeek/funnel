@@ -79,6 +79,7 @@ from types import SimpleNamespace
 from typing import (
     Any,
     Callable,
+    ClassVar,
     Dict,
     Generator,
     Optional,
@@ -87,12 +88,11 @@ from typing import (
     Tuple,
     Type,
     Union,
-    get_type_hints,
 )
 from uuid import UUID, uuid4
 
 from sqlalchemy import event
-from sqlalchemy.orm.collections import column_mapped_collection
+from sqlalchemy.orm import column_keyed_dict
 from sqlalchemy.orm.exc import NoResultFound
 
 from werkzeug.utils import cached_property
@@ -108,7 +108,6 @@ from coaster.sqlalchemy import (
 )
 from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
-from .. import models  # For locals() namespace, to discover models from type defn
 from ..typing import OptionalMigratedTables, T, UuidModelType
 from . import BaseMixin, Mapped, NoIdMixin, UUIDType, db, hybrid_property, sa
 from .helpers import reopen
@@ -209,6 +208,7 @@ class SmsMessage(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-de
     """An outbound SMS message."""
 
     __tablename__ = 'sms_message'
+    __allow_unmapped__ = True
     __phone_optional__ = False
     __phone_unique__ = False
     __phone_is_exclusive__ = False
@@ -245,6 +245,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     """
 
     __tablename__ = 'notification'
+    __allow_unmapped__ = True
 
     #: Flag indicating this is an active notification type. Can be False for draft
     #: and retired notification types to hide them from preferences UI
@@ -278,15 +279,15 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: another type (auto-populated from subclass's `shadow=` parameter)
     pref_type: str = ''
 
-    #: Document model is auto-populated from the document type
-    document_model: Type[UuidModelType]
+    #: Document model, must be specified in subclasses
+    document_model: ClassVar[Type[UuidModelType]]
     #: SQL table name for document type, auto-populated from the document model
-    document_type: str
+    document_type: ClassVar[str]
 
-    #: Fragment model is auto-populated from the fragment type
-    fragment_model: Optional[Type[UuidModelType]]
+    #: Fragment model, optional for subclasses
+    fragment_model: ClassVar[Optional[Type[UuidModelType]]] = None
     #: SQL table name for fragment type, auto-populated from the fragment model
-    fragment_type: Optional[str]
+    fragment_type: ClassVar[Optional[str]]
 
     #: Roles to send notifications to. Roles must be in order of priority for situations
     #: where a user has more than one role on the document.
@@ -301,13 +302,13 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     #: The preference context this notification is being served under. Users may have
     #: customized preferences per account (nee profile) or project
-    preference_context: db.Model = None  # type: ignore[name-defined]
+    preference_context: ClassVar[db.Model] = None  # type: ignore[name-defined]
 
     #: Notification type (identifier for subclass of :class:`NotificationType`)
-    type_: sa.Column[str] = immutable(sa.Column('type', sa.Unicode, nullable=False))
+    type_: Mapped[str] = immutable(sa.Column('type', sa.Unicode, nullable=False))
 
     #: Id of user that triggered this notification
-    user_id: sa.Column[Optional[int]] = immutable(
+    user_id: Mapped[Optional[int]] = immutable(
         sa.Column(
             sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
         )
@@ -318,14 +319,14 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     user: Mapped[Optional[User]] = immutable(sa.orm.relationship(User))
 
     #: UUID of document that the notification refers to
-    document_uuid: sa.Column[UUID] = immutable(
+    document_uuid: Mapped[UUID] = immutable(
         sa.Column(UUIDType(binary=False), nullable=False, index=True)
     )
 
     #: Optional fragment within document that the notification refers to. This may be
     #: the document itself, or something within it, such as a comment. Notifications for
     #: multiple fragments are collapsed into a single notification
-    fragment_uuid: sa.Column[Optional[UUID]] = immutable(
+    fragment_uuid: Mapped[Optional[UUID]] = immutable(
         sa.Column(UUIDType(binary=False), nullable=True)
     )
 
@@ -421,6 +422,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
         cls,
         type: str,  # noqa: A002  # pylint: disable=redefined-builtin
         shadows: Optional[Type[Notification]] = None,
+        **kwargs,
     ) -> None:
         # For SQLAlchemy's polymorphic support
         if '__mapper_args__' not in cls.__dict__:
@@ -444,7 +446,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
         else:
             cls.pref_type = type
 
-        return super().__init_subclass__()
+        return super().__init_subclass__(**kwargs)
 
     def __init__(self, document=None, fragment=None, **kwargs) -> None:
         if document is not None:
@@ -454,7 +456,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
         if fragment is not None:
             if self.fragment_model is None:
                 raise TypeError(f"{self.__class__} is not expecting a fragment")
-            if not isinstance(fragment, self.fragment_model):
+            if not isinstance(fragment, self.fragment_model):  # pylint: disable=W1116
                 raise TypeError(f"{fragment!r} is not of type {self.fragment_model!r}")
             kwargs['fragment_uuid'] = fragment.uuid
         super().__init__(**kwargs)
@@ -693,11 +695,12 @@ class UserNotification(
     """
 
     __tablename__ = 'user_notification'
+    __allow_unmapped__ = True
 
     # Primary key is a compound of (user_id, eventid).
 
     #: Id of user being notified
-    user_id: sa.Column[int] = immutable(
+    user_id: Mapped[int] = immutable(
         sa.Column(
             sa.Integer,
             sa.ForeignKey('user.id', ondelete='CASCADE'),
@@ -707,18 +710,18 @@ class UserNotification(
     )
 
     #: User being notified (backref defined below, outside the model)
-    user = with_roles(
+    user: Mapped[User] = with_roles(
         immutable(sa.orm.relationship(User)), read={'owner'}, grants={'owner'}
     )
 
     #: Random eventid, shared with the Notification instance
-    eventid = with_roles(
+    eventid: Mapped[UUID] = with_roles(
         immutable(sa.Column(UUIDType(binary=False), primary_key=True, nullable=False)),
         read={'owner'},
     )
 
     #: Id of notification that this user received
-    notification_id: sa.Column[UUID] = immutable(
+    notification_id: Mapped[UUID] = immutable(
         sa.Column(UUIDType(binary=False), nullable=False)
     )  # fkey in __table_args__ below
     #: Notification that this user received
@@ -850,7 +853,7 @@ class UserNotification(
     with_roles(is_read, rw={'owner'})
 
     @hybrid_property
-    def is_revoked(self) -> bool:
+    def is_revoked(self) -> bool:  # pylint: disable=invalid-overridden-method
         """Whether this notification has been marked as revoked."""
         return self.revoked_at is not None
 
@@ -879,7 +882,7 @@ class UserNotification(
         prefs = self.user.notification_preferences.get(self.notification_pref_type)
         if prefs is None:
             prefs = NotificationPreferences(
-                user=self.user, notification_type=self.notification_pref_type
+                notification_type=self.notification_pref_type, user=self.user
             )
             db.session.add(prefs)
             self.user.notification_preferences[self.notification_pref_type] = prefs
@@ -1131,6 +1134,7 @@ class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined
     """Holds a user's preferences for a particular :class:`Notification` type."""
 
     __tablename__ = 'notification_preferences'
+    __allow_unmapped__ = True
 
     #: Id of user whose preferences are represented here
     user_id = immutable(
@@ -1275,9 +1279,7 @@ class __User:
 
     notification_preferences = sa.orm.relationship(
         NotificationPreferences,
-        collection_class=column_mapped_collection(
-            NotificationPreferences.notification_type
-        ),
+        collection_class=column_keyed_dict(NotificationPreferences.notification_type),
         back_populates='user',
     )
 
@@ -1297,8 +1299,8 @@ class __User:
         """Return user's main notification preferences, toggling transports on/off."""
         if not self._main_notification_preferences:
             main = NotificationPreferences(
-                user=self,
                 notification_type='',
+                user=self,
                 by_email=True,
                 by_sms=True,
                 by_webpush=False,
@@ -1325,34 +1327,13 @@ def _register_notification_types(mapper_, cls) -> None:
 
         # Populate cls with helper attributes
 
-        # When using future annotations, the type hints in a notification will be stored
-        # as strings. We provide the models namespace to resolve the strings back to
-        # models as we have no access to the actual namespace within which the class was
-        # defined. Since tests uses ``models.*`` references, we have to include 'models'
-        # in the namespace here. While ``inspect.getmodule`` exists, it cannot retrieve
-        # local namespace when the notification class is defined inside a function
-        type_hints = get_type_hints(cls, localns=dict(vars(models), models=models))
-        cls.document_model = (
-            type_hints['document']
-            if 'document' in type_hints
-            and isinstance(type_hints['document'], type)
-            and issubclass(type_hints['document'], db.Model)
-            else None
-        )
         if cls.document_model is None:
             raise TypeError(
-                f"Notification subclass {cls!r} must specify document class"
+                f"Notification subclass {cls!r} must specify document_model"
             )
         cls.document_type = (
             cls.document_model.__tablename__  # type: ignore[attr-defined]
             if cls.document_model
-            else None
-        )
-        cls.fragment_model = (
-            type_hints['fragment']
-            if 'fragment' in type_hints
-            and isinstance(type_hints['fragment'], type)
-            and issubclass(type_hints['fragment'], db.Model)
             else None
         )
         cls.fragment_type = (

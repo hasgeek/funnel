@@ -78,10 +78,10 @@ def upgrade():
     )
 
     conn = op.get_bind()
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(proposal))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(proposal))
     progress = get_progressbar("Proposals", count)
     progress.start()
-    items = conn.execute(sa.select([proposal.c.id, proposal.c.uuid]))
+    items = conn.execute(sa.select(proposal.c.id, proposal.c.uuid))
     for counter, item in enumerate(items):
         conn.execute(
             proposal_suuid_redirect.insert().values(

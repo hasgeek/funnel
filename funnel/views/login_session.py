@@ -195,8 +195,10 @@ class LoginManager:
         if not current_auth.session and 'userid' in lastuser_cookie:
             add_auth_attribute('user', User.get(buid=lastuser_cookie['userid']))
             if current_auth.is_authenticated:
-                add_auth_attribute('session', UserSession(user=current_auth.user))
-                current_auth.session.views.mark_accessed()
+                user_session = UserSession(user=current_auth.user)
+                db.session.add(user_session)
+                add_auth_attribute('session', user_session)
+                user_session.views.mark_accessed()
                 db.session.commit()
 
         if current_auth.session:
@@ -825,6 +827,7 @@ def login_internal(user, user_session=None, login_service=None):
     add_auth_attribute('user', user)
     if not user_session or user_session.user != user:
         user_session = UserSession(user=user, login_service=login_service)
+        db.session.add(user_session)
     user_session.views.mark_accessed()
     add_auth_attribute('session', user_session)
     if 'cookie' not in current_auth:

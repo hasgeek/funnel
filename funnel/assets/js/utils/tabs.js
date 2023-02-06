@@ -53,7 +53,11 @@ const MUITabs = {
               .parent()
               .find('.overflow-icon-right.js-tab-scroll')
               .css('visibility', 'visible');
-          } else tabsBar.parent().find('.overflow-icon-left.js-tab-scroll').css('visibility', 'visible');
+          } else
+            tabsBar
+              .parent()
+              .find('.overflow-icon-left.js-tab-scroll')
+              .css('visibility', 'visible');
 
           if (maxScrollWidth - scrollVal <= 1) {
             tabsBar
@@ -65,7 +69,11 @@ const MUITabs = {
               .parent()
               .find('.overflow-icon-left.js-tab-scroll')
               .css('visibility', 'visible');
-          } else tabsBar.parent().find('.overflow-icon-right.js-tab-scroll').css('visibility', 'visible');
+          } else
+            tabsBar
+              .parent()
+              .find('.overflow-icon-right.js-tab-scroll')
+              .css('visibility', 'visible');
         }
         // ACTIVATING CURRENT ELEMENT
         function activateCurrent() {

@@ -656,7 +656,6 @@ def test_weak_password_exception(forms, client, csrf_token) -> None:
             side_effect=forms.LoginPasswordWeakException,
             autospec=True,
         ):
-
             rv = client.post(
                 '/login',
                 data=MultiDict(
