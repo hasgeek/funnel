@@ -88,7 +88,6 @@ from typing import (
     Tuple,
     Type,
     Union,
-    get_type_hints,
 )
 from uuid import UUID, uuid4
 
@@ -97,6 +96,8 @@ from sqlalchemy.orm import column_keyed_dict
 from sqlalchemy.orm.exc import NoResultFound
 
 from werkzeug.utils import cached_property
+
+from typing_extensions import get_type_hints
 
 from baseframe import __
 from coaster.sqlalchemy import (
