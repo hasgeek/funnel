@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime as datetime_type
 from typing import Iterable, Optional
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from baseframe import __
 from baseframe.filters import preview

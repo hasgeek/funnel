@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from coaster.utils import utcnow
 

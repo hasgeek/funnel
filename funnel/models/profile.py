@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 from typing import Iterable, List, Optional, Union
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from sqlalchemy.sql import expression
+
+from furl import furl
 
 from baseframe import __
 from coaster.sqlalchemy import LazyRoleSet, Query, StateManager, immutable, with_roles
@@ -24,6 +27,7 @@ from . import (
 )
 from .helpers import (
     RESERVED_NAMES,
+    ImgeeFurl,
     ImgeeType,
     add_search_trigger,
     quote_autocomplete_tsquery,
@@ -125,9 +129,9 @@ class Profile(
     description = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
-    website: Mapped[Optional[str]] = sa.Column(UrlType, nullable=True)
-    logo_url: Mapped[Optional[str]] = sa.Column(ImgeeType, nullable=True)
-    banner_image_url: Mapped[Optional[str]] = sa.Column(ImgeeType, nullable=True)
+    website: Mapped[Optional[furl]] = sa.Column(UrlType, nullable=True)
+    logo_url: Mapped[Optional[ImgeeFurl]] = sa.Column(ImgeeType, nullable=True)
+    banner_image_url: Mapped[Optional[ImgeeFurl]] = sa.Column(ImgeeType, nullable=True)
 
     # These two flags are read-only. There is no provision for writing to them within
     # the app:

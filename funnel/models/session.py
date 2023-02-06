@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Type
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from flask_babel import get_locale
 from werkzeug.utils import cached_property

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import List, Union
+from typing import Union
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.sql import exists
@@ -65,7 +66,7 @@ class Label(
         nullable=True,
     )
     # See https://docs.sqlalchemy.org/en/13/orm/self_referential.html
-    options: Mapped[Label] = sa.orm.relationship(
+    options = sa.orm.relationship(
         'Label',
         backref=sa.orm.backref('main_label', remote_side='Label.id'),
         order_by='Label.seq',
@@ -119,7 +120,7 @@ class Label(
     )
 
     #: Proposals that this label is attached to
-    proposals: Mapped[List[Proposal]] = sa.orm.relationship(
+    proposals: Mapped[Proposal] = sa.orm.relationship(
         Proposal, secondary=proposal_label, back_populates='labels'
     )
 

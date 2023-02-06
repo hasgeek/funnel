@@ -195,9 +195,8 @@ class TestAuthToken(TestDatabaseFixture):
         valid_algorithm = 'hmac-sha-1'
         auth_token = models.AuthToken(auth_client=auth_client, user=snape, scope='')
         auth_token.algorithm = None
-        assert auth_token._algorithm is None
+        assert auth_token.algorithm is None
         auth_token.algorithm = valid_algorithm
-        assert auth_token._algorithm == valid_algorithm
         assert auth_token.algorithm == valid_algorithm
         with pytest.raises(ValueError, match='Unrecognized algorithm'):
             auth_token.algorithm = "hmac-sha-2016"

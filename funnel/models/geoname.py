@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Collection, Dict, List, Optional, Union, cast
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 import re
 
 from sqlalchemy.dialects.postgresql import ARRAY

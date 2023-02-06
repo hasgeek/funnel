@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import List
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from sqlalchemy.ext.orderinglist import ordering_list
 

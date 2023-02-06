@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Iterable, List, Optional
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 import base64
 import os
 

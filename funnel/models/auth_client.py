@@ -92,7 +92,9 @@ class AuthClient(
     __scope_null_allowed__ = True
     # TODO: merge columns into a profile_id column
     #: User who owns this client
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
+    user_id: Mapped[int] = sa.Column(
+        sa.Integer, sa.ForeignKey('user.id'), nullable=True
+    )
     user: Mapped[Optional[User]] = with_roles(
         sa.orm.relationship(
             User,
@@ -104,7 +106,7 @@ class AuthClient(
         grants={'owner'},
     )
     #: Organization that owns this client. Only one of this or user must be set
-    organization_id = sa.Column(
+    organization_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('organization.id'), nullable=True
     )
     organization: Mapped[Optional[User]] = with_roles(
@@ -136,7 +138,7 @@ class AuthClient(
         sa.Column(sa.UnicodeText, nullable=False), read={'all'}, write={'owner'}
     )
     #: Redirect URIs (one or more)
-    _redirect_uris = sa.Column(
+    _redirect_uris: Mapped[str] = sa.Column(
         'redirect_uri', sa.UnicodeText, nullable=True, default=''
     )
     #: Back-end notification URI (TODO: deprecated, needs better architecture)
@@ -144,7 +146,7 @@ class AuthClient(
         sa.Column(sa.UnicodeText, nullable=True, default=''), rw={'owner'}
     )
     #: Active flag
-    active = sa.Column(sa.Boolean, nullable=False, default=True)
+    active: Mapped[bool] = sa.Column(sa.Boolean, nullable=False, default=True)
     #: Allow anyone to login to this app?
     allow_any_login = with_roles(
         sa.Column(sa.Boolean, nullable=False, default=True),
@@ -161,7 +163,7 @@ class AuthClient(
         sa.Column(sa.Boolean, nullable=False, default=False), read={'all'}
     )
 
-    user_sessions: Mapped[List[UserSession]] = sa.orm.relationship(
+    user_sessions = sa.orm.relationship(
         UserSession,
         lazy='dynamic',
         secondary=auth_client_user_session,
@@ -272,7 +274,7 @@ class AuthClient(
 
         :param str buid: AuthClient buid to lookup
         """
-        return cls.query.filter_by(buid=buid, active=True).one_or_none()
+        return cls.query.filter(cls.buid == buid, cls.active.is_(True)).one_or_none()
 
     @classmethod
     def all_for(cls, user: Optional[User]) -> QueryBaseClass:
@@ -308,7 +310,7 @@ class AuthClientCredential(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     __tablename__ = 'auth_client_credential'
     __allow_unmapped__ = True
-    auth_client_id = sa.Column(
+    auth_client_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
     auth_client: Mapped[AuthClient] = with_roles(
@@ -324,13 +326,17 @@ class AuthClientCredential(BaseMixin, db.Model):  # type: ignore[name-defined]
     )
 
     #: OAuth client key
-    name = sa.Column(sa.String(22), nullable=False, unique=True, default=make_buid)
+    name: Mapped[str] = sa.Column(
+        sa.String(22), nullable=False, unique=True, default=make_buid
+    )
     #: User description for this credential
-    title = sa.Column(sa.Unicode(250), nullable=False, default='')
+    title: Mapped[str] = sa.Column(sa.Unicode(250), nullable=False, default='')
     #: OAuth client secret, hashed
-    secret_hash = sa.Column(sa.Unicode, nullable=False)
+    secret_hash: Mapped[str] = sa.Column(sa.Unicode, nullable=False)
     #: When was this credential last used for an API call?
-    accessed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    accessed_at: Mapped[datetime] = sa.Column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
 
     def __repr__(self):
         return f'<AuthClientCredential {self.name} {self.title!r}>'
@@ -359,7 +365,7 @@ class AuthClientCredential(BaseMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def get(cls, name: str):
         """Get a client credential by its key name."""
-        return cls.query.filter_by(name=name).one_or_none()
+        return cls.query.filter(cls.name == name).one_or_none()
 
     @classmethod
     def new(cls, auth_client: AuthClient):
@@ -388,9 +394,11 @@ class AuthCode(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
 
     __tablename__ = 'auth_code'
     __allow_unmapped__ = True
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
+    user_id: Mapped[int] = sa.Column(
+        sa.Integer, sa.ForeignKey('user.id'), nullable=False
+    )
     user: Mapped[User] = sa.orm.relationship(User, primaryjoin=user_id == User.id)
-    auth_client_id = sa.Column(
+    auth_client_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
     auth_client: Mapped[AuthClient] = sa.orm.relationship(
@@ -398,13 +406,13 @@ class AuthCode(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         primaryjoin=auth_client_id == AuthClient.id,
         backref=sa.orm.backref('authcodes', cascade='all'),
     )
-    user_session_id = sa.Column(
+    user_session_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('user_session.id'), nullable=True
     )
     user_session: Mapped[Optional[UserSession]] = sa.orm.relationship(UserSession)
-    code = sa.Column(sa.String(44), default=newsecret, nullable=False)
-    redirect_uri = sa.Column(sa.UnicodeText, nullable=False)
-    used = sa.Column(sa.Boolean, default=False, nullable=False)
+    code: Mapped[str] = sa.Column(sa.String(44), default=newsecret, nullable=False)
+    redirect_uri: Mapped[str] = sa.Column(sa.UnicodeText, nullable=False)
+    used: Mapped[bool] = sa.Column(sa.Boolean, default=False, nullable=False)
 
     def is_valid(self) -> bool:
         """Test if this auth code is still valid."""
@@ -415,12 +423,14 @@ class AuthCode(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def all_for(cls, user: User) -> QueryBaseClass:
         """Return all auth codes for the specified user."""
-        return cls.query.filter_by(user=user)
+        return cls.query.filter(cls.user == user)
 
     @classmethod
     def get_for_client(cls, auth_client: AuthClient, code: str) -> Optional[AuthCode]:
         """Return a matching auth code for the specified auth client."""
-        return cls.query.filter_by(auth_client=auth_client, code=code).one_or_none()
+        return cls.query.filter(
+            cls.auth_client == auth_client, cls.code == code
+        ).one_or_none()
 
 
 class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
@@ -465,7 +475,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     #: Token secret for 'mac' type
     secret = sa.Column(sa.String(44), nullable=True)
     #: Secret's algorithm (for 'mac' type)
-    _algorithm = sa.Column('algorithm', sa.String(20), nullable=True)
+    algorithm = sa.Column(sa.String(20), nullable=True)
     #: Token's validity, 0 = unlimited
     validity = sa.Column(
         sa.Integer, nullable=False, default=0
@@ -491,15 +501,11 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         """Return subject user of this auth token."""
         if self.user_session:
             return self.user_session.user
-        return self._user
+        return cast(User, self._user)
 
     @user.setter
     def user(self, value: User):
         self._user = value
-
-    user: Mapped[User] = sa.orm.synonym(  # type: ignore[no-redef]
-        '_user', descriptor=user
-    )
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -538,25 +544,15 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
             self.token = make_buid()
             self.secret = newsecret()
 
-    @property
-    def algorithm(self):
-        """Return algorithm used for mac token secrets (non-bearer tokens)."""
-        return self._algorithm
-
-    @algorithm.setter
-    def algorithm(self, value: Optional[str]):
+    @sa.orm.validates('algorithm')
+    def _validate_algorithm(self, _key: str, value: Optional[str]) -> Optional[str]:
         """Set mac token algorithm to one of supported values."""
         if value is None:
-            self._algorithm = None
             self.secret = None
-        elif value in ['hmac-sha-1', 'hmac-sha-256']:
-            self._algorithm = value
-        else:
+            return value
+        if value not in ['hmac-sha-1', 'hmac-sha-256']:
             raise ValueError(_("Unrecognized algorithm ‘{value}’").format(value=value))
-
-    algorithm: Mapped[str] = sa.orm.synonym(  # type: ignore[no-redef]
-        '_algorithm', descriptor=algorithm
-    )
+        return value
 
     def is_valid(self) -> bool:
         """Test if auth token is currently valid."""
@@ -572,9 +568,9 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         cls, old_user: User, new_user: User
     ) -> OptionalMigratedTables:
         """Migrate one user account to another when merging user accounts."""
-        oldtokens = cls.query.filter_by(user=old_user).all()
+        oldtokens = cls.query.filter(cls._user == old_user).all()
         newtokens: Dict[int, List[AuthToken]] = {}  # AuthClient: token mapping
-        for token in cls.query.filter_by(user=new_user).all():
+        for token in cls.query.filter(cls._user == new_user).all():
             newtokens.setdefault(token.auth_client_id, []).append(token)
 
         for token in oldtokens:
@@ -598,7 +594,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
 
         :param str token: Token to lookup
         """
-        return cls.query.filter_by(token=token).join(AuthClient).one_or_none()
+        return cls.query.filter(cls.token == token).join(AuthClient).one_or_none()
 
     @overload
     @classmethod
@@ -623,9 +619,11 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         """Get an auth token for an auth client and a user or user session."""
         require_one_of(user=user, user_session=user_session)
         if user is not None:
-            return cls.query.filter_by(auth_client=auth_client, user=user).one_or_none()
-        return cls.query.filter_by(
-            auth_client=auth_client, user_session=user_session
+            return cls.query.filter(
+                cls.auth_client == auth_client, cls._user == user
+            ).one_or_none()
+        return cls.query.filter(
+            cls.auth_client == auth_client, cls.user_session == user_session
         ).one_or_none()
 
     @classmethod
@@ -637,7 +635,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         if isinstance(users, QueryBaseClass):
             count = users.count()
             if count == 1:
-                return query.filter(AuthToken.user == users.first()).all()
+                return query.filter(AuthToken._user == users.first()).all()
             if count > 1:
                 return query.filter(
                     AuthToken.user_id.in_(users.options(load_only(User.id)))
@@ -648,7 +646,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
                 # Cast users into a list/tuple before accessing [0], as the source
                 # may not be an actual list with indexed access. For example,
                 # Organization.owner_users is a DynamicAssociationProxy.
-                return query.filter(AuthToken.user == tuple(users)[0]).all()
+                return query.filter(AuthToken._user == tuple(users)[0]).all()
             if count > 1:
                 return query.filter(AuthToken.user_id.in_([u.id for u in users])).all()
 
@@ -657,7 +655,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def all_for(cls, user: User) -> QueryBaseClass:
         """Get all AuthTokens for a specified user (direct only)."""
-        return cls.query.filter_by(user=user)
+        return cls.query.filter(cls._user == user)
 
 
 # This model's name is in plural because it defines multiple permissions within each
@@ -725,17 +723,19 @@ class AuthClientUserPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
         cls, auth_client: AuthClient, user: User
     ) -> Optional[AuthClientUserPermissions]:
         """Get permissions for the specified auth client and user."""
-        return cls.query.filter_by(auth_client=auth_client, user=user).one_or_none()
+        return cls.query.filter(
+            cls.auth_client == auth_client, cls.user == user
+        ).one_or_none()
 
     @classmethod
     def all_for(cls, user: User) -> QueryBaseClass:
         """Get all permissions assigned to user for various clients."""
-        return cls.query.filter_by(user=user)
+        return cls.query.filter(cls.user == user)
 
     @classmethod
     def all_forclient(cls, auth_client: AuthClient) -> QueryBaseClass:
         """Get all permissions assigned on the specified auth client."""
-        return cls.query.filter_by(auth_client=auth_client)
+        return cls.query.filter(cls.auth_client == auth_client)
 
 
 # This model's name is in plural because it defines multiple permissions within each
@@ -783,19 +783,22 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
         cls, auth_client: AuthClient, team: Team
     ) -> Optional[AuthClientTeamPermissions]:
         """Get permissions for the specified auth client and team."""
-        return cls.query.filter_by(auth_client=auth_client, team=team).one_or_none()
+        return cls.query.filter(
+            cls.auth_client == auth_client, cls.team == team
+        ).one_or_none()
 
     @classmethod
     def all_for(cls, auth_client: AuthClient, user: User) -> QueryBaseClass:
         """Get all permissions for the specified user via their teams."""
-        return cls.query.filter_by(auth_client=auth_client).filter(
-            cls.team_id.in_([team.id for team in user.teams])
+        return cls.query.filter(
+            cls.auth_client == auth_client,
+            cls.team_id.in_([team.id for team in user.teams]),
         )
 
     @classmethod
     def all_forclient(cls, auth_client: AuthClient) -> QueryBaseClass:
         """Get all permissions assigned on the specified auth client."""
-        return cls.query.filter_by(auth_client=auth_client)
+        return cls.query.filter(cls.auth_client == auth_client)
 
 
 @reopen(User)
