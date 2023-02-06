@@ -406,7 +406,7 @@ mxsniff==0.3.5
     # via baseframe
 mypy==0.991
     # via -r requirements_dev.in
-mypy-extensions==0.4.3
+mypy-extensions==1.0.0
     # via
     #   black
     #   mypy
@@ -466,7 +466,7 @@ platformdirs==2.6.2
     #   virtualenv
 pluggy==1.0.0
     # via pytest
-pre-commit==3.0.3
+pre-commit==3.0.4
     # via -r requirements_dev.in
 premailer==3.10.0
     # via -r requirements.in
@@ -600,7 +600,7 @@ pyyaml==6.0
     #   flask-flatpages
     #   pre-commit
     #   reformat-gherkin
-qrcode==7.4.1
+qrcode==7.4.2
     # via -r requirements.in
 redis==4.4.2
     # via
@@ -871,7 +871,7 @@ wtforms-sqlalchemy==0.3
     # via baseframe
 yarl==1.8.2
     # via aiohttp
-zipp==3.12.0
+zipp==3.12.1
     # via importlib-metadata
 zxcvbn==4.4.28
     # via -r requirements.in

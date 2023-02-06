@@ -300,7 +300,7 @@ multidict==6.0.4
     #   yarl
 mxsniff==0.3.5
     # via baseframe
-mypy-extensions==0.4.3
+mypy-extensions==1.0.0
     # via typing-inspect
 ndg-httpsclient==0.5.1
     # via baseframe
@@ -447,7 +447,7 @@ pyyaml==6.0
     # via
     #   coaster
     #   flask-flatpages
-qrcode==7.4.1
+qrcode==7.4.2
     # via -r requirements.in
 redis==4.4.2
     # via
@@ -632,7 +632,7 @@ wtforms-sqlalchemy==0.3
     # via baseframe
 yarl==1.8.2
     # via aiohttp
-zipp==3.12.0
+zipp==3.12.1
     # via importlib-metadata
 zxcvbn==4.4.28
     # via -r requirements.in

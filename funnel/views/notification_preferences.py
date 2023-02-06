@@ -339,7 +339,6 @@ class AccountNotificationView(ClassView):
 
         # --- Cached tokens (SMS)
         elif token_type == 'cached':  # nosec
-
             # Enforce a rate limit per IP on cached tokens, to slow down enumeration.
             # Some ISPs use carrier-grade NAT and will have a single IP for a very
             # large number of users, so we have generous limits. 100 unsubscribes per
