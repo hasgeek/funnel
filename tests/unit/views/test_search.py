@@ -16,6 +16,7 @@ from funnel.views.search import (
     Query,
     SearchInProfileProvider,
     SearchInProjectProvider,
+    get_tsquery,
     search_counts,
     search_providers,
 )
@@ -28,13 +29,25 @@ search_project_types = [
     k for k, v in search_providers.items() if isinstance(v, SearchInProjectProvider)
 ]
 
+
+@pytest.fixture()
+def db_session(db_session_truncate):
+    """
+    Use the database session truncate fixture.
+
+    The default rollback fixture is not compatible with Flask-Executor, which is used
+    in the search methods to parallelize tasks.
+    """
+    return db_session_truncate
+
+
 # --- Tests for datatypes returned by search providers ---------------------------------
 
 
 @pytest.mark.parametrize('stype', search_all_types)
 def test_search_all_count_returns_int(stype, all_fixtures) -> None:
     """Assert that all_count() returns an int."""
-    assert isinstance(search_providers[stype].all_count("test"), int)
+    assert isinstance(search_providers[stype].all_count(get_tsquery("test")), int)
 
 
 @pytest.mark.parametrize('stype', search_profile_types)
@@ -42,7 +55,7 @@ def test_search_profile_count_returns_int(stype, org_ankhmorpork, all_fixtures) 
     """Assert that profile_count() returns an int."""
     assert isinstance(
         cast(SearchInProfileProvider, search_providers[stype]).profile_count(
-            "test", org_ankhmorpork.profile
+            get_tsquery("test"), org_ankhmorpork.profile
         ),
         int,
     )
@@ -55,7 +68,7 @@ def test_search_project_count_returns_int(
     """Assert that project_count() returns an int."""
     assert isinstance(
         cast(SearchInProjectProvider, search_providers[stype]).project_count(
-            "test", project_expo2010
+            get_tsquery("test"), project_expo2010
         ),
         int,
     )
@@ -64,7 +77,7 @@ def test_search_project_count_returns_int(
 @pytest.mark.parametrize('stype', search_all_types)
 def test_search_all_returns_query(stype, all_fixtures) -> None:
     """Assert that all_query() returns a query."""
-    assert isinstance(search_providers[stype].all_query("test"), Query)
+    assert isinstance(search_providers[stype].all_query(get_tsquery("test")), Query)
 
 
 @pytest.mark.parametrize('stype', search_profile_types)
@@ -72,7 +85,7 @@ def test_search_profile_returns_query(stype, org_ankhmorpork, all_fixtures) -> N
     """Assert that profile_query() returns a query."""
     assert isinstance(
         cast(SearchInProfileProvider, search_providers[stype]).profile_query(
-            "test", org_ankhmorpork.profile
+            get_tsquery("test"), org_ankhmorpork.profile
         ),
         Query,
     )
@@ -83,7 +96,7 @@ def test_search_project_returns_query(stype, project_expo2010, all_fixtures) -> 
     """Assert that project_query() returns an int."""
     assert isinstance(
         cast(SearchInProjectProvider, search_providers[stype]).project_query(
-            "test", project_expo2010
+            get_tsquery("test"), project_expo2010
         ),
         Query,
     )
@@ -95,9 +108,9 @@ def test_search_project_returns_query(stype, project_expo2010, all_fixtures) -> 
 @pytest.mark.usefixtures('request_context', 'all_fixtures')
 def test_search_counts(org_ankhmorpork, project_expo2010) -> None:
     """Test that search_counts returns a list of dicts."""
-    r1 = search_counts("test")
-    r2 = search_counts("test", profile=org_ankhmorpork.profile)
-    r3 = search_counts("test", project=project_expo2010)
+    r1 = search_counts(get_tsquery("test"))
+    r2 = search_counts(get_tsquery("test"), profile=org_ankhmorpork.profile)
+    r3 = search_counts(get_tsquery("test"), project=project_expo2010)
 
     for resultset in (r1, r2, r3):
         assert isinstance(resultset, list)
