@@ -279,12 +279,12 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: another type (auto-populated from subclass's `shadow=` parameter)
     pref_type: str = ''
 
-    #: Document model is auto-populated from :attr:`document` type hint in subclasses
+    #: Document model, must be specified in subclasses
     document_model: ClassVar[Type[UuidModelType]]
     #: SQL table name for document type, auto-populated from the document model
     document_type: ClassVar[str]
 
-    #: Fragment model is auto-populated from :attr:`fragment` type hint in subclasses
+    #: Fragment model, optional for subclasses
     fragment_model: ClassVar[Optional[Type[UuidModelType]]] = None
     #: SQL table name for fragment type, auto-populated from the fragment model
     fragment_type: ClassVar[Optional[str]]
