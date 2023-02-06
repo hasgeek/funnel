@@ -34,7 +34,7 @@ def notification_types(database) -> SimpleNamespace:
         category = models.notification_categories.participant
         description = "When a project posts an update"
 
-        document: models.Update
+        document_model = models.Update
         roles = ['project_crew', 'project_participant']
 
     class TestEditedUpdateNotification(
@@ -45,7 +45,7 @@ def notification_types(database) -> SimpleNamespace:
     ):
         """Notifications of edited updates (test edition)."""
 
-        document: models.Update
+        document_model = models.Update
         roles = ['project_crew', 'project_participant']
 
     class TestProposalReceivedNotification(
@@ -56,8 +56,8 @@ def notification_types(database) -> SimpleNamespace:
         category = models.notification_categories.project_crew
         description = "When my project receives a new proposal"
 
-        document: models.Project
-        fragment: models.Proposal
+        document_model = models.Project
+        fragment_model = models.Proposal
         roles = ['project_editor']
 
     database.configure_mappers()

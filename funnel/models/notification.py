@@ -97,8 +97,6 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from werkzeug.utils import cached_property
 
-from typing_extensions import get_type_hints
-
 from baseframe import __
 from coaster.sqlalchemy import (
     Query,
@@ -110,7 +108,6 @@ from coaster.sqlalchemy import (
 )
 from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
-from .. import models  # For locals() namespace, to discover models from type defn
 from ..typing import OptionalMigratedTables, T, UuidModelType
 from . import BaseMixin, Mapped, NoIdMixin, UUIDType, db, hybrid_property, sa
 from .helpers import reopen
@@ -292,7 +289,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     document_type: ClassVar[str]
 
     #: Fragment model is auto-populated from :attr:`fragment` type hint in subclasses
-    fragment_model: ClassVar[Optional[Type[UuidModelType]]]
+    fragment_model: ClassVar[Optional[Type[UuidModelType]]] = None
     #: SQL table name for fragment type, auto-populated from the fragment model
     fragment_type: ClassVar[Optional[str]]
 
@@ -463,7 +460,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
         if fragment is not None:
             if self.fragment_model is None:
                 raise TypeError(f"{self.__class__} is not expecting a fragment")
-            if not isinstance(fragment, self.fragment_model):
+            if not isinstance(fragment, self.fragment_model):  # pylint: disable=W1116
                 raise TypeError(f"{fragment!r} is not of type {self.fragment_model!r}")
             kwargs['fragment_uuid'] = fragment.uuid
         super().__init__(**kwargs)
@@ -1334,34 +1331,13 @@ def _register_notification_types(mapper_, cls) -> None:
 
         # Populate cls with helper attributes
 
-        # When using future annotations, the type hints in a notification will be stored
-        # as strings. We provide the models namespace to resolve the strings back to
-        # models as we have no access to the actual namespace within which the class was
-        # defined. Since tests uses ``models.*`` references, we have to include 'models'
-        # in the namespace here. While ``inspect.getmodule`` exists, it cannot retrieve
-        # local namespace when the notification class is defined inside a function
-        type_hints = get_type_hints(cls, localns=dict(vars(models), models=models))
-        cls.document_model = (
-            type_hints['document']
-            if 'document' in type_hints
-            and isinstance(type_hints['document'], type)
-            and issubclass(type_hints['document'], db.Model)
-            else None
-        )
         if cls.document_model is None:
             raise TypeError(
-                f"Notification subclass {cls!r} must specify document class"
+                f"Notification subclass {cls!r} must specify document_model"
             )
         cls.document_type = (
             cls.document_model.__tablename__  # type: ignore[attr-defined]
             if cls.document_model
-            else None
-        )
-        cls.fragment_model = (
-            type_hints['fragment']
-            if 'fragment' in type_hints
-            and isinstance(type_hints['fragment'], type)
-            and issubclass(type_hints['fragment'], db.Model)
             else None
         )
         cls.fragment_type = (

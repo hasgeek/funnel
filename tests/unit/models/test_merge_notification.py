@@ -16,7 +16,7 @@ def fixture_notification_type(database) -> Any:
     class MergeTestNotification(models.Notification, type='merge_test'):
         """Test notification."""
 
-        document: models.User
+        document_model = models.User
 
     database.configure_mappers()
     return MergeTestNotification
