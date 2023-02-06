@@ -125,7 +125,7 @@ class Proposal(  # type: ignore[misc]
     user = with_roles(
         sa.orm.relationship(
             User,
-            primaryjoin=user_id == User.id,
+            foreign_keys=[user_id],
             backref=sa.orm.backref('created_proposals', cascade='all', lazy='dynamic'),
         ),
         grants={'creator', 'participant'},
@@ -134,7 +134,7 @@ class Proposal(  # type: ignore[misc]
     project: Mapped[Project] = with_roles(
         sa.orm.relationship(
             Project,
-            primaryjoin=project_id == Project.id,
+            foreign_keys=[project_id],
             backref=sa.orm.backref(
                 'proposals', cascade='all', lazy='dynamic', order_by='Proposal.url_id'
             ),

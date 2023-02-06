@@ -23,7 +23,6 @@ from coaster.utils import require_one_of
 from ..signals import phonenumber_refcount_dropping
 from . import (
     BaseMixin,
-    DeclarativeBase,
     Mapped,
     db,
     declarative_mixin,
@@ -825,9 +824,6 @@ def _phone_number_mixin_set_validator(
 
 
 @event.listens_for(PhoneNumberMixin, 'mapper_configured', propagate=True)
-def _phone_number_mixin_configure_events(
-    mapper_,
-    cls: DeclarativeBase,  # type: ignore[name-defined]
-):
+def _phone_number_mixin_configure_events(mapper_, cls: PhoneNumberMixin):
     event.listen(cls.phone_number, 'set', _phone_number_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)

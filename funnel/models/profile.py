@@ -493,15 +493,15 @@ class Profile(
         prefix = prefix.strip()
         if not prefix:
             return []
-        squery = quote_autocomplete_tsquery(prefix)
+        tsquery = quote_autocomplete_tsquery(prefix)
         return (
             cls.query.options(sa.orm.defer(cls.is_active))
             .join(User)
             .filter(
                 User.state.ACTIVE,
                 sa.or_(
-                    cls.search_vector.bool_op('@@')(squery),
-                    User.search_vector.bool_op('@@')(squery),
+                    cls.search_vector.bool_op('@@')(tsquery),
+                    User.search_vector.bool_op('@@')(tsquery),
                 ),
             )
             .union(
@@ -510,8 +510,8 @@ class Profile(
                 .filter(
                     Organization.state.ACTIVE,
                     sa.or_(
-                        cls.search_vector.bool_op('@@')(squery),
-                        Organization.search_vector.bool_op('@@')(squery),
+                        cls.search_vector.bool_op('@@')(tsquery),
+                        Organization.search_vector.bool_op('@@')(tsquery),
                     ),
                 ),
             )

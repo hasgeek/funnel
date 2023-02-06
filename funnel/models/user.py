@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Iterable, Iterator, List, Optional, Set, Union, cast, overload
+from typing import Any, Iterable, Iterator, List, Optional, Set, Union, cast, overload
 from uuid import UUID
 import hashlib
 import itertools
@@ -31,7 +31,6 @@ from coaster.utils import LabeledEnum, newsecret, require_one_of, utcnow
 from ..typing import OptionalMigratedTables
 from . import (
     BaseMixin,
-    DeclarativeBase,
     LocaleType,
     Mapped,
     TimezoneType,
@@ -625,7 +624,7 @@ class User(
 
     @with_roles(call={'owner'})
     def transport_for(
-        self, transport: str, context: DeclarativeBase  # type: ignore[name-defined]
+        self, transport: str, context: Any  # type: ignore[name-defined]
     ) -> Optional[Union[UserEmail, UserPhone]]:
         """
         Get transport address for a given transport and context.
@@ -1359,7 +1358,7 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         ),
         grants_via={None: {'owner': 'owner', 'admin': 'admin'}},
     )
-    users: Mapped[List[User]] = with_roles(
+    users = with_roles(
         sa.orm.relationship(
             User, secondary=team_membership, lazy='dynamic', backref='teams'
         ),

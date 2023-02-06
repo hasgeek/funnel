@@ -15,6 +15,7 @@ from typing import (
     Set,
     Type,
     TypeVar,
+    cast,
 )
 import os.path
 import re
@@ -36,7 +37,7 @@ from zxcvbn import zxcvbn
 from .. import app
 from ..typing import T
 from ..utils import MarkdownConfig, markdown_escape
-from . import DeclarativeBase, UrlType, sa
+from . import UrlType, sa
 
 __all__ = [
     'RESERVED_NAMES',
@@ -362,15 +363,18 @@ def quote_autocomplete_like(query):
     )
 
 
-def quote_autocomplete_tsquery(query: str, execute=False) -> TSQUERY:
+def quote_autocomplete_tsquery(query: str) -> TSQUERY:
     """Return a PostgreSQL tsquery suitable for autocomplete-type matches."""
-    return sa.func.cast(
-        sa.func.concat(sa.func.phraseto_tsquery(query or ''), ':*'), TSQUERY
+    return cast(
+        TSQUERY,
+        sa.func.cast(
+            sa.func.concat(sa.func.phraseto_tsquery(query or ''), ':*'), TSQUERY
+        ),
     )
 
 
 def add_search_trigger(
-    model: DeclarativeBase, column_name: str  # type: ignore[name-defined]
+    model: Any, column_name: str  # type: ignore[name-defined]
 ) -> Dict[str, str]:
     """
     Add a search trigger and returns SQL for use in migrations.
@@ -650,7 +654,7 @@ class MarkdownCompositeBase(MutableComposite):
     @classmethod
     def create(
         cls, name: str, deferred: bool = False, group: Optional[str] = None, **kwargs
-    ) -> composite:
+    ):
         """Create a composite column and backing individual columns."""
         return composite(
             cls,

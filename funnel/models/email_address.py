@@ -31,7 +31,6 @@ from coaster.utils import LabeledEnum, require_one_of
 from ..signals import emailaddress_refcount_dropping
 from . import (
     BaseMixin,
-    DeclarativeBase,
     Mapped,
     db,
     declarative_mixin,
@@ -865,9 +864,6 @@ def _email_address_mixin_set_validator(
 
 
 @event.listens_for(EmailAddressMixin, 'mapper_configured', propagate=True)
-def _email_address_mixin_configure_events(
-    mapper_,
-    cls: DeclarativeBase,  # type: ignore[name-defined]
-):
+def _email_address_mixin_configure_events(mapper_, cls: EmailAddressMixin):
     event.listen(cls.email_address, 'set', _email_address_mixin_set_validator)
     event.listen(cls, 'before_delete', _send_refcount_event_before_delete)

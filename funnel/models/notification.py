@@ -245,10 +245,6 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     """
 
     __tablename__ = 'notification'
-
-    #: Required to support document/fragment type hints in subclasses; we should move
-    #: from dependence on type hints to directly specifying document_model and
-    #: fragment_model
     __allow_unmapped__ = True
 
     #: Flag indicating this is an active notification type. Can be False for draft

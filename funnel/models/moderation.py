@@ -33,7 +33,7 @@ class CommentModeratorReport(
     )
     comment: Mapped[Comment] = sa.orm.relationship(
         Comment,
-        primaryjoin=comment_id == Comment.id,
+        foreign_keys=[comment_id],
         backref=sa.orm.backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
     user_id = sa.Column(
@@ -41,7 +41,7 @@ class CommentModeratorReport(
     )
     user: Mapped[User] = sa.orm.relationship(
         User,
-        primaryjoin=user_id == User.id,
+        foreign_keys=[user_id],
         backref=sa.orm.backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
     report_type = sa.Column(

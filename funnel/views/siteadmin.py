@@ -240,12 +240,12 @@ class SiteadminView(ClassView):
         comments = Comment.query.filter(Comment.state.REPORTABLE).order_by(
             Comment.created_at.desc()
         )
-        squery = sa.func.websearch_to_tsquery(query or '')
+        tsquery = sa.func.websearch_to_tsquery(query or '')
         if query:
             comments = comments.join(User).filter(
                 sa.or_(
-                    Comment.search_vector.bool_op('@@')(squery),
-                    User.search_vector.bool_op('@@')(squery),
+                    Comment.search_vector.bool_op('@@')(tsquery),
+                    User.search_vector.bool_op('@@')(tsquery),
                 )
             )
 

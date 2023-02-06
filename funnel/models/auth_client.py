@@ -98,7 +98,7 @@ class AuthClient(
     user: Mapped[Optional[User]] = with_roles(
         sa.orm.relationship(
             User,
-            primaryjoin=user_id == User.id,
+            foreign_keys=[user_id],
             backref=sa.orm.backref('clients', cascade='all'),
         ),
         read={'all'},
@@ -112,7 +112,7 @@ class AuthClient(
     organization: Mapped[Optional[User]] = with_roles(
         sa.orm.relationship(
             Organization,
-            primaryjoin=organization_id == Organization.id,
+            foreign_keys=[organization_id],
             backref=sa.orm.backref('clients', cascade='all'),
         ),
         read={'all'},
@@ -397,13 +397,13 @@ class AuthCode(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     user_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('user.id'), nullable=False
     )
-    user: Mapped[User] = sa.orm.relationship(User, primaryjoin=user_id == User.id)
+    user: Mapped[User] = sa.orm.relationship(User, foreign_keys=[user_id])
     auth_client_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('auth_client.id'), nullable=False
     )
     auth_client: Mapped[AuthClient] = sa.orm.relationship(
         AuthClient,
-        primaryjoin=auth_client_id == AuthClient.id,
+        foreign_keys=[auth_client_id],
         backref=sa.orm.backref('authcodes', cascade='all'),
     )
     user_session_id: Mapped[int] = sa.Column(
@@ -669,7 +669,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
     user = sa.orm.relationship(
         User,
-        primaryjoin=user_id == User.id,
+        foreign_keys=[user_id],
         backref=sa.orm.backref('client_permissions', cascade='all'),
     )
     #: AuthClient app they are assigned on
@@ -679,7 +679,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
     auth_client: Mapped[AuthClient] = with_roles(
         sa.orm.relationship(
             AuthClient,
-            primaryjoin=auth_client_id == AuthClient.id,
+            foreign_keys=[auth_client_id],
             backref=sa.orm.backref('user_permissions', cascade='all'),
         ),
         grants_via={None: {'owner'}},
@@ -749,7 +749,7 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
     team_id = sa.Column(sa.Integer, sa.ForeignKey('team.id'), nullable=False)
     team = sa.orm.relationship(
         Team,
-        primaryjoin=team_id == Team.id,
+        foreign_keys=[team_id],
         backref=sa.orm.backref('client_permissions', cascade='all'),
     )
     #: AuthClient app they are assigned on
@@ -759,7 +759,7 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
     auth_client: Mapped[AuthClient] = with_roles(
         sa.orm.relationship(
             AuthClient,
-            primaryjoin=auth_client_id == AuthClient.id,
+            foreign_keys=[auth_client_id],
             backref=sa.orm.backref('team_permissions', cascade='all'),
         ),
         grants_via={None: {'owner'}},

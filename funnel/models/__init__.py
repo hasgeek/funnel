@@ -10,7 +10,7 @@ from flask_sqlalchemy.model import DefaultMeta
 from flask_sqlalchemy.model import Model as ModelBase
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import DeclarativeBase, Mapped, declarative_mixin, declared_attr
+from sqlalchemy.orm import Mapped, declarative_mixin, declared_attr
 from sqlalchemy_json import mutable_json_type
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType, UUIDType
 import sqlalchemy as sa  # noqa
