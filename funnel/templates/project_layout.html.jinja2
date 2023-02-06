@@ -52,19 +52,24 @@
 
 {% macro project_header(project) %}
   {% if project.livestream_urls %}
-    <div role="tabpanel" class="livestream-box project-banner__left" id="livestream">
-      {% if project.livestream_urls|length > 2 %}
+    <div class="livestream-box project-banner__left" id="livestream">
+      {% if project.livestream_urls|length >= 2 %}
       <ul class="mui-tabs__bar project-banner__box" role="tablist">
         {%- for stream in project.livestream_urls %}
-          <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
-            <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ loop.index }}">{% trans %}Livestream{% endtrans %}{%- if not loop.first %} {{ loop.index }}{% endif %}</a>
+          <li role="presentation"{%- if loop.first %} class="mui--is-active"{% endif %}>
+            <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ loop.index }}"
+              aria-controls="pane-justified-{{ loop.index }}" id="tab-{{ loop.index }}"
+              {%- if loop.first %}tabindex="0" aria-selected="true"{% else %}tabindex="-1" aria-selected="false"{% endif %}
+            >{% trans %}Livestream{% endtrans %}{%- if not loop.first %} {{ loop.index }}{% endif %}</a>
           </li>
         {%- endfor %}
       </ul>
       {% endif %}
 
       {%- for stream in project.livestream_urls %}
-        <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ loop.index }}">
+        <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}"
+          id="pane-justified-{{ loop.index }}" aria-labelledby="tab-{{ loop.index }}" tabindex="0"
+        >
           <div class="project-banner__box">
             {{ livestream_edit_btn(project) }}
             {{ banner_edit_btn(project) }}

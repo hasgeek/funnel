@@ -667,6 +667,7 @@ def account_merge() -> ReturnView:
 
 # Retained for future hasjob integration
 
+
 # @hasjobapp.route('/login', endpoint='login')
 @requestargs(('cookietest', getbool))
 def hasjob_login(cookietest: bool = False) -> ReturnView:
