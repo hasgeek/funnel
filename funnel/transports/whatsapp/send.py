@@ -10,9 +10,9 @@ import requests
 
 from baseframe import _
 
-from .. import app
-from ..models import PhoneNumber, PhoneNumberBlockedError, sa
-from .exc import (
+from ... import app
+from ...models import PhoneNumber, PhoneNumberBlockedError, sa
+from ..exc import (
     TransportConnectionError,
     TransportRecipientError,
     TransportTransactionError,
@@ -21,7 +21,7 @@ from .exc import (
 
 @dataclass
 class WhatsappSender:
-    """An SMS sender by number prefix."""
+    """A WhatsApp sender."""
 
     requires_config: set
     func: Callable
@@ -34,11 +34,13 @@ def get_phone_number(
     if isinstance(phone, PhoneNumber):
         if not phone.number:
             raise TransportRecipientError(_("This phone number is not available"))
+        # TODO: Confirm this phone number is available on WhatsApp
         return phone
     try:
         phone_number = PhoneNumber.add(phone)
     except PhoneNumberBlockedError as exc:
         raise TransportRecipientError(_("This phone number has been blocked")) from exc
+    # TODO: Confirm this phone number is available on WhatsApp (replacing `allow_wa`)
     if not phone_number.allow_wa:
         raise TransportRecipientError(_("WhatsApp is disabled for this phone number"))
     if not phone_number.number:
