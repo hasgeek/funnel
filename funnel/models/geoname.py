@@ -7,7 +7,6 @@ from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 import re
 
 from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.orm import joinedload
 
 from coaster.sqlalchemy import Query
 from coaster.utils import make_name
@@ -463,9 +462,15 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
                             sa.or_(GeoAltName.lang == lang, GeoAltName.lang.is_(None))
                         )
                         .options(
-                            joinedload('geoname').joinedload('country'),
-                            joinedload('geoname').joinedload('admin1code'),
-                            joinedload('geoname').joinedload('admin2code'),
+                            sa.orm.joinedload(GeoAltName.geoname).joinedload(
+                                GeoName.country
+                            ),
+                            sa.orm.joinedload(GeoAltName.geoname).joinedload(
+                                GeoName.admin1code
+                            ),
+                            sa.orm.joinedload(GeoAltName.geoname).joinedload(
+                                GeoName.admin2code
+                            ),
                         )
                         .all()
                     )
@@ -477,9 +482,15 @@ class GeoName(BaseNameMixin, db.Model):  # type: ignore[name-defined]
                             )
                         )
                         .options(
-                            joinedload('geoname').joinedload('country'),
-                            joinedload('geoname').joinedload('admin1code'),
-                            joinedload('geoname').joinedload('admin2code'),
+                            sa.orm.joinedload(GeoAltName.geoname).joinedload(
+                                GeoName.country
+                            ),
+                            sa.orm.joinedload(GeoAltName.geoname).joinedload(
+                                GeoName.admin1code
+                            ),
+                            sa.orm.joinedload(GeoAltName.geoname).joinedload(
+                                GeoName.admin2code
+                            ),
                         )
                         .all()
                     )
