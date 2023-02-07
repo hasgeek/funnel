@@ -129,7 +129,8 @@ class SessionViewMixin(ProfileCheckMixin):
 
     def loader(self, profile, project, session) -> Session:
         return (
-            Session.query.join(Project, Profile)
+            Session.query.join(Project)
+            .join(Profile)
             .filter(Session.url_name_uuid_b58 == session)
             .first_or_404()
         )
@@ -154,7 +155,8 @@ class VenueViewMixin(ProfileCheckMixin):
 
     def loader(self, profile, project, venue) -> Venue:
         return (
-            Venue.query.join(Project, Profile)
+            Venue.query.join(Project)
+            .join(Profile)
             .filter(
                 sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,
@@ -180,7 +182,9 @@ class VenueRoomViewMixin(ProfileCheckMixin):
 
     def loader(self, profile, project, venue, room) -> VenueRoom:
         return (
-            VenueRoom.query.join(Venue, Project, Profile)
+            VenueRoom.query.join(Venue)
+            .join(Project)
+            .join(Profile)
             .filter(
                 sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,
@@ -206,7 +210,8 @@ class TicketEventViewMixin(ProfileCheckMixin):
 
     def loader(self, profile, project, name) -> TicketEvent:
         return (
-            TicketEvent.query.join(Project, Profile)
+            TicketEvent.query.join(Project)
+            .join(Profile)
             .filter(
                 sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,

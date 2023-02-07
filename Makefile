@@ -28,13 +28,13 @@ babeljs:
 deps: deps-main deps-test deps-dev
 
 deps-main:
-	pip-compile --upgrade --output-file requirements.txt requirements.in
+	pip-compile --upgrade --output-file=requirements.txt --resolver=backtracking requirements.in
 
 deps-test:
-	pip-compile --upgrade --output-file requirements_test.txt requirements.in requirements_test.in
+	pip-compile --upgrade --output-file=requirements_test.txt --resolver=backtracking requirements.in requirements_test.in
 
 deps-dev:
-	pip-compile --upgrade --output-file requirements_dev.txt requirements.in requirements_test.in requirements_dev.in
+	pip-compile --upgrade --output-file=requirements_dev.txt --resolver=backtracking requirements.in requirements_test.in requirements_dev.in
 
 tests-data: tests-data-markdown
 

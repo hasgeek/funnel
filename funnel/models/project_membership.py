@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 from typing import Dict, Set, Union
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
+from coaster.sqlalchemy import DynamicAssociationProxy, with_roles
 
-from ..typing import Mapped
-from . import db, declared_attr, sa
+from . import Mapped, db, declared_attr, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .project import Project
@@ -42,6 +42,7 @@ class ProjectCrewMembership(
     """Users can be crew members of projects, with specified access rights."""
 
     __tablename__ = 'project_crew_membership'
+    __allow_unmapped__ = True
 
     #: Legacy data has no granted_by
     __null_granted_by__ = True
@@ -102,27 +103,24 @@ class ProjectCrewMembership(
         },
     }
 
-    project_id: sa.Column[int] = immutable(
-        sa.Column(
-            sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
-        )
+    project_id: Mapped[int] = sa.Column(
+        sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
-    project: sa.orm.relationship[Project] = immutable(
-        with_roles(
-            sa.orm.relationship(
-                Project,
-                backref=sa.orm.backref(
-                    'crew_memberships',
-                    lazy='dynamic',
-                    cascade='all',
-                    passive_deletes=True,
-                ),
+    project: Mapped[Project] = with_roles(
+        sa.orm.relationship(
+            Project,
+            backref=sa.orm.backref(
+                'crew_memberships',
+                lazy='dynamic',
+                cascade='all',
+                passive_deletes=True,
             ),
-            grants_via={None: project_membership_role_map},
-        )
+        ),
+        grants_via={None: project_membership_role_map},
     )
-    parent = sa.orm.synonym('project')
-    parent_id = sa.orm.synonym('project_id')
+    parent_id: Mapped[int] = sa.orm.synonym('project_id')
+    parent_id_column = 'project_id'
+    parent: Mapped[Project] = sa.orm.synonym('project')
 
     # Project crew roles (at least one must be True):
 
@@ -136,10 +134,9 @@ class ProjectCrewMembership(
     #: the ability to scan badges at the door
     is_usher: Mapped[bool] = sa.Column(sa.Boolean, nullable=False, default=False)
 
-    @declared_attr
-    def __table_args__(  # type: ignore[override]  # pylint: disable=no-self-argument
-        cls,
-    ) -> Mapped[tuple]:
+    @declared_attr.directive
+    @classmethod
+    def __table_args__(cls) -> tuple:  # type: ignore[override]
         """Table arguments."""
         args = list(super().__table_args__)
         kwargs = args.pop(-1) if args and isinstance(args[-1], dict) else None

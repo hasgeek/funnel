@@ -512,7 +512,7 @@ def validate_emailclaim(form, field):
 
 
 @User.forms('email_add')
-class NewEmailAddressForm(forms.RecaptchaForm):
+class NewEmailAddressForm(forms.Form):
     """Form to add a new email address to a user account."""
 
     __expects__ = ('edit_user',)
@@ -561,7 +561,7 @@ class EmailPrimaryForm(forms.Form):
 
 
 @User.forms('phone_add')
-class NewPhoneForm(forms.RecaptchaForm):
+class NewPhoneForm(forms.Form):
     """Form to add a new mobile number (SMS-capable) to a user account."""
 
     __expects__ = ('edit_user',)

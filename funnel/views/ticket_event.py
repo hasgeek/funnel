@@ -235,7 +235,8 @@ class TicketTypeView(ProfileCheckMixin, UrlForView, ModelView):
 
     def loader(self, profile, project, name) -> TicketType:
         return (
-            TicketType.query.join(Project, Profile)
+            TicketType.query.join(Project)
+            .join(Profile)
             .filter(
                 sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,
@@ -313,7 +314,8 @@ class TicketClientView(ProfileCheckMixin, UrlForView, ModelView):
 
     def loader(self, profile, project, client_id) -> TicketClient:
         return (
-            TicketClient.query.join(Project, Profile)
+            TicketClient.query.join(Project)
+            .join(Profile)
             .filter(
                 sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,

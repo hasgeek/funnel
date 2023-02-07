@@ -2,19 +2,10 @@
 
 from __future__ import annotations
 
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Generic,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, TypeVar, Union
 from uuid import UUID
+
+from sqlalchemy.orm import Mapped
 
 from werkzeug.wrappers import Response  # Base class for Flask Response
 
@@ -41,26 +32,6 @@ __all__ = [
 T = TypeVar('T')
 #: Type used to indicate parameter continuity within a block of code
 P = ParamSpec('P')
-
-
-try:
-    from sqlalchemy.orm import Mapped  # type: ignore[attr-defined]
-except ImportError:
-    # sqlalchemy-stubs (by Dropbox) doesn't define Mapped
-    # sqlalchemy2-stubs (by SQLAlchemy) does. Redefine if not known here:
-    from sqlalchemy.orm.attributes import QueryableAttribute
-
-    class Mapped(QueryableAttribute, Generic[T]):  # type: ignore[no-redef]
-        """Replacement for sqlalchemy's Mapped type, for when not using the plugin."""
-
-        def __get__(self, instance, owner):
-            raise NotImplementedError()
-
-        def __set__(self, instance, value):
-            raise NotImplementedError()
-
-        def __delete__(self, instance):
-            raise NotImplementedError()
 
 
 class ModelType(Protocol):

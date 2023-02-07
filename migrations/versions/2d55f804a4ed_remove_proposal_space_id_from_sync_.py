@@ -64,7 +64,7 @@ def downgrade():
     op.execute(
         sync_ticket.update().values(
             {
-                'proposal_space_id': select([ticket_client.c.proposal_space_id]).where(
+                'proposal_space_id': select(ticket_client.c.proposal_space_id).where(
                     ticket_client.c.id == sync_ticket.c.ticket_client_id
                 )
             }

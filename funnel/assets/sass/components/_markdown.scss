@@ -1,8 +1,12 @@
 @import 'table';
+@import 'node_modules/prismjs/themes/prism';
+@import 'node_modules/prismjs/plugins/match-braces/prism-match-braces';
 
 .markdown {
   overflow-wrap: break-word;
   overflow: auto;
+  margin: 0 -16px;
+  padding: 0 16px;
 
   h1,
   h2,

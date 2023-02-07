@@ -71,6 +71,7 @@ def proposal_label_admin_form(
     project: Project, proposal: Optional[Proposal]
 ) -> Optional[forms.Form]:
     """Return a label form to use in admin panel for given project and proposal."""
+
     # FIXME: See above
     class ProposalLabelAdminForm(forms.Form):
         """Forms for editor-selectable labels on a proposal."""

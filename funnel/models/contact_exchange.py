@@ -15,7 +15,7 @@ from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58
 
 from ..typing import OptionalMigratedTables
-from . import RoleMixin, TimestampMixin, db, sa
+from . import Mapped, RoleMixin, TimestampMixin, db, sa
 from .project import Project
 from .sync_ticket import TicketParticipant
 from .user import User
@@ -52,11 +52,12 @@ class ContactExchange(
     """Model to track who scanned whose badge, in which project."""
 
     __tablename__ = 'contact_exchange'
+    __allow_unmapped__ = True
     #: User who scanned this contact
     user_id = sa.Column(
         sa.Integer, sa.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True
     )
-    user = sa.orm.relationship(
+    user: Mapped[User] = sa.orm.relationship(
         User,
         backref=sa.orm.backref(
             'scanned_contacts',
@@ -72,7 +73,7 @@ class ContactExchange(
         primary_key=True,
         index=True,
     )
-    ticket_participant = sa.orm.relationship(
+    ticket_participant: Mapped[TicketParticipant] = sa.orm.relationship(
         TicketParticipant,
         backref=sa.orm.backref('scanned_contacts', passive_deletes=True),
     )
