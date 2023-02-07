@@ -294,14 +294,9 @@ def test_user_notification_preferences(notification_types, db_session) -> None:
     )
 
     # There cannot be two sets of preferences for the same notification type
-    # For this test we use `user_id` instead of `user` because SQLAlchemy 2.0 has a
-    # test-breaking change: given `user`, it will populate `user_id` during the commit,
-    # and upon having an `IntegrityError` will attempt to reset `user_id` to None,
-    # thereby triggering the column's immutable annotation and causing a new error.
     db_session.add(
         models.NotificationPreferences(
-            notification_type=nt.TestNewUpdateNotification.pref_type,
-            user_id=user.id,
+            notification_type=nt.TestNewUpdateNotification.pref_type, user=user
         )
     )
     with pytest.raises(IntegrityError):

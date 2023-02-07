@@ -120,13 +120,13 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     #: Start time of membership, ordinarily a mirror of created_at except
     #: for records created when the member table was added to the database
-    granted_at: Mapped[datetime_type] = immutable(
-        with_roles(
+    granted_at: Mapped[datetime_type] = with_roles(
+        immutable(
             sa.Column(
                 sa.TIMESTAMP(timezone=True), nullable=False, default=sa.func.utcnow()
-            ),
-            read={'subject', 'editor'},
-        )
+            )
+        ),
+        read={'subject', 'editor'},
     )
     #: End time of membership, ordinarily a mirror of updated_at
     revoked_at: Mapped[Optional[datetime_type]] = with_roles(
@@ -134,16 +134,16 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         read={'subject', 'editor'},
     )
     #: Record type
-    record_type: Mapped[int] = immutable(
-        with_roles(
+    record_type: Mapped[int] = with_roles(
+        immutable(
             sa.Column(
                 sa.Integer,
                 StateManager.check_constraint('record_type', MEMBERSHIP_RECORD_TYPE),
                 default=MEMBERSHIP_RECORD_TYPE.DIRECT_ADD,
                 nullable=False,
-            ),
-            read={'subject', 'editor'},
-        )
+            )
+        ),
+        read={'subject', 'editor'},
     )
 
     @cached_property
@@ -389,7 +389,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def user(cls) -> Mapped[User]:
         """User who is the subject of this membership record."""
-        return immutable(sa.orm.relationship(User, foreign_keys=[cls.user_id]))
+        return sa.orm.relationship(User, foreign_keys=[cls.user_id])
 
     @declared_attr
     @classmethod
@@ -511,7 +511,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
     @classmethod
     def profile(cls) -> Mapped[Profile]:
         """Account that is the subject of this membership record."""
-        return immutable(sa.orm.relationship(Profile, foreign_keys=[cls.profile_id]))
+        return sa.orm.relationship(Profile, foreign_keys=[cls.profile_id])
 
     @declared_attr
     @classmethod

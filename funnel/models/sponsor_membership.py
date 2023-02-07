@@ -86,21 +86,17 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
     revoke_on_subject_delete = False
 
-    project_id: Mapped[int] = immutable(
-        sa.Column(
-            sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
-        )
+    project_id: Mapped[int] = sa.Column(
+        sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
-    project: Mapped[Project] = immutable(
-        sa.orm.relationship(
-            Project,
-            backref=sa.orm.backref(
-                'all_sponsor_memberships',
-                lazy='dynamic',
-                cascade='all',
-                passive_deletes=True,
-            ),
-        )
+    project: Mapped[Project] = sa.orm.relationship(
+        Project,
+        backref=sa.orm.backref(
+            'all_sponsor_memberships',
+            lazy='dynamic',
+            cascade='all',
+            passive_deletes=True,
+        ),
     )
     parent_id: Mapped[int] = sa.orm.synonym('project_id')
     parent_id_column = 'project_id'
@@ -219,21 +215,17 @@ class ProposalSponsorMembership(  # type: ignore[misc]
 
     revoke_on_subject_delete = False
 
-    proposal_id: Mapped[int] = immutable(
-        sa.Column(
-            sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
-        )
+    proposal_id: Mapped[int] = sa.Column(
+        sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
-    proposal: Mapped[Proposal] = immutable(
-        sa.orm.relationship(
-            Proposal,
-            backref=sa.orm.backref(
-                'all_sponsor_memberships',
-                lazy='dynamic',
-                cascade='all',
-                passive_deletes=True,
-            ),
-        )
+    proposal: Mapped[Proposal] = sa.orm.relationship(
+        Proposal,
+        backref=sa.orm.backref(
+            'all_sponsor_memberships',
+            lazy='dynamic',
+            cascade='all',
+            passive_deletes=True,
+        ),
     )
     parent_id: Mapped[int] = sa.orm.synonym('proposal_id')
     parent_id_column = 'proposal_id'

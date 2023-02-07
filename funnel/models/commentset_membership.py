@@ -7,7 +7,7 @@ from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy, Query, immutable, with_roles
+from coaster.sqlalchemy import DynamicAssociationProxy, Query, with_roles
 
 from . import Mapped, db, sa
 from .comment import Comment, Commentset
@@ -45,23 +45,19 @@ class CommentsetMembership(
         }
     }
 
-    commentset_id: Mapped[int] = immutable(
-        sa.Column(
-            sa.Integer,
-            sa.ForeignKey('commentset.id', ondelete='CASCADE'),
-            nullable=False,
-        )
+    commentset_id: Mapped[int] = sa.Column(
+        sa.Integer,
+        sa.ForeignKey('commentset.id', ondelete='CASCADE'),
+        nullable=False,
     )
-    commentset: Mapped[Commentset] = immutable(
-        sa.orm.relationship(
-            Commentset,
-            backref=sa.orm.backref(
-                'subscriber_memberships',
-                lazy='dynamic',
-                cascade='all',
-                passive_deletes=True,
-            ),
-        )
+    commentset: Mapped[Commentset] = sa.orm.relationship(
+        Commentset,
+        backref=sa.orm.backref(
+            'subscriber_memberships',
+            lazy='dynamic',
+            cascade='all',
+            passive_deletes=True,
+        ),
     )
 
     parent_id: int = sa.orm.synonym('commentset_id')
