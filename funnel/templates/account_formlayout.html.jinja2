@@ -77,20 +77,6 @@
         passwordCheckUrl: {{ url_for('password_policy_check')|tojson }},
       }
       window.Hasgeek.Accountform(config);
-
-      // TODO: Add if condition checking if the page has a recaptcha form field
-      window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
-        document.getElementById("{{ ref_id }}").submit();
-      };
-      $('#{{ ref_id }}').submit(function (event) {
-        event.preventDefault();
-        if (typeof grecaptcha !== "undefined" && grecaptcha.getResponse() === '') {
-          grecaptcha.execute();
-        } else {
-          document.getElementById("{{ ref_id }}").submit();
-        }
-      })
-
     });
   </script>
   {{ ajaxform(ref_id=ref_id, request=request, force=ajax) }}
