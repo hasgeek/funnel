@@ -9,7 +9,6 @@ Create Date: 2023-01-20 01:16:50.246175
 from typing import Optional, Tuple, Union
 
 from alembic import op
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '83b6643891ec'
@@ -35,12 +34,12 @@ def upgrade_() -> None:
     op.create_check_constraint(
         'phone_number_blake2b160_check',
         'phone_number',
-        sa.func.length(sa.sql.column('blake2b160')) == 20,
+        'LENGTH(blake2b160) = 20',
     )
     op.create_check_constraint(
         'email_address_blake2b160_check',
         'email_address',
-        sa.func.length(sa.sql.column('blake2b160')) == 20,
+        'LENGTH(blake2b160) = 20',
     )
 
 

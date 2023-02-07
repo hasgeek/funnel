@@ -469,13 +469,16 @@ def resource_id(authtoken: AuthToken, args: dict, files=None) -> ReturnResource:
     """Return user's basic identity."""
     if 'all' in args and getbool(args['all']):
         return get_userinfo(
-            authtoken.user,
+            authtoken.effective_user,
             authtoken.auth_client,
             scope=authtoken.effective_scope,
             get_permissions=True,
         )
     return get_userinfo(
-        authtoken.user, authtoken.auth_client, scope=['id'], get_permissions=False
+        authtoken.effective_user,
+        authtoken.auth_client,
+        scope=['id'],
+        get_permissions=False,
     )
 
 
@@ -485,7 +488,7 @@ def session_verify(authtoken: AuthToken, args: dict, files=None) -> ReturnResour
     """Verify a UserSession."""
     sessionid = abort_null(args['sessionid'])
     user_session = UserSession.authenticate(buid=sessionid, silent=True)
-    if user_session is not None and user_session.user == authtoken.user:
+    if user_session is not None and user_session.user == authtoken.effective_user:
         user_session.views.mark_accessed(auth_client=authtoken.auth_client)
         db.session.commit()
         return {
@@ -505,10 +508,14 @@ def resource_email(authtoken: AuthToken, args: dict, files=None) -> ReturnResour
     """Return user's email addresses."""
     if 'all' in args and getbool(args['all']):
         return {
-            'email': str(authtoken.user.email),
-            'all': [str(email) for email in authtoken.user.emails if not email.private],
+            'email': str(authtoken.effective_user.email),
+            'all': [
+                str(email)
+                for email in authtoken.effective_user.emails
+                if not email.private
+            ],
         }
-    return {'email': str(authtoken.user.email)}
+    return {'email': str(authtoken.effective_user.email)}
 
 
 @app.route('/api/1/phone')
@@ -517,10 +524,10 @@ def resource_phone(authtoken: AuthToken, args: dict, files=None) -> ReturnResour
     """Return user's phone numbers."""
     if 'all' in args and getbool(args['all']):
         return {
-            'phone': str(authtoken.user.phone),
-            'all': [str(phone) for phone in authtoken.user.phones],
+            'phone': str(authtoken.effective_user.phone),
+            'all': [str(phone) for phone in authtoken.effective_user.phones],
         }
-    return {'phone': str(authtoken.user.phone)}
+    return {'phone': str(authtoken.effective_user.phone)}
 
 
 @app.route('/api/1/user/externalids')
@@ -535,7 +542,7 @@ def resource_login_providers(
     """Return user's login providers' data."""
     service: Optional[str] = abort_null(args.get('service'))
     response = {}
-    for extid in authtoken.user.externalids:
+    for extid in authtoken.effective_user.externalids:
         if service is None or extid.service == service:
             response[cast(str, extid.service)] = {
                 'userid': str(extid.userid),
@@ -556,7 +563,7 @@ def resource_organizations(
 ) -> ReturnResource:
     """Return user's organizations and teams that they are a member of."""
     return get_userinfo(
-        authtoken.user,
+        authtoken.effective_user,
         authtoken.auth_client,
         scope=['organizations'],
         get_permissions=False,
@@ -568,5 +575,8 @@ def resource_organizations(
 def resource_teams(authtoken: AuthToken, args: dict, files=None) -> ReturnResource:
     """Return user's organizations' teams."""
     return get_userinfo(
-        authtoken.user, authtoken.auth_client, scope=['teams'], get_permissions=False
+        authtoken.effective_user,
+        authtoken.auth_client,
+        scope=['teams'],
+        get_permissions=False,
     )

@@ -18,7 +18,6 @@ from funnel import models
 
 @pytest.fixture()
 def block_of_sessions(db_session, new_project) -> SimpleNamespace:
-
     # DocType HTML5's schedule, but using UTC to simplify testing
     # https://hasgeek.com/doctypehtml5/bangalore/schedule
     session1 = models.Session(

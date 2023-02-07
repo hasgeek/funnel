@@ -28,7 +28,7 @@ def upgrade():
     op.add_column(
         'venue_room', sa.Column('uuid', UUIDType(binary=False), nullable=True)
     )
-    items = conn.execute(sa.select([venue_room.c.id]))
+    items = conn.execute(sa.select(venue_room.c.id))
     for item in items:
         conn.execute(
             sa.update(venue_room).where(venue_room.c.id == item.id).values(uuid=uuid4())

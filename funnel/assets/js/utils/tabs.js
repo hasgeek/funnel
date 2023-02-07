@@ -25,6 +25,7 @@ const MUITabs = {
 
         // http://web-accessibility.carnegiemuseums.org/code/tabs/
         let index = 0;
+
         const tabs = tabsBar.find('[role=tab]');
         const icons = MUITabs.createIconset();
 
@@ -45,6 +46,7 @@ const MUITabs = {
         rObserver.observe(tabsBar[0]);
 
         // Activate tab pointed by current index.
+
         function activateCurrent() {
           window.mui.tabs.activate($(tabs.get(index)).data('mui-controls'));
         }

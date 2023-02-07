@@ -50,12 +50,12 @@ class MarkdownModel:
             iter_total = 1
         else:
             load_columns = (
-                ['id']
-                + [f'{field}_text'.lstrip('_') for field in fields]
-                + [f'{field}_html'.lstrip('_') for field in fields]
+                [self.model.id]
+                + [getattr(self.model, f'{field}_text'.lstrip('_')) for field in fields]
+                + [getattr(self.model, f'{field}_html'.lstrip('_')) for field in fields]
             )
             iter_list = (
-                self.model.query.order_by('id')
+                self.model.query.order_by(self.model.id)
                 .options(sa.orm.load_only(*load_columns))
                 .yield_per(10)
             )

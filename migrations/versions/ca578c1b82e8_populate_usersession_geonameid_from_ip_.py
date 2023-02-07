@@ -74,7 +74,7 @@ def upgrade():
         if geoip_city is not None or geoip_asn is not None:
             conn = op.get_bind()
             count = conn.scalar(
-                sa.select([sa.func.count('*')])
+                sa.select(sa.func.count('*'))
                 .select_from(user_session)
                 .where(
                     sa.or_(
@@ -86,7 +86,7 @@ def upgrade():
             progress = get_progressbar("User sessions", count)
             progress.start()
             sessions = conn.execute(
-                sa.select([user_session.c.id, user_session.c.ipaddr]).where(
+                sa.select(user_session.c.id, user_session.c.ipaddr).where(
                     sa.or_(
                         user_session.c.geonameid_city.is_(None),
                         user_session.c.geoip_asn.is_(None),
