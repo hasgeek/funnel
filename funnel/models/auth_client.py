@@ -441,7 +441,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     # User id is null for client-only tokens and public clients as the user is
     # identified via user_session.user there
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
-    _user: Mapped[Optional[User]] = sa.orm.relationship(
+    user: Mapped[Optional[User]] = sa.orm.relationship(
         User,
         backref=sa.orm.backref('authtokens', lazy='dynamic', cascade='all'),
     )
@@ -497,20 +497,16 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     }
 
     @property
-    def user(self) -> User:
+    def effective_user(self) -> User:
         """Return subject user of this auth token."""
         if self.user_session:
             return self.user_session.user
-        return cast(User, self._user)
-
-    @user.setter
-    def user(self, value: User):
-        self._user = value
+        return self.user
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.token = make_buid()
-        if self._user:
+        if self.effective_user:
             self.refresh_token = make_buid()
         self.secret = newsecret()
 
@@ -568,9 +564,9 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         cls, old_user: User, new_user: User
     ) -> OptionalMigratedTables:
         """Migrate one user account to another when merging user accounts."""
-        oldtokens = cls.query.filter(cls._user == old_user).all()
+        oldtokens = cls.query.filter(cls.user == old_user).all()
         newtokens: Dict[int, List[AuthToken]] = {}  # AuthClient: token mapping
-        for token in cls.query.filter(cls._user == new_user).all():
+        for token in cls.query.filter(cls.user == new_user).all():
             newtokens.setdefault(token.auth_client_id, []).append(token)
 
         for token in oldtokens:
@@ -620,7 +616,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         require_one_of(user=user, user_session=user_session)
         if user is not None:
             return cls.query.filter(
-                cls.auth_client == auth_client, cls._user == user
+                cls.auth_client == auth_client, cls.user == user
             ).one_or_none()
         return cls.query.filter(
             cls.auth_client == auth_client, cls.user_session == user_session
@@ -635,7 +631,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         if isinstance(users, QueryBaseClass):
             count = users.count()
             if count == 1:
-                return query.filter(AuthToken._user == users.first()).all()
+                return query.filter(AuthToken.user == users.first()).all()
             if count > 1:
                 return query.filter(
                     AuthToken.user_id.in_(users.options(load_only(User.id)))
@@ -646,7 +642,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
                 # Cast users into a list/tuple before accessing [0], as the source
                 # may not be an actual list with indexed access. For example,
                 # Organization.owner_users is a DynamicAssociationProxy.
-                return query.filter(AuthToken._user == tuple(users)[0]).all()
+                return query.filter(AuthToken.user == tuple(users)[0]).all()
             if count > 1:
                 return query.filter(AuthToken.user_id.in_([u.id for u in users])).all()
 
@@ -655,7 +651,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     @classmethod
     def all_for(cls, user: User) -> QueryBaseClass:
         """Get all AuthTokens for a specified user (direct only)."""
-        return cls.query.filter(cls._user == user)
+        return cls.query.filter(cls.user == user)
 
 
 # This model's name is in plural because it defines multiple permissions within each
