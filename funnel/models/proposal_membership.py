@@ -81,30 +81,27 @@ class ProposalMembership(  # type: ignore[misc]
 
     revoke_on_subject_delete = False
 
-    proposal_id: Mapped[int] = immutable(
-        with_roles(
-            sa.Column(
-                sa.Integer,
-                sa.ForeignKey('proposal.id', ondelete='CASCADE'),
-                nullable=False,
-            ),
-            read={'subject', 'editor'},
+    proposal_id: Mapped[int] = with_roles(
+        sa.Column(
+            sa.Integer,
+            sa.ForeignKey('proposal.id', ondelete='CASCADE'),
+            nullable=False,
         ),
+        read={'subject', 'editor'},
     )
-    proposal: Mapped[Proposal] = immutable(
-        with_roles(
-            sa.orm.relationship(
-                Proposal,
-                backref=sa.orm.backref(
-                    'all_memberships',
-                    lazy='dynamic',
-                    cascade='all',
-                    passive_deletes=True,
-                ),
+
+    proposal: Mapped[Proposal] = with_roles(
+        sa.orm.relationship(
+            Proposal,
+            backref=sa.orm.backref(
+                'all_memberships',
+                lazy='dynamic',
+                cascade='all',
+                passive_deletes=True,
             ),
-            read={'subject', 'editor'},
-            grants_via={None: {'editor'}},
         ),
+        read={'subject', 'editor'},
+        grants_via={None: {'editor'}},
     )
     parent_id: Mapped[int] = sa.orm.synonym('proposal_id')
     parent_id_column = 'proposal_id'

@@ -7,7 +7,7 @@ from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
+from coaster.sqlalchemy import DynamicAssociationProxy, with_roles
 
 from . import Mapped, db, declared_attr, sa
 from .helpers import reopen
@@ -103,24 +103,20 @@ class ProjectCrewMembership(
         },
     }
 
-    project_id: Mapped[int] = immutable(
-        sa.Column(
-            sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
-        )
+    project_id: Mapped[int] = sa.Column(
+        sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
-    project: Mapped[Project] = immutable(
-        with_roles(
-            sa.orm.relationship(
-                Project,
-                backref=sa.orm.backref(
-                    'crew_memberships',
-                    lazy='dynamic',
-                    cascade='all',
-                    passive_deletes=True,
-                ),
+    project: Mapped[Project] = with_roles(
+        sa.orm.relationship(
+            Project,
+            backref=sa.orm.backref(
+                'crew_memberships',
+                lazy='dynamic',
+                cascade='all',
+                passive_deletes=True,
             ),
-            grants_via={None: project_membership_role_map},
-        )
+        ),
+        grants_via={None: project_membership_role_map},
     )
     parent_id: Mapped[int] = sa.orm.synonym('project_id')
     parent_id_column = 'project_id'

@@ -83,23 +83,19 @@ class OrganizationMembership(
     }
 
     #: Organization that this membership is being granted on
-    organization_id = immutable(
-        sa.Column(
-            sa.Integer,
-            sa.ForeignKey('organization.id', ondelete='CASCADE'),
-            nullable=False,
-        )
+    organization_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey('organization.id', ondelete='CASCADE'),
+        nullable=False,
     )
-    organization = immutable(
-        with_roles(
-            sa.orm.relationship(
-                Organization,
-                backref=sa.orm.backref(
-                    'memberships', lazy='dynamic', cascade='all', passive_deletes=True
-                ),
+    organization = with_roles(
+        sa.orm.relationship(
+            Organization,
+            backref=sa.orm.backref(
+                'memberships', lazy='dynamic', cascade='all', passive_deletes=True
             ),
-            grants_via={None: {'admin': 'profile_admin', 'owner': 'profile_owner'}},
-        )
+        ),
+        grants_via={None: {'admin': 'profile_admin', 'owner': 'profile_owner'}},
     )
     parent_id: Mapped[int] = sa.orm.synonym('organization_id')
     parent_id_column = 'organization_id'

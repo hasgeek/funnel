@@ -308,15 +308,13 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     type_: Mapped[str] = immutable(sa.Column('type', sa.Unicode, nullable=False))
 
     #: Id of user that triggered this notification
-    user_id: Mapped[Optional[int]] = immutable(
-        sa.Column(
-            sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
-        )
+    user_id: Mapped[Optional[int]] = sa.Column(
+        sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
     )
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
     #: notifications of their own activity
-    user: Mapped[Optional[User]] = immutable(sa.orm.relationship(User))
+    user: Mapped[Optional[User]] = sa.orm.relationship(User)
 
     #: UUID of document that the notification refers to
     document_uuid: Mapped[UUID] = immutable(
@@ -711,7 +709,7 @@ class UserNotification(
 
     #: User being notified (backref defined below, outside the model)
     user: Mapped[User] = with_roles(
-        immutable(sa.orm.relationship(User)), read={'owner'}, grants={'owner'}
+        sa.orm.relationship(User), read={'owner'}, grants={'owner'}
     )
 
     #: Random eventid, shared with the Notification instance
@@ -720,16 +718,13 @@ class UserNotification(
         read={'owner'},
     )
 
-    #: Id of notification that this user received
-    notification_id: Mapped[UUID] = immutable(
-        sa.Column(UUIDType(binary=False), nullable=False)
-    )  # fkey in __table_args__ below
+    #: Id of notification that this user received (fkey in __table_args__ below)
+    notification_id: Mapped[UUID] = sa.Column(UUIDType(binary=False), nullable=False)
+
     #: Notification that this user received
     notification = with_roles(
-        immutable(
-            sa.orm.relationship(
-                Notification, backref=sa.orm.backref('recipients', lazy='dynamic')
-            )
+        sa.orm.relationship(
+            Notification, backref=sa.orm.backref('recipients', lazy='dynamic')
         ),
         read={'owner'},
     )
@@ -1137,17 +1132,15 @@ class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined
     __allow_unmapped__ = True
 
     #: Id of user whose preferences are represented here
-    user_id = immutable(
-        sa.Column(
-            sa.Integer,
-            sa.ForeignKey('user.id', ondelete='CASCADE'),
-            nullable=False,
-            index=True,
-        )
+    user_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey('user.id', ondelete='CASCADE'),
+        nullable=False,
+        index=True,
     )
     #: User whose preferences are represented here
     user = with_roles(
-        immutable(sa.orm.relationship(User, back_populates='notification_preferences')),
+        sa.orm.relationship(User, back_populates='notification_preferences'),
         read={'owner'},
         grants={'owner'},
     )
