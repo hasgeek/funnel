@@ -6,7 +6,7 @@
       text-transform: capitalize;
       height: auto;
       line-height: 21px;
-      padding: 12px 0;
+      padding: 6px;
       &:hover {
         color: $mui-tab-border-color-hover;
         border-bottom: 2px solid $mui-tab-font-color-hover;
@@ -20,18 +20,15 @@
     }
   }
 
-  > li:not(:last-child) {
-    margin-right: 12px;
+  > li {
+    transition: transform 150ms ease;
   }
 
   &::-webkit-scrollbar {
-    -ms-overflow-style: none;  /* Internet Explorer 10+ */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+    scrollbar-width: none; /* Firefox */
     position: relative;
-  }
-
-  &::-webkit-scrollbar {
-    display: none;  /* Safari and Chrome */
+    display: none; /* Safari and Chrome */
   }
 }
 
@@ -225,45 +222,53 @@
  OVERFLOW ARROWS STYLING
 */
 
-.tabs__icon-wrapper {
+.mui-tabs__bar--wrapper {
   display: flex;
-  position: relative;
-  margin: 0 -10px;
+  margin: 0 -16px;
   align-items: center;
 
-  > .overflow-icon {
-    position: relative;
-    display: none;
-    width: 14px;
-    height: 14px;
-    align-items: center;
-    cursor: pointer;
-    color: #4d5763;
-
-    &:hover {
-      color: #1f2d3d;
-    }
-
-    &.js-tab-scroll {
-      display: flex;
-    }
-
-    &.js-tab-touch {
+  > .mui-tabs__bar {
+    display: inline-block;
+    width: calc(100% - 40px);
+  }
+  > .tabs-left-icons,
+  .tabs-right-icons {
+    width: 20px;
+    height: 16px;
+    display: inline-flex;
+    vertical-align: super;
+    > [class*='tabs-nav-icon-'] {
+      // position: absolute;
       display: none;
-    }
-
-    &.hidden-overflowIcon {
-      visibility: hidden;
-    }
-
-    @media (max-width: 768px) {
-      &.js-tab-scroll {
-        display: none;
+      height: 100%;
+      width: auto;
+      cursor: pointer;
+      color: #4d5763;
+      &:hover {
+        color: #1f2d3d;
       }
-      &.js-tab-touch {
-        display: flex;
+    }
+  }
+
+  &.has-overflow {
+    > .tabs-left-icons,
+    .tabs-right-icons {
+      > [class*='tabs-nav-icon-'] {
+        &.js-tabs-scroll {
+          display: inline;
+        }
+        &.js-tabs-touch {
+          display: none;
+        }
+        @media (any-pointer: coarse) {
+          &.js-tabs-scroll {
+            display: none;
+          }
+          &.js-tabs-touch {
+            display: inline;
+          }
+        }
       }
     }
   }
 }
-

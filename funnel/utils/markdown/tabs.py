@@ -94,7 +94,7 @@ class TabNode:
     _opening: ClassVar[str] = (
         '<div role="tabpanel"{class_attr} id="{tab_id}-panel"'
         + ' aria-labelledby="{tab_id}" tabindex="0">'
-        + '<div class="grid__col-sm-12 tabpanel__body__padding">'
+        + '<div class="grid__col-sm-12 top-padding">'
     )
     _closing: ClassVar[str] = '</div></div>'
     _item_html: ClassVar[str] = (
