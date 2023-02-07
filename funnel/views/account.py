@@ -493,7 +493,7 @@ class AccountView(ClassView):
             )
             if useremail is None:
                 useremail = UserEmailClaim(
-                    user=current_auth.user, email=form.email.data, type=form.type.data
+                    user=current_auth.user, email=form.email.data
                 )
                 db.session.add(useremail)
             send_email_verify_link(useremail)

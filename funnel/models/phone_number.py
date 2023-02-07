@@ -282,12 +282,14 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     # anywhere in the chain, from sender-side failure to carrier block to an unreachable
     # device, we record distinct timestamps for last sent, delivery and failure.
 
-    #: Allow messaging this number over SMS
-    allow_sms = sa.Column(sa.Boolean, nullable=False, default=True)
-    #: Allow messaging this number over WA
-    allow_wa = sa.Column(sa.Boolean, nullable=False, default=False)
-    #: Allow messaging this number over SM
-    allow_sm = sa.Column(sa.Boolean, nullable=False, default=False)
+    #: Cached state for whether this phone number is known to have SMS support
+    has_sms = sa.Column(sa.Boolean, nullable=True)
+    #: Timestamp at which this number was determined to be valid/invalid for SMS
+    has_sms_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
+    #: Cached state for whether this phone number is known to be on WhatsApp or not
+    has_wa = sa.Column(sa.Boolean, nullable=True)
+    #: Timestamp at which this number was tested for availability on WhatsApp
+    has_wa_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Timestamp of last SMS sent
     msg_sms_sent_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
@@ -302,15 +304,6 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     msg_wa_delivered_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
     #: Timestamp of last WA message delivery failure
     msg_wa_failed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
-
-    # SM columns are for potential future use
-
-    #: Timestamp of last SM message sent
-    msg_sm_sent_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
-    #: Timestamp of last SM message delivered
-    msg_sm_delivered_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
-    #: Timestamp of last SM message delivery failure
-    msg_sm_failed_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     #: Timestamp of last known recipient activity resulting from sent messages
     active_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
