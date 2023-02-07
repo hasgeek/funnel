@@ -141,17 +141,15 @@ def upgrade():
         ondelete='SET NULL',
     )
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(participant))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(participant))
     progress = get_progressbar("Participants", count)
     progress.start()
     items = conn.execute(
         sa.select(
-            [
-                participant.c.id,
-                participant.c.project_id,
-                participant.c.email,
-                participant.c.created_at,
-            ]
+            participant.c.id,
+            participant.c.project_id,
+            participant.c.email,
+            participant.c.created_at,
         ).order_by(participant.c.id)
     )
     dupe_counter = {}  # (project_id, blake2b160): counter
@@ -172,7 +170,7 @@ def upgrade():
             blake2b160 = email_blake2b160_hash(email)
 
         existing = conn.execute(
-            sa.select([email_address.c.id, email_address.c.created_at])
+            sa.select(email_address.c.id, email_address.c.created_at)
             .where(email_address.c.blake2b160 == blake2b160)
             .limit(1)
         ).fetchone()
@@ -186,7 +184,7 @@ def upgrade():
                 )
             # Get linked user via user_email if present
             user_id = conn.scalar(
-                sa.select([user.c.id]).where(
+                sa.select(user.c.id).where(
                     sa.and_(
                         email_address.c.id == ea_id,
                         user_email.c.email_address_id == email_address.c.id,
@@ -248,11 +246,11 @@ def downgrade():
         'participant',
         sa.Column('email', sa.VARCHAR(length=254), autoincrement=False, nullable=True),
     )
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(participant))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(participant))
     progress = get_progressbar("Participants", count)
     progress.start()
     items = conn.execute(
-        sa.select([participant.c.id, email_address.c.email]).where(
+        sa.select(participant.c.id, email_address.c.email).where(
             participant.c.email_address_id == email_address.c.id
         )
     )

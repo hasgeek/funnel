@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from typing import Set
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import db, sa
+from . import Mapped, db, sa
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .user import Organization, User
@@ -29,6 +30,7 @@ class OrganizationMembership(
     """
 
     __tablename__ = 'organization_membership'
+    __allow_unmapped__ = True
 
     # Legacy data has no granted_by
     __null_granted_by__ = True
@@ -81,26 +83,23 @@ class OrganizationMembership(
     }
 
     #: Organization that this membership is being granted on
-    organization_id: sa.Column[int] = immutable(
-        sa.Column(
-            sa.Integer,
-            sa.ForeignKey('organization.id', ondelete='CASCADE'),
-            nullable=False,
-        )
+    organization_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey('organization.id', ondelete='CASCADE'),
+        nullable=False,
     )
-    organization: sa.orm.relationship[Organization] = immutable(
-        with_roles(
-            sa.orm.relationship(
-                Organization,
-                backref=sa.orm.backref(
-                    'memberships', lazy='dynamic', cascade='all', passive_deletes=True
-                ),
+    organization = with_roles(
+        sa.orm.relationship(
+            Organization,
+            backref=sa.orm.backref(
+                'memberships', lazy='dynamic', cascade='all', passive_deletes=True
             ),
-            grants_via={None: {'admin': 'profile_admin', 'owner': 'profile_owner'}},
-        )
+        ),
+        grants_via={None: {'admin': 'profile_admin', 'owner': 'profile_owner'}},
     )
-    parent = sa.orm.synonym('organization')
-    parent_id = sa.orm.synonym('organization_id')
+    parent_id: Mapped[int] = sa.orm.synonym('organization_id')
+    parent_id_column = 'organization_id'
+    parent: Mapped[Organization] = sa.orm.synonym('organization')
 
     # Organization roles:
     is_owner = immutable(sa.Column(sa.Boolean, nullable=False, default=False))

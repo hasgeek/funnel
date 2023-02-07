@@ -52,19 +52,24 @@
 
 {% macro project_header(project) %}
   {% if project.livestream_urls %}
-    <div role="tabpanel" class="livestream-box project-banner__left" id="livestream">
-      {% if project.livestream_urls|length > 2 %}
+    <div class="livestream-box project-banner__left" id="livestream">
+      {% if project.livestream_urls|length >= 2 %}
       <ul class="mui-tabs__bar project-banner__box" role="tablist">
         {%- for stream in project.livestream_urls %}
-          <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
-            <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ loop.index }}">{% trans %}Livestream{% endtrans %}{%- if not loop.first %} {{ loop.index }}{% endif %}</a>
+          <li role="presentation"{%- if loop.first %} class="mui--is-active"{% endif %}>
+            <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ loop.index }}"
+              aria-controls="pane-justified-{{ loop.index }}" id="tab-{{ loop.index }}"
+              {%- if loop.first %}tabindex="0" aria-selected="true"{% else %}tabindex="-1" aria-selected="false"{% endif %}
+            >{% trans %}Livestream{% endtrans %}{%- if not loop.first %} {{ loop.index }}{% endif %}</a>
           </li>
         {%- endfor %}
       </ul>
       {% endif %}
 
       {%- for stream in project.livestream_urls %}
-        <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ loop.index }}">
+        <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}"
+          id="pane-justified-{{ loop.index }}" aria-labelledby="tab-{{ loop.index }}" tabindex="0"
+        >
           <div class="project-banner__box">
             {{ livestream_edit_btn(project) }}
             {{ banner_edit_btn(project) }}
@@ -127,7 +132,7 @@
         {%- endif %}
       <div class="register-block__btnwrapper {% if project.features.rsvp_registered() %} register-block__btnwrapper--width {%- endif %}">
         {%- if current_auth.is_anonymous %}
-          <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} zero-top-margin zero-bottom-margin register-block__btn js-login-register-btn" href="{{ url_for('login', next=request.path) }}%23register-modal" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
+          <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} zero-top-margin zero-bottom-margin register-block__btn js-login-register-btn" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
         {% elif project.features.rsvp_unregistered() -%}
           <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} zero-top-margin zero-bottom-margin register-block__btn js-register-btn {% if project.features.rsvp_registered() or project.view_for('rsvp_list').is_available() %}register-block__btn--small{%- endif %}" href="#register-modal" role="button" aria-haspopup="true">{{ project.views.register_button_text() }}</a>
           <div class="modal" id="register-modal" role="dialog" aria-labelledby="confirm-rsvp" aria-modal="true" tabindex="-1">

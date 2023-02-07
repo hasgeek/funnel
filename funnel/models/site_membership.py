@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Set
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 
@@ -21,6 +22,7 @@ class SiteMembership(
     """Membership roles for users who are site administrators."""
 
     __tablename__ = 'site_membership'
+    __allow_unmapped__ = True
 
     # List of is_role columns in this model
     __data_columns__ = {'is_comment_moderator', 'is_user_moderator', 'is_site_editor'}
@@ -39,6 +41,7 @@ class SiteMembership(
 
     #: SiteMembership doesn't have a container limiting its scope
     parent_id = None
+    parent_id_column = None
     parent = None
 
     # Site admin roles (at least one must be True):
@@ -54,8 +57,9 @@ class SiteMembership(
     #: Site editors can feature or reject projects
     is_site_editor: Mapped[bool] = sa.Column(sa.Boolean, nullable=False, default=False)
 
-    @declared_attr
-    def __table_args__(cls) -> Mapped[tuple]:  # pylint: disable=no-self-argument
+    @declared_attr.directive
+    @classmethod
+    def __table_args__(cls) -> tuple:
         """Table arguments."""
         args = list(super().__table_args__)
         args.append(
@@ -72,6 +76,7 @@ class SiteMembership(
 
     def __repr__(self) -> str:
         """Return representation of membership."""
+        # pylint: disable=using-constant-test
         return (
             f'<{self.__class__.__name__} {self.subject!r} '
             + ('active' if self.is_active else 'revoked')

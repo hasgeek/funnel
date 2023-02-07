@@ -402,7 +402,8 @@ class ProjectCrewMembershipMixin(ProfileCheckMixin):
 
     def loader(self, profile, project, membership) -> ProjectCrewMembership:
         return (
-            ProjectCrewMembership.query.join(Project, Profile)
+            ProjectCrewMembership.query.join(Project)
+            .join(Profile)
             .filter(
                 sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,

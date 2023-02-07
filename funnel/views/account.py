@@ -820,6 +820,7 @@ AccountView.init_app(app)
 
 # --- Compatibility routes -------------------------------------------------------------
 
+
 # Retained for future hasjob integration
 # @hasjobapp.route('/account/sudo', endpoint='account_sudo')
 def otherapp_account_sudo() -> ReturnResponse:

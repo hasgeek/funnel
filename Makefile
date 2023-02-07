@@ -25,16 +25,16 @@ babeljs:
 	ls $(baseframe_dir) | grep -E '[[:lower:]]{2}_[[:upper:]]{2}' | xargs -I % sh -c './node_modules/.bin/po2json --format=jed --pretty $(baseframe_dir)/%/LC_MESSAGES/baseframe.po $(target_dir)/%/baseframe.json'
 	./node_modules/.bin/prettier --write $(target_dir)/**/**.json
 
-deps: deps-main deps-dev deps-test
+deps: deps-main deps-test deps-dev
 
 deps-main:
-	pip-compile --upgrade requirements.in
-
-deps-dev:
-	pip-compile --upgrade requirements_dev.in
+	pip-compile --upgrade --output-file=requirements.txt --resolver=backtracking requirements.in
 
 deps-test:
-	pip-compile --upgrade requirements_test.in
+	pip-compile --upgrade --output-file=requirements_test.txt --resolver=backtracking requirements.in requirements_test.in
+
+deps-dev:
+	pip-compile --upgrade --output-file=requirements_dev.txt --resolver=backtracking requirements.in requirements_test.in requirements_dev.in
 
 tests-data: tests-data-markdown
 
