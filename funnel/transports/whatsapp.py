@@ -1,23 +1,31 @@
-"""Support functions for sending an Whatsapp messages."""
+"""Support functions for sending an WhatsApp messages."""
 
 from __future__ import annotations
 
-from typing import Union
+from dataclasses import dataclass
+from typing import Callable, Optional, Union, cast
 
-from models import PhoneNumber, PhoneNumberBlockedError
 import phonenumbers
 import requests
 
 from baseframe import _
 
 from .. import app
+from ..models import PhoneNumber, PhoneNumberBlockedError, sa
 from .exc import (
     TransportConnectionError,
     TransportRecipientError,
     TransportTransactionError,
 )
 
-__all__ = ['send_wa_via_meta', 'send_wa_via_on_premise']
+
+@dataclass
+class WhatsappSender:
+    """An SMS sender by number prefix."""
+
+    requires_config: set
+    func: Callable
+    init: Optional[Callable] = None
 
 
 def get_phone_number(
@@ -31,15 +39,51 @@ def get_phone_number(
         phone_number = PhoneNumber.add(phone)
     except PhoneNumberBlockedError as exc:
         raise TransportRecipientError(_("This phone number has been blocked")) from exc
-    if not phone_number.allow_whatsapp:
-        raise TransportRecipientError(_("Whatsapp is disabled for this phone number"))
+    if not phone_number.allow_wa:
+        raise TransportRecipientError(_("WhatsApp is disabled for this phone number"))
     if not phone_number.number:
         # This should never happen as :meth:`PhoneNumber.add` will restore the number
         raise TransportRecipientError(_("This phone number is not available"))
     return phone_number
 
 
-def send_wa_via_meta(phone: str, message, callback: bool = True) -> str:
+def send_via_meta(phone: str, message, callback: bool = True) -> str:
+    """
+    Send the WhatsApp message using Meta Cloud API.
+
+    :param phone: Phone number
+    :param message: Message to deliver to phone number
+    :param callback: Whether to request a status callback
+    :return: Transaction id
+    """
+    phone_number = get_phone_number(phone)
+    sid = app.config['WHATSAPP_PHONE_ID']
+    token = app.config['WHATSAPP_TOKEN']
+    payload = {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        'to': phone_number.number,
+        "type": "template",
+        'body': str(message),
+    }
+    try:
+        r = requests.post(
+            f'https://graph.facebook.com/v15.0/{sid}/messages',
+            timeout=30,
+            auth=(token),
+            data=payload,
+        )
+        if r.status_code == 200:
+            jsonresponse = r.json()
+            transactionid = jsonresponse['messages'].get('id')
+            phone_number.msg_wa_sent_at = sa.func.utcnow()
+            return transactionid
+        raise TransportTransactionError(_("WhatsApp API error"), r.status_code, r.text)
+    except requests.ConnectionError as exc:
+        raise TransportConnectionError(_("WhatsApp not reachable")) from exc
+
+
+def send_via_hosted(phone: str, message, callback: bool = True) -> str:
     """
     Send the Whatsapp message using Meta Cloud API.
 
@@ -57,7 +101,6 @@ def send_wa_via_meta(phone: str, message, callback: bool = True) -> str:
         'to': phone_number.number,
         "type": "template",
         'body': str(message),
-        'DltEntityId': message.registered_entityid,
     }
     try:
         r = requests.post(
@@ -69,43 +112,50 @@ def send_wa_via_meta(phone: str, message, callback: bool = True) -> str:
         if r.status_code == 200:
             jsonresponse = r.json()
             transactionid = jsonresponse['messages'].get('id')
+            phone_number.msg_wa_sent_at = sa.func.utcnow()
+
             return transactionid
-        raise TransportTransactionError(_("Whatsapp API error"), r.status_code, r.text)
+        raise TransportTransactionError(_("WhatsApp API error"), r.status_code, r.text)
     except requests.ConnectionError as exc:
-        raise TransportConnectionError(_("Whatsapp not reachable")) from exc
+        raise TransportConnectionError(_("WhatsApp not reachable")) from exc
 
 
-def send_wa_via_on_premise(phone: str, message, callback: bool = True) -> str:
+#: Supported senders (ordered by priority)
+sender_registry = [
+    WhatsappSender(
+        {'WHATSAPP_PHONE_ID_HOSTED', 'WHATSAPP_TOKEN_HOSTED'}, send_via_hosted
+    ),
+    WhatsappSender({'WHATSAPP_PHONE_ID_META', 'WHATSAPP_TOKEN_META'}, send_via_meta),
+]
+
+senders = []
+
+
+def init() -> bool:
+    """Process available senders."""
+    for provider in sender_registry:
+        if all(app.config.get(var) for var in provider.requires_config):
+            senders.append(provider.func)
+            if provider.init:
+                provider.init()
+    return bool(senders)
+
+
+def send(
+    phone: Union[str, phonenumbers.PhoneNumber, PhoneNumber],
+    message,
+    callback: bool = True,
+) -> str:
     """
-    Send the Whatsapp message using Meta Cloud API.
+    Send a WhatsApp message to a given phone number and return a transaction id.
 
-    :param phone: Phone number
+    :param phone_number: Phone number
     :param message: Message to deliver to phone number
     :param callback: Whether to request a status callback
     :return: Transaction id
     """
     phone_number = get_phone_number(phone)
-    sid = app.config['WHATSAPP_PHONE_ID']
-    token = app.config['WHATSAPP_TOKEN']
-    payload = {
-        "messaging_product": "whatsapp",
-        "recipient_type": "individual",
-        'to': phone_number.number,
-        "type": "template",
-        'body': str(message),
-        'DltEntityId': message.registered_entityid,
-    }
-    try:
-        r = requests.post(
-            f'https://graph.facebook.com/v15.0/{sid}/messages',
-            timeout=30,
-            auth=(token),
-            data=payload,
-        )
-        if r.status_code == 200:
-            jsonresponse = r.json()
-            transactionid = jsonresponse['messages'].get('id')
-            return transactionid
-        raise TransportTransactionError(_("Whatsapp API error"), r.status_code, r.text)
-    except requests.ConnectionError as exc:
-        raise TransportConnectionError(_("Whatsapp not reachable")) from exc
+    phone = cast(str, phone_number.number)
+    for sender in senders:
+        return sender()
+    raise TransportRecipientError(_("No service provider available for this recipient"))
