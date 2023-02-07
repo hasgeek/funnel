@@ -185,8 +185,8 @@ class TestAuthToken(TestDatabaseFixture):
         auth_token_without_user_session = models.AuthToken(
             auth_client=auth_client, user=oakley, scope='id'
         )
-        assert isinstance(auth_token_without_user_session._user, models.User)
-        assert auth_token_without_user_session._user == oakley
+        assert isinstance(auth_token_without_user_session.user, models.User)
+        assert auth_token_without_user_session.user == oakley
 
     def test_authtoken_algorithm(self) -> None:
         """Test for checking AuthToken's algorithm property."""
