@@ -227,6 +227,14 @@ def image_url_validator():
     )
 
 
+def video_url_list_validator(form, field):
+    for url in field.data:
+        try:
+            parse_video_url(url)
+        except ValueError as exc:
+            raise forms.validators.StopValidation(str(exc))
+
+
 def video_url_validator(form, field):
     """Validate the video URL to be acceptable."""
     try:
