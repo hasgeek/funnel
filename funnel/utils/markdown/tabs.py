@@ -94,9 +94,8 @@ class TabNode:
     _opening: ClassVar[str] = (
         '<div role="tabpanel"{class_attr} id="{tab_id}-panel"'
         + ' aria-labelledby="{tab_id}" tabindex="0">'
-        + '<div class="grid__col-sm-12 top-padding">'
     )
-    _closing: ClassVar[str] = '</div></div>'
+    _closing: ClassVar[str] = '</div>'
     _item_html: ClassVar[str] = (
         '<li role="presentation"{class_attr}>'
         + '<a role="tab" class="mui--text-body2" href="javascript:void(0)"'
@@ -154,7 +153,8 @@ class TabNode:
     @property
     def html_open(self) -> str:
         opening = self._opening.format(
-            tab_id=self.tab_id, class_attr=self._class_attr(['mui-tabs__pane', 'grid'])
+            tab_id=self.tab_id,
+            class_attr=self._class_attr(['mui-tabs__pane', 'top-padding']),
         )
         if self.is_first:
             opening = self.parent.html_open + opening

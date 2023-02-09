@@ -2,26 +2,27 @@
   border-bottom: 1px solid $mui-tab-font-color;
   scroll-behavior: smooth;
   > li {
+    transition: transform 150ms ease;
     > a {
       text-transform: capitalize;
       height: auto;
       line-height: 21px;
-      padding: 6px;
+      padding: 6px 0 2px;
+      text-decoration: none;
+      cursor: pointer;
       &:hover {
-        color: $mui-tab-border-color-hover;
-        border-bottom: 2px solid $mui-tab-font-color-hover;
+        border-bottom: 2px solid $mui-tab-border-color-hover;
       }
     }
-    &.mui--is-active {
-      > a {
-        border-bottom: none;
-        text-decoration: none;
-      }
+    &:not(.mui--is-active) > a:hover {
+      color: $mui-tab-font-color-hover;
     }
-  }
-
-  > li {
-    transition: transform 150ms ease;
+    &:not(:last-child) {
+      margin-right: 12px;
+    }
+    &.mui--is-active > a {
+      border-bottom: none;
+    }
   }
 
   &::-webkit-scrollbar {
@@ -29,6 +30,106 @@
     scrollbar-width: none; /* Firefox */
     position: relative;
     display: none; /* Safari and Chrome */
+  }
+}
+
+.mui-tabs__bar--wrapper {
+  display: flex;
+  margin: 0 -16px;
+  align-items: center;
+
+  > .mui-tabs__bar {
+    display: inline-block;
+    width: calc(100% - 28px);
+  }
+
+  > [class*='tabs-nav-icons-'] {
+    width: 14px;
+    height: 16px;
+    display: inline-flex;
+    visibility: hidden;
+
+    > [class*='tabs-nav-icon-'] {
+      display: none;
+      height: 100%;
+      width: auto;
+      cursor: pointer;
+      color: $mui-tab-font-color;
+
+      &:hover {
+        color: $mui-tab-font-color-hover;
+      }
+    }
+  }
+
+  > .tabs-nav-icons-left > [class*='tabs-nav-icon-']:hover {
+    padding-right: 3px;
+  }
+
+  > .tabs-nav-icons-right > [class*='tabs-nav-icon-']:hover {
+    padding-left: 3px;
+  }
+
+  &:hover > [class*='tabs-nav-icons-'] {
+    visibility: visible;
+  }
+
+  &.has-overflow > [class*='tabs-nav-icons-'] > [class*='tabs-nav-icon-'] {
+    &.js-tabs-scroll {
+      display: inline;
+    }
+
+    &.js-tabs-touch {
+      display: none;
+    }
+
+    @media (any-pointer: coarse) {
+      &.js-tabs-scroll {
+        display: none;
+      }
+
+      &.js-tabs-touch {
+        display: inline;
+      }
+    }
+  }
+  &.no-scroll-left > .tabs-nav-icons-left,
+  &.no-scroll-right > .tabs-nav-icons-right {
+    .js-tabs-scroll {
+      visibility: hidden !important;
+    }
+  }
+
+  // Uncomment to enable hiding of nav on
+  // non-touch devices, when first / last tab
+  // is activated.
+
+  // &.tabs-active-first > .tabs-nav-icons-left,
+  // &.tabs-active-last > .tabs-nav-icons-right {
+  //   .js-tabs-touch {
+  //     visibility: hidden !important;
+  //   }
+  // }
+
+  @media (any-pointer: coarse) {
+    > [class*='tabs-nav-icons-'] {
+      visibility: visible;
+    }
+  }
+
+  &.has-panel-hover > [class*='tabs-nav-icons-'] {
+    visibility: visible;
+  }
+}
+
+.mui-tabs__pane {
+  .mui-tabs__bar--wrapper {
+    margin: 0 -5px;
+  }
+
+  .mui-tabs__pane {
+    padding-left: 9px;
+    padding-right: 9px;
   }
 }
 
@@ -216,59 +317,4 @@
 .badge--primary {
   border: 1px solid transparent;
   background: transparentize($mui-primary-color, 0.85);
-}
-
-/*
- OVERFLOW ARROWS STYLING
-*/
-
-.mui-tabs__bar--wrapper {
-  display: flex;
-  margin: 0 -16px;
-  align-items: center;
-
-  > .mui-tabs__bar {
-    display: inline-block;
-    width: calc(100% - 40px);
-  }
-  > .tabs-left-icons,
-  .tabs-right-icons {
-    width: 20px;
-    height: 16px;
-    display: inline-flex;
-    vertical-align: super;
-    > [class*='tabs-nav-icon-'] {
-      // position: absolute;
-      display: none;
-      height: 100%;
-      width: auto;
-      cursor: pointer;
-      color: #4d5763;
-      &:hover {
-        color: #1f2d3d;
-      }
-    }
-  }
-
-  &.has-overflow {
-    > .tabs-left-icons,
-    .tabs-right-icons {
-      > [class*='tabs-nav-icon-'] {
-        &.js-tabs-scroll {
-          display: inline;
-        }
-        &.js-tabs-touch {
-          display: none;
-        }
-        @media (any-pointer: coarse) {
-          &.js-tabs-scroll {
-            display: none;
-          }
-          &.js-tabs-touch {
-            display: inline;
-          }
-        }
-      }
-    }
-  }
 }

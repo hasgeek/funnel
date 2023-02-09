@@ -421,6 +421,15 @@ const Utils = {
     svgElem.classList.add('fa5-icon', ...cssClassArray);
     return svgElem;
   },
+  debounce(fn, timeout, context, ...bindArguments) {
+    let timer = null;
+    const debounceFn = (...args) => {
+      if (timer) clearTimeout(timer);
+      const fnContext = context || this;
+      timer = setTimeout(fn.bind(fnContext, ...args), timeout);
+    };
+    return debounceFn.bind(this, ...bindArguments);
+  },
 };
 
 export default Utils;
