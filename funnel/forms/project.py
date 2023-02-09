@@ -15,6 +15,7 @@ from .helpers import (
     image_url_validator,
     nullable_strip_filters,
     video_url_list_validator,
+    youtube_filter,
 )
 
 __all__ = [
@@ -149,7 +150,7 @@ class ProjectLivestreamForm(forms.Form):
             "Livestream URLs. One per line. Must be on YouTube or Vimeo."
             " Must begin with https://"
         ),
-        filters=[forms.filters.strip_each()],
+        filters=[forms.filters.strip_each(), youtube_filter],
         validators=[
             forms.validators.Optional(),
             forms.validators.ForEach(

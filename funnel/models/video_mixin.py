@@ -19,7 +19,6 @@ class VideoError(Exception):
 def parse_video_url(video_url: str) -> Tuple[str, str]:
     video_source = 'raw'
     video_id = video_url
-
     parsed = urllib.parse.urlparse(video_url)
     if parsed.netloc is None:
         raise ValueError("Invalid video URL")
@@ -37,6 +36,15 @@ def parse_video_url(video_url: str) -> Tuple[str, str]:
                 )
         elif parsed.path.startswith('/embed/'):
             video_id = parsed.path[7:]
+            if video_id:
+                video_source = 'youtube'
+            else:
+                raise ValueError(
+                    f"{video_url}: YouTube video URLs need to be in the format:"
+                    " https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                )
+        elif parsed.path.startswith('/live/'):
+            video_id = parsed.path[5:]
             if video_id:
                 video_source = 'youtube'
             else:
