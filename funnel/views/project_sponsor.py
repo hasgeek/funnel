@@ -107,7 +107,8 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
         sponsorship: Optional[str] = None,
     ) -> ProjectSponsorMembership:
         obj = (
-            self.model.query.join(Project, Profile)
+            self.model.query.join(Project)
+            .join(Profile)
             .filter(self.model.uuid_b58 == sponsorship)
             .one_or_404()
         )

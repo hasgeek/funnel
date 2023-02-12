@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 from typing import Iterable, List, Optional, Union
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from sqlalchemy.sql import expression
+
+from furl import furl
 
 from baseframe import __
 from coaster.sqlalchemy import LazyRoleSet, Query, StateManager, immutable, with_roles
@@ -24,6 +27,7 @@ from . import (
 )
 from .helpers import (
     RESERVED_NAMES,
+    ImgeeFurl,
     ImgeeType,
     add_search_trigger,
     quote_autocomplete_tsquery,
@@ -63,6 +67,7 @@ class Profile(
     """
 
     __tablename__ = 'profile'
+    __allow_unmapped__ = True
     __uuid_primary_key__ = False
     # length limit 63 to fit DNS label limit
     __name_length__ = 63
@@ -91,10 +96,7 @@ class Profile(
     user: Mapped[Optional[User]] = with_roles(
         sa.orm.relationship(
             'User',
-            lazy='joined',
-            backref=sa.orm.backref(
-                'profile', lazy='joined', uselist=False, cascade='all'
-            ),
+            backref=sa.orm.backref('profile', uselist=False, cascade='all'),
         ),
         grants={'owner'},
     )
@@ -107,8 +109,7 @@ class Profile(
     )
     organization: Mapped[Optional[Organization]] = sa.orm.relationship(
         'Organization',
-        lazy='joined',
-        backref=sa.orm.backref('profile', lazy='joined', uselist=False, cascade='all'),
+        backref=sa.orm.backref('profile', uselist=False, cascade='all'),
     )
     #: Reserved account (not assigned to any party)
     reserved = sa.Column(sa.Boolean, nullable=False, default=False, index=True)
@@ -128,9 +129,9 @@ class Profile(
     description = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
-    website: sa.Column[Optional[str]] = sa.Column(UrlType, nullable=True)
-    logo_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
-    banner_image_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
+    website: Mapped[Optional[furl]] = sa.Column(UrlType, nullable=True)
+    logo_url: Mapped[Optional[ImgeeFurl]] = sa.Column(ImgeeType, nullable=True)
+    banner_image_url: Mapped[Optional[ImgeeFurl]] = sa.Column(ImgeeType, nullable=True)
 
     # These two flags are read-only. There is no provision for writing to them within
     # the app:
@@ -150,7 +151,7 @@ class Profile(
     #: Revision number maintained by SQLAlchemy, starting at 1
     revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
 
-    search_vector = sa.orm.deferred(
+    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'name',
@@ -168,26 +169,20 @@ class Profile(
     is_active = with_roles(
         sa.orm.column_property(
             sa.case(
-                [
-                    (
-                        user_id.isnot(None),  # ← when, ↙ then
-                        sa.select(  # type: ignore[attr-defined]
-                            User.state.ACTIVE  # type: ignore[has-type]
-                        )
-                        .where(User.id == user_id)
-                        .correlate_except(User)  # type: ignore[arg-type]
-                        .scalar_subquery(),  # sqlalchemy-stubs doesn't know of this
-                    ),
-                    (
-                        organization_id.isnot(None),  # ← when, ↙ then
-                        sa.select(  # type: ignore[attr-defined]
-                            Organization.state.ACTIVE  # type: ignore[has-type]
-                        )
-                        .where(Organization.id == organization_id)
-                        .correlate_except(Organization)  # type: ignore[arg-type]
-                        .scalar_subquery(),  # sqlalchemy-stubs doesn't know of this
-                    ),
-                ],
+                (
+                    user_id.isnot(None),  # ← when, ↙ then
+                    sa.select(User.state.ACTIVE)  # type: ignore[has-type]
+                    .where(User.id == user_id)
+                    .correlate_except(User)  # type: ignore[arg-type]
+                    .scalar_subquery(),
+                ),
+                (
+                    organization_id.isnot(None),  # ← when, ↙ then
+                    sa.select(Organization.state.ACTIVE)  # type: ignore[has-type]
+                    .where(Organization.id == organization_id)
+                    .correlate_except(Organization)  # type: ignore[arg-type]
+                    .scalar_subquery(),
+                ),
                 else_=expression.false(),
             )
         ),
@@ -197,9 +192,9 @@ class Profile(
 
     __table_args__ = (
         sa.CheckConstraint(
-            sa.case([(user_id.isnot(None), 1)], else_=0)
-            + sa.case([(organization_id.isnot(None), 1)], else_=0)
-            + sa.case([(reserved.is_(True), 1)], else_=0)
+            sa.case((user_id.isnot(None), 1), else_=0)
+            + sa.case((organization_id.isnot(None), 1), else_=0)
+            + sa.case((reserved.is_(True), 1), else_=0)
             == 1,
             name='profile_owner_check',
         ),
@@ -332,24 +327,20 @@ class Profile(
     @title.expression
     def title(cls):  # noqa: N805  # pylint: disable=no-self-argument
         return sa.case(
-            [
-                (
-                    # if...
-                    cls.user_id.isnot(None),
-                    # then...
-                    sa.select([User.fullname])
-                    .where(cls.user_id == User.id)
-                    .as_scalar(),
-                ),
-                (
-                    # elif...
-                    cls.organization_id.isnot(None),
-                    # then...
-                    sa.select([Organization.title])
-                    .where(cls.organization_id == Organization.id)
-                    .as_scalar(),
-                ),
-            ],
+            (
+                # if...
+                cls.user_id.isnot(None),
+                # then...
+                sa.select(User.fullname).where(cls.user_id == User.id).as_scalar(),
+            ),
+            (
+                # elif...
+                cls.organization_id.isnot(None),
+                # then...
+                sa.select(Organization.title)
+                .where(cls.organization_id == Organization.id)
+                .as_scalar(),
+            ),
             else_='',
         )
 
@@ -497,25 +488,34 @@ class Profile(
         return False
 
     @classmethod
-    def autocomplete(cls, query: str) -> List[Profile]:
+    def autocomplete(cls, prefix: str) -> List[Profile]:
         """Return accounts beginning with the query, for autocomplete."""
-        query = query.strip()
-        if not query:
+        prefix = prefix.strip()
+        if not prefix:
             return []
-        squery = quote_autocomplete_tsquery(query)
+        tsquery = quote_autocomplete_tsquery(prefix)
         return (
-            cls.query.outerjoin(User)
-            .outerjoin(Organization)
-            .filter(cls.state.ACTIVE_AND_PUBLIC, cls.search_vector.match(squery))
-            .union(
-                Profile.query.join(User).filter(
-                    User.state.ACTIVE, User.search_vector.match(squery)
-                ),
-                Profile.query.join(Organization).filter(
-                    Organization.state.ACTIVE, Organization.search_vector.match(squery)
+            cls.query.options(sa.orm.defer(cls.is_active))
+            .join(User)
+            .filter(
+                User.state.ACTIVE,
+                sa.or_(
+                    cls.search_vector.bool_op('@@')(tsquery),
+                    User.search_vector.bool_op('@@')(tsquery),
                 ),
             )
-            .order_by(Profile.name)
+            .union(
+                cls.query.options(sa.orm.defer(cls.is_active))
+                .join(Organization)
+                .filter(
+                    Organization.state.ACTIVE,
+                    sa.or_(
+                        cls.search_vector.bool_op('@@')(tsquery),
+                        Organization.search_vector.bool_op('@@')(tsquery),
+                    ),
+                ),
+            )
+            .order_by(cls.name)
             .all()
         )
 

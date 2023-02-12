@@ -208,6 +208,7 @@ def test_changefreq_for_age() -> None:
     assert sitemap.changefreq_for_age(timedelta(days=180)) == sitemap.ChangeFreq.yearly
 
 
+@pytest.mark.dbcommit()
 def test_sitemap(client) -> None:
     """Test sitemap endpoints (caveat: no content checks)."""
     expected_content_type = 'application/xml; charset=utf-8'

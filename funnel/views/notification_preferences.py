@@ -82,7 +82,7 @@ class AccountNotificationView(ClassView):
             if ncls.category.priority_id in preferences:
                 if ntype not in user_preferences:
                     user_preferences[ntype] = NotificationPreferences(
-                        user=current_auth.user, notification_type=ntype
+                        notification_type=ntype, user=current_auth.user
                     )
                     commit_new_preferences = True
                 preferences[ncls.category.priority_id]['types'].append(
@@ -339,7 +339,6 @@ class AccountNotificationView(ClassView):
 
         # --- Cached tokens (SMS)
         elif token_type == 'cached':  # nosec
-
             # Enforce a rate limit per IP on cached tokens, to slow down enumeration.
             # Some ISPs use carrier-grade NAT and will have a single IP for a very
             # large number of users, so we have generous limits. 100 unsubscribes per

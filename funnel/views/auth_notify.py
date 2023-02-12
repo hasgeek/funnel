@@ -109,7 +109,7 @@ def notify_org_data_changed(org, user, changes, team=None):
             )
             and token.auth_client.notification_uri
         ):
-            client_users.setdefault(token.auth_client, []).append(token.user)
+            client_users.setdefault(token.auth_client, []).append(token.effective_user)
     # Now we have a list of clients to notify and a list of users to notify them with
     for auth_client, users in client_users.items():
         if user is not None and user in users:

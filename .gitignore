@@ -59,6 +59,7 @@ newrelic.ini
 # Local venvs (Idea creates them)
 venv/
 env/
+.python-version
 
 # Editors
 .idea/

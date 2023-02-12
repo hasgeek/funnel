@@ -157,7 +157,8 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         # a proposal since it has a unique id embedded. These parameters are not
         # used in the query.
         obj = (
-            self.model.query.join(Project, Profile)
+            self.model.query.join(Project)
+            .join(Profile)
             .filter(Proposal.url_name_uuid_b58 == proposal)
             .first()
         )

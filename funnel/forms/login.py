@@ -66,6 +66,7 @@ class RegisterWithOtp(Exception):  # noqa: N818
 
 # --- Validators -----------------------------------------------------------------------
 
+
 # Validator specifically for LoginForm
 class PasswordlessLoginIntercept:
     """Allow password to be optional if an anchor (phone, email) is available."""

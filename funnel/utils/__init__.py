@@ -3,3 +3,4 @@
 
 from .markdown import *
 from .misc import *
+from .mustache import *

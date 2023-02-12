@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
+
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import BaseMixin, Comment, SiteMembership, User, UuidMixin, db, sa
+from . import BaseMixin, Comment, Mapped, SiteMembership, User, UuidMixin, db, sa
 from .helpers import reopen
 
 __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
@@ -23,22 +25,23 @@ class CommentModeratorReport(
     db.Model,  # type: ignore[name-defined]
 ):
     __tablename__ = 'comment_moderator_report'
+    __allow_unmapped__ = True
     __uuid_primary_key__ = True
 
     comment_id = sa.Column(
         sa.Integer, sa.ForeignKey('comment.id'), nullable=False, index=True
     )
-    comment = sa.orm.relationship(
+    comment: Mapped[Comment] = sa.orm.relationship(
         Comment,
-        primaryjoin=comment_id == Comment.id,
+        foreign_keys=[comment_id],
         backref=sa.orm.backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
     user_id = sa.Column(
         sa.Integer, sa.ForeignKey('user.id'), nullable=False, index=True
     )
-    user = sa.orm.relationship(
+    user: Mapped[User] = sa.orm.relationship(
         User,
-        primaryjoin=user_id == User.id,
+        foreign_keys=[user_id],
         backref=sa.orm.backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
     report_type = sa.Column(

@@ -49,7 +49,7 @@ def upgrade():
 
     op.execute(
         commentset.update().values(
-            last_comment_at=sa.select([sa.func.max(comment.c.created_at)]).where(
+            last_comment_at=sa.select(sa.func.max(comment.c.created_at)).where(
                 comment.c.commentset_id == commentset.c.id
             )
         )

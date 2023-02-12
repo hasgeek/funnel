@@ -60,7 +60,7 @@ def session_description(row):
 def upgrade():
     conn = op.get_bind()
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(session))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(session))
     progress = get_progressbar("Sessions", count)
     progress.start()
     items = conn.execute(session.select())

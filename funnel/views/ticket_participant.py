@@ -184,7 +184,8 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
 
     def loader(self, profile, project, ticket_participant) -> TicketParticipant:
         return (
-            TicketParticipant.query.join(Project, Profile)
+            TicketParticipant.query.join(Project)
+            .join(Profile)
             .filter(
                 sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,
@@ -330,7 +331,8 @@ class TicketEventParticipantCheckinView(ClassView):
             request.form.get('checkin', 't')
         )
         ticket_event = (
-            TicketEvent.query.join(Project, Profile)
+            TicketEvent.query.join(Project)
+            .join(Profile)
             .filter(
                 sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,
@@ -339,7 +341,8 @@ class TicketEventParticipantCheckinView(ClassView):
             .first_or_404()
         )
         ticket_participant = (
-            TicketParticipant.query.join(Project, Profile)
+            TicketParticipant.query.join(Project)
+            .join(Profile)
             .filter(
                 sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,

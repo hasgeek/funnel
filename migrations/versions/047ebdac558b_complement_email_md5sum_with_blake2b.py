@@ -61,10 +61,10 @@ def upgrade():
 
     # Add blake2b column to UserEmail
     op.add_column('user_email', sa.Column('blake2b', sa.LargeBinary(), nullable=True))
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user_email))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email))
     progress = get_progressbar("Emails", count)
     progress.start()
-    items = conn.execute(sa.select([user_email.c.id, user_email.c.email]))
+    items = conn.execute(sa.select(user_email.c.id, user_email.c.email))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(user_email)
@@ -87,10 +87,10 @@ def upgrade():
     op.add_column(
         'user_email_claim', sa.Column('blake2b', sa.LargeBinary(), nullable=True)
     )
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(user_email_claim))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(user_email_claim))
     progress = get_progressbar("Email claims", count)
     progress.start()
-    items = conn.execute(sa.select([user_email_claim.c.id, user_email_claim.c.email]))
+    items = conn.execute(sa.select(user_email_claim.c.id, user_email_claim.c.email))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(user_email_claim)
