@@ -12,8 +12,8 @@ from alembic import op
 from sqlalchemy.sql import column
 import sqlalchemy as sa
 
-cfp_start_at: column = column('start_at')
-cfp_end_at: column = column('end_at')
+cfp_start_at = column('start_at', sa.TIMESTAMP)
+cfp_end_at = column('end_at', sa.TIMESTAMP)
 
 # revision identifiers, used by Alembic.
 revision = '60ee1687f59c'

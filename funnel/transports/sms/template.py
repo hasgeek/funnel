@@ -149,7 +149,7 @@ class SmsTemplate:
             # vformat only needs __getitem__, so ignore mypy's warning about arg type.
             # The expected type is Mapping[str, Any]
             len(
-                Formatter().vformat(  # type: ignore[arg-type, call-overload]
+                Formatter().vformat(  # type: ignore[call-overload]
                     self.template, (), self
                 )
             ),
@@ -187,7 +187,7 @@ class SmsTemplate:
             '_plaintext',
             # vformat only needs __getitem__, so ignore mypy's warning about arg type.
             # The expected type is Mapping[str, Any]
-            Formatter().vformat(  # type: ignore[arg-type, call-overload]
+            Formatter().vformat(  # type: ignore[call-overload]
                 self.plaintext_template, (), self
             )
             if self.plaintext_template
@@ -199,9 +199,7 @@ class SmsTemplate:
             '_text',
             # vformat only needs __getitem__, so ignore mypy's warning about arg type.
             # The expected type is Mapping[str, Any]
-            Formatter().vformat(  # type: ignore[arg-type, call-overload]
-                self.template, (), self
-            ),
+            Formatter().vformat(self.template, (), self),  # type: ignore[call-overload]
         )
 
     @property

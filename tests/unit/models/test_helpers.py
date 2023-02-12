@@ -220,11 +220,17 @@ def test_imgeetype(db_session, image_models) -> None:
 
 
 @pytest.mark.usefixtures('app_context')
-def test_quote_autocomplete_tsquery() -> None:
+def test_quote_autocomplete_tsquery(db_session) -> None:
     # Single word autocomplete
-    assert mhelpers.quote_autocomplete_tsquery('word') == "'word':*"
+    assert (
+        db_session.query(mhelpers.quote_autocomplete_tsquery('word')).scalar()
+        == "'word':*"
+    )
     # Multi-word autocomplete with stemming
-    assert mhelpers.quote_autocomplete_tsquery('two words') == "'two' <-> 'word':*"
+    assert (
+        db_session.query(mhelpers.quote_autocomplete_tsquery('two words')).scalar()
+        == "'two' <-> 'word':*"
+    )
 
 
 def test_message_composite() -> None:

@@ -7,6 +7,7 @@ bcrypt
 better_profanity!=0.7.0  # https://github.com/snguyenthanh/better_profanity/issues/19
 blinker
 Brotli
+chevron
 click
 git+https://github.com/hasgeek/coaster.git#egg=coaster
 cryptography

@@ -48,10 +48,10 @@ def upgrade():
     conn = op.get_bind()
 
     op.add_column('team', sa.Column('org_uuid', UUIDType(binary=False), nullable=True))
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(team))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(team))
     progress = get_progressbar("Teams", count)
     progress.start()
-    items = conn.execute(sa.select([team.c.id, team.c.orgid]))
+    items = conn.execute(sa.select(team.c.id, team.c.orgid))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(team)
@@ -72,10 +72,10 @@ def downgrade():
     op.add_column(
         'team', sa.Column('orgid', sa.String(22), autoincrement=False, nullable=True)
     )
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(team))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(team))
     progress = get_progressbar("Teams", count)
     progress.start()
-    items = conn.execute(sa.select([team.c.id, team.c.org_uuid]))
+    items = conn.execute(sa.select(team.c.id, team.c.org_uuid))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(team)

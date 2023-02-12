@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from typing import Set
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
-from . import db, sa
+from . import Mapped, db, sa
 from .helpers import reopen
 from .membership_mixin import (
     FrozenAttributionMixin,
@@ -31,6 +32,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
     """Sponsor of a project."""
 
     __tablename__ = 'project_sponsor_membership'
+    __allow_unmapped__ = True
 
     # List of data columns in this model that must be copied into revisions
     __data_columns__ = ('seq', 'is_promoted', 'label', 'title')
@@ -84,24 +86,21 @@ class ProjectSponsorMembership(  # type: ignore[misc]
 
     revoke_on_subject_delete = False
 
-    project_id: sa.Column[int] = immutable(
-        sa.Column(
-            sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
-        )
+    project_id: Mapped[int] = sa.Column(
+        sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
     )
-    project: sa.orm.relationship[Project] = immutable(
-        sa.orm.relationship(
-            Project,
-            backref=sa.orm.backref(
-                'all_sponsor_memberships',
-                lazy='dynamic',
-                cascade='all',
-                passive_deletes=True,
-            ),
-        )
+    project: Mapped[Project] = sa.orm.relationship(
+        Project,
+        backref=sa.orm.backref(
+            'all_sponsor_memberships',
+            lazy='dynamic',
+            cascade='all',
+            passive_deletes=True,
+        ),
     )
-    parent = sa.orm.synonym('project')
-    parent_id = sa.orm.synonym('project_id')
+    parent_id: Mapped[int] = sa.orm.synonym('project_id')
+    parent_id_column = 'project_id'
+    parent: Mapped[Project] = sa.orm.synonym('project')
 
     #: Is this sponsor being promoted for commercial reasons? Projects may have a legal
     #: obligation to reveal this. This column records a declaration from the project.
@@ -112,7 +111,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
         sa.Column(
             sa.Unicode,
             sa.CheckConstraint(
-                sa.column('label') != '', name='project_sponsor_membership_label_check'
+                "label <> ''", name='project_sponsor_membership_label_check'
             ),
             nullable=True,
         )
@@ -162,6 +161,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
     """Sponsor of a proposal."""
 
     __tablename__ = 'proposal_sponsor_membership'
+    __allow_unmapped__ = True
 
     # List of data columns in this model that must be copied into revisions
     __data_columns__ = ('seq', 'is_promoted', 'label', 'title')
@@ -215,24 +215,21 @@ class ProposalSponsorMembership(  # type: ignore[misc]
 
     revoke_on_subject_delete = False
 
-    proposal_id: sa.Column[int] = immutable(
-        sa.Column(
-            sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
-        )
+    proposal_id: Mapped[int] = sa.Column(
+        sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
     )
-    proposal: sa.orm.relationship[Proposal] = immutable(
-        sa.orm.relationship(
-            Proposal,
-            backref=sa.orm.backref(
-                'all_sponsor_memberships',
-                lazy='dynamic',
-                cascade='all',
-                passive_deletes=True,
-            ),
-        )
+    proposal: Mapped[Proposal] = sa.orm.relationship(
+        Proposal,
+        backref=sa.orm.backref(
+            'all_sponsor_memberships',
+            lazy='dynamic',
+            cascade='all',
+            passive_deletes=True,
+        ),
     )
-    parent = sa.orm.synonym('proposal')
-    parent_id = sa.orm.synonym('proposal_id')
+    parent_id: Mapped[int] = sa.orm.synonym('proposal_id')
+    parent_id_column = 'proposal_id'
+    parent: Mapped[Proposal] = sa.orm.synonym('proposal')
 
     #: Is this sponsor being promoted for commercial reasons? Proposals may have a legal
     #: obligation to reveal this. This column records a declaration from the proposal.
@@ -243,7 +240,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
         sa.Column(
             sa.Unicode,
             sa.CheckConstraint(
-                sa.column('label') != '', name='proposal_sponsor_membership_label_check'
+                "label <> ''", name='proposal_sponsor_membership_label_check'
             ),
             nullable=True,
         )
