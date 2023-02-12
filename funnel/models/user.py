@@ -418,11 +418,10 @@ class User(
         self,
         email: str,
         primary: bool = False,
-        type: Optional[str] = None,  # noqa: A002  # pylint: disable=redefined-builtin
         private: bool = False,
     ) -> UserEmail:
         """Add an email address (assumed to be verified)."""
-        useremail = UserEmail(user=self, email=email, type=type, private=private)
+        useremail = UserEmail(user=self, email=email, private=private)
         useremail = cast(
             UserEmail,
             failsafe_add(
@@ -473,11 +472,10 @@ class User(
         self,
         phone: str,
         primary: bool = False,
-        type: Optional[str] = None,  # noqa: A002  # pylint: disable=redefined-builtin
         private: bool = False,
     ) -> UserPhone:
         """Add a phone number (assumed to be verified)."""
-        userphone = UserPhone(user=self, phone=phone, type=type, private=private)
+        userphone = UserPhone(user=self, phone=phone, private=private)
         userphone = cast(
             UserPhone,
             failsafe_add(
@@ -538,7 +536,9 @@ class User(
     def has_transport_sms(self) -> bool:
         """User has an SMS transport address."""
         return (
-            self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_sms
+            self.state.ACTIVE
+            and self.phone != ''
+            and self.phone.phone_number.has_sms is not False
         )
 
     @with_roles(call={'owner'})
@@ -555,14 +555,9 @@ class User(
     def has_transport_whatsapp(self) -> bool:
         """User has a WhatsApp transport address."""
         return (
-            self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_wa
-        )
-
-    @with_roles(call={'owner'})
-    def has_transport_signal(self) -> bool:
-        """User has a Signal transport address."""
-        return (
-            self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_sm
+            self.state.ACTIVE
+            and self.phone != ''
+            and self.phone.phone_number.has_wa is not False
         )
 
     @with_roles(call={'owner'})
@@ -577,7 +572,11 @@ class User(
     def transport_for_sms(self, context) -> Optional[UserPhone]:
         """Return user's preferred phone number within a context."""
         # TODO: Per-account/project customization is a future option
-        if self.state.ACTIVE and self.phone != '' and self.phone.phone_number.allow_sms:
+        if (
+            self.state.ACTIVE
+            and self.phone != ''
+            and self.phone.phone_number.has_sms is not False
+        ):
             return self.phone
         return None
 
@@ -1424,7 +1423,6 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
     )
 
     private = sa.Column(sa.Boolean, nullable=False, default=False)
-    type = sa.Column(sa.Unicode(30), nullable=True)  # noqa: A003
 
     __datasets__ = {
         'primary': {'user', 'email', 'private', 'type'},
@@ -1605,7 +1603,6 @@ class UserEmailClaim(
     verification_code = sa.Column(sa.String(44), nullable=False, default=newsecret)
 
     private = sa.Column(sa.Boolean, nullable=False, default=False)
-    type = sa.Column(sa.Unicode(30), nullable=True)  # noqa: A003
 
     __table_args__ = (sa.UniqueConstraint('user_id', 'email_address_id'),)
 
@@ -1783,7 +1780,6 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
     )
 
     private = sa.Column(sa.Boolean, nullable=False, default=False)
-    type = sa.Column(sa.Unicode(30), nullable=True)  # noqa: A003
 
     __datasets__ = {
         'primary': {'user', 'phone', 'private', 'type'},

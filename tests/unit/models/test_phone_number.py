@@ -409,7 +409,7 @@ def test_phone_number_get(db_session) -> None:
     assert models.PhoneNumber.get('invalid') is None
     assert models.PhoneNumber.get('+91984512345') is None
 
-    # Get works on blocked addresses
+    # Get works on blocked numbers
     pn1.mark_blocked()
     assert pn1.is_blocked is True
     assert models.PhoneNumber.get(EXAMPLE_NUMBER_IN) == pn1
@@ -451,7 +451,7 @@ def test_phone_number_add() -> None:
     assert pn2.number == EXAMPLE_NUMBER_US
 
     # A forgotten phone number will be restored by calling PhoneNumber.add
-    pn2.number = None
+    pn2.mark_forgotten()
     assert pn2.number is None
     pn5 = models.PhoneNumber.add(EXAMPLE_NUMBER_US_FORMATTED)
     assert pn5 == pn2
@@ -466,12 +466,26 @@ def test_phone_number_add() -> None:
 
 
 @pytest.mark.usefixtures('db_session')
-def test_phone_number_active() -> None:
-    """A phone number can be marked as currently active."""
+@pytest.mark.parametrize('sms', [True, False])
+@pytest.mark.parametrize('wa', [True, False])
+def test_phone_number_active(sms, wa) -> None:
+    """A phone number can be marked as currently active, optionally with an app."""
     pn = models.PhoneNumber.add(EXAMPLE_NUMBER_IN)
     assert pn.active_at is None
-    pn.mark_active()
+    pn.mark_active(sms=sms, wa=wa)
     assert str(pn.active_at) == str(sa.func.utcnow())
+    if sms:
+        assert pn.has_sms is True
+        assert str(pn.has_sms_at) == str(sa.func.utcnow())
+    else:
+        assert pn.has_sms is None
+        assert pn.has_sms_at is None
+    if wa:
+        assert pn.has_wa is True
+        assert str(pn.has_wa_at) == str(sa.func.utcnow())
+    else:
+        assert pn.has_wa is None
+        assert pn.has_wa_at is None
 
 
 @pytest.mark.usefixtures('db_session')
@@ -480,12 +494,19 @@ def test_phone_number_blocked() -> None:
     pn1 = models.PhoneNumber.add(EXAMPLE_NUMBER_IN)
     pn2 = models.PhoneNumber.add(EXAMPLE_NUMBER_US)
 
+    pn1.mark_has_sms(True)
+    pn1.mark_has_wa(False)
+
     assert pn1.is_blocked is False
     assert pn1.number is not None
     assert pn1.number == EXAMPLE_NUMBER_IN
     assert pn1.blake2b160 == hash_map[EXAMPLE_NUMBER_IN]
     assert str(pn1) == EXAMPLE_NUMBER_IN
     assert pn1.formatted == EXAMPLE_NUMBER_IN_FORMATTED
+    assert pn1.has_sms is True
+    assert str(pn1.has_sms_at) == str(sa.func.utcnow())
+    assert pn1.has_wa is False
+    assert str(pn1.has_wa_at) == str(sa.func.utcnow())
 
     assert models.PhoneNumber.query.filter(models.PhoneNumber.is_blocked).all() == []
 
@@ -498,6 +519,10 @@ def test_phone_number_blocked() -> None:
     assert pn2.is_blocked is False
     assert str(pn1) == ''
     assert pn1.formatted == '[blocked]'
+    assert pn1.has_sms is None
+    assert pn1.has_sms_at is None
+    assert pn1.has_wa is None
+    assert pn1.has_wa_at is None
 
     assert models.PhoneNumber.query.filter(models.PhoneNumber.is_blocked).all() == [pn1]
 
@@ -563,7 +588,7 @@ def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-stateme
 
     db_session.rollback()
 
-    # Blocked addresses cannot be used either
+    # Blocked numbers cannot be used either
     with pytest.raises(models.PhoneNumberBlockedError):
         phone_models.PhoneLink(phoneuser=user1, phone=EXAMPLE_NUMBER_CA)
 
@@ -652,7 +677,7 @@ def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-stateme
 def test_phone_number_refcount_drop(phone_models, db_session, refcount_data) -> None:
     """Test that PhoneNumber.refcount drop events are fired."""
     # The refcount changing signal handler will have received events for every phone
-    # address in this test. A request teardown processor can use this to determine
+    # number in this test. A request teardown processor can use this to determine
     # which phone numberes need to be forgotten (preferably in a background job)
 
     # We have an empty set at the start of this test
@@ -715,7 +740,7 @@ def test_phone_number_validate_for(phone_models, db_session) -> None:
         models.PhoneNumber.validate_for(anon_user, EXAMPLE_NUMBER_IN, new=True) is False
     )
 
-    # A blocked address is available to no one
+    # A blocked number is available to no one
     blocked_phone = models.PhoneNumber(EXAMPLE_NUMBER_CA)
     blocked_phone.mark_blocked()
     db_session.add(blocked_phone)

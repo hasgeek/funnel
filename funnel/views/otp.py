@@ -309,14 +309,14 @@ class OtpSession(Generic[OptionalUserType]):
             try:
                 phone_number = PhoneNumber.get(self.phone)
                 if phone_number:
-                    phone_number.mark_active()
+                    phone_number.mark_active(sms=True)
             except PhoneNumberBlockedError:
                 pass
         elif self.email:
             try:
                 email_address = EmailAddress.get(self.email)
                 if email_address:
-                    email_address.mark_active()
+                    email_address.mark_active(sms=True)
             except EmailAddressBlockedError:
                 pass
 
