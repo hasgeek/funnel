@@ -493,7 +493,7 @@ class AccountView(ClassView):
             )
             if useremail is None:
                 useremail = UserEmailClaim(
-                    user=current_auth.user, email=form.email.data, type=form.type.data
+                    user=current_auth.user, email=form.email.data
                 )
                 db.session.add(useremail)
             send_email_verify_link(useremail)
@@ -708,7 +708,7 @@ class AccountView(ClassView):
                 userphone = UserPhone(user=current_auth.user, phone=otp_session.phone)
                 userphone.primary = primary
                 db.session.add(userphone)
-                userphone.phone_number.mark_active()
+                userphone.phone_number.mark_active(sms=True)
                 db.session.commit()
                 flash(_("Your phone number has been verified"), 'success')
                 user_data_changed.send(current_auth.user, changes=['phone'])
