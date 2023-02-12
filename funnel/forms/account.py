@@ -532,16 +532,6 @@ class NewEmailAddressForm(forms.Form):
             'autocomplete': 'email',
         },
     )
-    type = forms.RadioField(  # noqa: A003
-        __("Type"),
-        validators=[forms.validators.Optional()],
-        filters=[forms.filters.strip()],
-        choices=[
-            (__("Home"), __("Home")),
-            (__("Work"), __("Work")),
-            (__("Other"), __("Other")),
-        ],
-    )
 
 
 @User.forms('email_primary')
@@ -578,8 +568,10 @@ class NewPhoneForm(forms.Form):
         render_kw={'autocomplete': 'tel'},
     )
 
+    # TODO: Consider option "prefer WhatsApp" or "prefer secure messengers (WhatsApp)"
+
     enable_notifications = forms.BooleanField(
-        __("Send notifications by SMS"),
+        __("Send notifications by SMS"),  # TODO: Add "or WhatsApp"
         description=__(
             "Unsubscribe anytime, and control what notifications are sent from the"
             " Notifications tab under account settings"
