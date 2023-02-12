@@ -1,4 +1,4 @@
-"""Replace allow columns with has columns.
+"""Replace 'allow' columns with 'has' columns.
 
 Revision ID: 2151c9f8e955
 Revises: 83b6643891ec
@@ -38,7 +38,6 @@ def upgrade_() -> None:
         batch_op.add_column(
             sa.Column('has_sms_at', sa.TIMESTAMP(timezone=True), nullable=True)
         )
-        # TODO: Populate has_sms and has_sms_at columns
         batch_op.add_column(sa.Column('has_wa', sa.Boolean(), nullable=True))
         batch_op.add_column(
             sa.Column('has_wa_at', sa.TIMESTAMP(timezone=True), nullable=True)
@@ -49,6 +48,24 @@ def upgrade_() -> None:
         batch_op.drop_column('msg_sm_delivered_at')
         batch_op.drop_column('msg_sm_sent_at')
         batch_op.drop_column('msg_sm_failed_at')
+        batch_op.drop_constraint('phone_number_blocked_at_number_check', type_='check')
+        batch_op.create_check_constraint(
+            'phone_number_blocked_check',
+            'blocked_at IS NULL'
+            ' OR blocked_at IS NOT NULL AND number IS NULL'
+            ' AND has_sms IS NULL AND has_sms_at IS NULL'
+            ' AND has_wa IS NULL AND has_wa_at IS NULL',
+        )
+        batch_op.create_check_constraint(
+            'phone_number_has_sms_check',
+            'has_sms IS NULL AND has_sms_at IS NULL'
+            ' OR has_sms IS NOT NULL AND has_sms_at IS NOT NULL',
+        )
+        batch_op.create_check_constraint(
+            'phone_number_has_wa_check',
+            'has_wa IS NULL AND has_wa_at IS NULL'
+            ' OR has_wa IS NOT NULL AND has_wa_at IS NOT NULL',
+        )
 
     with op.batch_alter_table('user_email', schema=None) as batch_op:
         batch_op.drop_column('type')
@@ -58,8 +75,6 @@ def upgrade_() -> None:
 
     with op.batch_alter_table('user_phone', schema=None) as batch_op:
         batch_op.drop_column('type')
-
-    # ### end Alembic commands ###
 
 
 def downgrade_() -> None:
@@ -135,10 +150,17 @@ def downgrade_() -> None:
             )
         )
         batch_op.alter_column('allow_sm', server_default=None)
+        batch_op.drop_constraint('phone_number_has_wa_check', type_='check')
+        batch_op.drop_constraint('phone_number_has_sms_check', type_='check')
+        batch_op.drop_constraint('phone_number_blocked_check', type_='check')
         batch_op.drop_column('has_wa_at')
         batch_op.drop_column('has_wa')
         batch_op.drop_column('has_sms_at')
         batch_op.drop_column('has_sms')
+        batch_op.create_check_constraint(
+            'phone_number_blocked_at_number_check',
+            'blocked_at IS NULL OR blocked_at IS NOT NULL AND number IS NULL',
+        )
 
 
 def upgrade_geoname() -> None:

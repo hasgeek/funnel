@@ -312,13 +312,34 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     blocked_at = sa.Column(sa.TIMESTAMP(timezone=True), nullable=True)
 
     __table_args__ = (
-        # If `blocked_at` is not None, `phone` must be None
+        # If `blocked_at` is not None, `number` and `has_*` must be None
         sa.CheckConstraint(
             sa.or_(  # type: ignore[arg-type]
                 blocked_at.is_(None),  # or...
-                sa.and_(blocked_at.isnot(None), number.is_(None)),
+                sa.and_(
+                    blocked_at.isnot(None),
+                    number.is_(None),
+                    has_sms.is_(None),
+                    has_sms_at.is_(None),
+                    has_wa.is_(None),
+                    has_wa_at.is_(None),
+                ),
             ),
-            'phone_number_blocked_at_number_check',
+            'phone_number_blocked_check',
+        ),
+        sa.CheckConstraint(
+            sa.or_(
+                sa.and_(has_sms.is_(None), has_sms_at.is_(None)),
+                sa.and_(has_sms.isnot(None), has_sms_at.isnot(None)),
+            ),
+            'phone_number_has_sms_check',
+        ),
+        sa.CheckConstraint(
+            sa.or_(
+                sa.and_(has_wa.is_(None), has_wa_at.is_(None)),
+                sa.and_(has_wa.isnot(None), has_wa_at.isnot(None)),
+            ),
+            'phone_number_has_wa_check',
         ),
     )
 
@@ -426,13 +447,43 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             for backref_name in self.__backrefs__
         )
 
-    def mark_active(self) -> None:
-        """Mark phone number as active."""
+    def mark_has_sms(self, value: bool) -> None:
+        """Mark this phone number as having SMS capability (or not)."""
+        self.has_sms = value
+        self.has_sms_at = sa.func.utcnow()
+
+    def mark_has_wa(self, value: bool) -> None:
+        """Mark this phone number has having WhatsApp capability (or not)."""
+        self.has_wa = value
+        self.has_wa_at = sa.func.utcnow()
+
+    def mark_active(self, sms: bool = False, wa: bool = False) -> None:
+        """
+        Mark phone number as active.
+
+        Optionally, indicate if activity was observed through a specific application,
+        confirming the availability of this phone number under that application.
+
+        :param sms: Activity was observed via SMS
+        :param wa: Activity was observed via WhatsApp
+        """
         self.active_at = sa.func.utcnow()
+        if sms:
+            self.mark_has_sms(True)
+        if wa:
+            self.mark_has_wa(True)
+
+    def mark_forgotten(self) -> None:
+        """Forget this phone number."""
+        self.number = None
+        self.has_sms = None
+        self.has_sms_at = None
+        self.has_wa = None
+        self.has_wa_at = None
 
     def mark_blocked(self) -> None:
-        """Mark phone number as blocked."""
-        self.number = None
+        """Mark phone number as blocked and forgotten."""
+        self.mark_forgotten()
         self.blocked_at = sa.func.utcnow()
 
     def mark_unblocked(self, phone: str) -> None:
