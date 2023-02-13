@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from typing import Optional
-import urllib.parse
 
 from flask import flash
 
@@ -234,24 +233,6 @@ def video_url_list_validator(form, field):
             parse_video_url(url)
         except ValueError as exc:
             raise forms.validators.StopValidation(str(exc))
-
-
-def youtube_filter(field):
-    for index, url in enumerate(field):
-        parsed = urllib.parse.urlparse(url)
-        if parsed.netloc in [
-            'youtube.com',
-            'www.youtube.com',
-            'm.youtube.com',
-        ] and parsed.path.startswith('/live'):
-            video_id = parsed.path[6:]
-            video_url = 'https://www.youtube.com/watch?v=' + video_id
-            if parsed.query:
-                video_url += '?' + parsed.query
-            if parsed.fragment:
-                video_url += "#" + parsed.fragment
-            field[index] = video_url
-    return field
 
 
 def video_url_validator(form, field):
