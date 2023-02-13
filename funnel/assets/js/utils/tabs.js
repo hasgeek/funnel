@@ -79,60 +79,26 @@ const MUITabs = {
   async init(container) {
     const $parentElement = $(container || 'body');
     $parentElement
-      .find('.md-tabset .mui-tabs__bar:not(.activating):not(.activated)')
-      .each(function handleTabset() {
-        // Function being called once for each tabs bar
+      .find('.mui-tabs__bar:not(.activating-aria):not(.activated-aria)')
+      .each(function handleTabsetARIA() {
         const tabsBar = this;
-        $(tabsBar).addClass('activating');
-        const $tabs = $(tabsBar).find('[role=tab]');
-        const icons = MUITabs.createIconset();
-
-        MUITabs.wrapAndAddIcons(tabsBar, icons);
-        // $tabsBarContainer should be initialised after calling wrapAndAddIcons.
-        const $tabsBarContainer = $(tabsBar).parent();
-
-        // Observe this tabs bar with ResizeObserver.
-        MUITabs.resizeObserver.observe(tabsBar);
-
-        // Use IntersectionObserver to update tab element with it's
-        // visibility status.
-        const observer = MUITabs.getIntersectionObserver(tabsBar);
-
+        $(tabsBar).addClass('activating-aria');
         // http://web-accessibility.carnegiemuseums.org/code/tabs/
         let index = 0;
-        // Activate tab pointed by current index.
-        function activateCurrent() {
-          window.mui.tabs.activate($($tabs.get(index)).data('mui-controls'));
-        }
-        // Functions to update index to previous and next tabs and
-        // activate them.
-        function previous() {
+        const $tabs = $(tabsBar).find('[role=tab]');
+        tabsBar.addEventListener('previousTab', function previousTab(ev) {
           if (index > 0) index -= 1;
           else index = $tabs.length - 1;
-          activateCurrent();
-        }
-        function next() {
+          ev.target.dispatchEvent(new Event('activateCurrent'));
+        });
+        tabsBar.addEventListener('nextTab', function nextTab(ev) {
           if (index < $tabs.length - 1) index += 1;
           else index = 0;
-          activateCurrent();
-        }
-
-        // Attach this to the scroll event.
-        $(tabsBar).scroll(
-          Utils.debounce(MUITabs.checkScrollability, 500, this, tabsBar)
-        );
-
-        // Functions to scroll the tabs bar left and right.
-        function scrollTo(i) {
-          tabsBar.scrollLeft = $tabs.get(i).offsetLeft - tabsBar.offsetLeft;
-        }
-        function leftScroll() {
-          scrollTo(MUITabs.getLeftScrollIndex(tabsBar, $tabs) + 1);
-        }
-        function rightScroll() {
-          scrollTo(MUITabs.getRightScrollIndex($tabs));
-        }
-
+          ev.target.dispatchEvent(new Event('activateCurrent'));
+        });
+        tabsBar.addEventListener('activateCurrent', function activateCurrent() {
+          window.mui.tabs.activate($($tabs.get(index)).data('mui-controls'));
+        });
         // Bind arrow keys to previous/next for accessibility.
         $tabs.bind({
           keydown: function onpress(event) {
@@ -143,29 +109,16 @@ const MUITabs = {
             const k = event.which || event.keyCode;
 
             if (k >= LEFT_ARROW && k <= DOWN_ARROW) {
-              if (k === LEFT_ARROW || k === UP_ARROW) previous();
-              else if (k === RIGHT_ARROW || k === DOWN_ARROW) next();
+              if (k === LEFT_ARROW || k === UP_ARROW)
+                tabsBar.dispatchEvent(new Event('previousTab'));
+              else if (k === RIGHT_ARROW || k === DOWN_ARROW)
+                tabsBar.dispatchEvent(new Event('nextTab'));
               event.preventDefault();
             }
           },
         });
-
         $tabs.each(function handleTab() {
           const tab = this;
-          // Observe each tab for visibility within it's tabs
-          // bar using IntersectionObserver.
-          observer.observe(tab);
-
-          // Toggle has-panel-hover on the tabs bar wrapper
-          // when a related panel is in hover state.
-          const $panel = $(`#${$(tab).data('mui-controls')}`);
-          $panel.mouseenter(
-            $tabsBarContainer.addClass.bind($tabsBarContainer, 'has-panel-hover')
-          );
-          $panel.mouseleave(
-            $tabsBarContainer.removeClass.bind($tabsBarContainer, 'has-panel-hover')
-          );
-
           // Attach event listeners to update accessibility attributes of tabs shown/hidden.
           tab.addEventListener('mui.tabs.showend', function ariaActive(ev) {
             $(ev.srcElement).attr({ tabindex: 0, 'aria-selected': 'true' }).focus();
@@ -186,10 +139,68 @@ const MUITabs = {
             $(ev.srcElement).attr({ tabindex: '-1', 'aria-selected': 'false' });
           });
         });
+        $(tabsBar).removeClass('activating-aria').addClass('activated-aria');
+      });
+    $parentElement
+      .find('.md-tabset .mui-tabs__bar:not(.activating):not(.activated)')
+      .each(function handleTabset() {
+        // Function being called once for each tabs bar
+        const tabsBar = this;
+        $(tabsBar).addClass('activating');
+        const $tabs = $(tabsBar).find('[role=tab]');
+        const icons = MUITabs.createIconset();
+
+        MUITabs.wrapAndAddIcons(tabsBar, icons);
+        // $tabsBarContainer should be initialised after calling wrapAndAddIcons.
+        const $tabsBarContainer = $(tabsBar).parent();
+
+        // Observe this tabs bar with ResizeObserver.
+        MUITabs.resizeObserver.observe(tabsBar);
+
+        // Use IntersectionObserver to update tab element with it's
+        // visibility status.
+        const observer = MUITabs.getIntersectionObserver(tabsBar);
+
+        // Attach this to the scroll event.
+        $(tabsBar).scroll(
+          Utils.debounce(MUITabs.checkScrollability, 500, this, tabsBar)
+        );
+
+        // Functions to scroll the tabs bar left and right.
+        function scrollTo(i) {
+          tabsBar.scrollLeft = $tabs.get(i).offsetLeft - tabsBar.offsetLeft;
+        }
+        function leftScroll() {
+          scrollTo(MUITabs.getLeftScrollIndex(tabsBar, $tabs) + 1);
+        }
+        function rightScroll() {
+          scrollTo(MUITabs.getRightScrollIndex($tabs));
+        }
+
+        $tabs.each(function handleTab() {
+          const tab = this;
+          // Observe each tab for visibility within it's tabs
+          // bar using IntersectionObserver.
+          observer.observe(tab);
+
+          // Toggle has-panel-hover on the tabs bar wrapper
+          // when a related panel is in hover state.
+          const $panel = $(`#${$(tab).data('mui-controls')}`);
+          $panel.mouseenter(
+            $tabsBarContainer.addClass.bind($tabsBarContainer, 'has-panel-hover')
+          );
+          $panel.mouseleave(
+            $tabsBarContainer.removeClass.bind($tabsBarContainer, 'has-panel-hover')
+          );
+        });
 
         // Bind scroll/touch actions to the arrow icons.
-        $(icons.left.touch).click(previous);
-        $(icons.right.touch).click(next);
+        $(icons.left.touch).click(function previousTab() {
+          tabsBar.dispatchEvent(new Event('previousTab'));
+        });
+        $(icons.right.touch).click(function nextTab() {
+          tabsBar.dispatchEvent(new Event('nextTab'));
+        });
         $(icons.left.scroll).click(leftScroll);
         $(icons.right.scroll).click(rightScroll);
 
