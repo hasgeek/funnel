@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
-from importlib import import_module
 from secrets import token_urlsafe
 from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Optional, Tuple
 import atexit
+import gc
+import inspect
 import multiprocessing
 import os
 import platform
 import signal
 import socket
 import time
+import weakref
 
 from sqlalchemy.engine import Engine
 
@@ -133,20 +135,45 @@ class CapturedCalls(Protocol):
     sms: List[CapturedSms]
 
 
-def install_mock(mock: Callable, *import_paths: str) -> None:
-    """
-    Patch a mock function into given import paths.
+def _signature_without_annotations(func) -> inspect.Signature:
+    """Generate a function signature without parameter type annotations."""
+    sig = inspect.signature(func)
+    return sig.replace(
+        parameters=[
+            p.replace(annotation=inspect.Parameter.empty)
+            for p in sig.parameters.values()
+        ]
+    )
 
-    :param mock: Mock function
-    :param import_paths: List of dotted import paths that need patching
+
+def install_mock(func: Callable, mock: Callable):
     """
-    for ipath in import_paths:
-        components = ipath.split('.')
-        attr = components.pop(-1)
-        mod = import_module('.'.join(components), 'funnel')
-        if not hasattr(mod, attr):
-            raise RuntimeError(f'{ipath} does not exist and cannot be patched')
-        setattr(mod, attr, mock)
+    Patch all existing references to :attr:`func` with :attr:`mock`.
+
+    Uses the Python garbage collector to find and replace all references.
+    """
+    # Validate function signature match before patching, ignoring type annotations
+    fsig = _signature_without_annotations(func)
+    msig = _signature_without_annotations(mock)
+    if fsig != msig:
+        raise TypeError(
+            f"Mock function's signature does not match original's:\n"
+            f"{mock.__name__}{msig} !=\n"
+            f"{func.__name__}{fsig}"
+        )
+    # Use weakref to dereference func from local namespace
+    func = weakref.ref(func)
+    gc.collect()
+    refs = gc.get_referrers(func())  # type: ignore[misc]
+    # Recover func from the weakref so we can do an `is` match in referrers
+    func = func()  # type: ignore[misc]
+    for ref in refs:
+        if isinstance(ref, dict):
+            # We have a namespace dict. Iterate through contents to find the reference
+            # and replace it
+            for key, value in ref.items():
+                if value is func:
+                    ref[key] = mock
 
 
 def _prepare_subprocess(  # pylint: disable=too-many-arguments
@@ -196,21 +223,10 @@ def _prepare_subprocess(  # pylint: disable=too-many-arguments
             calls.sms.append(CapturedSms(str(phone), str(message), message.vars()))
             return token_urlsafe()
 
-        # Patch email (imported in multiple places)
-        install_mock(
-            mock_email,
-            'funnel.transports.email.send.send_email',
-            'funnel.transports.email.send_email',
-            'funnel.views.email.send_email',
-            'funnel.views.otp.send_email',
-        )
-        # Patch SMS (Multiple functions with identical args)
-        install_mock(
-            mock_sms,
-            'funnel.transports.sms.send',
-            'funnel.transports.sms.send_via_exotel',
-            'funnel.transports.sms.send_via_twilio',
-        )
+        # Patch email
+        install_mock(transports.email.send.send_email, mock_email)
+        # Patch SMS
+        install_mock(transports.sms.send, mock_sms)
 
     return worker(*args, **kwargs)
 
