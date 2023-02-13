@@ -397,7 +397,6 @@
     height: 32px !important;
     position: relative !important;
     padding-left: $mui-grid-padding/2 !important;
-    width: calc(100% + $mui-grid-padding) !important;
   }
   .mui-select:focus > label,
   .mui-select > select:focus ~ label {
