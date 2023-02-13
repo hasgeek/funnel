@@ -180,8 +180,16 @@
 {# djlint: off #}{%- macro renderform(form, formid, submit, ref_id="form", message='', action=none, cancel_url='', multipart=false, style="", autosave=false, draft_revision=none) %}{# djlint: on #}
 <form data-parsley-validate="true" id="{{ ref_id }}" method="post" {%- if action %} action="{{ action }}" {%- endif %}{%- if multipart %} enctype="multipart/form-data" {%- endif %} accept-charset="UTF-8" class="mui-form mui-form--margins hg-form {%- if style == 'horiz' %} mui-form--inline{% endif %}" {%- if request_wants.html_fragment and action %} hx-post="{{ action }}" {%- endif %}>
   {{ renderform_inner(form, formid or none, style=style, autosave=autosave, draft_revision=draft_revision) }}
+  {%- if form and form.recaptcha is defined %}
+    <div class="g-recaptcha"
+      data-sitekey="{{ config['RECAPTCHA_PUBLIC_KEY'] }}"
+      data-callback="onInvisibleRecaptchaSubmit"
+      data-size="invisible">
+    </div>
+  {%- endif %}
   {{ rendersubmit([(none, submit or _("Submit"), 'mui-btn--primary')], cancel_url=cancel_url, style=style, csrf_error=form.csrf_token.errors if form.csrf_token else "") }}
 </form>
+{%- if form and form.recaptcha is defined %}{{ recaptcha(formId=ref_id) }}{%- endif %}
 {% endmacro %}
 
 {%- macro ajaxform(ref_id, request, force=false) %}
@@ -211,34 +219,51 @@
     </script>
   {%- endif %}
 {%- endmacro %}
-{%- macro recaptcha(formId, forWrapperId) %}
-  <script type="text/javascript">
-    var formId = "{{ formId }}";
-    var forWrapperId = "{{ forWrapperId }}";
-    window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
-      var postUrl = $('#' + formId).attr('action');
-      var onSuccess = function(responseData) {
-        $('#' + forWrapperId).html(responseData);
+{%- macro recaptcha(formId, formWrapperId='form-wrapper', ajax=false) %}
+  {%- if ajax %}
+    <script type="text/javascript">
+      var formId = {{ formId|tojson }};
+      var formWrapperId = {{ formWrapperId|tojson }};
+      window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
+        var postUrl = $('#' + formId).attr('action');
+        var onSuccess = function(responseData) {
+          $('#' + formWrapperId).html(responseData); //Replace with OTP form received as response
+        };
+        var onError = function(response) {
+          var alertBoxHtml = {{ alertbox('error', '') | tojson }};
+          window.Hasgeek.Forms.showFormError(formId, response, alertBoxHtml);
+        };
+        window.Hasgeek.Forms.ajaxFormSubmit(
+          formId,
+          postUrl,
+          onSuccess,
+          onError,
+          {
+            dataType: 'html'
+          }
+        );
       };
-      var onError = function(response) {
-        var alertBoxHtml = {{ alertbox('error', '') | tojson }};
-        window.Hasgeek.Forms.showFormError(formId, response, alertBoxHtml);
+      document.getElementById(formId).onsubmit = function (event) {
+        event.preventDefault();
+        grecaptcha.execute();
       };
-      window.Hasgeek.Forms.ajaxFormSubmit(
-        formId,
-        postUrl,
-        onSuccess,
-        onError,
-        {
-          dataType: 'html'
+    </script>
+  {%- else %}
+    <script type="text/javascript">
+      var formId = {{ formId|tojson }};
+      window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
+        document.getElementById(formId).submit();
+      };
+      document.getElementById(formId).onsubmit = function (event) {
+        event.preventDefault();
+        if (typeof grecaptcha !== "undefined" && grecaptcha.getResponse() === '') {
+          grecaptcha.execute();
+        } else {
+          document.getElementById(formId).submit();
         }
-      );
-    };
-    document.getElementById(formId).onsubmit = function (event) {
-      event.preventDefault();
-      grecaptcha.execute();
-    };
-  </script>
+      };
+    </script>
+  {%- endif %}
   <script type="text/javascript" src="https://www.google.com/recaptcha/api.js" async defer></script>
 {%- endmacro %}
 
