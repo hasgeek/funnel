@@ -189,7 +189,7 @@
   {%- endif %}
   {{ rendersubmit([(none, submit or _("Submit"), 'mui-btn--primary')], cancel_url=cancel_url, style=style, csrf_error=form.csrf_token.errors if form.csrf_token else "") }}
 </form>
-{%- if form and form.recaptcha is defined %}{{ recaptcha(formId=ref_id, ajax=false) }}{%- endif %}
+{%- if form and form.recaptcha is defined %}{{ recaptcha(formId=ref_id) }}{%- endif %}
 {% endmacro %}
 
 {%- macro ajaxform(ref_id, request, force=false) %}
@@ -219,15 +219,15 @@
     </script>
   {%- endif %}
 {%- endmacro %}
-{%- macro recaptcha(formId, ajax=false, forWrapperId='') %}
+{%- macro recaptcha(formId, formWrapperId='form-wrapper', ajax=false) %}
   {%- if ajax %}
     <script type="text/javascript">
-      var formId = "{{ formId }}";
-      var forWrapperId = "{{ forWrapperId }}";
+      var formId = {{ formId|tojson }};
+      var forWrapperId = {{ formWrapperId|tojson }};
       window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
         var postUrl = $('#' + formId).attr('action');
         var onSuccess = function(responseData) {
-          $('#' + forWrapperId).html(responseData);
+          $('#' + forWrapperId).html(responseData); //Replace with OTP form received as response
         };
         var onError = function(response) {
           var alertBoxHtml = {{ alertbox('error', '') | tojson }};
@@ -250,7 +250,7 @@
     </script>
   {%- else %}
     <script type="text/javascript">
-      var formId = "{{ formId }}";
+      var formId = {{ formId|tojson }};
       window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
         document.getElementById(formId).submit();
       };
