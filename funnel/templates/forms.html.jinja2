@@ -223,11 +223,11 @@
   {%- if ajax %}
     <script type="text/javascript">
       var formId = {{ formId|tojson }};
-      var forWrapperId = {{ formWrapperId|tojson }};
+      var formWrapperId = {{ formWrapperId|tojson }};
       window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
         var postUrl = $('#' + formId).attr('action');
         var onSuccess = function(responseData) {
-          $('#' + forWrapperId).html(responseData); //Replace with OTP form received as response
+          $('#' + formWrapperId).html(responseData); //Replace with OTP form received as response
         };
         var onError = function(response) {
           var alertBoxHtml = {{ alertbox('error', '') | tojson }};
