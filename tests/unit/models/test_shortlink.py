@@ -4,6 +4,9 @@
 # https://datatracker.ietf.org/doc/html/rfc2606#section-3
 # https://datatracker.ietf.org/doc/html/rfc6761#section-6.5
 
+# Since a random number generator is not a unique number generator, some tests are
+# marked as flaky and will be re-run in case a dupe value is generated
+
 from typing import Any
 from unittest.mock import patch
 
@@ -26,6 +29,7 @@ class MockRandomBigint:
         return value
 
 
+@pytest.mark.flaky(reruns=2)
 def test_random_bigint() -> None:
     """Random numbers are within expected range (this test depends on luck)."""
     randset = set()
@@ -36,9 +40,10 @@ def test_random_bigint() -> None:
         assert -(2**63) <= num <= 2**63 - 1
         randset.add(num)
     # Ignore up to 2 collisions
-    assert 998 <= len(randset) <= 1000
+    assert len(randset) == 1000
 
 
+@pytest.mark.flaky(reruns=2)
 def test_smaller_random_int() -> None:
     """Smaller random numbers are within expected range (this test depends on luck)."""
     randset = set()
@@ -48,8 +53,7 @@ def test_smaller_random_int() -> None:
         # within bigint sign bit range
         assert 0 < num <= 2**24 - 1
         randset.add(num)
-    # Ignore up to 2 collisions
-    assert 998 <= len(randset) <= 1000
+    assert len(randset) == 1000
 
 
 def test_mock_random_bigint() -> None:
