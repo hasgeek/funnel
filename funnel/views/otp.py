@@ -316,7 +316,7 @@ class OtpSession(Generic[OptionalUserType]):
             try:
                 email_address = EmailAddress.get(self.email)
                 if email_address:
-                    email_address.mark_active(sms=True)
+                    email_address.mark_active()
             except EmailAddressBlockedError:
                 pass
 
