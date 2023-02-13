@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Tuple
+from importlib import import_module
+from secrets import token_urlsafe
+from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Optional, Tuple
 import atexit
 import multiprocessing
 import os
@@ -15,8 +17,10 @@ from sqlalchemy.engine import Engine
 
 from flask import Flask
 
+from typing_extensions import Protocol
+
 from . import app as main_app
-from . import shortlinkapp
+from . import shortlinkapp, transports
 from .models import db
 from .typing import ReturnView
 
@@ -109,16 +113,105 @@ class HostPort(NamedTuple):
     port: int
 
 
-def _dispose_engines_in_child_process(
+class CapturedSms(NamedTuple):
+    phone: str
+    message: str
+    vars: Dict[str, str]  # noqa: A003
+
+
+class CapturedEmail(NamedTuple):
+    subject: str
+    to: List[str]
+    content: str
+    from_email: Optional[str]
+
+
+class CapturedCalls(Protocol):
+    """Protocol class for captured calls."""
+
+    email: List[CapturedEmail]
+    sms: List[CapturedSms]
+
+
+def install_mock(mock: Callable, *import_paths: str) -> None:
+    """
+    Patch a mock function into given import paths.
+
+    :param mock: Mock function
+    :param import_paths: List of dotted import paths that need patching
+    """
+    for ipath in import_paths:
+        components = ipath.split('.')
+        attr = components.pop(-1)
+        mod = import_module('.'.join(components), 'funnel')
+        if not hasattr(mod, attr):
+            raise RuntimeError(f'{ipath} does not exist and cannot be patched')
+        setattr(mod, attr, mock)
+
+
+def _prepare_subprocess(  # pylint: disable=too-many-arguments
     engines: Iterable[Engine],
+    mock_transports: bool,
+    calls: CapturedCalls,
     worker: Callable,
     args: Tuple[Any],
     kwargs: Dict[str, Any],
 ) -> Any:
-    """Dispose SQLAlchemy engine connections in a forked process."""
-    # https://docs.sqlalchemy.org/en/14/core/pooling.html#pooling-multiprocessing
+    """
+    Prepare a subprocess for hosting a worker.
+
+    1. Dispose all SQLAlchemy engine connections so they're not shared with the parent
+    2. Mock transports if requested, redirecting all calls to a log
+    3. Launch the worker
+    """
+    # https://docs.sqlalchemy.org/en/20/core/pooling.html#pooling-multiprocessing
     for e in engines:
-        e.dispose(close=False)  # type: ignore[call-arg]
+        e.dispose(close=False)
+
+    if mock_transports:
+
+        def mock_email(  # pylint: disable=too-many-arguments
+            subject: str,
+            to: List[Any],
+            content: str,
+            attachments=None,
+            from_email: Optional[Any] = None,
+            headers: Optional[dict] = None,
+        ) -> str:
+            calls.email.append(
+                CapturedEmail(
+                    subject,
+                    [str(each) for each in to],
+                    content,
+                    str(from_email) if from_email else None,
+                )
+            )
+            return token_urlsafe()
+
+        def mock_sms(
+            phone: Any,
+            message: transports.sms.SmsTemplate,
+            callback: bool = True,
+        ) -> str:
+            calls.sms.append(CapturedSms(str(phone), str(message), message.vars()))
+            return token_urlsafe()
+
+        # Patch email (imported in multiple places)
+        install_mock(
+            mock_email,
+            'funnel.transports.email.send.send_email',
+            'funnel.transports.email.send_email',
+            'funnel.views.email.send_email',
+            'funnel.views.otp.send_email',
+        )
+        # Patch SMS (Multiple functions with identical args)
+        install_mock(
+            mock_sms,
+            'funnel.transports.sms.send',
+            'funnel.transports.sms.send_via_exotel',
+            'funnel.transports.sms.send_via_twilio',
+        )
+
     return worker(*args, **kwargs)
 
 
@@ -134,6 +227,7 @@ class BackgroundWorker:
     :param timeout: Timeout after which launch is considered to have failed
     :param clean_stop: Ask for graceful shutdown (default yes)
     :param daemon: Run process in daemon mode (linked to parent, automatic shutdown)
+    :param mock_transports: Patch transports with mock functions that write to a log
     """
 
     def __init__(  # pylint: disable=too-many-arguments
@@ -145,6 +239,7 @@ class BackgroundWorker:
         timeout: int = 10,
         clean_stop: bool = True,
         daemon: bool = True,
+        mock_transports: bool = False,
     ) -> None:
         self.worker = worker
         self.worker_args = args or ()
@@ -154,21 +249,30 @@ class BackgroundWorker:
         self.clean_stop = clean_stop
         self.daemon = daemon
         self._process: Optional[multiprocessing.Process] = None
+        self.mock_transports = mock_transports
+
+        manager = multiprocessing.Manager()
+        self.calls: CapturedCalls = manager.Namespace()
+        self.calls.email = manager.list()
+        self.calls.sms = manager.list()
 
     def start(self) -> None:
         """Start worker in a separate process."""
         if self._process is not None:
             return
 
-        engines = set()
-        for app in main_app, shortlinkapp:  # TODO: Add hasjobapp here
-            with app.app_context():
-                engines.add(db.engines[None])
-                for bind in app.config.get('SQLALCHEMY_BINDS') or ():
-                    engines.add(db.engines[bind])
+        with main_app.app_context():
+            db_engines = db.engines.values()
         self._process = multiprocessing.Process(
-            target=_dispose_engines_in_child_process,
-            args=(engines, self.worker, self.worker_args, self.worker_kwargs),
+            target=_prepare_subprocess,
+            args=(
+                db_engines,
+                self.mock_transports,
+                self.calls,
+                self.worker,
+                self.worker_args,
+                self.worker_kwargs,
+            ),
         )
         self._process.daemon = self.daemon
         self._process.start()
