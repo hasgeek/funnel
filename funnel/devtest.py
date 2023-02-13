@@ -2,21 +2,27 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Tuple
+from secrets import token_urlsafe
+from typing import Any, Callable, Dict, Iterable, List, NamedTuple, Optional, Tuple
 import atexit
+import gc
+import inspect
 import multiprocessing
 import os
 import platform
 import signal
 import socket
 import time
+import weakref
 
 from sqlalchemy.engine import Engine
 
 from flask import Flask
 
+from typing_extensions import Protocol
+
 from . import app as main_app
-from . import shortlinkapp
+from . import shortlinkapp, transports
 from .models import db
 from .typing import ReturnView
 
@@ -109,16 +115,119 @@ class HostPort(NamedTuple):
     port: int
 
 
-def _dispose_engines_in_child_process(
+class CapturedSms(NamedTuple):
+    phone: str
+    message: str
+    vars: Dict[str, str]  # noqa: A003
+
+
+class CapturedEmail(NamedTuple):
+    subject: str
+    to: List[str]
+    content: str
+    from_email: Optional[str]
+
+
+class CapturedCalls(Protocol):
+    """Protocol class for captured calls."""
+
+    email: List[CapturedEmail]
+    sms: List[CapturedSms]
+
+
+def _signature_without_annotations(func) -> inspect.Signature:
+    """Generate a function signature without parameter type annotations."""
+    sig = inspect.signature(func)
+    return sig.replace(
+        parameters=[
+            p.replace(annotation=inspect.Parameter.empty)
+            for p in sig.parameters.values()
+        ]
+    )
+
+
+def install_mock(func: Callable, mock: Callable):
+    """
+    Patch all existing references to :attr:`func` with :attr:`mock`.
+
+    Uses the Python garbage collector to find and replace all references.
+    """
+    # Validate function signature match before patching, ignoring type annotations
+    fsig = _signature_without_annotations(func)
+    msig = _signature_without_annotations(mock)
+    if fsig != msig:
+        raise TypeError(
+            f"Mock function's signature does not match original's:\n"
+            f"{mock.__name__}{msig} !=\n"
+            f"{func.__name__}{fsig}"
+        )
+    # Use weakref to dereference func from local namespace
+    func = weakref.ref(func)
+    gc.collect()
+    refs = gc.get_referrers(func())  # type: ignore[misc]
+    # Recover func from the weakref so we can do an `is` match in referrers
+    func = func()  # type: ignore[misc]
+    for ref in refs:
+        if isinstance(ref, dict):
+            # We have a namespace dict. Iterate through contents to find the reference
+            # and replace it
+            for key, value in ref.items():
+                if value is func:
+                    ref[key] = mock
+
+
+def _prepare_subprocess(  # pylint: disable=too-many-arguments
     engines: Iterable[Engine],
+    mock_transports: bool,
+    calls: CapturedCalls,
     worker: Callable,
     args: Tuple[Any],
     kwargs: Dict[str, Any],
 ) -> Any:
-    """Dispose SQLAlchemy engine connections in a forked process."""
-    # https://docs.sqlalchemy.org/en/14/core/pooling.html#pooling-multiprocessing
+    """
+    Prepare a subprocess for hosting a worker.
+
+    1. Dispose all SQLAlchemy engine connections so they're not shared with the parent
+    2. Mock transports if requested, redirecting all calls to a log
+    3. Launch the worker
+    """
+    # https://docs.sqlalchemy.org/en/20/core/pooling.html#pooling-multiprocessing
     for e in engines:
-        e.dispose(close=False)  # type: ignore[call-arg]
+        e.dispose(close=False)
+
+    if mock_transports:
+
+        def mock_email(  # pylint: disable=too-many-arguments
+            subject: str,
+            to: List[Any],
+            content: str,
+            attachments=None,
+            from_email: Optional[Any] = None,
+            headers: Optional[dict] = None,
+        ) -> str:
+            calls.email.append(
+                CapturedEmail(
+                    subject,
+                    [str(each) for each in to],
+                    content,
+                    str(from_email) if from_email else None,
+                )
+            )
+            return token_urlsafe()
+
+        def mock_sms(
+            phone: Any,
+            message: transports.sms.SmsTemplate,
+            callback: bool = True,
+        ) -> str:
+            calls.sms.append(CapturedSms(str(phone), str(message), message.vars()))
+            return token_urlsafe()
+
+        # Patch email
+        install_mock(transports.email.send.send_email, mock_email)
+        # Patch SMS
+        install_mock(transports.sms.send, mock_sms)
+
     return worker(*args, **kwargs)
 
 
@@ -130,10 +239,11 @@ class BackgroundWorker:
     :param worker: The worker to run
     :param args: Args for worker
     :param kwargs: Kwargs for worker
-    :param probe: Optional host and port to probe for ready state
+    :param probe_at: Optional tuple of (host, port) to probe for ready state
     :param timeout: Timeout after which launch is considered to have failed
     :param clean_stop: Ask for graceful shutdown (default yes)
     :param daemon: Run process in daemon mode (linked to parent, automatic shutdown)
+    :param mock_transports: Patch transports with mock functions that write to a log
     """
 
     def __init__(  # pylint: disable=too-many-arguments
@@ -143,8 +253,9 @@ class BackgroundWorker:
         kwargs: Optional[dict] = None,
         probe_at: Optional[Tuple[str, int]] = None,
         timeout: int = 10,
-        clean_stop=True,
-        daemon=True,
+        clean_stop: bool = True,
+        daemon: bool = True,
+        mock_transports: bool = False,
     ) -> None:
         self.worker = worker
         self.worker_args = args or ()
@@ -154,21 +265,30 @@ class BackgroundWorker:
         self.clean_stop = clean_stop
         self.daemon = daemon
         self._process: Optional[multiprocessing.Process] = None
+        self.mock_transports = mock_transports
+
+        manager = multiprocessing.Manager()
+        self.calls: CapturedCalls = manager.Namespace()
+        self.calls.email = manager.list()
+        self.calls.sms = manager.list()
 
     def start(self) -> None:
         """Start worker in a separate process."""
         if self._process is not None:
             return
 
-        engines = set()
-        for app in main_app, shortlinkapp:  # TODO: Add hasjobapp here
-            with app.app_context():
-                engines.add(db.engines[None])
-                for bind in app.config.get('SQLALCHEMY_BINDS') or ():
-                    engines.add(db.engines[bind])
+        with main_app.app_context():
+            db_engines = db.engines.values()
         self._process = multiprocessing.Process(
-            target=_dispose_engines_in_child_process,
-            args=(engines, self.worker, self.worker_args, self.worker_kwargs),
+            target=_prepare_subprocess,
+            args=(
+                db_engines,
+                self.mock_transports,
+                self.calls,
+                self.worker,
+                self.worker_args,
+                self.worker_kwargs,
+            ),
         )
         self._process.daemon = self.daemon
         self._process.start()

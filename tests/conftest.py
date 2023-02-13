@@ -989,9 +989,11 @@ def live_server(funnel_devtest, database, app):
                 'ssl_context': 'adhoc' if use_https else None,
             },
             probe_at=('127.0.0.1', port),
+            mock_transports=True,
         ) as server:
             yield SimpleNamespace(
-                server=server,
+                background_worker=server,
+                transport_calls=server.calls,
                 url=f'{scheme}://{app.config["SERVER_NAME"]}/',
                 urls=[
                     f'{scheme}://{m_app.config["SERVER_NAME"]}/'

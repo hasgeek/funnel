@@ -7,7 +7,7 @@
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: calc(env(keyboard-inset-height));
 
   .header__nav {
     height: $mui-header-height;
@@ -42,7 +42,7 @@
 
         .search-form {
           position: fixed;
-          bottom: $mui-header-height;
+          bottom: calc(env(keyboard-inset-height) + #{$mui-header-height});
           width: 100%;
           left: 0;
           box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12),
