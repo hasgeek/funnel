@@ -67,7 +67,7 @@ def upgrade():
     projects = conn.execute(project.select())
     for proj in projects:
         sec_count = conn.scalar(
-            sa.select([sa.func.count('*')])
+            sa.select(sa.func.count('*'))
             .select_from(section)
             .where(section.c.project_id == proj['id'])
         )
@@ -229,7 +229,7 @@ def upgrade():
         for index, st in enumerate(st_list, start=1):
             st_name, st_title = st
             duplicate_count = conn.scalar(
-                sa.select([sa.func.count('*')])
+                sa.select(sa.func.count('*'))
                 .select_from(label)
                 .where(label.c.name == st_name)
                 .where(label.c.project_id == proj['id'])

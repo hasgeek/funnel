@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from typing import Optional
+from uuid import UUID
+
 from werkzeug.datastructures import MultiDict
 
-from . import NoIdMixin, UUIDType, db, json_type, sa
+from . import Mapped, NoIdMixin, UUIDType, db, json_type, sa
 
 __all__ = ['Draft']
 
@@ -13,11 +16,12 @@ class Draft(NoIdMixin, db.Model):  # type: ignore[name-defined]
     """Store for autosaved, unvalidated drafts on behalf of other models."""
 
     __tablename__ = 'draft'
+    __allow_unmapped__ = True
 
     table = sa.Column(sa.UnicodeText, primary_key=True)
-    table_row_id = sa.Column(UUIDType(binary=False), primary_key=True)
+    table_row_id: Mapped[UUID] = sa.Column(UUIDType(binary=False), primary_key=True)
     body = sa.Column(json_type, nullable=False, server_default='{}')
-    revision = sa.Column(UUIDType(binary=False))
+    revision: Mapped[Optional[UUID]] = sa.Column(UUIDType(binary=False))
 
     @property
     def formdata(self):

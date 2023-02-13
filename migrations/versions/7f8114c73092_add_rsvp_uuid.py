@@ -52,11 +52,11 @@ def upgrade():
     conn = op.get_bind()
     op.add_column('rsvp', sa.Column('uuid', UUIDType(binary=False), nullable=True))
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(rsvp))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(rsvp))
     progress = get_progressbar("Rsvps", count)
     progress.start()
 
-    items = conn.execute(sa.select([rsvp.c.project_id, rsvp.c.user_id]))
+    items = conn.execute(sa.select(rsvp.c.project_id, rsvp.c.user_id))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(rsvp)

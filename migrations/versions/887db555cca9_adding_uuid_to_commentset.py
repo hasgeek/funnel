@@ -52,10 +52,10 @@ def upgrade():
         'commentset', sa.Column('uuid', UUIDType(binary=False), nullable=True)
     )
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(commentset))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(commentset))
     progress = get_progressbar("Commentsets", count)
     progress.start()
-    items = conn.execute(sa.select([commentset.c.id]))
+    items = conn.execute(sa.select(commentset.c.id))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(commentset).where(commentset.c.id == item.id).values(uuid=uuid4())

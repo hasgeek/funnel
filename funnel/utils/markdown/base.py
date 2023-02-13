@@ -15,10 +15,18 @@ from typing import (
     Union,
     overload,
 )
+import re
 
 from markdown_it import MarkdownIt
 from markupsafe import Markup
-from mdit_py_plugins import anchors, deflist, footnote, front_matter, tasklists
+from mdit_py_plugins import (
+    anchors,
+    container,
+    deflist,
+    footnote,
+    front_matter,
+    tasklists,
+)
 from typing_extensions import Literal
 
 from coaster.utils import make_name
@@ -34,9 +42,77 @@ from .mdit_plugins import (  # toc_plugin,
     sub_plugin,
     sup_plugin,
 )
+from .tabs import render_tab
 
-__all__ = ['MarkdownPlugin', 'MarkdownConfig']
+__all__ = ['MarkdownPlugin', 'MarkdownConfig', 'MarkdownString', 'markdown_escape']
 
+# --- Markdown escaper and string ------------------------------------------------------
+
+#: Based on the ASCII punctuation list in the CommonMark spec at
+#: https://spec.commonmark.org/0.30/#backslash-escapes
+markdown_escape_re = re.compile(r"""([\[\\\]{|}\(\)`~!@#$%^&*=+;:'"<>/,.?_-])""")
+
+
+def markdown_escape(text: str) -> MarkdownString:
+    """
+    Escape all Markdown formatting characters and strip whitespace at ends.
+
+    As per the CommonMark spec, all ASCII punctuation can be escaped with a backslash
+    and compliant parsers will then render the punctuation mark as a literal character.
+    However, escaping any other character will cause the backslash to be rendered. This
+    escaper therefore targets only ASCII punctuation characters listed in the spec.
+
+    Edge whitespace is significant in Markdown and must be stripped when escaping:
+
+    * Four spaces at the start will initiate a code block
+    * Two spaces at the end will cause a line-break in non-GFM Markdown
+
+    Replacing these spaces with &nbsp; is not suitable because non-breaking spaces
+    affect HTML rendering, specifically the CSS ``white-space: normal`` sequence
+    collapsing behaviour.
+
+    :returns: Escaped text as an instance of :class:`MarkdownString`, to avoid
+        double-escaping
+    """
+    if hasattr(text, '__markdown__'):
+        return MarkdownString(text.__markdown__())
+    return MarkdownString(markdown_escape_re.sub(r'\\\1', text).strip())
+
+
+class MarkdownString(str):
+    """Markdown string, implements a __markdown__ method."""
+
+    __slots__ = ()
+
+    def __new__(
+        cls, base: Any = '', encoding: Optional[str] = None, errors: str = 'strict'
+    ) -> MarkdownString:
+        if hasattr(base, '__markdown__'):
+            base = base.__markdown__()
+
+        if encoding is None:
+            return super().__new__(cls, base)
+
+        return super().__new__(cls, base, encoding, errors)
+
+    def __markdown__(self) -> MarkdownString:
+        """Return a markdown source string."""
+        return self
+
+    @classmethod
+    def escape(cls, text: str) -> MarkdownString:
+        """Escape a string."""
+        rv = markdown_escape(text)
+
+        if rv.__class__ is not cls:
+            return cls(rv)
+
+        return rv
+
+    # TODO: Implement other methods supported by markupsafe
+
+
+# --- Markdown dataclasses -------------------------------------------------------------
 
 OptionStrings = Literal['html', 'breaks', 'linkify', 'typographer']
 
@@ -172,6 +248,12 @@ MarkdownPlugin('del', del_plugin)
 MarkdownPlugin('sub', sub_plugin)
 MarkdownPlugin('sup', sup_plugin)
 MarkdownPlugin('mark', mark_plugin)
+
+MarkdownPlugin(
+    'tab_container',
+    container.container_plugin,
+    {'name': 'tab', 'marker': ':', 'render': render_tab},
+)
 MarkdownPlugin('markmap', embeds_plugin, {'name': 'markmap'})
 MarkdownPlugin('vega-lite', embeds_plugin, {'name': 'vega-lite'})
 MarkdownPlugin('mermaid', embeds_plugin, {'name': 'mermaid'})
@@ -186,6 +268,7 @@ MarkdownConfig(
     options_update={'html': False, 'breaks': True},
     plugins=['frontmatter', 'block_code_ext'],
 )
+
 MarkdownConfig(
     name='document',
     preset='gfm-like',
@@ -197,6 +280,7 @@ MarkdownConfig(
     },
     plugins=[
         'frontmatter',
+        'tab_container',
         'block_code_ext',
         'deflists',
         'footnote',
@@ -215,10 +299,20 @@ MarkdownConfig(
     ],
     enable_rules={'smartquotes'},
 )
+
+#: This profile is meant for inline fields (like Title) and allows for only inline
+#: visual markup: emphasis, code, ins/underline, del/strikethrough, superscripts,
+#: subscripts and smart quotes. It does not allow hyperlinks, images or HTML tags.
+#: Text in these fields will also have to be presented raw for embeds and other third
+#: party uses. We have considered using an alternative "plaintext" renderer that uses
+#: Unicode characters for bold/italic/sub/sup, but found this unsuitable as these
+#: character ranges are not comprehensive. Instead, plaintext use will include the
+#: Markdown formatting characters as-is.
 MarkdownConfig(
     name='inline',
     preset='zero',
-    options_update={'html': False, 'breaks': False},
+    options_update={'html': False, 'breaks': False, 'typographer': True},
+    plugins=['ins', 'del', 'sup', 'sub'],
     inline=True,
-    enable_rules={'emphasis', 'backticks'},
+    enable_rules={'emphasis', 'backticks', 'escape', 'smartquotes'},
 )

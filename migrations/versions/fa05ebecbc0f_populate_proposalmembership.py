@@ -90,18 +90,16 @@ def get_progressbar(label, maxval):
 def upgrade():
     # Adapts from `proposal` table to an empty `proposal_membership` table.
     conn = op.get_bind()
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(proposal))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(proposal))
 
     progress = get_progressbar("Proposals", count)
     progress.start()
     proposals = conn.execute(
         sa.select(
-            [
-                proposal.c.id,
-                proposal.c.created_at,
-                proposal.c.user_id,
-                proposal.c.speaker_id,
-            ]
+            proposal.c.id,
+            proposal.c.created_at,
+            proposal.c.user_id,
+            proposal.c.speaker_id,
         )
     )
 
