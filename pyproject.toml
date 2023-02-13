@@ -117,7 +117,6 @@ addopts = [
   '--splinter-screenshot-dir=tests/screenshots',
   '--remote-data=any',
   '--strict-markers',
-  '--splinter-headless'
 ]
 markers = [
   'dbcommit: Test requires true database commits',

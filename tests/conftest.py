@@ -40,6 +40,14 @@ def pytest_addoption(parser) -> None:
         help="Use db_session with 'rollback' (default) or 'truncate'"
         " (slower but more production-like)",
     )
+    splinter = parser.getgroup('splinter')
+    splinter.addoption(
+        '--splinter-headed',
+        help="Run the browser in headed mode.",
+        default=True,
+        action='store_false',
+        dest='splinter_headless',
+    )
 
 
 def pytest_collection_modifyitems(items) -> None:
@@ -949,8 +957,8 @@ def splinter_driver_kwargs(splinter_webdriver) -> dict:
     return {}
 
 
-@pytest.fixture(scope='package')
-def live_server(funnel_devtest, database, app):
+@pytest.fixture(scope='session')
+def live_server(funnel_devtest, app, database):
     """Run application in a separate process."""
     from werkzeug import run_simple
 

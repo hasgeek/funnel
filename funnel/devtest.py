@@ -146,7 +146,7 @@ def _signature_without_annotations(func) -> inspect.Signature:
     )
 
 
-def install_mock(func: Callable, mock: Callable):
+def install_mock(func: Callable, mock: Callable) -> None:
     """
     Patch all existing references to :attr:`func` with :attr:`mock`.
 
