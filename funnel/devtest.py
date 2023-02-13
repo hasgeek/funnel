@@ -130,7 +130,7 @@ class BackgroundWorker:
     :param worker: The worker to run
     :param args: Args for worker
     :param kwargs: Kwargs for worker
-    :param probe: Optional host and port to probe for ready state
+    :param probe_at: Optional tuple of (host, port) to probe for ready state
     :param timeout: Timeout after which launch is considered to have failed
     :param clean_stop: Ask for graceful shutdown (default yes)
     :param daemon: Run process in daemon mode (linked to parent, automatic shutdown)
@@ -143,8 +143,8 @@ class BackgroundWorker:
         kwargs: Optional[dict] = None,
         probe_at: Optional[Tuple[str, int]] = None,
         timeout: int = 10,
-        clean_stop=True,
-        daemon=True,
+        clean_stop: bool = True,
+        daemon: bool = True,
     ) -> None:
         self.worker = worker
         self.worker_args = args or ()
@@ -226,7 +226,7 @@ class BackgroundWorker:
         """
         Attempt to stop the server cleanly.
 
-        Sends a SIGINT signal and waits for ``timeout`` seconds.
+        Sends a SIGINT signal and waits for :attr:`timeout` seconds.
 
         :return: True if the server was cleanly stopped, False otherwise.
         """
@@ -249,3 +249,12 @@ class BackgroundWorker:
                 f" {self.probe_at.host}:{self.probe_at.port}>"
             )
         return f"<BackgroundWorker with pid {self.pid}>"
+
+    def __enter__(self) -> BackgroundWorker:
+        """Start server in a context manager."""
+        self.start()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        """Finalise a context manager."""
+        self.stop()
