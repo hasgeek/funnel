@@ -226,7 +226,7 @@ class BackgroundWorker:
         """
         Attempt to stop the server cleanly.
 
-        Sends a SIGINT signal and waits for ``timeout`` seconds.
+        Sends a SIGINT signal and waits for :attr:`timeout` seconds.
 
         :return: True if the server was cleanly stopped, False otherwise.
         """
@@ -249,3 +249,12 @@ class BackgroundWorker:
                 f" {self.probe_at.host}:{self.probe_at.port}>"
             )
         return f"<BackgroundWorker with pid {self.pid}>"
+
+    def __enter__(self) -> BackgroundWorker:
+        """Start server in a context manager."""
+        self.start()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        """Finalise a context manager."""
+        self.stop()
