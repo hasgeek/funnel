@@ -54,19 +54,6 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
     }
   }
 
-  $(window).bind('beforeunload', () => {
-    if (haveDirtyFields()) {
-      return window.gettext(
-        'You have unsaved changes on this page. Do you want to leave this page?'
-      );
-    }
-    return true;
-  });
-
-  $(formId).on('submit', () => {
-    $(window).off('beforeunload');
-  });
-
   if (autosave) {
     if ($('input[name="form.revision"]').val()) {
       $(msgElemId).text(window.gettext('These changes have not been published yet'));
