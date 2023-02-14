@@ -428,7 +428,10 @@
   padding: $mui-grid-padding/2;
   margin: 0;
   background: $mui-bg-color-primary;
-  margin-bottom: calc(env(keyboard-inset-height)); // Position it above the keyboard
+  margin-bottom: 0;
+  margin-bottom: calc(
+    env(keyboard-inset-height, 0px)
+  ); // Position it above the keyboard
   .tabs__item {
     margin: 0;
   }
