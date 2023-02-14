@@ -397,7 +397,6 @@
     height: 32px !important;
     position: relative !important;
     padding-left: $mui-grid-padding/2 !important;
-    width: calc(100% + $mui-grid-padding) !important;
   }
   .mui-select:focus > label,
   .mui-select > select:focus ~ label {
@@ -423,12 +422,16 @@
   position: fixed;
   left: 0;
   bottom: 0;
-  width: 100%;
+  right: 0;
+  width: auto;
   z-index: 2;
   padding: $mui-grid-padding/2;
   margin: 0;
   background: $mui-bg-color-primary;
   margin-bottom: calc(env(keyboard-inset-height)); // Position it above the keyboard
+  .tabs__item {
+    margin: 0;
+  }
 }
 
 input#username:focus ~ .keyboard-switch {
