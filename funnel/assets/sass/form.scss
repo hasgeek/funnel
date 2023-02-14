@@ -422,13 +422,13 @@
   justify-content: space-between;
   position: fixed;
   left: 0;
-  bottom: calc(env(keyboard-inset-height, 0px));
+  bottom: calc(env(keyboard-inset-height, 35vh));
   right: 0;
   width: auto;
   z-index: 2;
   padding: $mui-grid-padding/2;
   margin: 0;
-  background: transparent;
+  background: $mui-primary-color;
   .tabs__item {
     margin: 0;
   }
