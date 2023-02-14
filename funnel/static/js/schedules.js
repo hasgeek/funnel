@@ -149,6 +149,7 @@ $(function () {
       options: {
         backdrop: 'static',
       },
+      submitting: false,
       pop: function () {
         this.container.modal(this.options);
         if (settings.editable) {
@@ -180,57 +181,62 @@ $(function () {
         else return this.form().find('[name=' + input + ']');
       };
       popup.save = function () {
-        popup.form('start_at').val(events.current.obj_data.start_at);
-        popup.form('end_at').val(events.current.obj_data.end_at);
-        var data = popup.form().serializeArray();
-        $.ajax({
-          url: events.current.modal_url,
-          type: 'POST',
-          headers: {
-            Accept: 'application/x.html+json',
-          },
-          data: data,
-          dataType: 'json',
-          beforeSend: function () {
-            popup.container.find('.save').prop('disabled', true);
-            popup.container.find('.loading').removeClass('mui--hide');
-          },
-          success: function (result) {
-            if (result.status) {
-              events.update_obj_data(result.data);
-              events.current.title = result.data.title;
-              events.current.speaker = result.data.speaker;
-              events.current.saved = true;
-              if (events.current.unscheduled) {
-                events.current.unscheduled.remove();
-                events.current.unscheduled = null;
+        if (!popup.submitting) {
+          popup.form('start_at').val(events.current.obj_data.start_at);
+          popup.form('end_at').val(events.current.obj_data.end_at);
+          var data = popup.form().serializeArray();
+          $.ajax({
+            url: events.current.modal_url,
+            type: 'POST',
+            headers: {
+              Accept: 'application/x.html+json',
+            },
+            data: data,
+            dataType: 'json',
+            beforeSend: function () {
+              popup.submitting = true;
+              popup.container.find('.save').prop('disabled', true);
+              popup.container.find('.loading').removeClass('mui--hide');
+            },
+            success: function (result) {
+              if (result.status) {
+                events.update_obj_data(result.data);
+                events.current.title = result.data.title;
+                events.current.speaker = result.data.speaker;
+                events.current.saved = true;
+                if (events.current.unscheduled) {
+                  events.current.unscheduled.remove();
+                  events.current.unscheduled = null;
+                }
+                calendar.update(events.current);
+                popup.hide();
+                if ($('#schedule-publish-alert').length) {
+                  $('#schedule-publish-alert .alert__close').click();
+                }
+              } else {
+                popup.body().html(result.form);
+                activate_widgets();
               }
-              calendar.update(events.current);
-              popup.hide();
-              if ($('#schedule-publish-alert').length) {
-                $('#schedule-publish-alert .alert__close').click();
+            },
+            complete: function (xhr, type) {
+              if (type == 'error' || type == 'timeout') {
+                toastr.error(
+                  gettext(
+                    'The server could not be reached. Check connection and try again'
+                  )
+                );
               }
-            } else {
-              popup.body().html(result.form);
-              activate_widgets();
-            }
-          },
-          complete: function (xhr, type) {
-            if (type == 'error' || type == 'timeout') {
-              toastr.error(
-                gettext(
-                  'The server could not be reached. Check connection and try again'
-                )
-              );
-            }
-            popup.container.find('.save').prop('disabled', false);
-            popup.container.find('.loading').addClass('mui--hide');
-          },
-        });
+              popup.submitting = false;
+              popup.container.find('.save').prop('disabled', false);
+              popup.container.find('.loading').addClass('mui--hide');
+            },
+          });
+        }
       };
     }
 
     obj.open = function () {
+      console.log('open');
       $.ajax({
         url: events.current.modal_url,
         type: 'GET',
@@ -239,6 +245,7 @@ $(function () {
         },
         dataType: 'json',
         success: function (result) {
+          console.log('open result', result);
           popup.title().text(events.current.title);
           if (settings.editable) {
             if (events.current.obj_data.id) popup.title().text(gettext('Edit session'));
@@ -267,6 +274,7 @@ $(function () {
     };
 
     obj.init = function () {
+      console.log('init');
       popup.container.find('.save').click(popup.save);
     };
 
