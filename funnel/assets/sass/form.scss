@@ -417,26 +417,23 @@
 // ============================================================================
 
 .tabs.keyboard-switch {
-  display: none;
+  display: flex;
+  visibility: hidden;
   justify-content: space-between;
   position: fixed;
   left: 0;
-  bottom: 0;
+  bottom: calc(env(keyboard-inset-height, 0px));
   right: 0;
   width: auto;
   z-index: 2;
   padding: $mui-grid-padding/2;
   margin: 0;
-  background: $mui-bg-color-primary;
-  margin-bottom: 0;
-  margin-bottom: calc(
-    env(keyboard-inset-height, 0px)
-  ); // Position it above the keyboard
+  background: transparent;
   .tabs__item {
     margin: 0;
   }
 }
 
-input#username:focus ~ .keyboard-switch {
-  display: flex;
+input#username ~ .keyboard-switch {
+  visibility: visible;
 }
