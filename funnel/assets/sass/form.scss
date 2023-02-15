@@ -417,12 +417,11 @@
 // ============================================================================
 
 .tabs.keyboard-switch {
-  display: flex;
-  visibility: hidden;
-  justify-content: space-between;
+  display: none;
+  justify-content: center;
   position: fixed;
   left: 0;
-  bottom: calc(env(keyboard-inset-height, 40vh));
+  bottom: calc(env(keyboard-inset-height, 100% - 42px));
   right: 0;
   width: auto;
   z-index: 2;
@@ -434,6 +433,18 @@
   }
 }
 
-input#username ~ .keyboard-switch {
-  visibility: visible;
+input#username:focus ~ .keyboard-switch {
+  display: flex;
+}
+
+.jquery-modal.blocker.current {
+  input#username ~ .tabs.keyboard-switch {
+    display: flex;
+    position: relative;
+    bottom: 0;
+    padding: 0;
+    .tabs__item {
+      margin: $mui-grid-padding/2;
+    }
+  }
 }

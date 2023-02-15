@@ -79,8 +79,8 @@
                 <label for="{{ field.id }}">{{ field.label.text }}</label>
               {%- endif %}
               <div class="tabs keyboard-switch">
-                <a href="#" onclick="return false;" class="tabs__item tabs__item--active mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="email">Use email address</a>
-                <a href="#" onclick="return false;" class="tabs__item mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="tel">Use phone number</a>
+                <button class="tabs__item tabs__item--active mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="email">email address</button>
+                <button class="tabs__item mui--text-caption js-keyboard-switcher mui--hidden-md mui--hidden-lg mui--hidden-xl nounderline" data-inputmode="tel">phone number</button>
               </div>
             </div>
           {%- elif field.type == 'ImgeeField' %}
