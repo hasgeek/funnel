@@ -413,38 +413,9 @@
 }
 
 // ============================================================================
-// Keyboard switcher
+// Input field helper icon (keyboard switch/Show password)
 // ============================================================================
 
-.tabs.keyboard-switch {
+.field-toggle {
   display: none;
-  justify-content: center;
-  position: fixed;
-  left: 0;
-  bottom: calc(env(keyboard-inset-height, 100% - 42px));
-  right: 0;
-  width: auto;
-  z-index: 2;
-  padding: $mui-grid-padding/2;
-  margin: 0;
-  background: $mui-bg-color-primary;
-  .tabs__item {
-    margin: 0;
-  }
-}
-
-input#username:focus ~ .keyboard-switch {
-  display: flex;
-}
-
-.jquery-modal.blocker.current {
-  input#username ~ .tabs.keyboard-switch {
-    display: flex;
-    position: relative;
-    bottom: 0;
-    padding: 0;
-    .tabs__item {
-      margin: $mui-grid-padding/2;
-    }
-  }
 }
