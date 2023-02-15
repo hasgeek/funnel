@@ -338,6 +338,8 @@
     $(this).addClass('active');
     $('#username').attr('inputmode', inputMode);
     $('#username').attr('autocomplete', inputMode);
+    $('#username').blur();
+    $('#username').focus();
   });
 
   {% if form and form.otp %}
