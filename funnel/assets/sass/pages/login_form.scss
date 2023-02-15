@@ -176,9 +176,10 @@ a.loginbutton.hidden,
 // ============================================================================
 
 .field-toggle {
+  padding: $mui-grid-padding/2;
   position: absolute;
-  right: 8px;
-  bottom: 4px;
+  right: -$mui-grid-padding/2;
+  bottom: -$mui-grid-padding/4;
   float: right;
   z-index: 3;
 }
