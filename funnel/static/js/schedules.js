@@ -236,7 +236,6 @@ $(function () {
     }
 
     obj.open = function () {
-      console.log('open');
       $.ajax({
         url: events.current.modal_url,
         type: 'GET',
@@ -245,7 +244,6 @@ $(function () {
         },
         dataType: 'json',
         success: function (result) {
-          console.log('open result', result);
           popup.title().text(events.current.title);
           if (settings.editable) {
             if (events.current.obj_data.id) popup.title().text(gettext('Edit session'));
@@ -274,7 +272,6 @@ $(function () {
     };
 
     obj.init = function () {
-      console.log('init');
       popup.container.find('.save').click(popup.save);
     };
 
