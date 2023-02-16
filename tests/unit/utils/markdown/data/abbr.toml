@@ -1,0 +1,2732 @@
+markdown = """
+## Testing abbreviations plugin
+### Tests for `*[Short Form]: Long form` syntax for `<abbr>`
+
+*[HTML]: HyperText Markup Language
+
+The language [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML) is a markup language for webpages.
+
+*[CSS]: Cascading Style Sheets
+
+CSS is a language used to define the presentation of HTML webpages.
+
+> You can find more about CSS on https://developer.mozilla.org/en-US/docs/Web/CSS
+
+### Tests for padding characters
+*[ABBR]: Abbrieviation
+
+- [ABBR[
+-  ABBR 
+- !ABBR!
+- "ABBR"
+- #ABBR#
+- %ABBR%
+- &ABBR&
+- 'ABBR'
+- (ABBR(
+- )ABBR)
+- *ABBR*
+- ,ABBR,
+- -ABBR-
+- .ABBR.
+- /ABBR/
+- :ABBR:
+- ;ABBR;
+- ?ABBR?
+- @ABBR@
+- \\ABBR\\
+- [ABBR[
+- \\ABBR\\
+- \\ABBR\\
+- \\ABBR\\
+- ]ABBR]
+- _ABBR_
+- {ABBR{
+- }ABBR}
+-  ABBR 
+- ¡ABBR¡
+- §ABBR§
+- «ABBR«
+- ¶ABBR¶
+- ·ABBR·
+- »ABBR»
+- ¿ABBR¿
+- ;ABBR;
+- ·ABBR·
+- ՚ABBR՚
+- ՛ABBR՛
+- ՜ABBR՜
+- ՝ABBR՝
+- ՞ABBR՞
+- ՟ABBR՟
+- ։ABBR։
+- ֊ABBR֊
+- ־ABBR־
+- ׀ABBR׀
+- ׃ABBR׃
+- ׆ABBR׆
+- ׳ABBR׳
+- ״ABBR״
+- ؉ABBR؉
+- ؊ABBR؊
+- ،ABBR،
+- ؍ABBR؍
+- ؛ABBR؛
+- ؝ABBR؝
+- ؞ABBR؞
+- ؟ABBR؟
+- ٪ABBR٪
+- ٫ABBR٫
+- ٬ABBR٬
+- ٭ABBR٭
+- ۔ABBR۔
+- ܀ABBR܀
+- ܁ABBR܁
+- ܂ABBR܂
+- ܃ABBR܃
+- ܄ABBR܄
+- ܅ABBR܅
+- ܆ABBR܆
+- ܇ABBR܇
+- ܈ABBR܈
+- ܉ABBR܉
+- ܊ABBR܊
+- ܋ABBR܋
+- ܌ABBR܌
+- ܍ABBR܍
+- ߷ABBR߷
+- ߸ABBR߸
+- ߹ABBR߹
+- ࠰ABBR࠰
+- ࠱ABBR࠱
+- ࠲ABBR࠲
+- ࠳ABBR࠳
+- ࠴ABBR࠴
+- ࠵ABBR࠵
+- ࠶ABBR࠶
+- ࠷ABBR࠷
+- ࠸ABBR࠸
+- ࠹ABBR࠹
+- ࠺ABBR࠺
+- ࠻ABBR࠻
+- ࠼ABBR࠼
+- ࠽ABBR࠽
+- ࠾ABBR࠾
+- ࡞ABBR࡞
+- ।ABBR।
+- ॥ABBR॥
+- ॰ABBR॰
+- ৽ABBR৽
+- ੶ABBR੶
+- ૰ABBR૰
+- ౷ABBR౷
+- ಄ABBR಄
+- ෴ABBR෴
+- ๏ABBR๏
+- ๚ABBR๚
+- ๛ABBR๛
+- ༄ABBR༄
+- ༅ABBR༅
+- ༆ABBR༆
+- ༇ABBR༇
+- ༈ABBR༈
+- ༉ABBR༉
+- ༊ABBR༊
+- ་ABBR་
+- ༌ABBR༌
+- །ABBR།
+- ༎ABBR༎
+- ༏ABBR༏
+- ༐ABBR༐
+- ༑ABBR༑
+- ༒ABBR༒
+- ༔ABBR༔
+- ༺ABBR༺
+- ༻ABBR༻
+- ༼ABBR༼
+- ༽ABBR༽
+- ྅ABBR྅
+- ࿐ABBR࿐
+- ࿑ABBR࿑
+- ࿒ABBR࿒
+- ࿓ABBR࿓
+- ࿔ABBR࿔
+- ࿙ABBR࿙
+- ࿚ABBR࿚
+- ၊ABBR၊
+- ။ABBR။
+- ၌ABBR၌
+- ၍ABBR၍
+- ၎ABBR၎
+- ၏ABBR၏
+- ჻ABBR჻
+- ፠ABBR፠
+- ፡ABBR፡
+- ።ABBR።
+- ፣ABBR፣
+- ፤ABBR፤
+- ፥ABBR፥
+- ፦ABBR፦
+- ፧ABBR፧
+- ፨ABBR፨
+- ᐀ABBR᐀
+- ᙮ABBR᙮
+-  ABBR 
+- ᚛ABBR᚛
+- ᚜ABBR᚜
+- ᛫ABBR᛫
+- ᛬ABBR᛬
+- ᛭ABBR᛭
+- ᜵ABBR᜵
+- ᜶ABBR᜶
+- ។ABBR។
+- ៕ABBR៕
+- ៖ABBR៖
+- ៘ABBR៘
+- ៙ABBR៙
+- ៚ABBR៚
+- ᠀ABBR᠀
+- ᠁ABBR᠁
+- ᠂ABBR᠂
+- ᠃ABBR᠃
+- ᠄ABBR᠄
+- ᠅ABBR᠅
+- ᠆ABBR᠆
+- ᠇ABBR᠇
+- ᠈ABBR᠈
+- ᠉ABBR᠉
+- ᠊ABBR᠊
+- ᥄ABBR᥄
+- ᥅ABBR᥅
+- ᨞ABBR᨞
+- ᨟ABBR᨟
+- ᪠ABBR᪠
+- ᪡ABBR᪡
+- ᪢ABBR᪢
+- ᪣ABBR᪣
+- ᪤ABBR᪤
+- ᪥ABBR᪥
+- ᪦ABBR᪦
+- ᪨ABBR᪨
+- ᪩ABBR᪩
+- ᪪ABBR᪪
+- ᪫ABBR᪫
+- ᪬ABBR᪬
+- ᪭ABBR᪭
+- ᭚ABBR᭚
+- ᭛ABBR᭛
+- ᭜ABBR᭜
+- ᭝ABBR᭝
+- ᭞ABBR᭞
+- ᭟ABBR᭟
+- ᭠ABBR᭠
+- ᭽ABBR᭽
+- ᭾ABBR᭾
+- ᯼ABBR᯼
+- ᯽ABBR᯽
+- ᯾ABBR᯾
+- ᯿ABBR᯿
+- ᰻ABBR᰻
+- ᰼ABBR᰼
+- ᰽ABBR᰽
+- ᰾ABBR᰾
+- ᰿ABBR᰿
+- ᱾ABBR᱾
+- ᱿ABBR᱿
+- ᳀ABBR᳀
+- ᳁ABBR᳁
+- ᳂ABBR᳂
+- ᳃ABBR᳃
+- ᳄ABBR᳄
+- ᳅ABBR᳅
+- ᳆ABBR᳆
+- ᳇ABBR᳇
+- ᳓ABBR᳓
+-  ABBR 
+-  ABBR 
+-  ABBR 
+-  ABBR 
+-  ABBR 
+-  ABBR 
+-  ABBR 
+-  ABBR 
+-  ABBR 
+-  ABBR 
+-  ABBR 
+- ‐ABBR‐
+- ‑ABBR‑
+- ‒ABBR‒
+- –ABBR–
+- —ABBR—
+- ―ABBR―
+- ‖ABBR‖
+- ‗ABBR‗
+- ‘ABBR‘
+- ’ABBR’
+- ‚ABBR‚
+- ‛ABBR‛
+- “ABBR“
+- ”ABBR”
+- „ABBR„
+- ‟ABBR‟
+- †ABBR†
+- ‡ABBR‡
+- •ABBR•
+- ‣ABBR‣
+- ․ABBR․
+- ‥ABBR‥
+- …ABBR…
+- ‧ABBR‧
+-  ABBR 
+-  ABBR 
+-  ABBR 
+- ‰ABBR‰
+- ‱ABBR‱
+- ′ABBR′
+- ″ABBR″
+- ‴ABBR‴
+- ‵ABBR‵
+- ‶ABBR‶
+- ‷ABBR‷
+- ‸ABBR‸
+- ‹ABBR‹
+- ›ABBR›
+- ※ABBR※
+- ‼ABBR‼
+- ‽ABBR‽
+- ‾ABBR‾
+- ‿ABBR‿
+- ⁀ABBR⁀
+- ⁁ABBR⁁
+- ⁂ABBR⁂
+- ⁃ABBR⁃
+- ⁅ABBR⁅
+- ⁆ABBR⁆
+- ⁇ABBR⁇
+- ⁈ABBR⁈
+- ⁉ABBR⁉
+- ⁊ABBR⁊
+- ⁋ABBR⁋
+- ⁌ABBR⁌
+- ⁍ABBR⁍
+- ⁎ABBR⁎
+- ⁏ABBR⁏
+- ⁐ABBR⁐
+- ⁑ABBR⁑
+- ⁓ABBR⁓
+- ⁔ABBR⁔
+- ⁕ABBR⁕
+- ⁖ABBR⁖
+- ⁗ABBR⁗
+- ⁘ABBR⁘
+- ⁙ABBR⁙
+- ⁚ABBR⁚
+- ⁛ABBR⁛
+- ⁜ABBR⁜
+- ⁝ABBR⁝
+- ⁞ABBR⁞
+-  ABBR 
+- ⁽ABBR⁽
+- ⁾ABBR⁾
+- ₍ABBR₍
+- ₎ABBR₎
+- ⌈ABBR⌈
+- ⌉ABBR⌉
+- ⌊ABBR⌊
+- ⌋ABBR⌋
+- 〈ABBR〈
+- 〉ABBR〉
+- ❨ABBR❨
+- ❩ABBR❩
+- ❪ABBR❪
+- ❫ABBR❫
+- ❬ABBR❬
+- ❭ABBR❭
+- ❮ABBR❮
+- ❯ABBR❯
+- ❰ABBR❰
+- ❱ABBR❱
+- ❲ABBR❲
+- ❳ABBR❳
+- ❴ABBR❴
+- ❵ABBR❵
+- ⟅ABBR⟅
+- ⟆ABBR⟆
+- ⟦ABBR⟦
+- ⟧ABBR⟧
+- ⟨ABBR⟨
+- ⟩ABBR⟩
+- ⟪ABBR⟪
+- ⟫ABBR⟫
+- ⟬ABBR⟬
+- ⟭ABBR⟭
+- ⟮ABBR⟮
+- ⟯ABBR⟯
+- ⦃ABBR⦃
+- ⦄ABBR⦄
+- ⦅ABBR⦅
+- ⦆ABBR⦆
+- ⦇ABBR⦇
+- ⦈ABBR⦈
+- ⦉ABBR⦉
+- ⦊ABBR⦊
+- ⦋ABBR⦋
+- ⦌ABBR⦌
+- ⦍ABBR⦍
+- ⦎ABBR⦎
+- ⦏ABBR⦏
+- ⦐ABBR⦐
+- ⦑ABBR⦑
+- ⦒ABBR⦒
+- ⦓ABBR⦓
+- ⦔ABBR⦔
+- ⦕ABBR⦕
+- ⦖ABBR⦖
+- ⦗ABBR⦗
+- ⦘ABBR⦘
+- ⧘ABBR⧘
+- ⧙ABBR⧙
+- ⧚ABBR⧚
+- ⧛ABBR⧛
+- ⧼ABBR⧼
+- ⧽ABBR⧽
+- ⳹ABBR⳹
+- ⳺ABBR⳺
+- ⳻ABBR⳻
+- ⳼ABBR⳼
+- ⳾ABBR⳾
+- ⳿ABBR⳿
+- ⵰ABBR⵰
+- ⸀ABBR⸀
+- ⸁ABBR⸁
+- ⸂ABBR⸂
+- ⸃ABBR⸃
+- ⸄ABBR⸄
+- ⸅ABBR⸅
+- ⸆ABBR⸆
+- ⸇ABBR⸇
+- ⸈ABBR⸈
+- ⸉ABBR⸉
+- ⸊ABBR⸊
+- ⸋ABBR⸋
+- ⸌ABBR⸌
+- ⸍ABBR⸍
+- ⸎ABBR⸎
+- ⸏ABBR⸏
+- ⸐ABBR⸐
+- ⸑ABBR⸑
+- ⸒ABBR⸒
+- ⸓ABBR⸓
+- ⸔ABBR⸔
+- ⸕ABBR⸕
+- ⸖ABBR⸖
+- ⸗ABBR⸗
+- ⸘ABBR⸘
+- ⸙ABBR⸙
+- ⸚ABBR⸚
+- ⸛ABBR⸛
+- ⸜ABBR⸜
+- ⸝ABBR⸝
+- ⸞ABBR⸞
+- ⸟ABBR⸟
+- ⸠ABBR⸠
+- ⸡ABBR⸡
+- ⸢ABBR⸢
+- ⸣ABBR⸣
+- ⸤ABBR⸤
+- ⸥ABBR⸥
+- ⸦ABBR⸦
+- ⸧ABBR⸧
+- ⸨ABBR⸨
+- ⸩ABBR⸩
+- ⸪ABBR⸪
+- ⸫ABBR⸫
+- ⸬ABBR⸬
+- ⸭ABBR⸭
+- ⸮ABBR⸮
+- ⸰ABBR⸰
+- ⸱ABBR⸱
+- ⸲ABBR⸲
+- ⸳ABBR⸳
+- ⸴ABBR⸴
+- ⸵ABBR⸵
+- ⸶ABBR⸶
+- ⸷ABBR⸷
+- ⸸ABBR⸸
+- ⸹ABBR⸹
+- ⸺ABBR⸺
+- ⸻ABBR⸻
+- ⸼ABBR⸼
+- ⸽ABBR⸽
+- ⸾ABBR⸾
+- ⸿ABBR⸿
+- ⹀ABBR⹀
+- ⹁ABBR⹁
+- ⹂ABBR⹂
+- ⹃ABBR⹃
+- ⹄ABBR⹄
+- ⹅ABBR⹅
+- ⹆ABBR⹆
+- ⹇ABBR⹇
+- ⹈ABBR⹈
+- ⹉ABBR⹉
+- ⹊ABBR⹊
+- ⹋ABBR⹋
+- ⹌ABBR⹌
+- ⹍ABBR⹍
+- ⹎ABBR⹎
+- ⹏ABBR⹏
+- ⹒ABBR⹒
+- ⹓ABBR⹓
+- ⹔ABBR⹔
+- ⹕ABBR⹕
+- ⹖ABBR⹖
+- ⹗ABBR⹗
+- ⹘ABBR⹘
+- ⹙ABBR⹙
+- ⹚ABBR⹚
+- ⹛ABBR⹛
+- ⹜ABBR⹜
+- ⹝ABBR⹝
+- 　ABBR　
+- 、ABBR、
+- 。ABBR。
+- 〃ABBR〃
+- 〈ABBR〈
+- 〉ABBR〉
+- 《ABBR《
+- 》ABBR》
+- 「ABBR「
+- 」ABBR」
+- 『ABBR『
+- 』ABBR』
+- 【ABBR【
+- 】ABBR】
+- 〔ABBR〔
+- 〕ABBR〕
+- 〖ABBR〖
+- 〗ABBR〗
+- 〘ABBR〘
+- 〙ABBR〙
+- 〚ABBR〚
+- 〛ABBR〛
+- 〜ABBR〜
+- 〝ABBR〝
+- 〞ABBR〞
+- 〟ABBR〟
+- 〰ABBR〰
+- 〽ABBR〽
+- ゠ABBR゠
+- ・ABBR・
+- ꓾ABBR꓾
+- ꓿ABBR꓿
+- ꘍ABBR꘍
+- ꘎ABBR꘎
+- ꘏ABBR꘏
+- ꙳ABBR꙳
+- ꙾ABBR꙾
+- ꛲ABBR꛲
+- ꛳ABBR꛳
+- ꛴ABBR꛴
+- ꛵ABBR꛵
+- ꛶ABBR꛶
+- ꛷ABBR꛷
+- ꡴ABBR꡴
+- ꡵ABBR꡵
+- ꡶ABBR꡶
+- ꡷ABBR꡷
+- ꣎ABBR꣎
+- ꣏ABBR꣏
+- ꣸ABBR꣸
+- ꣹ABBR꣹
+- ꣺ABBR꣺
+- ꣼ABBR꣼
+- ꤮ABBR꤮
+- ꤯ABBR꤯
+- ꥟ABBR꥟
+- ꧁ABBR꧁
+- ꧂ABBR꧂
+- ꧃ABBR꧃
+- ꧄ABBR꧄
+- ꧅ABBR꧅
+- ꧆ABBR꧆
+- ꧇ABBR꧇
+- ꧈ABBR꧈
+- ꧉ABBR꧉
+- ꧊ABBR꧊
+- ꧋ABBR꧋
+- ꧌ABBR꧌
+- ꧍ABBR꧍
+- ꧞ABBR꧞
+- ꧟ABBR꧟
+- ꩜ABBR꩜
+- ꩝ABBR꩝
+- ꩞ABBR꩞
+- ꩟ABBR꩟
+- ꫞ABBR꫞
+- ꫟ABBR꫟
+- ꫰ABBR꫰
+- ꫱ABBR꫱
+- ꯫ABBR꯫
+- ﴾ABBR﴾
+- ﴿ABBR﴿
+- ︐ABBR︐
+- ︑ABBR︑
+- ︒ABBR︒
+- ︓ABBR︓
+- ︔ABBR︔
+- ︕ABBR︕
+- ︖ABBR︖
+- ︗ABBR︗
+- ︘ABBR︘
+- ︙ABBR︙
+- ︰ABBR︰
+- ︱ABBR︱
+- ︲ABBR︲
+- ︳ABBR︳
+- ︴ABBR︴
+- ︵ABBR︵
+- ︶ABBR︶
+- ︷ABBR︷
+- ︸ABBR︸
+- ︹ABBR︹
+- ︺ABBR︺
+- ︻ABBR︻
+- ︼ABBR︼
+- ︽ABBR︽
+- ︾ABBR︾
+- ︿ABBR︿
+- ﹀ABBR﹀
+- ﹁ABBR﹁
+- ﹂ABBR﹂
+- ﹃ABBR﹃
+- ﹄ABBR﹄
+- ﹅ABBR﹅
+- ﹆ABBR﹆
+- ﹇ABBR﹇
+- ﹈ABBR﹈
+- ﹉ABBR﹉
+- ﹊ABBR﹊
+- ﹋ABBR﹋
+- ﹌ABBR﹌
+- ﹍ABBR﹍
+- ﹎ABBR﹎
+- ﹏ABBR﹏
+- ﹐ABBR﹐
+- ﹑ABBR﹑
+- ﹒ABBR﹒
+- ﹔ABBR﹔
+- ﹕ABBR﹕
+- ﹖ABBR﹖
+- ﹗ABBR﹗
+- ﹘ABBR﹘
+- ﹙ABBR﹙
+- ﹚ABBR﹚
+- ﹛ABBR﹛
+- ﹜ABBR﹜
+- ﹝ABBR﹝
+- ﹞ABBR﹞
+- ﹟ABBR﹟
+- ﹠ABBR﹠
+- ﹡ABBR﹡
+- ﹣ABBR﹣
+- ﹨ABBR﹨
+- ﹪ABBR﹪
+- ﹫ABBR﹫
+- ！ABBR！
+- ＂ABBR＂
+- ＃ABBR＃
+- ％ABBR％
+- ＆ABBR＆
+- ＇ABBR＇
+- （ABBR（
+- ）ABBR）
+- ＊ABBR＊
+- ，ABBR，
+- －ABBR－
+- ．ABBR．
+- ／ABBR／
+- ：ABBR：
+- ；ABBR；
+- ？ABBR？
+- ＠ABBR＠
+- ［ABBR［
+- ＼ABBR＼
+- ］ABBR］
+- ＿ABBR＿
+- ｛ABBR｛
+- ｝ABBR｝
+- ｟ABBR｟
+- ｠ABBR｠
+- ｡ABBR｡
+- ｢ABBR｢
+- ｣ABBR｣
+- ､ABBR､
+- ･ABBR･
+-  ABBR 
+- 
+ABBR
+- 
+ABBR
+
+- $ABBR$
+- +ABBR+
+- <ABBR<
+- =ABBR=
+- >ABBR>
+- ^ABBR^
+- `ABBR`
+- |ABBR|
+- ~ABBR~
+- ]ABBR]
+
+"""
+
+[config]
+profiles = [ "basic", "document",]
+
+[config.custom_profiles.abbr]
+preset = "default"
+plugins = [ "abbr",]
+
+[expected_output]
+basic = """<h2>Testing abbreviations plugin</h2>
+<h3>Tests for <code>*[Short Form]: Long form</code> syntax for <code>&lt;abbr&gt;</code></h3>
+<p>*[HTML]: HyperText Markup Language</p>
+<p>The language <a href="https://developer.mozilla.org/en-US/docs/Web/HTML">HTML</a> is a markup language for webpages.</p>
+<p>*[CSS]: Cascading Style Sheets</p>
+<p>CSS is a language used to define the presentation of HTML webpages.</p>
+<blockquote>
+<p>You can find more about CSS on https://developer.mozilla.org/en-US/docs/Web/CSS</p>
+</blockquote>
+<h3>Tests for padding characters</h3>
+<p>*[ABBR]: Abbrieviation</p>
+<ul>
+<li>[ABBR[</li>
+<li>ABBR</li>
+<li>!ABBR!</li>
+<li>&quot;ABBR&quot;</li>
+<li>#ABBR#</li>
+<li>%ABBR%</li>
+<li>&amp;ABBR&amp;</li>
+<li>'ABBR'</li>
+<li>(ABBR(</li>
+<li>)ABBR)</li>
+<li><em>ABBR</em></li>
+<li>,ABBR,</li>
+<li>-ABBR-</li>
+<li>.ABBR.</li>
+<li>/ABBR/</li>
+<li>:ABBR:</li>
+<li>;ABBR;</li>
+<li>?ABBR?</li>
+<li>@ABBR@</li>
+<li>\\ABBR\\</li>
+<li>[ABBR[</li>
+<li>\\ABBR\\</li>
+<li>\\ABBR\\</li>
+<li>\\ABBR\\</li>
+<li>]ABBR]</li>
+<li><em>ABBR</em></li>
+<li>{ABBR{</li>
+<li>}ABBR}</li>
+<li>ABBR</li>
+<li>¡ABBR¡</li>
+<li>§ABBR§</li>
+<li>«ABBR«</li>
+<li>¶ABBR¶</li>
+<li>·ABBR·</li>
+<li>»ABBR»</li>
+<li>¿ABBR¿</li>
+<li>;ABBR;</li>
+<li>·ABBR·</li>
+<li>՚ABBR՚</li>
+<li>՛ABBR՛</li>
+<li>՜ABBR՜</li>
+<li>՝ABBR՝</li>
+<li>՞ABBR՞</li>
+<li>՟ABBR՟</li>
+<li>։ABBR։</li>
+<li>֊ABBR֊</li>
+<li>־ABBR־</li>
+<li>׀ABBR׀</li>
+<li>׃ABBR׃</li>
+<li>׆ABBR׆</li>
+<li>׳ABBR׳</li>
+<li>״ABBR״</li>
+<li>؉ABBR؉</li>
+<li>؊ABBR؊</li>
+<li>،ABBR،</li>
+<li>؍ABBR؍</li>
+<li>؛ABBR؛</li>
+<li>؝ABBR؝</li>
+<li>؞ABBR؞</li>
+<li>؟ABBR؟</li>
+<li>٪ABBR٪</li>
+<li>٫ABBR٫</li>
+<li>٬ABBR٬</li>
+<li>٭ABBR٭</li>
+<li>۔ABBR۔</li>
+<li>܀ABBR܀</li>
+<li>܁ABBR܁</li>
+<li>܂ABBR܂</li>
+<li>܃ABBR܃</li>
+<li>܄ABBR܄</li>
+<li>܅ABBR܅</li>
+<li>܆ABBR܆</li>
+<li>܇ABBR܇</li>
+<li>܈ABBR܈</li>
+<li>܉ABBR܉</li>
+<li>܊ABBR܊</li>
+<li>܋ABBR܋</li>
+<li>܌ABBR܌</li>
+<li>܍ABBR܍</li>
+<li>߷ABBR߷</li>
+<li>߸ABBR߸</li>
+<li>߹ABBR߹</li>
+<li>࠰ABBR࠰</li>
+<li>࠱ABBR࠱</li>
+<li>࠲ABBR࠲</li>
+<li>࠳ABBR࠳</li>
+<li>࠴ABBR࠴</li>
+<li>࠵ABBR࠵</li>
+<li>࠶ABBR࠶</li>
+<li>࠷ABBR࠷</li>
+<li>࠸ABBR࠸</li>
+<li>࠹ABBR࠹</li>
+<li>࠺ABBR࠺</li>
+<li>࠻ABBR࠻</li>
+<li>࠼ABBR࠼</li>
+<li>࠽ABBR࠽</li>
+<li>࠾ABBR࠾</li>
+<li>࡞ABBR࡞</li>
+<li>।ABBR।</li>
+<li>॥ABBR॥</li>
+<li>॰ABBR॰</li>
+<li>৽ABBR৽</li>
+<li>੶ABBR੶</li>
+<li>૰ABBR૰</li>
+<li>౷ABBR౷</li>
+<li>಄ABBR಄</li>
+<li>෴ABBR෴</li>
+<li>๏ABBR๏</li>
+<li>๚ABBR๚</li>
+<li>๛ABBR๛</li>
+<li>༄ABBR༄</li>
+<li>༅ABBR༅</li>
+<li>༆ABBR༆</li>
+<li>༇ABBR༇</li>
+<li>༈ABBR༈</li>
+<li>༉ABBR༉</li>
+<li>༊ABBR༊</li>
+<li>་ABBR་</li>
+<li>༌ABBR༌</li>
+<li>།ABBR།</li>
+<li>༎ABBR༎</li>
+<li>༏ABBR༏</li>
+<li>༐ABBR༐</li>
+<li>༑ABBR༑</li>
+<li>༒ABBR༒</li>
+<li>༔ABBR༔</li>
+<li>༺ABBR༺</li>
+<li>༻ABBR༻</li>
+<li>༼ABBR༼</li>
+<li>༽ABBR༽</li>
+<li>྅ABBR྅</li>
+<li>࿐ABBR࿐</li>
+<li>࿑ABBR࿑</li>
+<li>࿒ABBR࿒</li>
+<li>࿓ABBR࿓</li>
+<li>࿔ABBR࿔</li>
+<li>࿙ABBR࿙</li>
+<li>࿚ABBR࿚</li>
+<li>၊ABBR၊</li>
+<li>။ABBR။</li>
+<li>၌ABBR၌</li>
+<li>၍ABBR၍</li>
+<li>၎ABBR၎</li>
+<li>၏ABBR၏</li>
+<li>჻ABBR჻</li>
+<li>፠ABBR፠</li>
+<li>፡ABBR፡</li>
+<li>።ABBR።</li>
+<li>፣ABBR፣</li>
+<li>፤ABBR፤</li>
+<li>፥ABBR፥</li>
+<li>፦ABBR፦</li>
+<li>፧ABBR፧</li>
+<li>፨ABBR፨</li>
+<li>᐀ABBR᐀</li>
+<li>᙮ABBR᙮</li>
+<li>ABBR</li>
+<li>᚛ABBR᚛</li>
+<li>᚜ABBR᚜</li>
+<li>᛫ABBR᛫</li>
+<li>᛬ABBR᛬</li>
+<li>᛭ABBR᛭</li>
+<li>᜵ABBR᜵</li>
+<li>᜶ABBR᜶</li>
+<li>។ABBR។</li>
+<li>៕ABBR៕</li>
+<li>៖ABBR៖</li>
+<li>៘ABBR៘</li>
+<li>៙ABBR៙</li>
+<li>៚ABBR៚</li>
+<li>᠀ABBR᠀</li>
+<li>᠁ABBR᠁</li>
+<li>᠂ABBR᠂</li>
+<li>᠃ABBR᠃</li>
+<li>᠄ABBR᠄</li>
+<li>᠅ABBR᠅</li>
+<li>᠆ABBR᠆</li>
+<li>᠇ABBR᠇</li>
+<li>᠈ABBR᠈</li>
+<li>᠉ABBR᠉</li>
+<li>᠊ABBR᠊</li>
+<li>᥄ABBR᥄</li>
+<li>᥅ABBR᥅</li>
+<li>᨞ABBR᨞</li>
+<li>᨟ABBR᨟</li>
+<li>᪠ABBR᪠</li>
+<li>᪡ABBR᪡</li>
+<li>᪢ABBR᪢</li>
+<li>᪣ABBR᪣</li>
+<li>᪤ABBR᪤</li>
+<li>᪥ABBR᪥</li>
+<li>᪦ABBR᪦</li>
+<li>᪨ABBR᪨</li>
+<li>᪩ABBR᪩</li>
+<li>᪪ABBR᪪</li>
+<li>᪫ABBR᪫</li>
+<li>᪬ABBR᪬</li>
+<li>᪭ABBR᪭</li>
+<li>᭚ABBR᭚</li>
+<li>᭛ABBR᭛</li>
+<li>᭜ABBR᭜</li>
+<li>᭝ABBR᭝</li>
+<li>᭞ABBR᭞</li>
+<li>᭟ABBR᭟</li>
+<li>᭠ABBR᭠</li>
+<li>᭽ABBR᭽</li>
+<li>᭾ABBR᭾</li>
+<li>᯼ABBR᯼</li>
+<li>᯽ABBR᯽</li>
+<li>᯾ABBR᯾</li>
+<li>᯿ABBR᯿</li>
+<li>᰻ABBR᰻</li>
+<li>᰼ABBR᰼</li>
+<li>᰽ABBR᰽</li>
+<li>᰾ABBR᰾</li>
+<li>᰿ABBR᰿</li>
+<li>᱾ABBR᱾</li>
+<li>᱿ABBR᱿</li>
+<li>᳀ABBR᳀</li>
+<li>᳁ABBR᳁</li>
+<li>᳂ABBR᳂</li>
+<li>᳃ABBR᳃</li>
+<li>᳄ABBR᳄</li>
+<li>᳅ABBR᳅</li>
+<li>᳆ABBR᳆</li>
+<li>᳇ABBR᳇</li>
+<li>᳓ABBR᳓</li>
+<li>ABBR</li>
+<li>ABBR</li>
+<li>ABBR</li>
+<li>ABBR</li>
+<li>ABBR</li>
+<li>ABBR</li>
+<li>ABBR</li>
+<li>ABBR</li>
+<li>ABBR</li>
+<li>ABBR</li>
+<li>ABBR</li>
+<li>‐ABBR‐</li>
+<li>‑ABBR‑</li>
+<li>‒ABBR‒</li>
+<li>–ABBR–</li>
+<li>—ABBR—</li>
+<li>―ABBR―</li>
+<li>‖ABBR‖</li>
+<li>‗ABBR‗</li>
+<li>‘ABBR‘</li>
+<li>’ABBR’</li>
+<li>‚ABBR‚</li>
+<li>‛ABBR‛</li>
+<li>“ABBR“</li>
+<li>”ABBR”</li>
+<li>„ABBR„</li>
+<li>‟ABBR‟</li>
+<li>†ABBR†</li>
+<li>‡ABBR‡</li>
+<li>•ABBR•</li>
+<li>‣ABBR‣</li>
+<li>․ABBR․</li>
+<li>‥ABBR‥</li>
+<li>…ABBR…</li>
+<li>‧ABBR‧</li>
+<li>ABBR</li>
+<li>ABBR</li>
+<li>ABBR</li>
+<li>‰ABBR‰</li>
+<li>‱ABBR‱</li>
+<li>′ABBR′</li>
+<li>″ABBR″</li>
+<li>‴ABBR‴</li>
+<li>‵ABBR‵</li>
+<li>‶ABBR‶</li>
+<li>‷ABBR‷</li>
+<li>‸ABBR‸</li>
+<li>‹ABBR‹</li>
+<li>›ABBR›</li>
+<li>※ABBR※</li>
+<li>‼ABBR‼</li>
+<li>‽ABBR‽</li>
+<li>‾ABBR‾</li>
+<li>‿ABBR‿</li>
+<li>⁀ABBR⁀</li>
+<li>⁁ABBR⁁</li>
+<li>⁂ABBR⁂</li>
+<li>⁃ABBR⁃</li>
+<li>⁅ABBR⁅</li>
+<li>⁆ABBR⁆</li>
+<li>⁇ABBR⁇</li>
+<li>⁈ABBR⁈</li>
+<li>⁉ABBR⁉</li>
+<li>⁊ABBR⁊</li>
+<li>⁋ABBR⁋</li>
+<li>⁌ABBR⁌</li>
+<li>⁍ABBR⁍</li>
+<li>⁎ABBR⁎</li>
+<li>⁏ABBR⁏</li>
+<li>⁐ABBR⁐</li>
+<li>⁑ABBR⁑</li>
+<li>⁓ABBR⁓</li>
+<li>⁔ABBR⁔</li>
+<li>⁕ABBR⁕</li>
+<li>⁖ABBR⁖</li>
+<li>⁗ABBR⁗</li>
+<li>⁘ABBR⁘</li>
+<li>⁙ABBR⁙</li>
+<li>⁚ABBR⁚</li>
+<li>⁛ABBR⁛</li>
+<li>⁜ABBR⁜</li>
+<li>⁝ABBR⁝</li>
+<li>⁞ABBR⁞</li>
+<li>ABBR</li>
+<li>⁽ABBR⁽</li>
+<li>⁾ABBR⁾</li>
+<li>₍ABBR₍</li>
+<li>₎ABBR₎</li>
+<li>⌈ABBR⌈</li>
+<li>⌉ABBR⌉</li>
+<li>⌊ABBR⌊</li>
+<li>⌋ABBR⌋</li>
+<li>〈ABBR〈</li>
+<li>〉ABBR〉</li>
+<li>❨ABBR❨</li>
+<li>❩ABBR❩</li>
+<li>❪ABBR❪</li>
+<li>❫ABBR❫</li>
+<li>❬ABBR❬</li>
+<li>❭ABBR❭</li>
+<li>❮ABBR❮</li>
+<li>❯ABBR❯</li>
+<li>❰ABBR❰</li>
+<li>❱ABBR❱</li>
+<li>❲ABBR❲</li>
+<li>❳ABBR❳</li>
+<li>❴ABBR❴</li>
+<li>❵ABBR❵</li>
+<li>⟅ABBR⟅</li>
+<li>⟆ABBR⟆</li>
+<li>⟦ABBR⟦</li>
+<li>⟧ABBR⟧</li>
+<li>⟨ABBR⟨</li>
+<li>⟩ABBR⟩</li>
+<li>⟪ABBR⟪</li>
+<li>⟫ABBR⟫</li>
+<li>⟬ABBR⟬</li>
+<li>⟭ABBR⟭</li>
+<li>⟮ABBR⟮</li>
+<li>⟯ABBR⟯</li>
+<li>⦃ABBR⦃</li>
+<li>⦄ABBR⦄</li>
+<li>⦅ABBR⦅</li>
+<li>⦆ABBR⦆</li>
+<li>⦇ABBR⦇</li>
+<li>⦈ABBR⦈</li>
+<li>⦉ABBR⦉</li>
+<li>⦊ABBR⦊</li>
+<li>⦋ABBR⦋</li>
+<li>⦌ABBR⦌</li>
+<li>⦍ABBR⦍</li>
+<li>⦎ABBR⦎</li>
+<li>⦏ABBR⦏</li>
+<li>⦐ABBR⦐</li>
+<li>⦑ABBR⦑</li>
+<li>⦒ABBR⦒</li>
+<li>⦓ABBR⦓</li>
+<li>⦔ABBR⦔</li>
+<li>⦕ABBR⦕</li>
+<li>⦖ABBR⦖</li>
+<li>⦗ABBR⦗</li>
+<li>⦘ABBR⦘</li>
+<li>⧘ABBR⧘</li>
+<li>⧙ABBR⧙</li>
+<li>⧚ABBR⧚</li>
+<li>⧛ABBR⧛</li>
+<li>⧼ABBR⧼</li>
+<li>⧽ABBR⧽</li>
+<li>⳹ABBR⳹</li>
+<li>⳺ABBR⳺</li>
+<li>⳻ABBR⳻</li>
+<li>⳼ABBR⳼</li>
+<li>⳾ABBR⳾</li>
+<li>⳿ABBR⳿</li>
+<li>⵰ABBR⵰</li>
+<li>⸀ABBR⸀</li>
+<li>⸁ABBR⸁</li>
+<li>⸂ABBR⸂</li>
+<li>⸃ABBR⸃</li>
+<li>⸄ABBR⸄</li>
+<li>⸅ABBR⸅</li>
+<li>⸆ABBR⸆</li>
+<li>⸇ABBR⸇</li>
+<li>⸈ABBR⸈</li>
+<li>⸉ABBR⸉</li>
+<li>⸊ABBR⸊</li>
+<li>⸋ABBR⸋</li>
+<li>⸌ABBR⸌</li>
+<li>⸍ABBR⸍</li>
+<li>⸎ABBR⸎</li>
+<li>⸏ABBR⸏</li>
+<li>⸐ABBR⸐</li>
+<li>⸑ABBR⸑</li>
+<li>⸒ABBR⸒</li>
+<li>⸓ABBR⸓</li>
+<li>⸔ABBR⸔</li>
+<li>⸕ABBR⸕</li>
+<li>⸖ABBR⸖</li>
+<li>⸗ABBR⸗</li>
+<li>⸘ABBR⸘</li>
+<li>⸙ABBR⸙</li>
+<li>⸚ABBR⸚</li>
+<li>⸛ABBR⸛</li>
+<li>⸜ABBR⸜</li>
+<li>⸝ABBR⸝</li>
+<li>⸞ABBR⸞</li>
+<li>⸟ABBR⸟</li>
+<li>⸠ABBR⸠</li>
+<li>⸡ABBR⸡</li>
+<li>⸢ABBR⸢</li>
+<li>⸣ABBR⸣</li>
+<li>⸤ABBR⸤</li>
+<li>⸥ABBR⸥</li>
+<li>⸦ABBR⸦</li>
+<li>⸧ABBR⸧</li>
+<li>⸨ABBR⸨</li>
+<li>⸩ABBR⸩</li>
+<li>⸪ABBR⸪</li>
+<li>⸫ABBR⸫</li>
+<li>⸬ABBR⸬</li>
+<li>⸭ABBR⸭</li>
+<li>⸮ABBR⸮</li>
+<li>⸰ABBR⸰</li>
+<li>⸱ABBR⸱</li>
+<li>⸲ABBR⸲</li>
+<li>⸳ABBR⸳</li>
+<li>⸴ABBR⸴</li>
+<li>⸵ABBR⸵</li>
+<li>⸶ABBR⸶</li>
+<li>⸷ABBR⸷</li>
+<li>⸸ABBR⸸</li>
+<li>⸹ABBR⸹</li>
+<li>⸺ABBR⸺</li>
+<li>⸻ABBR⸻</li>
+<li>⸼ABBR⸼</li>
+<li>⸽ABBR⸽</li>
+<li>⸾ABBR⸾</li>
+<li>⸿ABBR⸿</li>
+<li>⹀ABBR⹀</li>
+<li>⹁ABBR⹁</li>
+<li>⹂ABBR⹂</li>
+<li>⹃ABBR⹃</li>
+<li>⹄ABBR⹄</li>
+<li>⹅ABBR⹅</li>
+<li>⹆ABBR⹆</li>
+<li>⹇ABBR⹇</li>
+<li>⹈ABBR⹈</li>
+<li>⹉ABBR⹉</li>
+<li>⹊ABBR⹊</li>
+<li>⹋ABBR⹋</li>
+<li>⹌ABBR⹌</li>
+<li>⹍ABBR⹍</li>
+<li>⹎ABBR⹎</li>
+<li>⹏ABBR⹏</li>
+<li>⹒ABBR⹒</li>
+<li>⹓ABBR⹓</li>
+<li>⹔ABBR⹔</li>
+<li>⹕ABBR⹕</li>
+<li>⹖ABBR⹖</li>
+<li>⹗ABBR⹗</li>
+<li>⹘ABBR⹘</li>
+<li>⹙ABBR⹙</li>
+<li>⹚ABBR⹚</li>
+<li>⹛ABBR⹛</li>
+<li>⹜ABBR⹜</li>
+<li>⹝ABBR⹝</li>
+<li>ABBR</li>
+<li>、ABBR、</li>
+<li>。ABBR。</li>
+<li>〃ABBR〃</li>
+<li>〈ABBR〈</li>
+<li>〉ABBR〉</li>
+<li>《ABBR《</li>
+<li>》ABBR》</li>
+<li>「ABBR「</li>
+<li>」ABBR」</li>
+<li>『ABBR『</li>
+<li>』ABBR』</li>
+<li>【ABBR【</li>
+<li>】ABBR】</li>
+<li>〔ABBR〔</li>
+<li>〕ABBR〕</li>
+<li>〖ABBR〖</li>
+<li>〗ABBR〗</li>
+<li>〘ABBR〘</li>
+<li>〙ABBR〙</li>
+<li>〚ABBR〚</li>
+<li>〛ABBR〛</li>
+<li>〜ABBR〜</li>
+<li>〝ABBR〝</li>
+<li>〞ABBR〞</li>
+<li>〟ABBR〟</li>
+<li>〰ABBR〰</li>
+<li>〽ABBR〽</li>
+<li>゠ABBR゠</li>
+<li>・ABBR・</li>
+<li>꓾ABBR꓾</li>
+<li>꓿ABBR꓿</li>
+<li>꘍ABBR꘍</li>
+<li>꘎ABBR꘎</li>
+<li>꘏ABBR꘏</li>
+<li>꙳ABBR꙳</li>
+<li>꙾ABBR꙾</li>
+<li>꛲ABBR꛲</li>
+<li>꛳ABBR꛳</li>
+<li>꛴ABBR꛴</li>
+<li>꛵ABBR꛵</li>
+<li>꛶ABBR꛶</li>
+<li>꛷ABBR꛷</li>
+<li>꡴ABBR꡴</li>
+<li>꡵ABBR꡵</li>
+<li>꡶ABBR꡶</li>
+<li>꡷ABBR꡷</li>
+<li>꣎ABBR꣎</li>
+<li>꣏ABBR꣏</li>
+<li>꣸ABBR꣸</li>
+<li>꣹ABBR꣹</li>
+<li>꣺ABBR꣺</li>
+<li>꣼ABBR꣼</li>
+<li>꤮ABBR꤮</li>
+<li>꤯ABBR꤯</li>
+<li>꥟ABBR꥟</li>
+<li>꧁ABBR꧁</li>
+<li>꧂ABBR꧂</li>
+<li>꧃ABBR꧃</li>
+<li>꧄ABBR꧄</li>
+<li>꧅ABBR꧅</li>
+<li>꧆ABBR꧆</li>
+<li>꧇ABBR꧇</li>
+<li>꧈ABBR꧈</li>
+<li>꧉ABBR꧉</li>
+<li>꧊ABBR꧊</li>
+<li>꧋ABBR꧋</li>
+<li>꧌ABBR꧌</li>
+<li>꧍ABBR꧍</li>
+<li>꧞ABBR꧞</li>
+<li>꧟ABBR꧟</li>
+<li>꩜ABBR꩜</li>
+<li>꩝ABBR꩝</li>
+<li>꩞ABBR꩞</li>
+<li>꩟ABBR꩟</li>
+<li>꫞ABBR꫞</li>
+<li>꫟ABBR꫟</li>
+<li>꫰ABBR꫰</li>
+<li>꫱ABBR꫱</li>
+<li>꯫ABBR꯫</li>
+<li>﴾ABBR﴾</li>
+<li>﴿ABBR﴿</li>
+<li>︐ABBR︐</li>
+<li>︑ABBR︑</li>
+<li>︒ABBR︒</li>
+<li>︓ABBR︓</li>
+<li>︔ABBR︔</li>
+<li>︕ABBR︕</li>
+<li>︖ABBR︖</li>
+<li>︗ABBR︗</li>
+<li>︘ABBR︘</li>
+<li>︙ABBR︙</li>
+<li>︰ABBR︰</li>
+<li>︱ABBR︱</li>
+<li>︲ABBR︲</li>
+<li>︳ABBR︳</li>
+<li>︴ABBR︴</li>
+<li>︵ABBR︵</li>
+<li>︶ABBR︶</li>
+<li>︷ABBR︷</li>
+<li>︸ABBR︸</li>
+<li>︹ABBR︹</li>
+<li>︺ABBR︺</li>
+<li>︻ABBR︻</li>
+<li>︼ABBR︼</li>
+<li>︽ABBR︽</li>
+<li>︾ABBR︾</li>
+<li>︿ABBR︿</li>
+<li>﹀ABBR﹀</li>
+<li>﹁ABBR﹁</li>
+<li>﹂ABBR﹂</li>
+<li>﹃ABBR﹃</li>
+<li>﹄ABBR﹄</li>
+<li>﹅ABBR﹅</li>
+<li>﹆ABBR﹆</li>
+<li>﹇ABBR﹇</li>
+<li>﹈ABBR﹈</li>
+<li>﹉ABBR﹉</li>
+<li>﹊ABBR﹊</li>
+<li>﹋ABBR﹋</li>
+<li>﹌ABBR﹌</li>
+<li>﹍ABBR﹍</li>
+<li>﹎ABBR﹎</li>
+<li>﹏ABBR﹏</li>
+<li>﹐ABBR﹐</li>
+<li>﹑ABBR﹑</li>
+<li>﹒ABBR﹒</li>
+<li>﹔ABBR﹔</li>
+<li>﹕ABBR﹕</li>
+<li>﹖ABBR﹖</li>
+<li>﹗ABBR﹗</li>
+<li>﹘ABBR﹘</li>
+<li>﹙ABBR﹙</li>
+<li>﹚ABBR﹚</li>
+<li>﹛ABBR﹛</li>
+<li>﹜ABBR﹜</li>
+<li>﹝ABBR﹝</li>
+<li>﹞ABBR﹞</li>
+<li>﹟ABBR﹟</li>
+<li>﹠ABBR﹠</li>
+<li>﹡ABBR﹡</li>
+<li>﹣ABBR﹣</li>
+<li>﹨ABBR﹨</li>
+<li>﹪ABBR﹪</li>
+<li>﹫ABBR﹫</li>
+<li>！ABBR！</li>
+<li>＂ABBR＂</li>
+<li>＃ABBR＃</li>
+<li>％ABBR％</li>
+<li>＆ABBR＆</li>
+<li>＇ABBR＇</li>
+<li>（ABBR（</li>
+<li>）ABBR）</li>
+<li>＊ABBR＊</li>
+<li>，ABBR，</li>
+<li>－ABBR－</li>
+<li>．ABBR．</li>
+<li>／ABBR／</li>
+<li>：ABBR：</li>
+<li>；ABBR；</li>
+<li>？ABBR？</li>
+<li>＠ABBR＠</li>
+<li>［ABBR［</li>
+<li>＼ABBR＼</li>
+<li>］ABBR］</li>
+<li>＿ABBR＿</li>
+<li>｛ABBR｛</li>
+<li>｝ABBR｝</li>
+<li>｟ABBR｟</li>
+<li>｠ABBR｠</li>
+<li>｡ABBR｡</li>
+<li>｢ABBR｢</li>
+<li>｣ABBR｣</li>
+<li>､ABBR､</li>
+<li>･ABBR･</li>
+<li>ABBR</li>
+<li></li>
+</ul>
+<h2>ABBR</h2>
+<p>ABBR</p>
+<ul>
+<li>$ABBR$</li>
+<li>+ABBR+</li>
+<li>&lt;ABBR&lt;</li>
+<li>=ABBR=</li>
+<li>
+<blockquote>
+<p>ABBR&gt;</p>
+</blockquote>
+</li>
+<li>^ABBR^</li>
+<li><code>ABBR</code></li>
+<li>|ABBR|</li>
+<li>~ABBR~</li>
+<li>]ABBR]</li>
+</ul>
+"""
+document = """<h2 id="h:testing-abbreviations-plugin">Testing abbreviations plugin <a class="header-anchor" href="#h:testing-abbreviations-plugin">#</a></h2>
+<h3 id="h:tests-for-short-form-long-form-syntax-for-abbr">Tests for <code>*[Short Form]: Long form</code> syntax for <code>&lt;abbr&gt;</code> <a class="header-anchor" href="#h:tests-for-short-form-long-form-syntax-for-abbr">#</a></h3>
+<p>The language <a href="https://developer.mozilla.org/en-US/docs/Web/HTML"><abbr title="HyperText Markup Language">HTML</abbr></a> is a markup language for webpages.</p>
+<p><abbr title="Cascading Style Sheets">CSS</abbr> is a language used to define the presentation of <abbr title="HyperText Markup Language">HTML</abbr> webpages.</p>
+<blockquote>
+<p>You can find more about <abbr title="Cascading Style Sheets">CSS</abbr> on <a href="https://developer.mozilla.org/en-US/docs/Web/CSS">https://developer.mozilla.org/en-US/docs/Web/<abbr title="Cascading Style Sheets">CSS</abbr></a></p>
+</blockquote>
+<h3 id="h:tests-for-padding-characters">Tests for padding characters <a class="header-anchor" href="#h:tests-for-padding-characters">#</a></h3>
+<ul>
+<li>[<abbr title="Abbrieviation">ABBR</abbr>[</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li>!<abbr title="Abbrieviation">ABBR</abbr>!</li>
+<li>“<abbr title="Abbrieviation">ABBR</abbr>”</li>
+<li>#<abbr title="Abbrieviation">ABBR</abbr>#</li>
+<li>%<abbr title="Abbrieviation">ABBR</abbr>%</li>
+<li>&amp;<abbr title="Abbrieviation">ABBR</abbr>&amp;</li>
+<li>‘<abbr title="Abbrieviation">ABBR</abbr>’</li>
+<li>(<abbr title="Abbrieviation">ABBR</abbr>(</li>
+<li>)<abbr title="Abbrieviation">ABBR</abbr>)</li>
+<li><em><abbr title="Abbrieviation">ABBR</abbr></em></li>
+<li>,<abbr title="Abbrieviation">ABBR</abbr>,</li>
+<li>-<abbr title="Abbrieviation">ABBR</abbr>-</li>
+<li>.<abbr title="Abbrieviation">ABBR</abbr>.</li>
+<li>/<abbr title="Abbrieviation">ABBR</abbr>/</li>
+<li>:<abbr title="Abbrieviation">ABBR</abbr>:</li>
+<li>;<abbr title="Abbrieviation">ABBR</abbr>;</li>
+<li>?<abbr title="Abbrieviation">ABBR</abbr>?</li>
+<li>@<abbr title="Abbrieviation">ABBR</abbr>@</li>
+<li>\\<abbr title="Abbrieviation">ABBR</abbr>\\</li>
+<li>[<abbr title="Abbrieviation">ABBR</abbr>[</li>
+<li>\\<abbr title="Abbrieviation">ABBR</abbr>\\</li>
+<li>\\<abbr title="Abbrieviation">ABBR</abbr>\\</li>
+<li>\\<abbr title="Abbrieviation">ABBR</abbr>\\</li>
+<li>]<abbr title="Abbrieviation">ABBR</abbr>]</li>
+<li><em><abbr title="Abbrieviation">ABBR</abbr></em></li>
+<li>{<abbr title="Abbrieviation">ABBR</abbr>{</li>
+<li>}<abbr title="Abbrieviation">ABBR</abbr>}</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li>¡<abbr title="Abbrieviation">ABBR</abbr>¡</li>
+<li>§<abbr title="Abbrieviation">ABBR</abbr>§</li>
+<li>«<abbr title="Abbrieviation">ABBR</abbr>«</li>
+<li>¶<abbr title="Abbrieviation">ABBR</abbr>¶</li>
+<li>·<abbr title="Abbrieviation">ABBR</abbr>·</li>
+<li>»<abbr title="Abbrieviation">ABBR</abbr>»</li>
+<li>¿<abbr title="Abbrieviation">ABBR</abbr>¿</li>
+<li>;<abbr title="Abbrieviation">ABBR</abbr>;</li>
+<li>·<abbr title="Abbrieviation">ABBR</abbr>·</li>
+<li>՚<abbr title="Abbrieviation">ABBR</abbr>՚</li>
+<li>՛<abbr title="Abbrieviation">ABBR</abbr>՛</li>
+<li>՜<abbr title="Abbrieviation">ABBR</abbr>՜</li>
+<li>՝<abbr title="Abbrieviation">ABBR</abbr>՝</li>
+<li>՞<abbr title="Abbrieviation">ABBR</abbr>՞</li>
+<li>՟<abbr title="Abbrieviation">ABBR</abbr>՟</li>
+<li>։<abbr title="Abbrieviation">ABBR</abbr>։</li>
+<li>֊<abbr title="Abbrieviation">ABBR</abbr>֊</li>
+<li>־<abbr title="Abbrieviation">ABBR</abbr>־</li>
+<li>׀<abbr title="Abbrieviation">ABBR</abbr>׀</li>
+<li>׃<abbr title="Abbrieviation">ABBR</abbr>׃</li>
+<li>׆<abbr title="Abbrieviation">ABBR</abbr>׆</li>
+<li>׳<abbr title="Abbrieviation">ABBR</abbr>׳</li>
+<li>״<abbr title="Abbrieviation">ABBR</abbr>״</li>
+<li>؉<abbr title="Abbrieviation">ABBR</abbr>؉</li>
+<li>؊<abbr title="Abbrieviation">ABBR</abbr>؊</li>
+<li>،<abbr title="Abbrieviation">ABBR</abbr>،</li>
+<li>؍<abbr title="Abbrieviation">ABBR</abbr>؍</li>
+<li>؛<abbr title="Abbrieviation">ABBR</abbr>؛</li>
+<li>؝<abbr title="Abbrieviation">ABBR</abbr>؝</li>
+<li>؞<abbr title="Abbrieviation">ABBR</abbr>؞</li>
+<li>؟<abbr title="Abbrieviation">ABBR</abbr>؟</li>
+<li>٪<abbr title="Abbrieviation">ABBR</abbr>٪</li>
+<li>٫<abbr title="Abbrieviation">ABBR</abbr>٫</li>
+<li>٬<abbr title="Abbrieviation">ABBR</abbr>٬</li>
+<li>٭<abbr title="Abbrieviation">ABBR</abbr>٭</li>
+<li>۔<abbr title="Abbrieviation">ABBR</abbr>۔</li>
+<li>܀<abbr title="Abbrieviation">ABBR</abbr>܀</li>
+<li>܁<abbr title="Abbrieviation">ABBR</abbr>܁</li>
+<li>܂<abbr title="Abbrieviation">ABBR</abbr>܂</li>
+<li>܃<abbr title="Abbrieviation">ABBR</abbr>܃</li>
+<li>܄<abbr title="Abbrieviation">ABBR</abbr>܄</li>
+<li>܅<abbr title="Abbrieviation">ABBR</abbr>܅</li>
+<li>܆<abbr title="Abbrieviation">ABBR</abbr>܆</li>
+<li>܇<abbr title="Abbrieviation">ABBR</abbr>܇</li>
+<li>܈<abbr title="Abbrieviation">ABBR</abbr>܈</li>
+<li>܉<abbr title="Abbrieviation">ABBR</abbr>܉</li>
+<li>܊<abbr title="Abbrieviation">ABBR</abbr>܊</li>
+<li>܋<abbr title="Abbrieviation">ABBR</abbr>܋</li>
+<li>܌<abbr title="Abbrieviation">ABBR</abbr>܌</li>
+<li>܍<abbr title="Abbrieviation">ABBR</abbr>܍</li>
+<li>߷<abbr title="Abbrieviation">ABBR</abbr>߷</li>
+<li>߸<abbr title="Abbrieviation">ABBR</abbr>߸</li>
+<li>߹<abbr title="Abbrieviation">ABBR</abbr>߹</li>
+<li>࠰<abbr title="Abbrieviation">ABBR</abbr>࠰</li>
+<li>࠱<abbr title="Abbrieviation">ABBR</abbr>࠱</li>
+<li>࠲<abbr title="Abbrieviation">ABBR</abbr>࠲</li>
+<li>࠳<abbr title="Abbrieviation">ABBR</abbr>࠳</li>
+<li>࠴<abbr title="Abbrieviation">ABBR</abbr>࠴</li>
+<li>࠵<abbr title="Abbrieviation">ABBR</abbr>࠵</li>
+<li>࠶<abbr title="Abbrieviation">ABBR</abbr>࠶</li>
+<li>࠷<abbr title="Abbrieviation">ABBR</abbr>࠷</li>
+<li>࠸<abbr title="Abbrieviation">ABBR</abbr>࠸</li>
+<li>࠹<abbr title="Abbrieviation">ABBR</abbr>࠹</li>
+<li>࠺<abbr title="Abbrieviation">ABBR</abbr>࠺</li>
+<li>࠻<abbr title="Abbrieviation">ABBR</abbr>࠻</li>
+<li>࠼<abbr title="Abbrieviation">ABBR</abbr>࠼</li>
+<li>࠽<abbr title="Abbrieviation">ABBR</abbr>࠽</li>
+<li>࠾<abbr title="Abbrieviation">ABBR</abbr>࠾</li>
+<li>࡞<abbr title="Abbrieviation">ABBR</abbr>࡞</li>
+<li>।<abbr title="Abbrieviation">ABBR</abbr>।</li>
+<li>॥<abbr title="Abbrieviation">ABBR</abbr>॥</li>
+<li>॰<abbr title="Abbrieviation">ABBR</abbr>॰</li>
+<li>৽<abbr title="Abbrieviation">ABBR</abbr>৽</li>
+<li>੶<abbr title="Abbrieviation">ABBR</abbr>੶</li>
+<li>૰<abbr title="Abbrieviation">ABBR</abbr>૰</li>
+<li>౷<abbr title="Abbrieviation">ABBR</abbr>౷</li>
+<li>಄<abbr title="Abbrieviation">ABBR</abbr>಄</li>
+<li>෴<abbr title="Abbrieviation">ABBR</abbr>෴</li>
+<li>๏<abbr title="Abbrieviation">ABBR</abbr>๏</li>
+<li>๚<abbr title="Abbrieviation">ABBR</abbr>๚</li>
+<li>๛<abbr title="Abbrieviation">ABBR</abbr>๛</li>
+<li>༄<abbr title="Abbrieviation">ABBR</abbr>༄</li>
+<li>༅<abbr title="Abbrieviation">ABBR</abbr>༅</li>
+<li>༆<abbr title="Abbrieviation">ABBR</abbr>༆</li>
+<li>༇<abbr title="Abbrieviation">ABBR</abbr>༇</li>
+<li>༈<abbr title="Abbrieviation">ABBR</abbr>༈</li>
+<li>༉<abbr title="Abbrieviation">ABBR</abbr>༉</li>
+<li>༊<abbr title="Abbrieviation">ABBR</abbr>༊</li>
+<li>་<abbr title="Abbrieviation">ABBR</abbr>་</li>
+<li>༌<abbr title="Abbrieviation">ABBR</abbr>༌</li>
+<li>།<abbr title="Abbrieviation">ABBR</abbr>།</li>
+<li>༎<abbr title="Abbrieviation">ABBR</abbr>༎</li>
+<li>༏<abbr title="Abbrieviation">ABBR</abbr>༏</li>
+<li>༐<abbr title="Abbrieviation">ABBR</abbr>༐</li>
+<li>༑<abbr title="Abbrieviation">ABBR</abbr>༑</li>
+<li>༒<abbr title="Abbrieviation">ABBR</abbr>༒</li>
+<li>༔<abbr title="Abbrieviation">ABBR</abbr>༔</li>
+<li>༺<abbr title="Abbrieviation">ABBR</abbr>༺</li>
+<li>༻<abbr title="Abbrieviation">ABBR</abbr>༻</li>
+<li>༼<abbr title="Abbrieviation">ABBR</abbr>༼</li>
+<li>༽<abbr title="Abbrieviation">ABBR</abbr>༽</li>
+<li>྅<abbr title="Abbrieviation">ABBR</abbr>྅</li>
+<li>࿐<abbr title="Abbrieviation">ABBR</abbr>࿐</li>
+<li>࿑<abbr title="Abbrieviation">ABBR</abbr>࿑</li>
+<li>࿒<abbr title="Abbrieviation">ABBR</abbr>࿒</li>
+<li>࿓<abbr title="Abbrieviation">ABBR</abbr>࿓</li>
+<li>࿔<abbr title="Abbrieviation">ABBR</abbr>࿔</li>
+<li>࿙<abbr title="Abbrieviation">ABBR</abbr>࿙</li>
+<li>࿚<abbr title="Abbrieviation">ABBR</abbr>࿚</li>
+<li>၊<abbr title="Abbrieviation">ABBR</abbr>၊</li>
+<li>။<abbr title="Abbrieviation">ABBR</abbr>။</li>
+<li>၌<abbr title="Abbrieviation">ABBR</abbr>၌</li>
+<li>၍<abbr title="Abbrieviation">ABBR</abbr>၍</li>
+<li>၎<abbr title="Abbrieviation">ABBR</abbr>၎</li>
+<li>၏<abbr title="Abbrieviation">ABBR</abbr>၏</li>
+<li>჻<abbr title="Abbrieviation">ABBR</abbr>჻</li>
+<li>፠<abbr title="Abbrieviation">ABBR</abbr>፠</li>
+<li>፡<abbr title="Abbrieviation">ABBR</abbr>፡</li>
+<li>።<abbr title="Abbrieviation">ABBR</abbr>።</li>
+<li>፣<abbr title="Abbrieviation">ABBR</abbr>፣</li>
+<li>፤<abbr title="Abbrieviation">ABBR</abbr>፤</li>
+<li>፥<abbr title="Abbrieviation">ABBR</abbr>፥</li>
+<li>፦<abbr title="Abbrieviation">ABBR</abbr>፦</li>
+<li>፧<abbr title="Abbrieviation">ABBR</abbr>፧</li>
+<li>፨<abbr title="Abbrieviation">ABBR</abbr>፨</li>
+<li>᐀<abbr title="Abbrieviation">ABBR</abbr>᐀</li>
+<li>᙮<abbr title="Abbrieviation">ABBR</abbr>᙮</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li>᚛<abbr title="Abbrieviation">ABBR</abbr>᚛</li>
+<li>᚜<abbr title="Abbrieviation">ABBR</abbr>᚜</li>
+<li>᛫<abbr title="Abbrieviation">ABBR</abbr>᛫</li>
+<li>᛬<abbr title="Abbrieviation">ABBR</abbr>᛬</li>
+<li>᛭<abbr title="Abbrieviation">ABBR</abbr>᛭</li>
+<li>᜵<abbr title="Abbrieviation">ABBR</abbr>᜵</li>
+<li>᜶<abbr title="Abbrieviation">ABBR</abbr>᜶</li>
+<li>។<abbr title="Abbrieviation">ABBR</abbr>។</li>
+<li>៕<abbr title="Abbrieviation">ABBR</abbr>៕</li>
+<li>៖<abbr title="Abbrieviation">ABBR</abbr>៖</li>
+<li>៘<abbr title="Abbrieviation">ABBR</abbr>៘</li>
+<li>៙<abbr title="Abbrieviation">ABBR</abbr>៙</li>
+<li>៚<abbr title="Abbrieviation">ABBR</abbr>៚</li>
+<li>᠀<abbr title="Abbrieviation">ABBR</abbr>᠀</li>
+<li>᠁<abbr title="Abbrieviation">ABBR</abbr>᠁</li>
+<li>᠂<abbr title="Abbrieviation">ABBR</abbr>᠂</li>
+<li>᠃<abbr title="Abbrieviation">ABBR</abbr>᠃</li>
+<li>᠄<abbr title="Abbrieviation">ABBR</abbr>᠄</li>
+<li>᠅<abbr title="Abbrieviation">ABBR</abbr>᠅</li>
+<li>᠆<abbr title="Abbrieviation">ABBR</abbr>᠆</li>
+<li>᠇<abbr title="Abbrieviation">ABBR</abbr>᠇</li>
+<li>᠈<abbr title="Abbrieviation">ABBR</abbr>᠈</li>
+<li>᠉<abbr title="Abbrieviation">ABBR</abbr>᠉</li>
+<li>᠊<abbr title="Abbrieviation">ABBR</abbr>᠊</li>
+<li>᥄<abbr title="Abbrieviation">ABBR</abbr>᥄</li>
+<li>᥅<abbr title="Abbrieviation">ABBR</abbr>᥅</li>
+<li>᨞<abbr title="Abbrieviation">ABBR</abbr>᨞</li>
+<li>᨟<abbr title="Abbrieviation">ABBR</abbr>᨟</li>
+<li>᪠<abbr title="Abbrieviation">ABBR</abbr>᪠</li>
+<li>᪡<abbr title="Abbrieviation">ABBR</abbr>᪡</li>
+<li>᪢<abbr title="Abbrieviation">ABBR</abbr>᪢</li>
+<li>᪣<abbr title="Abbrieviation">ABBR</abbr>᪣</li>
+<li>᪤<abbr title="Abbrieviation">ABBR</abbr>᪤</li>
+<li>᪥<abbr title="Abbrieviation">ABBR</abbr>᪥</li>
+<li>᪦<abbr title="Abbrieviation">ABBR</abbr>᪦</li>
+<li>᪨<abbr title="Abbrieviation">ABBR</abbr>᪨</li>
+<li>᪩<abbr title="Abbrieviation">ABBR</abbr>᪩</li>
+<li>᪪<abbr title="Abbrieviation">ABBR</abbr>᪪</li>
+<li>᪫<abbr title="Abbrieviation">ABBR</abbr>᪫</li>
+<li>᪬<abbr title="Abbrieviation">ABBR</abbr>᪬</li>
+<li>᪭<abbr title="Abbrieviation">ABBR</abbr>᪭</li>
+<li>᭚<abbr title="Abbrieviation">ABBR</abbr>᭚</li>
+<li>᭛<abbr title="Abbrieviation">ABBR</abbr>᭛</li>
+<li>᭜<abbr title="Abbrieviation">ABBR</abbr>᭜</li>
+<li>᭝<abbr title="Abbrieviation">ABBR</abbr>᭝</li>
+<li>᭞<abbr title="Abbrieviation">ABBR</abbr>᭞</li>
+<li>᭟<abbr title="Abbrieviation">ABBR</abbr>᭟</li>
+<li>᭠<abbr title="Abbrieviation">ABBR</abbr>᭠</li>
+<li>᭽<abbr title="Abbrieviation">ABBR</abbr>᭽</li>
+<li>᭾<abbr title="Abbrieviation">ABBR</abbr>᭾</li>
+<li>᯼<abbr title="Abbrieviation">ABBR</abbr>᯼</li>
+<li>᯽<abbr title="Abbrieviation">ABBR</abbr>᯽</li>
+<li>᯾<abbr title="Abbrieviation">ABBR</abbr>᯾</li>
+<li>᯿<abbr title="Abbrieviation">ABBR</abbr>᯿</li>
+<li>᰻<abbr title="Abbrieviation">ABBR</abbr>᰻</li>
+<li>᰼<abbr title="Abbrieviation">ABBR</abbr>᰼</li>
+<li>᰽<abbr title="Abbrieviation">ABBR</abbr>᰽</li>
+<li>᰾<abbr title="Abbrieviation">ABBR</abbr>᰾</li>
+<li>᰿<abbr title="Abbrieviation">ABBR</abbr>᰿</li>
+<li>᱾<abbr title="Abbrieviation">ABBR</abbr>᱾</li>
+<li>᱿<abbr title="Abbrieviation">ABBR</abbr>᱿</li>
+<li>᳀<abbr title="Abbrieviation">ABBR</abbr>᳀</li>
+<li>᳁<abbr title="Abbrieviation">ABBR</abbr>᳁</li>
+<li>᳂<abbr title="Abbrieviation">ABBR</abbr>᳂</li>
+<li>᳃<abbr title="Abbrieviation">ABBR</abbr>᳃</li>
+<li>᳄<abbr title="Abbrieviation">ABBR</abbr>᳄</li>
+<li>᳅<abbr title="Abbrieviation">ABBR</abbr>᳅</li>
+<li>᳆<abbr title="Abbrieviation">ABBR</abbr>᳆</li>
+<li>᳇<abbr title="Abbrieviation">ABBR</abbr>᳇</li>
+<li>᳓<abbr title="Abbrieviation">ABBR</abbr>᳓</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li>‐<abbr title="Abbrieviation">ABBR</abbr>‐</li>
+<li>‑<abbr title="Abbrieviation">ABBR</abbr>‑</li>
+<li>‒<abbr title="Abbrieviation">ABBR</abbr>‒</li>
+<li>–<abbr title="Abbrieviation">ABBR</abbr>–</li>
+<li>—<abbr title="Abbrieviation">ABBR</abbr>—</li>
+<li>―<abbr title="Abbrieviation">ABBR</abbr>―</li>
+<li>‖<abbr title="Abbrieviation">ABBR</abbr>‖</li>
+<li>‗<abbr title="Abbrieviation">ABBR</abbr>‗</li>
+<li>‘<abbr title="Abbrieviation">ABBR</abbr>‘</li>
+<li>’<abbr title="Abbrieviation">ABBR</abbr>’</li>
+<li>‚<abbr title="Abbrieviation">ABBR</abbr>‚</li>
+<li>‛<abbr title="Abbrieviation">ABBR</abbr>‛</li>
+<li>“<abbr title="Abbrieviation">ABBR</abbr>“</li>
+<li>”<abbr title="Abbrieviation">ABBR</abbr>”</li>
+<li>„<abbr title="Abbrieviation">ABBR</abbr>„</li>
+<li>‟<abbr title="Abbrieviation">ABBR</abbr>‟</li>
+<li>†<abbr title="Abbrieviation">ABBR</abbr>†</li>
+<li>‡<abbr title="Abbrieviation">ABBR</abbr>‡</li>
+<li>•<abbr title="Abbrieviation">ABBR</abbr>•</li>
+<li>‣<abbr title="Abbrieviation">ABBR</abbr>‣</li>
+<li>․<abbr title="Abbrieviation">ABBR</abbr>․</li>
+<li>‥<abbr title="Abbrieviation">ABBR</abbr>‥</li>
+<li>…<abbr title="Abbrieviation">ABBR</abbr>…</li>
+<li>‧<abbr title="Abbrieviation">ABBR</abbr>‧</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li>‰<abbr title="Abbrieviation">ABBR</abbr>‰</li>
+<li>‱<abbr title="Abbrieviation">ABBR</abbr>‱</li>
+<li>′<abbr title="Abbrieviation">ABBR</abbr>′</li>
+<li>″<abbr title="Abbrieviation">ABBR</abbr>″</li>
+<li>‴<abbr title="Abbrieviation">ABBR</abbr>‴</li>
+<li>‵<abbr title="Abbrieviation">ABBR</abbr>‵</li>
+<li>‶<abbr title="Abbrieviation">ABBR</abbr>‶</li>
+<li>‷<abbr title="Abbrieviation">ABBR</abbr>‷</li>
+<li>‸<abbr title="Abbrieviation">ABBR</abbr>‸</li>
+<li>‹<abbr title="Abbrieviation">ABBR</abbr>‹</li>
+<li>›<abbr title="Abbrieviation">ABBR</abbr>›</li>
+<li>※<abbr title="Abbrieviation">ABBR</abbr>※</li>
+<li>‼<abbr title="Abbrieviation">ABBR</abbr>‼</li>
+<li>‽<abbr title="Abbrieviation">ABBR</abbr>‽</li>
+<li>‾<abbr title="Abbrieviation">ABBR</abbr>‾</li>
+<li>‿<abbr title="Abbrieviation">ABBR</abbr>‿</li>
+<li>⁀<abbr title="Abbrieviation">ABBR</abbr>⁀</li>
+<li>⁁<abbr title="Abbrieviation">ABBR</abbr>⁁</li>
+<li>⁂<abbr title="Abbrieviation">ABBR</abbr>⁂</li>
+<li>⁃<abbr title="Abbrieviation">ABBR</abbr>⁃</li>
+<li>⁅<abbr title="Abbrieviation">ABBR</abbr>⁅</li>
+<li>⁆<abbr title="Abbrieviation">ABBR</abbr>⁆</li>
+<li>⁇<abbr title="Abbrieviation">ABBR</abbr>⁇</li>
+<li>⁈<abbr title="Abbrieviation">ABBR</abbr>⁈</li>
+<li>⁉<abbr title="Abbrieviation">ABBR</abbr>⁉</li>
+<li>⁊<abbr title="Abbrieviation">ABBR</abbr>⁊</li>
+<li>⁋<abbr title="Abbrieviation">ABBR</abbr>⁋</li>
+<li>⁌<abbr title="Abbrieviation">ABBR</abbr>⁌</li>
+<li>⁍<abbr title="Abbrieviation">ABBR</abbr>⁍</li>
+<li>⁎<abbr title="Abbrieviation">ABBR</abbr>⁎</li>
+<li>⁏<abbr title="Abbrieviation">ABBR</abbr>⁏</li>
+<li>⁐<abbr title="Abbrieviation">ABBR</abbr>⁐</li>
+<li>⁑<abbr title="Abbrieviation">ABBR</abbr>⁑</li>
+<li>⁓<abbr title="Abbrieviation">ABBR</abbr>⁓</li>
+<li>⁔<abbr title="Abbrieviation">ABBR</abbr>⁔</li>
+<li>⁕<abbr title="Abbrieviation">ABBR</abbr>⁕</li>
+<li>⁖<abbr title="Abbrieviation">ABBR</abbr>⁖</li>
+<li>⁗<abbr title="Abbrieviation">ABBR</abbr>⁗</li>
+<li>⁘<abbr title="Abbrieviation">ABBR</abbr>⁘</li>
+<li>⁙<abbr title="Abbrieviation">ABBR</abbr>⁙</li>
+<li>⁚<abbr title="Abbrieviation">ABBR</abbr>⁚</li>
+<li>⁛<abbr title="Abbrieviation">ABBR</abbr>⁛</li>
+<li>⁜<abbr title="Abbrieviation">ABBR</abbr>⁜</li>
+<li>⁝<abbr title="Abbrieviation">ABBR</abbr>⁝</li>
+<li>⁞<abbr title="Abbrieviation">ABBR</abbr>⁞</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li>⁽<abbr title="Abbrieviation">ABBR</abbr>⁽</li>
+<li>⁾<abbr title="Abbrieviation">ABBR</abbr>⁾</li>
+<li>₍<abbr title="Abbrieviation">ABBR</abbr>₍</li>
+<li>₎<abbr title="Abbrieviation">ABBR</abbr>₎</li>
+<li>⌈<abbr title="Abbrieviation">ABBR</abbr>⌈</li>
+<li>⌉<abbr title="Abbrieviation">ABBR</abbr>⌉</li>
+<li>⌊<abbr title="Abbrieviation">ABBR</abbr>⌊</li>
+<li>⌋<abbr title="Abbrieviation">ABBR</abbr>⌋</li>
+<li>〈<abbr title="Abbrieviation">ABBR</abbr>〈</li>
+<li>〉<abbr title="Abbrieviation">ABBR</abbr>〉</li>
+<li>❨<abbr title="Abbrieviation">ABBR</abbr>❨</li>
+<li>❩<abbr title="Abbrieviation">ABBR</abbr>❩</li>
+<li>❪<abbr title="Abbrieviation">ABBR</abbr>❪</li>
+<li>❫<abbr title="Abbrieviation">ABBR</abbr>❫</li>
+<li>❬<abbr title="Abbrieviation">ABBR</abbr>❬</li>
+<li>❭<abbr title="Abbrieviation">ABBR</abbr>❭</li>
+<li>❮<abbr title="Abbrieviation">ABBR</abbr>❮</li>
+<li>❯<abbr title="Abbrieviation">ABBR</abbr>❯</li>
+<li>❰<abbr title="Abbrieviation">ABBR</abbr>❰</li>
+<li>❱<abbr title="Abbrieviation">ABBR</abbr>❱</li>
+<li>❲<abbr title="Abbrieviation">ABBR</abbr>❲</li>
+<li>❳<abbr title="Abbrieviation">ABBR</abbr>❳</li>
+<li>❴<abbr title="Abbrieviation">ABBR</abbr>❴</li>
+<li>❵<abbr title="Abbrieviation">ABBR</abbr>❵</li>
+<li>⟅<abbr title="Abbrieviation">ABBR</abbr>⟅</li>
+<li>⟆<abbr title="Abbrieviation">ABBR</abbr>⟆</li>
+<li>⟦<abbr title="Abbrieviation">ABBR</abbr>⟦</li>
+<li>⟧<abbr title="Abbrieviation">ABBR</abbr>⟧</li>
+<li>⟨<abbr title="Abbrieviation">ABBR</abbr>⟨</li>
+<li>⟩<abbr title="Abbrieviation">ABBR</abbr>⟩</li>
+<li>⟪<abbr title="Abbrieviation">ABBR</abbr>⟪</li>
+<li>⟫<abbr title="Abbrieviation">ABBR</abbr>⟫</li>
+<li>⟬<abbr title="Abbrieviation">ABBR</abbr>⟬</li>
+<li>⟭<abbr title="Abbrieviation">ABBR</abbr>⟭</li>
+<li>⟮<abbr title="Abbrieviation">ABBR</abbr>⟮</li>
+<li>⟯<abbr title="Abbrieviation">ABBR</abbr>⟯</li>
+<li>⦃<abbr title="Abbrieviation">ABBR</abbr>⦃</li>
+<li>⦄<abbr title="Abbrieviation">ABBR</abbr>⦄</li>
+<li>⦅<abbr title="Abbrieviation">ABBR</abbr>⦅</li>
+<li>⦆<abbr title="Abbrieviation">ABBR</abbr>⦆</li>
+<li>⦇<abbr title="Abbrieviation">ABBR</abbr>⦇</li>
+<li>⦈<abbr title="Abbrieviation">ABBR</abbr>⦈</li>
+<li>⦉<abbr title="Abbrieviation">ABBR</abbr>⦉</li>
+<li>⦊<abbr title="Abbrieviation">ABBR</abbr>⦊</li>
+<li>⦋<abbr title="Abbrieviation">ABBR</abbr>⦋</li>
+<li>⦌<abbr title="Abbrieviation">ABBR</abbr>⦌</li>
+<li>⦍<abbr title="Abbrieviation">ABBR</abbr>⦍</li>
+<li>⦎<abbr title="Abbrieviation">ABBR</abbr>⦎</li>
+<li>⦏<abbr title="Abbrieviation">ABBR</abbr>⦏</li>
+<li>⦐<abbr title="Abbrieviation">ABBR</abbr>⦐</li>
+<li>⦑<abbr title="Abbrieviation">ABBR</abbr>⦑</li>
+<li>⦒<abbr title="Abbrieviation">ABBR</abbr>⦒</li>
+<li>⦓<abbr title="Abbrieviation">ABBR</abbr>⦓</li>
+<li>⦔<abbr title="Abbrieviation">ABBR</abbr>⦔</li>
+<li>⦕<abbr title="Abbrieviation">ABBR</abbr>⦕</li>
+<li>⦖<abbr title="Abbrieviation">ABBR</abbr>⦖</li>
+<li>⦗<abbr title="Abbrieviation">ABBR</abbr>⦗</li>
+<li>⦘<abbr title="Abbrieviation">ABBR</abbr>⦘</li>
+<li>⧘<abbr title="Abbrieviation">ABBR</abbr>⧘</li>
+<li>⧙<abbr title="Abbrieviation">ABBR</abbr>⧙</li>
+<li>⧚<abbr title="Abbrieviation">ABBR</abbr>⧚</li>
+<li>⧛<abbr title="Abbrieviation">ABBR</abbr>⧛</li>
+<li>⧼<abbr title="Abbrieviation">ABBR</abbr>⧼</li>
+<li>⧽<abbr title="Abbrieviation">ABBR</abbr>⧽</li>
+<li>⳹<abbr title="Abbrieviation">ABBR</abbr>⳹</li>
+<li>⳺<abbr title="Abbrieviation">ABBR</abbr>⳺</li>
+<li>⳻<abbr title="Abbrieviation">ABBR</abbr>⳻</li>
+<li>⳼<abbr title="Abbrieviation">ABBR</abbr>⳼</li>
+<li>⳾<abbr title="Abbrieviation">ABBR</abbr>⳾</li>
+<li>⳿<abbr title="Abbrieviation">ABBR</abbr>⳿</li>
+<li>⵰<abbr title="Abbrieviation">ABBR</abbr>⵰</li>
+<li>⸀<abbr title="Abbrieviation">ABBR</abbr>⸀</li>
+<li>⸁<abbr title="Abbrieviation">ABBR</abbr>⸁</li>
+<li>⸂<abbr title="Abbrieviation">ABBR</abbr>⸂</li>
+<li>⸃<abbr title="Abbrieviation">ABBR</abbr>⸃</li>
+<li>⸄<abbr title="Abbrieviation">ABBR</abbr>⸄</li>
+<li>⸅<abbr title="Abbrieviation">ABBR</abbr>⸅</li>
+<li>⸆<abbr title="Abbrieviation">ABBR</abbr>⸆</li>
+<li>⸇<abbr title="Abbrieviation">ABBR</abbr>⸇</li>
+<li>⸈<abbr title="Abbrieviation">ABBR</abbr>⸈</li>
+<li>⸉<abbr title="Abbrieviation">ABBR</abbr>⸉</li>
+<li>⸊<abbr title="Abbrieviation">ABBR</abbr>⸊</li>
+<li>⸋<abbr title="Abbrieviation">ABBR</abbr>⸋</li>
+<li>⸌<abbr title="Abbrieviation">ABBR</abbr>⸌</li>
+<li>⸍<abbr title="Abbrieviation">ABBR</abbr>⸍</li>
+<li>⸎<abbr title="Abbrieviation">ABBR</abbr>⸎</li>
+<li>⸏<abbr title="Abbrieviation">ABBR</abbr>⸏</li>
+<li>⸐<abbr title="Abbrieviation">ABBR</abbr>⸐</li>
+<li>⸑<abbr title="Abbrieviation">ABBR</abbr>⸑</li>
+<li>⸒<abbr title="Abbrieviation">ABBR</abbr>⸒</li>
+<li>⸓<abbr title="Abbrieviation">ABBR</abbr>⸓</li>
+<li>⸔<abbr title="Abbrieviation">ABBR</abbr>⸔</li>
+<li>⸕<abbr title="Abbrieviation">ABBR</abbr>⸕</li>
+<li>⸖<abbr title="Abbrieviation">ABBR</abbr>⸖</li>
+<li>⸗<abbr title="Abbrieviation">ABBR</abbr>⸗</li>
+<li>⸘<abbr title="Abbrieviation">ABBR</abbr>⸘</li>
+<li>⸙<abbr title="Abbrieviation">ABBR</abbr>⸙</li>
+<li>⸚<abbr title="Abbrieviation">ABBR</abbr>⸚</li>
+<li>⸛<abbr title="Abbrieviation">ABBR</abbr>⸛</li>
+<li>⸜<abbr title="Abbrieviation">ABBR</abbr>⸜</li>
+<li>⸝<abbr title="Abbrieviation">ABBR</abbr>⸝</li>
+<li>⸞<abbr title="Abbrieviation">ABBR</abbr>⸞</li>
+<li>⸟<abbr title="Abbrieviation">ABBR</abbr>⸟</li>
+<li>⸠<abbr title="Abbrieviation">ABBR</abbr>⸠</li>
+<li>⸡<abbr title="Abbrieviation">ABBR</abbr>⸡</li>
+<li>⸢<abbr title="Abbrieviation">ABBR</abbr>⸢</li>
+<li>⸣<abbr title="Abbrieviation">ABBR</abbr>⸣</li>
+<li>⸤<abbr title="Abbrieviation">ABBR</abbr>⸤</li>
+<li>⸥<abbr title="Abbrieviation">ABBR</abbr>⸥</li>
+<li>⸦<abbr title="Abbrieviation">ABBR</abbr>⸦</li>
+<li>⸧<abbr title="Abbrieviation">ABBR</abbr>⸧</li>
+<li>⸨<abbr title="Abbrieviation">ABBR</abbr>⸨</li>
+<li>⸩<abbr title="Abbrieviation">ABBR</abbr>⸩</li>
+<li>⸪<abbr title="Abbrieviation">ABBR</abbr>⸪</li>
+<li>⸫<abbr title="Abbrieviation">ABBR</abbr>⸫</li>
+<li>⸬<abbr title="Abbrieviation">ABBR</abbr>⸬</li>
+<li>⸭<abbr title="Abbrieviation">ABBR</abbr>⸭</li>
+<li>⸮<abbr title="Abbrieviation">ABBR</abbr>⸮</li>
+<li>⸰<abbr title="Abbrieviation">ABBR</abbr>⸰</li>
+<li>⸱<abbr title="Abbrieviation">ABBR</abbr>⸱</li>
+<li>⸲<abbr title="Abbrieviation">ABBR</abbr>⸲</li>
+<li>⸳<abbr title="Abbrieviation">ABBR</abbr>⸳</li>
+<li>⸴<abbr title="Abbrieviation">ABBR</abbr>⸴</li>
+<li>⸵<abbr title="Abbrieviation">ABBR</abbr>⸵</li>
+<li>⸶<abbr title="Abbrieviation">ABBR</abbr>⸶</li>
+<li>⸷<abbr title="Abbrieviation">ABBR</abbr>⸷</li>
+<li>⸸<abbr title="Abbrieviation">ABBR</abbr>⸸</li>
+<li>⸹<abbr title="Abbrieviation">ABBR</abbr>⸹</li>
+<li>⸺<abbr title="Abbrieviation">ABBR</abbr>⸺</li>
+<li>⸻<abbr title="Abbrieviation">ABBR</abbr>⸻</li>
+<li>⸼<abbr title="Abbrieviation">ABBR</abbr>⸼</li>
+<li>⸽<abbr title="Abbrieviation">ABBR</abbr>⸽</li>
+<li>⸾<abbr title="Abbrieviation">ABBR</abbr>⸾</li>
+<li>⸿<abbr title="Abbrieviation">ABBR</abbr>⸿</li>
+<li>⹀<abbr title="Abbrieviation">ABBR</abbr>⹀</li>
+<li>⹁<abbr title="Abbrieviation">ABBR</abbr>⹁</li>
+<li>⹂<abbr title="Abbrieviation">ABBR</abbr>⹂</li>
+<li>⹃<abbr title="Abbrieviation">ABBR</abbr>⹃</li>
+<li>⹄<abbr title="Abbrieviation">ABBR</abbr>⹄</li>
+<li>⹅<abbr title="Abbrieviation">ABBR</abbr>⹅</li>
+<li>⹆<abbr title="Abbrieviation">ABBR</abbr>⹆</li>
+<li>⹇<abbr title="Abbrieviation">ABBR</abbr>⹇</li>
+<li>⹈<abbr title="Abbrieviation">ABBR</abbr>⹈</li>
+<li>⹉<abbr title="Abbrieviation">ABBR</abbr>⹉</li>
+<li>⹊<abbr title="Abbrieviation">ABBR</abbr>⹊</li>
+<li>⹋<abbr title="Abbrieviation">ABBR</abbr>⹋</li>
+<li>⹌<abbr title="Abbrieviation">ABBR</abbr>⹌</li>
+<li>⹍<abbr title="Abbrieviation">ABBR</abbr>⹍</li>
+<li>⹎<abbr title="Abbrieviation">ABBR</abbr>⹎</li>
+<li>⹏<abbr title="Abbrieviation">ABBR</abbr>⹏</li>
+<li>⹒<abbr title="Abbrieviation">ABBR</abbr>⹒</li>
+<li>⹓<abbr title="Abbrieviation">ABBR</abbr>⹓</li>
+<li>⹔<abbr title="Abbrieviation">ABBR</abbr>⹔</li>
+<li>⹕<abbr title="Abbrieviation">ABBR</abbr>⹕</li>
+<li>⹖<abbr title="Abbrieviation">ABBR</abbr>⹖</li>
+<li>⹗<abbr title="Abbrieviation">ABBR</abbr>⹗</li>
+<li>⹘<abbr title="Abbrieviation">ABBR</abbr>⹘</li>
+<li>⹙<abbr title="Abbrieviation">ABBR</abbr>⹙</li>
+<li>⹚<abbr title="Abbrieviation">ABBR</abbr>⹚</li>
+<li>⹛<abbr title="Abbrieviation">ABBR</abbr>⹛</li>
+<li>⹜<abbr title="Abbrieviation">ABBR</abbr>⹜</li>
+<li>⹝<abbr title="Abbrieviation">ABBR</abbr>⹝</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li>、<abbr title="Abbrieviation">ABBR</abbr>、</li>
+<li>。<abbr title="Abbrieviation">ABBR</abbr>。</li>
+<li>〃<abbr title="Abbrieviation">ABBR</abbr>〃</li>
+<li>〈<abbr title="Abbrieviation">ABBR</abbr>〈</li>
+<li>〉<abbr title="Abbrieviation">ABBR</abbr>〉</li>
+<li>《<abbr title="Abbrieviation">ABBR</abbr>《</li>
+<li>》<abbr title="Abbrieviation">ABBR</abbr>》</li>
+<li>「<abbr title="Abbrieviation">ABBR</abbr>「</li>
+<li>」<abbr title="Abbrieviation">ABBR</abbr>」</li>
+<li>『<abbr title="Abbrieviation">ABBR</abbr>『</li>
+<li>』<abbr title="Abbrieviation">ABBR</abbr>』</li>
+<li>【<abbr title="Abbrieviation">ABBR</abbr>【</li>
+<li>】<abbr title="Abbrieviation">ABBR</abbr>】</li>
+<li>〔<abbr title="Abbrieviation">ABBR</abbr>〔</li>
+<li>〕<abbr title="Abbrieviation">ABBR</abbr>〕</li>
+<li>〖<abbr title="Abbrieviation">ABBR</abbr>〖</li>
+<li>〗<abbr title="Abbrieviation">ABBR</abbr>〗</li>
+<li>〘<abbr title="Abbrieviation">ABBR</abbr>〘</li>
+<li>〙<abbr title="Abbrieviation">ABBR</abbr>〙</li>
+<li>〚<abbr title="Abbrieviation">ABBR</abbr>〚</li>
+<li>〛<abbr title="Abbrieviation">ABBR</abbr>〛</li>
+<li>〜<abbr title="Abbrieviation">ABBR</abbr>〜</li>
+<li>〝<abbr title="Abbrieviation">ABBR</abbr>〝</li>
+<li>〞<abbr title="Abbrieviation">ABBR</abbr>〞</li>
+<li>〟<abbr title="Abbrieviation">ABBR</abbr>〟</li>
+<li>〰<abbr title="Abbrieviation">ABBR</abbr>〰</li>
+<li>〽<abbr title="Abbrieviation">ABBR</abbr>〽</li>
+<li>゠<abbr title="Abbrieviation">ABBR</abbr>゠</li>
+<li>・<abbr title="Abbrieviation">ABBR</abbr>・</li>
+<li>꓾<abbr title="Abbrieviation">ABBR</abbr>꓾</li>
+<li>꓿<abbr title="Abbrieviation">ABBR</abbr>꓿</li>
+<li>꘍<abbr title="Abbrieviation">ABBR</abbr>꘍</li>
+<li>꘎<abbr title="Abbrieviation">ABBR</abbr>꘎</li>
+<li>꘏<abbr title="Abbrieviation">ABBR</abbr>꘏</li>
+<li>꙳<abbr title="Abbrieviation">ABBR</abbr>꙳</li>
+<li>꙾<abbr title="Abbrieviation">ABBR</abbr>꙾</li>
+<li>꛲<abbr title="Abbrieviation">ABBR</abbr>꛲</li>
+<li>꛳<abbr title="Abbrieviation">ABBR</abbr>꛳</li>
+<li>꛴<abbr title="Abbrieviation">ABBR</abbr>꛴</li>
+<li>꛵<abbr title="Abbrieviation">ABBR</abbr>꛵</li>
+<li>꛶<abbr title="Abbrieviation">ABBR</abbr>꛶</li>
+<li>꛷<abbr title="Abbrieviation">ABBR</abbr>꛷</li>
+<li>꡴<abbr title="Abbrieviation">ABBR</abbr>꡴</li>
+<li>꡵<abbr title="Abbrieviation">ABBR</abbr>꡵</li>
+<li>꡶<abbr title="Abbrieviation">ABBR</abbr>꡶</li>
+<li>꡷<abbr title="Abbrieviation">ABBR</abbr>꡷</li>
+<li>꣎<abbr title="Abbrieviation">ABBR</abbr>꣎</li>
+<li>꣏<abbr title="Abbrieviation">ABBR</abbr>꣏</li>
+<li>꣸<abbr title="Abbrieviation">ABBR</abbr>꣸</li>
+<li>꣹<abbr title="Abbrieviation">ABBR</abbr>꣹</li>
+<li>꣺<abbr title="Abbrieviation">ABBR</abbr>꣺</li>
+<li>꣼<abbr title="Abbrieviation">ABBR</abbr>꣼</li>
+<li>꤮<abbr title="Abbrieviation">ABBR</abbr>꤮</li>
+<li>꤯<abbr title="Abbrieviation">ABBR</abbr>꤯</li>
+<li>꥟<abbr title="Abbrieviation">ABBR</abbr>꥟</li>
+<li>꧁<abbr title="Abbrieviation">ABBR</abbr>꧁</li>
+<li>꧂<abbr title="Abbrieviation">ABBR</abbr>꧂</li>
+<li>꧃<abbr title="Abbrieviation">ABBR</abbr>꧃</li>
+<li>꧄<abbr title="Abbrieviation">ABBR</abbr>꧄</li>
+<li>꧅<abbr title="Abbrieviation">ABBR</abbr>꧅</li>
+<li>꧆<abbr title="Abbrieviation">ABBR</abbr>꧆</li>
+<li>꧇<abbr title="Abbrieviation">ABBR</abbr>꧇</li>
+<li>꧈<abbr title="Abbrieviation">ABBR</abbr>꧈</li>
+<li>꧉<abbr title="Abbrieviation">ABBR</abbr>꧉</li>
+<li>꧊<abbr title="Abbrieviation">ABBR</abbr>꧊</li>
+<li>꧋<abbr title="Abbrieviation">ABBR</abbr>꧋</li>
+<li>꧌<abbr title="Abbrieviation">ABBR</abbr>꧌</li>
+<li>꧍<abbr title="Abbrieviation">ABBR</abbr>꧍</li>
+<li>꧞<abbr title="Abbrieviation">ABBR</abbr>꧞</li>
+<li>꧟<abbr title="Abbrieviation">ABBR</abbr>꧟</li>
+<li>꩜<abbr title="Abbrieviation">ABBR</abbr>꩜</li>
+<li>꩝<abbr title="Abbrieviation">ABBR</abbr>꩝</li>
+<li>꩞<abbr title="Abbrieviation">ABBR</abbr>꩞</li>
+<li>꩟<abbr title="Abbrieviation">ABBR</abbr>꩟</li>
+<li>꫞<abbr title="Abbrieviation">ABBR</abbr>꫞</li>
+<li>꫟<abbr title="Abbrieviation">ABBR</abbr>꫟</li>
+<li>꫰<abbr title="Abbrieviation">ABBR</abbr>꫰</li>
+<li>꫱<abbr title="Abbrieviation">ABBR</abbr>꫱</li>
+<li>꯫<abbr title="Abbrieviation">ABBR</abbr>꯫</li>
+<li>﴾<abbr title="Abbrieviation">ABBR</abbr>﴾</li>
+<li>﴿<abbr title="Abbrieviation">ABBR</abbr>﴿</li>
+<li>︐<abbr title="Abbrieviation">ABBR</abbr>︐</li>
+<li>︑<abbr title="Abbrieviation">ABBR</abbr>︑</li>
+<li>︒<abbr title="Abbrieviation">ABBR</abbr>︒</li>
+<li>︓<abbr title="Abbrieviation">ABBR</abbr>︓</li>
+<li>︔<abbr title="Abbrieviation">ABBR</abbr>︔</li>
+<li>︕<abbr title="Abbrieviation">ABBR</abbr>︕</li>
+<li>︖<abbr title="Abbrieviation">ABBR</abbr>︖</li>
+<li>︗<abbr title="Abbrieviation">ABBR</abbr>︗</li>
+<li>︘<abbr title="Abbrieviation">ABBR</abbr>︘</li>
+<li>︙<abbr title="Abbrieviation">ABBR</abbr>︙</li>
+<li>︰<abbr title="Abbrieviation">ABBR</abbr>︰</li>
+<li>︱<abbr title="Abbrieviation">ABBR</abbr>︱</li>
+<li>︲<abbr title="Abbrieviation">ABBR</abbr>︲</li>
+<li>︳<abbr title="Abbrieviation">ABBR</abbr>︳</li>
+<li>︴<abbr title="Abbrieviation">ABBR</abbr>︴</li>
+<li>︵<abbr title="Abbrieviation">ABBR</abbr>︵</li>
+<li>︶<abbr title="Abbrieviation">ABBR</abbr>︶</li>
+<li>︷<abbr title="Abbrieviation">ABBR</abbr>︷</li>
+<li>︸<abbr title="Abbrieviation">ABBR</abbr>︸</li>
+<li>︹<abbr title="Abbrieviation">ABBR</abbr>︹</li>
+<li>︺<abbr title="Abbrieviation">ABBR</abbr>︺</li>
+<li>︻<abbr title="Abbrieviation">ABBR</abbr>︻</li>
+<li>︼<abbr title="Abbrieviation">ABBR</abbr>︼</li>
+<li>︽<abbr title="Abbrieviation">ABBR</abbr>︽</li>
+<li>︾<abbr title="Abbrieviation">ABBR</abbr>︾</li>
+<li>︿<abbr title="Abbrieviation">ABBR</abbr>︿</li>
+<li>﹀<abbr title="Abbrieviation">ABBR</abbr>﹀</li>
+<li>﹁<abbr title="Abbrieviation">ABBR</abbr>﹁</li>
+<li>﹂<abbr title="Abbrieviation">ABBR</abbr>﹂</li>
+<li>﹃<abbr title="Abbrieviation">ABBR</abbr>﹃</li>
+<li>﹄<abbr title="Abbrieviation">ABBR</abbr>﹄</li>
+<li>﹅<abbr title="Abbrieviation">ABBR</abbr>﹅</li>
+<li>﹆<abbr title="Abbrieviation">ABBR</abbr>﹆</li>
+<li>﹇<abbr title="Abbrieviation">ABBR</abbr>﹇</li>
+<li>﹈<abbr title="Abbrieviation">ABBR</abbr>﹈</li>
+<li>﹉<abbr title="Abbrieviation">ABBR</abbr>﹉</li>
+<li>﹊<abbr title="Abbrieviation">ABBR</abbr>﹊</li>
+<li>﹋<abbr title="Abbrieviation">ABBR</abbr>﹋</li>
+<li>﹌<abbr title="Abbrieviation">ABBR</abbr>﹌</li>
+<li>﹍<abbr title="Abbrieviation">ABBR</abbr>﹍</li>
+<li>﹎<abbr title="Abbrieviation">ABBR</abbr>﹎</li>
+<li>﹏<abbr title="Abbrieviation">ABBR</abbr>﹏</li>
+<li>﹐<abbr title="Abbrieviation">ABBR</abbr>﹐</li>
+<li>﹑<abbr title="Abbrieviation">ABBR</abbr>﹑</li>
+<li>﹒<abbr title="Abbrieviation">ABBR</abbr>﹒</li>
+<li>﹔<abbr title="Abbrieviation">ABBR</abbr>﹔</li>
+<li>﹕<abbr title="Abbrieviation">ABBR</abbr>﹕</li>
+<li>﹖<abbr title="Abbrieviation">ABBR</abbr>﹖</li>
+<li>﹗<abbr title="Abbrieviation">ABBR</abbr>﹗</li>
+<li>﹘<abbr title="Abbrieviation">ABBR</abbr>﹘</li>
+<li>﹙<abbr title="Abbrieviation">ABBR</abbr>﹙</li>
+<li>﹚<abbr title="Abbrieviation">ABBR</abbr>﹚</li>
+<li>﹛<abbr title="Abbrieviation">ABBR</abbr>﹛</li>
+<li>﹜<abbr title="Abbrieviation">ABBR</abbr>﹜</li>
+<li>﹝<abbr title="Abbrieviation">ABBR</abbr>﹝</li>
+<li>﹞<abbr title="Abbrieviation">ABBR</abbr>﹞</li>
+<li>﹟<abbr title="Abbrieviation">ABBR</abbr>﹟</li>
+<li>﹠<abbr title="Abbrieviation">ABBR</abbr>﹠</li>
+<li>﹡<abbr title="Abbrieviation">ABBR</abbr>﹡</li>
+<li>﹣<abbr title="Abbrieviation">ABBR</abbr>﹣</li>
+<li>﹨<abbr title="Abbrieviation">ABBR</abbr>﹨</li>
+<li>﹪<abbr title="Abbrieviation">ABBR</abbr>﹪</li>
+<li>﹫<abbr title="Abbrieviation">ABBR</abbr>﹫</li>
+<li>！<abbr title="Abbrieviation">ABBR</abbr>！</li>
+<li>＂<abbr title="Abbrieviation">ABBR</abbr>＂</li>
+<li>＃<abbr title="Abbrieviation">ABBR</abbr>＃</li>
+<li>％<abbr title="Abbrieviation">ABBR</abbr>％</li>
+<li>＆<abbr title="Abbrieviation">ABBR</abbr>＆</li>
+<li>＇<abbr title="Abbrieviation">ABBR</abbr>＇</li>
+<li>（<abbr title="Abbrieviation">ABBR</abbr>（</li>
+<li>）<abbr title="Abbrieviation">ABBR</abbr>）</li>
+<li>＊<abbr title="Abbrieviation">ABBR</abbr>＊</li>
+<li>，<abbr title="Abbrieviation">ABBR</abbr>，</li>
+<li>－<abbr title="Abbrieviation">ABBR</abbr>－</li>
+<li>．<abbr title="Abbrieviation">ABBR</abbr>．</li>
+<li>／<abbr title="Abbrieviation">ABBR</abbr>／</li>
+<li>：<abbr title="Abbrieviation">ABBR</abbr>：</li>
+<li>；<abbr title="Abbrieviation">ABBR</abbr>；</li>
+<li>？<abbr title="Abbrieviation">ABBR</abbr>？</li>
+<li>＠<abbr title="Abbrieviation">ABBR</abbr>＠</li>
+<li>［<abbr title="Abbrieviation">ABBR</abbr>［</li>
+<li>＼<abbr title="Abbrieviation">ABBR</abbr>＼</li>
+<li>］<abbr title="Abbrieviation">ABBR</abbr>］</li>
+<li>＿<abbr title="Abbrieviation">ABBR</abbr>＿</li>
+<li>｛<abbr title="Abbrieviation">ABBR</abbr>｛</li>
+<li>｝<abbr title="Abbrieviation">ABBR</abbr>｝</li>
+<li>｟<abbr title="Abbrieviation">ABBR</abbr>｟</li>
+<li>｠<abbr title="Abbrieviation">ABBR</abbr>｠</li>
+<li>｡<abbr title="Abbrieviation">ABBR</abbr>｡</li>
+<li>｢<abbr title="Abbrieviation">ABBR</abbr>｢</li>
+<li>｣<abbr title="Abbrieviation">ABBR</abbr>｣</li>
+<li>､<abbr title="Abbrieviation">ABBR</abbr>､</li>
+<li>･<abbr title="Abbrieviation">ABBR</abbr>･</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li></li>
+</ul>
+<h2 id="h:abbr"><abbr title="Abbrieviation">ABBR</abbr> <a class="header-anchor" href="#h:abbr">#</a></h2>
+<p><abbr title="Abbrieviation">ABBR</abbr></p>
+<ul>
+<li>$<abbr title="Abbrieviation">ABBR</abbr>$</li>
+<li>+<abbr title="Abbrieviation">ABBR</abbr>+</li>
+<li>&lt;<abbr title="Abbrieviation">ABBR</abbr>&lt;</li>
+<li>=<abbr title="Abbrieviation">ABBR</abbr>=</li>
+<li>
+<blockquote>
+<p><abbr title="Abbrieviation">ABBR</abbr>&gt;</p>
+</blockquote>
+</li>
+<li><sup><abbr title="Abbrieviation">ABBR</abbr></sup></li>
+<li><code>ABBR</code></li>
+<li>|<abbr title="Abbrieviation">ABBR</abbr>|</li>
+<li><sub><abbr title="Abbrieviation">ABBR</abbr></sub></li>
+<li>]<abbr title="Abbrieviation">ABBR</abbr>]</li>
+</ul>
+"""
+abbr = """<h2>Testing abbreviations plugin</h2>
+<h3>Tests for <code>*[Short Form]: Long form</code> syntax for <code>&lt;abbr&gt;</code></h3>
+<p>The language <a href="https://developer.mozilla.org/en-US/docs/Web/HTML"><abbr title="HyperText Markup Language">HTML</abbr></a> is a markup language for webpages.</p>
+<p><abbr title="Cascading Style Sheets">CSS</abbr> is a language used to define the presentation of <abbr title="HyperText Markup Language">HTML</abbr> webpages.</p>
+<blockquote>
+<p>You can find more about <abbr title="Cascading Style Sheets">CSS</abbr> on https://developer.mozilla.org/en-US/docs/Web/<abbr title="Cascading Style Sheets">CSS</abbr></p>
+</blockquote>
+<h3>Tests for padding characters</h3>
+<ul>
+<li>[<abbr title="Abbrieviation">ABBR</abbr>[</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li>!<abbr title="Abbrieviation">ABBR</abbr>!</li>
+<li>&quot;<abbr title="Abbrieviation">ABBR</abbr>&quot;</li>
+<li>#<abbr title="Abbrieviation">ABBR</abbr>#</li>
+<li>%<abbr title="Abbrieviation">ABBR</abbr>%</li>
+<li>&amp;<abbr title="Abbrieviation">ABBR</abbr>&amp;</li>
+<li>'<abbr title="Abbrieviation">ABBR</abbr>'</li>
+<li>(<abbr title="Abbrieviation">ABBR</abbr>(</li>
+<li>)<abbr title="Abbrieviation">ABBR</abbr>)</li>
+<li><em><abbr title="Abbrieviation">ABBR</abbr></em></li>
+<li>,<abbr title="Abbrieviation">ABBR</abbr>,</li>
+<li>-<abbr title="Abbrieviation">ABBR</abbr>-</li>
+<li>.<abbr title="Abbrieviation">ABBR</abbr>.</li>
+<li>/<abbr title="Abbrieviation">ABBR</abbr>/</li>
+<li>:<abbr title="Abbrieviation">ABBR</abbr>:</li>
+<li>;<abbr title="Abbrieviation">ABBR</abbr>;</li>
+<li>?<abbr title="Abbrieviation">ABBR</abbr>?</li>
+<li>@<abbr title="Abbrieviation">ABBR</abbr>@</li>
+<li>\\<abbr title="Abbrieviation">ABBR</abbr>\\</li>
+<li>[<abbr title="Abbrieviation">ABBR</abbr>[</li>
+<li>\\<abbr title="Abbrieviation">ABBR</abbr>\\</li>
+<li>\\<abbr title="Abbrieviation">ABBR</abbr>\\</li>
+<li>\\<abbr title="Abbrieviation">ABBR</abbr>\\</li>
+<li>]<abbr title="Abbrieviation">ABBR</abbr>]</li>
+<li><em><abbr title="Abbrieviation">ABBR</abbr></em></li>
+<li>{<abbr title="Abbrieviation">ABBR</abbr>{</li>
+<li>}<abbr title="Abbrieviation">ABBR</abbr>}</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li>¡<abbr title="Abbrieviation">ABBR</abbr>¡</li>
+<li>§<abbr title="Abbrieviation">ABBR</abbr>§</li>
+<li>«<abbr title="Abbrieviation">ABBR</abbr>«</li>
+<li>¶<abbr title="Abbrieviation">ABBR</abbr>¶</li>
+<li>·<abbr title="Abbrieviation">ABBR</abbr>·</li>
+<li>»<abbr title="Abbrieviation">ABBR</abbr>»</li>
+<li>¿<abbr title="Abbrieviation">ABBR</abbr>¿</li>
+<li>;<abbr title="Abbrieviation">ABBR</abbr>;</li>
+<li>·<abbr title="Abbrieviation">ABBR</abbr>·</li>
+<li>՚<abbr title="Abbrieviation">ABBR</abbr>՚</li>
+<li>՛<abbr title="Abbrieviation">ABBR</abbr>՛</li>
+<li>՜<abbr title="Abbrieviation">ABBR</abbr>՜</li>
+<li>՝<abbr title="Abbrieviation">ABBR</abbr>՝</li>
+<li>՞<abbr title="Abbrieviation">ABBR</abbr>՞</li>
+<li>՟<abbr title="Abbrieviation">ABBR</abbr>՟</li>
+<li>։<abbr title="Abbrieviation">ABBR</abbr>։</li>
+<li>֊<abbr title="Abbrieviation">ABBR</abbr>֊</li>
+<li>־<abbr title="Abbrieviation">ABBR</abbr>־</li>
+<li>׀<abbr title="Abbrieviation">ABBR</abbr>׀</li>
+<li>׃<abbr title="Abbrieviation">ABBR</abbr>׃</li>
+<li>׆<abbr title="Abbrieviation">ABBR</abbr>׆</li>
+<li>׳<abbr title="Abbrieviation">ABBR</abbr>׳</li>
+<li>״<abbr title="Abbrieviation">ABBR</abbr>״</li>
+<li>؉<abbr title="Abbrieviation">ABBR</abbr>؉</li>
+<li>؊<abbr title="Abbrieviation">ABBR</abbr>؊</li>
+<li>،<abbr title="Abbrieviation">ABBR</abbr>،</li>
+<li>؍<abbr title="Abbrieviation">ABBR</abbr>؍</li>
+<li>؛<abbr title="Abbrieviation">ABBR</abbr>؛</li>
+<li>؝<abbr title="Abbrieviation">ABBR</abbr>؝</li>
+<li>؞<abbr title="Abbrieviation">ABBR</abbr>؞</li>
+<li>؟<abbr title="Abbrieviation">ABBR</abbr>؟</li>
+<li>٪<abbr title="Abbrieviation">ABBR</abbr>٪</li>
+<li>٫<abbr title="Abbrieviation">ABBR</abbr>٫</li>
+<li>٬<abbr title="Abbrieviation">ABBR</abbr>٬</li>
+<li>٭<abbr title="Abbrieviation">ABBR</abbr>٭</li>
+<li>۔<abbr title="Abbrieviation">ABBR</abbr>۔</li>
+<li>܀<abbr title="Abbrieviation">ABBR</abbr>܀</li>
+<li>܁<abbr title="Abbrieviation">ABBR</abbr>܁</li>
+<li>܂<abbr title="Abbrieviation">ABBR</abbr>܂</li>
+<li>܃<abbr title="Abbrieviation">ABBR</abbr>܃</li>
+<li>܄<abbr title="Abbrieviation">ABBR</abbr>܄</li>
+<li>܅<abbr title="Abbrieviation">ABBR</abbr>܅</li>
+<li>܆<abbr title="Abbrieviation">ABBR</abbr>܆</li>
+<li>܇<abbr title="Abbrieviation">ABBR</abbr>܇</li>
+<li>܈<abbr title="Abbrieviation">ABBR</abbr>܈</li>
+<li>܉<abbr title="Abbrieviation">ABBR</abbr>܉</li>
+<li>܊<abbr title="Abbrieviation">ABBR</abbr>܊</li>
+<li>܋<abbr title="Abbrieviation">ABBR</abbr>܋</li>
+<li>܌<abbr title="Abbrieviation">ABBR</abbr>܌</li>
+<li>܍<abbr title="Abbrieviation">ABBR</abbr>܍</li>
+<li>߷<abbr title="Abbrieviation">ABBR</abbr>߷</li>
+<li>߸<abbr title="Abbrieviation">ABBR</abbr>߸</li>
+<li>߹<abbr title="Abbrieviation">ABBR</abbr>߹</li>
+<li>࠰<abbr title="Abbrieviation">ABBR</abbr>࠰</li>
+<li>࠱<abbr title="Abbrieviation">ABBR</abbr>࠱</li>
+<li>࠲<abbr title="Abbrieviation">ABBR</abbr>࠲</li>
+<li>࠳<abbr title="Abbrieviation">ABBR</abbr>࠳</li>
+<li>࠴<abbr title="Abbrieviation">ABBR</abbr>࠴</li>
+<li>࠵<abbr title="Abbrieviation">ABBR</abbr>࠵</li>
+<li>࠶<abbr title="Abbrieviation">ABBR</abbr>࠶</li>
+<li>࠷<abbr title="Abbrieviation">ABBR</abbr>࠷</li>
+<li>࠸<abbr title="Abbrieviation">ABBR</abbr>࠸</li>
+<li>࠹<abbr title="Abbrieviation">ABBR</abbr>࠹</li>
+<li>࠺<abbr title="Abbrieviation">ABBR</abbr>࠺</li>
+<li>࠻<abbr title="Abbrieviation">ABBR</abbr>࠻</li>
+<li>࠼<abbr title="Abbrieviation">ABBR</abbr>࠼</li>
+<li>࠽<abbr title="Abbrieviation">ABBR</abbr>࠽</li>
+<li>࠾<abbr title="Abbrieviation">ABBR</abbr>࠾</li>
+<li>࡞<abbr title="Abbrieviation">ABBR</abbr>࡞</li>
+<li>।<abbr title="Abbrieviation">ABBR</abbr>।</li>
+<li>॥<abbr title="Abbrieviation">ABBR</abbr>॥</li>
+<li>॰<abbr title="Abbrieviation">ABBR</abbr>॰</li>
+<li>৽<abbr title="Abbrieviation">ABBR</abbr>৽</li>
+<li>੶<abbr title="Abbrieviation">ABBR</abbr>੶</li>
+<li>૰<abbr title="Abbrieviation">ABBR</abbr>૰</li>
+<li>౷<abbr title="Abbrieviation">ABBR</abbr>౷</li>
+<li>಄<abbr title="Abbrieviation">ABBR</abbr>಄</li>
+<li>෴<abbr title="Abbrieviation">ABBR</abbr>෴</li>
+<li>๏<abbr title="Abbrieviation">ABBR</abbr>๏</li>
+<li>๚<abbr title="Abbrieviation">ABBR</abbr>๚</li>
+<li>๛<abbr title="Abbrieviation">ABBR</abbr>๛</li>
+<li>༄<abbr title="Abbrieviation">ABBR</abbr>༄</li>
+<li>༅<abbr title="Abbrieviation">ABBR</abbr>༅</li>
+<li>༆<abbr title="Abbrieviation">ABBR</abbr>༆</li>
+<li>༇<abbr title="Abbrieviation">ABBR</abbr>༇</li>
+<li>༈<abbr title="Abbrieviation">ABBR</abbr>༈</li>
+<li>༉<abbr title="Abbrieviation">ABBR</abbr>༉</li>
+<li>༊<abbr title="Abbrieviation">ABBR</abbr>༊</li>
+<li>་<abbr title="Abbrieviation">ABBR</abbr>་</li>
+<li>༌<abbr title="Abbrieviation">ABBR</abbr>༌</li>
+<li>།<abbr title="Abbrieviation">ABBR</abbr>།</li>
+<li>༎<abbr title="Abbrieviation">ABBR</abbr>༎</li>
+<li>༏<abbr title="Abbrieviation">ABBR</abbr>༏</li>
+<li>༐<abbr title="Abbrieviation">ABBR</abbr>༐</li>
+<li>༑<abbr title="Abbrieviation">ABBR</abbr>༑</li>
+<li>༒<abbr title="Abbrieviation">ABBR</abbr>༒</li>
+<li>༔<abbr title="Abbrieviation">ABBR</abbr>༔</li>
+<li>༺<abbr title="Abbrieviation">ABBR</abbr>༺</li>
+<li>༻<abbr title="Abbrieviation">ABBR</abbr>༻</li>
+<li>༼<abbr title="Abbrieviation">ABBR</abbr>༼</li>
+<li>༽<abbr title="Abbrieviation">ABBR</abbr>༽</li>
+<li>྅<abbr title="Abbrieviation">ABBR</abbr>྅</li>
+<li>࿐<abbr title="Abbrieviation">ABBR</abbr>࿐</li>
+<li>࿑<abbr title="Abbrieviation">ABBR</abbr>࿑</li>
+<li>࿒<abbr title="Abbrieviation">ABBR</abbr>࿒</li>
+<li>࿓<abbr title="Abbrieviation">ABBR</abbr>࿓</li>
+<li>࿔<abbr title="Abbrieviation">ABBR</abbr>࿔</li>
+<li>࿙<abbr title="Abbrieviation">ABBR</abbr>࿙</li>
+<li>࿚<abbr title="Abbrieviation">ABBR</abbr>࿚</li>
+<li>၊<abbr title="Abbrieviation">ABBR</abbr>၊</li>
+<li>။<abbr title="Abbrieviation">ABBR</abbr>။</li>
+<li>၌<abbr title="Abbrieviation">ABBR</abbr>၌</li>
+<li>၍<abbr title="Abbrieviation">ABBR</abbr>၍</li>
+<li>၎<abbr title="Abbrieviation">ABBR</abbr>၎</li>
+<li>၏<abbr title="Abbrieviation">ABBR</abbr>၏</li>
+<li>჻<abbr title="Abbrieviation">ABBR</abbr>჻</li>
+<li>፠<abbr title="Abbrieviation">ABBR</abbr>፠</li>
+<li>፡<abbr title="Abbrieviation">ABBR</abbr>፡</li>
+<li>።<abbr title="Abbrieviation">ABBR</abbr>።</li>
+<li>፣<abbr title="Abbrieviation">ABBR</abbr>፣</li>
+<li>፤<abbr title="Abbrieviation">ABBR</abbr>፤</li>
+<li>፥<abbr title="Abbrieviation">ABBR</abbr>፥</li>
+<li>፦<abbr title="Abbrieviation">ABBR</abbr>፦</li>
+<li>፧<abbr title="Abbrieviation">ABBR</abbr>፧</li>
+<li>፨<abbr title="Abbrieviation">ABBR</abbr>፨</li>
+<li>᐀<abbr title="Abbrieviation">ABBR</abbr>᐀</li>
+<li>᙮<abbr title="Abbrieviation">ABBR</abbr>᙮</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li>᚛<abbr title="Abbrieviation">ABBR</abbr>᚛</li>
+<li>᚜<abbr title="Abbrieviation">ABBR</abbr>᚜</li>
+<li>᛫<abbr title="Abbrieviation">ABBR</abbr>᛫</li>
+<li>᛬<abbr title="Abbrieviation">ABBR</abbr>᛬</li>
+<li>᛭<abbr title="Abbrieviation">ABBR</abbr>᛭</li>
+<li>᜵<abbr title="Abbrieviation">ABBR</abbr>᜵</li>
+<li>᜶<abbr title="Abbrieviation">ABBR</abbr>᜶</li>
+<li>។<abbr title="Abbrieviation">ABBR</abbr>។</li>
+<li>៕<abbr title="Abbrieviation">ABBR</abbr>៕</li>
+<li>៖<abbr title="Abbrieviation">ABBR</abbr>៖</li>
+<li>៘<abbr title="Abbrieviation">ABBR</abbr>៘</li>
+<li>៙<abbr title="Abbrieviation">ABBR</abbr>៙</li>
+<li>៚<abbr title="Abbrieviation">ABBR</abbr>៚</li>
+<li>᠀<abbr title="Abbrieviation">ABBR</abbr>᠀</li>
+<li>᠁<abbr title="Abbrieviation">ABBR</abbr>᠁</li>
+<li>᠂<abbr title="Abbrieviation">ABBR</abbr>᠂</li>
+<li>᠃<abbr title="Abbrieviation">ABBR</abbr>᠃</li>
+<li>᠄<abbr title="Abbrieviation">ABBR</abbr>᠄</li>
+<li>᠅<abbr title="Abbrieviation">ABBR</abbr>᠅</li>
+<li>᠆<abbr title="Abbrieviation">ABBR</abbr>᠆</li>
+<li>᠇<abbr title="Abbrieviation">ABBR</abbr>᠇</li>
+<li>᠈<abbr title="Abbrieviation">ABBR</abbr>᠈</li>
+<li>᠉<abbr title="Abbrieviation">ABBR</abbr>᠉</li>
+<li>᠊<abbr title="Abbrieviation">ABBR</abbr>᠊</li>
+<li>᥄<abbr title="Abbrieviation">ABBR</abbr>᥄</li>
+<li>᥅<abbr title="Abbrieviation">ABBR</abbr>᥅</li>
+<li>᨞<abbr title="Abbrieviation">ABBR</abbr>᨞</li>
+<li>᨟<abbr title="Abbrieviation">ABBR</abbr>᨟</li>
+<li>᪠<abbr title="Abbrieviation">ABBR</abbr>᪠</li>
+<li>᪡<abbr title="Abbrieviation">ABBR</abbr>᪡</li>
+<li>᪢<abbr title="Abbrieviation">ABBR</abbr>᪢</li>
+<li>᪣<abbr title="Abbrieviation">ABBR</abbr>᪣</li>
+<li>᪤<abbr title="Abbrieviation">ABBR</abbr>᪤</li>
+<li>᪥<abbr title="Abbrieviation">ABBR</abbr>᪥</li>
+<li>᪦<abbr title="Abbrieviation">ABBR</abbr>᪦</li>
+<li>᪨<abbr title="Abbrieviation">ABBR</abbr>᪨</li>
+<li>᪩<abbr title="Abbrieviation">ABBR</abbr>᪩</li>
+<li>᪪<abbr title="Abbrieviation">ABBR</abbr>᪪</li>
+<li>᪫<abbr title="Abbrieviation">ABBR</abbr>᪫</li>
+<li>᪬<abbr title="Abbrieviation">ABBR</abbr>᪬</li>
+<li>᪭<abbr title="Abbrieviation">ABBR</abbr>᪭</li>
+<li>᭚<abbr title="Abbrieviation">ABBR</abbr>᭚</li>
+<li>᭛<abbr title="Abbrieviation">ABBR</abbr>᭛</li>
+<li>᭜<abbr title="Abbrieviation">ABBR</abbr>᭜</li>
+<li>᭝<abbr title="Abbrieviation">ABBR</abbr>᭝</li>
+<li>᭞<abbr title="Abbrieviation">ABBR</abbr>᭞</li>
+<li>᭟<abbr title="Abbrieviation">ABBR</abbr>᭟</li>
+<li>᭠<abbr title="Abbrieviation">ABBR</abbr>᭠</li>
+<li>᭽<abbr title="Abbrieviation">ABBR</abbr>᭽</li>
+<li>᭾<abbr title="Abbrieviation">ABBR</abbr>᭾</li>
+<li>᯼<abbr title="Abbrieviation">ABBR</abbr>᯼</li>
+<li>᯽<abbr title="Abbrieviation">ABBR</abbr>᯽</li>
+<li>᯾<abbr title="Abbrieviation">ABBR</abbr>᯾</li>
+<li>᯿<abbr title="Abbrieviation">ABBR</abbr>᯿</li>
+<li>᰻<abbr title="Abbrieviation">ABBR</abbr>᰻</li>
+<li>᰼<abbr title="Abbrieviation">ABBR</abbr>᰼</li>
+<li>᰽<abbr title="Abbrieviation">ABBR</abbr>᰽</li>
+<li>᰾<abbr title="Abbrieviation">ABBR</abbr>᰾</li>
+<li>᰿<abbr title="Abbrieviation">ABBR</abbr>᰿</li>
+<li>᱾<abbr title="Abbrieviation">ABBR</abbr>᱾</li>
+<li>᱿<abbr title="Abbrieviation">ABBR</abbr>᱿</li>
+<li>᳀<abbr title="Abbrieviation">ABBR</abbr>᳀</li>
+<li>᳁<abbr title="Abbrieviation">ABBR</abbr>᳁</li>
+<li>᳂<abbr title="Abbrieviation">ABBR</abbr>᳂</li>
+<li>᳃<abbr title="Abbrieviation">ABBR</abbr>᳃</li>
+<li>᳄<abbr title="Abbrieviation">ABBR</abbr>᳄</li>
+<li>᳅<abbr title="Abbrieviation">ABBR</abbr>᳅</li>
+<li>᳆<abbr title="Abbrieviation">ABBR</abbr>᳆</li>
+<li>᳇<abbr title="Abbrieviation">ABBR</abbr>᳇</li>
+<li>᳓<abbr title="Abbrieviation">ABBR</abbr>᳓</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li>‐<abbr title="Abbrieviation">ABBR</abbr>‐</li>
+<li>‑<abbr title="Abbrieviation">ABBR</abbr>‑</li>
+<li>‒<abbr title="Abbrieviation">ABBR</abbr>‒</li>
+<li>–<abbr title="Abbrieviation">ABBR</abbr>–</li>
+<li>—<abbr title="Abbrieviation">ABBR</abbr>—</li>
+<li>―<abbr title="Abbrieviation">ABBR</abbr>―</li>
+<li>‖<abbr title="Abbrieviation">ABBR</abbr>‖</li>
+<li>‗<abbr title="Abbrieviation">ABBR</abbr>‗</li>
+<li>‘<abbr title="Abbrieviation">ABBR</abbr>‘</li>
+<li>’<abbr title="Abbrieviation">ABBR</abbr>’</li>
+<li>‚<abbr title="Abbrieviation">ABBR</abbr>‚</li>
+<li>‛<abbr title="Abbrieviation">ABBR</abbr>‛</li>
+<li>“<abbr title="Abbrieviation">ABBR</abbr>“</li>
+<li>”<abbr title="Abbrieviation">ABBR</abbr>”</li>
+<li>„<abbr title="Abbrieviation">ABBR</abbr>„</li>
+<li>‟<abbr title="Abbrieviation">ABBR</abbr>‟</li>
+<li>†<abbr title="Abbrieviation">ABBR</abbr>†</li>
+<li>‡<abbr title="Abbrieviation">ABBR</abbr>‡</li>
+<li>•<abbr title="Abbrieviation">ABBR</abbr>•</li>
+<li>‣<abbr title="Abbrieviation">ABBR</abbr>‣</li>
+<li>․<abbr title="Abbrieviation">ABBR</abbr>․</li>
+<li>‥<abbr title="Abbrieviation">ABBR</abbr>‥</li>
+<li>…<abbr title="Abbrieviation">ABBR</abbr>…</li>
+<li>‧<abbr title="Abbrieviation">ABBR</abbr>‧</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li>‰<abbr title="Abbrieviation">ABBR</abbr>‰</li>
+<li>‱<abbr title="Abbrieviation">ABBR</abbr>‱</li>
+<li>′<abbr title="Abbrieviation">ABBR</abbr>′</li>
+<li>″<abbr title="Abbrieviation">ABBR</abbr>″</li>
+<li>‴<abbr title="Abbrieviation">ABBR</abbr>‴</li>
+<li>‵<abbr title="Abbrieviation">ABBR</abbr>‵</li>
+<li>‶<abbr title="Abbrieviation">ABBR</abbr>‶</li>
+<li>‷<abbr title="Abbrieviation">ABBR</abbr>‷</li>
+<li>‸<abbr title="Abbrieviation">ABBR</abbr>‸</li>
+<li>‹<abbr title="Abbrieviation">ABBR</abbr>‹</li>
+<li>›<abbr title="Abbrieviation">ABBR</abbr>›</li>
+<li>※<abbr title="Abbrieviation">ABBR</abbr>※</li>
+<li>‼<abbr title="Abbrieviation">ABBR</abbr>‼</li>
+<li>‽<abbr title="Abbrieviation">ABBR</abbr>‽</li>
+<li>‾<abbr title="Abbrieviation">ABBR</abbr>‾</li>
+<li>‿<abbr title="Abbrieviation">ABBR</abbr>‿</li>
+<li>⁀<abbr title="Abbrieviation">ABBR</abbr>⁀</li>
+<li>⁁<abbr title="Abbrieviation">ABBR</abbr>⁁</li>
+<li>⁂<abbr title="Abbrieviation">ABBR</abbr>⁂</li>
+<li>⁃<abbr title="Abbrieviation">ABBR</abbr>⁃</li>
+<li>⁅<abbr title="Abbrieviation">ABBR</abbr>⁅</li>
+<li>⁆<abbr title="Abbrieviation">ABBR</abbr>⁆</li>
+<li>⁇<abbr title="Abbrieviation">ABBR</abbr>⁇</li>
+<li>⁈<abbr title="Abbrieviation">ABBR</abbr>⁈</li>
+<li>⁉<abbr title="Abbrieviation">ABBR</abbr>⁉</li>
+<li>⁊<abbr title="Abbrieviation">ABBR</abbr>⁊</li>
+<li>⁋<abbr title="Abbrieviation">ABBR</abbr>⁋</li>
+<li>⁌<abbr title="Abbrieviation">ABBR</abbr>⁌</li>
+<li>⁍<abbr title="Abbrieviation">ABBR</abbr>⁍</li>
+<li>⁎<abbr title="Abbrieviation">ABBR</abbr>⁎</li>
+<li>⁏<abbr title="Abbrieviation">ABBR</abbr>⁏</li>
+<li>⁐<abbr title="Abbrieviation">ABBR</abbr>⁐</li>
+<li>⁑<abbr title="Abbrieviation">ABBR</abbr>⁑</li>
+<li>⁓<abbr title="Abbrieviation">ABBR</abbr>⁓</li>
+<li>⁔<abbr title="Abbrieviation">ABBR</abbr>⁔</li>
+<li>⁕<abbr title="Abbrieviation">ABBR</abbr>⁕</li>
+<li>⁖<abbr title="Abbrieviation">ABBR</abbr>⁖</li>
+<li>⁗<abbr title="Abbrieviation">ABBR</abbr>⁗</li>
+<li>⁘<abbr title="Abbrieviation">ABBR</abbr>⁘</li>
+<li>⁙<abbr title="Abbrieviation">ABBR</abbr>⁙</li>
+<li>⁚<abbr title="Abbrieviation">ABBR</abbr>⁚</li>
+<li>⁛<abbr title="Abbrieviation">ABBR</abbr>⁛</li>
+<li>⁜<abbr title="Abbrieviation">ABBR</abbr>⁜</li>
+<li>⁝<abbr title="Abbrieviation">ABBR</abbr>⁝</li>
+<li>⁞<abbr title="Abbrieviation">ABBR</abbr>⁞</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li>⁽<abbr title="Abbrieviation">ABBR</abbr>⁽</li>
+<li>⁾<abbr title="Abbrieviation">ABBR</abbr>⁾</li>
+<li>₍<abbr title="Abbrieviation">ABBR</abbr>₍</li>
+<li>₎<abbr title="Abbrieviation">ABBR</abbr>₎</li>
+<li>⌈<abbr title="Abbrieviation">ABBR</abbr>⌈</li>
+<li>⌉<abbr title="Abbrieviation">ABBR</abbr>⌉</li>
+<li>⌊<abbr title="Abbrieviation">ABBR</abbr>⌊</li>
+<li>⌋<abbr title="Abbrieviation">ABBR</abbr>⌋</li>
+<li>〈<abbr title="Abbrieviation">ABBR</abbr>〈</li>
+<li>〉<abbr title="Abbrieviation">ABBR</abbr>〉</li>
+<li>❨<abbr title="Abbrieviation">ABBR</abbr>❨</li>
+<li>❩<abbr title="Abbrieviation">ABBR</abbr>❩</li>
+<li>❪<abbr title="Abbrieviation">ABBR</abbr>❪</li>
+<li>❫<abbr title="Abbrieviation">ABBR</abbr>❫</li>
+<li>❬<abbr title="Abbrieviation">ABBR</abbr>❬</li>
+<li>❭<abbr title="Abbrieviation">ABBR</abbr>❭</li>
+<li>❮<abbr title="Abbrieviation">ABBR</abbr>❮</li>
+<li>❯<abbr title="Abbrieviation">ABBR</abbr>❯</li>
+<li>❰<abbr title="Abbrieviation">ABBR</abbr>❰</li>
+<li>❱<abbr title="Abbrieviation">ABBR</abbr>❱</li>
+<li>❲<abbr title="Abbrieviation">ABBR</abbr>❲</li>
+<li>❳<abbr title="Abbrieviation">ABBR</abbr>❳</li>
+<li>❴<abbr title="Abbrieviation">ABBR</abbr>❴</li>
+<li>❵<abbr title="Abbrieviation">ABBR</abbr>❵</li>
+<li>⟅<abbr title="Abbrieviation">ABBR</abbr>⟅</li>
+<li>⟆<abbr title="Abbrieviation">ABBR</abbr>⟆</li>
+<li>⟦<abbr title="Abbrieviation">ABBR</abbr>⟦</li>
+<li>⟧<abbr title="Abbrieviation">ABBR</abbr>⟧</li>
+<li>⟨<abbr title="Abbrieviation">ABBR</abbr>⟨</li>
+<li>⟩<abbr title="Abbrieviation">ABBR</abbr>⟩</li>
+<li>⟪<abbr title="Abbrieviation">ABBR</abbr>⟪</li>
+<li>⟫<abbr title="Abbrieviation">ABBR</abbr>⟫</li>
+<li>⟬<abbr title="Abbrieviation">ABBR</abbr>⟬</li>
+<li>⟭<abbr title="Abbrieviation">ABBR</abbr>⟭</li>
+<li>⟮<abbr title="Abbrieviation">ABBR</abbr>⟮</li>
+<li>⟯<abbr title="Abbrieviation">ABBR</abbr>⟯</li>
+<li>⦃<abbr title="Abbrieviation">ABBR</abbr>⦃</li>
+<li>⦄<abbr title="Abbrieviation">ABBR</abbr>⦄</li>
+<li>⦅<abbr title="Abbrieviation">ABBR</abbr>⦅</li>
+<li>⦆<abbr title="Abbrieviation">ABBR</abbr>⦆</li>
+<li>⦇<abbr title="Abbrieviation">ABBR</abbr>⦇</li>
+<li>⦈<abbr title="Abbrieviation">ABBR</abbr>⦈</li>
+<li>⦉<abbr title="Abbrieviation">ABBR</abbr>⦉</li>
+<li>⦊<abbr title="Abbrieviation">ABBR</abbr>⦊</li>
+<li>⦋<abbr title="Abbrieviation">ABBR</abbr>⦋</li>
+<li>⦌<abbr title="Abbrieviation">ABBR</abbr>⦌</li>
+<li>⦍<abbr title="Abbrieviation">ABBR</abbr>⦍</li>
+<li>⦎<abbr title="Abbrieviation">ABBR</abbr>⦎</li>
+<li>⦏<abbr title="Abbrieviation">ABBR</abbr>⦏</li>
+<li>⦐<abbr title="Abbrieviation">ABBR</abbr>⦐</li>
+<li>⦑<abbr title="Abbrieviation">ABBR</abbr>⦑</li>
+<li>⦒<abbr title="Abbrieviation">ABBR</abbr>⦒</li>
+<li>⦓<abbr title="Abbrieviation">ABBR</abbr>⦓</li>
+<li>⦔<abbr title="Abbrieviation">ABBR</abbr>⦔</li>
+<li>⦕<abbr title="Abbrieviation">ABBR</abbr>⦕</li>
+<li>⦖<abbr title="Abbrieviation">ABBR</abbr>⦖</li>
+<li>⦗<abbr title="Abbrieviation">ABBR</abbr>⦗</li>
+<li>⦘<abbr title="Abbrieviation">ABBR</abbr>⦘</li>
+<li>⧘<abbr title="Abbrieviation">ABBR</abbr>⧘</li>
+<li>⧙<abbr title="Abbrieviation">ABBR</abbr>⧙</li>
+<li>⧚<abbr title="Abbrieviation">ABBR</abbr>⧚</li>
+<li>⧛<abbr title="Abbrieviation">ABBR</abbr>⧛</li>
+<li>⧼<abbr title="Abbrieviation">ABBR</abbr>⧼</li>
+<li>⧽<abbr title="Abbrieviation">ABBR</abbr>⧽</li>
+<li>⳹<abbr title="Abbrieviation">ABBR</abbr>⳹</li>
+<li>⳺<abbr title="Abbrieviation">ABBR</abbr>⳺</li>
+<li>⳻<abbr title="Abbrieviation">ABBR</abbr>⳻</li>
+<li>⳼<abbr title="Abbrieviation">ABBR</abbr>⳼</li>
+<li>⳾<abbr title="Abbrieviation">ABBR</abbr>⳾</li>
+<li>⳿<abbr title="Abbrieviation">ABBR</abbr>⳿</li>
+<li>⵰<abbr title="Abbrieviation">ABBR</abbr>⵰</li>
+<li>⸀<abbr title="Abbrieviation">ABBR</abbr>⸀</li>
+<li>⸁<abbr title="Abbrieviation">ABBR</abbr>⸁</li>
+<li>⸂<abbr title="Abbrieviation">ABBR</abbr>⸂</li>
+<li>⸃<abbr title="Abbrieviation">ABBR</abbr>⸃</li>
+<li>⸄<abbr title="Abbrieviation">ABBR</abbr>⸄</li>
+<li>⸅<abbr title="Abbrieviation">ABBR</abbr>⸅</li>
+<li>⸆<abbr title="Abbrieviation">ABBR</abbr>⸆</li>
+<li>⸇<abbr title="Abbrieviation">ABBR</abbr>⸇</li>
+<li>⸈<abbr title="Abbrieviation">ABBR</abbr>⸈</li>
+<li>⸉<abbr title="Abbrieviation">ABBR</abbr>⸉</li>
+<li>⸊<abbr title="Abbrieviation">ABBR</abbr>⸊</li>
+<li>⸋<abbr title="Abbrieviation">ABBR</abbr>⸋</li>
+<li>⸌<abbr title="Abbrieviation">ABBR</abbr>⸌</li>
+<li>⸍<abbr title="Abbrieviation">ABBR</abbr>⸍</li>
+<li>⸎<abbr title="Abbrieviation">ABBR</abbr>⸎</li>
+<li>⸏<abbr title="Abbrieviation">ABBR</abbr>⸏</li>
+<li>⸐<abbr title="Abbrieviation">ABBR</abbr>⸐</li>
+<li>⸑<abbr title="Abbrieviation">ABBR</abbr>⸑</li>
+<li>⸒<abbr title="Abbrieviation">ABBR</abbr>⸒</li>
+<li>⸓<abbr title="Abbrieviation">ABBR</abbr>⸓</li>
+<li>⸔<abbr title="Abbrieviation">ABBR</abbr>⸔</li>
+<li>⸕<abbr title="Abbrieviation">ABBR</abbr>⸕</li>
+<li>⸖<abbr title="Abbrieviation">ABBR</abbr>⸖</li>
+<li>⸗<abbr title="Abbrieviation">ABBR</abbr>⸗</li>
+<li>⸘<abbr title="Abbrieviation">ABBR</abbr>⸘</li>
+<li>⸙<abbr title="Abbrieviation">ABBR</abbr>⸙</li>
+<li>⸚<abbr title="Abbrieviation">ABBR</abbr>⸚</li>
+<li>⸛<abbr title="Abbrieviation">ABBR</abbr>⸛</li>
+<li>⸜<abbr title="Abbrieviation">ABBR</abbr>⸜</li>
+<li>⸝<abbr title="Abbrieviation">ABBR</abbr>⸝</li>
+<li>⸞<abbr title="Abbrieviation">ABBR</abbr>⸞</li>
+<li>⸟<abbr title="Abbrieviation">ABBR</abbr>⸟</li>
+<li>⸠<abbr title="Abbrieviation">ABBR</abbr>⸠</li>
+<li>⸡<abbr title="Abbrieviation">ABBR</abbr>⸡</li>
+<li>⸢<abbr title="Abbrieviation">ABBR</abbr>⸢</li>
+<li>⸣<abbr title="Abbrieviation">ABBR</abbr>⸣</li>
+<li>⸤<abbr title="Abbrieviation">ABBR</abbr>⸤</li>
+<li>⸥<abbr title="Abbrieviation">ABBR</abbr>⸥</li>
+<li>⸦<abbr title="Abbrieviation">ABBR</abbr>⸦</li>
+<li>⸧<abbr title="Abbrieviation">ABBR</abbr>⸧</li>
+<li>⸨<abbr title="Abbrieviation">ABBR</abbr>⸨</li>
+<li>⸩<abbr title="Abbrieviation">ABBR</abbr>⸩</li>
+<li>⸪<abbr title="Abbrieviation">ABBR</abbr>⸪</li>
+<li>⸫<abbr title="Abbrieviation">ABBR</abbr>⸫</li>
+<li>⸬<abbr title="Abbrieviation">ABBR</abbr>⸬</li>
+<li>⸭<abbr title="Abbrieviation">ABBR</abbr>⸭</li>
+<li>⸮<abbr title="Abbrieviation">ABBR</abbr>⸮</li>
+<li>⸰<abbr title="Abbrieviation">ABBR</abbr>⸰</li>
+<li>⸱<abbr title="Abbrieviation">ABBR</abbr>⸱</li>
+<li>⸲<abbr title="Abbrieviation">ABBR</abbr>⸲</li>
+<li>⸳<abbr title="Abbrieviation">ABBR</abbr>⸳</li>
+<li>⸴<abbr title="Abbrieviation">ABBR</abbr>⸴</li>
+<li>⸵<abbr title="Abbrieviation">ABBR</abbr>⸵</li>
+<li>⸶<abbr title="Abbrieviation">ABBR</abbr>⸶</li>
+<li>⸷<abbr title="Abbrieviation">ABBR</abbr>⸷</li>
+<li>⸸<abbr title="Abbrieviation">ABBR</abbr>⸸</li>
+<li>⸹<abbr title="Abbrieviation">ABBR</abbr>⸹</li>
+<li>⸺<abbr title="Abbrieviation">ABBR</abbr>⸺</li>
+<li>⸻<abbr title="Abbrieviation">ABBR</abbr>⸻</li>
+<li>⸼<abbr title="Abbrieviation">ABBR</abbr>⸼</li>
+<li>⸽<abbr title="Abbrieviation">ABBR</abbr>⸽</li>
+<li>⸾<abbr title="Abbrieviation">ABBR</abbr>⸾</li>
+<li>⸿<abbr title="Abbrieviation">ABBR</abbr>⸿</li>
+<li>⹀<abbr title="Abbrieviation">ABBR</abbr>⹀</li>
+<li>⹁<abbr title="Abbrieviation">ABBR</abbr>⹁</li>
+<li>⹂<abbr title="Abbrieviation">ABBR</abbr>⹂</li>
+<li>⹃<abbr title="Abbrieviation">ABBR</abbr>⹃</li>
+<li>⹄<abbr title="Abbrieviation">ABBR</abbr>⹄</li>
+<li>⹅<abbr title="Abbrieviation">ABBR</abbr>⹅</li>
+<li>⹆<abbr title="Abbrieviation">ABBR</abbr>⹆</li>
+<li>⹇<abbr title="Abbrieviation">ABBR</abbr>⹇</li>
+<li>⹈<abbr title="Abbrieviation">ABBR</abbr>⹈</li>
+<li>⹉<abbr title="Abbrieviation">ABBR</abbr>⹉</li>
+<li>⹊<abbr title="Abbrieviation">ABBR</abbr>⹊</li>
+<li>⹋<abbr title="Abbrieviation">ABBR</abbr>⹋</li>
+<li>⹌<abbr title="Abbrieviation">ABBR</abbr>⹌</li>
+<li>⹍<abbr title="Abbrieviation">ABBR</abbr>⹍</li>
+<li>⹎<abbr title="Abbrieviation">ABBR</abbr>⹎</li>
+<li>⹏<abbr title="Abbrieviation">ABBR</abbr>⹏</li>
+<li>⹒<abbr title="Abbrieviation">ABBR</abbr>⹒</li>
+<li>⹓<abbr title="Abbrieviation">ABBR</abbr>⹓</li>
+<li>⹔<abbr title="Abbrieviation">ABBR</abbr>⹔</li>
+<li>⹕<abbr title="Abbrieviation">ABBR</abbr>⹕</li>
+<li>⹖<abbr title="Abbrieviation">ABBR</abbr>⹖</li>
+<li>⹗<abbr title="Abbrieviation">ABBR</abbr>⹗</li>
+<li>⹘<abbr title="Abbrieviation">ABBR</abbr>⹘</li>
+<li>⹙<abbr title="Abbrieviation">ABBR</abbr>⹙</li>
+<li>⹚<abbr title="Abbrieviation">ABBR</abbr>⹚</li>
+<li>⹛<abbr title="Abbrieviation">ABBR</abbr>⹛</li>
+<li>⹜<abbr title="Abbrieviation">ABBR</abbr>⹜</li>
+<li>⹝<abbr title="Abbrieviation">ABBR</abbr>⹝</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li>、<abbr title="Abbrieviation">ABBR</abbr>、</li>
+<li>。<abbr title="Abbrieviation">ABBR</abbr>。</li>
+<li>〃<abbr title="Abbrieviation">ABBR</abbr>〃</li>
+<li>〈<abbr title="Abbrieviation">ABBR</abbr>〈</li>
+<li>〉<abbr title="Abbrieviation">ABBR</abbr>〉</li>
+<li>《<abbr title="Abbrieviation">ABBR</abbr>《</li>
+<li>》<abbr title="Abbrieviation">ABBR</abbr>》</li>
+<li>「<abbr title="Abbrieviation">ABBR</abbr>「</li>
+<li>」<abbr title="Abbrieviation">ABBR</abbr>」</li>
+<li>『<abbr title="Abbrieviation">ABBR</abbr>『</li>
+<li>』<abbr title="Abbrieviation">ABBR</abbr>』</li>
+<li>【<abbr title="Abbrieviation">ABBR</abbr>【</li>
+<li>】<abbr title="Abbrieviation">ABBR</abbr>】</li>
+<li>〔<abbr title="Abbrieviation">ABBR</abbr>〔</li>
+<li>〕<abbr title="Abbrieviation">ABBR</abbr>〕</li>
+<li>〖<abbr title="Abbrieviation">ABBR</abbr>〖</li>
+<li>〗<abbr title="Abbrieviation">ABBR</abbr>〗</li>
+<li>〘<abbr title="Abbrieviation">ABBR</abbr>〘</li>
+<li>〙<abbr title="Abbrieviation">ABBR</abbr>〙</li>
+<li>〚<abbr title="Abbrieviation">ABBR</abbr>〚</li>
+<li>〛<abbr title="Abbrieviation">ABBR</abbr>〛</li>
+<li>〜<abbr title="Abbrieviation">ABBR</abbr>〜</li>
+<li>〝<abbr title="Abbrieviation">ABBR</abbr>〝</li>
+<li>〞<abbr title="Abbrieviation">ABBR</abbr>〞</li>
+<li>〟<abbr title="Abbrieviation">ABBR</abbr>〟</li>
+<li>〰<abbr title="Abbrieviation">ABBR</abbr>〰</li>
+<li>〽<abbr title="Abbrieviation">ABBR</abbr>〽</li>
+<li>゠<abbr title="Abbrieviation">ABBR</abbr>゠</li>
+<li>・<abbr title="Abbrieviation">ABBR</abbr>・</li>
+<li>꓾<abbr title="Abbrieviation">ABBR</abbr>꓾</li>
+<li>꓿<abbr title="Abbrieviation">ABBR</abbr>꓿</li>
+<li>꘍<abbr title="Abbrieviation">ABBR</abbr>꘍</li>
+<li>꘎<abbr title="Abbrieviation">ABBR</abbr>꘎</li>
+<li>꘏<abbr title="Abbrieviation">ABBR</abbr>꘏</li>
+<li>꙳<abbr title="Abbrieviation">ABBR</abbr>꙳</li>
+<li>꙾<abbr title="Abbrieviation">ABBR</abbr>꙾</li>
+<li>꛲<abbr title="Abbrieviation">ABBR</abbr>꛲</li>
+<li>꛳<abbr title="Abbrieviation">ABBR</abbr>꛳</li>
+<li>꛴<abbr title="Abbrieviation">ABBR</abbr>꛴</li>
+<li>꛵<abbr title="Abbrieviation">ABBR</abbr>꛵</li>
+<li>꛶<abbr title="Abbrieviation">ABBR</abbr>꛶</li>
+<li>꛷<abbr title="Abbrieviation">ABBR</abbr>꛷</li>
+<li>꡴<abbr title="Abbrieviation">ABBR</abbr>꡴</li>
+<li>꡵<abbr title="Abbrieviation">ABBR</abbr>꡵</li>
+<li>꡶<abbr title="Abbrieviation">ABBR</abbr>꡶</li>
+<li>꡷<abbr title="Abbrieviation">ABBR</abbr>꡷</li>
+<li>꣎<abbr title="Abbrieviation">ABBR</abbr>꣎</li>
+<li>꣏<abbr title="Abbrieviation">ABBR</abbr>꣏</li>
+<li>꣸<abbr title="Abbrieviation">ABBR</abbr>꣸</li>
+<li>꣹<abbr title="Abbrieviation">ABBR</abbr>꣹</li>
+<li>꣺<abbr title="Abbrieviation">ABBR</abbr>꣺</li>
+<li>꣼<abbr title="Abbrieviation">ABBR</abbr>꣼</li>
+<li>꤮<abbr title="Abbrieviation">ABBR</abbr>꤮</li>
+<li>꤯<abbr title="Abbrieviation">ABBR</abbr>꤯</li>
+<li>꥟<abbr title="Abbrieviation">ABBR</abbr>꥟</li>
+<li>꧁<abbr title="Abbrieviation">ABBR</abbr>꧁</li>
+<li>꧂<abbr title="Abbrieviation">ABBR</abbr>꧂</li>
+<li>꧃<abbr title="Abbrieviation">ABBR</abbr>꧃</li>
+<li>꧄<abbr title="Abbrieviation">ABBR</abbr>꧄</li>
+<li>꧅<abbr title="Abbrieviation">ABBR</abbr>꧅</li>
+<li>꧆<abbr title="Abbrieviation">ABBR</abbr>꧆</li>
+<li>꧇<abbr title="Abbrieviation">ABBR</abbr>꧇</li>
+<li>꧈<abbr title="Abbrieviation">ABBR</abbr>꧈</li>
+<li>꧉<abbr title="Abbrieviation">ABBR</abbr>꧉</li>
+<li>꧊<abbr title="Abbrieviation">ABBR</abbr>꧊</li>
+<li>꧋<abbr title="Abbrieviation">ABBR</abbr>꧋</li>
+<li>꧌<abbr title="Abbrieviation">ABBR</abbr>꧌</li>
+<li>꧍<abbr title="Abbrieviation">ABBR</abbr>꧍</li>
+<li>꧞<abbr title="Abbrieviation">ABBR</abbr>꧞</li>
+<li>꧟<abbr title="Abbrieviation">ABBR</abbr>꧟</li>
+<li>꩜<abbr title="Abbrieviation">ABBR</abbr>꩜</li>
+<li>꩝<abbr title="Abbrieviation">ABBR</abbr>꩝</li>
+<li>꩞<abbr title="Abbrieviation">ABBR</abbr>꩞</li>
+<li>꩟<abbr title="Abbrieviation">ABBR</abbr>꩟</li>
+<li>꫞<abbr title="Abbrieviation">ABBR</abbr>꫞</li>
+<li>꫟<abbr title="Abbrieviation">ABBR</abbr>꫟</li>
+<li>꫰<abbr title="Abbrieviation">ABBR</abbr>꫰</li>
+<li>꫱<abbr title="Abbrieviation">ABBR</abbr>꫱</li>
+<li>꯫<abbr title="Abbrieviation">ABBR</abbr>꯫</li>
+<li>﴾<abbr title="Abbrieviation">ABBR</abbr>﴾</li>
+<li>﴿<abbr title="Abbrieviation">ABBR</abbr>﴿</li>
+<li>︐<abbr title="Abbrieviation">ABBR</abbr>︐</li>
+<li>︑<abbr title="Abbrieviation">ABBR</abbr>︑</li>
+<li>︒<abbr title="Abbrieviation">ABBR</abbr>︒</li>
+<li>︓<abbr title="Abbrieviation">ABBR</abbr>︓</li>
+<li>︔<abbr title="Abbrieviation">ABBR</abbr>︔</li>
+<li>︕<abbr title="Abbrieviation">ABBR</abbr>︕</li>
+<li>︖<abbr title="Abbrieviation">ABBR</abbr>︖</li>
+<li>︗<abbr title="Abbrieviation">ABBR</abbr>︗</li>
+<li>︘<abbr title="Abbrieviation">ABBR</abbr>︘</li>
+<li>︙<abbr title="Abbrieviation">ABBR</abbr>︙</li>
+<li>︰<abbr title="Abbrieviation">ABBR</abbr>︰</li>
+<li>︱<abbr title="Abbrieviation">ABBR</abbr>︱</li>
+<li>︲<abbr title="Abbrieviation">ABBR</abbr>︲</li>
+<li>︳<abbr title="Abbrieviation">ABBR</abbr>︳</li>
+<li>︴<abbr title="Abbrieviation">ABBR</abbr>︴</li>
+<li>︵<abbr title="Abbrieviation">ABBR</abbr>︵</li>
+<li>︶<abbr title="Abbrieviation">ABBR</abbr>︶</li>
+<li>︷<abbr title="Abbrieviation">ABBR</abbr>︷</li>
+<li>︸<abbr title="Abbrieviation">ABBR</abbr>︸</li>
+<li>︹<abbr title="Abbrieviation">ABBR</abbr>︹</li>
+<li>︺<abbr title="Abbrieviation">ABBR</abbr>︺</li>
+<li>︻<abbr title="Abbrieviation">ABBR</abbr>︻</li>
+<li>︼<abbr title="Abbrieviation">ABBR</abbr>︼</li>
+<li>︽<abbr title="Abbrieviation">ABBR</abbr>︽</li>
+<li>︾<abbr title="Abbrieviation">ABBR</abbr>︾</li>
+<li>︿<abbr title="Abbrieviation">ABBR</abbr>︿</li>
+<li>﹀<abbr title="Abbrieviation">ABBR</abbr>﹀</li>
+<li>﹁<abbr title="Abbrieviation">ABBR</abbr>﹁</li>
+<li>﹂<abbr title="Abbrieviation">ABBR</abbr>﹂</li>
+<li>﹃<abbr title="Abbrieviation">ABBR</abbr>﹃</li>
+<li>﹄<abbr title="Abbrieviation">ABBR</abbr>﹄</li>
+<li>﹅<abbr title="Abbrieviation">ABBR</abbr>﹅</li>
+<li>﹆<abbr title="Abbrieviation">ABBR</abbr>﹆</li>
+<li>﹇<abbr title="Abbrieviation">ABBR</abbr>﹇</li>
+<li>﹈<abbr title="Abbrieviation">ABBR</abbr>﹈</li>
+<li>﹉<abbr title="Abbrieviation">ABBR</abbr>﹉</li>
+<li>﹊<abbr title="Abbrieviation">ABBR</abbr>﹊</li>
+<li>﹋<abbr title="Abbrieviation">ABBR</abbr>﹋</li>
+<li>﹌<abbr title="Abbrieviation">ABBR</abbr>﹌</li>
+<li>﹍<abbr title="Abbrieviation">ABBR</abbr>﹍</li>
+<li>﹎<abbr title="Abbrieviation">ABBR</abbr>﹎</li>
+<li>﹏<abbr title="Abbrieviation">ABBR</abbr>﹏</li>
+<li>﹐<abbr title="Abbrieviation">ABBR</abbr>﹐</li>
+<li>﹑<abbr title="Abbrieviation">ABBR</abbr>﹑</li>
+<li>﹒<abbr title="Abbrieviation">ABBR</abbr>﹒</li>
+<li>﹔<abbr title="Abbrieviation">ABBR</abbr>﹔</li>
+<li>﹕<abbr title="Abbrieviation">ABBR</abbr>﹕</li>
+<li>﹖<abbr title="Abbrieviation">ABBR</abbr>﹖</li>
+<li>﹗<abbr title="Abbrieviation">ABBR</abbr>﹗</li>
+<li>﹘<abbr title="Abbrieviation">ABBR</abbr>﹘</li>
+<li>﹙<abbr title="Abbrieviation">ABBR</abbr>﹙</li>
+<li>﹚<abbr title="Abbrieviation">ABBR</abbr>﹚</li>
+<li>﹛<abbr title="Abbrieviation">ABBR</abbr>﹛</li>
+<li>﹜<abbr title="Abbrieviation">ABBR</abbr>﹜</li>
+<li>﹝<abbr title="Abbrieviation">ABBR</abbr>﹝</li>
+<li>﹞<abbr title="Abbrieviation">ABBR</abbr>﹞</li>
+<li>﹟<abbr title="Abbrieviation">ABBR</abbr>﹟</li>
+<li>﹠<abbr title="Abbrieviation">ABBR</abbr>﹠</li>
+<li>﹡<abbr title="Abbrieviation">ABBR</abbr>﹡</li>
+<li>﹣<abbr title="Abbrieviation">ABBR</abbr>﹣</li>
+<li>﹨<abbr title="Abbrieviation">ABBR</abbr>﹨</li>
+<li>﹪<abbr title="Abbrieviation">ABBR</abbr>﹪</li>
+<li>﹫<abbr title="Abbrieviation">ABBR</abbr>﹫</li>
+<li>！<abbr title="Abbrieviation">ABBR</abbr>！</li>
+<li>＂<abbr title="Abbrieviation">ABBR</abbr>＂</li>
+<li>＃<abbr title="Abbrieviation">ABBR</abbr>＃</li>
+<li>％<abbr title="Abbrieviation">ABBR</abbr>％</li>
+<li>＆<abbr title="Abbrieviation">ABBR</abbr>＆</li>
+<li>＇<abbr title="Abbrieviation">ABBR</abbr>＇</li>
+<li>（<abbr title="Abbrieviation">ABBR</abbr>（</li>
+<li>）<abbr title="Abbrieviation">ABBR</abbr>）</li>
+<li>＊<abbr title="Abbrieviation">ABBR</abbr>＊</li>
+<li>，<abbr title="Abbrieviation">ABBR</abbr>，</li>
+<li>－<abbr title="Abbrieviation">ABBR</abbr>－</li>
+<li>．<abbr title="Abbrieviation">ABBR</abbr>．</li>
+<li>／<abbr title="Abbrieviation">ABBR</abbr>／</li>
+<li>：<abbr title="Abbrieviation">ABBR</abbr>：</li>
+<li>；<abbr title="Abbrieviation">ABBR</abbr>；</li>
+<li>？<abbr title="Abbrieviation">ABBR</abbr>？</li>
+<li>＠<abbr title="Abbrieviation">ABBR</abbr>＠</li>
+<li>［<abbr title="Abbrieviation">ABBR</abbr>［</li>
+<li>＼<abbr title="Abbrieviation">ABBR</abbr>＼</li>
+<li>］<abbr title="Abbrieviation">ABBR</abbr>］</li>
+<li>＿<abbr title="Abbrieviation">ABBR</abbr>＿</li>
+<li>｛<abbr title="Abbrieviation">ABBR</abbr>｛</li>
+<li>｝<abbr title="Abbrieviation">ABBR</abbr>｝</li>
+<li>｟<abbr title="Abbrieviation">ABBR</abbr>｟</li>
+<li>｠<abbr title="Abbrieviation">ABBR</abbr>｠</li>
+<li>｡<abbr title="Abbrieviation">ABBR</abbr>｡</li>
+<li>｢<abbr title="Abbrieviation">ABBR</abbr>｢</li>
+<li>｣<abbr title="Abbrieviation">ABBR</abbr>｣</li>
+<li>､<abbr title="Abbrieviation">ABBR</abbr>､</li>
+<li>･<abbr title="Abbrieviation">ABBR</abbr>･</li>
+<li><abbr title="Abbrieviation">ABBR</abbr></li>
+<li></li>
+</ul>
+<h2><abbr title="Abbrieviation">ABBR</abbr></h2>
+<p><abbr title="Abbrieviation">ABBR</abbr></p>
+<ul>
+<li>$<abbr title="Abbrieviation">ABBR</abbr>$</li>
+<li>+<abbr title="Abbrieviation">ABBR</abbr>+</li>
+<li>&lt;<abbr title="Abbrieviation">ABBR</abbr>&lt;</li>
+<li>=<abbr title="Abbrieviation">ABBR</abbr>=</li>
+<li>
+<blockquote>
+<p><abbr title="Abbrieviation">ABBR</abbr>&gt;</p>
+</blockquote>
+</li>
+<li>^<abbr title="Abbrieviation">ABBR</abbr>^</li>
+<li><code>ABBR</code></li>
+<li>|<abbr title="Abbrieviation">ABBR</abbr>|</li>
+<li>~<abbr title="Abbrieviation">ABBR</abbr>~</li>
+<li>]<abbr title="Abbrieviation">ABBR</abbr>]</li>
+</ul>
+"""
