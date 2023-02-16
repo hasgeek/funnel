@@ -111,9 +111,9 @@ def abbr_replace(state: StateInline):
             continue
         tokens = block_token.children
 
-        i = len(tokens) - 1
+        i = len(tokens) - 1  # type: ignore[arg-type]
         while i >= 0:
-            current_token = tokens[i]
+            current_token = tokens[i]  # type: ignore[index]
             if current_token.type != 'text':
                 i -= 1
                 continue
