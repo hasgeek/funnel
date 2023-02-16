@@ -406,7 +406,6 @@ class AccountView(ClassView):
                 useremail = emailclaim.user.add_email(
                     emailclaim.email,
                     primary=not emailclaim.user.emails,
-                    type=emailclaim.type,
                     private=emailclaim.private,
                 )
                 for emailclaim in UserEmailClaim.all(useremail.email):

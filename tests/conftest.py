@@ -3,10 +3,12 @@
 
 from __future__ import annotations
 
+from contextlib import ExitStack
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from difflib import unified_diff
 from types import MethodType, SimpleNamespace
+from unittest.mock import patch
 import re
 import shutil
 import typing as t
@@ -964,55 +966,40 @@ def live_server(funnel_devtest, database, app):
         )
     port = int(port_str)
 
-    # Save app config before modifying it to match live server environment
-    original_app_config = {}
-    for m_app in funnel_devtest.devtest_app.apps_by_host.values():
-        original_app_config[m_app] = {
-            'PREFERRED_URL_SCHEME': m_app.config['PREFERRED_URL_SCHEME'],
-            'SERVER_NAME': m_app.config['SERVER_NAME'],
-        }
-        m_app.config['PREFERRED_URL_SCHEME'] = scheme
-        m_host = m_app.config['SERVER_NAME'].split(':', 1)[0]
-        m_app.config['SERVER_NAME'] = f'{m_host}:{port}'
+    # Patch app config to match this fixture's config (scheme and port change).
+    with ExitStack() as config_patch_stack:
+        for m_app in funnel_devtest.devtest_app.apps_by_host.values():
+            m_host = m_app.config['SERVER_NAME'].split(':', 1)[0]
+            config_patch_stack.enter_context(
+                patch.dict(
+                    m_app.config,
+                    {'PREFERRED_URL_SCHEME': scheme, 'SERVER_NAME': f'{m_host}:{port}'},
+                )
+            )
 
-    # Start background worker and wait until it's receiving connections
-    server = funnel_devtest.BackgroundWorker(
-        run_simple,
-        args=('127.0.0.1', port, funnel_devtest.devtest_app),
-        kwargs={
-            'use_reloader': False,
-            'use_debugger': True,
-            'use_evalex': False,
-            'threaded': True,
-            'ssl_context': 'adhoc' if use_https else None,
-        },
-        probe_at=('127.0.0.1', port),
-    )
-    try:
-        server.start()
-    except RuntimeError as exc:
-        # Server did not respond to probe until timeout; mark test as failed
-        server.stop()
-        pytest.fail(str(exc))
-
-    with app.app_context():
-        # Return live server config within an app context so that the test function
-        # can use url_for without creating a context. However, secondary apps will
-        # need context specifically established for url_for on them
-        yield SimpleNamespace(
-            url=f'{scheme}://{app.config["SERVER_NAME"]}/',
-            urls=[
-                f'{scheme}://{m_app.config["SERVER_NAME"]}/'
-                for m_app in funnel_devtest.devtest_app.apps_by_host.values()
-            ],
-        )
-
-    # Stop server after use
-    server.stop()
-
-    # Restore original app config
-    for m_app, config in original_app_config.items():
-        m_app.config.update(config)
+        # Start background worker and yield as fixture
+        with funnel_devtest.BackgroundWorker(
+            run_simple,
+            args=('127.0.0.1', port, funnel_devtest.devtest_app),
+            kwargs={
+                'use_reloader': False,
+                'use_debugger': True,
+                'use_evalex': False,
+                'threaded': True,
+                'ssl_context': 'adhoc' if use_https else None,
+            },
+            probe_at=('127.0.0.1', port),
+            mock_transports=True,
+        ) as server:
+            yield SimpleNamespace(
+                background_worker=server,
+                transport_calls=server.calls,
+                url=f'{scheme}://{app.config["SERVER_NAME"]}/',
+                urls=[
+                    f'{scheme}://{m_app.config["SERVER_NAME"]}/'
+                    for m_app in funnel_devtest.devtest_app.apps_by_host.values()
+                ],
+            )
 
 
 @pytest.fixture()
