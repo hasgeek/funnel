@@ -115,12 +115,12 @@ const MUITabs = {
             event.preventDefault();
           }
         });
-        $tabs.each(function handleTab() {
+        $tabs.each(function handleTab(tabIndex) {
           const tab = this;
           // Attach event listeners to update accessibility attributes of tabs shown/hidden.
           tab.addEventListener('mui.tabs.showend', function ariaActive(ev) {
             $(ev.srcElement).attr({ tabindex: 0, 'aria-selected': 'true' }).focus();
-            index = [...$tabs].indexOf(ev.srcElement);
+            index = tabIndex;
             ev.srcElement.scrollIntoViewIfNeeded();
 
             // Uncomment to enable hiding of nav on
