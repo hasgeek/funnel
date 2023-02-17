@@ -100,22 +100,20 @@ const MUITabs = {
           window.mui.tabs.activate($($tabs.get(index)).data('mui-controls'));
         });
         // Bind arrow keys to previous/next for accessibility.
-        $tabs.bind({
-          keydown: function onpress(event) {
-            const LEFT_ARROW = 37;
-            const UP_ARROW = 38;
-            const RIGHT_ARROW = 39;
-            const DOWN_ARROW = 40;
-            const k = event.which || event.keyCode;
+        $tabs.on('keydown', function onpress(event) {
+          const LEFT_ARROW = 37;
+          const UP_ARROW = 38;
+          const RIGHT_ARROW = 39;
+          const DOWN_ARROW = 40;
+          const k = event.which || event.keyCode;
 
-            if (k >= LEFT_ARROW && k <= DOWN_ARROW) {
-              if (k === LEFT_ARROW || k === UP_ARROW)
-                tabsBar.dispatchEvent(new Event('previousTab'));
-              else if (k === RIGHT_ARROW || k === DOWN_ARROW)
-                tabsBar.dispatchEvent(new Event('nextTab'));
-              event.preventDefault();
-            }
-          },
+          if (k >= LEFT_ARROW && k <= DOWN_ARROW) {
+            if (k === LEFT_ARROW || k === UP_ARROW)
+              tabsBar.dispatchEvent(new Event('previousTab'));
+            else if (k === RIGHT_ARROW || k === DOWN_ARROW)
+              tabsBar.dispatchEvent(new Event('nextTab'));
+            event.preventDefault();
+          }
         });
         $tabs.each(function handleTab() {
           const tab = this;
