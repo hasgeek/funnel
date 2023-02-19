@@ -221,7 +221,7 @@
                       </div>
                     {%- elif request.endpoint != 'login' %}
                       <a href="{{ url_for('login') }}"
-                        class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button">{% trans %}Login{% endtrans %}</a>
+                        class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button" id="login-button">{% trans %}Login{% endtrans %}</a>
                     {%- else %}
                       {# On the login page, remove the login button but occupy the spot -#}
                       <div></div>
