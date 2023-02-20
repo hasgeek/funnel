@@ -28,7 +28,7 @@ PADDING_CHARACTERS = (
     .replace('\\', '\\\\')
     .replace('[', '\\[')
     .replace(']', '\\]')
-    + ' \r\n$+<=>^`|~'
+    + '\r\n$+<=>^`|~'
     + ']'
 )
 
