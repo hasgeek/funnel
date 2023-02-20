@@ -27,10 +27,13 @@ def given_anonuser_home_page(live_server, browser, db_session):
 def when_anonuser_navigates_login_and_submits(
     app, live_server, browser, phone_or_email
 ):
-    # browser.find_by_xpath("//a[contains(text(),'Login')]").click()
     assert browser.url == live_server.url
-    browser.visit(app.url_for('login', _external=True))
-    # browser.find_by_text("Login").click()
+    #: This doesn't work, no clue why
+    # browser.links.find_by_partial_href('/login').click()
+    #: This does work, but it doesn't test if there's a Login link on screen
+    # browser.visit(app.url_for('login', _external=True))
+    #: This one is the working hack, asking browser to visit the found link
+    browser.visit(browser.links.find_by_partial_href('/login')['href'])
     if phone_or_email == "a phone number":
         username = '8123456789'
     elif phone_or_email == "an email address":
