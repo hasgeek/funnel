@@ -14,6 +14,7 @@ from typing import (
     TypeVar,
     Union,
 )
+from uuid import UUID
 
 from sqlalchemy import event
 from sqlalchemy.sql.expression import ColumnElement
@@ -29,12 +30,15 @@ from . import (
     BaseMixin,
     Mapped,
     UuidMixin,
+    UUIDType,
     db,
     declarative_mixin,
     declared_attr,
     hybrid_property,
     sa,
 )
+from .email_address import EmailAddress
+from .phone_number import PhoneNumber
 from .profile import Profile
 from .reorder_mixin import ReorderMixin
 from .user import EnumerateMembershipsMixin, User
@@ -51,7 +55,7 @@ __all__ = [
 
 MembershipType = TypeVar('MembershipType', bound='ImmutableMembershipMixin')
 FrozenAttributionType = TypeVar('FrozenAttributionType', bound='FrozenAttributionMixin')
-SubjectType = Union[Mapped[User], Mapped[Profile]]
+SubjectType = Union[User, Profile]
 
 # --- Enum -----------------------------------------------------------------------------
 
@@ -393,7 +397,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
 
     @declared_attr
     @classmethod
-    def subject(cls) -> Mapped[User]:
+    def subject(cls) -> Mapped[User]:  # type: ignore[override]
         """Subject of this membership record."""
         return sa.orm.synonym('user')
 
@@ -515,7 +519,7 @@ class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
 
     @declared_attr
     @classmethod
-    def subject(cls) -> Mapped[Profile]:
+    def subject(cls) -> Mapped[Profile]:  # type: ignore[override]
         """Subject of this membership record."""
         return sa.orm.synonym('profile')
 
@@ -722,6 +726,249 @@ class FrozenAttributionMixin:
         else:
             membership = self
         return membership
+
+
+@declarative_mixin
+class ActorMembershipMixin(FrozenAttributionMixin, ImmutableMembershipMixin):
+    """Provide a base for membership models that accept a user or a contact address."""
+
+    __tablename__: str  # Defined by subclasses
+    __data_columns__ = ('user', 'email_address', 'phone_number', 'browserid')
+
+    @declared_attr
+    @classmethod
+    def user_id(cls) -> Mapped[int]:
+        """Foreign key column to user table."""
+        return sa.orm.mapped_column(
+            sa.Integer,
+            sa.ForeignKey('user.id', ondelete='CASCADE'),
+            nullable=True,
+            index=True,
+        )
+
+    @with_roles(read={'subject', 'editor'}, grants={'subject'})
+    @declared_attr
+    @classmethod
+    def user(cls) -> Mapped[User]:
+        """User who is the subject of this membership record."""
+        return sa.orm.relationship(User, foreign_keys=[cls.user_id])
+
+    @declared_attr
+    @classmethod
+    def subject(cls) -> Mapped[User]:  # type: ignore[override]
+        """Subject of this membership record."""
+        return sa.orm.synonym('user')
+
+    @declared_attr
+    @classmethod
+    def email_address_id(cls) -> Mapped[int]:
+        return sa.orm.mapped_column(
+            sa.Integer, sa.ForeignKey('email_address.id'), nullable=True
+        )
+
+    @declared_attr
+    @classmethod
+    def email_address(cls) -> Mapped[EmailAddress]:
+        """Instance of :class:`EmailAddress` as a relationship."""
+        backref_name = 'used_in_' + cls.__tablename__
+        EmailAddress.__backrefs__.add(backref_name)
+        return sa.orm.relationship(
+            EmailAddress,
+            backref=sa.orm.backref(
+                backref_name,
+                primaryjoin=sa.and_(
+                    cls.email_address_id == EmailAddress.id, cls.revoked_at.isnot(None)
+                ),
+            ),
+        )
+
+    @declared_attr
+    @classmethod
+    def phone_number_id(cls) -> Mapped[int]:
+        return sa.orm.mapped_column(
+            sa.Integer, sa.ForeignKey('phone_number.id'), nullable=True
+        )
+
+    @declared_attr
+    @classmethod
+    def phone_number(cls) -> Mapped[PhoneNumber]:
+        """Instance of :class:`PhoneNumber` as a relationship."""
+        backref_name = 'used_in_' + cls.__tablename__
+        PhoneNumber.__backrefs__.add(backref_name)
+        return sa.orm.relationship(
+            PhoneNumber,
+            backref=sa.orm.backref(
+                backref_name,
+                primaryjoin=sa.and_(
+                    cls.phone_number_id == PhoneNumber.id, cls.revoked_at.isnot(None)
+                ),
+            ),
+        )
+
+    @declared_attr
+    @classmethod
+    def browserid(cls) -> Mapped[UUID]:  # TODO: Plug into larger framework
+        """Random identifier for anonymous user's browser (saved to cookie)."""
+        return sa.orm.mapped_column(UUIDType(binary=False), nullable=True)
+
+    @declared_attr.directive
+    @classmethod
+    def __table_args__(cls) -> tuple:
+        """Table arguments for SQLAlchemy."""
+        return (
+            (
+                sa.Index(
+                    'ix_' + cls.__tablename__ + '_user_active',
+                    cls.parent_id_column,
+                    'user_id',
+                    unique=True,
+                    postgresql_where='revoked_at IS NULL AND user_id IS NOT NULL',
+                ),
+                sa.Index(
+                    'ix_' + cls.__tablename__ + '_email_active',
+                    cls.parent_id_column,
+                    'email_address_id',
+                    unique=True,
+                    postgresql_where=(
+                        'revoked_at IS NULL AND email_address_id IS NOT NULL'
+                    ),
+                ),
+                sa.Index(
+                    'ix_' + cls.__tablename__ + '_phone_active',
+                    cls.parent_id_column,
+                    'phone_number_id',
+                    unique=True,
+                    postgresql_where=(
+                        'revoked_at IS NULL AND phone_number_id IS NOT NULL'
+                    ),
+                ),
+            )
+            if cls.parent_id_column is not None
+            else (
+                sa.Index(
+                    'ix_' + cls.__tablename__ + '_user_active',
+                    'user_id',
+                    unique=True,
+                    postgresql_where='revoked_at IS NULL AND user_id IS NOT NULL',
+                ),
+                sa.Index(
+                    'ix_' + cls.__tablename__ + '_email_active',
+                    'email_address_id',
+                    unique=True,
+                    postgresql_where=(
+                        'revoked_at IS NULL AND email_address_id IS NOT NULL'
+                    ),
+                ),
+                sa.Index(
+                    'ix_' + cls.__tablename__ + '_phone_active',
+                    'phone_number_id',
+                    unique=True,
+                    postgresql_where=(
+                        'revoked_at IS NULL AND phone_number_id IS NOT NULL'
+                    ),
+                ),
+            )
+        ) + (
+            sa.CheckConstraint(
+                sa.or_(
+                    # User must be present, or
+                    sa.column('user_id').isnot(None),
+                    # If user is not present, one of phone number or email address must
+                    # be present
+                    sa.and_(
+                        sa.column('user_id').is_(None),
+                        sa.or_(
+                            sa.column('email_address_id').isnot(None),
+                            sa.column('phone_number_id').isnot(None),
+                        ),
+                    ),
+                )
+            ),
+        )
+
+    @hybrid_property
+    def is_self_granted(self) -> bool:
+        """Return True if the subject of this record is also the granting actor."""
+        return self.user_id == self.granted_by_id
+
+    with_roles(is_self_granted, read={'subject', 'editor'})
+
+    @hybrid_property
+    def is_self_revoked(self) -> bool:
+        """Return True if the subject of this record is also the revoking actor."""
+        return self.user_id == self.revoked_by_id
+
+    with_roles(is_self_revoked, read={'subject', 'editor'})
+
+    def copy_template(self: MembershipType, **kwargs) -> MembershipType:
+        return type(self)(
+            user=self.user,
+            email_address=self.email_address,
+            phone_number=self.phone_number,
+            browserid=self.browserid,
+            **kwargs,
+        )
+
+    @property
+    def email_address_reference_is_active(self) -> bool:
+        return self.is_active
+
+    @property
+    def phone_number_reference_is_active(self) -> bool:
+        return self.is_active
+
+    @classmethod
+    def migrate_user(  # type: ignore[return]
+        cls, old_user: User, new_user: User
+    ) -> OptionalMigratedTables:
+        """
+        Migrate memberhip records from one user to another.
+
+        If both users have active records, they are merged into a new record in the new
+        user's favour. All revoked records for the old user are transferred to the new
+        user.
+        """
+        # Look up all active membership records of the subclass's type for the old user
+        # account. `cls` here represents the subclass.
+        old_user_records = cls.query.filter(
+            cls.user == old_user, cls.revoked_at.is_(None)
+        ).all()
+        # Look up all conflicting memberships for the new user account. Limit lookups by
+        # parent except when the membership type doesn't have a parent (SiteMembership).
+        if cls.parent_id is not None:
+            new_user_records = cls.query.filter(
+                cls.user == new_user,
+                cls.revoked_at.is_(None),
+                cls.parent_id.in_([r.parent_id for r in old_user_records]),
+            ).all()
+        else:
+            new_user_records = cls.query.filter(
+                cls.user == new_user,
+                cls.revoked_at.is_(None),
+            ).all()
+        new_user_records_by_parent = {r.parent_id: r for r in new_user_records}
+
+        for record in old_user_records:
+            if record.parent_id in new_user_records_by_parent:
+                # Where there is a conflict, merge the records
+                new_user_records_by_parent[record.parent_id].merge_and_replace(
+                    new_user, record
+                )
+                db.session.flush()
+
+        # Transfer all revoked records and non-conflicting active records. At this point
+        # no filter is necessary as the conflicting records have all been merged.
+        cls.query.filter(cls.user == old_user).update(
+            {'user_id': new_user.id}, synchronize_session=False
+        )
+        # Also update the revoked_by and granted_by user accounts
+        cls.query.filter(cls.revoked_by == old_user).update(
+            {'revoked_by_id': new_user.id}, synchronize_session=False
+        )
+        cls.query.filter(cls.granted_by == old_user).update(
+            {'granted_by_id': new_user.id}, synchronize_session=False
+        )
+        db.session.flush()
 
 
 class AmendMembership(Generic[MembershipType]):
