@@ -7,69 +7,69 @@ Feature: Organization Admin Notification
     And Vimes is an admin of the Ankh-Morpork organization
 
   Scenario Outline: Vetinari adds Ridcully
-    When Vetinari adds Ridcully as <owner_or_admin>
-    Then <user> gets notified with <notification_string> about the addition
+    When Vetinari adds Ridcully as <role>
+    Then <recipient> gets notified with a photo of <actor> and message <notification_string> about the addition
 
     Examples:
-      | user     | owner_or_admin | notification_string                                           |
-      | Vetinari | owner          | You made Mustrum Ridcully owner of Ankh-Morpork               |
-      | Ridcully | owner          | Havelock Vetinari made you owner of Ankh-Morpork              |
-      | Vimes    | owner          | Havelock Vetinari made Mustrum Ridcully owner of Ankh-Morpork |
-      | Vetinari | admin          | You made Mustrum Ridcully admin of Ankh-Morpork               |
-      | Ridcully | admin          | Havelock Vetinari made you admin of Ankh-Morpork              |
-      | Vimes    | admin          | Havelock Vetinari made Mustrum Ridcully admin of Ankh-Morpork |
+      | recipient | role  | actor    | notification_string                                                  |
+      | Vetinari  | owner | Ridcully | You made Mustrum Ridcully owner of Ankh-Morpork                      |
+      | Ridcully  | owner | Vetinari | Havelock Vetinari made you owner of Ankh-Morpork                     |
+      | Vimes     | owner | Ridcully | Mustrum Ridcully was made owner of Ankh-Morpork by Havelock Vetinari |
+      | Vetinari  | admin | Ridcully | You made Mustrum Ridcully admin of Ankh-Morpork                      |
+      | Ridcully  | admin | Vetinari | Havelock Vetinari made you admin of Ankh-Morpork                     |
+      | Vimes     | admin | Ridcully | Mustrum Ridcully was made admin of Ankh-Morpork by Havelock Vetinari |
 
   Scenario Outline: Vetinari invites Ridcully
-    When Vetinari invites Ridcully as <owner_or_admin>
-    Then <user> gets notified with <notification_string> about the invitation
+    When Vetinari invites Ridcully as <role>
+    Then <recipient> gets notified with photo of <actor> and message <notification_string> about the invitation
 
     Examples:
-      | user     | owner_or_admin | notification_string                                                    |
-      | Vetinari | owner          | You invited Mustrum Ridcully to be owner of Ankh-Morpork               |
-      | Ridcully | owner          | Havelock Vetinari invited you to be owner of Ankh-Morpork              |
-      | Vimes    | owner          | Havelock Vetinari invited Mustrum Ridcully to be owner of Ankh-Morpork |
-      | Vetinari | admin          | You invited Mustrum Ridcully to be admin of Ankh-Morpork               |
-      | Ridcully | admin          | Havelock Vetinari invited you to be admin of Ankh-Morpork              |
-      | Vimes    | admin          | Havelock Vetinari invited Mustrum Ridcully to be admin of Ankh-Morpork |
+      | recipient | role  | actor    | notification_string                                                           |
+      | Vetinari  | owner | Ridcully | You invited Mustrum Ridcully to be owner of Ankh-Morpork                      |
+      | Ridcully  | owner | Vetinari | Havelock Vetinari invited you to be owner of Ankh-Morpork                     |
+      | Vimes     | owner | Ridcully | Mustrum Ridcully was invited to be owner of Ankh-Morpork by Havelock Vetinari |
+      | Vetinari  | admin | Ridcully | You invited Mustrum Ridcully to be admin of Ankh-Morpork                      |
+      | Ridcully  | admin | Vetinari | Havelock Vetinari invited you to be admin of Ankh-Morpork                     |
+      | Vimes     | admin | Ridcully | Mustrum Ridcully was invited to be admin of Ankh-Morpork by Havelock Vetinari |
 
   Scenario Outline: Ridcully accepts the invite
-    Given Vetinari invites Ridcully as <owner_or_admin>
+    Given Vetinari invites Ridcully as <role>
     When Ridcully accepts the invitation to be admin
-    Then <user> gets notified with <notification_string> about the acceptance
+    Then <recipient> gets notified with photo of <actor> and message <notification_string> about the acceptance
 
     Examples:
-      | user     | owner_or_admin | notification_string                                             |
-      | Ridcully | owner          | You accepted an invite to be owner of Ankh-Morpork              |
-      | Vetinari | owner          | Mustrum Ridcully accepted an invite to be owner of Ankh-Morpork |
-      | Vimes    | owner          | Mustrum Ridcully accepted an invite to be owner of Ankh-Morpork |
-      | Ridcully | admin          | You accepted an invite to be admin of Ankh-Morpork              |
-      | Vetinari | admin          | Mustrum Ridcully accepted an invite to be admin of Ankh-Morpork |
-      | Vimes    | admin          | Mustrum Ridcully accepted an invite to be admin of Ankh-Morpork |
+      | recipient | role  | actor    | notification_string                                             |
+      | Ridcully  | owner | Ridcully | You accepted an invite to be owner of Ankh-Morpork              |
+      | Vetinari  | owner | Ridcully | Mustrum Ridcully accepted an invite to be owner of Ankh-Morpork |
+      | Vimes     | owner | Ridcully | Mustrum Ridcully accepted an invite to be owner of Ankh-Morpork |
+      | Ridcully  | admin | Ridcully | You accepted an invite to be admin of Ankh-Morpork              |
+      | Vetinari  | admin | Ridcully | Mustrum Ridcully accepted an invite to be admin of Ankh-Morpork |
+      | Vimes     | admin | Ridcully | Mustrum Ridcully accepted an invite to be admin of Ankh-Morpork |
 
   Scenario Outline: Vetinari changes Ridcully's role
-    Given Ridcully is currently <owner_or_admin>
+    Given Ridcully is currently <role>
     When Vetinari changes Ridcully to <new_role>
-    Then <user> gets notified with <notification_string> about the change
+    Then <recipient> gets notified with photo of <actor> and message <notification_string> about the change
 
     Examples:
-      | user     | owner_or_admin | new_role | notification_string                                                        |
-      | Vetinari | owner          | admin    | You changed Mustrum Ridcully's role to admin of Ankh-Morpork               |
-      | Ridcully | owner          | admin    | Havelock Vetinari changed your role to admin of Ankh-Morpork               |
-      | Vimes    | owner          | admin    | Havelock Vetinari changed Mustrum Ridcully's role to admin of Ankh-Morpork |
-      | Vetinari | admin          | owner    | You changed Mustrum Ridcully's role to owner of Ankh-Morpork               |
-      | Ridcully | admin          | owner    | Havelock Vetinari changed your role to owner of Ankh-Morpork               |
-      | Vimes    | admin          | owner    | Havelock Vetinari changed Mustrum Ridcully's role to owner of Ankh-Morpork |
+      | recipient | role  | new_role | actor    | notification_string                                                               |
+      | Vetinari  | owner | admin    | Ridcully | You changed Mustrum Ridcully's role to admin of Ankh-Morpork                      |
+      | Ridcully  | owner | admin    | Vetinari | Havelock Vetinari changed your role to admin of Ankh-Morpork                      |
+      | Vimes     | owner | admin    | Ridcully | Mustrum Ridcully's role was changed to admin of Ankh-Morpork by Havelock Vetinari |
+      | Vetinari  | admin | owner    | Ridcully | You changed Mustrum Ridcully's role to owner of Ankh-Morpork                      |
+      | Ridcully  | admin | owner    | Vetinari | Havelock Vetinari changed your role to owner of Ankh-Morpork                      |
+      | Vimes     | admin | owner    | Ridcully | Mustrum Ridcully's role was changed to owner of Ankh-Morpork by Havelock Vetinari |
 
   Scenario Outline: Vetinari removes Ridcully
-    Given Ridcully is currently <owner_or_admin>
+    Given Ridcully is currently <role>
     When Vetinari removes Ridcully
-    Then <user> gets notified with <notification_string> about the removal
+    Then <recipient> gets notified with photo of <actor> and message <notification_string> about the removal
 
     Examples:
-      | user     | owner_or_admin | notification_string                                                   |
-      | Vetinari | owner          | You removed Mustrum Ridcully from owner of Ankh-Morpork               |
-      | Ridcully | owner          | Havelock Vetinari removed you from owner of Ankh-Morpork              |
-      | Vimes    | owner          | Havelock Vetinari removed Mustrum Ridcully from owner of Ankh-Morpork |
-      | Vetinari | admin          | You removed Mustrum Ridcully from admin of Ankh-Morpork               |
-      | Ridcully | admin          | Havelock Vetinari removed you from admin of Ankh-Morpork              |
-      | Vimes    | admin          | Havelock Vetinari removed Mustrum Ridcully from admin of Ankh-Morpork |
+      | recipient | role  | actor    | notification_string                                                        |
+      | Vetinari  | owner | Ridcully | You removed Mustrum Ridcully from owner of Ankh-Morpork                    |
+      | Ridcully  | owner | Vetinari | Havelock Vetinari removed you from owner of Ankh-Morpork                   |
+      | Vimes     | owner | Ridcully | Mustrum Ridcully was removed as owner of Ankh-Morpork by Havelock Vetinari |
+      | Vetinari  | admin | Ridcully | You removed Mustrum Ridcully from admin of Ankh-Morpork                    |
+      | Ridcully  | admin | Vetinari | Havelock Vetinari removed you from admin of Ankh-Morpork                   |
+      | Vimes     | admin | Ridcully | Mustrum Ridcully was removed as admin of Ankh-Morpork by Havelock Vetinari |
