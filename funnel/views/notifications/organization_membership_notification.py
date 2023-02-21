@@ -10,6 +10,7 @@ from flask import Markup, escape, render_template
 from baseframe import _, __
 
 from ...models import (
+    Notification,
     Organization,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
@@ -328,9 +329,12 @@ revoke_templates = DecisionBranch(
 
 
 class RenderShared:
+    emoji_prefix = "🔑 "
+    reason = __("You are receiving this because you are an admin of this organization")
+
     organization: Organization
     membership: OrganizationMembership
-    emoji_prefix = "🔑 "
+    notification: Notification
     user_notification: UserNotification
     template_picker: DecisionBranch
 
@@ -360,7 +364,14 @@ class RenderShared:
 
     @property
     def actor(self) -> User:
-        """We're interested in who has the membership, not who granted/revoked it."""
+        """
+        We're interested in who has the membership, not who granted/revoked it.
+
+        However, if the notification is being rendered for the person who is the subject
+        of the membership, the original actor must be attributed.
+        """
+        if self.user_notification.user == self.membership.user:
+            return self.notification.user
         return self.membership.user
 
     def activity_html(self, membership: Optional[OrganizationMembership] = None) -> str:
