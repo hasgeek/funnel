@@ -47,6 +47,7 @@ def when_anonuser_navigates_login_and_submits(
 
 @then("they are prompted for their name and the OTP, which they provide")
 def then_anonuser_prompted_name_and_otp(live_server, browser, anon_username):
+    time.sleep(1)
     browser.find_by_name('fullname').fill("Twoflower")
     if anon_username['phone_or_email'] == "a phone number":
         otp = live_server.transport_calls.sms[-1].vars['otp']
@@ -73,17 +74,19 @@ def when_twoflower_visits_homepage(live_server, browser, db_session, user_twoflo
     db_session.commit()
 
 
-@when("they navigate to the login page and submit an email address with password")
-def when_submit_email_password(app, live_server, browser):
+@when("they navigate to the login page")
+def when_navigate_to_login_page(app, live_server, browser):
     browser.visit(app.url_for('login', _external=True))
+
+
+@when("they submit the email address with password")
+@when("submit an email address with password")
+def when_submit_email_password(browser):
+    time.sleep(1)
     browser.find_by_name('username').fill('twoflower@example.org')
-    browser.find_by_xpath(
-        "/html/body/div[2]/div/div/div/div/div/div[2]/div/div[2]/div/form/p[1]/a"
-    ).click()
+    browser.find_by_id("use-password-login").click()
     browser.find_by_name('password').fill('te@pwd3289')
-    browser.find_by_xpath(
-        "/html/body/div[2]/div/div/div/div/div/div[2]/div/div[2]/div/form/div[5]/button"
-    ).click()
+    browser.find_by_id("login-btn").click()
 
 
 @then("they are logged in")
@@ -92,17 +95,14 @@ def then_logged_in(browser):
     browser.quit()
 
 
-@when("they navigate to the login page and submit a phone number with password")
+@when("they submit the phone number with password")
+@when("submit a phone number with password")
 def when_submit_phone_password(app, live_server, browser):
-    browser.visit(app.url_for('login', _external=True))
+    time.sleep(1)
     browser.find_by_name('username').fill('+12345678900')
-    browser.find_by_xpath(
-        "/html/body/div[2]/div/div/div/div/div/div[2]/div/div[2]/div/form/p[1]/a"
-    ).click()
+    browser.find_by_id("use-password-login").click()
     browser.find_by_name('password').fill('te@pwd3289')
-    browser.find_by_xpath(
-        "/html/body/div[2]/div/div/div/div/div/div[2]/div/div[2]/div/form/div[5]/button"
-    ).click()
+    browser.find_by_id("login-btn").click()
 
 
 @given("Anonymous visitor is on a project page")
@@ -116,19 +116,30 @@ def given_anonymous_project_page(live_server, browser, db_session, new_project):
 @when("they click on follow")
 def when_they_click_follow(browser):
     time.sleep(1)
-    browser.find_by_xpath(
-        "/html/body/div[2]/div/div[5]/div/div[2]/div/div[1]/div/div/div[1]/div/div/div[2]/a"
-    ).click()
+    browser.find_by_id("follow-btn").click()
+    # element = WebDriverWait(browser.driver, 10).until(
+    #     EC.presence_of_element_located(
+    #         (
+    #             By.ID,
+    #             "follow-btn",
+    #         )
+    #     )
+    # )
+    # element.click()
 
 
-@when("a register modal appears")
+@then("a register modal appears")
 def then_register_modal_appear(browser):
+    time.sleep(1)
     assert browser.is_text_present("Tell us where you’d like to get updates.")
 
 
-@when(parsers.re("they enter (?P<phone_or_email>a phone number|an email address)"))
+@when(
+    parsers.re("they enter (?P<phone_or_email>a phone number|an email address)"),
+    target_fixture='anon_username',
+)
 def when_they_enter_email(browser, phone_or_email):
-    time.sleep(2)
+    time.sleep(1)
     if phone_or_email == "a phone number":
         username = '8123456789'
     elif phone_or_email == "an email address":
@@ -137,5 +148,17 @@ def when_they_enter_email(browser, phone_or_email):
         pytest.fail("Unknown username type")
     browser.find_by_name('username').fill(username)
     browser.find_by_css('#form-passwordlogin button').click()
-    time.sleep(10)
     return {'phone_or_email': phone_or_email, 'username': username}
+
+
+@given("Twoflower is on the project page")
+def given_twoflower_visits_project(
+    live_server, browser, db_session, user_twoflower, new_project
+):
+    user_twoflower.password = 'te@pwd3289'  # nosec
+    user_twoflower.add_phone('+12345678900')
+    user_twoflower.add_email('twoflower@example.org')
+    new_project.publish()
+    db_session.add(new_project)
+    db_session.commit()
+    browser.visit(live_server.url + new_project.profile.name + '/' + new_project.name)

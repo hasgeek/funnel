@@ -20,18 +20,20 @@ Feature: Account creation
 
   Scenario: Twoflower tries to login with an email address password
     Given Twoflower visitor is on the home page
-    When they navigate to the login page and submit an email address with password
+    When they navigate to the login page
+    And submit an email address with password
     Then they are logged in
 
   Scenario: Twoflower tries to login with a phone number password
     Given Twoflower visitor is on the home page
-    When they navigate to the login page and submit a phone number with password
+    When they navigate to the login page
+    And submit a phone number with password
     Then they are logged in
 
   Scenario: Anonymous visitor tries to login with an email address from the project page
     Given Anonymous visitor is on a project page
     When they click on follow
-    And a register modal appears
+    Then a register modal appears
     When they enter an email address
     Then they are prompted for their name and the OTP, which they provide
     And they get an account and are logged in
@@ -43,3 +45,17 @@ Feature: Account creation
     When they enter a phone number
     Then they are prompted for their name and the OTP, which they provide
     And they get an account and are logged in
+
+  Scenario: Twoflower tries to login with an email address from the project page
+    Given Twoflower is on the project page
+    When they click on follow
+    Then a register modal appears
+    When they submit the email address with password
+    Then they are logged in
+
+  Scenario: Twoflower tries to login with a phone number from the project page
+    Given Twoflower is on the project page
+    When they click on follow
+    Then a register modal appears
+    When they submit the phone number with password
+    Then they are logged in
