@@ -68,13 +68,13 @@ const MUITabs = {
     while (switchTo > 0 && !$(tabs[switchTo]).data('isIntersecting')) switchTo -= 1;
     return switchTo;
   },
-  checkScrollability(tabsBar) {
+  checkScrollability() {
     // Function to update no-scroll-left and no-scroll-right
     // classes for tabs bar wrapper.
-    if (!hasLeftOverflow(tabsBar)) $(tabsBar).parent().addClass('no-scroll-left');
-    else $(tabsBar).parent().removeClass('no-scroll-left');
-    if (!hasRightOverflow(tabsBar)) $(tabsBar).parent().addClass('no-scroll-right');
-    else $(tabsBar).parent().removeClass('no-scroll-right');
+    if (!hasLeftOverflow(this)) $(this).parent().addClass('no-scroll-left');
+    else $(this).parent().removeClass('no-scroll-left');
+    if (!hasRightOverflow(this)) $(this).parent().addClass('no-scroll-right');
+    else $(this).parent().removeClass('no-scroll-right');
   },
   async init(container) {
     const $parentElement = $(container || 'body');
@@ -160,9 +160,7 @@ const MUITabs = {
         const observer = MUITabs.getIntersectionObserver(tabsBar);
 
         // Attach this to the scroll event.
-        $(tabsBar).scroll(
-          Utils.debounce(MUITabs.checkScrollability, 500, this, tabsBar)
-        );
+        $(tabsBar).scroll(Utils.debounce(MUITabs.checkScrollability, 500, this));
 
         // Functions to scroll the tabs bar left and right.
         function scrollTo(i) {
@@ -203,7 +201,7 @@ const MUITabs = {
         $(icons.right.scroll).click(rightScroll);
 
         // Update scrollability classes for tabs bar wrapper.
-        MUITabs.checkScrollability(tabsBar);
+        MUITabs.checkScrollability.bind(tabsBar)();
 
         $(tabsBar).removeClass('activating').addClass('activated');
       });
