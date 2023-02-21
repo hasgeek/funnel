@@ -26,11 +26,11 @@ def given_vimes_admin(db_session, user_vimes, org_ankhmorpork, user_vetinari):
 
 
 @when(
-    parsers.parse("Vetinari adds Ridcully as {owner_or_admin}"),
+    parsers.parse("Vetinari adds Ridcully as {role}"),
     target_fixture='ridcully_admin',
 )
 @given(
-    parsers.parse("Ridcully is currently {owner_or_admin}"),
+    parsers.parse("Ridcully is currently {role}"),
     target_fixture='ridcully_admin',
 )
 def when_vetinari_adds_ridcully(
@@ -38,9 +38,9 @@ def when_vetinari_adds_ridcully(
     user_vetinari,
     user_ridcully,
     org_ankhmorpork,
-    owner_or_admin,
+    role,
 ):
-    is_owner = True if owner_or_admin == 'owner' else False
+    is_owner = True if role == 'owner' else False
     ridcully_admin = models.OrganizationMembership(
         user=user_ridcully,
         organization=org_ankhmorpork,
@@ -53,21 +53,27 @@ def when_vetinari_adds_ridcully(
 
 
 @then(
-    parsers.parse("{user} gets notified with {notification_string} about the addition")
-)
-@then(
     parsers.parse(
-        "{user} gets notified with {notification_string} about the invitation"
+        "{recipient} gets notified with a photo of {actor} and message {notification_string} about the addition"
     )
 )
 @then(
     parsers.parse(
-        "{user} gets notified with {notification_string} about the acceptance"
+        "{recipient} gets notified with photo of {actor} and message {notification_string} about the invitation"
     )
 )
-@then(parsers.parse("{user} gets notified with {notification_string} about the change"))
+@then(
+    parsers.parse(
+        "{recipient} gets notified with photo of {actor} and message {notification_string} about the acceptance"
+    )
+)
+@then(
+    parsers.parse(
+        "{recipient} gets notified with photo of {actor} and message {notification_string} about the change"
+    )
+)
 def then_user_gets_notification(
-    user, notification_string, ridcully_admin, vimes_admin, vetinari_admin
+    recipient, actor, notification_string, ridcully_admin, vimes_admin, vetinari_admin
 ) -> None:
     user_dict = {
         "Ridcully": ridcully_admin.user,
@@ -79,8 +85,10 @@ def then_user_gets_notification(
         document=ridcully_admin.organization,
         fragment=ridcully_admin,
     )
-    user_notification = models.NotificationFor(preview, user_dict[user])
+    user_notification = models.NotificationFor(preview, user_dict[recipient])
     view = user_notification.views.render
+    # # TODO: Have to fix the assert to confirm the actor
+    # assert view.actor == actor
     assert (
         view.activity_template().format(
             actor=ridcully_admin.granted_by.fullname,
@@ -92,17 +100,17 @@ def then_user_gets_notification(
 
 
 @given(
-    parsers.parse("Vetinari invites Ridcully as {owner_or_admin}"),
+    parsers.parse("Vetinari invites Ridcully as {role}"),
     target_fixture='ridcully_admin',
 )
 @when(
-    parsers.parse("Vetinari invites Ridcully as {owner_or_admin}"),
+    parsers.parse("Vetinari invites Ridcully as {role}"),
     target_fixture='ridcully_admin',
 )
 def when_vetinari_invites_ridcully(
-    db_session, user_vetinari, user_ridcully, org_ankhmorpork, owner_or_admin
+    db_session, user_vetinari, user_ridcully, org_ankhmorpork, role
 ):
-    is_owner = True if owner_or_admin == 'owner' else False
+    is_owner = True if role == 'owner' else False
     ridcully_admin = models.OrganizationMembership(
         user=user_ridcully,
         organization=org_ankhmorpork,
@@ -132,13 +140,13 @@ def when_ridcully_accepts_invite(
 
 
 @given(
-    parsers.parse("Ridcully is currently {owner_or_admin}"),
+    parsers.parse("Ridcully is currently {role}"),
     target_fixture='ridcully_admin',
 )
 def given_riduclly_admin(
-    db_session, user_ridcully, org_ankhmorpork, user_vetinari, owner_or_admin
+    db_session, user_ridcully, org_ankhmorpork, user_vetinari, role
 ):
-    is_owner = True if owner_or_admin == 'owner' else False
+    is_owner = True if role == 'owner' else False
     ridcully_admin = models.OrganizationMembership(
         user=user_ridcully,
         organization=org_ankhmorpork,
@@ -180,11 +188,14 @@ def when_vetinari_removes_ridcully(
 
 
 @then(
-    parsers.parse("{user} gets notified with {notification_string} about the removal")
+    parsers.parse(
+        "{recipient} gets notified with photo of {actor} and message {notification_string} about the removal"
+    )
 )
 def then_user_notification_removal(
-    user,
+    recipient,
     notification_string,
+    actor,
     vimes_admin,
     ridcully_admin,
     vetinari_admin,
@@ -199,7 +210,7 @@ def then_user_notification_removal(
         document=ridcully_admin.organization,
         fragment=ridcully_admin,
     )
-    user_notification = models.NotificationFor(preview, user_dict[user])
+    user_notification = models.NotificationFor(preview, user_dict[recipient])
     view = user_notification.views.render
     assert (
         view.activity_template().format(

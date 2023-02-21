@@ -70,13 +70,15 @@ grant_amend_templates = DecisionBranch(
                     factors=[
                         DecisionFactor(
                             template=__(
-                                "{actor} invited {user} to be owner of {organization}"
+                                "{user} was invited to be owner of {organization} by"
+                                " {actor}"
                             ),
                             is_owner=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "{actor} invited {user} to be admin of {organization}"
+                                "{user} was invited to be admin of {organization} by"
+                                " {actor}"
                             ),
                         ),
                     ],
@@ -125,11 +127,15 @@ grant_amend_templates = DecisionBranch(
                     is_subject=False,
                     factors=[
                         DecisionFactor(
-                            template=__("{actor} made {user} owner of {organization}"),
+                            template=__(
+                                "{user} was made owner of {organization} by {actor}"
+                            ),
                             is_owner=True,
                         ),
                         DecisionFactor(
-                            template=__("{actor} made {user} admin of {organization}"),
+                            template=__(
+                                "{user} was made admin of {organization} by {actor}"
+                            ),
                         ),
                     ],
                 ),
@@ -230,15 +236,15 @@ grant_amend_templates = DecisionBranch(
                     factors=[
                         DecisionFactor(
                             template=__(
-                                "{actor} changed {user}'s role to owner of"
-                                " {organization}"
+                                "{user}'s role was changed to owner of {organization}"
+                                " by {actor}"
                             ),
                             is_owner=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "{actor} changed {user}'s role to admin of"
-                                " {organization}"
+                                "{user}'s role was changed to admin of {organization}"
+                                " by {actor}"
                             ),
                         ),
                     ],
@@ -290,11 +296,15 @@ revoke_templates = DecisionBranch(
             is_subject=False,
             factors=[
                 DecisionFactor(
-                    template=__("{actor} removed {user} from owner of {organization}"),
+                    template=__(
+                        "{user} was removed as owner of {organization} by {actor}"
+                    ),
                     is_owner=True,
                 ),
                 DecisionFactor(
-                    template=__("{actor} removed {user} from admin of {organization}"),
+                    template=__(
+                        "{user} was removed as admin of {organization} by {actor}"
+                    ),
                 ),
             ],
         ),
@@ -371,7 +381,7 @@ class RenderShared:
         of the membership, the original actor must be attributed.
         """
         if self.user_notification.user == self.membership.user:
-            return self.notification.user
+            return self.user_notification.user
         return self.membership.user
 
     def activity_html(self, membership: Optional[OrganizationMembership] = None) -> str:
