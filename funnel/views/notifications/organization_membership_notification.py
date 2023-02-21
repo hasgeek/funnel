@@ -381,7 +381,7 @@ class RenderShared:
         of the membership, the original actor must be attributed.
         """
         if self.user_notification.user == self.membership.user:
-            return self.user_notification.user
+            return self.notification.user
         return self.membership.user
 
     def activity_html(self, membership: Optional[OrganizationMembership] = None) -> str:

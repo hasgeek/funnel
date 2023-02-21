@@ -83,27 +83,30 @@ grant_amend_templates = DecisionBranch(
                     factors=[
                         DecisionFactor(
                             template=__(
-                                "{actor} invited {user} to be an editor and promoter of"
-                                " {project}"
+                                "{user} was invited to be an editor and promoter of"
+                                " {project} by {actor}"
                             ),
                             is_editor=True,
                             is_promoter=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "{actor} invited {user} to be an editor of {project}"
+                                "{user} was invited to be an editor of {project} by"
+                                " {actor}"
                             ),
                             is_editor=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "{actor} invited {user} to be a promoter of {project}"
+                                "{user} was invited to be a promoter of {project} by"
+                                " {actor}"
                             ),
                             is_promoter=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "{actor} invited {user} to join the crew of {project}"
+                                "{user} was invited to join the crew of {project} by"
+                                " {actor}"
                             ),
                         ),
                     ],
@@ -275,18 +278,22 @@ grant_amend_templates = DecisionBranch(
                         ),
                         DecisionFactor(
                             template=__(
-                                "{actor} made {user} an editor and promoter of"
-                                " {project}"
+                                "{user} was made editor and promoter of"
+                                " {project} by {actor}"
                             ),
                             is_editor=True,
                             is_promoter=True,
                         ),
                         DecisionFactor(
-                            template=__("{actor} made {user} an editor of {project}"),
+                            template=__(
+                                "{user} was made editor of {project} by {actor}"
+                            ),
                             is_editor=True,
                         ),
                         DecisionFactor(
-                            template=__("{actor} made {user} a promoter of {project}"),
+                            template=__(
+                                "{user} was made promoter of {project} by {actor}"
+                            ),
                             is_promoter=True,
                         ),
                         DecisionFactor(
@@ -407,28 +414,30 @@ grant_amend_templates = DecisionBranch(
                         ),
                         DecisionFactor(
                             template=__(
-                                "{actor} changed {user}'s role to editor and promoter"
-                                " of {project}"
+                                "{user}'s role to editor and promoter of {project} was"
+                                " changed by {actor}"
                             ),
                             is_editor=True,
                             is_promoter=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "{actor} changed {user}'s role to editor of {project}"
+                                "{user}'s role to editor of {project} was changed by"
+                                " {actor}"
                             ),
                             is_editor=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "{actor} changed {user}'s role to promoter of {project}"
+                                "{user}'s role to promoter of {project} was changed by"
+                                " {actor}"
                             ),
                             is_promoter=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "{actor} changed {user}'s role to crew member of"
-                                " {project}"
+                                "{user}'s role to crew member of {project} was changed"
+                                " by {actor}"
                             ),
                         ),
                     ],
@@ -560,21 +569,24 @@ revoke_templates = DecisionBranch(
                 ),
                 DecisionFactor(
                     template=__(
-                        "{actor} removed {user} from editor and promoter of {project}"
+                        "{user} was removed as editor and promoter of {project} by"
+                        " {actor}"
                     ),
                     is_promoter=True,
                     is_editor=True,
                 ),
                 DecisionFactor(
-                    template=__("{actor} removed {user} from editor of {project}"),
+                    template=__("{user} was removed as editor of {project} by {actor}"),
                     is_editor=True,
                 ),
                 DecisionFactor(
-                    template=__("{actor} removed {user} from promoter of {project}"),
+                    template=__(
+                        "{user} was removed as promoter of {project} by {actor}"
+                    ),
                     is_promoter=True,
                 ),
                 DecisionFactor(
-                    template=__("{actor} removed {user} from the crew of {project}"),
+                    template=__("{user} was removed as crew of {project} by {actor}"),
                 ),
             ],
         ),
