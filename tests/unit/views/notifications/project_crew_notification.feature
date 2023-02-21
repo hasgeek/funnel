@@ -85,25 +85,25 @@ Feature: Project Crew Notification
       | Vetinari  | usher           | Ridcully | Mustrum Ridcully accepted an invite to join the crew of Ankh-Morpork 2010          |
       | Vimes     | usher           | Ridcully | Mustrum Ridcully accepted an invite to join the crew of Ankh-Morpork 2010          |
 
-  Scenario Outline: Vetinari changes Ridcully's role
+  Scenario Outline: Vetinari changes Ridcully`s role
     Given Ridcully is an existing crew member with roles editor, promoter and usher of the Ankh-Morpork 2010 project
-    When Vetinari changes Ridcully's role to <role> in the Ankh-Morpork 2010 project
+    When Vetinari changes Ridcully`s role to <role> in the Ankh-Morpork 2010 project
     Then <recipient> gets notified with photo of <actor> and message <notification_string> about the change
 
     Examples:
       | recipient | role            | actor    | notification_string                                                                                  |
-      | Vetinari  | editor          | Ridcully | You changed Mustrum Ridcully's role to editor of Ankh-Morpork 2010                                   |
+      | Vetinari  | editor          | Ridcully | You changed Mustrum Ridcully`s role to editor of Ankh-Morpork 2010                                   |
       | Ridcully  | editor          | Ridcully | Havelock Vetinari changed your role to editor of Ankh-Morpork 2010                                   |
-      | Vimes     | editor          | Vetinari | Mustrum Ridcully's role to editor of Ankh-Morpork 2010 was changed by Havelock Vetinari              |
-      | Vetinari  | promoter        | Ridcully | You changed Mustrum Ridcully's role to promoter of Ankh-Morpork 2010                                 |
+      | Vimes     | editor          | Vetinari | Mustrum Ridcully`s role to editor of Ankh-Morpork 2010 was changed by Havelock Vetinari              |
+      | Vetinari  | promoter        | Ridcully | You changed Mustrum Ridcully`s role to promoter of Ankh-Morpork 2010                                 |
       | Ridcully  | promoter        | Vetinari | Havelock Vetinari changed your role to promoter of Ankh-Morpork 2010                                 |
-      | Vimes     | promoter        | Ridcully | Mustrum Ridcully's role to promoter of Ankh-Morpork 2010 was changed by Havelock Vetinari            |
-      | Vetinari  | editor,promoter | Ridcully | You changed Mustrum Ridcully's role to editor and promoter of Ankh-Morpork 2010                      |
+      | Vimes     | promoter        | Ridcully | Mustrum Ridcully`s role to promoter of Ankh-Morpork 2010 was changed by Havelock Vetinari            |
+      | Vetinari  | editor,promoter | Ridcully | You changed Mustrum Ridcully`s role to editor and promoter of Ankh-Morpork 2010                      |
       | Ridcully  | editor,promoter | Vetinari | Havelock Vetinari changed your role to editor and promoter of Ankh-Morpork 2010                      |
-      | Vimes     | editor,promoter | Ridcully | Mustrum Ridcully's role to editor and promoter of Ankh-Morpork 2010 was changed by Havelock Vetinari |
-      | Vetinari  | usher           | Ridcully | You changed Mustrum Ridcully's role to crew member of Ankh-Morpork 2010                              |
+      | Vimes     | editor,promoter | Ridcully | Mustrum Ridcully`s role to editor and promoter of Ankh-Morpork 2010 was changed by Havelock Vetinari |
+      | Vetinari  | usher           | Ridcully | You changed Mustrum Ridcully`s role to crew member of Ankh-Morpork 2010                              |
       | Ridcully  | usher           | Vetinari | Havelock Vetinari changed your role to crew member of Ankh-Morpork 2010                              |
-      | Vimes     | usher           | Ridcully | Mustrum Ridcully's role to crew member of Ankh-Morpork 2010 was changed by Havelock Vetinari         |
+      | Vimes     | usher           | Ridcully | Mustrum Ridcully`s role to crew member of Ankh-Morpork 2010 was changed by Havelock Vetinari         |
 
   Scenario Outline: Ridcully changed their own role
     Given Vetinari made Ridcully an admin of Ankh-Morpork

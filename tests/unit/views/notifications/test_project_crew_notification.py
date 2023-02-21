@@ -205,7 +205,7 @@ def given_ridcully_is_existing_crew(
 
 @when(
     parsers.parse(
-        "Vetinari changes Ridcully's role to {role} in the Ankh-Morpork 2010 project"
+        "Vetinari changes Ridcully`s role to {role} in the Ankh-Morpork 2010 project"
     ),
     target_fixture='ridcully_member',
 )
