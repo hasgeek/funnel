@@ -116,6 +116,7 @@ def then_user_gets_notification(
         models.ProjectCrewMembershipNotification,
         document=ridcully_member.project,
         fragment=ridcully_member,
+        user=ridcully_member.granted_by,
     )
     user_notification = models.NotificationFor(preview, user_dict[recipient])
     view = user_notification.views.render
@@ -334,6 +335,7 @@ def then_user_notification_removal(
         models.ProjectCrewMembershipRevokedNotification,
         document=ridcully_member.project,
         fragment=ridcully_member,
+        user=ridcully_member.revoked_by,
     )
     user_notification = models.NotificationFor(preview, user_dict[recipient])
     view = user_notification.views.render

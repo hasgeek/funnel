@@ -603,6 +603,7 @@ class PreviewNotification:
         cls: Type[Notification],
         document: UuidModelType,
         fragment: Optional[UuidModelType] = None,
+        user: Optional[User] = None,
     ) -> None:
         self.eventid = self.eventid_b58 = self.id = 'preview'  # May need to be a UUID
         self.cls = cls
@@ -611,6 +612,7 @@ class PreviewNotification:
         self.document_uuid = document.uuid
         self.fragment = fragment
         self.fragment_uuid = fragment.uuid if fragment is not None else None
+        self.user = user
 
     def __getattr__(self, attr: str) -> Any:
         """Get an attribute."""

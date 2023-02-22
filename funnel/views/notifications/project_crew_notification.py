@@ -710,7 +710,10 @@ class RenderShared:
         However, if the notification is being rendered for the person who is the subject
         of the membership, the original actor must be attributed.
         """
-        if self.user_notification.user.uuid == self.membership.user.uuid:
+        if (
+            self.user_notification.user.uuid == self.membership.user.uuid
+            and self.notification.user is not None
+        ):
             return self.notification.user
         return self.membership.user
 

@@ -84,11 +84,11 @@ def then_user_gets_notification(
         models.OrganizationAdminMembershipNotification,
         document=ridcully_admin.organization,
         fragment=ridcully_admin,
+        user=ridcully_admin.granted_by,
     )
     user_notification = models.NotificationFor(preview, user_dict[recipient])
     view = user_notification.views.render
-    # # TODO: Have to fix the assert to confirm the actor
-    # assert view.actor.uuid == user_dict[actor].uuid
+    assert view.actor.uuid == user_dict[actor].uuid
     assert (
         view.activity_template().format(
             actor=ridcully_admin.granted_by.fullname,
@@ -209,10 +209,11 @@ def then_user_notification_removal(
         models.OrganizationAdminMembershipRevokedNotification,
         document=ridcully_admin.organization,
         fragment=ridcully_admin,
+        user=ridcully_admin.revoked_by,
     )
     user_notification = models.NotificationFor(preview, user_dict[recipient])
     view = user_notification.views.render
-    # assert view.actor.uuid == user_dict[actor].uuid
+    assert view.actor.uuid == user_dict[actor].uuid
     assert (
         view.activity_template().format(
             actor=ridcully_admin.granted_by.fullname,
