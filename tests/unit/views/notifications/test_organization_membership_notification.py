@@ -88,7 +88,7 @@ def then_user_gets_notification(
     user_notification = models.NotificationFor(preview, user_dict[recipient])
     view = user_notification.views.render
     # # TODO: Have to fix the assert to confirm the actor
-    # assert view.actor == actor
+    # assert view.actor.uuid == user_dict[actor].uuid
     assert (
         view.activity_template().format(
             actor=ridcully_admin.granted_by.fullname,
@@ -212,6 +212,7 @@ def then_user_notification_removal(
     )
     user_notification = models.NotificationFor(preview, user_dict[recipient])
     view = user_notification.views.render
+    # assert view.actor.uuid == user_dict[actor].uuid
     assert (
         view.activity_template().format(
             actor=ridcully_admin.granted_by.fullname,

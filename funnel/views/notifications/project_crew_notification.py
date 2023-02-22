@@ -414,7 +414,7 @@ grant_amend_templates = DecisionBranch(
                         ),
                         DecisionFactor(
                             template=__(
-                                "{user}`s role to editor and promoter of {project} was"
+                                "{user}'s role to editor and promoter of {project} was"
                                 " changed by {actor}"
                             ),
                             is_editor=True,
@@ -422,21 +422,21 @@ grant_amend_templates = DecisionBranch(
                         ),
                         DecisionFactor(
                             template=__(
-                                "{user}`s role to editor of {project} was changed by"
+                                "{user}'s role to editor of {project} was changed by"
                                 " {actor}"
                             ),
                             is_editor=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "{user}`s role to promoter of {project} was changed by"
+                                "{user}'s role to promoter of {project} was changed by"
                                 " {actor}"
                             ),
                             is_promoter=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "{user}`s role to crew member of {project} was changed"
+                                "{user}'s role to crew member of {project} was changed"
                                 " by {actor}"
                             ),
                         ),
@@ -479,7 +479,7 @@ grant_amend_templates = DecisionBranch(
                     factors=[
                         DecisionFactor(
                             template=__(
-                                "You changed {user}`s role to editor and promoter of"
+                                "You changed {user}'s role to editor and promoter of"
                                 " {project}"
                             ),
                             is_editor=True,
@@ -487,19 +487,19 @@ grant_amend_templates = DecisionBranch(
                         ),
                         DecisionFactor(
                             template=__(
-                                "You changed {user}`s role to editor of {project}"
+                                "You changed {user}'s role to editor of {project}"
                             ),
                             is_editor=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "You changed {user}`s role to promoter of {project}"
+                                "You changed {user}'s role to promoter of {project}"
                             ),
                             is_promoter=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "You changed {user}`s role to crew member of {project}"
+                                "You changed {user}'s role to crew member of {project}"
                             ),
                         ),
                     ],
@@ -710,7 +710,7 @@ class RenderShared:
         However, if the notification is being rendered for the person who is the subject
         of the membership, the original actor must be attributed.
         """
-        if self.user_notification.user == self.membership.user:
+        if self.user_notification.user.uuid == self.membership.user.uuid:
             return self.notification.user
         return self.membership.user
 

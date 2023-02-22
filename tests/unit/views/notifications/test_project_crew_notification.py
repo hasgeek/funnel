@@ -120,7 +120,7 @@ def then_user_gets_notification(
     user_notification = models.NotificationFor(preview, user_dict[recipient])
     view = user_notification.views.render
     # TODO: Have to fix the assert to confirm the actor
-    # assert view.actor == actor
+    # assert view.actor.uuid == user_dict[actor].uuid
     assert (
         view.activity_template().format(
             actor=ridcully_member.granted_by.fullname,
@@ -205,7 +205,7 @@ def given_ridcully_is_existing_crew(
 
 @when(
     parsers.parse(
-        "Vetinari changes Ridcully`s role to {role} in the Ankh-Morpork 2010 project"
+        "Vetinari changes Ridcully's role to {role} in the Ankh-Morpork 2010 project"
     ),
     target_fixture='ridcully_member',
 )
@@ -337,6 +337,7 @@ def then_user_notification_removal(
     )
     user_notification = models.NotificationFor(preview, user_dict[recipient])
     view = user_notification.views.render
+    # assert view.actor.uuid == user_dict[actor].uuid
     assert (
         view.activity_template().format(
             project=ridcully_member.project.joined_title,
