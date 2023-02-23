@@ -24,7 +24,7 @@ Feature: Project Crew Notification
       | Vimes     | editor,promoter | Ridcully | Mustrum Ridcully was made editor and promoter of Ankh-Morpork 2010 by Havelock Vetinari |
       | Vetinari  | usher           | Ridcully | You added Mustrum Ridcully to the crew of Ankh-Morpork 2010                             |
       | Ridcully  | usher           | Vetinari | Havelock Vetinari added you to the crew of Ankh-Morpork 2010                            |
-      | Vimes     | usher           | Vetinari | Havelock Vetinari added Mustrum Ridcully to the crew of Ankh-Morpork 2010               |
+      | Vimes     | usher           | Ridcully | Havelock Vetinari added Mustrum Ridcully to the crew of Ankh-Morpork 2010               |
 
   Scenario Outline: Ridcully adds themself
     Given Vetinari made Ridcully an admin of Ankh-Morpork
@@ -74,7 +74,7 @@ Feature: Project Crew Notification
       | recipient | role            | actor    | notification_string                                                                |
       | Ridcully  | editor          | Ridcully | You accepted an invite to be editor of Ankh-Morpork 2010                           |
       | Vetinari  | editor          | Ridcully | Mustrum Ridcully accepted an invite to be editor of Ankh-Morpork 2010              |
-      | Vimes     | editor          | Vetinari | Mustrum Ridcully accepted an invite to be editor of Ankh-Morpork 2010              |
+      | Vimes     | editor          | Ridcully | Mustrum Ridcully accepted an invite to be editor of Ankh-Morpork 2010              |
       | Ridcully  | promoter        | Ridcully | You accepted an invite to be promoter of Ankh-Morpork 2010                         |
       | Vetinari  | promoter        | Ridcully | Mustrum Ridcully accepted an invite to be promoter of Ankh-Morpork 2010            |
       | Vimes     | promoter        | Ridcully | Mustrum Ridcully accepted an invite to be promoter of Ankh-Morpork 2010            |
@@ -93,8 +93,8 @@ Feature: Project Crew Notification
     Examples:
       | recipient | role            | actor    | notification_string                                                                                  |
       | Vetinari  | editor          | Ridcully | You changed Mustrum Ridcully's role to editor of Ankh-Morpork 2010                                   |
-      | Ridcully  | editor          | Ridcully | Havelock Vetinari changed your role to editor of Ankh-Morpork 2010                                   |
-      | Vimes     | editor          | Vetinari | Mustrum Ridcully's role to editor of Ankh-Morpork 2010 was changed by Havelock Vetinari              |
+      | Ridcully  | editor          | Vetinari | Havelock Vetinari changed your role to editor of Ankh-Morpork 2010                                   |
+      | Vimes     | editor          | Ridcully | Mustrum Ridcully's role to editor of Ankh-Morpork 2010 was changed by Havelock Vetinari              |
       | Vetinari  | promoter        | Ridcully | You changed Mustrum Ridcully's role to promoter of Ankh-Morpork 2010                                 |
       | Ridcully  | promoter        | Vetinari | Havelock Vetinari changed your role to promoter of Ankh-Morpork 2010                                 |
       | Vimes     | promoter        | Ridcully | Mustrum Ridcully's role to promoter of Ankh-Morpork 2010 was changed by Havelock Vetinari            |
