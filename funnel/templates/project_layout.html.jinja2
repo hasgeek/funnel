@@ -193,7 +193,11 @@
           <p class="mui--text-subhead text-bold zero-bottom-margin">{% trans %}Sales closed{% endtrans %}</p>
         </div>
         <div class="register-block__btnwrapper">
-          <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin">{% trans %}Get a subscription{% endtrans %}</button>
+          {% if project.features.subscription() %}
+            <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin">{% trans %}Get a subscription{% endtrans %}</button>
+          {%- else %}
+            <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin">{% trans %}Get tickets{% endtrans %}</button>
+          {% endif %}
         </div>
       </div>
     {%- endif %}
