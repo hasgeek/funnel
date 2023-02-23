@@ -318,3 +318,15 @@
   border: 1px solid transparent;
   background: transparentize($mui-primary-color, 0.85);
 }
+
+.md-tabset {
+  ul[role='tablist'] {
+    @extend .mui-tabs__bar;
+    a[role='tab'] {
+      @extend .mui--text-body2;
+    }
+  }
+  [role='tabpanel'] {
+    @extend .mui-tabs__pane, .top-padding;
+  }
+}

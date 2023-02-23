@@ -52,9 +52,7 @@ class TabsetNode:
     start: int
     parent: Optional[TabNode] = None
     children: List[TabNode] = field(default_factory=list)
-    _html_tabs: ClassVar[
-        str
-    ] = '<ul role="tablist" class="mui-tabs__bar">{items_html}</ul>'
+    _html_tabs: ClassVar[str] = '<ul role="tablist">{items_html}</ul>'
     html_close: ClassVar[str] = '</div>'
     _tabset_id: str = ''
 
@@ -98,10 +96,8 @@ class TabNode:
     _closing: ClassVar[str] = '</div>'
     _item_html: ClassVar[str] = (
         '<li role="presentation"{class_attr}>'
-        + '<a role="tab" class="mui--text-body2" href="javascript:void(0)"'
-        + ' id="{tab_id}" data-tabset="{tabset_id}" data-mui-toggle="tab"'
-        + ' data-mui-controls="{tab_id}-panel" aria-controls="{tab_id}-panel"'
-        + '{accessibility}>{title}</a></li>'
+        + '<a role="tab" href="javascript:void(0)" id="{tab_id}"'
+        + ' aria-controls="{tab_id}-panel" {accessibility}>{title}</a></li>'
     )
 
     def _class_attr(self, classes=None):
@@ -127,7 +123,7 @@ class TabNode:
 
     @property
     def _active_class(self):
-        return ['mui--is-active'] if self.is_first else []
+        return ['md-tab-active'] if self.is_first else []
 
     @property
     def title(self):
@@ -154,7 +150,7 @@ class TabNode:
     def html_open(self) -> str:
         opening = self._opening.format(
             tab_id=self.tab_id,
-            class_attr=self._class_attr(['mui-tabs__pane', 'top-padding']),
+            class_attr=self._class_attr(),
         )
         if self.is_first:
             opening = self.parent.html_open + opening

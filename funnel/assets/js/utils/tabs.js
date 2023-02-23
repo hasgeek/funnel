@@ -78,6 +78,78 @@ const MUITabs = {
   },
   async init(container) {
     const $parentElement = $(container || 'body');
+    $parentElement.find('[role=tabpanel]').addClass('mui-tabs__pane');
+    $parentElement.find('.md-tab-active').addClass('mui--is-active');
+    $parentElement
+      .find('.md-tabset ul[role=tablist]:not(.activating):not(.activated)')
+      .each(function handleTabset() {
+        // Function being called once for each tabs bar
+        const tabsBar = this;
+        $(tabsBar).addClass('activating').addClass('mui-tabs__bar');
+        const $tabs = $(tabsBar).find('[role=tab]');
+        const icons = MUITabs.createIconset();
+
+        MUITabs.wrapAndAddIcons(tabsBar, icons);
+        // $tabsBarContainer should be initialised after calling wrapAndAddIcons.
+        const $tabsBarContainer = $(tabsBar).parent();
+
+        // Observe this tabs bar with ResizeObserver.
+        MUITabs.resizeObserver.observe(tabsBar);
+
+        // Use IntersectionObserver to update tab element with it's
+        // visibility status.
+        const observer = MUITabs.getIntersectionObserver(tabsBar);
+
+        // Attach this to the scroll event.
+        $(tabsBar).scroll(Utils.debounce(MUITabs.checkScrollability, 500, this));
+
+        // Functions to scroll the tabs bar left and right.
+        function scrollTo(i) {
+          tabsBar.scrollLeft = $tabs.get(i).offsetLeft - tabsBar.offsetLeft;
+        }
+        function leftScroll() {
+          scrollTo(MUITabs.getLeftScrollIndex(tabsBar, $tabs) + 1);
+        }
+        function rightScroll() {
+          scrollTo(MUITabs.getRightScrollIndex($tabs));
+        }
+
+        $tabs.each(function handleTab() {
+          const tab = this;
+          $(tab)
+            .attr('data-mui-toggle', 'tab')
+            .attr('data-mui-controls', $(tab).attr('aria-controls'));
+
+          // Observe each tab for visibility within it's tabs
+          // bar using IntersectionObserver.
+          observer.observe(tab);
+
+          // Toggle has-panel-hover on the tabs bar wrapper
+          // when a related panel is in hover state.
+          const $panel = $(`#${$(tab).data('mui-controls')}`);
+          $panel.mouseenter(
+            $tabsBarContainer.addClass.bind($tabsBarContainer, 'has-panel-hover')
+          );
+          $panel.mouseleave(
+            $tabsBarContainer.removeClass.bind($tabsBarContainer, 'has-panel-hover')
+          );
+        });
+
+        // Bind scroll/touch actions to the arrow icons.
+        $(icons.left.touch).click(function previousTab() {
+          tabsBar.dispatchEvent(new Event('previousTab'));
+        });
+        $(icons.right.touch).click(function nextTab() {
+          tabsBar.dispatchEvent(new Event('nextTab'));
+        });
+        $(icons.left.scroll).click(leftScroll);
+        $(icons.right.scroll).click(rightScroll);
+
+        // Update scrollability classes for tabs bar wrapper.
+        MUITabs.checkScrollability.bind(tabsBar)();
+
+        $(tabsBar).removeClass('activating').addClass('activated');
+      });
     $parentElement
       .find('.mui-tabs__bar:not(.activating-aria):not(.activated-aria)')
       .each(function handleTabsetARIA() {
@@ -138,72 +210,6 @@ const MUITabs = {
           });
         });
         $(tabsBar).removeClass('activating-aria').addClass('activated-aria');
-      });
-    $parentElement
-      .find('.md-tabset .mui-tabs__bar:not(.activating):not(.activated)')
-      .each(function handleTabset() {
-        // Function being called once for each tabs bar
-        const tabsBar = this;
-        $(tabsBar).addClass('activating');
-        const $tabs = $(tabsBar).find('[role=tab]');
-        const icons = MUITabs.createIconset();
-
-        MUITabs.wrapAndAddIcons(tabsBar, icons);
-        // $tabsBarContainer should be initialised after calling wrapAndAddIcons.
-        const $tabsBarContainer = $(tabsBar).parent();
-
-        // Observe this tabs bar with ResizeObserver.
-        MUITabs.resizeObserver.observe(tabsBar);
-
-        // Use IntersectionObserver to update tab element with it's
-        // visibility status.
-        const observer = MUITabs.getIntersectionObserver(tabsBar);
-
-        // Attach this to the scroll event.
-        $(tabsBar).scroll(Utils.debounce(MUITabs.checkScrollability, 500, this));
-
-        // Functions to scroll the tabs bar left and right.
-        function scrollTo(i) {
-          tabsBar.scrollLeft = $tabs.get(i).offsetLeft - tabsBar.offsetLeft;
-        }
-        function leftScroll() {
-          scrollTo(MUITabs.getLeftScrollIndex(tabsBar, $tabs) + 1);
-        }
-        function rightScroll() {
-          scrollTo(MUITabs.getRightScrollIndex($tabs));
-        }
-
-        $tabs.each(function handleTab() {
-          const tab = this;
-          // Observe each tab for visibility within it's tabs
-          // bar using IntersectionObserver.
-          observer.observe(tab);
-
-          // Toggle has-panel-hover on the tabs bar wrapper
-          // when a related panel is in hover state.
-          const $panel = $(`#${$(tab).data('mui-controls')}`);
-          $panel.mouseenter(
-            $tabsBarContainer.addClass.bind($tabsBarContainer, 'has-panel-hover')
-          );
-          $panel.mouseleave(
-            $tabsBarContainer.removeClass.bind($tabsBarContainer, 'has-panel-hover')
-          );
-        });
-
-        // Bind scroll/touch actions to the arrow icons.
-        $(icons.left.touch).click(function previousTab() {
-          tabsBar.dispatchEvent(new Event('previousTab'));
-        });
-        $(icons.right.touch).click(function nextTab() {
-          tabsBar.dispatchEvent(new Event('nextTab'));
-        });
-        $(icons.left.scroll).click(leftScroll);
-        $(icons.right.scroll).click(rightScroll);
-
-        // Update scrollability classes for tabs bar wrapper.
-        MUITabs.checkScrollability.bind(tabsBar)();
-
-        $(tabsBar).removeClass('activating').addClass('activated');
       });
   },
   createIconset() {
