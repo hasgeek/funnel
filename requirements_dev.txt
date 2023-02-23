@@ -4,13 +4,13 @@
 #
 #    pip-compile --output-file=requirements_dev.txt --resolver=backtracking requirements.in requirements_dev.in requirements_test.in
 #
-aiohttp==3.8.3
+aiohttp==3.8.4
     # via
     #   geoip2
     #   tuspy
 aiosignal==1.3.1
     # via aiohttp
-alembic==1.9.3
+alembic==1.9.4
     # via
     #   -r requirements.in
     #   flask-migrate
@@ -20,7 +20,7 @@ argon2-cffi==21.3.0
     # via -r requirements.in
 argon2-cffi-bindings==21.2.0
     # via argon2-cffi
-astroid==2.14.1
+astroid==2.14.2
     # via pylint
 async-generator==1.10
     # via
@@ -91,7 +91,7 @@ cffi==1.15.1
     #   pynacl
 cfgv==3.3.1
     # via pre-commit
-charset-normalizer==2.1.1
+charset-normalizer==3.0.1
     # via
     #   aiohttp
     #   requests
@@ -145,7 +145,7 @@ dill==0.3.6
     # via pylint
 distlib==0.3.6
     # via virtualenv
-djlint==1.19.14
+djlint==1.19.15
     # via -r requirements_dev.in
 dnspython==2.3.0
     # via
@@ -187,7 +187,7 @@ flake8-assertive==2.1.0
     # via -r requirements_dev.in
 flake8-blind-except==0.2.1
     # via -r requirements_dev.in
-flake8-bugbear==23.1.20
+flake8-bugbear==23.2.13
     # via -r requirements_dev.in
 flake8-builtins==2.1.0
     # via -r requirements_dev.in
@@ -205,9 +205,9 @@ flake8-plugin-utils==1.3.2
     # via flake8-pytest-style
 flake8-print==5.0.0
     # via -r requirements_dev.in
-flake8-pytest-style==1.6.0
+flake8-pytest-style==1.7.2
     # via -r requirements_dev.in
-flask==2.2.2
+flask==2.2.3
     # via
     #   -r requirements.in
     #   baseframe
@@ -277,7 +277,7 @@ gherkin-official==24.0.0
     # via reformat-gherkin
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.30
+gitpython==3.1.31
     # via bandit
 grapheme==0.6.0
     # via baseframe
@@ -303,7 +303,7 @@ httplib2==0.21.0
     #   oauth2client
 icalendar==5.0.4
     # via -r requirements.in
-identify==2.5.17
+identify==2.5.18
     # via pre-commit
 idna==3.4
     # via
@@ -367,7 +367,7 @@ markdown==3.4.1
     #   coaster
     #   flask-flatpages
     #   pymdown-extensions
-markdown-it-py==2.1.0
+markdown-it-py==2.2.0
     # via
     #   -r requirements.in
     #   mdit-py-plugins
@@ -392,7 +392,7 @@ mccabe==0.7.0
     # via
     #   flake8
     #   pylint
-mdit-py-plugins==0.3.3
+mdit-py-plugins==0.3.4
     # via -r requirements.in
 mdurl==0.1.2
     # via markdown-it-py
@@ -404,7 +404,7 @@ multidict==6.0.4
     #   yarl
 mxsniff==0.3.5
     # via baseframe
-mypy==1.0.0
+mypy==1.0.1
     # via -r requirements_dev.in
 mypy-extensions==1.0.0
     # via
@@ -455,7 +455,7 @@ pbr==5.11.1
     # via stevedore
 pep8-naming==0.13.3
     # via -r requirements_dev.in
-phonenumbers==8.13.5
+phonenumbers==8.13.6
     # via -r requirements.in
 pip-tools==6.12.2
     # via -r requirements_dev.in
@@ -466,7 +466,7 @@ platformdirs==3.0.0
     #   virtualenv
 pluggy==1.0.0
     # via pytest
-pre-commit==3.0.4
+pre-commit==3.1.0
     # via -r requirements_dev.in
 premailer==3.10.0
     # via -r requirements.in
@@ -515,7 +515,7 @@ pyjsparser==2.7.1
     # via js2py
 pyjwt==2.6.0
     # via twilio
-pylint==2.16.1
+pylint==2.16.2
     # via
     #   -r requirements_dev.in
     #   pylint-pytest
@@ -560,7 +560,7 @@ pytest-env==0.8.1
     # via -r requirements_test.in
 pytest-remotedata==0.4.0
     # via -r requirements_test.in
-pytest-rerunfailures==11.0
+pytest-rerunfailures==11.1.1
     # via -r requirements_test.in
 pytest-splinter==3.3.2
     # via -r requirements_test.in
@@ -575,7 +575,7 @@ python-dotenv==0.21.1
     # via
     #   -r requirements.in
     #   pytest-dotenv
-python-utils==3.4.5
+python-utils==3.5.2
     # via progressbar2
 pytz==2022.7.1
     # via
@@ -602,7 +602,7 @@ pyyaml==6.0
     #   reformat-gherkin
 qrcode==7.4.2
     # via -r requirements.in
-redis==4.5.0
+redis==4.5.1
     # via
     #   baseframe
     #   flask-redis
@@ -639,7 +639,7 @@ requests-oauthlib==1.3.1
     # via tweepy
 rich==13.3.1
     # via -r requirements.in
-rq==1.12.0
+rq==1.13.0
     # via
     #   -r requirements.in
     #   baseframe
@@ -649,7 +649,7 @@ rq-scheduler==0.11.0
     # via flask-rq2
 rsa==4.9
     # via oauth2client
-selenium==4.8.0
+selenium==4.8.2
     # via pytest-splinter
 semantic-version==2.10.0
     # via
@@ -686,11 +686,11 @@ snowballstemmer==2.2.0
     # via pydocstyle
 sortedcontainers==2.4.0
     # via trio
-soupsieve==2.3.2.post1
+soupsieve==2.4
     # via beautifulsoup4
 splinter==0.19.0
     # via pytest-splinter
-sqlalchemy==2.0.2
+sqlalchemy==2.0.4
     # via
     #   -r requirements.in
     #   alembic
@@ -701,13 +701,13 @@ sqlalchemy==2.0.2
     #   wtforms-sqlalchemy
 sqlalchemy-json==0.5.0
     # via -r requirements.in
-sqlalchemy-utils==0.39.0
+sqlalchemy-utils==0.40.0
     # via
     #   -r requirements.in
     #   coaster
 statsd==4.0.1
     # via baseframe
-stevedore==4.1.1
+stevedore==5.0.0
     # via bandit
 tinydb==4.7.1
     # via tuspy
@@ -749,7 +749,7 @@ tuspy==1.0.0
     # via pyvimeo
 tweepy==4.12.1
     # via -r requirements.in
-twilio==7.16.2
+twilio==7.16.4
     # via -r requirements.in
 types-certifi==2021.10.8.3
     # via -r requirements_dev.in
@@ -757,7 +757,7 @@ types-click==7.1.8
     # via types-flask
 types-cryptography==3.3.23.2
     # via -r requirements_dev.in
-types-docutils==0.19.1.3
+types-docutils==0.19.1.6
     # via types-setuptools
 types-flask==1.1.6
     # via -r requirements_dev.in
@@ -775,29 +775,29 @@ types-maxminddb==1.5.0
     # via
     #   -r requirements_dev.in
     #   types-geoip2
-types-pyopenssl==23.0.0.2
+types-pyopenssl==23.0.0.4
     # via types-redis
-types-python-dateutil==2.8.19.6
+types-python-dateutil==2.8.19.8
     # via -r requirements_dev.in
-types-pytz==2022.7.1.0
+types-pytz==2022.7.1.2
     # via -r requirements_dev.in
-types-redis==4.4.0.6
+types-redis==4.5.1.3
     # via -r requirements_dev.in
-types-requests==2.28.11.12
+types-requests==2.28.11.14
     # via -r requirements_dev.in
-types-setuptools==67.2.0.0
+types-setuptools==67.4.0.1
     # via -r requirements_dev.in
-types-six==1.16.21.4
+types-six==1.16.21.6
     # via -r requirements_dev.in
-types-toml==0.10.8.3
+types-toml==0.10.8.5
     # via -r requirements_dev.in
-types-urllib3==1.26.25.5
+types-urllib3==1.26.25.7
     # via types-requests
 types-werkzeug==1.0.9
     # via
     #   -r requirements_dev.in
     #   types-flask
-typing-extensions==4.4.0
+typing-extensions==4.5.0
     # via
     #   -r requirements.in
     #   astroid
@@ -848,7 +848,7 @@ webencodings==0.5.1
     # via
     #   bleach
     #   html5lib
-werkzeug==2.2.2
+werkzeug==2.2.3
     # via
     #   -r requirements.in
     #   baseframe
@@ -871,7 +871,7 @@ wtforms-sqlalchemy==0.3
     # via baseframe
 yarl==1.8.2
     # via aiohttp
-zipp==3.12.1
+zipp==3.14.0
     # via importlib-metadata
 zxcvbn==4.4.28
     # via -r requirements.in
