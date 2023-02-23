@@ -238,8 +238,9 @@
         background: $mui-bg-color-primary;
       }
     }
-    .user {
-      margin: 0;
+    .user,
+    .icon-btn {
+      margin: 0 $mui-grid-padding/2 0 0;
     }
   }
   .ajax-form--block.ajax-form--mob {
