@@ -30,6 +30,7 @@ function codemirrorHelper(markdownId, updateFnCallback = '', callbackInterval = 
 
   const extensions = [
     EditorView.lineWrapping,
+    EditorView.contentAttributes.of({ autocapitalize: 'on' }),
     closeBrackets(),
     history(),
     foldGutter(),
