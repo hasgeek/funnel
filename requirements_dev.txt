@@ -476,6 +476,8 @@ psycopg2==2.9.5
     # via coaster
 psycopg2-binary==2.9.5
     # via -r requirements.in
+py==1.11.0
+    # via pytest-html
 pyasn1==0.4.8
     # via
     #   baseframe
@@ -543,13 +545,20 @@ pytest==7.2.1
     # via
     #   -r requirements_test.in
     #   pylint-pytest
+    #   pytest-base-url
     #   pytest-bdd
     #   pytest-cov
     #   pytest-dotenv
     #   pytest-env
+    #   pytest-html
+    #   pytest-metadata
     #   pytest-remotedata
     #   pytest-rerunfailures
+    #   pytest-selenium
     #   pytest-splinter
+    #   pytest-variables
+pytest-base-url==2.0.0
+    # via pytest-selenium
 pytest-bdd==6.1.1
     # via -r requirements_test.in
 pytest-cov==4.0.0
@@ -558,12 +567,20 @@ pytest-dotenv==0.5.2
     # via -r requirements_test.in
 pytest-env==0.8.1
     # via -r requirements_test.in
+pytest-html==3.2.0
+    # via pytest-selenium
+pytest-metadata==2.0.4
+    # via pytest-html
 pytest-remotedata==0.4.0
     # via -r requirements_test.in
 pytest-rerunfailures==11.1.1
     # via -r requirements_test.in
+pytest-selenium @ git+https://github.com/pytest-dev/pytest-selenium
+    # via -r requirements_test.in
 pytest-splinter==3.3.2
     # via -r requirements_test.in
+pytest-variables==2.0.0
+    # via pytest-selenium
 python-dateutil==2.8.2
     # via
     #   -r requirements.in
@@ -621,6 +638,8 @@ requests==2.28.2
     #   coveralls
     #   geoip2
     #   premailer
+    #   pytest-base-url
+    #   pytest-selenium
     #   pyvimeo
     #   requests-file
     #   requests-mock
@@ -650,7 +669,9 @@ rq-scheduler==0.11.0
 rsa==4.9
     # via oauth2client
 selenium==4.8.2
-    # via pytest-splinter
+    # via
+    #   pytest-selenium
+    #   pytest-splinter
 semantic-version==2.10.0
     # via
     #   baseframe
@@ -677,6 +698,7 @@ six==1.16.0
     #   requests-file
     #   requests-mock
     #   sqlalchemy-json
+    #   tenacity
     #   tuspy
 smmap==5.0.0
     # via gitdb
@@ -709,6 +731,8 @@ statsd==4.0.1
     # via baseframe
 stevedore==5.0.0
     # via bandit
+tenacity==6.3.1
+    # via pytest-selenium
 tinydb==4.7.1
     # via tuspy
 tldextract==3.4.0
