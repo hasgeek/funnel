@@ -147,7 +147,6 @@ flask==2.2.3
     #   flask-migrate
     #   flask-redis
     #   flask-rq2
-    #   flask-script
     #   flask-sqlalchemy
     #   flask-wtf
 flask-assets==2.0
@@ -175,8 +174,6 @@ flask-redis==0.4.0
     # via -r requirements.in
 flask-rq2==18.3
     # via -r requirements.in
-flask-script==2.0.6
-    # via coaster
 flask-sqlalchemy==3.0.3
     # via
     #   -r requirements.in
@@ -206,9 +203,7 @@ greenlet==2.0.2
 h11==0.14.0
     # via wsproto
 html2text==2020.1.16
-    # via
-    #   -r requirements.in
-    #   coaster
+    # via -r requirements.in
 html5lib==1.1
     # via
     #   baseframe
@@ -241,7 +236,6 @@ itsdangerous==2.0.1
     #   flask-wtf
 jinja2==3.1.2
     # via
-    #   coaster
     #   flask
     #   flask-babel
     #   flask-flatpages
@@ -342,8 +336,6 @@ premailer==3.10.0
     # via -r requirements.in
 progressbar2==4.2.0
     # via -r requirements.in
-psycopg2==2.9.5
-    # via coaster
 psycopg2-binary==2.9.5
     # via -r requirements.in
 pyasn1==0.4.8
@@ -366,7 +358,6 @@ pyexecjs==1.5.1
 pygments==2.14.0
     # via
     #   -r requirements.in
-    #   coaster
     #   rich
 pyisemail==2.0.1
     # via
@@ -444,9 +435,7 @@ pytz-deprecation-shim==0.1.0.post0
 pyvimeo==1.1.0
     # via -r requirements.in
 pyyaml==6.0
-    # via
-    #   coaster
-    #   flask-flatpages
+    # via flask-flatpages
 qrcode==7.4.2
     # via -r requirements.in
 redis==4.5.1
@@ -551,7 +540,7 @@ tldextract==3.4.0
     #   coaster
     #   mxsniff
 toml==0.10.2
-    # via coaster
+    # via -r requirements.in
 tomli==2.0.1
     # via
     #   coverage
