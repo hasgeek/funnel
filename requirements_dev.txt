@@ -562,7 +562,7 @@ python-dateutil==2.8.2
     #   croniter
     #   icalendar
     #   rq-scheduler
-python-dotenv==1.0.0
+python-dotenv==0.21.1
     # via
     #   -r requirements.in
     #   pytest-dotenv

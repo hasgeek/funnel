@@ -49,7 +49,7 @@ Pygments
 pyIsEmail
 pymdown-extensions
 python-dateutil
-python-dotenv
+python-dotenv<1.0  # 1.0 drops Python 3.7 support
 pytz
 PyVimeo
 qrcode
