@@ -13,6 +13,8 @@ on:
       - '**.py'
       - '**.js'
       - '**.jinja2'
+      - 'requirements.txt'
+      - 'requirements_test.txt'
   workflow_call:
     inputs:
       requirements:
@@ -90,7 +92,7 @@ jobs:
           echo ${{ inputs.requirements_test }} > requirements_test.txt
       - name: Install Python dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools
           pip install -r requirements_test.txt
       - name: Install pytest-github-actions-annotate-failures
         run: pip install pytest-github-actions-annotate-failures
