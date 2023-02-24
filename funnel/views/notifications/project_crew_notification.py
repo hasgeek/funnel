@@ -10,7 +10,7 @@ from flask import Markup, escape, render_template
 from baseframe import _, __
 
 from ...models import (
-    Notification,
+    NotificationType,
     Project,
     ProjectCrewMembership,
     ProjectCrewMembershipNotification,
@@ -667,7 +667,7 @@ class RenderShared:
 
     project: Project
     membership: ProjectCrewMembership
-    notification: Notification
+    notification: NotificationType
     user_notification: UserNotification
     #: Subclasses must specify a base template picker
     template_picker: DecisionBranch

@@ -10,7 +10,7 @@ from flask import Markup, escape, render_template
 from baseframe import _, __
 
 from ...models import (
-    Notification,
+    NotificationType,
     Organization,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
@@ -344,7 +344,7 @@ class RenderShared:
 
     organization: Organization
     membership: OrganizationMembership
-    notification: Notification
+    notification: NotificationType
     user_notification: UserNotification
     template_picker: DecisionBranch
 
