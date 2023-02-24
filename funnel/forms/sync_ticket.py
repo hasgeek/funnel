@@ -46,6 +46,11 @@ class ProjectBoxofficeForm(forms.Form):
         default=False,
         description=__("If checked, both free and buy tickets will shown on project"),
     )
+    is_subscription = forms.BooleanField(
+        __("This is a subscription"),
+        default=True,
+        description=__("If not checked, buy tickets button will be shown"),
+    )
 
 
 @TicketEvent.forms('main')
