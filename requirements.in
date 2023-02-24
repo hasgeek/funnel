@@ -59,6 +59,7 @@ rq
 SQLAlchemy>=1.4.33
 sqlalchemy-json
 SQLAlchemy-Utils
+toml
 tweepy
 twilio
 typing-extensions
