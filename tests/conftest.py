@@ -61,8 +61,12 @@ def pytest_collection_modifyitems(items) -> None:
         'tests/unit',
         'tests/integration/views',
         'tests/integration',
-        'tests/features',
+        'tests/e2e/basic',
+        'tests/e2e/account_user',
+        'tests/e2e/account',
+        'tests/e2e/project',
         'tests/e2e',
+        'tests/features',
     )
 
     def sort_key(item) -> t.Tuple[int, str]:

@@ -127,6 +127,7 @@ markers = [
   'requires_config("feature"): Run test only if specified app config is available'
 ]
 filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
+bdd_features_base_dir = 'tests/features/'
 remote_data_strict = true
 env = [
   'FLASK_ENV=testing',

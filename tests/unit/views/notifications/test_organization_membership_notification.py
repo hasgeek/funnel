@@ -6,7 +6,7 @@ from pytest_bdd import given, parsers, scenarios, then, when
 from funnel import models
 from funnel.models.membership_mixin import MEMBERSHIP_RECORD_TYPE
 
-scenarios('organization_membership_notification.feature')
+scenarios('notifications/organization_membership_notification.feature')
 
 
 @given(

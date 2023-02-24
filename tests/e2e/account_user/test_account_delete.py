@@ -1,7 +1,9 @@
 from pytest_bdd import given, scenario, then, when
 
 
-@scenario("account_delete.feature", "User Rincewind visits the delete endpoint")
+@scenario(
+    'account_user/account_delete.feature', "User Rincewind visits the delete endpoint"
+)
 def test_delete_rincewind(login):
     pass
 
@@ -25,7 +27,9 @@ def rincewind_account_delete_form(rincewind_go_to_endpoint):
     assert rincewind_go_to_endpoint.form('form-account-delete') is not None
 
 
-@scenario("account_delete.feature", "User Ridcully visits the delete endpoint")
+@scenario(
+    'account_user/account_delete.feature', "User Ridcully visits the delete endpoint"
+)
 def test_delete_ridcully(login):
     pass
 
@@ -53,7 +57,9 @@ def ridcully_account_delete_form(ridcully_go_to_endpoint):
     )
 
 
-@scenario("account_delete.feature", "User Librarian visits the delete endpoint")
+@scenario(
+    'account_user/account_delete.feature', "User Librarian visits the delete endpoint"
+)
 def test_delete_librarian(login):
     pass
 
@@ -82,7 +88,7 @@ def librarian_account_delete_form(librarian_go_to_endpoint):
 
 
 @scenario(
-    "account_delete.feature",
+    'account_user/account_delete.feature',
     "User Librarian having a protected profile visits the delete endpoint",
 )
 def test_delete_protected_librarian(login):

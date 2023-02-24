@@ -3,7 +3,7 @@ import time
 from pytest_bdd import given, parsers, scenarios, then, when
 import pytest
 
-scenarios('account_create.feature')
+scenarios('account_user/account_create.feature')
 pytestmark = pytest.mark.usefixtures('live_server')
 
 
