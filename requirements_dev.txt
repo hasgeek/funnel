@@ -221,7 +221,6 @@ flask==2.2.3
     #   flask-migrate
     #   flask-redis
     #   flask-rq2
-    #   flask-script
     #   flask-sqlalchemy
     #   flask-wtf
 flask-assets==2.0
@@ -249,8 +248,6 @@ flask-redis==0.4.0
     # via -r requirements.in
 flask-rq2==18.3
     # via -r requirements.in
-flask-script==2.0.6
-    # via coaster
 flask-sqlalchemy==3.0.3
     # via
     #   -r requirements.in
@@ -290,9 +287,7 @@ html-tag-names==0.1.2
 html-void-elements==0.1.0
     # via djlint
 html2text==2020.1.16
-    # via
-    #   -r requirements.in
-    #   coaster
+    # via -r requirements.in
 html5lib==1.1
     # via
     #   baseframe
@@ -333,7 +328,6 @@ itsdangerous==2.0.1
     #   flask-wtf
 jinja2==3.1.2
     # via
-    #   coaster
     #   flask
     #   flask-babel
     #   flask-flatpages
@@ -472,8 +466,6 @@ premailer==3.10.0
     # via -r requirements.in
 progressbar2==4.2.0
     # via -r requirements.in
-psycopg2==2.9.5
-    # via coaster
 psycopg2-binary==2.9.5
     # via -r requirements.in
 py==1.11.0
@@ -506,7 +498,6 @@ pyflakes==3.0.1
 pygments==2.14.0
     # via
     #   -r requirements.in
-    #   coaster
     #   rich
 pyisemail==2.0.1
     # via
@@ -612,7 +603,6 @@ pyvimeo==1.1.0
 pyyaml==6.0
     # via
     #   bandit
-    #   coaster
     #   djlint
     #   flask-flatpages
     #   pre-commit
@@ -743,8 +733,8 @@ tokenize-rt==5.0.0
     # via pyupgrade
 toml==0.10.2
     # via
+    #   -r requirements.in
     #   -r requirements_dev.in
-    #   coaster
 tomli==2.0.1
     # via
     #   black
@@ -860,7 +850,7 @@ user-agents==2.2.0
     # via -r requirements.in
 virtualenv==20.19.0
     # via pre-commit
-watchdog==2.2.1
+watchdog==2.3.0
     # via -r requirements_dev.in
 wcwidth==0.2.6
     # via reformat-gherkin

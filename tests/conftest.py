@@ -284,7 +284,7 @@ def colorize_code(rich_console) -> t.Callable[[str, t.Optional[str]], str]:
             TerminalTrueColorFormatter,
         )
         from pygments.lexers import get_lexer_by_name, guess_lexer
-    except ImportError:
+    except ModuleNotFoundError:
         return no_colorize
 
     if rich_console.color_system == 'truecolor':
