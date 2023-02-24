@@ -32,7 +32,7 @@ options_update = {"breaks" = true}
 plugins = [ "heading_anchors",]
 
 [expected_output]
-basic = """<p>Using the heading-anchors plugin with it's default config:</p>
+basic = """<p>Using the heading-anchors plugin with its default config:</p>
 <p>The below headings should convert and get linked.<br />
 Only the specified headings in extension defaults should get linked.</p>
 <h1>h1 Heading</h1>
@@ -51,7 +51,7 @@ Only the specified headings in extension defaults should get linked.</p>
 ######h6 Heading</p>
 <h2>Text with 2 or more hyphens below it converts to H2</h2>
 """
-document = """<p>Using the heading-anchors plugin with it’s default config:</p>
+document = """<p>Using the heading-anchors plugin with its default config:</p>
 <p>The below headings should convert and get linked.<br />
 Only the specified headings in extension defaults should get linked.</p>
 <h1 id="h:h1-heading">h1 Heading <a class="header-anchor" href="#h:h1-heading">#</a></h1>

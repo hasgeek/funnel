@@ -385,7 +385,7 @@ class Proposal(  # type: ignore[misc]
         state.CANCELLED,
         state.SUBMITTED,
         title=__("Undo cancel"),
-        message=__("This proposal's cancellation has been reversed"),
+        message=__("This proposal’s cancellation has been reversed"),
         type='success',
     )
     def undo_cancel(self):

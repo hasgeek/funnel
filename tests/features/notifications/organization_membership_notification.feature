@@ -53,12 +53,12 @@ Feature: Organization Admin Notification
 
     Examples:
       | recipient | role  | new_role | actor    | notification_string                                                               |
-      | Vetinari  | owner | admin    | Ridcully | You changed Mustrum Ridcully's role to admin of Ankh-Morpork                      |
+      | Vetinari  | owner | admin    | Ridcully | You changed Mustrum Ridcully’s role to admin of Ankh-Morpork                      |
       | Ridcully  | owner | admin    | Vetinari | Havelock Vetinari changed your role to admin of Ankh-Morpork                      |
-      | Vimes     | owner | admin    | Ridcully | Mustrum Ridcully's role was changed to admin of Ankh-Morpork by Havelock Vetinari |
-      | Vetinari  | admin | owner    | Ridcully | You changed Mustrum Ridcully's role to owner of Ankh-Morpork                      |
+      | Vimes     | owner | admin    | Ridcully | Mustrum Ridcully’s role was changed to admin of Ankh-Morpork by Havelock Vetinari |
+      | Vetinari  | admin | owner    | Ridcully | You changed Mustrum Ridcully’s role to owner of Ankh-Morpork                      |
       | Ridcully  | admin | owner    | Vetinari | Havelock Vetinari changed your role to owner of Ankh-Morpork                      |
-      | Vimes     | admin | owner    | Ridcully | Mustrum Ridcully's role was changed to owner of Ankh-Morpork by Havelock Vetinari |
+      | Vimes     | admin | owner    | Ridcully | Mustrum Ridcully’s role was changed to owner of Ankh-Morpork by Havelock Vetinari |
 
   Scenario Outline: Vetinari removes Ridcully
     Given Ridcully is currently <role>

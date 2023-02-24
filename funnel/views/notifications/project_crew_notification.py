@@ -414,7 +414,7 @@ grant_amend_templates = DecisionBranch(
                         ),
                         DecisionFactor(
                             template=__(
-                                "{user}'s role was changed to editor and promoter of"
+                                "{user}’s role was changed to editor and promoter of"
                                 " {project} by {actor}"
                             ),
                             is_editor=True,
@@ -422,21 +422,21 @@ grant_amend_templates = DecisionBranch(
                         ),
                         DecisionFactor(
                             template=__(
-                                "{user}'s role was changed to editor of {project} by"
+                                "{user}’s role was changed to editor of {project} by"
                                 " {actor}"
                             ),
                             is_editor=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "{user}'s role was changed to promoter of {project} by"
+                                "{user}’s role was changed to promoter of {project} by"
                                 " {actor}"
                             ),
                             is_promoter=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "{user}'s role was changed to crew member of {project}"
+                                "{user}’s role was changed to crew member of {project}"
                                 " by {actor}"
                             ),
                         ),
@@ -479,7 +479,7 @@ grant_amend_templates = DecisionBranch(
                     factors=[
                         DecisionFactor(
                             template=__(
-                                "You changed {user}'s role to editor and promoter of"
+                                "You changed {user}’s role to editor and promoter of"
                                 " {project}"
                             ),
                             is_editor=True,
@@ -487,19 +487,19 @@ grant_amend_templates = DecisionBranch(
                         ),
                         DecisionFactor(
                             template=__(
-                                "You changed {user}'s role to editor of {project}"
+                                "You changed {user}’s role to editor of {project}"
                             ),
                             is_editor=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "You changed {user}'s role to promoter of {project}"
+                                "You changed {user}’s role to promoter of {project}"
                             ),
                             is_promoter=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "You changed {user}'s role to crew member of {project}"
+                                "You changed {user}’s role to crew member of {project}"
                             ),
                         ),
                     ],

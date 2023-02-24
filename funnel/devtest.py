@@ -157,7 +157,7 @@ def install_mock(func: Callable, mock: Callable) -> None:
     msig = _signature_without_annotations(mock)
     if fsig != msig:
         raise TypeError(
-            f"Mock function's signature does not match original's:\n"
+            f"Mock function’s signature does not match original’s:\n"
             f"{mock.__name__}{msig} !=\n"
             f"{func.__name__}{fsig}"
         )

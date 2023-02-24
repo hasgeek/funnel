@@ -236,14 +236,14 @@ grant_amend_templates = DecisionBranch(
                     factors=[
                         DecisionFactor(
                             template=__(
-                                "{user}'s role was changed to owner of {organization}"
+                                "{user}’s role was changed to owner of {organization}"
                                 " by {actor}"
                             ),
                             is_owner=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "{user}'s role was changed to admin of {organization}"
+                                "{user}’s role was changed to admin of {organization}"
                                 " by {actor}"
                             ),
                         ),
@@ -272,13 +272,13 @@ grant_amend_templates = DecisionBranch(
                     factors=[
                         DecisionFactor(
                             template=__(
-                                "You changed {user}'s role to owner of {organization}"
+                                "You changed {user}’s role to owner of {organization}"
                             ),
                             is_owner=True,
                         ),
                         DecisionFactor(
                             template=__(
-                                "You changed {user}'s role to admin of {organization}"
+                                "You changed {user}’s role to admin of {organization}"
                             ),
                         ),
                     ],

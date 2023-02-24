@@ -1367,7 +1367,7 @@ def project_expo2010(
         user=user_vetinari,
         title="Ankh-Morpork 2010",
         tagline="Welcome to Ankh-Morpork, tourists!",
-        description="The city doesn't have tourists. Let's change that.",
+        description="The city doesn't have tourists. Let’s change that.",
     )
     db_session.add(project)
     return project
@@ -1384,7 +1384,7 @@ def project_expo2011(
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
         title="Ankh-Morpork 2011",
-        tagline="Welcome back, our pub's changed",
+        tagline="Welcome back, our pub’s changed",
         description="The Broken Drum is gone, but we have The Mended Drum now.",
     )
     db_session.add(project)
