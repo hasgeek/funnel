@@ -4,9 +4,10 @@ Notification primitives.
 Notification models and support classes for implementing notifications, best understood
 using examples:
 
-Scenario: Project P's editor E posts an update U
-Where: User A is a participant on the project
-Result: User A receives a notification about a new update on the project
+Scenario: Notification about an update
+Given: User A is a participant on the project
+When: Project P's editor E posts an update U
+Then: User A receives a notification about a new update on the project
 
 How it works:
 
