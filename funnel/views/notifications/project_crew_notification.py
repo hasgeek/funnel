@@ -707,8 +707,8 @@ class RenderShared:
         """
         We're interested in who has the membership, not who granted/revoked it.
 
-        However, if the notification is being rendered for the person who is the subject
-        of the membership, the original actor must be attributed.
+        However, if the notification is being rendered for the subject of the
+        membership, the original actor must be attributed.
         """
         if (
             self.user_notification.user.uuid == self.membership.user.uuid

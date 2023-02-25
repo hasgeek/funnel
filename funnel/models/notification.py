@@ -5,14 +5,16 @@ Notification models and support classes for implementing notifications, best und
 using examples:
 
 Scenario: Notification about an update
-Given: User A is a participant on the project
-When: Project P's editor E posts an update U
-Then: User A receives a notification about a new update on the project
+    Given: User A is a participant in project P When: Project P's editor E posts an
+    update U Then: User A receives a notification about update U And: The notification
+    is attributed to editor E And: User A is informed of being a recipient for being a
+    participant in project P And: User A can choose to unsubscribe from notifications
+    about updates
 
 How it works:
 
-1. View handler that creates the Update triggers an UpdateNotification on it. This is
-    a subclass of Notification. The UpdateNotification class specifies the roles that
+1. The view handler that creates the Update triggers an UpdateNotification on it. This
+    is a subclass of Notification. The UpdateNotification class specifies the roles that
     must receive the notification.
 
 2. Roles? Yes. UpdateNotification says it should be delivered to users possessing the
@@ -22,32 +24,38 @@ How it works:
     such as in language: "the project you're a crew member of had an update", versus
     "the project you're a participant of had an update".
 
-3. An UpdateNotification instance (a polymorphic class on top of Notification) is
-    created referring to the Update instance. It is then dispatched from the view by
-    calling the dispatch method on it, an iterator. This returns UserNotification
-    instances.
+3. The view calls `dispatch_notification` with an instance of UpdateNotification
+    referring to the Update instance. The dispatcher can process multiple such
+    notifications at once, tagging them with a common eventid. It queues a background
+    worker in RQ to process the notifications.
 
-4. To find users with the required roles, `Update.actors_for({roles})` is called. The
-    default implementation in RoleMixin is aware that these roles are inherited from
-    Project (using granted_via declarations), and so calls `Update.project.actors_for`.
+4. The background worker calls `UpdateNotification.dispatch` to find all recipients and
+    create `UserNotification` instances for each of them. The worker can be given
+    multiple notifications linked to the same event. If a user is identified as a
+    recipient to more than one notification, only the first match is used. To find
+    these recipients, the default notification-level dispatch method calls
+    `Update.actors_for({roles})`. The default implementation in RoleMixin is aware that
+    these roles are inherited from Project (using granted_via declarations), and so
+    it calls `Update.project.actors_for`. The obtained UserNotification instances are
+    batched and handed off to second background workers.
 
-5. UserNotification.dispatch is now called from the view. User preferences are obtained
-    from the User model along with transport address (email, phone, etc).
+5. The second background worker accepts a batch of UserNotification instances and
+    discovers user preferencess for the particular notification. For notifications (not
+    this one) where both a document and a fragment are present, like
+    ProposalReceivedNotication with Project+Proposal, a scan is performed for previous
+    unread instances of UserNotification referring to the same document, determined
+    from `UserNotification.notification.document_uuid`, and those are revoked to remove
+    them from the user's feed. A rollup is presented instead, showing all submitted
+    proposals since the last view or last day, whichever is greater. The second
+    background worker now queues a third series of background workers, for each of the
+    supported transports if at least one recipient in that batch wants to use that
+    transport.
 
-6. For each user in the filtered list, a UserNotification db instance is created.
-
-7. For notifications (not this one) where both a document and a fragment are present,
-    like ProposalReceivedNotication with Project+Proposal, a scan is performed for
-    previous unread instances of UserNotification referring to the same document,
-    determined from UserNotification.notification.document_uuid, and those are revoked
-    to remove them from the user's feed. A rollup is presented instead, showing all
-    freshly submitted proposals.
-
-8. A separate render view class named RenderNewUpdateNotification contains methods named
+6. A separate render view class named RenderNewUpdateNotification contains methods named
     like `web`, `email`, `sms` and others. These are expected to return a rendered
     message. The `web` render is used for the notification feed page on the website.
 
-9. Views are registered to the model, so the dispatch mechanism only needs to call
+7. Views are registered to the model, so the dispatch mechanism only needs to call
     ``view.email()`` etc to get the rendered content. The dispatch mechanism then calls
     the appropriate transport helper (``send_email``, etc) to do the actual sending. The
     message id returned by these functions is saved to the messageid columns in
@@ -56,7 +64,7 @@ How it works:
     required when user interaction over the same transport is expected, such as reply
     emails.
 
-10. The notifications endpoint on the website shows a feed of UserNotification items and
+10. The /updates endpoint on the website shows a feed of UserNotification items and
     handles the ability to mark each as read. This marking is not yet automatically
     performed in the links in the rendered templates that were sent out, but should be.
 
@@ -65,8 +73,8 @@ comment replying to another comment will trigger a CommentReplyNotification to t
 being replied to, and a ProjectCommentNotification or ProposalCommentNotification for
 the project or proposal. The same user may be a recipient of both notifications. To
 de-duplicate this, a random "eventid" is shared across both notifications, and is
-required to be unique per user, so that the second notification will be skipped. This
-is supported using an unusual primary and foreign key structure the in
+required to be unique per user, so that the second notification will be skipped. This is
+supported using an unusual primary and foreign key structure the in
 :class:`Notification` and :class:`UserNotification`:
 
 1. Notification has pkey ``(eventid, id)``, where `id` is local to the instance

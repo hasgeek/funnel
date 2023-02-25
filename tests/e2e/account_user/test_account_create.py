@@ -116,12 +116,12 @@ def given_anonymous_project_page(live_server, browser, db_session, new_project):
 @when("they click on follow")
 def when_they_click_follow(browser):
     time.sleep(1)
-    browser.find_by_id("follow-btn").click()
+    browser.find_by_id('register-nav').click()
     # element = WebDriverWait(browser.driver, 10).until(
     #     EC.presence_of_element_located(
     #         (
     #             By.ID,
-    #             "follow-btn",
+    #             'register-nav',
     #         )
     #     )
     # )
