@@ -32,7 +32,7 @@ def test_markdown_cases(
 ) -> None:
     case = markdown_test_registry.test_case(md_testname, md_configname)
     if case.expected_output is None:
-        warnings.warn(f'Expected output not generated for {case}')
+        warnings.warn(f'Expected output not generated for {case}', stacklevel=1)
         pytest.skip(f'Expected output not generated for {case}')
 
     assert case.expected_output == case.output
