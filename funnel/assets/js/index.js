@@ -3,7 +3,7 @@ import 'htmx.org';
 import initEmbed from './utils/initembed';
 
 $(() => {
-  window.Hasgeek.homeInit = function homeInit() {
+  window.Hasgeek.homeInit = function homeInit(markdownContainer) {
     // Expand CFP section
     $('.jquery-show-all').click(function showAll(event) {
       event.preventDefault();
@@ -19,6 +19,6 @@ $(() => {
       };
       SaveProject(projectSaveConfig);
     });
+    initEmbed(markdownContainer);
   };
-  initEmbed();
 });

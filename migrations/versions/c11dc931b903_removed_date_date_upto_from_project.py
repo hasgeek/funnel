@@ -42,10 +42,10 @@ def downgrade():
     op.add_column('project', sa.Column('date', sa.Date(), nullable=True))
     op.add_column('project', sa.Column('date_upto', sa.Date(), nullable=True))
 
-    projects = conn.execute(sa.select([project.c.id]))
+    projects = conn.execute(sa.select(project.c.id))
     for project_id in projects:
         first_session = conn.execute(
-            sa.select([session.c.start])
+            sa.select(session.c.start)
             .where(session.c.project_id == project_id[0])
             .where(session.c.start.isnot(None))
             .order_by(session.c.start.asc())
@@ -57,7 +57,7 @@ def downgrade():
                 .values(date=first_session[0].date())
             )
         last_session = conn.execute(
-            sa.select([session.c.end])
+            sa.select(session.c.end)
             .where(session.c.project_id == project_id[0])
             .where(session.c.end.isnot(None))
             .order_by(session.c.end.desc())

@@ -61,7 +61,6 @@ def embeds_plugin(
     def embeds_func(
         state: StateBlock, start_line: int, end_line: int, silent: bool
     ) -> bool:
-
         auto_closed = False
         start = state.bMarks[start_line] + state.tShift[start_line]
         maximum = state.eMarks[start_line]

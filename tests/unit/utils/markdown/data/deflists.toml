@@ -1,0 +1,131 @@
+markdown = """
+Term 1 with *inline markup*
+: Definition 1 long form.
+This is lazy continuation.
+  Still not a paragraph break.
+
+  Any more blocks have to be indented and a newline before them, to remain a continuation of the definition. This is a second paragraph **that has** markdown; 2^2^ = 4.
+
+      A code block
+  ``` js
+  // A code fence
+  let dl_index = 1;
+  ```
+
+Term 2: One definition list can have multiple definitions!
+~ Definition 2a compact style
+~ Definition 2b
+~ Now let us check for the overload with `~`, meant for subscripts.
+~8~O~2~: Oxygen.
+
+  We can mix and match. This paragraph will remain a part of this definition list.
+
+  > Let's look at using more complicated blocks.
+  - Start a list.
+  - [ ] And continue into a task list.
+  - [X] Which also has a checked task.
+"""
+
+[config]
+profiles = [ "basic", "document",]
+
+[config.custom_profiles.deflists]
+preset = "default"
+plugins = ["deflists"]
+
+[expected_output]
+basic = """<p>Term 1 with <em>inline markup</em><br />
+: Definition 1 long form.<br />
+This is lazy continuation.<br />
+Still not a paragraph break.</p>
+<p>Any more blocks have to be indented and a newline before them, to remain a continuation of the definition. This is a second paragraph <strong>that has</strong> markdown; 2^2^ = 4.</p>
+<pre><code class="language-none">  A code block
+</code></pre>
+<pre><code class="language-js">// A code fence
+let dl_index = 1;
+</code></pre>
+<p>Term 2: One definition list can have multiple definitions!<br />
+~ Definition 2a compact style<br />
+~ Definition 2b<br />
+~ Now let us check for the overload with <code>~</code>, meant for subscripts.<br />
+~8~O~2~: Oxygen.</p>
+<p>We can mix and match. This paragraph will remain a part of this definition list.</p>
+<blockquote>
+<p>Let's look at using more complicated blocks.</p>
+</blockquote>
+<ul>
+<li>Start a list.</li>
+<li>[ ] And continue into a task list.</li>
+<li>[X] Which also has a checked task.</li>
+</ul>
+"""
+document = """<dl>
+<dt>Term 1 with <em>inline markup</em></dt>
+<dd>
+<p>Definition 1 long form.<br />
+This is lazy continuation.<br />
+Still not a paragraph break.</p>
+<p>Any more blocks have to be indented and a newline before them, to remain a continuation of the definition. This is a second paragraph <strong>that has</strong> markdown; 2<sup>2</sup> = 4.</p>
+<pre><code class="language-none">A code block
+</code></pre>
+<pre><code class="language-js">// A code fence
+let dl_index = 1;
+</code></pre>
+</dd>
+<dt>Term 2: One definition list can have multiple definitions!</dt>
+<dd>
+<p>Definition 2a compact style</p>
+</dd>
+<dd>
+<p>Definition 2b</p>
+</dd>
+<dd>
+<p>Now let us check for the overload with <code>~</code>, meant for subscripts.<br />
+<sub>8</sub>O<sub>2</sub>: Oxygen.</p>
+<p>We can mix and match. This paragraph will remain a part of this definition list.</p>
+<blockquote>
+<p>Let’s look at using more complicated blocks.</p>
+</blockquote>
+<ul class="contains-task-list">
+<li>Start a list.</li>
+<li class="task-list-item enabled"><label><input class="task-list-item-checkbox"  type="checkbox"> And continue into a task list.</label></li>
+<li class="task-list-item enabled"><label><input class="task-list-item-checkbox" checked="checked"  type="checkbox"> Which also has a checked task.</label></li>
+</ul>
+</dd>
+</dl>
+"""
+deflists = """<dl>
+<dt>Term 1 with <em>inline markup</em></dt>
+<dd>
+<p>Definition 1 long form.
+This is lazy continuation.
+Still not a paragraph break.</p>
+<p>Any more blocks have to be indented and a newline before them, to remain a continuation of the definition. This is a second paragraph <strong>that has</strong> markdown; 2^2^ = 4.</p>
+<pre><code>A code block
+</code></pre>
+<pre><code class="language-js">// A code fence
+let dl_index = 1;
+</code></pre>
+</dd>
+<dt>Term 2: One definition list can have multiple definitions!</dt>
+<dd>
+<p>Definition 2a compact style</p>
+</dd>
+<dd>
+<p>Definition 2b</p>
+</dd>
+<dd>
+<p>Now let us check for the overload with <code>~</code>, meant for subscripts.
+~8~O~2~: Oxygen.</p>
+<p>We can mix and match. This paragraph will remain a part of this definition list.</p>
+<blockquote>
+<p>Let's look at using more complicated blocks.</p>
+</blockquote>
+<ul>
+<li>Start a list.</li>
+<li>[ ] And continue into a task list.</li>
+<li>[X] Which also has a checked task.</li>
+</ul>
+</dd>
+</dl>
+"""

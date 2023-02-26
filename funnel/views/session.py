@@ -9,14 +9,7 @@ from flask import render_template, request
 from baseframe import _
 from coaster.auth import current_auth
 from coaster.sqlalchemy import failsafe_add
-from coaster.views import (
-    ModelView,
-    UrlChangeCheck,
-    UrlForView,
-    render_with,
-    requires_roles,
-    route,
-)
+from coaster.views import ModelView, UrlChangeCheck, UrlForView, requires_roles, route
 
 from .. import app
 from ..forms import SavedSessionForm, SessionForm
@@ -41,6 +34,19 @@ def rooms_list(project):
     return []
 
 
+def get_form_template(form: SessionForm) -> ReturnView:
+    """Render Session form html."""
+    form.form_nonce.data = form.form_nonce.default()
+    form_template = render_template(
+        'session_form.html.jinja2',
+        form=form,
+        formid='session_new',
+        ref_id='session_form',
+        title=_("Edit session"),
+    )
+    return form_template
+
+
 def session_edit(
     project: Project,
     proposal: Optional[Proposal] = None,
@@ -63,12 +69,9 @@ def session_edit(
     if not form.venue_room_id.choices:
         del form.venue_room_id
     if request.method == 'GET':
-        return render_template(
-            'session_form.html.jinja2',
-            form=form,
-            ref_id='session_form',
-            title=_("Edit session"),
-        )
+        if request_wants.html_in_json:
+            return {'status': True, 'form': get_form_template(form)}
+        return get_form_template(form)
     if form.validate_on_submit():
         new = False
         if session is None:
@@ -92,10 +95,11 @@ def session_edit(
         session = cast(Session, session)  # Tell mypy session is not None
         session.project.update_schedule_timestamps()
         db.session.commit()
-        if request_wants.json:
+        if request_wants.html_in_json:
             data = {
                 'id': session.url_id,
                 'title': session.title,
+                'speaker': session.speaker,
                 'room_scoped_name': (
                     session.venue_room.scoped_name
                     if session.venue_room is not None
@@ -109,16 +113,13 @@ def session_edit(
             # FIXME: Return ``status='ok'`` and ``edited=True``
             return {'status': True, 'data': data}
         return render_redirect(session.url_for('view'))
-    return {
-        # FIXME: Return ``status='ok'`` and ``edited=False``
-        'status': False,
-        'form': render_template(
-            'session_form.html.jinja2',
-            form=form,
-            formid='session_new',
-            title=_("Edit session"),
-        ),
-    }
+    if request_wants.html_in_json:
+        return {
+            # FIXME: Return ``status='ok'`` and ``edited=False``
+            'status': False,
+            'form': get_form_template(form),
+        }
+    return get_form_template(form)
 
 
 @Project.views('session_new')
@@ -138,54 +139,51 @@ ProjectSessionView.init_app(app)
 @route('/<profile>/<project>/schedule/<session>')
 class SessionView(SessionViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
-    @render_with('project_schedule.html.jinja2', json=True)
+    @route('viewsession-popup')  # Legacy route, will be auto-redirected to base URL
     # @requires_roles({'reader'})
-    def view(self) -> ReturnRenderWith:
+    def view(self) -> ReturnView:
+        if request_wants.html_fragment:
+            return render_template(
+                'session_view_popup.html.jinja2',
+                session=self.obj.current_access(),
+                timezone=self.obj.project.timezone.zone,
+                localize_date=localize_date,
+            )
         scheduled_sessions_list = session_list_data(
-            self.obj.project.scheduled_sessions, with_modal_url='view_popup'
+            self.obj.project.scheduled_sessions, with_modal_url='view'
         )
-        return {
-            'status': 'ok',
-            'project': self.obj.project.current_access(
+        return render_template(
+            'project_schedule.html.jinja2',
+            project=self.obj.project.current_access(
                 datasets=('without_parent', 'related')
             ),
-            'from_date': (
+            from_date=(
                 self.obj.project.start_at_localized.isoformat()
                 if self.obj.project.start_at
                 else None
             ),
-            'to_date': (
+            to_date=(
                 self.obj.project.end_at_localized.isoformat()
                 if self.obj.project.end_at
                 else None
             ),
-            'active_session': session_data(self.obj, with_modal_url='view_popup'),
-            'sessions': scheduled_sessions_list,
-            'timezone': self.obj.project.timezone.zone,
-            'venues': [
+            active_session=session_data(self.obj, with_modal_url='view'),
+            sessions=scheduled_sessions_list,
+            timezone=self.obj.project.timezone.zone,
+            venues=[
                 venue.current_access(datasets=('without_parent', 'related'))
                 for venue in self.obj.project.venues
             ],
-            'rooms': {
+            rooms={
                 room.scoped_name: {'title': room.title, 'bgcolor': room.bgcolor}
                 for room in self.obj.project.rooms
             },
-            'schedule': schedule_data(
+            schedule=schedule_data(
                 self.obj.project,
                 with_slots=False,
                 scheduled_sessions=scheduled_sessions_list,
             ),
-        }
-
-    @route('viewsession-popup')
-    @render_with('session_view_popup.html.jinja2')
-    # @requires_roles({'reader'})
-    def view_popup(self):
-        return {
-            'session': self.obj.current_access(),
-            'timezone': self.obj.project.timezone.zone,
-            'localize_date': localize_date,
-        }
+        )
 
     @route('editsession', methods=['GET', 'POST'])
     @requires_login

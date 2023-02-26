@@ -99,7 +99,7 @@
       {% block pageheaders %}
       {% endblock pageheaders %}
     </head>
-    <body {% block bodyattrs %}class="mui--bg-primary"{% endblock bodyattrs %}>
+    <body {% block bodyattrs %}class="bg-primary"{% endblock bodyattrs %}>
       {% block headerbox -%}
         <header class="header header--fixed mui--z1" id="js-header">
           <div class="mui-container">
@@ -132,7 +132,7 @@
                           alt="{% trans %}Home{% endtrans %}"/>
                       <span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
                     </a>
-                    <form action="{{ url_for('SearchView_search') }}"
+                    <form action="{{ url_for('search') }}"
                           class="search-form js-search-form">
                       <input type="text"
                             name="q"
@@ -239,7 +239,7 @@
           <div class="main-content">
             {% block contenthead %}
               {% block headline -%}
-                <div class="content-head content-head--top-padding mui--bg-accent">
+                <div class="content-head content-head--top-padding bg-accent">
                   <div class="mui-container">
                     <div class="grid">
                       <div class="grid__col-xs-12">

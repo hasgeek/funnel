@@ -19,7 +19,10 @@ from coaster.utils import newpin, require_one_of
 from .. import app
 from ..models import (
     EmailAddress,
-    SMSMessage,
+    EmailAddressBlockedError,
+    PhoneNumber,
+    PhoneNumberBlockedError,
+    SmsMessage,
     User,
     UserEmail,
     UserEmailClaim,
@@ -147,7 +150,7 @@ class OtpSession(Generic[OptionalUserType]):
         # to this cache entry in the user's cookie session. The cookie never contains
         # the actual OTP. See :func:`make_cached_token` for additional documentation.
         otp = newpin()
-        if isinstance(anchor, UserPhone):
+        if isinstance(anchor, (UserPhone, PhoneNumber)):
             phone = str(anchor)
         if isinstance(anchor, (UserEmail, UserEmailClaim, EmailAddress)):
             email = str(anchor)
@@ -211,16 +214,12 @@ class OtpSession(Generic[OptionalUserType]):
     @cached_property
     def display_phone(self) -> str:
         """Return a display phone number."""
-        if self.phone is None:
-            return ''
-        return mask_phone(self.phone)
+        return mask_phone(self.phone) if self.phone is not None else ''
 
     @cached_property
     def display_email(self) -> str:
         """Return a display email address."""
-        if self.email is None:
-            return ''
-        return mask_email(self.email)
+        return mask_email(self.email) if self.email is not None else ''
 
     def compose_sms(self) -> sms.WebOtpTemplate:
         """Compose an OTP SMS message."""
@@ -233,12 +232,12 @@ class OtpSession(Generic[OptionalUserType]):
 
     def send_sms(
         self, flash_success: bool = True, flash_failure: bool = True
-    ) -> Optional[SMSMessage]:
+    ) -> Optional[SmsMessage]:
         """Send an OTP via SMS to a phone number."""
         if not self.phone:
             return None
         template_message = self.compose_sms()
-        msg = SMSMessage(phone_number=self.phone, message=str(template_message))
+        msg = SmsMessage(phone=self.phone, message=str(template_message))
         try:
             # Now send this
             msg.transactionid = sms.send(
@@ -303,18 +302,36 @@ class OtpSession(Generic[OptionalUserType]):
             return bool(self.send_email(flash_success, flash_failure))
         return False
 
+    def mark_transport_active(self):
+        """Mark email and/or phone as active based on user activity."""
+        # FIXME: Potential future scenario where email AND phone are sent an OTP
+        if self.phone:
+            try:
+                phone_number = PhoneNumber.get(self.phone)
+                if phone_number:
+                    phone_number.mark_active(sms=True)
+            except PhoneNumberBlockedError:
+                pass
+        elif self.email:
+            try:
+                email_address = EmailAddress.get(self.email)
+                if email_address:
+                    email_address.mark_active()
+            except EmailAddressBlockedError:
+                pass
+
 
 class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
     """OtpSession variant for login."""
 
     def send_sms(
         self, flash_success: bool = True, flash_failure: bool = True
-    ) -> Optional[SMSMessage]:
+    ) -> Optional[SmsMessage]:
         """Send an OTP via SMS to a phone number."""
         if not self.phone:
             return None
         template_message = self.compose_sms()
-        msg = SMSMessage(phone_number=self.phone, message=str(template_message))
+        msg = SmsMessage(phone=self.phone, message=str(template_message))
         try:
             # Now send this
             msg.transactionid = sms.send(
@@ -402,12 +419,14 @@ class OtpSessionForSudo(OtpSession[User], reason='sudo'):
     @cached_property
     def display_phone(self) -> str:
         """Reveal phone number when used for sudo."""
-        if self.phone is not None:
-            return phonenumbers.format_number(
+        return (
+            phonenumbers.format_number(
                 phonenumbers.parse(self.phone),
                 phonenumbers.PhoneNumberFormat.INTERNATIONAL,
             )
-        return ''
+            if self.phone is not None
+            else ''
+        )
 
     @cached_property
     def display_email(self) -> str:

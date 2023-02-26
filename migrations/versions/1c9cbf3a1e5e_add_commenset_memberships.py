@@ -132,17 +132,17 @@ def downgrade(engine_name=''):
 def upgrade_():
     conn = op.get_bind()
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(project))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(project))
     progress = get_progressbar("Projects", count)
     progress.start()
 
     projects = conn.execute(
-        sa.select([project.c.id, project.c.commentset_id]).order_by(project.c.id.desc())
+        sa.select(project.c.id, project.c.commentset_id).order_by(project.c.id.desc())
     )
     for counter, project_item in enumerate(projects):
         # Create membership for existing RSVP
         rsvp_count = conn.scalar(
-            sa.select([sa.func.count('*')])
+            sa.select(sa.func.count('*'))
             .where(rsvp.c.project_id == project_item.id)
             .select_from(rsvp)
         )
@@ -151,7 +151,7 @@ def upgrade_():
 
         rsvps = conn.execute(
             sa.select(
-                [rsvp.c.project_id, rsvp.c.user_id, rsvp.c.state, rsvp.c.created_at]
+                rsvp.c.project_id, rsvp.c.user_id, rsvp.c.state, rsvp.c.created_at
             )
             .where(rsvp.c.project_id == project_item.id)
             .where(rsvp.c.state == 'Y')
@@ -160,7 +160,7 @@ def upgrade_():
 
         for rsvp_item in rsvps:
             existing_counter = conn.scalar(
-                sa.select([sa.func.count('*')])
+                sa.select(sa.func.count('*'))
                 .where(
                     commentset_membership.c.commentset_id == project_item.commentset_id
                 )
@@ -189,10 +189,8 @@ def upgrade_():
         # Create membership for existing project crew
         crews = conn.execute(
             sa.select(
-                [
-                    project_crew_membership.c.user_id,
-                    project_crew_membership.c.granted_at,
-                ]
+                project_crew_membership.c.user_id,
+                project_crew_membership.c.granted_at,
             )
             .where(project_crew_membership.c.project_id == project_item.id)
             .where(project_crew_membership.c.revoked_at.is_(None))
@@ -201,7 +199,7 @@ def upgrade_():
 
         for crew in crews:
             existing_counter = conn.scalar(
-                sa.select([sa.func.count('*')])
+                sa.select(sa.func.count('*'))
                 .where(
                     commentset_membership.c.commentset_id == project_item.commentset_id
                 )
@@ -230,20 +228,16 @@ def upgrade_():
     progress.finish()
 
     # Create commentset membership for existing proposal memberships
-    count = conn.scalar(
-        sa.select([sa.func.count('*')]).select_from(proposal_membership)
-    )
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(proposal_membership))
     progress = get_progressbar("Proposals", count)
     progress.start()
 
     proposals = conn.execute(
         sa.select(
-            [
-                proposal.c.id,
-                proposal.c.commentset_id,
-                proposal_membership.c.user_id,
-                proposal_membership.c.granted_at,
-            ]
+            proposal.c.id,
+            proposal.c.commentset_id,
+            proposal_membership.c.user_id,
+            proposal_membership.c.granted_at,
         )
         .where(proposal_membership.c.proposal_id == proposal.c.id)
         .where(proposal_membership.c.revoked_at.is_(None))
@@ -252,7 +246,7 @@ def upgrade_():
     )
     for counter, proposal_item in enumerate(proposals):
         existing_counter = conn.scalar(
-            sa.select([sa.func.count('*')])
+            sa.select(sa.func.count('*'))
             .where(commentset_membership.c.commentset_id == proposal_item.commentset_id)
             .where(commentset_membership.c.user_id == proposal_item.user_id)
             .where(commentset_membership.c.revoked_at.is_(None))
@@ -282,14 +276,14 @@ def upgrade_():
 def downgrade_():
     conn = op.get_bind()
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(project))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(project))
     progress = get_progressbar("Projects", count)
     progress.start()
 
-    projects = conn.execute(sa.select([project.c.id, project.c.commentset_id]))
+    projects = conn.execute(sa.select(project.c.id, project.c.commentset_id))
     for counter, project_item in enumerate(projects):
         commentset_memberships = conn.execute(
-            sa.select([commentset_membership.c.id])
+            sa.select(commentset_membership.c.id)
             .where(commentset_membership.c.commentset_id == project_item.commentset_id)
             .where(commentset_membership.c.revoked_at is None)
             .select_from(commentset_membership)
@@ -303,18 +297,18 @@ def downgrade_():
         progress.update(counter)
     progress.finish()
 
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(proposal))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(proposal))
     progress = get_progressbar("Proposals", count)
     progress.start()
 
     proposals = conn.execute(
-        sa.select([proposal.c.id, proposal.c.commentset_id]).order_by(
+        sa.select(proposal.c.id, proposal.c.commentset_id).order_by(
             proposal.c.id.desc()
         )
     )
     for counter, proposal_item in enumerate(proposals):
         commentset_memberships = conn.execute(
-            sa.select([commentset_membership.c.id])
+            sa.select(commentset_membership.c.id)
             .where(commentset_membership.c.commentset_id == proposal_item.commentset_id)
             .where(commentset_membership.c.revoked_at is None)
             .select_from(commentset_membership)

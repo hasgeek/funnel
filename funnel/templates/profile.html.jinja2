@@ -14,7 +14,7 @@
        "url" : {{ url_for('index', _external=true)|tojson }},
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
+        "target": "{{ url_for('search', _external=true) }}?q={query}",
         "query-input": "required name=query"
       }
     }
@@ -34,7 +34,7 @@
   </script>
 {%- endblock pageheaders %}
 
-{% block bodyattrs %}class="mui--bg-primary mobile-header"{% endblock bodyattrs %}
+{% block bodyattrs %}class="bg-primary mobile-header"{% endblock bodyattrs %}
 
 {% block contenthead %}
 {% endblock contenthead %}
@@ -44,7 +44,7 @@
 {% endblock baseheadline %}
 
 {% block basecontent %}
-  <div class="mui--bg-accent">
+  <div class="bg-accent">
     {%- if profile.is_organization_profile %}
       {%- with people = profile.organization.views.people_and_teams() %}
         {%- if people %}
@@ -53,7 +53,7 @@
               <div class="grid">
                 <div class="grid__col-xs-12">
                   <h2 class="project-headline">{% trans %}People{% endtrans %}</h2>
-                  <ul class="mui-list--unstyled mui-list--border">
+                  <ul class="mui-list--unstyled list--border">
                     {%- for user, teams in people %}
                       <li class="user">
                         <div class="user__box">
@@ -79,7 +79,7 @@
         <div class="mui-container">
           <div class="grid">
             <div class="grid__col-12">
-              <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Supported projects{% endtrans %}</h2>
+              <h2 class="mui--text-headline text-bold project-headline">{% trans %}Supported projects{% endtrans %}</h2>
             </div>
           </div>
           <ul class="grid projects" role="list">
@@ -91,7 +91,7 @@
           </ul>
           {% if sponsored_projects|length > 6 %}
             <div class="mui--text-center">
-              <a href="#" onclick="return false;" data-target="show all supported projects" class="jquery-show-all mui--text-uppercase" data-projects="js-supported-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+              <a href="#" onclick="return false;" data-target="show all supported projects" class="jquery-show-all text-uppercase" data-projects="js-supported-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>
           {% endif %}
         </div>
@@ -103,7 +103,7 @@
         <div class="mui-container">
           <div class="grid">
             <div class="grid__col-12">
-              <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Supported submissions{% endtrans %}</h2>
+              <h2 class="mui--text-headline text-bold project-headline">{% trans %}Supported submissions{% endtrans %}</h2>
             </div>
           </div>
           <ul class="grid projects" role="list">
@@ -113,7 +113,7 @@
           </ul>
           {% if sponsored_submissions|length > 4 %}
             <div class="mui--text-center">
-              <a href="#" onclick="return false;" data-target="show all supported projects" class="jquery-show-all mui--text-uppercase" data-projects="js-supported-submissions" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+              <a href="#" onclick="return false;" data-target="show all supported projects" class="jquery-show-all text-uppercase" data-projects="js-supported-submissions" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>
           {% endif %}
         </div>
@@ -125,7 +125,7 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Drafts{% endtrans %}</h2>
+            <h2 class="mui--text-headline text-bold project-headline">{% trans %}Drafts{% endtrans %}</h2>
           </div>
         </div>
         <ul class="grid projects" role="list">
@@ -137,7 +137,7 @@
                   <p class="card__image-wrapper__icon-wrapper">{{ faicon(icon='plus', icon_size='display1', css_class="mui--align-middle card__image-wrapper__icon-wrapper__icon") }}</p>
                 </div>
                 <div class="card__body">
-                  <h4 class="mui--text-headline mui--text-bold">{% trans %}Create a new project{% endtrans %}</h4>
+                  <h4 class="mui--text-headline text-bold">{% trans %}Create a new project{% endtrans %}</h4>
                   <p class="mui--text-subhead mui--text-light zero-top-margin">{% trans %}Write, collaborate and get feedback{% endtrans %}</p>
                 </div>
                 <div class="mui-divider"></div>
@@ -155,7 +155,7 @@
         </ul>
         {% if draft_projects|length > 2 %}
           <div class="mui--text-center">
-            <a href="#" onclick="return false;" data-target="show all draft projects" class="jquery-show-all mui--text-uppercase" data-projects="js-draft-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+            <a href="#" onclick="return false;" data-target="show all draft projects" class="jquery-show-all text-uppercase" data-projects="js-draft-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
           </div>
         {% endif %}
       </div>
@@ -167,7 +167,7 @@
         <div class="mui-container">
           <div class="grid">
             <div class="grid__col-12">
-              <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Unscheduled projects{% endtrans %}</h2>
+              <h2 class="mui--text-headline text-bold project-headline">{% trans %}Unscheduled projects{% endtrans %}</h2>
             </div>
           </div>
           <ul class="grid projects" role="list">
@@ -179,7 +179,7 @@
           </ul>
           {% if unscheduled_projects|length > 3 %}
             <div class="mui--text-center">
-              <a href="#" onclick="return false;" data-target="show all unscheduled projects" class="jquery-show-all mui--text-uppercase" data-projects="js-unscheduled-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
+              <a href="#" onclick="return false;" data-target="show all unscheduled projects" class="jquery-show-all text-uppercase" data-projects="js-unscheduled-projects" aria-expanded="true">{% trans %}Show more{% endtrans %}</a>
             </div>
           {% endif %}
         </div>
@@ -198,7 +198,7 @@
   <script src="{{ built_asset('index.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      window.Hasgeek.homeInit();
+      window.Hasgeek.homeInit('.markdown');
     });
   </script>
 {% endblock footerscripts %}

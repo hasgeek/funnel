@@ -6,6 +6,10 @@
 {% from "forms.html.jinja2" import ajaxform %}
 {% from "password_login_form.html.jinja2" import passwordlogin, sociallogin %}
 
+{% block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/login_form.scss') }}" />
+{% endblock pageheaders %}
+
 {% block bodyattrs %}class="login-page login-page--artwork no-sticky-header"{% endblock bodyattrs %}
 
 {% block beforeformcontent %}
@@ -14,12 +18,12 @@
 {% block form %}
   <div id="passwordform">
     {%- if request_wants.html_fragment -%}
-      <p class="mui--text-body2 mui--text-light mui--text-bold mui--text-left">{% trans %}Hello!{% endtrans %}</p>
-      <p class="mui--text-body2 mui--text-light mui--text-bold mui--text-left">{% trans %}Tell us where you’d like to get updates. We’ll send an OTP to confirm.{% endtrans %}</p>
+      <p class="mui--text-body2 mui--text-light text-bold mui--text-left">{% trans %}Hello!{% endtrans %}</p>
+      <p class="mui--text-body2 mui--text-light text-bold mui--text-left">{% trans %}Tell us where you’d like to get updates. We’ll send an OTP to confirm.{% endtrans %}</p>
     {% endif %}
-    <div id="loginformwrapper">{{ passwordlogin(form, formid, ref_id) }}</div>
+    <div id="loginformwrapper">{{ passwordlogin(form, formid, ref_id, action) }}</div>
   </div>
-  <p class="mui--text-body2 mui--text-light mui--text-bold mui--text-center top-padding">{% trans %}Or, use your existing account, no OTP required{% endtrans %}</p>
+  <p class="mui--text-body2 mui--text-light text-bold mui--text-center top-padding">{% trans %}Or, use your existing account, no OTP required{% endtrans %}</p>
   {{ sociallogin(login_registry) }}
 {% endblock form %}
 

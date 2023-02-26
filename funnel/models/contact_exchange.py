@@ -11,11 +11,13 @@ from uuid import UUID
 
 from sqlalchemy.ext.associationproxy import association_proxy
 
+from pytz import timezone
+
 from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58
 
 from ..typing import OptionalMigratedTables
-from . import RoleMixin, TimestampMixin, db, sa
+from . import Mapped, RoleMixin, TimestampMixin, db, sa
 from .project import Project
 from .sync_ticket import TicketParticipant
 from .user import User
@@ -52,11 +54,12 @@ class ContactExchange(
     """Model to track who scanned whose badge, in which project."""
 
     __tablename__ = 'contact_exchange'
+    __allow_unmapped__ = True
     #: User who scanned this contact
     user_id = sa.Column(
         sa.Integer, sa.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True
     )
-    user = sa.orm.relationship(
+    user: Mapped[User] = sa.orm.relationship(
         User,
         backref=sa.orm.backref(
             'scanned_contacts',
@@ -72,7 +75,7 @@ class ContactExchange(
         primary_key=True,
         index=True,
     )
-    ticket_participant = sa.orm.relationship(
+    ticket_participant: Mapped[TicketParticipant] = sa.orm.relationship(
         TicketParticipant,
         backref=sa.orm.backref('scanned_contacts', passive_deletes=True),
     )
@@ -128,8 +131,12 @@ class ContactExchange(
     @classmethod
     def grouped_counts_for(cls, user, archived=False):
         """Return count of contacts grouped by project and date."""
-        query = db.session.query(
-            cls.scanned_at, Project.id, Project.uuid, Project.timezone, Project.title
+        subq = sa.select(
+            cls.scanned_at.label('scanned_at'),
+            Project.id.label('project_id'),
+            Project.uuid.label('project_uuid'),
+            Project.timezone.label('project_timezone'),
+            Project.title.label('project_title'),
         ).filter(
             cls.ticket_participant_id == TicketParticipant.id,
             TicketParticipant.project_id == Project.id,
@@ -139,67 +146,68 @@ class ContactExchange(
         if not archived:
             # If archived: return everything (contacts including archived contacts)
             # If not archived: return only unarchived contacts
-            query = query.filter(cls.archived.is_(False))
+            subq = subq.filter(cls.archived.is_(False))
 
-        # from_self turns `SELECT columns` into `SELECT new_columns FROM (SELECT
-        # columns)`
         query = (
-            query.from_self(
-                Project.id.label('id'),
-                Project.uuid.label('uuid'),
-                Project.title.label('title'),
-                Project.timezone.label('timezone'),
+            db.session.query(
+                sa.column('project_id'),
+                sa.column('project_uuid'),
+                sa.column('project_title'),
+                sa.column('project_timezone'),
                 sa.cast(
                     sa.func.date_trunc(
-                        'day', sa.func.timezone(Project.timezone, cls.scanned_at)
+                        'day',
+                        sa.func.timezone(
+                            sa.column('project_timezone'), sa.column('scanned_at')
+                        ),
                     ),
                     sa.Date,
-                ).label('date'),
+                ).label('scan_date'),
                 sa.func.count().label('count'),
             )
+            .select_from(subq.subquery())
             .group_by(
-                sa.text('id'),
-                sa.text('uuid'),
-                sa.text('title'),
-                sa.text('timezone'),
-                sa.text('date'),
+                sa.column('project_id'),
+                sa.column('project_uuid'),
+                sa.column('project_title'),
+                sa.column('project_timezone'),
+                sa.column('scan_date'),
             )
-            .order_by(sa.text('date DESC'))
+            .order_by(sa.text('scan_date DESC'))
         )
 
         # Issued SQL:
         #
         # SELECT
-        #   project_id AS id,
-        #   project_uuid AS uuid,
-        #   project_title AS title,
-        #   project_timezone AS "timezone",
-        #   date_trunc(
-        #     'day',
-        #     timezone("timezone", contact_exchange_scanned_at)
-        #   )::date AS date,
+        #   project_id,
+        #   project_uuid,
+        #   project_title,
+        #   project_timezone,
+        #   CAST(
+        #     date_trunc('day', timezone(project_timezone, scanned_at))
+        #     AS DATE
+        #   ) AS scan_date,
         #   count(*) AS count
         # FROM (
         #   SELECT
-        #     contact_exchange.scanned_at AS contact_exchange_scanned_at,
+        #     contact_exchange.scanned_at AS scanned_at,
         #     project.id AS project_id,
         #     project.uuid AS project_uuid,
-        #     project.title AS project_title,
-        #     project.timezone AS project_timezone
-        #   FROM contact_exchange, ticket_participant, project
+        #     project.timezone AS project_timezone,
+        #     project.title AS project_title
+        #   FROM contact_exchange, project, ticket_participant
         #   WHERE
         #     contact_exchange.ticket_participant_id = ticket_participant.id
         #     AND ticket_participant.project_id = project.id
-        #     AND contact_exchange.user_id = :user_id
+        #     AND :user_id = contact_exchange.user_id
+        #     AND contact_exchange.archived IS false
         #   ) AS anon_1
-        # GROUP BY id, uuid, title, timezone, date
-        # ORDER BY date DESC;
+        # GROUP BY project_id, project_uuid, project_title, project_timezone, scan_date
+        # ORDER BY scan_date DESC
 
-        # Our query result looks like this:
-        # [(id, uuid, title, timezone, date, count), ...]
-        # where (id, uuid, title, timezone) repeat for each date
-        #
-        # Transform it into this:
+        # The query result has rows of:
+        # (project_id, project_uuid, project_title, project_timezone, scan_date, count)
+        # with one row per date. It is then transformed into:
         # [
         #   (ProjectId(id, uuid, uuid_b58, title, timezone), [
         #     DateCountContacts(date, count, contacts),
@@ -210,18 +218,18 @@ class ContactExchange(
         #   ]
 
         # We don't do it here, but this can easily be converted into a dictionary of
-        # {project: dates}:
-        # >>> OrderedDict(result)  # Preserve order with most recent projects first
-        # >>> dict(result)         # Don't preserve order
+        # `{project: dates}` using `dict(result)`
 
         groups = [
             (
                 k,
                 [
                     DateCountContacts(
-                        r.date,
+                        r.scan_date,
                         r.count,
-                        cls.contacts_for_project_and_date(user, k, r.date, archived),
+                        cls.contacts_for_project_and_date(
+                            user, k, r.scan_date, archived
+                        ),
                     )
                     for r in g
                 ],
@@ -229,7 +237,11 @@ class ContactExchange(
             for k, g in groupby(
                 query,
                 lambda r: ProjectId(
-                    r.id, r.uuid, uuid_to_base58(r.uuid), r.title, r.timezone
+                    id=r.project_id,
+                    uuid=r.project_uuid,
+                    uuid_b58=uuid_to_base58(r.project_uuid),
+                    title=r.project_title,
+                    timezone=timezone(r.project_timezone),
                 ),
             )
         ]

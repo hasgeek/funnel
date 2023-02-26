@@ -84,7 +84,7 @@ from .otp import OtpSession, OtpTimeoutError
 def emails_sorted(obj: User) -> List[UserEmail]:
     """Return sorted list of email addresses for account page UI."""
     primary = obj.primary_email
-    items = sorted(obj.emails, key=lambda i: (i != primary, i.email))
+    items = sorted(obj.emails, key=lambda i: (i != primary, i.email or ''))
     return items
 
 
@@ -92,7 +92,7 @@ def emails_sorted(obj: User) -> List[UserEmail]:
 def phones_sorted(obj: User) -> List[UserPhone]:
     """Return sorted list of phone numbers for account page UI."""
     primary = obj.primary_phone
-    items = sorted(obj.phones, key=lambda i: (i != primary, i.phone))
+    items = sorted(obj.phones, key=lambda i: (i != primary, i.phone or ''))
     return items
 
 
@@ -406,7 +406,6 @@ class AccountView(ClassView):
                 useremail = emailclaim.user.add_email(
                     emailclaim.email,
                     primary=not emailclaim.user.emails,
-                    type=emailclaim.type,
                     private=emailclaim.private,
                 )
                 for emailclaim in UserEmailClaim.all(useremail.email):
@@ -493,7 +492,7 @@ class AccountView(ClassView):
             )
             if useremail is None:
                 useremail = UserEmailClaim(
-                    user=current_auth.user, email=form.email.data, type=form.type.data
+                    user=current_auth.user, email=form.email.data
                 )
                 db.session.add(useremail)
             send_email_verify_link(useremail)
@@ -515,10 +514,14 @@ class AccountView(ClassView):
         """Mark an email address as primary."""
         form = EmailPrimaryForm()
         if form.validate_on_submit():
-            useremail = UserEmail.get_for(user=current_auth.user, email=form.email.data)
+            useremail = UserEmail.get_for(
+                user=current_auth.user, email_hash=form.email_hash.data
+            )
             if useremail is not None:
                 if useremail.primary:
                     flash(_("This is already your primary email address"), 'info')
+                elif useremail.email_address.is_blocked:
+                    flash(_("This email address has been blocked from use"), 'error')
                 else:
                     current_auth.user.primary_email = useremail
                     db.session.commit()
@@ -539,10 +542,14 @@ class AccountView(ClassView):
         """Mark a phone number as primary."""
         form = PhonePrimaryForm()
         if form.validate_on_submit():
-            userphone = UserPhone.get_for(user=current_auth.user, phone=form.phone.data)
+            userphone = UserPhone.get_for(
+                user=current_auth.user, phone_hash=form.phone_hash.data
+            )
             if userphone is not None:
                 if userphone.primary:
                     flash(_("This is already your primary phone number"), 'info')
+                elif userphone.phone_number.is_blocked:
+                    flash(_("This phone number has been blocked from use"), 'error')
                 else:
                     current_auth.user.primary_phone = userphone
                     db.session.commit()
@@ -697,11 +704,10 @@ class AccountView(ClassView):
             if UserPhone.get(otp_session.phone) is None:
                 # If there are no existing phone numbers, this will be a primary
                 primary = not current_auth.user.phones
-                userphone = UserPhone(
-                    user=current_auth.user, phone=otp_session.phone, gets_text=True
-                )
+                userphone = UserPhone(user=current_auth.user, phone=otp_session.phone)
                 userphone.primary = primary
                 db.session.add(userphone)
+                userphone.phone_number.mark_active(sms=True)
                 db.session.commit()
                 flash(_("Your phone number has been verified"), 'success')
                 user_data_changed.send(current_auth.user, changes=['phone'])
@@ -722,12 +728,13 @@ class AccountView(ClassView):
             template='account_formlayout.html.jinja2',
         )
 
-    @route('phone/<number>/remove', methods=['GET', 'POST'], endpoint='remove_phone')
+    @route(
+        'phone/<phone_hash>/remove', methods=['GET', 'POST'], endpoint='remove_phone'
+    )
     @requires_sudo
-    def remove_phone(self, number: str) -> ReturnView:
+    def remove_phone(self, phone_hash: str) -> ReturnView:
         """Remove a phone number from the user's account."""
-        userphone: Union[None, UserPhone]
-        userphone = UserPhone.get_for(user=current_auth.user, phone=number)
+        userphone = UserPhone.get_for(user=current_auth.user, phone_hash=phone_hash)
         if userphone is None:
             abort(404)
 
@@ -736,10 +743,10 @@ class AccountView(ClassView):
             db,
             title=_("Confirm removal"),
             message=_("Remove phone number {phone} from your account?").format(
-                phone=userphone.phone
+                phone=userphone.formatted
             ),
             success=_("You have removed your number {phone}").format(
-                phone=userphone.phone
+                phone=userphone.formatted
             ),
             next=url_for('account'),
             delete_text=_("Remove"),
@@ -810,6 +817,7 @@ AccountView.init_app(app)
 
 
 # --- Compatibility routes -------------------------------------------------------------
+
 
 # Retained for future hasjob integration
 # @hasjobapp.route('/account/sudo', endpoint='account_sudo')

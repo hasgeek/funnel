@@ -14,7 +14,7 @@
        "url" : {{ url_for('index', _external=true)|tojson }},
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
+        "target": "{{ url_for('search', _external=true) }}?q={query}",
         "query-input": "required name=query"
       }
     }
@@ -40,7 +40,7 @@
   </script>
 {%- endblock pageheaders %}
 
-{% block bodyattrs %}class="homepage mui--bg-accent"{% endblock bodyattrs %}
+{% block bodyattrs %}class="homepage bg-accent"{% endblock bodyattrs %}
 
 {% block description -%}
   {% trans %}Explore your passions with communities of like-minded geeks{% endtrans %}
@@ -64,7 +64,7 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-12">
-            <h2 class="mui--text-headline mui--text-bold project-headline">{% trans %}Explore communities{% endtrans %}</h2>
+            <h2 class="mui--text-headline text-bold project-headline">{% trans %}Explore communities{% endtrans %}</h2>
           </div>
         </div>
       </div>

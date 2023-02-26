@@ -13,7 +13,7 @@
        "url" : {{ url_for('index', _external=true)|tojson }},
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
+        "target": "{{ url_for('search', _external=true) }}?q={query}",
         "query-input": "required name=query"
       }
     }
@@ -31,7 +31,7 @@
   </script>
 {%- endblock pageheaders %}
 
-{% block bodyattrs %}class="mui--bg-primary mobile-header"{% endblock bodyattrs %}
+{% block bodyattrs %}class="bg-primary mobile-header"{% endblock bodyattrs %}
 
 {% block contenthead %}
 {% endblock contenthead %}
@@ -41,14 +41,14 @@
 {% endblock baseheadline %}
 
 {% block basecontent %}
-  <div class="mui--bg-accent top-padding">
+  <div class="bg-accent top-padding">
     <div class="mui-container">
       <div class="page-content">
         {% block contentwrapper %}
           <div class="grid projects-wrapper" id="tagged-sessions">
             <div class="grid__col-xs-12">
               {% if not tagged_sessions %}
-                <p class="mui-panel mui--bg-accent">{% trans %}No tagged sessions yet{% endtrans %}</p>
+                <p class="mui-panel bg-accent">{% trans %}No tagged sessions yet{% endtrans %}</p>
               {% endif %}
             </div>
             {% for session in tagged_sessions %}

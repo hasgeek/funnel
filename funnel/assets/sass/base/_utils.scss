@@ -1,0 +1,250 @@
+// ============================================================================
+// Margin and paddings
+// ============================================================================
+
+.zero-bottom-margin {
+  margin-bottom: 0 !important;
+}
+
+.zero-top-margin {
+  margin-top: 0 !important;
+}
+
+.margin-bottom {
+  margin-bottom: $mui-grid-padding/2;
+}
+
+.margin-top {
+  margin-top: $mui-grid-padding/2;
+}
+
+.margin-right {
+  margin-right: $mui-grid-padding/2;
+}
+
+.margin-left {
+  margin-left: $mui-grid-padding/2;
+}
+
+.margin-auto {
+  margin: auto;
+}
+
+.zero-padding {
+  padding: 0 !important;
+}
+
+.left-padding {
+  padding-left: $mui-grid-padding;
+}
+
+.right-padding {
+  padding-right: $mui-grid-padding;
+}
+
+.top-padding {
+  padding-top: $mui-grid-padding !important;
+}
+
+.bottom-padding {
+  padding-bottom: $mui-grid-padding !important;
+}
+
+// ============================================================================
+// Remove grid padding
+// ============================================================================
+
+.grid-no-left-padding {
+  margin-left: -$mui-grid-padding;
+}
+
+.grid-no-right-padding {
+  margin-right: -$mui-grid-padding;
+}
+
+// ============================================================================
+// Divider
+// ============================================================================
+
+.mui-divider {
+  width: 100%;
+}
+
+.mui-divider--custom {
+  margin: $mui-grid-padding/2 0 $mui-grid-padding * 1.5;
+}
+
+.separator {
+  margin: $mui-grid-padding 0;
+}
+
+// ============================================================================
+// Flex wrapper
+// ============================================================================
+
+.flex-wrapper {
+  display: flex;
+}
+
+.flex-wrapper--baseline {
+  align-items: baseline;
+}
+
+.flex-wrapper--center {
+  align-items: center;
+}
+
+.flex-wrapper--start {
+  align-items: flex-start;
+}
+
+.flex-wrapper--space-between {
+  justify-content: space-between;
+}
+
+.flex-wrapper--justify-center {
+  justify-content: center;
+}
+
+.flex-wrapper--wrap {
+  flex-wrap: wrap;
+}
+
+.flex-wrapper--nowrap {
+  flex-wrap: nowrap;
+}
+
+.flex-wrapper--horizontal {
+  overflow-x: auto;
+}
+
+.flex-wrapper--horizontal::-webkit-scrollbar {
+  display: none;
+}
+
+.flex-item-noshrink {
+  flex-shrink: 0;
+}
+
+// ============================================================================
+// DISPLAY
+// ============================================================================
+
+.display-block {
+  display: block;
+}
+.display-inlineblock {
+  display: inline-block;
+}
+.display-inline {
+  display: inline;
+}
+
+// ============================================================================
+// BACKGROUND COLORS
+// ============================================================================
+
+.bg-primary {
+  background-color: $mui-bg-color-primary !important;
+}
+.bg-primary-dark {
+  background-color: $mui-bg-color-dark !important;
+}
+.bg-accent {
+  background-color: $mui-bg-color-accent !important;
+}
+
+// ============================================================================
+// Text transform
+// ============================================================================
+
+.text-uppercase {
+  text-transform: uppercase;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
+}
+
+// ============================================================================
+// Text decoration
+// ============================================================================
+
+.underline {
+  text-decoration: underline;
+}
+
+.nounderline {
+  text-decoration: none !important;
+}
+
+// ============================================================================
+// Font weight
+// ============================================================================
+
+.text-bold {
+  font-weight: 600;
+}
+
+// ============================================================================
+// Text colour
+// ============================================================================
+
+.primary-color-txt {
+  color: $mui-primary-color;
+}
+
+.secondary-color-txt {
+  color: $mui-accent-color;
+}
+
+// ============================================================================
+// Loading icon
+// ============================================================================
+
+.loading {
+  background: url('data:image/svg+xml;utf8,<svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="100%25" height="100%25" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve"><path opacity="0.5" fill="%23000" d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"/></path></svg>')
+    center no-repeat;
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.spinner {
+  position: relative;
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+// ============================================================================
+// Responsive image
+// ============================================================================
+
+.img-responsive {
+  width: 100%;
+}
+
+// ============================================================================
+// Overlay
+// ============================================================================
+
+.overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background-color: $mui-overlay-bg-color;
+  z-index: 2;
+}

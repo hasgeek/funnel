@@ -1,9 +1,13 @@
-@import 'mui/mixins/forms';
-@import 'app';
-@import 'mui/checkbox-and-radio', 'mui/form', 'mui/select', 'mui/textfield';
-@import 'components/draggablebox';
-@import 'components/switch';
-@import 'components/codemirror';
+@import 'mui/colors_custom', 'mui/custom', 'mui/variables';
+@import 'mui/mixins/util', 'mui/mixins/forms';
+@import 'mui/helpers', 'mui/checkbox-and-radio', 'mui/select', 'mui/textfield',
+  'mui/form';
+@import 'base/variable', 'base/typography', 'components/draggablebox',
+  'components/switch', 'components/codemirror';
+
+// ============================================================================
+// Form
+// ============================================================================
 
 .form-message {
   @extend .mui--text-title;
@@ -82,6 +86,7 @@
     height: 6em;
   }
 
+  // Codemirror editor will be initialized
   textarea.markdown {
     display: none;
   }
@@ -90,7 +95,7 @@
     position: static;
     margin: 0 0 $mui-grid-padding/2;
     color: $mui-label-font-color;
-    @include mui-text('subhead');
+    @extend .mui--text-subhead;
   }
 
   .mui-form__error {
@@ -152,7 +157,7 @@
     .mui-textfield > label {
       color: $mui-text-light;
       font-weight: 500;
-      @include mui-text('body2');
+      @extend .mui--text-body2;
       transform: none;
       top: -$mui-grid-padding/4;
     }
@@ -163,6 +168,10 @@
   margin-top: 1 * $mui-grid-padding;
   margin-bottom: 2 * $mui-grid-padding;
 }
+
+// ============================================================================
+// Select
+// ============================================================================
 
 .mui-select {
   margin-top: $mui-grid-padding/2;
@@ -177,10 +186,15 @@
     z-index: 100;
   }
 }
+
 // For select dropdown will be on top of the header
 .mui-scroll-lock .header--fixed {
   z-index: 1;
 }
+
+// ============================================================================
+// Listwidget
+// ============================================================================
 
 .listwidget ul,
 .listwidget ol {
@@ -208,64 +222,9 @@
   display: inline-block;
 }
 
-.mui-textfield--password {
-  .password-toggle {
-    position: relative;
-    right: 0;
-    bottom: 22px;
-    float: right;
-  }
-  .password-strength-icon {
-    position: absolute;
-    right: 22px;
-    bottom: 9px;
-    display: none;
-  }
-  .password-strength-icon--show {
-    display: inline-block;
-  }
-  .progress {
-    height: 4px;
-    margin: $mui-grid-padding/2 0 25px;
-    background-color: #f5f5f5;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(mui-color('grey'), 0.12),
-      0 1px 2px rgba(mui-color('grey'), 0.24);
-    position: relative;
-    display: none;
-
-    .progress__bar {
-      float: left;
-      width: 0;
-      height: 100%;
-      font-size: 12px;
-      line-height: 20px;
-      color: #fff;
-      text-align: center;
-      background-color: #428bca;
-      box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
-      -webkit-transition: width 0.6s ease;
-      -o-transition: width 0.6s ease;
-      transition: width 0.6s ease;
-      max-width: 94% !important;
-    }
-    .progress__txt {
-      position: absolute;
-      top: 4px;
-      left: 0;
-      color: $mui-text-danger;
-    }
-    .progress__bar--danger {
-      background-color: $mui-text-danger;
-    }
-    .progress__bar--success {
-      background-color: $mui-text-success;
-      .progress__txt {
-        color: $mui-text-success;
-      }
-    }
-  }
-}
+// ============================================================================
+// Imgee popup in Account edit form
+// ============================================================================
 
 .imgee {
   position: relative;
@@ -305,123 +264,28 @@
   }
 }
 
-.cfp-action-btn {
-  padding: 10px 0;
-  cursor: pointer;
-  margin-right: 10px;
-  border: none;
-  color: $mui-text-hyperlink;
-  background: none;
-}
-
-.cfp-action-btn:focus,
-.cfp-action-btn:hover {
-  border: none;
-  outline: none;
-  box-shadow: none;
-  color: $mui-text-hyperlink;
-}
+// ============================================================================
+// Inline form
+// ============================================================================
 
 .inline-form {
   display: inline-block;
   vertical-align: middle;
 }
 
-.label-form {
-  max-width: 500px;
-
-  .label-form__title-field {
-    width: calc(100% - 130px);
-    display: inline-block;
-  }
-
-  .label-form__title-field--close {
-    width: calc(100% - 114px);
-  }
-
-  .label-form__subform__close-btn {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 2;
-    background: transparent;
-    padding: 10px;
-  }
-
-  .label-form__subform {
-    margin-left: 20px;
-  }
-
-  .emojipicker {
-    float: left;
-    width: 70px;
-    height: 48px;
-    margin-right: 20px;
-
-    label {
-      display: none;
-    }
-
-    .emojionearea-editor {
-      height: 48px;
-      min-height: 20px;
-      overflow: hidden;
-      white-space: nowrap;
-      position: absolute;
-      top: 0;
-      left: 12px;
-      right: 24px;
-      padding: 6px 0;
-    }
-
-    .emojionearea-button {
-      top: 10px;
-    }
-
-    .emojionearea-editor {
-      left: 6px !important;
-      padding-right: 45px !important;
-    }
-
-    .emojionearea-button .emojionearea-button-open,
-    .emojionearea-button .emojionearea-button-close {
-      right: 3px;
-    }
-
-    .emojionearea .emojionearea-editor [class*='emojione-'],
-    .emojionearea .emojionearea-editor .emojioneemoji {
-      margin: -0.2ex 1ex 0.2ex -0.5ex;
-    }
-  }
-
-  .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {
-    right: -251px;
-  }
-  .emojionearea.emojionearea-standalone
-    .emojionearea-picker.emojionearea-picker-position-bottom
-    .emojionearea-wrapper:after,
-  .emojionearea.emojionearea-standalone
-    .emojionearea-picker.emojionearea-picker-position-top
-    .emojionearea-wrapper:after {
-    right: 0;
-    left: 40px;
-  }
+.form-inline-input {
+  display: inline-block;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+.form-inline-label {
+  display: inline-block;
+  width: 70%;
 }
 
-.label-form__subform {
-  .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {
-    right: -210px;
-  }
-  .emojionearea.emojionearea-standalone
-    .emojionearea-picker.emojionearea-picker-position-bottom
-    .emojionearea-wrapper:after,
-  .emojionearea.emojionearea-standalone
-    .emojionearea-picker.emojionearea-picker-position-top
-    .emojionearea-wrapper:after {
-    right: 0;
-    left: 80px;
-  }
-}
+// ============================================================================
+// Form in a modal
+// ============================================================================
 
 .modal-form-page .jquery-modal.blocker.current {
   padding: 0;
@@ -487,40 +351,6 @@
   }
 }
 
-.badge-print-status-btn .mui-form__fields.select2-inline {
-  min-width: 160px;
-}
-
-#form-password-change #field-password .progress {
-  visibility: hidden;
-  display: block;
-}
-
-#form-password-change #field-password .progress.progress--show {
-  visibility: visible;
-}
-
-.mui-form .mui-form__fields.password-field {
-  margin-bottom: 0;
-}
-
-.password-field-sidetext {
-  margin: 0 0 20px;
-}
-
-@media (max-width: 767px) {
-  .modal__inner {
-    position: fixed;
-    background: $mui-bg-color-primary;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 16px;
-    overflow: auto;
-  }
-}
-
 .modal__body--form {
   .mui-tabs__bar {
     margin-bottom: 45px;
@@ -531,16 +361,6 @@
   .mui-form {
     margin-bottom: 0;
   }
-}
-
-.form-inline-input {
-  display: inline-block;
-  margin-right: 10px;
-  vertical-align: middle;
-}
-.form-inline-label {
-  display: inline-block;
-  width: 70%;
 }
 
 .modal-form {
@@ -557,120 +377,9 @@
   }
 }
 
-.submission-form {
-  .submission-header {
-    .submission-header__submit {
-      position: fixed;
-      top: 2px;
-      right: $mui-grid-padding;
-      z-index: 1001;
-      .submission-header__submit__btnwrapper .mui-btn {
-        padding: 0 8px;
-        background: none;
-        color: $mui-text-hyperlink;
-        box-shadow: none;
-      }
-    }
-  }
-  .mui-form__fields {
-    margin-bottom: $mui-grid-padding/4;
-  }
-  #title {
-    font-size: 18px;
-    min-height: auto;
-    height: auto;
-    resize: none !important;
-  }
-  .submission-label {
-    position: relative;
-    .label-error {
-      width: 155px;
-      position: absolute;
-      left: 80px;
-      top: -14px;
-    }
-  }
-  .markdown-field {
-    position: relative;
-    .cm-editor {
-      border-bottom: none !important;
-      .cm-scroller {
-        min-height: calc(100vh - 110px) !important;
-      }
-    }
-    .mui-form__error {
-      position: absolute;
-      top: 100px;
-    }
-  }
-  .proposal-preview {
-    position: fixed;
-    top: 100vh;
-    left: $mui-grid-padding;
-    right: $mui-grid-padding;
-    height: 100vh;
-    z-index: 999;
-    background: $mui-bg-color-primary;
-    padding-top: $mui-grid-padding;
-    font-size: $mui-input-font-size;
-  }
-}
-
-.modal-form.modal-form--submission {
-  .mui-textfield {
-    margin-bottom: 0;
-  }
-  .modal-form__title {
-    position: absolute;
-    top: 10px;
-  }
-}
-
-@media (min-width: 768px) {
-  .submission-form {
-    .submission-header {
-      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
-      padding: $mui-grid-padding/2 0;
-      margin-bottom: $mui-grid-padding;
-      position: sticky;
-      top: $mui-header-height;
-      background: $mui-bg-color-primary;
-      z-index: 1000;
-      .submission-header__submit {
-        position: static;
-        .submission-header__submit__btn {
-          margin-left: auto;
-        }
-      }
-      .submission-header__column {
-        border-right: 1px solid $mui-divider-color;
-      }
-    }
-    #title {
-      font-size: 20px;
-    }
-    .submission-header__edit-icons {
-      display: flex;
-      justify-content: space-between;
-    }
-    .proposal-markdown {
-      border-right: 1px solid $mui-divider-color;
-    }
-    .proposal-preview {
-      position: static;
-      height: auto;
-    }
-  }
-}
-
-.collaborator {
-  background: $mui-bg-color-primary;
-}
-
-.collaborator-placeholder {
-  border-bottom: 1px solid $mui-text-accent;
-  background: $mui-bg-color-accent;
-}
+// ============================================================================
+// Add/Edit crew form
+// ============================================================================
 
 .modal--form {
   #field-user {
@@ -688,7 +397,6 @@
     height: 32px !important;
     position: relative !important;
     padding-left: $mui-grid-padding/2 !important;
-    width: calc(100% + $mui-grid-padding) !important;
   }
   .mui-select:focus > label,
   .mui-select > select:focus ~ label {
@@ -696,22 +404,18 @@
   }
 }
 
-.keyboard-switch {
-  display: none;
-  justify-content: space-between;
-  position: fixed;
-  bottom: $mui-grid-padding/2;
-  width: calc(100% - #{$mui-grid-padding-double});
-  z-index: 2;
-  padding: $mui-grid-padding/2 0;
-  margin: 0;
-  background: $mui-bg-color-primary;
+// ============================================================================
+// Badge print select
+// ============================================================================
 
-  .tabs {
-    margin: 0;
-  }
+.badge-print-status-btn .mui-form__fields.select2-inline {
+  min-width: 160px;
 }
 
-input#username:focus ~ .keyboard-switch {
-  display: flex;
+// ============================================================================
+// Input field helper icon (keyboard switch/Show password)
+// ============================================================================
+
+.field-toggle {
+  display: none;
 }

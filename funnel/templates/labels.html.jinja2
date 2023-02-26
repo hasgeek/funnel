@@ -51,12 +51,12 @@
             <div class="drag-box__header">
               <input name="name" value="{{ label.name }}" type="hidden" class="id-input" />
               {% if label.has_options %}
-                <h3 class="mui--text-title mui--text-bold label-box__inner__heading zero-top-margin">
+                <h3 class="mui--text-title text-bold label-box__inner__heading zero-top-margin">
                   {% if label.icon_emoji %}{{ label.icon_emoji }}{% endif %}
                   {{ label.title }}
                 </h3>
               {% else %}
-                <h3 class="mui--text-title mui--text-bold drag-box__inner__heading zero-top-margin">{{ label.title }}</h3>
+                <h3 class="mui--text-title text-bold drag-box__inner__heading zero-top-margin">{{ label.title }}</h3>
               {% endif %}
               {{ faicon(icon='grip-vertical', baseline=false, css_class="drag-handle") }}
             </div>

@@ -3,20 +3,24 @@
 
 from __future__ import annotations
 
+from contextlib import ExitStack
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from difflib import unified_diff
 from types import MethodType, SimpleNamespace
+from unittest.mock import patch
 import re
 import shutil
-import threading
 import typing as t
+
+from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy.session import Session as FsaSession
+from sqlalchemy.orm import Session as DatabaseSessionClass
+import sqlalchemy as sa
 
 import pytest
 
 if t.TYPE_CHECKING:
-    from flask_sqlalchemy import SQLAlchemy
-    from sqlalchemy.orm import Session as DatabaseSessionClass
-
     from flask import Flask
     from flask.testing import FlaskClient
 
@@ -268,7 +272,7 @@ def colorize_code(rich_console) -> t.Callable[[str, t.Optional[str]], str]:
             TerminalTrueColorFormatter,
         )
         from pygments.lexers import get_lexer_by_name, guess_lexer
-    except ImportError:
+    except ModuleNotFoundError:
         return no_colorize
 
     if rich_console.color_system == 'truecolor':
@@ -456,9 +460,6 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
     """
     from pprint import saferepr
 
-    from sqlalchemy import event, inspect
-    from sqlalchemy.orm import Session as DatabaseSessionClass
-
     def safe_repr(entity):
         try:
             return saferepr(entity)
@@ -469,7 +470,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
                 return f'{entity.__name__}(repr-error)'
             return 'repr-error'
 
-    @event.listens_for(models.db.Model, 'init', propagate=True)
+    @sa.event.listens_for(models.db.Model, 'init', propagate=True)
     def event_init(obj, args, kwargs):
         rargs = ', '.join(safe_repr(_a) for _a in args)
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
@@ -479,79 +480,79 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
             f"{colorama.Style.BRIGHT}obj: new:{colorama.Style.NORMAL}" f" {code}"
         )
 
-    @event.listens_for(DatabaseSessionClass, 'transient_to_pending')
+    @sa.event.listens_for(DatabaseSessionClass, 'transient_to_pending')
     def event_transient_to_pending(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: transient to pending:{colorama.Style.NORMAL}"
             f" {colorize_code(safe_repr(obj))}"
         )
 
-    @event.listens_for(DatabaseSessionClass, 'pending_to_transient')
+    @sa.event.listens_for(DatabaseSessionClass, 'pending_to_transient')
     def event_pending_to_transient(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: pending to transient:{colorama.Style.NORMAL}"
             f" {colorize_code(safe_repr(obj))}"
         )
 
-    @event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
+    @sa.event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
     def event_pending_to_persistent(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: pending to persistent:{colorama.Style.NORMAL}"
             f" {colorize_code(safe_repr(obj))}"
         )
 
-    @event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
+    @sa.event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
     def event_loaded_as_persistent(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: loaded as persistent:{colorama.Style.NORMAL}"
             f" {safe_repr(obj)}"
         )
 
-    @event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
+    @sa.event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
     def event_persistent_to_transient(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: persistent to transient:"
             f"{colorama.Style.NORMAL} {safe_repr(obj)}"
         )
 
-    @event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
+    @sa.event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
     def event_persistent_to_deleted(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: persistent to deleted:{colorama.Style.NORMAL}"
             f" {safe_repr(obj)}"
         )
 
-    @event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
+    @sa.event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
     def event_deleted_to_detached(_session, obj):
-        i = inspect(obj)
+        i = sa.inspect(obj)
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: deleted to detached:{colorama.Style.NORMAL}"
             f" {obj.__class__.__qualname__}/{i.identity}"
         )
 
-    @event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
+    @sa.event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
     def event_persistent_to_detached(_session, obj):
-        i = inspect(obj)
+        i = sa.inspect(obj)
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: persistent to detached:"
             f"{colorama.Style.NORMAL} {obj.__class__.__qualname__}/{i.identity}"
         )
 
-    @event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
+    @sa.event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
     def event_detached_to_persistent(_session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: detached to persistent:"
             f"{colorama.Style.NORMAL} {safe_repr(obj)}"
         )
 
-    @event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
+    @sa.event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
     def event_deleted_to_persistent(session, obj):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}obj: deleted to persistent:{colorama.Style.NORMAL}"
             f" {safe_repr(obj)}"
         )
 
-    @event.listens_for(DatabaseSessionClass, 'do_orm_execute')
+    @sa.event.listens_for(DatabaseSessionClass, 'do_orm_execute')
     def event_do_orm_execute(orm_execute_state):
         state_is = []
         if orm_execute_state.is_column_load:
@@ -578,7 +579,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
             f" {', '.join(state_is)}"
         )
 
-    @event.listens_for(DatabaseSessionClass, 'after_begin')
+    @sa.event.listens_for(DatabaseSessionClass, 'after_begin')
     def event_after_begin(_session, transaction, _connection):
         if transaction.nested:
             if transaction.parent.nested:
@@ -597,21 +598,21 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
             )
         print_stack()
 
-    @event.listens_for(DatabaseSessionClass, 'after_commit')
+    @sa.event.listens_for(DatabaseSessionClass, 'after_commit')
     def event_after_commit(session):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} COMMIT"
             f" ({session.info!r})"
         )
 
-    @event.listens_for(DatabaseSessionClass, 'after_flush')
+    @sa.event.listens_for(DatabaseSessionClass, 'after_flush')
     def event_after_flush(session, _flush_context):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} FLUSH"
             f" ({session.info})"
         )
 
-    @event.listens_for(DatabaseSessionClass, 'after_rollback')
+    @sa.event.listens_for(DatabaseSessionClass, 'after_rollback')
     def event_after_rollback(session):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} ROLLBACK"
@@ -619,7 +620,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
         )
         print_stack()
 
-    @event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
+    @sa.event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
     def event_after_soft_rollback(session, _previous_transaction):
         print(  # noqa: T201
             f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} SOFT ROLLBACK"
@@ -627,7 +628,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
         )
         print_stack()
 
-    @event.listens_for(DatabaseSessionClass, 'after_transaction_create')
+    @sa.event.listens_for(DatabaseSessionClass, 'after_transaction_create')
     def event_after_transaction_create(_session, transaction):
         if transaction.nested:
             if transaction.parent.nested:
@@ -647,7 +648,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
             )
         print_stack()
 
-    @event.listens_for(DatabaseSessionClass, 'after_transaction_end')
+    @sa.event.listens_for(DatabaseSessionClass, 'after_transaction_end')
     def event_after_transaction_end(_session, transaction):
         if transaction.nested:
             if transaction.parent.nested:
@@ -669,45 +670,49 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
 
     yield
 
-    event.remove(models.db.Model, 'init', event_init)
-    event.remove(
+    sa.event.remove(models.db.Model, 'init', event_init)
+    sa.event.remove(
         DatabaseSessionClass, 'transient_to_pending', event_transient_to_pending
     )
-    event.remove(
+    sa.event.remove(
         DatabaseSessionClass, 'pending_to_transient', event_pending_to_transient
     )
-    event.remove(
+    sa.event.remove(
         DatabaseSessionClass, 'pending_to_persistent', event_pending_to_persistent
     )
-    event.remove(
+    sa.event.remove(
         DatabaseSessionClass, 'loaded_as_persistent', event_loaded_as_persistent
     )
-    event.remove(
+    sa.event.remove(
         DatabaseSessionClass, 'persistent_to_transient', event_persistent_to_transient
     )
-    event.remove(
+    sa.event.remove(
         DatabaseSessionClass, 'persistent_to_deleted', event_persistent_to_deleted
     )
-    event.remove(DatabaseSessionClass, 'deleted_to_detached', event_deleted_to_detached)
-    event.remove(
+    sa.event.remove(
+        DatabaseSessionClass, 'deleted_to_detached', event_deleted_to_detached
+    )
+    sa.event.remove(
         DatabaseSessionClass, 'persistent_to_detached', event_persistent_to_detached
     )
-    event.remove(
+    sa.event.remove(
         DatabaseSessionClass, 'detached_to_persistent', event_detached_to_persistent
     )
-    event.remove(
+    sa.event.remove(
         DatabaseSessionClass, 'deleted_to_persistent', event_deleted_to_persistent
     )
-    event.remove(DatabaseSessionClass, 'do_orm_execute', event_do_orm_execute)
-    event.remove(DatabaseSessionClass, 'after_begin', event_after_begin)
-    event.remove(DatabaseSessionClass, 'after_commit', event_after_commit)
-    event.remove(DatabaseSessionClass, 'after_flush', event_after_flush)
-    event.remove(DatabaseSessionClass, 'after_rollback', event_after_rollback)
-    event.remove(DatabaseSessionClass, 'after_soft_rollback', event_after_soft_rollback)
-    event.remove(
+    sa.event.remove(DatabaseSessionClass, 'do_orm_execute', event_do_orm_execute)
+    sa.event.remove(DatabaseSessionClass, 'after_begin', event_after_begin)
+    sa.event.remove(DatabaseSessionClass, 'after_commit', event_after_commit)
+    sa.event.remove(DatabaseSessionClass, 'after_flush', event_after_flush)
+    sa.event.remove(DatabaseSessionClass, 'after_rollback', event_after_rollback)
+    sa.event.remove(
+        DatabaseSessionClass, 'after_soft_rollback', event_after_soft_rollback
+    )
+    sa.event.remove(
         DatabaseSessionClass, 'after_transaction_create', event_after_transaction_create
     )
-    event.remove(
+    sa.event.remove(
         DatabaseSessionClass, 'after_transaction_end', event_after_transaction_end
     )
 
@@ -727,118 +732,102 @@ def database(funnel, models, request, app) -> SQLAlchemy:
     return models.db
 
 
-@pytest.fixture(scope='session')
-def _db(database):  # noqa: PT005
-    """Database fixture required by pytest-flask-sqlalchemy (unused)."""
-    # Also see pyproject.toml for mock configuration
-    return database
-
-
-class RemoveIsRollback:
-    """Change session.remove() to session.rollback()."""
-
-    def __init__(self, session, rollback_provider):
-        self.session = session
-        self.original_remove = session.remove
-        self.rollback_provider = rollback_provider
-        self.owning_thread = threading.current_thread()
-
-    def __enter__(self):
-        pass
-        # pylint: disable=unnecessary-lambda
-        # If called in the owning thread (which is typical), deflect
-        # ``session.remove()`` to ``session.rollback()``. If called in a sub-thread
-        # (Flask-Executor), remove the session.
-        # self.session.remove = lambda *args, **kwargs: (
-        #     self.rollback_provider()(*args, **kwargs)
-        #     if threading.current_thread() == self.owning_thread
-        #     else self.original_remove(*args, **kwargs)
-        # )
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.session.remove = self.original_remove
-
-
 @pytest.fixture()
 def db_session_truncate(
     funnel, app, database, app_context
 ) -> t.Iterator[DatabaseSessionClass]:
     """Empty the database after each use of the fixture."""
-    from sqlalchemy.orm import close_all_sessions
-
-    with RemoveIsRollback(database.session, lambda: database.session.rollback):
-        yield database.session
-    close_all_sessions()
+    yield database.session
+    sa.orm.close_all_sessions()
 
     # Iterate through all database engines and empty their tables
-    with app.app_context():
-        for bind in [None] + list(app.config.get('SQLALCHEMY_BINDS') or ()):
-            engine = database.engines[bind]
-            with engine.begin() as connection:
-                connection.execute(
+    for engine in database.engines.values():
+        with engine.begin() as transaction:
+            transaction.execute(
+                sa.text(
                     '''
-                    DO $$
-                    DECLARE tablenames text;
-                    BEGIN
-                        tablenames := string_agg(
-                            quote_ident(schemaname) || '.' || quote_ident(tablename),
-                            ', ')
-                            FROM pg_tables WHERE schemaname = 'public';
-                        EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
-                    END; $$
-                '''
+                DO $$
+                DECLARE tablenames text;
+                BEGIN
+                    tablenames := string_agg(
+                        quote_ident(schemaname) || '.' || quote_ident(tablename), ', ')
+                        FROM pg_tables WHERE schemaname = 'public';
+                    EXECUTE 'TRUNCATE TABLE ' || tablenames || ' RESTART IDENTITY';
+                END; $$'''
                 )
+            )
 
     # Clear Redis db too
     funnel.redis_store.flushdb()
 
 
+@dataclass
+class BindConnectionTransaction:
+    engine: sa.engine.Engine
+    connection: t.Any
+    transaction: t.Any
+
+
+class BoundSession(FsaSession):
+    def __init__(
+        self,
+        db: SQLAlchemy,
+        bindcts: t.Dict[t.Optional[str], BindConnectionTransaction],
+        **kwargs: t.Any,
+    ) -> None:
+        super().__init__(db, **kwargs)
+        self.bindcts = bindcts
+
+    def get_bind(
+        self,
+        mapper: t.Optional[t.Any] = None,
+        clause: t.Optional[t.Any] = None,
+        bind: t.Optional[t.Union[sa.engine.Engine, sa.engine.Connection]] = None,
+        **kwargs: t.Any,
+    ) -> t.Union[sa.engine.Engine, sa.engine.Connection]:
+        if bind is not None:
+            return bind
+        if mapper is not None:
+            mapper = sa.inspect(mapper)
+            table = mapper.local_table
+            bind_key = table.metadata.info.get('bind_key')
+            return self.bindcts[bind_key].connection
+        if isinstance(clause, sa.Table):
+            bind_key = table.metadata.info.get('bind_key')
+            return self.bindcts[bind_key].connection
+        return self.bindcts[None].connection
+
+
 @pytest.fixture()
 def db_session_rollback(
-    funnel, database, app_context
+    funnel, app, database, app_context
 ) -> t.Iterator[DatabaseSessionClass]:
     """Create a nested transaction for the test and rollback after."""
-    from sqlalchemy import event
-
-    db_connection = database.engine.connect()
     original_session = database.session
-    transaction = db_connection.begin()
+
+    bindcts: t.Dict[t.Optional[str], BindConnectionTransaction] = {}
+    for bind, engine in database.engines.items():
+        connection = engine.connect()
+        transaction = connection.begin()
+        bindcts[bind] = BindConnectionTransaction(engine, connection, transaction)
+    database.session = database._make_scoped_session(
+        {
+            'class_': BoundSession,
+            'bindcts': bindcts,
+            'join_transaction_mode': 'create_savepoint',
+        }
+    )
     database.session.info['fixture'] = True
 
-    # For handling tests that actually call `session.rollback()`, we use a SQL savepoint
-    # and add an event handler that restarts the savepoint. SQLAlchemy 1.4 deprecated
-    # session.commit() being used to commit a savepoint, and 2.0 will remove it,
-    # potentially breaking this fixture. It will need revision then.
-    #
-    # References:
-    #
-    # * 1.3: https://docs.sqlalchemy.org/en/13/orm/session_transaction.html
-    #   #joining-a-session-into-an-external-transaction-such-as-for-test-suites
-    # * 1.4: https://docs.sqlalchemy.org/en/14/orm/session_transaction.html
-    #   #joining-a-session-into-an-external-transaction-such-as-for-test-suites
+    yield database.session
 
-    savepoint = database.session.begin_nested()
-
-    # XXX: SQLAlchemy 2.0 will need commit and rollback on the savepoint instead of the
-    # session. This fixture is likely to break under 2.0 and will need revision
-
-    @event.listens_for(database.session, 'after_transaction_end')
-    def restart_savepoint(session, transaction_in):
-        """If the savepoint terminates due to commit or rollback, restart it."""
-        nonlocal savepoint
-        if transaction_in.nested and not transaction_in.parent.nested:
-            # This is a top-level savepoint, so restart it
-            session.expire_all()
-            savepoint = session.begin_nested()
-
-    with RemoveIsRollback(database.session, lambda: savepoint.rollback):
-        yield database.session
-
-    event.remove(database.session, 'after_transaction_end', restart_savepoint)
     database.session.info.pop('fixture', None)
     database.session.close()
-    transaction.rollback()
-    db_connection.close()
+
+    for bct in bindcts.values():
+        bct.transaction.rollback()
+        bct.connection.close()
+
     database.session = original_session
 
     # Clear Redis db too
@@ -977,55 +966,40 @@ def live_server(funnel_devtest, database, app):
         )
     port = int(port_str)
 
-    # Save app config before modifying it to match live server environment
-    original_app_config = {}
-    for m_app in funnel_devtest.devtest_app.apps_by_host.values():
-        original_app_config[m_app] = {
-            'PREFERRED_URL_SCHEME': m_app.config['PREFERRED_URL_SCHEME'],
-            'SERVER_NAME': m_app.config['SERVER_NAME'],
-        }
-        m_app.config['PREFERRED_URL_SCHEME'] = scheme
-        m_host = m_app.config['SERVER_NAME'].split(':', 1)[0]
-        m_app.config['SERVER_NAME'] = f'{m_host}:{port}'
+    # Patch app config to match this fixture's config (scheme and port change).
+    with ExitStack() as config_patch_stack:
+        for m_app in funnel_devtest.devtest_app.apps_by_host.values():
+            m_host = m_app.config['SERVER_NAME'].split(':', 1)[0]
+            config_patch_stack.enter_context(
+                patch.dict(
+                    m_app.config,
+                    {'PREFERRED_URL_SCHEME': scheme, 'SERVER_NAME': f'{m_host}:{port}'},
+                )
+            )
 
-    # Start background worker and wait until it's receiving connections
-    server = funnel_devtest.BackgroundWorker(
-        run_simple,
-        args=('127.0.0.1', port, funnel_devtest.devtest_app),
-        kwargs={
-            'use_reloader': False,
-            'use_debugger': True,
-            'use_evalex': False,
-            'threaded': True,
-            'ssl_context': 'adhoc' if use_https else None,
-        },
-        probe_at=('127.0.0.1', port),
-    )
-    try:
-        server.start()
-    except RuntimeError as exc:
-        # Server did not respond to probe until timeout; mark test as failed
-        server.stop()
-        pytest.fail(str(exc))
-
-    with app.app_context():
-        # Return live server config within an app context so that the test function
-        # can use url_for without creating a context. However, secondary apps will
-        # need context specifically established for url_for on them
-        yield SimpleNamespace(
-            url=f'{scheme}://{app.config["SERVER_NAME"]}/',
-            urls=[
-                f'{scheme}://{m_app.config["SERVER_NAME"]}/'
-                for m_app in funnel_devtest.devtest_app.apps_by_host.values()
-            ],
-        )
-
-    # Stop server after use
-    server.stop()
-
-    # Restore original app config
-    for m_app, config in original_app_config.items():
-        m_app.config.update(config)
+        # Start background worker and yield as fixture
+        with funnel_devtest.BackgroundWorker(
+            run_simple,
+            args=('127.0.0.1', port, funnel_devtest.devtest_app),
+            kwargs={
+                'use_reloader': False,
+                'use_debugger': True,
+                'use_evalex': False,
+                'threaded': True,
+                'ssl_context': 'adhoc' if use_https else None,
+            },
+            probe_at=('127.0.0.1', port),
+            mock_transports=True,
+        ) as server:
+            yield SimpleNamespace(
+                background_worker=server,
+                transport_calls=server.calls,
+                url=f'{scheme}://{app.config["SERVER_NAME"]}/',
+                urls=[
+                    f'{scheme}://{m_app.config["SERVER_NAME"]}/'
+                    for m_app in funnel_devtest.devtest_app.apps_by_host.values()
+                ],
+            )
 
 
 @pytest.fixture()

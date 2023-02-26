@@ -17,8 +17,8 @@
   <div class="page-content">
     <div class="grid">
       <div class="grid__col-xs-12 grid__col-sm-9 calendar-wrapper">
-        <div class="mui-form__controls datepicker-wrapper">
-          <div class="mui-textfield mui--pull-left">
+        <div class="datepicker-wrapper">
+          <div class="textfield mui--pull-left">
             <label>{% trans %}Select date{% endtrans %}</label>
             <input type="date" class="datetime-date" id="select-date" placeholder="yyyy-mm-dd" value="" />
           </div>
@@ -29,11 +29,21 @@
         </div>
       </div>
       <div id="proposals-tab" class="grid__col-xs-12 grid__col-sm-3">
-        <ul class="mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps">
-          <li class="mui--text-subhead mui--is-active" role="presentation"><a href="#" onclick="return false;" data-mui-toggle="tab" data-mui-controls="list" data-cy-tab="proposals">{% trans %}Unscheduled submissions{% endtrans %}</a></li>
-          <li class="mui--text-subhead" role="presentation"><a href="#" onclick="return false;" data-mui-toggle="tab" data-mui-controls="settings" data-cy-tab="settings">{% trans %}Settings{% endtrans %}</a></li>
+        <ul class="mui-tabs__bar mui-tabs__bar--pills mui-tabs__bar--pills--wraps" role="tablist">
+          <li class="mui--text-subhead mui--is-active" role="presentation">
+            <a href="#" onclick="return false;" data-mui-toggle="tab" data-mui-controls="list"
+              data-cy-tab="proposals" aria-controls="list" id="tab-list" role="tab"
+              tabindex="0" aria-selected="true"
+            >{% trans %}Unscheduled submissions{% endtrans %}</a>
+          </li>
+          <li class="mui--text-subhead" role="presentation">
+            <a href="#" onclick="return false;" data-mui-toggle="tab" data-mui-controls="settings"
+              data-cy-tab="settings" aria-controls="settings" id="tab-settings" role="tab"
+              tabindex="-1" aria-selected="false"
+            >{% trans %}Settings{% endtrans %}</a>
+          </li>
         </ul>
-        <div id="list" class="mui-tabs__pane mui--is-active schedule-settings">
+        <div id="list" class="mui-tabs__pane mui--is-active schedule-settings" role="tabpanel" aria-labelledby="tab-list" tabindex="0">
           {%- for proposal in proposals['unscheduled'] %}
             <div class="js-unscheduled proposal-box" data-modal-url="{{ proposal.modal_url }}">
               {%- for member in proposal.memberships %}{% if not member.is_uncredited %}
@@ -48,12 +58,12 @@
               {%- endif %}{% endfor %}
               <p class="mui--text-subhead margin-bottom">{{ proposal.title }}</p>
               {%- for label in proposal.labels %}
-                <span class="label mui--text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
+                <span class="label text-bold">{% if label.icon_emoji %}{{ label.icon_emoji }} {% endif %}{% if label.main_label %}{{ label.main_label.title }}: {% endif %}{{ label.title }}</span>
               {%- endfor %}
             </div>
           {%- endfor %}
         </div>
-        <div id="settings" class="mui-tabs__pane schedule-settings">
+        <div id="settings" class="mui-tabs__pane schedule-settings" role="tabpanel" aria-labelledby="tab-settings" tabindex="0">
           <form id="room_colors" action="{{ project.url_for('update_venue_settings') }}" method="post" accept-charset="UTF-8">
             <div id="venue_sortable" class="sortable" data-drag-placeholder="ui-box-placeholder--bigger" draggable="true">
             {% for venue in venues %}

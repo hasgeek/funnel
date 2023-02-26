@@ -48,10 +48,10 @@ def upgrade():
         'participant', sa.Column('uuid', UUIDType(binary=False), nullable=True)
     )
     # migrate past participants
-    count = conn.scalar(sa.select([sa.func.count('*')]).select_from(participant))
+    count = conn.scalar(sa.select(sa.func.count('*')).select_from(participant))
     progress = get_progressbar("Participants", count)
     progress.start()
-    items = conn.execute(sa.select([participant.c.id]))
+    items = conn.execute(sa.select(participant.c.id))
     for counter, item in enumerate(items):
         conn.execute(
             sa.update(participant)

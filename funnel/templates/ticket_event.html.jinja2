@@ -5,6 +5,10 @@
 {% from "macros.html.jinja2" import faicon, csrf_tag %}
 {% block title %}{% trans %}Setup events{% endtrans %}{% endblock title %}
 
+{% block pageheaders %}
+  <link rel="stylesheet" type="text/css" href="{{ built_asset('css/event.scss') }}" />
+{% endblock pageheaders %}
+
 {% block top_title %}
   <h1 class="mui--text-headline"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
   <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" data-cy="back-to-setup">{{ faicon(icon='arrow-left', icon_size='subhead') }} {% trans %}Back to setup events{% endtrans %}</a></p>
@@ -30,8 +34,8 @@
       {{ checkin_count() }}
     </div>
     <div class="grid__col-xs-12 grid__col-md-4">
-      <form class="mui--d-inlineblock search search--small search--icon mui--z1">
-        <div class="mui-textfield">
+      <form class="display-inlineblock search search--small search--icon mui--z1">
+        <div class="textfield">
           <input class="search-query" id="search" type="text" name="key" value="" placeholder="Search"/>{{ faicon(icon='search', css_class="search-form__icon")}}
         </div>
       </form>

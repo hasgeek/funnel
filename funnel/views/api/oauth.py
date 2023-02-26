@@ -404,7 +404,7 @@ def oauth_token_success(token: AuthToken, **params) -> ReturnView:
     if token.validity:
         params['expires_in'] = token.validity
         # No refresh tokens for client_credentials tokens
-        if token.user is not None:
+        if token.effective_user is not None:
             params['refresh_token'] = token.refresh_token
     response = jsonify(**params)
     response.headers['Cache-Control'] = 'no-cache, no-store, max-age=0, must-revalidate'
@@ -465,7 +465,7 @@ def oauth_token() -> ReturnView:
                     return oauth_token_success(
                         token,
                         userinfo=get_userinfo(
-                            user=token.user,
+                            user=token.effective_user,
                             auth_client=auth_client,
                             scope=token.effective_scope,
                         ),

@@ -19,6 +19,7 @@ from ..forms import SetNotificationPreferenceForm, UnsubscribeForm, transport_la
 from ..models import (
     EmailAddress,
     NotificationPreferences,
+    PhoneNumber,
     User,
     db,
     notification_categories,
@@ -81,7 +82,7 @@ class AccountNotificationView(ClassView):
             if ncls.category.priority_id in preferences:
                 if ntype not in user_preferences:
                     user_preferences[ntype] = NotificationPreferences(
-                        user=current_auth.user, notification_type=ntype
+                        notification_type=ntype, user=current_auth.user
                     )
                     commit_new_preferences = True
                 preferences[ncls.category.priority_id]['types'].append(
@@ -338,7 +339,6 @@ class AccountNotificationView(ClassView):
 
         # --- Cached tokens (SMS)
         elif token_type == 'cached':  # nosec
-
             # Enforce a rate limit per IP on cached tokens, to slow down enumeration.
             # Some ISPs use carrier-grade NAT and will have a single IP for a very
             # large number of users, so we have generous limits. 100 unsubscribes per
@@ -406,7 +406,18 @@ class AccountNotificationView(ClassView):
             else:
                 email_address.mark_active()
                 db.session.commit()
-        # TODO: Add active status for phone numbers and check here
+        elif (
+            payload['transport'] in ('sms', 'whatsapp', 'signal') and 'hash' in payload
+        ):
+            phone_number = PhoneNumber.get(phone_hash=payload['hash'])
+            if phone_number is None:
+                current_app.logger.error(
+                    "Unsubscribe view cannot find phone number with hash %s",
+                    payload['hash'],
+                )
+            else:
+                phone_number.mark_active()
+                db.session.commit()
 
         # Step 7. Ask the user to confirm unsubscribe. Do not unsubscribe on a GET
         # request as it may be triggered by link previews (for transports other than

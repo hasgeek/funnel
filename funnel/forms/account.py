@@ -20,12 +20,15 @@ from ..models import (
     Profile,
     User,
     UserEmailClaim,
-    UserPhone,
     check_password_strength,
     getuser,
 )
-from ..utils import normalize_phone_number
-from .helpers import EmailAddressAvailable, nullable_strip_filters, strip_filters
+from .helpers import (
+    EmailAddressAvailable,
+    PhoneNumberAvailable,
+    nullable_strip_filters,
+    strip_filters,
+)
 
 __all__ = [
     'PasswordForm',
@@ -529,23 +532,13 @@ class NewEmailAddressForm(forms.RecaptchaForm):
             'autocomplete': 'email',
         },
     )
-    type = forms.RadioField(  # noqa: A003
-        __("Type"),
-        validators=[forms.validators.Optional()],
-        filters=[forms.filters.strip()],
-        choices=[
-            (__("Home"), __("Home")),
-            (__("Work"), __("Work")),
-            (__("Other"), __("Other")),
-        ],
-    )
 
 
 @User.forms('email_primary')
 class EmailPrimaryForm(forms.Form):
     """Form to mark an email address as a user's primary."""
 
-    email = forms.EmailField(
+    email_hash = forms.EmailField(
         __("Email address"),
         validators=[forms.validators.DataRequired()],
         filters=strip_filters,
@@ -566,14 +559,19 @@ class NewPhoneForm(forms.RecaptchaForm):
 
     phone = forms.TelField(
         __("Phone number"),
-        validators=[forms.validators.DataRequired()],
+        validators=[
+            forms.validators.DataRequired(),
+            PhoneNumberAvailable(purpose='claim'),
+        ],
         filters=strip_filters,
         description=__("Mobile numbers only, in Indian or international format"),
         render_kw={'autocomplete': 'tel'},
     )
 
+    # TODO: Consider option "prefer WhatsApp" or "prefer secure messengers (WhatsApp)"
+
     enable_notifications = forms.BooleanField(
-        __("Send notifications by SMS"),
+        __("Send notifications by SMS"),  # TODO: Add "or WhatsApp"
         description=__(
             "Unsubscribe anytime, and control what notifications are sent from the"
             " Notifications tab under account settings"
@@ -581,38 +579,12 @@ class NewPhoneForm(forms.RecaptchaForm):
         default=True,
     )
 
-    def validate_phone(self, field) -> None:
-        """Validate a phone number to be a mobile number and to be available."""
-        # Step 1: Validate number
-        number = normalize_phone_number(field.data, sms=True)
-        if number is False:
-            raise forms.validators.StopValidation(
-                _("This phone number cannot receive SMS messages")
-            )
-        if not number:
-            raise forms.validators.StopValidation(
-                _("This does not appear to be a valid phone number")
-            )
-        # Step 2: Check if number has already been claimed
-        existing = UserPhone.get(phone=number)
-        if existing is not None:
-            if existing.user == self.edit_user:
-                raise forms.validators.ValidationError(
-                    _("You have already registered this phone number")
-                )
-            # TODO: This should be a mechanism for merging accounts
-            raise forms.validators.ValidationError(
-                _("This phone number has already been claimed")
-            )
-        # Step 3: If validations pass, use the reformatted number
-        field.data = number  # Save stripped number
-
 
 @User.forms('phone_primary')
 class PhonePrimaryForm(forms.Form):
     """Form to mark a phone number as a user's primary."""
 
-    phone = forms.StringField(
+    phone_hash = forms.StringField(
         __("Phone number"),
         validators=[forms.validators.DataRequired()],
         render_kw={

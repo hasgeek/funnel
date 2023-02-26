@@ -19,11 +19,11 @@
 // Miscellaneous
 @import 'mui/helpers', 'mui/overlay', 'mui/ripple';
 
-@import 'components/variable';
-@import 'components/typography';
-@import 'components/helper';
+@import 'base/variable';
+@import 'base/typography';
+@import 'components/button';
 @import 'components/menu';
-@import 'components/layout';
+@import 'components/search-field';
 @import 'components/chip';
 @import 'components/alert';
 @import 'components/thumbnail';
@@ -32,7 +32,12 @@
 @import 'components/responsive-table';
 @import 'components/card';
 @import 'components/video';
+@import 'components/markdown';
+@import 'components/profileavatar';
+@import 'components/useravatar';
+@import 'components/list';
+@import 'components/header';
 
-// Local stylesheets
-@import 'layout';
-@import 'header';
+@import 'base/base';
+@import 'base/layout';
+@import 'base/utils';
