@@ -3,41 +3,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from functools import reduce
-from typing import ClassVar, Dict, List, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Tuple
+
+from markdown_it.token import Token
 
 __all__ = ['render_tab']
 
 
-def get_tab_tokens(tokens):
-    return [
-        {
-            'index': i,
-            'nesting': token.nesting,
-            'info': token.info,
-            'key': '-'.join([token.markup, str(token.level)]),
-        }
-        for i, token in enumerate(tokens)
-        if token.type in ('container_tab_open', 'container_tab_close')
-    ]
-
-
-def get_pair(tab_tokens, start=0) -> Optional[Tuple[int, int]]:
-    i = 1
-    while i < len(tab_tokens):
-        if (
-            tab_tokens[i]['nesting'] == -1
-            and tab_tokens[0]['key'] == tab_tokens[i]['key']
-        ):
-            break
-        i += 1
-    if i >= len(tab_tokens):
-        return None
-    return (start, start + i)
-
-
-def render_tab(self, tokens, idx, _options, env):
+def render_tab(self, tokens: List[Token], idx, _options, env):
     if 'manager' not in env:
-        env['manager'] = TabsManager(get_tab_tokens(tokens))
+        env['manager'] = TabsManager(tokens)
 
     node = env['manager'].index(idx)
     if node is None:
@@ -97,7 +72,7 @@ class TabNode:
     _item_html: ClassVar[str] = (
         '<li role="presentation"{class_attr}>'
         + '<a role="tab" href="javascript:void(0)" id="{tab_id}"'
-        + ' aria-controls="{tab_id}-panel" {accessibility}>{title}</a></li>'
+        + ' aria-controls="{tab_id}-panel"{accessibility}>{title}</a></li>'
     )
 
     def _class_attr(self, classes=None):
@@ -175,18 +150,23 @@ class TabsManager:
     tabsets: List[TabsetNode]
     _index: Dict[int, TabNode]
 
-    def __init__(self, tab_tokens) -> None:
+    def __init__(self, tokens: List[Token]) -> None:
+        tab_tokens = self._get_tab_tokens(tokens)
         self.tabsets: List[TabsetNode] = self.make(tab_tokens)
         self._index = {}
         self.index()
 
-    def make(self, tab_tokens, parent: Optional[TabNode] = None) -> List[TabsetNode]:
+    def make(
+        self, tab_tokens: List[Dict[str, Any]], parent: Optional[TabNode] = None
+    ) -> List[TabsetNode]:
         open_index, close_index = 0, len(tab_tokens) - 1
         nodes: List[TabNode] = []
         tabsets: List[TabsetNode] = []
         previous: Optional[TabNode] = None
         while True:
-            pairs = get_pair(tab_tokens[open_index : close_index + 1], start=open_index)
+            pairs = self._tab_token_pair(
+                tab_tokens[open_index : close_index + 1], start=open_index
+            )
             if pairs is None:
                 break
             open_index, close_index = pairs
@@ -216,6 +196,33 @@ class TabsManager:
             previous = node
 
         return tabsets
+
+    def _get_tab_tokens(self, tokens: List[Token]) -> List[Dict[str, Any]]:
+        return [
+            {
+                'index': i,
+                'nesting': token.nesting,
+                'info': token.info,
+                'key': '-'.join([token.markup, str(token.level)]),
+            }
+            for i, token in enumerate(tokens)
+            if token.type in ('container_tab_open', 'container_tab_close')
+        ]
+
+    def _tab_token_pair(
+        self, tab_tokens: List[Dict[str, Any]], start=0
+    ) -> Optional[Tuple[int, int]]:
+        i = 1
+        while i < len(tab_tokens):
+            if (
+                tab_tokens[i]['nesting'] == -1
+                and tab_tokens[0]['key'] == tab_tokens[i]['key']
+            ):
+                break
+            i += 1
+        if i >= len(tab_tokens):
+            return None
+        return (start, start + i)
 
     def index(self, start: Optional[int] = None) -> Optional[TabNode]:
         if start is not None:
