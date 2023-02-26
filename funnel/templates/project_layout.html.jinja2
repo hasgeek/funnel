@@ -187,13 +187,17 @@
     {% if project.features.tickets() %}
       <div class="register-block__content {% if project.features.rsvp() %} register-block__content--padding {%- else %} register-block__content--flex {% endif %}">
         <div class="register-block__txt js-tickets-available">
-          <p class="js-ticket-price mui--text-subhead text-bold zero-bottom-margin"></p>
+          <p class="register-block__txt--bigger js-ticket-price text-bold zero-bottom-margin"></p>
         </div>
         <div class="register-block__txt js-tickets-not-available mui--hide">
-          <p class="mui--text-subhead text-bold zero-bottom-margin">{% trans %}Sales closed{% endtrans %}</p>
+          <p class="register-block__txt--bigger text-bold zero-bottom-margin">{% trans %}Sales closed{% endtrans %}</p>
         </div>
         <div class="register-block__btnwrapper">
-          <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin">{% trans %}Get a subscription{% endtrans %}</button>
+          {% if project.features.subscription %}
+            <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin">{% trans %}Get a subscription{% endtrans %}</button>
+          {%- else %}
+            <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin">{% trans %}Get tickets{% endtrans %}</button>
+          {% endif %}
         </div>
       </div>
     {%- endif %}
