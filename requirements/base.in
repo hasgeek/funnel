@@ -29,10 +29,10 @@ geoip2
 greenlet
 html2text
 icalendar
-idna>=2.5
+idna
 itsdangerous<2.1.0  # https://github.com/pallets/itsdangerous/pull/273
 js2py
-jsmin>=3.0.0
+jsmin
 linkify-it-py
 Markdown
 markdown-it-py
@@ -56,7 +56,7 @@ qrcode
 requests
 rich
 rq
-SQLAlchemy>=1.4.33
+SQLAlchemy
 sqlalchemy-json
 SQLAlchemy-Utils
 toml
@@ -64,6 +64,6 @@ tweepy
 twilio
 typing-extensions
 user-agents
-werkzeug>=2.0.2  # https://github.com/pallets/werkzeug/pull/2237
+werkzeug
 whitenoise
 zxcvbn

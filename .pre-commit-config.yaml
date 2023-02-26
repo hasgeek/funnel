@@ -5,45 +5,49 @@ default_stages: [commit]
 # default_language_version:
 #   python: python3.9
 ci:
-  skip: ['pip-compile', 'pip-audit', 'yesqa', 'no-commit-to-branch']
+  skip: ['pip-audit', 'yesqa', 'no-commit-to-branch']
 repos:
   - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
     rev: v1.5.1
     hooks:
       - id: check-pre-commit-ci-config
-  - repo: https://github.com/jazzband/pip-tools
-    rev: 6.12.2
-    hooks:
-      - id: pip-compile
-        name: pip-compile requirements.in
-        args:
-          [
-            '--output-file=requirements.txt',
-            '--resolver=backtracking',
-            'requirements.in',
-          ]
-        files: ^requirements\.(in|txt)$
-      - id: pip-compile
-        name: pip-compile requirements_test.in
-        args:
-          [
-            '--output-file=requirements_test.txt',
-            '--resolver=backtracking',
-            'requirements.in',
-            'requirements_test.in',
-          ]
-        files: ^requirements(_test)?\.(in|txt)$
-      - id: pip-compile
-        name: pip-compile requirements_dev.in
-        args:
-          [
-            '--output-file=requirements_dev.txt',
-            '--resolver=backtracking',
-            'requirements.in',
-            'requirements_test.in',
-            'requirements_dev.in',
-          ]
-        files: ^requirements(_test|_dev)?\.(in|txt)$
+  # - repo: https://github.com/peterdemin/pip-compile-multi
+  #   rev: v1.3.2
+  #   hooks:
+  #     - id: pip-compile-multi-verify
+  # - repo: https://github.com/jazzband/pip-tools
+  #   rev: 6.12.2
+  #   hooks:
+  #     - id: pip-compile
+  #       name: pip-compile requirements.in
+  #       args:
+  #         [
+  #           '--output-file=requirements.txt',
+  #           '--resolver=backtracking',
+  #           'requirements.in',
+  #         ]
+  #       files: ^requirements\.(in|txt)$
+  #     - id: pip-compile
+  #       name: pip-compile requirements_test.in
+  #       args:
+  #         [
+  #           '--output-file=requirements_test.txt',
+  #           '--resolver=backtracking',
+  #           'requirements.in',
+  #           'requirements_test.in',
+  #         ]
+  #       files: ^requirements(_test)?\.(in|txt)$
+  #     - id: pip-compile
+  #       name: pip-compile requirements_dev.in
+  #       args:
+  #         [
+  #           '--output-file=requirements_dev.txt',
+  #           '--resolver=backtracking',
+  #           'requirements.in',
+  #           'requirements_test.in',
+  #           'requirements_dev.in',
+  #         ]
+  #       files: ^requirements(_test|_dev)?\.(in|txt)$
   - repo: https://github.com/pypa/pip-audit
     rev: v2.4.15
     hooks:

@@ -1,3 +1,4 @@
+-r test.in
 bandit
 black
 djlint
@@ -14,10 +15,11 @@ flake8-mutable
 flake8-print
 flake8-pytest-style
 isort
-itsdangerous<2.1.0  # Dupe from requirements.in due to version pin there
+itsdangerous
 lxml-stubs
 mypy
 pep8-naming
+pip-compile-multi
 pip-tools
 pre-commit
 pylint
