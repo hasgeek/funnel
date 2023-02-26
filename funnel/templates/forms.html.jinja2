@@ -358,6 +358,7 @@
           signal: ac.signal
         }).then(otp => {
           input.value = otp.code;
+          $(window).off('beforeunload');
           form.submit();
         }).catch(err => {
           console.log(err);
