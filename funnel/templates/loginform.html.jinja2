@@ -5,6 +5,6 @@
 {% block form %}
   {{ passwordlogin(form, formid, ref_id, action) }}
   {%- if form and form.recaptcha is defined %}
-    {{ recaptcha(ref_id, 'loginformwrapper') }}
+    {{ recaptcha(ref_id, formWrapperId='loginformwrapper', ajax=true) }}
   {%- endif %}
 {% endblock form %}

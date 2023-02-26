@@ -4,13 +4,13 @@
 #
 #    pip-compile --output-file=requirements_test.txt --resolver=backtracking requirements.in requirements_test.in
 #
-aiohttp==3.8.3
+aiohttp==3.8.4
     # via
     #   geoip2
     #   tuspy
 aiosignal==1.3.1
     # via aiohttp
-alembic==1.9.3
+alembic==1.9.4
     # via
     #   -r requirements.in
     #   flask-migrate
@@ -76,7 +76,7 @@ cffi==1.15.1
     #   argon2-cffi-bindings
     #   cryptography
     #   pynacl
-charset-normalizer==2.1.1
+charset-normalizer==3.0.1
     # via
     #   aiohttp
     #   requests
@@ -133,7 +133,7 @@ fabric3==1.14.post1
     # via -r requirements.in
 filelock==3.9.0
     # via tldextract
-flask==2.2.2
+flask==2.2.3
     # via
     #   -r requirements.in
     #   baseframe
@@ -147,7 +147,6 @@ flask==2.2.2
     #   flask-migrate
     #   flask-redis
     #   flask-rq2
-    #   flask-script
     #   flask-sqlalchemy
     #   flask-wtf
 flask-assets==2.0
@@ -175,8 +174,6 @@ flask-redis==0.4.0
     # via -r requirements.in
 flask-rq2==18.3
     # via -r requirements.in
-flask-script==2.0.6
-    # via coaster
 flask-sqlalchemy==3.0.3
     # via
     #   -r requirements.in
@@ -206,9 +203,7 @@ greenlet==2.0.2
 h11==0.14.0
     # via wsproto
 html2text==2020.1.16
-    # via
-    #   -r requirements.in
-    #   coaster
+    # via -r requirements.in
 html5lib==1.1
     # via
     #   baseframe
@@ -241,7 +236,6 @@ itsdangerous==2.0.1
     #   flask-wtf
 jinja2==3.1.2
     # via
-    #   coaster
     #   flask
     #   flask-babel
     #   flask-flatpages
@@ -267,7 +261,7 @@ markdown==3.4.1
     #   coaster
     #   flask-flatpages
     #   pymdown-extensions
-markdown-it-py==2.1.0
+markdown-it-py==2.2.0
     # via
     #   -r requirements.in
     #   mdit-py-plugins
@@ -288,7 +282,7 @@ marshmallow-enum==1.5.1
     # via dataclasses-json
 maxminddb==2.2.0
     # via geoip2
-mdit-py-plugins==0.3.3
+mdit-py-plugins==0.3.4
     # via -r requirements.in
 mdurl==0.1.2
     # via markdown-it-py
@@ -334,7 +328,7 @@ parse-type==0.6.0
     # via pytest-bdd
 passlib==1.7.4
     # via -r requirements.in
-phonenumbers==8.13.5
+phonenumbers==8.13.6
     # via -r requirements.in
 pluggy==1.0.0
     # via pytest
@@ -342,8 +336,6 @@ premailer==3.10.0
     # via -r requirements.in
 progressbar2==4.2.0
     # via -r requirements.in
-psycopg2==2.9.5
-    # via coaster
 psycopg2-binary==2.9.5
     # via -r requirements.in
 pyasn1==0.4.8
@@ -366,7 +358,6 @@ pyexecjs==1.5.1
 pygments==2.14.0
     # via
     #   -r requirements.in
-    #   coaster
     #   rich
 pyisemail==2.0.1
     # via
@@ -413,7 +404,7 @@ pytest-env==0.8.1
     # via -r requirements_test.in
 pytest-remotedata==0.4.0
     # via -r requirements_test.in
-pytest-rerunfailures==11.0
+pytest-rerunfailures==11.1.1
     # via -r requirements_test.in
 pytest-splinter==3.3.2
     # via -r requirements_test.in
@@ -428,7 +419,7 @@ python-dotenv==0.21.1
     # via
     #   -r requirements.in
     #   pytest-dotenv
-python-utils==3.4.5
+python-utils==3.5.2
     # via progressbar2
 pytz==2022.7.1
     # via
@@ -444,12 +435,10 @@ pytz-deprecation-shim==0.1.0.post0
 pyvimeo==1.1.0
     # via -r requirements.in
 pyyaml==6.0
-    # via
-    #   coaster
-    #   flask-flatpages
+    # via flask-flatpages
 qrcode==7.4.2
     # via -r requirements.in
-redis==4.5.0
+redis==4.5.1
     # via
     #   baseframe
     #   flask-redis
@@ -482,7 +471,7 @@ requests-oauthlib==1.3.1
     # via tweepy
 rich==13.3.1
     # via -r requirements.in
-rq==1.12.0
+rq==1.13.0
     # via
     #   -r requirements.in
     #   baseframe
@@ -492,7 +481,7 @@ rq-scheduler==0.11.0
     # via flask-rq2
 rsa==4.9
     # via oauth2client
-selenium==4.8.0
+selenium==4.8.2
     # via pytest-splinter
 semantic-version==2.10.0
     # via
@@ -523,11 +512,11 @@ sniffio==1.3.0
     # via trio
 sortedcontainers==2.4.0
     # via trio
-soupsieve==2.3.2.post1
+soupsieve==2.4
     # via beautifulsoup4
 splinter==0.19.0
     # via pytest-splinter
-sqlalchemy==2.0.2
+sqlalchemy==2.0.4
     # via
     #   -r requirements.in
     #   alembic
@@ -538,7 +527,7 @@ sqlalchemy==2.0.2
     #   wtforms-sqlalchemy
 sqlalchemy-json==0.5.0
     # via -r requirements.in
-sqlalchemy-utils==0.39.0
+sqlalchemy-utils==0.40.0
     # via
     #   -r requirements.in
     #   coaster
@@ -551,7 +540,7 @@ tldextract==3.4.0
     #   coaster
     #   mxsniff
 toml==0.10.2
-    # via coaster
+    # via -r requirements.in
 tomli==2.0.1
     # via
     #   coverage
@@ -570,9 +559,9 @@ tuspy==1.0.0
     # via pyvimeo
 tweepy==4.12.1
     # via -r requirements.in
-twilio==7.16.2
+twilio==7.16.4
     # via -r requirements.in
-typing-extensions==4.4.0
+typing-extensions==4.5.0
     # via
     #   -r requirements.in
     #   baseframe
@@ -613,7 +602,7 @@ webencodings==0.5.1
     # via
     #   bleach
     #   html5lib
-werkzeug==2.2.2
+werkzeug==2.2.3
     # via
     #   -r requirements.in
     #   baseframe
@@ -632,7 +621,7 @@ wtforms-sqlalchemy==0.3
     # via baseframe
 yarl==1.8.2
     # via aiohttp
-zipp==3.12.1
+zipp==3.14.0
     # via importlib-metadata
 zxcvbn==4.4.28
     # via -r requirements.in
