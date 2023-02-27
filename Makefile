@@ -25,13 +25,13 @@ babeljs:
 
 deps: deps-python deps-nodejs
 
-deps-python:
+deps-python: deps-install
 	pip-compile-multi --backtracking --use-cache
 
-deps-python-no-cache:
+deps-python-no-cache: deps-install
 	pip-compile-multi --backtracking
 
-deps-python-base:
+deps-python-base: deps-install
 	pip-compile-multi -t requirements/base.in --backtracking --use-cache
 
 deps-python-test:
@@ -44,6 +44,28 @@ deps-python-verify:
 
 deps-nodejs:
 	npm run install
+
+deps-install: DEPS = coaster baseframe
+deps-install:
+	@if [ ! -d "dependencies" ]; then mkdir dependencies; fi;
+	@cd dependencies;\
+	for dep in $(DEPS); do\
+		if [ -e "$$dep" ]; then\
+			echo "Dependency $$dep already loaded. Updating $$dep...";\
+			echo `cd $$dep;git pull;`;\
+		else\
+			echo "Dependency $$dep not loaded. Fetching $$dep...";\
+			git clone git@github.com:hasgeek/$$dep.git;\
+		fi;\
+	done;
+
+install-dev: deps-install
+	pip install -r requirements/dev.txt
+install-test: deps-install
+	pip install -r requirements/test.txt
+install: deps-install
+	pip install -r requirements/base.txt
+
 
 tests-data: tests-data-markdown
 

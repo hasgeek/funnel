@@ -6,6 +6,12 @@
 #    pip-compile-multi
 #
 -r test.txt
+-e file:./dependencies/baseframe
+    # via -r requirements/base.in
+-e file:./dependencies/coaster
+    # via
+    #   -r requirements/base.in
+    #   baseframe
 astroid==2.14.2
     # via pylint
 bandit==1.7.4

@@ -94,7 +94,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip setuptools
-          pip install -r requirements/test.txt
+          make install-test
       - name: Install pytest-github-actions-annotate-failures
         run: pip install pytest-github-actions-annotate-failures
       - name: Install Node modules
