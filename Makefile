@@ -26,19 +26,18 @@ babeljs:
 deps: deps-python deps-nodejs
 
 deps-python:
+	pip-compile-multi --backtracking --use-cache
+
+deps-python-no-cache:
 	pip-compile-multi --backtracking
 
-deps-python-cached:
-	pip-compile-multi --use-cache --backtracking
-
 deps-python-base:
-	pip-compile-multi -t requirements/base.in --backtracking
+	pip-compile-multi -t requirements/base.in --backtracking --use-cache
 
 deps-python-test:
-	pip-compile-multi -t requirements/test.in --backtracking
+	pip-compile-multi -t requirements/test.in --backtracking --use-cache
 
-deps-python-dev:
-	pip-compile-multi -t requirements/dev.in --backtracking
+deps-python-dev: deps-python
 
 deps-python-verify:
 	pip-compile-multi verify
