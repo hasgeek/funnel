@@ -109,12 +109,10 @@ required_plugins = [
   'pytest-env',
   'pytest-remotedata',
   'pytest-rerunfailures',
-  'pytest-splinter',
   'requests-mock',
 ]
 addopts = [
   '--cov-report=term-missing',
-  '--splinter-screenshot-dir=tests/screenshots',
   '--remote-data=any',
   '--strict-markers',
 ]

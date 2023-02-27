@@ -10,7 +10,6 @@ from difflib import unified_diff
 from types import MethodType, SimpleNamespace
 from unittest.mock import patch
 import re
-import shutil
 import typing as t
 
 from flask_sqlalchemy import SQLAlchemy
@@ -39,14 +38,6 @@ def pytest_addoption(parser) -> None:
         choices=('rollback', 'truncate'),
         help="Use db_session with 'rollback' (default) or 'truncate'"
         " (slower but more production-like)",
-    )
-    splinter = parser.getgroup('splinter')
-    splinter.addoption(
-        '--splinter-headed',
-        help="Run the browser in headed mode.",
-        default=True,
-        action='store_false',
-        dest='splinter_headless',
     )
 
 
@@ -899,66 +890,6 @@ def client(response_with_forms, app, db_session) -> FlaskClient:
 
     client.open = commit_before_open  # type: ignore[assignment]
     return client
-
-
-@pytest.fixture(scope='session')
-def browser_patches():  # noqa : PT004
-    """Patch webdriver for pytest-splinter."""
-    from pytest_splinter.webdriver_patches import patch_webdriver
-
-    # Required due to https://github.com/pytest-dev/pytest-splinter/issues/158
-    patch_webdriver()
-
-
-@pytest.fixture(scope='session')
-def splinter_webdriver(request) -> str:
-    """
-    Return an available webdriver, or requested one from CLI options.
-
-    Skips dependent tests if no webdriver is available, but fails if there was an
-    explicit request for a webdriver and it's not found.
-    """
-    driver_executables = {
-        'firefox': 'geckodriver',
-        'chrome': 'chromedriver',
-        'edge': 'msedgedriver',
-    }
-
-    driver = request.config.option.splinter_webdriver
-    if driver:
-        if driver == 'remote':
-            # For remote driver, assume necessary config is in CLI options
-            return driver
-        if driver not in driver_executables:
-            # pytest-splinter already validates the possible strings in pytest options.
-            # Our list is narrowed down to allow JS-capable browsers only
-            pytest.fail(f"Webdriver '{driver}' does not support JavaScript")
-        executable = driver_executables[driver]
-        if shutil.which(executable):
-            return driver
-        pytest.fail(
-            f"Requested webdriver '{driver}' needs executable '{executable}' in $PATH"
-        )
-    for driver, executable in driver_executables.items():
-        if shutil.which(executable):
-            return driver
-    pytest.skip("No webdriver found")
-    # For pylint and mypy since they don't know that pytest.fail is NoReturn
-    return ''  # type: ignore[unreachable]
-
-
-@pytest.fixture(scope='session')
-def splinter_driver_kwargs(splinter_webdriver) -> dict:
-    """Disable certification verification when using Chrome webdriver."""
-    from selenium import webdriver
-
-    if splinter_webdriver == 'chrome':
-        options = webdriver.ChromeOptions()
-        options.add_argument('--ignore-ssl-errors=yes')
-        options.add_argument('--ignore-certificate-errors')
-
-        return {'options': options}
-    return {}
 
 
 @pytest.fixture(scope='session')

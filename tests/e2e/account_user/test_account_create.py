@@ -33,7 +33,7 @@ def when_anonuser_navigates_login_and_submits(
 ):
     assert selenium.current_url == live_server.url
     wait = WebDriverWait(selenium, 10)
-    time.sleep(1)
+    time.sleep(2)
     # Ideally wait.until() should wait until the element is clickable,
     # but the test is failing when used without time.sleep
     wait.until(ec.element_to_be_clickable((By.CLASS_NAME, 'header__button'))).send_keys(
@@ -46,7 +46,7 @@ def when_anonuser_navigates_login_and_submits(
     else:
         pytest.fail("Unknown username type")
     wait.until(ec.element_to_be_clickable((By.NAME, "username"))).send_keys(username)
-    time.sleep(1)
+    time.sleep(2)
     wait.until(
         ec.element_to_be_clickable((By.CSS_SELECTOR, '#form-passwordlogin button'))
     ).send_keys(Keys.ENTER)
@@ -55,7 +55,7 @@ def when_anonuser_navigates_login_and_submits(
 
 @then("they are prompted for their name and the OTP, which they provide")
 def then_anonuser_prompted_name_and_otp(live_server, selenium, anon_username):
-    time.sleep(1)
+    time.sleep(2)
     selenium.find_element(By.NAME, 'fullname').send_keys("Twoflower")
     if anon_username['phone_or_email'] == "a phone number":
         otp = live_server.transport_calls.sms[-1].vars['otp']
@@ -69,7 +69,7 @@ def then_anonuser_prompted_name_and_otp(live_server, selenium, anon_username):
 
 @then("they get an account and are logged in")
 def then_they_are_logged_in(selenium):
-    time.sleep(1)
+    time.sleep(2)
     assert (
         selenium.find_element(By.CLASS_NAME, "alert__text").text
         == "You are now one of us. Welcome aboard!"
@@ -88,7 +88,7 @@ def when_twoflower_visits_homepage(live_server, selenium, db_session, user_twofl
 @when("they navigate to the login page")
 def when_navigate_to_login_page(app, live_server, selenium):
     wait = WebDriverWait(selenium, 10)
-    time.sleep(1)
+    time.sleep(2)
     wait.until(ec.element_to_be_clickable((By.CLASS_NAME, 'header__button'))).send_keys(
         Keys.RETURN
     )
@@ -98,7 +98,7 @@ def when_navigate_to_login_page(app, live_server, selenium):
 @when("submit an email address with password")
 def when_submit_email_password(selenium):
     WebDriverWait(selenium, 10)
-    time.sleep(1)
+    time.sleep(2)
     selenium.find_element(By.NAME, 'username').send_keys('twoflower@example.org')
     selenium.find_element(By.ID, 'use-password-login').click()
     selenium.find_element(By.NAME, 'password').send_keys('te@pwd3289')
@@ -107,7 +107,7 @@ def when_submit_email_password(selenium):
 
 @then("they are logged in")
 def then_logged_in(selenium):
-    time.sleep(1)
+    time.sleep(2)
     assert (
         selenium.find_element(By.CLASS_NAME, "alert__text").text
         == "You are now logged in"
@@ -118,7 +118,7 @@ def then_logged_in(selenium):
 @when("submit a phone number with password")
 def when_submit_phone_password(app, live_server, selenium):
     WebDriverWait(selenium, 10)
-    time.sleep(1)
+    time.sleep(2)
     selenium.find_element(By.NAME, 'username').send_keys('+12345678900')
     selenium.find_element(By.ID, 'use-password-login').click()
     selenium.find_element(By.NAME, 'password').send_keys('te@pwd3289')
@@ -135,13 +135,13 @@ def given_anonymous_project_page(live_server, selenium, db_session, new_project)
 
 @when("they click on follow")
 def when_they_click_follow(selenium):
-    time.sleep(1)
+    time.sleep(2)
     selenium.find_element(By.ID, 'register-nav').send_keys(Keys.ENTER)
 
 
 @then("a register modal appears")
 def then_register_modal_appear(selenium):
-    time.sleep(1)
+    time.sleep(2)
     assert (
         selenium.find_element(By.XPATH, '//*[@id="passwordform"]/p[2]').text
         == "Tell us where you’d like to get updates. We’ll send an OTP to confirm."
@@ -154,7 +154,7 @@ def then_register_modal_appear(selenium):
 )
 def when_they_enter_email(selenium, phone_or_email):
     wait = WebDriverWait(selenium, 10)
-    time.sleep(1)
+    time.sleep(2)
     if phone_or_email == "a phone number":
         username = '8123456789'
     elif phone_or_email == "an email address":
@@ -162,7 +162,7 @@ def when_they_enter_email(selenium, phone_or_email):
     else:
         pytest.fail("Unknown username type")
     wait.until(ec.element_to_be_clickable((By.NAME, "username"))).send_keys(username)
-    time.sleep(1)
+    time.sleep(2)
     wait.until(
         ec.element_to_be_clickable((By.CSS_SELECTOR, '#form-passwordlogin button'))
     ).send_keys(Keys.ENTER)
