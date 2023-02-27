@@ -1,4 +1,4 @@
-all: deps-python assets
+all: assets
 
 assets: deps-nodejs build
 
