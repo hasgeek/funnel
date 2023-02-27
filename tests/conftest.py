@@ -41,6 +41,18 @@ def pytest_addoption(parser) -> None:
     )
 
 
+@pytest.fixture()
+def chrome_options(chrome_options):
+    chrome_options.add_argument('--headless')
+    return chrome_options
+
+
+@pytest.fixture()
+def firefox_options(firefox_options):
+    firefox_options.add_argument('-headless')
+    return firefox_options
+
+
 def pytest_collection_modifyitems(items) -> None:
     """Sort tests to run lower level before higher level."""
     test_order = (
