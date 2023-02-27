@@ -67,10 +67,5 @@ install: deps-install
 	pip install -r requirements/base.txt
 
 
-tests-data: tests-data-markdown
-
-tests-data-markdown:
-	pytest -v -m update_markdown_data
-
 debug-markdown-tests:
 	pytest -v -m debug_markdown_output
