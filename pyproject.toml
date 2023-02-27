@@ -113,6 +113,7 @@ required_plugins = [
 ]
 addopts = [
   '--cov-report=term-missing',
+  '--driver=firefox',
   '--remote-data=any',
   '--strict-markers',
 ]
