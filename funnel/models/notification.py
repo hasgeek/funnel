@@ -37,19 +37,18 @@ How it works:
     `Update.actors_for({roles})`. The default implementation in RoleMixin is aware that
     these roles are inherited from Project (using granted_via declarations), and so
     it calls `Update.project.actors_for`. The obtained UserNotification instances are
-    batched and handed off to second background workers.
+    batched and handed off to a second round of background workers.
 
-5. The second background worker accepts a batch of UserNotification instances and
-    discovers user preferencess for the particular notification. For notifications (not
-    this one) where both a document and a fragment are present, like
-    ProposalReceivedNotication with Project+Proposal, a scan is performed for previous
+5. Each second background worker receives a batch of UserNotification instances and
+    discovers user preferences for the particular notification. Some notifications are
+    defined as being for a fragment of a larger document, like for an individual
+    comment in a large comment thread. In such a case, a scan is performed for previous
     unread instances of UserNotification referring to the same document, determined
     from `UserNotification.notification.document_uuid`, and those are revoked to remove
-    them from the user's feed. A rollup is presented instead, showing all submitted
-    proposals since the last view or last day, whichever is greater. The second
-    background worker now queues a third series of background workers, for each of the
-    supported transports if at least one recipient in that batch wants to use that
-    transport.
+    them from the user's feed. A rollup is presented instead, showing all fragments
+    since the last view or last day, whichever is greater. The second background worker
+    now queues a third series of background workers, for each of the supported
+    transports if at least one recipient in that batch wants to use that transport.
 
 6. A separate render view class named RenderNewUpdateNotification contains methods named
     like `web`, `email`, `sms` and others. These are expected to return a rendered
@@ -58,15 +57,14 @@ How it works:
 7. Views are registered to the model, so the dispatch mechanism only needs to call
     ``view.email()`` etc to get the rendered content. The dispatch mechanism then calls
     the appropriate transport helper (``send_email``, etc) to do the actual sending. The
-    message id returned by these functions is saved to the messageid columns in
-    UserNotification, as record that the notification was sent. If the transport doesn't
-    support message ids, a random non-None value is used. Accurate message ids are only
-    required when user interaction over the same transport is expected, such as reply
-    emails.
+    message id returned by these functions is saved to the ``messageid_*`` columns in
+    UserNotification, as a record that the notification was sent. If the transport
+    doesn't support message ids, a random non-None value is used. Accurate message ids
+    are only required when user interaction over the same transport is expected, such
+    as reply emails.
 
-10. The /updates endpoint on the website shows a feed of UserNotification items and
-    handles the ability to mark each as read. This marking is not yet automatically
-    performed in the links in the rendered templates that were sent out, but should be.
+10. The ``/updates`` endpoint on the website shows a feed of UserNotification items and
+    handles the ability to mark each as read.
 
 It is possible to have two separate notifications for the same event. For example, a
 comment replying to another comment will trigger a CommentReplyNotification to the user
@@ -74,12 +72,12 @@ being replied to, and a ProjectCommentNotification or ProposalCommentNotificatio
 the project or proposal. The same user may be a recipient of both notifications. To
 de-duplicate this, a random "eventid" is shared across both notifications, and is
 required to be unique per user, so that the second notification will be skipped. This is
-supported using an unusual primary and foreign key structure the in
-:class:`Notification` and :class:`UserNotification`:
+supported using an unusual primary and foreign key structure in :class:`Notification`
+and :class:`UserNotification`:
 
 1. Notification has pkey ``(eventid, id)``, where `id` is local to the instance
 2. UserNotification has pkey ``(eventid, user_id)`` combined with a fkey to Notification
-    using ``(eventid, notification_id)``.
+    using ``(eventid, notification_id)``
 """
 from __future__ import annotations
 
