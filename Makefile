@@ -43,3 +43,6 @@ tests-data-markdown:
 
 debug-markdown-tests:
 	pytest -v -m debug_markdown_output
+
+tests-bdd:
+	pytest --generate-missing --feature tests tests
