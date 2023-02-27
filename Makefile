@@ -55,7 +55,7 @@ deps-install:
 			echo `cd $$dep;git pull;`;\
 		else\
 			echo "Dependency $$dep not loaded. Fetching $$dep...";\
-			git clone git@github.com:hasgeek/$$dep.git;\
+			git clone https://github.com/hasgeek/$$dep.git;\
 		fi;\
 	done;
 
