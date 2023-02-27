@@ -20,7 +20,7 @@ CLOSE_SQBR_CHAR = 0x5D  # ASCII value for `]`
 BACKSLASH_CHAR = 0x5C  # ASCII value for `\`
 COLON_CHAR = 0x3A  # ASCII value for `:`
 
-PADDING_CHARACTERS = (
+PADDING_CHARACTERS_RE = (
     '['
     + ''.join(
         chr(x) for x in range(65536) if unicodedata.category(chr(x))[0] in ('P', 'Z')
@@ -96,26 +96,26 @@ def abbr_replace(state: StateInline):
     simple_re = re.compile('(?:' + labels_re_str + ')')
 
     match_re_str = (
-        '(^|' + PADDING_CHARACTERS + ')'
+        '(^|' + PADDING_CHARACTERS_RE + ')'
         '(' + labels_re_str + ')'
-        '($|' + PADDING_CHARACTERS + ')'
+        '($|' + PADDING_CHARACTERS_RE + ')'
     )
 
     match_re = re.compile(match_re_str)
 
-    j, block_tokens_length = 0, len(block_tokens)
-    while j < block_tokens_length:
-        block_token = block_tokens[j]
+    block_token_index, block_tokens_length = 0, len(block_tokens)
+    while block_token_index < block_tokens_length:
+        block_token = block_tokens[block_token_index]
         if block_token.type != 'inline':
-            j += 1
+            block_token_index += 1
             continue
         tokens = block_token.children
 
-        i = len(tokens) - 1  # type: ignore[arg-type]
-        while i >= 0:
-            current_token = tokens[i]  # type: ignore[index]
+        token_index = len(tokens) - 1  # type: ignore[arg-type]
+        while token_index >= 0:
+            current_token = tokens[token_index]  # type: ignore[index]
             if current_token.type != 'text':
-                i -= 1
+                token_index -= 1
                 continue
 
             current_text = current_token.content
@@ -123,7 +123,7 @@ def abbr_replace(state: StateInline):
             nodes = []
 
             if simple_re.search(current_text) is None:
-                i -= 1
+                token_index -= 1
                 continue
 
             next_pos = 0
@@ -150,7 +150,7 @@ def abbr_replace(state: StateInline):
                 next_pos = suffix_indices[0]
 
             if len(nodes) == 0:
-                i -= 1
+                token_index -= 1
                 continue
 
             if next_pos < len(current_text):
@@ -159,11 +159,11 @@ def abbr_replace(state: StateInline):
                 nodes.append(token)
 
             block_token.children = tokens = state.md.utils.arrayReplaceAt(
-                tokens, i, nodes
+                tokens, token_index, nodes
             )
-            i -= 1
+            token_index -= 1
 
-        j += 1
+        block_token_index += 1
 
 
 def abbr_plugin(md: MarkdownIt):
