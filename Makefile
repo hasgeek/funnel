@@ -1,8 +1,6 @@
-all: assets
+all: deps-python assets
 
-assets:
-	npm install
-	npm run build
+assets: deps-nodejs build
 
 build:
 	npm run build
@@ -25,19 +23,28 @@ babeljs:
 	ls $(baseframe_dir) | grep -E '[[:lower:]]{2}_[[:upper:]]{2}' | xargs -I % sh -c './node_modules/.bin/po2json --format=jed --pretty $(baseframe_dir)/%/LC_MESSAGES/baseframe.po $(target_dir)/%/baseframe.json'
 	./node_modules/.bin/prettier --write $(target_dir)/**/**.json
 
-deps: pip-compile-multi
+deps: deps-python deps-nodejs
 
-deps-base:
-	pip-compile-multi -t requirements/base.in
+deps-python:
+	pip-compile-multi --backtracking
 
-deps-test:
-	pip-compile-multi -t requirements/test.in
+deps-python-cached:
+	pip-compile-multi --use-cache --backtracking
 
-deps-dev:
-	pip-compile-multi -t requirements/dev.in
+deps-python-base:
+	pip-compile-multi -t requirements/base.in --backtracking
 
-deps-verify:
+deps-python-test:
+	pip-compile-multi -t requirements/test.in --backtracking
+
+deps-python-dev:
+	pip-compile-multi -t requirements/dev.in --backtracking
+
+deps-python-verify:
 	pip-compile-multi verify
+
+deps-nodejs:
+	npm run install
 
 tests-data: tests-data-markdown
 

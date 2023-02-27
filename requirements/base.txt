@@ -406,7 +406,7 @@ semantic-version==2.10.0
     # via
     #   baseframe
     #   coaster
-sentry-sdk==1.15.0
+sentry-sdk==1.16.0
     # via baseframe
 six==1.16.0
     # via
