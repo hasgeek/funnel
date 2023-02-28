@@ -47,8 +47,8 @@ deps-nodejs:
 
 deps-install: DEPS = coaster baseframe
 deps-install:
-	@if [ ! -d "dependencies" ]; then mkdir dependencies; fi;
-	@cd dependencies;\
+	@if [ ! -d ".dependencies" ]; then mkdir .dependencies; fi;
+	@cd .dependencies;\
 	for dep in $(DEPS); do\
 		if [ -e "$$dep" ]; then\
 			echo "Dependency $$dep already loaded. Updating $$dep...";\

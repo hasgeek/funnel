@@ -6,9 +6,9 @@
 #    pip-compile-multi
 #
 -r base.txt
--e file:./dependencies/baseframe
+-e file:./.dependencies/baseframe
     # via -r requirements/base.in
--e file:./dependencies/coaster
+-e file:./.dependencies/coaster
     # via
     #   -r requirements/base.in
     #   baseframe

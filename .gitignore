@@ -29,7 +29,7 @@ baseframe-packed.*
 geoname_data
 
 # Dependencies
-dependencies
+.dependencies
 
 # Log and test files
 error.log
