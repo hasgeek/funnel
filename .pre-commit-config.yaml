@@ -11,10 +11,10 @@ repos:
     rev: v1.5.1
     hooks:
       - id: check-pre-commit-ci-config
-  # - repo: https://github.com/peterdemin/pip-compile-multi
-  #   rev: v1.3.2
-  #   hooks:
-  #     - id: pip-compile-multi-verify
+  - repo: https://github.com/peterdemin/pip-compile-multi
+    rev: v2.6.2
+    hooks:
+      - id: pip-compile-multi-verify
   # - repo: https://github.com/jazzband/pip-tools
   #   rev: 6.12.2
   #   hooks:
