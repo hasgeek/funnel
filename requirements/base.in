@@ -1,5 +1,5 @@
--e file:./.dependencies/baseframe
--e file:./.dependencies/coaster
+-e file:./build/dependencies/baseframe
+-e file:./build/dependencies/coaster
 alembic
 argon2-cffi
 Babel
