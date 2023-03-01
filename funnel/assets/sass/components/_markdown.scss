@@ -5,8 +5,8 @@
 .markdown {
   overflow-wrap: break-word;
   overflow: auto;
-  margin: 0 -16px;
-  padding: 0 16px;
+  margin: 0 -$mui-grid-padding;
+  padding: 0 $mui-grid-padding;
 
   h1,
   h2,
