@@ -1,0 +1,4 @@
+Contact: mailto:support@hasgeek.com
+Expires: 2024-03-01T06:30:00.000Z
+Acknowledgments: https://hasgeek.com/humans.txt
+Preferred-Languages: en
