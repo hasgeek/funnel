@@ -3,7 +3,7 @@ all:
 	@echo
 	@echo "For production deployment:"
 	@echo "  make install       # For first time setup and after dependency upgrades"
-	@echo "  make build         # For only Node asset changes"
+	@echo "  make assets        # For only Node asset changes"
 	@echo
 	@echo "For testing and CI:"
 	@echo "  make install-test  # Install everything needed for a test environment"
@@ -20,11 +20,6 @@ all:
 	@echo "  make deps"
 	@echo "  make install-dev"
 	@echo "  pytest"
-
-assets: install-npm-ci build
-
-build:
-	npm run build
 
 babelpy:
 	ZXCVBN_DIR=`python -c "import zxcvbn; import pathlib; print(pathlib.Path(zxcvbn.__file__).parent, end='')"`
@@ -97,11 +92,14 @@ install-python-test: deps-editable
 install-python: deps-editable
 	pip install -r requirements/base.txt
 
-install-dev: deps-editable install-python-dev install-npm build
+install-dev: deps-editable install-python-dev install-npm assets
 
-install-test: deps-editable install-python-test install-npm-ci build
+install-test: deps-editable install-python-test install-npm-ci assets
 
-install: deps-editable install-python install-npm-ci build
+install: deps-editable install-python install-npm-ci assets
+
+assets:
+	npm run build
 
 debug-markdown-tests:
 	pytest -v -m debug_markdown_output
