@@ -1,0 +1,6 @@
+security:
+  ignore-vulnerabilities:
+    33026:
+      reason: https://github.com/pallets-eco/flask-caching/pull/209
+    42969:
+      reason: https://github.com/pytest-dev/pytest/issues/10392
