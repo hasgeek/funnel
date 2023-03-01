@@ -1,7 +1,6 @@
-# Safety Security and License Configuration file
-security: # configuration for the `safety check` command
-  ignore-vulnerabilities: # Here you can list multiple specific vulnerabilities you want to ignore (optionally for a time period)
+security:
+  ignore-vulnerabilities:
     33026:
-      reason: Flask-Caching uses pickle, exposing a vulnerability
+      reason: https://github.com/pallets-eco/flask-caching/pull/209
     42969:
-      reason: The affected code is not used in pytest https://github.com/pytest-dev/pytest/issues/10392
+      reason: https://github.com/pytest-dev/pytest/issues/10392
