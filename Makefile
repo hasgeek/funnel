@@ -99,9 +99,9 @@ install-python: deps-editable
 
 install-dev: deps-editable install-python-dev install-npm build
 
-install-test: deps-editable install-npm-ci build
+install-test: deps-editable install-python-test install-npm-ci build
 
-install: deps-editable install-npm-ci build
+install: deps-editable install-python install-npm-ci build
 
 debug-markdown-tests:
 	pytest -v -m debug_markdown_output

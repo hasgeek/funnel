@@ -16,7 +16,6 @@ flake8-print
 flake8-pytest-style
 flask-debugtoolbar
 isort
-itsdangerous
 lxml-stubs
 mypy
 pep8-naming
