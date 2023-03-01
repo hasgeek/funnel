@@ -21,7 +21,6 @@ lxml-stubs
 mypy
 pep8-naming
 pip-compile-multi
-pip-tools
 pre-commit
 pylint
 pylint-pytest

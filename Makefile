@@ -1,11 +1,30 @@
-all: assets
+all:
+	@echo "You must have an active Python virtualenv (3.7+) before using any of these."
+	@echo
+	@echo "For production deployment:"
+	@echo "  make install       # For first time setup and after dependency upgrades"
+	@echo "  make build         # For only Node asset changes"
+	@echo
+	@echo "For testing and CI:"
+	@echo "  make install-test  # Install everything needed for a test environment"
+	@echo
+	@echo "For development:"
+	@echo "  make install-dev   # For first time setup and after dependency upgrades"
+	@echo "  make deps          # Scan for dependency upgrades (and test afterwards!)"
+	@echo "  make deps-python   # Scan for Python dependency upgrades"
+	@echo "  make deps-npm      # Scan for NPM dependency upgrades"
+	@echo
+	@echo "To upgrade dependencies in a development environment, use all in order and"
+	@echo "commit changes only if all tests pass:"
+	@echo
+	@echo "  make deps"
+	@echo "  make install-dev"
+	@echo "  pytest"
 
-assets: deps-nodejs build
+assets: install-npm-ci build
 
 build:
 	npm run build
-
-babel: babelpy babeljs
 
 babelpy:
 	ZXCVBN_DIR=`python -c "import zxcvbn; import pathlib; print(pathlib.Path(zxcvbn.__file__).parent, end='')"`
@@ -23,50 +42,66 @@ babeljs:
 	ls $(baseframe_dir) | grep -E '[[:lower:]]{2}_[[:upper:]]{2}' | xargs -I % sh -c './node_modules/.bin/po2json --format=jed --pretty $(baseframe_dir)/%/LC_MESSAGES/baseframe.po $(target_dir)/%/baseframe.json'
 	./node_modules/.bin/prettier --write $(target_dir)/**/**.json
 
-deps: deps-python deps-nodejs
+babel: babelpy babeljs
 
-deps-python: deps-install
-	pip-compile-multi --backtracking --use-cache
-
-deps-python-no-cache: deps-install
-	pip-compile-multi --backtracking
-
-deps-python-base: deps-install
-	pip-compile-multi -t requirements/base.in --backtracking --use-cache
-
-deps-python-test:
-	pip-compile-multi -t requirements/test.in --backtracking --use-cache
-
-deps-python-dev: deps-python
-
-deps-python-verify:
-	pip-compile-multi verify
-
-deps-nodejs:
-	npm run install
-
-deps-install: DEPS = coaster baseframe
-deps-install:
+deps-editable: DEPS = coaster baseframe
+deps-editable:
 	@if [ ! -d "build" ]; then mkdir build; fi;
 	@if [ ! -d "build/dependencies" ]; then mkdir build/dependencies; fi;
 	@cd build/dependencies;\
 	for dep in $(DEPS); do\
 		if [ -e "$$dep" ]; then\
-			echo "Dependency $$dep already loaded. Updating $$dep...";\
+			echo "Updating $$dep...";\
 			echo `cd $$dep;git pull;`;\
 		else\
-			echo "Dependency $$dep not loaded. Fetching $$dep...";\
+			echo "Cloning dependency $$dep as locally editable installation...";\
 			git clone https://github.com/hasgeek/$$dep.git;\
 		fi;\
 	done;
 
-install-dev: deps-install
+deps-python: deps-editable
+	pip-compile-multi --backtracking --use-cache
+
+deps-python-rebuild: deps-editable
+	pip-compile-multi --backtracking
+
+deps-python-base: deps-editable
+	pip-compile-multi -t requirements/base.in --backtracking --use-cache
+
+deps-python-test: deps-editable
+	pip-compile-multi -t requirements/test.in --backtracking --use-cache
+
+deps-python-dev: deps-editable
+	pip-compile-multi -t requirements/dev.in --backtracking --use-cache
+
+deps-python-verify:
+	pip-compile-multi verify
+
+deps-npm:
+	npm update
+
+deps: deps-python deps-npm
+
+install-npm:
+	npm install
+
+install-npm-ci:
+	npm clean-install
+
+install-python-dev: deps-editable
 	pip install -r requirements/dev.txt
-install-test: deps-install
+
+install-python-test: deps-editable
 	pip install -r requirements/test.txt
-install: deps-install
+
+install-python: deps-editable
 	pip install -r requirements/base.txt
 
+install-dev: deps-editable install-python-dev install-npm build
+
+install-test: deps-editable install-npm-ci build
+
+install: deps-editable install-npm-ci build
 
 debug-markdown-tests:
 	pytest -v -m debug_markdown_output

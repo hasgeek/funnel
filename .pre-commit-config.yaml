@@ -15,39 +15,7 @@ repos:
     rev: v2.6.2
     hooks:
       - id: pip-compile-multi-verify
-  # - repo: https://github.com/jazzband/pip-tools
-  #   rev: 6.12.2
-  #   hooks:
-  #     - id: pip-compile
-  #       name: pip-compile requirements.in
-  #       args:
-  #         [
-  #           '--output-file=requirements.txt',
-  #           '--resolver=backtracking',
-  #           'requirements.in',
-  #         ]
-  #       files: ^requirements\.(in|txt)$
-  #     - id: pip-compile
-  #       name: pip-compile requirements_test.in
-  #       args:
-  #         [
-  #           '--output-file=requirements_test.txt',
-  #           '--resolver=backtracking',
-  #           'requirements.in',
-  #           'requirements_test.in',
-  #         ]
-  #       files: ^requirements(_test)?\.(in|txt)$
-  #     - id: pip-compile
-  #       name: pip-compile requirements_dev.in
-  #       args:
-  #         [
-  #           '--output-file=requirements_dev.txt',
-  #           '--resolver=backtracking',
-  #           'requirements.in',
-  #           'requirements_test.in',
-  #           'requirements_dev.in',
-  #         ]
-  #       files: ^requirements(_test|_dev)?\.(in|txt)$
+        files: ^requirements/.*\.(in|txt)$
   - repo: https://github.com/pypa/pip-audit
     rev: v2.4.15
     hooks:
@@ -66,7 +34,7 @@ repos:
             '--ignore-vuln',
             'PYSEC-2022-42969', # https://github.com/pytest-dev/pytest/issues/10392
           ]
-        files: ^requirements/(.*)\.txt$
+        files: ^requirements/.*\.txt$
   - repo: https://github.com/lucasmbrown/mirrors-autoflake
     rev: v1.3
     hooks:

@@ -91,16 +91,12 @@ jobs:
         if: ${{ inputs.requirements_test }}
         run: |
           echo ${{ inputs.requirements_test }} > requirements/test.txt
-      - name: Install Python dependencies
+      - name: Install Node and Python dependencies
         run: |
           python -m pip install --upgrade pip setuptools
           make install-test
-      - name: Install pytest-github-actions-annotate-failures
+      - name: Annotate Pytest failures in PR
         run: pip install pytest-github-actions-annotate-failures
-      - name: Install Node modules
-        run: npm ci
-      - name: Webpack JS and CSS assets
-        run: npm run build
       - name: Create PostgreSQL databases
         run: |
           sudo apt-get install postgresql-client -y

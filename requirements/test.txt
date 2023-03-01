@@ -29,6 +29,10 @@ coveralls==3.3.1
     # via -r requirements/test.in
 docopt==0.6.2
     # via coveralls
+exceptiongroup==1.1.0
+    # via
+    #   pytest
+    #   trio
 h11==0.14.0
     # via wsproto
 iniconfig==2.0.0
@@ -79,6 +83,10 @@ soupsieve==2.4
     # via beautifulsoup4
 splinter==0.19.0
     # via pytest-splinter
+tomli==2.0.1
+    # via
+    #   coverage
+    #   pytest
 tomlkit==0.11.6
     # via -r requirements/test.in
 trio==0.22.0
