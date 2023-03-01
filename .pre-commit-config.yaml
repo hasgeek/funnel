@@ -62,7 +62,9 @@ repos:
             '-r',
             'requirements/dev.txt',
             '--ignore-vuln',
-            'PYSEC-2021-13', # Flask-Caching uses pickle, exposing a vulnerability
+            'PYSEC-2021-13', # https://github.com/pallets-eco/flask-caching/pull/209
+            '--ignore-vuln',
+            'PYSEC-2022-42969', # https://github.com/pytest-dev/pytest/issues/10392
           ]
         files: ^requirements/(.*)\.txt$
   - repo: https://github.com/lucasmbrown/mirrors-autoflake
