@@ -62,4 +62,3 @@ Feature: Project registration with contact verification
     When User clicks the JOIN FREE button
     And User enters an invalid email address
     Then OTP message delivery fails
-
