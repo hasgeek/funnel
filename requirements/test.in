@@ -1,3 +1,4 @@
+-r base.in
 beautifulsoup4
 colorama
 coverage
