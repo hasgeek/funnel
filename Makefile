@@ -87,7 +87,7 @@ install-python-dev: deps-editable
 	pip install -r requirements/dev.txt
 
 install-python-test: deps-editable
-	pip install -r requirements/test.txt
+	pip install -r requirements/test.txt --no-deps
 
 install-python: deps-editable
 	pip install -r requirements/base.txt
