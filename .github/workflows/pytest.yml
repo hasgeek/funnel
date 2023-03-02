@@ -13,18 +13,18 @@ on:
       - '**.py'
       - '**.js'
       - '**.jinja2'
-      - 'requirements.txt'
-      - 'requirements_test.txt'
+      - 'requirements/base.txt'
+      - 'requirements/test.txt'
   workflow_call:
     inputs:
       requirements:
-        description: Updated requirements.txt
+        description: Updated requirements/base.txt
         type: string
       requirements_dev:
-        description: Updated requirements_dev.txt
+        description: Updated requirements/dev.txt
         type: string
       requirements_test:
-        description: Updated requirements_test.txt
+        description: Updated requirements/test.txt
         type: string
 
 permissions:
@@ -65,10 +65,11 @@ jobs:
       - name: Install Geckodriver (for browser testing)
         uses: browser-actions/setup-geckodriver@latest
       - name: Install Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
+          cache-dependency-path: 'requirements/*.txt'
       - name: Install Node
         uses: actions/setup-node@v3
         with:
@@ -78,28 +79,24 @@ jobs:
         run: |
           sudo -- sh -c "echo '127.0.0.1  funnel.test' >> /etc/hosts"
           sudo -- sh -c "echo '127.0.0.1  f.test' >> /etc/hosts"
-      - name: Optionally replace requirements.txt
+      - name: Optionally replace requirements/base.txt
         if: ${{ inputs.requirements }}
         run: |
-          echo ${{ inputs.requirements }} > requirements.txt
-      - name: Optionally replace requirements_dev.txt
+          echo ${{ inputs.requirements }} > requirements/base.txt
+      - name: Optionally replace requirements/dev.txt
         if: ${{ inputs.requirements_dev }}
         run: |
-          echo ${{ inputs.requirements_dev }} > requirements_dev.txt
-      - name: Optionally replace requirements_test.txt
+          echo ${{ inputs.requirements_dev }} > requirements/dev.txt
+      - name: Optionally replace requirements/test.txt
         if: ${{ inputs.requirements_test }}
         run: |
-          echo ${{ inputs.requirements_test }} > requirements_test.txt
-      - name: Install Python dependencies
+          echo ${{ inputs.requirements_test }} > requirements/test.txt
+      - name: Install Node and Python dependencies
         run: |
           python -m pip install --upgrade pip setuptools
-          pip install -r requirements_test.txt
-      - name: Install pytest-github-actions-annotate-failures
+          make install-test
+      - name: Annotate Pytest failures in PR
         run: pip install pytest-github-actions-annotate-failures
-      - name: Install Node modules
-        run: npm ci
-      - name: Webpack JS and CSS assets
-        run: npm run build
       - name: Create PostgreSQL databases
         run: |
           sudo apt-get install postgresql-client -y

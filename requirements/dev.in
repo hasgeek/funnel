@@ -1,3 +1,4 @@
+-r test.in
 bandit
 black
 djlint
@@ -13,12 +14,12 @@ flake8-logging-format
 flake8-mutable
 flake8-print
 flake8-pytest-style
+flask-debugtoolbar
 isort
-itsdangerous<2.1.0  # Dupe from requirements.in due to version pin there
 lxml-stubs
 mypy
 pep8-naming
-pip-tools
+pip-compile-multi
 pre-commit
 pylint
 pylint-pytest
