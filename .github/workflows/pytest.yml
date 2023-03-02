@@ -15,6 +15,7 @@ on:
       - '**.jinja2'
       - 'requirements/base.txt'
       - 'requirements/test.txt'
+      - '.github/workflows/pytest.yml'
   workflow_call:
     inputs:
       requirements:
