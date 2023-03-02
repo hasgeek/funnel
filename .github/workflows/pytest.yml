@@ -103,7 +103,7 @@ jobs:
           pip install -r requirements/test.txt
       - name: Install Node dependencies
         run: |
-          make install-npm-ci
+          make install-npm
       - name: Build assets
         run: |
           make assets
