@@ -1,4 +1,4 @@
-Feature: Profile unfollow
+Feature: Account unfollow
   As a user,
   I want to unfollow from an organization,
   So I stop receiving notifications of the orgs activities across all communication channels

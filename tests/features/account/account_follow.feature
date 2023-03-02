@@ -1,5 +1,5 @@
 # BIGGER GOAL
-Feature: Profile Follow
+Feature: Account Follow
   As a user,
   I want to follow the activities of an organization,
   So I can participate in the activities of the organization
