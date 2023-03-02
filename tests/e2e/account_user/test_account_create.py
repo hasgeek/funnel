@@ -16,6 +16,8 @@ pytestmark = pytest.mark.usefixtures('live_server')
 #     browser.execute_script(f"window.navigator.language = {language}")
 
 
+# Parameterization is not working
+# @pytest.mark.parametrize("locale", [('firefox_hi'), ('firefox_en')])
 @given("Anonymous visitor is on the home page")
 def given_anonuser_home_page(live_server, selenium, db_session):
     selenium.get(live_server.url)
