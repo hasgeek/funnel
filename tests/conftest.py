@@ -44,6 +44,7 @@ def pytest_addoption(parser) -> None:
 @pytest.fixture()
 def chrome_options(chrome_options):
     chrome_options.add_argument('--headless')
+    chrome_options.add_argument('ignore-certificate-errors')
     return chrome_options
 
 
