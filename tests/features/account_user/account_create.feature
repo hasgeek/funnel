@@ -59,3 +59,9 @@ Feature: Account creation
     Then a register modal appears
     When they submit the phone number with password
     Then they are logged in
+
+  Scenario: Test for recaptcha
+    Given the server uses Recaptcha
+    When twoflower visits the login page, Recaptcha is required
+    Then they submit and Recaptcha validation passes
+    And they are logged in

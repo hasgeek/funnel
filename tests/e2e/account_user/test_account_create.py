@@ -182,3 +182,32 @@ def given_twoflower_visits_project(
     db_session.add(new_project)
     db_session.commit()
     selenium.get(live_server.url + new_project.profile.name + '/' + new_project.name)
+
+
+@given("the server uses Recaptcha")
+def given_server_uses_recaptcha(
+    live_server, selenium, db_session, user_twoflower, new_project, funnel
+):
+    user_twoflower.password = 'te@pwd3289'  # nosec
+    user_twoflower.add_phone('+12345678900')
+    user_twoflower.add_email('twoflower@example.org')
+    new_project.publish()
+    db_session.add(new_project)
+    db_session.commit()
+    assert funnel.app.config['RECAPTCHA_PRIVATE_KEY']
+
+
+@when('twoflower visits the login page, Recaptcha is required')
+def when_twoflower_visits_login_page_recaptcha(app, live_server, selenium):
+    selenium.get(live_server.url + 'login')
+    assert selenium.find_element(By.CLASS_NAME, 'g-recaptcha')
+
+
+@then('they submit and Recaptcha validation passes')
+def then_submit_recaptcha_validation_passes(live_server, selenium):
+    WebDriverWait(selenium, 10)
+    time.sleep(2)
+    selenium.find_element(By.NAME, 'username').send_keys('+12345678900')
+    selenium.find_element(By.ID, 'use-password-login').click()
+    selenium.find_element(By.NAME, 'password').send_keys('te@pwd3289')
+    selenium.find_element(By.ID, 'login-btn').send_keys(Keys.ENTER)
