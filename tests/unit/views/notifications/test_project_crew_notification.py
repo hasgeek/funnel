@@ -308,27 +308,21 @@ def when_ridcully_resigns(
     )
 )
 def then_user_notification_removal(
+    getuser,
     recipient,
     notification_string,
     ridcully_member,
-    vetinari_member,
-    vimes_member,
     actor,
 ) -> None:
-    user_dict = {
-        "Ridcully": ridcully_member.user,
-        "Vimes": vimes_member.user,
-        "Vetinari": vetinari_member.user,
-    }
     preview = models.PreviewNotification(
         models.ProjectCrewMembershipRevokedNotification,
         document=ridcully_member.project,
         fragment=ridcully_member,
         user=ridcully_member.revoked_by,
     )
-    user_notification = models.NotificationFor(preview, user_dict[recipient])
+    user_notification = models.NotificationFor(preview, getuser(recipient))
     view = user_notification.views.render
-    assert view.actor.uuid == user_dict[actor].uuid
+    assert view.actor.uuid == getuser(actor).uuid
     assert (
         view.activity_template().format(
             project=ridcully_member.project.joined_title,
