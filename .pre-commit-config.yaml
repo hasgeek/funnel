@@ -105,7 +105,7 @@ repos:
       - id: flake8
         additional_dependencies: *flake8deps
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.16.3
+    rev: v2.16.4
     hooks:
       - id: pylint
         args: [
