@@ -1,26 +1,26 @@
-Feature: Account Delete
+Feature: Account deletion safety check
   As a user, I want to delete my account and the site confirms it is safe to proceed
-  because no one else's data will be affected.
+  because there is no blocking issue
 
-  Scenario: User Rincewind visits the delete endpoint
-    Given user Rincewind is logged in
-    When user Rincewind visits the delete endpoint
-    Then user Rincewind is prompted to confirm deletion
+  Scenario: Rincewind tries to delete their account
+    Given Rincewind is logged in
+    When they visit the delete page
+    Then they are cleared to delete the account
 
-  Scenario: User Ridcully visits the delete endpoint
-    Given user Ridcully is logged in
-    And user Ridcully is the sole owner of Unseen University
-    When user Ridcully visits the delete endpoint
-    Then 'This account has organizations without co-owners' warning is shown to the user
+  Scenario: Ridcully tries to delete their account
+    Given Ridcully is logged in
+    And they are the sole owner of Unseen University
+    When they visit the delete page
+    Then they are told they have organizations without co-owners
 
-  Scenario: User Librarian visits the delete endpoint
-    Given user Librarian is logged in
-    And user Librarian is a co-owner of Unseen University
-    When user Librarian hits the delete endpoint
-    Then user Librarian is prompted to confirm deletion
+  Scenario: The Librarian tries to delete their account
+    Given The Librarian is logged in
+    And they are a co-owner of Unseen University
+    When they visit the delete page
+    Then they are cleared to delete the account
 
-  Scenario: User Librarian having a protected profile visits the delete endpoint
-    Given user Librarian has a protected profile
-    And user Librarian is logged in
-    When user Librarian visits the delete endpoint
-    Then 'This account is protected' warning is shown to the user
+  Scenario: Death tries to delete their account
+    Given Death has a protected account
+    And they are logged in
+    When they visit the delete page
+    Then they are told their account is protected

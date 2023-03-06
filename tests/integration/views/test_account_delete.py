@@ -1,119 +1,66 @@
-from pytest_bdd import given, scenario, then, when
+from pytest_bdd import given, parsers, scenarios, then, when
+
+from funnel import models
+
+scenarios('account/delete_confirm.feature')
 
 
-@scenario('account/delete_confirm.feature', "User Rincewind visits the delete endpoint")
-def test_delete_rincewind(login):
-    pass
+@given(parsers.parse('{user} is logged in'), target_fixture='current_user')
+def given_user_logged_in(getuser, login, user: str) -> models.User:
+    user_obj = getuser(user)
+    login.as_(user_obj)
+    return user_obj
 
 
-@given("user Rincewind is logged in")
-def rincewind_logged_in(client, login, user_rincewind):
-    login.as_(user_rincewind)
+@given(parsers.parse('{user} has a protected account'), target_fixture='current_user')
+def given_protected_account(getuser, user: str) -> models.User:
+    user_obj = getuser(user)
+    assert user_obj.profile.is_protected is True
+    return user_obj
 
 
-@when(
-    "user Rincewind visits the delete endpoint",
-    target_fixture="rincewind_go_to_endpoint",
-)
-def rincewind_go_to_endpoint(client, login, user_rincewind):
-    rv = client.get('/account/delete')
-    return rv
+@given('they are logged in')
+def given_current_user_logged_in(login, current_user):
+    login.as_(current_user)
 
 
-@then("user Rincewind is prompted to confirm deletion")
-def rincewind_account_delete_form(rincewind_go_to_endpoint):
-    assert rincewind_go_to_endpoint.form('form-account-delete') is not None
+@given('they are the sole owner of Unseen University')
+def given_sole_owner(current_user: models.User, org_uu: models.Organization):
+    assert list(org_uu.owner_users) == [current_user]
 
 
-@scenario('account/delete_confirm.feature', "User Ridcully visits the delete endpoint")
-def test_delete_ridcully(login):
-    pass
-
-
-@given("user Ridcully is logged in")
-@given("user Ridcully is the sole owner of Unseen University")
-def ridcully_logged_in(client, login, user_ridcully, org_uu):
-    login.as_(user_ridcully)
-
-
-@when(
-    "user Ridcully visits the delete endpoint", target_fixture="ridcully_go_to_endpoint"
-)
-def ridcully_go_to_endpoint(client, login, user_ridcully):
-    rv = client.get('/account/delete')
-    return rv
-
-
-@then("'This account has organizations without co-owners' warning is shown to the user")
-def ridcully_account_delete_form(ridcully_go_to_endpoint):
-    assert ridcully_go_to_endpoint.form('form-account-delete') is None
-    assert (
-        'This account has organizations without co-owners'
-        in ridcully_go_to_endpoint.data.decode()
+@given('they are a co-owner of Unseen University', target_fixture='org_owner')
+def given_coowner(db_session, current_user: models.User, org_uu: models.Organization):
+    for membership in org_uu.active_admin_memberships:
+        if membership.user == current_user:
+            if membership.is_owner:
+                return membership
+            membership = membership.replace(actor=current_user, is_owner=True)
+            return membership
+    membership = models.OrganizationAdminMembership(
+        user=current_user, granted_by=current_user, organization=org_uu, is_owner=True
     )
+    db_session.add(membership)
+    return membership
 
 
-@scenario('account/delete_confirm.feature', "User Librarian visits the delete endpoint")
-def test_delete_librarian(login):
-    pass
+@when('they visit the delete page', target_fixture='delete_page')
+def when_user_visits_delete_page(client):
+    return client.get('/account/delete')
 
 
-@given("user Librarian is logged in")
-def librarian_logged_in(client, login, org_uu, user_librarian):
-    login.as_(user_librarian)
+@then('they are cleared to delete the account')
+def then_user_delete_confirm(delete_page):
+    assert delete_page.form('form-account-delete') is not None
 
 
-@given('user Librarian is a co-owner of Unseen University')
-def librarian_coowner():
-    pass
+@then('they are told they have organizations without co-owners')
+def then_told_unshared_orgs(delete_page):
+    assert delete_page.form('form-account-delete') is None
+    assert "organizations without co-owners" in delete_page.data.decode()
 
 
-@when(
-    "user Librarian hits the delete endpoint", target_fixture="librarian_go_to_endpoint"
-)
-def librarian_go_to_endpoint(client, login, user_librarian):
-    rv = client.get('/account/delete')
-    return rv
-
-
-@then("user Librarian is prompted to confirm deletion")
-def librarian_account_delete_form(librarian_go_to_endpoint):
-    assert librarian_go_to_endpoint.form('form-account-delete') is not None
-
-
-@scenario(
-    'account/delete_confirm.feature',
-    "User Librarian having a protected profile visits the delete endpoint",
-)
-def test_delete_protected_librarian(login):
-    pass
-
-
-@given("user librarian is logged in")
-def protected_librarian_logged_in(client, login, org_uu, user_librarian, db_session):
-    login.as_(user_librarian)
-
-
-@given("user Librarian has a protected profile")
-def librarian_protected_account(user_librarian, db_session):
-    user_librarian.profile.is_protected = True
-    db_session.add(user_librarian)
-
-
-@when(
-    "user Librarian visits the delete endpoint",
-    target_fixture="protected_librarian_go_to_endpoint",
-)
-def protected_librarian_go_to_endpoint(client, login, user_librarian):
-    rv = client.get('/account/delete')
-    return rv
-
-
-@then("'This account is protected' warning is shown to the user")
-def protected_librarian_account_delete_form(
-    protected_librarian_go_to_endpoint, user_librarian
-):
-    assert protected_librarian_go_to_endpoint.form('form-account-delete') is None
-    assert (
-        "This account is protected" in protected_librarian_go_to_endpoint.data.decode()
-    )
+@then('they are told their account is protected')
+def then_told_protected_account(delete_page):
+    assert delete_page.form('form-account-delete') is None
+    assert "This account is protected" in delete_page.data.decode()

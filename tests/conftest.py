@@ -1089,6 +1089,7 @@ def user_death(models, db_session) -> funnel_models.User:
         fullname="Death",
         created_at=datetime(1970, 1, 1, tzinfo=timezone.utc),
     )
+    user.profile.is_protected = True
     db_session.add(user)
     return user
 
