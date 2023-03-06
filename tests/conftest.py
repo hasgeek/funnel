@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session as DatabaseSessionClass
 import sqlalchemy as sa
 
 import pytest
+import typeguard
 
 if t.TYPE_CHECKING:
     from flask import Flask
@@ -65,6 +66,13 @@ def pytest_collection_modifyitems(items) -> None:
         return (-1, module_file)
 
     items.sort(key=sort_key)
+
+
+# Adapted from https://github.com/untitaker/pytest-fixture-typecheck
+def pytest_runtest_call(item):
+    for attr, type_ in item.obj.__annotations__.items():
+        if attr in item.funcargs:
+            typeguard.check_type(attr, item.funcargs[attr], type_)
 
 
 # --- Import fixtures ------------------------------------------------------------------

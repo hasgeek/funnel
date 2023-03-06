@@ -14,3 +14,4 @@ pytest-rerunfailures
 pytest-splinter
 requests-mock
 tomlkit
+typeguard
