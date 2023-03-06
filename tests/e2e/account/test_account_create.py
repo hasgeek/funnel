@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait
 import pytest
 
-scenarios('account_user/account_create.feature')
+scenarios('account/account_create.feature')
 pytestmark = pytest.mark.usefixtures('live_server')
 
 
