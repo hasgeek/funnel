@@ -41,6 +41,7 @@ def given_coowner(db_session, current_user: models.User, org_uu: models.Organiza
         user=current_user, granted_by=current_user, organization=org_uu, is_owner=True
     )
     db_session.add(membership)
+    assert len(org_uu.admin_users) > 1
     return membership
 
 
