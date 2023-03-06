@@ -182,7 +182,7 @@
       </div>
     </div>
     {% elif project.buy_tickets_url.url -%}
-      <a class="register-block__btn full-width-btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin" href="{{ project.buy_tickets_url.url }}" data-action="Buy Tickets url" target="_blank" rel="noopener">{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{% trans %}Get Tickets{% endtrans %}</a>
+      <a class="register-block__btn full-width-btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin" href="{{ project.buy_tickets_url.url }}" data-action="external register url" target="_blank" rel="noopener">{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{% trans %}Register{% endtrans %}</a>
     {% endif %}
     {% if project.features.tickets() %}
       <div class="register-block__content {% if project.features.rsvp() %} register-block__content--padding {%- else %} register-block__content--flex {% endif %}">

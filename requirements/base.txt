@@ -17,7 +17,7 @@ aiohttp==3.8.4
     #   tuspy
 aiosignal==1.3.1
     # via aiohttp
-alembic==1.9.4
+alembic==1.10.0
     # via
     #   -r requirements/base.in
     #   flask-migrate
@@ -84,7 +84,7 @@ click==8.1.3
     #   rq
 crontab==1.0.0
     # via rq-scheduler
-cryptography==39.0.1
+cryptography==39.0.2
     # via
     #   -r requirements/base.in
     #   paramiko
@@ -284,7 +284,7 @@ paramiko==2.12.0
     # via fabric3
 passlib==1.7.4
     # via -r requirements/base.in
-phonenumbers==8.13.6
+phonenumbers==8.13.7
     # via -r requirements/base.in
 premailer==3.10.0
     # via -r requirements/base.in
@@ -322,7 +322,7 @@ pyjsparser==2.7.1
     # via js2py
 pyjwt==2.6.0
     # via twilio
-pymdown-extensions==9.9.2
+pymdown-extensions==9.10
     # via
     #   -r requirements/base.in
     #   coaster
@@ -360,7 +360,9 @@ pytz-deprecation-shim==0.1.0.post0
 pyvimeo==1.1.0
     # via -r requirements/base.in
 pyyaml==6.0
-    # via flask-flatpages
+    # via
+    #   flask-flatpages
+    #   pymdown-extensions
 qrcode==7.4.2
     # via -r requirements/base.in
 redis==4.5.1
@@ -391,7 +393,7 @@ requests-mock==1.10.0
     # via baseframe
 requests-oauthlib==1.3.1
     # via tweepy
-rich==13.3.1
+rich==13.3.2
     # via -r requirements/base.in
 rq==1.13.0
     # via
@@ -427,7 +429,7 @@ six==1.16.0
     #   requests-mock
     #   sqlalchemy-json
     #   tuspy
-sqlalchemy==2.0.4
+sqlalchemy==2.0.5.post1
     # via
     #   -r requirements/base.in
     #   alembic
@@ -452,7 +454,7 @@ tldextract==3.4.0
     #   mxsniff
 toml==0.10.2
     # via -r requirements/base.in
-tqdm==4.64.1
+tqdm==4.65.0
     # via nltk
 tuspy==1.0.0
     # via pyvimeo
@@ -463,6 +465,7 @@ twilio==7.16.4
 typing-extensions==4.5.0
     # via
     #   -r requirements/base.in
+    #   alembic
     #   baseframe
     #   coaster
     #   qrcode
