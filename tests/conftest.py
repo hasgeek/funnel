@@ -1006,6 +1006,49 @@ def login(app, client, db_session) -> SimpleNamespace:
 
 
 @pytest.fixture()
+def getuser(request) -> t.Callable[[str], funnel_models.User]:
+    """Get a user fixture by their name."""
+    usermap = {
+        "Twoflower": 'user_twoflower',
+        "Rincewind": 'user_rincewind',
+        "Death": 'user_death',
+        "Mort": 'user_mort',
+        "Susan Sto Helit": 'user_susan',
+        "Susan": 'user_susan',
+        "Lu-Tze": 'user_lutze',
+        "Mustrum Ridcully": 'user_ridcully',
+        "Ridcully": 'user_ridcully',
+        "Mustrum": 'user_ridcully',
+        "The Librarian": 'user_librarian',
+        "Librarian": 'user_librarian',
+        "Ponder Stibbons": 'user_ponder_stibbons',
+        "Ponder": 'user_ponder_stibbons',
+        "Stibbons": 'user_ponder_stibbons',
+        "Havelock Vetinari": 'user_vetinari',
+        "Havelock": 'user_vetinari',
+        "Vetinari": 'user_vetinari',
+        "Sam Vimes": 'user_vimes',
+        "Vimes": 'user_vimes',
+        "Carrot Ironfoundersson": 'user_carrot',
+        "Carrot": 'user_carrot',
+        "Angua von Überwald": 'user_angua',
+        "CMOT Dibbler": 'user_dibbler',
+        "Dibbler": 'user_dibbler',
+        "Wolfgang von Überwald": 'user_wolfgang',
+        "Wolfgang": 'user_wolfgang',
+        "Om": 'user_om',
+    }
+
+    def func(user: str) -> funnel_models.User:
+        if user not in usermap:
+            pytest.fail(f"No user fixture named {user}")
+        return request.getfixturevalue(usermap[user])
+
+    func.usermap = usermap  # Aid for tests
+    return func
+
+
+@pytest.fixture()
 def user_twoflower(models, db_session) -> funnel_models.User:
     """
     Twoflower is a tourist from the Agatean Empire who goes on adventures.
