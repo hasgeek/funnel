@@ -13,14 +13,14 @@ Feature: Project Crew Notification
 
     Examples:
       | recipient | role            | actor    | notification_string                                                                     |
-      | Vetinari  | editor          | Ridcully | You made Mustrum Ridcully an editor of Ankh-Morpork 2010                                |
-      | Ridcully  | editor          | Vetinari | Havelock Vetinari made you an editor of Ankh-Morpork 2010                               |
+      | Vetinari  | editor          | Ridcully | You made Mustrum Ridcully editor of Ankh-Morpork 2010                                   |
+      | Ridcully  | editor          | Vetinari | Havelock Vetinari made you editor of Ankh-Morpork 2010                                  |
       | Vimes     | editor          | Ridcully | Mustrum Ridcully was made editor of Ankh-Morpork 2010 by Havelock Vetinari              |
-      | Vetinari  | promoter        | Ridcully | You made Mustrum Ridcully a promoter of Ankh-Morpork 2010                               |
-      | Ridcully  | promoter        | Vetinari | Havelock Vetinari made you a promoter of Ankh-Morpork 2010                              |
+      | Vetinari  | promoter        | Ridcully | You made Mustrum Ridcully promoter of Ankh-Morpork 2010                                 |
+      | Ridcully  | promoter        | Vetinari | Havelock Vetinari made you promoter of Ankh-Morpork 2010                                |
       | Vimes     | promoter        | Ridcully | Mustrum Ridcully was made promoter of Ankh-Morpork 2010 by Havelock Vetinari            |
-      | Vetinari  | editor,promoter | Ridcully | You made Mustrum Ridcully an editor and promoter of Ankh-Morpork 2010                   |
-      | Ridcully  | editor,promoter | Vetinari | Havelock Vetinari made you an editor and promoter of Ankh-Morpork 2010                  |
+      | Vetinari  | editor,promoter | Ridcully | You made Mustrum Ridcully editor and promoter of Ankh-Morpork 2010                      |
+      | Ridcully  | editor,promoter | Vetinari | Havelock Vetinari made you editor and promoter of Ankh-Morpork 2010                     |
       | Vimes     | editor,promoter | Ridcully | Mustrum Ridcully was made editor and promoter of Ankh-Morpork 2010 by Havelock Vetinari |
       | Vetinari  | usher           | Ridcully | You added Mustrum Ridcully to the crew of Ankh-Morpork 2010                             |
       | Ridcully  | usher           | Vetinari | Havelock Vetinari added you to the crew of Ankh-Morpork 2010                            |
@@ -51,19 +51,19 @@ Feature: Project Crew Notification
     Then <recipient> gets notified with photo of <actor> and message <notification_string> about the invitation
 
     Examples:
-      | recipient | role            | actor    | notification_string                                                                                 |
-      | Vetinari  | editor          | Ridcully | You invited Mustrum Ridcully to be an editor of Ankh-Morpork 2010                                   |
-      | Ridcully  | editor          | Vetinari | Havelock Vetinari invited you to be an editor of Ankh-Morpork 2010                                  |
-      | Vimes     | editor          | Ridcully | Mustrum Ridcully was invited to be an editor of Ankh-Morpork 2010 by Havelock Vetinari              |
-      | Vetinari  | promoter        | Ridcully | You invited Mustrum Ridcully to be a promoter of Ankh-Morpork 2010                                  |
-      | Ridcully  | promoter        | Vetinari | Havelock Vetinari invited you to be a promoter of Ankh-Morpork 2010                                 |
-      | Vimes     | promoter        | Ridcully | Mustrum Ridcully was invited to be a promoter of Ankh-Morpork 2010 by Havelock Vetinari             |
-      | Vetinari  | editor,promoter | Ridcully | You invited Mustrum Ridcully to be an editor and promoter of Ankh-Morpork 2010                      |
-      | Ridcully  | editor,promoter | Vetinari | Havelock Vetinari invited you to be an editor and promoter of Ankh-Morpork 2010                     |
-      | Vimes     | editor,promoter | Ridcully | Mustrum Ridcully was invited to be an editor and promoter of Ankh-Morpork 2010 by Havelock Vetinari |
-      | Vetinari  | usher           | Ridcully | You invited Mustrum Ridcully to join the crew of Ankh-Morpork 2010                                  |
-      | Ridcully  | usher           | Vetinari | Havelock Vetinari invited you to join the crew of Ankh-Morpork 2010                                 |
-      | Vimes     | usher           | Ridcully | Mustrum Ridcully was invited to join the crew of Ankh-Morpork 2010 by Havelock Vetinari             |
+      | recipient | role            | actor    | notification_string                                                                              |
+      | Vetinari  | editor          | Ridcully | You invited Mustrum Ridcully to be editor of Ankh-Morpork 2010                                   |
+      | Ridcully  | editor          | Vetinari | Havelock Vetinari invited you to be editor of Ankh-Morpork 2010                                  |
+      | Vimes     | editor          | Ridcully | Mustrum Ridcully was invited to be editor of Ankh-Morpork 2010 by Havelock Vetinari              |
+      | Vetinari  | promoter        | Ridcully | You invited Mustrum Ridcully to be promoter of Ankh-Morpork 2010                                 |
+      | Ridcully  | promoter        | Vetinari | Havelock Vetinari invited you to be promoter of Ankh-Morpork 2010                                |
+      | Vimes     | promoter        | Ridcully | Mustrum Ridcully was invited to be promoter of Ankh-Morpork 2010 by Havelock Vetinari            |
+      | Vetinari  | editor,promoter | Ridcully | You invited Mustrum Ridcully to be editor and promoter of Ankh-Morpork 2010                      |
+      | Ridcully  | editor,promoter | Vetinari | Havelock Vetinari invited you to be editor and promoter of Ankh-Morpork 2010                     |
+      | Vimes     | editor,promoter | Ridcully | Mustrum Ridcully was invited to be editor and promoter of Ankh-Morpork 2010 by Havelock Vetinari |
+      | Vetinari  | usher           | Ridcully | You invited Mustrum Ridcully to join the crew of Ankh-Morpork 2010                               |
+      | Ridcully  | usher           | Vetinari | Havelock Vetinari invited you to join the crew of Ankh-Morpork 2010                              |
+      | Vimes     | usher           | Ridcully | Mustrum Ridcully was invited to join the crew of Ankh-Morpork 2010 by Havelock Vetinari          |
 
   Scenario Outline: Ridcully accepted the invite
     Given Vetinari invited Ridcully with role <role> to the Ankh-Morpork 2010 project
