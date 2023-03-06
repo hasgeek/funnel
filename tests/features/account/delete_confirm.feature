@@ -1,11 +1,11 @@
 Feature: Account Delete
-  As a user,
-  I want to delete my account and all the data.
+  As a user, I want to delete my account and the site confirms it is safe to proceed
+  because no one else's data will be affected.
 
   Scenario: User Rincewind visits the delete endpoint
     Given user Rincewind is logged in
     When user Rincewind visits the delete endpoint
-    Then user Rincewind is prompter for delete confirmation
+    Then user Rincewind is prompted to confirm deletion
 
   Scenario: User Ridcully visits the delete endpoint
     Given user Ridcully is logged in
@@ -17,7 +17,7 @@ Feature: Account Delete
     Given user Librarian is logged in
     And user Librarian is a co-owner of Unseen University
     When user Librarian hits the delete endpoint
-    Then user Librarian is prompted for delete confirmation
+    Then user Librarian is prompted to confirm deletion
 
   Scenario: User Librarian having a protected profile visits the delete endpoint
     Given user Librarian has a protected profile

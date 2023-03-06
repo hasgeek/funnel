@@ -1,7 +1,7 @@
 from pytest_bdd import given, scenario, then, when
 
 
-@scenario('account/account_delete.feature', "User Rincewind visits the delete endpoint")
+@scenario('account/delete_confirm.feature', "User Rincewind visits the delete endpoint")
 def test_delete_rincewind(login):
     pass
 
@@ -20,12 +20,12 @@ def rincewind_go_to_endpoint(client, login, user_rincewind):
     return rv
 
 
-@then("user Rincewind is prompter for delete confirmation")
+@then("user Rincewind is prompted to confirm deletion")
 def rincewind_account_delete_form(rincewind_go_to_endpoint):
     assert rincewind_go_to_endpoint.form('form-account-delete') is not None
 
 
-@scenario('account/account_delete.feature', "User Ridcully visits the delete endpoint")
+@scenario('account/delete_confirm.feature', "User Ridcully visits the delete endpoint")
 def test_delete_ridcully(login):
     pass
 
@@ -53,7 +53,7 @@ def ridcully_account_delete_form(ridcully_go_to_endpoint):
     )
 
 
-@scenario('account/account_delete.feature', "User Librarian visits the delete endpoint")
+@scenario('account/delete_confirm.feature', "User Librarian visits the delete endpoint")
 def test_delete_librarian(login):
     pass
 
@@ -76,13 +76,13 @@ def librarian_go_to_endpoint(client, login, user_librarian):
     return rv
 
 
-@then("user Librarian is prompted for delete confirmation")
+@then("user Librarian is prompted to confirm deletion")
 def librarian_account_delete_form(librarian_go_to_endpoint):
     assert librarian_go_to_endpoint.form('form-account-delete') is not None
 
 
 @scenario(
-    'account/account_delete.feature',
+    'account/delete_confirm.feature',
     "User Librarian having a protected profile visits the delete endpoint",
 )
 def test_delete_protected_librarian(login):
