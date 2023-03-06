@@ -133,14 +133,14 @@ Feature: Project Crew Notification
 
     Examples:
       | recipient | role            | actor    | notification_string                                                                           |
-      | Vetinari  | editor          | Ridcully | You removed Mustrum Ridcully from editor of Ankh-Morpork 2010                                 |
-      | Ridcully  | editor          | Vetinari | Havelock Vetinari removed you from editor of Ankh-Morpork 2010                                |
+      | Vetinari  | editor          | Ridcully | You removed Mustrum Ridcully as editor of Ankh-Morpork 2010                                   |
+      | Ridcully  | editor          | Vetinari | Havelock Vetinari removed you as editor of Ankh-Morpork 2010                                  |
       | Vimes     | editor          | Ridcully | Mustrum Ridcully was removed as editor of Ankh-Morpork 2010 by Havelock Vetinari              |
-      | Vetinari  | promoter        | Ridcully | You removed Mustrum Ridcully from promoter of Ankh-Morpork 2010                               |
-      | Ridcully  | promoter        | Vetinari | Havelock Vetinari removed you from promoter of Ankh-Morpork 2010                              |
+      | Vetinari  | promoter        | Ridcully | You removed Mustrum Ridcully as promoter of Ankh-Morpork 2010                                 |
+      | Ridcully  | promoter        | Vetinari | Havelock Vetinari removed you as promoter of Ankh-Morpork 2010                                |
       | Vimes     | promoter        | Ridcully | Mustrum Ridcully was removed as promoter of Ankh-Morpork 2010 by Havelock Vetinari            |
-      | Vetinari  | editor,promoter | Ridcully | You removed Mustrum Ridcully from editor and promoter of Ankh-Morpork 2010                    |
-      | Ridcully  | editor,promoter | Vetinari | Havelock Vetinari removed you from editor and promoter of Ankh-Morpork 2010                   |
+      | Vetinari  | editor,promoter | Ridcully | You removed Mustrum Ridcully as editor and promoter of Ankh-Morpork 2010                      |
+      | Ridcully  | editor,promoter | Vetinari | Havelock Vetinari removed you as editor and promoter of Ankh-Morpork 2010                     |
       | Vimes     | editor,promoter | Ridcully | Mustrum Ridcully was removed as editor and promoter of Ankh-Morpork 2010 by Havelock Vetinari |
       | Vetinari  | usher           | Ridcully | You removed Mustrum Ridcully from the crew of Ankh-Morpork 2010                               |
       | Ridcully  | usher           | Vetinari | Havelock Vetinari removed you from the crew of Ankh-Morpork 2010                              |

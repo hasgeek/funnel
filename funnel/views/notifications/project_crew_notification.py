@@ -594,17 +594,17 @@ revoke_templates = DecisionBranch(
             factors=[
                 DecisionFactor(
                     template=__(
-                        "{actor} removed you from editor and promoter of {project}"
+                        "{actor} removed you as editor and promoter of {project}"
                     ),
                     is_promoter=True,
                     is_editor=True,
                 ),
                 DecisionFactor(
-                    template=__("{actor} removed you from editor of {project}"),
+                    template=__("{actor} removed you as editor of {project}"),
                     is_editor=True,
                 ),
                 DecisionFactor(
-                    template=__("{actor} removed you from promoter of {project}"),
+                    template=__("{actor} removed you as promoter of {project}"),
                     is_promoter=True,
                 ),
                 DecisionFactor(
@@ -637,17 +637,17 @@ revoke_templates = DecisionBranch(
                 ),
                 DecisionFactor(
                     template=__(
-                        "You removed {user} from editor and promoter of {project}"
+                        "You removed {user} as editor and promoter of {project}"
                     ),
                     is_editor=True,
                     is_promoter=True,
                 ),
                 DecisionFactor(
-                    template=__("You removed {user} from editor of {project}"),
+                    template=__("You removed {user} as editor of {project}"),
                     is_editor=True,
                 ),
                 DecisionFactor(
-                    template=__("You removed {user} from promoter of {project}"),
+                    template=__("You removed {user} as promoter of {project}"),
                     is_promoter=True,
                 ),
                 DecisionFactor(
