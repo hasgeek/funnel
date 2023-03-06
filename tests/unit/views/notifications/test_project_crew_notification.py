@@ -99,28 +99,17 @@ def when_vetinari_adds_ridcully(
     )
 )
 def then_user_gets_notification(
-    recipient,
-    notification_string,
-    actor,
-    user_vimes,
-    user_ridcully,
-    user_vetinari,
-    ridcully_member,
+    getuser, recipient, notification_string, actor, ridcully_member
 ) -> None:
-    user_dict = {
-        "Ridcully": user_ridcully,
-        "Vimes": user_vimes,
-        "Vetinari": user_vetinari,
-    }
     preview = models.PreviewNotification(
         models.ProjectCrewMembershipNotification,
         document=ridcully_member.project,
         fragment=ridcully_member,
         user=ridcully_member.granted_by,
     )
-    user_notification = models.NotificationFor(preview, user_dict[recipient])
+    user_notification = models.NotificationFor(preview, getuser(recipient))
     view = user_notification.views.render
-    assert view.actor.uuid == user_dict[actor].uuid
+    assert view.actor.uuid == getuser(actor).uuid
     assert (
         view.activity_template().format(
             actor=ridcully_member.granted_by.fullname,
