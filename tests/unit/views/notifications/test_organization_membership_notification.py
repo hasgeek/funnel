@@ -188,27 +188,21 @@ def when_vetinari_removes_ridcully(
     )
 )
 def then_user_notification_removal(
+    getuser,
     recipient,
     notification_string,
     actor,
-    vimes_admin,
     ridcully_admin,
-    vetinari_admin,
 ) -> None:
-    user_dict = {
-        "Ridcully": ridcully_admin.user,
-        "Vimes": vimes_admin.user,
-        "Vetinari": vetinari_admin.user,
-    }
     preview = models.PreviewNotification(
         models.OrganizationAdminMembershipRevokedNotification,
         document=ridcully_admin.organization,
         fragment=ridcully_admin,
         user=ridcully_admin.revoked_by,
     )
-    user_notification = models.NotificationFor(preview, user_dict[recipient])
+    user_notification = models.NotificationFor(preview, getuser(recipient))
     view = user_notification.views.render
-    assert view.actor.uuid == user_dict[actor].uuid
+    assert view.actor.uuid == getuser(actor).uuid
     assert (
         view.activity_template().format(
             actor=ridcully_admin.granted_by.fullname,
