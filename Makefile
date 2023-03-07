@@ -90,7 +90,7 @@ install-python-dev: install-python-pip deps-editable
 	pip install -r requirements/dev.txt
 
 install-python-test: install-python-pip deps-editable
-	pip install -r requirements/test.txt --no-deps
+	pip install -r requirements/test.txt
 
 install-python: install-python-pip deps-editable
 	pip install -r requirements/base.txt
