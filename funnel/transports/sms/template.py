@@ -246,6 +246,10 @@ class SmsTemplate:
         # variable, which will call `__setattr__`. At this point `_plaintext` has
         # already been set by `.format()` and should not be reset.
 
+    def vars(self) -> Dict[str, Any]:  # noqa: A003
+        """Return a dictionary of variables in the template."""
+        return dict(self._format_kwargs)
+
     @classmethod
     def validate_registered_template(cls) -> None:
         """Validate the Registered template as per documented rules."""

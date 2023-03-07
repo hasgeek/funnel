@@ -406,7 +406,6 @@ class AccountView(ClassView):
                 useremail = emailclaim.user.add_email(
                     emailclaim.email,
                     primary=not emailclaim.user.emails,
-                    type=emailclaim.type,
                     private=emailclaim.private,
                 )
                 for emailclaim in UserEmailClaim.all(useremail.email):
@@ -807,6 +806,7 @@ class AccountView(ClassView):
             )
         return render_form(
             form=form,
+            formid="account-delete",
             title=_("You are about to delete your account permanently"),
             submit=("Delete account"),
             ajax=False,

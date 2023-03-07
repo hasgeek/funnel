@@ -521,7 +521,7 @@
       "You denied the GitHub login request": [
         "आपने GitHub लॉग इन अनुरोध को ख़ारिज कर दिया है"
       ],
-      "This server's callback URL is misconfigured": [
+      "This server’s callback URL is misconfigured": [
         "सर्वर की कॉलबैक URL की विन्यास गलत है"
       ],
       "Unknown failure": ["अज्ञात समस्या"],
@@ -689,7 +689,7 @@
       "Cancel": ["रद्द करें"],
       "This proposal has been cancelled": ["इस प्रस्ताव को रद्द कर दिया गया"],
       "Undo cancel": ["रद्द किए को स्वीकारें"],
-      "This proposal's cancellation has been reversed": [
+      "This proposal’s cancellation has been reversed": [
         "इस प्रस्ताव को रद्द किए से स्वीकारा जा चुका है"
       ],
       "Awaiting details for this proposal": ["इस प्रस्ताव की जानकारी का इंतज़ार है"],

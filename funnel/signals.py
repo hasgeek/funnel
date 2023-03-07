@@ -40,11 +40,11 @@ resource_access_granted = model_signals.signal('resource-access-granted')
 
 emailaddress_refcount_dropping = model_signals.signal(
     'emailaddress-refcount-dropping',
-    doc="Signal indicating that an EmailAddress's refcount is about to drop",
+    doc="Signal indicating that an EmailAddress’s refcount is about to drop",
 )
 phonenumber_refcount_dropping = model_signals.signal(
     'phonenumber-refcount-dropping',
-    doc="Signal indicating that an PhoneNumber's refcount is about to drop",
+    doc="Signal indicating that a PhoneNumber’s refcount is about to drop",
 )
 
 # Higher level signals

@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 from typing import Optional, Tuple
-import urllib.parse
 
-from baseframe import _
+from furl import furl
 
 from . import declarative_mixin, sa
 
@@ -18,76 +17,48 @@ class VideoError(Exception):
 
 def parse_video_url(video_url: str) -> Tuple[str, str]:
     video_source = 'raw'
-    video_id = video_url
+    video_id: Optional[str] = video_url
 
-    parsed = urllib.parse.urlparse(video_url)
-    if parsed.netloc is None:
-        raise ValueError("Invalid video URL")
+    parsed = furl(video_url)
+    if not parsed.host:
+        raise ValueError("The video URL must be an absolute URL")
 
-    if parsed.netloc in ['youtube.com', 'www.youtube.com', 'm.youtube.com']:
+    if parsed.host in ('youtube.com', 'www.youtube.com', 'm.youtube.com'):
+        video_source = 'youtube'
+        video_id = None
         if parsed.path == '/watch':
-            queries = urllib.parse.parse_qs(parsed.query)
-            if 'v' in queries and queries['v']:
-                video_id = queries['v'][0]
-                video_source = 'youtube'
-            else:
-                raise ValueError(
-                    f"{video_url}: YouTube video URLs need to be in the format:"
-                    " https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                )
-        elif parsed.path.startswith('/embed/'):
-            video_id = parsed.path[7:]
-            if video_id:
-                video_source = 'youtube'
-            else:
-                raise ValueError(
-                    f"{video_url}: YouTube video URLs need to be in the format:"
-                    " https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                )
-        else:
-            raise ValueError(
-                f"{video_url}: YouTube video URLs need to be in the format:"
-                " https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-            )
-    elif parsed.netloc == 'youtu.be':
-        video_id = parsed.path.lstrip('/')
-        if video_id:
-            video_source = 'youtube'
-        else:
-            raise ValueError(
-                "YouTube short URLs need to be in the format:"
-                " https://youtu.be/dQw4w9WgXcQ"
-            )
-    elif parsed.netloc in ['vimeo.com', 'www.vimeo.com']:
-        video_id = parsed.path.lstrip('/')
-        if video_id:
-            video_source = 'vimeo'
-        else:
-            raise ValueError(
-                "Vimeo video URLs need to be in the format:"
-                " https://vimeo.com/336892869"
-            )
-    elif parsed.netloc == 'drive.google.com':
-        if parsed.path.startswith('/open'):
-            queries = urllib.parse.parse_qs(parsed.query)
-            if 'id' in queries and queries['id']:
-                video_id = queries['id'][0]
-                video_source = 'googledrive'
-            else:
-                raise ValueError(
-                    _("This must be a shareable URL for a single file in Google Drive")
-                )
-        elif parsed.path.startswith('/file/d/'):
-            video_id = parsed.path[8:]
-            if video_id.endswith('/view'):
-                video_id = video_id[:-5]
-            elif video_id.endswith('/preview'):
-                video_id = video_id[:-8]
-            video_source = 'googledrive'
-        else:
-            raise ValueError(
-                _("This must be a shareable URL for a single file in Google Drive")
-            )
+            video_id = parsed.query.params.get('v')
+        elif len(parsed.path.segments) == 2 and parsed.path.segments[0] in (
+            'embed',
+            'live',
+        ):
+            video_id = parsed.path.segments[1]
+        if not video_id:
+            raise ValueError("Unparseable YouTube URL")
+
+    elif parsed.host == 'youtu.be':
+        video_source = 'youtube'
+        video_id = parsed.path.segments[0]
+        if not video_id:
+            raise ValueError("Unparseable YouTube URL")
+    elif parsed.host in ['vimeo.com', 'www.vimeo.com']:
+        video_source = 'vimeo'
+        video_id = parsed.path.segments[0]
+        if not video_id:
+            raise ValueError("Unparseable Vimeo URL")
+    elif parsed.host == 'drive.google.com':
+        video_source = 'googledrive'
+        video_id = None
+        if parsed.path.segments[0] == 'open':
+            video_id = parsed.query.params.get('id')
+        elif len(parsed.path.segments) > 2 and parsed.path.segments[:2] == [
+            'file',
+            'd',
+        ]:
+            video_id = parsed.path.segments[2]
+        if not video_id:
+            raise ValueError("Unsupported Google Drive URL")
+
     return video_source, video_id
 
 
