@@ -46,7 +46,7 @@ class ZoomProvider(LoginProvider):
                     dict(request.args),
                 )
                 raise LoginCallbackError(
-                    _("This server's callback URL is misconfigured")
+                    _("This server’s callback URL is misconfigured")
                 )
             raise LoginCallbackError(_("Unknown failure"))
         code = request.args.get('code', None)

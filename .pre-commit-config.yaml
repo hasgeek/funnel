@@ -105,7 +105,7 @@ repos:
       - id: flake8
         additional_dependencies: *flake8deps
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.16.2
+    rev: v2.16.4
     hooks:
       - id: pylint
         args: [
@@ -158,13 +158,14 @@ repos:
       - id: trailing-whitespace
         args: ['--markdown-linebreak-ext=md']
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.4
+    rev: v3.0.0-alpha.6
     hooks:
       - id: prettier
-        args: ['--single-quote', '--trailing-comma', 'es5']
+        args:
+          ['--single-quote', '--trailing-comma', 'es5', '--end-of-line', 'lf']
         exclude: funnel/templates/js/
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.19.15
+    rev: v1.19.16
     hooks:
       - id: djlint-jinja
         files: \.html\.(jinja2|j2)$

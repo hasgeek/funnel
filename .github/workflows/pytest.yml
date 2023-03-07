@@ -34,6 +34,8 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
@@ -115,7 +117,7 @@ jobs:
           psql -h localhost -U postgres geoname_testing -c "grant all privileges on schema public to $(whoami); grant all privileges on all tables in schema public to $(whoami); grant all privileges on all sequences in schema public to $(whoami);"
       - name: Test with pytest
         run: |
-          pytest -vv --showlocals --splinter-headless --cov=funnel
+          pytest -vv --showlocals --cov=funnel
       - name: Prepare coverage report
         run: |
           mkdir -p coverage

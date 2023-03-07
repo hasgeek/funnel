@@ -83,13 +83,16 @@ install-npm:
 install-npm-ci:
 	npm clean-install
 
-install-python-dev: deps-editable
+install-python-pip:
+	pip install --upgrade pip setuptools
+
+install-python-dev: install-python-pip deps-editable
 	pip install -r requirements/dev.txt
 
-install-python-test: deps-editable
+install-python-test: install-python-pip deps-editable
 	pip install -r requirements/test.txt --no-deps
 
-install-python: deps-editable
+install-python: install-python-pip deps-editable
 	pip install -r requirements/base.txt
 
 install-dev: deps-editable install-python-dev install-npm assets
@@ -103,3 +106,6 @@ assets:
 
 debug-markdown-tests:
 	pytest -v -m debug_markdown_output
+
+tests-bdd:
+	pytest --generate-missing --feature tests tests

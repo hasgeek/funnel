@@ -1461,7 +1461,7 @@ msgstr "आपने GitHub लॉग इन अनुरोध को ख़ा
 
 #: funnel/loginproviders/github.py:45 funnel/loginproviders/linkedin.py:61
 #: funnel/loginproviders/zoom.py:49
-msgid "This server's callback URL is misconfigured"
+msgid "This server’s callback URL is misconfigured"
 msgstr "सर्वर की कॉलबैक URL की विन्यास गलत है"
 
 #: funnel/loginproviders/github.py:47 funnel/loginproviders/google.py:42
@@ -1989,7 +1989,7 @@ msgid "Undo cancel"
 msgstr "रद्द किए को स्वीकारें"
 
 #: funnel/models/proposal.py:385
-msgid "This proposal's cancellation has been reversed"
+msgid "This proposal’s cancellation has been reversed"
 msgstr "इस प्रस्ताव को रद्द किए से स्वीकारा जा चुका है"
 
 #: funnel/models/proposal.py:396
@@ -7362,7 +7362,7 @@ msgstr ""
 #~ msgid "Schedule JSON"
 #~ msgstr "कार्यक्रम की JSON फाइल"
 
-#~ msgid "Invalid transition for this project's schedule"
+#~ msgid "Invalid transition for this project’s schedule"
 #~ msgstr "इस प्रोजेक्ट के शेड्यूल के लिए अमान्य परिवर्तन"
 
 #~ msgid "Attend"
@@ -7429,7 +7429,7 @@ msgstr ""
 #~ " करता है"
 
 #~ msgid ""
-#~ "When the user's data changes, Lastuser"
+#~ "When the user’s data changes, Lastuser"
 #~ " will POST a notice to this "
 #~ "URL. Other notices may be posted "
 #~ "too"

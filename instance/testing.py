@@ -3,6 +3,7 @@
 from os import environ
 
 TESTING = True
+DEBUG_TB_ENABLED = False
 CACHE_TYPE = 'RedisCache'
 SECRET_KEYS = ['testkey']  # nosec
 LASTUSER_SECRET_KEYS = ['testkey']  # nosec
