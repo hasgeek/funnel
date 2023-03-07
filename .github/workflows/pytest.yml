@@ -15,17 +15,7 @@ on:
       - '**.jinja2'
       - 'requirements/base.txt'
       - 'requirements/test.txt'
-  workflow_call:
-    inputs:
-      requirements:
-        description: Updated requirements/base.txt
-        type: string
-      requirements_dev:
-        description: Updated requirements/dev.txt
-        type: string
-      requirements_test:
-        description: Updated requirements/test.txt
-        type: string
+      - '.github/workflows/pytest.yml'
 
 permissions:
   contents: read
@@ -72,33 +62,23 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: 'requirements/*.txt'
+      - name: Install Python dependencies
+        run: make install-python-test
       - name: Install Node
         uses: actions/setup-node@v3
         with:
           node-version: latest
           cache: npm
+      - name: Install Node dependencies
+        run: make install-npm-ci
+      - name: Build Webpack assets
+        run: make assets
+      - name: Annotate Pytest failures in PR
+        run: pip install pytest-github-actions-annotate-failures
       - name: Setup hostnames
         run: |
           sudo -- sh -c "echo '127.0.0.1  funnel.test' >> /etc/hosts"
           sudo -- sh -c "echo '127.0.0.1  f.test' >> /etc/hosts"
-      - name: Optionally replace requirements/base.txt
-        if: ${{ inputs.requirements }}
-        run: |
-          echo ${{ inputs.requirements }} > requirements/base.txt
-      - name: Optionally replace requirements/dev.txt
-        if: ${{ inputs.requirements_dev }}
-        run: |
-          echo ${{ inputs.requirements_dev }} > requirements/dev.txt
-      - name: Optionally replace requirements/test.txt
-        if: ${{ inputs.requirements_test }}
-        run: |
-          echo ${{ inputs.requirements_test }} > requirements/test.txt
-      - name: Install Node and Python dependencies
-        run: |
-          python -m pip install --upgrade pip setuptools
-          make install-test
-      - name: Annotate Pytest failures in PR
-        run: pip install pytest-github-actions-annotate-failures
       - name: Create PostgreSQL databases
         run: |
           sudo apt-get install postgresql-client -y
