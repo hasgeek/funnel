@@ -10,7 +10,12 @@ from baseframe.forms.sqlalchemy import AvailableName
 from coaster.utils import sorted_timezones, utcnow
 
 from ..models import Profile, Project, Rsvp, SavedProject
-from .helpers import ProfileSelectField, image_url_validator, nullable_strip_filters
+from .helpers import (
+    ProfileSelectField,
+    image_url_validator,
+    nullable_strip_filters,
+    video_url_list_validator,
+)
 
 __all__ = [
     'CfpForm',
@@ -165,6 +170,7 @@ class ProjectLivestreamForm(forms.Form):
                     ),
                 ]
             ),
+            video_url_list_validator,
         ],
     )
 
