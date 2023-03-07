@@ -5,23 +5,11 @@ from funnel import models
 scenarios('account/delete_confirm.feature')
 
 
-@given(parsers.parse('{user} is logged in'), target_fixture='current_user')
-def given_user_logged_in(getuser, login, user: str) -> models.User:
-    user_obj = getuser(user)
-    login.as_(user_obj)
-    return user_obj
-
-
 @given(parsers.parse('{user} has a protected account'), target_fixture='current_user')
 def given_protected_account(getuser, user: str) -> models.User:
     user_obj = getuser(user)
     assert user_obj.profile.is_protected is True
     return user_obj
-
-
-@given('they are logged in')
-def given_current_user_logged_in(login, current_user: models.User) -> None:
-    login.as_(current_user)
 
 
 @given('they are the sole owner of Unseen University')
