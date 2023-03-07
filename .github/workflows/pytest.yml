@@ -62,21 +62,23 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: 'requirements/*.txt'
-      - run: make install-python-test
+      - name: Install Python dependencies
+        run: make install-python-test
       - name: Install Node
         uses: actions/setup-node@v3
         with:
           node-version: latest
           cache: npm
-      - run: make install-npm-ci
-      - name: Setup hostnames
-        run: |
-          sudo -- sh -c "echo '127.0.0.1  funnel.test' >> /etc/hosts"
-          sudo -- sh -c "echo '127.0.0.1  f.test' >> /etc/hosts"
+      - name: Install Node dependencies
+        run: make install-npm-ci
       - name: Build Webpack assets
         run: make assets
       - name: Annotate Pytest failures in PR
         run: pip install pytest-github-actions-annotate-failures
+      - name: Setup hostnames
+        run: |
+          sudo -- sh -c "echo '127.0.0.1  funnel.test' >> /etc/hosts"
+          sudo -- sh -c "echo '127.0.0.1  f.test' >> /etc/hosts"
       - name: Create PostgreSQL databases
         run: |
           sudo apt-get install postgresql-client -y
