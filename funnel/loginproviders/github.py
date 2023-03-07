@@ -42,7 +42,7 @@ class GitHubProvider(LoginProvider):
             if request.args['error'] == 'redirect_uri_mismatch':
                 # TODO: Log this as an exception for the server admin to look at
                 raise LoginCallbackError(
-                    _("This server's callback URL is misconfigured")
+                    _("This server’s callback URL is misconfigured")
                 )
             raise LoginCallbackError(_("Unknown failure"))
         code = request.args.get('code', None)

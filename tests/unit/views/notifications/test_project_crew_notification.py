@@ -6,7 +6,7 @@ from pytest_bdd import given, parsers, scenarios, then, when
 from funnel import models
 from funnel.models.membership_mixin import MEMBERSHIP_RECORD_TYPE
 
-scenarios('project_crew_notification.feature')
+scenarios('notifications/project_crew_notification.feature')
 
 
 def role_columns(role):
@@ -80,38 +80,36 @@ def when_vetinari_adds_ridcully(
 
 @then(
     parsers.parse(
-        "{user} gets notified with {notification_string} about the invitation"
+        "{recipient} gets notified with photo of {actor} and message {notification_string} about the invitation"
     )
-)
-@then(
-    parsers.parse("{user} gets notified with {notification_string} about the addition")
 )
 @then(
     parsers.parse(
-        "{user} gets notified with {notification_string} about the acceptance"
+        "{recipient} gets notified with photo of {actor} and message {notification_string} about the addition"
     )
 )
-@then(parsers.parse("{user} gets notified with {notification_string} about the change"))
+@then(
+    parsers.parse(
+        "{recipient} gets notified with photo of {actor} and message {notification_string} about the acceptance"
+    )
+)
+@then(
+    parsers.parse(
+        "{recipient} gets notified with photo of {actor} and message {notification_string} about the change"
+    )
+)
 def then_user_gets_notification(
-    user,
-    notification_string,
-    user_vimes,
-    user_ridcully,
-    user_vetinari,
-    ridcully_member,
+    getuser, recipient, notification_string, actor, ridcully_member
 ) -> None:
-    user_dict = {
-        "Ridcully": user_ridcully,
-        "Vimes": user_vimes,
-        "Vetinari": user_vetinari,
-    }
     preview = models.PreviewNotification(
         models.ProjectCrewMembershipNotification,
         document=ridcully_member.project,
         fragment=ridcully_member,
+        user=ridcully_member.granted_by,
     )
-    user_notification = models.NotificationFor(preview, user_dict[user])
+    user_notification = models.NotificationFor(preview, getuser(recipient))
     view = user_notification.views.render
+    assert view.actor.uuid == getuser(actor).uuid
     assert (
         view.activity_template().format(
             actor=ridcully_member.granted_by.fullname,
@@ -304,26 +302,27 @@ def when_ridcully_resigns(
     return ridcully_member
 
 
-@then(parsers.parse("{user} is notified of the removal with {notification_string}"))
+@then(
+    parsers.parse(
+        "{recipient} is notified of the removal with photo of {actor} and message {notification_string}"
+    )
+)
 def then_user_notification_removal(
-    user,
+    getuser,
+    recipient,
     notification_string,
     ridcully_member,
-    vetinari_member,
-    vimes_member,
+    actor,
 ) -> None:
-    user_dict = {
-        "Ridcully": ridcully_member.user,
-        "Vimes": vimes_member.user,
-        "Vetinari": vetinari_member.user,
-    }
     preview = models.PreviewNotification(
         models.ProjectCrewMembershipRevokedNotification,
         document=ridcully_member.project,
         fragment=ridcully_member,
+        user=ridcully_member.revoked_by,
     )
-    user_notification = models.NotificationFor(preview, user_dict[user])
+    user_notification = models.NotificationFor(preview, getuser(recipient))
     view = user_notification.views.render
+    assert view.actor.uuid == getuser(actor).uuid
     assert (
         view.activity_template().format(
             project=ridcully_member.project.joined_title,

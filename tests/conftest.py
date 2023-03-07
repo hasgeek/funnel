@@ -10,7 +10,6 @@ from difflib import unified_diff
 from types import MethodType, SimpleNamespace
 from unittest.mock import patch
 import re
-import shutil
 import typing as t
 
 from flask_sqlalchemy import SQLAlchemy
@@ -43,6 +42,20 @@ def pytest_addoption(parser) -> None:
     )
 
 
+@pytest.fixture()
+def chrome_options(chrome_options):
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--ignore-ssl-errors=yes')
+    chrome_options.add_argument('--ignore-certificate-errors')
+    return chrome_options
+
+
+@pytest.fixture()
+def firefox_options(firefox_options):
+    firefox_options.add_argument('--headless')
+    return firefox_options
+
+
 def pytest_collection_modifyitems(items) -> None:
     """Sort tests to run lower level before higher level."""
     test_order = (
@@ -54,8 +67,12 @@ def pytest_collection_modifyitems(items) -> None:
         'tests/unit',
         'tests/integration/views',
         'tests/integration',
-        'tests/features',
+        'tests/e2e/basic',
+        'tests/e2e/account_user',
+        'tests/e2e/account',
+        'tests/e2e/project',
         'tests/e2e',
+        'tests/features',
     )
 
     def sort_key(item) -> t.Tuple[int, str]:
@@ -898,67 +915,7 @@ def client(response_with_forms, app, db_session) -> FlaskClient:
 
 
 @pytest.fixture(scope='session')
-def browser_patches():  # noqa : PT004
-    """Patch webdriver for pytest-splinter."""
-    from pytest_splinter.webdriver_patches import patch_webdriver
-
-    # Required due to https://github.com/pytest-dev/pytest-splinter/issues/158
-    patch_webdriver()
-
-
-@pytest.fixture(scope='session')
-def splinter_webdriver(request) -> str:
-    """
-    Return an available webdriver, or requested one from CLI options.
-
-    Skips dependent tests if no webdriver is available, but fails if there was an
-    explicit request for a webdriver and it's not found.
-    """
-    driver_executables = {
-        'firefox': 'geckodriver',
-        'chrome': 'chromedriver',
-        'edge': 'msedgedriver',
-    }
-
-    driver = request.config.option.splinter_webdriver
-    if driver:
-        if driver == 'remote':
-            # For remote driver, assume necessary config is in CLI options
-            return driver
-        if driver not in driver_executables:
-            # pytest-splinter already validates the possible strings in pytest options.
-            # Our list is narrowed down to allow JS-capable browsers only
-            pytest.fail(f"Webdriver '{driver}' does not support JavaScript")
-        executable = driver_executables[driver]
-        if shutil.which(executable):
-            return driver
-        pytest.fail(
-            f"Requested webdriver '{driver}' needs executable '{executable}' in $PATH"
-        )
-    for driver, executable in driver_executables.items():
-        if shutil.which(executable):
-            return driver
-    pytest.skip("No webdriver found")
-    # For pylint and mypy since they don't know that pytest.fail is NoReturn
-    return ''  # type: ignore[unreachable]
-
-
-@pytest.fixture(scope='session')
-def splinter_driver_kwargs(splinter_webdriver) -> dict:
-    """Disable certification verification when using Chrome webdriver."""
-    from selenium import webdriver
-
-    if splinter_webdriver == 'chrome':
-        options = webdriver.ChromeOptions()
-        options.add_argument('--ignore-ssl-errors=yes')
-        options.add_argument('--ignore-certificate-errors')
-
-        return {'options': options}
-    return {}
-
-
-@pytest.fixture(scope='package')
-def live_server(funnel_devtest, database, app):
+def live_server(funnel_devtest, app, database):
     """Run application in a separate process."""
     from werkzeug import run_simple
 
@@ -1050,6 +1007,49 @@ def login(app, client, db_session) -> SimpleNamespace:
 
 
 @pytest.fixture()
+def getuser(request) -> t.Callable[[str], funnel_models.User]:
+    """Get a user fixture by their name."""
+    usermap = {
+        "Twoflower": 'user_twoflower',
+        "Rincewind": 'user_rincewind',
+        "Death": 'user_death',
+        "Mort": 'user_mort',
+        "Susan Sto Helit": 'user_susan',
+        "Susan": 'user_susan',
+        "Lu-Tze": 'user_lutze',
+        "Mustrum Ridcully": 'user_ridcully',
+        "Ridcully": 'user_ridcully',
+        "Mustrum": 'user_ridcully',
+        "The Librarian": 'user_librarian',
+        "Librarian": 'user_librarian',
+        "Ponder Stibbons": 'user_ponder_stibbons',
+        "Ponder": 'user_ponder_stibbons',
+        "Stibbons": 'user_ponder_stibbons',
+        "Havelock Vetinari": 'user_vetinari',
+        "Havelock": 'user_vetinari',
+        "Vetinari": 'user_vetinari',
+        "Sam Vimes": 'user_vimes',
+        "Vimes": 'user_vimes',
+        "Carrot Ironfoundersson": 'user_carrot',
+        "Carrot": 'user_carrot',
+        "Angua von Überwald": 'user_angua',
+        "CMOT Dibbler": 'user_dibbler',
+        "Dibbler": 'user_dibbler',
+        "Wolfgang von Überwald": 'user_wolfgang',
+        "Wolfgang": 'user_wolfgang',
+        "Om": 'user_om',
+    }
+
+    def func(user: str) -> funnel_models.User:
+        if user not in usermap:
+            pytest.fail(f"No user fixture named {user}")
+        return request.getfixturevalue(usermap[user])
+
+    func.usermap = usermap  # Aid for tests
+    return func
+
+
+@pytest.fixture()
 def user_twoflower(models, db_session) -> funnel_models.User:
     """
     Twoflower is a tourist from the Agatean Empire who goes on adventures.
@@ -1090,6 +1090,7 @@ def user_death(models, db_session) -> funnel_models.User:
         fullname="Death",
         created_at=datetime(1970, 1, 1, tzinfo=timezone.utc),
     )
+    user.profile.is_protected = True
     db_session.add(user)
     return user
 
@@ -1363,7 +1364,7 @@ def project_expo2010(
         user=user_vetinari,
         title="Ankh-Morpork 2010",
         tagline="Welcome to Ankh-Morpork, tourists!",
-        description="The city doesn't have tourists. Let's change that.",
+        description="The city doesn't have tourists. Let’s change that.",
     )
     db_session.add(project)
     return project
@@ -1380,7 +1381,7 @@ def project_expo2011(
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
         title="Ankh-Morpork 2011",
-        tagline="Welcome back, our pub's changed",
+        tagline="Welcome back, our pub’s changed",
         description="The Broken Drum is gone, but we have The Mended Drum now.",
     )
     db_session.add(project)
