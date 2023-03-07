@@ -13,7 +13,7 @@ from markdown_it.token import Token
 
 __all__ = ['abbr_plugin']
 
-abbr_def_re = re.compile(r'^\*\[([\\\w]+)\]:(.+)$')
+abbr_def_re = re.compile(r'^\s*\*\[(.+?)\]:(.+)$')
 
 
 def abbr_def(state: StateBlock, start_line: int, end_line: int, silent: bool) -> bool:
