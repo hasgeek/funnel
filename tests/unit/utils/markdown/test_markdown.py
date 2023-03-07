@@ -32,22 +32,13 @@ def test_markdown_cases(
 ) -> None:
     case = markdown_test_registry.test_case(md_testname, md_configname)
     if case.expected_output is None:
-        warnings.warn(f'Expected output not generated for {case}')
+        warnings.warn(f'Expected output not generated for {case}', stacklevel=1)
         pytest.skip(f'Expected output not generated for {case}')
 
     assert case.expected_output == case.output
 
     # Debug function
     # fail_with_diff(case.expected_output, case.output)
-
-
-@pytest.mark.update_markdown_data()
-def test_markdown_update_output(pytestconfig, markdown_test_registry):
-    """Update the expected output in all .toml files."""
-    has_mark = pytestconfig.getoption('-m', default=None) == 'update_markdown_data'
-    if not has_mark:
-        pytest.skip('Skipping update of expected output of markdown test cases')
-    markdown_test_registry.update_expected_output()
 
 
 @pytest.mark.debug_markdown_output()

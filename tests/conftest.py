@@ -3,12 +3,13 @@
 
 from __future__ import annotations
 
+from contextlib import ExitStack
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from difflib import unified_diff
 from types import MethodType, SimpleNamespace
+from unittest.mock import patch
 import re
-import shutil
 import typing as t
 
 from flask_sqlalchemy import SQLAlchemy
@@ -17,6 +18,7 @@ from sqlalchemy.orm import Session as DatabaseSessionClass
 import sqlalchemy as sa
 
 import pytest
+import typeguard
 
 if t.TYPE_CHECKING:
     from flask import Flask
@@ -40,6 +42,20 @@ def pytest_addoption(parser) -> None:
     )
 
 
+@pytest.fixture()
+def chrome_options(chrome_options):
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--ignore-ssl-errors=yes')
+    chrome_options.add_argument('--ignore-certificate-errors')
+    return chrome_options
+
+
+@pytest.fixture()
+def firefox_options(firefox_options):
+    firefox_options.add_argument('--headless')
+    return firefox_options
+
+
 def pytest_collection_modifyitems(items) -> None:
     """Sort tests to run lower level before higher level."""
     test_order = (
@@ -51,8 +67,12 @@ def pytest_collection_modifyitems(items) -> None:
         'tests/unit',
         'tests/integration/views',
         'tests/integration',
-        'tests/features',
+        'tests/e2e/basic',
+        'tests/e2e/account_user',
+        'tests/e2e/account',
+        'tests/e2e/project',
         'tests/e2e',
+        'tests/features',
     )
 
     def sort_key(item) -> t.Tuple[int, str]:
@@ -63,6 +83,13 @@ def pytest_collection_modifyitems(items) -> None:
         return (-1, module_file)
 
     items.sort(key=sort_key)
+
+
+# Adapted from https://github.com/untitaker/pytest-fixture-typecheck
+def pytest_runtest_call(item):
+    for attr, type_ in item.obj.__annotations__.items():
+        if attr in item.funcargs:
+            typeguard.check_type(attr, item.funcargs[attr], type_)
 
 
 # --- Import fixtures ------------------------------------------------------------------
@@ -270,7 +297,7 @@ def colorize_code(rich_console) -> t.Callable[[str, t.Optional[str]], str]:
             TerminalTrueColorFormatter,
         )
         from pygments.lexers import get_lexer_by_name, guess_lexer
-    except ImportError:
+    except ModuleNotFoundError:
         return no_colorize
 
     if rich_console.color_system == 'truecolor':
@@ -888,67 +915,7 @@ def client(response_with_forms, app, db_session) -> FlaskClient:
 
 
 @pytest.fixture(scope='session')
-def browser_patches():  # noqa : PT004
-    """Patch webdriver for pytest-splinter."""
-    from pytest_splinter.webdriver_patches import patch_webdriver
-
-    # Required due to https://github.com/pytest-dev/pytest-splinter/issues/158
-    patch_webdriver()
-
-
-@pytest.fixture(scope='session')
-def splinter_webdriver(request) -> str:
-    """
-    Return an available webdriver, or requested one from CLI options.
-
-    Skips dependent tests if no webdriver is available, but fails if there was an
-    explicit request for a webdriver and it's not found.
-    """
-    driver_executables = {
-        'firefox': 'geckodriver',
-        'chrome': 'chromedriver',
-        'edge': 'msedgedriver',
-    }
-
-    driver = request.config.option.splinter_webdriver
-    if driver:
-        if driver == 'remote':
-            # For remote driver, assume necessary config is in CLI options
-            return driver
-        if driver not in driver_executables:
-            # pytest-splinter already validates the possible strings in pytest options.
-            # Our list is narrowed down to allow JS-capable browsers only
-            pytest.fail(f"Webdriver '{driver}' does not support JavaScript")
-        executable = driver_executables[driver]
-        if shutil.which(executable):
-            return driver
-        pytest.fail(
-            f"Requested webdriver '{driver}' needs executable '{executable}' in $PATH"
-        )
-    for driver, executable in driver_executables.items():
-        if shutil.which(executable):
-            return driver
-    pytest.skip("No webdriver found")
-    # For pylint and mypy since they don't know that pytest.fail is NoReturn
-    return ''  # type: ignore[unreachable]
-
-
-@pytest.fixture(scope='session')
-def splinter_driver_kwargs(splinter_webdriver) -> dict:
-    """Disable certification verification when using Chrome webdriver."""
-    from selenium import webdriver
-
-    if splinter_webdriver == 'chrome':
-        options = webdriver.ChromeOptions()
-        options.add_argument('--ignore-ssl-errors=yes')
-        options.add_argument('--ignore-certificate-errors')
-
-        return {'options': options}
-    return {}
-
-
-@pytest.fixture(scope='package')
-def live_server(funnel_devtest, database, app):
+def live_server(funnel_devtest, app, database):
     """Run application in a separate process."""
     from werkzeug import run_simple
 
@@ -964,55 +931,40 @@ def live_server(funnel_devtest, database, app):
         )
     port = int(port_str)
 
-    # Save app config before modifying it to match live server environment
-    original_app_config = {}
-    for m_app in funnel_devtest.devtest_app.apps_by_host.values():
-        original_app_config[m_app] = {
-            'PREFERRED_URL_SCHEME': m_app.config['PREFERRED_URL_SCHEME'],
-            'SERVER_NAME': m_app.config['SERVER_NAME'],
-        }
-        m_app.config['PREFERRED_URL_SCHEME'] = scheme
-        m_host = m_app.config['SERVER_NAME'].split(':', 1)[0]
-        m_app.config['SERVER_NAME'] = f'{m_host}:{port}'
+    # Patch app config to match this fixture's config (scheme and port change).
+    with ExitStack() as config_patch_stack:
+        for m_app in funnel_devtest.devtest_app.apps_by_host.values():
+            m_host = m_app.config['SERVER_NAME'].split(':', 1)[0]
+            config_patch_stack.enter_context(
+                patch.dict(
+                    m_app.config,
+                    {'PREFERRED_URL_SCHEME': scheme, 'SERVER_NAME': f'{m_host}:{port}'},
+                )
+            )
 
-    # Start background worker and wait until it's receiving connections
-    server = funnel_devtest.BackgroundWorker(
-        run_simple,
-        args=('127.0.0.1', port, funnel_devtest.devtest_app),
-        kwargs={
-            'use_reloader': False,
-            'use_debugger': True,
-            'use_evalex': False,
-            'threaded': True,
-            'ssl_context': 'adhoc' if use_https else None,
-        },
-        probe_at=('127.0.0.1', port),
-    )
-    try:
-        server.start()
-    except RuntimeError as exc:
-        # Server did not respond to probe until timeout; mark test as failed
-        server.stop()
-        pytest.fail(str(exc))
-
-    with app.app_context():
-        # Return live server config within an app context so that the test function
-        # can use url_for without creating a context. However, secondary apps will
-        # need context specifically established for url_for on them
-        yield SimpleNamespace(
-            url=f'{scheme}://{app.config["SERVER_NAME"]}/',
-            urls=[
-                f'{scheme}://{m_app.config["SERVER_NAME"]}/'
-                for m_app in funnel_devtest.devtest_app.apps_by_host.values()
-            ],
-        )
-
-    # Stop server after use
-    server.stop()
-
-    # Restore original app config
-    for m_app, config in original_app_config.items():
-        m_app.config.update(config)
+        # Start background worker and yield as fixture
+        with funnel_devtest.BackgroundWorker(
+            run_simple,
+            args=('127.0.0.1', port, funnel_devtest.devtest_app),
+            kwargs={
+                'use_reloader': False,
+                'use_debugger': True,
+                'use_evalex': False,
+                'threaded': True,
+                'ssl_context': 'adhoc' if use_https else None,
+            },
+            probe_at=('127.0.0.1', port),
+            mock_transports=True,
+        ) as server:
+            yield SimpleNamespace(
+                background_worker=server,
+                transport_calls=server.calls,
+                url=f'{scheme}://{app.config["SERVER_NAME"]}/',
+                urls=[
+                    f'{scheme}://{m_app.config["SERVER_NAME"]}/'
+                    for m_app in funnel_devtest.devtest_app.apps_by_host.values()
+                ],
+            )
 
 
 @pytest.fixture()
@@ -1052,6 +1004,49 @@ def login(app, client, db_session) -> SimpleNamespace:
 
 
 # --- Users
+
+
+@pytest.fixture()
+def getuser(request) -> t.Callable[[str], funnel_models.User]:
+    """Get a user fixture by their name."""
+    usermap = {
+        "Twoflower": 'user_twoflower',
+        "Rincewind": 'user_rincewind',
+        "Death": 'user_death',
+        "Mort": 'user_mort',
+        "Susan Sto Helit": 'user_susan',
+        "Susan": 'user_susan',
+        "Lu-Tze": 'user_lutze',
+        "Mustrum Ridcully": 'user_ridcully',
+        "Ridcully": 'user_ridcully',
+        "Mustrum": 'user_ridcully',
+        "The Librarian": 'user_librarian',
+        "Librarian": 'user_librarian',
+        "Ponder Stibbons": 'user_ponder_stibbons',
+        "Ponder": 'user_ponder_stibbons',
+        "Stibbons": 'user_ponder_stibbons',
+        "Havelock Vetinari": 'user_vetinari',
+        "Havelock": 'user_vetinari',
+        "Vetinari": 'user_vetinari',
+        "Sam Vimes": 'user_vimes',
+        "Vimes": 'user_vimes',
+        "Carrot Ironfoundersson": 'user_carrot',
+        "Carrot": 'user_carrot',
+        "Angua von Überwald": 'user_angua',
+        "CMOT Dibbler": 'user_dibbler',
+        "Dibbler": 'user_dibbler',
+        "Wolfgang von Überwald": 'user_wolfgang',
+        "Wolfgang": 'user_wolfgang',
+        "Om": 'user_om',
+    }
+
+    def func(user: str) -> funnel_models.User:
+        if user not in usermap:
+            pytest.fail(f"No user fixture named {user}")
+        return request.getfixturevalue(usermap[user])
+
+    func.usermap = usermap  # Aid for tests
+    return func
 
 
 @pytest.fixture()
@@ -1095,6 +1090,7 @@ def user_death(models, db_session) -> funnel_models.User:
         fullname="Death",
         created_at=datetime(1970, 1, 1, tzinfo=timezone.utc),
     )
+    user.profile.is_protected = True
     db_session.add(user)
     return user
 
@@ -1368,7 +1364,7 @@ def project_expo2010(
         user=user_vetinari,
         title="Ankh-Morpork 2010",
         tagline="Welcome to Ankh-Morpork, tourists!",
-        description="The city doesn't have tourists. Let's change that.",
+        description="The city doesn't have tourists. Let’s change that.",
     )
     db_session.add(project)
     return project
@@ -1385,7 +1381,7 @@ def project_expo2011(
         profile=org_ankhmorpork.profile,
         user=user_vetinari,
         title="Ankh-Morpork 2011",
-        tagline="Welcome back, our pub's changed",
+        tagline="Welcome back, our pub’s changed",
         description="The Broken Drum is gone, but we have The Mended Drum now.",
     )
     db_session.add(project)

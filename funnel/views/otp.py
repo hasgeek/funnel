@@ -108,7 +108,7 @@ class OtpSession(Generic[OptionalUserType]):
     link_token: Optional[str] = None
 
     # __new__ gets called before __init__ and can replace the class that is created
-    def __new__(cls, reason: str, **kwargs) -> OtpSession:
+    def __new__(cls, reason: str, **kwargs) -> OtpSession:  # pylint: disable=W0221
         """Return a subclass that contains the appropriate methods for given reason."""
         if reason not in _reason_subclasses:
             raise TypeError(f"Unknown OtpSession reason {reason}")
@@ -309,7 +309,7 @@ class OtpSession(Generic[OptionalUserType]):
             try:
                 phone_number = PhoneNumber.get(self.phone)
                 if phone_number:
-                    phone_number.mark_active()
+                    phone_number.mark_active(sms=True)
             except PhoneNumberBlockedError:
                 pass
         elif self.email:

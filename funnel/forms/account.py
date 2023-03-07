@@ -512,7 +512,7 @@ def validate_emailclaim(form, field):
 
 
 @User.forms('email_add')
-class NewEmailAddressForm(forms.Form):
+class NewEmailAddressForm(forms.RecaptchaForm):
     """Form to add a new email address to a user account."""
 
     __expects__ = ('edit_user',)
@@ -531,16 +531,6 @@ class NewEmailAddressForm(forms.Form):
             'autocapitalize': 'off',
             'autocomplete': 'email',
         },
-    )
-    type = forms.RadioField(  # noqa: A003
-        __("Type"),
-        validators=[forms.validators.Optional()],
-        filters=[forms.filters.strip()],
-        choices=[
-            (__("Home"), __("Home")),
-            (__("Work"), __("Work")),
-            (__("Other"), __("Other")),
-        ],
     )
 
 
@@ -561,7 +551,7 @@ class EmailPrimaryForm(forms.Form):
 
 
 @User.forms('phone_add')
-class NewPhoneForm(forms.Form):
+class NewPhoneForm(forms.RecaptchaForm):
     """Form to add a new mobile number (SMS-capable) to a user account."""
 
     __expects__ = ('edit_user',)
@@ -578,8 +568,10 @@ class NewPhoneForm(forms.Form):
         render_kw={'autocomplete': 'tel'},
     )
 
+    # TODO: Consider option "prefer WhatsApp" or "prefer secure messengers (WhatsApp)"
+
     enable_notifications = forms.BooleanField(
-        __("Send notifications by SMS"),
+        __("Send notifications by SMS"),  # TODO: Add "or WhatsApp"
         description=__(
             "Unsubscribe anytime, and control what notifications are sent from the"
             " Notifications tab under account settings"
