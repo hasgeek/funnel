@@ -10,14 +10,11 @@ import pytest
 scenarios('account/register.feature')
 pytestmark = pytest.mark.usefixtures('live_server')
 
+TWOFLOWER_EMAIL = 'twoflower@example.org'
+TWOFLOWER_PHONE = '+12015550123'
+TWOFLOWER_PASSWORD = 'te@pwd3289'  # nosec
 
-# @given(parsers.parse("the browser locale is {language}"))
-# def given_browser_locale(browser, db_session, language):
-#     browser.execute_script(f"window.navigator.language = {language}")
 
-
-# Parameterization is not working
-# @pytest.mark.parametrize("locale", [('firefox_hi'), ('firefox_en')])
 @given("Anonymous visitor is on the home page")
 def given_anonuser_home_page(live_server, selenium, db_session):
     selenium.get(live_server.url)
@@ -47,8 +44,8 @@ def when_anonuser_navigates_login_and_submits(
         username = 'anon@example.com'
     else:
         pytest.fail("Unknown username type")
-    wait.until(ec.element_to_be_clickable((By.NAME, "username"))).send_keys(username)
-    time.sleep(2)
+    wait.until(ec.element_to_be_clickable((By.NAME, 'username'))).send_keys(username)
+    time.sleep(2)  # TODO: Why sleep?
     wait.until(
         ec.element_to_be_clickable((By.CSS_SELECTOR, '#form-passwordlogin button'))
     ).send_keys(Keys.ENTER)
@@ -58,7 +55,7 @@ def when_anonuser_navigates_login_and_submits(
 @then("they are prompted for their name and the OTP, which they provide")
 def then_anonuser_prompted_name_and_otp(live_server, selenium, anon_username):
     time.sleep(2)
-    selenium.find_element(By.NAME, 'fullname').send_keys("Twoflower")
+    selenium.find_element(By.NAME, 'fullname').send_keys('Twoflower')
     if anon_username['phone_or_email'] == "a phone number":
         otp = live_server.transport_calls.sms[-1].vars['otp']
     elif anon_username['phone_or_email'] == "an email address":
@@ -73,7 +70,7 @@ def then_anonuser_prompted_name_and_otp(live_server, selenium, anon_username):
 def then_they_are_logged_in(selenium):
     time.sleep(2)
     assert (
-        selenium.find_element(By.CLASS_NAME, "alert__text").text
+        selenium.find_element(By.CLASS_NAME, 'alert__text').text
         == "You are now one of us. Welcome aboard!"
     )
 
@@ -81,9 +78,9 @@ def then_they_are_logged_in(selenium):
 @given("Twoflower visitor is on the home page")
 def when_twoflower_visits_homepage(live_server, selenium, db_session, user_twoflower):
     selenium.get(live_server.url)
-    user_twoflower.password = 'te@pwd3289'  # nosec
-    user_twoflower.add_phone('+12345678900')
-    user_twoflower.add_email('twoflower@example.org')
+    user_twoflower.password = TWOFLOWER_PASSWORD
+    user_twoflower.add_phone(TWOFLOWER_PHONE)
+    user_twoflower.add_email(TWOFLOWER_EMAIL)
     db_session.commit()
 
 
@@ -121,9 +118,9 @@ def then_logged_in(selenium):
 def when_submit_phone_password(app, live_server, selenium):
     WebDriverWait(selenium, 10)
     time.sleep(2)
-    selenium.find_element(By.NAME, 'username').send_keys('+12345678900')
+    selenium.find_element(By.NAME, 'username').send_keys(TWOFLOWER_PHONE)
     selenium.find_element(By.ID, 'use-password-login').click()
-    selenium.find_element(By.NAME, 'password').send_keys('te@pwd3289')
+    selenium.find_element(By.NAME, 'password').send_keys(TWOFLOWER_PASSWORD)
     selenium.find_element(By.ID, 'login-btn').send_keys(Keys.ENTER)
 
 
@@ -145,6 +142,7 @@ def when_they_click_follow(selenium):
 def then_register_modal_appear(selenium):
     time.sleep(2)
     assert (
+        # FIXME: Don't use xpath
         selenium.find_element(By.XPATH, '//*[@id="passwordform"]/p[2]').text
         == "Tell us where you’d like to get updates. We’ll send an OTP to confirm."
     )
@@ -163,7 +161,7 @@ def when_they_enter_email(selenium, phone_or_email):
         username = 'anon@example.com'
     else:
         pytest.fail("Unknown username type")
-    wait.until(ec.element_to_be_clickable((By.NAME, "username"))).send_keys(username)
+    wait.until(ec.element_to_be_clickable((By.NAME, 'username'))).send_keys(username)
     time.sleep(2)
     wait.until(
         ec.element_to_be_clickable((By.CSS_SELECTOR, '#form-passwordlogin button'))
@@ -175,9 +173,9 @@ def when_they_enter_email(selenium, phone_or_email):
 def given_twoflower_visits_project(
     live_server, selenium, db_session, user_twoflower, new_project
 ):
-    user_twoflower.password = 'te@pwd3289'  # nosec
-    user_twoflower.add_phone('+12345678900')
-    user_twoflower.add_email('twoflower@example.org')
+    user_twoflower.password = TWOFLOWER_PASSWORD
+    user_twoflower.add_phone(TWOFLOWER_PHONE)
+    user_twoflower.add_email(TWOFLOWER_EMAIL)
     new_project.publish()
     db_session.add(new_project)
     db_session.commit()
@@ -188,26 +186,26 @@ def given_twoflower_visits_project(
 def given_server_uses_recaptcha(
     live_server, selenium, db_session, user_twoflower, new_project, funnel
 ):
-    user_twoflower.password = 'te@pwd3289'  # nosec
-    user_twoflower.add_phone('+12345678900')
-    user_twoflower.add_email('twoflower@example.org')
+    user_twoflower.password = TWOFLOWER_PASSWORD
+    user_twoflower.add_phone(TWOFLOWER_PHONE)
+    user_twoflower.add_email(TWOFLOWER_EMAIL)
     new_project.publish()
     db_session.add(new_project)
     db_session.commit()
     assert funnel.app.config['RECAPTCHA_PRIVATE_KEY']
 
 
-@when('twoflower visits the login page, Recaptcha is required')
+@when("twoflower visits the login page, Recaptcha is required")
 def when_twoflower_visits_login_page_recaptcha(app, live_server, selenium):
     selenium.get(live_server.url + 'login')
     assert selenium.find_element(By.CLASS_NAME, 'g-recaptcha')
 
 
-@then('they submit and Recaptcha validation passes')
+@then("they submit and Recaptcha validation passes")
 def then_submit_recaptcha_validation_passes(live_server, selenium):
     WebDriverWait(selenium, 10)
     time.sleep(2)
-    selenium.find_element(By.NAME, 'username').send_keys('+12345678900')
+    selenium.find_element(By.NAME, 'username').send_keys(TWOFLOWER_PHONE)
     selenium.find_element(By.ID, 'use-password-login').click()
-    selenium.find_element(By.NAME, 'password').send_keys('te@pwd3289')
+    selenium.find_element(By.NAME, 'password').send_keys(TWOFLOWER_PASSWORD)
     selenium.find_element(By.ID, 'login-btn').send_keys(Keys.ENTER)
