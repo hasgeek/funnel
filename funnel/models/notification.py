@@ -255,6 +255,8 @@ class SmsMessage(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-de
 
 
 class NotificationType(Protocol):
+    """Protocol for :class:`Notification` and :class:`PreviewNotification`."""
+
     type: str  # noqa: A003
     eventid: UUID
     id: UUID  # noqa: A003
@@ -638,7 +640,7 @@ class PreviewNotification(NotificationType):
         NotificationFor(PreviewNotification(NotificationType), user)
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=super-init-not-called
         self,
         cls: Type[Notification],
         document: UuidModelType,
