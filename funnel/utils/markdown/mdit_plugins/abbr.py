@@ -138,6 +138,7 @@ def abbr_replace(state: StateInline) -> None:
 
 
 def abbr_plugin(md: MarkdownIt) -> None:
+    """Enable Markdown plugin for abbreviations."""
     md.block.ruler.before(
         'reference', 'abbr_def', abbr_def, {'alt': ['paragraph', 'reference']}
     )
