@@ -228,6 +228,7 @@ def image_url_validator():
 
 
 def video_url_list_validator(form, field):
+    """Validate all video URLs to be acceptable."""
     for url in field.data:
         try:
             parse_video_url(url)
