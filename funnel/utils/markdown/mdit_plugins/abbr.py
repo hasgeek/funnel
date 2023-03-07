@@ -4,6 +4,8 @@ Markdown-it-py plugin to introduce <abbr> markup for defined abbreviations.
 Ported from javascript plugin markdown-it-abbr.
 """
 
+from __future__ import annotations
+
 import re
 
 from markdown_it import MarkdownIt
@@ -55,7 +57,7 @@ def abbr_def(state: StateBlock, start_line: int, end_line: int, silent: bool) ->
     return True
 
 
-def abbr_replace(state: StateInline):
+def abbr_replace(state: StateInline) -> None:
     """Tokenizes and tags defined abbreviations in content."""
     block_tokens = state.tokens
 
@@ -135,7 +137,7 @@ def abbr_replace(state: StateInline):
         block_token_index += 1
 
 
-def abbr_plugin(md: MarkdownIt):
+def abbr_plugin(md: MarkdownIt) -> None:
     md.block.ruler.before(
         'reference', 'abbr_def', abbr_def, {'alt': ['paragraph', 'reference']}
     )
