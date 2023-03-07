@@ -41,15 +41,6 @@ def test_markdown_cases(
     # fail_with_diff(case.expected_output, case.output)
 
 
-@pytest.mark.update_markdown_data()
-def test_markdown_update_output(pytestconfig, markdown_test_registry):
-    """Update the expected output in all .toml files."""
-    has_mark = pytestconfig.getoption('-m', default=None) == 'update_markdown_data'
-    if not has_mark:
-        pytest.skip('Skipping update of expected output of markdown test cases')
-    markdown_test_registry.update_expected_output()
-
-
 @pytest.mark.debug_markdown_output()
 def test_markdown_debug_output(pytestconfig, markdown_test_registry):
     has_mark = pytestconfig.getoption('-m', default=None) == 'debug_markdown_output'

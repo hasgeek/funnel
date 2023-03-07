@@ -47,7 +47,7 @@ jobs:
               "StephanieBr": {"tguser": "@stephaniebrne"},
               "vidya-ram": {"tguser": "@vidya_ramki"},
               "zainabbawa": {"tguser": "@Saaweoh"},
-              "anishtp": {"tguser": "@anishtp"},
+              "anishTP": {"tguser": "@anishtp"},
               ".*": {"tguser": "Unknown"}
             }
           export_to: env

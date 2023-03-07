@@ -482,17 +482,17 @@ This tab is going to have a table!<br />
 """
 document = """<h2 id="h:tabs-using-containers-plugin">Tabs using containers plugin <a class="header-anchor" href="#h:tabs-using-containers-plugin">#</a></h2>
 <p>Let us see if we can use the containers plugin to render tabs.</p>
-<div id="md-tabset-1" class="md-tabset"><ul role="tablist" class="mui-tabs__bar"><li role="presentation" class="mui--is-active"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-1" data-tabset="md-tabset-1" data-mui-toggle="tab" data-mui-controls="md-tab-1-panel" aria-controls="md-tab-1-panel" tabindex="0" aria-selected="true">Code</a></li><li role="presentation"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-2" data-tabset="md-tabset-1" data-mui-toggle="tab" data-mui-controls="md-tab-2-panel" aria-controls="md-tab-2-panel" tabindex="-1" aria-selected="false">Tab 2</a></li><li role="presentation"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-3" data-tabset="md-tabset-1" data-mui-toggle="tab" data-mui-controls="md-tab-3-panel" aria-controls="md-tab-3-panel" tabindex="-1" aria-selected="false">Embeds</a></li><li role="presentation"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-4" data-tabset="md-tabset-1" data-mui-toggle="tab" data-mui-controls="md-tab-4-panel" aria-controls="md-tab-4-panel" tabindex="-1" aria-selected="false">Table Tab</a></li></ul><div role="tabpanel" class="mui-tabs__pane grid mui--is-active" id="md-tab-1-panel" aria-labelledby="md-tab-1" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><p><strong>The next tab has a blank title.<br />
+<div id="md-tabset-1" class="md-tabset"><ul role="tablist"><li role="presentation" class="md-tab-active"><a role="tab" href="javascript:void(0)" id="md-tab-1" aria-controls="md-tab-1-panel" tabindex="0" aria-selected="true">Code</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-2" aria-controls="md-tab-2-panel" tabindex="-1" aria-selected="false">Tab 2</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-3" aria-controls="md-tab-3-panel" tabindex="-1" aria-selected="false">Embeds</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-4" aria-controls="md-tab-4-panel" tabindex="-1" aria-selected="false">Table Tab</a></li></ul><div role="tabpanel" class="md-tab-active" id="md-tab-1-panel" aria-labelledby="md-tab-1" tabindex="0"><p><strong>The next tab has a blank title.<br />
 The tab for it should render in the format “Tab &lt;n&gt;”.</strong></p>
 <p>This tab contains code!</p>
-<div id="md-tabset-2" class="md-tabset"><ul role="tablist" class="mui-tabs__bar"><li role="presentation" class="mui--is-active"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-5" data-tabset="md-tabset-2" data-mui-toggle="tab" data-mui-controls="md-tab-5-panel" aria-controls="md-tab-5-panel" tabindex="0" aria-selected="true">Javascript</a></li><li role="presentation"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-6" data-tabset="md-tabset-2" data-mui-toggle="tab" data-mui-controls="md-tab-6-panel" aria-controls="md-tab-6-panel" tabindex="-1" aria-selected="false">Python</a></li><li role="presentation"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-7" data-tabset="md-tabset-2" data-mui-toggle="tab" data-mui-controls="md-tab-7-panel" aria-controls="md-tab-7-panel" tabindex="-1" aria-selected="false">Markdown</a></li></ul><div role="tabpanel" class="mui-tabs__pane grid mui--is-active" id="md-tab-5-panel" aria-labelledby="md-tab-5" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><pre><code class="language-js">let x = 10000;
+<div id="md-tabset-2" class="md-tabset"><ul role="tablist"><li role="presentation" class="md-tab-active"><a role="tab" href="javascript:void(0)" id="md-tab-5" aria-controls="md-tab-5-panel" tabindex="0" aria-selected="true">Javascript</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-6" aria-controls="md-tab-6-panel" tabindex="-1" aria-selected="false">Python</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-7" aria-controls="md-tab-7-panel" tabindex="-1" aria-selected="false">Markdown</a></li></ul><div role="tabpanel" class="md-tab-active" id="md-tab-5-panel" aria-labelledby="md-tab-5" tabindex="0"><pre><code class="language-js">let x = 10000;
 sleep(x);
 </code></pre>
-</div></div><div role="tabpanel" class="mui-tabs__pane grid" id="md-tab-6-panel" aria-labelledby="md-tab-6" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><pre><code class="language-python">def sum(a, b):
+</div><div role="tabpanel" id="md-tab-6-panel" aria-labelledby="md-tab-6" tabindex="0"><pre><code class="language-python">def sum(a, b):
     return a['quantity'] + b['quantity']
 print(sum({'quantity': 5}, {'quantity': 10}))
 </code></pre>
-</div></div><div role="tabpanel" class="mui-tabs__pane grid" id="md-tab-7-panel" aria-labelledby="md-tab-7" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><pre><code class="language-markdown">**Here is bold markdown.**
+</div><div role="tabpanel" id="md-tab-7-panel" aria-labelledby="md-tab-7" tabindex="0"><pre><code class="language-markdown">**Here is bold markdown.**
 ### Heading
 \\::: should render three `:` characters.
 \\``` should render three \\` characters.
@@ -500,8 +500,8 @@ There's a list below:
 - Item 1
 - Item 2
 </code></pre>
-</div></div></div></div></div><div role="tabpanel" class="mui-tabs__pane grid" id="md-tab-2-panel" aria-labelledby="md-tab-2" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><p>What to do with tabs without titles? I presume, we should be ignoring them completely.</p>
-</div></div><div role="tabpanel" class="mui-tabs__pane grid" id="md-tab-3-panel" aria-labelledby="md-tab-3" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><div id="md-tabset-3" class="md-tabset"><ul role="tablist" class="mui-tabs__bar"><li role="presentation" class="mui--is-active"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-8" data-tabset="md-tabset-3" data-mui-toggle="tab" data-mui-controls="md-tab-8-panel" aria-controls="md-tab-8-panel" tabindex="0" aria-selected="true">Markmap</a></li><li role="presentation"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-9" data-tabset="md-tabset-3" data-mui-toggle="tab" data-mui-controls="md-tab-9-panel" aria-controls="md-tab-9-panel" tabindex="-1" aria-selected="false">Vega</a></li><li role="presentation"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-10" data-tabset="md-tabset-3" data-mui-toggle="tab" data-mui-controls="md-tab-10-panel" aria-controls="md-tab-10-panel" tabindex="-1" aria-selected="false">Mermaid</a></li></ul><div role="tabpanel" class="mui-tabs__pane grid mui--is-active" id="md-tab-8-panel" aria-labelledby="md-tab-8" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><div class="md-embed md-embed-markmap"><div class="embed-loading">Mindmap</div><pre class="embed-content">
+</div></div></div><div role="tabpanel" id="md-tab-2-panel" aria-labelledby="md-tab-2" tabindex="0"><p>What to do with tabs without titles? I presume, we should be ignoring them completely.</p>
+</div><div role="tabpanel" id="md-tab-3-panel" aria-labelledby="md-tab-3" tabindex="0"><div id="md-tabset-3" class="md-tabset"><ul role="tablist"><li role="presentation" class="md-tab-active"><a role="tab" href="javascript:void(0)" id="md-tab-8" aria-controls="md-tab-8-panel" tabindex="0" aria-selected="true">Markmap</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-9" aria-controls="md-tab-9-panel" tabindex="-1" aria-selected="false">Vega</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-10" aria-controls="md-tab-10-panel" tabindex="-1" aria-selected="false">Mermaid</a></li></ul><div role="tabpanel" class="md-tab-active" id="md-tab-8-panel" aria-labelledby="md-tab-8" tabindex="0"><div class="md-embed md-embed-markmap"><div class="embed-loading">Mindmap</div><pre class="embed-content">
 # Digital Identifiers and Rights
 
 ## Community and Outreach
@@ -597,7 +597,7 @@ There's a list below:
 - Public health services
 - Records (birth, death, land etc)
 </pre><div class="embed-container"></div></div>
-</div></div><div role="tabpanel" class="mui-tabs__pane grid" id="md-tab-9-panel" aria-labelledby="md-tab-9" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><div class="md-embed md-embed-vega-lite"><div class="embed-loading">Visualization</div><pre class="embed-content">{
+</div><div role="tabpanel" id="md-tab-9-panel" aria-labelledby="md-tab-9" tabindex="0"><div class="md-embed md-embed-vega-lite"><div class="embed-loading">Visualization</div><pre class="embed-content">{
 &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
 &quot;description&quot;: &quot;A population pyramid for the US in 2000.&quot;,
 &quot;data&quot;: { &quot;url&quot;: &quot;https://vega.github.io/vega-lite/examples/data/population.json&quot;},
@@ -668,13 +668,13 @@ There's a list below:
 }
 
 </pre><div class="embed-container"></div></div>
-</div></div><div role="tabpanel" class="mui-tabs__pane grid" id="md-tab-10-panel" aria-labelledby="md-tab-10" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">sequenceDiagram
+</div><div role="tabpanel" id="md-tab-10-panel" aria-labelledby="md-tab-10" tabindex="0"><div class="md-embed md-embed-mermaid"><div class="embed-loading">Visualization</div><pre class="embed-content">sequenceDiagram
  Alice-&gt;&gt;+John: Hello John, how are you?
  Alice-&gt;&gt;+John: John, can you hear me?
  John--&gt;&gt;-Alice: Hi Alice, I can hear you!
  John--&gt;&gt;-Alice: I feel great!
 </pre><div class="embed-container"></div></div>
-</div></div></div></div></div><div role="tabpanel" class="mui-tabs__pane grid" id="md-tab-4-panel" aria-labelledby="md-tab-4" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><p>This tab is going to have a table!</p>
+</div></div></div><div role="tabpanel" id="md-tab-4-panel" aria-labelledby="md-tab-4" tabindex="0"><p>This tab is going to have a table!</p>
 <table>
 <thead>
 <tr>
@@ -704,20 +704,20 @@ There's a list below:
 </li>
 <li>Finally, the list ends at top level.</li>
 </ol>
-</div></div></div>"""
+</div></div>"""
 tabs = """<h2>Tabs using containers plugin</h2>
 <p>Let us see if we can use the containers plugin to render tabs.</p>
-<div id="md-tabset-1" class="md-tabset"><ul role="tablist" class="mui-tabs__bar"><li role="presentation" class="mui--is-active"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-1" data-tabset="md-tabset-1" data-mui-toggle="tab" data-mui-controls="md-tab-1-panel" aria-controls="md-tab-1-panel" tabindex="0" aria-selected="true">Code</a></li><li role="presentation"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-2" data-tabset="md-tabset-1" data-mui-toggle="tab" data-mui-controls="md-tab-2-panel" aria-controls="md-tab-2-panel" tabindex="-1" aria-selected="false">Tab 2</a></li><li role="presentation"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-3" data-tabset="md-tabset-1" data-mui-toggle="tab" data-mui-controls="md-tab-3-panel" aria-controls="md-tab-3-panel" tabindex="-1" aria-selected="false">Embeds</a></li><li role="presentation"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-4" data-tabset="md-tabset-1" data-mui-toggle="tab" data-mui-controls="md-tab-4-panel" aria-controls="md-tab-4-panel" tabindex="-1" aria-selected="false">Table Tab</a></li></ul><div role="tabpanel" class="mui-tabs__pane grid mui--is-active" id="md-tab-1-panel" aria-labelledby="md-tab-1" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><p><strong>The next tab has a blank title.
+<div id="md-tabset-1" class="md-tabset"><ul role="tablist"><li role="presentation" class="md-tab-active"><a role="tab" href="javascript:void(0)" id="md-tab-1" aria-controls="md-tab-1-panel" tabindex="0" aria-selected="true">Code</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-2" aria-controls="md-tab-2-panel" tabindex="-1" aria-selected="false">Tab 2</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-3" aria-controls="md-tab-3-panel" tabindex="-1" aria-selected="false">Embeds</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-4" aria-controls="md-tab-4-panel" tabindex="-1" aria-selected="false">Table Tab</a></li></ul><div role="tabpanel" class="md-tab-active" id="md-tab-1-panel" aria-labelledby="md-tab-1" tabindex="0"><p><strong>The next tab has a blank title.
 The tab for it should render in the format &quot;Tab &lt;n&gt;&quot;.</strong></p>
 <p>This tab contains code!</p>
-<div id="md-tabset-2" class="md-tabset"><ul role="tablist" class="mui-tabs__bar"><li role="presentation" class="mui--is-active"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-5" data-tabset="md-tabset-2" data-mui-toggle="tab" data-mui-controls="md-tab-5-panel" aria-controls="md-tab-5-panel" tabindex="0" aria-selected="true">Javascript</a></li><li role="presentation"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-6" data-tabset="md-tabset-2" data-mui-toggle="tab" data-mui-controls="md-tab-6-panel" aria-controls="md-tab-6-panel" tabindex="-1" aria-selected="false">Python</a></li><li role="presentation"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-7" data-tabset="md-tabset-2" data-mui-toggle="tab" data-mui-controls="md-tab-7-panel" aria-controls="md-tab-7-panel" tabindex="-1" aria-selected="false">Markdown</a></li></ul><div role="tabpanel" class="mui-tabs__pane grid mui--is-active" id="md-tab-5-panel" aria-labelledby="md-tab-5" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><pre><code class="language-js">let x = 10000;
+<div id="md-tabset-2" class="md-tabset"><ul role="tablist"><li role="presentation" class="md-tab-active"><a role="tab" href="javascript:void(0)" id="md-tab-5" aria-controls="md-tab-5-panel" tabindex="0" aria-selected="true">Javascript</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-6" aria-controls="md-tab-6-panel" tabindex="-1" aria-selected="false">Python</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-7" aria-controls="md-tab-7-panel" tabindex="-1" aria-selected="false">Markdown</a></li></ul><div role="tabpanel" class="md-tab-active" id="md-tab-5-panel" aria-labelledby="md-tab-5" tabindex="0"><pre><code class="language-js">let x = 10000;
 sleep(x);
 </code></pre>
-</div></div><div role="tabpanel" class="mui-tabs__pane grid" id="md-tab-6-panel" aria-labelledby="md-tab-6" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><pre><code class="language-python">def sum(a, b):
+</div><div role="tabpanel" id="md-tab-6-panel" aria-labelledby="md-tab-6" tabindex="0"><pre><code class="language-python">def sum(a, b):
     return a['quantity'] + b['quantity']
 print(sum({'quantity': 5}, {'quantity': 10}))
 </code></pre>
-</div></div><div role="tabpanel" class="mui-tabs__pane grid" id="md-tab-7-panel" aria-labelledby="md-tab-7" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><pre><code class="language-markdown">**Here is bold markdown.**
+</div><div role="tabpanel" id="md-tab-7-panel" aria-labelledby="md-tab-7" tabindex="0"><pre><code class="language-markdown">**Here is bold markdown.**
 ### Heading
 \\::: should render three `:` characters.
 \\``` should render three \\` characters.
@@ -725,8 +725,8 @@ There's a list below:
 - Item 1
 - Item 2
 </code></pre>
-</div></div></div></div></div><div role="tabpanel" class="mui-tabs__pane grid" id="md-tab-2-panel" aria-labelledby="md-tab-2" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><p>What to do with tabs without titles? I presume, we should be ignoring them completely.</p>
-</div></div><div role="tabpanel" class="mui-tabs__pane grid" id="md-tab-3-panel" aria-labelledby="md-tab-3" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><div id="md-tabset-3" class="md-tabset"><ul role="tablist" class="mui-tabs__bar"><li role="presentation" class="mui--is-active"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-8" data-tabset="md-tabset-3" data-mui-toggle="tab" data-mui-controls="md-tab-8-panel" aria-controls="md-tab-8-panel" tabindex="0" aria-selected="true">Markmap</a></li><li role="presentation"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-9" data-tabset="md-tabset-3" data-mui-toggle="tab" data-mui-controls="md-tab-9-panel" aria-controls="md-tab-9-panel" tabindex="-1" aria-selected="false">Vega</a></li><li role="presentation"><a role="tab" class="mui--text-body2" href="javascript:void(0)" id="md-tab-10" data-tabset="md-tabset-3" data-mui-toggle="tab" data-mui-controls="md-tab-10-panel" aria-controls="md-tab-10-panel" tabindex="-1" aria-selected="false">Mermaid</a></li></ul><div role="tabpanel" class="mui-tabs__pane grid mui--is-active" id="md-tab-8-panel" aria-labelledby="md-tab-8" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><pre><code class="language-{markmap}">
+</div></div></div><div role="tabpanel" id="md-tab-2-panel" aria-labelledby="md-tab-2" tabindex="0"><p>What to do with tabs without titles? I presume, we should be ignoring them completely.</p>
+</div><div role="tabpanel" id="md-tab-3-panel" aria-labelledby="md-tab-3" tabindex="0"><div id="md-tabset-3" class="md-tabset"><ul role="tablist"><li role="presentation" class="md-tab-active"><a role="tab" href="javascript:void(0)" id="md-tab-8" aria-controls="md-tab-8-panel" tabindex="0" aria-selected="true">Markmap</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-9" aria-controls="md-tab-9-panel" tabindex="-1" aria-selected="false">Vega</a></li><li role="presentation"><a role="tab" href="javascript:void(0)" id="md-tab-10" aria-controls="md-tab-10-panel" tabindex="-1" aria-selected="false">Mermaid</a></li></ul><div role="tabpanel" class="md-tab-active" id="md-tab-8-panel" aria-labelledby="md-tab-8" tabindex="0"><pre><code class="language-{markmap}">
 # Digital Identifiers and Rights
 
 ## Community and Outreach
@@ -822,7 +822,7 @@ There's a list below:
 - Public health services
 - Records (birth, death, land etc)
 </code></pre>
-</div></div><div role="tabpanel" class="mui-tabs__pane grid" id="md-tab-9-panel" aria-labelledby="md-tab-9" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><pre><code class="language-{vega-lite}">{
+</div><div role="tabpanel" id="md-tab-9-panel" aria-labelledby="md-tab-9" tabindex="0"><pre><code class="language-{vega-lite}">{
   &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
   &quot;description&quot;: &quot;A population pyramid for the US in 2000.&quot;,
   &quot;data&quot;: { &quot;url&quot;: &quot;https://vega.github.io/vega-lite/examples/data/population.json&quot;},
@@ -893,13 +893,13 @@ There's a list below:
 }
 
 </code></pre>
-</div></div><div role="tabpanel" class="mui-tabs__pane grid" id="md-tab-10-panel" aria-labelledby="md-tab-10" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><pre><code class="language-{mermaid}">sequenceDiagram
+</div><div role="tabpanel" id="md-tab-10-panel" aria-labelledby="md-tab-10" tabindex="0"><pre><code class="language-{mermaid}">sequenceDiagram
     Alice-&gt;&gt;+John: Hello John, how are you?
     Alice-&gt;&gt;+John: John, can you hear me?
     John--&gt;&gt;-Alice: Hi Alice, I can hear you!
     John--&gt;&gt;-Alice: I feel great!
 </code></pre>
-</div></div></div></div></div><div role="tabpanel" class="mui-tabs__pane grid" id="md-tab-4-panel" aria-labelledby="md-tab-4" tabindex="0"><div class="grid__col-sm-12 tabpanel__body__padding"><p>This tab is going to have a table!</p>
+</div></div></div><div role="tabpanel" id="md-tab-4-panel" aria-labelledby="md-tab-4" tabindex="0"><p>This tab is going to have a table!</p>
 <table>
 <thead>
 <tr>
@@ -929,4 +929,4 @@ There's a list below:
 </li>
 <li>Finally, the list ends at top level.</li>
 </ol>
-</div></div></div>"""
+</div></div>"""

@@ -26,6 +26,7 @@ from coaster.utils import make_name
 from coaster.utils.text import normalize_spaces_multiline
 
 from .mdit_plugins import (  # toc_plugin,
+    abbr_plugin,
     block_code_extend_plugin,
     del_plugin,
     embeds_plugin,
@@ -217,6 +218,8 @@ class MarkdownConfig:
 
 # --- Markdown plugins -----------------------------------------------------------------
 
+
+MarkdownPlugin('abbr', abbr_plugin)
 MarkdownPlugin('deflists', deflist.deflist_plugin)
 MarkdownPlugin('footnote', footnote.footnote_plugin)
 MarkdownPlugin(
@@ -272,6 +275,7 @@ MarkdownConfig(
     },
     plugins=[
         'tab_container',
+        'abbr',
         'block_code_ext',
         'deflists',
         'footnote',
