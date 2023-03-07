@@ -6,7 +6,7 @@ import loadLangTranslations from './utils/translations';
 import LazyloadImg from './utils/lazyloadimage';
 import Form from './utils/formhelper';
 import Analytics from './utils/analytics';
-import MUITabs from './utils/tabs';
+import Tabs from './utils/tabs';
 
 $(() => {
   window.Hasgeek.Config.availableLanguages = {
@@ -48,7 +48,7 @@ $(() => {
     window.Hasgeek.Config.accountMenu
   );
   ScrollHelper.scrollTabs();
-  MUITabs.init();
+  Tabs.init();
   Utils.truncate();
   Utils.showTimeOnCalendar();
   Utils.popupBackHandler();

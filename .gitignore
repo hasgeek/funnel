@@ -28,6 +28,9 @@ baseframe-packed.*
 # Download files
 geoname_data
 
+# Dependencies
+build/dependencies
+
 # Log and test files
 error.log
 error.log.*

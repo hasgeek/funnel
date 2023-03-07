@@ -64,7 +64,7 @@ We collect and store information from our Users for the following purposes inclu
 -   To contact the User with regards to the services they have availed of
 -   To contact you for promotional offers or market research purposes, with the User’s consent
 -   To syndicate User’s publicly available data
--   To syndicate User’s pesonally identifiable information with Hasgeek and it’s partners
+-   To syndicate User’s pesonally identifiable information with Hasgeek and its partners
 
 ### Disclosure
 

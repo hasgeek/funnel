@@ -83,12 +83,12 @@ class OrganizationMembership(
     }
 
     #: Organization that this membership is being granted on
-    organization_id = sa.Column(
+    organization_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer,
         sa.ForeignKey('organization.id', ondelete='CASCADE'),
         nullable=False,
     )
-    organization = with_roles(
+    organization: Mapped[Organization] = with_roles(
         sa.orm.relationship(
             Organization,
             backref=sa.orm.backref(
@@ -102,7 +102,9 @@ class OrganizationMembership(
     parent: Mapped[Organization] = sa.orm.synonym('organization')
 
     # Organization roles:
-    is_owner = immutable(sa.Column(sa.Boolean, nullable=False, default=False))
+    is_owner: Mapped[bool] = immutable(
+        sa.orm.mapped_column(sa.Boolean, nullable=False, default=False)
+    )
 
     @cached_property
     def offered_roles(self) -> Set[str]:

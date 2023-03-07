@@ -10,21 +10,18 @@
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
     {%- block titletags %}
       <title>
-        {% block titleblock %}
+        {%- block titleblock -%}
           {% block title %}
             {{ title }}
-          {% endblock title %}
-          {% if title_suffix %}
-            – {{ title_suffix }}
-          {% elif title_suffix == '' %}
-          {% elif self.title() != config['SITE_TITLE'] %}
-            – {{ config['SITE_TITLE'] }}
-          {% endif %}
-        {%- endblock titleblock %}</title>
-        <meta name="DC.title" content="{{ self.titleblock()|e }}" />
-        <meta property="og:title" content="{{ self.titleblock()|e }}" />
-        <meta name="twitter:title" content="{{ self.titleblock()|e }}" />
-      {%- endblock titletags %}
+          {% endblock title %}{% if title_suffix %} – {{ title_suffix }}
+          {%- elif title_suffix == '' and self.title() != config['SITE_TITLE'] -%} – {{ config['SITE_TITLE'] }}
+          {%- endif -%}
+        {%- endblock titleblock -%}
+      </title>
+      <meta name="DC.title" content="{{ self.titleblock()|e }}" />
+      <meta property="og:title" content="{{ self.titleblock()|e }}" />
+      <meta name="twitter:title" content="{{ self.titleblock()|e }}" />
+    {%- endblock titletags %}
       <meta property="og:type" content="website" />
       <meta name="description"
             content="{% block description %}{% if g.profile %}{{ g.profile.description.html|preview }}{% endif %}{% endblock description %}"/>
@@ -221,7 +218,7 @@
                       </div>
                     {%- elif request.endpoint != 'login' %}
                       <a href="{{ url_for('login') }}"
-                        class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button">{% trans %}Login{% endtrans %}</a>
+                        class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button" id="login-nav">{% trans %}Login{% endtrans %}</a>
                     {%- else %}
                       {# On the login page, remove the login button but occupy the spot -#}
                       <div></div>
