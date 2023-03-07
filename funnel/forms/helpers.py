@@ -231,16 +231,20 @@ def video_url_list_validator(form, field):
     for url in field.data:
         try:
             parse_video_url(url)
-        except ValueError as exc:
-            raise forms.validators.StopValidation(str(exc))
+        except ValueError:
+            raise forms.validators.StopValidation(
+                _("This video URL is not supported")
+            ) from None
 
 
 def video_url_validator(form, field):
     """Validate the video URL to be acceptable."""
     try:
         parse_video_url(field.data)
-    except ValueError as exc:
-        raise forms.validators.StopValidation(str(exc))
+    except ValueError:
+        raise forms.validators.StopValidation(
+            _("This video URL is not supported")
+        ) from None
 
 
 def tostr(value: object) -> str:
