@@ -406,7 +406,7 @@ class RenderNotification:
 
 def dispatch_notification(*notifications):
     """
-    Dispatch one or more notifications.
+    Dispatch one or more notifications arising from the same event.
 
     Usage::
 

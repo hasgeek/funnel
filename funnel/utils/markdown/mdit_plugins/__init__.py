@@ -1,6 +1,7 @@
 """Plugins for markdown-it-py."""
 # flake8: noqa
 
+from .abbr import *
 from .block_code_ext import *
 from .del_tag import *
 from .embeds import *

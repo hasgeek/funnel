@@ -1404,7 +1404,7 @@ msgstr ""
 
 #: funnel/loginproviders/github.py:45 funnel/loginproviders/linkedin.py:61
 #: funnel/loginproviders/zoom.py:49
-msgid "This server's callback URL is misconfigured"
+msgid "This server’s callback URL is misconfigured"
 msgstr ""
 
 #: funnel/loginproviders/github.py:47 funnel/loginproviders/google.py:42
@@ -1932,7 +1932,7 @@ msgid "Undo cancel"
 msgstr ""
 
 #: funnel/models/proposal.py:385
-msgid "This proposal's cancellation has been reversed"
+msgid "This proposal’s cancellation has been reversed"
 msgstr ""
 
 #: funnel/models/proposal.py:396

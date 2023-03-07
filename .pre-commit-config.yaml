@@ -5,45 +5,36 @@ default_stages: [commit]
 # default_language_version:
 #   python: python3.9
 ci:
-  skip: ['pip-compile', 'yesqa', 'no-commit-to-branch']
+  skip: ['pip-audit', 'yesqa', 'no-commit-to-branch']
 repos:
   - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
     rev: v1.5.1
     hooks:
       - id: check-pre-commit-ci-config
-  - repo: https://github.com/jazzband/pip-tools
-    rev: 6.12.2
+  - repo: https://github.com/peterdemin/pip-compile-multi
+    rev: v2.6.2
     hooks:
-      - id: pip-compile
-        name: pip-compile requirements.in
-        args:
-          [
-            '--output-file=requirements.txt',
-            '--resolver=backtracking',
-            'requirements.in',
+      - id: pip-compile-multi-verify
+        files: ^requirements/.*\.(in|txt)$
+  - repo: https://github.com/pypa/pip-audit
+    rev: v2.4.15
+    hooks:
+      - id: pip-audit
+        args: [
+            '--no-deps',
+            '--fix',
+            '-r',
+            'requirements/base.txt',
+            '-r',
+            'requirements/test.txt',
+            '-r',
+            'requirements/dev.txt',
+            '--ignore-vuln',
+            'PYSEC-2021-13', # https://github.com/pallets-eco/flask-caching/pull/209
+            '--ignore-vuln',
+            'PYSEC-2022-42969', # https://github.com/pytest-dev/pytest/issues/10392
           ]
-        files: ^requirements\.(in|txt)$
-      - id: pip-compile
-        name: pip-compile requirements_test.in
-        args:
-          [
-            '--output-file=requirements_test.txt',
-            '--resolver=backtracking',
-            'requirements.in',
-            'requirements_test.in',
-          ]
-        files: ^requirements(_test)?\.(in|txt)$
-      - id: pip-compile
-        name: pip-compile requirements_dev.in
-        args:
-          [
-            '--output-file=requirements_dev.txt',
-            '--resolver=backtracking',
-            'requirements.in',
-            'requirements_test.in',
-            'requirements_dev.in',
-          ]
-        files: ^requirements(_test|_dev)?\.(in|txt)$
+        files: ^requirements/.*\.txt$
   - repo: https://github.com/lucasmbrown/mirrors-autoflake
     rev: v1.3
     hooks:
@@ -114,7 +105,7 @@ repos:
       - id: flake8
         additional_dependencies: *flake8deps
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.16.1
+    rev: v2.16.4
     hooks:
       - id: pylint
         args: [
@@ -163,17 +154,18 @@ repos:
       - id: mixed-line-ending
       - id: no-commit-to-branch
       - id: requirements-txt-fixer
-        files: requirements(_.*)?\.in
+        files: requirements/.*\.in
       - id: trailing-whitespace
         args: ['--markdown-linebreak-ext=md']
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.4
+    rev: v3.0.0-alpha.6
     hooks:
       - id: prettier
-        args: ['--single-quote', '--trailing-comma', 'es5']
+        args:
+          ['--single-quote', '--trailing-comma', 'es5', '--end-of-line', 'lf']
         exclude: funnel/templates/js/
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.19.14
+    rev: v1.19.16
     hooks:
       - id: djlint-jinja
         files: \.html\.(jinja2|j2)$

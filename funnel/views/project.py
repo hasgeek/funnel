@@ -181,6 +181,14 @@ def feature_project_tickets_or_rsvp(obj: Project) -> bool:
     return obj.features.tickets() or obj.features.rsvp()
 
 
+@Project.features('subscription', cached_property=True)
+def feature_project_subscription(obj: Project) -> bool:
+    return (
+        obj.boxoffice_data is not None
+        and obj.boxoffice_data.get('is_subscription', True) is True
+    )
+
+
 @Project.features('rsvp_unregistered')
 def feature_project_register(obj: Project) -> bool:
     rsvp = obj.rsvp_for(current_auth.user)
@@ -506,6 +514,7 @@ class ProjectView(  # type: ignore[misc]
                 org=boxoffice_data.get('org', ''),
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
                 allow_rsvp=self.obj.allow_rsvp,
+                is_subscription=boxoffice_data.get('is_subscription', True),
             ),
             model=Project,
         )
@@ -513,6 +522,7 @@ class ProjectView(  # type: ignore[misc]
             form.populate_obj(self.obj)
             self.obj.boxoffice_data['org'] = form.org.data
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
+            self.obj.boxoffice_data['is_subscription'] = form.is_subscription.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for())

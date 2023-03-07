@@ -3,7 +3,7 @@
 
 from datetime import datetime, timedelta
 from types import SimpleNamespace
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 from sqlalchemy.exc import IntegrityError
 import sqlalchemy as sa
@@ -297,11 +297,11 @@ def test_next_session_at_property(
     db_session,
     project_expo2010,
     project_expo2011,
-    project_dates: Optional[Tuple[datetime, datetime]],
-    session_dates: List[Tuple[datetime, datetime]],
+    project_dates: Optional[tuple],
+    session_dates: List[tuple],
     expected_session: Optional[int],
-    project2_dates: Optional[Tuple[datetime, datetime]],
-    session2_dates: List[Tuple[datetime, datetime]],
+    project2_dates: Optional[tuple],
+    session2_dates: List[tuple],
     expected2_session: Optional[int],
 ) -> None:
     """Test next_session_at to work for projects with sessions and without."""
