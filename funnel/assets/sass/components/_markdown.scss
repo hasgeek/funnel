@@ -5,8 +5,6 @@
 .markdown {
   overflow-wrap: break-word;
   overflow: auto;
-  margin: 0 -$mui-grid-padding;
-  padding: 0 $mui-grid-padding;
 
   h1,
   h2,
@@ -17,6 +15,8 @@
     font-weight: 700;
     a {
       color: $mui-text-dark;
+    }
+    a.header-anchor {
       display: none;
     }
     &:hover a {
