@@ -15,15 +15,17 @@
     font-weight: 700;
     a {
       color: $mui-text-dark;
+      text-decoration: none;
     }
     a.header-anchor {
       display: none;
     }
-    &:hover a {
+    &:hover a.header-anchor {
       display: inline;
+      color: $mui-text-accent;
     }
     @media (any-pointer: coarse) {
-      a {
+      a.header-anchor {
         display: inline;
         color: $mui-text-accent;
       }
