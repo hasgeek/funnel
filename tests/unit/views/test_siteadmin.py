@@ -43,7 +43,7 @@ def test_cant_access_rq_dashboard(
 def test_can_access_rq_dashboard(
     app, client, login, user_vetinari: models.User
 ) -> None:
-    """User who is not a sysadmin cannot access RQ dashboard."""
+    """User who is a sysadmin can access RQ dashboard."""
     login.as_(user_vetinari)
     rv = client.get(app.url_for('rq_dashboard.queues_overview'))
     assert rv.status_code == 200
