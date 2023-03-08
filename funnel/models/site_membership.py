@@ -80,6 +80,7 @@ class SiteMembership(
                     cls.is_comment_moderator.is_(True),
                     cls.is_user_moderator.is_(True),
                     cls.is_site_editor.is_(True),
+                    cls.is_sysadmin.is_(True),
                 ),
                 name='site_membership_has_role',
             )

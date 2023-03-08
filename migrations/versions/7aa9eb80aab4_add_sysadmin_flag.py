@@ -42,11 +42,23 @@ def upgrade_() -> None:
             )
         )
         batch_op.alter_column('is_sysadmin', server_default=None)
+        batch_op.drop_constraint('site_membership_has_role', type_='check')
+        batch_op.create_check_constraint(
+            'site_membership_has_role',
+            'is_comment_moderator IS true OR is_user_moderator IS true'
+            ' OR is_site_editor IS true OR is_sysadmin IS true',
+        )
 
 
 def downgrade_() -> None:
     """Downgrade database bind ''."""
     with op.batch_alter_table('site_membership', schema=None) as batch_op:
+        batch_op.drop_constraint('site_membership_has_role', type_='check')
+        batch_op.create_check_constraint(
+            'site_membership_has_role',
+            'is_comment_moderator IS true OR is_user_moderator IS true'
+            ' OR is_site_editor IS true',
+        )
         batch_op.drop_column('is_sysadmin')
 
 
