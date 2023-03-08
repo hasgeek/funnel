@@ -35,7 +35,7 @@
 
 .md-tablist-wrapper {
   display: flex;
-  margin: 0 -16px;
+  margin: 0 -$mui-grid-padding/2;
   align-items: center;
 
   > .mui-tabs__bar:not(.mui-tabs__bar--pills) {
