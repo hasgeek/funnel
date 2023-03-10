@@ -1,6 +1,12 @@
 Feature: Account creation
   A visitor can create an account through many prompts
 
+  Scenario: Test for recaptcha
+    Given the server uses Recaptcha
+    When twoflower visits the login page, Recaptcha is required
+    Then they submit and Recaptcha validation passes
+    And they are logged in
+
   Scenario Outline: Anonymous visitor tries to login with a phone number
     # Given the browser locale is <language>
     Given Anonymous visitor is on the home page
@@ -59,9 +65,3 @@ Feature: Account creation
     Then a register modal appears
     When they submit the phone number with password
     Then they are logged in
-
-  Scenario: Test for recaptcha
-    Given the server uses Recaptcha
-    When twoflower visits the login page, Recaptcha is required
-    Then they submit and Recaptcha validation passes
-    And they are logged in
