@@ -6,7 +6,7 @@
 
 {% block top_title %}
   <h1 class="mui--text-headline"><a href="{{ project.url_for() }}">{{ project.title }}</a></h1>
-  <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" title="Setup events for check-in">{{ faicon(icon='arrow-left', icon_size='subhead') }} {% trans %}Back to setup events{% endtrans %}</a></p>
+  <p class="mui--text-subhead"><a href="{{ project.url_for('admin') }}" title="{% trans %}Setup events for check-in{% endtrans %}">{{ faicon(icon='arrow-left', icon_size='subhead') }} {% trans %}Back to setup events{% endtrans %}</a></p>
 {% endblock top_title %}
 
 {% block contentwrapper %}

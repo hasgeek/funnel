@@ -52,7 +52,7 @@
           </div>
           <div class="card__body card__body--lgtext">
             <p class="mui--text-subhead">
-              {{ faicon(icon='user', css_class="icon-img--smaller")}}
+              {{ faicon(icon='user', css_class="icon-img--smaller") }}
               {{ current_auth.user.fullname }}
             </p>
             <p class="mui--text-subhead">
@@ -134,7 +134,7 @@
                    aria-label="{% trans title=provider.title %}Login using {{ title }}{% endtrans %}">
                   <img src="{{ url_for('static', filename='img/' + provider + '.svg') }}"
                        alt="{{ provider.title }}"
-                       aria-label="hidden"/>
+                       aria-hidden="true"/>
                 </a>
               {% endfor %}
             </div>
@@ -190,14 +190,14 @@
                 {% if current_auth.user.emails %}
                   <button class="mui-btn mui-btn--small mui-btn--flat mui-btn--primary js-enable-button"
                           type="submit"
-                          title="Set as primary email"
+                          title="{% trans %}Set as primary email{% endtrans %}"
                           disabled>
                     {% trans %}Set as primary{% endtrans %}
                   </button>
                 {% endif %}
                 <a class="mui-btn mui-btn--small mui-btn--flat mui-btn--accent"
                    href="{{ url_for('add_email') }}"
-                   title="Add an email address">{% trans %}Add an email address{% endtrans %}</a>
+                   title="{% trans %}Add an email address{% endtrans %}">{% trans %}Add an email address{% endtrans %}</a>
                 <span class="loading mui--hide"></span>
               </div>
             </form>

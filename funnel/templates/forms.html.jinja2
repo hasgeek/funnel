@@ -64,7 +64,7 @@
             <div class="map">
               <div class="mui-textfield no-jshidden">
                 <input type="text" class="map__search-field" id="{{ field.id }}_search" placeholder="Enter a location" />
-                <a href="#" onclick="return false;" id="{{ field.id }}_clear" class="map__clear" aria-label="clear location">{{ faicon(icon='times', icon_size='title') }}</a>
+                <a href="#" onclick="return false;" id="{{ field.id }}_clear" class="map__clear" aria-label="{% trans %}Clear location{% endtrans %}">{{ faicon(icon='times', icon_size='title') }}</a>
                 {%- if not nolabel %}
                   <label for="{{ field.id }}">{{ field.label.text }}</label>
                 {%- endif %}

@@ -55,7 +55,7 @@
 {% endblock baseheadline %}
 
 {% block basecontent %}
-  <a href="{{ url_for('about') }}" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}</a>
+  <a href="{{ url_for('about') }}" class="logo-about"><span class="emoji-hand" aria-hidden="true">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}</a>
   {{ featured_section(featured_project, heading=false) }}
   {{ upcoming_section(upcoming_projects) }}
 

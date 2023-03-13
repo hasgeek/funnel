@@ -74,7 +74,7 @@
                             </div>
                           </div>
                         </div>
-                        <a class="mui--pull-right contact-download-btn" onclick="Hasgeek.downloadVcard(this,'{{ contact.ticket_participant.fullname }}', '{{ contact.ticket_participant.email }}', '{{ contact.ticket_participant.phone }}', '{{ contact.ticket_participant.company }}')" aria-label="download contact" download href="#" onclick="return false;">{{ faicon(icon='address-card', icon_size='headline') }}</a>
+                        <a class="mui--pull-right contact-download-btn" onclick="Hasgeek.downloadVcard(this,'{{ contact.ticket_participant.fullname }}', '{{ contact.ticket_participant.email }}', '{{ contact.ticket_participant.phone }}', '{{ contact.ticket_participant.company }}')" aria-label="{% trans %}Download contact{% endtrans %}" title="{% trans %}Download contact{% endtrans %}" href="#" onclick="return false;">{{ faicon(icon='address-card', icon_size='headline') }}</a>
                       </div>
                     {%- endfor -%}
                   </div>

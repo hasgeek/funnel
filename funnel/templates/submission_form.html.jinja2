@@ -97,7 +97,7 @@
                             {% include "collaborator_list.html.jinja2" %}
                           {% endwith %}
                         </div>
-                        <a href="{{ proposal.url_for('add_collaborator') }}" class="mui-btn mui-btn--small mui-btn--primary nounderline" rel="modal:open" aria-label="Add collaborator" data-ga="Add collaborator" data-cy="add-collaborator" role="button" aria-haspopup="true">{% trans %}Add new collaborator{% endtrans %}</a>
+                        <a href="{{ proposal.url_for('add_collaborator') }}" class="mui-btn mui-btn--small mui-btn--primary nounderline" rel="modal:open" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Add collaborator" data-cy="add-collaborator" role="button" aria-haspopup="true">{% trans %}Add new collaborator{% endtrans %}</a>
                       </div>
                     </div>
                   </div>

@@ -108,17 +108,17 @@
                       class="header__site-title__title__home mui--hidden-xs mui--hidden-sm"
                       data-cy="home-desktop"
                       data-ga="Home"
-                      aria-label="Home">
+                      aria-label="{% trans %}Home{% endtrans %}">
                       <img src="{{ url_for('static', filename='img/hg-logo.svg') }}"
                           class="header__site-title__home__logo"
                           alt="{% trans %}Home{% endtrans %}"/>
                     </a>
                     <a href="{{ url_for('about') }}"
-                      class="header__site-title__title__about nounderline"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}
+                      class="header__site-title__title__about nounderline"><span class="emoji-hand" aria-hidden="true">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}
                     </a>
                     <a href="{{ url_for('index') }}"
                       class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if current_view.current_section == 'home' %}header__nav-links--active{% endif %}"
-                      aria-label="Home"
+                      aria-label="{% trans %}Home{% endtrans %}"
                       data-cy="home"
                       data-ga="Home">
                       <img src="{{ url_for('static', filename='img/hg-logo.svg') }}"
