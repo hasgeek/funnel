@@ -11,14 +11,7 @@ from baseframe.forms import Form
 from baseframe.forms.auto import ConfirmDeleteForm
 from coaster.auth import current_auth
 from coaster.utils import getbool
-from coaster.views import (
-    ModelView,
-    UrlChangeCheck,
-    UrlForView,
-    requestform,
-    requires_roles,
-    route,
-)
+from coaster.views import ModelView, UrlChangeCheck, UrlForView, requestform, route
 
 from .. import app
 from ..forms import ProjectSponsorForm
@@ -95,9 +88,10 @@ class ProjectSponsorLandingView(
         )
 
     @route('sponsors/reorder', methods=['POST'])
-    @requires_roles({'site_editor'})
     @requestform('target', 'other', ('before', getbool))
     def reorder_sponsors(self, target: str, other: str, before: bool) -> ReturnView:
+        if not current_auth.user.is_site_editor:
+            abort(403)
         if Form().validate_on_submit():
             sponsor: ProjectSponsorMembership = (
                 ProjectSponsorMembership.query.filter_by(uuid_b58=target)
@@ -117,7 +111,7 @@ class ProjectSponsorLandingView(
                 )
                 .one_or_404()
             )
-            sponsor.current_access().reorder_item(other_sponsor, before)
+            sponsor.reorder_item(other_sponsor, before)
             db.session.commit()
             return {'status': 'ok'}
         return {'status': 'error', 'error': 'csrf'}, 422
