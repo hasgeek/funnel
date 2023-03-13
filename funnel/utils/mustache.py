@@ -14,7 +14,9 @@ from .markdown import markdown_escape
 __all__ = ['mustache_html', 'mustache_md']
 
 
-def _render_with_escape(name: str, escapefunc: Callable[[str], str]) -> render:
+def _render_with_escape(
+    name: str, escapefunc: Callable[[str], str]
+) -> Callable[..., str]:
     """Make a copy of Chevron's render function with a replacement HTML escaper."""
     _globals = copy(render.__globals__)
     _globals['_html_escape'] = escapefunc

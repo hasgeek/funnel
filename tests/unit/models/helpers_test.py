@@ -130,7 +130,7 @@ def test_add_to_class() -> None:
     assert not hasattr(ReferenceClass, 'eggs')
 
     # New methods can be added
-    @mhelpers.add_to_class(ReferenceClass)  # skipcq: PTC-W0065
+    @mhelpers.add_to_class(ReferenceClass)
     def eggs(self):  # skipcq: PTC-W0065
         return 'is_eggs'
 
@@ -153,9 +153,9 @@ def test_add_to_class() -> None:
     # Existing attributes cannot be replaced
     with pytest.raises(AttributeError):
 
-        @mhelpers.add_to_class(ReferenceClass, 'spameggs')  # skipcq: PTC-W0049
-        def new_foobar(self):
-            pass
+        @mhelpers.add_to_class(ReferenceClass, 'spameggs')
+        def new_foobar(self):  # skipcq: PTC-W0049
+            """Cause an AttributeError in the decorator."""
 
 
 @pytest.fixture(scope='session')

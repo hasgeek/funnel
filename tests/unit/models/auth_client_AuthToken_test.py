@@ -8,7 +8,7 @@ import pytest
 from coaster.utils import buid, utcnow
 from funnel import models
 
-from .test_db import TestDatabaseFixture
+from .db_test import TestDatabaseFixture
 
 
 class TestAuthToken(TestDatabaseFixture):
