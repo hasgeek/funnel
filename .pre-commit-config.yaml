@@ -152,6 +152,8 @@ repos:
         args: ['--remove']
       - id: forbid-new-submodules
       - id: mixed-line-ending
+      - id: name-tests-test
+        args: ['--pytest']
       - id: no-commit-to-branch
       - id: requirements-txt-fixer
         files: requirements/.*\.in

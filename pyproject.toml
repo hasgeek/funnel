@@ -188,6 +188,7 @@ disable = [
   'duplicate-code',  # Too many false positives
   'fixme',  # Our workflow is to tag for future fixes
   'invalid-name',  # Flake8 covers our naming convention requirements
+  'line-too-long',  # Long lines are okay if Black doesn't wrap them
   'no-member',  # Pylint gets confused over how some members become part of an instance
   'too-few-public-methods',  # Data classes and validator classes have few methods
   'too-many-ancestors',  # Our models have a large number of mixin classes

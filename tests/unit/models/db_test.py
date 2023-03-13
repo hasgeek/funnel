@@ -1,6 +1,8 @@
 """Fixtures for legacy tests."""
 # pylint: disable=attribute-defined-outside-init
 
+import pytest
+
 from funnel import models
 
 
@@ -77,3 +79,13 @@ class Fixtures:
         db_session.add(message)
         db_session.commit()
         self.message = message
+
+
+class TestDatabaseFixture:
+    @pytest.fixture(autouse=True)
+    def _pytest_fixtures(self, app, client, db_session):
+        self.client = client
+        self.db_session = db_session
+        self.app = app
+        self.fixtures = Fixtures()
+        self.fixtures.make_fixtures(db_session)

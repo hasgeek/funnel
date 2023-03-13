@@ -12,12 +12,12 @@ def init_models():
         user_admin = User(username='admin-user', fullname='admin-user')
         user_admin.password = 'admin-user129_Ftz'  # nosec
         user_admin_email = UserEmail(email='adminuser@example.com', user=user_admin)
-        db.session.add(user_admin.add_phone('9901234567', primary=True))
+        db.session.add(user_admin.add_phone('+918123456789', primary=True))
 
         user = User(username='member-user', fullname='member-user')
         user.password = 'member-user341_Wer'  # nosec
         user_email = UserEmail(email='memberuser@example.com', user=user)
-        db.session.add(user.add_phone('9900234567', primary=True))
+        db.session.add(user.add_phone('+12015550123', primary=True))
 
         profile_owner = User(
             username='profile-cypress',
@@ -27,7 +27,7 @@ def init_models():
         profile_owner_email = UserEmail(
             email='profileowner@example.com', user=profile_owner
         )
-        db.session.add(profile_owner.add_phone('9900112233', primary=True))
+        db.session.add(profile_owner.add_phone('+15062345678', primary=True))
 
         promoter = User(username='promoter-user', fullname='promoter-user')
         promoter.password = 'promoter-user34_qQE'  # nosec
@@ -40,7 +40,7 @@ def init_models():
         editor = User(username='editor-cypress', fullname='editor-cypress')
         editor.password = 'editor-cypress9_GH'  # nosec
         editor_email = UserEmail(email='editor@example.com', user=editor)
-        db.session.add(editor.add_phone('9912345678', primary=True))
+        db.session.add(editor.add_phone('+447400123456', primary=True))
 
         user2 = User(username='hg-user', fullname='hg-user')
         user2.password = 'hg-user5_HE'  # nosec
