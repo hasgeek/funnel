@@ -211,8 +211,8 @@ class TestEventModels:
 
         self.session = self.db_session
 
-        @request.addfinalizer  # skipcq: PTC-W0065
-        def tearDown():
+        @request.addfinalizer
+        def tearDown():  # skipcq: PTC-W0065
             self.ctx.pop()
 
     def test_import_from_list(self) -> None:

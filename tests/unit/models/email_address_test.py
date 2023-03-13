@@ -537,7 +537,7 @@ def test_email_address_mixin(  # pylint: disable=too-many-locals,too-many-statem
     with pytest.raises(IntegrityError):
         db_session.commit()
 
-    del link3
+    del link3  # skipcq: PTC-W0043
     db_session.rollback()
 
     # The EmailDocument model, in contrast, has no requirement of availability to a

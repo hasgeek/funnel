@@ -16,17 +16,17 @@ def fixture_app() -> Flask:
     init_app(tapp)
 
     @tapp.route('/no-vary')
-    def no_vary():
+    def no_vary():  # skipcq: PTC-W0065
         return 'no-vary'
 
     @tapp.route('/fragment')
-    def fragment():
+    def fragment():  # skipcq: PTC-W0065
         if request_wants.html_fragment:
             return '<p>HTML fragment</p>'
         return '<html><body><p>Full HTML</p></body></html>'
 
     @tapp.route('/json_or_html')
-    def json_or_html():
+    def json_or_html():  # skipcq: PTC-W0065
         if request_wants.json:
             return {'status': 'ok'}
         return '<html><body><p>Status: ok</p></body></html>'
