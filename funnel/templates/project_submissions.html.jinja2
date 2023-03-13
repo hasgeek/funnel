@@ -68,7 +68,7 @@
           inputId: 'search'
         },
         sort: {
-          url: '{{ project.url_for("reorder_proposals") }}',
+          url: {{ project.url_for("reorder_proposals")|tojson }},
           permission: {{ project.current_roles.editor|tojson }},
           wrapperElem: '.proposal-list-table tbody',
           placeholder: 'proposal-placeholder'
