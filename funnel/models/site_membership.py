@@ -25,16 +25,22 @@ class SiteMembership(
     __allow_unmapped__ = True
 
     # List of is_role columns in this model
-    __data_columns__ = {'is_comment_moderator', 'is_user_moderator', 'is_site_editor'}
+    __data_columns__ = {
+        'is_comment_moderator',
+        'is_user_moderator',
+        'is_site_editor',
+        'is_sysadmin',
+    }
 
     __roles__ = {
-        'all': {
+        'subject': {
             'read': {
                 'urls',
                 'user',
                 'is_comment_moderator',
                 'is_user_moderator',
                 'is_site_editor',
+                'is_sysadmin',
             }
         }
     }
@@ -47,15 +53,21 @@ class SiteMembership(
     # Site admin roles (at least one must be True):
 
     #: Comment moderators can delete comments
-    is_comment_moderator: Mapped[bool] = sa.Column(
+    is_comment_moderator: Mapped[bool] = sa.orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: User moderators can suspend users
-    is_user_moderator: Mapped[bool] = sa.Column(
+    is_user_moderator: Mapped[bool] = sa.orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: Site editors can feature or reject projects
-    is_site_editor: Mapped[bool] = sa.Column(sa.Boolean, nullable=False, default=False)
+    is_site_editor: Mapped[bool] = sa.orm.mapped_column(
+        sa.Boolean, nullable=False, default=False
+    )
+    #: Sysadmins can manage technical settings
+    is_sysadmin: Mapped[bool] = sa.orm.mapped_column(
+        sa.Boolean, nullable=False, default=False
+    )
 
     @declared_attr.directive
     @classmethod
@@ -68,6 +80,7 @@ class SiteMembership(
                     cls.is_comment_moderator.is_(True),
                     cls.is_user_moderator.is_(True),
                     cls.is_site_editor.is_(True),
+                    cls.is_sysadmin.is_(True),
                 ),
                 name='site_membership_has_role',
             )
@@ -99,6 +112,8 @@ class SiteMembership(
             roles.add('user_moderator')
         if self.is_site_editor:
             roles.add('site_editor')
+        if self.is_sysadmin:
+            roles.add('sysadmin')
         return roles
 
 
@@ -138,6 +153,14 @@ class __User:
         return (
             self.active_site_membership is not None
             and self.active_site_membership.is_site_editor
+        )
+
+    @cached_property
+    def is_sysadmin(self) -> bool:
+        """Test if this user is a sysadmin."""
+        return (
+            self.active_site_membership is not None
+            and self.active_site_membership.is_sysadmin
         )
 
     # site_admin means user has one or more of above roles

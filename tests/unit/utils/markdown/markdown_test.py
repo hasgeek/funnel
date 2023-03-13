@@ -24,9 +24,6 @@ def test_markdown_blank() -> None:
     assert MarkdownConfig().render('') == blank_response
 
 
-# def test_markdown_cases(
-#    md_testname: str, md_configname: str,markdown_test_registry, fail_with_diff
-# ) -> None:
 def test_markdown_cases(
     md_testname: str, md_configname: str, markdown_test_registry
 ) -> None:

@@ -117,7 +117,6 @@ def test_authclient_scope_null(db_session, user_rincewind) -> None:
         scope=None,
     )
     db_session.add(auth_client)
-    # db_session.commit()
     assert auth_client.scope == ()
     # Scope can be assigned a string value, but will return as a tuple
     auth_client.scope = 'test'

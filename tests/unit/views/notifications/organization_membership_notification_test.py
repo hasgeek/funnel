@@ -40,7 +40,7 @@ def when_vetinari_adds_ridcully(
     org_ankhmorpork,
     role,
 ):
-    is_owner = True if role == 'owner' else False
+    is_owner = role == 'owner'
     ridcully_admin = models.OrganizationMembership(
         user=user_ridcully,
         organization=org_ankhmorpork,
@@ -105,7 +105,7 @@ def then_user_gets_notification(
 def when_vetinari_invites_ridcully(
     db_session, user_vetinari, user_ridcully, org_ankhmorpork, role
 ):
-    is_owner = True if role == 'owner' else False
+    is_owner = role == 'owner'
     ridcully_admin = models.OrganizationMembership(
         user=user_ridcully,
         organization=org_ankhmorpork,
@@ -141,7 +141,7 @@ def when_ridcully_accepts_invite(
 def given_riduclly_admin(
     db_session, user_ridcully, org_ankhmorpork, user_vetinari, role
 ):
-    is_owner = True if role == 'owner' else False
+    is_owner = role == 'owner'
     ridcully_admin = models.OrganizationMembership(
         user=user_ridcully,
         organization=org_ankhmorpork,
@@ -160,7 +160,7 @@ def given_riduclly_admin(
 def when_vetinari_amends_ridcully_role(
     db_session, user_vetinari, ridcully_admin, new_role, org_ankhmorpork, user_ridcully
 ) -> models.ProjectCrewMembership:
-    is_owner = True if new_role == 'owner' else False
+    is_owner = new_role == 'owner'
     ridcully_admin_amend = ridcully_admin.replace(
         actor=user_vetinari, is_owner=is_owner
     )
