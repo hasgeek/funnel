@@ -50,6 +50,9 @@ class ProjectSponsorMembership(  # type: ignore[misc]
             },
             'call': {'url_for'},
         },
+        'site_editor': {
+            'call': {'reorder_item', 'reorder_before', 'reorder_after'},
+        },
     }
     __datasets__ = {
         'primary': {

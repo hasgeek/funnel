@@ -7,13 +7,22 @@ from typing import TYPE_CHECKING, Optional
 from flask import abort, flash, render_template, request
 
 from baseframe import _
+from baseframe.forms import Form
 from baseframe.forms.auto import ConfirmDeleteForm
 from coaster.auth import current_auth
-from coaster.views import ModelView, UrlChangeCheck, UrlForView, route
+from coaster.utils import getbool
+from coaster.views import (
+    ModelView,
+    UrlChangeCheck,
+    UrlForView,
+    requestform,
+    requires_roles,
+    route,
+)
 
 from .. import app
 from ..forms import ProjectSponsorForm
-from ..models import Profile, Project, ProjectSponsorMembership, db
+from ..models import Profile, Project, ProjectSponsorMembership, db, sa
 from ..typing import ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_site_editor
@@ -84,6 +93,34 @@ class ProjectSponsorLandingView(
             action=self.obj.url_for('add_sponsor'),
             ref_id='add_sponsor',
         )
+
+    @route('sponsors/reorder', methods=['POST'])
+    @requires_roles({'site_editor'})
+    @requestform('target', 'other', ('before', getbool))
+    def reorder_sponsors(self, target: str, other: str, before: bool) -> ReturnView:
+        if Form().validate_on_submit():
+            sponsor: ProjectSponsorMembership = (
+                ProjectSponsorMembership.query.filter_by(uuid_b58=target)
+                .options(
+                    sa.orm.load_only(
+                        ProjectSponsorMembership.id, ProjectSponsorMembership.seq
+                    )
+                )
+                .one_or_404()
+            )
+            other_sponsor: ProjectSponsorMembership = (
+                ProjectSponsorMembership.query.filter_by(uuid_b58=other)
+                .options(
+                    sa.orm.load_only(
+                        ProjectSponsorMembership.id, ProjectSponsorMembership.seq
+                    )
+                )
+                .one_or_404()
+            )
+            sponsor.current_access().reorder_item(other_sponsor, before)
+            db.session.commit()
+            return {'status': 'ok'}
+        return {'status': 'error', 'error': 'csrf'}, 422
 
 
 ProjectSponsorLandingView.init_app(app)
