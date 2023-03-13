@@ -30,13 +30,13 @@ def edit_sponsor_form(obj):
 
 
 @Project.views('sponsors')
-@route('/<profile>/<project>/')
+@route('/<profile>/<project>/sponsors/')
 class ProjectSponsorLandingView(
     ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
 ):
     __decorators__ = [requires_login, requires_site_editor]
 
-    @route('sponsors/add', methods=['POST', 'GET'])
+    @route('add', methods=['POST', 'GET'])
     def add_sponsor(self) -> ReturnView:
         form = ProjectSponsorForm()
 
@@ -87,7 +87,7 @@ class ProjectSponsorLandingView(
             ref_id='add_sponsor',
         )
 
-    @route('sponsors/reorder', methods=['POST'])
+    @route('reorder', methods=['POST'])
     @requestform('target', 'other', ('before', getbool))
     def reorder_sponsors(self, target: str, other: str, before: bool) -> ReturnView:
         if not (current_auth.user and current_auth.user.is_site_editor):
