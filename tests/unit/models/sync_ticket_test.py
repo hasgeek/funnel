@@ -6,12 +6,140 @@ import pytest
 from coaster.utils import uuid_b58
 from funnel import models
 
-from .event_models_fixtures import (
-    event_ticket_types,
-    ticket_list,
-    ticket_list2,
-    ticket_list3,
-)
+# --- Fixture data
+
+event_ticket_types = [
+    {'title': 'SpaceCon', 'ticket_types': ['Conference', 'Combo']},
+    {'title': 'SpaceCon workshop', 'ticket_types': ['Workshop', 'Combo']},
+]
+
+ticket_list = [
+    {
+        'fullname': f'participant{str(1)}',
+        'email': f'participant{str(1)}@gmail.com',
+        'phone': '123',
+        'twitter': f'p{str(1)}',
+        'job_title': 'Engineer',
+        'company': 'Acme',
+        'city': 'Atlantis',
+        'ticket_no': f't{str(1)}',
+        'ticket_type': 'Combo',
+        'order_no': f'o{str(1)}',
+        'status': 'confirmed',
+    },
+    {
+        'fullname': f'participant{str(2)}',
+        'email': f'participant{str(2)}@gmail.com',
+        'phone': '123',
+        'twitter': f'p{str(2)}',
+        'job_title': 'Engineer',
+        'company': 'Acme',
+        'city': 'Atlantis',
+        'ticket_no': f't{str(2)}',
+        'ticket_type': 'Workshop',
+        'order_no': f'o{str(2)}',
+        'status': 'confirmed',
+    },
+    {
+        'fullname': f'participant{str(3)}',
+        'email': f'participant{str(3)}@gmail.com',
+        'phone': '123',
+        'twitter': f'p{str(3)}',
+        'job_title': 'Engineer',
+        'company': 'Acme',
+        'city': 'Atlantis',
+        'ticket_no': f't{str(3)}',
+        'ticket_type': 'Conference',
+        'order_no': f'o{str(3)}',
+        'status': 'confirmed',
+    },
+]
+
+ticket_list2 = [
+    {
+        'fullname': f'participant{str(1)}',
+        'email': f'participant{str(1)}@gmail.com',
+        'phone': '123',
+        'twitter': f'p{str(1)}',
+        'job_title': 'Engineer',
+        'company': 'Acme',
+        'city': 'Atlantis',
+        'ticket_no': f't{str(1)}',
+        'ticket_type': 'Combo',
+        'order_no': f'o{str(1)}',
+        'status': 'confirmed',
+    },
+    {
+        'fullname': f'participant{str(2)}',
+        'email': f'participant{str(2)}@gmail.com',
+        'phone': '123',
+        'twitter': f'p{str(2)}',
+        'job_title': 'Engineer',
+        'company': 'Acme',
+        'city': 'Atlantis',
+        'ticket_no': f't{str(2)}',
+        'ticket_type': 'Workshop',
+        'order_no': f'o{str(2)}',
+        'status': 'cancelled',
+    },
+    {
+        'fullname': f'participant{str(3)}',
+        'email': f'participant{str(3)}@gmail.com',
+        'phone': '123',
+        'twitter': f'p{str(3)}',
+        'job_title': 'Engineer',
+        'company': 'Acme',
+        'city': 'Atlantis',
+        'ticket_no': f't{str(3)}',
+        'ticket_type': 'Conference',
+        'order_no': f'o{str(3)}',
+        'status': 'confirmed',
+    },
+]
+
+ticket_list3 = [
+    {
+        'fullname': f'participant{str(1)}',
+        'email': f'participant{str(1)}@gmail.com',
+        'phone': '123',
+        'twitter': f'p{str(1)}',
+        'job_title': 'Engineer',
+        'company': 'Acme',
+        'city': 'Atlantis',
+        'ticket_no': f't{str(1)}',
+        'ticket_type': 'Combo',
+        'order_no': f'o{str(1)}',
+        'status': 'confirmed',
+    },
+    {
+        'fullname': f'participant{str(2)}',
+        'email': f'participant{str(2)}@gmail.com',
+        'phone': '123',
+        'twitter': f'p{str(2)}',
+        'job_title': 'Engineer',
+        'company': 'Acme',
+        'city': 'Atlantis',
+        'ticket_no': f't{str(2)}',
+        'ticket_type': 'Workshop',
+        'order_no': f'o{str(2)}',
+        'status': 'cancelled',
+    },
+    {
+        'fullname': f'participant{str(4)}',
+        'email': f'participant{str(4)}@gmail.com',
+        'phone': '123',
+        'twitter': f'p{str(4)}',
+        'job_title': 'Engineer',
+        'company': 'Acme',
+        'city': 'Atlantis',
+        'ticket_no': f't{str(3)}',
+        'ticket_type': 'Conference',
+        'order_no': f'o{str(3)}',
+        'status': 'confirmed',
+    },
+]
+
+# --- Tests and helpers
 
 
 def bulk_upsert(project, ticket_event_list):
