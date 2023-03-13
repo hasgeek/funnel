@@ -70,6 +70,8 @@
         sort: {
           url: '{{ project.url_for("reorder_proposals") }}',
           permission: {{ project.current_roles.editor|tojson }},
+          wrapperElem: '.proposal-list-table tbody',
+          placeholder: 'proposal-placeholder'
         },
       };
       {%- if project.view_for('cfp').is_available() %}
