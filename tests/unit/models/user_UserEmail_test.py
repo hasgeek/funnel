@@ -5,7 +5,7 @@ import pytest
 
 from funnel import models
 
-from .test_db import TestDatabaseFixture
+from .db_test import TestDatabaseFixture
 
 
 class TestUserEmail(TestDatabaseFixture):

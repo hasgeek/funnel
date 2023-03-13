@@ -604,7 +604,7 @@ def test_phone_number_mixin(  # pylint: disable=too-many-locals,too-many-stateme
     with pytest.raises(IntegrityError):
         db_session.commit()
 
-    del link3
+    del link3  # skipcq: PTC-W0043
     db_session.rollback()
 
     # The PhoneDocument model, in contrast, has no requirement of availability to a
