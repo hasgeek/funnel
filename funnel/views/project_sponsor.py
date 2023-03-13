@@ -90,7 +90,7 @@ class ProjectSponsorLandingView(
     @route('sponsors/reorder', methods=['POST'])
     @requestform('target', 'other', ('before', getbool))
     def reorder_sponsors(self, target: str, other: str, before: bool) -> ReturnView:
-        if not current_auth.user.is_site_editor:
+        if not (current_auth.user and current_auth.user.is_site_editor):
             abort(403)
         if Form().validate_on_submit():
             sponsor: ProjectSponsorMembership = (
