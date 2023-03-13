@@ -57,6 +57,9 @@ deps-editable:
 deps-python: deps-editable
 	pip-compile-multi --backtracking --use-cache
 
+deps-python-noup:
+	pip-compile-multi --backtracking --use-cache --no-upgrade
+
 deps-python-rebuild: deps-editable
 	pip-compile-multi --backtracking
 
