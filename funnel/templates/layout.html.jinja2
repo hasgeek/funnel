@@ -131,13 +131,13 @@
                       <span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
                     </a>
                     <form action="{{ url_for('search') }}"
-                          class="search-form js-search-form">
+                        class="search-form js-search-form">
                       <input type="text"
-                            name="q"
-                            aria-label="{% trans %}Search the site{% endtrans %}"
-                            placeholder="{% trans %}Search…{% endtrans %}"
-                            class="search-form__field js-search-field"
-                            id="header-search"/>
+                          name="q"
+                          aria-label="{% trans %}Search this site{% endtrans %}"
+                          placeholder="{% trans %}Search…{% endtrans %}"
+                          class="search-form__field js-search-field"
+                          id="header-search"/>
                       {{ faicon(icon='search', baseline=false, css_class="search-form__field__icon") }}
                       <input type="text" name="type" value="project" hidden />
                       <button type="submit" class="search-form__submit"></button>

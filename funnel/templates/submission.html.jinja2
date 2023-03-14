@@ -29,9 +29,8 @@
     class="hg-link-btn mui--hide mui--text-dark"
     data-ga="Share dropdown"
     data-cy="share-project"
-    data-url="{{ proposal.url_for(_external=true, utm_campaign='webshare') }}">
-    {{ faicon(icon='share-alt', icon_size=icon_size, baseline=false, css_class="mui--align-middle") }}
-  </a>
+    data-url="{{ proposal.url_for(_external=true, utm_campaign='webshare') }}"
+    aria-label="{% trans %}Share{% endtrans %}">{{ faicon(icon='share-alt', icon_size=icon_size, baseline=false, css_class="mui--align-middle") }}</a>
   <div class="mui-dropdown">
     <a href="#"
       onclick="return false;"
@@ -53,7 +52,13 @@
         class="mui--text-dark"
         data-mui-toggle="dropdown"
         data-ga="Subscribe"
-        data-cy="subscribe-proposal">
+        data-cy="subscribe-proposal"
+        aria-label="
+          {%- if subscribed -%}
+            {% trans %}Unsubscribe{% endtrans %}
+          {%- else -%}
+            {% trans %}Subscribe{% endtrans %}
+          {%- endif -%}">
         {%- if subscribed -%}
           {{ faicon(icon='bell', icon_size='title', baseline=false, css_class="mui--align-middle fa-icon--left-margin js-subscribed mui--hide") }}
           {{ faicon(icon='bell-solid', icon_size='title', baseline=false, css_class="mui--align-middle fa-icon--left-margin js-unsubscribed") }}
@@ -114,8 +119,7 @@
           <li>
             <a class="mui--text-subhead"
               href="{{ proposal.url_for('edit') }}#field-video_url"
-              data-cy="edit-proposal-video"
-              aria-label="{% trans %}Add proposal video{% endtrans %}">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">
+              data-cy="edit-proposal-video">{{ faicon(icon='video-plus', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">
               {%- if proposal.views.video -%}
                 {% trans %}Replace video{% endtrans %}
               {%- else -%}
@@ -283,7 +287,8 @@
                   <a class="display-inlineblock"
                     role="tab"
                     data-mui-toggle="tab"
-                    data-mui-controls="pane-justified-{{ seq }}">
+                    data-mui-controls="pane-justified-{{ seq }}"
+                    aria-label="{% trans %}Play video{% endtrans %}">
                     <img src="{{ proposal.session.views.video.thumbnail }}"
                         class="img-responsive"
                         data-cy="session-video-thumbnail"

@@ -193,7 +193,7 @@
           {% endif %}
         {% endif %}
         {%- if snippet_html %}
-          <p class="mui--text-body2 mui--text-light zero-top-margin search-snippets">{{ faicon (icon='search', css_class="search-icon", baseline=false) }} {{ snippet_html }}</p>
+          <p class="mui--text-body2 mui--text-light zero-top-margin search-snippets">{{ faicon(icon='search', css_class="search-icon", baseline=false) }} {{ snippet_html }}</p>
         {% endif %}
         {%- if include_details %}
           <div class="card__body__location mui--text-light">{% if project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if project.primary_venue.city %}{{ project.primary_venue.city }}{% else %}{{ project.primary_venue.title }}{% endif %}{% elif project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ project.location }}{% endif %}</div>
@@ -452,7 +452,7 @@
                   <span class="profile__logo__nologo">{{ faicon(icon='user-solid', css_class="profile__logo__icon") }}</span>
                 {% endif %}
                 {%- if profile.current_roles.admin %}
-                  <a href="{{ profile.url_for('update_logo') }}" class="profile__logo__upload mui--text-dark js-modal-form" rel="modal:open" data-hash="edit_logo" role="button" aria-haspopup="true">{{ faicon(icon='camera', baseline=false, icon_size='body2', css_class="profile__logo__upload__icon") }}</a>
+                  <a href="{{ profile.url_for('update_logo') }}" class="profile__logo__upload mui--text-dark js-modal-form" rel="modal:open" data-hash="edit_logo" role="button" aria-haspopup="true" aria-label="{% trans %}Update logo{% endtrans %}">{{ faicon(icon='camera', baseline=false, icon_size='body2', css_class="profile__logo__upload__icon") }}</a>
                 {% endif %}
                 <div class="mui--hidden-xs mui--hidden-sm profile__logo__details">
                   <h2 class="mui--text-dark text-bold zero-bottom-margin"><a class="mui--text-dark" data-cy="profile-title" href="{{ profile.url_for() }}">{{ profile.title }}</a></h2>
@@ -813,7 +813,7 @@
       <h3 class="mui--text-subhead text-bold top-padding margin-bottom mui--text-center">{{ profile.title }}</h3>
       <div class="markdown js-truncate mui--text-center mui--text-caption mui--text-light bottom-padding" data-truncate-lines="3">{{ profile.tagline or profile.description }}</div>
       {%- if snippet_html %}
-        <p class="mui--text-body2 mui--text-light zero-top-margin search-snippets">{{ faicon (icon='search', css_class="search-icon", baseline=false) }} {{ snippet_html }}</p>
+        <p class="mui--text-body2 mui--text-light zero-top-margin search-snippets">{{ faicon(icon='search', css_class="search-icon", baseline=false) }} {{ snippet_html }}</p>
       {% endif %}
       <div class="profile-card__btn-wrapper">
         <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans tcount=profile.published_project_count, count=profile.published_project_count|numberformat %}One project{% pluralize tcount %}{{ count }} projects{% endtrans %}</p>

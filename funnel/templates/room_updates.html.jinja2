@@ -7,40 +7,40 @@
 
 {% block basecontent %}
 <div id="room_updates">
-	{# djlint:off #}<div id="room" {% if room.bgcolor %} style="border-bottom-color: #{{ room.bgcolor }}"{% endif %}>{# djlint:on #}
-		{{ room.title }}
-	</div>
-	{% if current %}
-		<div id="current-title">{{ current.title }} —{{ current.speaker }}</div>
-		<div id="current" class="details">
-			<div class="time">{{ current.start_at|time }} - {{ current.end_at|time }}</div>
-			<div class="title">{{ current.title }}</div>
-			{% if current.speaker %}
-				<div class="speaker">{{ current.speaker }}</div>
-			{% endif %}
-		</div>
-	{% else %}
-		<div id="current-title"></div>
-	{% endif %}
-	{% if next_session %}
-		<div id="next" class="details">
-			<div class="nextlabel">{% trans %}Next{% endtrans %}</div>
-			<div class="timetitle">
-				<div class="time">
-					{% if nextdiff >= 1 and nextdiff < 2 %}{% trans %}Tomorrow{% endtrans %} {% endif %}
-					{% if nextdiff >= 2 %}next_session.start_at|time{% endif %}
-					{{ next_session.start_at|time }} – {{ next_session.end_at|time }}
-				</div>
-				<div class="title">{{ next_session.title }}</div>
-			</div>
-			{% if next_session.speaker %}
-				<div class="speaker">{{ next_session.speaker }}</div>
-			{% endif %}
-		</div>
-	{% endif %}
+  {# djlint:off #}<div id="room" {% if room.bgcolor %} style="border-bottom-color: #{{ room.bgcolor }}"{% endif %}>{# djlint:on #}
+    {{ room.title }}
+  </div>
+  {% if current %}
+    <div id="current-title">{{ current.title }} —{{ current.speaker }}</div>
+    <div id="current" class="details">
+      <div class="time">{{ current.start_at|time }} - {{ current.end_at|time }}</div>
+      <div class="title">{{ current.title }}</div>
+      {% if current.speaker %}
+        <div class="speaker">{{ current.speaker }}</div>
+      {% endif %}
+    </div>
+  {% else %}
+    <div id="current-title"></div>
+  {% endif %}
+  {% if next_session %}
+    <div id="next" class="details">
+      <div class="nextlabel">{% trans %}Next{% endtrans %}</div>
+      <div class="timetitle">
+        <div class="time">
+          {% if nextdiff >= 1 and nextdiff < 2 %}{% trans %}Tomorrow{% endtrans %} {% endif %}
+          {% if nextdiff >= 2 %}next_session.start_at|time{% endif %}
+          {{ next_session.start_at|time }} – {{ next_session.end_at|time }}
+        </div>
+        <div class="title">{{ next_session.title }}</div>
+      </div>
+      {% if next_session.speaker %}
+        <div class="speaker">{{ next_session.speaker }}</div>
+      {% endif %}
+    </div>
+  {% endif %}
 </div>
 {% endblock basecontent %}
 
 {% block footerscripts %}
-	{{ super() }}
+  {{ super() }}
 {% endblock footerscripts %}

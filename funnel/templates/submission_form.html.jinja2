@@ -49,7 +49,7 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-sm-12">
-            {{ renderfield(form.title, css_class="mui-form__fields--noborder", nolabel=true, placeholder="Title") }}
+            {{ renderfield(form.title, css_class="mui-form__fields--noborder", nolabel=true, placeholder=_("Title")) }}
             <div class="submission-header__edit-icons bottom-padding">
               {%- if form.formlabels %}
                 <div class="bottom-padding submission-label">
@@ -107,7 +107,7 @@
           </div>
           <div class="grid__col-sm-6 proposal-markdown" id="markdown">
             <p class="mui--text-body2 mui--text-light text-bold text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Markdown{% endtrans %}</p>
-            {{ renderfield(form.body, css_class="mui-form__fields--noborder markdown-field", nolabel=true, placeholder="Content") }}
+            {{ renderfield(form.body, css_class="mui-form__fields--noborder markdown-field", nolabel=true, placeholder=_("Content")) }}
           </div>
           <div class="grid__col-sm-6">
             <p class="mui--text-body2 mui--text-light text-bold text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Preview{% endtrans %}</p>

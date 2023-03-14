@@ -28,7 +28,7 @@
       </div>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-4 grid__col-md-6 grid__col-lg-3">
-      <h3 class="mui--text-title">{{ ticket_event.title }}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" arial-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead') }}</a></h3>
+      <h3 class="mui--text-title">{{ ticket_event.title }}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead') }}</a></h3>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-8 grid__col-md-6 grid__col-lg-9">
       {{ checkin_count() }}
@@ -36,7 +36,7 @@
     <div class="grid__col-xs-12 grid__col-md-4">
       <form class="display-inlineblock search search--small search--icon mui--z1">
         <div class="textfield">
-          <input class="search-query" id="search" type="text" name="key" value="" placeholder="Search"/>{{ faicon(icon='search', css_class="search-form__icon")}}
+          <input class="search-query" id="search" type="text" name="key" value="" placeholder="{% trans %}Search{% endtrans %}"/>{{ faicon(icon='search', css_class="search-form__icon")}}
         </div>
       </form>
     </div>
