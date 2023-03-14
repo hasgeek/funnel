@@ -19,15 +19,15 @@
 
 <p>
   {%- if query %}
-    {%- trans tcount=total_comments, count=total_comments|numberformat, query=query %}
+    {%- trans tcount=total_comments, count=total_comments|numberformat, query=query -%}
       Only {{ count }} comment for “{{ query }}”
-    {%- pluralize tcount %}
+    {%- pluralize tcount -%}
       Total {{ count }} comments for “{{ query }}”
     {%- endtrans -%}
   {% else %}
-    {%- trans tcount=total_comments, count=total_comments|numberformat %}
+    {%- trans tcount=total_comments, count=total_comments|numberformat -%}
       Only {{ count }} comment
-    {%- pluralize tcount %}
+    {%- pluralize tcount -%}
       Total {{ count }} comments
     {%- endtrans -%}
   {%- endif %}

@@ -103,10 +103,6 @@
         "इस ईमेल पते की पुष्टि अभी बाकी है"
       ],
       "Email address": ["ईमेल पता"],
-      "Type": ["प्रकार"],
-      "Home": ["मुखपृष्ठ"],
-      "Work": ["व्यवसाय"],
-      "Other": ["अन्य"],
       "Phone number": ["फोन नंबर"],
       "Mobile numbers only, in Indian or international format": [
         "केवल मोबाइल नंबर, भारतीय या अंतर्राष्ट्रीय फॉर्मेट में"
@@ -114,18 +110,6 @@
       "Send notifications by SMS": ["SMS द्वारा नोटिफिकेशन भेजें"],
       "Unsubscribe anytime, and control what notifications are sent from the Notifications tab under account settings": [
         "कभी भी सदस्यता समाप्त करें, और कौन सी नोटिफिकेशन भेजी जाती हैं, इसे खाता सेटिंग के तहत नोटिफिकेशन टैब से नियंत्रित करें"
-      ],
-      "This phone number cannot receive SMS messages": [
-        "यह फोन नंबर SMS मैसेज प्राप्त नहीं कर सकता है"
-      ],
-      "This does not appear to be a valid phone number": [
-        "यह एक मान्य फोन नंबर प्रतीत नहीं होता है"
-      ],
-      "You have already registered this phone number": [
-        "आपने इस फोन नंबर को पहले ही रजिस्टर कर लिया है"
-      ],
-      "This phone number has already been claimed": [
-        "यह फोन नंबर पहले से ही इस्तेमाल में है"
       ],
       "Report type": ["रिपोर्ट टाइप"],
       "Application title": ["ऐप्लिकेशन का शीर्षक"],
@@ -175,9 +159,7 @@
       "Select a team to assign permissions to": ["अनुमति देने के लिए टीम का चयन करें"],
       "Unknown team": ["अज्ञात टीम"],
       "Get notifications": [""],
-      "This email address has been claimed by someone else": [
-        "इस ईमेल पते का इस्तेमाल किसी और के द्वारा किया जा चुका है"
-      ],
+      "This email address is linked to another account": [""],
       "This email address is already registered. You may want to try logging in or resetting your password": [
         "यह ईमेल पता पहले से रजिस्टर है. आपको लॉगिन करनी चाहिए या फिर अपने पासवर्ड को रीसेट करनी चाहिए"
       ],
@@ -196,13 +178,29 @@
       "This email address is no longer valid. If you believe this to be incorrect, email {support} asking for the address to be activated": [
         "यह ईमेल पता अब वैध नहीं है. अगर फिर भी आपको ये गलत लगता है, तो इस पते को सक्रिय करने के लिए {support} को ईमेल भेजें"
       ],
+      "This email address has been blocked from use": [""],
       "You or someone else has made an account with this email address but has not confirmed it. Do you need to reset your password?": [
         "आपने या किसी और ने इसे ईमेल पते से एक अकाउंट बनाया था, पर उसकी पुष्टि नहीं की है. क्या आप अपना पासवर्ड रीसेट करना चाहेंगे?"
       ],
+      "This phone number cannot receive SMS messages": [
+        "यह फोन नंबर SMS मैसेज प्राप्त नहीं कर सकता है"
+      ],
+      "This does not appear to be a valid phone number": [
+        "यह एक मान्य फोन नंबर प्रतीत नहीं होता है"
+      ],
+      "This phone number is linked to another account": [""],
+      "This phone number is already registered. You may want to try logging in or resetting your password": [
+        ""
+      ],
+      "You have already registered this phone number": [
+        "आपने इस फोन नंबर को पहले ही रजिस्टर कर लिया है"
+      ],
+      "This phone number has been blocked from use": [""],
       "A https:// URL is required": ["https:// URL आवश्यक है"],
       "Images must be hosted at images.hasgeek.com": [
         "तस्वीरें images.hasgeek.com पर होस्ट की जानी चाहिए"
       ],
+      "This video URL is not supported": [""],
       "Label": ["लेबल"],
       "This can’t be empty": ["इसे खाली न छोड़ें"],
       "Make this label mandatory in submission forms": [""],
@@ -214,7 +212,6 @@
         "अगर चुना गया, तो केवल संपादक और समीक्षक ही प्रस्ताव में इस लेबल का उपयोग कर सकते हैं"
       ],
       "Option": ["विकल्प"],
-      "This email address has been blocked from use": [""],
       "This account could not be identified. Try with a phone number or email address": [
         ""
       ],
@@ -342,6 +339,15 @@
       "Disabled this WhatsApp notification": [
         "यह WhatsApp नोटिफिकेशन अक्षम कर दिया गया"
       ],
+      "Signal": [""],
+      "To enable, add your Signal number": [""],
+      "Notify me on Signal (beta)": [""],
+      "Uncheck this to disable all Signal notifications": [""],
+      "Signal notifications": [""],
+      "Enabled selected Signal notifications": [""],
+      "Enabled this Signal notification": [""],
+      "Disabled all Signal notifications": [""],
+      "Disabled this Signal notification": [""],
       "Notify me": ["सूचित करें"],
       "Uncheck this to disable all notifications": [
         "सभी नोटिफिकेशन अक्षम करने के लिए इसे चिन्हित से हटाएं"
@@ -482,6 +488,8 @@
       "Item collection id": [""],
       "Allow rsvp": [""],
       "If checked, both free and buy tickets will shown on project": [""],
+      "This is a subscription": [""],
+      "If not checked, buy tickets button will be shown": [""],
       "Badge template URL": ["बैच टेम्पलेट URL"],
       "Name": ["नाम"],
       "Client id": ["क्लाइंट आईडी"],
@@ -575,7 +583,7 @@
       "My subscriptions and billing": ["मेरे सदस्यता और बिल"],
       "Projects I am participating in": ["मेरे द्वारा भाग लिए प्रोजेक्ट"],
       "Projects I am a crew member in": ["प्रोजेक्ट, जिनमें मैं दल का हिस्सा हूं"],
-      "Organizations I manage": ["मेरे द्वारा प्रबंधित संगठन"],
+      "Accounts I manage": [""],
       "As a website administrator": ["वेबसाइट एडमिनिस्ट्रेटर के तौर पर"],
       "Queued": ["श्रेणीबद्ध"],
       "Pending": ["लंबित"],
@@ -591,48 +599,34 @@
       "This will prompt a calendar entry in Gmail and other apps": [
         "यह Gmail तथा अन्य एप्स में कैलेंडर एंट्री के लिए सूचना देगा"
       ],
-      "When I cancel my registration": ["जब मैं अपना पंजीकरण रद्द करूं"],
-      "Confirmation for your records": ["आपके रिकॉर्ड के लिए पुष्टि"],
       "When a project posts an update": ["जब किसी प्रोजेक्ट की कुछ खबर दी जाए"],
       "Typically contains critical information such as video conference links": [
         "खासतौर से महत्वपूर्ण जानकारी होते हैं जैसे कि वीडियो कॉन्फ्रेंस के लिंक"
       ],
       "When I submit a proposal": ["जब मैं कोई प्रस्ताव भेजूं"],
+      "Confirmation for your records": ["आपके रिकॉर्ड के लिए पुष्टि"],
       "When a project I’ve registered for is about to start": [
         "जब मेरे द्वारा पंजीकृत कोई प्रोजेक्ट शुरू होने वाला हो"
       ],
       "You will be notified 5-10 minutes before the starting time": [
         "आपको शुरू होने के 5-10 मिनट पहले सूचित किया जाएगा"
       ],
-      "When there is a new comment on a project or proposal I’m in": [
-        "जब मेरे द्वारा शामिल किसी प्रोजेक्ट या प्रस्ताव में कोई नई कमेंट की जाए"
-      ],
-      "When someone replies to my comment": ["जब कोई मेरे मेरे कमेंट का जवाब दे"],
-      "When a project crew member is added, or roles change": [
-        "जब प्रोजेक्ट के दल में किसी सदस्य को जोड़ा जाए या भूमिका बदली जाए"
-      ],
-      "Crew members have access to the project’s controls": [
-        "दल के सदस्य के पास प्रोजेक्ट के नियंत्रणों को बदलने का एक्सेस होता है"
-      ],
-      "When a project crew member is removed, including me": [
-        "मेरे सहित, जब प्रोजेक्ट के दल के किसी सदस्य को हटाया जाए"
-      ],
+      "When there is a new comment on something I’m involved in": [""],
+      "When someone replies to my comment or mentions me": [""],
+      "When a project crew member is added or removed": [""],
+      "Crew members have access to the project’s settings and data": [""],
       "When my project receives a new proposal": [
         "जब मेरे प्रोजेक्ट में कोई नया प्रस्ताव आए"
       ],
       "When someone registers for my project": [
         "जब कोई मेरे प्रोजेक्ट के लिए पंजीकृत हो"
       ],
-      "When organization admins change": ["जब संगठन का कोई एडमिन बदले"],
-      "Organization admins control all projects under the organization": [
-        "संगठन के एडमिन उसमें मौजूद सभी प्रोजेक्ट का नियंत्रण रखते हैं"
-      ],
-      "When an organization admin is removed, including me": [
-        "मेरे सहित, जब संगठन के किसी एडमिन को हटाया जाए"
-      ],
+      "When account admins change": [""],
+      "Account admins control all projects under the account": [""],
       "When a comment is reported as spam": [
         "जब किसी कमेंट को स्पैम जैसा रिपोर्ट किया जाए"
       ],
+      "[blocked]": [""],
       "Autogenerated": ["स्वचालित"],
       "Public": ["सार्वजनिक"],
       "Private": ["निजी"],
@@ -709,7 +703,10 @@
       "Suspended": ["निलंबित"],
       "Merged": ["संयोजित"],
       "Invited": ["आमंत्रित"],
-      "This must be a shareable URL for a single file in Google Drive": [""],
+      "timeFormat": [""],
+      "dragOpacity": [""],
+      "dragRevertDuration": [""],
+      "defaultEventMinutes": [""],
       "${}": [""],
       ".": [""],
       "@": [""],
@@ -734,7 +731,7 @@
         ""
       ],
       "About Hasgeek": ["Hasgeek का परिचय"],
-      "It’s 2022, and the world as we know it is slightly upturned. Meeting new people and geeking-out about your passion has become harder than it used to be. These special interactions that drive us to do new things and explore new ideas also need a new place. It’s time to rebuild everything. Join us.": [
+      "In the post-pandemic world, meeting new people and geeking-out about your passion has become harder than it used to be. These special interactions that drive us to do new things and explore new ideas also need a new place. It’s time to rebuild everything. Join us.": [
         ""
       ],
       "Find your peers": ["अपने साथियों को ढूंढें"],
@@ -749,7 +746,9 @@
       "Subscribe to your favourite communities and make sure you never miss a conversation or an opportunity to collaborate.": [
         "अपने पसंदीदा समुदायों की सदस्यता लें और किसी भी संवाद या संग काम करने के अवसर को हाथ से जाने न दें."
       ],
+      "Add username": [""],
       "Go to account": ["अकाउंट पर जाएँ"],
+      "Info": [""],
       "(none)": ["(कोई भी नहीं)"],
       "From device": ["इस डिवाइस से"],
       "Edit": ["संपादित करें"],
@@ -763,6 +762,7 @@
       "Email addresses": ["ईमेल पते"],
       "Primary": ["प्राथमिक"],
       "(pending verification)": ["(वेरीफिकेशन बाकी है)"],
+      "Set as primary email": [""],
       "Set as primary": ["प्राथमिक बनाएं"],
       "Add an email address": ["अन्य ईमेल पता जोड़ें"],
       "Mobile numbers": ["मोबाइल नंबर"],
@@ -773,6 +773,7 @@
         "%(since)s से स्थापित – आखरी बार इस्तेमाल %(last_used)s"
       ],
       "Since %(since)s": ["%(since)s से स्थापित"],
+      "Disconnect": ["डिसकनेक्ट करें"],
       "Login sessions": ["लॉगिन सेशन"],
       "%(browser)s on %(device)s": [""],
       "Since %(since)s via %(login_service)s – last active %(last_active)s": [
@@ -788,7 +789,6 @@
       "Cookies are required to login. Please enable cookies in your browser’s settings and reload this page": [
         "लॉगिन के लिए कुकीज़ की आवश्यक हैं. कृपया अपने ब्राउज़र के सेटिंग्स में जाकर कुकीज़ को सक्षम करें और इस पेज को फिर से लोड करें"
       ],
-      "Add username": [""],
       "Organizations": ["संगठन"],
       "%(count)s more": [""],
       "Account settings": [""],
@@ -823,7 +823,6 @@
       "Your access token": ["आपका एक्सेस टोकन"],
       "Created": ["निर्मित"],
       "Last used": ["अंतिम उपयोग"],
-      "Disconnect": ["डिसकनेक्ट करें"],
       "Access keys": ["एक्सेस कीज़"],
       "Purpose": ["उद्देश्य"],
       "Key": ["की (कुंजी)"],
@@ -859,6 +858,7 @@
       ],
       "Error": ["त्रुटी"],
       "Error URI": ["त्रुटी URI"],
+      "Badge": [""],
       "Visible": [""],
       "Collaborator menu": [""],
       "Add collaborator": [""],
@@ -869,6 +869,7 @@
       "Download CSV": ["CSV डाउनलोड करें"],
       "CSV": ["CSV"],
       "Download contacts CSV": ["कॉन्टैक्ट की CSV फाइल डाउनलोड करें"],
+      "Download contact": [""],
       "This form timed out because it was open for a long time. Please submit again": [
         "इस फॉर्म की समय सीमा समाप्त हो गई क्योंकि यह काफी देर से खुली हुई थी. कृपया दोबारा जमा करें"
       ],
@@ -885,20 +886,15 @@
       "Confirm your email address": ["अपने ईमेल पते की पुष्टि करें"],
       "Hello!": [""],
       "This login OTP is valid for 15 minutes.": [""],
-      "\n    %(actor)s has added you to ‘%(project)s’ as a crew member.\n  ": [
-        "\n    %(actor)s ने आपको ‘%(project)s’ दल के सदस्य के रूप में जोड़ा है.\n  "
-      ],
-      "See all crew members": ["दल के सभी सदस्यों को देखें"],
-      "\n    %(actor)s has invited you to join ‘%(project)s’ as a crew member.\n  ": [
-        "\n    %(actor)s ने आपको दल के सदस्य के रूप में ‘%(project)s’ में शामिल होने के लिए आमंत्रित किया है.\n  "
-      ],
-      "Accept or decline invite": ["आमंत्रण को स्वीकार करें या अस्वीकारें"],
-      "\n    %(actor)s has removed you as a crew member from ‘%(project)s’.\n  ": [
-        "\n    %(actor)s ने आपको ‘%(project)s’ के दल के सदस्य से हटा दिया है.\n  "
-      ],
       "You are about to perform a critical action. This OTP serves as your confirmation to proceed and is valid for 15 minutes.": [
         ""
       ],
+      "Enter a location": [""],
+      "Clear location": [""],
+      "switch to alphabet keyboard": [""],
+      "switch to numeric keyboard": [""],
+      "Show password": [""],
+      "Hide password": [""],
       "This form has timed out. Please submit again to confirm": [
         "इस फॉर्म की समय सीमा समाप्त हो चुकी है. पुष्टि के लिए कृपया दोबारा से जमा करें"
       ],
@@ -908,6 +904,7 @@
       "Spotlight:": ["सुर्खियां:"],
       "What’s this about?": [""],
       "Explore communities": [""],
+      "Label badge": [""],
       "Manage labels": ["लेबल संपादित करें"],
       "Create new label": ["नया लेबल बनाएं"],
       "(No labels)": ["(कोई लेबल नहीं है)"],
@@ -916,8 +913,10 @@
       "Please review the indicated issues": [
         "कृपया दर्शाए गए समस्याओं की समीक्षा करें"
       ],
+      "Add option": [""],
       "Done": [""],
-      "Search the site": ["साइट पर खोजें"],
+      "Home": ["मुखपृष्ठ"],
+      "Search this site": [""],
       "Search…": ["खोजें…"],
       "Search": ["खोजें"],
       "Updates": ["अपडेट"],
@@ -926,6 +925,7 @@
       "Login": ["लॉगिन"],
       "Tell us where you’d like to get updates. We’ll send an OTP to confirm.": [""],
       "Or, use your existing account, no OTP required": [""],
+      "Login beacon": [""],
       "Logging out…": ["लॉग आउट हो रहा है…"],
       "Login to save this project": [""],
       "Save this project": [""],
@@ -933,6 +933,7 @@
       "Copy link": ["लिंक कॉपी करें"],
       "Facebook": ["Facebook"],
       "Preview video": ["प्रीव्यू वीडियो"],
+      "Powered by VideoKen": [""],
       "Edit submission video": ["सबमिशन से जुड़ा वीडियो संपादित करें"],
       "Edit session video": ["सेशन का वीडियो संपादित करें"],
       "Share": ["साझा करें"],
@@ -971,6 +972,7 @@
       "Back to the account": ["अकाउंट में वापस जाएं"],
       "Add cover photo url": ["कवर फोटो का URL जोड़ें"],
       "Add cover photo": ["कवर फोटो जोड़ें"],
+      "Update logo": [""],
       "New project": ["नया प्रोजेक्ट"],
       "Make account public": ["अकाउंट को सार्वजनिक बनाएं"],
       "Make this account public?": ["इस अकाउंट को सार्वजनिक बनाएं?"],
@@ -992,6 +994,7 @@
       "Supported by": [""],
       "Video thumbnail": [""],
       "more": [""],
+      "%(count)s comment": [""],
       "This proposal has a preview video": [
         "इस प्रस्ताव के साथ एक प्रीव्यू वीडियो मौजूद है"
       ],
@@ -1088,8 +1091,6 @@
       ],
       "Update livestream URLs": ["लाइवस्ट्रीम URLs को बदलें"],
       "Update banner image": ["बैनर इमेज को बदलें"],
-      "Free updates": [""],
-      "Free": [""],
       "Register": ["रजिस्टर करें"],
       "This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time": [
         ""
@@ -1101,32 +1102,37 @@
       "Can’t make it?": ["आप मदद नहीं कर सकते?"],
       "Confirm cancellation": ["रद्द करने की पुष्टि करें"],
       "View participants": ["प्रतिभागियों को देखें"],
-      "Get Tickets": [""],
-      "Tickets available": [""],
       "Sales closed": [""],
-      "More options": [""],
+      "Get a subscription": [""],
       "Get tickets": ["टिकट पाएं"],
       "Share this project": [""],
+      "Add to calendar": [""],
+      "Site editor menu": [""],
+      "Featured projects appear under Spotlight on the home page": [""],
+      "Add sponsor": [""],
       "Menu": [""],
       "Edit URL": [""],
       "Edit description": [""],
       "Settings": ["सेटिंग्स"],
       "Update venue": ["ईवेंट का स्थान अपडेट करें"],
-      "Site editor menu": [""],
-      "Featured projects appear under Spotlight on the home page": [""],
-      "Add sponsor": [""],
       "This project is not published. Visit settings to publish": [""],
       "Related events": ["सम्बंधित ईवेंट"],
       "Add schedule": [""],
       "Hosted by": [""],
+      "Edit sponsor": [""],
+      "Remove sponsor": [""],
       "Promoted": [""],
       "Project overview": [""],
       "Jobs": ["नौकरियां"],
       "Crew": ["दल"],
+      "Email/Phone": [""],
+      "Responded at": [""],
       "(Unverified)": [""],
+      "No users": [""],
       "%(title)s by %(speaker)s, %(project)s": [
         "%(speaker)s, %(project)s के द्वारा ‘%(title)s’"
       ],
+      "%(title)s, %(project)s": [""],
       "Edit schedule": ["कार्यक्रम को संपादित करें"],
       "Project status: %(status)s": [""],
       "Edit guidelines and timing": [""],
@@ -1148,6 +1154,7 @@
       "Badge scanner": [""],
       "Scan participant badges at in-person events": [""],
       "expand": [""],
+      "Search titles…": [""],
       "Add new update": ["नई जानकारी डालें"],
       "Post an update…": ["नई जानकारी पोस्ट करें…"],
       "This project has not posted any updates yet": [
@@ -1155,8 +1162,8 @@
       ],
       "No videos": [""],
       "Next": ["आगे"],
-      "Tomorrow ": [""],
       "Select date": ["डेट चुनें"],
+      "yyyy-mm-dd": [""],
       "Select a date to add sessions": ["सेशन जोड़ने के लिए डेट चुनें"],
       "Unscheduled submissions": [""],
       "Revert": ["वापस करें"],
@@ -1164,6 +1171,9 @@
       "Subscribe to the schedule": ["कार्यक्रम को सूचीपत्र में जोड़ें"],
       "Download": ["डाउनलोड करें"],
       "Add to Google Calendar": ["Google Calendar में जोड़ें"],
+      "in": [""],
+      "at": [""],
+      "on": [""],
       "edited %(date)s": [""],
       "This session has not been scheduled yet": [
         "इस सेशन की समय-सूची अभी नहीं बनाई गई है"
@@ -1173,21 +1183,21 @@
       "Add session video": ["सेशन की वीडियो जोड़ें"],
       "View submission for this session": [""],
       "Query": ["सवाल"],
-      "\n      Only %(total_comments)s comment for \"%(query)s\"": [
-        "\n      “%(query)s” के लिए केवल %(total_comments)s कमेंट"
-      ],
-      "\n      Only %(total_comments)s comment": [
-        "\n      केवल %(total_comments)s कमेंट"
-      ],
+      "Only %(count)s comment for “%(query)s”": [""],
+      "Only %(count)s comment": [""],
       "Comment": ["कमेंट"],
+      "Link": [""],
       "No comment available": ["कोई कमेंट मौजूद नहीं है"],
+      "Report spam": [""],
+      "Site admin": [""],
       "Review comments": ["कमेंट की समीक्षा करें"],
       "This comment has been reported as spam": [
         "यह कमेंट पैम के तौर पर रिपोर्ट की गई है"
       ],
+      "Unsubscribe": [""],
+      "Subscribe": [""],
       "Stop notifications": [""],
       "Edit submission": [""],
-      "Add proposal video": ["प्रस्ताव का वीडियो जोड़ें"],
       "Replace video": [""],
       "Add video": ["वीडियो जोड़ें"],
       "Editor panel": [""],
@@ -1198,22 +1208,26 @@
       "This submission has been added to the schedule": [""],
       "No video": ["कोई वीडियो नहीं है"],
       "Session video": ["सेशन वीडियो"],
+      "Play video": [""],
       "Submission video": [""],
       "Submitted %(date)s ": ["%(date)s को सबमिट "],
       "Change status of proposal": ["प्रस्ताव की स्थिति बदलें"],
       "Move": ["दूसरी जगह भेजें"],
       "Back to edit proposal": [""],
-      "Markdown": [""],
       "Preview": [""],
       "Add labels to submission": [""],
-      "Select a relevant label": [""],
+      "This value is required": [""],
       "Add video url": [""],
-      "Link a video": [""],
       "Collaborators": [""],
       "Manage collaborators": [""],
       "Add new collaborator": [""],
+      "Markdown": [""],
       "Setup events": ["ईवेंट सेटअप करें"],
       "Back to setup events": ["ईवेंट सेटअप पर वापस जाएं"],
+      "Badges to be printed": [""],
+      "Label badges to be printed": [""],
+      "Badges printed": [""],
+      "Actions": [""],
       "Manage check-in": ["चेक-इन प्रबंधित करें"],
       "Select an event to check-in attendees": [
         "प्रतिभागियों को चेक-इन करने के लिए एक ईवेंट चुनें"
@@ -1324,6 +1338,7 @@
       "Update #%(number)s": ["अपडेट #%(number)s"],
       "Posted by %(editor)s %(age)s": ["%(age)s %(editor)s के द्वारा"],
       "See all admins": ["सभी एडमिन को देखें"],
+      "See all crew members": ["दल के सभी सदस्यों को देखें"],
       "<b>%(project)s</b> starts at %(start_time)s": [
         "<b>%(project)s</b> शुरू होने का समय %(start_time)s"
       ],
@@ -1344,10 +1359,8 @@
       "Your project <a href=\"%(project_url)s\">%(project)s</a> has received a new submission: <a href=\"%(proposal_url)s\">%(proposal)s</a> from %(actor)s": [
         "आपके <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में एक नया सबमिशन आया है: <a href=\"%(proposal_url)s\">%(proposal)s</a> %(actor)s की ओर से"
       ],
-      "You have submitted a new proposal <b>%(proposal)s</b> to the project <b>%(project)s</b>": [
-        "आपने <b>%(project)s</b> प्रोजेक्ट में एक नया प्रस्ताव <b>%(proposal)s</b> भेजा है"
-      ],
-      "View proposal": ["प्रस्ताव देखें"],
+      "You have submitted <b>%(proposal)s</b> to the project <b>%(project)s</b>": [""],
+      "View submission": [""],
       "You submitted <a href=\"%(proposal_url)s\">%(proposal)s</a> to <a href=\"%(project_url)s\">%(project)s</a>": [
         "आपने <a href=\"%(project_url)s\">%(project)s</a> प्रोजेक्ट में <a href=\"%(proposal_url)s\">%(proposal)s</a> जमा किया है"
       ],
@@ -1380,6 +1393,9 @@
       "Reset password": ["पासवर्ड रिसेट करें"],
       "Contact support": ["सहयोगी दल से संपर्क करें"],
       "Your password has been updated": ["आपके पासवर्ड को बदल दिया गया है"],
+      "This phone number is not available": [""],
+      "This phone number has been blocked": ["यह फोन नंबर ब्लॉक कर दिया गया है"],
+      "This phone number cannot receive text messages": [""],
       "Unparseable response from Exotel": ["Exotel की ओर से अजीब प्रतिक्रिया"],
       "Exotel API error": ["Exotel API त्रुटी"],
       "Exotel not reachable": ["Exotel पहुंच के बाहर है"],
@@ -1387,7 +1403,6 @@
       "Hasgeek cannot send messages to phone numbers in this country.Please contact support via email at {email} if this affects youruse of the site": [
         ""
       ],
-      "This phone number has been blocked": ["यह फोन नंबर ब्लॉक कर दिया गया है"],
       "This phone number is unsupported at this time": [
         "यह फोन नंबर इस समय असमर्थित है"
       ],
@@ -1619,15 +1634,6 @@
       "Verify your email address": ["अपना ईमेल पता वेरिफाई करें"],
       "Verify email address": ["ईमेल पता वेरिफाई करें"],
       "Reset your password - OTP {otp}": [""],
-      "You have been added to {project} as a crew member": [
-        "आपको दल के सदस्य के रूप में {project} में जोड़ा गया है"
-      ],
-      "You have been invited to {project} as a crew member": [
-        "आपको दल के सदस्य के रूप में {project} में आमंत्रित किया गया है"
-      ],
-      "You have been removed from {project} as a crew member": [
-        "आपको दल के सदस्य के रूप में {project} से हटा दिया गया है"
-      ],
       "Terms of service": ["सेवा की शर्तें"],
       "Sponsorship &amp; advertising": ["प्रायोजन और विज्ञापन"],
       "Privacy policy": ["गोपनीयता नीति"],
@@ -1725,6 +1731,7 @@
       "The user has been added as a member": [
         "यूज़र को सदस्य के रूप में जोड़ दिया गया है"
       ],
+      "This is not a valid response": [""],
       "The member’s record was edited elsewhere. Reload the page": [
         "सदस्य का रिकॉर्ड कहीं और संपादित किया गया था. पेज को रिलोड करें"
       ],
@@ -1881,6 +1888,7 @@
       "{num} followers so far": [""],
       "You and {num} others are following": [""],
       "Follow": [""],
+      "Join free": [""],
       "Your new project has been created": ["आपका नया प्रोजेक्ट बना दिया गया है"],
       "Create project": ["प्रोजेक्ट बनाएं"],
       "Customize the URL": ["URL कस्टमाइज़ करें"],
@@ -1924,6 +1932,7 @@
       ],
       "New submission": [""],
       "{user} has been added as an collaborator": [""],
+      "Pick a user to be added": [""],
       "Delete your submission ‘{title}’? This will remove all comments as well. This operation is permanent and cannot be undone": [
         "अपना ‘{title}’ प्रस्ताव मिटाएं? यह सभी कमेंटों को भी हटा देगा. ऐसा करना इसे हमेशा के लिए मिटा देगा और इसे वापस पहले जैसा नहीं किया जा सकता"
       ],
@@ -2037,6 +2046,7 @@
       "Something went wrong. Please reload and try again": [
         "कुछ गड़बड़ी हुई है. कृपया दोबारा लोड करें और दोबारा प्रयास करें"
       ],
+      "Unknown Markdown profile: {profile}": [""],
       "Full access is only available to trusted clients": [
         "पूरा ऐक्सेस केवल ट्रस्टेड क्लाइंट के लिए ही उपलब्ध है"
       ],
@@ -2100,72 +2110,122 @@
       "{actor} commented on a project you are in:": [""],
       "{actor} commented on your submission:": [""],
       "{actor} replied to you:": [""],
-      "You have been invited as an owner of {organization} by {actor}": [
-        "आपको {actor} द्वारा {organization} के ओनर के रूप में आमंत्रित किया गया है"
-      ],
-      "You have been invited as an admin of {organization} by {actor}": [
-        "आपको {actor} द्वारा {organization} के एडमिन के रूप में आमंत्रित किया गया है"
-      ],
-      "You are now an owner of {organization}": ["अब आप {organization} के ओनर हैं"],
-      "You are now an admin of {organization}": ["अब आप {organization} के एडमिन हैं"],
-      "You have changed your role to owner of {organization}": [
-        "आपने अपनी भूमिका {organization} के एक ओनर के रूप में बदल दी है"
-      ],
-      "You have changed your role to an admin of {organization}": [
-        "आपने अपनी भूमिका {organization} के एक एडमिन के रूप में बदल दी है"
-      ],
-      "You were added as an owner of {organization} by {actor}": [
-        "आपको {actor} द्वारा {organization} के ओनर के रूप में जोड़ा गया था"
-      ],
-      "You were added as an admin of {organization} by {actor}": [
-        "आपको {actor} द्वारा {organization} के एडमिन के रूप में जोड़ा गया था"
-      ],
-      "Your role was changed to owner of {organization} by {actor}": [
-        "आपकी भूमिका {actor} द्वारा {organization} के ओनर के रूप में बदल दी गई थी"
-      ],
-      "Your role was changed to admin of {organization} by {actor}": [
-        "आपकी भूमिका {actor} द्वारा {organization} के एडमिन के रूप में बदल दी गई थी"
-      ],
-      "{user} was invited to be an owner of {organization} by {actor}": [
-        "{user} को {actor} द्वारा {organization} का ओनर बनने के लिए आमंत्रित किया गया था"
-      ],
-      "{user} was invited to be an admin of {organization} by {actor}": [
-        "{user} को {actor} द्वारा {organization} का एडमिन बनने के लिए आमंत्रित किया गया था"
-      ],
-      "{user} is now an owner of {organization}": [
-        "{user} अब {organization} का ओनर है"
-      ],
-      "{user} is now an admin of {organization}": [
-        "{user} अब {organization} का एडमिन है"
-      ],
-      "{user} changed their role to owner of {organization}": [
-        "{user} ने अपनी भूमिका {organization} के ओनर के रूप में बदल दी"
-      ],
-      "{user} changed their role from owner to admin of {organization}": [
-        "{user} ने अपनी भूमिका {organization} के एडमिन के रूप में बदल दी"
-      ],
-      "{user} was made an owner of {organization} by {actor}": [
-        "{user} को {actor} द्वारा {organization} का ओनर बना दिया गया था"
-      ],
-      "{user} was made an admin of {organization} by {actor}": [
-        "{user} को {actor} द्वारा {organization} का एडमिन बना दिया गया था"
-      ],
-      "(unknown)": ["(अज्ञात)"],
+      "{user} was invited to be owner of {organization} by {actor}": [""],
+      "{user} was invited to be admin of {organization} by {actor}": [""],
+      "{actor} invited you to be owner of {organization}": [""],
+      "{actor} invited you to be admin of {organization}": [""],
+      "You invited {user} to be owner of {organization}": [""],
+      "You invited {user} to be admin of {organization}": [""],
+      "{user} was made owner of {organization} by {actor}": [""],
+      "{user} was made admin of {organization} by {actor}": [""],
+      "{actor} made you owner of {organization}": [""],
+      "{actor} made you admin of {organization}": [""],
+      "You made {user} owner of {organization}": [""],
+      "You made {user} admin of {organization}": [""],
+      "{user} accepted an invite to be owner of {organization}": [""],
+      "{user} accepted an invite to be admin of {organization}": [""],
+      "You accepted an invite to be owner of {organization}": [""],
+      "You accepted an invite to be admin of {organization}": [""],
+      "{user}’s role was changed to owner of {organization} by {actor}": [""],
+      "{user}’s role was changed to admin of {organization} by {actor}": [""],
+      "{actor} changed your role to owner of {organization}": [""],
+      "{actor} changed your role to admin of {organization}": [""],
+      "You changed {user}’s role to owner of {organization}": [""],
+      "You changed {user}’s role to admin of {organization}": [""],
+      "{user} was removed as owner of {organization} by {actor}": [""],
+      "{user} was removed as admin of {organization} by {actor}": [""],
+      "{actor} removed you from owner of {organization}": [""],
+      "{actor} removed you from admin of {organization}": [""],
+      "You removed {user} from owner of {organization}": [""],
+      "You removed {user} from admin of {organization}": [""],
       "You are receiving this because you are an admin of this organization": [
         "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस संगठन के एडमिन हैं"
       ],
+      "(unknown)": ["(अज्ञात)"],
       "You are receiving this because you were an admin of this organization": [
         "आप इसे प्राप्त कर रहे हैं क्योंकि आप इस संगठन के एडमिन थे"
       ],
-      "You removed yourself as an admin of {organization}": [
-        "आपने खुद को {organization} के एडमिन के रूप में हटा दिया"
-      ],
-      "You were removed as an admin of {organization} by {actor}": [
-        "आपको {actor} द्वारा {organization} के एडमिन के रूप में हटा दिया गया था"
-      ],
-      "{user} was removed as an admin of {organization} by {actor}": [
-        "{user} को {actor} द्वारा {organization} के एडमिन के रूप में हटा दिया गया था"
-      ],
+      "{user} was invited to be editor and promoter of {project} by {actor}": [""],
+      "{user} was invited to be editor of {project} by {actor}": [""],
+      "{user} was invited to be promoter of {project} by {actor}": [""],
+      "{user} was invited to join the crew of {project} by {actor}": [""],
+      "{actor} invited you to be editor and promoter of {project}": [""],
+      "{actor} invited you to be editor of {project}": [""],
+      "{actor} invited you to be promoter of {project}": [""],
+      "{actor} invited you to join the crew of {project}": [""],
+      "You invited {user} to be editor and promoter of {project}": [""],
+      "You invited {user} to be editor of {project}": [""],
+      "You invited {user} to be promoter of {project}": [""],
+      "You invited {user} to join the crew of {project}": [""],
+      "{user} accepted an invite to be editor and promoter of {project}": [""],
+      "{user} accepted an invite to be editor of {project}": [""],
+      "{user} accepted an invite to be promoter of {project}": [""],
+      "{user} accepted an invite to join the crew of {project}": [""],
+      "You accepted an invite to be editor and promoter of {project}": [""],
+      "You accepted an invite to be promoter of {project}": [""],
+      "You accepted an invite to be editor of {project}": [""],
+      "You accepted an invite to join the crew of {project}": [""],
+      "{actor} joined {project} as editor and promoter": [""],
+      "{actor} joined {project} as editor": [""],
+      "{actor} joined {project} as promoter": [""],
+      "{actor} joined the crew of {project}": [""],
+      "{user} was made editor and promoter of {project} by {actor}": [""],
+      "{user} was made editor of {project} by {actor}": [""],
+      "{user} was made promoter of {project} by {actor}": [""],
+      "{actor} added {user} to the crew of {project}": [""],
+      "{actor} made you editor and promoter of {project}": [""],
+      "{actor} made you editor of {project}": [""],
+      "{actor} made you promoter of {project}": [""],
+      "{actor} added you to the crew of {project}": [""],
+      "You made {user} editor and promoter of {project}": [""],
+      "You made {user} editor of {project}": [""],
+      "You made {user} promoter of {project}": [""],
+      "You added {user} to the crew of {project}": [""],
+      "You joined {project} as editor and promoter": [""],
+      "You joined {project} as editor": [""],
+      "You joined {project} as promoter": [""],
+      "You joined the crew of {project}": [""],
+      "{user} changed their role to editor and promoter of {project}": [""],
+      "{user} changed their role to editor of {project}": [""],
+      "{user} changed their role to promoter of {project}": [""],
+      "{user} changed their role to crew member of {project}": [""],
+      "{user}’s role was changed to editor and promoter of {project} by {actor}": [""],
+      "{user}’s role was changed to editor of {project} by {actor}": [""],
+      "{user}’s role was changed to promoter of {project} by {actor}": [""],
+      "{user}’s role was changed to crew member of {project} by {actor}": [""],
+      "{actor} changed your role to editor and promoter of {project}": [""],
+      "{actor} changed your role to editor of {project}": [""],
+      "{actor} changed your role to promoter of {project}": [""],
+      "{actor} changed your role to crew member of {project}": [""],
+      "You changed {user}’s role to editor and promoter of {project}": [""],
+      "You changed {user}’s role to editor of {project}": [""],
+      "You changed {user}’s role to promoter of {project}": [""],
+      "You changed {user}’s role to crew member of {project}": [""],
+      "You are now editor and promoter of {project}": [""],
+      "You changed your role to editor of {project}": [""],
+      "You changed your role to promoter of {project}": [""],
+      "You changed your role to crew member of {project}": [""],
+      "{user} resigned as editor and promoter of {project}": [""],
+      "{user} resigned as editor of {project}": [""],
+      "{user} resigned as promoter of {project}": [""],
+      "{user} resigned from the crew of {project}": [""],
+      "{user} was removed as editor and promoter of {project} by {actor}": [""],
+      "{user} was removed as editor of {project} by {actor}": [""],
+      "{user} was removed as promoter of {project} by {actor}": [""],
+      "{user} was removed as crew of {project} by {actor}": [""],
+      "{actor} removed you as editor and promoter of {project}": [""],
+      "{actor} removed you as editor of {project}": [""],
+      "{actor} removed you as promoter of {project}": [""],
+      "{actor} removed you from the crew of {project}": [""],
+      "You resigned as editor and promoter of {project}": [""],
+      "You resigned as editor of {project}": [""],
+      "You resigned as promoter of {project}": [""],
+      "You resigned from the crew of {project}": [""],
+      "You removed {user} as editor and promoter of {project}": [""],
+      "You removed {user} as editor of {project}": [""],
+      "You removed {user} as promoter of {project}": [""],
+      "You removed {user} from the crew of {project}": [""],
+      "You are receiving this because you are a crew member of this project": [""],
       "You are receiving this because you have registered for this project": [
         "आप इसे प्राप्त कर रहे हैं क्योंकि आपने इस प्रोजेक्ट के लिए रजिस्टर किया है"
       ],
