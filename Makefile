@@ -87,16 +87,16 @@ install-npm-ci:
 	npm clean-install
 
 install-python-pip:
-	pip install --upgrade pip setuptools
+	pip install --upgrade pip
 
 install-python-dev: install-python-pip deps-editable
-	pip install -r requirements/dev.txt
+	pip install --use-pep517 -r requirements/dev.txt
 
 install-python-test: install-python-pip deps-editable
-	pip install -r requirements/test.txt
+	pip install --use-pep517 -r requirements/test.txt
 
 install-python: install-python-pip deps-editable
-	pip install -r requirements/base.txt
+	pip install --use-pep517 -r requirements/base.txt
 
 install-dev: deps-editable install-python-dev install-npm assets
 
