@@ -48,7 +48,7 @@
         {% endfor %}
       {% endif %}
     </div>
-    <div><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-sublabel-form">{{ faicon(icon='plus', icon_size='caption') }} Add option</button></div>
+    <div><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-sublabel-form">{{ faicon(icon='plus', icon_size='caption') }} {% trans %}Add option{% endtrans %}</button></div>
     {%- if subforms|length > 0 %}
       {{ renderfield(form.required) }}
     {%- else -%}

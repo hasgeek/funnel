@@ -14,21 +14,21 @@
       </div>
     </div>
   </div>
-  {{ rendersubmit([('', "Search", '')]) }}
+  {{ rendersubmit([('', _("Search"), '')]) }}
 </form>
 
 <p>
   {%- if query %}
-    {%- trans total_comments=total_comments, query=query %}
-      Only {{ total_comments }} comment for "{{ query }}"
-    {%- pluralize total_comments %}
-      Total {{ total_comments }} comments for "{{ query }}"
+    {%- trans tcount=total_comments, count=total_comments|numberformat, query=query %}
+      Only {{ count }} comment for “{{ query }}”
+    {%- pluralize tcount %}
+      Total {{ count }} comments for “{{ query }}”
     {%- endtrans -%}
   {% else %}
-    {%- trans total_comments=total_comments %}
-      Only {{ total_comments }} comment
-    {%- pluralize total_comments %}
-      Total {{ total_comments }} comments
+    {%- trans tcount=total_comments, count=total_comments|numberformat %}
+      Only {{ count }} comment
+    {%- pluralize tcount %}
+      Total {{ count }} comments
     {%- endtrans -%}
   {%- endif %}
 </p>
@@ -70,11 +70,11 @@
           </div>
         </td>
         <td data-th="User">{{ comment.user.pickername }}</td>
-        <td data-th="User"><a href="{{ comment.url_for() }}">Link</a></td>
+        <td data-th="User"><a href="{{ comment.url_for() }}">{% trans %}Link{% endtrans %}</a></td>
         <td data-th="Content">{{ comment.message }}</td>
         {#
         <td data-th="Actions">
-          {% if current_auth.user.is_user_moderator %}
+          {% if current_auth.user and current_auth.user.is_user_moderator %}
           <button id="btn-user-markspamall" class="mui-btn mui-btn--accent">
             Delete all comments by user
           </button>
@@ -90,7 +90,7 @@
     </tbody>
   </table>
   <div>
-    {{ rendersubmit([("spam-comments-bulk", "Report spam", '')]) }}
+    {{ rendersubmit([("spam-comments-bulk", _("Report spam"), '')]) }}
   </div>
 </form>
 
@@ -98,8 +98,8 @@
   {% for page in pages[:10] %}
     <a
       class="btn-pagination-item mui-btn {% if page != current_page %}mui-btn--accent{% endif %}"
-      href="{{ url_for('siteadmin_comments') }}?query={{ query }}&page={{ page }}"
-      >{{ page }}</a>
+      href="{{ url_for('siteadmin_comments', query=query, page=page) }}"
+      >{{ page|numberformat }}</a>
   {% endfor %}
 </div>
 

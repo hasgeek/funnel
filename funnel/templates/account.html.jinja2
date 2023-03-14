@@ -48,7 +48,7 @@
       <div class="grid__col-xs-12 grid__col-sm-6">
         <div class="card">
           <div class="card__header">
-            <h3 class="mui--text-title text-bold">Info</h3>
+            <h3 class="mui--text-title text-bold">{% trans %}Info{% endtrans %}</h3>
           </div>
           <div class="card__body card__body--lgtext">
             <p class="mui--text-subhead">
@@ -314,7 +314,13 @@
             <div class="card__body">
               <ul class="list--aligned mui-list--unstyled grid-no-left-padding list--border zero-bottom-margin">
                 {%- for user_session in current_auth.user.active_user_sessions %}
-                  {%- with ua=user_session.views.user_agent_details(), login_service=user_session.views.login_service(), location=user_session.views.location(), user_agent=user_session.user_agent, since=user_session.created_at|age, last_active=user_session.accessed_at|age %}
+                  {%- with
+                      ua=user_session.views.user_agent_details(),
+                      login_service=user_session.views.login_service(),
+                      location=user_session.views.location(),
+                      user_agent=user_session.user_agent,
+                      since=user_session.created_at|age,
+                      last_active=user_session.accessed_at|age %}
                     <li class="flex-wrapper flex-wrapper--baseline flex-wrapper--space-between login-session">
                       <div>
                         <ul class="bullet-separated-list"

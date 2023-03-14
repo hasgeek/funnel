@@ -136,7 +136,7 @@
   {%- endif %}
 {%- endmacro %}
 
-{# djlint: off #}{% macro rendersubmit(buttons=[], css_class="", tabindex='', cancel_url='', style="horiz", csrf_error=false) -%}{# djlint:on #}
+{# djlint: off #}{% macro rendersubmit(buttons=[], css_class='', tabindex='', cancel_url='', style='horiz', csrf_error=false) -%}{# djlint:on #}
 <div class="mui-form form-actions mui--clearfix{% if css_class %} {{ css_class }}{% endif %}">
   <div>
     {% for name, value, widget_class in buttons -%}

@@ -11,10 +11,11 @@
     {%- block titletags %}
       <title>
         {%- block titleblock -%}
-          {% block title %}
+          {%- block title -%}
             {{ title }}
-          {% endblock title %}{% if title_suffix %} – {{ title_suffix }}
-          {%- elif title_suffix == '' and self.title() != config['SITE_TITLE'] -%} – {{ config['SITE_TITLE'] }}
+          {%- endblock title -%}
+          {%- if title_suffix %} – {{ title_suffix }}
+          {%- elif not title_suffix and self.title() != config['SITE_TITLE'] %} – {{ config['SITE_TITLE'] }}
           {%- endif -%}
         {%- endblock titleblock -%}
       </title>

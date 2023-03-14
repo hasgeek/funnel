@@ -42,9 +42,9 @@
     </div>
     <div class="grid__col-xs-12 grid__col-md-8">
       <ul class="mui-list--inline">
-        <li><a href="{{ ticket_event.url_for('badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="badges-to-printed">Badges to be printed</a></li>
-         <li><a href="{{ ticket_event.url_for('label_badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="label-badges-to-printed">Label badges to be printed</a></li>
-        <li><a href="{{ ticket_event.url_for('badges') }}?badge_printed=t" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-cy="badges-printed">Badges printed</a></li>
+        <li><a href="{{ ticket_event.url_for('badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="badges-to-printed">{% trans %}Badges to be printed{% endtrans %}</a></li>
+         <li><a href="{{ ticket_event.url_for('label_badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="label-badges-to-printed">{% trans %}Label badges to be printed{% endtrans %}</a></li>
+        <li><a href="{{ ticket_event.url_for('badges') }}?badge_printed=t" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-cy="badges-printed">{% trans %}Badges printed{% endtrans %}</a></li>
         <li class="badge-print-status-btn">
           <form method="post" id="badge_form" class="mui-form">
               {{ badge_form.hidden_tag() }}
@@ -61,11 +61,11 @@
       <table class="mui-table mui-table--bordered mui-table--responsive attendee-table" id="ticket-participants-table">
         <thead>
           <tr class="active">
-            <th>Name</th>
-            <th>Tickets</th>
-            <th>Email</th>
-            <th>Company</th>
-            <th>Actions</th>
+            <th>{% trans %}Name{% endtrans %}</th>
+            <th>{% trans %}Tickets{% endtrans %}</th>
+            <th>{% trans %}Email{% endtrans %}</th>
+            <th>{% trans %}Company{% endtrans %}</th>
+            <th>{% trans %}Actions{% endtrans %}</th>
           </tr>
         </thead>
         {{ participant_list() }}

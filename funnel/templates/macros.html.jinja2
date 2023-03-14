@@ -104,7 +104,7 @@
 
 {% macro video_action_bar(video, proposal='', session='', share=true) %}
   {%- if video.source == 'youtube' -%}
-    <p class="zero-bottom-margin mui--pull-left"><a href="https://videoken.com" target="_blank" rel="noopener" class="mui--text-caption details__box__control__link">Powered by VideoKen</a></p>
+    <p class="zero-bottom-margin mui--pull-left"><a href="https://videoken.com" target="_blank" rel="noopener" class="mui--text-caption details__box__control__link">{% trans %}Powered by VideoKen{% endtrans %}</a></p>
   {%- endif %}
 
   {%- if proposal and proposal.current_roles.editor %}
@@ -237,7 +237,7 @@
                 <h3 class="card__body__title mui--text-headline text-bold zero-top-margin">
                   <a class="clickable-card" href="{{ featured_project.url_for() }}">{{ featured_project.title }}</a>
                 </h3>
-                <p class="mui--text-title text-bold primary-color-txt zero-bottom-margin">Live</p>
+                <p class="mui--text-title text-bold primary-color-txt zero-bottom-margin">{% trans %}Live{% endtrans %}</p>
                 {% if current_sessions.sessions|length > 0 %}
                   <p class="mui--text-subhead mui--text-light">{{ faicon(icon='clock') }} {% trans session=current_sessions.sessions[0].start_at_localized|time %}Session starts at {{ session }}{% endtrans %}</p>
                 {% endif %}
@@ -688,7 +688,10 @@
                     <li>{{ proposal.project.short_title }}</li>
                   {% endif %}
                   {%- if proposal.commentset %}
-                    <li>{{ proposal.commentset.count }} comments</li>
+                    <li>{% trans
+                        tcount=proposal.commentset.count,
+                        count=proposal.commentset.count|numberformat
+                        %}{{ count }} comment{% pluralize tcount %}{{ count }} comments{% endtrans %}</li>
                   {% endif %}
                   <li>
                     {{ proposal.state.label.title }}
@@ -813,7 +816,7 @@
         <p class="mui--text-body2 mui--text-light zero-top-margin search-snippets">{{ faicon (icon='search', css_class="search-icon", baseline=false) }} {{ snippet_html }}</p>
       {% endif %}
       <div class="profile-card__btn-wrapper">
-        <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans count=profile.published_project_count %}One project{% pluralize %}{{ count }} projects{% endtrans %}</p>
+        <p class=" mui--text-center mui--text-caption mui--text-light top-padding margin-bottom">{% trans tcount=profile.published_project_count, count=profile.published_project_count|numberformat %}One project{% pluralize tcount %}{{ count }} projects{% endtrans %}</p>
         <a class="mui-btn mui-btn--primary mui-btn--raised full-width-btn" href="{{ profile.url_for() }} ">{% trans %}Explore{% endtrans %}</a>
       </div>
     </div>

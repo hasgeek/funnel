@@ -49,7 +49,7 @@
             <p class="mui--text-light">{% trans %}The session has no attached video{% endtrans %}</p>
             {% if not session.views.video and session.project.current_roles.editor %}
               <div>
-                <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ session.url_for('edit') }}" data-cy-admin="edit-session" aria-label="{% trans %}Add session video{% endtrans %}">Edit session</a>
+                <a class="mui-btn mui-btn--raised mui-btn--dark" href="{{ session.url_for('edit') }}" data-cy-admin="edit-session" aria-label="{% trans %}Add session video{% endtrans %}">{% trans %}Edit session{% endtrans %}</a>
               </div>
             {%- endif %}
           </div>
