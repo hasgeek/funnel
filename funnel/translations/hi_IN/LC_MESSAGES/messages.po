@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: webmaster@hasgeek.com\n"
-"POT-Creation-Date: 2023-03-15 00:29+0530\n"
+"POT-Creation-Date: 2023-03-15 02:50+0530\n"
 "PO-Revision-Date: 2020-12-17 13:47+0530\n"
 "Last-Translator: Ritesh Raj\n"
 "Language: hi\n"
@@ -444,8 +444,8 @@ msgstr ""
 msgid "Permission ‘{perm}’ is malformed"
 msgstr "अनुमति ‘{perm}’ गलत बनाया गया है"
 
-#: funnel/forms/auth_client.py:177 funnel/forms/membership.py:22
-#: funnel/forms/membership.py:45 funnel/forms/proposal.py:198
+#: funnel/forms/auth_client.py:177 funnel/forms/membership.py:23
+#: funnel/forms/membership.py:46 funnel/forms/proposal.py:198
 #: funnel/templates/siteadmin_comments.html.jinja2:51
 msgid "User"
 msgstr "यूजर"
@@ -656,74 +656,87 @@ msgstr ""
 "यह खाता आपके लिए व्यक्तिगत तौर पर है. हम आपके संगठन के लिए बाद में दूसरा "
 "खाता बना देंगे"
 
-#: funnel/forms/membership.py:23 funnel/forms/membership.py:46
+#: funnel/forms/membership.py:24 funnel/forms/membership.py:47
 msgid "Please select a user"
 msgstr "कोई यूजर चुनें"
 
-#: funnel/forms/membership.py:24 funnel/forms/membership.py:47
+#: funnel/forms/membership.py:25 funnel/forms/membership.py:48
 #: funnel/forms/proposal.py:199
 msgid "Find a user by their name or email address"
 msgstr "नाम या ईमेल पते द्वारा यूजर को खोजें"
 
-#: funnel/forms/membership.py:27
+#: funnel/forms/membership.py:28
 msgid "Access level"
 msgstr "एक्सेस लेवल"
 
-#: funnel/forms/membership.py:33
+#: funnel/forms/membership.py:34
 msgid "Admin (can manage projects, but can’t add or remove other admins)"
 msgstr ""
 "एडमिन (प्रोजेक्ट प्रबंधित कर सकते हैं, पर दूसरे एडमिन को जोड़ या हटा नहीं"
 " सकते)"
 
-#: funnel/forms/membership.py:35
+#: funnel/forms/membership.py:36
 msgid "Owner (can also manage other owners and admins)"
 msgstr "ओनर (दूसरे ओनर और एडमिन को भी प्रबंधित कर सकते हैं)"
 
-#: funnel/forms/membership.py:50 funnel/models/comment.py:370
+#: funnel/forms/membership.py:51 funnel/models/comment.py:370
 #: funnel/templates/js/membership.js.jinja2:119
 msgid "Editor"
 msgstr "संपादक"
 
-#: funnel/forms/membership.py:52
+#: funnel/forms/membership.py:53
 msgid "Can edit project details, proposal guidelines, schedule, labels and venues"
 msgstr ""
 "प्रोजेक्ट विवरण, प्रस्ताव के दिशा निर्देश, कार्यक्रम, लेबल और स्थानों की "
 "जानकारी संपादित कर सकते हैं"
 
-#: funnel/forms/membership.py:57 funnel/models/comment.py:372
+#: funnel/forms/membership.py:58 funnel/models/comment.py:372
 #: funnel/templates/js/membership.js.jinja2:120
 msgid "Promoter"
 msgstr ""
 
-#: funnel/forms/membership.py:59
+#: funnel/forms/membership.py:60
 msgid "Can manage participants and see contact info"
 msgstr "प्रतिभागियों तथा उनके संपर्क की जानकारी को प्रबंधित कर सकते हैं"
 
-#: funnel/forms/membership.py:62 funnel/templates/js/membership.js.jinja2:121
+#: funnel/forms/membership.py:63 funnel/templates/js/membership.js.jinja2:121
 msgid "Usher"
 msgstr "मार्गदर्शक"
 
-#: funnel/forms/membership.py:64
+#: funnel/forms/membership.py:65
 msgid "Can check-in a participant using their badge at a physical event"
 msgstr ""
 "किसी वास्तविक इवेंट में प्रतिभागियों के बैच की जांच करके अंदर आने की "
 "अनुमति दे सकते हैं"
 
-#: funnel/forms/membership.py:83
+#: funnel/forms/membership.py:70 funnel/forms/proposal.py:203
+#: funnel/templates/js/membership.js.jinja2:24
+msgid "Role"
+msgstr ""
+
+#: funnel/forms/membership.py:71
+msgid "Optional – Name this person’s role"
+msgstr ""
+
+#: funnel/forms/membership.py:79
+msgid "Select one or more roles"
+msgstr ""
+
+#: funnel/forms/membership.py:89
 msgid "Choice"
 msgstr "विकल्प"
 
-#: funnel/forms/membership.py:84 funnel/models/membership_mixin.py:67
+#: funnel/forms/membership.py:90 funnel/models/membership_mixin.py:67
 #: funnel/templates/membership_invite_actions.html.jinja2:15
 msgid "Accept"
 msgstr "स्वीकारें"
 
-#: funnel/forms/membership.py:84
+#: funnel/forms/membership.py:90
 #: funnel/templates/membership_invite_actions.html.jinja2:16
 msgid "Decline"
 msgstr "अस्वीकारें"
 
-#: funnel/forms/membership.py:85
+#: funnel/forms/membership.py:91
 msgid "Please make a choice"
 msgstr "कृपया कोई विकल्प चुनें"
 
@@ -1289,10 +1302,6 @@ msgstr "वीडियो"
 #: funnel/forms/proposal.py:174
 msgid "YouTube or Vimeo URL (optional)"
 msgstr "YouTube या Vimeo URL (ऐच्छिक)"
-
-#: funnel/forms/proposal.py:203 funnel/templates/js/membership.js.jinja2:24
-msgid "Role"
-msgstr ""
 
 #: funnel/forms/proposal.py:204
 msgid "Optional – A specific role in this submission (like Author or Editor)"
@@ -2354,7 +2363,7 @@ msgstr "आखरी बार इस्तेमाल %(last_used_at)s"
 #: funnel/templates/project_sponsor_popup.html.jinja2:22
 #: funnel/views/account.py:609 funnel/views/account.py:752
 #: funnel/views/account.py:784 funnel/views/membership.py:290
-#: funnel/views/membership.py:574
+#: funnel/views/membership.py:576
 msgid "Remove"
 msgstr "हटाएं"
 
@@ -4848,7 +4857,7 @@ msgstr "आपके खाते के लिए कम से कम एक �
 
 #: funnel/views/account.py:601 funnel/views/account.py:744
 #: funnel/views/account.py:774 funnel/views/membership.py:286
-#: funnel/views/membership.py:570
+#: funnel/views/membership.py:572
 msgid "Confirm removal"
 msgstr "हटाने की पुष्टि करें"
 
@@ -5511,7 +5520,7 @@ msgstr "आप अपनी भूमिका संपादित नही�
 msgid "This member’s record was edited elsewhere. Reload the page"
 msgstr "इस सदस्य का रिकॉर्ड कहीं और संपादित किया गया था. पेज को रिलोड करें"
 
-#: funnel/views/membership.py:218 funnel/views/membership.py:512
+#: funnel/views/membership.py:218 funnel/views/membership.py:514
 msgid "The member’s roles have been updated"
 msgstr "सदस्य की भूमिकाओं को अपडेट किया गया है"
 
@@ -5520,7 +5529,7 @@ msgid "No changes were detected"
 msgstr "कोई परिवर्तन नहीं पाया गया"
 
 #: funnel/views/membership.py:231 funnel/views/membership.py:376
-#: funnel/views/membership.py:522
+#: funnel/views/membership.py:524
 msgid "Please pick one or more roles"
 msgstr "कृपया एक या एक से अधिक भूमिकाएं चुनें"
 
@@ -5528,7 +5537,7 @@ msgstr "कृपया एक या एक से अधिक भूमिक
 msgid "You can’t revoke your own membership"
 msgstr "आप अपनी स्वयं की सदस्यता रद्द नहीं कर सकते"
 
-#: funnel/views/membership.py:270 funnel/views/membership.py:558
+#: funnel/views/membership.py:270 funnel/views/membership.py:560
 msgid "The member has been removed"
 msgstr "सदस्य को हटा दिया गया है"
 
@@ -5548,11 +5557,11 @@ msgstr "यूज़र को सदस्य के रूप में जो
 msgid "This is not a valid response"
 msgstr ""
 
-#: funnel/views/membership.py:495
+#: funnel/views/membership.py:496
 msgid "The member’s record was edited elsewhere. Reload the page"
 msgstr "सदस्य का रिकॉर्ड कहीं और संपादित किया गया था. पेज को रिलोड करें"
 
-#: funnel/views/membership.py:571
+#: funnel/views/membership.py:573
 msgid "Remove {member} as a crew member from this project?"
 msgstr "इस प्रोजेक्ट से एडमिन के रूप में {member} को हटाना चाहते हैं?"
 

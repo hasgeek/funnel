@@ -254,6 +254,9 @@
       "Can check-in a participant using their badge at a physical event": [
         "किसी वास्तविक इवेंट में प्रतिभागियों के बैच की जांच करके अंदर आने की अनुमति दे सकते हैं"
       ],
+      "Role": [""],
+      "Optional – Name this person’s role": [""],
+      "Select one or more roles": [""],
       "Choice": ["विकल्प"],
       "Accept": ["स्वीकारें"],
       "Decline": ["अस्वीकारें"],
@@ -462,7 +465,6 @@
       "Content": ["विषय सूची"],
       "Video": ["वीडियो"],
       "YouTube or Vimeo URL (optional)": ["YouTube या Vimeo URL (ऐच्छिक)"],
-      "Role": [""],
       "Optional – A specific role in this submission (like Author or Editor)": [""],
       "Hide collaborator on submission": [""],
       "{user} is already a collaborator": [""],

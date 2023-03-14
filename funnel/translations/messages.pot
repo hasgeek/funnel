@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-03-15 00:29+0530\n"
+"POT-Creation-Date: 2023-03-15 02:50+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -424,8 +424,8 @@ msgstr ""
 msgid "Permission ‘{perm}’ is malformed"
 msgstr ""
 
-#: funnel/forms/auth_client.py:177 funnel/forms/membership.py:22
-#: funnel/forms/membership.py:45 funnel/forms/proposal.py:198
+#: funnel/forms/auth_client.py:177 funnel/forms/membership.py:23
+#: funnel/forms/membership.py:46 funnel/forms/proposal.py:198
 #: funnel/templates/siteadmin_comments.html.jinja2:51
 msgid "User"
 msgstr ""
@@ -621,68 +621,81 @@ msgid ""
 "organization later"
 msgstr ""
 
-#: funnel/forms/membership.py:23 funnel/forms/membership.py:46
+#: funnel/forms/membership.py:24 funnel/forms/membership.py:47
 msgid "Please select a user"
 msgstr ""
 
-#: funnel/forms/membership.py:24 funnel/forms/membership.py:47
+#: funnel/forms/membership.py:25 funnel/forms/membership.py:48
 #: funnel/forms/proposal.py:199
 msgid "Find a user by their name or email address"
 msgstr ""
 
-#: funnel/forms/membership.py:27
+#: funnel/forms/membership.py:28
 msgid "Access level"
 msgstr ""
 
-#: funnel/forms/membership.py:33
+#: funnel/forms/membership.py:34
 msgid "Admin (can manage projects, but can’t add or remove other admins)"
 msgstr ""
 
-#: funnel/forms/membership.py:35
+#: funnel/forms/membership.py:36
 msgid "Owner (can also manage other owners and admins)"
 msgstr ""
 
-#: funnel/forms/membership.py:50 funnel/models/comment.py:370
+#: funnel/forms/membership.py:51 funnel/models/comment.py:370
 #: funnel/templates/js/membership.js.jinja2:119
 msgid "Editor"
 msgstr ""
 
-#: funnel/forms/membership.py:52
+#: funnel/forms/membership.py:53
 msgid "Can edit project details, proposal guidelines, schedule, labels and venues"
 msgstr ""
 
-#: funnel/forms/membership.py:57 funnel/models/comment.py:372
+#: funnel/forms/membership.py:58 funnel/models/comment.py:372
 #: funnel/templates/js/membership.js.jinja2:120
 msgid "Promoter"
 msgstr ""
 
-#: funnel/forms/membership.py:59
+#: funnel/forms/membership.py:60
 msgid "Can manage participants and see contact info"
 msgstr ""
 
-#: funnel/forms/membership.py:62 funnel/templates/js/membership.js.jinja2:121
+#: funnel/forms/membership.py:63 funnel/templates/js/membership.js.jinja2:121
 msgid "Usher"
 msgstr ""
 
-#: funnel/forms/membership.py:64
+#: funnel/forms/membership.py:65
 msgid "Can check-in a participant using their badge at a physical event"
 msgstr ""
 
-#: funnel/forms/membership.py:83
+#: funnel/forms/membership.py:70 funnel/forms/proposal.py:203
+#: funnel/templates/js/membership.js.jinja2:24
+msgid "Role"
+msgstr ""
+
+#: funnel/forms/membership.py:71
+msgid "Optional – Name this person’s role"
+msgstr ""
+
+#: funnel/forms/membership.py:79
+msgid "Select one or more roles"
+msgstr ""
+
+#: funnel/forms/membership.py:89
 msgid "Choice"
 msgstr ""
 
-#: funnel/forms/membership.py:84 funnel/models/membership_mixin.py:67
+#: funnel/forms/membership.py:90 funnel/models/membership_mixin.py:67
 #: funnel/templates/membership_invite_actions.html.jinja2:15
 msgid "Accept"
 msgstr ""
 
-#: funnel/forms/membership.py:84
+#: funnel/forms/membership.py:90
 #: funnel/templates/membership_invite_actions.html.jinja2:16
 msgid "Decline"
 msgstr ""
 
-#: funnel/forms/membership.py:85
+#: funnel/forms/membership.py:91
 msgid "Please make a choice"
 msgstr ""
 
@@ -1233,10 +1246,6 @@ msgstr ""
 
 #: funnel/forms/proposal.py:174
 msgid "YouTube or Vimeo URL (optional)"
-msgstr ""
-
-#: funnel/forms/proposal.py:203 funnel/templates/js/membership.js.jinja2:24
-msgid "Role"
 msgstr ""
 
 #: funnel/forms/proposal.py:204
@@ -2290,7 +2299,7 @@ msgstr ""
 #: funnel/templates/project_sponsor_popup.html.jinja2:22
 #: funnel/views/account.py:609 funnel/views/account.py:752
 #: funnel/views/account.py:784 funnel/views/membership.py:290
-#: funnel/views/membership.py:574
+#: funnel/views/membership.py:576
 msgid "Remove"
 msgstr ""
 
@@ -4736,7 +4745,7 @@ msgstr ""
 
 #: funnel/views/account.py:601 funnel/views/account.py:744
 #: funnel/views/account.py:774 funnel/views/membership.py:286
-#: funnel/views/membership.py:570
+#: funnel/views/membership.py:572
 msgid "Confirm removal"
 msgstr ""
 
@@ -5372,7 +5381,7 @@ msgstr ""
 msgid "This member’s record was edited elsewhere. Reload the page"
 msgstr ""
 
-#: funnel/views/membership.py:218 funnel/views/membership.py:512
+#: funnel/views/membership.py:218 funnel/views/membership.py:514
 msgid "The member’s roles have been updated"
 msgstr ""
 
@@ -5381,7 +5390,7 @@ msgid "No changes were detected"
 msgstr ""
 
 #: funnel/views/membership.py:231 funnel/views/membership.py:376
-#: funnel/views/membership.py:522
+#: funnel/views/membership.py:524
 msgid "Please pick one or more roles"
 msgstr ""
 
@@ -5389,7 +5398,7 @@ msgstr ""
 msgid "You can’t revoke your own membership"
 msgstr ""
 
-#: funnel/views/membership.py:270 funnel/views/membership.py:558
+#: funnel/views/membership.py:270 funnel/views/membership.py:560
 msgid "The member has been removed"
 msgstr ""
 
@@ -5409,11 +5418,11 @@ msgstr ""
 msgid "This is not a valid response"
 msgstr ""
 
-#: funnel/views/membership.py:495
+#: funnel/views/membership.py:496
 msgid "The member’s record was edited elsewhere. Reload the page"
 msgstr ""
 
-#: funnel/views/membership.py:571
+#: funnel/views/membership.py:573
 msgid "Remove {member} as a crew member from this project?"
 msgstr ""
 
