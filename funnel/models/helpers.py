@@ -461,7 +461,7 @@ def add_search_trigger(
     )
 
     update_statement = (
-        f'UPDATE {pgquote(model.__tablename__)}'
+        f'UPDATE {pgquote(model.__tablename__)}'  # nosec
         f' SET {pgquote(column_name)} = {update_expr};'
     )
 

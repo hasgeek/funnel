@@ -77,7 +77,9 @@
               {% if label.has_proposals %}
                 <a class="label-box__action-btn"
                   href="{{ label.url_for('archive') }}"
-                  aria-label="{% trans %}Archive{% endtrans %}">{{ faicon(icon='archive', icon_size='title') }}</a>
+                  aria-label="{% trans %}Archive{% endtrans %}"
+                  title="{{ label.title }}">{{ faicon(icon='archive', icon_size='title') }}
+                </a>
               {% else %}
                 <a href="{{ label.url_for('delete') }}"
                   aria-label="{% trans %}Delete{% endtrans %}"
