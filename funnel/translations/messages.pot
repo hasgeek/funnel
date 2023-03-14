@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-03-14 23:16+0530\n"
+"POT-Creation-Date: 2023-03-15 00:29+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1325,6 +1325,10 @@ msgstr ""
 
 #: funnel/forms/sync_ticket.py:66
 msgid "Badge template URL"
+msgstr ""
+
+#: funnel/forms/sync_ticket.py:67
+msgid "URL of background image for the badge"
 msgstr ""
 
 #: funnel/forms/sync_ticket.py:77 funnel/forms/venue.py:27
@@ -4955,7 +4959,8 @@ msgstr ""
 #: funnel/views/organization.py:204 funnel/views/project.py:423
 #: funnel/views/proposal.py:318 funnel/views/ticket_event.py:200
 #: funnel/views/ticket_event.py:289 funnel/views/ticket_event.py:351
-#: funnel/views/update.py:176
+#: funnel/views/update.py:176 funnel/views/venue.py:133
+#: funnel/views/venue.py:196
 msgid "Confirm delete"
 msgstr ""
 
@@ -5905,6 +5910,10 @@ msgstr ""
 
 #: funnel/views/project_sponsor.py:194
 msgid "Sponsor could not be removed"
+msgstr ""
+
+#: funnel/views/project_sponsor.py:204
+msgid "Remove sponsor?"
 msgstr ""
 
 #: funnel/views/project_sponsor.py:205

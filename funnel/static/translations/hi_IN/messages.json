@@ -491,6 +491,7 @@
       "This is a subscription": [""],
       "If not checked, buy tickets button will be shown": [""],
       "Badge template URL": ["बैच टेम्पलेट URL"],
+      "URL of background image for the badge": [""],
       "Name": ["नाम"],
       "Client id": ["क्लाइंट आईडी"],
       "Client event id": ["क्लाइंट ईवेंट आईडी"],
@@ -1923,6 +1924,7 @@
       "Sponsor could not be edited": [""],
       "Sponsor has been removed": [""],
       "Sponsor could not be removed": [""],
+      "Remove sponsor?": [""],
       "Remove ‘{sponsor}’ as a sponsor?": [""],
       "This form uses <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> for formatting": [
         "यह फॉर्म फॉर्मेटिंग के लिए <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.markdownguide.org/basic-syntax/\">Markdown</a> का उपयोग करता है"
