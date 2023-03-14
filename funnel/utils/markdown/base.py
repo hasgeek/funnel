@@ -1,5 +1,4 @@
 """Markdown parser and config profiles."""
-# pylint: disable=too-many-arguments
 
 from __future__ import annotations
 

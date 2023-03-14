@@ -213,7 +213,7 @@ def test_merge_with_user2_preferences(
     assert user2_test_preferences.user == fixtures.user1
 
 
-def test_merge_with_both_preferences(  # pylint: disable=too-many-arguments
+def test_merge_with_both_preferences(
     db_session,
     fixtures,
     user1_main_preferences,

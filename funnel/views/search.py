@@ -806,7 +806,7 @@ def search_counts(
 
 
 # @cache.memoize(timeout=300)
-def search_results(  # pylint: disable=too-many-arguments
+def search_results(
     tsquery: sa.sql.functions.Function,
     stype: str,
     page=1,

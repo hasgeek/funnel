@@ -48,7 +48,7 @@ def dibbler_sponsor(db_session, project_expo2010, user_dibbler, user_vetinari):
     return sponsor
 
 
-def test_auto_seq(  # pylint: disable=too-many-arguments
+def test_auto_seq(
     db_session,
     project_expo2010,
     org_citywatch,
@@ -91,7 +91,7 @@ def test_auto_seq(  # pylint: disable=too-many-arguments
     assert sponsor3.seq == 3
 
 
-def test_expo_has_sponsors(  # pylint: disable=too-many-arguments
+def test_expo_has_sponsors(
     db_session,
     project_expo2010,
     dibbler_sponsor,
@@ -129,7 +129,7 @@ def test_expo_sponsor_reorder(
     assert dibbler_sponsor.seq == 1
 
 
-def test_expo_sponsor_seq_reissue(  # pylint: disable=too-many-arguments
+def test_expo_sponsor_seq_reissue(
     db_session,
     project_expo2010,
     citywatch_sponsor,

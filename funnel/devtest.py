@@ -176,7 +176,7 @@ def install_mock(func: Callable, mock: Callable) -> None:
                     ref[key] = mock
 
 
-def _prepare_subprocess(  # pylint: disable=too-many-arguments
+def _prepare_subprocess(
     engines: Iterable[Engine],
     mock_transports: bool,
     calls: CapturedCalls,
@@ -197,7 +197,7 @@ def _prepare_subprocess(  # pylint: disable=too-many-arguments
 
     if mock_transports:
 
-        def mock_email(  # pylint: disable=too-many-arguments
+        def mock_email(
             subject: str,
             to: List[Any],
             content: str,
@@ -246,7 +246,7 @@ class BackgroundWorker:
     :param mock_transports: Patch transports with mock functions that write to a log
     """
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         worker: Callable,
         args: Optional[Iterable] = None,

@@ -131,7 +131,7 @@ class OtpSession(Generic[OptionalUserType]):
         cls.reason = reason
 
     @classmethod
-    def make(  # pylint: disable=too-many-arguments
+    def make(
         cls: Type[OtpSessionType],
         reason: str,
         user: OptionalUserType,

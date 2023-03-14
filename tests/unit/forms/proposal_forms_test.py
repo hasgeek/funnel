@@ -1,5 +1,4 @@
 """Tests for Proposal forms."""
-# pylint: disable=too-many-arguments
 
 from funnel import models
 
