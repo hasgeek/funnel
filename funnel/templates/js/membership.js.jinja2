@@ -111,7 +111,7 @@
         <div class="user__box mui--pull-left">
           <useravatar :user='member.user' :addprofilelink=true></useravatar>
           <div class="user__box__header">
-            <h3 class="mui--text-body2 user__box__fullname" data-cy="member">{{ member.user.fullname }}</h3>
+            <h3 class="mui--text-body2 user__box__fullname" data-cy="member">{{ member.user.fullname }} <span v-if="member.label" class="badge">{{ member.label }}</span></h3>
             <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span>@{{ member.user.username }}</span></h3>
           </div>
         </div>
