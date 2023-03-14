@@ -905,9 +905,8 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
     def search(self, q=None, page=1, per_page=20) -> ReturnRenderWith:
         """Perform search within an account."""
         tsquery = get_tsquery(q)
-        stype: Optional[str] = abort_null(
-            request.args.get('type')
-        )  # Can't use requestargs as it doesn't support name changes
+        # Can't use @requestargs as it doesn't support name changes
+        stype: Optional[str] = abort_null(request.args.get('type'))
         if not db.session.query(tsquery).scalar():
             return render_redirect(url_for('index'), 302)
         if (
@@ -944,9 +943,8 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
     def search(self, q=None, page=1, per_page=20) -> ReturnRenderWith:
         """Perform search within a project."""
         tsquery = get_tsquery(q)
-        stype: Optional[str] = abort_null(
-            request.args.get('type')
-        )  # Can't use requestargs as it doesn't support name changes
+        # Can't use @requestargs as it doesn't support name changes
+        stype: Optional[str] = abort_null(request.args.get('type'))
         if not db.session.query(tsquery).scalar():
             return render_redirect(url_for('index'), 302)
         if (

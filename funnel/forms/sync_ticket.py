@@ -64,7 +64,7 @@ class TicketEventForm(forms.Form):
     )
     badge_template = forms.URLField(
         __("Badge template URL"),
-        description="URL of background image for the badge",
+        description=__("URL of background image for the badge"),
         validators=[forms.validators.Optional(), forms.validators.ValidUrl()],
     )
 

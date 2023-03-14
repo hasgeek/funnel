@@ -82,7 +82,7 @@ class Label(
     seq = sa.Column(sa.Integer, nullable=False)
 
     # A single-line description of this label, shown when picking labels (optional)
-    description = sa.Column(sa.UnicodeText, nullable=False, default="")
+    description = sa.Column(sa.UnicodeText, nullable=False, default='')
 
     #: Icon for displaying in space-constrained UI. Contains one emoji symbol.
     #: Since emoji can be composed from multiple symbols, there is no length

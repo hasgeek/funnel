@@ -201,7 +201,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
         return render_template(
             'project_sponsor_popup.html.jinja2',
             form=form,
-            title="Remove sponsor?",
+            title=_("Remove sponsor?"),
             message=_("Remove ‘{sponsor}’ as a sponsor?").format(
                 sponsor=self.obj.profile.title
             ),

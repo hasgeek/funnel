@@ -46,9 +46,8 @@ def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
 
     assert new_project.cfp_start_at is not None
     assert not new_project.cfp_state.DRAFT
-    assert (
-        new_project in new_organization.profile.draft_projects
-    )  # because project state is still draft
+    # because project state is still draft
+    assert new_project in new_organization.profile.draft_projects
 
     new_project.publish()
     db_session.commit()
