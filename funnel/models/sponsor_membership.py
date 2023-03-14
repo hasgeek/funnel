@@ -49,7 +49,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
                 'urls',
             },
             'call': {'url_for'},
-        },
+        }
     }
     __datasets__ = {
         'primary': {

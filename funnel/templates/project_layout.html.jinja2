@@ -215,7 +215,7 @@
     {% if project.state.PUBLISHED %}
       <a class="add-calendar left-padding" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="{% trans %}Add to calendar{% endtrans %}" data-ga="Add to calendar" data-cy="add-to-calendar" role="button" aria-haspopup="true">{{ faicon(icon='calendar-plus', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
     {% endif %}
-    {% if current_auth.user.is_site_editor %}
+    {% if current_auth.user and current_auth.user.is_site_editor %}
       <div class="mui-dropdown left-padding">
         <a href="#" onclick="return false;" data-mui-toggle="dropdown" data-ga="Site editor menu" data-cy="site-editor-menu" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Site editor menu{% endtrans %}">{{ faicon(icon='user-gear-duotone', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
         <ul class="mui-dropdown__menu mui-dropdown__menu--right dropdown-menu">
@@ -344,41 +344,56 @@
   {%- if project.has_sponsors %}
   <p class="mui--text-subhead text-bold mui--text-light">{% trans %}Supported by{% endtrans %}</p>
   {%- endif %}
+  <div class="sponsors-wrapper">
   {% for sponsor in project.sponsor_memberships %}
   {%- with sponsor_public = sponsor.profile.state.PUBLIC %}
-    <div class="card card--shaped card--lessmargin" data-cy="sponsor-card">
-      <div class="card__body margin-bottom">
-        {% if sponsor.label %}
-          <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ sponsor.label }}</p>
-        {% endif %}
-        <div class="flex-wrapper flex-wrapper--center">
-          <div class="user user--smaller">
-            <div class="user__box">
-              <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="nounderline">
-                {%- if sponsor.profile.logo_url.url %}
-                  <img class="user__box__gravatar" src="{{ sponsor.profile.logo_url }}" alt="{{ sponsor.profile.title }}"/>
-                {%- else %}
-                  <div class="user__box__gravatar user__box__gravatar--initials">{{ sponsor.profile.title|initials }}</div>
-                {% endif %}
-              </a>
+      {% if current_auth.user and current_auth.user.is_site_editor %}
+        <div id="{{ sponsor.uuid_b58 }}" class="sortable" data-drag-placeholder="ui-box-placeholder" draggable="true">
+      {%- endif %}
+      <div class="card card--shaped card--lessmargin" data-cy="sponsor-card">
+        <div class="card__body margin-bottom">
+          <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between">
+            <div>
+            {% if sponsor.label %}
+              <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ sponsor.label }}</p>
+            {% endif %}
             </div>
+            {% if current_auth.user and current_auth.user.is_site_editor %}
+              {{ faicon(icon='grip-vertical', baseline=false, css_class="margin-top drag-handle") }}
+            {%- endif %}
           </div>
-          <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{{ sponsor.profile.title }}</a>
-          {% if current_auth.user.is_site_editor %}
-            <a href="{{ sponsor.url_for('edit') }}" rel="modal:open" aria-label="{% trans %}Edit sponsor{% endtrans %}" data-ga="Edit sponsor" data-cy="edit-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='edit', baseline=false, css_class="mui--text-light mui--align-middle fa-icon--left-margin fa-icon--right-margin") }}</a>
-            <a href="{{ sponsor.url_for('remove') }}" rel="modal:open" aria-label="{% trans %}Remove sponsor{% endtrans %}" data-ga="Remove sponsor" data-cy="remove-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='trash-alt', baseline=false, css_class="mui--text-light mui--align-middle") }}</a>
+          <div class="flex-wrapper flex-wrapper--center">
+            <div class="user user--smaller">
+              <div class="user__box">
+                <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="nounderline">
+                  {%- if sponsor.profile.logo_url.url %}
+                    <img class="user__box__gravatar" src="{{ sponsor.profile.logo_url }}" alt="{{ sponsor.profile.title }}"/>
+                  {%- else %}
+                    <div class="user__box__gravatar user__box__gravatar--initials">{{ sponsor.profile.title|initials }}</div>
+                  {% endif %}
+                </a>
+              </div>
+            </div>
+            <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{{ sponsor.profile.title }}</a>
+            {% if current_auth.user and current_auth.user.is_site_editor %}
+              <a href="{{ sponsor.url_for('edit') }}" rel="modal:open" aria-label="{% trans %}Edit sponsor{% endtrans %}" data-ga="Edit sponsor" data-cy="edit-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='edit', baseline=false, css_class="mui--text-light mui--align-middle fa-icon--left-margin fa-icon--right-margin") }}</a>
+              <a href="{{ sponsor.url_for('remove') }}" rel="modal:open" aria-label="{% trans %}Remove sponsor{% endtrans %}" data-ga="Remove sponsor" data-cy="remove-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='trash-alt', baseline=false, css_class="mui--text-light mui--align-middle") }}</a>
+            {% endif %}
+          </div>
+          {% if sponsor.profile.description.html %}
+            <div class="mui--text-body2 mui--text-light margin-bottom">{{ sponsor.profile.description.html|preview(min=200, max=300) }} {% if sponsor_public %}<a href="{{ sponsor.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class="mui--align-middle") }}</a>{% endif %}</div>
+          {% endif %}
+          {% if sponsor.is_promoted %}
+            <div class="margin-bottom"><p class="mui--text-body2 text-bold mui--text-light zero-bottom-margin">{{ faicon(icon='angle-double-up', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span data-cy="promoted">{% trans %}Promoted{% endtrans %}</span></p></div>
           {% endif %}
         </div>
-        {% if sponsor.profile.description.html %}
-          <div class="mui--text-body2 mui--text-light margin-bottom">{{ sponsor.profile.description.html|preview(min=200, max=300) }} {% if sponsor_public %}<a href="{{ sponsor.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class="mui--align-middle") }}</a>{% endif %}</div>
-        {% endif %}
-        {% if sponsor.is_promoted %}
-          <div class="margin-bottom"><p class="mui--text-body2 text-bold mui--text-light zero-bottom-margin">{{ faicon(icon='angle-double-up', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span data-cy="promoted">{% trans %}Promoted{% endtrans %}</span></p></div>
-        {% endif %}
       </div>
-    </div>
+      {% if current_auth.user and current_auth.user.is_site_editor %}
+        </div>
+      {%- endif %}
   {%- endwith %}
   {% endfor %}
+  </div>
 {% endmacro %}
 
 {% block basecontent %}
@@ -519,6 +534,7 @@
       };
       var tickets;
       var toggleId;
+      var sort;
 
       {% if project.features.tickets() -%}
         tickets = {
@@ -529,11 +545,16 @@
           itemCollectionTitle: {{ project.title|tojson }}
         };
       {%- endif %}
-      {% if current_auth.user.is_site_editor %}
+      {% if current_auth.user and current_auth.user.is_site_editor %}
         toggleId = '#featured-project'
+        sort = {
+          url: {{ project.url_for("reorder_sponsors")|tojson }},
+          wrapperElem: '.sponsors-wrapper',
+          placeholder: 'ui-box-placeholder'
+        };
       {%- endif %}
 
-      window.Hasgeek.projectHeaderInit(projectTitle, saveProjectConfig, tickets, toggleId);
+      window.Hasgeek.projectHeaderInit(projectTitle, saveProjectConfig, tickets, toggleId, sort);
     });
   </script>
   {% block footerinnerscripts %}{% endblock footerinnerscripts %}
