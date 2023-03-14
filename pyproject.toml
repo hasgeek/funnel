@@ -192,6 +192,7 @@ disable = [
   'no-member',  # Pylint gets confused over how some members become part of an instance
   'too-few-public-methods',  # Data classes and validator classes have few methods
   'too-many-ancestors',  # Our models have a large number of mixin classes
+  'too-many-arguments',  # Callables can have many optional arguments
   'too-many-instance-attributes',  # Some instances are just bags of attributes
   'too-many-lines',  # We have large files that include all related functionality
   'too-many-public-methods',  # Models and views have many public methods

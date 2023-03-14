@@ -221,7 +221,7 @@ class LoginProvider:
     #: used for addressing with @username
     at_username = False
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         name: str,
         title: str,

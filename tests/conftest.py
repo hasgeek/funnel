@@ -1468,7 +1468,7 @@ def client_hex_credential(models, db_session, client_hex) -> SimpleNamespace:
 
 
 @pytest.fixture()
-def all_fixtures(  # pylint: disable=too-many-arguments,too-many-locals
+def all_fixtures(  # pylint: disable=too-many-locals
     db_session,
     user_twoflower,
     user_rincewind,

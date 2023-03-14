@@ -1,5 +1,4 @@
 """Test configuration for markdown tests."""
-# pylint: disable=too-many-arguments
 
 from copy import copy
 from datetime import datetime

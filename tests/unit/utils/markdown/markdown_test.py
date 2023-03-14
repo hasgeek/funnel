@@ -1,5 +1,4 @@
 """Tests for markdown parser."""
-# pylint: disable=too-many-arguments
 
 import warnings
 

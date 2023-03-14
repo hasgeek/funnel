@@ -1,5 +1,4 @@
 """Test template strings in project crew membership notifications."""
-# pylint: disable=too-many-arguments
 
 from pytest_bdd import given, parsers, scenarios, then, when
 
