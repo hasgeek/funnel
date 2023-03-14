@@ -205,14 +205,14 @@ def _prepare_subprocess(
             from_email: Optional[Any] = None,
             headers: Optional[dict] = None,
         ) -> str:
-            calls.email.append(
-                CapturedEmail(
-                    subject,
-                    [str(each) for each in to],
-                    content,
-                    str(from_email) if from_email else None,
-                )
+            capture = CapturedEmail(
+                subject,
+                [str(each) for each in to],
+                content,
+                str(from_email) if from_email else None,
             )
+            calls.email.append(capture)
+            main_app.logger.info(capture)
             return token_urlsafe()
 
         def mock_sms(
@@ -220,7 +220,9 @@ def _prepare_subprocess(
             message: transports.sms.SmsTemplate,
             callback: bool = True,
         ) -> str:
-            calls.sms.append(CapturedSms(str(phone), str(message), message.vars()))
+            capture = CapturedSms(str(phone), str(message), message.vars())
+            calls.sms.append(capture)
+            main_app.logger.info(capture)
             return token_urlsafe()
 
         # Patch email
