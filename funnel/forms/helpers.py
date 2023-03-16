@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from typing import Optional
+import json
 
-from flask import flash
+from flask import flash, request
 
 from typing_extensions import Literal
 
@@ -217,6 +218,26 @@ class PhoneNumberAvailable:
         field.data = canonical_phone_number(parsed_number)
 
 
+class JsonFormPlaceholder:
+    ATTENDEE_DETAILS_PLACEHOLDER = {
+        "city": {"label": "City", "field_type": "string"},
+        "food_options": {
+            "label": "Food preference",
+            "field_type": "select",
+            "options": ["Veg", "Non-veg"],
+        },
+        "childcare": {
+            "label": "Do you need childcare?",
+            "field_type": "checkbox",
+            "option": "yes",
+        },
+        "survey": {
+            "label": "How did you hear about this event?",
+            "field_type": "textbox",
+        },
+    }
+
+
 def image_url_validator():
     """Customise ValidUrl for hosted image URL validation."""
     return forms.validators.ValidUrl(
@@ -253,6 +274,23 @@ def tostr(value: object) -> str:
     if value:
         return str(value)
     return ''
+
+
+def format_json(data):
+    if request.method == 'GET':
+        return json.dumps(data, indent=4, sort_keys=True)
+    # `json.loads` doesn't raise an exception for "null"
+    # so assign a default value of `{}`
+    if not data or data == 'null':
+        return json.dumps({})
+    return data
+
+
+def validate_json(form, field):
+    try:
+        json.loads(field.data)
+    except ValueError:
+        raise forms.validators.StopValidation(_("Invalid JSON")) from None
 
 
 strip_filters = [tostr, forms.filters.strip()]

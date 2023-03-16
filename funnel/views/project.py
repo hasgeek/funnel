@@ -24,6 +24,7 @@ from coaster.views import (
 from .. import app
 from ..forms import (
     CfpForm,
+    JsonFormPlaceholder,
     ProjectBannerForm,
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
@@ -575,6 +576,18 @@ class ProjectView(  # type: ignore[misc]
             'status': 'error',
             'error': 'validation',
             'error_description': _("Invalid form submission"),
+        }
+
+    @route('register_modal', methods=['GET', 'POST'])
+    @render_with('register_modal.html.jinja2')
+    @requires_login
+    def register_modal(self) -> ReturnRenderWith:
+        """Edit project banner."""
+        form = forms.Form()
+        return {
+            'project': self.obj.current_access(datasets=('primary', 'related')),
+            'form': form,
+            'form_fields': JsonFormPlaceholder.ATTENDEE_DETAILS_PLACEHOLDER,
         }
 
     @route('register', methods=['POST'])

@@ -15,6 +15,7 @@ from ..models import (
     UserEmail,
     db,
 )
+from .helpers import JsonFormPlaceholder, format_json, validate_json
 
 __all__ = [
     'ProjectBoxofficeForm',
@@ -24,6 +25,7 @@ __all__ = [
     'TicketParticipantForm',
     'TicketTypeForm',
 ]
+
 
 BOXOFFICE_DETAILS_PLACEHOLDER = {'org': 'hasgeek', 'item_collection_id': ''}
 
@@ -50,6 +52,12 @@ class ProjectBoxofficeForm(forms.Form):
         __("This is a subscription"),
         default=True,
         description=__("If not checked, buy tickets button will be shown"),
+    )
+    rsvp_attendee_details = forms.TextAreaField(
+        __("Fields for RSVP Form"),
+        filters=[format_json],
+        validators=[validate_json],
+        default=JsonFormPlaceholder.ATTENDEE_DETAILS_PLACEHOLDER,
     )
 
 

@@ -11,9 +11,12 @@ from coaster.utils import sorted_timezones, utcnow
 
 from ..models import Profile, Project, Rsvp, SavedProject
 from .helpers import (
+    JsonFormPlaceholder,
     ProfileSelectField,
+    format_json,
     image_url_validator,
     nullable_strip_filters,
+    validate_json,
     video_url_list_validator,
 )
 
@@ -349,3 +352,13 @@ class RsvpTransitionForm(forms.Form):
             (transition_name, getattr(Rsvp, transition_name))
             for transition_name in Rsvp.state.statemanager.transitions
         ]
+
+
+@Project.forms('rsvp')
+class ProjectRSVPForm(forms.Form):
+    attendee_details = forms.TextAreaField(
+        __("Attendee details"),
+        filters=[format_json],
+        validators=[validate_json],
+        default=JsonFormPlaceholder.ATTENDEE_DETAILS_PLACEHOLDER,
+    )

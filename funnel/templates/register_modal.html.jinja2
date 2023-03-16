@@ -1,0 +1,63 @@
+{% from "macros.html.jinja2" import faicon, csrf_tag %}
+
+<link rel="stylesheet" type="text/css" href="{{ built_asset('css/form.scss') }}" />
+
+<div class="modal__header">
+  <a class="modal__close mui--text-dark" href="#" onclick="return false;" data-target="close subscribe modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" data-cy="close-modal" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+  <p class="mui--text-title text-bold mui--text-dark" id="confirm-rsvp">{{ faicon(icon='info-circle', baseline=true, icon_size='subhead') }} {% trans %}Register{% endtrans %}</p>
+</div>
+<div class="modal__body">
+  <form action="{{ project.url_for('register') }}" method="post" class="form-inline">
+    {{ form.hidden_tag() }}
+    {{ csrf_tag() }}
+    {% raw %}
+      <div id="register-form">
+        <div v-for="(field, fieldName) in formFields">
+          <div class="mui-form__fields" :id="`field-${field.field_type}`">
+            <div class="mui-form__controls">
+
+              <div class="mui-textfield mui-textfield--float-label" v-if="field.field_type == 'string'">
+                <input :id="`${fieldName}`" type="text" :name="`${fieldName}`" value="" />
+                <label for="`${fieldName}`">{{ field.label }}</label>
+              </div>
+
+              <div class="mui-checkbox" v-if="field.field_type == 'checkbox'">
+                <label>
+                  <input id="`${fieldName}`" type="checkbox" value="" :checked="formFields[field] == field.option" :name="`${fieldName}`" />
+                  {{ field.label }}
+                </label>
+              </div>
+
+              <div class="mui-textfield" v-if="field.field_type == 'textbox'">
+                <label for="`${fieldName}`">{{ field.label }}</label>
+                <textarea id="`${fieldName}`" :name="`${fieldName}`" value=""></textarea>
+              </div>
+
+              <div class="mui-select" v-if="field.field_type == 'select'">
+                <select v-model="formFields[field]">
+                  <option v-for="option in field.options" :value="option">
+                    {{ option }}
+                  </option>
+                </select>
+                <label for="`${fieldName}`">{{ field.label }}</label>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endraw %}
+    <p class="mui--text-body2">{% trans %}This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time{% endtrans %}</p>
+    <div class="mui--text-right">
+      <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm{% endtrans %}</button>
+    </div>
+  </form>
+</div>
+<script src="{{ built_asset('register_form_modal.js') }}" type="text/javascript"></script>
+<script type="text/javascript">
+  $(function() {
+    var formFields = {{ form_fields|tojson }}
+
+    window.Hasgeek.registerForm(formFields);
+  });
+</script>
