@@ -32,6 +32,7 @@ from ..forms import (
     ProjectForm,
     ProjectLivestreamForm,
     ProjectNameForm,
+    ProjectRSVPForm,
     ProjectTransitionForm,
 )
 from ..models import (
@@ -297,6 +298,7 @@ class ProjectView(  # type: ignore[misc]
                 _p.current_access(datasets=('without_parent', 'related'))
                 for _p in self.obj.proposals.filter_by(featured=True)
             ],
+            'rsvp': self.obj.rsvp_for(current_auth.user),
         }
 
     @route('sub')
@@ -583,22 +585,26 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     def register_modal(self) -> ReturnRenderWith:
         """Edit project banner."""
-        form = forms.Form()
+        form = ProjectRSVPForm()
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'form': form,
-            'form_fields': JsonFormPlaceholder.ATTENDEE_DETAILS_PLACEHOLDER,
+            'json_schema': JsonFormPlaceholder.JSON_SCHEMA,
         }
 
     @route('register', methods=['POST'])
     @requires_login
     def register(self) -> ReturnView:
         """Register for project as a participant."""
-        form = forms.Form()
-        if form.validate_on_submit():
+        rsvp_form = ProjectRSVPForm(
+            obj=SimpleNamespace(form=request.json.get('form', {})),
+            model=Project,
+        )
+        if rsvp_form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
             if not rsvp.state.YES:
                 rsvp.rsvp_yes()
+                rsvp.form = rsvp_form.form.data
                 db.session.commit()
                 project_role_change.send(
                     self.obj, actor=current_auth.user, user=current_auth.user

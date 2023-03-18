@@ -1,0 +1,40 @@
+{% macro json_form_template() %}
+  {% raw %}
+    <script type="text/x-template" id="form-template">
+      <div>
+        <p v-if="title">{{ title }}</p>
+        <div v-for="(field, fieldName) in jsonschema">
+          <div class="mui-form__fields" :id="`field-${fieldName}`">
+            <div class="mui-form__controls">
+
+              <div class="mui-select" v-if="field.type == 'string' && 'enum' in field">
+                <select :id="`${fieldName}`">
+                  <option v-for="option in field.enum" :value="option">
+                    {{ option }}
+                  </option>
+                </select>
+                <label for="`${fieldName}`">{{ fieldName }}</label>
+                <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
+              </div>
+
+              <div class="mui-textfield mui-textfield--float-label" v-else-if="field.type == 'string'">
+                <input :id="`${fieldName}`" type="text" :name="`${fieldName}`" value="" />
+                <label for="`${fieldName}`">{{ fieldName }}</label>
+                <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
+              </div>
+
+              <div class="mui-checkbox" v-if="field.type == 'boolean'">
+                <label>
+                  <input id="`${fieldName}`" type="checkbox" :name="`${fieldName}`" />
+                  {{ fieldName }}
+                </label>
+                <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </script>
+  {% endraw %}
+{%- endmacro %}

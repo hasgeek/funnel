@@ -349,11 +349,15 @@ window.Hasgeek.Forms = {
     }
   },
   ajaxFormSubmit: function (formId, url, onSuccess, onError, config) {
+    var formData = $('#' + formId).serialize();
     $.ajax({
       url: url,
       type: 'POST',
-      data: $('#' + formId).serialize(),
+      data: config.formData ? config.formData : formData,
       dataType: config.dataType ? config.dataType : 'json',
+      contentType: config.contentType
+        ? config.contentType
+        : 'application/x-www-form-urlencoded',
       beforeSend: function () {
         window.Hasgeek.Forms.preventDoubleSubmit(formId);
         if (config.beforeSend) config.beforeSend();

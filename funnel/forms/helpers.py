@@ -219,21 +219,12 @@ class PhoneNumberAvailable:
 
 
 class JsonFormPlaceholder:
-    ATTENDEE_DETAILS_PLACEHOLDER = {
-        "city": {"label": "City", "field_type": "string"},
-        "food_options": {
-            "label": "Food preference",
-            "field_type": "select",
-            "options": ["Veg", "Non-veg"],
-        },
-        "childcare": {
-            "label": "Do you need childcare?",
-            "field_type": "checkbox",
-            "option": "yes",
-        },
-        "survey": {
-            "label": "How did you hear about this event?",
-            "field_type": "textbox",
+    JSON_SCHEMA = {
+        "job": {"type": "string", "description": "The task's name"},
+        "done": {"type": "boolean"},
+        "recurrence": {
+            "type": "string",
+            "enum": ["Never", "Daily", "Weekly", "Monthly"],
         },
     }
 

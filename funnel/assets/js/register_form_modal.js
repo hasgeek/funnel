@@ -1,16 +1,20 @@
 import Vue from 'vue/dist/vue.esm';
+import jsonForm from './utils/jsonform';
 
 Vue.config.devtools = true;
 
 const FormUI = {
-  init(formFields) {
+  init(jsonSchema) {
     /* eslint-disable no-new */
     new Vue({
       el: '#register-form',
       data() {
         return {
-          formFields,
+          jsonSchema,
         };
+      },
+      components: {
+        jsonForm,
       },
       methods: {
         onChange(event) {
@@ -25,7 +29,7 @@ const FormUI = {
 };
 
 $(() => {
-  window.Hasgeek.registerForm = (formFields) => {
-    FormUI.init(formFields);
+  window.Hasgeek.registerForm = (jsonSchema) => {
+    FormUI.init(jsonSchema);
   };
 });

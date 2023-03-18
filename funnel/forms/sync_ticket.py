@@ -53,11 +53,11 @@ class ProjectBoxofficeForm(forms.Form):
         default=True,
         description=__("If not checked, buy tickets button will be shown"),
     )
-    rsvp_attendee_details = forms.TextAreaField(
-        __("Fields for RSVP Form"),
+    rsvp_form_json_schema = forms.TextAreaField(
+        __("Enter fields to be shown in registration form in JSON SCHEMA format"),
         filters=[format_json],
         validators=[validate_json],
-        default=JsonFormPlaceholder.ATTENDEE_DETAILS_PLACEHOLDER,
+        default=JsonFormPlaceholder.JSON_SCHEMA,
     )
 
 

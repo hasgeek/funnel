@@ -14,7 +14,7 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from ..typing import OptionalMigratedTables
-from . import NoIdMixin, UuidMixin, db, sa
+from . import JsonDict, NoIdMixin, UuidMixin, db, sa
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
@@ -57,6 +57,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
         read={'owner', 'project_promoter'},
         grants={'owner'},
     )
+    form = db.Column(JsonDict, default={}, nullable=True)
 
     _state = sa.Column(
         'state',
@@ -72,7 +73,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     __roles__ = {
         'owner': {'read': {'created_at', 'updated_at'}},
-        'project_promoter': {'read': {'created_at', 'updated_at'}},
+        'project_promoter': {'read': {'created_at', 'updated_at', 'form'}},
     }
 
     __datasets__ = {
