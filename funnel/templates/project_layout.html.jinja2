@@ -181,7 +181,7 @@
           {%- else %}
             <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Get tickets{% endtrans %}</span>
           {% endif %}
-          <span class="register-block__btn__txt register-block__btn__txt--smaller js-tickets-available"></span>
+          <span class="register-block__btn__txt register-block__btn__txt--smaller js-tickets-available"><span class="js-ticket-price"></span></span>
           <span class="register-block__btn__txt register-block__btn__txt--smaller js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
         </button>
       {%- endif %}

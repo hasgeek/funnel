@@ -96,8 +96,10 @@
 
 @media (min-width: 480px) {
   .register-block {
-    .register-block__content__txt {
-      font-size: 10px;
+    .register-block__content {
+      .register-block__content__txt {
+        font-size: 10px;
+      }
     }
   }
 }
@@ -123,6 +125,7 @@
           }
           .register-block__btn__txt--smaller {
             font-size: 12px;
+            color: $mui-text-light;
           }
         }
       }
