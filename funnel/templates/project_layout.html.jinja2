@@ -128,7 +128,7 @@
       {% elif project.features.rsvp_unregistered() -%}
         <span class="register-block__content__txt mui--text-light">{% trans %}This is a free event{% endtrans %}</span>
         <a class="mui-btn mui-btn--raised mui-btn--dark zero-top-margin zero-bottom-margin register-block__btn js-register-btn" href="#register-modal" role="button" aria-haspopup="true">
-          <span class="register-block__btn__txt">{{ project.views.register_button_text() }}</span>
+          <span class="register-block__btn__txt">{% if project.features.follow_mode() %}{% trans %}Follow{% endtrans %}{% else %}{% trans %}Register{% endtrans %}{% endif %}</span>
           <span class="register-block__btn__txt register-block__btn__txt--smaller" data-cy="unregistered">{{ project.views.registration_text() }}</span>
         </a>
         <div class="modal" id="register-modal" role="dialog" aria-labelledby="confirm-rsvp" aria-modal="true" tabindex="-1">
@@ -148,9 +148,10 @@
           </div>
         </div>
       {%- elif project.features.rsvp_registered() %}
-        <span class="register-block__content__txt mui--text-light">{{ project.views.registration_text() }}</span>
-        <a class="mui-btn mui-btn--raised mui-btn--default zero-top-margin zero-bottom-margin register-block__btn js-register-btn" href="#register-modal" aria-haspopup="true">
-          <span class="register-block__btn__txt">{% if project.features.follow_mode() %}{% trans %}Following{% endtrans %}{% else %}{% trans %}Registered{% endtrans %}{% endif %}</span>
+        <span class="register-block__content__txt mui--text-light"></span>
+        <a class="mui-btn mui-btn--accent mui-btn--raised zero-top-margin zero-bottom-margin register-block__btn js-register-btn" href="#register-modal" aria-haspopup="true">
+          <span class="register-block__btn__txt">{% if project.features.follow_mode() %}{% trans %}Following{% endtrans %}{% else %}{% trans %}Registered{% endtrans %}{% endif %}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class="mui--text-success fa-icon--left-margin") }}</span>
+          <span class="register-block__btn__txt register-block__btn__txt--smaller">{{ project.views.registration_text() }}</span>
         </a>
         <div class="modal" id="register-modal" role="dialog" aria-labelledby="cancel-rsvp" aria-modal="true" tabindex="-1">
           <div class="modal__header">
