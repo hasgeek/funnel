@@ -46,6 +46,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
         ),
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
+        datasets={'primary'},
     )
     user_id = sa.Column(
         sa.Integer, sa.ForeignKey('user.id'), nullable=False, primary_key=True
@@ -56,8 +57,14 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
         ),
         read={'owner', 'project_promoter'},
         grants={'owner'},
+        datasets={'primary', 'without_parent'},
     )
-    form: Mapped[Optional[dict]] = sa.orm.mapped_column(json_type, nullable=True)
+    form: Mapped[Optional[dict]] = with_roles(
+        sa.orm.mapped_column(json_type, nullable=True),
+        rw={'owner'},
+        read={'project_promoter'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
 
     _state = sa.Column(
         'state',
@@ -73,13 +80,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     __roles__ = {
         'owner': {'read': {'created_at', 'updated_at'}},
-        'project_promoter': {'read': {'created_at', 'updated_at', 'form'}},
-    }
-
-    __datasets__ = {
-        'primary': {'project', 'user', 'response'},
-        'without_parent': {'user', 'response'},
-        'related': {'response'},
+        'project_promoter': {'read': {'created_at', 'updated_at'}},
     }
 
     @property
@@ -87,7 +88,11 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
         """Return RSVP response as a raw value."""
         return self._state
 
-    with_roles(response, read={'owner', 'project_promoter'})
+    with_roles(
+        response,
+        read={'owner', 'project_promoter'},
+        datasets={'primary', 'without_parent', 'related'},
+    )
 
     @with_roles(call={'owner'})
     @state.transition(
