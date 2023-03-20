@@ -87,9 +87,13 @@ def pytest_collection_modifyitems(items) -> None:
 
 # Adapted from https://github.com/untitaker/pytest-fixture-typecheck
 def pytest_runtest_call(item):
-    for attr, type_ in item.obj.__annotations__.items():
+    for attr, type_ in t.get_type_hints(
+        item.obj,
+        globalns=item.obj.__globals__,
+        localns={'Any': t.Any},  # pytest-bdd appears to insert an `Any` annotation
+    ).items():
         if attr in item.funcargs:
-            typeguard.check_type(attr, item.funcargs[attr], type_)
+            typeguard.check_type(item.funcargs[attr], type_)
 
 
 # --- Import fixtures ------------------------------------------------------------------
