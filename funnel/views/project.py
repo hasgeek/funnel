@@ -234,7 +234,7 @@ def project_registration_text(obj: Project) -> str:
 def project_register_button_text(obj: Project) -> str:
     if obj.features.follow_mode():
         return _("Follow")
-    return _("Join free")
+    return _("Register")
 
 
 @Profile.views('project_new')

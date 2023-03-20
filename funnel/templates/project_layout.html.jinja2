@@ -126,7 +126,7 @@
       {%- if current_auth.is_anonymous %}
         <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} register-block__btn js-login-register-btn" id="register-nav" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
       {% elif project.features.rsvp_unregistered() -%}
-        <span class="register-block__content__txt mui--text-light">{% trans %}This is a free event{% endtrans %}</span>
+        {% if not project.features.follow_mode() %}<span class="register-block__content__txt mui--text-light">{% trans %}This is a free event{% endtrans %}</span>{% endif %}
         <a class="mui-btn mui-btn--raised mui-btn--dark register-block__btn js-register-btn" href="#register-modal" role="button" aria-haspopup="true">
           <span class="register-block__btn__txt">{% if project.features.follow_mode() %}{% trans %}Follow{% endtrans %}{% else %}{% trans %}Register{% endtrans %}{% endif %}</span>
           <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt" data-cy="unregistered">{{ project.views.registration_text() }}</span>
@@ -170,7 +170,7 @@
         </div>
       {%- endif %}
     {% elif project.buy_tickets_url.url -%}
-      <a class="register-block__btn full-width-btn mui-btn mui-btn--primary" href="{{ project.buy_tickets_url.url }}" data-action="external register url" target="_blank" rel="noopener">{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{% trans %}Register{% endtrans %}</a>
+      <a class="register-block__btn full-width-btn mui-btn mui-btn--primary" href="{{ project.buy_tickets_url.url }}" data-action="external register url" target="_blank" rel="noopener"><span>{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{% trans %}Register{% endtrans %}</span></a>
     {% endif %}
     </div>
     <div class="register-block__content">
