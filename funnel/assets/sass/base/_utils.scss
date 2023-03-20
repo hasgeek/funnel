@@ -195,7 +195,7 @@
 }
 
 .primary-color-lighter-txt {
-  color: $mui-primary-color-lighter;
+  color: rgba($mui-primary-color-lighter, 0.75);
 }
 
 .secondary-color-txt {
