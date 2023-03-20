@@ -10,7 +10,8 @@ all:
 	@echo
 	@echo "For development:"
 	@echo "  make install-dev   # For first time setup and after dependency upgrades"
-	@echo "  make deps          # Scan for dependency upgrades (and test afterwards!)"
+	@echo "  make deps-noup     # Rebuild for dependency changes, but skip upgrades"
+	@echo "  make deps          # Scan for dependency upgrades (remember to test!)"
 	@echo "  make deps-python   # Scan for Python dependency upgrades"
 	@echo "  make deps-npm      # Scan for NPM dependency upgrades"
 	@echo
@@ -77,6 +78,8 @@ deps-python-verify:
 
 deps-npm:
 	npm update
+
+deps-noup: deps-python-noup
 
 deps: deps-python deps-npm
 
