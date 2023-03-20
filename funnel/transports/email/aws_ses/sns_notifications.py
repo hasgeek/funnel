@@ -63,7 +63,7 @@ class SnsValidatorChecks(IntFlag):
     SIGNATURE_VERSION = 2
     CERTIFICATE_URL = 4
     SIGNATURE = 8
-    ALL = 15
+    ALL = 15  # pylint: disable=implicit-flag-alias
 
 
 class SnsValidator:
@@ -196,7 +196,7 @@ class SnsValidator:
                 signature,
                 plaintext,
                 PKCS1v15(),
-                SHA1(),  # skipcq: PTC-W1003
+                SHA1(),  # nosec  # skipcq: PTC-W1003
             )
         except InvalidSignature as exc:
             raise SnsSignatureFailureError("Signature mismatch") from exc

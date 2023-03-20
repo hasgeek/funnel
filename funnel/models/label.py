@@ -82,7 +82,7 @@ class Label(
     seq = sa.Column(sa.Integer, nullable=False)
 
     # A single-line description of this label, shown when picking labels (optional)
-    description = sa.Column(sa.UnicodeText, nullable=False, default="")
+    description = sa.Column(sa.UnicodeText, nullable=False, default='')
 
     #: Icon for displaying in space-constrained UI. Contains one emoji symbol.
     #: Since emoji can be composed from multiple symbols, there is no length
@@ -180,9 +180,8 @@ class Label(
 
     @hybrid_property
     def restricted(self) -> bool:
-        return (  # pylint: disable=protected-access
-            self.main_label._restricted if self.main_label else self._restricted
-        )
+        # pylint: disable=protected-access
+        return self.main_label._restricted if self.main_label else self._restricted
 
     @restricted.setter
     def restricted(self, value: bool) -> None:

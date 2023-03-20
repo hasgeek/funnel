@@ -25,7 +25,7 @@
             {{ actor1 }}, {{ actor2 }} and one other left comments
           {%- endtrans -%}
         {%- else %}
-          {%- trans actor1=commenters[0].pickername, actor2=commenters[1].pickername, count=count -%}
+          {%- trans actor1=commenters[0].pickername, actor2=commenters[1].pickername, count=(count-2)|numberformat -%}
             {{ actor1 }}, {{ actor2 }} and {{ count }} others left comments
           {%- endtrans -%}
         {%- endif %}

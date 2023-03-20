@@ -12,8 +12,8 @@
         <p>{% trans project=membership.project.title %}You have been invited to {{ project }}{% endtrans %}</p>
         <form method='post' action="{{ membership.url_for('invite_action') }}">
           {{ form.hidden_tag() }}
-          <button type="submit" name="action" value="accept">Accept</button>
-          <button type="submit" name="action" value="decline">Decline</button>
+          <button type="submit" name="action" value="accept">{% trans %}Accept{% endtrans %}</button>
+          <button type="submit" name="action" value="decline">{% trans %}Decline{% endtrans %}</button>
         </form>
       </div>
     </div>

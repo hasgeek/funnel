@@ -20,6 +20,7 @@ lxml-stubs
 mypy
 pep8-naming
 pip-compile-multi
+po2json
 pre-commit
 pylint
 pylint-pytest

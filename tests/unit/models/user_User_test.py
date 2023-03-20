@@ -255,7 +255,7 @@ def test_user_autocomplete(
 
 
 @pytest.mark.parametrize('defercols', [False, True])
-def test_user_all(  # pylint: disable=too-many-arguments
+def test_user_all(
     db_session,
     user_twoflower,
     user_rincewind,

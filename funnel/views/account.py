@@ -657,7 +657,7 @@ class AccountView(ClassView):
             message=_("We will resend the verification email to {email}").format(
                 email=emailclaim.email
             ),
-            formid="email_verify",
+            formid='email_verify',
             submit=_("Send"),
             template='account_formlayout.html.jinja2',
         )
@@ -806,7 +806,7 @@ class AccountView(ClassView):
             )
         return render_form(
             form=form,
-            formid="account-delete",
+            formid='account-delete',
             title=_("You are about to delete your account permanently"),
             submit=("Delete account"),
             ajax=False,

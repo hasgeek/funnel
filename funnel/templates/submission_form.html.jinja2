@@ -49,7 +49,7 @@
       <div class="mui-container">
         <div class="grid">
           <div class="grid__col-sm-12">
-            {{ renderfield(form.title, css_class="mui-form__fields--noborder", nolabel=true, placeholder="Title") }}
+            {{ renderfield(form.title, css_class="mui-form__fields--noborder", nolabel=true, placeholder=_("Title")) }}
             <div class="submission-header__edit-icons bottom-padding">
               {%- if form.formlabels %}
                 <div class="bottom-padding submission-label">
@@ -76,7 +76,7 @@
                 <div class="js-modal-field mui--hide">
                   <div class="js-field top-padding">
                     {{ renderfield(form.video_url, css_class="top-padding") }}
-                    <a href="#close" class="mui-btn mui-btn--raised mui-btn--primary" rel="modal:close" data-cy="save">Done</a>
+                    <a href="#close" class="mui-btn mui-btn--raised mui-btn--primary" rel="modal:close" data-cy="save">{% trans %}Done{% endtrans %}</a>
                   </div>
                 </div>
               </div>
@@ -97,7 +97,7 @@
                             {% include "collaborator_list.html.jinja2" %}
                           {% endwith %}
                         </div>
-                        <a href="{{ proposal.url_for('add_collaborator') }}" class="mui-btn mui-btn--small mui-btn--primary nounderline" rel="modal:open" aria-label="Add collaborator" data-ga="Add collaborator" data-cy="add-collaborator" role="button" aria-haspopup="true">{% trans %}Add new collaborator{% endtrans %}</a>
+                        <a href="{{ proposal.url_for('add_collaborator') }}" class="mui-btn mui-btn--small mui-btn--primary nounderline" rel="modal:open" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Add collaborator" data-cy="add-collaborator" role="button" aria-haspopup="true">{% trans %}Add new collaborator{% endtrans %}</a>
                       </div>
                     </div>
                   </div>
@@ -107,7 +107,7 @@
           </div>
           <div class="grid__col-sm-6 proposal-markdown" id="markdown">
             <p class="mui--text-body2 mui--text-light text-bold text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Markdown{% endtrans %}</p>
-            {{ renderfield(form.body, css_class="mui-form__fields--noborder markdown-field", nolabel=true, placeholder="Content") }}
+            {{ renderfield(form.body, css_class="mui-form__fields--noborder markdown-field", nolabel=true, placeholder=_("Content")) }}
           </div>
           <div class="grid__col-sm-6">
             <p class="mui--text-body2 mui--text-light text-bold text-uppercase zero-bottom-margin mui--hidden-xs mui--hidden-sm">{% trans %}Preview{% endtrans %}</p>

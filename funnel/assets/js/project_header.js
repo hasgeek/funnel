@@ -4,6 +4,7 @@ import Analytics from './utils/analytics';
 import Spa from './utils/spahelper';
 import Form from './utils/formhelper';
 import initEmbed from './utils/initembed';
+import SortItem from './utils/sort';
 
 const Ticketing = {
   init(tickets) {
@@ -164,7 +165,8 @@ $(() => {
     projectTitle,
     saveProjectConfig = '',
     tickets = '',
-    toggleId = ''
+    toggleId = '',
+    sort = ''
   ) => {
     if (saveProjectConfig) {
       SaveProject(saveProjectConfig);
@@ -199,6 +201,10 @@ $(() => {
 
     if (toggleId) {
       Form.activateToggleSwitch(toggleId);
+    }
+
+    if (sort?.url) {
+      SortItem($(sort.wrapperElem), sort.placeholder, sort.url);
     }
 
     const hightlightNavItem = (navElem) => {

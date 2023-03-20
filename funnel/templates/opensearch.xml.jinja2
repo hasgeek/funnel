@@ -4,7 +4,7 @@
   <Description>{% trans %}Search Hasgeek for projects, discussions and more{% endtrans %}</Description>
   <Url type="text/html" method="get"
        template="{{ url_for('search', _external=true) }}?q={searchTerms}"/>
-  <Developer>Hasgeek</Developer>
+  <Developer>{% trans %}Hasgeek{% endtrans %}</Developer>
   <Language>{{ get_locale() }}</Language>
   <OutputEncoding>UTF-8</OutputEncoding>
   <InputEncoding>UTF-8</InputEncoding>

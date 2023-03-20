@@ -4,7 +4,7 @@
 {% block content %}
   {%- if view.is_rollup %}
     <p>
-      {%- trans project=project.joined_title, project_url=project.url_for(), count=view.fragments|length %}
+      {%- trans project=project.joined_title, project_url=project.url_for(), count=view.fragments|length|numberformat %}
         Your project <a href="{{ project_url }}">{{ project }}</a> has received {{ count }} new submissions:
       {%- endtrans %}
     </p>

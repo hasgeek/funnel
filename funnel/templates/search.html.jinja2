@@ -26,7 +26,11 @@
             <div class="user__box__header comment__header__details__user">
               <h4 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ item.url }}">{{ item.title_html }}</a></h4>
               <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
-                {%- if item.obj.speaker %}{{ item.obj.speaker }} <span class="mui--text-light">{% trans %}in{% endtrans %}</span>{% endif %} {{ item.obj.project.title }} <span class="mui--text-light">at</span> {{ item.obj.start_at_localized|time }}–{{ item.obj.end_at_localized|date }} <span class="mui--text-light">{% trans %}on{% endtrans %}</span> {{ item.obj.start_at_localized|date }}
+                {#- The trans tags are useless here as they assume English grammar.
+                    We need to wrap the entire section in one trans tag, but make the
+                    markup as parameters so that tags and CSS classes aren't hardcoded
+                    into the translation. #}
+                {%- if item.obj.speaker %}{{ item.obj.speaker }} <span class="mui--text-light">{% trans %}in{% endtrans %}</span>{% endif %} {{ item.obj.project.title }} <span class="mui--text-light">{% trans %}at{% endtrans %}</span> {{ item.obj.start_at_localized|time }}–{{ item.obj.end_at_localized|date }} <span class="mui--text-light">{% trans %}on{% endtrans %}</span> {{ item.obj.start_at_localized|date }}
               </h3>
             </div>
           </div>
@@ -41,7 +45,7 @@
               <h3 class="mui--text-body2 zero-top-margin zero-bottom-margin">
                 {%- if item.obj.first_user.fullname %}<span>{{ item.obj.first_user.fullname }}</span> <span class="mui--text-light">{% trans %}in{% endtrans %}</span>{% endif %} <span>{{ item.obj.project.joined_title }} </span>
                 {%- if item.obj.session and item.obj.session.start_at %}
-                  <span><span class="mui--text-light">at</span> {{ item.obj.session.start_at_localized|time }}–{{ item.obj.session.end_at_localized|time }} <span class="mui--text-light">{% trans %}on{% endtrans %}</span> {{ item.obj.session.start_at_localized|date }}</span>
+                  <span><span class="mui--text-light">{% trans %}at{% endtrans %}</span> {{ item.obj.session.start_at_localized|time }}–{{ item.obj.session.end_at_localized|time }} <span class="mui--text-light">{% trans %}on{% endtrans %}</span> {{ item.obj.session.start_at_localized|date }}</span>
                 {% endif %}
               </h3>
             </div>
@@ -90,7 +94,7 @@
       <div class="mui-container">
         <div class="tabs" id="scrollable-tabs">
           {% for count in counts %}
-            <p class="tabs__item tabs__item--badge mui--text-body2 {%- if (not type and loop.first) or type == count.type %} tabs__item--active {% endif %}" hx-get="{{ url_for('search', q=query, type=count.type, page=1) }}" hx-target="#tab-content" hx-swap="innerHTML" hx-push-url="true">{{ count.label }} <span class="mui--text-caption badge badge--tab">{{ count.count }}</span></p>
+            <p class="tabs__item tabs__item--badge mui--text-body2 {%- if (not type and loop.first) or type == count.type %} tabs__item--active {% endif %}" hx-get="{{ url_for('search', q=query, type=count.type, page=1) }}" hx-target="#tab-content" hx-swap="innerHTML" hx-push-url="true">{{ count.label }} <span class="mui--text-caption badge badge--tab">{{ count.count|numberformat }}</span></p>
           {% endfor %}
         </div>
       </div>
