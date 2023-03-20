@@ -91,6 +91,9 @@
         text-transform: initial;
         font-style: italic;
         font-weight: 400;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: auto;
       }
       &:hover .register-block__btn__txt--hover {
         display: none;
