@@ -16,7 +16,7 @@
   width: 100%;
   left: 0;
   bottom: 0;
-  padding: 0 $mui-grid-padding $mui-grid-padding/4 !important;
+  padding: $mui-grid-padding/4 $mui-grid-padding $mui-grid-padding/4 !important;
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
   z-index: 1000;
@@ -56,14 +56,16 @@
   width: 100%;
   flex-wrap: wrap;
   .register-block__content {
-    width: 49%;
-    margin-left: 1%;
+    width: calc(50% - 8px);
     align-self: flex-end;
     .register-block__content__txt {
       font-size: 9px;
+      line-height: 16px;
       width: 100%;
       display: block;
       font-style: italic;
+      line-height: 0;
+      margin-bottom: $mui-grid-padding/4;
     }
     .register-block__btn {
       width: 100%;
@@ -72,19 +74,21 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin: 0;
+      margin: 0 0 2px;
       justify-content: center;
+      height: 42px;
       .register-block__btn__txt {
         display: block;
         width: 100%;
-        line-height: 15px;
         font-size: 12px;
+        line-height: 16px;
       }
       .register-block__btn__txt--hover--show {
         display: none;
       }
       .register-block__btn__txt--smaller {
         font-size: 10px;
+        line-height: 16px;
         text-transform: initial;
         font-style: italic;
         font-weight: 400;
@@ -97,21 +101,12 @@
       }
     }
   }
-  .register-block__btn:hover .register-block__btn__txt--hover {
-    display: none;
-  }
-
-  .register-block__btn:hover .register-block__btn__txt--hover--show {
-    display: block;
-  }
   .register-block__content:first-child {
-    width: 49%;
-    margin-right: 1%;
-    margin-left: 0;
+    margin-right: 16px;
   }
 }
 
-@media (min-width: 480px) {
+@media (min-width: 380px) {
   .register-block {
     .register-block__content {
       .register-block__content__txt {
@@ -131,7 +126,8 @@
         margin-bottom: $mui-grid-padding;
         .register-block__content__txt {
           font-size: 14px;
-          margin-bottom: $mui-grid-padding/4;
+          line-height: 21px;
+          margin-bottom: $mui-grid-padding/2;
         }
         .register-block__btn {
           width: 100%;
