@@ -99,6 +99,10 @@
       }
       &:hover .register-block__btn__txt--hover--show {
         display: block;
+        color: $mui-text-danger;
+      }
+      &:hover {
+        border-color: $mui-text-danger;
       }
     }
   }
