@@ -357,7 +357,7 @@ class RsvpTransitionForm(forms.Form):
 @Project.forms('rsvp')
 class ProjectRSVPForm(forms.Form):
     form = forms.TextAreaField(
-        __("form"),
+        __("Form"),
         filters=[format_json],
         validators=[validate_json],
         default={},

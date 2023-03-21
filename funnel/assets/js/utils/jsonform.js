@@ -1,4 +1,4 @@
-import Vue from 'vue/dist/vue.esm';
+import Vue from 'vue/dist/vue.min';
 import Form from './formhelper';
 
 const jsonForm = Vue.component('jsonform', {
@@ -37,6 +37,13 @@ const jsonForm = Vue.component('jsonform', {
   mounted() {
     console.log('jsonform mounted formid', this.formid);
     this.activateForm();
+  },
+  filters: {
+    capitalised(label) {
+      let capitalized = [];
+      capitalized = [label.charAt(0).toUpperCase(), ...label.slice(1).toLowerCase()];
+      return capitalized.join('');
+    },
   },
 });
 

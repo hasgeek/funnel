@@ -15,7 +15,7 @@ from ..models import (
     UserEmail,
     db,
 )
-from .helpers import JsonFormPlaceholder, format_json, validate_json
+from .helpers import format_json, validate_json
 
 __all__ = [
     'ProjectBoxofficeForm',
@@ -24,10 +24,24 @@ __all__ = [
     'TicketParticipantBadgeForm',
     'TicketParticipantForm',
     'TicketTypeForm',
+    'REGISTER_FORM_PLACEHOLDER',
 ]
 
 
 BOXOFFICE_DETAILS_PLACEHOLDER = {'org': 'hasgeek', 'item_collection_id': ''}
+
+REGISTER_FORM_PLACEHOLDER = {
+    "job title": {"type": "string", "description": "Your current job role"},
+    "attend in-person": {"type": "boolean"},
+    "expertise": {
+        "type": "string",
+        "enum": [
+            "novice",
+            "intermediate",
+            "expert",
+        ],
+    },
+}
 
 
 @Project.forms('boxoffice')
@@ -53,11 +67,16 @@ class ProjectBoxofficeForm(forms.Form):
         default=True,
         description=__("If not checked, buy tickets button will be shown"),
     )
+    register_button_txt = forms.StringField(
+        __("Register button text"),
+        filters=[forms.filters.strip()],
+        description=__("If empty, a default button text 'Register' will be shown"),
+    )
     rsvp_form_json_schema = forms.TextAreaField(
         __("Enter fields to be shown in registration form in JSON SCHEMA format"),
         filters=[format_json],
         validators=[validate_json],
-        default=JsonFormPlaceholder.JSON_SCHEMA,
+        default=REGISTER_FORM_PLACEHOLDER,
     )
 
 

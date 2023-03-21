@@ -128,7 +128,7 @@
       {% elif project.features.rsvp_unregistered() -%}
         {% if not project.features.follow_mode() %}<span class="register-block__content__txt mui--text-light">{% trans %}This is a free event{% endtrans %}</span>{% endif %}
         <a class="mui-btn mui-btn--raised mui-btn--dark register-block__btn js-register-btn" href="{{ project.url_for('register_modal') }}" rel="modal:open" role="button" aria-haspopup="true" >
-          <span class="register-block__btn__txt">{% if project.features.follow_mode() %}{% trans %}Follow{% endtrans %}{% else %}{% trans %}Register{% endtrans %}{% endif %}</span>
+          <span class="register-block__btn__txt">{{ project.views.register_button_text() }}</span>
           <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt" data-cy="unregistered">{{ project.views.registration_text() }}</span>
         </a>
       {%- elif project.features.rsvp_registered() %}

@@ -23,8 +23,8 @@ from coaster.views import (
 
 from .. import app
 from ..forms import (
+    REGISTER_FORM_PLACEHOLDER,
     CfpForm,
-    JsonFormPlaceholder,
     ProjectBannerForm,
     ProjectBoxofficeForm,
     ProjectCfpTransitionForm,
@@ -236,6 +236,12 @@ def project_registration_text(obj: Project) -> str:
 def project_register_button_text(obj: Project) -> str:
     if obj.features.follow_mode():
         return _("Follow")
+    if (
+        obj.boxoffice_data is not None
+        and 'register_button_txt' in obj.boxoffice_data
+        and obj.boxoffice_data['register_button_txt']
+    ):
+        return obj.boxoffice_data['register_button_txt']
     return _("Register")
 
 
@@ -518,6 +524,7 @@ class ProjectView(  # type: ignore[misc]
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
                 allow_rsvp=self.obj.allow_rsvp,
                 is_subscription=boxoffice_data.get('is_subscription', True),
+                register_button_txt=boxoffice_data.get('register_button_txt', ''),
             ),
             model=Project,
         )
@@ -526,6 +533,9 @@ class ProjectView(  # type: ignore[misc]
             self.obj.boxoffice_data['org'] = form.org.data
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             self.obj.boxoffice_data['is_subscription'] = form.is_subscription.data
+            self.obj.boxoffice_data[
+                'register_button_txt'
+            ] = form.register_button_txt.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for())
@@ -589,7 +599,7 @@ class ProjectView(  # type: ignore[misc]
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'form': form,
-            'json_schema': JsonFormPlaceholder.JSON_SCHEMA,
+            'json_schema': REGISTER_FORM_PLACEHOLDER,
         }
 
     @route('register', methods=['POST'])

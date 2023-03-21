@@ -218,17 +218,6 @@ class PhoneNumberAvailable:
         field.data = canonical_phone_number(parsed_number)
 
 
-class JsonFormPlaceholder:
-    JSON_SCHEMA = {
-        "job": {"type": "string", "description": "The task's name"},
-        "done": {"type": "boolean"},
-        "recurrence": {
-            "type": "string",
-            "enum": ["Never", "Daily", "Weekly", "Monthly"],
-        },
-    }
-
-
 def image_url_validator():
     """Customise ValidUrl for hosted image URL validation."""
     return forms.validators.ValidUrl(
