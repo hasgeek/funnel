@@ -301,9 +301,10 @@
 
 .modal--form {
   min-width: 100%;
-  min-height: 325px;
+  min-height: 100%;
   height: 100%;
   border-radius: 0;
+  overflow: auto;
 
   .modal--form__action-box {
     padding: 20px;
@@ -345,7 +346,6 @@
 @media (min-width: 768px) {
   .jquery-modal.blocker.current .modal.modal--form {
     min-width: 50%;
-    min-height: 80%;
     height: auto;
     border-radius: 4px;
   }

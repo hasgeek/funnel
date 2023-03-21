@@ -17,12 +17,13 @@ repos:
       - id: pip-compile-multi-verify
         files: ^requirements/.*\.(in|txt)$
   - repo: https://github.com/pypa/pip-audit
-    rev: v2.4.15
+    rev: v2.5.1
     hooks:
       - id: pip-audit
         args: [
             '--no-deps',
             '--fix',
+            '--skip-editable',
             '-r',
             'requirements/base.txt',
             '-r',

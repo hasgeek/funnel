@@ -116,6 +116,7 @@ addopts = [
   '--driver=firefox',
   '--remote-data=any',
   '--strict-markers',
+  # '--typeguard-packages=funnel,tests',  # This breaks on toc.py in markdown
 ]
 markers = [
   'dbcommit: Test requires true database commits',
