@@ -175,7 +175,7 @@
     </div>
     <div class="register-block__content">
       {% if project.features.tickets() %}
-        <span class="register-block__content__txt mui--text-light">{% trans %}Like this? Support the community{% endtrans %}</span>
+        {% if project.features.subscription %}<span class="register-block__content__txt mui--text-light">{% trans %}Like this? Support the community{% endtrans %}</span>{% endif %}
         <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
           {% if project.features.subscription %}
             <span class="register-block__btn__txt" data-cy="unregistered">Get a subscription</span>
@@ -183,7 +183,7 @@
             <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Get tickets{% endtrans %}</span>
           {% endif %}
           <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt js-tickets-available"><span class="js-ticket-price"></span></span>
-          <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
+          <span class="register-block__btn__txt register-block__btn__txt--smaller mui--text-light js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
         </button>
       {%- endif %}
     </div>
