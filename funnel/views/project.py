@@ -524,6 +524,9 @@ class ProjectView(  # type: ignore[misc]
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
                 allow_rsvp=self.obj.allow_rsvp,
                 is_subscription=boxoffice_data.get('is_subscription', True),
+                rsvp_form_json_schema=boxoffice_data.get(
+                    'rsvp_form_json_schema', REGISTER_FORM_PLACEHOLDER
+                ),
                 register_button_txt=boxoffice_data.get('register_button_txt', ''),
             ),
             model=Project,
@@ -533,6 +536,9 @@ class ProjectView(  # type: ignore[misc]
             self.obj.boxoffice_data['org'] = form.org.data
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             self.obj.boxoffice_data['is_subscription'] = form.is_subscription.data
+            self.obj.boxoffice_data[
+                'rsvp_form_json_schema'
+            ] = form.rsvp_form_json_schema.data
             self.obj.boxoffice_data[
                 'register_button_txt'
             ] = form.register_button_txt.data
@@ -599,7 +605,7 @@ class ProjectView(  # type: ignore[misc]
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'form': form,
-            'json_schema': REGISTER_FORM_PLACEHOLDER,
+            'json_schema': self.obj.boxoffice_data['rsvp_form_json_schema'],
         }
 
     @route('register', methods=['POST'])
