@@ -183,7 +183,6 @@
       .cm-editor {
         border: 1px solid $mui-primary-color;
         border-radius: 16px 16px 0 16px;
-        min-height: 72px; // height of navbar on project page
         padding: $mui-grid-padding;
         height: auto;
         .cm-scroller {
@@ -236,6 +235,7 @@
         border: none;
         border-radius: 0;
         background: $mui-bg-color-primary;
+        min-height: 72px; // height of navbar on project page
       }
     }
     .user,
