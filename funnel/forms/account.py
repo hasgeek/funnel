@@ -171,7 +171,7 @@ class PasswordForm(forms.Form):
         render_kw={'autocomplete': 'current-password'},
     )
 
-    def validate_password(self, field) -> None:
+    def validate_password(self, field: forms.Field) -> None:
         """Check for password match."""
         if not self.edit_user.password_is(field.data):
             raise forms.validators.ValidationError(_("Incorrect password"))
@@ -197,7 +197,7 @@ class PasswordPolicyForm(forms.Form):
         ],
     )
 
-    def validate_password(self, field) -> None:
+    def validate_password(self, field: forms.Field) -> None:
         """Test password strength and save resuls (no errors raised)."""
         user_inputs = []
 
@@ -239,7 +239,7 @@ class PasswordResetRequestForm(forms.Form):
         },
     )
 
-    def validate_username(self, field) -> None:
+    def validate_username(self, field: forms.Field) -> None:
         """Process username to retrieve user."""
         self.user, self.anchor = getuser(field.data, True)
         if self.user is None:
@@ -321,7 +321,7 @@ class PasswordResetForm(forms.Form):
         render_kw={'autocomplete': 'new-password'},
     )
 
-    def validate_username(self, field) -> None:
+    def validate_username(self, field: forms.Field) -> None:
         """Confirm the user provided by the client is who this form is meant for."""
         user = getuser(field.data)
         if user is None or user != self.edit_user:
@@ -367,7 +367,7 @@ class PasswordChangeForm(forms.Form):
         render_kw={'autocomplete': 'new-password'},
     )
 
-    def validate_old_password(self, field) -> None:
+    def validate_old_password(self, field: forms.Field) -> None:
         """Validate the old password to be correct."""
         if self.edit_user is None:
             raise forms.validators.ValidationError(_("Not logged in"))
@@ -446,7 +446,7 @@ class AccountForm(forms.Form):
     )
     auto_locale = forms.BooleanField(__("Use your device’s language"))
 
-    def validate_username(self, field) -> None:
+    def validate_username(self, field: forms.Field) -> None:
         """Validate if username is appropriately formatted and available to use."""
         reason = self.edit_obj.validate_name_candidate(field.data)
         if not reason:
@@ -491,7 +491,7 @@ class UsernameAvailableForm(forms.Form):
         },
     )
 
-    def validate_username(self, field) -> None:
+    def validate_username(self, field: forms.Field) -> None:
         """Validate for username being valid and available (with optionally user)."""
         if self.edit_user:  # User is setting a username
             reason = self.edit_user.validate_name_candidate(field.data)
@@ -502,7 +502,7 @@ class UsernameAvailableForm(forms.Form):
         raise_username_error(reason)
 
 
-def validate_emailclaim(form, field):
+def validate_emailclaim(form: forms.Form, field: forms.Field) -> None:
     """Validate if an email address is already pending verification."""
     existing = UserEmailClaim.get_for(user=form.edit_user, email=field.data)
     if existing is not None:

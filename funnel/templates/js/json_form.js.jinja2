@@ -13,30 +13,30 @@
                     {{ option }}
                   </option>
                 </select>
-                <label :for="`${fieldName}`">{{ fieldName | capitalised }}</label>
+                <label :for="`${fieldName}`">{{ fieldName }}</label>
                 <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
               </div>
 
               <div class="mui-textfield" v-if="field.type == 'string' && 'enum' in field">
-                <label :for="`${fieldName}`" class="mui-form__label">{{ fieldName | capitalised }}</label>
+                <label :for="`${fieldName}`" class="mui-form__label">{{ fieldName }}</label>
                 <ul :id="`${fieldName}`">
                   <li v-for="option in field.enum">
                     <input :id="`${option}`" :name="`${fieldName}`" type="radio" :value="option">
-                    <label :for="`${option}`">{{ option | capitalised }}</label>
+                    <label :for="`${option}`">{{ option }}</label>
                   </li>
                 </ul>
               </div>
 
               <div class="mui-textfield mui-textfield--float-label" v-else-if="field.type == 'string'">
                 <input :id="`${fieldName}`" type="text" :name="`${fieldName}`" value="" />
-                <label :for="`${fieldName}`">{{ fieldName | capitalised }}</label>
+                <label :for="`${fieldName}`">{{ fieldName }}</label>
                 <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
               </div>
 
               <div class="mui-checkbox" v-if="field.type == 'boolean'">
                 <label>
                   <input id="`${fieldName}`" type="checkbox" :name="`${fieldName}`" />
-                  {{ fieldName | capitalised }}
+                  {{ fieldName }}
                 </label>
                 <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
               </div>

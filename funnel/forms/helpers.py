@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Union
 import json
 
-from flask import flash, request
+from flask import flash
 
 from typing_extensions import Literal
 
@@ -218,7 +218,7 @@ class PhoneNumberAvailable:
         field.data = canonical_phone_number(parsed_number)
 
 
-def image_url_validator():
+def image_url_validator() -> forms.validators.ValidUrl:
     """Customise ValidUrl for hosted image URL validation."""
     return forms.validators.ValidUrl(
         allowed_schemes=lambda: app.config.get('IMAGE_URL_SCHEMES', ('https',)),
@@ -228,7 +228,7 @@ def image_url_validator():
     )
 
 
-def video_url_list_validator(form, field):
+def video_url_list_validator(form: forms.Form, field: forms.Field) -> None:
     """Validate all video URLs to be acceptable."""
     for url in field.data:
         try:
@@ -239,7 +239,7 @@ def video_url_list_validator(form, field):
             ) from None
 
 
-def video_url_validator(form, field):
+def video_url_validator(form: forms.Form, field: forms.Field) -> None:
     """Validate the video URL to be acceptable."""
     try:
         parse_video_url(field.data)
@@ -256,22 +256,27 @@ def tostr(value: object) -> str:
     return ''
 
 
-def format_json(data):
-    if request.method == 'GET':
-        return json.dumps(data, indent=4, sort_keys=True)
-    # `json.loads` doesn't raise an exception for "null"
-    # so assign a default value of `{}`
-    if not data or data == 'null':
-        return json.dumps({})
-    return data
+def format_json(data: Union[dict, str, None]) -> str:
+    """Return a dict as a formatted JSON string, and return a string unchanged."""
+    if data:
+        if isinstance(data, str):
+            return data
+        return json.dumps(data, indent=2, sort_keys=True)
+    return ''
 
 
-def validate_json(form, field):
+def validate_and_convert_json(form: forms.Form, field: forms.Field) -> None:
+    """Confirm form data is valid JSON, and store it back as a parsed dict."""
     try:
-        json.loads(field.data)
+        field.data = json.loads(field.data)
     except ValueError:
         raise forms.validators.StopValidation(_("Invalid JSON")) from None
 
 
 strip_filters = [tostr, forms.filters.strip()]
 nullable_strip_filters = [tostr, forms.filters.strip(), forms.filters.none_if_empty()]
+nullable_json_filters = [
+    format_json,
+    forms.filters.strip(),
+    forms.filters.none_if_empty(),
+]

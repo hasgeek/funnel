@@ -105,7 +105,7 @@ class AuthClientForm(forms.Form):
         ),
     )
 
-    def validate_client_owner(self, field) -> None:
+    def validate_client_owner(self, field: forms.Field) -> None:
         """Validate client's owner to be the current user or an org owned by them."""
         if field.data == self.edit_user.buid:
             self.user = self.edit_user
@@ -132,7 +132,7 @@ class AuthClientForm(forms.Form):
             and (p1.password == p2.password)
         )
 
-    def validate_redirect_uri(self, field) -> None:
+    def validate_redirect_uri(self, field: forms.Field) -> None:
         """Validate redirect URI points to the website for confidential clients."""
         if self.confidential.data and not self._urls_match(
             self.website.data, field.data
@@ -156,7 +156,7 @@ class AuthClientCredentialForm(forms.Form):
     )
 
 
-def permission_validator(form, field) -> None:
+def permission_validator(form: forms.Form, field: forms.Field) -> None:
     """Validate permission strings to be appropriately named."""
     permlist = field.data.split()
     for perm in permlist:
@@ -202,7 +202,7 @@ class TeamPermissionAssignForm(forms.Form):
         validators=[forms.validators.DataRequired(), permission_validator],
     )
 
-    def validate_team_id(self, field) -> None:
+    def validate_team_id(self, field: forms.Field) -> None:
         """Validate selected team to belong to this organization."""
         # FIXME: Replace with QuerySelectField using RadioWidget.
         teams = [team for team in self.organization.teams if team.buid == field.data]

@@ -23,7 +23,7 @@ from coaster.views import (
 
 from .. import app
 from ..forms import (
-    REGISTER_FORM_PLACEHOLDER,
+    FORM_SCHEMA_PLACEHOLDER,
     CfpForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
@@ -236,12 +236,11 @@ def project_registration_text(obj: Project) -> str:
 def project_register_button_text(obj: Project) -> str:
     if obj.features.follow_mode():
         return _("Follow")
-    if (
-        obj.boxoffice_data is not None
-        and 'register_button_txt' in obj.boxoffice_data
-        and obj.boxoffice_data['register_button_txt']
-    ):
-        return obj.boxoffice_data['register_button_txt']
+    custom_text = (
+        obj.boxoffice_data.get('register_button_txt') if obj.boxoffice_data else None
+    )
+    if custom_text:
+        return custom_text
     return _("Register")
 
 
@@ -524,8 +523,8 @@ class ProjectView(  # type: ignore[misc]
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
                 allow_rsvp=self.obj.allow_rsvp,
                 is_subscription=boxoffice_data.get('is_subscription', True),
-                rsvp_form_json_schema=boxoffice_data.get(
-                    'rsvp_form_json_schema', REGISTER_FORM_PLACEHOLDER
+                register_form_schema=boxoffice_data.get(
+                    'register_form_schema', FORM_SCHEMA_PLACEHOLDER
                 ),
                 register_button_txt=boxoffice_data.get('register_button_txt', ''),
             ),
@@ -537,8 +536,8 @@ class ProjectView(  # type: ignore[misc]
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             self.obj.boxoffice_data['is_subscription'] = form.is_subscription.data
             self.obj.boxoffice_data[
-                'rsvp_form_json_schema'
-            ] = form.rsvp_form_json_schema.data
+                'register_form_schema'
+            ] = form.register_form_schema.data
             self.obj.boxoffice_data[
                 'register_button_txt'
             ] = form.register_button_txt.data
@@ -605,7 +604,7 @@ class ProjectView(  # type: ignore[misc]
         return {
             'project': self.obj.current_access(datasets=('primary', 'related')),
             'form': form,
-            'json_schema': self.obj.boxoffice_data['rsvp_form_json_schema'],
+            'json_schema': self.obj.boxoffice_data['register_form_schema'],
         }
 
     @route('register', methods=['POST'])

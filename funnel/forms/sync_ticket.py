@@ -15,30 +15,30 @@ from ..models import (
     UserEmail,
     db,
 )
-from .helpers import format_json, validate_json
+from .helpers import nullable_json_filters, validate_and_convert_json
 
 __all__ = [
+    'FORM_SCHEMA_PLACEHOLDER',
     'ProjectBoxofficeForm',
     'TicketClientForm',
     'TicketEventForm',
     'TicketParticipantBadgeForm',
     'TicketParticipantForm',
     'TicketTypeForm',
-    'REGISTER_FORM_PLACEHOLDER',
 ]
 
 
 BOXOFFICE_DETAILS_PLACEHOLDER = {'org': 'hasgeek', 'item_collection_id': ''}
 
-REGISTER_FORM_PLACEHOLDER = {
-    "job title": {"type": "string", "description": "Your current job role"},
-    "attend in-person": {"type": "boolean"},
-    "expertise": {
-        "type": "string",
-        "enum": [
-            "novice",
-            "intermediate",
-            "expert",
+FORM_SCHEMA_PLACEHOLDER = {
+    __("1. A prompt"): {'type': 'string', 'description': __("An explanation")},
+    __("2. This is a checkbox"): {'type': 'boolean'},
+    __("3. Choose one"): {
+        'type': 'string',
+        'enum': [
+            __("First choice"),
+            __("Second choice"),
+            __("Third choice"),
         ],
     },
 }
@@ -58,25 +58,24 @@ class ProjectBoxofficeForm(forms.Form):
         filters=[forms.filters.strip()],
     )
     allow_rsvp = forms.BooleanField(
-        __("Allow rsvp"),
+        __("Allow free registrations"),
         default=False,
-        description=__("If checked, both free and buy tickets will shown on project"),
     )
     is_subscription = forms.BooleanField(
-        __("This is a subscription"),
+        __("Paid tickets are for a subscription"),
         default=True,
-        description=__("If not checked, buy tickets button will be shown"),
     )
     register_button_txt = forms.StringField(
         __("Register button text"),
         filters=[forms.filters.strip()],
-        description=__("If empty, a default button text 'Register' will be shown"),
+        description=__("Optional – Use with care to replace the button text"),
     )
-    rsvp_form_json_schema = forms.TextAreaField(
-        __("Enter fields to be shown in registration form in JSON SCHEMA format"),
-        filters=[format_json],
-        validators=[validate_json],
-        default=REGISTER_FORM_PLACEHOLDER,
+    register_form_schema = forms.TextAreaField(
+        __("Registration form"),
+        description=__("Optional – Specify fields as JSON (limited support)"),
+        filters=nullable_json_filters,
+        validators=[forms.validators.Optional(), validate_and_convert_json],
+        placeholder=FORM_SCHEMA_PLACEHOLDER,
     )
 
 

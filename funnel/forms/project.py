@@ -12,10 +12,10 @@ from coaster.utils import sorted_timezones, utcnow
 from ..models import Profile, Project, Rsvp, SavedProject
 from .helpers import (
     ProfileSelectField,
-    format_json,
     image_url_validator,
+    nullable_json_filters,
     nullable_strip_filters,
-    validate_json,
+    validate_and_convert_json,
     video_url_list_validator,
 )
 
@@ -119,7 +119,7 @@ class ProjectForm(forms.Form):
         description=__("Landing page contents"),
     )
 
-    def validate_location(self, field) -> None:
+    def validate_location(self, field: forms.Field) -> None:
         """Validate location field to not have quotes (from copy paste of hint)."""
         if re.search(double_quote_re, field.data) is not None:
             raise forms.validators.ValidationError(
@@ -254,7 +254,7 @@ class CfpForm(forms.Form):
         naive=False,
     )
 
-    def validate_cfp_end_at(self, field) -> None:
+    def validate_cfp_end_at(self, field: forms.Field) -> None:
         """Validate closing date to be in the future."""
         if field.data <= utcnow():
             raise forms.validators.StopValidation(
@@ -358,7 +358,6 @@ class RsvpTransitionForm(forms.Form):
 class ProjectRSVPForm(forms.Form):
     form = forms.TextAreaField(
         __("Form"),
-        filters=[format_json],
-        validators=[validate_json],
-        default={},
+        filters=nullable_json_filters,
+        validators=[validate_and_convert_json],
     )

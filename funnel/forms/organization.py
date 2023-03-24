@@ -50,7 +50,7 @@ class OrganizationForm(forms.Form):
         render_kw={'autocorrect': 'off', 'autocapitalize': 'off'},
     )
 
-    def validate_name(self, field) -> None:
+    def validate_name(self, field: forms.Field) -> None:
         """Validate name is valid and available for this organization."""
         reason = Profile.validate_name_candidate(field.data)
         if not reason:
