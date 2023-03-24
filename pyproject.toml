@@ -116,6 +116,7 @@ addopts = [
   '--driver=firefox',
   '--remote-data=any',
   '--strict-markers',
+  # '--typeguard-packages=funnel,tests',  # This breaks on toc.py in markdown
 ]
 markers = [
   'dbcommit: Test requires true database commits',
@@ -192,6 +193,7 @@ disable = [
   'no-member',  # Pylint gets confused over how some members become part of an instance
   'too-few-public-methods',  # Data classes and validator classes have few methods
   'too-many-ancestors',  # Our models have a large number of mixin classes
+  'too-many-arguments',  # Callables can have many optional arguments
   'too-many-instance-attributes',  # Some instances are just bags of attributes
   'too-many-lines',  # We have large files that include all related functionality
   'too-many-public-methods',  # Models and views have many public methods
@@ -210,6 +212,10 @@ disable = [
 
 [tool.bandit]
 exclude_dirs = ['node_modules']
+skips = [
+  'B113',  # Handled by pylint; bandit incorrectly flags requests_mock for timeout
+  'B608',  # Raw SQL detector is noisy for migrations and not configurable
+  ]
 
 [tool.bandit.assert_used]
-skips = ['*/*_test.py', '*/test_*.py', '*/conftest.py']
+skips = ['**/*_test.py', '**/test_*.py', '**/conftest.py']

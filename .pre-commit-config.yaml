@@ -17,12 +17,13 @@ repos:
       - id: pip-compile-multi-verify
         files: ^requirements/.*\.(in|txt)$
   - repo: https://github.com/pypa/pip-audit
-    rev: v2.4.15
+    rev: v2.5.1
     hooks:
       - id: pip-audit
         args: [
             '--no-deps',
             '--fix',
+            '--skip-editable',
             '-r',
             'requirements/base.txt',
             '-r',
@@ -105,7 +106,7 @@ repos:
       - id: flake8
         additional_dependencies: *flake8deps
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.16.4
+    rev: v2.17.0
     hooks:
       - id: pylint
         args: [
@@ -118,13 +119,13 @@ repos:
           - pylint-pytest
           - tomli
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.4
+    rev: 1.7.5
     hooks:
       - id: bandit
         language_version: python3
         args: ['-c', 'pyproject.toml']
         additional_dependencies:
-          - toml
+          - 'bandit[toml]'
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:

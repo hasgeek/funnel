@@ -72,8 +72,9 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             for title, emoji in zip(titlelist, emojilist):
                 subform = LabelOptionForm(
                     MultiDict({'title': title, 'icon_emoji': emoji}),
+                    # parent form has valid CSRF token
                     meta={'csrf': False},
-                )  # parent form has valid CSRF token
+                )
 
                 if not subform.validate():
                     flash(
@@ -168,8 +169,9 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
                 else:
                     subform = LabelOptionForm(
                         MultiDict({'title': title, 'icon_emoji': emoji}),
+                        # parent form has valid CSRF token
                         meta={'csrf': False},
-                    )  # parent form has valid CSRF token
+                    )
 
                     if not subform.validate():
                         flash(

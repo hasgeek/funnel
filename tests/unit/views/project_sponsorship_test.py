@@ -1,5 +1,4 @@
 """Test ProjectSponsorship views."""
-# pylint: disable=too-many-arguments
 
 import pytest
 
@@ -44,7 +43,7 @@ def user_twoflower_not_site_editor(db_session, user_twoflower):
     ('user_site_membership', 'status_code'),
     [('user_vetinari_site_editor', 200), ('user_twoflower_not_site_editor', 403)],
 )
-def test_check_site_editor_edit_sponsorship(  # pylint: disable=too-many-arguments
+def test_check_site_editor_edit_sponsorship(
     request, app, client, login, org_uu_sponsorship, user_site_membership, status_code
 ) -> None:
     login.as_(request.getfixturevalue(user_site_membership).user)
@@ -62,7 +61,7 @@ def test_check_site_editor_edit_sponsorship(  # pylint: disable=too-many-argumen
         ('Test sponsor2', True),
     ],
 )
-def test_sponsorship_add(  # pylint: disable=too-many-arguments
+def test_sponsorship_add(
     app,
     client,
     login,
@@ -126,7 +125,7 @@ def test_sponsorship_edit(
     assert edited_sponsorship.is_promoted is False
 
 
-def test_sponsorship_remove(  # pylint: disable=too-many-arguments
+def test_sponsorship_remove(
     db_session,
     app,
     client,

@@ -11,6 +11,7 @@ from types import MethodType, SimpleNamespace
 from unittest.mock import patch
 import re
 import typing as t
+import warnings
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.session import Session as FsaSession
@@ -87,9 +88,26 @@ def pytest_collection_modifyitems(items) -> None:
 
 # Adapted from https://github.com/untitaker/pytest-fixture-typecheck
 def pytest_runtest_call(item):
-    for attr, type_ in item.obj.__annotations__.items():
+    try:
+        annotations = t.get_type_hints(
+            item.obj,
+            globalns=item.obj.__globals__,
+            localns={'Any': t.Any},  # pytest-bdd appears to insert an `Any` annotation
+        )
+    except TypeError:
+        # get_type_hints may fail on Python <3.10 because pytest-bdd appears to have
+        # `dict[str, str]` as a type somewhere, and builtin type subscripting isn't
+        # supported yet
+        warnings.warn(
+            f"Type annotations could not be retrieved for {item.obj!r}",
+            RuntimeWarning,
+            stacklevel=1,
+        )
+        return
+
+    for attr, type_ in annotations.items():
         if attr in item.funcargs:
-            typeguard.check_type(attr, item.funcargs[attr], type_)
+            typeguard.check_type(item.funcargs[attr], type_)
 
 
 # --- Import fixtures ------------------------------------------------------------------
@@ -1468,7 +1486,7 @@ def client_hex_credential(models, db_session, client_hex) -> SimpleNamespace:
 
 
 @pytest.fixture()
-def all_fixtures(  # pylint: disable=too-many-arguments,too-many-locals
+def all_fixtures(  # pylint: disable=too-many-locals
     db_session,
     user_twoflower,
     user_rincewind,

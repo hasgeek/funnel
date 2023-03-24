@@ -31,7 +31,7 @@
 {% block content %}
   {%- if form.errors %}
     <div class="alert alert--error alert--dismissable">
-      <a class="alert__close" href="#" onclick="return false;" data-target="close flash message" aria-label="close">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+      <a class="alert__close" href="#" onclick="return false;" data-target="close flash message" aria-label="{% trans %}Close{% endtrans %}">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
       <p class="alert__text">{{ faicon(icon='exclamation-circle') }} {% trans %}Please review the indicated issues{% endtrans %}</p>
     </div>
   {%- endif %}
@@ -48,7 +48,7 @@
         {% endfor %}
       {% endif %}
     </div>
-    <div><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-sublabel-form">{{ faicon(icon='plus', icon_size='caption') }} Add option</button></div>
+    <div><button class="mui-btn mui-btn--raised mui-btn--accent" id="add-sublabel-form">{{ faicon(icon='plus', icon_size='caption') }} {% trans %}Add option{% endtrans %}</button></div>
     {%- if subforms|length > 0 %}
       {{ renderfield(form.required) }}
     {%- else -%}

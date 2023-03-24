@@ -71,75 +71,75 @@ registration_count_messages = [
     CountWords(__("Be the first to register!"), '', __("Be the first follower!"), ''),
     CountWords(
         __("One registration so far"),
-        __("You have registered"),
+        __("You are the first"),
         __("One follower so far"),
-        __("You are following this"),
+        __("You are the first"),
     ),
     CountWords(
         __("Two registrations so far"),
-        __("You and one other have registered"),
+        __("You &amp; one other"),
         __("Two followers so far"),
-        __("You and one other are following"),
+        __("You &amp; one other"),
     ),
     CountWords(
         __("Three registrations so far"),
-        __("You and two others have registered"),
+        __("You &amp; two others"),
         __("Three followers so far"),
-        __("You and two others are following"),
+        __("You &amp; two others"),
     ),
     CountWords(
         __("Four registrations so far"),
-        __("You and three others have registered"),
+        __("You &amp; three others"),
         __("Four followers so far"),
-        __("You and three others are following"),
+        __("You &amp; three others"),
     ),
     CountWords(
         __("Five registrations so far"),
-        __("You and four others have registered"),
+        __("You &amp; four others"),
         __("Five followers so far"),
-        __("You and four others are following"),
+        __("You &amp; four others"),
     ),
     CountWords(
         __("Six registrations so far"),
-        __("You and five others have registered"),
+        __("You &amp; five others"),
         __("Six followers so far"),
-        __("You and five others are following"),
+        __("You &amp; five others"),
     ),
     CountWords(
         __("Seven registrations so far"),
-        __("You and six others have registered"),
+        __("You &amp; six others"),
         __("Seven followers so far"),
-        __("You and six others are following"),
+        __("You &amp; six others"),
     ),
     CountWords(
         __("Eight registrations so far"),
-        __("You and seven others have registered"),
+        __("You &amp; seven others"),
         __("Eight followers so far"),
-        __("You and seven others are following"),
+        __("You &amp; seven others"),
     ),
     CountWords(
         __("Nine registrations so far"),
-        __("You and eight others have registered"),
+        __("You &amp; eight others"),
         __("Nine followers so far"),
-        __("You and eight others are following"),
+        __("You &amp; eight others"),
     ),
     CountWords(
         __("Ten registrations so far"),
-        __("You and nine others have registered"),
+        __("You &amp; nine others"),
         __("Ten followers so far"),
-        __("You and nine others are following"),
+        __("You &amp; nine others"),
     ),
 ]
-greater_than_10_count = CountWords(
+numeric_count = CountWords(
     __("{num} registrations so far"),
-    __("You and {num} others have registered"),
+    __("You &amp; {num} others"),
     __("{num} followers so far"),
-    __("You and {num} others are following"),
+    __("You &amp; {num} others"),
 )
 
 
 def get_registration_text(count: int, registered=False, follow_mode=False) -> str:
-    if count <= 10:
+    if count < len(registration_count_messages):
         if registered and not follow_mode:
             return registration_count_messages[count].registered
         if not registered and not follow_mode:
@@ -148,12 +148,12 @@ def get_registration_text(count: int, registered=False, follow_mode=False) -> st
             return registration_count_messages[count].following
         return registration_count_messages[count].not_following
     if registered and not follow_mode:
-        return greater_than_10_count.registered.format(num=count - 1)
+        return numeric_count.registered.format(num=count - 1)
     if not registered and not follow_mode:
-        return greater_than_10_count.unregistered.format(num=count)
+        return numeric_count.unregistered.format(num=count)
     if registered and follow_mode:
-        return greater_than_10_count.following.format(num=count - 1)
-    return greater_than_10_count.not_following.format(num=count)
+        return numeric_count.following.format(num=count - 1)
+    return numeric_count.not_following.format(num=count)
 
 
 @Project.features('rsvp')
@@ -234,7 +234,7 @@ def project_registration_text(obj: Project) -> str:
 def project_register_button_text(obj: Project) -> str:
     if obj.features.follow_mode():
         return _("Follow")
-    return _("Join free")
+    return _("Register")
 
 
 @Profile.views('project_new')

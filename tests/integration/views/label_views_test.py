@@ -1,5 +1,4 @@
 """Test Label views."""
-# pylint: disable=too-many-arguments
 
 import pytest
 

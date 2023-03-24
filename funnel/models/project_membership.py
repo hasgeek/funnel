@@ -7,7 +7,7 @@ from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 
-from coaster.sqlalchemy import DynamicAssociationProxy, with_roles
+from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import Mapped, db, declared_attr, sa
 from .helpers import reopen
@@ -48,7 +48,7 @@ class ProjectCrewMembership(
     __null_granted_by__ = True
 
     #: List of is_role columns in this model
-    __data_columns__ = ('is_editor', 'is_promoter', 'is_usher')
+    __data_columns__ = ('is_editor', 'is_promoter', 'is_usher', 'label')
 
     __roles__ = {
         'all': {
@@ -59,6 +59,7 @@ class ProjectCrewMembership(
                 'is_editor',
                 'is_promoter',
                 'is_usher',
+                'label',
             }
         },
         'project_crew': {
@@ -81,6 +82,7 @@ class ProjectCrewMembership(
             'is_editor',
             'is_promoter',
             'is_usher',
+            'label',
             'user',
             'project',
         },
@@ -91,6 +93,7 @@ class ProjectCrewMembership(
             'is_editor',
             'is_promoter',
             'is_usher',
+            'label',
             'user',
         },
         'related': {
@@ -100,6 +103,7 @@ class ProjectCrewMembership(
             'is_editor',
             'is_promoter',
             'is_usher',
+            'label',
         },
     }
 
@@ -133,6 +137,17 @@ class ProjectCrewMembership(
     #: Ushers help participants find their way around an event and have
     #: the ability to scan badges at the door
     is_usher: Mapped[bool] = sa.Column(sa.Boolean, nullable=False, default=False)
+
+    #: Optional label, indicating the member's role in the project
+    label = immutable(
+        sa.Column(
+            sa.Unicode,
+            sa.CheckConstraint(
+                "label <> ''", name='project_crew_membership_label_check'
+            ),
+            nullable=True,
+        )
+    )
 
     @declared_attr.directive
     @classmethod
