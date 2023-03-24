@@ -1,13 +1,12 @@
-FROM vivekdurai/python-node-postgres:latest
+# Base image from https://hub.docker.com/r/nikolaik/python-nodejs
+FROM nikolaik/python-nodejs:latest
 
-# We don't want to run our application as root if it is not strictly necessary, even in a container.
-# Create a user and a group called 'app' to run the processes.
-# A system user is sufficient and we do not need a home.
+# install base+build packages
+RUN apt-get -y install curl git wget unzip build-essential make postgresql libpq-dev python-dev
 
-RUN adduser --system --group --no-create-home app
-
-# Make the directory the working directory for subsequent commands
-WORKDIR app
+# Python-nodejs includes a `pn` user, which we'll use.
+USER pn
+WORKDIR /home/pn/app
 
 COPY uwsgi.ini /etc/uwsgi/
 
@@ -21,14 +20,6 @@ COPY requirements.txt /tmp
 RUN pip install -r requirements.txt
 COPY . /tmp/myapp
 RUN pip install /tmp/myapp
-
-# Hand everything over to the 'app' user
-RUN chown -R app:app /app
-
-# Subsequent commands, either in this Dockerfile or in a
-# docker-compose.yml, will run as user 'app'
-USER app
-
 
 # We are done with setting up the image.
 # As this image is used for different
