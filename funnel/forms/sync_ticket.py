@@ -77,6 +77,11 @@ class ProjectBoxofficeForm(forms.Form):
         validators=[forms.validators.Optional(), validate_and_convert_json],
         placeholder=FORM_SCHEMA_PLACEHOLDER,
     )
+    register_button_txt = forms.StringField(
+        __("Register button text"),
+        filters=[forms.filters.strip()],
+        description=__("Optional – Use with care to replace the button text"),
+    )
 
 
 @TicketEvent.forms('main')

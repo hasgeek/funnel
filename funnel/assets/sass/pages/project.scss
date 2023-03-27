@@ -82,6 +82,9 @@
         width: 100%;
         font-size: 12px;
         line-height: 16px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
       }
       .register-block__btn__txt--hover--show {
         display: none;
