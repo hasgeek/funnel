@@ -366,7 +366,8 @@ class Profile(
     @classmethod
     def get(cls, name: str) -> Optional[Profile]:
         return cls.query.filter(
-            sa.func.lower(Profile.name) == sa.func.lower(name)
+            sa.func.lower(Profile.name)
+            == sa.func.lower(sa.func.replace(name, '-', '_'))
         ).one_or_none()
 
     @classmethod

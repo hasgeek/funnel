@@ -51,6 +51,7 @@ __all__ = [
     'valid_name',
     'valid_username',
     'quote_autocomplete_like',
+    'quote_autocomplete_tsquery',
     'ImgeeFurl',
     'ImgeeType',
     'MarkdownCompositeBase',
@@ -196,7 +197,7 @@ def check_password_strength(
 
 # re.IGNORECASE needs re.ASCII because of a quirk in the characters it matches.
 # https://docs.python.org/3/library/re.html#re.I
-_username_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.I | re.A)
+_username_valid_re = re.compile('^[a-z0-9][a-z0-9_]*$', re.I | re.A)
 _name_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.A)
 
 
@@ -323,7 +324,7 @@ def valid_username(candidate: str) -> bool:
     """
     Check if a username is valid.
 
-    Letters, numbers and non-terminal hyphens only.
+    Letters, numbers and underscores only.
     """
     return not _username_valid_re.search(candidate) is None
 

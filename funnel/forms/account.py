@@ -383,10 +383,7 @@ def raise_username_error(reason: str) -> str:
         raise forms.validators.ValidationError(_("This is too long"))
     if reason == 'invalid':
         raise forms.validators.ValidationError(
-            _(
-                "Usernames can only have alphabets, numbers and dashes (except at the"
-                " ends)"
-            )
+            _("Usernames can only have alphabets, numbers and underscores")
         )
     if reason == 'reserved':
         raise forms.validators.ValidationError(_("This username is reserved"))
