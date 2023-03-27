@@ -232,11 +232,11 @@ def project_registration_text(obj: Project) -> str:
 
 @Project.views('register_button_text')
 def project_register_button_text(obj: Project) -> str:
-    if obj.features.follow_mode():
-        return _("Follow")
     custom_text = (
         obj.boxoffice_data.get('register_button_txt') if obj.boxoffice_data else None
     )
+    if obj.features.follow_mode():
+        return _("Follow")
     if custom_text:
         return custom_text
     return _("Register")
