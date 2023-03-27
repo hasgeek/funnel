@@ -792,7 +792,7 @@ class User(
         if username is not None:
             query = (
                 cls.query.join(Profile)
-                .filter(sa.func.lower(Profile.name) == sa.func.lower(username))
+                .filter(Profile.name_is(username))
                 .options(sa.orm.joinedload(cls.profile))
             )
         else:
@@ -829,7 +829,7 @@ class User(
                 sa.or_(
                     cls.buid.in_(buids),  # type: ignore[attr-defined]
                     sa.func.lower(Profile.name).in_(
-                        [username.lower() for username in usernames]
+                        [username.lower().replace('-', '_') for username in usernames]
                     ),
                 )
             )
@@ -838,7 +838,7 @@ class User(
         elif usernames:
             query = cls.query.join(Profile).filter(
                 sa.func.lower(Profile.name).in_(
-                    [username.lower() for username in usernames]
+                    [username.lower().replace('-', '_') for username in usernames]
                 )
             )
         else:
@@ -1298,7 +1298,7 @@ class Organization(
         if name is not None:
             query = (
                 cls.query.join(Profile)
-                .filter(sa.func.lower(Profile.name) == sa.func.lower(name))
+                .filter(Profile.name_is(name))
                 .options(sa.orm.joinedload(cls.profile))
             )
         else:
@@ -1325,7 +1325,9 @@ class Organization(
             orgs.extend(query.all())
         if names:
             query = cls.query.join(Profile).filter(
-                sa.func.lower(Profile.name).in_([name.lower() for name in names])
+                sa.func.lower(Profile.name).in_(
+                    [name.lower().replace('-', '_') for name in names]
+                )
             )
             if defercols:
                 query = query.options(*cls._defercols())

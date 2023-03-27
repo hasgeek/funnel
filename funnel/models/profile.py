@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Optional, Union
+from typing import Any, Iterable, List, Optional, Union
 from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from sqlalchemy.sql import expression
+from sqlalchemy.sql.expression import ColumnElement
 
 from furl import furl
 
@@ -364,11 +365,12 @@ class Profile(
         return roles
 
     @classmethod
+    def name_is(cls, name: Any) -> ColumnElement:
+        return sa.func.lower(cls.name) == sa.func.lower(sa.func.replace(name, '-', '_'))
+
+    @classmethod
     def get(cls, name: str) -> Optional[Profile]:
-        return cls.query.filter(
-            sa.func.lower(Profile.name)
-            == sa.func.lower(sa.func.replace(name, '-', '_'))
-        ).one_or_none()
+        return cls.query.filter(cls.name_is(name)).one_or_none()
 
     @classmethod
     def all_public(cls) -> Query:

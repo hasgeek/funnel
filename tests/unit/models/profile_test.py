@@ -11,7 +11,7 @@ from funnel import models
 
 def test_profile_urltype_valid(db_session, new_organization) -> None:
     profile = models.Profile.query.filter_by(id=new_organization.profile.id).first()
-    assert profile.name == 'test-org'
+    assert profile.name == 'test_org'
     profile.logo_url = "https://images.example.com/"
     db_session.add(profile)
     db_session.commit()

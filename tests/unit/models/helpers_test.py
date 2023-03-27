@@ -45,29 +45,37 @@ def test_valid_name() -> None:
 def test_valid_username() -> None:
     """Usernames contain letters, numbers and non-terminal hyphens."""
     assert mhelpers.valid_username('example person') is False
-    assert mhelpers.valid_username('example_person') is False
+    assert mhelpers.valid_username('example-person') is False
     assert mhelpers.valid_username('exampleperson') is True
     assert mhelpers.valid_name('example1person') is True
     assert mhelpers.valid_name('1exampleperson') is True
     assert mhelpers.valid_name('exampleperson1') is True
-    assert mhelpers.valid_username('example-person') is True
+    assert mhelpers.valid_username('example_person') is True
     assert mhelpers.valid_username('a') is True
     assert mhelpers.valid_username('a-') is False
     assert mhelpers.valid_username('ab-') is False
+    assert mhelpers.valid_username('a_') is True
+    assert mhelpers.valid_username('ab_') is True
     assert mhelpers.valid_username('-a') is False
     assert mhelpers.valid_username('-ab') is False
+    assert mhelpers.valid_username('_a') is False
+    assert mhelpers.valid_username('_ab') is False
     assert mhelpers.valid_username('Example Person') is False
-    assert mhelpers.valid_username('Example_Person') is False
+    assert mhelpers.valid_username('Example-Person') is False
     assert mhelpers.valid_username('ExamplePerson') is True
     assert mhelpers.valid_username('Example1Person') is True
     assert mhelpers.valid_username('1ExamplePerson') is True
     assert mhelpers.valid_username('ExamplePerson1') is True
-    assert mhelpers.valid_username('Example-Person') is True
+    assert mhelpers.valid_username('Example_Person') is True
     assert mhelpers.valid_username('A') is True
     assert mhelpers.valid_username('A-') is False
     assert mhelpers.valid_username('Ab-') is False
+    assert mhelpers.valid_username('A_') is True
+    assert mhelpers.valid_username('Ab_') is True
     assert mhelpers.valid_username('-A') is False
     assert mhelpers.valid_username('-Ab') is False
+    assert mhelpers.valid_username('_A') is False
+    assert mhelpers.valid_username('_Ab') is False
 
 
 def test_reopen() -> None:

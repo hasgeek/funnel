@@ -707,7 +707,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         profile_name, project_name = profile_project.split('/')
         return (
             cls.query.join(Profile)
-            .filter(Profile.name == profile_name, Project.name == project_name)
+            .filter(Profile.name_is(profile_name), Project.name == project_name)
             .one_or_none()
         )
 
