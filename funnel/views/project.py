@@ -234,6 +234,11 @@ def project_registration_text(obj: Project) -> str:
 def project_register_button_text(obj: Project) -> str:
     if obj.features.follow_mode():
         return _("Follow")
+    custom_text = (
+        obj.boxoffice_data.get('register_button_txt') if obj.boxoffice_data else None
+    )
+    if custom_text:
+        return custom_text
     return _("Register")
 
 
@@ -515,6 +520,7 @@ class ProjectView(  # type: ignore[misc]
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
                 allow_rsvp=self.obj.allow_rsvp,
                 is_subscription=boxoffice_data.get('is_subscription', True),
+                register_button_txt=boxoffice_data.get('register_button_txt', ''),
             ),
             model=Project,
         )
@@ -523,6 +529,9 @@ class ProjectView(  # type: ignore[misc]
             self.obj.boxoffice_data['org'] = form.org.data
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             self.obj.boxoffice_data['is_subscription'] = form.is_subscription.data
+            self.obj.boxoffice_data[
+                'register_button_txt'
+            ] = form.register_button_txt.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for())
