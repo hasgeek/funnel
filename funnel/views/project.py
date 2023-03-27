@@ -77,64 +77,64 @@ registration_count_messages = [
     ),
     CountWords(
         __("Two registrations so far"),
-        __("You &amp; one other"),
+        __("You & one other"),
         __("Two followers so far"),
-        __("You &amp; one other"),
+        __("You & one other"),
     ),
     CountWords(
         __("Three registrations so far"),
-        __("You &amp; two others"),
+        __("You & two others"),
         __("Three followers so far"),
-        __("You &amp; two others"),
+        __("You & two others"),
     ),
     CountWords(
         __("Four registrations so far"),
-        __("You &amp; three others"),
+        __("You & three others"),
         __("Four followers so far"),
-        __("You &amp; three others"),
+        __("You & three others"),
     ),
     CountWords(
         __("Five registrations so far"),
-        __("You &amp; four others"),
+        __("You & four others"),
         __("Five followers so far"),
-        __("You &amp; four others"),
+        __("You & four others"),
     ),
     CountWords(
         __("Six registrations so far"),
-        __("You &amp; five others"),
+        __("You & five others"),
         __("Six followers so far"),
-        __("You &amp; five others"),
+        __("You & five others"),
     ),
     CountWords(
         __("Seven registrations so far"),
-        __("You &amp; six others"),
+        __("You & six others"),
         __("Seven followers so far"),
-        __("You &amp; six others"),
+        __("You & six others"),
     ),
     CountWords(
         __("Eight registrations so far"),
-        __("You &amp; seven others"),
+        __("You & seven others"),
         __("Eight followers so far"),
-        __("You &amp; seven others"),
+        __("You & seven others"),
     ),
     CountWords(
         __("Nine registrations so far"),
-        __("You &amp; eight others"),
+        __("You & eight others"),
         __("Nine followers so far"),
-        __("You &amp; eight others"),
+        __("You & eight others"),
     ),
     CountWords(
         __("Ten registrations so far"),
-        __("You &amp; nine others"),
+        __("You & nine others"),
         __("Ten followers so far"),
-        __("You &amp; nine others"),
+        __("You & nine others"),
     ),
 ]
 numeric_count = CountWords(
     __("{num} registrations so far"),
-    __("You &amp; {num} others"),
+    __("You & {num} others"),
     __("{num} followers so far"),
-    __("You &amp; {num} others"),
+    __("You & {num} others"),
 )
 
 
@@ -232,8 +232,13 @@ def project_registration_text(obj: Project) -> str:
 
 @Project.views('register_button_text')
 def project_register_button_text(obj: Project) -> str:
+    custom_text = (
+        obj.boxoffice_data.get('register_button_txt') if obj.boxoffice_data else None
+    )
     if obj.features.follow_mode():
         return _("Follow")
+    if custom_text:
+        return custom_text
     return _("Register")
 
 
@@ -515,6 +520,7 @@ class ProjectView(  # type: ignore[misc]
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
                 allow_rsvp=self.obj.allow_rsvp,
                 is_subscription=boxoffice_data.get('is_subscription', True),
+                register_button_txt=boxoffice_data.get('register_button_txt', ''),
             ),
             model=Project,
         )
@@ -523,6 +529,9 @@ class ProjectView(  # type: ignore[misc]
             self.obj.boxoffice_data['org'] = form.org.data
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             self.obj.boxoffice_data['is_subscription'] = form.is_subscription.data
+            self.obj.boxoffice_data[
+                'register_button_txt'
+            ] = form.register_button_txt.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for())
