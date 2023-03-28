@@ -21,9 +21,6 @@ const FormUI = {
           this.data = event.data;
         },
       },
-      mounted() {
-        console.log('mounted');
-      },
     });
   },
 };

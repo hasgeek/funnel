@@ -595,7 +595,7 @@ class ProjectView(  # type: ignore[misc]
             'error_description': _("Invalid form submission"),
         }
 
-    @route('register_modal', methods=['GET', 'POST'])
+    @route('register_modal', methods=['GET'])
     @render_with('register_modal.html.jinja2')
     @requires_login
     def register_modal(self) -> ReturnRenderWith:
@@ -630,7 +630,7 @@ class ProjectView(  # type: ignore[misc]
                 )
         else:
             flash(_("Were you trying to register? Try again to confirm"), 'error')
-        return render_redirect(get_next_url(referrer=request.referrer))
+        return render_redirect(self.obj.url_for())
 
     @route('deregister', methods=['POST'])
     @requires_login
@@ -654,7 +654,7 @@ class ProjectView(  # type: ignore[misc]
                 _("Were you trying to cancel your registration? Try again to confirm"),
                 'error',
             )
-        return render_redirect(get_next_url(referrer=request.referrer))
+        return render_redirect(self.obj.url_for())
 
     @route('rsvp_list')
     @render_with('project_rsvp_list.html.jinja2')

@@ -363,7 +363,7 @@ window.Hasgeek.Forms = {
         if (config.beforeSend) config.beforeSend();
       },
       success: function (responseData) {
-        onSuccess(responseData);
+        if (onSuccess) onSuccess(responseData);
       },
       error: function (xhr, status, errMsg) {
         onError(xhr);

@@ -16,9 +16,6 @@ const jsonForm = Vue.component('jsonform', {
     activateForm() {
       const form = this;
       const url = Form.getActionUrl(this.formid);
-      const onSuccess = (responseData) => {
-        console.log('success', responseData);
-      };
       const onError = (response) => {
         Form.formErrorHandler(this.formid, response);
       };
@@ -26,8 +23,7 @@ const jsonForm = Vue.component('jsonform', {
         .find('button[type="submit"]')
         .click((event) => {
           event.preventDefault();
-          console.log('form submited', form.getFormData());
-          window.Hasgeek.Forms.ajaxFormSubmit(this.formid, url, onSuccess, onError, {
+          window.Hasgeek.Forms.ajaxFormSubmit(this.formid, url, '', onError, {
             contentType: 'application/json',
             formData: JSON.stringify({ form: form.getFormData() }),
           });
@@ -35,15 +31,7 @@ const jsonForm = Vue.component('jsonform', {
     },
   },
   mounted() {
-    console.log('jsonform mounted formid', this.formid);
     this.activateForm();
-  },
-  filters: {
-    capitalised(label) {
-      let capitalized = [];
-      capitalized = [label.charAt(0).toUpperCase(), ...label.slice(1).toLowerCase()];
-      return capitalized.join('');
-    },
   },
 });
 

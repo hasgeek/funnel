@@ -3,40 +3,40 @@
     <script type="text/x-template" id="form-template">
       <div>
         <p v-if="title">{{ title }}</p>
-        <div v-for="(field, fieldName) in jsonschema">
-          <div class="mui-form__fields listwidget" :id="`field-${fieldName}`">
+        <div v-for="field in jsonschema.fields">
+          <div class="mui-form__fields listwidget" :id="`field-${field.name}`">
             <div class="mui-form__controls">
 
               <div class="mui-select" v-if="field.type == 'string' && 'enum' in field && field.enum.length > 4">
-                <select :id="`${fieldName}`">
+                <select :id="`${field.name}`">
                   <option v-for="option in field.enum" :value="option">
                     {{ option }}
                   </option>
                 </select>
-                <label :for="`${fieldName}`">{{ fieldName }}</label>
+                <label :for="`${field.name}`">{{ field.title }}</label>
                 <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
               </div>
 
               <div class="mui-textfield" v-if="field.type == 'string' && 'enum' in field">
-                <label :for="`${fieldName}`" class="mui-form__label">{{ fieldName }}</label>
-                <ul :id="`${fieldName}`">
+                <label :for="`${field.name}`" class="mui-form__label">{{ field.title }}</label>
+                <ul :id="`${field.name}`">
                   <li v-for="option in field.enum">
-                    <input :id="`${option}`" :name="`${fieldName}`" type="radio" :value="option">
+                    <input :id="`${option}`" :name="`${field.name}`" type="radio" :value="option">
                     <label :for="`${option}`">{{ option }}</label>
                   </li>
                 </ul>
               </div>
 
               <div class="mui-textfield mui-textfield--float-label" v-else-if="field.type == 'string'">
-                <input :id="`${fieldName}`" type="text" :name="`${fieldName}`" value="" />
-                <label :for="`${fieldName}`">{{ fieldName }}</label>
+                <input :id="`${field.name}`" type="text" :name="`${field.name}`" value="" />
+                <label :for="`${field.name}`">{{ field.title }}</label>
                 <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
               </div>
 
               <div class="mui-checkbox" v-if="field.type == 'boolean'">
                 <label>
-                  <input id="`${fieldName}`" type="checkbox" :name="`${fieldName}`" />
-                  {{ fieldName }}
+                  <input id="`${field.name}`" type="checkbox" :name="`${field.name}`" />
+                  {{ field.title }}
                 </label>
                 <p class="mui-form__helptext" v-if="'description' in field">{{ field.description }}</p>
               </div>

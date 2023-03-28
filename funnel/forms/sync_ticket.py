@@ -31,16 +31,21 @@ __all__ = [
 BOXOFFICE_DETAILS_PLACEHOLDER = {'org': 'hasgeek', 'item_collection_id': ''}
 
 FORM_SCHEMA_PLACEHOLDER = {
-    __("1. A prompt"): {'type': 'string', 'description': __("An explanation")},
-    __("2. This is a checkbox"): {'type': 'boolean'},
-    __("3. Choose one"): {
-        'type': 'string',
-        'enum': [
-            __("First choice"),
-            __("Second choice"),
-            __("Third choice"),
-        ],
-    },
+    "fields": [
+        {
+            "name": "title",
+            "title": "Display title",
+            "description": "An explanation",
+            "type": "string",
+        },
+        {"name": "checkbox", "title": "Checkbox", "type": "boolean"},
+        {
+            "name": "choice",
+            "title": "Choose one",
+            "type": "string",
+            "enum": ["First choice", "Second choice", "Third choice"],
+        },
+    ]
 }
 
 
@@ -75,7 +80,6 @@ class ProjectBoxofficeForm(forms.Form):
         description=__("Optional – Specify fields as JSON (limited support)"),
         filters=nullable_json_filters,
         validators=[forms.validators.Optional(), validate_and_convert_json],
-        placeholder=FORM_SCHEMA_PLACEHOLDER,
     )
     register_button_txt = forms.StringField(
         __("Register button text"),
