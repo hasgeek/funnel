@@ -7,10 +7,9 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Type
 from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
-from flask_babel import get_locale
+from flask_babel import format_date, get_locale
 from werkzeug.utils import cached_property
 
-from babel.dates import format_date
 from isoweek import Week
 
 from baseframe import localize_timezone
@@ -643,9 +642,7 @@ class __Project:
                         weeks[weekid]['upcoming'] = True
                     weeks[weekid]['dates'][wdate] += session_count
                     if 'month' not in weeks[weekid]:
-                        weeks[weekid]['month'] = format_date(
-                            wdate, 'MMM', locale=get_locale()
-                        )
+                        weeks[weekid]['month'] = format_date(wdate, 'MMM')
         # Extract sorted weeks as a list
         weeks_list = [v for k, v in sorted(weeks.items())]
 
@@ -656,7 +653,7 @@ class __Project:
             week['dates'] = [
                 {
                     'isoformat': date.isoformat(),
-                    'day': format_date(date, 'd', get_locale()),
+                    'day': format_date(date, 'd'),
                     'count': count,
                     'day_start_at': (
                         session_dates_dict[date]['day_start_at']
@@ -679,10 +676,7 @@ class __Project:
             'locale': get_locale(),
             'weeks': weeks_list,
             'today': now.date().isoformat(),
-            'days': [
-                format_date(day, 'EEE', locale=get_locale())
-                for day in Week.thisweek().days()
-            ],
+            'days': [format_date(day, 'EEE') for day in Week.thisweek().days()],
         }
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})
