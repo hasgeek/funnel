@@ -5,7 +5,8 @@ from types import SimpleNamespace
 import csv
 import io
 
-from flask import Response, abort, current_app, flash, render_template, request
+from flask import Markup, Response, abort, current_app, flash, render_template, request
+from flask_babel import format_number
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
@@ -77,64 +78,64 @@ registration_count_messages = [
     ),
     CountWords(
         __("Two registrations so far"),
-        __("You & one other"),
+        __("You &amp; one other"),
         __("Two followers so far"),
-        __("You & one other"),
+        __("You &amp; one other"),
     ),
     CountWords(
         __("Three registrations so far"),
-        __("You & two others"),
+        __("You &amp; two others"),
         __("Three followers so far"),
-        __("You & two others"),
+        __("You &amp; two others"),
     ),
     CountWords(
         __("Four registrations so far"),
-        __("You & three others"),
+        __("You &amp; three others"),
         __("Four followers so far"),
-        __("You & three others"),
+        __("You &amp; three others"),
     ),
     CountWords(
         __("Five registrations so far"),
-        __("You & four others"),
+        __("You &amp; four others"),
         __("Five followers so far"),
-        __("You & four others"),
+        __("You &amp; four others"),
     ),
     CountWords(
         __("Six registrations so far"),
-        __("You & five others"),
+        __("You &amp; five others"),
         __("Six followers so far"),
-        __("You & five others"),
+        __("You &amp; five others"),
     ),
     CountWords(
         __("Seven registrations so far"),
-        __("You & six others"),
+        __("You &amp; six others"),
         __("Seven followers so far"),
-        __("You & six others"),
+        __("You &amp; six others"),
     ),
     CountWords(
         __("Eight registrations so far"),
-        __("You & seven others"),
+        __("You &amp; seven others"),
         __("Eight followers so far"),
-        __("You & seven others"),
+        __("You &amp; seven others"),
     ),
     CountWords(
         __("Nine registrations so far"),
-        __("You & eight others"),
+        __("You &amp; eight others"),
         __("Nine followers so far"),
-        __("You & eight others"),
+        __("You &amp; eight others"),
     ),
     CountWords(
         __("Ten registrations so far"),
-        __("You & nine others"),
+        __("You &amp; nine others"),
         __("Ten followers so far"),
-        __("You & nine others"),
+        __("You &amp; nine others"),
     ),
 ]
 numeric_count = CountWords(
     __("{num} registrations so far"),
-    __("You & {num} others"),
+    __("You &amp; {num} others"),
     __("{num} followers so far"),
-    __("You & {num} others"),
+    __("You &amp; {num} others"),
 )
 
 
@@ -148,12 +149,12 @@ def get_registration_text(count: int, registered=False, follow_mode=False) -> st
             return registration_count_messages[count].following
         return registration_count_messages[count].not_following
     if registered and not follow_mode:
-        return numeric_count.registered.format(num=count - 1)
+        return Markup(numeric_count.registered.format(num=format_number(count - 1)))
     if not registered and not follow_mode:
-        return numeric_count.unregistered.format(num=count)
+        return Markup(numeric_count.unregistered.format(num=format_number(count)))
     if registered and follow_mode:
-        return numeric_count.following.format(num=count - 1)
-    return numeric_count.not_following.format(num=count)
+        return Markup(numeric_count.following.format(num=format_number(count - 1)))
+    return Markup(numeric_count.not_following.format(num=format_number(count)))
 
 
 @Project.features('rsvp')
