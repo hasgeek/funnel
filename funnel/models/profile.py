@@ -35,7 +35,7 @@ from .helpers import (
     valid_username,
     visual_field_delimiter,
 )
-from .user import EnumerateMembershipsMixin, Organization, User
+from .user import EnumerateMembershipsMixin, Organization, Team, User
 from .utils import do_migrate_instances
 
 __all__ = ['Profile']
@@ -310,6 +310,7 @@ class Profile(
 
     @hybrid_property
     def title(self) -> str:
+        """Retrieve title for this profile from the underlying User or Organization."""
         if self.user:
             return self.user.fullname
         if self.organization:
@@ -318,6 +319,7 @@ class Profile(
 
     @title.setter
     def title(self, value: str) -> None:
+        """Set title of this profile on the underlying User or Organization."""
         if self.user:
             self.user.fullname = value
         elif self.organization:
@@ -327,6 +329,7 @@ class Profile(
 
     @title.expression
     def title(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        """Retrieve title as a SQL expression."""
         return sa.case(
             (
                 # if...
@@ -347,6 +350,7 @@ class Profile(
 
     @property
     def pickername(self) -> str:
+        """Return title and name in a format suitable for disambiguation."""
         if self.user:
             return self.user.pickername
         if self.organization:
@@ -356,6 +360,7 @@ class Profile(
     def roles_for(
         self, actor: Optional[User] = None, anchors: Iterable = ()
     ) -> LazyRoleSet:
+        """Identify roles for the given actor."""
         if self.owner:
             roles = self.owner.roles_for(actor, anchors)
         else:
@@ -366,14 +371,17 @@ class Profile(
 
     @classmethod
     def name_is(cls, name: Any) -> ColumnElement:
+        """Generate query filter to check if name is matching (case insensitive)."""
         return sa.func.lower(cls.name) == sa.func.lower(sa.func.replace(name, '-', '_'))
 
     @classmethod
     def get(cls, name: str) -> Optional[Profile]:
+        """Retrieve a Profile given a name."""
         return cls.query.filter(cls.name_is(name)).one_or_none()
 
     @classmethod
     def all_public(cls) -> Query:
+        """Construct a query on Profile filtered by public state."""
         return cls.query.filter(cls.state.PUBLIC)
 
     @classmethod
@@ -418,10 +426,12 @@ class Profile(
 
     @classmethod
     def is_available_name(cls, name: str) -> bool:
+        """Test if the candidate name is available for use as a Profile name."""
         return cls.validate_name_candidate(name) is None
 
     @sa.orm.validates('name')
     def validate_name(self, key: str, value: str):
+        """Validate the value of Profile.name."""
         if value.lower() in self.reserved_names or not valid_username(value):
             raise ValueError("Invalid account name: " + value)
         # We don't check for existence in the db since this validator only
@@ -448,7 +458,8 @@ class Profile(
         # Do nothing if old_user.profile is None and new_user.profile is not None
 
     @property
-    def teams(self) -> List:
+    def teams(self) -> List[Team]:
+        """Return all teams associated with this profile."""
         if self.organization:
             return self.organization.teams
         return []
