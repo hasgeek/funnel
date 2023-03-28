@@ -48,6 +48,7 @@ python-dotenv<1.0  # 1.0 drops Python 3.7 support
 pytz
 PyVimeo
 qrcode
+regex<2023.3.22  # Not our requirement; this version drops Python 3.7 support
 requests
 rich
 rq
