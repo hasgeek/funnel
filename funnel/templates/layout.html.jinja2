@@ -137,7 +137,7 @@
                           aria-label="{% trans %}Search this site{% endtrans %}"
                           placeholder="{% trans %}Search…{% endtrans %}"
                           class="search-form__field js-search-field"
-                          id="header-search"/>
+                          id="header-search" value="{{ query }}"/>
                       {{ faicon(icon='search', baseline=false, css_class="search-form__field__icon") }}
                       <input type="text" name="type" value="project" hidden />
                       <button type="submit" class="search-form__submit"></button>
