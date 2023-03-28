@@ -30,9 +30,7 @@ html2text
 icalendar
 idna
 itsdangerous<2.1.0  # https://github.com/pallets/itsdangerous/pull/273
-jsmin
 linkify-it-py
-Markdown
 markdown-it-py
 mdit-py-plugins
 oauth2
@@ -45,7 +43,6 @@ psycopg2-binary
 pycountry
 Pygments
 pyIsEmail
-pymdown-extensions
 python-dateutil
 python-dotenv<1.0  # 1.0 drops Python 3.7 support
 pytz
