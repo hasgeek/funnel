@@ -1,7 +1,6 @@
 -r test.in
 bandit
 black
-djlint
 flake8
 flake8-assertive
 flake8-blind-except
