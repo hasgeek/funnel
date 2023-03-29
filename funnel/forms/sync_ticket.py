@@ -42,8 +42,8 @@ FORM_SCHEMA_PLACEHOLDER = {
         {
             "name": "choice",
             "title": "Choose one",
-            "type": "string",
-            "enum": ["First choice", "Second choice", "Third choice"],
+            "type": "select",
+            "choices": ["First choice", "Second choice", "Third choice"],
         },
     ]
 }

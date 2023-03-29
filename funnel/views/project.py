@@ -233,14 +233,23 @@ def project_registration_text(obj: Project) -> str:
 
 
 @Project.views('register_button_text')
-def project_register_button_text(obj: Project) -> str:
+def project_register_button_text(obj: Project, alt_text=False) -> str:
     custom_text = (
         obj.boxoffice_data.get('register_button_txt') if obj.boxoffice_data else None
     )
+    rsvp = obj.rsvp_for(current_auth.user)
     if obj.features.follow_mode():
+        if rsvp is not None and rsvp.state.YES:
+            if alt_text:
+                return _("Unfollow")
+            return _("Following")
         return _("Follow")
     if custom_text:
         return custom_text
+    if rsvp is not None and rsvp.state.YES:
+        if alt_text:
+            return _("Cancel Registration")
+        return _("Registered")
     return _("Register")
 
 
@@ -595,14 +604,14 @@ class ProjectView(  # type: ignore[misc]
             'error_description': _("Invalid form submission"),
         }
 
-    @route('register_modal', methods=['GET'])
-    @render_with('register_modal.html.jinja2')
+    @route('rsvp_modal', methods=['GET'])
+    @render_with('rsvp_modal.html.jinja2')
     @requires_login
-    def register_modal(self) -> ReturnRenderWith:
+    def rsvp_modal(self) -> ReturnRenderWith:
         """Edit project banner."""
         form = ProjectRSVPForm()
         return {
-            'project': self.obj.current_access(datasets=('primary', 'related')),
+            'project': self.obj.current_access(datasets=('primary',)),
             'form': form,
             'json_schema': self.obj.boxoffice_data['register_form_schema'],
         }

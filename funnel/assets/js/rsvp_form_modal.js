@@ -26,7 +26,7 @@ const FormUI = {
 };
 
 $(() => {
-  window.Hasgeek.registerForm = (jsonSchema) => {
+  window.Hasgeek.addRsvpForm = (jsonSchema) => {
     FormUI.init(jsonSchema);
   };
 });

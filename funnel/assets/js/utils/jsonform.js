@@ -29,6 +29,9 @@ const jsonForm = Vue.component('jsonform', {
           });
         });
     },
+    getFieldId() {
+      return Math.random().toString(16).slice(2);
+    },
   },
   mounted() {
     this.activateForm();

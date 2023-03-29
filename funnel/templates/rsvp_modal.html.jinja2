@@ -19,11 +19,11 @@
   </form>
   {{ json_form_template() }}
 </div>
-<script src="{{ built_asset('register_form_modal.js') }}" type="text/javascript"></script>
+<script src="{{ built_asset('rsvp_form_modal.js') }}" type="text/javascript"></script>
 <script type="text/javascript">
   $(function() {
     var jsonSchema = {{ json_schema|tojson }};
 
-    window.Hasgeek.registerForm(jsonSchema);
+    window.Hasgeek.addRsvpForm(jsonSchema);
   });
 </script>
