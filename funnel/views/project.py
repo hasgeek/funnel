@@ -612,15 +612,15 @@ class ProjectView(  # type: ignore[misc]
     def register(self) -> ReturnView:
         """Register for project as a participant."""
         rsvp_form = ProjectRSVPForm(
-            obj=SimpleNamespace(form=request.json.get('form', {})),
-            model=Project,
+            obj=SimpleNamespace(form=request.json.get('form', {}))
         )
         if rsvp_form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
-            if not rsvp.state.YES:
-                rsvp.rsvp_yes()
-                rsvp.form = rsvp_form.form.data
-                db.session.commit()
+            new_registration = not rsvp.state.YES
+            rsvp.rsvp_yes()
+            rsvp.form = rsvp_form.form.data
+            db.session.commit()
+            if new_registration:
                 project_role_change.send(
                     self.obj, actor=current_auth.user, user=current_auth.user
                 )
