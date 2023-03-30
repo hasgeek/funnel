@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 from typing import Optional
+import json
+
+from flask import Markup
 
 from baseframe import __, forms
 
@@ -31,19 +34,23 @@ __all__ = [
 BOXOFFICE_DETAILS_PLACEHOLDER = {'org': 'hasgeek', 'item_collection_id': ''}
 
 FORM_SCHEMA_PLACEHOLDER = {
-    "fields": [
+    'fields': [
         {
-            "name": "title",
-            "title": "Display title",
-            "description": "An explanation",
-            "type": "string",
+            'name': 'field_name',
+            'title': "Field label shown to user",
+            'description': "An explanation for this field",
+            'type': "string",
         },
-        {"name": "checkbox", "title": "Checkbox", "type": "boolean"},
         {
-            "name": "choice",
-            "title": "Choose one",
-            "type": "select",
-            "choices": ["First choice", "Second choice", "Third choice"],
+            'name': 'has_checked',
+            'title': "I accept the terms",
+            'type': 'boolean',
+        },
+        {
+            'name': 'choice',
+            'title': "Choose one",
+            'type': 'select',
+            'choices': ["First choice", "Second choice", "Third choice"],
         },
     ]
 }
@@ -81,11 +88,15 @@ class ProjectBoxofficeForm(forms.Form):
         filters=nullable_json_filters,
         validators=[forms.validators.Optional(), validate_and_convert_json],
     )
-    register_button_txt = forms.StringField(
-        __("Register button text"),
-        filters=[forms.filters.strip()],
-        description=__("Optional – Use with care to replace the button text"),
-    )
+
+    def set_queries(self):
+        """Set form schema description."""
+        self.register_form_schema.description = Markup(
+            '<p>{description}</p><pre><code>{schema}</code></pre>'
+        ).format(
+            description=self.register_form_schema.description,
+            schema=json.dumps(FORM_SCHEMA_PLACEHOLDER, indent=2),
+        )
 
 
 @TicketEvent.forms('main')

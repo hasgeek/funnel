@@ -24,7 +24,6 @@ from coaster.views import (
 
 from .. import app
 from ..forms import (
-    FORM_SCHEMA_PLACEHOLDER,
     CfpForm,
     ProjectBannerForm,
     ProjectBoxofficeForm,
@@ -33,7 +32,7 @@ from ..forms import (
     ProjectForm,
     ProjectLivestreamForm,
     ProjectNameForm,
-    ProjectRSVPForm,
+    ProjectRegisterForm,
     ProjectTransitionForm,
 )
 from ..models import (
@@ -239,17 +238,18 @@ def project_register_button_text(obj: Project, alt_text=False) -> str:
         obj.boxoffice_data.get('register_button_txt') if obj.boxoffice_data else None
     )
     rsvp = obj.rsvp_for(current_auth.user)
+    if custom_text and (rsvp is None or not rsvp.state.YES):
+        return custom_text
+
     if obj.features.follow_mode():
         if rsvp is not None and rsvp.state.YES:
             if alt_text:
                 return _("Unfollow")
             return _("Following")
         return _("Follow")
-    if custom_text:
-        return custom_text
     if rsvp is not None and rsvp.state.YES:
         if alt_text:
-            return _("Cancel Registration")
+            return _("Cancel registration")
         return _("Registered")
     return _("Register")
 
@@ -533,9 +533,7 @@ class ProjectView(  # type: ignore[misc]
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
                 allow_rsvp=self.obj.allow_rsvp,
                 is_subscription=boxoffice_data.get('is_subscription', True),
-                register_form_schema=boxoffice_data.get(
-                    'register_form_schema', FORM_SCHEMA_PLACEHOLDER
-                ),
+                register_form_schema=boxoffice_data.get('register_form_schema'),
                 register_button_txt=boxoffice_data.get('register_button_txt', ''),
             ),
             model=Project,
@@ -610,7 +608,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     def rsvp_modal(self) -> ReturnRenderWith:
         """Edit project banner."""
-        form = ProjectRSVPForm()
+        form = ProjectRegisterForm()
         return {
             'project': self.obj.current_access(datasets=('primary',)),
             'form': form,
@@ -621,7 +619,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     def register(self) -> ReturnView:
         """Register for project as a participant."""
-        rsvp_form = ProjectRSVPForm(
+        rsvp_form = ProjectRegisterForm(
             obj=SimpleNamespace(form=request.json.get('form', {}))
         )
         if rsvp_form.validate_on_submit():

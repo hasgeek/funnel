@@ -31,7 +31,7 @@ __all__ = [
     'ProjectSponsorForm',
     'RsvpTransitionForm',
     'SavedProjectForm',
-    'ProjectRSVPForm',
+    'ProjectRegisterForm',
 ]
 
 double_quote_re = re.compile(r'["“”]')
@@ -355,7 +355,9 @@ class RsvpTransitionForm(forms.Form):
 
 
 @Project.forms('rsvp')
-class ProjectRSVPForm(forms.Form):
+class ProjectRegisterForm(forms.Form):
+    """Register for a project with an optional custom JSON form."""
+
     form = forms.TextAreaField(
         __("Form"),
         filters=nullable_json_filters,
