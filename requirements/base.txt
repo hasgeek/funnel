@@ -350,7 +350,7 @@ pyyaml==6.0
     #   pymdown-extensions
 qrcode==7.4.2
     # via -r requirements/base.in
-redis==4.5.3
+redis==4.5.4
     # via
     #   baseframe
     #   flask-redis
