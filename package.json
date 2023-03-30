@@ -29,9 +29,9 @@
     "file-loader": "^6.2.0",
     "husky": "^7.0.4",
     "lint-staged": "^11.0.1",
-    "node-sass": "^7.0.0",
+    "node-sass": "^8.0.0",
     "prettier": "^2.3.2",
-    "sass-loader": "^12.3.0",
+    "sass-loader": "^13.2.2",
     "webpack": "^5.72.1",
     "webpack-cli": "^4.9.2",
     "workbox-webpack-plugin": "^6.1.5"
