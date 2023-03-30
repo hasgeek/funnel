@@ -677,6 +677,13 @@ class ProjectView(  # type: ignore[misc]
                 _r.current_access(datasets=('without_parent', 'related', 'related'))
                 for _r in self.obj.rsvps_with(RSVP_STATUS.YES)
             ],
+            'rsvp_form_fields': [
+                field['name'] if 'name' in field else ''
+                for field in self.obj.boxoffice_data['register_form_schema']['fields']
+            ]
+            if self.obj.boxoffice_data['register_form_schema']
+            and 'fields' in self.obj.boxoffice_data['register_form_schema']
+            else None,
         }
 
     def get_rsvp_state_csv(self, state):

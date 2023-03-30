@@ -80,7 +80,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     __roles__ = {
         'owner': {'read': {'created_at', 'updated_at'}},
-        'project_promoter': {'read': {'created_at', 'updated_at'}},
+        'project_promoter': {'read': {'created_at', 'updated_at', 'form'}},
     }
 
     @property
