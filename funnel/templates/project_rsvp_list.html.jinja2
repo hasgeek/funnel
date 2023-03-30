@@ -33,7 +33,7 @@
               <td data-cy="user" data-value="{{ rsvp.updated_at|timestamp }}">{{ rsvp.updated_at|datetime }}</td>
               {% if rsvp_form_fields -%}
                 {% for field_name in rsvp_form_fields %}
-                  <td>{{ rsvp.form[field_name] }}</td>
+                  <td>{{ rsvp.form.get(field_name, '') }}</td>
                 {% endfor %}
               {%- endif %}
             </tr>

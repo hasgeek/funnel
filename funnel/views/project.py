@@ -612,7 +612,7 @@ class ProjectView(  # type: ignore[misc]
         return {
             'project': self.obj.current_access(datasets=('primary',)),
             'form': form,
-            'json_schema': self.obj.boxoffice_data['register_form_schema'],
+            'json_schema': self.obj.boxoffice_data.get('register_form_schema'),
         }
 
     @route('register', methods=['POST'])
@@ -677,7 +677,7 @@ class ProjectView(  # type: ignore[misc]
                 for _r in self.obj.rsvps_with(RSVP_STATUS.YES)
             ],
             'rsvp_form_fields': [
-                field['name'] if 'name' in field else ''
+                field.get('name', '')
                 for field in self.obj.boxoffice_data['register_form_schema']['fields']
             ]
             if self.obj.boxoffice_data['register_form_schema']
