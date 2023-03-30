@@ -16,6 +16,9 @@ const jsonForm = Vue.component('jsonform', {
     activateForm() {
       const form = this;
       const url = Form.getActionUrl(this.formid);
+      const onSuccess = (response) => {
+        this.$emit('handle-submit-response', this.formid, response);
+      };
       const onError = (response) => {
         Form.formErrorHandler(this.formid, response);
       };
@@ -23,8 +26,9 @@ const jsonForm = Vue.component('jsonform', {
         .find('button[type="submit"]')
         .click((event) => {
           event.preventDefault();
-          window.Hasgeek.Forms.ajaxFormSubmit(this.formid, url, '', onError, {
+          window.Hasgeek.Forms.ajaxFormSubmit(this.formid, url, onSuccess, onError, {
             contentType: 'application/json',
+            dataType: 'html',
             formData: JSON.stringify({ form: form.getFormData() }),
           });
         });

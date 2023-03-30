@@ -17,8 +17,8 @@ const FormUI = {
         jsonForm,
       },
       methods: {
-        onChange(event) {
-          this.data = event.data;
+        handleAjaxPost(formId, ajaxResponse) {
+          $(`#${formId}`).html(ajaxResponse);
         },
       },
     });
