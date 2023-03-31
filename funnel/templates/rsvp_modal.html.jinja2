@@ -9,6 +9,8 @@
 </div>
 <div class="modal__body">
   <form action="{{ project.url_for('register') }}" method="post" class="mui-form form-inline" id="rsvp-form">
+    {{ form.hidden_tag() }}
+    {{ csrf_tag() }}
     <div id="register-form">
       <json-form :jsonschema="jsonSchema" :formid="'rsvp-form'" @handle-submit-response="handleAjaxPost"></json-form>
     </div>

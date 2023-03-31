@@ -9,13 +9,15 @@ const jsonForm = Vue.component('jsonform', {
       const obj = {};
       const formData = $(`#${this.formid}`).serializeArray();
       formData.forEach((field) => {
-        obj[field.name] = field.value;
+        if (field.name !== 'form_nonce' && field.name !== 'csrf_token')
+          obj[field.name] = field.value;
       });
       return JSON.stringify(obj);
     },
     activateForm() {
       const form = this;
       const url = Form.getActionUrl(this.formid);
+      const formValues = new FormData($(`#${this.formid}`)[0]);
       const onSuccess = (response) => {
         this.$emit('handle-submit-response', this.formid, response);
       };
@@ -29,7 +31,11 @@ const jsonForm = Vue.component('jsonform', {
           window.Hasgeek.Forms.ajaxFormSubmit(this.formid, url, onSuccess, onError, {
             contentType: 'application/json',
             dataType: 'html',
-            formData: JSON.stringify({ form: form.getFormData() }),
+            formData: JSON.stringify({
+              form_nonce: formValues.get('form_nonce'),
+              csrf_token: formValues.get('csrf_token'),
+              form: form.getFormData(),
+            }),
           });
         });
     },
