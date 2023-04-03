@@ -859,12 +859,11 @@ def _setup_refcount_events() -> None:
 def _phone_number_mixin_set_validator(
     target, value: Optional[PhoneNumber], old_value, initiator
 ) -> None:
-    if value != old_value and target.__phone_for__:
-        if value is not None:
-            if value.is_blocked:
-                raise PhoneNumberBlockedError("This phone number has been blocked")
-            if not value.is_available_for(getattr(target, target.__phone_for__)):
-                raise PhoneNumberInUseError("This phone number it not available")
+    if value is not None and value != old_value and target.__phone_for__:
+        if value.is_blocked:
+            raise PhoneNumberBlockedError("This phone number has been blocked")
+        if not value.is_available_for(getattr(target, target.__phone_for__)):
+            raise PhoneNumberInUseError("This phone number it not available")
 
 
 @event.listens_for(PhoneNumberMixin, 'mapper_configured', propagate=True)
