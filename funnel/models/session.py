@@ -204,7 +204,7 @@ class Session(
         return self.start_at is not None and self.end_at is not None
 
     @scheduled.expression
-    def scheduled(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def scheduled(cls):  # pylint: disable=no-self-argument
         return (cls.start_at.isnot(None)) & (cls.end_at.isnot(None))
 
     @cached_property

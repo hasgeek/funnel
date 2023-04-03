@@ -286,7 +286,7 @@ class Profile(
         return self.user_id is not None
 
     @is_user_profile.expression
-    def is_user_profile(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def is_user_profile(cls):  # pylint: disable=no-self-argument
         """Test if this is a user account in a SQL expression."""
         return cls.user_id.isnot(None)
 
@@ -296,7 +296,7 @@ class Profile(
         return self.organization_id is not None
 
     @is_organization_profile.expression
-    def is_organization_profile(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def is_organization_profile(cls):  # pylint: disable=no-self-argument
         """Test if this is an organization account in a SQL expression."""
         return cls.organization_id.isnot(None)
 
@@ -325,7 +325,7 @@ class Profile(
             raise ValueError("Reserved accounts do not have titles")
 
     @title.expression
-    def title(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def title(cls):  # pylint: disable=no-self-argument
         return sa.case(
             (
                 # if...

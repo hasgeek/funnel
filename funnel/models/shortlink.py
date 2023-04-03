@@ -223,7 +223,7 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
         self.id = name_to_bigint(value)
 
     @name.comparator
-    def name(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def name(cls):  # pylint: disable=no-self-argument
         """Compare name to id in a SQL expression."""
         return ShortLinkToBigIntComparator(cls.id)
 
