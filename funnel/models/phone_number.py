@@ -375,7 +375,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
             return self.blocked_at is not None
 
     @is_blocked.expression
-    def is_blocked(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def is_blocked(cls):  # pylint: disable=no-self-argument
         """Expression form of is_blocked check."""
         return cls.blocked_at.isnot(None)
 
