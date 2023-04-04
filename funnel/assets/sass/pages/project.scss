@@ -125,6 +125,23 @@
   }
 }
 
+@media (any-pointer: coarse) {
+  .register-block {
+    .register-block__content {
+      .register-block__btn {
+        border-color: $mui-text-danger;
+        .register-block__btn__txt--hover {
+          display: none;
+        }
+        .register-block__btn__txt--hover--show {
+          display: block;
+          color: $mui-text-danger;
+        }
+      }
+    }
+  }
+}
+
 @media (min-width: 768px) {
   .project-footer {
     .register-block {
