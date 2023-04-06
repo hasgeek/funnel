@@ -17,7 +17,8 @@
               </div>
 
               <div class="mui-select" v-else-if="field.type == 'select' && 'choices' in field">
-                <select :id="`select-${id}`">
+                <select :id="`select-${id}`" :name="`${field.name}`" >
+                  <option value="">{{ gettext('Select an option') }}</option>
                   <option v-for="option in field.choices" :value="option">
                     {{ option }}
                   </option>
