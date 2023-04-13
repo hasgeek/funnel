@@ -121,7 +121,7 @@
 
 {% macro registerblock(project) %}
   <div class="register-block">
-    <div class="register-block__content">
+    <div class="register-block__content {% if project.features.tickets() %}register-block__content--half {%- endif %}">
     {% if project.features.rsvp() %}
       {%- if current_auth.is_anonymous %}
         <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} register-block__btn js-login-register-btn" id="register-nav" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
@@ -173,20 +173,20 @@
       <a class="register-block__btn full-width-btn mui-btn mui-btn--primary" href="{{ project.buy_tickets_url.url }}" data-action="external register url" target="_blank" rel="noopener"><span>{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{{ project.views.register_button_text() }}</span></a>
     {% endif %}
     </div>
-    <div class="register-block__content">
-      {% if project.features.tickets() %}
-        {% if project.features.subscription %}<span class="register-block__content__txt mui--text-light">{% trans %}Like this? Support the community{% endtrans %}</span>{% endif %}
-        <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
-          {% if project.features.subscription %}
-            <span class="register-block__btn__txt" data-cy="unregistered">Get a subscription</span>
-          {%- else %}
-            <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Get tickets{% endtrans %}</span>
-          {% endif %}
-          <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt js-tickets-available"><span class="js-ticket-price"></span></span>
-          <span class="register-block__btn__txt register-block__btn__txt--smaller mui--text-light js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
-        </button>
-      {%- endif %}
-    </div>
+    {% if project.features.tickets() %}
+      <div class="register-block__content register-block__content--half">
+          {% if project.features.subscription %}<span class="register-block__content__txt mui--text-light">{% trans %}Like this? Support the community{% endtrans %}</span>{% endif %}
+          <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
+            {% if project.features.subscription %}
+              <span class="register-block__btn__txt" data-cy="unregistered">Get a subscription</span>
+            {%- else %}
+              <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Get tickets{% endtrans %}</span>
+            {% endif %}
+            <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt js-tickets-available"><span class="js-ticket-price"></span></span>
+            <span class="register-block__btn__txt register-block__btn__txt--smaller mui--text-light js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
+          </button>
+      </div>
+    {%- endif %}
   </div>
 {% endmacro %}
 
