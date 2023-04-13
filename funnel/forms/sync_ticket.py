@@ -82,7 +82,7 @@ class ProjectBoxofficeForm(forms.Form):
         filters=[forms.filters.strip()],
         description=__("Optional – Use with care to replace the button text"),
     )
-    register_form_schema = forms.TextAreaField(
+    register_form_schema = forms.StylesheetField(
         __("Registration form"),
         description=__("Optional – Specify fields as JSON (limited support)"),
         filters=nullable_json_filters,

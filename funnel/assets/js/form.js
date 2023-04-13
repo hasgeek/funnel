@@ -1,8 +1,7 @@
 import 'htmx.org';
 import Form from './utils/formhelper';
-import codemirrorHelper from './utils/codemirror';
 
-window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
+window.Hasgeek.form = async ({ autosave, formId, msgElemId }) => {
   let lastSavedData = $(formId).find('[type!="hidden"]').serialize();
   let typingTimer;
   const typingWaitInterval = 1000; // wait till user stops typing for one second to send form data
@@ -82,8 +81,25 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
     });
   }
 
-  $('textarea.markdown:not([style*="display: none"]').each(function enableCodemirror() {
-    const markdownId = $(this).attr('id');
-    codemirrorHelper(markdownId);
-  });
+  if ($('textarea.markdown:not([style*="display: none"]').length) {
+    const { default: codemirrorHelper } = await import('./utils/codemirror');
+    $('textarea.markdown:not([style*="display: none"]').each(
+      function enableCodemirror() {
+        const markdownId = $(this).attr('id');
+        codemirrorHelper(markdownId);
+      }
+    );
+  }
+
+  if ($('textarea.stylesheet:not([style*="display: none"]').length) {
+    const { default: codemirrorStylesheetHelper } = await import(
+      './utils/codemirror_stylesheet'
+    );
+    $('textarea.stylesheet:not([style*="display: none"]').each(
+      function enableCodemirror() {
+        const textareaId = $(this).attr('id');
+        codemirrorStylesheetHelper(textareaId);
+      }
+    );
+  }
 };
