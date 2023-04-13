@@ -1,20 +1,18 @@
 """Test custom rsvp form views."""
 
-import pytest
-
-from funnel import models
-from flask import get_flashed_messages
-from werkzeug.datastructures import MultiDict
 import datetime
 
+from werkzeug.datastructures import MultiDict
+
+import pytest
 
 valid_json = '''{
-            "fields": [    {      
-            "description": "An explanation for this field",      
-            "name": "field_name","title": "Field label shown to user",      
+            "fields": [    {
+            "description": "An explanation for this field",
+            "name": "field_name","title": "Field label shown to user",
             "type": "string"},{"name": "has_checked",
             "title": "I accept the terms","type": "boolean"},
-            {"choices": 
+            {"choices":
             ["First choice","Second choice","Third choice"],
             "name": "choice","title": "Choose one","type": "select"}]
             }'''

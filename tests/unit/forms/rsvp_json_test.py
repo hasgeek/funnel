@@ -1,15 +1,12 @@
-import pytest
-
-from funnel import forms, models
-
+from funnel import forms
 
 valid_json = '''{
-            "fields": [    {      
-            "description": "An explanation for this field",      
-            "name": "field_name","title": "Field label shown to user",      
+            "fields": [    {
+            "description": "An explanation for this field",
+            "name": "field_name","title": "Field label shown to user",
             "type": "string"},{"name": "has_checked",
             "title": "I accept the terms","type": "boolean"},
-            {"choices": 
+            {"choices":
             ["First choice","Second choice","Third choice"],
             "name": "choice","title": "Choose one"}]
             }'''
