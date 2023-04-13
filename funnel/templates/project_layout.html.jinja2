@@ -148,11 +148,11 @@
           </div>
         </div>
       {%- elif project.features.rsvp_registered() %}
-        <span class="register-block__content__txt mui--text-light"></span>
+        <span class="register-block__content__rsvp-txt">{{ project.views.registration_text() }}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class="mui--text-success fa-icon--left-margin") }}</span>
         <a class="mui-btn mui-btn--accent mui-btn--raised register-block__btn js-register-btn" href="#register-modal" aria-haspopup="true">
           <span class="register-block__btn__txt register-block__btn__txt--hover">{% if project.features.follow_mode() %}{% trans %}Following{% endtrans %}{% else %}{% trans %}Registered{% endtrans %}{% endif %}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class="mui--text-success fa-icon--left-margin") }}</span>
           <span class="register-block__btn__txt register-block__btn__txt--hover--show">{% if project.features.follow_mode() %}{% trans %}Unfollow{% endtrans %}{% else %}{% trans %}Cancel Registration{% endtrans %}{% endif %}</span>
-          <span class="register-block__btn__txt register-block__btn__txt--smaller mui--text-light">{{ project.views.registration_text() }}</span>
+          <span class="register-block__btn__txt register-block__btn__txt--smaller mui--text-light register-block__btn__txt--mobile">{{ project.views.registration_text() }}</span>
         </a>
         <div class="modal" id="register-modal" role="dialog" aria-labelledby="cancel-rsvp" aria-modal="true" tabindex="-1">
           <div class="modal__header">

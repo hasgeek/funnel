@@ -59,6 +59,9 @@
   .register-block__content {
     width: calc(50% - 8px);
     align-self: flex-end;
+    .register-block__content__rsvp-txt {
+      display: none;
+    }
     .register-block__content__txt {
       font-size: 9px;
       line-height: 16px;
@@ -125,9 +128,14 @@
   }
 }
 
-@media (any-pointer: coarse) {
+@media (any-hover: none) {
   .register-block {
     .register-block__content {
+      .register-block__content__rsvp-txt {
+        display: block;
+        font-size: 12px;
+        font-weight: 400;
+      }
       .register-block__btn {
         border-color: $mui-text-danger;
         .register-block__btn__txt--hover {
@@ -136,6 +144,9 @@
         .register-block__btn__txt--hover--show {
           display: block;
           color: $mui-text-danger;
+        }
+        .register-block__btn__txt--mobile {
+          display: none;
         }
       }
     }
