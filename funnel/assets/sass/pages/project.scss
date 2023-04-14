@@ -136,7 +136,7 @@
     .register-block__content {
       .register-block__content__rsvp-txt {
         display: block;
-        font-size: 9px;
+        font-size: 12px;
         font-weight: 500;
       }
       .register-block__btn {
@@ -151,6 +151,11 @@
         .register-block__btn__txt--mobile {
           display: none;
         }
+      }
+    }
+    .register-block__content--half {
+      .register-block__content__rsvp-txt {
+        font-size: 9px;
       }
     }
   }
