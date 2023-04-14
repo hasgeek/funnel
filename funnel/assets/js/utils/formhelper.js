@@ -157,6 +157,7 @@ const Form = {
             },
             body: new URLSearchParams(formData).toString(),
           })
+            .then((response) => response.json())
             .then((responseData) => {
               if (responseData && responseData.message) {
                 window.toastr.success(responseData.message);

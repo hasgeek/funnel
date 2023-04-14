@@ -130,9 +130,8 @@ def app_url_for(
 
     The provided app must have `SERVER_NAME` in its config for URL construction to work.
     """
-    if (  # pylint: disable=protected-access
-        current_app and current_app._get_current_object() is target_app
-    ):
+    # pylint: disable=protected-access
+    if current_app and current_app._get_current_object() is target_app:
         return url_for(
             endpoint,
             _external=_external,
@@ -295,7 +294,7 @@ def progressive_rate_limit_validator(
     return (True, False)
 
 
-def validate_rate_limit(  # pylint: disable=too-many-arguments
+def validate_rate_limit(
     resource: str,
     identifier: str,
     attempts: int,
@@ -509,7 +508,6 @@ def render_redirect(url: str, code: int = 303) -> ReturnResponse:
         return Response(
             render_template('redirect.html.jinja2', url=url),
             status=200,
-            headers={'HX-Redirect': url},
         )
     if request_wants.json:
         response = jsonify({'status': 'error', 'error': 'redirect', 'location': url})

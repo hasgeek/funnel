@@ -406,7 +406,6 @@ class AccountView(ClassView):
                 useremail = emailclaim.user.add_email(
                     emailclaim.email,
                     primary=not emailclaim.user.emails,
-                    type=emailclaim.type,
                     private=emailclaim.private,
                 )
                 for emailclaim in UserEmailClaim.all(useremail.email):
@@ -493,7 +492,7 @@ class AccountView(ClassView):
             )
             if useremail is None:
                 useremail = UserEmailClaim(
-                    user=current_auth.user, email=form.email.data, type=form.type.data
+                    user=current_auth.user, email=form.email.data
                 )
                 db.session.add(useremail)
             send_email_verify_link(useremail)
@@ -658,7 +657,7 @@ class AccountView(ClassView):
             message=_("We will resend the verification email to {email}").format(
                 email=emailclaim.email
             ),
-            formid="email_verify",
+            formid='email_verify',
             submit=_("Send"),
             template='account_formlayout.html.jinja2',
         )
@@ -708,7 +707,7 @@ class AccountView(ClassView):
                 userphone = UserPhone(user=current_auth.user, phone=otp_session.phone)
                 userphone.primary = primary
                 db.session.add(userphone)
-                userphone.phone_number.mark_active()
+                userphone.phone_number.mark_active(sms=True)
                 db.session.commit()
                 flash(_("Your phone number has been verified"), 'success')
                 user_data_changed.send(current_auth.user, changes=['phone'])
@@ -807,6 +806,7 @@ class AccountView(ClassView):
             )
         return render_form(
             form=form,
+            formid='account-delete',
             title=_("You are about to delete your account permanently"),
             submit=("Delete account"),
             ajax=False,
@@ -818,6 +818,7 @@ AccountView.init_app(app)
 
 
 # --- Compatibility routes -------------------------------------------------------------
+
 
 # Retained for future hasjob integration
 # @hasjobapp.route('/account/sudo', endpoint='account_sudo')

@@ -3,6 +3,7 @@
 @import '../components/proposal-card';
 @import '../components/switch';
 @import '../components/footable';
+@import '../components/draggablebox';
 @import 'leaflet';
 
 @media (min-width: 768px) {
@@ -16,7 +17,7 @@
   width: 100%;
   left: 0;
   bottom: 0;
-  padding: $mui-grid-padding/4 $mui-grid-padding !important;
+  padding: $mui-grid-padding/4 $mui-grid-padding $mui-grid-padding/4 !important;
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
   z-index: 1000;
@@ -56,68 +57,70 @@
   width: 100%;
   flex-wrap: wrap;
   .register-block__content {
-    width: 45%;
-    align-self: end;
-  }
-  .register-block__content--margin {
-    width: calc(55% - #{$mui-grid-padding});
-    margin-right: $mui-grid-padding;
-    align-self: center;
-  }
-  .register-block__txt {
-    font-size: 12px;
-    margin: 0 0 $mui-grid-padding/2;
-  }
-  .register-block__btn {
-    width: 100%;
-    font-size: 10px;
-    padding: 0 $mui-grid-padding/2;
-  }
-  .register-block__btn--small {
-    width: calc(100% - 30px);
-  }
-  .register-block__right__menu {
-    margin-left: $mui-grid-padding/2;
-  }
-  .register-block__btnwrapper {
-    width: 100%;
-  }
-  .register-block__btnwrapper--width {
-    width: auto;
-    display: inline-flex;
-  }
-}
-
-.project-footer {
-  .register-block {
-    .register-block__content--flex {
+    width: calc(50% - 8px);
+    align-self: flex-end;
+    .register-block__content__txt {
+      font-size: 9px;
+      line-height: 16px;
+      width: 100%;
+      display: block;
+      font-style: italic;
+      margin-bottom: $mui-grid-padding/4;
+    }
+    .register-block__btn {
+      width: 100%;
+      font-size: 10px;
+      padding: 0;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      flex-wrap: wrap;
+      margin: 0 0 2px;
+      justify-content: center;
+      height: 42px;
+      .register-block__btn__txt {
+        display: block;
+        width: 100%;
+        font-size: 12px;
+        line-height: 16px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      .register-block__btn__txt--hover--show {
+        display: none;
+      }
+      .register-block__btn__txt--smaller {
+        font-size: 10px;
+        line-height: 16px;
+        text-transform: initial;
+        font-weight: 400;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: auto;
+      }
+      &:hover .register-block__btn__txt--hover {
+        display: none;
+      }
+      &:hover .register-block__btn__txt--hover--show {
+        display: block;
+        color: $mui-text-danger;
+      }
+      &:hover {
+        border-color: $mui-text-danger;
+      }
     }
-    .register-block__txt {
-      margin: 0;
-    }
-    .register-block__btnwrapper {
-      width: auto;
-    }
-    .register-block__btn.full-width-btn {
-      width: 100%;
-    }
+  }
+  .register-block__content:first-child {
+    margin-right: 16px;
   }
 }
 
-@media (min-width: 360px) {
+@media (min-width: 380px) {
   .register-block {
-    .register-block__txt {
-      font-size: 14px;
-      white-space: normal;
-    }
-    .register-block__txt--longer {
-      max-width: calc(100% - 30px);
-      display: inline-block;
+    .register-block__content {
+      .register-block__content__txt {
+        font-size: 10px;
+      }
     }
   }
 }
@@ -126,32 +129,26 @@
   .project-footer {
     .register-block {
       display: block;
-      .register-block__content--flex {
-        display: block;
-      }
-      .register-block__content,
-      .register-block__content--margin {
+      .register-block__content {
         width: 100%;
         margin-right: 0;
-      }
-      .register-block__content--padding {
-        margin: $mui-grid-padding 0 0;
-      }
-      .register-block__txt {
-        margin: 0 0 $mui-grid-padding;
-        max-width: 100%;
-      }
-      .register-block__btn {
-        width: 100%;
-        font-size: inherit;
-      }
-      .register-block__btnwrapper {
-        width: 100%;
-        display: inline-flex;
-        align-items: center;
-      }
-      .register-block__btnwrapper--width {
-        width: auto;
+        margin-bottom: $mui-grid-padding;
+        .register-block__content__txt {
+          font-size: 14px;
+          line-height: 21px;
+          margin-bottom: $mui-grid-padding/2;
+        }
+        .register-block__btn {
+          width: 100%;
+          font-size: inherit;
+          height: 42px;
+          .register-block__btn__txt {
+            font-size: 14px;
+          }
+          .register-block__btn__txt--smaller {
+            font-size: 12px;
+          }
+        }
       }
     }
   }
@@ -461,6 +458,7 @@
   }
   .pinned__update__body {
     margin-bottom: 0;
+    word-break: break-word;
     > * {
       display: inline-block;
       margin-bottom: 0;

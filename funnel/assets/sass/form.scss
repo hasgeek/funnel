@@ -301,9 +301,10 @@
 
 .modal--form {
   min-width: 100%;
-  min-height: 325px;
+  min-height: 100%;
   height: 100%;
   border-radius: 0;
+  overflow: auto;
 
   .modal--form__action-box {
     padding: 20px;
@@ -345,7 +346,6 @@
 @media (min-width: 768px) {
   .jquery-modal.blocker.current .modal.modal--form {
     min-width: 50%;
-    min-height: 80%;
     height: auto;
     border-radius: 4px;
   }
@@ -397,7 +397,6 @@
     height: 32px !important;
     position: relative !important;
     padding-left: $mui-grid-padding/2 !important;
-    width: calc(100% + $mui-grid-padding) !important;
   }
   .mui-select:focus > label,
   .mui-select > select:focus ~ label {
@@ -414,23 +413,9 @@
 }
 
 // ============================================================================
-// Keyboard switcher
+// Input field helper icon (keyboard switch/Show password)
 // ============================================================================
 
-.tabs.keyboard-switch {
+.field-toggle {
   display: none;
-  justify-content: space-between;
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  z-index: 2;
-  padding: $mui-grid-padding/2;
-  margin: 0;
-  background: $mui-bg-color-primary;
-  margin-bottom: calc(env(keyboard-inset-height)); // Position it above the keyboard
-}
-
-input#username:focus ~ .keyboard-switch {
-  display: flex;
 }

@@ -194,6 +194,10 @@
   color: $mui-primary-color;
 }
 
+.primary-color-lighter-txt {
+  color: rgba($mui-primary-color-lighter, 0.75);
+}
+
 .secondary-color-txt {
   color: $mui-accent-color;
 }

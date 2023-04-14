@@ -82,7 +82,7 @@ class CommentNotification(RenderNotification):
         # hashable. Else: ``return {_c.user for _c in self.fragments}``
         user_ids = set()
         users = []
-        for comment in self.fragments:
+        for comment in self.fragments:  # pylint: disable=not-an-iterable
             if comment.user.uuid not in user_ids:
                 users.append(comment.user)
                 user_ids.add(comment.user.uuid)

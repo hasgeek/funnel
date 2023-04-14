@@ -45,7 +45,7 @@
           <div>
             <form class="mui--pull-left search search--50  search--icon mui--z1">
               <div class="textfield">
-                <input class="field-search" id="search" type="text" name="key" value="" placeholder="Search titles…" />{{ faicon(icon='search', baseline=false, css_class='search-form__icon') }}
+                <input class="field-search" id="search" type="text" name="key" value="" placeholder="{% trans %}Search titles…{% endtrans %}" />{{ faicon(icon='search', baseline=false, css_class='search-form__icon') }}
               </div>
             </form>
           </div>
@@ -68,8 +68,10 @@
           inputId: 'search'
         },
         sort: {
-          url: '{{ project.url_for("reorder_proposals") }}',
+          url: {{ project.url_for("reorder_proposals")|tojson }},
           permission: {{ project.current_roles.editor|tojson }},
+          wrapperElem: '.proposal-list-table tbody',
+          placeholder: 'proposal-placeholder'
         },
       };
       {%- if project.view_for('cfp').is_available() %}

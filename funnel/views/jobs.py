@@ -178,6 +178,6 @@ def forget_phone(phone_hash) -> None:
     phone_number = PhoneNumber.get(phone_hash=phone_hash)
     if phone_number is not None and phone_number.refcount() == 0:
         app.logger.info("Forgetting phone number with hash %s", phone_hash)
-        phone_number.number = None
+        phone_number.mark_forgotten()
         db.session.commit()
         statsd.incr('phone_number.forgotten')

@@ -183,7 +183,6 @@
       .cm-editor {
         border: 1px solid $mui-primary-color;
         border-radius: 16px 16px 0 16px;
-        min-height: 56px;
         padding: $mui-grid-padding;
         height: auto;
         .cm-scroller {
@@ -200,7 +199,7 @@
   }
   .icon-btn {
     min-width: 40px;
-    margin: 0 0 0 8px;
+    margin: 0;
   }
   .user {
     display: inline-block;
@@ -231,22 +230,17 @@
     max-height: 100%;
     overflow-y: scroll;
     .mui-form {
+      align-items: center;
       .mui-form__fields .cm-editor {
         border: none;
         border-radius: 0;
         background: $mui-bg-color-primary;
+        min-height: 72px; // height of navbar on project page
       }
     }
-    .mui-btn--raised.icon-btn {
-      border-radius: 0;
-      box-shadow: none;
-      padding-bottom: 16px;
-      background: inherit;
-    }
-    .user {
-      padding-bottom: $mui-grid-padding/2;
-      padding-right: $mui-grid-padding;
-      margin-right: 0;
+    .user,
+    .icon-btn {
+      margin: 0 $mui-grid-padding/2 0 0;
     }
   }
   .ajax-form--block.ajax-form--mob {

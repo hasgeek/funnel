@@ -39,12 +39,12 @@ def upgrade():
     connection = op.get_bind()
 
     # update venue sequences
-    projects = connection.execute(sa.select([project.c.id]))
+    projects = connection.execute(sa.select(project.c.id))
     project_ids = [proj_tuple[0] for proj_tuple in projects]
 
     for project_id in project_ids:
         venues = connection.execute(
-            sa.select([venue.c.id])
+            sa.select(venue.c.id)
             .where(venue.c.project_id == project_id)
             .order_by('created_at')
         )
@@ -56,7 +56,7 @@ def upgrade():
 
             # update venue_room sequences
             venue_rooms = connection.execute(
-                sa.select([venue_room.c.id])
+                sa.select(venue_room.c.id)
                 .where(venue_room.c.venue_id == venue_id)
                 .order_by('created_at')
             )

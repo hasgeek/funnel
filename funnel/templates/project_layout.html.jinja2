@@ -52,19 +52,24 @@
 
 {% macro project_header(project) %}
   {% if project.livestream_urls %}
-    <div role="tabpanel" class="livestream-box project-banner__left" id="livestream">
-      {% if project.livestream_urls|length > 2 %}
+    <div class="livestream-box project-banner__left" id="livestream">
+      {% if project.livestream_urls|length >= 2 %}
       <ul class="mui-tabs__bar project-banner__box" role="tablist">
         {%- for stream in project.livestream_urls %}
-          <li role="presentation" {%- if loop.first %} class="mui--is-active"{% endif %}>
-            <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ loop.index }}">{% trans %}Livestream{% endtrans %}{%- if not loop.first %} {{ loop.index }}{% endif %}</a>
+          <li role="presentation"{%- if loop.first %} class="mui--is-active"{% endif %}>
+            <a role="tab" data-mui-toggle="tab" data-mui-controls="pane-justified-{{ loop.index }}"
+              aria-controls="pane-justified-{{ loop.index }}" id="tab-{{ loop.index }}"
+              {%- if loop.first %}tabindex="0" aria-selected="true"{% else %}tabindex="-1" aria-selected="false"{% endif %}
+            >{% trans %}Livestream{% endtrans %}{%- if not loop.first %} {{ loop.index }}{% endif %}</a>
           </li>
         {%- endfor %}
       </ul>
       {% endif %}
 
       {%- for stream in project.livestream_urls %}
-        <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}" id="pane-justified-{{ loop.index }}">
+        <div role="tabpanel" class="mui-tabs__pane {%- if loop.first %} mui--is-active{% endif %}"
+          id="pane-justified-{{ loop.index }}" aria-labelledby="tab-{{ loop.index }}" tabindex="0"
+        >
           <div class="project-banner__box">
             {{ livestream_edit_btn(project) }}
             {{ banner_edit_btn(project) }}
@@ -116,82 +121,72 @@
 
 {% macro registerblock(project) %}
   <div class="register-block">
+    <div class="register-block__content">
     {% if project.features.rsvp() %}
-      <div class="register-block__content {% if project.features.tickets() %} register-block__content--margin {%- else %} register-block__content--flex {% endif %}">
-        {% if project.features.rsvp_unregistered() -%}
-          <div class="register-block__txt {% if project.view_for('rsvp_list').is_available() %}register-block__txt--short{%- endif %}">
-            <p class="mui--text-light zero-bottom-margin" data-cy="unregistered">{{ project.views.registration_text() }}</p>
+      {%- if current_auth.is_anonymous %}
+        <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} register-block__btn js-login-register-btn" id="register-nav" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
+      {% elif project.features.rsvp_unregistered() -%}
+        {% if not project.features.follow_mode() %}<span class="register-block__content__txt mui--text-light">{% trans %}This is a free event{% endtrans %}</span>{% endif %}
+        <a class="mui-btn mui-btn--raised mui-btn--dark register-block__btn js-register-btn" href="#register-modal" role="button" aria-haspopup="true">
+          <span class="register-block__btn__txt">{{ project.views.register_button_text() }}</span>
+          <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt" data-cy="unregistered">{{ project.views.registration_text() }}</span>
+        </a>
+        <div class="modal" id="register-modal" role="dialog" aria-labelledby="confirm-rsvp" aria-modal="true" tabindex="-1">
+          <div class="modal__header">
+            <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
+            <p class="mui--text-title text-bold mui--text-dark">{{ faicon(icon='info-circle', baseline=false, icon_size='heading') }}</p>
+            <p class="mui--hide" id="confirm-rsvp">{% trans %}Register{% endtrans %}</p>
           </div>
-        {%- elif project.features.rsvp_registered() %}
-          <p class="register-block__txt register-block__txt--longer mui--text-light zero-bottom-margin" data-cy="registered">{{ project.views.registration_text() }}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class="mui--text-success fa-icon--left-margin") }}</p>
-        {%- endif %}
-      <div class="register-block__btnwrapper {% if project.features.rsvp_registered() %} register-block__btnwrapper--width {%- endif %}">
-        {%- if current_auth.is_anonymous %}
-          <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} zero-top-margin zero-bottom-margin register-block__btn js-login-register-btn" href="{{ url_for('login', next=request.path) }}%23register-modal" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
-        {% elif project.features.rsvp_unregistered() -%}
-          <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} zero-top-margin zero-bottom-margin register-block__btn js-register-btn {% if project.features.rsvp_registered() or project.view_for('rsvp_list').is_available() %}register-block__btn--small{%- endif %}" href="#register-modal" role="button" aria-haspopup="true">{{ project.views.register_button_text() }}</a>
-          <div class="modal" id="register-modal" role="dialog" aria-labelledby="confirm-rsvp" aria-modal="true" tabindex="-1">
-            <div class="modal__header">
-              <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-              <p class="mui--text-title text-bold mui--text-dark">{{ faicon(icon='info-circle', baseline=false, icon_size='heading') }}</p>
-              <p class="mui--hide" id="confirm-rsvp">{% trans %}Register{% endtrans %}</p>
-            </div>
-            <div class="modal__body">
-              <p class="mui--text-body2">{% trans %}This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time{% endtrans %}</p>
-              <form action="{{ project.url_for('register') }}" method="post" class="form-inline">
-                {{ csrf_tag() }}
-                <div class="mui--text-right">
-                  <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm{% endtrans %}</button>
-                </div>
-              </form>
-            </div>
+          <div class="modal__body">
+            <p class="mui--text-body2">{% trans %}This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time{% endtrans %}</p>
+            <form action="{{ project.url_for('register') }}" method="post" class="form-inline">
+              {{ csrf_tag() }}
+              <div class="mui--text-right">
+                <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm{% endtrans %}</button>
+              </div>
+            </form>
           </div>
-        {%- endif %}
-        {% if project.features.rsvp_registered() or project.view_for('rsvp_list').is_available() %}
-          <div class="mui-dropdown mui--align-middle register-block__right__menu">
-            <button class="mui-btn mui-btn--nostyle mui--align-middle" data-mui-toggle="dropdown" data-cy="rsvp-menu" aria-label="{% trans %}Registration menu{% endtrans %}" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', icon_size='subhead') }}</button>
-            <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu" aria-labelledby="rsvp-menu">
-              {% if project.features.rsvp_registered() %}
-                <li><a class="mui--text-body2 js-register-btn" href="#register-modal" aria-haspopup="true">{% if project.features.follow_mode() %}{% trans %}Stop following{% endtrans %}{% else %}{% trans %}Cancel registration{% endtrans %}{% endif %}</a></li>
-                <div class="modal" id="register-modal" role="dialog" aria-labelledby="cancel-rsvp" aria-modal="true" tabindex="-1">
-                  <div class="modal__header">
-                    <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
-                  </div>
-                  <div class="modal__body">
-                    <p class="mui--text-subhead" id="cancel-rsvp">{% if project.features.follow_mode() %}{% trans %}No longer interested?{% endtrans %}{% else %}{% trans %}Can’t make it?{% endtrans %}{% endif %}</p>
-                    <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
-                      {{ csrf_tag() }}
-                      <div class="mui--text-right">
-                        <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="no" data-cy="cancel-rsvp">{% if project.features.follow_mode() %}{% trans %}Stop following{% endtrans %}{% else %}{% trans %}Confirm cancellation{% endtrans %}{% endif %}</button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              {% endif %}
-              {% if project.view_for('rsvp_list').is_available() %}
-                <li><a class="mui--text-body2" href="{{ project.url_for('rsvp_list') }}" data-cy="see-responses">{% trans %}View participants{% endtrans %}</a></li>
-              {% endif %}
-            </ul>
+        </div>
+      {%- elif project.features.rsvp_registered() %}
+        <span class="register-block__content__txt mui--text-light"></span>
+        <a class="mui-btn mui-btn--accent mui-btn--raised register-block__btn js-register-btn" href="#register-modal" aria-haspopup="true">
+          <span class="register-block__btn__txt register-block__btn__txt--hover">{% if project.features.follow_mode() %}{% trans %}Following{% endtrans %}{% else %}{% trans %}Registered{% endtrans %}{% endif %}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class="mui--text-success fa-icon--left-margin") }}</span>
+          <span class="register-block__btn__txt register-block__btn__txt--hover--show">{% if project.features.follow_mode() %}{% trans %}Unfollow{% endtrans %}{% else %}{% trans %}Cancel Registration{% endtrans %}{% endif %}</span>
+          <span class="register-block__btn__txt register-block__btn__txt--smaller mui--text-light">{{ project.views.registration_text() }}</span>
+        </a>
+        <div class="modal" id="register-modal" role="dialog" aria-labelledby="cancel-rsvp" aria-modal="true" tabindex="-1">
+          <div class="modal__header">
+            <a class="modal__close mui--text-dark" data-target="close cancel register modal" aria-label="{% trans %}Close{% endtrans %}" rel="modal:close" href="#" onclick="return false;" role="button" tabindex="0">{{ faicon(icon='times', baseline=false, icon_size='title') }}</a>
           </div>
-        {% endif %}
-      </div>
-    </div>
+          <div class="modal__body">
+            <p class="mui--text-subhead" id="cancel-rsvp">{% if project.features.follow_mode() %}{% trans %}No longer interested?{% endtrans %}{% else %}{% trans %}Can’t make it?{% endtrans %}{% endif %}</p>
+            <form action="{{ project.url_for('deregister') }}" method="post" class="form-inline">
+              {{ csrf_tag() }}
+              <div class="mui--text-right">
+                <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="no" data-cy="cancel-rsvp">{% if project.features.follow_mode() %}{% trans %}Stop following{% endtrans %}{% else %}{% trans %}Confirm cancellation{% endtrans %}{% endif %}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      {%- endif %}
     {% elif project.buy_tickets_url.url -%}
-      <a class="register-block__btn full-width-btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin" href="{{ project.buy_tickets_url.url }}" data-action="Buy Tickets url" target="_blank" rel="noopener">{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{% trans %}Get Tickets{% endtrans %}</a>
+      <a class="register-block__btn full-width-btn mui-btn mui-btn--primary" href="{{ project.buy_tickets_url.url }}" data-action="external register url" target="_blank" rel="noopener"><span>{{ faicon(icon='arrow-up-right-from-square', baseline=true, css_class="mui--text-white fa-icon--right-margin") }}{{ project.views.register_button_text() }}</span></a>
     {% endif %}
-    {% if project.features.tickets() %}
-      <div class="register-block__content {% if project.features.rsvp() %} register-block__content--padding {%- else %} register-block__content--flex {% endif %}">
-        <div class="register-block__txt js-tickets-available">
-          <p class="js-ticket-price mui--text-subhead text-bold zero-bottom-margin"></p>
-        </div>
-        <div class="register-block__txt js-tickets-not-available mui--hide">
-          <p class="mui--text-subhead text-bold zero-bottom-margin">{% trans %}Sales closed{% endtrans %}</p>
-        </div>
-        <div class="register-block__btnwrapper">
-          <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary zero-top-margin zero-bottom-margin">{% trans %}Get a subscription{% endtrans %}</button>
-        </div>
-      </div>
-    {%- endif %}
+    </div>
+    <div class="register-block__content">
+      {% if project.features.tickets() %}
+        {% if project.features.subscription %}<span class="register-block__content__txt mui--text-light">{% trans %}Like this? Support the community{% endtrans %}</span>{% endif %}
+        <button class="js-open-ticket-widget register-block__btn mui-btn mui-btn--primary">
+          {% if project.features.subscription %}
+            <span class="register-block__btn__txt" data-cy="unregistered">Get a subscription</span>
+          {%- else %}
+            <span class="register-block__btn__txt" data-cy="unregistered">{% trans %}Get tickets{% endtrans %}</span>
+          {% endif %}
+          <span class="register-block__btn__txt register-block__btn__txt--smaller primary-color-lighter-txt js-tickets-available"><span class="js-ticket-price"></span></span>
+          <span class="register-block__btn__txt register-block__btn__txt--smaller mui--text-light js-tickets-not-available mui--hide">{% trans %}Sales closed{% endtrans %}</span>
+        </button>
+      {%- endif %}
+    </div>
   </div>
 {% endmacro %}
 
@@ -204,9 +199,9 @@
     </div>
     <a href="#" onclick="return false;" class="hg-link-btn mui--hide left-padding" data-url="{{ project.url_for(_external=true, utm_campaign='webshare') }}" role="button" aria-label="{% trans %}Share this project{% endtrans %}">{{ faicon(icon='share-alt', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
     {% if project.state.PUBLISHED %}
-      <a class="add-calendar left-padding" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="Add to calendar" data-ga="Add to calendar" data-cy="add-to-calendar" role="button" aria-haspopup="true">{{ faicon(icon='calendar-plus', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
+      <a class="add-calendar left-padding" href="{{ project.url_for('subscribe_schedule') }}" rel="modal:open" aria-label="{% trans %}Add to calendar{% endtrans %}" data-ga="Add to calendar" data-cy="add-to-calendar" role="button" aria-haspopup="true">{{ faicon(icon='calendar-plus', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
     {% endif %}
-    {% if current_auth.user.is_site_editor %}
+    {% if current_auth.user and current_auth.user.is_site_editor %}
       <div class="mui-dropdown left-padding">
         <a href="#" onclick="return false;" data-mui-toggle="dropdown" data-ga="Site editor menu" data-cy="site-editor-menu" role="button" aria-haspopup="true" aria-expanded="false" aria-label="{% trans %}Site editor menu{% endtrans %}">{{ faicon(icon='user-gear-duotone', baseline=true, icon_size='title', css_class="mui--text-light") }}</a>
         <ul class="mui-dropdown__menu mui-dropdown__menu--right dropdown-menu">
@@ -227,7 +222,7 @@
             </div>
           </li>
           <li>
-            <a class="mui--text-subhead" href="{{ project.url_for('add_sponsor') }}" rel="modal:open" aria-label="Add sponsor" data-ga="Add sponsor" data-cy="add-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='box-dollar', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Add sponsor{% endtrans %}</span></a>
+            <a class="mui--text-subhead" href="{{ project.url_for('add_sponsor') }}" rel="modal:open" aria-label="{% trans %}Add sponsor{% endtrans %}" data-ga="Add sponsor" data-cy="add-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='box-dollar', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Add sponsor{% endtrans %}</span></a>
           </li>
         </ul>
       </div>
@@ -249,6 +244,9 @@
             {% endif %}
             {% if project.view_for('venues').is_available() %}
               <li><a class="mui--text-subhead" href="{{ project.url_for('venues') }}" data-cy-navbar="edit-venue">{{ faicon(icon='map-marker-alt', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}Update venue{% endtrans %}</span></a></li>
+            {% endif %}
+            {% if project.view_for('rsvp_list').is_available() %}
+              <li><a class="mui--text-subhead" href="{{ project.url_for('rsvp_list') }}" data-cy="see-responses">{{ faicon(icon='users', icon_size='subhead', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span class="mui--text-body2">{% trans %}View participants{% endtrans %}</span></a></li>
             {% endif %}
           {%- endif %}
         </ul>
@@ -335,41 +333,56 @@
   {%- if project.has_sponsors %}
   <p class="mui--text-subhead text-bold mui--text-light">{% trans %}Supported by{% endtrans %}</p>
   {%- endif %}
+  <div class="sponsors-wrapper">
   {% for sponsor in project.sponsor_memberships %}
   {%- with sponsor_public = sponsor.profile.state.PUBLIC %}
-    <div class="card card--shaped card--lessmargin" data-cy="sponsor-card">
-      <div class="card__body margin-bottom">
-        {% if sponsor.label %}
-          <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ sponsor.label }}</p>
-        {% endif %}
-        <div class="flex-wrapper flex-wrapper--center">
-          <div class="user user--smaller">
-            <div class="user__box">
-              <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="nounderline">
-                {%- if sponsor.profile.logo_url.url %}
-                  <img class="user__box__gravatar" src="{{ sponsor.profile.logo_url }}" alt="{{ sponsor.profile.title }}"/>
-                {%- else %}
-                  <div class="user__box__gravatar user__box__gravatar--initials">{{ sponsor.profile.title|initials }}</div>
-                {% endif %}
-              </a>
+      {% if current_auth.user and current_auth.user.is_site_editor %}
+        <div id="{{ sponsor.uuid_b58 }}" class="sortable" data-drag-placeholder="ui-box-placeholder" draggable="true">
+      {%- endif %}
+      <div class="card card--shaped card--lessmargin" data-cy="sponsor-card">
+        <div class="card__body margin-bottom">
+          <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between">
+            <div>
+            {% if sponsor.label %}
+              <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ sponsor.label }}</p>
+            {% endif %}
             </div>
+            {% if current_auth.user and current_auth.user.is_site_editor %}
+              {{ faicon(icon='grip-vertical', baseline=false, css_class="margin-top drag-handle") }}
+            {%- endif %}
           </div>
-          <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{{ sponsor.profile.title }}</a>
-          {% if current_auth.user.is_site_editor %}
-            <a href="{{ sponsor.url_for('edit') }}" rel="modal:open" aria-label="Edit sponsor" data-ga="Edit sponsor" data-cy="edit-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='edit', baseline=false, css_class="mui--text-light mui--align-middle fa-icon--left-margin fa-icon--right-margin") }}</a>
-            <a href="{{ sponsor.url_for('remove') }}" rel="modal:open" aria-label="Remove sponsor" data-ga="Remove sponsor" data-cy="remove-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='trash-alt', baseline=false, css_class="mui--text-light mui--align-middle") }}</a>
+          <div class="flex-wrapper flex-wrapper--center">
+            <div class="user user--smaller">
+              <div class="user__box">
+                <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="nounderline">
+                  {%- if sponsor.profile.logo_url.url %}
+                    <img class="user__box__gravatar" src="{{ sponsor.profile.logo_url }}" alt="{{ sponsor.profile.title }}"/>
+                  {%- else %}
+                    <div class="user__box__gravatar user__box__gravatar--initials">{{ sponsor.profile.title|initials }}</div>
+                  {% endif %}
+                </a>
+              </div>
+            </div>
+            <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{{ sponsor.profile.title }}</a>
+            {% if current_auth.user and current_auth.user.is_site_editor %}
+              <a href="{{ sponsor.url_for('edit') }}" rel="modal:open" aria-label="{% trans %}Edit sponsor{% endtrans %}" data-ga="Edit sponsor" data-cy="edit-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='edit', baseline=false, css_class="mui--text-light mui--align-middle fa-icon--left-margin fa-icon--right-margin") }}</a>
+              <a href="{{ sponsor.url_for('remove') }}" rel="modal:open" aria-label="{% trans %}Remove sponsor{% endtrans %}" data-ga="Remove sponsor" data-cy="remove-sponsor" role="button" aria-haspopup="true">{{ faicon(icon='trash-alt', baseline=false, css_class="mui--text-light mui--align-middle") }}</a>
+            {% endif %}
+          </div>
+          {% if sponsor.profile.description.html %}
+            <div class="mui--text-body2 mui--text-light margin-bottom">{{ sponsor.profile.description.html|preview(min=200, max=300) }} {% if sponsor_public %}<a href="{{ sponsor.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class="mui--align-middle") }}</a>{% endif %}</div>
+          {% endif %}
+          {% if sponsor.is_promoted %}
+            <div class="margin-bottom"><p class="mui--text-body2 text-bold mui--text-light zero-bottom-margin">{{ faicon(icon='angle-double-up', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span data-cy="promoted">{% trans %}Promoted{% endtrans %}</span></p></div>
           {% endif %}
         </div>
-        {% if sponsor.profile.description.html %}
-          <div class="mui--text-body2 mui--text-light margin-bottom">{{ sponsor.profile.description.html|preview(min=200, max=300) }} {% if sponsor_public %}<a href="{{ sponsor.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class="mui--align-middle") }}</a>{% endif %}</div>
-        {% endif %}
-        {% if sponsor.is_promoted %}
-          <div class="margin-bottom"><p class="mui--text-body2 text-bold mui--text-light zero-bottom-margin">{{ faicon(icon='angle-double-up', baseline=false, css_class="mui--text-light fa-icon--right-margin mui--align-middle") }}<span data-cy="promoted">{% trans %}Promoted{% endtrans %}</span></p></div>
-        {% endif %}
       </div>
-    </div>
+      {% if current_auth.user and current_auth.user.is_site_editor %}
+        </div>
+      {%- endif %}
   {%- endwith %}
   {% endfor %}
+  </div>
 {% endmacro %}
 
 {% block basecontent %}
@@ -480,7 +493,7 @@
                     </div>
                   {% endif %}
                   {% if project.features.tickets() or project.features.rsvp() or project.buy_tickets_url %}
-                    <div class="project-footer {% if current_page == 'project' %}project-footer--main{%- endif %} project-details__box__content">
+                    <div class="project-footer {% if current_page == 'project' %}project-footer--main{%- endif %}">
                       {{ registerblock(project)}}
                     </div>
                   {% endif %}
@@ -510,6 +523,7 @@
       };
       var tickets;
       var toggleId;
+      var sort;
 
       {% if project.features.tickets() -%}
         tickets = {
@@ -520,11 +534,16 @@
           itemCollectionTitle: {{ project.title|tojson }}
         };
       {%- endif %}
-      {% if current_auth.user.is_site_editor %}
+      {% if current_auth.user and current_auth.user.is_site_editor %}
         toggleId = '#featured-project'
+        sort = {
+          url: {{ project.url_for("reorder_sponsors")|tojson }},
+          wrapperElem: '.sponsors-wrapper',
+          placeholder: 'ui-box-placeholder'
+        };
       {%- endif %}
 
-      window.Hasgeek.projectHeaderInit(projectTitle, saveProjectConfig, tickets, toggleId);
+      window.Hasgeek.projectHeaderInit(projectTitle, saveProjectConfig, tickets, toggleId, sort);
     });
   </script>
   {% block footerinnerscripts %}{% endblock footerinnerscripts %}

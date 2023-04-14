@@ -5,11 +5,11 @@ from __future__ import annotations
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Type
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
-from flask_babel import get_locale
+from flask_babel import format_date, get_locale
 from werkzeug.utils import cached_property
 
-from babel.dates import format_date
 from isoweek import Week
 
 from baseframe import localize_timezone
@@ -44,15 +44,16 @@ class Session(
     db.Model,  # type: ignore[name-defined]
 ):
     __tablename__ = 'session'
+    __allow_unmapped__ = True
 
     project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
-    project: sa.orm.relationship[Project] = with_roles(
+    project: Mapped[Project] = with_roles(
         sa.orm.relationship(
             Project, backref=sa.orm.backref('sessions', cascade='all', lazy='dynamic')
         ),
         grants_via={None: project_child_role_map},
     )
-    parent = sa.orm.synonym('project')
+    parent: Mapped[Project] = sa.orm.synonym('project')
     description = MarkdownCompositeDocument.create(
         'description', default='', nullable=False
     )
@@ -71,12 +72,12 @@ class Session(
     )
     is_break = sa.Column(sa.Boolean, default=False, nullable=False)
     featured = sa.Column(sa.Boolean, default=False, nullable=False)
-    banner_image_url: sa.Column[Optional[str]] = sa.Column(ImgeeType, nullable=True)
+    banner_image_url: Mapped[Optional[str]] = sa.Column(ImgeeType, nullable=True)
 
     #: Version number maintained by SQLAlchemy, used for vCal files, starting at 1
     revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
 
-    search_vector = sa.orm.deferred(
+    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'title',
@@ -203,7 +204,7 @@ class Session(
         return self.start_at is not None and self.end_at is not None
 
     @scheduled.expression
-    def scheduled(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def scheduled(cls):  # pylint: disable=no-self-argument
         return (cls.start_at.isnot(None)) & (cls.end_at.isnot(None))
 
     @cached_property
@@ -283,11 +284,11 @@ class __Project:
     # https://docs.sqlalchemy.org/en/13/orm/mapped_sql_expr.html#using-column-property
     schedule_start_at = with_roles(
         sa.orm.column_property(
-            sa.select([sa.func.min(Session.start_at)])  # type: ignore[attr-defined]
+            sa.select(sa.func.min(Session.start_at))
             .where(Session.start_at.isnot(None))
             .where(Session.project_id == Project.id)
             .correlate_except(Session)  # type: ignore[arg-type]
-            .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
+            .scalar_subquery()
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},
@@ -295,23 +296,36 @@ class __Project:
 
     next_session_at = with_roles(
         sa.orm.column_property(
-            sa.select([sa.func.min(Session.start_at)])  # type: ignore[attr-defined]
-            .where(Session.start_at.isnot(None))
-            .where(Session.start_at >= sa.func.utcnow())
-            .where(Session.project_id == Project.id)
-            .correlate_except(Session)  # type: ignore[arg-type]
-            .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
+            sa.select(sa.func.min(sa.column('start_at')))
+            .select_from(
+                sa.select(sa.func.min(Session.start_at).label('start_at'))
+                .where(Session.start_at.isnot(None))
+                .where(Session.start_at >= sa.func.utcnow())
+                .where(Session.project_id == Project.id)
+                .correlate_except(Session)  # type: ignore[arg-type]
+                .union(
+                    sa.select(
+                        Project.start_at.label('start_at')  # type: ignore[has-type]
+                    )
+                    .where(Project.start_at.isnot(None))  # type: ignore[has-type]
+                    .where(
+                        Project.start_at >= sa.func.utcnow()  # type: ignore[has-type]
+                    )
+                    .correlate(Project)  # type: ignore[arg-type]
+                )
+            )
+            .scalar_subquery()
         ),
         read={'all'},
     )
 
     schedule_end_at = with_roles(
         sa.orm.column_property(
-            sa.select([sa.func.max(Session.end_at)])  # type: ignore[attr-defined]
+            sa.select(sa.func.max(Session.end_at))
             .where(Session.end_at.isnot(None))
             .where(Session.project_id == Project.id)
             .correlate_except(Session)  # type: ignore[arg-type]
-            .scalar_subquery()  # sqlalchemy-stubs doesn't know of this
+            .scalar_subquery()
         ),
         read={'all'},
         datasets={'primary', 'without_parent'},
@@ -628,9 +642,7 @@ class __Project:
                         weeks[weekid]['upcoming'] = True
                     weeks[weekid]['dates'][wdate] += session_count
                     if 'month' not in weeks[weekid]:
-                        weeks[weekid]['month'] = format_date(
-                            wdate, 'MMM', locale=get_locale()
-                        )
+                        weeks[weekid]['month'] = format_date(wdate, 'MMM')
         # Extract sorted weeks as a list
         weeks_list = [v for k, v in sorted(weeks.items())]
 
@@ -641,7 +653,7 @@ class __Project:
             week['dates'] = [
                 {
                     'isoformat': date.isoformat(),
-                    'day': format_date(date, 'd', get_locale()),
+                    'day': format_date(date, 'd'),
                     'count': count,
                     'day_start_at': (
                         session_dates_dict[date]['day_start_at']
@@ -664,10 +676,7 @@ class __Project:
             'locale': get_locale(),
             'weeks': weeks_list,
             'today': now.date().isoformat(),
-            'days': [
-                format_date(day, 'EEE', locale=get_locale())
-                for day in Week.thisweek().days()
-            ],
+            'days': [format_date(day, 'EEE') for day in Week.thisweek().days()],
         }
 
     @with_roles(read={'all'}, datasets={'primary', 'without_parent'})

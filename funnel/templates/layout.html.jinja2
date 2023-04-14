@@ -10,21 +10,19 @@
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
     {%- block titletags %}
       <title>
-        {% block titleblock %}
-          {% block title %}
+        {%- block titleblock -%}
+          {%- block title -%}
             {{ title }}
-          {% endblock title %}
-          {% if title_suffix %}
-            – {{ title_suffix }}
-          {% elif title_suffix == '' %}
-          {% elif self.title() != config['SITE_TITLE'] %}
-            – {{ config['SITE_TITLE'] }}
-          {% endif %}
-        {%- endblock titleblock %}</title>
-        <meta name="DC.title" content="{{ self.titleblock()|e }}" />
-        <meta property="og:title" content="{{ self.titleblock()|e }}" />
-        <meta name="twitter:title" content="{{ self.titleblock()|e }}" />
-      {%- endblock titletags %}
+          {%- endblock title -%}
+          {%- if title_suffix %} – {{ title_suffix }}
+          {%- elif not title_suffix and self.title() != config['SITE_TITLE'] %} – {{ config['SITE_TITLE'] }}
+          {%- endif -%}
+        {%- endblock titleblock -%}
+      </title>
+      <meta name="DC.title" content="{{ self.titleblock()|e }}" />
+      <meta property="og:title" content="{{ self.titleblock()|e }}" />
+      <meta name="twitter:title" content="{{ self.titleblock()|e }}" />
+    {%- endblock titletags %}
       <meta property="og:type" content="website" />
       <meta name="description"
             content="{% block description %}{% if g.profile %}{{ g.profile.description.html|preview }}{% endif %}{% endblock description %}"/>
@@ -111,17 +109,17 @@
                       class="header__site-title__title__home mui--hidden-xs mui--hidden-sm"
                       data-cy="home-desktop"
                       data-ga="Home"
-                      aria-label="Home">
+                      aria-label="{% trans %}Home{% endtrans %}">
                       <img src="{{ url_for('static', filename='img/hg-logo.svg') }}"
                           class="header__site-title__home__logo"
                           alt="{% trans %}Home{% endtrans %}"/>
                     </a>
                     <a href="{{ url_for('about') }}"
-                      class="header__site-title__title__about nounderline"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}
+                      class="header__site-title__title__about nounderline"><span class="emoji-hand" aria-hidden="true">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}
                     </a>
                     <a href="{{ url_for('index') }}"
                       class="header__nav-links mui--hidden-md mui--hidden-lg mui--hidden-xl {% if current_view.current_section == 'home' %}header__nav-links--active{% endif %}"
-                      aria-label="Home"
+                      aria-label="{% trans %}Home{% endtrans %}"
                       data-cy="home"
                       data-ga="Home">
                       <img src="{{ url_for('static', filename='img/hg-logo.svg') }}"
@@ -132,14 +130,14 @@
                           alt="{% trans %}Home{% endtrans %}"/>
                       <span class="header__nav-links__text">{% trans %}Home{% endtrans %}</span>
                     </a>
-                    <form action="{{ url_for('SearchView_search') }}"
-                          class="search-form js-search-form">
+                    <form action="{{ url_for('search') }}"
+                        class="search-form js-search-form">
                       <input type="text"
-                            name="q"
-                            aria-label="{% trans %}Search the site{% endtrans %}"
-                            placeholder="{% trans %}Search…{% endtrans %}"
-                            class="search-form__field js-search-field"
-                            id="header-search"/>
+                          name="q"
+                          aria-label="{% trans %}Search this site{% endtrans %}"
+                          placeholder="{% trans %}Search…{% endtrans %}"
+                          class="search-form__field js-search-field"
+                          id="header-search" value="{{ query }}"/>
                       {{ faicon(icon='search', baseline=false, css_class="search-form__field__icon") }}
                       <input type="text" name="type" value="project" hidden />
                       <button type="submit" class="search-form__submit"></button>
@@ -221,7 +219,7 @@
                       </div>
                     {%- elif request.endpoint != 'login' %}
                       <a href="{{ url_for('login') }}"
-                        class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button">{% trans %}Login{% endtrans %}</a>
+                        class="mui-btn mui-btn--primary mui-btn--small mui-btn--raised header__button" id="login-nav">{% trans %}Login{% endtrans %}</a>
                     {%- else %}
                       {# On the login page, remove the login button but occupy the spot -#}
                       <div></div>
@@ -342,11 +340,6 @@
     {% endif %}
     window.Hasgeek.Config.shorturlApi = {{ url_for('create_shortlink')|tojson }};
     window.Hasgeek.Config.markNotificationReadUrl = {{ url_for('notification_mark_read', eventid_b58='eventid_b58')|tojson }};
-
-    // To calculate height of keyboard to position keyboard switcher above it
-    if ("virtualKeyboard" in navigator) {
-      navigator.virtualKeyboard.overlaysContent = true;
-    }
 </script>
 <script src="{{ built_asset('app.js') }}" type="text/javascript"></script>
 {% block serviceworker %}

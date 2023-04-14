@@ -3,8 +3,8 @@
 {% from "password_login_form.html.jinja2" import passwordlogin, sociallogin %}
 {% block title %}{% endblock title %}
 {% block form %}
-  {{ passwordlogin(form, formid, ref_id) }}
+  {{ passwordlogin(form, formid, ref_id, action) }}
   {%- if form and form.recaptcha is defined %}
-    {{ recaptcha(ref_id, 'loginformwrapper') }}
+    {{ recaptcha(ref_id, formWrapperId='loginformwrapper', ajax=true) }}
   {%- endif %}
 {% endblock form %}

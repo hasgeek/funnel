@@ -21,7 +21,7 @@ if __name__ == '__main__':
     background_rq = None
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
         # Only start RQ worker within the reloader environment
-        background_rq = BackgroundWorker(rq.get_worker().work)
+        background_rq = BackgroundWorker(rq.get_worker().work, mock_transports=True)
         background_rq.start()
 
     run_simple(

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Set
+from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from werkzeug.utils import cached_property
 
@@ -21,41 +22,56 @@ class SiteMembership(
     """Membership roles for users who are site administrators."""
 
     __tablename__ = 'site_membership'
+    __allow_unmapped__ = True
 
     # List of is_role columns in this model
-    __data_columns__ = {'is_comment_moderator', 'is_user_moderator', 'is_site_editor'}
+    __data_columns__ = {
+        'is_comment_moderator',
+        'is_user_moderator',
+        'is_site_editor',
+        'is_sysadmin',
+    }
 
     __roles__ = {
-        'all': {
+        'subject': {
             'read': {
                 'urls',
                 'user',
                 'is_comment_moderator',
                 'is_user_moderator',
                 'is_site_editor',
+                'is_sysadmin',
             }
         }
     }
 
     #: SiteMembership doesn't have a container limiting its scope
     parent_id = None
+    parent_id_column = None
     parent = None
 
     # Site admin roles (at least one must be True):
 
     #: Comment moderators can delete comments
-    is_comment_moderator: Mapped[bool] = sa.Column(
+    is_comment_moderator: Mapped[bool] = sa.orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: User moderators can suspend users
-    is_user_moderator: Mapped[bool] = sa.Column(
+    is_user_moderator: Mapped[bool] = sa.orm.mapped_column(
         sa.Boolean, nullable=False, default=False
     )
     #: Site editors can feature or reject projects
-    is_site_editor: Mapped[bool] = sa.Column(sa.Boolean, nullable=False, default=False)
+    is_site_editor: Mapped[bool] = sa.orm.mapped_column(
+        sa.Boolean, nullable=False, default=False
+    )
+    #: Sysadmins can manage technical settings
+    is_sysadmin: Mapped[bool] = sa.orm.mapped_column(
+        sa.Boolean, nullable=False, default=False
+    )
 
-    @declared_attr
-    def __table_args__(cls) -> Mapped[tuple]:  # pylint: disable=no-self-argument
+    @declared_attr.directive
+    @classmethod
+    def __table_args__(cls) -> tuple:
         """Table arguments."""
         args = list(super().__table_args__)
         args.append(
@@ -64,6 +80,7 @@ class SiteMembership(
                     cls.is_comment_moderator.is_(True),
                     cls.is_user_moderator.is_(True),
                     cls.is_site_editor.is_(True),
+                    cls.is_sysadmin.is_(True),
                 ),
                 name='site_membership_has_role',
             )
@@ -72,6 +89,7 @@ class SiteMembership(
 
     def __repr__(self) -> str:
         """Return representation of membership."""
+        # pylint: disable=using-constant-test
         return (
             f'<{self.__class__.__name__} {self.subject!r} '
             + ('active' if self.is_active else 'revoked')
@@ -94,6 +112,8 @@ class SiteMembership(
             roles.add('user_moderator')
         if self.is_site_editor:
             roles.add('site_editor')
+        if self.is_sysadmin:
+            roles.add('sysadmin')
         return roles
 
 
@@ -133,6 +153,14 @@ class __User:
         return (
             self.active_site_membership is not None
             and self.active_site_membership.is_site_editor
+        )
+
+    @cached_property
+    def is_sysadmin(self) -> bool:
+        """Test if this user is a sysadmin."""
+        return (
+            self.active_site_membership is not None
+            and self.active_site_membership.is_sysadmin
         )
 
     # site_admin means user has one or more of above roles

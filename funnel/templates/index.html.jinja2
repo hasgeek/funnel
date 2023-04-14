@@ -14,7 +14,7 @@
        "url" : {{ url_for('index', _external=true)|tojson }},
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "{{ url_for('SearchView_search', _external=true) }}?q={query}",
+        "target": "{{ url_for('search', _external=true) }}?q={query}",
         "query-input": "required name=query"
       }
     }
@@ -55,7 +55,7 @@
 {% endblock baseheadline %}
 
 {% block basecontent %}
-  <a href="{{ url_for('about') }}" class="logo-about"><span class="emoji-hand" aria-label="hidden">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}</a>
+  <a href="{{ url_for('about') }}" class="logo-about"><span class="emoji-hand" aria-hidden="true">{{ faicon(icon='hand-point-down', icon_size='subhead', baseline=false, css_class="mui--align-middle") }} </span>{% trans %}What’s this about?{% endtrans %}</a>
   {{ featured_section(featured_project, heading=false) }}
   {{ upcoming_section(upcoming_projects) }}
 

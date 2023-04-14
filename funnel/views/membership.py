@@ -402,7 +402,8 @@ class ProjectCrewMembershipMixin(ProfileCheckMixin):
 
     def loader(self, profile, project, membership) -> ProjectCrewMembership:
         return (
-            ProjectCrewMembership.query.join(Project, Profile)
+            ProjectCrewMembership.query.join(Project)
+            .join(Profile)
             .filter(
                 sa.func.lower(Profile.name) == sa.func.lower(profile),
                 Project.name == project,
@@ -487,6 +488,7 @@ class ProjectCrewMembershipView(
                         is_editor=form.is_editor.data,
                         is_promoter=form.is_promoter.data,
                         is_usher=form.is_usher.data,
+                        label=form.label.data,
                     )
                 except MembershipRevokedError:
                     return {
@@ -497,15 +499,16 @@ class ProjectCrewMembershipView(
                         ),
                         'form_nonce': form.form_nonce.data,
                     }, 422
-                db.session.commit()
-                signals.project_role_change.send(
-                    self.obj.project, actor=current_auth.user, user=self.obj.user
-                )
-                dispatch_notification(
-                    ProjectCrewMembershipNotification(
-                        document=self.obj.project, fragment=new_membership
+                if new_membership != previous_membership:
+                    db.session.commit()
+                    signals.project_role_change.send(
+                        self.obj.project, actor=current_auth.user, user=self.obj.user
                     )
-                )
+                    dispatch_notification(
+                        ProjectCrewMembershipNotification(
+                            document=self.obj.project, fragment=new_membership
+                        )
+                    )
                 return {
                     'status': 'ok',
                     'message': _("The member’s roles have been updated"),

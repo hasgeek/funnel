@@ -109,15 +109,14 @@ required_plugins = [
   'pytest-env',
   'pytest-remotedata',
   'pytest-rerunfailures',
-  'pytest-splinter',
   'requests-mock',
 ]
 addopts = [
   '--cov-report=term-missing',
-  '--splinter-screenshot-dir=tests/screenshots',
+  '--driver=firefox',
   '--remote-data=any',
   '--strict-markers',
-  '--splinter-headless'
+  # '--typeguard-packages=funnel,tests',  # This breaks on toc.py in markdown
 ]
 markers = [
   'dbcommit: Test requires true database commits',
@@ -128,7 +127,7 @@ markers = [
   'requires_config("feature"): Run test only if specified app config is available'
 ]
 filterwarnings = ['ignore::DeprecationWarning', 'ignore::UserWarning']
-mocked-sessions = 'funnel.db.db.session'  # For pytest-flask-sqlalchemy (unused)
+bdd_features_base_dir = 'tests/features/'
 remote_data_strict = true
 env = [
   'FLASK_ENV=testing',
@@ -150,8 +149,7 @@ pythonVersion = '3.7'
 [tool.mypy]
 files = '**/*.py'
 exclude = 'node_modules'
-# plugins = ['sqlalchemy.ext.mypy.plugin']
-plugins = ['sqlmypy']
+plugins = ['sqlalchemy.ext.mypy.plugin']
 ignore_missing_imports = true
 show_error_codes = true
 warn_unreachable = true
@@ -170,7 +168,7 @@ module = ['flask_sqlalchemy']
 follow_imports = 'skip'
 
 [tool.pylint.master]
-load-plugins = ['pylint_pytest', 'pylint_flask_sqlalchemy']
+load-plugins = ['pylint_pytest']
 max-parents = 10
 init-hook = """
 import os, astroid.bases, pathlib
@@ -191,9 +189,11 @@ disable = [
   'duplicate-code',  # Too many false positives
   'fixme',  # Our workflow is to tag for future fixes
   'invalid-name',  # Flake8 covers our naming convention requirements
+  'line-too-long',  # Long lines are okay if Black doesn't wrap them
   'no-member',  # Pylint gets confused over how some members become part of an instance
   'too-few-public-methods',  # Data classes and validator classes have few methods
   'too-many-ancestors',  # Our models have a large number of mixin classes
+  'too-many-arguments',  # Callables can have many optional arguments
   'too-many-instance-attributes',  # Some instances are just bags of attributes
   'too-many-lines',  # We have large files that include all related functionality
   'too-many-public-methods',  # Models and views have many public methods
@@ -212,6 +212,10 @@ disable = [
 
 [tool.bandit]
 exclude_dirs = ['node_modules']
+skips = [
+  'B113',  # Handled by pylint; bandit incorrectly flags requests_mock for timeout
+  'B608',  # Raw SQL detector is noisy for migrations and not configurable
+  ]
 
 [tool.bandit.assert_used]
-skips = ['*/*_test.py', '*/test_*.py', '*/conftest.py']
+skips = ['**/*_test.py', '**/test_*.py', '**/conftest.py']

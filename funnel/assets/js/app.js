@@ -6,6 +6,7 @@ import loadLangTranslations from './utils/translations';
 import LazyloadImg from './utils/lazyloadimage';
 import Form from './utils/formhelper';
 import Analytics from './utils/analytics';
+import Tabs from './utils/tabs';
 
 $(() => {
   // Code notice
@@ -54,6 +55,7 @@ $(() => {
     window.Hasgeek.Config.accountMenu
   );
   ScrollHelper.scrollTabs();
+  Tabs.init();
   Utils.truncate();
   Utils.showTimeOnCalendar();
   Utils.popupBackHandler();

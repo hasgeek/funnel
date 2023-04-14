@@ -14,10 +14,14 @@ from sqlalchemy.dialects.postgresql import INTERVAL
 
 from flask import abort, current_app, flash, render_template, request, url_for
 
+try:
+    import rq_dashboard
+except ModuleNotFoundError:
+    rq_dashboard = None
+
 from baseframe import _
 from baseframe.forms import Form
 from coaster.auth import current_auth
-from coaster.utils import for_tsquery
 from coaster.views import ClassView, render_with, requestargs, route
 
 from .. import app
@@ -80,12 +84,48 @@ def requires_siteadmin(f: WrappedFunc) -> WrappedFunc:
     return cast(WrappedFunc, wrapper)
 
 
+def requires_site_editor(f: WrappedFunc) -> WrappedFunc:
+    """Decorate a view to require site editor privilege."""
+
+    @wraps(f)
+    def wrapper(*args, **kwargs) -> Any:
+        if not current_auth.user or not current_auth.user.is_site_editor:
+            abort(403)
+        return f(*args, **kwargs)
+
+    return cast(WrappedFunc, wrapper)
+
+
+def requires_user_moderator(f: WrappedFunc) -> WrappedFunc:
+    """Decorate a view to require user moderator privilege."""
+
+    @wraps(f)
+    def wrapper(*args, **kwargs) -> Any:
+        if not current_auth.user or not current_auth.user.is_user_moderator:
+            abort(403)
+        return f(*args, **kwargs)
+
+    return cast(WrappedFunc, wrapper)
+
+
 def requires_comment_moderator(f: WrappedFunc) -> WrappedFunc:
     """Decorate a view to require comment moderator privilege."""
 
     @wraps(f)
     def wrapper(*args, **kwargs) -> Any:
         if not current_auth.user or not current_auth.user.is_comment_moderator:
+            abort(403)
+        return f(*args, **kwargs)
+
+    return cast(WrappedFunc, wrapper)
+
+
+def requires_sysadmin(f: WrappedFunc) -> WrappedFunc:
+    """Decorate a view to require sysadmin privilege."""
+
+    @wraps(f)
+    def wrapper(*args, **kwargs) -> Any:
+        if not current_auth.user or not current_auth.user.is_sysadmin:
             abort(403)
         return f(*args, **kwargs)
 
@@ -241,11 +281,12 @@ class SiteadminView(ClassView):
         comments = Comment.query.filter(Comment.state.REPORTABLE).order_by(
             Comment.created_at.desc()
         )
+        tsquery = sa.func.websearch_to_tsquery(query or '')
         if query:
             comments = comments.join(User).filter(
                 sa.or_(
-                    Comment.search_vector.match(for_tsquery(query or '')),
-                    User.search_vector.match(for_tsquery(query or '')),
+                    Comment.search_vector.bool_op('@@')(tsquery),
+                    User.search_vector.bool_op('@@')(tsquery),
                 )
             )
 
@@ -400,3 +441,9 @@ class SiteadminView(ClassView):
 
 
 SiteadminView.init_app(app)
+
+if rq_dashboard is not None:
+    rq_dashboard.blueprint.before_request(
+        lambda: None if current_auth and current_auth.user.is_sysadmin else abort(403)
+    )
+    app.register_blueprint(rq_dashboard.blueprint, url_prefix='/siteadmin/rq')

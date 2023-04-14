@@ -7,7 +7,7 @@ from typing import Iterable, Optional
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
 from ..typing import OptionalMigratedTables
-from . import NoIdMixin, db, sa
+from . import Mapped, NoIdMixin, db, sa
 from .helpers import reopen
 from .project import Project
 from .session import Session
@@ -22,7 +22,7 @@ class SavedProject(NoIdMixin, db.Model):  # type: ignore[name-defined]
         nullable=False,
         primary_key=True,
     )
-    user = sa.orm.relationship(
+    user: Mapped[User] = sa.orm.relationship(
         User,
         backref=sa.orm.backref('saved_projects', lazy='dynamic', passive_deletes=True),
     )
@@ -34,7 +34,7 @@ class SavedProject(NoIdMixin, db.Model):  # type: ignore[name-defined]
         primary_key=True,
         index=True,
     )
-    project = sa.orm.relationship(
+    project: Mapped[Project] = sa.orm.relationship(
         Project,
         backref=sa.orm.backref('saved_by', lazy='dynamic', passive_deletes=True),
     )
@@ -74,7 +74,7 @@ class SavedSession(NoIdMixin, db.Model):  # type: ignore[name-defined]
         nullable=False,
         primary_key=True,
     )
-    user = sa.orm.relationship(
+    user: Mapped[User] = sa.orm.relationship(
         User,
         backref=sa.orm.backref('saved_sessions', lazy='dynamic', passive_deletes=True),
     )
@@ -86,7 +86,7 @@ class SavedSession(NoIdMixin, db.Model):  # type: ignore[name-defined]
         primary_key=True,
         index=True,
     )
-    session = sa.orm.relationship(
+    session: Mapped[Session] = sa.orm.relationship(
         Session,
         backref=sa.orm.backref('saved_by', lazy='dynamic', passive_deletes=True),
     )

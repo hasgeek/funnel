@@ -28,6 +28,9 @@ baseframe-packed.*
 # Download files
 geoname_data
 
+# Dependencies
+build/dependencies
+
 # Log and test files
 error.log
 error.log.*
@@ -59,6 +62,7 @@ newrelic.ini
 # Local venvs (Idea creates them)
 venv/
 env/
+.python-version
 
 # Editors
 .idea/

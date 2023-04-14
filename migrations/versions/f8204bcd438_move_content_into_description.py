@@ -31,7 +31,7 @@ def upgrade():
     results = connection.execute(proposal_space.select())
     for space in results:
         if space['content']:
-            for (section, title) in [
+            for section, title in [
                 ('format', "Format"),
                 ('criteria', "Criteria for proposals"),
                 ('panel', "Editorial panel"),

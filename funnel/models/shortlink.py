@@ -182,6 +182,7 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
     """A short link to a full-size link, for use over SMS."""
 
     __tablename__ = 'shortlink'
+    __allow_unmapped__ = True
 
     #: Non-persistent attribute for Shortlink.new to flag if this is a new shortlink.
     #: Any future instance cache system must NOT cache this value
@@ -222,7 +223,7 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
         self.id = name_to_bigint(value)
 
     @name.comparator
-    def name(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def name(cls):  # pylint: disable=no-self-argument
         """Compare name to id in a SQL expression."""
         return ShortLinkToBigIntComparator(cls.id)
 

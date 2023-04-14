@@ -12,7 +12,7 @@ window.Hasgeek.form = ({ autosave, formId, msgElemId }) => {
   const url = `${actionUrl + sep}`;
 
   function haveDirtyFields() {
-    const latestFormData = $('form').find('[type!="hidden"]').serialize();
+    const latestFormData = $(formId).find('[type!="hidden"]').serialize();
     if (latestFormData !== lastSavedData) {
       return true;
     }

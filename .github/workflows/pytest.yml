@@ -13,17 +13,9 @@ on:
       - '**.py'
       - '**.js'
       - '**.jinja2'
-  workflow_call:
-    inputs:
-      requirements:
-        description: Updated requirements.txt
-        type: string
-      requirements_dev:
-        description: Updated requirements_dev.txt
-        type: string
-      requirements_test:
-        description: Updated requirements_test.txt
-        type: string
+      - 'requirements/base.txt'
+      - 'requirements/test.txt'
+      - '.github/workflows/pytest.yml'
 
 permissions:
   contents: read
@@ -31,6 +23,8 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
@@ -63,41 +57,28 @@ jobs:
       - name: Install Geckodriver (for browser testing)
         uses: browser-actions/setup-geckodriver@latest
       - name: Install Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
+          cache-dependency-path: 'requirements/*.txt'
+      - name: Install Python dependencies
+        run: make install-python-test
       - name: Install Node
         uses: actions/setup-node@v3
         with:
           node-version: latest
           cache: npm
+      - name: Install Node dependencies
+        run: make install-npm-ci
+      - name: Build Webpack assets
+        run: make assets
+      - name: Annotate Pytest failures in PR
+        run: pip install pytest-github-actions-annotate-failures
       - name: Setup hostnames
         run: |
           sudo -- sh -c "echo '127.0.0.1  funnel.test' >> /etc/hosts"
           sudo -- sh -c "echo '127.0.0.1  f.test' >> /etc/hosts"
-      - name: Optionally replace requirements.txt
-        if: ${{ inputs.requirements }}
-        run: |
-          echo ${{ inputs.requirements }} > requirements.txt
-      - name: Optionally replace requirements_dev.txt
-        if: ${{ inputs.requirements_dev }}
-        run: |
-          echo ${{ inputs.requirements_dev }} > requirements_dev.txt
-      - name: Optionally replace requirements_test.txt
-        if: ${{ inputs.requirements_test }}
-        run: |
-          echo ${{ inputs.requirements_test }} > requirements_test.txt
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt -r requirements_test.txt
-      - name: Install pytest-github-actions-annotate-failures
-        run: pip install pytest-github-actions-annotate-failures
-      - name: Install Node modules
-        run: npm ci
-      - name: Webpack JS and CSS assets
-        run: npm run build
       - name: Create PostgreSQL databases
         run: |
           sudo apt-get install postgresql-client -y
@@ -108,9 +89,11 @@ jobs:
           FLASK_ENV=testing flask dbconfig | psql -h localhost -U postgres geoname_testing
           psql -h localhost -U postgres -c "grant all privileges on database funnel_testing to $(whoami);"
           psql -h localhost -U postgres -c "grant all privileges on database geoname_testing to $(whoami);"
+          psql -h localhost -U postgres funnel_testing -c "grant all privileges on schema public to $(whoami); grant all privileges on all tables in schema public to $(whoami); grant all privileges on all sequences in schema public to $(whoami);"
+          psql -h localhost -U postgres geoname_testing -c "grant all privileges on schema public to $(whoami); grant all privileges on all tables in schema public to $(whoami); grant all privileges on all sequences in schema public to $(whoami);"
       - name: Test with pytest
         run: |
-          pytest -vv --showlocals --splinter-headless --cov=funnel
+          pytest --gherkin-terminal-reporter -vv --showlocals --cov=funnel
       - name: Prepare coverage report
         run: |
           mkdir -p coverage

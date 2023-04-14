@@ -18,8 +18,8 @@ down_revision = 'ee8477fff3a8'
 branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
-start_at: column = column('start_at')
-end_at: column = column('end_at')
+start_at = column('start_at', sa.TIMESTAMP)
+end_at = column('end_at', sa.TIMESTAMP)
 
 
 def upgrade():

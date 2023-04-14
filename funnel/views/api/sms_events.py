@@ -85,6 +85,7 @@ def process_twilio_event() -> ReturnView:
     elif request.form['MessageStatus'] == 'delivered':
         if phone_number:
             phone_number.msg_sms_delivered_at = sa.func.utcnow()
+            phone_number.mark_has_sms(True)
         if sms_message:
             sms_message.status = SMS_STATUS.DELIVERED
     else:
@@ -173,6 +174,7 @@ def process_exotel_event(secret_token: str) -> ReturnView:
     elif request.form['Status'] == 'sent':
         if phone_number:
             phone_number.msg_sms_delivered_at = sa.func.utcnow()
+            phone_number.mark_has_sms(True)
         if sms_message:
             sms_message.status = SMS_STATUS.DELIVERED
     else:

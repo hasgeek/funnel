@@ -1,0 +1,7 @@
+* text=auto eol=lf
+
+*.py text eol=lf
+*.js text eol=lf
+*.scss text eol=lf
+*.jinja2 text eol=lf
+*.toml text eol=lf
