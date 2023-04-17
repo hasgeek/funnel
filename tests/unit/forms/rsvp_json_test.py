@@ -1,6 +1,9 @@
+import json
+
 from funnel import forms
 
-valid_json = '''{
+valid_json = json.dumps(
+    '''{
             "fields": [    {
             "description": "An explanation for this field",
             "name": "field_name","title": "Field label shown to user",
@@ -10,43 +13,42 @@ valid_json = '''{
             ["First choice","Second choice","Third choice"],
             "name": "choice","title": "Choose one"}]
             }'''
+)
 
 
-def test_valid_boxoffice_form(app, csrf_token) -> None:
+def test_valid_boxoffice_form(app) -> None:
     with app.test_request_context(
         method='POST',
-        data={
-            'register_form_schema': valid_json,
-        },
+        data={'register_form_schema': valid_json},
     ):
-        form = forms.ProjectBoxofficeForm(meta={'csrf': csrf_token})
+        form = forms.ProjectBoxofficeForm(meta={'csrf': False})
         assert form.validate() is True
 
 
-def test_invalid_boxoffice_form(app, csrf_token) -> None:
+def test_invalid_boxoffice_form(app) -> None:
     with app.test_request_context(
         method='POST',
         data={
             'register_form_schema': "This is an invalid json",
         },
     ):
-        form = forms.ProjectBoxofficeForm(meta={'csrf': csrf_token})
+        form = forms.ProjectBoxofficeForm(meta={'csrf': False})
         assert form.validate() is False
 
 
-def test_valid_json_register_form(app, csrf_token) -> None:
+def test_valid_json_register_form(app) -> None:
     with app.test_request_context(
         method='POST',
         data={'form': '{"field_name":"Vetinari","has_checked":"on"}'},
     ):
-        form = forms.ProjectRegisterForm(meta={'csrf': csrf_token})
+        form = forms.ProjectRegisterForm(meta={'csrf': False})
         assert form.validate() is True
 
 
-def test_invalid_json_register_form(app, csrf_token) -> None:
+def test_invalid_json_register_form(app) -> None:
     with app.test_request_context(
         method='POST',
         data={'form': 'This is an invalid json'},
     ):
-        form = forms.ProjectRegisterForm(meta={'csrf': csrf_token})
+        form = forms.ProjectRegisterForm(meta={'csrf': False})
         assert form.validate() is False

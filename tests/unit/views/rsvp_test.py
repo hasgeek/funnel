@@ -7,7 +7,8 @@ from werkzeug.datastructures import MultiDict
 
 import pytest
 
-valid_json = '''{
+valid_json = json.dumps(
+    '''{
             "fields": [    {
             "description": "An explanation for this field",
             "name": "field_name","title": "Field label shown to user",
@@ -17,6 +18,7 @@ valid_json = '''{
             ["First choice","Second choice","Third choice"],
             "name": "choice","title": "Choose one","type": "select"}]
             }'''
+)
 
 rsvp_valid_json = {
     'choice': 'First choice',
@@ -114,17 +116,35 @@ def test_valid_json_register(
     db_session,
 ):
     login.as_(user_twoflower)
-    # print(project_expo2010_boxoffice_data.boxoffice_data)
     endpoint = project_expo2010_boxoffice_data.url_for('register')
     rv = client.post(
         endpoint,
         data=json.dumps(
             {
-                'form': json.dumps(valid_json_rsvp),
+                'form': valid_json_rsvp,
                 'csrf_token': csrf_token,
             }
         ),
         headers={'Content-Type': 'application/json'},
     )
     assert rv.status_code == 303
-    assert user_twoflower.rsvps.all()[0].form == rsvp_valid_json
+    assert user_twoflower.rsvps.first().form == rsvp_valid_json
+
+
+def test_invalid_json_register(
+    client,
+    login,
+    project_expo2010_boxoffice_data,
+    user_twoflower,
+    db_session,
+):
+    login.as_(user_twoflower)
+    endpoint = project_expo2010_boxoffice_data.url_for('register')
+    rv = client.post(
+        endpoint,
+        data={
+            'form': "This is an invalid json",
+        },
+        headers={'Content-Type': 'application/json'},
+    )
+    assert rv.status_code == 400
