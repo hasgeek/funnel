@@ -35,13 +35,13 @@ from .helpers import add_search_trigger, reopen, visual_field_delimiter
 __all__ = ['Update']
 
 
-class UPDATE_STATE(LabeledEnum):
+class UPDATE_STATE(LabeledEnum):  # noqa: N801
     DRAFT = (1, 'draft', __("Draft"))
     PUBLISHED = (2, 'published', __("Published"))
     DELETED = (3, 'deleted', __("Deleted"))
 
 
-class VISIBILITY_STATE(LabeledEnum):
+class VISIBILITY_STATE(LabeledEnum):  # noqa: N801
     PUBLIC = (1, 'public', __("Public"))
     RESTRICTED = (2, 'restricted', __("Restricted"))
 

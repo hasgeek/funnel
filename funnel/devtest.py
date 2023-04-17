@@ -118,7 +118,7 @@ class HostPort(NamedTuple):
 class CapturedSms(NamedTuple):
     phone: str
     message: str
-    vars: Dict[str, str]
+    vars: Dict[str, str]  # noqa: A003
 
 
 class CapturedEmail(NamedTuple):

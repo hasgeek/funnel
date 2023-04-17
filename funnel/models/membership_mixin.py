@@ -56,7 +56,7 @@ SubjectType = Union[Mapped[User], Mapped[Profile]]
 # --- Enum -----------------------------------------------------------------------------
 
 
-class MEMBERSHIP_RECORD_TYPE(LabeledEnum):
+class MEMBERSHIP_RECORD_TYPE(LabeledEnum):  # noqa: N801
     """Membership record types."""
 
     # TODO: Convert into IntEnum

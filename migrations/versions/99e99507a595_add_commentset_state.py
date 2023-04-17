@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-class COMMENTSET_STATE:
+class COMMENTSET_STATE:  # noqa: N801
     DISABLED = 1  # Disabled for all
     OPEN = 2  # Open for all
     PARTICIPANTS = 3  # Only for participants

@@ -113,7 +113,7 @@ class SharedProfileMixin:
     with_roles(profile_url, read={'all'})
 
 
-class USER_STATE(LabeledEnum):
+class USER_STATE(LabeledEnum):  # noqa: N801
     """State codes for user accounts."""
 
     #: Regular, active user
@@ -128,7 +128,7 @@ class USER_STATE(LabeledEnum):
     DELETED = (5, __("Deleted"))
 
 
-class ORGANIZATION_STATE(LabeledEnum):
+class ORGANIZATION_STATE(LabeledEnum):  # noqa: N801
     """State codes for organizations."""
 
     #: Regular, active organization
@@ -308,7 +308,7 @@ class User(
 
     @hybrid_property
     def name(self) -> Optional[str]:
-        """Return @name (username) from linked account."""
+        """Return @name (username) from linked account."""  # noqa: D402
         if self.profile:
             return self.profile.name
         return None
@@ -809,7 +809,7 @@ class User(
         return None
 
     @classmethod
-    def all(
+    def all(  # noqa: A003
         cls,
         buids: Optional[Iterable[str]] = None,
         usernames: Optional[Iterable[str]] = None,
@@ -1002,7 +1002,7 @@ class UserOldId(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
 class DuckTypeUser(RoleMixin):
     """User singleton constructor. Ducktypes a regular user object."""
 
-    id: None = None
+    id: None = None  # noqa: A003
     created_at: None = None
     updated_at: None = None
     uuid: None = None
@@ -1308,7 +1308,7 @@ class Organization(
         return query.one_or_none()
 
     @classmethod
-    def all(
+    def all(  # noqa: A003
         cls,
         buids: Optional[Iterable[str]] = None,
         names: Optional[Iterable[str]] = None,
@@ -1750,7 +1750,7 @@ class UserEmailClaim(
         )
 
     @classmethod
-    def all(cls, email: str) -> Query:
+    def all(cls, email: str) -> Query:  # noqa: A003
         """
         Return all UserEmailClaim instances with matching email address.
 

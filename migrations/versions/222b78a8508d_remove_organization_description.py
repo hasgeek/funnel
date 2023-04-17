@@ -55,7 +55,7 @@ def upgrade():
             )
         ).first()[0]
         if blank_profile:
-            print("Updating", org.title)
+            print("Updating", org.title)  # noqa: T201
             op.execute(
                 profile_table.update()
                 .where(profile_table.c.organization_id == org.id)
@@ -65,7 +65,7 @@ def upgrade():
                 )
             )
         else:
-            print("Skipping", org.title)
+            print("Skipping", org.title)  # noqa: T201
     op.drop_column('organization', 'description')
 
 

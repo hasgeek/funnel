@@ -13,8 +13,8 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, declarative_mixin, declared_attr
 from sqlalchemy_json import mutable_json_type
 from sqlalchemy_utils import LocaleType, TimezoneType, TSVectorType, UUIDType
-import sqlalchemy as sa
-import sqlalchemy.orm  # Required to make sa.orm work
+import sqlalchemy as sa  # noqa
+import sqlalchemy.orm  # Required to make sa.orm work  # noqa
 
 from coaster.sqlalchemy import (
     BaseIdNameMixin,

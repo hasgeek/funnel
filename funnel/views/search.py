@@ -749,7 +749,7 @@ def clean_matched_text(text: str) -> str:
 class SearchCountType(TypedDict, total=False):
     """Typed dictionary for :func:`search_counts`."""
 
-    type: str
+    type: str  # noqa: A003
     label: str
     count: int
     job: Any

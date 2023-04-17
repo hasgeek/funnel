@@ -49,7 +49,7 @@ __all__ = [
 ]
 
 
-class EMAIL_DELIVERY_STATE(LabeledEnum):
+class EMAIL_DELIVERY_STATE(LabeledEnum):  # noqa: N801
     """
     Email delivery states. Use ``dict(EMAIL_DELIVERY_STATE)`` to get contents.
 

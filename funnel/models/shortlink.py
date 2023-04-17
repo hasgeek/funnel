@@ -189,7 +189,7 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
     is_new = False
 
     # id of this shortlink, saved as a bigint (8 bytes)
-    id = with_roles(
+    id = with_roles(  # noqa: A003
         # id cannot use the `immutable` wrapper because :meth:`new` changes the id when
         # handling collisions. This needs an "immutable after commit" handler
         sa.Column(sa.BigInteger, autoincrement=False, nullable=False, primary_key=True),

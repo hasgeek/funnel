@@ -21,7 +21,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-class MEMBERSHIP_RECORD_TYPE:
+class MEMBERSHIP_RECORD_TYPE:  # noqa: N801
     INVITE = 0
     ACCEPT = 1
     DIRECT_ADD = 2

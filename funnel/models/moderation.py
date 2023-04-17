@@ -14,7 +14,7 @@ from .helpers import reopen
 __all__ = ['MODERATOR_REPORT_TYPE', 'CommentModeratorReport']
 
 
-class MODERATOR_REPORT_TYPE(LabeledEnum):
+class MODERATOR_REPORT_TYPE(LabeledEnum):  # noqa: N801
     OK = (1, 'ok', __("Not spam"))
     SPAM = (2, 'spam', __("Spam"))
 

@@ -19,7 +19,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-class DELIVERY_STATE:
+class DELIVERY_STATE:  # noqa: N801
     SENT = 1
     ACTIVE = 2
 

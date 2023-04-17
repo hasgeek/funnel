@@ -105,7 +105,7 @@ def downgrade(engine_name='') -> None:
 def upgrade_() -> None:
     """Upgrade database bind ''."""
     for table_name, column_name, check_name, values in table_column_check_values:
-        print(f"Upgrading {table_name}.{column_name}")
+        print(f"Upgrading {table_name}.{column_name}")  # noqa: T201
         tstruct = table(table_name, column(column_name))
         if check_name:
             op.drop_constraint(check_name, table_name, type_='check')
@@ -127,7 +127,7 @@ def downgrade_() -> None:
     for table_name, column_name, check_name, values in reversed(
         table_column_check_values
     ):
-        print(f"Downgrading {table_name}.{column_name}")
+        print(f"Downgrading {table_name}.{column_name}")  # noqa: T201
         tstruct = table(table_name, column(column_name))
         if not check_name:
             mcheck = table_name + '_' + column_name + '_check'

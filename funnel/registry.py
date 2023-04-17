@@ -109,7 +109,7 @@ class ResourceRegistry(OrderedDict):
                 try:
                     result = f(authtoken, args, request.files)
                     response = jsonify({'status': 'ok', 'result': result})
-                except Exception as exc:  # pylint: disable=broad-except
+                except Exception as exc:  # noqa: B902  # pylint: disable=broad-except
                     exception_catchall.send(exc)
                     response = jsonify(
                         {

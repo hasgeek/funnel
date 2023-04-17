@@ -25,7 +25,7 @@ class ReorderMixin:
     #: Subclasses must have a created_at column
     created_at: datetime
     #: Subclass must have a primary key that is int or uuid
-    id: int
+    id: int  # noqa: A003
     #: Subclass must declare a parent_id synonym to the parent model fkey column
     parent_id: Union[int, UUID]
     #: Subclass must declare a seq column or synonym, holding a sequence id. It need not

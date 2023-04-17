@@ -23,7 +23,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-class PROFILE_STATE:
+class PROFILE_STATE:  # noqa: N801
     AUTO = 0
     PUBLIC = 1
     PRIVATE = 2
