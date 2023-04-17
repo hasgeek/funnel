@@ -1,6 +1,7 @@
 """Test custom rsvp form views."""
 
 import datetime
+import json
 
 from werkzeug.datastructures import MultiDict
 
@@ -17,12 +18,17 @@ valid_json = '''{
             "name": "choice","title": "Choose one","type": "select"}]
             }'''
 
+rsvp_valid_json = {
+    'choice': 'First choice',
+    'field_name': 'Twoflower',
+    'has_checked': 'on',
+}
+
 
 @pytest.fixture()
 def project_expo2010_boxoffice_data(db_session, project_expo2010):
     project_expo2010.start_at = datetime.datetime.now() + datetime.timedelta(days=1)
     project_expo2010.end_at = datetime.datetime.now() + datetime.timedelta(days=2)
-    project_expo2010.publish()
     project_expo2010.boxoffice_data = {
         "org": "",
         "is_subscription": False,
@@ -49,8 +55,8 @@ def project_expo2010_boxoffice_data(db_session, project_expo2010):
             ]
         },
     }
-    db_session.add(project_expo2010)
     db_session.commit()
+    project_expo2010.publish()
     return project_expo2010
 
 
@@ -92,6 +98,13 @@ def test_invalid_json_boxoffice(
     assert rv.status_code == 200
 
 
+valid_json_rsvp = {
+    'field_name': 'Twoflower',
+    'has_checked': 'on',
+    'choice': 'First choice',
+}
+
+
 def test_valid_json_register(
     client,
     login,
@@ -101,19 +114,17 @@ def test_valid_json_register(
     db_session,
 ):
     login.as_(user_twoflower)
+    # print(project_expo2010_boxoffice_data.boxoffice_data)
     endpoint = project_expo2010_boxoffice_data.url_for('register')
     rv = client.post(
         endpoint,
-        data=MultiDict(
+        data=json.dumps(
             {
-                'form': '''{
-                'field_name': 'Twoflower',
-                'has_checked': 'on',
-                'choice': 'First choice',
-            }''',
+                'form': json.dumps(valid_json_rsvp),
                 'csrf_token': csrf_token,
             }
         ),
         headers={'Content-Type': 'application/json'},
     )
-    print(rv.data)
+    assert rv.status_code == 303
+    assert user_twoflower.rsvps.all()[0].form == rsvp_valid_json
