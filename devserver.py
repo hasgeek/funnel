@@ -10,7 +10,7 @@ if __name__ == '__main__':
     sys.path.insert(0, os.path.dirname(__file__))
     os.environ['FLASK_ENV'] = 'development'  # Needed for coaster.app.init_app
     os.environ.setdefault('FLASK_DEBUG', '1')
-    debug_mode = not os.environ['FLASK_DEBUG'].lower() in {'0', 'false', 'no'}
+    debug_mode = os.environ['FLASK_DEBUG'].lower() not in {'0', 'false', 'no'}
 
     from funnel import rq
     from funnel.devtest import BackgroundWorker, devtest_app
