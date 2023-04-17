@@ -278,7 +278,7 @@ class ProjectTransitionForm(forms.Form):
 class ProjectCfpTransitionForm(forms.Form):
     """Form for transitioning a project's submission state."""
 
-    open = forms.BooleanField(  # noqa: A003
+    open = forms.BooleanField(
         __("Open submissions"), validators=[forms.validators.InputRequired()]
     )
 

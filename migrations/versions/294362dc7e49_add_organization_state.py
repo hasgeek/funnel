@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-class ORGANIZATION_STATE:  # noqa: N801
+class ORGANIZATION_STATE:
     """State codes for organizations."""
 
     #: Regular, active organization

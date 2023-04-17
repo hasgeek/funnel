@@ -203,7 +203,7 @@ notification_categories: SimpleNamespace = SimpleNamespace(
 # --- Flags ----------------------------------------------------------------------------
 
 
-class SMS_STATUS(LabeledEnum):  # noqa: N801
+class SMS_STATUS(LabeledEnum):
     """SMS delivery status."""
 
     QUEUED = (1, __("Queued"))
@@ -257,9 +257,9 @@ class SmsMessage(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-de
 class NotificationType(Protocol):
     """Protocol for :class:`Notification` and :class:`PreviewNotification`."""
 
-    type: str  # noqa: A003
+    type: str
     eventid: UUID
-    id: UUID  # noqa: A003
+    id: UUID
     eventid_b58: str
     document: Any
     document_uuid: UUID
@@ -298,7 +298,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     )
 
     #: Notification id
-    id: Mapped[UUID] = immutable(  # noqa: A003
+    id: Mapped[UUID] = immutable(
         sa.orm.mapped_column(
             UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
         )
@@ -458,7 +458,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     def __init_subclass__(
         cls,
-        type: str,  # noqa: A002  # pylint: disable=redefined-builtin
+        type: str,  # pylint: disable=redefined-builtin
         shadows: Optional[Type[Notification]] = None,
         **kwargs,
     ) -> None:
@@ -628,7 +628,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     # Make :attr:`type_` available under the name `type`, but declare this at the very
     # end of the class to avoid conflicts with the Python `type` global that is
     # used for type-hinting
-    type: Mapped[str] = sa.orm.synonym('type_')  # noqa: A003
+    type: Mapped[str] = sa.orm.synonym('type_')
 
 
 class PreviewNotification(NotificationType):

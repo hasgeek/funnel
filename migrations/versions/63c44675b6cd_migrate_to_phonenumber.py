@@ -292,7 +292,7 @@ def upgrade_() -> None:
 
     if rows_to_delete:
         # Remove rows where phone number could not be validated
-        print(  # noqa: T201
+        print(
             f"Deleting {len(rows_to_delete)} rows from sms_message with invalid phone"
             f" numbers"
         )

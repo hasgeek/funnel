@@ -169,7 +169,7 @@ def run_migrations_online():
 
         for rec in engines.values():
             rec['transaction'].commit()
-    except:  # noqa: B001, E722
+    except:
         for rec in engines.values():
             rec['transaction'].rollback()
         raise

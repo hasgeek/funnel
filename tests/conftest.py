@@ -383,7 +383,7 @@ def print_stack(pytestconfig, colorama, colorize_code) -> t.Callable[[int, int],
             )
         del stack
         # Now print the lines
-        print(*lines, sep='\n')  # noqa: T201
+        print(*lines, sep='\n')
 
     return func
 
@@ -460,7 +460,7 @@ def _app_events(colorama, print_stack, app) -> t.Iterator:
     import flask
 
     def signal_handler(signal_name, *args, **kwargs):
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}Signal:{colorama.Style.NORMAL}"
             f" {colorama.Fore.YELLOW}{signal_name}{colorama.Style.RESET_ALL}"
         )
@@ -506,7 +506,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
     def safe_repr(entity):
         try:
             return saferepr(entity)
-        except Exception:  # noqa: B902  # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             if hasattr(entity, '__class__'):
                 return f'{entity.__class__.__qualname__}(class-repr-error)'
             if hasattr(entity, '__name__'):
@@ -519,48 +519,46 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
         rkwargs = ', '.join(f'{_k}={safe_repr(_v)}' for _k, _v in kwargs.items())
         rparams = f'{rargs, rkwargs}' if rargs else rkwargs
         code = colorize_code(f"{obj.__class__.__qualname__}({rparams})")
-        print(  # noqa: T201
-            f"{colorama.Style.BRIGHT}obj: new:{colorama.Style.NORMAL}" f" {code}"
-        )
+        print(f"{colorama.Style.BRIGHT}obj: new:{colorama.Style.NORMAL}" f" {code}")
 
     @sa.event.listens_for(DatabaseSessionClass, 'transient_to_pending')
     def event_transient_to_pending(_session, obj):
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}obj: transient to pending:{colorama.Style.NORMAL}"
             f" {colorize_code(safe_repr(obj))}"
         )
 
     @sa.event.listens_for(DatabaseSessionClass, 'pending_to_transient')
     def event_pending_to_transient(_session, obj):
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}obj: pending to transient:{colorama.Style.NORMAL}"
             f" {colorize_code(safe_repr(obj))}"
         )
 
     @sa.event.listens_for(DatabaseSessionClass, 'pending_to_persistent')
     def event_pending_to_persistent(_session, obj):
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}obj: pending to persistent:{colorama.Style.NORMAL}"
             f" {colorize_code(safe_repr(obj))}"
         )
 
     @sa.event.listens_for(DatabaseSessionClass, 'loaded_as_persistent')
     def event_loaded_as_persistent(_session, obj):
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}obj: loaded as persistent:{colorama.Style.NORMAL}"
             f" {safe_repr(obj)}"
         )
 
     @sa.event.listens_for(DatabaseSessionClass, 'persistent_to_transient')
     def event_persistent_to_transient(_session, obj):
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}obj: persistent to transient:"
             f"{colorama.Style.NORMAL} {safe_repr(obj)}"
         )
 
     @sa.event.listens_for(DatabaseSessionClass, 'persistent_to_deleted')
     def event_persistent_to_deleted(_session, obj):
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}obj: persistent to deleted:{colorama.Style.NORMAL}"
             f" {safe_repr(obj)}"
         )
@@ -568,7 +566,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
     @sa.event.listens_for(DatabaseSessionClass, 'deleted_to_detached')
     def event_deleted_to_detached(_session, obj):
         i = sa.inspect(obj)
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}obj: deleted to detached:{colorama.Style.NORMAL}"
             f" {obj.__class__.__qualname__}/{i.identity}"
         )
@@ -576,21 +574,21 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
     @sa.event.listens_for(DatabaseSessionClass, 'persistent_to_detached')
     def event_persistent_to_detached(_session, obj):
         i = sa.inspect(obj)
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}obj: persistent to detached:"
             f"{colorama.Style.NORMAL} {obj.__class__.__qualname__}/{i.identity}"
         )
 
     @sa.event.listens_for(DatabaseSessionClass, 'detached_to_persistent')
     def event_detached_to_persistent(_session, obj):
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}obj: detached to persistent:"
             f"{colorama.Style.NORMAL} {safe_repr(obj)}"
         )
 
     @sa.event.listens_for(DatabaseSessionClass, 'deleted_to_persistent')
     def event_deleted_to_persistent(session, obj):
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}obj: deleted to persistent:{colorama.Style.NORMAL}"
             f" {safe_repr(obj)}"
         )
@@ -617,7 +615,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
             if orm_execute_state.bind_mapper
             else None
         )
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}exec:{colorama.Style.NORMAL} {class_name}:"
             f" {', '.join(state_is)}"
         )
@@ -626,38 +624,38 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
     def event_after_begin(_session, transaction, _connection):
         if transaction.nested:
             if transaction.parent.nested:
-                print(  # noqa: T201
+                print(
                     f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL}"
                     f" BEGIN (double nested)"
                 )
             else:
-                print(  # noqa: T201
+                print(
                     f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL}"
                     f" BEGIN (nested)"
                 )
         else:
-            print(  # noqa: T201
+            print(
                 f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} BEGIN (outer)"
             )
         print_stack()
 
     @sa.event.listens_for(DatabaseSessionClass, 'after_commit')
     def event_after_commit(session):
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} COMMIT"
             f" ({session.info!r})"
         )
 
     @sa.event.listens_for(DatabaseSessionClass, 'after_flush')
     def event_after_flush(session, _flush_context):
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} FLUSH"
             f" ({session.info})"
         )
 
     @sa.event.listens_for(DatabaseSessionClass, 'after_rollback')
     def event_after_rollback(session):
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} ROLLBACK"
             f" ({session.info})"
         )
@@ -665,7 +663,7 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
 
     @sa.event.listens_for(DatabaseSessionClass, 'after_soft_rollback')
     def event_after_soft_rollback(session, _previous_transaction):
-        print(  # noqa: T201
+        print(
             f"{colorama.Style.BRIGHT}session:{colorama.Style.NORMAL} SOFT ROLLBACK"
             f" ({session.info})"
         )
@@ -675,17 +673,17 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
     def event_after_transaction_create(_session, transaction):
         if transaction.nested:
             if transaction.parent.nested:
-                print(  # noqa: T201
+                print(
                     f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL}"
                     f" CREATE (savepoint)"
                 )
             else:
-                print(  # noqa: T201
+                print(
                     f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL}"
                     f" CREATE (fixture)"
                 )
         else:
-            print(  # noqa: T201
+            print(
                 f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL}"
                 f" CREATE (db)"
             )
@@ -695,17 +693,17 @@ def _database_events(models, colorama, colorize_code, print_stack) -> t.Iterator
     def event_after_transaction_end(_session, transaction):
         if transaction.nested:
             if transaction.parent.nested:
-                print(  # noqa: T201
+                print(
                     f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END"
                     f" (double nested)"
                 )
             else:
-                print(  # noqa: T201
+                print(
                     f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END"
                     f" (nested)"
                 )
         else:
-            print(  # noqa: T201
+            print(
                 f"{colorama.Style.BRIGHT}transaction:{colorama.Style.NORMAL} END"
                 f" (outer)"
             )

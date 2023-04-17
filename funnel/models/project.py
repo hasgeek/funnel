@@ -47,7 +47,7 @@ __all__ = ['Project', 'ProjectLocation', 'ProjectRedirect']
 # --- Constants ---------------------------------------------------------------
 
 
-class PROJECT_STATE(LabeledEnum):  # noqa: N801
+class PROJECT_STATE(LabeledEnum):
     DRAFT = (1, 'draft', __("Draft"))
     PUBLISHED = (2, 'published', __("Published"))
     WITHDRAWN = (3, 'withdrawn', __("Withdrawn"))
@@ -56,7 +56,7 @@ class PROJECT_STATE(LabeledEnum):  # noqa: N801
     PUBLISHABLE = {DRAFT, WITHDRAWN}
 
 
-class CFP_STATE(LabeledEnum):  # noqa: N801
+class CFP_STATE(LabeledEnum):
     NONE = (1, 'none', __("None"))
     PUBLIC = (2, 'public', __("Public"))
     CLOSED = (3, 'closed', __("Closed"))
@@ -695,7 +695,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         )
 
     @classmethod
-    def all(cls):  # noqa: A003
+    def all(cls):
         """Return all published projects, ordered by date."""
         return cls.all_unsorted().order_by(cls.order_by_date())
 
@@ -733,7 +733,7 @@ add_search_trigger(Project, 'search_vector')
 
 @reopen(Profile)
 class __Profile:
-    id: Mapped[int]  # noqa: A003
+    id: Mapped[int]
 
     listed_projects = sa.orm.relationship(
         Project,

@@ -619,9 +619,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         ).one_or_none()
 
     @classmethod
-    def all(  # noqa: A003
-        cls, users: Union[QueryBaseClass, Sequence[User]]
-    ) -> List[AuthToken]:
+    def all(cls, users: Union[QueryBaseClass, Sequence[User]]) -> List[AuthToken]:
         """Return all AuthToken for the specified users."""
         query = cls.query.join(AuthClient)
         if isinstance(users, QueryBaseClass):

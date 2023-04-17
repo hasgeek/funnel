@@ -27,7 +27,7 @@ depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 PROPOSING_LABEL = "Proposing"
 
 
-class MEMBERSHIP_RECORD_TYPE:  # noqa: N801
+class MEMBERSHIP_RECORD_TYPE:
     INVITE = 0
     ACCEPT = 1
     DIRECT_ADD = 2

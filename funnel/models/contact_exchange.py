@@ -30,7 +30,7 @@ __all__ = ['ContactExchange']
 class ProjectId:
     """Holder for minimal :class:`~funnel.models.project.Project` information."""
 
-    id: int  # noqa: A003
+    id: int
     uuid: UUID
     uuid_b58: str
     title: str

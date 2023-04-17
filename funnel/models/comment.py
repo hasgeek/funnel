@@ -32,7 +32,7 @@ __all__ = ['Comment', 'Commentset']
 # --- Constants ------------------------------------------------------------------------
 
 
-class COMMENTSET_STATE(LabeledEnum):  # noqa: N801
+class COMMENTSET_STATE(LabeledEnum):
     DISABLED = (1, __("Disabled"))  # Disabled for all
     OPEN = (2, __("Open"))  # Open for all
     PARTICIPANTS = (3, __("Participants-only"))  # Only for participants
@@ -41,7 +41,7 @@ class COMMENTSET_STATE(LabeledEnum):  # noqa: N801
     NOT_DISABLED = {OPEN, PARTICIPANTS, COLLABORATORS}
 
 
-class COMMENT_STATE(LabeledEnum):  # noqa: N801
+class COMMENT_STATE(LabeledEnum):
     # If you add any new state, you need to migrate the check constraint as well
     SUBMITTED = (1, 'submitted', __("Submitted"))
     SCREENED = (2, 'screened', __("Screened"))
@@ -59,7 +59,7 @@ class COMMENT_STATE(LabeledEnum):  # noqa: N801
 
 # What is this Commentset attached to?
 # TODO: Deprecated, doesn't help as much as we thought it would
-class SET_TYPE:  # noqa: N801
+class SET_TYPE:
     PROJECT = 0
     PROPOSAL = 2
     COMMENT = 3

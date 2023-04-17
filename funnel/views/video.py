@@ -27,7 +27,7 @@ class VideoData(TypedDict):
     """Dictionary for video data, as used in templates."""
 
     source: str
-    id: str  # noqa: A003
+    id: str
     url: str
     embeddable_url: str
     duration: float

@@ -101,7 +101,7 @@ class GeoAdminRecord:
 class GeoAltNameRecord:
     """Geonames alt name record."""
 
-    id: str  # noqa: A003
+    id: str
     geonameid: str
     lang: str
     title: str

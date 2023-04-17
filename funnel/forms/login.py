@@ -48,19 +48,19 @@ MSG_PHONE_BLOCKED = __("This phone number has been blocked from use")
 # --- Exceptions -----------------------------------------------------------------------
 
 
-class LoginPasswordResetException(Exception):  # noqa: N818
+class LoginPasswordResetException(Exception):
     """Exception to signal that a password reset is required (not an error)."""
 
 
-class LoginPasswordWeakException(Exception):  # noqa: N818
+class LoginPasswordWeakException(Exception):
     """Exception to signal that password is weak and needs change (not an error)."""
 
 
-class LoginWithOtp(Exception):  # noqa: N818
+class LoginWithOtp(Exception):
     """Exception to signal that login may proceed using an OTP instead of password."""
 
 
-class RegisterWithOtp(Exception):  # noqa: N818
+class RegisterWithOtp(Exception):
     """Exception to signal for new user account registration after OTP validation."""
 
 

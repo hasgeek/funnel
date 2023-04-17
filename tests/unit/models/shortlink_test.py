@@ -378,7 +378,7 @@ def test_shortlink_comparator() -> None:
     assert expr is not None
     # Inequality expression is not supported, nor is anything else
     with pytest.raises(NotImplementedError):
-        _expr = models.shortlink.Shortlink.name != 'example'  # noqa: F841
+        _expr = models.shortlink.Shortlink.name != 'example'
 
 
 @pytest.mark.usefixtures('app_context')

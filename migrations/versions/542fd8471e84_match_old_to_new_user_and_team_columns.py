@@ -42,7 +42,7 @@ migrate_team_columns = [
 
 def upgrade():
     for table, old, new in migrate_user_columns:
-        print(f"Upgrading {table}.{new}")  # noqa: T201
+        print(f"Upgrading {table}.{new}")
         op.execute(
             sa.DDL(
                 f'''
@@ -55,7 +55,7 @@ def upgrade():
         )
 
     for table, old, new in migrate_team_columns:
-        print(f"Upgrading {table}.{new}")  # noqa: T201
+        print(f"Upgrading {table}.{new}")
         op.execute(
             sa.DDL(
                 f'''
