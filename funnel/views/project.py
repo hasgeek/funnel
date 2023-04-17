@@ -5,7 +5,8 @@ from types import SimpleNamespace
 import csv
 import io
 
-from flask import Response, abort, current_app, flash, render_template, request
+from flask import Markup, Response, abort, current_app, flash, render_template, request
+from flask_babel import format_number
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
@@ -148,12 +149,12 @@ def get_registration_text(count: int, registered=False, follow_mode=False) -> st
             return registration_count_messages[count].following
         return registration_count_messages[count].not_following
     if registered and not follow_mode:
-        return numeric_count.registered.format(num=count - 1)
+        return Markup(numeric_count.registered.format(num=format_number(count - 1)))
     if not registered and not follow_mode:
-        return numeric_count.unregistered.format(num=count)
+        return Markup(numeric_count.unregistered.format(num=format_number(count)))
     if registered and follow_mode:
-        return numeric_count.following.format(num=count - 1)
-    return numeric_count.not_following.format(num=count)
+        return Markup(numeric_count.following.format(num=format_number(count - 1)))
+    return Markup(numeric_count.not_following.format(num=format_number(count)))
 
 
 @Project.features('rsvp')
@@ -232,8 +233,13 @@ def project_registration_text(obj: Project) -> str:
 
 @Project.views('register_button_text')
 def project_register_button_text(obj: Project) -> str:
+    custom_text = (
+        obj.boxoffice_data.get('register_button_txt') if obj.boxoffice_data else None
+    )
     if obj.features.follow_mode():
         return _("Follow")
+    if custom_text:
+        return custom_text
     return _("Register")
 
 
@@ -515,6 +521,7 @@ class ProjectView(  # type: ignore[misc]
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
                 allow_rsvp=self.obj.allow_rsvp,
                 is_subscription=boxoffice_data.get('is_subscription', True),
+                register_button_txt=boxoffice_data.get('register_button_txt', ''),
             ),
             model=Project,
         )
@@ -523,6 +530,9 @@ class ProjectView(  # type: ignore[misc]
             self.obj.boxoffice_data['org'] = form.org.data
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             self.obj.boxoffice_data['is_subscription'] = form.is_subscription.data
+            self.obj.boxoffice_data[
+                'register_button_txt'
+            ] = form.register_button_txt.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for())

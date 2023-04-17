@@ -325,7 +325,7 @@ def valid_username(candidate: str) -> bool:
 
     Letters, numbers and non-terminal hyphens only.
     """
-    return not _username_valid_re.search(candidate) is None
+    return _username_valid_re.search(candidate) is not None
 
 
 def valid_name(candidate: str) -> bool:
@@ -334,7 +334,7 @@ def valid_name(candidate: str) -> bool:
 
     Lowercase letters, numbers and non-terminal hyphens only.
     """
-    return not _name_valid_re.search(candidate) is None
+    return _name_valid_re.search(candidate) is not None
 
 
 def pgquote(identifier: str) -> str:

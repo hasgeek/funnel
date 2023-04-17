@@ -304,7 +304,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         self._user = value
 
     @user.expression
-    def user(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def user(cls):  # pylint: disable=no-self-argument
         return cls._user
 
     with_roles(user, read={'all'}, datasets={'primary', 'related', 'json', 'minimal'})
@@ -328,7 +328,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         self._message = value  # type: ignore[assignment]
 
     @message.expression
-    def message(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def message(cls):  # pylint: disable=no-self-argument
         """Return SQL expression for comment message column."""
         return cls._message
 

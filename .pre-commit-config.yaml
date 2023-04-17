@@ -36,6 +36,12 @@ repos:
             'PYSEC-2022-42969', # https://github.com/pytest-dev/pytest/issues/10392
           ]
         files: ^requirements/.*\.txt$
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.261
+    hooks:
+      - id: ruff
+        args: ['--fix', '--exit-non-zero-on-fix']
+        # Extra args, only after removing flake8 and yesqa: '--extend-select', 'RUF100'
   - repo: https://github.com/lucasmbrown/mirrors-autoflake
     rev: v1.3
     hooks:
@@ -116,7 +122,6 @@ repos:
             '--ignore-paths=tests,migrations',
           ]
         additional_dependencies:
-          - pylint-pytest
           - tomli
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.5

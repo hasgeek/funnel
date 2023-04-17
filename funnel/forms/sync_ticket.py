@@ -51,6 +51,11 @@ class ProjectBoxofficeForm(forms.Form):
         default=True,
         description=__("If not checked, buy tickets button will be shown"),
     )
+    register_button_txt = forms.StringField(
+        __("Register button text"),
+        filters=[forms.filters.strip()],
+        description=__("Optional – Use with care to replace the button text"),
+    )
 
 
 @TicketEvent.forms('main')
