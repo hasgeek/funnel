@@ -22,7 +22,6 @@ pip-compile-multi
 po2json
 pre-commit
 pylint
-pylint-pytest
 pyupgrade
 reformat-gherkin
 toml
