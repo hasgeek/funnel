@@ -190,7 +190,7 @@ class Label(
         self._restricted = value
 
     @restricted.expression
-    def restricted(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def restricted(cls):  # pylint: disable=no-self-argument
         return sa.case(
             (
                 cls.main_label_id.isnot(None),
@@ -214,7 +214,7 @@ class Label(
         self._archived = value
 
     @archived.expression
-    def archived(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def archived(cls):  # pylint: disable=no-self-argument
         return sa.case(
             (cls._archived.is_(True), cls._archived),
             (
@@ -231,7 +231,7 @@ class Label(
         return bool(self.options)
 
     @has_options.expression
-    def has_options(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def has_options(cls):  # pylint: disable=no-self-argument
         return exists().where(Label.main_label_id == cls.id)
 
     @property
