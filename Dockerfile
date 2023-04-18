@@ -1,27 +1,28 @@
-# Base image from https://hub.docker.com/r/nikolaik/python-nodejs
-FROM nikolaik/python-nodejs:latest
+# syntax=docker/dockerfile:1.4
 
-# install base+build packages
-RUN apt-get -y install curl git wget unzip build-essential make postgresql libpq-dev python-dev
+ARG BASE_PYTHON_VERSION=3.7
+ARG BASE_NODE_VERSION=18
+FROM hasgeek/funnel-builder:python-${BASE_PYTHON_VERSION}-node-${BASE_NODE_VERSION}
+USER funnel
+WORKDIR /home/funnel/app
 
-# Python-nodejs includes a `pn` user, which we'll use.
-USER pn
-WORKDIR /home/pn/app
+COPY --chown=funnel:funnel Makefile Makefile
+COPY --chown=funnel:funnel package.json package.json
+COPY --chown=funnel:funnel package-lock.json package-lock.json
+RUN --mount=type=cache,target=/root/.npm \
+    --mount=type=cache,target=/home/funnel/.npm,uid=1000,gid=1000 \
+    --mount=type=cache,target=/home/funnel/app/node_modules,uid=1000,gid=1000 npm install
 
-COPY uwsgi.ini /etc/uwsgi/
+RUN make deps-editable
 
-# Place the application components in a dir below the root dir
-COPY . /app/
+COPY --chown=funnel:funnel requirements requirements
+RUN --mount=type=cache,target=/home/funnel/.cache/pip,uid=1000,gid=1000 <<EOF
+pip install --upgrade pip
+pip install --use-pep517 -r requirements/base.txt
+EOF
 
-RUN cd /app/funnel/assets; make
-
-# Install from the requirements.txt we copied above
-COPY requirements.txt /tmp
-RUN pip install -r requirements.txt
-COPY . /tmp/myapp
-RUN pip install /tmp/myapp
-
-# We are done with setting up the image.
-# As this image is used for different
-# purposes and processes no CMD or ENTRYPOINT is specified here,
-# this is done in docker-compose.yml.
+COPY --chown=funnel:funnel . .
+RUN --mount=type=cache,target=/root/.npm \
+    --mount=type=cache,target=/home/funnel/.npm,uid=1000,gid=1000 \
+    --mount=type=cache,target=/home/funnel/app/node_modules,uid=1000,gid=1000 \
+    --mount=type=cache,target=/home/funnel/app/funnel/static/.webassets-cache,uid=1000,gid=1000 npm run build
