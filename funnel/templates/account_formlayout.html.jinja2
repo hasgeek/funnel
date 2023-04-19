@@ -49,6 +49,7 @@
 
 {% block footerscripts %}
   {{ widget_ext_scripts(form) }}
+  <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       {{ widgetscripts(form, script=false, ref_id=ref_id, force=ajax) }}

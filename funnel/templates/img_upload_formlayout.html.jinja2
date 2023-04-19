@@ -24,8 +24,8 @@
 
   {{ widget_ext_scripts(form) }}
 
+  <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
-    window.Hasgeek.activate_select2();
     {{ widgetscripts(form, script=false, ref_id=ref_id) }}
   </script>
 </div>

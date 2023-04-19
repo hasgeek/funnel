@@ -21,6 +21,7 @@
 {% endblock serviceworker %}
 
 {% block footerscripts %}
+  <script src="{{ built_asset('autosave_form.js') }}" type="text/javascript"></script>
   <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
@@ -29,7 +30,7 @@
         formId: '#{{ ref_id }}',
         msgElemId: '#autosave-msg'
       }
-      window.Hasgeek.form(config);
+      window.Hasgeek.autoSave(config);
     });
   </script>
   {% block innerscripts %}{% endblock innerscripts %}

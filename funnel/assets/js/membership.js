@@ -92,7 +92,7 @@ const Membership = {
           const onError = (response) => {
             this.errorMsg = Form.formErrorHandler(formId, response);
           };
-          window.Hasgeek.Forms.handleFormSubmit(formId, url, onSuccess, onError, {});
+          Form.handleFormSubmit(formId, url, onSuccess, onError, {});
         },
         updateMembersList(membersList) {
           this.members = membersList.length > 0 ? membersList : '';

@@ -2,6 +2,7 @@ import 'jquery-ui';
 import 'jquery-ui-sortable-npm';
 import 'jquery-ui-touch-punch';
 import 'emojionearea';
+import Form from './utils/formhelper';
 
 $(() => {
   window.Hasgeek.LabelsFormInit = function LabelsFormInit(formHtml) {
@@ -30,7 +31,7 @@ $(() => {
     $('#add-sublabel-form').click((e) => {
       e.preventDefault();
       $('#child-form').append(formHtml);
-      window.activate_widgets();
+      Form.activate_select2();
       initEmojiPicker();
       $('.js-required-field').removeClass('mui--hide');
       $('.js-required-field input').prop('checked', true);

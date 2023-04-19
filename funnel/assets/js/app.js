@@ -61,8 +61,6 @@ $(() => {
   Utils.popupBackHandler();
   Form.handleModalForm();
 
-  window.Hasgeek.activate_select2 = Form.activate_select2.bind(Form);
-
   if ($('.header__nav-links--updates').length) {
     Utils.updateNotificationStatus();
     window.setInterval(

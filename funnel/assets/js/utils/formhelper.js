@@ -135,70 +135,6 @@ const Form = {
       }
     });
   },
-  activateToggleSwitch(checkboxId, callbckfn = '') {
-    function postForm() {
-      let submitting = false;
-      return (checkboxElem) => {
-        if (!submitting) {
-          submitting = true;
-          const checkbox = $(checkboxElem);
-          const currentState = checkboxElem.checked;
-          const previousState = !currentState;
-          const formData = new FormData(checkbox.parent('form')[0]);
-          if (!currentState) {
-            formData.append(checkbox.attr('name'), false);
-          }
-
-          fetch(checkbox.parent('form').attr('action'), {
-            method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams(formData).toString(),
-          })
-            .then((response) => response.json())
-            .then((responseData) => {
-              if (responseData && responseData.message) {
-                window.toastr.success(responseData.message);
-              }
-              if (callbckfn) {
-                callbckfn();
-              }
-              submitting = false;
-            })
-            .catch((error) => {
-              Form.handleAjaxError(error);
-              checkbox.prop('checked', previousState);
-              submitting = false;
-            });
-        }
-      };
-    }
-
-    const throttleSubmit = postForm();
-
-    $('body').on('change', checkboxId, function submitToggleSwitch() {
-      throttleSubmit(this);
-    });
-
-    $('body').on('click', '.js-dropdown-toggle', function stopPropagation(event) {
-      event.stopPropagation();
-    });
-  },
-  openSubmissionToggle(checkboxId, cfpStatusDiv) {
-    const onSuccess = () => {
-      $(cfpStatusDiv).toggleClass('mui--hide');
-    };
-    Form.activateToggleSwitch(checkboxId, onSuccess);
-  },
-  activate_select2() {
-    /* Upgrade to jquery 3.6 select2 autofocus isn't working. This is to fix that problem.
-      select2/select2#5993  */
-    $(document).on('select2:open', () => {
-      document.querySelector('.select2-search__field').focus();
-    });
-  },
   preventSubmitOnEnter(id) {
     $(`#${id}`).on('keyup keypress', (e) => {
       const code = e.keyCode || e.which;
@@ -220,67 +156,6 @@ const Form = {
       .prop('disabled', true)
       .addClass('submit-disabled');
     form.find('.loading').removeClass('mui--hide');
-  },
-  lastuserAutocomplete(options) {
-    const assembleUsers = function (users) {
-      return users.map((user) => {
-        return { id: user.buid, text: user.label };
-      });
-    };
-
-    $(`#${options.id}`).select2({
-      placeholder: 'Search for a user',
-      multiple: options.multiple,
-      minimumInputLength: 2,
-      ajax: {
-        url: options.autocomplete_endpoint,
-        dataType: 'jsonp',
-        data(params) {
-          if ('client_id' in options) {
-            return {
-              q: params.term,
-              client_id: options.client_id,
-              session: options.session_id,
-            };
-          }
-          return {
-            q: params.term,
-          };
-        },
-        processResults(data) {
-          let users = [];
-          if (data.status === 'ok') {
-            users = assembleUsers(data.users);
-          }
-          return { more: false, results: users };
-        },
-      },
-    });
-  },
-  textAutocomplete(options) {
-    $(`#${options.id}`).select2({
-      placeholder: 'Type to select',
-      multiple: options.multiple,
-      minimumInputLength: 2,
-      ajax: {
-        url: options.autocomplete_endpoint,
-        dataType: 'json',
-        data(params, page) {
-          return {
-            q: params.term,
-            page,
-          };
-        },
-        processResults(data) {
-          return {
-            more: false,
-            results: data[options.key].map((item) => {
-              return { id: item, text: item };
-            }),
-          };
-        },
-      },
-    });
   },
   /* Takes 'formId' and 'errors'
      'formId' is the id attribute of the form for which errors needs to be displayed
@@ -357,7 +232,7 @@ const Form = {
       data: $(`#${formId}`).serialize(),
       dataType: config.dataType ? config.dataType : 'json',
       beforeSend() {
-        window.Hasgeek.Forms.preventDoubleSubmit(formId);
+        Form.preventDoubleSubmit(formId);
         if (config.beforeSend) config.beforeSend();
       },
       success(responseData) {
@@ -384,61 +259,8 @@ const Form = {
       .find('button[type="submit"]')
       .click((event) => {
         event.preventDefault();
-        window.Hasgeek.Forms.ajaxFormSubmit(formId, url, onSuccess, onError, config);
+        Form.ajaxFormSubmit(formId, url, onSuccess, onError, config);
       });
-  },
-  activate_geoname_autocomplete(selector, autocompleteEndpoint, getnameEndpoint) {
-    $(selector).select2({
-      placeholder: 'Search for a location',
-      multiple: true,
-      minimumInputLength: 2,
-      ajax: {
-        url: autocompleteEndpoint,
-        dataType: 'jsonp',
-        data(params) {
-          return {
-            q: params.term,
-          };
-        },
-        processResults(data) {
-          const rdata = [];
-          if (data.status === 'ok') {
-            for (let i = 0; i < data.result.length; i += 1) {
-              rdata.push({
-                id: data.result[i].geonameid,
-                text: data.result[i].picker_title,
-              });
-            }
-          }
-          return { more: false, results: rdata };
-        },
-      },
-    });
-
-    // Setting label for Geoname ids
-    let val = $(selector).val();
-    if (val) {
-      val = val.map((id) => {
-        return `name=${id}`;
-      });
-      const qs = val.join('&');
-      $.ajax(`${getnameEndpoint}?${qs}`, {
-        accepts: 'application/json',
-        dataType: 'jsonp',
-      }).done((data) => {
-        $(selector).empty();
-        const rdata = [];
-        if (data.status === 'ok') {
-          for (let i = 0; i < data.result.length; i += 1) {
-            $(selector).append(
-              `<option value="${data.result[i].geonameid}" selected>${data.result[i].picker_title}</option>`
-            );
-            rdata.push(data.result[i].geonameid);
-          }
-          $(selector).val(rdata).trigger('change');
-        }
-      });
-    }
   },
 };
 

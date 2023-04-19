@@ -1,6 +1,6 @@
 import TableSearch from './utils/tablesearch';
 import SortItem from './utils/sort';
-import Form from './utils/formhelper';
+import { Widgets } from './utils/formWidgets';
 
 $(() => {
   window.Hasgeek.submissionsInit = function submissionsInit({
@@ -28,7 +28,10 @@ $(() => {
     }
 
     if (openSubmission) {
-      Form.openSubmissionToggle(openSubmission.toggleId, openSubmission.cfpStatusElem);
+      Widgets.openSubmissionToggle(
+        openSubmission.toggleId,
+        openSubmission.cfpStatusElem
+      );
     }
   };
 });

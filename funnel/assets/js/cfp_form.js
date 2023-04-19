@@ -1,7 +1,7 @@
-import Form from './utils/formhelper';
+import { Widgets } from './utils/formWidgets';
 
 $(() => {
   window.Hasgeek.cfpInit = function submissionsInit({ openSubmission = '' }) {
-    Form.openSubmissionToggle(openSubmission.toggleId, openSubmission.cfpStatusElem);
+    Widgets.openSubmissionToggle(openSubmission.toggleId, openSubmission.cfpStatusElem);
   };
 });

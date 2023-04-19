@@ -1,10 +1,11 @@
 import Form from './utils/formhelper';
+import { Widgets } from './utils/formWidgets';
 import Utils from './utils/helper';
 import initEmbed from './utils/initembed';
 
 export const Submission = {
   init(toggleId) {
-    if (toggleId) Form.activateToggleSwitch(toggleId);
+    if (toggleId) Widgets.activateToggleSwitch(toggleId);
     Utils.enableWebShare();
     $('.js-subscribe-btn').on('click', function subscribeComments(event) {
       event.preventDefault();

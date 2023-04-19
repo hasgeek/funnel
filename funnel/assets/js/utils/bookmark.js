@@ -31,7 +31,7 @@ const SaveProject = ({
 
   const onError = (response) => Form.handleAjaxError(response);
 
-  window.Hasgeek.Forms.handleFormSubmit(formId, postUrl, onSuccess, onError, config);
+  Form.handleFormSubmit(formId, postUrl, onSuccess, onError, config);
 };
 
 export default SaveProject;

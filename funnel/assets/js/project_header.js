@@ -2,7 +2,7 @@ import SaveProject from './utils/bookmark';
 import Video from './utils/embedvideo';
 import Analytics from './utils/analytics';
 import Spa from './utils/spahelper';
-import Form from './utils/formhelper';
+import { Widgets } from './utils/formWidgets';
 import initEmbed from './utils/initembed';
 import SortItem from './utils/sort';
 
@@ -200,7 +200,7 @@ $(() => {
     }
 
     if (toggleId) {
-      Form.activateToggleSwitch(toggleId);
+      Widgets.activateToggleSwitch(toggleId);
     }
 
     if (sort?.url) {

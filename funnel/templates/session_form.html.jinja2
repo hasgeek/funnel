@@ -22,13 +22,6 @@
 {%- if request_wants.html_fragment %}
   <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
-    $(function() {
-      var config = {
-        autosave: false,
-        formId: '#{{ ref_id }}',
-        msgElemId: ''
-      }
-      window.Hasgeek.form(config);
-    });
+    {{ widgetscripts(form, script=false, ref_id=ref_id) }}
   </script>
 {%- endif %}

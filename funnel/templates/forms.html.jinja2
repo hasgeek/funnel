@@ -268,7 +268,7 @@
 {%- endmacro %}
 
 {%- macro map_marker_script(field) %}
-  new window.Hasgeek.MapMarker({
+  new window.Hasgeek.Forms.MapMarker({
     location_id: "{{ field.id }}_search",
     map_id: "{{ field.id }}_map",
     latitude_id: "{{ field.id }}_latitude",
@@ -297,50 +297,6 @@
   <script type="text/javascript">
     $(function() {
   {%- endif %}
-
-  $('.js-show-password').on('click', function (event) {
-    event.preventDefault();
-    $(this).parent().find('.js-password-toggle').toggleClass('mui--hide');
-    $(this).parent().find('input').attr('type', 'text');
-  });
-  $('.js-hide-password').on('click', function (event) {
-    event.preventDefault();
-    $(this).parent().find('.js-password-toggle').toggleClass('mui--hide');
-    $(this).parent().find('input').attr('type', 'password');
-  });
-
-  //Toggle between OTP/Password login
-  $('.js-toggle-login').on('click', function(event) {
-    event.preventDefault();
-    if($(this).attr('id') == 'use-otp-login') {
-      $('.js-password-field').find('input').val('');
-    }
-    $('.js-fields-toggle').toggleClass('mui--hide');
-  });
-  $('.js-password-field input').on('change', function() {
-    if($('.js-password-field').hasClass('mui--hide')) {
-      $('.js-fields-toggle').toggleClass('mui--hide');
-    }
-  });
-
-  // Change username field input mode to tel
-  if($('#username').length > 0) {
-    $('#username').attr('inputmode', 'tel');
-    $('#username').attr('autocomplete', 'tel');
-    $('.js-keyboard-switcher[data-inputmode="tel"]').addClass('active');
-  }
-
-  // Add support to toggle username field input mode between tel & email to change keyboard in mobile
-  $('.js-keyboard-switcher').on('click touchstart touchend', function(event) {
-    event.preventDefault();
-    var inputMode = $(this).data('inputmode');
-    $('.js-keyboard-switcher').removeClass('active');
-    $(this).addClass('active');
-    $('#username').attr('inputmode', inputMode);
-    $('#username').attr('autocomplete', inputMode);
-    $('#username').blur();
-    $('#username').focus();
-  });
 
   {% if form and form.otp %}
     if ('OTPCredential' in window) {
@@ -416,7 +372,7 @@
         });
       {%- endif %}
     {%- elif field.type in ['GeonameSelectField', 'GeonameSelectMultiField'] %}
-      activate_geoname_autocomplete({{ ('#'+field.id)|tojson }}, {{ field.autocomplete_endpoint|tojson }}, {{ field.getname_endpoint|tojson }}, {{ field.separator|tojson }});
+      Hasgeek.Forms.geonameAutocomplete({{ ('#'+field.id)|tojson }}, {{ field.autocomplete_endpoint|tojson }}, {{ field.getname_endpoint|tojson }}, {{ field.separator|tojson }});
     {%- elif field.type == 'CoordinatesField' -%}
       {{ map_marker_script(field) }}
     {%- endif -%}

@@ -85,7 +85,7 @@ $(() => {
       const onError = (response) => {
         Form.formErrorHandler(modalFormId, response);
       };
-      window.Hasgeek.Forms.handleFormSubmit(modalFormId, url, onSuccess, onError, {});
+      Form.handleFormSubmit(modalFormId, url, onSuccess, onError, {});
     });
 
     $('.js-switch-panel').on('click', (event) => {
