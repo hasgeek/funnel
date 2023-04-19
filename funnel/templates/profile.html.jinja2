@@ -1,6 +1,5 @@
-{% extends "layout.html.jinja2" %}
-{% block title %}{{ profile.title }}{% endblock title %}
-{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, projectcard, featured_section, upcoming_section, open_cfp_section, all_projects_section, profile_header, useravatar, proposal_card, past_projects_section %}
+{% extends "profile_layout.html.jinja2" %}
+{%- from "macros.html.jinja2" import faicon, calendarwidget, saveprojectform, projectcard, featured_section, upcoming_section, open_cfp_section, all_projects_section, useravatar, proposal_card, past_projects_section %}
 
 {%- block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/index.scss') }}" />
