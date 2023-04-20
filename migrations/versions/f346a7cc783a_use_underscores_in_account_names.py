@@ -1,7 +1,7 @@
 """Use underscores in account names.
 
 Revision ID: f346a7cc783a
-Revises: d0a6fab28b7f
+Revises: 1d5e1a11661a
 Create Date: 2023-03-27 22:16:42.701748
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = 'f346a7cc783a'
-down_revision: str = 'd0a6fab28b7f'
+down_revision: str = '1d5e1a11661a'
 branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
