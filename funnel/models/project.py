@@ -505,7 +505,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         """Suffix a colon if the title does not end in ASCII sentence punctuation."""
         if self.title and self.tagline:
             # pylint: disable=unsubscriptable-object
-            if not self.title[-1] in ('?', '!', ':', ';', '.', ','):
+            if self.title[-1] not in ('?', '!', ':', ';', '.', ','):
                 return self.title + ':'
         return self.title
 

@@ -168,7 +168,7 @@ module = ['flask_sqlalchemy']
 follow_imports = 'skip'
 
 [tool.pylint.master]
-load-plugins = ['pylint_pytest']
+# load-plugins = ['pylint_pytest']  # Plugin has been abandoned
 max-parents = 10
 init-hook = """
 import os, astroid.bases, pathlib
@@ -219,3 +219,54 @@ skips = [
 
 [tool.bandit.assert_used]
 skips = ['**/*_test.py', '**/test_*.py', '**/conftest.py']
+
+[tool.ruff]
+# This is a slight customisation of the default rules
+# 1. Funnel still targets Python 3.7 pending an upgrade of production environment
+# 2. Rule E402 (module-level import not top-level) is disabled as isort handles it
+# 3. Rule E501 (line too long) is left to Black; some strings are worse for wrapping
+
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F"]
+ignore = ["E402", "E501"]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
+unfixable = []
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Same as Black.
+line-length = 88
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Target Python 3.7
+target-version = "py37"
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10

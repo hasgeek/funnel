@@ -327,7 +327,7 @@ class User(
                 db.session.add(self.profile)
 
     @name.expression
-    def name(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def name(cls):  # pylint: disable=no-self-argument
         """Return @name from linked account as a SQL expression."""
         return sa.select(Profile.name).where(Profile.user_id == cls.id).label('name')
 
@@ -1210,9 +1210,7 @@ class Organization(
             db.session.add(self.profile)
 
     @name.expression
-    def name(  # pylint: disable=no-self-argument
-        cls,  # noqa: N805
-    ) -> sa.Select:
+    def name(cls) -> sa.Select:  # pylint: disable=no-self-argument
         """Return @name from linked profile as a SQL expression."""
         return (  # type: ignore[return-value]
             sa.select(Profile.name)
