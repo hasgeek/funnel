@@ -514,7 +514,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
         self.eventid = uuid_from_base58(value)
 
     @eventid_b58.comparator  # type: ignore[no-redef]
-    def eventid_b58(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def eventid_b58(cls):  # pylint: disable=no-self-argument
         """Return SQL comparator for Base58 rendering."""
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -887,7 +887,7 @@ class UserNotification(
         self.eventid = uuid_from_base58(value)
 
     @eventid_b58.comparator  # type: ignore[no-redef]
-    def eventid_b58(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def eventid_b58(cls):  # pylint: disable=no-self-argument
         """Return SQL comparator for Base58 representation."""
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -907,7 +907,7 @@ class UserNotification(
             self.read_at = None
 
     @is_read.expression  # type: ignore[no-redef]
-    def is_read(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def is_read(cls):  # pylint: disable=no-self-argument
         """Test if notification has been marked as read, as a SQL expression."""
         return cls.read_at.isnot(None)
 
@@ -929,7 +929,7 @@ class UserNotification(
     # PyLint complains because the hybrid property doesn't resemble the mixin's property
     # pylint: disable=no-self-argument,arguments-renamed,invalid-overridden-method
     @is_revoked.expression  # type: ignore[no-redef]
-    def is_revoked(cls):  # noqa: N805
+    def is_revoked(cls):
         return cls.revoked_at.isnot(None)
 
     # pylint: enable=no-self-argument,arguments-renamed,invalid-overridden-method
