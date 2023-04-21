@@ -828,19 +828,13 @@ class User(
             query = cls.query.outerjoin(Profile).filter(
                 sa.or_(
                     cls.buid.in_(buids),  # type: ignore[attr-defined]
-                    sa.func.lower(Profile.name).in_(
-                        [username.lower().replace('-', '_') for username in usernames]
-                    ),
+                    Profile.name_in(usernames),
                 )
             )
         elif buids:
             query = cls.query.filter(cls.buid.in_(buids))  # type: ignore[attr-defined]
         elif usernames:
-            query = cls.query.join(Profile).filter(
-                sa.func.lower(Profile.name).in_(
-                    [username.lower().replace('-', '_') for username in usernames]
-                )
-            )
+            query = cls.query.join(Profile).filter(Profile.name_in(usernames))
         else:
             raise TypeError("A parameter is required")
 
@@ -880,7 +874,7 @@ class User(
                 cls.state.ACTIVE,
                 sa.or_(
                     sa.func.lower(cls.fullname).like(sa.func.lower(like_query)),
-                    sa.func.lower(Profile.name).like(sa.func.lower(like_query)),
+                    Profile.name_like(like_query),
                 ),
             )
             .options(*cls._defercols())
@@ -900,7 +894,7 @@ class User(
                 cls.query.join(Profile)
                 .filter(
                     cls.state.ACTIVE,
-                    sa.func.lower(Profile.name).like(sa.func.lower(like_query[1:])),
+                    Profile.name_like(like_query[1:]),
                 )
                 .options(*cls._defercols())
                 .limit(20)
@@ -1322,11 +1316,7 @@ class Organization(
                 query = query.options(*cls._defercols())
             orgs.extend(query.all())
         if names:
-            query = cls.query.join(Profile).filter(
-                sa.func.lower(Profile.name).in_(
-                    [name.lower().replace('-', '_') for name in names]
-                )
-            )
+            query = cls.query.join(Profile).filter(Profile.name_in(names))
             if defercols:
                 query = query.options(*cls._defercols())
             orgs.extend(query.all())

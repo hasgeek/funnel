@@ -375,6 +375,20 @@ class Profile(
         return sa.func.lower(cls.name) == sa.func.lower(sa.func.replace(name, '-', '_'))
 
     @classmethod
+    def name_in(cls, names: Iterable[Any]) -> ColumnElement:
+        """Generate query flter to check if name is among candidates."""
+        return sa.func.lower(cls.name).in_(
+            [name.lower().replace('-', '_') for name in names]
+        )
+
+    @classmethod
+    def name_like(cls, like_query: Any) -> ColumnElement:
+        """Generate query filter for a LIKE query on name."""
+        return sa.func.lower(cls.name).like(
+            sa.func.lower(sa.func.replace(like_query, '-', r'\_'))
+        )
+
+    @classmethod
     def get(cls, name: str) -> Optional[Profile]:
         """Retrieve a Profile given a name."""
         return cls.query.filter(cls.name_is(name)).one_or_none()
