@@ -343,33 +343,53 @@ def pgquote(identifier: str) -> str:
     return f'"{identifier}"' if identifier in POSTGRESQL_RESERVED_WORDS else identifier
 
 
-def quote_autocomplete_like(query):
+def quote_autocomplete_like(prefix, midway=False) -> str:
     """
     Construct a LIKE query string for prefix-based matching (autocomplete).
 
+    :param midway: Search midway using the ``%letters%`` syntax. This requires a
+        trigram index to be efficient
+
     Usage::
 
-        column.like(quote_autocomplete_like(query))
+        column.like(quote_autocomplete_like(prefix))
 
     For case-insensitive queries, add an index on LOWER(column) and use::
 
-        sa.func.lower(column).like(sa.func.lower(quote_autocomplete_like(query)))
+        sa.func.lower(column).like(sa.func.lower(quote_autocomplete_like(prefix)))
+
+    This function will return an empty string if the prefix has no content after
+    stripping whitespace and special characters. It is prudent to test before usage::
+
+        like_query = quote_autocomplete_like(prefix)
+        if like_query:
+            # Proceed with query
+            query = Model.query.filter(
+                sa.func.lower(Model.column).like(sa.func.lower(like_query))
+            )
     """
     # Escape the '%' and '_' wildcards in SQL LIKE clauses.
     # Some SQL dialects respond to '[' and ']', so remove them.
     # Suffix a '%' to make a prefix-match query.
-    return (
-        query.replace('%', r'\%').replace('_', r'\_').replace('[', '').replace(']', '')
+    like_query = (
+        prefix.replace('%', r'\%').replace('_', r'\_').replace('[', '').replace(']', '')
         + '%'
     )
+    lstrip_like_query = like_query.lstrip()
+    if lstrip_like_query == '%':
+        return ''
+    if midway:
+        return '%' + like_query
+    return lstrip_like_query
 
 
-def quote_autocomplete_tsquery(query: str) -> TSQUERY:
+def quote_autocomplete_tsquery(prefix: str) -> TSQUERY:
     """Return a PostgreSQL tsquery suitable for autocomplete-type matches."""
     return cast(
         TSQUERY,
         sa.func.cast(
-            sa.func.concat(sa.func.phraseto_tsquery(query or ''), ':*'), TSQUERY
+            sa.func.concat(sa.func.phraseto_tsquery('simple', prefix or ''), ':*'),
+            TSQUERY,
         ),
     )
 

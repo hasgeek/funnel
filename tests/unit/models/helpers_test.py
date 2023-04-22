@@ -227,17 +227,50 @@ def test_imgeetype(db_session, image_models) -> None:
     assert m2.image_url.resize(120).args['size'] == '120'  # type: ignore[attr-defined]
 
 
-@pytest.mark.usefixtures('app_context')
-def test_quote_autocomplete_tsquery(db_session) -> None:
-    # Single word autocomplete
+@pytest.mark.parametrize(
+    ('prefix', 'midway', 'query'),
+    [
+        ('', False, ''),
+        ('', True, ''),
+        ('@', False, '@%'),
+        ('@', True, '%@%'),
+        ('a', False, 'a%'),
+        ('a', True, '%a%'),
+        ('A', False, 'A%'),
+        ('A', True, '%A%'),
+        ('ab', False, 'ab%'),
+        ('ab', True, '%ab%'),
+        ('abc', False, 'abc%'),
+        ('abc', True, '%abc%'),
+        ('abc ', False, 'abc %'),
+        ('abc ', True, '%abc %'),
+        ('abc de', False, 'abc de%'),
+        ('abc de', True, '%abc de%'),
+        (' abc ', False, 'abc %'),
+        (' abc ', True, '% abc %'),
+        ('lu_tz', False, r'lu\_tz%'),
+        ('lu_tz', True, r'%lu\_tz%'),
+        ('ab[c]_%d', False, r'abc\_\%d%'),
+        ('ab[c]_%d', True, r'%abc\_\%d%'),
+    ],
+)
+def test_quote_autocomplete_like(prefix, midway, query) -> None:
+    """Test that the LIKE-based autocomplete helper function escapes correctly."""
+    assert mhelpers.quote_autocomplete_like(prefix, midway) == query
+
+
+@pytest.mark.parametrize(
+    ('prefix', 'tsquery'),
+    [
+        ('word', "'word':*"),  # Single word
+        ('two words', "'two' <-> 'words':*"),  # Two words, no stemming
+        ('am', "'am':*"),  # No stemming (would have been invalid ':*' otherwise)
+    ],
+)
+def test_quote_autocomplete_tsquery(db_session, prefix, tsquery) -> None:
     assert (
-        db_session.query(mhelpers.quote_autocomplete_tsquery('word')).scalar()
-        == "'word':*"
-    )
-    # Multi-word autocomplete with stemming
-    assert (
-        db_session.query(mhelpers.quote_autocomplete_tsquery('two words')).scalar()
-        == "'two' <-> 'word':*"
+        db_session.query(mhelpers.quote_autocomplete_tsquery(prefix)).scalar()
+        == tsquery
     )
 
 

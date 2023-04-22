@@ -849,21 +849,14 @@ class User(
     @classmethod
     def autocomplete(cls, prefix: str) -> List[User]:
         """
-        Return users whose names begin with the query, for autocomplete widgets.
+        Return users whose names begin with the prefix, for autocomplete UI.
 
         Looks up users by fullname, username, external ids and email addresses.
 
-        :param str query: Letters to start matching with
+        :param prefix: Letters to start matching with
         """
-        # Escape the '%' and '_' wildcards in SQL LIKE clauses.
-        # Some SQL dialects respond to '[' and ']', so remove them.
         like_query = quote_autocomplete_like(prefix)
-
-        # We convert to lowercase and use the LIKE operator since ILIKE isn't standard
-        # and doesn't use an index in PostgreSQL. There's a functional index for lower()
-        # defined above in __table_args__ that also applies to LIKE lower(val) queries.
-
-        if like_query in ('%', '@%'):
+        if not like_query or like_query == '@%':
             return []
 
         # base_users is used in two of the three possible queries below

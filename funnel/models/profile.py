@@ -31,7 +31,7 @@ from .helpers import (
     ImgeeFurl,
     ImgeeType,
     add_search_trigger,
-    quote_autocomplete_tsquery,
+    quote_autocomplete_like,
     valid_username,
     visual_field_delimiter,
 )
@@ -517,19 +517,31 @@ class Profile(
 
     @classmethod
     def autocomplete(cls, prefix: str) -> List[Profile]:
-        """Return accounts beginning with the query, for autocomplete."""
-        prefix = prefix.strip()
-        if not prefix:
+        """
+        Return accounts beginning with the prefix, for autocomplete UI.
+
+        :param prefix: Letters to start matching with
+        """
+        like_query = quote_autocomplete_like(prefix)
+        if not like_query or like_query == '@%':
             return []
-        tsquery = quote_autocomplete_tsquery(prefix)
+        if prefix.startswith('@'):
+            # Match only against `name` since ``@name...`` format is being used
+            return (
+                cls.query.options(sa.orm.defer(cls.is_active))
+                .filter(cls.name_like(like_query[1:]))
+                .order_by(cls.name)
+                .all()
+            )
+
         return (
             cls.query.options(sa.orm.defer(cls.is_active))
             .join(User)
             .filter(
                 User.state.ACTIVE,
                 sa.or_(
-                    cls.search_vector.bool_op('@@')(tsquery),
-                    User.search_vector.bool_op('@@')(tsquery),
+                    cls.name_like(like_query),
+                    sa.func.lower(User.fullname).like(sa.func.lower(like_query)),
                 ),
             )
             .union(
@@ -538,8 +550,10 @@ class Profile(
                 .filter(
                     Organization.state.ACTIVE,
                     sa.or_(
-                        cls.search_vector.bool_op('@@')(tsquery),
-                        Organization.search_vector.bool_op('@@')(tsquery),
+                        cls.name_like(like_query),
+                        sa.func.lower(Organization.title).like(
+                            sa.func.lower(like_query)
+                        ),
                     ),
                 ),
             )

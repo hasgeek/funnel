@@ -101,3 +101,5 @@ def test_profile_autocomplete(
         user_librarian.profile,
         user_lutze.profile,
     ]
+    assert models.Profile.autocomplete('lu_tze') == [user_lutze.profile]
+    assert models.Profile.autocomplete('lu-tze') == [user_lutze.profile]
