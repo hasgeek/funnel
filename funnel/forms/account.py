@@ -411,8 +411,7 @@ class AccountForm(forms.Form):
     username = forms.AnnotatedTextField(
         __("Username"),
         description=__(
-            "Single word that can contain letters, numbers and dashes."
-            " You need a username to have a public account page"
+            "A single word that is uniquely yours, for your account page and @mentions"
         ),
         validators=[
             forms.validators.DataRequired(),

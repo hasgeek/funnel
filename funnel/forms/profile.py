@@ -71,10 +71,8 @@ class ProfileForm(OrganizationForm):
         )
         self.tagline.description = __("A brief statement about yourself")
         self.name.description = __(
-            "A short name for mentioning you with @username, and the URL to your"
-            " account’s page. Single word containing letters, numbers and dashes only."
-            " Pick something permanent: changing it will break existing links from"
-            " around the web"
+            "A single word that is uniquely yours, for your account page and @mentions."
+            " Pick something permanent: changing it will break existing links"
         )
         self.description.label.text = __("More about you")
         self.description.description = __(
