@@ -34,7 +34,7 @@ def test_project_url_is_as_expected(project_url) -> None:
     # URL ends with '/'
     assert project_url.endswith('/')
     # URL is relative (for tests)
-    assert project_url == '/ankh-morpork/2010/'
+    assert project_url == '/ankh_morpork/2010/'
 
 
 @pytest.mark.parametrize('page', subpages)

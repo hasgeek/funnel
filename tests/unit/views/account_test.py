@@ -24,7 +24,7 @@ def test_username_available(db_session, client, user_rincewind, csrf_token) -> N
     # Valid usernames will return an ok response
     rv = client.post(
         endpoint,
-        data={'username': 'should-be-available', 'csrf_token': csrf_token},
+        data={'username': 'should_be_available', 'csrf_token': csrf_token},
     )
     assert rv.status_code == 200
     assert rv.get_json() == {'status': 'ok'}
@@ -50,8 +50,8 @@ def test_username_available(db_session, client, user_rincewind, csrf_token) -> N
     assert rv.get_json() == {
         'status': 'error',
         'error': 'validation_failure',
-        'error_description': "Usernames can only have alphabets, numbers and dashes"
-        " (except at the ends)",
+        'error_description': "Usernames can only have alphabets, numbers and"
+        " underscores",
     }
 
 
