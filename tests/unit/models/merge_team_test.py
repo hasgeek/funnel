@@ -19,7 +19,7 @@ def team_merge_data(db_session):
     )
     user2 = models.User(username='user2', fullname="User 2")
     org = models.Organization(
-        name='test-org-team-merge', title="Organization", owner=user1
+        name='test_org_team_merge', title="Organization", owner=user1
     )
     team = models.Team(title="Team", organization=org)
     db_session.add_all([user1, user2, org, team])

@@ -1148,7 +1148,7 @@ def user_lutze(models, db_session) -> funnel_models.User:
 
     Lu-Tze plays the role of a site editor, cleaning up after messy users.
     """
-    user = models.User(username='lu-tze', fullname="Lu-Tze")
+    user = models.User(username='lu_tze', fullname="Lu-Tze")
     db_session.add(user)
     return user
 
@@ -1184,7 +1184,7 @@ def user_ponder_stibbons(models, db_session) -> funnel_models.User:
 
     Admin of UU org.
     """
-    user = models.User(username='ponder-stibbons', fullname="Ponder Stibbons")
+    user = models.User(username='ponder_stibbons', fullname="Ponder Stibbons")
     db_session.add(user)
     return user
 
@@ -1293,7 +1293,7 @@ def org_ankhmorpork(models, db_session, user_vetinari) -> funnel_models.Organiza
     develop the city.
     """
     org = models.Organization(
-        name='ankh-morpork', title="Ankh-Morpork", owner=user_vetinari
+        name='ankh_morpork', title="Ankh-Morpork", owner=user_vetinari
     )
     db_session.add(org)
     return org
@@ -1349,7 +1349,7 @@ def org_citywatch(
     * Angua von Uberwald, corporal (unlisted, as there is no member role)
     """
     org = models.Organization(
-        name='city-watch', title="City Watch", owner=user_vetinari
+        name='city_watch', title="City Watch", owner=user_vetinari
     )
     db_session.add(org)
     db_session.add(
@@ -1532,12 +1532,12 @@ TEST_DATA = {
             'name': "testuser2",
             'fullname': "Test User 2",
         },
-        'test-org-owner': {
-            'name': "test-org-owner",
+        'test_org_owner': {
+            'name': "test_org_owner",
             'fullname': "Test User 2",
         },
-        'test-org-admin': {
-            'name': "test-org-admin",
+        'test_org_admin': {
+            'name': "test_org_admin",
             'fullname': "Test User 3",
         },
     }
@@ -1562,7 +1562,7 @@ def new_user2(models, db_session) -> funnel_models.User:
 
 @pytest.fixture()
 def new_user_owner(models, db_session) -> funnel_models.User:
-    user = models.User(**TEST_DATA['users']['test-org-owner'])
+    user = models.User(**TEST_DATA['users']['test_org_owner'])
     db_session.add(user)
     db_session.commit()
     return user
@@ -1570,7 +1570,7 @@ def new_user_owner(models, db_session) -> funnel_models.User:
 
 @pytest.fixture()
 def new_user_admin(models, db_session) -> funnel_models.User:
-    user = models.User(**TEST_DATA['users']['test-org-admin'])
+    user = models.User(**TEST_DATA['users']['test_org_admin'])
     db_session.add(user)
     db_session.commit()
     return user
@@ -1580,7 +1580,7 @@ def new_user_admin(models, db_session) -> funnel_models.User:
 def new_organization(
     models, db_session, new_user_owner, new_user_admin
 ) -> funnel_models.Organization:
-    org = models.Organization(owner=new_user_owner, title="Test org", name='test-org')
+    org = models.Organization(owner=new_user_owner, title="Test org", name='test_org')
     db_session.add(org)
 
     admin_membership = models.OrganizationMembership(

@@ -383,10 +383,7 @@ def raise_username_error(reason: str) -> str:
         raise forms.validators.ValidationError(_("This is too long"))
     if reason == 'invalid':
         raise forms.validators.ValidationError(
-            _(
-                "Usernames can only have alphabets, numbers and dashes (except at the"
-                " ends)"
-            )
+            _("Usernames can only have alphabets, numbers and underscores")
         )
     if reason == 'reserved':
         raise forms.validators.ValidationError(_("This username is reserved"))
@@ -414,8 +411,7 @@ class AccountForm(forms.Form):
     username = forms.AnnotatedTextField(
         __("Username"),
         description=__(
-            "Single word that can contain letters, numbers and dashes."
-            " You need a username to have a public account page"
+            "A single word that is uniquely yours, for your account page and @mentions"
         ),
         validators=[
             forms.validators.DataRequired(),

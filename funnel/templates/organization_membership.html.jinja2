@@ -1,6 +1,5 @@
-{% extends "layout.html.jinja2" %}
-{% block title %}{{ profile.title }}{% endblock title %}
-{%- from "macros.html.jinja2" import faicon, profile_header %}
+{% extends "profile_layout.html.jinja2" %}
+{%- from "macros.html.jinja2" import faicon %}
 {%- from "js/membership.js.jinja2" import membership_template, profile_member_template %}
 
 {% block pageheaders %}
@@ -9,8 +8,6 @@
 {% endblock pageheaders %}
 
 {% block bodyattrs %}class="bg-primary no-sticky-header mobile-header"{% endblock bodyattrs %}
-
-{% block contenthead %}{% endblock contenthead %}
 
 {% block baseheadline %}
   {{ profile_header(profile, class="mui--hidden-xs mui--hidden-sm", current_page="admins", title=_("Admins")) }}

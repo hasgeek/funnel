@@ -29,7 +29,6 @@ from ..models import (
     TicketParticipant,
     TicketType,
     db,
-    sa,
 )
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
@@ -238,7 +237,7 @@ class TicketTypeView(ProfileCheckMixin, UrlForView, ModelView):
             TicketType.query.join(Project)
             .join(Profile)
             .filter(
-                sa.func.lower(Profile.name) == sa.func.lower(profile),
+                Profile.name_is(profile),
                 Project.name == project,
                 TicketType.name == name,
             )
@@ -317,7 +316,7 @@ class TicketClientView(ProfileCheckMixin, UrlForView, ModelView):
             TicketClient.query.join(Project)
             .join(Profile)
             .filter(
-                sa.func.lower(Profile.name) == sa.func.lower(profile),
+                Profile.name_is(profile),
                 Project.name == project,
                 TicketClient.id == client_id,
             )

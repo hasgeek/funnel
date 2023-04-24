@@ -36,10 +36,9 @@ class OrganizationForm(forms.Form):
     name = forms.AnnotatedTextField(
         __("Username"),
         description=__(
-            "A short name for your organization’s account page."
-            " Single word containing letters, numbers and dashes only."
-            " Pick something permanent: changing it will break existing links from"
-            " around the web"
+            "A unique word for your organization’s account page. Alphabets, numbers and"
+            " underscores are okay. Pick something permanent: changing it will break"
+            " links"
         ),
         validators=[
             forms.validators.DataRequired(),
@@ -57,10 +56,7 @@ class OrganizationForm(forms.Form):
             return  # name is available
         if reason == 'invalid':
             raise forms.validators.ValidationError(
-                _(
-                    "Names can only have letters, numbers and dashes (except at the"
-                    " ends)"
-                )
+                _("Names can only have alphabets, numbers and underscores")
             )
         if reason == 'reserved':
             raise forms.validators.ValidationError(_("This name is reserved"))
