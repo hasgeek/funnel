@@ -181,27 +181,32 @@
 // ============================================================================
 
 .mui--z1 {
-  box-shadow: 0 1px 3px rgba(mui-color('grey'), 0.12),
+  box-shadow:
+    0 1px 3px rgba(mui-color('grey'), 0.12),
     0 1px 2px rgba(mui-color('grey'), 0.24);
 }
 
 .mui--z2 {
-  box-shadow: 0 3px 6px rgba(mui-color('black'), 0.16),
+  box-shadow:
+    0 3px 6px rgba(mui-color('black'), 0.16),
     0 3px 6px rgba(mui-color('black'), 0.23);
 }
 
 .mui--z3 {
-  box-shadow: 0 10px 20px rgba(mui-color('black'), 0.19),
+  box-shadow:
+    0 10px 20px rgba(mui-color('black'), 0.19),
     0 6px 6px rgba(mui-color('black'), 0.23);
 }
 
 .mui--z4 {
-  box-shadow: 0 14px 28px rgba(mui-color('black'), 0.25),
+  box-shadow:
+    0 14px 28px rgba(mui-color('black'), 0.25),
     0 10px 10px rgba(mui-color('black'), 0.22);
 }
 
 .mui--z5 {
-  box-shadow: 0 19px 38px rgba(mui-color('black'), 0.3),
+  box-shadow:
+    0 19px 38px rgba(mui-color('black'), 0.3),
     0 15px 12px rgba(mui-color('black'), 0.22);
 }
 
