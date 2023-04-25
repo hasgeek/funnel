@@ -1,19 +1,57 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
 {%- block content -%}
+    {# Hero Image Centered : BEGIN #}
+    <tr>
+        <td>
+            <img src="https://images.hasgeek.com/embed/file/eb253bce19fd41ddb5ec84b225bd4dc2?size=320x240" width="196px" height="" alt="alt_text" border="0" class="header-image g-img">
+        </td>
+    </tr>
+    {# Hero Image Centered : END #}
 
-  {%- if view.notification.document_type == 'project' -%}
-    <h2><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{{ view.document.joined_title }}</a></h2>
-  {%- elif view.notification.document_type == 'proposal' -%}
-    <h2><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{{ view.document.title }}</a></h2>
-  {%- elif view.notification.document_type == 'comment' -%}
-    <p>{% trans %}You wrote:{% endtrans %}</p>
-    <blockquote type="cite">{{ view.document.message }}</blockquote>
-  {%- endif %}
+    {# Email body : BEGIN #}
+    <tr align="center">
+        <td class="text-container">
+            <h1>New comment!</h1>
+            {%- if view.notification.document_type == 'project' -%}
+              <h3><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{{ view.document.joined_title }}</a></h3>
+            {%- elif view.notification.document_type == 'proposal' -%}
+              <h3><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{{ view.document.title }}</a></h3>
+            {%- elif view.notification.document_type == 'comment' -%}
+              <p>{% trans %}You wrote:{% endtrans %}</p>
+              <blockquote type="cite">{{ view.document.message }}</blockquote>
+            {%- endif %}
 
-  <p>{{ view.activity_html() }}</p>
+            <p>{{ view.activity_html() }}</p>
 
-  <blockquote type="cite">{{ view.comment.message }}</blockquote>
-
-  <p class="btn-bar"><a class="btn" href="{{ view.comment.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}View comment{% endtrans %}</a></p>
+            <blockquote type="cite">{{ view.comment.message }}</blockquote>
+        </td>
+    </tr>
+    <br>
+    <tr>
+        <td>
+            {# Button : BEGIN #}
+            <div align="center">
+                <!--[if mso]>
+                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ view.comment.url_for(_external=true, **view.tracking_tags()) }}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="10%" strokecolor="#4d5763" fillcolor="#4d5763">
+                    <w:anchorlock/>
+                    <center style="color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:bold;">{% trans %}View comment{% endtrans %}</center>
+                    </v:roundrect>
+                <![endif]-->
+                <!--[if !mso]> <!-->
+                    <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0">
+                        <tr>
+                            <td class="button-td button-td-primary">
+                                <div>
+                                    <a class="button-a button-a-primary" href="{{ view.comment.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}View comment{% endtrans %}</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                <!-- <![endif]-->
+            </div>
+            {#-- Button : END #}
+        </td>
+    </tr>
+    {# Email body : END #}
 
 {%- endblock content -%}

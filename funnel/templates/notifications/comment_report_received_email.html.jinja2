@@ -1,14 +1,42 @@
-{%- extends "notifications/layout_email.html.jinja2" %}
+{%- extends "notifications/layout_email.html.jinja2" -%}
 {%- block content -%}
+    {# Hero Image Centered : BEGIN #}
+    <tr>
+        <td>
+            <img src="https://images.hasgeek.com/embed/file/c914f2324f1e4b449beb15b272ce9f10?size=320x240" width="196px" height="" alt="alt_text" border="0" class="header-image g-img">
+        </td>
+    </tr>
+    {# Hero Image Centered : END #}
 
-  <p>
-    {%- trans %}A comment has been reported as spam{% endtrans -%}
-  </p>
-
-  <p class="btn-bar">
-    <a class="btn" href="{{ url_for('siteadmin_review_comment', report=view.report.uuid_b58) }}">
-      {%- trans %}Review comment{% endtrans -%}
-    </a>
-  </p>
+    {# Email body : BEGIN #}
+    <tr align="center">
+        <td class="text-container">
+            <h1>Spam alert!</h1>
+            <p>
+                {%- trans %}A comment has been reported as spam{% endtrans -%}
+            </p>
+        </td>
+    </tr>
+    <br>
+    <tr>
+        <td class="button-td button-td-primary">
+            {# Button : BEGIN #}
+            <div align="center">
+                <!--[if mso]>
+                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ url_for('siteadmin_review_comment', report=view.report.uuid_b58) }" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="10%" strokecolor="#4d5763" fillcolor="#4d5763">
+                    <w:anchorlock/>
+                    <center style="color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:bold;">{% trans %}Review comment{% endtrans %}</center>
+                    </v:roundrect>
+                <![endif]-->
+                <!--[if !mso]> <!-->
+                  <div>
+                    <a class="button-a button-a-primary" href="{{ url_for('siteadmin_review_comment', report=view.report.uuid_b58) }">{% trans %}Review comment{% endtrans %}</a>
+                  </div>
+                <!-- <![endif]-->
+            </div>
+            {#-- Button : END #}
+        </td>
+    </tr>
+    {# Email body : END #}
 
 {%- endblock content -%}

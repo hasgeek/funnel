@@ -1,10 +1,42 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
 {%- block content -%}
-  <p>{{ view.activity_html() }}</p>
-  <p class="btn-bar">
-    <a class="btn"
-       href="{{ view.organization.profile.url_for('members', _external=true, **view.tracking_tags()) }}">
-      {%- trans %}See all admins{% endtrans -%}
-    </a>
-  </p>
+    {# Hero Image Centered : BEGIN #}
+    <tr>
+        <td>
+            <img src="https://images.hasgeek.com/embed/file/f82d0bc0138f420fae16a29fe872efee?size=320x240" width="196px" height="" alt="alt_text" border="0" class="header-image g-img">
+        </td>
+    </tr>
+    {# Hero Image Centered : END #}
+
+    {# Email body : BEGIN #}
+    <tr align="center">
+        <td class="text-container">
+            <h1>Membership revoked</h1>
+            <p>
+                {{ view.activity_html() }}
+            </p>
+        </td>
+    </tr>
+    <br>
+    <tr>
+        <td class="button-td button-td-primary">
+            {# Button : BEGIN #}
+            <div align="center">
+                <!--[if mso]>
+                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ view.organization.profile.url_for('members', _external=true, **view.tracking_tags()) }}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="10%" strokecolor="#4d5763" fillcolor="#4d5763">
+                    <w:anchorlock/>
+                    <center style="color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:bold;">{% trans %}See all admins{% endtrans %}</center>
+                    </v:roundrect>
+                <![endif]-->
+                <!--[if !mso]> <!-->
+                  <div>
+                      <a class="button-a button-a-primary" href="{{ view.organization.profile.url_for('members', _external=true, **view.tracking_tags()) }}">{% trans %}See all admins{% endtrans %}</a>
+                  </div>
+                <!-- <![endif]-->
+            </div>
+            {#-- Button : END #}
+        </td>
+    </tr>
+    {# Email body : END #}
+
 {%- endblock content -%}

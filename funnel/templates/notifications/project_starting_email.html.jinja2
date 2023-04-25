@@ -1,15 +1,64 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
 {%- from "notifications/macros_email.html.jinja2" import pinned_update -%}
 {%- block content -%}
+    {# Hero Image Centered : BEGIN #}
+    <tr>
+        <td>
+            <img src="https://images.hasgeek.com/embed/file/639cd8c5a86a444faf3d6cf58d69fc4d?size=320x240" width="196px" height="" alt="alt_text" border="0" class="header-image g-img">
+        </td>
+    </tr>
+    {# Hero Image Centered : END #}
 
-<p>
-  {%- trans project=view.project.joined_title, start_time=view.session.start_at_localized|time -%}
-    <b>{{ project }}</b> starts at {{ start_time }}
-  {%- endtrans -%}
-</p>
+    {# Email body : BEGIN #}
+    <tr align="center">
+        <td class="text-container">
+            <h1>Session starting soon!</h1>
+            <p>
+                {%- trans project=view.project.joined_title, start_time=view.session.start_at_localized|time -%}
+                <b>{{ project }}</b> starts at {{ start_time }}
+                {%- endtrans -%}
+            </p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            {# Button : BEGIN #}
+            <div align="center">
+                <!--[if mso]>
+                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ view.project.url_for(_external=true, **view.tracking_tags()) }}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="10%" strokecolor="#4d5763" fillcolor="#4d5763">
+                    <w:anchorlock/>
+                    <center style="color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:bold;">{% trans %}Join now{% endtrans %}</center>
+                    </v:roundrect>
+                <![endif]-->
+                <!--[if !mso]> <!-->
+                    <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0">
+                        <tr>
+                            <td class="button-td button-td-primary">
+                                <div>
+                                    <a class="button-a button-a-primary" href="{{ view.project.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Join now{% endtrans %}</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                <!-- <![endif]-->
+            </div>
+            {#-- Button : END #}
+        </td>
+    </tr>
+    {# Email body : END #}
 
-<p class="btn-bar"><a class="btn" href="{{ view.project.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Join now{% endtrans %}</a></p>
-
-{{ pinned_update(view, view.project) }}
+  {# Email body footerr : BEGIN #}
+  {%- if view %}
+  {{ pinned_update(view, view.rsvp.project) }}
+  <tr>
+    <td class="line-separator"></td>
+  </tr>
+  <tr>
+      <td>
+          <p class="footer-text">{{ view.reason_email }} &bull; <b>Cancel Registration</b></p>
+      </td>
+  </tr>
+  {%- endif %}
+  {# Email body footerr : END #}
 
 {%- endblock content -%}

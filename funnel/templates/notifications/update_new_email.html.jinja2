@@ -1,12 +1,46 @@
-{% extends "notifications/layout_email.html.jinja2" %}
-{% block content %}
+{%- extends "notifications/layout_email.html.jinja2" -%}
+{%- block content -%}
+    {# Hero Image Centered : BEGIN #}
+    <tr>
+        <td>
+            <img src="https://images.hasgeek.com/embed/file/85250bc8f2534f5cb4a5d3d4f97c2eb9?size=320x240" width="196px" height="" alt="alt_text" border="0" class="header-image g-img">
+        </td>
+    </tr>
+    {# Hero Image Centered : END #}
 
-<p>{% trans actor=view.actor.pickername, project=view.update.project.joined_title, project_url=view.update.project.url_for() %}{{ actor }} posted an update in <a href="{{ project_url }}">{{ project }}</a>:{% endtrans %}</p>
+    {# Email body : BEGIN #}
+    <tr align="center">
+        <td class="text-container">
+            <h1>New update!</h1>
+            <p>
+                {% trans actor=view.actor.pickername, project=view.update.project.joined_title, project_url=view.update.project.url_for() %}
+                {{ actor }} posted an update in <a href="{{ project_url }}">{{ project }}</a>:
+                {% endtrans %}
+            </p>
+            <h3><a href="{{ view.update.url_for(_external=true, **view.tracking_tags()) }}">{{ view.update.title }}</a></h3>
+            {{ view.update.body }}
+        </td>
+    </tr>
+    <br>
+    <tr>
+        <td class="button-td button-td-primary">
+            {# Button : BEGIN #}
+            <div align="center">
+                <!--[if mso]>
+                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ view.update.url_for(_external=true, **view.tracking_tags()) }}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="10%" strokecolor="#4d5763" fillcolor="#4d5763">
+                    <w:anchorlock/>
+                    <center style="color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:bold;">{% trans %}Read on the website{% endtrans %}</center>
+                    </v:roundrect>
+                <![endif]-->
+                <!--[if !mso]> <!-->
+                  <div>
+                      <a class="button-a button-a-primary" href="{{ view.update.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Read on the website{% endtrans %}</a>
+                  </div>
+                <!-- <![endif]-->
+            </div>
+            {#-- Button : END #}
+        </td>
+    </tr>
+    {# Email body : END #}
 
-<h1><a href="{{ view.update.url_for(_external=true, **view.tracking_tags()) }}">{{ view.update.title }}</a></h1>
-
-{{ view.update.body }}
-
-<p class="btn-bar"><a class="btn" href="{{ view.update.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Read on the website{% endtrans %}</a></p>
-
-{% endblock content %}
+{%- endblock content -%}
