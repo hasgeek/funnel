@@ -1,13 +1,9 @@
 {% extends "notifications/layout_email.html.jinja2" -%}
-{%- from "notifications/macros_email.html.jinja2" import pinned_update -%}
+{%- from "notifications/macros_email.html.jinja2" import pinned_update, hero_image -%}
 {%- block content -%}
 
   {# Hero image centered : BEGIN #}
-  <tr>
-      <td align="center">
-          <img src="https://images.hasgeek.com/embed/file/19acf7182396436781d3653a0914a2cf?size=196x138" width="196px" height="" alt="alt_text" border="0" class="header-image g-img">
-      </td>
-  </tr>
+  {{ hero_image("view.url_for('static', filename='img/rsvp_yes_header.jpg', _external=true)") }}
   {# Hero image centered : END #}
 
   {# Email content : BEGIN #}
