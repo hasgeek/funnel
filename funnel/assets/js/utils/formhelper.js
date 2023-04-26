@@ -1,3 +1,5 @@
+import toastr from 'toastr';
+
 const Form = {
   getElementId(htmlString) {
     return htmlString.match(/id="(.*?)"/)[1];
@@ -52,7 +54,7 @@ const Form = {
   handleAjaxError(errorResponse) {
     Form.updateFormNonce(errorResponse.responseJSON);
     const errorMsg = Form.getResponseError(errorResponse);
-    window.toastr.error(errorMsg);
+    toastr.error(errorMsg);
     return errorMsg;
   },
   formErrorHandler(formId, errorResponse) {
@@ -62,7 +64,7 @@ const Form = {
   },
   handleFetchNetworkError() {
     const errorMsg = window.Hasgeek.Config.errorMsg.networkError;
-    window.toastr.error(errorMsg);
+    toastr.error(errorMsg);
     return errorMsg;
   },
   getActionUrl(formId) {

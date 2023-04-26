@@ -1,5 +1,7 @@
-/* global jstz, Pace */
-
+import 'jquery-modal';
+import 'trunk8';
+import jstz from 'jstz';
+import 'jquery.cookie';
 import Utils from './utils/helper';
 import ScrollHelper from './utils/scrollhelper';
 import loadLangTranslations from './utils/translations';
@@ -7,6 +9,8 @@ import LazyloadImg from './utils/lazyloadimage';
 import Form from './utils/formhelper';
 import Analytics from './utils/analytics';
 import Tabs from './utils/tabs';
+
+const pace = require('pace-js');
 
 $(() => {
   // Code notice
@@ -18,6 +22,8 @@ $(() => {
     en: 'en_IN',
     hi: 'hi_IN',
   };
+  loadLangTranslations();
+
   window.Hasgeek.Config.mobileBreakpoint = 768; // this breakpoint switches to desktop UI
   window.Hasgeek.Config.ajaxTimeout = 30000;
   window.Hasgeek.Config.retryInterval = 10000;
@@ -44,7 +50,6 @@ $(() => {
     error: window.gettext('An error occured when submitting the form'),
   };
 
-  loadLangTranslations();
   Utils.collapse();
   ScrollHelper.smoothScroll();
   Utils.navSearchForm();
@@ -60,6 +65,8 @@ $(() => {
   Utils.showTimeOnCalendar();
   Utils.popupBackHandler();
   Form.handleModalForm();
+  Utils.activateZoomPopup();
+  Utils.addFocusOnModalShow();
 
   if ($('.header__nav-links--updates').length) {
     Utils.updateNotificationStatus();
@@ -210,6 +217,6 @@ if (
 ) {
   $('.pace').addClass('pace-hide');
   window.onbeforeunload = function stopPace() {
-    Pace.stop();
+    pace.stop();
   };
 }

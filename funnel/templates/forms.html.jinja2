@@ -193,89 +193,26 @@
 {% endmacro %}
 
 {%- macro ajaxform(ref_id, request, force=false) %}
-  {%- if force or request_wants.html_fragment %}
-    <script type="text/javascript">
-      document.body.addEventListener('htmx:beforeSend', function(event) {
-        window.Hasgeek.Forms.preventDoubleSubmit('{{ ref_id }}');
-      });
-      document.body.addEventListener('htmx:responseError', function(event) {
-        var formId = '{{ ref_id }}'
-        var alertBoxHtml = {{ alertbox('error', '') | tojson }};
-        window.Hasgeek.Forms.showFormError(formId, event.detail.xhr, alertBoxHtml);
-      });
-    </script>
-  {%- else %}
-    <script type="text/javascript">
-      $(function() {
-        // Disable submit button when clicked. Prevent double click.
-        $('#{{ ref_id }}').submit(function() {
-          if(!$(this).data('parsley-validate') || $(this).data('parsley-validate') && $(this).hasClass('parsley-valid')) {
-            $(this).find('button[type="submit"]').prop('disabled', true);
-            $(this).find('input[type="submit"]').prop('disabled', true);
-            $(this).find(".loading").removeClass('mui--hide');
-          }
-        });
-      });
-    </script>
-  {%- endif %}
-{%- endmacro %}
-{%- macro recaptcha(formId, formWrapperId='form-wrapper', ajax=false) %}
-  {%- if ajax %}
-    <script type="text/javascript">
-      var formId = {{ formId|tojson }};
-      var formWrapperId = {{ formWrapperId|tojson }};
-      window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
-        var postUrl = $('#' + formId).attr('action');
-        var onSuccess = function(responseData) {
-          $('#' + formWrapperId).html(responseData); //Replace with OTP form received as response
-        };
-        var onError = function(response) {
-          var alertBoxHtml = {{ alertbox('error', '') | tojson }};
-          window.Hasgeek.Forms.showFormError(formId, response, alertBoxHtml);
-        };
-        window.Hasgeek.Forms.ajaxFormSubmit(
-          formId,
-          postUrl,
-          onSuccess,
-          onError,
-          {
-            dataType: 'html'
-          }
-        );
-      };
-      document.getElementById(formId).onsubmit = function (event) {
-        event.preventDefault();
-        grecaptcha.execute();
-      };
-    </script>
-  {%- else %}
-    <script type="text/javascript">
-      var formId = {{ formId|tojson }};
-      window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
-        document.getElementById(formId).submit();
-      };
-      document.getElementById(formId).onsubmit = function (event) {
-        event.preventDefault();
-        if (typeof grecaptcha !== "undefined" && grecaptcha.getResponse() === '') {
-          grecaptcha.execute();
-        } else {
-          document.getElementById(formId).submit();
-        }
-      };
-    </script>
-  {%- endif %}
-  <script type="text/javascript" src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <script type="text/javascript">
+    var formId = {{ formId|tojson }};
+    var isXHR = false;
+    {%- if force or request_wants.html_fragment %}
+      isXHR = true;
+    {%- endif %}
+    var alertBoxHtml = {{ alertbox('error', '') | tojson }};
+    window.Hasgeek.preventDoubleSubmit(formId, isXHR, alertBoxHtml);
+  </script>
 {%- endmacro %}
 
-{%- macro map_marker_script(field) %}
-  new window.Hasgeek.Forms.MapMarker({
-    location_id: "{{ field.id }}_search",
-    map_id: "{{ field.id }}_map",
-    latitude_id: "{{ field.id }}_latitude",
-    longitude_id: "{{ field.id }}_longitude",
-    clear_id: "{{ field.id }}_clear"
-  });
-{% endmacro %}
+{%- macro recaptcha(formId, formWrapperId='form-wrapper', ajax=false) %}
+  <script type="text/javascript">
+    var formId = {{ formId|tojson }};
+    var formWrapperId = {{ formWrapperId|tojson }};
+    var alertBoxHtml = {{ alertbox('error', '') | tojson }};
+    window.Hasgeek.recaptcha(formId, formWrapperId, ajax, alertBoxHtml);
+  </script>
+  <script type="text/javascript" src="https://www.google.com/recaptcha/api.js" async defer></script>
+{%- endmacro %}
 
 {% macro widget_ext_scripts(form) %}
   {%- with scripts = {} %}
@@ -283,7 +220,6 @@
       {%- if field.type == 'CoordinatesField' and config['GOOGLE_MAPS_API_KEY'] %}
         {#- We're using setdefault instead of a simple = because the do extension doesn't support assignment #}
         {%- do scripts.setdefault('gmap', ('https://maps.googleapis.com/maps/api/js?key=' + config['GOOGLE_MAPS_API_KEY'] + '&libraries=places')) %}
-        {%- do scripts.setdefault('locationpicker', 'jquery.locationpicker.js'|ext_asset_url) %}
       {%- endif %}
     {%- endfor %}
     {%- for key in scripts %}
@@ -297,7 +233,8 @@
   <script type="text/javascript">
     $(function() {
   {%- endif %}
-
+    var config = {};
+    var fieldName = '';
   {% if form and form.otp %}
     if ('OTPCredential' in window) {
       var formid = "#" + {{ ref_id|tojson }};
@@ -327,54 +264,67 @@
     {%- if field.type == 'FormField' %}
       {{ widgetscripts(field.form, script=false) }}
     {%- elif field.type in ['AutocompleteField', 'AutocompleteMultipleField', 'ProfileSelectField'] %}
-      Hasgeek.Forms.textAutocomplete({
+      fieldName = 'AutocompleteField';
+      config = {
         id: {{ field.id|tojson }},
         multiple: {{ field.multiple|tojson }},
         separator: {{ field.separator|tojson }},
-        autocomplete_endpoint: {{ field.autocomplete_endpoint|tojson }},
+        autocompleteEndpoint: {{ field.autocomplete_endpoint|tojson }},
         key: {{ field.results_key|tojson }}
-      });
+      };
+      window.Hasgeek.initWidgets(fieldName, config);
     {%- elif field.type == 'ImgeeField' %}
-      window.addEventListener("message", function (event) {
-        if (event.origin === "{{ config['IMGEE_HOST'] }}") {
-          var message = JSON.parse(event.data);
-          if (message.context == 'imgee.upload') {
-            $('#imgee-loader-{{field.id}}').removeClass('mui--hide');
-            $('#img_{{ field.id }}').attr('src', message.embed_url);
-            $('#{{ field.id }}').val(message.embed_url);
-            {%- if field.widget_type != 'modal' %}
-              $.modal.close();
-            {%- endif %}
-          }
-        }
-      });
-      $('#img_{{ field.id }}').on('load', function() {
-        $('#imgee-loader-{{field.id}}').addClass('mui--hide');
-      });
+      fieldName = 'ImgeeField';
+      config = {
+        host: {{ config['IMGEE_HOST']|tojson }},
+        fieldId: {{ field.id|tojson }},
+        {%- if field.widget_type != 'modal' %}
+          widgetType: 'modal',
+        {%- endif %}
+      };
+      window.Hasgeek.initWidgets(fieldName, config);
     {%- elif field.type in ['UserSelectField', 'UserSelectMultiField'] %}
       {%- if config['LASTUSER_CLIENT_ID'] and current_auth.cookie and 'sessionid' in current_auth.cookie %}
-        Hasgeek.Forms.lastuserAutocomplete({
+        fieldName = 'UserSelectField';
+        config = {
           id: {{ field.id|tojson }},
           multiple: {{ field.multiple|tojson }},
           separator: {{ field.separator|tojson }},
           autocomplete_endpoint: {{ field.autocomplete_endpoint|tojson }},
-          getuser_endpoint: {{ field.getuser_endpoint|tojson }},
-          client_id: {{ config['LASTUSER_CLIENT_ID']|tojson }},
-          session_id: {{ current_auth.cookie['sessionid']|tojson }}
-        });
+          getuserEndpoint: {{ field.getuser_endpoint|tojson }},
+          clientId: {{ config['LASTUSER_CLIENT_ID']|tojson }},
+          sessionId: {{ current_auth.cookie['sessionid']|tojson }}
+        };
+        window.Hasgeek.initWidgets(fieldName, config);
       {%- else %}
-        Hasgeek.Forms.lastuserAutocomplete({
+        fieldName = 'UserSelectField';
+        config = {
           id: {{ field.id|tojson }},
           multiple: {{ field.multiple|tojson }},
           separator: {{ field.separator|tojson }},
-          autocomplete_endpoint: {{ field.autocomplete_endpoint|tojson }},
-          getuser_endpoint: {{ field.getuser_endpoint|tojson }}
-        });
+          autocompleteEndpoint: {{ field.autocomplete_endpoint|tojson }},
+          getuserEndpoint: {{ field.getuser_endpoint|tojson }}
+        };
+        window.Hasgeek.initWidgets(fieldName, config);
       {%- endif %}
     {%- elif field.type in ['GeonameSelectField', 'GeonameSelectMultiField'] %}
-      Hasgeek.Forms.geonameAutocomplete({{ ('#'+field.id)|tojson }}, {{ field.autocomplete_endpoint|tojson }}, {{ field.getname_endpoint|tojson }}, {{ field.separator|tojson }});
+      fieldName = 'GeonameSelectField';
+      config = {
+        id: ('#'+field.id)|tojson }},
+        autocompleteEndpoint: {{ field.autocomplete_endpoint|tojson }},
+        getuserEndpoint: {{ field.getname_endpoint|tojson }}, {{ field.separator|tojson }}
+      };
+      window.Hasgeek.initWidgets(fieldName, config);
     {%- elif field.type == 'CoordinatesField' -%}
-      {{ map_marker_script(field) }}
+      fieldName = 'CoordinatesField';
+      config = {
+        locationId: "{{ field.id }}_search",
+        mapId: "{{ field.id }}_map",
+        latitudeId: "{{ field.id }}_latitude",
+        longitudeId: "{{ field.id }}_longitude",
+        clearId: "{{ field.id }}_clear"
+      };
+      window.Hasgeek.initWidgets(fieldName, config);
     {%- endif -%}
   {%- endfor -%}
   {%- if script %}

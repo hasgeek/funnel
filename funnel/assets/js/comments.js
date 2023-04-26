@@ -1,8 +1,10 @@
 import Vue from 'vue/dist/vue.min';
+import toastr from 'toastr';
 import ScrollHelper from './utils/scrollhelper';
 import Form from './utils/formhelper';
 import codemirrorHelper from './utils/codemirror';
 import getTimeago from './utils/getTimeago';
+import Utils from './utils/helper';
 import { userAvatarUI, faSvg, shareDropdown } from './utils/vue_util';
 
 const Comments = {
@@ -56,7 +58,7 @@ const Comments = {
         };
       },
       methods: {
-        getInitials: window.Hasgeek.Utils.getInitials,
+        getInitials: Utils.getInitials,
         collapse(action) {
           this.hide = action;
         },
@@ -228,7 +230,7 @@ const Comments = {
               }
               if (responseData.comments) {
                 app.updateCommentsList(responseData.comments);
-                window.toastr.success(responseData.message);
+                toastr.success(responseData.message);
               }
               if (responseData.comment) {
                 app.scrollTo = `#c-${responseData.comment.uuid_b58}`;
@@ -264,7 +266,7 @@ const Comments = {
             window.Hasgeek.Config.refreshInterval
           );
         },
-        getInitials: window.Hasgeek.Utils.getInitials,
+        getInitials: Utils.getInitials,
       },
       mounted() {
         this.fetchCommentsList();

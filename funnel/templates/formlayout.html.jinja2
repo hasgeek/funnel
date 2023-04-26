@@ -21,17 +21,19 @@
 {% endblock serviceworker %}
 
 {% block footerscripts %}
-  <script src="{{ built_asset('autosave_form.js') }}" type="text/javascript"></script>
   <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
-  <script type="text/javascript">
-    $(function() {
-      var config = {
-        autosave: {%- if autosave %}true{%- else -%}false{%- endif %},
-        formId: '#{{ ref_id }}',
-        msgElemId: '#autosave-msg'
-      }
-      window.Hasgeek.autoSave(config);
-    });
-  </script>
+  {%- if autosave %}
+    <script src="{{ built_asset('autosave_form.js') }}" type="text/javascript"></script>
+    <script type="text/javascript">
+      $(function() {
+        var config = {
+          autosave: true,
+          formId: '#{{ ref_id }}',
+          msgElemId: '#autosave-msg'
+        }
+        window.Hasgeek.autoSave(config);
+      });
+    </script>
+  {%- endif %}
   {% block innerscripts %}{% endblock innerscripts %}
 {% endblock footerscripts %}

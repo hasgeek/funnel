@@ -21,7 +21,7 @@ const Updates = {
         };
       },
       methods: {
-        getInitials: window.Hasgeek.Utils.getInitials,
+        getInitials: Utils.getInitials,
         truncate(content, length) {
           if (!content) return '';
           const value = content.toString();

@@ -16,8 +16,8 @@ export const userAvatarUI = Vue.component('useravatar', {
     },
   },
   methods: {
-    getInitials: window.Hasgeek.Utils.getInitials,
-    getAvatarColour: window.Hasgeek.Utils.getAvatarColour,
+    getInitials: Utils.getInitials,
+    getAvatarColour: Utils.getAvatarColour,
   },
   computed: {
     imgsize() {

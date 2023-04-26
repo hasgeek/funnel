@@ -1,4 +1,5 @@
 import jsQR from 'jsqr';
+import toastr from 'toastr';
 import { RactiveApp } from './utils/ractive_util';
 
 const badgeScan = {
@@ -60,7 +61,7 @@ const badgeScan = {
           body: new URLSearchParams({
             csrf_token: csrfToken,
           }).toString(),
-        }).catch(window.toastr.error(window.Hasgeek.Config.errorMsg.networkError));
+        }).catch(toastr.error(window.Hasgeek.Config.errorMsg.networkError));
         if (response && response.ok) {
           const responseData = await response.json();
           if (responseData) {

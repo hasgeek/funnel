@@ -1,3 +1,4 @@
+import toastr from 'toastr';
 import codemirrorHelper from './utils/codemirror';
 import initEmbed from './utils/initembed';
 import Form from './utils/formhelper';
@@ -11,7 +12,7 @@ $(() => {
   ) {
     function updateCollaboratorsList(responseData, updateModal = true) {
       if (updateModal) $.modal.close();
-      if (responseData.message) window.toastr.success(responseData.message);
+      if (responseData.message) toastr.success(responseData.message);
       if (responseData.html) $('.js-collaborator-list').html(responseData.html);
       if (updateModal) $('.js-add-collaborator').trigger('click');
     }

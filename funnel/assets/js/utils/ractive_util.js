@@ -1,4 +1,5 @@
 import Ractive from 'ractive';
+import Utils from './helper';
 
 Ractive.DEBUG = false;
 
@@ -7,14 +8,14 @@ export const useravatar = Ractive.extend({
   data: {
     addprofilelink: true,
     size: 'medium',
-    getInitials: window.Hasgeek.Utils.getInitials,
+    getInitials: Utils.getInitials,
     imgurl() {
       return `${this.get('user').avatar}?size=${encodeURIComponent(
         window.Hasgeek.Config.userAvatarImgSize[this.get('size')]
       )}`;
     },
     getAvatarColour(name) {
-      return window.Hasgeek.Utils.getAvatarColour(name);
+      return Utils.getAvatarColour(name);
     },
   },
 });

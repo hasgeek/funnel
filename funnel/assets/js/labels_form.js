@@ -2,7 +2,8 @@ import 'jquery-ui';
 import 'jquery-ui-sortable-npm';
 import 'jquery-ui-touch-punch';
 import 'emojionearea';
-import Form from './utils/formhelper';
+import toastr from 'toastr';
+import { activateFormWidgets } from './utils/formWidgets';
 
 $(() => {
   window.Hasgeek.LabelsFormInit = function LabelsFormInit(formHtml) {
@@ -31,7 +32,7 @@ $(() => {
     $('#add-sublabel-form').click((e) => {
       e.preventDefault();
       $('#child-form').append(formHtml);
-      Form.activate_select2();
+      activateFormWidgets();
       initEmojiPicker();
       $('.js-required-field').removeClass('mui--hide');
       $('.js-required-field input').prop('checked', true);
@@ -48,7 +49,7 @@ $(() => {
       const optionCount = $('#child-form').find('.ui-draggable-box').length;
       if (optionCount === 1) {
         e.preventDefault();
-        window.toastr.error('Minimum 2 or more options are needed');
+        toastr.error('Minimum 2 or more options are needed');
         return false;
       }
       return true;

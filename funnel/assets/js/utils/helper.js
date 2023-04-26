@@ -1,4 +1,6 @@
 /* global gettext */
+import toastr from 'toastr';
+
 const Utils = {
   // convert array of objects into hashmap
   tohashMap(objectArray, key) {
@@ -340,8 +342,8 @@ const Utils = {
           const url = $(linkElem).find('.js-copy-url').first().text();
           if (navigator.clipboard) {
             navigator.clipboard.writeText(url).then(
-              () => window.toastr.success(gettext('Link copied')),
-              () => window.toastr.success(gettext('Could not copy link'))
+              () => toastr.success(gettext('Link copied')),
+              () => toastr.success(gettext('Could not copy link'))
             );
           } else {
             const selection = window.getSelection();
@@ -350,9 +352,9 @@ const Utils = {
             selection.removeAllRanges();
             selection.addRange(range);
             if (document.execCommand('copy')) {
-              window.toastr.success(gettext('Link copied'));
+              toastr.success(gettext('Link copied'));
             } else {
-              window.toastr.success(gettext('Could not copy link'));
+              toastr.success(gettext('Could not copy link'));
             }
             selection.removeAllRanges();
           }

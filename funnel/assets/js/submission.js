@@ -1,3 +1,4 @@
+import toastr from 'toastr';
 import Form from './utils/formhelper';
 import { Widgets } from './utils/formWidgets';
 import Utils from './utils/helper';
@@ -27,7 +28,7 @@ export const Submission = {
       const responseData = await response.json();
       if (responseData) {
         if (responseData.message) {
-          window.toastr.success(responseData.message);
+          toastr.success(responseData.message);
         }
         $('.js-subscribed, .js-unsubscribed').toggleClass('mui--hide');
         Form.updateFormNonce(responseData);

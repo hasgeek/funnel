@@ -1,3 +1,4 @@
+import toastr from 'toastr';
 import Form from './formhelper';
 
 const Spa = {
@@ -65,7 +66,7 @@ const Spa = {
   },
   handleError(error) {
     const errorMsg = Form.getFetchError(error);
-    window.toastr.error(errorMsg);
+    toastr.error(errorMsg);
   },
   async fetchPage(url, currentNavId, updateHistory) {
     const response = await fetch(url, {

@@ -1,6 +1,8 @@
 import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
+import toastr from 'toastr';
 import Form from './utils/formhelper';
+import Utils from './utils/helper';
 import { userAvatarUI, faSvg } from './utils/vue_util';
 
 const Membership = {
@@ -25,8 +27,8 @@ const Membership = {
           if (member.is_usher) count += 1;
           return count - 1;
         },
-        getInitials: window.Hasgeek.Utils.getInitials,
-        getAvatarColour: window.Hasgeek.Utils.getAvatarColour,
+        getInitials: Utils.getInitials,
+        getAvatarColour: Utils.getAvatarColour,
       },
     });
 
@@ -71,6 +73,7 @@ const Membership = {
               if (data) {
                 const vueFormHtml = data.form;
                 app.memberForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
+                app.errorMsg = '';
                 $('#member-form').modal('show');
               }
             } else {
@@ -86,7 +89,7 @@ const Membership = {
             if (responseData.memberships) {
               this.updateMembersList(responseData.memberships);
               this.onChange();
-              window.toastr.success(responseData.message);
+              toastr.success(responseData.message);
             }
           };
           const onError = (response) => {

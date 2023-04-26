@@ -1,4 +1,5 @@
 import Vue from 'vue/dist/vue.min';
+import toastr from 'toastr';
 import ScrollHelper from './utils/scrollhelper';
 import { faSvg } from './utils/vue_util';
 import Form from './utils/formhelper';
@@ -110,7 +111,7 @@ const Schedule = {
         },
         handleFetchError(error) {
           const errorMsg = Form.getFetchError(error);
-          window.toastr.error(errorMsg);
+          toastr.error(errorMsg);
         },
         async showSessionModal(activeSession) {
           const currentPage = `${this.pageDetails.url}/${activeSession.url_name_uuid_b58}`;

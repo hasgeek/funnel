@@ -1,3 +1,4 @@
+import toastr from 'toastr';
 import Form from './formhelper';
 
 export const Widgets = {
@@ -26,7 +27,7 @@ export const Widgets = {
             .then((response) => response.json())
             .then((responseData) => {
               if (responseData && responseData.message) {
-                window.toastr.success(responseData.message);
+                toastr.success(responseData.message);
               }
               if (callbckfn) {
                 callbckfn();
@@ -56,7 +57,7 @@ export const Widgets = {
     const onSuccess = () => {
       $(cfpStatusDiv).toggleClass('mui--hide');
     };
-    Form.activateToggleSwitch(checkboxId, onSuccess);
+    this.activateToggleSwitch(checkboxId, onSuccess);
   },
   activate_select2() {
     /* Upgrade to jquery 3.6 select2 autofocus isn't working. This is to fix that problem.
@@ -142,14 +143,14 @@ export const EnableAutocompleteWidgets = {
       multiple: options.multiple,
       minimumInputLength: 2,
       ajax: {
-        url: options.autocomplete_endpoint,
+        url: options.autocompleteEndpoint,
         dataType: 'jsonp',
         data(params) {
-          if ('client_id' in options) {
+          if ('clientId' in options) {
             return {
               q: params.term,
-              client_id: options.client_id,
-              session: options.session_id,
+              client_id: options.clientId,
+              session: options.sessionId,
             };
           }
           return {
@@ -172,7 +173,7 @@ export const EnableAutocompleteWidgets = {
       multiple: options.multiple,
       minimumInputLength: 2,
       ajax: {
-        url: options.autocomplete_endpoint,
+        url: options.autocompleteEndpoint,
         dataType: 'json',
         data(params, page) {
           return {
@@ -191,13 +192,13 @@ export const EnableAutocompleteWidgets = {
       },
     });
   },
-  geonameAutocomplete(selector, autocompleteEndpoint, getnameEndpoint) {
-    $(selector).select2({
+  geonameAutocomplete(options) {
+    $(options.selector).select2({
       placeholder: 'Search for a location',
       multiple: true,
       minimumInputLength: 2,
       ajax: {
-        url: autocompleteEndpoint,
+        url: options.autocompleteEndpoint,
         dataType: 'jsonp',
         data(params) {
           return {
@@ -220,26 +221,26 @@ export const EnableAutocompleteWidgets = {
     });
 
     // Setting label for Geoname ids
-    let val = $(selector).val();
+    let val = $(options.selector).val();
     if (val) {
       val = val.map((id) => {
         return `name=${id}`;
       });
       const qs = val.join('&');
-      $.ajax(`${getnameEndpoint}?${qs}`, {
+      $.ajax(`${options.getnameEndpoint}?${qs}`, {
         accepts: 'application/json',
         dataType: 'jsonp',
       }).done((data) => {
-        $(selector).empty();
+        $(options.selector).empty();
         const rdata = [];
         if (data.status === 'ok') {
           for (let i = 0; i < data.result.length; i += 1) {
-            $(selector).append(
+            $(options.selector).append(
               `<option value="${data.result[i].geonameid}" selected>${data.result[i].picker_title}</option>`
             );
             rdata.push(data.result[i].geonameid);
           }
-          $(selector).val(rdata).trigger('change');
+          $(options.selector).val(rdata).trigger('change');
         }
       });
     }
@@ -254,51 +255,51 @@ export class MapMarker {
 
   activate() {
     const self = this;
-    Form.preventSubmitOnEnter(this.field.location_id);
+    Form.preventSubmitOnEnter(this.field.locationId);
 
     // locationpicker.jquery.js
-    $(`#${this.field.map_id}`).locationpicker({
+    $(`#${this.field.mapId}`).locationpicker({
       location: self.getDefaultLocation(),
       radius: 0,
       zoom: 18,
       inputBinding: {
-        latitudeInput: $(`#${this.field.latitude_id}`),
-        longitudeInput: $(`#${this.field.longitude_id}`),
-        locationNameInput: $(`#${this.field.location_id}`),
+        latitudeInput: $(`#${this.field.latitudeId}`),
+        longitudeInput: $(`#${this.field.longitudeId}`),
+        locationNameInput: $(`#${this.field.locationId}`),
       },
       enableAutocomplete: true,
       onchanged() {
-        if ($(`#${self.field.location_id}`).val()) {
-          $(`#${self.field.map_id}`).removeClass('mui--hide');
+        if ($(`#${self.field.locationId}`).val()) {
+          $(`#${self.field.mapId}`).removeClass('mui--hide');
         }
       },
       onlocationnotfound() {},
       oninitialized() {
         // Locationpicker sets latitude and longitude field value to 0,
         // this is to empty the fields and hide the map
-        if (!$(`#${self.field.location_id}`).val()) {
-          $(`#${self.field.latitude_id}`).val('');
-          $(`#${self.field.longitude_id}`).val('');
-          $(`#${self.field.map_id}`).addClass('mui--hide');
+        if (!$(`#${self.field.locationId}`).val()) {
+          $(`#${self.field.latitudeId}`).val('');
+          $(`#${self.field.longitudeId}`).val('');
+          $(`#${self.field.mapId}`).addClass('mui--hide');
         }
       },
     });
 
     // On clicking clear, empty latitude, longitude, location fields and hide map
-    $(`#${this.field.clear_id}`).on('click', (event) => {
+    $(`#${this.field.clearId}`).on('click', (event) => {
       event.preventDefault();
-      $(`#${self.field.latitude_id}`).val('');
-      $(`#${self.field.longitude_id}`).val('');
-      $(`#${self.field.location_id}`).val('');
-      $(`#${self.field.map_id}`).addClass('mui--hide');
+      $(`#${self.field.latitudeId}`).val('');
+      $(`#${self.field.longitudeId}`).val('');
+      $(`#${self.field.locationId}`).val('');
+      $(`#${self.field.mapId}`).addClass('mui--hide');
     });
   }
 
   getDefaultLocation() {
     let latitude;
     let longitude;
-    latitude = $(`#${this.field.latitude_id}`).val();
-    longitude = $(`#${this.field.longitude_id}`).val();
+    latitude = $(`#${this.field.latitudeId}`).val();
+    longitude = $(`#${this.field.longitudeId}`).val();
     return { latitude, longitude };
   }
 }
