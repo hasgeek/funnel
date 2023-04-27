@@ -184,3 +184,7 @@ repos:
     hooks:
       - id: reformat-gherkin
         files: \.feature$
+  - repo: https://github.com/iamthefij/docker-pre-commit
+    rev: v3.0.1
+    hooks:
+      - id: docker-compose-check

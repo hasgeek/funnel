@@ -40,6 +40,43 @@ babeljs:
 
 babel: babelpy babeljs
 
+builds:
+	make build-3.7 & make build-3.11
+build-3.7:
+	docker buildx build -t hasgeek/funnel:python-3.7-node-18 --build-arg BASE_PYTHON_VERSION=3.7 .
+build-3.11:
+	docker buildx build -t hasgeek/funnel:python-3.11-node-18 --build-arg BASE_PYTHON_VERSION=3.11 .
+
+builders: builder-3.7 builder-3.11
+builders-publish: builder-3.7-publish & builder-3.11-publish
+
+builder-3.7:
+	docker buildx build -t hasgeek/funnel-builder:python-3.7-node-18 -f docker/images/builder.Dockerfile --build-arg BASE_PYTHON_VERSION=3.7 --progress=plain .
+builder-3.11:
+	docker buildx build -t hasgeek/funnel-builder:python-3.11-node-18 -f docker/images/builder.Dockerfile --build-arg BASE_PYTHON_VERSION=3.11 --progress=plain .
+builder-3.7-publish:
+	docker image push hasgeek/funnel-builder:python-3.7-node-18
+builder-3.11-publish:
+	docker image push hasgeek/funnel-builder:python-3.11-node-18
+
+build-test-base-3.7:
+	docker buildx build -t funnel-test-base:python-3.7-node-18 -f docker/images/test.Dockerfile --build-arg BASE_PYTHON_VERSION=3.7 --target=test-base --progress=plain .
+
+build-test-base-3.11:
+	docker buildx build -t funnel-test-base:python-3.11-node-18 -f docker/images/test.Dockerfile --build-arg BASE_PYTHON_VERSION=3.11 --target=test-base --progress=plain .
+
+ci-test-3.7:
+	docker image inspect funnel-test-base:python-3.7-node-18 --format "Found funnel-test-base:python-3.7-node-18" || make build-test-base-3.7
+	BASE_PYTHON_VERSION=3.7 DASH_PYTHON_VERSION=3-7 BASE_NODE_VERSION=18 \
+	BUILDKIT_PROGRESS=plain docker compose -f docker-compose-test.yml up --abort-on-container-exit --no-attach postgres --no-attach redis --force-recreate --no-log-prefix --remove-orphans \
+	&& docker compose -f docker-compose-test.yml down
+ci-test-3.11:
+	docker image inspect funnel-test-base:python-3.11-node-18 --format "Found funnel-test-base:python-3.11-node-18" || make build-test-base-3.11
+	BUILDKIT_PROGRESS=plain BASE_PYTHON_VERSION=3.11 DASH_PYTHON_VERSION=3-11 BASE_NODE_VERSION=18 \
+	docker compose -f docker-compose-test.yml up --abort-on-container-exit --no-attach postgres --no-attach redis --force-recreate --no-log-prefix --remove-orphans \
+	&& docker compose -f docker-compose-test.yml down
+
+
 deps-editable: DEPS = coaster baseframe
 deps-editable:
 	@if [ ! -d "build" ]; then mkdir build; fi;

@@ -6,9 +6,9 @@
 .pytest_cache
 .ropeproject
 .sass-cache
-.sass-cache
 .webassets-cache
 __pycache__
+.nox
 
 # MacOS file
 .DS_Store

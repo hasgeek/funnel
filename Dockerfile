@@ -2,9 +2,12 @@
 
 ARG BASE_PYTHON_VERSION=3.7
 ARG BASE_NODE_VERSION=18
+
 FROM hasgeek/funnel-builder:python-${BASE_PYTHON_VERSION}-node-${BASE_NODE_VERSION}
 USER funnel
 WORKDIR /home/funnel/app
+
+ENV PATH "$PATH:/home/funnel/.local/bin"
 
 COPY --chown=funnel:funnel Makefile Makefile
 COPY --chown=funnel:funnel package.json package.json
@@ -24,5 +27,4 @@ EOF
 COPY --chown=funnel:funnel . .
 RUN --mount=type=cache,target=/root/.npm \
     --mount=type=cache,target=/home/funnel/.npm,uid=1000,gid=1000 \
-    --mount=type=cache,target=/home/funnel/app/node_modules,uid=1000,gid=1000 \
-    --mount=type=cache,target=/home/funnel/app/funnel/static/.webassets-cache,uid=1000,gid=1000 npm run build
+    --mount=type=cache,target=/home/funnel/app/node_modules,uid=1000,gid=1000 npm run build

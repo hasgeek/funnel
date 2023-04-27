@@ -1,0 +1,75 @@
+name: funnel-test-${DASH_PYTHON_VERSION}-${BASE_NODE_VERSION}
+services:
+  funnel-test:
+    extends:
+      file: docker/compose/service-funnel.yml
+      service: funnel
+    image: funnel-test:python-${BASE_PYTHON_VERSION}-node-${BASE_NODE_VERSION}
+    container_name: funnel-test-${DASH_PYTHON_VERSION}-${BASE_NODE_VERSION}
+    build:
+      context: .
+      dockerfile: docker/images/test.Dockerfile
+      args:
+        - BASE_PYTHON_VERSION=${BASE_PYTHON_VERSION}
+        - BASE_NODE_VERSION=${BASE_NODE_VERSION}
+      target: funnel-test
+    # command: bash ../entrypoint.sh
+    entrypoint: ['pytest']
+    working_dir: /home/funnel/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    links:
+      - postgres
+      - redis
+    volumes:
+      - pip_cache:/home/funnel/.cache/pip:delegated
+      - ./docker/entrypoints/test.sh:/home/funnel/entrypoint.sh
+    environment:
+      - REDIS_HOST=redis
+      - POSTGRES_USER_HOST=postgres@postgres
+    tty: true
+  postgres:
+    image: postgres
+    restart: always
+    user: postgres
+    container_name: funnel-test-db-${DASH_PYTHON_VERSION}-${BASE_NODE_VERSION}
+    ports:
+      - 5432
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_USER=postgres
+    volumes:
+      - postgres_test:/var/lib/postgresql/data
+      - ./docker/initdb/test.sh:/docker-entrypoint-initdb.d/test.sh:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'psql funnel_testing']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis
+    container_name: funnel-test-redis-${DASH_PYTHON_VERSION}-${BASE_NODE_VERSION}
+    ports:
+      - 6379
+    restart: always
+    volumes:
+      - redis_test:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+
+x-tmpfs: &tmpfs
+  driver: local
+  driver_opts:
+    type: tmpfs
+    device: tmpfs
+    o: 'uid=999,gid=999' # uid:gid is 999:999 for both postgres and redis
+
+volumes:
+  pip_cache:
+  postgres_test:
+    <<: *tmpfs
+  redis_test:
+    <<: *tmpfs

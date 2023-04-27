@@ -18,6 +18,7 @@ apt-get install -yqq nodejs && npm install npm@latest -g
 # Uninstalling gcc, g++ and their deps saves around 200+ MB in the image size of this layer
 # But, commenting them out for now, since we are not able to compile uwsgi during pip install
 # apt-get remove -yqq gcc g++ curl
-# apt-get autoremove -yqq
+apt-get autoclean -yqq
+apt-get autoremove -yqq
 rm -rf /tmp/*
 EOF

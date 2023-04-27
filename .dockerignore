@@ -72,6 +72,9 @@ env/
 .vscode
 *.sublime-workspace
 
+# Versioning files
+.git
+
 # Local DBs
 dump.rdb
 test.db

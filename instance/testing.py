@@ -8,9 +8,11 @@ CACHE_TYPE = 'RedisCache'
 SECRET_KEYS = ['testkey']  # nosec
 LASTUSER_SECRET_KEYS = ['testkey']  # nosec
 SITE_TITLE = 'Hasgeek'
-SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@postgres:5432/funnel_testing'
+SQLALCHEMY_DATABASE_URI = (
+    f'postgresql://{environ.get("POSTGRES_USER_HOST", "localhost")}:5432/funnel_testing'
+)
 SQLALCHEMY_BINDS = {
-    'geoname': 'postgresql://postgres@postgres:5432/geoname_testing',
+    'geoname': f'postgresql://{environ.get("POSTGRES_USER_HOST", "localhost")}:5432/geoname_testing',
 }
 SERVER_NAME = 'funnel.test:3002'
 SHORTLINK_DOMAIN = 'f.test:3002'
@@ -24,7 +26,9 @@ BOXOFFICE_SERVER = 'https://boxoffice.hasgeek.com/api/1/'
 # Run RQ jobs inline in tests
 RQ_ASYNC = False
 # Use Redis db 9 for tests
-REDIS_URL = RQ_REDIS_URL = CACHE_REDIS_URL = 'redis://localhost:6379/9'
+REDIS_URL = (
+    RQ_REDIS_URL
+) = CACHE_REDIS_URL = f'redis://{environ.get("REDIS_HOST", "localhost")}:6379/9'
 
 UNSUBSCRIBE_DOMAIN = 'bye.test'
 #: Recaptcha for the registration form
