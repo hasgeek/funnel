@@ -1,9 +1,9 @@
 {% extends "notifications/layout_email.html.jinja2" -%}
-{%- from "notifications/macros_email.html.jinja2" import pinned_update, hero_image -%}
+{%- from "notifications/macros_email.html.jinja2" import pinned_update, hero_image, cta_button, body_footer -%}
 {%- block content -%}
 
   {# Hero image centered : BEGIN #}
-  {{ hero_image("view.url_for('static', filename='img/rsvp_yes_header.jpg', _external=true)") }}
+  {{ hero_image("https://images.hasgeek.com/embed/file/19acf7182396436781d3653a0914a2cf?size=320x240") }}
   {# Hero image centered : END #}
 
   {# Email content : BEGIN #}
@@ -17,45 +17,15 @@
     </td>
   </tr>
 
-  <tr>
-    <td>
-      {# Button : BEGIN #}
-      <div align="center">
-          <!--[if mso]>
-              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ view.rsvp.project.url_for(_external=true, **view.tracking_tags()) }}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="10%" strokecolor="#4d5763" fillcolor="#4d5763">
-              <w:anchorlock/>
-              <center style="color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:bold;">{% trans %}Project page{% endtrans %}</center>
-              </v:roundrect>
-          <![endif]-->
-          <!--[if !mso]> <!-->
-              <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0">
-                  <tr>
-                      <td class="button-td button-td-primary">
-                          <div>
-                              <a class="button-a button-a-primary" href="{{ view.rsvp.project.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Project page{% endtrans %}</a>
-                          </div>
-                      </td>
-                  </tr>
-              </table>
-          <!-- <![endif]-->
-      </div>
-      {#-- Button : END #}
-    </td>
-  </tr>
+  {# Button : BEGIN #}
+  {{ cta_button(view.rsvp.project.url_for(_external=true, **view.tracking_tags()), "Project page" )}}
+  {#-- Button : END #}
+
   {# Email content : END #}
 
-  {# Email body footerr : BEGIN #}
-  {%- if view %}
   {{ pinned_update(view, view.rsvp.project) }}
-  <tr>
-    <td class="line-separator"></td>
-  </tr>
-  <tr>
-      <td>
-          <p class="footer-text">{{ view.reason_email }} &bull; <b>Cancel Registration</b></p>
-      </td>
-  </tr>
-  {%- endif %}
+  {# Email body footerr : BEGIN #}
+  {{ body_footer("Cancel registration") }}
   {# Email body footerr : END #}
 
 {%- endblock content -%}
