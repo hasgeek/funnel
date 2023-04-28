@@ -2,13 +2,15 @@ import toastr from 'toastr';
 import codemirrorHelper from './utils/codemirror';
 import initEmbed from './utils/initembed';
 import Form from './utils/formhelper';
+import { Widgets } from './utils/formwidgets';
 import SortItem from './utils/sort';
 
 $(() => {
   window.Hasgeek.submissionFormInit = function formInit(
     sortUrl,
     formId,
-    markdownPreviewElem
+    markdownPreviewElem,
+    markdownPreviewApi
   ) {
     function updateCollaboratorsList(responseData, updateModal = true) {
       if (updateModal) $.modal.close();
@@ -18,7 +20,7 @@ $(() => {
     }
 
     async function updatePreview(view) {
-      const response = await fetch(window.Hasgeek.Config.markdownPreviewApi, {
+      const response = await fetch(markdownPreviewApi, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -141,7 +143,7 @@ $(() => {
         );
       });
 
-    Form.handleDelete('.js-remove-collaborator', updateCollaboratorsList);
+    Widgets.handleDelete('.js-remove-collaborator', updateCollaboratorsList);
 
     SortItem($('.js-collaborator-list'), 'collaborator-placeholder', sortUrl);
   };

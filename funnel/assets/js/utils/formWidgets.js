@@ -35,7 +35,8 @@ export const Widgets = {
               submitting = false;
             })
             .catch((error) => {
-              Form.handleAjaxError(error);
+              const errorMsg = Form.handleAjaxError(error);
+              toastr.error(errorMsg);
               checkbox.prop('checked', previousState);
               submitting = false;
             });
@@ -64,6 +65,38 @@ export const Widgets = {
       select2/select2#5993  */
     $(document).on('select2:open', () => {
       document.querySelector('.select2-search__field').focus();
+    });
+  },
+  handleDelete(elementClass, onSucessFn) {
+    $('body').on('click', elementClass, async function remove(event) {
+      event.preventDefault();
+      const url = $(this).attr('data-href');
+      const confirmationText = window.gettext('Are you sure you want to remove %s?', [
+        $(this).attr('title'),
+      ]);
+
+      /* eslint-disable no-alert */
+      if (window.confirm(confirmationText)) {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            csrf_token: $('meta[name="csrf-token"]').attr('content'),
+          }).toString(),
+        }).catch(() => {
+          toastr.error(window.Hasgeek.Config.errorMsg.networkError);
+        });
+        if (response && response.ok) {
+          const responseData = await response.json();
+          if (responseData) {
+            onSucessFn(responseData);
+          }
+        } else {
+          Form.handleAjaxError(response);
+        }
+      }
     });
   },
 };

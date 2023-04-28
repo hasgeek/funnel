@@ -1,6 +1,6 @@
 import TableSearch from './utils/tablesearch';
 import SortItem from './utils/sort';
-import { Widgets } from './utils/formWidgets';
+import { Widgets } from './utils/formwidgets';
 
 $(() => {
   window.Hasgeek.submissionsInit = function submissionsInit({

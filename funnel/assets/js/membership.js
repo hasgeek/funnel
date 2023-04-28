@@ -1,6 +1,7 @@
 import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
 import toastr from 'toastr';
+import { MOBILE_BREAKPOINT } from './constants';
 import Form from './utils/formhelper';
 import Utils from './utils/helper';
 import { userAvatarUI, faSvg } from './utils/vue_util';
@@ -67,7 +68,9 @@ const Membership = {
               headers: {
                 Accept: 'application/json',
               },
-            }).catch(Form.handleFetchNetworkError);
+            }).catch(() => {
+              toastr.error(window.Hasgeek.Config.errorMsg.networkError);
+            });
             if (response && response.ok) {
               const data = await response.json();
               if (data) {
@@ -129,7 +132,7 @@ const Membership = {
           this.showInfo = !this.showInfo;
         },
         onWindowResize() {
-          this.isMobile = $(window).width() < window.Hasgeek.Config.mobileBreakpoint;
+          this.isMobile = $(window).width() < MOBILE_BREAKPOINT;
         },
       },
       computed: {

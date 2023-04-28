@@ -1,5 +1,6 @@
 import Ractive from 'ractive';
 import Utils from './helper';
+import { USER_AVATAR_IMG_SIZE } from '../constants';
 
 Ractive.DEBUG = false;
 
@@ -11,7 +12,7 @@ export const useravatar = Ractive.extend({
     getInitials: Utils.getInitials,
     imgurl() {
       return `${this.get('user').avatar}?size=${encodeURIComponent(
-        window.Hasgeek.Config.userAvatarImgSize[this.get('size')]
+        USER_AVATAR_IMG_SIZE[this.get('size')]
       )}`;
     },
     getAvatarColour(name) {

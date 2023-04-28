@@ -1,6 +1,7 @@
 import jsQR from 'jsqr';
 import toastr from 'toastr';
 import { RactiveApp } from './utils/ractive_util';
+import { CLOSE_MODAL_TIMEOUT } from './constants';
 
 const badgeScan = {
   init({ checkinApiUrl, wrapperId, templateId, projectTitle, ticketEventTitle }) {
@@ -41,7 +42,7 @@ const badgeScan = {
         const closeModal = () => {
           window.setTimeout(() => {
             badgeScanComponent.closeModal();
-          }, window.Hasgeek.Config.closeModalTimeout);
+          }, CLOSE_MODAL_TIMEOUT);
         };
 
         const handleError = () => {
@@ -61,7 +62,9 @@ const badgeScan = {
           body: new URLSearchParams({
             csrf_token: csrfToken,
           }).toString(),
-        }).catch(toastr.error(window.Hasgeek.Config.errorMsg.networkError));
+        }).catch(() => {
+          toastr.error(window.Hasgeek.Config.errorMsg.networkError);
+        });
         if (response && response.ok) {
           const responseData = await response.json();
           if (responseData) {

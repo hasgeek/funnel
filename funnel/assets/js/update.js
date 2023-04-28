@@ -2,7 +2,7 @@ import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
 import Utils from './utils/helper';
 import ScrollHelper from './utils/scrollhelper';
-import getTimeago from './utils/getTimeago';
+import getTimeago from './utils/get_timeago';
 import { userAvatarUI, faSvg, shareDropdown } from './utils/vue_util';
 
 const Updates = {

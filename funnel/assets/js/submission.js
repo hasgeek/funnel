@@ -1,13 +1,13 @@
 import toastr from 'toastr';
 import Form from './utils/formhelper';
-import { Widgets } from './utils/formWidgets';
-import Utils from './utils/helper';
+import { Widgets } from './utils/formwidgets';
+import WebShare from './utils/webshare';
 import initEmbed from './utils/initembed';
 
 export const Submission = {
   init(toggleId) {
     if (toggleId) Widgets.activateToggleSwitch(toggleId);
-    Utils.enableWebShare();
+    WebShare.enableWebShare();
     $('.js-subscribe-btn').on('click', function subscribeComments(event) {
       event.preventDefault();
       const form = $(this).parents('form')[0];
@@ -23,7 +23,9 @@ export const Submission = {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams(new FormData(form)).toString(),
-    }).catch(Form.handleFetchNetworkError);
+    }).catch(() => {
+      toastr.error(window.Hasgeek.Config.errorMsg.networkError);
+    });
     if (response && response.ok) {
       const responseData = await response.json();
       if (responseData) {

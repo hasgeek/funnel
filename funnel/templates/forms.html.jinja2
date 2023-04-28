@@ -194,22 +194,28 @@
 
 {%- macro ajaxform(ref_id, request, force=false) %}
   <script type="text/javascript">
-    var formId = {{ formId|tojson }};
-    var isXHR = false;
-    {%- if force or request_wants.html_fragment %}
-      isXHR = true;
-    {%- endif %}
-    var alertBoxHtml = {{ alertbox('error', '') | tojson }};
-    window.Hasgeek.preventDoubleSubmit(formId, isXHR, alertBoxHtml);
+    $(function() {
+      var formId = {{ ref_id|tojson }};
+      var isXHR = false;
+      {%- if force or request_wants.html_fragment %}
+        isXHR = true;
+      {%- endif %}
+      var alertBoxHtml = {{ alertbox('error', '') | tojson }};
+      window.Hasgeek.preventDoubleSubmit(formId, isXHR, alertBoxHtml);
+    });
   </script>
 {%- endmacro %}
 
-{%- macro recaptcha(formId, formWrapperId='form-wrapper', ajax=false) %}
+{%- macro recaptcha(ref_id, formWrapperId='form-wrapper', ajax=false) %}
   <script type="text/javascript">
-    var formId = {{ formId|tojson }};
-    var formWrapperId = {{ formWrapperId|tojson }};
-    var alertBoxHtml = {{ alertbox('error', '') | tojson }};
-    window.Hasgeek.recaptcha(formId, formWrapperId, ajax, alertBoxHtml);
+    $(function() {
+      var formId = {{ ref_id|tojson }};
+      var formWrapperId = {{ formWrapperId|tojson }};
+      var alertBoxHtml = {{ alertbox('error', '') | tojson }};
+      var ajax = {{ ajax | tojson }};
+      console.log('window.Hasgeek.recaptcha', window.Hasgeek);
+      window.Hasgeek.recaptcha(formId, formWrapperId, ajax, alertBoxHtml);
+    });
   </script>
   <script type="text/javascript" src="https://www.google.com/recaptcha/api.js" async defer></script>
 {%- endmacro %}

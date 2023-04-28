@@ -28,7 +28,10 @@ const SaveProject = ({
     Form.updateFormNonce(response);
   };
 
-  const onError = (response) => Form.handleAjaxError(response);
+  const onError = (error) => {
+    const errorMsg = Form.handleAjaxError(error);
+    toastr.error(errorMsg);
+  };
 
   Form.handleFormSubmit(formId, postUrl, onSuccess, onError, config);
 };

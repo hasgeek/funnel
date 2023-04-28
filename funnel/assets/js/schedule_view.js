@@ -1,10 +1,11 @@
 import Vue from 'vue/dist/vue.min';
 import toastr from 'toastr';
+import { MOBILE_BREAKPOINT } from './constants';
 import ScrollHelper from './utils/scrollhelper';
 import { faSvg } from './utils/vue_util';
 import Form from './utils/formhelper';
 import Spa from './utils/spahelper';
-import Utils from './utils/helper';
+import WebShare from './utils/webshare';
 import initEmbed from './utils/initembed';
 
 const Schedule = {
@@ -39,7 +40,7 @@ const Schedule = {
       },
       methods: {
         toggleTab(room) {
-          if (this.width < window.Hasgeek.Config.mobileBreakpoint) {
+          if (this.width < MOBILE_BREAKPOINT) {
             this.activeTab = room;
           }
         },
@@ -56,10 +57,7 @@ const Schedule = {
           return new Date(parseInt(time, 10)).toLocaleTimeString('en-GB', options);
         },
         getColumnWidth(columnType) {
-          if (
-            columnType === 'header' ||
-            this.width >= window.Hasgeek.Config.mobileBreakpoint
-          ) {
+          if (columnType === 'header' || this.width >= MOBILE_BREAKPOINT) {
             if (this.view === 'calendar') {
               return this.timeSlotWidth / this.rowWidth;
             }
@@ -129,7 +127,9 @@ const Schedule = {
                 Accept: 'text/x.fragment+html',
                 'X-Requested-With': 'XMLHttpRequest',
               },
-            }).catch(Form.handleFetchNetworkError);
+            }).catch(() => {
+              toastr.error(window.Hasgeek.Config.errorMsg.networkError);
+            });
             if (response && response.ok) {
               const responseData = await response.text();
               this.openModal(responseData, currentPage, pageDetails);
@@ -145,7 +145,7 @@ const Schedule = {
             mutationList.forEach((mutation) => {
               if (mutation.type === 'childList') {
                 window.activateZoomPopup();
-                Utils.enableWebShare();
+                WebShare.enableWebShare();
                 initEmbed(`#session-modal .markdown`);
                 observer.disconnect();
               }
@@ -167,7 +167,7 @@ const Schedule = {
             this.width = $(window).width();
             this.height = $(window).height();
 
-            if (this.width < window.Hasgeek.Config.mobileBreakpoint) {
+            if (this.width < MOBILE_BREAKPOINT) {
               this.view = 'agenda';
             }
             this.getHeight();

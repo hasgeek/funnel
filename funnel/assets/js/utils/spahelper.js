@@ -74,7 +74,9 @@ const Spa = {
         Accept: 'application/x.html+json',
         'X-Requested-With': 'XMLHttpRequest',
       },
-    }).catch(Form.handleFetchNetworkError);
+    }).catch(() => {
+      toastr.error(window.Hasgeek.Config.errorMsg.networkError);
+    });
     if (response && response.ok) {
       const responseData = await response.json();
       if (responseData) {

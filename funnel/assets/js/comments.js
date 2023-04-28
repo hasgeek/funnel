@@ -1,9 +1,14 @@
 import Vue from 'vue/dist/vue.min';
 import toastr from 'toastr';
+import {
+  MOBILE_BREAKPOINT,
+  SAVE_EDITOR_CONTENT_TIMEOUT,
+  REFRESH_INTERVAL,
+} from './constants';
 import ScrollHelper from './utils/scrollhelper';
 import Form from './utils/formhelper';
 import codemirrorHelper from './utils/codemirror';
-import getTimeago from './utils/getTimeago';
+import getTimeago from './utils/get_timeago';
 import Utils from './utils/helper';
 import { userAvatarUI, faSvg, shareDropdown } from './utils/vue_util';
 
@@ -185,7 +190,7 @@ const Comments = {
               const editorView = codemirrorHelper(
                 textareaId,
                 copyTextAreaContent,
-                window.Hasgeek.Config.saveEditorContentTimeout
+                SAVE_EDITOR_CONTENT_TIMEOUT
               );
               editorView.focus();
             });
@@ -215,7 +220,7 @@ const Comments = {
               csrf_token: csrfToken,
             }).toString(),
           }).catch(() => {
-            parentApp.errorMsg = Form.handleFetchNetworkError();
+            parentApp.errorMsg = window.Hasgeek.Config.errorMsg.networkError;
           });
           if (response && response.ok) {
             const responseData = await response.json();
@@ -263,7 +268,7 @@ const Comments = {
         refreshCommentsTimer() {
           this.refreshTimer = window.setInterval(
             this.fetchCommentsList,
-            window.Hasgeek.Config.refreshInterval
+            REFRESH_INTERVAL
           );
         },
         getInitials: Utils.getInitials,
@@ -328,7 +333,7 @@ const Comments = {
           this.initialLoad = false;
         }
         if (this.scrollTo) {
-          if ($(window).width() < window.Hasgeek.Config.mobileBreakpoint) {
+          if ($(window).width() < MOBILE_BREAKPOINT) {
             ScrollHelper.animateScrollTo(
               $(this.scrollTo).offset().top - this.headerHeight
             );

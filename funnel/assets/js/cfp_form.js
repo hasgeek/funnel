@@ -1,4 +1,4 @@
-import { Widgets } from './utils/formWidgets';
+import { Widgets } from './utils/formwidgets';
 
 $(() => {
   window.Hasgeek.cfpInit = function submissionsInit({ openSubmission = '' }) {

@@ -1,4 +1,5 @@
 import 'htmx.org';
+import toastr from 'toastr';
 import Form from './utils/formhelper';
 
 window.Hasgeek.autoSave = ({ autosave, formId, msgElemId }) => {
@@ -32,7 +33,7 @@ window.Hasgeek.autoSave = ({ autosave, formId, msgElemId }) => {
         },
         body: new URLSearchParams(new FormData(form)).toString(),
       }).catch(() => {
-        Form.handleFetchNetworkError();
+        toastr.error(window.Hasgeek.Config.errorMsg.networkError);
       });
       if (response && response.ok) {
         const remoteData = await response.json();

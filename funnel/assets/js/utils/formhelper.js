@@ -1,5 +1,3 @@
-import toastr from 'toastr';
-
 const Form = {
   getElementId(htmlString) {
     return htmlString.match(/id="(.*?)"/)[1];
@@ -54,18 +52,12 @@ const Form = {
   handleAjaxError(errorResponse) {
     Form.updateFormNonce(errorResponse.responseJSON);
     const errorMsg = Form.getResponseError(errorResponse);
-    toastr.error(errorMsg);
     return errorMsg;
   },
   formErrorHandler(formId, errorResponse) {
     $(`#${formId}`).find('button[type="submit"]').attr('disabled', false);
     $(`#${formId}`).find('.loading').addClass('mui--hide');
     return Form.handleAjaxError(errorResponse);
-  },
-  handleFetchNetworkError() {
-    const errorMsg = window.Hasgeek.Config.errorMsg.networkError;
-    toastr.error(errorMsg);
-    return errorMsg;
   },
   getActionUrl(formId) {
     return $(`#${formId}`).attr('action');
@@ -74,68 +66,6 @@ const Form = {
     if (response && response.form_nonce) {
       $('input[name="form_nonce"]').val(response.form_nonce);
     }
-  },
-  handleModalForm() {
-    $('.js-modal-form').click(function addModalToWindowHash() {
-      window.location.hash = $(this).data('hash');
-    });
-
-    $('body').on($.modal.BEFORE_CLOSE, () => {
-      if (window.location.hash) {
-        window.history.replaceState(
-          '',
-          '',
-          window.location.pathname + window.location.search
-        );
-      }
-    });
-
-    window.addEventListener(
-      'hashchange',
-      () => {
-        if (window.location.hash === '') {
-          $.modal.close();
-        }
-      },
-      false
-    );
-
-    const hashId = window.location.hash.split('#')[1];
-    if (hashId) {
-      if ($(`a.js-modal-form[data-hash="${hashId}"]`).length) {
-        $(`a[data-hash="${hashId}"]`).click();
-      }
-    }
-  },
-  handleDelete(elementClass, onSucessFn) {
-    $('body').on('click', elementClass, async function remove(event) {
-      event.preventDefault();
-      const url = $(this).attr('data-href');
-      const confirmationText = window.gettext('Are you sure you want to remove %s?', [
-        $(this).attr('title'),
-      ]);
-
-      /* eslint-disable no-alert */
-      if (window.confirm(confirmationText)) {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: new URLSearchParams({
-            csrf_token: $('meta[name="csrf-token"]').attr('content'),
-          }).toString(),
-        }).catch(Form.handleFetchNetworkError);
-        if (response && response.ok) {
-          const responseData = await response.json();
-          if (responseData) {
-            onSucessFn(responseData);
-          }
-        } else {
-          Form.handleAjaxError(response);
-        }
-      }
-    });
   },
   preventSubmitOnEnter(id) {
     $(`#${id}`).on('keyup keypress', (e) => {

@@ -1,9 +1,10 @@
 /* global grecaptcha */
+
 import {
   activateFormWidgets,
   EnableAutocompleteWidgets,
   MapMarker,
-} from './utils/formWidgets';
+} from './utils/formwidgets';
 import Form from './utils/formhelper';
 
 window.Hasgeek.initWidgets = async function init(fieldName, config) {
@@ -43,6 +44,31 @@ window.Hasgeek.initWidgets = async function init(fieldName, config) {
   }
 };
 
+window.Hasgeek.preventDoubleSubmit = function (formId, isXHR, alertBoxHtml) {
+  if (isXHR) {
+    document.body.addEventListener('htmx:beforeSend', () => {
+      Form.preventDoubleSubmit(formId);
+    });
+    document.body.addEventListener('htmx:responseError', (event) => {
+      Form.showFormError(formId, event.detail.xhr, alertBoxHtml);
+    });
+  } else {
+    $(() => {
+      // Disable submit button when clicked. Prevent double click.
+      $(`#${formId}`).submit(function () {
+        if (
+          !$(this).data('parsley-validate') ||
+          ($(this).data('parsley-validate') && $(this).hasClass('parsley-valid'))
+        ) {
+          $(this).find('button[type="submit"]').prop('disabled', true);
+          $(this).find('input[type="submit"]').prop('disabled', true);
+          $(this).find('.loading').removeClass('mui--hide');
+        }
+      });
+    });
+  }
+};
+
 window.Hasgeek.recaptcha = function (formId, formWrapperId, ajax, alertBoxHtml) {
   if (ajax) {
     window.onInvisibleRecaptchaSubmit = function () {
@@ -73,31 +99,6 @@ window.Hasgeek.recaptcha = function (formId, formWrapperId, ajax, alertBoxHtml) 
         document.getElementById(formId).submit();
       }
     };
-  }
-};
-
-window.Hasgeek.preventDoubleSubmit = function (formId, isXHR, alertBoxHtml) {
-  if (isXHR) {
-    document.body.addEventListener('htmx:beforeSend', () => {
-      Form.preventDoubleSubmit(formId);
-    });
-    document.body.addEventListener('htmx:responseError', (event) => {
-      Form.showFormError(formId, event.detail.xhr, alertBoxHtml);
-    });
-  } else {
-    $(() => {
-      // Disable submit button when clicked. Prevent double click.
-      $(`#${formId}`).submit(function () {
-        if (
-          !$(this).data('parsley-validate') ||
-          ($(this).data('parsley-validate') && $(this).hasClass('parsley-valid'))
-        ) {
-          $(this).find('button[type="submit"]').prop('disabled', true);
-          $(this).find('input[type="submit"]').prop('disabled', true);
-          $(this).find('.loading').removeClass('mui--hide');
-        }
-      });
-    });
   }
 };
 
