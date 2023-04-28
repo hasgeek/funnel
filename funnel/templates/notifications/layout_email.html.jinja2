@@ -93,7 +93,6 @@
         a {
             text-decoration: none;
         }
-
         /* What it does: A work-around for email clients meddling in triggered links. */
         a[x-apple-data-detectors],  /* iOS */
         .unstyle-auto-detected-links a,
@@ -154,7 +153,7 @@
 	    .button-td,
 	    .button-a {
             border-radius: 4px;
-            background: #4d5763;
+            background-color: #4d5763;
 	        transition: all 100ms ease-in;
             font-family: sans-serif;
             font-size: 15px;
@@ -169,7 +168,7 @@
         }
 	    .button-td-primary:hover,
 	    .button-a-primary:hover {
-	        background: #1f2d3d !important;
+	        background-color: #1f2d3d !important;
 	        border-color: #1f2d3d !important;
 	    }
 
@@ -180,7 +179,6 @@
 	        .email-container p {
 	            font-size: 17px !important;
 	        }
-
 	    }
 
         p {
@@ -215,9 +213,9 @@
         }
         .email-container {
             display: block;
-            width: 100%;
             max-width: 600px;
-            margin: 0 20px;
+            padding: 0 20px;
+            margin: auto;
         }
         .body-content {
             margin: 0;
@@ -242,7 +240,6 @@
             border-spacing: 0;
             border-radius: 16px 16px 16px 16px;
             overflow: hidden;
-            background-image: linear-gradient(#ffffff, #ffffff)
         }
         tbody, .card-zeromargin {
             margin: 0;
@@ -308,6 +305,10 @@
             padding: 8px 0 0 !important;
             color: #4d5763;
         }
+        .footer-link {
+            padding: 0 !important;
+            color: #4d5763 !important;
+        }
         .unsubscribe {
             color: #4d5763;
             text-decoration: underline;"
@@ -341,7 +342,7 @@
             1. max-width for all clients except Desktop Windows Outlook, allowing the email to squish on narrow but never go wider than 600px.
             2. MSO tags for Desktop Windows Outlook enforce a 600px width.
         #}
-        <div class="email-container">
+        <div align="center" class="email-container">
             <!--[if mso]>
             <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600">
             <tr>
@@ -401,7 +402,7 @@
                                 1. max-width for all clients except Desktop Windows Outlook, allowing the email to squish on narrow but never go wider than 600px.
                                 2. MSO tags for Desktop Windows Outlook enforce a 600px width.
                             #}
-                            <div class="body-content card-bg" width="100% !important;">
+                            <div class="body-content card-bg" width="100%;">
                                 <!--[if mso]>
                                 <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600">
                                 <tr>

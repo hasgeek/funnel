@@ -1,12 +1,10 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
+{%- from "notifications/macros_email.html.jinja2" import hero_image, cta_button -%}
 {%- block content -%}
-    {# Hero Image Centered : BEGIN #}
-    <tr>
-        <td>
-            <img src="https://images.hasgeek.com/embed/file/c01f3868f2954af196ae3acd32529218?size=320x240" width="196px" height="" alt="alt_text" border="0" class="header-image g-img">
-        </td>
-    </tr>
-    {# Hero Image Centered : END #}
+
+    {# Hero image centered : BEGIN #}
+    {{ hero_image("https://images.hasgeek.com/embed/file/c01f3868f2954af196ae3acd32529218?size=196x163") }}
+    {# Hero image centered : END #}
 
     {# Email body : BEGIN #}
     <tr align="center">
@@ -18,25 +16,11 @@
         </td>
     </tr>
     <br>
-    <tr>
-        <td class="button-td button-td-primary">
-            {# Button : BEGIN #}
-            <div align="center">
-                <!--[if mso]>
-                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ view.project.url_for('crew', _external=true, **view.tracking_tags()) }}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="10%" strokecolor="#4d5763" fillcolor="#4d5763">
-                    <w:anchorlock/>
-                    <center style="color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:bold;">{% trans %}See all crew members{% endtrans %}</center>
-                    </v:roundrect>
-                <![endif]-->
-                <!--[if !mso]> <!-->
-                  <div>
-                      <a class="button-a button-a-primary" href="{{ view.project.url_for('crew', _external=true, **view.tracking_tags()) }}">{% trans %}See all crew members{% endtrans %}</a>
-                  </div>
-                <!-- <![endif]-->
-            </div>
-            {#-- Button : END #}
-        </td>
-    </tr>
+
+    {# Button : BEGIN #}
+    {{ cta_button(view.project.url_for('crew', _external=true, **view.tracking_tags()), "See all crew members" )}}
+    {# Button : END #}
+
     {# Email body : END #}
 
 {%- endblock content -%}

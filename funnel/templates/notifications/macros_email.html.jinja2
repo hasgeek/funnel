@@ -49,14 +49,14 @@
   </tr>
 {% endmacro %}
 
-{% macro body_footer(rsvp_linktext) %}
+{% macro body_footer(view, rsvp_linktext) %}
   {%- if view %}
   <tr>
     <td class="line-separator"></td>
   </tr>
   <tr>
       <td>
-          <p class="footer-text">{{ view.reason_email }} &bull; <a class="footer" href="{{ view.rsvp.project.url_for(_external=true, **view.tracking_tags()) }}"><b>{{ rsvp_linktext }}</b></a></p>
+          <p class="footer-text">{{ view.reason_email }} &bull; <a class="footer-link" href="{{ view.rsvp.project.url_for(_external=true, _anchor='register-modal', **view.tracking_tags()) }}"><b>{{ rsvp_linktext }}</b></a></p>
       </td>
   </tr>
   {%- endif %}

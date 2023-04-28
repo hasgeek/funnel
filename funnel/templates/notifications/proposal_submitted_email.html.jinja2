@@ -1,12 +1,10 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
+{%- from "notifications/macros_email.html.jinja2" import hero_image, cta_button -%}
 {%- block content -%}
-    {# Hero Image Centered : BEGIN #}
-    <tr>
-        <td>
-            <img src="https://images.hasgeek.com/embed/file/e7747f3f80b442d9bd8d068e6114f3a4?size=320x240" width="196px" height="" alt="alt_text" border="0" class="header-image g-img">
-        </td>
-    </tr>
-    {# Hero Image Centered : END #}
+
+    {# Hero image centered : BEGIN #}
+    {{ hero_image("https://images.hasgeek.com/embed/file/e7747f3f80b442d9bd8d068e6114f3a4?size=196x130") }}
+    {# Hero image centered : END #}
 
     {# Email body : BEGIN #}
     <tr align="center">
@@ -20,31 +18,11 @@
         </td>
     </tr>
     <br>
-    <tr>
-        <td>
-            {# Button : BEGIN #}
-            <div align="center">
-                <!--[if mso]>
-                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ proposal.url_for(_external=true, **view.tracking_tags()) }}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="10%" strokecolor="#4d5763" fillcolor="#4d5763">
-                    <w:anchorlock/>
-                    <center style="color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:bold;">{% trans %}View submission{% endtrans %}</center>
-                    </v:roundrect>
-                <![endif]-->
-                <!--[if !mso]> <!-->
-                    <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0">
-                        <tr>
-                            <td class="button-td button-td-primary">
-                                <div>
-                                    <a class="button-a button-a-primary" href="{{ proposal.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}View submission{% endtrans %}</a>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                <!-- <![endif]-->
-            </div>
-            {#-- Button : END #}
-        </td>
-    </tr>
+
+    {# Button : BEGIN #}
+    {{ cta_button(proposal.url_for(_external=true, **view.tracking_tags()), "View submission" )}}
+    {# Button : END #}
+
     {# Email body : END #}
 
 {%- endblock content -%}

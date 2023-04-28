@@ -3,7 +3,7 @@
 {%- block content -%}
 
   {# Hero image centered : BEGIN #}
-  {{ hero_image("https://images.hasgeek.com/embed/file/19acf7182396436781d3653a0914a2cf?size=320x240") }}
+  {{ hero_image("https://images.hasgeek.com/embed/file/19acf7182396436781d3653a0914a2cf?size=196x138") }}
   {# Hero image centered : END #}
 
   {# Email content : BEGIN #}
@@ -12,20 +12,21 @@
       <h1>{% trans %}Registration confirmed!{% endtrans %}</h1>
       <p>{% trans project=view.rsvp.project.joined_title %}You have registered for <b>{{ project }}</b>{% endtrans %}</p>
       {% with next_session_at=view.rsvp.project.next_session_at %}{% if next_session_at -%}
-        <p>{% trans date_and_time=next_session_at|datetime(view.datetime_format) %}The next session in the schedule starts {{ date_and_time }}{% endtrans %}</p><br>
+        <p class="card-zeromargin">{% trans date_and_time=next_session_at|datetime(view.datetime_format) %}The next session in the schedule starts {{ date_and_time }}{% endtrans %}</p><br>
       {%- endif %}{% endwith %}
     </td>
   </tr>
 
   {# Button : BEGIN #}
   {{ cta_button(view.rsvp.project.url_for(_external=true, **view.tracking_tags()), "Project page" )}}
-  {#-- Button : END #}
+  {# Button : END #}
 
   {# Email content : END #}
 
   {{ pinned_update(view, view.rsvp.project) }}
-  {# Email body footerr : BEGIN #}
-  {{ body_footer("Cancel registration") }}
-  {# Email body footerr : END #}
+
+  {# Email body footer : BEGIN #}
+  {{ body_footer(view, "Cancel registration") }}
+  {# Email body footer : END #}
 
 {%- endblock content -%}

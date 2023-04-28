@@ -1,12 +1,10 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
+{%- from "notifications/macros_email.html.jinja2" import hero_image, cta_button -%}
 {%- block content -%}
-    {# Hero Image Centered : BEGIN #}
-    <tr>
-        <td>
-            <img src="https://images.hasgeek.com/embed/file/85250bc8f2534f5cb4a5d3d4f97c2eb9?size=320x240" width="196px" height="" alt="alt_text" border="0" class="header-image g-img">
-        </td>
-    </tr>
-    {# Hero Image Centered : END #}
+
+    {# Hero image centered : BEGIN #}
+    {{ hero_image("https://images.hasgeek.com/embed/file/85250bc8f2534f5cb4a5d3d4f97c2eb9?size=196x190") }}
+    {# Hero image centered : END #}
 
     {# Email body : BEGIN #}
     <tr align="center">
@@ -22,25 +20,11 @@
         </td>
     </tr>
     <br>
-    <tr>
-        <td class="button-td button-td-primary">
-            {# Button : BEGIN #}
-            <div align="center">
-                <!--[if mso]>
-                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ view.update.url_for(_external=true, **view.tracking_tags()) }}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="10%" strokecolor="#4d5763" fillcolor="#4d5763">
-                    <w:anchorlock/>
-                    <center style="color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:bold;">{% trans %}Read on the website{% endtrans %}</center>
-                    </v:roundrect>
-                <![endif]-->
-                <!--[if !mso]> <!-->
-                  <div>
-                      <a class="button-a button-a-primary" href="{{ view.update.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Read on the website{% endtrans %}</a>
-                  </div>
-                <!-- <![endif]-->
-            </div>
-            {#-- Button : END #}
-        </td>
-    </tr>
+
+    {# Button : BEGIN #}
+    {{ cta_button(view.update.url_for(_external=true, **view.tracking_tags()), "Read on the website" )}}
+    {# Button : END #}
+
     {# Email body : END #}
 
 {%- endblock content -%}

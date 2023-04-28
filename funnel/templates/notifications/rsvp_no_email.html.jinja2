@@ -1,13 +1,10 @@
 {% extends "notifications/layout_email.html.jinja2" %}
+{%- from "notifications/macros_email.html.jinja2" import hero_image, cta_button, body_footer -%}
 {% block content -%}
 
-  {# Hero image centered : BEGIN #}
-  <tr>
-      <td align="center">
-          <img src="https://images.hasgeek.com/embed/file/9e785b5461b54e389c442d77c2abff71?size=196x134" width="196px" height="" alt="alt_text" border="0" align="center" class="header-image g-img">
-      </td>
-  </tr>
-  {# Hero image centered : END #}
+    {# Hero image centered : BEGIN #}
+    {{ hero_image("https://images.hasgeek.com/embed/file/9e785b5461b54e389c442d77c2abff71?size=196x134") }}
+    {# Hero image centered : END #}
 
     <tr align="center">
         <td class="text-container">
@@ -15,42 +12,13 @@
             <p>{% trans project=view.rsvp.project.joined_title %}You have cancelled your registration for <b>{{ project }}</b>.<br>If this was accidental, you can register again.{% endtrans %}</p><br>
         </td>
     </tr>
-    <tr>
-        <td>
-            {# Button : BEGIN #}
-            <div align="center">
-                <!--[if mso]>
-                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ view.rsvp.project.url_for(_external=true, **view.tracking_tags()) }}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="10%" strokecolor="#4d5763" fillcolor="#4d5763">
-                    <w:anchorlock/>
-                    <center style="color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:bold;">{% trans %}Project page{% endtrans %}</center>
-                    </v:roundrect>
-                <![endif]-->
-                <!--[if !mso]> <!-->
-                    <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0">
-                        <tr>
-                            <td class="button-td button-td-primary">
-                                <div>
-                                    <a class="button-a button-a-primary" href="{{ view.rsvp.project.url_for(_external=true, **view.tracking_tags()) }}">{% trans %}Project page{% endtrans %}</a>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                <!-- <![endif]-->
-            </div>
-            {#-- Button : END #}
-        </td>
-    </tr>
-    {# Email body footerr : BEGIN #}
-    {%- if view %}
-    <tr>
-        <td class="line-separator"></td>
-    </tr>
-    <tr>
-        <td>
-            <p class="footer-text">{{ view.reason_email }}</p>
-        </td>
-    </tr>
-    {%- endif %}
-    {# Email body footerr : END #}
+
+    {# Button : BEGIN #}
+    {{ cta_button(view.rsvp.project.url_for(_external=true, **view.tracking_tags()), "Project page" )}}
+    {# Button : END #}
+
+    {# Email body footer : BEGIN #}
+    {{ body_footer(view, "Register again") }}
+    {# Email body footer : END #}
 
 {%- endblock content %}
