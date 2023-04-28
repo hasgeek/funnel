@@ -15,6 +15,13 @@ valid_json = json.dumps(
             }'''
 )
 
+rsvp_excess_json = {
+    'choice': 'First choice',
+    'field_name': 'Twoflower',
+    'has_checked': 'on',
+    'company': 'MAANG',
+}
+
 
 def test_valid_boxoffice_form(app) -> None:
     with app.test_request_context(
@@ -51,4 +58,13 @@ def test_invalid_json_register_form(app) -> None:
         data={'form': 'This is an invalid json'},
     ):
         form = forms.ProjectRegisterForm(meta={'csrf': False})
+        assert form.validate() is False
+
+
+def test_excess_json_register_form(app) -> None:
+    with app.test_request_context(
+        method='POST',
+        data={'form': rsvp_excess_json},
+    ):
+        form = forms.ProjectRegisterForm(meta={'csrf': False}, schema=valid_json)
         assert form.validate() is False

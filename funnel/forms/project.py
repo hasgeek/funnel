@@ -16,6 +16,7 @@ from .helpers import (
     nullable_json_filters,
     nullable_strip_filters,
     validate_and_convert_json,
+    validate_keys_json,
     video_url_list_validator,
 )
 
@@ -361,5 +362,5 @@ class ProjectRegisterForm(forms.Form):
     form = forms.TextAreaField(
         __("Form"),
         filters=nullable_json_filters,
-        validators=[validate_and_convert_json],
+        validators=[validate_and_convert_json, validate_keys_json],
     )
