@@ -3,7 +3,7 @@ import SaveProject from './utils/bookmark';
 import Video from './utils/embedvideo';
 import Analytics from './utils/analytics';
 import Spa from './utils/spahelper';
-import { Widgets } from './utils/formwidgets';
+import { Widgets } from './utils/form_widgets';
 import initEmbed from './utils/initembed';
 import SortItem from './utils/sort';
 

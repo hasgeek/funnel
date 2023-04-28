@@ -3,7 +3,7 @@ import 'jquery-ui-sortable-npm';
 import 'jquery-ui-touch-punch';
 import 'emojionearea';
 import toastr from 'toastr';
-import { activateFormWidgets } from './utils/formwidgets';
+import { activateFormWidgets } from './utils/form_widgets';
 
 $(() => {
   window.Hasgeek.LabelsFormInit = function LabelsFormInit(formHtml) {

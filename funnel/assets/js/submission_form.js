@@ -2,7 +2,7 @@ import toastr from 'toastr';
 import codemirrorHelper from './utils/codemirror';
 import initEmbed from './utils/initembed';
 import Form from './utils/formhelper';
-import { Widgets } from './utils/formwidgets';
+import { Widgets } from './utils/form_widgets';
 import SortItem from './utils/sort';
 
 $(() => {

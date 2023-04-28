@@ -4,7 +4,7 @@ import {
   activateFormWidgets,
   EnableAutocompleteWidgets,
   MapMarker,
-} from './utils/formwidgets';
+} from './utils/form_widgets';
 import Form from './utils/formhelper';
 
 window.Hasgeek.initWidgets = async function init(fieldName, config) {

@@ -1,6 +1,6 @@
 import toastr from 'toastr';
 import Form from './utils/formhelper';
-import { Widgets } from './utils/formwidgets';
+import { Widgets } from './utils/form_widgets';
 import WebShare from './utils/webshare';
 import initEmbed from './utils/initembed';
 

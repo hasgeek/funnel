@@ -1,7 +1,7 @@
 import 'jquery-ui';
 import 'jquery-ui-sortable-npm';
 import 'jquery-ui-touch-punch';
-import { Widgets } from './utils/formwidgets';
+import { Widgets } from './utils/form_widgets';
 
 $(() => {
   function applySortable() {
