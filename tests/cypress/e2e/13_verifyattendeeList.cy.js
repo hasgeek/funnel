@@ -8,7 +8,7 @@ describe('Verify attendee list', () => {
 
     cy.get(`[data-cy-title="${project.title}"]`).first().click();
     cy.location('pathname').should('contain', project.url);
-    cy.get('button[data-cy="rsvp-menu"]:visible').click();
+    cy.get('a[data-cy="project-menu"]:visible').click();
     cy.wait(1000);
     cy.get('a[data-cy="see-responses"]:visible').click();
     cy.location('pathname').should('contain', 'rsvp_list');

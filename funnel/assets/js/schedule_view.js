@@ -7,6 +7,7 @@ import Form from './utils/formhelper';
 import Spa from './utils/spahelper';
 import WebShare from './utils/webshare';
 import initEmbed from './utils/initembed';
+import Modal from './utils/modalhelper';
 
 const Schedule = {
   renderScheduleTable() {
@@ -144,7 +145,7 @@ const Schedule = {
           const callback = (mutationList, observer) => {
             mutationList.forEach((mutation) => {
               if (mutation.type === 'childList') {
-                window.activateZoomPopup();
+                Modal.activateZoomPopup();
                 WebShare.enableWebShare();
                 initEmbed(`#session-modal .markdown`);
                 observer.disconnect();

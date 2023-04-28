@@ -35,6 +35,14 @@ function invert(color) {
   return rgbToHex(color);
 }
 
+function activate_widgets() {
+  /* Upgrade to jquery 3.6 select2 autofocus isn't working. This is to fix that problem.
+    select2/select2#5993  */
+  $(document).on('select2:open', function () {
+    document.querySelector('.select2-search__field').focus();
+  });
+}
+
 window.toastr.options = {
   positionClass: 'toast-bottom-right',
 };

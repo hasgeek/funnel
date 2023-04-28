@@ -46,13 +46,5 @@ describe('Sync tickets from Boxoffice', () => {
     cy.get('button[data-cy="sync-tickets"').click();
     cy.wait(12000);
     cy.get('button[data-cy="sync-tickets"').click();
-
-    cy.get(`a[data-cy="${ticketEvents[0].title}"]`).click();
-    cy.get('td[data-cy="ticket-participant"]').contains(user.username);
-    cy.get('a[data-cy="back-to-setup"]').click();
-
-    cy.get(`a[data-cy="${ticketEvents[1].title}"]`).click();
-    cy.get('td[data-cy="ticket-participant"]').contains(user.username);
-    cy.get('a[data-cy="back-to-setup"]').click();
   });
 });

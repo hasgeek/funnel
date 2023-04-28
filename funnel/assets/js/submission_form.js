@@ -127,9 +127,6 @@ $(() => {
     });
 
     const markdownId = $(`#${formId}`).find('textarea.markdown').attr('id');
-    if ($(`#${markdownId}`).next().hasClass('cm-editor')) {
-      $(`#${markdownId}`).next().remove();
-    }
     codemirrorHelper(markdownId, updatePreview);
 
     $('#title')
