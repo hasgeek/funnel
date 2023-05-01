@@ -332,7 +332,7 @@ class ProjectView(  # type: ignore[misc]
     def edit_slug(self) -> ReturnView:
         """Edit project's URL slug."""
         form = ProjectNameForm(obj=self.obj)
-        form.name.prefix = self.obj.profile.url_for(_external=True)
+        form.name.prefix = self.obj.account.url_for(_external=True)
         # Add a ``/`` separator if required
         if not form.name.prefix.endswith('/'):
             form.name.prefix += '/'
@@ -370,7 +370,7 @@ class ProjectView(  # type: ignore[misc]
             # WTForms will ignore formdata if it's None.
             form = ProjectForm(
                 obj=self.obj,
-                profile=self.obj.profile,
+                profile=self.obj.account,
                 model=Project,
                 formdata=initial_formdata,
             )
@@ -387,7 +387,7 @@ class ProjectView(  # type: ignore[misc]
             )
         if getbool(request.args.get('form.autosave')):
             return self.autosave_post()
-        form = ProjectForm(obj=self.obj, profile=self.obj.profile, model=Project)
+        form = ProjectForm(obj=self.obj, profile=self.obj.account, model=Project)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
@@ -412,7 +412,7 @@ class ProjectView(  # type: ignore[misc]
 
     @route('delete', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'profile_admin'})
+    @requires_roles({'account_admin'})
     def delete(self) -> ReturnView:
         """Delete project if safe to do so."""
         if not self.obj.is_safe_to_delete():
@@ -434,7 +434,7 @@ class ProjectView(  # type: ignore[misc]
             success=_(
                 "You have deleted project ‘{title}’ and all its associated content"
             ).format(title=self.obj.title),
-            next=self.obj.profile.url_for(),
+            next=self.obj.account.url_for(),
             cancel_url=self.obj.url_for(),
         )
 
@@ -443,7 +443,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_roles({'editor'})
     def update_banner(self) -> ReturnRenderWith:
         """Update project banner."""
-        form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
+        form = ProjectBannerForm(obj=self.obj, profile=self.obj.account)
         edit_logo_url = self.obj.url_for('edit_banner')
         delete_logo_url = self.obj.url_for('remove_banner')
         return {
@@ -457,7 +457,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_roles({'editor'})
     def edit_banner(self) -> ReturnView:
         """Edit project banner."""
-        form = ProjectBannerForm(obj=self.obj, profile=self.obj.profile)
+        form = ProjectBannerForm(obj=self.obj, profile=self.obj.account)
         if request.method == 'POST':
             if form.validate_on_submit():
                 form.populate_obj(self.obj)
@@ -745,7 +745,7 @@ class ProjectView(  # type: ignore[misc]
                 )
             return render_redirect(self.obj.url_for('admin'))
         return {
-            'profile': self.obj.profile.current_access(datasets=('primary',)),
+            'profile': self.obj.account.current_access(datasets=('primary',)),
             'project': self.obj.current_access(datasets=('without_parent', 'related')),
             'ticket_events': [_e.current_access() for _e in self.obj.ticket_events],
             'ticket_clients': [_c.current_access() for _c in self.obj.ticket_clients],

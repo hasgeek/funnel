@@ -28,10 +28,10 @@ from .. import app
 from ..forms import ModeratorReportForm
 from ..models import (
     MODERATOR_REPORT_TYPE,
+    Account,
     AuthClient,
     Comment,
     CommentModeratorReport,
-    User,
     UserSession,
     auth_client_user_session,
     db,
@@ -143,13 +143,13 @@ class SiteadminView(ClassView):
     @requires_siteadmin
     def dashboard(self) -> ReturnView:
         """Render siteadmin dashboard landing page."""
-        user_count = User.active_user_count()
+        user_count = Account.active_user_count()
         mau = (
             db.session.query(sa.func.count(sa.func.distinct(UserSession.user_id)))
             .select_from(UserSession)
-            .join(User, UserSession.user)
+            .join(Account, UserSession.user)
             .filter(
-                User.state.ACTIVE,
+                Account.state.ACTIVE,
                 UserSession.accessed_at > sa.func.utcnow() - timedelta(days=30),
             )
             .scalar()
@@ -165,11 +165,11 @@ class SiteadminView(ClassView):
         """Render CSV of registered users by month."""
         users_by_month = (
             db.session.query(
-                sa.func.date_trunc('month', User.created_at).label('month'),
+                sa.func.date_trunc('month', Account.created_at).label('month'),
                 sa.func.count().label('count'),
             )
-            .select_from(User)
-            .filter(User.state.ACTIVE)
+            .select_from(Account)
+            .filter(Account.state.ACTIVE)
             .group_by('month')
             .order_by('month')
         )
@@ -201,11 +201,11 @@ class SiteadminView(ClassView):
                     UserSession.user_id.label('user_id'),
                     auth_client_user_session.c.auth_client_id.label('auth_client_id'),
                 )
-                .select_from(UserSession, auth_client_user_session, User)
+                .select_from(UserSession, auth_client_user_session, Account)
                 .filter(
-                    UserSession.user_id == User.id,
+                    UserSession.user_id == Account.id,
                     auth_client_user_session.c.user_session_id == UserSession.id,
-                    User.state.ACTIVE,
+                    Account.state.ACTIVE,
                     auth_client_user_session.c.accessed_at
                     >= sa.func.utcnow() - sa.func.cast(interval, INTERVAL),
                 )
@@ -283,10 +283,10 @@ class SiteadminView(ClassView):
         )
         tsquery = sa.func.websearch_to_tsquery(query or '')
         if query:
-            comments = comments.join(User).filter(
+            comments = comments.join(Account).filter(
                 sa.or_(
                     Comment.search_vector.bool_op('@@')(tsquery),
-                    User.search_vector.bool_op('@@')(tsquery),
+                    Account.search_vector.bool_op('@@')(tsquery),
                 )
             )
 

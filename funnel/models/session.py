@@ -26,11 +26,11 @@ from . import (
     hybrid_property,
     sa,
 )
+from .account import User
 from .helpers import ImgeeType, add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .proposal import Proposal
-from .user import User
 from .venue import VenueRoom
 from .video_mixin import VideoMixin
 

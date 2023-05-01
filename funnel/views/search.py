@@ -28,6 +28,7 @@ from coaster.views import (
 
 from .. import app, executor
 from ..models import (
+    Account,
     Comment,
     Commentset,
     Organization,
@@ -204,8 +205,8 @@ class ProjectSearch(SearchInProfileProvider):
     def all_query(self, tsquery: sa.sql.functions.Function) -> Query:
         """Search entire site for projects."""
         return (
-            Project.query.join(Profile, Project.profile_id == Profile.id)
-            .outerjoin(User, Profile.user_id == User.id)
+            Project.query.join(Profile, Project.account_id == Profile.id)
+            .outerjoin(Account, Profile.user_id == Account.id)
             .outerjoin(Organization, Profile.organization_id == Organization.id)
             .filter(
                 Profile.state.ACTIVE_AND_PUBLIC,
@@ -217,10 +218,10 @@ class ProjectSearch(SearchInProfileProvider):
                     # 2. Project's account (for org) has a match in the org title
                     Organization.search_vector.bool_op('@@')(tsquery),
                     # 3. Project's account (for user) has a match in the user's name
-                    User.search_vector.bool_op('@@')(tsquery),
+                    Account.search_vector.bool_op('@@')(tsquery),
                 ),
             )
-            .options(sa.orm.joinedload(Project.profile))
+            .options(sa.orm.joinedload(Project.account))
             # TODO: Replace `start_at` in distance with a new `nearest_session_at`.
             # The existing `next_session_at` is not suitable as it is future-only.
             .order_by(
@@ -256,8 +257,8 @@ class ProjectSearch(SearchInProfileProvider):
         return (
             db.session.query(sa.func.count('*'))
             .select_from(Project)
-            .join(Profile, Project.profile_id == Profile.id)
-            .outerjoin(User, Profile.user_id == User.id)
+            .join(Profile, Project.account_id == Profile.id)
+            .outerjoin(Account, Profile.user_id == Account.id)
             .outerjoin(Organization, Profile.organization_id == Organization.id)
             .filter(
                 Profile.state.ACTIVE_AND_PUBLIC,
@@ -265,7 +266,7 @@ class ProjectSearch(SearchInProfileProvider):
                 sa.or_(
                     Project.search_vector.bool_op('@@')(tsquery),
                     Organization.search_vector.bool_op('@@')(tsquery),
-                    User.search_vector.bool_op('@@')(tsquery),
+                    Account.search_vector.bool_op('@@')(tsquery),
                 ),
             )
             .scalar()
@@ -277,7 +278,7 @@ class ProjectSearch(SearchInProfileProvider):
         """Search within an account for projects."""
         return (
             Project.query.filter(
-                Project.profile == profile,
+                Project.account == profile,
                 Project.state.PUBLISHED,
                 Project.search_vector.bool_op('@@')(tsquery),
             )
@@ -340,13 +341,13 @@ class ProfileSearch(SearchProvider):
         """Search for accounts."""
         return self.add_order_by(
             tsquery,
-            Profile.query.outerjoin(User)
+            Profile.query.outerjoin(Account)
             .outerjoin(Organization)
             .filter(
                 Profile.state.ACTIVE_AND_PUBLIC,
                 sa.or_(
                     Profile.search_vector.bool_op('@@')(tsquery),
-                    User.search_vector.bool_op('@@')(tsquery),
+                    Account.search_vector.bool_op('@@')(tsquery),
                     Organization.search_vector.bool_op('@@')(tsquery),
                 ),
             ),
@@ -374,7 +375,7 @@ class SessionSearch(SearchInProjectProvider):
         return self.add_order_by(
             tsquery,
             Session.query.join(Project, Session.project)
-            .join(Profile, Project.profile)
+            .join(Profile, Project.account)
             .outerjoin(Proposal, Session.proposal)
             .filter(
                 Profile.state.ACTIVE_AND_PUBLIC,
@@ -394,7 +395,7 @@ class SessionSearch(SearchInProjectProvider):
             .outerjoin(Proposal, Session.proposal)
             .filter(
                 Project.state.PUBLISHED,
-                Project.profile == profile,
+                Project.account == profile,
                 Session.scheduled,
                 Session.search_vector.bool_op('@@')(tsquery),
             ),
@@ -432,20 +433,20 @@ class ProposalSearch(SearchInProjectProvider):
         return self.add_order_by(
             tsquery,
             Proposal.query.join(Project, Proposal.project)
-            .join(Profile, Project.profile)
+            .join(Profile, Project.account)
             .filter(
                 Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Proposal.state.PUBLIC,
                 sa.or_(
                     Proposal.search_vector.bool_op('@@')(tsquery),
-                    ProposalMembership.query.join(User, ProposalMembership.user)
+                    ProposalMembership.query.join(Account, ProposalMembership.subject)
                     .filter(
                         ProposalMembership.proposal_id == Proposal.id,
-                        ProposalMembership.user_id == User.id,
+                        ProposalMembership.subject_id == Account.id,
                         ProposalMembership.is_uncredited.is_(False),
                         ProposalMembership.is_active,
-                        User.search_vector.bool_op('@@')(tsquery),
+                        Account.search_vector.bool_op('@@')(tsquery),
                     )
                     .exists()
                     .correlate(Proposal),
@@ -461,17 +462,17 @@ class ProposalSearch(SearchInProjectProvider):
             tsquery,
             Proposal.query.join(Project, Proposal.project).filter(
                 Project.state.PUBLISHED,
-                Project.profile == profile,
+                Project.account == profile,
                 Proposal.state.PUBLIC,
                 sa.or_(
                     Proposal.search_vector.bool_op('@@')(tsquery),
-                    ProposalMembership.query.join(User, ProposalMembership.user)
+                    ProposalMembership.query.join(Account, ProposalMembership.subject)
                     .filter(
                         ProposalMembership.proposal_id == Proposal.id,
-                        ProposalMembership.user_id == User.id,
+                        ProposalMembership.subject_id == Account.id,
                         ProposalMembership.is_uncredited.is_(False),
                         ProposalMembership.is_active,
-                        User.search_vector.bool_op('@@')(tsquery),
+                        Account.search_vector.bool_op('@@')(tsquery),
                     )
                     .exists()
                     .correlate(Proposal),
@@ -490,13 +491,13 @@ class ProposalSearch(SearchInProjectProvider):
                 Proposal.state.PUBLIC,
                 sa.or_(
                     Proposal.search_vector.bool_op('@@')(tsquery),
-                    ProposalMembership.query.join(User, ProposalMembership.user)
+                    ProposalMembership.query.join(Account, ProposalMembership.subject)
                     .filter(
                         ProposalMembership.proposal_id == Proposal.id,
-                        ProposalMembership.user_id == User.id,
+                        ProposalMembership.subject_id == Account.id,
                         ProposalMembership.is_uncredited.is_(False),
                         ProposalMembership.is_active,
-                        User.search_vector.bool_op('@@')(tsquery),
+                        Account.search_vector.bool_op('@@')(tsquery),
                     )
                     .exists()
                     .correlate(Proposal),
@@ -526,7 +527,7 @@ class UpdateSearch(SearchInProjectProvider):
         return self.add_order_by(
             tsquery,
             Update.query.join(Project, Update.project)
-            .join(Profile, Project.profile)
+            .join(Profile, Project.account)
             .filter(
                 Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
@@ -544,7 +545,7 @@ class UpdateSearch(SearchInProjectProvider):
             tsquery,
             Update.query.join(Project, Update.project).filter(
                 Project.state.PUBLISHED,
-                Project.profile == profile,
+                Project.account == profile,
                 Update.state.PUBLISHED,
                 Update.search_vector.bool_op('@@')(tsquery),
             ),
@@ -578,16 +579,16 @@ class CommentSearch(SearchInProjectProvider):
     def all_query(self, tsquery: sa.sql.functions.Function) -> Query:
         """Search for comments across the site."""
         return (
-            Comment.query.join(User, Comment.user_id == User.id)
+            Comment.query.join(Account, Comment.user_id == Account.id)
             .join(Project, Project.commentset_id == Comment.commentset_id)
-            .join(Profile, Project.profile_id == Profile.id)
+            .join(Profile, Project.account_id == Profile.id)
             .filter(
                 Profile.state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Comment.state.PUBLIC,
                 sa.or_(
                     Comment.search_vector.bool_op('@@')(tsquery),
-                    User.search_vector.bool_op('@@')(tsquery),
+                    Account.search_vector.bool_op('@@')(tsquery),
                 ),
             )
             .order_by(
@@ -595,17 +596,17 @@ class CommentSearch(SearchInProjectProvider):
                 sa.desc(Comment.created_at),
             )
             .union_all(
-                Comment.query.join(User, Comment.user_id == User.id)
+                Comment.query.join(Account, Comment.user_id == Account.id)
                 .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
                 .join(Project, Proposal.project_id == Project.id)
-                .join(Profile, Project.profile_id == Profile.id)
+                .join(Profile, Project.account_id == Profile.id)
                 .filter(
                     Profile.state.ACTIVE_AND_PUBLIC,
                     Project.state.PUBLISHED,
                     Comment.state.PUBLIC,
                     sa.or_(
                         Comment.search_vector.bool_op('@@')(tsquery),
-                        User.search_vector.bool_op('@@')(tsquery),
+                        Account.search_vector.bool_op('@@')(tsquery),
                     ),
                 )
                 .order_by(
@@ -621,15 +622,15 @@ class CommentSearch(SearchInProjectProvider):
     ) -> Query:
         """Search for comments within an account."""
         return (
-            Comment.query.join(User, Comment.user_id == User.id)
+            Comment.query.join(Account, Comment.user_id == Account.id)
             .join(Project, Project.commentset_id == Comment.commentset_id)
             .filter(
-                Project.profile == profile,
+                Project.account == profile,
                 Project.state.PUBLISHED,
                 Comment.state.PUBLIC,
                 sa.or_(
                     Comment.search_vector.bool_op('@@')(tsquery),
-                    User.search_vector.bool_op('@@')(tsquery),
+                    Account.search_vector.bool_op('@@')(tsquery),
                 ),
             )
             .order_by(
@@ -637,16 +638,16 @@ class CommentSearch(SearchInProjectProvider):
                 sa.desc(Comment.created_at),
             )
             .union_all(
-                Comment.query.join(User, Comment.user_id == User.id)
+                Comment.query.join(Account, Comment.user_id == Account.id)
                 .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
                 .join(Project, Proposal.project_id == Project.id)
                 .filter(
-                    Project.profile == profile,
+                    Project.account == profile,
                     Project.state.PUBLISHED,
                     Comment.state.PUBLIC,
                     sa.or_(
                         Comment.search_vector.bool_op('@@')(tsquery),
-                        User.search_vector.bool_op('@@')(tsquery),
+                        Account.search_vector.bool_op('@@')(tsquery),
                     ),
                 )
                 .order_by(
@@ -662,14 +663,14 @@ class CommentSearch(SearchInProjectProvider):
     ) -> Query:
         """Search for comments within a project."""
         return (
-            Comment.query.join(User, Comment.user_id == User.id)
+            Comment.query.join(Account, Comment.user_id == Account.id)
             .join(Commentset, Comment.commentset_id == Commentset.id)
             .filter(
                 Commentset.id == project.commentset_id,
                 Comment.state.PUBLIC,
                 sa.or_(
                     Comment.search_vector.bool_op('@@')(tsquery),
-                    User.search_vector.bool_op('@@')(tsquery),
+                    Account.search_vector.bool_op('@@')(tsquery),
                 ),
             )
             .order_by(
@@ -677,7 +678,7 @@ class CommentSearch(SearchInProjectProvider):
                 sa.desc(Comment.created_at),
             )
             .union_all(
-                Comment.query.join(User, Comment.user_id == User.id)
+                Comment.query.join(Account, Comment.user_id == Account.id)
                 .join(
                     Proposal,
                     sa.and_(
@@ -689,7 +690,7 @@ class CommentSearch(SearchInProjectProvider):
                     Comment.state.PUBLIC,
                     sa.or_(
                         Comment.search_vector.bool_op('@@')(tsquery),
-                        User.search_vector.bool_op('@@')(tsquery),
+                        Account.search_vector.bool_op('@@')(tsquery),
                     ),
                 )
                 .order_by(

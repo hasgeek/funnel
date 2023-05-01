@@ -176,7 +176,7 @@ class OrganizationMembershipView(
 
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'profile_owner'})
+    @requires_roles({'account_owner'})
     def edit(self) -> ReturnView:
         previous_membership = self.obj
         membership_form = OrganizationMembershipForm(obj=previous_membership)
@@ -243,7 +243,7 @@ class OrganizationMembershipView(
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_roles({'profile_owner'})
+    @requires_roles({'account_owner'})
     def delete(self) -> ReturnView:
         form = Form()
         if form.is_submitted():
@@ -316,7 +316,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
 
     @route('new', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'profile_admin'})
+    @requires_roles({'account_admin'})
     def new_member(self) -> ReturnView:
         membership_form = ProjectCrewMembershipForm()
 
@@ -412,7 +412,7 @@ class ProjectCrewMembershipMixin(ProfileCheckMixin):
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
+        self.profile = self.obj.project.account
         return super().after_loader()
 
 
@@ -474,7 +474,7 @@ class ProjectCrewMembershipView(
 ):
     @route('edit', methods=['GET', 'POST'])
     @requires_login
-    @requires_roles({'profile_admin'})
+    @requires_roles({'account_admin'})
     def edit(self) -> ReturnView:
         previous_membership = self.obj
         form = ProjectCrewMembershipForm(obj=previous_membership)
@@ -536,7 +536,7 @@ class ProjectCrewMembershipView(
 
     @route('delete', methods=['GET', 'POST'])
     @requires_sudo
-    @requires_roles({'profile_admin'})
+    @requires_roles({'account_admin'})
     def delete(self) -> ReturnView:
         form = Form()
         if request.method == 'POST':

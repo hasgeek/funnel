@@ -194,7 +194,7 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
+        self.profile = self.obj.project.account
         return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])

@@ -10,13 +10,13 @@ from werkzeug.utils import cached_property
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import Mapped, db, sa
+from .account import Account
 from .helpers import reopen
 from .membership_mixin import (
     FrozenAttributionMixin,
-    ImmutableProfileMembershipMixin,
+    ImmutableUserMembershipMixin,
     ReorderMembershipMixin,
 )
-from .profile import Profile
 from .project import Project
 from .proposal import Proposal
 
@@ -26,7 +26,7 @@ __all__ = ['ProjectSponsorMembership', 'ProposalSponsorMembership']
 class ProjectSponsorMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
-    ImmutableProfileMembershipMixin,
+    ImmutableUserMembershipMixin,
     db.Model,  # type: ignore[name-defined]
 ):
     """Sponsor of a project."""
@@ -152,10 +152,12 @@ class __Project:
     sponsors = DynamicAssociationProxy('sponsor_memberships', 'profile')
 
 
+# FIXME: Replace this with existing proposal collaborator as they're now both related
+# to "account"
 class ProposalSponsorMembership(  # type: ignore[misc]
     FrozenAttributionMixin,
     ReorderMembershipMixin,
-    ImmutableProfileMembershipMixin,
+    ImmutableUserMembershipMixin,
     db.Model,  # type: ignore[name-defined]
 ):
     """Sponsor of a proposal."""
@@ -276,14 +278,14 @@ class __Proposal:
     sponsors = DynamicAssociationProxy('sponsor_memberships', 'profile')
 
 
-@reopen(Profile)
-class __Profile:
+@reopen(Account)
+class __Account:
     # pylint: disable=invalid-unary-operand-type
     noninvite_project_sponsor_memberships = sa.orm.relationship(
         ProjectSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectSponsorMembership.profile_id == Profile.id,
+            ProjectSponsorMembership.subject_id == Account.id,
             ~ProjectSponsorMembership.is_invite,  # type: ignore[operator]
         ),
         order_by=ProjectSponsorMembership.granted_at.desc(),
@@ -294,7 +296,7 @@ class __Profile:
         ProjectSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectSponsorMembership.profile_id == Profile.id,
+            ProjectSponsorMembership.subject_id == Account.id,
             ProjectSponsorMembership.is_active,  # type: ignore[arg-type]
         ),
         order_by=ProjectSponsorMembership.granted_at.desc(),
@@ -306,7 +308,7 @@ class __Profile:
             ProjectSponsorMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
-                ProjectSponsorMembership.profile_id == Profile.id,
+                ProjectSponsorMembership.subject_id == Account.id,
                 ProjectSponsorMembership.is_invite,  # type: ignore[arg-type]
                 ProjectSponsorMembership.revoked_at.is_(None),  # type: ignore[has-type]
             ),
@@ -320,7 +322,7 @@ class __Profile:
         ProposalSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProposalSponsorMembership.profile_id == Profile.id,
+            ProposalSponsorMembership.subject_id == Account.id,
             ~ProposalSponsorMembership.is_invite,  # type: ignore[operator]
         ),
         order_by=ProposalSponsorMembership.granted_at.desc(),
@@ -331,7 +333,7 @@ class __Profile:
         ProposalSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProposalSponsorMembership.profile_id == Profile.id,
+            ProposalSponsorMembership.subject_id == Account.id,
             ProposalSponsorMembership.is_active,  # type: ignore[arg-type]
         ),
         order_by=ProposalSponsorMembership.granted_at.desc(),
@@ -343,7 +345,7 @@ class __Profile:
             ProposalSponsorMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
-                ProposalSponsorMembership.profile_id == Profile.id,
+                ProposalSponsorMembership.subject_id == Account.id,
                 ProposalSponsorMembership.is_invite,  # type: ignore[arg-type]
                 ProposalSponsorMembership.revoked_at.is_(  # type: ignore[has-type]
                     None
@@ -364,9 +366,9 @@ class __Profile:
     )
 
 
-Profile.__active_membership_attrs__.update(
+Account.__active_membership_attrs__.update(
     {'project_sponsor_memberships', 'proposal_sponsor_memberships'}
 )
-Profile.__noninvite_membership_attrs__.update(
+Account.__noninvite_membership_attrs__.update(
     {'noninvite_project_sponsor_memberships', 'noninvite_proposal_sponsor_memberships'}
 )

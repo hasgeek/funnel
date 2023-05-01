@@ -47,7 +47,7 @@ from ..models import (
     UserSession,
     db,
     getextid,
-    merge_users,
+    merge_accounts,
     sa,
 )
 from ..proxies import request_wants
@@ -614,7 +614,7 @@ def account_merge() -> ReturnView:
     form = forms.Form()
     if form.validate_on_submit():
         if 'merge' in request.form:
-            new_user = merge_users(current_auth.user, other_user)
+            new_user = merge_accounts(current_auth.user, other_user)
             if new_user is not None:
                 login_internal(
                     new_user,

@@ -13,12 +13,11 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from ..typing import OptionalMigratedTables
 from . import NoIdMixin, UuidMixin, db, sa
+from .account import Account, User, UserEmail, UserEmailClaim, UserPhone
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
-from .user import User, UserEmail, UserEmailClaim, UserPhone
 
 __all__ = ['Rsvp', 'RSVP_STATUS']
 
@@ -48,7 +47,7 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
         grants_via={None: project_child_role_map},
     )
     user_id = sa.Column(
-        sa.Integer, sa.ForeignKey('user.id'), nullable=False, primary_key=True
+        sa.Integer, sa.ForeignKey('account.id'), nullable=False, primary_key=True
     )
     user = with_roles(
         sa.orm.relationship(
@@ -146,19 +145,17 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
         return None, ''
 
     @classmethod
-    def migrate_user(  # type: ignore[return]
-        cls, old_user: User, new_user: User
-    ) -> OptionalMigratedTables:
-        """Migrate one user account to another when merging user accounts."""
-        project_ids = {rsvp.project_id for rsvp in new_user.rsvps}
-        for rsvp in old_user.rsvps:
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
+        """Migrate one account's data to another when merging accounts."""
+        project_ids = {rsvp.project_id for rsvp in new_account.rsvps}
+        for rsvp in old_account.rsvps:
             if rsvp.project_id not in project_ids:
-                rsvp.user = new_user
+                rsvp.user = new_account
             else:
                 current_app.logger.warning(
                     "Discarding conflicting RSVP (%s) from %r on %r",
                     rsvp._state,  # pylint: disable=protected-access
-                    old_user,
+                    old_account,
                     rsvp.project,
                 )
                 db.session.delete(rsvp)

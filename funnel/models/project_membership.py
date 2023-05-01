@@ -10,10 +10,10 @@ from werkzeug.utils import cached_property
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import Mapped, db, declared_attr, sa
+from .account import Account
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .project import Project
-from .user import User
 
 __all__ = ['ProjectCrewMembership', 'project_child_role_map']
 
@@ -27,10 +27,10 @@ project_child_role_map: Dict[str, str] = {
     'reader': 'reader',
 }
 
-#: ProjectCrewMembership maps project's `profile_admin` role to membership's `editor`
+#: ProjectCrewMembership maps project's `account_admin` role to membership's `editor`
 #: role in addition to the recurring role grant map
 project_membership_role_map: Dict[str, Union[str, Set[str]]] = {
-    'profile_admin': {'profile_admin', 'editor'}
+    'account_admin': {'account_admin', 'editor'}
 }
 project_membership_role_map.update(project_child_role_map)
 
@@ -238,8 +238,8 @@ class __Project:
 
 
 # Similarly for users (add as needs come up)
-@reopen(User)
-class __User:
+@reopen(Account)
+class __Account:
     # pylint: disable=invalid-unary-operand-type
 
     # This relationship is only useful to check if the user has ever been a crew member.
@@ -247,7 +247,7 @@ class __User:
     projects_as_crew_memberships = sa.orm.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
-        foreign_keys=[ProjectCrewMembership.user_id],
+        foreign_keys=[ProjectCrewMembership.subject_id],
         viewonly=True,
     )
 
@@ -256,7 +256,7 @@ class __User:
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectCrewMembership.user_id == User.id,
+            ProjectCrewMembership.subject_id == Account.id,
             ~ProjectCrewMembership.is_invite,  # type: ignore[operator]
         ),
         viewonly=True,
@@ -265,7 +265,7 @@ class __User:
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectCrewMembership.user_id == User.id,
+            ProjectCrewMembership.subject_id == Account.id,
             ProjectCrewMembership.is_active,  # type: ignore[arg-type]
         ),
         viewonly=True,
@@ -279,7 +279,7 @@ class __User:
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectCrewMembership.user_id == User.id,
+            ProjectCrewMembership.subject_id == Account.id,
             ProjectCrewMembership.is_active,  # type: ignore[arg-type]
             ProjectCrewMembership.is_editor.is_(True),
         ),
@@ -291,5 +291,5 @@ class __User:
     )
 
 
-User.__active_membership_attrs__.add('projects_as_crew_active_memberships')
-User.__noninvite_membership_attrs__.add('projects_as_crew_noninvite_memberships')
+Account.__active_membership_attrs__.add('projects_as_crew_active_memberships')
+Account.__noninvite_membership_attrs__.add('projects_as_crew_noninvite_memberships')

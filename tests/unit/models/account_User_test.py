@@ -305,7 +305,7 @@ def test_user_all(
     ) == {user_ridcully, user_dibbler}
 
     # Scenario 4: querying for a merged user buid
-    models.merge_users(user_death, user_rincewind)
+    models.merge_accounts(user_death, user_rincewind)
     db_session.commit()
 
     assert set(
@@ -410,7 +410,7 @@ def test_user_merged_user(db_session, user_death, user_rincewind) -> None:
     db_session.commit()
     assert user_death.state.ACTIVE
     assert user_rincewind.state.ACTIVE
-    models.merge_users(user_death, user_rincewind)
+    models.merge_accounts(user_death, user_rincewind)
     assert user_death.state.ACTIVE
     assert user_rincewind.state.MERGED
     assert {o.uuid for o in user_death.oldids} == {user_rincewind.uuid}
@@ -437,7 +437,7 @@ def test_user_get(db_session, user_twoflower, user_rincewind, user_death) -> Non
 
     # scenario 5: when user.state.MERGED
     assert user_rincewind.state.ACTIVE
-    models.merge_users(user_death, user_rincewind)
+    models.merge_accounts(user_death, user_rincewind)
     assert user_rincewind.state.MERGED
 
     lookup_by_buid = models.User.get(buid=user_rincewind.buid)

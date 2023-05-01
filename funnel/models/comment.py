@@ -23,8 +23,8 @@ from . import (
     hybrid_property,
     sa,
 )
+from .account import Account, DuckTypeAccount, User, deleted_account, removed_account
 from .helpers import MessageComposite, add_search_trigger, reopen
-from .user import DuckTypeUser, User, deleted_user, removed_user
 
 __all__ = ['Comment', 'Commentset']
 
@@ -163,7 +163,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     @with_roles(call={'all'})
     @state.requires(state.NOT_DISABLED)
     def post_comment(
-        self, actor: User, message: str, in_reply_to: Optional[Comment] = None
+        self, actor: Account, message: str, in_reply_to: Optional[Comment] = None
     ) -> Comment:
         """Post a comment."""
         # TODO: Add role check for non-OPEN states. Either:
@@ -195,7 +195,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'comment'
     __allow_unmapped__ = True
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=True)
     _user: Mapped[Optional[User]] = with_roles(
         sa.orm.relationship(
             User, backref=sa.orm.backref('comments', lazy='dynamic', cascade='all')
@@ -290,11 +290,11 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     with_roles(current_access_replies, read={'all'}, datasets={'related', 'json'})
 
     @hybrid_property
-    def user(self) -> Union[User, DuckTypeUser]:
+    def user(self) -> Union[User, DuckTypeAccount]:
         return (
-            deleted_user
+            deleted_account
             if self.state.DELETED
-            else removed_user
+            else removed_account
             if self.state.SPAM
             else self._user
         )

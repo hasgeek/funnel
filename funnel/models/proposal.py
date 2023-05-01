@@ -21,12 +21,12 @@ from . import (
     db,
     sa,
 )
+from .account import User
 from .comment import SET_TYPE, Commentset
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
 from .reorder_mixin import ReorderMixin
-from .user import User
 from .video_mixin import VideoMixin
 
 __all__ = ['PROPOSAL_STATE', 'Proposal', 'ProposalSuuidRedirect']
@@ -121,7 +121,7 @@ class Proposal(  # type: ignore[misc]
     __tablename__ = 'proposal'
     __allow_unmapped__ = True
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
     user = with_roles(
         sa.orm.relationship(
             User,

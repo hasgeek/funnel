@@ -202,33 +202,37 @@ class TestAuthToken(TestDatabaseFixture):
             auth_token.algorithm = "hmac-sha-2016"
 
 
-def test_authtoken_migrate_user_move(
+def test_authtoken_migrate_account_move(
     db_session, user_twoflower, user_rincewind, client_hex
 ) -> None:
     """Auth token is moved from old user to new user."""
     token = models.AuthToken(auth_client=client_hex, user=user_twoflower, scope='')
     db_session.add(token)
     assert token.user == user_twoflower
-    models.AuthToken.migrate_user(old_user=user_twoflower, new_user=user_rincewind)
+    models.AuthToken.migrate_account(
+        old_account=user_twoflower, new_account=user_rincewind
+    )
     assert token.user == user_rincewind
     all_tokens = models.AuthToken.query.all()
     assert all_tokens == [token]
 
 
-def test_authtoken_migrate_user_retain(
+def test_authtoken_migrate_account_retain(
     db_session, user_twoflower, user_rincewind, client_hex
 ) -> None:
     """Auth token is retained on new user when migrating from old user."""
     token = models.AuthToken(auth_client=client_hex, user=user_rincewind, scope='')
     db_session.add(token)
     assert token.user == user_rincewind
-    models.AuthToken.migrate_user(old_user=user_twoflower, new_user=user_rincewind)
+    models.AuthToken.migrate_account(
+        old_account=user_twoflower, new_account=user_rincewind
+    )
     assert token.user == user_rincewind
     all_tokens = models.AuthToken.query.all()
     assert all_tokens == [token]
 
 
-def test_authtoken_migrate_user_merge(
+def test_authtoken_migrate_account_merge(
     db_session, user_twoflower, user_rincewind, client_hex
 ) -> None:
     """Merging two auth token will merge their scope."""
@@ -236,7 +240,9 @@ def test_authtoken_migrate_user_merge(
     token2 = models.AuthToken(auth_client=client_hex, user=user_rincewind, scope='b c')
     db_session.add_all([token1, token2])
     db_session.commit()  # Commit required to make delete work
-    models.AuthToken.migrate_user(old_user=user_twoflower, new_user=user_rincewind)
+    models.AuthToken.migrate_account(
+        old_account=user_twoflower, new_account=user_rincewind
+    )
     all_tokens = models.AuthToken.query.all()
     assert len(all_tokens) == 1
     assert all_tokens[0].user == user_rincewind

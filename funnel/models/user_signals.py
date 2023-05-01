@@ -24,7 +24,7 @@ from ..signals import (
     model_userphone_edited,
     model_userphone_new,
 )
-from .user import Organization, Team, User, UserEmail, UserEmailClaim, UserPhone
+from .account import Organization, Team, User, UserEmail, UserEmailClaim, UserPhone
 
 
 @event.listens_for(User, 'after_insert')

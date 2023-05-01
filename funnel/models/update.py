@@ -18,19 +18,22 @@ from coaster.utils import LabeledEnum
 
 from . import (
     BaseScopedIdNameMixin,
-    Commentset,
     Mapped,
-    MarkdownCompositeDocument,
-    Project,
     TimestampMixin,
     TSVectorType,
-    User,
     UuidMixin,
     db,
     sa,
 )
-from .comment import SET_TYPE
-from .helpers import add_search_trigger, reopen, visual_field_delimiter
+from .account import Account, User
+from .comment import SET_TYPE, Commentset
+from .helpers import (
+    MarkdownCompositeDocument,
+    add_search_trigger,
+    reopen,
+    visual_field_delimiter,
+)
+from .project import Project
 
 __all__ = ['Update']
 
@@ -78,7 +81,7 @@ class Update(
     state = StateManager('_state', UPDATE_STATE, doc="Update state")
 
     user_id = sa.Column(
-        sa.Integer, sa.ForeignKey('user.id'), nullable=False, index=True
+        sa.Integer, sa.ForeignKey('account.id'), nullable=False, index=True
     )
     user = with_roles(
         sa.orm.relationship(
@@ -121,7 +124,7 @@ class Update(
     )
 
     published_by_id = sa.Column(
-        sa.Integer, sa.ForeignKey('user.id'), nullable=True, index=True
+        sa.Integer, sa.ForeignKey('account.id'), nullable=True, index=True
     )
     published_by: Mapped[Optional[User]] = with_roles(
         sa.orm.relationship(
@@ -136,7 +139,7 @@ class Update(
     )
 
     deleted_by_id = sa.Column(
-        sa.Integer, sa.ForeignKey('user.id'), nullable=True, index=True
+        sa.Integer, sa.ForeignKey('account.id'), nullable=True, index=True
     )
     deleted_by: Mapped[Optional[User]] = with_roles(
         sa.orm.relationship(
@@ -271,7 +274,7 @@ class Update(
 
     @with_roles(call={'editor'})
     @state.transition(state.DRAFT, state.PUBLISHED)
-    def publish(self, actor: User) -> bool:
+    def publish(self, actor: Account) -> bool:
         first_publishing = False
         self.published_by = actor
         if self.published_at is None:
@@ -292,7 +295,7 @@ class Update(
 
     @with_roles(call={'creator', 'editor'})
     @state.transition(None, state.DELETED)
-    def delete(self, actor: User) -> None:
+    def delete(self, actor: Account) -> None:
         if self.state.UNPUBLISHED:
             # If it was never published, hard delete it
             db.session.delete(self)

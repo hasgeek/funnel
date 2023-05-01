@@ -49,7 +49,7 @@ __all__ = [
     'add_search_trigger',
     'visual_field_delimiter',
     'valid_name',
-    'valid_username',
+    'valid_account_name',
     'quote_autocomplete_like',
     'quote_autocomplete_tsquery',
     'ImgeeFurl',
@@ -197,7 +197,7 @@ def check_password_strength(
 
 # re.IGNORECASE needs re.ASCII because of a quirk in the characters it matches.
 # https://docs.python.org/3/library/re.html#re.I
-_username_valid_re = re.compile('^[a-z0-9][a-z0-9_]*$', re.I | re.A)
+_account_name_valid_re = re.compile('^[a-z0-9][a-z0-9_]*$', re.I | re.A)
 _name_valid_re = re.compile('^[a-z0-9]([a-z0-9-]*[a-z0-9])?$', re.A)
 
 
@@ -320,13 +320,13 @@ def reopen(cls: ReopenedType) -> Callable[[TempType], ReopenedType]:
     return decorator
 
 
-def valid_username(candidate: str) -> bool:
+def valid_account_name(candidate: str) -> bool:
     """
     Check if a username is valid.
 
     Letters, numbers and underscores only.
     """
-    return _username_valid_re.search(candidate) is not None
+    return _account_name_valid_re.search(candidate) is not None
 
 
 def valid_name(candidate: str) -> bool:

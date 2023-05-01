@@ -58,7 +58,7 @@ class ProjectViewMixin(ProfileCheckMixin):
 
     def loader(self, profile, project, session=None) -> Union[Project, ProjectRedirect]:
         obj = (
-            Project.query.join(Profile, Project.profile_id == Profile.id)
+            Project.query.join(Profile, Project.account_id == Profile.id)
             .filter(Profile.name_is(profile), Project.name == project)
             .first()
         )
@@ -84,7 +84,7 @@ class ProjectViewMixin(ProfileCheckMixin):
                     302 if request.method == 'GET' else 303,
                 )
             abort(410)  # Project has been deleted
-        self.profile = self.obj.profile
+        self.profile = self.obj.account
         return super().after_loader()
 
     @property
@@ -129,7 +129,7 @@ class SessionViewMixin(ProfileCheckMixin):
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
+        self.profile = self.obj.project.account
         return super().after_loader()
 
     @property
@@ -157,7 +157,7 @@ class VenueViewMixin(ProfileCheckMixin):
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
+        self.profile = self.obj.project.account
         return super().after_loader()
 
 
@@ -186,7 +186,7 @@ class VenueRoomViewMixin(ProfileCheckMixin):
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.venue.project.profile
+        self.profile = self.obj.venue.project.account
         return super().after_loader()
 
 
@@ -212,7 +212,7 @@ class TicketEventViewMixin(ProfileCheckMixin):
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
+        self.profile = self.obj.project.account
         return super().after_loader()
 
 

@@ -6,19 +6,18 @@ from typing import Iterable, Optional
 
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
-from ..typing import OptionalMigratedTables
 from . import Mapped, NoIdMixin, db, sa
+from .account import Account, User
 from .helpers import reopen
 from .project import Project
 from .session import Session
-from .user import User
 
 
 class SavedProject(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: User who saved this project
     user_id = sa.Column(
         sa.Integer,
-        sa.ForeignKey('user.id', ondelete='CASCADE'),
+        sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
     )
@@ -54,14 +53,12 @@ class SavedProject(NoIdMixin, db.Model):  # type: ignore[name-defined]
         return roles
 
     @classmethod
-    def migrate_user(  # type: ignore[return]
-        cls, old_user: User, new_user: User
-    ) -> OptionalMigratedTables:
-        """Migrate one user account to another when merging user accounts."""
-        project_ids = {sp.project_id for sp in new_user.saved_projects}
-        for sp in old_user.saved_projects:
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
+        """Migrate one account's data to another when merging accounts."""
+        project_ids = {sp.project_id for sp in new_account.saved_projects}
+        for sp in old_account.saved_projects:
             if sp.project_id not in project_ids:
-                sp.user = new_user
+                sp.user = new_account
             else:
                 db.session.delete(sp)
 
@@ -70,7 +67,7 @@ class SavedSession(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: User who saved this session
     user_id = sa.Column(
         sa.Integer,
-        sa.ForeignKey('user.id', ondelete='CASCADE'),
+        sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
     )
@@ -106,22 +103,20 @@ class SavedSession(NoIdMixin, db.Model):  # type: ignore[name-defined]
         return roles
 
     @classmethod
-    def migrate_user(  # type: ignore[return]
-        cls, old_user: User, new_user: User
-    ) -> OptionalMigratedTables:
-        """Migrate one user account to another when merging user accounts."""
-        project_ids = {ss.project_id for ss in new_user.saved_sessions}
-        for ss in old_user.saved_sessions:
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
+        """Migrate one account's data to another when merging accounts."""
+        project_ids = {ss.project_id for ss in new_account.saved_sessions}
+        for ss in old_account.saved_sessions:
             if ss.project_id not in project_ids:
-                ss.user = new_user
+                ss.user = new_account
             else:
                 # TODO: `if ss.description`, don't discard, but add it to existing's
                 # description
                 db.session.delete(ss)
 
 
-@reopen(User)
-class __User:
+@reopen(Account)
+class __Account:
     def saved_sessions_in(self, project):
         return self.saved_sessions.join(Session).filter(Session.project == project)
 

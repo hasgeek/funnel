@@ -8,7 +8,8 @@ from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 from werkzeug.utils import cached_property
 
 from ..typing import Mapped
-from . import User, db, declared_attr, sa
+from . import db, declared_attr, sa
+from .account import Account
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 
@@ -117,14 +118,14 @@ class SiteMembership(
         return roles
 
 
-@reopen(User)
-class __User:
+@reopen(Account)
+class __Account:
     # Singular, as only one can be active
     active_site_membership = sa.orm.relationship(
         SiteMembership,
         lazy='select',
         primaryjoin=sa.and_(
-            SiteMembership.user_id == User.id,  # type: ignore[has-type]
+            SiteMembership.subject_id == Account.id,  # type: ignore[has-type]
             SiteMembership.is_active,  # type: ignore[arg-type]
         ),
         viewonly=True,

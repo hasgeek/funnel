@@ -5,12 +5,12 @@ import pytest
 from funnel import models
 
 
-def test_merge_users_older_newer(db_session, user_death, user_rincewind) -> None:
+def test_merge_accounts_older_newer(db_session, user_death, user_rincewind) -> None:
     """Test to verify merger of user accounts and return new user (older first)."""
     # Scenario 1: if first user's created_at date is older than second user's
     # created_at
     db_session.commit()
-    merged = models.merge_users(user_death, user_rincewind)
+    merged = models.merge_accounts(user_death, user_rincewind)
     assert merged == user_death
     assert isinstance(merged, models.User)
     # because the logic is to merge into older account
@@ -18,12 +18,12 @@ def test_merge_users_older_newer(db_session, user_death, user_rincewind) -> None
     assert user_rincewind.state.MERGED
 
 
-def test_merge_users_newer_older(db_session, user_death, user_rincewind) -> None:
+def test_merge_accounts_newer_older(db_session, user_death, user_rincewind) -> None:
     """Test to verify merger of user accounts and return new user (newer first)."""
     # Scenario 2: if second user's created_at date is older than first user's
     # created_at
     db_session.commit()
-    merged = models.merge_users(user_rincewind, user_death)
+    merged = models.merge_accounts(user_rincewind, user_death)
     assert merged == user_death
     assert isinstance(merged, models.User)
     # because the logic is to merge into older account

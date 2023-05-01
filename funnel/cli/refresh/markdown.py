@@ -78,7 +78,7 @@ class MarkdownModel:
 
 
 MarkdownModel.register(models.Comment, {'_message'})
-MarkdownModel.register(models.Profile, {'description'})
+MarkdownModel.register(models.Account, {'description'})
 MarkdownModel.register(models.Project, {'description', 'instructions'})
 MarkdownModel.register(models.Proposal, {'body'})
 MarkdownModel.register(models.Session, {'description'})

@@ -22,7 +22,7 @@ def org_uu_sponsorship(db_session, user_vetinari, org_uu, project_expo2010):
 @pytest.fixture()
 def user_vetinari_site_editor(db_session, user_vetinari):
     site_editor = models.SiteMembership(
-        user=user_vetinari, granted_by=user_vetinari, is_site_editor=True
+        subject=user_vetinari, granted_by=user_vetinari, is_site_editor=True
     )
     db_session.add(site_editor)
     db_session.commit()
@@ -32,7 +32,7 @@ def user_vetinari_site_editor(db_session, user_vetinari):
 @pytest.fixture()
 def user_twoflower_not_site_editor(db_session, user_twoflower):
     not_site_editor = models.SiteMembership(
-        user=user_twoflower, granted_by=user_twoflower, is_comment_moderator=True
+        subject=user_twoflower, granted_by=user_twoflower, is_comment_moderator=True
     )
     db_session.add(not_site_editor)
     db_session.commit()

@@ -44,7 +44,7 @@ TimestampMixin.__with_timezone__ = True
 
 # pylint: disable=wrong-import-position
 from .helpers import *  # isort:skip
-from .user import *  # isort:skip
+from .account import *  # isort:skip
 from .user_signals import *  # isort:skip
 from .user_session import *  # isort:skip
 from .email_address import *  # isort:skip

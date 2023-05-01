@@ -128,7 +128,7 @@ def test_merge_without_notifications(db_session, fixtures) -> None:
     """Merge without any notifications works."""
     assert models.Notification.query.count() == 0
     assert models.UserNotification.query.count() == 0
-    merged = models.merge_users(fixtures.user1, fixtures.user2)
+    merged = models.merge_accounts(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
     assert models.Notification.query.count() == 0
@@ -141,7 +141,7 @@ def test_merge_with_user1_notifications(
     """Merge without only user1 notifications works."""
     assert models.Notification.query.count() == 1
     assert models.UserNotification.query.count() == 1
-    merged = models.merge_users(fixtures.user1, fixtures.user2)
+    merged = models.merge_accounts(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
     assert models.Notification.query.count() == 1
@@ -157,7 +157,7 @@ def test_merge_with_user2_notifications(
     assert models.UserNotification.query.count() == 1
     new_notification = models.UserNotification.query.one()
     assert new_notification.user == fixtures.user2
-    merged = models.merge_users(fixtures.user1, fixtures.user2)
+    merged = models.merge_accounts(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
     assert models.Notification.query.count() == 1
@@ -175,7 +175,7 @@ def test_merge_with_dupe_notifications(
     """Merge without dupe notifications gets one deleted."""
     assert models.Notification.query.count() == 1
     assert models.UserNotification.query.count() == 2
-    merged = models.merge_users(fixtures.user1, fixtures.user2)
+    merged = models.merge_accounts(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
     assert models.Notification.query.count() == 1
@@ -192,7 +192,7 @@ def test_merge_with_user1_preferences(
 ) -> None:
     """When preferences are only on the older user's account, nothing changes."""
     assert models.NotificationPreferences.query.count() == 2
-    merged = models.merge_users(fixtures.user1, fixtures.user2)
+    merged = models.merge_accounts(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
     assert models.NotificationPreferences.query.count() == 2
@@ -205,7 +205,7 @@ def test_merge_with_user2_preferences(
 ) -> None:
     """When preferences are only on the newer user's account, they are transferred."""
     assert models.NotificationPreferences.query.count() == 2
-    merged = models.merge_users(fixtures.user1, fixtures.user2)
+    merged = models.merge_accounts(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
     assert models.NotificationPreferences.query.count() == 2
@@ -223,7 +223,7 @@ def test_merge_with_both_preferences(
 ) -> None:
     """When preferences are for both users, the newer user's are deleted."""
     assert models.NotificationPreferences.query.count() == 4
-    merged = models.merge_users(fixtures.user1, fixtures.user2)
+    merged = models.merge_accounts(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
     assert models.NotificationPreferences.query.count() == 2
@@ -242,7 +242,7 @@ def test_merge_with_mixed_preferences(
 ) -> None:
     """A mix of transfers and deletions can happen."""
     assert models.NotificationPreferences.query.count() == 3
-    merged = models.merge_users(fixtures.user1, fixtures.user2)
+    merged = models.merge_accounts(fixtures.user1, fixtures.user2)
     db_session.commit()
     assert merged == fixtures.user1
     assert models.NotificationPreferences.query.count() == 2

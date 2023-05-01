@@ -75,7 +75,7 @@ WrappedFunc = TypeVar('WrappedFunc', bound=Callable)
 #: Return type for decorator factories
 ReturnDecorator = Callable[[WrappedFunc], WrappedFunc]
 
-#: Return type of the `migrate_user` and `migrate_profile` methods
+#: Return type of the `migrate_account` method
 OptionalMigratedTables = Optional[Union[List[str], Tuple[str], Set[str]]]
 
 #: JSON and Jinja2 compatible dict type. Cannot be a strict definition because a JSON

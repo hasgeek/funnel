@@ -47,7 +47,7 @@ class ProjectTicketEventView(ProjectViewMixin, UrlForView, ModelView):
     def ticket_events(self) -> ReturnRenderWith:
         return {
             'project': self.obj,
-            'profile': self.obj.profile,
+            'profile': self.obj.account,
             'ticket_events': self.obj.ticket_events,
         }
 
@@ -172,7 +172,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
                 # Unknown form
                 abort(400)
         return {
-            'profile': self.obj.project.profile,
+            'profile': self.obj.project.account,
             'ticket_event': self.obj,
             'project': self.obj.project,
             'badge_form': TicketParticipantBadgeForm(model=TicketParticipant),
@@ -211,7 +211,7 @@ class TicketEventView(TicketEventViewMixin, UrlForView, ModelView):
     @requires_roles({'project_promoter', 'project_usher'})
     def scan_badge(self) -> ReturnRenderWith:
         return {
-            'profile': self.obj.project.profile,
+            'profile': self.obj.project.account,
             'project': self.obj.project,
             'ticket_event': self.obj,
         }
@@ -245,7 +245,7 @@ class TicketTypeView(ProfileCheckMixin, UrlForView, ModelView):
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
+        self.profile = self.obj.project.account
         return super().after_loader()
 
     @route('')
@@ -258,7 +258,7 @@ class TicketTypeView(ProfileCheckMixin, UrlForView, ModelView):
             .all()
         )
         return {
-            'profile': self.obj.project.profile,
+            'profile': self.obj.project.account,
             'project': self.obj.project,
             'ticket_type': self.obj,
             'ticket_participants': ticket_participants,

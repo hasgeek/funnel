@@ -103,13 +103,13 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     def loader(self, profile, project, update) -> Update:
         return (
             Update.query.join(Project)
-            .join(Profile, Project.profile_id == Profile.id)
+            .join(Profile, Project.account_id == Profile.id)
             .filter(Update.url_name_uuid_b58 == update)
             .one_or_404()
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.profile
+        self.profile = self.obj.project.account
         return super().after_loader()
 
     @route('', methods=['GET'])

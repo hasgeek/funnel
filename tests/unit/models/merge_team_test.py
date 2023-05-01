@@ -40,7 +40,7 @@ def test_team_migrate_user1(team_merge_data) -> None:
     assert team_merge_data.user1.teams == [team_merge_data.team]
     assert team_merge_data.user2.teams == []
 
-    merged = models.merge_users(team_merge_data.user1, team_merge_data.user2)
+    merged = models.merge_accounts(team_merge_data.user1, team_merge_data.user2)
     assert merged == team_merge_data.user1
     assert merged.teams == [team_merge_data.team]
     assert team_merge_data.user1.teams == [team_merge_data.team]
@@ -59,7 +59,7 @@ def test_team_migrate_user2(team_merge_data) -> None:
     assert team_merge_data.user1.teams == []
     assert team_merge_data.user2.teams == [team_merge_data.team]
 
-    merged = models.merge_users(team_merge_data.user1, team_merge_data.user2)
+    merged = models.merge_accounts(team_merge_data.user1, team_merge_data.user2)
     assert merged == team_merge_data.user1
     assert merged.teams == [team_merge_data.team]
     assert team_merge_data.user1.teams == [team_merge_data.team]
@@ -82,7 +82,7 @@ def test_team_migrate_user3(team_merge_data) -> None:
     assert team_merge_data.user1.teams == [team_merge_data.team]
     assert team_merge_data.user2.teams == [team_merge_data.team]
 
-    merged = models.merge_users(team_merge_data.user1, team_merge_data.user2)
+    merged = models.merge_accounts(team_merge_data.user1, team_merge_data.user2)
     assert merged == team_merge_data.user1
     assert merged.teams == [team_merge_data.team]
     assert team_merge_data.user1.teams == [team_merge_data.team]

@@ -10,9 +10,9 @@ from werkzeug.utils import cached_property
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import Mapped, db, sa
+from .account import Account, Organization, User
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
-from .user import Organization, User
 
 __all__ = ['OrganizationMembership']
 
@@ -53,7 +53,7 @@ class OrganizationMembership(
                 'is_self_revoked',
             }
         },
-        'profile_admin': {
+        'account_admin': {
             'read': {
                 'record_type',
                 'record_type_label',
@@ -85,17 +85,18 @@ class OrganizationMembership(
     #: Organization that this membership is being granted on
     organization_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer,
-        sa.ForeignKey('organization.id', ondelete='CASCADE'),
+        sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
     )
     organization: Mapped[Organization] = with_roles(
         sa.orm.relationship(
             Organization,
+            foreign_keys=[organization_id],
             backref=sa.orm.backref(
                 'memberships', lazy='dynamic', cascade='all', passive_deletes=True
             ),
         ),
-        grants_via={None: {'admin': 'profile_admin', 'owner': 'profile_owner'}},
+        grants_via={None: {'admin': 'account_admin', 'owner': 'account_owner'}},
     )
     parent_id: Mapped[int] = sa.orm.synonym('organization_id')
     parent_id_column = 'organization_id'
@@ -166,13 +167,13 @@ class __Organization:
 
 # User.active_organization_memberships is a future possibility.
 # For now just admin and owner
-@reopen(User)
-class __User:
+@reopen(Account)
+class __Account:
     # pylint: disable=invalid-unary-operand-type
     organization_admin_memberships = sa.orm.relationship(
         OrganizationMembership,
         lazy='dynamic',
-        foreign_keys=[OrganizationMembership.user_id],  # type: ignore[has-type]
+        foreign_keys=[OrganizationMembership.subject_id],  # type: ignore[has-type]
         viewonly=True,
     )
 
@@ -180,7 +181,7 @@ class __User:
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            sa.orm.remote(OrganizationMembership.user_id)  # type: ignore[has-type]
+            sa.orm.remote(OrganizationMembership.subject_id)  # type: ignore[has-type]
             == User.id,
             ~OrganizationMembership.is_invite,  # type: ignore[operator]
         ),
@@ -191,7 +192,7 @@ class __User:
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            sa.orm.remote(OrganizationMembership.user_id)  # type: ignore[has-type]
+            sa.orm.remote(OrganizationMembership.subject_id)  # type: ignore[has-type]
             == User.id,
             OrganizationMembership.is_active,  # type: ignore[arg-type]
         ),
@@ -202,7 +203,7 @@ class __User:
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            sa.orm.remote(OrganizationMembership.user_id)  # type: ignore[has-type]
+            sa.orm.remote(OrganizationMembership.subject_id)  # type: ignore[has-type]
             == User.id,
             OrganizationMembership.is_active,  # type: ignore[arg-type]
             OrganizationMembership.is_owner.is_(True),
@@ -214,7 +215,7 @@ class __User:
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            sa.orm.remote(OrganizationMembership.user_id)  # type: ignore[has-type]
+            sa.orm.remote(OrganizationMembership.subject_id)  # type: ignore[has-type]
             == User.id,
             OrganizationMembership.is_invite,  # type: ignore[arg-type]
             OrganizationMembership.revoked_at.is_(None),
@@ -231,5 +232,5 @@ class __User:
     )
 
 
-User.__active_membership_attrs__.add('active_organization_admin_memberships')
-User.__noninvite_membership_attrs__.add('noninvite_organization_admin_memberships')
+Account.__active_membership_attrs__.add('active_organization_admin_memberships')
+Account.__noninvite_membership_attrs__.add('noninvite_organization_admin_memberships')

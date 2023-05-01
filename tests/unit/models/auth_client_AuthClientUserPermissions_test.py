@@ -29,7 +29,7 @@ class TestUserClientPermissions(TestDatabaseFixture):
         assert result.pickername == finnick.pickername
 
 
-def test_userclientpermissions_migrate_user_move(
+def test_userclientpermissions_migrate_account_move(
     db_session, user_twoflower, user_rincewind, client_hex
 ) -> None:
     """Migrating client permissions from old user to new user."""
@@ -42,11 +42,11 @@ def test_userclientpermissions_migrate_user_move(
     db_session.add(userperms)
 
     # Transfer assets from Twoflower to Rincewind
-    models.AuthClientUserPermissions.migrate_user(user_twoflower, user_rincewind)
+    models.AuthClientUserPermissions.migrate_account(user_twoflower, user_rincewind)
     assert userperms.user == user_rincewind
 
 
-def test_userclientpermissions_migrate_user_retain(
+def test_userclientpermissions_migrate_account_retain(
     db_session, user_twoflower, user_rincewind, client_hex
 ) -> None:
     """Retaining new user's client permissions when migrating assets from old user."""
@@ -59,11 +59,11 @@ def test_userclientpermissions_migrate_user_retain(
     db_session.add(userperms)
 
     # Transfer assets from Twoflower to Rincewind
-    models.AuthClientUserPermissions.migrate_user(user_twoflower, user_rincewind)
+    models.AuthClientUserPermissions.migrate_account(user_twoflower, user_rincewind)
     assert userperms.user == user_rincewind
 
 
-def test_userclientpermissions_migrate_user_merge(
+def test_userclientpermissions_migrate_account_merge(
     db_session, user_twoflower, user_rincewind, client_hex
 ) -> None:
     """Merging permissions granted to two users when migrating from one to other."""
@@ -82,7 +82,7 @@ def test_userclientpermissions_migrate_user_merge(
     db_session.commit()  # A commit is required since one of the two will be deleted
 
     # Transfer assets from Twoflower to Rincewind
-    models.AuthClientUserPermissions.migrate_user(user_twoflower, user_rincewind)
+    models.AuthClientUserPermissions.migrate_account(user_twoflower, user_rincewind)
     db_session.commit()  # Commit required or the db_session fixture will break
 
     assert len(user_twoflower.client_permissions) == 0

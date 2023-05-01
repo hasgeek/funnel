@@ -178,13 +178,13 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     def after_loader(self) -> Optional[ReturnView]:
         if isinstance(self.obj, ProposalSuuidRedirect):
             if self.obj.proposal:
-                self.profile = self.obj.proposal.project.profile
+                self.profile = self.obj.proposal.project.account
                 return render_redirect(
                     self.obj.proposal.url_for(),
                     302 if request.method == 'GET' else 303,
                 )
             abort(410)
-        self.profile = self.obj.project.profile
+        self.profile = self.obj.project.account
         return super().after_loader()
 
     @route('')
@@ -450,7 +450,7 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
         return obj
 
     def after_loader(self):
-        self.profile = self.obj.proposal.project.profile
+        self.profile = self.obj.proposal.project.account
         return super().after_loader()
 
     def collaborators(self):

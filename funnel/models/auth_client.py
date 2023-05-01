@@ -27,10 +27,9 @@ from coaster.sqlalchemy import with_roles
 from coaster.utils import buid as make_buid
 from coaster.utils import newsecret, require_one_of, utcnow
 
-from ..typing import OptionalMigratedTables
 from . import BaseMixin, Mapped, UuidMixin, db, declarative_mixin, declared_attr, sa
+from .account import Account, Team, User
 from .helpers import reopen
-from .user import Organization, Team, User
 from .user_session import UserSession, auth_client_user_session
 
 __all__ = [
@@ -90,34 +89,19 @@ class AuthClient(
     __tablename__ = 'auth_client'
     __allow_unmapped__ = True
     __scope_null_allowed__ = True
-    # TODO: merge columns into a profile_id column
-    #: User who owns this client
-    user_id: Mapped[int] = sa.Column(
-        sa.Integer, sa.ForeignKey('user.id'), nullable=True
+    #: Account that owns this client
+    account_id: Mapped[int] = sa.Column(
+        sa.Integer, sa.ForeignKey('account.id'), nullable=True
     )
-    user: Mapped[Optional[User]] = with_roles(
+    account: Mapped[Optional[Account]] = with_roles(
         sa.orm.relationship(
             User,
-            foreign_keys=[user_id],
+            foreign_keys=[account_id],
             backref=sa.orm.backref('clients', cascade='all'),
         ),
         read={'all'},
         write={'owner'},
         grants={'owner'},
-    )
-    #: Organization that owns this client. Only one of this or user must be set
-    organization_id: Mapped[int] = sa.Column(
-        sa.Integer, sa.ForeignKey('organization.id'), nullable=True
-    )
-    organization: Mapped[Optional[User]] = with_roles(
-        sa.orm.relationship(
-            Organization,
-            foreign_keys=[organization_id],
-            backref=sa.orm.backref('clients', cascade='all'),
-        ),
-        read={'all'},
-        write={'owner'},
-        grants_via={None: {'owner': 'owner', 'admin': 'owner'}},
     )
     #: Human-readable title
     title = with_roles(
@@ -168,15 +152,6 @@ class AuthClient(
         lazy='dynamic',
         secondary=auth_client_user_session,
         backref=sa.orm.backref('auth_clients', lazy='dynamic'),
-    )
-
-    __table_args__ = (
-        sa.CheckConstraint(
-            sa.case((user_id.isnot(None), 1), else_=0)
-            + sa.case((organization_id.isnot(None), 1), else_=0)
-            == 1,
-            name='auth_client_owner_check',
-        ),
     )
 
     __roles__ = {
@@ -253,7 +228,7 @@ class AuthClient(
             return AuthToken.get_for(auth_client=self, user_session=user_session)
         return None
 
-    def allow_access_for(self, actor: User) -> bool:
+    def allow_access_for(self, actor: Account) -> bool:
         """Test if access is allowed for this user as per the auth client settings."""
         if self.allow_any_login:
             return True
@@ -395,7 +370,7 @@ class AuthCode(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'auth_code'
     __allow_unmapped__ = True
     user_id: Mapped[int] = sa.Column(
-        sa.Integer, sa.ForeignKey('user.id'), nullable=False
+        sa.Integer, sa.ForeignKey('account.id'), nullable=False
     )
     user: Mapped[User] = sa.orm.relationship(User, foreign_keys=[user_id])
     auth_client_id: Mapped[int] = sa.Column(
@@ -440,7 +415,7 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __allow_unmapped__ = True
     # User id is null for client-only tokens and public clients as the user is
     # identified via user_session.user there
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=True)
     user: Mapped[Optional[User]] = sa.orm.relationship(
         User,
         backref=sa.orm.backref('authtokens', lazy='dynamic', cascade='all'),
@@ -556,28 +531,26 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         return True
 
     @classmethod
-    def migrate_user(  # type: ignore[return]
-        cls, old_user: User, new_user: User
-    ) -> OptionalMigratedTables:
-        """Migrate one user account to another when merging user accounts."""
-        oldtokens = cls.query.filter(cls.user == old_user).all()
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
+        """Migrate one account's data to another when merging accounts."""
+        oldtokens = cls.query.filter(cls.user == old_account).all()
         newtokens: Dict[int, List[AuthToken]] = {}  # AuthClient: token mapping
-        for token in cls.query.filter(cls.user == new_user).all():
+        for token in cls.query.filter(cls.user == new_account).all():
             newtokens.setdefault(token.auth_client_id, []).append(token)
 
         for token in oldtokens:
             merge_performed = False
             if token.auth_client_id in newtokens:
                 for newtoken in newtokens[token.auth_client_id]:
-                    if newtoken.user == new_user:
-                        # There's another token for newuser with the same client.
+                    if newtoken.user == new_account:
+                        # There's another token for new_account with the same client.
                         # Just extend the scope there
                         newtoken.scope = set(newtoken.scope) | set(token.scope)
                         db.session.delete(token)
                         merge_performed = True
                         break
             if merge_performed is False:
-                token.user = new_user  # Reassign this token to newuser
+                token.user = new_account  # Reassign this token to new_account
 
     @classmethod
     def get(cls, token: str) -> Optional[AuthToken]:
@@ -658,7 +631,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
     __tablename__ = 'auth_client_user_permissions'
     __allow_unmapped__ = True
     #: User who has these permissions
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
     user = sa.orm.relationship(
         User,
         foreign_keys=[user_id],
@@ -691,13 +664,11 @@ class AuthClientUserPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
         return self.user.pickername
 
     @classmethod
-    def migrate_user(  # type: ignore[return]
-        cls, old_user: User, new_user: User
-    ) -> OptionalMigratedTables:
-        """Migrate one user account to another when merging user accounts."""
-        for operm in old_user.client_permissions:
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
+        """Migrate one account's data to another when merging accounts."""
+        for operm in old_account.client_permissions:
             merge_performed = False
-            for nperm in new_user.client_permissions:
+            for nperm in new_account.client_permissions:
                 if nperm.auth_client == operm.auth_client:
                     # Merge permission strings
                     tokens = set(operm.access_permissions.split(' '))
@@ -708,7 +679,7 @@ class AuthClientUserPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
                     db.session.delete(operm)
                     merge_performed = True
             if not merge_performed:
-                operm.user = new_user
+                operm.user = new_account
 
     @classmethod
     def get(
@@ -793,8 +764,8 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
         return cls.query.filter(cls.auth_client == auth_client)
 
 
-@reopen(User)
-class __User:
+@reopen(Account)
+class __Account:
     def revoke_all_auth_tokens(self) -> None:
         """Revoke all auth tokens directly linked to the user."""
         AuthToken.all_for(cast(User, self)).delete(synchronize_session=False)

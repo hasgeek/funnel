@@ -119,11 +119,11 @@ from coaster.sqlalchemy import (
 )
 from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
-from ..typing import OptionalMigratedTables, T, UuidModelType
+from ..typing import T, UuidModelType
 from . import BaseMixin, Mapped, NoIdMixin, UUIDType, db, hybrid_property, sa
+from .account import Account, User, UserEmail, UserPhone
 from .helpers import reopen
 from .phone_number import PhoneNumber, PhoneNumberMixin
-from .user import User, UserEmail, UserPhone
 
 __all__ = [
     'SMS_STATUS',
@@ -348,7 +348,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     #: Id of user that triggered this notification
     user_id: Mapped[Optional[int]] = sa.orm.mapped_column(
-        sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
+        sa.Integer, sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
     )
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
@@ -748,7 +748,7 @@ class UserNotification(
     user_id: Mapped[int] = immutable(
         sa.orm.mapped_column(
             sa.Integer,
-            sa.ForeignKey('user.id', ondelete='CASCADE'),
+            sa.ForeignKey('account.id', ondelete='CASCADE'),
             primary_key=True,
             nullable=False,
         )
@@ -1132,19 +1132,17 @@ class UserNotification(
         )
 
     @classmethod
-    def migrate_user(  # type: ignore[return]
-        cls, old_user: User, new_user: User
-    ) -> OptionalMigratedTables:
-        """Migrate one user account to another when merging user accounts."""
-        for user_notification in cls.query.filter_by(user_id=old_user.id).all():
-            existing = cls.query.get((new_user.id, user_notification.eventid))
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
+        """Migrate one account's data to another when merging accounts."""
+        for user_notification in cls.query.filter_by(user_id=old_account.id).all():
+            existing = cls.query.get((new_account.id, user_notification.eventid))
             # TODO: Instead of dropping old_user's dupe notifications, check which of
             # the two has a higher priority role and keep that. This may not be possible
             # if the two copies are for different notifications under the same eventid.
             if existing is not None:
                 db.session.delete(user_notification)
-        cls.query.filter_by(user_id=old_user.id).update(
-            {'user_id': new_user.id}, synchronize_session=False
+        cls.query.filter(cls.user_id == old_account.id).update(
+            {'user_id': new_account.id}, synchronize_session=False
         )
 
 
@@ -1200,7 +1198,7 @@ class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined
     #: Id of user whose preferences are represented here
     user_id: Mapped[int] = sa.orm.mapped_column(
         sa.Integer,
-        sa.ForeignKey('user.id', ondelete='CASCADE'),
+        sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
         index=True,
     )
@@ -1316,15 +1314,13 @@ class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined
         return notification_type_registry.get(self.notification_type)
 
     @classmethod
-    def migrate_user(  # type: ignore[return]
-        cls, old_user: User, new_user: User
-    ) -> OptionalMigratedTables:
-        """Migrate one user account to another when merging user accounts."""
-        for ntype, prefs in list(old_user.notification_preferences.items()):
-            if ntype in new_user.notification_preferences:
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
+        """Migrate one account's data to another when merging accounts."""
+        for ntype, prefs in list(old_account.notification_preferences.items()):
+            if ntype in new_account.notification_preferences:
                 db.session.delete(prefs)
-        NotificationPreferences.query.filter_by(user_id=old_user.id).update(
-            {'user_id': new_user.id}, synchronize_session=False
+        cls.query.filter(cls.user_id == old_account.id).update(
+            {'user_id': new_account.id}, synchronize_session=False
         )
 
     @sa.orm.validates('notification_type')
@@ -1336,8 +1332,8 @@ class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined
         return value
 
 
-@reopen(User)
-class __User:
+@reopen(Account)
+class __Account:
     all_notifications = with_roles(
         sa.orm.relationship(
             UserNotification,

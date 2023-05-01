@@ -1099,9 +1099,9 @@ def user_death(models, db_session) -> funnel_models.User:
     """
     Death is the epoch user, present at the beginning and always having the last word.
 
-    Since Death predates all other users in tests, any call to `merge_users` or
-    `migrate_user` always transfers assets to Death. The fixture has created_at set to
-    the epoch to represent this. Death is also a site admin.
+    Since Death predates all other users in tests, any call to `merge_accounts` or
+    `migrate_account` always transfers assets to Death. The fixture has created_at set
+    to the epoch to represent this. Death is also a site admin.
     """
     user = models.User(
         username='death',
@@ -1318,7 +1318,7 @@ def org_uu(
     db_session.add(
         models.OrganizationMembership(
             organization=org,
-            user=user_librarian,
+            subject=user_librarian,
             is_owner=False,
             granted_by=user_ridcully,
         )
@@ -1326,7 +1326,7 @@ def org_uu(
     db_session.add(
         models.OrganizationMembership(
             organization=org,
-            user=user_ponder_stibbons,
+            subject=user_ponder_stibbons,
             is_owner=False,
             granted_by=user_ridcully,
         )
@@ -1354,12 +1354,15 @@ def org_citywatch(
     db_session.add(org)
     db_session.add(
         models.OrganizationMembership(
-            organization=org, user=user_vimes, is_owner=True, granted_by=user_vetinari
+            organization=org,
+            subject=user_vimes,
+            is_owner=True,
+            granted_by=user_vetinari,
         )
     )
     db_session.add(
         models.OrganizationMembership(
-            organization=org, user=user_carrot, is_owner=False, granted_by=user_vimes
+            organization=org, subject=user_carrot, is_owner=False, granted_by=user_vimes
         )
     )
     return org
@@ -1584,7 +1587,10 @@ def new_organization(
     db_session.add(org)
 
     admin_membership = models.OrganizationMembership(
-        organization=org, user=new_user_admin, is_owner=False, granted_by=new_user_owner
+        organization=org,
+        subject=new_user_admin,
+        is_owner=False,
+        granted_by=new_user_owner,
     )
     db_session.add(admin_membership)
     db_session.commit()

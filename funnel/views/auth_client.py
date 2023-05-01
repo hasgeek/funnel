@@ -28,12 +28,12 @@ from ..forms import (
     UserPermissionAssignForm,
 )
 from ..models import (
+    Account,
     AuthClient,
     AuthClientCredential,
     AuthClientTeamPermissions,
     AuthClientUserPermissions,
     Team,
-    User,
     db,
 )
 from ..typing import ReturnRenderWith, ReturnView
@@ -357,8 +357,8 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
             AuthClientUserPermissions.query.join(
                 AuthClient, AuthClientUserPermissions.auth_client_id == AuthClient.id
             )
-            .join(User, AuthClientUserPermissions.user_id == User.id)
-            .filter(AuthClient.buid == client, User.buid == user)
+            .join(Account, AuthClientUserPermissions.user_id == Account.id)
+            .filter(AuthClient.buid == client, Account.buid == user)
             .one_or_404()
         )
 

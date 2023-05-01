@@ -8,7 +8,7 @@ from flask import Markup, url_for
 
 from baseframe import _, __, forms
 
-from ..models import Organization, Profile, Team, User
+from ..models import Account, Organization, Team, User
 
 __all__ = ['OrganizationForm', 'TeamForm']
 
@@ -42,7 +42,7 @@ class OrganizationForm(forms.Form):
         ),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(max=Profile.__name_length__),
+            forms.validators.Length(max=Account.__name_length__),
         ],
         filters=[forms.filters.strip()],
         prefix="https://hasgeek.com/",
@@ -51,7 +51,7 @@ class OrganizationForm(forms.Form):
 
     def validate_name(self, field) -> None:
         """Validate name is valid and available for this organization."""
-        reason = Profile.validate_name_candidate(field.data)
+        reason = Account.validate_name_candidate(field.data)
         if not reason:
             return  # name is available
         if reason == 'invalid':

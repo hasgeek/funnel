@@ -16,8 +16,8 @@ from ..models import (
     MODERATOR_REPORT_TYPE,
     PASSWORD_MAX_LENGTH,
     PASSWORD_MIN_LENGTH,
+    Account,
     Anchor,
-    Profile,
     User,
     UserEmailClaim,
     check_password_strength,
@@ -415,7 +415,7 @@ class AccountForm(forms.Form):
         ),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(max=Profile.__name_length__),
+            forms.validators.Length(max=Account.__name_length__),
         ],
         filters=nullable_strip_filters,
         prefix="https://hasgeek.com/",
@@ -444,7 +444,7 @@ class AccountForm(forms.Form):
 
     def validate_username(self, field) -> None:
         """Validate if username is appropriately formatted and available to use."""
-        reason = self.edit_obj.validate_name_candidate(field.data)
+        reason = self.edit_obj.validate_new_name(field.data)
         if not reason:
             return  # Username is available
         raise_username_error(reason)
@@ -490,9 +490,9 @@ class UsernameAvailableForm(forms.Form):
     def validate_username(self, field) -> None:
         """Validate for username being valid and available (with optionally user)."""
         if self.edit_user:  # User is setting a username
-            reason = self.edit_user.validate_name_candidate(field.data)
+            reason = self.edit_user.validate_new_name(field.data)
         else:  # New user is creating an account, so no user object yet
-            reason = Profile.validate_name_candidate(field.data)
+            reason = Account.validate_name_candidate(field.data)
         if not reason:
             return  # Username is available
         raise_username_error(reason)

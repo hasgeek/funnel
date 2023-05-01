@@ -9,8 +9,8 @@ from coaster.utils import utcnow
 
 from ..signals import session_revoked
 from . import BaseMixin, Mapped, UuidMixin, db, sa
+from .account import Account, User
 from .helpers import reopen
-from .user import User
 
 __all__ = [
     'UserSession',
@@ -79,7 +79,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'user_session'
     __allow_unmapped__ = True
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
     user: Mapped[User] = sa.orm.relationship(
         User, backref=sa.orm.backref('all_user_sessions', cascade='all', lazy='dynamic')
     )
@@ -165,8 +165,8 @@ class UserSession(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         return user_session
 
 
-@reopen(User)
-class __User:
+@reopen(Account)
+class __Account:
     active_user_sessions = sa.orm.relationship(
         UserSession,
         lazy='dynamic',

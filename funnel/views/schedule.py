@@ -182,7 +182,7 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
     event = Event()
     event.add('summary', session.title)
     organizer = vCalAddress(f'MAILTO:no-reply@{current_app.config["DEFAULT_DOMAIN"]}')
-    organizer.params['cn'] = vText(session.project.profile.title)
+    organizer.params['cn'] = vText(session.project.account.title)
     event['organizer'] = organizer
     if rsvp:
         attendee = vCalAddress('MAILTO:' + str(rsvp.user_email()))
@@ -269,7 +269,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             mimetype='text/calendar',
             headers={
                 'Content-Disposition': f'attachment;filename='
-                f'"{self.obj.profile.name}-{self.obj.name}.ics"'
+                f'"{self.obj.account.name}-{self.obj.name}.ics"'
             },
         )
 
@@ -333,7 +333,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             except NoResultFound:
                 current_app.logger.error(
                     '%s/%s schedule update error: no existing session matching %s',
-                    self.obj.profile.name,
+                    self.obj.account.name,
                     self.obj.name,
                     repr(session),
                 )
@@ -381,7 +381,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             mimetype='text/calendar',
             headers={
                 'Content-Disposition': 'attachment;filename="'
-                + self.obj.venue.project.profile.name
+                + self.obj.venue.project.account.name
                 + '-'
                 + self.obj.venue.project.name
                 + '-'

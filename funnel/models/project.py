@@ -29,6 +29,7 @@ from . import (
     json_type,
     sa,
 )
+from .account import Account, User
 from .comment import SET_TYPE, Commentset
 from .helpers import (
     RESERVED_NAMES,
@@ -39,7 +40,6 @@ from .helpers import (
     visual_field_delimiter,
 )
 from .profile import Profile
-from .user import User
 
 __all__ = ['Project', 'ProjectLocation', 'ProjectRedirect']
 
@@ -71,25 +71,26 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     __allow_unmapped__ = True
     reserved_names = RESERVED_NAMES
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=False)
-    user: Mapped[User] = sa.orm.relationship(
-        User,
-        foreign_keys=[user_id],
-        backref=sa.orm.backref('projects', cascade='all'),
+    created_by_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
+    created_by: Mapped[Account] = sa.orm.relationship(
+        Account,
+        foreign_keys=[created_by_id],
     )
-    profile_id = sa.Column(sa.Integer, sa.ForeignKey('profile.id'), nullable=False)
-    profile: Mapped[Profile] = with_roles(
+    account_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
+    account: Mapped[Account] = with_roles(
         sa.orm.relationship(
-            Profile, backref=sa.orm.backref('projects', cascade='all', lazy='dynamic')
+            Account,
+            foreign_keys=[account_id],
+            backref=sa.orm.backref('projects', cascade='all', lazy='dynamic'),
         ),
         read={'all'},
-        # If account grants an 'admin' role, make it 'profile_admin' here
-        grants_via={None: {'admin': 'profile_admin'}},
-        # `profile` only appears in the 'primary' dataset. It must not be included in
+        # If account grants an 'admin' role, make it 'account_admin' here
+        grants_via={None: {'admin': 'account_admin'}},
+        # `account` only appears in the 'primary' dataset. It must not be included in
         # 'related' or 'without_parent' as it is the parent
         datasets={'primary'},
     )
-    parent: Mapped[Profile] = sa.orm.synonym('profile')
+    parent: Mapped[Account] = sa.orm.synonym('account')
     tagline: Mapped[str] = with_roles(
         sa.Column(sa.Unicode(250), nullable=False),
         read={'all'},
@@ -270,7 +271,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     )
 
     __table_args__ = (
-        sa.UniqueConstraint('profile_id', 'name'),
+        sa.UniqueConstraint('account_id', 'name'),
         sa.Index('ix_project_search_vector', 'search_vector', postgresql_using='gin'),
         sa.CheckConstraint(
             sa.or_(  # type: ignore[arg-type]
@@ -433,8 +434,8 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         # Add the creator as editor and promoter
         new_membership = ProjectCrewMembership(
             parent=self,
-            user=self.user,
-            granted_by=self.user,
+            subject=self.created_by,
+            granted_by=self.created_by,
             is_editor=True,
             is_promoter=True,
         )
@@ -442,7 +443,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
 
     def __repr__(self) -> str:
         """Represent :class:`Project` as a string."""
-        return f'<Project {self.profile.name}/{self.name} "{self.title}">'
+        return f'<Project {self.account.name}/{self.name} "{self.title}">'
 
     @with_roles(call={'editor'})
     @cfp_state.transition(
@@ -519,7 +520,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         Used in HTML title tags to render <title>{{ project }} - {{ suffix }}</title>.
         """
         if not self.title.startswith(self.parent.title):
-            return self.profile.title
+            return self.account.title
         return ''
 
     with_roles(title_suffix, read={'all'})
@@ -538,7 +539,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         """
         if self.short_title == self.title:
             # Project title does not derive from account title, so use both
-            return [self.profile.title, self.title]
+            return [self.account.title, self.title]
         # Project title extends account title, so account title is not needed
         return [self.title]
 
@@ -732,15 +733,15 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
 add_search_trigger(Project, 'search_vector')
 
 
-@reopen(Profile)
-class __Profile:
+@reopen(Account)
+class __Account:
     id: Mapped[int]  # noqa: A003
 
     listed_projects = sa.orm.relationship(
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            Profile.id == Project.profile_id,
+            Account.id == Project.account_id,
             Project.state.PUBLISHED,
         ),
         viewonly=True,
@@ -749,14 +750,17 @@ class __Profile:
         Project,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            Profile.id == Project.profile_id,
+            Account.id == Project.account_id,
             sa.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
         ),
         viewonly=True,
     )
     projects_by_name = with_roles(
         sa.orm.relationship(
-            Project, collection_class=attribute_keyed_dict('name'), viewonly=True
+            Project,
+            foreign_keys=[Project.account_id],
+            collection_class=attribute_keyed_dict('name'),
+            viewonly=True,
         ),
         read={'all'},
     )
@@ -765,11 +769,11 @@ class __Profile:
         if user is not None:
             return [
                 membership.project
-                for membership in user.projects_as_crew_active_memberships.join(Project)
-                .join(Profile)
-                .filter(
+                for membership in user.projects_as_crew_active_memberships.join(
+                    Project
+                ).filter(
                     # Project is attached to this account
-                    Project.profile_id == self.id,
+                    Project.account_id == self.id,
                     # Project is in draft state OR has a draft call for proposals
                     sa.or_(Project.state.DRAFT, Project.cfp_state.DRAFT),
                 )
@@ -780,11 +784,11 @@ class __Profile:
         if user is not None:
             return [
                 membership.project
-                for membership in user.projects_as_crew_active_memberships.join(Project)
-                .join(Profile)
-                .filter(
+                for membership in user.projects_as_crew_active_memberships.join(
+                    Project
+                ).filter(
                     # Project is attached to this account
-                    Project.profile_id == self.id,
+                    Project.account_id == self.id,
                     # Project is in draft state OR has a draft call for proposals
                     sa.or_(Project.state.PUBLISHED_WITHOUT_SESSIONS),
                 )
@@ -823,7 +827,7 @@ class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
             return f'<ProjectRedirect {self.profile.name}/{self.name}: (none)>'
         return (
             f'<ProjectRedirect {self.profile.name}/{self.name}'
-            f' → {self.project.profile.name}/{self.project.name}>'
+            f' → {self.project.account.name}/{self.project.name}>'
         )
 
     def redirect_view_args(self):

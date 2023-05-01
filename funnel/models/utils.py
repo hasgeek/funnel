@@ -11,15 +11,24 @@ import phonenumbers
 
 from .. import app
 from ..typing import OptionalMigratedTables
+from .account import (
+    Account,
+    Anchor,
+    User,
+    UserEmail,
+    UserEmailClaim,
+    UserExternalId,
+    UserPhone,
+    db,
+)
 from .phone_number import PHONE_LOOKUP_REGIONS
-from .user import Anchor, User, UserEmail, UserEmailClaim, UserExternalId, UserPhone, db
 
 __all__ = [
     'IncompleteUserMigrationError',
     'UserAndAnchor',
     'getextid',
     'getuser',
-    'merge_users',
+    'merge_accounts',
 ]
 
 
@@ -126,29 +135,29 @@ def getextid(service: str, userid: str) -> Optional[UserExternalId]:
     return UserExternalId.get(service=service, userid=userid)
 
 
-def merge_users(user1: User, user2: User) -> Optional[User]:
+def merge_accounts(account1: Account, account2: Account) -> Optional[Account]:
     """Merge two user accounts and return the new user account."""
-    app.logger.info("Preparing to merge users %s and %s", user1, user2)
+    app.logger.info("Preparing to merge accounts %s and %s", account1, account2)
     # Always keep the older account and merge from the newer account
-    if user1.created_at < user2.created_at:
-        keep_user, merge_user = user1, user2
+    if account1.created_at < account2.created_at:
+        keep_account, merge_account = account1, account2
     else:
-        keep_user, merge_user = user2, user1
+        keep_account, merge_account = account2, account1
 
-    # 1. Inspect all tables for foreign key references to merge_user and switch to
-    # keep_user.
-    safe = do_migrate_instances(merge_user, keep_user, 'migrate_user')
+    # 1. Inspect all tables for foreign key references to merge_account and switch to
+    # keep_account.
+    safe = do_migrate_instances(merge_account, keep_account, 'migrate_account')
     if safe:
-        # 2. Add merge_user's uuid to olduserids and mark user as merged
-        merge_user.mark_merged_into(keep_user)
+        # 2. Add merge_account's uuid to oldids and mark account as merged
+        merge_account.mark_merged_into(keep_account)
         # 3. Commit all of this
         db.session.commit()
 
         # 4. Return keep_user.
-        app.logger.info("User merge complete, keeping user %s", keep_user)
-        return keep_user
+        app.logger.info("Account merge complete, keeping account %s", keep_account)
+        return keep_account
 
-    app.logger.error("User merge failed, aborting transaction")
+    app.logger.error("Account merge failed, aborting transaction")
     db.session.rollback()
     return None
 
@@ -194,7 +203,7 @@ def do_migrate_instances(
                 # will have a unique index but no model on which to place
                 # helper_method, unless one of the related models handles
                 # migrations AND signals a way for this table to be skipped
-                # here. This is why model.helper_method below (migrate_user or
+                # here. This is why model.helper_method below (migrate_account or
                 # migrate_profile) returns a list of table names it has
                 # processed.
                 app.logger.error(

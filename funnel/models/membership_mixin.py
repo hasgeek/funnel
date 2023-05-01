@@ -24,7 +24,7 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, immutable, with_roles
 from coaster.utils import LabeledEnum
 
-from ..typing import ModelType, OptionalMigratedTables
+from ..typing import ModelType
 from . import (
     BaseMixin,
     Mapped,
@@ -35,9 +35,9 @@ from . import (
     hybrid_property,
     sa,
 )
+from .account import Account, User
 from .profile import Profile
 from .reorder_mixin import ReorderMixin
-from .user import EnumerateMembershipsMixin, User
 
 # Export only symbols needed in views.
 __all__ = [
@@ -101,7 +101,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     __null_granted_by__ = False
     #: List of columns that will be copied into a new row when a membership is amended
     __data_columns__: ClassVar[Iterable[str]] = ()
-    #: Parent column (declare as synonym of 'profile_id' or 'project_id' in subclasses)
+    #: Parent column (declare as synonym of 'account_id' or 'project_id' in subclasses)
     parent_id: Optional[int]
     #: Name of the parent id column, used in SQL constraints
     parent_id_column: ClassVar[Optional[str]]
@@ -157,15 +157,15 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     def revoked_by_id(cls) -> Mapped[Optional[int]]:
         """Id of user who revoked the membership."""
         return sa.Column(
-            sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
+            sa.Integer, sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
         )
 
     @with_roles(read={'subject', 'editor'}, grants={'editor'})
     @declared_attr
     @classmethod
-    def revoked_by(cls) -> Mapped[Optional[User]]:
+    def revoked_by(cls) -> Mapped[Optional[Account]]:
         """User who revoked the membership."""
-        return sa.orm.relationship(User, foreign_keys=[cls.revoked_by_id])
+        return sa.orm.relationship(Account, foreign_keys=[cls.revoked_by_id])
 
     @declared_attr
     @classmethod
@@ -178,16 +178,16 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         """
         return sa.Column(
             sa.Integer,
-            sa.ForeignKey('user.id', ondelete='SET NULL'),
+            sa.ForeignKey('account.id', ondelete='SET NULL'),
             nullable=cls.__null_granted_by__,
         )
 
     @with_roles(read={'subject', 'editor'}, grants={'editor'})
     @declared_attr
     @classmethod
-    def granted_by(cls) -> Mapped[Optional[User]]:
+    def granted_by(cls) -> Mapped[Optional[Account]]:
         """User who assigned the membership."""
-        return sa.orm.relationship(User, foreign_keys=[cls.granted_by_id])
+        return sa.orm.relationship(Account, foreign_keys=[cls.granted_by_id])
 
     @hybrid_property
     def is_active(self) -> bool:
@@ -236,7 +236,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
     # Subclasses must gate these methods in __roles__
 
     @with_roles(call={'subject', 'editor'})
-    def revoke(self, actor: User) -> None:
+    def revoke(self, actor: Account) -> None:
         """Revoke this membership record."""
         if self.revoked_at is not None:
             raise MembershipRevokedError(
@@ -251,7 +251,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
 
     @with_roles(call={'editor'})
     def replace(
-        self: MembershipType, actor: User, _accept: bool = False, **data: Any
+        self: MembershipType, actor: Account, _accept: bool = False, **data: Any
     ) -> MembershipType:
         """Replace this membership record with changes to role columns."""
         if self.revoked_at is not None:
@@ -308,12 +308,12 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         return new
 
     @with_roles(call={'editor'})
-    def amend_by(self: MembershipType, actor: User):
+    def amend_by(self: MembershipType, actor: Account):
         """Amend a membership in a `with` context."""
         return AmendMembership(self, actor)
 
     def merge_and_replace(
-        self: MembershipType, actor: User, other: MembershipType
+        self: MembershipType, actor: Account, other: MembershipType
     ) -> MembershipType:
         """Replace this record by merging data from an independent record."""
         if self.__class__ is not other.__class__:
@@ -350,7 +350,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         return replacement
 
     @with_roles(call={'subject'})
-    def accept(self: MembershipType, actor: User) -> MembershipType:
+    def accept(self: MembershipType, actor: Account) -> MembershipType:
         """Accept a membership invitation."""
         if self.record_type != MEMBERSHIP_RECORD_TYPE.INVITE:
             raise MembershipRecordTypeError("This membership record is not an invite")
@@ -359,7 +359,9 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         return self.replace(actor, _accept=True)
 
     @with_roles(call={'owner', 'subject'})
-    def freeze_subject_attribution(self: MembershipType, actor: User) -> MembershipType:
+    def freeze_subject_attribution(
+        self: MembershipType, actor: Account
+    ) -> MembershipType:
         """
         Freeze subject attribution and return a replacement record.
 
@@ -375,11 +377,11 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
 
     @declared_attr
     @classmethod
-    def user_id(cls) -> Mapped[int]:
-        """Foreign key column to user table."""
+    def subject_id(cls) -> Mapped[int]:
+        """Foreign key column to account table."""
         return sa.Column(
             sa.Integer,
-            sa.ForeignKey('user.id', ondelete='CASCADE'),
+            sa.ForeignKey('account.id', ondelete='CASCADE'),
             nullable=False,
             index=True,
         )
@@ -387,15 +389,15 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @with_roles(read={'subject', 'editor'}, grants={'subject'})
     @declared_attr
     @classmethod
-    def user(cls) -> Mapped[User]:
-        """User who is the subject of this membership record."""
-        return sa.orm.relationship(User, foreign_keys=[cls.user_id])
+    def subject(cls) -> Mapped[Account]:
+        """Account that is the subject of this membership record."""
+        return sa.orm.relationship(Account, foreign_keys=[cls.subject_id])
 
     @declared_attr
     @classmethod
-    def subject(cls) -> Mapped[User]:
+    def user(cls) -> Mapped[Account]:
         """Subject of this membership record."""
-        return sa.orm.synonym('user')
+        return sa.orm.synonym('subject')
 
     @declared_attr.directive
     @classmethod
@@ -406,7 +408,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
                 sa.Index(
                     'ix_' + cls.__tablename__ + '_active',
                     cls.parent_id_column,
-                    'user_id',
+                    'subject_id',
                     unique=True,
                     postgresql_where='revoked_at IS NULL',
                 ),
@@ -414,7 +416,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
         return (
             sa.Index(
                 'ix_' + cls.__tablename__ + '_active',
-                'user_id',
+                'subject_id',
                 unique=True,
                 postgresql_where='revoked_at IS NULL',
             ),
@@ -423,184 +425,72 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
     @hybrid_property
     def is_self_granted(self) -> bool:
         """Return True if the subject of this record is also the granting actor."""
-        return self.user_id == self.granted_by_id
+        return self.subject_id == self.granted_by_id or (
+            self.granted_by is not None and 'subject' in self.roles_for(self.granted_by)
+        )
 
     with_roles(is_self_granted, read={'subject', 'editor'})
 
     @hybrid_property
     def is_self_revoked(self) -> bool:
         """Return True if the subject of this record is also the revoking actor."""
-        return self.user_id == self.revoked_by_id
+        return self.subject_id == self.revoked_by_id or (
+            self.revoked_by is not None and 'subject' in self.roles_for(self.revoked_by)
+        )
 
     with_roles(is_self_revoked, read={'subject', 'editor'})
 
     def copy_template(self: MembershipType, **kwargs) -> MembershipType:
-        return type(self)(user=self.user, **kwargs)  # type: ignore
+        return type(self)(subject=self.subject, **kwargs)  # type: ignore
 
     @classmethod
-    def migrate_user(  # type: ignore[return]
-        cls, old_user: User, new_user: User
-    ) -> OptionalMigratedTables:
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
         """
-        Migrate memberhip records from one user to another.
-
-        If both users have active records, they are merged into a new record in the new
-        user's favour. All revoked records for the old user are transferred to the new
-        user.
-        """
-        # Look up all active membership records of the subclass's type for the old user
-        # account. `cls` here represents the subclass.
-        old_user_records = cls.query.filter(
-            cls.user == old_user, cls.revoked_at.is_(None)
-        ).all()
-        # Look up all conflicting memberships for the new user account. Limit lookups by
-        # parent except when the membership type doesn't have a parent (SiteMembership).
-        if cls.parent_id is not None:
-            new_user_records = cls.query.filter(
-                cls.user == new_user,
-                cls.revoked_at.is_(None),
-                cls.parent_id.in_([r.parent_id for r in old_user_records]),
-            ).all()
-        else:
-            new_user_records = cls.query.filter(
-                cls.user == new_user,
-                cls.revoked_at.is_(None),
-            ).all()
-        new_user_records_by_parent = {r.parent_id: r for r in new_user_records}
-
-        for record in old_user_records:
-            if record.parent_id in new_user_records_by_parent:
-                # Where there is a conflict, merge the records
-                new_user_records_by_parent[record.parent_id].merge_and_replace(
-                    new_user, record
-                )
-                db.session.flush()
-
-        # Transfer all revoked records and non-conflicting active records. At this point
-        # no filter is necessary as the conflicting records have all been merged.
-        cls.query.filter(cls.user == old_user).update(
-            {'user_id': new_user.id}, synchronize_session=False
-        )
-        # Also update the revoked_by and granted_by user accounts
-        cls.query.filter(cls.revoked_by == old_user).update(
-            {'revoked_by_id': new_user.id}, synchronize_session=False
-        )
-        cls.query.filter(cls.granted_by == old_user).update(
-            {'granted_by_id': new_user.id}, synchronize_session=False
-        )
-        db.session.flush()
-
-
-@declarative_mixin
-class ImmutableProfileMembershipMixin(ImmutableMembershipMixin):
-    """Support class for immutable memberships for accounts."""
-
-    @declared_attr
-    @classmethod
-    def profile_id(cls) -> Mapped[int]:
-        """Foreign key column to account (nee profile) table."""
-        return sa.Column(
-            sa.Integer,
-            sa.ForeignKey('profile.id', ondelete='CASCADE'),
-            nullable=False,
-            index=True,
-        )
-
-    @with_roles(read={'subject', 'editor'}, grants_via={None: {'admin': 'subject'}})
-    @declared_attr
-    @classmethod
-    def profile(cls) -> Mapped[Profile]:
-        """Account that is the subject of this membership record."""
-        return sa.orm.relationship(Profile, foreign_keys=[cls.profile_id])
-
-    @declared_attr
-    @classmethod
-    def subject(cls) -> Mapped[Profile]:
-        """Subject of this membership record."""
-        return sa.orm.synonym('profile')
-
-    @declared_attr.directive
-    @classmethod
-    def __table_args__(cls) -> tuple:
-        if cls.parent_id is not None:
-            return (
-                sa.Index(
-                    'ix_' + cls.__tablename__ + '_active',
-                    cls.parent_id_column,
-                    'profile_id',
-                    unique=True,
-                    postgresql_where='revoked_at IS NULL',
-                ),
-            )
-        return (
-            sa.Index(
-                'ix_' + cls.__tablename__ + '_active',
-                'profile_id',
-                unique=True,
-                postgresql_where='revoked_at IS NULL',
-            ),
-        )
-
-    @hybrid_property
-    def is_self_granted(self) -> bool:
-        """Return True if the subject of this record is also the granting actor."""
-        return 'subject' in self.roles_for(self.granted_by)
-
-    with_roles(is_self_granted, read={'subject', 'editor'})
-
-    @hybrid_property
-    def is_self_revoked(self) -> bool:
-        """Return True if the subject of this record is also the revoking actor."""
-        return 'subject' in self.roles_for(self.revoked_by)
-
-    with_roles(is_self_revoked, read={'subject', 'editor'})
-
-    def copy_template(self: MembershipType, **kwargs) -> MembershipType:
-        return type(self)(profile=self.profile, **kwargs)  # type: ignore
-
-    @classmethod
-    def migrate_profile(  # type: ignore[return]
-        cls, old_profile: Profile, new_profile: Profile
-    ) -> OptionalMigratedTables:
-        """
-        Migrate memberhip records from one account (nee profile) to another.
+        Migrate memberhip records from one account to another.
 
         If both accounts have active records, they are merged into a new record in the
         new account's favour. All revoked records for the old account are transferred to
         the new account.
         """
-        # Look up all active membership records of the subclass's type for the old
+        # Look up all active membership records of the subclass's type for the old user
         # account. `cls` here represents the subclass.
-        old_profile_records = cls.query.filter(
-            cls.profile == old_profile, cls.revoked_at.is_(None)
+        old_account_records = cls.query.filter(
+            cls.subject == old_account, cls.revoked_at.is_(None)
         ).all()
-        # Look up all conflicting memberships for the new account. Limit lookups by
-        # parent except when the membership type doesn't have a parent.
+        # Look up all conflicting memberships for the new user account. Limit lookups by
+        # parent except when the membership type doesn't have a parent (SiteMembership).
         if cls.parent_id is not None:
-            new_profile_records = cls.query.filter(
-                cls.profile == new_profile,
+            new_account_records = cls.query.filter(
+                cls.subject == new_account,
                 cls.revoked_at.is_(None),
-                cls.parent_id.in_([r.parent_id for r in old_profile_records]),
+                cls.parent_id.in_([r.parent_id for r in old_account_records]),
             ).all()
         else:
-            new_profile_records = cls.query.filter(
-                cls.profile == new_profile,
+            new_account_records = cls.query.filter(
+                cls.subject == new_account,
                 cls.revoked_at.is_(None),
             ).all()
-        new_profile_records_by_parent = {r.parent_id: r for r in new_profile_records}
+        new_account_records_by_parent = {r.parent_id: r for r in new_account_records}
 
-        for record in old_profile_records:
-            if record.parent_id in new_profile_records_by_parent:
+        for record in old_account_records:
+            if record.parent_id in new_account_records_by_parent:
                 # Where there is a conflict, merge the records
-                new_profile_records_by_parent[record.parent_id].merge_and_replace(
-                    new_profile, record
+                new_account_records_by_parent[record.parent_id].merge_and_replace(
+                    new_account, record
                 )
                 db.session.flush()
 
         # Transfer all revoked records and non-conflicting active records. At this point
         # no filter is necessary as the conflicting records have all been merged.
-        cls.query.filter(cls.profile == old_profile).update(
-            {'profile_id': new_profile.id}, synchronize_session=False
+        cls.query.filter(cls.subject == old_account).update(
+            {'subject_id': new_account.id}, synchronize_session=False
+        )
+        # Also update the revoked_by and granted_by user accounts
+        cls.query.filter(cls.revoked_by == old_account).update(
+            {'revoked_by_id': new_account.id}, synchronize_session=False
+        )
+        cls.query.filter(cls.granted_by == old_account).update(
+            {'granted_by_id': new_account.id}, synchronize_session=False
         )
         db.session.flush()
 
@@ -712,7 +602,7 @@ class FrozenAttributionMixin:
 
     @with_roles(call={'owner', 'subject'})
     def freeze_subject_attribution(
-        self: FrozenAttributionType, actor: User
+        self: FrozenAttributionType, actor: Account
     ) -> FrozenAttributionType:
         """Freeze subject attribution and return a replacement record."""
         if self._title is None:
@@ -740,7 +630,7 @@ class AmendMembership(Generic[MembershipType]):
     to any attribute listed as a data column.
     """
 
-    def __init__(self, membership: MembershipType, actor: User) -> None:
+    def __init__(self, membership: MembershipType, actor: Account) -> None:
         """Create an amendment placeholder."""
         if membership.revoked_at is not None:
             raise MembershipRevokedError(
@@ -779,14 +669,12 @@ class AmendMembership(Generic[MembershipType]):
         return self.membership
 
 
-@event.listens_for(EnumerateMembershipsMixin, 'mapper_configured', propagate=True)
+@event.listens_for(Account, 'mapper_configured', propagate=True)
 def _confirm_enumerated_mixins(mapper, class_) -> None:
     """Confirm that the membership collection attributes actually exist."""
     expected_class = ImmutableMembershipMixin
-    if issubclass(class_, User):
+    if issubclass(class_, Account):
         expected_class = ImmutableUserMembershipMixin
-    elif issubclass(class_, Profile):
-        expected_class = ImmutableProfileMembershipMixin
     for source in (
         class_.__active_membership_attrs__,
         class_.__noninvite_membership_attrs__,

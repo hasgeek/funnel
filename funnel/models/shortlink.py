@@ -17,8 +17,8 @@ from typing_extensions import Literal
 from coaster.sqlalchemy import immutable, with_roles
 
 from . import Mapped, NoIdMixin, UrlType, db, hybrid_property, sa
+from .account import User
 from .helpers import profanity
-from .user import User
 
 __all__ = ['Shortlink']
 
@@ -202,7 +202,7 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
     )
     #: Id of user who created this shortlink (optional)
     user_id = sa.Column(
-        sa.Integer, sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True
+        sa.Integer, sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
     )
     #: User who created this shortlink (optional)
     user: Mapped[Optional[User]] = sa.orm.relationship(User)

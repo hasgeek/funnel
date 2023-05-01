@@ -10,6 +10,7 @@ from werkzeug.utils import cached_property
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import Mapped, db, sa
+from .account import Account, User
 from .helpers import reopen
 from .membership_mixin import (
     FrozenAttributionMixin,
@@ -18,7 +19,6 @@ from .membership_mixin import (
 )
 from .project import Project
 from .proposal import Proposal
-from .user import User
 
 __all__ = ['ProposalMembership']
 
@@ -159,14 +159,14 @@ class __Proposal:
         return self.user
 
 
-@reopen(User)
-class __User:
+@reopen(Account)
+class __Account:
     # pylint: disable=invalid-unary-operand-type
 
     all_proposal_memberships = sa.orm.relationship(
         ProposalMembership,
         lazy='dynamic',
-        foreign_keys=[ProposalMembership.user_id],
+        foreign_keys=[ProposalMembership.subject_id],
         viewonly=True,
     )
 
@@ -174,7 +174,7 @@ class __User:
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProposalMembership.user_id == User.id,
+            ProposalMembership.subject_id == Account.id,
             ~ProposalMembership.is_invite,  # type: ignore[operator]
         ),
         viewonly=True,
@@ -184,7 +184,7 @@ class __User:
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProposalMembership.user_id == User.id,
+            ProposalMembership.subject_id == Account.id,
             ProposalMembership.is_active,  # type: ignore[arg-type]
         ),
         viewonly=True,
@@ -209,5 +209,5 @@ class __User:
     )
 
 
-User.__active_membership_attrs__.add('proposal_memberships')
-User.__noninvite_membership_attrs__.add('noninvite_proposal_memberships')
+Account.__active_membership_attrs__.add('proposal_memberships')
+Account.__noninvite_membership_attrs__.add('noninvite_proposal_memberships')

@@ -14,7 +14,7 @@ from ...models import (
     CommentModeratorReport,
     CommentReplyNotification,
     CommentReportReceivedNotification,
-    DuckTypeUser,
+    DuckTypeAccount,
     NewCommentNotification,
     User,
 )
@@ -71,7 +71,7 @@ class CommentNotification(RenderNotification):
     emoji_prefix = "💬 "
 
     @property
-    def actor(self) -> Union[User, DuckTypeUser]:
+    def actor(self) -> Union[User, DuckTypeAccount]:
         """Actor who commented."""
         return self.comment.user
 

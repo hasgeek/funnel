@@ -12,8 +12,10 @@ class TestUserEmail(TestDatabaseFixture):
     def test_useremail(self) -> None:
         """Test for verifying creation of UserEmail object."""
         oakley = self.fixtures.oakley
-        oakley_new_email = models.user.UserEmail(user=oakley, email='oakley@batdog.ca')
-        assert isinstance(oakley_new_email, models.user.UserEmail)
+        oakley_new_email = models.account.UserEmail(
+            user=oakley, email='oakley@batdog.ca'
+        )
+        assert isinstance(oakley_new_email, models.account.UserEmail)
 
     def test_useremail_get(self) -> None:
         """Test for `UserEmail.get` against email, blake2b160 digest and hex hash."""

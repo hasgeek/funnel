@@ -157,7 +157,7 @@ def test_name_transfer(db_session, user_mort, user_rincewind) -> None:
     assert user_mort.username is None
     assert user_rincewind.username == 'rincewind'
 
-    merged = models.merge_users(user_mort, user_rincewind)
+    merged = models.merge_accounts(user_mort, user_rincewind)
     assert merged == user_mort
     assert user_mort.username == 'rincewind'
     assert user_rincewind.username is None

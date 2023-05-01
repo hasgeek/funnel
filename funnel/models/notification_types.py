@@ -6,6 +6,7 @@ from baseframe import __
 
 from ..typing import UuidModelType
 from . import Mapped
+from .account import Organization, User
 from .comment import Comment, Commentset
 from .moderation import CommentModeratorReport
 from .notification import Notification, notification_categories
@@ -17,7 +18,6 @@ from .proposal import Proposal
 from .rsvp import Rsvp
 from .session import Session
 from .update import Update
-from .user import Organization, User
 
 __all__ = [
     'AccountPasswordNotification',
@@ -59,7 +59,7 @@ class DocumentHasProject:
     @property
     def preference_context(self) -> Profile:
         """Return document's project's account as preference context."""
-        return self.document.project.profile
+        return self.document.project.account
 
 
 class DocumentHasProfile:
@@ -275,7 +275,7 @@ class OrganizationAdminMembershipNotification(
 
     document_model = Organization
     fragment_model = OrganizationMembership
-    roles = ['subject', 'profile_admin']
+    roles = ['subject', 'account_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
@@ -289,7 +289,7 @@ class OrganizationAdminMembershipRevokedNotification(
 
     document_model = Organization
     fragment_model = OrganizationMembership
-    roles = ['subject', 'profile_admin']
+    roles = ['subject', 'account_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 

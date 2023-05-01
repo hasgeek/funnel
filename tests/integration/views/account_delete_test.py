@@ -28,7 +28,10 @@ def given_coowner(
             membership = membership.replace(actor=current_user, is_owner=True)
             return membership
     membership = models.OrganizationMembership(
-        user=current_user, granted_by=current_user, organization=org_uu, is_owner=True
+        subject=current_user,
+        granted_by=current_user,
+        organization=org_uu,
+        is_owner=True,
     )
     db_session.add(membership)
     assert len(org_uu.admin_users) > 1

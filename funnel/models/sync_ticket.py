@@ -10,11 +10,11 @@ import os
 from coaster.sqlalchemy import LazyRoleSet
 
 from . import BaseMixin, BaseScopedNameMixin, Mapped, UuidMixin, db, sa, with_roles
+from .account import User, UserEmail
 from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
-from .user import User, UserEmail
 
 __all__ = [
     'SyncTicket',
@@ -236,7 +236,7 @@ class TicketParticipant(
         sa.Unicode(44), nullable=False, default=make_private_key, unique=True
     )
     badge_printed = sa.Column(sa.Boolean, default=False, nullable=False)
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'), nullable=True)
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=True)
     user: Mapped[Optional[User]] = sa.orm.relationship(
         User, backref=sa.orm.backref('ticket_participants', cascade='all')
     )

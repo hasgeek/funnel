@@ -16,11 +16,10 @@ from pytz import timezone
 from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58
 
-from ..typing import OptionalMigratedTables
 from . import Mapped, RoleMixin, TimestampMixin, db, sa
+from .account import Account, User
 from .project import Project
 from .sync_ticket import TicketParticipant
-from .user import User
 
 __all__ = ['ContactExchange']
 
@@ -57,7 +56,7 @@ class ContactExchange(
     __allow_unmapped__ = True
     #: User who scanned this contact
     user_id = sa.Column(
-        sa.Integer, sa.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True
+        sa.Integer, sa.ForeignKey('account.id', ondelete='CASCADE'), primary_key=True
     )
     user: Mapped[User] = sa.orm.relationship(
         User,
@@ -114,16 +113,14 @@ class ContactExchange(
         return roles
 
     @classmethod
-    def migrate_user(  # type: ignore[return]
-        cls, old_user: User, new_user: User
-    ) -> OptionalMigratedTables:
-        """Migrate one user account to another when merging user accounts."""
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
+        """Migrate one account's data to another when merging accounts."""
         ticket_participant_ids = {
-            ce.ticket_participant_id for ce in new_user.scanned_contacts
+            ce.ticket_participant_id for ce in new_account.scanned_contacts
         }
-        for ce in old_user.scanned_contacts:
+        for ce in old_account.scanned_contacts:
             if ce.ticket_participant_id not in ticket_participant_ids:
-                ce.user = new_user
+                ce.user = new_account
             else:
                 # Discard duplicate contact exchange
                 db.session.delete(ce)

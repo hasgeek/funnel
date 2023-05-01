@@ -22,6 +22,7 @@ from coaster.views import (
 from .. import app
 from ..forms import CommentForm, CommentsetSubscribeForm
 from ..models import (
+    Account,
     Comment,
     CommentModeratorReport,
     CommentReplyNotification,
@@ -46,7 +47,7 @@ from .notification import dispatch_notification
 
 @project_role_change.connect
 def update_project_commentset_membership(
-    project: Project, actor: User, user: User
+    project: Project, actor: Account, user: User
 ) -> None:
     if 'participant' in project.roles_for(user):
         project.commentset.add_subscriber(actor=actor, user=user)
@@ -56,7 +57,7 @@ def update_project_commentset_membership(
 
 @proposal_role_change.connect
 def update_proposal_commentset_membership(
-    proposal: Proposal, actor: User, user: User
+    proposal: Proposal, actor: Account, user: User
 ) -> None:
     if 'submitter' in proposal.roles_for(user):
         proposal.commentset.add_subscriber(actor=actor, user=user)
@@ -150,7 +151,7 @@ AllCommentsView.init_app(app)
 
 def do_post_comment(
     commentset: Commentset,
-    actor: User,
+    actor: Account,
     message: str,
     in_reply_to: Optional[Comment] = None,
 ) -> Comment:
