@@ -7,12 +7,12 @@ from typing import Optional
 from baseframe import __, forms
 
 from ..models import (
+    AccountEmail,
     Project,
     TicketClient,
     TicketEvent,
     TicketParticipant,
     User,
-    UserEmail,
     db,
 )
 
@@ -176,9 +176,9 @@ class TicketParticipantForm(forms.Form):
         """Validate form."""
         result = super().validate(*args, **kwargs)
         with db.session.no_autoflush:
-            useremail = UserEmail.get(email=self.email.data)
-            if useremail is not None:
-                self.user = useremail.user
+            accountemail = AccountEmail.get(email=self.email.data)
+            if accountemail is not None:
+                self.user = accountemail.account
             else:
                 self.user = None
         return result

@@ -17,9 +17,9 @@ from ..models import (
     PASSWORD_MAX_LENGTH,
     PASSWORD_MIN_LENGTH,
     Account,
+    AccountEmailClaim,
     Anchor,
     User,
-    UserEmailClaim,
     check_password_strength,
     getuser,
 )
@@ -83,13 +83,13 @@ class PasswordStrengthValidator:
             if form.edit_user.fullname:
                 user_inputs.append(form.edit_user.fullname)
 
-            for useremail in form.edit_user.emails:
-                user_inputs.append(str(useremail))
+            for accountemail in form.edit_user.emails:
+                user_inputs.append(str(accountemail))
             for emailclaim in form.edit_user.emailclaims:
                 user_inputs.append(str(emailclaim))
 
-            for userphone in form.edit_user.phones:
-                user_inputs.append(str(userphone))
+            for accountphone in form.edit_user.phones:
+                user_inputs.append(str(accountphone))
 
         tested_password = check_password_strength(
             field.data, user_inputs=user_inputs if user_inputs else None
@@ -205,13 +205,13 @@ class PasswordPolicyForm(forms.Form):
             if self.edit_user.fullname:
                 user_inputs.append(self.edit_user.fullname)
 
-            for useremail in self.edit_user.emails:
-                user_inputs.append(str(useremail))
+            for accountemail in self.edit_user.emails:
+                user_inputs.append(str(accountemail))
             for emailclaim in self.edit_user.emailclaims:
                 user_inputs.append(str(emailclaim))
 
-            for userphone in self.edit_user.phones:
-                user_inputs.append(str(userphone))
+            for accountphone in self.edit_user.phones:
+                user_inputs.append(str(accountphone))
 
         tested_password = check_password_strength(
             field.data, user_inputs=user_inputs if user_inputs else None
@@ -500,7 +500,7 @@ class UsernameAvailableForm(forms.Form):
 
 def validate_emailclaim(form, field):
     """Validate if an email address is already pending verification."""
-    existing = UserEmailClaim.get_for(user=form.edit_user, email=field.data)
+    existing = AccountEmailClaim.get_for(user=form.edit_user, email=field.data)
     if existing is not None:
         raise forms.validators.StopValidation(
             _("This email address is pending verification")

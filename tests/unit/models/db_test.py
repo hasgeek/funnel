@@ -25,13 +25,13 @@ class Fixtures:
         self.piglet = piglet
         self.nameless = nameless
 
-        crusoe_email = models.UserEmail(
-            email="crusoe@keepballin.ca", user=crusoe, primary=True
+        crusoe_email = models.AccountEmail(
+            email="crusoe@keepballin.ca", account=crusoe, primary=True
         )
-        crusoe_phone = models.UserPhone(
-            phone='+918123456789', user=crusoe, primary=True
+        crusoe_phone = models.AccountPhone(
+            phone='+918123456789', account=crusoe, primary=True
         )
-        oakley_email = models.UserEmail(email="huh@keepballin.ca", user=oakley)
+        oakley_email = models.AccountEmail(email="huh@keepballin.ca", account=oakley)
         db_session.add_all([crusoe_email, crusoe_phone, oakley_email])
         self.crusoe_email = crusoe_email
         self.crusoe_phone = crusoe_phone

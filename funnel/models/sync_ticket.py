@@ -10,7 +10,7 @@ import os
 from coaster.sqlalchemy import LazyRoleSet
 
 from . import BaseMixin, BaseScopedNameMixin, Mapped, UuidMixin, db, sa, with_roles
-from .account import User, UserEmail
+from .account import AccountEmail, User
 from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import reopen
 from .project import Project
@@ -300,9 +300,9 @@ class TicketParticipant(
     @classmethod
     def upsert(cls, current_project, current_email, **fields):
         ticket_participant = cls.get(current_project, current_email)
-        useremail = UserEmail.get(current_email)
-        if useremail is not None:
-            user = useremail.user
+        accountemail = AccountEmail.get(current_email)
+        if accountemail is not None:
+            user = accountemail.account
         else:
             user = None
         if ticket_participant is not None:

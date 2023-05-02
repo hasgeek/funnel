@@ -57,7 +57,7 @@ def test_user_avatar(db_session, user_twoflower, user_rincewind) -> None:
     assert user_rincewind.avatar == models.ImgeeFurl('https://images.example.com/p.jpg')
 
 
-@pytest.mark.filterwarnings("ignore:Object of type <UserPhone> not in session")
+@pytest.mark.filterwarnings("ignore:Object of type <AccountPhone> not in session")
 def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
     """Suspending a user will mark their account page as private."""
     # Ensure column defaults are set (Profile.state)

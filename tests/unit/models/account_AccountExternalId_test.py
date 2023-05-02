@@ -14,15 +14,15 @@ class TestUserExternalId(TestDatabaseFixture):
         service = 'google'
         oauth_token = '196461869-pPh2cPTnlqGHcJBcyQ4CR407d1j5LY4OdbhNQuvX'  # nosec
         oauth_token_type = 'Bearer'  # nosec
-        result = models.UserExternalId(
+        result = models.AccountExternalId(
             service=service,
-            user=crusoe,
+            account=crusoe,
             userid=crusoe.email.email,
             username=crusoe.email.email,
             oauth_token=oauth_token,
             oauth_token_type=oauth_token_type,
         )
-        assert isinstance(result, models.UserExternalId)
+        assert isinstance(result, models.AccountExternalId)
         assert f'<UserExternalId {service}:{crusoe.email.email} of {crusoe!r}>' in repr(
             result
         )
@@ -32,14 +32,14 @@ class TestUserExternalId(TestDatabaseFixture):
         service = 'twitter'
         # scenario 1: when neither userid nor username is passed
         with pytest.raises(TypeError):
-            models.UserExternalId.get(service)  # type: ignore[call-overload]
+            models.AccountExternalId.get(service)  # type: ignore[call-overload]
 
         crusoe = self.fixtures.crusoe
         oauth_token = 'this-is-a-sample-token'  # nosec
         oauth_token_type = 'Bearer'  # nosec
-        externalid = models.UserExternalId(
+        externalid = models.AccountExternalId(
             service=service,
-            user=crusoe,
+            account=crusoe,
             userid=crusoe.email.email,
             username=crusoe.email.email,
             oauth_token=oauth_token,
@@ -48,18 +48,18 @@ class TestUserExternalId(TestDatabaseFixture):
         self.db_session.add(externalid)
         self.db_session.commit()
         # scenario 2: when userid is passed
-        get_by_userid = models.UserExternalId.get(
+        get_by_userid = models.AccountExternalId.get(
             service=service, userid=crusoe.email.email
         )
-        assert isinstance(get_by_userid, models.UserExternalId)
+        assert isinstance(get_by_userid, models.AccountExternalId)
         assert f'<UserExternalId {service}:{crusoe.email.email} of {crusoe!r}>' in repr(
             get_by_userid
         )
         # scenario 3: when username is passed
-        get_by_username = models.UserExternalId.get(
+        get_by_username = models.AccountExternalId.get(
             service=service, username=crusoe.email.email
         )
-        assert isinstance(get_by_username, models.UserExternalId)
+        assert isinstance(get_by_username, models.AccountExternalId)
         assert f'<UserExternalId {service}:{crusoe.email.email} of {crusoe!r}>' in repr(
             get_by_username
         )

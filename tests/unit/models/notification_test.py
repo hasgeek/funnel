@@ -13,7 +13,7 @@ import pytest
 from funnel import models
 
 pytestmark = pytest.mark.filterwarnings(
-    "ignore:Object of type <UserEmail> not in session"
+    "ignore:Object of type <AccountEmail> not in session"
 )
 
 
@@ -72,7 +72,7 @@ def project_fixtures(db_session) -> SimpleNamespace:  # pylint: disable=too-many
 
     user_editor = models.User(username='user_editor', fullname="User Editor")
     user_editor.add_email('editor@example.com')
-    user_editor_phone = models.UserPhone(user=user_editor, phone='+12345678900')
+    user_editor_phone = models.AccountPhone(account=user_editor, phone='+12345678900')
 
     user_participant = models.User(
         username='user_participant', title="User Participant"

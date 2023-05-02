@@ -38,12 +38,12 @@ from ..forms import (
     RegisterWithOtp,
 )
 from ..models import (
+    AccountEmail,
+    AccountEmailClaim,
+    AccountExternalId,
     AuthClientCredential,
     Profile,
     User,
-    UserEmail,
-    UserEmailClaim,
-    UserExternalId,
     UserSession,
     db,
     getextid,
@@ -454,17 +454,18 @@ def get_user_extid(service, userdata):
     extid = getextid(service=service, userid=userdata.userid)
 
     user = None
-    useremail = None
+    accountemail = None
 
     if userdata.email:
-        useremail = UserEmail.get(email=userdata.email)
+        accountemail = AccountEmail.get(email=userdata.email)
 
     if extid is not None:
-        user = extid.user
-    # It is possible at this time that extid.user and useremail.user are different.
-    # We do not handle it here, but in the parent function login_service_postcallback.
-    elif useremail is not None and useremail.user is not None:
-        user = useremail.user
+        user = extid.account
+    # It is possible at this time that extid.account and accountemail.account are
+    # different. We do not handle it here, but in the parent function
+    # login_service_postcallback.
+    elif accountemail is not None and accountemail.account is not None:
+        user = accountemail.account
     else:
         # Cross-check with all other instances of the same LoginProvider (if we don't
         # have a user) This is (for eg) for when we have two Twitter services with
@@ -476,11 +477,11 @@ def get_user_extid(service, userdata):
             ):
                 other_extid = getextid(service=other_service, userid=userdata.userid)
                 if other_extid is not None:
-                    user = other_extid.user
+                    user = other_extid.account
                     break
 
     # TODO: Make this work when we have multiple confirmed email addresses available
-    return user, extid, useremail
+    return user, extid, accountemail
 
 
 def login_service_postcallback(service: str, userdata: LoginProviderData) -> ReturnView:
@@ -491,10 +492,10 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
     login service.
     """
     # 1. Check whether we have an existing UserExternalId
-    user, extid, useremail = get_user_extid(service, userdata)
+    user, extid, accountemail = get_user_extid(service, userdata)
     # If extid is not None, user.extid == user, guaranteed.
-    # If extid is None but useremail is not None, user == useremail.user
-    # However, if both extid and useremail are present, they may be different users
+    # If extid is None but accountemail is not None, user == accountemail.account
+    # However, if both extid and accountemail are present, they may be different users
     if extid is not None:
         extid.oauth_token = userdata.oauth_token
         extid.oauth_token_secret = userdata.oauth_token_secret
@@ -510,8 +511,8 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
         extid.last_used_at = sa.func.utcnow()
     else:
         # New external id. Register it.
-        extid = UserExternalId(
-            user=user,  # This may be None right now. Will be handled below
+        extid = AccountExternalId(
+            account=user,  # This may be None right now. Will be handled below
             service=service,
             userid=userdata.userid,
             username=userdata.username,
@@ -530,27 +531,27 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
         if current_auth:
             # Attach this id to currently logged-in user
             user = current_auth.user
-            extid.user = user
+            extid.account = user
         else:
             # Register a new user
             user = register_internal(None, userdata.fullname, None)
-            extid.user = user
+            extid.account = user
             if userdata.username:
                 if Profile.is_available_name(userdata.username):
                     # Set a username for this user if it's available
                     user.username = userdata.username
-    else:  # We have an existing user account from extid or useremail
+    else:  # We have an existing user account from extid or accountemail
         if current_auth and current_auth.user != user:
             # Woah! Account merger handler required
             # Always confirm with user before doing an account merger
             session['merge_buid'] = user.buid
-        elif useremail and useremail.user != user:
-            # Once again, account merger required since the extid and useremail are
-            # linked to different users
-            session['merge_buid'] = useremail.user.buid
+        elif accountemail and accountemail.account != user:
+            # Once again, account merger required since the extid and accountemail are
+            # linked to different accounts
+            session['merge_buid'] = accountemail.account.buid
 
     # Check for new email addresses
-    if userdata.email and not useremail:
+    if userdata.email and not accountemail:
         db.session.add(user.add_email(userdata.email))
 
     # If there are multiple email addresses, add any that are not already claimed.
@@ -559,15 +560,15 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
     # isn't already one pending
     if userdata.emails:
         for email in userdata.emails:
-            existing = UserEmail.get(email)
+            existing = AccountEmail.get(email)
             if existing is not None:
-                if existing.user != user and 'merge_buid' not in session:
-                    session['merge_buid'] = existing.user.buid
+                if existing.account != user and 'merge_buid' not in session:
+                    session['merge_buid'] = existing.account.buid
             else:
                 db.session.add(user.add_email(email))
 
     if userdata.emailclaim:
-        emailclaim = UserEmailClaim(user=user, email=userdata.emailclaim)
+        emailclaim = AccountEmailClaim(account=user, email=userdata.emailclaim)
         db.session.add(emailclaim)
         send_email_verify_link(emailclaim)
 

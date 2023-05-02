@@ -14,7 +14,7 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from . import NoIdMixin, UuidMixin, db, sa
-from .account import Account, User, UserEmail, UserEmailClaim, UserPhone
+from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone, User
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
@@ -121,19 +121,19 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
         pass
 
     @with_roles(call={'owner', 'project_promoter'})
-    def user_email(self) -> Optional[UserEmail]:
+    def user_email(self) -> Optional[AccountEmail]:
         """User's preferred email address for this registration."""
         return self.user.transport_for_email(self.project.profile)
 
     @with_roles(call={'owner', 'project_promoter'})
-    def user_phone(self) -> Optional[UserEmail]:
+    def user_phone(self) -> Optional[AccountEmail]:
         """User's preferred phone number for this registration."""
         return self.user.transport_for_sms(self.project.profile)
 
     @with_roles(call={'owner', 'project_promoter'})
     def best_contact(
         self,
-    ) -> Tuple[Union[UserEmail, UserEmailClaim, UserPhone, None], str]:
+    ) -> Tuple[Union[AccountEmail, AccountEmailClaim, AccountPhone, None], str]:
         email = self.user_email()
         if email:
             return email, 'e'

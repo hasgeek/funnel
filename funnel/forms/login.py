@@ -8,14 +8,14 @@ from baseframe import __, forms
 
 from ..models import (
     PASSWORD_MAX_LENGTH,
+    AccountEmail,
+    AccountEmailClaim,
+    AccountPhone,
     EmailAddress,
     EmailAddressBlockedError,
     PhoneNumber,
     PhoneNumberBlockedError,
     User,
-    UserEmail,
-    UserEmailClaim,
-    UserPhone,
     UserSession,
     check_password_strength,
     getuser,
@@ -122,7 +122,7 @@ class LoginForm(forms.RecaptchaForm):
 
     __returns__ = ('user', 'anchor', 'weak_password', 'new_email', 'new_phone')
     user: Optional[User] = None
-    anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone]] = None
+    anchor: Optional[Union[AccountEmail, AccountEmailClaim, AccountPhone]] = None
     weak_password: Optional[bool] = None
     new_email: Optional[str] = None
     new_phone: Optional[str] = None

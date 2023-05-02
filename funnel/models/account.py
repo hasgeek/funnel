@@ -65,10 +65,10 @@ __all__ = [
     'AccountOldId',
     'Organization',
     'Team',
-    'UserEmail',
-    'UserEmailClaim',
-    'UserPhone',
-    'UserExternalId',
+    'AccountEmail',
+    'AccountEmailClaim',
+    'AccountPhone',
+    'AccountExternalId',
     'Anchor',
 ]
 
@@ -305,8 +305,8 @@ class Account(
             defer(cls.timezone),
         ]
 
-    primary_email: Optional[UserEmail]
-    primary_phone: Optional[UserPhone]
+    primary_email: Optional[AccountEmail]
+    primary_phone: Optional[AccountPhone]
 
     def __repr__(self) -> str:
         if self.name:
@@ -392,48 +392,51 @@ class Account(
         email: str,
         primary: bool = False,
         private: bool = False,
-    ) -> UserEmail:
+    ) -> AccountEmail:
         """Add an email address (assumed to be verified)."""
-        useremail = UserEmail(user=self, email=email, private=private)
-        useremail = cast(
-            UserEmail,
+        accountemail = AccountEmail(account=self, email=email, private=private)
+        accountemail = cast(
+            AccountEmail,
             failsafe_add(
-                db.session, useremail, user=self, email_address=useremail.email_address
+                db.session,
+                accountemail,
+                account=self,
+                email_address=accountemail.email_address,
             ),
         )
         if primary:
-            self.primary_email = useremail
-        return useremail
-        # FIXME: This should remove competing instances of UserEmailClaim
+            self.primary_email = accountemail
+        return accountemail
+        # FIXME: This should remove competing instances of AccountEmailClaim
 
     def del_email(self, email: str) -> None:
         """Remove an email address from the user's account."""
-        useremail = UserEmail.get_for(user=self, email=email)
-        if useremail is not None:
-            if self.primary_email in (useremail, None):
+        accountemail = AccountEmail.get_for(user=self, email=email)
+        if accountemail is not None:
+            if self.primary_email in (accountemail, None):
                 self.primary_email = (
-                    UserEmail.query.filter(
-                        UserEmail.user == self, UserEmail.id != useremail.id
+                    AccountEmail.query.filter(
+                        AccountEmail.account == self, AccountEmail.id != accountemail.id
                     )
-                    .order_by(UserEmail.created_at.desc())
+                    .order_by(AccountEmail.created_at.desc())
                     .first()
                 )
-            db.session.delete(useremail)
+            db.session.delete(accountemail)
 
     @property
-    def email(self) -> Union[Literal[''], UserEmail]:
+    def email(self) -> Union[Literal[''], AccountEmail]:
         """Return primary email address for user."""
         # Look for a primary address
-        useremail = self.primary_email
-        if useremail is not None:
-            return useremail
+        accountemail = self.primary_email
+        if accountemail is not None:
+            return accountemail
         # No primary? Maybe there's one that's not set as primary?
         if self.emails:
-            useremail = self.emails[0]
+            accountemail = self.emails[0]
             # XXX: Mark as primary. This may or may not be saved depending on
             # whether the request ended in a database commit.
-            self.primary_email = useremail
-            return useremail
+            self.primary_email = accountemail
+            return accountemail
         # This user has no email address. Return a blank string instead of None
         # to support the common use case, where the caller will use str(user.email)
         # to get the email address as a string.
@@ -446,47 +449,50 @@ class Account(
         phone: str,
         primary: bool = False,
         private: bool = False,
-    ) -> UserPhone:
+    ) -> AccountPhone:
         """Add a phone number (assumed to be verified)."""
-        userphone = UserPhone(user=self, phone=phone, private=private)
-        userphone = cast(
-            UserPhone,
+        accountphone = AccountPhone(account=self, phone=phone, private=private)
+        accountphone = cast(
+            AccountPhone,
             failsafe_add(
-                db.session, userphone, user=self, phone_number=userphone.phone_number
+                db.session,
+                accountphone,
+                account=self,
+                phone_number=accountphone.phone_number,
             ),
         )
         if primary:
-            self.primary_phone = userphone
-        return userphone
+            self.primary_phone = accountphone
+        return accountphone
 
     def del_phone(self, phone: str) -> None:
         """Remove a phone number from the user's account."""
-        userphone = UserPhone.get_for(user=self, phone=phone)
-        if userphone is not None:
-            if self.primary_phone in (userphone, None):
+        accountphone = AccountPhone.get_for(user=self, phone=phone)
+        if accountphone is not None:
+            if self.primary_phone in (accountphone, None):
                 self.primary_phone = (
-                    UserPhone.query.filter(
-                        UserPhone.user == self, UserPhone.id != userphone.id
+                    AccountPhone.query.filter(
+                        AccountPhone.account == self, AccountPhone.id != accountphone.id
                     )
-                    .order_by(UserPhone.created_at.desc())
+                    .order_by(AccountPhone.created_at.desc())
                     .first()
                 )
-            db.session.delete(userphone)
+            db.session.delete(accountphone)
 
     @property
-    def phone(self) -> Union[Literal[''], UserPhone]:
+    def phone(self) -> Union[Literal[''], AccountPhone]:
         """Return primary phone number for user."""
         # Look for a primary phone number
-        userphone = self.primary_phone
-        if userphone is not None:
-            return userphone
+        accountphone = self.primary_phone
+        if accountphone is not None:
+            return accountphone
         # No primary? Maybe there's one that's not set as primary?
         if self.phones:
-            userphone = self.phones[0]
+            accountphone = self.phones[0]
             # XXX: Mark as primary. This may or may not be saved depending on
             # whether the request ended in a database commit.
-            self.primary_phone = userphone
-            return userphone
+            self.primary_phone = accountphone
+            return accountphone
         # This user has no phone number. Return a blank string instead of None
         # to support the common use case, where the caller will use str(user.phone)
         # to get the phone number as a string.
@@ -583,7 +589,7 @@ class Account(
         )
 
     @with_roles(call={'owner'})
-    def transport_for_email(self, context) -> Optional[UserEmail]:
+    def transport_for_email(self, context) -> Optional[AccountEmail]:
         """Return user's preferred email address within a context."""
         # TODO: Per-account/project customization is a future option
         if self.state.ACTIVE:
@@ -591,7 +597,7 @@ class Account(
         return None
 
     @with_roles(call={'owner'})
-    def transport_for_sms(self, context) -> Optional[UserPhone]:
+    def transport_for_sms(self, context) -> Optional[AccountPhone]:
         """Return user's preferred phone number within a context."""
         # TODO: Per-account/project customization is a future option
         if (
@@ -646,7 +652,7 @@ class Account(
     @with_roles(call={'owner'})
     def transport_for(
         self, transport: str, context: Any  # type: ignore[name-defined]
-    ) -> Optional[Union[UserEmail, UserPhone]]:
+    ) -> Optional[Union[AccountEmail, AccountPhone]]:
         """
         Get transport address for a given transport and context.
 
@@ -654,14 +660,17 @@ class Account(
         """
         return getattr(self, 'transport_for_' + transport)(context)
 
-    def default_email(self, context=None) -> Optional[Union[UserEmail, UserEmailClaim]]:
+    def default_email(
+        self, context=None
+    ) -> Optional[Union[AccountEmail, AccountEmailClaim]]:
         """
         Return default email address (verified if present, else unverified).
 
         ..note::
-            This is a temporary helper method, pending merger of :class:`UserEmailClaim`
-            into :class:`UserEmail` with :attr:`~UserEmail.verified` ``== False``. The
-            appropriate replacement is :meth:`User.transport_for_email` with a context.
+            This is a temporary helper method, pending merger of
+            :class:`AccountEmailClaim` into :class:`AccountEmail` with
+            :attr:`~AccountEmail.verified` ``== False``. The appropriate replacement is
+            :meth:`Account.transport_for_email` with a context.
         """
         email = self.transport_for_email(context=context)
         if email:
@@ -944,7 +953,7 @@ class Account(
         if (
             prefix != '@'
             and prefix.startswith('@')
-            and UserExternalId.__at_username_services__
+            and AccountExternalId.__at_username_services__
         ):
             # @-prefixed, so look for usernames, including other @username-using
             # services like Twitter and GitHub. Make a union of three queries.
@@ -987,7 +996,7 @@ class Account(
             # Use param `prefix` instead of `like_query` because it's not a LIKE query.
             # Combine results with regular user search
             users = (
-                cls.query.join(UserEmail)
+                cls.query.join(AccountEmail)
                 .join(EmailAddress)
                 .filter(
                     EmailAddress.get_filter(email=prefix),
@@ -1095,10 +1104,12 @@ class AccountOldId(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined
         backref=sa.orm.backref('oldid', uselist=False),
     )
     #: User id of new user
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
+    account_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
     #: New account
     account: Mapped[Account] = sa.orm.relationship(
-        Account, foreign_keys=[user_id], backref=sa.orm.backref('oldids', cascade='all')
+        Account,
+        foreign_keys=[account_id],
+        backref=sa.orm.backref('oldids', cascade='all'),
     )
 
     def __repr__(self) -> str:
@@ -1200,7 +1211,7 @@ team_membership = sa.Table(
     'team_membership',
     db.Model.metadata,  # type: ignore[has-type]
     sa.Column(
-        'user_id',
+        'account_id',
         sa.Integer,
         sa.ForeignKey('account.id'),
         nullable=False,
@@ -1320,23 +1331,24 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
 # --- User email/phone and misc
 
 
-class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class AccountEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     """An email address linked to a user account."""
 
-    __tablename__ = 'user_email'
+    __tablename__ = 'account_email'
     __allow_unmapped__ = True
     __email_optional__ = False
     __email_unique__ = True
     __email_is_exclusive__ = True
-    __email_for__ = 'user'
+    __email_for__ = 'account'
 
     # Tell mypy that these are not optional
     email_address: Mapped[EmailAddress]
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
-    user: Mapped[User] = sa.orm.relationship(
-        User, backref=sa.orm.backref('emails', cascade='all')
+    account_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
+    account: Mapped[Account] = sa.orm.relationship(
+        Account, backref=sa.orm.backref('emails', cascade='all')
     )
+    user: Mapped[Account] = sa.orm.synonym('account')
 
     private = sa.Column(sa.Boolean, nullable=False, default=False)
 
@@ -1346,15 +1358,15 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
         'related': {'email', 'private', 'type'},
     }
 
-    def __init__(self, user: User, **kwargs) -> None:
+    def __init__(self, account: Account, **kwargs) -> None:
         email = kwargs.pop('email', None)
         if email:
-            kwargs['email_address'] = EmailAddress.add_for(user, email)
-        super().__init__(user=user, **kwargs)
+            kwargs['email_address'] = EmailAddress.add_for(account, email)
+        super().__init__(account=account, **kwargs)
 
     def __repr__(self) -> str:
-        """Represent :class:`UserEmail` as a string."""
-        return f'<UserEmail {self.email} of {self.user!r}>'
+        """Represent this class as a string."""
+        return f'<AccountEmail {self.email} of {self.account!r}>'
 
     def __str__(self) -> str:  # pylint: disable=invalid-str-returned
         """Email address as a string."""
@@ -1363,23 +1375,23 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
     @property
     def primary(self) -> bool:
         """Check whether this email address is the user's primary."""
-        return self.user.primary_email == self
+        return self.account.primary_email == self
 
     @primary.setter
     def primary(self, value: bool) -> None:
         """Set or unset this email address as primary."""
         if value:
-            self.user.primary_email = self
+            self.account.primary_email = self
         else:
-            if self.user.primary_email == self:
-                self.user.primary_email = None
+            if self.account.primary_email == self:
+                self.account.primary_email = None
 
     @overload
     @classmethod
     def get(
         cls,
         email: str,
-    ) -> Optional[UserEmail]:
+    ) -> Optional[AccountEmail]:
         ...
 
     @overload
@@ -1388,7 +1400,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
         cls,
         *,
         blake2b160: bytes,
-    ) -> Optional[UserEmail]:
+    ) -> Optional[AccountEmail]:
         ...
 
     @overload
@@ -1397,7 +1409,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
         cls,
         *,
         email_hash: str,
-    ) -> Optional[UserEmail]:
+    ) -> Optional[AccountEmail]:
         ...
 
     @classmethod
@@ -1407,9 +1419,9 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
         *,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
-    ) -> Optional[UserEmail]:
+    ) -> Optional[AccountEmail]:
         """
-        Return a UserEmail with matching email or blake2b160 hash.
+        Return an AccountEmail with matching email or blake2b160 hash.
 
         :param email: Email address to look up
         :param blake2b160: 160-bit blake2b of email address to look up
@@ -1432,7 +1444,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
         user: User,
         *,
         email: str,
-    ) -> Optional[UserEmail]:
+    ) -> Optional[AccountEmail]:
         ...
 
     @overload
@@ -1442,7 +1454,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
         user: User,
         *,
         blake2b160: bytes,
-    ) -> Optional[UserEmail]:
+    ) -> Optional[AccountEmail]:
         ...
 
     @overload
@@ -1452,7 +1464,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
         user: User,
         *,
         email_hash: str,
-    ) -> Optional[UserEmail]:
+    ) -> Optional[AccountEmail]:
         ...
 
     @classmethod
@@ -1463,9 +1475,9 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
         email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
-    ) -> Optional[UserEmail]:
+    ) -> Optional[AccountEmail]:
         """
-        Return a UserEmail with matching email or hash if it belongs to the given user.
+        Return instance with matching email or hash if it belongs to the given user.
 
         :param User user: User to look up for
         :param email: Email address to look up
@@ -1475,7 +1487,7 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
         return (
             cls.query.join(EmailAddress)
             .filter(
-                cls.user == user,
+                cls.account == user,
                 EmailAddress.get_filter(
                     email=email, blake2b160=blake2b160, email_hash=email_hash
                 ),
@@ -1489,40 +1501,41 @@ class UserEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-de
     ) -> OptionalMigratedTables:
         """Migrate one account's data to another when merging accounts."""
         primary_email = old_account.primary_email
-        for useremail in list(old_account.emails):
-            useremail.user = new_account
+        for accountemail in list(old_account.emails):
+            accountemail.user = new_account
         if new_account.primary_email is None:
             new_account.primary_email = primary_email
         old_account.primary_email = None
         return [cls.__table__.name, user_email_primary_table.name]
 
 
-class UserEmailClaim(
+class AccountEmailClaim(
     EmailAddressMixin,
     BaseMixin,
     db.Model,  # type: ignore[name-defined]
 ):
     """Claimed but unverified email address for a user."""
 
-    __tablename__ = 'user_email_claim'
+    __tablename__ = 'account_email_claim'
     __allow_unmapped__ = True
     __email_optional__ = False
     __email_unique__ = False
-    __email_for__ = 'user'
+    __email_for__ = 'account'
     __email_is_exclusive__ = False
 
     # Tell mypy that these are not optional
     email_address: Mapped[EmailAddress]
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
-    user: Mapped[User] = sa.orm.relationship(
-        User, backref=sa.orm.backref('emailclaims', cascade='all')
+    account_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
+    account: Mapped[Account] = sa.orm.relationship(
+        Account, backref=sa.orm.backref('emailclaims', cascade='all')
     )
+    user: Mapped[Account] = sa.orm.synonym('account')
     verification_code = sa.Column(sa.String(44), nullable=False, default=newsecret)
 
     private = sa.Column(sa.Boolean, nullable=False, default=False)
 
-    __table_args__ = (sa.UniqueConstraint('user_id', 'email_address_id'),)
+    __table_args__ = (sa.UniqueConstraint('account_id', 'email_address_id'),)
 
     __datasets__ = {
         'primary': {'user', 'email', 'private', 'type'},
@@ -1530,18 +1543,18 @@ class UserEmailClaim(
         'related': {'email', 'private', 'type'},
     }
 
-    def __init__(self, user: User, **kwargs) -> None:
+    def __init__(self, account: Account, **kwargs) -> None:
         email = kwargs.pop('email', None)
         if email:
-            kwargs['email_address'] = EmailAddress.add_for(user, email)
-        super().__init__(user=user, **kwargs)
+            kwargs['email_address'] = EmailAddress.add_for(account, email)
+        super().__init__(account=account, **kwargs)
         self.blake2b = hashlib.blake2b(
             self.email.lower().encode(), digest_size=16
         ).digest()
 
     def __repr__(self) -> str:
-        """Represent :class:`UserEmailClaim` as a string."""
-        return f'<UserEmailClaim {self.email} of {self.user!r}>'
+        """Represent this class as a string."""
+        return f'<AccountEmailClaim {self.email} of {self.account!r}>'
 
     def __str__(self):  # pylint: disable=invalid-str-returned
         """Return email as a string."""
@@ -1565,7 +1578,7 @@ class UserEmailClaim(
         user: User,
         *,
         email: str,
-    ) -> Optional[UserEmailClaim]:
+    ) -> Optional[AccountEmailClaim]:
         ...
 
     @overload
@@ -1575,7 +1588,7 @@ class UserEmailClaim(
         user: User,
         *,
         blake2b160: bytes,
-    ) -> Optional[UserEmailClaim]:
+    ) -> Optional[AccountEmailClaim]:
         ...
 
     @overload
@@ -1585,7 +1598,7 @@ class UserEmailClaim(
         user: User,
         *,
         email_hash: str,
-    ) -> Optional[UserEmailClaim]:
+    ) -> Optional[AccountEmailClaim]:
         ...
 
     @classmethod
@@ -1596,9 +1609,9 @@ class UserEmailClaim(
         email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
-    ) -> Optional[UserEmailClaim]:
+    ) -> Optional[AccountEmailClaim]:
         """
-        Return a UserEmailClaim with matching email address for the given user.
+        Return an AccountEmailClaim with matching email address for the given user.
 
         :param User user: User who claimed this email address
         :param str email: Email address to look up
@@ -1608,7 +1621,7 @@ class UserEmailClaim(
         return (
             cls.query.join(EmailAddress)
             .filter(
-                cls.user == user,
+                cls.account == user,
                 EmailAddress.get_filter(
                     email=email, blake2b160=blake2b160, email_hash=email_hash
                 ),
@@ -1623,7 +1636,7 @@ class UserEmailClaim(
         verification_code: str,
         *,
         email: str,
-    ) -> Optional[UserEmailClaim]:
+    ) -> Optional[AccountEmailClaim]:
         ...
 
     @overload
@@ -1633,7 +1646,7 @@ class UserEmailClaim(
         verification_code: str,
         *,
         blake2b160: bytes,
-    ) -> Optional[UserEmailClaim]:
+    ) -> Optional[AccountEmailClaim]:
         ...
 
     @overload
@@ -1643,7 +1656,7 @@ class UserEmailClaim(
         verification_code: str,
         *,
         email_hash: str,
-    ) -> Optional[UserEmailClaim]:
+    ) -> Optional[AccountEmailClaim]:
         ...
 
     @classmethod
@@ -1654,8 +1667,8 @@ class UserEmailClaim(
         email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
         email_hash: Optional[str] = None,
-    ) -> Optional[UserEmailClaim]:
-        """Return UserEmailClaim instance given verification code and email or hash."""
+    ) -> Optional[AccountEmailClaim]:
+        """Return an instance given verification code and email or hash."""
         return (
             cls.query.join(EmailAddress)
             .filter(
@@ -1670,30 +1683,31 @@ class UserEmailClaim(
     @classmethod
     def all(cls, email: str) -> Query:  # noqa: A003
         """
-        Return all UserEmailClaim instances with matching email address.
+        Return all instances with the matching email address.
 
         :param str email: Email address to lookup
         """
         return cls.query.join(EmailAddress).filter(EmailAddress.get_filter(email=email))
 
 
-auto_init_default(UserEmailClaim.verification_code)
+auto_init_default(AccountEmailClaim.verification_code)
 
 
-class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
+class AccountPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     """A phone number linked to a user account."""
 
-    __tablename__ = 'user_phone'
+    __tablename__ = 'account_phone'
     __allow_unmapped__ = True
     __phone_optional__ = False
     __phone_unique__ = True
     __phone_is_exclusive__ = True
-    __phone_for__ = 'user'
+    __phone_for__ = 'account'
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
-    user: Mapped[User] = sa.orm.relationship(
-        User, backref=sa.orm.backref('phones', cascade='all')
+    account_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
+    account: Mapped[Account] = sa.orm.relationship(
+        Account, backref=sa.orm.backref('phones', cascade='all')
     )
+    user: Mapped[Account] = sa.orm.synonym('account')
 
     private = sa.Column(sa.Boolean, nullable=False, default=False)
 
@@ -1703,15 +1717,15 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
         'related': {'phone', 'private', 'type'},
     }
 
-    def __init__(self, user, **kwargs):
+    def __init__(self, account, **kwargs):
         phone = kwargs.pop('phone', None)
         if phone:
-            kwargs['phone_number'] = PhoneNumber.add_for(user, phone)
-        super().__init__(user=user, **kwargs)
+            kwargs['phone_number'] = PhoneNumber.add_for(account, phone)
+        super().__init__(account=account, **kwargs)
 
     def __repr__(self) -> str:
-        """Represent :class:`UserPhone` as a string."""
-        return f'UserPhone(phone={self.phone!r}, user={self.user!r})'
+        """Represent this class as a string."""
+        return f'AccountPhone(phone={self.phone!r}, account={self.account!r})'
 
     def __str__(self) -> str:
         """Return phone number as a string."""
@@ -1734,22 +1748,22 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
     @property
     def primary(self) -> bool:
         """Check if this is the user's primary phone number."""
-        return self.user.primary_phone == self
+        return self.account.primary_phone == self
 
     @primary.setter
     def primary(self, value: bool) -> None:
         if value:
-            self.user.primary_phone = self
+            self.account.primary_phone = self
         else:
-            if self.user.primary_phone == self:
-                self.user.primary_phone = None
+            if self.account.primary_phone == self:
+                self.account.primary_phone = None
 
     @overload
     @classmethod
     def get(
         cls,
         phone: str,
-    ) -> Optional[UserPhone]:
+    ) -> Optional[AccountPhone]:
         ...
 
     @overload
@@ -1758,7 +1772,7 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
         cls,
         *,
         blake2b160: bytes,
-    ) -> Optional[UserPhone]:
+    ) -> Optional[AccountPhone]:
         ...
 
     @overload
@@ -1767,7 +1781,7 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
         cls,
         *,
         phone_hash: str,
-    ) -> Optional[UserPhone]:
+    ) -> Optional[AccountPhone]:
         ...
 
     @classmethod
@@ -1777,9 +1791,9 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
         *,
         blake2b160: Optional[bytes] = None,
         phone_hash: Optional[str] = None,
-    ) -> Optional[UserPhone]:
+    ) -> Optional[AccountPhone]:
         """
-        Return a UserPhone with matching phone number.
+        Return an AccountPhone with matching phone number.
 
         :param phone: Phone number to lookup
         :param blake2b160: 160-bit blake2b of phone number to look up
@@ -1802,7 +1816,7 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
         user: User,
         *,
         phone: str,
-    ) -> Optional[UserPhone]:
+    ) -> Optional[AccountPhone]:
         ...
 
     @overload
@@ -1812,7 +1826,7 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
         user: User,
         *,
         blake2b160: bytes,
-    ) -> Optional[UserPhone]:
+    ) -> Optional[AccountPhone]:
         ...
 
     @overload
@@ -1822,7 +1836,7 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
         user: User,
         *,
         phone_hash: str,
-    ) -> Optional[UserPhone]:
+    ) -> Optional[AccountPhone]:
         ...
 
     @classmethod
@@ -1833,9 +1847,9 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
         phone: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
         phone_hash: Optional[str] = None,
-    ) -> Optional[UserPhone]:
+    ) -> Optional[AccountPhone]:
         """
-        Return a UserPhone with matching phone or hash if it belongs to the given user.
+        Return an instance with matching phone or hash if it belongs to the given user.
 
         :param User user: User to look up for
         :param phone: Email address to look up
@@ -1845,7 +1859,7 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
         return (
             cls.query.join(PhoneNumber)
             .filter(
-                cls.user == user,
+                cls.account == user,
                 PhoneNumber.get_filter(
                     phone=phone, blake2b160=blake2b160, phone_hash=phone_hash
                 ),
@@ -1859,26 +1873,27 @@ class UserPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-def
     ) -> OptionalMigratedTables:
         """Migrate one account's data to another when merging accounts."""
         primary_phone = old_account.primary_phone
-        for userphone in list(old_account.phones):
-            userphone.user = new_account
+        for accountphone in list(old_account.phones):
+            accountphone.user = new_account
         if new_account.primary_phone is None:
             new_account.primary_phone = primary_phone
         old_account.primary_phone = None
         return [cls.__table__.name, user_phone_primary_table.name]
 
 
-class UserExternalId(BaseMixin, db.Model):  # type: ignore[name-defined]
+class AccountExternalId(BaseMixin, db.Model):  # type: ignore[name-defined]
     """An external connected account for a user."""
 
-    __tablename__ = 'user_externalid'
+    __tablename__ = 'account_externalid'
     __allow_unmapped__ = True
     __at_username_services__: List[str] = []
     #: Foreign key to user table
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
+    account_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
     #: User that this connected account belongs to
-    user: Mapped[User] = sa.orm.relationship(
-        User, backref=sa.orm.backref('externalids', cascade='all')
+    account: Mapped[Account] = sa.orm.relationship(
+        Account, backref=sa.orm.backref('externalids', cascade='all')
     )
+    user: Mapped[Account] = sa.orm.synonym('account')
     #: Identity of the external service (in app's login provider registry)
     service = sa.Column(sa.UnicodeText, nullable=False)
     #: Unique user id as per external service, used for identifying related accounts
@@ -1914,7 +1929,7 @@ class UserExternalId(BaseMixin, db.Model):  # type: ignore[name-defined]
 
     def __repr__(self) -> str:
         """Represent :class:`UserExternalId` as a string."""
-        return f'<UserExternalId {self.service}:{self.username} of {self.user!r}>'
+        return f'<UserExternalId {self.service}:{self.username} of {self.account!r}>'
 
     @overload
     @classmethod
@@ -1923,7 +1938,7 @@ class UserExternalId(BaseMixin, db.Model):  # type: ignore[name-defined]
         service: str,
         *,
         userid: str,
-    ) -> Optional[UserExternalId]:
+    ) -> Optional[AccountExternalId]:
         ...
 
     @overload
@@ -1933,7 +1948,7 @@ class UserExternalId(BaseMixin, db.Model):  # type: ignore[name-defined]
         service: str,
         *,
         username: str,
-    ) -> Optional[UserExternalId]:
+    ) -> Optional[AccountExternalId]:
         ...
 
     @classmethod
@@ -1943,7 +1958,7 @@ class UserExternalId(BaseMixin, db.Model):  # type: ignore[name-defined]
         *,
         userid: Optional[str] = None,
         username: Optional[str] = None,
-    ) -> Optional[UserExternalId]:
+    ) -> Optional[AccountExternalId]:
         """
         Return a UserExternalId with the given service and userid or username.
 
@@ -1961,14 +1976,14 @@ class UserExternalId(BaseMixin, db.Model):  # type: ignore[name-defined]
 
 
 user_email_primary_table = add_primary_relationship(
-    User, 'primary_email', UserEmail, 'user', 'user_id'
+    Account, 'primary_email', AccountEmail, 'account', 'account_id'
 )
 user_phone_primary_table = add_primary_relationship(
-    User, 'primary_phone', UserPhone, 'user', 'user_id'
+    Account, 'primary_phone', AccountPhone, 'account', 'account_id'
 )
 
 #: Anchor type
-Anchor = Union[UserEmail, UserEmailClaim, UserPhone, EmailAddress]
+Anchor = Union[AccountEmail, AccountEmailClaim, AccountPhone, EmailAddress, PhoneNumber]
 
 # Tail imports
 # pylint: disable=wrong-import-position

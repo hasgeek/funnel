@@ -615,14 +615,14 @@ def requires_sudo(f: WrappedFunc) -> WrappedFunc:
                 # User does not have a password but has contact info. Try to send an OTP
                 # to their phone, falling back to email
                 context = get_sudo_preference_context()
-                userphone = current_auth.user.transport_for_sms(context=context)
-                useremail = current_auth.user.default_email(context=context)
+                accountphone = current_auth.user.transport_for_sms(context=context)
+                accountemail = current_auth.user.default_email(context=context)
                 otp_session = OtpSession.make(
                     'sudo',
                     user=current_auth.user,
                     anchor=None,
-                    phone=str(userphone) if userphone else None,
-                    email=str(useremail) if useremail else None,
+                    phone=str(accountphone) if accountphone else None,
+                    email=str(accountemail) if accountemail else None,
                 )
                 if otp_session.send(flash_failure=False):
                     # Use OtpForm only if an OTP could be sent. Failure messages are

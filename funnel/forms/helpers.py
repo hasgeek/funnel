@@ -13,10 +13,10 @@ from coaster.auth import current_auth
 
 from .. import app
 from ..models import (
+    AccountEmailClaim,
     EmailAddress,
     PhoneNumber,
     Profile,
-    UserEmailClaim,
     canonical_phone_number,
     parse_phone_number,
     parse_video_url,
@@ -140,7 +140,7 @@ class EmailAddressAvailable:
         if is_valid and self.purpose == 'register':
             # One last check: is there an existing claim? If so, stop the user from
             # making a dupe account
-            if UserEmailClaim.all(email=field.data).notempty():
+            if AccountEmailClaim.all(email=field.data).notempty():
                 raise forms.validators.StopValidation(
                     _(
                         "You or someone else has made an account with this email"

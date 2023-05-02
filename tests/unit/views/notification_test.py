@@ -12,10 +12,10 @@ from funnel import models
 @pytest.fixture()
 def phone_vetinari(db_session, user_vetinari):
     """Add a phone number to user_vetinari."""
-    userphone = user_vetinari.add_phone('+12345678900')
-    db_session.add(userphone)
+    accountphone = user_vetinari.add_phone('+12345678900')
+    db_session.add(accountphone)
     db_session.commit()
-    return userphone
+    return accountphone
 
 
 @pytest.fixture()

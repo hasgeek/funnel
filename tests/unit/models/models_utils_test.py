@@ -31,7 +31,7 @@ def test_merge_accounts_newer_older(db_session, user_death, user_rincewind) -> N
     assert user_rincewind.state.MERGED
 
 
-@pytest.mark.filterwarnings("ignore:Object of type <UserEmail> not in session")
+@pytest.mark.filterwarnings("ignore:Object of type <AccountEmail> not in session")
 def test_getuser(  # pylint: disable=too-many-statements
     db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
 ) -> None:
@@ -46,11 +46,11 @@ def test_getuser(  # pylint: disable=too-many-statements
 
     # Email claim (not verified)
     # User Wolfgang is attempting to claim someone else's email address
-    emailclaim1 = models.UserEmailClaim(
-        user=user_wolfgang, email='twoflower@example.org'
+    emailclaim1 = models.AccountEmailClaim(
+        account=user_wolfgang, email='twoflower@example.org'
     )
-    emailclaim2 = models.UserEmailClaim(
-        user=user_wolfgang, email='rincewind@example.org'
+    emailclaim2 = models.AccountEmailClaim(
+        account=user_wolfgang, email='rincewind@example.org'
     )
     db_session.add_all([emailclaim1, emailclaim2])
     db_session.commit()
@@ -128,7 +128,7 @@ def test_getuser(  # pylint: disable=too-many-statements
     assert models.getuser('+912345678901') is None
 
 
-@pytest.mark.filterwarnings("ignore:Object of type <UserEmail> not in session")
+@pytest.mark.filterwarnings("ignore:Object of type <AccountEmail> not in session")
 def test_getuser_anchor(
     db_session, user_twoflower, user_rincewind, user_mort, user_wolfgang
 ) -> None:
@@ -143,11 +143,11 @@ def test_getuser_anchor(
 
     # Email claim (not verified)
     # User Wolfgang is attempting to claim someone else's email address
-    emailclaim1 = models.UserEmailClaim(
-        user=user_wolfgang, email='twoflower@example.org'
+    emailclaim1 = models.AccountEmailClaim(
+        account=user_wolfgang, email='twoflower@example.org'
     )
-    emailclaim2 = models.UserEmailClaim(
-        user=user_wolfgang, email='rincewind@example.org'
+    emailclaim2 = models.AccountEmailClaim(
+        account=user_wolfgang, email='rincewind@example.org'
     )
     db_session.add_all([emailclaim1, emailclaim2])
     db_session.commit()
@@ -227,9 +227,9 @@ def test_getextid(db_session, user_rincewind) -> None:
     service = 'sample-service'
     userid = 'rincewind@sample-service'
 
-    externalid = models.UserExternalId(  # nosec
+    externalid = models.AccountExternalId(  # nosec
         service=service,
-        user=user_rincewind,
+        account=user_rincewind,
         userid=userid,
         username='rincewind',
         oauth_token='sample-service-token',
@@ -239,5 +239,5 @@ def test_getextid(db_session, user_rincewind) -> None:
     db_session.add(externalid)
     db_session.commit()
     result = models.getextid(service, userid=userid)
-    assert isinstance(result, models.UserExternalId)
+    assert isinstance(result, models.AccountExternalId)
     assert result == externalid

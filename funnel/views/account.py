@@ -43,16 +43,16 @@ from ..forms import (
     timezone_identifiers,
 )
 from ..models import (
+    AccountEmail,
+    AccountEmailClaim,
+    AccountExternalId,
     AccountPasswordNotification,
+    AccountPhone,
     AuthClient,
     Organization,
     OrganizationMembership,
     Profile,
     User,
-    UserEmail,
-    UserEmailClaim,
-    UserExternalId,
-    UserPhone,
     UserSession,
     db,
     sa,
@@ -81,7 +81,7 @@ from .otp import OtpSession, OtpTimeoutError
 
 
 @User.views()
-def emails_sorted(obj: User) -> List[UserEmail]:
+def emails_sorted(obj: User) -> List[AccountEmail]:
     """Return sorted list of email addresses for account page UI."""
     primary = obj.primary_email
     items = sorted(obj.emails, key=lambda i: (i != primary, i.email or ''))
@@ -89,7 +89,7 @@ def emails_sorted(obj: User) -> List[UserEmail]:
 
 
 @User.views()
-def phones_sorted(obj: User) -> List[UserPhone]:
+def phones_sorted(obj: User) -> List[AccountPhone]:
     """Return sorted list of phone numbers for account page UI."""
     primary = obj.primary_phone
     items = sorted(obj.phones, key=lambda i: (i != primary, i.phone or ''))
@@ -366,18 +366,18 @@ class AccountView(ClassView):
     def confirm_email(self, email_hash: str, secret: str) -> ReturnView:
         """Confirm an email address using a verification link."""
         try:
-            emailclaim = UserEmailClaim.get_by(
+            emailclaim = AccountEmailClaim.get_by(
                 verification_code=secret, email_hash=email_hash
             )
         except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
         if emailclaim is not None:
             emailclaim.email_address.mark_active()
-            if emailclaim.user == current_auth.user:
-                existing = UserEmail.get(email=emailclaim.email)
+            if emailclaim.account == current_auth.user:
+                existing = AccountEmail.get(email=emailclaim.email)
                 if existing is not None:
                     claimed_email = emailclaim.email
-                    claimed_user = emailclaim.user
+                    claimed_user = emailclaim.account
                     db.session.delete(emailclaim)
                     db.session.commit()
                     if claimed_user != current_auth.user:
@@ -403,12 +403,12 @@ class AccountView(ClassView):
                         ),
                     )
 
-                useremail = emailclaim.user.add_email(
+                accountemail = emailclaim.account.add_email(
                     emailclaim.email,
-                    primary=not emailclaim.user.emails,
+                    primary=not emailclaim.account.emails,
                     private=emailclaim.private,
                 )
-                for emailclaim in UserEmailClaim.all(useremail.email):
+                for emailclaim in AccountEmailClaim.all(accountemail.email):
                     db.session.delete(emailclaim)
                 db.session.commit()
                 user_data_changed.send(current_auth.user, changes=['email'])
@@ -420,8 +420,8 @@ class AccountView(ClassView):
                             " Your email address <code>{email}</code> has now been"
                             " verified"
                         ).format(
-                            fullname=escape(useremail.user.fullname),
-                            email=escape(useremail.email),
+                            fullname=escape(accountemail.account.fullname),
+                            email=escape(accountemail.email),
                         )
                     ),
                 )
@@ -487,15 +487,15 @@ class AccountView(ClassView):
         """Add a new email address using a confirmation link (legacy, pre-OTP)."""
         form = NewEmailAddressForm(edit_user=current_auth.user)
         if form.validate_on_submit():
-            useremail = UserEmailClaim.get_for(
+            accountemail = AccountEmailClaim.get_for(
                 user=current_auth.user, email=form.email.data
             )
-            if useremail is None:
-                useremail = UserEmailClaim(
-                    user=current_auth.user, email=form.email.data
+            if accountemail is None:
+                accountemail = AccountEmailClaim(
+                    account=current_auth.user, email=form.email.data
                 )
-                db.session.add(useremail)
-            send_email_verify_link(useremail)
+                db.session.add(accountemail)
+            send_email_verify_link(accountemail)
             db.session.commit()
             flash(_("We sent you an email to confirm your address"), 'success')
             user_data_changed.send(current_auth.user, changes=['email-claim'])
@@ -514,16 +514,16 @@ class AccountView(ClassView):
         """Mark an email address as primary."""
         form = EmailPrimaryForm()
         if form.validate_on_submit():
-            useremail = UserEmail.get_for(
+            accountemail = AccountEmail.get_for(
                 user=current_auth.user, email_hash=form.email_hash.data
             )
-            if useremail is not None:
-                if useremail.primary:
+            if accountemail is not None:
+                if accountemail.primary:
                     flash(_("This is already your primary email address"), 'info')
-                elif useremail.email_address.is_blocked:
+                elif accountemail.email_address.is_blocked:
                     flash(_("This email address has been blocked from use"), 'error')
                 else:
-                    current_auth.user.primary_email = useremail
+                    current_auth.user.primary_email = accountemail
                     db.session.commit()
                     user_data_changed.send(
                         current_auth.user, changes=['email-update-primary']
@@ -542,16 +542,16 @@ class AccountView(ClassView):
         """Mark a phone number as primary."""
         form = PhonePrimaryForm()
         if form.validate_on_submit():
-            userphone = UserPhone.get_for(
+            accountphone = AccountPhone.get_for(
                 user=current_auth.user, phone_hash=form.phone_hash.data
             )
-            if userphone is not None:
-                if userphone.primary:
+            if accountphone is not None:
+                if accountphone.primary:
                     flash(_("This is already your primary phone number"), 'info')
-                elif userphone.phone_number.is_blocked:
+                elif accountphone.phone_number.is_blocked:
                     flash(_("This phone number has been blocked from use"), 'error')
                 else:
-                    current_auth.user.primary_phone = userphone
+                    current_auth.user.primary_phone = accountphone
                     db.session.commit()
                     user_data_changed.send(
                         current_auth.user, changes=['phone-update-primary']
@@ -572,19 +572,21 @@ class AccountView(ClassView):
     )
     def remove_email(self, email_hash: str) -> ReturnView:
         """Remove an email address from the user's account."""
-        useremail: Union[None, UserEmail, UserEmailClaim]
+        accountemail: Union[None, AccountEmail, AccountEmailClaim]
         try:
-            useremail = UserEmail.get_for(user=current_auth.user, email_hash=email_hash)
-            if useremail is None:
-                useremail = UserEmailClaim.get_for(
+            accountemail = AccountEmail.get_for(
+                user=current_auth.user, email_hash=email_hash
+            )
+            if accountemail is None:
+                accountemail = AccountEmailClaim.get_for(
                     user=current_auth.user, email_hash=email_hash
                 )
-            if useremail is None:
+            if accountemail is None:
                 abort(404)
         except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
         if (
-            isinstance(useremail, UserEmail)
+            isinstance(accountemail, AccountEmail)
             and current_auth.user.verified_contact_count == 1
         ):
             flash(
@@ -596,14 +598,14 @@ class AccountView(ClassView):
             )
             return render_redirect(url_for('account'))
         result = render_delete_sqla(
-            useremail,
+            accountemail,
             db,
             title=_("Confirm removal"),
             message=_("Remove email address {email} from your account?").format(
-                email=useremail.email
+                email=accountemail.email
             ),
             success=_("You have removed your email address {email}").format(
-                email=useremail.email
+                email=accountemail.email
             ),
             next=url_for('account'),
             delete_text=_("Remove"),
@@ -625,10 +627,10 @@ class AccountView(ClassView):
         addresses pending verification.
         """
         try:
-            useremail = UserEmail.get(email_hash=email_hash)
+            accountemail = AccountEmail.get(email_hash=email_hash)
         except ValueError:  # Possible when email_hash is invalid Base58
             abort(404)
-        if useremail is not None and useremail.user == current_auth.user:
+        if accountemail is not None and accountemail.account == current_auth.user:
             # If an email address is already verified (this should not happen unless the
             # user followed a stale link), tell them it's done -- but only if the email
             # address belongs to this user, to prevent this endpoint from being used as
@@ -638,7 +640,7 @@ class AccountView(ClassView):
 
         # Get the existing email claim that we're resending a verification link for
         try:
-            emailclaim = UserEmailClaim.get_for(
+            emailclaim = AccountEmailClaim.get_for(
                 user=current_auth.user, email_hash=email_hash
             )
         except ValueError:  # Possible when email_hash is invalid Base58
@@ -701,13 +703,15 @@ class AccountView(ClassView):
             OtpSession.delete()
             if TYPE_CHECKING:
                 assert otp_session.phone is not None  # nosec
-            if UserPhone.get(otp_session.phone) is None:
+            if AccountPhone.get(otp_session.phone) is None:
                 # If there are no existing phone numbers, this will be a primary
                 primary = not current_auth.user.phones
-                userphone = UserPhone(user=current_auth.user, phone=otp_session.phone)
-                userphone.primary = primary
-                db.session.add(userphone)
-                userphone.phone_number.mark_active(sms=True)
+                accountphone = AccountPhone(
+                    account=current_auth.user, phone=otp_session.phone
+                )
+                accountphone.primary = primary
+                db.session.add(accountphone)
+                accountphone.phone_number.mark_active(sms=True)
                 db.session.commit()
                 flash(_("Your phone number has been verified"), 'success')
                 user_data_changed.send(current_auth.user, changes=['phone'])
@@ -734,19 +738,21 @@ class AccountView(ClassView):
     @requires_sudo
     def remove_phone(self, phone_hash: str) -> ReturnView:
         """Remove a phone number from the user's account."""
-        userphone = UserPhone.get_for(user=current_auth.user, phone_hash=phone_hash)
-        if userphone is None:
+        accountphone = AccountPhone.get_for(
+            user=current_auth.user, phone_hash=phone_hash
+        )
+        if accountphone is None:
             abort(404)
 
         result = render_delete_sqla(
-            userphone,
+            accountphone,
             db,
             title=_("Confirm removal"),
             message=_("Remove phone number {phone} from your account?").format(
-                phone=userphone.formatted
+                phone=accountphone.formatted
             ),
             success=_("You have removed your number {phone}").format(
-                phone=userphone.formatted
+                phone=accountphone.formatted
             ),
             next=url_for('account'),
             delete_text=_("Remove"),
@@ -765,7 +771,7 @@ class AccountView(ClassView):
     @requires_sudo
     def remove_extid(self, service: str, userid: str) -> ReturnView:
         """Remove a connected external account."""
-        extid = UserExternalId.query.filter_by(
+        extid = AccountExternalId.query.filter_by(
             user=current_auth.user, service=service, userid=userid
         ).one_or_404()
         return render_delete_sqla(

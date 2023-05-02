@@ -121,7 +121,7 @@ from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
 from ..typing import T, UuidModelType
 from . import BaseMixin, Mapped, NoIdMixin, UUIDType, db, hybrid_property, sa
-from .account import Account, User, UserEmail, UserPhone
+from .account import Account, AccountEmail, AccountPhone, User
 from .helpers import reopen
 from .phone_number import PhoneNumber, PhoneNumberMixin
 
@@ -972,7 +972,9 @@ class UserNotification(
             and self.user.has_transport(transport)
         )
 
-    def transport_for(self, transport: str) -> Optional[Union[UserEmail, UserPhone]]:
+    def transport_for(
+        self, transport: str
+    ) -> Optional[Union[AccountEmail, AccountPhone]]:
         """
         Return transport address for the requested transport.
 

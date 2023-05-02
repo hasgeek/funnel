@@ -13,12 +13,12 @@ from .. import app
 from ..typing import OptionalMigratedTables
 from .account import (
     Account,
+    AccountEmail,
+    AccountEmailClaim,
+    AccountExternalId,
+    AccountPhone,
     Anchor,
     User,
-    UserEmail,
-    UserEmailClaim,
-    UserExternalId,
-    UserPhone,
     db,
 )
 from .phone_number import PHONE_LOOKUP_REGIONS
@@ -69,20 +69,20 @@ def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnc
         name = name[1:]
     # If there's an '@' in the middle, treat as an email address
     elif '@' in name:
-        useremail: Union[None, UserEmail, UserEmailClaim]
-        useremail = UserEmail.get(email=name)
-        if useremail is None:
+        accountemail: Union[None, AccountEmail, AccountEmailClaim]
+        accountemail = AccountEmail.get(email=name)
+        if accountemail is None:
             # If there's no verified email address, look for a claim.
-            useremail = (
-                UserEmailClaim.all(email=name)
-                .order_by(UserEmailClaim.created_at)
+            accountemail = (
+                AccountEmailClaim.all(email=name)
+                .order_by(AccountEmailClaim.created_at)
                 .first()
             )
-        if useremail is not None and useremail.user.state.ACTIVE:
+        if accountemail is not None and accountemail.account.state.ACTIVE:
             # Return user only if in active state
             if anchor:
-                return UserAndAnchor(useremail.user, useremail)
-            return useremail.user
+                return UserAndAnchor(accountemail.account, accountemail)
+            return accountemail.account
         if anchor:
             return UserAndAnchor(None, None)
         return None
@@ -100,12 +100,12 @@ def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnc
                     number = phonenumbers.format_number(
                         parsed_number, phonenumbers.PhoneNumberFormat.E164
                     )
-                    userphone = UserPhone.get(number)
-                    if userphone is not None and userphone.user.state.ACTIVE:
+                    accountphone = AccountPhone.get(number)
+                    if accountphone is not None and accountphone.account.state.ACTIVE:
                         if anchor:
-                            return UserAndAnchor(userphone.user, userphone)
-                        return userphone.user
-            # No matching userphone? Continue to trying as a username
+                            return UserAndAnchor(accountphone.account, accountphone)
+                        return accountphone.account
+            # No matching accountphone? Continue to trying as a username
         except phonenumbers.NumberParseException:
             # This was not a parseable phone number. Continue to trying as a username
             pass
@@ -120,9 +120,9 @@ def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnc
             return UserAndAnchor(None, None)
         if user.phone:
             return UserAndAnchor(user, user.phone)
-        useremail = user.default_email()
-        if useremail:
-            return UserAndAnchor(user, useremail)
+        accountemail = user.default_email()
+        if accountemail:
+            return UserAndAnchor(user, accountemail)
         # This user has no anchors
         return UserAndAnchor(user, None)
 
@@ -130,9 +130,9 @@ def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnc
     return user
 
 
-def getextid(service: str, userid: str) -> Optional[UserExternalId]:
+def getextid(service: str, userid: str) -> Optional[AccountExternalId]:
     """Return a matching external id."""
-    return UserExternalId.get(service=service, userid=userid)
+    return AccountExternalId.get(service=service, userid=userid)
 
 
 def merge_accounts(account1: Account, account2: Account) -> Optional[Account]:

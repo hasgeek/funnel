@@ -160,11 +160,12 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
     Represents an email address as a standalone entity, with associated metadata.
 
     Prior to this model, email addresses were regarded as properties of other models.
-    Specifically: Proposal.email, Participant.email, User.emails and User.emailclaims,
-    the latter two lists populated using the UserEmail and UserEmailClaim join models.
-    This subordination made it difficult to track ownership of an email address or its
-    reachability (active, bouncing, etc). Having EmailAddress as a standalone model
-    (with incoming foreign keys) provides some sanity:
+    Specifically: Proposal.email, Participant.email, Account.emails and
+    Account.emailclaims, the latter two lists populated using the AccountEmail and
+    AccountEmailClaim join models. This subordination made it difficult to track
+    ownership of an email address or its reachability (active, bouncing, etc). Having
+    EmailAddress as a standalone model (with incoming foreign keys) provides some
+    sanity:
 
     1. Email addresses are stored with a hash, and always looked up using the hash. This
        allows the address to be forgotten while preserving the record for metadata.
@@ -175,7 +176,7 @@ class EmailAddress(BaseMixin, db.Model):  # type: ignore[name-defined]
     4. If there is abuse, an email address can be comprehensively blocked using its
        canonical representation, which prevents the address from being used even via
        its ``+sub-address`` variations.
-    5. Via :class:`EmailAddressMixin`, the UserEmail model can establish ownership of
+    5. Via :class:`EmailAddressMixin`, the AccountEmail model can establish ownership of
        an email address on behalf of a user, placing an automatic block on its use by
        other users. This mechanism is not limited to users. A future OrgEmail link can
        establish ownership on behalf of an organization.

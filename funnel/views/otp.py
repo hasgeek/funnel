@@ -18,15 +18,15 @@ from coaster.utils import newpin, require_one_of
 
 from .. import app
 from ..models import (
+    AccountEmail,
+    AccountEmailClaim,
+    AccountPhone,
     EmailAddress,
     EmailAddressBlockedError,
     PhoneNumber,
     PhoneNumberBlockedError,
     SmsMessage,
     User,
-    UserEmail,
-    UserEmailClaim,
-    UserPhone,
     db,
 )
 from ..serializers import token_serializer
@@ -135,7 +135,9 @@ class OtpSession(Generic[OptionalUserType]):
         cls: Type[OtpSessionType],
         reason: str,
         user: OptionalUserType,
-        anchor: Optional[Union[UserEmail, UserEmailClaim, UserPhone, EmailAddress]],
+        anchor: Optional[
+            Union[AccountEmail, AccountEmailClaim, AccountPhone, EmailAddress]
+        ],
         phone: Optional[str] = None,
         email: Optional[str] = None,
     ) -> OtpSessionType:
@@ -150,9 +152,9 @@ class OtpSession(Generic[OptionalUserType]):
         # to this cache entry in the user's cookie session. The cookie never contains
         # the actual OTP. See :func:`make_cached_token` for additional documentation.
         otp = newpin()
-        if isinstance(anchor, (UserPhone, PhoneNumber)):
+        if isinstance(anchor, (AccountPhone, PhoneNumber)):
             phone = str(anchor)
-        if isinstance(anchor, (UserEmail, UserEmailClaim, EmailAddress)):
+        if isinstance(anchor, (AccountEmail, AccountEmailClaim, EmailAddress)):
             email = str(anchor)
         token = make_cached_token(
             {

@@ -95,7 +95,7 @@ class AuthClient(
     )
     account: Mapped[Optional[Account]] = with_roles(
         sa.orm.relationship(
-            User,
+            Account,
             foreign_keys=[account_id],
             backref=sa.orm.backref('clients', cascade='all'),
         ),

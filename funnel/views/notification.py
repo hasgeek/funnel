@@ -182,7 +182,7 @@ class RenderNotification:
         Subclasses may override this if they need to enforce a specific transport
         address, such as verification tokens sent to a specific email address or phone
         number. Since notifications cannot have data, the notification will have to be
-        raised on the address document (eg: UserEmail, UserPhone, EmailAddress).
+        raised on the address document (eg: AccountEmail, AccountPhone, EmailAddress).
         """
         return self.user_notification.user.transport_for(
             transport, self.notification.preference_context
