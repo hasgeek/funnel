@@ -60,10 +60,10 @@ builder-3.11-publish:
 	docker image push hasgeek/funnel-builder:python-3.11-node-18
 
 build-test-base-3.7:
-	docker buildx build -t funnel-test-base:python-3.7-node-18 -f docker/images/test.Dockerfile --build-arg BASE_PYTHON_VERSION=3.7 --target=test-base --progress=plain .
+	docker buildx build -t funnel-test-base:python-3.7-node-18 -f docker/images/test-base.Dockerfile --build-arg BASE_PYTHON_VERSION=3.7 --target=test-base --progress=plain .
 
 build-test-base-3.11:
-	docker buildx build -t funnel-test-base:python-3.11-node-18 -f docker/images/test.Dockerfile --build-arg BASE_PYTHON_VERSION=3.11 --target=test-base --progress=plain .
+	docker buildx build -t funnel-test-base:python-3.11-node-18 -f docker/images/test-base.Dockerfile --build-arg BASE_PYTHON_VERSION=3.11 --target=test-base --progress=plain .
 
 ci-test-3.7:
 	docker image inspect funnel-test-base:python-3.7-node-18 --format "Found funnel-test-base:python-3.7-node-18" || make build-test-base-3.7
