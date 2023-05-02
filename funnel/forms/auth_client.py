@@ -14,6 +14,7 @@ from ..models import (
     AuthClientCredential,
     AuthClientTeamPermissions,
     AuthClientUserPermissions,
+    Organization,
     Team,
     valid_name,
 )
@@ -185,7 +186,9 @@ class UserPermissionAssignForm(forms.Form):
 class TeamPermissionAssignForm(forms.Form):
     """Assign permissions to a team."""
 
+    __expects__ = ('organization',)
     __returns__ = ('team',)
+    organization: Organization
     team: Optional[Team] = None
 
     team_id = forms.RadioField(

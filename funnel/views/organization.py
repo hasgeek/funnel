@@ -13,7 +13,7 @@ from coaster.views import ModelView, UrlChangeCheck, UrlForView, requires_roles,
 
 from .. import app
 from ..forms import OrganizationForm, TeamForm
-from ..models import Organization, Team, db
+from ..models import Account, Organization, Team, db
 from ..signals import org_data_changed, team_data_changed
 from ..typing import ReturnView
 from .helpers import render_redirect
@@ -22,18 +22,22 @@ from .login_session import requires_login, requires_sudo, requires_user_not_spam
 # --- Routes: Organizations ---------------------------------------------------
 
 
-@Organization.views('people_and_teams')
+@Account.views('people_and_teams')
 def people_and_teams(obj):
     """Extract a list of users from the org's public teams."""
-    # This depends on user.teams not using lazy='dynamic'. When that changes, we will
-    # need a different approach to match users to teams. Comparison is by id rather
+    # This depends on user.member_teams not using lazy='dynamic'. When that changes, we
+    # will need a different approach to match users to teams. Comparison is by id rather
     # than by object because teams are loaded separately in the two queries, and
     # SQLAlchemy's session management doesn't merge the instances.
     teams = [team for team in obj.teams if team.is_public]
     result = [
         (
             user,
-            [team for team in teams if team.id in (uteam.id for uteam in user.teams)],
+            [
+                team
+                for team in teams
+                if team.id in (uteam.id for uteam in user.member_teams)
+            ],
         )
         for user in obj.people()
     ]
@@ -137,7 +141,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
         """Create a new team."""
         form = TeamForm()
         if form.validate_on_submit():
-            team = Team(organization=self.obj)
+            team = Team(account=self.obj)
             db.session.add(team)
             form.populate_obj(team)
             db.session.commit()
@@ -168,7 +172,7 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
     def loader(self, organization: str, team: str) -> Team:
         """Load a team."""
         obj = Team.get(buid=team, with_parent=True)
-        if obj is None or obj.organization.name != organization:
+        if obj is None or obj.account.name != organization:
             abort(404)
         return obj
 
@@ -181,13 +185,13 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
             form.populate_obj(self.obj)
             db.session.commit()
             team_data_changed.send(self.obj, changes=['edit'], user=current_auth.user)
-            return render_redirect(self.obj.organization.url_for('teams'))
+            return render_redirect(self.obj.account.url_for('teams'))
         return render_form(
             form=form,
             title=_("Edit team: {title}").format(title=self.obj.title),
             formid='team_edit',
             submit=_("Save"),
-            cancel_url=self.obj.organization.url_for('teams'),
+            cancel_url=self.obj.account.url_for('teams'),
             ajax=False,
         )
 
@@ -205,8 +209,8 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
             message=_("Delete team {title}?").format(title=self.obj.title),
             success=_(
                 "You have deleted team ‘{team}’ from organization ‘{org}’"
-            ).format(team=self.obj.title, org=self.obj.organization.title),
-            next=self.obj.organization.url_for('teams'),
+            ).format(team=self.obj.title, org=self.obj.account.title),
+            next=self.obj.account.url_for('teams'),
         )
 
 

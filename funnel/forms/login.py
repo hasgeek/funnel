@@ -61,7 +61,7 @@ class LoginWithOtp(Exception):  # noqa: N818
 
 
 class RegisterWithOtp(Exception):  # noqa: N818
-    """Exception to signal for new user account registration after OTP validation."""
+    """Exception to signal for new account registration after OTP validation."""
 
 
 # --- Validators -----------------------------------------------------------------------

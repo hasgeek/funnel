@@ -55,7 +55,7 @@ class Fixtures:
         db_session.add(auth_client)
         self.auth_client = auth_client
 
-        dachshunds = models.Team(title="Dachshunds", organization=batdog)
+        dachshunds = models.Team(title="Dachshunds", account=batdog)
         db_session.add(dachshunds)
         self.dachshunds = dachshunds
 

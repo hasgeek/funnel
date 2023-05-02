@@ -99,7 +99,7 @@ def get_userinfo(
                 userinfo['permissions'] = uperms.access_permissions.split(' ')
         else:
             permsset = set()
-            if user.teams:
+            if user.member_teams:
                 all_perms = AuthClientTeamPermissions.all_for(
                     auth_client=auth_client, user=user
                 ).all()

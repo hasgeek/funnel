@@ -1599,7 +1599,7 @@ def new_organization(
 
 @pytest.fixture()
 def new_team(models, db_session, new_user, new_organization) -> funnel_models.Team:
-    team = models.Team(title="Owners", organization=new_organization)
+    team = models.Team(title="Owners", account=new_organization)
     db_session.add(team)
     team.users.append(new_user)
     db_session.commit()

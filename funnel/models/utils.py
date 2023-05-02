@@ -25,7 +25,7 @@ from .phone_number import PHONE_LOOKUP_REGIONS
 
 __all__ = [
     'IncompleteUserMigrationError',
-    'UserAndAnchor',
+    'AccountAndAnchor',
     'getextid',
     'getuser',
     'merge_accounts',
@@ -36,10 +36,10 @@ class IncompleteUserMigrationError(Exception):
     """Could not migrate users because of data conflicts."""
 
 
-class UserAndAnchor(NamedTuple):
-    """User and anchor used to find the user (usable as a 2-tuple)."""
+class AccountAndAnchor(NamedTuple):
+    """Account and anchor used to find the user (usable as a 2-tuple)."""
 
-    user: Optional[User]
+    account: Optional[Account]
     anchor: Optional[Anchor]
 
 
@@ -54,15 +54,15 @@ def getuser(name: str, anchor: Literal[False]) -> Optional[User]:
 
 
 @overload
-def getuser(name: str, anchor: Literal[True]) -> UserAndAnchor:
+def getuser(name: str, anchor: Literal[True]) -> AccountAndAnchor:
     ...
 
 
-def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnchor]:
+def getuser(name: str, anchor: bool = False) -> Union[Optional[User], AccountAndAnchor]:
     """
-    Get a user with a matching name, email address or phone number.
+    Get an account with a matching name, email address or phone number.
 
-    Optionally returns an anchor (phone or email) instead of the user account.
+    Optionally returns an anchor (phone or email) instead of the account.
     """
     # Treat an '@' or '~' prefix as a username lookup, removing the prefix
     if name.startswith('@') or name.startswith('~'):
@@ -81,10 +81,10 @@ def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnc
         if accountemail is not None and accountemail.account.state.ACTIVE:
             # Return user only if in active state
             if anchor:
-                return UserAndAnchor(accountemail.account, accountemail)
+                return AccountAndAnchor(accountemail.account, accountemail)
             return accountemail.account
         if anchor:
-            return UserAndAnchor(None, None)
+            return AccountAndAnchor(None, None)
         return None
     else:
         # If it wasn't an email address or an @username, check if it's a phone number
@@ -103,7 +103,7 @@ def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnc
                     accountphone = AccountPhone.get(number)
                     if accountphone is not None and accountphone.account.state.ACTIVE:
                         if anchor:
-                            return UserAndAnchor(accountphone.account, accountphone)
+                            return AccountAndAnchor(accountphone.account, accountphone)
                         return accountphone.account
             # No matching accountphone? Continue to trying as a username
         except phonenumbers.NumberParseException:
@@ -117,14 +117,14 @@ def getuser(name: str, anchor: bool = False) -> Union[Optional[User], UserAndAnc
     # the user account
     if anchor:
         if user is None:
-            return UserAndAnchor(None, None)
+            return AccountAndAnchor(None, None)
         if user.phone:
-            return UserAndAnchor(user, user.phone)
+            return AccountAndAnchor(user, user.phone)
         accountemail = user.default_email()
         if accountemail:
-            return UserAndAnchor(user, accountemail)
+            return AccountAndAnchor(user, accountemail)
         # This user has no anchors
-        return UserAndAnchor(user, None)
+        return AccountAndAnchor(user, None)
 
     # Anchor not requested. Return the user account
     return user

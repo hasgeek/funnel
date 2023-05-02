@@ -24,7 +24,7 @@ class TestClient(TestDatabaseFixture):
 
     def test_client_owner(self) -> None:
         """Test if client's owner is said Organization."""
-        owner = self.fixtures.auth_client.owner
+        owner = self.fixtures.auth_client.account
         batdog = self.fixtures.batdog
         assert isinstance(owner, models.Organization)
         assert owner == batdog
@@ -95,4 +95,4 @@ class TestClient(TestDatabaseFixture):
         result1 = models.AuthClient.get(buid=key)
         assert isinstance(result1, models.AuthClient)
         assert result1.buid == key
-        assert result1.owner == batdog
+        assert result1.account == batdog

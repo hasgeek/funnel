@@ -445,7 +445,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
         old_account_records = cls.query.filter(
             cls.member == old_account, cls.revoked_at.is_(None)
         ).all()
-        # Look up all conflicting memberships for the new user account. Limit lookups by
+        # Look up all conflicting memberships for the new account. Limit lookups by
         # parent except when the membership type doesn't have a parent (SiteMembership).
         if cls.parent_id is not None:
             new_account_records = cls.query.filter(
@@ -473,7 +473,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
         cls.query.filter(cls.member == old_account).update(
             {'member_id': new_account.id}, synchronize_session=False
         )
-        # Also update the revoked_by and granted_by user accounts
+        # Also update the revoked_by and granted_by accounts
         cls.query.filter(cls.revoked_by == old_account).update(
             {'revoked_by_id': new_account.id}, synchronize_session=False
         )

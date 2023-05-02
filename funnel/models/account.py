@@ -1,4 +1,4 @@
-"""User, organization, team and user anchor models."""
+"""Account model with subtypes, and account-linked personal data models."""
 
 from __future__ import annotations
 
@@ -119,11 +119,14 @@ class Account(
     type_: Mapped[str] = sa.orm.mapped_column('type', sa.CHAR(1), nullable=False)
 
     #: The optional "username", used in the URL stub
-    name = sa.Column(
-        sa.Unicode(__name_length__),
-        sa.CheckConstraint("name <> ''"),
-        nullable=True,
-        unique=True,
+    name: Mapped[str] = with_roles(
+        sa.Column(
+            sa.Unicode(__name_length__),
+            sa.CheckConstraint("name <> ''"),
+            nullable=True,
+            unique=True,
+        ),
+        read={'all'},
     )
 
     #: The account's title (user's fullname)
@@ -131,6 +134,11 @@ class Account(
         sa.Column(sa.Unicode(__title_length__), default='', nullable=False),
         read={'all'},
     )
+    #: Alias title as user's fullname
+    fullname: Mapped[str] = sa.orm.synonym('title')
+    #: Alias name as user's username
+    username: Mapped[str] = sa.orm.synonym('name')
+
     #: Argon2 or Bcrypt hash of the user's password
     pw_hash = sa.Column(sa.Unicode, nullable=True)
     #: Timestamp for when the user's password last changed
@@ -342,7 +350,7 @@ class Account(
         return self.has_verified_contact_info or bool(self.emailclaims)
 
     def merged_user(self) -> User:
-        """Return the user account that this account was merged into (default: self)."""
+        """Return the account that this account was merged into (default: self)."""
         if self.state.MERGED:
             # If our state is MERGED, there _must_ be a corresponding AccountOldId
             # record
@@ -717,7 +725,7 @@ class Account(
 
     @state.transition(state.ACTIVE, state.DELETED)
     def do_delete(self):
-        """Delete user account."""
+        """Delete account."""
         # 0: Safety check
         if self.profile and not self.profile.is_safe_to_delete():
             raise ValueError("Profile cannot be deleted")
@@ -745,7 +753,7 @@ class Account(
             self.active_site_membership.revoke(actor=self)
 
         # 3. Drop all team memberships
-        self.teams.clear()
+        self.member_teams.clear()
 
         # 4. Revoke auth tokens
         self.revoke_all_auth_tokens()  # Defined in auth_client.py
@@ -1061,7 +1069,7 @@ class Account(
 
     @sa.orm.validates('name')
     def _validate_name(self, key: str, value: str):
-        """Validate the value of Profile.name."""
+        """Validate the value of Account.name."""
         if value.lower() in self.reserved_names or not valid_account_name(value):
             raise ValueError("Invalid account name: " + value)
         # We don't check for existence in the db since this validator only
@@ -1072,8 +1080,10 @@ class Account(
 
     @classmethod
     def active_user_count(cls) -> int:
-        """Count of all active user accounts."""
-        return cls.query.filter(cls.state.ACTIVE).count()
+        """Count of all active accounts."""
+        return cls.query.filter(
+            cls.state.ACTIVE, cls.type_ == User.__mapper_args__['polymorphic_identity']
+        ).count()
 
     #: FIXME: Temporary values for Baseframe compatibility
     def organization_links(self) -> List:
@@ -1126,11 +1136,6 @@ class User(Account):
     """User account."""
 
     __mapper_args__ = {'polymorphic_identity': 'U'}
-
-    #: Alias for the user's fullname
-    fullname: Mapped[str] = sa.orm.synonym('title')
-    #: Alias for user's username
-    username: Mapped[str] = sa.orm.synonym('name')
 
 
 # XXX: Deprecated, still here for Baseframe compatibility
@@ -1251,8 +1256,8 @@ class Organization(Account):
         return (
             User.query.join(team_membership)
             .join(Team)
-            .filter(Team.organization == self, Team.is_public.is_(True))
-            .options(sa.orm.joinedload(User.teams))
+            .filter(Team.account == self, Team.is_public.is_(True))
+            .options(sa.orm.joinedload(User.member_teams))
             .order_by(sa.func.lower(User.fullname))
         )
 
@@ -1272,10 +1277,11 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     #: Displayed name
     title = sa.Column(sa.Unicode(__title_length__), nullable=False)
     #: Organization
-    organization_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
-    organization = with_roles(
+    account_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
+    account = with_roles(
         sa.orm.relationship(
-            Organization,
+            Account,
+            foreign_keys=[account_id],
             backref=sa.orm.backref(
                 'teams', order_by=sa.func.lower(title), cascade='all'
             ),
@@ -1284,7 +1290,7 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     )
     users = with_roles(
         sa.orm.relationship(
-            User, secondary=team_membership, lazy='dynamic', backref='teams'
+            Account, secondary=team_membership, lazy='dynamic', backref='member_teams'
         ),
         grants={'member'},
     )
@@ -1293,7 +1299,7 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
 
     def __repr__(self) -> str:
         """Represent :class:`Team` as a string."""
-        return f'<Team {self.title} of {self.organization!r}>'
+        return f'<Team {self.title} of {self.account!r}>'
 
     @property
     def pickername(self) -> str:
@@ -1306,12 +1312,14 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     ) -> OptionalMigratedTables:
         """Migrate one account's data to another when merging accounts."""
         for team in list(old_account.teams):
-            if team not in new_account.teams:
+            team.account = new_account
+        for team in list(old_account.member_teams):
+            if team not in new_account.member_teams:
                 # FIXME: This creates new memberships, updating `created_at`.
                 # Unfortunately, we can't work with model instances as in the other
                 # `migrate_account` methods as team_membership is an unmapped table.
-                new_account.teams.append(team)
-            old_account.teams.remove(team)
+                new_account.member_teams.append(team)
+            old_account.member_teams.remove(team)
         return [cls.__table__.name, team_membership.name]
 
     @classmethod
@@ -1322,17 +1330,17 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         :param str buid: Buid of the team
         """
         if with_parent:
-            query = cls.query.options(sa.orm.joinedload(cls.organization))
+            query = cls.query.options(sa.orm.joinedload(cls.account))
         else:
             query = cls.query
         return query.filter_by(buid=buid).one_or_none()
 
 
-# --- User email/phone and misc
+# --- Account email/phone and misc
 
 
 class AccountEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
-    """An email address linked to a user account."""
+    """An email address linked to an account."""
 
     __tablename__ = 'account_email'
     __allow_unmapped__ = True
@@ -1502,7 +1510,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name
         """Migrate one account's data to another when merging accounts."""
         primary_email = old_account.primary_email
         for accountemail in list(old_account.emails):
-            accountemail.user = new_account
+            accountemail.account = new_account
         if new_account.primary_email is None:
             new_account.primary_email = primary_email
         old_account.primary_email = None
@@ -1566,7 +1574,7 @@ class AccountEmailClaim(
         emails = {claim.email for claim in new_account.emailclaims}
         for claim in list(old_account.emailclaims):
             if claim.email not in emails:
-                claim.user = new_account
+                claim.account = new_account
             else:
                 # New user also made the same claim. Delete old user's claim
                 db.session.delete(claim)
@@ -1694,7 +1702,7 @@ auto_init_default(AccountEmailClaim.verification_code)
 
 
 class AccountPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
-    """A phone number linked to a user account."""
+    """A phone number linked to an account."""
 
     __tablename__ = 'account_phone'
     __allow_unmapped__ = True
@@ -1874,7 +1882,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-
         """Migrate one account's data to another when merging accounts."""
         primary_phone = old_account.primary_phone
         for accountphone in list(old_account.phones):
-            accountphone.user = new_account
+            accountphone.account = new_account
         if new_account.primary_phone is None:
             new_account.primary_phone = primary_phone
         old_account.primary_phone = None

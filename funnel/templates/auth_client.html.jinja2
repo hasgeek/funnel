@@ -39,7 +39,7 @@
             <dt class="mui--text-subhead">{% trans %}Description{% endtrans %}</dt>
             <dd class="mui--text-subhead">{{ auth_client.description }}</dd>
             <dt class="mui--text-subhead">{% trans %}Owner{% endtrans %}</dt>
-            <dd class="mui--text-subhead">{{ auth_client.owner.pickername }}</dd>
+            <dd class="mui--text-subhead">{{ auth_client.account.pickername }}</dd>
             <dt class="mui--text-subhead">{% trans %}OAuth2 Type{% endtrans %}</dt>
             <dd class="mui--text-subhead">{% if auth_client.confidential %}{% trans %}Confidential{% endtrans %}{% else %}{% trans %}Public{% endtrans %}{% endif %}</dd>
             <dt class="mui--text-subhead">{% trans %}Website{% endtrans %}</dt>

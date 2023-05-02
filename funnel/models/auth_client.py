@@ -101,7 +101,7 @@ class AuthClient(
         ),
         read={'all'},
         write={'owner'},
-        grants={'owner'},
+        grants_via={None: {'owner': 'owner', 'admin': 'admin'}},
     )
     #: Human-readable title
     title = with_roles(
@@ -200,13 +200,6 @@ class AuthClient(
             )
         return False
 
-    @property
-    def owner(self):
-        """Return user or organization that owns this client app."""
-        return self.user or self.organization
-
-    with_roles(owner, read={'all'})
-
     def owner_is(self, user: User) -> bool:
         """Test if the provided user is an owner of this client."""
         # Legacy method for ownership test
@@ -258,8 +251,8 @@ class AuthClient(
             return cls.query.order_by(cls.title)
         return cls.query.filter(
             sa.or_(
-                cls.user == user,
-                cls.organization_id.in_(user.organizations_as_owner_ids()),
+                cls.account == user,
+                cls.account_id.in_(user.organizations_as_owner_ids()),
             )
         ).order_by(cls.title)
 
@@ -755,7 +748,7 @@ class AuthClientTeamPermissions(BaseMixin, db.Model):  # type: ignore[name-defin
         """Get all permissions for the specified user via their teams."""
         return cls.query.filter(
             cls.auth_client == auth_client,
-            cls.team_id.in_([team.id for team in user.teams]),
+            cls.team_id.in_([team.id for team in user.member_teams]),
         )
 
     @classmethod

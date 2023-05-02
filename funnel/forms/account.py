@@ -1,4 +1,4 @@
-"""Forms for user account settings."""
+"""Forms for account settings."""
 
 from __future__ import annotations
 
@@ -452,7 +452,7 @@ class AccountForm(forms.Form):
 
 @User.forms('delete')
 class AccountDeleteForm(forms.Form):
-    """Delete user account."""
+    """Delete account."""
 
     confirm1 = forms.BooleanField(
         __(
@@ -509,7 +509,7 @@ def validate_emailclaim(form, field):
 
 @User.forms('email_add')
 class NewEmailAddressForm(forms.RecaptchaForm):
-    """Form to add a new email address to a user account."""
+    """Form to add a new email address to an account."""
 
     __expects__ = ('edit_user',)
     edit_user: User
@@ -548,7 +548,7 @@ class EmailPrimaryForm(forms.Form):
 
 @User.forms('phone_add')
 class NewPhoneForm(forms.RecaptchaForm):
-    """Form to add a new mobile number (SMS-capable) to a user account."""
+    """Form to add a new mobile number (SMS-capable) to an account."""
 
     __expects__ = ('edit_user',)
     edit_user: User
