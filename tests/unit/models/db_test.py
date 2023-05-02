@@ -48,7 +48,7 @@ class Fixtures:
 
         auth_client = models.AuthClient(
             title="Batdog Adventures",
-            organization=batdog,
+            account=batdog,
             confidential=True,
             website="http://batdogadventures.com",
         )

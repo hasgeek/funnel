@@ -1472,7 +1472,7 @@ def client_hex(models, db_session, org_uu) -> funnel_models.Project:
     # TODO: AuthClient needs to move to account (nee profile) as the parent model
     auth_client = models.AuthClient(
         title="Hex",
-        organization=org_uu,
+        account=org_uu,
         confidential=True,
         website='https://example.org/',
         redirect_uris=['https://example.org/callback'],

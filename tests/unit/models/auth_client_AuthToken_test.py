@@ -83,7 +83,7 @@ class TestAuthToken(TestDatabaseFixture):
         scope = ['id']
         dachsadv = models.AuthClient(
             title="Dachshund Adventures",
-            organization=specialdachs,
+            account=specialdachs,
             confidential=True,
             website="http://dachsadv.com",
         )

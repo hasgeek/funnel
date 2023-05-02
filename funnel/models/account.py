@@ -106,8 +106,9 @@ class Account(
 
     __tablename__ = 'account'
     __allow_unmapped__ = True
-    # length limit 63 to fit DNS label limit
+    # Name has a length limit 63 to fit DNS label limit
     __name_length__ = 63
+    # Titles can be longer
     __title_length__ = 80
 
     __active_membership_attrs__: Set[str] = set()
@@ -117,11 +118,11 @@ class Account(
 
     type_: Mapped[str] = sa.orm.mapped_column('type', sa.CHAR(1), nullable=False)
 
-    #: The "username", with length limit 63 to fit DNS label limit
+    #: The optional "username", used in the URL stub
     name = sa.Column(
         sa.Unicode(__name_length__),
         sa.CheckConstraint("name <> ''"),
-        nullable=False,
+        nullable=True,
         unique=True,
     )
 

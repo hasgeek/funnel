@@ -56,7 +56,7 @@ class TestClient(TestDatabaseFixture):
         house_lannisters = models.AuthClient(
             title='House of Lannisters',
             confidential=False,
-            user=varys,
+            account=varys,
             website='houseoflannisters.westeros',
         )
         varys_session = models.UserSession(

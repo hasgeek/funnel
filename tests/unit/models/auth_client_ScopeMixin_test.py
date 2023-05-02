@@ -110,7 +110,7 @@ def test_authtoken_scope_null(db_session, client_hex, user_rincewind) -> None:
 def test_authclient_scope_null(db_session, user_rincewind) -> None:
     """`AuthClient` can have empty scope."""
     auth_client = models.AuthClient(
-        user=user_rincewind,
+        account=user_rincewind,
         title="Test client",
         confidential=True,
         website='http://localhost',
