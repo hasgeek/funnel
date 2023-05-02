@@ -11,7 +11,6 @@ from .comment import Comment, Commentset
 from .moderation import CommentModeratorReport
 from .notification import Notification, notification_categories
 from .organization_membership import OrganizationMembership
-from .profile import Profile
 from .project import Project
 from .project_membership import ProjectCrewMembership
 from .proposal import Proposal
@@ -42,7 +41,7 @@ __all__ = [
 class AccountSubtype(UuidModelType):
     """Model that links to an account."""
 
-    profile: Mapped[Account]
+    account: Mapped[Account]
 
 
 class ProjectSubtype(UuidModelType):
@@ -57,20 +56,20 @@ class DocumentHasProject:
     document: ProjectSubtype
 
     @property
-    def preference_context(self) -> Profile:
+    def preference_context(self) -> Account:
         """Return document's project's account as preference context."""
         return self.document.project.account
 
 
-class DocumentHasProfile:
-    """Mixin class for documents linked to an account (nee profile)."""
+class DocumentHasAccount:
+    """Mixin class for documents linked to an account."""
 
     document: AccountSubtype
 
     @property
-    def preference_context(self) -> Profile:
+    def preference_context(self) -> Account:
         """Return document's account as preference context."""
-        return self.document.profile
+        return self.document.account
 
 
 # --- Account notifications ------------------------------------------------------------
@@ -158,7 +157,7 @@ class ProposalSubmittedNotification(
 
 
 class ProjectStartingNotification(
-    DocumentHasProfile, Notification, type='project_starting'
+    DocumentHasAccount, Notification, type='project_starting'
 ):
     """Notification of a session about to start."""
 
@@ -203,7 +202,7 @@ class CommentReplyNotification(Notification, type='comment_reply'):
 
 
 class ProjectCrewMembershipNotification(
-    DocumentHasProfile, Notification, type='project_crew_membership_granted'
+    DocumentHasAccount, Notification, type='project_crew_membership_granted'
 ):
     """Notification of being granted crew membership (including role changes)."""
 
@@ -218,7 +217,7 @@ class ProjectCrewMembershipNotification(
 
 
 class ProjectCrewMembershipRevokedNotification(
-    DocumentHasProfile,
+    DocumentHasAccount,
     Notification,
     type='project_crew_membership_revoked',
     shadows=ProjectCrewMembershipNotification,
@@ -232,7 +231,7 @@ class ProjectCrewMembershipRevokedNotification(
 
 
 class ProposalReceivedNotification(
-    DocumentHasProfile, Notification, type='proposal_received'
+    DocumentHasAccount, Notification, type='proposal_received'
 ):
     """Notification to editors of new proposals."""
 
@@ -246,7 +245,7 @@ class ProposalReceivedNotification(
 
 
 class RegistrationReceivedNotification(
-    DocumentHasProfile, Notification, type='rsvp_received'
+    DocumentHasAccount, Notification, type='rsvp_received'
 ):
     """Notification to promoters of new registrations."""
 
@@ -265,7 +264,7 @@ class RegistrationReceivedNotification(
 
 
 class OrganizationAdminMembershipNotification(
-    DocumentHasProfile, Notification, type='organization_membership_granted'
+    DocumentHasAccount, Notification, type='organization_membership_granted'
 ):
     """Notification of being granted admin membership (including role changes)."""
 
@@ -280,7 +279,7 @@ class OrganizationAdminMembershipNotification(
 
 
 class OrganizationAdminMembershipRevokedNotification(
-    DocumentHasProfile,
+    DocumentHasAccount,
     Notification,
     type='organization_membership_revoked',
     shadows=OrganizationAdminMembershipNotification,

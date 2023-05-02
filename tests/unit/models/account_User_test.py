@@ -18,7 +18,7 @@ def test_user(db_session) -> None:
     user = models.User(username='hrun', fullname="Hrun the Barbarian")
     db_session.add(user)
     db_session.commit()
-    hrun = models.User.get(username='hrun')
+    hrun = models.User.get(name='hrun')
     assert isinstance(hrun, models.User)
     assert user.username == 'hrun'
     assert user.fullname == "Hrun the Barbarian"
@@ -428,11 +428,11 @@ def test_user_get(db_session, user_twoflower, user_rincewind, user_death) -> Non
     assert lookup_by_buid == user_twoflower
 
     # scenario 3: if username is passed
-    lookup_by_username = models.User.get(username='rincewind')
+    lookup_by_username = models.User.get(name='rincewind')
     assert lookup_by_username == user_rincewind
 
     # scenario 4: if defercols is set to True
-    lookup_by_username = models.User.get(username='rincewind', defercols=True)
+    lookup_by_username = models.User.get(name='rincewind', defercols=True)
     assert lookup_by_username == user_rincewind
 
     # scenario 5: when user.state.MERGED

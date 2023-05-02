@@ -258,7 +258,6 @@ class Account(
                 'timezone',
                 'avatar',
                 'created_at',
-                'profile',
                 'profile_url',
                 'urls',
             },
@@ -277,7 +276,6 @@ class Account(
             'timezone',
             'avatar',
             'created_at',
-            'profile',
             'profile_url',
             'urls',
         },
@@ -530,7 +528,7 @@ class Account(
 
     def is_profile_complete(self) -> bool:
         """Verify if profile is complete (fullname, username and contacts present)."""
-        return bool(self.fullname and self.username and self.has_verified_contact_info)
+        return bool(self.title and self.name and self.has_verified_contact_info)
 
     def active_memberships(self) -> Iterator[ImmutableMembershipMixin]:
         """Enumerate all active memberships."""
@@ -929,13 +927,11 @@ class Account(
 
         # base_users is used in two of the three possible queries below
         base_users = (
-            # Use outerjoin(Profile) to find users without profiles (not inner join)
-            cls.query.outerjoin(Profile)
-            .filter(
+            cls.query.filter(
                 cls.state.ACTIVE,
                 sa.or_(
                     sa.func.lower(cls.fullname).like(sa.func.lower(like_query)),
-                    Profile.name_like(like_query),
+                    cls.name_like(like_query),
                 ),
             )
             .options(*cls._defercols())
@@ -952,10 +948,9 @@ class Account(
             # services like Twitter and GitHub. Make a union of three queries.
             users = (
                 # Query 1: @query -> User.username
-                cls.query.join(Profile)
-                .filter(
+                cls.query.filter(
                     cls.state.ACTIVE,
-                    Profile.name_like(like_query[1:]),
+                    cls.name_like(like_query[1:]),
                 )
                 .options(*cls._defercols())
                 .limit(20)
@@ -1139,7 +1134,6 @@ class DuckTypeAccount(RoleMixin):
     uuid_b58: None = None
     username: None = None
     name: None = None
-    profile: None = None
     profile_url: None = None
     email: None = None
     phone: None = None
@@ -1157,7 +1151,6 @@ class DuckTypeAccount(RoleMixin):
                 'username',
                 'fullname',
                 'pickername',
-                'profile',
                 'profile_url',
             },
             'call': {'views', 'forms', 'features', 'url_for'},
@@ -1169,7 +1162,6 @@ class DuckTypeAccount(RoleMixin):
             'username',
             'fullname',
             'pickername',
-            'profile',
             'profile_url',
         }
     }
@@ -1982,4 +1974,3 @@ Anchor = Union[AccountEmail, AccountEmailClaim, AccountPhone, EmailAddress, Phon
 # pylint: disable=wrong-import-position
 from .membership_mixin import ImmutableMembershipMixin  # isort: skip
 from .organization_membership import OrganizationMembership  # isort:skip
-from .profile import Profile  # isort:skip

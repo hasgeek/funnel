@@ -111,7 +111,7 @@ def getuser(name: str, anchor: bool = False) -> Union[Optional[User], AccountAnd
             pass
 
     # Last guess: username
-    user = User.get(username=name)
+    user = User.get(name=name)
 
     # If the caller wanted an anchor, try to return one (phone, then email) instead of
     # the user account

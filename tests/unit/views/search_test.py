@@ -14,7 +14,7 @@ import pytest
 
 from funnel.views.search import (
     Query,
-    SearchInProfileProvider,
+    SearchInAccountProvider,
     SearchInProjectProvider,
     get_tsquery,
     search_counts,
@@ -23,7 +23,7 @@ from funnel.views.search import (
 
 search_all_types = list(search_providers.keys())
 search_profile_types = [
-    k for k, v in search_providers.items() if isinstance(v, SearchInProfileProvider)
+    k for k, v in search_providers.items() if isinstance(v, SearchInAccountProvider)
 ]
 search_project_types = [
     k for k, v in search_providers.items() if isinstance(v, SearchInProjectProvider)
@@ -54,7 +54,7 @@ def test_search_all_count_returns_int(stype, all_fixtures) -> None:
 def test_search_profile_count_returns_int(stype, org_ankhmorpork, all_fixtures) -> None:
     """Assert that profile_count() returns an int."""
     assert isinstance(
-        cast(SearchInProfileProvider, search_providers[stype]).profile_count(
+        cast(SearchInAccountProvider, search_providers[stype]).account_count(
             get_tsquery("test"), org_ankhmorpork.profile
         ),
         int,
@@ -84,7 +84,7 @@ def test_search_all_returns_query(stype, all_fixtures) -> None:
 def test_search_profile_returns_query(stype, org_ankhmorpork, all_fixtures) -> None:
     """Assert that profile_query() returns a query."""
     assert isinstance(
-        cast(SearchInProfileProvider, search_providers[stype]).profile_query(
+        cast(SearchInAccountProvider, search_providers[stype]).account_query(
             get_tsquery("test"), org_ankhmorpork.profile
         ),
         Query,

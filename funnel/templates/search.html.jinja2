@@ -14,10 +14,10 @@
 
 {%- macro search_content(results, type, query) %}
   {% for item in results['items'] %}
-    <div class="tab-content__results grid__col-sm-12 {%- if type == 'project' or type == 'profile' %} grid__col-sm-6 grid__col-lg-4{% endif %}">
+    <div class="tab-content__results grid__col-sm-12 {%- if type == 'project' or type == 'account' %} grid__col-sm-6 grid__col-lg-4{% endif %}">
       {%- if type == 'project' %}
         {{ projectcard(item.obj, save_form_id_prefix='search_', add_bookmark=false, snippet_html=item.snippet_html) }}
-      {%- elif type == 'profile' %}
+      {%- elif type == 'account' %}
         {{ profilecard(item.obj, item.snippet_html) }}
       {%- elif type == 'session' %}
         <div class="user">
@@ -80,7 +80,7 @@
     </div>
   {% endfor %}
   {% if results['has_next'] %}
-    <div lass="tab-content__results grid__col-sm-12 {%- if type == 'project' or type == 'profile' %} grid__col-sm-6 grid__col-lg-4{% endif %}" hx-get="{{ url_for('search', q=query, type=type, page=results['next_num']) }}"
+    <div lass="tab-content__results grid__col-sm-12 {%- if type == 'project' or type == 'account' %} grid__col-sm-6 grid__col-lg-4{% endif %}" hx-get="{{ url_for('search', q=query, type=type, page=results['next_num']) }}"
         hx-trigger="revealed"
         hx-swap="outerHTML" hx-push-url="true">
       <span class="loading"></span>
