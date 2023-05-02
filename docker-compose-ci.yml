@@ -13,7 +13,6 @@ services:
         - BASE_PYTHON_VERSION=${BASE_PYTHON_VERSION}
         - BASE_NODE_VERSION=${BASE_NODE_VERSION}
       target: funnel-test
-    # command: bash ../entrypoint.sh
     entrypoint: ['pytest']
     working_dir: /home/funnel/app
     depends_on:
@@ -26,11 +25,10 @@ services:
       - redis
     volumes:
       - pip_cache:/home/funnel/.cache/pip:delegated
-      - ./docker/entrypoints/test.sh:/home/funnel/entrypoint.sh
+      # https://stackoverflow.com/questions/43844639/how-do-i-add-cached-or-delegated-into-a-docker-compose-yml-volumes-list
     environment:
       - REDIS_HOST=redis
       - POSTGRES_USER_HOST=postgres@postgres
-    tty: true
   postgres:
     image: postgres
     restart: always
