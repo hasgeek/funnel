@@ -259,7 +259,7 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
         if request.method == 'GET':
             form.timezone.data = current_app.config.get('TIMEZONE')
         if form.validate_on_submit():
-            project = Project(user=current_auth.user, profile=self.obj)
+            project = Project(created_by=current_auth.user, account=self.obj)
             form.populate_obj(project)
             project.make_name()
             db.session.add(project)

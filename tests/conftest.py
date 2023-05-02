@@ -1381,7 +1381,7 @@ def project_expo2010(
     db_session.flush()
 
     project = models.Project(
-        account=org_ankhmorpork.profile,
+        account=org_ankhmorpork,
         created_by=user_vetinari,
         title="Ankh-Morpork 2010",
         tagline="Welcome to Ankh-Morpork, tourists!",
@@ -1399,8 +1399,8 @@ def project_expo2011(
     db_session.flush()
 
     project = models.Project(
-        profile=org_ankhmorpork.profile,
-        user=user_vetinari,
+        account=org_ankhmorpork,
+        created_by=user_vetinari,
         title="Ankh-Morpork 2011",
         tagline="Welcome back, our pub’s changed",
         description="The Broken Drum is gone, but we have The Mended Drum now.",
@@ -1421,8 +1421,8 @@ def project_ai1(
     db_session.flush()
 
     project = models.Project(
-        profile=org_uu.profile,
-        user=user_ponder_stibbons,
+        account=org_uu,
+        created_by=user_ponder_stibbons,
         title="Soul Music",
         tagline="Hex makes an initial appearance",
         description="Hex has its origins in a device that briefly appeared in Soul"
@@ -1448,8 +1448,8 @@ def project_ai2(
     db_session.flush()
 
     project = models.Project(
-        profile=org_uu.profile,
-        user=user_ponder_stibbons,
+        account=org_uu,
+        created_by=user_ponder_stibbons,
         title="Interesting Times",
         tagline="Hex invents parts for itself",
         description="Hex has become a lot more complex, and is constantly reinventing"
@@ -1611,8 +1611,8 @@ def new_project(
     models, db_session, new_organization, new_user
 ) -> funnel_models.Project:
     project = models.Project(
-        profile=new_organization.profile,
-        user=new_user,
+        account=new_organization,
+        created_by=new_user,
         title="Test Project",
         tagline="Test tagline",
         description="Test description",
@@ -1628,8 +1628,8 @@ def new_project2(
     models, db_session, new_organization, new_user_owner
 ) -> funnel_models.Project:
     project = models.Project(
-        profile=new_organization.profile,
-        user=new_user_owner,
+        account=new_organization,
+        created_by=new_user_owner,
         title="Test Project",
         tagline="Test tagline",
         description="Test description",

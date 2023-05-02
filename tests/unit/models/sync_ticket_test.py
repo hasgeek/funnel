@@ -183,13 +183,12 @@ class TestEventModels:
         )
         self.db_session.add(self.organization)
         self.db_session.commit()
-        self.profile = self.organization.profile
 
         self.project = models.Project(
             title="20000 AD",
             tagline="In a galaxy far far away...",
-            profile=self.profile,
-            user=self.user,
+            account=self.organization,
+            created_by=self.user,
         )
         self.db_session.add(self.project)
         self.project.make_name()

@@ -100,10 +100,9 @@ def project_fixtures(db_session) -> SimpleNamespace:  # pylint: disable=too-many
         ]
     )
     db_session.commit()
-    profile = org.profile
     project = models.Project(
-        profile=profile,
-        user=user_owner,
+        account=org,
+        created_by=user_owner,
         title="Notifications project",
         tagline="Test notification delivery",
     )
