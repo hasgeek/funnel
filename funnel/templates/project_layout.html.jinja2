@@ -106,12 +106,12 @@
   <div class="project-details__box mui--clearfix project-banner__right {% if not project.livestream_urls and not project.banner_video_url.url or not project.bg_image.url %}project-banner__right--smaller{%- endif %} subproject-page__hide">
     <div class="top-padding bottom-padding project-details__box__title">
       <div class="project-banner__profile-details">
-        {%- if project.profile.logo_url.url %}
-          <a href="{{ project.profile.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View project">
-            <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+        {%- if project.account.logo_url.url %}
+          <a href="{{ project.account.url_for() }}" class="project-banner__profile-details__logo-wrapper" data-ga="View project">
+            <img class="project-banner__profile-details__logo_wrapper__logo" src="{{ project.account.logo_url }}" alt="{{ project.account.title }}"/>
           </a>
         {% endif %}
-        <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.profile.title }}</a>
+        <a href="{{ project.account.url_for() }}" class="mui--text-dark mui--text-subhead text-bold nounderline project-banner__profile-details__text" data-cy="profile-link">{{ project.account.title }}</a>
       </div>
       <h1 class="text-bold zero-top-margin zero-bottom-margin"><a href="{{ project.url_for() }}" class="mui--text-dark nounderline" data-cy="project-page">{{ project.title }}</a></h1>
       <p class="mui--text-heading mui--text-light zero-bottom-margin">{{ project.tagline }}</p>
@@ -314,19 +314,19 @@
       <div class="flex-wrapper flex-wrapper--center">
         <div class="user user--smaller">
           <div class="user__box">
-            <a href="{{ project.profile.url_for() }}" class="nounderline">
-              {%- if project.profile.logo_url.url %}
-                <img class="user__box__gravatar" src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+            <a href="{{ project.account.url_for() }}" class="nounderline">
+              {%- if project.account.logo_url.url %}
+                <img class="user__box__gravatar" src="{{ project.account.logo_url }}" alt="{{ project.account.title }}"/>
               {%- else %}
-                <div class="user__box__gravatar user__box__gravatar--initials" data-avatar-colour="{{ project.profile.views.avatar_color_code }}">{{ project.profile.title|initials }}</div>
+                <div class="user__box__gravatar user__box__gravatar--initials" data-avatar-colour="{{ project.account.views.avatar_color_code }}">{{ project.account.title|initials }}</div>
               {% endif %}
             </a>
           </div>
         </div>
-        <a href="{{ project.profile.url_for() }}" class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{{ project.profile.title }}</a>
+        <a href="{{ project.account.url_for() }}" class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{{ project.account.title }}</a>
       </div>
-      {% if project.profile.description.html %}
-        <div class="mui--text-body2 mui--text-light margin-bottom">{{ project.profile.description.html|preview(min=200, max=300) }} <a href="{{ project.profile.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class="mui--align-middle") }}</a></div>
+      {% if project.account.description.html %}
+        <div class="mui--text-body2 mui--text-light margin-bottom">{{ project.account.description.html|preview(min=200, max=300) }} <a href="{{ project.account.url_for() }}" class="chip mui--text-body2 nounderline">{% trans %}more{% endtrans %}{{ faicon(icon='caret-right-solid', baseline=false, css_class="mui--align-middle") }}</a></div>
       {% endif %}
     </div>
   </div>

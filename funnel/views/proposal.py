@@ -31,7 +31,7 @@ from ..forms import (
     SavedProjectForm,
 )
 from ..models import (
-    Profile,
+    Account,
     Project,
     Proposal,
     ProposalMembership,
@@ -44,7 +44,7 @@ from ..models import (
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo, requires_user_not_spammy
-from .mixins import ProfileCheckMixin, ProjectViewMixin
+from .mixins import AccountCheckMixin, ProjectViewMixin
 from .notification import dispatch_notification
 from .session import session_edit
 
@@ -66,7 +66,7 @@ def proposals_can_be_reordered(obj):
 
 # --- Routes ------------------------------------------------------------------
 @Project.views('proposal_new')
-@route('/<profile>/<project>')
+@route('/<account>/<project>')
 class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     """Views for proposal management (new/reorder)."""
 
@@ -134,12 +134,12 @@ ProjectProposalView.init_app(app)
 
 
 @Proposal.views('main')
-@route('/<profile>/<project>/proposals/<proposal>')
-@route('/<profile>/<project>/sub/<proposal>')
-class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
+@route('/<account>/<project>/proposals/<proposal>')
+@route('/<account>/<project>/sub/<proposal>')
+class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     model = Proposal
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.name',
         'project': 'project.name',
         'proposal': 'url_name_uuid_b58',
     }
@@ -149,16 +149,16 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
 
     def loader(
         self,
-        profile: str,  # skipcq: PYL-W0613
+        account: str,  # skipcq: PYL-W0613
         project: str,  # skipcq: PYL-W0613
         proposal: str,
     ) -> Union[Proposal, ProposalSuuidRedirect]:
-        # `profile` and `project` are part of the URL, but unnecessary for loading
+        # `account` and `project` are part of the URL, but unnecessary for loading
         # a proposal since it has a unique id embedded. These parameters are not
         # used in the query.
         obj = (
             self.model.query.join(Project)
-            .join(Profile)
+            .join(Account)
             .filter(Proposal.url_name_uuid_b58 == proposal)
             .first()
         )
@@ -178,13 +178,13 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     def after_loader(self) -> Optional[ReturnView]:
         if isinstance(self.obj, ProposalSuuidRedirect):
             if self.obj.proposal:
-                self.profile = self.obj.proposal.project.account
+                self.account = self.obj.proposal.project.account
                 return render_redirect(
                     self.obj.proposal.url_for(),
                     302 if request.method == 'GET' else 303,
                 )
             abort(410)
-        self.profile = self.obj.project.account
+        self.account = self.obj.project.account
         return super().after_loader()
 
     @route('')
@@ -422,11 +422,11 @@ ProposalView.init_app(app)
 
 
 @ProposalMembership.views('main')
-@route('/<profile>/<project>/sub/<proposal>/collaborator/<membership>')
-class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
+@route('/<account>/<project>/sub/<proposal>/collaborator/<membership>')
+class ProposalMembershipView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     model = ProposalMembership
     route_model_map = {
-        'profile': 'proposal.project.profile.name',
+        'account': 'proposal.project.account.name',
         'project': 'proposal.project.name',
         'proposal': 'proposal.url_name_uuid_b58',
         'membership': 'uuid_b58',
@@ -435,12 +435,12 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
 
     def loader(
         self,
-        profile: str,  # skipcq: PYL-W0613
+        account: str,  # skipcq: PYL-W0613
         project: str,  # skipcq: PYL-W0613
         proposal: str,  # skipcq: PYL-W0613
         membership: str,
     ) -> ProposalMembership:
-        # `profile`, `project` and `proposal` are part of the URL, but unnecessary for
+        # `account`, `project` and `proposal` are part of the URL, but unnecessary for
         # loading a proposal membership since it has a unique id.
         obj = self.model.query.filter(
             ProposalMembership.uuid_b58 == membership
@@ -450,7 +450,7 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
         return obj
 
     def after_loader(self):
-        self.profile = self.obj.proposal.project.account
+        self.account = self.obj.proposal.project.account
         return super().after_loader()
 
     def collaborators(self):

@@ -144,13 +144,13 @@
     <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-top margin-bottom margin-right margin-left">
       <div class="flex-wrapper flex-wrapper--center">
         <span class="profile-avatar margin-right">
-          {%- if project.profile.logo_url.url %}
-            <img src="{{ project.profile.logo_url }}" alt="{{ project.profile.title }}"/>
+          {%- if project.account.logo_url.url %}
+            <img src="{{ project.account.logo_url }}" alt="{{ project.account.title }}"/>
           {% else %}
-            <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ project.profile.title }}"/>
+            <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ project.account.title }}"/>
           {% endif %}
         </span>
-        <span class="profile-avatar-title mui--text-body2 text-bold mui--text-dark">{{ project.profile.title }}</span>
+        <span class="profile-avatar-title mui--text-body2 text-bold mui--text-dark">{{ project.account.title }}</span>
       </div>
       {%- if not current_auth.is_anonymous and add_bookmark %}
         {% set save_form_id = save_form_id_prefix + project.uuid_b58 %}
@@ -395,7 +395,7 @@
   <footer class="sub-navbar-container sub-navbar-container--footer bg-accent">
     <nav class="sub-navbar mui-container" id="page-navbar">
       <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'index' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('about') }}">{% trans %}About Hasgeek{% endtrans %}</a>
-      <a class="sub-navbar__item mui--text-subhead mui--text-dark" href="{{ url_for('profile', profile='hasgeek') }}">{% trans %}Team &amp; careers{% endtrans %}</a>
+      <a class="sub-navbar__item mui--text-subhead mui--text-dark" href="{{ url_for('profile', account='hasgeek') }}">{% trans %}Team &amp; careers{% endtrans %}</a>
       <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'contact' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('contact') }}">{% trans %}Contact{% endtrans %}</a>
       <a class="sub-navbar__item mui--text-subhead mui--text-dark {% if path == 'policy' %}sub-navbar__item--active{%- endif %}" href="{{ url_for('policy') }}">{% trans %}Site policies{% endtrans %}</a>
     </nav>

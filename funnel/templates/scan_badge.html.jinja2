@@ -21,7 +21,7 @@
   <script type="text/javascript">
     $(function() {
       var ticketEventConfig = {
-        checkinApiUrl: {{ url_for('TicketEventParticipantCheckinView_checkin_puk', profile=project.profile.name, project=project.name, event=ticket_event.name, puk='puk')|tojson }},
+        checkinApiUrl: {{ url_for('TicketEventParticipantCheckinView_checkin_puk', account=project.account.name, project=project.name, event=ticket_event.name, puk='puk')|tojson }},
         wrapperId: 'scan-badge-wrapper',
         templateId: 'scan-badge-template',
         projectTitle: {{ project.title|tojson }},

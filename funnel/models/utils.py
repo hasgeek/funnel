@@ -203,9 +203,8 @@ def do_migrate_instances(
                 # will have a unique index but no model on which to place
                 # helper_method, unless one of the related models handles
                 # migrations AND signals a way for this table to be skipped
-                # here. This is why model.helper_method below (migrate_account or
-                # migrate_profile) returns a list of table names it has
-                # processed.
+                # here. This is why model.helper_method below (migrate_account) returns
+                # a list of table names it has processed.
                 app.logger.error(
                     "do_migrate_table interrupted because column is unique: {column}",
                     extra={'column': column},

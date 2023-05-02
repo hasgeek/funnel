@@ -25,11 +25,12 @@ from ..forms import (
     ProjectCrewMembershipInviteForm,
 )
 from ..models import (
+    Account,
     MembershipRevokedError,
+    Organization,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
     OrganizationMembership,
-    Profile,
     Project,
     ProjectCrewMembership,
     ProjectCrewMembershipNotification,
@@ -40,17 +41,17 @@ from ..proxies import request_wants
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
-from .mixins import ProfileCheckMixin, ProfileViewMixin, ProjectViewMixin
+from .mixins import AccountCheckMixin, AccountViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
 
 
-@Profile.views('members')
-@route('/<profile>/members')
-class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
+@Account.views('members')
+@route('/<account>/members')
+class OrganizationMembersView(AccountViewMixin, UrlForView, ModelView):
     def after_loader(self) -> Optional[ReturnView]:  # type: ignore[return]
         """Don't render member views for user accounts."""
-        if not self.obj.organization:
-            # User accounts (nee profiles) don't have memberships
+        if isinstance(self.obj, Organization):
+            # Only organization accounts have admin members
             abort(404)
 
     @route('', methods=['GET', 'POST'])
@@ -59,7 +60,7 @@ class OrganizationMembersView(ProfileViewMixin, UrlForView, ModelView):
     def members(self) -> ReturnRenderWith:
         """Render a list of organization admin members."""
         return {
-            'profile': self.obj,
+            'account': self.obj,
             'memberships': [
                 membership.current_access(datasets=('without_parent', 'related'))
                 for membership in self.obj.organization.active_admin_memberships
@@ -157,21 +158,21 @@ OrganizationMembersView.init_app(app)
 
 
 @OrganizationMembership.views('main')
-@route('/<profile>/members/<membership>')
+@route('/<account>/members/<membership>')
 class OrganizationMembershipView(
-    ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView
+    AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView
 ):
     model = OrganizationMembership
-    route_model_map = {'profile': 'organization.name', 'membership': 'uuid_b58'}
+    route_model_map = {'account': 'organization.name', 'membership': 'uuid_b58'}
     obj: OrganizationMembership
 
-    def loader(self, profile, membership) -> OrganizationMembership:
+    def loader(self, account, membership) -> OrganizationMembership:
         return OrganizationMembership.query.filter(
             OrganizationMembership.uuid_b58 == membership,
         ).first_or_404()
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.organization.profile
+        self.account = self.obj.organization
         return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
@@ -300,7 +301,7 @@ OrganizationMembershipView.init_app(app)
 
 
 @Project.views('crew')
-@route('/<profile>/<project>/crew')
+@route('/<account>/<project>/crew')
 class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', methods=['GET', 'POST'])
     @render_with(html_in_json('project_membership.html.jinja2'))
@@ -390,21 +391,21 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
 ProjectMembershipView.init_app(app)
 
 
-class ProjectCrewMembershipMixin(ProfileCheckMixin):
+class ProjectCrewMembershipMixin(AccountCheckMixin):
     model = ProjectCrewMembership
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.name',
         'project': 'project.name',
         'membership': 'uuid_b58',
     }
     obj: ProjectCrewMembership
 
-    def loader(self, profile, project, membership) -> ProjectCrewMembership:
+    def loader(self, account, project, membership) -> ProjectCrewMembership:
         return (
             ProjectCrewMembership.query.join(Project)
-            .join(Profile)
+            .join(Account)
             .filter(
-                Profile.name_is(profile),
+                Account.name_is(account),
                 Project.name == project,
                 ProjectCrewMembership.uuid_b58 == membership,
             )
@@ -412,17 +413,17 @@ class ProjectCrewMembershipMixin(ProfileCheckMixin):
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.account
+        self.account = self.obj.project.account
         return super().after_loader()
 
 
 @ProjectCrewMembership.views('invite')
-@route('/<profile>/<project>/crew/<membership>/invite')
+@route('/<account>/<project>/crew/<membership>/invite')
 class ProjectCrewMembershipInviteView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
 ):
-    def loader(self, profile, project, membership) -> ProjectCrewMembership:
-        obj = super().loader(profile, project, membership)
+    def loader(self, account, project, membership) -> ProjectCrewMembership:
+        obj = super().loader(account, project, membership)
         if not obj.is_invite or obj.user != current_auth.user:
             abort(404)
         return obj
@@ -468,7 +469,7 @@ ProjectCrewMembershipInviteView.init_app(app)
 
 
 @ProjectCrewMembership.views('main')
-@route('/<profile>/<project>/crew/<membership>')
+@route('/<account>/<project>/crew/<membership>')
 class ProjectCrewMembershipView(
     ProjectCrewMembershipMixin, UrlChangeCheck, UrlForView, ModelView
 ):

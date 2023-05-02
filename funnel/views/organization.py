@@ -44,7 +44,7 @@ def people_and_teams(obj):
     return result
 
 
-@Organization.views('main')
+@Account.views('org')
 @route('/<organization>')
 class OrgView(UrlChangeCheck, UrlForView, ModelView):
     """Views for organizations."""

@@ -6,7 +6,7 @@ from baseframe import __
 
 from ..typing import UuidModelType
 from . import Mapped
-from .account import Organization, User
+from .account import Account, Organization, User
 from .comment import Comment, Commentset
 from .moderation import CommentModeratorReport
 from .notification import Notification, notification_categories
@@ -39,10 +39,10 @@ __all__ = [
 # --- Protocol and Mixin classes -------------------------------------------------------
 
 
-class ProfileSubtype(UuidModelType):
-    """Model that links to an account (nee profile)."""
+class AccountSubtype(UuidModelType):
+    """Model that links to an account."""
 
-    profile: Mapped[Profile]
+    profile: Mapped[Account]
 
 
 class ProjectSubtype(UuidModelType):
@@ -65,7 +65,7 @@ class DocumentHasProject:
 class DocumentHasProfile:
     """Mixin class for documents linked to an account (nee profile)."""
 
-    document: ProfileSubtype
+    document: AccountSubtype
 
     @property
     def preference_context(self) -> Profile:

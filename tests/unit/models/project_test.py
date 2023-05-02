@@ -232,7 +232,7 @@ def test_project_rename(
     assert new_project.name == 'test-project'
     assert new_project.profile == new_organization.profile
     redirect = models.ProjectRedirect.query.filter_by(
-        profile=new_organization.profile, name='test-project'
+        account=new_organization, name='test-project'
     ).one_or_none()
     assert redirect is None
 
@@ -241,7 +241,7 @@ def test_project_rename(
     new_project.make_name()
     assert new_project.name == 'renamed-project'
     redirect = models.ProjectRedirect.query.filter_by(
-        profile=new_organization.profile, name='test-project'
+        account=new_organization, name='test-project'
     ).one_or_none()
     assert redirect is not None
     assert redirect.project == new_project
@@ -255,13 +255,13 @@ def test_project_rename(
 
     # Changing project also creates a redirect from the old project
     redirect2 = models.ProjectRedirect.query.filter_by(
-        profile=new_organization.profile, name='renamed-project'
+        account=new_organization, name='renamed-project'
     ).one_or_none()
     assert redirect2 is None
 
     new_project.profile = second_organization.profile
     redirect2 = models.ProjectRedirect.query.filter_by(
-        profile=new_organization.profile, name='renamed-project'
+        account=new_organization, name='renamed-project'
     ).one_or_none()
     assert redirect2 is not None
     assert redirect2.project == new_project
@@ -272,7 +272,7 @@ def test_project_rename(
     new_project2.name = 'test-project'
     # The existing redirect is not touched by this, as the project takes priority
     new_redirect = models.ProjectRedirect.query.filter_by(
-        profile=new_organization.profile, name='test-project'
+        account=new_organization, name='test-project'
     ).one_or_none()
     assert new_redirect is not None
     assert new_redirect == redirect
@@ -281,7 +281,7 @@ def test_project_rename(
     # But renaming out will reuse the existing redirect to point to the new project
     new_project2.name = 'renamed-away'
     new_redirect = models.ProjectRedirect.query.filter_by(
-        profile=new_organization.profile, name='test-project'
+        account=new_organization, name='test-project'
     ).one_or_none()
     assert new_redirect is not None
     assert new_redirect == redirect

@@ -23,8 +23,8 @@ def notification_types(database) -> SimpleNamespace:
         document: models.db.Model  # type: ignore[name-defined]
 
         @property
-        def preference_context(self) -> models.Profile:
-            return self.document.project.profile
+        def preference_context(self) -> models.Account:
+            return self.document.project.account
 
     class TestNewUpdateNotification(
         ProjectIsParent, models.Notification, type='update_new_test'

@@ -123,12 +123,12 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
     @with_roles(call={'owner', 'project_promoter'})
     def user_email(self) -> Optional[AccountEmail]:
         """User's preferred email address for this registration."""
-        return self.user.transport_for_email(self.project.profile)
+        return self.user.transport_for_email(self.project.account)
 
     @with_roles(call={'owner', 'project_promoter'})
     def user_phone(self) -> Optional[AccountEmail]:
         """User's preferred phone number for this registration."""
-        return self.user.transport_for_sms(self.project.profile)
+        return self.user.transport_for_sms(self.project.account)
 
     @with_roles(call={'owner', 'project_promoter'})
     def best_contact(

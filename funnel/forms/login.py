@@ -8,6 +8,7 @@ from baseframe import __, forms
 
 from ..models import (
     PASSWORD_MAX_LENGTH,
+    Account,
     AccountEmail,
     AccountEmailClaim,
     AccountPhone,
@@ -94,7 +95,7 @@ class PasswordlessLoginIntercept:
 # --- Forms ----------------------------------------------------------------------------
 
 
-@User.forms('login')
+@Account.forms('login')
 class LoginForm(forms.RecaptchaForm):
     """
     Form for login and registration.
@@ -244,7 +245,7 @@ class LoginForm(forms.RecaptchaForm):
         self.weak_password: bool = check_password_strength(field.data).is_weak
 
 
-@User.forms('logout')
+@Account.forms('logout')
 class LogoutForm(forms.Form):
     """Process a logout request."""
 

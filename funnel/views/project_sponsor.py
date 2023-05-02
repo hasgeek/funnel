@@ -15,7 +15,7 @@ from coaster.views import ModelView, UrlChangeCheck, UrlForView, requestform, ro
 
 from .. import app
 from ..forms import ProjectSponsorForm
-from ..models import Profile, Project, ProjectSponsorMembership, db, sa
+from ..models import Account, Project, ProjectSponsorMembership, db, sa
 from ..typing import ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_site_editor
@@ -30,7 +30,7 @@ def edit_sponsor_form(obj):
 
 
 @Project.views('sponsors')
-@route('/<profile>/<project>/sponsors/')
+@route('/<account>/<project>/sponsors/')
 class ProjectSponsorLandingView(
     ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
 ):
@@ -43,11 +43,11 @@ class ProjectSponsorLandingView(
         if request.method == 'POST':
             if form.validate_on_submit():
                 if TYPE_CHECKING:
-                    assert isinstance(form.profile.data, Profile)  # nosec
+                    assert isinstance(form.profile.data, Account)  # nosec
                 existing_sponsorship = ProjectSponsorMembership.query.filter(
                     ProjectSponsorMembership.is_active,
                     ProjectSponsorMembership.project == self.obj,
-                    ProjectSponsorMembership.profile == form.profile.data,
+                    ProjectSponsorMembership.account == form.account.data,
                 ).one_or_none()
                 if existing_sponsorship is not None:
                     return (
@@ -55,7 +55,7 @@ class ProjectSponsorLandingView(
                             'status': 'error',
                             'error_description': _(
                                 "{sponsor} is already a sponsor"
-                            ).format(sponsor=form.profile.data.pickername),
+                            ).format(sponsor=form.account.data.pickername),
                             'errors': form.errors,
                             'form_nonce': form.form_nonce.data,
                         },
@@ -121,25 +121,25 @@ ProjectSponsorLandingView.init_app(app)
 
 
 @ProjectSponsorMembership.views('main')
-@route('/<profile>/<project>/sponsors/<sponsorship>')
+@route('/<account>/<project>/sponsors/<sponsorship>')
 class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
     __decorators__ = [requires_login, requires_site_editor]
     model = ProjectSponsorMembership
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.name',
         'project': 'project.name',
         'sponsorship': 'uuid_b58',
     }
 
     def loader(
         self,
-        profile: str,  # skipcq: PYL-W0613
+        account: str,  # skipcq: PYL-W0613
         project: str,  # skipcq: PYL-W0613
         sponsorship: Optional[str] = None,
     ) -> ProjectSponsorMembership:
         obj = (
             self.model.query.join(Project)
-            .join(Profile)
+            .join(Account)
             .filter(self.model.uuid_b58 == sponsorship)
             .one_or_404()
         )
@@ -203,7 +203,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
             form=form,
             title=_("Remove sponsor?"),
             message=_("Remove ‘{sponsor}’ as a sponsor?").format(
-                sponsor=self.obj.profile.title
+                sponsor=self.obj.account.title
             ),
             action=self.obj.url_for('remove'),
             ref_id='remove_sponsor',

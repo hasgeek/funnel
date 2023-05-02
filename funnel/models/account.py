@@ -349,12 +349,12 @@ class Account(
         """User has any contact information (including unverified)."""
         return self.has_verified_contact_info or bool(self.emailclaims)
 
-    def merged_user(self) -> User:
+    def merged_account(self) -> User:
         """Return the account that this account was merged into (default: self)."""
         if self.state.MERGED:
             # If our state is MERGED, there _must_ be a corresponding AccountOldId
             # record
-            return cast(AccountOldId, AccountOldId.get(self.uuid)).user
+            return cast(AccountOldId, AccountOldId.get(self.uuid)).account
         return self
 
     def _set_password(self, password: Optional[str]):
@@ -518,20 +518,13 @@ class Account(
     @property
     def avatar(self) -> Optional[ImgeeFurl]:
         """Return avatar image URL."""
-        profile = self.profile
-        return (
-            profile.logo_url
-            if profile is not None
-            and profile.logo_url is not None
-            and profile.logo_url.url != ''
-            else None
-        )
+        logo_url = self.logo_url
+        return logo_url if logo_url is not None and logo_url.url != '' else None
 
     @property
     def profile_url(self) -> Optional[str]:
         """Return optional URL to account page."""
-        profile = self.profile
-        return profile.url_for() if profile is not None else None
+        return self.url_for() if self.name is not None else None
 
     with_roles(profile_url, read={'all'})
 
@@ -715,9 +708,9 @@ class Account(
         ]
 
     @state.transition(state.ACTIVE, state.MERGED)
-    def mark_merged_into(self, other_user):
+    def mark_merged_into(self, other_account):
         """Mark account as merged into another account."""
-        db.session.add(AccountOldId(id=self.uuid, user=other_user))
+        db.session.add(AccountOldId(id=self.uuid, account=other_account))
 
     @state.transition(state.ACTIVE, state.SUSPENDED)
     def mark_suspended(self):
@@ -727,8 +720,8 @@ class Account(
     def do_delete(self):
         """Delete account."""
         # 0: Safety check
-        if self.profile and not self.profile.is_safe_to_delete():
-            raise ValueError("Profile cannot be deleted")
+        if not self.is_safe_to_delete():
+            raise ValueError("Account cannot be deleted")
 
         # 1. Delete contact information
         for contact_source in (
@@ -763,16 +756,8 @@ class Account(
         for user_session in self.active_user_sessions:
             user_session.revoke()
 
-        # 6. Delete account (nee profile) and release username, unless it is implicated
-        #    in membership records (including revoked records).
-        if (
-            self.profile
-            and self.profile.do_delete(self)  # This call removes data and confirms it
-            and self.profile.is_safe_to_purge()
-        ):
-            db.session.delete(self.profile)
-
-        # 6. Clear title (fullname) and stored password hash
+        # 6. Clear name (username), title (fullname) and stored password hash
+        self.name = None
         self.title = ''
         self.password = None
 
@@ -882,7 +867,7 @@ class Account(
             query = query.options(*cls._defercols())
         account = query.one_or_none()
         if account and account.state.MERGED:
-            account = account.merged_user()
+            account = account.merged_account()
         if account and account.state.ACTIVE:
             return account
         return None
@@ -898,7 +883,7 @@ class Account(
         Return all matching accounts.
 
         :param list buids: Buids to look up
-        :param list names: Usernames to look up
+        :param list names: Names (usernames) to look up
         :param bool defercols: Defer loading non-critical columns
         """
         accounts = set()
@@ -914,12 +899,12 @@ class Account(
         elif names:
             query = cls.query.filter(cls.name_in(names))
         else:
-            raise TypeError("A parameter is required")
+            return []
 
         if defercols:
             query = query.options(*cls._defercols())
         for account in query.all():
-            account = account.merged_user()
+            account = account.merged_account()
             if account.state.ACTIVE:
                 accounts.add(account)
         return list(accounts)

@@ -26,14 +26,14 @@ from ..forms import (
     ProfileLogoForm,
     ProfileTransitionForm,
 )
-from ..models import Profile, Project, db, sa
+from ..models import Account, Profile, Project, db, sa
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
-from .mixins import ProfileViewMixin
+from .mixins import AccountViewMixin
 
 
-@Profile.features('new_project')
+@Account.features('new_project')
 def feature_profile_new_project(obj):
     return (
         obj.is_organization_profile
@@ -42,7 +42,7 @@ def feature_profile_new_project(obj):
     )
 
 
-@Profile.features('new_user_project')
+@Account.features('new_user_project')
 def feature_profile_new_user_project(obj):
     return (
         obj.is_user_profile
@@ -52,12 +52,12 @@ def feature_profile_new_user_project(obj):
     )
 
 
-@Profile.features('make_public')
+@Account.features('make_public')
 def feature_profile_make_public(obj):
     return obj.current_roles.admin and obj.make_public.is_available
 
 
-@Profile.features('make_private')
+@Account.features('make_private')
 def feature_profile_make_private(obj):
     return obj.current_roles.admin and obj.make_private.is_available
 
@@ -67,9 +67,9 @@ def template_switcher(templateargs):
     return render_template(template, **templateargs)
 
 
-@Profile.views('main')
-@route('/<profile>')
-class ProfileView(ProfileViewMixin, UrlChangeCheck, UrlForView, ModelView):
+@Account.views('main')
+@route('/<account>')
+class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', endpoint='profile')
     @render_with({'text/html': template_switcher}, json=True)
     @requires_roles({'reader', 'admin'})

@@ -9,7 +9,7 @@ from flask import Markup, url_for
 
 from baseframe import __, forms
 
-from ..models import User, notification_type_registry
+from ..models import Account, User, notification_type_registry
 from ..transports import platform_transports
 
 __all__ = [
@@ -115,7 +115,7 @@ transport_labels = {
 }
 
 
-@User.forms('unsubscribe')
+@Account.forms('unsubscribe')
 class UnsubscribeForm(forms.Form):
     """Form to unsubscribe from notifications."""
 
@@ -206,7 +206,7 @@ class UnsubscribeForm(forms.Form):
             )
 
 
-@User.forms('set_notification_preference')
+@Account.forms('set_notification_preference')
 class SetNotificationPreferenceForm(forms.Form):
     """Set one notification preference."""
 

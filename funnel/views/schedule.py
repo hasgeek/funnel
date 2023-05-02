@@ -231,7 +231,7 @@ def session_ical(session: Session, rsvp: Optional[Rsvp] = None) -> Event:
 
 
 @Project.views('schedule')
-@route('/<profile>/<project>/schedule')
+@route('/<account>/<project>/schedule')
 class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('')
     @render_with(html_in_json('project_schedule.html.jinja2'))
@@ -346,7 +346,7 @@ ProjectScheduleView.init_app(app)
 
 
 @VenueRoom.views('schedule')
-@route('/<profile>/<project>/schedule/<venue>/<room>')
+@route('/<account>/<project>/schedule/<venue>/<room>')
 class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
     @route('ical')
     @requires_roles({'reader'})

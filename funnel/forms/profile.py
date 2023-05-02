@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from baseframe import __, forms
 
-from ..models import Profile, User
+from ..models import Account, User
 from .helpers import image_url_validator, nullable_strip_filters
 from .organization import OrganizationForm
 
@@ -16,16 +16,16 @@ __all__ = [
 ]
 
 
-@Profile.forms('main')
+@Account.forms('profile')
 class ProfileForm(OrganizationForm):
     """
     Edit a profile.
 
-    A `profile` keyword argument is necessary for the ImgeeField.
+    An `account` keyword argument is necessary for the ImgeeField.
     """
 
-    __expects__ = ('profile', 'user')
-    profile: Profile
+    __expects__ = ('account', 'user')
+    account: Account
     user: User
 
     tagline = forms.StringField(
@@ -61,7 +61,7 @@ class ProfileForm(OrganizationForm):
 
     def set_queries(self) -> None:
         """Prepare form for use."""
-        self.logo_url.profile = self.profile.name
+        self.logo_url.profile = self.account.name
 
     def make_for_user(self):
         """Customise form for a user account."""
@@ -80,11 +80,11 @@ class ProfileForm(OrganizationForm):
         )
 
 
-@Profile.forms('transition')
+@Account.forms('transition')
 class ProfileTransitionForm(forms.Form):
     """Form to transition an account between public and private state."""
 
-    edit_obj: Profile
+    edit_obj: Account
 
     transition = forms.SelectField(
         __("Account visibility"), validators=[forms.validators.DataRequired()]
@@ -95,16 +95,16 @@ class ProfileTransitionForm(forms.Form):
         self.transition.choices = list(self.edit_obj.state.transitions().items())
 
 
-@Profile.forms('logo')
+@Account.forms('logo')
 class ProfileLogoForm(forms.Form):
     """
     Form for profile logo.
 
-    A `profile` keyword argument is necessary for the ImgeeField.
+    An `account` keyword argument is necessary for the ImgeeField.
     """
 
-    __expects__ = ('profile',)
-    profile: Profile
+    __expects__ = ('account',)
+    account: Account
 
     logo_url = forms.ImgeeField(
         __("Account image"),
@@ -119,19 +119,19 @@ class ProfileLogoForm(forms.Form):
     def set_queries(self) -> None:
         """Prepare form for use."""
         self.logo_url.widget_type = 'modal'
-        self.logo_url.profile = self.profile.name
+        self.logo_url.profile = self.account.name
 
 
-@Profile.forms('banner_image')
+@Account.forms('banner_image')
 class ProfileBannerForm(forms.Form):
     """
     Form for profile banner.
 
-    A `profile` keyword argument is necessary for the ImgeeField.
+    An `account` keyword argument is necessary for the ImgeeField.
     """
 
-    __expects__ = ('profile',)
-    profile: Profile
+    __expects__ = ('account',)
+    account: Account
 
     banner_image_url = forms.ImgeeField(
         __("Banner image"),
@@ -146,4 +146,4 @@ class ProfileBannerForm(forms.Form):
     def set_queries(self) -> None:
         """Prepare form for use."""
         self.banner_image_url.widget_type = 'modal'
-        self.banner_image_url.profile = self.profile.name
+        self.banner_image_url.profile = self.account.name

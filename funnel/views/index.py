@@ -43,7 +43,7 @@ class IndexView(ClassView):
     @route('', endpoint='index')
     @render_with('index.html.jinja2')
     def home(self) -> ReturnRenderWith:
-        g.profile = None
+        g.account = None
         projects = Project.all_unsorted()
         # TODO: Move these queries into the Project class
         all_projects = (
@@ -132,7 +132,7 @@ IndexView.init_app(app)
 @requestargs(('page', int), ('per_page', int))
 @render_with('past_projects_section.html.jinja2')
 def past_projects(page: int = 1, per_page: int = 10) -> ReturnView:
-    g.profile = None
+    g.account = None
     projects = Project.all_unsorted()
     pagination = (
         projects.filter(Project.state.PAST)

@@ -10,7 +10,6 @@ from coaster.sqlalchemy import LazyRoleSet
 from . import BaseMixin, UuidMixin, db, sa
 from .account import Account, Organization, User
 from .helpers import quote_autocomplete_like
-from .utils import do_migrate_instances
 
 __all__ = ['Profile']
 
@@ -90,21 +89,6 @@ class Profile(
         if self.state.PUBLIC:
             roles.add('reader')
         return roles
-
-    @classmethod
-    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
-        """Migrate one account's data to another when merging accounts."""
-        if old_account.profile is not None and new_account.profile is None:
-            # New user doesn't have an account (nee profile). Simply transfer ownership
-            new_account.profile = old_account.profile
-        elif old_account.profile is not None and new_account.profile is not None:
-            # Both have accounts. Move everything that refers to old account
-            done = do_migrate_instances(
-                old_account.profile, new_account.profile, 'migrate_profile'
-            )
-            if done:
-                db.session.delete(old_account.profile)
-        # Do nothing if old_user.profile is None and new_user.profile is not None
 
     def do_delete(self, actor: Account) -> bool:
         """Delete contents of this account."""

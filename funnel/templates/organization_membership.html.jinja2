@@ -10,7 +10,7 @@
 {% block bodyattrs %}class="bg-primary no-sticky-header mobile-header"{% endblock bodyattrs %}
 
 {% block baseheadline %}
-  {{ profile_header(profile, class="mui--hidden-xs mui--hidden-sm", current_page="admins", title=_("Admins")) }}
+  {{ profile_header(account, class="mui--hidden-xs mui--hidden-sm", current_page="admins", title=_("Admins")) }}
 {% endblock baseheadline %}
 
 {% block basecontent %}
@@ -34,7 +34,7 @@
     $(function() {
 
       var membershipConfig = {
-        newMemberUrl: "{{ profile.url_for('new_member') }}",
+        newMemberUrl: "{{ account.url_for('new_member') }}",
         members: {{ memberships|tojson }},
         roles: [
           {
@@ -45,7 +45,7 @@
         ],
         divElem: "#manage-membership",
         memberTemplate: '#member-template',
-        isUserProfileAdmin: {%- if profile.current_roles.owner %} true {% else %} false {%- endif %},
+        isUserProfileAdmin: {%- if account.current_roles.owner %} true {% else %} false {%- endif %},
       };
 
       Hasgeek.membershipInit(membershipConfig);

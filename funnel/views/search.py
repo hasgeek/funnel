@@ -46,7 +46,7 @@ from ..models import (
 from ..typing import ReturnRenderWith
 from ..utils import abort_null
 from .helpers import render_redirect
-from .mixins import ProfileViewMixin, ProjectViewMixin
+from .mixins import AccountViewMixin, ProjectViewMixin
 
 # --- Definitions ----------------------------------------------------------------------
 
@@ -896,9 +896,9 @@ class SearchView(ClassView):
 SearchView.init_app(app)
 
 
-@Profile.views('search')
-@route('/<profile>')
-class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
+@Account.views('search')
+@route('/<account>')
+class AccountSearchView(AccountViewMixin, UrlForView, ModelView):
     @route('search', endpoint='search_account')
     @render_with('search.html.jinja2', json=True)
     @requires_roles({'reader', 'admin'})
@@ -931,11 +931,11 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
         }
 
 
-ProfileSearchView.init_app(app)
+AccountSearchView.init_app(app)
 
 
 @Project.views('search')
-@route('/<profile>/<project>/')
+@route('/<account>/<project>/')
 class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
     @route('search', endpoint='search_project')
     @render_with('search.html.jinja2', json=True)

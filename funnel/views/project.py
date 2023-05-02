@@ -36,7 +36,7 @@ from ..forms import (
 )
 from ..models import (
     RSVP_STATUS,
-    Profile,
+    Account,
     Project,
     RegistrationCancellationNotification,
     RegistrationConfirmationNotification,
@@ -54,7 +54,7 @@ from .login_session import (
     requires_site_editor,
     requires_user_not_spammy,
 )
-from .mixins import DraftViewMixin, ProfileViewMixin, ProjectViewMixin
+from .mixins import AccountViewMixin, DraftViewMixin, ProjectViewMixin
 from .notification import dispatch_notification
 
 
@@ -243,9 +243,9 @@ def project_register_button_text(obj: Project) -> str:
     return _("Register")
 
 
-@Profile.views('project_new')
-@route('/<profile>')
-class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
+@Account.views('project_new')
+@route('/<account>')
+class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
     """Project views inside the account (new project view only)."""
 
     @route('new', methods=['GET', 'POST'])
@@ -279,13 +279,13 @@ class ProfileProjectView(ProfileViewMixin, UrlForView, ModelView):
         )
 
 
-ProfileProjectView.init_app(app)
+AccountProjectView.init_app(app)
 
 
 # mypy has trouble with the definition of `obj` and `model` between ProjectViewMixin and
 # DraftViewMixin
 @Project.views('main')
-@route('/<profile>/<project>/')
+@route('/<account>/<project>/')
 class ProjectView(  # type: ignore[misc]
     ProjectViewMixin, DraftViewMixin, UrlChangeCheck, UrlForView, ModelView
 ):
@@ -655,7 +655,7 @@ class ProjectView(  # type: ignore[misc]
             out.writerow(
                 [
                     rsvp.user.fullname,
-                    rsvp.user.default_email(context=rsvp.project.profile) or '',
+                    rsvp.user.default_email(context=rsvp.project.account) or '',
                     rsvp.created_at.astimezone(self.obj.timezone)
                     .replace(second=0, microsecond=0, tzinfo=None)
                     .isoformat(),  # Strip precision from timestamp

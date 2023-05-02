@@ -23,7 +23,7 @@ from coaster.views import (
 from .. import app
 from ..forms import TicketParticipantForm
 from ..models import (
-    Profile,
+    Account,
     Project,
     SyncTicket,
     TicketEvent,
@@ -42,7 +42,7 @@ from ..utils import (
 )
 from .helpers import render_redirect
 from .login_session import requires_login
-from .mixins import ProfileCheckMixin, ProjectViewMixin, TicketEventViewMixin
+from .mixins import AccountCheckMixin, ProjectViewMixin, TicketEventViewMixin
 
 
 def ticket_participant_badge_data(ticket_participants, project):
@@ -107,19 +107,19 @@ def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
             {
                 'badge_url': url_for(
                     'TicketParticipantView_badge',
-                    profile=project.profile.name,
+                    account=project.account.name,
                     project=project.name,
                     ticket_participant=puuid_b58,
                 ),
                 'label_badge_url': url_for(
                     'TicketParticipantView_label_badge',
-                    profile=project.profile.name,
+                    account=project.account.name,
                     project=project.name,
                     ticket_participant=puuid_b58,
                 ),
                 'edit_url': url_for(
                     'TicketParticipantView_edit',
-                    profile=project.profile.name,
+                    account=project.account.name,
                     project=project.name,
                     ticket_participant=puuid_b58,
                 ),
@@ -129,7 +129,7 @@ def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
 
 
 @Project.views('ticket_participant')
-@route('/<profile>/<project>/ticket_participants')
+@route('/<account>/<project>/ticket_participants')
 class ProjectTicketParticipantView(ProjectViewMixin, UrlForView, ModelView):
     @route('json')
     @requires_login
@@ -169,24 +169,24 @@ ProjectTicketParticipantView.init_app(app)
 
 
 @TicketParticipant.views('main')
-@route('/<profile>/<project>/ticket_participant/<ticket_participant>')
-class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
+@route('/<account>/<project>/ticket_participant/<ticket_participant>')
+class TicketParticipantView(AccountCheckMixin, UrlForView, ModelView):
     __decorators__ = [requires_login]
 
     model = TicketParticipant
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.name',
         'project': 'project.name',
         'ticket_participant': 'uuid_b58',
     }
     obj: TicketParticipant
 
-    def loader(self, profile, project, ticket_participant) -> TicketParticipant:
+    def loader(self, account, project, ticket_participant) -> TicketParticipant:
         return (
             TicketParticipant.query.join(Project)
-            .join(Profile)
+            .join(Account)
             .filter(
-                Profile.name_is(profile),
+                Account.name_is(account),
                 Project.name == project,
                 TicketParticipant.uuid_b58 == ticket_participant,
             )
@@ -194,7 +194,7 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.account
+        self.account = self.obj.project.account
         return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
@@ -228,7 +228,7 @@ TicketParticipantView.init_app(app)
 
 
 @TicketEvent.views('ticket_participant')
-@route('/<profile>/<project>/ticket_event/<name>')
+@route('/<account>/<project>/ticket_event/<name>')
 class TicketEventParticipantView(TicketEventViewMixin, UrlForView, ModelView):
     __decorators__ = [requires_login]
 
@@ -316,13 +316,13 @@ TicketEventParticipantView.init_app(app)
 
 
 # FIXME: make this endpoint use uuid_b58 instead of puk, along with badge generation
-@route('/<profile>/<project>/event/<event>/ticket_participant/<puk>')
+@route('/<account>/<project>/event/<event>/ticket_participant/<puk>')
 class TicketEventParticipantCheckinView(ClassView):
     __decorators__ = [requires_login]
 
     @route('checkin', methods=['POST'])
     def checkin_puk(
-        self, profile: str, project: str, event: str, puk: str
+        self, account: str, project: str, event: str, puk: str
     ) -> ReturnView:
         abort(403)
 
@@ -331,9 +331,9 @@ class TicketEventParticipantCheckinView(ClassView):
         )
         ticket_event = (
             TicketEvent.query.join(Project)
-            .join(Profile)
+            .join(Account)
             .filter(
-                Profile.name_is(profile),
+                Account.name_is(account),
                 Project.name == project,
                 TicketEvent.name == event,
             )
@@ -341,9 +341,9 @@ class TicketEventParticipantCheckinView(ClassView):
         )
         ticket_participant = (
             TicketParticipant.query.join(Project)
-            .join(Profile)
+            .join(Account)
             .filter(
-                Profile.name_is(profile),
+                Account.name_is(account),
                 Project.name == project,
                 TicketParticipant.puk == puk,
             )

@@ -25,13 +25,13 @@ from ..models import NewUpdateNotification, Profile, Project, Update, db
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
-from .mixins import ProfileCheckMixin
+from .mixins import AccountCheckMixin
 from .notification import dispatch_notification
 from .project import ProjectViewMixin
 
 
 @Project.views('updates')
-@route('/<profile>/<project>/updates')
+@route('/<account>/<project>/updates')
 class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('', methods=['GET'])
     @render_with(html_in_json('project_updates.html.jinja2'))
@@ -89,11 +89,11 @@ def update_publishable(obj):
 
 
 @Update.views('project')
-@route('/<profile>/<project>/updates/<update>')
-class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
+@route('/<account>/<project>/updates/<update>')
+class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     model = Update
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.name',
         'project': 'project.name',
         'update': 'url_name_uuid_b58',
     }
@@ -109,7 +109,7 @@ class UpdateView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.account
+        self.account = self.obj.project.account
         return super().after_loader()
 
     @route('', methods=['GET'])

@@ -13,7 +13,7 @@ from ..models import Account, Organization, Team, User
 __all__ = ['OrganizationForm', 'TeamForm']
 
 
-@Organization.forms('main')
+@Account.forms('org')
 class OrganizationForm(forms.Form):
     """Form for an organization's name and title."""
 

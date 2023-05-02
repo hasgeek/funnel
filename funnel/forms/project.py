@@ -124,7 +124,7 @@ class ProjectForm(forms.Form):
             )
 
     def set_queries(self) -> None:
-        self.bg_image.profile = self.profile.name
+        self.bg_image.profile = self.account.name
         if self.edit_obj is not None and self.edit_obj.schedule_start_at:
             # Don't allow user to directly manipulate timestamps when it's done via
             # Session objects
@@ -228,7 +228,7 @@ class ProjectBannerForm(forms.Form):
     def set_queries(self) -> None:
         """Prepare form for use."""
         self.bg_image.widget_type = 'modal'
-        self.bg_image.profile = self.profile.name
+        self.bg_image.profile = self.account.name
 
 
 @Project.forms('cfp')

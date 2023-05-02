@@ -155,7 +155,7 @@ def pwned_password_validator(_form, field) -> None:
         )
 
 
-@User.forms('password')
+@Account.forms('password')
 class PasswordForm(forms.Form):
     """Form to validate a user's password, for password-gated sudo actions."""
 
@@ -177,7 +177,7 @@ class PasswordForm(forms.Form):
             raise forms.validators.ValidationError(_("Incorrect password"))
 
 
-@User.forms('password_policy')
+@Account.forms('password_policy')
 class PasswordPolicyForm(forms.Form):
     """Form to validate any candidate password against policy."""
 
@@ -222,7 +222,7 @@ class PasswordPolicyForm(forms.Form):
         self.suggestions = tested_password.suggestions
 
 
-@User.forms('password_reset_request')
+@Account.forms('password_reset_request')
 class PasswordResetRequestForm(forms.Form):
     """Form to request a password reset."""
 
@@ -248,7 +248,7 @@ class PasswordResetRequestForm(forms.Form):
             )
 
 
-@User.forms('password_create')
+@Account.forms('password_create')
 class PasswordCreateForm(forms.Form):
     """Form to accept a new password for a given user, without existing password."""
 
@@ -278,7 +278,7 @@ class PasswordCreateForm(forms.Form):
     )
 
 
-@User.forms('password_reset')
+@Account.forms('password_reset')
 class PasswordResetForm(forms.Form):
     """Form to reset a password for a user, requiring the user id as a failsafe."""
 
@@ -330,7 +330,7 @@ class PasswordResetForm(forms.Form):
             )
 
 
-@User.forms('password_change')
+@Account.forms('password_change')
 class PasswordChangeForm(forms.Form):
     """Form to change a user's password after confirming the old password."""
 
@@ -392,7 +392,7 @@ def raise_username_error(reason: str) -> str:
     raise forms.validators.ValidationError(_("This username is not available"))
 
 
-@User.forms('main')
+@Account.forms('main')
 class AccountForm(forms.Form):
     """Form to edit basic account details."""
 
@@ -450,7 +450,7 @@ class AccountForm(forms.Form):
         raise_username_error(reason)
 
 
-@User.forms('delete')
+@Account.forms('delete')
 class AccountDeleteForm(forms.Form):
     """Delete account."""
 
@@ -507,7 +507,7 @@ def validate_emailclaim(form, field):
         )
 
 
-@User.forms('email_add')
+@Account.forms('email_add')
 class NewEmailAddressForm(forms.RecaptchaForm):
     """Form to add a new email address to an account."""
 
@@ -530,7 +530,7 @@ class NewEmailAddressForm(forms.RecaptchaForm):
     )
 
 
-@User.forms('email_primary')
+@Account.forms('email_primary')
 class EmailPrimaryForm(forms.Form):
     """Form to mark an email address as a user's primary."""
 
@@ -546,7 +546,7 @@ class EmailPrimaryForm(forms.Form):
     )
 
 
-@User.forms('phone_add')
+@Account.forms('phone_add')
 class NewPhoneForm(forms.RecaptchaForm):
     """Form to add a new mobile number (SMS-capable) to an account."""
 
@@ -576,7 +576,7 @@ class NewPhoneForm(forms.RecaptchaForm):
     )
 
 
-@User.forms('phone_primary')
+@Account.forms('phone_primary')
 class PhonePrimaryForm(forms.Form):
     """Form to mark a phone number as a user's primary."""
 

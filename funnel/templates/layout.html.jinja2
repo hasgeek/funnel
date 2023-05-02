@@ -25,7 +25,7 @@
     {%- endblock titletags %}
       <meta property="og:type" content="website" />
       <meta name="description"
-            content="{% block description %}{% if g.profile %}{{ g.profile.description.html|preview }}{% endif %}{% endblock description %}"/>
+            content="{% block description %}{% if g.account %}{{ g.account.description.html|preview }}{% endif %}{% endblock description %}"/>
       <meta property="og:description" content="{{ self.description() }}" />
       <meta name="twitter:card"
             content="{% block twitter_card %}summary{% endblock twitter_card %}"/>
@@ -54,10 +54,10 @@
           <link rel="image_src" href="{{ project.bg_image }}" />
           <meta property="og:image" content="{{ project.bg_image }}" />
           <meta name="twitter:image" content="{{ project.bg_image }}" />
-        {%- elif project and project.profile and project.profile.logo_url.url %}
-          <link rel="image_src" href="{{ project.profile.logo_url }}" />
-          <meta property="og:image" content="{{ project.profile.logo_url }}" />
-          <meta name="twitter:image" content="{{ project.profile.logo_url }}" />
+        {%- elif project and project.account and project.account.logo_url.url %}
+          <link rel="image_src" href="{{ project.account.logo_url }}" />
+          <meta property="og:image" content="{{ project.account.logo_url }}" />
+          <meta name="twitter:image" content="{{ project.account.logo_url }}" />
         {%- elif profile and profile.logo_url.url %}
           <link rel="image_src" href="{{ profile.logo_url }}" />
           <meta property="og:image" content="{{ profile.logo_url }}" />

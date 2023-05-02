@@ -15,7 +15,6 @@ from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles
 from coaster.utils import LabeledEnum, buid, utcnow
 
 from .. import app
-from ..typing import OptionalMigratedTables
 from . import (
     BaseScopedNameMixin,
     Mapped,
@@ -39,7 +38,6 @@ from .helpers import (
     valid_name,
     visual_field_delimiter,
 )
-from .profile import Profile
 
 __all__ = ['Project', 'ProjectLocation', 'ProjectRedirect']
 
@@ -515,11 +513,11 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     @property
     def title_suffix(self) -> str:
         """
-        Return the profile's title if the project's title doesn't derive from it.
+        Return the account's title if the project's title doesn't derive from it.
 
         Used in HTML title tags to render <title>{{ project }} - {{ suffix }}</title>.
         """
-        if not self.title.startswith(self.parent.title):
+        if not self.title.startswith(self.account.title):
             return self.account.title
         return ''
 
@@ -608,12 +606,12 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     # def delete(self):
     #     pass
 
-    @sa.orm.validates('name', 'profile')
+    @sa.orm.validates('name', 'account')
     def _validate_and_create_redirect(self, key, value):
         # TODO: When labels, venues and other resources are relocated from project to
-        # account, this validator can no longer watch for `profile` change. We'll need a
+        # account, this validator can no longer watch for `account` change. We'll need a
         # more elaborate transfer mechanism that remaps resources to equivalent ones in
-        # the new `profile`.
+        # the new `account`.
         if key == 'name':
             value = value.strip() if value is not None else None
         if not value or (key == 'name' and not valid_name(value)):
@@ -691,9 +689,9 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     def all_unsorted(cls):
         """Return query of all published projects, without ordering criteria."""
         return (
-            cls.query.join(Profile)
+            cls.query.join(Account)
             .outerjoin(Venue)
-            .filter(cls.state.PUBLISHED, Profile.is_verified.is_(True))
+            .filter(cls.state.PUBLISHED, Account.is_verified.is_(True))
         )
 
     @classmethod
@@ -704,22 +702,22 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     # The base class offers `get(parent, name)`. We accept f'{parent}/{name}' here for
     # convenience as this is only used in shell access.
     @classmethod
-    def get(cls, profile_project):  # pylint: disable=arguments-differ
-        """Get a project by its URL slug in the form ``<profile>/<project>``."""
-        profile_name, project_name = profile_project.split('/')
+    def get(  # pylint: disable=arguments-differ
+        cls, account_project: str
+    ) -> Optional[Project]:
+        """Get a project by its URL slug in the form ``<account>/<project>``."""
+        account_name, project_name = account_project.split('/')
         return (
-            cls.query.join(Profile)
-            .filter(Profile.name_is(profile_name), Project.name == project_name)
+            cls.query.join(Account)
+            .filter(Account.name_is(account_name), Project.name == project_name)
             .one_or_none()
         )
 
     @classmethod
-    def migrate_profile(  # type: ignore[return]
-        cls, old_profile: Profile, new_profile: Profile
-    ) -> OptionalMigratedTables:
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
         """Migrate from one account to another when merging users."""
-        names = {project.name for project in new_profile.projects}
-        for project in old_profile.projects:
+        names = {project.name for project in new_account.projects}
+        for project in old_account.projects:
             if project.name in names:
                 app.logger.warning(
                     "Project %r had a conflicting name in account migration,"
@@ -727,7 +725,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
                     project,
                 )
                 project.name += '-' + buid()
-            project.profile = new_profile
+            project.account = new_account
 
 
 add_search_trigger(Project, 'search_vector')
@@ -807,14 +805,14 @@ class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'project_redirect'
     __allow_unmapped__ = True
 
-    profile_id = sa.Column(
-        sa.Integer, sa.ForeignKey('profile.id'), nullable=False, primary_key=True
+    account_id: Mapped[int] = sa.Column(
+        sa.Integer, sa.ForeignKey('account.id'), nullable=False, primary_key=True
     )
-    profile: Mapped[Profile] = sa.orm.relationship(
-        Profile, backref=sa.orm.backref('project_redirects', cascade='all')
+    account: Mapped[Account] = sa.orm.relationship(
+        Account, backref=sa.orm.backref('project_redirects', cascade='all')
     )
-    parent: Mapped[Profile] = sa.orm.synonym('profile')
-    name = sa.Column(sa.Unicode(250), nullable=False, primary_key=True)
+    parent: Mapped[Account] = sa.orm.synonym('account')
+    name: Mapped[str] = sa.Column(sa.Unicode(250), nullable=False, primary_key=True)
 
     project_id = sa.Column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='SET NULL'), nullable=True
@@ -824,56 +822,60 @@ class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
     def __repr__(self) -> str:
         """Represent :class:`ProjectRedirect` as a string."""
         if not self.project:
-            return f'<ProjectRedirect {self.profile.name}/{self.name}: (none)>'
+            return f'<ProjectRedirect {self.account.name}/{self.name}: (none)>'
         return (
-            f'<ProjectRedirect {self.profile.name}/{self.name}'
+            f'<ProjectRedirect {self.account.name}/{self.name}'
             f' → {self.project.account.name}/{self.project.name}>'
         )
 
     def redirect_view_args(self):
         if self.project:
-            return {'profile': self.profile.name, 'project': self.project.name}
+            return {'account': self.account.name, 'project': self.project.name}
         return {}
 
     @classmethod
-    def add(cls, project, profile=None, name=None):
+    def add(
+        cls,
+        project: Project,
+        account: Optional[Account] = None,
+        name: Optional[str] = None,
+    ):
         """
-        Add a project redirect in a given profile.
+        Add a project redirect in a given account.
 
         :param project: The project to create a redirect for
-        :param profile: The profile to place the redirect in, defaulting to existing
+        :param account: The account to place the redirect in, defaulting to existing
         :param str name: Name to redirect, defaulting to project's existing name
 
         Typical use is when a project is renamed, to create a redirect from its previous
-        name, or when it's moved between projects, to create a redirect from previous
-        project.
+        name, or when it's moved between accounts, to create a redirect from previous
+        account.
         """
-        if profile is None:
-            profile = project.profile
+        if account is None:
+            account = project.account
         if name is None:
             name = project.name
-        redirect = ProjectRedirect.query.get((profile.id, name))
+        redirect = ProjectRedirect.query.get((account.id, name))
         if redirect is None:
-            redirect = ProjectRedirect(profile=profile, name=name, project=project)
+            redirect = ProjectRedirect(account=account, name=name, project=project)
             db.session.add(redirect)
         else:
             redirect.project = project
         return redirect
 
     @classmethod
-    def migrate_profile(  # type: ignore[return]
-        cls, old_profile: Profile, new_profile: Profile
-    ) -> OptionalMigratedTables:
+    def migrate_account(cls, old_account: Account, new_account: Account) -> None:
         """
-        Discard redirects when migrating profiles.
+        Transfer project redirects when migrating accounts, discarding dupe names.
 
-        Since there is no profile redirect, all project redirects will also be
-        unreachable and are no longer relevant.
+        Since there is no account redirect, all project redirects will also be
+        unreachable after this transfer, unless the new account is renamed to take the
+        old account's name.
         """
-        names = {pr.name for pr in new_profile.project_redirects}
-        for pr in old_profile.project_redirects:
+        names = {pr.name for pr in new_account.project_redirects}
+        for pr in old_account.project_redirects:
             if pr.name not in names:
-                pr.profile = new_profile
+                pr.account = new_account
             else:
                 # Discard project redirect since the name is already taken by another
                 # redirect in the new account

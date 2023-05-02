@@ -14,8 +14,8 @@ from coaster.auth import current_auth
 
 from ..forms import SavedProjectForm
 from ..models import (
+    Account,
     Draft,
-    Profile,
     Project,
     ProjectRedirect,
     Session,
@@ -28,18 +28,18 @@ from ..typing import ReturnRenderWith, ReturnView, UuidModelType
 from .helpers import render_redirect
 
 
-class ProfileCheckMixin:
+class AccountCheckMixin:
     """Base class checks for suspended accounts."""
 
-    profile: Optional[Profile] = None
+    account: Optional[Account] = None
 
     def after_loader(self) -> Optional[ReturnView]:
         """Post-process loader."""
-        profile = self.profile
-        if profile is None:
-            raise ValueError("Subclass must set self.profile")
-        g.profile = profile
-        if not profile.is_active:
+        account = self.account
+        if account is None:
+            raise ValueError("Subclass must set self.account")
+        g.account = account
+        if not account.is_active:
             abort(410)
 
         # mypy doesn't know this is a mixin, so it warns that `after_loader` is not
@@ -49,25 +49,25 @@ class ProfileCheckMixin:
         return super().after_loader()  # type: ignore[misc]
 
 
-class ProjectViewMixin(ProfileCheckMixin):
+class ProjectViewMixin(AccountCheckMixin):
     model: Type[Project] = Project
-    route_model_map = {'profile': 'profile.name', 'project': 'name'}
+    route_model_map = {'account': 'account.name', 'project': 'name'}
     obj: Project
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
-    def loader(self, profile, project, session=None) -> Union[Project, ProjectRedirect]:
+    def loader(self, account, project, session=None) -> Union[Project, ProjectRedirect]:
         obj = (
-            Project.query.join(Profile, Project.account_id == Profile.id)
-            .filter(Profile.name_is(profile), Project.name == project)
+            Project.query.join(Account, Project.account_id == Account.id)
+            .filter(Account.name_is(account), Project.name == project)
             .first()
         )
         if obj is None:
             obj_redirect = (
                 ProjectRedirect.query.join(
-                    Profile, ProjectRedirect.profile_id == Profile.id
+                    Account, ProjectRedirect.account_id == Account.id
                 )
-                .filter(Profile.name_is(profile), ProjectRedirect.name == project)
+                .filter(Account.name_is(account), ProjectRedirect.name == project)
                 .first_or_404()
             )
             return obj_redirect
@@ -78,13 +78,13 @@ class ProjectViewMixin(ProfileCheckMixin):
     def after_loader(self) -> Optional[ReturnView]:
         if isinstance(self.obj, ProjectRedirect):
             if self.obj.project:
-                self.profile = self.obj.project.profile
+                self.account = self.obj.project.account
                 return render_redirect(
                     self.obj.project.url_for(),
                     302 if request.method == 'GET' else 303,
                 )
             abort(410)  # Project has been deleted
-        self.profile = self.obj.account
+        self.account = self.obj.account
         return super().after_loader()
 
     @property
@@ -92,44 +92,44 @@ class ProjectViewMixin(ProfileCheckMixin):
         return self.obj.is_saved_by(current_auth.user)
 
 
-class ProfileViewMixin(ProfileCheckMixin):
-    model = Profile
-    route_model_map = {'profile': 'name'}
-    obj: Profile
+class AccountViewMixin(AccountCheckMixin):
+    model = Account
+    route_model_map = {'account': 'name'}
+    obj: Account
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
 
-    def loader(self, profile) -> Profile:
-        profile = Profile.get(profile)
-        if profile is None:
+    def loader(self, account) -> Account:
+        account = Account.get(name=account)
+        if account is None:
             abort(404)
-        return profile
+        return account
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj
+        self.account = self.obj
         return super().after_loader()
 
 
-class SessionViewMixin(ProfileCheckMixin):
+class SessionViewMixin(AccountCheckMixin):
     model = Session
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.name',
         'project': 'project.name',
         'session': 'url_name_uuid_b58',
     }
     obj: Session
     SavedProjectForm = SavedProjectForm
 
-    def loader(self, profile, project, session) -> Session:
+    def loader(self, account, project, session) -> Session:
         return (
-            Session.query.join(Project)
-            .join(Profile)
+            Session.query.join(Project, Session.project_id == Project.id)
+            .join(Account, Project.account_id == Account.id)
             .filter(Session.url_name_uuid_b58 == session)
             .first_or_404()
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.account
+        self.account = self.obj.project.account
         return super().after_loader()
 
     @property
@@ -137,47 +137,47 @@ class SessionViewMixin(ProfileCheckMixin):
         return self.obj.project.is_saved_by(current_auth.user)
 
 
-class VenueViewMixin(ProfileCheckMixin):
+class VenueViewMixin(AccountCheckMixin):
     model = Venue
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.name',
         'project': 'project.name',
         'venue': 'name',
     }
     obj: Venue
 
-    def loader(self, profile, project, venue) -> Venue:
+    def loader(self, account, project, venue) -> Venue:
         return (
             Venue.query.join(Project)
-            .join(Profile)
+            .join(Account)
             .filter(
-                Profile.name_is(profile), Project.name == project, Venue.name == venue
+                Account.name_is(account), Project.name == project, Venue.name == venue
             )
             .first_or_404()
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.account
+        self.account = self.obj.project.account
         return super().after_loader()
 
 
-class VenueRoomViewMixin(ProfileCheckMixin):
+class VenueRoomViewMixin(AccountCheckMixin):
     model = VenueRoom
     route_model_map = {
-        'profile': 'venue.project.profile.name',
+        'account': 'venue.project.account.name',
         'project': 'venue.project.name',
         'venue': 'venue.name',
         'room': 'name',
     }
     obj: VenueRoom
 
-    def loader(self, profile, project, venue, room) -> VenueRoom:
+    def loader(self, account, project, venue, room) -> VenueRoom:
         return (
             VenueRoom.query.join(Venue)
             .join(Project)
-            .join(Profile)
+            .join(Account)
             .filter(
-                Profile.name_is(profile),
+                Account.name_is(account),
                 Project.name == project,
                 Venue.name == venue,
                 VenueRoom.name == room,
@@ -186,25 +186,25 @@ class VenueRoomViewMixin(ProfileCheckMixin):
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.venue.project.account
+        self.account = self.obj.venue.project.account
         return super().after_loader()
 
 
-class TicketEventViewMixin(ProfileCheckMixin):
+class TicketEventViewMixin(AccountCheckMixin):
     model = TicketEvent
     route_model_map = {
-        'profile': 'project.profile.name',
+        'account': 'project.account.name',
         'project': 'project.name',
         'name': 'name',
     }
     obj: TicketEvent
 
-    def loader(self, profile, project, name) -> TicketEvent:
+    def loader(self, account, project, name) -> TicketEvent:
         return (
             TicketEvent.query.join(Project)
-            .join(Profile)
+            .join(Account)
             .filter(
-                Profile.name_is(profile),
+                Account.name_is(account),
                 Project.name == project,
                 TicketEvent.name == name,
             )
@@ -212,7 +212,7 @@ class TicketEventViewMixin(ProfileCheckMixin):
         )
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.profile = self.obj.project.account
+        self.account = self.obj.project.account
         return super().after_loader()
 
 
