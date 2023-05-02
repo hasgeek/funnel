@@ -28,7 +28,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "file-loader": "^6.2.0",
     "husky": "^7.0.4",
-    "lint-staged": "^11.0.1",
+    "lint-staged": "^13.2.1",
     "node-sass": "^7.0.0",
     "prettier": "^2.3.2",
     "sass-loader": "^12.3.0",

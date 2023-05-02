@@ -133,8 +133,8 @@
     <a {% if active_tab != 'organizations' %}href="{{ url_for('organizations') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'organizations' %}tabs__item--active{%- endif %}">{% trans %}Organizations{% endtrans %}</a>
     <a {% if active_tab != 'notification_preferences' %}href="{{ url_for('notification_preferences') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'notification_preferences' %}tabs__item--active{%- endif %}">{% trans %}Notifications{% endtrans %}</a>
     <a {% if active_tab != 'saved' %}href="{{ url_for('saved') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'saved' %}tabs__item--active{%- endif %}">{% trans %}Saved projects{% endtrans %}</a>
-    <!-- <a {% if active_tab != 'scan' %}href="{{ url_for('scan_contact') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'scan' %}tabs__item--active{%- endif %}">{% trans %}Scan badge{% endtrans %}</a>
-    <a {% if active_tab != 'contacts' %}href="{{ url_for('contacts') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'contacts' %}tabs__item--active{%- endif %}">{% trans %}Contacts{% endtrans %}</a> -->
+    <a {% if active_tab != 'scan' %}href="{{ url_for('scan_contact') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'scan' %}tabs__item--active{%- endif %}">{% trans %}Scan badge{% endtrans %}</a>
+    <a {% if active_tab != 'contacts' %}href="{{ url_for('contacts') }}"{%- endif %} class="tabs__item mui--text-body2 {% if active_tab == 'contacts' %}tabs__item--active{%- endif %}">{% trans %}Contacts{% endtrans %}</a>
   </div>
 {% endmacro %}
 
