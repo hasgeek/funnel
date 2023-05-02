@@ -17,7 +17,7 @@ def create_shortlink(app_context):
 @pytest.fixture()
 def user_rincewind_site_editor(db_session, user_rincewind):
     sm = models.SiteMembership(
-        subject=user_rincewind, granted_by=user_rincewind, is_site_editor=True
+        member=user_rincewind, granted_by=user_rincewind, is_site_editor=True
     )
     db_session.add(sm)
     db_session.commit()

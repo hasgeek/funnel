@@ -79,7 +79,7 @@ class ProposalMembership(  # type: ignore[misc]
         },
     }
 
-    revoke_on_subject_delete = False
+    revoke_on_member_delete = False
 
     proposal_id: Mapped[int] = with_roles(
         sa.Column(
@@ -87,7 +87,7 @@ class ProposalMembership(  # type: ignore[misc]
             sa.ForeignKey('proposal.id', ondelete='CASCADE'),
             nullable=False,
         ),
-        read={'subject', 'editor'},
+        read={'member', 'editor'},
     )
 
     proposal: Mapped[Proposal] = with_roles(
@@ -100,7 +100,7 @@ class ProposalMembership(  # type: ignore[misc]
                 passive_deletes=True,
             ),
         ),
-        read={'subject', 'editor'},
+        read={'member', 'editor'},
         grants_via={None: {'editor'}},
     )
     parent_id: Mapped[int] = sa.orm.synonym('proposal_id')
@@ -155,7 +155,7 @@ class __Proposal:
         """Return the first credited member on the proposal, or creator if none."""
         for membership in self.memberships:
             if not membership.is_uncredited:
-                return membership.user
+                return membership.member
         return self.user
 
 
@@ -166,7 +166,7 @@ class __Account:
     all_proposal_memberships = sa.orm.relationship(
         ProposalMembership,
         lazy='dynamic',
-        foreign_keys=[ProposalMembership.subject_id],
+        foreign_keys=[ProposalMembership.member_id],
         viewonly=True,
     )
 
@@ -174,7 +174,7 @@ class __Account:
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProposalMembership.subject_id == Account.id,
+            ProposalMembership.member_id == Account.id,
             ~ProposalMembership.is_invite,  # type: ignore[operator]
         ),
         viewonly=True,
@@ -184,7 +184,7 @@ class __Account:
         ProposalMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProposalMembership.subject_id == Account.id,
+            ProposalMembership.member_id == Account.id,
             ProposalMembership.is_active,  # type: ignore[arg-type]
         ),
         viewonly=True,

@@ -434,7 +434,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         # Add the creator as editor and promoter
         new_membership = ProjectCrewMembership(
             parent=self,
-            subject=self.created_by,
+            member=self.created_by,
             granted_by=self.created_by,
             is_editor=True,
             is_promoter=True,

@@ -247,16 +247,16 @@ class __Account:
     projects_as_crew_memberships = sa.orm.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
-        foreign_keys=[ProjectCrewMembership.subject_id],
+        foreign_keys=[ProjectCrewMembership.member_id],
         viewonly=True,
     )
 
-    # This is used to determine if it is safe to purge the subject's database record
+    # This is used to determine if it is safe to purge the member's database record
     projects_as_crew_noninvite_memberships = sa.orm.relationship(
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectCrewMembership.subject_id == Account.id,
+            ProjectCrewMembership.member_id == Account.id,
             ~ProjectCrewMembership.is_invite,  # type: ignore[operator]
         ),
         viewonly=True,
@@ -265,7 +265,7 @@ class __Account:
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectCrewMembership.subject_id == Account.id,
+            ProjectCrewMembership.member_id == Account.id,
             ProjectCrewMembership.is_active,  # type: ignore[arg-type]
         ),
         viewonly=True,
@@ -279,7 +279,7 @@ class __Account:
         ProjectCrewMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectCrewMembership.subject_id == Account.id,
+            ProjectCrewMembership.member_id == Account.id,
             ProjectCrewMembership.is_active,  # type: ignore[arg-type]
             ProjectCrewMembership.is_editor.is_(True),
         ),

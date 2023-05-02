@@ -213,7 +213,7 @@ class ProjectCrewMembershipNotification(
 
     document_model = Project
     fragment_model = ProjectCrewMembership
-    roles = ['subject', 'project_crew']
+    roles = ['member', 'project_crew']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
@@ -227,7 +227,7 @@ class ProjectCrewMembershipRevokedNotification(
 
     document_model = Project
     fragment_model = ProjectCrewMembership
-    roles = ['subject', 'project_crew']
+    roles = ['member', 'project_crew']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
@@ -275,7 +275,7 @@ class OrganizationAdminMembershipNotification(
 
     document_model = Organization
     fragment_model = OrganizationMembership
-    roles = ['subject', 'account_admin']
+    roles = ['member', 'account_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
@@ -289,7 +289,7 @@ class OrganizationAdminMembershipRevokedNotification(
 
     document_model = Organization
     fragment_model = OrganizationMembership
-    roles = ['subject', 'account_admin']
+    roles = ['member', 'account_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 

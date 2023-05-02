@@ -173,7 +173,7 @@ class __Account:
     organization_admin_memberships = sa.orm.relationship(
         OrganizationMembership,
         lazy='dynamic',
-        foreign_keys=[OrganizationMembership.subject_id],  # type: ignore[has-type]
+        foreign_keys=[OrganizationMembership.member_id],  # type: ignore[has-type]
         viewonly=True,
     )
 
@@ -181,7 +181,7 @@ class __Account:
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            sa.orm.remote(OrganizationMembership.subject_id)  # type: ignore[has-type]
+            sa.orm.remote(OrganizationMembership.member_id)  # type: ignore[has-type]
             == User.id,
             ~OrganizationMembership.is_invite,  # type: ignore[operator]
         ),
@@ -192,7 +192,7 @@ class __Account:
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            sa.orm.remote(OrganizationMembership.subject_id)  # type: ignore[has-type]
+            sa.orm.remote(OrganizationMembership.member_id)  # type: ignore[has-type]
             == User.id,
             OrganizationMembership.is_active,  # type: ignore[arg-type]
         ),
@@ -203,7 +203,7 @@ class __Account:
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            sa.orm.remote(OrganizationMembership.subject_id)  # type: ignore[has-type]
+            sa.orm.remote(OrganizationMembership.member_id)  # type: ignore[has-type]
             == User.id,
             OrganizationMembership.is_active,  # type: ignore[arg-type]
             OrganizationMembership.is_owner.is_(True),
@@ -215,7 +215,7 @@ class __Account:
         OrganizationMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            sa.orm.remote(OrganizationMembership.subject_id)  # type: ignore[has-type]
+            sa.orm.remote(OrganizationMembership.member_id)  # type: ignore[has-type]
             == User.id,
             OrganizationMembership.is_invite,  # type: ignore[arg-type]
             OrganizationMembership.revoked_at.is_(None),

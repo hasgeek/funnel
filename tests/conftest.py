@@ -1318,7 +1318,7 @@ def org_uu(
     db_session.add(
         models.OrganizationMembership(
             organization=org,
-            subject=user_librarian,
+            member=user_librarian,
             is_owner=False,
             granted_by=user_ridcully,
         )
@@ -1326,7 +1326,7 @@ def org_uu(
     db_session.add(
         models.OrganizationMembership(
             organization=org,
-            subject=user_ponder_stibbons,
+            member=user_ponder_stibbons,
             is_owner=False,
             granted_by=user_ridcully,
         )
@@ -1355,14 +1355,14 @@ def org_citywatch(
     db_session.add(
         models.OrganizationMembership(
             organization=org,
-            subject=user_vimes,
+            member=user_vimes,
             is_owner=True,
             granted_by=user_vetinari,
         )
     )
     db_session.add(
         models.OrganizationMembership(
-            organization=org, subject=user_carrot, is_owner=False, granted_by=user_vimes
+            organization=org, member=user_carrot, is_owner=False, granted_by=user_vimes
         )
     )
     return org
@@ -1381,8 +1381,8 @@ def project_expo2010(
     db_session.flush()
 
     project = models.Project(
-        profile=org_ankhmorpork.profile,
-        user=user_vetinari,
+        account=org_ankhmorpork.profile,
+        created_by=user_vetinari,
         title="Ankh-Morpork 2010",
         tagline="Welcome to Ankh-Morpork, tourists!",
         description="The city doesn't have tourists. Let’s change that.",
@@ -1588,7 +1588,7 @@ def new_organization(
 
     admin_membership = models.OrganizationMembership(
         organization=org,
-        subject=new_user_admin,
+        member=new_user_admin,
         is_owner=False,
         granted_by=new_user_owner,
     )

@@ -260,7 +260,7 @@ class ProposalView(ProfileCheckMixin, UrlChangeCheck, UrlForView, ModelView):
                 return {
                     'status': 'ok',
                     'message': _("{user} has been added as an collaborator").format(
-                        user=membership.user.pickername
+                        user=membership.member.pickername
                     ),
                     'html': render_template(
                         'collaborator_list.html.jinja2',
@@ -477,7 +477,7 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
             return {
                 'status': 'ok',
                 'message': _("{user}’s role has been updated").format(
-                    user=membership.user.pickername
+                    user=membership.member.pickername
                 )
                 if amendment.membership is not self.obj
                 else None,
@@ -515,7 +515,7 @@ class ProposalMembershipView(ProfileCheckMixin, UrlChangeCheck, UrlForView, Mode
             return {
                 'status': 'ok',
                 'message': _("{user} is no longer a collaborator").format(
-                    user=membership.user.pickername
+                    user=membership.member.pickername
                 ),
                 'html': render_template(
                     'collaborator_list.html.jinja2', collaborators=self.collaborators()

@@ -440,10 +440,10 @@ class ProposalSearch(SearchInProjectProvider):
                 Proposal.state.PUBLIC,
                 sa.or_(
                     Proposal.search_vector.bool_op('@@')(tsquery),
-                    ProposalMembership.query.join(Account, ProposalMembership.subject)
+                    ProposalMembership.query.join(Account, ProposalMembership.member)
                     .filter(
                         ProposalMembership.proposal_id == Proposal.id,
-                        ProposalMembership.subject_id == Account.id,
+                        ProposalMembership.member_id == Account.id,
                         ProposalMembership.is_uncredited.is_(False),
                         ProposalMembership.is_active,
                         Account.search_vector.bool_op('@@')(tsquery),
@@ -466,10 +466,10 @@ class ProposalSearch(SearchInProjectProvider):
                 Proposal.state.PUBLIC,
                 sa.or_(
                     Proposal.search_vector.bool_op('@@')(tsquery),
-                    ProposalMembership.query.join(Account, ProposalMembership.subject)
+                    ProposalMembership.query.join(Account, ProposalMembership.member)
                     .filter(
                         ProposalMembership.proposal_id == Proposal.id,
-                        ProposalMembership.subject_id == Account.id,
+                        ProposalMembership.member_id == Account.id,
                         ProposalMembership.is_uncredited.is_(False),
                         ProposalMembership.is_active,
                         Account.search_vector.bool_op('@@')(tsquery),
@@ -491,10 +491,10 @@ class ProposalSearch(SearchInProjectProvider):
                 Proposal.state.PUBLIC,
                 sa.or_(
                     Proposal.search_vector.bool_op('@@')(tsquery),
-                    ProposalMembership.query.join(Account, ProposalMembership.subject)
+                    ProposalMembership.query.join(Account, ProposalMembership.member)
                     .filter(
                         ProposalMembership.proposal_id == Proposal.id,
-                        ProposalMembership.subject_id == Account.id,
+                        ProposalMembership.member_id == Account.id,
                         ProposalMembership.is_uncredited.is_(False),
                         ProposalMembership.is_active,
                         Account.search_vector.bool_op('@@')(tsquery),

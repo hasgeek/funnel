@@ -49,7 +49,7 @@ def init_models():
         user3.password = 'new-user11_EveryOne'  # nosec
 
         sm = SiteMembership(
-            subject=profile_owner, is_site_editor=True, granted_by=profile_owner
+            member=profile_owner, is_site_editor=True, granted_by=profile_owner
         )
 
         org = Organization(

@@ -537,10 +537,10 @@ class Account(
         """
         Test for any non-invite membership records that must be preserved.
 
-        This is used to test for whether the subject User or Profile is safe to purge
-        (hard delete) from the database. If non-invite memberships are present, the
-        subject cannot be purged as immutable records must be preserved. Instead, the
-        subject must be put into DELETED state with all PII scrubbed.
+        This is used to test for whether the account is safe to purge (hard delete) from
+        the database. If non-invite memberships are present, the account cannot be
+        purged as immutable records must be preserved. Instead, the account must be put
+        into DELETED state with all PII scrubbed.
         """
         return any(
             db.session.query(getattr(self, attr).exists()).scalar()
@@ -725,13 +725,13 @@ class Account(
 
         # 2. Revoke all active memberships
         for membership in self.active_memberships():
-            membership = membership.freeze_subject_attribution(self)
-            if membership.revoke_on_subject_delete:
+            membership = membership.freeze_member_attribution(self)
+            if membership.revoke_on_member_delete:
                 membership.revoke(actor=self)
         # TODO: freeze fullname in unrevoked memberships (pending title column there)
         if (
             self.active_site_membership
-            and self.active_site_membership.revoke_on_subject_delete
+            and self.active_site_membership.revoke_on_member_delete
         ):
             self.active_site_membership.revoke(actor=self)
 
@@ -1231,7 +1231,7 @@ class Organization(Account):
         super().__init__(*args, **kwargs)
         db.session.add(
             OrganizationMembership(
-                organization=self, subject=owner, granted_by=owner, is_owner=True
+                organization=self, member=owner, granted_by=owner, is_owner=True
             )
         )
 
@@ -1275,7 +1275,7 @@ class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         sa.orm.relationship(
             User, secondary=team_membership, lazy='dynamic', backref='teams'
         ),
-        grants={'subject'},
+        grants={'member'},
     )
 
     is_public = sa.Column(sa.Boolean, nullable=False, default=False)

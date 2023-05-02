@@ -211,7 +211,7 @@ class ProposalMemberForm(forms.Form):
     def validate_user(self, field) -> None:
         """Validate user field to confirm user is not an existing collaborator."""
         for membership in self.proposal.memberships:
-            if membership.user == field.data:
+            if membership.member == field.data:
                 raise forms.validators.StopValidation(
                     _("{user} is already a collaborator").format(
                         user=field.data.pickername

@@ -23,13 +23,13 @@ def test_comment_report_same(
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
-        subject=new_user, is_comment_moderator=True, granted_by=new_user
+        member=new_user, is_comment_moderator=True, granted_by=new_user
     )
     sm2 = models.SiteMembership(
-        subject=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+        member=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
     )
     sm3 = models.SiteMembership(
-        subject=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+        member=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
     )
     db_session.add_all([sm, sm2, sm3])
     db_session.commit()
@@ -99,13 +99,13 @@ def test_comment_report_opposing(
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
-        subject=new_user, is_comment_moderator=True, granted_by=new_user
+        member=new_user, is_comment_moderator=True, granted_by=new_user
     )
     sm2 = models.SiteMembership(
-        subject=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+        member=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
     )
     sm3 = models.SiteMembership(
-        subject=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+        member=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
     )
     db_session.add_all([sm, sm2, sm3])
     db_session.commit()
@@ -175,13 +175,13 @@ def test_comment_report_majority_spam(
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
-        subject=new_user, is_comment_moderator=True, granted_by=new_user
+        member=new_user, is_comment_moderator=True, granted_by=new_user
     )
     sm2 = models.SiteMembership(
-        subject=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+        member=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
     )
     sm3 = models.SiteMembership(
-        subject=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+        member=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
     )
     db_session.add_all([sm, sm2, sm3])
     db_session.commit()
@@ -264,13 +264,13 @@ def test_comment_report_majority_ok(
 ) -> None:
     # Let's give new_user site_editor role
     sm = models.SiteMembership(
-        subject=new_user, is_comment_moderator=True, granted_by=new_user
+        member=new_user, is_comment_moderator=True, granted_by=new_user
     )
     sm2 = models.SiteMembership(
-        subject=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
+        member=new_user_admin, is_comment_moderator=True, granted_by=new_user_admin
     )
     sm3 = models.SiteMembership(
-        subject=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
+        member=new_user_owner, is_comment_moderator=True, granted_by=new_user_owner
     )
     db_session.add_all([sm, sm2, sm3])
     db_session.commit()

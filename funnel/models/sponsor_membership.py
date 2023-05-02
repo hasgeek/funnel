@@ -84,7 +84,7 @@ class ProjectSponsorMembership(  # type: ignore[misc]
         },
     }
 
-    revoke_on_subject_delete = False
+    revoke_on_member_delete = False
 
     project_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('project.id', ondelete='CASCADE'), nullable=False
@@ -215,7 +215,7 @@ class ProposalSponsorMembership(  # type: ignore[misc]
         },
     }
 
-    revoke_on_subject_delete = False
+    revoke_on_member_delete = False
 
     proposal_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('proposal.id', ondelete='CASCADE'), nullable=False
@@ -285,7 +285,7 @@ class __Account:
         ProjectSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectSponsorMembership.subject_id == Account.id,
+            ProjectSponsorMembership.member_id == Account.id,
             ~ProjectSponsorMembership.is_invite,  # type: ignore[operator]
         ),
         order_by=ProjectSponsorMembership.granted_at.desc(),
@@ -296,7 +296,7 @@ class __Account:
         ProjectSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProjectSponsorMembership.subject_id == Account.id,
+            ProjectSponsorMembership.member_id == Account.id,
             ProjectSponsorMembership.is_active,  # type: ignore[arg-type]
         ),
         order_by=ProjectSponsorMembership.granted_at.desc(),
@@ -308,7 +308,7 @@ class __Account:
             ProjectSponsorMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
-                ProjectSponsorMembership.subject_id == Account.id,
+                ProjectSponsorMembership.member_id == Account.id,
                 ProjectSponsorMembership.is_invite,  # type: ignore[arg-type]
                 ProjectSponsorMembership.revoked_at.is_(None),  # type: ignore[has-type]
             ),
@@ -322,7 +322,7 @@ class __Account:
         ProposalSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProposalSponsorMembership.subject_id == Account.id,
+            ProposalSponsorMembership.member_id == Account.id,
             ~ProposalSponsorMembership.is_invite,  # type: ignore[operator]
         ),
         order_by=ProposalSponsorMembership.granted_at.desc(),
@@ -333,7 +333,7 @@ class __Account:
         ProposalSponsorMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            ProposalSponsorMembership.subject_id == Account.id,
+            ProposalSponsorMembership.member_id == Account.id,
             ProposalSponsorMembership.is_active,  # type: ignore[arg-type]
         ),
         order_by=ProposalSponsorMembership.granted_at.desc(),
@@ -345,7 +345,7 @@ class __Account:
             ProposalSponsorMembership,
             lazy='dynamic',
             primaryjoin=sa.and_(
-                ProposalSponsorMembership.subject_id == Account.id,
+                ProposalSponsorMembership.member_id == Account.id,
                 ProposalSponsorMembership.is_invite,  # type: ignore[arg-type]
                 ProposalSponsorMembership.revoked_at.is_(  # type: ignore[has-type]
                     None

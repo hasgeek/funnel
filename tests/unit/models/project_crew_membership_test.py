@@ -33,7 +33,7 @@ def test_project_crew_membership(
     assert previous_membership is None
 
     new_membership = models.ProjectCrewMembership(
-        parent=new_project, subject=new_user_owner, is_editor=True
+        parent=new_project, member=new_user_owner, is_editor=True
     )
     db_session.add(new_membership)
     db_session.commit()
@@ -47,7 +47,7 @@ def test_project_crew_membership(
     # so adding a new membership without revoking the previous one
     # will raise IntegrityError in database.
     new_membership_without_revoke = models.ProjectCrewMembership(
-        parent=new_project, subject=new_user, is_promoter=True
+        parent=new_project, member=new_user, is_promoter=True
     )
     db_session.add(new_membership_without_revoke)
     with pytest.raises(IntegrityError):
@@ -73,7 +73,7 @@ def test_project_crew_membership(
 
     # let's add back few more roles
     new_membership2 = models.ProjectCrewMembership(
-        parent=new_project, subject=new_user, is_promoter=True, is_usher=True
+        parent=new_project, member=new_user, is_promoter=True, is_usher=True
     )
     db_session.add(new_membership2)
     db_session.commit()
@@ -127,12 +127,12 @@ def test_membership_amend(
     db_session, user_vetinari, user_ridcully, project_expo2010, org_ankhmorpork
 ):
     ridcully_admin = models.OrganizationMembership(
-        subject=user_ridcully, organization=org_ankhmorpork, granted_by=user_vetinari
+        member=user_ridcully, organization=org_ankhmorpork, granted_by=user_vetinari
     )
     db_session.add(ridcully_admin)
     ridcully_member = models.ProjectCrewMembership(
         parent=project_expo2010,
-        subject=user_ridcully,
+        member=user_ridcully,
         is_editor=True,
         granted_by=user_vetinari,
     )

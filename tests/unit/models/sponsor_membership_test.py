@@ -215,9 +215,9 @@ def test_sponsor_offered_roles(db_session, project_expo2010, citywatch_sponsor) 
     assert citywatch_sponsor.offered_roles == set()
 
 
-def test_sponsor_subject_role(
+def test_sponsor_member_role(
     db_session, citywatch_sponsor, user_vimes, user_rincewind
 ) -> None:
-    """Sponsor account admins get subject role on the membership."""
-    assert 'subject' in citywatch_sponsor.roles_for(user_vimes)
-    assert 'subject' not in citywatch_sponsor.roles_for(user_rincewind)
+    """Sponsor account admins get member role on the membership record."""
+    assert 'member' in citywatch_sponsor.roles_for(user_vimes)
+    assert 'member' not in citywatch_sponsor.roles_for(user_rincewind)

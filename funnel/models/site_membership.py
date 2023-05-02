@@ -34,7 +34,7 @@ class SiteMembership(
     }
 
     __roles__ = {
-        'subject': {
+        'member': {
             'read': {
                 'urls',
                 'user',
@@ -92,7 +92,7 @@ class SiteMembership(
         """Return representation of membership."""
         # pylint: disable=using-constant-test
         return (
-            f'<{self.__class__.__name__} {self.subject!r} '
+            f'<{self.__class__.__name__} {self.member!r} '
             + ('active' if self.is_active else 'revoked')
             + '>'
         )
@@ -125,7 +125,7 @@ class __Account:
         SiteMembership,
         lazy='select',
         primaryjoin=sa.and_(
-            SiteMembership.subject_id == Account.id,  # type: ignore[has-type]
+            SiteMembership.member_id == Account.id,  # type: ignore[has-type]
             SiteMembership.is_active,  # type: ignore[arg-type]
         ),
         viewonly=True,

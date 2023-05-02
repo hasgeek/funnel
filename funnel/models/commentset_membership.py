@@ -33,7 +33,7 @@ class CommentsetMembership(
     __data_columns__ = ('last_seen_at', 'is_muted')
 
     __roles__ = {
-        'subject': {
+        'member': {
             'read': {
                 'urls',
                 'user',
@@ -90,7 +90,7 @@ class CommentsetMembership(
         return {'document_subscriber'}
 
     def update_last_seen_at(self) -> None:
-        """Mark the subject user as having last seen this commentset just now."""
+        """Mark the member as having seen this commentset just now."""
         self.last_seen_at = sa.func.utcnow()
 
     @classmethod
@@ -127,7 +127,7 @@ class __Account:
         CommentsetMembership,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            CommentsetMembership.subject_id == Account.id,  # type: ignore[has-type]
+            CommentsetMembership.member_id == Account.id,  # type: ignore[has-type]
             CommentsetMembership.is_active,  # type: ignore[arg-type]
         ),
         viewonly=True,
@@ -181,7 +181,7 @@ class __Commentset:
         if subscription is None:
             subscription = CommentsetMembership(
                 commentset=self,
-                subject=user,
+                member=user,
                 granted_by=actor,
             )
             db.session.add(subscription)

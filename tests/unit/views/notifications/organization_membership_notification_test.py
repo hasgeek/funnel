@@ -14,7 +14,7 @@ scenarios('notifications/organization_membership_notification.feature')
 )
 def given_vimes_admin(db_session, user_vimes, org_ankhmorpork, user_vetinari):
     vimes_admin = models.OrganizationMembership(
-        subject=user_vimes,
+        member=user_vimes,
         organization=org_ankhmorpork,
         granted_by=user_vetinari,
         is_owner=False,
@@ -41,7 +41,7 @@ def when_vetinari_adds_ridcully(
 ):
     is_owner = role == 'owner'
     ridcully_admin = models.OrganizationMembership(
-        subject=user_ridcully,
+        member=user_ridcully,
         organization=org_ankhmorpork,
         granted_by=user_vetinari,
         is_owner=is_owner,
@@ -106,7 +106,7 @@ def when_vetinari_invites_ridcully(
 ):
     is_owner = role == 'owner'
     ridcully_admin = models.OrganizationMembership(
-        subject=user_ridcully,
+        member=user_ridcully,
         organization=org_ankhmorpork,
         granted_by=user_vetinari,
         is_owner=is_owner,
@@ -142,7 +142,7 @@ def given_riduclly_admin(
 ):
     is_owner = role == 'owner'
     ridcully_admin = models.OrganizationMembership(
-        subject=user_ridcully,
+        member=user_ridcully,
         organization=org_ankhmorpork,
         granted_by=user_vetinari,
         is_owner=is_owner,

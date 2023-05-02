@@ -43,7 +43,7 @@ def given_vimes_promoter_project(
 ) -> models.ProjectCrewMembership:
     vimes_member = models.ProjectCrewMembership(
         parent=project_expo2010,
-        subject=user_vimes,
+        member=user_vimes,
         is_promoter=True,
         granted_by=user_vetinari,
     )
@@ -68,7 +68,7 @@ def when_vetinari_adds_ridcully(
 ) -> models.ProjectCrewMembership:
     ridcully_member = models.ProjectCrewMembership(
         parent=project_expo2010,
-        subject=user_ridcully,
+        member=user_ridcully,
         granted_by=user_vetinari,
         **role_columns(role),
     )
@@ -140,7 +140,7 @@ def when_vetinari_invites_ridcully(
 ) -> models.ProjectCrewMembership:
     ridcully_member = models.ProjectCrewMembership(
         parent=project_expo2010,
-        subject=user_ridcully,
+        member=user_ridcully,
         granted_by=user_vetinari,
         record_type=MEMBERSHIP_RECORD_TYPE.INVITE,
         **role_columns(role),
@@ -180,7 +180,7 @@ def given_ridcully_is_existing_crew(
 ) -> models.ProjectCrewMembership:
     ridcully_member = models.ProjectCrewMembership(
         parent=project_expo2010,
-        subject=user_ridcully,
+        member=user_ridcully,
         is_usher=True,
         is_promoter=True,
         is_editor=True,
@@ -241,7 +241,7 @@ def given_vetinari_made_ridcully_admin_of_org(
     user_vetinari,
 ) -> models.OrganizationMembership:
     ridcully_admin = models.OrganizationMembership(
-        subject=user_ridcully, organization=org_ankhmorpork, granted_by=user_vetinari
+        member=user_ridcully, organization=org_ankhmorpork, granted_by=user_vetinari
     )
     db_session.add(ridcully_admin)
     db_session.commit()
@@ -264,7 +264,7 @@ def given_ridcully_is_existing_member(
 ) -> models.ProjectCrewMembership:
     existing_ridcully_member = models.ProjectCrewMembership(
         parent=project_expo2010,
-        subject=user_ridcully,
+        member=user_ridcully,
         granted_by=user_vetinari,
         **role_columns(role),
     )
@@ -347,7 +347,7 @@ def when_ridcully_adds_themself(
 ) -> models.ProjectCrewMembership:
     ridcully_member = models.ProjectCrewMembership(
         parent=project_expo2010,
-        subject=user_ridcully,
+        member=user_ridcully,
         granted_by=user_ridcully,
         **role_columns(role),
     )

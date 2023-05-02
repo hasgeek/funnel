@@ -183,7 +183,7 @@ class OrganizationMembershipView(
 
         if request.method == 'POST':
             if membership_form.validate_on_submit():
-                if previous_membership.user == current_auth.user:
+                if previous_membership.member == current_auth.user:
                     return {
                         'status': 'error',
                         'error_description': _("You can’t edit your own role"),
@@ -249,7 +249,7 @@ class OrganizationMembershipView(
         if form.is_submitted():
             if form.validate():
                 previous_membership = self.obj
-                if previous_membership.user == current_auth.user:
+                if previous_membership.member == current_auth.user:
                     return {
                         'status': 'error',
                         'error_description': _("You can’t revoke your own membership"),
@@ -353,7 +353,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
                 db.session.add(new_membership)
                 db.session.commit()
                 signals.project_role_change.send(
-                    self.obj, actor=current_auth.user, user=new_membership.user
+                    self.obj, actor=current_auth.user, user=new_membership.member
                 )
                 dispatch_notification(
                     ProjectCrewMembershipNotification(
@@ -429,7 +429,7 @@ class ProjectCrewMembershipInviteView(
 
     @route('', methods=['GET'])
     @requires_login
-    @requires_roles({'subject'})
+    @requires_roles({'member'})
     def invite(self) -> ReturnView:
         if request.method == 'GET':
             return render_template(

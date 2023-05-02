@@ -107,7 +107,7 @@ class CommentModeratorReport(
     @property
     def users_who_are_comment_moderators(self):
         return User.query.join(
-            SiteMembership, SiteMembership.subject_id == Account.id
+            SiteMembership, SiteMembership.member_id == Account.id
         ).filter(
             SiteMembership.is_active.is_(True),
             SiteMembership.is_comment_moderator.is_(True),

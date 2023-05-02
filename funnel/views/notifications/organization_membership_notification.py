@@ -26,7 +26,7 @@ from ..notification import DecisionBranchBase, DecisionFactorBase, RenderNotific
 class DecisionFactorFields:
     """Evaluation criteria for the content of notification (for grants/edits only)."""
 
-    is_subject: Optional[bool] = None
+    is_member: Optional[bool] = None
     for_actor: Optional[bool] = None
     rtypes: Collection[str] = ()
     is_owner: Optional[bool] = None
@@ -35,12 +35,12 @@ class DecisionFactorFields:
     def is_match(
         self,
         membership: OrganizationMembership,
-        is_subject: bool,
+        is_member: bool,
         for_actor: bool,
     ) -> bool:
         """Test if this :class:`DecisionFactor` is a match."""
         return (
-            (self.is_subject is None or self.is_subject is is_subject)
+            (self.is_member is None or self.is_member is is_member)
             and (self.for_actor is None or self.for_actor is for_actor)
             and (not self.rtypes or membership.record_type_label.name in self.rtypes)
             and (self.is_owner is None or self.is_owner is membership.is_owner)
@@ -66,7 +66,7 @@ grant_amend_templates = DecisionBranch(
             factors=[
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=False,
+                    is_member=False,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -85,7 +85,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=True,
+                    is_member=True,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -102,7 +102,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=True,
-                    is_subject=False,
+                    is_member=False,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -124,7 +124,7 @@ grant_amend_templates = DecisionBranch(
             factors=[
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=False,
+                    is_member=False,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -141,7 +141,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=True,
+                    is_member=True,
                     factors=[
                         DecisionFactor(
                             template=__("{actor} made you owner of {organization}"),
@@ -154,7 +154,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=True,
-                    is_subject=False,
+                    is_member=False,
                     factors=[
                         DecisionFactor(
                             template=__("You made {user} owner of {organization}"),
@@ -172,7 +172,7 @@ grant_amend_templates = DecisionBranch(
             factors=[
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=False,
+                    is_member=False,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -191,7 +191,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=True,
+                    is_member=True,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -210,7 +210,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=True,
-                    is_subject=True,
+                    is_member=True,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -232,7 +232,7 @@ grant_amend_templates = DecisionBranch(
             factors=[
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=False,
+                    is_member=False,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -251,7 +251,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=False,
-                    is_subject=True,
+                    is_member=True,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -268,7 +268,7 @@ grant_amend_templates = DecisionBranch(
                 ),
                 DecisionBranch(
                     for_actor=True,
-                    is_subject=False,
+                    is_member=False,
                     factors=[
                         DecisionFactor(
                             template=__(
@@ -293,7 +293,7 @@ revoke_templates = DecisionBranch(
     factors=[
         DecisionBranch(
             for_actor=False,
-            is_subject=False,
+            is_member=False,
             factors=[
                 DecisionFactor(
                     template=__(
@@ -310,7 +310,7 @@ revoke_templates = DecisionBranch(
         ),
         DecisionBranch(
             for_actor=False,
-            is_subject=True,
+            is_member=True,
             factors=[
                 DecisionFactor(
                     template=__("{actor} removed you from owner of {organization}"),
@@ -323,7 +323,7 @@ revoke_templates = DecisionBranch(
         ),
         DecisionBranch(
             for_actor=True,
-            is_subject=False,
+            is_member=False,
             factors=[
                 DecisionFactor(
                     template=__("You removed {user} from owner of {organization}"),
@@ -354,12 +354,12 @@ class RenderShared:
         """Return a Python string template with an appropriate message."""
         if membership is None:
             membership = self.membership
-        membership_user_uuid = membership.user.uuid
+        membership_member_uuid = membership.member.uuid
         membership_actor = self.membership_actor(membership)
         membership_actor_uuid = membership_actor.uuid if membership_actor else None
         match = self.template_picker.match(
             membership,
-            is_subject=self.user_notification.user.uuid == membership_user_uuid,
+            is_member=self.user_notification.user.uuid == membership_member_uuid,
             for_actor=self.user_notification.user.uuid == membership_actor_uuid,
         )
         if match is not None:
@@ -377,15 +377,15 @@ class RenderShared:
         """
         We're interested in who has the membership, not who granted/revoked it.
 
-        However, if the notification is being rendered for the subject of the
+        However, if the notification is being rendered for the member in the
         membership, the original actor must be attributed.
         """
         if (
-            self.user_notification.user.uuid == self.membership.user.uuid
+            self.user_notification.user.uuid == self.membership.member.uuid
             and self.notification.user is not None
         ):
             return self.notification.user
-        return self.membership.user
+        return self.membership.member
 
     def activity_html(self, membership: Optional[OrganizationMembership] = None) -> str:
         """Return HTML rendering of :meth:`activity_template`."""
@@ -394,11 +394,11 @@ class RenderShared:
         actor = self.membership_actor(membership)
         return Markup(self.activity_template(membership)).format(
             user=Markup(
-                f'<a href="{escape(membership.user.profile_url)}">'
-                f'{escape(membership.user.pickername)}</a>'
+                f'<a href="{escape(membership.member.profile_url)}">'
+                f'{escape(membership.member.pickername)}</a>'
             )
-            if membership.user.profile_url
-            else escape(membership.user.pickername),
+            if membership.member.profile_url
+            else escape(membership.member.pickername),
             organization=Markup(
                 f'<a href="{escape(cast(str, self.organization.profile_url))}">'
                 f'{escape(self.organization.pickername)}</a>'
@@ -419,7 +419,7 @@ class RenderShared:
         """Subject line for email."""
         actor = self.membership_actor()
         return self.emoji_prefix + self.activity_template().format(
-            user=self.membership.user.pickername,
+            user=self.membership.member.pickername,
             organization=self.organization.pickername,
             actor=(actor.pickername if actor is not None else _("(unknown)")),
         )
@@ -429,7 +429,7 @@ class RenderShared:
         actor = self.membership_actor()
         return MessageTemplate(
             message=self.activity_template().format(
-                user=self.membership.user.pickername,
+                user=self.membership.member.pickername,
                 organization=self.organization.pickername,
                 actor=(actor.pickername if actor is not None else _("(unknown)")),
             )
