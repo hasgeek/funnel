@@ -30,7 +30,6 @@ from ..models import (
     TicketEventParticipant,
     TicketParticipant,
     db,
-    sa,
 )
 from ..proxies import request_wants
 from ..typing import ReturnRenderWith, ReturnView
@@ -187,7 +186,7 @@ class TicketParticipantView(ProfileCheckMixin, UrlForView, ModelView):
             TicketParticipant.query.join(Project)
             .join(Profile)
             .filter(
-                sa.func.lower(Profile.name) == sa.func.lower(profile),
+                Profile.name_is(profile),
                 Project.name == project,
                 TicketParticipant.uuid_b58 == ticket_participant,
             )
@@ -334,7 +333,7 @@ class TicketEventParticipantCheckinView(ClassView):
             TicketEvent.query.join(Project)
             .join(Profile)
             .filter(
-                sa.func.lower(Profile.name) == sa.func.lower(profile),
+                Profile.name_is(profile),
                 Project.name == project,
                 TicketEvent.name == event,
             )
@@ -344,7 +343,7 @@ class TicketEventParticipantCheckinView(ClassView):
             TicketParticipant.query.join(Project)
             .join(Profile)
             .filter(
-                sa.func.lower(Profile.name) == sa.func.lower(profile),
+                Profile.name_is(profile),
                 Project.name == project,
                 TicketParticipant.puk == puk,
             )

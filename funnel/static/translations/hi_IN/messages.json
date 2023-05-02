@@ -71,18 +71,14 @@
       "Not logged in": ["लॉगिन नहीं है"],
       "This is required": ["यह आवश्यक है"],
       "This is too long": ["यह काफी लंबा है"],
-      "Usernames can only have alphabets, numbers and dashes (except at the ends)": [
-        "यूजरनेम में सिर्फ वर्णमाला, नंबर और डैश (अंत में छोड़कर) हो सकते हैं"
-      ],
+      "Usernames can only have alphabets, numbers and underscores": [""],
       "This username is reserved": ["यह यूजरनेम रिज़र्व है"],
       "This username has been taken": ["यह यूजरनेम लिया जा चुका है"],
       "This username is not available": ["यह यूजरनेम उपलब्ध नहीं है"],
       "Full name": ["शुभ नाम"],
       "This is your name, not of your organization": [""],
       "Username": ["यूजरनेम"],
-      "Single word that can contain letters, numbers and dashes. You need a username to have a public account page": [
-        "एक ही शब्द जिसमें कि अक्षर, नंबर और डैश हों. आपको पब्लिक अकाउंट बनाने के लिए यूजरनेम की आवश्यकता है"
-      ],
+      "A single word that is uniquely yours, for your account page and @mentions": [""],
       "Timezone": ["समय क्षेत्र"],
       "Where in the world are you? Dates and times will be shown in your local timezone": [
         "आप फिलहाल कहां पर हैं? समय और तारीख आपको अपने स्थानीय समय क्षेत्र में दिखेंगे"
@@ -368,12 +364,10 @@
       "Your organization’s given name, without legal suffixes such as Pvt Ltd": [
         "आपके संगठन का नाम, बगैर किसी प्रकार के जैसे कि Pvt Ltd (प्र. लि.)"
       ],
-      "A short name for your organization’s account page. Single word containing letters, numbers and dashes only. Pick something permanent: changing it will break existing links from around the web": [
-        "आपके संगठन के अकाउंट पेज के लिए एक संक्षिप्त नाम. एक शब्द जिसमें केवल अक्षर, नंबर और डैश ही शामिल हों. कुछ स्थाई सा नाम रखें: इसे बदलने से वेब पर मौजूद पुराने लिंक काम नहीं करेंगे"
+      "A unique word for your organization’s account page. Alphabets, numbers and underscores are okay. Pick something permanent: changing it will break links": [
+        ""
       ],
-      "Names can only have letters, numbers and dashes (except at the ends)": [
-        "नाम में केवल अक्षर, नंबर और डैश (अंत में छोड़कर) हो सकते हैं"
-      ],
+      "Names can only have alphabets, numbers and underscores": [""],
       "This name is reserved": ["यह नाम रिज़र्व है"],
       "This is <em>your</em> current username. You must change it first from <a href=\"{account}\">your account</a> before you can assign it to an organization": [
         "यह <em>आपका</em> मौजूदा यूजरनेम है. इसे किसी संगठन को सौंपने से पहले आपको <a href=\"{account}\">अपने अकाउंट</a> से बदलना होगा"
@@ -400,8 +394,8 @@
         "आपका पूरा नाम, जिससे कि दूसरे व्यक्ति आपको जान सकें"
       ],
       "A brief statement about yourself": [""],
-      "A short name for mentioning you with @username, and the URL to your account’s page. Single word containing letters, numbers and dashes only. Pick something permanent: changing it will break existing links from around the web": [
-        "@username और आपके अकाउंट पेज की URL के साथ लगाने के लिए एक उपनाम. एक शब्द जिसमें केवल अक्षर, नंबर और डैश मौजूद हों. कुछ स्थाई सा नाम रखें: इसे बदलने से वेब पर मौजूद पुराने लिंक काम नहीं करेंगे"
+      "A single word that is uniquely yours, for your account page and @mentions. Pick something permanent: changing it will break existing links": [
+        ""
       ],
       "More about you": [""],
       "Account visibility": [""],
@@ -492,6 +486,8 @@
       "If checked, both free and buy tickets will shown on project": [""],
       "This is a subscription": [""],
       "If not checked, buy tickets button will be shown": [""],
+      "Register button text": [""],
+      "Optional – Use with care to replace the button text": [""],
       "Badge template URL": ["बैच टेम्पलेट URL"],
       "URL of background image for the badge": [""],
       "Name": ["नाम"],
@@ -955,41 +951,6 @@
       "Accepting submissions": ["सब्मिशन स्वीकार कर रहे हैं"],
       "Show more": ["और दिखाएं"],
       "All projects": ["सभी प्रोजेक्ट"],
-      "Manage admins": ["एडमिंस को प्रबंधित करें"],
-      "View admins": ["एडमिंस को देखें"],
-      "Edit this account": ["इस अकाउंट को संपादित करें"],
-      "Make account private": ["अकाउंट को निजी बनाएं"],
-      "Make this account private?": ["वाकई इस अकाउंट को निजी बनाना चाहते हैं?"],
-      "Your account will not be visible to anyone other than you": [
-        "आपका अकाउंट आपके अलावा किसी और को नहीं दिखाई देगा"
-      ],
-      "It will not be listed in search results": [
-        "यह खोज परिणामों में भी दिखाई नहीं देगा"
-      ],
-      "You cannot host projects from this account": [
-        "आप इस अकाउंट से प्रोजेक्ट होस्ट नहीं कर सकते"
-      ],
-      "Any existing projects will become inaccessible until the account is public again": [
-        "जब तक कि इस अकाउंट को दोबारा से सार्वजनिक नहीं बनाया जाता तब तक कोई भी मौजूदा प्रोजेक्ट इसके द्वारा एक्सेस नहीं किया जा सकता"
-      ],
-      "Back to the account": ["अकाउंट में वापस जाएं"],
-      "Add cover photo url": ["कवर फोटो का URL जोड़ें"],
-      "Add cover photo": ["कवर फोटो जोड़ें"],
-      "Update logo": [""],
-      "New project": ["नया प्रोजेक्ट"],
-      "Make account public": ["अकाउंट को सार्वजनिक बनाएं"],
-      "Make this account public?": ["इस अकाउंट को सार्वजनिक बनाएं?"],
-      "Your account will be visible to anyone visiting the page": [
-        "आपका अकाउंट इस पेज पर आने वाले सभी व्यक्तियों को दिखाई देगा"
-      ],
-      "Your account will be listed in search results": [
-        "आपका अकाउंट खोज प्राणिमों में दिखाई देगा"
-      ],
-      "Joined %(date)s": ["%(date)s को जुड़े"],
-      "Admins": ["एडमिन"],
-      "Sessions": ["सेशन"],
-      "Projects": ["प्रोजेक्ट"],
-      "Submissions": ["सबमिशन"],
       "Team &amp; careers": ["टीम &amp; करियर"],
       "Contact": ["संपर्क"],
       "Site policies": ["साइट नीतियां"],
@@ -1045,6 +1006,7 @@
       "Search Hasgeek for projects, discussions and more": [
         "प्रोजेक्ट, चर्चा तथा और भी चीज़ों को Hasgeek पर खोजें"
       ],
+      "Admins": ["एडमिन"],
       "Teams": ["टीम"],
       "New team": ["नया टीम"],
       "Linked apps": ["जुड़े हुए ऐप्स"],
@@ -1063,7 +1025,41 @@
       "Write, collaborate and get feedback": [
         "लिखें, दूसरे से जुड़ें और प्रतिक्रिया पाएं"
       ],
+      "New project": ["नया प्रोजेक्ट"],
       "Unscheduled projects": ["अनिर्धारित प्रोजेक्ट"],
+      "Manage admins": ["एडमिंस को प्रबंधित करें"],
+      "View admins": ["एडमिंस को देखें"],
+      "Edit this account": ["इस अकाउंट को संपादित करें"],
+      "Make account private": ["अकाउंट को निजी बनाएं"],
+      "Make this account private?": ["वाकई इस अकाउंट को निजी बनाना चाहते हैं?"],
+      "Your account will not be visible to anyone other than you": [
+        "आपका अकाउंट आपके अलावा किसी और को नहीं दिखाई देगा"
+      ],
+      "It will not be listed in search results": [
+        "यह खोज परिणामों में भी दिखाई नहीं देगा"
+      ],
+      "You cannot host projects from this account": [
+        "आप इस अकाउंट से प्रोजेक्ट होस्ट नहीं कर सकते"
+      ],
+      "Any existing projects will become inaccessible until the account is public again": [
+        "जब तक कि इस अकाउंट को दोबारा से सार्वजनिक नहीं बनाया जाता तब तक कोई भी मौजूदा प्रोजेक्ट इसके द्वारा एक्सेस नहीं किया जा सकता"
+      ],
+      "Back to the account": ["अकाउंट में वापस जाएं"],
+      "Add cover photo url": ["कवर फोटो का URL जोड़ें"],
+      "Add cover photo": ["कवर फोटो जोड़ें"],
+      "Update logo": [""],
+      "Make account public": ["अकाउंट को सार्वजनिक बनाएं"],
+      "Make this account public?": ["इस अकाउंट को सार्वजनिक बनाएं?"],
+      "Your account will be visible to anyone visiting the page": [
+        "आपका अकाउंट इस पेज पर आने वाले सभी व्यक्तियों को दिखाई देगा"
+      ],
+      "Your account will be listed in search results": [
+        "आपका अकाउंट खोज प्राणिमों में दिखाई देगा"
+      ],
+      "Joined %(date)s": ["%(date)s को जुड़े"],
+      "Sessions": ["सेशन"],
+      "Projects": ["प्रोजेक्ट"],
+      "Submissions": ["सबमिशन"],
       "Back to the home": [""],
       "Featured submissions": [""],
       "See all": ["सारे देखें"],
@@ -1094,20 +1090,22 @@
       ],
       "Update livestream URLs": ["लाइवस्ट्रीम URLs को बदलें"],
       "Update banner image": ["बैनर इमेज को बदलें"],
+      "This is a free event": [""],
       "Register": ["रजिस्टर करें"],
       "This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time": [
         ""
       ],
-      "Registration menu": [""],
-      "Stop following": [""],
-      "Cancel registration": ["रजिस्ट्रेशन रद्द करें"],
+      "Following": [""],
+      "Registered": [""],
+      "Unfollow": [""],
+      "Cancel Registration": [""],
       "No longer interested?": [""],
       "Can’t make it?": ["आप मदद नहीं कर सकते?"],
+      "Stop following": [""],
       "Confirm cancellation": ["रद्द करने की पुष्टि करें"],
-      "View participants": ["प्रतिभागियों को देखें"],
-      "Sales closed": [""],
-      "Get a subscription": [""],
+      "Like this? Support the community": [""],
       "Get tickets": ["टिकट पाएं"],
+      "Sales closed": [""],
       "Share this project": [""],
       "Add to calendar": [""],
       "Site editor menu": [""],
@@ -1118,6 +1116,7 @@
       "Edit description": [""],
       "Settings": ["सेटिंग्स"],
       "Update venue": ["ईवेंट का स्थान अपडेट करें"],
+      "View participants": ["प्रतिभागियों को देखें"],
       "This project is not published. Visit settings to publish": [""],
       "Related events": ["सम्बंधित ईवेंट"],
       "Add schedule": [""],
@@ -1831,67 +1830,46 @@
       "One follower so far": [""],
       "You are following this": [""],
       "Two registrations so far": ["अब तक दो रजिस्ट्रेशन"],
-      "You and one other have registered": [
-        "आपने और एक अन्य व्यक्ति ने रजिस्टर कर लिया है"
-      ],
+      "You &amp; one other have registered": [""],
       "Two followers so far": [""],
-      "You and one other are following": [""],
+      "You &amp; one other are following": [""],
       "Three registrations so far": ["अब तक तीन रजिस्ट्रेशन"],
-      "You and two others have registered": [
-        "आपने और दो अन्य व्यक्ति ने रजिस्टर कर लिया है"
-      ],
+      "You &amp; two others have registered": [""],
       "Three followers so far": [""],
-      "You and two others are following": [""],
+      "You &amp; two others are following": [""],
       "Four registrations so far": ["अब तक चार रजिस्ट्रेशन"],
-      "You and three others have registered": [
-        "आपने और तीन अन्य व्यक्ति ने रजिस्टर कर लिया है"
-      ],
+      "You &amp; three others have registered": [""],
       "Four followers so far": [""],
-      "You and three others are following": [""],
+      "You &amp; three others are following": [""],
       "Five registrations so far": ["अब तक पांच रजिस्ट्रेशन"],
-      "You and four others have registered": [
-        "आपने और चार अन्य व्यक्ति ने रजिस्टर कर लिया है"
-      ],
+      "You &amp; four others have registered": [""],
       "Five followers so far": [""],
-      "You and four others are following": [""],
+      "You &amp; four others are following": [""],
       "Six registrations so far": ["अब तक छे रजिस्ट्रेशन"],
-      "You and five others have registered": [
-        "आपने और पांच अन्य व्यक्ति ने रजिस्टर कर लिया है"
-      ],
+      "You &amp; five others have registered": [""],
       "Six followers so far": [""],
-      "You and five others are following": [""],
+      "You &amp; five others are following": [""],
       "Seven registrations so far": ["अब तक सात रजिस्ट्रेशन"],
-      "You and six others have registered": [
-        "आपने और छे अन्य व्यक्ति ने रजिस्टर कर लिया है"
-      ],
+      "You &amp; six others have registered": [""],
       "Seven followers so far": [""],
-      "You and six others are following": [""],
+      "You &amp; six others are following": [""],
       "Eight registrations so far": [""],
-      "You and seven others have registered": [
-        "आपने और सात अन्य व्यक्ति ने रजिस्टर कर लिया है"
-      ],
+      "You &amp; seven others have registered": [""],
       "Eight followers so far": [""],
-      "You and seven others are following": [""],
+      "You &amp; seven others are following": [""],
       "Nine registrations so far": ["अब तक नौ रजिस्ट्रेशन"],
-      "You and eight others have registered": [
-        "आपने और आठ अन्य व्यक्ति ने रजिस्टर कर लिया है"
-      ],
+      "You &amp; eight others have registered": [""],
       "Nine followers so far": [""],
-      "You and eight others are following": [""],
+      "You &amp; eight others are following": [""],
       "Ten registrations so far": ["अब तक दस रजिस्ट्रेशन"],
-      "You and nine others have registered": [
-        "आपने और नौ अन्य व्यक्ति ने रजिस्टर कर लिया है"
-      ],
+      "You &amp; nine others have registered": [""],
       "Ten followers so far": [""],
-      "You and nine others are following": [""],
+      "You &amp; nine others are following": [""],
       "{num} registrations so far": ["अब तक {num} रजिस्ट्रेशन"],
-      "You and {num} others have registered": [
-        "आपने और {num} अन्य व्यक्ति ने रजिस्टर कर लिया है"
-      ],
+      "You &amp; {num} others have registered": [""],
       "{num} followers so far": [""],
-      "You and {num} others are following": [""],
+      "You &amp; {num} others are following": [""],
       "Follow": [""],
-      "Join free": [""],
       "Your new project has been created": ["आपका नया प्रोजेक्ट बना दिया गया है"],
       "Create project": ["प्रोजेक्ट बनाएं"],
       "Customize the URL": ["URL कस्टमाइज़ करें"],

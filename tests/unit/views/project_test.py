@@ -6,7 +6,7 @@ from funnel.views.project import get_registration_text
 def test_registration_text(app_context) -> None:
     assert get_registration_text(count=0, registered=False).startswith("Be the first")
     assert get_registration_text(count=1, registered=True).startswith(
-        "You are the first"
+        "You have registered"
     )
     assert get_registration_text(count=1, registered=False).startswith("One")
     assert get_registration_text(count=2, registered=True).startswith("You &amp; one")

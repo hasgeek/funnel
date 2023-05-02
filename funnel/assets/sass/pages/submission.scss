@@ -191,13 +191,27 @@
     width: calc(100% - 16px);
     margin: 0px;
     padding: $mui-grid-padding/2;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.12),
+      0 1px 2px rgba(0, 0, 0, 0.24);
     background-color: white;
     margin: 0;
-    -webkit-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
-    -moz-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
-    -ms-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
-    -o-transition: top 0.25s linear, z-index 0.1s step-start, opacity 0.25s linear;
+    -webkit-transition:
+      top 0.25s linear,
+      z-index 0.1s step-start,
+      opacity 0.25s linear;
+    -moz-transition:
+      top 0.25s linear,
+      z-index 0.1s step-start,
+      opacity 0.25s linear;
+    -ms-transition:
+      top 0.25s linear,
+      z-index 0.1s step-start,
+      opacity 0.25s linear;
+    -o-transition:
+      top 0.25s linear,
+      z-index 0.1s step-start,
+      opacity 0.25s linear;
     max-width: 100%;
 
     legend {
@@ -209,11 +223,26 @@
     top: 0;
     z-index: 1000;
     opacity: 1;
-    -webkit-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
-    -moz-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
-    -ms-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
-    -o-transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
-    transition: top 0.25s linear, z-index 0.25s step-end, opacity 0.25s linear;
+    -webkit-transition:
+      top 0.25s linear,
+      z-index 0.25s step-end,
+      opacity 0.25s linear;
+    -moz-transition:
+      top 0.25s linear,
+      z-index 0.25s step-end,
+      opacity 0.25s linear;
+    -ms-transition:
+      top 0.25s linear,
+      z-index 0.25s step-end,
+      opacity 0.25s linear;
+    -o-transition:
+      top 0.25s linear,
+      z-index 0.25s step-end,
+      opacity 0.25s linear;
+    transition:
+      top 0.25s linear,
+      z-index 0.25s step-end,
+      opacity 0.25s linear;
   }
 
   .listwidget {

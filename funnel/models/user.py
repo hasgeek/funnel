@@ -792,7 +792,7 @@ class User(
         if username is not None:
             query = (
                 cls.query.join(Profile)
-                .filter(sa.func.lower(Profile.name) == sa.func.lower(username))
+                .filter(Profile.name_is(username))
                 .options(sa.orm.joinedload(cls.profile))
             )
         else:
@@ -828,19 +828,13 @@ class User(
             query = cls.query.outerjoin(Profile).filter(
                 sa.or_(
                     cls.buid.in_(buids),  # type: ignore[attr-defined]
-                    sa.func.lower(Profile.name).in_(
-                        [username.lower() for username in usernames]
-                    ),
+                    Profile.name_in(usernames),
                 )
             )
         elif buids:
             query = cls.query.filter(cls.buid.in_(buids))  # type: ignore[attr-defined]
         elif usernames:
-            query = cls.query.join(Profile).filter(
-                sa.func.lower(Profile.name).in_(
-                    [username.lower() for username in usernames]
-                )
-            )
+            query = cls.query.join(Profile).filter(Profile.name_in(usernames))
         else:
             raise TypeError("A parameter is required")
 
@@ -855,21 +849,14 @@ class User(
     @classmethod
     def autocomplete(cls, prefix: str) -> List[User]:
         """
-        Return users whose names begin with the query, for autocomplete widgets.
+        Return users whose names begin with the prefix, for autocomplete UI.
 
         Looks up users by fullname, username, external ids and email addresses.
 
-        :param str query: Letters to start matching with
+        :param prefix: Letters to start matching with
         """
-        # Escape the '%' and '_' wildcards in SQL LIKE clauses.
-        # Some SQL dialects respond to '[' and ']', so remove them.
         like_query = quote_autocomplete_like(prefix)
-
-        # We convert to lowercase and use the LIKE operator since ILIKE isn't standard
-        # and doesn't use an index in PostgreSQL. There's a functional index for lower()
-        # defined above in __table_args__ that also applies to LIKE lower(val) queries.
-
-        if like_query in ('%', '@%'):
+        if not like_query or like_query == '@%':
             return []
 
         # base_users is used in two of the three possible queries below
@@ -880,7 +867,7 @@ class User(
                 cls.state.ACTIVE,
                 sa.or_(
                     sa.func.lower(cls.fullname).like(sa.func.lower(like_query)),
-                    sa.func.lower(Profile.name).like(sa.func.lower(like_query)),
+                    Profile.name_like(like_query),
                 ),
             )
             .options(*cls._defercols())
@@ -900,7 +887,7 @@ class User(
                 cls.query.join(Profile)
                 .filter(
                     cls.state.ACTIVE,
-                    sa.func.lower(Profile.name).like(sa.func.lower(like_query[1:])),
+                    Profile.name_like(like_query[1:]),
                 )
                 .options(*cls._defercols())
                 .limit(20)
@@ -1296,7 +1283,7 @@ class Organization(
         if name is not None:
             query = (
                 cls.query.join(Profile)
-                .filter(sa.func.lower(Profile.name) == sa.func.lower(name))
+                .filter(Profile.name_is(name))
                 .options(sa.orm.joinedload(cls.profile))
             )
         else:
@@ -1322,9 +1309,7 @@ class Organization(
                 query = query.options(*cls._defercols())
             orgs.extend(query.all())
         if names:
-            query = cls.query.join(Profile).filter(
-                sa.func.lower(Profile.name).in_([name.lower() for name in names])
-            )
+            query = cls.query.join(Profile).filter(Profile.name_in(names))
             if defercols:
                 query = query.options(*cls._defercols())
             orgs.extend(query.all())
