@@ -16,7 +16,6 @@ from .helpers import (
     nullable_json_filters,
     nullable_strip_filters,
     validate_and_convert_json,
-    validate_keys_json,
     video_url_list_validator,
 )
 
@@ -359,8 +358,21 @@ class RsvpTransitionForm(forms.Form):
 class ProjectRegisterForm(forms.Form):
     """Register for a project with an optional custom JSON form."""
 
+    __expects__ = ('schema',)
     form = forms.TextAreaField(
         __("Form"),
         filters=nullable_json_filters,
-        validators=[validate_and_convert_json, validate_keys_json],
+        validators=[validate_and_convert_json],
     )
+
+    def validate_form(self, field: forms.Field) -> None:
+        try:
+            form_keys = set(self.form.data.keys())
+            schema_keys = {i['name'] for i in self.schema['fields']}
+            if not form_keys.issubset(schema_keys):
+                invalid_keys = form_keys.difference(schema_keys)
+                raise forms.validators.StopValidation(
+                    _(f'Invalid key {invalid_keys}')
+                ) from None
+        except ValueError:
+            raise forms.validators.StopValidation(_("Error")) from None

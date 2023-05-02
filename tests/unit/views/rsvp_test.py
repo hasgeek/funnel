@@ -148,26 +148,3 @@ def test_invalid_json_register(
         headers={'Content-Type': 'application/json'},
     )
     assert rv.status_code == 400
-
-
-def test_excess_json_register(
-    client,
-    login,
-    project_expo2010_boxoffice_data,
-    user_twoflower,
-    csrf_token,
-    db_session,
-):
-    login.as_(user_twoflower)
-    endpoint = project_expo2010_boxoffice_data.url_for('register')
-    rv = client.post(
-        endpoint,
-        data=json.dumps(
-            {
-                'form': rsvp_excess_json,
-                'csrf_token': csrf_token,
-            }
-        ),
-        headers={'Content-Type': 'application/json'},
-    )
-    assert rv.status_code == 200

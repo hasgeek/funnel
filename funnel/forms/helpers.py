@@ -280,14 +280,3 @@ nullable_json_filters = [
     forms.filters.strip(),
     forms.filters.none_if_empty(),
 ]
-
-
-def validate_keys_json(form: forms.Form, field: forms.Field) -> None:
-    try:
-        form_data_json = field.data.keys()
-        schema_json = form.data['form'].keys()
-        for key in schema_json:
-            if key not in form_data_json:
-                raise forms.validators.StopValidation(_("Invalid key")) from None
-    except ValueError:
-        raise forms.validators.StopValidation(_("Error")) from None
