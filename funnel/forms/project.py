@@ -11,7 +11,7 @@ from coaster.utils import sorted_timezones, utcnow
 
 from ..models import Account, Project, Rsvp, SavedProject
 from .helpers import (
-    ProfileSelectField,
+    AccountSelectField,
     image_url_validator,
     nullable_strip_filters,
     video_url_list_validator,
@@ -301,7 +301,7 @@ class ProjectCfpTransitionForm(forms.Form):
 class ProjectSponsorForm(forms.Form):
     """Form to add or edit a sponsor on a project."""
 
-    account = ProfileSelectField(
+    account = AccountSelectField(
         __("Account"),
         autocomplete_endpoint='/api/1/profile/autocomplete',
         results_key='profile',

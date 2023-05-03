@@ -13,20 +13,20 @@ from coaster.auth import current_auth
 
 from .. import app
 from ..models import (
+    Account,
     AccountEmailClaim,
     EmailAddress,
     PhoneNumber,
-    Profile,
     canonical_phone_number,
     parse_phone_number,
     parse_video_url,
 )
 
 
-class ProfileSelectField(forms.AutocompleteField):
+class AccountSelectField(forms.AutocompleteField):
     """Render an autocomplete field for selecting an account."""
 
-    data: Optional[Profile]
+    data: Optional[Account]
     widget = forms.Select2Widget()
     multiple = False
     widget_autocomplete = True
@@ -40,11 +40,11 @@ class ProfileSelectField(forms.AutocompleteField):
     def process_formdata(self, valuelist) -> None:
         """Process incoming form data."""
         if valuelist:
-            self.data = Profile.query.filter(
+            self.data = Account.query.filter(
                 # Limit to non-suspended (active) accounts. Do not require account to
                 # be public as well
-                Profile.name_is(valuelist[0]),
-                Profile.is_active,
+                Account.name_is(valuelist[0]),
+                Account.state.ACTIVE,
             ).one_or_none()
         else:
             self.data = None
