@@ -1,12 +1,18 @@
 {% extends "notifications/layout_web.html.jinja2" %}
 {% block content %}
-  <p>
+  <p align="left" class="mui--text-accent">
     {%- trans actor=view.actor.pickername, project=view.update.project.joined_title, project_url=view.update.project.url_for() -%}
-      {{ actor }} posted an update in <a href="{{ project_url }}">{{ project }}</a>:
+      {{ actor }} posted an update in <a class="unstyle-auto-detected-links" href="{{ project_url }}">{{ project }}</a>:
     {%- endtrans %}
   </p>
-  <h2 class="mui--text-headline text-bold">
-    <a class="mui--text-dark" href="{{ view.update.url_for() }}">{{ view.update.title }}</a>
+  <hr>
+  <!--[if mso]>
+  <tr>
+    <td class="spacer-8px"></td>
+  </tr>
+  <![endif]-->
+  <h2 align="left" class="unstyle-auto-detected-links mui--text-dark mui--text-headline mui--text-bold">
+    <a href="{{ view.update.url_for() }}">{{ view.update.title }}</a>
   </h2>
   <div class="update__content mui--text-light markdown">
     {{ view.update.body }}

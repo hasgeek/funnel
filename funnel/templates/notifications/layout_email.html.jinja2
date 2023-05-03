@@ -91,7 +91,7 @@
 
         /* What it does: Prevents Windows 10 Mail from underlining links despite inline CSS. Styles for underlined links should be inline. */
         a {
-            text-decoration: none;
+            text-decoration: none !important;
         }
         /* What it does: A work-around for email clients meddling in triggered links. */
         a[x-apple-data-detectors],  /* iOS */
@@ -106,6 +106,10 @@
             font-weight: inherit !important;
             line-height: inherit !important;
             font-weight: bold;
+        }
+
+        .ii a[href] {
+            color: #4d5763 !important;
         }
 
         /* What it does: Prevents Gmail from displaying a download button on large, non-linked images. */
@@ -196,6 +200,9 @@
             color: #1f2d3d;
             font-weight: bold;
         }
+        h2 {
+            margin-top: 8px;
+        }
 
     </style>
     {# Progressive Enhancements : END #}
@@ -216,6 +223,7 @@
             max-width: 600px;
             padding: 0 20px;
             margin: auto;
+            box-sizing: border-box;
         }
         .body-content {
             margin: 0;
@@ -246,6 +254,7 @@
             padding: 0;
         }
         .card-border {
+            position: relative;
             font-size: 0;
             margin: 0;
             padding: 0;
@@ -273,8 +282,12 @@
         .side-border {
             height: auto;
         }
+        .spacer-8px {
+            border-top: 8px solid #ffffff;
+        }
         .email-content {
             font-family: Helvetica, sans-serif;
+            position: relative;
             font-size: 16px;
             margin: 0;
             padding: 16px 8px 8px;
@@ -365,8 +378,12 @@
                     <tr class="card-zeromargin">
                         <!--[if mso]>
                         <td style="margin:0;padding:0;font-size:0;width:16px;height:16px;">
-                            <v:shape style="width:16px;height:16px;" coordorigin="0 0" coordsize="2 2" fillcolor="#ffffff" stroked="true" strokecolor="#ffffff" strokeweight="8px" filled="true" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                            <v:shape style="width:16px;height:16px;position:relative;top:0.5px;left:0.5px;" coordorigin="0 0" coordsize="2 2" fillcolor="#ffffff" stroke="true" strokeweight="4px" strokecolor="#ffffff" fill="true" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
                                 <v:path v="m 0,2 c 0,1,1,0,2,0 l 2,2 x"/>
+                            </v:shape>
+
+                            <v:shape style="width:16px;height:16px;" coordorigin="0 0" coordsize="2 2" strokecolor="#ffffff" strokeweight="1px" stroke="true" fill="f" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                                <v:path v="m 0,2 c 0,1,1,0,2,0"/>
                             </v:shape>
                         </td>
                         <![endif]-->
@@ -381,8 +398,12 @@
 
                         <!--[if mso]>
                         <td style="margin:0;padding:0;font-size:0;width:16px;height:16px;">
-                            <v:shape style="width:16px;height:16px;" coordorigin="0 0" coordsize="2 2" fillcolor="#ffffff" stroked="true" strokecolor="#ffffff" strokeweight="8px" filled="true" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                            <v:shape style="width:16px;height:16px;position:relative;top:0.5px;left:-0.5px;" coordorigin="0 0" coordsize="2 2" fillcolor="#ffffff" stroke="true" strokeweight="4px" strokecolor="#ffffff" fill="true" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
                                 <v:path v="m 0,0 c 1,0,2,1,2,2 l 0,2 x"/>
+                            </v:shape>
+
+                            <v:shape style="width:16px;height:16px;" coordorigin="0 0" coordsize="2 2" strokecolor="#ffffff" strokeweight="1px" stroke="true" fill="f" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                                <v:path v="m 0,0 c 1,0,2,1,2,2"/>
                             </v:shape>
                         </td>
                         <![endif]-->
@@ -396,7 +417,7 @@
                     <tr class="card-zeromargin">
                         <td class="card-border side-border card-bg"></td>
 
-                        <td align="center" class="email-content card-bg">
+                        <td align="center" class="email-content card-bg" >
                             {#
                                 Set the email width. Defined in two places:
                                 1. max-width for all clients except Desktop Windows Outlook, allowing the email to squish on narrow but never go wider than 600px.
@@ -429,8 +450,12 @@
                     <tr class="card-zeromargin">
                         <!--[if mso]>
                         <td style="margin:0;padding:0;font-size:0;width:16px;height:16px;">
-                            <v:shape style="width:16px;height:16px;" coordorigin="0 0" coordsize="2 2" fillcolor="#ffffff" stroked="true" strokecolor="#ffffff" strokeweight="8px" filled="true" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                            <v:shape style="width:16px;height:16px;position:relative;top:-0.75px;left:0.5px;" coordorigin="0 0" coordsize="2 2" fillcolor="#ffffff" stroke="true" strokeweight="4px" strokecolor="#ffffff" fill="true" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
                                 <v:path v="m 2,2 c 1,2,0,1,0,0 l 2,0 x"/>
+                            </v:shape>
+
+                            <v:shape style="width:16px;height:16px;" coordorigin="0 0" coordsize="2 2" strokecolor="#ffffff" strokeweight="1px" stroke="true" fill="f" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                                <v:path v="m 2,2 c 1,2,0,1,0,0"/>
                             </v:shape>
                         </td>
                         <![endif]-->
@@ -444,8 +469,12 @@
 
                         <!--[if mso]>
                         <td style="margin:0;padding:0;font-size:0;width:16px;height:16px;">
-                            <v:shape style="width:16px;height:16px;" coordorigin="0 0" coordsize="2 2" fillcolor="#ffffff" stroked="true" strokecolor="#ffffff" strokeweight="8px" filled="true" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                            <v:shape style="width:16px;height:16px;position:relative;top:-0.75px;left:-0.5px;" coordorigin="0 0" coordsize="2 2" fillcolor="#ffffff" stroke="true" strokeweight="4px" strokecolor="#ffffff" fill="true" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
                                 <v:path v="m 2,0 c 2,1,1,2,0,2 l 0,0 x"/>
+                            </v:shape>
+
+                            <v:shape style="width:16px;height:16px;" coordorigin="0 0" coordsize="2 2" strokecolor="#ffffff" strokeweight="1px" stroke="true" fill="f" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word">
+                                <v:path v="m 2,0 c 2,1,1,2,0,2"/>
                             </v:shape>
                         </td>
                         <![endif]-->
