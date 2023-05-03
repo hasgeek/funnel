@@ -65,6 +65,7 @@ __all__ = [
     'AccountOldId',
     'Organization',
     'Team',
+    'Placeholder',
     'AccountEmail',
     'AccountEmailClaim',
     'AccountPhone',
@@ -84,6 +85,9 @@ class ACCOUNT_STATE(LabeledEnum):  # noqa: N801
     MERGED = (3, __("Merged"))
     #: Permanently deleted account
     DELETED = (5, __("Deleted"))
+
+    #: This account is gone
+    GONE = {MERGED, DELETED}
 
 
 class PROFILE_STATE(LabeledEnum):  # noqa: N801
@@ -1054,8 +1058,13 @@ class Account(
     @sa.orm.validates('name')
     def _validate_name(self, key: str, value: str):
         """Validate the value of Account.name."""
-        if value.lower() in self.reserved_names or not valid_account_name(value):
+        if value and (
+            value.lower() in self.reserved_names or not valid_account_name(value)
+        ):
             raise ValueError("Invalid account name: " + value)
+        if not value:
+            if self.name and not self.state.GONE:
+                raise ValueError("Account name cannot be unset")
         # We don't check for existence in the db since this validator only
         # checks for valid syntax. To confirm the name is actually available,
         # the caller must call :meth:`is_available_name` or attempt to commit
@@ -1081,6 +1090,7 @@ class Account(
 
 
 auto_init_default(Account._state)  # pylint: disable=protected-access
+auto_init_default(Account._profile_state)  # pylint: disable=protected-access
 add_search_trigger(Account, 'search_vector')
 
 

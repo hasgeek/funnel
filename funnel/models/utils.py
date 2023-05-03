@@ -135,14 +135,18 @@ def getextid(service: str, userid: str) -> Optional[AccountExternalId]:
     return AccountExternalId.get(service=service, userid=userid)
 
 
-def merge_accounts(account1: Account, account2: Account) -> Optional[Account]:
+def merge_accounts(
+    current_account: Account, other_account: Account
+) -> Optional[Account]:
     """Merge two user accounts and return the new user account."""
-    app.logger.info("Preparing to merge accounts %s and %s", account1, account2)
+    app.logger.info(
+        "Preparing to merge accounts %s and %s", current_account, other_account
+    )
     # Always keep the older account and merge from the newer account
-    if account1.created_at < account2.created_at:
-        keep_account, merge_account = account1, account2
+    if current_account.created_at < other_account.created_at:
+        keep_account, merge_account = current_account, other_account
     else:
-        keep_account, merge_account = account2, account1
+        keep_account, merge_account = other_account, current_account
 
     # 1. Inspect all tables for foreign key references to merge_account and switch to
     # keep_account.
@@ -150,7 +154,24 @@ def merge_accounts(account1: Account, account2: Account) -> Optional[Account]:
     if safe:
         # 2. Add merge_account's uuid to oldids and mark account as merged
         merge_account.mark_merged_into(keep_account)
-        # 3. Commit all of this
+        # 3. Transfer name and password if required
+        if not keep_account.name:
+            name = merge_account.name
+            merge_account.name = None
+            # Push this change to the db so that the name can be re-assigned
+            db.session.flush()
+            keep_account.name = name
+        if keep_account == other_account:
+            # The user's currently logged in account is being discarded, so transfer
+            # their password over
+            keep_account.pw_hash = merge_account.pw_hash
+            keep_account.pw_set_at = merge_account.pw_set_at
+            keep_account.pw_expires_at = merge_account.pw_expires_at
+            merge_account.pw_hash = None
+            merge_account.pw_set_at = None
+            merge_account.pw_expires_at = None
+
+        # 4. Commit all of this
         db.session.commit()
 
         # 4. Return keep_user.
