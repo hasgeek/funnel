@@ -689,7 +689,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
     def all_unsorted(cls):
         """Return query of all published projects, without ordering criteria."""
         return (
-            cls.query.join(Account)
+            cls.query.join(Account, Project.account)
             .outerjoin(Venue)
             .filter(cls.state.PUBLISHED, Account.is_verified.is_(True))
         )
