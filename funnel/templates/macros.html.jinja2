@@ -284,13 +284,13 @@
               <div class="flex-wrapper flex-wrapper--center flex-wrapper--space-between margin-bottom">
                 <div class="flex-wrapper flex-wrapper--center">
                   <span class="profile-avatar margin-right">
-                    {%- if featured_project.profile.logo_url.url %}
-                      <img src="{{ featured_project.profile.logo_url }}" alt="{{ featured_project.profile.title }}"/>
+                    {%- if featured_project.account.logo_url.url %}
+                      <img src="{{ featured_project.account.logo_url }}" alt="{{ featured_project.account.title }}"/>
                     {% else %}
-                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.profile.title }}"/>
+                      <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}" alt="{{ featured_project.account.title }}"/>
                     {% endif %}
                   </span>
-                  <span class="profile-avatar-title mui--text-subhead text-bold mui--text-dark">{{ featured_project.profile.title }}</span>
+                  <span class="profile-avatar-title mui--text-subhead text-bold mui--text-dark">{{ featured_project.account.title }}</span>
                 </div>
                 {%- if not current_auth.is_anonymous %}
                   {% set save_form_id = "spotlight_spfm_desktop_" + featured_project.uuid_b58 %}
@@ -300,7 +300,7 @@
               <h3 class="mui--text-headline text-bold">{{ featured_project.title }}</h3>
               <p class="mui--text-subhead mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</p>
               <div class="bottom-padding mui--text-light">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
-              <a href="{{ featured_project.profile.url_for() }}" class="mui--text-body2 text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
+              <a href="{{ featured_project.account.url_for() }}" class="mui--text-body2 text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
             </div>
             <div class="grid__col-md-1 grid__col-lg-1">
             </div>
@@ -460,8 +460,8 @@
     {%- set imgsize = 48 %}
   {% endif %}
   {% if user.profile_url and add_profile_link %}<a href="{{ user.profile_url }}" class="nounderline">{% endif %}
-  {% if user.avatar %}
-    <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.avatar.resize(imgsize) }}" alt="{{ user.title }}"/>
+  {% if user.logo_url %}
+    <img class="user__box__gravatar {% if css_class %}{{ css_class }}{% endif %}" src="{{ user.logo_url.resize(imgsize) }}" alt="{{ user.title }}"/>
   {%- elif user.title %}
     <div class="user__box__gravatar user__box__gravatar--initials {% if css_class %}{{ css_class }}{% endif %}" role="img" aria-label="{{ user.title }}" data-avatar-colour="{{ user.views and user.views.avatar_color_code or '' }}">{{ user.title|initials }}</div>
   {% endif %}
@@ -473,23 +473,23 @@
     <div class="mui--pull-right">
       <p class="mui--text-subhead mui--text-light zero-bottom-margin">{% trans %}Supported by{% endtrans %}</p>
       {% for sponsor in sponsors %}
-        {%- with sponsor_public = sponsor.profile_state.PUBLIC %}
+        {%- with sponsor_public = sponsor.account.profile_state.PUBLIC %}
         {% if sponsor.label %}
           <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ sponsor.label }}</p>
         {% endif %}
         <div class="flex-wrapper flex-wrapper--center">
           <div class="user user--smaller">
             <div class="user__box">
-              <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="nounderline">
-                {%- if sponsor.profile.logo_url.url %}
-                  <img class="user__box__gravatar" src="{{ sponsor.profile.logo_url }}" alt="{{ sponsor.profile.title }}"/>
+              <a {% if sponsor_public %}href="{{ sponsor.account.url_for() }}"{% endif %} class="nounderline">
+                {%- if sponsor.account.logo_url %}
+                  <img class="user__box__gravatar" src="{{ sponsor.account.logo_url }}" alt="{{ sponsor.account.title }}"/>
                 {%- else %}
-                  <div class="user__box__gravatar user__box__gravatar--initials" data-avatar-colour="{{ sponsor.profile.views.avatar_color_code }}">{{ sponsor.profile.title|initials }}</div>
+                  <div class="user__box__gravatar user__box__gravatar--initials" data-avatar-colour="{{ sponsor.account.views.avatar_color_code }}">{{ sponsor.account.title|initials }}</div>
                 {% endif %}
               </a>
             </div>
           </div>
-          <a {% if sponsor_public %}href="{{ sponsor.profile.url_for() }}"{% endif %} class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{{ sponsor.profile.title }}</a>
+          <a {% if sponsor_public %}href="{{ sponsor.account.url_for() }}"{% endif %} class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{{ sponsor.account.title }}</a>
         </div>
         {%- endwith %}
       {%- endfor %}

@@ -200,10 +200,10 @@ def user_not_likely_throwaway(obj: User) -> bool:
     """
     Confirm the user is not likely to be a throwaway account.
 
-    Current criteria: user must have a verified phone number, or user's profile must
-    be marked as verified.
+    Current criteria: user must have a verified phone number, or the account must be
+    marked as verified.
     """
-    return bool(obj.phone) or (obj.profile is not None and obj.profile.is_verified)
+    return obj.is_verified or bool(obj.phone)
 
 
 @UserSession.views('user_agent_details')

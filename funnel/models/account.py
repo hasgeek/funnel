@@ -188,8 +188,12 @@ class Account(
         'description', default='', nullable=False
     )
     website: Mapped[Optional[furl]] = sa.Column(UrlType, nullable=True)
-    logo_url: Mapped[Optional[ImgeeFurl]] = sa.Column(ImgeeType, nullable=True)
-    banner_image_url: Mapped[Optional[ImgeeFurl]] = sa.Column(ImgeeType, nullable=True)
+    logo_url: Mapped[Optional[ImgeeFurl]] = sa.Column(
+        ImgeeType, sa.CheckConstraint("logo_url <> ''"), nullable=True
+    )
+    banner_image_url: Mapped[Optional[ImgeeFurl]] = sa.Column(
+        ImgeeType, sa.CheckConstraint("banner_image_url <> ''"), nullable=True
+    )
 
     # These two flags are read-only. There is no provision for writing to them within
     # the app:
@@ -513,15 +517,9 @@ class Account(
     @property
     def has_public_profile(self) -> bool:
         """Return the visibility state of an account."""
-        return bool(self.profile_state.PUBLIC)
+        return self.name is not None and bool(self.profile_state.PUBLIC)
 
     with_roles(has_public_profile, read={'all'}, write={'owner'})
-
-    @property
-    def avatar(self) -> Optional[ImgeeFurl]:
-        """Return avatar image URL."""
-        logo_url = self.logo_url
-        return logo_url if logo_url is not None and logo_url.url != '' else None
 
     @property
     def profile_url(self) -> Optional[str]:
@@ -1056,7 +1054,7 @@ class Account(
         return cls.validate_name_candidate(name) is None
 
     @sa.orm.validates('name')
-    def _validate_name(self, key: str, value: str):
+    def _validate_name(self, key: str, value: Optional[str]):
         """Validate the value of Account.name."""
         if value and (
             value.lower() in self.reserved_names or not valid_account_name(value)
@@ -1070,6 +1068,11 @@ class Account(
         # the caller must call :meth:`is_available_name` or attempt to commit
         # to the db and catch IntegrityError.
         return value
+
+    @sa.orm.validates('logo_url', 'banner_image_url')
+    def _validate_nullable(self, key: str, value: Optional[str]):
+        """Convert blank values into None."""
+        return value if value else None
 
     @classmethod
     def active_user_count(cls) -> int:

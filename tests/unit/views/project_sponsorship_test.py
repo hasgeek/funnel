@@ -9,7 +9,7 @@ from funnel import models
 def org_uu_sponsorship(db_session, user_vetinari, org_uu, project_expo2010):
     sponsorship = models.ProjectSponsorMembership(
         granted_by=user_vetinari,
-        profile=org_uu.profile,
+        member=org_uu,
         project=project_expo2010,
         is_promoted=True,
         label="Diamond",
@@ -89,10 +89,10 @@ def test_sponsorship_add(
     added_sponsorship = models.ProjectSponsorMembership.query.filter(
         models.ProjectSponsorMembership.is_active,
         models.ProjectSponsorMembership.project == project_expo2010,
-        models.ProjectSponsorMembership.profile == org_uu.profile,
+        models.ProjectSponsorMembership.member == org_uu,
     ).one_or_none()
     assert added_sponsorship is not None
-    assert added_sponsorship.profile == org_uu.profile
+    assert added_sponsorship.member == org_uu
     assert added_sponsorship.label == label
     assert added_sponsorship.is_promoted is is_promoted
 
@@ -119,7 +119,7 @@ def test_sponsorship_edit(
     edited_sponsorship = models.ProjectSponsorMembership.query.filter(
         models.ProjectSponsorMembership.is_active,
         models.ProjectSponsorMembership.project == org_uu_sponsorship.project,
-        models.ProjectSponsorMembership.profile == org_uu_sponsorship.profile,
+        models.ProjectSponsorMembership.member == org_uu_sponsorship.member,
     ).one_or_none()
     assert edited_sponsorship.label == "Edited"
     assert edited_sponsorship.is_promoted is False
@@ -148,7 +148,7 @@ def test_sponsorship_remove(
     no_sponsor = models.ProjectSponsorMembership.query.filter(
         models.ProjectSponsorMembership.is_active,
         models.ProjectSponsorMembership.project == org_uu_sponsorship.project,
-        models.ProjectSponsorMembership.profile == org_uu_sponsorship.profile,
+        models.ProjectSponsorMembership.member == org_uu_sponsorship.member,
     ).one_or_none()
     assert no_sponsor is None
     assert org_uu_sponsorship.is_active is False

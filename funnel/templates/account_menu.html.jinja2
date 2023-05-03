@@ -1,6 +1,6 @@
 {%- from "macros.html.jinja2" import faicon, useravatar, csrf_tag %}
 {%- if current_auth -%}
-  {% if current_auth.user.profile %}
+  {% if current_auth.user.name %}
     <li class="bg-accent">
       <div class="header__dropdown__item">
         <div class="user">

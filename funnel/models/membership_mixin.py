@@ -374,7 +374,7 @@ class ImmutableUserMembershipMixin(ImmutableMembershipMixin):
             index=True,
         )
 
-    @with_roles(read={'member', 'editor'}, grants={'member'})
+    @with_roles(read={'member', 'editor'}, grants_via={None: {'admin': 'member'}})
     @declared_attr
     @classmethod
     def member(cls) -> Mapped[Account]:

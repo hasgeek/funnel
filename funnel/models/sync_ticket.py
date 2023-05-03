@@ -271,7 +271,7 @@ class TicketParticipant(
 
     @property
     def avatar(self):
-        return self.user.avatar if self.user else ''
+        return self.user.logo_url if self.user else ''
 
     with_roles(avatar, read={'all'})
 
@@ -284,9 +284,7 @@ class TicketParticipant(
     @property
     def profile_url(self):
         return (
-            self.user.profile.url_for()
-            if self.user and self.user.has_public_profile
-            else None
+            self.user.url_for() if self.user and self.user.has_public_profile else None
         )
 
     with_roles(profile_url, read={'all'})

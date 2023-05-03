@@ -13,13 +13,13 @@ from coaster.views import jsonp, requestargs
 
 from ... import app
 from ...models import (
+    Account,
     AuthClient,
     AuthClientCredential,
     AuthClientTeamPermissions,
     AuthClientUserPermissions,
     AuthToken,
     Organization,
-    Profile,
     User,
     UserSession,
     db,
@@ -54,7 +54,7 @@ def get_userinfo(
             'username': user.username,
             'fullname': user.fullname,
             'timezone': user.timezone,
-            'avatar': user.avatar,
+            'avatar': user.logo_url,
             'oldids': [o.buid for o in user.oldids],
             'olduuids': [o.uuid for o in user.oldids],
         }
@@ -373,7 +373,7 @@ def profile_autocomplete(q: str = '') -> ReturnView:
         return api_result('error', error='no_query_provided')
 
     # Limit length of query to User.fullname and Organization.title length limit
-    q = q[: max(User.__title_length__, Organization.__title_length__)]
+    q = q[: Account.__title_length__]
 
     # Setup rate limiter to not count progressive typing or backspacing towards
     # attempts. That is, sending 'abc' after 'ab' will not count towards limits, but
@@ -398,7 +398,7 @@ def profile_autocomplete(q: str = '') -> ReturnView:
         token=q,
         validator=progressive_rate_limit_validator,
     )
-    profiles = Profile.autocomplete(q)
+    profiles = Account.autocomplete(q)
     profile_names = [p.name for p in profiles]  # TODO: Update front-end, remove this
     profile_list = [
         {

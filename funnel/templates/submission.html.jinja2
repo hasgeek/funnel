@@ -428,7 +428,7 @@
         divElem: "#comments-wrapper",
         commentTemplate: '#comment-template',
         isuserloggedin: {% if current_auth.user -%}true{% else %}false{% endif %},
-        user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.avatar, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
+        user: {% if current_auth.user -%}{{ { 'fullname': current_auth.user.fullname, 'avatar': current_auth.user.logo_url, 'profile_url': current_auth.user.profile_url }|tojson }}{% else %}{}{% endif %},
         loginUrl: "{{ url_for('login') }}",
         lastSeenUrl: {% if proposal.commentset.current_roles.document_subscriber %}{{ proposal.commentset.url_for('update_last_seen_at')|tojson }}{% else %}false{% endif %},
       };

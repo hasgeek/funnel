@@ -8,7 +8,7 @@ scenarios('account/delete_confirm.feature')
 @given(parsers.parse('{user} has a protected account'), target_fixture='current_user')
 def given_protected_account(getuser, user: str) -> models.User:
     user_obj = getuser(user)
-    assert user_obj.profile.is_protected is True
+    assert user_obj.is_protected is True
     return user_obj
 
 

@@ -254,7 +254,7 @@ class AccountProjectView(AccountViewMixin, UrlForView, ModelView):
     @requires_user_not_spammy()
     def new_project(self) -> ReturnView:
         """Create a new project."""
-        form = ProjectForm(model=Project, profile=self.obj)
+        form = ProjectForm(model=Project, account=self.obj)
 
         if request.method == 'GET':
             form.timezone.data = current_app.config.get('TIMEZONE')
@@ -370,7 +370,7 @@ class ProjectView(  # type: ignore[misc]
             # WTForms will ignore formdata if it's None.
             form = ProjectForm(
                 obj=self.obj,
-                profile=self.obj.account,
+                account=self.obj.account,
                 model=Project,
                 formdata=initial_formdata,
             )
@@ -387,7 +387,7 @@ class ProjectView(  # type: ignore[misc]
             )
         if getbool(request.args.get('form.autosave')):
             return self.autosave_post()
-        form = ProjectForm(obj=self.obj, profile=self.obj.account, model=Project)
+        form = ProjectForm(obj=self.obj, account=self.obj.account, model=Project)
         if form.validate_on_submit():
             form.populate_obj(self.obj)
             db.session.commit()
@@ -443,7 +443,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_roles({'editor'})
     def update_banner(self) -> ReturnRenderWith:
         """Update project banner."""
-        form = ProjectBannerForm(obj=self.obj, profile=self.obj.account)
+        form = ProjectBannerForm(obj=self.obj, account=self.obj.account)
         edit_logo_url = self.obj.url_for('edit_banner')
         delete_logo_url = self.obj.url_for('remove_banner')
         return {
@@ -457,7 +457,7 @@ class ProjectView(  # type: ignore[misc]
     @requires_roles({'editor'})
     def edit_banner(self) -> ReturnView:
         """Edit project banner."""
-        form = ProjectBannerForm(obj=self.obj, profile=self.obj.account)
+        form = ProjectBannerForm(obj=self.obj, account=self.obj.account)
         if request.method == 'POST':
             if form.validate_on_submit():
                 form.populate_obj(self.obj)

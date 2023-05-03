@@ -23,9 +23,9 @@ from .mixins import ProjectViewMixin
 
 
 def edit_sponsor_form(obj):
-    """Customise ProjectSponsorForm to remove account field."""
+    """Customise ProjectSponsorForm to remove member field."""
     form = ProjectSponsorForm(obj=obj)
-    del form.profile
+    del form.member
     return form
 
 
@@ -43,11 +43,11 @@ class ProjectSponsorLandingView(
         if request.method == 'POST':
             if form.validate_on_submit():
                 if TYPE_CHECKING:
-                    assert isinstance(form.profile.data, Account)  # nosec
+                    assert isinstance(form.member.data, Account)  # nosec
                 existing_sponsorship = ProjectSponsorMembership.query.filter(
                     ProjectSponsorMembership.is_active,
                     ProjectSponsorMembership.project == self.obj,
-                    ProjectSponsorMembership.account == form.account.data,
+                    ProjectSponsorMembership.member == form.member.data,
                 ).one_or_none()
                 if existing_sponsorship is not None:
                     return (
@@ -55,7 +55,7 @@ class ProjectSponsorLandingView(
                             'status': 'error',
                             'error_description': _(
                                 "{sponsor} is already a sponsor"
-                            ).format(sponsor=form.account.data.pickername),
+                            ).format(sponsor=form.member.data.pickername),
                             'errors': form.errors,
                             'form_nonce': form.form_nonce.data,
                         },

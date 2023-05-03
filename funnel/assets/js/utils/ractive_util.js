@@ -3,13 +3,13 @@ import Ractive from 'ractive';
 Ractive.DEBUG = false;
 
 export const useravatar = Ractive.extend({
-  template: `{{#if user.profile_url && addprofilelink }}<a href="{{user.profile_url}}" class="nounderline">{{#if user.avatar }}<img class="user__box__gravatar" src="{{ imgurl() }}" />{{else}}<div class="user__box__gravatar user__box__gravatar--initials" data-avatar-colour="{{ getAvatarColour(user.fullname) }}">{{ getInitials(user.fullname) }}</div>{{/if}}</a>{{else}}<span>{{#if user.avatar }}<img class="user__box__gravatar" src="{{ imgurl() }}" />{{else}}<div class="user__box__gravatar user__box__gravatar--initials"  data-avatar-colour="{{ getAvatarColour(user.fullname) }}">{{ getInitials(user.fullname) }}</div>{{/if}}</span>{{/if}}`,
+  template: `{{#if user.profile_url && addprofilelink }}<a href="{{user.profile_url}}" class="nounderline">{{#if user.logo_url }}<img class="user__box__gravatar" src="{{ imgurl() }}" />{{else}}<div class="user__box__gravatar user__box__gravatar--initials" data-avatar-colour="{{ getAvatarColour(user.fullname) }}">{{ getInitials(user.fullname) }}</div>{{/if}}</a>{{else}}<span>{{#if user.logo_url }}<img class="user__box__gravatar" src="{{ imgurl() }}" />{{else}}<div class="user__box__gravatar user__box__gravatar--initials"  data-avatar-colour="{{ getAvatarColour(user.fullname) }}">{{ getInitials(user.fullname) }}</div>{{/if}}</span>{{/if}}`,
   data: {
     addprofilelink: true,
     size: 'medium',
     getInitials: window.Hasgeek.Utils.getInitials,
     imgurl() {
-      return `${this.get('user').avatar}?size=${encodeURIComponent(
+      return `${this.get('user').logo_url}?size=${encodeURIComponent(
         window.Hasgeek.Config.userAvatarImgSize[this.get('size')]
       )}`;
     },

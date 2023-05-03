@@ -301,7 +301,7 @@ class ProjectCfpTransitionForm(forms.Form):
 class ProjectSponsorForm(forms.Form):
     """Form to add or edit a sponsor on a project."""
 
-    account = AccountSelectField(
+    member = AccountSelectField(
         __("Account"),
         autocomplete_endpoint='/api/1/profile/autocomplete',
         results_key='profile',

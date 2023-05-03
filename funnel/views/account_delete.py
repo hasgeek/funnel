@@ -50,7 +50,7 @@ def delete_validator(
 )
 def profile_is_protected(user: User) -> bool:
     """Block deletion if the user has a protected account."""
-    if user.profile is not None and user.profile.is_protected:
+    if user.is_protected:
         return False
     return True
 
@@ -77,11 +77,7 @@ def single_owner_organization(user: User) -> bool:
 )
 def profile_has_projects(user: User) -> bool:
     """Fail if user has projects in their account."""
-    if user.profile is not None:
-        # TODO: Break down `is_safe_to_delete()` into individual components
-        # and apply to org delete as well
-        return user.profile.is_safe_to_delete()
-    return True
+    return user.is_safe_to_delete()
 
 
 @delete_validator(

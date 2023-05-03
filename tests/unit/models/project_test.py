@@ -29,7 +29,7 @@ def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
     assert new_project.state.DRAFT
     assert new_project.cfp_state.NONE
     assert not new_project.cfp_state.DRAFT
-    assert new_project in new_organization.profile.draft_projects
+    assert new_project in new_organization.draft_projects
 
     new_project.open_cfp()
     db_session.commit()
@@ -39,7 +39,7 @@ def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
     assert new_project.cfp_start_at > utcnow() - timedelta(minutes=1)
     assert not new_project.cfp_state.DRAFT
     assert new_project.cfp_state.OPEN
-    assert new_project in new_organization.profile.draft_projects
+    assert new_project in new_organization.draft_projects
 
     new_project.cfp_start_at = utcnow()
     db_session.commit()
@@ -47,13 +47,13 @@ def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
     assert new_project.cfp_start_at is not None
     assert not new_project.cfp_state.DRAFT
     # because project state is still draft
-    assert new_project in new_organization.profile.draft_projects
+    assert new_project in new_organization.draft_projects
 
     new_project.publish()
     db_session.commit()
     assert not new_project.cfp_state.DRAFT
     assert not new_project.state.DRAFT
-    assert new_project not in new_organization.profile.draft_projects
+    assert new_project not in new_organization.draft_projects
 
 
 def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
@@ -230,7 +230,7 @@ def test_project_rename(
 ) -> None:
     # The project has a default name from the fixture, and there is no redirect
     assert new_project.name == 'test-project'
-    assert new_project.profile == new_organization.profile
+    assert new_project.account == new_organization
     redirect = models.ProjectRedirect.query.filter_by(
         account=new_organization, name='test-project'
     ).one_or_none()
@@ -259,7 +259,7 @@ def test_project_rename(
     ).one_or_none()
     assert redirect2 is None
 
-    new_project.profile = second_organization.profile
+    new_project.account = second_organization
     redirect2 = models.ProjectRedirect.query.filter_by(
         account=new_organization, name='renamed-project'
     ).one_or_none()

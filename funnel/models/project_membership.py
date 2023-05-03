@@ -231,10 +231,10 @@ class __Project:
         viewonly=True,
     )
 
-    crew = DynamicAssociationProxy('active_crew_memberships', 'user')
-    editors = DynamicAssociationProxy('active_editor_memberships', 'user')
-    promoters = DynamicAssociationProxy('active_promoter_memberships', 'user')
-    ushers = DynamicAssociationProxy('active_usher_memberships', 'user')
+    crew = DynamicAssociationProxy('active_crew_memberships', 'member')
+    editors = DynamicAssociationProxy('active_editor_memberships', 'member')
+    promoters = DynamicAssociationProxy('active_promoter_memberships', 'member')
+    ushers = DynamicAssociationProxy('active_usher_memberships', 'member')
 
 
 # Similarly for users (add as needs come up)

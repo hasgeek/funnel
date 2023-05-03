@@ -57,7 +57,7 @@ def init_models():
         org = Organization(
             name='testcypressproject', title='testcypressproject', owner=profile_owner
         )
-        org.profile.is_verified = True
+        org.is_verified = True
 
         db.session.add_all(
             [

@@ -26,7 +26,7 @@ from ..forms import (
     ProfileLogoForm,
     ProfileTransitionForm,
 )
-from ..models import Account, Profile, Project, db, sa
+from ..models import Account, Project, db, sa
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
@@ -271,7 +271,7 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_user_not_spammy()
     def edit(self) -> ReturnView:
         form = ProfileForm(
-            obj=self.obj, model=Profile, profile=self.obj, user=current_auth.user
+            obj=self.obj, model=Account, account=self.obj, user=current_auth.user
         )
         if self.obj.user:
             form.make_for_user()
@@ -292,7 +292,7 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
     def update_logo(self) -> ReturnRenderWith:
-        form = ProfileLogoForm(profile=self.obj)
+        form = ProfileLogoForm(account=self.obj)
         edit_logo_url = self.obj.url_for('edit_logo_url')
         delete_logo_url = self.obj.url_for('remove_logo')
         return {
@@ -305,7 +305,7 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'admin'})
     @requires_user_not_spammy()
     def edit_logo_url(self) -> ReturnView:
-        form = ProfileLogoForm(obj=self.obj, profile=self.obj)
+        form = ProfileLogoForm(obj=self.obj, account=self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():
                 form.populate_obj(self.obj)
@@ -340,7 +340,7 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @render_with('update_logo_modal.html.jinja2')
     @requires_roles({'admin'})
     def update_banner(self) -> ReturnRenderWith:
-        form = ProfileBannerForm(profile=self.obj)
+        form = ProfileBannerForm(account=self.obj)
         edit_logo_url = self.obj.url_for('edit_banner_image_url')
         delete_logo_url = self.obj.url_for('remove_banner')
         return {
@@ -352,7 +352,7 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('edit_banner', methods=['GET', 'POST'])
     @requires_roles({'admin'})
     def edit_banner_image_url(self) -> ReturnView:
-        form = ProfileBannerForm(obj=self.obj, profile=self.obj)
+        form = ProfileBannerForm(obj=self.obj, account=self.obj)
         if request.method == 'POST':
             if form.validate_on_submit():
                 form.populate_obj(self.obj)

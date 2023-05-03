@@ -55,7 +55,7 @@ def test_search_profile_count_returns_int(stype, org_ankhmorpork, all_fixtures) 
     """Assert that profile_count() returns an int."""
     assert isinstance(
         cast(SearchInAccountProvider, search_providers[stype]).account_count(
-            get_tsquery("test"), org_ankhmorpork.profile
+            get_tsquery("test"), org_ankhmorpork
         ),
         int,
     )
@@ -85,7 +85,7 @@ def test_search_profile_returns_query(stype, org_ankhmorpork, all_fixtures) -> N
     """Assert that profile_query() returns a query."""
     assert isinstance(
         cast(SearchInAccountProvider, search_providers[stype]).account_query(
-            get_tsquery("test"), org_ankhmorpork.profile
+            get_tsquery("test"), org_ankhmorpork
         ),
         Query,
     )
@@ -109,7 +109,7 @@ def test_search_project_returns_query(stype, project_expo2010, all_fixtures) -> 
 def test_search_counts(org_ankhmorpork, project_expo2010) -> None:
     """Test that search_counts returns a list of dicts."""
     r1 = search_counts(get_tsquery("test"))
-    r2 = search_counts(get_tsquery("test"), profile=org_ankhmorpork.profile)
+    r2 = search_counts(get_tsquery("test"), account=org_ankhmorpork)
     r3 = search_counts(get_tsquery("test"), project=project_expo2010)
 
     for resultset in (r1, r2, r3):
@@ -133,7 +133,7 @@ def test_view_search_counts(app, client, org_ankhmorpork, project_expo2010) -> N
         headers={'Accept': 'application/json'},
     ).get_json()
     r2 = client.get(
-        org_ankhmorpork.profile.url_for('search'),
+        org_ankhmorpork.url_for('search'),
         query_string={'q': "test"},
         headers={'Accept': 'application/json'},
     ).get_json()
@@ -176,7 +176,7 @@ def test_view_search_results_profile(client, org_ankhmorpork, stype) -> None:
     """Account search view returns results for each type."""
     org_ankhmorpork.make_profile_public()
     resultset = client.get(
-        org_ankhmorpork.profile.url_for('search'),
+        org_ankhmorpork.url_for('search'),
         query_string={'q': "test", 'type': stype},
         headers={'Accept': 'application/json'},
     ).get_json()

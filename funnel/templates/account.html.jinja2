@@ -36,8 +36,8 @@
                   {{ faicon(icon='info-circle', icon_size='body2', baseline=true) }} <a href="{{ url_for('account_edit') }}" data-cy="add-username">{% trans %}Add username{% endtrans %} <span class="circle-icon">{{ faicon(icon='plus', icon_size='caption', baseline=false) }}</span></a>
                 </p>
               {%- endif %}
-              {% if current_auth.user.profile %}
-                <a href="{{ current_auth.user.profile.url_for() }}"
+              {% if current_auth.user.name %}
+                <a href="{{ current_auth.user.url_for() }}"
                    data-cy="my-profile"
                    class="nounderline">{% trans %}Go to account{% endtrans %} <span class="circle-icon">{{ faicon(icon='arrow-right', icon_size='caption', baseline=false) }}</span></a>
               {%- endif %}
