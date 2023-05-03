@@ -403,7 +403,7 @@ class ProjectCrewMembershipMixin(AccountCheckMixin):
     def loader(self, account, project, membership) -> ProjectCrewMembership:
         return (
             ProjectCrewMembership.query.join(Project)
-            .join(Account)
+            .join(Account, Project.account)
             .filter(
                 Account.name_is(account),
                 Project.name == project,

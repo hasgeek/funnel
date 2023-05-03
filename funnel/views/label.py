@@ -116,8 +116,8 @@ class LabelView(AccountCheckMixin, UrlForView, ModelView):
 
     def loader(self, account, project, label) -> Label:
         return (
-            Label.query.join(Project, Label.project_id == Project.id)
-            .join(Account, Project.account_id == Account.id)
+            Label.query.join(Project, Label.project)
+            .join(Account, Project.account)
             .filter(
                 Account.name_is(account), Project.name == project, Label.name == label
             )

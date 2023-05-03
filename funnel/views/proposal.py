@@ -158,7 +158,7 @@ class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
         # used in the query.
         obj = (
             self.model.query.join(Project)
-            .join(Account)
+            .join(Account, Project.account)
             .filter(Proposal.url_name_uuid_b58 == proposal)
             .first()
         )

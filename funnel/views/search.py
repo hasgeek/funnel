@@ -202,7 +202,7 @@ class ProjectSearch(SearchInAccountProvider):
     def all_query(self, tsquery: sa.sql.functions.Function) -> Query:
         """Search entire site for projects."""
         return (
-            Project.query.join(Account, Project.account_id == Account.id).filter(
+            Project.query.join(Account, Project.account).filter(
                 Account.profile_state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
                 Project.search_vector.bool_op('@@')(tsquery),
@@ -242,7 +242,7 @@ class ProjectSearch(SearchInAccountProvider):
         return (
             db.session.query(sa.func.count('*'))
             .select_from(Project)
-            .join(Account, Project.account_id == Account.id)
+            .join(Account, Project.account)
             .filter(
                 Account.profile_state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
@@ -540,7 +540,7 @@ class CommentSearch(SearchInProjectProvider):
         return (
             Comment.query.join(Account, Comment.user_id == Account.id)
             .join(Project, Project.commentset_id == Comment.commentset_id)
-            .join(Account, Project.account_id == Account.id)
+            .join(Account, Project.account)
             .filter(
                 Account.profile_state.ACTIVE_AND_PUBLIC,
                 Project.state.PUBLISHED,
@@ -557,9 +557,11 @@ class CommentSearch(SearchInProjectProvider):
             .union_all(
                 Comment.query.join(Account, Comment.user_id == Account.id)
                 .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
-                .join(Project, Proposal.project_id == Project.id)
-                .join(Account, Project.account_id == Account.id)
+                .join(Project, Proposal.project)
+                .join(Account, Project.account)
                 .filter(
+                    # FIXME: "Account" is ambiguous here and needs an alias
+                    # (for Project.account)
                     Account.profile_state.ACTIVE_AND_PUBLIC,
                     Project.state.PUBLISHED,
                     Comment.state.PUBLIC,
@@ -599,7 +601,7 @@ class CommentSearch(SearchInProjectProvider):
             .union_all(
                 Comment.query.join(Account, Comment.user_id == Account.id)
                 .join(Proposal, Proposal.commentset_id == Comment.commentset_id)
-                .join(Project, Proposal.project_id == Project.id)
+                .join(Project, Proposal.project)
                 .filter(
                     Project.account == account,
                     Project.state.PUBLISHED,

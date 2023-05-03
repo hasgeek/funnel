@@ -58,15 +58,13 @@ class ProjectViewMixin(AccountCheckMixin):
 
     def loader(self, account, project, session=None) -> Union[Project, ProjectRedirect]:
         obj = (
-            Project.query.join(Account, Project.account_id == Account.id)
+            Project.query.join(Account, Project.account)
             .filter(Account.name_is(account), Project.name == project)
             .first()
         )
         if obj is None:
             obj_redirect = (
-                ProjectRedirect.query.join(
-                    Account, ProjectRedirect.account_id == Account.id
-                )
+                ProjectRedirect.query.join(Account, ProjectRedirect.account)
                 .filter(Account.name_is(account), ProjectRedirect.name == project)
                 .first_or_404()
             )
@@ -123,7 +121,7 @@ class SessionViewMixin(AccountCheckMixin):
     def loader(self, account, project, session) -> Session:
         return (
             Session.query.join(Project, Session.project_id == Project.id)
-            .join(Account, Project.account_id == Account.id)
+            .join(Account, Project.account)
             .filter(Session.url_name_uuid_b58 == session)
             .first_or_404()
         )
@@ -149,7 +147,7 @@ class VenueViewMixin(AccountCheckMixin):
     def loader(self, account, project, venue) -> Venue:
         return (
             Venue.query.join(Project)
-            .join(Account)
+            .join(Account, Project.account)
             .filter(
                 Account.name_is(account), Project.name == project, Venue.name == venue
             )
@@ -175,7 +173,7 @@ class VenueRoomViewMixin(AccountCheckMixin):
         return (
             VenueRoom.query.join(Venue)
             .join(Project)
-            .join(Account)
+            .join(Account, Project.account)
             .filter(
                 Account.name_is(account),
                 Project.name == project,
@@ -202,7 +200,7 @@ class TicketEventViewMixin(AccountCheckMixin):
     def loader(self, account, project, name) -> TicketEvent:
         return (
             TicketEvent.query.join(Project)
-            .join(Account)
+            .join(Account, Project.account)
             .filter(
                 Account.name_is(account),
                 Project.name == project,

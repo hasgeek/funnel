@@ -184,7 +184,7 @@ class TicketParticipantView(AccountCheckMixin, UrlForView, ModelView):
     def loader(self, account, project, ticket_participant) -> TicketParticipant:
         return (
             TicketParticipant.query.join(Project)
-            .join(Account)
+            .join(Account, Project.account)
             .filter(
                 Account.name_is(account),
                 Project.name == project,
@@ -331,7 +331,7 @@ class TicketEventParticipantCheckinView(ClassView):
         )
         ticket_event = (
             TicketEvent.query.join(Project)
-            .join(Account)
+            .join(Account, Project.account)
             .filter(
                 Account.name_is(account),
                 Project.name == project,
@@ -341,7 +341,7 @@ class TicketEventParticipantCheckinView(ClassView):
         )
         ticket_participant = (
             TicketParticipant.query.join(Project)
-            .join(Account)
+            .join(Account, Project.account)
             .filter(
                 Account.name_is(account),
                 Project.name == project,

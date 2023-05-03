@@ -235,7 +235,7 @@ class TicketTypeView(AccountCheckMixin, UrlForView, ModelView):
     def loader(self, account, project, name) -> TicketType:
         return (
             TicketType.query.join(Project)
-            .join(Account)
+            .join(Account, Project.account)
             .filter(
                 Account.name_is(account),
                 Project.name == project,
@@ -314,7 +314,7 @@ class TicketClientView(AccountCheckMixin, UrlForView, ModelView):
     def loader(self, account, project, client_id) -> TicketClient:
         return (
             TicketClient.query.join(Project)
-            .join(Account)
+            .join(Account, Project.account)
             .filter(
                 Account.name_is(account),
                 Project.name == project,

@@ -309,9 +309,9 @@ class AuthClientUserPermissionsView(UrlForView, ModelView):
     def loader(self, client: str, user: str) -> AuthClientUserPermissions:
         return (
             AuthClientUserPermissions.query.join(
-                AuthClient, AuthClientUserPermissions.auth_client_id == AuthClient.id
+                AuthClient, AuthClientUserPermissions.auth_client
             )
-            .join(Account, AuthClientUserPermissions.user_id == Account.id)
+            .join(Account, AuthClientUserPermissions.user)
             .filter(AuthClient.buid == client, Account.buid == user)
             .one_or_404()
         )

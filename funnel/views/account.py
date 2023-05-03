@@ -125,7 +125,7 @@ def organizations_as_admin(
         orgmems = obj.active_organization_owner_memberships
     else:
         orgmems = obj.active_organization_admin_memberships
-    orgmems = orgmems.join(Account)
+    orgmems = orgmems.join(Account, AccountAdminMembership.account)
     if order_by_grant:
         orgmems = orgmems.order_by(AccountAdminMembership.granted_at.desc())
     else:

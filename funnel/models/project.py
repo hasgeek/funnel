@@ -708,7 +708,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         """Get a project by its URL slug in the form ``<account>/<project>``."""
         account_name, project_name = account_project.split('/')
         return (
-            cls.query.join(Account)
+            cls.query.join(Account, Project.account)
             .filter(Account.name_is(account_name), Project.name == project_name)
             .one_or_none()
         )

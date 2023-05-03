@@ -139,7 +139,7 @@ class ProjectSponsorView(UrlChangeCheck, UrlForView, ModelView):
     ) -> ProjectSponsorMembership:
         obj = (
             self.model.query.join(Project)
-            .join(Account)
+            .join(Account, Project.account)
             .filter(self.model.uuid_b58 == sponsorship)
             .one_or_404()
         )
