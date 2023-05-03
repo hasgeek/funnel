@@ -14,8 +14,6 @@ from ..models import (
     AuthClientCredential,
     AuthClientTeamPermissions,
     AuthClientUserPermissions,
-    Organization,
-    Team,
     valid_name,
 )
 from .helpers import strip_filters
@@ -24,7 +22,6 @@ __all__ = [
     'AuthClientForm',
     'AuthClientCredentialForm',
     'AuthClientPermissionEditForm',
-    'TeamPermissionAssignForm',
     'UserPermissionAssignForm',
 ]
 
@@ -179,35 +176,6 @@ class UserPermissionAssignForm(forms.Form):
         __("Permissions"),
         validators=[forms.validators.DataRequired(), permission_validator],
     )
-
-
-@AuthClient.forms('permissions_team')
-@AuthClientTeamPermissions.forms('assign')
-class TeamPermissionAssignForm(forms.Form):
-    """Assign permissions to a team."""
-
-    __expects__ = ('organization',)
-    __returns__ = ('team',)
-    organization: Organization
-    team: Optional[Team] = None
-
-    team_id = forms.RadioField(
-        __("Team"),
-        validators=[forms.validators.DataRequired()],
-        description=__("Select a team to assign permissions to"),
-    )
-    perms = forms.StringField(
-        __("Permissions"),
-        validators=[forms.validators.DataRequired(), permission_validator],
-    )
-
-    def validate_team_id(self, field) -> None:
-        """Validate selected team to belong to this organization."""
-        # FIXME: Replace with QuerySelectField using RadioWidget.
-        teams = [team for team in self.organization.teams if team.buid == field.data]
-        if len(teams) != 1:
-            raise forms.validators.ValidationError(_("Unknown team"))
-        self.team = teams[0]
 
 
 @AuthClientUserPermissions.forms('edit')
