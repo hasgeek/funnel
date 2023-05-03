@@ -1,5 +1,9 @@
-import { AVAILABLE_LANGUAGES } from '../constants';
 import Gettext from './gettext';
+
+const AVAILABLE_LANGUAGES = {
+  en: 'en_IN',
+  hi: 'hi_IN',
+};
 
 function getLocale() {
   // Instantiate i18n with browser context

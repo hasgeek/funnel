@@ -1,7 +1,3 @@
-export const AVAILABLE_LANGUAGES = {
-  en: 'en_IN',
-  hi: 'hi_IN',
-};
 export const MOBILE_BREAKPOINT = 768; // this breakpoint switches to desktop UI
 export const AJAX_TIMEOUT = 30000;
 export const RETRY_INTERVAL = 10000;

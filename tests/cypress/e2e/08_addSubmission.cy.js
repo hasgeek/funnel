@@ -31,6 +31,7 @@ describe('Add a new submission', () => {
     cy.wait(1000);
     cy.get('fieldset').find('.listwidget').eq(0).find('input').eq(0).click();
     cy.get('fieldset').find('.listwidget').eq(1).find('input').eq(0).click();
+    cy.wait(1000);
     cy.get('a[data-cy="save"]:visible').click();
     cy.get('button[data-cy="form-submit-btn"]').click();
 
@@ -57,7 +58,7 @@ describe('Add a new submission', () => {
     cy.get('a.modal__close').click();
     cy.wait(6000); // Wait for toastr notice to fade out
     cy.get('button[data-cy="form-submit-btn"]').click();
-    cy.get('.user__box__fullname').contains(usher.username);
+    cy.get('.user__box__userid').contains(usher.username);
     cy.get('.badge').contains('Editor');
 
     cy.get('a[data-cy="proposal-menu"]:visible').click();
