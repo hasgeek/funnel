@@ -45,20 +45,20 @@ def people_and_teams(obj):
 
 
 @Account.views('org')
-@route('/<organization>')
+@route('/<account>')
 class OrgView(UrlChangeCheck, UrlForView, ModelView):
     """Views for organizations."""
 
     __decorators__ = [requires_login]
     model = Organization
-    # Map <organization> in URL to attribute `name`, for `url_for` automation
-    route_model_map = {'organization': 'name'}
+    # Map <account> in URL to attribute `name`, for `url_for` automation
+    route_model_map = {'account': 'name'}
     obj: Organization
 
-    def loader(self, organization: Optional[str] = None) -> Optional[Organization]:
+    def loader(self, account: Optional[str] = None) -> Optional[Organization]:
         """Load an organization if the view requires it."""
-        if organization:
-            obj = Organization.get(name=organization)
+        if account:
+            obj = Organization.get(name=account)
             if obj is None:
                 abort(404)
             if not obj.state.ACTIVE:
@@ -77,10 +77,10 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
             form.populate_obj(org)
             db.session.add(org)
             db.session.flush()  # Required to auto-create `Profile` instance
-            org.profile.make_public()
+            org.make_profile_public()
             db.session.commit()
             org_data_changed.send(org, changes=['new'], user=current_auth.user)
-            return render_redirect(org.profile.url_for('edit'))
+            return render_redirect(org.url_for('edit'))
         return render_form(
             form=form,
             title=_("Create a new organization"),
@@ -94,14 +94,14 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     @requires_roles({'owner'})
     def delete(self) -> ReturnView:
         """Delete organization if safe to do so."""
-        if self.obj.profile.is_protected:
+        if self.obj.is_protected:
             return render_message(
                 title=_("Protected account"),
                 message=_(
                     "This organization is marked as protected and cannot be deleted"
                 ),
             )
-        if not self.obj.profile.is_safe_to_delete():
+        if not self.obj.is_safe_to_delete():
             return render_message(
                 title=_("This organization has projects"),
                 message=_(
@@ -126,7 +126,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
                 "You have deleted organization ‘{title}’ and all its associated content"
             ).format(title=self.obj.title),
             next=url_for('account'),
-            cancel_url=self.obj.profile.url_for(),
+            cancel_url=self.obj.url_for(),
         )
 
     @route('teams')

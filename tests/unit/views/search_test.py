@@ -126,7 +126,7 @@ def test_search_counts(org_ankhmorpork, project_expo2010) -> None:
 @pytest.mark.usefixtures('app_context', 'all_fixtures')
 def test_view_search_counts(app, client, org_ankhmorpork, project_expo2010) -> None:
     """Search views return counts as a list of dicts."""
-    org_ankhmorpork.profile.make_public()
+    org_ankhmorpork.make_profile_public()
     r1 = client.get(
         url_for('search'),
         query_string={'q': "test"},
@@ -174,7 +174,7 @@ def test_view_search_results_all(client, stype) -> None:
 @pytest.mark.parametrize('stype', search_profile_types)
 def test_view_search_results_profile(client, org_ankhmorpork, stype) -> None:
     """Account search view returns results for each type."""
-    org_ankhmorpork.profile.make_public()
+    org_ankhmorpork.make_profile_public()
     resultset = client.get(
         org_ankhmorpork.profile.url_for('search'),
         query_string={'q': "test", 'type': stype},

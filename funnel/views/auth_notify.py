@@ -134,5 +134,5 @@ def notify_org_data_changed(org, user, changes, team=None):
 def notify_team_data_changed(team, user, changes):
     """Notify :func:`notify_org_data_changed` for changes to the team."""
     notify_org_data_changed(
-        team.organization, user=user, changes=['team-' + c for c in changes], team=team
+        team.account, user=user, changes=['team-' + c for c in changes], team=team
     )

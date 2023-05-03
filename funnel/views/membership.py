@@ -120,7 +120,7 @@ class OrganizationMembersView(AccountViewMixin, UrlForView, ModelView):
                 db.session.commit()
                 dispatch_notification(
                     OrganizationAdminMembershipNotification(
-                        document=new_membership.organization,
+                        document=new_membership.account,
                         fragment=new_membership,
                     )
                 )
@@ -131,7 +131,7 @@ class OrganizationMembersView(AccountViewMixin, UrlForView, ModelView):
                         membership.current_access(
                             datasets=('without_parent', 'related')
                         )
-                        for membership in self.obj.organization.active_admin_memberships
+                        for membership in self.obj.account.active_admin_memberships
                     ],
                 }, 201
             return (
@@ -172,7 +172,7 @@ class OrganizationMembershipView(
         ).first_or_404()
 
     def after_loader(self) -> Optional[ReturnView]:
-        self.account = self.obj.organization
+        self.account = self.obj.account
         return super().after_loader()
 
     @route('edit', methods=['GET', 'POST'])
@@ -208,7 +208,7 @@ class OrganizationMembershipView(
                     db.session.commit()
                     dispatch_notification(
                         OrganizationAdminMembershipNotification(
-                            document=new_membership.organization,
+                            document=new_membership.account,
                             fragment=new_membership,
                         )
                     )
@@ -223,7 +223,7 @@ class OrganizationMembershipView(
                         membership.current_access(
                             datasets=('without_parent', 'related')
                         )
-                        for membership in self.obj.organization.active_admin_memberships
+                        for membership in self.obj.account.active_admin_memberships
                     ],
                 }
             return {
@@ -261,7 +261,7 @@ class OrganizationMembershipView(
                     db.session.commit()
                     dispatch_notification(
                         OrganizationAdminMembershipRevokedNotification(
-                            document=previous_membership.organization,
+                            document=previous_membership.account,
                             fragment=previous_membership,
                         )
                     )
@@ -272,7 +272,7 @@ class OrganizationMembershipView(
                         membership.current_access(
                             datasets=('without_parent', 'related')
                         )
-                        for membership in self.obj.organization.active_admin_memberships
+                        for membership in self.obj.account.active_admin_memberships
                     ],
                 }
             return {
@@ -285,7 +285,7 @@ class OrganizationMembershipView(
             form=form,
             title=_("Confirm removal"),
             message=_("Remove {member} as an admin from {account}?").format(
-                member=self.obj.user.fullname, account=self.obj.organization.title
+                member=self.obj.user.fullname, account=self.obj.account.title
             ),
             submit=_("Remove"),
             ajax=False,

@@ -13,7 +13,7 @@ def test_is_available_name(db_session, user_rincewind) -> None:
     assert models.Profile.is_available_name('invalid-name') is False
     # Rincewind has an account (nee profile) in default 'auto' status (not public, not
     # private even)
-    assert user_rincewind.profile.state.AUTO
+    assert user_rincewind.profile_state.AUTO
     # even though account is not public, username is still unavailable
     assert models.Profile.is_available_name('rincewind') is False
     # any other random usernames are available

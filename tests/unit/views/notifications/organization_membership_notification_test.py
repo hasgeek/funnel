@@ -76,7 +76,7 @@ def then_user_gets_notification(
 ) -> None:
     preview = models.PreviewNotification(
         models.OrganizationAdminMembershipNotification,
-        document=ridcully_admin.organization,
+        document=ridcully_admin.account,
         fragment=ridcully_admin,
         user=ridcully_admin.granted_by,
     )
@@ -86,7 +86,7 @@ def then_user_gets_notification(
     assert (
         view.activity_template().format(
             actor=ridcully_admin.granted_by.fullname,
-            organization=ridcully_admin.organization.title,
+            organization=ridcully_admin.account.title,
             user=ridcully_admin.user.fullname,
         )
         == notification_string
@@ -195,7 +195,7 @@ def then_user_notification_removal(
 ) -> None:
     preview = models.PreviewNotification(
         models.OrganizationAdminMembershipRevokedNotification,
-        document=ridcully_admin.organization,
+        document=ridcully_admin.account,
         fragment=ridcully_admin,
         user=ridcully_admin.revoked_by,
     )
@@ -205,7 +205,7 @@ def then_user_notification_removal(
     assert (
         view.activity_template().format(
             actor=ridcully_admin.granted_by.fullname,
-            organization=ridcully_admin.organization.title,
+            organization=ridcully_admin.account.title,
             user=ridcully_admin.user.fullname,
         )
         == notification_string

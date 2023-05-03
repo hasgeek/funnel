@@ -65,28 +65,28 @@ def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
 
     # Account cannot be public until the user has a verified phone number
     with pytest.raises(StateTransitionError):
-        user_wolfgang.profile.make_public()
+        user_wolfgang.make_profile_public()
 
     # Add a phone number to meet the criteria for having verified contact info
     user_wolfgang.add_phone('+12345678900')
 
     # Make account public and confirm
-    user_wolfgang.profile.make_public()
-    assert user_wolfgang.profile.state.PUBLIC
+    user_wolfgang.make_profile_public()
+    assert user_wolfgang.profile_state.PUBLIC
 
     # Suspend the user. Account can now be made private, but cannot be made public
     user_wolfgang.mark_suspended()
     # Commit to refresh profile.is_active column property
     db_session.commit()
 
-    assert user_wolfgang.profile.state.PUBLIC
-    user_wolfgang.profile.make_private()
-    assert not user_wolfgang.profile.state.PUBLIC
-    assert user_wolfgang.profile.state.PRIVATE
+    assert user_wolfgang.profile_state.PUBLIC
+    user_wolfgang.make_profile_private()
+    assert not user_wolfgang.profile_state.PUBLIC
+    assert user_wolfgang.profile_state.PRIVATE
 
     # A suspended user's account cannot be made public
     with pytest.raises(StateTransitionError):
-        user_wolfgang.profile.make_public()
+        user_wolfgang.make_profile_public()
 
 
 def test_profile_name_is(user_rincewind, org_uu, user_lutze):

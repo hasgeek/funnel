@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import List, Tuple
 from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
-from flask import Markup, abort, flash, render_template, request, url_for
+from flask import flash, render_template, request, url_for
 
 from baseframe import _
 from baseframe.forms import render_delete_sqla, render_form
@@ -24,7 +24,6 @@ from ..forms import (
     AuthClientCredentialForm,
     AuthClientForm,
     AuthClientPermissionEditForm,
-    TeamPermissionAssignForm,
     UserPermissionAssignForm,
 )
 from ..models import (
@@ -82,8 +81,7 @@ class AuthClientCreateView(ClassView):
         if form.validate_on_submit():
             auth_client = AuthClient()
             form.populate_obj(auth_client)
-            auth_client.user = form.user
-            auth_client.organization = form.organization
+            auth_client.account = form.account
             auth_client.trusted = False
             db.session.add(auth_client)
             db.session.commit()
@@ -115,10 +113,7 @@ class AuthClientView(UrlForView, ModelView):
     @render_with('auth_client.html.jinja2')
     @requires_roles({'all'})
     def view(self) -> ReturnRenderWith:
-        if self.obj.user:
-            permassignments = AuthClientUserPermissions.all_forclient(self.obj).all()
-        else:
-            permassignments = AuthClientTeamPermissions.all_forclient(self.obj).all()
+        permassignments = AuthClientUserPermissions.all_forclient(self.obj).all()
         return {'auth_client': self.obj, 'permassignments': permassignments}
 
     @route('edit', methods=['GET', 'POST'])
@@ -129,13 +124,10 @@ class AuthClientView(UrlForView, ModelView):
         form.edit_user = current_auth.user
         form.client_owner.choices = available_client_owners()
         if request.method == 'GET':
-            if self.obj.user:
-                form.client_owner.data = self.obj.user.buid
-            else:
-                form.client_owner.data = self.obj.organization.buid
+            form.client_owner.data = self.obj.account.buid
 
         if form.validate_on_submit():
-            if self.obj.user != form.user or self.obj.organization != form.organization:
+            if self.obj.account != form.account:
                 # Ownership has changed. Remove existing permission assignments
                 AuthClientUserPermissions.all_forclient(self.obj).delete(
                     synchronize_session=False
@@ -151,8 +143,7 @@ class AuthClientView(UrlForView, ModelView):
                     'warning',
                 )
             form.populate_obj(self.obj)
-            self.obj.user = form.user
-            self.obj.organization = form.organization
+            self.obj.account = form.account
             db.session.commit()
             return render_redirect(self.obj.url_for())
 
@@ -236,69 +227,32 @@ class AuthClientView(UrlForView, ModelView):
     @requires_login
     @requires_roles({'owner'})
     def permission_user_new(self) -> ReturnView:
-        if self.obj.user:
-            form = UserPermissionAssignForm()
-        elif self.obj.organization:
-            form = TeamPermissionAssignForm()
-            form.organization = self.obj.organization
-            form.team_id.choices = [
-                (team.buid, team.title) for team in self.obj.organization.teams
-            ]
-        else:
-            abort(403)  # This should never happen. Clients always have an owner.
+        form = UserPermissionAssignForm()
         if form.validate_on_submit():
             perms = set()
-            if self.obj.user:
-                permassign = AuthClientUserPermissions.get(
-                    auth_client=self.obj, user=form.user.data
-                )
-                if permassign is not None:
-                    perms.update(permassign.access_permissions.split())
-                else:
-                    permassign = AuthClientUserPermissions(
-                        user=form.user.data, auth_client=self.obj
-                    )
-                    db.session.add(permassign)
+            permassign = AuthClientUserPermissions.get(
+                auth_client=self.obj, user=form.user.data
+            )
+            if permassign is not None:
+                perms.update(permassign.access_permissions.split())
             else:
-                permassign = AuthClientTeamPermissions.get(
-                    auth_client=self.obj, team=form.team
+                permassign = AuthClientUserPermissions(
+                    user=form.user.data, auth_client=self.obj
                 )
-                if permassign is not None:
-                    perms.update(permassign.access_permissions.split())
-                else:
-                    permassign = AuthClientTeamPermissions(
-                        team=form.team, auth_client=self.obj
-                    )
-                    db.session.add(permassign)
+                db.session.add(permassign)
             perms.update(form.perms.data.split())
             permassign.access_permissions = ' '.join(sorted(perms))
             db.session.commit()
-            if self.obj.user:
-                flash(
-                    _("Permissions have been assigned to user {pname}").format(
-                        pname=form.user.data.pickername
-                    ),
-                    'success',
-                )
-            else:
-                flash(
-                    _("Permissions have been assigned to team ‘{pname}’").format(
-                        pname=permassign.team.pickername
-                    ),
-                    'success',
-                )
+            flash(
+                _("Permissions have been assigned to user {pname}").format(
+                    pname=form.user.data.pickername
+                ),
+                'success',
+            )
             return render_redirect(self.obj.url_for())
         return render_form(
             form=form,
             title=_("Assign permissions"),
-            message=Markup(
-                _(
-                    'Add and edit teams from <a href="{url}">your organization’s teams'
-                    ' page</a>'
-                ).format(url=self.obj.organization.url_for('teams'))
-            )
-            if self.obj.organization
-            else None,
             formid='perm_assign',
             submit=_("Assign permissions"),
         )

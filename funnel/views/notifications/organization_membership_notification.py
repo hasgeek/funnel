@@ -400,8 +400,8 @@ class RenderShared:
             if membership.member.profile_url
             else escape(membership.member.pickername),
             organization=Markup(
-                f'<a href="{escape(cast(str, self.organization.profile_url))}">'
-                f'{escape(self.organization.pickername)}</a>'
+                f'<a href="{escape(cast(str, self.account.profile_url))}">'
+                f'{escape(self.account.pickername)}</a>'
             ),
             actor=(
                 Markup(

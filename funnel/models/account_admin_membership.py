@@ -44,7 +44,7 @@ class AccountAdminMembership(
                 'urls',
                 'user',
                 'is_owner',
-                'organization',
+                'account',
                 'granted_by',
                 'revoked_by',
                 'granted_at',
@@ -76,7 +76,7 @@ class AccountAdminMembership(
             'offered_roles',
             'is_owner',
             'user',
-            'organization',
+            'account',
         },
         'without_parent': {'urls', 'uuid_b58', 'offered_roles', 'is_owner', 'user'},
         'related': {'urls', 'uuid_b58', 'offered_roles', 'is_owner'},
@@ -221,11 +221,11 @@ class __Account:
     )
 
     organizations_as_owner = DynamicAssociationProxy(
-        'active_organization_owner_memberships', 'organization'
+        'active_organization_owner_memberships', 'account'
     )
 
     organizations_as_admin = DynamicAssociationProxy(
-        'active_organization_admin_memberships', 'organization'
+        'active_organization_admin_memberships', 'account'
     )
 
 

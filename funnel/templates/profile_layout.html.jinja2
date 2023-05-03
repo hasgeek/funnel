@@ -24,7 +24,7 @@
       </ul>
       <form action="{{ profile.url_for('transition') }}" method="post">
         {{ profile.forms.transition().hidden_tag() }}
-        <button name="transition" value="make_private" class="mui-btn mui-btn--accent mui--pull-right mui-btn--flat">{% trans %}Make private{% endtrans %}</button>
+        <button name="transition" value="make_profile_private" class="mui-btn mui-btn--accent mui--pull-right mui-btn--flat">{% trans %}Make private{% endtrans %}</button>
       </form>
     </div>
   </div>
@@ -87,7 +87,7 @@
                       </ul>
                       <form action="{{ profile.url_for('transition') }}" method="post">
                         {{ profile.forms.transition().hidden_tag() }}
-                        <button name="transition" value="make_public" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right" data-cy="make-public-btn">{% trans %}Make public{% endtrans %}</button>
+                        <button name="transition" value="make_profile_public" class="mui-btn mui-btn--accent mui-btn--flat mui--pull-right" data-cy="make-public-btn">{% trans %}Make public{% endtrans %}</button>
                       </form>
                     </div>
                   </div>

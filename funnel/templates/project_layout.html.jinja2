@@ -335,7 +335,7 @@
   {%- endif %}
   <div class="sponsors-wrapper">
   {% for sponsor in project.sponsor_memberships %}
-  {%- with sponsor_public = sponsor.profile.state.PUBLIC %}
+  {%- with sponsor_public = sponsor.profile_state.PUBLIC %}
       {% if current_auth.user and current_auth.user.is_site_editor %}
         <div id="{{ sponsor.uuid_b58 }}" class="sortable" data-drag-placeholder="ui-box-placeholder" draggable="true">
       {%- endif %}

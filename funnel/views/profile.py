@@ -53,13 +53,13 @@ def feature_profile_new_user_project(obj):
 
 
 @Account.features('make_public')
-def feature_profile_make_public(obj):
-    return obj.current_roles.admin and obj.make_public.is_available
+def feature_profile_make_public(obj: Account):
+    return obj.current_roles.admin and obj.make_profile_public.is_available
 
 
 @Account.features('make_private')
-def feature_profile_make_private(obj):
-    return obj.current_roles.admin and obj.make_private.is_available
+def feature_profile_make_private(obj: Account):
+    return obj.current_roles.admin and obj.make_profile_private.is_available
 
 
 def template_switcher(templateargs):

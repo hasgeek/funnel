@@ -714,6 +714,10 @@ class Account(
     def mark_suspended(self):
         """Mark account as suspended on support or moderator request."""
 
+    @state.transition(state.SUSPENDED, state.ACTIVE)
+    def mark_active(self):
+        """Restore a suspended account to active state."""
+
     @state.transition(state.ACTIVE, state.DELETED)
     def do_delete(self):
         """Delete account."""
@@ -768,14 +772,14 @@ class Account(
             account.state.ACTIVE and account.features.not_likely_throwaway
         ),
     )
-    def make_public(self) -> None:
+    def make_profile_public(self) -> None:
         """Make an account public if it is eligible."""
 
     @with_roles(call={'owner'})
     @profile_state.transition(
         profile_state.NOT_PRIVATE, profile_state.PRIVATE, title=__("Make private")
     )
-    def make_private(self) -> None:
+    def make_profile_private(self) -> None:
         """Make an account private."""
 
     def is_safe_to_delete(self) -> bool:
