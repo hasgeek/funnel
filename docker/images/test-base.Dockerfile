@@ -17,7 +17,7 @@ chmod +x geckodriver
 mv geckodriver /usr/local/bin
 apt-get autoclean -yqq
 apt-get autoremove -yqq
-cd /home/funnel/app
-mkdir -p /home/funnel/.cache/pip
-chown -R funnel:funnel /home/funnel/.cache
+cd /home/pn/app
+mkdir -p /home/pn/.cache/pip
+chown -R pn:pn /home/pn/.cache
 EOF

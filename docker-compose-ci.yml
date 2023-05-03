@@ -14,7 +14,7 @@ services:
         - BASE_NODE_VERSION=${BASE_NODE_VERSION}
       target: funnel-test
     entrypoint: ['pytest']
-    working_dir: /home/funnel/app
+    working_dir: /home/pn/app
     depends_on:
       postgres:
         condition: service_healthy
@@ -24,7 +24,7 @@ services:
       - postgres
       - redis
     volumes:
-      - pip_cache:/home/funnel/.cache/pip:delegated
+      - pip_cache:/home/pn/.cache/pip:delegated
       # https://stackoverflow.com/questions/43844639/how-do-i-add-cached-or-delegated-into-a-docker-compose-yml-volumes-list
     environment:
       - REDIS_HOST=redis
