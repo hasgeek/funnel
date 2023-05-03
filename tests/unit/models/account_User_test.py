@@ -271,11 +271,8 @@ def test_user_all(
 
     db_session.commit()  # Commit required to generate UUID (userid/buid)
     # A parameter is required
-    with pytest.raises(TypeError):
-        models.User.all()
-
-    with pytest.raises(TypeError):
-        models.User.all(defercols=True)
+    assert models.User.all() == []
+    assert models.User.all(defercols=True) == []
 
     # Scenario 1: Lookup by buids only
     assert set(
@@ -291,7 +288,7 @@ def test_user_all(
     assert set(
         models.User.all(
             buids=[user_twoflower.buid, user_rincewind.buid],
-            usernames=[user_ridcully.username, user_dibbler.username],
+            names=[user_ridcully.username, user_dibbler.username],
             defercols=defercols,
         )
     ) == {user_twoflower, user_rincewind, user_ridcully, user_dibbler}
@@ -299,7 +296,7 @@ def test_user_all(
     # Scenario 3: lookup by usernames only
     assert set(
         models.User.all(
-            usernames=[user_ridcully.username, user_dibbler.username],
+            names=[user_ridcully.username, user_dibbler.username],
             defercols=defercols,
         )
     ) == {user_ridcully, user_dibbler}

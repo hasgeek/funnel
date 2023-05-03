@@ -232,7 +232,7 @@ def test_update_notification_structure(
     assert notification.document == update
     assert notification.fragment is None
     assert notification.roles == ['project_crew', 'project_participant']
-    assert notification.preference_context == project_fixtures.org.profile
+    assert notification.preference_context == project_fixtures.org
 
     load_notification = models.Notification.query.first()
     assert isinstance(load_notification, models.Notification)
