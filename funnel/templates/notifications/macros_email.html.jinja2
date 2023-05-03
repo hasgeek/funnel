@@ -4,11 +4,6 @@
       <tr>
         <td class="line-separator"></td>
       </tr>
-      <!--[if mso]>
-      <tr>
-        <td class="spacer-8px"></td>
-      </tr>
-      <![endif]-->
       <tr>
         <p class="mui--text-accent">
         {%- trans number=update.number|numberformat -%}Update #{{ number }}{%- endtrans %} &bull; {% trans age=update.published_at|age, editor=update.user.pickername -%}Posted by {{ editor }} {{ age }}{%- endtrans -%}
@@ -59,11 +54,6 @@
   <tr>
     <td class="line-separator"></td>
   </tr>
-  <!--[if mso]>
-  <tr>
-    <td class="spacer-8px"></td>
-  </tr>
-  <![endif]-->
   <tr>
     <td>
       <p class="footer-text">{{ view.reason_email }} &bull; <a class="footer-link" href="{{ view.rsvp.project.url_for(_external=true, _anchor='register-modal', **view.tracking_tags()) }}"><b>{{ rsvp_linktext }}</b></a></p>
