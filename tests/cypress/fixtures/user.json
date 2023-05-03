@@ -1,34 +1,42 @@
 {
   "owner": {
     "username": "profile_cypress",
+    "fullname": "profile-cypress",
     "password": "profile-cypress123_St"
   },
   "admin": {
     "username": "admin_user",
+    "fullname": "admin-user",
     "password": "admin-user129_Ftz"
   },
   "promoter": {
     "username": "promoter_user",
+    "fullname": "promoter-user",
     "password": "promoter-user34_qQE"
   },
   "usher": {
     "username": "usher_cypress",
+    "fullname": "usher-cypress",
     "password": "usher-cypress566_YUt"
   },
   "editor": {
     "username": "editor_cypress",
+    "fullname": "editor-cypress",
     "password": "editor-cypress9_GH"
   },
   "user": {
     "username": "member_user",
+    "fullname": "member-user",
     "password": "member-user341_Wer"
   },
   "hguser": {
     "username": "hg_user",
+    "fullname": "hg-user",
     "password": "hg-user5_HE"
   },
   "newuser": {
     "username": "new_user",
+    "fullname": "new-user",
     "password": "new-user11_EveryOne"
   }
 }

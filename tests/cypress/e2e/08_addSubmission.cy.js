@@ -31,7 +31,7 @@ describe('Add a new submission', () => {
     cy.wait(1000);
     cy.get('fieldset').find('.listwidget').eq(0).find('input').eq(0).click();
     cy.get('fieldset').find('.listwidget').eq(1).find('input').eq(0).click();
-    cy.wait(1000);
+    cy.wait(2000);
     cy.get('a[data-cy="save"]:visible').click();
     cy.get('button[data-cy="form-submit-btn"]').click();
 

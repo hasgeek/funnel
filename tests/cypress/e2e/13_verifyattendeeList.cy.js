@@ -12,6 +12,6 @@ describe('Verify attendee list', () => {
     cy.wait(1000);
     cy.get('a[data-cy="see-responses"]:visible').click();
     cy.location('pathname').should('contain', 'rsvp_list');
-    cy.get('[data-cy="user"]').should('contain', user.username);
+    cy.get('[data-cy="username"]').should('contain', user.fullname);
   });
 });
