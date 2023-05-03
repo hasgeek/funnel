@@ -26,11 +26,11 @@ from ..forms import (
 )
 from ..models import (
     Account,
+    AccountAdminMembership,
     MembershipRevokedError,
     Organization,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
-    OrganizationMembership,
     Project,
     ProjectCrewMembership,
     ProjectCrewMembershipNotification,
@@ -63,7 +63,7 @@ class OrganizationMembersView(AccountViewMixin, UrlForView, ModelView):
             'account': self.obj,
             'memberships': [
                 membership.current_access(datasets=('without_parent', 'related'))
-                for membership in self.obj.organization.active_admin_memberships
+                for membership in self.obj.active_admin_memberships
             ],
         }
 
@@ -93,12 +93,12 @@ class OrganizationMembersView(AccountViewMixin, UrlForView, ModelView):
                     )
 
                 previous_membership = (
-                    OrganizationMembership.query.filter(
-                        OrganizationMembership.is_active
+                    AccountAdminMembership.query.filter(
+                        AccountAdminMembership.is_active
                     )
                     .filter_by(
-                        organization=self.obj.organization,
-                        user_id=membership_form.user.data.id,
+                        account=self.obj,
+                        member=membership_form.user.data,
                     )
                     .one_or_none()
                 )
@@ -112,8 +112,8 @@ class OrganizationMembersView(AccountViewMixin, UrlForView, ModelView):
                         },
                         422,
                     )
-                new_membership = OrganizationMembership(
-                    organization=self.obj.organization, granted_by=current_auth.user
+                new_membership = AccountAdminMembership(
+                    account=self.obj, granted_by=current_auth.user
                 )
                 membership_form.populate_obj(new_membership)
                 db.session.add(new_membership)
@@ -157,18 +157,18 @@ class OrganizationMembersView(AccountViewMixin, UrlForView, ModelView):
 OrganizationMembersView.init_app(app)
 
 
-@OrganizationMembership.views('main')
+@AccountAdminMembership.views('main')
 @route('/<account>/members/<membership>')
 class OrganizationMembershipView(
     AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView
 ):
-    model = OrganizationMembership
+    model = AccountAdminMembership
     route_model_map = {'account': 'organization.name', 'membership': 'uuid_b58'}
-    obj: OrganizationMembership
+    obj: AccountAdminMembership
 
-    def loader(self, account, membership) -> OrganizationMembership:
-        return OrganizationMembership.query.filter(
-            OrganizationMembership.uuid_b58 == membership,
+    def loader(self, account, membership) -> AccountAdminMembership:
+        return AccountAdminMembership.query.filter(
+            AccountAdminMembership.uuid_b58 == membership,
         ).first_or_404()
 
     def after_loader(self) -> Optional[ReturnView]:
@@ -337,7 +337,7 @@ class ProjectMembershipView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelV
                     }, 422
                 previous_membership = (
                     ProjectCrewMembership.query.filter(ProjectCrewMembership.is_active)
-                    .filter_by(project=self.obj, user_id=membership_form.user.data.id)
+                    .filter_by(project=self.obj, member=membership_form.user.data)
                     .one_or_none()
                 )
                 if previous_membership is not None:

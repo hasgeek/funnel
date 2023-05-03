@@ -701,7 +701,7 @@ class Account(
         This is used for database queries.
         """
         return [
-            membership.organization_id
+            membership.account_id
             for membership in self.active_organization_owner_memberships
         ]
 
@@ -1223,8 +1223,8 @@ class Organization(Account):
     def __init__(self, owner: User, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         db.session.add(
-            OrganizationMembership(
-                organization=self, member=owner, granted_by=owner, is_owner=True
+            AccountAdminMembership(
+                account=self, member=owner, granted_by=owner, is_owner=True
             )
         )
 
@@ -1973,4 +1973,4 @@ Anchor = Union[AccountEmail, AccountEmailClaim, AccountPhone, EmailAddress, Phon
 # Tail imports
 # pylint: disable=wrong-import-position
 from .membership_mixin import ImmutableMembershipMixin  # isort: skip
-from .organization_membership import OrganizationMembership  # isort:skip
+from .account_admin_membership import AccountAdminMembership  # isort:skip

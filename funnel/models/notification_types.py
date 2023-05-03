@@ -7,10 +7,10 @@ from baseframe import __
 from ..typing import UuidModelType
 from . import Mapped
 from .account import Account, Organization, User
+from .account_admin_membership import AccountAdminMembership
 from .comment import Comment, Commentset
 from .moderation import CommentModeratorReport
 from .notification import Notification, notification_categories
-from .organization_membership import OrganizationMembership
 from .project import Project
 from .project_membership import ProjectCrewMembership
 from .proposal import Proposal
@@ -273,7 +273,7 @@ class OrganizationAdminMembershipNotification(
     description = __("Account admins control all projects under the account")
 
     document_model = Organization
-    fragment_model = OrganizationMembership
+    fragment_model = AccountAdminMembership
     roles = ['member', 'account_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
@@ -287,7 +287,7 @@ class OrganizationAdminMembershipRevokedNotification(
     """Notification of being granted admin membership (including role changes)."""
 
     document_model = Organization
-    fragment_model = OrganizationMembership
+    fragment_model = AccountAdminMembership
     roles = ['member', 'account_admin']
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 

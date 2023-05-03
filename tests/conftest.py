@@ -1316,16 +1316,16 @@ def org_uu(
     org = models.Organization(name='UU', title="Unseen University", owner=user_ridcully)
     db_session.add(org)
     db_session.add(
-        models.OrganizationMembership(
-            organization=org,
+        models.AccountAdminMembership(
+            account=org,
             member=user_librarian,
             is_owner=False,
             granted_by=user_ridcully,
         )
     )
     db_session.add(
-        models.OrganizationMembership(
-            organization=org,
+        models.AccountAdminMembership(
+            account=org,
             member=user_ponder_stibbons,
             is_owner=False,
             granted_by=user_ridcully,
@@ -1353,16 +1353,16 @@ def org_citywatch(
     )
     db_session.add(org)
     db_session.add(
-        models.OrganizationMembership(
-            organization=org,
+        models.AccountAdminMembership(
+            account=org,
             member=user_vimes,
             is_owner=True,
             granted_by=user_vetinari,
         )
     )
     db_session.add(
-        models.OrganizationMembership(
-            organization=org, member=user_carrot, is_owner=False, granted_by=user_vimes
+        models.AccountAdminMembership(
+            account=org, member=user_carrot, is_owner=False, granted_by=user_vimes
         )
     )
     return org
@@ -1586,8 +1586,8 @@ def new_organization(
     org = models.Organization(owner=new_user_owner, title="Test org", name='test_org')
     db_session.add(org)
 
-    admin_membership = models.OrganizationMembership(
-        organization=org,
+    admin_membership = models.AccountAdminMembership(
+        account=org,
         member=new_user_admin,
         is_owner=False,
         granted_by=new_user_owner,

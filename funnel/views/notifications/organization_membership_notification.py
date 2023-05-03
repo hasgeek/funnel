@@ -10,11 +10,11 @@ from flask import Markup, escape, render_template
 from baseframe import _, __
 
 from ...models import (
+    AccountAdminMembership,
     NotificationType,
     Organization,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
-    OrganizationMembership,
     User,
     UserNotification,
 )
@@ -34,7 +34,7 @@ class DecisionFactorFields:
 
     def is_match(
         self,
-        membership: OrganizationMembership,
+        membership: AccountAdminMembership,
         is_member: bool,
         for_actor: bool,
     ) -> bool:
@@ -343,13 +343,13 @@ class RenderShared:
     reason = __("You are receiving this because you are an admin of this organization")
 
     organization: Organization
-    membership: OrganizationMembership
+    membership: AccountAdminMembership
     notification: NotificationType
     user_notification: UserNotification
     template_picker: DecisionBranch
 
     def activity_template(
-        self, membership: Optional[OrganizationMembership] = None
+        self, membership: Optional[AccountAdminMembership] = None
     ) -> str:
         """Return a Python string template with an appropriate message."""
         if membership is None:
@@ -367,7 +367,7 @@ class RenderShared:
         raise ValueError("No suitable template found for membership record")
 
     def membership_actor(
-        self, membership: Optional[OrganizationMembership] = None
+        self, membership: Optional[AccountAdminMembership] = None
     ) -> Optional[User]:
         """Actor who granted or revoked, for the template."""
         raise NotImplementedError("Subclasses must implement `membership_actor`")
@@ -387,7 +387,7 @@ class RenderShared:
             return self.notification.user
         return self.membership.member
 
-    def activity_html(self, membership: Optional[OrganizationMembership] = None) -> str:
+    def activity_html(self, membership: Optional[AccountAdminMembership] = None) -> str:
         """Return HTML rendering of :meth:`activity_template`."""
         if membership is None:
             membership = self.membership
@@ -444,10 +444,10 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
     reason = __("You are receiving this because you are an admin of this organization")
     template_picker = grant_amend_templates
 
-    fragments_order_by = [OrganizationMembership.granted_at.desc()]
+    fragments_order_by = [AccountAdminMembership.granted_at.desc()]
 
     def membership_actor(
-        self, membership: Optional[OrganizationMembership] = None
+        self, membership: Optional[AccountAdminMembership] = None
     ) -> Optional[User]:
         """Actual actor who granted (or edited) the membership, for the template."""
         return (membership or self.membership).granted_by
@@ -475,10 +475,10 @@ class RenderOrganizationAdminMembershipRevokedNotification(
     reason = __("You are receiving this because you were an admin of this organization")
     template_picker = revoke_templates
 
-    fragments_order_by = [OrganizationMembership.revoked_at.desc()]
+    fragments_order_by = [AccountAdminMembership.revoked_at.desc()]
 
     def membership_actor(
-        self, membership: Optional[OrganizationMembership] = None
+        self, membership: Optional[AccountAdminMembership] = None
     ) -> Optional[User]:
         """Actual actor who revoked the membership, for the template."""
         return (membership or self.membership).revoked_by

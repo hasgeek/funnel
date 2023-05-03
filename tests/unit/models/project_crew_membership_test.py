@@ -126,8 +126,8 @@ def test_project_roles_lazy_eval(
 def test_membership_amend(
     db_session, user_vetinari, user_ridcully, project_expo2010, org_ankhmorpork
 ):
-    ridcully_admin = models.OrganizationMembership(
-        member=user_ridcully, organization=org_ankhmorpork, granted_by=user_vetinari
+    ridcully_admin = models.AccountAdminMembership(
+        member=user_ridcully, account=org_ankhmorpork, granted_by=user_vetinari
     )
     db_session.add(ridcully_admin)
     ridcully_member = models.ProjectCrewMembership(

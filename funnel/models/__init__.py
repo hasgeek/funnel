@@ -68,7 +68,7 @@ from .shortlink import *  # isort:skip
 from .venue import *  # isort:skip
 from .video_mixin import *  # isort:skip
 from .membership_mixin import *  # isort:skip
-from .organization_membership import *  # isort:skip
+from .account_admin_membership import *  # isort:skip
 from .project_membership import *  # isort:skip
 from .sponsor_membership import *  # isort:skip
 from .proposal_membership import *  # isort:skip

@@ -30,25 +30,25 @@
             {% for orgmem in current_auth.user.views.organizations_as_admin() %}
               <li class="flex-wrapper bottom-padding">
                 <div>
-                  <a href="{{ orgmem.organization.profile.url_for() }}"
+                  <a href="{{ orgmem.account.profile_url }}"
                    class="nounderline">
                     <span class="profile-avatar profile-avatar--bigger margin-right">
-                      {%- if orgmem.organization.profile.logo_url.url %}
-                        <img src="{{ orgmem.organization.profile.logo_url }}"
-                             alt="{{ orgmem.organization.title }}"/>
+                      {%- if orgmem.account.logo_url.url %}
+                        <img src="{{ orgmem.account.logo_url }}"
+                             alt="{{ orgmem.account.title }}"/>
                       {% else %}
                         <img src="{{ url_for('static', filename='img/default-profile-logo.png') }}"
-                             alt="{{ orgmem.organization.title }}"/>
+                             alt="{{ orgmem.account.title }}"/>
                       {% endif %}
                     </span>
                   </a>
                 </div>
                 <div>
-                  <a href="{{ orgmem.organization.profile.url_for() }}"
+                  <a href="{{ orgmem.account.profile_url }}"
                    class="nounderline display-block margin-bottom">
                     <p class="profile-avatar-title mui--text-dark mui--text-subhead text-bold">
-                      {{ orgmem.organization.profile.title }}
-                      {% if not orgmem.organization.profile.state.PUBLIC %}
+                      {{ orgmem.account.title }}
+                      {% if not orgmem.account.profile_state.PUBLIC %}
                         {{ faicon(icon='lock-alt', icon_size='caption', baseline=false, css_class="margin-left") }}
                       {% endif %}
                     </p>
@@ -61,7 +61,7 @@
                     </p>
                   </a>
                   <p class="mui--text-light zero-bottom-margin">
-                    {%- for user in orgmem.organization.admin_users %}
+                    {%- for user in orgmem.account.admin_users %}
                       {{ user.pickername }} {%- if not loop.last %},{% endif %}
                     {%- endfor %}
                   </p>

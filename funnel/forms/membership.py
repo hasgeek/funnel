@@ -5,7 +5,7 @@ from __future__ import annotations
 from baseframe import _, __, forms
 from coaster.utils import getbool
 
-from ..models import OrganizationMembership, ProjectCrewMembership
+from ..models import AccountAdminMembership, ProjectCrewMembership
 from .helpers import nullable_strip_filters
 
 __all__ = [
@@ -15,7 +15,7 @@ __all__ = [
 ]
 
 
-@OrganizationMembership.forms('main')
+@AccountAdminMembership.forms('main')
 class OrganizationMembershipForm(forms.Form):
     """Form to add a member to an organization (admin or owner)."""
 
