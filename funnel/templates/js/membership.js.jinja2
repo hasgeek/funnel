@@ -33,13 +33,13 @@
               <transition name="slide-fade">
                 <div v-if="role.showMembers" class="membership-wrapper__members__collapsible__body">
                   <div v-if="isUserProfileAdmin">
-                    <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.urls.edit, member)" :aria-label="gettext('Edit')" v-if="member[role.roleKey]" role="button" aria-haspopup="true">
-                      <member :member="member"></member>
+                    <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user" v-for="membership in members" :class="[search && membership.hide ? 'mui--hide' : '']" @click="fetchForm($event, membership.urls.edit, membership)" :aria-label="gettext('Edit')" v-if="membership[role.roleKey]" role="button" aria-haspopup="true">
+                      <membership :membership="membership"></membership>
                     </div>
                   </div>
                   <div v-else>
-                    <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user membership-wrapper__members__list--viewonly" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" :aria-label="member.user.fullname" v-if="member[role.roleKey]">
-                      <member :member="member"></member>
+                    <div class="membership-wrapper__members__list membership-wrapper__members__list--nomargin user membership-wrapper__members__list--viewonly" v-for="membership in members" :class="[search && membership.hide ? 'mui--hide' : '']" :aria-label="membership.member.fullname" v-if="membership[role.roleKey]">
+                      <membership :membership="membership"></membership>
                     </div>
                   </div>
                 </div>
@@ -48,13 +48,13 @@
           </div>
           <div v-if="view == 'name'" class="membership-wrapper__members">
             <div v-if="isUserProfileAdmin">
-              <div class="membership-wrapper__members__list user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" @click="fetchForm($event, member.urls.edit, member)" :aria-label=" gettext('Edit')" role="button" aria-haspopup="true">
-                <member :member="member"></member>
+              <div class="membership-wrapper__members__list user" v-for="membership in members" :class="[search && membership.hide ? 'mui--hide' : '']" @click="fetchForm($event, membership.urls.edit, membership)" :aria-label=" gettext('Edit')" role="button" aria-haspopup="true">
+                <membership :membership="membership"></membership>
               </div>
             </div>
             <div v-else>
-              <div class="membership-wrapper__members__list membership-wrapper__members__list--viewonly user" v-for="member in members" :class="[search && member.hide ? 'mui--hide' : '']" :aria-label="member.user.fullname">
-                <member :member="member"></member>
+              <div class="membership-wrapper__members__list membership-wrapper__members__list--viewonly user" v-for="membership in members" :class="[search && membership.hide ? 'mui--hide' : '']" :aria-label="membership.member.fullname">
+                <membership :membership="membership"></membership>
               </div>
             </div>
           </div>
@@ -89,14 +89,14 @@
     <script type="text/x-template" id="member-template">
       <div class="member mui--clearfix">
         <div class="user__box mui--pull-left">
-          <useravatar :user='member.user' :addprofilelink=true></useravatar>
+          <useravatar :user='membership.member' :addprofilelink=true></useravatar>
           <div class="user__box__header">
-            <h3 class="mui--text-body2 user__box__fullname">{{ member.user.fullname }}</h3>
-            <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span  data-cy="member">@{{ member.user.username }}</span></h3>
+            <h3 class="mui--text-body2 user__box__fullname">{{ membership.member.fullname }}</h3>
+            <h3 v-if="membership.member.username" class="mui--text-caption user__box__userid"><span  data-cy="member">@{{ membership.member.username }}</span></h3>
           </div>
         </div>
         <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles mui--pull-right">
-          <li v-if="member.is_owner" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Owner') }}</li>
+          <li v-if="membership.is_owner" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Owner') }}</li>
           <li v-else class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Admin') }}</li>
         </ul>
       </div>
@@ -109,17 +109,17 @@
     <script type="text/x-template" id="member-template">
       <div class="member mui--clearfix">
         <div class="user__box mui--pull-left">
-          <useravatar :user='member.user' :addprofilelink=true></useravatar>
+          <useravatar :user='membership.member' :addprofilelink=true></useravatar>
           <div class="user__box__header">
-            <h3 class="mui--text-body2 user__box__fullname">{{ member.user.fullname }} <span v-if="member.label" class="badge">{{ member.label }}</span></h3>
-            <h3 v-if="member.user.username" class="mui--text-caption user__box__userid"><span  data-cy="member">@{{ member.user.username }}</span></h3>
+            <h3 class="mui--text-body2 user__box__fullname">{{ membership.member.fullname }} <span v-if="membership.label" class="badge">{{ membership.label }}</span></h3>
+            <h3 v-if="membership.member.username" class="mui--text-caption user__box__userid"><span  data-cy="member">@{{ membership.member.username }}</span></h3>
           </div>
         </div>
         <ul class="mui-list--inline mui--text-subhead zero-bottom-margin membership-wrapper__members__list__roles mui--pull-right">
-          <li v-if="member.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Editor') }}</li>
-          <li v-if="member.is_promoter" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Promoter') }}</li>
-          <li v-if="member.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Usher') }}</li>
-          <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(member) > 0 && rolesCount(member) < 3">{{ gettext('+ %d more role', rolesCount(member)) }}</li>
+          <li v-if="membership.is_editor" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Editor') }}</li>
+          <li v-if="membership.is_promoter" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Promoter') }}</li>
+          <li v-if="membership.is_usher" class="membership-wrapper__members__list__roles__role mui--text-body2" data-cy="role">{{ gettext('Usher') }}</li>
+          <li class="mui--text-light membership-wrapper__members__list__roles__count mui--text-caption" v-if="rolesCount(membership) > 0 && rolesCount(membership) < 3">{{ gettext('+ %d more role', rolesCount(membership)) }}</li>
         </ul>
       </div>
     </script>
