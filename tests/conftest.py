@@ -1688,7 +1688,7 @@ def new_label(models, db_session, new_project) -> funnel_models.Label:
 @pytest.fixture()
 def new_proposal(models, db_session, new_user, new_project) -> funnel_models.Proposal:
     proposal = models.Proposal(
-        user=new_user,
+        created_by=new_user,
         project=new_project,
         title="Test Proposal",
         body="Test proposal description",

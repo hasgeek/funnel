@@ -21,7 +21,7 @@ from . import (
     db,
     sa,
 )
-from .account import User
+from .account import Account, User
 from .comment import SET_TYPE, Commentset
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
@@ -121,11 +121,11 @@ class Proposal(  # type: ignore[misc]
     __tablename__ = 'proposal'
     __allow_unmapped__ = True
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
-    user = with_roles(
+    created_by_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
+    created_by = with_roles(
         sa.orm.relationship(
-            User,
-            foreign_keys=[user_id],
+            Account,
+            foreign_keys=[created_by_id],
             backref=sa.orm.backref('created_proposals', cascade='all', lazy='dynamic'),
         ),
         grants={'creator', 'participant'},
@@ -272,14 +272,16 @@ class Proposal(  # type: ignore[misc]
         self.commentset = Commentset(settype=SET_TYPE.PROPOSAL)
         # Assume self.user is set. Fail if not.
         db.session.add(
-            ProposalMembership(proposal=self, user=self.user, granted_by=self.user)
+            ProposalMembership(
+                proposal=self, member=self.created_by, granted_by=self.created_by
+            )
         )
 
     def __repr__(self) -> str:
         """Represent :class:`Proposal` as a string."""
         return (
             f'<Proposal "{self.title}" in project "{self.project.title}"'
-            f' by "{self.user.fullname}">'
+            f' by "{self.created_by.fullname}">'
         )
 
     # State transitions

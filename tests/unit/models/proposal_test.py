@@ -5,7 +5,7 @@ from funnel import models
 
 def test_reorder(db_session, user_twoflower, project_expo2010) -> None:
     proposal1 = models.Proposal(
-        user=user_twoflower,
+        created_by=user_twoflower,
         project=project_expo2010,
         title="Test Proposal 1",
         body="Test body",
@@ -13,7 +13,7 @@ def test_reorder(db_session, user_twoflower, project_expo2010) -> None:
     )
     db_session.add(proposal1)
     proposal2 = models.Proposal(
-        user=user_twoflower,
+        created_by=user_twoflower,
         project=project_expo2010,
         title="Test Proposal 2",
         body="Test body",
@@ -21,7 +21,7 @@ def test_reorder(db_session, user_twoflower, project_expo2010) -> None:
     )
     db_session.add(proposal2)
     proposal3 = models.Proposal(
-        user=user_twoflower,
+        created_by=user_twoflower,
         project=project_expo2010,
         title="Test Proposal 3",
         body="Test body",

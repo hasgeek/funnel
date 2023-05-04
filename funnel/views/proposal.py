@@ -85,7 +85,7 @@ class ProjectProposalView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
 
         form = ProposalForm(model=Proposal, parent=self.obj)
         if form.validate_on_submit():
-            proposal = Proposal(user=current_auth.user, project=self.obj)
+            proposal = Proposal(created_by=current_auth.user, project=self.obj)
             db.session.add(proposal)
             with db.session.no_autoflush:
                 form.populate_obj(proposal)

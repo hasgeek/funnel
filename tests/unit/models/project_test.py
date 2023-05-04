@@ -297,7 +297,7 @@ def test_project_featured_proposal(
     # A proposal is created, default state is `Submitted`
     proposal = models.Proposal(
         project=project_expo2010,
-        user=user_twoflower,
+        created_by=user_twoflower,
         title="Test Proposal",
         body="Test body",
         description="Test",
