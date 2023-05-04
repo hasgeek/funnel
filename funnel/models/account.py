@@ -1103,11 +1103,9 @@ class Account(
         return value if value else None
 
     @classmethod
-    def active_user_count(cls) -> int:
+    def active_count(cls) -> int:
         """Count of all active accounts."""
-        return cls.query.filter(
-            cls.state.ACTIVE, cls.type_ == User.__mapper_args__['polymorphic_identity']
-        ).count()
+        return cls.query.filter(cls.state.ACTIVE).count()
 
     #: FIXME: Temporary values for Baseframe compatibility
     def organization_links(self) -> List:

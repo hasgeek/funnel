@@ -32,6 +32,7 @@ from ..models import (
     AuthClient,
     Comment,
     CommentModeratorReport,
+    User,
     UserSession,
     auth_client_user_session,
     db,
@@ -143,7 +144,7 @@ class SiteadminView(ClassView):
     @requires_siteadmin
     def dashboard(self) -> ReturnView:
         """Render siteadmin dashboard landing page."""
-        user_count = Account.active_user_count()
+        user_count = User.active_count()
         mau = (
             db.session.query(sa.func.count(sa.func.distinct(UserSession.user_id)))
             .select_from(UserSession)
