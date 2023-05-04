@@ -81,6 +81,8 @@ from .otp import OtpSession, OtpTimeoutError
 
 
 @Account.views()
+@User.views()
+@Organization.views()
 def emails_sorted(obj: Account) -> List[AccountEmail]:
     """Return sorted list of email addresses for account page UI."""
     primary = obj.primary_email
@@ -89,6 +91,8 @@ def emails_sorted(obj: Account) -> List[AccountEmail]:
 
 
 @Account.views()
+@User.views()
+@Organization.views()
 def phones_sorted(obj: Account) -> List[AccountPhone]:
     """Return sorted list of phone numbers for account page UI."""
     primary = obj.primary_phone
@@ -97,6 +101,8 @@ def phones_sorted(obj: Account) -> List[AccountPhone]:
 
 
 @Account.views('locale')
+@User.views('locale')
+@Organization.views('locale')
 def user_locale(obj: Account) -> str:
     """Name of user's locale, defaulting to locale identifier."""
     locale = str(obj.locale) if obj.locale is not None else 'en'
@@ -104,6 +110,8 @@ def user_locale(obj: Account) -> str:
 
 
 @Account.views('timezone')
+@User.views('timezone')
+@Organization.views('timezone')
 def user_timezone(obj: Account) -> str:
     """Human-friendly identifier for user's timezone, defaulting to timezone name."""
     return timezone_identifiers.get(
@@ -195,6 +203,7 @@ def avatar_color_code(obj: Account) -> int:
 
 @Account.features('not_likely_throwaway', property=True)
 @User.features('not_likely_throwaway', property=True)
+@Organization.features('not_likely_throwaway', property=True)
 def user_not_likely_throwaway(obj: Account) -> bool:
     """
     Confirm the user is not likely to be a throwaway account.

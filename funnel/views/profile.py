@@ -388,6 +388,7 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @route('transition', methods=['POST'])
     @requires_login
     @requires_roles({'owner'})
+    @requires_user_not_spammy()
     def transition(self) -> ReturnView:
         form = ProfileTransitionForm(obj=self.obj)
         if form.validate_on_submit():

@@ -51,9 +51,10 @@ def test_user_avatar(db_session, user_twoflower, user_rincewind) -> None:
 @pytest.mark.filterwarnings("ignore:Object of type <AccountPhone> not in session")
 def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
     """Suspending a user will mark their account page as private."""
-    # Account cannot be public until the user has a verified phone number
-    with pytest.raises(StateTransitionError):
-        user_wolfgang.make_profile_public()
+    # Account cannot be public until the user has a verified phone number.
+    # This constraint is enforced in the view and not in the model, as the test on
+    # who is allowed to have a public profile is a view concern
+    assert not user_wolfgang.has_verified_contact_info
 
     # Add a phone number to meet the criteria for having verified contact info
     user_wolfgang.add_phone('+12345678900')

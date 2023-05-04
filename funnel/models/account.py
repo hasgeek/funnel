@@ -790,10 +790,8 @@ class Account(
         profile_state.NOT_PUBLIC,
         profile_state.PUBLIC,
         title=__("Make public"),
-        if_=lambda account: (
-            account.state.ACTIVE and account.features.not_likely_throwaway
-        ),
     )
+    @state.requires(state.ACTIVE)
     def make_profile_public(self) -> None:
         """Make an account public if it is eligible."""
 
