@@ -1165,7 +1165,8 @@ class User(Account):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.joined_at = sa.func.utcnow()
+        if self.joined_at is None:
+            self.joined_at = sa.func.utcnow()
 
 
 # XXX: Deprecated, still here for Baseframe compatibility
@@ -1277,7 +1278,8 @@ class Organization(Account):
 
     def __init__(self, owner: Account, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.joined_at = sa.func.utcnow()
+        if self.joined_at is None:
+            self.joined_at = sa.func.utcnow()
         db.session.add(
             AccountAdminMembership(
                 account=self, member=owner, granted_by=owner, is_owner=True

@@ -15,7 +15,7 @@ def team_merge_data(db_session):
     user1 = models.User(
         username='user1',
         fullname="User 1",
-        created_at=sa.func.utcnow() - timedelta(days=1),
+        joined_at=sa.func.utcnow() - timedelta(days=1),
     )
     user2 = models.User(username='user2', fullname="User 2")
     org = models.Organization(
