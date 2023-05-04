@@ -71,7 +71,7 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     @requires_user_not_spammy()
     def new(self) -> ReturnView:
         """Create a new organization."""
-        form = OrganizationForm(user=current_auth.user)
+        form = OrganizationForm(edit_user=current_auth.user)
         if form.validate_on_submit():
             org = Organization(owner=current_auth.user)
             form.populate_obj(org)

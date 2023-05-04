@@ -50,7 +50,7 @@ def data_sources() -> Dict[str, DataSource]:
         ),
         "New users": DataSource(
             models.User.query.filter(models.User.state.ACTIVE),
-            models.User.created_at,
+            models.User.joined_at,
         ),
         "RSVPs": DataSource(
             models.Rsvp.query.filter(models.Rsvp.state.YES), models.Rsvp.created_at
@@ -166,8 +166,8 @@ def growthstats() -> None:
                 .filter(
                     models.UserSession.accessed_at >= yesterday,
                     models.UserSession.accessed_at < today,
-                    models.User.created_at >= two_days_ago,
-                    models.User.created_at < yesterday,
+                    models.User.joined_at >= two_days_ago,
+                    models.User.joined_at < yesterday,
                 )
                 .distinct(models.UserSession.user_id)
                 .count(),
@@ -176,8 +176,8 @@ def growthstats() -> None:
                 .filter(
                     models.UserSession.accessed_at >= last_week,
                     models.UserSession.accessed_at < today,
-                    models.User.created_at >= two_weeks_ago,
-                    models.User.created_at < last_week,
+                    models.User.joined_at >= two_weeks_ago,
+                    models.User.joined_at < last_week,
                 )
                 .distinct(models.UserSession.user_id)
                 .count(),
@@ -186,8 +186,8 @@ def growthstats() -> None:
                 .filter(
                     models.UserSession.accessed_at >= last_month,
                     models.UserSession.accessed_at < today,
-                    models.User.created_at >= two_months_ago,
-                    models.User.created_at < last_month,
+                    models.User.joined_at >= two_months_ago,
+                    models.User.joined_at < last_month,
                 )
                 .distinct(models.UserSession.user_id)
                 .count(),

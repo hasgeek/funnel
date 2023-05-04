@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any, Iterable, Iterator, List, Optional, Set, Union, cast, overload
 from uuid import UUID
 import hashlib
@@ -119,9 +119,19 @@ class Account(
     __active_membership_attrs__: Set[str] = set()
     __noninvite_membership_attrs__: Set[str] = set()
 
+    # Helper flags (see subclasses)
+    is_user_profile = False
+    is_organization_profile = False
+    is_placeholder_profile = False
+
     reserved_names = RESERVED_NAMES
 
     type_: Mapped[str] = sa.orm.mapped_column('type', sa.CHAR(1), nullable=False)
+
+    #: Join date for users and organizations (skipped for placeholders)
+    joined_at: Mapped[Optional[datetime]] = sa.orm.mapped_column(
+        sa.TIMESTAMP(timezone=True), nullable=True
+    )
 
     #: The optional "username", used in the URL stub
     name: Mapped[str] = with_roles(
@@ -1151,6 +1161,11 @@ class User(Account):
     """User account."""
 
     __mapper_args__ = {'polymorphic_identity': 'U'}
+    is_user_profile = True
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.joined_at = sa.func.utcnow()
 
 
 # XXX: Deprecated, still here for Baseframe compatibility
@@ -1172,6 +1187,10 @@ class DuckTypeAccount(RoleMixin):
     profile_url: None = None
     email: None = None
     phone: None = None
+
+    is_user_profile = True
+    is_organization_profile = False
+    is_placeholder_profile = False
 
     # Copy registries from Account model
     views = Account.views
@@ -1254,9 +1273,11 @@ class Organization(Account):
     """An organization of one or more users with distinct roles."""
 
     __mapper_args__ = {'polymorphic_identity': 'O'}
+    is_organization_profile = True
 
-    def __init__(self, owner: Account, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self, owner: Account, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.joined_at = sa.func.utcnow()
         db.session.add(
             AccountAdminMembership(
                 account=self, member=owner, granted_by=owner, is_owner=True
@@ -1278,6 +1299,7 @@ class Placeholder(Account):
     """A placeholder account."""
 
     __mapper_args__ = {'polymorphic_identity': 'P'}
+    is_placeholder_profile = True
 
 
 class Team(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]

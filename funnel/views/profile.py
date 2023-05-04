@@ -26,7 +26,7 @@ from ..forms import (
     ProfileLogoForm,
     ProfileTransitionForm,
 )
-from ..models import Account, Project, db, sa
+from ..models import Account, Organization, Project, User, db, sa
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import render_redirect
 from .login_session import requires_login, requires_user_not_spammy
@@ -34,15 +34,19 @@ from .mixins import AccountViewMixin
 
 
 @Account.features('new_project')
+@User.features('new_project')
+@Organization.features('new_project')
 def feature_profile_new_project(obj):
     return (
         obj.is_organization_profile
         and obj.current_roles.admin
-        and bool(obj.state.PUBLIC)
+        and bool(obj.profile_state.PUBLIC)
     )
 
 
 @Account.features('new_user_project')
+@User.features('new_user_project')
+@Organization.features('new_user_project')
 def feature_profile_new_user_project(obj: Account):
     return (
         obj.is_user_profile
@@ -52,11 +56,15 @@ def feature_profile_new_user_project(obj: Account):
 
 
 @Account.features('make_public')
+@User.features('make_public')
+@Organization.features('make_public')
 def feature_profile_make_public(obj: Account):
     return obj.current_roles.admin and obj.make_profile_public.is_available
 
 
 @Account.features('make_private')
+@User.features('make_private')
+@Organization.features('make_private')
 def feature_profile_make_private(obj: Account):
     return obj.current_roles.admin and obj.make_profile_private.is_available
 
@@ -270,9 +278,9 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
     @requires_user_not_spammy()
     def edit(self) -> ReturnView:
         form = ProfileForm(
-            obj=self.obj, model=Account, account=self.obj, user=current_auth.user
+            obj=self.obj, model=Account, account=self.obj, edit_user=current_auth.user
         )
-        if self.obj.user:
+        if self.obj.is_user_profile:
             form.make_for_user()
         if form.validate_on_submit():
             form.populate_obj(self.obj)

@@ -111,10 +111,12 @@
             <p class="mui--text-title mui--text-light">@{{ profile.name }}</p>
           </div>
           <ul class="bullet-separated-list">
-            <li>{{ faicon(icon='history') }} {% trans date=profile.owner.created_at|date(format='MMM YYYY')%}Joined {{ date }}{% endtrans %}</li>
-            {% if profile.website %}
+            {%- if profile.joined_at %}
+              <li>{{ faicon(icon='history') }} {% trans date=profile.joined_at|date(format='MMM YYYY')%}Joined {{ date }}{% endtrans %}</li>
+            {%- endif %}
+            {%- if profile.website %}
               <li><a href="{{ profile.website }}" target="_blank" rel="noopener nofollow">{{ faicon(icon='globe') }} {{ profile.website|cleanurl }}</a></li>
-            {% endif %}
+            {%- endif %}
           </ul>
           <div class="markdown">{{ profile.description.html }}</div>
           <div class="mui--visible-xs-block mui--visible-sm-block">

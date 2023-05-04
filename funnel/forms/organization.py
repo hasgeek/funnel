@@ -17,8 +17,8 @@ __all__ = ['OrganizationForm', 'TeamForm']
 class OrganizationForm(forms.Form):
     """Form for an organization's name and title."""
 
-    __expects__: Iterable[str] = ('user',)
-    user: Account
+    __expects__: Iterable[str] = ('edit_user',)
+    edit_user: Account
     edit_obj: Optional[Account]
 
     title = forms.StringField(
@@ -65,7 +65,10 @@ class OrganizationForm(forms.Form):
             # from existing name, or has only changed case. This is a validation pass.
             return
         if reason == 'user':
-            if self.user.username and field.data.lower() == self.user.username.lower():
+            if (
+                self.edit_user.username
+                and field.data.lower() == self.edit_user.username.lower()
+            ):
                 raise forms.validators.ValidationError(
                     Markup(
                         _(

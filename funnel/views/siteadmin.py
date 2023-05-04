@@ -165,7 +165,7 @@ class SiteadminView(ClassView):
         """Render CSV of registered users by month."""
         users_by_month = (
             db.session.query(
-                sa.func.date_trunc('month', Account.created_at).label('month'),
+                sa.func.date_trunc('month', Account.joined_at).label('month'),
                 sa.func.count().label('count'),
             )
             .select_from(Account)

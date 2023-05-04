@@ -1100,13 +1100,13 @@ def user_death(models, db_session) -> funnel_models.User:
     Death is the epoch user, present at the beginning and always having the last word.
 
     Since Death predates all other users in tests, any call to `merge_accounts` or
-    `migrate_account` always transfers assets to Death. The fixture has created_at set
+    `migrate_account` always transfers assets to Death. The fixture has joined_at set
     to the epoch to represent this. Death is also a site admin.
     """
     user = models.User(
         username='death',
         fullname="Death",
-        created_at=datetime(1970, 1, 1, tzinfo=timezone.utc),
+        joined_at=datetime(1970, 1, 1, tzinfo=timezone.utc),
     )
     user.is_protected = True
     db_session.add(user)
@@ -1118,12 +1118,12 @@ def user_mort(models, db_session) -> funnel_models.User:
     """
     Mort is Death's apprentice, and a site admin in tests.
 
-    Mort has a created_at in the past (the publication date of the book), granting
+    Mort has a joined_at in the past (the publication date of the book), granting
     priority when merging user accounts. Unlike Death, Mort does not have a username or
     profile, so Mort will acquire it from a merged user.
     """
     user = models.User(
-        fullname="Mort", created_at=datetime(1987, 11, 12, tzinfo=timezone.utc)
+        fullname="Mort", joined_at=datetime(1987, 11, 12, tzinfo=timezone.utc)
     )
     db_session.add(user)
     return user

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from baseframe import __, forms
 
-from ..models import Account
+from ..models import Account, Organization, User
 from .helpers import image_url_validator, nullable_strip_filters
 from .organization import OrganizationForm
 
@@ -24,9 +24,8 @@ class ProfileForm(OrganizationForm):
     An `account` keyword argument is necessary for the ImgeeField.
     """
 
-    __expects__ = ('account', 'user')
+    __expects__ = ('account', 'edit_user')
     account: Account
-    user: Account
 
     tagline = forms.StringField(
         __("Bio"),
@@ -81,6 +80,8 @@ class ProfileForm(OrganizationForm):
 
 
 @Account.forms('transition')
+@User.forms('transition')
+@Organization.forms('transition')
 class ProfileTransitionForm(forms.Form):
     """Form to transition an account between public and private state."""
 

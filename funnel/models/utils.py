@@ -144,7 +144,9 @@ def merge_accounts(
         "Preparing to merge accounts %s and %s", current_account, other_account
     )
     # Always keep the older account and merge from the newer account
-    if current_account.created_at < other_account.created_at:
+    current_account_date = current_account.joined_at or current_account.created_at
+    other_account_date = other_account.joined_at or other_account.created_at
+    if current_account_date < other_account_date:
         keep_account, merge_account = current_account, other_account
     else:
         keep_account, merge_account = other_account, current_account
