@@ -13,7 +13,6 @@ from ...models import (
     Account,
     AccountAdminMembership,
     NotificationType,
-    Organization,
     OrganizationAdminMembershipNotification,
     OrganizationAdminMembershipRevokedNotification,
     UserNotification,
@@ -342,7 +341,7 @@ class RenderShared:
     emoji_prefix = "🔑 "
     reason = __("You are receiving this because you are an admin of this organization")
 
-    organization: Organization
+    organization: Account
     membership: AccountAdminMembership
     notification: NotificationType
     user_notification: UserNotification

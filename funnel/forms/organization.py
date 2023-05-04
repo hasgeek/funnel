@@ -8,7 +8,7 @@ from flask import Markup, url_for
 
 from baseframe import _, __, forms
 
-from ..models import Account, Organization, Team
+from ..models import Account, Team
 
 __all__ = ['OrganizationForm', 'TeamForm']
 
@@ -19,7 +19,7 @@ class OrganizationForm(forms.Form):
 
     __expects__: Iterable[str] = ('user',)
     user: Account
-    edit_obj: Optional[Organization]
+    edit_obj: Optional[Account]
 
     title = forms.StringField(
         __("Organization name"),
@@ -28,7 +28,7 @@ class OrganizationForm(forms.Form):
         ),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(max=Organization.__title_length__),
+            forms.validators.Length(max=Account.__title_length__),
         ],
         filters=[forms.filters.strip()],
         render_kw={'autocomplete': 'organization'},

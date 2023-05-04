@@ -20,6 +20,7 @@ import phonenumbers
 
 from baseframe import __
 from coaster.sqlalchemy import (
+    LazyRoleSet,
     Query,
     RoleMixin,
     StateManager,
@@ -339,6 +340,15 @@ class Account(
         return self.title
 
     with_roles(pickername, read={'all'})
+
+    def roles_for(
+        self, actor: Optional[Account] = None, anchors: Iterable = ()
+    ) -> LazyRoleSet:
+        """Identify roles for the given actor."""
+        roles = super().roles_for(actor, anchors)
+        if self.profile_state.ACTIVE_AND_PUBLIC:
+            roles.add('reader')
+        return roles
 
     @cached_property
     def verified_contact_count(self) -> int:

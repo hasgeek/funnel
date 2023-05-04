@@ -50,15 +50,15 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
     """Views for organizations."""
 
     __decorators__ = [requires_login]
-    model = Organization
+    model = Account
     # Map <account> in URL to attribute `name`, for `url_for` automation
     route_model_map = {'account': 'name'}
-    obj: Organization
+    obj: Account
 
-    def loader(self, account: Optional[str] = None) -> Optional[Organization]:
+    def loader(self, account: Optional[str] = None) -> Optional[Account]:
         """Load an organization if the view requires it."""
         if account:
-            obj = Organization.get(name=account)
+            obj = Account.get(name=account)
             if obj is None:
                 abort(404)
             if not obj.state.ACTIVE:
