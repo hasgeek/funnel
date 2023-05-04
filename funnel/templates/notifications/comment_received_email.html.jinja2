@@ -1,33 +1,27 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
-{%- from "notifications/macros_email.html.jinja2" import hero_image, cta_button -%}
+{%- from "notifications/macros_email.html.jinja2" import cta_button -%}
 {%- block content -%}
 
-    {# Hero image centered : BEGIN #}
-    {{ hero_image("https://images.hasgeek.com/embed/file/eb253bce19fd41ddb5ec84b225bd4dc2?size=196x165") }}
-    {# Hero image centered : END #}
-
-    {# Email body : BEGIN #}
     <tr align="center">
-        <td class="text-container">
-            <h1>New comment!</h1>
+        <td class="text-content">
             {%- if view.notification.document_type == 'project' -%}
-              <h3><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{{ view.document.joined_title }}</a></h3>
+            <h3><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{% trans docuement_joined_title=view.document.joined_title %}{{ document_joined_title }}{% endtrans %}</a></h3>
             {%- elif view.notification.document_type == 'proposal' -%}
-              <h3><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{{ view.document.title }}</a></h3>
+            <h3><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{% trans document_title=view.document.title %}{{ document_title }}{% endtrans %}</a></h3>
             {%- elif view.notification.document_type == 'comment' -%}
-              <p>{% trans %}You wrote:{% endtrans %}</p>
-              <blockquote type="cite">{{ view.document.message }}</blockquote>
+            <p>{% trans %}You wrote:{% endtrans %}</p>
+            <blockquote type="cite">{% trans document_message=view.document.message %}{{ document_message }}{% endtrans %}</blockquote>
             {%- endif %}
 
-            <p>{{ view.activity_html() }}</p>
+            <p>{% trans activity_html=view.activity_html() %}{{ activity_html }}{% endtrans %}</p>
 
-            <blockquote type="cite">{{ view.comment.message }}</blockquote>
+            <blockquote type="cite">{% trans comment_message=view.comment.message %}{{ comment_message }}{% endtrans %}</blockquote>
         </td>
     </tr>
     <br>
 
     {# Button : BEGIN #}
-    {{ cta_button(view.comment.url_for(_external=true, **view.tracking_tags()), "View comment" )}}
+    {{ cta_button(view.comment.url_for(_external=true, **view.tracking_tags()), gettext("View comment") )}}
     {# Button : END #}
 
     {# Email body : END #}

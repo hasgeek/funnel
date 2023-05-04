@@ -775,6 +775,8 @@ class RenderProjectCrewMembershipNotification(RenderShared, RenderNotification):
     """Render a notification for project crew invite/add/amend."""
 
     aliases = {'document': 'project', 'fragment': 'membership'}
+    hero_image = "https://images.hasgeek.com/embed/file/c01f3868f2954af196ae3acd32529218?size=196x163"
+    email_title = "Crew membership granted!"
     fragments_order_by = [ProjectCrewMembership.granted_at.desc()]
     template_picker = grant_amend_templates
 
@@ -800,6 +802,8 @@ class RenderProjectCrewMembershipRevokedNotification(RenderShared, RenderNotific
     """Render a notification for project crew revocation."""
 
     aliases = {'document': 'project', 'fragment': 'membership'}
+    hero_image = "https://images.hasgeek.com/embed/file/d99bbe687cc9479b8cdeb350476cbf13?size=196x139"
+    email_title = "Crew membership revoked"
     template_picker = revoke_templates
 
     def membership_actor(

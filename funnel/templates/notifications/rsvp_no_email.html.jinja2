@@ -1,24 +1,19 @@
 {% extends "notifications/layout_email.html.jinja2" %}
-{%- from "notifications/macros_email.html.jinja2" import hero_image, cta_button, body_footer -%}
+{%- from "notifications/macros_email.html.jinja2" import cta_button, rsvp_footer -%}
 {% block content -%}
 
-    {# Hero image centered : BEGIN #}
-    {{ hero_image("https://images.hasgeek.com/embed/file/9e785b5461b54e389c442d77c2abff71?size=196x134") }}
-    {# Hero image centered : END #}
-
     <tr align="center">
-        <td class="text-container">
-            <h1>{% trans %}Registration cancelled{% endtrans %}</h1>
-            <p>{% trans project=view.rsvp.project.joined_title %}You have cancelled your registration for <b>{{ project }}</b>.<br>If this was accidental, you can register again.{% endtrans %}</p><br>
+        <td class="text-content">
+            <p class="body-content">{% trans project=view.rsvp.project.joined_title %}You have cancelled your registration for <b>{{ project }}</b>.<br>If this was accidental, you can register again.{% endtrans %}</p><br>
         </td>
     </tr>
 
     {# Button : BEGIN #}
-    {{ cta_button(view.rsvp.project.url_for(_external=true, **view.tracking_tags()), "Project page" )}}
+    {{ cta_button(view.rsvp.project.url_for(_external=true, **view.tracking_tags()), gettext("Project page") )}}
     {# Button : END #}
 
     {# Email body footer : BEGIN #}
-    {{ body_footer(view, "Register again") }}
+    {{ rsvp_footer(view, gettext("Register again")) }}
     {# Email body footer : END #}
 
 {%- endblock content %}

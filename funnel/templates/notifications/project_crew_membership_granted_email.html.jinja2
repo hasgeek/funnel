@@ -1,24 +1,16 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
-{%- from "notifications/macros_email.html.jinja2" import hero_image, cta_button -%}
+{%- from "notifications/macros_email.html.jinja2" import cta_button -%}
 {%- block content -%}
 
-    {# Hero image centered : BEGIN #}
-    {{ hero_image("https://images.hasgeek.com/embed/file/c01f3868f2954af196ae3acd32529218?size=196x163") }}
-    {# Hero image centered : END #}
-
-    {# Email body : BEGIN #}
     <tr align="center">
-        <td class="text-container">
-            <h1>Crew membership granted!</h1>
-            <p>
-                {{ view.activity_html() }}
-            </p>
+        <td class="text-content">
+            <p class="body-content">{% trans activity_html=view.activity_html() %}{{ activity_html }}{% endtrans %}</p>
         </td>
     </tr>
     <br>
 
     {# Button : BEGIN #}
-    {{ cta_button(view.project.url_for('crew', _external=true, **view.tracking_tags()), "See all crew members" )}}
+    {{ cta_button(view.project.url_for('crew', _external=true, **view.tracking_tags()), gettext("See all crew members") )}}
     {# Button : END #}
 
     {# Email body : END #}

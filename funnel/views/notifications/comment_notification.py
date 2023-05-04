@@ -32,6 +32,8 @@ class RenderCommentReportReceivedNotification(RenderNotification):
     aliases = {'document': 'comment', 'fragment': 'report'}
     emoji_prefix = "💩 "
     reason = __("You are receiving this because you are a site admin")
+    hero_image = "https://images.hasgeek.com/embed/file/c914f2324f1e4b449beb15b272ce9f10?size=196x149"
+    email_title = "Spam alert!"
 
     def web(self) -> str:
         return render_template(
@@ -69,6 +71,8 @@ class CommentNotification(RenderNotification):
     comment: Comment
     aliases = {'fragment': 'comment'}
     emoji_prefix = "💬 "
+    hero_image = "https://images.hasgeek.com/embed/file/eb253bce19fd41ddb5ec84b225bd4dc2?size=196x165"
+    email_title = "New comment!"
 
     @property
     def actor(self) -> Union[User, DuckTypeUser]:

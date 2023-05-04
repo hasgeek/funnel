@@ -1,14 +1,10 @@
+{%- from "notifications/macros_email.html.jinja2" import hero_image -%}
 <!DOCTYPE html>
 <html lang="{{ get_locale() }}" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
     <meta charset="utf-8"> {# utf-8 works for most cases #}
-    <meta name="viewport" content="width=device-width"> {# Forcing initial-scale shouldn't be necessary #}
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"> {# Use the latest (edge) version of IE rendering engine #}
-    <meta name="x-apple-disable-message-reformatting">  {# Disable auto-scale in iOS 10 Mail entirely #}
-    <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no"> {# Tell iOS not to automatically link certain text strings. #}
     <meta name="color-scheme" content="light">
     <meta name="supported-color-schemes" content="light">
-    <title></title> {#   The title tag shows in email notifications, like Android 4.4. #}
 
     {# What it does: Makes background images in 72ppi Outlook render at correct size. #}
     <!--[if gte mso 9]>
@@ -39,8 +35,8 @@
 
         /* What it does: Tells the email client that only light styles are provided but the client can transform them to dark. A duplicate of meta color-scheme meta tag above. */
         :root {
-          color-scheme: light;
-          supported-color-schemes: light;
+            color-scheme: light;
+            supported-color-schemes: light;
         }
 
         /* What it does: Remove spaces around the email design added by some email clients. */
@@ -57,11 +53,6 @@
         * {
             -ms-text-size-adjust: 100%;
             -webkit-text-size-adjust: 100%;
-        }
-
-        /* What it does: Centers email on Android 4.4 */
-        div[style*="margin: 16px 0"] {
-            margin: 0 !important;
         }
 
         /* What it does: forces Samsung Android mail clients to use the entire viewport */
@@ -149,41 +140,41 @@
     {# Progressive Enhancements : BEGIN #}
     <style>
 
-	    /* What it does: Hover styles for buttons */
-	    .button-td,
-	    .button-a {
+        /* What it does: Hover styles for buttons */
+        .button-td,
+        .button-a {
             border-radius: 4px;
             background-color: #4d5763;
-	        transition: all 100ms ease-in;
+        transition: all 100ms ease-in;
             font-family: sans-serif;
             font-size: 15px;
             line-height: 15px;
             text-decoration: none;
-	    }
+        }
         .button-a {
             border: 1px solid #4d5763;
             padding: 13px 17px;
             color: #ffffff;
             display: block;
         }
-	    .button-td-primary:hover,
-	    .button-a-primary:hover {
-	        background-color: #1f2d3d !important;
-	        border-color: #1f2d3d !important;
-	    }
+        .button-td-primary:hover,
+        .button-a-primary:hover {
+            background-color: #1f2d3d !important;
+            border-color: #1f2d3d !important;
+        }
 
-	    /* Media Queries */
-	    @media screen and (max-width: 600px) {
+        /* Media Queries */
+        @media screen and (max-width: 600px) {
 
-	        /* What it does: Adjust typography on small screens to improve readability */
-	        .email-container p {
-	            font-size: 17px !important;
-	        }
-	    }
+            /* What it does: Adjust typography on small screens to improve readability */
+            .email-container p {
+                font-size: 17px !important;
+            }
+        }
 
         p {
             margin: 0 !important;
-            padding: 16px 0 0;
+            padding: 0;
             font-size: 15px;
             line-height: 20px;
             color: #1f2d3d;
@@ -222,7 +213,8 @@
             box-sizing: border-box;
         }
         .body-content {
-            margin: 0;
+            margin: 0 !important;
+            padding: 0 !important;
         }
         .header-container {
             padding: 16px 0;
@@ -278,8 +270,8 @@
         .side-border {
             height: auto;
         }
-        .spacer-8px {
-            border-top: 8px solid #ffffff;
+        .spacer-16px {
+            border-bottom: 16px solid #ffffff;
         }
         .email-content {
             font-family: Helvetica, sans-serif;
@@ -292,10 +284,18 @@
             background-color: #ffffff"
         }
         .text-container {
-            padding: 24px 0 16px;
+            margin:0 !important;
+            padding: 24px 0 8px;
+        }
+        .text-content {
+            margin: 0 !important;
+            padding: 0 0 16px;
+        }
+        .text-accent{
+            color: #9f9f9f;
         }
         .line-separator {
-            padding: 16px 0 8px;
+            padding: 16px 0 4px;
             border-bottom:1px solid #c0ccda;
         }
         .footer{
@@ -325,21 +325,21 @@
     </style>
 
 
-</head>
-{#
-	The email background color (#f0f0f0) is defined in three places:
-	1. body tag: for most email clients
-	2. center tag: for Gmail and Inbox mobile apps and web versions of Gmail, GSuite, Inbox, Yahoo, AOL, Libero, Comcast, freenet, Mail.ru, Orange.fr
-	3. mso conditional: For Windows 10 Mail
-#}
-<body>
+    </head>
+    {#
+    The email background color (#f0f0f0) is defined in three places:
+    1. body tag: for most email clients
+    2. center tag: for Gmail and Inbox mobile apps and web versions of Gmail, GSuite, Inbox, Yahoo, AOL, Libero, Comcast, freenet, Mail.ru, Orange.fr
+    3. mso conditional: For Windows 10 Mail
+    #}
+    <body>
     {%- block jsonld %}{%- if jsonld %}
-      <script type="application/ld+json">
+        <script type="application/ld+json">
         {{ jsonld|tojson }}
-      </script>
+        </script>
     {%- endif %}{%- endblock jsonld %}
 
-	<center role="article" aria-roledescription="email" lang="en">
+    <center role="article" aria-roledescription="email" lang="en">
     <!--[if mso | IE]>
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f0f0f0;">
     <tr>
@@ -428,8 +428,24 @@
 
 
                                 {# Email content : BEGIN #}
-                                <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">{% block content %}
-                                {% endblock content %}</table>
+                                <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                    {% if view %}
+                                        {# Hero image centered : BEGIN #}
+                                        {{ hero_image(view.hero_image) }}
+                                        {# Hero image centered : END #}
+
+                                       {# Email body : BEGIN #}
+                                        <tr align="center">
+                                            <td class="text-container">
+                                                <h1>{% trans email_title=view.email_title %}{{ email_title }}{% endtrans %}</h1>
+                                            </tr>
+                                        </td>
+                                    {% endif %}
+                                         {% block content %}{% endblock content %}
+
+                                    {# Email body : END #}
+
+                                </table>
                                 {# Email content : END #}
 
                                 <!--[if mso]>
@@ -492,7 +508,7 @@
         <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">{% block footer %}
             <tr>
                 <td class="footer">
-                    <b>Hasgeek Learning Private Limited</b><br>For general enquiries, email us at <span class="unstyle-auto-detected-links">info@hasgeek.com</span>.<br>For priority support requests, use <span class="unstyle-auto-detected-links">support@hasgeek.com</span><b><br>+91 7676 33 2020</b>
+                    <b>{% trans %}Hasgeek Learning Private Limited</b><br>For general enquiries, email us at <a href="mailto: info@hasgeek.com">info@hasgeek.com</a>.<br>For priority support requests, use <a href="mailto: support@hasgeek.com">support@hasgeek.com</a><br><a href="tel:+917676332020"><b>+91 7676 33 2020{% endtrans %}</b></a>
                     {%- if view %}
                     <br><br>
                     <a class="unsubscribe" href="{{ view.unsubscribe_url_email }}">{% trans %}Unsubscribe or manage preferences{% endtrans %}</a>

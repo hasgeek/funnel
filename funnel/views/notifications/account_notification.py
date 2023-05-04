@@ -20,6 +20,8 @@ class RenderAccountPasswordNotification(RenderNotification):
     user: User
     aliases = {'document': 'user'}
     emoji_prefix = "⚠️ "
+    hero_image = "https://images.hasgeek.com/embed/file/89f039083c5c400c86cf53e428f5752c?size=196x134"
+    email_title = "Password updated!"
 
     @property
     def actor(self):

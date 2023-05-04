@@ -1,28 +1,28 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
-{%- from "notifications/macros_email.html.jinja2" import hero_image, cta_button -%}
+{%- from "notifications/macros_email.html.jinja2" import cta_button -%}
 {%- block content -%}
 
-    {# Hero image centered : BEGIN #}
-    {{ hero_image("https://images.hasgeek.com/embed/file/85250bc8f2534f5cb4a5d3d4f97c2eb9?size=196x190") }}
-    {# Hero image centered : END #}
-
-    {# Email body : BEGIN #}
     <tr align="center">
-        <td class="text-container">
-            <h1>New update!</h1>
-            <p>
-                {% trans actor=view.actor.pickername, project=view.update.project.joined_title, project_url=view.update.project.url_for() %}
-                {{ actor }} posted an update in <a href="{{ project_url }}">{{ project }}</a>:
-                {% endtrans %}
-            </p>
-            <h3><a href="{{ view.update.url_for(_external=true, **view.tracking_tags()) }}">{{ view.update.title }}</a></h3>
-            {{ view.update.body }}
+        <td class="text-accent text-content">
+            <p>{% trans actor=view.actor.pickername, project=view.update.project.joined_title, project_url=view.update.project.url_for() %}{{ actor }} posted an update in <a href="{{ project_url }}">{{ project }}</a>:{% endtrans %}</p>
+        </td>
+    </tr>
+    <tr>
+        <td class="text-content line-separator"></td>
+    </tr>
+    <tr>
+        <td class="spacer-16px"></td>
+    </tr>
+    <tr align="center">
+        <td class="text-content">
+            <h3 class="text-content"><a href="{{ view.update.url_for(_external=true, **view.tracking_tags()) }}">{% trans update_title=view.update.title %}{{ update_title }}{% endtrans %}</a></h3>
+            {% trans update_body=view.update.body %}{{ update_body }}{% endtrans %}
         </td>
     </tr>
     <br>
 
     {# Button : BEGIN #}
-    {{ cta_button(view.update.url_for(_external=true, **view.tracking_tags()), "Read on the website" )}}
+    {{ cta_button(view.update.url_for(_external=true, **view.tracking_tags()), gettext("Read on the website") )}}
     {# Button : END #}
 
     {# Email body : END #}

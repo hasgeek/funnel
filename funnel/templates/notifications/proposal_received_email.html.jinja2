@@ -1,26 +1,16 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
-{%- from "notifications/macros_email.html.jinja2" import hero_image, cta_button -%}
+{%- from "notifications/macros_email.html.jinja2" import cta_button -%}
 {%- block content -%}
 
-    {# Hero image centered : BEGIN #}
-    {{ hero_image("https://images.hasgeek.com/embed/file/d44a84ac42b44e059a34a0a1641bdb61?size=196x151") }}
-    {# Hero image centered : END #}
-
-    {# Email body : BEGIN #}
     <tr align="center">
-        <td class="text-container">
-            <h1>New submission!</h1>
-            <p>
-                {% trans project=project.joined_title, proposal=proposal.title %}
-                Your project <b>{{ project }}</b> has a new submission: <b>{{ proposal }}</b>
-                {% endtrans %}
-            </p>
+        <td class="text-content">
+            <p class="body-content">{% trans project=project.joined_title, proposal=proposal.title %}Your project <b>{{ project }}</b> has a new submission: <b>{{ proposal }}</b>{% endtrans %}</p>
         </td>
     </tr>
     <br>
 
     {# Button : BEGIN #}
-    {{ cta_button(proposal.url_for(_external=true, **view.tracking_tags()), "Submission page" )}}
+    {{ cta_button(proposal.url_for(_external=true, **view.tracking_tags()), gettext("Submission page") )}}
     {# Button : END #}
 
     {# Email body : END #}

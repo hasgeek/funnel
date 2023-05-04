@@ -1,24 +1,16 @@
 {%- extends "notifications/layout_email.html.jinja2" -%}
-{%- from "notifications/macros_email.html.jinja2" import hero_image, cta_button -%}
+{%- from "notifications/macros_email.html.jinja2" import cta_button -%}
 {%- block content -%}
 
-    {# Hero image centered : BEGIN #}
-    {{ hero_image("https://images.hasgeek.com/embed/file/f82d0bc0138f420fae16a29fe872efee?size=196x156") }}
-    {# Hero image centered : END #}
-
-    {# Email body : BEGIN #}
     <tr align="center">
-        <td class="text-container">
-            <h1>Membership revoked</h1>
-            <p>
-                {{ view.activity_html() }}
-            </p>
+        <td class="text-content">
+            <p class="body-content">{% trans activity_html=view.activity_html() %}{{ activity_html }}{% endtrans %}</p>
         </td>
     </tr>
     <br>
 
     {# Button : BEGIN #}
-    {{ cta_button(view.organization.profile.url_for('members', _external=true, **view.tracking_tags()), "See all admins" )}}
+    {{ cta_button(view.organization.profile.url_for('members', _external=true, **view.tracking_tags()), gettext("See all admins") )}}
     {# Button : END #}
 
     {# Email body : END #}
