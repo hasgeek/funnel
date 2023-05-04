@@ -57,6 +57,7 @@
 // ],
 
 import { sprintf, vsprintf } from 'sprintf-js';
+import { AJAX_TIMEOUT } from '../constants';
 
 class Gettext {
   constructor(config) {
@@ -75,7 +76,7 @@ class Gettext {
         type: 'GET',
         url: this.getTranslationFileUrl(config.translatedLang),
         async: false,
-        timeout: window.Hasgeek.Config.ajaxTimeout,
+        timeout: AJAX_TIMEOUT,
         success(responseData) {
           domain = responseData.domain;
           catalog = responseData.locale_data.messages;
@@ -85,7 +86,7 @@ class Gettext {
         type: 'GET',
         url: this.getBaseframeTranslationFileUrl(config.translatedLang),
         async: false,
-        timeout: window.Hasgeek.Config.ajaxTimeout,
+        timeout: AJAX_TIMEOUT,
         success(responseData) {
           catalog = Object.assign(catalog, responseData.locale_data.messages);
         },

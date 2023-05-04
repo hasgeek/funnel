@@ -3,8 +3,8 @@
 {%- else -%}
   {% extends "ajaxform.html.jinja2" %}
 {% endif %}
-{% from "forms.html.jinja2" import ajaxform %}
 {% from "password_login_form.html.jinja2" import passwordlogin, sociallogin %}
+{% from "forms.html.jinja2" import recaptcha %}
 
 {% block pageheaders %}
   <link rel="stylesheet" type="text/css" href="{{ built_asset('css/login_form.scss') }}" />
@@ -30,3 +30,9 @@
 {% block afterloginbox %}
   <img class="login-page-artwork img-responsive" src="{{ url_for('static', filename='img/conversation.svg') }}" alt="{% trans %}Login{% endtrans %}"/>
 {% endblock afterloginbox %}
+
+{% block recaptcha %}
+  {%- if form and form.recaptcha is defined %}
+    {{ recaptcha(ref_id, formWrapperId='loginformwrapper', ajax=true) }}
+  {%- endif %}
+{% endblock recaptcha %}
