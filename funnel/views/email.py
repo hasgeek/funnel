@@ -6,7 +6,7 @@ from flask import render_template, url_for
 
 from baseframe import _
 
-from ..models import AccountEmailClaim, User
+from ..models import Account, AccountEmailClaim
 from ..transports.email import jsonld_confirm_action, jsonld_view_action, send_email
 
 
@@ -24,14 +24,14 @@ def send_email_verify_link(emailclaim: AccountEmailClaim) -> str:
     jsonld = jsonld_confirm_action(subject, url, _("Verify email address"))
     content = render_template(
         'email_account_verify.html.jinja2',
-        fullname=emailclaim.account.fullname,
+        fullname=emailclaim.account.title,
         url=url,
         jsonld=jsonld,
     )
     return send_email(subject, [(emailclaim.account.title, emailclaim.email)], content)
 
 
-def send_password_reset_link(email: str, user: User, otp: str, token: str) -> str:
+def send_password_reset_link(email: str, user: Account, otp: str, token: str) -> str:
     """Mail a password reset OTP and link to the user."""
     subject = _("Reset your password - OTP {otp}").format(otp=otp)
     url = url_for(
@@ -44,7 +44,7 @@ def send_password_reset_link(email: str, user: User, otp: str, token: str) -> st
     jsonld = jsonld_view_action(subject, url, _("Reset password"))
     content = render_template(
         'email_account_reset.html.jinja2',
-        fullname=user.fullname,
+        fullname=user.title,
         url=url,
         jsonld=jsonld,
         otp=otp,

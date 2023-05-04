@@ -8,7 +8,7 @@ from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 from coaster.sqlalchemy import LazyRoleSet
 
 from . import BaseMixin, UuidMixin, db, sa
-from .account import Account, Organization, User
+from .account import Account, Organization
 from .helpers import quote_autocomplete_like
 
 __all__ = ['Profile']
@@ -79,7 +79,7 @@ class Profile(
     }
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[Account] = None, anchors: Iterable = ()
     ) -> LazyRoleSet:
         """Identify roles for the given actor."""
         if self.owner:
@@ -121,12 +121,12 @@ class Profile(
 
         return (
             cls.query.options(sa.orm.defer(cls.is_active))
-            .join(User)
+            .join(Account)
             .filter(
-                User.state.ACTIVE,
+                Account.state.ACTIVE,
                 sa.or_(
                     cls.name_like(like_query),
-                    sa.func.lower(User.fullname).like(sa.func.lower(like_query)),
+                    sa.func.lower(Account.title).like(sa.func.lower(like_query)),
                 ),
             )
             .union(

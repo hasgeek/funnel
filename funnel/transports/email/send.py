@@ -16,7 +16,7 @@ from premailer import transform
 from baseframe import statsd
 
 from ... import app
-from ...models import EmailAddress, EmailAddressBlockedError, User
+from ...models import Account, EmailAddress, EmailAddressBlockedError
 from ..exc import TransportRecipientError
 
 __all__ = [
@@ -28,7 +28,7 @@ __all__ = [
 ]
 
 # Email recipient type
-EmailRecipient = Union[User, Tuple[Optional[str], str], str]
+EmailRecipient = Union[Account, Tuple[Optional[str], str], str]
 
 
 @dataclass
@@ -80,15 +80,15 @@ def process_recipient(recipient: EmailRecipient) -> str:
     :param recipient: Recipient of an email
     :returns: RFC 2822 formatted string email address
     """
-    if isinstance(recipient, User):
-        formatted = formataddr((recipient.fullname, str(recipient.email)))
+    if isinstance(recipient, Account):
+        formatted = formataddr((recipient.title, str(recipient.email)))
     elif isinstance(recipient, tuple):
         formatted = formataddr(recipient)
     elif isinstance(recipient, str):
         formatted = recipient
     else:
         raise ValueError(
-            "Not a valid email format. Provide either a User object, or a tuple of"
+            "Not a valid email format. Provide either an Account object, or a tuple of"
             " (realname, email), or a preformatted string with Name <email>"
         )
 
@@ -122,7 +122,7 @@ def send_email(
     Send an email.
 
     :param str subject: Subject line of email message
-    :param list to: List of recipients. May contain (a) User objects, (b) tuple of
+    :param list to: List of recipients. May contain (a) Account objects, (b) tuple of
         (name, email_address), or (c) a pre-formatted email address
     :param str content: HTML content of the message (plain text is auto-generated)
     :param list attachments: List of :class:`EmailAttachment` attachments

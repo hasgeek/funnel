@@ -7,12 +7,12 @@ from typing import Optional
 from baseframe import __, forms
 
 from ..models import (
+    Account,
     AccountEmail,
     Project,
     TicketClient,
     TicketEvent,
     TicketParticipant,
-    User,
     db,
 )
 
@@ -121,7 +121,7 @@ class TicketParticipantForm(forms.Form):
     """Form for a participant in a ticket."""
 
     __returns__ = ('user',)
-    user: Optional[User] = None
+    user: Optional[Account] = None
     edit_parent: Project
 
     fullname = forms.StringField(

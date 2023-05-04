@@ -5,7 +5,7 @@ from typing import Callable, List, Optional
 
 from baseframe import __
 
-from ..models import Account, User
+from ..models import Account
 from ..typing import ReturnDecorator, WrappedFunc
 
 # --- Delete validator registry --------------------------------------------------------
@@ -15,7 +15,7 @@ from ..typing import ReturnDecorator, WrappedFunc
 class DeleteValidator:
     """Delete validator metadata."""
 
-    validate: Callable[[User], bool]
+    validate: Callable[[Account], bool]
     name: str
     title: str
     message: str
@@ -48,7 +48,7 @@ def delete_validator(
     title=__("This account is protected"),
     message=__("Protected accounts cannot be deleted"),
 )
-def profile_is_protected(user: User) -> bool:
+def profile_is_protected(user: Account) -> bool:
     """Block deletion if the user has a protected account."""
     if user.is_protected:
         return False
@@ -62,7 +62,7 @@ def profile_is_protected(user: User) -> bool:
         " account can be deleted"
     ),
 )
-def single_owner_organization(user: User) -> bool:
+def single_owner_organization(user: Account) -> bool:
     """Fail if user is the sole owner of one or more organizations."""
     # TODO: Optimize org.owner_users lookup for large organizations
     return all(tuple(org.owner_users) != (user,) for org in user.organizations_as_owner)
@@ -75,7 +75,7 @@ def single_owner_organization(user: User) -> bool:
         " transferred to a new host before the account can be deleted"
     ),
 )
-def profile_has_projects(user: User) -> bool:
+def profile_has_projects(user: Account) -> bool:
     """Fail if user has projects in their account."""
     return user.is_safe_to_delete()
 
@@ -87,7 +87,7 @@ def profile_has_projects(user: User) -> bool:
         " can be deleted"
     ),
 )
-def user_owns_apps(user: User) -> bool:
+def user_owns_apps(user: Account) -> bool:
     """Fail if user is the owner of client apps."""
     if user.clients:
         return False
@@ -98,7 +98,7 @@ def user_owns_apps(user: User) -> bool:
 
 
 @Account.views()
-def validate_account_delete(obj: User) -> Optional[DeleteValidator]:
+def validate_account_delete(obj: Account) -> Optional[DeleteValidator]:
     """Validate if user account is safe to delete, returning an optional objection."""
     for validator in account_delete_validators:
         proceed = validator.validate(obj)

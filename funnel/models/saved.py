@@ -7,7 +7,7 @@ from typing import Iterable, Optional
 from coaster.sqlalchemy import LazyRoleSet, with_roles
 
 from . import Mapped, NoIdMixin, db, sa
-from .account import Account, User
+from .account import Account
 from .helpers import reopen
 from .project import Project
 from .session import Session
@@ -15,14 +15,14 @@ from .session import Session
 
 class SavedProject(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: User who saved this project
-    user_id = sa.Column(
+    user_id: Mapped[int] = sa.Column(
         sa.Integer,
         sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
     )
-    user: Mapped[User] = sa.orm.relationship(
-        User,
+    user: Mapped[Account] = sa.orm.relationship(
+        Account,
         backref=sa.orm.backref('saved_projects', lazy='dynamic', passive_deletes=True),
     )
     #: Project that was saved
@@ -45,7 +45,7 @@ class SavedProject(NoIdMixin, db.Model):  # type: ignore[name-defined]
     description = sa.Column(sa.UnicodeText, nullable=True)
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[Account] = None, anchors: Iterable = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None and actor == self.user:
@@ -65,14 +65,14 @@ class SavedProject(NoIdMixin, db.Model):  # type: ignore[name-defined]
 
 class SavedSession(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: User who saved this session
-    user_id = sa.Column(
+    user_id: Mapped[int] = sa.Column(
         sa.Integer,
         sa.ForeignKey('account.id', ondelete='CASCADE'),
         nullable=False,
         primary_key=True,
     )
-    user: Mapped[User] = sa.orm.relationship(
-        User,
+    user: Mapped[Account] = sa.orm.relationship(
+        Account,
         backref=sa.orm.backref('saved_sessions', lazy='dynamic', passive_deletes=True),
     )
     #: Session that was saved
@@ -95,7 +95,7 @@ class SavedSession(NoIdMixin, db.Model):  # type: ignore[name-defined]
     description = sa.Column(sa.UnicodeText, nullable=True)
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[Account] = None, anchors: Iterable = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None and actor == self.user:

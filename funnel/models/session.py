@@ -26,7 +26,7 @@ from . import (
     hybrid_property,
     sa,
 )
-from .account import User
+from .account import Account
 from .helpers import ImgeeType, add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
 from .project_membership import project_child_role_map
@@ -193,7 +193,7 @@ class Session(
     }
 
     @hybrid_property
-    def user(self) -> Optional[User]:
+    def user(self) -> Optional[Account]:
         if self.proposal is not None:
             return self.proposal.first_user
         return None  # type: ignore[unreachable]

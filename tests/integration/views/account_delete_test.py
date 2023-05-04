@@ -13,13 +13,13 @@ def given_protected_account(getuser, user: str) -> models.User:
 
 
 @given('they are the sole owner of Unseen University')
-def given_sole_owner(current_user: models.User, org_uu: models.Organization) -> None:
+def given_sole_owner(current_user: models.Account, org_uu: models.Organization) -> None:
     assert list(org_uu.owner_users) == [current_user]
 
 
 @given('they are a co-owner of Unseen University', target_fixture='org_owner')
 def given_coowner(
-    db_session, current_user: models.User, org_uu: models.Organization
+    db_session, current_user: models.Account, org_uu: models.Organization
 ) -> models.AccountAdminMembership:
     for membership in org_uu.active_admin_memberships:
         if membership.member == current_user:

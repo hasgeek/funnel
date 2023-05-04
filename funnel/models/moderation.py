@@ -9,7 +9,7 @@ from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
 from . import BaseMixin, Mapped, UuidMixin, db, sa
-from .account import Account, User
+from .account import Account
 from .comment import Comment
 from .helpers import reopen
 from .site_membership import SiteMembership
@@ -39,11 +39,11 @@ class CommentModeratorReport(
         foreign_keys=[comment_id],
         backref=sa.orm.backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
-    user_id = sa.Column(
+    user_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('account.id'), nullable=False, index=True
     )
-    user: Mapped[User] = sa.orm.relationship(
-        User,
+    user: Mapped[Account] = sa.orm.relationship(
+        Account,
         foreign_keys=[user_id],
         backref=sa.orm.backref('moderator_reports', cascade='all', lazy='dynamic'),
     )
@@ -106,7 +106,7 @@ class CommentModeratorReport(
 
     @property
     def users_who_are_comment_moderators(self):
-        return User.query.join(
+        return Account.query.join(
             SiteMembership, SiteMembership.member_id == Account.id
         ).filter(
             SiteMembership.is_active.is_(True),
@@ -118,7 +118,7 @@ class CommentModeratorReport(
 
 @reopen(Comment)
 class __Comment:
-    def is_reviewed_by(self, user: User) -> bool:
+    def is_reviewed_by(self, user: Account) -> bool:
         return db.session.query(
             db.session.query(CommentModeratorReport)
             .filter(

@@ -17,7 +17,7 @@ from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58
 
 from . import Mapped, RoleMixin, TimestampMixin, db, sa
-from .account import Account, User
+from .account import Account
 from .project import Project
 from .sync_ticket import TicketParticipant
 
@@ -55,11 +55,11 @@ class ContactExchange(
     __tablename__ = 'contact_exchange'
     __allow_unmapped__ = True
     #: User who scanned this contact
-    user_id = sa.Column(
+    user_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('account.id', ondelete='CASCADE'), primary_key=True
     )
-    user: Mapped[User] = sa.orm.relationship(
-        User,
+    user: Mapped[Account] = sa.orm.relationship(
+        Account,
         backref=sa.orm.backref(
             'scanned_contacts',
             lazy='dynamic',
@@ -102,7 +102,7 @@ class ContactExchange(
     }
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[Account] = None, anchors: Iterable = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None:
@@ -247,7 +247,7 @@ class ContactExchange(
 
     @classmethod
     def contacts_for_project_and_date(
-        cls, user: User, project: Project, date: date_type, archived=False
+        cls, user: Account, project: Project, date: date_type, archived=False
     ):
         """Return contacts for a given user, project and date."""
         query = cls.query.join(TicketParticipant).filter(

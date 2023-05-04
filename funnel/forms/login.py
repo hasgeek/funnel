@@ -122,7 +122,7 @@ class LoginForm(forms.RecaptchaForm):
     """
 
     __returns__ = ('user', 'anchor', 'weak_password', 'new_email', 'new_phone')
-    user: Optional[User] = None
+    user: Optional[Account] = None
     anchor: Optional[Union[AccountEmail, AccountEmailClaim, AccountPhone]] = None
     weak_password: Optional[bool] = None
     new_email: Optional[str] = None
@@ -251,7 +251,7 @@ class LogoutForm(forms.Form):
 
     __expects__ = ('user',)
     __returns__ = ('user_session',)
-    user: User
+    user: Account
     user_session: Optional[UserSession] = None
 
     # We use `StringField`` even though the field is not visible. This does not use

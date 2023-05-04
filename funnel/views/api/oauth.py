@@ -13,11 +13,11 @@ from coaster.utils import newsecret
 
 from ... import app
 from ...models import (
+    Account,
     AuthClient,
     AuthClientCredential,
     AuthCode,
     AuthToken,
-    User,
     UserSession,
     db,
     getuser,
@@ -350,7 +350,7 @@ def oauth_token_error(
 
 
 def oauth_make_token(
-    user: Optional[User],
+    user: Optional[Account],
     auth_client: AuthClient,
     scope: Iterable,
     user_session: Optional[UserSession] = None,
@@ -453,7 +453,7 @@ def oauth_token() -> ReturnView:
 
         if buid:
             if auth_client.trusted:
-                user = User.get(buid=buid)
+                user = Account.get(buid=buid)
                 if user is not None:
                     # This client is trusted and can receive a user access token.
                     # However, don't grant it the scope it wants as the user's

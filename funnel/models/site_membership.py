@@ -102,7 +102,7 @@ class SiteMembership(
         """
         Roles offered by this membership record.
 
-        This property will typically not be used, as the ``User.is_*`` properties
+        This property will typically not be used, as the ``Account.is_*`` properties
         directly test the role columns. This property exists solely to satisfy the
         :attr:`offered_roles` membership ducktype.
         """

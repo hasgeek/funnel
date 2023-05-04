@@ -10,13 +10,13 @@ from werkzeug.utils import cached_property
 from baseframe import _, __
 
 from ...models import (
+    Account,
     Comment,
     CommentModeratorReport,
     CommentReplyNotification,
     CommentReportReceivedNotification,
     DuckTypeAccount,
     NewCommentNotification,
-    User,
 )
 from ...transports.sms import OneLineTemplate
 from ..helpers import shortlink
@@ -71,12 +71,12 @@ class CommentNotification(RenderNotification):
     emoji_prefix = "💬 "
 
     @property
-    def actor(self) -> Union[User, DuckTypeAccount]:
+    def actor(self) -> Union[Account, DuckTypeAccount]:
         """Actor who commented."""
         return self.comment.user
 
     @cached_property
-    def commenters(self) -> List[User]:
+    def commenters(self) -> List[Account]:
         """List of unique users from across rolled-up comments. Could be singular."""
         # A set comprehension would have been simpler, but RoleAccessProxy isn't
         # hashable. Else: ``return {_c.user for _c in self.fragments}``

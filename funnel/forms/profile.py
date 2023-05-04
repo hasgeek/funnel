@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from baseframe import __, forms
 
-from ..models import Account, User
+from ..models import Account
 from .helpers import image_url_validator, nullable_strip_filters
 from .organization import OrganizationForm
 
@@ -26,7 +26,7 @@ class ProfileForm(OrganizationForm):
 
     __expects__ = ('account', 'user')
     account: Account
-    user: User
+    user: Account
 
     tagline = forms.StringField(
         __("Bio"),

@@ -20,7 +20,6 @@ from ...models import (
     AuthClientUserPermissions,
     AuthToken,
     Organization,
-    User,
     UserSession,
     db,
     getuser,
@@ -39,7 +38,7 @@ ReturnResource = Dict[str, Any]
 
 
 def get_userinfo(
-    user: User,
+    user: Account,
     auth_client: AuthClient,
     scope: Container[str] = (),
     user_session: Optional[UserSession] = None,
@@ -174,7 +173,7 @@ def user_get_by_userid() -> ReturnView:
     buid = abort_null(request.values.get('userid'))
     if not buid:
         return api_result('error', error='no_userid_provided')
-    user = User.get(buid=buid, defercols=True)
+    user = Account.get(buid=buid, defercols=True)
     if user is not None:
         return api_result(
             'ok',
@@ -219,7 +218,7 @@ def user_get_by_userids(userid: List[str]) -> ReturnView:
     if not userid:
         return api_result('error', error='no_userid_provided', _jsonp=True)
     # `userid` parameter is a list, not a scalar, since requestargs has `userid[]`
-    users = User.all(buids=userid)
+    users = Account.all(buids=userid)
     orgs = Organization.all(buids=userid)
     return api_result(
         'ok',
@@ -323,8 +322,8 @@ def user_autocomplete(q: str = '') -> ReturnView:
     """
     if not q:
         return api_result('error', error='no_query_provided')
-    # Limit length of query to User.fullname limit
-    q = q[: User.__title_length__]
+    # Limit length of query to Account.title limit
+    q = q[: Account.__title_length__]
 
     # Setup rate limiter to not count progressive typing or backspacing towards
     # attempts. That is, sending 'abc' after 'ab' will not count towards limits, but
@@ -349,7 +348,7 @@ def user_autocomplete(q: str = '') -> ReturnView:
         token=q,
         validator=progressive_rate_limit_validator,
     )
-    users = User.autocomplete(q)
+    users = Account.autocomplete(q)
     result = [
         {
             'userid': u.buid,
@@ -372,7 +371,7 @@ def profile_autocomplete(q: str = '') -> ReturnView:
     if not q:
         return api_result('error', error='no_query_provided')
 
-    # Limit length of query to User.fullname and Organization.title length limit
+    # Limit length of query to Account.title
     q = q[: Account.__title_length__]
 
     # Setup rate limiter to not count progressive typing or backspacing towards

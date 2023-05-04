@@ -13,8 +13,8 @@ from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles
 from coaster.utils import LabeledEnum
 
-from . import NoIdMixin, UuidMixin, db, sa
-from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone, User
+from . import Mapped, NoIdMixin, UuidMixin, db, sa
+from .account import Account, AccountEmail, AccountEmailClaim, AccountPhone
 from .helpers import reopen
 from .project import Project
 from .project_membership import project_child_role_map
@@ -46,12 +46,12 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
         read={'owner', 'project_promoter'},
         grants_via={None: project_child_role_map},
     )
-    user_id = sa.Column(
+    user_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('account.id'), nullable=False, primary_key=True
     )
     user = with_roles(
         sa.orm.relationship(
-            User, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
+            Account, backref=sa.orm.backref('rsvps', cascade='all', lazy='dynamic')
         ),
         read={'owner', 'project_promoter'},
         grants={'owner'},
@@ -162,26 +162,26 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     @overload
     @classmethod
-    def get_for(cls, project: Project, user: User, create: Literal[True]) -> Rsvp:
+    def get_for(cls, project: Project, user: Account, create: Literal[True]) -> Rsvp:
         ...
 
     @overload
     @classmethod
     def get_for(
-        cls, project: Project, user: User, create: Literal[False]
+        cls, project: Project, user: Account, create: Literal[False]
     ) -> Optional[Rsvp]:
         ...
 
     @overload
     @classmethod
     def get_for(
-        cls, project: Project, user: Optional[User], create=False
+        cls, project: Project, user: Optional[Account], create=False
     ) -> Optional[Rsvp]:
         ...
 
     @classmethod
     def get_for(
-        cls, project: Project, user: Optional[User], create=False
+        cls, project: Project, user: Optional[Account], create=False
     ) -> Optional[Rsvp]:
         if user is not None:
             result = cls.query.get((project.id, user.id))
@@ -196,27 +196,29 @@ class Rsvp(UuidMixin, NoIdMixin, db.Model):  # type: ignore[name-defined]
 class __Project:
     @property
     def active_rsvps(self):
-        return self.rsvps.join(User).filter(Rsvp.state.YES, User.state.ACTIVE)
+        return self.rsvps.join(Account).filter(Rsvp.state.YES, Account.state.ACTIVE)
 
     with_roles(active_rsvps, grants_via={Rsvp.user: {'participant'}})
 
     @overload
-    def rsvp_for(self, user: User, create: Literal[True]) -> Rsvp:
+    def rsvp_for(self, user: Account, create: Literal[True]) -> Rsvp:
         ...
 
     @overload
-    def rsvp_for(self, user: Optional[User], create: Literal[False]) -> Optional[Rsvp]:
+    def rsvp_for(
+        self, user: Optional[Account], create: Literal[False]
+    ) -> Optional[Rsvp]:
         ...
 
-    def rsvp_for(self, user: Optional[User], create=False) -> Optional[Rsvp]:
+    def rsvp_for(self, user: Optional[Account], create=False) -> Optional[Rsvp]:
         return Rsvp.get_for(cast(Project, self), user, create)
 
     def rsvps_with(self, status: str):
         return (
             cast(Project, self)
-            .rsvps.join(User)
+            .rsvps.join(Account)
             .filter(
-                User.state.ACTIVE,
+                Account.state.ACTIVE,
                 Rsvp._state == status,  # pylint: disable=protected-access
             )
         )
@@ -227,8 +229,8 @@ class __Project:
                 Rsvp._state,  # pylint: disable=protected-access
                 sa.func.count(Rsvp._state),  # pylint: disable=protected-access
             )
-            .join(User)
-            .filter(User.state.ACTIVE, Rsvp.project == self)
+            .join(Account)
+            .filter(Account.state.ACTIVE, Rsvp.project == self)
             .group_by(Rsvp._state)  # pylint: disable=protected-access
             .all()
         )
@@ -237,7 +239,7 @@ class __Project:
     def rsvp_count_going(self) -> int:
         return (
             cast(Project, self)
-            .rsvps.join(User)
-            .filter(User.state.ACTIVE, Rsvp.state.YES)
+            .rsvps.join(Account)
+            .filter(Account.state.ACTIVE, Rsvp.state.YES)
             .count()
         )

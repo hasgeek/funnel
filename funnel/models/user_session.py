@@ -9,7 +9,7 @@ from coaster.utils import utcnow
 
 from ..signals import session_revoked
 from . import BaseMixin, Mapped, UuidMixin, db, sa
-from .account import Account, User
+from .account import Account
 from .helpers import reopen
 
 __all__ = [
@@ -79,9 +79,12 @@ class UserSession(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'user_session'
     __allow_unmapped__ = True
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=False)
-    user: Mapped[User] = sa.orm.relationship(
-        User, backref=sa.orm.backref('all_user_sessions', cascade='all', lazy='dynamic')
+    user_id: Mapped[int] = sa.Column(
+        sa.Integer, sa.ForeignKey('account.id'), nullable=False
+    )
+    user: Mapped[Account] = sa.orm.relationship(
+        Account,
+        backref=sa.orm.backref('all_user_sessions', cascade='all', lazy='dynamic'),
     )
 
     #: User's last known IP address
@@ -139,7 +142,7 @@ class UserSession(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         """
         if silent:
             return (
-                cls.query.join(User)
+                cls.query.join(Account)
                 .filter(
                     # Session key must match.
                     cls.buid == buid,
@@ -147,14 +150,14 @@ class UserSession(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
                     cls.accessed_at > sa.func.utcnow() - USER_SESSION_VALIDITY_PERIOD,
                     # ...unless explicitly revoked (or user logged out).
                     cls.revoked_at.is_(None),
-                    # User account must be active
-                    User.state.ACTIVE,
+                    # Account must be active
+                    Account.state.ACTIVE,
                 )
                 .one_or_none()
             )
 
         # Not silent? Raise exceptions on expired and revoked sessions
-        user_session = cls.query.join(User).filter(cls.buid == buid).one_or_none()
+        user_session = cls.query.join(Account).filter(cls.buid == buid).one_or_none()
         if user_session is not None:
             if user_session.accessed_at <= utcnow() - USER_SESSION_VALIDITY_PERIOD:
                 raise UserSessionExpiredError(user_session)
@@ -171,7 +174,7 @@ class __Account:
         UserSession,
         lazy='dynamic',
         primaryjoin=sa.and_(
-            UserSession.user_id == User.id,
+            UserSession.user_id == Account.id,
             UserSession.accessed_at > sa.func.utcnow() - USER_SESSION_VALIDITY_PERIOD,
             UserSession.revoked_at.is_(None),
         ),

@@ -7,7 +7,7 @@ from typing import Optional
 from baseframe import _, __, forms
 from baseframe.forms.sqlalchemy import QuerySelectField
 
-from ..models import Project, Proposal, User
+from ..models import Account, Project, Proposal
 from .helpers import nullable_strip_filters, video_url_validator
 
 __all__ = [
@@ -242,7 +242,7 @@ class ProposalMoveForm(forms.Form):
     """Form to move a proposal to another project."""
 
     __expects__ = ('user',)
-    user: User
+    user: Account
 
     target = QuerySelectField(
         __("Move proposal to"),

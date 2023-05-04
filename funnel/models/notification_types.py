@@ -6,7 +6,7 @@ from baseframe import __
 
 from ..typing import UuidModelType
 from . import Mapped
-from .account import Account, Organization, User
+from .account import Account, Organization
 from .account_admin_membership import AccountAdminMembership
 from .comment import Comment, Commentset
 from .moderation import CommentModeratorReport
@@ -82,7 +82,7 @@ class AccountPasswordNotification(Notification, type='user_password_set'):
     title = __("When my account password changes")
     description = __("For your safety, in case this was not authorized")
 
-    document_model = User
+    document_model = Account
     exclude_actor = False
     roles = ['owner']
     for_private_recipient = True

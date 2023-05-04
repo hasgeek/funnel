@@ -18,7 +18,6 @@ from .account import (
     AccountExternalId,
     AccountPhone,
     Anchor,
-    User,
     db,
 )
 from .phone_number import PHONE_LOOKUP_REGIONS
@@ -44,12 +43,12 @@ class AccountAndAnchor(NamedTuple):
 
 
 @overload
-def getuser(name: str) -> Optional[User]:
+def getuser(name: str) -> Optional[Account]:
     ...
 
 
 @overload
-def getuser(name: str, anchor: Literal[False]) -> Optional[User]:
+def getuser(name: str, anchor: Literal[False]) -> Optional[Account]:
     ...
 
 
@@ -58,7 +57,9 @@ def getuser(name: str, anchor: Literal[True]) -> AccountAndAnchor:
     ...
 
 
-def getuser(name: str, anchor: bool = False) -> Union[Optional[User], AccountAndAnchor]:
+def getuser(
+    name: str, anchor: bool = False
+) -> Union[Optional[Account], AccountAndAnchor]:
     """
     Get an account with a matching name, email address or phone number.
 
@@ -111,7 +112,7 @@ def getuser(name: str, anchor: bool = False) -> Union[Optional[User], AccountAnd
             pass
 
     # Last guess: username
-    user = User.get(name=name)
+    user = Account.get(name=name)
 
     # If the caller wanted an anchor, try to return one (phone, then email) instead of
     # the user account

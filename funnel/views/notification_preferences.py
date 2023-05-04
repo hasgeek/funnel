@@ -17,10 +17,10 @@ from coaster.views import ClassView, render_with, requestargs, route
 from .. import app
 from ..forms import SetNotificationPreferenceForm, UnsubscribeForm, transport_labels
 from ..models import (
+    Account,
     EmailAddress,
     NotificationPreferences,
     PhoneNumber,
-    User,
     db,
     notification_categories,
     notification_type_registry,
@@ -196,7 +196,7 @@ class AccountNotificationView(ClassView):
             flash(unsubscribe_link_invalid, 'error')
             return render_redirect(url_for('notification_preferences'))
 
-        user = User.get(buid=payload['buid'])
+        user = Account.get(buid=payload['buid'])
         if user is None:
             current_app.logger.error(
                 "Auto unsubscribe view cannot find user with buid %s", payload['buid']
@@ -387,7 +387,7 @@ class AccountNotificationView(ClassView):
 
         # Step 6. Load the user. The contents of `payload` are defined in
         # :meth:`NotificationView.unsubscribe_token` above
-        user = User.get(buid=payload['buid'])
+        user = Account.get(buid=payload['buid'])
         if user is None:
             current_app.logger.error(
                 "Unsubscribe view cannot find user with buid %s", payload['buid']

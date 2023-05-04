@@ -7,7 +7,7 @@ from flask import render_template, url_for
 from baseframe import _
 
 from ... import app
-from ...models import AccountPasswordNotification, User
+from ...models import Account, AccountPasswordNotification
 from ...transports.sms import OneLineTemplate
 from ..helpers import shortlink
 from ..notification import RenderNotification
@@ -17,7 +17,7 @@ from ..notification import RenderNotification
 class RenderAccountPasswordNotification(RenderNotification):
     """Notify user when their password is changed."""
 
-    user: User
+    user: Account
     aliases = {'document': 'user'}
     emoji_prefix = "⚠️ "
 

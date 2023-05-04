@@ -10,7 +10,7 @@ import os
 from coaster.sqlalchemy import LazyRoleSet
 
 from . import BaseMixin, BaseScopedNameMixin, Mapped, UuidMixin, db, sa, with_roles
-from .account import AccountEmail, User
+from .account import Account, AccountEmail
 from .email_address import EmailAddress, EmailAddressMixin
 from .helpers import reopen
 from .project import Project
@@ -236,9 +236,11 @@ class TicketParticipant(
         sa.Unicode(44), nullable=False, default=make_private_key, unique=True
     )
     badge_printed = sa.Column(sa.Boolean, default=False, nullable=False)
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=True)
-    user: Mapped[Optional[User]] = sa.orm.relationship(
-        User, backref=sa.orm.backref('ticket_participants', cascade='all')
+    user_id: Mapped[Optional[int]] = sa.Column(
+        sa.Integer, sa.ForeignKey('account.id'), nullable=True
+    )
+    user: Mapped[Optional[Account]] = sa.orm.relationship(
+        Account, backref=sa.orm.backref('ticket_participants', cascade='all')
     )
     project_id = sa.Column(sa.Integer, sa.ForeignKey('project.id'), nullable=False)
     project: Mapped[Project] = with_roles(
@@ -258,7 +260,7 @@ class TicketParticipant(
     }
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[Account] = None, anchors: Iterable = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if actor is not None:

@@ -21,7 +21,7 @@ from . import (
     db,
     sa,
 )
-from .account import Account, User
+from .account import Account
 from .comment import SET_TYPE, Commentset
 from .helpers import add_search_trigger, reopen, visual_field_delimiter
 from .project import Project
@@ -458,7 +458,7 @@ class Proposal(  # type: ignore[misc]
         )
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[Account] = None, anchors: Iterable = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if self.state.DRAFT:

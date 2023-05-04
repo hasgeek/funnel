@@ -121,7 +121,7 @@ from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
 from ..typing import T, UuidModelType
 from . import BaseMixin, Mapped, NoIdMixin, UUIDType, db, hybrid_property, sa
-from .account import Account, AccountEmail, AccountPhone, User
+from .account import Account, AccountEmail, AccountPhone
 from .helpers import reopen
 from .phone_number import PhoneNumber, PhoneNumberMixin
 
@@ -154,7 +154,7 @@ class NotificationCategory:
 
     priority_id: int
     title: str
-    available_for: Callable[[User], bool]
+    available_for: Callable[[Account], bool]
 
 
 #: Registry of notification categories
@@ -266,7 +266,7 @@ class NotificationType(Protocol):
     fragment: Any
     fragment_uuid: Optional[UUID]
     user_id: Optional[int]
-    user: Optional[User]
+    user: Optional[Account]
 
 
 class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
@@ -353,7 +353,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: User that triggered this notification. Optional, as not all notifications are
     #: caused by user activity. Used to optionally exclude user from receiving
     #: notifications of their own activity
-    user: Mapped[Optional[User]] = sa.orm.relationship(User)
+    user: Mapped[Optional[Account]] = sa.orm.relationship(Account)
 
     #: UUID of document that the notification refers to
     document_uuid: Mapped[UUID] = immutable(
@@ -645,7 +645,7 @@ class PreviewNotification(NotificationType):
         cls: Type[Notification],
         document: UuidModelType,
         fragment: Optional[UuidModelType] = None,
-        user: Optional[User] = None,
+        user: Optional[Account] = None,
     ) -> None:
         self.eventid = uuid4()
         self.id = uuid4()
@@ -755,8 +755,8 @@ class UserNotification(
     )
 
     #: User being notified (backref defined below, outside the model)
-    user: Mapped[User] = with_roles(
-        sa.orm.relationship(User), read={'owner'}, grants={'owner'}
+    user: Mapped[Account] = with_roles(
+        sa.orm.relationship(Account), read={'owner'}, grants={'owner'}
     )
 
     #: Random eventid, shared with the Notification instance
@@ -1103,12 +1103,12 @@ class UserNotification(
         )
 
     @classmethod
-    def get_for(cls, user: User, eventid_b58: str) -> Optional[UserNotification]:
+    def get_for(cls, user: Account, eventid_b58: str) -> Optional[UserNotification]:
         """Retrieve a :class:`UserNotification` using SQLAlchemy session cache."""
         return cls.query.get((user.id, uuid_from_base58(eventid_b58)))
 
     @classmethod
-    def web_notifications_for(cls, user: User, unread_only: bool = False) -> Query:
+    def web_notifications_for(cls, user: Account, unread_only: bool = False) -> Query:
         """Return web notifications for a user, optionally returning unread-only."""
         query = UserNotification.query.join(Notification).filter(
             Notification.type.in_(notification_web_types),
@@ -1120,7 +1120,7 @@ class UserNotification(
         return query.order_by(Notification.created_at.desc())
 
     @classmethod
-    def unread_count_for(cls, user: User) -> int:
+    def unread_count_for(cls, user: Account) -> int:
         """Return unread notification count for a user."""
         return (
             UserNotification.query.join(Notification)
@@ -1160,7 +1160,7 @@ class NotificationFor(UserNotificationMixin):
     views = Registry()
 
     def __init__(
-        self, notification: Union[Notification, PreviewNotification], user: User
+        self, notification: Union[Notification, PreviewNotification], user: Account
     ) -> None:
         self.notification = notification
         self.eventid = notification.eventid
@@ -1206,7 +1206,7 @@ class NotificationPreferences(BaseMixin, db.Model):  # type: ignore[name-defined
     )
     #: User whose preferences are represented here
     user = with_roles(
-        sa.orm.relationship(User, back_populates='notification_preferences'),
+        sa.orm.relationship(Account, back_populates='notification_preferences'),
         read={'owner'},
         grants={'owner'},
     )
@@ -1356,7 +1356,7 @@ class __Account:
     _main_notification_preferences = sa.orm.relationship(
         NotificationPreferences,
         primaryjoin=sa.and_(
-            NotificationPreferences.user_id == User.id,
+            NotificationPreferences.user_id == Account.id,
             NotificationPreferences.notification_type == '',
         ),
         uselist=False,

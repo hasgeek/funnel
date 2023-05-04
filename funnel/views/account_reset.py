@@ -25,7 +25,7 @@ from coaster.views import requestargs
 
 from .. import app
 from ..forms import OtpForm, PasswordCreateForm, PasswordResetRequestForm
-from ..models import AccountPasswordNotification, User, db
+from ..models import Account, AccountPasswordNotification, db
 from ..registry import login_registry
 from ..serializers import token_serializer
 from ..typing import ReturnView
@@ -63,7 +63,7 @@ def reset() -> ReturnView:
         user = form.user
         anchor = form.anchor
         if TYPE_CHECKING:
-            assert isinstance(user, User)  # nosec
+            assert isinstance(user, Account)  # nosec
         if not anchor:
             # User has no phone or email. Maybe they logged in via Twitter
             # and set a local username and password, but no email. Could happen
@@ -227,7 +227,7 @@ def reset_with_token_do() -> ReturnView:
         return render_redirect(url_for('reset'))
 
     # 3. We have a token and it's not expired. Is there a user?
-    user = User.get(buid=token['buid'])
+    user = Account.get(buid=token['buid'])
     if user is None:
         # If the user has disappeared, it's likely because this is a dev instance and
         # the local database has been dropped -- or a future scenario in which db entry

@@ -25,7 +25,7 @@ from . import (
     db,
     sa,
 )
-from .account import Account, User
+from .account import Account
 from .comment import SET_TYPE, Commentset
 from .helpers import (
     MarkdownCompositeDocument,
@@ -80,12 +80,12 @@ class Update(
     )
     state = StateManager('_state', UPDATE_STATE, doc="Update state")
 
-    user_id = sa.Column(
+    user_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('account.id'), nullable=False, index=True
     )
-    user = with_roles(
+    user: Mapped[Account] = with_roles(
         sa.orm.relationship(
-            User,
+            Account,
             backref=sa.orm.backref('updates', lazy='dynamic'),
             foreign_keys=[user_id],
         ),
@@ -123,12 +123,12 @@ class Update(
         sa.Column(sa.Boolean, default=False, nullable=False), read={'all'}
     )
 
-    published_by_id = sa.Column(
+    published_by_id: Mapped[Optional[int]] = sa.Column(
         sa.Integer, sa.ForeignKey('account.id'), nullable=True, index=True
     )
-    published_by: Mapped[Optional[User]] = with_roles(
+    published_by: Mapped[Optional[Account]] = with_roles(
         sa.orm.relationship(
-            User,
+            Account,
             backref=sa.orm.backref('published_updates', lazy='dynamic'),
             foreign_keys=[published_by_id],
         ),
@@ -138,12 +138,12 @@ class Update(
         sa.Column(sa.TIMESTAMP(timezone=True), nullable=True), read={'all'}
     )
 
-    deleted_by_id = sa.Column(
+    deleted_by_id: Mapped[Optional[int]] = sa.Column(
         sa.Integer, sa.ForeignKey('account.id'), nullable=True, index=True
     )
-    deleted_by: Mapped[Optional[User]] = with_roles(
+    deleted_by: Mapped[Optional[Account]] = with_roles(
         sa.orm.relationship(
-            User,
+            Account,
             backref=sa.orm.backref('deleted_updates', lazy='dynamic'),
             foreign_keys=[deleted_by_id],
         ),
@@ -340,7 +340,7 @@ class Update(
     with_roles(is_currently_restricted, read={'all'})
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[Account] = None, anchors: Iterable = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         if not self.visibility_state.RESTRICTED:

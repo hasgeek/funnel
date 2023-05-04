@@ -17,7 +17,7 @@ from typing_extensions import Literal
 from coaster.sqlalchemy import immutable, with_roles
 
 from . import Mapped, NoIdMixin, UrlType, db, hybrid_property, sa
-from .account import User
+from .account import Account
 from .helpers import profanity
 
 __all__ = ['Shortlink']
@@ -201,11 +201,11 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
         read={'all'},
     )
     #: Id of user who created this shortlink (optional)
-    user_id = sa.Column(
+    user_id: Mapped[Optional[int]] = sa.Column(
         sa.Integer, sa.ForeignKey('account.id', ondelete='SET NULL'), nullable=True
     )
     #: User who created this shortlink (optional)
-    user: Mapped[Optional[User]] = sa.orm.relationship(User)
+    user: Mapped[Optional[Account]] = sa.orm.relationship(Account)
 
     #: Is this link enabled? If not, render 410 Gone
     enabled = sa.Column(sa.Boolean, nullable=False, default=True)
@@ -257,7 +257,7 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
         name: Optional[str] = None,
         shorter: bool = False,
         reuse: Literal[False] = False,
-        actor: Optional[User] = None,
+        actor: Optional[Account] = None,
     ) -> Shortlink:
         ...
 
@@ -270,7 +270,7 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
         name: Literal[None] = None,
         shorter: bool = False,
         reuse: Literal[True] = True,
-        actor: Optional[User] = None,
+        actor: Optional[Account] = None,
     ) -> Shortlink:
         ...
 
@@ -282,7 +282,7 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
         name: Optional[str] = None,
         shorter: bool = False,
         reuse: bool = False,
-        actor: Optional[User] = None,
+        actor: Optional[Account] = None,
     ) -> Shortlink:
         """
         Create a new shortlink.

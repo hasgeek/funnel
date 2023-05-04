@@ -23,7 +23,7 @@ from . import (
     hybrid_property,
     sa,
 )
-from .account import Account, DuckTypeAccount, User, deleted_account, removed_account
+from .account import Account, DuckTypeAccount, deleted_account, removed_account
 from .helpers import MessageComposite, add_search_trigger, reopen
 
 __all__ = ['Comment', 'Commentset']
@@ -152,7 +152,7 @@ class Commentset(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     with_roles(last_comment, read={'all'}, datasets={'primary'})
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[Account] = None, anchors: Iterable = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         parent_roles = self.parent.roles_for(actor, anchors)
@@ -195,10 +195,12 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     __tablename__ = 'comment'
     __allow_unmapped__ = True
 
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('account.id'), nullable=True)
-    _user: Mapped[Optional[User]] = with_roles(
+    user_id: Mapped[Optional[int]] = sa.Column(
+        sa.Integer, sa.ForeignKey('account.id'), nullable=True
+    )
+    _user: Mapped[Optional[Account]] = with_roles(
         sa.orm.relationship(
-            User, backref=sa.orm.backref('comments', lazy='dynamic', cascade='all')
+            Account, backref=sa.orm.backref('comments', lazy='dynamic', cascade='all')
         ),
         grants={'author'},
     )
@@ -290,7 +292,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     with_roles(current_access_replies, read={'all'}, datasets={'related', 'json'})
 
     @hybrid_property
-    def user(self) -> Union[User, DuckTypeAccount]:
+    def user(self) -> Union[Account, DuckTypeAccount]:
         return (
             deleted_account
             if self.state.DELETED
@@ -300,7 +302,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         )
 
     @user.setter
-    def user(self, value: Optional[User]) -> None:
+    def user(self, value: Optional[Account]) -> None:
         self._user = value
 
     @user.expression
@@ -400,7 +402,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
         """Mark this comment as not spam."""
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[Account] = None, anchors: Iterable = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         roles.add('reader')

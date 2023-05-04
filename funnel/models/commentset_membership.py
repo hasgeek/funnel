@@ -10,7 +10,7 @@ from werkzeug.utils import cached_property
 from coaster.sqlalchemy import DynamicAssociationProxy, Query, with_roles
 
 from . import Mapped, db, sa
-from .account import Account, User
+from .account import Account
 from .comment import Comment, Commentset
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
@@ -94,13 +94,13 @@ class CommentsetMembership(
         self.last_seen_at = sa.func.utcnow()
 
     @classmethod
-    def for_user(cls, user: User) -> Query:
+    def for_user(cls, user: Account) -> Query:
         """
         Return a query representing all active commentset memberships for a user.
 
         This classmethod mirrors the functionality in
-        :attr:`User.active_commentset_memberships` with the difference that since it's
-        a query on the class, it returns an instance of the query subclass from
+        :attr:`Account.active_commentset_memberships` with the difference that since
+        it's a query on the class, it returns an instance of the query subclass from
         Flask-SQLAlchemy and Coaster. Relationships use the main class from SQLAlchemy
         which is missing pagination and the empty/notempty methods.
         """
@@ -165,14 +165,14 @@ class __Commentset:
         grants_via={'user': {'document_subscriber'}},
     )
 
-    def update_last_seen_at(self, user: User) -> None:
+    def update_last_seen_at(self, user: Account) -> None:
         subscription = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
         ).one_or_none()
         if subscription is not None:
             subscription.update_last_seen_at()
 
-    def add_subscriber(self, actor: Account, user: User) -> bool:
+    def add_subscriber(self, actor: Account, user: Account) -> bool:
         """Return True is subscriber is added or unmuted, False if already exists."""
         changed = False
         subscription = CommentsetMembership.query.filter_by(
@@ -192,7 +192,7 @@ class __Commentset:
         subscription.update_last_seen_at()
         return changed
 
-    def mute_subscriber(self, actor: Account, user: User) -> bool:
+    def mute_subscriber(self, actor: Account, user: Account) -> bool:
         """Return True if subscriber was muted, False if already muted or missing."""
         subscription = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
@@ -202,7 +202,7 @@ class __Commentset:
             return True
         return False
 
-    def unmute_subscriber(self, actor: Account, user: User) -> bool:
+    def unmute_subscriber(self, actor: Account, user: Account) -> bool:
         """Return True if subscriber was unmuted, False if not muted or missing."""
         subscription = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True
@@ -212,7 +212,7 @@ class __Commentset:
             return True
         return False
 
-    def remove_subscriber(self, actor: Account, user: User) -> bool:
+    def remove_subscriber(self, actor: Account, user: Account) -> bool:
         """Return True is subscriber is removed, False if already removed."""
         subscription = CommentsetMembership.query.filter_by(
             commentset=self, user=user, is_active=True

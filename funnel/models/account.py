@@ -355,7 +355,7 @@ class Account(
         """User has any contact information (including unverified)."""
         return self.has_verified_contact_info or bool(self.emailclaims)
 
-    def merged_account(self) -> User:
+    def merged_account(self) -> Account:
         """Return the account that this account was merged into (default: self)."""
         if self.state.MERGED:
             # If our state is MERGED, there _must_ be a corresponding AccountOldId
@@ -685,7 +685,7 @@ class Account(
         return None
 
     @property
-    def _self_is_owner_and_admin_of_self(self) -> User:
+    def _self_is_owner_and_admin_of_self(self) -> Account:
         """
         Return self.
 
@@ -919,7 +919,7 @@ class Account(
         return cls.query.filter(cls.profile_state.PUBLIC)
 
     @classmethod
-    def autocomplete(cls, prefix: str) -> List[User]:
+    def autocomplete(cls, prefix: str) -> List[Account]:
         """
         Return accounts whose names begin with the prefix, for autocomplete UI.
 
@@ -936,12 +936,12 @@ class Account(
             cls.query.filter(
                 cls.state.ACTIVE,
                 sa.or_(
-                    sa.func.lower(cls.fullname).like(sa.func.lower(like_query)),
+                    sa.func.lower(cls.title).like(sa.func.lower(like_query)),
                     cls.name_like(like_query),
                 ),
             )
             .options(*cls._defercols())
-            .order_by(User.fullname)
+            .order_by(Account.title)
             .limit(20)
         )
 
@@ -953,7 +953,7 @@ class Account(
             # @-prefixed, so look for usernames, including other @username-using
             # services like Twitter and GitHub. Make a union of three queries.
             users = (
-                # Query 1: @query -> User.username
+                # Query 1: @query -> Account.name
                 cls.query.filter(
                     cls.state.ACTIVE,
                     cls.name_like(like_query[1:]),
@@ -975,10 +975,10 @@ class Account(
                 #     )
                 #     .options(*cls._defercols())
                 #     .limit(20),
-                #     # Query 3: like_query -> User.fullname
+                #     # Query 3: like_query -> Account.title
                 #     cls.query.filter(
                 #         cls.state.ACTIVE,
-                #         sa.func.lower(cls.fullname).like(sa.func.lower(like_query)),
+                #         sa.func.lower(cls.title).like(sa.func.lower(like_query)),
                 #     )
                 #     .options(*cls._defercols())
                 #     .limit(20),
@@ -1136,7 +1136,7 @@ class User(Account):
 
 
 # XXX: Deprecated, still here for Baseframe compatibility
-User.userid = User.uuid_b64
+Account.userid = Account.uuid_b64
 
 
 class DuckTypeAccount(RoleMixin):
@@ -1155,10 +1155,10 @@ class DuckTypeAccount(RoleMixin):
     email: None = None
     phone: None = None
 
-    # Copy registries from User model
-    views = User.views
-    features = User.features
-    forms = User.forms
+    # Copy registries from Account model
+    views = Account.views
+    features = Account.features
+    forms = Account.forms
 
     __roles__ = {
         'all': {
@@ -1237,7 +1237,7 @@ class Organization(Account):
 
     __mapper_args__ = {'polymorphic_identity': 'O'}
 
-    def __init__(self, owner: User, *args, **kwargs) -> None:
+    def __init__(self, owner: Account, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         db.session.add(
             AccountAdminMembership(
@@ -1248,11 +1248,11 @@ class Organization(Account):
     def people(self) -> Query:
         """Return a list of users from across the public teams they are in."""
         return (
-            User.query.join(team_membership)
+            Account.query.join(team_membership)
             .join(Team)
             .filter(Team.account == self, Team.is_public.is_(True))
-            .options(sa.orm.joinedload(User.member_teams))
-            .order_by(sa.func.lower(User.fullname))
+            .options(sa.orm.joinedload(Account.member_teams))
+            .order_by(sa.func.lower(Account.title))
         )
 
 
@@ -1443,7 +1443,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name
     @classmethod
     def get_for(
         cls,
-        user: User,
+        user: Account,
         *,
         email: str,
     ) -> Optional[AccountEmail]:
@@ -1453,7 +1453,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name
     @classmethod
     def get_for(
         cls,
-        user: User,
+        user: Account,
         *,
         blake2b160: bytes,
     ) -> Optional[AccountEmail]:
@@ -1463,7 +1463,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name
     @classmethod
     def get_for(
         cls,
-        user: User,
+        user: Account,
         *,
         email_hash: str,
     ) -> Optional[AccountEmail]:
@@ -1472,7 +1472,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name
     @classmethod
     def get_for(
         cls,
-        user: User,
+        user: Account,
         *,
         email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
@@ -1481,7 +1481,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name
         """
         Return instance with matching email or hash if it belongs to the given user.
 
-        :param User user: User to look up for
+        :param user: Account to look up for
         :param email: Email address to look up
         :param blake2b160: 160-bit blake2b of email address
         :param email_hash: blake2b hash rendered in Base58
@@ -1577,7 +1577,7 @@ class AccountEmailClaim(
     @classmethod
     def get_for(
         cls,
-        user: User,
+        user: Account,
         *,
         email: str,
     ) -> Optional[AccountEmailClaim]:
@@ -1587,7 +1587,7 @@ class AccountEmailClaim(
     @classmethod
     def get_for(
         cls,
-        user: User,
+        user: Account,
         *,
         blake2b160: bytes,
     ) -> Optional[AccountEmailClaim]:
@@ -1597,7 +1597,7 @@ class AccountEmailClaim(
     @classmethod
     def get_for(
         cls,
-        user: User,
+        user: Account,
         *,
         email_hash: str,
     ) -> Optional[AccountEmailClaim]:
@@ -1606,7 +1606,7 @@ class AccountEmailClaim(
     @classmethod
     def get_for(
         cls,
-        user: User,
+        user: Account,
         *,
         email: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
@@ -1615,7 +1615,7 @@ class AccountEmailClaim(
         """
         Return an AccountEmailClaim with matching email address for the given user.
 
-        :param User user: User who claimed this email address
+        :param User user: Account that claimed this email address
         :param str email: Email address to look up
         :param bytes blake2b160: 160-bit blake2b of email address to look up
         :param str email_hash: Base58 rendering of 160-bit blake2b hash
@@ -1815,7 +1815,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-
     @classmethod
     def get_for(
         cls,
-        user: User,
+        user: Account,
         *,
         phone: str,
     ) -> Optional[AccountPhone]:
@@ -1825,7 +1825,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-
     @classmethod
     def get_for(
         cls,
-        user: User,
+        user: Account,
         *,
         blake2b160: bytes,
     ) -> Optional[AccountPhone]:
@@ -1835,7 +1835,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-
     @classmethod
     def get_for(
         cls,
-        user: User,
+        user: Account,
         *,
         phone_hash: str,
     ) -> Optional[AccountPhone]:
@@ -1844,7 +1844,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-
     @classmethod
     def get_for(
         cls,
-        user: User,
+        user: Account,
         *,
         phone: Optional[str] = None,
         blake2b160: Optional[bytes] = None,
@@ -1853,7 +1853,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-
         """
         Return an instance with matching phone or hash if it belongs to the given user.
 
-        :param User user: User to look up for
+        :param user: Account to look up for
         :param phone: Email address to look up
         :param blake2b160: 160-bit blake2b of phone number
         :param phone_hash: blake2b hash rendered in Base58

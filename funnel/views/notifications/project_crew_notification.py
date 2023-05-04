@@ -10,12 +10,12 @@ from flask import Markup, escape, render_template
 from baseframe import _, __
 
 from ...models import (
+    Account,
     NotificationType,
     Project,
     ProjectCrewMembership,
     ProjectCrewMembershipNotification,
     ProjectCrewMembershipRevokedNotification,
-    User,
     UserNotification,
 )
 from ...transports.sms import OneLineTemplate
@@ -696,12 +696,12 @@ class RenderShared:
 
     def membership_actor(
         self, membership: Optional[ProjectCrewMembership] = None
-    ) -> Optional[User]:
+    ) -> Optional[Account]:
         """Actor who granted or revoked, for the template."""
         raise NotImplementedError("Subclasses must implement `membership_actor`")
 
     @property
-    def actor(self) -> User:
+    def actor(self) -> Account:
         """
         We're interested in who has the membership, not who granted/revoked it.
 
@@ -780,7 +780,7 @@ class RenderProjectCrewMembershipNotification(RenderShared, RenderNotification):
 
     def membership_actor(
         self, membership: Optional[ProjectCrewMembership] = None
-    ) -> User:
+    ) -> Account:
         """Actual actor who granted (or edited) the membership, for the template."""
         return (membership or self.membership).granted_by
 
@@ -804,7 +804,7 @@ class RenderProjectCrewMembershipRevokedNotification(RenderShared, RenderNotific
 
     def membership_actor(
         self, membership: Optional[ProjectCrewMembership] = None
-    ) -> Optional[User]:
+    ) -> Optional[Account]:
         """Actual actor who revoked the membership, for the template."""
         return (membership or self.membership).revoked_by
 

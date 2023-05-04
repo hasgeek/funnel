@@ -8,7 +8,7 @@ from flask import Markup, url_for
 
 from baseframe import _, __, forms
 
-from ..models import Account, Organization, Team, User
+from ..models import Account, Organization, Team
 
 __all__ = ['OrganizationForm', 'TeamForm']
 
@@ -18,7 +18,7 @@ class OrganizationForm(forms.Form):
     """Form for an organization's name and title."""
 
     __expects__: Iterable[str] = ('user',)
-    user: User
+    user: Account
     edit_obj: Optional[Organization]
 
     title = forms.StringField(

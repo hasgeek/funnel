@@ -9,7 +9,7 @@ from flask import Markup, url_for
 
 from baseframe import __, forms
 
-from ..models import Account, User, notification_type_registry
+from ..models import Account, notification_type_registry
 from ..transports import platform_transports
 
 __all__ = [
@@ -120,7 +120,7 @@ class UnsubscribeForm(forms.Form):
     """Form to unsubscribe from notifications."""
 
     __expects__ = ('transport', 'notification_type')
-    edit_obj: User
+    edit_obj: Account
     transport: str
     notification_type: str
 

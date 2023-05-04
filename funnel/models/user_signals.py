@@ -25,26 +25,26 @@ from ..signals import (
     model_user_new,
 )
 from .account import (
+    Account,
     AccountEmail,
     AccountEmailClaim,
     AccountPhone,
     Organization,
     Team,
-    User,
 )
 
 
-@event.listens_for(User, 'after_insert')
+@event.listens_for(Account, 'after_insert')
 def _user_new(_mapper, _connection, target):
     model_user_new.send(target)
 
 
-@event.listens_for(User, 'after_update')
+@event.listens_for(Account, 'after_update')
 def _user_edited(_mapper, _connection, target):
     model_user_edited.send(target)
 
 
-@event.listens_for(User, 'after_delete')
+@event.listens_for(Account, 'after_delete')
 def _user_deleted(_mapper, _connection, target):
     model_user_deleted.send(target)
 

@@ -18,6 +18,7 @@ from coaster.utils import newpin, require_one_of
 
 from .. import app
 from ..models import (
+    Account,
     AccountEmail,
     AccountEmailClaim,
     AccountPhone,
@@ -26,7 +27,6 @@ from ..models import (
     PhoneNumber,
     PhoneNumberBlockedError,
     SmsMessage,
-    User,
     db,
 )
 from ..serializers import token_serializer
@@ -71,10 +71,10 @@ class OtpUserError(OtpError, Forbidden):
 # --- Typing ---------------------------------------------------------------------------
 
 #: Tell mypy that the type of ``OtpSession.user`` is same as ``OtpSession.make(user)``.
-#: We need both ``User`` and ``Optional[User]`` so that the value of ``loginform.user``
-#: can be passed to :meth:`OtpSession.make`. This usage is documented in PEP 484:
-#: https://peps.python.org/pep-0484/#user-defined-generic-types
-OptionalUserType = TypeVar('OptionalUserType', User, Optional[User])
+#: We need both ``Account`` and ``Optional[Account]`` so that the value of
+#: ``loginform.user``  can be passed to :meth:`OtpSession.make`. This usage is
+#: documented in PEP 484: https://peps.python.org/pep-0484/#user-defined-generic-types
+OptionalAccountType = TypeVar('OptionalAccountType', Account, Optional[Account])
 #: Define type for subclasses
 OtpSessionType = TypeVar('OtpSessionType', bound='OtpSession')
 
@@ -86,7 +86,7 @@ _reason_subclasses: Dict[str, Type[OtpSession]] = {}
 
 
 @dataclass
-class OtpSession(Generic[OptionalUserType]):
+class OtpSession(Generic[OptionalAccountType]):
     """
     Make or retrieve an OTP in the user's cookie session.
 
@@ -102,7 +102,7 @@ class OtpSession(Generic[OptionalUserType]):
     reason: str
     token: str
     otp: str
-    user: OptionalUserType
+    user: OptionalAccountType
     email: Optional[str] = None
     phone: Optional[str] = None
     link_token: Optional[str] = None
@@ -134,7 +134,7 @@ class OtpSession(Generic[OptionalUserType]):
     def make(
         cls: Type[OtpSessionType],
         reason: str,
-        user: OptionalUserType,
+        user: OptionalAccountType,
         anchor: Optional[
             Union[AccountEmail, AccountEmailClaim, AccountPhone, EmailAddress]
         ],
@@ -187,7 +187,9 @@ class OtpSession(Generic[OptionalUserType]):
                 "%s got OTP meant for %s", reason, otp_data['reason']
             )
             raise OtpReasonError(reason)
-        user = User.get(buid=otp_data['user_buid']) if otp_data['user_buid'] else None
+        user = (
+            Account.get(buid=otp_data['user_buid']) if otp_data['user_buid'] else None
+        )
         if (
             user is not None
             and current_auth.user is not None
@@ -323,7 +325,7 @@ class OtpSession(Generic[OptionalUserType]):
                 pass
 
 
-class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
+class OtpSessionForLogin(OtpSession[Optional[Account]], reason='login'):
     """OtpSession variant for login."""
 
     def send_sms(
@@ -415,7 +417,7 @@ class OtpSessionForLogin(OtpSession[Optional[User]], reason='login'):
         return send_email(subject, [(fullname, self.email)], content)
 
 
-class OtpSessionForSudo(OtpSession[User], reason='sudo'):
+class OtpSessionForSudo(OtpSession[Account], reason='sudo'):
     """OtpSession variant for sudo confirmation."""
 
     @cached_property
@@ -458,7 +460,7 @@ class OtpSessionForSudo(OtpSession[User], reason='sudo'):
 
 
 @dataclass  # Required since this subclass has a __post_init__
-class OtpSessionForReset(OtpSession[User], reason='reset'):
+class OtpSessionForReset(OtpSession[Account], reason='reset'):
     """OtpSession variant for password reset."""
 
     def __post_init__(self) -> None:
@@ -500,7 +502,7 @@ class OtpSessionForReset(OtpSession[User], reason='reset'):
         return send_email(subject, [(self.user.fullname, self.email)], content)
 
 
-class OtpSessionForNewPhone(OtpSession[User], reason='add-phone'):
+class OtpSessionForNewPhone(OtpSession[Account], reason='add-phone'):
     """OtpSession variant for adding a phone number."""
 
     def send_email(

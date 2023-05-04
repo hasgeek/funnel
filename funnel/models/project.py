@@ -28,7 +28,7 @@ from . import (
     json_type,
     sa,
 )
-from .account import Account, User
+from .account import Account
 from .comment import SET_TYPE, Commentset
 from .helpers import (
     RESERVED_NAMES,
@@ -661,7 +661,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         self.end_at = self.schedule_end_at
 
     def roles_for(
-        self, actor: Optional[User] = None, anchors: Iterable = ()
+        self, actor: Optional[Account] = None, anchors: Iterable = ()
     ) -> LazyRoleSet:
         roles = super().roles_for(actor, anchors)
         # https://github.com/hasgeek/funnel/pull/220#discussion_r168718052
@@ -763,7 +763,7 @@ class __Account:
         read={'all'},
     )
 
-    def draft_projects_for(self, user: Optional[User]) -> List[Project]:
+    def draft_projects_for(self, user: Optional[Account]) -> List[Project]:
         if user is not None:
             return [
                 membership.project
@@ -778,7 +778,7 @@ class __Account:
             ]
         return []
 
-    def unscheduled_projects_for(self, user: Optional[User]) -> List[Project]:
+    def unscheduled_projects_for(self, user: Optional[Account]) -> List[Project]:
         if user is not None:
             return [
                 membership.project

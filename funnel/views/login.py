@@ -38,12 +38,12 @@ from ..forms import (
     RegisterWithOtp,
 )
 from ..models import (
+    Account,
     AccountEmail,
     AccountEmailClaim,
     AccountExternalId,
     AuthClientCredential,
     Profile,
-    User,
     UserSession,
     db,
     getextid,
@@ -173,7 +173,7 @@ def login() -> ReturnView:
             if success:
                 user = loginform.user
                 if TYPE_CHECKING:
-                    assert isinstance(user, User)  # nosec
+                    assert isinstance(user, Account)  # nosec
                 login_internal(user, login_service='password')
                 db.session.commit()
                 if loginform.weak_password:
@@ -271,7 +271,7 @@ def login() -> ReturnView:
                     # Register an account
                     user = register_internal(None, otp_form.fullname.data, None)
                     if TYPE_CHECKING:
-                        assert isinstance(user, User)  # nosec
+                        assert isinstance(user, Account)  # nosec
                     if otp_session.email:
                         db.session.add(user.add_email(otp_session.email, primary=True))
                     if otp_session.phone:
@@ -608,7 +608,7 @@ def account_merge() -> ReturnView:
     """Merge two accounts."""
     if 'merge_buid' not in session:
         return render_redirect(get_next_url())
-    other_user = User.get(buid=session['merge_buid'])
+    other_user = Account.get(buid=session['merge_buid'])
     if other_user is None:
         session.pop('merge_buid', None)
         return render_redirect(get_next_url())

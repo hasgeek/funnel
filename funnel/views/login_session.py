@@ -34,6 +34,7 @@ from .. import app
 from ..forms import OtpForm, PasswordForm
 from ..models import (
     USER_SESSION_VALIDITY_PERIOD,
+    Account,
     AuthClient,
     AuthClientCredential,
     Profile,
@@ -89,7 +90,7 @@ class LoginManager:
 
     # For compatibility with baseframe.forms.fields.UserSelectFieldBase
     usermanager: Type
-    usermodel = User
+    usermodel = Account
 
     # Flag for Baseframe to avoid attempting API calls
     is_master_data_source = True
@@ -193,7 +194,7 @@ class LoginManager:
 
         # Transition users with 'userid' to 'sessionid'
         if not current_auth.session and 'userid' in lastuser_cookie:
-            add_auth_attribute('user', User.get(buid=lastuser_cookie['userid']))
+            add_auth_attribute('user', Account.get(buid=lastuser_cookie['userid']))
             if current_auth.is_authenticated:
                 user_session = UserSession(user=current_auth.user)
                 db.session.add(user_session)

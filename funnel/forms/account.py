@@ -19,7 +19,6 @@ from ..models import (
     Account,
     AccountEmailClaim,
     Anchor,
-    User,
     check_password_strength,
     getuser,
 )
@@ -160,7 +159,7 @@ class PasswordForm(forms.Form):
     """Form to validate a user's password, for password-gated sudo actions."""
 
     __expects__ = ('edit_user',)
-    edit_user: User
+    edit_user: Account
 
     password = forms.PasswordField(
         __("Password"),
@@ -183,7 +182,7 @@ class PasswordPolicyForm(forms.Form):
 
     __expects__ = ('edit_user',)
     __returns__ = ('password_strength', 'is_weak', 'warning', 'suggestions')
-    edit_user: User
+    edit_user: Account
     password_strength: Optional[int] = None
     is_weak: Optional[bool] = None
     warning: Optional[str] = None
@@ -227,7 +226,7 @@ class PasswordResetRequestForm(forms.Form):
     """Form to request a password reset."""
 
     __returns__ = ('user', 'anchor')
-    user: Optional[User] = None
+    user: Optional[Account] = None
     anchor: Optional[Anchor] = None
 
     username = forms.StringField(
@@ -254,7 +253,7 @@ class PasswordCreateForm(forms.Form):
 
     __returns__ = ('password_strength',)
     __expects__ = ('edit_user',)
-    edit_user: User
+    edit_user: Account
     password_strength: Optional[int] = None
 
     password = forms.PasswordField(
@@ -336,7 +335,7 @@ class PasswordChangeForm(forms.Form):
 
     __returns__ = ('password_strength',)
     __expects__ = ('edit_user',)
-    edit_user: User
+    edit_user: Account
     password_strength: Optional[int] = None
 
     old_password = forms.PasswordField(
@@ -396,14 +395,14 @@ def raise_username_error(reason: str) -> str:
 class AccountForm(forms.Form):
     """Form to edit basic account details."""
 
-    edit_obj: User
+    edit_obj: Account
 
     fullname = forms.StringField(
         __("Full name"),
         description=__("This is your name, not of your organization"),
         validators=[
             forms.validators.DataRequired(),
-            forms.validators.Length(max=User.__title_length__),
+            forms.validators.Length(max=Account.__title_length__),
         ],
         filters=[forms.filters.strip()],
         render_kw={'autocomplete': 'name'},
@@ -475,7 +474,7 @@ class UsernameAvailableForm(forms.Form):
     """Form to check for whether a username is available to use."""
 
     __expects__ = ('edit_user',)
-    edit_user: User
+    edit_user: Account
 
     username = forms.StringField(
         __("Username"),
@@ -512,7 +511,7 @@ class NewEmailAddressForm(forms.RecaptchaForm):
     """Form to add a new email address to an account."""
 
     __expects__ = ('edit_user',)
-    edit_user: User
+    edit_user: Account
 
     email = forms.EmailField(
         __("Email address"),
@@ -551,7 +550,7 @@ class NewPhoneForm(forms.RecaptchaForm):
     """Form to add a new mobile number (SMS-capable) to an account."""
 
     __expects__ = ('edit_user',)
-    edit_user: User
+    edit_user: Account
 
     phone = forms.TelField(
         __("Phone number"),

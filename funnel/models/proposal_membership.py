@@ -10,7 +10,7 @@ from werkzeug.utils import cached_property
 from coaster.sqlalchemy import DynamicAssociationProxy, immutable, with_roles
 
 from . import Mapped, db, sa
-from .account import Account, User
+from .account import Account
 from .helpers import reopen
 from .membership_mixin import (
     FrozenAttributionMixin,
@@ -131,7 +131,7 @@ class ProposalMembership(  # type: ignore[misc]
 # Project relationships
 @reopen(Proposal)
 class __Proposal:
-    user: User
+    user: Account
 
     # This relationship does not use `lazy='dynamic'` because it is expected to contain
     # <2 records on average, and won't exceed 50 in the most extreme cases
@@ -151,7 +151,7 @@ class __Proposal:
     )
 
     @property
-    def first_user(self) -> User:
+    def first_user(self) -> Account:
         """Return the first credited member on the proposal, or creator if none."""
         for membership in self.memberships:
             if not membership.is_uncredited:
