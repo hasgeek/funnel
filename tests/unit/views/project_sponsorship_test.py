@@ -75,7 +75,7 @@ def test_sponsorship_add(
     login.as_(user_vetinari_site_editor.user)
     endpoint = project_expo2010.url_for('add_sponsor')
     data = {
-        'profile': org_uu.name,
+        'member': org_uu.name,
         'label': label,
         'csrf_token': csrf_token,
     }
