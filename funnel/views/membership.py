@@ -50,7 +50,7 @@ from .notification import dispatch_notification
 class OrganizationMembersView(AccountViewMixin, UrlForView, ModelView):
     def after_loader(self) -> Optional[ReturnView]:  # type: ignore[return]
         """Don't render member views for user accounts."""
-        if isinstance(self.obj, Organization):
+        if not isinstance(self.obj, Organization):
             # Only organization accounts have admin members
             abort(404)
 
@@ -60,6 +60,7 @@ class OrganizationMembersView(AccountViewMixin, UrlForView, ModelView):
     def members(self) -> ReturnRenderWith:
         """Render a list of organization admin members."""
         return {
+            'profile': self.obj,  # FIXME: Upgrade templates
             'account': self.obj,
             'memberships': [
                 membership.current_access(datasets=('without_parent', 'related'))
@@ -131,7 +132,7 @@ class OrganizationMembersView(AccountViewMixin, UrlForView, ModelView):
                         membership.current_access(
                             datasets=('without_parent', 'related')
                         )
-                        for membership in self.obj.account.active_admin_memberships
+                        for membership in self.obj.active_admin_memberships
                     ],
                 }, 201
             return (
@@ -163,7 +164,7 @@ class OrganizationMembershipView(
     AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView
 ):
     model = AccountAdminMembership
-    route_model_map = {'account': 'organization.name', 'membership': 'uuid_b58'}
+    route_model_map = {'account': 'account.name', 'membership': 'uuid_b58'}
     obj: AccountAdminMembership
 
     def loader(self, account, membership) -> AccountAdminMembership:
