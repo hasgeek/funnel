@@ -1,5 +1,4 @@
 /* global grecaptcha */
-
 import { activateFormWidgets, MapMarker } from './utils/form_widgets';
 import Form from './utils/formhelper';
 
