@@ -282,6 +282,9 @@ class Account(
                 'created_at',
                 'profile_url',
                 'urls',
+                'is_user_profile',
+                'is_organization_profile',
+                'is_placeholder_profile',
             },
             'call': {'views', 'forms', 'features', 'url_for', 'state', 'profile_state'},
         }

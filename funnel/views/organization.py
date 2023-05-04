@@ -13,7 +13,7 @@ from coaster.views import ModelView, UrlChangeCheck, UrlForView, requires_roles,
 
 from .. import app
 from ..forms import OrganizationForm, TeamForm
-from ..models import Account, Organization, Team, db
+from ..models import Account, Organization, Team, User, db
 from ..signals import org_data_changed, team_data_changed
 from ..typing import ReturnView
 from .helpers import render_redirect
@@ -22,7 +22,9 @@ from .login_session import requires_login, requires_sudo, requires_user_not_spam
 # --- Routes: Organizations ---------------------------------------------------
 
 
-@Account.views('people_and_teams')
+@Account.views()
+@User.views()
+@Organization.views()
 def people_and_teams(obj):
     """Extract a list of users from the org's public teams."""
     # This depends on user.member_teams not using lazy='dynamic'. When that changes, we
@@ -155,7 +157,7 @@ OrgView.init_app(app)
 
 
 @Team.views('main')
-@route('/<organization>/teams/<team>')
+@route('/<account>/teams/<team>')
 class TeamView(UrlChangeCheck, UrlForView, ModelView):
     """Views for teams in organizations."""
 
@@ -163,15 +165,15 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
     model = Team
     # Map <name> and <buid> in URLs to model attributes, for `url_for` automation
     route_model_map = {
-        'organization': 'organization.name',
+        'account': 'organization.name',
         'team': 'buid',
     }
     obj: Team
 
-    def loader(self, organization: str, team: str) -> Team:
+    def loader(self, account: str, team: str) -> Team:
         """Load a team."""
         obj = Team.get(buid=team, with_parent=True)
-        if obj is None or obj.account.name != organization:
+        if obj is None or obj.account.name != account:
             abort(404)
         return obj
 
