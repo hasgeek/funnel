@@ -57,7 +57,6 @@ from .draft import *  # isort:skip
 from .sync_ticket import *  # isort:skip
 from .contact_exchange import *  # isort:skip
 from .label import *  # isort:skip
-from .profile import *  # isort:skip
 from .project import *  # isort:skip
 from .update import *  # isort:skip
 from .proposal import *  # isort:skip

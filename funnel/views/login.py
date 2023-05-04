@@ -43,7 +43,6 @@ from ..models import (
     AccountEmailClaim,
     AccountExternalId,
     AuthClientCredential,
-    Profile,
     UserSession,
     db,
     getextid,
@@ -537,7 +536,7 @@ def login_service_postcallback(service: str, userdata: LoginProviderData) -> Ret
             user = register_internal(None, userdata.fullname, None)
             extid.account = user
             if userdata.username:
-                if Profile.is_available_name(userdata.username):
+                if Account.is_available_name(userdata.username):
                     # Set a username for this user if it's available
                     user.username = userdata.username
     else:  # We have an existing user account from extid or accountemail

@@ -45,7 +45,6 @@ def test_reserved_name(db_session) -> None:
     """Names can be reserved, with no user or organization."""
     reserved_name = models.Placeholder(name='reserved_name')
     db_session.add(reserved_name)
-    # Use a model query since Profile.get() only works for public accounts
     retrieved_name = models.Account.query.filter(
         models.Account.name_is('reserved_name')
     ).first()

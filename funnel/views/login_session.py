@@ -37,7 +37,6 @@ from ..models import (
     Account,
     AuthClient,
     AuthClientCredential,
-    Profile,
     User,
     UserSession,
     UserSessionExpiredError,
@@ -519,23 +518,23 @@ def requires_login_no_message(f: WrappedFunc) -> WrappedFunc:
 
 def save_sudo_preference_context() -> None:
     """Save sudo preference context to cookie session before redirecting."""
-    profile = getattr(g, 'profile', None)
-    if profile is not None:
-        session['sudo_context'] = {'type': 'profile', 'uuid_b64': profile.uuid_b64}
+    account = getattr(g, 'account', None)
+    if account is not None:
+        session['sudo_context'] = {'type': 'account', 'uuid_b64': account.uuid_b64}
     else:
         session.pop('sudo_context', None)
 
 
-def get_sudo_preference_context() -> Optional[Profile]:
+def get_sudo_preference_context() -> Optional[Account]:
     """Get optional preference context for sudo endpoint."""
-    profile = getattr(g, 'profile', None)
-    if profile is not None:
-        return profile
+    account = getattr(g, 'account', None)
+    if account is not None:
+        return account
     sudo_context = session.get('sudo_context', {})
-    if sudo_context.get('type') != 'profile':
-        # Only account (nee profile) context is supported at this time
+    if sudo_context.get('type') != 'account':
+        # Only account context is supported at this time
         return None
-    return Profile.query.filter_by(uuid_b64=sudo_context['uuid_b64']).one_or_none()
+    return Account.query.filter_by(uuid_b64=sudo_context['uuid_b64']).one_or_none()
 
 
 def del_sudo_preference_context() -> None:

@@ -21,7 +21,7 @@ from coaster.views import (
 
 from .. import app
 from ..forms import SavedProjectForm, UpdateForm
-from ..models import NewUpdateNotification, Profile, Project, Update, db
+from ..models import Account, NewUpdateNotification, Project, Update, db
 from ..typing import ReturnRenderWith, ReturnView
 from .helpers import html_in_json, render_redirect
 from .login_session import requires_login, requires_sudo
@@ -103,7 +103,7 @@ class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     def loader(self, profile, project, update) -> Update:
         return (
             Update.query.join(Project)
-            .join(Profile, Project.account_id == Profile.id)
+            .join(Account, Project.account)
             .filter(Update.url_name_uuid_b58 == update)
             .one_or_404()
         )
