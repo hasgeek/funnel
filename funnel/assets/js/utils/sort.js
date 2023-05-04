@@ -1,6 +1,7 @@
 import 'jquery-ui';
 import 'jquery-ui-sortable-npm';
 import 'jquery-ui-touch-punch';
+import toastr from 'toastr';
 import Form from './formhelper';
 
 function SortItem(wrapperJqueryElem, placeholderClass, sortUrl) {
@@ -30,9 +31,10 @@ function SortItem(wrapperJqueryElem, placeholderClass, sortUrl) {
 
       function handleError(error) {
         if (!error.response) {
-          Form.handleFetchNetworkError();
+          toastr.error(window.Hasgeek.Config.errorMsg.networkError);
         } else {
-          Form.handleAjaxError(error);
+          const errorMsg = Form.handleAjaxError(error);
+          toastr.error(errorMsg);
         }
         wrapperJqueryElem.sortable('cancel');
       }

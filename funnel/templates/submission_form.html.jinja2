@@ -126,9 +126,6 @@
 {% endblock pagescripts %}
 
 {% block innerscripts %}
-  <script type="text/javascript">
-    window.Hasgeek.Config.markdownPreviewApi = {{ url_for('markdown_preview')|tojson }};
-  </script>
   <script src="{{ 'parsley.js'|ext_asset_url }}" type="text/javascript"></script>
   <script src="{{ built_asset('submission_form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
@@ -139,7 +136,8 @@
       {%- endif %}
       var formId = "{{ ref_id }}";
       var markdownPreviewElem = '#preview';
-      window.Hasgeek.submissionFormInit(sortUrl, formId, markdownPreviewElem);
+      var markdownPreviewApi = {{ url_for('markdown_preview')|tojson }};
+      window.Hasgeek.submissionFormInit(sortUrl, formId, markdownPreviewElem, markdownPreviewApi);
     });
   </script>
 {% endblock innerscripts %}

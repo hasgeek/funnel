@@ -386,6 +386,7 @@
 </div>
 {%- endblock basecontent %}
 {% block footerscripts -%}
+  <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
   {{ ajaxform('email-primary-form', request) }}
   {{ ajaxform('phone-primary-form', request) }}
   <script type="text/javascript">

@@ -1,5 +1,7 @@
 import Vue from 'vue/dist/vue.min';
 import Utils from './helper';
+import WebShare from './webshare';
+import { USER_AVATAR_IMG_SIZE } from '../constants';
 
 export const userAvatarUI = Vue.component('useravatar', {
   template:
@@ -16,12 +18,12 @@ export const userAvatarUI = Vue.component('useravatar', {
     },
   },
   methods: {
-    getInitials: window.Hasgeek.Utils.getInitials,
-    getAvatarColour: window.Hasgeek.Utils.getAvatarColour,
+    getInitials: Utils.getInitials,
+    getAvatarColour: Utils.getAvatarColour,
   },
   computed: {
     imgsize() {
-      return window.Hasgeek.Config.userAvatarImgSize[this.size];
+      return USER_AVATAR_IMG_SIZE[this.size];
     },
     imgurl() {
       return `${this.user.logo_url}?size=${encodeURIComponent(this.imgsize)}`;
@@ -94,6 +96,6 @@ export const shareDropdown = Vue.component('sharedropdown', {
     },
   },
   mounted() {
-    Utils.enableWebShare();
+    WebShare.enableWebShare();
   },
 });
