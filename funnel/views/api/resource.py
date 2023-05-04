@@ -16,7 +16,6 @@ from ...models import (
     Account,
     AuthClient,
     AuthClientCredential,
-    AuthClientTeamPermissions,
     AuthClientUserPermissions,
     AuthToken,
     Organization,
@@ -92,19 +91,9 @@ def get_userinfo(
         }
 
     if get_permissions:
-        if auth_client.user:
-            uperms = AuthClientUserPermissions.get(auth_client=auth_client, user=user)
-            if uperms is not None:
-                userinfo['permissions'] = uperms.access_permissions.split(' ')
-        else:
-            permsset = set()
-            if user.member_teams:
-                all_perms = AuthClientTeamPermissions.all_for(
-                    auth_client=auth_client, user=user
-                ).all()
-                for tperms in all_perms:
-                    permsset.update(tperms.access_permissions.split(' '))
-            userinfo['permissions'] = sorted(permsset)
+        uperms = AuthClientUserPermissions.get(auth_client=auth_client, user=user)
+        if uperms is not None:
+            userinfo['permissions'] = uperms.access_permissions.split(' ')
     return userinfo
 
 
