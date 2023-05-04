@@ -37,7 +37,7 @@ class SiteMembership(
         'member': {
             'read': {
                 'urls',
-                'user',
+                'member',
                 'is_comment_moderator',
                 'is_user_moderator',
                 'is_site_editor',

@@ -36,7 +36,7 @@ class CommentsetMembership(
         'member': {
             'read': {
                 'urls',
-                'user',
+                'member',
                 'commentset',
                 'is_muted',
                 'last_seen_at',
@@ -162,7 +162,7 @@ class __Commentset:
             ),
             viewonly=True,
         ),
-        grants_via={'user': {'document_subscriber'}},
+        grants_via={'member': {'document_subscriber'}},
     )
 
     def update_last_seen_at(self, user: Account) -> None:

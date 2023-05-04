@@ -42,7 +42,7 @@ class AccountAdminMembership(
         'all': {
             'read': {
                 'urls',
-                'user',
+                'member',
                 'is_owner',
                 'account',
                 'granted_by',
@@ -61,7 +61,7 @@ class AccountAdminMembership(
                 'granted_by',
                 'revoked_at',
                 'revoked_by',
-                'user',
+                'member',
                 'is_active',
                 'is_invite',
                 'is_self_granted',
@@ -75,10 +75,10 @@ class AccountAdminMembership(
             'uuid_b58',
             'offered_roles',
             'is_owner',
-            'user',
+            'member',
             'account',
         },
-        'without_parent': {'urls', 'uuid_b58', 'offered_roles', 'is_owner', 'user'},
+        'without_parent': {'urls', 'uuid_b58', 'offered_roles', 'is_owner', 'member'},
         'related': {'urls', 'uuid_b58', 'offered_roles', 'is_owner'},
     }
 
@@ -130,7 +130,7 @@ class __Account:
             order_by=AccountAdminMembership.granted_at.asc(),
             viewonly=True,
         ),
-        grants_via={'user': {'admin', 'owner'}},
+        grants_via={'member': {'admin', 'owner'}},
     )
 
     active_owner_memberships = sa.orm.relationship(

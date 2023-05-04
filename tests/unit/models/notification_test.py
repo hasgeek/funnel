@@ -178,7 +178,7 @@ def update(project_fixtures, db_session) -> models.Update:
     """Publish an update as a fixture."""
     new_update = models.Update(
         project=project_fixtures.project,
-        user=project_fixtures.user_editor,
+        created_by=project_fixtures.user_editor,
         title="New update",
         body="New update body",
     )

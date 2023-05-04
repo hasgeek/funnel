@@ -54,7 +54,7 @@ class ProjectCrewMembership(
         'all': {
             'read': {
                 'urls',
-                'user',
+                'member',
                 'project',
                 'is_editor',
                 'is_promoter',
@@ -83,7 +83,7 @@ class ProjectCrewMembership(
             'is_promoter',
             'is_usher',
             'label',
-            'user',
+            'member',
             'project',
         },
         'without_parent': {
@@ -94,7 +94,7 @@ class ProjectCrewMembership(
             'is_promoter',
             'is_usher',
             'label',
-            'user',
+            'member',
         },
         'related': {
             'urls',
@@ -195,7 +195,7 @@ class __Project:
             ),
             viewonly=True,
         ),
-        grants_via={'user': {'editor', 'promoter', 'usher', 'participant', 'crew'}},
+        grants_via={'member': {'editor', 'promoter', 'usher', 'participant', 'crew'}},
     )
 
     active_editor_memberships = sa.orm.relationship(

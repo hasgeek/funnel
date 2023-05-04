@@ -39,7 +39,7 @@ class AccountCheckMixin:
         if account is None:
             raise ValueError("Subclass must set self.account")
         g.account = account
-        if not account.is_active:
+        if not account.state.ACTIVE:
             abort(410)
 
         # mypy doesn't know this is a mixin, so it warns that `after_loader` is not

@@ -43,12 +43,11 @@ def feature_profile_new_project(obj):
 
 
 @Account.features('new_user_project')
-def feature_profile_new_user_project(obj):
+def feature_profile_new_user_project(obj: Account):
     return (
         obj.is_user_profile
         and obj.current_roles.admin
-        and obj.is_active
-        and bool(obj.state.PUBLIC)
+        and bool(obj.profile_state.ACTIVE_AND_PUBLIC)
     )
 
 

@@ -41,7 +41,7 @@ def project_update(db_session, user_vetinari, project_expo2010):
     db_session.commit()
     update = models.Update(
         project=project_expo2010,
-        user=user_vetinari,
+        created_by=user_vetinari,
         title="New update",
         body="New update body",
     )

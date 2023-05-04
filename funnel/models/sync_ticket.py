@@ -284,10 +284,8 @@ class TicketParticipant(
     with_roles(has_public_profile, read={'all'})
 
     @property
-    def profile_url(self):
-        return (
-            self.user.url_for() if self.user and self.user.has_public_profile else None
-        )
+    def profile_url(self) -> Optional[str]:
+        return self.user.profile_url if self.user else None
 
     with_roles(profile_url, read={'all'})
 

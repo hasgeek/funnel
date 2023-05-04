@@ -65,7 +65,7 @@ class ProjectUpdatesView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelView
         form = UpdateForm()
 
         if form.validate_on_submit():
-            update = Update(user=current_auth.user, project=self.obj)
+            update = Update(created_by=current_auth.user, project=self.obj)
             form.populate_obj(update)
             update.name = make_name(update.title)
             db.session.add(update)

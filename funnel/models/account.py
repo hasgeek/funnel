@@ -264,7 +264,7 @@ class Account(
                 'username',
                 'pickername',
                 'timezone',
-                'avatar',
+                'logo_url',
                 'created_at',
                 'profile_url',
                 'urls',
@@ -282,7 +282,7 @@ class Account(
             'username',
             'pickername',
             'timezone',
-            'avatar',
+            'logo_url',
             'created_at',
             'profile_url',
             'urls',
@@ -294,7 +294,7 @@ class Account(
             'username',
             'pickername',
             'timezone',
-            'avatar',
+            'logo_url',
             'created_at',
             'profile_url',
         },
@@ -517,13 +517,13 @@ class Account(
     @property
     def has_public_profile(self) -> bool:
         """Return the visibility state of an account."""
-        return self.name is not None and bool(self.profile_state.PUBLIC)
+        return self.name is not None and bool(self.profile_state.ACTIVE_AND_PUBLIC)
 
     with_roles(has_public_profile, read={'all'}, write={'owner'})
 
     @property
     def profile_url(self) -> Optional[str]:
-        """Return optional URL to account page."""
+        """Return optional URL to account profile page."""
         return self.url_for() if self.name is not None else None
 
     with_roles(profile_url, read={'all'})
@@ -1355,7 +1355,7 @@ class AccountEmail(EmailAddressMixin, BaseMixin, db.Model):  # type: ignore[name
     private = sa.Column(sa.Boolean, nullable=False, default=False)
 
     __datasets__ = {
-        'primary': {'user', 'email', 'private', 'type'},
+        'primary': {'member', 'email', 'private', 'type'},
         'without_parent': {'email', 'private', 'type'},
         'related': {'email', 'private', 'type'},
     }
@@ -1540,7 +1540,7 @@ class AccountEmailClaim(
     __table_args__ = (sa.UniqueConstraint('account_id', 'email_address_id'),)
 
     __datasets__ = {
-        'primary': {'user', 'email', 'private', 'type'},
+        'primary': {'member', 'email', 'private', 'type'},
         'without_parent': {'email', 'private', 'type'},
         'related': {'email', 'private', 'type'},
     }
@@ -1714,7 +1714,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-
     private = sa.Column(sa.Boolean, nullable=False, default=False)
 
     __datasets__ = {
-        'primary': {'user', 'phone', 'private', 'type'},
+        'primary': {'member', 'phone', 'private', 'type'},
         'without_parent': {'phone', 'private', 'type'},
         'related': {'phone', 'private', 'type'},
     }

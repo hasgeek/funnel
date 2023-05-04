@@ -80,14 +80,14 @@ class Update(
     )
     state = StateManager('_state', UPDATE_STATE, doc="Update state")
 
-    user_id: Mapped[int] = sa.Column(
+    created_by_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey('account.id'), nullable=False, index=True
     )
-    user: Mapped[Account] = with_roles(
+    created_by: Mapped[Account] = with_roles(
         sa.orm.relationship(
             Account,
-            backref=sa.orm.backref('updates', lazy='dynamic'),
-            foreign_keys=[user_id],
+            backref=sa.orm.backref('updates_created', lazy='dynamic'),
+            foreign_keys=[created_by_id],
         ),
         read={'all'},
         grants={'creator'},
@@ -206,7 +206,7 @@ class Update(
             'body_html',
             'published_at',
             'edited_at',
-            'user',
+            'created_by',
             'is_pinned',
             'is_restricted',
             'is_currently_restricted',
@@ -224,7 +224,7 @@ class Update(
             'body_html',
             'published_at',
             'edited_at',
-            'user',
+            'created_by',
             'is_pinned',
             'is_restricted',
             'is_currently_restricted',

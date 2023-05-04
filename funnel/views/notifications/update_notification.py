@@ -30,7 +30,7 @@ class RenderNewUpdateNotification(RenderNotification):
         default actor is the publisher as they caused it to be dispatched, but in this
         case the actor of interest is the author of the update.
         """
-        return self.update.user
+        return self.update.created_by
 
     def web(self):
         return render_template('notifications/update_new_web.html.jinja2', view=self)

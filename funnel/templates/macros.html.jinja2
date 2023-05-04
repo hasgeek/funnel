@@ -300,7 +300,7 @@
               <h3 class="mui--text-headline text-bold">{{ featured_project.title }}</h3>
               <p class="mui--text-subhead mui--text-light js-truncate" data-truncate-lines="2">{{ featured_project.tagline }}</p>
               <div class="bottom-padding mui--text-light">{% if featured_project.primary_venue %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {% if featured_project.primary_venue.city %}{{ featured_project.primary_venue.city }}{% else %}{{ featured_project.primary_venue.title }}{% endif %}{% elif featured_project.location %}{{ faicon(icon='map-marker-alt', icon_size='caption', baseline=false) }} {{ featured_project.location }}{% endif %}</div>
-              <a href="{{ featured_project.account.url_for() }}" class="mui--text-body2 text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
+              <a href="{{ featured_project.account.profile_url }}" class="mui--text-body2 text-uppercase nounderline">{% trans %}Learn more{% endtrans %}</a>
             </div>
             <div class="grid__col-md-1 grid__col-lg-1">
             </div>
@@ -480,7 +480,7 @@
         <div class="flex-wrapper flex-wrapper--center">
           <div class="user user--smaller">
             <div class="user__box">
-              <a {% if sponsor_public %}href="{{ sponsor.account.url_for() }}"{% endif %} class="nounderline">
+              <a {% if sponsor_public %}href="{{ sponsor.account.profile_url }}"{% endif %} class="nounderline">
                 {%- if sponsor.account.logo_url %}
                   <img class="user__box__gravatar" src="{{ sponsor.account.logo_url }}" alt="{{ sponsor.account.title }}"/>
                 {%- else %}
@@ -489,7 +489,7 @@
               </a>
             </div>
           </div>
-          <a {% if sponsor_public %}href="{{ sponsor.account.url_for() }}"{% endif %} class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{{ sponsor.account.title }}</a>
+          <a {% if sponsor_public %}href="{{ sponsor.account.profile_url }}"{% endif %} class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{{ sponsor.account.title }}</a>
         </div>
         {%- endwith %}
       {%- endfor %}

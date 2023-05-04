@@ -39,7 +39,7 @@ class ProposalMembership(  # type: ignore[misc]
 
     __roles__ = {
         'all': {
-            'read': {'is_uncredited', 'label', 'seq', 'title', 'urls', 'user'},
+            'read': {'is_uncredited', 'label', 'seq', 'title', 'urls', 'member'},
             'call': {'url_for'},
         },
         'editor': {
@@ -55,7 +55,7 @@ class ProposalMembership(  # type: ignore[misc]
             'seq',
             'title',
             'urls',
-            'user',
+            'member',
             'uuid_b58',
         },
         'without_parent': {
@@ -65,7 +65,7 @@ class ProposalMembership(  # type: ignore[misc]
             'seq',
             'title',
             'urls',
-            'user',
+            'member',
             'uuid_b58',
         },
         'related': {
@@ -147,7 +147,7 @@ class __Proposal:
         ),
         read={'all'},
         # These grants are authoritative and used instead of `offered_roles` above
-        grants_via={'user': {'submitter', 'editor'}},
+        grants_via={'member': {'submitter', 'editor'}},
     )
 
     @property
