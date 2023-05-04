@@ -1,17 +1,15 @@
 /* global grecaptcha */
 
-import {
-  activateFormWidgets,
-  EnableAutocompleteWidgets,
-  MapMarker,
-} from './utils/form_widgets';
+import { activateFormWidgets, MapMarker } from './utils/form_widgets';
 import Form from './utils/formhelper';
 
 window.Hasgeek.initWidgets = async function init(fieldName, config) {
   switch (fieldName) {
-    case 'AutocompleteField':
-      EnableAutocompleteWidgets.textAutocomplete(config);
+    case 'AutocompleteField': {
+      const { default: widget } = await import('./utils/autocomplete_widget');
+      widget.textAutocomplete(config);
       break;
+    }
     case 'ImgeeField':
       window.addEventListener('message', (event) => {
         if (event.origin === config.host) {
@@ -28,12 +26,16 @@ window.Hasgeek.initWidgets = async function init(fieldName, config) {
         $(`#imgee-loader-${config.fieldId}`).addClass('mui--hide');
       });
       break;
-    case 'UserSelectField':
-      EnableAutocompleteWidgets.lastuserAutocomplete(config);
+    case 'UserSelectField': {
+      const { default: lastUserWidget } = await import('./utils/autocomplete_widget');
+      lastUserWidget.lastuserAutocomplete(config);
       break;
-    case 'GeonameSelectField':
-      EnableAutocompleteWidgets.geonameAutocomplete(config);
+    }
+    case 'GeonameSelectField': {
+      const { default: geonameWidget } = await import('./utils/autocomplete_widget');
+      geonameWidget.geonameAutocomplete(config);
       break;
+    }
     case 'CoordinatesField':
       /* eslint-disable no-new */
       await import('jquery-locationpicker');
