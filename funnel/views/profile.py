@@ -87,7 +87,7 @@ class ProfileView(AccountViewMixin, UrlChangeCheck, UrlForView, ModelView):
         if self.obj.is_user_profile:
             template_name = 'user_profile.html.jinja2'
 
-            submitted_proposals = self.obj.user.public_proposals
+            submitted_proposals = self.obj.public_proposals
 
             tagged_sessions = [
                 proposal.session

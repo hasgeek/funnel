@@ -159,7 +159,7 @@ def parse_phone_number(
     # candidate that is likely to be a valid number. This behaviour differentiates it
     # from similar code in :func:`~funnel.models.utils.getuser`, where the loop exits
     # with the _last_ valid candidate (as it's coupled with a
-    # :class:`~funnel.models.user.AccountPhone` lookup)
+    # :class:`~funnel.models.account.AccountPhone` lookup)
     sms_invalid = False
     try:
         for region in PHONE_LOOKUP_REGIONS:
@@ -237,7 +237,7 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
     Represents a phone number as a standalone entity, with associated metadata.
 
     Prior to this model, phone numbers were stored in the
-    :class:`~funnel.models.user.AccountPhone` and
+    :class:`~funnel.models.account.AccountPhone` and
     :class:`~funnel.models.notification.SmsMessage models, with no ability to store
     preferences against a number, such as enforcing a block list or scraping against
     mobile number revocation lists.

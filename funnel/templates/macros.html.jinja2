@@ -472,24 +472,24 @@
   <div class="mui--clearfix margin-top">
     <div class="mui--pull-right">
       <p class="mui--text-subhead mui--text-light zero-bottom-margin">{% trans %}Supported by{% endtrans %}</p>
-      {% for sponsor in sponsors %}
-        {%- with sponsor_public = sponsor.account.profile_state.PUBLIC %}
-        {% if sponsor.label %}
-          <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ sponsor.label }}</p>
+      {% for sponsorship in sponsors %}
+        {%- with sponsor_public = sponsorship.member.profile_state.ACTIVE_AND_PUBLIC %}
+        {% if sponsorship.label %}
+          <p class="mui--text-body2 mui--text-light zero-bottom-margin">{{ sponsorship.label }}</p>
         {% endif %}
         <div class="flex-wrapper flex-wrapper--center">
           <div class="user user--smaller">
             <div class="user__box">
-              <a {% if sponsor_public %}href="{{ sponsor.account.profile_url }}"{% endif %} class="nounderline">
-                {%- if sponsor.account.logo_url %}
-                  <img class="user__box__gravatar" src="{{ sponsor.account.logo_url }}" alt="{{ sponsor.account.title }}"/>
+              <a {% if sponsor_public %}href="{{ sponsorship.member.profile_url }}"{% endif %} class="nounderline">
+                {%- if sponsorship.member.logo_url %}
+                  <img class="user__box__gravatar" src="{{ sponsorship.member.logo_url }}" alt="{{ sponsorship.member.title }}"/>
                 {%- else %}
-                  <div class="user__box__gravatar user__box__gravatar--initials" data-avatar-colour="{{ sponsor.account.views.avatar_color_code }}">{{ sponsor.account.title|initials }}</div>
+                  <div class="user__box__gravatar user__box__gravatar--initials" data-avatar-colour="{{ sponsorship.member.views.avatar_color_code }}">{{ sponsorship.member.title|initials }}</div>
                 {% endif %}
               </a>
             </div>
           </div>
-          <a {% if sponsor_public %}href="{{ sponsor.account.profile_url }}"{% endif %} class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{{ sponsor.account.title }}</a>
+          <a {% if sponsor_public %}href="{{ sponsorship.member.profile_url }}"{% endif %} class="mui--text-dark mui--text-subhead text-bold nounderline" data-cy="profile-link">{{ sponsorship.member.title }}</a>
         </div>
         {%- endwith %}
       {%- endfor %}
@@ -506,12 +506,12 @@
             <p class="mui--text-title margin-bottom">{{ proposal.project.title }}</p>
           {%- else -%}
             <div class="flex-wrapper flex-wrapper--wrap">
-            {%- for member in proposal.memberships %}{% if not member.is_uncredited %}
+            {%- for membership in proposal.memberships %}{% if not membership.is_uncredited %}
               <div class="user user--smaller right-padding">
                 <div class="user__box">
-                  {{ useravatar(member.member, add_profile_link=true, size='small') }}
+                  {{ useravatar(membership.member, add_profile_link=true, size='small') }}
                   <div class="user__box__header">
-                    <p class="mui--text-caption user__box__fullname">{{ member.member.fullname }} {%- if member.label %} <span class="badge">{{ member.label }}</span>{% endif %}</p>
+                    <p class="mui--text-caption user__box__fullname">{{ membership.member.fullname }} {%- if membership.label %} <span class="badge">{{ membership.label }}</span>{% endif %}</p>
                   </div>
                 </div>
               </div>

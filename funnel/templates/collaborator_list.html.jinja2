@@ -1,23 +1,23 @@
 {% from "macros.html.jinja2" import useravatar, faicon %}
 
-{% for member in collaborators %}
-  <div class="sortable collaborator" data-drag-placeholder="collaborator-placeholder" draggable="true" id="{{ member.uuid_b58 }}">
+{% for membership in collaborators %}
+  <div class="sortable collaborator" data-drag-placeholder="collaborator-placeholder" draggable="true" id="{{ membership.uuid_b58 }}">
     <div class="flex-wrapper flex-wrapper flex-wrapper--center flex-wrapper--space-between">
       <div class="flex-wrapper flex-wrapper--center">
         {{ faicon(icon='grip-vertical', baseline=false, css_class="drag-handle margin-right") }}
         <div class="user">
           <div class="user__box">
-            {{ useravatar(member.member, add_profile_link=false) }}
+            {{ useravatar(membership.member, add_profile_link=false) }}
             <div class="user__box__header">
-              <p class="mui--text-body2 user__box__fullname">{{ member.member.fullname }}</p>
-              {%- if member.member.username %}<p class="mui--text-caption user__box__userid">@{{ member.member.username }} {%- if member.label %} <span class="badge">{{ member.label }}</span>{% endif -%}</p>{%- endif -%}
+              <p class="mui--text-body2 user__box__fullname">{{ membership.member.fullname }}</p>
+              {%- if membership.member.username %}<p class="mui--text-caption user__box__userid">@{{ membership.member.username }} {%- if membership.label %} <span class="badge">{{ membership.label }}</span>{% endif -%}</p>{%- endif -%}
             </div>
           </div>
         </div>
       </div>
       <div class="flex-wrapper flex-wrapper modal-form__new-separator">
         <span class="display-inlineblock left-padding margin-right">
-          {%- if not member.is_uncredited %}
+          {%- if not membership.is_uncredited %}
             {{ faicon(icon='eye', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Visible{% endtrans %}
           {% else %}
             {{ faicon(icon='eye-slash', icon_size='caption', baseline=true, css_class="mui--text-light fa-icon--right-margin") }}{% trans %}Hidden{% endtrans %}
@@ -26,8 +26,8 @@
         <div class="margin-left mui-dropdown display-inlineblock">
           <button class="mui-btn mui-btn--nostyle mui--align-middle" data-mui-toggle="dropdown" data-cy="collaborator-menu" aria-label="{% trans %}Collaborator menu{% endtrans %}" aria-haspopup="true" aria-expanded="false">{{ faicon(icon='ellipsis-v', icon_size='title', baseline=false) }}</button>
           <ul class="mui-dropdown__menu mui-dropdown__menu--right" role="menu">
-            <li><a href="{{ member.url_for('edit') }}" rel="modal:open" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Edit collaborator" data-cy="edit-collaborator" role="button" aria-haspopup="true">{% trans %}Change role{% endtrans %}</a></li>
-            <li><a class="js-remove-collaborator" data-href="{{ member.url_for('remove') }}" href="#" onclick="return false;" aria-label="{% trans %}Remove collaborator{% endtrans %}" data-ga="Remove collaborator" data-cy="remove-collaborator" role="button" aria-haspopup="true" title="{{ member.member.pickername }}">{% trans %}Remove{% endtrans %}</a></li>
+            <li><a href="{{ membership.url_for('edit') }}" rel="modal:open" aria-label="{% trans %}Add collaborator{% endtrans %}" data-ga="Edit collaborator" data-cy="edit-collaborator" role="button" aria-haspopup="true">{% trans %}Change role{% endtrans %}</a></li>
+            <li><a class="js-remove-collaborator" data-href="{{ membership.url_for('remove') }}" href="#" onclick="return false;" aria-label="{% trans %}Remove collaborator{% endtrans %}" data-ga="Remove collaborator" data-cy="remove-collaborator" role="button" aria-haspopup="true" title="{{ membership.member.pickername }}">{% trans %}Remove{% endtrans %}</a></li>
           </ul>
         </div>
       </div>

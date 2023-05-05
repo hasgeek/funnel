@@ -114,9 +114,11 @@ const Membership = {
         },
         onChange() {
           if (this.search) {
-            this.members.filter((member) => {
-              member.hide =
-                member.user.fullname
+            this.members.filter((membership) => {
+              /* FIXME: This is using fullname to identify a member,
+                 it should use an id */
+              membership.hide =
+                membership.member.fullname
                   .toLowerCase()
                   .indexOf(this.search.toLowerCase()) === -1;
               return true;
