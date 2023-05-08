@@ -1,9 +1,9 @@
 /* global gettext */
 import toastr from 'toastr';
+import Utils from './helper';
 
 const WebShare = {
   addWebShare() {
-    const utils = this;
     if (navigator.share) {
       $('.project-links').hide();
       $('.hg-link-btn').removeClass('mui--hide');
@@ -29,8 +29,7 @@ const WebShare = {
         if ($(linkElem).attr('data-shortlink')) {
           mobileShare(title, url, text);
         } else {
-          utils
-            .fetchShortUrl(url)
+          Utils.fetchShortUrl(url)
             .then((shortlink) => {
               url = shortlink;
               $(linkElem).attr('data-shortlink', true);
@@ -68,8 +67,7 @@ const WebShare = {
         if ($(linkElem).attr('data-shortlink')) {
           copyLink();
         } else {
-          utils
-            .fetchShortUrl($(linkElem).find('.js-copy-url').first().html())
+          Utils.fetchShortUrl($(linkElem).find('.js-copy-url').first().html())
             .then((shortlink) => {
               $(linkElem).find('.js-copy-url').text(shortlink);
               $(linkElem).attr('data-shortlink', true);
