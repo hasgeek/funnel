@@ -114,7 +114,7 @@ app.login_manager = views.login_session.LoginManager()
 db.init_app(app)  # type: ignore[has-type]
 db.init_app(shortlinkapp)  # type: ignore[has-type]
 
-migrate = Migrate(app, db)  # type: ignore[has-type]
+migrate = Migrate(app, db, render_as_batch=False)  # type: ignore[has-type]
 
 mail.init_app(app)
 mail.init_app(shortlinkapp)  # Required for email error reports
