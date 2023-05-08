@@ -172,7 +172,7 @@ class Update(
         read={'all'},
     )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
+    search_vector: Mapped[str] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'name',

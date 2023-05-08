@@ -404,7 +404,7 @@ def add_search_trigger(
 
         class MyModel(db.Model):  # type: ignore[name-defined]
             ...
-            search_vector: Mapped[TSVectorType] = sa.orm.deferred(sa.Column(
+            search_vector: Mapped[str] = sa.orm.deferred(sa.orm.mapped_column(
                 TSVectorType(
                     'name', 'title', *indexed_columns,
                     weights={'name': 'A', 'title': 'B'},

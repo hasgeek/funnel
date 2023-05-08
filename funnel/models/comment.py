@@ -240,7 +240,7 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     #: Revision number maintained by SQLAlchemy, starting at 1
     revisionid = with_roles(sa.Column(sa.Integer, nullable=False), read={'all'})
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
+    search_vector: Mapped[str] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'message_text',

@@ -103,7 +103,7 @@ class Label(
     #: although all the previous records will stay in database.
     _archived = sa.Column('archived', sa.Boolean, nullable=False, default=False)
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
+    search_vector: Mapped[str] = sa.orm.deferred(
         sa.Column(
             TSVectorType(
                 'name',

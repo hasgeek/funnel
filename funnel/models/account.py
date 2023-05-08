@@ -246,7 +246,7 @@ class Account(
         sa.orm.mapped_column(sa.Integer, nullable=False), read={'all'}
     )
 
-    search_vector: Mapped[TSVectorType] = sa.orm.deferred(
+    search_vector: Mapped[str] = sa.orm.deferred(
         sa.orm.mapped_column(
             TSVectorType(
                 'title',
