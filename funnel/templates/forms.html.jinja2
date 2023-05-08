@@ -189,7 +189,6 @@
   {%- endif %}
   {{ rendersubmit([(none, submit or _("Submit"), 'mui-btn--primary')], cancel_url=cancel_url, style=style, csrf_error=form.csrf_token.errors if form.csrf_token else "") }}
 </form>
-{%- if form and form.recaptcha is defined %}{{ recaptcha(formId=ref_id) }}{%- endif %}
 {% endmacro %}
 
 {%- macro ajaxform(ref_id, request, force=false) %}
