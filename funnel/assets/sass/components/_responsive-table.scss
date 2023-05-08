@@ -28,11 +28,11 @@
           padding: 10px 0;
 
           &:first-child {
-            padding-top: $mui-grid-padding/2;
+            padding-top: $mui-grid-padding * 0.5;
           }
 
           &:last-child {
-            padding-bottom: $mui-grid-padding/2;
+            padding-bottom: $mui-grid-padding * 0.5;
           }
 
           &:before {

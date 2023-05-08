@@ -108,7 +108,7 @@
 
       .schedule__row__column--header {
         display: flex !important;
-        padding: 0 $mui-grid-padding/2;
+        padding: 0 $mui-grid-padding * 0.5;
         margin: 0;
         align-items: center;
         justify-content: center;
@@ -187,7 +187,7 @@
             .schedule__row__column__content {
               width: calc(100% - 1px);
               height: 100%;
-              padding: $mui-grid-padding $mui-grid-padding/2;
+              padding: $mui-grid-padding $mui-grid-padding * 0.5;
               .schedule__row__column__content__title__duration {
                 top: 205px;
               }
@@ -203,7 +203,7 @@
             margin: 0;
             background-color: $mui-bg-color-primary;
             display: block;
-            padding: $mui-grid-padding/4 0 0;
+            padding: $mui-grid-padding * 0.25 0 0;
             text-align: center;
             color: $mui-accent-color;
             text-decoration: none;
@@ -224,7 +224,7 @@
           }
           .schedule__row__column--time--header {
             display: block;
-            padding: $mui-grid-padding/2 0;
+            padding: $mui-grid-padding * 0.5 0;
           }
         }
         .schedule__row--calendar {
@@ -272,12 +272,12 @@
   min-height: 100%;
 
   .modal__header {
-    padding: 0 $mui-grid-padding $mui-grid-padding/4;
+    padding: 0 $mui-grid-padding $mui-grid-padding * 0.25;
     border-bottom: 1px solid $mui-divider-color;
 
     .session-modal__title {
       max-width: calc(100% - 20px);
-      margin: $mui-grid-padding/2 0 $mui-grid-padding/2;
+      margin: $mui-grid-padding * 0.5 0 $mui-grid-padding * 0.5;
       position: static;
     }
 
@@ -286,12 +286,12 @@
     }
 
     .modal__header__title {
-      margin-bottom: $mui-grid-padding/4;
+      margin-bottom: $mui-grid-padding * 0.25;
       font-weight: 700;
     }
 
     .modal__header__text {
-      margin: 0 0 $mui-grid-padding/4;
+      margin: 0 0 $mui-grid-padding * 0.25;
     }
   }
 
@@ -323,7 +323,7 @@
     margin-top: 0;
     position: relative;
     top: -6px;
-    margin-bottom: $mui-grid-padding/2;
+    margin-bottom: $mui-grid-padding * 0.5;
   }
 }
 
@@ -419,8 +419,8 @@
 
 .proposal-box,
 body > .proposal-box.ui-draggable {
-  margin: $mui-grid-padding/2 0;
-  padding: $mui-grid-padding/4 $mui-grid-padding/2;
+  margin: $mui-grid-padding * 0.5 0;
+  padding: $mui-grid-padding * 0.25 $mui-grid-padding * 0.5;
   background: $mui-bg-color-primary;
   color: $mui-text-dark;
   border-radius: 4px;
