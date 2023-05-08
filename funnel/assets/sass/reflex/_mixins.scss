@@ -6,6 +6,8 @@
 // reflex grid generation mixins
 // --------------------------------------------------
 
+@use 'sass:math';
+
 @mixin make-reflex-grid($class) {
   @include loop-reflex-columns($reflex-columns, $class, width);
 }
@@ -13,8 +15,8 @@
 @mixin calc-reflex-columns($index, $class, $type) {
   @if $type == width and $index > 0 {
     .#{$reflex-prefix}#{$class}#{$index} {
-      width: percentage(($index / $reflex-columns));
-      *width: percentage(($index / $reflex-columns)) - 0.1;
+      width: percentage(math.div($index, $reflex-columns));
+      *width: percentage(math.div($index, $reflex-columns)) - 0.1;
 
       //for ie6 support you can uncomment this line but it will increase css filesize dramatically
       //@include setupCols();

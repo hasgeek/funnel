@@ -11,19 +11,19 @@
 }
 
 .margin-bottom {
-  margin-bottom: $mui-grid-padding/2;
+  margin-bottom: $mui-grid-padding * 0.5;
 }
 
 .margin-top {
-  margin-top: $mui-grid-padding/2;
+  margin-top: $mui-grid-padding * 0.5;
 }
 
 .margin-right {
-  margin-right: $mui-grid-padding/2;
+  margin-right: $mui-grid-padding * 0.5;
 }
 
 .margin-left {
-  margin-left: $mui-grid-padding/2;
+  margin-left: $mui-grid-padding * 0.5;
 }
 
 .margin-auto {
@@ -71,7 +71,7 @@
 }
 
 .mui-divider--custom {
-  margin: $mui-grid-padding/2 0 $mui-grid-padding * 1.5;
+  margin: $mui-grid-padding * 0.5 0 $mui-grid-padding * 1.5;
 }
 
 .separator {
