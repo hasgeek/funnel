@@ -6,6 +6,7 @@ import {
   MapMarker,
 } from './utils/form_widgets';
 import Form from './utils/formhelper';
+import 'htmx.org';
 
 window.Hasgeek.initWidgets = async function init(fieldName, config) {
   switch (fieldName) {
@@ -82,10 +83,10 @@ window.Hasgeek.recaptcha = function handleRecaptcha(
   if (ajax) {
     window.onInvisibleRecaptchaSubmit = function handleAjaxFormSubmit() {
       const postUrl = $(`#${formId}`).attr('action');
-      const onSuccess = function onSuccess(responseData) {
+      const onSuccess = function onSubmitSuccess(responseData) {
         $(`#${formWrapperId}`).html(responseData); // Replace with OTP form received as response
       };
-      const onError = function onError(response) {
+      const onError = function onSubmitError(response) {
         Form.showFormError(formId, response, alertBoxHtml);
       };
       Form.ajaxFormSubmit(formId, postUrl, onSuccess, onError, {
