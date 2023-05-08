@@ -53,6 +53,7 @@ from .helpers import (
     ImgeeType,
     add_search_trigger,
     quote_autocomplete_like,
+    quote_autocomplete_tsquery,
     valid_account_name,
     visual_field_delimiter,
 )
@@ -200,7 +201,7 @@ class Account(
     _profile_state: Mapped[int] = sa.orm.mapped_column(
         'profile_state',
         sa.SmallInteger,
-        StateManager.check_constraint('state', PROFILE_STATE),
+        StateManager.check_constraint('profile_state', PROFILE_STATE),
         nullable=False,
         default=PROFILE_STATE.AUTO,
     )
@@ -259,6 +260,17 @@ class Account(
                     Account.name,
                     Account.description_html,
                 ),
+            ),
+            nullable=False,
+        )
+    )
+    name_vector: Mapped[str] = sa.orm.deferred(
+        sa.orm.mapped_column(
+            TSVectorType(
+                'name',
+                'title',
+                regconfig='simple',
+                hltext=lambda: sa.func.concat_ws(' @', Account.title, Account.name),
             ),
             nullable=False,
         )
@@ -983,15 +995,13 @@ class Account(
         like_query = quote_autocomplete_like(prefix)
         if not like_query or like_query == '@%':
             return []
+        tsquery = quote_autocomplete_tsquery(prefix)
 
         # base_users is used in two of the three possible queries below
         base_users = (
             cls.query.filter(
                 cls.state.ACTIVE,
-                sa.or_(
-                    sa.func.lower(cls.title).like(sa.func.lower(like_query)),
-                    cls.name_like(like_query),
-                ),
+                cls.name_vector.bool_op('@@')(tsquery),
             )
             .options(*cls._defercols())
             .order_by(Account.title)
@@ -1056,7 +1066,11 @@ class Account(
             )
         else:
             # No '@' in the query, so do a regular autocomplete
-            users = base_users.all()
+            try:
+                users = base_users.all()
+            except sa.exc.ProgrammingError:
+                # This can happen because the tsquery from prefix turned out to be ':*'
+                users = []
         return users
 
     @classmethod
@@ -1146,6 +1160,7 @@ class Account(
 auto_init_default(Account._state)  # pylint: disable=protected-access
 auto_init_default(Account._profile_state)  # pylint: disable=protected-access
 add_search_trigger(Account, 'search_vector')
+add_search_trigger(Account, 'name_vector')
 
 
 class AccountOldId(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
