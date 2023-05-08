@@ -17,7 +17,7 @@ import LazyLoadMenu from './utils/lazyloadmenu';
 const pace = require('pace-js');
 
 $(() => {
-  // Code notice
+  /* eslint-disable no-console */
   console.log(
     'Hello, curious geek. Our source is at https://github.com/hasgeek. Why not contribute a patch?'
   );

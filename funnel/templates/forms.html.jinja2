@@ -213,7 +213,6 @@
       var formWrapperId = {{ formWrapperId|tojson }};
       var alertBoxHtml = {{ alertbox('error', '') | tojson }};
       var ajax = {{ ajax | tojson }};
-      console.log('window.Hasgeek.recaptcha', window.Hasgeek);
       window.Hasgeek.recaptcha(formId, formWrapperId, ajax, alertBoxHtml);
     });
   </script>
