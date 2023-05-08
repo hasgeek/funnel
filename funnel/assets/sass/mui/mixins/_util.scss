@@ -27,8 +27,8 @@
   box-sizing: border-box;
   margin-right: auto;
   margin-left: auto;
-  padding-left: ($gutter / 2);
-  padding-right: ($gutter / 2);
+  padding-left: ($gutter * 0.5);
+  padding-right: ($gutter * 0.5);
 }
 
 @mixin mui-tab-focus() {

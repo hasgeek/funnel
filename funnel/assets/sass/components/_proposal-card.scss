@@ -3,7 +3,7 @@
     .proposal-card__body__inner {
       .proposal-card__body__inner__headline {
         .proposal-card__body__inner__headline__content {
-          margin-bottom: $mui-grid-padding/2;
+          margin-bottom: $mui-grid-padding * 0.5;
         }
         .proposal-card__body__inner__headline__info__icon {
           position: relative;
@@ -15,8 +15,8 @@
         .proposal-card__body__inner__details__video {
           position: relative;
           width: 100%;
-          margin-right: $mui-grid-padding/2;
-          margin-bottom: $mui-grid-padding/2;
+          margin-right: $mui-grid-padding * 0.5;
+          margin-bottom: $mui-grid-padding * 0.5;
           .proposal-card__body__inner__details__video__thumbnail {
             position: relative;
             width: 100%;
@@ -62,7 +62,7 @@
           .proposal-card__body__inner__details__txt {
             position: absolute;
             left: 0;
-            bottom: $mui-grid-padding/2;
+            bottom: $mui-grid-padding * 0.5;
           }
         }
       }

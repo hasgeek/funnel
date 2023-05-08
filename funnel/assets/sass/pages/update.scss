@@ -32,8 +32,8 @@
 }
 
 .update {
-  padding: $mui-grid-padding/2 0 0;
-  margin: $mui-grid-padding/2 0;
+  padding: $mui-grid-padding * 0.5 0 0;
+  margin: $mui-grid-padding * 0.5 0;
   position: relative;
 
   .update__content {
@@ -48,7 +48,7 @@
 }
 
 .update--border {
-  padding: $mui-grid-padding/2 $mui-grid-padding 0;
+  padding: $mui-grid-padding * 0.5 $mui-grid-padding 0;
   border-radius: 4px;
   background: $mui-bg-color-accent;
 }
