@@ -169,7 +169,7 @@ export async function activateFormWidgets() {
 
 export const EnableAutocompleteWidgets = {
   lastuserAutocomplete(options) {
-    const assembleUsers = function (users) {
+    const assembleUsers = function getUsers(users) {
       return users.map((user) => {
         return { id: user.buid, text: user.label };
       });
@@ -333,10 +333,8 @@ export class MapMarker {
   }
 
   getDefaultLocation() {
-    let latitude;
-    let longitude;
-    latitude = $(`#${this.field.latitudeId}`).val();
-    longitude = $(`#${this.field.longitudeId}`).val();
+    const latitude = $(`#${this.field.latitudeId}`).val();
+    const longitude = $(`#${this.field.longitudeId}`).val();
     return { latitude, longitude };
   }
 }

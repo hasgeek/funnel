@@ -1,5 +1,5 @@
 {% extends "layout.html.jinja2" %}
-{% from "forms.html.jinja2" import renderform, renderform_inner, renderfield, rendersubmit, ajaxform, widget_ext_scripts, widgetscripts %}
+{% from "forms.html.jinja2" import renderform, renderform_inner, renderfield, rendersubmit, ajaxform, widget_ext_scripts, widgetscripts, recaptcha %}
 
 {% block title %}{{ title }}{% endblock title %}
 
@@ -82,6 +82,6 @@
   </script>
   {{ ajaxform(ref_id=ref_id, request=request, force=ajax) }}
   {%- if form and form.recaptcha is defined %}
-    {% block recaptcha %}{% endblock recaptcha %}
+    {% block recaptcha %}{{ recaptcha(ref_id=ref_id) }}{% endblock recaptcha %}
   {%- endif %}
 {% endblock footerscripts %}
