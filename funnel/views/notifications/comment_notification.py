@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from typing import List, Optional, Union
 
-from flask import Markup, escape, render_template, url_for
+from flask import render_template, url_for
+from markupsafe import Markup, escape
 from werkzeug.utils import cached_property
 
 from baseframe import _, __

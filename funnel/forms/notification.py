@@ -5,7 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, List, Optional
 
-from flask import Markup, url_for
+from flask import url_for
+from markupsafe import Markup
 
 from baseframe import __, forms
 

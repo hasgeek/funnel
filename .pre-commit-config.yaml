@@ -171,13 +171,6 @@ repos:
         args:
           ['--single-quote', '--trailing-comma', 'es5', '--end-of-line', 'lf']
         exclude: funnel/templates/js/
-  - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.26.0
-    hooks:
-      - id: djlint-jinja
-        files: \.html\.(jinja2|j2)$
-      - id: djlint-handlebars
-        files: \.html\.(mustache|hb)$
   - repo: https://github.com/ducminh-phan/reformat-gherkin
     rev: v3.0.1
     hooks:

@@ -10,7 +10,7 @@ revision = '94ce3a9b7a3a'
 down_revision = 'a9cb0e1c52ed'
 
 from alembic import op
-from sqlalchemy_utils.types.uuid import UUIDType
+from sqlalchemy.dialects import postgresql
 import sqlalchemy as sa
 
 from coaster.sqlalchemy.columns import JsonDict
@@ -22,9 +22,9 @@ def upgrade():
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=False),
         sa.Column('table', sa.UnicodeText(), nullable=False),
-        sa.Column('table_row_id', UUIDType(binary=False), nullable=False),
+        sa.Column('table_row_id', postgresql.UUID(), nullable=False),
         sa.Column('body', JsonDict(), server_default='{}', nullable=False),
-        sa.Column('revision', UUIDType(binary=False), nullable=True),
+        sa.Column('revision', postgresql.UUID(), nullable=True),
         sa.PrimaryKeyConstraint('table', 'table_row_id'),
     )
 

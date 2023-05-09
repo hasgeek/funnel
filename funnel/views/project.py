@@ -5,8 +5,9 @@ from types import SimpleNamespace
 import csv
 import io
 
-from flask import Markup, Response, abort, current_app, flash, render_template, request
+from flask import Response, abort, current_app, flash, render_template, request
 from flask_babel import format_number
+from markupsafe import Markup
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message

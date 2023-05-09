@@ -120,7 +120,7 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
 from ..typing import T, UuidModelType
-from . import BaseMixin, Mapped, NoIdMixin, UUIDType, db, hybrid_property, sa
+from . import BaseMixin, Mapped, NoIdMixin, db, hybrid_property, postgresql, sa
 from .account import Account, AccountEmail, AccountPhone
 from .helpers import reopen
 from .phone_number import PhoneNumber, PhoneNumberMixin
@@ -293,14 +293,14 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: instance of a UserNotification per-event rather than per-notification
     eventid: Mapped[UUID] = immutable(
         sa.orm.mapped_column(
-            UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
+            postgresql.UUID, primary_key=True, nullable=False, default=uuid4
         )
     )
 
     #: Notification id
     id: Mapped[UUID] = immutable(  # noqa: A003
         sa.orm.mapped_column(
-            UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
+            postgresql.UUID, primary_key=True, nullable=False, default=uuid4
         )
     )
 
@@ -357,14 +357,14 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     #: UUID of document that the notification refers to
     document_uuid: Mapped[UUID] = immutable(
-        sa.orm.mapped_column(UUIDType(binary=False), nullable=False, index=True)
+        sa.orm.mapped_column(postgresql.UUID, nullable=False, index=True)
     )
 
     #: Optional fragment within document that the notification refers to. This may be
     #: the document itself, or something within it, such as a comment. Notifications for
     #: multiple fragments are collapsed into a single notification
     fragment_uuid: Mapped[Optional[UUID]] = immutable(
-        sa.orm.mapped_column(UUIDType(binary=False), nullable=True)
+        sa.orm.mapped_column(postgresql.UUID, nullable=True)
     )
 
     __table_args__ = (
@@ -762,16 +762,14 @@ class UserNotification(
     #: Random eventid, shared with the Notification instance
     eventid: Mapped[UUID] = with_roles(
         immutable(
-            sa.orm.mapped_column(
-                UUIDType(binary=False), primary_key=True, nullable=False
-            )
+            sa.orm.mapped_column(postgresql.UUID, primary_key=True, nullable=False)
         ),
         read={'owner'},
     )
 
     #: Id of notification that this user received (fkey in __table_args__ below)
     notification_id: Mapped[UUID] = sa.orm.mapped_column(
-        UUIDType(binary=False), nullable=False
+        postgresql.UUID, nullable=False
     )
 
     #: Notification that this user received
@@ -810,7 +808,7 @@ class UserNotification(
 
     #: When a roll-up is performed, record an identifier for the items rolled up
     rollupid: Mapped[Optional[UUID]] = with_roles(
-        sa.orm.mapped_column(UUIDType(binary=False), nullable=True, index=True),
+        sa.orm.mapped_column(postgresql.UUID, nullable=True, index=True),
         read={'owner'},
     )
 

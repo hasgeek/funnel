@@ -27,8 +27,8 @@ from sqlalchemy.dialects.postgresql.base import (
 from sqlalchemy.ext.mutable import MutableComposite
 from sqlalchemy.orm import composite
 
-from flask import Markup
-from flask import escape as html_escape
+from markupsafe import Markup
+from markupsafe import escape as html_escape
 
 from better_profanity import profanity
 from furl import furl
