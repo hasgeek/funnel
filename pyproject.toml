@@ -85,6 +85,7 @@ known_flask = [
   'flask',
   'click',
   'werkzeug',
+  'markupsafe',
   'itsdangerous',
   'wtforms',
   'webassets',
@@ -148,7 +149,7 @@ pythonVersion = '3.7'
 
 [tool.mypy]
 files = '**/*.py'
-exclude = 'node_modules'
+exclude = ['node_modules', 'build']
 plugins = ['sqlalchemy.ext.mypy.plugin']
 ignore_missing_imports = true
 show_error_codes = true

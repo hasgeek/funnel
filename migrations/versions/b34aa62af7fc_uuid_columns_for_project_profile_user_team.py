@@ -13,8 +13,8 @@ down_revision = '19a1f7f2a365'
 from uuid import uuid4
 
 from alembic import op
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
-from sqlalchemy_utils import UUIDType
 import sqlalchemy as sa
 
 from progressbar import ProgressBar
@@ -23,27 +23,27 @@ import progressbar.widgets
 from coaster.utils import buid2uuid, uuid2buid
 
 project = table(
-    'project', column('id', sa.Integer()), column('uuid', UUIDType(binary=False))
+    'project', column('id', sa.Integer()), column('uuid', postgresql.UUID())
 )
 
 profile = table(
     'profile',
     column('id', sa.Integer()),
-    column('uuid', UUIDType(binary=False)),
+    column('uuid', postgresql.UUID()),
     column('userid', sa.String(22)),
 )
 
 user = table(
     'user',
     column('id', sa.Integer()),
-    column('uuid', UUIDType(binary=False)),
+    column('uuid', postgresql.UUID()),
     column('userid', sa.String(22)),
 )
 
 team = table(
     'team',
     column('id', sa.Integer()),
-    column('uuid', UUIDType(binary=False)),
+    column('uuid', postgresql.UUID()),
     column('userid', sa.String(22)),
 )
 
@@ -68,7 +68,7 @@ def upgrade():
     conn = op.get_bind()
 
     # --- Project
-    op.add_column('project', sa.Column('uuid', UUIDType(binary=False), nullable=True))
+    op.add_column('project', sa.Column('uuid', postgresql.UUID(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(project))
     progress = get_progressbar("Projects", count)
     progress.start()
@@ -83,7 +83,7 @@ def upgrade():
     op.create_unique_constraint('project_uuid_key', 'project', ['uuid'])
 
     # --- Profile
-    op.add_column('profile', sa.Column('uuid', UUIDType(binary=False), nullable=True))
+    op.add_column('profile', sa.Column('uuid', postgresql.UUID(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(profile))
     progress = get_progressbar("Profiles", count)
     progress.start()
@@ -102,7 +102,7 @@ def upgrade():
     op.drop_column('profile', 'userid')
 
     # --- Team
-    op.add_column('team', sa.Column('uuid', UUIDType(binary=False), nullable=True))
+    op.add_column('team', sa.Column('uuid', postgresql.UUID(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(team))
     progress = get_progressbar("Teams", count)
     progress.start()
@@ -121,7 +121,7 @@ def upgrade():
     op.drop_column('team', 'userid')
 
     # --- User
-    op.add_column('user', sa.Column('uuid', UUIDType(binary=False), nullable=True))
+    op.add_column('user', sa.Column('uuid', postgresql.UUID(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(user))
     progress = get_progressbar("Users", count)
     progress.start()

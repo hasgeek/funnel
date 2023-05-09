@@ -9,7 +9,6 @@ from funnel.views.account import user_agent_details
 
 def test_username_available(db_session, client, user_rincewind, csrf_token) -> None:
     """Test the username availability endpoint."""
-    db_session.commit()
     endpoint = '/api/1/account/username_available'
 
     # Does not support GET requests

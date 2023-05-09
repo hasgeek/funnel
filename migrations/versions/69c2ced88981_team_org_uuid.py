@@ -11,8 +11,8 @@ revision = '69c2ced88981'
 down_revision = 'b34aa62af7fc'
 
 from alembic import op
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
-from sqlalchemy_utils import UUIDType
 import sqlalchemy as sa
 
 from progressbar import ProgressBar
@@ -24,7 +24,7 @@ team = table(
     'team',
     column('id', sa.Integer()),
     column('orgid', sa.String(22)),
-    column('org_uuid', UUIDType(binary=False)),
+    column('org_uuid', postgresql.UUID()),
 )
 
 
@@ -47,7 +47,7 @@ def get_progressbar(label, maxval):
 def upgrade():
     conn = op.get_bind()
 
-    op.add_column('team', sa.Column('org_uuid', UUIDType(binary=False), nullable=True))
+    op.add_column('team', sa.Column('org_uuid', postgresql.UUID(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(team))
     progress = get_progressbar("Teams", count)
     progress.start()

@@ -9,7 +9,7 @@ Create Date: 2020-04-07 01:51:58.147168
 from typing import Optional, Tuple, Union
 
 from alembic import op
-from sqlalchemy_utils import UUIDType
+from sqlalchemy.dialects import postgresql
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
@@ -74,7 +74,7 @@ def upgrade():
     op.create_table(
         'organization',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('uuid', UUIDType(binary=False), nullable=False),
+        sa.Column('uuid', postgresql.UUID(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('owners_id', sa.Integer(), nullable=True),
@@ -100,7 +100,7 @@ def upgrade():
     op.create_table(
         'user',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('uuid', UUIDType(binary=False), nullable=False),
+        sa.Column('uuid', postgresql.UUID(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('fullname', sa.Unicode(length=80), nullable=False),
@@ -115,7 +115,7 @@ def upgrade():
     )
     op.create_table(
         'account_name',
-        sa.Column('id', UUIDType(binary=False), nullable=False),
+        sa.Column('id', postgresql.UUID(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('name', sa.Unicode(length=63), nullable=False),
@@ -141,7 +141,7 @@ def upgrade():
     op.create_table(
         'auth_client',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('uuid', UUIDType(binary=False), nullable=False),
+        sa.Column('uuid', postgresql.UUID(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=True),
@@ -186,7 +186,7 @@ def upgrade():
     op.create_table(
         'team',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('uuid', UUIDType(binary=False), nullable=False),
+        sa.Column('uuid', postgresql.UUID(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('title', sa.Unicode(length=250), nullable=False),
@@ -258,7 +258,7 @@ def upgrade():
     )
     op.create_table(
         'user_oldid',
-        sa.Column('id', UUIDType(binary=False), nullable=False),
+        sa.Column('id', postgresql.UUID(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
@@ -301,7 +301,7 @@ def upgrade():
     op.create_table(
         'user_session',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('uuid', UUIDType(binary=False), nullable=False),
+        sa.Column('uuid', postgresql.UUID(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),

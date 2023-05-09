@@ -10,8 +10,8 @@ from typing import Optional, Tuple, Union
 from uuid import uuid4
 
 from alembic import op
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
-from sqlalchemy_utils import UUIDType
 import sqlalchemy as sa
 
 from progressbar import ProgressBar
@@ -28,7 +28,7 @@ rsvp = table(
     'rsvp',
     column('project_id', sa.Integer()),
     column('user_id', sa.Integer()),
-    column('uuid', UUIDType(binary=False)),
+    column('uuid', postgresql.UUID()),
 )
 
 
@@ -50,7 +50,7 @@ def get_progressbar(label, maxval):
 
 def upgrade():
     conn = op.get_bind()
-    op.add_column('rsvp', sa.Column('uuid', UUIDType(binary=False), nullable=True))
+    op.add_column('rsvp', sa.Column('uuid', postgresql.UUID(), nullable=True))
 
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(rsvp))
     progress = get_progressbar("Rsvps", count)
