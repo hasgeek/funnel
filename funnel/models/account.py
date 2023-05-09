@@ -113,11 +113,7 @@ class ZBase32Comparator(Comparator[str]):  # pylint: disable=abstract-method
 
     def __eq__(self, other: str):  # type: ignore[override]
         """Return an expression for column == other."""
-        return self.__clause_element__() == zbase32_decode(other)
-
-    def in_(self, other: Iterable[Union[str, bytes]]):  # type: ignore[override]
-        """Return an expression for other IN column."""
-        return self.__clause_element__().in_([zbase32_decode(v) for v in other])
+        return self.__clause_element__() == UUID(bytes=zbase32_decode(other))
 
 
 class Account(
