@@ -85,6 +85,7 @@ known_flask = [
   'flask',
   'click',
   'werkzeug',
+  'markupsafe',
   'itsdangerous',
   'wtforms',
   'webassets',

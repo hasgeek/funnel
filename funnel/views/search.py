@@ -10,7 +10,8 @@ import re
 from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
 
-from flask import Markup, request, url_for
+from flask import request, url_for
+from markupsafe import Markup
 
 from typing_extensions import TypedDict
 

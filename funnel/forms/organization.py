@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from typing import Iterable, Optional
 
-from flask import Markup, url_for
+from flask import url_for
+from markupsafe import Markup
 
 from baseframe import _, __, forms
 
