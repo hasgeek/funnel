@@ -372,7 +372,11 @@ def quote_autocomplete_like(prefix, midway=False) -> str:
     # Some SQL dialects respond to '[' and ']', so remove them.
     # Suffix a '%' to make a prefix-match query.
     like_query = (
-        prefix.replace('%', r'\%').replace('_', r'\_').replace('[', '').replace(']', '')
+        prefix.replace('\\', r'\\')
+        .replace('%', r'\%')
+        .replace('_', r'\_')
+        .replace('[', '')
+        .replace(']', '')
         + '%'
     )
     lstrip_like_query = like_query.lstrip()

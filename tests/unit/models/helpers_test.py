@@ -252,6 +252,12 @@ def test_imgeetype(db_session, image_models) -> None:
         ('lu_tz', True, r'%lu\_tz%'),
         ('ab[c]_%d', False, r'abc\_\%d%'),
         ('ab[c]_%d', True, r'%abc\_\%d%'),
+        ('\\', False, r'\\%'),
+        ('\\', True, r'%\\%'),
+        ('ab\\cd', False, r'ab\\cd%'),
+        ('ab\\cd', True, r'%ab\\cd%'),
+        ('\\%', False, r'\\\%%'),
+        ('\\%', True, r'%\\\%%'),
     ],
 )
 def test_quote_autocomplete_like(prefix, midway, query) -> None:
