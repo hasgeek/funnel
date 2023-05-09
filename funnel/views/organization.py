@@ -53,8 +53,8 @@ class OrgView(UrlChangeCheck, UrlForView, ModelView):
 
     __decorators__ = [requires_login]
     model = Account
-    # Map <account> in URL to attribute `name`, for `url_for` automation
-    route_model_map = {'account': 'name'}
+    # Map <account> in URL to attribute `urlname`, for `url_for` automation
+    route_model_map = {'account': 'urlname'}
     obj: Account
 
     def loader(self, account: Optional[str] = None) -> Optional[Account]:
@@ -165,7 +165,7 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
     model = Team
     # Map <name> and <buid> in URLs to model attributes, for `url_for` automation
     route_model_map = {
-        'account': 'organization.name',
+        'account': 'organization.urlname',
         'team': 'buid',
     }
     obj: Team
@@ -173,7 +173,7 @@ class TeamView(UrlChangeCheck, UrlForView, ModelView):
     def loader(self, account: str, team: str) -> Team:
         """Load a team."""
         obj = Team.get(buid=team, with_parent=True)
-        if obj is None or obj.account.name != account:
+        if obj is None or obj.account.urlname != account:
             abort(404)
         return obj
 

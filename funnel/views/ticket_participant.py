@@ -107,19 +107,19 @@ def ticket_participant_checkin_data(ticket_participant, project, ticket_event):
             {
                 'badge_url': url_for(
                     'TicketParticipantView_badge',
-                    account=project.account.name,
+                    account=project.account.urlname,
                     project=project.name,
                     ticket_participant=puuid_b58,
                 ),
                 'label_badge_url': url_for(
                     'TicketParticipantView_label_badge',
-                    account=project.account.name,
+                    account=project.account.urlname,
                     project=project.name,
                     ticket_participant=puuid_b58,
                 ),
                 'edit_url': url_for(
                     'TicketParticipantView_edit',
-                    account=project.account.name,
+                    account=project.account.urlname,
                     project=project.name,
                     ticket_participant=puuid_b58,
                 ),
@@ -175,7 +175,7 @@ class TicketParticipantView(AccountCheckMixin, UrlForView, ModelView):
 
     model = TicketParticipant
     route_model_map = {
-        'account': 'project.account.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'ticket_participant': 'uuid_b58',
     }

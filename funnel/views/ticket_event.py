@@ -226,7 +226,7 @@ class TicketTypeView(AccountCheckMixin, UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = TicketType
     route_model_map = {
-        'account': 'project.account.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'name': 'name',
     }
@@ -305,7 +305,7 @@ class TicketClientView(AccountCheckMixin, UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = TicketClient
     route_model_map = {
-        'account': 'project.account.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'client_id': 'id',
     }

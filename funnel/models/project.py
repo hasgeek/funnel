@@ -441,7 +441,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
 
     def __repr__(self) -> str:
         """Represent :class:`Project` as a string."""
-        return f'<Project {self.account.name}/{self.name} "{self.title}">'
+        return f'<Project {self.account.urlname}/{self.name} "{self.title}">'
 
     @with_roles(call={'editor'})
     @cfp_state.transition(
@@ -822,15 +822,15 @@ class ProjectRedirect(TimestampMixin, db.Model):  # type: ignore[name-defined]
     def __repr__(self) -> str:
         """Represent :class:`ProjectRedirect` as a string."""
         if not self.project:
-            return f'<ProjectRedirect {self.account.name}/{self.name}: (none)>'
+            return f'<ProjectRedirect {self.account.urlname}/{self.name}: (none)>'
         return (
-            f'<ProjectRedirect {self.account.name}/{self.name}'
-            f' → {self.project.account.name}/{self.project.name}>'
+            f'<ProjectRedirect {self.account.urlname}/{self.name}'
+            f' → {self.project.account.urlname}/{self.project.name}>'
         )
 
     def redirect_view_args(self):
         if self.project:
-            return {'account': self.account.name, 'project': self.project.name}
+            return {'account': self.account.urlname, 'project': self.project.name}
         return {}
 
     @classmethod

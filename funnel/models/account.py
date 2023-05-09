@@ -9,6 +9,7 @@ import hashlib
 import itertools
 
 from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
+from sqlalchemy.ext.hybrid import Comparator
 from sqlalchemy.sql.expression import ColumnElement
 
 from werkzeug.utils import cached_property
@@ -18,6 +19,8 @@ from furl import furl
 from passlib.hash import argon2, bcrypt
 from pytz.tzinfo import BaseTzInfo
 from typing_extensions import Literal
+from zbase32 import decode as zbase32_decode
+from zbase32 import encode as zbase32_encode
 import phonenumbers
 
 from baseframe import __
@@ -45,6 +48,7 @@ from . import (
     UrlType,
     UuidMixin,
     db,
+    hybrid_property,
     sa,
 )
 from .email_address import EmailAddress, EmailAddressMixin
@@ -102,6 +106,18 @@ class PROFILE_STATE(LabeledEnum):  # noqa: N801
 
     NOT_PUBLIC = {AUTO, PRIVATE}
     NOT_PRIVATE = {AUTO, PUBLIC}
+
+
+class ZBase32Comparator(Comparator[str]):  # pylint: disable=abstract-method
+    """Comparator to allow lookup by Account.uuid_zbase32."""
+
+    def __eq__(self, other: str):  # type: ignore[override]
+        """Return an expression for column == other."""
+        return self.__clause_element__() == zbase32_decode(other)
+
+    def in_(self, other: Iterable[Union[str, bytes]]):  # type: ignore[override]
+        """Return an expression for other IN column."""
+        return self.__clause_element__().in_([zbase32_decode(v) for v in other])
 
 
 class Account(
@@ -304,6 +320,7 @@ class Account(
             'read': {
                 'uuid',
                 'name',
+                'urlname',
                 'title',
                 'fullname',
                 'username',
@@ -329,6 +346,7 @@ class Account(
             'urls',
             'uuid_b58',
             'name',
+            'urlname',
             'title',
             'fullname',
             'username',
@@ -345,6 +363,7 @@ class Account(
             'urls',
             'uuid_b58',
             'name',
+            'urlname',
             'title',
             'fullname',
             'username',
@@ -857,20 +876,39 @@ class Account(
         """Test if account is safe to delete and has no memberships (active or not)."""
         return self.is_safe_to_delete() and not self.has_any_memberships()
 
+    @property
+    def urlname(self) -> str:
+        """Return :attr:`name` or ``~``-prefixed :attr:`uuid_zbase32`."""
+        if self.name is not None:
+            return self.name
+        return f'~{self.uuid_zbase32}'
+
+    @hybrid_property
+    def uuid_zbase32(self) -> str:
+        """Account UUID rendered in z-Base-32."""
+        return zbase32_encode(self.uuid.bytes)
+
+    @uuid_zbase32.comparator
+    def uuid_zbase32(cls) -> ZBase32Comparator:  # pylint: disable=no-self-argument
+        """Return SQL comparator for :prop:`uuid_zbase32`."""
+        return ZBase32Comparator(cls.uuid)
+
     @classmethod
-    def name_is(cls, name: Any) -> ColumnElement:
+    def name_is(cls, name: str) -> ColumnElement:
         """Generate query filter to check if name is matching (case insensitive)."""
+        if name.startswith('~'):
+            return cls.uuid_zbase32 == name[1:]
         return sa.func.lower(cls.name) == sa.func.lower(sa.func.replace(name, '-', '_'))
 
     @classmethod
-    def name_in(cls, names: Iterable[Any]) -> ColumnElement:
+    def name_in(cls, names: Iterable[str]) -> ColumnElement:
         """Generate query flter to check if name is among candidates."""
         return sa.func.lower(cls.name).in_(
             [name.lower().replace('-', '_') for name in names]
         )
 
     @classmethod
-    def name_like(cls, like_query: Any) -> ColumnElement:
+    def name_like(cls, like_query: str) -> ColumnElement:
         """Generate query filter for a LIKE query on name."""
         return sa.func.lower(cls.name).like(
             sa.func.lower(sa.func.replace(like_query, '-', r'\_'))

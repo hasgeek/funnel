@@ -60,7 +60,7 @@ class ProfileForm(OrganizationForm):
 
     def set_queries(self) -> None:
         """Prepare form for use."""
-        self.logo_url.profile = self.account.name
+        self.logo_url.profile = self.account.name or self.account.buid
 
     def make_for_user(self):
         """Customise form for a user account."""
@@ -120,7 +120,7 @@ class ProfileLogoForm(forms.Form):
     def set_queries(self) -> None:
         """Prepare form for use."""
         self.logo_url.widget_type = 'modal'
-        self.logo_url.profile = self.account.name
+        self.logo_url.profile = self.account.name or self.account.buid
 
 
 @Account.forms('banner_image')
@@ -147,4 +147,4 @@ class ProfileBannerForm(forms.Form):
     def set_queries(self) -> None:
         """Prepare form for use."""
         self.banner_image_url.widget_type = 'modal'
-        self.banner_image_url.profile = self.account.name
+        self.banner_image_url.profile = self.account.name or self.account.buid

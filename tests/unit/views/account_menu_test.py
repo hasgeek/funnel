@@ -51,7 +51,7 @@ def test_recent_organization_memberships_count(
     )
     # Most recently added org should be first in results. The `dbcommit` mark is
     # required to ensure this, as granted_at timestamp is set by the SQL transaction
-    assert result.recent[0].account.name == org.name
+    assert result.recent[0].account.urlname == org.urlname
     assert len(result.recent) == returned_listed
     assert len(result.overflow) == returned_overflow
     assert result.extra_count == returned_extra_count

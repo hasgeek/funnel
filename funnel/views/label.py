@@ -108,7 +108,7 @@ class LabelView(AccountCheckMixin, UrlForView, ModelView):
     __decorators__ = [requires_login]
     model = Label
     route_model_map = {
-        'account': 'project.account.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'label': 'name',
     }

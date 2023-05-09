@@ -139,7 +139,7 @@ ProjectProposalView.init_app(app)
 class ProposalView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     model = Proposal
     route_model_map = {
-        'account': 'project.account.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'proposal': 'url_name_uuid_b58',
     }
@@ -426,7 +426,7 @@ ProposalView.init_app(app)
 class ProposalMembershipView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     model = ProposalMembership
     route_model_map = {
-        'account': 'proposal.project.account.name',
+        'account': 'proposal.project.account.urlname',
         'project': 'proposal.project.name',
         'proposal': 'proposal.url_name_uuid_b58',
         'membership': 'uuid_b58',

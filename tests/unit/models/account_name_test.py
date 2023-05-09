@@ -116,3 +116,25 @@ def test_name_transfer(db_session, user_mort, user_rincewind) -> None:
     assert merged == user_mort
     assert user_mort.username == 'rincewind'
     assert user_rincewind.username is None
+
+
+def test_urlname(user_twoflower, user_rincewind) -> None:
+    """An Account has a URL name even if there's no name."""
+    assert user_twoflower.name is None
+    assert user_rincewind.name == 'rincewind'
+    assert user_twoflower.urlname is not None
+    assert user_rincewind.urlname is not None
+    assert user_twoflower.urlname == f'~{user_twoflower.uuid_zbase32}'
+    assert user_rincewind.urlname == 'rincewind'
+    assert (
+        models.Account.query.filter(
+            models.Account.name_is(user_twoflower.urlname)
+        ).one()
+        == user_twoflower
+    )
+    assert (
+        models.Account.query.filter(
+            models.Account.name_is(user_rincewind.urlname)
+        ).one()
+        == user_rincewind
+    )

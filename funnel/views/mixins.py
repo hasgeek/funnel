@@ -51,7 +51,7 @@ class AccountCheckMixin:
 
 class ProjectViewMixin(AccountCheckMixin):
     model: Type[Project] = Project
-    route_model_map = {'account': 'account.name', 'project': 'name'}
+    route_model_map = {'account': 'account.urlname', 'project': 'name'}
     obj: Project
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
@@ -92,7 +92,7 @@ class ProjectViewMixin(AccountCheckMixin):
 
 class AccountViewMixin(AccountCheckMixin):
     model = Account
-    route_model_map = {'account': 'name'}
+    route_model_map = {'account': 'urlname'}
     obj: Account
     SavedProjectForm = SavedProjectForm
     CsrfForm = forms.Form
@@ -111,7 +111,7 @@ class AccountViewMixin(AccountCheckMixin):
 class SessionViewMixin(AccountCheckMixin):
     model = Session
     route_model_map = {
-        'account': 'project.account.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'session': 'url_name_uuid_b58',
     }
@@ -138,7 +138,7 @@ class SessionViewMixin(AccountCheckMixin):
 class VenueViewMixin(AccountCheckMixin):
     model = Venue
     route_model_map = {
-        'account': 'project.account.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'venue': 'name',
     }
@@ -162,7 +162,7 @@ class VenueViewMixin(AccountCheckMixin):
 class VenueRoomViewMixin(AccountCheckMixin):
     model = VenueRoom
     route_model_map = {
-        'account': 'venue.project.account.name',
+        'account': 'venue.project.account.urlname',
         'project': 'venue.project.name',
         'venue': 'venue.name',
         'room': 'name',
@@ -191,7 +191,7 @@ class VenueRoomViewMixin(AccountCheckMixin):
 class TicketEventViewMixin(AccountCheckMixin):
     model = TicketEvent
     route_model_map = {
-        'account': 'project.account.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'name': 'name',
     }

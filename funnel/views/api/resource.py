@@ -73,7 +73,7 @@ def get_userinfo(
                     'userid': org.buid,
                     'buid': org.buid,
                     'uuid': org.uuid,
-                    'name': org.name,
+                    'name': org.urlname,
                     'title': org.title,
                 }
                 for org in user.organizations_as_owner
@@ -83,7 +83,7 @@ def get_userinfo(
                     'userid': org.buid,
                     'buid': org.buid,
                     'uuid': org.uuid,
-                    'name': org.name,
+                    'name': org.urlname,
                     'title': org.title,
                 }
                 for org in user.organizations_as_admin
@@ -187,7 +187,7 @@ def user_get_by_userid() -> ReturnView:
             userid=org.buid,
             buid=org.buid,
             uuid=org.uuid,
-            name=org.name,
+            name=org.urlname,
             title=org.title,
             label=org.pickername,
         )

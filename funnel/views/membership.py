@@ -164,7 +164,7 @@ class OrganizationMembershipView(
     AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView
 ):
     model = AccountAdminMembership
-    route_model_map = {'account': 'account.name', 'membership': 'uuid_b58'}
+    route_model_map = {'account': 'account.urlname', 'membership': 'uuid_b58'}
     obj: AccountAdminMembership
 
     def loader(self, account, membership) -> AccountAdminMembership:
@@ -395,7 +395,7 @@ ProjectMembershipView.init_app(app)
 class ProjectCrewMembershipMixin(AccountCheckMixin):
     model = ProjectCrewMembership
     route_model_map = {
-        'account': 'project.account.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'membership': 'uuid_b58',
     }

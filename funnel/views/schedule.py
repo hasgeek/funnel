@@ -269,7 +269,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             mimetype='text/calendar',
             headers={
                 'Content-Disposition': f'attachment;filename='
-                f'"{self.obj.account.name}-{self.obj.name}.ics"'
+                f'"{self.obj.account.urlname}-{self.obj.name}.ics"'
             },
         )
 
@@ -333,7 +333,7 @@ class ProjectScheduleView(ProjectViewMixin, UrlChangeCheck, UrlForView, ModelVie
             except NoResultFound:
                 current_app.logger.error(
                     '%s/%s schedule update error: no existing session matching %s',
-                    self.obj.account.name,
+                    self.obj.account.urlname,
                     self.obj.name,
                     repr(session),
                 )
@@ -381,7 +381,7 @@ class ScheduleVenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
             mimetype='text/calendar',
             headers={
                 'Content-Disposition': 'attachment;filename="'
-                + self.obj.venue.project.account.name
+                + self.obj.venue.project.account.urlname
                 + '-'
                 + self.obj.venue.project.name
                 + '-'

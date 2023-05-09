@@ -93,7 +93,7 @@ def update_publishable(obj):
 class UpdateView(AccountCheckMixin, UrlChangeCheck, UrlForView, ModelView):
     model = Update
     route_model_map = {
-        'account': 'project.account.name',
+        'account': 'project.account.urlname',
         'project': 'project.name',
         'update': 'url_name_uuid_b58',
     }
