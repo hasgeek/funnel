@@ -14,7 +14,7 @@
     <div id="register-form">
       <json-form :jsonschema="jsonSchema" :formid="'rsvp-form'" @handle-submit-response="handleAjaxPost"></json-form>
     </div>
-    <p class="mui--text-body2 top-padding zero-bottom-margin">{% trans %}This will share your name and email address with the project’s promoter so they can keep you updated. You can cancel your registration at any time{% endtrans %}</p>
+    <p class="mui--text-body2 top-padding zero-bottom-margin">{% trans %}This will share your name and email address or phone number with the project’s promoter so they can keep you updated. You can cancel your registration at any time{% endtrans %}</p>
     <div class="mui--text-right">
       <button class="mui-btn mui-btn--raised" type="submit" name="submit" value="yes" data-cy="confirm">{% trans %}Confirm{% endtrans %}</button>
     </div>

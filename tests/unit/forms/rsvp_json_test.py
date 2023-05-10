@@ -85,4 +85,4 @@ def test_excess_json_register_form(app) -> None:
     ):
         form = forms.ProjectRegisterForm(meta={'csrf': False}, schema=form_valid_json)
         assert form.validate() is False
-        assert form.form.errors[0] == "Invalid key {'company'}"
+        assert form.form.errors[0] == "Invalid field {'company'}"

@@ -372,7 +372,7 @@ class ProjectRegisterForm(forms.Form):
             if not form_keys.issubset(schema_keys):
                 invalid_keys = form_keys.difference(schema_keys)
                 raise forms.validators.StopValidation(
-                    _(f'Invalid key {invalid_keys}')
+                    _(f"Invalid field {invalid_keys}")
                 ) from None
         except ValueError:
-            raise forms.validators.StopValidation(_("Error")) from None
+            raise forms.validators.StopValidation(_("Form value error")) from None

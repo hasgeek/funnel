@@ -35,7 +35,7 @@ rsvp_excess_json = {
 
 
 @pytest.fixture()
-def project_expo2010_boxoffice_data(db_session, project_expo2010):
+def project(db_session, project_expo2010):
     project_expo2010.start_at = datetime.datetime.now() + datetime.timedelta(days=1)
     project_expo2010.end_at = datetime.datetime.now() + datetime.timedelta(days=2)
     project_expo2010.boxoffice_data = {
@@ -64,8 +64,6 @@ def project_expo2010_boxoffice_data(db_session, project_expo2010):
             ]
         },
     }
-    db_session.commit()
-    project_expo2010.publish()
     return project_expo2010
 
 
@@ -110,13 +108,13 @@ def test_invalid_json_boxoffice(
 def test_valid_json_register(
     client,
     login,
-    project_expo2010_boxoffice_data,
+    project,
     user_twoflower,
     csrf_token,
     db_session,
 ):
     login.as_(user_twoflower)
-    endpoint = project_expo2010_boxoffice_data.url_for('register')
+    endpoint = project.url_for('register')
     rv = client.post(
         endpoint,
         data=json.dumps(
@@ -134,12 +132,12 @@ def test_valid_json_register(
 def test_invalid_json_register(
     client,
     login,
-    project_expo2010_boxoffice_data,
+    project,
     user_twoflower,
     db_session,
 ):
     login.as_(user_twoflower)
-    endpoint = project_expo2010_boxoffice_data.url_for('register')
+    endpoint = project.url_for('register')
     rv = client.post(
         endpoint,
         data={
