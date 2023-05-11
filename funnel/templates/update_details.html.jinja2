@@ -37,6 +37,7 @@
 {% endblock left_col %}
 
 {% block footerinnerscripts %}
+  <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
   {{ ajaxform(ref_id='form-update', request=request) }}
   <script src="{{ built_asset('update.js') }}" type="text/javascript"></script>
   <script type="text/javascript">

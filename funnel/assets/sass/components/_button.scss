@@ -198,10 +198,10 @@
 .nav-btn-wrapper,
 .prev-next-btn-wrapper {
   .btn-margin-right {
-    margin-right: $mui-grid-padding/4;
+    margin-right: $mui-grid-padding * 0.25;
   }
   .btn-margin-left {
-    margin-left: $mui-grid-padding/4;
+    margin-left: $mui-grid-padding * 0.25;
   }
 }
 

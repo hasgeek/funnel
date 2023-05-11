@@ -27,7 +27,6 @@
 @import 'components/chip';
 @import 'components/alert';
 @import 'components/thumbnail';
-@import 'components/modal';
 @import 'components/tabs';
 @import 'components/responsive-table';
 @import 'components/card';
@@ -41,3 +40,7 @@
 @import 'base/base';
 @import 'base/layout';
 @import 'base/utils';
+
+@import 'toastr';
+@import 'jquery-modal';
+@import 'components/modal';
