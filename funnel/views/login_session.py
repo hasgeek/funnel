@@ -299,19 +299,6 @@ def session_mark_accessed(
 
 # Also add future hasjob app here
 @app.after_request
-def clear_old_session(response: ResponseType) -> ResponseType:
-    """Delete cookies that _may_ accidentally be present (and conflicting)."""
-    for cookie_name, domains in app.config.get('DELETE_COOKIES', {}).items():
-        if cookie_name in request.cookies:
-            for domain in domains:
-                response.set_cookie(
-                    cookie_name, '', expires=0, httponly=True, domain=domain
-                )
-    return response
-
-
-# Also add future hasjob app here
-@app.after_request
 def set_lastuser_cookie(response: ResponseType) -> ResponseType:
     """Save lastuser login cookie and hasuser JS-readable flag cookie."""
     if (

@@ -62,6 +62,6 @@ $reflex-lg-max: ($reflex-xlg - 1);
 $reflex-grid-spacing: 16px !default;
 $reflex-cell-spacing: 16px !default;
 
-$reflex-cell-spacing-sm: ($reflex-cell-spacing / 2);
+$reflex-cell-spacing-sm: ($reflex-cell-spacing * 0.5);
 $reflex-cell-spacing-md: $reflex-cell-spacing;
 $reflex-cell-spacing-lg: ($reflex-cell-spacing * 2);

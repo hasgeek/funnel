@@ -27,8 +27,8 @@ describe('Project', () => {
     cy.wait(1000);
     cy.get('a[data-cy-admin="edit"]:visible').click();
     cy.get('#tagline').type(project.tagline);
+    cy.wait(3000);
     cy.get('button[data-cy="form-submit-btn"]').click();
-    cy.wait(1000);
     cy.title().should('include', project.title);
   });
 });

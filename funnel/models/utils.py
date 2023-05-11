@@ -167,10 +167,8 @@ def do_migrate_instances(
     if old_instance == new_instance:
         raise ValueError("Old and new are the same")
 
-    # User id column (for foreign keys)
-    id_column = (
-        old_instance.__class__.__table__.c.id
-    )  # 'id' is from IdMixin via BaseMixin
+    # User id column (for foreign keys); 'id' is from IdMixin via BaseMixin
+    id_column = old_instance.__class__.__table__.c.id
 
     # Session (for queries)
     session = old_instance.query.session

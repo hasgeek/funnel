@@ -468,18 +468,14 @@ class AuthToken(ScopeMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
     )
     #: The token
     token = sa.Column(sa.String(22), default=make_buid, nullable=False, unique=True)
-    #: The token's type
-    token_type = sa.Column(
-        sa.String(250), default='bearer', nullable=False
-    )  # 'bearer', 'mac' or a URL
+    #: The token's type, 'bearer', 'mac' or a URL
+    token_type = sa.Column(sa.String(250), default='bearer', nullable=False)
     #: Token secret for 'mac' type
     secret = sa.Column(sa.String(44), nullable=True)
     #: Secret's algorithm (for 'mac' type)
     algorithm = sa.Column(sa.String(20), nullable=True)
-    #: Token's validity, 0 = unlimited
-    validity = sa.Column(
-        sa.Integer, nullable=False, default=0
-    )  # Validity period in seconds
+    #: Token's validity period in seconds, 0 = unlimited
+    validity = sa.Column(sa.Integer, nullable=False, default=0)
     #: Refresh token, to obtain a new token
     refresh_token = sa.Column(sa.String(22), nullable=True, unique=True)
 

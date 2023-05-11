@@ -130,7 +130,7 @@ class VenueView(VenueViewMixin, UrlForView, ModelView):
         return render_delete_sqla(
             self.obj,
             db,
-            title="Confirm delete",
+            title=_("Confirm delete"),
             message=_(
                 "Delete venue “{title}”? This operation is permanent and cannot be"
                 " undone"
@@ -193,7 +193,7 @@ class VenueRoomView(VenueRoomViewMixin, UrlForView, ModelView):
         return render_delete_sqla(
             self.obj,
             db,
-            title="Confirm delete",
+            title=_("Confirm delete"),
             message=_(
                 "Delete room “{title}”? This operation is permanent and cannot be"
                 " undone"

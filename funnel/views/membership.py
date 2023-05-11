@@ -35,7 +35,6 @@ from ..models import (
     ProjectCrewMembershipNotification,
     ProjectCrewMembershipRevokedNotification,
     db,
-    sa,
 )
 from ..proxies import request_wants
 from ..typing import ReturnRenderWith, ReturnView
@@ -405,7 +404,7 @@ class ProjectCrewMembershipMixin(ProfileCheckMixin):
             ProjectCrewMembership.query.join(Project)
             .join(Profile)
             .filter(
-                sa.func.lower(Profile.name) == sa.func.lower(profile),
+                Profile.name_is(profile),
                 Project.name == project,
                 ProjectCrewMembership.uuid_b58 == membership,
             )
@@ -488,6 +487,7 @@ class ProjectCrewMembershipView(
                         is_editor=form.is_editor.data,
                         is_promoter=form.is_promoter.data,
                         is_usher=form.is_usher.data,
+                        label=form.label.data,
                     )
                 except MembershipRevokedError:
                     return {
@@ -498,15 +498,16 @@ class ProjectCrewMembershipView(
                         ),
                         'form_nonce': form.form_nonce.data,
                     }, 422
-                db.session.commit()
-                signals.project_role_change.send(
-                    self.obj.project, actor=current_auth.user, user=self.obj.user
-                )
-                dispatch_notification(
-                    ProjectCrewMembershipNotification(
-                        document=self.obj.project, fragment=new_membership
+                if new_membership != previous_membership:
+                    db.session.commit()
+                    signals.project_role_change.send(
+                        self.obj.project, actor=current_auth.user, user=self.obj.user
                     )
-                )
+                    dispatch_notification(
+                        ProjectCrewMembershipNotification(
+                            document=self.obj.project, fragment=new_membership
+                        )
+                    )
                 return {
                     'status': 'ok',
                     'message': _("The member’s roles have been updated"),

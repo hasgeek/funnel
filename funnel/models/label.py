@@ -82,7 +82,7 @@ class Label(
     seq = sa.Column(sa.Integer, nullable=False)
 
     # A single-line description of this label, shown when picking labels (optional)
-    description = sa.Column(sa.UnicodeText, nullable=False, default="")
+    description = sa.Column(sa.UnicodeText, nullable=False, default='')
 
     #: Icon for displaying in space-constrained UI. Contains one emoji symbol.
     #: Since emoji can be composed from multiple symbols, there is no length
@@ -180,9 +180,8 @@ class Label(
 
     @hybrid_property
     def restricted(self) -> bool:
-        return (  # pylint: disable=protected-access
-            self.main_label._restricted if self.main_label else self._restricted
-        )
+        # pylint: disable=protected-access
+        return self.main_label._restricted if self.main_label else self._restricted
 
     @restricted.setter
     def restricted(self, value: bool) -> None:
@@ -191,7 +190,7 @@ class Label(
         self._restricted = value
 
     @restricted.expression
-    def restricted(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def restricted(cls):  # pylint: disable=no-self-argument
         return sa.case(
             (
                 cls.main_label_id.isnot(None),
@@ -215,7 +214,7 @@ class Label(
         self._archived = value
 
     @archived.expression
-    def archived(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def archived(cls):  # pylint: disable=no-self-argument
         return sa.case(
             (cls._archived.is_(True), cls._archived),
             (
@@ -232,7 +231,7 @@ class Label(
         return bool(self.options)
 
     @has_options.expression
-    def has_options(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def has_options(cls):  # pylint: disable=no-self-argument
         return exists().where(Label.main_label_id == cls.id)
 
     @property

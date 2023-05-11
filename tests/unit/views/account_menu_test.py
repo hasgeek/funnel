@@ -1,5 +1,4 @@
 """Tests for account menu drop-down views."""
-# pylint: disable=too-many-arguments
 
 import time
 

@@ -13,7 +13,7 @@ from coaster.views import ModelView, UrlForView, render_with, requires_roles, ro
 
 from .. import app
 from ..forms import LabelForm, LabelOptionForm
-from ..models import Label, Profile, Project, db, sa
+from ..models import Label, Profile, Project, db
 from ..typing import ReturnRenderWith, ReturnView
 from ..utils import abort_null
 from .helpers import render_redirect
@@ -72,8 +72,9 @@ class ProjectLabelView(ProjectViewMixin, UrlForView, ModelView):
             for title, emoji in zip(titlelist, emojilist):
                 subform = LabelOptionForm(
                     MultiDict({'title': title, 'icon_emoji': emoji}),
+                    # parent form has valid CSRF token
                     meta={'csrf': False},
-                )  # parent form has valid CSRF token
+                )
 
                 if not subform.validate():
                     flash(
@@ -118,9 +119,7 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
             Label.query.join(Project, Label.project_id == Project.id)
             .join(Profile, Project.profile_id == Profile.id)
             .filter(
-                sa.func.lower(Profile.name) == sa.func.lower(profile),
-                Project.name == project,
-                Label.name == label,
+                Profile.name_is(profile), Project.name == project, Label.name == label
             )
             .first_or_404()
         )
@@ -168,8 +167,9 @@ class LabelView(ProfileCheckMixin, UrlForView, ModelView):
                 else:
                     subform = LabelOptionForm(
                         MultiDict({'title': title, 'icon_emoji': emoji}),
+                        # parent form has valid CSRF token
                         meta={'csrf': False},
-                    )  # parent form has valid CSRF token
+                    )
 
                     if not subform.validate():
                         flash(

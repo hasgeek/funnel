@@ -176,7 +176,7 @@ def install_mock(func: Callable, mock: Callable) -> None:
                     ref[key] = mock
 
 
-def _prepare_subprocess(  # pylint: disable=too-many-arguments
+def _prepare_subprocess(
     engines: Iterable[Engine],
     mock_transports: bool,
     calls: CapturedCalls,
@@ -197,7 +197,7 @@ def _prepare_subprocess(  # pylint: disable=too-many-arguments
 
     if mock_transports:
 
-        def mock_email(  # pylint: disable=too-many-arguments
+        def mock_email(
             subject: str,
             to: List[Any],
             content: str,
@@ -205,14 +205,14 @@ def _prepare_subprocess(  # pylint: disable=too-many-arguments
             from_email: Optional[Any] = None,
             headers: Optional[dict] = None,
         ) -> str:
-            calls.email.append(
-                CapturedEmail(
-                    subject,
-                    [str(each) for each in to],
-                    content,
-                    str(from_email) if from_email else None,
-                )
+            capture = CapturedEmail(
+                subject,
+                [str(each) for each in to],
+                content,
+                str(from_email) if from_email else None,
             )
+            calls.email.append(capture)
+            main_app.logger.info(capture)
             return token_urlsafe()
 
         def mock_sms(
@@ -220,7 +220,9 @@ def _prepare_subprocess(  # pylint: disable=too-many-arguments
             message: transports.sms.SmsTemplate,
             callback: bool = True,
         ) -> str:
-            calls.sms.append(CapturedSms(str(phone), str(message), message.vars()))
+            capture = CapturedSms(str(phone), str(message), message.vars())
+            calls.sms.append(capture)
+            main_app.logger.info(capture)
             return token_urlsafe()
 
         # Patch email
@@ -246,7 +248,7 @@ class BackgroundWorker:
     :param mock_transports: Patch transports with mock functions that write to a log
     """
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         worker: Callable,
         args: Optional[Iterable] = None,

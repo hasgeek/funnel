@@ -35,7 +35,7 @@
 
 .md-tablist-wrapper {
   display: flex;
-  margin: 0 -$mui-grid-padding/2;
+  margin: -$mui-grid-padding * 0.5;
   align-items: center;
 
   > .mui-tabs__bar:not(.mui-tabs__bar--pills) {
@@ -141,7 +141,7 @@
 
   .tab-container__tab {
     flex: 1 0 0;
-    padding: $mui-grid-padding/2;
+    padding: $mui-grid-padding * 0.5;
     opacity: 0.4;
     text-align: center;
     border-bottom: 2px solid transparent;
@@ -169,7 +169,7 @@
 .mui-tabs__bar--pills {
   li {
     border-radius: 16px;
-    margin-right: $mui-grid-padding/2;
+    margin-right: $mui-grid-padding * 0.5;
     color: $mui-text-light;
     border: 1px solid $mui-bg-color-dark;
     background: $mui-bg-color-primary;
@@ -177,7 +177,7 @@
   li a {
     height: auto;
     line-height: inherit;
-    padding: $mui-grid-padding/4 $mui-grid-padding;
+    padding: $mui-grid-padding * 0.25 $mui-grid-padding;
     cursor: pointer;
     color: $mui-text-light;
     text-decoration: none !important;
@@ -205,12 +205,12 @@
   width: 100%;
   overflow: auto;
   align-items: center;
-  margin: $mui-grid-padding/2 0;
+  margin: $mui-grid-padding * 0.5 0;
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 
   .tabs__item {
-    padding: $mui-grid-padding/4 $mui-grid-padding;
+    padding: $mui-grid-padding * 0.25 $mui-grid-padding;
     cursor: pointer;
     position: relative;
     min-width: 2 * $mui-grid-padding;
@@ -231,7 +231,7 @@
   }
 
   .tabs__item--badge {
-    padding: $mui-grid-padding/4 0 $mui-grid-padding/4 $mui-grid-padding;
+    padding: $mui-grid-padding * 0.25 0 $mui-grid-padding * 0.25 $mui-grid-padding;
   }
 
   .tabs__item:hover,
@@ -283,7 +283,7 @@
   display: inline-block;
   background-color: transparentize($mui-primary-color, 0.85);
   border-radius: 2px;
-  padding: 0 $mui-grid-padding/2;
+  padding: 0 $mui-grid-padding * 0.5;
   font-size: 10px;
   text-transform: uppercase;
   font-weight: 600;
@@ -302,8 +302,8 @@
 }
 
 .badge--tab {
-  margin-right: $mui-grid-padding/4;
-  margin-left: $mui-grid-padding/4;
+  margin-right: $mui-grid-padding * 0.25;
+  margin-left: $mui-grid-padding * 0.25;
   border-radius: 16px;
   padding: 0 4px;
   width: auto;

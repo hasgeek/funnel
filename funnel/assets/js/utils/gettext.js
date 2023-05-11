@@ -57,6 +57,7 @@
 // ],
 
 import { sprintf, vsprintf } from 'sprintf-js';
+import { AJAX_TIMEOUT } from '../constants';
 
 class Gettext {
   constructor(config) {
@@ -75,7 +76,7 @@ class Gettext {
         type: 'GET',
         url: this.getTranslationFileUrl(config.translatedLang),
         async: false,
-        timeout: window.Hasgeek.Config.ajaxTimeout,
+        timeout: AJAX_TIMEOUT,
         success(responseData) {
           domain = responseData.domain;
           catalog = responseData.locale_data.messages;
@@ -85,7 +86,7 @@ class Gettext {
         type: 'GET',
         url: this.getBaseframeTranslationFileUrl(config.translatedLang),
         async: false,
-        timeout: window.Hasgeek.Config.ajaxTimeout,
+        timeout: AJAX_TIMEOUT,
         success(responseData) {
           catalog = Object.assign(catalog, responseData.locale_data.messages);
         },
@@ -99,15 +100,9 @@ class Gettext {
       if (msgid in this.catalog) {
         const msgidCatalog = this.catalog[msgid];
 
-        if (msgidCatalog.length < 2) {
-          // eslint-disable-next-line no-console
-          console.error(
-            'Invalid format for translated messages, at least 2 values expected'
-          );
+        if (msgidCatalog[0] !== '') {
+          return vsprintf(msgidCatalog[0], args);
         }
-        // in case of gettext() first element is empty because it's the msgid_plural,
-        // and the second element is the translated msgstr
-        return vsprintf(msgidCatalog[1], args);
       }
       return vsprintf(msgid, args);
     };
@@ -116,27 +111,27 @@ class Gettext {
       if (msgid in this.catalog) {
         const msgidCatalog = this.catalog[msgid];
 
-        if (msgidCatalog.length < 3) {
+        if (msgidCatalog.length < 2) {
           // eslint-disable-next-line no-console
           console.error(
-            'Invalid format for translated messages, at least 3 values expected for plural translations'
+            'Invalid format for translated messages, at least 2 values expected for plural translations'
           );
-        }
-
-        if (msgidPlural !== msgidCatalog[0]) {
-          // eslint-disable-next-line no-console
-          console.error("Plural forms don't match");
-        }
-
-        let msgstr = '';
-        if (num <= 1) {
-          msgstr = sprintf(msgidCatalog[1], { num });
         } else {
-          msgstr = sprintf(msgidCatalog[2], { num });
+          let msgstr = '';
+          if (num === 1) {
+            msgstr = sprintf(msgidCatalog[0], { num });
+          } else {
+            msgstr = sprintf(msgidCatalog[1], { num });
+          }
+          if (msgstr !== '') {
+            return vsprintf(msgstr, args);
+          }
         }
-        return vsprintf(msgstr, args);
       }
-      return vsprintf(msgid, args);
+      if (num === 1) {
+        return vsprintf(sprintf(msgid, { num }), args);
+      }
+      return vsprintf(sprintf(msgidPlural, { num }), args);
     };
   }
 }

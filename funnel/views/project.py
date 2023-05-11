@@ -6,6 +6,8 @@ import csv
 import io
 
 from flask import Response, abort, current_app, flash, render_template, request
+from flask_babel import format_number
+from markupsafe import Markup
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
@@ -77,69 +79,69 @@ registration_count_messages = [
     ),
     CountWords(
         __("Two registrations so far"),
-        __("You and one other have registered"),
+        __("You &amp; one other have registered"),
         __("Two followers so far"),
-        __("You and one other are following"),
+        __("You &amp; one other are following"),
     ),
     CountWords(
         __("Three registrations so far"),
-        __("You and two others have registered"),
+        __("You &amp; two others have registered"),
         __("Three followers so far"),
-        __("You and two others are following"),
+        __("You &amp; two others are following"),
     ),
     CountWords(
         __("Four registrations so far"),
-        __("You and three others have registered"),
+        __("You &amp; three others have registered"),
         __("Four followers so far"),
-        __("You and three others are following"),
+        __("You &amp; three others are following"),
     ),
     CountWords(
         __("Five registrations so far"),
-        __("You and four others have registered"),
+        __("You &amp; four others have registered"),
         __("Five followers so far"),
-        __("You and four others are following"),
+        __("You &amp; four others are following"),
     ),
     CountWords(
         __("Six registrations so far"),
-        __("You and five others have registered"),
+        __("You &amp; five others have registered"),
         __("Six followers so far"),
-        __("You and five others are following"),
+        __("You &amp; five others are following"),
     ),
     CountWords(
         __("Seven registrations so far"),
-        __("You and six others have registered"),
+        __("You &amp; six others have registered"),
         __("Seven followers so far"),
-        __("You and six others are following"),
+        __("You &amp; six others are following"),
     ),
     CountWords(
         __("Eight registrations so far"),
-        __("You and seven others have registered"),
+        __("You &amp; seven others have registered"),
         __("Eight followers so far"),
-        __("You and seven others are following"),
+        __("You &amp; seven others are following"),
     ),
     CountWords(
         __("Nine registrations so far"),
-        __("You and eight others have registered"),
+        __("You &amp; eight others have registered"),
         __("Nine followers so far"),
-        __("You and eight others are following"),
+        __("You &amp; eight others are following"),
     ),
     CountWords(
         __("Ten registrations so far"),
-        __("You and nine others have registered"),
+        __("You &amp; nine others have registered"),
         __("Ten followers so far"),
-        __("You and nine others are following"),
+        __("You &amp; nine others are following"),
     ),
 ]
-greater_than_10_count = CountWords(
+numeric_count = CountWords(
     __("{num} registrations so far"),
-    __("You and {num} others have registered"),
+    __("You &amp; {num} others have registered"),
     __("{num} followers so far"),
-    __("You and {num} others are following"),
+    __("You &amp; {num} others are following"),
 )
 
 
 def get_registration_text(count: int, registered=False, follow_mode=False) -> str:
-    if count <= 10:
+    if count < len(registration_count_messages):
         if registered and not follow_mode:
             return registration_count_messages[count].registered
         if not registered and not follow_mode:
@@ -148,12 +150,12 @@ def get_registration_text(count: int, registered=False, follow_mode=False) -> st
             return registration_count_messages[count].following
         return registration_count_messages[count].not_following
     if registered and not follow_mode:
-        return greater_than_10_count.registered.format(num=count - 1)
+        return Markup(numeric_count.registered.format(num=format_number(count - 1)))
     if not registered and not follow_mode:
-        return greater_than_10_count.unregistered.format(num=count)
+        return Markup(numeric_count.unregistered.format(num=format_number(count)))
     if registered and follow_mode:
-        return greater_than_10_count.following.format(num=count - 1)
-    return greater_than_10_count.not_following.format(num=count)
+        return Markup(numeric_count.following.format(num=format_number(count - 1)))
+    return Markup(numeric_count.not_following.format(num=format_number(count)))
 
 
 @Project.features('rsvp')
@@ -232,9 +234,14 @@ def project_registration_text(obj: Project) -> str:
 
 @Project.views('register_button_text')
 def project_register_button_text(obj: Project) -> str:
+    custom_text = (
+        obj.boxoffice_data.get('register_button_txt') if obj.boxoffice_data else None
+    )
     if obj.features.follow_mode():
         return _("Follow")
-    return _("Join free")
+    if custom_text:
+        return custom_text
+    return _("Register")
 
 
 @Profile.views('project_new')
@@ -515,6 +522,7 @@ class ProjectView(  # type: ignore[misc]
                 item_collection_id=boxoffice_data.get('item_collection_id', ''),
                 allow_rsvp=self.obj.allow_rsvp,
                 is_subscription=boxoffice_data.get('is_subscription', True),
+                register_button_txt=boxoffice_data.get('register_button_txt', ''),
             ),
             model=Project,
         )
@@ -523,6 +531,9 @@ class ProjectView(  # type: ignore[misc]
             self.obj.boxoffice_data['org'] = form.org.data
             self.obj.boxoffice_data['item_collection_id'] = form.item_collection_id.data
             self.obj.boxoffice_data['is_subscription'] = form.is_subscription.data
+            self.obj.boxoffice_data[
+                'register_button_txt'
+            ] = form.register_button_txt.data
             db.session.commit()
             flash(_("Your changes have been saved"), 'info')
             return render_redirect(self.obj.url_for())
