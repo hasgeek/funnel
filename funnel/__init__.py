@@ -141,7 +141,6 @@ baseframe.init_app(
         'funnel-mui',
     ],
     theme='funnel',
-    asset_modules=('baseframe_private_assets',),
     error_handlers=False,
 )
 
