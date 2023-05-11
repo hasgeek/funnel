@@ -203,8 +203,9 @@ class Session(
         # A session is scheduled only when both start and end fields have a value
         return self.start_at is not None and self.end_at is not None
 
-    @scheduled.expression
-    def scheduled(cls):  # pylint: disable=no-self-argument
+    @scheduled.inplace.expression
+    @classmethod
+    def _scheduled_expression(cls):
         return (cls.start_at.isnot(None)) & (cls.end_at.isnot(None))
 
     @cached_property

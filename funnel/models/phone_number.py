@@ -374,8 +374,9 @@ class PhoneNumber(BaseMixin, db.Model):  # type: ignore[name-defined]
         with db.session.no_autoflush:
             return self.blocked_at is not None
 
-    @is_blocked.expression
-    def is_blocked(cls):  # pylint: disable=no-self-argument
+    @is_blocked.inplace.expression
+    @classmethod
+    def _is_blocked_expression(cls):
         """Expression form of is_blocked check."""
         return cls.blocked_at.isnot(None)
 
@@ -731,9 +732,8 @@ class PhoneNumberMixin:
         )
 
     @declared_attr
-    def phone_number(  # pylint: disable=no-self-argument
-        cls,
-    ) -> Mapped[PhoneNumber]:
+    @classmethod
+    def phone_number(cls) -> Mapped[PhoneNumber]:
         """Instance of :class:`PhoneNumber` as a relationship."""
         backref_name = 'used_in_' + cls.__tablename__
         PhoneNumber.__backrefs__.add(backref_name)

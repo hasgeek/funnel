@@ -217,13 +217,14 @@ class Shortlink(NoIdMixin, db.Model):  # type: ignore[name-defined]
             return ''
         return bigint_to_name(self.id)
 
-    @name.setter
-    def name(self, value: Union[str, bytes]):
+    @name.inplace.setter
+    def _name_setter(self, value: Union[str, bytes]):
         """Set a name."""
         self.id = name_to_bigint(value)
 
-    @name.comparator
-    def name(cls):  # pylint: disable=no-self-argument
+    @name.inplace.comparator
+    @classmethod
+    def _name_comparator(cls):
         """Compare name to id in a SQL expression."""
         return ShortLinkToBigIntComparator(cls.id)
 

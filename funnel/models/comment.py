@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Iterable, List, Optional, Set, Union
+from typing import Any, Iterable, List, Optional, Set, Union
 
 from sqlalchemy.orm import CompositeProperty
 
@@ -23,7 +23,13 @@ from . import (
     hybrid_property,
     sa,
 )
-from .account import Account, DuckTypeAccount, deleted_account, removed_account
+from .account import (
+    Account,
+    DuckTypeAccount,
+    deleted_account,
+    removed_account,
+    unknown_account,
+)
 from .helpers import MessageComposite, add_search_trigger, reopen
 
 __all__ = ['Comment', 'Commentset']
@@ -298,15 +304,18 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
             if self.state.DELETED
             else removed_account
             if self.state.SPAM
+            else unknown_account
+            if self._user is None
             else self._user
         )
 
-    @user.setter
-    def user(self, value: Optional[Account]) -> None:
+    @user.inplace.setter
+    def _user_setter(self, value: Optional[Account]) -> None:
         self._user = value
 
-    @user.expression
-    def user(cls):  # pylint: disable=no-self-argument
+    @user.inplace.expression
+    @classmethod
+    def _user_expression(cls):
         return cls._user
 
     with_roles(user, read={'all'}, datasets={'primary', 'related', 'json', 'minimal'})
@@ -324,13 +333,14 @@ class Comment(UuidMixin, BaseMixin, db.Model):  # type: ignore[name-defined]
             else self._message
         )
 
-    @message.setter
-    def message(self, value: str) -> None:
+    @message.inplace.setter
+    def _message_setter(self, value: Any) -> None:
         """Edit the message of a comment."""
         self._message = value  # type: ignore[assignment]
 
-    @message.expression
-    def message(cls):  # pylint: disable=no-self-argument
+    @message.inplace.expression
+    @classmethod
+    def _message_expression(cls):
         """Return SQL expression for comment message column."""
         return cls._message
 

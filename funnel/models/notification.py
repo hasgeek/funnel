@@ -509,12 +509,13 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
         """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet."""
         return uuid_to_base58(self.eventid)
 
-    @eventid_b58.setter  # type: ignore[no-redef]
-    def eventid_b58(self, value: str) -> None:
+    @eventid_b58.inplace.setter
+    def _eventid_b58_setter(self, value: str) -> None:
         self.eventid = uuid_from_base58(value)
 
-    @eventid_b58.comparator  # type: ignore[no-redef]
-    def eventid_b58(cls):  # pylint: disable=no-self-argument
+    @eventid_b58.inplace.comparator
+    @classmethod
+    def _eventid_b58_comparator(cls):
         """Return SQL comparator for Base58 rendering."""
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -880,12 +881,13 @@ class UserNotification(
         """URL-friendly UUID representation, using Base58 with the Bitcoin alphabet."""
         return uuid_to_base58(self.eventid)
 
-    @eventid_b58.setter  # type: ignore[no-redef]
-    def eventid_b58(self, value: str):
+    @eventid_b58.inplace.setter
+    def _eventid_b58_setter(self, value: str):
         self.eventid = uuid_from_base58(value)
 
-    @eventid_b58.comparator  # type: ignore[no-redef]
-    def eventid_b58(cls):  # pylint: disable=no-self-argument
+    @eventid_b58.inplace.comparator
+    @classmethod
+    def _eventid_b58_comparator(cls):
         """Return SQL comparator for Base58 representation."""
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -896,16 +898,17 @@ class UserNotification(
         """Whether this notification has been marked as read."""
         return self.read_at is not None
 
-    @is_read.setter  # type: ignore[no-redef]
-    def is_read(self, value: bool) -> None:
+    @is_read.inplace.setter
+    def _is_read_setter(self, value: bool) -> None:
         if value:
             if not self.read_at:
                 self.read_at = sa.func.utcnow()
         else:
             self.read_at = None
 
-    @is_read.expression  # type: ignore[no-redef]
-    def is_read(cls):  # pylint: disable=no-self-argument
+    @is_read.inplace.expression
+    @classmethod
+    def _is_read_expression(cls):
         """Test if notification has been marked as read, as a SQL expression."""
         return cls.read_at.isnot(None)
 
@@ -916,21 +919,18 @@ class UserNotification(
         """Whether this notification has been marked as revoked."""
         return self.revoked_at is not None
 
-    @is_revoked.setter  # type: ignore[no-redef]
-    def is_revoked(self, value: bool) -> None:
+    @is_revoked.inplace.setter
+    def _is_revoked_setter(self, value: bool) -> None:
         if value:
             if not self.revoked_at:
                 self.revoked_at = sa.func.utcnow()
         else:
             self.revoked_at = None
 
-    # PyLint complains because the hybrid property doesn't resemble the mixin's property
-    # pylint: disable=no-self-argument,arguments-renamed,invalid-overridden-method
-    @is_revoked.expression  # type: ignore[no-redef]
-    def is_revoked(cls):
+    @is_revoked.inplace.expression
+    @classmethod
+    def _is_revoked_expression(cls):
         return cls.revoked_at.isnot(None)
-
-    # pylint: enable=no-self-argument,arguments-renamed,invalid-overridden-method
 
     with_roles(is_revoked, rw={'owner'})
 

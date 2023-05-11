@@ -67,6 +67,7 @@ __all__ = [
     'ACCOUNT_STATE',
     'deleted_account',
     'removed_account',
+    'unknown_account',
     'User',
     'DuckTypeAccount',
     'AccountOldId',
@@ -884,8 +885,9 @@ class Account(
         """Account UUID rendered in z-Base-32."""
         return zbase32_encode(self.uuid.bytes)
 
-    @uuid_zbase32.comparator
-    def uuid_zbase32(cls) -> ZBase32Comparator:  # pylint: disable=no-self-argument
+    @uuid_zbase32.inplace.comparator
+    @classmethod
+    def _uuid_zbase32_comparator(cls) -> ZBase32Comparator:
         """Return SQL comparator for :prop:`uuid_zbase32`."""
         return ZBase32Comparator(cls.uuid)
 
@@ -1314,6 +1316,7 @@ class DuckTypeAccount(RoleMixin):
 
 deleted_account = DuckTypeAccount(__("[deleted]"))
 removed_account = DuckTypeAccount(__("[removed]"))
+unknown_account = DuckTypeAccount(__("[unknown]"))
 
 
 # --- Organizations and teams -------------------------------------------------
