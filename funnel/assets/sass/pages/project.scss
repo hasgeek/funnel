@@ -17,7 +17,7 @@
   width: 100%;
   left: 0;
   bottom: 0;
-  padding: $mui-grid-padding/4 $mui-grid-padding $mui-grid-padding/4 !important;
+  padding: $mui-grid-padding * 0.25 $mui-grid-padding $mui-grid-padding * 0.25 !important;
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
   z-index: 1000;
@@ -57,15 +57,17 @@
   width: 100%;
   flex-wrap: wrap;
   .register-block__content {
-    width: calc(50% - 8px);
-    align-self: flex-end;
+    width: 100%;
+    .register-block__content__rsvp-txt {
+      display: none;
+    }
     .register-block__content__txt {
       font-size: 9px;
       line-height: 16px;
       width: 100%;
       display: block;
       font-style: italic;
-      margin-bottom: $mui-grid-padding/4;
+      margin-bottom: $mui-grid-padding * 0.25;
     }
     .register-block__btn {
       width: 100%;
@@ -110,7 +112,11 @@
       }
     }
   }
-  .register-block__content:first-child {
+  .register-block__content--half {
+    width: calc(50% - 8px);
+    align-self: flex-end;
+  }
+  .register-block__content--half:first-child {
     margin-right: 16px;
   }
 }
@@ -125,6 +131,36 @@
   }
 }
 
+@media (any-pointer: coarse) {
+  .register-block {
+    .register-block__content {
+      .register-block__content__rsvp-txt {
+        display: block;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .register-block__btn {
+        border-color: $mui-text-danger;
+        .register-block__btn__txt--hover {
+          display: none;
+        }
+        .register-block__btn__txt--hover--show {
+          display: block;
+          color: $mui-text-danger;
+        }
+        .register-block__btn__txt--mobile {
+          display: none;
+        }
+      }
+    }
+    .register-block__content--half {
+      .register-block__content__rsvp-txt {
+        font-size: 9px;
+      }
+    }
+  }
+}
+
 @media (min-width: 768px) {
   .project-footer {
     .register-block {
@@ -133,10 +169,13 @@
         width: 100%;
         margin-right: 0;
         margin-bottom: $mui-grid-padding;
+        .register-block__content__rsvp-txt {
+          font-size: 12px;
+        }
         .register-block__content__txt {
           font-size: 14px;
           line-height: 21px;
-          margin-bottom: $mui-grid-padding/2;
+          margin-bottom: $mui-grid-padding * 0.5;
         }
         .register-block__btn {
           width: 100%;
@@ -235,7 +274,7 @@
   .project-banner__profile-details {
     display: flex;
     align-items: center;
-    margin-bottom: $mui-grid-padding/2;
+    margin-bottom: $mui-grid-padding * 0.5;
 
     .project-banner__profile-details__logo-wrapper {
       display: inline-block;
@@ -243,7 +282,7 @@
       width: 24px;
       border-radius: 50%;
       overflow: hidden;
-      margin-right: $mui-grid-padding/2;
+      margin-right: $mui-grid-padding * 0.5;
 
       .project-banner__profile-details__logo_wrapper__logo {
         height: 100%;
@@ -323,7 +362,7 @@
         .calendar__weekdays .calendar__month--latest,
         .calendar__weekdays .calendar__weekdays__dates--latest {
           display: flex;
-          margin-bottom: $mui-grid-padding/2;
+          margin-bottom: $mui-grid-padding * 0.5;
         }
 
         .calendar__weekdays .calendar__weekdays__dates:last-child {
@@ -409,7 +448,7 @@
 @media (min-width: 992px) {
   .project-banner {
     .profile-text {
-      margin: 0 0 $mui-grid-padding/4;
+      margin: 0 0 $mui-grid-padding * 0.25;
 
       p {
         margin: 0;
@@ -449,7 +488,7 @@
     text-decoration: none !important;
     display: inline-block;
     width: 100%;
-    padding: $mui-grid-padding/2 0;
+    padding: $mui-grid-padding * 0.5 0;
     border-bottom: 1px solid $mui-divider-color;
   }
   .pinned__update__heading {
@@ -548,8 +587,8 @@
       .tickets-wrapper__modal__body__close {
         display: block;
         float: right;
-        margin-right: $mui-grid-padding/2;
-        margin-top: $mui-grid-padding/2;
+        margin-right: $mui-grid-padding * 0.5;
+        margin-top: $mui-grid-padding * 0.5;
       }
     }
   }
@@ -562,7 +601,9 @@
 @media (min-width: 768px) {
   .about .rsvp-wrapper {
     padding: 10px;
-    box-shadow: 0 1px 3px rgba(158, 158, 158, 0.12), 0 1px 2px rgba(158, 158, 158, 0.24);
+    box-shadow:
+      0 1px 3px rgba(158, 158, 158, 0.12),
+      0 1px 2px rgba(158, 158, 158, 0.24);
   }
 }
 
@@ -595,13 +636,13 @@
       flex-shrink: 0;
       margin-top: 0;
       border-right: 1px solid $mui-text-light;
-      padding-right: $mui-grid-padding/2;
-      margin-right: $mui-grid-padding/2;
+      padding-right: $mui-grid-padding * 0.5;
+      margin-right: $mui-grid-padding * 0.5;
       line-height: 1;
     }
     .setting__separator {
       display: block;
-      margin: 0 $mui-grid-padding/2;
+      margin: 0 $mui-grid-padding * 0.5;
     }
     .setting__sub {
       font-size: 16px;
@@ -617,7 +658,7 @@
 .map {
   position: relative;
   .map__marker {
-    margin-top: $mui-grid-padding/2;
+    margin-top: $mui-grid-padding * 0.5;
     width: 100%;
     height: 40em;
   }

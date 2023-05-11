@@ -1,23 +1,26 @@
+import toastr from 'toastr';
 import codemirrorHelper from './utils/codemirror';
 import initEmbed from './utils/initembed';
 import Form from './utils/formhelper';
+import { Widgets } from './utils/form_widgets';
 import SortItem from './utils/sort';
 
 $(() => {
   window.Hasgeek.submissionFormInit = function formInit(
     sortUrl,
     formId,
-    markdownPreviewElem
+    markdownPreviewElem,
+    markdownPreviewApi
   ) {
     function updateCollaboratorsList(responseData, updateModal = true) {
       if (updateModal) $.modal.close();
-      if (responseData.message) window.toastr.success(responseData.message);
+      if (responseData.message) toastr.success(responseData.message);
       if (responseData.html) $('.js-collaborator-list').html(responseData.html);
       if (updateModal) $('.js-add-collaborator').trigger('click');
     }
 
     async function updatePreview(view) {
-      const response = await fetch(window.Hasgeek.Config.markdownPreviewApi, {
+      const response = await fetch(markdownPreviewApi, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -85,7 +88,7 @@ $(() => {
       const onError = (response) => {
         Form.formErrorHandler(modalFormId, response);
       };
-      window.Hasgeek.Forms.handleFormSubmit(modalFormId, url, onSuccess, onError, {});
+      Form.handleFormSubmit(modalFormId, url, onSuccess, onError, {});
     });
 
     $('.js-switch-panel').on('click', (event) => {
@@ -124,9 +127,6 @@ $(() => {
     });
 
     const markdownId = $(`#${formId}`).find('textarea.markdown').attr('id');
-    if ($(`#${markdownId}`).next().hasClass('cm-editor')) {
-      $(`#${markdownId}`).next().remove();
-    }
     codemirrorHelper(markdownId, updatePreview);
 
     $('#title')
@@ -140,7 +140,7 @@ $(() => {
         );
       });
 
-    Form.handleDelete('.js-remove-collaborator', updateCollaboratorsList);
+    Widgets.handleDelete('.js-remove-collaborator', updateCollaboratorsList);
 
     SortItem($('.js-collaborator-list'), 'collaborator-placeholder', sortUrl);
   };

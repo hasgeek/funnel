@@ -5,7 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, ClassVar, Collection, Dict, Optional
 
-from flask import Markup, escape, render_template
+from flask import render_template
+from markupsafe import Markup, escape
 
 from baseframe import _, __
 

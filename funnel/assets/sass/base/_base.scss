@@ -21,7 +21,7 @@ h3,
 h4,
 h5,
 h6 {
-  margin-top: $mui-grid-padding/2;
+  margin-top: $mui-grid-padding * 0.5;
   margin-bottom: 14px;
 }
 
@@ -125,7 +125,7 @@ samp {
 blockquote {
   border-left: 3px solid $mui-text-accent;
   margin: 0;
-  padding: 0 0 0 $mui-grid-padding/2;
+  padding: 0 0 0 $mui-grid-padding * 0.5;
   margin-bottom: 14px;
 }
 

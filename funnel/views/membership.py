@@ -35,7 +35,6 @@ from ..models import (
     ProjectCrewMembershipNotification,
     ProjectCrewMembershipRevokedNotification,
     db,
-    sa,
 )
 from ..proxies import request_wants
 from ..typing import ReturnRenderWith, ReturnView
@@ -405,7 +404,7 @@ class ProjectCrewMembershipMixin(ProfileCheckMixin):
             ProjectCrewMembership.query.join(Project)
             .join(Profile)
             .filter(
-                sa.func.lower(Profile.name) == sa.func.lower(profile),
+                Profile.name_is(profile),
                 Project.name == project,
                 ProjectCrewMembership.uuid_b58 == membership,
             )

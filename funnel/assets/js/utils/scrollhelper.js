@@ -1,3 +1,5 @@
+import { MOBILE_BREAKPOINT } from '../constants';
+
 const ScrollHelper = {
   animateScrollTo(offsetY) {
     $('html,body').animate(
@@ -14,7 +16,7 @@ const ScrollHelper = {
   },
   getPageHeaderHeight() {
     let headerHeight;
-    if ($(window).width() < window.Hasgeek.Config.mobileBreakpoint) {
+    if ($(window).width() < MOBILE_BREAKPOINT) {
       headerHeight = $('.mobile-nav').height();
     } else {
       headerHeight = $('header').height() + $('nav').height();

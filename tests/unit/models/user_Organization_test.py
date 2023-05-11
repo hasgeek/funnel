@@ -10,7 +10,7 @@ from funnel import models
 
 def test_organization_init(user_twoflower) -> None:
     """Test for initializing a Organization instance."""
-    name = 'inn-sewer-ants'
+    name = 'inn_sewer_ants'
     title = 'Inn-sewer-ants-polly-sea'
     org = models.Organization(name=name, title=title, owner=user_twoflower)
     assert isinstance(org, models.Organization)
@@ -20,7 +20,7 @@ def test_organization_init(user_twoflower) -> None:
 
 def test_organization_get(db_session, user_twoflower) -> None:
     """Test for retrieving an organization."""
-    name = 'inn-sewer-ants'
+    name = 'inn_sewer_ants'
     title = 'Inn-sewer-ants-polly-sea'
     org = models.Organization(name=name, title=title, owner=user_twoflower)
     db_session.add(org)

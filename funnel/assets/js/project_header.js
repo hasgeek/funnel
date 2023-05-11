@@ -1,8 +1,9 @@
+import { AJAX_TIMEOUT, RETRY_INTERVAL } from './constants';
 import SaveProject from './utils/bookmark';
 import Video from './utils/embedvideo';
 import Analytics from './utils/analytics';
 import Spa from './utils/spahelper';
-import Form from './utils/formhelper';
+import { Widgets } from './utils/form_widgets';
 import initEmbed from './utils/initembed';
 import SortItem from './utils/sort';
 
@@ -33,9 +34,9 @@ const Ticketing = {
     $.get({
       url,
       crossDomain: true,
-      timeout: window.Hasgeek.Config.ajaxTimeout,
+      timeout: AJAX_TIMEOUT,
       retries: 5,
-      retryInterval: window.Hasgeek.Config.retryInterval,
+      retryInterval: RETRY_INTERVAL,
 
       success(data) {
         const boxofficeScript = document.createElement('script');
@@ -200,7 +201,7 @@ $(() => {
     }
 
     if (toggleId) {
-      Form.activateToggleSwitch(toggleId);
+      Widgets.activateToggleSwitch(toggleId);
     }
 
     if (sort?.url) {

@@ -1,5 +1,6 @@
 import Vue from 'vue/dist/vue.min';
 import Utils from './utils/helper';
+import { READ_RECEIPT_TIMEOUT, REFRESH_INTERVAL } from './constants';
 
 const Notification = {
   init({ markReadUrl, divElem }) {
@@ -116,7 +117,7 @@ const Notification = {
               $(entry.target).attr('data-visible-time', entry.time);
               window.setTimeout(() => {
                 app.updateReadStatus(entry.target);
-              }, window.Hasgeek.Config.readReceiptTimeout);
+              }, READ_RECEIPT_TIMEOUT);
             } else {
               $(entry.target).attr('data-visible-time', '');
             }
@@ -128,7 +129,7 @@ const Notification = {
         this.lazyoad();
         window.setInterval(() => {
           this.fetchResult(1, true);
-        }, window.Hasgeek.Config.refreshInterval);
+        }, REFRESH_INTERVAL);
       },
       updated() {
         const app = this;

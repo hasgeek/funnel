@@ -12,7 +12,7 @@ chevron
 click
 cryptography
 dataclasses-json
-Flask
+Flask<2.3  # Flask 2.3 drops Python 3.7 support ahead of schedule
 Flask-Assets
 Flask-Babel
 Flask-Executor
@@ -62,6 +62,6 @@ twilio
 typing-extensions
 urllib3[socks]  # Not our requirement; removing this will cause a pip-audit dupe error
 user-agents
-werkzeug
+werkzeug<2.3  # Werkzeug 2.3 drops Python 3.7 support ahead of schedule
 whitenoise
 zxcvbn

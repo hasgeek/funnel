@@ -9,7 +9,7 @@ Create Date: 2020-08-18 11:58:05.088406
 from typing import Optional, Tuple, Union
 
 from alembic import op
-from sqlalchemy_utils import UUIDType
+from sqlalchemy.dialects import postgresql
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
@@ -22,12 +22,12 @@ depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 def upgrade():
     op.create_table(
         'notification',
-        sa.Column('eventid', UUIDType(binary=False), nullable=False),
-        sa.Column('id', UUIDType(binary=False), nullable=False),
+        sa.Column('eventid', postgresql.UUID(), nullable=False),
+        sa.Column('id', postgresql.UUID(), nullable=False),
         sa.Column('type', sa.Unicode(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=True),
-        sa.Column('document_uuid', UUIDType(binary=False), nullable=False),
-        sa.Column('fragment_uuid', UUIDType(binary=False), nullable=True),
+        sa.Column('document_uuid', postgresql.UUID(), nullable=False),
+        sa.Column('fragment_uuid', postgresql.UUID(), nullable=True),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='SET NULL'),
@@ -64,12 +64,12 @@ def upgrade():
     op.create_table(
         'user_notification',
         sa.Column('user_id', sa.Integer(), nullable=False),
-        sa.Column('eventid', UUIDType(binary=False), nullable=False),
-        sa.Column('notification_id', UUIDType(binary=False), nullable=False),
+        sa.Column('eventid', postgresql.UUID(), nullable=False),
+        sa.Column('notification_id', postgresql.UUID(), nullable=False),
         sa.Column('role', sa.Unicode(), nullable=False),
         sa.Column('read_at', sa.TIMESTAMP(timezone=True), nullable=True),
         sa.Column('is_revoked', sa.Boolean(), nullable=False),
-        sa.Column('rollupid', UUIDType(binary=False), nullable=True),
+        sa.Column('rollupid', postgresql.UUID(), nullable=True),
         sa.Column('messageid_email', sa.Unicode(), nullable=True),
         sa.Column('messageid_sms', sa.Unicode(), nullable=True),
         sa.Column('messageid_webpush', sa.Unicode(), nullable=True),

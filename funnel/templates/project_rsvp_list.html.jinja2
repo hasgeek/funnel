@@ -16,7 +16,7 @@
         <tbody>
           {%- for rsvp in going_rsvps %}
             <tr>
-              <td data-cy="user">{{ rsvp.user.fullname }}</td>
+              <td data-cy="username">{{ rsvp.user.fullname }}</td>
               <td>
                 {% with contact, contact_type = rsvp.best_contact() %}
                   {{ contact }}
