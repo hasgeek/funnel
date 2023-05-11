@@ -6,6 +6,7 @@ import time
 import pytest
 
 from coaster.utils import utcnow
+
 from funnel.views.helpers import SessionTimeouts, session_timeouts
 
 test_timeout_seconds = 1

@@ -9,6 +9,7 @@ from pytz import utc
 import pytest
 
 from coaster.utils import utcnow
+
 from funnel.views import sitemap
 
 
