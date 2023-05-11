@@ -1,3 +1,4 @@
+import toastr from 'toastr';
 import Form from './utils/formhelper';
 
 $(() => {
@@ -33,7 +34,8 @@ $(() => {
           }
         })
         .catch((error) => {
-          Form.handleAjaxError(error);
+          const errorMsg = Form.handleAjaxError(error);
+          toastr.error(errorMsg);
           $(checkbox).prop('checked', previousState);
         });
     });

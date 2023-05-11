@@ -136,18 +136,11 @@ baseframe.init_app(
     requires=['funnel'],
     ext_requires=[
         'pygments',
-        'toastr',
-        'jquery.cookie',
-        'timezone',
-        'pace',
-        'jquery-modal',
         'select2-material',
         'getdevicepixelratio',
-        'jquery.truncate8',
         'funnel-mui',
     ],
     theme='funnel',
-    asset_modules=('baseframe_private_assets',),
     error_handlers=False,
 )
 
@@ -185,6 +178,7 @@ app.assets.register(
             'moment.js',
             'moment-timezone-data.js',
             'spectrum.js',
+            'toastr.js',
             'jquery.ui.sortable.touch.js',
         ),
         output='js/fullcalendar.packed.js',

@@ -124,7 +124,16 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
 from ..typing import OptionalMigratedTables, T, UuidModelType
-from . import BaseMixin, Mapped, NoIdMixin, UuidMixin, UUIDType, db, hybrid_property, sa
+from . import (
+    BaseMixin,
+    Mapped,
+    NoIdMixin,
+    UuidMixin,
+    db,
+    hybrid_property,
+    postgresql,
+    sa,
+)
 from .helpers import reopen
 from .membership_mixin import ImmutableUserMembershipMixin
 from .phone_number import PhoneNumber, PhoneNumberMixin
@@ -310,14 +319,14 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: instance of a UserNotification per-event rather than per-notification
     eventid: Mapped[UUID] = immutable(
         sa.orm.mapped_column(
-            UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
+            postgresql.UUID, primary_key=True, nullable=False, default=uuid4
         )
     )
 
     #: Notification id
     id: Mapped[UUID] = immutable(  # noqa: A003
         sa.orm.mapped_column(
-            UUIDType(binary=False), primary_key=True, nullable=False, default=uuid4
+            postgresql.UUID, primary_key=True, nullable=False, default=uuid4
         )
     )
 
@@ -378,14 +387,14 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
 
     #: UUID of document that the notification refers to
     document_uuid: Mapped[UUID] = immutable(
-        sa.orm.mapped_column(UUIDType(binary=False), nullable=False, index=True)
+        sa.orm.mapped_column(postgresql.UUID, nullable=False, index=True)
     )
 
     #: Optional fragment within document that the notification refers to. This may be
     #: the document itself, or something within it, such as a comment. Notifications for
     #: multiple fragments are collapsed into a single notification
     fragment_uuid: Mapped[Optional[UUID]] = immutable(
-        sa.orm.mapped_column(UUIDType(binary=False), nullable=True)
+        sa.orm.mapped_column(postgresql.UUID, nullable=True)
     )
 
     __table_args__ = (
@@ -535,7 +544,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
         self.eventid = uuid_from_base58(value)
 
     @eventid_b58.comparator  # type: ignore[no-redef]
-    def eventid_b58(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def eventid_b58(cls):  # pylint: disable=no-self-argument
         """Return SQL comparator for Base58 rendering."""
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -809,16 +818,14 @@ class UserNotification(
     #: Random eventid, shared with the Notification instance
     eventid: Mapped[UUID] = with_roles(
         immutable(
-            sa.orm.mapped_column(
-                UUIDType(binary=False), primary_key=True, nullable=False
-            )
+            sa.orm.mapped_column(postgresql.UUID, primary_key=True, nullable=False)
         ),
         read={'owner'},
     )
 
     #: Id of notification that this user received (fkey in __table_args__ below)
     notification_id: Mapped[UUID] = sa.orm.mapped_column(
-        UUIDType(binary=False), nullable=False
+        postgresql.UUID, nullable=False
     )
 
     #: Notification that this user received
@@ -857,7 +864,7 @@ class UserNotification(
 
     #: When a roll-up is performed, record an identifier for the items rolled up
     rollupid: Mapped[Optional[UUID]] = with_roles(
-        sa.orm.mapped_column(UUIDType(binary=False), nullable=True, index=True),
+        sa.orm.mapped_column(postgresql.UUID, nullable=True, index=True),
         read={'owner'},
     )
 
@@ -934,7 +941,7 @@ class UserNotification(
         self.eventid = uuid_from_base58(value)
 
     @eventid_b58.comparator  # type: ignore[no-redef]
-    def eventid_b58(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def eventid_b58(cls):  # pylint: disable=no-self-argument
         """Return SQL comparator for Base58 representation."""
         return SqlUuidB58Comparator(cls.eventid)
 
@@ -954,7 +961,7 @@ class UserNotification(
             self.read_at = None
 
     @is_read.expression  # type: ignore[no-redef]
-    def is_read(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def is_read(cls):  # pylint: disable=no-self-argument
         """Test if notification has been marked as read, as a SQL expression."""
         return cls.read_at.isnot(None)
 
@@ -976,7 +983,7 @@ class UserNotification(
     # PyLint complains because the hybrid property doesn't resemble the mixin's property
     # pylint: disable=no-self-argument,arguments-renamed,invalid-overridden-method
     @is_revoked.expression  # type: ignore[no-redef]
-    def is_revoked(cls):  # noqa: N805
+    def is_revoked(cls):
         return cls.revoked_at.isnot(None)
 
     # pylint: enable=no-self-argument,arguments-renamed,invalid-overridden-method
@@ -1268,9 +1275,7 @@ class NotificationHook(BaseMixin, UuidMixin, db.Model):  # type: ignore[name-def
     document_type = immutable(db.Column(db.Unicode, nullable=False, index=True))
 
     #: UUID of document that the notification hook is attached to, used to find the hook
-    document_uuid = immutable(
-        db.Column(UUIDType(binary=False), nullable=False, index=True)
-    )
+    document_uuid = immutable(db.Column(postgresql.UUID, nullable=False, index=True))
 
     #: Id of user who created this hook, for audit only (and hence nullable).
     user_id = immutable(
@@ -1615,6 +1620,11 @@ def _register_notification_types(mapper_, cls) -> None:
         # Exclude inactive notifications in the registry. It is used to populate the
         # user's notification preferences screen.
         if cls.active and cls.cls_type == cls.pref_type:
+            notification_type_registry[cls.cls_type] = cls
+        # Include inactive notifications in the web types, as this is used for the web
+        # feed of past notifications, including deprecated (therefore inactive) types
+        if cls.allow_web:
+            notification_web_types.add(cls.cls_type)
             notification_type_registry[cls.cls_type] = cls
         # Include inactive notifications in the web types, as this is used for the web
         # feed of past notifications, including deprecated (therefore inactive) types

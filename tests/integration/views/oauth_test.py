@@ -51,7 +51,7 @@ def test_authcode_wellformed(
 
 @pytest.mark.dbcommit()
 @pytest.mark.filterwarnings("ignore:Object of type <AuthToken> not in session")
-def test_auth_untrusted_confidential(  # pylint: disable=too-many-arguments
+def test_auth_untrusted_confidential(
     client, login, user_rincewind, client_hex, client_hex_credential, csrf_token
 ) -> None:
     """Test auth on an untrusted confidential auth client."""

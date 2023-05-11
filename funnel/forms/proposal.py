@@ -204,7 +204,7 @@ class ProposalMemberForm(forms.Form):
         description=__(
             "Optional – A specific role in this submission (like Author or Editor)"
         ),
-        filters=[forms.filters.strip()],
+        filters=nullable_strip_filters,
     )
     is_uncredited = forms.BooleanField(__("Hide collaborator on submission"))
 

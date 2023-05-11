@@ -67,26 +67,26 @@ def notification_types(database) -> SimpleNamespace:
 @pytest.fixture()
 def project_fixtures(db_session) -> SimpleNamespace:  # pylint: disable=too-many-locals
     """Provide users, one org and one project, for tests on them."""
-    user_owner = models.User(username='user-owner', fullname="User Owner")
+    user_owner = models.User(username='user_owner', fullname="User Owner")
     user_owner.add_email('owner@example.com')
 
-    user_editor = models.User(username='user-editor', fullname="User Editor")
+    user_editor = models.User(username='user_editor', fullname="User Editor")
     user_editor.add_email('editor@example.com')
     user_editor_phone = models.UserPhone(user=user_editor, phone='+12345678900')
 
     user_participant = models.User(
-        username='user-participant', title="User Participant"
+        username='user_participant', title="User Participant"
     )
 
     user_cancelled_participant = models.User(
-        username='user-cancelled-participant', title="User Cancelled Participant"
+        username='user_cancelled_participant', title="User Cancelled Participant"
     )
-    user_bystander = models.User(username='user-bystander', title="User Bystander")
-    user_suspended = models.User(username='user-suspended', title="User Suspended")
+    user_bystander = models.User(username='user_bystander', title="User Bystander")
+    user_suspended = models.User(username='user_suspended', title="User Suspended")
     user_suspended.add_email('suspended@example.com')
 
     org = models.Organization(
-        name='notifications-org', title="Organization", owner=user_owner
+        name='notifications_org', title="Organization", owner=user_owner
     )
 
     db_session.add_all(

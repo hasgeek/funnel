@@ -81,9 +81,9 @@
   }
 
   .drag-box__body {
-    padding-bottom: $mui-grid-padding/2;
+    padding-bottom: $mui-grid-padding * 0.5;
     .drag-box__body__options {
-      margin-right: $mui-grid-padding/4;
+      margin-right: $mui-grid-padding * 0.25;
     }
   }
 
@@ -91,7 +91,7 @@
     display: flex;
     float: right;
     .drag-box__action-btn {
-      padding-right: $mui-grid-padding/4;
+      padding-right: $mui-grid-padding * 0.25;
     }
   }
 }

@@ -10,7 +10,7 @@ if __name__ == '__main__':
     sys.path.insert(0, os.path.dirname(__file__))
     os.environ['FLASK_ENV'] = 'development'  # Needed for coaster.app.init_app
     os.environ.setdefault('FLASK_DEBUG', '1')
-    debug_mode = not os.environ['FLASK_DEBUG'].lower() in {'0', 'false', 'no'}
+    debug_mode = os.environ['FLASK_DEBUG'].lower() not in {'0', 'false', 'no'}
 
     from funnel import rq
     from funnel.devtest import BackgroundWorker, devtest_app
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     background_rq = None
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
         # Only start RQ worker within the reloader environment
-        background_rq = BackgroundWorker(rq.get_worker().work)
+        background_rq = BackgroundWorker(rq.get_worker().work, mock_transports=True)
         background_rq.start()
 
     run_simple(

@@ -63,8 +63,8 @@
           {%- elif field.type == 'CoordinatesField' %}
             <div class="map">
               <div class="mui-textfield no-jshidden">
-                <input type="text" class="map__search-field" id="{{ field.id }}_search" placeholder="Enter a location" />
-                <a href="#" onclick="return false;" id="{{ field.id }}_clear" class="map__clear" aria-label="clear location">{{ faicon(icon='times', icon_size='title') }}</a>
+                <input type="text" class="map__search-field" id="{{ field.id }}_search" placeholder="{% trans %}Enter a location{% endtrans %}" />
+                <a href="#" onclick="return false;" id="{{ field.id }}_clear" class="map__clear" aria-label="{% trans %}Clear location{% endtrans %}">{{ faicon(icon='times', icon_size='title') }}</a>
                 {%- if not nolabel %}
                   <label for="{{ field.id }}">{{ field.label.text }}</label>
                 {%- endif %}
@@ -90,8 +90,8 @@
           {%- elif field.widget.input_type == 'password' and field.widget.html_tag not in ['ul', 'ol'] %}
             <div class="mui-textfield mui-textfield--password mui-textfield--float-label">
               {{ field | render_field_options(class="field-" + field.id + " " + widget_css_class, tabindex=tabindex, autofocus=autofocus, rows=rows, placeholder=placeholder)}}
-              <a href="#" onclick="return false;" class="js-show-password js-password-toggle field-toggle password-toggle" aria-label="{% trans %}show password{% endtrans %}" tabindex="-1">{{ faicon(icon='eye', icon_size='title', css_class="mui--text-light") }}</a>
-              <a href="#" onclick="return false;" class="mui--hide js-hide-password js-password-toggle field-toggle password-toggle" aria-label="{% trans %}hide password{% endtrans %}" tabindex="-1">{{ faicon(icon='eye-slash', icon_size='title', css_class="mui--text-light") }}</a>
+              <a href="#" onclick="return false;" class="js-show-password js-password-toggle field-toggle password-toggle" aria-label="{% trans %}Show password{% endtrans %}" tabindex="-1">{{ faicon(icon='eye', icon_size='title', css_class="mui--text-light") }}</a>
+              <a href="#" onclick="return false;" class="mui--hide js-hide-password js-password-toggle field-toggle password-toggle" aria-label="{% trans %}Hide password{% endtrans %}" tabindex="-1">{{ faicon(icon='eye-slash', icon_size='title', css_class="mui--text-light") }}</a>
               {%- if not nolabel %}
                 <label for="{{ field.id }}">{{ field.label.text }}</label>
               {%- endif %}
@@ -136,7 +136,7 @@
   {%- endif %}
 {%- endmacro %}
 
-{# djlint: off #}{% macro rendersubmit(buttons=[], css_class="", tabindex='', cancel_url='', style="horiz", csrf_error=false) -%}{# djlint:on #}
+{# djlint: off #}{% macro rendersubmit(buttons=[], css_class='', tabindex='', cancel_url='', style='horiz', csrf_error=false) -%}{# djlint:on #}
 <div class="mui-form form-actions mui--clearfix{% if css_class %} {{ css_class }}{% endif %}">
   <div>
     {% for name, value, widget_class in buttons -%}
@@ -189,93 +189,34 @@
   {%- endif %}
   {{ rendersubmit([(none, submit or _("Submit"), 'mui-btn--primary')], cancel_url=cancel_url, style=style, csrf_error=form.csrf_token.errors if form.csrf_token else "") }}
 </form>
-{%- if form and form.recaptcha is defined %}{{ recaptcha(formId=ref_id) }}{%- endif %}
 {% endmacro %}
 
 {%- macro ajaxform(ref_id, request, force=false) %}
-  {%- if force or request_wants.html_fragment %}
-    <script type="text/javascript">
-      document.body.addEventListener('htmx:beforeSend', function(event) {
-        window.Hasgeek.Forms.preventDoubleSubmit('{{ ref_id }}');
-      });
-      document.body.addEventListener('htmx:responseError', function(event) {
-        var formId = '{{ ref_id }}'
-        var alertBoxHtml = {{ alertbox('error', '') | tojson }};
-        window.Hasgeek.Forms.showFormError(formId, event.detail.xhr, alertBoxHtml);
-      });
-    </script>
-  {%- else %}
-    <script type="text/javascript">
-      $(function() {
-        // Disable submit button when clicked. Prevent double click.
-        $('#{{ ref_id }}').submit(function() {
-          if(!$(this).data('parsley-validate') || $(this).data('parsley-validate') && $(this).hasClass('parsley-valid')) {
-            $(this).find('button[type="submit"]').prop('disabled', true);
-            $(this).find('input[type="submit"]').prop('disabled', true);
-            $(this).find(".loading").removeClass('mui--hide');
-          }
-        });
-      });
-    </script>
-  {%- endif %}
-{%- endmacro %}
-{%- macro recaptcha(formId, formWrapperId='form-wrapper', ajax=false) %}
-  {%- if ajax %}
-    <script type="text/javascript">
-      var formId = {{ formId|tojson }};
-      var formWrapperId = {{ formWrapperId|tojson }};
-      window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
-        var postUrl = $('#' + formId).attr('action');
-        var onSuccess = function(responseData) {
-          $('#' + formWrapperId).html(responseData); //Replace with OTP form received as response
-        };
-        var onError = function(response) {
-          var alertBoxHtml = {{ alertbox('error', '') | tojson }};
-          window.Hasgeek.Forms.showFormError(formId, response, alertBoxHtml);
-        };
-        window.Hasgeek.Forms.ajaxFormSubmit(
-          formId,
-          postUrl,
-          onSuccess,
-          onError,
-          {
-            dataType: 'html'
-          }
-        );
-      };
-      document.getElementById(formId).onsubmit = function (event) {
-        event.preventDefault();
-        grecaptcha.execute();
-      };
-    </script>
-  {%- else %}
-    <script type="text/javascript">
-      var formId = {{ formId|tojson }};
-      window.onInvisibleRecaptchaSubmit = function (recaptcha_response) {
-        document.getElementById(formId).submit();
-      };
-      document.getElementById(formId).onsubmit = function (event) {
-        event.preventDefault();
-        if (typeof grecaptcha !== "undefined" && grecaptcha.getResponse() === '') {
-          grecaptcha.execute();
-        } else {
-          document.getElementById(formId).submit();
-        }
-      };
-    </script>
-  {%- endif %}
-  <script type="text/javascript" src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <script type="text/javascript">
+    $(function() {
+      var formId = {{ ref_id|tojson }};
+      var isXHR = false;
+      {%- if force or request_wants.html_fragment %}
+        isXHR = true;
+      {%- endif %}
+      var alertBoxHtml = {{ alertbox('error', '') | tojson }};
+      window.Hasgeek.preventDoubleSubmit(formId, isXHR, alertBoxHtml);
+    });
+  </script>
 {%- endmacro %}
 
-{%- macro map_marker_script(field) %}
-  new window.Hasgeek.MapMarker({
-    location_id: "{{ field.id }}_search",
-    map_id: "{{ field.id }}_map",
-    latitude_id: "{{ field.id }}_latitude",
-    longitude_id: "{{ field.id }}_longitude",
-    clear_id: "{{ field.id }}_clear"
-  });
-{% endmacro %}
+{%- macro recaptcha(ref_id, formWrapperId='form-wrapper', ajax=false) %}
+  <script type="text/javascript">
+    $(function() {
+      var formId = {{ ref_id|tojson }};
+      var formWrapperId = {{ formWrapperId|tojson }};
+      var alertBoxHtml = {{ alertbox('error', '') | tojson }};
+      var ajax = {{ ajax | tojson }};
+      window.Hasgeek.recaptcha(formId, formWrapperId, ajax, alertBoxHtml);
+    });
+  </script>
+  <script type="text/javascript" src="https://www.google.com/recaptcha/api.js" async defer></script>
+{%- endmacro %}
 
 {% macro widget_ext_scripts(form) %}
   {%- with scripts = {} %}
@@ -283,7 +224,6 @@
       {%- if field.type == 'CoordinatesField' and config['GOOGLE_MAPS_API_KEY'] %}
         {#- We're using setdefault instead of a simple = because the do extension doesn't support assignment #}
         {%- do scripts.setdefault('gmap', ('https://maps.googleapis.com/maps/api/js?key=' + config['GOOGLE_MAPS_API_KEY'] + '&libraries=places')) %}
-        {%- do scripts.setdefault('locationpicker', 'jquery.locationpicker.js'|ext_asset_url) %}
       {%- endif %}
     {%- endfor %}
     {%- for key in scripts %}
@@ -297,51 +237,8 @@
   <script type="text/javascript">
     $(function() {
   {%- endif %}
-
-  $('.js-show-password').on('click', function (event) {
-    event.preventDefault();
-    $(this).parent().find('.js-password-toggle').toggleClass('mui--hide');
-    $(this).parent().find('input').attr('type', 'text');
-  });
-  $('.js-hide-password').on('click', function (event) {
-    event.preventDefault();
-    $(this).parent().find('.js-password-toggle').toggleClass('mui--hide');
-    $(this).parent().find('input').attr('type', 'password');
-  });
-
-  //Toggle between OTP/Password login
-  $('.js-toggle-login').on('click', function(event) {
-    event.preventDefault();
-    if($(this).attr('id') == 'use-otp-login') {
-      $('.js-password-field').find('input').val('');
-    }
-    $('.js-fields-toggle').toggleClass('mui--hide');
-  });
-  $('.js-password-field input').on('change', function() {
-    if($('.js-password-field').hasClass('mui--hide')) {
-      $('.js-fields-toggle').toggleClass('mui--hide');
-    }
-  });
-
-  // Change username field input mode to tel
-  if($('#username').length > 0) {
-    $('#username').attr('inputmode', 'tel');
-    $('#username').attr('autocomplete', 'tel');
-    $('.js-keyboard-switcher[data-inputmode="tel"]').addClass('active');
-  }
-
-  // Add support to toggle username field input mode between tel & email to change keyboard in mobile
-  $('.js-keyboard-switcher').on('click touchstart touchend', function(event) {
-    event.preventDefault();
-    var inputMode = $(this).data('inputmode');
-    $('.js-keyboard-switcher').removeClass('active');
-    $(this).addClass('active');
-    $('#username').attr('inputmode', inputMode);
-    $('#username').attr('autocomplete', inputMode);
-    $('#username').blur();
-    $('#username').focus();
-  });
-
+    var config = {};
+    var fieldName = '';
   {% if form and form.otp %}
     if ('OTPCredential' in window) {
       var formid = "#" + {{ ref_id|tojson }};
@@ -371,54 +268,67 @@
     {%- if field.type == 'FormField' %}
       {{ widgetscripts(field.form, script=false) }}
     {%- elif field.type in ['AutocompleteField', 'AutocompleteMultipleField', 'ProfileSelectField'] %}
-      Hasgeek.Forms.textAutocomplete({
+      fieldName = 'AutocompleteField';
+      config = {
         id: {{ field.id|tojson }},
         multiple: {{ field.multiple|tojson }},
         separator: {{ field.separator|tojson }},
-        autocomplete_endpoint: {{ field.autocomplete_endpoint|tojson }},
+        autocompleteEndpoint: {{ field.autocomplete_endpoint|tojson }},
         key: {{ field.results_key|tojson }}
-      });
+      };
+      window.Hasgeek.initWidgets(fieldName, config);
     {%- elif field.type == 'ImgeeField' %}
-      window.addEventListener("message", function (event) {
-        if (event.origin === "{{ config['IMGEE_HOST'] }}") {
-          var message = JSON.parse(event.data);
-          if (message.context == 'imgee.upload') {
-            $('#imgee-loader-{{field.id}}').removeClass('mui--hide');
-            $('#img_{{ field.id }}').attr('src', message.embed_url);
-            $('#{{ field.id }}').val(message.embed_url);
-            {%- if field.widget_type != 'modal' %}
-              $.modal.close();
-            {%- endif %}
-          }
-        }
-      });
-      $('#img_{{ field.id }}').on('load', function() {
-        $('#imgee-loader-{{field.id}}').addClass('mui--hide');
-      });
+      fieldName = 'ImgeeField';
+      config = {
+        host: {{ config['IMGEE_HOST']|tojson }},
+        fieldId: {{ field.id|tojson }},
+        {%- if field.widget_type != 'modal' %}
+          widgetType: 'modal',
+        {%- endif %}
+      };
+      window.Hasgeek.initWidgets(fieldName, config);
     {%- elif field.type in ['UserSelectField', 'UserSelectMultiField'] %}
       {%- if config['LASTUSER_CLIENT_ID'] and current_auth.cookie and 'sessionid' in current_auth.cookie %}
-        Hasgeek.Forms.lastuserAutocomplete({
+        fieldName = 'UserSelectField';
+        config = {
           id: {{ field.id|tojson }},
           multiple: {{ field.multiple|tojson }},
           separator: {{ field.separator|tojson }},
           autocomplete_endpoint: {{ field.autocomplete_endpoint|tojson }},
-          getuser_endpoint: {{ field.getuser_endpoint|tojson }},
-          client_id: {{ config['LASTUSER_CLIENT_ID']|tojson }},
-          session_id: {{ current_auth.cookie['sessionid']|tojson }}
-        });
+          getuserEndpoint: {{ field.getuser_endpoint|tojson }},
+          clientId: {{ config['LASTUSER_CLIENT_ID']|tojson }},
+          sessionId: {{ current_auth.cookie['sessionid']|tojson }}
+        };
+        window.Hasgeek.initWidgets(fieldName, config);
       {%- else %}
-        Hasgeek.Forms.lastuserAutocomplete({
+        fieldName = 'UserSelectField';
+        config = {
           id: {{ field.id|tojson }},
           multiple: {{ field.multiple|tojson }},
           separator: {{ field.separator|tojson }},
-          autocomplete_endpoint: {{ field.autocomplete_endpoint|tojson }},
-          getuser_endpoint: {{ field.getuser_endpoint|tojson }}
-        });
+          autocompleteEndpoint: {{ field.autocomplete_endpoint|tojson }},
+          getuserEndpoint: {{ field.getuser_endpoint|tojson }}
+        };
+        window.Hasgeek.initWidgets(fieldName, config);
       {%- endif %}
     {%- elif field.type in ['GeonameSelectField', 'GeonameSelectMultiField'] %}
-      activate_geoname_autocomplete({{ ('#'+field.id)|tojson }}, {{ field.autocomplete_endpoint|tojson }}, {{ field.getname_endpoint|tojson }}, {{ field.separator|tojson }});
+      fieldName = 'GeonameSelectField';
+      config = {
+        id: ('#'+field.id)|tojson }},
+        autocompleteEndpoint: {{ field.autocomplete_endpoint|tojson }},
+        getuserEndpoint: {{ field.getname_endpoint|tojson }}, {{ field.separator|tojson }}
+      };
+      window.Hasgeek.initWidgets(fieldName, config);
     {%- elif field.type == 'CoordinatesField' -%}
-      {{ map_marker_script(field) }}
+      fieldName = 'CoordinatesField';
+      config = {
+        locationId: "{{ field.id }}_search",
+        mapId: "{{ field.id }}_map",
+        latitudeId: "{{ field.id }}_latitude",
+        longitudeId: "{{ field.id }}_longitude",
+        clearId: "{{ field.id }}_clear"
+      };
+      window.Hasgeek.initWidgets(fieldName, config);
     {%- endif -%}
   {%- endfor -%}
   {%- if script %}

@@ -4,7 +4,6 @@
 {%- else -%}
   {% extends "project_spa_layout.html.jinja2" %}
 {% endif %}
-{% from "forms.html.jinja2" import renderfield, widgetscripts %}
 {%- from "js/comments.js.jinja2" import comments_tree, comment_template %}
 {% block title %}{% trans %}Comments{% endtrans %}{% endblock title %}
 

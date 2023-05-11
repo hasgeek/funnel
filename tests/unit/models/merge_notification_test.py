@@ -39,7 +39,7 @@ def fixtures(db_session):
         fullname="User 2",
     )
     org = models.Organization(
-        name='test-org-membership-merge', title="Organization", owner=owner
+        name='test_org_membership_merge', title="Organization", owner=owner
     )
     db_session.add_all([owner, user1, user2, org])
     db_session.commit()
@@ -213,7 +213,7 @@ def test_merge_with_user2_preferences(
     assert user2_test_preferences.user == fixtures.user1
 
 
-def test_merge_with_both_preferences(  # pylint: disable=too-many-arguments
+def test_merge_with_both_preferences(
     db_session,
     fixtures,
     user1_main_preferences,

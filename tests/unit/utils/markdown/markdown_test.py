@@ -1,9 +1,9 @@
 """Tests for markdown parser."""
-# pylint: disable=too-many-arguments
 
 import warnings
 
 from markupsafe import Markup
+
 import pytest
 
 from funnel.utils.markdown import MarkdownConfig

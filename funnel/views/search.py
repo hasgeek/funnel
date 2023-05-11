@@ -10,7 +10,8 @@ import re
 from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
 
-from flask import Markup, request, url_for
+from flask import request, url_for
+from markupsafe import Markup
 
 from typing_extensions import TypedDict
 
@@ -806,7 +807,7 @@ def search_counts(
 
 
 # @cache.memoize(timeout=300)
-def search_results(  # pylint: disable=too-many-arguments
+def search_results(
     tsquery: sa.sql.functions.Function,
     stype: str,
     page=1,
@@ -905,9 +906,8 @@ class ProfileSearchView(ProfileViewMixin, UrlForView, ModelView):
     def search(self, q=None, page=1, per_page=20) -> ReturnRenderWith:
         """Perform search within an account."""
         tsquery = get_tsquery(q)
-        stype: Optional[str] = abort_null(
-            request.args.get('type')
-        )  # Can't use requestargs as it doesn't support name changes
+        # Can't use @requestargs as it doesn't support name changes
+        stype: Optional[str] = abort_null(request.args.get('type'))
         if not db.session.query(tsquery).scalar():
             return render_redirect(url_for('index'), 302)
         if (
@@ -944,9 +944,8 @@ class ProjectSearchView(ProjectViewMixin, UrlForView, ModelView):
     def search(self, q=None, page=1, per_page=20) -> ReturnRenderWith:
         """Perform search within a project."""
         tsquery = get_tsquery(q)
-        stype: Optional[str] = abort_null(
-            request.args.get('type')
-        )  # Can't use requestargs as it doesn't support name changes
+        # Can't use @requestargs as it doesn't support name changes
+        stype: Optional[str] = abort_null(request.args.get('type'))
         if not db.session.query(tsquery).scalar():
             return render_redirect(url_for('index'), 302)
         if (

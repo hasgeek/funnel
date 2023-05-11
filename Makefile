@@ -10,7 +10,8 @@ all:
 	@echo
 	@echo "For development:"
 	@echo "  make install-dev   # For first time setup and after dependency upgrades"
-	@echo "  make deps          # Scan for dependency upgrades (and test afterwards!)"
+	@echo "  make deps-noup     # Rebuild for dependency changes, but skip upgrades"
+	@echo "  make deps          # Scan for dependency upgrades (remember to test!)"
 	@echo "  make deps-python   # Scan for Python dependency upgrades"
 	@echo "  make deps-npm      # Scan for NPM dependency upgrades"
 	@echo
@@ -23,7 +24,7 @@ all:
 
 babelpy:
 	ZXCVBN_DIR=`python -c "import zxcvbn; import pathlib; print(pathlib.Path(zxcvbn.__file__).parent, end='')"`
-	pybabel extract -F babel.cfg -k _ -k __ -k ngettext -o funnel/translations/messages.pot . ${ZXCVBN_DIR}
+	pybabel extract -F babel.cfg -k _ -k __ -k _n -k __n -k gettext -k ngettext -o funnel/translations/messages.pot funnel ${ZXCVBN_DIR}
 	pybabel update -N -i funnel/translations/messages.pot -d funnel/translations
 	pybabel compile -f -d funnel/translations
 
@@ -33,8 +34,8 @@ babeljs: baseframe_dir = $(flask baseframe_translations_path)
 
 babeljs:
 	@mkdir -p $(target_dir)
-	ls $(source_dir) | grep -E '[[:lower:]]{2}_[[:upper:]]{2}' | xargs -I % sh -c 'mkdir -p $(target_dir)/% && ./node_modules/.bin/po2json --format=jed --pretty $(source_dir)/%/LC_MESSAGES/messages.po $(target_dir)/%/messages.json'
-	ls $(baseframe_dir) | grep -E '[[:lower:]]{2}_[[:upper:]]{2}' | xargs -I % sh -c './node_modules/.bin/po2json --format=jed --pretty $(baseframe_dir)/%/LC_MESSAGES/baseframe.po $(target_dir)/%/baseframe.json'
+	ls $(source_dir) | grep -E '[[:lower:]]{2}_[[:upper:]]{2}' | xargs -I % sh -c 'mkdir -p $(target_dir)/% && ./node_modules/.bin/po2json --format=jed --pretty --domain=messages $(source_dir)/%/LC_MESSAGES/messages.po $(target_dir)/%/messages.json'
+	ls $(baseframe_dir) | grep -E '[[:lower:]]{2}_[[:upper:]]{2}' | xargs -I % sh -c './node_modules/.bin/po2json --format=jed --pretty --domain=baseframe $(baseframe_dir)/%/LC_MESSAGES/baseframe.po $(target_dir)/%/baseframe.json'
 	./node_modules/.bin/prettier --write $(target_dir)/**/**.json
 
 babel: babelpy babeljs
@@ -78,6 +79,8 @@ deps-python-verify:
 deps-npm:
 	npm update
 
+deps-noup: deps-python-noup
+
 deps: deps-python deps-npm
 
 install-npm:
@@ -87,16 +90,16 @@ install-npm-ci:
 	npm clean-install
 
 install-python-pip:
-	pip install --upgrade pip setuptools
+	pip install --upgrade pip
 
 install-python-dev: install-python-pip deps-editable
-	pip install -r requirements/dev.txt
+	pip install --use-pep517 -r requirements/dev.txt
 
 install-python-test: install-python-pip deps-editable
-	pip install -r requirements/test.txt
+	pip install --use-pep517 -r requirements/test.txt
 
 install-python: install-python-pip deps-editable
-	pip install -r requirements/base.txt
+	pip install --use-pep517 -r requirements/base.txt
 
 install-dev: deps-editable install-python-dev install-npm assets
 

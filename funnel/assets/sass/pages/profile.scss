@@ -113,7 +113,7 @@
 
 .profile-dropdown-btn {
   background-color: $mui-bg-color-primary-dark;
-  padding: $mui-grid-padding/2 $mui-grid-padding;
+  padding: $mui-grid-padding * 0.5 $mui-grid-padding;
   text-align: center;
 }
 
@@ -173,7 +173,7 @@
         .profile__logo__details {
           position: absolute;
           left: 136px;
-          bottom: -$mui-grid-padding/2;
+          bottom: -$mui-grid-padding * 0.5;
           min-width: 450px;
         }
       }
@@ -199,7 +199,7 @@
       font-size: 20px;
       margin-bottom: $mui-grid-padding;
       display: inline-block;
-      margin-right: $mui-grid-padding/2;
+      margin-right: $mui-grid-padding * 0.5;
     }
   }
   .profile-subheader__description {

@@ -8,15 +8,15 @@
       <table class="mui-table mui-table--bordered mui-table--responsive participants">
         <thead>
           <tr>
-            <th data-sorted="true">Name</th>
-            <th data-sorted="true">Email/Phone</th>
-            <th data-sorted="true" data-type="numeric">Responded at</th>
+            <th data-sorted="true">{% trans %}Name{% endtrans %}</th>
+            <th data-sorted="true">{% trans %}Email/Phone{% endtrans %}</th>
+            <th data-sorted="true" data-type="numeric">{% trans %}Responded at{% endtrans %}</th>
           </tr>
         </thead>
         <tbody>
           {%- for rsvp in going_rsvps %}
             <tr>
-              <td data-cy="user">{{ rsvp.user.fullname }}</td>
+              <td data-cy="username">{{ rsvp.user.fullname }}</td>
               <td>
                 {% with contact, contact_type = rsvp.best_contact() %}
                   {{ contact }}
@@ -28,7 +28,7 @@
               <td data-cy="user" data-value="{{ rsvp.updated_at|timestamp }}">{{ rsvp.updated_at|datetime }}</td>
             </tr>
           {%- else %}
-            <tr><td colspan="2"><em>No users</em></td></tr>
+            <tr><td colspan="2"><em>{% trans %}No users{% endtrans %}</em></td></tr>
           {%- endfor %}
         </tbody>
       </table>

@@ -19,13 +19,13 @@
         {{ renderform(form=form, formid=formid, ref_id=ref_id, submit=submit, message=message, action=action) }}
       {% endblock modalform %}
     </div>
-    {{ ajaxform(ref_id=ref_id, request=request, force=true) }}
   {% endblock content %}
 
   {{ widget_ext_scripts(form) }}
 
+  <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
-    activate_widgets();
     {{ widgetscripts(form, script=false, ref_id=ref_id) }}
   </script>
+  {{ ajaxform(ref_id=ref_id, request=request, force=true) }}
 </div>

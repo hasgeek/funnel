@@ -5,7 +5,7 @@ from typing import Callable
 import functools
 import types
 
-from flask import escape as html_escape
+from markupsafe import escape as html_escape
 
 from chevron import render
 

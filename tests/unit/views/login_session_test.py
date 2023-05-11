@@ -1,5 +1,4 @@
 """Test login session helpers."""
-# pylint: disable=too-many-arguments
 
 from flask import session
 

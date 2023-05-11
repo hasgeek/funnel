@@ -1,5 +1,7 @@
 // Overrides bootstrap functions to add prfx support
 
+@use 'sass:math';
+
 @mixin mui-make-grid-columns(
   $i: 1,
   $list: '.mui-col-xs-#{$i}, .mui-col-sm-#{$i}, .mui-col-md-#{$i}, .mui-col-lg-#{$i}'
@@ -16,8 +18,8 @@
     min-height: 1px;
 
     // Inner gutter via padding
-    padding-left: ($mui-grid-gutter-width / 2);
-    padding-right: ($mui-grid-gutter-width / 2);
+    padding-left: ($mui-grid-gutter-width * 0.5);
+    padding-right: ($mui-grid-gutter-width * 0.5);
   }
 }
 
@@ -34,12 +36,12 @@
 @mixin mui-calc-grid-column($i, $class, $type) {
   @if ($type == 'width') and ($i > 0) {
     .mui-col-#{$class}-#{$i} {
-      width: percentage(($i / $mui-grid-columns));
+      width: percentage(math.div($i, $mui-grid-columns));
     }
   }
   @if ($type == 'offset') {
     .mui-col-#{$class}-offset-#{$i} {
-      margin-left: percentage(($i / $mui-grid-columns));
+      margin-left: percentage(math.div($i, $mui-grid-columns));
     }
   }
 }
