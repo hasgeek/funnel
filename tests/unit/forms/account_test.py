@@ -6,6 +6,7 @@ from types import SimpleNamespace
 import pytest
 
 from baseframe.forms.validators import StopValidation
+
 from funnel import forms
 
 

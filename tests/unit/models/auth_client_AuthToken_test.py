@@ -6,6 +6,7 @@ from datetime import timedelta
 import pytest
 
 from coaster.utils import buid, utcnow
+
 from funnel import models
 
 from .db_test import TestDatabaseFixture

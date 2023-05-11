@@ -2,6 +2,7 @@
 import pytest
 
 from coaster.sqlalchemy import ImmutableColumnError
+
 from funnel import models
 
 

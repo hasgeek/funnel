@@ -5,6 +5,7 @@ from typing import cast
 import pytest
 
 from coaster.sqlalchemy import StateTransitionError
+
 from funnel import models
 
 
