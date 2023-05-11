@@ -5,6 +5,7 @@ from datetime import timedelta
 import pytest
 
 from coaster.utils import utcnow
+
 from funnel import models
 
 pytestmark = pytest.mark.filterwarnings(

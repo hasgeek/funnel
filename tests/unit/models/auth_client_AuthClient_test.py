@@ -3,6 +3,7 @@
 import pytest
 
 from coaster.utils import utcnow
+
 from funnel import models
 
 from .db_test import TestDatabaseFixture

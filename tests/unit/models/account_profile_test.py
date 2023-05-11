@@ -6,6 +6,7 @@ from furl import furl
 import pytest
 
 from coaster.sqlalchemy import StateTransitionError
+
 from funnel import models
 
 

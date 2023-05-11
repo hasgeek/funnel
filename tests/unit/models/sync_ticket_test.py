@@ -4,6 +4,7 @@
 import pytest
 
 from coaster.utils import uuid_b58
+
 from funnel import models
 
 # --- Fixture data
