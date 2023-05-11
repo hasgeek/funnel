@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from coaster.utils import utcnow
+
 from funnel import models
 
 
