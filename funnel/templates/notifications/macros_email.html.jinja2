@@ -21,7 +21,7 @@
 {%- macro hero_image(img_url) -%}
     <tr>
         <td align="center">
-            <img src="{{ img_url }}" width="196px" height="" alt="alt_text" border="0" class="header-image g-img">
+            <img src="{{ img_url }}" width="196px" height="" alt="alt_text" border="0" class="header-image g-img" />
         </td>
     </tr>
 {%- endmacro -%}
@@ -33,7 +33,7 @@
         <!--[if mso]>
             <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ btn_url }}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="10%" strokecolor="#4d5763" fillcolor="#4d5763">
             <w:anchorlock/>
-            <center style="color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:bold;">{% trans %}{{ btn_text }}{% endtrans %}</center>
+            <center style="color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:bold;">{{ btn_text }}</center>
             </v:roundrect>
         <![endif]-->
         <!--[if !mso]> <!-->
@@ -41,7 +41,7 @@
             <tr>
             <td class="button-td button-td-primary">
                 <div>
-                <a class="button-a button-a-primary" href="{{ btn_url }}">{% trans %}{{ btn_text }}{% endtrans %}</a>
+                <a class="button-a button-a-primary" href="{{ btn_url }}">{{ btn_text }}</a>
                 </div>
             </td>
             </tr>
@@ -59,7 +59,7 @@
     </tr>
     <tr>
         <td>
-        <p class="footer-text">{% trans reason_email=view.reason_email %}{{ reason_email }} &bull; {% endtrans %}<a class="footer-link" href="{{ view.rsvp.project.url_for(_external=true, _anchor='register-modal', **view.tracking_tags()) }}"><b>{% trans %}{{ rsvp_linktext }}{% endtrans %}</b></a></p>
+        <p class="footer-text">{{ view.reason_email }} &bull; <a class="footer-link" href="{{ view.rsvp.project.url_for(_external=true, _anchor='register-modal', **view.tracking_tags()) }}"><b>{{ rsvp_linktext }}</b></a></p>
         </td>
     </tr>
     {%- endif %}

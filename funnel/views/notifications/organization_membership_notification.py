@@ -443,8 +443,8 @@ class RenderOrganizationAdminMembershipNotification(RenderShared, RenderNotifica
 
     aliases = {'document': 'organization', 'fragment': 'membership'}
     reason = __("You are receiving this because you are an admin of this organization")
-    hero_image = "https://images.hasgeek.com/embed/file/e63a6aeeef0d44d5966f92142bd51b80?size=196x166"
-    email_title = "Membership granted!"
+    hero_image = 'https://images.hasgeek.com/embed/file/e63a6aeeef0d44d5966f92142bd51b80?size=196x166'
+    email_heading = __("Membership granted!")
     template_picker = grant_amend_templates
 
     fragments_order_by = [OrganizationMembership.granted_at.desc()]
@@ -476,8 +476,8 @@ class RenderOrganizationAdminMembershipRevokedNotification(
 
     aliases = {'document': 'organization', 'fragment': 'membership'}
     reason = __("You are receiving this because you were an admin of this organization")
-    hero_image = "https://images.hasgeek.com/embed/file/f82d0bc0138f420fae16a29fe872efee?size=196x156"
-    email_title = "Membership revoked"
+    hero_image = 'https://images.hasgeek.com/embed/file/f82d0bc0138f420fae16a29fe872efee?size=196x156'
+    email_heading = __("Membership revoked")
     template_picker = revoke_templates
 
     fragments_order_by = [OrganizationMembership.revoked_at.desc()]

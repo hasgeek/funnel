@@ -136,15 +136,23 @@ class RenderNotification:
     aliases: Dict[Literal['document', 'fragment'], str] = {}
 
     #: Emoji prefix, for transports that support them
-    emoji_prefix = ''
+    emoji_prefix: str = ''
+
+    #: Hero image for email
+    hero_image: Optional[str] = None
+
+    #: Email heading (not subject)
+    email_heading: Optional[str] = None
 
     #: Reason specified in email templates. Subclasses MAY override
-    reason = __("You are receiving this because you have an account at hasgeek.com")
+    reason: str = __(
+        "You are receiving this because you have an account at hasgeek.com"
+    )
 
     #: Copies of reason per transport that can be overriden by subclasses using either
     #: a property or an attribute
     @property
-    def reason_for(self):
+    def reason_for(self) -> str:
         return self.reason
 
     reason_email = reason_for

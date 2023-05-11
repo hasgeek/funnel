@@ -5,20 +5,20 @@
     <tr align="center">
         <td class="text-content">
             {%- if view.notification.document_type == 'project' -%}
-            <h3><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{% trans docuement_joined_title=view.document.joined_title %}{{ document_joined_title }}{% endtrans %}</a></h3>
+            <h3><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{{ view.document.joined_title }}</a></h3>
             {%- elif view.notification.document_type == 'proposal' -%}
-            <h3><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{% trans document_title=view.document.title %}{{ document_title }}{% endtrans %}</a></h3>
+            <h3><a href="{{ view.document.url_for(_external=true, **view.tracking_tags()) }}">{{ view.document.title }}</a></h3>
             {%- elif view.notification.document_type == 'comment' -%}
             <p>{% trans %}You wrote:{% endtrans %}</p>
-            <blockquote type="cite">{% trans document_message=view.document.message %}{{ document_message }}{% endtrans %}</blockquote>
+            <blockquote type="cite">{{ view.document.message }}</blockquote>
             {%- endif %}
 
-            <p>{% trans activity_html=view.activity_html() %}{{ activity_html }}{% endtrans %}</p>
+            <p>{{ view.activity_html() }}</p>
 
-            <blockquote type="cite">{% trans comment_message=view.comment.message %}{{ comment_message }}{% endtrans %}</blockquote>
+            <blockquote type="cite">{{ view.comment.message }}</blockquote>
         </td>
     </tr>
-    <br>
+    <br/>
 
     {# Button : BEGIN #}
     {{ cta_button(view.comment.url_for(_external=true, **view.tracking_tags()), gettext("View comment") )}}
