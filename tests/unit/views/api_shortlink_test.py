@@ -119,7 +119,7 @@ def test_create_shortlink_name_unauthorized(
 
 @pytest.mark.filterwarnings("ignore:New instance.*conflicts with persistent instance")
 @pytest.mark.usefixtures('user_rincewind_site_editor')
-def test_create_shortlink_name_authorized(  # pylint: disable=too-many-arguments
+def test_create_shortlink_name_authorized(
     shortlinkapp, client, login, user_rincewind, user_wolfgang, create_shortlink
 ) -> None:
     """Asking for a custom name will work for site editors."""

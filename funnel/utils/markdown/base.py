@@ -1,5 +1,4 @@
 """Markdown parser and config profiles."""
-# pylint: disable=too-many-arguments
 
 from __future__ import annotations
 
@@ -17,8 +16,9 @@ from typing import (
 )
 import re
 
-from markdown_it import MarkdownIt
 from markupsafe import Markup
+
+from markdown_it import MarkdownIt
 from mdit_py_plugins import anchors, container, deflist, footnote, tasklists
 from typing_extensions import Literal
 

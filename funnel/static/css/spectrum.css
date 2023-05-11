@@ -335,8 +335,13 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
 .sp-color,
 .sp-hue,
 .sp-clear {
-  font: normal 12px 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Geneva,
-    Verdana, sans-serif;
+  font:
+    normal 12px 'Lucida Grande',
+    'Lucida Sans Unicode',
+    'Lucida Sans',
+    Geneva,
+    Verdana,
+    sans-serif;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   -ms-box-sizing: border-box;
@@ -526,11 +531,21 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
 .sp-container button:active {
   border: 1px solid #aaa;
   border-bottom: 1px solid #888;
-  -webkit-box-shadow: inset 0 0 5px 2px #aaaaaa, 0 1px 0 0 #eeeeee;
-  -moz-box-shadow: inset 0 0 5px 2px #aaaaaa, 0 1px 0 0 #eeeeee;
-  -ms-box-shadow: inset 0 0 5px 2px #aaaaaa, 0 1px 0 0 #eeeeee;
-  -o-box-shadow: inset 0 0 5px 2px #aaaaaa, 0 1px 0 0 #eeeeee;
-  box-shadow: inset 0 0 5px 2px #aaaaaa, 0 1px 0 0 #eeeeee;
+  -webkit-box-shadow:
+    inset 0 0 5px 2px #aaaaaa,
+    0 1px 0 0 #eeeeee;
+  -moz-box-shadow:
+    inset 0 0 5px 2px #aaaaaa,
+    0 1px 0 0 #eeeeee;
+  -ms-box-shadow:
+    inset 0 0 5px 2px #aaaaaa,
+    0 1px 0 0 #eeeeee;
+  -o-box-shadow:
+    inset 0 0 5px 2px #aaaaaa,
+    0 1px 0 0 #eeeeee;
+  box-shadow:
+    inset 0 0 5px 2px #aaaaaa,
+    0 1px 0 0 #eeeeee;
 }
 .sp-cancel {
   font-size: 11px;

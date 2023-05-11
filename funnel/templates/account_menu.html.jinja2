@@ -74,7 +74,7 @@
                 {% endif %}
               </span>
             {%- endfor %}
-            {%- if orgmemlist.extra_count -%}<span class="header__dropdown__item__more-icon--ellipsis">{{ faicon(icon='ellipsis-h', icon_size='subhead', baseline=false, css_class="header__dropdown__item__more-icon header__dropdown__item__more-icon--align") }}</span><span class="mui--text-body2 header__dropdown__item__more-icon margin-left mui--text-dark">{{ faicon(icon='plus', icon_size='caption') }} {% trans count=orgmemlist.extra_count %}{{ count }} more{% pluralize count %}{{ count }} more{% endtrans %}</span>{%- endif %}
+            {%- if orgmemlist.extra_count -%}<span class="header__dropdown__item__more-icon--ellipsis">{{ faicon(icon='ellipsis-h', icon_size='subhead', baseline=false, css_class="header__dropdown__item__more-icon header__dropdown__item__more-icon--align") }}</span><span class="mui--text-body2 header__dropdown__item__more-icon margin-left mui--text-dark">{{ faicon(icon='plus', icon_size='caption') }} {% trans tcount=orgmemlist.extra_count, count=orgmemlist.extra_count|numberformat %}{{ count }} more{% pluralize tcount %}{{ count }} more{% endtrans %}</span>{%- endif %}
           </a>
         </li>
       {%- endif %}

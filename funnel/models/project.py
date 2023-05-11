@@ -453,6 +453,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         type='success',
     )
     def open_cfp(self):
+        """Change state to accept submissions."""
         # If closing date is in the past, remove it
         if self.cfp_end_at is not None and self.cfp_end_at <= utcnow():
             self.cfp_end_at = None
@@ -469,7 +470,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         type='success',
     )
     def close_cfp(self):
-        pass
+        """Change state to not accept submissions."""
 
     @with_roles(call={'editor'})
     @state.transition(
@@ -497,14 +498,14 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         type='success',
     )
     def withdraw(self):
-        pass
+        """Withdraw a project."""
 
     @property
     def title_inline(self) -> str:
         """Suffix a colon if the title does not end in ASCII sentence punctuation."""
         if self.title and self.tagline:
             # pylint: disable=unsubscriptable-object
-            if not self.title[-1] in ('?', '!', ':', ';', '.', ','):
+            if self.title[-1] not in ('?', '!', ':', ';', '.', ','):
                 return self.title + ':'
         return self.title
 
@@ -707,7 +708,7 @@ class Project(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-de
         profile_name, project_name = profile_project.split('/')
         return (
             cls.query.join(Profile)
-            .filter(Profile.name == profile_name, Project.name == project_name)
+            .filter(Profile.name_is(profile_name), Project.name == project_name)
             .one_or_none()
         )
 

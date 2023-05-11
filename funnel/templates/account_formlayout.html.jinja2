@@ -49,6 +49,7 @@
 
 {% block footerscripts %}
   {{ widget_ext_scripts(form) }}
+  <script src="{{ built_asset('form.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
       {{ widgetscripts(form, script=false, ref_id=ref_id, force=ajax) }}
@@ -80,4 +81,7 @@
     });
   </script>
   {{ ajaxform(ref_id=ref_id, request=request, force=ajax) }}
+  {%- if form and form.recaptcha is defined %}
+    {% block recaptcha %}{{ recaptcha(ref_id=ref_id) }}{% endblock recaptcha %}
+  {%- endif %}
 {% endblock footerscripts %}

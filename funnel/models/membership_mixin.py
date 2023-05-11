@@ -202,7 +202,7 @@ class ImmutableMembershipMixin(UuidMixin, BaseMixin):
         )
 
     @is_active.expression
-    def is_active(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def is_active(cls):  # pylint: disable=no-self-argument
         """Test if membership record is active as a SQL expression."""
         return sa.and_(
             cls.revoked_at.is_(None), cls.record_type != MEMBERSHIP_RECORD_TYPE.INVITE

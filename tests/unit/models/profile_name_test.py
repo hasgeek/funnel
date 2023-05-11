@@ -1,7 +1,6 @@
 """Tests for Account (nee Profile) name."""
 
 from sqlalchemy.exc import IntegrityError
-import sqlalchemy as sa
 
 import pytest
 
@@ -11,7 +10,7 @@ from funnel import models
 def test_is_available_name(db_session, user_rincewind) -> None:
     """Names are only available if valid and unused."""
     db_session.commit()  # Required for profile.state to be set
-    assert models.Profile.is_available_name('invalid_name') is False
+    assert models.Profile.is_available_name('invalid-name') is False
     # Rincewind has an account (nee profile) in default 'auto' status (not public, not
     # private even)
     assert user_rincewind.profile.state.AUTO
@@ -29,15 +28,15 @@ def test_validate_name_candidate(db_session) -> None:
         == 'blank'
     )
     assert models.Profile.validate_name_candidate('') == 'blank'
-    assert models.Profile.validate_name_candidate('invalid_name') == 'invalid'
+    assert models.Profile.validate_name_candidate('invalid-name') == 'invalid'
     assert models.Profile.validate_name_candidate('0123456789' * 7) == 'long'
     assert models.Profile.validate_name_candidate('0123456789' * 6) is None
     assert models.Profile.validate_name_candidate('ValidName') is None
-    assert models.Profile.validate_name_candidate('test-reserved') is None
-    db_session.add(models.Profile(name='test-reserved', reserved=True))
+    assert models.Profile.validate_name_candidate('test_reserved') is None
+    db_session.add(models.Profile(name='test_reserved', reserved=True))
     db_session.commit()
-    assert models.Profile.validate_name_candidate('test-reserved') == 'reserved'
-    assert models.Profile.validate_name_candidate('Test-Reserved') == 'reserved'
+    assert models.Profile.validate_name_candidate('test_reserved') == 'reserved'
+    assert models.Profile.validate_name_candidate('Test_Reserved') == 'reserved'
     assert models.Profile.validate_name_candidate('TestReserved') is None
     assert models.Profile.validate_name_candidate('rincewind') == 'user'
     assert models.Profile.validate_name_candidate('uu') == 'org'
@@ -46,12 +45,12 @@ def test_validate_name_candidate(db_session) -> None:
 
 def test_reserved_name(db_session) -> None:
     """Names can be reserved, with no user or organization."""
-    reserved_name = models.Profile(name='reserved-name', reserved=True)
+    reserved_name = models.Profile(name='reserved_name', reserved=True)
     db_session.add(reserved_name)
     db_session.commit()
     # Use a model query since Profile.get() only works for public accounts
     retrieved_name = models.Profile.query.filter(
-        sa.func.lower(models.Profile.name) == sa.func.lower('reserved-name')
+        models.Profile.name_is('reserved_name')
     ).first()
     assert retrieved_name is reserved_name
     assert reserved_name.user is None
@@ -59,10 +58,10 @@ def test_reserved_name(db_session) -> None:
     assert reserved_name.organization is None
     assert reserved_name.organization_id is None
 
-    reserved_name.name = 'Reserved-Name'
+    reserved_name.name = 'Reserved_Name'
     db_session.commit()
     retrieved_name = models.Profile.query.filter(
-        sa.func.lower(models.Profile.name) == sa.func.lower('Reserved-Name')
+        models.Profile.name_is('Reserved_Name')
     ).first()
     assert retrieved_name is reserved_name
 
@@ -77,9 +76,9 @@ def test_unassigned_name(db_session) -> None:
 
 def test_double_assigned_name(db_session, user_rincewind) -> None:
     """Names cannot be assigned to a user and an organization simultaneously."""
-    user = models.User(username="double-assigned", fullname="User")
+    user = models.User(username="double_assigned", fullname="User")
     org = models.Organization(
-        name="double-assigned", title="Organization", owner=user_rincewind
+        name="double_assigned", title="Organization", owner=user_rincewind
     )
     db_session.add_all([user, org])
     with pytest.raises(IntegrityError):

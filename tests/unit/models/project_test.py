@@ -46,9 +46,8 @@ def test_cfp_state_draft(db_session, new_organization, new_project) -> None:
 
     assert new_project.cfp_start_at is not None
     assert not new_project.cfp_state.DRAFT
-    assert (
-        new_project in new_organization.profile.draft_projects
-    )  # because project state is still draft
+    # because project state is still draft
+    assert new_project in new_organization.profile.draft_projects
 
     new_project.publish()
     db_session.commit()
@@ -219,7 +218,7 @@ def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
 @pytest.fixture()
 def second_organization(db_session, new_user2):
     org2 = models.Organization(
-        owner=new_user2, title="Second test org", name='test-org-2'
+        owner=new_user2, title="Second test org", name='test_org_2'
     )
     db_session.add(org2)
     db_session.commit()

@@ -1,7 +1,6 @@
 -r test.in
 bandit
 black
-djlint
 flake8
 flake8-assertive
 flake8-blind-except
@@ -20,11 +19,12 @@ lxml-stubs
 mypy
 pep8-naming
 pip-compile-multi
+po2json
 pre-commit
 pylint
-pylint-pytest
 pyupgrade
 reformat-gherkin
+ruff
 toml
 types-certifi
 types-cryptography

@@ -54,12 +54,12 @@
       float: left;
     }
     .preference__switch__txt--noswitch {
-      margin-bottom: $mui-grid-padding/2;
+      margin-bottom: $mui-grid-padding * 0.5;
     }
   }
   .preference__title {
     width: calc(100% - 45px);
-    margin-bottom: $mui-grid-padding/2;
+    margin-bottom: $mui-grid-padding * 0.5;
     .preference__title__header {
       font-size: 14px;
       margin-bottom: 0;

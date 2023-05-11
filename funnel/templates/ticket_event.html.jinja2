@@ -28,23 +28,23 @@
       </div>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-4 grid__col-md-6 grid__col-lg-3">
-      <h3 class="mui--text-title">{{ ticket_event.title }}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" arial-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead') }}</a></h3>
+      <h3 class="mui--text-title">{{ ticket_event.title }}&nbsp;<a href="{{ ticket_event.url_for('edit') }}" aria-label="{% trans %}Edit{% endtrans %}">{{ faicon(icon='edit', icon_size='subhead') }}</a></h3>
     </div>
     <div class="grid__col-xs-6 grid__col-sm-8 grid__col-md-6 grid__col-lg-9">
       {{ checkin_count() }}
     </div>
-    <div class="grid__col-xs-12 grid__col-md-4">
+    <div class="grid__col-xs-12 grid__col-md-3 flex-wrapper--justify-center">
       <form class="display-inlineblock search search--small search--icon mui--z1">
         <div class="textfield">
-          <input class="search-query" id="search" type="text" name="key" value="" placeholder="Search"/>{{ faicon(icon='search', css_class="search-form__icon")}}
+          <input class="search-query" id="search" type="text" name="key" value="" placeholder="{% trans %}Search{% endtrans %}"/>{{ faicon(icon='search', css_class="search-form__icon")}}
         </div>
       </form>
     </div>
-    <div class="grid__col-xs-12 grid__col-md-8">
+    <div class="grid__col-xs-12 grid__col-md-9">
       <ul class="mui-list--inline">
-        <li><a href="{{ ticket_event.url_for('badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="badges-to-printed">Badges to be printed</a></li>
-         <li><a href="{{ ticket_event.url_for('label_badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="label-badges-to-printed">Label badges to be printed</a></li>
-        <li><a href="{{ ticket_event.url_for('badges') }}?badge_printed=t" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-cy="badges-printed">Badges printed</a></li>
+        <li><a href="{{ ticket_event.url_for('badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="badges-to-printed">{% trans %}Badges{% endtrans %}</a></li>
+         <li><a href="{{ ticket_event.url_for('label_badges') }}" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--primary" data-cy="label-badges-to-printed">{% trans %}Label badges{% endtrans %}</a></li>
+        <li><a href="{{ ticket_event.url_for('badges') }}?badge_printed=t" target="_blank" rel="noopener" class="mui-btn mui-btn--small mui-btn--raised mui-btn--accent" data-cy="badges-printed">{% trans %}Printed Badges{% endtrans %}</a></li>
         <li class="badge-print-status-btn">
           <form method="post" id="badge_form" class="mui-form">
               {{ badge_form.hidden_tag() }}
@@ -61,11 +61,11 @@
       <table class="mui-table mui-table--bordered mui-table--responsive attendee-table" id="ticket-participants-table">
         <thead>
           <tr class="active">
-            <th>Name</th>
-            <th>Tickets</th>
-            <th>Email</th>
-            <th>Company</th>
-            <th>Actions</th>
+            <th>{% trans %}Name{% endtrans %}</th>
+            <th>{% trans %}Tickets{% endtrans %}</th>
+            <th>{% trans %}Email{% endtrans %}</th>
+            <th>{% trans %}Company{% endtrans %}</th>
+            <th>{% trans %}Actions{% endtrans %}</th>
           </tr>
         </thead>
         {{ participant_list() }}

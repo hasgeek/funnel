@@ -12,8 +12,7 @@ chevron
 click
 cryptography
 dataclasses-json
-fabric3
-Flask
+Flask<2.3  # Flask 2.3 drops Python 3.7 support ahead of schedule
 Flask-Assets
 Flask-Babel
 Flask-Executor
@@ -31,10 +30,7 @@ html2text
 icalendar
 idna
 itsdangerous<2.1.0  # https://github.com/pallets/itsdangerous/pull/273
-js2py
-jsmin
 linkify-it-py
-Markdown
 markdown-it-py
 mdit-py-plugins
 oauth2
@@ -47,16 +43,16 @@ psycopg2-binary
 pycountry
 Pygments
 pyIsEmail
-pymdown-extensions
 python-dateutil
 python-dotenv<1.0  # 1.0 drops Python 3.7 support
 pytz
 PyVimeo
 qrcode
+regex<2023.3.22  # Not our requirement; this version drops Python 3.7 support
 requests
 rich
 rq
-git+https://github.com/jace/rq-dashboard#egg=rq-dashboard
+git+https://github.com/jace/rq-dashboard#egg=rq-dashboard==0.6.0
 SQLAlchemy
 sqlalchemy-json
 SQLAlchemy-Utils
@@ -64,7 +60,8 @@ toml
 tweepy
 twilio
 typing-extensions
+urllib3[socks]  # Not our requirement; removing this will cause a pip-audit dupe error
 user-agents
-werkzeug
+werkzeug<2.3  # Werkzeug 2.3 drops Python 3.7 support ahead of schedule
 whitenoise
 zxcvbn

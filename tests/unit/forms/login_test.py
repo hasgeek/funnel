@@ -36,7 +36,7 @@ def user_nameless(db_session):
 def user_named(db_session):
     """User fixture with a username."""
     new_user = models.User(  # nosec
-        username='user-named', fullname="Named User", password='test_password_named'
+        username='user_named', fullname="Named User", password='test_password_named'
     )
     db_session.add(new_user)
     new_user.add_email('named@example.com')
@@ -81,7 +81,7 @@ def test_form_has_user_nameless(app, user, user_nameless, user_named) -> None:
 
 def test_form_has_user_named(app, user, user_nameless, user_named) -> None:
     """Login form identifies user correctly."""
-    with app.test_request_context(method='POST', data={'username': 'user-named'}):
+    with app.test_request_context(method='POST', data={'username': 'user_named'}):
         form = forms.LoginForm(meta={'csrf': False})
         with pytest.raises(forms.LoginWithOtp):  # Since we did not provide a password
             form.validate()

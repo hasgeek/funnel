@@ -34,13 +34,13 @@ def test_project_url_is_as_expected(project_url) -> None:
     # URL ends with '/'
     assert project_url.endswith('/')
     # URL is relative (for tests)
-    assert project_url == '/ankh-morpork/2010/'
+    assert project_url == '/ankh_morpork/2010/'
 
 
 @pytest.mark.parametrize('page', subpages)
 @pytest.mark.parametrize('xhr', xhr_headers)
 @pytest.mark.parametrize('use_login', login_sessions)
-def test_default_is_html(  # pylint: disable=too-many-arguments
+def test_default_is_html(
     request,
     client,
     use_login: Optional[str],
@@ -63,7 +63,7 @@ def test_default_is_html(  # pylint: disable=too-many-arguments
 @pytest.mark.parametrize('page', subpages)
 @pytest.mark.parametrize('xhr', xhr_headers)
 @pytest.mark.parametrize('use_login', login_sessions)
-def test_html_response(  # pylint: disable=too-many-arguments
+def test_html_response(
     request,
     client,
     use_login: Optional[str],
@@ -102,7 +102,7 @@ def test_json_response(
 @pytest.mark.parametrize('page', subpages)
 @pytest.mark.parametrize('xhr', xhr_headers)
 @pytest.mark.parametrize('use_login', login_sessions)
-def test_htmljson_response(  # pylint: disable=too-many-arguments
+def test_htmljson_response(
     request,
     client,
     use_login: Optional[str],

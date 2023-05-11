@@ -6,6 +6,7 @@ from baseframe import _, __, forms
 from coaster.utils import getbool
 
 from ..models import OrganizationMembership, ProjectCrewMembership
+from .helpers import nullable_strip_filters
 
 __all__ = [
     'OrganizationMembershipForm',
@@ -65,12 +66,17 @@ class ProjectCrewMembershipForm(forms.Form):
             "Can check-in a participant using their badge at a physical event"
         ),
     )
+    label = forms.StringField(
+        __("Role"),
+        description=__("Optional – Name this person’s role"),
+        filters=nullable_strip_filters,
+    )
 
     def validate(self, *args, **kwargs):
         """Validate form."""
         is_valid = super().validate(*args, **kwargs)
         if not any([self.is_editor.data, self.is_promoter.data, self.is_usher.data]):
-            self.is_usher.errors.append("Please select one or more roles")
+            self.is_usher.errors.append(_("Select one or more roles"))
             is_valid = False
         return is_valid
 

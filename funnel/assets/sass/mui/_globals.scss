@@ -37,14 +37,14 @@
 
   // paragraphs
   p {
-    margin: 0 0 ($mui-base-line-height-computed / 2);
+    margin: 0 0 ($mui-base-line-height-computed * 0.5);
   }
 
   // lists
   ul,
   ol {
     margin-top: 0;
-    margin-bottom: ($mui-base-line-height-computed / 2);
+    margin-bottom: ($mui-base-line-height-computed * 0.5);
   }
 
   // Horizontal rules
@@ -92,14 +92,14 @@
   h2,
   h3 {
     margin-top: $mui-base-line-height-computed;
-    margin-bottom: ($mui-base-line-height-computed / 2);
+    margin-bottom: ($mui-base-line-height-computed * 0.5);
   }
 
   h4,
   h5,
   h6 {
-    margin-top: ($mui-base-line-height-computed / 2);
-    margin-bottom: ($mui-base-line-height-computed / 2);
+    margin-top: ($mui-base-line-height-computed * 0.5);
+    margin-bottom: ($mui-base-line-height-computed * 0.5);
   }
 } @else {
   // Cherry pick from normalize.css
