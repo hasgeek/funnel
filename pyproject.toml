@@ -139,14 +139,6 @@ env = [
 env_override_existing_values = false
 env_files = ['.env', '.env.testing']
 
-[tool.pyright]
-venv = 'hasgeek'
-reportMissingImports = true
-reportMissingTypeStubs = false
-reportShadowedImports = false
-
-pythonVersion = '3.7'
-
 [tool.mypy]
 files = '**/*.py'
 exclude = ['node_modules', 'build']

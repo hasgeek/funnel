@@ -138,7 +138,7 @@ class Account(
     is_organization_profile: bool = False
     is_placeholder_profile: bool = False
 
-    reserved_names: List[str] = RESERVED_NAMES
+    reserved_names: Set[str] = RESERVED_NAMES
 
     type_: Mapped[str] = sa.orm.mapped_column('type', sa.CHAR(1), nullable=False)
 
