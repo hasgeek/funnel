@@ -10,12 +10,11 @@ from typing import Optional, Tuple, Union
 from uuid import uuid4
 
 from alembic import op
+from progressbar import ProgressBar
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import progressbar.widgets
+import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '1c9cbf3a1e5e'

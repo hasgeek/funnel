@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from flask import current_app, redirect, request, session
-
 from oauth2client import client
 from sentry_sdk import capture_exception
 import requests

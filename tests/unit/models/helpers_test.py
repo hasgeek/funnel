@@ -1,14 +1,12 @@
 """Tests for model helpers."""
-# pylint: disable=possibly-unused-variable
+# pylint: disable=possibly-unused-variable,redefined-outer-name
 
 from types import SimpleNamespace
 
-from sqlalchemy.exc import StatementError
-import sqlalchemy as sa
-
 from flask_babel import lazy_gettext
-
+from sqlalchemy.exc import StatementError
 import pytest
+import sqlalchemy as sa
 
 from funnel import models
 import funnel.models.helpers as mhelpers

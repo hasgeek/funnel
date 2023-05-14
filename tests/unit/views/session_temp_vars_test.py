@@ -1,4 +1,5 @@
 """Test handling of temporary variables in cookie session."""
+# pylint: disable=redefined-outer-name
 
 from datetime import timedelta
 import time

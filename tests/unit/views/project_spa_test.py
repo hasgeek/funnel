@@ -1,4 +1,5 @@
 """Test response types for project SPA endpoints."""
+# pylint: disable=redefined-outer-name
 
 from typing import Optional
 from urllib.parse import urlsplit

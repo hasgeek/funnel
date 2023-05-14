@@ -1,11 +1,11 @@
 """Tests for Team member merger when merging user accounts."""
+# pylint: disable=redefined-outer-name
 
 from datetime import timedelta
 from types import SimpleNamespace
 
-import sqlalchemy as sa
-
 import pytest
+import sqlalchemy as sa
 
 from funnel import models
 

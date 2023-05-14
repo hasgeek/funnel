@@ -11,10 +11,9 @@ import hashlib
 
 from alembic import op
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
 import phonenumbers
 import rich.progress
+import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '63c44675b6cd'

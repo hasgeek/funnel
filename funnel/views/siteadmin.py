@@ -10,9 +10,8 @@ from io import StringIO
 from typing import Any, Dict, Optional, cast
 import csv
 
-from sqlalchemy.dialects.postgresql import INTERVAL
-
 from flask import abort, current_app, flash, render_template, request, url_for
+from sqlalchemy.dialects.postgresql import INTERVAL
 
 try:
     import rq_dashboard

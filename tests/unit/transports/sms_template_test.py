@@ -1,10 +1,9 @@
 """Test SMS templates."""
-# pylint: disable=possibly-unused-variable
+# pylint: disable=possibly-unused-variable,redefined-outer-name
 
 from types import SimpleNamespace
 
 from flask import Flask
-
 import pytest
 
 from funnel.transports import sms

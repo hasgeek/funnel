@@ -17,7 +17,6 @@ from typing import (
 
 from sqlalchemy import event
 from sqlalchemy.sql.expression import ColumnElement
-
 from werkzeug.utils import cached_property
 
 from baseframe import __

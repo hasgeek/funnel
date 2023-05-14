@@ -3,7 +3,6 @@
 
 from flask import url_for
 from werkzeug.datastructures import MultiDict
-
 import pytest
 
 from funnel import models

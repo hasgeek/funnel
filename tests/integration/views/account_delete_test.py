@@ -1,3 +1,5 @@
+"""Tests for account deletion."""
+
 from pytest_bdd import given, parsers, scenarios, then, when
 
 from funnel import models
