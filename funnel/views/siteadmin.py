@@ -442,8 +442,13 @@ class SiteadminView(ClassView):
 
 SiteadminView.init_app(app)
 
-if rq_dashboard is not None:
-    rq_dashboard.blueprint.before_request(
-        lambda: None if current_auth and current_auth.user.is_sysadmin else abort(403)
-    )
-    app.register_blueprint(rq_dashboard.blueprint, url_prefix='/siteadmin/rq')
+
+def init_rq_dashboard():
+    """Register RQ Dashboard Blueprint if available for import."""
+    if rq_dashboard is not None:
+        rq_dashboard.blueprint.before_request(
+            lambda: None
+            if current_auth and current_auth.user.is_sysadmin
+            else abort(403)
+        )
+        app.register_blueprint(rq_dashboard.blueprint, url_prefix='/siteadmin/rq')
