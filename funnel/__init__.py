@@ -202,6 +202,8 @@ app.assets.register(
     ),
 )
 
+views.siteadmin.init_rq_dashboard()
+
 # --- Serve static files with Whitenoise -----------------------------------------------
 
 app.wsgi_app = WhiteNoise(  # type: ignore[assignment]
