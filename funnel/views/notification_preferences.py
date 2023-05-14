@@ -186,7 +186,7 @@ class AccountNotificationView(ClassView):
         # if they'd like to resubscribe
         try:
             payload = token_serializer().loads(
-                token, max_age=365 * 24 * 60 * 60  # Validity 1 year (365 days)
+                token, max_age=365 * 86400  # Validity 1 year (365 days)
             )
         except itsdangerous.SignatureExpired:
             # Link has expired. It's been over a year!
@@ -323,7 +323,7 @@ class AccountNotificationView(ClassView):
                 # in the POST request because we'll move it over during the GET request.
                 payload = token_serializer().loads(
                     session.get('unsub_token') or request.form['token'],
-                    max_age=365 * 24 * 60 * 60,  # Validity 1 year (365 days)
+                    max_age=365 * 86400,  # Validity 1 year (365 days)
                 )
             except itsdangerous.SignatureExpired:
                 # Link has expired. It's been over a year!
