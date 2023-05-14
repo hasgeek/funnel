@@ -1,0 +1,72 @@
+name: funnel-dev
+services:
+  funnel-dev:
+    extends:
+      file: docker/compose/service-funnel.yml
+      service: funnel
+    image: funnel-dev:python-${BASE_PYTHON_VERSION}-node-${BASE_NODE_VERSION}
+    container_name: funnel-dev-${DASH_PYTHON_VERSION}-${BASE_NODE_VERSION}
+    user: pn
+    build:
+      context: .
+      dockerfile: docker/images/dev.Dockerfile
+      args:
+        - BASE_PYTHON_VERSION=${BASE_PYTHON_VERSION}
+        - BASE_NODE_VERSION=${BASE_NODE_VERSION}
+    # entrypoint: ./devserver.py
+    entrypoint: /home/pn/dev-entrypoint.sh
+    # entrypoint: tail -f /dev/null
+    working_dir: /home/pn/app
+    ports:
+      - 3000:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    links:
+      - postgres
+      - redis
+    volumes:
+      # https://stackoverflow.com/questions/43844639/how-do-i-add-cached-or-delegated-into-a-docker-compose-yml-volumes-list
+      # https://forums.docker.com/t/what-happened-to-delegated-cached-ro-and-other-flags/105097/2
+      - pip_cache:/home/pn/.cache/pip:delegated
+      - .:/home/pn/app
+      - node_modules:/home/pn/app/node_modules
+      - ./docker/entrypoints/dev.sh:/home/pn/dev-entrypoint.sh:ro
+    environment:
+      - FLASK_RUN_HOST=0.0.0.0
+  postgres:
+    image: postgres
+    restart: always
+    user: postgres
+    container_name: funnel-dev-db
+    ports:
+      - 5432
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_USER=postgres
+    volumes:
+      - postgres_dev:/var/lib/postgresql/data
+      - ./docker/initdb/dev.sh:/docker-entrypoint-initdb.d/dev.sh:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'psql funnel']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis
+    container_name: funnel-dev-redis
+    ports:
+      - 6379
+    restart: always
+    volumes:
+      - redis_dev:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+
+volumes:
+  pip_cache:
+  node_modules:
+  postgres_dev:
+  redis_dev:

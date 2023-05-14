@@ -2,8 +2,9 @@
 
 ARG BASE_PYTHON_VERSION=3.7
 ARG BASE_NODE_VERSION=18
-FROM hasgeek/funnel:python-${BASE_PYTHON_VERSION}-node-${BASE_NODE_VERSION} as test-base
-USER root
+
+FROM nikolaik/python-nodejs:python${BASE_PYTHON_VERSION}-nodejs${BASE_NODE_VERSION}-bullseye
+
 # TODO: https://stackoverflow.com/questions/68992799/warning-apt-key-is-deprecated-manage-keyring-files-in-trusted-gpg-d-instead
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked --mount=type=cache,target=/var/lib/apt,sharing=locked <<EOF
 curl -L https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
@@ -24,7 +25,30 @@ chmod +x geckodriver
 mv geckodriver /usr/local/bin
 apt-get autoclean -yqq
 apt-get autoremove -yqq
-cd /home/pn/app
+EOF
+USER pn
+RUN <<EOF
 mkdir -p /home/pn/.cache/pip
 chown -R pn:pn /home/pn/.cache
+mkdir -p /home/pn/.npm
+chown -R pn:pn /home/pn/.npm
+mkdir /home/pn/app
+chown pn:pn /home/pn/app
+EOF
+VOLUME [ "/home/pn/app" ]
+VOLUME [ "/home/pn/app/node_modules" ]
+WORKDIR /home/pn/app
+COPY --chown=pn:pn Makefile Makefile
+COPY --chown=pn:pn package.json package.json
+COPY --chown=pn:pn package-lock.json package-lock.json
+RUN --mount=type=cache,target=/home/pn/.npm,uid=1000,gid=1000 npm install
+
+ENV PATH "$PATH:/home/pn/.local/bin"
+
+COPY --chown=pn:pn requirements requirements
+
+RUN make deps-editable
+RUN --mount=type=cache,target=/home/pn/.cache/pip,uid=1000,gid=1000 <<EOF
+pip install --upgrade pip
+pip install --use-pep517 -r requirements/dev.txt
 EOF
