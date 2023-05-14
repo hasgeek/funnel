@@ -444,6 +444,7 @@ SiteadminView.init_app(app)
 
 
 def init_rq_dashboard():
+    """Register RQ Dashboard Blueprint if available for import."""
     if rq_dashboard is not None:
         rq_dashboard.blueprint.before_request(
             lambda: None
