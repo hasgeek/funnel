@@ -81,26 +81,8 @@ from_first = true
 known_future_library = ['__future__', 'six']
 known_repo = ['funnel']
 known_first_party = ['baseframe', 'coaster', 'flask_lastuser']
-known_sqlalchemy = ['alembic', 'sqlalchemy', 'sqlalchemy_utils', 'flask_sqlalchemy', 'psycopg2', 'sqlalchemy_json']
-known_flask = [
-  'flask',
-  'click',
-  'werkzeug',
-  'markupsafe',
-  'itsdangerous',
-  'wtforms',
-  'webassets',
-  'flask_assets',
-  'flask_babel',
-  'flask_executor',
-  'flask_flatpages',
-  'flask_mailman',
-  'flask_migrate',
-  'flask_redis',
-  'flask_rq2',
-]
 default_section = 'THIRDPARTY'
-sections = ['FUTURE', 'STDLIB', 'SQLALCHEMY', 'FLASK', 'THIRDPARTY', 'FIRSTPARTY', 'REPO', 'LOCALFOLDER']
+sections = ['FUTURE', 'STDLIB', 'THIRDPARTY', 'FIRSTPARTY', 'REPO', 'LOCALFOLDER']
 
 [tool.pytest.ini_options]
 minversion = "6.1"  # For config.rootpath
@@ -162,7 +144,6 @@ module = ['flask_sqlalchemy']
 follow_imports = 'skip'
 
 [tool.pylint.master]
-# load-plugins = ['pylint_pytest']  # Plugin has been abandoned
 max-parents = 10
 init-hook = """
 import os, astroid.bases, pathlib

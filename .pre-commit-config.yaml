@@ -118,7 +118,7 @@ repos:
             '--disable=import-error',
             '-rn', # Disable full report
             '-sn', # Disable evaluation score
-            '--ignore-paths=tests,migrations',
+            '--ignore-paths=migrations',
           ]
         additional_dependencies:
           - tomli

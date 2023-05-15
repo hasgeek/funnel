@@ -6,7 +6,6 @@ from collections import defaultdict
 from functools import wraps
 
 from flask import g
-
 import requests
 
 from baseframe import statsd

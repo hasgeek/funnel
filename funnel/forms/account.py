@@ -6,7 +6,6 @@ from hashlib import sha1
 from typing import Dict, Iterable, Optional
 
 from flask_babel import ngettext
-
 import requests
 
 from baseframe import _, __, forms

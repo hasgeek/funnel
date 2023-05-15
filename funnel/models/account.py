@@ -8,17 +8,15 @@ from uuid import UUID
 import hashlib
 import itertools
 
-from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
-from sqlalchemy.ext.hybrid import Comparator
-from sqlalchemy.sql.expression import ColumnElement
-
-from werkzeug.utils import cached_property
-
 from babel import Locale
 from furl import furl
 from passlib.hash import argon2, bcrypt
 from pytz.tzinfo import BaseTzInfo
+from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
+from sqlalchemy.ext.hybrid import Comparator
+from sqlalchemy.sql.expression import ColumnElement
 from typing_extensions import Literal
+from werkzeug.utils import cached_property
 from zbase32 import decode as zbase32_decode
 from zbase32 import encode as zbase32_encode
 import phonenumbers

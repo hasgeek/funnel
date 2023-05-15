@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 from flask import abort, current_app, flash, redirect, render_template, request, url_for
 from markupsafe import Markup, escape
-
 import geoip2.errors
 import user_agents
 

@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Optional
 
 from flask import flash
-
 from typing_extensions import Literal
 
 from baseframe import _, __, forms

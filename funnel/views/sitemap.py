@@ -7,10 +7,9 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Optional, Tuple, Union
 
-from flask import abort, render_template, url_for
-
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import DAILY, MONTHLY, rrule
+from flask import abort, render_template, url_for
 from pytz import utc
 
 from baseframe import cache

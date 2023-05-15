@@ -1,4 +1,6 @@
 """Test ProjectSponsorMembership."""
+# pylint: disable=redefined-outer-name
+
 import pytest
 
 from coaster.sqlalchemy import ImmutableColumnError

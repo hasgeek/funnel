@@ -9,9 +9,8 @@ from itertools import groupby
 from typing import Collection, Iterable, Optional
 from uuid import UUID
 
-from sqlalchemy.ext.associationproxy import association_proxy
-
 from pytz import timezone
+from sqlalchemy.ext.associationproxy import association_proxy
 
 from coaster.sqlalchemy import LazyRoleSet
 from coaster.utils import uuid_to_base58

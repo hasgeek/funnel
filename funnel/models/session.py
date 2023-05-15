@@ -8,9 +8,8 @@ from typing import Any, Dict, Optional, Type
 from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from flask_babel import format_date, get_locale
-from werkzeug.utils import cached_property
-
 from isoweek import Week
+from werkzeug.utils import cached_property
 
 from baseframe import localize_timezone
 from coaster.sqlalchemy import with_roles

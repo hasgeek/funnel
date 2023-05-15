@@ -1,5 +1,5 @@
 """Tests for Notification and UserNotification models."""
-# pylint: disable=possibly-unused-variable
+# pylint: disable=possibly-unused-variable,redefined-outer-name
 
 from __future__ import annotations
 
@@ -7,7 +7,6 @@ from types import SimpleNamespace
 from typing import Dict, List, Set
 
 from sqlalchemy.exc import IntegrityError
-
 import pytest
 
 from funnel import models

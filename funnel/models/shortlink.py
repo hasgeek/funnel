@@ -8,10 +8,9 @@ from typing import Iterable, Optional, Union, overload
 import hashlib
 import re
 
+from furl import furl
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.hybrid import Comparator
-
-from furl import furl
 from typing_extensions import Literal
 
 from coaster.sqlalchemy import immutable, with_roles

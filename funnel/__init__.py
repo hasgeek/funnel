@@ -16,7 +16,6 @@ from flask_mailman import Mail
 from flask_migrate import Migrate
 from flask_redis import FlaskRedis
 from flask_rq2 import RQ
-
 from whitenoise import WhiteNoise
 import geoip2.database
 

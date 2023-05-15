@@ -45,7 +45,7 @@ def test_organization_all(db_session, org_ankhmorpork, org_citywatch, org_uu) ->
     """Test for getting all organizations (takes buid or name optionally)."""
     db_session.commit()
     # scenario 1: when neither buids nor names are given
-    assert models.Organization.all() == []
+    assert not models.Organization.all()
     # scenario 2: when buids are passed
     orglist = {org_ankhmorpork, org_citywatch}
     all_by_buids = models.Organization.all(buids=[_org.buid for _org in orglist])

@@ -12,12 +12,11 @@ down_revision = 'ae68621248af'
 from uuid import uuid4
 
 from alembic import op
+from progressbar import ProgressBar
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
-from progressbar import ProgressBar
 import progressbar.widgets
+import sqlalchemy as sa
 
 venue = table('venue', column('id', sa.Integer()), column('uuid', postgresql.UUID()))
 

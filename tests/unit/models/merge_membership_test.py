@@ -1,4 +1,5 @@
 """Tests for membership model mergers when merging user accounts."""
+# pylint: disable=redefined-outer-name
 
 import pytest
 

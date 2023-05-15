@@ -1,5 +1,5 @@
 """Fixtures for legacy tests."""
-# pylint: disable=attribute-defined-outside-init
+# pylint: disable=attribute-defined-outside-init,redefined-outer-name
 
 import pytest
 

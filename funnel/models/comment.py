@@ -6,7 +6,6 @@ from datetime import datetime
 from typing import Any, Iterable, List, Optional, Set, Union
 
 from sqlalchemy.orm import CompositeProperty
-
 from werkzeug.utils import cached_property
 
 from baseframe import _, __

@@ -13,9 +13,8 @@ from uuid import uuid4
 
 from flask import url_for
 from flask_babel import force_locale
-from werkzeug.utils import cached_property
-
 from typing_extensions import Literal
+from werkzeug.utils import cached_property
 
 from baseframe import __, statsd
 from coaster.auth import current_auth

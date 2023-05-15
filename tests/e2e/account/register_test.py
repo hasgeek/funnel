@@ -1,3 +1,5 @@
+"""Test account registration."""
+
 import time
 
 from pytest_bdd import given, parsers, scenarios, then, when

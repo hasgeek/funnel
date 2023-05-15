@@ -6,16 +6,14 @@ from typing import Any, List, Optional, Set, Union, cast, overload
 import hashlib
 import unicodedata
 
+from pyisemail import is_email
+from pyisemail.diagnosis import BaseDiagnosis
 from sqlalchemy import event, inspect
 from sqlalchemy.orm import mapper
 from sqlalchemy.orm.attributes import NO_VALUE
 from sqlalchemy.sql.expression import ColumnElement
-
-from werkzeug.utils import cached_property
-
-from pyisemail import is_email
-from pyisemail.diagnosis import BaseDiagnosis
 from typing_extensions import Literal
+from werkzeug.utils import cached_property
 import base58
 import idna
 

@@ -19,10 +19,9 @@ from flask import (
     session,
     url_for,
 )
-import itsdangerous
-
 from furl import furl
 import geoip2.errors
+import itsdangerous
 
 from baseframe import _, statsd
 from baseframe.forms import render_form

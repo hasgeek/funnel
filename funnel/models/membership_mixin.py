@@ -7,7 +7,6 @@ from typing import Any, Callable, ClassVar, Generic, Iterable, Optional, Set, Ty
 
 from sqlalchemy import event
 from sqlalchemy.sql.expression import ColumnElement
-
 from werkzeug.utils import cached_property
 
 from baseframe import __

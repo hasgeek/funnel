@@ -6,10 +6,9 @@ from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any, Dict
 
+from dateutil.relativedelta import relativedelta
 from flask.cli import AppGroup
 import click
-
-from dateutil.relativedelta import relativedelta
 import pytz
 import requests
 

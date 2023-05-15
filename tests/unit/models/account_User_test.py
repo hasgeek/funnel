@@ -1,4 +1,5 @@
 """Tests for User model."""
+# pylint: disable=use-implicit-booleaness-not-comparison
 
 from datetime import timedelta
 
