@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import ClassVar, Dict, List, Optional, Set
 
 import click
-
 import rich.progress
 
 from ... import models

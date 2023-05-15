@@ -19,7 +19,6 @@ import urllib.parse
 
 from sqlalchemy.orm import attribute_keyed_dict, load_only
 from sqlalchemy.orm.query import Query as QueryBaseClass
-
 from werkzeug.utils import cached_property
 
 from baseframe import _

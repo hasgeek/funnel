@@ -9,7 +9,6 @@ from typing import Dict, Generic, Optional, Type, TypeVar, Union
 from flask import current_app, flash, render_template, request, session, url_for
 from werkzeug.exceptions import Forbidden, RequestTimeout, TooManyRequests
 from werkzeug.utils import cached_property
-
 import phonenumbers
 
 from baseframe import _

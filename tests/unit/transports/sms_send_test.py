@@ -3,7 +3,6 @@
 from unittest.mock import patch
 
 from flask import Response
-
 import pytest
 import requests
 

@@ -1,4 +1,5 @@
 """Tests for Project model."""
+# pylint: disable=redefined-outer-name
 
 from datetime import datetime, timedelta
 

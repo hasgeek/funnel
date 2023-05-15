@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from typing import Optional
 
-from sqlalchemy.exc import IntegrityError
-
 from flask import abort, flash, request
+from sqlalchemy.exc import IntegrityError
 
 from baseframe import _, forms
 from baseframe.forms import render_delete_sqla, render_form
