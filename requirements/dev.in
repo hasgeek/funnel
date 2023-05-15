@@ -40,4 +40,3 @@ types-setuptools
 types-six
 types-toml
 types-werkzeug
-watchdog
