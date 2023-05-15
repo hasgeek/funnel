@@ -4,11 +4,9 @@ from __future__ import annotations
 
 from typing import Iterable, List, Optional
 
-from sqlalchemy.orm import attribute_keyed_dict
-
-from werkzeug.utils import cached_property
-
 from pytz import utc
+from sqlalchemy.orm import attribute_keyed_dict
+from werkzeug.utils import cached_property
 
 from baseframe import __, localize_timezone
 from coaster.sqlalchemy import LazyRoleSet, StateManager, with_roles

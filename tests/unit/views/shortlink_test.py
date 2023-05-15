@@ -1,4 +1,5 @@
 """Test shortlink views."""
+# pylint: disable=redefined-outer-name
 
 from urllib.parse import urlsplit
 

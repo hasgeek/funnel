@@ -5,9 +5,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 
-from markupsafe import Markup
-
 from bs4 import BeautifulSoup
+from markupsafe import Markup
 import tomlkit
 
 from funnel.utils.markdown import MarkdownConfig

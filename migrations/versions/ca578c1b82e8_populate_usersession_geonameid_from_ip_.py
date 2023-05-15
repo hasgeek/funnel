@@ -10,11 +10,10 @@ from types import SimpleNamespace
 from typing import Optional, Tuple, Union
 
 from alembic import op
-from sqlalchemy.sql import column, table
-import sqlalchemy as sa
-
 from progressbar import ProgressBar
+from sqlalchemy.sql import column, table
 import progressbar.widgets
+import sqlalchemy as sa
 
 try:
     import geoip2.database as geoip2_database

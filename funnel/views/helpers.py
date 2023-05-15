@@ -25,14 +25,13 @@ from flask import (
     session,
     url_for,
 )
-from werkzeug.exceptions import MethodNotAllowed, NotFound
-from werkzeug.routing import BuildError, RequestRedirect
-from werkzeug.urls import url_quote
-
 from furl import furl
 from pytz import common_timezones
 from pytz import timezone as pytz_timezone
 from pytz import utc
+from werkzeug.exceptions import MethodNotAllowed, NotFound
+from werkzeug.routing import BuildError, RequestRedirect
+from werkzeug.urls import url_quote
 import brotli
 
 from baseframe import cache, statsd

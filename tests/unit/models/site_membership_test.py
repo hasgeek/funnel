@@ -1,7 +1,6 @@
 """Tests for SiteMembership model."""
 
 from sqlalchemy.exc import IntegrityError
-
 import pytest
 
 from funnel import models
