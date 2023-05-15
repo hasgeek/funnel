@@ -181,7 +181,7 @@ app.assets.register(
             'jquery.ui.sortable.touch.js',
         ),
         output='js/fullcalendar.packed.js',
-        filters='uglipyjs',
+        filters='rjsmin',
     ),
 )
 app.assets.register(
@@ -197,7 +197,7 @@ app.assets.register(
     Bundle(
         assets.require('schedules.js'),
         output='js/schedules.packed.js',
-        filters='uglipyjs',
+        filters='rjsmin',
     ),
 )
 
