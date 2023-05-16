@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+from typing import ClassVar, Dict
+from uuid import UUID
+
+from typing_extensions import Protocol
+
 from baseframe import __
 
 from ..typing import UuidModelType
-from . import Mapped
+from . import Mapped, db
 from .comment import Comment, Commentset
 from .moderation import CommentModeratorReport
-from .notification import Notification, notification_categories
+from .notification import Notification, Role, notification_categories
 from .organization_membership import OrganizationMembership
 from .profile import Profile
 from .project import Project
@@ -36,6 +41,19 @@ __all__ = [
     'OrganizationAdminMembershipRevokedNotification',
 ]
 
+
+# --- Role definitions -----------------------------------------------------------------
+
+
+role_profile_owner = Role('profile_owner', __("Account owner"))
+role_profile_admin = Role('profile_admin', __("Account administrator"))
+role_project_participant = Role('project_participant', __("Project participant"))
+role_project_crew = Role('project_crew', __("All project crew"))
+role_project_editor = Role('project_editor', __("Project editor"))
+role_project_promoter = Role('project_promoter', __("Project promoter"))
+role_document_subscriber = Role('document_subscriber', __("Document subscriber"))
+
+
 # --- Protocol and Mixin classes -------------------------------------------------------
 
 
@@ -51,15 +69,32 @@ class ProjectSubtype(UuidModelType):
     project: Mapped[Project]
 
 
+class NotificationDocumentProtocol(Protocol):
+    """Protocol class for notifications with a linked document."""
+
+    document_type: ClassVar[str]
+    document: db.Model  # type: ignore[name-defined]
+    document_uuid: UUID
+
+
 class DocumentHasProject:
     """Mixin class for documents linked to a project."""
 
     document: ProjectSubtype
 
     @property
-    def preference_context(self) -> Profile:
+    def preference_context(self: NotificationDocumentProtocol) -> Profile:
         """Return document's project's account as preference context."""
         return self.document.project.profile
+
+    def hook_context_uuids(self: NotificationDocumentProtocol) -> Dict[str, UUID]:
+        """Return UUIDs of current and parent documents for notification hook hosts."""
+        project = self.document.project
+        return {
+            self.document_type: self.document_uuid,
+            'project': project.uuid,
+            'profile': project.profile.uuid,
+        }
 
 
 class DocumentHasProfile:
@@ -68,9 +103,16 @@ class DocumentHasProfile:
     document: ProfileSubtype
 
     @property
-    def preference_context(self) -> Profile:
+    def preference_context(self: NotificationDocumentProtocol) -> Profile:
         """Return document's account as preference context."""
         return self.document.profile
+
+    def hook_context_uuids(self: NotificationDocumentProtocol) -> Dict[str, UUID]:
+        """Return UUIDs of current and parent documents for notification hook hosts."""
+        return {
+            self.document_type: self.document_uuid,  # type: ignore[attr-defined]
+            'profile': self.document.profile.uuid,
+        }
 
 
 # --- Account notifications ------------------------------------------------------------
@@ -133,6 +175,10 @@ class NewUpdateNotification(DocumentHasProject, Notification, type='update_new')
 
     document_model = Update
     roles = ['project_crew', 'project_participant']
+    shared_roles = {
+        'project_crew': role_project_crew,
+        'project_participant': role_project_participant,
+    }
     exclude_actor = False  # Send to everyone including the actor
 
 
@@ -142,11 +188,11 @@ class ProposalSubmittedNotification(
     """Notification to the proposer on a successful proposal submission."""
 
     category = notification_categories.participant
-    title = __("When I submit a proposal")
+    title = __("When I make a submission")
     description = __("Confirmation for your records")
 
     document_model = Proposal
-    roles = ['creator']
+    roles = ['creator']  # TODO: Change this to include collaborators
     exclude_actor = False  # This notification is for the actor
 
     # Email is typically fine. Messengers may be too noisy
@@ -169,6 +215,10 @@ class ProjectStartingNotification(
     document_model = Project
     fragment_model = Session
     roles = ['project_crew', 'project_participant']
+    shared_roles = {
+        'project_crew': role_project_crew,
+        'project_participant': role_project_participant,
+    }
     # This is a notification triggered without an actor
 
 
@@ -185,6 +235,7 @@ class NewCommentNotification(Notification, type='comment_new'):
     document_model = Commentset
     fragment_model = Comment
     roles = ['replied_to_commenter', 'document_subscriber']
+    shared_roles = {'document_subscriber': role_document_subscriber}
 
 
 class CommentReplyNotification(Notification, type='comment_reply'):
@@ -214,6 +265,7 @@ class ProjectCrewMembershipNotification(
     document_model = Project
     fragment_model = ProjectCrewMembership
     roles = ['subject', 'project_crew']
+    shared_roles = {'project_crew': role_project_crew}
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
@@ -228,6 +280,7 @@ class ProjectCrewMembershipRevokedNotification(
     document_model = Project
     fragment_model = ProjectCrewMembership
     roles = ['subject', 'project_crew']
+    shared_roles = {'project_crew': role_project_crew}
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
@@ -242,6 +295,7 @@ class ProposalReceivedNotification(
     document_model = Project
     fragment_model = Proposal
     roles = ['project_editor']
+    shared_roles = {'project_editor': role_project_editor}
     exclude_actor = True  # Don't notify editor of proposal they submitted
 
 
@@ -258,6 +312,7 @@ class RegistrationReceivedNotification(
     document_model = Project
     fragment_model = Rsvp
     roles = ['project_promoter']
+    shared_roles = {'project_promoter': role_project_promoter}
     exclude_actor = True
 
 
@@ -276,6 +331,7 @@ class OrganizationAdminMembershipNotification(
     document_model = Organization
     fragment_model = OrganizationMembership
     roles = ['subject', 'profile_admin']
+    shared_roles = {'profile_admin': role_profile_admin}
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
@@ -290,6 +346,7 @@ class OrganizationAdminMembershipRevokedNotification(
     document_model = Organization
     fragment_model = OrganizationMembership
     roles = ['subject', 'profile_admin']
+    shared_roles = {'profile_admin': role_profile_admin}
     exclude_actor = True  # Alerts other users of actor's actions; too noisy for actor
 
 
@@ -305,3 +362,16 @@ class CommentReportReceivedNotification(Notification, type='comment_report_recei
     document_model = Comment
     fragment_model = CommentModeratorReport
     roles = ['comment_moderator']
+    shared_roles = {
+        'comment_moderator': Role('comment_moderator', __("Comment moderator"))
+    }
+
+
+# TODO: Add shared role hook models and document ids
+# TODO: new models: NotificationHook (links to host document_id on behalf of one user)
+# TODO: HookTarget -- with polymorphic subtypes, links NotificationHook to destination
+# TODO: destination types: email, telegram group, slack bot, signal bot, other?
+# TODO: eventid + hook target unique constraint, so that multiple hooks leading to the
+# TODO: same destination are deduped and only one notification is sent.
+# TODO: Hook must specify multiple notification types + roles and be quick to discover.
+# TODO: How? PG array with indexing? JSON struct with indexing?

@@ -77,7 +77,10 @@ and :class:`UserNotification`:
 
 1. Notification has pkey ``(eventid, id)``, where `id` is local to the instance
 2. UserNotification has pkey ``(eventid, user_id)`` combined with a fkey to Notification
-    using ``(eventid, notification_id)``
+    using ``(eventid, notification_id)``.
+
+Notifications can also be delivered to a group chat via a hook mechanism. This is
+documented in :class:`NotificationHook`.
 """
 from __future__ import annotations
 
@@ -108,6 +111,7 @@ from werkzeug.utils import cached_property
 
 from baseframe import __
 from coaster.sqlalchemy import (
+    DynamicAssociationProxy,
     Query,
     Registry,
     SqlUuidB58Comparator,
@@ -118,8 +122,18 @@ from coaster.sqlalchemy import (
 from coaster.utils import LabeledEnum, uuid_from_base58, uuid_to_base58
 
 from ..typing import OptionalMigratedTables, T, UuidModelType
-from . import BaseMixin, Mapped, NoIdMixin, db, hybrid_property, postgresql, sa
+from . import (
+    BaseMixin,
+    Mapped,
+    NoIdMixin,
+    UuidMixin,
+    db,
+    hybrid_property,
+    postgresql,
+    sa,
+)
 from .helpers import reopen
+from .membership_mixin import ImmutableUserMembershipMixin
 from .phone_number import PhoneNumber, PhoneNumberMixin
 from .user import User, UserEmail, UserPhone
 
@@ -153,6 +167,18 @@ class NotificationCategory:
     priority_id: int
     title: str
     available_for: Callable[[User], bool]
+
+
+@dataclass
+class Role:
+    """User-facing name and description for a role within a specific context."""
+
+    #: Role identifier
+    name: str
+    #: Role title
+    title: str
+    #: Optional role description
+    description: Optional[str] = None
 
 
 #: Registry of notification categories
@@ -327,6 +353,10 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     #: Roles to send notifications to. Roles must be in order of priority for situations
     #: where a user has more than one role on the document.
     roles: ClassVar[Sequence[str]] = []
+
+    #: Roles that are typically held by multiple actors, to enable notifications sent to
+    #: all of them at once via the notification hook mechanism
+    shared_roles: ClassVar[Dict[str, Role]] = {}
 
     #: Exclude triggering actor from receiving notifications? Subclasses may override
     exclude_actor: ClassVar[bool] = False
@@ -522,8 +552,7 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
         Retrieve the document referenced by this Notification, if any.
 
         This assumes the underlying object won't disappear, as there is no SQL foreign
-        key constraint enforcing a link. The proper way to do this is by having a
-        secondary table for each type of document.
+        key constraint enforcing a link. This risk is mitigated in the view layer.
         """
         if self.document_uuid and self.document_model:
             return self.document_model.query.filter_by(uuid=self.document_uuid).one()
@@ -535,7 +564,8 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
         Retrieve the fragment within a document referenced by this Notification, if any.
 
         This assumes the underlying object won't disappear, as there is no SQL foreign
-        key constraint enforcing a link.
+        key constraint enforcing a link. As with :prop:`document`, the risk of a missing
+        database entry is mitigated in the view layer.
         """
         if self.fragment_uuid and self.fragment_model:
             return self.fragment_model.query.filter_by(uuid=self.fragment_uuid).one()
@@ -571,6 +601,27 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
     def role_provider_obj(self):
         """Return fragment if exists, document otherwise, indicating role provider."""
         return self.fragment or self.document
+
+    @classmethod
+    def hook_context_models(cls) -> Sequence[db.Model]:  # type: ignore[name-defined]
+        """
+        Return models in which hooks may be located for this notification type.
+
+        See :meth:`hook_context_uuids` for an explanation.
+        """
+        return [cls.document_model]
+
+    def hook_context_uuids(self) -> Dict[str, UUID]:
+        """
+        Return UUIDs of documents to find notification hooks in.
+
+        Notifications are typically dispatched to a single user at a time, but it is
+        possible to send them to a role all at once using a notification hook. Hooks are
+        defined on a document or one of its parents, are set to trigger on specified
+        notification types, roles and contexts, and will only actually trigger if a
+        consenting user attached to the hook is eligible for the notification.
+        """
+        return {self.document_type: self.document_uuid}
 
     def dispatch(self) -> Generator[UserNotification, None, None]:
         """
@@ -622,6 +673,11 @@ class Notification(NoIdMixin, db.Model):  # type: ignore[name-defined]
                 )
                 db.session.add(user_notification)
                 yield user_notification
+
+    def eligible_hooks(self):  # -> Generator[NotificationHook, None, None]:
+        """Find eligible hooks for this notification."""
+        # TODO: Find hooks, check if any of their consenting users have a matching
+        # UserNotification instance (ie, they are eligible), then yield them
 
     # Make :attr:`type_` available under the name `type`, but declare this at the very
     # end of the class to avoid conflicts with the Python `type` global that is
@@ -1184,6 +1240,156 @@ class NotificationFor(UserNotificationMixin):
         )
 
 
+# --- Notification hooks ---------------------------------------------------------------
+
+
+class NotificationHook(BaseMixin, UuidMixin, db.Model):  # type: ignore[name-defined]
+    """
+    A notification hook allows user-specified delivery of notifications.
+
+    Notifications are targeted at roles on documents, and typically delivered to users
+    holding those roles. A group of role-holding users may want the notification
+    delivered to them as a group, for example as a message in a chat group, where it
+    can be processed as a group activity rather than as a single user activity. A hook
+    has three trigger conditions, all of which must be satisfied:
+
+    1. A context where the hook is defined, from where it applies to everything within
+        that context. For example, a hook defined on an Account will apply to all
+        Projects contained within that Account.
+
+    2. Notification types and target roles that the hook is configured for.
+
+    3. One or more consenting users who must be eligible for receiving the notification.
+
+    In addition, a hook has one or more custom delivery transports for the
+    notification. Transport types are defined as individual classes, and each may
+    require custom configuration.
+    """
+
+    __tablename__ = 'notification_hook'
+    __uuid_primary_key__ = True
+
+    #: Type of document that the notification hook is attached to. Used only for audit
+    document_type = immutable(db.Column(db.Unicode, nullable=False, index=True))
+
+    #: UUID of document that the notification hook is attached to, used to find the hook
+    document_uuid = immutable(db.Column(postgresql.UUID, nullable=False, index=True))
+
+    #: Id of user who created this hook, for audit only (and hence nullable).
+    user_id = immutable(
+        db.Column(None, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
+    )
+    #: User who created this hook, for audit only
+    user = db.relationship(User)
+
+    # TODO: Another way to do this: allow a hook to be defined only on a project or
+    # profile, and identify which by using two fkeys, with a check constraint to only
+    # allow one to be set. This will let SQL cascades remove hooks when the parent is
+    # deleted, but will make it harder to specify additional hook contexts.
+
+    @classmethod
+    def new(cls, context: UuidMixin, user: User) -> NotificationHook:
+        """Create a new notification hook on a given context."""
+        hook = cls(
+            document_type=context.__tablename__,  # type: ignore[attr-defined]
+            document_uuid=context.uuid,
+            user=user,
+        )
+        hook_membership = NotificationHookMembership(
+            notification_hook=hook, user=user, granted_by=user
+        )
+        db.session.add(hook)
+        db.session.add(hook_membership)
+        return hook
+
+
+class NotificationHookTypeRole(NoIdMixin, db.Model):  # type: ignore[name-defined]
+    """Secondary model for notification type and role enabled in a hook."""
+
+    __tablename__ = 'notification_hook_type_role'
+    __uuid_primary_key__ = True
+
+    notification_hook_id = db.Column(
+        None,
+        db.ForeignKey('notification_hook.id', ondelete='CASCADE'),
+        nullable=False,
+        primary_key=True,
+    )
+    notification_hook = db.relationship(NotificationHook, backref='enabled_types')
+    notification_type = db.Column(db.Unicode, nullable=False, primary_key=True)
+    notification_role = db.Column(db.Unicode, nullable=False, primary_key=True)
+
+    @property
+    def type_role(self):
+        return f'{self.notification_type}/{self.notification_role}'
+
+
+class NotificationHookMembership(
+    ImmutableUserMembershipMixin,
+    db.Model,  # type: ignore[name-defined]
+):
+    """Consenting users on a notification hook."""
+
+    __tablename__ = 'notification_hook_membership'
+
+    notification_hook_id = immutable(
+        db.Column(
+            None,
+            db.ForeignKey('notification_hook.id', ondelete='CASCADE'),
+            nullable=False,
+        )
+    )
+    notification_hook = immutable(
+        db.relationship(
+            NotificationHook,
+            backref=db.backref(
+                'memberships', lazy='dynamic', cascade='all', passive_deletes=True
+            ),
+        )
+    )
+    parent = db.synonym('notification_hook')
+    parent_id = db.synonym('notification_hook_id')
+
+
+NotificationHook.consenting_user_memberships = with_roles(
+    db.relationship(
+        NotificationHookMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            NotificationHookMembership.notification_hook_id == NotificationHook.id,
+            NotificationHookMembership.is_active,
+        ),
+        viewonly=True,
+    ),
+    grants_via={'user': {'consenting_user'}},
+)
+NotificationHook.users = DynamicAssociationProxy('consenting_user_memberships', 'user')
+NotificationHook.invited_user_memberships = with_roles(
+    db.relationship(
+        NotificationHookMembership,
+        lazy='dynamic',
+        primaryjoin=db.and_(
+            NotificationHookMembership.notification_hook_id == NotificationHook.id,
+            NotificationHookMembership.is_invite,
+            NotificationHookMembership.revoked_at.is_(None),
+        ),
+        viewonly=True,
+    ),
+    grants_via={'user': {'invited_user'}},
+)
+NotificationHook.invited_users = DynamicAssociationProxy(
+    'invited_user_memberships', 'user'
+)
+
+# TODO: Spec option to revoke individual notifications in favour of group notifications.
+# This may also require a separate web view for group notifications
+
+
+class NotificationHookTarget:
+    # TODO
+    pass
+
+
 # --- Notification preferences ---------------------------------------------------------
 
 
@@ -1412,6 +1618,11 @@ def _register_notification_types(mapper_, cls) -> None:
         # Exclude inactive notifications in the registry. It is used to populate the
         # user's notification preferences screen.
         if cls.active and cls.cls_type == cls.pref_type:
+            notification_type_registry[cls.cls_type] = cls
+        # Include inactive notifications in the web types, as this is used for the web
+        # feed of past notifications, including deprecated (therefore inactive) types
+        if cls.allow_web:
+            notification_web_types.add(cls.cls_type)
             notification_type_registry[cls.cls_type] = cls
         # Include inactive notifications in the web types, as this is used for the web
         # feed of past notifications, including deprecated (therefore inactive) types
