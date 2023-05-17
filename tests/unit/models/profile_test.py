@@ -1,11 +1,11 @@
 """Tests for Account (nee Profile) model."""
 
-from sqlalchemy.exc import StatementError
-
 from furl import furl
+from sqlalchemy.exc import StatementError
 import pytest
 
 from coaster.sqlalchemy import StateTransitionError
+
 from funnel import models
 
 

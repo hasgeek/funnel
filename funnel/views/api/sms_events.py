@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from flask import current_app, request
-
 from twilio.request_validator import RequestValidator
 
 from baseframe import statsd

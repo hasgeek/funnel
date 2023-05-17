@@ -5,9 +5,8 @@ from __future__ import annotations
 from typing import Dict, Optional, Tuple, Union, cast, overload
 
 from flask import current_app
-from werkzeug.utils import cached_property
-
 from typing_extensions import Literal
+from werkzeug.utils import cached_property
 
 from baseframe import __
 from coaster.sqlalchemy import StateManager, with_roles

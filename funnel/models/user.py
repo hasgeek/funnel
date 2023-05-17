@@ -8,12 +8,10 @@ from uuid import UUID
 import hashlib
 import itertools
 
-from sqlalchemy.ext.associationproxy import association_proxy
-
-from werkzeug.utils import cached_property
-
 from passlib.hash import argon2, bcrypt
+from sqlalchemy.ext.associationproxy import association_proxy
 from typing_extensions import Literal
+from werkzeug.utils import cached_property
 import phonenumbers
 
 from baseframe import __

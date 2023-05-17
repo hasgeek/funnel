@@ -7,9 +7,8 @@ from typing import List
 import logging
 
 from alembic import context
-from sqlalchemy import MetaData
-
 from flask import current_app
+from sqlalchemy import MetaData
 
 USE_TWOPHASE = False
 

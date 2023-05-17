@@ -6,10 +6,8 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple, TypeVar, Uni
 from uuid import UUID
 
 from sqlalchemy.orm import Mapped
-
-from werkzeug.wrappers import Response  # Base class for Flask Response
-
 from typing_extensions import ParamSpec, Protocol
+from werkzeug.wrappers import Response  # Base class for Flask Response
 
 from coaster.sqlalchemy import Query
 

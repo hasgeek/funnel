@@ -1,8 +1,8 @@
 """Tests for request_wants proxy."""
-# pylint: disable=import-error
+# pylint: disable=import-error,redefined-outer-name
+
 
 from flask import Flask
-
 import pytest
 
 from funnel.proxies import init_app, request_wants

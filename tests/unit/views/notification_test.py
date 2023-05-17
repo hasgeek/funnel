@@ -1,9 +1,9 @@
 """Test Notification views."""
+# pylint: disable=redefined-outer-name
 
 from urllib.parse import urlsplit
 
 from flask import url_for
-
 import pytest
 
 from funnel import models

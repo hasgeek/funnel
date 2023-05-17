@@ -1,9 +1,10 @@
 """Test for project ticket sync models."""
-# pylint: disable=attribute-defined-outside-init
+# pylint: disable=attribute-defined-outside-init,redefined-outer-name
 
 import pytest
 
 from coaster.utils import uuid_b58
+
 from funnel import models
 
 # --- Fixture data

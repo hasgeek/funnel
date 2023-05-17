@@ -1,7 +1,6 @@
 """Tests for Project forms."""
 
 from werkzeug.datastructures import MultiDict
-
 import pytest
 import requests_mock
 

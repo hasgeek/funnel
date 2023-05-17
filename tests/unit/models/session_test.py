@@ -1,15 +1,14 @@
 """Test sessions."""
-# pylint: disable=possibly-unused-variable
+# pylint: disable=possibly-unused-variable,redefined-outer-name
 
 from datetime import datetime, timedelta
 from types import SimpleNamespace
 from typing import Dict, List, Optional
 
-from sqlalchemy.exc import IntegrityError
-import sqlalchemy as sa
-
 from pytz import utc
+from sqlalchemy.exc import IntegrityError
 import pytest
+import sqlalchemy as sa
 
 from funnel import models
 

@@ -6,7 +6,6 @@ from typing import Optional, Union
 import json
 
 from flask import flash
-
 from typing_extensions import Literal
 
 from baseframe import _, __, forms

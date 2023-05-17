@@ -1,4 +1,5 @@
 """Test account forms."""
+# pylint: disable=redefined-outer-name
 
 from contextlib import nullcontext as does_not_raise
 from types import SimpleNamespace
@@ -6,6 +7,7 @@ from types import SimpleNamespace
 import pytest
 
 from baseframe.forms.validators import StopValidation
+
 from funnel import forms
 
 

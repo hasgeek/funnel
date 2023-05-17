@@ -14,9 +14,8 @@ import time
 import zipfile
 
 from flask.cli import AppGroup
-import click
-
 from unidecode import unidecode
+import click
 import requests
 import rich.progress
 

@@ -5,10 +5,9 @@ from __future__ import annotations
 from typing import Any, Iterable, List, Optional, Union
 from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
+from furl import furl
 from sqlalchemy.sql import expression
 from sqlalchemy.sql.expression import ColumnElement
-
-from furl import furl
 
 from baseframe import __
 from coaster.sqlalchemy import LazyRoleSet, Query, StateManager, immutable, with_roles

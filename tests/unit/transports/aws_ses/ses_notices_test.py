@@ -5,7 +5,6 @@ import json
 import os
 
 from flask import Response
-
 import pytest
 
 # Data Directory which contains JSON Files

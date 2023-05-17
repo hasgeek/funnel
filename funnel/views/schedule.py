@@ -7,12 +7,10 @@ from datetime import timedelta
 from types import SimpleNamespace
 from typing import Any, Dict, List, Optional, cast
 
-from sqlalchemy.orm.exc import NoResultFound
-
 from flask import Response, current_app, json
-
 from icalendar import Alarm, Calendar, Event, vCalAddress, vText
 from pytz import utc
+from sqlalchemy.orm.exc import NoResultFound
 
 from baseframe import _, localize_timezone
 from coaster.utils import utcnow

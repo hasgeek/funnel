@@ -6,7 +6,6 @@ import gettext
 import re
 
 from flask_babel import get_locale
-
 import pycountry
 
 from baseframe import _, __, forms
