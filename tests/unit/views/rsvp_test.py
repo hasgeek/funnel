@@ -4,7 +4,6 @@ import datetime
 import json
 
 from werkzeug.datastructures import MultiDict
-
 import pytest
 
 valid_json = json.dumps(
