@@ -46,6 +46,7 @@ def test_valid_boxoffice_form(app) -> None:
         data={'register_form_schema': valid_json},
     ):
         form = forms.ProjectBoxofficeForm(meta={'csrf': False})
+
         assert form.validate() is True
 
 
