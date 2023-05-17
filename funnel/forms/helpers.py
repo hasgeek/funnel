@@ -44,7 +44,7 @@ class ProfileSelectField(forms.AutocompleteField):
             self.data = Profile.query.filter(
                 # Limit to non-suspended (active) accounts. Do not require account to
                 # be public as well
-                Profile.name == valuelist[0],
+                Profile.name_is(valuelist[0]),
                 Profile.is_active,
             ).one_or_none()
         else:

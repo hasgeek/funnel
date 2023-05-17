@@ -11,8 +11,8 @@
 
 .search {
   width: 100%;
-  margin: 0 0 $mui-grid-padding/2;
-  padding: 0 $mui-grid-padding/2;
+  margin: 0 0 $mui-grid-padding * 0.5;
+  padding: 0 $mui-grid-padding * 0.5;
   border: 1px solid $mui-divider-color;
   border-radius: 2px;
   position: relative;

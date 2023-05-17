@@ -210,7 +210,7 @@ def validate_is_app_url(url: Union[str, furl], method: str = 'GET') -> bool:
 
     while True:  # Keep looping on redirects
         try:
-            return bool(adapter.match(parsed_url.path, method=method))
+            return bool(adapter.match(str(parsed_url.path), method=method))
         except RequestRedirect as exc:
             parsed_url = furl(exc.new_url)
         except (MethodNotAllowed, NotFound):

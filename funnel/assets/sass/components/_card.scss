@@ -13,7 +13,7 @@
   }
 
   .card__title__heading {
-    margin: $mui-grid-padding/4 auto;
+    margin: $mui-grid-padding * 0.25 auto;
   }
 
   .card__header {
@@ -26,13 +26,13 @@
   }
 
   .card__body {
-    padding: $mui-grid-padding/2 $mui-grid-padding;
+    padding: $mui-grid-padding * 0.5 $mui-grid-padding;
     word-break: break-word;
   }
 
   .card__footer {
     clear: both;
-    padding: 0 $mui-grid-padding/2;
+    padding: 0 $mui-grid-padding * 0.5;
   }
 
   .mui-btn + .mui-btn {
@@ -102,7 +102,7 @@
 }
 
 .card__calendar {
-  padding: $mui-grid-padding/2 0 $mui-grid-padding-double;
+  padding: $mui-grid-padding * 0.5 0 $mui-grid-padding-double;
   margin-left: -$mui-grid-padding;
   margin-right: -$mui-grid-padding;
 
@@ -371,11 +371,11 @@
 
     .card__body__bookmark {
       float: right;
-      margin: $mui-grid-padding/4 0 0;
+      margin: $mui-grid-padding * 0.25 0 0;
     }
 
     .card__body__title {
-      margin: 0 0 $mui-grid-padding/2;
+      margin: 0 0 $mui-grid-padding * 0.5;
     }
 
     .card__body__title--smaller {
@@ -388,7 +388,7 @@
     }
 
     .card__body__location {
-      margin: 0 0 $mui-grid-padding/2;
+      margin: 0 0 $mui-grid-padding * 0.5;
       float: left;
     }
     .card__body__divider {
@@ -404,7 +404,9 @@
 }
 
 .card--upcoming:hover {
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.25),
+    0 10px 10px rgba(0, 0, 0, 0.22);
 }
 
 @media (min-width: 1200px) {
@@ -484,7 +486,7 @@
   }
   .profile-card__btn-wrapper {
     margin-top: auto;
-    margin-bottom: $mui-grid-padding/2;
+    margin-bottom: $mui-grid-padding * 0.5;
   }
 }
 

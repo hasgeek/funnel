@@ -11,7 +11,7 @@ from funnel import models
 
 def test_profile_urltype_valid(db_session, new_organization) -> None:
     profile = models.Profile.query.filter_by(id=new_organization.profile.id).first()
-    assert profile.name == 'test-org'
+    assert profile.name == 'test_org'
     profile.logo_url = "https://images.example.com/"
     db_session.add(profile)
     db_session.commit()
@@ -89,9 +89,65 @@ def test_suspended_user_private_profile(db_session, user_wolfgang) -> None:
         user_wolfgang.profile.make_public()
 
 
+def test_profile_name_is(user_rincewind, org_uu, user_lutze):
+    """Test Profile.name_is to return a query filter."""
+    assert (
+        models.Profile.query.filter(models.Profile.name_is('rincewind')).one()
+        == user_rincewind.profile
+    )
+    assert (
+        models.Profile.query.filter(models.Profile.name_is('Rincewind')).one()
+        == user_rincewind.profile
+    )
+    assert (
+        models.Profile.query.filter(models.Profile.name_is('uu')).one()
+        == org_uu.profile
+    )
+    assert (
+        models.Profile.query.filter(models.Profile.name_is('UU')).one()
+        == org_uu.profile
+    )
+    assert (
+        models.Profile.query.filter(models.Profile.name_is('lu-tze')).one()
+        == user_lutze.profile
+    )
+    assert (
+        models.Profile.query.filter(models.Profile.name_is('lu_tze')).one()
+        == user_lutze.profile
+    )
+
+
+def test_profile_name_in(user_rincewind, org_uu, user_lutze):
+    """Test Profile.name_in to return a query filter."""
+    assert models.Profile.query.filter(
+        models.Profile.name_in(['lu-tze', 'lu_tze'])
+    ).all() == [user_lutze.profile]
+    assert set(
+        models.Profile.query.filter(models.Profile.name_in(['rincewind', 'UU'])).all()
+    ) == {user_rincewind.profile, org_uu.profile}
+
+
+def test_profile_name_like(user_rincewind, user_ridcully, user_lutze):
+    """Test Profile.name_like to return a query filter."""
+    assert set(models.Profile.query.filter(models.Profile.name_like('r%')).all()) == {
+        user_rincewind.profile,
+        user_ridcully.profile,
+    }
+    assert models.Profile.query.filter(models.Profile.name_like('lu%')).all() == [
+        user_lutze.profile
+    ]
+    assert models.Profile.query.filter(models.Profile.name_like(r'lu\_%')).all() == [
+        user_lutze.profile
+    ]
+    assert models.Profile.query.filter(models.Profile.name_like('lu-%')).all() == [
+        user_lutze.profile
+    ]
+
+
 def test_profile_autocomplete(
     user_rincewind, org_uu, user_lutze, user_librarian
 ) -> None:
+    """Test Profile.autocomplete to return matching profiles given a prefix."""
     assert models.Profile.autocomplete('') == []
     assert models.Profile.autocomplete(' ') == []
     assert models.Profile.autocomplete('rin') == [user_rincewind.profile]
@@ -101,3 +157,5 @@ def test_profile_autocomplete(
         user_librarian.profile,
         user_lutze.profile,
     ]
+    assert models.Profile.autocomplete('lu_tze') == [user_lutze.profile]
+    assert models.Profile.autocomplete('lu-tze') == [user_lutze.profile]

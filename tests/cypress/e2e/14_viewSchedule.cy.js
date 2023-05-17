@@ -45,7 +45,7 @@ describe('View schedule of p roject', () => {
     cy.get('[data-cy="session-title"]').contains(proposal.title).click();
     cy.wait('@view-session');
     cy.get('[data-cy-session="title"]').contains(proposal.title);
-    cy.get('[data-cy-session="speaker"]').contains(user.username);
+    cy.get('[data-cy-session="speaker"]').contains(user.fullname);
     cy.get('[data-cy-session="time"]').contains(tomorrow);
     cy.get('[data-cy-session="room"]').contains(proposal.venue_room);
     cy.get('[data-cy="view-proposal"]').should('have.exist');

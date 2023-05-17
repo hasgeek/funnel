@@ -1,105 +1,117 @@
-import 'htmx.org';
+/* global grecaptcha */
+
+import {
+  activateFormWidgets,
+  EnableAutocompleteWidgets,
+  MapMarker,
+} from './utils/form_widgets';
 import Form from './utils/formhelper';
+import 'htmx.org';
 
-window.Hasgeek.form = async ({ autosave, formId, msgElemId }) => {
-  let lastSavedData = $(formId).find('[type!="hidden"]').serialize();
-  let typingTimer;
-  const typingWaitInterval = 1000; // wait till user stops typing for one second to send form data
-  let waitingForResponse = false;
-  const actionUrl = $(formId).attr('action');
-  const sep = actionUrl.indexOf('?') === -1 ? '?' : '&';
-  const url = `${actionUrl + sep}`;
-
-  function haveDirtyFields() {
-    const latestFormData = $(formId).find('[type!="hidden"]').serialize();
-    if (latestFormData !== lastSavedData) {
-      return true;
-    }
-    return false;
-  }
-
-  async function enableAutoSave() {
-    if (!waitingForResponse && haveDirtyFields()) {
-      $(msgElemId).text(window.gettext('Saving'));
-      lastSavedData = $(formId).find('[type!="hidden"]').serialize();
-      waitingForResponse = true;
-      const form = $(formId)[0];
-      const response = await fetch(`${url}form.autosave=true`, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams(new FormData(form)).toString(),
-      }).catch(() => {
-        Form.handleFetchNetworkError();
-      });
-      if (response && response.ok) {
-        const remoteData = await response.json();
-        if (remoteData) {
-          // Todo: Update window.history.pushState for new form
-          $(msgElemId).text(window.gettext('Changes saved but not published'));
-          if (remoteData.revision) {
-            $('input[name="form.revision"]').val(remoteData.revision);
+window.Hasgeek.initWidgets = async function init(fieldName, config) {
+  switch (fieldName) {
+    case 'AutocompleteField':
+      EnableAutocompleteWidgets.textAutocomplete(config);
+      break;
+    case 'ImgeeField':
+      window.addEventListener('message', (event) => {
+        if (event.origin === config.host) {
+          const message = JSON.parse(event.data);
+          if (message.context === 'imgee.upload') {
+            $(`#imgee-loader-${config.fieldId}`).removeClass('mui--hide');
+            $(`#img_${config.fieldId}`).attr('src', message.embed_url);
+            $(`#${config.fieldId}`).val(message.embed_url);
+            if (config.widgetType) $.modal.close();
           }
-          if (remoteData.form_nonce) {
-            $('input[name="form_nonce"]').val(remoteData.form_nonce);
-          }
-          waitingForResponse = false;
         }
-      } else {
-        Form.formErrorHandler(formId, response);
-      }
-    }
-  }
-
-  $(window).bind('beforeunload', () => {
-    if (haveDirtyFields()) {
-      return window.gettext(
-        'You have unsaved changes on this page. Do you want to leave this page?'
-      );
-    }
-    return true;
-  });
-
-  $(formId).on('submit', () => {
-    $(window).off('beforeunload');
-  });
-
-  if (autosave) {
-    if ($('input[name="form.revision"]').val()) {
-      $(msgElemId).text(window.gettext('These changes have not been published yet'));
-    }
-
-    $(formId).on('change', () => {
-      enableAutoSave();
-    });
-
-    $(formId).on('keyup', () => {
-      if (typingTimer) clearTimeout(typingTimer);
-      typingTimer = setTimeout(enableAutoSave, typingWaitInterval);
-    });
-  }
-
-  if ($('textarea.markdown:not([style*="display: none"]').length) {
-    const { default: codemirrorHelper } = await import('./utils/codemirror');
-    $('textarea.markdown:not([style*="display: none"]').each(
-      function enableCodemirror() {
-        const markdownId = $(this).attr('id');
-        codemirrorHelper(markdownId);
-      }
-    );
-  }
-
-  if ($('textarea.stylesheet:not([style*="display: none"]').length) {
-    const { default: codemirrorStylesheetHelper } = await import(
-      './utils/codemirror_stylesheet'
-    );
-    $('textarea.stylesheet:not([style*="display: none"]').each(
-      function enableCodemirror() {
-        const textareaId = $(this).attr('id');
-        codemirrorStylesheetHelper(textareaId);
-      }
-    );
+      });
+      $(`#img_${config.fieldId}`).on('load', () => {
+        $(`#imgee-loader-${config.fieldId}`).addClass('mui--hide');
+      });
+      break;
+    case 'UserSelectField':
+      EnableAutocompleteWidgets.lastuserAutocomplete(config);
+      break;
+    case 'GeonameSelectField':
+      EnableAutocompleteWidgets.geonameAutocomplete(config);
+      break;
+    case 'CoordinatesField':
+      /* eslint-disable no-new */
+      await import('jquery-locationpicker');
+      new MapMarker(config);
+      break;
+    default:
+      break;
   }
 };
+
+window.Hasgeek.preventDoubleSubmit = function stopDoubleSubmit(
+  formId,
+  isXHR,
+  alertBoxHtml
+) {
+  if (isXHR) {
+    document.body.addEventListener('htmx:beforeSend', () => {
+      Form.preventDoubleSubmit(formId);
+    });
+    document.body.addEventListener('htmx:responseError', (event) => {
+      Form.showFormError(formId, event.detail.xhr, alertBoxHtml);
+    });
+  } else {
+    $(() => {
+      // Disable submit button when clicked. Prevent double click.
+      $(`#${formId}`).submit(function onSubmit() {
+        if (
+          !$(this).data('parsley-validate') ||
+          ($(this).data('parsley-validate') && $(this).hasClass('parsley-valid'))
+        ) {
+          $(this).find('button[type="submit"]').prop('disabled', true);
+          $(this).find('input[type="submit"]').prop('disabled', true);
+          $(this).find('.loading').removeClass('mui--hide');
+        }
+      });
+    });
+  }
+};
+
+window.Hasgeek.recaptcha = function handleRecaptcha(
+  formId,
+  formWrapperId,
+  ajax,
+  alertBoxHtml
+) {
+  if (ajax) {
+    window.onInvisibleRecaptchaSubmit = function handleAjaxFormSubmit() {
+      const postUrl = $(`#${formId}`).attr('action');
+      const onSuccess = function onSubmitSuccess(responseData) {
+        $(`#${formWrapperId}`).html(responseData); // Replace with OTP form received as response
+      };
+      const onError = function onSubmitError(response) {
+        Form.showFormError(formId, response, alertBoxHtml);
+      };
+      Form.ajaxFormSubmit(formId, postUrl, onSuccess, onError, {
+        dataType: 'html',
+      });
+    };
+    document.getElementById(formId).onsubmit = function onSubmit(event) {
+      event.preventDefault();
+      grecaptcha.execute();
+    };
+  } else {
+    window.onInvisibleRecaptchaSubmit = function recaptchaSubmit() {
+      document.getElementById(formId).submit();
+    };
+    document.getElementById(formId).onsubmit = function handleFormSubmit(event) {
+      event.preventDefault();
+      if (typeof grecaptcha !== 'undefined' && grecaptcha.getResponse() === '') {
+        grecaptcha.execute();
+      } else {
+        document.getElementById(formId).submit();
+      }
+    };
+  }
+};
+
+$(() => {
+  activateFormWidgets();
+});

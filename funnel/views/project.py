@@ -5,8 +5,9 @@ from types import SimpleNamespace
 import csv
 import io
 
-from flask import Markup, Response, abort, current_app, flash, render_template, request
+from flask import Response, abort, current_app, flash, render_template, request
 from flask_babel import format_number
+from markupsafe import Markup
 
 from baseframe import _, __, forms
 from baseframe.forms import render_delete_sqla, render_form, render_message
@@ -73,70 +74,70 @@ registration_count_messages = [
     CountWords(__("Be the first to register!"), '', __("Be the first follower!"), ''),
     CountWords(
         __("One registration so far"),
-        __("You are the first"),
+        __("You have registered"),
         __("One follower so far"),
-        __("You are the first"),
+        __("You are following this"),
     ),
     CountWords(
         __("Two registrations so far"),
-        __("You &amp; one other"),
+        __("You &amp; one other have registered"),
         __("Two followers so far"),
-        __("You &amp; one other"),
+        __("You &amp; one other are following"),
     ),
     CountWords(
         __("Three registrations so far"),
-        __("You &amp; two others"),
+        __("You &amp; two others have registered"),
         __("Three followers so far"),
-        __("You &amp; two others"),
+        __("You &amp; two others are following"),
     ),
     CountWords(
         __("Four registrations so far"),
-        __("You &amp; three others"),
+        __("You &amp; three others have registered"),
         __("Four followers so far"),
-        __("You &amp; three others"),
+        __("You &amp; three others are following"),
     ),
     CountWords(
         __("Five registrations so far"),
-        __("You &amp; four others"),
+        __("You &amp; four others have registered"),
         __("Five followers so far"),
-        __("You &amp; four others"),
+        __("You &amp; four others are following"),
     ),
     CountWords(
         __("Six registrations so far"),
-        __("You &amp; five others"),
+        __("You &amp; five others have registered"),
         __("Six followers so far"),
-        __("You &amp; five others"),
+        __("You &amp; five others are following"),
     ),
     CountWords(
         __("Seven registrations so far"),
-        __("You &amp; six others"),
+        __("You &amp; six others have registered"),
         __("Seven followers so far"),
-        __("You &amp; six others"),
+        __("You &amp; six others are following"),
     ),
     CountWords(
         __("Eight registrations so far"),
-        __("You &amp; seven others"),
+        __("You &amp; seven others have registered"),
         __("Eight followers so far"),
-        __("You &amp; seven others"),
+        __("You &amp; seven others are following"),
     ),
     CountWords(
         __("Nine registrations so far"),
-        __("You &amp; eight others"),
+        __("You &amp; eight others have registered"),
         __("Nine followers so far"),
-        __("You &amp; eight others"),
+        __("You &amp; eight others are following"),
     ),
     CountWords(
         __("Ten registrations so far"),
-        __("You &amp; nine others"),
+        __("You &amp; nine others have registered"),
         __("Ten followers so far"),
-        __("You &amp; nine others"),
+        __("You &amp; nine others are following"),
     ),
 ]
 numeric_count = CountWords(
     __("{num} registrations so far"),
-    __("You &amp; {num} others"),
+    __("You &amp; {num} others have registered"),
     __("{num} followers so far"),
-    __("You &amp; {num} others"),
+    __("You &amp; {num} others are following"),
 )
 
 

@@ -40,6 +40,10 @@ function codemirrorStylesheetHelper(
       }
     },
   });
+  if ($(`#${textareaId}`).hasClass('activated')) {
+    $(`#${textareaId}`).next().remove();
+  }
+  $(`#${textareaId}`).addClass('activated').removeClass('activating');
   document.querySelector(`#${textareaId}`).parentNode.append(view.dom);
   return view;
 }

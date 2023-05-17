@@ -1,6 +1,9 @@
 import Vue from 'vue/dist/vue.min';
 import VS2 from 'vue-script2';
+import toastr from 'toastr';
+import { MOBILE_BREAKPOINT } from './constants';
 import Form from './utils/formhelper';
+import Utils from './utils/helper';
 import { userAvatarUI, faSvg } from './utils/vue_util';
 
 const Membership = {
@@ -25,8 +28,8 @@ const Membership = {
           if (member.is_usher) count += 1;
           return count - 1;
         },
-        getInitials: window.Hasgeek.Utils.getInitials,
-        getAvatarColour: window.Hasgeek.Utils.getAvatarColour,
+        getInitials: Utils.getInitials,
+        getAvatarColour: Utils.getAvatarColour,
       },
     });
 
@@ -65,12 +68,15 @@ const Membership = {
               headers: {
                 Accept: 'application/json',
               },
-            }).catch(Form.handleFetchNetworkError);
+            }).catch(() => {
+              toastr.error(window.Hasgeek.Config.errorMsg.networkError);
+            });
             if (response && response.ok) {
               const data = await response.json();
               if (data) {
                 const vueFormHtml = data.form;
                 app.memberForm = vueFormHtml.replace(/\bscript\b/g, 'script2');
+                app.errorMsg = '';
                 $('#member-form').modal('show');
               }
             } else {
@@ -86,13 +92,13 @@ const Membership = {
             if (responseData.memberships) {
               this.updateMembersList(responseData.memberships);
               this.onChange();
-              window.toastr.success(responseData.message);
+              toastr.success(responseData.message);
             }
           };
           const onError = (response) => {
             this.errorMsg = Form.formErrorHandler(formId, response);
           };
-          window.Hasgeek.Forms.handleFormSubmit(formId, url, onSuccess, onError, {});
+          Form.handleFormSubmit(formId, url, onSuccess, onError, {});
         },
         updateMembersList(membersList) {
           this.members = membersList.length > 0 ? membersList : '';
@@ -126,7 +132,7 @@ const Membership = {
           this.showInfo = !this.showInfo;
         },
         onWindowResize() {
-          this.isMobile = $(window).width() < window.Hasgeek.Config.mobileBreakpoint;
+          this.isMobile = $(window).width() < MOBILE_BREAKPOINT;
         },
       },
       computed: {

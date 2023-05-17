@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Optional, Union
+from typing import Any, Iterable, List, Optional, Union
 from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
 
 from sqlalchemy.sql import expression
+from sqlalchemy.sql.expression import ColumnElement
 
 from furl import furl
 
@@ -30,11 +31,11 @@ from .helpers import (
     ImgeeFurl,
     ImgeeType,
     add_search_trigger,
-    quote_autocomplete_tsquery,
+    quote_autocomplete_like,
     valid_username,
     visual_field_delimiter,
 )
-from .user import EnumerateMembershipsMixin, Organization, User
+from .user import EnumerateMembershipsMixin, Organization, Team, User
 from .utils import do_migrate_instances
 
 __all__ = ['Profile']
@@ -286,7 +287,7 @@ class Profile(
         return self.user_id is not None
 
     @is_user_profile.expression
-    def is_user_profile(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def is_user_profile(cls):  # pylint: disable=no-self-argument
         """Test if this is a user account in a SQL expression."""
         return cls.user_id.isnot(None)
 
@@ -296,7 +297,7 @@ class Profile(
         return self.organization_id is not None
 
     @is_organization_profile.expression
-    def is_organization_profile(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def is_organization_profile(cls):  # pylint: disable=no-self-argument
         """Test if this is an organization account in a SQL expression."""
         return cls.organization_id.isnot(None)
 
@@ -309,6 +310,7 @@ class Profile(
 
     @hybrid_property
     def title(self) -> str:
+        """Retrieve title for this profile from the underlying User or Organization."""
         if self.user:
             return self.user.fullname
         if self.organization:
@@ -317,6 +319,7 @@ class Profile(
 
     @title.setter
     def title(self, value: str) -> None:
+        """Set title of this profile on the underlying User or Organization."""
         if self.user:
             self.user.fullname = value
         elif self.organization:
@@ -325,7 +328,8 @@ class Profile(
             raise ValueError("Reserved accounts do not have titles")
 
     @title.expression
-    def title(cls):  # noqa: N805  # pylint: disable=no-self-argument
+    def title(cls):  # pylint: disable=no-self-argument
+        """Retrieve title as a SQL expression."""
         return sa.case(
             (
                 # if...
@@ -346,6 +350,7 @@ class Profile(
 
     @property
     def pickername(self) -> str:
+        """Return title and name in a format suitable for disambiguation."""
         if self.user:
             return self.user.pickername
         if self.organization:
@@ -355,6 +360,7 @@ class Profile(
     def roles_for(
         self, actor: Optional[User] = None, anchors: Iterable = ()
     ) -> LazyRoleSet:
+        """Identify roles for the given actor."""
         if self.owner:
             roles = self.owner.roles_for(actor, anchors)
         else:
@@ -364,13 +370,32 @@ class Profile(
         return roles
 
     @classmethod
+    def name_is(cls, name: Any) -> ColumnElement:
+        """Generate query filter to check if name is matching (case insensitive)."""
+        return sa.func.lower(cls.name) == sa.func.lower(sa.func.replace(name, '-', '_'))
+
+    @classmethod
+    def name_in(cls, names: Iterable[Any]) -> ColumnElement:
+        """Generate query flter to check if name is among candidates."""
+        return sa.func.lower(cls.name).in_(
+            [name.lower().replace('-', '_') for name in names]
+        )
+
+    @classmethod
+    def name_like(cls, like_query: Any) -> ColumnElement:
+        """Generate query filter for a LIKE query on name."""
+        return sa.func.lower(cls.name).like(
+            sa.func.lower(sa.func.replace(like_query, '-', r'\_'))
+        )
+
+    @classmethod
     def get(cls, name: str) -> Optional[Profile]:
-        return cls.query.filter(
-            sa.func.lower(Profile.name) == sa.func.lower(name)
-        ).one_or_none()
+        """Retrieve a Profile given a name."""
+        return cls.query.filter(cls.name_is(name)).one_or_none()
 
     @classmethod
     def all_public(cls) -> Query:
+        """Construct a query on Profile filtered by public state."""
         return cls.query.filter(cls.state.PUBLIC)
 
     @classmethod
@@ -415,10 +440,12 @@ class Profile(
 
     @classmethod
     def is_available_name(cls, name: str) -> bool:
+        """Test if the candidate name is available for use as a Profile name."""
         return cls.validate_name_candidate(name) is None
 
     @sa.orm.validates('name')
     def validate_name(self, key: str, value: str):
+        """Validate the value of Profile.name."""
         if value.lower() in self.reserved_names or not valid_username(value):
             raise ValueError("Invalid account name: " + value)
         # We don't check for existence in the db since this validator only
@@ -445,7 +472,8 @@ class Profile(
         # Do nothing if old_user.profile is None and new_user.profile is not None
 
     @property
-    def teams(self) -> List:
+    def teams(self) -> List[Team]:
+        """Return all teams associated with this profile."""
         if self.organization:
             return self.organization.teams
         return []
@@ -489,19 +517,31 @@ class Profile(
 
     @classmethod
     def autocomplete(cls, prefix: str) -> List[Profile]:
-        """Return accounts beginning with the query, for autocomplete."""
-        prefix = prefix.strip()
-        if not prefix:
+        """
+        Return accounts beginning with the prefix, for autocomplete UI.
+
+        :param prefix: Letters to start matching with
+        """
+        like_query = quote_autocomplete_like(prefix)
+        if not like_query or like_query == '@%':
             return []
-        tsquery = quote_autocomplete_tsquery(prefix)
+        if prefix.startswith('@'):
+            # Match only against `name` since ``@name...`` format is being used
+            return (
+                cls.query.options(sa.orm.defer(cls.is_active))
+                .filter(cls.name_like(like_query[1:]))
+                .order_by(cls.name)
+                .all()
+            )
+
         return (
             cls.query.options(sa.orm.defer(cls.is_active))
             .join(User)
             .filter(
                 User.state.ACTIVE,
                 sa.or_(
-                    cls.search_vector.bool_op('@@')(tsquery),
-                    User.search_vector.bool_op('@@')(tsquery),
+                    cls.name_like(like_query),
+                    sa.func.lower(User.fullname).like(sa.func.lower(like_query)),
                 ),
             )
             .union(
@@ -510,8 +550,10 @@ class Profile(
                 .filter(
                     Organization.state.ACTIVE,
                     sa.or_(
-                        cls.search_vector.bool_op('@@')(tsquery),
-                        Organization.search_vector.bool_op('@@')(tsquery),
+                        cls.name_like(like_query),
+                        sa.func.lower(Organization.title).like(
+                            sa.func.lower(like_query)
+                        ),
                     ),
                 ),
             )

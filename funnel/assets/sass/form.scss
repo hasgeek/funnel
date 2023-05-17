@@ -15,13 +15,13 @@
 
 .mui-form {
   .mui-form__fields {
-    margin-bottom: $mui-grid-padding/2;
+    margin-bottom: $mui-grid-padding * 0.5;
   }
 
   .mui-textfield,
   .mui-radio,
   .mui-checkbox {
-    margin-bottom: $mui-grid-padding/4;
+    margin-bottom: $mui-grid-padding * 0.25;
   }
 
   .mui-radio,
@@ -34,7 +34,7 @@
       > input[type='radio'],
       > input[type='checkbox'] {
         position: relative;
-        margin: 0 $mui-grid-padding/2 0 0;
+        margin: 0 $mui-grid-padding * 0.5 0 0;
       }
     }
   }
@@ -53,7 +53,7 @@
   .mui-form__sidetext,
   .mui-form__helptext {
     color: $mui-text-light;
-    margin: $mui-grid-padding/2 0 0;
+    margin: $mui-grid-padding * 0.5 0 0;
     @extend .mui--text-caption;
   }
 
@@ -94,17 +94,17 @@
 
   .mui-form__label {
     position: static;
-    margin: 0 0 $mui-grid-padding/2;
+    margin: 0 0 $mui-grid-padding * 0.5;
     color: $mui-label-font-color;
     @extend .mui--text-subhead;
   }
 
   .mui-form__error {
     color: $mui-text-white;
-    margin: $mui-grid-padding/2 0 0;
+    margin: $mui-grid-padding * 0.5 0 0;
     background: $mui-text-danger;
     border: 1px solid transparentize($mui-text-danger, 0.8);
-    padding: $mui-grid-padding/2 $mui-grid-padding;
+    padding: $mui-grid-padding * 0.5 $mui-grid-padding;
     position: relative;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.14);
     border-radius: 2px;
@@ -113,7 +113,7 @@
 
     > li {
       list-style: none;
-      margin-top: $mui-grid-padding/2;
+      margin-top: $mui-grid-padding * 0.5;
     }
   }
 
@@ -160,7 +160,7 @@
       font-weight: 500;
       @extend .mui--text-body2;
       transform: none;
-      top: -$mui-grid-padding/4;
+      top: -$mui-grid-padding * 0.25;
     }
   }
 }
@@ -175,10 +175,10 @@
 // ============================================================================
 
 .mui-select {
-  margin-top: $mui-grid-padding/2;
+  margin-top: $mui-grid-padding * 0.5;
   margin-bottom: 0;
   > label {
-    top: -$mui-grid-padding/4;
+    top: -$mui-grid-padding * 0.25;
   }
   .select2 {
     width: 100% !important;
@@ -232,7 +232,7 @@
   .imgee__url-holder {
     display: block;
     max-width: 200px;
-    margin-bottom: $mui-grid-padding/2;
+    margin-bottom: $mui-grid-padding * 0.5;
   }
 
   .imgee__loader {
@@ -244,7 +244,7 @@
   }
 
   .imgee__button {
-    margin-bottom: $mui-grid-padding/2;
+    margin-bottom: $mui-grid-padding * 0.5;
   }
 }
 
@@ -397,7 +397,7 @@
     cursor: not-allowed;
     height: 32px !important;
     position: relative !important;
-    padding-left: $mui-grid-padding/2 !important;
+    padding-left: $mui-grid-padding * 0.5 !important;
   }
   .mui-select:focus > label,
   .mui-select > select:focus ~ label {

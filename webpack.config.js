@@ -45,6 +45,7 @@ module.exports = {
       'funnel/assets/js/notification_settings.js'
     ),
     account_saved: path.resolve(__dirname, 'funnel/assets/js/account_saved.js'),
+    autosave_form: path.resolve(__dirname, 'funnel/assets/js/autosave_form.js'),
     form: path.resolve(__dirname, 'funnel/assets/js/form.js'),
     account_form: path.resolve(__dirname, 'funnel/assets/js/account_form.js'),
     submission_form: path.resolve(__dirname, 'funnel/assets/js/submission_form.js'),

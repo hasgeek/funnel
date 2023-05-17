@@ -3,6 +3,7 @@
 import warnings
 
 from markupsafe import Markup
+
 import pytest
 
 from funnel.utils.markdown import MarkdownConfig

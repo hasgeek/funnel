@@ -23,7 +23,7 @@
 
 .list--border--padding {
   li {
-    padding: $mui-grid-padding/2 $mui-grid-padding;
+    padding: $mui-grid-padding * 0.5 $mui-grid-padding;
   }
 }
 

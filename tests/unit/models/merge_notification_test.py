@@ -39,7 +39,7 @@ def fixtures(db_session):
         fullname="User 2",
     )
     org = models.Organization(
-        name='test-org-membership-merge', title="Organization", owner=owner
+        name='test_org_membership_merge', title="Organization", owner=owner
     )
     db_session.add_all([owner, user1, user2, org])
     db_session.commit()

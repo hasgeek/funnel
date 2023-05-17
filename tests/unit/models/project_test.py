@@ -218,7 +218,7 @@ def test_project_dates(  # pylint: disable=too-many-locals,too-many-statements
 @pytest.fixture()
 def second_organization(db_session, new_user2):
     org2 = models.Organization(
-        owner=new_user2, title="Second test org", name='test-org-2'
+        owner=new_user2, title="Second test org", name='test_org_2'
     )
     db_session.add(org2)
     db_session.commit()
