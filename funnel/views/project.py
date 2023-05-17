@@ -609,7 +609,9 @@ class ProjectView(  # type: ignore[misc]
     @requires_login
     def rsvp_modal(self) -> ReturnRenderWith:
         """Edit project banner."""
-        form = ProjectRegisterForm()
+        form = ProjectRegisterForm(
+            schema=self.obj.boxoffice_data.get('register_form_schema', {})
+        )
         return {
             'project': self.obj.current_access(datasets=('primary',)),
             'form': form,
@@ -621,7 +623,8 @@ class ProjectView(  # type: ignore[misc]
     def register(self) -> ReturnView:
         """Register for project as a participant."""
         rsvp_form = ProjectRegisterForm(
-            obj=SimpleNamespace(form=request.json.get('form', {}))
+            obj=SimpleNamespace(form=request.json.get('form', {})),
+            schema=self.obj.boxoffice_data.get('register_form_schema', {}),
         )
         if rsvp_form.validate_on_submit():
             rsvp = Rsvp.get_for(self.obj, current_auth.user, create=True)
