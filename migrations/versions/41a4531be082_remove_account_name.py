@@ -21,7 +21,7 @@ depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 account_name = table(
     'account_name',
-    column('id', postgresql.UUID()),
+    column('id', sa.Uuid()),
     column('created_at', sa.TIMESTAMP(timezone=True)),
     column('updated_at', sa.TIMESTAMP(timezone=True)),
     column('name', sa.Unicode(63)),
@@ -32,7 +32,7 @@ account_name = table(
 
 profile = table(
     'profile',
-    column('uuid', postgresql.UUID()),
+    column('uuid', sa.Uuid()),
     column('created_at', sa.TIMESTAMP(timezone=True)),
     column('updated_at', sa.TIMESTAMP(timezone=True)),
     column('name', sa.Unicode(63)),
@@ -50,7 +50,7 @@ def upgrade():
 def downgrade():
     op.create_table(
         'account_name',
-        sa.Column('id', postgresql.UUID(), autoincrement=False, nullable=False),
+        sa.Column('id', sa.Uuid(), autoincrement=False, nullable=False),
         sa.Column(
             'created_at',
             postgresql.TIMESTAMP(timezone=True),
