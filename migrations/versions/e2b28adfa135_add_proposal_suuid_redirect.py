@@ -10,7 +10,6 @@ from typing import Optional, Tuple, Union
 
 from alembic import op
 from progressbar import ProgressBar
-from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
 import progressbar.widgets
 import sqlalchemy as sa
@@ -24,7 +23,7 @@ depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 proposal = table(
     'proposal',
     column('id', sa.Integer()),
-    column('uuid', postgresql.UUID(as_uuid=True)),
+    column('uuid', sa.Uuid(as_uuid=True)),
 )
 
 proposal_suuid_redirect = table(

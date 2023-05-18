@@ -14,18 +14,13 @@ from uuid import uuid4
 
 from alembic import op
 from progressbar import ProgressBar
-from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
 import progressbar.widgets
 import sqlalchemy as sa
 
-proposal = table(
-    'proposal', column('id', sa.Integer()), column('uuid', postgresql.UUID())
-)
+proposal = table('proposal', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
-session = table(
-    'session', column('id', sa.Integer()), column('uuid', postgresql.UUID())
-)
+session = table('session', column('id', sa.Integer()), column('uuid', sa.Uuid()))
 
 
 def get_progressbar(label, maxval):
@@ -47,7 +42,7 @@ def get_progressbar(label, maxval):
 def upgrade():
     conn = op.get_bind()
 
-    op.add_column('proposal', sa.Column('uuid', postgresql.UUID(), nullable=True))
+    op.add_column('proposal', sa.Column('uuid', sa.Uuid(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(proposal))
     progress = get_progressbar("Proposals", count)
     progress.start()
@@ -61,7 +56,7 @@ def upgrade():
     op.alter_column('proposal', 'uuid', nullable=False)
     op.create_unique_constraint('proposal_uuid_key', 'proposal', ['uuid'])
 
-    op.add_column('session', sa.Column('uuid', postgresql.UUID(), nullable=True))
+    op.add_column('session', sa.Column('uuid', sa.Uuid(), nullable=True))
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(session))
     progress = get_progressbar("Sessions", count)
     progress.start()
