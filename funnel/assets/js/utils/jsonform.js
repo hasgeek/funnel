@@ -28,7 +28,7 @@ const jsonForm = Vue.component('jsonform', {
         .find('button[type="submit"]')
         .click((event) => {
           event.preventDefault();
-          window.Hasgeek.Forms.ajaxFormSubmit(this.formid, url, onSuccess, onError, {
+          Form.ajaxFormSubmit(this.formid, url, onSuccess, onError, {
             contentType: 'application/json',
             dataType: 'html',
             formData: JSON.stringify({

@@ -124,7 +124,7 @@
     <div class="register-block__content {% if project.features.tickets() %}register-block__content--half {%- endif %}">
     {% if project.features.rsvp() %}
       {%- if current_auth.is_anonymous %}
-        <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} register-block__btn js-login-register-btn" id="register-nav" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
+        <a class="mui-btn mui-btn--raised {% if project.features.tickets() %} mui-btn--dark {%- else %} mui-btn--primary {%- endif %} register-block__btn" id="register-nav" href="{{ url_for('login', next=request.path + '#register-modal', modal='register-modal') }}" rel="modal:open" aria-haspopup="true" data-register-modal="register-modal">{{ project.views.register_button_text() }}</a>
       {% elif project.features.rsvp_unregistered() -%}
         {% if not project.features.follow_mode() %}<span class="register-block__content__txt mui--text-light">{% trans %}This is a free event{% endtrans %}</span>{% endif %}
         <a id="rsvp-btn" class="mui-btn mui-btn--raised mui-btn--dark register-block__btn js-register-btn" href="{{ project.url_for('rsvp_modal') }}" rel="modal:open" role="button" aria-haspopup="true">
@@ -133,7 +133,7 @@
         </a>
       {%- elif project.features.rsvp_registered() %}
         <span class="register-block__content__txt mui--text-light"></span>
-        <a id="cancel-rsvp-btn" class="mui-btn mui-btn--accent mui-btn--raised register-block__btn js-register-btn" href="#register-modal" aria-haspopup="true">
+        <a id="cancel-rsvp-btn" class="mui-btn mui-btn--accent mui-btn--raised register-block__btn js-register-btn" rel="modal:open" href="#register-modal" aria-haspopup="true">
           <span class="register-block__btn__txt register-block__btn__txt--hover" data-cy="registered">{% if project.features.follow_mode() %}{% trans %}Following{% endtrans %}{% else %}{% trans %}Registered{% endtrans %}{% endif %}{{ faicon(icon='check-circle-solid', icon_size='caption', baseline=true, css_class="mui--text-success fa-icon--left-margin") }}</span>
           <span class="register-block__btn__txt register-block__btn__txt--hover--show">{% if project.features.follow_mode() %}{% trans %}Unfollow{% endtrans %}{% else %}{% trans %}Cancel Registration{% endtrans %}{% endif %}</span>
           <span class="register-block__btn__txt register-block__btn__txt--smaller mui--text-light register-block__btn__txt--mobile">{{ project.views.registration_text() }}</span>
