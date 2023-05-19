@@ -188,7 +188,9 @@ class RenderNotification:
         )
 
     def tracking_tags(
-        self, transport: str = 'email', campaign: str = 'notification'
+        self,
+        transport: str = 'email',
+        campaign: Optional[str] = None,
     ) -> Dict[str, str]:
         """
         Provide tracking tags for URL parameters. Subclasses may override if required.
@@ -199,11 +201,14 @@ class RenderNotification:
             unsubscribe links and other specialized links will want to specify another)
         """
         tags = {
-            'utm_campaign': f'{self.notification.type}-{self.notification.created_at.strftime("%Y%m%d-%H%M")}',
+            'utm_campaign': campaign,
             'utm_medium': transport,
+            'utm_source': 'notification',
         }
-        if not self.notification.for_private_recipient:
-            tags['utm_source'] = 'notification'
+        if campaign is None:
+            tags[
+                'utm_campaign'
+            ] = f'{self.notification.type}-{self.notification.created_at.strftime("%Y%m%d-%H%M")}'
         return tags
 
     def unsubscribe_token(self, transport):
