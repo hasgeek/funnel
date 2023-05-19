@@ -198,9 +198,12 @@ class RenderNotification:
         :param campaign: Reason for this link being sent (default 'notification' but
             unsubscribe links and other specialized links will want to specify another)
         """
-        tags = {'utm_campaign': campaign, 'utm_medium': transport}
+        tags = {
+            'utm_campaign': f'{self.notification.type}-{self.notification.created_at.strftime("%Y%m%d-%H%M")}',
+            'utm_medium': transport,
+        }
         if not self.notification.for_private_recipient:
-            tags['utm_source'] = self.notification.eventid_b58
+            tags['utm_source'] = 'notification'
         return tags
 
     def unsubscribe_token(self, transport):
