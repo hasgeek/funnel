@@ -9,7 +9,6 @@ Create Date: 2022-01-04 16:26:51.717623
 from typing import Optional, Tuple, Union
 
 from alembic import op
-from sqlalchemy.dialects import postgresql
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
@@ -42,7 +41,7 @@ def upgrade_():
         sa.Column('profile_id', sa.Integer(), nullable=False),
         sa.Column('revoked_by_id', sa.Integer(), nullable=True),
         sa.Column('granted_by_id', sa.Integer(), nullable=False),
-        sa.Column('id', postgresql.UUID(), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(['granted_by_id'], ['user.id'], ondelete='SET NULL'),

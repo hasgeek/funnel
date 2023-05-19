@@ -11,7 +11,6 @@ from uuid import uuid4
 
 from alembic import op
 from progressbar import ProgressBar
-from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import column, table
 import progressbar.widgets
 import sqlalchemy as sa
@@ -27,7 +26,7 @@ rsvp = table(
     'rsvp',
     column('project_id', sa.Integer()),
     column('user_id', sa.Integer()),
-    column('uuid', postgresql.UUID()),
+    column('uuid', sa.Uuid()),
 )
 
 
@@ -49,7 +48,7 @@ def get_progressbar(label, maxval):
 
 def upgrade():
     conn = op.get_bind()
-    op.add_column('rsvp', sa.Column('uuid', postgresql.UUID(), nullable=True))
+    op.add_column('rsvp', sa.Column('uuid', sa.Uuid(), nullable=True))
 
     count = conn.scalar(sa.select(sa.func.count('*')).select_from(rsvp))
     progress = get_progressbar("Rsvps", count)
