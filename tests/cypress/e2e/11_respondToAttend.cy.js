@@ -24,6 +24,7 @@ describe('Responding yes to attend a project', () => {
     cy.get('a#rsvp-btn:visible').click();
     cy.wait(2000);
     cy.get('button[data-cy="confirm"]:visible').click();
+    cy.wait(2000);
     cy.get('button[data-cy="bookmark"]').click();
     cy.wait('@bookmark-project');
     cy.get('button[data-cy="bookmarked"]').should('exist');

@@ -32,7 +32,9 @@
   "hguser": {
     "username": "hg_user",
     "fullname": "hg-user",
-    "password": "hg-user5_HE"
+    "password": "hg-user5_HE",
+    "email": "hguser@hasgeek.com",
+    "phone": "917410410123"
   },
   "newuser": {
     "username": "new_user",

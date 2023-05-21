@@ -366,13 +366,16 @@ class ProjectRegisterForm(forms.Form):
     )
 
     def validate_form(self, field: forms.Field) -> None:
-        try:
-            form_keys = set(self.form.data.keys())
-            schema_keys = {i['name'] for i in self.schema['fields']}
-            if not form_keys.issubset(schema_keys):
-                invalid_keys = form_keys.difference(schema_keys)
-                raise forms.validators.StopValidation(
-                    _(f"Invalid field {invalid_keys}")
-                ) from None
-        except ValueError:
+        if self.form.data.keys() and not self.schema:
             raise forms.validators.StopValidation(_("Form value error")) from None
+        if self.schema:
+            try:
+                form_keys = set(self.form.data.keys())
+                schema_keys = {i['name'] for i in self.schema['fields']}
+                if not form_keys.issubset(schema_keys):
+                    invalid_keys = form_keys.difference(schema_keys)
+                    raise forms.validators.StopValidation(
+                        _(f"Invalid field {invalid_keys}")
+                    ) from None
+            except ValueError:
+                raise forms.validators.StopValidation(_("Form value error")) from None

@@ -28,8 +28,9 @@ describe('Add a new submission', () => {
     cy.get('#field-video_url').type(proposal.preview_video);
     cy.get('a[data-cy="save"]:visible').click();
     cy.get('a[data-cy="add-label"]').click();
-    cy.wait(1000);
+    cy.wait(2000);
     cy.get('fieldset').find('.listwidget').eq(0).find('input').eq(0).click();
+    cy.wait(2000);
     cy.get('fieldset').find('.listwidget').eq(1).find('input').eq(0).click();
     cy.wait(2000);
     cy.get('a[data-cy="save"]:visible').click();
