@@ -204,10 +204,15 @@ class RenderNotification:
             and timestamp)
         """
         if campaign is None:
-            campaign = (
-                f'{self.notification.type}'
-                f'-{self.notification.created_at.strftime("%Y%m%d-%H%M")}'
-            )
+            if self.notification.for_private_recipient:
+                # Do not include a timestamp when it's a private notification, as that
+                # can be used to identify the event
+                campaign = self.notification.type
+            else:
+                campaign = (
+                    f'{self.notification.type}'
+                    f'-{self.notification.created_at.strftime("%Y%m%d-%H%M")}'
+                )
         return {
             'utm_campaign': campaign,
             'utm_medium': medium,
