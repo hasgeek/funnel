@@ -763,7 +763,7 @@ class UserNotification(
     notification_id: Mapped[UUID] = sa.orm.mapped_column(sa.Uuid, nullable=False)
 
     #: Notification that this user received
-    notification = with_roles(
+    notification: Mapped[Notification] = with_roles(
         sa.orm.relationship(
             Notification, backref=sa.orm.backref('recipients', lazy='dynamic')
         ),
