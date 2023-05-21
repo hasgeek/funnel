@@ -189,27 +189,30 @@ class RenderNotification:
 
     def tracking_tags(
         self,
-        transport: str = 'email',
+        medium: str = 'email',
+        source: str = 'notification',
         campaign: Optional[str] = None,
     ) -> Dict[str, str]:
         """
         Provide tracking tags for URL parameters. Subclasses may override if required.
 
-        :param transport: Transport (or medium) over which this link is being delivered
+        :param medium: Medium (or transport) over which this link is being delivered
             (default 'email' as that's the most common use case for tracked links)
-        :param campaign: Reason for this link being sent (default 'notification' but
-            unsubscribe links and other specialized links will want to specify another)
+        :param source: Source of this link (default 'notification' but unsubscribe
+            links and other specialised links will want to specify another)
+        :param campaign: Reason for this link being sent (defaults to notification type
+            and timestamp)
         """
-        tags = {
-            'utm_campaign': campaign,
-            'utm_medium': transport,
-            'utm_source': 'notification',
-        }
         if campaign is None:
-            tags[
-                'utm_campaign'
-            ] = f'{self.notification.type}-{self.notification.created_at.strftime("%Y%m%d-%H%M")}'
-        return tags
+            campaign = (
+                f'{self.notification.type}'
+                f'-{self.notification.created_at.strftime("%Y%m%d-%H%M")}'
+            )
+        return {
+            'utm_campaign': campaign,
+            'utm_medium': medium,
+            'utm_source': source,
+        }
 
     def unsubscribe_token(self, transport):
         """
@@ -242,7 +245,7 @@ class RenderNotification:
             'notification_unsubscribe',
             token=self.unsubscribe_token(transport=transport),
             _external=True,
-            **self.tracking_tags(transport=transport, campaign='unsubscribe'),
+            **self.tracking_tags(transport, source='unsubscribe'),
         )
 
     @cached_property
