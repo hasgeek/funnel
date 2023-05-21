@@ -19,7 +19,7 @@ def send_email_verify_link(emailclaim: AccountEmailClaim) -> str:
         email_hash=emailclaim.email_address.email_hash,
         secret=emailclaim.verification_code,
         utm_medium='email',
-        utm_campaign='verify',
+        utm_source='account-verify',
     )
     jsonld = jsonld_confirm_action(subject, url, _("Verify email address"))
     content = render_template(
@@ -39,7 +39,7 @@ def send_password_reset_link(email: str, user: Account, otp: str, token: str) ->
         _external=True,
         token=token,
         utm_medium='email',
-        utm_campaign='reset',
+        utm_source='account-reset',
     )
     jsonld = jsonld_view_action(subject, url, _("Reset password"))
     content = render_template(

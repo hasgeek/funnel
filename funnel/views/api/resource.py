@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Container, Dict, List, Optional, cast
+from typing import Any, Container, Dict, List, Optional, Union, cast
 
 from flask import abort, jsonify, render_template, request
+from typing_extensions import Literal
 
 from baseframe import __
 from coaster.auth import current_auth
@@ -114,11 +115,15 @@ def resource_error(error, description=None, uri=None) -> Response:
     return response
 
 
-def api_result(status, _jsonp=False, **params) -> Response:
+def api_result(
+    status: Union[Literal['ok'], Literal['error'], Literal[200], Literal[201]],
+    _jsonp: bool = False,
+    **params: Any,
+) -> Response:
     """Return an API result."""
     status_code = 200
     if status in (200, 201):
-        status_code = status
+        status_code = status  # type: ignore[assignment]
         status = 'ok'
     elif status == 'error':
         status_code = 422

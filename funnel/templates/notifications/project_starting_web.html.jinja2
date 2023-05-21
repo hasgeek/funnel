@@ -7,7 +7,7 @@
 
 {%- block content -%}
   <p>
-    {% trans project=view.project.joined_title, url=view.project.url_for(), start_time=view.session.start_at_localized|time -%}
+    {% trans project=view.project.joined_title, url=view.project.url_for(), start_time=(view.session or view.project).start_at_localized|time -%}
       <a href="{{ url }}">{{ project }}</a> starts at {{ start_time }}
     {%- endtrans %}
   </p>

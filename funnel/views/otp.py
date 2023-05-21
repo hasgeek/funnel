@@ -481,7 +481,7 @@ class OtpSessionForReset(OtpSession[Account], reason='reset'):
             _external=True,
             token=self.link_token,
             utm_medium='email',
-            utm_campaign='reset',
+            utm_source='account-reset',
         )
         jsonld = jsonld_view_action(subject, url, _("Reset password"))
         content = render_template(

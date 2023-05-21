@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import List
 from uuid import UUID  # noqa: F401 # pylint: disable=unused-import
+import itertools
 
 from sqlalchemy.ext.orderinglist import ordering_list
 
@@ -117,7 +118,7 @@ class VenueRoom(UuidMixin, BaseScopedNameMixin, db.Model):  # type: ignore[name-
     venue: Mapped[Venue] = with_roles(
         sa.orm.relationship(Venue, back_populates='rooms'),
         # Since Venue already remaps Project roles, we just want the remapped role names
-        grants_via={None: set(project_child_role_map.values())},
+        grants_via={None: set(itertools.chain(*project_child_role_map.values()))},
     )
     parent: Mapped[Venue] = sa.orm.synonym('venue')
     description = MarkdownCompositeBasic.create(

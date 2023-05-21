@@ -197,7 +197,9 @@ class __Project:
     def active_rsvps(self):
         return self.rsvps.join(Account).filter(Rsvp.state.YES, Account.state.ACTIVE)
 
-    with_roles(active_rsvps, grants_via={Rsvp.user: {'participant'}})
+    with_roles(
+        active_rsvps, grants_via={Rsvp.user: {'participant', 'project_participant'}}
+    )
 
     @overload
     def rsvp_for(self, user: Account, create: Literal[True]) -> Rsvp:
