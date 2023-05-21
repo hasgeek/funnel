@@ -146,7 +146,7 @@ class __Project:
 
     @with_roles(read={'all'})
     @cached_property
-    def has_sponsors(self):
+    def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
     sponsors = DynamicAssociationProxy('sponsor_memberships', 'member')
@@ -272,7 +272,7 @@ class __Proposal:
 
     @with_roles(read={'all'})
     @cached_property
-    def has_sponsors(self):
+    def has_sponsors(self) -> bool:
         return db.session.query(self.sponsor_memberships.exists()).scalar()
 
     sponsors = DynamicAssociationProxy('sponsor_memberships', 'member')

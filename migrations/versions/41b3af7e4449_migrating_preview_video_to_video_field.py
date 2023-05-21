@@ -131,7 +131,7 @@ def make_video_url(video_source: str, video_id: str):
 # --- Migrations -----------------------------------------------------------------------
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     proposals = conn.execute(
@@ -195,7 +195,7 @@ def upgrade():
     op.drop_column('proposal', 'preview_video')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'proposal', sa.Column('preview_video', sa.UnicodeText(), nullable=True)
     )

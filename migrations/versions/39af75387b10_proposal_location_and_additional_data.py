@@ -16,7 +16,7 @@ import sqlalchemy as sa
 from coaster.sqlalchemy import JsonDict
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'proposal', sa.Column('data', JsonDict(), server_default='{}', nullable=False)
     )
@@ -24,7 +24,7 @@ def upgrade():
     op.add_column('proposal', sa.Column('longitude', sa.Numeric(), nullable=True))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('proposal', 'longitude')
     op.drop_column('proposal', 'latitude')
     op.drop_column('proposal', 'data')

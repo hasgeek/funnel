@@ -18,7 +18,7 @@ branch_labels: Optional[Union[str, Tuple[str, ...]]] = None
 depends_on: Optional[Union[str, Tuple[str, ...]]] = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'profile',
         sa.Column(
@@ -44,7 +44,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(op.f('ix_profile_is_verified'), table_name='profile')
     op.drop_column('profile', 'is_verified')
     op.drop_column('profile', 'is_protected')

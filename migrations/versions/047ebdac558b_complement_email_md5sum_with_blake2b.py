@@ -55,7 +55,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     # Add blake2b column to UserEmail
@@ -112,7 +112,7 @@ def upgrade():
     op.alter_column('user', 'pw_hash', existing_type=sa.Unicode(80), type_=sa.Unicode)
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column('user', 'pw_hash', existing_type=sa.Unicode, type_=sa.Unicode(80))
     op.drop_index('ix_user_email_claim_blake2b', 'user_email_claim')
     op.drop_column('user_email_claim', 'blake2b')

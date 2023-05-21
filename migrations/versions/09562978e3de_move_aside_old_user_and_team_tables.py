@@ -84,7 +84,7 @@ renamed_constraints = [
 renamed_indexes = [('ix_team_org_uuid', 'ix_old_team_org_uuid')]
 
 
-def upgrade():
+def upgrade() -> None:
     for old, new in renamed_tables:
         op.rename_table(old, new)
 
@@ -103,7 +103,7 @@ def upgrade():
         op.execute(sa.DDL(f'ALTER INDEX "{old}" RENAME TO "{new}"'))
 
 
-def downgrade():
+def downgrade() -> None:
     for old, new in renamed_indexes:
         op.execute(sa.DDL(f'ALTER INDEX "{new}" RENAME TO "{old}"'))
 

@@ -27,7 +27,7 @@ class PROPOSALSTATUS:
     CANCELLED = 6
 
 
-def upgrade():
+def upgrade() -> None:
     connection = op.get_bind()
     proposal = table(
         'proposal', column('confirmed', sa.BOOLEAN()), column('status', sa.Integer)
@@ -45,7 +45,7 @@ def upgrade():
     op.drop_column('proposal', 'confirmed')
 
 
-def downgrade():
+def downgrade() -> None:
     connection = op.get_bind()
     proposal = table(
         'proposal', column('confirmed', sa.BOOLEAN()), column('status', sa.Integer)

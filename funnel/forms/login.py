@@ -156,7 +156,7 @@ class LoginForm(forms.RecaptchaForm):
     )
 
     # These two validators depend on being called in sequence
-    def validate_username(self, field) -> None:
+    def validate_username(self, field: forms.Field) -> None:
         """Process username field and load user and anchor."""
         self.user, self.anchor = getuser(field.data, True)  # skipcq: PYL-W0201
         self.new_email = self.new_phone = None
@@ -189,7 +189,7 @@ class LoginForm(forms.RecaptchaForm):
             # Not a known user and not a valid email address or phone number -> error
             raise forms.validators.ValidationError(MSG_NO_ACCOUNT)
 
-    def validate_password(self, field) -> None:
+    def validate_password(self, field: forms.Field) -> None:
         """Validate password if provided."""
         # If there is already an error in the password field, don't bother validating.
         # This will be a `Length` validation error, but that one unfortunately does not
@@ -261,7 +261,7 @@ class LogoutForm(forms.Form):
         __("Session id"), validators=[forms.validators.Optional()]
     )
 
-    def validate_sessionid(self, field) -> None:
+    def validate_sessionid(self, field: forms.Field) -> None:
         """Validate login session belongs to the user who invoked this form."""
         user_session = UserSession.get(buid=field.data)
         if not user_session or user_session.user != self.user:
@@ -288,7 +288,7 @@ class OtpForm(forms.Form):
         },
     )
 
-    def validate_otp(self, field) -> None:
+    def validate_otp(self, field: forms.Field) -> None:
         """Confirm OTP is as expected."""
         if field.data != self.valid_otp:
             raise forms.validators.StopValidation(MSG_INCORRECT_OTP)
@@ -324,7 +324,7 @@ class RegisterOtpForm(forms.Form):
         },
     )
 
-    def validate_otp(self, field) -> None:
+    def validate_otp(self, field: forms.Field) -> None:
         """Confirm OTP is as expected."""
         if field.data != self.valid_otp:
             raise forms.validators.StopValidation(MSG_INCORRECT_OTP)

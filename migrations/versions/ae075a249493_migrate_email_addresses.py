@@ -160,7 +160,7 @@ def email_domain_naive(email):
 # --- Migrations -----------------------------------------------------------------------
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     # --- UserEmail --------------------------------------------------------------------
@@ -404,7 +404,7 @@ def upgrade():
     op.drop_column('proposal', 'email')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     # --- Proposal ---------------------------------------------------------------------

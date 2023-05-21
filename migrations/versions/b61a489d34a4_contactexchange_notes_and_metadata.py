@@ -21,7 +21,7 @@ contact_exchange = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'contact_exchange',
         sa.Column(
@@ -49,7 +49,7 @@ def upgrade():
     op.alter_column('contact_exchange', 'description', server_default=None)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('contact_exchange', 'description')
     op.drop_column('contact_exchange', 'scanned_at')
     op.drop_column('contact_exchange', 'archived')

@@ -165,13 +165,21 @@ class ShortLinkToBigIntComparator(Comparator):  # pylint: disable=abstract-metho
     If the provided name is invalid, :func:`name_to_bigint` will raise exceptions.
     """
 
-    def __eq__(self, other: Union[str, bytes]):  # type: ignore[override]
+    def __eq__(  # type: ignore[override]
+        self, other: Union[str, bytes]
+    ) -> sa.ColumnElement[bool]:
         """Return an expression for column == other."""
-        return self.__clause_element__() == name_to_bigint(other)
+        return (  # type: ignore[return-value]
+            self.__clause_element__() == name_to_bigint(other)
+        )
 
-    def in_(self, other: Iterable[Union[str, bytes]]):  # type: ignore[override]
+    def in_(  # type: ignore[override]
+        self, other: Iterable[Union[str, bytes]]
+    ) -> sa.ColumnElement:
         """Return an expression for other IN column."""
-        return self.__clause_element__().in_([name_to_bigint(v) for v in other])
+        return self.__clause_element__().in_(  # type: ignore[attr-defined]
+            [name_to_bigint(v) for v in other]
+        )
 
 
 # --- Models ---------------------------------------------------------------------------

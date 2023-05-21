@@ -14,11 +14,11 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'session', sa.Column('speaker', sa.Unicode(length=200), nullable=True)
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('session', 'speaker')

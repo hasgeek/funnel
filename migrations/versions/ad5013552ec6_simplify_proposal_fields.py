@@ -81,7 +81,7 @@ def proposal_body(row):
     return body
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
     # Add and populate body and description fields
     op.add_column('proposal', sa.Column('body_text', sa.UnicodeText(), nullable=True))
@@ -176,7 +176,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute(
         sa.DDL(
             dedent(

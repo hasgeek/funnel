@@ -15,7 +15,7 @@ import sqlalchemy as sa
 from coaster.sqlalchemy import JsonDict
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         'profile', sa.Column('logo_url', sa.Unicode(length=2000), nullable=True)
     )
@@ -34,7 +34,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column('project', 'hasjob_embed_url')
     op.drop_column('project', 'hasjob_embed_limit')
     op.drop_column('project', 'boxoffice_data')

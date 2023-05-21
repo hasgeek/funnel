@@ -40,7 +40,7 @@ migrate_team_columns = [
 ]
 
 
-def upgrade():
+def upgrade() -> None:
     for table, old, new in migrate_user_columns:
         print(f"Upgrading {table}.{new}")  # noqa: T201
         op.execute(
@@ -68,5 +68,5 @@ def upgrade():
         )
 
 
-def downgrade():
+def downgrade() -> None:
     pass

@@ -581,7 +581,7 @@ class FrozenAttributionMixin:
         self._title = value or None  # Don't set empty string
 
     @property
-    def pickername(self):
+    def pickername(self) -> str:
         """Return member's pickername, but only if attribution isn't frozen."""
         return self._title if self._title else self.member.pickername
 

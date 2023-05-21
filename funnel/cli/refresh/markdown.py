@@ -18,7 +18,7 @@ class MarkdownModel:
     registry: ClassVar[Dict[str, MarkdownModel]] = {}
     config_registry: ClassVar[Dict[str, Set[MarkdownModel]]] = {}
 
-    def __init__(self, model, fields: Set[str]):
+    def __init__(self, model, fields: Set[str]) -> None:
         self.name = model.__tablename__
         self.model = model
         self.fields = fields

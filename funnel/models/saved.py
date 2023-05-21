@@ -124,7 +124,7 @@ class __Account:
 @reopen(Project)
 class __Project:
     @with_roles(call={'all'})
-    def is_saved_by(self, user):
+    def is_saved_by(self, user) -> bool:
         return (
             user is not None and self.saved_by.filter_by(user=user).first() is not None
         )

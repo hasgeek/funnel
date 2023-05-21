@@ -406,7 +406,7 @@ class __Project:
 
     @with_roles(read={'all'})
     @cached_property
-    def has_sessions_with_video(self):
+    def has_sessions_with_video(self) -> bool:
         return self.query.session.query(self.sessions_with_video.exists()).scalar()
 
     def next_session_from(self, timestamp):

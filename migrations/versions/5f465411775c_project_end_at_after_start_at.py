@@ -22,7 +22,7 @@ start_at = column('start_at', sa.TIMESTAMP)
 end_at = column('end_at', sa.TIMESTAMP)
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_constraint('session_start_at_end_at_check', 'session', type_='check')
     op.create_check_constraint(
         'session_start_at_end_at_check',
@@ -43,7 +43,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('session_start_at_end_at_check', 'session', type_='check')
     op.create_check_constraint(
         'session_start_at_end_at_check',

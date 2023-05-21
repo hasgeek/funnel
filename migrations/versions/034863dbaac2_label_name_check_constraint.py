@@ -13,9 +13,9 @@ down_revision = '111c9755ae39'
 from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_check_constraint('label_name_check', 'label', "name <> ''")
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('label_name_check', 'label')

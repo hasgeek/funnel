@@ -278,7 +278,7 @@ class TicketParticipant(
     with_roles(avatar, read={'all'})
 
     @property
-    def has_public_profile(self):
+    def has_public_profile(self) -> bool:
         return self.user.has_public_profile if self.user else False
 
     with_roles(has_public_profile, read={'all'})

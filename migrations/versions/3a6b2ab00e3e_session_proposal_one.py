@@ -13,9 +13,9 @@ down_revision = '4dbf686f4380'
 from alembic import op
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_unique_constraint('session_proposal_id_key', 'session', ['proposal_id'])
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint('session_proposal_id_key', 'session', 'unique')

@@ -52,7 +52,7 @@ def get_progressbar(label, maxval):
     )
 
 
-def upgrade():
+def upgrade() -> None:
     # Import inside the `upgrade` function because `uuid2suuid` will be removed from
     # Coaster shortly. Importing this migration should not break in the future unless
     # also attempting to perform the migration, which will hopefully be unnecessary
@@ -95,7 +95,7 @@ def upgrade():
     progress.finish()
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(
         op.f('ix_proposal_suuid_redirect_suuid'), table_name='proposal_suuid_redirect'
     )

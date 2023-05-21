@@ -122,7 +122,7 @@ class MarkdownPlugin:
     func: Callable
     config: Optional[Dict[str, Any]] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # If this plugin+configuration has a name, add it to the registry
         if self.name is not None:
             if self.name in self.registry:
@@ -161,7 +161,7 @@ class MarkdownConfig:
     #: If linkify is enabled, make email links too?
     linkify_fuzzy_email: bool = False
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         try:
             self.plugins = [
                 MarkdownPlugin.registry[plugin] if isinstance(plugin, str) else plugin

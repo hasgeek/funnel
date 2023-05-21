@@ -35,7 +35,7 @@ profile_table = table(
 )
 
 
-def upgrade():
+def upgrade() -> None:
     # Copy over data
     conn = op.get_bind()
     orgs = conn.execute(
@@ -69,7 +69,7 @@ def upgrade():
     op.drop_column('organization', 'description')
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         'organization',
         sa.Column(

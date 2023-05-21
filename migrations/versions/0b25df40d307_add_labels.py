@@ -14,7 +14,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         'label',
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -49,7 +49,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(op.f('ix_proposal_label_label_id'), table_name='proposal_label')
     op.drop_table('proposal_label')
     op.drop_table('label')

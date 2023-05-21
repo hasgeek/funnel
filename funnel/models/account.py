@@ -110,7 +110,7 @@ class PROFILE_STATE(LabeledEnum):  # noqa: N801
 class ZBase32Comparator(Comparator[str]):  # pylint: disable=abstract-method
     """Comparator to allow lookup by Account.uuid_zbase32."""
 
-    def __eq__(self, other: str):  # type: ignore[override]
+    def __eq__(self, other: str) -> sa.ColumnElement[bool]:  # type: ignore[override]
         """Return an expression for column == other."""
         return self.__clause_element__() == UUID(bytes=zbase32_decode(other))
 
@@ -1237,7 +1237,7 @@ class User(Account):
     __mapper_args__ = {'polymorphic_identity': 'U'}
     is_user_profile = True
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         if self.joined_at is None:
             self.joined_at = sa.func.utcnow()
@@ -1691,9 +1691,9 @@ class AccountEmailClaim(
         """Represent this class as a string."""
         return f'<AccountEmailClaim {self.email} of {self.account!r}>'
 
-    def __str__(self):  # pylint: disable=invalid-str-returned
+    def __str__(self) -> str:
         """Return email as a string."""
-        return self.email
+        return str(self.email)
 
     @classmethod
     def migrate_account(cls, old_account: Account, new_account: Account) -> None:
@@ -1856,7 +1856,7 @@ class AccountPhone(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-
         'related': {'phone', 'private', 'type'},
     }
 
-    def __init__(self, account, **kwargs):
+    def __init__(self, account, **kwargs) -> None:
         phone = kwargs.pop('phone', None)
         if phone:
             kwargs['phone_number'] = PhoneNumber.add_for(account, phone)

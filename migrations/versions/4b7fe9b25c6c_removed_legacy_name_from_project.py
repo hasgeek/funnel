@@ -85,11 +85,11 @@ legacy_data = [
 ]
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_column('project', 'legacy_name')
 
 
-def downgrade():
+def downgrade() -> None:
     conn = op.get_bind()
 
     op.add_column(
