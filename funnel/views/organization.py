@@ -13,7 +13,7 @@ from coaster.views import ModelView, UrlChangeCheck, UrlForView, requires_roles,
 
 from .. import app
 from ..forms import OrganizationForm, TeamForm
-from ..models import Account, Organization, Team, User, db
+from ..models import Account, Organization, Team, db
 from ..signals import org_data_changed, team_data_changed
 from ..typing import ReturnView
 from .helpers import render_redirect
@@ -23,8 +23,6 @@ from .login_session import requires_login, requires_sudo, requires_user_not_spam
 
 
 @Account.views()
-@User.views()
-@Organization.views()
 def people_and_teams(obj):
     """Extract a list of users from the org's public teams."""
     # This depends on user.member_teams not using lazy='dynamic'. When that changes, we

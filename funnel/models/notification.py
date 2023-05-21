@@ -242,7 +242,7 @@ class SmsMessage(PhoneNumberMixin, BaseMixin, db.Model):  # type: ignore[name-de
         sa.UnicodeText, nullable=True
     )
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         phone = kwargs.pop('phone', None)
         if phone:
             kwargs['phone_number'] = PhoneNumber.add(phone)

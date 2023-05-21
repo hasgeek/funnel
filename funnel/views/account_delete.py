@@ -5,7 +5,7 @@ from typing import Callable, List, Optional
 
 from baseframe import __
 
-from ..models import Account, Organization, User
+from ..models import Account
 from ..typing import ReturnDecorator, WrappedFunc
 
 # --- Delete validator registry --------------------------------------------------------
@@ -98,8 +98,6 @@ def user_owns_apps(user: Account) -> bool:
 
 
 @Account.views()
-@User.views()
-@Organization.views()
 def validate_account_delete(obj: Account) -> Optional[DeleteValidator]:
     """Validate if user account is safe to delete, returning an optional objection."""
     for validator in account_delete_validators:
