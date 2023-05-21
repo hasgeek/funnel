@@ -259,6 +259,16 @@ class Profile(
         'ACTIVE_AND_PUBLIC', state.PUBLIC, lambda profile: profile.is_active
     )
 
+    state.add_conditional_state(
+        'PUBLISHABLE',
+        state.NOT_PUBLIC,
+        lambda profile: (
+            profile.reserved is False
+            and profile.is_active
+            and (profile.user is None or profile.user.features.not_likely_throwaway)
+        ),
+    )
+
     def __repr__(self) -> str:
         """Represent :class:`Profile` as a string."""
         return f'<Profile "{self.name}">'
@@ -479,14 +489,9 @@ class Profile(
 
     @with_roles(call={'owner'})
     @state.transition(
-        state.NOT_PUBLIC,
+        state.PUBLISHABLE,
         state.PUBLIC,
         title=__("Make public"),
-        if_=lambda profile: (
-            profile.reserved is False
-            and profile.is_active
-            and (profile.user is None or profile.user.features.not_likely_throwaway)
-        ),
     )
     def make_public(self) -> None:
         """Make an account public if it is eligible."""
