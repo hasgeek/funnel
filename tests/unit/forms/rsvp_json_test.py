@@ -1,19 +1,25 @@
+"""Test custom rsvp forms."""
+
 import json
 
 from funnel import forms
 
-valid_json = json.dumps(
-    '''{
-            "fields": [    {
+valid_json = {
+    "fields": [
+        {
             "description": "An explanation for this field",
-            "name": "field_name","title": "Field label shown to user",
-            "type": "string"},{"name": "has_checked",
-            "title": "I accept the terms","type": "boolean"},
-            {"choices":
-            ["First choice","Second choice","Third choice"],
-            "name": "choice","title": "Choose one"}]
-            }'''
-)
+            "name": "field_name",
+            "title": "Field label shown to user",
+            "type": "string",
+        },
+        {"name": "has_checked", "title": "I accept the terms", "type": "boolean"},
+        {
+            "choices": ["First choice", "Second choice", "Third choice"],
+            "name": "choice",
+            "title": "Choose one",
+        },
+    ]
+}
 
 rsvp_excess_json = {
     'choice': 'First choice',
@@ -43,10 +49,9 @@ form_valid_json = {
 def test_valid_boxoffice_form(app) -> None:
     with app.test_request_context(
         method='POST',
-        data={'register_form_schema': valid_json},
+        data={'register_form_schema': json.dumps(valid_json)},
     ):
         form = forms.ProjectBoxofficeForm(meta={'csrf': False})
-
         assert form.validate() is True
 
 

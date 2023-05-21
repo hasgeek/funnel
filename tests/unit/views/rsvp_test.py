@@ -6,18 +6,24 @@ import json
 from werkzeug.datastructures import MultiDict
 import pytest
 
-valid_json = json.dumps(
-    '''{
-            "fields": [    {
+valid_json = {
+    "fields": [
+        {
             "description": "An explanation for this field",
-            "name": "field_name","title": "Field label shown to user",
-            "type": "string"},{"name": "has_checked",
-            "title": "I accept the terms","type": "boolean"},
-            {"choices":
-            ["First choice","Second choice","Third choice"],
-            "name": "choice","title": "Choose one","type": "select"}]
-            }'''
-)
+            "name": "field_name",
+            "title": "Field label shown to user",
+            "type": "string",
+        },
+        {"name": "has_checked", "title": "I accept the terms", "type": "boolean"},
+        {
+            "choices": ["First choice", "Second choice", "Third choice"],
+            "name": "choice",
+            "title": "Choose one",
+            "type": "select",
+        },
+    ]
+}
+
 
 valid_json_rsvp = {
     'field_name': 'Twoflower',
@@ -33,8 +39,8 @@ rsvp_excess_json = {
 }
 
 
-@pytest.fixture()
-def project(db_session, project_expo2010):
+@pytest.fixture(name="project")
+def project_fixture(db_session, project_expo2010):
     project_expo2010.start_at = datetime.datetime.now() + datetime.timedelta(days=1)
     project_expo2010.end_at = datetime.datetime.now() + datetime.timedelta(days=2)
     project_expo2010.boxoffice_data = {
@@ -81,7 +87,7 @@ def test_valid_json_box_office(
                 'allow_rsvp': True,
                 'is_subscription': False,
                 'register_button_txt': 'Follow',
-                'register_form_schema': valid_json,
+                'register_form_schema': json.dumps(valid_json),
                 'csrf_token': csrf_token,
             }
         ),
